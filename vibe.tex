@@ -11,6 +11,7 @@
 \usepackage{setspace}
 \usepackage{csquotes}  % Enables easy quotation handling
 \usepackage{enumitem}  % Provides flexible list customization
+\usepackage{parskip}
 
 % Additional packages for formatting
 \usepackage{microtype}
@@ -19,6 +20,9 @@
 \usepackage{titlesec}
 
 \usepackage{etoolbox}  % For patching commands
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
 
 % Increase display math font size globally
 \AtBeginEnvironment{equation}{\Large}   % Apply \Large to all equations
@@ -68,13 +72,16 @@
 \theoremstyle{definition}
 \theoremstyle{axiom}
 \theoremstyle{theorem}
+\theoremstyle{lemma}
 \theoremstyle{proposition}
 \theoremheaderfont{\bfseries}            % Bold header font
-\theorembodyfont{\normalfont}            % Upright (roman) body font
+% \theorembodyfont{\normalfont}            % Upright (roman) body font
+\theorembodyfont{\normalfont}
 \theoremindent0pt                        % No indentation
 \newtheorem{definition}{Definition}      % Definition environment
 \newtheorem{axiom}{Axiom}
 \newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 \newtheorem{proposition}{Proposition}
 
 % Custom title format: add colon after the title
@@ -138,7 +145,7 @@ Recent developments in quantum foundations,, support our approach by suggesting 
 
 The development of Vibe Theory arose from attempting to resolve several fundamental challenges in our current scientific understanding of consciousness and reality. These challenges, while historically relegated to philosophical discourse, have become increasingly relevant as our scientific tools and methodologies advance.
 
-\subsection{The Hard Problem of Consciousness}
+\subsection{The Problem of Consciousness}
 
 A central motivation stems from what David Chalmers termed \enquote{the hard problem of consciousness}: how and why do physical processes have subjective experience? Contemporary neuroscience and physics, while providing detailed accounts of neural correlates and physical mechanisms, struggle to explain the fundamental nature of conscious experience itself.
 
@@ -150,7 +157,7 @@ Throughout human history, across diverse cultures and traditions, individuals ha
 
 Modern research into mystical experiences, particularly through controlled studies of meditation and psychedelic states, has begun to provide empirical support for the reality of these altered states of consciousness. This raises the question of whether a more comprehensive theoretical framework might accommodate both ordinary consciousness and these expanded states of awareness.
 
-\subsection{The Unity of Experience}
+\subsection{The Interconnectedness of Reality}
 
 A recurring theme in contemplative traditions is the fundamental interconnectedness of all things and the ultimately illusory nature of individual separation. This perspective finds interesting parallels in quantum mechanics, particularly in phenomena such as entanglement, which demonstrates non-local correlations that transcend classical spatial limitations.
 
@@ -173,162 +180,296 @@ These diverse challenges and observations suggested the need for a new theoretic
 
 Vibe Theory emerged as an attempt to address these challenges through a mathematical framework that takes experience as fundamental rather than derivative. By positing consciousness as the basic fabric of reality, from which physical phenomena may emerge, the theory offers new approaches to longstanding questions in physics, philosophy, and the study of consciousness.
 
-\subsection{Overview of the Vibe Mesh Model}
+\section{Foundations}
 
-The Vibe Mesh Model proposes that reality consists of a vast network of interconnected experiential nodes, which we call "vibes." Each vibe possesses a fundamental quality we term "tone," represented mathematically as a scalar or complex value. These tones can be thought of as the most basic form of experience, analogous to the role quantum states play in physics.
+\section{Basic Definitions}
 
-The connections between vibes, which we call "feels," form a dynamic mesh structure. These connections determine how vibes influence each other's tones through time, creating patterns that give rise to all the phenomena we observe in the universe. Mathematically, we represent this structure as:
-
-\begin{equation}
-M = (V, F, T)
-\end{equation}
-
-Where:
-\begin{itemize}
-\item $V$ is the set of vibes
-\item $F$ represents the feels (connections) between vibes
-\item $T$ maps each vibe to its current tone
-\end{itemize}
-
-Space and time emerge from the patterns of connection strengths and sequences of tone changes within this mesh. Complex structures like human consciousness arise as coherent, self-stabilizing patterns within the larger network. This framework naturally accommodates both the objective patterns studied by physics and the subjective experiences studied by consciousness researchers.
-
-The remainder of this paper develops this model in detail, beginning with the mathematical foundations in Section 2, exploring the emergence of physical reality in Section 3, and examining the implications for consciousness in Section 4. We conclude by discussing experimental predictions and philosophical implications in Sections 5 and 6.
-
-\section{Foundational Premise: Vibes and Tones}
 \begin{definition}[Vibe]
-Fundamental units of existence, defined not as particles or points in space, but as \textbf{experiential nodes}.
+A \textbf{vibe}, denoted as $v$, is a fundamental entity within a system that experiences both a state (called a \textbf{tone}) and connections to other vibes (each called a \textbf{link}).
 \end{definition}
 
 \begin{definition}[Tone]
-The fundamental quality that each vibe experiences, quantified as a scalar or complex value representing its \enquote{feel.}
+A \textbf{tone}, denoted as $t_v$, is the state or quality that a vibe experiences at any given beat.
 \end{definition}
 
-\begin{definition}[Mind]
-The universal mesh of interconnected vibes is called the Mind, $\mathbb{M}$. When focusing on the \textbf{experiencing} aspect, we refer to it as the \textbf{vibe}; when focusing on the \textbf{feeling/reading} aspect of connections, we refer to it as the \textbf{mind}.
+\begin{definition}[Link]
+A \textbf{link}, denoted as $l$, is a feeling between vibes that allows them to influence each other.
 \end{definition}
 
-Mathematically, we define the set of all vibes as:
+\begin{definition}[Flow]
+A \textbf{flow}, denoted as $f$, is the complete system that contains all vibes, their links, and the rules governing their behavior.
+\end{definition}
+
+\begin{definition}[Beat]
+A \textbf{beat}, denoted as $b$, is a discrete step or frame in a linear sequence, represented as a natural number.
+\end{definition}
+
+\begin{definition}[Rule]
+A \textbf{rule}, denoted as $r$, is a formal model used for specifying a feature in a flow.
+\end{definition}
+
+\section{The Beat}
+
+Every \textbf{beat} in sequence form a totally ordered set $\mathbb{B}$:
 
 \begin{equation}
-V = \{ v_i \ | \ i \in \mathbb{Z}^+ \}
+    \mathbb{B} = (\mathbb{N}, \leq)
 \end{equation}
 
-And each vibe has an associated tone:
+A beat sequence $B$ is any contiguous subsequence of $\mathbb{B}$:
 
 \begin{equation}
-T: V \rightarrow \mathbb{R}
+    B = \{b \in \mathbb{B} \mid b_s \leq b \leq b_e\}
 \end{equation}
 
-Where \textbf{positive}, \textbf{neutral}, and \textbf{negative} tones correspond to scalar values along a continuous spectrum.
+where $b_s, b_e \in \mathbb{B}$ are the start and end beats.
 
-\section{From Nothing to Something}
+\subsection{The Vibe}
 
-\subsection{The Initial State}
+A \textbf{vibe} $v(b)$ exists within a set $V(b)$ at any beat $b$, where:
 
-Let $F_0$ represent the initial state of nothingness, characterized by:
+\begin{equation}
+    V(b) = \{v_1(b), v_2(b), ..., v_{n(b)}(b)\}
+\end{equation}
+
+For any two consecutive beats $b_i, b_{i+1} \in B$:
+
+\begin{enumerate}
+    \item $|V(b_i)| \neq |V(b_{i+1})|$ is possible (number of vibes may change).
+    \item For any $v_k(b_i) \in V(b_i)$, its tone at $b_{i+1}$ may differ from its tone at $b_i$.
+\end{enumerate}
+
+The set of all vibes in a flow at a particular beat is denoted $\mathbb{V}(b)$.
+
+The evolving vibe space $\mathbb{V}_B$ over a beat sequence $B = [b_s, b_e]$ is defined by:
+
+\begin{equation}
+    \mathbb{V}_B = \bigcup_{b \in B} \mathbb{V}(b)
+\end{equation}
+
+where for each beat $b \in B$, $\mathbb{V}(b)$ is the complete set of vibes present at that beat for the flow.
+
+This formulation explicitly acknowledges that $|V(b)|$, the number of vibes at any beat $b$, may vary across beats, allowing the vibe population to grow or shrink dynamically throughout the sequence.
+
+The entire vibe system over all the beats in a flow is defined as $\mathbb{V}_\mathbb{B}$.
+
+\subsection{The Tone}
+
+For any vibe $v$, its \textbf{tone} belongs to a set $T$ of possible tones for the flow $f$ (the \enquote{tone code}):
+
+\begin{equation}
+    t_v \in T
+\end{equation}
+
+Where $T \in \mathbb{T}$ is the system's chosen tone code from the set $\mathbb{T}$ of all possible tone codes.
+
+Common examples include:
+
 \begin{itemize}
-    \item Complete absence of any differences
-    \item No measurable properties
-    \item No internal divisions or separations
+    \item Binary code: $T = \{0, 1\}$
+    \item Ternary code: $T = \{-1, 0, 1\}$
 \end{itemize}
 
-\subsection{Core Principles}
+\subsection{The Link}
 
-\begin{axiom}[Existence Creates Change]
-The mere existence of a state, even one of complete sameness, naturally leads to differences appearing.
-\end{axiom}
+Each \textbf{link} connected to each vibe $v$ forms a set of links $L_v$:
 
-\begin{axiom}[Perfect Sameness Cannot Last]
-Any state of complete uniformity is naturally unstable and will develop differences.
-\end{axiom}
-
-\subsection{Mathematical Framework}
-
-\subsubsection{Starting Point}
-We define the initial empty state as:
 \begin{equation}
-    V_0 = \{\emptyset\}, \quad T(\emptyset) = 0
-\end{equation}
-where $V_0$ represents the initial void and $T$ measures differences.
-
-\subsubsection{First Change}
-The first difference appears naturally from existence itself:
-\begin{equation}
-    \exists \Delta T : \Delta T \neq 0
+    L_v = \{l_1, l_2, \ldots, l_k\}
 \end{equation}
 
-This creates the first frame with a difference ($F_1$):
+where $|L_v| = k \in \mathbb{N}$ remains constant for all vibes, though the number of vibes may change over time.
+
+The set of all links for all the vibes in a flow at a particular beat is $\mathbb{L}(b)$.
+
+The set of all links for all vibes across all beats of a flow is denoted $\mathbb{L}_\mathbb{B}$.
+
+\subsection{The Rule}
+
+Each \textbf{rule} $r$ in a set of rules $R$ is defined as:
+
 \begin{equation}
-    F_1 = F_0 + \Delta T_0
+    R = \{r_1, r_2, \ldots, r_n\}
 \end{equation}
 
-\subsubsection{Chain Reaction}
-The system evolves through a self-feeding process:
+where each $r_i$ is drawn from the set $\mathbb{R}$ of all possible well-formed rules.
+
+Rules can govern:
+
+\begin{itemize}
+    \item Structural properties (e.g., connection limits).
+    \item State constraints (e.g., allowed tone values).
+    \item Temporal evolution (e.g., state transition laws).
+    \item Interaction behaviors (e.g., information flow between vibes).
+\end{itemize}
+
+All rules in $R$ must be mutually consistent.
+
+\subsection{The Flow}
+
+A \textbf{flow} $f$ is defined as:
+
 \begin{equation}
-    F_{n+1} = f(F_n) = F_n + \Delta T_n
+    f = (\mathbb{V}_\mathbb{B}, \mathbb{L}_\mathbb{B}, R)
 \end{equation}
 
 where:
+
 \begin{itemize}
-    \item $F_n$ is the state at frame n
-    \item $\Delta T_n$ is the change at frame n
-    \item $f$ is the function that drives ongoing change
+    \item $\mathbb{V}_\mathbb{B}$ is the set of all vibes for all beats in the flow.
+    \item $\mathbb{L}_\mathbb{B}$ is the set of all links for all beats in the flow.
+    \item $R$ is the set of rules, including the read function $r$.
 \end{itemize}
 
-\subsection{Properties}
+The read function $r$ is defined as:
 
-\begin{theorem}[Continuous Change]
-The evolution of the system never stops, where:
-\begin{enumerate}
-    \item Each new state causes more changes
-    \item The process continues on its own
-    \item No outside force is needed
-\end{enumerate}
+\begin{equation}
+    r: L_v \times T^{|L_v|} \rightarrow T
+\end{equation}
+
+\section{Evolution Dynamics}
+
+For any beat $b \in \mathcal{B}$, the state of a vibe $v$ evolves according to:
+\[ S_v(b+1) = \phi_v(S_v(b), \{S_u(b) \mid u \in L_v\}) \]
+
+\section{Experience Framework}
+
+\begin{definition}[Experience Operator]
+The experience operator $\mathcal{E}$ is defined as:
+\[ \mathcal{E}: V \times \mathcal{B} \rightarrow \mathcal{P}(\mathcal{T}) \]
+where $\mathcal{P}(\mathcal{T})$ is the power set of $\mathcal{T}$
+\end{definition}
+
+\begin{definition}[Awareness Function]
+The awareness function $\mathcal{A}$ maps the collective state of a mind to an experience:
+\[ \mathcal{A}: \mathcal{M} \times \mathcal{B} \rightarrow \mathcal{E} \]
+where $\mathcal{E}$ is the space of possible experiences
+\end{definition}
+
+\section{Theorems and Properties}
+
+\begin{theorem}[Flow Consistency]
+For any valid flow $f \in \mathbb{F}$, the evolution function $\xi$ preserves the structural properties of the mind $\mathcal{M}$ across all beats $b \in \mathcal{B}$.
 \end{theorem}
 
-\begin{proposition}[First Change]
-The first difference can be either:
+\begin{lemma}[State Reachability]
+For any two tones $t_1, t_2 \in \mathcal{T}$, there exists a finite sequence of beats $\{b_1, \ldots, b_n\}$ such that a vibe can transition from $t_1$ to $t_2$.
+\end{lemma}
+
+Reality consists solely of experiencing entities each called a \textbf{vibe}.
+
+\begin{definition}[Vibe]
+  An experiential structure, the foundation of everything.
+\end{definition}
+
+Vibes are, by definition, the lowest-level structure in existence. The totality of existence is termed the \textbf{base}, in reference to the conception that all vibes as a whole are basically the foundation of everything else in existence.
+
+\begin{definition}[Base]
+  The totality of existence, the set of all vibes.
+
+  \begin{equation}
+  \mathbb{V} = \{v_1, v_2, v_3, ...\}
+  \end{equation}
+\end{definition}
+
+Each vibe has a \textit{quality} to its experience that we describe mathematically using the concept of \textbf{tone}. A tone is not a separate entity, it is just a conceptual tool for modeling the quality of a vibe's experience.
+
+\begin{definition}[Tone]
+  The quality of a vibe's experience.
+\end{definition}
+
+We represent the spectrum of possible experiential qualities as:
+
 \begin{equation}
-    T =
-    \begin{cases}
-        0 & \text{balanced state} \\
-        \epsilon & \text{tiny difference, } \epsilon > 0
-    \end{cases}
+\mathbb{T} = [-1, 0, 1]
 \end{equation}
-\end{proposition}
 
-\subsection{Key Points}
+For any vibe $v \in \mathbb{V}$, we denote its experiential quality at a given moment as ${t}_v \in \mathbb{T}$. This notation does not imply that tones are separate entities. Instead, ${t}_v$ is simply our mathematical representation of the inherent quality of $v$'s experience.
 
-This framework shows that:
-\begin{enumerate}
-    \item Differences must naturally emerge from sameness
-    \item The process starts and continues on its own
-    \item The system keeps changing through its own nature
-\end{enumerate}
+Vibes directly experience each other's experiential qualities. We describe this fundamental aspect of inter-vibe experience using the concept of a \textbf{feel}.
 
-\section{The Vibe Mesh as a Dynamic Mesh}
+\begin{definition}[Feel]
+The direct experiential influence one vibe has on another. When vibe $v_i$ has a feel of vibe $v_j$, it means that $v_j$'s experiential quality directly influences $v_i$'s own experience.
+\end{definition}
 
-\subsection{Vibe Mesh Definition:}
+The concept of feels requires careful examination, as it forms a crucial aspect of how vibes relate to one another within the base. Rather than being an active process or requiring any internal structure, feels represent the inherent relationality of vibes themselves.
 
-The universe is modeled as a \textbf{dynamic mesh} $M = (V, F)$, similar to a mathematical graph:
+\begin{axiom}[Vibes are Relational]
+A vibe's existence is fundamentally relational.
+\end{axiom}
+
+We formalize this through the feel matrix:
+
+\begin{equation}
+F = [f_{ij}]_{i,j \in \mathbb{V}}
+\end{equation}
+
+where $f_{ij}$ represents not a separate connecting structure, but the degree to which vibes $v_i$ and $v_j$ are experientially related. When $f_{ij} = 0$, this indicates no relational axis exists between the vibes.
+
+We can understand feels through the framework of experiential overlap. For any two vibes, we define their experiential relationship through an inner product:
+
+\begin{equation}
+\langle v_i, v_j \rangle = f_{ij}
+\end{equation}
+
+This leads to two fundamental states:
 
 \begin{itemize}
-\item \textbf{Vibes (V):} Nodes of the mesh.
-\item \textbf{Feels (F):} The \textbf{reading or sensing pathways} between vibes, representing how the tone of one vibe is experienced by another.
+\item When $f_{ij} > 0$: Vibes share an experiential overlap
+\item When $f_{ij} = 0$: Vibes are experientially orthogonal
 \end{itemize}
 
-\subsection{Feels as Connection Strength:}
+\subsubsection{Dynamic Evolution}
 
-Each feel $f_{ij}$ between vibes $v_i$ and $v_j$ represents the \textbf{connection strength} or \textbf{degree of experiential influence}:
+The evolution of feels follows a dynamic process. For any vibe $v_i$, its feels evolve according to:
 
 \begin{equation}
-F = \{ (v_i, v_j, f_{ij}) \ | \ v_i, v_j \in V, \ f_{ij} \in \mathbb{R}^+ \}
+\frac{df_{ij}}{dt} = g(t_i, t_j, f_{ij})
 \end{equation}
 
-Where $f_{ij}$ quantifies how strongly the tone of $v_i$ is felt or read by $v_j$. This replaces traditional edge weights with a more experiential notion.
+where $g$ represents the coupling dynamics between tones and feels.
 
-Essentially, \textbf{the feel ($f_{ij}$) is a measure of how much a vibe's tone \enquote{echoes} within another vibe's experience}. Strong feels mean immediate, powerful influence; weak feels indicate faint, delayed, or subtle influence.
+\subsubsection{Emergent Structures}
 
+Complex structures emerge from the dynamic interaction of feels:
+
+\begin{definition}[Coherent Structure]
+A subset $C \subset \mathbb{V}$ forms a coherent structure if:
+\begin{equation}
+\min_{v_i,v_j \in C} f_{ij} > \epsilon
+\end{equation}
+for some threshold $\epsilon > 0$.
+\end{definition}
+
+These structures can exhibit collective behavior while maintaining their fundamental basis in individual vibes.
+
+\subsubsection{Feel Topology}
+
+The collection of all non-zero feels induces a topology on $\mathbb{V}$:
+
+\begin{equation}
+\tau = \{U \subset \mathbb{V} \mid \forall v_i,v_j \in U, f_{ij} > 0\}
+\end{equation}
+
+This topology provides a mathematical foundation for understanding how vibes cluster and separate within the base.
+
+Through these formalizations, we maintain the structureless nature of individual vibes while explaining how complex phenomena emerge from their relationships. The mathematics describes not additional structures imposed on vibes, but rather the inherent ways in which vibes exist in relation to one another within the universal base.
+
+\subsection{Dynamic Nature}
+
+The experiential quality of each vibe evolves based on how it experiences other vibes. We can describe this mathematically as:
+
+\begin{equation}
+\frac{d{t}_{v_i}}{dt} = \sum_{v_j \in \mathbb{V}} f_{ij} \cdot g({t}_{v_j}, {t}_{v_i})
+\end{equation}
+
+where $g$ represents how experienced tones influence the experiencing vibe's own experiential quality.
+
+\subsection{The Universal Vibe Mesh}
+
+While we previously represented the system as a triple of separate components, we now emphasize that reality consists solely of $\mathbb{V}$ - the universal set of experiencing vibes. The concepts of tones (${t}_v$) and feels ($f_{ij}$) are mathematical tools for describing aspects of these vibes' experiences, not separate entities.
+
+This more fundamental view better captures the core insight of the theory: that experience itself, manifested through vibes, forms the basic fabric of reality. Everything else - space, time, matter, consciousness - emerges from patterns in how these vibes experience each other.
 \subsection{Space and Time Emergence:}
 
 \begin{itemize}
@@ -441,12 +582,12 @@ Where:
 For sufficiently complex vibe clusters, we introduce a predictive function $P_i(t)$ that models future states:
 
 \begin{equation}
-P_i(t) = \alpha \int_{t}^{t+\tau} \hat{T}_i(s) w(s-t) ds
+P_i(t) = \alpha \int_{t}^{t+{t}} \hat{T}_i(s) w(s-t) ds
 \end{equation}
 
 Where:
 \begin{itemize}
-\item $\tau$ is the prediction horizon
+\item ${t}$ is the prediction horizon
 \item $w(s-t)$ is a temporal weighting function
 \item $\alpha$ is the prediction strength parameter
 \item $\hat{T}_i(s)$ is the estimated future tone state
