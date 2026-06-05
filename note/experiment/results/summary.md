@@ -8,7 +8,7 @@ Numbers from the first full run of `vibe-sim`. Build state: typecheck clean,
 | Problem | Experiment | Headline number | Verdict |
 |---|---|---|---|
 | P1 | reversible Hamiltonian | permutation, bounded below, 9 energy levels | works |
-| P2 | manifold-favoring dynamics | manifold-likeness falls as beta rises | open |
+| P2 | manifold-favoring dynamics | smeared action gives near-2D, non-layered ensembles (see p2-dynamics.md) | candidate progress |
 | P3 | addressing vs Lorentz | hyperbolic graph hits all three at degree ~11 | **candidate solved** |
 | P4 | monist spinor | exactly 1 Dirac zero mode | works |
 | P5 | Hauptvermutung | dimension 3.02 plus or minus 0.05 | holds empirically |

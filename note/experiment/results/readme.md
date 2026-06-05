@@ -32,6 +32,10 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   sum), navigability to 100 percent (P3), geometry sharp in proper time
   (P5), a local rule with a bounded-below Hamiltonian (P1), and charge
   coupling to the fermion (P8).
+- [p2-dynamics.md](p2-dynamics.md): progress on the hardest problem. The
+  smeared Benincasa-Dowker action selects near-2D, non-layered ensembles
+  where the sharp action collapsed to layered orders. The Goldilocks
+  smearing window, found.
 - [methodology-fixes.md](methodology-fixes.md): the measurement bugs
   found and fixed while iterating, recorded so the numbers are
   trustworthy and the estimators are not silently wrong.
@@ -43,6 +47,8 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   (P3), geometry sharp in dimension and proper time (P5), a local rule
   with a bounded-below Hamiltonian (P1), charge coupling to the fermion
   (P8), the CHSH superdeterminism cost curve (P7).
-- **Open, as expected:** the causal-set dynamics does not yet
-  concentrate on manifold-like orders (P2, P6), and the chirality wall
-  past P8, matching the literature.
+- **Candidate progress:** the smeared causal-set action now selects
+  near-2D, non-layered ensembles (P2), where the sharp action failed.
+- **Open, as expected:** confirming the P2 phase transition at scale, the
+  P6 path integral, and the chirality wall past P8, matching the
+  literature.

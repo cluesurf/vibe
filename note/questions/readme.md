@@ -14,7 +14,7 @@ and what is still open.
 | Question | Experiment | Status |
 |---|---|---|
 | P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation` | **validated** local rule + bounded-below H (H-locality still open) |
-| P2. A dynamics that favors manifold-like order | `p2-dynamics` | **open**: the action does not concentrate on manifold-like orders |
+| P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon` | **candidate progress**: the smeared action produces near-2D, non-layered ensembles |
 | P3. Addressing versus Lorentz | `p3-study`, `validation` | **candidate solved**: all three at once, navigability validated to 100 percent |
 | P4. The monist spinor | `p4-spinor`, `p4-topology` | **validated**: zero modes = Betti sum (spin from topology) |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
@@ -37,14 +37,17 @@ conjectures.
 
 ### P2. What dynamics makes manifold-like causal sets dominate?
 
-The hardest open problem, and the experiment confirms it is open. Under the
-Benincasa-Dowker action, manifold-likeness FALLS as the coupling rises: the
-sampler moves toward action-minimizing orders that are less, not more,
-manifold-like. A naive local action plus a Euclidean weight does not solve the
-"most causal sets are not manifold-like" problem. **Next:** a nonlocal action
-with a tuned smearing scale (the Goldilocks window between too-local and
-too-nonlocal), and larger sizes. This is shared frontier with the whole
-causal-set community.
+Progress. The sharp Benincasa-Dowker action fails (it drives the ensemble to
+layered Kleitman-Rothschild orders, height ratio 0.29, dimension 3.45). The
+**smeared** action fixes it: with a nonlocal kernel that averages over about
+1/eps order-layers, the ensemble becomes near-2-dimensional and non-layered
+(height ratio about 1, dimension about 2 to 2.7), close to a true 2D sprinkling,
+robustly across smearing scales eps in [0.8, 0.99] and at two sizes. There is a
+genuine Goldilocks window: too little smearing gives layered orders, too much
+gives near-1D chains, intermediate-to-high gives manifold-like orders. See
+`note/experiment/results/p2-dynamics.md`. **Remaining:** push to hundreds of
+elements to confirm the full phase transition, and add a cluster or warm-started
+Monte Carlo move so stiff actions do not freeze.
 
 ### P3. Can one substrate have reach, Lorentz invariance, and navigation at once?
 
@@ -122,9 +125,10 @@ capture.
 Now that P1, P3 (navigability), P4 (topology), P5, P7, and P8 (Stages A and B)
 are validated, the open frontier in priority order:
 
-1. **P2 / P6 dynamics** (nonlocal action, Goldilocks window, larger sizes): the
-   central shared open problem, where progress is hardest but most valuable. This
-   is now the top blocker.
+1. **P2 / P6 dynamics at scale**: the smeared action now selects manifold-like
+   orders at the testbed scale. Push to hundreds of elements with a cluster or
+   warm-started Monte Carlo to confirm the full phase transition. The mechanism
+   is found; the remaining work is scale and sampler quality.
 2. **P3 on a growing graph**: lift the both-worlds result from a static graph to a
    growing and rewiring one (couple to causal graph dynamics), moving from
    kinematics to dynamics.
