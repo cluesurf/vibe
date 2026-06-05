@@ -28,6 +28,7 @@ export * from './substrate/lattice'
 export * from './substrate/tiling-pq'
 export * from './substrate/hyperbolic-graph'
 export * from './substrate/grow-csg'
+export * from './substrate/triangulated-surface'
 
 // rules
 export * from './rule/rule'
