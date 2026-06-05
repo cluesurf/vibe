@@ -1,0 +1,39 @@
+\section{Dynamics}
+\label{sec:dynamics}
+
+The world advances in discrete steps called beats (Section~\ref{sec:time}). One beat is one pass of read, compute, and write, performed locally by every vibe, where each vibe writes only what it owns.
+
+\subsection{The per-beat cycle}
+
+A base vibe holds two fast quantities, its tone $t_v$ and the will $\mathrm{will}_v = \omega(t_v)$ that follows from it. The strength $s_{vj}$ of each note is a slow quantity, the tone of the relational vibe that is the note. One beat for a base vibe $v$ proceeds as follows.
+
+\begin{itemize}
+\item \textbf{Read.} Gather the wills of the neighbors, each weighted by the strength of the note through which it is heard, forming the local field
+\[
+h_v = \sum_{j \in N(v)} s_{vj}\, \omega(t_j).
+\]
+\item \textbf{Compute.} Decide the next tone $t_v' = R(t_v, h_v)$ by a fixed local rule, and recompute the will $\mathrm{will}_v' = \omega(t_v')$.
+\item \textbf{Write.} Commit the new tone and will. Nothing else is touched.
+\end{itemize}
+
+Each note runs the same cycle. It reads its two endpoints and updates its own strength, for example by strengthening when the endpoints agree and weakening when they disagree. This is the entire instruction set. Thought, movement, learning, and the birth of new vibes are all this loop, iterated and composed.
+
+\begin{proposition}[Ownership]
+Each base vibe writes only its own tone and will. Each note writes only its own strength. No vibe writes another's state, and in particular a vibe does not write its own attentions. The notes do.
+\end{proposition}
+
+Because no two vibes write the same quantity, there are no write conflicts, with or without a global clock. A note's strength is never a shared cell. It is the tone of the relational vibe that is the note. This ownership rule is what lets the model run as a clean concurrent system in which discreteness and the absence of a global clock coexist (Section~\ref{sec:time}).
+
+\subsection{Attention is structural}
+
+The most important property of the note strength $s_{vj}$ is that it is structural, not a free choice. A vibe cannot decide, from one beat to the next, to attend to something or to stop. If it could, influence would be arbitrarily redirectable and the dynamics underdetermined. Instead the strength is the tone of the note itself, updated by the note's own slow dynamics reading both endpoints, never by the noticing vibe. The neighborhood is structural too. Which vibes a vibe notes is given by which notes exist, not chosen per beat.
+
+So how does a vibe ever redirect its attention? Only indirectly and structurally, by projecting its will onto the vibes it already notes, and letting the slow note-dynamics reshape the structure over many beats. One steers what one takes in by acting on what one is already connected to, and waiting for the structure to follow. This is why movement is railed and recruitment is slow and local (Section~\ref{sec:movement}).
+
+\subsection{The rule}
+
+A rule maps the field and the vibe's own tone to its next tone. It must be contextual (it reads neighbors), continuous (it reads its own last tone), interactive (no vibe updates in isolation), and deterministic (it is a function). These are not extra postulates. They are what a local update on this ontology is. Candidate rules are all special cases of a finite local map. The default is a threshold rule, $t_v' = \mathrm{sign}(h_v)$ with a fixed tie-break. For ternary tones the threshold has a deadzone, returning $0$ (peace) when the field is too weak to commit to a pole. A lexicographic tie-break (majority, then self, then a hierarchical bias, then parity) gives a deterministic ``negotiation'' that becomes the seat of deliberation (Section~\ref{sec:mind}). The exact rule is an open search problem, constrained to the critical band that supports persistent, changing, and coherent dynamics.
+
+\subsection{The recommended substrate}
+
+The realization that honors both constraints and the absence of a global clock is an asynchronous actor network. Each base vibe is an actor whose private state is just its tone and the will that follows from it. It reads only the wills its neighbors broadcast, computes its next tone by a discrete rule, and writes only its own tone. The notes are actors too, each carrying its own strength and updating it from its two endpoints. There is no shared memory, no global clock, and no link store. Cellular automata, Hopfield networks, and spin systems are special cases or coarse views of this machine.

@@ -1,0 +1,34 @@
+\section{Energy, Harmony, and Suffering}
+\label{sec:energy}
+
+The model's notion of balance is the minimization of a single finite, integer-valued quantity, and that quantity is the energy of a spin system.
+
+\subsection{Tone is a spin}
+
+A vibe with tone $\pm 1$ that notes its neighbors is an Ising spin. This is an identity, not an analogy, and it imports the whole of discrete statistical mechanics. The tone is the spin, the note strength $s_{vj}$ is the coupling, balance is low energy, suffering is high energy, the forming of a coherent higher vibe is the onset of an ordered phase, and memory is an attractor. Ternary tones, with $0$ for peace, give the Blume-Capel model.
+
+\subsection{Harmony is energy minimization}
+
+The instruction to minimize the tone differences between vibes that note each other is, verbatim, the graph Dirichlet energy,
+\[
+E(t) = \tfrac{1}{2} \sum_{v \,\text{notes}\, j} s_{vj}\,(t_v - t_j)^2,
+\]
+which for $\pm 1$ tones equals the Ising energy up to a constant. Harmony is low $E$, and suffering is high $E$. This quantity is integer-valued, and its minimization proceeds by discrete tone flips, not by gradient flow. Under symmetric notes ($s_{vj} = s_{jv}$) and asynchronous beats, the update provably makes $E$ a Lyapunov function. Every trajectory decreases $E$ to a local minimum. This turns ``the world tends toward balance'' from a separate postulate into a consequence of the rule.
+
+\subsection{Suffering is frustration}
+
+When the couplings around a loop cannot all be satisfied at once, no configuration reaches zero energy. The ground-state energy is strictly positive. This is irreducible suffering, built into the shape of the connections, not removable by any update. The reducible part is the excess above the ground state, which the dynamics can relax away.
+
+\begin{proposition}[The frustrated triangle]
+Take three vibes on a triangle with every note antiferromagnetic, so each pair ``wants'' opposite tones. Two of the three pairs can disagree, but that forces the third pair to agree, violating its note. No assignment of $\pm 1$ satisfies all three notes at once. The best leaves one note frustrated, so the ground-state energy is strictly positive. This is the smallest mesh with irreducible suffering.
+\end{proposition}
+
+This frustrated triangle is the textbook example of geometric frustration. It shows that some suffering is topological, a property of how the notes are arranged, and cannot be reasoned or relaxed away.
+
+\subsection{Heaven and Hell are phases, memory is a landscape}
+
+A region whose noted vibes hold a consistent positive tone is in the positive-magnetization phase. Consistent negative tone is the negative phase. These are basins of the tone field, transient and local, not global destinations. A region can cross between them as its notes learn. Slow learning of note strengths carves basins of attraction into the structure, so that a stored pattern is a fixed point of the fast tone dynamics and recall is relaxation into a basin. Memory, then, is not a separate store. It is the slow-changing structure of note strengths that shapes where the fast dynamics settle. This is a Hopfield attractor network read as fundamental.
+
+\subsection{Balance is not pure alignment}
+
+Pure energy minimization is satisfied by every vibe adopting one tone, which is the uniform consensus that Section~\ref{sec:emergence} shows cannot persist. So the quantity the world actually obeys is a competition between alignment (agreeing with noted neighbors) and diversity (maintaining distinction). Balance is the equilibrium of the two, not the victory of alignment. This is why selves stay differentiated while staying low in suffering (Section~\ref{sec:mind}), and why experience keeps moving rather than freezing into consensus.

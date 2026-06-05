@@ -1,0 +1,24 @@
+\section{Time, Beats, and Causality}
+\label{sec:time}
+
+Time is not a container the mesh sits in. It is the order of the mesh's own updates.
+
+\subsection{Beats are a coordinate on causal order}
+
+An event is a vibe updating its tone. One event can influence another only when the second notes the first's output. Writing $e \prec e'$ when a chain of notes carries influence from $e$ to $e'$, the relation $\prec$ is a partial order, a causal set. The integer beat $b \in \mathbb{N}$ is a linear extension of this order, a coordinate, not a global metronome. So the model holds both that every vibe updates each beat and that there is no global clock, without contradiction. The global beat is a derived bookkeeping of an order that is fundamentally local.
+
+\subsection{No global clock, and no stored clocks}
+
+By the principle of no hidden state (Section~\ref{sec:constraints}), no vibe stores a clock or a beat count. A vibe holds only its tone. So the order of events is not bookkept by counters inside vibes. The order is the structure of notes. ``Happens-before'' is just the pattern of which notes carried influence into which, read off the connectivity, never stored anywhere. Synchronization is dynamical rather than a comparison of counters. A vibe's next tone depends only on the vibes it notes, so updates propagate as waves through the note-structure, and strongly coupled vibes phase-lock the way coupled oscillators do. Different regions can run at different rates. If an explicit clock were ever needed, it would have to be a small structure of vibes, never a field bolted onto one. Fundamentally none is needed.
+
+\subsection{The speed limit and the relativity analogue}
+
+A vibe updates from the vibes it notes, so influence travels at most one note per beat. This is a discrete light cone. A maximum speed falls out of locality alone, with no postulate. A highly coherent region must re-form its internal agreement between external updates, so its internal beat rate runs slow relative to a dispersed region. Read as proper time, this is a candidate discrete origin of time dilation. Coherent, massive structures tick slowly. No claim is made that full relativity is recovered, only that the structure has the right shape (Section~\ref{sec:physics}).
+
+\begin{proposition}[A one-dimensional case]
+Take a chain of cells, each updating from its neighbors. If cell $n$ flips and that flip causes cell $n+1$ to flip on the next step, then $n$'s event happens-before $n+1$'s, read purely from the chain of influence with no clock anywhere. A disturbance at cell $0$ cannot affect cell $k$ until at least $k$ steps have passed. Both the ordering of events and the speed limit are simply facts about the connectivity.
+\end{proposition}
+
+\subsection{The engine of beats}
+
+Why does the world keep updating rather than freezing? Because the update operator has no fixed point at which to halt. The uniform configuration is unstable (Section~\ref{sec:emergence}), so the mesh is always driven off it, and new distinctions are themselves new things to be noted, so the operator strictly grows what must be processed. A closed, finite, deterministic system would eventually cycle, so genuine endless novelty requires the vibe population to grow without bound. It does. That monotone growth is the arrow of time. Each beat leaves strictly more to experience than the last.
