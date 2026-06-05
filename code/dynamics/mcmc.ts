@@ -51,6 +51,10 @@ export function sampleCausalSets(input: {
   steps: number
   rng: Rng
   observe: (input: { poset: Poset }) => number
+  // Optional warm start: begin from this order rather than the antichain. Its
+  // labelling must be topological (a precedes b implies a < b), as sprinklings and
+  // the layered-order generator both are.
+  start?: Poset
 }): { meanObservable: number; acceptanceRate: number; trace: Float64Array } {
   const n = input.size
 
@@ -58,6 +62,12 @@ export function sampleCausalSets(input: {
   // a < b. We keep the raw relation so a toggle is a single bit flip; the closure
   // is rebuilt for evaluation and on accept.
   const relation = makeBitMatrix({ rows: n, cols: n })
+  if (input.start) {
+    // Seed the relation from the warm-start order's (already transitive) future.
+    for (let i = 0; i < relation.words.length; i++) {
+      relation.words[i] = input.start.future.words[i] ?? 0
+    }
+  }
 
   // Build the Poset for the current state from the transitive closure.
   let poset = makePosetFromFuture({

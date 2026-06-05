@@ -24,6 +24,8 @@ import {
   scanBrillouin,
 } from '~/operator/lattice-fermion'
 import { overlapIndex } from '~/operator/gauge-index'
+import { kleitmanRothschildOrder } from '~/substrate/layered-order'
+import { posetHeight } from '~/measure/order-stats'
 
 let passed = 0
 let failed = 0
@@ -209,6 +211,18 @@ function allFinite(xs: ArrayLike<number>): boolean {
       Math.round(i2.index) === -2 &&
       i1.hermiticityError < 1e-9,
     detail: `index(0,1,2) = ${i0.index.toFixed(2)}, ${i1.index.toFixed(2)}, ${i2.index.toFixed(2)}`,
+  })
+}
+
+// 11. A Kleitman-Rothschild layered order has height exactly 3 (three layers),
+// the non-manifold phase used as a warm start in the P2 transition study.
+{
+  const kr = kleitmanRothschildOrder({ size: 72 })
+  const height = posetHeight({ poset: kr })
+  check({
+    name: 'Kleitman-Rothschild order has height 3 (layered)',
+    ok: height === 3,
+    detail: `height ${height}`,
   })
 }
 

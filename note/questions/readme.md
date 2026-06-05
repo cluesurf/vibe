@@ -14,7 +14,7 @@ and what is still open.
 | Question | Experiment | Status |
 |---|---|---|
 | P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation` | **validated** local rule + bounded-below H (H-locality still open) |
-| P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon` | **candidate progress**: the smeared action produces near-2D, non-layered ensembles |
+| P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon`, `p2-transition` | **candidate progress**: smeared action gives near-2D ensembles, and the manifold phase is a stable basin |
 | P3. Addressing versus Lorentz | `p3-study`, `validation` | **candidate solved**: all three at once, navigability validated to 100 percent |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
@@ -42,12 +42,13 @@ layered Kleitman-Rothschild orders, height ratio 0.29, dimension 3.45). The
 **smeared** action fixes it: with a nonlocal kernel that averages over about
 1/eps order-layers, the ensemble becomes near-2-dimensional and non-layered
 (height ratio about 1, dimension about 2 to 2.7), close to a true 2D sprinkling,
-robustly across smearing scales eps in [0.8, 0.99] and at two sizes. There is a
-genuine Goldilocks window: too little smearing gives layered orders, too much
-gives near-1D chains, intermediate-to-high gives manifold-like orders. See
-`note/experiment/results/p2-dynamics.md`. **Remaining:** push to hundreds of
-elements to confirm the full phase transition, and add a cluster or warm-started
-Monte Carlo move so stiff actions do not freeze.
+robustly across smearing scales eps in [0.8, 0.99] and at two sizes
+(`p2-dynamics.md`). And warm-start runs show the manifold phase is a **stable
+basin**: started from a sprinkling, the smeared dynamics keeps the height ratio at
+about 1.9 across all beta, started from a layered order it climbs from 0.35 toward
+1.0, and the sharp action erodes the manifold start from 1.89 to 1.51
+(`p2-transition.md`). **Remaining:** a faster move and finite-size scaling to turn
+the two metastable basins into a proven first-order transition.
 
 ### P3. Can one substrate have reach, Lorentz invariance, and navigation at once?
 
@@ -139,10 +140,11 @@ priority order:
    the real path toward the Standard Model and is genuinely hard (lattice chiral
    gauge theory is an open research problem), so even partial progress is
    significant.
-2. **P2 / P6 dynamics at scale**: the smeared action selects manifold-like orders
-   at the testbed scale. Push to hundreds of elements with a cluster or
-   warm-started Monte Carlo to confirm the full phase transition. The mechanism
-   is found. The remaining work is scale and sampler quality.
+2. **P2 / P6 dynamics at scale**: the smeared action selects manifold-like orders,
+   and the manifold phase is now shown to be a stable basin (two metastable basins
+   separated by a gap). The remaining work is a faster incremental move and
+   finite-size scaling to turn the metastability into a proven first-order
+   transition. P6 is the 2D specialisation and shares the machinery.
 3. **P3 on a growing graph**: lift the both-worlds result from a static graph to a
    growing and rewiring one (couple to causal graph dynamics), moving from
    kinematics to dynamics.

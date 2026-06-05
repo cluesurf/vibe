@@ -36,6 +36,9 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   smeared Benincasa-Dowker action selects near-2D, non-layered ensembles
   where the sharp action collapsed to layered orders. The Goldilocks
   smearing window, found.
+- [p2-transition.md](p2-transition.md): P2 at scale. Warm starts show the
+  manifold phase is a stable basin of the smeared action (and the sharp
+  action erodes it), with two metastable basins separated by a gap.
 - [p8-confinement.md](p8-confinement.md): Stage C of the gauge ladder. 3D
   SU(2) lattice gauge theory confines: positive string tension at every
   coupling, falling with beta, the Wilson area law of the strong force.
@@ -52,15 +55,16 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 14 of 14 tests pass.
+- **Build:** typecheck clean, 15 of 15 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below
   Hamiltonian (P1), charge coupling to the fermion, 3D SU(2) confinement,
   and the lattice index theorem (P8 Stages A, B, C plus index = topological
   charge), the CHSH superdeterminism cost curve (P7).
-- **Candidate progress:** the smeared causal-set action now selects
-  near-2D, non-layered ensembles (P2), where the sharp action failed.
+- **Candidate progress:** the smeared causal-set action selects near-2D,
+  non-layered ensembles, and the manifold phase is a stable basin of the
+  dynamics while the sharp action erodes it (P2).
 - **Open, as expected:** the dynamical and non-Abelian chiral gauge
   coupling (the full chiral gauge theory), the P2 phase transition at
   scale, and the P6 path integral, matching the literature.
