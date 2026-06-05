@@ -13,6 +13,16 @@ import { lorentzIsotropy } from '~/measure/lorentz'
 import { chsh } from '~/measure/bell'
 import { laplacian, laplacianSpectrum } from '~/operator/laplacian'
 import { cellComplexOf, diracSpectrum } from '~/operator/dirac'
+import {
+  makeSu2Lattice,
+  metropolisSweep,
+  averagePlaquette,
+} from '~/dynamics/su2-lattice'
+import {
+  naiveDirac2D,
+  overlapDirac2D,
+  scanBrillouin,
+} from '~/operator/lattice-fermion'
 
 let passed = 0
 let failed = 0
@@ -141,6 +151,46 @@ function allFinite(xs: ArrayLike<number>): boolean {
   check({
     name: 'Kahler-Dirac spectrum is finite and non-empty',
     ok: spec.length > 0 && allFinite(spec),
+  })
+}
+
+// 8. SU(2) gauge: a cold lattice is ordered (plaquette 1); strong coupling
+// disorders it (plaquette toward 0). Validates the non-Abelian gauge machinery.
+{
+  const rng = makeRng({ seed: 6 })
+  const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
+  const cold = averagePlaquette({ lattice: lat })
+  for (let s = 0; s < 100; s++) {
+    metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
+  }
+  const disordered = averagePlaquette({ lattice: lat })
+  check({
+    name: 'SU(2) cold is ordered, strong coupling disorders it',
+    ok: cold > 0.999 && disordered < 0.3,
+    detail: `cold ${cold.toFixed(3)}, disordered ${disordered.toFixed(3)}`,
+  })
+}
+
+// 9. The chirality wall: the naive lattice fermion has 4 doublers; the overlap
+// operator has 1 species with exact (Ginsparg-Wilson) chiral symmetry.
+{
+  const naive = scanBrillouin({
+    operator: ({ k1, k2 }) => naiveDirac2D({ k1, k2 }),
+    gridSize: 12,
+  })
+  const overlap = scanBrillouin({
+    operator: ({ k1, k2 }) => overlapDirac2D({ k1, k2, m0: 1, r: 1 }),
+    gridSize: 12,
+  })
+  check({
+    name: 'naive lattice fermion has 4 doublers (2D)',
+    ok: naive.species === 4,
+    detail: `species ${naive.species}`,
+  })
+  check({
+    name: 'overlap: 1 species with exact chiral symmetry (GW ~ 0)',
+    ok: overlap.species === 1 && overlap.gwResidualMax < 1e-9,
+    detail: `species ${overlap.species}, GW ${overlap.gwResidualMax.toExponential(1)}`,
   })
 }
 

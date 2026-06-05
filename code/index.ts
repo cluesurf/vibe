@@ -43,6 +43,7 @@ export * from './operator/laplacian'
 export * from './operator/dirac'
 export * from './operator/evolution'
 export * from './operator/gauge-dirac'
+export * from './operator/lattice-fermion'
 
 // measures
 export * from './measure/dimension'
@@ -63,6 +64,7 @@ export * from './dynamics/action'
 export * from './dynamics/mcmc'
 export * from './dynamics/coarsegrain'
 export * from './dynamics/wilson'
+export * from './dynamics/su2-lattice'
 
 // experiment infrastructure
 export * from './experiment/runner'
