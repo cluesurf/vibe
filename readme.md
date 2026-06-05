@@ -6,6 +6,10 @@
 <br/>
 <br/>
 
+<p align='center'>
+  <img src='https://github.com/cluesurf/vibe/blob/make/view/vibe.png?raw=true' height='256'/>
+</p>
+
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
   A Discrete Model of the Universe<br/>
