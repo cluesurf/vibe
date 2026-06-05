@@ -16,6 +16,7 @@ export * from './linalg/dense'
 export * from './linalg/sparse'
 export * from './linalg/eig-jacobi'
 export * from './linalg/eig-lanczos'
+export * from './linalg/eig-hermitian'
 
 // tone
 export * from './tone/alphabet'
@@ -44,6 +45,7 @@ export * from './operator/dirac'
 export * from './operator/evolution'
 export * from './operator/gauge-dirac'
 export * from './operator/lattice-fermion'
+export * from './operator/gauge-index'
 
 // measures
 export * from './measure/dimension'

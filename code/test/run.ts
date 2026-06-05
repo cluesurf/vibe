@@ -23,6 +23,7 @@ import {
   overlapDirac2D,
   scanBrillouin,
 } from '~/operator/lattice-fermion'
+import { overlapIndex } from '~/operator/gauge-index'
 
 let passed = 0
 let failed = 0
@@ -191,6 +192,23 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'overlap: 1 species with exact chiral symmetry (GW ~ 0)',
     ok: overlap.species === 1 && overlap.gwResidualMax < 1e-9,
     detail: `species ${overlap.species}, GW ${overlap.gwResidualMax.toExponential(1)}`,
+  })
+}
+
+// 10. The lattice index theorem: the overlap fermion's index equals the gauge
+// topological charge (index = -Q here), so the chiral fermion sees gauge topology.
+{
+  const i0 = overlapIndex({ length: 5, charge: 0 })
+  const i1 = overlapIndex({ length: 5, charge: 1 })
+  const i2 = overlapIndex({ length: 5, charge: 2 })
+  check({
+    name: 'lattice index theorem: overlap index = -Q (gauge topology)',
+    ok:
+      Math.round(i0.index) === 0 &&
+      Math.round(i1.index) === -1 &&
+      Math.round(i2.index) === -2 &&
+      i1.hermiticityError < 1e-9,
+    detail: `index(0,1,2) = ${i0.index.toFixed(2)}, ${i1.index.toFixed(2)}, ${i2.index.toFixed(2)}`,
   })
 }
 

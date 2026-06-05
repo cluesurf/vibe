@@ -25,7 +25,7 @@ fermion on a naive lattice. The Standard Model is chiral, so this is a wall.
 2. **Staggered (Kogut-Susskind).** Spread the spinor components over the corners of
    a hypercube, reducing 2^d doublers to 2^(d/2) tastes, keeping a remnant chiral
    symmetry. Reduces but does not eliminate doubling.
-3. **Domain-wall.** Add a fifth dimension; a chiral zero mode binds to each wall,
+3. **Domain-wall.** Add a fifth dimension. A chiral zero mode binds to each wall,
    left on one, right on the other. A single chiral fermion lives on a wall. Clean
    but heavier.
 4. **Overlap / Ginsparg-Wilson (the ideal).** Build a Dirac operator D that
