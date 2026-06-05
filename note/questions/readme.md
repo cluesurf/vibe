@@ -128,7 +128,7 @@ are validated, the open frontier in priority order:
 1. **P2 / P6 dynamics at scale**: the smeared action now selects manifold-like
    orders at the testbed scale. Push to hundreds of elements with a cluster or
    warm-started Monte Carlo to confirm the full phase transition. The mechanism
-   is found; the remaining work is scale and sampler quality.
+   is found. The remaining work is scale and sampler quality.
 2. **P3 on a growing graph**: lift the both-worlds result from a static graph to a
    growing and rewiring one (couple to causal graph dynamics), moving from
    kinematics to dynamics.

@@ -33,8 +33,8 @@ outputs (sprinkling coordinates, eigenvalues), never as the base, in
 keeping with the discreteness principle.
 
 The companion paper is a work in progress
-[here](https://github.com/cluesurf/vibe/blob/make/vibe.pdf). The
-research notes and the simulator design spec live in the monorepo at
+[here](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch).
+The research notes and the simulator design spec live in the monorepo at
 `note/research/vibe/` and `note/research/vibe/research/testbed/`.
 
 ## What is inside
@@ -73,17 +73,17 @@ Final status of each open problem, from the latest run. Build state:
 typecheck clean, 10 of 10 known-answer tests pass. Full detail in
 [note/experiment/results/validation.md](note/experiment/results/validation.md).
 
-| Problem | What it tests                               | Status                  | Key result                                                                                                                                           |
-| ------- | ------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P1      | local rule with a bounded-below Hamiltonian | validated (partial)     | reversible rule is local (radius 1.67) and the energy is bounded below; whether H itself is local is still open                                      |
+| Problem | What it tests                               | Status                  | Key result                                                                                                                                            |
+| ------- | ------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1      | local rule with a bounded-below Hamiltonian | validated (partial)     | reversible rule is local (radius 1.67) and the energy is bounded below; whether H itself is local is still open                                       |
 | P2      | a dynamics that favors manifold-like order  | candidate progress      | the smeared Benincasa-Dowker action gives near-2D, non-layered ensembles (height ratio ~1, dim ~2) where the sharp action collapsed to layered orders |
-| P3      | addressing versus Lorentz                   | candidate solved        | a connected hyperbolic random graph has exponential reach, anisotropy 0.07 (Lorentz-safe), and 100 percent backtracking-routing navigability at once |
-| P4      | the monist spinor, spin from topology       | validated               | Kahler-Dirac zero modes equal the Betti sum: disk 1, cylinder 2, torus 4, exactly                                                                    |
-| P5      | the Hauptvermutung (unique geometry)        | validated (empirical)   | recovered dimension 3.02 plus or minus 0.05, proper-time coefficient of variation 0.027; a proof is still open                                       |
-| P6      | a computable 2D path integral               | open                    | the sum over histories runs and converges, but the sampled orders are not cleanly 2D (dimension 3.26)                                                |
-| P7      | quantum statistics from a classical base    | quantified              | CHSH S climbs from 1.0 to 4.0 as setting-state correlation rises; whether that correlation arises naturally is still open                            |
-| P8      | one gauge field and one charged fermion     | validated (Stages A, B) | a U(1) field shifts the charged Dirac spectrum and the Aharonov-Bohm phase scales with charge; non-Abelian gauge and chirality are still open        |
-| P9      | the relationship of structure to experience | boundary                | only the structural correlates (Markov blanket, integration) are measurable, by design                                                               |
+| P3      | addressing versus Lorentz                   | candidate solved        | a connected hyperbolic random graph has exponential reach, anisotropy 0.07 (Lorentz-safe), and 100 percent backtracking-routing navigability at once  |
+| P4      | the monist spinor, spin from topology       | validated               | Kahler-Dirac zero modes equal the Betti sum: disk 1, cylinder 2, torus 4, exactly                                                                     |
+| P5      | the Hauptvermutung (unique geometry)        | validated (empirical)   | recovered dimension 3.02 plus or minus 0.05, proper-time coefficient of variation 0.027; a proof is still open                                        |
+| P6      | a computable 2D path integral               | open                    | the sum over histories runs and converges, but the sampled orders are not cleanly 2D (dimension 3.26)                                                 |
+| P7      | quantum statistics from a classical base    | quantified              | CHSH S climbs from 1.0 to 4.0 as setting-state correlation rises; whether that correlation arises naturally is still open                             |
+| P8      | one gauge field and one charged fermion     | validated (Stages A, B) | a U(1) field shifts the charged Dirac spectrum and the Aharonov-Bohm phase scales with charge; non-Abelian gauge and chirality are still open         |
+| P9      | the relationship of structure to experience | boundary                | only the structural correlates (Markov blanket, integration) are measurable, by design                                                                |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **candidate solved** means a working substrate or mechanism was
