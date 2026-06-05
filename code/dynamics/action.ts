@@ -6,6 +6,7 @@
 
 import { Poset, pastMatrix, relationCount, intervalSize } from '~/core/poset'
 import { forEachSetBit } from '~/core/bitset'
+import { myrheimMeyerDimension } from '~/measure/dimension'
 
 export interface Action {
   readonly form: 'action'
@@ -111,6 +112,87 @@ export function benincasaDowkerAction(input: {
       // is a visible scalar in the returned action rather than hidden.
       const smearing = 1
       return smearing * combination
+    },
+  }
+}
+
+// The 2D smeared kernel. n is the order-interval cardinality between a past
+// element and x. epsilon in (0,1) sets the nonlocality: the kernel spreads over
+// about 1/epsilon layers with geometric decay and alternating signs. At epsilon
+// near 1 only n = 0 (links) survives, recovering the sharp action.
+function smearedKernel2D(input: { n: number; epsilon: number }): number {
+  const e = input.epsilon
+  const n = input.n
+  const oneMinus = 1 - e
+  if (oneMinus <= 0) {
+    return n === 0 ? 1 : 0
+  }
+  const base = Math.pow(oneMinus, n)
+  const term =
+    1 -
+    (2 * e * n) / oneMinus +
+    (e * e * n * (n - 1)) / (2 * oneMinus * oneMinus)
+  return base * term
+}
+
+// The smeared Benincasa-Dowker action in 2D, the literature mechanism for taming
+// the action fluctuations and exposing a manifold phase. S_eps = -N/2 + eps *
+// sum over related pairs (y < x) of f2(n_yx, eps). For dimension > 2 we fall
+// back to the sharp action (the 2D smeared kernel is the case P2/P6 needs).
+export function smearedBenincasaDowker(input: {
+  epsilon: number
+  dimension: number
+}): Action {
+  if (input.dimension > 2) {
+    return benincasaDowkerAction(input)
+  }
+  return {
+    form: 'action',
+    name: `smeared-benincasa-dowker-2d-eps${input.epsilon}`,
+    epsilon: input.epsilon,
+    value: ({ poset }) => {
+      const past = pastMatrix(poset)
+      const relations = relationCount(poset)
+      const stride = relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
+      let index = 0
+      let seen = 0
+      let sum = 0
+      for (let a = 0; a < poset.size; a++) {
+        forEachSetBit(poset.future, {
+          row: a,
+          visit: (b) => {
+            const take = index % stride === 0
+            index += 1
+            if (!take) {
+              return
+            }
+            seen += 1
+            const n = intervalSize(poset, { a, b, past })
+            sum += smearedKernel2D({ n, epsilon: input.epsilon })
+          },
+        })
+      }
+      if (seen > 0 && seen < relations) {
+        sum *= relations / seen
+      }
+      return -poset.size / 2 + input.epsilon * sum
+    },
+  }
+}
+
+// A constructed manifold-favoring action: penalise the squared deviation of the
+// Myrheim-Meyer dimension from a target. Minimising it drives the ensemble to a
+// chosen dimension. The positive control that tests whether the Monte Carlo can
+// reach manifold-like orders when an action rewards them.
+export function dimensionTargetAction(input: { target: number }): Action {
+  return {
+    form: 'action',
+    name: `dimension-target-${input.target}`,
+    epsilon: 0,
+    value: ({ poset }) => {
+      const d = myrheimMeyerDimension({ poset })
+      const delta = d - input.target
+      return delta * delta
     },
   }
 }
