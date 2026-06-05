@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2025/Homebrew)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: vibe.aux
+The style file: unsrt.bst
+Database file #1: vibe.bib
+Warning--empty publisher in leibniz1714monadology
+You've used 75 entries,
+            1791 wiz_defined-function locations,
+            861 strings with 12559 characters,
+and the built_in function-call counts, 15836 in all, are:
+= -- 1516
+> -- 443
+< -- 12
++ -- 190
+- -- 115
+* -- 894
+:= -- 2424
+add.period$ -- 232
+call.type$ -- 75
+change.case$ -- 50
+chr.to.int$ -- 0
+cite$ -- 76
+duplicate$ -- 783
+empty$ -- 1731
+format.name$ -- 115
+if$ -- 3600
+int.to.chr$ -- 0
+int.to.str$ -- 75
+missing$ -- 97
+newline$ -- 379
+num.names$ -- 81
+pop$ -- 279
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 293
+stack$ -- 0
+substring$ -- 1153
+swap$ -- 146
+text.length$ -- 12
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 176
+width$ -- 77
+write$ -- 810
+(There was 1 warning)

@@ -1,0 +1,143 @@
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage[thmmarks, amsmath]{ntheorem}
+\usepackage{setspace}
+\usepackage{csquotes}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{hyphenat}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[
+    pdfauthor={Lance Pollard},
+    pdftitle={Vibe Theory: A Discrete Model of Reality Built from Experience},
+    pdfsubject={Philosophy of Mind, Consciousness Studies, Discrete Physics, Mathematical Philosophy},
+    pdfkeywords={consciousness, experience, panpsychism, monism, discrete physics, cellular automata, vibe theory},
+    pdfcreator={Lance Pollard},
+    pdfproducer={LuaLaTeX},
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black
+]{hyperref}
+
+% Set additional PDF metadata after hyperref loads
+\hypersetup{
+    pdfinfo={
+        ContactEmail={lancejpollard@gmail.com},
+        ContactURL={https://clue.surf},
+        Copyright={Copyright (C) 2026 ClueSurf}
+    }
+}
+
+\usepackage{etoolbox} % For patching commands
+
+\widowpenalty=10000
+\clubpenalty=10000
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+
+\pagestyle{fancy}
+\fancyhf{} % Clear all header and footer fields
+\renewcommand{\headrulewidth}{0pt} % Remove header line
+\fancyfoot[C]{-- \thepage\ --} % Page number in center with dashes
+% Adjust footer separation from text
+\setlength{\footskip}{40pt}
+
+% Redefine plain page style (used by title page)
+\fancypagestyle{plain}{
+  \fancyhf{} % Clear all header and footer fields
+  \fancyfoot[C]{-- \thepage\ --} % Page number in center with dashes
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% Increase display math font size globally
+\AtBeginEnvironment{equation}{\Large}
+\AtBeginEnvironment{align}{\Large}
+\AtBeginEnvironment{gather}{\Large}
+
+\let\oldequation\equation
+\let\endoldequation\endequation
+\renewenvironment{equation}{%
+    \noindent\vspace{-\parskip}\vspace{-\baselineskip}%
+    \oldequation
+}{%
+    \endoldequation
+    \noindent\vspace{-\parskip}\vspace{-\baselineskip}%
+}
+
+\BeforeBeginEnvironment{equation}{\vspace{8pt}}
+\AfterEndEnvironment{equation}{\vspace{16pt}}
+
+\setlength{\itemsep}{0pt} % Space between items
+\setlist[itemize]{before=\vspace{0pt},after=\vspace{-2pt}}
+
+% Section: Large and bold
+\titleformat{\section}
+  {\Large\bfseries}
+  {\thesection.}
+  {0.5em}
+  {}
+
+% Subsection: Normal size, bold
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {\thesubsection.}
+  {0.5em}
+  {}
+
+% Subsubsection: Small, italic
+\titleformat{\subsubsection}
+  {\small\itshape}
+  {\thesubsubsection.}
+  {0.5em}
+  {}
+
+% Apply 1.5 line spacing globally
+\onehalfspacing
+
+\theoremstyle{definition}
+\theoremstyle{axiom}
+\theoremstyle{theorem}
+\theoremstyle{lemma}
+\theoremstyle{proposition}
+\theoremheaderfont{\bfseries}
+\theorembodyfont{\normalfont}
+\theoremindent0pt
+\newtheorem{definition}{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{principle}{Principle}
+
+% Custom title format: add colon after the title
+\makeatletter
+\def\@begintheorem#1#2#3{%
+  \par\addvspace{1em}%
+  \noindent\textbf{#1 #2.} % Definition 1.
+  \ifx\@empty#3\relax
+    \quad
+  \else
+    \ \textbf{#3:}
+  \fi
+  \hspace{0.5em}
+}
+\def\@endtheorem{\par}
+\makeatother
+
+\title{
+  {\huge \textbf{Vibe Theory}} \\[2mm]
+  \large A Discrete Model of Reality Built from Experience
+}
+
+\author{Lance Pollard \\ \small lancejpollard@gmail.com}
+\date{June 4, 2026}

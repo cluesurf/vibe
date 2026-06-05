@@ -1,0 +1,38 @@
+{
+  "name": "@cluesurf/vibe",
+  "version": "0.0.2",
+  "license": "UNLICENSED",
+  "main": "./host/index.js",
+  "type": "module",
+  "scripts": {
+    "make": "rm -rf host && tsc && tsc-alias",
+    "scan": "rm -rf host && concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
+    "lint": "eslint --ext .ts ./make",
+    "lint:fix": "npm run lint -- --fix",
+    "test:make": "npx tsx test/make.ts",
+    "test": "npx tsx --no-warnings=ExperimentalWarning test/index.ts",
+    "test:sim": "npx tsx --no-warnings=ExperimentalWarning code/test/run.ts",
+    "sim": "npx tsx --no-warnings=ExperimentalWarning",
+    "host": "pnpm make && npm publish --access=public"
+  },
+  "prettier": "@cluesurf/form-code/love.json",
+  "devDependencies": {
+    "@types/lodash": "^4.14.194",
+    "@types/node": "^22.15.3",
+    "concurrently": "^7.6.0",
+    "eslint": "^9.26.0",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.15",
+    "tsx": "^3.12.7",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@cluesurf/form-code": "^0.5.0",
+    "@cluesurf/love-code": "^1.5.0",
+    "@termsurf/have": "^0.2.0",
+    "@termsurf/kink": "^0.1.2",
+    "chalk": "^5.6.2",
+    "dayjs": "^1.11.8",
+    "lodash": "^4.17.21"
+  }
+}
