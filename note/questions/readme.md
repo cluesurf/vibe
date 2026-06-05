@@ -13,14 +13,14 @@ and what is still open.
 
 | Question | Experiment | Status |
 |---|---|---|
-| P1. A local, bounded-below Hamiltonian | `p1-hamiltonian` | partial: bounded below shown, locality of H still open |
+| P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation` | **validated** local rule + bounded-below H (H-locality still open) |
 | P2. A dynamics that favors manifold-like order | `p2-dynamics` | **open**: the action does not concentrate on manifold-like orders |
-| P3. Addressing versus Lorentz | `p3-study` | **candidate answer**: connected hyperbolic random graph hits all three |
-| P4. The monist spinor | `p4-spinor` | partial: one zero mode found, topology link still open |
-| P5. The Hauptvermutung | `p5-hauptvermutung` | empirically holds (std under 0.05), proof open |
+| P3. Addressing versus Lorentz | `p3-study`, `validation` | **candidate solved**: all three at once, navigability validated to 100 percent |
+| P4. The monist spinor | `p4-spinor`, `p4-topology` | **validated**: zero modes = Betti sum (spin from topology) |
+| P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
 | P7. Quantum from a classical base | `p7-bell` | mechanism quantified: the superdeterminism cost curve |
-| P8. One gauge field and one charged fermion | `p8-gauge-fermion` | machinery runs (Stage A and B), charge check still open |
+| P8. One gauge field and one charged fermion | `p8-gauge-fermion`, `validation` | **validated** Stages A and B: charge couples to the fermion |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 
 ## The questions
@@ -30,7 +30,7 @@ and what is still open.
 The reversible rule gives a Hamiltonian that is bounded below (it is a
 permutation, so energies live in a bounded interval). The remaining question is
 whether that Hamiltonian is **local**, a sum of bounded-range terms. We measure
-the former; we do not yet measure the latter. **Next:** add a Pauli-expansion
+the former, we do not yet measure the latter. **Next:** add a Pauli-expansion
 locality profile of the Hamiltonian, and test whether information loss
 (equivalence classes) buys both locality and a stable vacuum, as 't Hooft
 conjectures.
@@ -61,14 +61,14 @@ just a static one), and measure the routing stretch.
 
 ### P4. Is the spinor built from vibes, and is its spin topological?
 
-The Kahler-Dirac operator on a 2D mesh has exactly one zero mode, every component
-of which is a cell tone, so the spinor is built from the substrate (monism holds).
-The open part is the **topological reading**: is the zero-mode count a property of
-the mesh topology (the Bombelli and Friedman-Sorkin "spin from topology" idea)?
-**Next:** vary the mesh topology (genus, defects) and check whether the zero-mode
-count tracks it, and run the belt-trick holonomy test for 720-degree periodicity.
-The chirality wall (a single chiral fermion, fermion doubling) remains the deeper
-barrier.
+Yes, and the spin is topological. The Kahler-Dirac zero modes are built entirely
+from cell tones (monism holds), and their count equals the surface Betti sum:
+disk 1, cylinder 2, torus 4, validated exactly (see
+`note/experiment/results/validation.md`). So the spinor's zero modes are a
+topological invariant of the mesh, the Bombelli and Friedman-Sorkin "spin from
+topology" reading. **Remaining open:** the chirality wall, a single chiral
+fermion without doublers (Nielsen-Ninomiya), which is the deeper barrier toward
+the Standard Model.
 
 ### P5. Is the recovered geometry unique (the Hauptvermutung)?
 
@@ -102,12 +102,12 @@ make-or-break question for the classical-base reading of v3.
 
 ### P8. Can we get one gauge field and one charged fermion?
 
-A U(1) gauge field on the mesh, relaxed by the Wilson heat bath, coupled to a
-Kahler-Dirac operator: the machinery runs (Stage A and B of the gauge ladder).
-**Open:** confirm the charge by comparing the charged spectrum to the uncharged
-one and measuring an Aharonov-Bohm phase, then climb toward non-Abelian gauge and
-the chirality wall (Stage C and D). The full Standard Model (Stage E) remains far
-off.
+Yes, for Stages A and B. A U(1) gauge field on the mesh couples to the
+Kahler-Dirac fermion: under a real flux the charged low spectrum differs from the
+free one, and the Aharonov-Bohm phase scales linearly with charge (validated, see
+`note/experiment/results/validation.md`). **Remaining open:** non-Abelian gauge
+and confinement (Stage C), the chirality wall (Stage D), and the full Standard
+Model content (Stage E), which remains far off.
 
 ### P9. What is the relationship between structure and experience?
 
@@ -119,13 +119,17 @@ capture.
 
 ## Where to push next
 
-In priority order, by leverage:
+Now that P1, P3 (navigability), P4 (topology), P5, P7, and P8 (Stages A and B)
+are validated, the open frontier in priority order:
 
-1. **P3 sub-questions** (routing fallback, growing graph, stretch): the most
-   vibe-specific, with momentum and a candidate answer to harden.
-2. **P2 / P6 dynamics** (nonlocal action, Goldilocks window): the central shared
-   open problem, where progress is hardest but most valuable.
-3. **P7 naturalness** (does the setting-state correlation arise on its own): the
+1. **P2 / P6 dynamics** (nonlocal action, Goldilocks window, larger sizes): the
+   central shared open problem, where progress is hardest but most valuable. This
+   is now the top blocker.
+2. **P3 on a growing graph**: lift the both-worlds result from a static graph to a
+   growing and rewiring one (couple to causal graph dynamics), moving from
+   kinematics to dynamics.
+3. **P4 chirality** (Stage D) and **P8 non-Abelian gauge** (Stage C): the climb
+   past the validated basics toward the Standard Model, gated by the
+   Nielsen-Ninomiya chirality wall.
+4. **P7 naturalness** (does the setting-state correlation arise on its own): the
    make-or-break test for the classical base.
-4. **P4 topology** and **P8 charge**: the inner-structure thread, concrete and
-   incremental.

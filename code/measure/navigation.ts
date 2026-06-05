@@ -67,6 +67,11 @@ export function greedyRoutingSuccess(input: {
     if (target === source) {
       target = (target + 1) % size
     }
+    // Only count pairs that are actually connected: an unreachable target is a
+    // connectivity fact, not a routing failure.
+    if (bfsHops({ graph, from: source, to: target }) < 0) {
+      continue
+    }
 
     let current = source
     let hops = 0
@@ -111,4 +116,118 @@ export function greedyRoutingSuccess(input: {
     meanStretch: successes === 0 ? 0 : stretchSum / successes,
     trials: counted,
   }
+}
+
+// Distance-guided depth-first routing with backtracking: at each node move to the
+// unvisited neighbor closest to the target, and pop when stuck. This uses local
+// memory (the path stack and a visited set) but never gives up on a connected
+// graph, so it pushes navigability toward 100 percent. The price over pure
+// greedy is the memory and a longer route. We report success and the route
+// stretch (forward path length over the shortest-path hop count).
+export function routingWithBacktrack(input: {
+  graph: Graph
+  trials: number
+  rng: Rng
+  maxSteps?: number
+}): { successRate: number; meanStretch: number; trials: number } {
+  const graph = input.graph
+  if (!graph.embedding) {
+    return { successRate: 0, meanStretch: 0, trials: 0 }
+  }
+  const size = graph.size
+  const maxSteps = input.maxSteps ?? 40 * size
+
+  let successes = 0
+  let stretchSum = 0
+  let counted = 0
+
+  for (let t = 0; t < input.trials; t++) {
+    const source = input.rng.nextInt({ max: size })
+    let target = input.rng.nextInt({ max: size })
+    if (target === source) {
+      target = (target + 1) % size
+    }
+    const shortest = bfsHops({ graph, from: source, to: target })
+    if (shortest < 0) {
+      continue
+    }
+
+    const visited = new Uint8Array(size)
+    const stack: number[] = [source]
+    visited[source] = 1
+    let steps = 0
+    let reached = false
+
+    while (stack.length > 0 && steps < maxSteps) {
+      const current = stack[stack.length - 1] ?? source
+      if (current === target) {
+        reached = true
+        break
+      }
+      const row = graph.neighbors[current] ?? new Uint32Array(0)
+      let best = -1
+      let bestDistance = Infinity
+      for (let k = 0; k < row.length; k++) {
+        const neighbor = row[k] ?? 0
+        if ((visited[neighbor] ?? 0) === 1) {
+          continue
+        }
+        const distance = targetDistance({ graph, node: neighbor, target })
+        if (distance < bestDistance) {
+          bestDistance = distance
+          best = neighbor
+        }
+      }
+      if (best < 0) {
+        stack.pop()
+      } else {
+        visited[best] = 1
+        stack.push(best)
+      }
+      steps++
+    }
+
+    counted++
+    if (reached) {
+      successes++
+      const routeLength = stack.length - 1
+      if (shortest > 0) {
+        stretchSum += routeLength / shortest
+      }
+    }
+  }
+
+  return {
+    successRate: counted === 0 ? 0 : successes / counted,
+    meanStretch: successes === 0 ? 0 : stretchSum / successes,
+    trials: counted,
+  }
+}
+
+function bfsHops(input: { graph: Graph; from: number; to: number }): number {
+  if (input.from === input.to) {
+    return 0
+  }
+  const size = input.graph.size
+  const distance = new Int32Array(size).fill(-1)
+  distance[input.from] = 0
+  let frontier: number[] = [input.from]
+  while (frontier.length > 0) {
+    const next: number[] = []
+    for (const node of frontier) {
+      const row = input.graph.neighbors[node] ?? new Uint32Array(0)
+      for (let k = 0; k < row.length; k++) {
+        const neighbor = row[k] ?? 0
+        if ((distance[neighbor] ?? -1) === -1) {
+          distance[neighbor] = (distance[node] ?? 0) + 1
+          if (neighbor === input.to) {
+            return distance[neighbor] ?? -1
+          }
+          next.push(neighbor)
+        }
+      }
+    }
+    frontier = next
+  }
+  return -1
 }

@@ -47,7 +47,7 @@ exist at all.
 
 **Fix.** Use angular Fourier order parameters: the magnitude of the average of
 e^{i m theta} for m in {2,3,4,6} over the first two spatial axes. A square lattice
-has a strong 4-fold component (anisotropy 1.0); a sprinkling has none (about
+has a strong 4-fold component (anisotropy 1.0), a sprinkling has none (about
 0.06). The measure now requires at least two spatial axes (3D Minkowski or 2D
 Euclidean), and the experiments use 3D substrates.
 
@@ -63,7 +63,7 @@ polynomial growth.
 
 **Fix.** Use successive ball-count ratios in the unsaturated regime only (counts
 below 60 percent of the final size). Exponential growth keeps the ratio
-multiplicative and roughly flat; polynomial growth has ratios that decay toward 1.
+multiplicative and roughly flat, polynomial growth has ratios that decay toward 1.
 The tiling and the well-connected hyperbolic graph now read as exponential, the
 lattice and sprinkling as not.
 
