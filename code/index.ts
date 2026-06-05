@@ -46,6 +46,7 @@ export * from './operator/gauge-dirac'
 
 // measures
 export * from './measure/dimension'
+export * from './measure/order-stats'
 export * from './measure/distance'
 export * from './measure/curvature'
 export * from './measure/manifoldlike'
