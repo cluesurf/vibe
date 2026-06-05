@@ -78,22 +78,24 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 4. lattice singles out a frame, sprinkling does not
+// 4. lattice singles out a frame, sprinkling does not (needs >= 2 spatial axes,
+//    so use 3D Minkowski: a 2D spatial slice where a square lattice is 4-fold
+//    anisotropic and a sprinkling is rotationally uniform).
 {
   const rng = makeRng({ seed: 2 })
   const latIso = lorentzIsotropy({
-    substrate: lattice({ dimension: 2, extent: 24, signature: 'lorentzian' }),
-    samples: 300,
+    substrate: lattice({ dimension: 3, extent: 9, signature: 'lorentzian' }),
+    samples: 400,
     rng,
   })
   const sprIso = lorentzIsotropy({
-    substrate: sprinkleMinkowski({ dimension: 2, count: 800, rng }),
-    samples: 300,
+    substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
+    samples: 400,
     rng,
   })
   check({
     name: 'lattice is more anisotropic than a sprinkling',
-    ok: latIso.anisotropy > sprIso.anisotropy,
+    ok: latIso.anisotropy > sprIso.anisotropy + 0.2,
     detail: `lattice ${latIso.anisotropy.toFixed(3)} vs sprinkle ${sprIso.anisotropy.toFixed(3)}`,
   })
 }

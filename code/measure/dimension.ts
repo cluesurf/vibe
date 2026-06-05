@@ -40,12 +40,14 @@ function tgamma(x: number): number {
 }
 
 // The Myrheim-Meyer relation: expected ordering fraction inside an interval as a
-// function of dimension d. f(d) = (3/2) * gamma(d+1) gamma(d/2) / gamma(3d/2).
-// f is monotone decreasing in d, so bisection on f(d) = r is well posed.
+// function of dimension d. f(d) = (1/2) * gamma(d+1) gamma(d/2) / gamma(3d/2).
+// Check: f(1) = 1 (every pair on a line is causally related) and f(2) = 1/2 (two
+// points in a causal diamond are comparable with probability 1/2). f is monotone
+// decreasing in d, so bisection on f(d) = r is well posed.
 function myrheimMeyerFraction(d: number): number {
   const logValue =
     lgamma(d + 1) + lgamma(d / 2) - lgamma((3 * d) / 2)
-  return 1.5 * Math.exp(logValue)
+  return 0.5 * Math.exp(logValue)
 }
 
 // Estimate the effective dimension of a causal set from its ordering fraction.
@@ -136,32 +138,28 @@ export function ballGrowth(input: {
 // check that the slope does not collapse the way r^d does at large r.
 export function growthIsExponential(input: { growth: Uint32Array }): boolean {
   const g = input.growth
-  if (g.length < 4) {
+  const last = g[g.length - 1] ?? 0
+  if (g.length < 4 || last < 8) {
     return false
   }
-  // Use the second half of the radii, where the asymptotic regime shows.
-  const start = Math.max(1, Math.floor(g.length / 2))
-  const slopes: number[] = []
-  for (let r = start; r < g.length; r++) {
+  // Successive ball-count ratios in the UNSATURATED regime (count below 60% of
+  // the final size). Saturation from a finite substrate would otherwise drive
+  // every late ratio toward 1 and hide exponential growth.
+  const ratios: number[] = []
+  for (let r = 1; r < g.length; r++) {
     const prev = g[r - 1] ?? 0
     const cur = g[r] ?? 0
-    if (prev > 0 && cur > 0) {
-      slopes.push(Math.log(cur) - Math.log(prev))
+    if (prev >= 4 && cur > prev && cur < 0.6 * last) {
+      ratios.push(cur / prev)
     }
   }
-  if (slopes.length < 2) {
+  if (ratios.length < 2) {
     return false
   }
-  const mean =
-    slopes.reduce((sum, s) => sum + s, 0) / slopes.length
-  if (mean <= 0.15) {
-    return false
-  }
-  // Polynomial growth: the log-slope decays markedly across the window.
-  // Exponential growth: the log-slope stays roughly flat. Compare the last
-  // slope to the first in the window.
-  const first = slopes[0] ?? 0
-  const last = slopes[slopes.length - 1] ?? 0
-  const decayed = first > 0 && last < 0.5 * first
-  return !decayed && mean > 0.15
+  const mean = ratios.reduce((sum, s) => sum + s, 0) / ratios.length
+  const first = ratios[0] ?? 1
+  const lastRatio = ratios[ratios.length - 1] ?? 1
+  // Exponential growth keeps the per-step ratio multiplicative and roughly flat.
+  // Polynomial growth (r^d) has ratios that decay toward 1 as r grows.
+  return mean > 1.4 && lastRatio > 0.7 * first
 }
