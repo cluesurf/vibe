@@ -18,10 +18,10 @@
 ## Introduction
 
 `vibe-sim` is a finite, discrete, reproducible simulator for testing the
-open problems of Vibe Theory and the discrete-spacetime program. It
-generates a discrete substrate, runs a local rule over it in discrete
-beats, and measures the emergent physics, so each research question
-becomes a runnable measurement.
+[open problems of Vibe Theory](https://github.com/cluesurf/vibe/tree/make/note/questions)
+and the discrete-spacetime program. It generates a discrete substrate,
+runs a local rule over it in discrete beats, and measures the emergent
+physics, so each research question becomes a runnable measurement.
 
 Everything is finite and seeded. Real numbers appear only as measured
 outputs (sprinkling coordinates, eigenvalues), never as the base, in
