@@ -43,21 +43,24 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   overlap operator gives one fermion species with exact lattice chiral
   symmetry (Ginsparg-Wilson residual 6e-16), where the naive operator has
   4 doublers and Wilson breaks chirality. Stage D's hard part.
+- [p8-index.md](p8-index.md): the chiral fermion meets the gauge field.
+  The overlap fermion's index equals the gauge topological charge exactly
+  (index = -Q, integer), the lattice Atiyah-Singer index theorem.
 - [methodology-fixes.md](methodology-fixes.md): the measurement bugs
   found and fixed while iterating, recorded so the numbers are
   trustworthy and the estimators are not silently wrong.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 13 of 13 tests pass.
+- **Build:** typecheck clean, 14 of 14 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below
-  Hamiltonian (P1), charge coupling to the fermion and 3D SU(2)
-  confinement (P8 Stages A, B, C), the CHSH superdeterminism cost curve
-  (P7).
+  Hamiltonian (P1), charge coupling to the fermion, 3D SU(2) confinement,
+  and the lattice index theorem (P8 Stages A, B, C plus index = topological
+  charge), the CHSH superdeterminism cost curve (P7).
 - **Candidate progress:** the smeared causal-set action now selects
   near-2D, non-layered ensembles (P2), where the sharp action failed.
-- **Open, as expected:** coupling the chiral fermion to the confining
-  gauge field (a lattice chiral gauge theory), the P2 phase transition at
+- **Open, as expected:** the dynamical and non-Abelian chiral gauge
+  coupling (the full chiral gauge theory), the P2 phase transition at
   scale, and the P6 path integral, matching the literature.

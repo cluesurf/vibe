@@ -82,7 +82,7 @@ typecheck clean, 10 of 10 known-answer tests pass. Full detail in
 | P5      | the Hauptvermutung (unique geometry)        | validated (empirical)   | recovered dimension 3.02 plus or minus 0.05, proper-time coefficient of variation 0.027; a proof is still open                                        |
 | P6      | a computable 2D path integral               | open                    | the sum over histories runs and converges, but the sampled orders are not cleanly 2D (dimension 3.26)                                                 |
 | P7      | quantum statistics from a classical base    | quantified              | CHSH S climbs from 1.0 to 4.0 as setting-state correlation rises; whether that correlation arises naturally is still open                             |
-| P8      | one gauge field, charged fermion, confinement | validated (Stages A, B, C) | U(1) couples to the fermion (AB phase, spectrum shift); 3D SU(2) confines (string tension positive, falling 1.32 to 0.40 with beta); chirality still open |
+| P8      | gauge field, charged fermion, confinement, index | validated (A, B, C + index theorem) | U(1) couples to the fermion; 3D SU(2) confines (string tension 1.32 to 0.40); the overlap fermion's index equals the gauge topological charge (index = -Q exactly), the lattice Atiyah-Singer theorem |
 | P9      | the relationship of structure to experience | boundary                | only the structural correlates (Markov blanket, integration) are measurable, by design                                                                |
 
 Legend: **validated** means a stated prediction was confirmed by the

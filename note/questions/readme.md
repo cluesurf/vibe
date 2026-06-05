@@ -16,11 +16,11 @@ and what is still open.
 | P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation` | **validated** local rule + bounded-below H (H-locality still open) |
 | P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon` | **candidate progress**: the smeared action produces near-2D, non-layered ensembles |
 | P3. Addressing versus Lorentz | `p3-study`, `validation` | **candidate solved**: all three at once, navigability validated to 100 percent |
-| P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum; overlap operator threads the chirality wall |
+| P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
 | P7. Quantum from a classical base | `p7-bell` | mechanism quantified: the superdeterminism cost curve |
-| P8. One gauge field and one charged fermion | `p8-gauge-fermion`, `validation`, `p8-confinement` | **validated** Stages A, B, C: charge couples, 3D SU(2) confines |
+| P8. One gauge field and one charged fermion | `p8-gauge-fermion`, `validation`, `p8-confinement`, `p8-index` | **validated** A, B, C plus the index theorem: charge couples, SU(2) confines, index = topological charge |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 
 ## The questions
@@ -107,14 +107,16 @@ make-or-break question for the classical-base reading of v3.
 
 ### P8. Can we get one gauge field and one charged fermion?
 
-Yes, for Stages A, B, and C. A U(1) gauge field couples to the Kahler-Dirac
-fermion (charged spectrum shift, Aharonov-Bohm phase linear in charge). And 3D
-SU(2) lattice gauge theory now **confines**: the string tension (Creutz ratio) is
-positive at every coupling and falls from 1.32 to 0.40 as beta rises, with the
-average plaquette climbing from 0.10 to 0.65, the Wilson area law of the strong
-force (see `note/experiment/results/p8-confinement.md`). **Remaining open:** the
-chirality wall (Stage D, a single chiral fermion past Nielsen-Ninomiya) and the
-full Standard Model content (Stage E), which remains far off.
+Yes, for Stages A, B, and C, plus the index theorem. A U(1) gauge field couples to
+the Kahler-Dirac fermion (charged spectrum shift, Aharonov-Bohm phase linear in
+charge). 3D SU(2) lattice gauge theory **confines**: the string tension (Creutz
+ratio) is positive at every coupling and falls from 1.32 to 0.40 as beta rises,
+the Wilson area law of the strong force (`p8-confinement.md`). And the chiral
+overlap fermion **sees gauge topology exactly**: in a U(1) background of charge Q,
+its index equals -Q exactly, an integer, the lattice Atiyah-Singer index theorem
+(`p8-index.md`). **Remaining open:** coupling the chiral fermion to the dynamical
+and non-Abelian field (the full chiral gauge theory, an active research problem)
+and the Standard Model content (Stage E).
 
 ### P9. What is the relationship between structure and experience?
 
@@ -130,10 +132,13 @@ Now that P1, P3 (navigability), P4 (topology and chirality), P5, P7, and P8
 (Stages A, B, C including SU(2) confinement) are validated, the open frontier in
 priority order:
 
-1. **Chiral gauge theory** (Stage D into E): couple the chiral overlap fermion to
-   the confining SU(2) field. This is the union of the two latest results and the
-   real path toward the Standard Model. It is genuinely hard (lattice chiral gauge
-   theory is an open research problem), so even partial progress is significant.
+1. **Chiral gauge theory** (Stage D into E): the index theorem is done (the chiral
+   fermion sees gauge topology, index = -Q). Next is the dynamical and non-Abelian
+   coupling: the overlap fermion in the fluctuating SU(2) field (the fermion
+   determinant, the chiral condensate), then the full chiral projection. This is
+   the real path toward the Standard Model and is genuinely hard (lattice chiral
+   gauge theory is an open research problem), so even partial progress is
+   significant.
 2. **P2 / P6 dynamics at scale**: the smeared action selects manifold-like orders
    at the testbed scale. Push to hundreds of elements with a cluster or
    warm-started Monte Carlo to confirm the full phase transition. The mechanism
