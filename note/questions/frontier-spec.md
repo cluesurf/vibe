@@ -62,6 +62,30 @@ Exact plan:
    is needed to reach a few hundred elements. Until then, warm starts at N about
    100 already expose the basins.
 
+### Measurement design (implemented now)
+
+The order parameter is the height ratio (longest chain over sqrt N): about 1 for a
+2D manifold, near 0 for a layered Kleitman-Rothschild order. The protocol:
+
+1. **Two warm starts.** A 2D sprinkling (manifold basin) and a constructed
+   three-layer Kleitman-Rothschild order (layered basin), both with a topological
+   labelling so they seed the a < b relation directly.
+2. **Sweep the inverse temperature beta** with the smeared action (eps = 0.9).
+   For each beta and each start, run the Monte Carlo and record the height ratio
+   averaged over the second half of the chain (the equilibrated part).
+3. **Read the result.** If both starts converge to the same height ratio at a
+   given beta, that beta has a single stable phase. If the sprinkling start stays
+   high and the layered start stays low over a beta window, that window is a
+   coexistence region: a first-order transition with hysteresis. Crucially, if the
+   sprinkling start STAYS manifold-like under the smeared action, the manifold
+   phase is a genuine stable basin, not merely reachable from the antichain, which
+   strengthens the P2 result. The sharp action is the contrast: it should drive
+   even the manifold start toward layered.
+
+Honest caveat: at the achievable sizes incomplete mixing can mimic hysteresis. We
+read a persistent start-dependence as evidence of metastable basins, not a proven
+first-order transition, and say so.
+
 ## Front 3: the P6 2D path integral
 
 P6 is the same dynamics as P2, specialised to a 2D-favoring action and the

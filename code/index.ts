@@ -30,6 +30,7 @@ export * from './substrate/tiling-pq'
 export * from './substrate/hyperbolic-graph'
 export * from './substrate/grow-csg'
 export * from './substrate/triangulated-surface'
+export * from './substrate/layered-order'
 
 // rules
 export * from './rule/rule'
