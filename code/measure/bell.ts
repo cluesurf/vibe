@@ -27,13 +27,19 @@ function chooseSetting(input: {
   options: [number, number]
   lambda: Lambda
   settingCorrelation: number
+  side: 'a' | 'b'
   rng: Rng
 }): number {
   const [first, second] = input.options
   if (input.rng.next() < input.settingCorrelation) {
-    // Bias the setting using lambda: sign of sin(2 lambda) selects the option.
+    // Bias the setting using lambda. The two wings key on DIFFERENT functions of
+    // lambda (sin for A, cos for B), so all four setting pairs remain reachable.
     // This injects a correlation between the hidden state and the chosen angle.
-    return Math.sin(2 * input.lambda) >= 0 ? first : second
+    const bit =
+      input.side === 'a'
+        ? Math.sin(2 * input.lambda) >= 0
+        : Math.cos(2 * input.lambda) >= 0
+    return bit ? first : second
   }
   return input.rng.next() < 0.5 ? first : second
 }
@@ -74,12 +80,14 @@ export function chsh(input: {
       options: aOptions,
       lambda,
       settingCorrelation: input.settingCorrelation,
+      side: 'a',
       rng: input.rng,
     })
     const angleB = chooseSetting({
       options: bOptions,
       lambda,
       settingCorrelation: input.settingCorrelation,
+      side: 'b',
       rng: input.rng,
     })
     const product = outcomeA({ angle: angleA, lambda }) * outcomeB({ angle: angleB, lambda })

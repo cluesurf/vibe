@@ -1,7 +1,8 @@
-// Lorentz isotropy: the decisive P3 test. A regular lattice singles out a
-// preferred direction (high anisotropy); a Poisson sprinkling does not. We
-// measure the directional distribution of nearest links in the embedding and
-// report the normalized variance of that distribution as the anisotropy.
+// Lorentz isotropy: the decisive P3 test. A regular lattice singles out preferred
+// axes; a Poisson sprinkling does not. We look at the directions of nearest links
+// projected onto the first two spatial axes and measure how concentrated those
+// directions are at discrete angles, via angular Fourier order parameters. A
+// square lattice has a strong 4-fold component; a sprinkling has none.
 // See testbed/04-measurements.md.
 
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
@@ -9,53 +10,13 @@ import { coordOf } from '~/core/embedding'
 import { Rng } from '~/core/rng'
 
 const PREFERRED_FRAME_THRESHOLD = 0.25
+// Angular harmonics to probe. A lattice concentrates direction at a few discrete
+// angles, raising one of these order parameters toward 1. Isotropy keeps them 0.
+const HARMONICS = [2, 3, 4, 6]
 
-// Spatial axes are 1..d-1 (axis 0 is time in a Lorentzian embedding). For a
-// Riemannian embedding all axes are spatial; we still skip axis 0 to keep one
-// canonical projection axis, but fall back to all axes when d <= 1.
-function spatialDirection(input: {
-  coords: (axis: number) => number
-  fromAxis: number
-  toAxis: number
-}): number[] {
-  const direction: number[] = []
-  for (let axis = input.fromAxis; axis < input.toAxis; axis++) {
-    direction.push(input.coords(axis))
-  }
-  return direction
-}
-
-// Variance of a list of unit vectors across each axis. For a perfectly isotropic
-// distribution the per-axis means cancel and the spread is uniform; a preferred
-// direction concentrates the unit vectors, raising the squared mean direction.
-// We report the squared length of the mean unit vector, normalized to [0,1]:
-// 0 = directions cancel (isotropic), 1 = all directions aligned.
-function meanResultantLength(directions: number[][]): number {
-  if (directions.length === 0) {
-    return 0
-  }
-  const first = directions[0]
-  const dim = first ? first.length : 0
-  if (dim === 0) {
-    return 0
-  }
-  const mean = new Array<number>(dim).fill(0)
-  for (const direction of directions) {
-    for (let axis = 0; axis < dim; axis++) {
-      mean[axis] = (mean[axis] ?? 0) + (direction[axis] ?? 0)
-    }
-  }
-  let squared = 0
-  for (let axis = 0; axis < dim; axis++) {
-    const value = (mean[axis] ?? 0) / directions.length
-    squared += value * value
-  }
-  return squared
-}
-
-// Measure directional anisotropy of nearest links. Requires an embedding; if the
-// substrate has no coordinates we cannot define a direction, so we report a
-// perfectly isotropic null result with preferredFrame false.
+// Measure directional anisotropy of nearest links. Requires an embedding with at
+// least two spatial axes (Lorentzian needs d >= 3, Riemannian d >= 2). With
+// fewer spatial axes direction is degenerate, so we report an isotropic null.
 export function lorentzIsotropy(input: {
   substrate: Substrate
   samples: number
@@ -63,13 +24,16 @@ export function lorentzIsotropy(input: {
 }): { preferredFrame: boolean; anisotropy: number } {
   const embedding = input.substrate.embedding
   if (!embedding) {
-    // No embedding: directions are undefined, so we cannot detect a frame.
     return { preferredFrame: false, anisotropy: 0 }
   }
   const dim = embedding.dimension
-  // Spatial axes are 1..d-1 in Lorentzian signature; use all axes if d <= 1.
-  const fromAxis = dim > 1 ? 1 : 0
-  const toAxis = dim
+  // Spatial axes: skip the time axis only for a Lorentzian embedding.
+  const spatialStart = embedding.signature === 'lorentzian' ? 1 : 0
+  const spatialCount = dim - spatialStart
+  if (spatialCount < 2) {
+    // One spatial axis cannot reveal a preferred direction.
+    return { preferredFrame: false, anisotropy: 0 }
+  }
 
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const size = input.substrate.size
@@ -77,7 +41,11 @@ export function lorentzIsotropy(input: {
     return { preferredFrame: false, anisotropy: 0 }
   }
 
-  const directions: number[][] = []
+  // Running sums of cos(m theta) and sin(m theta) for each harmonic m.
+  const cosSum = new Array<number>(HARMONICS.length).fill(0)
+  const sinSum = new Array<number>(HARMONICS.length).fill(0)
+  let used = 0
+
   const sampleCount = Math.min(input.samples, size)
   for (let s = 0; s < sampleCount; s++) {
     const node = input.rng.nextInt({ max: size })
@@ -85,39 +53,60 @@ export function lorentzIsotropy(input: {
     if (row.length === 0) {
       continue
     }
-    // The nearest link by spatial distance gives the strongest directional cue.
+    // Nearest link by spatial distance gives the strongest directional cue.
     let nearest = -1
     let nearestDistance = Infinity
     for (let k = 0; k < row.length; k++) {
       const neighbor = row[k] ?? 0
       let sumSquares = 0
-      for (let axis = fromAxis; axis < toAxis; axis++) {
+      for (let axis = spatialStart; axis < dim; axis++) {
         const delta =
           coordOf(embedding, { element: neighbor, axis }) -
           coordOf(embedding, { element: node, axis })
         sumSquares += delta * delta
       }
-      if (sumSquares < nearestDistance) {
+      if (sumSquares > 1e-18 && sumSquares < nearestDistance) {
         nearestDistance = sumSquares
         nearest = neighbor
       }
     }
-    if (nearest < 0 || nearestDistance <= 0) {
+    if (nearest < 0) {
       continue
     }
-    const length = Math.sqrt(nearestDistance)
-    const direction = spatialDirection({
-      coords: (axis) =>
-        (coordOf(embedding, { element: nearest, axis }) -
-          coordOf(embedding, { element: node, axis })) /
-        length,
-      fromAxis,
-      toAxis,
-    })
-    directions.push(direction)
+    // Angle in the plane of the first two spatial axes.
+    const ax0 =
+      coordOf(embedding, { element: nearest, axis: spatialStart }) -
+      coordOf(embedding, { element: node, axis: spatialStart })
+    const ax1 =
+      coordOf(embedding, { element: nearest, axis: spatialStart + 1 }) -
+      coordOf(embedding, { element: node, axis: spatialStart + 1 })
+    if (ax0 === 0 && ax1 === 0) {
+      continue
+    }
+    const theta = Math.atan2(ax1, ax0)
+    for (let h = 0; h < HARMONICS.length; h++) {
+      const m = HARMONICS[h] ?? 1
+      cosSum[h] = (cosSum[h] ?? 0) + Math.cos(m * theta)
+      sinSum[h] = (sinSum[h] ?? 0) + Math.sin(m * theta)
+    }
+    used++
   }
 
-  const anisotropy = meanResultantLength(directions)
+  if (used === 0) {
+    return { preferredFrame: false, anisotropy: 0 }
+  }
+
+  // Anisotropy is the strongest angular order parameter |<e^{i m theta}>|.
+  let anisotropy = 0
+  for (let h = 0; h < HARMONICS.length; h++) {
+    const c = (cosSum[h] ?? 0) / used
+    const si = (sinSum[h] ?? 0) / used
+    const magnitude = Math.sqrt(c * c + si * si)
+    if (magnitude > anisotropy) {
+      anisotropy = magnitude
+    }
+  }
+
   return {
     preferredFrame: anisotropy > PREFERRED_FRAME_THRESHOLD,
     anisotropy,

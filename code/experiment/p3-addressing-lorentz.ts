@@ -24,11 +24,11 @@ function evaluate(input: { name: string; substrate: Substrate }): {
   const growth = ballGrowth({
     substrate: input.substrate,
     center: 0,
-    maxRadius: 8,
+    maxRadius: 12,
   })
   const iso = lorentzIsotropy({
     substrate: input.substrate,
-    samples: 300,
+    samples: 400,
     rng,
   })
   return {
@@ -45,24 +45,24 @@ export function main(): void {
   const rows = [
     evaluate({
       name: 'tiling {5,4}',
-      substrate: tilingPQ({ p: 5, q: 4, generations: 7 }),
+      substrate: tilingPQ({ p: 5, q: 4, generations: 9 }),
     }),
     evaluate({
       name: 'hyperbolic random',
       substrate: hyperbolicGraph({
-        count: 800,
-        radius: 6,
-        connectThreshold: 1.3,
+        count: 1500,
+        radius: 7,
+        connectThreshold: 1.0,
         rng,
       }),
     }),
     evaluate({
       name: 'lattice (lorentzian)',
-      substrate: lattice({ dimension: 2, extent: 26, signature: 'lorentzian' }),
+      substrate: lattice({ dimension: 3, extent: 9, signature: 'lorentzian' }),
     }),
     evaluate({
       name: 'sprinkle minkowski',
-      substrate: sprinkleMinkowski({ dimension: 2, count: 800, rng }),
+      substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
     }),
   ]
 

@@ -24,15 +24,30 @@ export function sprinkleMinkowski(input: {
   const spaceDim = d - 1
   const coords = new Float64Array(n * d)
 
-  for (let i = 0; i < n; i++) {
+  // Rejection sampling for a true uniform-by-volume (Poisson) sprinkle: draw a
+  // candidate uniformly in the bounding box t in [0,1], each space coord in
+  // [-0.5, 0.5], and accept iff it lies inside the diamond (spatial radius <=
+  // min(t, 1-t), or <= t for a half diamond). Uniform-in-time sampling would
+  // distort the density and the recovered dimension.
+  let accepted = 0
+  while (accepted < n) {
     const t = input.rng.next()
     const reach = input.halfDiamond ? t : Math.min(t, 1 - t)
-    // Uniform point in the (spaceDim)-ball of radius reach.
-    const space = sampleBall({ dimension: spaceDim, radius: reach, rng: input.rng })
-    coords[i * d] = t
+    let radius2 = 0
+    const candidate = new Float64Array(spaceDim)
     for (let axis = 0; axis < spaceDim; axis++) {
-      coords[i * d + 1 + axis] = space[axis] ?? 0
+      const x = input.rng.next() - 0.5
+      candidate[axis] = x
+      radius2 += x * x
     }
+    if (spaceDim > 0 && radius2 > reach * reach) {
+      continue
+    }
+    coords[accepted * d] = t
+    for (let axis = 0; axis < spaceDim; axis++) {
+      coords[accepted * d + 1 + axis] = candidate[axis] ?? 0
+    }
+    accepted++
   }
 
   // Sort element indices by time coordinate so a precedes b implies a is earlier.
