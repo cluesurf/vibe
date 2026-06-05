@@ -8,7 +8,8 @@
 
 <h3 align='center'>Vibe Theory</h3>
 <p align='center'>
-  A Discrete Model of the Universe
+  A Discrete Model of the Universe<br/>
+  (WIP)
 </p>
 
 <br/>
