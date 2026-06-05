@@ -26,9 +26,15 @@ function zeroModeCount(input: {
     size: dirac.rows,
     apply: ({ x }) => sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
   }
-  const squared = lowestEigenvalues({ operator: dSquared, count: 10 })
+  // The zero eigenvalue is degenerate (multiplicity = Betti sum), so the Krylov
+  // dimension must be well above that multiplicity to resolve every copy.
+  const squared = lowestEigenvalues({
+    operator: dSquared,
+    count: 12,
+    steps: Math.min(dirac.rows, 220),
+  })
   const magnitudes = Array.from(squared, (v) => Math.sqrt(Math.max(0, v)))
-  const zeroModes = magnitudes.filter((x) => x < 1e-5).length
+  const zeroModes = magnitudes.filter((x) => x < 5e-4).length
   return {
     zeroModes,
     smallest: magnitudes.slice(0, 6).map((x) => Math.round(x * 1000) / 1000),
