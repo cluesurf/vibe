@@ -91,10 +91,18 @@ the discrete gravitational path integral. The layered phase remains metastable f
 above beta-star (the P2 coexistence), exactly the hysteresis of a first-order
 transition.
 
-**Remaining limit.** The entropy barrier steepens with N, so N = 64 and beyond do not
-converge in the present step budget (the rare manifold heights go unsampled in the
-action tail). The two converged sizes already give a roughly N-independent beta-star.
-Pushing to larger N needs more steps or replica-exchange Wang-Landau.
+**Remaining limit (now diagnosed precisely).** At N = 64 the per-height entropy drop
+reaches about 8, a barrier even between adjacent heights. We tried windowed Wang-
+Landau (overlapping height windows, stitched), which exposes the real obstacle: the
+transitivity-preserving single-pair move CANNOT change the height of a maximal chain
+(adding the top link would break transitivity), so a walk confined to a high window
+and seeded from a chain is locked at its low height and never reaches the next. The
+limit is therefore the MOVE SET, not just compute. Reaching N = 64 and beyond needs a
+height-changing move (a cluster or worm update that extends or shortens a chain in one
+step), or replica-exchange across windows with representative (non-chain) warm starts.
+That is a dedicated sampler-design effort. The two converged sizes already establish
+the scientific result: a finite, roughly N-independent crossing beta-star about 0.14.
+The windowed Wang-Landau code is kept as infrastructure for that future move.
 
 ## See also
 

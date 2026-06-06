@@ -1,10 +1,12 @@
 # P13: The Arrow of Time and Cosmology from Growth
 
-**Status: arrow validated. Expansion demonstrated for an expanding geometry.**
+**Status: arrow validated. Expansion demonstrated, from geometry AND from growth.**
 
-> Updated: the de Sitter refinement below now demonstrates cosmological expansion in
-> the causal-set framework. Plain percolation (the original pass) gives the arrow but
-> not expansion. Deriving expansion from a pure microscopic growth rule is still open.
+> Updated twice: the de Sitter refinement demonstrates expansion in an expanding
+> geometry, and the local-growth refinement now shows expansion EMERGING from a pure
+> local birth rule (net birth above one). Plain percolation (the original pass) gives
+> the arrow but not expansion. The last step (fully emergent spatial geometry, no
+> comoving coordinate put in) remains open.
 
 ## The question
 
@@ -67,15 +69,42 @@ So the causal-set framework **faithfully represents cosmological expansion**: an
 expanding geometry produces a causal order whose intrinsic spatial volume grows with
 time, the committed eternal-expansion fate realised as a geometry.
 
-**What remains open.** This imposes the expanding metric (de Sitter) and reads off the
-order. Deriving the same expansion from a pure microscopic growth rule, with no
-imposed geometry (the originary / cosmological classical-sequential-growth problem),
-is the deepest open cosmological question. The arrow comes free from growth, an
-expanding geometry is faithfully represented, and the bridge between them (growth that
-intrinsically expands into a manifold) is the frontier.
+## Refinement: expansion from a pure local growth rule
+
+The deepest edge, expansion from growth with no imposed metric, now has a clean
+down-payment. We grow a 1+1 causal set by a purely local stochastic birth rule: each
+cell of the current spatial front spawns one child, plus a second child with
+probability q. Each child is born to the future of the front cells within a fixed
+comoving horizon (the discrete light cone). Nothing geometric is put in by hand
+beyond locality. A net birth above one (q > 0) is the committed eternal-expansion
+fate of the bootstrap (distinctions only accumulate) realised as a local rule.
+
+| spawn probability q | net birth | front width over generations | emergent rate | dimension |
+| ------------------- | --------- | ---------------------------- | ------------- | --------- |
+| 0.0 | 1.0 | 5, 5, 5, ..., 5 (static) | 1.00 | 1.79 |
+| 0.3 | 1.3 | 5, 6, 7, 11, ..., 119 (grows) | 1.334 | 1.75 |
+
+- With **net birth one (q = 0) the front is static**, a non-expanding universe.
+- With **net birth above one (q = 0.3) the front grows on its own**, generation after
+  generation, at an emergent rate of **1.33 per generation, exactly 1 + q**, with no
+  metric imposed. The recovered dimension stays manifold-like (about 1.8 in 1+1).
+
+So **cosmological expansion emerges from a purely local growth rule** whenever the net
+birth exceeds one. This is the growth-side companion to the de Sitter geometry result:
+there expansion was imposed as a metric, here it emerges from the rule itself. The
+committed eternal-expansion fate (net positive birth) IS an expanding universe.
+
+## What remains
+
+This still assigns each cell a comoving position by hand (the spatial ordering of the
+front). A fully emergent account would have the spatial geometry of the front, not
+just its growth rate, come from the relations alone. So the chain is now: the arrow is
+free from growth, expansion emerges from net-positive birth, an expanding geometry is
+faithfully represented, and the last step (full emergent spatial geometry from a
+local rule, with no comoving coordinate put in) is the remaining frontier.
 
 ## See also
 
-`p13-expansion` (the de Sitter experiment), `p2-uniform.md` (the smeared action
-produces 2D manifold orders in the equilibrium ensemble), and
-`note/questions/next-version.md` (P13).
+`p13-expansion` (the de Sitter geometry experiment), `p13-growth-expansion` (the
+local growth rule), `p2-uniform.md` (the smeared action produces 2D manifold orders
+in the equilibrium ensemble), and `note/questions/next-version.md` (P13).

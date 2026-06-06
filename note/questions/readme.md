@@ -24,14 +24,18 @@ measure, what we have found, and what is still open. Findings are in
 | P10. Cosmological constant | `p10-cosmological-constant` | progress: smeared action tames the fluctuation problem so the implied Lambda shrinks with volume (everpresent-like), exact exponent open |
 | P11. Lorentz invariance of the dynamics | `p11-lorentz-dynamics` | clarified: rotational invariance emerges in the IR on both lattice and random mesh, the clean substrate distinction is P3 |
 | P12. Free-energy crossing (closes P2) | `p12-free-energy`, `p12-wang-landau` | **measured**: Wang-Landau gives a crossing beta-star about 0.14, roughly N-independent. Manifold spacetime DOMINATES the sum over histories above it (N=64+ compute-bound) |
-| P13. Arrow of time and cosmology | `p13-cosmology`, `p13-expansion` | arrow validated. Expansion **demonstrated** for a de Sitter geometry (slices grow with time). Expansion from a pure growth rule still open |
+| P13. Arrow of time and cosmology | `p13-cosmology`, `p13-expansion`, `p13-growth-expansion` | arrow validated. Expansion **demonstrated** both from a de Sitter geometry and **emerging from a pure local growth rule** (net birth > 1, rate = 1+q). Fully emergent spatial geometry still open |
 | P14. Mass and the spectral gap | `p14-mass` | **validated** (one rung): a mass term gives gap = m and the relativistic dispersion E^2 = p^2 + m^2 |
 | P15. Entanglement area law (holography) | `p15-entanglement` | **validated** (one rung): 1D conformal log law (c = 1) and 2D area law (boundary beats volume) |
 | P16. Newtonian limit (gravity) | `p16-newtonian` | **validated** (one rung): the static potential is confining in 1D, log in 2D, Newtonian 1/r in 3D (R^2 0.997) |
 | P17. Quantum coherence (quantum) | `p17-quantum-walk` | **validated** (one rung): a quantum walk is ballistic (t) vs classical diffusive (sqrt t), interference on the mesh |
+| P18. Dark matter | `p18-dark-matter` | **mechanism shown**: nonlocal gravity flattens the rotation curve (ratio 0.23 local vs 1.29 nonlocal), no dark particle |
+| P19. Dark energy in 4D | `p19-dark-energy-4d` | 4D action-fluctuation scaling measured. Sharp action has the fluctuation problem, everpresent shrinking needs the 4D smeared kernel (shown in 2D, P10) |
+| P20. The photon | `p20-photon` | **validated**: the free U(1) gauge field is massless, gauge-invariant, two transverse polarizations |
 
-The next-version problem set (P10 to P17), including the long roads of gravity and
-quantum, is specified in `next-version.md`.
+The next-version problem set (P10 to P17) is in `next-version.md`. The broader
+frontiers, including the dark sector (P18, P19) and the field-coverage map (P20), are
+in `frontiers.md`.
 
 ## The questions
 
