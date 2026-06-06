@@ -19,7 +19,7 @@ const OBSERVE_EVERY = 1
 // so this sampler is meant for modest size (<= ~200). Because a can only precede
 // b when a < b, the relation is a strict upper-triangular DAG and acyclicity is
 // automatic; closure is all the repair we need.
-function transitiveClosure(input: { size: number; relation: BitMatrix }): BitMatrix {
+export function transitiveClosure(input: { size: number; relation: BitMatrix }): BitMatrix {
   const n = input.size
   const closed = makeBitMatrix({ rows: n, cols: n })
   const stride = closed.stride

@@ -56,14 +56,23 @@ layered start climbs toward manifold, and the sharp action erodes the manifold
 start. Together these say the smeared action makes manifold-like order the favored,
 stable phase, which is exactly what P2 asks for.
 
+## Correction (parallel tempering)
+
+A later parallel-tempering run (`p2-tempering.md`) refined this reading. The
+persistent gap here was **slow mixing of the layered start, not true coexistence**.
+With replica exchange, layered configurations escape and become manifold-like at
+every temperature, so the manifold phase is the unique equilibrium under the
+smeared action, with no competing layered phase. The corrected conclusion: the
+smeared action robustly favors manifold-like order (stronger than "stable basin"),
+and the real open requirement for P2 is a uniform-measure sampler, not a faster
+move. See `p2-tempering.md`.
+
 ## Honest caveats
 
-- **Metastability, not a proven phase transition.** A gap of about 0.8 to 1.2
-  persists between the two starts at every beta: they do not fully merge. That gap
-  is the signature of metastable coexistence (hysteresis), but at N = 72 with a
-  finite chain it is partly slow mixing. We read it as evidence of two basins, not
-  as a proven first-order transition. A real proof needs finite-size scaling and a
-  faster move to reach a few hundred elements.
+- **Metastability was slow mixing, not coexistence.** A gap of about 0.8 to 1.2
+  persists between the two starts here, which we first read as metastable
+  coexistence. Parallel tempering corrected this: it is slow mixing of the layered
+  start. There is no proven first-order transition in this ensemble.
 - **The layered start does not fully reach the sprinkling value.** It climbs to
   about 1.0, not 1.9. Either the manifold basin is hard to reach from deep in the
   layered basin (a barrier), or the chain has not fully equilibrated. Both are

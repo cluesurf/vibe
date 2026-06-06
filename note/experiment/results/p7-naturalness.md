@@ -68,6 +68,36 @@ So the quantum link is half-built. Determinism opens the door (point 1), and the
 remaining work is to show the mesh's own dynamics produce the aligned correlation,
 not a generic one (point 2). That is a concrete target, not a vague hope.
 
+## Aligned bits, not bits (the sharpening)
+
+Hall (2010) showed reproducing quantum correlations requires a minimum
+measurement dependence, the mutual information between the settings and the hidden
+state. We measured that mutual information alongside CHSH for three correlations
+(`npx tsx code/experiment/p7-alignment.ts`):
+
+```
+mode         eta    CHSH S    I(setting; lambda) bits
+aligned      1.0    4.00      1.00
+misaligned   1.0    1.00      1.00
+random       1.0    1.00      ~0
+```
+
+At full sharing the aligned and misaligned correlations carry the SAME one bit of
+measurement dependence, yet aligned reaches S = 4 and misaligned stays at S = 1.
+The random correlation carries no measurable dependence and gives nothing. So:
+
+- **Measurement dependence is necessary** (the random case, ~0 bits, never
+  violates), confirming the Hall direction.
+- **But it is radically insufficient.** One bit of dependence can buy anything from
+  no violation to maximal violation, depending entirely on whether it is ALIGNED
+  with the measured observables. The currency of Bell violation is aligned bits,
+  not bits.
+
+This refines the superdeterminism cost from "how much free choice must you give up"
+to "you must give up free choice IN THE SPECIFIC DIRECTION the observables select."
+That is a far stronger and more specific requirement, and it is exactly what a
+monist mesh would have to produce dynamically.
+
 ## Honest caveats
 
 - **A constructed outcome model.** The outcomes are the engineered
