@@ -47,6 +47,7 @@ export * from './operator/evolution'
 export * from './operator/gauge-dirac'
 export * from './operator/lattice-fermion'
 export * from './operator/gauge-index'
+export * from './operator/ca-hamiltonian'
 
 // measures
 export * from './measure/dimension'

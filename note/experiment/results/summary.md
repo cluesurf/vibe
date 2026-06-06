@@ -7,9 +7,9 @@ Numbers from the first full run of `vibe-sim`. Build state: typecheck clean,
 
 | Problem | Experiment | Headline number | Verdict |
 |---|---|---|---|
-| P1 | reversible Hamiltonian | permutation, bounded below, 9 energy levels | works |
+| P1 | reversible Hamiltonian | bounded below (9 levels), but H nonlocal for this rule (see p1-locality.md) | validated (partial) |
 | P2 | manifold-favoring dynamics | smeared action gives near-2D ensembles, manifold phase is a stable basin (see p2-dynamics.md, p2-transition.md) | candidate progress |
-| P3 | addressing vs Lorentz | hyperbolic graph hits all three at degree ~11 | **candidate solved** |
+| P3 | addressing vs Lorentz | hyperbolic graph hits all three at degree ~11, survives growth (see p3-growth.md) | **candidate solved** |
 | P4 | monist spinor, topology, chirality | zero modes = Betti sum, overlap threads the chirality wall (see p4-chirality.md) | validated |
 | P5 | Hauptvermutung | dimension 3.02 plus or minus 0.05 | holds empirically |
 | P6 | 2D path integral | mean recovered dimension 3.26 | open |

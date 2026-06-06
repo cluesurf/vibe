@@ -26,6 +26,8 @@ import {
 import { overlapIndex } from '~/operator/gauge-index'
 import { kleitmanRothschildOrder } from '~/substrate/layered-order'
 import { posetHeight } from '~/measure/order-stats'
+import { hamiltonianMatrix, pauliLocalityProfile } from '~/operator/ca-hamiltonian'
+import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 
 let passed = 0
 let failed = 0
@@ -223,6 +225,39 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'Kleitman-Rothschild order has height 3 (layered)',
     ok: height === 3,
     detail: `height ${height}`,
+  })
+}
+
+// 12. Hamiltonian locality: the measure detects a range-1 H (single-cell flip
+// gives locality length 1), validating the Pauli-expansion locality profile.
+{
+  const cells = 6
+  const n = 1 << cells
+  const perm = new Int32Array(n)
+  for (let s = 0; s < n; s++) {
+    perm[s] = s ^ 1
+  }
+  const profile = pauliLocalityProfile({
+    matrix: hamiltonianMatrix({ perm }),
+    cells,
+  })
+  check({
+    name: 'Hamiltonian locality measure: single-cell flip is range 1',
+    ok: Math.abs(profile.localityLength - 1) < 1e-6,
+    detail: `locality length ${profile.localityLength.toFixed(3)}`,
+  })
+}
+
+// 13. An expanding hyperbolic mesh stays Lorentz-safe: a grown snapshot (the
+// both-worlds substrate at a larger radius) keeps low anisotropy.
+{
+  const rng = makeRng({ seed: 4800 })
+  const graph = hyperbolicGraph({ count: 800, radius: 6.39, connectThreshold: 3.0, rng })
+  const iso = lorentzIsotropy({ substrate: graph, samples: 200, rng })
+  check({
+    name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
+    ok: iso.anisotropy < 0.25,
+    detail: `anisotropy ${iso.anisotropy.toFixed(3)}`,
   })
 }
 
