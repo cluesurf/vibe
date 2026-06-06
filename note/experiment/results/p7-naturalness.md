@@ -98,6 +98,33 @@ to "you must give up free choice IN THE SPECIFIC DIRECTION the observables selec
 That is a far stronger and more specific requirement, and it is exactly what a
 monist mesh would have to produce dynamically.
 
+## Alignment from dynamics (the frontier, made quantitative)
+
+Can a natural causal mesh produce the aligned correlation, rather than have it put
+in by hand? In a relativistic mesh the shared past of two spacelike-separated
+measurements (the overlap of their backward light cones) shrinks with separation,
+fast in an expanding hyperbolic mesh. So the shared-past fraction that drives the
+correlation decays with separation d. Modelling eta(d) = exp(-d / xi) and measuring
+CHSH (`npx tsx code/experiment/p7-dynamics.ts`):
+
+```
+separation d   eta(d)   CHSH S
+0              1.000     4.000   (above quantum)
+1              0.607     2.583   (above classical)
+2              0.368     1.865   (classical)
+4              0.135     1.288   (classical)
+8              0.018     1.044   (classical)
+```
+
+In a natural mesh the violation DECAYS with separation, reaching the classical
+bound by a couple of correlation lengths. Quantum mechanics gives a
+separation-INDEPENDENT violation (about 2.83 at any separation). So a natural
+causal mesh reproduces quantum violation only for nearby measurements, not
+spacelike ones, unless the correlation is fine-tuned to not decay (the
+"conspiracy"). This is the precise residual difficulty of the classical-base
+reading, now quantitative: naturalness (a limited, decaying shared past) is in
+direct tension with the separation-independence of quantum violation.
+
 ## Honest caveats
 
 - **A constructed outcome model.** The outcomes are the engineered

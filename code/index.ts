@@ -1,4 +1,4 @@
-// vibe-sim: a discrete-spacetime / Vibe Theory testbed.
+// vibe-test: a discrete-spacetime / Vibe Theory testbed.
 // Public API barrel. See note/research/vibe/research/testbed/ for the design.
 
 // core
@@ -48,6 +48,7 @@ export * from './operator/gauge-dirac'
 export * from './operator/lattice-fermion'
 export * from './operator/gauge-index'
 export * from './operator/overlap-condensate'
+export * from './operator/overlap-su2'
 export * from './operator/ca-hamiltonian'
 export * from './operator/block-ca'
 

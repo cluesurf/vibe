@@ -1,4 +1,4 @@
-# vibe-sim
+# vibe-test
 
 A discrete-spacetime / Vibe Theory testbed. One library that generates a
 discrete substrate, runs a local rule over it, and measures the emergent

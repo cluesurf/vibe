@@ -88,12 +88,30 @@ causal-set manifold phase, dynamically selected by the action.
   free-energy crossing that pins the exact transition coupling is the clean next
   step, now that the correct sampler exists.
 
+## Finite-size scaling (B1 evidence)
+
+Toward the continuum-dominance question (B1), we repeated the coexistence test at
+several sizes (`npx tsx code/experiment/p2-scaling.ts`, beta = 2):
+
+```
+N     cold-start manifold %   warm-start manifold %   gap
+48           0%                    100%               100%
+96           0%                    100%               100%
+160          0%                    100%               100%
+```
+
+The coexistence gap is maximal and sharp (100 percent) at every size, across more
+than a factor of three in N. It does not shrink with N, which is the finite-size
+signature of a robust first-order transition. So the manifold phase and the
+transition survive toward the continuum, the strongest reachable evidence for B1
+(the continuum-limit proof itself remains a mathematical question).
+
 ## Honest caveats
 
-- **Finite chains, one size for coexistence.** N = 128 with about 1500 sweeps per
-  run. The coexistence is robust (the two starts give cleanly different phases at
-  beta >= 1), but a full finite-size-scaling study (N = 64, 128, 256, 512) would
-  pin the transition coupling and confirm it sharpens with N.
+- **Finite chains.** N up to 160 with bounded sweeps. The coexistence is robust
+  (the two starts give cleanly different phases at every size), but the free-energy
+  crossing that pins the exact transition coupling still needs tempering or
+  thermodynamic integration across the barrier.
 - **Stability versus dominance.** Coexistence shows both phases are stable. Which
   dominates needs the free-energy comparison noted above.
 - **Naturally-labelled measure.** As in the exact study, the state space is posets

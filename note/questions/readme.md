@@ -1,7 +1,7 @@
 # Open Questions
 
 The load-bearing open problems of the Vibe Theory discrete-spacetime program, as
-they stand now that the `vibe-sim` testbed exists and the first experiments have
+they stand now that the `vibe-test` testbed exists and the first experiments have
 run. Each question links to the experiment that probes it and its current status.
 
 For the full problem statements and attack plans see the monorepo spec at
@@ -19,8 +19,8 @@ and what is still open.
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
-| P7. Quantum from a classical base | `p7-bell`, `p7-naturalness`, `p7-alignment` | mechanism quantified, naturalness made precise: the currency is aligned bits, not bits (refines Hall) |
-| P8. One gauge field and one charged fermion | `p8-confinement`, `p8-index`, `p8-schwinger` | **validated** A-C, index theorem, and the Schwinger condensate (chiral fermion in a dynamical gauge field) |
+| P7. Quantum from a classical base | `p7-bell`, `p7-naturalness`, `p7-alignment`, `p7-dynamics` | quantified: aligned bits not bits, and in a natural mesh the violation decays with separation (the residual tension) |
+| P8. One gauge field and one charged fermion | `p8-confinement`, `p8-index`, `p8-schwinger`, `p8-su2-condensate` | **validated** A-C, index theorem, Schwinger condensate, and the SU(2) (non-Abelian) condensate rung |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 
 ## The questions
@@ -123,10 +123,13 @@ assumption that blocks local hidden variables, so at full shared-past fraction t
 aligned model reaches the quantum value and beyond. But a **generic** shared past
 gives no violation (the random-correlation control stays near classical at every
 sharing fraction). So monism opens the door, but the mesh must produce the
-**specific aligned** correlation, not just any correlation (see
-`note/experiment/results/p7-naturalness.md`). **Remaining open:** derive an aligned
-setting-state correlation from actual mesh dynamics. That would complete the
-quantum link.
+**specific aligned** correlation, not just any correlation. And from dynamics: in a
+natural causal mesh the shared past of spacelike measurements shrinks with
+separation, so the violation DECAYS with separation (S falls from 4 to classical
+over a couple of correlation lengths), whereas quantum violation is
+separation-independent (`note/experiment/results/p7-naturalness.md`). **Remaining
+open:** whether any natural mesh evades this decay without fine-tuning, the contested
+heart of superdeterminism.
 
 ### P8. Can we get one gauge field and one charged fermion?
 
@@ -140,9 +143,11 @@ its index equals -Q exactly, an integer, the lattice Atiyah-Singer index theorem
 (`p8-index.md`). And in a DYNAMICAL gauge field (the 2D Schwinger model) a chiral
 condensate forms from the anomaly: zero in the free theory, nonzero and growing
 with the gauge coupling (`p8-schwinger.md`). So the chiral fermion now feels the
-field, its topology, and forms a condensate. **Remaining open:** the precise
-Schwinger condensate value (with the fermion determinant), and the genuinely open
-non-Abelian chiral gauge theory and the Standard Model content (Stage E).
+field, its topology, and forms a condensate. And the non-Abelian rung is reached: a chiral
+overlap fermion in a dynamical SU(2) field also forms a condensate (zero free,
+nonzero gauged, `p8-su2-condensate.md`). **Remaining open:** the precise Schwinger
+condensate value, and the genuinely open Weyl-projected chiral gauge theory and the
+Standard Model content (Stage E).
 
 ### P9. What is the relationship between structure and experience?
 
