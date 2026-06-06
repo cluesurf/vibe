@@ -1,0 +1,46 @@
+\section{Space: Geometry from the Order, and Spacetime as a Phase}
+\label{sec:geometry}
+
+Space in Vibe Theory is not a background. It is the large-scale shape of the note structure. Two questions decide whether this works. First, does a discrete order actually carry a definite geometry (P5)? Second, is that smooth geometry forced by the dynamics, or merely assumed (P2, P6)?
+
+\subsection{The geometry is unique (P5)}
+
+A causal set fixes its continuum geometry through the Hauptvermutung conjecture: order plus number recovers a Lorentzian manifold essentially uniquely. We tested the sharpness directly. Eight independent Poisson sprinklings of the same Minkowski region each had their dimension recovered by the Myrheim-Meyer estimator.
+
+\begin{result}[Sharp recovered geometry]
+The recovered dimension across independent sprinklings of a fixed region is $3.02 \pm 0.05$, and the proper-time (longest-chain) distance across the region has coefficient of variation $0.027$. The geometry a discrete order carries is sharp, not just in dimension but in distance.
+\end{result}
+
+So the smooth shape is genuinely latent in the discrete order. Continuous geometry is what the discrete vibe order looks like from far away, the way a beach looks smooth until the grains appear.
+
+\subsection{Spacetime as a stable phase (P2)}
+
+The harder question is why the order is manifold-like at all. Most causal sets are not. The Kleitman-Rothschild orders, flat three-layer orders, dominate the uniform measure at large size by sheer number. A theory that wants spacetime to be real must show that its dynamics suppresses these and makes smooth orders dominate. This is the deepest problem in causal set theory, open in the literature, and we treat it carefully.
+
+The order parameter is the \emph{height ratio}, the longest chain divided by $\sqrt{N}$. A 2D manifold-like order has height about $\sqrt{N}$ (its proper time), so the ratio is order one. A layered order has height three, so the ratio falls toward zero.
+
+The first finding is negative and clarifying. The sharp Benincasa-Dowker action fails: minimised, it drives the ensemble to layered orders (height ratio $0.29$, apparent dimension $3.45$). The fix is the \emph{smeared} action, a nonlocal kernel that averages over about $1/\epsilon$ order-layers, which tames the action fluctuations. The smeared action drives the ensemble toward manifold-like orders rather than layered ones, exactly confirmed by exact enumeration at small size (where the entropic competition has not yet set in).
+
+But a subtlety nearly hid the real answer. The naive Monte Carlo move did not sample the uniform measure, so it could not even pose the dominance question. We built a correct uniform-measure sampler: propose toggling a single relation, accept only if the result is still a transitive order. That proposal is symmetric, so it samples the uniform measure exactly, validated against exact enumeration.
+
+\begin{result}[The sampler is correct]
+The uniform-measure sampler reproduces exact enumeration: at inverse temperature zero its manifold fraction is $72\%$ at $N=6$ and $84\%$ at $N=7$, matching the exact values to the digit. It then reaches the large-$N$ entropic regime invisible at small size: the manifold fraction falls $92\%, 23\%, 4\%, 0\%$ at $N = 8, 16, 32, 64$, so the layered orders take over the uniform measure exactly as Kleitman-Rothschild predict.
+\end{result}
+
+With the entropic regime in hand, the dominance question can finally be asked, and the answer is a phase transition.
+
+\begin{result}[Coexistence of two phases, the first-order signature]
+At $N=128$, under the smeared action, two long-lived phases coexist. From a cold start the order stays layered (manifold fraction $0\%$). From a warm start (a 2D sprinkling) it stays manifold-like (manifold fraction $100\%$, height ratio $1.2$ to $1.6$) for all $\beta \ge 1$, whereas at $\beta = 0$ even a manifold start decays. Two long-lived phases at one coupling, separated by a barrier, is the signature of a first-order transition. The coexistence holds across $N = 48, 96, 160$, finite-size evidence that it persists toward larger systems.
+\end{result}
+
+So smooth spacetime is not merely assumed and trivially preserved. The substrate's own action makes it a stable phase, one that decays without the action and persists with it, coexisting with the layered phase in the way supercooled water and ice can both persist near freezing. What the testbed has not located is the freezing point itself, the coupling at which one phase becomes the lower-free-energy equilibrium. So we show that a stable spacetime phase exists and is supported by the dynamics, not yet that it strictly wins.
+
+\subsection{The 2D path integral lands on 2D orders (P6)}
+
+P6 is the 2D specialization, and it asks the sharper question of whether the stable phase is genuinely two-dimensional, not merely non-layered.
+
+\begin{result}[The stable phase is 2D]
+The warm-started stable manifold phase has Myrheim-Meyer dimension $2.03, 2.09, 2.05$ at $N = 64, 96, 128$. The exact enumeration agrees, with a dimension sweet spot near two at moderate coupling. The 2D sum over histories, sampled with the correct measure, lands on 2-dimensional manifold-like orders.
+\end{result}
+
+What remains open is which phase has the lower free energy, and so strictly dominates, at a given coupling. That is a free-energy comparison across the barrier, reachable by thermodynamic integration or tempering, and the continuum-limit proof is a separate mathematical question. There is also a residual caution at finite size: two long-lived phases under a finite chain are strong evidence of genuine metastable basins, but slow mixing cannot be fully excluded without the free-energy crossing. What is done is the harder existence half, that a stable spacetime phase exists at all and is supported by the dynamics where without it the smooth order decays.
