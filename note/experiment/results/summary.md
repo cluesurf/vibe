@@ -1,7 +1,7 @@
 # Summary of All Experiments
 
 The table is the current status of every problem. The per-problem narratives below
-are the first-run detail (kept for context); the table rows and the linked result
+are the first-run detail (kept for context). The table rows and the linked result
 docs carry the latest. Build state: typecheck clean, 28 of 28 known-answer tests
 pass.
 

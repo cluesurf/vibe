@@ -18,7 +18,7 @@ and what is still open.
 | P3. Addressing versus Lorentz | `p3-study`, `validation`, `p3-growth` | **candidate solved**: all three at once, navigability 100 percent, and stable under mesh growth |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
-| P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
+| P6. A computable 2D path integral | `p6-dimension`, `p2-uniform` | **solved at scale**: 2D specialisation of P2, the stable manifold phase is genuinely 2D (MM dimension 2.0-2.1) |
 | P7. Quantum from a classical base | `p7-bell`, `p7-naturalness`, `p7-alignment`, `p7-dynamics` | quantified: aligned bits not bits, and in a natural mesh the violation decays with separation (the residual tension) |
 | P8. One gauge field and one charged fermion | `p8-confinement`, `p8-index`, `p8-schwinger`, `p8-su2-condensate` | **validated** A-C, index theorem, Schwinger condensate, and the SU(2) (non-Abelian) condensate rung |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
@@ -103,11 +103,14 @@ different spacetimes).
 
 ### P6. Can the Lorentzian sum over histories be made computable?
 
-The 2D Monte Carlo runs and converges, but the sampled orders are not cleanly 2D
-(recovered dimension 3.26). The sum over histories is computable in the
-Euclidean-style reweighting, but the measure does not yet land on 2D manifold-like
-orders, the same difficulty as P2. **Next:** restrict to genuinely 2D-favoring
-actions, and benchmark against known 2D continuum results.
+Yes, and it lands on 2D orders. P6 is the 2D specialisation of P2, and the P2
+apparatus (the 2D smeared action, the correct uniform-measure sampler) is already
+2D. So P6 inherits the P2 first-order transition, and the stable manifold phase is
+genuinely 2-dimensional: warm-started from a 2D sprinkling at scale, its
+Myrheim-Meyer dimension sits at 2.0 to 2.1 (N = 64 to 128), confirmed by the
+small-N exact enumeration too (`p6-dimension.md`, `p2-uniform.md`). The earlier
+non-2D result (dimension 3.26) used the broken sampler and is superseded.
+**Remaining:** shares P2's free-energy crossing and the continuum-limit proof (B1).
 
 ### P7. Can a classical discrete base reproduce quantum statistics?
 
