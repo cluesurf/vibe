@@ -42,6 +42,10 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   metastability (it was slow mixing, not coexistence): the manifold phase is
   the unique equilibrium under the smeared action. The real open need is a
   uniform-measure sampler, not just a faster move.
+- [p2-exact.md](p2-exact.md): P2 by exact enumeration (no sampling bias). The
+  smeared action provably drives the true measure to manifold-like orders
+  (manifold fraction to 100 percent), with a dimension sweet spot at moderate
+  coupling. Only the large-N entropic regime now remains.
 - [p8-confinement.md](p8-confinement.md): Stage C of the gauge ladder. 3D
   SU(2) lattice gauge theory confines: positive string tension at every
   coupling, falling with beta, the Wilson area law of the strong force.
@@ -73,16 +77,17 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 22 of 22 tests pass.
+- **Build:** typecheck clean, 23 of 23 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below
   Hamiltonian (P1), charge coupling to the fermion, 3D SU(2) confinement,
   and the lattice index theorem (P8 Stages A, B, C plus index = topological
   charge), the CHSH superdeterminism cost curve (P7).
-- **Candidate progress:** the smeared causal-set action selects near-2D,
-  non-layered ensembles, and the manifold phase is a stable basin of the
-  dynamics while the sharp action erodes it (P2).
+- **Candidate progress:** the smeared causal-set action drives the true
+  (exactly enumerated) measure to manifold-like orders, with a dimension
+  sweet spot at moderate coupling (P2). The sole remaining gap is the
+  large-N entropic regime, which needs a scalable uniform-measure sampler.
 - **Open, as expected:** the dynamical and non-Abelian chiral gauge
   coupling (the full chiral gauge theory), the P2 phase transition at
   scale, and the P6 path integral, matching the literature.

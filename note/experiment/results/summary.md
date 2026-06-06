@@ -8,7 +8,7 @@ Numbers from the first full run of `vibe-sim`. Build state: typecheck clean,
 | Problem | Experiment | Headline number | Verdict |
 |---|---|---|---|
 | P1 | reversible Hamiltonian | trilemma for the CA log, resolved by the emergent-mesh Laplacian, all three at once (see p1-law.md) | resolved |
-| P2 | manifold-favoring dynamics | smeared action robustly favors manifold-like (unique equilibrium under tempering), open need is a uniform-measure sampler (see p2-tempering.md) | candidate progress |
+| P2 | manifold-favoring dynamics | smeared action provably favors manifold-like on the exact measure (enumeration), only the large-N entropic regime remains (see p2-exact.md) | candidate progress |
 | P3 | addressing vs Lorentz | hyperbolic graph hits all three at degree ~11, survives growth (see p3-growth.md) | **candidate solved** |
 | P4 | monist spinor, topology, chirality | zero modes = Betti sum, overlap threads the chirality wall (see p4-chirality.md) | validated |
 | P5 | Hauptvermutung | dimension 3.02 plus or minus 0.05 | holds empirically |
