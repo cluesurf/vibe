@@ -45,6 +45,12 @@ import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
 import { cubicLattice, potentialProfile, fitForm } from '~/experiment/p16-newtonian'
 import { chainOperators, quantumMsd, classicalMsd } from '~/experiment/p17-quantum-walk'
+import { massStudy } from '~/experiment/p14-mass'
+import { logLawSlope1D, areaLaw2D } from '~/experiment/p15-entanglement'
+import { p12Crossing } from '~/experiment/p12-free-energy'
+import { csgCosmology } from '~/experiment/p13-cosmology'
+import { wangLandauHeight, crossingBeta, manifoldFractionAt } from '~/dynamics/wang-landau'
+import { deSitterExpansion } from '~/experiment/p13-expansion'
 
 let passed = 0
 let failed = 0
@@ -493,6 +499,87 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P17: quantum walk is ballistic, classical walk is diffusive',
     ok: qRatio > 3.5 && cRatio > 1.7 && cRatio < 2.4,
     detail: `4x time: quantum width x${qRatio.toFixed(2)}, classical width x${cRatio.toFixed(2)}`,
+  })
+}
+
+// 27. P14: a mass term opens a spectral gap equal to m and a relativistic
+// dispersion omega^2 = a*k^2 + b with a near 1 and b near m^2.
+{
+  const s = massStudy({ m: 0.3 })
+  check({
+    name: 'P14: mass gives gap = m and relativistic dispersion (b ~ m^2)',
+    ok: Math.abs(s.gap - 0.3) < 0.01 && Math.abs(s.b - 0.09) < 0.02 && s.a > 0.9 && s.a < 1.05,
+    detail: `gap ${s.gap.toFixed(3)}, a ${s.a.toFixed(3)}, b ${s.b.toFixed(3)}`,
+  })
+}
+
+// 28. P15: free-fermion entanglement follows the 1D conformal log law (slope near
+// c/3 = 1/3 for c = 1) and a 2D area law (boundary beats volume).
+{
+  const slope1D = logLawSlope1D({ n: 120 })
+  const two = areaLaw2D({ side: 12 })
+  check({
+    name: 'P15: 1D conformal log law (c ~ 1) and 2D entanglement area law',
+    ok: slope1D > 0.25 && slope1D < 0.42 && two.areaBeatsVolume && two.boundaryFit > 0,
+    detail: `1D slope ${slope1D.toFixed(3)} (c/3=0.33), 2D area beats volume ${two.areaBeatsVolume}`,
+  })
+}
+
+// 29. P12: the smeared action favors the manifold phase extensively, so a finite
+// free-energy crossing exists and the manifold (spacetime) phase dominates above it.
+{
+  const r = p12Crossing({ size: 32 })
+  check({
+    name: 'P12: action favors manifold extensively, giving a finite free-energy crossing',
+    ok: r.dS > 10 && r.betaStar !== null && (r.betaStar ?? -1) >= 0 && (r.betaStar ?? 99) < 1,
+    detail: `action gap ${r.dS.toFixed(1)}, beta* ${r.betaStar === null ? 'none' : r.betaStar.toFixed(3)}`,
+  })
+}
+
+// 30. P13: classical sequential growth gives a monotone arrow of time (relations
+// only accumulate) and a finite recovered dimension.
+{
+  const r = csgCosmology({ size: 200, p: 0.08, seed: 1 })
+  check({
+    name: 'P13: growth gives a monotone arrow of time and a finite dimension',
+    ok: r.arrowMonotone && r.dimension > 0 && r.dimension < 4,
+    detail: `arrow monotone ${r.arrowMonotone}, dimension ${r.dimension.toFixed(2)}`,
+  })
+}
+
+// 31. P12 refinement: Wang-Landau measures the free-energy crossing directly. The
+// equilibrium manifold fraction rises from near zero (layered dominates) through a
+// finite beta-star to one (manifold dominates), the measured first-order crossing.
+{
+  const wl = wangLandauHeight({
+    size: 20,
+    epsilon: 0.9,
+    minHeight: 2,
+    maxHeight: 9,
+    rng: makeRng({ seed: 20 }),
+    maxSteps: 3_000_000,
+    coverThreshold: 1200,
+    burnInFraction: 0.5,
+  })
+  const betaStar = crossingBeta(wl, 8)
+  const f0 = manifoldFractionAt(wl, 0)
+  const f1 = manifoldFractionAt(wl, 1)
+  check({
+    name: 'P12 Wang-Landau: a measured finite free-energy crossing (layered to manifold)',
+    ok: betaStar !== null && (betaStar ?? -1) > 0 && (betaStar ?? 9) < 1 && f0 < 0.4 && f1 > 0.8,
+    detail: `beta* ${betaStar === null ? 'none' : betaStar.toFixed(3)}, manifold fraction ${f0.toFixed(2)} -> ${f1.toFixed(2)}`,
+  })
+}
+
+// 32. P13 refinement: a causal set sprinkled into an expanding de Sitter universe
+// expands, its intrinsic spatial slices growing with proper time (the opposite of
+// plain percolation), with a finite manifold-like dimension.
+{
+  const r = deSitterExpansion({ count: 500, hubble: 1, seed: 1 })
+  check({
+    name: 'P13 de Sitter: expanding geometry gives an expanding causal order',
+    ok: r.expands && r.lateWidth > 1.5 * r.earlyWidth && r.dimension > 0 && r.dimension < 6,
+    detail: `slice width ${r.earlyWidth.toFixed(1)} -> ${r.lateWidth.toFixed(1)}, dimension ${r.dimension.toFixed(2)}`,
   })
 }
 

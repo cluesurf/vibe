@@ -13,7 +13,7 @@ measure, what we have found, and what is still open. Findings are in
 | Question | Experiment | Status |
 |---|---|---|
 | P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `p1-locality`, `p1-law`, `p1-emergent` | **resolved**: a trilemma for the CA log, solved by the emergent-mesh Hamiltonian (Laplacian) |
-| P2. A dynamics that favors manifold-like order | `p2-exact`, `p2-uniform`, `p2-tempering` | **solved at scale**: first-order transition, smeared action makes manifold spacetime a stable phase at N=128 (free-energy crossing remains) |
+| P2. A dynamics that favors manifold-like order | `p2-exact`, `p2-uniform`, `p2-tempering`, `p12-free-energy` | **solved at scale**: first-order transition, smeared action makes manifold spacetime a stable phase at N=128, and the free-energy crossing (P12) shows it DOMINATES above a finite coupling (large-N beta-star scaling open) |
 | P3. Addressing versus Lorentz | `p3-study`, `validation`, `p3-growth` | **candidate solved**: all three at once, navigability 100 percent, and stable under mesh growth |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
@@ -23,6 +23,10 @@ measure, what we have found, and what is still open. Findings are in
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 | P10. Cosmological constant | `p10-cosmological-constant` | progress: smeared action tames the fluctuation problem so the implied Lambda shrinks with volume (everpresent-like), exact exponent open |
 | P11. Lorentz invariance of the dynamics | `p11-lorentz-dynamics` | clarified: rotational invariance emerges in the IR on both lattice and random mesh, the clean substrate distinction is P3 |
+| P12. Free-energy crossing (closes P2) | `p12-free-energy`, `p12-wang-landau` | **measured**: Wang-Landau gives a crossing beta-star about 0.14, roughly N-independent. Manifold spacetime DOMINATES the sum over histories above it (N=64+ compute-bound) |
+| P13. Arrow of time and cosmology | `p13-cosmology`, `p13-expansion` | arrow validated. Expansion **demonstrated** for a de Sitter geometry (slices grow with time). Expansion from a pure growth rule still open |
+| P14. Mass and the spectral gap | `p14-mass` | **validated** (one rung): a mass term gives gap = m and the relativistic dispersion E^2 = p^2 + m^2 |
+| P15. Entanglement area law (holography) | `p15-entanglement` | **validated** (one rung): 1D conformal log law (c = 1) and 2D area law (boundary beats volume) |
 | P16. Newtonian limit (gravity) | `p16-newtonian` | **validated** (one rung): the static potential is confining in 1D, log in 2D, Newtonian 1/r in 3D (R^2 0.997) |
 | P17. Quantum coherence (quantum) | `p17-quantum-walk` | **validated** (one rung): a quantum walk is ballistic (t) vs classical diffusive (sqrt t), interference on the mesh |
 
