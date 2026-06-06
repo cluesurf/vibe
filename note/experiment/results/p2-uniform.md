@@ -15,7 +15,8 @@ uniform measure. The correct move toggles a SINGLE pair and accepts only if the
 result is still transitive. That proposal is symmetric, so it samples the uniform
 measure exactly (and the Gibbs ensemble with the e^{-beta S} weight). Validity is
 O(N^2): adding i precedes j is allowed iff past(i) is a subset of past(j) and
-future(j) is a subset of future(i); removing it iff no element lies between.
+future(j) is a subset of future(i). Removing it is allowed iff no element lies
+between i and j.
 
 ## Validation: it matches exact enumeration
 

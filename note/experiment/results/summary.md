@@ -14,7 +14,7 @@ Numbers from the first full run of `vibe-sim`. Build state: typecheck clean,
 | P5 | Hauptvermutung | dimension 3.02 plus or minus 0.05 | holds empirically |
 | P6 | 2D path integral | mean recovered dimension 3.26 | open |
 | P7 | Bell from a classical base | S climbs 1.0 to 4.0, the currency is aligned bits not bits (1 bit gives S=4 aligned vs S=1 misaligned, see p7-naturalness.md) | quantified + made precise |
-| P8 | gauge, fermion, confinement, index | U(1) couples, SU(2) confines, overlap index = topological charge (see p8-confinement.md, p8-index.md) | validated A, B, C + index |
+| P8 | gauge, fermion, confinement, index, condensate | U(1) couples, SU(2) confines, index = charge, Schwinger condensate forms (see p8-schwinger.md) | validated A-C + index + condensate |
 | P9 | experience correlates | Markov blanket 0.77, integration 1.91 | proxy works |
 
 ## The numbers, one by one

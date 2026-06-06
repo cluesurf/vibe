@@ -61,6 +61,10 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 - [p8-index.md](p8-index.md): the chiral fermion meets the gauge field.
   The overlap fermion's index equals the gauge topological charge exactly
   (index = -Q, integer), the lattice Atiyah-Singer index theorem.
+- [p8-schwinger.md](p8-schwinger.md): the chiral fermion in a DYNAMICAL gauge
+  field (the Schwinger model). A chiral condensate forms from the anomaly:
+  zero in the free theory, nonzero and growing with the gauge coupling
+  (Banks-Casher near-zero density).
 - [p1-locality.md](p1-locality.md): P1's open half. H = i log U is bounded
   below but nonlocal for the XOR-parity rule (locality length grows with
   size), so a local rule does not give a local Hamiltonian.
@@ -82,7 +86,7 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 24 of 24 tests pass.
+- **Build:** typecheck clean, 25 of 25 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below
