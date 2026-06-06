@@ -46,6 +46,8 @@ measure, what we have found, and what is still open. Findings are in
 | P32. Einstein equations | `p32-einstein-equations` | down-payment: the Einstein tensor is transverse (conservation built in), reduces to Newton (static), and propagates a massless graviton at the speed of light |
 | P33. Black-hole entropy | `p33-black-hole` | **demonstrated**: entanglement entropy scales with horizon area, not volume (Bekenstein-Hawking S = A/4) |
 | P34. Capstone (the model run end-to-end) | `p34-capstone` | **demonstrated**: one growing random hyperbolic mesh with the ternary signed-majority rule yields Lorentz-safe geometry, exponential reach, convergent ternary dynamics, the bounded-below local Hamiltonian, and the arrow, all at once |
+| P35. Contact with data | `p35-contact-with-data` | **the framework meets observation**: the everpresent Lambda matches the observed dark energy to order of magnitude (ratio 0.53), no linear Lorentz violation (confirmed by GRB timing), the swerve below current bounds |
+| P36. The model DSL | `p36-dsl`, `code/model/vibe.ts` | **a tool**: the committed model in a few fluent lines (vibe()...), prints at a glance, builds, runs, reads off the physics, and a one-word swap expresses the lattice (Lorentz-violating) variant |
 
 The next-version problem set (P10 to P17) is in `next-version.md`. The broader
 frontiers, including the dark sector (P18, P19) and the field-coverage map (P20), are

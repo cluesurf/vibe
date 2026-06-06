@@ -2,6 +2,9 @@
 // Public API barrel. See note/questions/ for the open problems and
 // note/experiment/results/ for the findings.
 
+// model
+export * from './model/vibe'
+
 // core
 export * from './core/rng'
 export * from './core/bitset'

@@ -69,6 +69,9 @@ import { quantumFormalism } from '~/experiment/p31-quantum-formalism'
 import { bianchiResidual, gravitonSpeed } from '~/experiment/p32-einstein-equations'
 import { blackHoleEntropy } from '~/experiment/p33-black-hole'
 import { capstone } from '~/experiment/p34-capstone'
+import { darkEnergyPrediction, lorentzPrediction } from '~/experiment/p35-contact-with-data'
+import { dslDemo } from '~/experiment/p36-dsl'
+import { vibe } from '~/model/vibe'
 
 let passed = 0
 let failed = 0
@@ -869,6 +872,38 @@ function allFinite(xs: ArrayLike<number>): boolean {
       r.laplacianBoundedBelow &&
       r.arrowMonotone,
     detail: `degree ${r.meanDegree.toFixed(1)}, anisotropy ${r.anisotropy.toFixed(2)}, reach ${r.reachExponential}, ternary converges ${r.dynamicsConverges}, H>=0 ${r.laplacianBoundedBelow}, arrow ${r.arrowMonotone}`,
+  })
+}
+
+// 51. P35 contact with data: the everpresent-Lambda prediction matches the observed
+// dark energy to order of magnitude, and the framework predicts no linear Lorentz
+// violation, which gamma-ray-burst timing confirms.
+{
+  const de = darkEnergyPrediction()
+  const liv = lorentzPrediction()
+  check({
+    name: 'P35 contact with data: dark-energy magnitude matches, no linear Lorentz violation',
+    ok: de.ratio > 0.1 && de.ratio < 10 && liv.frameworkLinearLIV === false && liv.gribBoundInPlanck > 1,
+    detail: `Lambda predicted/observed ratio ${de.ratio.toFixed(2)} (order-of-magnitude match), framework linear LIV ${liv.frameworkLinearLIV}`,
+  })
+}
+
+// 52. P36 the model DSL: vibe() builds the committed model (Lorentz-safe, exponential
+// reach, bounded-below Hamiltonian, a non-trivial stable tone pattern), and swapping
+// the mesh to a lattice expresses the Lorentz-violating alternative.
+{
+  const d = dslDemo()
+  const describesModel = vibe().describe().includes('signed-majority')
+  check({
+    name: 'P36 model DSL: vibe() builds the committed model and expresses variants',
+    ok:
+      describesModel &&
+      d.committedAnisotropy < 0.2 &&
+      d.committedReach &&
+      d.committedBoundedBelow &&
+      d.toneMix &&
+      d.latticeAnisotropy > 0.8,
+    detail: `committed anisotropy ${d.committedAnisotropy.toFixed(2)} vs lattice ${d.latticeAnisotropy.toFixed(2)}, reach ${d.committedReach}, H>=0 ${d.committedBoundedBelow}`,
   })
 }
 

@@ -54,14 +54,19 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   const fills = g.neighbors.map((row) => new Int8Array(row.length))
   for (let v = 0; v < n; v++) {
     const row = g.neighbors[v] ?? new Uint32Array(0)
+    const fv = fills[v]
+    if (!fv) {
+      continue
+    }
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
       if (w > v) {
         const f = (input.rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
-        ;(fills[v] ?? new Int8Array(0))[k] = f
+        fv[k] = f
+        const fw = fills[w]
         const kk = indexOf[w]?.get(v)
-        if (kk !== undefined) {
-          ;(fills[w] ?? new Int8Array(0))[kk] = f
+        if (fw && kk !== undefined) {
+          fw[kk] = f
         }
       }
     }
