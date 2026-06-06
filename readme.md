@@ -33,10 +33,10 @@ Everything is finite and seeded. Real numbers appear only as measured
 outputs (sprinkling coordinates, eigenvalues), never as the base, in
 keeping with the discreteness principle.
 
-The companion paper is a work in progress
-[here](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch).
-Findings are tracked in `note/experiment/results/` and the open problems in
-`note/questions/`.
+The
+[companion papers](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch)
+are snapshots of a _work very much in progress_. Findings are tracked in
+`note/experiment/results/` and the open problems in `note/questions/`.
 
 ## What is inside
 
@@ -79,7 +79,7 @@ typecheck clean, 28 of 28 known-answer tests pass. Full detail in
 | P1      | local rule with a bounded-below Hamiltonian      | resolved                                               | a trilemma for a CA's own log (local, bounded-below, propagating: pick two), resolved by the emergent-mesh Hamiltonian: the graph Laplacian is local (range 1), bounded below (spectrum from 0), and propagating (finite-speed lightcone) all at once                                                                                                        |
 | P2      | a dynamics that favors manifold-like order       | solved at scale                                        | a correct uniform-measure sampler (validated vs exact enumeration) reaches the entropic regime and shows a first-order transition: the smeared action makes manifold spacetime a stable phase coexisting with the layered phase, holding sharply across N = 48 to 160, so the dynamics produces spacetime (free-energy crossing is the remaining refinement) |
 | P3      | addressing versus Lorentz                        | candidate solved                                       | a connected hyperbolic random graph has exponential reach, anisotropy 0.07 (Lorentz-safe), and 100 percent backtracking navigability at once, and all three survive an eightfold mesh growth                                                                                                                                                                 |
-| P4      | the monist spinor, spin from topology, chirality | validated                                              | Kahler-Dirac zero modes equal the Betti sum (disk 1, cylinder 2, torus 4), and the overlap operator threads Nielsen-Ninomiya (1 species, exact chiral symmetry, GW residual 6e-16)                                                                                                                                                                               |
+| P4      | the monist spinor, spin from topology, chirality | validated                                              | Kahler-Dirac zero modes equal the Betti sum (disk 1, cylinder 2, torus 4), and the overlap operator threads Nielsen-Ninomiya (1 species, exact chiral symmetry, GW residual 6e-16)                                                                                                                                                                           |
 | P5      | the Hauptvermutung (unique geometry)             | validated (empirical)                                  | recovered dimension 3.02 plus or minus 0.05, proper-time coefficient of variation 0.027, a proof is still open                                                                                                                                                                                                                                               |
 | P6      | a computable 2D path integral                    | solved at scale                                        | the 2D specialisation of P2: with the correct uniform-measure sampler the 2D smeared action makes a stable manifold phase that is genuinely 2-dimensional (Myrheim-Meyer dimension 2.0 to 2.1 at N = 64 to 128)                                                                                                                                              |
 | P7      | quantum statistics from a classical base         | quantified + precise                                   | determinism (monism) makes CHSH violation possible, and the currency is aligned bits not bits (1 bit gives S=4 aligned vs S=1 misaligned, refining Hall). From dynamics, in a natural mesh the violation decays with measurement separation, unlike separation-independent QM, the precise residual tension                                                  |
@@ -95,9 +95,9 @@ simulator can decide.
 
 ## License
 
-MIT. Open for science: use, modify, and build on it freely, with attribution.
-See [LICENSE](LICENSE). The written results and figures are shared under
-CC-BY-4.0 (attribution).
+MIT. Open for science: use, modify, and build on it freely, with
+attribution. See [LICENSE](LICENSE). The written results and figures are
+shared under CC-BY-4.0 (attribution).
 
 ## ClueSurf
 
