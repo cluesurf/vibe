@@ -1,7 +1,7 @@
 // Lattice gauge dynamics on a substrate graph: the Wilson action over plaquettes
 // (smallest oriented loops) and a Metropolis heat-bath sweep over the link
 // integers. Under monism the gauge field is a tone on the relational vibes (the
-// links). See testbed/08-path-to-gauge-and-matter.md.
+// links).
 
 import { Graph } from '~/core/graph'
 import {

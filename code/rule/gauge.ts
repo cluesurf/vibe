@@ -3,7 +3,6 @@
 // acts on a Configuration, so the gauge field is held by closure and each step
 // performs one Metropolis sweep that MUTATES field.link in place (acceptable for
 // this research tool). The configuration passes through unchanged.
-// See testbed/03-tones-rules-operators.md and testbed/08-path-to-gauge-and-matter.md.
 
 import { Rule } from '~/rule/rule'
 import {

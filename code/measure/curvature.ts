@@ -1,6 +1,5 @@
 // Combinatorial curvature. A simplified Forman-Ricci curvature per edge, from
 // degrees and shared neighbors, and its mean over the substrate's edges.
-// See testbed/04-measurements.md.
 
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
 

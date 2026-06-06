@@ -1,6 +1,5 @@
 // Distance measures. graphDistance is spatial (BFS hop count); longestChain is
 // the discrete timelike geodesic (proper time) between two ordered elements.
-// See testbed/04-measurements.md.
 
 import { Poset, precedes } from '~/core/poset'
 import { Substrate, undirectedAdjacency } from '~/core/substrate'

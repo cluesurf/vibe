@@ -1,7 +1,7 @@
 // Wilson loops: gauge-invariant observables on a gauge field. The loop phase is
 // the parallel transport around an oriented cycle; its cosine is the real Wilson
 // loop value, and the mean (1 - value) over plaquettes is a coarse string-tension
-// proxy (the static potential). See testbed/08-path-to-gauge-and-matter.md.
+// proxy (the static potential).
 
 import { GaugeField, PlaquetteSet, linkPhase } from '~/core/gauge-field'
 

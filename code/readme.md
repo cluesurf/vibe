@@ -56,9 +56,8 @@ JSON and markdown report under `out/`.
 | `p8-gauge-fermion.ts`      | a U(1) gauge field plus a charged fermion          |
 | `p9-integration.ts`        | structural correlates of a self                    |
 
-See `note/research/vibe/research/open-problems-and-how-to-solve-them.md`
-for the problem statements and `testbed/06-experiments-per-problem.md`
-for the designs.
+See `note/questions/` for the problem statements and
+`note/experiment/results/` for the findings.
 
 ## Conventions
 

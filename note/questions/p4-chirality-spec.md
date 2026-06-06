@@ -83,5 +83,4 @@ the hard part of the wall, and that is what we implement.
 
 ## See also
 
-`note/experiment/results/p8-confinement.md` (Stage C), and
-`testbed/08-path-to-gauge-and-matter.md` (the full ladder) in the monorepo.
+`note/experiment/results/p8-confinement.md` (Stage C of the gauge ladder).

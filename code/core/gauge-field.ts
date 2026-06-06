@@ -1,6 +1,6 @@
 // A gauge field is a connection: a group element on every directed edge that
 // parallel-transports along that link. Under monism it is a tone on relational
-// vibes (the links). See testbed/08-path-to-gauge-and-matter.md.
+// vibes (the links).
 
 import { Graph, edgeList } from '~/core/graph'
 

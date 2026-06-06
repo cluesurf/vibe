@@ -1,6 +1,6 @@
 // Poisson sprinkling of a causal diamond in d-dimensional Minkowski space.
 // Uniform-by-volume sampling makes the process Poisson, hence Lorentz invariant:
-// the thing a regular lattice cannot be. See research/testbed/02-substrates.md.
+// the thing a regular lattice cannot be.
 
 import { Rng } from '~/core/rng'
 import { Embedding, ManifoldSpec } from '~/core/embedding'

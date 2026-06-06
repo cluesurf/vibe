@@ -1,6 +1,6 @@
 // Synchronous rule: apply the local tone map to every element at once, reading
 // every neighborhood tone from the SAME (input) configuration. This is the
-// global beat. See testbed/03-tones-rules-operators.md.
+// global beat.
 
 import { Rule, LocalMap } from '~/rule/rule'
 import { adjacencyOf } from '~/core/substrate'

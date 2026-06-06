@@ -1,7 +1,7 @@
 // A causal-set action: a real-valued functional of the order, the weight
 // exponent in the sum over histories. The flagship is the Benincasa-Dowker
 // action, the discrete analogue of the Einstein-Hilbert action whose continuum
-// limit recovers the Ricci scalar curvature. See testbed/05-dynamics-and-search.md
+// limit recovers the Ricci scalar curvature.
 // and Benincasa & Dowker, "The Scalar Curvature of a Causal Set" (2010).
 
 import { Poset, pastMatrix, relationCount, intervalSize } from '~/core/poset'

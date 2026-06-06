@@ -5,7 +5,6 @@
 // factor e^{i charge phase}. This keeps the operator real-symmetric so
 // diracSpectrum can run on it. A full implementation would carry separate
 // re / im channels and build a Hermitian complex operator.
-// See note/research/vibe/research/testbed/03-tones-rules-operators.md
 
 import { CellComplex } from '~/operator/dirac'
 import { GaugeField, linkPhase } from '~/core/gauge-field'

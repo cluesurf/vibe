@@ -1,7 +1,7 @@
 // Metropolis Monte Carlo over labelled causal sets: the testbed's approximation
 // of Bombelli's sum over histories. We use the Euclidean-style reweighting
 // (weight e^{-beta*S} rather than the oscillatory e^{iS}) so the chain actually
-// converges. See testbed/05-dynamics-and-search.md.
+// converges.
 
 import { Poset, makePosetFromFuture } from '~/core/poset'
 import { BitMatrix, makeBitMatrix, getBit } from '~/core/bitset'

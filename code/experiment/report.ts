@@ -1,6 +1,6 @@
 // Scan reporter. Writes a machine JSON and a human-readable markdown table for a
 // ScanResult, both stamped with the seed. Per the house rule, the markdown uses
-// human framing and never raw ISO timestamps. See testbed/05-dynamics-and-search.md.
+// human framing and never raw ISO timestamps.
 
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'

@@ -135,5 +135,5 @@ alignment) or out of scope (C).
 ## See also
 
 `frontier-spec.md` (Fronts 1 to 3 in detail),
-`deck/vibe/note/experiment/results/` (all results), `p4-chirality-spec.md`,
+`note/experiment/results/` (all results), `p4-chirality-spec.md`,
 `p2-dynamics-spec.md`.

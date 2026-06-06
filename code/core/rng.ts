@@ -1,6 +1,5 @@
 // Seeded deterministic PRNG. Reproducibility is a hard requirement of the
 // testbed: the whole system is a pure function of (seed, parameters).
-// See note/research/vibe/research/testbed/07-engineering-and-roadmap.md
 
 export interface Rng {
   // float in [0, 1)

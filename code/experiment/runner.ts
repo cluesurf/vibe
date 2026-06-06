@@ -1,7 +1,7 @@
 // The parameter-scan harness. Almost every experiment is "vary one knob, measure
 // one number, repeat over seeds." This standardizes the sweep, seeds every trial
 // deterministically from one base seed, and aggregates mean and standard
-// deviation of every reported metric. See testbed/05-dynamics-and-search.md.
+// deviation of every reported metric.
 
 import { Rng, makeRng, deriveSeed } from '~/core/rng'
 

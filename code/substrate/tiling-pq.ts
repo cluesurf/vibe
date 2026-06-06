@@ -1,6 +1,6 @@
 // The {p,q} hyperbolic tiling, grown by Margenstern's splitting method, with
 // Fibonacci / Zeckendorf addressing. The regular side of P3 and a clean-
-// navigation substrate. See research/testbed/02-substrates.md and note 15.
+// navigation substrate.
 //
 // EXACT parts:
 //   - The pentagrid {5,4} growth rule (a node is white with 3 children or black

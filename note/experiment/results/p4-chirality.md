@@ -78,5 +78,4 @@ theory) and the full Standard Model content (Stage E), which remain ahead.
 
 ## See also
 
-`p8-confinement.md` (Stage C), `note/questions/p4-chirality-spec.md` (the plan),
-`testbed/08-path-to-gauge-and-matter.md` (the full ladder).
+`p8-confinement.md` (Stage C) and `note/questions/p4-chirality-spec.md` (the plan).

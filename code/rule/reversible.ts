@@ -1,7 +1,7 @@
 // Reversible even/odd rule: update the even sublattice from the odd, then the
 // odd from the even. Each half-step touches a sublattice while reading only the
 // other, so the step is the composition of two block updates ('t Hooft's
-// recipe). See testbed/03-tones-rules-operators.md.
+// recipe).
 //
 // NOTE: this is a reversibility SCAFFOLD. True reversibility additionally
 // requires `local` to be a BIJECTION on each sublattice's tone given the fixed

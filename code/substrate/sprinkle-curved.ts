@@ -1,6 +1,6 @@
 // Sprinkling curved spacetimes for P5 (does geometry recover uniquely) and the
 // curved cases. Sample by proper volume, build the causal order, attach the given
-// manifold. See research/testbed/02-substrates.md.
+// manifold.
 //
 // First version: the causal test is the flat Minkowski light-cone test, applied
 // in the appropriate frame.

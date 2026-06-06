@@ -3,7 +3,6 @@
 // statistical independence (settings free of the hidden state) to full
 // superdeterminism (settings determined by the hidden state). With
 // settingCorrelation = 0 and any local model, |S| <= 2 (the classical bound).
-// See testbed/04-measurements.md.
 
 import { Rng } from '~/core/rng'
 
