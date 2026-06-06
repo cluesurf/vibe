@@ -14,12 +14,12 @@ and what is still open.
 | Question | Experiment | Status |
 |---|---|---|
 | P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `p1-locality`, `p1-law`, `p1-emergent` | **resolved**: a trilemma for the CA log, solved by the emergent-mesh Hamiltonian (Laplacian) |
-| P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon`, `p2-transition` | **candidate progress**: smeared action gives near-2D ensembles, and the manifold phase is a stable basin |
+| P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon`, `p2-transition`, `p2-tempering` | **candidate progress**: smeared action robustly favors manifold-like (unique equilibrium), real open need is a uniform-measure sampler |
 | P3. Addressing versus Lorentz | `p3-study`, `validation`, `p3-growth` | **candidate solved**: all three at once, navigability 100 percent, and stable under mesh growth |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
-| P7. Quantum from a classical base | `p7-bell`, `p7-naturalness` | mechanism quantified, naturalness made precise (determinism enables it, but the correlation must be aligned) |
+| P7. Quantum from a classical base | `p7-bell`, `p7-naturalness`, `p7-alignment` | mechanism quantified, naturalness made precise: the currency is aligned bits, not bits (refines Hall) |
 | P8. One gauge field and one charged fermion | `p8-gauge-fermion`, `validation`, `p8-confinement`, `p8-index` | **validated** A, B, C plus the index theorem: charge couples, SU(2) confines, index = topological charge |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 
@@ -52,8 +52,12 @@ robustly across smearing scales eps in [0.8, 0.99] and at two sizes
 basin**: started from a sprinkling, the smeared dynamics keeps the height ratio at
 about 1.9 across all beta, started from a layered order it climbs from 0.35 toward
 1.0, and the sharp action erodes the manifold start from 1.89 to 1.51
-(`p2-transition.md`). **Remaining:** a faster move and finite-size scaling to turn
-the two metastable basins into a proven first-order transition.
+(`p2-transition.md`). Parallel tempering then refined this: the manifold phase is
+the **unique equilibrium** under the smeared action (the warm-start gap was slow
+mixing, not coexistence). **Remaining:** the deeper need is a sampler with correct
+detailed balance on the uniform causal-set measure, so the entropic layered
+majority is represented and the genuine dominance question can be posed
+(`p2-tempering.md`). That is the real gate, not just a faster move.
 
 ### P3. Can one substrate have reach, Lorentz invariance, and navigation at once?
 
@@ -153,11 +157,12 @@ priority order:
    the real path toward the Standard Model and is genuinely hard (lattice chiral
    gauge theory is an open research problem), so even partial progress is
    significant.
-2. **P2 / P6 dynamics at scale**: the smeared action selects manifold-like orders,
-   and the manifold phase is now shown to be a stable basin (two metastable basins
-   separated by a gap). The remaining work is a faster incremental move and
-   finite-size scaling to turn the metastability into a proven first-order
-   transition. P6 is the 2D specialisation and shares the machinery.
+2. **P2 / P6 uniform-measure sampler**: the smeared action robustly favors
+   manifold-like orders (parallel tempering shows a unique manifold equilibrium,
+   not coexistence). The genuine open need is a sampler with correct detailed
+   balance on the uniform causal-set measure, so the entropic layered majority is
+   represented and the dominance question can actually be posed. Deeper than a
+   faster move. P6 shares the machinery.
 3. **P3 microscopic growth rule**: the both-worlds property already survives an
    expanding mesh at constant density. The refinement is a one-node-at-a-time local
    attachment rule coupled to causal graph dynamics.

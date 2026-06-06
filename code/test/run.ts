@@ -31,6 +31,10 @@ import { commutingBlockHamiltonian, cnotGate } from '~/operator/block-ca'
 import { eigHermitian } from '~/linalg/eig-hermitian'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 import { chshShared } from '~/experiment/p7-naturalness'
+import { measureChshAndDependence } from '~/experiment/p7-alignment'
+import { parallelTempering } from '~/dynamics/parallel-tempering'
+import { smearedBenincasaDowker } from '~/dynamics/action'
+import { orderStatistics } from '~/measure/order-stats'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
@@ -319,6 +323,43 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
     ok: lo > -1e-9 && lo < 1e-6,
     detail: `min eigenvalue ${lo.toExponential(1)}`,
+  })
+}
+
+// 17. Aligned bits, not bits: at full sharing, aligned and misaligned measurement
+// dependence are equal (~1 bit) yet only aligned violates CHSH. Bell's currency is
+// aligned dependence, not raw dependence.
+{
+  const aligned = measureChshAndDependence({ eta: 1, mode: 'aligned', trials: 60000, seed: 11 })
+  const misaligned = measureChshAndDependence({ eta: 1, mode: 'misaligned', trials: 60000, seed: 12 })
+  check({
+    name: 'same measurement-dependence, different violation (alignment is the currency)',
+    ok:
+      aligned.s > 3.5 &&
+      misaligned.s < 1.5 &&
+      Math.abs(aligned.mutualInfo - misaligned.mutualInfo) < 0.05,
+    detail: `aligned S ${aligned.s.toFixed(2)} (${aligned.mutualInfo.toFixed(2)} bit), misaligned S ${misaligned.s.toFixed(2)} (${misaligned.mutualInfo.toFixed(2)} bit)`,
+  })
+}
+
+// 18. Parallel tempering runs with swaps and equilibrates the causal-set sampler:
+// under the smeared action the cold replica is manifold-like (height ratio > 1).
+{
+  const result = parallelTempering({
+    size: 24,
+    betas: [0.2, 0.6, 1.0, 1.6],
+    action: smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 }),
+    sweeps: 150,
+    movesPerSweep: 15,
+    observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
+    rng: makeRng({ seed: 3 }),
+  })
+  const cold = result.samplesByBeta[3] ?? []
+  const meanCold = cold.length > 0 ? cold.reduce((a, b) => a + b, 0) / cold.length : 0
+  check({
+    name: 'parallel tempering swaps and gives a manifold-like cold replica',
+    ok: result.swapAcceptance > 0 && result.swapAcceptance <= 1 && meanCold > 0.8,
+    detail: `swap ${(result.swapAcceptance * 100).toFixed(0)}%, cold mean hr ${meanCold.toFixed(2)}`,
   })
 }
 

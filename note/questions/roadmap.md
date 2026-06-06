@@ -97,7 +97,43 @@ explicit about Tier C.
 Implement A1 (P1 Hamiltonian locality) and A2 (P3 under growth), the two cleanest
 Tier-A wins, and leave A3 to A5 and Tier B speced above for the next passes.
 
+## Current state (updated)
+
+Since this roadmap was written, the achievable Tier-A items and the two deepest
+questions have been cleared or sharpened:
+
+- **A1 / P1 (the law): resolved.** Characterised as a trilemma (local, bounded
+  below, propagating: pick two for a CA's own log) and resolved by the
+  emergent-mesh Hamiltonian (the Laplacian is all three at once). See `p1-law.md`,
+  `p1-emergent`.
+- **A2 / P3 (under growth): done.** The both-worlds substrate survives an
+  eightfold expansion at constant density. See `p3-growth.md`.
+- **B3 / P7 (the quantum link): sharpened.** Determinism makes violation possible,
+  and the currency is aligned bits, not bits (1 bit of measurement dependence
+  gives S = 4 aligned or S = 1 misaligned). See `p7-naturalness.md`,
+  `p7-alignment`.
+
+What genuinely remains, and why it needs more than a quick pass:
+
+- **A3 / P2-P6 at scale** needs a faster Monte Carlo move (incremental closure to
+  reach a few hundred elements) before finite-size scaling can prove the phase
+  transition. Real engineering, not a one-off.
+- **A4 / P8 Schwinger** needs an overlap inverse, which means a complex
+  non-Hermitian eigensolver or an iterative solve, infrastructure the testbed does
+  not yet have.
+- **B2 chiral gauge theory** and **B1 manifold-dominance in the continuum limit**
+  are open in the physics literature, not just here.
+- **P7 alignment from dynamics** is the residual hinge: producing an aligned
+  setting-state correlation from mesh evolution, the genuine frontier of the
+  superdeterminism program.
+- **C / P9 and the Standard Model content** remain the honest boundary.
+
+So the conceptual core and the two deepest questions are now addressed. What is
+left is either infrastructure-gated (A3, A4) or genuine open research (B1, B2, P7
+alignment) or out of scope (C).
+
 ## See also
 
-`frontier-spec.md` (Fronts 1 to 3 in detail), `note/experiment/results/` (all
-results), `p4-chirality-spec.md`, `p2-dynamics-spec.md`.
+`frontier-spec.md` (Fronts 1 to 3 in detail),
+`deck/vibe/note/experiment/results/` (all results), `p4-chirality-spec.md`,
+`p2-dynamics-spec.md`.

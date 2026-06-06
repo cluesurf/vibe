@@ -70,6 +70,7 @@ export * from './dynamics/mcmc'
 export * from './dynamics/coarsegrain'
 export * from './dynamics/wilson'
 export * from './dynamics/su2-lattice'
+export * from './dynamics/parallel-tempering'
 
 // experiment infrastructure
 export * from './experiment/runner'
