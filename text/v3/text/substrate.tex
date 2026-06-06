@@ -1,0 +1,24 @@
+\section{The Substrate: Lorentz-Safe and Navigable at Once (P3)}
+\label{sec:substrate}
+
+Vibe Theory commits to a hyperbolic, expanding mesh with no hidden state. P3 is the question this most directly tests, and it is the most framework-specific result. The mesh must be two things that seem to pull against each other. It must respect relativity, having no preferred frame, which random structures give but rigid ones do not. And it must be navigable, so a vibe can route influence to a distant target using only what it locally knows, which rigid addressable structures give but generic random ones do not. Can one substrate be both?
+
+\subsection{The both-worlds substrate}
+
+We compared substrates on three measures at once: exponential reach (ball growth), Lorentz isotropy (an angular order parameter, near zero meaning no preferred frame), and navigability (greedy and backtracking geometric routing using only local neighbors and a coordinate).
+
+\begin{result}[All three at once]
+A connected hyperbolic random graph (mean degree about $11$) has exponential reach, anisotropy $0.07$ (as Lorentz-safe as a pure sprinkling), and $100\%$ navigability with backtracking (greedy alone reaches $97\%$). A regular lattice fails (anisotropy $1.0$, a hard preferred frame, and not navigable). A flat sprinkling is isotropic but neither reaches nor is navigable. The hyperbolic mesh is the substrate that is relativistic and navigable at once.
+\end{result}
+
+The price is giving up exact addressing for greedy geometric routing, which needs only a coordinate and the local neighbors, consistent with the no-hidden-state commitment. There is no global routing table.
+
+\subsection{Stable under growth}
+
+A one-shot construction is not a living mesh. We tested whether the property survives the eternal expansion the framework commits to, modelling growth as an expanding hyperbolic disc at constant density.
+
+\begin{result}[Survives expansion]
+Across an eightfold growth of the mesh at constant density, the both-worlds property persists at every size: exponential reach, anisotropy near $0.1$, and $100\%$ backtracking navigability hold throughout. The substrate stays relativistic and navigable as it grows.
+\end{result}
+
+This is the result where Vibe Theory's committed choices pay off most directly. The hyperbolic geometry is load-bearing, not stylistic, because only it gives reach, Lorentz safety, and navigation together. The expansion preserves the property. And navigation needs no hidden bookkeeping. The three commitments stand or fall as one package, and here they stand.

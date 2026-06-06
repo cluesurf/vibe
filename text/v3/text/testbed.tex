@@ -1,0 +1,30 @@
+\section{The Testbed}
+\label{sec:testbed}
+
+The model is fully discrete, so it is fully simulable. We built a testbed, an open-source TypeScript library, the \texttt{@cluesurf/vibe} package~\cite{pollard2026vibetest}, available under the MIT License at \url{https://github.com/cluesurf/vibe}, that generates a discrete substrate, runs a local rule over it in discrete beats, and measures the emergent physics. Everything is finite and seeded, so every number reported here is a deterministic function of a stated seed and reproduces exactly.
+
+\subsection{Design}
+
+The library is organized as a small set of layers. \emph{Substrates} generate the mesh: Poisson-sprinkled Minkowski and curved spacetime, regular lattices, hyperbolic tilings, hyperbolic random graphs, and classical sequential growth. \emph{Rules} update it: synchronous, asynchronous, reversible, rewriting, and gauge updates. \emph{Operators} act on it: the graph Laplacian, the Kahler-Dirac operator, the evolution Hamiltonian, the gauge-covariant Dirac operator, and the overlap operator. \emph{Measures} read off physics: dimension, distance, curvature, manifold-likeness, Lorentz isotropy, navigability, the CHSH correlation, locality, integration, Wilson loops, and the chiral condensate. \emph{Dynamics} provide the samplers: the Benincasa-Dowker action, causal-set Monte Carlo, parallel tempering, exact enumeration, a correct uniform-measure sampler, and the Wilson heat bath.
+
+Real numbers appear only as measured outputs, such as sprinkling coordinates and eigenvalues, never as the substrate. This keeps the discreteness commitment honest at the level of the code.
+
+\subsection{Trustworthiness}
+
+A model is only as trustworthy as its checks. The testbed carries a suite of known-answer tests that must pass before any result is believed: a Poisson sprinkling of a $d$-dimensional region must recover dimension $d$, a regular lattice must be more anisotropic than a sprinkling, a CHSH experiment with independent settings must respect the classical bound, the overlap operator must have one species with exact chiral symmetry, the uniform-measure sampler must reproduce exact enumeration, and so on. Several early results were wrong in plausible-looking ways and were caught only by these checks, including a miscalibrated dimension estimator, a sprinkler that was not uniform by volume, an anisotropy statistic that cancelled for symmetric lattices, and a Monte Carlo move that did not sample the uniform measure. Each was fixed and recorded. The results below are reported only for measures that pass their known-answer tests.
+
+\subsection{The nine questions}
+
+We pose the model's load-bearing questions as P1 through P9, each a runnable experiment:
+\begin{itemize}
+\item \textbf{P1.} Can the dynamics have a bounded-below and local Hamiltonian (a stable ground state and a local time)?
+\item \textbf{P2.} Is there a dynamics under which manifold-like spacetime dominates?
+\item \textbf{P3.} Can one substrate be at once Lorentz-safe and navigable?
+\item \textbf{P4.} Is matter, including spin, a pattern of the mesh?
+\item \textbf{P5.} Is the geometry recovered from a discrete order unique?
+\item \textbf{P6.} Is the 2D sum over histories computable and 2-dimensional?
+\item \textbf{P7.} Can quantum statistics come from the deterministic mesh?
+\item \textbf{P8.} Can a gauge force and a charged fermion be built?
+\item \textbf{P9.} What is the relation between structure and experience?
+\end{itemize}
+The next sections answer these in the order of the emergence ladder, grouping them by the structure they build.

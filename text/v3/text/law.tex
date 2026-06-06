@@ -1,0 +1,30 @@
+\section{Time and the Law (P1)}
+\label{sec:law}
+
+Time in Vibe Theory is the depth of the note order, and the law is the rule that updates the mesh. P1 asks whether that law can have a stable ground state (a bounded-below energy) and a local notion of time (a local Hamiltonian) at once. A reversible local rule has a global update $U$, and its Hamiltonian is $H = i \log U$. The question is whether $H$ is both bounded below and local.
+
+\subsection{The trilemma}
+
+We built $H$ exactly from the cycle structure of $U$ and expanded it in the Pauli basis, measuring how its operator weight is distributed over interaction range. A control validates the measure: a single-cell flip has $H = (\pi/2)(I - X_0)$, exactly range one, and the measure returns locality length $1.00$. The reversible rules tell a sharp story.
+
+\begin{result}[The principal Hamiltonian is nonlocal]
+For every nontrivial reversible rule tested, the principal (minimal-energy) Hamiltonian has interaction range that grows with the system, with locality length about $0.8N$ for the XOR-parity rule at $N = 6, 8$. The bounded-below vacuum is easy, but the minimal-energy law is not local.
+\end{result}
+
+An explicit local branch exists for special rules. For a product of commuting local gates, $H = \sum (\pi/2)(I - G_{\text{block}})$ is a genuine logarithm of $U$, with bounded locality length and a bounded-below spectrum. But this requires the gates to commute, which means the rule does not propagate information. Putting these together yields a clean obstruction.
+
+\begin{principle}[The law is a trilemma]
+For a reversible cellular automaton's own Hamiltonian, local, bounded below, and information-propagating appear unable to hold all three at once. Any two are achievable. All three resist.
+\end{principle}
+
+This is an obstruction observed across the rules we tested, at small size, and argued from the branch structure of the logarithm. It is a principle drawn from the evidence, not a theorem proved for all rules, and we state it as such.
+
+\subsection{The resolution}
+
+The way out is to stop demanding that the quantum Hamiltonian be the logarithm of one microscopic step. Define it instead as a local operator on the \emph{emergent} mesh, the graph Laplacian or the Dirac operator.
+
+\begin{result}[The emergent Hamiltonian beats the trilemma]
+The graph Laplacian on the emergent mesh is local (interaction range one, independent of size), bounded below (spectrum starting at zero), and propagating (a localized state spreads at a finite speed, a lightcone) all at once. On a ring of $N = 24$ and $N = 48$ the range stays one and the spectrum stays in $[0, 4]$, and the mean spread grows linearly in time.
+\end{result}
+
+The reading for Vibe Theory is that the rule and the flow of time are different objects. The rule builds the geometry (Section~\ref{sec:geometry}). Time is what local operators do on the grown mesh. The trilemma is an obstruction for the log of a microscopic step, not for physics, because physical time lives on the mesh that the rule produces, not inside the rule.
