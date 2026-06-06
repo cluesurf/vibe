@@ -38,6 +38,9 @@ The
 are snapshots of a _work very much in progress_. Findings are tracked in
 `note/experiment/results/` and the open problems in `note/questions/`.
 
+[Here](https://cluesurf.substack.com/p/vibe-mesh) is a high-level
+overview of how to imagine things in this system/model/framework.
+
 ## What is inside
 
 - **substrate**: Poisson-sprinkled Minkowski and curved spacetime,
