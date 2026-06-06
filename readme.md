@@ -80,12 +80,14 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 53 of 53 known-answer tests pass. P1 to P9 are the
+typecheck clean, 54 of 54 known-answer tests pass. P1 to P9 are the
 conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
 and the field content, P23 to P25 the field operators derived from the
 action and electroweak breaking, P26 to P30 the distinctive observational
-predictions and cosmology, and P31 to P33 the deep frontiers (the quantum
-formalism, the Einstein equations, and black-hole entropy). Full detail in
+predictions and cosmology, P31 to P33 the deep frontiers (the quantum
+formalism, the Einstein equations, and black-hole entropy), and P34 the
+capstone (the committed model run end-to-end). The model itself is
+specified in [note/the-model.md](note/the-model.md). Full detail in
 [note/experiment/results/](note/experiment/results/) and
 [note/questions/](note/questions/).
 
@@ -124,6 +126,7 @@ formalism, the Einstein equations, and black-hole entropy). Full detail in
 | P31     | the quantum formalism                            | down-payment                                           | unitarity (the Born probability is conserved), interference (amplitudes add, not probabilities), and a conserved Born rule, all present on the mesh. Deriving why the probability is |psi|^2 is open                                                                                                                                                            |
 | P32     | the Einstein equations                           | down-payment                                           | the Einstein tensor is transverse (k . G = 0, energy-momentum conservation built in), reduces to Newton in the static limit, and propagates a massless graviton at the speed of light                                                                                                                                                                          |
 | P33     | black-hole entropy                               | demonstrated                                            | the entanglement entropy of a region scales with its horizon AREA, not its volume, the Bekenstein-Hawking law S = A/4, with the entanglement across the horizon as its origin                                                                                                                                                                                  |
+| P34     | capstone (the model run end-to-end)              | demonstrated                                            | one growing random hyperbolic mesh with the ternary signed-majority rule yields, all at once, Lorentz-safe geometry with exponential reach, convergent ternary dynamics, the bounded-below local emergent Hamiltonian, and the arrow of accumulation                                                                                                            |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
