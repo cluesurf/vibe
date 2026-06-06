@@ -51,6 +51,10 @@ import { p12Crossing } from '~/experiment/p12-free-energy'
 import { csgCosmology } from '~/experiment/p13-cosmology'
 import { wangLandauHeight, crossingBeta, manifoldFractionAt } from '~/dynamics/wang-landau'
 import { deSitterExpansion } from '~/experiment/p13-expansion'
+import { branchingExpansion } from '~/experiment/p13-growth-expansion'
+import { rotationCurve } from '~/experiment/p18-dark-matter'
+import { darkEnergy4D } from '~/experiment/p19-dark-energy-4d'
+import { photonStudy } from '~/experiment/p20-photon'
 
 let passed = 0
 let failed = 0
@@ -580,6 +584,71 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P13 de Sitter: expanding geometry gives an expanding causal order',
     ok: r.expands && r.lateWidth > 1.5 * r.earlyWidth && r.dimension > 0 && r.dimension < 6,
     detail: `slice width ${r.earlyWidth.toFixed(1)} -> ${r.lateWidth.toFixed(1)}, dimension ${r.dimension.toFixed(2)}`,
+  })
+}
+
+// 33. P13 deepest edge: expansion emerges from a pure local growth rule. With net
+// birth one (q = 0) the spatial front is static; with net birth above one (q = 0.3)
+// it grows on its own at rate about 1 + q, with a manifold-like dimension and no
+// imposed metric.
+{
+  const stat = branchingExpansion({ spawnProb: 0, seed: 1 })
+  const grow = branchingExpansion({ spawnProb: 0.3, seed: 1 })
+  check({
+    name: 'P13 growth rule: net-positive birth gives emergent expansion (static control at q=0)',
+    ok:
+      !stat.expands &&
+      Math.abs(stat.rate - 1) < 0.05 &&
+      grow.expands &&
+      grow.rate > 1.2 &&
+      grow.rate < 1.45 &&
+      grow.dimension > 1 &&
+      grow.dimension < 3,
+    detail: `q=0 rate ${stat.rate.toFixed(2)} (static); q=0.3 rate ${grow.rate.toFixed(2)}, dim ${grow.dimension.toFixed(2)}`,
+  })
+}
+
+// 34. P18 dark matter: a nonlocal (infrared-enhanced) gravitational kinetic term
+// flattens the rotation curve. Local gravity declines (Keplerian, ratio below one),
+// the nonlocal one stays flat or rises (ratio at or above one), with no dark particle.
+{
+  const local = rotationCurve({ side: 19, nonlocal: 0 })
+  const nonlocal = rotationCurve({ side: 19, nonlocal: 1.5 })
+  check({
+    name: 'P18 dark matter: nonlocal gravity flattens the rotation curve (no dark particle)',
+    ok: local.flatnessRatio < 0.7 && nonlocal.flatnessRatio > 0.95 && nonlocal.flatnessRatio > local.flatnessRatio,
+    detail: `local ratio ${local.flatnessRatio.toFixed(2)} (falls), nonlocal ratio ${nonlocal.flatnessRatio.toFixed(2)} (flat/rising)`,
+  })
+}
+
+// 35. P19 dark energy: the 4D action fluctuation is measured and grows with volume
+// (the sharp-action fluctuation problem; the everpresent shrinking needs smearing).
+{
+  const r = darkEnergy4D({ sizes: [64, 128, 256], repeats: 10 })
+  const increasing = (r.stds[0] ?? 0) < (r.stds[1] ?? 0) && (r.stds[1] ?? 0) < (r.stds[2] ?? 0)
+  check({
+    name: 'P19 dark energy: the 4D action fluctuation scaling is measured',
+    ok: increasing && r.actionExponent > 0.5 && r.actionExponent < 2,
+    detail: `std(S) ~ N^${r.actionExponent.toFixed(2)} (sharp 4D action fluctuation problem)`,
+  })
+}
+
+// 36. P20 photon: the free U(1) gauge field is massless and gauge-invariant. About
+// one third of modes are exact gauge zero modes, the physical spectrum is gapless
+// (min omega^2 shrinks with L), and a mass term gives a fixed gap.
+{
+  const a = photonStudy({ side: 3 })
+  const b = photonStudy({ side: 5 })
+  const gaugeFraction = a.gauge / a.dof
+  check({
+    name: 'P20 photon: massless, gauge-invariant U(1) field (two transverse polarizations)',
+    ok:
+      gaugeFraction > 0.25 &&
+      gaugeFraction < 0.42 &&
+      b.minPhysicalOmega2 < a.minPhysicalOmega2 &&
+      a.massiveMinOmega2 > 0.9 &&
+      a.massiveMinOmega2 < 1.1,
+    detail: `gauge fraction ${gaugeFraction.toFixed(2)}, min omega^2 ${a.minPhysicalOmega2.toFixed(2)}->${b.minPhysicalOmega2.toFixed(2)} (massless), massive gap ${a.massiveMinOmega2.toFixed(2)}`,
   })
 }
 

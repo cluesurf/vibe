@@ -14,6 +14,7 @@
 // halving stalls. The per-height action is measured in the converged 1/t regime.
 
 import { Rng } from '~/core/rng'
+import { makeBitMatrix, setBit } from '~/core/bitset'
 import {
   makeState,
   isRelated,
@@ -22,6 +23,19 @@ import {
   height,
   smearedAction,
 } from '~/dynamics/uniform-sampler'
+
+// A transitive chain on the first k elements (0 < 1 < ... < k-1), as a future
+// relation, so a fresh state can start at height k (used to seed WL windows above
+// the antichain, where random additions reach the target height unreliably).
+function chainFuture(size: number, k: number): ReturnType<typeof makeBitMatrix> {
+  const future = makeBitMatrix({ rows: size, cols: size })
+  for (let a = 0; a < k; a++) {
+    for (let b = a + 1; b < k; b++) {
+      setBit(future, { row: a, col: b })
+    }
+  }
+  return future
+}
 
 export interface WangLandauResult {
   size: number
@@ -46,28 +60,16 @@ export function wangLandauHeight(input: {
   const minHeight = input.minHeight ?? 2
   const H = input.maxHeight - minHeight + 1
   const coverThreshold = input.coverThreshold ?? 4000
-  const state = makeState(n)
+  // Start from a chain of length minHeight so the walk begins in [minHeight,
+  // maxHeight] (robust for high windows, where random additions reach a target
+  // height unreliably).
+  const state = makeState(n, minHeight > 1 ? chainFuture(n, minHeight) : undefined)
   const logG = new Float64Array(H)
   const hist = new Float64Array(H)
   const seen = new Array<boolean>(H).fill(false)
   const actSum = new Float64Array(H)
   const actN = new Float64Array(H)
   const binOf = (h: number): number => Math.min(H - 1, Math.max(0, h - minHeight))
-
-  // Warm up into [minHeight, maxHeight] (the antichain height 1 is a single trivial
-  // config that would otherwise pin the flatness check).
-  for (let w = 0; w < n * n && height(state) < minHeight; w++) {
-    const i = input.rng.nextInt({ max: n })
-    let j = input.rng.nextInt({ max: n })
-    if (i === j) {
-      j = (j + 1) % n
-    }
-    const lo = Math.min(i, j)
-    const hi = Math.max(i, j)
-    if (lo !== hi && !isRelated(state, lo, hi) && toggleKeepsValid(state, lo, hi, false)) {
-      toggle(state, lo, hi)
-    }
-  }
 
   let curBin = binOf(height(state))
   seen[curBin] = true
@@ -152,6 +154,106 @@ export function wangLandauHeight(input: {
     meanAction.push(ok ? (actSum[b] ?? 0) / (actN[b] ?? 1) : NaN)
   }
   return { size: n, heights, logG: outLogG, meanAction, visited, converged }
+}
+
+// Windowed Wang-Landau: split [minHeight, maxHeight] into overlapping windows, run
+// WL confined to each (a small barrier per window, so it converges and the rare
+// high heights get sampled), then stitch the log g pieces by matching them on the
+// overlaps. This reaches large N where a single WL run cannot flatten the full,
+// steep entropy gradient.
+export function windowedWangLandau(input: {
+  size: number
+  epsilon: number
+  minHeight?: number
+  maxHeight: number
+  windowSize: number
+  overlap: number
+  rng: Rng
+  stepsPerWindow: number
+  coverThreshold?: number
+  burnInFraction?: number
+}): WangLandauResult {
+  const minHeight = input.minHeight ?? 2
+  const windows: { lo: number; hi: number }[] = []
+  let lo = minHeight
+  while (lo < input.maxHeight) {
+    const hi = Math.min(input.maxHeight, lo + input.windowSize - 1)
+    windows.push({ lo, hi })
+    if (hi >= input.maxHeight) {
+      break
+    }
+    lo = hi - input.overlap + 1
+  }
+
+  const total = input.maxHeight - minHeight + 1
+  const globalLogG = new Float64Array(total).fill(NaN)
+  const globalAct = new Float64Array(total).fill(NaN)
+  let allConverged = true
+
+  for (let wIdx = 0; wIdx < windows.length; wIdx++) {
+    const win = windows[wIdx]
+    if (!win) {
+      continue
+    }
+    const wl = wangLandauHeight({
+      size: input.size,
+      epsilon: input.epsilon,
+      minHeight: win.lo,
+      maxHeight: win.hi,
+      rng: input.rng,
+      maxSteps: input.stepsPerWindow,
+      coverThreshold: input.coverThreshold,
+      burnInFraction: input.burnInFraction,
+    })
+    allConverged = allConverged && wl.converged
+    // Offset to align this window's log g with what is already placed, by averaging
+    // the difference over overlap heights that both have measured.
+    let offsetSum = 0
+    let offsetN = 0
+    for (let b = 0; b < wl.heights.length; b++) {
+      if (!wl.visited[b]) {
+        continue
+      }
+      const h = wl.heights[b] ?? 0
+      const gi = h - minHeight
+      if (wIdx > 0 && !Number.isNaN(globalLogG[gi] ?? NaN)) {
+        offsetSum += (globalLogG[gi] ?? 0) - (wl.logG[b] ?? 0)
+        offsetN += 1
+      }
+    }
+    const offset = offsetN > 0 ? offsetSum / offsetN : 0
+    for (let b = 0; b < wl.heights.length; b++) {
+      if (!wl.visited[b]) {
+        continue
+      }
+      const h = wl.heights[b] ?? 0
+      const gi = h - minHeight
+      // First window to reach a height defines it (later windows only realign).
+      if (Number.isNaN(globalLogG[gi] ?? NaN)) {
+        globalLogG[gi] = (wl.logG[b] ?? 0) + offset
+        globalAct[gi] = wl.meanAction[b] ?? NaN
+      }
+    }
+  }
+
+  let maxLogG = -Infinity
+  for (let gi = 0; gi < total; gi++) {
+    if (!Number.isNaN(globalLogG[gi] ?? NaN)) {
+      maxLogG = Math.max(maxLogG, globalLogG[gi] ?? -Infinity)
+    }
+  }
+  const heights: number[] = []
+  const outLogG: number[] = []
+  const meanAction: number[] = []
+  const visited: boolean[] = []
+  for (let gi = 0; gi < total; gi++) {
+    heights.push(gi + minHeight)
+    const ok = !Number.isNaN(globalLogG[gi] ?? NaN)
+    visited.push(ok)
+    outLogG.push(ok ? (globalLogG[gi] ?? 0) - maxLogG : -Infinity)
+    meanAction.push(ok ? (globalAct[gi] ?? NaN) : NaN)
+  }
+  return { size: input.size, heights, logG: outLogG, meanAction, visited, converged: allConverged }
 }
 
 function logWeight(wl: WangLandauResult, beta: number, manifold: boolean): number {
