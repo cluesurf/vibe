@@ -45,6 +45,7 @@ measure, what we have found, and what is still open. Findings are in
 | P31. Quantum formalism | `p31-quantum-formalism` | down-payment: unitarity (norm conserved), interference (amplitudes add), and a conserved Born probability. Deriving why |psi|^2 is open |
 | P32. Einstein equations | `p32-einstein-equations` | down-payment: the Einstein tensor is transverse (conservation built in), reduces to Newton (static), and propagates a massless graviton at the speed of light |
 | P33. Black-hole entropy | `p33-black-hole` | **demonstrated**: entanglement entropy scales with horizon area, not volume (Bekenstein-Hawking S = A/4) |
+| P34. Capstone (the model run end-to-end) | `p34-capstone` | **demonstrated**: one growing random hyperbolic mesh with the ternary signed-majority rule yields Lorentz-safe geometry, exponential reach, convergent ternary dynamics, the bounded-below local Hamiltonian, and the arrow, all at once |
 
 The next-version problem set (P10 to P17) is in `next-version.md`. The broader
 frontiers, including the dark sector (P18, P19) and the field-coverage map (P20), are

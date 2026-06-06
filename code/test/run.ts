@@ -68,6 +68,7 @@ import { inflate } from '~/experiment/p30-inflation'
 import { quantumFormalism } from '~/experiment/p31-quantum-formalism'
 import { bianchiResidual, gravitonSpeed } from '~/experiment/p32-einstein-equations'
 import { blackHoleEntropy } from '~/experiment/p33-black-hole'
+import { capstone } from '~/experiment/p34-capstone'
 
 let passed = 0
 let failed = 0
@@ -846,6 +847,28 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P33 black holes: entropy scales with horizon area, not volume (Bekenstein-Hawking)',
     ok: r.areaBeatsVolume && increasing,
     detail: `area residual ${r.areaResidual.toExponential(1)} < volume residual ${r.volumeResidual.toExponential(1)}`,
+  })
+}
+
+// 50. P34 capstone: the committed model (ternary signed-majority rule on a growing
+// random hyperbolic mesh) runs end-to-end, and the key emergent structures all come
+// off that one instantiation: Lorentz-safe geometry with exponential reach, ternary
+// dynamics converging to stable states, a bounded-below local emergent Hamiltonian,
+// and the arrow of accumulation.
+{
+  const r = capstone({ count: 1000, seed: 1 })
+  check({
+    name: 'P34 capstone: the committed model runs end-to-end (one mesh, one rule, all structures)',
+    ok:
+      r.meanDegree > 5 &&
+      r.meanDegree < 16 &&
+      r.anisotropy < 0.3 &&
+      r.reachExponential &&
+      r.allTernary &&
+      r.dynamicsConverges &&
+      r.laplacianBoundedBelow &&
+      r.arrowMonotone,
+    detail: `degree ${r.meanDegree.toFixed(1)}, anisotropy ${r.anisotropy.toFixed(2)}, reach ${r.reachExponential}, ternary converges ${r.dynamicsConverges}, H>=0 ${r.laplacianBoundedBelow}, arrow ${r.arrowMonotone}`,
   })
 }
 
