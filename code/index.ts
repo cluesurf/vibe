@@ -71,6 +71,7 @@ export * from './dynamics/coarsegrain'
 export * from './dynamics/wilson'
 export * from './dynamics/su2-lattice'
 export * from './dynamics/parallel-tempering'
+export * from './dynamics/exact-enumeration'
 
 // experiment infrastructure
 export * from './experiment/runner'

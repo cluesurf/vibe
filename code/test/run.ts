@@ -35,6 +35,7 @@ import { measureChshAndDependence } from '~/experiment/p7-alignment'
 import { parallelTempering } from '~/dynamics/parallel-tempering'
 import { smearedBenincasaDowker } from '~/dynamics/action'
 import { orderStatistics } from '~/measure/order-stats'
+import { exactCausalSetAverages } from '~/dynamics/exact-enumeration'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
@@ -360,6 +361,26 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'parallel tempering swaps and gives a manifold-like cold replica',
     ok: result.swapAcceptance > 0 && result.swapAcceptance <= 1 && meanCold > 0.8,
     detail: `swap ${(result.swapAcceptance * 100).toFixed(0)}%, cold mean hr ${meanCold.toFixed(2)}`,
+  })
+}
+
+// 19. Exact enumeration: on the true measure the smeared action drives the
+// ensemble toward manifold-like orders (manifold fraction rises with beta), with
+// no sampling bias.
+{
+  const action = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
+  const result = exactCausalSetAverages({
+    size: 5,
+    betas: [0, 2],
+    action,
+    observers: [({ poset }) => (orderStatistics({ poset }).heightRatio > 1 ? 1 : 0)],
+  })
+  const fracCold = result.means[1]?.[0] ?? 0
+  const fracHot = result.means[0]?.[0] ?? 0
+  check({
+    name: 'exact: smeared action raises manifold fraction on the true measure',
+    ok: result.count > 0 && fracCold > fracHot,
+    detail: `${result.count} causal sets, manifold fraction ${fracHot.toFixed(2)} (beta 0) -> ${fracCold.toFixed(2)} (beta 2)`,
   })
 }
 
