@@ -49,13 +49,19 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 - [p8-index.md](p8-index.md): the chiral fermion meets the gauge field.
   The overlap fermion's index equals the gauge topological charge exactly
   (index = -Q, integer), the lattice Atiyah-Singer index theorem.
+- [p1-locality.md](p1-locality.md): P1's open half. H = i log U is bounded
+  below but nonlocal for the XOR-parity rule (locality length grows with
+  size), so a local rule does not give a local Hamiltonian.
+- [p3-growth.md](p3-growth.md): the both-worlds substrate under growth. An
+  expanding hyperbolic mesh keeps reach, Lorentz isotropy, and 100 percent
+  navigability across an eightfold growth. P3 is dynamical, not one-shot.
 - [methodology-fixes.md](methodology-fixes.md): the measurement bugs
   found and fixed while iterating, recorded so the numbers are
   trustworthy and the estimators are not silently wrong.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 15 of 15 tests pass.
+- **Build:** typecheck clean, 17 of 17 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below

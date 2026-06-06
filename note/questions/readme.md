@@ -13,9 +13,9 @@ and what is still open.
 
 | Question | Experiment | Status |
 |---|---|---|
-| P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation` | **validated** local rule + bounded-below H (H-locality still open) |
+| P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation`, `p1-locality` | **validated (partial)**: local rule + bounded-below H, but H is nonlocal for this rule |
 | P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon`, `p2-transition` | **candidate progress**: smeared action gives near-2D ensembles, and the manifold phase is a stable basin |
-| P3. Addressing versus Lorentz | `p3-study`, `validation` | **candidate solved**: all three at once, navigability validated to 100 percent |
+| P3. Addressing versus Lorentz | `p3-study`, `validation`, `p3-growth` | **candidate solved**: all three at once, navigability 100 percent, and stable under mesh growth |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
@@ -28,12 +28,15 @@ and what is still open.
 ### P1. Can a local rule have a bounded-below Hamiltonian that is also local?
 
 The reversible rule gives a Hamiltonian that is bounded below (it is a
-permutation, so energies live in a bounded interval). The remaining question is
-whether that Hamiltonian is **local**, a sum of bounded-range terms. We measure
-the former, we do not yet measure the latter. **Next:** add a Pauli-expansion
-locality profile of the Hamiltonian, and test whether information loss
-(equivalence classes) buys both locality and a stable vacuum, as 't Hooft
-conjectures.
+permutation, so energies live in a bounded interval). The remaining question was
+whether that Hamiltonian is **local**. Now measured via a Pauli-expansion locality
+profile (validated against a range-1 control): for the XOR-parity rule it is
+**not** local. The operator weight sits at near-maximal interaction range and the
+locality length grows with the system (about 0.8 N), so a local reversible rule
+does not automatically give a local Hamiltonian (see
+`note/experiment/results/p1-locality.md`). **Remaining open:** whether SOME
+reversible rule (a free-fermion / quantum-walk rule) has a local bounded-below
+Hamiltonian, the heart of the 't Hooft program.
 
 ### P2. What dynamics makes manifold-like causal sets dominate?
 
@@ -59,9 +62,11 @@ greedy-routing success, all at once. See
 `note/experiment/results/p3-both-worlds.md`. The candidate answer: you do not
 choose between a computable mesh and a relativistic one. You trade exact Fibonacci
 addressing for greedy geometric routing on a random, Lorentz-safe, exponentially
-reaching graph. **Open sub-questions:** push routing toward 100 percent with a
-backtracking or landmark fallback, test it on a growing and rewiring graph (not
-just a static one), and measure the routing stretch.
+reaching graph. Routing reaches 100 percent with backtracking, and the property is
+now shown to **survive growth**: across an eightfold expansion of the mesh at
+constant density (radius 5.7 to 7.8), reach, Lorentz isotropy, and navigability all
+persist (`note/experiment/results/p3-growth.md`). **Remaining:** a microscopic
+one-node-at-a-time growth rule coupled to causal graph dynamics.
 
 ### P4. Is the spinor built from vibes, and is its spin topological?
 
@@ -145,8 +150,8 @@ priority order:
    separated by a gap). The remaining work is a faster incremental move and
    finite-size scaling to turn the metastability into a proven first-order
    transition. P6 is the 2D specialisation and shares the machinery.
-3. **P3 on a growing graph**: lift the both-worlds result from a static graph to a
-   growing and rewiring one (couple to causal graph dynamics), moving from
-   kinematics to dynamics.
+3. **P3 microscopic growth rule**: the both-worlds property already survives an
+   expanding mesh at constant density. The refinement is a one-node-at-a-time local
+   attachment rule coupled to causal graph dynamics.
 4. **P7 naturalness** (does the setting-state correlation arise on its own): the
    make-or-break test for the classical base.
