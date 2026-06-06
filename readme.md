@@ -61,8 +61,38 @@ overview of how to imagine things in this system/model/framework.
   sampler, Wang-Landau density of states, causal-set Monte Carlo,
   classical sequential growth, coarse graining, and the Wilson heat
   bath.
-- **experiment**: one runnable script per open problem (P1 to P22), plus
+- **experiment**: one runnable script per open problem (P1 to P36), plus
   a scan runner and report writer.
+
+## Defining the model
+
+The committed model (see [note/the-model.md](note/the-model.md)) is written and read
+at a glance with a small DSL ([code/model/vibe.ts](code/model/vibe.ts)). With no
+options it IS the committed model, and one-word swaps express variants for comparison.
+
+```
+const model = vibe().size(1500).seed(1)   // the committed model
+console.log(model.describe())              // print it at a glance
+const world = model.build().run(40)        // build the mesh, run 40 beats
+world.read()                               // emergent structures off the same mesh
+```
+
+`describe()` prints:
+
+```
+vibe model
+  mesh      hyperbolic          random hyperbolic causal mesh, Lorentz-safe, degree ~10
+  tone      ternary             {-1, 0, +1}, the felt quality of a vibe
+  fill      ternary-symmetric   each note carries a ternary fill (a shared relational vibe)
+  rule      signed-majority     next(v) = sign( sum over neighbours w of fill(v,w) * will(w) )
+  schedule  asynchronous        local, neighbours only, no global clock
+  growth    net-positive        eternal expansion by local birth
+  size 1500, seed 1
+```
+
+Swapping `vibe().mesh('lattice')` gives Lorentz anisotropy 1.0 (a preferred frame)
+versus 0.06 for the hyperbolic mesh, which is why the random hyperbolic mesh is the
+committed choice.
 
 ## Quick start
 
@@ -80,14 +110,16 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 54 of 54 known-answer tests pass. P1 to P9 are the
+typecheck clean, 56 of 56 known-answer tests pass. P1 to P9 are the
 conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
 and the field content, P23 to P25 the field operators derived from the
 action and electroweak breaking, P26 to P30 the distinctive observational
 predictions and cosmology, P31 to P33 the deep frontiers (the quantum
-formalism, the Einstein equations, and black-hole entropy), and P34 the
-capstone (the committed model run end-to-end). The model itself is
-specified in [note/the-model.md](note/the-model.md). Full detail in
+formalism, the Einstein equations, and black-hole entropy), P34 the
+capstone (the committed model run end-to-end), P35 the contact with
+data, and P36 the model DSL. The model itself is specified in
+[note/the-model.md](note/the-model.md) and constructed in
+[code/model/vibe.ts](code/model/vibe.ts). Full detail in
 [note/experiment/results/](note/experiment/results/) and
 [note/questions/](note/questions/).
 
@@ -127,6 +159,8 @@ specified in [note/the-model.md](note/the-model.md). Full detail in
 | P32     | the Einstein equations                           | down-payment                                           | the Einstein tensor is transverse (k . G = 0, energy-momentum conservation built in), reduces to Newton in the static limit, and propagates a massless graviton at the speed of light                                                                                                                                                                          |
 | P33     | black-hole entropy                               | demonstrated                                            | the entanglement entropy of a region scales with its horizon AREA, not its volume, the Bekenstein-Hawking law S = A/4, with the entanglement across the horizon as its origin                                                                                                                                                                                  |
 | P34     | capstone (the model run end-to-end)              | demonstrated                                            | one growing random hyperbolic mesh with the ternary signed-majority rule yields, all at once, Lorentz-safe geometry with exponential reach, convergent ternary dynamics, the bounded-below local emergent Hamiltonian, and the arrow of accumulation                                                                                                            |
+| P35     | contact with data                                | meets observation                                       | the everpresent Lambda matches the observed dark energy to order of magnitude (predicted 1.5e-122 vs observed 2.9e-122 in Planck units), the framework predicts no linear Lorentz violation (confirmed by gamma-ray-burst timing), and the swerve sits below current bounds                                                                                     |
+| P36     | the model DSL                                    | a tool                                                 | the committed model in a few fluent lines (vibe()...), printing at a glance, building, running, and reading off the physics, with a one-word swap to the lattice (Lorentz-violating) variant                                                                                                                                                                  |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
