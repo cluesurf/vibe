@@ -36,6 +36,7 @@ import { parallelTempering } from '~/dynamics/parallel-tempering'
 import { smearedBenincasaDowker } from '~/dynamics/action'
 import { orderStatistics } from '~/measure/order-stats'
 import { exactCausalSetAverages } from '~/dynamics/exact-enumeration'
+import { sampleUniform } from '~/dynamics/uniform-sampler'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
@@ -381,6 +382,18 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'exact: smeared action raises manifold fraction on the true measure',
     ok: result.count > 0 && fracCold > fracHot,
     detail: `${result.count} causal sets, manifold fraction ${fracHot.toFixed(2)} (beta 0) -> ${fracCold.toFixed(2)} (beta 2)`,
+  })
+}
+
+// 20. The correct uniform-measure sampler reproduces exact enumeration: at N=6,
+// beta=0, the manifold fraction matches the exact value (about 72 percent),
+// confirming the single-pair toggle samples the uniform measure.
+{
+  const r = sampleUniform({ size: 6, beta: 0, epsilon: 0.9, steps: 200000, rng: makeRng({ seed: 6 }) })
+  check({
+    name: 'uniform-measure sampler matches exact enumeration (N=6, ~72%)',
+    ok: r.manifoldFraction > 0.65 && r.manifoldFraction < 0.79,
+    detail: `manifold fraction ${(r.manifoldFraction * 100).toFixed(0)}% (exact 72%)`,
   })
 }
 
