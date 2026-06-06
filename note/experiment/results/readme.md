@@ -51,6 +51,9 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   a first-order transition: at N=128 the smeared action makes manifold spacetime
   a stable phase coexisting with the layered phase. The dynamics produces
   spacetime.
+- [p6-dimension.md](p6-dimension.md): P6 solved at scale. The stable 2D manifold
+  phase is genuinely 2-dimensional (Myrheim-Meyer dimension 2.0 to 2.1), so the
+  2D path integral lands on 2D orders. P6 rides on the P2 transition.
 - [p8-confinement.md](p8-confinement.md): Stage C of the gauge ladder. 3D
   SU(2) lattice gauge theory confines: positive string tension at every
   coupling, falling with beta, the Wilson area law of the strong force.
@@ -89,7 +92,7 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 27 of 27 tests pass.
+- **Build:** typecheck clean, 28 of 28 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below

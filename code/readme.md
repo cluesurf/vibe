@@ -64,8 +64,8 @@ for the designs.
 
 ESM TypeScript. Path alias `~/*` maps to `code/*`. Discriminant property
 is always `form`. Functions with two or more parameters take one object
-input. Reproducibility is enforced by a seeded PRNG (`core/rng`);
-nothing calls `Math.random` in a way that affects a recorded result.
+input. Reproducibility is enforced by a seeded PRNG (`core/rng`).
+Nothing calls `Math.random` in a way that affects a recorded result.
 
 ## Status of the physics
 
