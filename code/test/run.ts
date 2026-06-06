@@ -27,7 +27,13 @@ import { overlapIndex } from '~/operator/gauge-index'
 import { kleitmanRothschildOrder } from '~/substrate/layered-order'
 import { posetHeight } from '~/measure/order-stats'
 import { hamiltonianMatrix, pauliLocalityProfile } from '~/operator/ca-hamiltonian'
+import { commutingBlockHamiltonian, cnotGate } from '~/operator/block-ca'
+import { eigHermitian } from '~/linalg/eig-hermitian'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
+import { chshShared } from '~/experiment/p7-naturalness'
+import { makeDense } from '~/linalg/dense'
+import { eigSymmetric } from '~/linalg/eig-jacobi'
+import { Graph } from '~/core/graph'
 
 let passed = 0
 let failed = 0
@@ -258,6 +264,61 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
     ok: iso.anisotropy < 0.25,
     detail: `anisotropy ${iso.anisotropy.toFixed(3)}`,
+  })
+}
+
+// 14. The local branch exists: a disjoint commuting-gate layer has a local
+// (bounded locality length) AND bounded-below Hamiltonian.
+{
+  const h = commutingBlockHamiltonian({ cells: 6, blockSize: 2, gate: cnotGate })
+  const length = pauliLocalityProfile({ matrix: h, cells: 6 }).localityLength
+  const eig = eigHermitian({ matrix: h })
+  let lo = Infinity
+  for (let i = 0; i < eig.values.length; i++) {
+    lo = Math.min(lo, eig.values[i] ?? 0)
+  }
+  check({
+    name: 'commuting-gate rule has a local, bounded-below Hamiltonian',
+    ok: length < 2 && lo > -1e-9,
+    detail: `locality length ${length.toFixed(2)}, min energy ${lo.toFixed(3)}`,
+  })
+}
+
+// 15. The quantum link: a full shared past with ALIGNED correlation reaches the
+// algebraic CHSH maximum, but a GENERIC (random) shared past stays near classical.
+{
+  const aligned = chshShared({ eta: 1, mode: 'aligned', trials: 40000, seed: 7 })
+  const random = chshShared({ eta: 1, mode: 'random', trials: 40000, seed: 8 })
+  check({
+    name: 'aligned shared past violates (S~4), generic shared past does not (S<2)',
+    ok: aligned > 3.5 && random < 2,
+    detail: `aligned S ${aligned.toFixed(2)}, random S ${random.toFixed(2)}`,
+  })
+}
+
+// 16. The emergent-mesh Hamiltonian resolves the P1 trilemma: the graph Laplacian
+// on a ring is bounded below (positive semidefinite, with a zero mode) and local
+// by construction, the way out of the local/bounded/propagating obstruction.
+{
+  const cells = 12
+  const ring = lattice({ dimension: 1, extent: cells, signature: 'riemannian' }) as Graph
+  const m = makeDense({ rows: cells, cols: cells })
+  for (let i = 0; i < cells; i++) {
+    const row = ring.neighbors[i] ?? new Uint32Array(0)
+    m.data[i * cells + i] = row.length
+    for (let k = 0; k < row.length; k++) {
+      m.data[i * cells + (row[k] ?? 0)] = -1
+    }
+  }
+  const eig = eigSymmetric({ matrix: m })
+  let lo = Infinity
+  for (let i = 0; i < eig.values.length; i++) {
+    lo = Math.min(lo, eig.values[i] ?? 0)
+  }
+  check({
+    name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
+    ok: lo > -1e-9 && lo < 1e-6,
+    detail: `min eigenvalue ${lo.toExponential(1)}`,
   })
 }
 

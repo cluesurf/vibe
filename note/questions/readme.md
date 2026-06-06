@@ -13,13 +13,13 @@ and what is still open.
 
 | Question | Experiment | Status |
 |---|---|---|
-| P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `validation`, `p1-locality` | **validated (partial)**: local rule + bounded-below H, but H is nonlocal for this rule |
+| P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `p1-locality`, `p1-law`, `p1-emergent` | **resolved**: a trilemma for the CA log, solved by the emergent-mesh Hamiltonian (Laplacian) |
 | P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon`, `p2-transition` | **candidate progress**: smeared action gives near-2D ensembles, and the manifold phase is a stable basin |
 | P3. Addressing versus Lorentz | `p3-study`, `validation`, `p3-growth` | **candidate solved**: all three at once, navigability 100 percent, and stable under mesh growth |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
-| P7. Quantum from a classical base | `p7-bell` | mechanism quantified: the superdeterminism cost curve |
+| P7. Quantum from a classical base | `p7-bell`, `p7-naturalness` | mechanism quantified, naturalness made precise (determinism enables it, but the correlation must be aligned) |
 | P8. One gauge field and one charged fermion | `p8-gauge-fermion`, `validation`, `p8-confinement`, `p8-index` | **validated** A, B, C plus the index theorem: charge couples, SU(2) confines, index = topological charge |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 
@@ -27,16 +27,18 @@ and what is still open.
 
 ### P1. Can a local rule have a bounded-below Hamiltonian that is also local?
 
-The reversible rule gives a Hamiltonian that is bounded below (it is a
-permutation, so energies live in a bounded interval). The remaining question was
-whether that Hamiltonian is **local**. Now measured via a Pauli-expansion locality
-profile (validated against a range-1 control): for the XOR-parity rule it is
-**not** local. The operator weight sits at near-maximal interaction range and the
-locality length grows with the system (about 0.8 N), so a local reversible rule
-does not automatically give a local Hamiltonian (see
-`note/experiment/results/p1-locality.md`). **Remaining open:** whether SOME
-reversible rule (a free-fermion / quantum-walk rule) has a local bounded-below
-Hamiltonian, the heart of the 't Hooft program.
+Now characterised as a **trilemma**. A scan of reversible rules shows the
+principal (minimal-energy) Hamiltonian is nonlocal for every nontrivial rule, with
+range growing as the system grows. But an explicit **local branch** exists for
+commuting-gate rules (H = sum of block logs), with bounded locality length and a
+bounded-below spectrum. Putting these together: **local, bounded below, and
+information-propagating cannot all three hold at once** for a reversible CA's own
+log. **Resolved** by not using the log at all: the emergent-mesh Hamiltonian (the
+graph Laplacian) is local (range 1, size-independent), bounded below (spectrum from
+0), and propagating (finite-speed lightcone) all at once (see
+`note/experiment/results/p1-law.md` and `p1-emergent`). The rule builds the
+geometry (P2), and the quantum dynamics is the local operator on it. The rule and
+emergent time are distinct objects.
 
 ### P2. What dynamics makes manifold-like causal sets dominate?
 
@@ -106,10 +108,16 @@ As the settings are correlated with the hidden state, S climbs through the bound
 past the quantum Tsirelson bound, to the algebraic maximum 4. So superdeterminism
 CAN fake (and exceed) quantum correlations, and the cost is quantified: a given
 amount of statistical-independence violation buys a given amount of CHSH
-violation. **Open:** whether a *natural* deterministic mesh produces the required
-setting-state correlation without it being put in by hand, and whether the
-emergent statistics can match the quantum reconstruction axioms. This is the
-make-or-break question for the classical-base reading of v3.
+violation. The naturalness question is now made precise. Determinism (monism, no
+hidden state) makes violation possible: it denies the statistical-independence
+assumption that blocks local hidden variables, so at full shared-past fraction the
+aligned model reaches the quantum value and beyond. But a **generic** shared past
+gives no violation (the random-correlation control stays near classical at every
+sharing fraction). So monism opens the door, but the mesh must produce the
+**specific aligned** correlation, not just any correlation (see
+`note/experiment/results/p7-naturalness.md`). **Remaining open:** derive an aligned
+setting-state correlation from actual mesh dynamics. That would complete the
+quantum link.
 
 ### P8. Can we get one gauge field and one charged fermion?
 
@@ -153,5 +161,7 @@ priority order:
 3. **P3 microscopic growth rule**: the both-worlds property already survives an
    expanding mesh at constant density. The refinement is a one-node-at-a-time local
    attachment rule coupled to causal graph dynamics.
-4. **P7 naturalness** (does the setting-state correlation arise on its own): the
-   make-or-break test for the classical base.
+4. **P7 alignment from dynamics**: determinism makes violation possible, but the
+   correlation must be aligned, not generic. The open step is to derive an aligned
+   setting-state correlation from actual mesh dynamics, which would complete the
+   quantum link.

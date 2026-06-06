@@ -52,6 +52,14 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 - [p1-locality.md](p1-locality.md): P1's open half. H = i log U is bounded
   below but nonlocal for the XOR-parity rule (locality length grows with
   size), so a local rule does not give a local Hamiltonian.
+- [p1-law.md](p1-law.md): the law as a trilemma, and its resolution. The CA's
+  own log cannot be local, bounded-below, and propagating at once, but the
+  emergent-mesh Hamiltonian (the graph Laplacian) is all three at once
+  (`p1-emergent`). The rule builds geometry. Time is the mesh operator.
+- [p7-naturalness.md](p7-naturalness.md): the quantum link made precise.
+  Determinism (monism) makes CHSH violation possible (aligned S to 4), but a
+  generic shared past does not (random S stays ~1). The correlation must be
+  aligned, not just present.
 - [p3-growth.md](p3-growth.md): the both-worlds substrate under growth. An
   expanding hyperbolic mesh keeps reach, Lorentz isotropy, and 100 percent
   navigability across an eightfold growth. P3 is dynamical, not one-shot.
@@ -61,7 +69,7 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 17 of 17 tests pass.
+- **Build:** typecheck clean, 20 of 20 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below

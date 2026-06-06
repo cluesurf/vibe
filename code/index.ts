@@ -48,6 +48,7 @@ export * from './operator/gauge-dirac'
 export * from './operator/lattice-fermion'
 export * from './operator/gauge-index'
 export * from './operator/ca-hamiltonian'
+export * from './operator/block-ca'
 
 // measures
 export * from './measure/dimension'
