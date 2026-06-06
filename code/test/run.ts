@@ -37,6 +37,7 @@ import { smearedBenincasaDowker } from '~/dynamics/action'
 import { orderStatistics } from '~/measure/order-stats'
 import { exactCausalSetAverages } from '~/dynamics/exact-enumeration'
 import { sampleUniform } from '~/dynamics/uniform-sampler'
+import { chiralCondensateSignal } from '~/operator/overlap-condensate'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
@@ -394,6 +395,18 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'uniform-measure sampler matches exact enumeration (N=6, ~72%)',
     ok: r.manifoldFraction > 0.65 && r.manifoldFraction < 0.79,
     detail: `manifold fraction ${(r.manifoldFraction * 100).toFixed(0)}% (exact 72%)`,
+  })
+}
+
+// 21. The Schwinger condensate: the chiral condensate signal is zero in the free
+// theory and nonzero in a gauge background (the anomaly-induced condensate).
+{
+  const free = chiralCondensateSignal({ length: 5, disorder: 0, configs: 4, rng: makeRng({ seed: 1 }) })
+  const gauged = chiralCondensateSignal({ length: 5, disorder: 0.6, configs: 6, rng: makeRng({ seed: 2 }) })
+  check({
+    name: 'chiral condensate: zero in free theory, nonzero with gauge field',
+    ok: free.nearZeroDensity < 0.005 && gauged.nearZeroDensity > free.nearZeroDensity,
+    detail: `free ${free.nearZeroDensity.toFixed(4)}, gauged ${gauged.nearZeroDensity.toFixed(4)}`,
   })
 }
 

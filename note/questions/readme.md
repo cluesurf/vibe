@@ -20,7 +20,7 @@ and what is still open.
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
 | P6. A computable 2D path integral | `p6-path-integral` | runs, but does not yet land on 2D manifold-like orders |
 | P7. Quantum from a classical base | `p7-bell`, `p7-naturalness`, `p7-alignment` | mechanism quantified, naturalness made precise: the currency is aligned bits, not bits (refines Hall) |
-| P8. One gauge field and one charged fermion | `p8-gauge-fermion`, `validation`, `p8-confinement`, `p8-index` | **validated** A, B, C plus the index theorem: charge couples, SU(2) confines, index = topological charge |
+| P8. One gauge field and one charged fermion | `p8-confinement`, `p8-index`, `p8-schwinger` | **validated** A-C, index theorem, and the Schwinger condensate (chiral fermion in a dynamical gauge field) |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
 
 ## The questions
@@ -137,9 +137,12 @@ ratio) is positive at every coupling and falls from 1.32 to 0.40 as beta rises,
 the Wilson area law of the strong force (`p8-confinement.md`). And the chiral
 overlap fermion **sees gauge topology exactly**: in a U(1) background of charge Q,
 its index equals -Q exactly, an integer, the lattice Atiyah-Singer index theorem
-(`p8-index.md`). **Remaining open:** coupling the chiral fermion to the dynamical
-and non-Abelian field (the full chiral gauge theory, an active research problem)
-and the Standard Model content (Stage E).
+(`p8-index.md`). And in a DYNAMICAL gauge field (the 2D Schwinger model) a chiral
+condensate forms from the anomaly: zero in the free theory, nonzero and growing
+with the gauge coupling (`p8-schwinger.md`). So the chiral fermion now feels the
+field, its topology, and forms a condensate. **Remaining open:** the precise
+Schwinger condensate value (with the fermion determinant), and the genuinely open
+non-Abelian chiral gauge theory and the Standard Model content (Stage E).
 
 ### P9. What is the relationship between structure and experience?
 
