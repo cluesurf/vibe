@@ -14,7 +14,7 @@ import { eigSymmetric } from '~/linalg/eig-jacobi'
 // The two-point correlation matrix C_ij = <c_i^dagger c_j> of the half-filled
 // free-fermion ground state of the hopping Hamiltonian H (fill the lowest half of
 // the modes, the Fermi sea).
-function correlationMatrix(input: { h: DenseMatrix; n: number }): Float64Array {
+export function correlationMatrix(input: { h: DenseMatrix; n: number }): Float64Array {
   const { h, n } = input
   const eig = eigSymmetric({ matrix: h })
   const order = Array.from({ length: n }, (_, k) => k).sort(
@@ -38,7 +38,7 @@ function correlationMatrix(input: { h: DenseMatrix; n: number }): Float64Array {
 
 // Entanglement entropy of a region from the eigenvalues zeta of the restricted
 // correlation matrix: S = -sum [ zeta ln zeta + (1-zeta) ln(1-zeta) ].
-function regionEntropy(input: { c: Float64Array; n: number; region: number[] }): number {
+export function regionEntropy(input: { c: Float64Array; n: number; region: number[] }): number {
   const m = input.region.length
   const sub = makeDense({ rows: m, cols: m })
   for (let a = 0; a < m; a++) {

@@ -61,6 +61,13 @@ import { gaugeFromAction } from '~/experiment/p23-gauge-from-action'
 import { gravitonFromAction } from '~/experiment/p24-graviton-from-action'
 import { electroweak } from '~/experiment/p25-electroweak'
 import { swerveDiffusion } from '~/experiment/p26-swerves'
+import { latticeAnisotropy, lorentzSafety } from '~/experiment/p27-lorentz-violation'
+import { minimumInterval } from '~/experiment/p28-singularity-resolution'
+import { darkEnergySmeared4D } from '~/experiment/p29-dark-energy-smeared'
+import { inflate } from '~/experiment/p30-inflation'
+import { quantumFormalism } from '~/experiment/p31-quantum-formalism'
+import { bianchiResidual, gravitonSpeed } from '~/experiment/p32-einstein-equations'
+import { blackHoleEntropy } from '~/experiment/p33-black-hole'
 
 let passed = 0
 let failed = 0
@@ -742,6 +749,103 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P26 swerves: momentum diffusion from discreteness (variance grows with proper time)',
     ok: r.slope > 0.01 && grows,
     detail: `rapidity variance slope ${r.slope.toFixed(4)} per unit proper time, grows ${grows}`,
+  })
+}
+
+// 43. P27 Lorentz violation: a lattice has energy-dependent, directional Lorentz
+// violation (group-speed anisotropy grows with energy), while a random sprinkling is
+// Lorentz-safe (isotropic link directions, no preferred frame).
+{
+  const low = latticeAnisotropy(0.2).anisotropy
+  const high = latticeAnisotropy(2.6).anisotropy
+  const s = lorentzSafety()
+  check({
+    name: 'P27 Lorentz: lattice violates (energy-dependent), sprinkle is Lorentz-safe',
+    ok: high > low && high > 0.1 && low < 0.05 && s.sprinkle < 0.2 && s.lattice > 0.8,
+    detail: `lattice anisotropy ${low.toFixed(3)}->${high.toFixed(3)} with energy; link isotropy sprinkle ${s.sprinkle.toFixed(2)} vs lattice ${s.lattice.toFixed(2)}`,
+  })
+}
+
+// 44. P28 singularity resolution: discreteness gives a minimum causal interval, so
+// the curvature (1/length^2) is capped at a finite value that rises with density,
+// never infinite.
+{
+  const a = minimumInterval({ density: 1, seed: 1 })
+  const b = minimumInterval({ density: 16, seed: 1 })
+  check({
+    name: 'P28 singularity resolution: discreteness caps the curvature (finite, density-set)',
+    ok:
+      b.meanLength < a.meanLength &&
+      b.curvatureCap > a.curvatureCap &&
+      Number.isFinite(b.curvatureCap) &&
+      a.curvatureCap > 0,
+    detail: `min length ${a.meanLength.toFixed(3)}->${b.meanLength.toFixed(3)}, curvature cap ${a.curvatureCap.toFixed(1)}->${b.curvatureCap.toFixed(1)} (finite)`,
+  })
+}
+
+// 45. P29 dark energy: the 4D smeared kernel tames the action fluctuation, pushing the
+// implied Lambda exponent below the sharp value (toward the everpresent shrinking).
+{
+  const r = darkEnergySmeared4D({ sizes: [64, 128, 256, 512], repeats: 20, epsilon: 0.3 })
+  check({
+    name: 'P29 dark energy: 4D smeared kernel tames the fluctuation (toward everpresent Lambda)',
+    ok: r.smearedExponent < r.sharpExponent && Number.isFinite(r.smearedExponent),
+    detail: `sharp N^${r.sharpExponent.toFixed(2)}, smeared N^${r.smearedExponent.toFixed(2)} (lower = tamed)`,
+  })
+}
+
+// 46. P30 inflation: a high early spawn rate gives a burst of rapid expansion (several
+// e-folds) with a graceful exit to slow expansion.
+{
+  const r = inflate({
+    generations: 16,
+    initialWidth: 2,
+    inflationGenerations: 6,
+    qInflation: 1.0,
+    qNormal: 0.05,
+    seed: 1,
+  })
+  const early = r.ratesPerGen.slice(0, 6).reduce((a, b) => a + b, 0) / 6
+  const late = r.ratesPerGen.slice(6).reduce((a, b) => a + b, 0) / Math.max(1, r.ratesPerGen.length - 6)
+  check({
+    name: 'P30 inflation: rapid early expansion with a graceful exit (time-varying birth rate)',
+    ok: early > 1.5 && late < 1.3 && r.inflationEfolds > 3,
+    detail: `early rate ${early.toFixed(2)}, ${r.inflationEfolds.toFixed(1)} e-folds, late rate ${late.toFixed(2)}`,
+  })
+}
+
+// 47. P31 quantum formalism: unitary evolution conserves the Born probability, and
+// amplitudes interfere (the cross term is nonzero), the pillars of quantum mechanics.
+{
+  const r = quantumFormalism({ n: 40 })
+  check({
+    name: 'P31 quantum formalism: unitarity, the Born rule, and interference of amplitudes',
+    ok: r.bornConserved && Math.abs(r.interferenceTerm) > 0.01 && r.quantumSum > r.classicalSum,
+    detail: `norm conserved ${r.bornConserved}, interference term ${r.interferenceTerm.toFixed(3)}`,
+  })
+}
+
+// 48. P32 Einstein equations: the Einstein tensor is transverse (k . G = 0, energy-
+// momentum conservation built in) and the graviton propagates at the speed of light.
+{
+  const res = bianchiResidual({ k: [2, 1, 3], samples: 30, seed: 1 })
+  const speed = gravitonSpeed(0.5)
+  check({
+    name: 'P32 Einstein equations: conservation (transverse G) and a c-speed graviton',
+    ok: res < 1e-10 && Math.abs(speed - 1) < 1e-6,
+    detail: `Bianchi residual ${res.toExponential(1)}, graviton speed ${speed.toFixed(4)}`,
+  })
+}
+
+// 49. P33 black holes: the entanglement entropy of a region scales with its surface
+// area, not its volume (the Bekenstein-Hawking area law).
+{
+  const r = blackHoleEntropy({ side: 8 })
+  const increasing = (r.entropies[0] ?? 0) < (r.entropies[1] ?? 0) && (r.entropies[1] ?? 0) < (r.entropies[2] ?? 0)
+  check({
+    name: 'P33 black holes: entropy scales with horizon area, not volume (Bekenstein-Hawking)',
+    ok: r.areaBeatsVolume && increasing,
+    detail: `area residual ${r.areaResidual.toExponential(1)} < volume residual ${r.volumeResidual.toExponential(1)}`,
   })
 }
 

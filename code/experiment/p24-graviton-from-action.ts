@@ -34,7 +34,7 @@ function vecToTensor(v: number[]): number[][] {
 // discrete gravitational action). Linearized Ricci in momentum space (d/dx -> i k):
 //   R_ij = (1/2)( -k_k k_i h_kj - k_k k_j h_ki + |k|^2 h_ij + k_i k_j tr )
 //   R    = -k_i k_j h_ij + |k|^2 tr
-function einsteinOp(h: number[][], k: number[]): number[][] {
+export function einsteinOp(h: number[][], k: number[]): number[][] {
   const k2 = (k[0] ?? 0) ** 2 + (k[1] ?? 0) ** 2 + (k[2] ?? 0) ** 2
   let tr = 0
   for (let i = 0; i < 3; i++) {

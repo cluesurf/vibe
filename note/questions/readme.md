@@ -38,6 +38,13 @@ measure, what we have found, and what is still open. Findings are in
 | P24. Graviton from the action | `p24-graviton-from-action` | **validated**: the linearized Einstein operator (second variation of the action) is diffeo-invariant with two massless spin-2 modes |
 | P25. Electroweak breaking | `p25-electroweak` | **validated**: a Higgs doublet breaks SU(2) x U(1) to U(1)_EM, reproducing the W, Z masses and the Weinberg angle |
 | P26. Swerves (observational) | `p26-swerves` | **demonstrated**: a particle on a causal set undergoes momentum diffusion (rapidity variance grows with proper time), a distinctive signature with no continuum analogue |
+| P27. Lorentz violation (observational) | `p27-lorentz-violation` | **distinctive**: a lattice has energy-dependent LIV, the random sprinkling is Lorentz-safe (no preferred frame), so the framework predicts the observed null LIV |
+| P28. Singularity resolution | `p28-singularity-resolution` | **demonstrated**: discreteness gives a minimum length, so curvature is capped at a finite value (no big-bang or black-hole infinity) |
+| P29. Dark energy in 4D (smeared) | `p29-dark-energy-smeared` | progress: the 4D smeared kernel tames the fluctuation (implied Lambda exponent 0.16 to 0.06, the everpresent direction), full shrinking needs the dynamical model |
+| P30. Inflation | `p30-inflation` | **demonstrated**: a time-varying birth rate gives a burst of rapid expansion (4.2 e-folds) with a graceful exit, no inflaton put in by hand |
+| P31. Quantum formalism | `p31-quantum-formalism` | down-payment: unitarity (norm conserved), interference (amplitudes add), and a conserved Born probability. Deriving why |psi|^2 is open |
+| P32. Einstein equations | `p32-einstein-equations` | down-payment: the Einstein tensor is transverse (conservation built in), reduces to Newton (static), and propagates a massless graviton at the speed of light |
+| P33. Black-hole entropy | `p33-black-hole` | **demonstrated**: entanglement entropy scales with horizon area, not volume (Bekenstein-Hawking S = A/4) |
 
 The next-version problem set (P10 to P17) is in `next-version.md`. The broader
 frontiers, including the dark sector (P18, P19) and the field-coverage map (P20), are

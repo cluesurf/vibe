@@ -166,15 +166,20 @@ Done or started this round:
 - **The Higgs** (P22): DONE. Spontaneous symmetry breaking and the photon mass
   (g v)^2.
 
+Done since: **swerves** (P26, momentum diffusion), **Lorentz violation** (P27, the
+sprinkle is Lorentz-safe, predicting the observed null LIV), **singularity resolution**
+(P28, discreteness caps the curvature), and the **gauge and graviton operators from the
+action** (P23, P24).
+
 Reachable now, high value, do next:
-1. **Swerves** (a particle-on-sprinkling experiment): the momentum-diffusion
-   coefficient, a distinctive dark-sector / cosmic-ray signature.
-2. **The 4D smeared BD kernel** (closes P19): recover the everpresent 1 / sqrt(V).
-3. **Inflation** (time-varying birth rate in P13's growth).
-4. **Singularity resolution** (finite curvature where the continuum diverges).
-5. **Dark matter route 2** (a gauge-neutral fermion that gravitates but is EM-dark).
-6. **Derive the graviton kinetic operator from the discrete action** (links P21 to P2,
-   P16), rather than from the transverse-traceless projector.
+1. **The 4D smeared BD kernel** (closes P19): recover the everpresent 1 / sqrt(V) and
+   the dark-energy magnitude in four dimensions.
+2. **Inflation** (time-varying birth rate in P13's growth): accelerating expansion with
+   a graceful exit.
+3. **Dark matter route 2** (a gauge-neutral fermion that gravitates but is EM-dark).
+4. **The canonical swerve scaling** (a fully covariant trajectory rule for P26).
+5. **The fully discrete graviton** (the BD second variation on a sprinkling, beyond the
+   continuum limit of P24).
 
 Reachable with new machinery:
 6. **Coarse-graining fixed point**, **large-N WL height-changing move**.
