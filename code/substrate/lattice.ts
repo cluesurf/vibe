@@ -2,7 +2,6 @@
 // causal order, which running measure/lorentz on should show a preferred frame:
 // the failure mode the Butterfield-Dowker argument exploits. The riemannian case
 // is the undirected nearest-neighbor hypercubic mesh, a Euclidean comparison.
-// See research/testbed/02-substrates.md.
 
 import { Embedding, ManifoldSpec } from '~/core/embedding'
 import { Substrate } from '~/core/substrate'

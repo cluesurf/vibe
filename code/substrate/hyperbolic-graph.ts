@@ -1,7 +1,7 @@
 // Hyperbolic random graph: random (so possibly Lorentz-safe) yet hyperbolic (so
 // exponential reach). The both-worlds candidate where P3 is decided. Sprinkle the
 // hyperbolic disc with the hyperbolic area measure, then connect by hyperbolic
-// proximity. See research/testbed/02-substrates.md.
+// proximity.
 
 import { Rng } from '~/core/rng'
 import { Embedding, ManifoldSpec } from '~/core/embedding'

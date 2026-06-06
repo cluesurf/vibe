@@ -135,6 +135,4 @@ mesh operator, not the log of the step.
 
 ## See also
 
-`p1-locality.md` (the first pass), `note/questions/roadmap.md`, and the 't Hooft
-deep dive in the monorepo at
-`note/research/vibe/research/papers/thooft-cellular-automaton-qm/`.
+`p1-locality.md` (the first pass) and `note/questions/roadmap.md`.

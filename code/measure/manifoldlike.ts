@@ -1,7 +1,6 @@
 // Manifold-likeness: a composite test for whether a causal set looks like a
 // smooth spacetime rather than a random order. Combines a finite Myrheim-Meyer
 // dimension with a check that the order is not a flat Kleitman-Rothschild order.
-// See testbed/04-measurements.md.
 
 import { Poset } from '~/core/poset'
 import { myrheimMeyerDimension } from '~/measure/dimension'

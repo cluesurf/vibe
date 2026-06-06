@@ -7,7 +7,6 @@
 // integrationPhi: a cheap integration proxy, the algebraic connectivity (second
 //   smallest Laplacian eigenvalue) of the region's subgraph (higher = harder to
 //   cut into independent parts).
-// See testbed/04-measurements.md.
 
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
 import { Configuration } from '~/tone/configuration'

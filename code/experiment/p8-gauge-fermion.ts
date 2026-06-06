@@ -1,7 +1,7 @@
 // P8: one gauge field and one charged fermion.
 // Put a U(1) gauge field on a mesh, relax it with the Wilson heat bath, measure a
 // confinement proxy, then build the covariant Kahler-Dirac operator and read its
-// spectrum. See testbed/08-path-to-gauge-and-matter.md.
+// spectrum.
 // Run: npx tsx code/experiment/p8-gauge-fermion.ts
 
 import { pathToFileURL } from 'node:url'

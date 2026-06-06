@@ -4,10 +4,9 @@ The load-bearing open problems of the Vibe Theory discrete-spacetime program, as
 they stand now that the `vibe-test` testbed exists and the first experiments have
 run. Each question links to the experiment that probes it and its current status.
 
-For the full problem statements and attack plans see the monorepo spec at
-`note/research/vibe/research/open-problems-and-how-to-solve-them.md`. This folder
-is the working, code-aware version: what we can now measure, what we have found,
-and what is still open.
+This folder is the working, code-aware record of the open problems: what we can now
+measure, what we have found, and what is still open. Findings are in
+`note/experiment/results/`.
 
 ## Status at a glance
 

@@ -1,7 +1,6 @@
 // Random coarse-graining (decimation) of a causal set: keep each element with a
 // fixed probability and inherit the induced order on the survivors. Bombelli's
-// renormalization move and the testbed's nesting operator. See
-// testbed/05-dynamics-and-search.md.
+// renormalization move and the testbed's nesting operator.
 
 import { Poset, subPoset } from '~/core/poset'
 import { Rng } from '~/core/rng'

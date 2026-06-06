@@ -1,6 +1,5 @@
 // Rewrite rule: change the substrate (graph) itself, not just the tones. This is
 // causal graph dynamics, the self-rewriting mesh that lets the substrate grow.
-// See testbed/03-tones-rules-operators.md.
 
 import { Rule } from '~/rule/rule'
 import { Substrate } from '~/core/substrate'

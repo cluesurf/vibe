@@ -35,8 +35,8 @@ keeping with the discreteness principle.
 
 The companion paper is a work in progress
 [here](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch).
-The research notes and the simulator design spec live in the monorepo at
-`note/research/vibe/` and `note/research/vibe/research/testbed/`.
+Findings are tracked in `note/experiment/results/` and the open problems in
+`note/questions/`.
 
 ## What is inside
 

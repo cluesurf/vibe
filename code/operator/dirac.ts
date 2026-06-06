@@ -4,7 +4,6 @@
 // is, one tone per cell across grades. This satisfies monism route 2 by
 // construction. The low spectrum read as a dispersion relation gives the P4
 // fermion-doubling check.
-// See note/research/vibe/research/testbed/03-tones-rules-operators.md
 
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
 import {

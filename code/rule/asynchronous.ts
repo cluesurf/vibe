@@ -1,7 +1,7 @@
 // Asynchronous rule: update one element at a time. Each update reads the
 // CURRENT (partially updated) configuration, so earlier updates in the sweep
 // influence later ones. This realizes "no global clock, only local causal
-// coordination". See testbed/03-tones-rules-operators.md.
+// coordination".
 
 import { Rule, LocalMap } from '~/rule/rule'
 import { adjacencyOf } from '~/core/substrate'

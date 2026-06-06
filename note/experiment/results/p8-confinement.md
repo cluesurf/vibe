@@ -75,4 +75,4 @@ Stage E (the full Standard Model content), which remain far off.
 ## See also
 
 `validation.md` for Stages A and B, `summary.md` for all experiments,
-`testbed/08-path-to-gauge-and-matter.md` in the monorepo for the full ladder.
+`p8-index.md` and `p8-schwinger.md` for the later rungs.

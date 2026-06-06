@@ -3,7 +3,6 @@
 // projected onto the first two spatial axes and measure how concentrated those
 // directions are at discrete angles, via angular Fourier order parameters. A
 // square lattice has a strong 4-fold component; a sprinkling has none.
-// See testbed/04-measurements.md.
 
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
 import { coordOf } from '~/core/embedding'

@@ -82,5 +82,4 @@ open direction is to search for a reversible rule whose Hamiltonian IS local.
 
 ## See also
 
-`summary.md` (P1 overview), `note/questions/roadmap.md` (A1), and the 't Hooft
-deep dive in `note/research/vibe/research/papers/thooft-cellular-automaton-qm/`.
+`summary.md` (P1 overview) and `note/questions/roadmap.md` (A1).

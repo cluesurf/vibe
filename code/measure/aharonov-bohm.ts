@@ -1,7 +1,6 @@
 // Aharonov-Bohm phase: the phase a charged particle accumulates around a loop,
 // even where the local field strength is zero. It is the charge times the Wilson
 // loop phase (the line integral of the connection around the loop).
-// See testbed/08-path-to-gauge-and-matter.md.
 
 import { GaugeField } from '~/core/gauge-field'
 import { wilsonLoopPhase } from '~/measure/wilson-loop'

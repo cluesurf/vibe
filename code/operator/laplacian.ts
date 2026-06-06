@@ -1,7 +1,6 @@
 // The discrete graph Laplacian L = D - A over a substrate's undirected
 // adjacency. Its low spectrum gives effective dimension and the heat-kernel
 // return probability, a cross-check on measure/dimension.
-// See note/research/vibe/research/testbed/03-tones-rules-operators.md
 
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
 import {

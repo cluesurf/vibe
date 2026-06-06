@@ -1,5 +1,6 @@
 // vibe-test: a discrete-spacetime / Vibe Theory testbed.
-// Public API barrel. See note/research/vibe/research/testbed/ for the design.
+// Public API barrel. See note/questions/ for the open problems and
+// note/experiment/results/ for the findings.
 
 // core
 export * from './core/rng'

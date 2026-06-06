@@ -146,5 +146,4 @@ which would complete the quantum link.
 
 ## See also
 
-`deck/vibe/note/experiment/results/summary.md` (the original P7 cost curve),
-`note/research/vibe/implications-for-vibe-theory.md` (the synthesis).
+`summary.md` (the original P7 cost curve) and `p7-alignment` (the alignment study).

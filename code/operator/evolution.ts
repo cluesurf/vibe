@@ -3,7 +3,6 @@
 // of a deterministic rule as a PERMUTATION of that space. The energy spectrum is
 // read off the permutation's cycle structure as eigen-phases, avoiding any
 // complex matrix logarithm.
-// See note/research/vibe/research/testbed/03-tones-rules-operators.md
 
 import { Substrate } from '~/core/substrate'
 import { Rule } from '~/rule/rule'

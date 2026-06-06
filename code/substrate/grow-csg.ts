@@ -2,7 +2,7 @@
 // elements one at a time, each born to the future of a random subset of the
 // existing elements, closed transitively. Births respect discrete general
 // covariance (the label order is unphysical). This is a transitive-percolation
-// variant of the CSG model. See research/testbed/02-substrates.md.
+// variant of the CSG model.
 
 import { Rng } from '~/core/rng'
 import { BitMatrix, makeBitMatrix, setBit, getBit } from '~/core/bitset'

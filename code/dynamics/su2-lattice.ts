@@ -3,8 +3,7 @@
 // strong force. SU(2) elements are unit quaternions. The Wilson action is
 // S = beta * sum over plaquettes of (1 - (1/2) Tr U_plaq). Confinement shows up
 // as an area law for Wilson loops, measured by the Creutz ratio (the string
-// tension). See note/questions/p2-dynamics-spec.md siblings and
-// testbed/08-path-to-gauge-and-matter.md (Stage C).
+// tension).
 
 import { Rng } from '~/core/rng'
 

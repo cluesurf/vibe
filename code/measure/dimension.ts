@@ -1,6 +1,6 @@
 // Dimension estimators. Two paths: the Myrheim-Meyer order-theoretic estimator
 // for causal sets (reads dimension off the ordering fraction), and ball-growth
-// for graphs where there is no Lorentzian order. See testbed/04-measurements.md.
+// for graphs where there is no Lorentzian order.
 
 import { Poset, relationCount } from '~/core/poset'
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
