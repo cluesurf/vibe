@@ -32,6 +32,8 @@ measure, what we have found, and what is still open. Findings are in
 | P18. Dark matter | `p18-dark-matter` | **mechanism shown**: nonlocal gravity flattens the rotation curve (ratio 0.23 local vs 1.29 nonlocal), no dark particle |
 | P19. Dark energy in 4D | `p19-dark-energy-4d` | 4D action-fluctuation scaling measured. Sharp action has the fluctuation problem, everpresent shrinking needs the 4D smeared kernel (shown in 2D, P10) |
 | P20. The photon | `p20-photon` | **validated**: the free U(1) gauge field is massless, gauge-invariant, two transverse polarizations |
+| P21. The graviton | `p21-graviton` | **validated**: massless spin-2, two transverse-traceless polarizations (a massive spin-2 has five) |
+| P22. The Higgs | `p22-higgs` | **validated**: spontaneous symmetry breaking gives a nonzero vacuum value and a photon mass (g v)^2 |
 
 The next-version problem set (P10 to P17) is in `next-version.md`. The broader
 frontiers, including the dark sector (P18, P19) and the field-coverage map (P20), are
