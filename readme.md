@@ -80,9 +80,12 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 42 of 42 known-answer tests pass. P1 to P9 are the
-conceptual core, P10 to P17 the next version, and P18 to P22 the dark
-sector and the field content. Full detail in
+typecheck clean, 53 of 53 known-answer tests pass. P1 to P9 are the
+conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
+and the field content, P23 to P25 the field operators derived from the
+action and electroweak breaking, P26 to P30 the distinctive observational
+predictions and cosmology, and P31 to P33 the deep frontiers (the quantum
+formalism, the Einstein equations, and black-hole entropy). Full detail in
 [note/experiment/results/](note/experiment/results/) and
 [note/questions/](note/questions/).
 
@@ -110,6 +113,17 @@ sector and the field content. Full detail in
 | P20     | the photon                                       | validated                                              | the free U(1) gauge field is massless and gauge-invariant, with two transverse polarizations (a mass term gives a fixed gap)                                                                                                                                                                                                                                 |
 | P21     | the graviton                                     | validated                                              | the geometry's propagating excitation is a massless spin-2 field with two transverse-traceless polarizations (a massive spin-2 has five)                                                                                                                                                                                                                     |
 | P22     | the Higgs                                        | validated                                              | spontaneous symmetry breaking gives a nonzero vacuum value, and the photon eats the Goldstone mode and becomes massive with gap (g v)^2                                                                                                                                                                                                                      |
+| P23     | the gauge operator from the action               | validated                                              | the Maxwell (photon) operator is the small-field limit of the Wilson gauge action (Wilson/Maxwell ratio converging to one), not put in by hand                                                                                                                                                                                                                |
+| P24     | the graviton from the action                     | validated                                              | the linearized Einstein operator (second variation of the Einstein-Hilbert action) is diffeomorphism-invariant with exactly two massless spin-2 modes, no projector imposed                                                                                                                                                                                  |
+| P25     | electroweak breaking                             | validated                                              | a Higgs doublet breaks SU(2) x U(1) to U(1)_EM, three bosons (W+, W-, Z) massive and the photon massless, reproducing the observed W (80) and Z (91) masses and the Weinberg angle                                                                                                                                                                            |
+| P26     | swerves (observational)                          | demonstrated                                            | a particle on a causal set undergoes momentum diffusion (rapidity variance grows with proper time), a distinctive signature with no continuum analogue (cosmic rays, the dark sector)                                                                                                                                                                          |
+| P27     | Lorentz violation (observational)                | distinctive                                            | a lattice has energy-dependent, directional Lorentz violation, but the random sprinkling is Lorentz-safe (isotropic, no preferred frame), so the framework predicts the observed null result                                                                                                                                                                  |
+| P28     | singularity resolution                           | demonstrated                                            | discreteness gives a minimum causal length, so curvature (1/length^2) is capped at a finite value, no big-bang or black-hole infinity                                                                                                                                                                                                                         |
+| P29     | dark energy in 4D (smeared)                      | progress                                               | the 4D smeared Benincasa-Dowker kernel tames the fluctuation (implied Lambda exponent from +0.16 to +0.06, the everpresent direction), the full shrinking needs the dynamical conjugate-volume model                                                                                                                                                          |
+| P30     | inflation                                        | demonstrated                                            | a time-varying birth rate gives a burst of rapid expansion (4.2 e-folds) with a graceful exit to slow expansion, the inflationary profile from a local rule with no inflaton                                                                                                                                                                                   |
+| P31     | the quantum formalism                            | down-payment                                           | unitarity (the Born probability is conserved), interference (amplitudes add, not probabilities), and a conserved Born rule, all present on the mesh. Deriving why the probability is |psi|^2 is open                                                                                                                                                            |
+| P32     | the Einstein equations                           | down-payment                                           | the Einstein tensor is transverse (k . G = 0, energy-momentum conservation built in), reduces to Newton in the static limit, and propagates a massless graviton at the speed of light                                                                                                                                                                          |
+| P33     | black-hole entropy                               | demonstrated                                            | the entanglement entropy of a region scales with its horizon AREA, not its volume, the Bekenstein-Hawking law S = A/4, with the entanglement across the horizon as its origin                                                                                                                                                                                  |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
@@ -118,7 +132,9 @@ mechanism and its signature are demonstrated, the scale or full
 phenomenology pending (P18). **candidate solved** means a working
 substrate or mechanism was found and needs hardening. **quantified**
 means the mechanism was turned into a measured curve. **progress** and
-**clarified** mean partial or corrected understanding. **open** means
+**clarified** mean partial or corrected understanding. **down-payment**
+means a first rung on a deep problem (the quantum formalism, the Einstein
+equations), with the full result honestly still ahead. **open** means
 genuinely unsolved (a shared frontier with the literature). **boundary**
 means outside what the simulator can decide.
 

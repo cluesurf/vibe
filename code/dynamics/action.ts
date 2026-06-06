@@ -137,18 +137,38 @@ function smearedKernel2D(input: { n: number; epsilon: number }): number {
 
 // The smeared Benincasa-Dowker action in 2D, the literature mechanism for taming
 // the action fluctuations and exposing a manifold phase. S_eps = -N/2 + eps *
-// sum over related pairs (y < x) of f2(n_yx, eps). For dimension > 2 we fall
-// back to the sharp action (the 2D smeared kernel is the case P2/P6 needs).
+// The 4D smeared kernel. The coefficients (1, -9, 16, -8) are the 4D Benincasa-Dowker
+// layer weights, smeared the same way as 2D: f4(n,e) = (1-e)^n sum_k c_k C(n,k)
+// (e/(1-e))^k, where C(n,k) is the binomial coefficient.
+function smearedKernel4D(input: { n: number; epsilon: number }): number {
+  const e = input.epsilon
+  const n = input.n
+  const oneMinus = 1 - e
+  if (oneMinus <= 0) {
+    return n === 0 ? 1 : 0
+  }
+  const r = e / oneMinus
+  const c1 = n
+  const c2 = (n * (n - 1)) / 2
+  const c3 = (n * (n - 1) * (n - 2)) / 6
+  const term = 1 - 9 * c1 * r + 16 * c2 * r * r - 8 * c3 * r * r * r
+  return Math.pow(oneMinus, n) * term
+}
+
+// sum over related pairs (y < x) of f_d(n_yx, eps), the smeared d-dimensional
+// Benincasa-Dowker action. Implemented for dimension 2 and 4 (their smeared kernels).
+// Other dimensions fall back to the sharp action.
 export function smearedBenincasaDowker(input: {
   epsilon: number
   dimension: number
 }): Action {
-  if (input.dimension > 2) {
+  if (input.dimension !== 2 && input.dimension !== 4) {
     return benincasaDowkerAction(input)
   }
+  const kernel = input.dimension === 4 ? smearedKernel4D : smearedKernel2D
   return {
     form: 'action',
-    name: `smeared-benincasa-dowker-2d-eps${input.epsilon}`,
+    name: `smeared-benincasa-dowker-${input.dimension}d-eps${input.epsilon}`,
     epsilon: input.epsilon,
     value: ({ poset }) => {
       const past = pastMatrix(poset)
@@ -168,7 +188,7 @@ export function smearedBenincasaDowker(input: {
             }
             seen += 1
             const n = intervalSize(poset, { a, b, past })
-            sum += smearedKernel2D({ n, epsilon: input.epsilon })
+            sum += kernel({ n, epsilon: input.epsilon })
           },
         })
       }
