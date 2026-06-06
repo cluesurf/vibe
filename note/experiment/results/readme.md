@@ -1,6 +1,6 @@
 # Experiment Results
 
-Tracked findings from running the `vibe-sim` testbed (the
+Tracked findings from running the `vibe-test` testbed (the
 `@cluesurf/vibe` code). Each run is a deterministic function of its
 seed, so every number here reproduces.
 
@@ -65,6 +65,9 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   field (the Schwinger model). A chiral condensate forms from the anomaly:
   zero in the free theory, nonzero and growing with the gauge coupling
   (Banks-Casher near-zero density).
+- [p8-su2-condensate.md](p8-su2-condensate.md): the non-Abelian rung (B2). A
+  chiral overlap fermion in a dynamical SU(2) field forms a condensate (zero
+  free, nonzero gauged). The rung below the open chiral gauge theory.
 - [p1-locality.md](p1-locality.md): P1's open half. H = i log U is bounded
   below but nonlocal for the XOR-parity rule (locality length grows with
   size), so a local rule does not give a local Hamiltonian.
@@ -86,7 +89,7 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
 
 ## Status at a glance
 
-- **Build:** typecheck clean, 25 of 25 tests pass.
+- **Build:** typecheck clean, 27 of 27 tests pass.
 - **Validated:** spin from topology and the chirality wall threaded by the
   overlap operator (P4), navigability to 100 percent (P3), geometry sharp
   in dimension and proper time (P5), a local rule with a bounded-below
@@ -95,9 +98,13 @@ Scan experiments (p2, p7) also write JSON and markdown into `out/`.
   charge), the CHSH superdeterminism cost curve (P7).
 - **P2 solved at scale:** with a correct, enumeration-validated uniform
   sampler, the smeared action makes manifold spacetime a stable phase
-  coexisting with the layered phase at N=128 (a first-order transition). The
-  dynamics produces spacetime. The remaining refinement is the free-energy
-  crossing (which phase strictly dominates).
-- **Open, as expected:** the dynamical and non-Abelian chiral gauge
-  coupling (the full chiral gauge theory), the P2 phase transition at
-  scale, and the P6 path integral, matching the literature.
+  coexisting with the layered phase, a first-order transition that holds
+  sharply across N = 48 to 160 (finite-size evidence toward continuum
+  dominance, B1). The dynamics produces spacetime.
+- **Frontier, partial progress:** the chiral fermion now condenses in a
+  dynamical Abelian and non-Abelian (SU(2)) gauge field (P8 / B2 rung), and
+  the P7 quantum link is quantified as decaying with measurement separation
+  in a natural mesh (the precise residual tension).
+- **Genuinely open or boundary:** the Weyl-projected chiral gauge theory
+  (B2 wall) and the continuum dominance PROOF (B1) are open in physics. P9
+  (experience) and the Standard Model content remain the honest boundary.

@@ -50,29 +50,20 @@ function myrheimMeyerFraction(d: number): number {
   return 0.5 * Math.exp(logValue)
 }
 
-// Estimate the effective dimension of a causal set from its ordering fraction.
-// r <= 0 (an antichain) returns 0. Solves f(d) = r by bisection on [0.5, 12].
-export function myrheimMeyerDimension(input: { poset: Poset }): number {
-  const n = input.poset.size
-  if (n < 2) {
-    return 0
-  }
-  const totalPairs = (n * (n - 1)) / 2
-  const r = relationCount(input.poset) / totalPairs
+// Invert the Myrheim-Meyer relation: dimension from an ordering fraction r, by
+// bisection on f(d) = r over [0.5, 12]. r <= 0 returns 0.
+export function dimensionFromOrderingFraction(r: number): number {
   if (r <= 0) {
     return 0
   }
-
   let lo = 0.5
   let hi = 12
   // f is decreasing: f(lo) is the largest value, f(hi) the smallest. If r lies
   // outside the bracket, clamp to the nearest endpoint.
-  const fLo = myrheimMeyerFraction(lo)
-  const fHi = myrheimMeyerFraction(hi)
-  if (r >= fLo) {
+  if (r >= myrheimMeyerFraction(lo)) {
     return lo
   }
-  if (r <= fHi) {
+  if (r <= myrheimMeyerFraction(hi)) {
     return hi
   }
   for (let iteration = 0; iteration < 80; iteration++) {
@@ -86,6 +77,16 @@ export function myrheimMeyerDimension(input: { poset: Poset }): number {
     }
   }
   return 0.5 * (lo + hi)
+}
+
+// Estimate the effective dimension of a causal set from its ordering fraction.
+export function myrheimMeyerDimension(input: { poset: Poset }): number {
+  const n = input.poset.size
+  if (n < 2) {
+    return 0
+  }
+  const totalPairs = (n * (n - 1)) / 2
+  return dimensionFromOrderingFraction(relationCount(input.poset) / totalPairs)
 }
 
 // Cumulative count of nodes within each radius 0..maxRadius, by BFS over the

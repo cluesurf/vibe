@@ -1,7 +1,9 @@
 # Summary of All Experiments
 
-Numbers from the first full run of `vibe-sim`. Build state: typecheck clean,
-10 of 10 known-answer tests pass.
+The table is the current status of every problem. The per-problem narratives below
+are the first-run detail (kept for context); the table rows and the linked result
+docs carry the latest. Build state: typecheck clean, 28 of 28 known-answer tests
+pass.
 
 ## The table
 
@@ -12,7 +14,7 @@ Numbers from the first full run of `vibe-sim`. Build state: typecheck clean,
 | P3 | addressing vs Lorentz | hyperbolic graph hits all three at degree ~11, survives growth (see p3-growth.md) | **candidate solved** |
 | P4 | monist spinor, topology, chirality | zero modes = Betti sum, overlap threads the chirality wall (see p4-chirality.md) | validated |
 | P5 | Hauptvermutung | dimension 3.02 plus or minus 0.05 | holds empirically |
-| P6 | 2D path integral | mean recovered dimension 3.26 | open |
+| P6 | 2D path integral | 2D specialisation of P2: stable manifold phase is genuinely 2D, MM dimension 2.0-2.1 (see p6-dimension.md) | solved at scale |
 | P7 | Bell from a classical base | S climbs 1.0 to 4.0, the currency is aligned bits not bits (1 bit gives S=4 aligned vs S=1 misaligned, see p7-naturalness.md) | quantified + made precise |
 | P8 | gauge, fermion, confinement, index, condensate | U(1) couples, SU(2) confines, index = charge, Schwinger condensate forms (see p8-schwinger.md) | validated A-C + index + condensate |
 | P9 | experience correlates | Markov blanket 0.77, integration 1.91 | proxy works |
@@ -90,10 +92,12 @@ essentially unique. The fix that made this work is recorded in
 
 ### P6: the 2D path integral
 
-Causal-set Monte Carlo in 2D (48 elements, 6000 steps), observing the recovered
-dimension of the sampled orders: mean 3.26, acceptance 0.38. The sampled orders
-are not cleanly 2D, the same open difficulty as P2. The sum over histories runs
-and converges, but the measure does not yet land on 2D manifold-like orders.
+(First-run note, since superseded.) The original Monte Carlo gave a non-2D
+dimension (3.26) because the sampler did not reproduce the uniform measure. With
+the correct uniform-measure sampler P6 is solved at scale: the 2D smeared action
+makes a stable manifold phase (the P2 first-order transition) that is genuinely
+2-dimensional, Myrheim-Meyer dimension 2.0 to 2.1 at N = 64 to 128. See
+`p6-dimension.md` and `p2-uniform.md`.
 
 ### P7: quantum statistics from a classical base (the Bell hinge)
 

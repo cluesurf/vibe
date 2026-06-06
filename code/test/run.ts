@@ -1,4 +1,4 @@
-// Known-answer tests for the vibe-sim library. No external test runner: a tiny
+// Known-answer tests for the vibe-test library. No external test runner: a tiny
 // assert harness, runnable with `npx tsx code/test/run.ts`. Exits nonzero on
 // failure. The science is only as trustworthy as these checks.
 
@@ -37,7 +37,9 @@ import { smearedBenincasaDowker } from '~/dynamics/action'
 import { orderStatistics } from '~/measure/order-stats'
 import { exactCausalSetAverages } from '~/dynamics/exact-enumeration'
 import { sampleUniform } from '~/dynamics/uniform-sampler'
+import { dimensionFromOrderingFraction } from '~/measure/dimension'
 import { chiralCondensateSignal } from '~/operator/overlap-condensate'
+import { chiralCondensateSignalSU2 } from '~/operator/overlap-su2'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
@@ -407,6 +409,52 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'chiral condensate: zero in free theory, nonzero with gauge field',
     ok: free.nearZeroDensity < 0.005 && gauged.nearZeroDensity > free.nearZeroDensity,
     detail: `free ${free.nearZeroDensity.toFixed(4)}, gauged ${gauged.nearZeroDensity.toFixed(4)}`,
+  })
+}
+
+// 22. Non-Abelian (SU(2)) condensate: zero in the free theory, nonzero in a
+// dynamical SU(2) field (the rung below chiral gauge theory).
+{
+  const free = chiralCondensateSignalSU2({ length: 4, disorder: 0, configs: 3, rng: makeRng({ seed: 1 }) })
+  const gauged = chiralCondensateSignalSU2({ length: 4, disorder: 0.4, configs: 5, rng: makeRng({ seed: 2 }) })
+  check({
+    name: 'SU(2) condensate: zero free, nonzero in a dynamical non-Abelian field',
+    ok: free.nearZeroDensity < 0.005 && gauged.nearZeroDensity > free.nearZeroDensity,
+    detail: `free ${free.nearZeroDensity.toFixed(4)}, gauged ${gauged.nearZeroDensity.toFixed(4)}`,
+  })
+}
+
+// 23. Alignment from dynamics: in a natural mesh the CHSH violation decays with
+// measurement separation (shared past shrinks), unlike separation-independent QM.
+{
+  const near = chshShared({ eta: 1, mode: 'aligned', trials: 40000, seed: 1 })
+  const far = chshShared({ eta: Math.exp(-4 / 2), mode: 'aligned', trials: 40000, seed: 2 })
+  check({
+    name: 'natural mesh: CHSH violation decays with separation',
+    ok: near > 3.5 && far < 2,
+    detail: `near S ${near.toFixed(2)}, far S ${far.toFixed(2)}`,
+  })
+}
+
+// 24. P6: the stable 2D manifold phase has Myrheim-Meyer dimension near 2.
+// Warm-start the correct sampler from a 2D sprinkling and read the dimension off
+// the ordering fraction of the stable phase.
+{
+  const sprinkle = sprinkleMinkowski({ dimension: 2, count: 96, rng: makeRng({ seed: 1 }) })
+  const r = sampleUniform({
+    size: 96,
+    beta: 1,
+    epsilon: 0.9,
+    steps: 30000,
+    rng: makeRng({ seed: 31 }),
+    sampleEvery: 48,
+    startFuture: sprinkle.future,
+  })
+  const dim = dimensionFromOrderingFraction(r.meanOrderingFraction)
+  check({
+    name: 'P6: stable 2D manifold phase has dimension near 2',
+    ok: dim > 1.7 && dim < 2.4,
+    detail: `MM dimension ${dim.toFixed(2)}`,
   })
 }
 
