@@ -57,6 +57,10 @@ import { darkEnergy4D } from '~/experiment/p19-dark-energy-4d'
 import { photonStudy } from '~/experiment/p20-photon'
 import { gravitonStudy } from '~/experiment/p21-graviton'
 import { higgsStudy } from '~/experiment/p22-higgs'
+import { gaugeFromAction } from '~/experiment/p23-gauge-from-action'
+import { gravitonFromAction } from '~/experiment/p24-graviton-from-action'
+import { electroweak } from '~/experiment/p25-electroweak'
+import { swerveDiffusion } from '~/experiment/p26-swerves'
 
 let passed = 0
 let failed = 0
@@ -682,6 +686,62 @@ function allFinite(xs: ArrayLike<number>): boolean {
       Math.abs(r.photonGapBroken - r.expectedGapBroken) < 1e-3 &&
       r.higgsMassBroken > 0,
     detail: `v ${r.vevSymmetric.toFixed(2)}->${r.vevBroken.toFixed(2)}, photon gap ${r.photonGapSymmetric.toFixed(2)}->${r.photonGapBroken.toFixed(2)}, Higgs mass ${r.higgsMassBroken.toFixed(2)}`,
+  })
+}
+
+// 39. P23: the Maxwell (photon) operator is derived from the Wilson gauge action,
+// the ratio of the Wilson action to the Maxwell action converging to one as the field
+// shrinks.
+{
+  const r = gaugeFromAction({ side: 4 })
+  const last = r.ratios[r.ratios.length - 1] ?? 0
+  check({
+    name: 'P23: Maxwell operator derived from the Wilson action (small-field limit)',
+    ok: last > 0.999 && last < 1.001,
+    detail: `Wilson/Maxwell ratio at smallest field ${last.toFixed(5)}`,
+  })
+}
+
+// 40. P24: the graviton is derived from the linearized Einstein operator. It is
+// diffeomorphism-invariant (pure-gauge perturbations annihilated) with exactly two
+// massless modes at eigenvalue (1/2)|k|^2.
+{
+  const r = gravitonFromAction({ k: [1, 1, 1] })
+  check({
+    name: 'P24: graviton derived from the gravitational action (diffeo-invariant, two modes)',
+    ok: r.gravitonModes === 2 && r.diffeoResidual < 1e-10 && Math.abs(r.gravitonEigenvalue - 0.5 * r.k2) < 1e-9,
+    detail: `${r.gravitonModes} modes at (1/2)|k|^2 = ${r.gravitonEigenvalue.toFixed(2)}, diffeo residual ${r.diffeoResidual.toExponential(1)}`,
+  })
+}
+
+// 41. P25: electroweak breaking SU(2) x U(1) -> U(1)_EM gives a massless photon, a
+// massive W and Z, and the Weinberg relation m_W = m_Z cos(theta_W).
+{
+  const r = electroweak({ g: 0.65, gPrime: 0.358, v: 246 })
+  check({
+    name: 'P25: electroweak breaking gives W, Z mass, massless photon, m_W = m_Z cos(theta_W)',
+    ok:
+      r.mPhoton < 1e-6 &&
+      r.mW > 70 &&
+      r.mZ > r.mW &&
+      Math.abs(r.ratioCheck - r.cosThetaW) < 1e-3 &&
+      r.sin2ThetaW > 0.2 &&
+      r.sin2ThetaW < 0.26,
+    detail: `W ${r.mW.toFixed(1)}, Z ${r.mZ.toFixed(1)}, photon ${r.mPhoton.toFixed(3)}, sin^2 ${r.sin2ThetaW.toFixed(3)}`,
+  })
+}
+
+// 42. P26 swerves: a particle on a causal set undergoes momentum (rapidity)
+// diffusion, its variance growing with proper time, an effect impossible in the
+// continuum where a free particle keeps its velocity.
+{
+  const r = swerveDiffusion({ density: 1.2, seed: 1, trajectories: 250 })
+  const clean = r.points.filter((p) => p.tau <= 11)
+  const grows = clean.length > 2 && (clean[clean.length - 1]?.varRapidity ?? 0) > 2 * (clean[0]?.varRapidity ?? 1)
+  check({
+    name: 'P26 swerves: momentum diffusion from discreteness (variance grows with proper time)',
+    ok: r.slope > 0.01 && grows,
+    detail: `rapidity variance slope ${r.slope.toFixed(4)} per unit proper time, grows ${grows}`,
   })
 }
 

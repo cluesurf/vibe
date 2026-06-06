@@ -142,9 +142,14 @@ The full field content of physics, by spin, is now present:
   polarizations (P21).
 
 So scalar, spinor, vector, and tensor fields are all demonstrated, plus the Higgs
-mechanism that gives them mass. The remaining field-theory work is to DERIVE the gauge
-and graviton kinetic operators from the discrete action itself, and the specific
-Standard-Model breaking pattern.
+mechanism that gives them mass. The kinetic operators are now DERIVED from the action,
+not put in by hand: the Maxwell (photon) operator is the small-field limit of the
+Wilson gauge action (P23), and the graviton is the second variation of the
+Einstein-Hilbert action, diffeomorphism-invariant with two massless spin-2 modes
+(P24). The specific Standard-Model electroweak breaking SU(2) x U(1) to U(1)_EM, with
+the observed W and Z masses, follows from a Higgs doublet (P25). The remaining field
+work is the fully discrete (sprinkling-level) second variation of the gravitational
+action, and the rest of the Standard-Model content (three generations, Yukawa masses).
 
 ## Priority (impact times reachability)
 
