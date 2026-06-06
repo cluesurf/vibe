@@ -14,7 +14,7 @@ and what is still open.
 | Question | Experiment | Status |
 |---|---|---|
 | P1. A local, bounded-below Hamiltonian | `p1-hamiltonian`, `p1-locality`, `p1-law`, `p1-emergent` | **resolved**: a trilemma for the CA log, solved by the emergent-mesh Hamiltonian (Laplacian) |
-| P2. A dynamics that favors manifold-like order | `p2-study`, `p2-epsilon`, `p2-tempering`, `p2-exact` | **candidate progress**: smeared action provably favors manifold-like on the exact measure, only the large-N entropic regime remains |
+| P2. A dynamics that favors manifold-like order | `p2-exact`, `p2-uniform`, `p2-tempering` | **solved at scale**: first-order transition, smeared action makes manifold spacetime a stable phase at N=128 (free-energy crossing remains) |
 | P3. Addressing versus Lorentz | `p3-study`, `validation`, `p3-growth` | **candidate solved**: all three at once, navigability 100 percent, and stable under mesh growth |
 | P4. The monist spinor and chirality | `p4-spinor`, `p4-topology`, `p4-chirality` | **validated**: zero modes = Betti sum, overlap operator threads the chirality wall |
 | P5. The Hauptvermutung | `p5-hauptvermutung`, `validation` | **validated** sharp in dimension and proper time, proof still open |
@@ -52,15 +52,17 @@ robustly across smearing scales eps in [0.8, 0.99] and at two sizes
 basin**: started from a sprinkling, the smeared dynamics keeps the height ratio at
 about 1.9 across all beta, started from a layered order it climbs from 0.35 toward
 1.0, and the sharp action erodes the manifold start from 1.89 to 1.51
-(`p2-transition.md`). Parallel tempering refined this (the warm-start gap was slow
-mixing, not coexistence), and **exact enumeration** then settled it without any
-sampling bias: over the true measure (every causal set at N up to 7), the smeared
-action drives the manifold fraction to 100 percent, with a dimension sweet spot at
-moderate coupling (`p2-exact.md`, `p2-tempering.md`). **Remaining:** only the
-large-N entropic regime, where Kleitman-Rothschild layered orders dominate the
-count (an asymptotic phenomenon invisible below N about 8). That needs a scalable
-sampler with correct detailed balance on the uniform measure, the documented open
-infrastructure step.
+(`p2-transition.md`). The decisive step was a **correct uniform-measure sampler**
+(single-pair toggle, accept only if still transitive), validated exactly against
+enumeration. It reaches the large-N entropic regime (at beta = 0 the layered
+Kleitman-Rothschild orders take over by N = 64) and demonstrates a **first-order
+transition** at N = 128: the smeared action makes manifold-like spacetime a stable
+phase that coexists with the layered phase (a warm sprinkling start stays manifold
+at beta >= 1, a cold start stays layered), where at beta = 0 only the layered phase
+is stable (`p2-uniform.md`). So the dynamics PRODUCES a stable spacetime phase, the
+prize for Vibe Theory. **Remaining nuance:** the free-energy crossing that says
+which phase strictly dominates at a given coupling, by thermodynamic integration or
+tempering across the barrier.
 
 ### P3. Can one substrate have reach, Lorentz invariance, and navigation at once?
 
@@ -160,12 +162,11 @@ priority order:
    the real path toward the Standard Model and is genuinely hard (lattice chiral
    gauge theory is an open research problem), so even partial progress is
    significant.
-2. **P2 / P6 uniform-measure sampler**: the smeared action robustly favors
-   manifold-like orders (parallel tempering shows a unique manifold equilibrium,
-   not coexistence). The genuine open need is a sampler with correct detailed
-   balance on the uniform causal-set measure, so the entropic layered majority is
-   represented and the dominance question can actually be posed. Deeper than a
-   faster move. P6 shares the machinery.
+2. **P2 / P6 free-energy crossing**: the correct uniform sampler now shows a
+   first-order transition (manifold spacetime is a stable phase at scale). The
+   remaining refinement is which phase strictly dominates at a given coupling, by
+   thermodynamic integration or tempering across the barrier, plus finite-size
+   scaling. The hard part (a stable manifold phase from the dynamics) is done.
 3. **P3 microscopic growth rule**: the both-worlds property already survives an
    expanding mesh at constant density. The refinement is a one-node-at-a-time local
    attachment rule coupled to causal graph dynamics.

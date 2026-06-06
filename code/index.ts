@@ -72,6 +72,7 @@ export * from './dynamics/wilson'
 export * from './dynamics/su2-lattice'
 export * from './dynamics/parallel-tempering'
 export * from './dynamics/exact-enumeration'
+export * from './dynamics/uniform-sampler'
 
 // experiment infrastructure
 export * from './experiment/runner'
