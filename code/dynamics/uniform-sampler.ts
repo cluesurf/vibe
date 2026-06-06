@@ -29,14 +29,14 @@ function popcount32(x: number): number {
   return (v * 0x01010101) >>> 24
 }
 
-interface State {
+export interface State {
   size: number
   stride: number
   future: BitMatrix // future.words[a*stride + w]: b's that a precedes
   past: BitMatrix // past.words[b*stride + w]: a's that precede b
 }
 
-function makeState(size: number, startFuture?: BitMatrix): State {
+export function makeState(size: number, startFuture?: BitMatrix): State {
   const future = makeBitMatrix({ rows: size, cols: size })
   const past = makeBitMatrix({ rows: size, cols: size })
   if (startFuture) {
@@ -81,13 +81,13 @@ function rowsDisjoint(
   return true
 }
 
-function isRelated(state: State, i: number, j: number): boolean {
+export function isRelated(state: State, i: number, j: number): boolean {
   const word = state.future.words[i * state.stride + (j >>> 5)] ?? 0
   return (word & (1 << (j & 31))) !== 0
 }
 
 // Toggle the single pair i precedes j in both future and past.
-function toggle(state: State, i: number, j: number): void {
+export function toggle(state: State, i: number, j: number): void {
   const fi = i * state.stride + (j >>> 5)
   state.future.words[fi] = (state.future.words[fi] ?? 0) ^ (1 << (j & 31))
   const pi = j * state.stride + (i >>> 5)
@@ -97,7 +97,7 @@ function toggle(state: State, i: number, j: number): void {
 // Adding i<j keeps transitivity iff past(i) subset past(j) and future(j) subset
 // future(i). Removing i<j keeps it iff no k with i<k<j (future(i) and past(j)
 // disjoint).
-function toggleKeepsValid(state: State, i: number, j: number, related: boolean): boolean {
+export function toggleKeepsValid(state: State, i: number, j: number, related: boolean): boolean {
   const s = state.stride
   if (related) {
     return rowsDisjoint(state.future.words, i * s, state.past.words, j * s, s)
@@ -118,7 +118,7 @@ function relationCount(state: State): number {
 }
 
 // Longest chain (height) via DP in index order (the labelling is topological).
-function height(state: State): number {
+export function height(state: State): number {
   const n = state.size
   const longest = new Int32Array(n).fill(1)
   let max = n > 0 ? 1 : 0
@@ -145,7 +145,7 @@ function height(state: State): number {
 }
 
 // Smeared 2D Benincasa-Dowker action on the bit state.
-function smearedAction(state: State, eps: number): number {
+export function smearedAction(state: State, eps: number): number {
   const n = state.size
   const s = state.stride
   let sum = 0
@@ -184,6 +184,14 @@ export function sampleUniform(input: {
   manifoldFraction: number
   meanHeightRatio: number
   meanOrderingFraction: number
+  meanAction: number
+  // Action averaged within each phase class (manifold = height ratio > 1), so the
+  // per-phase action is well defined even when a branch is only metastable. NaN if
+  // the run produced no samples of that class.
+  meanActionManifold: number
+  meanActionLayered: number
+  manifoldSamples: number
+  layeredSamples: number
   acceptance: number
 } {
   const state = makeState(input.size, input.startFuture)
@@ -197,6 +205,11 @@ export function sampleUniform(input: {
   let manifoldHits = 0
   let hrSum = 0
   let ofSum = 0
+  let actionSum = 0
+  let actManSum = 0
+  let actManN = 0
+  let actLaySum = 0
+  let actLayN = 0
   let samples = 0
   let accepts = 0
 
@@ -233,10 +246,17 @@ export function sampleUniform(input: {
       const h = height(state)
       const hr = n > 1 ? h / Math.sqrt(n) : 0
       hrSum += hr
+      const act = useAction ? currentS : smearedAction(state, input.epsilon)
       if (hr > 1) {
         manifoldHits += 1
+        actManSum += act
+        actManN += 1
+      } else {
+        actLaySum += act
+        actLayN += 1
       }
       ofSum += pairsTotal > 0 ? relationCount(state) / pairsTotal : 0
+      actionSum += act
       samples += 1
     }
   }
@@ -245,6 +265,11 @@ export function sampleUniform(input: {
     manifoldFraction: samples > 0 ? manifoldHits / samples : 0,
     meanHeightRatio: samples > 0 ? hrSum / samples : 0,
     meanOrderingFraction: samples > 0 ? ofSum / samples : 0,
+    meanAction: samples > 0 ? actionSum / samples : 0,
+    meanActionManifold: actManN > 0 ? actManSum / actManN : NaN,
+    meanActionLayered: actLayN > 0 ? actLaySum / actLayN : NaN,
+    manifoldSamples: actManN,
+    layeredSamples: actLayN,
     acceptance: input.steps > 0 ? accepts / input.steps : 0,
   }
 }
