@@ -55,6 +55,8 @@ import { branchingExpansion } from '~/experiment/p13-growth-expansion'
 import { rotationCurve } from '~/experiment/p18-dark-matter'
 import { darkEnergy4D } from '~/experiment/p19-dark-energy-4d'
 import { photonStudy } from '~/experiment/p20-photon'
+import { gravitonStudy } from '~/experiment/p21-graviton'
+import { higgsStudy } from '~/experiment/p22-higgs'
 
 let passed = 0
 let failed = 0
@@ -649,6 +651,37 @@ function allFinite(xs: ArrayLike<number>): boolean {
       a.massiveMinOmega2 > 0.9 &&
       a.massiveMinOmega2 < 1.1,
     detail: `gauge fraction ${gaugeFraction.toFixed(2)}, min omega^2 ${a.minPhysicalOmega2.toFixed(2)}->${b.minPhysicalOmega2.toFixed(2)} (massless), massive gap ${a.massiveMinOmega2.toFixed(2)}`,
+  })
+}
+
+// 37. P21 graviton: the massless graviton is spin-2 with exactly two transverse-
+// traceless polarizations (a massive spin-2 has five), and a massless dispersion.
+{
+  const r = gravitonStudy()
+  const massless = r.masslessPolarizations.every((p) => p === 2)
+  const shrinks = (r.dispersion[r.dispersion.length - 1]?.omega2 ?? 9) < (r.dispersion[0]?.omega2 ?? 0)
+  check({
+    name: 'P21 graviton: massless spin-2, two transverse-traceless polarizations (massive has five)',
+    ok: massless && r.massivePolarizations === 5 && shrinks,
+    detail: `TT polarizations ${r.masslessPolarizations.join('/')}, massive ${r.massivePolarizations}, dispersion shrinks ${shrinks}`,
+  })
+}
+
+// 38. P22 Higgs: spontaneous symmetry breaking gives a nonzero vacuum value, and the
+// photon eats the Goldstone mode and becomes massive with gap (g v)^2 (massless in
+// the symmetric phase).
+{
+  const r = higgsStudy({ side: 4, coupling: 1 })
+  check({
+    name: 'P22 Higgs: symmetry breaking generates a photon mass (gv)^2 (massless when unbroken)',
+    ok:
+      Math.abs(r.vevSymmetric) < 1e-9 &&
+      r.vevBroken > 0.5 &&
+      Math.abs(r.photonGapSymmetric) < 1e-3 &&
+      r.photonGapBroken > 0.5 &&
+      Math.abs(r.photonGapBroken - r.expectedGapBroken) < 1e-3 &&
+      r.higgsMassBroken > 0,
+    detail: `v ${r.vevSymmetric.toFixed(2)}->${r.vevBroken.toFixed(2)}, photon gap ${r.photonGapSymmetric.toFixed(2)}->${r.photonGapBroken.toFixed(2)}, Higgs mass ${r.higgsMassBroken.toFixed(2)}`,
   })
 }
 

@@ -48,14 +48,20 @@ overview of how to imagine things in this system/model/framework.
   addressing, hyperbolic random graphs, classical sequential growth.
 - **rule**: synchronous, asynchronous, reversible, rewriting, and gauge
   updates.
-- **operator**: graph Laplacian, Kahler-Dirac, the evolution
-  Hamiltonian, and the gauge-covariant Dirac operator.
+- **fields**: scalar (graph Laplacian), spinor (Kahler-Dirac and overlap
+  fermions), vector (the U(1) and SU(2) gauge fields and the free
+  photon), tensor (the graviton), plus the Higgs and its mass mechanism.
+- **operator**: graph Laplacian, Kahler-Dirac and overlap, the
+  gauge-covariant Dirac, the lattice Maxwell operator, the evolution
+  Hamiltonian, and the gauge index.
 - **measure**: dimension, distance, curvature, manifold-likeness,
   Lorentz isotropy, navigation, CHSH, locality, integration, Wilson
-  loops.
-- **dynamics**: the Benincasa-Dowker action, causal-set Monte Carlo,
-  coarse graining, and the Wilson heat bath.
-- **experiment**: one runnable script per open problem (P1 to P9), plus
+  loops, entanglement entropy, rotation curves.
+- **dynamics**: the Benincasa-Dowker action, the correct uniform-measure
+  sampler, Wang-Landau density of states, causal-set Monte Carlo,
+  classical sequential growth, coarse graining, and the Wilson heat
+  bath.
+- **experiment**: one runnable script per open problem (P1 to P22), plus
   a scan runner and report writer.
 
 ## Quick start
@@ -74,13 +80,16 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 28 of 28 known-answer tests pass. Full detail in
-[note/experiment/results/validation.md](note/experiment/results/validation.md).
+typecheck clean, 42 of 42 known-answer tests pass. P1 to P9 are the
+conceptual core, P10 to P17 the next version, and P18 to P22 the dark
+sector and the field content. Full detail in
+[note/experiment/results/](note/experiment/results/) and
+[note/questions/](note/questions/).
 
 | Problem | What it tests                                    | Status                                                 | Key result                                                                                                                                                                                                                                                                                                                                                   |
 | ------- | ------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | P1      | local rule with a bounded-below Hamiltonian      | resolved                                               | a trilemma for a CA's own log (local, bounded-below, propagating: pick two), resolved by the emergent-mesh Hamiltonian: the graph Laplacian is local (range 1), bounded below (spectrum from 0), and propagating (finite-speed lightcone) all at once                                                                                                        |
-| P2      | a dynamics that favors manifold-like order       | solved at scale                                        | a correct uniform-measure sampler (validated vs exact enumeration) reaches the entropic regime and shows a first-order transition: the smeared action makes manifold spacetime a stable phase coexisting with the layered phase, holding sharply across N = 48 to 160, so the dynamics produces spacetime (free-energy crossing is the remaining refinement) |
+| P2      | a dynamics that favors manifold-like order       | solved at scale                                        | a correct uniform-measure sampler (validated vs exact enumeration) reaches the entropic regime and shows a first-order transition: the smeared action makes manifold spacetime a stable phase coexisting with the layered phase, holding sharply across N = 48 to 160. P12 then measures the free-energy crossing (beta-star about 0.14): the manifold phase DOMINATES above it |
 | P3      | addressing versus Lorentz                        | candidate solved                                       | a connected hyperbolic random graph has exponential reach, anisotropy 0.07 (Lorentz-safe), and 100 percent backtracking navigability at once, and all three survive an eightfold mesh growth                                                                                                                                                                 |
 | P4      | the monist spinor, spin from topology, chirality | validated                                              | Kahler-Dirac zero modes equal the Betti sum (disk 1, cylinder 2, torus 4), and the overlap operator threads Nielsen-Ninomiya (1 species, exact chiral symmetry, GW residual 6e-16)                                                                                                                                                                           |
 | P5      | the Hauptvermutung (unique geometry)             | validated (empirical)                                  | recovered dimension 3.02 plus or minus 0.05, proper-time coefficient of variation 0.027, a proof is still open                                                                                                                                                                                                                                               |
@@ -88,13 +97,30 @@ typecheck clean, 28 of 28 known-answer tests pass. Full detail in
 | P7      | quantum statistics from a classical base         | quantified + precise                                   | determinism (monism) makes CHSH violation possible, and the currency is aligned bits not bits (1 bit gives S=4 aligned vs S=1 misaligned, refining Hall). From dynamics, in a natural mesh the violation decays with measurement separation, unlike separation-independent QM, the precise residual tension                                                  |
 | P8      | gauge, fermion, confinement, index, condensate   | validated (A-C + index + Abelian and SU(2) condensate) | U(1) couples to the fermion, 3D SU(2) confines, the overlap index equals the gauge topological charge (lattice Atiyah-Singer), and in a dynamical gauge field (Abelian Schwinger AND non-Abelian SU(2)) a chiral condensate forms from the anomaly (zero free, nonzero gauged). The Weyl-projected chiral gauge theory remains open in physics               |
 | P9      | the relationship of structure to experience      | boundary                                               | only the structural correlates (Markov blanket, integration) are measurable, by design                                                                                                                                                                                                                                                                       |
+| P10     | the cosmological constant (dark energy)          | progress                                               | the smeared action's fluctuation shrinks with volume in 2D (everpresent-like, the right direction for dark energy). 4D needs the smeared kernel (P19)                                                                                                                                                                                                        |
+| P11     | Lorentz invariance of the dynamics               | clarified                                              | rotational invariance emerges in the infrared on both the lattice and the random mesh (the lattice-field-theory fact). The clean substrate-level isotropy is P3, and discreteness threatens Lorentz only at the Planck scale                                                                                                                                 |
+| P12     | the free-energy crossing (closes P2)             | measured                                               | Wang-Landau (1/t schedule) measures the density of states and gives a crossing beta-star about 0.14, roughly N-independent. The manifold (spacetime) phase DOMINATES the sum over histories above it, with the layered phase metastable                                                                                                                      |
+| P13     | the arrow of time and cosmology                  | validated + demonstrated                               | the arrow is the monotone irreversible accumulation of relations. Expansion is demonstrated both from a de Sitter geometry and EMERGING from a pure local growth rule (rate = 1 + q, with a static control at q = 0)                                                                                                                                         |
+| P14     | mass and the relativistic dispersion             | validated                                              | a mass term gives a spectral gap equal to m and the relativistic dispersion E^2 = p^2 + m^2 (massless light cone at m = 0)                                                                                                                                                                                                                                   |
+| P15     | the entanglement area law (holography)           | validated                                              | the free-fermion ground state gives the 1D conformal log law (central charge c = 1) and a 2D area law (boundary beats volume), the signature behind black-hole entropy                                                                                                                                                                                       |
+| P16     | the Newtonian limit (gravity)                    | validated                                              | the static potential (Green's function of the Laplacian) is confining in 1D, logarithmic in 2D, and Newtonian 1/r in 3D (R^2 0.997)                                                                                                                                                                                                                          |
+| P17     | quantum coherence                                | validated                                              | a quantum walk spreads ballistically (width ~ t) while a classical walk diffuses (~ sqrt t), genuine interference emerging on the mesh                                                                                                                                                                                                                       |
+| P18     | dark matter                                      | mechanism shown                                        | a nonlocal (infrared-enhanced) gravitational kinetic term flattens the rotation curve (outer/inner v^2 ratio 0.23 local versus 1.29 nonlocal), with no dark particle                                                                                                                                                                                         |
+| P19     | dark energy in 4D                                | measured                                               | the 4D action-fluctuation scaling is measured. The sharp action has the fluctuation problem, the everpresent shrinking needs the 4D smeared kernel (already shown in 2D, P10)                                                                                                                                                                                |
+| P20     | the photon                                       | validated                                              | the free U(1) gauge field is massless and gauge-invariant, with two transverse polarizations (a mass term gives a fixed gap)                                                                                                                                                                                                                                 |
+| P21     | the graviton                                     | validated                                              | the geometry's propagating excitation is a massless spin-2 field with two transverse-traceless polarizations (a massive spin-2 has five)                                                                                                                                                                                                                     |
+| P22     | the Higgs                                        | validated                                              | spontaneous symmetry breaking gives a nonzero vacuum value, and the photon eats the Goldstone mode and becomes massive with gap (g v)^2                                                                                                                                                                                                                      |
 
 Legend: **validated** means a stated prediction was confirmed by the
-testbed. **candidate solved** means a working substrate or mechanism was
-found and needs hardening. **quantified** means the mechanism was turned
-into a measured curve. **open** means genuinely unsolved (shared
-frontier with the literature). **boundary** means outside what the
-simulator can decide.
+testbed. **measured** means a quantity that was previously only bounded
+is now computed directly (P12, P19). **mechanism shown** means the
+mechanism and its signature are demonstrated, the scale or full
+phenomenology pending (P18). **candidate solved** means a working
+substrate or mechanism was found and needs hardening. **quantified**
+means the mechanism was turned into a measured curve. **progress** and
+**clarified** mean partial or corrected understanding. **open** means
+genuinely unsolved (a shared frontier with the literature). **boundary**
+means outside what the simulator can decide.
 
 ## License
 

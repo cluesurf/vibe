@@ -132,11 +132,19 @@ into science.
 
 ## Which fields do we already model
 
-Scalar (the graph Laplacian, P16), spinor / fermion (Kahler-Dirac and overlap, P4,
-P14), and vector / gauge fields (U(1) and SU(2) as link variables, P8). The free
-PHOTON (the massless, gauge-invariant U(1) field, two transverse polarizations) is now
-demonstrated in its own right (P20). Still to add: the **graviton** (a propagating
-spin-2 mode, P16) and a **Higgs scalar** with symmetry breaking.
+The full field content of physics, by spin, is now present:
+- **Spin 0 (scalar)**: the graph Laplacian (P16), and the **Higgs** with spontaneous
+  symmetry breaking and mass generation (P22).
+- **Spin 1/2 (spinor / fermion)**: Kahler-Dirac and overlap (P4, P14).
+- **Spin 1 (vector / gauge)**: U(1) and SU(2) link variables coupling to matter (P8),
+  and the free **photon**, massless and gauge-invariant with two polarizations (P20).
+- **Spin 2 (tensor)**: the **graviton**, massless with two transverse-traceless
+  polarizations (P21).
+
+So scalar, spinor, vector, and tensor fields are all demonstrated, plus the Higgs
+mechanism that gives them mass. The remaining field-theory work is to DERIVE the gauge
+and graviton kinetic operators from the discrete action itself, and the specific
+Standard-Model breaking pattern.
 
 ## Priority (impact times reachability)
 
@@ -148,6 +156,10 @@ Done or started this round:
   sharp action shows the fluctuation problem, the everpresent shrinking needs the 4D
   smeared kernel (the gap), as the 2D smeared result (P10) already shows.
 - **The photon** (P20): DONE. Massless, gauge-invariant, two polarizations.
+- **The graviton** (P21): DONE. Massless spin-2, two transverse-traceless
+  polarizations (a massive spin-2 has five).
+- **The Higgs** (P22): DONE. Spontaneous symmetry breaking and the photon mass
+  (g v)^2.
 
 Reachable now, high value, do next:
 1. **Swerves** (a particle-on-sprinkling experiment): the momentum-diffusion
@@ -156,6 +168,8 @@ Reachable now, high value, do next:
 3. **Inflation** (time-varying birth rate in P13's growth).
 4. **Singularity resolution** (finite curvature where the continuum diverges).
 5. **Dark matter route 2** (a gauge-neutral fermion that gravitates but is EM-dark).
+6. **Derive the graviton kinetic operator from the discrete action** (links P21 to P2,
+   P16), rather than from the transverse-traceless projector.
 
 Reachable with new machinery:
 6. **Coarse-graining fixed point**, **large-N WL height-changing move**.

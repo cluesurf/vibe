@@ -15,7 +15,7 @@ import { eigSymmetric } from '~/linalg/eig-jacobi'
 
 // The lattice Maxwell (curl-curl) operator on a periodic L^3 lattice. Degrees of
 // freedom are link variables A[site, direction]. Returns the eigenvalues (omega^2).
-function maxwellSpectrum(input: { side: number; mass: number }): number[] {
+export function maxwellSpectrum(input: { side: number; mass: number }): number[] {
   const L = input.side
   const sites = L * L * L
   const dof = 3 * sites
