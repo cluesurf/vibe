@@ -21,6 +21,13 @@ measure, what we have found, and what is still open. Findings are in
 | P7. Quantum from a classical base | `p7-bell`, `p7-naturalness`, `p7-alignment`, `p7-dynamics` | quantified: aligned bits not bits, and in a natural mesh the violation decays with separation (the residual tension) |
 | P8. One gauge field and one charged fermion | `p8-confinement`, `p8-index`, `p8-schwinger`, `p8-su2-condensate` | **validated** A-C, index theorem, Schwinger condensate, and the SU(2) (non-Abelian) condensate rung |
 | P9. Experience | `p9-integration` | only the structural correlates, by design |
+| P10. Cosmological constant | `p10-cosmological-constant` | progress: smeared action tames the fluctuation problem so the implied Lambda shrinks with volume (everpresent-like), exact exponent open |
+| P11. Lorentz invariance of the dynamics | `p11-lorentz-dynamics` | clarified: rotational invariance emerges in the IR on both lattice and random mesh, the clean substrate distinction is P3 |
+| P16. Newtonian limit (gravity) | `p16-newtonian` | **validated** (one rung): the static potential is confining in 1D, log in 2D, Newtonian 1/r in 3D (R^2 0.997) |
+| P17. Quantum coherence (quantum) | `p17-quantum-walk` | **validated** (one rung): a quantum walk is ballistic (t) vs classical diffusive (sqrt t), interference on the mesh |
+
+The next-version problem set (P10 to P17), including the long roads of gravity and
+quantum, is specified in `next-version.md`.
 
 ## The questions
 
@@ -58,10 +65,10 @@ Kleitman-Rothschild orders take over by N = 64) and demonstrates a **first-order
 transition** at N = 128: the smeared action makes manifold-like spacetime a stable
 phase that coexists with the layered phase (a warm sprinkling start stays manifold
 at beta >= 1, a cold start stays layered), where at beta = 0 only the layered phase
-is stable (`p2-uniform.md`). So the dynamics PRODUCES a stable spacetime phase, the
-prize for Vibe Theory. **Remaining nuance:** the free-energy crossing that says
-which phase strictly dominates at a given coupling, by thermodynamic integration or
-tempering across the barrier.
+is stable (`p2-uniform.md`). So the dynamics makes a stable spacetime phase that decays
+without the action, the key step for Vibe Theory. **Remaining nuance:** the
+free-energy crossing that says which phase strictly dominates at a given coupling, by
+thermodynamic integration or tempering across the barrier.
 
 ### P3. Can one substrate have reach, Lorentz invariance, and navigation at once?
 

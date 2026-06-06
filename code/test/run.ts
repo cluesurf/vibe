@@ -43,6 +43,8 @@ import { chiralCondensateSignalSU2 } from '~/operator/overlap-su2'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 import { Graph } from '~/core/graph'
+import { cubicLattice, potentialProfile, fitForm } from '~/experiment/p16-newtonian'
+import { chainOperators, quantumMsd, classicalMsd } from '~/experiment/p17-quantum-walk'
 
 let passed = 0
 let failed = 0
@@ -455,6 +457,42 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P6: stable 2D manifold phase has dimension near 2',
     ok: dim > 1.7 && dim < 2.4,
     detail: `MM dimension ${dim.toFixed(2)}`,
+  })
+}
+
+// 25. P16: the 3D static potential (Green's function of the Laplacian) is
+// Newtonian, falling as 1/r better than 1/r^2 or log.
+{
+  const three = potentialProfile({ lat: cubicLattice(21, 3), side: 21 })
+  const inv = fitForm(three.r, three.phi, (r) => 1 / r)
+  const invSq = fitForm(three.r, three.phi, (r) => 1 / (r * r))
+  const logf = fitForm(three.r, three.phi, (r) => Math.log(r))
+  check({
+    name: 'P16: 3D static potential is Newtonian (1/r is the best fit)',
+    ok: inv.r2 > invSq.r2 && inv.r2 > logf.r2 && inv.r2 > 0.95,
+    detail: `1/r R^2 ${inv.r2.toFixed(3)}, 1/r^2 ${invSq.r2.toFixed(3)}, ln ${logf.r2.toFixed(3)}`,
+  })
+}
+
+// 26. P17: a quantum walk spreads ballistically (width ~ t) while a classical
+// walk on the same chain spreads diffusively (width ~ sqrt(t)). Quadrupling the
+// time roughly quadruples the quantum width but only doubles the classical one.
+{
+  const n = 151
+  const center = Math.floor(n / 2)
+  const ops = chainOperators(n)
+  const eigA = eigSymmetric({ matrix: ops.adjacency })
+  const eigL = eigSymmetric({ matrix: ops.laplacian })
+  const qRatio =
+    Math.sqrt(quantumMsd({ eig: eigA, n, center, t: 16 })) /
+    Math.sqrt(quantumMsd({ eig: eigA, n, center, t: 4 }))
+  const cRatio =
+    Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 16 })) /
+    Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 4 }))
+  check({
+    name: 'P17: quantum walk is ballistic, classical walk is diffusive',
+    ok: qRatio > 3.5 && cRatio > 1.7 && cRatio < 2.4,
+    detail: `4x time: quantum width x${qRatio.toFixed(2)}, classical width x${cRatio.toFixed(2)}`,
   })
 }
 
