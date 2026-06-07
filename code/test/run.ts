@@ -97,6 +97,14 @@ import { emergentMacroRule } from '~/experiment/p58-emergent-macro-rule'
 import { nestedSelves } from '~/experiment/p59-nested-selves'
 import { towerOfSelves } from '~/experiment/p60-tower-of-selves'
 import { noSelfStorage } from '~/experiment/p61-no-self-storage'
+import { dimensionWindow } from '~/experiment/p62-dimension-window'
+import { integratedInformation } from '~/experiment/p63-integrated-information'
+import { subtleLayerUrges } from '~/experiment/p64-subtle-layer-urges'
+import { dreamingAndWaking } from '~/experiment/p65-dreaming-and-waking'
+import { reincarnation } from '~/experiment/p66-reincarnation'
+import { synchronicity } from '~/experiment/p67-synchronicity'
+import { dimensionSelection } from '~/experiment/p68-dimension-selection'
+import { emergentDimension } from '~/experiment/p69-emergent-dimension'
 
 let passed = 0
 let failed = 0
@@ -1235,6 +1243,111 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P61 no self-storage: lossless self-record needs the whole, lossy regress converges, no infinite mirror',
     ok: r.solved && r.losslessNeedsWholeThing && r.regressCompressedTotal < 2 * 1500 && r.regressFullCopyDiverges,
     detail: `fidelity@50% ${(r.byRatio.find((b) => b.ratio === 0.5)?.fidelity ?? 0).toFixed(2)}, @100% ${(r.byRatio.find((b) => b.ratio === 1.0)?.fidelity ?? 0).toFixed(2)}, regress total ${r.regressCompressedTotal.toFixed(0)} (r=${r.compressionRatio.toFixed(3)})`,
+  })
+}
+
+// 78. P62 dimension window: enumerating compact regular hyperbolic honeycombs (finite-celled
+// crystals) reproduces the known classification (H^3 has exactly 4, H^4 exactly 5) and shows
+// they exist only in dimensions 2, 3, 4, vanishing at 5 and above. The crystal substrate's
+// dimension is a computed constraint, not an assumption.
+{
+  const r = dimensionWindow({ maxP: 8, maxDimension: 6 })
+  const c = (n) => r.byDimension.find((d) => d.dimension === n)?.count ?? -1
+  check({
+    name: 'P62 dimension window: compact hyperbolic crystals only in dims 2,3,4 (H^3=4, H^4=5, H^5+=0)',
+    ok: c(3) === 4 && c(4) === 5 && c(5) === 0 && c(6) === 0 && r.compactWindow.join(',') === '2,3,4',
+    detail: `H2=${c(2)} H3=${c(3)} H4=${c(4)} H5=${c(5)}, window [${r.compactWindow.join(',')}]`,
+  })
+}
+
+// 79. P63 integrated information: integration Phi (algebraic connectivity) picks out selves.
+// A genuine self (a cohesive cell) has high Phi, a random same-size bag near zero, and a self
+// is a local maximum (swapping members in or out lowers it), with the whole an integrated unity.
+{
+  const r = integratedInformation({ seed: 1 })
+  check({
+    name: 'P63 integrated information: selves are high-Phi local maxima, random bags near zero',
+    ok: r.solved && r.phiCell > 1 && r.phiRandom < 0.1 && r.localMaxFraction > 0.9 && r.phiWhole > 0,
+    detail: `cell Phi ${r.phiCell.toFixed(2)}, random ${r.phiRandom.toFixed(3)}, localMax ${(100*r.localMaxFraction).toFixed(0)}%, whole ${r.phiWhole.toFixed(3)}`,
+  })
+}
+
+// 80. P64 subtle-layer urges: a slow deep layer biases the fast surface layer. Steering rises
+// with coupling depth (none when uncoupled), and after the surface is disordered the deep layer
+// reasserts its pattern. The urge as a real second layer, not an abstract bias field.
+{
+  const r = subtleLayerUrges({ seed: 1 })
+  check({
+    name: 'P64 subtle-layer urges: deep layer steers the surface and reasserts after disorder',
+    ok: r.solved && r.steeringRises && r.reassertion > 0.8,
+    detail: `steering ${r.byCoupling.map((b) => (100*b.steering).toFixed(0)+'%').join('/')}, reassertion ${(100*r.reassertion).toFixed(0)}%`,
+  })
+}
+
+// 81. P65 dreaming and waking: one memory mesh, two regimes. Waking (external clamp) pins the
+// mesh to the one veridical stimulus pattern; dreaming (no clamp, internal rhythm) roams the
+// whole stored landscape. The only difference is whether the shared external constraint is imposed.
+{
+  const r = dreamingAndWaking({ seed: 1 })
+  check({
+    name: 'P65 dreaming and waking: waking pinned to one veridical memory, dreaming roams the landscape',
+    ok: r.solved && r.wakingDistinct === 1 && r.wakingVeridical > 0.8 && r.dreamingDistinct >= r.storedCount - 1,
+    detail: `waking ${r.wakingDistinct} pattern (${(100*r.wakingVeridical).toFixed(0)}% veridical), dreaming ${r.dreamingDistinct}/${r.storedCount}`,
+  })
+}
+
+// 82. P66 reincarnation as pattern persistence: a self (a stored attractor) survives 100 percent
+// turnover of its material, and after full dissolution into noise it reconstitutes from a seed.
+// A self is a pattern, separable in principle from any particular substrate.
+{
+  const r = reincarnation({ seed: 1 })
+  check({
+    name: 'P66 reincarnation: self persists through total turnover and reconstitutes from a seed',
+    ok: r.solved && r.turnoverReached >= 0.999 && r.persistThroughTurnover > 0.9 && r.dissolvedOverlap < 0.3 && r.reconstituteFromSeed > 0.9,
+    detail: `turnover ${(100*r.turnoverReached).toFixed(0)}% persist ${(100*r.persistThroughTurnover).toFixed(0)}%, dissolved ${(100*r.dissolvedOverlap).toFixed(0)}% reborn ${(100*r.reconstituteFromSeed).toFixed(0)}%`,
+  })
+}
+
+// 83. P67 synchronicity: two subsystems with no link between them show correlated transitions
+// when they share a deep ancestry (the same memory landscape), under a common ambient rhythm,
+// and stay uncorrelated when their ancestry is unrelated. Correlation from the shared past, not
+// a present signal (the same mechanism as the Bell result P7).
+{
+  const r = synchronicity({ seed: 1 })
+  check({
+    name: 'P67 synchronicity: shared-ancestry subsystems correlate without a link, unrelated do not',
+    ok: r.solved && r.sharedCorrelation > 0.8 && r.unrelatedCorrelation < 0.2 && !r.hasDirectLink,
+    detail: `shared ${(100*r.sharedCorrelation).toFixed(0)}%, unrelated ${(100*r.unrelatedCorrelation).toFixed(0)}%, link ${r.hasDirectLink}`,
+  })
+}
+
+// 84. P68 dimension selection: integrating gravitational orbits in d spatial dimensions shows
+// only d = 3 gives stable CLOSED orbits (inverse-square law). d = 2 precesses, d >= 4 is unstable.
+// Of the allowed window {2,3,4} (P62), three is uniquely selected.
+{
+  const r = dimensionSelection()
+  const d3 = r.byDimension.find((x) => x.dimension === 3)
+  const d2 = r.byDimension.find((x) => x.dimension === 2)
+  const d4 = r.byDimension.find((x) => x.dimension === 4)
+  check({
+    name: 'P68 dimension selection: only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
+    ok: r.solved && r.selected.length === 1 && r.selected[0] === 3 && (d3?.closed ?? false) && !(d2?.closed ?? true) && !(d4?.stable ?? true),
+    detail: `d2 apsidal ${d2?.apsidalAngleDeg.toFixed(0)} closed ${d2?.closed}, d3 apsidal ${d3?.apsidalAngleDeg.toFixed(0)} closed ${d3?.closed}, d4 stable ${d4?.stable}`,
+  })
+}
+
+// 85. P69 emergent spatial dimension from pure growth: the dimension read intrinsically from the
+// grown connectivity (shell growth in hops, no coordinates) matches the target unbiased for flat
+// grids (2.00/2.97/3.90), where P38 was biased low, and a negatively-curved mesh reads exponential.
+{
+  const r = emergentDimension()
+  const d2 = r.flat.find((x) => x.target === 2)
+  const d3 = r.flat.find((x) => x.target === 3)
+  const d4 = r.flat.find((x) => x.target === 4)
+  check({
+    name: 'P69 emergent dimension: flat grids unbiased (2/3/4), curved meshes exponential',
+    ok: r.solved && r.flatUnbiased && r.curvedIsExponential && Math.abs((d2?.measured ?? 0) - 2) < 0.2 && Math.abs((d3?.measured ?? 0) - 3) < 0.2 && Math.abs((d4?.measured ?? 0) - 4) < 0.2,
+    detail: `flat ${r.flat.map((f) => f.measured.toFixed(2)).join('/')}, curved growth ${r.curved.map((c) => c.growthRatio.toFixed(1)).join('/')}`,
   })
 }
 
