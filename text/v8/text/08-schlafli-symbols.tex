@@ -1,0 +1,45 @@
+\section{Naming the Crystals with Numbers: Schlafli Symbols}
+
+We keep saying ``a few whole numbers determine the crystal.'' This chapter shows you the actual notation, because it is simple and it lets us name every crystal in the walkthrough precisely. It is called the Schlafli symbol, and it is just a short list of integers in curly braces.
+
+\subsection{The two-number version}
+
+Write a tiling as two numbers, like this: \{7, 3\}.
+
+The first number is how many sides each tile has. The second number is how many tiles meet at each corner. So \{7, 3\} means seven-sided tiles, three meeting at every corner. That is the heptagrid.
+
+A few examples to calibrate:
+
+\begin{itemize}
+\item \{4, 4\}: four-sided tiles (squares), four at a corner. The bathroom floor. Flat.
+\item \{6, 3\}: six-sided tiles (hexagons), three at a corner. The honeycomb. Also flat.
+\item \{3, 6\}: triangles, six at a corner. Flat again.
+\item \{5, 3\}: pentagons, three at a corner. This one curls up into a ball, the dodecahedron.
+\item \{7, 3\}: heptagons, three at a corner. This one ruffles out into hyperbolic space.
+\end{itemize}
+
+\subsection{The one rule that tells you the curvature}
+
+There is a single easy check that tells you which world a symbol \{p, q\} lives in. Take one divided by p, plus one divided by q, and compare to one half.
+
+\begin{itemize}
+\item If 1/p + 1/q is more than 1/2, the tiling closes into a ball. Round.
+\item If it equals exactly 1/2, the tiling lies flat. Flat.
+\item If it is less than 1/2, the tiling ruffles into a saddle. Hyperbolic.
+\end{itemize}
+
+Try it on \{7, 3\}: one-seventh is about 0.14, one-third is about 0.33, together about 0.47, which is less than 0.5. Hyperbolic. Try \{6, 3\}: one-sixth plus one-third is exactly 0.5. Flat, the honeycomb, right on the boundary. This is why seven is special: at three tiles to a corner, six-sided is the last flat one, and seven-sided is the first that curves. Seven is the smallest number of sides that bends space.
+
+\subsection{Adding a dimension}
+
+The same idea climbs into higher dimensions, you just add more numbers.
+
+A three-number symbol like \{5, 3, 4\} describes a three-dimensional crystal, a honeycomb of solid cells filling a curved three-dimensional space. Read it like this: the cells are \{5, 3\} shapes, which are dodecahedra (twelve pentagon faces), and the last number, 4, says how many of those solid cells meet around each edge. So \{5, 3, 4\} is a packing of dodecahedra, four around every edge, filling hyperbolic three-dimensional space. That is the dodecagrid, the real substrate of the universe in this theory.
+
+You can keep adding numbers for higher dimensions, \{5, 3, 3, 4\} for four-dimensional space, and so on. The pattern is always the same: each number tells you how the pieces from the previous level fit together at the next level up.
+
+\subsection{Why the notation is the point}
+
+The Schlafli symbol is not decoration. It is the whole specification. Hand someone \{5, 3, 4\} and they have, in three integers, the complete blueprint of an infinite three-dimensional crystal: its cell shape, how cells meet, its curvature, its growth rate, everything. There is nothing left to choose. This is the sense in which the universe, in this theory, is written in a handful of whole numbers.
+
+\textbf{Takeaway:} a Schlafli symbol like \{7, 3\} or \{5, 3, 4\} names a crystal completely with a few integers, listing tile shape and how tiles meet. The quick test 1/p + 1/q against 1/2 tells you flat, round, or hyperbolic, and it is why seven is the first number of sides that curves the plane.

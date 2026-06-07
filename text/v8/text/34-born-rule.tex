@@ -1,0 +1,29 @@
+\section{Why Probability Is Amplitude Squared}
+
+Quantum physics has one rule that everybody uses and nobody, in the standard telling, can explain: to get the probability of an outcome, take its amplitude and square it. Why squared? Why not the amplitude itself, or cubed? In ordinary quantum mechanics this is simply a postulate, dropped in by hand because it works. The crystal earns it instead. This short chapter shows how.
+
+\subsection{The rule in question}
+
+An outcome in quantum physics has an amplitude, a size. The chance of actually seeing that outcome is that size multiplied by itself, the square. An outcome with twice the amplitude is four times as likely, not twice. This squaring is everywhere in quantum predictions and it is confirmed to absurd precision. But ``why squared'' is left unanswered. It is the rule you memorize and never justify.
+
+\subsection{The crowd answer}
+
+Remember from the last chapter that the amplitude is a crowd: its size measures how many vibes are excited together in that patch. Now ask the natural question. If a measurement simply samples the substrate fairly, picks a vibe at random, so to speak, and reads which outcome it belongs to, then the chance of landing on an outcome is just that outcome's share of the vibes.
+
+Here is the key link. The amplitude's size is not the number of vibes directly. It is the square root of the number of vibes. That is what ``amplitude'' means in the crowd picture, it is built so that the amplitude squared gives back the count. So when you fairly sample and ask for an outcome's share of vibes, you are asking for the amplitude squared. The squaring is not an extra rule. It is the translation between the amplitude (a square root of a count) and the actual count of vibes that fair sampling cares about.
+
+So probability is amplitude squared because amplitude is the square root of how many vibes are in the crowd, and fair sampling counts the vibes.
+
+\subsection{Two roads, one answer}
+
+The simulation checks this two independent ways and both give the squared rule.
+
+One way is the direct counting just described: set up patches with various amplitudes, sample the substrate fairly, and the frequencies of outcomes match the amplitudes squared, not the amplitudes, not the cubes. The other way uses a symmetry argument (due to the physicist Wojciech Zurek): when branches have equal amplitude they must be equally likely by sheer symmetry, and the only way to extend that consistently to unequal branches is the squared rule. Different starting points, same destination.
+
+And the simulation explicitly checks the alternatives. If the rule were amplitude to the first power, or to the third power, fair sampling would not reproduce the observed frequencies. Only the second power fits. The exponent two is singled out, not assumed.
+
+\subsection{Why this is a big deal}
+
+Deriving the Born rule, rather than postulating it, is one of the long-standing dreams of the foundations of physics. A great many smart attempts have been made. To get it to fall out naturally, from ``the amplitude is the square root of a crowd size, and measurement samples the crowd fairly,'' is a genuine point in the theory's favor. It turns one of the most arbitrary-looking pieces of quantum mechanics into something almost obvious, once you accept that the wave is a crowd of vibes.
+
+\textbf{Takeaway:} probability is amplitude squared because the amplitude is the square root of how many vibes are excited in a patch, so fair sampling of the substrate gives back the square. The crystal derives this two independent ways and rules out the other powers, turning a bare quantum postulate into a consequence of the crowd picture.

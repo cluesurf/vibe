@@ -1,0 +1,71 @@
+\section{Fibonacci Addressing: A Name for Every Cell}
+
+The crystal has endless cells. If a signal is going to travel across it, or if a cell is going to know where it sits, every cell needs a name, an address. And the address has to be smart: from it alone, a cell should be able to figure out who its neighbors are and which way to send a message, without consulting some giant master map. This chapter builds exactly that, end to end. It is one of the prettiest pieces of the whole theory.
+
+\subsection{Step 1: the crystal is a tree}
+
+Pick any cell to be the root, the center. Its immediate neighbors form the first ring. Their further neighbors form the second ring, and so on. If you follow each cell back toward the center by one step at a time, you get a branching tree, like a family tree growing outward from a single ancestor. Every cell has one parent (one step toward the center) and several children (the new cells it leads to going outward).
+
+So the crystal, for addressing purposes, is a tree: a root, its children, their children, forever branching. A cell's address will simply record the path from the root out to that cell.
+
+\subsection{Step 2: number the cells, ring by ring}
+
+Walk the tree outward and number the cells as you go. Root is 1. The first ring gets the next few numbers. The second ring continues, and so on. Each cell gets one whole number, its place in line.
+
+The crystal grows in a Fibonacci-like way: each ring is bigger than the last by the golden-ratio factor. That Fibonacci growth is the hook that makes the next step work.
+
+\subsection{Step 3: rewrite each number in Fibonacci}
+
+Now take each cell's number and rewrite it using Zeckendorf's theorem from the last chapter: as a sum of non-adjacent Fibonacci numbers, written as a string of 0s and 1s where the places stand for Fibonacci values 1, 2, 3, 5, 8, 13, and a 1 means ``this Fibonacci number is in the sum.''
+
+Here are the first dozen, with their addresses:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{number} & \multicolumn{1}{c}{Fibonacci sum} & \multicolumn{1}{c}{address} \\
+\midrule
+1 & 1 & \texttt{1} \\
+2 & 2 & \texttt{10} \\
+3 & 3 & \texttt{100} \\
+4 & 3 + 1 & \texttt{101} \\
+5 & 5 & \texttt{1000} \\
+6 & 5 + 1 & \texttt{1001} \\
+7 & 5 + 2 & \texttt{1010} \\
+8 & 8 & \texttt{10000} \\
+9 & 8 + 1 & \texttt{10001} \\
+10 & 8 + 2 & \texttt{10010} \\
+11 & 8 + 3 & \texttt{10100} \\
+12 & 8 + 3 + 1 & \texttt{10101} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Look closely and you will see something: no address ever has two 1s next to each other. That is Zeckendorf's rule, and it is not a coincidence we have to enforce. It falls out automatically, because you never need two side-by-side Fibonacci numbers. The strings with two adjacent 1s are exactly the patterns that never occur. The crystal's cells use up all and only the legal strings.
+
+\subsection{Step 4: the address is a route from the root}
+
+Here is the payoff that makes the whole thing tick. That string of digits is not just a label. It is a turn-by-turn route from the root out to the cell. Read the address like a postal address that goes from the country down to the house: each chunk of digits says which branch to take at the next fork.
+
+Because of that, two things are simple, with no master map needed:
+
+\begin{itemize}
+\item \textbf{Find your parent.} Strip the route down by one step, lop off the last chunk, and you have your parent's address, the cell one step toward the center.
+\item \textbf{Find your children.} Extend the route by one step, append the next legal chunk, and you get the addresses of the cells one step further out. The no-two-adjacent-1s rule is exactly what keeps those extensions valid and unique.
+\end{itemize}
+
+So a cell holding only its own address can compute, by simple operations on the digits, who its parent is and who its children are. It carries a tiny piece of the map inside its own name.
+
+\subsection{Step 5: routing a message}
+
+Now sending a signal from cell A to cell B is easy. Compare their addresses from the left. The part they share is the route to their common ancestor, the fork where their paths split. To get from A to B, walk up A's route to that shared fork (drop digits), then walk down B's route from the fork (add B's remaining digits). Each cell along the way only needs to compare the two addresses and step one notch closer. No cell ever needs to see the whole crystal.
+
+That is addressing end to end: a tree, a ring-by-ring numbering, a Fibonacci rewrite, and suddenly every cell has a self-describing name from which it can find its family and route a message to anywhere, all locally. The three-dimensional crystal needs a slightly richer version of the same idea, which the next chapter handles, but the spirit is exactly this.
+
+\subsection{Are the addresses really there}
+
+Does a cell actually carry its address written somewhere, or is the address only our way of talking? The honest answer is the second, in a way that takes nothing away. No cell stores a label. The address is implicit in the cell's place in the web, in which threads it is tied to, and it can be computed from that local structure whenever it is needed. It is real in the sense that it is fixed by the actual connections, not invented, and it is not real in the sense of a tag glued to the cell. When a signal routes, it compares real structure, not stored strings. The address is a faithful name for a real position, the way your location is real without a sign nailed to you stating it.
+
+\textbf{Takeaway:} number the crystal's cells ring by ring, rewrite each number in Fibonacci (Zeckendorf) form, and the resulting string of digits is a turn-by-turn route from the center. From its own address a cell can compute its parent, its children, and the way to any other cell, with no global map.
