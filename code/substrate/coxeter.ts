@@ -4,7 +4,7 @@
 // gives a different tiling from the same construction, so {7,3}, {5,4}, and {5,3,4} are
 // special cases of one thing. The 2D builder reflects a central polygon across its edges,
 // the 3D builder reflects a central dodecahedron across its faces, both reflection-group
-// orbits. See note/research (choosing-the-base).
+// orbits. See the choosing-the-base analysis.
 
 import { Graph } from '~/core/graph'
 import { hyperbolicTiling } from '~/substrate/hyperbolic-graph'

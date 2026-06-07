@@ -11,7 +11,7 @@
 //   3. The golden ratio is the central geodesic of this base: the all-ones continued
 //      fraction gives Fibonacci convergents that converge to phi, tying the parameter-free
 //      base to the golden ratio that recurs across the substrate work.
-// See note/research (choosing-the-base). Run: npx tsx code/experiment/p48-modular-base.ts
+// See the choosing-the-base analysis. Run: npx tsx code/experiment/p48-modular-base.ts
 
 import { pathToFileURL } from 'node:url'
 import { makeRng } from '~/core/rng'
@@ -43,8 +43,10 @@ function mul(m: Mat, n: Mat): Mat {
 }
 
 // Build the modular tessellation as the PSL(2,Z) Cayley graph, embedded in the Poincare
-// disc by acting on an interior base point z0 in the upper half-plane.
-function modularGraph(maxNodes: number): Graph {
+// disc by acting on an interior base point z0 in the upper half-plane. The generation is
+// pure integer-matrix arithmetic with no randomness, so it doubles as the deterministic
+// automaton that grows the base from the integers (see p51-full-ladder).
+export function modularGraph(maxNodes: number): Graph {
   const S: Mat = [0, -1, 1, 0]
   const T: Mat = [1, 1, 0, 1]
   const Ti: Mat = [1, -1, 0, 1]

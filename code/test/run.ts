@@ -84,6 +84,11 @@ import { dodecagrid } from '~/experiment/p45-dodecagrid'
 import { everpresentDynamical } from '~/experiment/p46-everpresent-dynamical'
 import { coxeterUnification } from '~/experiment/p47-coxeter-unification'
 import { modularBase } from '~/experiment/p48-modular-base'
+import { crystalHiddenHierarchical } from '~/experiment/p49-crystal-hidden-hierarchical'
+import { goldenAndFree } from '~/experiment/p50-golden-and-free'
+import { fullLadder } from '~/experiment/p51-full-ladder'
+import { continuumLimit } from '~/experiment/p52-continuum-limit'
+import { coarseGrainingFixedPoint } from '~/experiment/p53-coarse-graining-fixed-point'
 
 let passed = 0
 let failed = 0
@@ -1063,6 +1068,65 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P48 modular base: parameter-free, Lorentz-safe, continued-fraction addressed, golden-ratio central',
     ok: r.lorentzSafe && r.addressingExact && r.goldenError < 1e-4,
     detail: `anisotropy ${r.anisotropy.toFixed(3)}, addressing exact ${r.addressingExact}, golden error ${r.goldenError.toExponential(1)}`,
+  })
+}
+
+// 65. P49 crystal hidden and hierarchical: a hyperbolic crystal reads like a random foam
+// from inside (both unlike a flat lattice) and is tree-like (small Gromov delta).
+{
+  const r = crystalHiddenHierarchical({ seed: 2 })
+  check({
+    name: 'P49 crystal: indistinguishable from foam inside, tree-like (hierarchical), unlike a flat lattice',
+    ok: r.indistinguishable && r.crystalIsTreeLike,
+    detail: `crystal aniso ${r.crystalAnisotropy.toFixed(3)} vs foam ${r.foamAnisotropy.toFixed(3)} vs lattice ${r.latticeAnisotropy.toFixed(3)}, delta ${r.crystalDelta.toFixed(1)} vs ${r.latticeDelta.toFixed(1)}`,
+  })
+}
+
+// 66. P50 golden ratio and order with freedom: phi agrees from three independent
+// sources, and the ordered crystal dynamics is determined yet irreducible.
+{
+  const r = goldenAndFree({ seed: 2 })
+  check({
+    name: 'P50 golden ratio (three independent sources) and order-with-freedom on the crystal',
+    ok: r.goldenAgrees && r.deterministic && r.irreducible,
+    detail: `phi ${r.phiCF.toFixed(5)}/${r.phiFib.toFixed(5)}/${r.phiPentagon.toFixed(5)}, determined ${r.deterministic}, irreducible ${r.irreducible}`,
+  })
+}
+
+// 67. P51 full ladder: from integer generator data, a deterministic automaton grows the
+// group and tessellation, and the vibe model runs on it, Lorentz-safe and reproducible.
+{
+  const mod = fullLadder({ base: 'modular', seed: 2 })
+  const hept = fullLadder({ base: [7, 3], seed: 2 })
+  check({
+    name: 'P51 full ladder: integers to lived substrate in one pipeline (modular and {7,3})',
+    ok: mod.fromIntegers && mod.lorentzSafe && mod.modelDeterministic && mod.modelEvolves &&
+        hept.fromIntegers && hept.lorentzSafe && hept.modelDeterministic && hept.modelEvolves,
+    detail: `modular aniso ${mod.anisotropy.toFixed(3)}, {7,3} aniso ${hept.anisotropy.toFixed(3)}, both run and reproduce`,
+  })
+}
+
+// 68. P52 continuum limit: the dimension estimate agrees with the continuum value at all
+// N (within one percent) in 2D and 3D, approaching the continuum in the large-N limit.
+{
+  const two = continuumLimit({ dimension: 2, sizes: [500, 1000, 2000], repeats: 5, seed: 1 })
+  const three = continuumLimit({ dimension: 3, sizes: [500, 1000, 2000], repeats: 5, seed: 1 })
+  check({
+    name: 'P52 continuum limit: dimension agrees with continuum at all N (2D and 3D)',
+    ok: two.agrees && three.agrees,
+    detail: `2D max error ${two.maxError.toFixed(3)}, 3D max error ${three.maxError.toFixed(3)}`,
+  })
+}
+
+// 69. P53 coarse-graining fixed point: the dimension is invariant under repeated
+// decimation, so the continuum dimension is a renormalization fixed point.
+{
+  const two = coarseGrainingFixedPoint({ dimension: 2, count: 5000, levels: 3, seed: 1 })
+  const three = coarseGrainingFixedPoint({ dimension: 3, count: 5000, levels: 3, seed: 1 })
+  check({
+    name: 'P53 coarse-graining: dimension invariant under decimation (renormalization fixed point)',
+    ok: two.fixedPoint && three.fixedPoint,
+    detail: `2D dims ${two.dims.map((d) => d.toFixed(2)).join('/')}, 3D dims ${three.dims.map((d) => d.toFixed(2)).join('/')}`,
   })
 }
 
