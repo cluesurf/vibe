@@ -72,6 +72,13 @@ import { capstone } from '~/experiment/p34-capstone'
 import { darkEnergyPrediction, lorentzPrediction } from '~/experiment/p35-contact-with-data'
 import { dslDemo } from '~/experiment/p36-dsl'
 import { vibe } from '~/model/vibe'
+import { propagation } from '~/experiment/p37-one-rule-propagation'
+import { sliceDimension } from '~/experiment/p38-emergent-spatial-geometry'
+import { deterministicSubstrate } from '~/experiment/p39-deterministic-substrate'
+import { nonRandomSubstrates } from '~/experiment/p40-non-random-substrates'
+import { margensternTilings } from '~/experiment/p41-margenstern-tilings'
+import { fibonacciNavigation } from '~/experiment/p42-fibonacci-navigation'
+import { freedomChoice } from '~/experiment/p43-freedom-choice'
 
 let passed = 0
 let failed = 0
@@ -904,6 +911,96 @@ function allFinite(xs: ArrayLike<number>): boolean {
       d.toneMix &&
       d.latticeAnisotropy > 0.8,
     detail: `committed anisotropy ${d.committedAnisotropy.toFixed(2)} vs lattice ${d.latticeAnisotropy.toFixed(2)}, reach ${d.committedReach}, H>=0 ${d.committedBoundedBelow}`,
+  })
+}
+
+// 53. P37 one rule, propagation: the ternary rule itself carries a strict causal
+// light-cone (a disturbance never outruns one hop per beat) and the front advances.
+{
+  const r = propagation({ count: 600, beats: 8, seed: 1 })
+  check({
+    name: 'P37 one rule: causal light-cone from the rule itself (finite-speed propagation)',
+    ok: r.lightConeHolds && r.frontAdvances,
+    detail: `front radius ${r.frontRadius.join(',')}, light-cone ${r.lightConeHolds}`,
+  })
+}
+
+// 54. P38 emergent spatial geometry: a coexisting slice has a definite spatial dimension
+// below the spacetime dimension, rising by about one from 2D to 3D (the d-1 trend).
+{
+  const two = sliceDimension({ dimension: 2, count: 5000, seed: 1 })
+  const three = sliceDimension({ dimension: 3, count: 11000, seed: 1 })
+  check({
+    name: 'P38 emergent spatial geometry: slice dimension below spacetime, rising by ~1 (d-1 trend)',
+    ok:
+      three.spatialDimension > two.spatialDimension &&
+      two.spatialDimension < 2 &&
+      three.spatialDimension < 3 &&
+      three.spatialDimension - two.spatialDimension > 0.4,
+    detail: `2D slice dim ${two.spatialDimension.toFixed(2)}, 3D slice dim ${three.spatialDimension.toFixed(2)}, rise ${(three.spatialDimension - two.spatialDimension).toFixed(2)}`,
+  })
+}
+
+// 55. P39 deterministic substrate: the golden-angle sunflower is as Lorentz-safe as the
+// random sprinkle (anisotropy in the same low band) with exponential reach, no rng.
+{
+  const r = deterministicSubstrate({ count: 1200, seed: 1 })
+  check({
+    name: 'P39 deterministic substrate: non-random sunflower is as Lorentz-safe as the random sprinkle',
+    ok: r.deterministicIsSafe && r.sunflower.anisotropy < 0.15 && r.sunflower.reach,
+    detail: `sunflower anisotropy ${r.sunflower.anisotropy.toFixed(3)} vs random ${r.random.anisotropy.toFixed(3)}, reach ${r.sunflower.reach}`,
+  })
+}
+
+// 56. P40 non-random substrates: every hyperbolic substrate (random, sunflower, halton,
+// and the regular {7,3} and {5,4} tilings) is Lorentz-safe, while the flat lattice is
+// not. Regularity does not break Lorentz invariance once the space is curved.
+{
+  const r = nonRandomSubstrates({ seed: 1 })
+  const hyperbolicSafe = ['random sprinkle', 'sunflower (golden angle)', 'halton (2,3) disc', 'tiling {7,3}', 'tiling {5,4}'].every(
+    (k) => r[k]?.lorentzSafe === true,
+  )
+  const latticeUnsafe = r['flat lattice (control)']?.lorentzSafe === false
+  const tilingsIsotropic = (r['tiling {7,3}']?.anisotropy ?? 1) < 0.1 && (r['tiling {5,4}']?.anisotropy ?? 1) < 0.1
+  check({
+    name: 'P40 non-random substrates: hyperbolic tilings and sequences are Lorentz-safe, flat lattice is not',
+    ok: hyperbolicSafe && latticeUnsafe && tilingsIsotropic,
+    detail: `{7,3} anisotropy ${(r['tiling {7,3}']?.anisotropy ?? 0).toFixed(3)}, {5,4} ${(r['tiling {5,4}']?.anisotropy ?? 0).toFixed(3)}, lattice ${(r['flat lattice (control)']?.anisotropy ?? 0).toFixed(3)}`,
+  })
+}
+
+// 57. P41 Margenstern tilings: both families ({p,4} and {p,3}) are Lorentz-safe across
+// the board, with small anisotropy and exponential reach.
+{
+  const r = margensternTilings({ seed: 2 })
+  const all = Object.values(r)
+  const allSafe = all.every((e) => e.lorentzSafe && e.anisotropy < 0.12 && e.reach)
+  check({
+    name: 'P41 Margenstern tilings: all {p,4} and {p,3} tilings are Lorentz-safe',
+    ok: all.length === 6 && allSafe,
+    detail: `max anisotropy ${Math.max(...all.map((e) => e.anisotropy)).toFixed(3)} across ${all.length} tilings`,
+  })
+}
+
+// 58. P42 Fibonacci navigation: routing by tree-address arithmetic on the heptagrid
+// delivers every signal exactly, efficiently (low stretch), with exponential ring growth.
+{
+  const r = fibonacciNavigation({ pairs: 1000, seed: 1 })
+  check({
+    name: 'P42 Fibonacci navigation: exact addressed routing on the heptagrid, efficient',
+    ok: r.deliveryRate === 1 && r.meanStretch < 3 && r.levelGrowthRatio > 1.1 && r.meanHops < 2 * r.treeDepth + 1,
+    detail: `delivery ${(100 * r.deliveryRate).toFixed(0)}%, mean hops ${r.meanHops.toFixed(1)}, stretch ${r.meanStretch.toFixed(2)}, ring growth ${r.levelGrowthRatio.toFixed(2)}`,
+  })
+}
+
+// 59. P43 freedom and choice: a choice is determined (reproduces, not random) yet jointly
+// authored by self and urge, with agency scaling by self-structure, and irreducible.
+{
+  const r = freedomChoice({ n: 80, seed: 1 })
+  check({
+    name: 'P43 freedom and choice: determined yet self-authored, not predetermined by any part, irreducible',
+    ok: r.deterministic && r.selfDiversity > 0.05 && r.urgeCanFlip && r.agencyMonotone && r.irreducible,
+    detail: `deterministic ${r.deterministic}, self-diversity ${r.selfDiversity.toFixed(2)}, agency monotone ${r.agencyMonotone}, settling ${r.meanSettlingBeats.toFixed(1)} beats`,
   })
 }
 

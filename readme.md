@@ -61,7 +61,7 @@ overview of how to imagine things in this system/model/framework.
   sampler, Wang-Landau density of states, causal-set Monte Carlo,
   classical sequential growth, coarse graining, and the Wilson heat
   bath.
-- **experiment**: one runnable script per open problem (P1 to P36), plus
+- **experiment**: one runnable script per open problem (P1 to P43), plus
   a scan runner and report writer.
 
 ## Defining the model
@@ -110,14 +110,19 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 56 of 56 known-answer tests pass. P1 to P9 are the
+typecheck clean, 63 of 63 known-answer tests pass. P1 to P9 are the
 conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
 and the field content, P23 to P25 the field operators derived from the
 action and electroweak breaking, P26 to P30 the distinctive observational
 predictions and cosmology, P31 to P33 the deep frontiers (the quantum
 formalism, the Einstein equations, and black-hole entropy), P34 the
 capstone (the committed model run end-to-end), P35 the contact with
-data, and P36 the model DSL. The model itself is specified in
+data, P36 the model DSL, and P37 to P42 the deeper integration (the
+signal sector from the rule itself, emergent spatial geometry, a family
+of non-random substrates including the Margenstern hyperbolic tilings,
+and exact addressed navigation on them), and P43 a structural model of
+freedom and choice (determined yet self-authored and irreducible). The
+model itself is specified in
 [note/the-model.md](note/the-model.md) and constructed in
 [code/model/vibe.ts](code/model/vibe.ts). Full detail in
 [note/experiment/results/](note/experiment/results/) and
@@ -161,6 +166,13 @@ data, and P36 the model DSL. The model itself is specified in
 | P34     | capstone (the model run end-to-end)              | demonstrated                                            | one growing random hyperbolic mesh with the ternary signed-majority rule yields, all at once, Lorentz-safe geometry with exponential reach, convergent ternary dynamics, the bounded-below local emergent Hamiltonian, and the arrow of accumulation                                                                                                            |
 | P35     | contact with data                                | meets observation                                       | the everpresent Lambda matches the observed dark energy to order of magnitude (predicted 1.5e-122 vs observed 2.9e-122 in Planck units), the framework predicts no linear Lorentz violation (confirmed by gamma-ray-burst timing), and the swerve sits below current bounds                                                                                     |
 | P36     | the model DSL                                    | a tool                                                 | the committed model in a few fluent lines (vibe()...), printing at a glance, building, running, and reading off the physics, with a one-word swap to the lattice (Lorentz-violating) variant                                                                                                                                                                  |
+| P37     | one rule, causal propagation                     | demonstrated                                            | the ternary rule itself carries a strict causal light-cone (one hop per beat) and local stability, so the signal sector is part of the one dynamics, not a separate operator                                                                                                                                                                                  |
+| P38     | emergent spatial geometry                        | progress                                               | a coexisting slice has a definite spatial dimension below the spacetime dimension, rising by about one from 2D to 3D (the d-1 trend), with the absolute value biased low by finite size                                                                                                                                                                        |
+| P39     | a non-random substrate                           | demonstrated                                            | the deterministic golden-angle hyperbolic sunflower is as Lorentz-safe as the random sprinkle (anisotropy 0.049 vs 0.070) with exponential reach and no randomness, the non-arbitrary optimum for spreading points with no preferred direction                                                                                                                 |
+| P40     | non-random substrate family                      | demonstrated                                            | the sunflower, the Halton disc, and the regular {7,3} and {5,4} hyperbolic tilings are all Lorentz-safe (only the flat lattice is not), so curvature, not disorder, is what buys Lorentz safety                                                                                                                                                                |
+| P41     | Margenstern tilings surveyed                     | demonstrated                                            | both Margenstern families, {p,4} (5,6,8) and {p,3} (7,8,9), are Lorentz-safe with exponential reach, a large family of deterministic, exactly-addressable substrates (with Fibonacci coordinates and known Turing-completeness)                                                                                                                                |
+| P42     | Fibonacci-tree navigation                        | demonstrated                                            | routing by tree-address arithmetic on the heptagrid delivers every signal exactly (100 percent), locally, and efficiently (mean stretch 1.35, logarithmic hops), so the tilings are Lorentz-safe AND exactly addressable, solving P3 better than the random graph                                                                                              |
+| P43     | freedom and choice                               | solved structurally                                    | a choice is determined (reproduces, not random) yet jointly authored by self and urge, self-authored with agency scaling by structure, and computationally irreducible (settles over beats, not one-step), so it is not random and not predetermined by any part                                                                                               |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
