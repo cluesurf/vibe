@@ -105,6 +105,11 @@ import { reincarnation } from '~/experiment/p66-reincarnation'
 import { synchronicity } from '~/experiment/p67-synchronicity'
 import { dimensionSelection } from '~/experiment/p68-dimension-selection'
 import { emergentDimension } from '~/experiment/p69-emergent-dimension'
+import { bornRule } from '~/experiment/p70-born-rule'
+import { hawking } from '~/experiment/p71-hawking'
+import { nonlinearEinstein } from '~/experiment/p72-nonlinear-einstein'
+import { discreteGraviton } from '~/experiment/p73-discrete-graviton'
+import { largeNCrossing } from '~/experiment/p74-large-n-crossing'
 
 let passed = 0
 let failed = 0
@@ -1349,6 +1354,40 @@ function allFinite(xs: ArrayLike<number>): boolean {
     ok: r.solved && r.flatUnbiased && r.curvedIsExponential && Math.abs((d2?.measured ?? 0) - 2) < 0.2 && Math.abs((d3?.measured ?? 0) - 3) < 0.2 && Math.abs((d4?.measured ?? 0) - 4) < 0.2,
     detail: `flat ${r.flat.map((f) => f.measured.toFixed(2)).join('/')}, curved growth ${r.curved.map((c) => c.growthRatio.toFixed(1)).join('/')}`,
   })
+}
+
+// 86. P70 Born rule: counting (amplitude = sqrt density, uniform sampling) and envariance both
+// give |c|^2, and uniform substrate sampling uniquely selects the exponent p=2.
+{
+  const r = bornRule({ seed: 1 })
+  check({ name: 'P70 Born rule: counting and envariance both derive |c|^2, exponent 2 selected', ok: r.solved && r.countingError < 0.01 && r.envarianceError < 0.01 && r.uniqueExponent === 2, detail: `counting ${r.countingError.toFixed(4)}, envariance ${r.envarianceError.toFixed(4)}, exponent ${r.uniqueExponent}` })
+}
+
+// 87. P71 Hawking: the across-horizon spectrum is thermal at T = kappa/2pi, T ~ 1/M, Page curve turns over.
+{
+  const r = hawking()
+  check({ name: 'P71 Hawking: thermal spectrum at kappa/2pi, T ~ 1/M, Page curve turns over', ok: r.solved && r.spectrumThermal && Math.abs(r.temperatureExponent + 1) < 0.05 && r.pageCurveTurnsOver, detail: `T ${r.fittedTemperature.toFixed(4)} vs ${r.expectedTemperature.toFixed(4)}, T~M^${r.temperatureExponent.toFixed(2)}, peak ${r.pagePeakFraction.toFixed(2)}` })
+}
+
+// 88. P72 nonlinear Einstein: the exact FRW solutions satisfy Friedmann, acceleration, and
+// continuity together to machine precision, and the nonlinearity is essential.
+{
+  const r = nonlinearEinstein()
+  check({ name: 'P72 nonlinear Einstein: Friedmann + acceleration + continuity consistent, nonlinearity essential', ok: r.solved && r.friedmannHolds && r.nonlinearEssential, detail: `resid fried ${r.friedmannResidual.toExponential(1)} acc ${r.accelerationResidual.toExponential(1)} cont ${r.continuityResidual.toExponential(1)}, lin off ${r.linearizedResidual.toFixed(2)}` })
+}
+
+// 89. P73 discrete graviton: the lattice linearized Einstein operator is gauge-invariant, massless,
+// with two transverse-traceless polarizations.
+{
+  const r = discreteGraviton({ seed: 1 })
+  check({ name: 'P73 discrete graviton: gauge-invariant, massless, two polarizations', ok: r.solved && r.gaugeResidual < 1e-9 && r.massTermResidual < 1e-9 && r.dispersionMassless && r.polarizations === 2, detail: `gauge ${r.gaugeResidual.toExponential(1)}, mass ${r.massTermResidual.toExponential(1)}, pol ${r.polarizations}` })
+}
+
+// 90. P74 large-N crossing: the height-changing cluster move sweeps the height range where the
+// single-pair move is stuck, unblocking the crossing at large N.
+{
+  const r = largeNCrossing({ sizes: [32, 64] })
+  check({ name: 'P74 large-N crossing: cluster move traverses heights, single-pair stuck', ok: r.solved && r.clusterTraverses && r.singlePairStuck, detail: r.results.map((x) => `N${x.size}:sp${(x.singlePairReach*100).toFixed(0)}/cl${(x.clusterReach*100).toFixed(0)}`).join(' ') })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

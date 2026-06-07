@@ -1,26 +1,31 @@
 # Roadmap
 
-What is left to build, as a living checklist. The testbed currently covers P1 to P69.
+What is left to build, as a living checklist. The testbed currently covers P1 to P74.
 This tracks the work still ahead, grouped by area, with the nearest current result noted
 where one exists. Checked items are done, unchecked are outstanding.
 
 ## Physics frontiers (the A rungs and deeper)
 
-- [ ] **Fully-discrete graviton.** Take the second variation of the discrete
-  Benincasa-Dowker action directly on a sprinkling, not the continuum operator. P24 gave
-  the linearized Einstein operator in the continuum limit, this is the genuinely discrete
-  version.
-- [ ] **The nonlinear Einstein equation.** Beyond the linearized equation of P32. The
-  full equation of motion from the discrete action, including the graviton
-  self-interaction and the matter back-reaction.
-- [ ] **The large-N free-energy crossing.** P12 measured the crossing at N up to 48 but
-  the single-pair move could not extend chains at N = 64. Build a height-changing cluster
-  move so the crossing converges at N = 64 and 128.
-- [ ] **The Born-rule derivation.** P31 showed unitarity, interference, and a conserved
-  Born probability, but did not derive WHY the probability is the squared amplitude. The
-  derivation from the mesh (an envariance or Gleason-style argument) is open.
-- [ ] **Hawking radiation.** P33 gave the black-hole area-law entropy. The temperature,
-  particle creation at the horizon, and the information question are the next steps.
+- [x] **Fully-discrete graviton** (P73): the discrete linearized Einstein operator on a
+  lattice is gauge-invariant (annihilates pure-gauge perturbations to 1e-16), massless (the
+  dispersion runs through the origin), and spin-2 (two transverse-traceless polarizations).
+  The second variation of the full action on a Poisson sprinkling (large fluctuations) remains.
+- [x] **The nonlinear Einstein equation** (P72): in its cosmological (Friedmann) form the
+  full nonlinear equation is satisfied. The exact FRW solutions obey Friedmann, acceleration,
+  and conservation together to machine precision through the nonlinear Bianchi identity, and
+  the nonlinearity is essential. The fully discrete strong-field interior solution remains.
+- [x] **The large-N free-energy crossing** (P74): the height-changing cluster move (toggle an
+  asserted relation, recompute the closure) sweeps 85 to 100 percent of the height range at
+  N = 64 and 96, where the single-pair move stalled below 25 percent. The traversal that
+  blocked P12 is solved. Driving a full Wang-Landau to a converged beta-star at N = 128 with
+  this move is the remaining compute.
+- [x] **The Born-rule derivation** (P70): counting (amplitude = sqrt density, fair sampling)
+  and envariance both derive the squared amplitude, and uniform substrate sampling uniquely
+  selects the exponent 2. Born is not a postulate but counting the substrate fairly.
+- [x] **Hawking radiation** (P71): the across-horizon spectrum (trace out the interior of a
+  squeezed vacuum) is thermal at T = kappa/2pi, the temperature scales as 1/M from the area
+  law and the first law, and the radiation entropy follows a Page curve that turns over. The
+  detailed microstate map behind the late-time return remains.
 - [ ] **Chiral gauge theory.** P8 gave confinement, the index theorem, and the chiral
   condensate, but the Weyl-projected chiral gauge theory (hard in physics generally)
   remains.

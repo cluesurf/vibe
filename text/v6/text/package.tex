@@ -1,0 +1,141 @@
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage[thmmarks, amsmath]{ntheorem}
+\usepackage{setspace}
+\usepackage{csquotes}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{hyphenat}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage[
+    pdfauthor={Lance Pollard},
+    pdftitle={Vibe Theory: The Conceptual Model},
+    pdfsubject={Monism, Discrete Physics, Emergent Spacetime, Consciousness, Vibe Theory},
+    pdfkeywords={monism, vibe theory, discrete physics, hyperbolic geometry, Coxeter groups, causal sets, emergent spacetime, recursion, consciousness},
+    pdfcreator={Lance Pollard},
+    pdfproducer={LuaLaTeX},
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black
+]{hyperref}
+
+\hypersetup{
+    pdfinfo={
+        ContactEmail={lancejpollard@gmail.com},
+        ContactURL={https://clue.surf},
+        Copyright={Copyright (C) 2026 ClueSurf}
+    }
+}
+
+\usepackage{etoolbox}
+
+\graphicspath{{figure/}}
+
+\widowpenalty=10000
+\clubpenalty=10000
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{-- \thepage\ --}
+\setlength{\footskip}{40pt}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{-- \thepage\ --}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\AtBeginEnvironment{equation}{\Large}
+\AtBeginEnvironment{align}{\Large}
+\AtBeginEnvironment{gather}{\Large}
+
+\let\oldequation\equation
+\let\endoldequation\endequation
+\renewenvironment{equation}{%
+    \noindent\vspace{-\parskip}\vspace{-\baselineskip}%
+    \oldequation
+}{%
+    \endoldequation
+    \noindent\vspace{-\parskip}\vspace{-\baselineskip}%
+}
+
+\BeforeBeginEnvironment{equation}{\vspace{8pt}}
+\AfterEndEnvironment{equation}{\vspace{16pt}}
+
+\setlength{\itemsep}{0pt}
+\setlist[itemize]{before=\vspace{0pt},after=\vspace{-2pt}}
+
+\titleformat{\section}
+  {\Large\bfseries}
+  {\thesection.}
+  {0.5em}
+  {}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {\thesubsection.}
+  {0.5em}
+  {}
+
+\titleformat{\subsubsection}
+  {\small\itshape}
+  {\thesubsubsection.}
+  {0.5em}
+  {}
+
+\onehalfspacing
+
+\theoremstyle{definition}
+\theoremstyle{axiom}
+\theoremstyle{theorem}
+\theoremstyle{lemma}
+\theoremstyle{proposition}
+\theoremheaderfont{\bfseries}
+\theorembodyfont{\normalfont}
+\theoremindent0pt
+\newtheorem{definition}{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{principle}{Principle}
+\newtheorem{result}{Result}
+
+\makeatletter
+\def\@begintheorem#1#2#3{%
+  \par\addvspace{1em}%
+  \noindent\textbf{#1 #2.}
+  \ifx\@empty#3\relax
+    \quad
+  \else
+    \ \textbf{#3:}
+  \fi
+  \hspace{0.5em}
+}
+\def\@endtheorem{\par}
+\makeatother
+
+\title{
+  {\huge \textbf{Vibe Theory}} \\[2mm]
+  \large The Conceptual Model: A Unified Picture of the Physical, the Mental, and the Spiritual
+}
+
+\author{Lance Pollard \\ \small lancejpollard@gmail.com}
+\date{June 7, 2026}
