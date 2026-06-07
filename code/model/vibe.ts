@@ -13,13 +13,19 @@
 import { makeRng, Rng } from '~/core/rng'
 import { Substrate, undirectedAdjacency } from '~/core/substrate'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
+import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
+import { coxeterTessellation } from '~/substrate/coxeter'
 import { lattice } from '~/substrate/lattice'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { lorentzIsotropy } from '~/measure/lorentz'
 import { ballGrowth, growthIsExponential } from '~/measure/dimension'
+import { algebraicConnectivity } from '~/measure/integration'
 import { laplacianSpectrum } from '~/operator/laplacian'
 
-export type MeshKind = 'hyperbolic' | 'lattice' | 'sprinkle'
+// The committed mesh is the random hyperbolic causal mesh. The two crystals are the ideal
+// forms it approximates: the 2D heptagrid {7,3} and the real 3D substrate, the dodecagrid
+// {5,3,4} (P45, P62, P68). Lattice and sprinkle are comparison meshes.
+export type MeshKind = 'hyperbolic' | 'dodecagrid' | 'coxeter' | 'lattice' | 'sprinkle'
 export type ToneKind = 'ternary' | 'binary'
 export type FillKind = 'ternary-symmetric' | 'ternary-directed'
 export type RuleKind = 'signed-majority'
@@ -51,6 +57,8 @@ const COMMITTED: VibeConfig = {
 
 const MESH_NOTE: Record<MeshKind, string> = {
   hyperbolic: 'random hyperbolic causal mesh, Lorentz-safe, mean degree about 10',
+  dodecagrid: 'the real 3D crystal, the dodecahedral honeycomb {5,3,4} (P45)',
+  coxeter: 'the 2D heptagrid crystal {7,3}, the ideal Lorentz-safe form (P41)',
   lattice: 'regular lattice (a comparison: has a preferred frame, breaks Lorentz)',
   sprinkle: 'flat Poisson sprinkling (a comparison: Lorentz-safe but not navigable)',
 }
@@ -158,6 +166,7 @@ export class VibeWorld {
     exponentialReach: boolean
     hamiltonianMin: number
     hamiltonianBoundedBelow: boolean
+    integrationPhi: number
     toneHistogram: { minus: number; zero: number; plus: number }
   } {
     const n = this.substrate.size
@@ -194,12 +203,16 @@ export class VibeWorld {
         plus += 1
       }
     }
+    // Integration Phi (P63): the algebraic connectivity of the whole mesh, how strongly it
+    // resists being cut into independent parts, the structural correlate of a unity.
+    const phi = algebraicConnectivity({ adjacency: this.neighbors, region: new Set(Array.from({ length: n }, (_, i) => i)) })
     return {
       meanDegree: deg / Math.max(1, n),
       lorentzAnisotropy: aniso.anisotropy,
       exponentialReach: growthIsExponential({ growth }),
       hamiltonianMin: lapMin,
       hamiltonianBoundedBelow: lapMin > -1e-9,
+      integrationPhi: phi,
       toneHistogram: { minus, zero, plus },
     }
   }
@@ -208,6 +221,12 @@ export class VibeWorld {
 function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
   if (cfg.mesh === 'hyperbolic') {
     return hyperbolicGraph({ count: cfg.size, radius: 7, connectThreshold: 3.0, rng })
+  }
+  if (cfg.mesh === 'dodecagrid') {
+    return hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: cfg.size })
+  }
+  if (cfg.mesh === 'coxeter') {
+    return coxeterTessellation({ schlafli: [7, 3], maxVertices: cfg.size })
   }
   if (cfg.mesh === 'lattice') {
     const side = Math.max(2, Math.round(Math.sqrt(cfg.size)))

@@ -41,11 +41,19 @@ force and gravity, and everything we call inner, sensation and emotion
 and thought, is a large-scale pattern in this one colored, growing mesh
 of feeling.
 
+The flat `{7,3}` picture above is the easy-to-draw special case. The real substrate is one
+member of a whole family of hyperbolic crystals (the regular honeycombs of a reflection, or
+Coxeter, group), and the actual universe is the three-dimensional one, the dodecahedral
+honeycomb `{5,3,4}`, a crystal of twelve-sided cells filling curved 3D space, with time as
+its growth. That is harder to picture and a little richer, which is why the two-dimensional
+tiling is shown here, but the model is robust across the family, and the spatial dimension
+is not a free choice: finite-celled hyperbolic crystals exist only in two, three, and four
+dimensions, and only three supports stable matter (see P62 and P68 below).
+
 For the framework itself see the
 [companion papers](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch)
 and a high-level [overview](https://cluesurf.substack.com/p/vibe-mesh).
-The precise model is specified in
-[note/the-model.md](note/the-model.md).
+The precise model is specified [here](note/the-model.md).
 
 ## What this repo is
 
@@ -73,7 +81,7 @@ The companion papers are snapshots of a _work very much in progress_.
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 89 of 89 known-answer tests pass.
+typecheck clean, 94 of 94 known-answer tests pass.
 
 The arc runs bottom-up. P1 to P9 are the conceptual core, and P10 to P17
 the next version. P18 to P22 cover the dark sector and the field
@@ -116,6 +124,14 @@ P62 and P68 to P69 settle the spatial dimension: compact hyperbolic
 crystals exist only in dimensions 2 to 4 (so the dimension is
 constrained, not assumed), three is selected by stable closed orbits,
 and the spatial dimension emerges unbiased from pure grown connectivity.
+
+P70 to P74 are the deep physics frontiers: the Born-rule derivation (probability is
+the squared amplitude because amplitude is the square root of a vibe density, so fair
+sampling gives |c|^2), Hawking radiation (a thermal across-horizon spectrum at kappa/2pi,
+temperature scaling as 1/M, and a Page curve that turns over), the full nonlinear Einstein
+equation (the Friedmann system, consistent through the Bianchi identity), the fully-discrete
+graviton (a lattice operator that is gauge-invariant, massless, and spin-2), and a
+height-changing cluster move that unblocks the large-N free-energy crossing.
 
 The model itself is specified in [note/the-model.md](note/the-model.md)
 and constructed in [code/model/vibe.ts](code/model/vibe.ts). Full detail
@@ -193,6 +209,11 @@ in [note/experiment/results/](note/experiment/results/) and
 | P67     | synchronicity                                    | solved                                                 | two subsystems with no link between them correlate (100%) when they share a deep ancestry (same memory landscape) under a common ambient rhythm, and stay uncorrelated (11%) when unrelated, the correlation coming from the shared past not a present signal (as in the Bell result P7)                                                                                        |
 | P68     | dimension selection                              | solved                                                 | integrating gravitational orbits in d spatial dimensions shows only d=3 gives stable CLOSED orbits (inverse-square law), d=2 precesses and d>=4 is unstable, so of the allowed window {2,3,4} three is uniquely selected (corroborated by Huygens clean waves)                                                                                                                  |
 | P69     | emergent dimension (pure growth)                 | solved                                                 | the spatial dimension read intrinsically from grown connectivity (shell growth in hops, no coordinates) matches the target unbiased for flat grids (2.00/2.97/3.90), fixing the P38 bias, and a negatively-curved mesh reads exponential, so curvature emerges from the relations too                                                                                           |
+| P70     | Born-rule derivation                             | solved                                                 | counting (amplitude = sqrt density, fair sampling) and envariance both derive the squared amplitude, and uniform substrate sampling uniquely selects the exponent 2, so Born is not a postulate but counting the substrate fairly                                                                                                                              |
+| P71     | Hawking radiation                                | solved                                                 | the across-horizon spectrum (trace out the interior of a squeezed vacuum) is thermal at T = kappa/2pi, the temperature scales as 1/M from the area law and the first law, and the radiation entropy follows a Page curve that turns over, so information is not lost                                                                                            |
+| P72     | nonlinear Einstein equation                      | solved (cosmological)                                  | the exact FRW solutions satisfy the Friedmann, acceleration, and conservation equations together to machine precision through the nonlinear Bianchi identity, and dropping the nonlinear term breaks them, so the full nonlinear gravity is carried, not only its weak-field shadow                                                                              |
+| P73     | fully-discrete graviton                          | solved                                                 | the discrete linearized Einstein operator on a lattice is gauge-invariant (annihilates pure-gauge perturbations to 1e-16), massless (the dispersion runs through the origin, no mass term), and spin-2 (two transverse-traceless polarizations), the genuinely discrete graviton                                                                                |
+| P74     | large-N crossing (cluster move)                  | solved                                                 | the height-changing cluster move (toggle an asserted relation, recompute the closure) sweeps 85 to 100 percent of the height range at N = 64 and 96, where the single-pair move that stalled P12 reaches under 25 percent, unblocking the large-N free-energy crossing                                                                                          |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
@@ -271,7 +292,7 @@ random hyperbolic mesh is the committed choice.
   sampler, Wang-Landau density of states, causal-set Monte Carlo,
   classical sequential growth, coarse graining, and the Wilson heat
   bath.
-- **experiment**: one runnable script per open problem (P1 to P69), plus
+- **experiment**: one runnable script per open problem (P1 to P74), plus
   a scan runner and report writer.
 
 ## License
