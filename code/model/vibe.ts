@@ -159,7 +159,10 @@ export class VibeWorld {
     return this
   }
 
-  // Emergent structures, read off the same mesh.
+  // Emergent structures, read off the same mesh. This is the committed model run end to end
+  // (the capstone), with the key structures spanning the findings read off one instantiation:
+  // geometry and its dominance, Lorentz safety, the bounded-below Hamiltonian, integration, the
+  // ternary tones, and the recursion (higher vibes coarse-grained off the settled mesh).
   read(): {
     meanDegree: number
     lorentzAnisotropy: number
@@ -167,6 +170,7 @@ export class VibeWorld {
     hamiltonianMin: number
     hamiltonianBoundedBelow: boolean
     integrationPhi: number
+    higherVibes: number
     toneHistogram: { minus: number; zero: number; plus: number }
   } {
     const n = this.substrate.size
@@ -206,6 +210,9 @@ export class VibeWorld {
     // Integration Phi (P63): the algebraic connectivity of the whole mesh, how strongly it
     // resists being cut into independent parts, the structural correlate of a unity.
     const phi = algebraicConnectivity({ adjacency: this.neighbors, region: new Set(Array.from({ length: n }, (_, i) => i)) })
+    // Recursion (P57 to P60): coarse-grain the settled mesh into coherent domains, the higher
+    // vibes. We count those of meaningful size, the genuine wholes-within-the-whole.
+    const higherVibes = countHigherVibes(this.neighbors, this.tone, 3)
     return {
       meanDegree: deg / Math.max(1, n),
       lorentzAnisotropy: aniso.anisotropy,
@@ -213,9 +220,43 @@ export class VibeWorld {
       hamiltonianMin: lapMin,
       hamiltonianBoundedBelow: lapMin > -1e-9,
       integrationPhi: phi,
+      higherVibes,
       toneHistogram: { minus, zero, plus },
     }
   }
+}
+
+// Coarse-grain the settled mesh into coherent domains (connected regions of one tone) and count
+// those of at least minSize, the higher vibes the recursion reads off the base (P57 to P60).
+function countHigherVibes(neighbors: ReadonlyArray<Uint32Array>, tone: Int8Array, minSize: number): number {
+  const n = neighbors.length
+  const seen = new Uint8Array(n)
+  let count = 0
+  for (let s = 0; s < n; s++) {
+    if (seen[s]) {
+      continue
+    }
+    let size = 0
+    let frontier = [s]
+    seen[s] = 1
+    while (frontier.length > 0) {
+      const next: number[] = []
+      for (const v of frontier) {
+        size += 1
+        for (const w of neighbors[v] ?? new Uint32Array(0)) {
+          if (!seen[w] && tone[w] === tone[v]) {
+            seen[w] = 1
+            next.push(w)
+          }
+        }
+      }
+      frontier = next
+    }
+    if (size >= minSize) {
+      count += 1
+    }
+  }
+  return count
 }
 
 function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
