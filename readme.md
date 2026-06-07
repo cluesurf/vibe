@@ -41,83 +41,16 @@ are snapshots of a _work very much in progress_. Findings are tracked in
 [Here](https://cluesurf.substack.com/p/vibe-mesh) is a high-level
 overview of how to imagine things in this system/model/framework.
 
-## What is inside
-
-- **substrate**: Poisson-sprinkled Minkowski and curved spacetime,
-  regular lattices, `{p,q}` hyperbolic tilings with Fibonacci
-  addressing, hyperbolic random graphs, classical sequential growth.
-- **rule**: synchronous, asynchronous, reversible, rewriting, and gauge
-  updates.
-- **fields**: scalar (graph Laplacian), spinor (Kahler-Dirac and overlap
-  fermions), vector (the U(1) and SU(2) gauge fields and the free
-  photon), tensor (the graviton), plus the Higgs and its mass mechanism.
-- **operator**: graph Laplacian, Kahler-Dirac and overlap, the
-  gauge-covariant Dirac, the lattice Maxwell operator, the evolution
-  Hamiltonian, and the gauge index.
-- **measure**: dimension, distance, curvature, manifold-likeness,
-  Lorentz isotropy, navigation, CHSH, locality, integration, Wilson
-  loops, entanglement entropy, rotation curves.
-- **dynamics**: the Benincasa-Dowker action, the correct uniform-measure
-  sampler, Wang-Landau density of states, causal-set Monte Carlo,
-  classical sequential growth, coarse graining, and the Wilson heat
-  bath.
-- **experiment**: one runnable script per open problem (P1 to P69), plus
-  a scan runner and report writer.
-
-## Defining the model
-
-The committed model (see [note/the-model.md](note/the-model.md)) is
-written and read at a glance with a small DSL
-([code/model/vibe.ts](code/model/vibe.ts)). With no options it IS the
-committed model, and one-word swaps express variants for comparison.
-
-```
-const model = vibe().size(1500).seed(1)   // the committed model
-console.log(model.describe())              // print it at a glance
-const world = model.build().run(40)        // build the mesh, run 40 beats
-world.read()                               // emergent structures off the same mesh
-```
-
-`describe()` prints:
-
-```
-vibe model
-  mesh      hyperbolic          random hyperbolic causal mesh, Lorentz-safe, degree ~10
-  tone      ternary             {-1, 0, +1}, the felt quality of a vibe
-  fill      ternary-symmetric   each note carries a ternary fill (a shared relational vibe)
-  rule      signed-majority     next(v) = sign( sum over neighbours w of fill(v,w) * will(w) )
-  schedule  asynchronous        local, neighbours only, no global clock
-  growth    net-positive        eternal expansion by local birth
-  size 1500, seed 1
-```
-
-Swapping `vibe().mesh('lattice')` gives Lorentz anisotropy 1.0 (a
-preferred frame) versus 0.06 for the hyperbolic mesh, which is why the
-random hyperbolic mesh is the committed choice.
-
-## Quick start
-
-```
-pnpm install
-pnpm test:sim                                   # known-answer tests
-pnpm sim code/experiment/p3-study.ts            # the addressing-vs-Lorentz study
-pnpm sim code/experiment/p7-bell.ts             # CHSH vs setting correlation
-```
-
-Each experiment is also a standalone script:
-`npx tsx code/experiment/pN-*.ts`. Findings are tracked in
-`note/experiment/results/`.
-
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
 typecheck clean, 89 of 89 known-answer tests pass.
 
 The arc runs bottom-up. P1 to P9 are the conceptual core, and P10 to P17
-the next version. P18 to P22 cover the dark sector and the field content,
-P23 to P25 the field operators derived from the action and electroweak
-breaking, and P26 to P30 the distinctive observational predictions and
-cosmology.
+the next version. P18 to P22 cover the dark sector and the field
+content, P23 to P25 the field operators derived from the action and
+electroweak breaking, and P26 to P30 the distinctive observational
+predictions and cosmology.
 
 P31 to P33 are the deep frontiers (the quantum formalism, the Einstein
 equations, and black-hole entropy). P34 is the capstone (the committed
@@ -132,27 +65,28 @@ dodecagrid hyperbolic honeycomb, and P46 the dynamical everpresent
 cosmological constant.
 
 P47 to P51 are the unifying base (the Coxeter construction, the
-parameter-free modular group, the hidden hierarchical crystal, the golden
-ratio with order-and-freedom, and the full integer ladder built end to
-end). P52 to P54 are hardening (the continuum limit, a coarse-graining
-fixed point, and large-N scaling), and P55 to P56 the integration
-capstone (all bosonic sectors from one operator on one mesh, and the
-integer ladder eternally growing with the model on it).
+parameter-free modular group, the hidden hierarchical crystal, the
+golden ratio with order-and-freedom, and the full integer ladder built
+end to end). P52 to P54 are hardening (the continuum limit, a
+coarse-graining fixed point, and large-N scaling), and P55 to P56 the
+integration capstone (all bosonic sectors from one operator on one mesh,
+and the integer ladder eternally growing with the model on it).
 
 P57 to P67 build the interior. P57 to P58 are recursion (higher vibes as
 aggregate views of the micro-tones, self-similar with no stored higher
 layer, the macro-rule an emergent renormalization fixed point). P59 to
-P60 are the nested selves (cells in a body, homeostasis and autonomy) and
-the full tower of selves. P61 is the no-complete-self-storage principle
-(the world models itself only in lossy summary, so no infinite mirror).
-P63 to P67 cover integration Phi picking out selves, the subtle layer
-steering the surface as a real urge, waking versus dreaming, reincarnation
-as pattern persistence, and synchronicity from shared deep ancestry.
+P60 are the nested selves (cells in a body, homeostasis and autonomy)
+and the full tower of selves. P61 is the no-complete-self-storage
+principle (the world models itself only in lossy summary, so no infinite
+mirror). P63 to P67 cover integration Phi picking out selves, the subtle
+layer steering the surface as a real urge, waking versus dreaming,
+reincarnation as pattern persistence, and synchronicity from shared deep
+ancestry.
 
 P62 and P68 to P69 settle the spatial dimension: compact hyperbolic
 crystals exist only in dimensions 2 to 4 (so the dimension is
-constrained, not assumed), three is selected by stable closed orbits, and
-the spatial dimension emerges unbiased from pure grown connectivity.
+constrained, not assumed), three is selected by stable closed orbits,
+and the spatial dimension emerges unbiased from pure grown connectivity.
 
 The model itself is specified in [note/the-model.md](note/the-model.md)
 and constructed in [code/model/vibe.ts](code/model/vibe.ts). Full detail
@@ -243,6 +177,73 @@ means a first rung on a deep problem (the quantum formalism, the
 Einstein equations), with the full result honestly still ahead. **open**
 means genuinely unsolved (a shared frontier with the literature).
 **boundary** means outside what the simulator can decide.
+
+## Quick start
+
+```
+pnpm install
+pnpm test:sim                                   # known-answer tests
+pnpm sim code/experiment/p3-study.ts            # the addressing-vs-Lorentz study
+pnpm sim code/experiment/p7-bell.ts             # CHSH vs setting correlation
+```
+
+Each experiment is also a standalone script:
+`npx tsx code/experiment/pN-*.ts`. Findings are tracked in
+`note/experiment/results/`.
+
+## Defining the model
+
+The committed model (see [note/the-model.md](note/the-model.md)) is
+written and read at a glance with a small DSL
+([code/model/vibe.ts](code/model/vibe.ts)). With no options it IS the
+committed model, and one-word swaps express variants for comparison.
+
+```
+const model = vibe().size(1500).seed(1)   // the committed model
+console.log(model.describe())              // print it at a glance
+const world = model.build().run(40)        // build the mesh, run 40 beats
+world.read()                               // emergent structures off the same mesh
+```
+
+`describe()` prints:
+
+```
+vibe model
+  mesh      hyperbolic          random hyperbolic causal mesh, Lorentz-safe, degree ~10
+  tone      ternary             {-1, 0, +1}, the felt quality of a vibe
+  fill      ternary-symmetric   each note carries a ternary fill (a shared relational vibe)
+  rule      signed-majority     next(v) = sign( sum over neighbours w of fill(v,w) * will(w) )
+  schedule  asynchronous        local, neighbours only, no global clock
+  growth    net-positive        eternal expansion by local birth
+  size 1500, seed 1
+```
+
+Swapping `vibe().mesh('lattice')` gives Lorentz anisotropy 1.0 (a
+preferred frame) versus 0.06 for the hyperbolic mesh, which is why the
+random hyperbolic mesh is the committed choice.
+
+## What is inside
+
+- **substrate**: Poisson-sprinkled Minkowski and curved spacetime,
+  regular lattices, `{p,q}` hyperbolic tilings with Fibonacci
+  addressing, hyperbolic random graphs, classical sequential growth.
+- **rule**: synchronous, asynchronous, reversible, rewriting, and gauge
+  updates.
+- **fields**: scalar (graph Laplacian), spinor (Kahler-Dirac and overlap
+  fermions), vector (the U(1) and SU(2) gauge fields and the free
+  photon), tensor (the graviton), plus the Higgs and its mass mechanism.
+- **operator**: graph Laplacian, Kahler-Dirac and overlap, the
+  gauge-covariant Dirac, the lattice Maxwell operator, the evolution
+  Hamiltonian, and the gauge index.
+- **measure**: dimension, distance, curvature, manifold-likeness,
+  Lorentz isotropy, navigation, CHSH, locality, integration, Wilson
+  loops, entanglement entropy, rotation curves.
+- **dynamics**: the Benincasa-Dowker action, the correct uniform-measure
+  sampler, Wang-Landau density of states, causal-set Monte Carlo,
+  classical sequential growth, coarse graining, and the Wilson heat
+  bath.
+- **experiment**: one runnable script per open problem (P1 to P69), plus
+  a scan runner and report writer.
 
 ## License
 
