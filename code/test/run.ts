@@ -110,6 +110,15 @@ import { hawking } from '~/experiment/p71-hawking'
 import { nonlinearEinstein } from '~/experiment/p72-nonlinear-einstein'
 import { discreteGraviton } from '~/experiment/p73-discrete-graviton'
 import { largeNCrossing } from '~/experiment/p74-large-n-crossing'
+import { selvesAsAttractors } from '~/experiment/p75-selves-as-attractors'
+import { dodecagridNavigation } from '~/experiment/p76-dodecagrid-navigation'
+import { chiralGauge } from '~/experiment/p77-chiral-gauge'
+import { primordialSpectrum } from '~/experiment/p78-primordial-spectrum'
+import { anomalyChargeQuantization } from '~/experiment/p79-anomaly-charge-quantization'
+import { baryogenesis } from '~/experiment/p80-baryogenesis'
+import { massHierarchy } from '~/experiment/p81-mass-hierarchy'
+import { predictionsVsBounds } from '~/experiment/p82-predictions-vs-bounds'
+import { deterministicGrowth } from '~/experiment/p83-deterministic-growth'
 
 let passed = 0
 let failed = 0
@@ -1388,6 +1397,69 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = largeNCrossing({ sizes: [32, 64] })
   check({ name: 'P74 large-N crossing: cluster move traverses heights, single-pair stuck', ok: r.solved && r.clusterTraverses && r.singlePairStuck, detail: r.results.map((x) => `N${x.size}:sp${(x.singlePairReach*100).toFixed(0)}/cl${(x.clusterReach*100).toFixed(0)}`).join(' ') })
+}
+
+// 91. P75 selves as attractors: a stored self recovers from perturbations within a real basin,
+// keeps its identity over time, and the mesh holds several selves with the count growing with N.
+{
+  const r = selvesAsAttractors({ seed: 1 })
+  check({ name: 'P75 selves as attractors: stable basin, persistent identity, capacity grows with size', ok: r.solved && r.basinRadius >= 0.2 && r.identityOverlap > 0.98 && r.capacityGrows, detail: `basin ${(100*r.basinRadius).toFixed(0)}%, identity ${r.identityOverlap.toFixed(3)}, capacity ${r.capacityByN.map((c)=>c.capacity).join('->')}` })
+}
+
+// 92. P76 3D addressed navigation: greedy hyperbolic-address routing on the dodecagrid {5,3,4}
+// delivers nearly every pair at low stretch.
+{
+  const r = dodecagridNavigation({ seed: 1 })
+  check({ name: 'P76 3D navigation: greedy address routing on the dodecagrid delivers at low stretch', ok: r.solved && r.successRate > 0.9 && r.meanStretch < 2, detail: `${r.cells} cells, ${(100*r.successRate).toFixed(0)}% delivered, stretch ${r.meanStretch.toFixed(2)}` })
+}
+
+// 93. P77 chiral gauge theory (partial): the naive lattice fermion has 2^d species whose
+// chiralities cancel (the Nielsen-Ninomiya obstruction), and a Wilson term leaves one species.
+{
+  const r = chiralGauge()
+  check({ name: 'P77 chiral gauge: doubling 2^d with net chirality 0, Wilson leaves one species', ok: r.solved && r.doublingShown && r.chiralityCancels && r.wilsonFixesVector, detail: r.byDimension.map((x)=>`d${x.dimension}:${x.naiveSpecies}/${x.netChirality}/${x.wilsonSpecies}`).join(' ') })
+}
+
+// 94. P78 primordial seed (first step): a sprinkled substrate gives a scale-free Poisson density
+// seed, the density contrast scaling as (mean count)^{-1/2}.
+{
+  const r = primordialSpectrum({ seed: 1 })
+  check({ name: 'P78 primordial seed: scale-free Poisson density contrast, exponent -1/2', ok: r.solved && r.scaleFreeSeed && Math.abs(r.exponent + 0.5) < 0.05, detail: `exponent ${r.exponent.toFixed(3)}, fit ${r.fitQuality.toFixed(4)}` })
+}
+
+// 95. P79 anomaly cancellation: the unique anomaly-free, Yukawa-consistent solution for one
+// generation is exactly the Standard Model hypercharges, with quantized electric charges.
+{
+  const r = anomalyChargeQuantization()
+  check({ name: 'P79 anomaly cancellation forces the Standard Model hypercharges and charge quantization', ok: r.solved && r.matchesStandardModel && r.unusedAnomaliesCancel && r.chargesQuantized && r.atomNeutral, detail: `cubic anomaly ${r.cubicAnomaly.toExponential(1)}, charges quantized ${r.chargesQuantized}, atom neutral ${r.atomNeutral}` })
+}
+
+// 96. P80 baryogenesis: with all three Sakharov conditions a matter excess builds up, and removing
+// any one (CP, out-of-equilibrium, baryon-number violation) erases it.
+{
+  const r = baryogenesis({ seed: 1 })
+  check({ name: 'P80 baryogenesis: matter excess needs all three Sakharov conditions', ok: r.solved && r.allThreeNeeded, detail: `full ${r.full.toFixed(3)}, noCP ${r.noCP.toFixed(3)}, equilibrium ${r.equilibrium.toFixed(3)}, noBviol ${r.noBViolation.toFixed(3)}` })
+}
+
+// 97. P81 mass hierarchy: exponential overlap on a hyperbolic substrate spans the observed
+// charged-fermion mass range from even spacing, where a flat power law cannot.
+{
+  const r = massHierarchy()
+  check({ name: 'P81 mass hierarchy: hyperbolic exponential overlap spans the observed range from even spacing', ok: r.solved && r.reproducesObserved, detail: `exp ${r.exponentialSpanDecades.toFixed(1)} decades vs power ${r.powerSpanDecades.toFixed(1)}, observed ${r.observedSpanDecades.toFixed(1)}` })
+}
+
+// 98. P82 predictions vs bounds: the model passes the GRB linear Lorentz bound (xi1 -> 0), the
+// same bound excludes a lattice, and the swerve vanishes as discreteness fines.
+{
+  const r = predictionsVsBounds({ seed: 1 })
+  check({ name: 'P82 predictions vs bounds: passes GRB Lorentz bounds, excludes a lattice, swerve vanishes', ok: r.solved && r.modelPassesLinear && r.latticeExcludedLinear && r.swerveVanishesWithDiscreteness, detail: `model xi1=0 (resid ${r.modelLinearXi.toFixed(3)}) < ${r.xi1Bound.toFixed(3)}, lattice ${r.latticeLinearXi.toFixed(2)}, swerve ~density^${r.swerveScalingExponent.toFixed(2)}` })
+}
+
+// 99. P83 deterministic eternal growth: the mesh grows one cell at a time, resumably (chunks
+// equal one shot), append-only, faithful to the static tiling, with hyperbolic geometry emerging.
+{
+  const r = deterministicGrowth()
+  check({ name: 'P83 deterministic growth: resumable, append-only, faithful, geometry emerges (golden ratio)', ok: r.solved && r.resumableMatchesOneShot && r.appendOnly && r.matchesStaticRings && r.geometryEmerges, detail: `ratio ${r.growthRatio.toFixed(4)} vs ${r.goldenGrowth.toFixed(4)}, max degree ${r.maxDegree}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

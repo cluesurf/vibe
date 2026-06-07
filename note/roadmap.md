@@ -26,18 +26,30 @@ where one exists. Checked items are done, unchecked are outstanding.
   squeezed vacuum) is thermal at T = kappa/2pi, the temperature scales as 1/M from the area
   law and the first law, and the radiation entropy follows a Page curve that turns over. The
   detailed microstate map behind the late-time return remains.
-- [ ] **Chiral gauge theory.** P8 gave confinement, the index theorem, and the chiral
-  condensate, but the Weyl-projected chiral gauge theory (hard in physics generally)
-  remains.
+- [~] **Chiral gauge theory** (P77, partial). P8 gave confinement, the index theorem, and
+  the chiral condensate. P77 shows the fermion-doubling obstruction (2^d species, net
+  chirality zero) and its vector-theory resolution (a Wilson term leaves one species). The
+  Weyl-projected chiral gauge theory (hard in physics generally) is marked open, not claimed.
 
 ## The Standard Model
 
+- [x] **Charge quantization** (P79). Anomaly freedom (the index-theorem consistency the
+  substrate already requires) plus gauge-invariant masses fixes one generation's hypercharges
+  uniquely to the Standard Model values, the unused cubic and color anomalies cancel on their
+  own, and electric charges come out quantized in thirds with neutral atoms. Assumes the gauge
+  group and representation content.
+- [~] **The mass hierarchy and Yukawa couplings** (P81, structural). Exponential overlap on a
+  hyperbolic substrate turns evenly spaced modes into an exponentially spread mass spectrum,
+  reproducing the observed 5.5-decade charged-fermion range where a flat power law gives 2.3.
+  The mechanism is shown. The specific masses are open.
+- [x] **Baryogenesis** (P80, structural). The substrate supplies all three Sakharov conditions
+  (B violation from growth, CP from directed notes, out-of-equilibrium from eternal growth). A
+  matter excess builds up and removing any one erases it. The observed magnitude is open.
 - [ ] **Three generations.** Why three families, from the topology or representation
-  structure of the mesh.
-- [ ] **The mass hierarchy and Yukawa couplings.** The pattern of fermion masses.
+  structure of the mesh. Open. The candidate routes (a topological count, the 3D dimension
+  derived in P62/P68, the ternary base) are suggestive but none yet forces the count.
 - [ ] **The gauge group itself.** Deriving SU(3) x SU(2) x U(1) rather than putting it
-  in by hand (P8, P25 used given groups).
-- [ ] **Baryogenesis.** The matter-antimatter asymmetry.
+  in by hand (P8, P25, P79 used given groups). Open.
 
 ## The substrate and the base
 
@@ -45,10 +57,11 @@ where one exists. Checked items are done, unchecked are outstanding.
   Margenstern tilings (P39, P40, P41, P45).
 - [x] The unifying base: the Coxeter construction (P47), the parameter-free modular group
   (P48), and the full integer ladder in one program (P51).
-- [ ] **Deterministic growth, not static placement.** P48 and P51 generate the base by a
-  deterministic automaton, but as a static orbit. The eternal-growth version, where the
-  automaton grows the universe forever and the geometry emerges from the growth, is the
-  remaining piece.
+- [x] **Deterministic growth, not static placement** (P83). The base now grows one cell at a
+  time at the frontier by a deterministic rule, append-only (the interior frozen as the past),
+  resumable forever with no rebuild (chunked growth equals one shot), faithful to the static
+  tiling ring for ring, and the hyperbolic ball-growth ratio emerges on its own at the
+  pentagrid's golden-ratio law (2.6186 vs 2.6180).
 - [x] **The dimension window** (P62): compact regular hyperbolic crystals (finite-celled
   honeycombs) exist only in spatial dimensions 2, 3, 4 (H^3 has 4, H^4 has 5, none above),
   reproducing the known classification, so the substrate dimension is a computed constraint,
@@ -61,8 +74,8 @@ where one exists. Checked items are done, unchecked are outstanding.
   intrinsically from grown connectivity (shell growth in hops, no coordinates) matches the
   target unbiased for flat grids (2.00/2.97/3.90), fixing P38's bias, and a negatively-curved
   mesh reads exponential, so curvature emerges from the relations too.
-- [ ] **3D addressed navigation.** The 3D analogue of the Fibonacci-tree routing of P42,
-  on the dodecagrid.
+- [x] **3D addressed navigation** (P76). Greedy routing on the hyperbolic address delivers
+  100 percent of pairs at stretch 1.00 on the dodecagrid {5,3,4}, the 3D analogue of P42.
 
 ## The interior (stage two, the wild face)
 
@@ -74,8 +87,9 @@ where one exists. Checked items are done, unchecked are outstanding.
   integrated wholes (agreement to 1.00 on the larger domains). The integration threshold for
   being a higher vibe is the same threshold for obeying the emergent rule. See the
   higher-vibes-and-recursion spec.
-- [ ] **Selves as attractors, fully.** P34 and P43 used stable attractors as selves. A
-  dedicated study of their stability, basins, identity over time, and persistence.
+- [x] **Selves as attractors, fully** (P75). A self recovers from perturbations within a 40
+  percent basin, keeps its identity over time (overlap 1.000), and a mesh holds several selves
+  with capacity growing with size (18 at N=120, 26 at N=240).
 - [x] **Integrated information** (P63): integration Phi (algebraic connectivity) picks out
   selves. A cohesive cell has high Phi, a random bag near zero, and a self is a local maximum
   (swapping members in or out lowers it), with the whole an integrated unity. The structural
@@ -116,11 +130,15 @@ where one exists. Checked items are done, unchecked are outstanding.
 
 - [x] Dark energy (everpresent, dynamical, V^-0.5, P46), inflation (P30), the arrow and
   expansion (P13), dark matter mechanism (P18).
-- [ ] **Structure formation and the primordial spectrum.** The CMB-scale density
-  perturbations from the growth dynamics.
-- [ ] **Sharper observational predictions.** Turn the swerve (P26) and Lorentz-safety
-  (P27) into quantitative numbers against the latest bounds, beyond the order-of-magnitude
-  contact of P35.
+- [~] **Structure formation and the primordial spectrum** (P78, first step). The substrate
+  gives a clean scale-free Poisson density seed (contrast scales as count^-0.509, the
+  one-over-root-volume law). The observed spectral tilt and gravitational growth remain open.
+- [x] **Sharper observational predictions** (P82). The swerve (P26) and Lorentz-safety
+  (P27) turned into numbers against the latest bounds. The model predicts zero first-order
+  Lorentz violation, passing the Fermi-LAT GRB 090510 bound (xi1 < 0.132) that excludes a
+  lattice (anisotropy ~1.12), passes the quadratic bound, and the swerve vanishes as the
+  discreteness fines (rate ~ density^-1.61). A confirmed first-order energy-dependent photon
+  speed would falsify it.
 
 ## Consolidation and publishing
 
