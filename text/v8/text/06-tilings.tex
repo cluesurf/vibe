@@ -1,0 +1,37 @@
+\section{Tilings: Filling Space with Copies}
+
+We have a curved space with endless room. Now we want to fill it with cells, neatly and regularly, like tiles on a floor. This chapter is about tilings, also called tessellations, which is just a fancy word for covering a space with shapes that fit together without gaps or overlaps.
+
+\subsection{Tilings you already know}
+
+Look at a bathroom floor. Square tiles, four meeting at every corner, covering the plane. That is a regular tiling. ``Regular'' means all the tiles are the same shape, and every corner looks the same as every other corner.
+
+How many regular tilings of the flat plane are there? Only three. You can tile with squares (four at a corner), with triangles (six at a corner), or with hexagons (three at a corner). That is the complete list. Try anything else, regular pentagons for instance, and they leave gaps. The flat plane is fussy. It allows exactly three regular tilings and no more.
+
+\subsection{The shape decides the curvature}
+
+Here is the surprising part. Whether a given tiling is possible at all depends on the curvature of the space, and you can run the logic backward: the tiling you pick decides what curvature the space must have.
+
+Think about what happens at a single corner where tiles meet. The tiles' angles have to add up just right.
+
+\begin{itemize}
+\item If the angles around a corner add up to exactly 360 degrees, the tiling lies flat. That is the bathroom floor.
+\item If they add up to less than 360, the surface has to pucker inward to close the gap, and you get a round, ball-like shape. This is how the soccer ball and the Platonic solids work, they are tilings of a sphere.
+\item If they add up to more than 360, the surface has too much material to lie flat, so it ruffles outward into a saddle. That is hyperbolic space.
+\end{itemize}
+
+So the amount of ``stuff'' meeting at each corner is a curvature dial. Too little, you get a sphere. Just right, flat. Too much, hyperbolic.
+
+\subsection{Why this is good news}
+
+In the flat plane you only got three regular tilings. On the sphere you get a handful, the Platonic solids. But in hyperbolic space you get infinitely many. Want seven-sided tiles meeting three at a corner? Hyperbolic space says yes. Want a hundred-sided tiles? Also yes. Because hyperbolic space has room to spare, it welcomes regular tilings that flat and round space forbid.
+
+This is exactly what we need. We want a crystal that is perfectly regular, every cell identical, but that also has endless room to grow. Flat space gives regularity but not enough room. Hyperbolic space gives both. The crystal of experience will be a regular tiling of hyperbolic space.
+
+\subsection{A first look at our tile}
+
+The simplest one the theory uses is a tiling by seven-sided cells, three meeting at every corner. In flat space that is impossible, the angles overflow. In hyperbolic space it fits perfectly, and the overflow is exactly what bends the space into its saddle shape. Drawn in the Poincare disk, it is a beautiful pattern of seven-sided cells shrinking toward the rim. That pattern has a name, the heptagrid, and we will meet it properly soon.
+
+But first we need to understand the machine that generates these tilings from almost nothing. That machine is a kaleidoscope, and it is the subject of the next chapter.
+
+\textbf{Takeaway:} a regular tiling fills a space with identical cells, and the angle total at each corner sets the curvature: exactly 360 is flat, less is round, more is hyperbolic. Hyperbolic space allows infinitely many regular tilings, giving us both perfect regularity and endless room.

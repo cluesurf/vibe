@@ -1,0 +1,43 @@
+\section{The Golden Ratio and the Fibonacci Numbers}
+
+Before we can name the cells of the crystal, we need two old friends from the world of numbers: the Fibonacci sequence and the golden ratio. They are going to show up everywhere in the crystal, which is one of the small miracles of the theory. This chapter is just the gist of them.
+
+\subsection{The Fibonacci numbers}
+
+Start with 1 and 1. Add the last two to get the next. Keep going.
+
+1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ...
+
+Each number is the sum of the two before it. That is the whole rule. These are the Fibonacci numbers, and they appear all over nature: the spirals of a sunflower, the bracts of a pinecone, the branching of plants. Wherever something grows by adding to what it already has, Fibonacci tends to turn up.
+
+\subsection{The golden ratio}
+
+Now divide each Fibonacci number by the one before it.
+
+2 divided by 1 is 2. 3 divided by 2 is 1.5. 5 divided by 3 is about 1.67. 8 divided by 5 is 1.6. 13 divided by 8 is 1.625. Keep going and the ratio settles down, closing in on a single number:
+
+about 1.618.
+
+This number is the golden ratio. It has a tidy defining property: it is the number you get if you want a rectangle that, when you cut a square off it, leaves a smaller rectangle of the very same proportions. It is, in a precise sense, the ``most irrational'' number, the one hardest to approximate by simple fractions, which is why nature uses it to pack things as evenly as possible. Sunflower seeds sit at golden-ratio angles precisely because that spacing never repeats and so never leaves big gaps.
+
+\subsection{Three roads to the same number}
+
+Here is the first hint that the crystal is deeply ordered rather than cobbled together. The golden ratio arrives in the crystal from three completely separate directions, and they all give the same 1.618.
+
+\begin{itemize}
+\item It is the rate at which the crystal grows. Each ring of cells is bigger than the last by a factor tied to the golden ratio. Count the cells ring by ring and the ratio of successive rings closes in on it.
+\item It is the most even way to scatter points, which is the spacing the crystal's structure naturally uses.
+\item It is the number hiding in the crystal's addressing scheme, the one we build in the next chapter.
+\end{itemize}
+
+When a single constant shows up by three independent roads, that is a sign you are looking at one unified object, not a patchwork. The golden ratio is the crystal's signature.
+
+\subsection{Why Fibonacci will name the cells}
+
+The reason Fibonacci matters for addressing is a beautiful fact called Zeckendorf's theorem. It says: every whole number can be written, in exactly one way, as a sum of Fibonacci numbers that are not next to each other in the sequence.
+
+For example, 4 is 1 plus 3. Six is 1 plus 5. Eleven is 3 plus 8. There is always exactly one such sum, and you never need two Fibonacci numbers that sit side by side in the list.
+
+That ``exactly one way'' is the magic. It means Fibonacci numbers give every whole number a unique fingerprint. And since the crystal grows in a Fibonacci-like way, ring by ring, this fingerprint turns out to be a perfect address for every cell. The next chapter builds that address and shows it in action.
+
+\textbf{Takeaway:} the Fibonacci numbers (each the sum of the previous two) and the golden ratio (about 1.618, their settling ratio) run through the crystal from three independent directions. Zeckendorf's theorem, that every number is a unique sum of non-adjacent Fibonacci numbers, will give every cell a unique name.

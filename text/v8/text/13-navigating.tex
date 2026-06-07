@@ -1,0 +1,29 @@
+\section{Navigating the Crystal: Greedy Routing}
+
+The last chapter gave every cell a name and showed, in two dimensions, how a message can travel by comparing names. The real crystal is three-dimensional, and there is an even simpler way to get around it that works beautifully in curved space. It is called greedy routing, and it is worth seeing because it shows how the crystal can carry signals with almost no intelligence at each step.
+
+\subsection{What ``greedy'' means}
+
+Greedy means short-sighted on purpose. A greedy traveler never plans a whole route. At each cell, the traveler just looks at the immediate neighbors, picks the one that is closest to the destination, steps there, and repeats. No map, no foresight, no memory. Just ``of my neighbors, who is nearest the goal? Go there. Again.''
+
+On most networks this dumb strategy fails. You walk into dead ends, or get stuck circling a spot that is locally closest but globally wrong. Greedy routing usually needs luck or a good map.
+
+\subsection{Why it works in hyperbolic space}
+
+In hyperbolic space, greedy routing almost always works, and this is one of the quiet wonders of negative curvature.
+
+Recall that each cell has a position, an address that places it in the curved space, and recall that straight, cheap paths in hyperbolic space bow inward toward the center. Put those together. When you ask ``which neighbor is closest to the target,'' the curved geometry almost always offers a neighbor that genuinely moves you closer, because there is so much room and so many directions that one of them points the right way. The exponential opening-up of hyperbolic space means you are rarely boxed in. There is almost always a downhill step toward the goal.
+
+The simulation bears this out. On the three-dimensional dodecagrid, greedy routing delivers a message between any two cells essentially every time, and it finds paths that are as short as the shortest possible. The traveler, looking only one step ahead, still takes the best route. That is the gift of the geometry, the same curvature that gave us endless room and no preferred direction now hands us effortless navigation.
+
+\subsection{The address as a position}
+
+To compare distances, each cell needs to know roughly where it sits, not just its family tree but its location in the curved space. The crystal's embedding provides this: every cell has coordinates, a position in the Poincare ball version of three-dimensional hyperbolic space. The ``distance'' between two cells is the hyperbolic distance between their positions. A cell compares that distance for each neighbor and steps to the smallest.
+
+So the address does double duty. As a route from the root, it lets a cell find its family. As a position in curved space, it lets a cell route greedily to anywhere. Either way, the cell needs only local information, its own coordinates and its neighbors', plus the target's coordinates. Nothing global.
+
+\subsection{Why this matters for the theory}
+
+Why does a walkthrough about experience care about message routing? Because signals, influences traveling from one place to another, are the raw material of physics and of mind. Light, forces, and nerve impulses are all signals crossing a medium. If the crystal could not carry signals cleanly and locally, nothing built on it could work. Greedy routing in hyperbolic space shows that the crystal is a superb medium for signals: anything can reach anything, by the shortest path, using only local steps. The plumbing is sound.
+
+\textbf{Takeaway:} greedy routing means each cell just steps to whichever neighbor is nearest the goal, with no map. In flat networks this fails, but in hyperbolic space it almost always works and finds the shortest path, so the crystal carries signals cleanly using only local information.
