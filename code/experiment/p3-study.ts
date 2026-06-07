@@ -47,7 +47,7 @@ function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }):
   const growth = ballGrowth({ substrate: input.substrate, center: 0, maxRadius: 12 })
   const iso = lorentzIsotropy({ substrate: input.substrate, samples: 400, rng })
   const route = input.graph
-    ? greedyRoutingSuccess({ graph: input.graph, trials: 600, rng })
+    ? greedyRoutingSuccess({ graph: input.graph, trials: 600, rng, countDisconnectedAsFailure: true })
     : { successRate: 0, meanStretch: 0, trials: 0 }
   return {
     name: input.name,

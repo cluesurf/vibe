@@ -28,7 +28,7 @@ and the same dynamics.
 | exponential reach | YES |
 | tones stay strictly ternary | YES |
 | dynamics converges to stable states (flip fraction) | YES (falls to 0.000) |
-| emergent Hamiltonian (graph Laplacian) bounded below | YES (min eigenvalue 0.007 >= 0) |
+| emergent Hamiltonian (graph Laplacian) bounded below | YES (min eigenvalue 0.0003 >= 0) |
 | emergent Hamiltonian local | YES (range 1 by construction) |
 | arrow of time (relations accumulate as the mesh grows) | YES |
 

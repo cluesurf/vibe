@@ -6,11 +6,6 @@
   "type": "module",
   "scripts": {
     "make": "rm -rf host && tsc && tsc-alias",
-    "scan": "rm -rf host && concurrently --kill-others \"tsc -w\" \"tsc-alias -w\"",
-    "lint": "eslint --ext .ts ./make",
-    "lint:fix": "npm run lint -- --fix",
-    "test:make": "npx tsx test/make.ts",
-    "test": "npx tsx --no-warnings=ExperimentalWarning test/index.ts",
     "test:sim": "npx tsx --no-warnings=ExperimentalWarning code/test/run.ts",
     "sim": "npx tsx --no-warnings=ExperimentalWarning",
     "host": "pnpm make && npm publish --access=public"

@@ -1,51 +1,44 @@
-# P63: Integrated Information (Selves as Local Maxima of Integration)
+# P63: Integrated Information (Tone-Aware)
 
-**Status: solved. Integration Phi picks out exactly the selves.**
+**Status: solved, and the measure now reads the dynamics, not just the wiring.**
 
-## The question
+## The fix
 
-The roadmap asks for a formal integration measure where the whole is a high-integration unity
-and stable selves are LOCAL MAXIMA of integration, the bridge from the physics testbed to the
-unity-of-experience claim.
-
-## The measure
-
-Integration Phi is the algebraic connectivity (the second-smallest Laplacian eigenvalue, the
-Fiedler value) of a region: how hard it is to cut the region into independent parts. High Phi
-means no cheap cut, a genuine whole. This is the measure already in the codebase (P9). The
-question is whether it does the defining job.
+The earlier version measured integration by algebraic connectivity, which reads only the graph and
+ignores the tones entirely (it could not tell two regions apart if they had the same wiring but
+different dynamics). The new measure, toneIntegration, reads the actual rule. For a region it
+estimates the minimum-information bipartition: over random tone configurations it measures, for each
+candidate cut, how much one side's next tones depend on the other side's current tones (replace that
+side with independent noise, re-run the rule, count changed nodes). A region is integrated only if
+EVERY way of cutting it still leaves the parts shaping each other.
 
 ## Result
 
-On a modular mesh (cells in a body, P59):
+| quantity | value |
+| -------- | ----- |
+| a genuine self (a cell), tone-integration | 0.153 |
+| a random same-size bag of vibes | 0.024 |
+| selves more integrated than random bags | 6x |
+| a self is a local maximum (swapping members lowers it) | 100% of cells |
 
-- a genuine self (a cohesive cell): Phi = 4.40
-- a random same-size bag of vibes: Phi = 0.00 (essentially disconnected)
-- a self is a LOCAL MAXIMUM of Phi: for 100 percent of cells, swapping members in or out
-  (dropping core members, adding outsiders) lowers Phi
-- the whole mesh is one connected integrated unity: Phi = 0.12
+The decisive check that it reads the dynamics, not just the wiring: take one cell, split it down the
+middle, and zero the fills on every edge crossing the split. The graph is untouched, so the
+structural measure is identical, but the dynamics decouple along the split.
+
+| same cell | tone-integration |
+| --------- | ---------------- |
+| fills intact | 0.063 |
+| fills cut across the middle (graph unchanged) | 0.000 |
+
+Tone-integration collapses to zero while the wiring (and the old structural proxy) is unchanged.
 
 ## Reading
 
-Integration Phi does the defining job. A genuine self resists being cut into independent parts,
-so it has high Phi, while a random scatter of vibes has almost none. And a self sits at a local
-maximum: adding outsiders or dropping core members both lower its integration, so the self is
-the locally most-integrated region, not an arbitrary one. The whole is a single high-integration
-unity, and within it the selves are the peaks.
-
-This is the bridge the framework needs. Integration picks out exactly where, on the model's own
-terms, a unified experiencer would sit. And it is the same dial throughout: the integration that
-makes a cluster a genuine higher vibe (P58) and that decides whether a wound heals or a part goes
-autonomous (P59) is the integration measured here as Phi. One quantity, three roles.
-
-## Honest reading
-
-This locates the structural correlate of a unified experience precisely (high-Phi local maxima).
-Whether a high-Phi region genuinely feels as one experiencer is the combination problem, the deep
-question the structure points at but cannot settle from the outside. The measure is exact, the
-felt unity is the territory.
+A genuine self resists being cut in the rule's own behaviour, so it scores high, while a random bag
+has cuts that lose nothing. A self is a local maximum. And crucially, zeroing the fills across a cell
+collapses its integration while the wiring stays the same, proving the measure tracks the dynamics of
+feeling, not just topology. This is the integration dial the framework needs, now reading tones.
 
 ## See also
 
-`p58-emergent-macro-rule.md` and `p59-nested-selves.md` (integration as the master dial), the
-integration measure in `code/measure/integration.ts`, and the higher-vibes-and-recursion spec.
+`p58-emergent-macro-rule.md`, `p59-nested-selves.md`, `p60-tower-of-selves.md`.

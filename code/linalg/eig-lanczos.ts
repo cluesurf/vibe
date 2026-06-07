@@ -20,6 +20,21 @@ function axpy(y: Float64Array, input: { alpha: number; x: Float64Array }): void 
   }
 }
 
+// A small deterministic PRNG (mulberry32) for the Lanczos start vector. Using a
+// fixed-seed generator instead of Math.random makes the spectrum reproducible run
+// to run (a fully constant start vector is unsafe: all-ones is exactly the
+// Laplacian null eigenvector). Callers may still pass their own rng.
+function deterministicRand(): () => number {
+  let a = 0x9e3779b9 >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 // Lowest `count` eigenvalues (ascending). `steps` is the Krylov dimension.
 export function lowestEigenvalues(input: {
   operator: LinearOperator
@@ -29,7 +44,7 @@ export function lowestEigenvalues(input: {
 }): Float64Array {
   const n = input.operator.size
   const m = Math.min(n, input.steps ?? Math.max(2 * input.count + 20, 40))
-  const rand = input.rng ?? Math.random
+  const rand = input.rng ?? deterministicRand()
 
   const basis: Float64Array[] = []
   let v = new Float64Array(n)

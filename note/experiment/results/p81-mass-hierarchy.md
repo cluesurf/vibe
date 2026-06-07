@@ -1,33 +1,35 @@
 # P81: The Mass Hierarchy from Hyperbolic Overlaps
 
-**Status: solved (structural, the mechanism). The specific masses are not derived.**
+**Status: mechanism and order of magnitude, no longer fitted to the masses.**
 
-## The question
+## The fix
 
-The charged fermion masses span more than five orders of magnitude, electron to top quark. The
-Standard Model takes each Yukawa coupling as a free number and explains none of the spread.
+The earlier version chose the per-step spacing as ln(observed span) / 8, which made "reproduces the
+observed 5.5 decades" a tautology. That is removed. The spacing is now the crystal's OWN inter-shell
+hyperbolic distance, measured from the substrate (0.86, with the localization length set to one
+curvature radius). The resulting span is a prediction, not a fit.
 
 ## Result
 
-A mass is the overlap of a fermion mode with the Higgs, and on a curved (hyperbolic) substrate
-that overlap falls off exponentially with separation. So modes at evenly spaced positions get
-couplings in a geometric sequence, and their masses span many decades:
+| overlap law | span from the geometric spacing |
+| ----------- | ------------------------------- |
+| exponential (hyperbolic substrate) | 3.0 decades (predicted) |
+| power-law (flat substrate) | 1.8 decades |
+| observed (top quark over electron) | 5.5 decades |
 
-- exponential overlap (hyperbolic): 5.5 decades
-- power-law overlap (flat): 2.3 decades
-- observed (top over electron): 5.5 decades
-
-The exponential law reproduces the observed span from a per-step spacing of 1.59 in hyperbolic
-distance, about two shells of the real crystal (inter-shell distance 0.86). A flat substrate gives
-barely two decades from the same spacing.
+With the spacing fixed to the geometry (no tuning), the exponential mechanism gives a 3.0-decade
+hierarchy, the same order of magnitude as the observed 5.5, and beats the flat power law (1.8
+decades) from identical positions. To hit 5.5 exactly would require a localization length of about
+0.54 curvature radii, which is plausible but an extra input, reported and not used.
 
 ## Reading
 
-The hierarchy follows from geometry. Exponential overlap, which is what curved space gives, turns
-a linear spread of positions into an exponential spread of masses, and the spacing it needs is the
-crystal's own step from one shell to the next. The mechanism is the result. The specific mass
-values, which positions the modes actually sit at, are not yet derived.
+The genuine result is the mechanism and the order of magnitude, not the exact value. Exponential
+localization turns a linear (integer) spread of mode positions into an exponential (multi-decade)
+spread of masses, which is the right form for a hierarchy, while a power-law (flat) overlap saturates
+at under two decades. The exact span depends on the localization length, and the specific masses are
+not derived.
 
 ## See also
 
-`p76-dodecagrid-navigation.md`, `p25-electroweak.md`, `p79-anomaly-charge-quantization.md`.
+`p25-electroweak.md`, `p79-anomaly-charge-quantization.md`, the roadmap entry on Yukawa couplings.

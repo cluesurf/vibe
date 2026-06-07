@@ -1,6 +1,6 @@
 # P12: The Free-Energy Crossing (Closing P2's Dominance Question)
 
-**Status: measured. The manifold phase dominates above beta-star about 0.14.**
+**Status: measured. A finite crossing exists, but beta-star is N-dependent (0.20 at N=32, 0.095 at N=48), not yet a converged single value.**
 
 > Updated: the Wang-Landau refinement below now measures the crossing directly at
 > N = 32 and 48, where the leading-order pass (further down) could only bound it.

@@ -119,6 +119,7 @@ import { baryogenesis } from '~/experiment/p80-baryogenesis'
 import { massHierarchy } from '~/experiment/p81-mass-hierarchy'
 import { predictionsVsBounds } from '~/experiment/p82-predictions-vs-bounds'
 import { deterministicGrowth } from '~/experiment/p83-deterministic-growth'
+import { lorentzBoost } from '~/experiment/p84-lorentz-boost'
 
 let passed = 0
 let failed = 0
@@ -1044,14 +1045,16 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 60. P44 universality: the rule realizes NAND (functionally complete), builds a correct
-// full adder, and expresses the universal Rule 110, so the substrate is computation-universal.
+// 60. P44 universality: the rule realizes NAND (functionally complete), builds a correct full
+// adder, expresses the universal Rule 110, AND, decisively, runs NAND and a 6-gate XOR on the
+// model's own asynchronous dynamics as stable fixed points (gates wired onto the live substrate,
+// not evaluated as functions, which also refutes the dissipation worry).
 {
   const r = universality()
   check({
-    name: 'P44 universality: the rule is functionally complete (NAND, adder, Rule 110)',
-    ok: r.nandCorrect && r.adderCorrect && r.rule110Expressible && r.rule110Evolves,
-    detail: `NAND ${r.nandCorrect}, adder ${r.adderCorrect}, Rule 110 ${r.rule110Expressible}, evolves ${r.rule110Evolves}`,
+    name: 'P44 universality: functionally complete (NAND, adder, Rule 110) AND gates run on the live dynamics as stable fixed points (substrate NAND + 6-gate XOR)',
+    ok: r.nandCorrect && r.adderCorrect && r.rule110Expressible && r.rule110Evolves && r.substrateNandCorrect && r.substrateXorCorrect && r.substrateFixedPoint,
+    detail: `NAND ${r.nandCorrect}, adder ${r.adderCorrect}, Rule110 ${r.rule110Expressible}; on-substrate NAND ${r.substrateNandCorrect}, XOR ${r.substrateXorCorrect}, fixed-point ${r.substrateFixedPoint}`,
   })
 }
 
@@ -1139,11 +1142,11 @@ function allFinite(xs: ArrayLike<number>): boolean {
 // 68. P52 continuum limit: the dimension estimate agrees with the continuum value at all
 // N (within one percent) in 2D and 3D, approaching the continuum in the large-N limit.
 {
-  const two = continuumLimit({ dimension: 2, sizes: [500, 1000, 2000], repeats: 5, seed: 1 })
-  const three = continuumLimit({ dimension: 3, sizes: [500, 1000, 2000], repeats: 5, seed: 1 })
+  const two = continuumLimit({ dimension: 2, sizes: [500, 1000, 2000, 4000], repeats: 6, seed: 1 })
+  const three = continuumLimit({ dimension: 3, sizes: [500, 1000, 2000, 4000], repeats: 6, seed: 1 })
   check({
-    name: 'P52 continuum limit: dimension agrees with continuum at all N (2D and 3D)',
-    ok: two.agrees && three.agrees,
+    name: 'P52 continuum limit: accurate at all N (2D and 3D), and the 3D error genuinely shrinks with N',
+    ok: two.agrees && three.agrees && three.converging,
     detail: `2D max error ${two.maxError.toFixed(3)}, 3D max error ${three.maxError.toFixed(3)}`,
   })
 }
@@ -1274,15 +1277,17 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 79. P63 integrated information: integration Phi (algebraic connectivity) picks out selves.
-// A genuine self (a cohesive cell) has high Phi, a random same-size bag near zero, and a self
-// is a local maximum (swapping members in or out lowers it), with the whole an integrated unity.
+// 79. P63 integrated information (tone-aware): integration is measured from the RULE dynamics, not
+// just the graph. A genuine self (a cohesive cell) has high tone-integration, a random bag near
+// zero, a self is a local maximum, and the measure provably reads the dynamics: zeroing the fills
+// across a cell collapses its tone-integration while the wiring (and the structural proxy) is
+// unchanged, which a topology-only measure could never detect.
 {
   const r = integratedInformation({ seed: 1 })
   check({
-    name: 'P63 integrated information: selves are high-Phi local maxima, random bags near zero',
-    ok: r.solved && r.phiCell > 1 && r.phiRandom < 0.1 && r.localMaxFraction > 0.9 && r.phiWhole > 0,
-    detail: `cell Phi ${r.phiCell.toFixed(2)}, random ${r.phiRandom.toFixed(3)}, localMax ${(100*r.localMaxFraction).toFixed(0)}%, whole ${r.phiWhole.toFixed(3)}`,
+    name: 'P63 integrated information (tone-aware): selves are tone-integration local maxima, and the measure reads the dynamics (fills cut collapses Phi, graph unchanged)',
+    ok: r.solved && r.separation > 3 && r.localMaxFraction > 0.7 && r.readsDynamics && r.structuralPhiUnchanged,
+    detail: `cell Phi ${r.phiCell.toFixed(3)}, random ${r.phiRandom.toFixed(3)}, sep ${r.separation.toFixed(0)}x, localMax ${(100*r.localMaxFraction).toFixed(0)}%, fills-cut ${r.tonePhiFillsCut.toFixed(3)} vs full ${r.tonePhiFull.toFixed(3)}`,
   })
 }
 
@@ -1365,11 +1370,12 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 86. P70 Born rule: counting (amplitude = sqrt density, uniform sampling) and envariance both
-// give |c|^2, and uniform substrate sampling uniquely selects the exponent p=2.
+// 86. P70 Born rule: exponent 2 is forced (not assumed) by the functional equation
+// (a1^2+a2^2)^(p/2) = a1^p + a2^p (quadrature additivity of amplitudes plus additivity of
+// probabilities), which holds only at p=2; fair substrate sampling then yields |c|^2.
 {
   const r = bornRule({ seed: 1 })
-  check({ name: 'P70 Born rule: counting and envariance both derive |c|^2, exponent 2 selected', ok: r.solved && r.countingError < 0.01 && r.envarianceError < 0.01 && r.uniqueExponent === 2, detail: `counting ${r.countingError.toFixed(4)}, envariance ${r.envarianceError.toFixed(4)}, exponent ${r.uniqueExponent}` })
+  check({ name: 'P70 Born rule: exponent 2 forced by quadrature + additivity (functional equation), fair sampling gives |c|^2', ok: r.solved && r.uniqueExponent === 2 && r.quadratureResidual < 1e-6 && r.samplingError < 0.01, detail: `quadrature residual ${r.quadratureResidual.toExponential(1)}, exponent forced ${r.uniqueExponent}, sampling error ${r.samplingError.toFixed(4)}` })
 }
 
 // 87. P71 Hawking: the across-horizon spectrum is thermal at T = kappa/2pi, T ~ 1/M, Page curve turns over.
@@ -1434,18 +1440,22 @@ function allFinite(xs: ArrayLike<number>): boolean {
   check({ name: 'P79 anomaly cancellation forces the Standard Model hypercharges and charge quantization', ok: r.solved && r.matchesStandardModel && r.unusedAnomaliesCancel && r.chargesQuantized && r.atomNeutral, detail: `cubic anomaly ${r.cubicAnomaly.toExponential(1)}, charges quantized ${r.chargesQuantized}, atom neutral ${r.atomNeutral}` })
 }
 
-// 96. P80 baryogenesis: with all three Sakharov conditions a matter excess builds up, and removing
-// any one (CP, out-of-equilibrium, baryon-number violation) erases it.
+// 96. P80 baryogenesis: the asymmetry is integrated from the out-of-equilibrium Boltzmann equations,
+// so it EMERGES as epsilon times an efficiency (not equal to epsilon), each Sakharov condition is
+// necessary (removing the mechanism gives exactly zero), and the efficiency shows the freeze-out
+// peak at intermediate washout that a biased coin cannot produce.
 {
   const r = baryogenesis({ seed: 1 })
-  check({ name: 'P80 baryogenesis: matter excess needs all three Sakharov conditions', ok: r.solved && r.allThreeNeeded, detail: `full ${r.full.toFixed(3)}, noCP ${r.noCP.toFixed(3)}, equilibrium ${r.equilibrium.toFixed(3)}, noBviol ${r.noBViolation.toFixed(3)}` })
+  check({ name: 'P80 baryogenesis: emergent asymmetry (eta = epsilon * efficiency, not epsilon), all three Sakharov conditions necessary, freeze-out peak at intermediate washout', ok: r.solved && r.allThreeNeeded && r.etaNotEqualEpsilon && r.freezeOutNonMonotonic, detail: `full ${r.full.toFixed(4)} = eps*${r.efficiency.toFixed(3)}, noCP ${r.noCP.toFixed(4)}, equil ${r.equilibrium.toFixed(4)}, noBviol ${r.noBViolation.toFixed(4)}, peak K ${r.freezeOutPeakK}` })
 }
 
-// 97. P81 mass hierarchy: exponential overlap on a hyperbolic substrate spans the observed
-// charged-fermion mass range from even spacing, where a flat power law cannot.
+// 97. P81 mass hierarchy: with the spacing FIXED to the crystal's own inter-shell distance (not
+// fitted to the masses), exponential overlap gives a multi-decade hierarchy of the same order as
+// observed and beats a flat power law from identical positions. The exact span needs a localization
+// length (stated, not derived); the mechanism and order of magnitude are the result.
 {
   const r = massHierarchy()
-  check({ name: 'P81 mass hierarchy: hyperbolic exponential overlap spans the observed range from even spacing', ok: r.solved && r.reproducesObserved, detail: `exp ${r.exponentialSpanDecades.toFixed(1)} decades vs power ${r.powerSpanDecades.toFixed(1)}, observed ${r.observedSpanDecades.toFixed(1)}` })
+  check({ name: 'P81 mass hierarchy: geometric (unfitted) spacing gives a multi-decade exponential hierarchy, same order as observed, beating power-law', ok: r.solved && r.mechanismHolds && r.sameOrderAsObserved, detail: `geometric spacing ${r.spacing.toFixed(2)} -> exp ${r.exponentialSpanDecades.toFixed(1)} decades vs power ${r.powerSpanDecades.toFixed(1)}, observed ${r.observedSpanDecades.toFixed(1)}` })
 }
 
 // 98. P82 predictions vs bounds: the model passes the GRB linear Lorentz bound (xi1 -> 0), the
@@ -1460,6 +1470,13 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = deterministicGrowth()
   check({ name: 'P83 deterministic growth: resumable, append-only, faithful, geometry emerges (golden ratio)', ok: r.solved && r.resumableMatchesOneShot && r.appendOnly && r.matchesStaticRings && r.geometryEmerges, detail: `ratio ${r.growthRatio.toFixed(4)} vs ${r.goldenGrowth.toFixed(4)}, max degree ${r.maxDegree}` })
+}
+
+// 100. P84 genuine Lorentz boost test: the sprinkle's causal-link rapidity distribution is flat
+// (boost-invariant, no preferred frame) and boost-covariant, while a lattice piles up at rapidity 0.
+{
+  const r = lorentzBoost({ seed: 1 })
+  check({ name: 'P84 Lorentz boost: sprinkle rapidity flat + boost-covariant, lattice peaked at a rest frame', ok: r.solved && r.sprinkleIsFlat && r.latticeIsPeaked && r.boostCovariant, detail: `sprinkle flatness ${r.sprinkleFlatness.toFixed(3)} (std ${r.sprinkleStd.toFixed(2)}), lattice flatness ${r.latticeFlatness.toFixed(3)} (std ${r.latticeStd.toFixed(2)}), boost shape change ${r.flatnessUnderBoost.toFixed(3)}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

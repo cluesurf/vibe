@@ -49,6 +49,7 @@ export function greedyRoutingSuccess(input: {
   trials: number
   rng: Rng
   maxHops?: number
+  countDisconnectedAsFailure?: boolean
 }): { successRate: number; meanStretch: number; trials: number } {
   const graph = input.graph
   if (!graph.embedding) {
@@ -67,9 +68,15 @@ export function greedyRoutingSuccess(input: {
     if (target === source) {
       target = (target + 1) % size
     }
-    // Only count pairs that are actually connected: an unreachable target is a
-    // connectivity fact, not a routing failure.
+    // By default an unreachable target is a connectivity fact, not a routing failure, so we skip
+    // disconnected pairs (this measures routing quality GIVEN connectivity, used on connected
+    // tilings in P42/P76). For a GLOBAL navigability claim (P3), set countDisconnectedAsFailure:
+    // a fragmented graph that routes only within tiny components is not globally navigable, so
+    // unreachable pairs are counted as failures.
     if (bfsHops({ graph, from: source, to: target }) < 0) {
+      if (input.countDisconnectedAsFailure) {
+        counted++
+      }
       continue
     }
 

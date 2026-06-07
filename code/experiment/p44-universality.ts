@@ -13,9 +13,122 @@
 // Run: npx tsx code/experiment/p44-universality.ts
 
 import { pathToFileURL } from 'node:url'
+import { makeRng } from '~/core/rng'
 
 // Booleans are tones: true = +1, false = -1.
 type Bit = 1 | -1
+
+// --- Genuine on-substrate computation: gates built from the model's OWN running dynamics ---
+// A circuit is an actual graph of cells with SYMMETRIC TERNARY fills. Inputs and a +1 bias are
+// clamped; the free cells run the asynchronous signed-majority rule next(c) = sign(sum of fill *
+// neighbour tone) until they reach a fixed point, and then we read the output cells. This runs the
+// model's real rule on a substrate (answering "the gates are never wired onto the dynamics"), and
+// because the answer is a FIXED POINT it is stable under any update order and does not dissipate
+// (answering the P37 dissipation worry: a clamped-input gate is an attractor, not a decaying pulse).
+// Integer weights come only from BUSES (several ternary edges in parallel), never from non-ternary
+// fills, and bus widths DECREASE downstream so each gate's margin exceeds the feedback it receives.
+
+type SubCircuit = { fills: Map<number, Map<number, number>>; clamp: Map<number, Bit>; size: number }
+
+function makeCircuit(): SubCircuit {
+  return { fills: new Map(), clamp: new Map(), size: 0 }
+}
+function addCell(c: SubCircuit, clampVal?: Bit): number {
+  const id = c.size++
+  c.fills.set(id, new Map())
+  if (clampVal !== undefined) {
+    c.clamp.set(id, clampVal)
+  }
+  return id
+}
+function link(c: SubCircuit, a: number, b: number, f: -1 | 1): void {
+  c.fills.get(a)?.set(b, f) // symmetric ternary edge
+  c.fills.get(b)?.set(a, f)
+}
+function clampedBus(c: SubCircuit, value: Bit, width: number): number[] {
+  return Array.from({ length: width }, () => addCell(c, value))
+}
+// NAND: each output cell o = sign(-sum(A) - sum(B) + sum(bias)). With |A| = |B| = bias width Wi the
+// margin is Wi, so choose outWidth (the feedback the next layer applies) smaller than Wi.
+function nandBus(c: SubCircuit, A: number[], B: number[], outWidth: number): number[] {
+  const biasWidth = Math.min(A.length, B.length)
+  const bias = clampedBus(c, 1, biasWidth)
+  const O = Array.from({ length: outWidth }, () => addCell(c))
+  for (const o of O) {
+    for (const a of A) link(c, o, a, -1)
+    for (const b of B) link(c, o, b, -1)
+    for (const z of bias) link(c, o, z, 1)
+  }
+  return O
+}
+// NOT: g = sign(-sum(X)) = NOT(x). Margin |X|.
+function notBus(c: SubCircuit, X: number[], outWidth: number): number[] {
+  const G = Array.from({ length: outWidth }, () => addCell(c))
+  for (const g of G) {
+    for (const x of X) link(c, g, x, -1)
+  }
+  return G
+}
+// Run the model's asynchronous signed-majority rule to a fixed point from a neutral start.
+function settle(c: SubCircuit, seed: number): Int8Array {
+  const tone = new Int8Array(c.size)
+  for (const [id, v] of c.clamp) {
+    tone[id] = v
+  }
+  const free = [...Array(c.size).keys()].filter((i) => !c.clamp.has(i))
+  const rng = makeRng({ seed })
+  const stepCell = (i: number): number => {
+    let s = 0
+    for (const [j, f] of c.fills.get(i) ?? []) {
+      s += f * (tone[j] ?? 0)
+    }
+    return s > 0 ? 1 : s < 0 ? -1 : (tone[i] ?? 0)
+  }
+  for (let sweep = 0; sweep < 400; sweep++) {
+    for (let i = free.length - 1; i > 0; i--) {
+      const k = rng.nextInt({ max: i + 1 })
+      const t = free[i] ?? 0
+      free[i] = free[k] ?? 0
+      free[k] = t
+    }
+    let changed = false
+    for (const i of free) {
+      const nv = stepCell(i)
+      if (nv !== tone[i]) {
+        tone[i] = nv as -1 | 0 | 1
+        changed = true
+      }
+    }
+    if (!changed) {
+      break
+    }
+  }
+  return tone
+}
+// Is the settled configuration a genuine fixed point of the rule (stable under ANY update order)?
+function isFixedPoint(c: SubCircuit, tone: Int8Array): boolean {
+  for (let i = 0; i < c.size; i++) {
+    if (c.clamp.has(i)) {
+      continue
+    }
+    let s = 0
+    for (const [j, f] of c.fills.get(i) ?? []) {
+      s += f * (tone[j] ?? 0)
+    }
+    const nv = s > 0 ? 1 : s < 0 ? -1 : tone[i]
+    if (nv !== tone[i]) {
+      return false
+    }
+  }
+  return true
+}
+function busValue(tone: Int8Array, bus: number[]): Bit {
+  let s = 0
+  for (const b of bus) {
+    s += tone[b] ?? 0
+  }
+  return s >= 0 ? 1 : -1
+}
 
 // The model's own update applied as a two-input gate: a vibe whose field is the bias
 // plus the fill-weighted wills of its two input neighbours, then sign. With bias +1 and
@@ -71,6 +184,9 @@ export function universality(): {
   adderCorrect: boolean
   rule110Expressible: boolean
   rule110Evolves: boolean
+  substrateNandCorrect: boolean
+  substrateXorCorrect: boolean
+  substrateFixedPoint: boolean
 } {
   // 1. NAND truth table.
   const nandTable: Record<string, Bit> = { '1,1': -1, '1,-1': 1, '-1,1': 1, '-1,-1': 1 }
@@ -127,7 +243,55 @@ export function universality(): {
   }
   const rule110Evolves = new Set(snapshots).size > 6 // non-trivial, many distinct rows
 
-  return { nandCorrect, adderCorrect, rule110Expressible, rule110Evolves }
+  // 4. THE DECISIVE CHECK: run the gates on the model's OWN dynamics, not as functions. Build each
+  // gate as a real subgraph of cells with symmetric ternary fills, clamp the inputs and a +1 bias,
+  // run the asynchronous signed-majority rule to a fixed point, and read the output cells.
+  let substrateNandCorrect = true
+  let substrateXorCorrect = true
+  let substrateFixedPoint = true
+
+  // NAND on the substrate (input/bias buses width 7, output width 3).
+  for (const a of BITS) {
+    for (const b of BITS) {
+      const c = makeCircuit()
+      const A = clampedBus(c, a, 7)
+      const B = clampedBus(c, b, 7)
+      const O = nandBus(c, A, B, 3)
+      const tone = settle(c, 1)
+      if (busValue(tone, O) !== nand(a, b)) substrateNandCorrect = false
+      if (!isFixedPoint(c, tone)) substrateFixedPoint = false
+    }
+  }
+
+  // XOR on the substrate, a genuine multi-gate composition run by the dynamics:
+  // XOR(a,b) = AND(OR(a,b), NAND(a,b)), AND = NOT . NAND, OR = NAND(NOT a, NOT b).
+  // Bus widths DECREASE downstream (11, 9, 7, 5, 3) so every gate's margin beats its feedback.
+  for (const a of BITS) {
+    for (const b of BITS) {
+      const c = makeCircuit()
+      const A = clampedBus(c, a, 11)
+      const B = clampedBus(c, b, 11)
+      const nA = notBus(c, A, 9)
+      const nB = notBus(c, B, 9)
+      const orOut = nandBus(c, nA, nB, 7) // OR(a,b)
+      const nandOut = nandBus(c, A, B, 7) // NAND(a,b)
+      const andInner = nandBus(c, orOut, nandOut, 5) // NAND(OR, NAND)
+      const xorOut = notBus(c, andInner, 3) // AND(OR, NAND) = XOR
+      const tone = settle(c, 1)
+      if (busValue(tone, xorOut) !== xor(a, b)) substrateXorCorrect = false
+      if (!isFixedPoint(c, tone)) substrateFixedPoint = false
+    }
+  }
+
+  return {
+    nandCorrect,
+    adderCorrect,
+    rule110Expressible,
+    rule110Evolves,
+    substrateNandCorrect,
+    substrateXorCorrect,
+    substrateFixedPoint,
+  }
 }
 
 export function main(): void {
@@ -139,14 +303,20 @@ export function main(): void {
   console.log(`  3. the universal Rule 110, built from rule-NANDs, reproduces its table: ${r.rule110Expressible ? 'YES' : 'no'}`)
   console.log(`     and it runs and evolves non-trivially on the rule's gates: ${r.rule110Evolves ? 'YES' : 'no'}`)
   console.log('')
-  console.log('  The model\'s own local rule realizes NAND, which is functionally complete, so it')
-  console.log('  computes any Boolean function and any circuit, including working arithmetic and the')
-  console.log('  elementary cellular automaton Rule 110, which is proven to be Turing-complete. With')
-  console.log('  the unbounded, exactly-addressable space of the hyperbolic tilings (P42) for memory,')
-  console.log('  that is full computational universality, Margenstern\'s result realized on the model.')
-  console.log('  This grounds the claim that one substrate can host any computable structure, the')
-  console.log('  lawful sector of the framework. The felt interior is a separate question, untouched')
-  console.log('  by universality.')
+  console.log('  4. the decisive check: gates run on the model\'s OWN asynchronous dynamics, not as functions')
+  console.log(`     NAND as a real subgraph, settled by the rule to a fixed point: ${r.substrateNandCorrect ? 'YES' : 'no'}`)
+  console.log(`     a 6-gate XOR composed and run entirely by the dynamics: ${r.substrateXorCorrect ? 'YES' : 'no'}`)
+  console.log(`     every output is a stable fixed point (no dissipation, stable under any update order): ${r.substrateFixedPoint ? 'YES' : 'no'}`)
+  console.log('')
+  console.log('  The model\'s own local rule realizes NAND, which is functionally complete. And it is not')
+  console.log('  only a function: built as a real subgraph and run by the asynchronous rule itself, NAND')
+  console.log('  and a multi-gate XOR settle to the correct answer as STABLE FIXED POINTS on the live')
+  console.log('  substrate. That directly answers the dissipation worry (a clamped-input gate is an')
+  console.log('  attractor, not a decaying pulse) and shows gates compose on the dynamics, not just on')
+  console.log('  paper. Circuit universality on the running substrate follows. Unbounded-tape Turing')
+  console.log('  completeness additionally needs the growing, exactly-addressable space of the tilings')
+  console.log('  (P42, P83) for memory, which is Margenstern\'s result. The felt interior is a separate')
+  console.log('  question, untouched by universality.')
 }
 
 if (

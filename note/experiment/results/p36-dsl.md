@@ -34,7 +34,7 @@ world.read()                               // emergent structures off the same m
 Output (one mesh):
 
 - mean degree 10.6, Lorentz anisotropy 0.062, exponential reach true
-- emergent Hamiltonian bounded below (min eigenvalue 0.003)
+- emergent Hamiltonian bounded below (min eigenvalue 0.0003)
 - converged tones -1: 701, 0: 103, +1: 696 (a non-trivial stable pattern)
 
 ## Expressing a variant
