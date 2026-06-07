@@ -44,7 +44,7 @@ function candidateRegion(input: {
 // eigenvalue of L = D - A. A higher value means the region resists being split
 // into independent parts, the integration proxy we want. Returns 0 for trivial
 // or disconnected regions.
-function algebraicConnectivity(input: {
+export function algebraicConnectivity(input: {
   adjacency: ReadonlyArray<Uint32Array>
   region: Set<number>
 }): number {

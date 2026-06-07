@@ -1,6 +1,6 @@
 # Roadmap
 
-What is left to build, as a living checklist. The testbed currently covers P1 to P61.
+What is left to build, as a living checklist. The testbed currently covers P1 to P69.
 This tracks the work still ahead, grouped by area, with the nearest current result noted
 where one exists. Checked items are done, unchecked are outstanding.
 
@@ -44,9 +44,18 @@ where one exists. Checked items are done, unchecked are outstanding.
   deterministic automaton, but as a static orbit. The eternal-growth version, where the
   automaton grows the universe forever and the geometry emerges from the growth, is the
   remaining piece.
-- [ ] **Emergent spatial geometry from a pure growth rule.** P38 reached the d-1 spatial
-  trend on a slice (progress), but biased low and from a sprinkle. A bias-free, growth-rule
-  version is open.
+- [x] **The dimension window** (P62): compact regular hyperbolic crystals (finite-celled
+  honeycombs) exist only in spatial dimensions 2, 3, 4 (H^3 has 4, H^4 has 5, none above),
+  reproducing the known classification, so the substrate dimension is a computed constraint,
+  not an assumption.
+- [x] **Dimension selection (why 3 of {2,3,4})** (P68): integrating gravitational orbits in d
+  spatial dimensions shows only d=3 gives stable CLOSED orbits (the inverse-square law). d=2
+  precesses, d>=4 is unstable. Of the {2,3,4} window (P62), three is uniquely selected,
+  corroborated by Huygens clean-wave propagation (odd dimensions).
+- [x] **Emergent spatial geometry from a pure growth rule** (P69): the spatial dimension read
+  intrinsically from grown connectivity (shell growth in hops, no coordinates) matches the
+  target unbiased for flat grids (2.00/2.97/3.90), fixing P38's bias, and a negatively-curved
+  mesh reads exponential, so curvature emerges from the relations too.
 - [ ] **3D addressed navigation.** The 3D analogue of the Fibonacci-tree routing of P42,
   on the dodecagrid.
 
@@ -62,22 +71,28 @@ where one exists. Checked items are done, unchecked are outstanding.
   higher-vibes-and-recursion spec.
 - [ ] **Selves as attractors, fully.** P34 and P43 used stable attractors as selves. A
   dedicated study of their stability, basins, identity over time, and persistence.
-- [ ] **Integrated information.** P58 already shows the macro-rule holds exactly on the
-  integrated wholes and fails on loose bags, so integration is the operative threshold. The
-  remaining piece is a formal integrated-information measure that names the quantity: the
-  whole as a high-integration unity, stable selves as local maxima.
+- [x] **Integrated information** (P63): integration Phi (algebraic connectivity) picks out
+  selves. A cohesive cell has high Phi, a random bag near zero, and a self is a local maximum
+  (swapping members in or out lowers it), with the whole an integrated unity. The structural
+  bridge to the unity-of-experience claim.
 - [x] **Nested selves and the full tower** (P59, P60): a self made of selves (cells in a
   body), where a small wound heals (homeostasis) and a whole-cell flip persists as a new
   identity (autonomy), the body undisturbed throughout, and the full tower (vibes, cells,
   tissues, organs, systems, body) descending to one top with the same rule at every level.
-- [ ] **Subtle-layer urges, modeled.** P43 used an urge as a bias field. A two-scale mesh
-  where slow subtle layers genuinely bias the fast dense layer, the urge mechanism in full.
-- [ ] **Dreaming versus waking.** The same mesh in two regimes: coupled to shared
-  constraints (waking) versus free exploration (dreaming).
-- [ ] **Reincarnation as pattern persistence.** An attractor reconstituting after full
-  substrate turnover.
-- [ ] **Synchronicity.** Correlated transitions between distant subsystems with shared
-  deep ancestry, no direct link.
+- [x] **Subtle-layer urges** (P64): a two-scale mesh where a slow deep layer biases the fast
+  surface through shared notes. Steering rises with coupling depth (none when uncoupled), and
+  the deep layer reasserts its pattern after the surface is disordered. The urge as a real
+  second layer, not an abstract field.
+- [x] **Dreaming versus waking** (P65): one memory mesh in two regimes. Waking (external
+  clamp) pins it to the one veridical stimulus pattern, dreaming (no clamp, internal rhythm)
+  roams all stored memories. The only difference is whether the shared external constraint is
+  imposed.
+- [x] **Reincarnation as pattern persistence** (P66): a self survives 100% turnover of its
+  material (Ship of Theseus) and reconstitutes from a seed after full dissolution. A self is a
+  pattern, separable in principle from any particular substrate.
+- [x] **Synchronicity** (P67): two subsystems with no link between them correlate when they
+  share a deep ancestry (same memory landscape) under a common ambient rhythm, and stay
+  uncorrelated when unrelated. Correlation from the shared past, not a present signal (as P7).
 
 ## Integration and the capstone
 

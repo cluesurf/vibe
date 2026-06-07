@@ -21,7 +21,7 @@ import { makeGraph, Graph } from '~/core/graph'
 
 // A modular mesh: numCells cohesive cells of cellSize vibes each, dense inside (fill +1, the
 // cohesion that makes a cell a self), sparse and weak between cells (a few +1 links).
-function modularMesh(input: { numCells: number; cellSize: number; intraDegree: number; interPerCell: number; rng: Rng }): {
+export function modularMesh(input: { numCells: number; cellSize: number; intraDegree: number; interPerCell: number; rng: Rng }): {
   g: Graph
   fills: Int8Array[]
   cellOf: Int32Array

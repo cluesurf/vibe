@@ -34,6 +34,26 @@ Four named things, and nothing else.
 - **Beat.** One discrete tick of update. Time is made of beats. **Committed** that time
   is discrete.
 
+### The picture: vibe = tile, tone = color, note = shared edge
+
+To be precise about the canonical image (the colored hyperbolic tessellation), here is exactly
+how the picture maps to the model:
+
+- **One vibe is one tile** (one cell of the tessellation, one node of the mesh). The vibe is the
+  tile.
+- **The tone is the tile's color.** The ternary tone is shown as one of three colors: pain =
+  red, peace = green, pleasure = blue (the canonical palette). The color IS the felt state.
+- **A note is a shared edge between adjacent tiles.** Two tiles touching means one vibe
+  experiences the other. The edges of the tiling are the notes of the mesh.
+- **The whole picture is the mesh**, a region of vibes and notes, with each tile colored by its
+  tone, drawn in the Poincare disk (the embedding used only for drawing, the relations are the
+  real thing).
+
+So yes: a vibe is a single tile, the tone is its color, and the tiling drawn in tone-colors is a
+literal map of the model, not an artist's impression. The 3D version is the same with cells of
+the dodecahedral honeycomb {5,3,4} (P45) instead of polygons. See the visual-identity note for
+the palette and the full set of options.
+
 ## What kind of automaton is this
 
 This is the most-asked question, so it is answered plainly.
