@@ -94,6 +94,9 @@ import { oneRuleAllSectors } from '~/experiment/p55-one-rule-all-sectors'
 import { eternalLadder } from '~/experiment/p56-eternal-ladder'
 import { recursion } from '~/experiment/p57-recursion'
 import { emergentMacroRule } from '~/experiment/p58-emergent-macro-rule'
+import { nestedSelves } from '~/experiment/p59-nested-selves'
+import { towerOfSelves } from '~/experiment/p60-tower-of-selves'
+import { noSelfStorage } from '~/experiment/p61-no-self-storage'
 
 let passed = 0
 let failed = 0
@@ -1195,6 +1198,43 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P58 emergent macro-rule: renormalization fixed point on the integrated higher vibes',
     ok: r.solved && r.bigDomainRenorm > 0.9 && r.domainRenorm > r.randomRenorm + 0.2,
     detail: `random ${r.randomRenorm.toFixed(2)}, domain ${r.domainRenorm.toFixed(2)}, big ${r.bigDomainRenorm.toFixed(2)}, by size ${r.bySize.map((b) => b.agreement.toFixed(2)).join('/')}`,
+  })
+}
+
+// 75. P59 nested selves: on a modular mesh, a small wound inside a cell heals (homeostasis),
+// a whole-cell flip persists as a new identity (autonomy), and the rest of the body is
+// undisturbed (the higher self keeps its identity).
+{
+  const r = nestedSelves({ seed: 1 })
+  check({
+    name: 'P59 nested selves: small wounds heal, whole-cell flips persist, body stays intact',
+    ok: r.solved && r.smallWoundHeals > 0.85 && r.wholeCellPersists < 0.2 && r.bodyIntegrity > 0.95,
+    detail: `heal ${r.smallWoundHeals.toFixed(2)}, persist ${r.wholeCellPersists.toFixed(2)}, body ${r.bodyIntegrity.toFixed(2)}`,
+  })
+}
+
+// 76. P60 tower of selves: a recursively modular mesh descends through cells, tissues, organs,
+// systems to one body, dividing by the branching factor each level, with the same emergent
+// rule holding at every level.
+{
+  const r = towerOfSelves({ seed: 1 })
+  check({
+    name: 'P60 tower of selves: clean multi-level hierarchy to one top, rule holds every level',
+    ok: r.solved && r.descendsToOne && r.cleanBranching && r.ruleHoldsEveryLevel,
+    detail: `${r.baseVibes} vibes -> ${r.rungs.map((x) => x.units).join('/')}, rule ${r.rungs.filter((x) => x.level < 4).map((x) => x.ruleAgreement.toFixed(2)).join('/')}`,
+  })
+}
+
+// 77. P61 no complete self-storage: reconstruction fidelity reaches 1 only with no
+// compression (a model as big as the whole), so a complete self-record cannot fit inside the
+// thing it records, and the nested regress of lossy self-models converges (finite) while full
+// copies diverge (the infinite mirror).
+{
+  const r = noSelfStorage({ count: 1500, seed: 1 })
+  check({
+    name: 'P61 no self-storage: lossless self-record needs the whole, lossy regress converges, no infinite mirror',
+    ok: r.solved && r.losslessNeedsWholeThing && r.regressCompressedTotal < 2 * 1500 && r.regressFullCopyDiverges,
+    detail: `fidelity@50% ${(r.byRatio.find((b) => b.ratio === 0.5)?.fidelity ?? 0).toFixed(2)}, @100% ${(r.byRatio.find((b) => b.ratio === 1.0)?.fidelity ?? 0).toFixed(2)}, regress total ${r.regressCompressedTotal.toFixed(0)} (r=${r.compressionRatio.toFixed(3)})`,
   })
 }
 

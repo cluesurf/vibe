@@ -225,6 +225,27 @@ shared ancestry and measurement as a same-substrate correlation. Pillars demonst
   there are no singularities (P28), and black-hole entropy is the horizon-area
   entanglement (P33).
 
+### Higher selves and the limit of self-knowledge
+
+- **Higher vibes (recursion).** A coherent, integrated cluster of vibes can be read as a
+  single higher vibe (a mind, a being). Crucially this adds **no stored higher tone**: the
+  higher vibe is the **aggregate** of the micro-tones, a derived view, never saved. The
+  higher level obeys the **same** signed-majority rule, an emergent renormalization fixed
+  point with renormalized couplings (real magnitudes plus a self-coupling), exactly on the
+  integrated wholes (P57, P58). The same integration threshold decides both whether a cluster
+  is a higher vibe and whether it obeys the emergent rule.
+- **Nested selves.** A self made of selves (cells in a body). A small wound inside a part
+  heals (homeostasis), a wholesale flip of a cohesive part persists as a new identity
+  (autonomy), and the rest of the whole is undisturbed. The full tower runs vibes to cells to
+  tissues to organs to systems to a body, the same rule at every rung (P59, P60).
+- **No complete self-storage (committed).** No part of the mesh can hold a faithful copy of
+  the whole, because a faithful copy needs at least as many distinguishable elements as the
+  original, while a proper part has strictly fewer. A complete self-record would have to BE
+  the whole. So **self-representation is necessarily lossy** (compressed). This is why higher
+  vibes are aggregates, not copies, and why the infinite regress of self-models (a model of
+  the model of the model) converges to a finite total instead of exploding into an infinite
+  mirror (P61). The world knows itself only in summary, never in full.
+
 ## The honest status map
 
 - **Committed (fixed):** monism (only vibes), discreteness, the note as the only
