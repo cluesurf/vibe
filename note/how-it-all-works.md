@@ -635,15 +635,33 @@ with one clearly marked step remaining. We do not paper over it.
 
 ## 17. Cosmology and the dark sector
 
-The universe in this model grows forever, so it naturally expands. The testbed shows
-expansion emerging from the local growth rule, with a brief early burst of very fast growth
-(inflation) followed by a graceful settling, all from a time-varying birth rate with no extra
-field added (P13, P30). **Dark energy**, the mysterious tiny acceleration of the cosmos,
-comes out at the right magnitude: it is the natural fluctuation of the cosmological constant,
-which is tied to the fluctuating spacetime volume, giving a value that shrinks as one over the
-square root of the volume, which at the size of our universe lands at the observed,
-famously tiny, number (P46, P35). **Dark matter** has a candidate mechanism, a small nonlocal
-correction to gravity that flattens galaxy rotation curves without any new particle (P18).
+The universe in this model grows forever, adding vibes at its leading edge, so it expands as
+a matter of course. Expansion is not a special event needing its own cause, it is just the
+growth seen at large scale. The testbed shows expansion emerging from the purely local growth
+rule, and more: with a birth rate that is high early and lower later, the model produces a
+brief epoch of very fast growth (**inflation**) followed by a graceful settling into ordinary
+expansion, all without adding any special inflaton field by hand (P13, P30). Inflation, which
+in standard cosmology requires a new field invented for the purpose, here is just a fast phase
+of the same growth.
+
+**What about dark energy, the mysterious tiny acceleration of the cosmos?** This is one of the
+model's quantitative high points. Dark energy is governed by the cosmological constant, a
+number that has tormented physics because the naive expectation is off from the measured value
+by some 120 orders of magnitude, the worst prediction in the history of science. The model
+takes a different route. The cosmological constant is tied to the spacetime volume as its
+conjugate, and the volume (the count of vibes) fluctuates by ordinary counting statistics, as
+the square root of itself. That makes the constant fluctuate as one over the square root of the
+volume. Plug in the actual volume of our universe and you get a number around ten to the minus
+122 in natural units, which is the observed value (P46, P35). The famously tiny size of dark
+energy is not a fine-tuning, it is what one over the square root of a very large volume looks
+like.
+
+**And dark matter, the missing mass that holds galaxies together?** The model has a candidate
+mechanism that needs no new particle at all. Because the discrete action is nonlocal, gravity
+picks up a small long-range correction, and that correction flattens the rotation curves of
+galaxies, the exact effect dark matter was invented to explain (P18). Whether this fully
+accounts for all the galactic and cosmic evidence is open, but the mechanism is there and it
+comes from the structure already in the model, not from a new ingredient.
 
 ## 18. Experience and the two faces
 
