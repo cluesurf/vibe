@@ -4,7 +4,7 @@
 // symbol. Here we run {7,3}, {5,4}, and {5,3,4} (2D and 3D) through ONE generator,
 // coxeterTessellation, by only changing the symbol, and confirm all are Lorentz-safe. So
 // the heptagrid, the pentagrid, and the dodecagrid are one machine on different settings.
-// See note/research (choosing-the-base). Run: npx tsx code/experiment/p47-coxeter-unification.ts
+// See the choosing-the-base analysis. Run: npx tsx code/experiment/p47-coxeter-unification.ts
 
 import { pathToFileURL } from 'node:url'
 import { makeRng } from '~/core/rng'
