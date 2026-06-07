@@ -48,7 +48,7 @@ The structural recursion (same-kind aggregate, inherited stability, tower) is cl
 deeper claim, that the higher level is GOVERNED by the same rule purely as an emergent
 consequence of the micro-dynamics, is only partial here (emergence about 0.10). Making the
 macro-rule fully emergent (a renormalization fixed point of the rule, not just the geometry)
-is the open question, and the combination problem (whether the higher aggregate genuinely
+is solved in P58 (it is a fixed point exactly on the integrated wholes). The combination problem (whether the higher aggregate genuinely
 feels as one) is the hard boundary, both named in the higher-vibes-and-recursion spec.
 
 ## See also

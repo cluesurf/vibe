@@ -1,6 +1,6 @@
 # Roadmap
 
-What is left to build, as a living checklist. The testbed currently covers P1 to P56.
+What is left to build, as a living checklist. The testbed currently covers P1 to P58.
 This tracks the work still ahead, grouped by area, with the nearest current result noted
 where one exists. Checked items are done, unchecked are outstanding.
 
@@ -54,11 +54,21 @@ where one exists. Checked items are done, unchecked are outstanding.
 
 - [x] A structural model of freedom and choice (P43), and computational universality
   (P44), the basis for hosting any structure.
+- [x] **Recursion, higher vibes** (P57, P58): a mesh coarse-grains to a higher vibe that is
+  a derived aggregate of the micro-tones (no stored layer), and the higher level obeys the
+  same signed-majority rule, an emergent renormalization fixed point, exactly on the
+  integrated wholes (agreement to 1.00 on the larger domains). The integration threshold for
+  being a higher vibe is the same threshold for obeying the emergent rule. See the
+  higher-vibes-and-recursion spec.
 - [ ] **Selves as attractors, fully.** P34 and P43 used stable attractors as selves. A
   dedicated study of their stability, basins, identity over time, and persistence.
-- [ ] **Integrated information.** Compute an integrated-information measure on the mesh:
-  the whole as a high-integration unity, stable selves as local maxima. The first rigorous
-  bridge from the physics testbed to the unity-of-experience claim.
+- [ ] **Integrated information.** P58 already shows the macro-rule holds exactly on the
+  integrated wholes and fails on loose bags, so integration is the operative threshold. The
+  remaining piece is a formal integrated-information measure that names the quantity: the
+  whole as a high-integration unity, stable selves as local maxima.
+- [ ] **Nested selves and the full tower.** Stages D and E of the recursion spec: a self
+  made of selves (perturbing a part absorbed by the whole), and iterating the tower several
+  levels.
 - [ ] **Subtle-layer urges, modeled.** P43 used an urge as a bias field. A two-scale mesh
   where slow subtle layers genuinely bias the fast dense layer, the urge mechanism in full.
 - [ ] **Dreaming versus waking.** The same mesh in two regimes: coupled to shared

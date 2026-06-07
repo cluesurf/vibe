@@ -93,6 +93,7 @@ import { sampledDimension, largeNHardening } from '~/experiment/p54-large-n-hard
 import { oneRuleAllSectors } from '~/experiment/p55-one-rule-all-sectors'
 import { eternalLadder } from '~/experiment/p56-eternal-ladder'
 import { recursion } from '~/experiment/p57-recursion'
+import { emergentMacroRule } from '~/experiment/p58-emergent-macro-rule'
 
 let passed = 0
 let failed = 0
@@ -1181,6 +1182,19 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P57 recursion: higher vibes are aggregate views (no stored layer), self-similar, inherited-stable, towering',
     ok: r.superTernary && r.superLorentzSafe && r.inheritedStable && r.towerValid,
     detail: `super ternary ${r.superTernary}, safe ${r.superLorentzSafe}, inherited ${r.inheritedOverlap.toFixed(3)}, emergence ${r.emergence.toFixed(2)} (partial), tower ${r.towerValid}`,
+  })
+}
+
+// 74. P58 emergent macro-rule: coarse-graining along the system's coherent domains (the
+// integrated wholes), the renormalized macro-rule (real couplings plus self-coupling) has
+// the coarse-grained self as a fixed point, with agreement climbing to ~1 on the larger
+// (genuine higher-vibe) domains, far beyond arbitrary-block coarse-graining.
+{
+  const r = emergentMacroRule({ count: 1500, seed: 1 })
+  check({
+    name: 'P58 emergent macro-rule: renormalization fixed point on the integrated higher vibes',
+    ok: r.solved && r.bigDomainRenorm > 0.9 && r.domainRenorm > r.randomRenorm + 0.2,
+    detail: `random ${r.randomRenorm.toFixed(2)}, domain ${r.domainRenorm.toFixed(2)}, big ${r.bigDomainRenorm.toFixed(2)}, by size ${r.bySize.map((b) => b.agreement.toFixed(2)).join('/')}`,
   })
 }
 
