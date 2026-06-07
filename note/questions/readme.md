@@ -69,6 +69,7 @@ measure, what we have found, and what is still open. Findings are in
 | P55. One rule, all sectors | `p55-one-rule-all-sectors` | **demonstrated** (bosonic): one mesh built by the rule and the single emergent operator on it yield the matter (spectrum), force (static potential), and radiation (light-cone) sectors in one run. Fermionic and gauge sectors are the remaining integration |
 | P56. The eternal ladder | `p56-eternal-ladder` | **demonstrated**: the integer ladder grows without bound (modular and {7,3}), stays Lorentz-safe at every stage, and the committed model runs on the growing substrate at every stage |
 | P57. Recursion (higher vibes) | `p57-recursion` | **demonstrated** (structural): a mesh coarse-grains to a higher vibe that is a derived aggregate of the micro-tones (no stored layer), the same kind of object (ternary, Lorentz-safe), stable because the micro-self is, towering to another level. The emergent macro-rule is partial, the open frontier |
+| P58. Emergent macro-rule | `p58-emergent-macro-rule` | **solved**: coarse-graining along the coherent domains (integrated wholes), the renormalized macro-rule (real couplings plus self-coupling) has the coarse-grained self as a fixed point, agreement climbing to 1.00 on the larger higher-vibe domains (vs 0.47 for arbitrary blocks). The rule is a renormalization fixed point exactly on the integrated wholes |
 
 The next-version problem set (P10 to P17) is in `next-version.md`. The broader
 frontiers, including the dark sector (P18, P19) and the field-coverage map (P20), are
