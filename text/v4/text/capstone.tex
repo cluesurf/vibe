@@ -1,0 +1,43 @@
+\section{The Capstone: The Model Run End-to-End (P34, P36)}
+\label{sec:capstone}
+
+Every result above used the substrate best suited to it. The honest question is whether
+it all falls out of one instantiation of the present model of Section~\ref{sec:model}.
+
+\subsection{The capstone run (P34)}
+
+We run that one model, a growing random hyperbolic mesh with the ternary signed-majority
+rule, and read every key emergent structure off the same mesh. \textbf{Where we landed}
+(one mesh of $1500$ vibes):
+\begin{itemize}
+\item the mesh has mean degree $10.6$, Lorentz anisotropy $0.070$ (no preferred frame),
+and exponential reach,
+\item the dynamics keeps tones strictly ternary and converges to a stable structured
+state (the flip fraction falls to zero), a non-trivial fixed point in the manner of a
+Hopfield network, the basis for persistent matter and selves,
+\item the emergent Hamiltonian (the graph Laplacian) is bounded below (minimum
+eigenvalue $0.007 \ge 0$) and local (range $1$),
+\item the arrow of time holds, relations only accumulate as the mesh grows.
+\end{itemize}
+So the model runs as one system. From a single instantiation come a definite geometry
+with no preferred frame, stable structured states, the local bounded-below Hamiltonian,
+and the arrow. The matter, force, and gravity sectors are read off the same mesh by
+their operators. The natural next integration is to evolve all of them by the one
+microscopic rule in a single simulation.
+
+\subsection{The model written at a glance (P36)}
+
+The present model is written and run by a small constructor, so its description and
+its implementation are one object. With no options it is the present model, and a
+one-word change expresses a variant for comparison:
+\begin{verbatim}
+  const model = vibe().size(1500).seed(1)    // the present model
+  console.log(model.describe())              // print it at a glance
+  const world = model.build().run(40)        // build the mesh, run 40 beats
+  world.read()                               // emergent structures off the mesh
+\end{verbatim}
+Swapping \texttt{vibe().mesh('lattice')} raises the Lorentz anisotropy from $0.06$ to
+$1.0$ (a strong preferred frame), making plain why the random hyperbolic mesh is the
+one chosen: the lattice variant breaks Lorentz invariance and the hyperbolic one
+does not. This is the model definition the rest of the paper rests on, legible and
+executable at once.

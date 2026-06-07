@@ -1,0 +1,56 @@
+\section{The Shape of the Model: A Random Hyperbolic Network}
+\label{sec:shape}
+
+Before the formal definitions, the picture in plain terms, since the whole framework
+rests on one unfamiliar kind of object, and the natural guesses about it are all wrong
+in instructive ways.
+
+\paragraph{What it is.}
+The mathematical structure is a graph that grows. Picture a vast web of points, each
+point a vibe, joined by links, each link a note. The web is not a grid. Its points are
+scattered at random, and the space they are scattered in is hyperbolic, negatively
+curved, the saddle-shaped geometry in which the room around any point keeps opening up
+the further you look, so the number of points within reach grows exponentially with
+distance. On this web sits a simple rule that resets the state of each point from its
+neighbours, run over and over, while the web itself keeps adding points at its leading
+edge. In the language of discrete physics this is a causal set carrying a network
+automaton: a random, hyperbolic, growing graph with a local update rule. That object,
+and nothing richer, is the model.
+
+\paragraph{How it works.}
+Each point carries a single three-valued state, its tone, one of $\{-1,0,+1\}$, read as
+pain, peace, and pleasure. It is joined to about ten others, not a fixed number but a
+spread, the ones it directly experiences. Each link carries its own three-valued number,
+the fill, the strength and sign of that attention. To update, a point reads the outward
+states (the wills) of its neighbours, multiplies each by the fill of the link, adds the
+results into a single whole number, and takes the sign of that sum as its next state: a
+positive total becomes pleasure, a negative one pain, a tie peace. There are no
+fractional weights and no stored real numbers anywhere, only three-valued states and a
+transient integer count, exactly the spirit of a cellular automaton's tally of its
+neighbours. The points update one at a time with no global clock, and the web only ever
+grows, its links accumulating and never undone.
+
+\paragraph{What it is not.}
+It is not a regular cellular automaton on a square or cubic grid. A grid has preferred
+directions, so on a grid the speed of light would depend on direction and Lorentz
+invariance would break, which experiment forbids. It is not a regular hyperbolic tiling
+either, the orderly Escher-like packings of the hyperbolic plane, for the same reason,
+they are still too rigid. The randomness is not a convenience but the load-bearing
+choice, since only a random scatter has no preferred frame even at the smallest scale.
+It is not a field theory on a smooth space, because there is no smooth space underneath.
+And there are no hidden variables behind the tones, and no continuous amplitudes stored
+on any point.
+
+\paragraph{Where the smooth physics lives.}
+If nothing continuous is stored, where do the smooth numbers of physics come from? They
+are large-scale summaries of many points, the way a temperature summarises jiggling
+molecules. The geometry of spacetime is the shape of the web seen from far off. Energy
+and the flow of time are what a local operator, the graph's Laplacian, does on the grown
+web. A quantum amplitude is a patch of many points read together, its magnitude the
+fraction of them excited, its phase their shared rhythm. Each of these is real and
+measurable, and none is written on any single vibe. The base is discrete and
+three-valued, the continuum is the view from a distance.
+
+This is the object the next section defines precisely and the rest of the paper tests: a
+growing, random, hyperbolic network of three-valued points that vote locally, with all
+the smooth structure of the world appearing only in the large.

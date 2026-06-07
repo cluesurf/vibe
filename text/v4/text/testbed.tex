@@ -1,0 +1,35 @@
+\section{The Testbed and Why Its Numbers Are Trustworthy}
+\label{sec:testbed}
+
+The model is fully discrete, so it is fully simulable. The testbed is an open-source
+TypeScript library (the \texttt{@cluesurf/vibe} package). It generates a substrate,
+runs a local rule over it in discrete beats, and measures the emergent physics.
+Everything is finite and seeded, so every number in this paper is a deterministic
+function of a stated seed and reproduces exactly. Real numbers appear only as measured
+outputs (coordinates, eigenvalues), never as the base.
+
+At the core is a suite of \emph{known-answer tests}. A number on its own means
+nothing. A number from a tool checked against a case with an independently known answer
+does. Every measurement tool is calibrated against such a case: a Poisson sprinkling of
+a $d$-dimensional region must measure dimension $d$, a Bell test with independent
+settings must respect the classical bound of $2$, the overlap operator must have exactly
+one fermion species with machine-zero chiral-symmetry residual, the uniform-measure
+sampler must reproduce exact enumeration, and so on. There are fifty-six such checks,
+and they all pass. Several early versions were wrong in plausible-looking ways, a
+miscalibrated dimension estimator, a sprinkler not uniform by proper volume, a Monte
+Carlo move that did not sample the right measure, and the known-answer tests caught them.
+A program that cannot be caught being wrong is not science. This one can be, and was,
+repeatedly.
+
+What the testbed establishes falls in three honest categories. First, the machinery is
+correct, validated by the known-answer tests. Second, the framework can carry known
+physics: reproducing the Newtonian potential, the photon, the graviton, confinement,
+and the electroweak masses shows the mesh is expressive enough to hold the real world,
+which is a load-bearing test, since a monist theory is falsified if matter, force, and
+gravity cannot be built from one substrate. It is not, by itself, proof the framework
+is uniquely correct, since standard physics reproduces these too. Third, the genuinely
+distinctive claims, where the framework makes a stand of its own: the both-worlds
+substrate, the dynamical selection of spacetime, the superdeterministic quantum
+tension, the Lorentz-safety of random discreteness, and the everpresent cosmological
+constant. The distinctive predictions that meet data (Section~\ref{sec:predictions})
+are what could confirm or falsify the theory against nature.
