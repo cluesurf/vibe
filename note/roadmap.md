@@ -1,6 +1,6 @@
 # Roadmap
 
-What is left to build, as a living checklist. The testbed currently covers P1 to P58.
+What is left to build, as a living checklist. The testbed currently covers P1 to P61.
 This tracks the work still ahead, grouped by area, with the nearest current result noted
 where one exists. Checked items are done, unchecked are outstanding.
 
@@ -66,9 +66,10 @@ where one exists. Checked items are done, unchecked are outstanding.
   integrated wholes and fails on loose bags, so integration is the operative threshold. The
   remaining piece is a formal integrated-information measure that names the quantity: the
   whole as a high-integration unity, stable selves as local maxima.
-- [ ] **Nested selves and the full tower.** Stages D and E of the recursion spec: a self
-  made of selves (perturbing a part absorbed by the whole), and iterating the tower several
-  levels.
+- [x] **Nested selves and the full tower** (P59, P60): a self made of selves (cells in a
+  body), where a small wound heals (homeostasis) and a whole-cell flip persists as a new
+  identity (autonomy), the body undisturbed throughout, and the full tower (vibes, cells,
+  tissues, organs, systems, body) descending to one top with the same rule at every level.
 - [ ] **Subtle-layer urges, modeled.** P43 used an urge as a bias field. A two-scale mesh
   where slow subtle layers genuinely bias the fast dense layer, the urge mechanism in full.
 - [ ] **Dreaming versus waking.** The same mesh in two regimes: coupled to shared

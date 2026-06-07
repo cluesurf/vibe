@@ -61,7 +61,7 @@ overview of how to imagine things in this system/model/framework.
   sampler, Wang-Landau density of states, causal-set Monte Carlo,
   classical sequential growth, coarse graining, and the Wilson heat
   bath.
-- **experiment**: one runnable script per open problem (P1 to P58), plus
+- **experiment**: one runnable script per open problem (P1 to P61), plus
   a scan runner and report writer.
 
 ## Defining the model
@@ -110,7 +110,7 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 78 of 78 known-answer tests pass. P1 to P9 are the
+typecheck clean, 81 of 81 known-answer tests pass. P1 to P9 are the
 conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
 and the field content, P23 to P25 the field operators derived from the
 action and electroweak breaking, P26 to P30 the distinctive observational
@@ -133,7 +133,11 @@ integration capstone (all bosonic sectors from one operator on one mesh, and
 the integer ladder eternally growing with the model on it), and P57 to P58 recursion
 (higher vibes as aggregate views of the micro-tones, the model self-similar
 with no stored higher layer, and the macro-rule an emergent renormalization
-fixed point on the integrated wholes). The model itself is specified in
+fixed point on the integrated wholes), and P59 to P60 the nested selves (cells
+in a body, homeostasis and autonomy) and the full tower of selves (the fractal
+of wholes-within-wholes), and P61 the no-complete-self-storage principle (the
+world can model itself only in lossy summary, never in full, so no infinite
+mirror). The model itself is specified in
 [note/the-model.md](note/the-model.md) and constructed in
 [code/model/vibe.ts](code/model/vibe.ts). Full detail in
 [note/experiment/results/](note/experiment/results/) and
@@ -199,6 +203,9 @@ fixed point on the integrated wholes). The model itself is specified in
 | P56     | the eternal ladder                               | demonstrated                                            | the integer ladder grows without bound (modular and {7,3}), stays Lorentz-safe at every stage, and the committed model runs on the growing substrate at every stage, the full tower from the integers up, eternally growing                                                                                                                                    |
 | P57     | recursion (higher vibes)                         | demonstrated (structural)                              | a mesh coarse-grains to a higher vibe that is a derived aggregate of the micro-tones (no stored layer), the same kind of object (ternary, Lorentz-safe), stable because the micro-self is, towering to another level. The emergent macro-rule is partial, the open frontier                                                                                     |
 | P58     | emergent macro-rule                              | solved                                                  | coarse-graining along the coherent domains (integrated wholes), the renormalized macro-rule (real couplings plus self-coupling) has the coarse-grained self as a fixed point, agreement climbing to 1.00 on the larger higher-vibe domains (vs 0.47 for arbitrary blocks), a renormalization fixed point exactly on the integrated wholes                          |
+| P59     | nested selves                                    | solved                                                  | on a modular mesh, a small wound inside a cell heals (homeostasis, 1.00), a whole-cell flip persists as a new identity (autonomy, 0.00 return), and the rest of the body is undisturbed (1.00), a self made of selves (cells in a body)                                                                                                                          |
+| P60     | tower of selves                                  | solved                                                  | a recursively modular mesh descends cells to tissues to organs to systems to body (81/27/9/3/1, dividing by the branching factor), the same emergent rule holding at every level, the fractal of wholes-within-wholes                                                                                                                                          |
+| P61     | no complete self-storage                         | solved                                                  | reconstruction fidelity reaches 1 only with no compression (a model as big as the whole), so a complete self-record cannot fit inside the thing it records, and the nested regress of lossy self-models converges (finite) while full copies diverge (the infinite mirror), so self-representation is necessarily lossy                                          |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
