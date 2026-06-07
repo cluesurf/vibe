@@ -1,0 +1,129 @@
+\section{The Current Model}
+\label{sec:model}
+
+We state the present model precisely. It has a substance, a relation, a state, a
+rule, and a growth. Nothing else.
+
+\subsection{The substance and the relation}
+
+\begin{definition}[Vibe and tone]
+A \emph{vibe} is the one kind of entity, a unit of experience. Each vibe $v$ carries a
+\emph{tone} $t_v$, its felt quality, drawn from the ternary alphabet
+\[
+t_v \in \{-1, 0, +1\},
+\]
+read as pain, peace, and pleasure. The tone is not an object inside the vibe. It is the
+vibe seen as a felt state.
+\end{definition}
+
+\begin{definition}[Note, will, and fill]
+The \emph{note} is the only relation: $v$ noting $w$ is $v$ experiencing $w$. A note is
+not a third object between two vibes, it is one vibe's act of experiencing another, and
+read from the outside it is an edge of a graph. Each vibe $v$ has a neighbourhood $N(v)$
+of the vibes it notes. A note carries two ternary quantities. The \emph{will} of $w$,
+$\omega(t_w) \in \{-1,0,+1\}$, is its tone turned outward, what $v$ reads when it notes
+$w$. The \emph{fill} $f_{vw} \in \{-1,0,+1\}$ is the strength and sign of the attention
+along the note, itself the tone of the relational vibe carrying that note, and symmetric,
+$f_{vw} = f_{wv}$, since a note is one shared relational vibe.
+\end{definition}
+
+There are no continuous weights anywhere, and no hidden state. Everything stored is a
+ternary tone, on vibes and on the relational vibes that carry the fills.
+
+\subsection{The substrate}
+
+\begin{definition}[The mesh]
+The vibes and their notes form the \emph{mesh}, a graph. The chosen mesh is a
+\emph{random, hyperbolic, causal} graph: nodes are placed by the hyperbolic area
+measure and joined by hyperbolic proximity, so the degree is variable (mean about ten),
+not a fixed lattice coordination. The randomness makes the mesh Lorentz-invariant in
+distribution, with no preferred frame even at the discreteness scale. The hyperbolicity
+makes it at once exponentially reaching, Lorentz-safe, and navigable without a global
+address. The order of the notes is a locally finite partial order, a causal set.
+\end{definition}
+
+This is not a regular cellular automaton (a lattice has a preferred frame), nor a
+regular hyperbolic tiling (still too regular). It is the random hyperbolic causal mesh,
+the choice forced by Lorentz invariance (Section~\ref{sec:lorentz}).
+
+\subsection{The rule}
+
+\begin{definition}[The signed-majority update]
+Time advances in discrete \emph{beats}. Each beat, asynchronously and locally, a vibe
+$v$ sets its next tone to
+\[
+t_v \;\leftarrow\; \operatorname{sign}\!\Big( h_v \Big),
+\qquad
+h_v \;=\; \sum_{w \in N(v)} f_{vw}\,\omega(t_w),
+\]
+where $\operatorname{sign}$ returns $+1$, $-1$, or $0$ on a positive, negative, or zero
+field. The local field $h_v$ is a transient integer in $[-\deg v, +\deg v]$, computed
+during the beat and discarded, so it is not hidden continuous state, exactly as a
+cellular automaton's neighbour count is transient. The contribution of each neighbour
+is the ternary product $f_{vw}\,\omega(t_w) \in \{-1,0,+1\}$: a fill of $+1$ takes the
+neighbour's will as it is, $-1$ inverts it, $0$ ignores it.
+\end{definition}
+
+This is the ternary analogue of an Ising or Hopfield update: ternary states, ternary
+couplings, the sign of the local field. With symmetric fills and asynchronous updating
+it flows to stable structured states (Section~\ref{sec:capstone}), the basis for
+persistent matter and selves.
+
+\subsection{The growth}
+
+\begin{definition}[Eternal growth]
+The mesh grows forever. New vibes are born to the future of a small local neighbourhood
+of the leading edge, inheriting its past. With a net birth above one per region the
+universe expands. The accumulation is irreversible, distinctions only pile up, and that
+pile-up is the arrow of time.
+\end{definition}
+
+\subsection{Emergent continuous quantities}
+
+A single vibe is strictly ternary and carries no continuous quantity. Every continuous
+object of physics is emergent, a coarse-grained description over many vibes, never a
+number stored on a vibe.
+
+\begin{principle}[Discrete base, emergent continuum]
+The geometry, the Hamiltonian and its eigenvalues, and the quantum amplitude are all
+large-scale effective descriptions of the ternary substrate. A quantum amplitude
+$\psi(x)$ at a coarse-grained point $x$ (a patch of many vibes) has magnitude
+$|\psi(x)|^2$ equal to a density, the fraction of vibes in the patch that are
+coherently excited, continuous only in the large-patch limit, and phase equal to the
+patch's collective clock-tone. This is the same status a continuum wavefunction has
+over any discrete substrate, or a magnetisation has over discrete spins.
+\end{principle}
+
+\subsection{The model at a glance}
+
+The whole model is written in a few lines by a small constructor (the experiment of
+Section~\ref{sec:capstone}), so the description and the implementation are one object.
+With no options it is the present model, and one option changed expresses a variant
+for comparison:
+
+\begin{verbatim}
+  vibe model
+    mesh      hyperbolic          random hyperbolic causal mesh, mean degree ~10
+    tone      ternary             {-1, 0, +1}, the felt quality of a vibe
+    fill      ternary-symmetric   each note carries a shared ternary fill
+    rule      signed-majority     next(v) = sign( sum_w fill(v,w) * will(w) )
+    schedule  asynchronous        local, neighbours only, no global clock
+    growth    net-positive        eternal expansion by local birth
+\end{verbatim}
+
+\subsection{Committed, working, and open}
+
+For honesty, every choice carries a status, used throughout the paper.
+
+\begin{itemize}
+\item \textbf{Held fixed for now:} monism, discreteness, the note as the only relation,
+ternary tone, the random hyperbolic mesh, local asynchronous updates, the
+signed-majority (sign-of-integer-field) rule with no continuous weights, variable
+connectivity, eternal growth, no hidden state.
+\item \textbf{Working (current best, alternatives open):} the mean degree (about ten),
+the exact tie-breaking and schedule, the emergent clock-tone phase, the birth
+probabilities, the smearing scale of the action.
+\item \textbf{Open (not decided):} the derivation of the Born rule, the full nonlinear
+Einstein equation, the Standard-Model content, and the framework's foundational claim
+about experience.
+\end{itemize}
