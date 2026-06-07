@@ -10,9 +10,9 @@
 // Run: npx tsx code/experiment/p42-fibonacci-navigation.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicTiling } from '~/substrate/hyperbolic-graph'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 
 interface Tree {
   parent: Int32Array

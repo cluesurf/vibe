@@ -13,11 +13,11 @@
 // Run: npx tsx code/experiment/p56-eternal-ladder.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { coxeterTessellation } from '~/substrate/coxeter'
 import { modularGraph } from '~/experiment/p48-modular-base'
 import { runModel } from '~/experiment/p51-full-ladder'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 
 interface Epoch {

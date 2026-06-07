@@ -8,9 +8,9 @@
 // Run: npx tsx code/experiment/p3-study.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
-import { Substrate } from '~/core/substrate'
-import { Graph } from '~/core/graph'
+import { makeRng } from '~/tool/rng'
+import { Substrate } from '~/tool/substrate'
+import { Graph } from '~/tool/graph'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 import { lattice } from '~/substrate/lattice'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'

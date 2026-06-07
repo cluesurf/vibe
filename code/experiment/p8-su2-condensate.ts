@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/p8-su2-condensate.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { chiralCondensateSignalSU2 } from '~/operator/overlap-su2'
 
 export function main(): void {

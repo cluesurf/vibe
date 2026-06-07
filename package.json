@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "make": "rm -rf host && tsc && tsc-alias",
-    "test:sim": "npx tsx --no-warnings=ExperimentalWarning code/test/run.ts",
-    "sim": "npx tsx --no-warnings=ExperimentalWarning",
+    "test": "npx tsx --no-warnings=ExperimentalWarning code/test.ts",
+    "call": "npx tsx --no-warnings=ExperimentalWarning",
     "host": "pnpm make && npm publish --access=public"
   },
   "prettier": "@cluesurf/form-code/love.json",

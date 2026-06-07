@@ -8,9 +8,9 @@
 // See note/the-model.md. Run: npx tsx code/experiment/p37-one-rule-propagation.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 
 function symmetricFills(g: Graph, seed: number): Int8Array[] {
   const rng = makeRng({ seed })

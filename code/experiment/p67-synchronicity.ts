@@ -11,7 +11,7 @@
 // them uncorrelated. Run: npx tsx code/experiment/p67-synchronicity.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { storedPatterns, hebbianFills, step, overlap } from '~/experiment/p65-dreaming-and-waking'
 
 // Drive a subsystem with a shared ambient rhythm: at each window a mode is cued briefly toward

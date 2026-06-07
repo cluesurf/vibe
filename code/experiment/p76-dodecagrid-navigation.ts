@@ -9,9 +9,9 @@
 // Run: npx tsx code/experiment/p76-dodecagrid-navigation.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 
 // Hyperbolic distance between two points in the Poincare ball.
 function hyperbolicDistance(coords: Float64Array, dim: number, a: number, b: number): number {

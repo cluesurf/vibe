@@ -8,7 +8,7 @@
 // profile of a Hamiltonian (testbed 04, localityProfile) is a future addition.
 
 import { Rule } from '~/rule/rule'
-import { Substrate } from '~/core/substrate'
+import { Substrate } from '~/tool/substrate'
 import {
   Configuration,
   cloneConfiguration,
@@ -16,7 +16,7 @@ import {
   setTone,
 } from '~/tone/configuration'
 import { valueCount } from '~/tone/alphabet'
-import { Rng, makeRng } from '~/core/rng'
+import { Rng, makeRng } from '~/tool/rng'
 import { graphDistance } from '~/measure/distance'
 
 // Build a fresh deterministic Rng from a seed, so a baseline run and a perturbed

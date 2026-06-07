@@ -13,7 +13,7 @@
 // constraint is imposed. Run: npx tsx code/experiment/p65-dreaming-and-waking.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 
 const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
 

@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p54-large-n-hardening.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension, dimensionFromOrderingFraction } from '~/measure/dimension'
 

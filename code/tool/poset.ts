@@ -9,8 +9,8 @@ import {
   getBit,
   popcountRow,
   forEachSetBit,
-} from '~/core/bitset'
-import { Embedding } from '~/core/embedding'
+} from '~/tool/bitset'
+import { Embedding } from '~/tool/embedding'
 
 export interface Poset {
   readonly form: 'poset'

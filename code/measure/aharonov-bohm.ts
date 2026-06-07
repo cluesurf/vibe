@@ -2,7 +2,7 @@
 // even where the local field strength is zero. It is the charge times the Wilson
 // loop phase (the line integral of the connection around the loop).
 
-import { GaugeField } from '~/core/gauge-field'
+import { GaugeField } from '~/tool/gauge-field'
 import { wilsonLoopPhase } from '~/measure/wilson-loop'
 
 // charge * (accumulated link phase around the ordered loop).

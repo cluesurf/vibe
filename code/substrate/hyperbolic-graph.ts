@@ -5,9 +5,9 @@
 // Both sprinkle the hyperbolic disc by the hyperbolic area measure, then connect by
 // hyperbolic proximity. See note/deterministic-substrate.md.
 
-import { Rng } from '~/core/rng'
-import { Embedding, ManifoldSpec } from '~/core/embedding'
-import { Graph, makeGraph } from '~/core/graph'
+import { Rng } from '~/tool/rng'
+import { Embedding, ManifoldSpec } from '~/tool/embedding'
+import { Graph, makeGraph } from '~/tool/graph'
 
 // Connect points (given radial r and angular theta) by hyperbolic proximity, embed in
 // the Poincare disc, and return the graph. Shared by both builders.

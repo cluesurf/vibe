@@ -7,7 +7,7 @@
 // re / im channels and build a Hermitian complex operator.
 
 import { CellComplex } from '~/operator/dirac'
-import { GaugeField, linkPhase } from '~/core/gauge-field'
+import { GaugeField, linkPhase } from '~/tool/gauge-field'
 import { SparseMatrix, Triplet, sparseFromTriplets } from '~/linalg/sparse'
 
 export function covariantKahlerDirac(input: {

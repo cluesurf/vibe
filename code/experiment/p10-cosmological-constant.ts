@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p10-cosmological-constant.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '~/dynamics/action'
 

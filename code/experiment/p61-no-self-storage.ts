@@ -14,9 +14,9 @@
 // Run: npx tsx code/experiment/p61-no-self-storage.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { symmetricFills, microStep, agreement, domainCluster } from '~/experiment/p58-emergent-macro-rule'
 
 const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)

@@ -10,9 +10,9 @@
 // (P13). Run: npx tsx code/experiment/p13-growth-expansion.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
-import { makeBitMatrix, setBit, getBit } from '~/core/bitset'
-import { makePosetFromFuture, Poset } from '~/core/poset'
+import { makeRng, Rng } from '~/tool/rng'
+import { makeBitMatrix, setBit, getBit } from '~/tool/bitset'
+import { makePosetFromFuture, Poset } from '~/tool/poset'
 import { myrheimMeyerDimension } from '~/measure/dimension'
 
 // Grow a 1+1 causal set by local branching. Returns the order and the spatial width

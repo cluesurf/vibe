@@ -11,9 +11,9 @@
 // Run: npx tsx code/experiment/p50-golden-and-free.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { coxeterTessellation } from '~/substrate/coxeter'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 
 // --- Implication 8: the golden ratio from independent directions ---
 

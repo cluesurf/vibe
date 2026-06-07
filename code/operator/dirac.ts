@@ -5,7 +5,7 @@
 // construction. The low spectrum read as a dispersion relation gives the P4
 // fermion-doubling check.
 
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import {
   SparseMatrix,
   Triplet,

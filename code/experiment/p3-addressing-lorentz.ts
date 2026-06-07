@@ -4,8 +4,8 @@
 // Run: npx tsx code/experiment/p3-addressing-lorentz.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
-import { Substrate } from '~/core/substrate'
+import { makeRng } from '~/tool/rng'
+import { Substrate } from '~/tool/substrate'
 import { tilingPQ } from '~/substrate/tiling-pq'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 import { lattice } from '~/substrate/lattice'

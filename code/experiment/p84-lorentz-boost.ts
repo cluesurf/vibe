@@ -17,7 +17,7 @@
 // Run: npx tsx code/experiment/p84-lorentz-boost.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 
 // Rapidities of the timelike causal links, optionally within a central time band

@@ -11,7 +11,7 @@
 // Run: npx tsx code/experiment/p7-alignment.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 function randomBit(lambda: number, salt: number): number {
   return Math.sin(lambda * 137.0 + salt) >= 0 ? 0 : 1

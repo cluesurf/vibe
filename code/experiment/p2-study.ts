@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/p2-study.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import {
   benincasaDowkerAction,
   smearedBenincasaDowker,

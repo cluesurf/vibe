@@ -14,7 +14,7 @@
 // Run: npx tsx code/experiment/p12-free-energy.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { kleitmanRothschildOrder } from '~/substrate/layered-order'
 import { sampleUniform } from '~/dynamics/uniform-sampler'

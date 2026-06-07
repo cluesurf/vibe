@@ -3,7 +3,7 @@
 // global beat.
 
 import { Rule, LocalMap } from '~/rule/rule'
-import { adjacencyOf } from '~/core/substrate'
+import { adjacencyOf } from '~/tool/substrate'
 import {
   Configuration,
   cloneConfiguration,

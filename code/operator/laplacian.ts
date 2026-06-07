@@ -2,7 +2,7 @@
 // adjacency. Its low spectrum gives effective dimension and the heat-kernel
 // return probability, a cross-check on measure/dimension.
 
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import {
   SparseMatrix,
   Triplet,

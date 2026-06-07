@@ -11,11 +11,11 @@
 // Run: npx tsx code/experiment/p49-crystal-hidden-hierarchical.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { coxeterTessellation } from '~/substrate/coxeter'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 import { lattice } from '~/substrate/lattice'
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import { lorentzIsotropy } from '~/measure/lorentz'
 
 function bfs(adj: ReadonlyArray<Uint32Array>, source: number, size: number): Int32Array {

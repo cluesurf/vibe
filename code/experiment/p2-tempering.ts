@@ -8,7 +8,7 @@
 // Run: npx tsx code/experiment/p2-tempering.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { smearedBenincasaDowker } from '~/dynamics/action'
 import { parallelTempering } from '~/dynamics/parallel-tempering'
 import { orderStatistics } from '~/measure/order-stats'

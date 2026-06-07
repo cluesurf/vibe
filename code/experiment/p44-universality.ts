@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p44-universality.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 // Booleans are tones: true = +1, false = -1.
 type Bit = 1 | -1

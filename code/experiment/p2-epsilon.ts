@@ -6,7 +6,7 @@
 // Run: npx tsx code/experiment/p2-epsilon.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { smearedBenincasaDowker, Action } from '~/dynamics/action'
 import { sampleCausalSets } from '~/dynamics/mcmc'
 import { orderStatistics } from '~/measure/order-stats'

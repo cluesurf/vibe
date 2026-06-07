@@ -5,7 +5,7 @@
 // Run: npx tsx code/experiment/p9-integration.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 import { makeConfiguration } from '~/tone/configuration'
 import { integrationCorrelates } from '~/measure/integration'

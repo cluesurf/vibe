@@ -2,7 +2,7 @@
 // parallel-transports along that link. Under monism it is a tone on relational
 // vibes (the links).
 
-import { Graph, edgeList } from '~/core/graph'
+import { Graph, edgeList } from '~/tool/graph'
 
 export type GaugeGroup =
   | { readonly form: 'u1'; readonly q: number } // Z_q clock, approximates U(1)

@@ -8,7 +8,7 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p30-inflation.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 // Grow the spatial front generation by generation. Each cell spawns one child, plus a
 // second with probability q(generation). Returns the width per generation.

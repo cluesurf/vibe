@@ -8,9 +8,9 @@
 //   smallest Laplacian eigenvalue) of the region's subgraph (higher = harder to
 //   cut into independent parts).
 
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import { Configuration } from '~/tone/configuration'
-import { Rng } from '~/core/rng'
+import { Rng } from '~/tool/rng'
 
 // Pick the highest-degree node as the seed of the candidate region.
 function highestDegreeNode(adjacency: ReadonlyArray<Uint32Array>): number {

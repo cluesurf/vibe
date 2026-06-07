@@ -19,7 +19,7 @@
 // Run: npx tsx code/experiment/p70-born-rule.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 // Realise the model's one assumption: amplitude_k = sqrt(count_k). Given amplitudes
 // c_k we build disjoint vibe sets of size n_k = round(c_k^2 * scale). Writing

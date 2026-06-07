@@ -10,9 +10,9 @@
 // Run: npx tsx code/experiment/p13-expansion.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
-import { makeBitMatrix, setBit, getBit } from '~/core/bitset'
-import { makePosetFromFuture, Poset } from '~/core/poset'
+import { makeRng, Rng } from '~/tool/rng'
+import { makeBitMatrix, setBit, getBit } from '~/tool/bitset'
+import { makePosetFromFuture, Poset } from '~/tool/poset'
 import { myrheimMeyerDimension } from '~/measure/dimension'
 
 // Sprinkle N points into a 2D de Sitter patch by proper 2-volume (dV = a(tau) dtau

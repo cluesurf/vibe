@@ -11,7 +11,7 @@
 // Run: npx tsx code/experiment/p26-swerves.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 
 interface Point {
   t: number

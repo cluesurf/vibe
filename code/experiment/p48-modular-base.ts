@@ -14,9 +14,9 @@
 // See the choosing-the-base analysis. Run: npx tsx code/experiment/p48-modular-base.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
-import { Embedding, ManifoldSpec } from '~/core/embedding'
-import { makeGraph, Graph } from '~/core/graph'
+import { makeRng } from '~/tool/rng'
+import { Embedding, ManifoldSpec } from '~/tool/embedding'
+import { makeGraph, Graph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 
 type Mat = [number, number, number, number] // a, b, c, d

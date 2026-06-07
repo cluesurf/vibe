@@ -4,7 +4,7 @@
 // Run: npx tsx code/experiment/p5-hauptvermutung.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, deriveSeed } from '~/core/rng'
+import { makeRng, deriveSeed } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '~/measure/dimension'
 

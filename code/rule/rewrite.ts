@@ -2,7 +2,7 @@
 // causal graph dynamics, the self-rewriting mesh that lets the substrate grow.
 
 import { Rule } from '~/rule/rule'
-import { Substrate } from '~/core/substrate'
+import { Substrate } from '~/tool/substrate'
 
 export function rewriteRule(input: {
   name: string

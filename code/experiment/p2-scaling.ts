@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p2-scaling.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sampleUniform } from '~/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 

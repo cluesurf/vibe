@@ -7,9 +7,9 @@
 // See the choosing-the-base analysis. Run: npx tsx code/experiment/p47-coxeter-unification.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { coxeterTessellation } from '~/substrate/coxeter'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 
 function meanDegree(g: Graph): number {

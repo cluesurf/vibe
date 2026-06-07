@@ -6,13 +6,13 @@
 export * from './model/vibe'
 
 // core
-export * from './core/rng'
-export * from './core/bitset'
-export * from './core/embedding'
-export * from './core/graph'
-export * from './core/poset'
-export * from './core/substrate'
-export * from './core/gauge-field'
+export * from './tool/rng'
+export * from './tool/bitset'
+export * from './tool/embedding'
+export * from './tool/graph'
+export * from './tool/poset'
+export * from './tool/substrate'
+export * from './tool/gauge-field'
 
 // linalg
 export * from './linalg/complex'

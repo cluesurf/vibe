@@ -4,8 +4,8 @@
 // addressing, and the third leg of the P3 fork. Greedy geometric routing on a
 // hyperbolic graph is the candidate both-worlds answer.
 
-import { Graph } from '~/core/graph'
-import { Rng } from '~/core/rng'
+import { Graph } from '~/tool/graph'
+import { Rng } from '~/tool/rng'
 
 // Distance used by greedy routing. For a hyperbolic (Poincare-disc) embedding we
 // use the true hyperbolic disc distance; otherwise Euclidean in the coordinates.

@@ -13,7 +13,7 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p32-einstein-equations.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { einsteinOp, gravitonFromAction } from '~/experiment/p24-graviton-from-action'
 
 // Residual of the contracted Bianchi identity k_i G_ij[h], averaged over random

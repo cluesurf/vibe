@@ -4,13 +4,13 @@
 // coordination".
 
 import { Rule, LocalMap } from '~/rule/rule'
-import { adjacencyOf } from '~/core/substrate'
+import { adjacencyOf } from '~/tool/substrate'
 import {
   cloneConfiguration,
   getTone,
   setTone,
 } from '~/tone/configuration'
-import { Rng } from '~/core/rng'
+import { Rng } from '~/tool/rng'
 
 // Fisher-Yates permutation of [0, size) using the seeded rng.
 function randomOrder(input: { size: number; rng: Rng }): number[] {

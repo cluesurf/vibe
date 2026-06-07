@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/p8-schwinger.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { chiralCondensateSignal } from '~/operator/overlap-condensate'
 
 export function main(): void {
