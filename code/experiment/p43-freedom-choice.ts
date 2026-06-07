@@ -1,5 +1,5 @@
 // P43: freedom and choice, modeled and tested.
-// This implements the account in note/research (the freedom-and-choice writeup): a self
+// This implements the account in note/freedom-and-choice.md: a self
 // is a stable attractor, a choice is the self resolving an urge from a subtler layer, and
 // the result is determined (no randomness) yet not predetermined by any part and not
 // shortcut-able (computationally irreducible). We model a self as a small Hopfield

@@ -61,7 +61,7 @@ overview of how to imagine things in this system/model/framework.
   sampler, Wang-Landau density of states, causal-set Monte Carlo,
   classical sequential growth, coarse graining, and the Wilson heat
   bath.
-- **experiment**: one runnable script per open problem (P1 to P43), plus
+- **experiment**: one runnable script per open problem (P1 to P48), plus
   a scan runner and report writer.
 
 ## Defining the model
@@ -110,7 +110,7 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 63 of 63 known-answer tests pass. P1 to P9 are the
+typecheck clean, 68 of 68 known-answer tests pass. P1 to P9 are the
 conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
 and the field content, P23 to P25 the field operators derived from the
 action and electroweak breaking, P26 to P30 the distinctive observational
@@ -120,9 +120,13 @@ capstone (the committed model run end-to-end), P35 the contact with
 data, P36 the model DSL, and P37 to P42 the deeper integration (the
 signal sector from the rule itself, emergent spatial geometry, a family
 of non-random substrates including the Margenstern hyperbolic tilings,
-and exact addressed navigation on them), and P43 a structural model of
-freedom and choice (determined yet self-authored and irreducible). The
-model itself is specified in
+and exact addressed navigation on them), P43 a structural model of
+freedom and choice (determined yet self-authored and irreducible),
+P44 computational universality (the rule is Turing-complete), P45 the
+3D dodecagrid hyperbolic honeycomb, P46 the dynamical everpresent
+cosmological constant, and P47 to P48 the unifying base (the Coxeter
+construction and the parameter-free modular group). The model itself is
+specified in
 [note/the-model.md](note/the-model.md) and constructed in
 [code/model/vibe.ts](code/model/vibe.ts). Full detail in
 [note/experiment/results/](note/experiment/results/) and
@@ -173,6 +177,11 @@ model itself is specified in
 | P41     | Margenstern tilings surveyed                     | demonstrated                                            | both Margenstern families, {p,4} (5,6,8) and {p,3} (7,8,9), are Lorentz-safe with exponential reach, a large family of deterministic, exactly-addressable substrates (with Fibonacci coordinates and known Turing-completeness)                                                                                                                                |
 | P42     | Fibonacci-tree navigation                        | demonstrated                                            | routing by tree-address arithmetic on the heptagrid delivers every signal exactly (100 percent), locally, and efficiently (mean stretch 1.35, logarithmic hops), so the tilings are Lorentz-safe AND exactly addressable, solving P3 better than the random graph                                                                                              |
 | P43     | freedom and choice                               | solved structurally                                    | a choice is determined (reproduces, not random) yet jointly authored by self and urge, self-authored with agency scaling by structure, and computationally irreducible (settles over beats, not one-step), so it is not random and not predetermined by any part                                                                                               |
+| P44     | computational universality                       | demonstrated                                            | the signed-majority rule realizes NAND (functionally complete), builds a correct full adder, and expresses the universal Rule 110, so with the addressable tilings (P42) the substrate is Turing-complete, able to host any computable structure                                                                                                               |
+| P45     | dodecagrid {5,3,4} (3D honeycomb)                | demonstrated                                            | Margenstern's 3D hyperbolic honeycomb of right-angled dodecahedra is Lorentz-safe (anisotropy 0.075) with exponential reach, while a flat cubic lattice is not, so curvature scrambles direction in 3D too                                                                                                                                                     |
+| P46     | dynamical everpresent Lambda                     | solved                                                 | the conjugate-volume model gives delta-Lambda ~ V^-0.5 (the everpresent shrinking, exact), closing the dark-energy direction the static action only approached, and at the observed volume it gives the measured 10^-122                                                                                                                                       |
+| P47     | Coxeter unification                              | demonstrated                                            | {7,3}, {5,4}, {8,3}, {6,4}, and {5,3,4} all come from one generator by changing the Schlafli symbol, all Lorentz-safe, so the base is the reflection-group principle, not a chosen tiling                                                                                                                                                                       |
+| P48     | the modular base                                 | demonstrated                                            | the parameter-free modular group PSL(2,Z) tessellation is Lorentz-safe, generated by the deterministic Stern-Brocot automaton, addressed by continued fractions, with the golden ratio as its central geodesic, the base built from the integers                                                                                                               |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded

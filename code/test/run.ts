@@ -79,6 +79,11 @@ import { nonRandomSubstrates } from '~/experiment/p40-non-random-substrates'
 import { margensternTilings } from '~/experiment/p41-margenstern-tilings'
 import { fibonacciNavigation } from '~/experiment/p42-fibonacci-navigation'
 import { freedomChoice } from '~/experiment/p43-freedom-choice'
+import { universality } from '~/experiment/p44-universality'
+import { dodecagrid } from '~/experiment/p45-dodecagrid'
+import { everpresentDynamical } from '~/experiment/p46-everpresent-dynamical'
+import { coxeterUnification } from '~/experiment/p47-coxeter-unification'
+import { modularBase } from '~/experiment/p48-modular-base'
 
 let passed = 0
 let failed = 0
@@ -1001,6 +1006,63 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P43 freedom and choice: determined yet self-authored, not predetermined by any part, irreducible',
     ok: r.deterministic && r.selfDiversity > 0.05 && r.urgeCanFlip && r.agencyMonotone && r.irreducible,
     detail: `deterministic ${r.deterministic}, self-diversity ${r.selfDiversity.toFixed(2)}, agency monotone ${r.agencyMonotone}, settling ${r.meanSettlingBeats.toFixed(1)} beats`,
+  })
+}
+
+// 60. P44 universality: the rule realizes NAND (functionally complete), builds a correct
+// full adder, and expresses the universal Rule 110, so the substrate is computation-universal.
+{
+  const r = universality()
+  check({
+    name: 'P44 universality: the rule is functionally complete (NAND, adder, Rule 110)',
+    ok: r.nandCorrect && r.adderCorrect && r.rule110Expressible && r.rule110Evolves,
+    detail: `NAND ${r.nandCorrect}, adder ${r.adderCorrect}, Rule 110 ${r.rule110Expressible}, evolves ${r.rule110Evolves}`,
+  })
+}
+
+// 61. P45 dodecagrid: the 3D hyperbolic honeycomb {5,3,4} is Lorentz-safe (curvature
+// scrambles direction in 3D too), while a flat cubic lattice is not.
+{
+  const r = dodecagrid({ seed: 2 })
+  check({
+    name: 'P45 dodecagrid {5,3,4}: the 3D hyperbolic honeycomb is Lorentz-safe, flat cubic lattice is not',
+    ok: r.honeycomb.lorentzSafe && r.honeycomb.anisotropy < 0.2 && r.honeycomb.reach && r.flatLattice.lorentzSafe === false,
+    detail: `dodecagrid anisotropy ${r.honeycomb.anisotropy.toFixed(3)} (safe), cubic lattice ${r.flatLattice.anisotropy.toFixed(3)} (unsafe)`,
+  })
+}
+
+// 62. P46 everpresent Lambda: the conjugate-volume (dynamical) model gives the everpresent
+// delta-Lambda ~ V^-0.5, closing the dark-energy direction the static action only approached.
+{
+  const r = everpresentDynamical({ volumes: [1e2, 1e3, 1e4, 1e5, 1e6], repeats: 20000, seed: 1 })
+  check({
+    name: 'P46 everpresent Lambda: conjugate-volume model gives the V^-0.5 everpresent scaling',
+    ok: r.exponent < -0.45 && r.exponent > -0.55,
+    detail: `delta-Lambda ~ V^${r.exponent.toFixed(3)} (everpresent prediction -0.5)`,
+  })
+}
+
+// 63. P47 Coxeter unification: {7,3}, {5,4}, and {5,3,4} all come from one generator by
+// changing the Schlafli symbol, and all are Lorentz-safe.
+{
+  const r = coxeterUnification({ seed: 2 })
+  const all = Object.values(r)
+  check({
+    name: 'P47 Coxeter unification: one machine yields all the tessellations, all Lorentz-safe',
+    ok: all.length === 5 && all.every((e) => e.lorentzSafe) && all.some((e) => e.dimension === 3),
+    detail: `${all.length} tessellations from one generator, max anisotropy ${Math.max(...all.map((e) => e.anisotropy)).toFixed(3)}`,
+  })
+}
+
+// 64. P48 modular base: the parameter-free modular tessellation is Lorentz-safe, the
+// Stern-Brocot automaton addresses every rational by its continued fraction, and the
+// golden ratio is its central geodesic (Fibonacci convergents reach phi).
+{
+  const r = modularBase({ seed: 2 })
+  check({
+    name: 'P48 modular base: parameter-free, Lorentz-safe, continued-fraction addressed, golden-ratio central',
+    ok: r.lorentzSafe && r.addressingExact && r.goldenError < 1e-4,
+    detail: `anisotropy ${r.anisotropy.toFixed(3)}, addressing exact ${r.addressingExact}, golden error ${r.goldenError.toExponential(1)}`,
   })
 }
 
