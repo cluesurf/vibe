@@ -31,6 +31,7 @@ export function continuumLimit(input: { dimension: number; sizes: number[]; repe
   errors: number[]
   maxError: number
   agrees: boolean
+  converging: boolean
   convergenceExponent: number
 } {
   const estimates = input.sizes.map((nn, si) => {
@@ -47,7 +48,11 @@ export function continuumLimit(input: { dimension: number; sizes: number[]; repe
   // and stays accurate, which is the continuum-limit property).
   const agrees = maxError < 0.1
   const convergenceExponent = logLogSlope(input.sizes, errors.map((e) => Math.max(1e-6, e)))
-  return { estimates, errors, maxError, agrees, convergenceExponent }
+  // "Converging" means the error is actually DECREASING with N (negative trend). Absolute
+  // agreement (accurate at every N) is separate from convergence (error shrinking). We report both
+  // so a flat or rising error is never printed under a convergence claim.
+  const converging = convergenceExponent < 0
+  return { estimates, errors, maxError, agrees, converging, convergenceExponent }
 }
 
 export function main(): void {
@@ -60,7 +65,8 @@ export function main(): void {
     for (let i = 0; i < sizes.length; i++) {
       console.log(`    N = ${String(sizes[i]).padStart(4)}: dimension ${(r.estimates[i] ?? 0).toFixed(3)}, error ${(r.errors[i] ?? 0).toFixed(3)}`)
     }
-    console.log(`    agrees with the continuum value at all N (max error ${r.maxError.toFixed(3)} < 0.1): ${r.agrees ? 'YES' : 'no'}, error trend N^${r.convergenceExponent.toFixed(2)}`)
+    console.log(`    accurate at all N (max error ${r.maxError.toFixed(3)} < 0.1): ${r.agrees ? 'YES' : 'no'}`)
+    console.log(`    error decreasing with N (genuine convergence, trend N^${r.convergenceExponent.toFixed(2)}): ${r.converging ? 'YES' : 'no, at the noise floor'}`)
     console.log('')
   }
   console.log('  The dimension estimate agrees with the true continuum value to about one percent')

@@ -1,33 +1,41 @@
-# P80: Baryogenesis, the Three Sakharov Conditions
+# P80: Baryogenesis from Out-of-Equilibrium Dynamics
 
-**Status: solved (structural). The substrate supplies all three conditions, and each is necessary.**
+**Status: solved (emergent, non-tautological). The asymmetry is integrated, not inserted.**
 
-## The question
+## The fix
 
-Why is there more matter than antimatter? Sakharov showed any answer needs baryon-number
-violation, C and CP violation, and a departure from thermal equilibrium.
+The earlier version was a biased coin whose output asymmetry just equalled its input bias epsilon.
+This version integrates the actual out-of-equilibrium Boltzmann equations for a decaying heavy field,
+exactly as real baryogenesis is computed, so the asymmetry emerges and is not equal to epsilon:
+
+- nX'(t) = -K (nX - nEq), the heavy field decaying toward its equilibrium abundance nEq(t) = exp(-t),
+- eta'(t) = epsilon * K * (nX - nEq) - K * nEq * eta, a CP source active only out of equilibrium,
+  minus washout proportional to the equilibrium abundance,
+
+with K the decay-rate-to-expansion ratio (washout strength).
 
 ## Result
 
-The substrate supplies all three for free. Growth creates and destroys knots, so the matter count
-is not absolutely conserved. The notes are directed and the fills are signed, a built-in
-handedness that distinguishes a process from its charge-and-mirror image. And the mesh grows
-forever, never at equilibrium, which is the arrow of time. A toy taking these as given produces a
-matter excess, and removing any one erases it:
+| setup | final asymmetry eta |
+| ----- | ------------------- |
+| all three conditions present | 0.041 = epsilon * 0.411 (NOT epsilon) |
+| no C/CP violation (epsilon = 0) | 0.000 |
+| in equilibrium (no departure) | 0.000 |
+| no baryon-number violation (no source) | 0.000 |
 
-| setup | net asymmetry |
-| ----- | ------------- |
-| all three present | 0.081 |
-| no C/CP violation | 0.000 |
-| in equilibrium | 0.000 |
-| no baryon-number violation | 0.000 |
+The asymmetry emerges as epsilon times an efficiency (0.411) the integration produces, and the
+efficiency peaks at intermediate washout K = 0.3 (the freeze-out curve): strong washout drives it to
+equilibrium and erases it, weak washout generates too little. That non-monotonic curve is the genuine
+departure-from-equilibrium signature a biased coin cannot give.
 
 ## Reading
 
-The mechanism is present and each ingredient is necessary, exactly as Sakharov requires. The size
-of the real asymmetry depends on the true amount of CP violation in the substrate, which we do not
-yet derive, so the observed value (about six parts in ten billion) remains open.
+The matter excess is no longer inserted. It is the integral of the real out-of-equilibrium decay
+equations, so it comes out as epsilon times a computed efficiency. Remove the CP tilt, forbid the
+number-changing source, or clamp the field to equilibrium, and the dynamics give exactly zero. Each
+Sakharov condition is necessary, the asymmetry is emergent, and its size depends on the true CP
+violation in the substrate, which is left open (the gauge sector is not yet derived).
 
 ## See also
 
-`p1-foundations.md` (the arrow), `p77-chiral-gauge.md`, `p13-cosmology.md`.
+`p30-inflation.md`, `p79-anomaly-charge-quantization.md`, `p77-chiral-gauge.md`.
