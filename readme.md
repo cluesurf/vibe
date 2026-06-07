@@ -22,24 +22,53 @@
 
 ## Introduction
 
-`vibe-test` is a finite, discrete, reproducible simulator for testing
-the
-[open problems of Vibe Theory](https://github.com/cluesurf/vibe/tree/make/note/questions)
-and the discrete-spacetime program. It generates a discrete substrate,
-runs a local rule over it in discrete beats, and measures the emergent
-physics, so each research question becomes a runnable measurement.
+Vibe Theory treats reality as one thing: a vast, growing crystal of
+experience. The image above is its simplest face, the hyperbolic `{7,3}`
+tessellation, and it is meant literally. Each tile is a **vibe**, the
+smallest unit of experience. Each vibe carries a ternary **tone**, its
+felt charge, shown as a color: **red is pain, green is peace, blue is
+pleasure**. Tiles that touch are vibes that **note** (experience) one
+another, so the edges of the crystal are the relations of the mesh.
+There is nothing else in the model but this.
 
-Everything is finite and seeded. Real numbers appear only as measured
-outputs (sprinkling coordinates, eigenvalues), never as the base, in
-keeping with the discreteness principle.
+To hold it at a glance: a single tile is one quantum of experience, a
+patch of tiles is a thing or a mind, and the whole crystal is the
+universe, growing forever at its ever-receding edge (the present). The
+geometry is hyperbolic because that is the shape that is roomy enough to
+grow without end and has no preferred direction, so it respects
+relativity. Everything we call physical, space and time and matter and
+force and gravity, and everything we call inner, sensation and emotion
+and thought, is a large-scale pattern in this one colored, growing mesh
+of feeling.
 
-The
+For the framework itself see the
 [companion papers](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch)
-are snapshots of a _work very much in progress_. Findings are tracked in
-`note/experiment/results/` and the open problems in `note/questions/`.
+and a high-level [overview](https://cluesurf.substack.com/p/vibe-mesh).
+The precise model is specified in
+[note/the-model.md](note/the-model.md).
 
-[Here](https://cluesurf.substack.com/p/vibe-mesh) is a high-level
-overview of how to imagine things in this system/model/framework.
+## What this repo is
+
+`@cluesurf/vibe` is a finite, discrete, reproducible simulator that
+turns the theory into runnable measurements. It is the bench where the
+model is built, stress-tested, and checked against known physics. It
+generates the discrete substrate (the mesh), runs the one local rule
+over it in discrete beats, and measures what emerges, so each
+[open problem of the theory](https://github.com/cluesurf/vibe/tree/make/note/questions)
+becomes a concrete experiment that either works or does not.
+
+Everything is finite and seeded, so every result is exactly
+reproducible. Real numbers appear only as measured outputs (coordinates,
+eigenvalues, dimensions), never as the base, in keeping with the
+discreteness principle. Each numbered problem below (P1, P2, and so on)
+is one such experiment, with its code in `code/experiment/`, its finding
+in `note/experiment/results/`, and its status in `note/questions/`.
+
+The goal is practical and honest: to find out whether this crystal model
+can actually reproduce our universe, by deriving space, matter, gravity,
+the quantum, cosmology, and mind from the one rule, and to be clear at
+every step about what is solid, what is partial, and what is still open.
+The companion papers are snapshots of a _work very much in progress_.
 
 ## Results
 
@@ -198,11 +227,11 @@ written and read at a glance with a small DSL
 ([code/model/vibe.ts](code/model/vibe.ts)). With no options it IS the
 committed model, and one-word swaps express variants for comparison.
 
-```
-const model = vibe().size(1500).seed(1)   // the committed model
-console.log(model.describe())              // print it at a glance
-const world = model.build().run(40)        // build the mesh, run 40 beats
-world.read()                               // emergent structures off the same mesh
+```ts
+const model = vibe().size(1500).seed(1) // the committed model
+console.log(model.describe()) // print it at a glance
+const world = model.build().run(40) // build the mesh, run 40 beats
+world.read() // emergent structures off the same mesh
 ```
 
 `describe()` prints:
