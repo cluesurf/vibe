@@ -15,9 +15,9 @@
 // Run: npx tsx code/experiment/p57-recursion.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { Graph, makeGraph } from '~/core/graph'
+import { Graph, makeGraph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 
 // Symmetric ternary fills on a graph.

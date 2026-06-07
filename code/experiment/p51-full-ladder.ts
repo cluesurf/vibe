@@ -11,10 +11,10 @@
 // See the integer-ladder analysis. Run: npx tsx code/experiment/p51-full-ladder.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { modularGraph } from '~/experiment/p48-modular-base'
 import { coxeterTessellation } from '~/substrate/coxeter'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 
 // Run the committed vibe rule (ternary signed-majority, symmetric fills) on a substrate,

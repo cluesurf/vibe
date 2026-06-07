@@ -3,10 +3,10 @@
 // the failure mode the Butterfield-Dowker argument exploits. The riemannian case
 // is the undirected nearest-neighbor hypercubic mesh, a Euclidean comparison.
 
-import { Embedding, ManifoldSpec } from '~/core/embedding'
-import { Substrate } from '~/core/substrate'
-import { Poset, makePosetFromRelation } from '~/core/poset'
-import { makeGraph } from '~/core/graph'
+import { Embedding, ManifoldSpec } from '~/tool/embedding'
+import { Substrate } from '~/tool/substrate'
+import { Poset, makePosetFromRelation } from '~/tool/poset'
+import { makeGraph } from '~/tool/graph'
 
 export function lattice(input: {
   dimension: number

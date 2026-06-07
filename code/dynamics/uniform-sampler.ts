@@ -7,8 +7,8 @@
 // samples the causal-set Gibbs ensemble. This is the sampler P2 / P6 needs to
 // reach the large-N entropic regime. See note/questions/p2-p6-optimal-path.md.
 
-import { makeBitMatrix, BitMatrix, getBit, setBit } from '~/core/bitset'
-import { Rng } from '~/core/rng'
+import { makeBitMatrix, BitMatrix, getBit, setBit } from '~/tool/bitset'
+import { Rng } from '~/tool/rng'
 
 // The 2D smeared Benincasa-Dowker kernel (inlined to avoid Poset construction).
 function smearedKernel2D(n: number, eps: number): number {

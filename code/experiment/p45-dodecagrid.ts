@@ -8,10 +8,10 @@
 // Run: npx tsx code/experiment/p45-dodecagrid.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
 import { lattice } from '~/substrate/lattice'
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import { lorentzIsotropy } from '~/measure/lorentz'
 import { ballGrowth } from '~/measure/dimension'
 

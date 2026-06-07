@@ -4,8 +4,8 @@
 // dodecahedron across its face-planes (spheres orthogonal to the unit ball), breadth
 // first. See note/deterministic-substrate.md.
 
-import { Embedding, ManifoldSpec } from '~/core/embedding'
-import { Graph, makeGraph } from '~/core/graph'
+import { Embedding, ManifoldSpec } from '~/tool/embedding'
+import { Graph, makeGraph } from '~/tool/graph'
 
 interface V3 {
   x: number

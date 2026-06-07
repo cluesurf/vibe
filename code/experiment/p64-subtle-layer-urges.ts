@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p64-subtle-layer-urges.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 
 interface TwoScale {
   n: number

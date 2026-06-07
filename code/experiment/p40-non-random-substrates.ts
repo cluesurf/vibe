@@ -9,7 +9,7 @@
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p40-non-random-substrates.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import {
   hyperbolicGraph,
   hyperbolicSunflower,
@@ -17,7 +17,7 @@ import {
   hyperbolicTiling,
 } from '~/substrate/hyperbolic-graph'
 import { lattice } from '~/substrate/lattice'
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import { lorentzIsotropy } from '~/measure/lorentz'
 import { ballGrowth } from '~/measure/dimension'
 

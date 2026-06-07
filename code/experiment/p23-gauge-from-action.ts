@@ -9,7 +9,7 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p23-gauge-from-action.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { maxwellSpectrum } from '~/experiment/p20-photon'
 
 // Plaquette list for a periodic L^3 lattice: each plaquette is four signed links.

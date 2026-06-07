@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p11-lorentz-dynamics.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
 

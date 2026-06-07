@@ -16,8 +16,8 @@
 // Run: npx tsx code/experiment/p59-nested-selves.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
-import { makeGraph, Graph } from '~/core/graph'
+import { makeRng, Rng } from '~/tool/rng'
+import { makeGraph, Graph } from '~/tool/graph'
 
 // A modular mesh: numCells cohesive cells of cellSize vibes each, dense inside (fill +1, the
 // cohesion that makes a cell a self), sparse and weak between cells (a few +1 links).

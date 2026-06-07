@@ -8,7 +8,7 @@
 // Run: npx tsx code/experiment/p53-coarse-graining-fixed-point.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { decimate } from '~/dynamics/coarsegrain'
 import { myrheimMeyerDimension } from '~/measure/dimension'

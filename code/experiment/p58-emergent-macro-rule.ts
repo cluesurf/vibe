@@ -14,9 +14,9 @@
 // open. Run: npx tsx code/experiment/p58-emergent-macro-rule.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 
 export function symmetricFills(g: Graph, rng: Rng): Int8Array[] {
   const indexOf = g.neighbors.map((row) => {

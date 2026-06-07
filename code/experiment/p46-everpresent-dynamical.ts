@@ -11,7 +11,7 @@
 // approached. Run: npx tsx code/experiment/p46-everpresent-dynamical.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 function logLogSlope(xs: number[], ys: number[]): number {
   const n = xs.length

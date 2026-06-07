@@ -8,9 +8,9 @@
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p41-margenstern-tilings.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicTiling } from '~/substrate/hyperbolic-graph'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 import { ballGrowth } from '~/measure/dimension'
 

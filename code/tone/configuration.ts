@@ -2,7 +2,7 @@
 // every element, for the spinor alphabet). Stored densely in an Int32Array.
 
 import { Alphabet, slotsPerElement, randomValue } from '~/tone/alphabet'
-import { Rng } from '~/core/rng'
+import { Rng } from '~/tool/rng'
 
 export interface Configuration {
   readonly form: 'configuration'

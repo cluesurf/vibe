@@ -13,8 +13,8 @@
 // modification factor to 1/t for the rest, which converges reliably where pure
 // halving stalls. The per-height action is measured in the converged 1/t regime.
 
-import { Rng } from '~/core/rng'
-import { makeBitMatrix, setBit } from '~/core/bitset'
+import { Rng } from '~/tool/rng'
+import { makeBitMatrix, setBit } from '~/tool/bitset'
 import {
   makeState,
   isRelated,

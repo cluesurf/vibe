@@ -5,10 +5,10 @@
 // Run: npx tsx code/experiment/p8-gauge-fermion.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { lattice } from '~/substrate/lattice'
-import { Graph } from '~/core/graph'
-import { makeGaugeField } from '~/core/gauge-field'
+import { Graph } from '~/tool/graph'
+import { makeGaugeField } from '~/tool/gauge-field'
 import { plaquettesOf, heatBathSweep } from '~/dynamics/wilson'
 import { staticPotentialProxy } from '~/measure/wilson-loop'
 import { cellComplexOf } from '~/operator/dirac'

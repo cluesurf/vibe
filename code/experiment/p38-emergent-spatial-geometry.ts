@@ -8,7 +8,7 @@
 // See note/the-model.md. Run: npx tsx code/experiment/p38-emergent-spatial-geometry.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 
 // Spatial Euclidean distance between two sprinkled elements (ignoring the time axis 0).

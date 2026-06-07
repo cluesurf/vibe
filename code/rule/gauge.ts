@@ -8,7 +8,7 @@ import { Rule } from '~/rule/rule'
 import {
   GaugeField,
   linkPhase,
-} from '~/core/gauge-field'
+} from '~/tool/gauge-field'
 
 // A triangle plaquette through an edge (a -> b): a third vertex c adjacent to
 // both endpoints. The loop is a -> b -> c -> a. Its Wilson action term is

@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/p52-continuum-limit.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '~/measure/dimension'
 

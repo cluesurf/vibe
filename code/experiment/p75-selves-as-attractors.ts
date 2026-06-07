@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p75-selves-as-attractors.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { storedPatterns, hebbianFills, step, overlap } from '~/experiment/p65-dreaming-and-waking'
 
 function settle(J: Int8Array[], state: Int8Array, steps: number): Int8Array {

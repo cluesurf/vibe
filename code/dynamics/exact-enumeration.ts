@@ -6,8 +6,8 @@
 // inverse temperature, including beta = 0 (the true uniform / entropic average).
 // This is exact, with no detailed-balance worry. See p2-p6-optimal-path.md.
 
-import { Poset, makePosetFromFuture } from '~/core/poset'
-import { makeBitMatrix, setBit } from '~/core/bitset'
+import { Poset, makePosetFromFuture } from '~/tool/poset'
+import { makeBitMatrix, setBit } from '~/tool/bitset'
 import { Action } from '~/dynamics/action'
 
 // Enumerate every transitive upper-triangular relation on N elements and compute,

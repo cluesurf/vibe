@@ -17,9 +17,9 @@
 //   - hyperbolic: treated as a Riemannian (spacelike) slab; we apply the flat
 //     timelike test on coordinate 0 as a stand-in causal direction.
 
-import { Rng } from '~/core/rng'
-import { Embedding, ManifoldSpec } from '~/core/embedding'
-import { Poset, makePosetFromRelation } from '~/core/poset'
+import { Rng } from '~/tool/rng'
+import { Embedding, ManifoldSpec } from '~/tool/embedding'
+import { Poset, makePosetFromRelation } from '~/tool/poset'
 
 export function sprinkleCurved(input: {
   manifold: ManifoldSpec

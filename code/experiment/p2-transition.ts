@@ -10,8 +10,8 @@
 // Run: npx tsx code/experiment/p2-transition.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
-import { Poset } from '~/core/poset'
+import { makeRng } from '~/tool/rng'
+import { Poset } from '~/tool/poset'
 import { Action, smearedBenincasaDowker, benincasaDowkerAction } from '~/dynamics/action'
 import { sampleCausalSets } from '~/dynamics/mcmc'
 import { orderStatistics } from '~/measure/order-stats'

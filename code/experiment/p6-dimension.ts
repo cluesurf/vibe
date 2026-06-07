@@ -8,7 +8,7 @@
 // Run: npx tsx code/experiment/p6-dimension.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sampleUniform } from '~/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { dimensionFromOrderingFraction } from '~/measure/dimension'

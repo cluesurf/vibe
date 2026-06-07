@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p7-bell.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { chsh, Lambda } from '~/measure/bell'
 import { runScan, ScanSpec } from '~/experiment/runner'
 import { writeReport } from '~/experiment/report'

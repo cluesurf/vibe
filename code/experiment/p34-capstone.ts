@@ -11,9 +11,9 @@
 // See note/the-model.md. Run: npx tsx code/experiment/p34-capstone.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { lorentzIsotropy } from '~/measure/lorentz'
 import { ballGrowth, growthIsExponential } from '~/measure/dimension'
 import { laplacianSpectrum } from '~/operator/laplacian'

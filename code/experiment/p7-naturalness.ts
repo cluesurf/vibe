@@ -10,7 +10,7 @@
 // Run: npx tsx code/experiment/p7-naturalness.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 // A high-frequency bit of lambda, decorrelated from the outcome's region
 // structure: a generic shared-past dependence that is not aligned with physics.

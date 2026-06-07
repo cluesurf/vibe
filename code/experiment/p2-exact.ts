@@ -16,9 +16,9 @@ export function main(): void {
   const betas = [0, 0.5, 1, 2, 4]
   const action = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
   const observers = [
-    ({ poset }: { poset: import('~/core/poset').Poset }) => orderStatistics({ poset }).heightRatio,
-    ({ poset }: { poset: import('~/core/poset').Poset }) => orderStatistics({ poset }).mmDimension,
-    ({ poset }: { poset: import('~/core/poset').Poset }) =>
+    ({ poset }: { poset: import('~/tool/poset').Poset }) => orderStatistics({ poset }).heightRatio,
+    ({ poset }: { poset: import('~/tool/poset').Poset }) => orderStatistics({ poset }).mmDimension,
+    ({ poset }: { poset: import('~/tool/poset').Poset }) =>
       orderStatistics({ poset }).heightRatio > 1 ? 1 : 0,
   ]
 

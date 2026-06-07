@@ -6,7 +6,7 @@
 // (a precedes b implies a < b) and seeds the Monte Carlo relation directly.
 // See note/questions/frontier-spec.md (Front 2).
 
-import { Poset, makePosetFromRelation } from '~/core/poset'
+import { Poset, makePosetFromRelation } from '~/tool/poset'
 
 export function kleitmanRothschildOrder(input: { size: number }): Poset {
   const n = input.size

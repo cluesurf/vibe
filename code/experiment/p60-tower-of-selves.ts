@@ -11,8 +11,8 @@
 // Run: npx tsx code/experiment/p60-tower-of-selves.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
-import { makeGraph, Graph } from '~/core/graph'
+import { makeRng, Rng } from '~/tool/rng'
+import { makeGraph, Graph } from '~/tool/graph'
 import { aggregate, effectiveCouplings, renormMacroStep, agreement } from '~/experiment/p58-emergent-macro-rule'
 
 // A recursively modular mesh. depth grouping levels, branching b, cellSize vibes per leaf

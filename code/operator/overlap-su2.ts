@@ -9,7 +9,7 @@
 
 import { ComplexMatrix, makeComplexMatrix } from '~/linalg/dense'
 import { hermitianMatrixSign, eigHermitian } from '~/linalg/eig-hermitian'
-import { Rng } from '~/core/rng'
+import { Rng } from '~/tool/rng'
 
 interface C4 {
   re: [number, number, number, number]

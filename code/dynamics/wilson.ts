@@ -3,14 +3,14 @@
 // integers. Under monism the gauge field is a tone on the relational vibes (the
 // links).
 
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import {
   GaugeField,
   PlaquetteSet,
   linkPhase,
   edgeKey,
-} from '~/core/gauge-field'
-import { Rng } from '~/core/rng'
+} from '~/tool/gauge-field'
+import { Rng } from '~/tool/rng'
 
 // Above this triangle count we skip the (more numerous) 4-cycle enumeration to
 // keep plaquette discovery bounded; triangles alone are a valid plaquette set.

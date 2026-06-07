@@ -8,7 +8,7 @@
 // Run: npx tsx code/experiment/p19-dark-energy-4d.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction } from '~/dynamics/action'
 

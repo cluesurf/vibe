@@ -13,8 +13,8 @@
 // Run: npx tsx code/experiment/p63-integrated-information.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
-import { undirectedAdjacency } from '~/core/substrate'
+import { makeRng, Rng } from '~/tool/rng'
+import { undirectedAdjacency } from '~/tool/substrate'
 import { toneIntegration, algebraicConnectivity } from '~/measure/integration'
 import { modularMesh } from '~/experiment/p59-nested-selves'
 

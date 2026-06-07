@@ -12,7 +12,7 @@ import { pathToFileURL } from 'node:url'
 import { lattice } from '~/substrate/lattice'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 
 function ringDistance(i: number, j: number, n: number): number {
   const d = Math.abs(i - j)

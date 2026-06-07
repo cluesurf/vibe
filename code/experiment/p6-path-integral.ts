@@ -4,7 +4,7 @@
 // Run: npx tsx code/experiment/p6-path-integral.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { benincasaDowkerAction } from '~/dynamics/action'
 import { sampleCausalSets } from '~/dynamics/mcmc'
 import { myrheimMeyerDimension } from '~/measure/dimension'

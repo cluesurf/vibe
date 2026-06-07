@@ -7,7 +7,7 @@
 // npx tsx code/experiment/p12-wang-landau.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import {
   wangLandauHeight,
   entropyGap,

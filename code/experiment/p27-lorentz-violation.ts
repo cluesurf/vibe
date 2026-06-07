@@ -12,7 +12,7 @@
 // npx tsx code/experiment/p27-lorentz-violation.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
+import { makeRng, Rng } from '~/tool/rng'
 
 // Lattice scalar dispersion omega(k) = sqrt(sum 4 sin^2(k_i/2)) and its group speed
 // |grad_k omega|. The continuum is omega = |k| (speed 1, isotropic).

@@ -1,10 +1,10 @@
 // Known-answer tests for the vibe-test library. No external test runner: a tiny
-// assert harness, runnable with `npx tsx code/test/run.ts`. Exits nonzero on
+// assert harness, runnable with `npx tsx code/test.ts`. Exits nonzero on
 // failure. The science is only as trustworthy as these checks.
 
-import { makeRng } from '~/core/rng'
-import { makeBitMatrix, setBit, getBit, popcountRow } from '~/core/bitset'
-import { makePosetFromRelation, relationCount } from '~/core/poset'
+import { makeRng } from '~/tool/rng'
+import { makeBitMatrix, setBit, getBit, popcountRow } from '~/tool/bitset'
+import { makePosetFromRelation, relationCount } from '~/tool/poset'
 import { longestChain } from '~/measure/distance'
 import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
 import { lattice } from '~/substrate/lattice'
@@ -42,7 +42,7 @@ import { chiralCondensateSignal } from '~/operator/overlap-condensate'
 import { chiralCondensateSignalSU2 } from '~/operator/overlap-su2'
 import { makeDense } from '~/linalg/dense'
 import { eigSymmetric } from '~/linalg/eig-jacobi'
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { cubicLattice, potentialProfile, fitForm } from '~/experiment/p16-newtonian'
 import { chainOperators, quantumMsd, classicalMsd } from '~/experiment/p17-quantum-walk'
 import { massStudy } from '~/experiment/p14-mass'

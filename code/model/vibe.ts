@@ -10,8 +10,8 @@
 //   const world = model.build().run(40)            // build the mesh, run 40 beats
 //   console.log(world.read())                      // emergent structures read off the mesh
 
-import { makeRng, Rng } from '~/core/rng'
-import { Substrate, undirectedAdjacency } from '~/core/substrate'
+import { makeRng, Rng } from '~/tool/rng'
+import { Substrate, undirectedAdjacency } from '~/tool/substrate'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
 import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
 import { coxeterTessellation } from '~/substrate/coxeter'

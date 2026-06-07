@@ -275,9 +275,9 @@ means genuinely unsolved (a shared frontier with the literature).
 
 ```
 pnpm install
-pnpm test:sim                                   # known-answer tests
-pnpm sim code/experiment/p3-study.ts            # the addressing-vs-Lorentz study
-pnpm sim code/experiment/p7-bell.ts             # CHSH vs setting correlation
+pnpm test                                       # known-answer tests
+pnpm call code/experiment/p3-study.ts           # the addressing-vs-Lorentz study
+pnpm call code/experiment/p7-bell.ts            # CHSH vs setting correlation
 ```
 
 Each experiment is also a standalone script:

@@ -15,7 +15,7 @@
 // graviton, not the continuum operator. Run: npx tsx code/experiment/p73-discrete-graviton.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 const D = 4
 const ETA = [-1, 1, 1, 1] // Minkowski signature, diagonal

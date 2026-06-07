@@ -6,7 +6,7 @@
 // the 3D builder reflects a central dodecahedron across its faces, both reflection-group
 // orbits. See the choosing-the-base analysis.
 
-import { Graph } from '~/core/graph'
+import { Graph } from '~/tool/graph'
 import { hyperbolicTiling } from '~/substrate/hyperbolic-graph'
 import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
 

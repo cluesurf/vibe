@@ -8,10 +8,10 @@
 // Run: npx tsx code/experiment/p13-cosmology.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { growCsg } from '~/substrate/grow-csg'
-import { getBit } from '~/core/bitset'
-import { Poset } from '~/core/poset'
+import { getBit } from '~/tool/bitset'
+import { Poset } from '~/tool/poset'
 import { myrheimMeyerDimension } from '~/measure/dimension'
 
 // Number of causal relations among the first k elements (the order grown so far).

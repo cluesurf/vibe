@@ -33,9 +33,9 @@ Dependencies are not vendored. From `case/text/vibe/`:
 
 ```
 pnpm install
-pnpm test:sim                              # known-answer tests
-pnpm sim code/experiment/p3-addressing-lorentz.ts
-pnpm sim code/experiment/p7-bell.ts
+pnpm test                              # known-answer tests
+pnpm call code/experiment/p3-addressing-lorentz.ts
+pnpm call code/experiment/p7-bell.ts
 ```
 
 Each `pN` experiment is also a standalone script:

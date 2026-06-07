@@ -4,7 +4,7 @@
 // read off the permutation's cycle structure as eigen-phases, avoiding any
 // complex matrix logarithm.
 
-import { Substrate } from '~/core/substrate'
+import { Substrate } from '~/tool/substrate'
 import { Rule } from '~/rule/rule'
 import { Alphabet, valueCount } from '~/tone/alphabet'
 import {
@@ -13,7 +13,7 @@ import {
   getTone,
   setTone,
 } from '~/tone/configuration'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 
 // The finite state space of `cells` elements over an alphabet. The full space
 // has dimension valueCount(alphabet)^cells, so callers keep `cells` small.

@@ -13,9 +13,9 @@
 // Run: npx tsx code/experiment/p55-one-rule-all-sectors.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/core/rng'
+import { makeRng } from '~/tool/rng'
 import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { Graph, makeGraph } from '~/core/graph'
+import { Graph, makeGraph } from '~/tool/graph'
 import { laplacian, laplacianSpectrum } from '~/operator/laplacian'
 
 // The connected component containing the most-connected node, as a fresh Graph, so the

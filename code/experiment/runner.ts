@@ -3,7 +3,7 @@
 // deterministically from one base seed, and aggregates mean and standard
 // deviation of every reported metric.
 
-import { Rng, makeRng, deriveSeed } from '~/core/rng'
+import { Rng, makeRng, deriveSeed } from '~/tool/rng'
 
 export interface ScanSpec<P> {
   readonly form: 'scan'

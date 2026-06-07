@@ -11,8 +11,8 @@
 // at large N. Run: npx tsx code/experiment/p74-large-n-crossing.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng, Rng } from '~/core/rng'
-import { makeBitMatrix, BitMatrix, getBit, setBit } from '~/core/bitset'
+import { makeRng, Rng } from '~/tool/rng'
+import { makeBitMatrix, BitMatrix, getBit, setBit } from '~/tool/bitset'
 
 function clearBit(m: BitMatrix, input: { row: number; col: number }): void {
   const idx = input.row * m.stride + (input.col >>> 5)
