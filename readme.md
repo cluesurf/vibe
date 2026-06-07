@@ -7,7 +7,7 @@
 <br/>
 
 <p align='center'>
-  <img src='https://github.com/cluesurf/vibe/blob/make/view/mesh-{7,3}.png?raw=true' height='256'/>
+  <img src='https://github.com/cluesurf/vibe/blob/make/view/vibe-mesh-{7,3}.png?raw=true' height='256'/>
 </p>
 
 <h3 align='center'>Vibe Theory</h3>
