@@ -1,6 +1,6 @@
 # Roadmap
 
-What is left to build, as a living checklist. The testbed currently covers P1 to P51.
+What is left to build, as a living checklist. The testbed currently covers P1 to P56.
 This tracks the work still ahead, grouped by area, with the nearest current result noted
 where one exists. Checked items are done, unchecked are outstanding.
 
@@ -72,11 +72,14 @@ where one exists. Checked items are done, unchecked are outstanding.
 
 - [x] The committed model run end-to-end, one mesh and one rule (P34), and the signal
   sector from the rule itself (P37).
-- [ ] **One rule for all sectors in one simulation.** Evolve matter, force, and gravity
-  under the single microscopic rule in a single run, rather than reading each sector off
-  the same mesh by its own operator.
-- [ ] **The full ladder with the model, eternally growing.** Extend P51 so the integer
-  ladder grows forever and the model lives on the growing substrate.
+- [x] **One rule for all sectors in one simulation** (P55): the bosonic sectors (matter
+  spectrum, static force, radiation) all come from one emergent operator on one mesh built
+  by the one rule, in a single run. Folding the fermionic and non-abelian gauge sectors into
+  the same single evolution is the remaining part.
+- [x] **The full ladder with the model, eternally growing** (P56): the integer ladder
+  grows without bound, stays Lorentz-safe at every stage, and the model runs on the growing
+  substrate at every stage. Truly incremental growth (no rebuilding) is the remaining
+  engineering step.
 
 ## Cosmology and contact with data
 
@@ -93,8 +96,7 @@ where one exists. Checked items are done, unchecked are outstanding.
 - [ ] **Fold P10 to P51 into the paper.** The v4 paper covers through the earlier results.
   Add the substrate and base work (P37 to P51), the freedom-and-choice and universality
   results, and the integer-ladder synthesis.
-- [ ] **A short companion on the integer ladder.** The base built from the integers, for
-  a wider audience.
+- [x] **A short companion on the integer ladder** (note/the-universe-from-integers.md): the base built from the integers, for a wider audience.
 
 ## Hardening
 

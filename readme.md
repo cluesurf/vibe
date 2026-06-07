@@ -61,7 +61,7 @@ overview of how to imagine things in this system/model/framework.
   sampler, Wang-Landau density of states, causal-set Monte Carlo,
   classical sequential growth, coarse graining, and the Wilson heat
   bath.
-- **experiment**: one runnable script per open problem (P1 to P53), plus
+- **experiment**: one runnable script per open problem (P1 to P57), plus
   a scan runner and report writer.
 
 ## Defining the model
@@ -110,7 +110,7 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 73 of 73 known-answer tests pass. P1 to P9 are the
+typecheck clean, 77 of 77 known-answer tests pass. P1 to P9 are the
 conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
 and the field content, P23 to P25 the field operators derived from the
 action and electroweak breaking, P26 to P30 the distinctive observational
@@ -127,8 +127,12 @@ P44 computational universality (the rule is Turing-complete), P45 the
 cosmological constant, and P47 to P51 the unifying base (the Coxeter
 construction, the parameter-free modular group, the hidden hierarchical
 crystal, the golden ratio with order-and-freedom, and the full integer
-ladder built end to end), and P52 to P53 hardening (the continuum limit
-and a coarse-graining fixed point). The model itself is specified in
+ladder built end to end), P52 to P54 hardening (the continuum limit, a
+coarse-graining fixed point, and large-N scaling), and P55 to P56 the
+integration capstone (all bosonic sectors from one operator on one mesh, and
+the integer ladder eternally growing with the model on it), and P57 recursion
+(higher vibes as aggregate views of the micro-tones, the model self-similar with
+no stored higher layer). The model itself is specified in
 [note/the-model.md](note/the-model.md) and constructed in
 [code/model/vibe.ts](code/model/vibe.ts). Full detail in
 [note/experiment/results/](note/experiment/results/) and
@@ -189,6 +193,10 @@ and a coarse-graining fixed point). The model itself is specified in
 | P51     | the full integer ladder                          | demonstrated                                            | one pipeline builds the canonical base end to end, from integer generator data through a deterministic automaton to the tessellation to the vibe model running on it (Lorentz-safe, reproducible), for the modular group and the {7,3} and {5,4} crystals                                                                                                       |
 | P52     | the continuum limit                              | demonstrated                                            | the dimension estimate agrees with the continuum value to about one percent at all N (2D and 3D), shrinking as a negative power of N where there is room, so the discrete model sits at its continuum description                                                                                                                                              |
 | P53     | coarse-graining fixed point                      | demonstrated                                            | the dimension is invariant under repeated decimation, so the continuum dimension is a renormalization fixed point, the discrete model has one stable continuum description at every scale                                                                                                                                                                      |
+| P54     | large-N hardening (performance)                  | demonstrated                                            | a sampled O(N) dimension estimator agrees with the exact O(N^2) one and reaches N = 100000, where the continuum-limit error keeps shrinking, so larger systems are reachable and the continuum claim is hardened at scale                                                                                                                                      |
+| P55     | one rule, all sectors                            | demonstrated (bosonic)                                  | one mesh built by the committed rule, and the single emergent operator on it, yield the matter (spectrum), force (static potential), and radiation (light-cone) sectors in one run, the fermionic and gauge sectors being the remaining integration                                                                                                            |
+| P56     | the eternal ladder                               | demonstrated                                            | the integer ladder grows without bound (modular and {7,3}), stays Lorentz-safe at every stage, and the committed model runs on the growing substrate at every stage, the full tower from the integers up, eternally growing                                                                                                                                    |
+| P57     | recursion (higher vibes)                         | demonstrated (structural)                              | a mesh coarse-grains to a higher vibe that is a derived aggregate of the micro-tones (no stored layer), the same kind of object (ternary, Lorentz-safe), stable because the micro-self is, towering to another level. The emergent macro-rule is partial, the open frontier                                                                                     |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded

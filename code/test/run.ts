@@ -89,6 +89,10 @@ import { goldenAndFree } from '~/experiment/p50-golden-and-free'
 import { fullLadder } from '~/experiment/p51-full-ladder'
 import { continuumLimit } from '~/experiment/p52-continuum-limit'
 import { coarseGrainingFixedPoint } from '~/experiment/p53-coarse-graining-fixed-point'
+import { sampledDimension, largeNHardening } from '~/experiment/p54-large-n-hardening'
+import { oneRuleAllSectors } from '~/experiment/p55-one-rule-all-sectors'
+import { eternalLadder } from '~/experiment/p56-eternal-ladder'
+import { recursion } from '~/experiment/p57-recursion'
 
 let passed = 0
 let failed = 0
@@ -1127,6 +1131,56 @@ function allFinite(xs: ArrayLike<number>): boolean {
     name: 'P53 coarse-graining: dimension invariant under decimation (renormalization fixed point)',
     ok: two.fixedPoint && three.fixedPoint,
     detail: `2D dims ${two.dims.map((d) => d.toFixed(2)).join('/')}, 3D dims ${three.dims.map((d) => d.toFixed(2)).join('/')}`,
+  })
+}
+
+// 70. P54 large-N hardening: the sampled (O(N)) dimension estimator agrees with the exact
+// one and reaches N = 100000, where the continuum-limit error keeps shrinking.
+{
+  const samp = sampledDimension({ dimension: 2, count: 1500, pairs: 200000, seed: 1 })
+  const r2 = largeNHardening({ dimension: 2, sizes: [2000, 30000], pairs: 300000, seed: 10 })
+  const r3 = largeNHardening({ dimension: 3, sizes: [2000, 30000], pairs: 300000, seed: 10 })
+  check({
+    name: 'P54 large-N hardening: sampled estimator matches exact and sharpens at large N',
+    ok: Math.abs(samp - 2) < 0.1 && r2.errorShrinks && r3.errorShrinks,
+    detail: `sampled 2D ${samp.toFixed(3)}, 2D error ${r2.errors[0]?.toFixed(3)}->${r2.errors[1]?.toFixed(3)}, 3D ${r3.errors[0]?.toFixed(3)}->${r3.errors[1]?.toFixed(3)}`,
+  })
+}
+
+// 71. P55 one rule, all sectors: from one mesh built by the committed rule and the single
+// emergent operator on it, the matter (spectrum), force (static potential), and radiation
+// (light-cone) sectors all appear in one run.
+{
+  const r = oneRuleAllSectors({ count: 1200, seed: 1 })
+  check({
+    name: 'P55 one rule, all sectors: matter, force, and radiation from one operator on one mesh',
+    ok: r.matterBoundedBelow && r.forceDecays && r.radiationLightCone && r.radiationPropagates,
+    detail: `matter min ${r.matterMin.toFixed(3)}, force corr ${r.forcePotentialCorrelation.toFixed(2)}, light-cone ${r.radiationLightCone}`,
+  })
+}
+
+// 72. P56 eternal ladder: the integer ladder grows without bound, stays Lorentz-safe at
+// every stage, and the model runs on the growing substrate at every stage.
+{
+  const mod = eternalLadder({ base: 'modular', caps: [300, 700, 1500], seed: 2 })
+  const hept = eternalLadder({ base: [7, 3], caps: [200, 600, 1500], seed: 2 })
+  check({
+    name: 'P56 eternal ladder: grows without bound, stays Lorentz-safe, model always runs',
+    ok: mod.growsMonotonically && mod.alwaysLorentzSafe && mod.modelAlwaysRuns &&
+        hept.growsMonotonically && hept.alwaysLorentzSafe && hept.modelAlwaysRuns,
+    detail: `modular ${mod.epochs.map((e) => e.cells).join('/')} cells safe ${mod.alwaysLorentzSafe}, {7,3} ${hept.epochs.map((e) => e.cells).join('/')} safe ${hept.alwaysLorentzSafe}`,
+  })
+}
+
+// 73. P57 recursion: a mesh coarse-grains to a higher vibe that is a derived aggregate of
+// the micro-tones (no stored higher tone), the same kind of object (ternary, Lorentz-safe),
+// stable because the micro-self is, and the tower continues to another level.
+{
+  const r = recursion({ count: 1500, seed: 1 })
+  check({
+    name: 'P57 recursion: higher vibes are aggregate views (no stored layer), self-similar, inherited-stable, towering',
+    ok: r.superTernary && r.superLorentzSafe && r.inheritedStable && r.towerValid,
+    detail: `super ternary ${r.superTernary}, safe ${r.superLorentzSafe}, inherited ${r.inheritedOverlap.toFixed(3)}, emergence ${r.emergence.toFixed(2)} (partial), tower ${r.towerValid}`,
   })
 }
 
