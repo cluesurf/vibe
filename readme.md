@@ -127,7 +127,8 @@ P44 computational universality (the rule is Turing-complete), P45 the
 cosmological constant, and P47 to P51 the unifying base (the Coxeter
 construction, the parameter-free modular group, the hidden hierarchical
 crystal, the golden ratio with order-and-freedom, and the full integer
-ladder built end to end). The model itself is specified in
+ladder built end to end), and P52 to P53 hardening (the continuum limit
+and a coarse-graining fixed point). The model itself is specified in
 [note/the-model.md](note/the-model.md) and constructed in
 [code/model/vibe.ts](code/model/vibe.ts). Full detail in
 [note/experiment/results/](note/experiment/results/) and
