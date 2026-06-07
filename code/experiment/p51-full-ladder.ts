@@ -20,7 +20,7 @@ import { lorentzIsotropy } from '~/measure/lorentz'
 // Run the committed vibe rule (ternary signed-majority, symmetric fills) on a substrate,
 // the top rung. Returns whether it is reproducible (determined) and that it evolves
 // (the model actually runs, not a trivial fixed point from the start).
-function runModel(g: Graph, seed: number): { deterministic: boolean; evolves: boolean; nonzeroFraction: number } {
+export function runModel(g: Graph, seed: number): { deterministic: boolean; evolves: boolean; nonzeroFraction: number } {
   const rng = makeRng({ seed })
   const indexOf = g.neighbors.map((row) => {
     const m = new Map<number, number>()
