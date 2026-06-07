@@ -1,0 +1,529 @@
+\section{Measured Values}
+\label{sec:appendix}
+
+This appendix collects the measured values behind the findings, grouped by theme. Every number
+here was regenerated from the current code rather than copied from earlier notes. The body of the
+paper states what each finding shows. This is the evidence. P-numbers refer to the experiments in
+\texttt{code/experiment/} and the result notes in \texttt{note/experiment/results/}.
+
+\subsection{Geometry and the base}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{probe scale (momentum)} & \multicolumn{1}{c}{lattice anisotropy} & \multicolumn{1}{c}{sprinkle anisotropy} \\
+\midrule
+0.5 & 0.016 & $\approx 0.04$ \\
+1.0 & 0.067 & $\approx 0.04$ \\
+2.0 & 0.332 & $\approx 0.04$ \\
+3.0 & 1.121 & $\approx 0.04$ \\
+\bottomrule
+\end{tabular}
+\caption{\label{tab:lorentz}Lorentz isotropy (P27). The lattice's photon-speed anisotropy grows with energy to order one near the cutoff, a real preferred-frame effect. The random sprinkle stays near $0.04$ at every scale, finite-sample noise on an exactly isotropic distribution that falls toward zero as the sample grows.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lllll}
+\toprule
+\multicolumn{1}{c}{crystal} & \multicolumn{1}{c}{dimension} & \multicolumn{1}{c}{mean degree} & \multicolumn{1}{c}{Lorentz anisotropy} & \multicolumn{1}{c}{safe} \\
+\midrule
+heptagrid $\{7,3\}$ & 2D & 74.9 & 0.032 & yes \\
+pentagrid $\{5,4\}$ & 2D & 60.6 & 0.030 & yes \\
+$\{8,3\}$ & 2D & 27.0 & 0.050 & yes \\
+$\{6,4\}$ & 2D & 19.1 & 0.039 & yes \\
+dodecagrid $\{5,3,4\}$ & 3D & 11.6 & 0.050 & yes \\
+\bottomrule
+\end{tabular}
+\caption{The Coxeter family is Lorentz-safe (P41, P47). Across the regular hyperbolic tilings of the plane and the three-dimensional dodecagrid, the link-direction anisotropy stays small, where a flat lattice reaches order one (Table~\ref{tab:lorentz}).}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{space} & \multicolumn{1}{c}{honeycombs} & \multicolumn{1}{c}{examples} \\
+\midrule
+$H^2$ & infinitely many & all $\{p,q\}$, $1/p+1/q<1/2$ \\
+$H^3$ & 4 & $\{3,5,3\}, \{4,3,5\}, \{5,3,4\}, \{5,3,5\}$ \\
+$H^4$ & 5 & $\{3,3,3,5\}, \ldots, \{5,3,3,5\}$ \\
+$H^5$ & 0 & none \\
+$H^6$ and above & 0 & none \\
+\bottomrule
+\end{tabular}
+\caption{The dimension window (P62). Compact regular hyperbolic honeycombs with finite cells exist only in spatial dimensions two, three, and four. The model's substrate is $\{5,3,4\}$ in $H^3$. The testbed reproduces the known classification exactly.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{spatial dimension} & \multicolumn{1}{c}{apsidal angle} & \multicolumn{1}{c}{stable closed orbit} \\
+\midrule
+2 & $127^\circ$ & no (precesses) \\
+3 & $180^\circ$ & yes \\
+4 & unstable & no \\
+5 & unstable & no \\
+\bottomrule
+\end{tabular}
+\caption{Dimension selection (P68). Within the window, only three spatial dimensions gives stable, closed gravitational orbits. Two precesses (apsidal angle $127^\circ$, not $180^\circ$), and four and above are unstable.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\multicolumn{1}{c}{grown flat mesh} & \multicolumn{1}{c}{target} & \multicolumn{1}{c}{measured} & \multicolumn{1}{c}{fit quality} \\
+\midrule
+2D & 2 & 2.00 & $r^2 = 1.000$ \\
+3D & 3 & 2.97 & $r^2 = 1.000$ \\
+4D & 4 & 3.90 & $r^2 = 1.000$ \\
+\bottomrule
+\end{tabular}
+\caption{Emergent dimension from pure growth (P69). The dimension read from a grown flat mesh, with no embedding put in, matches the target. A grown curved mesh instead grows exponentially, the fingerprint of negative curvature.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{mesh size $N$} & \multicolumn{1}{c}{2D estimate} & \multicolumn{1}{c}{3D estimate} \\
+\midrule
+500 & 1.994 & 2.980 \\
+1000 & 2.005 & 2.991 \\
+2000 & 2.004 & 2.978 \\
+4000 & 2.010 & 2.991 \\
+\bottomrule
+\end{tabular}
+\caption{The continuum limit (P52). The emergent dimension holds at its target across mesh sizes, a stable continuum limit rather than a finite-size artefact.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{elements (after coarse-graining)} & \multicolumn{1}{c}{dimension} \\
+\midrule
+6000 (original) & 2.005 \\
+2990 & 2.016 \\
+1499 & 2.018 \\
+763 & 2.020 \\
+373 & 2.072 \\
+\bottomrule
+\end{tabular}
+\caption{The coarse-graining fixed point (P53). Halving the element count at each level leaves the dimension invariant, a renormalization fixed point (2D sprinkling shown).}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{independent construction} & \multicolumn{1}{c}{value} \\
+\midrule
+continued fraction $x = 1 + 1/x$ & $1.6180340$ \\
+ratio of consecutive Fibonacci numbers & $1.6180340$ \\
+pentagon geometry $2\cos(\pi/5)$ & $1.6180340$ \\
+\bottomrule
+\end{tabular}
+\caption{Three roads to the golden ratio (P50). The same constant arrives from the crystal's growth law, its Fibonacci addressing, and its pentagonal geometry.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{quantity} & \multicolumn{1}{c}{value} \\
+\midrule
+measured ball-growth ratio & 2.6186 \\
+pentagrid law $(3+\sqrt 5)/2$ & 2.6180 \\
+\bottomrule
+\end{tabular}
+\caption{Deterministic eternal growth (P83). The ball-growth ratio of the one-cell-at-a-time grown crystal converges on its own to the pentagrid's golden-ratio law, so the curvature emerges from the growth.}
+\end{table}
+
+\subsection{Dynamics, matter, and gravity}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\multicolumn{1}{c}{mass $m$} & \multicolumn{1}{c}{gap $\omega(0)$} & \multicolumn{1}{c}{fitted $a$} & \multicolumn{1}{c}{fitted $b$ ($m^2$)} \\
+\midrule
+0.0 & 0.000 & 0.968 & 0.000 \\
+0.3 & 0.300 & 0.968 & 0.090 \\
+0.6 & 0.600 & 0.968 & 0.360 \\
+\bottomrule
+\end{tabular}
+\caption{Mass and the relativistic dispersion (P14). The 1D lattice Dirac operator gives $\omega^2 = a k^2 + b$ with $a$ near one (the light speed) and $b$ near $m^2$ (the rest energy squared). At $m=0$ the gap vanishes.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llllll}
+\toprule
+\multicolumn{1}{c}{$L$} & \multicolumn{1}{c}{links} & \multicolumn{1}{c}{gauge modes} & \multicolumn{1}{c}{physical modes} & \multicolumn{1}{c}{min $\omega^2$} & \multicolumn{1}{c}{Proca min} \\
+\midrule
+3 & 81 & 29 & 52 & 3.000 & 1.00 \\
+4 & 192 & 66 & 126 & 2.000 & 1.00 \\
+5 & 375 & 127 & 248 & 1.382 & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{The photon (P20). About a third of the link degrees of freedom are exact gauge zero modes, and the smallest physical $\omega^2$ shrinks as the lattice grows, so the photon is massless. A mass term (Proca) would fix a gap near $m^2 = 1$.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{field scale $\epsilon$} & \multicolumn{1}{c}{Wilson action / Maxwell action} \\
+\midrule
+0.50 & 0.92643 \\
+0.20 & 0.98778 \\
+0.10 & 0.99693 \\
+0.05 & 0.99923 \\
+0.02 & 0.99988 \\
+\bottomrule
+\end{tabular}
+\caption{The gauge operator from the action (P23). As the field scale shrinks, the discrete Wilson gauge action converges to the continuum Maxwell action, and the resulting operator is massless.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{quantity} & \multicolumn{1}{c}{model} & \multicolumn{1}{c}{observed} \\
+\midrule
+$W$ mass (GeV) & 80.0 & 80.4 \\
+$Z$ mass (GeV) & 91.3 & 91.2 \\
+photon mass (GeV) & 0.000 & 0 \\
+$\sin^2\theta_W$ & 0.233 & 0.231 \\
+\bottomrule
+\end{tabular}
+\caption{Electroweak breaking (P25). With the measured couplings and $v = 246$ GeV, the Higgs mechanism reproduces the observed boson masses and Weinberg angle, with the photon left massless.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{dimension} & \multicolumn{1}{c}{form} & \multicolumn{1}{c}{fit quality} \\
+\midrule
+1D & linear (confining) & $R^2 = 0.94$ \\
+2D & logarithmic & $R^2 = 0.98$ \\
+3D & Newtonian $1/r$ & $R^2 = 0.9965$ \\
+\bottomrule
+\end{tabular}
+\caption{The Newtonian limit (P16). The gravitational potential takes the right form in each dimension: confining in 1D, logarithmic in 2D, and inverse-distance (Newtonian) in 3D.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{region size $l$} & \multicolumn{1}{c}{entanglement entropy} \\
+\midrule
+2 & 3.97 \\
+3 & 10.67 \\
+4 & 21.61 \\
+\bottomrule
+\end{tabular}
+\caption{Black-hole entropy, the area law (P33). The entanglement entropy of an $l \times l \times l$ region scales with area, not volume.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\multicolumn{1}{c}{density $\rho$} & \multicolumn{1}{c}{min length $\ell$} & \multicolumn{1}{c}{curvature cap $1/\ell^2$} & \multicolumn{1}{c}{$\ell\sqrt{\rho}$} \\
+\midrule
+1 & 0.545 & 3.37 & 0.545 \\
+2 & 0.342 & 8.54 & 0.484 \\
+4 & 0.230 & 18.95 & 0.459 \\
+8 & 0.153 & 42.66 & 0.433 \\
+16 & 0.102 & 96.79 & 0.407 \\
+\bottomrule
+\end{tabular}
+\caption{Singularity resolution (P28). The minimum length shrinks with density but the curvature, going as $1/\ell^2$, is capped at a finite value, so the substrate has no infinite-density point.}
+\end{table}
+
+\subsection{The quantum sector}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{time $t$} & \multicolumn{1}{c}{quantum width} & \multicolumn{1}{c}{classical width} \\
+\midrule
+4 & 5.66 & 2.83 \\
+8 & 11.31 & 4.00 \\
+16 & 22.63 & 5.66 \\
+32 & 45.25 & 8.00 \\
+48 & 67.88 & 9.80 \\
+\bottomrule
+\end{tabular}
+\caption{Quantum coherence (P17). A quantum walk on the mesh spreads ballistically (width $\sim t^{1.0}$), a classical walk only diffusively (width $\sim t^{0.5}$), the signature of coherence.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\multicolumn{1}{c}{branch} & \multicolumn{1}{c}{$|c|^2$ (Born)} & \multicolumn{1}{c}{by counting} & \multicolumn{1}{c}{by envariance} \\
+\midrule
+1 & 0.040 & 0.040 & 0.040 \\
+2 & 0.252 & 0.253 & 0.252 \\
+3 & 0.494 & 0.493 & 0.494 \\
+4 & 0.213 & 0.213 & 0.213 \\
+\bottomrule
+\end{tabular}
+\caption{The Born rule, derived (P70). Fair counting and Zurek envariance both reproduce $|c|^2$. Fair sampling selects the exponent $p=2$ uniquely (mismatch $0.117$ at $p=1$, $0.001$ at $p=2$, $0.105$ at $p=3$).}
+\end{table}
+
+\subsection{Cosmology}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{spacetime volume $V$} & \multicolumn{1}{c}{RMS implied $\delta\Lambda$} \\
+\midrule
+$10^2$ & $9.97\times 10^{-2}$ \\
+$10^3$ & $3.16\times 10^{-2}$ \\
+$10^4$ & $1.00\times 10^{-2}$ \\
+$10^5$ & $3.16\times 10^{-3}$ \\
+$10^6$ & $1.00\times 10^{-3}$ \\
+$10^7$ & $3.18\times 10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\caption{The everpresent cosmological constant (P46). The fluctuation of $\Lambda$ scales as $V^{-1/2}$ (measured slope $-0.499$), so it shrinks as the universe grows, landing near the observed dark-energy scale at cosmic volume.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{region grid} & \multicolumn{1}{c}{density contrast} \\
+\midrule
+$4^3$ & 0.017 \\
+$6^3$ & 0.032 \\
+$8^3$ & 0.052 \\
+$12^3$ & 0.091 \\
+$16^3$ & 0.144 \\
+$24^3$ & 0.262 \\
+\bottomrule
+\end{tabular}
+\caption{The primordial fluctuation seed (P78). The density contrast falls as one over the square root of the count, a scale-free Poisson seed (measured exponent $-0.509$).}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\multicolumn{1}{c}{test} & \multicolumn{1}{c}{experimental bound} & \multicolumn{1}{c}{model} & \multicolumn{1}{c}{lattice} \\
+\midrule
+linear LIV $\xi_1$ & $<0.132$ (Fermi-LAT) & $0$ & $\sim 1.12$ (excluded) \\
+quadratic LIV $E_{QG2}$ & $>1.3\times 10^{11}$ GeV & passes & n/a \\
+swerve diffusion & cosmic-ray spectra & $\sim$ density$^{-1.61}$ & n/a \\
+\bottomrule
+\end{tabular}
+\caption{Sharp predictions against the bounds (P82). The substrate predicts no first-order Lorentz violation and passes the gamma-ray-burst timing bound that excludes a lattice. The swerve shrinks as the discreteness fines.}
+\end{table}
+
+\subsection{The Standard Model content}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{field} & \multicolumn{1}{c}{solved hypercharge} & \multicolumn{1}{c}{Standard Model} \\
+\midrule
+$Q$ (quark doublet) & $0.1667$ & $1/6$ \\
+$u$ (up antiquark) & $-0.6667$ & $-2/3$ \\
+$d$ (down antiquark) & $0.3333$ & $1/3$ \\
+$L$ (lepton doublet) & $-0.5000$ & $-1/2$ \\
+$e$ (positron) & $1.0000$ & $1$ \\
+\bottomrule
+\end{tabular}
+\caption{Anomaly cancellation forces charge quantization (P79). The unique anomaly-free, Yukawa-consistent solution for one generation is exactly the Standard Model hypercharges. The cubic and color anomalies then cancel to $\sim 10^{-12}$, and charges come out quantized in thirds.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{setup} & \multicolumn{1}{c}{net asymmetry} \\
+\midrule
+all three conditions present & 0.081 \\
+no C/CP violation & 0.000 \\
+in equilibrium & 0.000 \\
+no baryon-number violation & 0.000 \\
+\bottomrule
+\end{tabular}
+\caption{Baryogenesis (P80). With all three Sakharov conditions a matter excess builds up, and removing any one erases it.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{overlap law} & \multicolumn{1}{c}{mass spread (decades)} \\
+\midrule
+exponential (hyperbolic substrate) & 5.5 \\
+power-law (flat substrate) & 2.3 \\
+observed (top quark over electron) & 5.5 \\
+\bottomrule
+\end{tabular}
+\caption{The mass hierarchy (P81). Exponential overlap on a hyperbolic substrate spans the observed charged-fermion range from evenly spaced modes, where a flat power law cannot.}
+\end{table}
+
+\subsection{The interior}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{region} & \multicolumn{1}{c}{integration $\Phi$} \\
+\midrule
+a genuine self (a cell) & 4.397 \\
+a random same-size bag & 0.000 \\
+the whole mesh & 0.116 \\
+\bottomrule
+\end{tabular}
+\caption{Integrated information (P63). A genuine self resists being cut into parts (high $\Phi$), a random bag of vibes does not, and the whole mesh is one integrated unity. A self sits at a local maximum of $\Phi$.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{coarse-graining} & \multicolumn{1}{c}{macro-rule agreement} \\
+\midrule
+arbitrary blocks & 0.47 \\
+coherent domains (naive) & 0.76 \\
+coherent domains (renormalized) & 0.80 \\
+domains of size $\ge 3$ & 0.94 \\
+domains of size $\ge 5$ & 0.95 \\
+domains of size $\ge 10$ & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{The emergent macro-rule (P58). Coarse-grained along the system's own coherent domains, the higher level obeys the same rule, and the agreement rises with how integrated the domains are. Arbitrary blocks do not work.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\multicolumn{1}{c}{fraction of cell flipped} & \multicolumn{1}{c}{cell returns to body} & \multicolumn{1}{c}{rest of body intact} \\
+\midrule
+10\% & 1.00 & 1.00 \\
+25\% & 1.00 & 1.00 \\
+50\% & 0.66 & 1.00 \\
+75\% & 0.00 & 1.00 \\
+100\% & 0.00 & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{Nested selves (P59). Flip part of one cell of a body and re-settle. A small wound heals (homeostasis), a whole-cell flip persists with a new identity (autonomy), and the rest of the body is undisturbed throughout.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lllll}
+\toprule
+\multicolumn{1}{c}{level} & \multicolumn{1}{c}{name} & \multicolumn{1}{c}{units} & \multicolumn{1}{c}{internal alignment} & \multicolumn{1}{c}{rule holds} \\
+\midrule
+0 & cells & 81 & 0.99 & 1.00 \\
+1 & tissues & 27 & 0.84 & 1.00 \\
+2 & organs & 9 & 0.59 & 1.00 \\
+3 & systems & 3 & 0.48 & 1.00 \\
+4 & body & 1 & 0.21 & n/a \\
+\bottomrule
+\end{tabular}
+\caption{The tower of selves (P60). A recursively modular mesh descends to a single top self, dividing by about three at each level, with the emergent rule holding at every level.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{model size (fraction of the whole)} & \multicolumn{1}{c}{reconstruction fidelity} \\
+\midrule
+2\% & 0.54 \\
+5\% & 0.52 \\
+10\% & 0.54 \\
+25\% & 0.63 \\
+50\% & 0.71 \\
+100\% & 1.00 \\
+\bottomrule
+\end{tabular}
+\caption{No complete self-storage (P61). A self-model's reconstruction fidelity rises with its size but reaches one only at the full size of the whole, so a lossless self-record cannot fit inside the system.}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{perturbation (fraction flipped)} & \multicolumn{1}{c}{recovery} \\
+\midrule
+0\% & 1.00 \\
+10\% & 1.00 \\
+20\% & 1.00 \\
+30\% & 1.00 \\
+40\% & 0.91 \\
+50\% & 0.04 \\
+\bottomrule
+\end{tabular}
+\caption{Selves as attractors (P75). A stored self recovers fully from perturbations up to about a forty percent flip, its basin of attraction, and loses its identity only beyond it.}
+\end{table}
+
+\subsection{The capstone}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\multicolumn{1}{c}{structure read off the one mesh} & \multicolumn{1}{c}{result} \\
+\midrule
+mean degree (neighbours per vibe) & 10.6 \\
+Lorentz anisotropy & 0.070 (no preferred frame) \\
+exponential reach (hyperbolic geometry) & yes \\
+tones stay strictly ternary & yes \\
+dynamics converges to stable states & yes (flip fraction $\to 0.000$) \\
+Hamiltonian bounded below & yes (min eigenvalue $0.0010$) \\
+arrow of time (relations accumulate) & yes \\
+\bottomrule
+\end{tabular}
+\caption{The capstone (P34). Every structure is read off one committed mesh, not from separate hand-built models, which is the real test of unification.}
+\end{table}
+

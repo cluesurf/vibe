@@ -1,0 +1,32 @@
+\section{The Capstone: The Model Run End to End}
+\label{sec:capstone}
+
+The committed model is not an assembly of separate experiments. It is one object, and the testbed
+runs it end to end (P34, P36, P52 to P56), reading the key emergent structures off a single
+instantiation.
+
+\paragraph{One mesh, many structures (P34).}
+P34 is the capstone run. A single committed mesh is built and updated, and the emergent structures
+are read off the same instance: the mean degree and exponential reach (the hyperbolic geometry), the
+Lorentz anisotropy (consistent with zero), the bounded-below Hamiltonian (the energy), the
+integration (the unity), and the tone histogram. They come from one mesh, not from separate
+hand-built models, which is the real test of unification.
+
+\paragraph{The model constructor (P36).}
+P36 is the small constructor, \texttt{code/model/vibe.ts}, that writes the committed model at a
+glance and exposes the substrate choices: the hyperbolic mesh, the heptagrid and the dodecagrid as
+the ideal crystals it approximates, and the lattice and sprinkle as comparison meshes. Its
+\texttt{read()} returns the emergent structures above, including the integration and a count of the
+higher vibes coarse-grained off the settled mesh.
+
+\paragraph{Hardening (P52 to P54).}
+P52 to P54 are the hardening pass. P52 checks the continuum limit, with the emergent dimension
+agreeing across sizes. P53 finds a coarse-graining fixed point, the macro-rule reproducing the
+micro-rule under renormalization. P54 measures large-$N$ scaling so the heavier experiments are
+trustworthy at size.
+
+\paragraph{The unified operator and the eternal ladder (P55, P56).}
+P55 brings all the bosonic sectors out of a single operator on a single mesh, the unification at
+the level of the substrate. P56 sets the integer ladder of Section~\ref{sec:base} growing eternally
+with the model on it, joining the static base to the deterministic eternal growth of
+Section~\ref{sec:geometry} (P83). The crystal, the rule, and the growth are one system.

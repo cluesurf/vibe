@@ -1,0 +1,39 @@
+\section{The Testbed and Its Discipline}
+\label{sec:testbed}
+
+The findings come from \texttt{@cluesurf/vibe}, a finite, seeded, reproducible simulator
+\citep{pollard2026vibetest}. Its purpose is to keep the theory honest by turning each claim into a measurement that
+could come out wrong.
+
+\paragraph{Finite and seeded.}
+Every run is finite and deterministic given a seed. There is no hidden state and no wall-clock
+randomness. Re-running a finding reproduces it exactly. This matters because the model's claims are
+quantitative, and a quantitative claim is only as trustworthy as its reproducibility.
+
+\paragraph{The discreteness principle.}
+Real numbers appear only as measured outputs, never as the substrate. The base carries
+three-valued states and integer counts. Continuous quantities, coordinates, eigenvalues,
+dimensions, temperatures, are computed from the discrete data, in the spirit of a cellular
+automaton whose tally of neighbours is an integer. When a continuous quantity such as a Poincar\'e
+coordinate is used, it is a derived embedding of a discrete graph, not a primitive.
+
+\paragraph{Known-answer tests.}
+Each finding is paired with a test that checks it against an independently known value: a
+classification from the mathematics literature, a textbook physics limit, an analytic result, or a
+self-consistency identity. The suite currently holds one hundred three such checks, all passing.
+Several early versions of findings failed these tests in plausible-looking ways and were corrected.
+The tests are the reason the numbers in this paper can be trusted.
+
+\paragraph{How a finding is reported.}
+Each numbered problem, written P1, P2, and so on, is one experiment. Its code lives in
+\texttt{code/experiment/}, its result note in \texttt{note/experiment/results/}, and its status in
+\texttt{note/questions/}. In this paper we group the findings by theme rather than by number, and
+for each we give the method in one or two sentences, the result, and an honest status: demonstrated,
+a first rung, or open. The full per-finding scoreboard is Section~\ref{sec:scoreboard}.
+
+\paragraph{The committed model.}
+One configuration is the default everywhere, the committed model: a growing hyperbolic causal mesh,
+ternary tones $\{-1,0,+1\}$, ternary fills on the notes, a signed-majority update, asynchronous
+local scheduling, and net-positive growth. A small constructor writes it, and the capstone of
+Section~\ref{sec:capstone} runs it end to end, reading the key emergent structures off one
+instantiation.
