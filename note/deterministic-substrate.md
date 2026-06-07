@@ -118,15 +118,44 @@ measured side by side against the random sprinkle and a flat lattice
 | tiling {7,3} | 0.027 | yes |
 | tiling {5,4} | 0.021 | yes |
 
+The full {p,4} and {p,3} families (the pentagrid and heptagrid relatives) are surveyed in
+`p41-margenstern-tilings`, and all are Lorentz-safe.
+
 So **several** non-random substrates work: the golden-angle sunflower, the Halton disc,
 and the regular {7,3} and {5,4} tessellations. Every hyperbolic one is Lorentz-safe and
 only the flat lattice is not. The deep lesson is that **randomness was never the essential
 ingredient. Hyperbolic curvature is.** The substrate does not need randomness, and it does
-not even need disorder. The remaining frontier is solution 2, deriving the same isotropy
-from a deterministic growth rule rather than a static placement.
+not even need disorder.
+
+## 3D: the dodecagrid {5,3,4}
+
+Margenstern's main three-dimensional structure is the **dodecagrid**, the regular {5,3,4}
+honeycomb of right-angled dodecahedra in hyperbolic 3-space. We built it deterministically
+(`code/substrate/hyperbolic-honeycomb`): a central hyperbolic dodecahedron at the
+right-angled circumradius (dihedral 90 degrees, four cells per edge), reflected across its
+twelve faces by sphere inversions in the Poincare ball, breadth-first. Measured against a
+flat 3D cubic lattice (`p45-dodecagrid`):
+
+| substrate | Lorentz anisotropy | Lorentz-safe |
+| --------- | ------------------ | ------------ |
+| flat cubic lattice (3D control) | 1.000 | no |
+| dodecagrid {5,3,4} (3D hyperbolic) | 0.075 | yes |
+
+The dodecagrid is Lorentz-safe with exponential reach, while the flat cubic lattice has a
+strong preferred frame. So the curvature lesson holds in **three dimensions too**: a
+regular hyperbolic honeycomb is Lorentz-safe because curvature scrambles the global
+directions a flat lattice lines up. The dodecagrid joins the 2D pentagrid and heptagrid as
+a deterministic, non-random, Lorentz-safe substrate.
+
+## The remaining frontier
+
+Solution 2, deriving the same isotropy from a deterministic growth rule rather than a
+static placement, and a fully addressed 3D navigation (the 3D analogue of P42).
 
 ## See also
 
 `note/the-model.md` (the model), `p3-study` and `p27-lorentz-violation` (why the
-substrate must be Lorentz-safe), `p39-deterministic-substrate` (the sunflower), and
-`p40-non-random-substrates` (the full family).
+substrate must be Lorentz-safe), `p39-deterministic-substrate` (the sunflower),
+`p40-non-random-substrates` (the family), `p41-margenstern-tilings` (the {p,4} and {p,3}
+survey), `p42-fibonacci-navigation` (exact addressing), and `p45-dodecagrid` (the 3D
+honeycomb).
