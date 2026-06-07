@@ -111,47 +111,52 @@ Each experiment is also a standalone script:
 ## Results
 
 Final status of each open problem, from the latest run. Build state:
-typecheck clean, 89 of 89 known-answer tests pass. P1 to P9 are the
-conceptual core, P10 to P17 the next version, P18 to P22 the dark sector
-and the field content, P23 to P25 the field operators derived from the
-action and electroweak breaking, P26 to P30 the distinctive
-observational predictions and cosmology, P31 to P33 the deep frontiers
-(the quantum formalism, the Einstein equations, and black-hole entropy),
-P34 the capstone (the committed model run end-to-end), P35 the contact
-with data, P36 the model DSL, and P37 to P42 the deeper integration (the
-signal sector from the rule itself, emergent spatial geometry, a family
-of non-random substrates including the Margenstern hyperbolic tilings,
-and exact addressed navigation on them), P43 a structural model of
-freedom and choice (determined yet self-authored and irreducible), P44
-computational universality (the rule is Turing-complete), P45 the 3D
-dodecagrid hyperbolic honeycomb, P46 the dynamical everpresent
-cosmological constant, and P47 to P51 the unifying base (the Coxeter
-construction, the parameter-free modular group, the hidden hierarchical
-crystal, the golden ratio with order-and-freedom, and the full integer
-ladder built end to end), P52 to P54 hardening (the continuum limit, a
-coarse-graining fixed point, and large-N scaling), and P55 to P56 the
-integration capstone (all bosonic sectors from one operator on one mesh,
-and the integer ladder eternally growing with the model on it), and P57
-to P58 recursion (higher vibes as aggregate views of the micro-tones,
-the model self-similar with no stored higher layer, and the macro-rule
-an emergent renormalization fixed point on the integrated wholes), and
-P59 to P60 the nested selves (cells in a body, homeostasis and autonomy)
-and the full tower of selves (the fractal of wholes-within-wholes), and
-P61 the no-complete-self-storage principle (the world can model itself
-only in lossy summary, never in full, so no infinite mirror), and P62
-the dimension window (compact hyperbolic crystals exist only in
-dimensions 2 to 4, so the substrate dimension is constrained, not
-assumed), and P63 to P65 the interior (integration Phi picks out selves
-as local maxima, a slow subtle layer steers the fast surface as a real
-urge, and one mesh gives waking and dreaming by clamping or freeing it,
-with a self persisting through total material turnover and
-shared-ancestry subsystems correlating without a link), and P68 to P69
-the spatial-dimension questions (why three of the allowed {2,3,4}, by
-stable closed orbits, and the spatial dimension emerging unbiased from
-pure grown connectivity). The model itself is specified in
-[note/the-model.md](note/the-model.md) and constructed in
-[code/model/vibe.ts](code/model/vibe.ts). Full detail in
-[note/experiment/results/](note/experiment/results/) and
+typecheck clean, 89 of 89 known-answer tests pass.
+
+The arc runs bottom-up. P1 to P9 are the conceptual core, and P10 to P17
+the next version. P18 to P22 cover the dark sector and the field content,
+P23 to P25 the field operators derived from the action and electroweak
+breaking, and P26 to P30 the distinctive observational predictions and
+cosmology.
+
+P31 to P33 are the deep frontiers (the quantum formalism, the Einstein
+equations, and black-hole entropy). P34 is the capstone (the committed
+model run end to end), P35 the contact with data, and P36 the model DSL.
+
+P37 to P42 are the deeper integration (the signal sector from the rule
+itself, emergent spatial geometry, a family of non-random substrates
+including the Margenstern hyperbolic tilings, and exact addressed
+navigation on them). P43 is a structural model of freedom and choice,
+P44 computational universality (the rule is Turing-complete), P45 the 3D
+dodecagrid hyperbolic honeycomb, and P46 the dynamical everpresent
+cosmological constant.
+
+P47 to P51 are the unifying base (the Coxeter construction, the
+parameter-free modular group, the hidden hierarchical crystal, the golden
+ratio with order-and-freedom, and the full integer ladder built end to
+end). P52 to P54 are hardening (the continuum limit, a coarse-graining
+fixed point, and large-N scaling), and P55 to P56 the integration
+capstone (all bosonic sectors from one operator on one mesh, and the
+integer ladder eternally growing with the model on it).
+
+P57 to P67 build the interior. P57 to P58 are recursion (higher vibes as
+aggregate views of the micro-tones, self-similar with no stored higher
+layer, the macro-rule an emergent renormalization fixed point). P59 to
+P60 are the nested selves (cells in a body, homeostasis and autonomy) and
+the full tower of selves. P61 is the no-complete-self-storage principle
+(the world models itself only in lossy summary, so no infinite mirror).
+P63 to P67 cover integration Phi picking out selves, the subtle layer
+steering the surface as a real urge, waking versus dreaming, reincarnation
+as pattern persistence, and synchronicity from shared deep ancestry.
+
+P62 and P68 to P69 settle the spatial dimension: compact hyperbolic
+crystals exist only in dimensions 2 to 4 (so the dimension is
+constrained, not assumed), three is selected by stable closed orbits, and
+the spatial dimension emerges unbiased from pure grown connectivity.
+
+The model itself is specified in [note/the-model.md](note/the-model.md)
+and constructed in [code/model/vibe.ts](code/model/vibe.ts). Full detail
+in [note/experiment/results/](note/experiment/results/) and
 [note/questions/](note/questions/).
 
 | Problem | What it tests                                    | Status                                                 | Key result                                                                                                                                                                                                                                                                                                                                                                      |
