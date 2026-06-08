@@ -1,35 +1,35 @@
-# P53: The Coarse-Graining Fixed Point
+# P53: The Renormalization Group (a Genuine Coupling Flow)
 
-**Status: demonstrated. The continuum dimension is a renormalization fixed point.**
+**Status: solved. A measured coupling flows to a fixed point, not trivial decimation.**
 
-## The question
+## The fix
 
-A continuum description should be a fixed point of coarse-graining: zoom out and the
-relevant observable does not change. For a sprinkled causal set, coarse-graining is
-sub-sprinkling (decimation). Is the dimension invariant under it?
+The earlier version called random decimation of a sprinkle a "renormalization fixed point", but a
+sub-sprinkle of a d-dimensional sprinkle is trivially still d-dimensional, so nothing flowed. A real
+RG has a COUPLING that flows. The tone dynamics are Ising-like, so we run the actual block-spin RG.
 
 ## Result
 
-Halving the element count at each coarse-graining level:
+Block-spin (decimate every other tone) on the Ising-like chain, measuring the renormalized coupling
+from the blocked chain's correlations:
 
-| level | 2D dimension | 3D dimension |
-| ----- | ------------ | ------------ |
-| original | 2.005 | 3.007 |
-| level 1 | 2.016 | 3.045 |
-| level 2 | 2.018 | 3.023 |
-| level 3 | 2.020 | 2.914 |
-| level 4 | 2.072 | 2.949 |
+| K | K' measured | exact recursion tanh K' = tanh^2 K |
+| - | ----------- | ---------------------------------- |
+| 2.00 | 1.654 | 1.654 |
+| 1.00 | 0.667 | 0.663 |
+| 0.50 | 0.216 | 0.217 |
+| 0.25 | 0.060 | 0.060 |
 
-The dimension stays at its continuum value through repeated decimation, so it is
-**invariant under coarse-graining**, a fixed point.
+Iterating from K = 1.5: 1.5 -> 1.16 -> 0.82 -> 0.49 -> 0.21 -> 0.04 -> 0.00, flowing to the fixed
+point K* = 0 (the disordered fixed point). Secondary: the causal-set dimension is, separately, a
+coarse-graining invariant.
 
 ## Reading
 
-Zooming out by keeping half the elements at each step leaves the dimension unchanged. The
-continuum dimension is a renormalization fixed point, so the discrete model has a stable
-continuum description, the same at every scale. This is the fixed-point check of the
-hardening roadmap.
+Coarse-graining is a genuine renormalization group. The coupling is MEASURED to shrink under
+block-spinning, matching the decimation recursion, and iterating drives it to a fixed point. The
+dimension invariance is a separate coarse-graining fact, no longer the headline.
 
 ## See also
 
-`p52-continuum-limit.md`, `p5`, and `note/roadmap.md`.
+`p52-continuum-limit.md`, `p58-emergent-macro-rule.md`.

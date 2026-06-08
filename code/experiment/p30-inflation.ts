@@ -1,76 +1,107 @@
-// P30: inflation from a time-varying growth rate.
-// P13 showed expansion emerges from a local birth rule with net birth above one, at a
-// constant rate. Inflation is a brief epoch of much faster (accelerating) expansion
-// early on, followed by a graceful exit to ordinary slow expansion. We model it with
-// a time-varying spawn rate: high in the first few generations, then low. The front
-// grows by many e-folds during the burst, then settles, exactly the inflationary
-// profile, all from a local rule with no inflaton field put in by hand.
-// See note/questions/frontiers.md. Run: npx tsx code/experiment/p30-inflation.ts
+// P30: inflation from slow-roll, derived (not a hardcoded two-phase rate).
+// The earlier version simply hardcoded a high spawn rate for the first few generations and a low one
+// after, so the two phases were the two inputs and the WHY of inflation was never addressed. This
+// version derives inflation from a slow-rolling inflaton field, the standard mechanism, by
+// integrating its equations of motion:
+//   H = sqrt( (1/2 phidot^2 + V(phi)) / 3 ),   phiddot = -3 H phidot - V'(phi),   dln a/dt = H,
+// with V(phi) = 1/2 m^2 phi^2 (units 8 pi G = 1). Nothing about the two phases is put in. While the
+// field is large it slow-rolls, the potential dominates, and the universe inflates with equation of
+// state w near -1 (accelerating). Inflation ENDS by itself, a graceful exit, when the field rolls
+// down to where the slow-roll parameter epsilon = (1/2)(V'/V)^2 reaches 1, after which the kinetic
+// energy dominates and the expansion decelerates. The number of e-folds comes out as phi0^2/4,
+// computed from the integration, not assigned.
+// Run: npx tsx code/experiment/p30-inflation.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeRng } from '~/tool/rng'
 
-// Grow the spatial front generation by generation. Each cell spawns one child, plus a
-// second with probability q(generation). Returns the width per generation.
-export function inflate(input: {
-  generations: number
-  initialWidth: number
-  inflationGenerations: number
-  qInflation: number
-  qNormal: number
-  seed: number
-}): { widths: number[]; ratesPerGen: number[]; inflationEfolds: number } {
-  const rng = makeRng({ seed: input.seed })
-  const widths: number[] = [input.initialWidth]
-  for (let g = 0; g < input.generations; g++) {
-    const q = g < input.inflationGenerations ? input.qInflation : input.qNormal
-    let next = 0
-    const w = widths[g] ?? 0
-    for (let c = 0; c < w; c++) {
-      next += 1 + (rng.next() < q ? 1 : 0)
+export function inflate(input: { phi0: number; m?: number }): {
+  efolds: number
+  efoldsAnalytic: number
+  wDuringInflation: number
+  acceleratesDuringInflation: boolean
+  gracefulExit: boolean
+  enoughEfolds: boolean
+  efoldsMatchesAnalytic: boolean
+} {
+  const m = input.m ?? 1
+  const V = (p: number): number => 0.5 * m * m * p * p
+  const Vp = (p: number): number => m * m * p
+  const dt = 0.0005
+
+  let phi = input.phi0
+  let phid = 0 // start on the slow-roll attractor
+  let lnA = 0
+  let efoldsAtExit = 0
+  let exited = false
+  let wDuringInflation = 0
+  let minAccelAfterExit = Infinity
+  let sampledW = false
+
+  for (let i = 0; i < 600000; i++) {
+    const H = Math.sqrt(Math.max(0, (0.5 * phid * phid + V(phi)) / 3))
+    // acceleration: a''/a = (V - phidot^2) / 3 (positive while the potential dominates).
+    const accel = (V(phi) - phid * phid) / 3
+    const eps = 0.5 * (Vp(phi) / Math.max(1e-30, V(phi))) ** 2
+    if (i === 500 && !sampledW) {
+      wDuringInflation = (0.5 * phid * phid - V(phi)) / Math.max(1e-30, 0.5 * phid * phid + V(phi))
+      sampledW = true
     }
-    widths.push(Math.max(1, next))
+    if (!exited && eps >= 1) {
+      efoldsAtExit = lnA
+      exited = true
+    }
+    if (exited) minAccelAfterExit = Math.min(minAccelAfterExit, accel)
+    // RK4 step on (phi, phid); lnA by H dt.
+    const deriv = (p: number, pd: number): { dp: number; dpd: number } => {
+      const h = Math.sqrt(Math.max(0, (0.5 * pd * pd + V(p)) / 3))
+      return { dp: pd, dpd: -3 * h * pd - Vp(p) }
+    }
+    const k1 = deriv(phi, phid)
+    const k2 = deriv(phi + 0.5 * dt * k1.dp, phid + 0.5 * dt * k1.dpd)
+    const k3 = deriv(phi + 0.5 * dt * k2.dp, phid + 0.5 * dt * k2.dpd)
+    const k4 = deriv(phi + dt * k3.dp, phid + dt * k3.dpd)
+    phi += (dt / 6) * (k1.dp + 2 * k2.dp + 2 * k3.dp + k4.dp)
+    phid += (dt / 6) * (k1.dpd + 2 * k2.dpd + 2 * k3.dpd + k4.dpd)
+    lnA += H * dt
+    if (exited && Math.abs(phi) < 0.1 && Math.abs(phid) < 0.1) break
   }
-  const ratesPerGen = widths.slice(1).map((w, g) => w / (widths[g] ?? 1))
-  // e-folds of inflation: ln(width at end of the inflationary epoch / initial width).
-  const wEnd = widths[Math.min(input.inflationGenerations, widths.length - 1)] ?? 1
-  const inflationEfolds = Math.log(wEnd / (widths[0] ?? 1))
-  return { widths, ratesPerGen, inflationEfolds }
+
+  const efoldsAnalytic = (input.phi0 * input.phi0) / 4
+  return {
+    efolds: efoldsAtExit,
+    efoldsAnalytic,
+    wDuringInflation,
+    // During slow-roll the potential dominates, so the expansion accelerates (w near -1).
+    acceleratesDuringInflation: wDuringInflation < -1 / 3,
+    // After the field exits slow-roll, the kinetic energy makes the expansion decelerate.
+    gracefulExit: exited && minAccelAfterExit < 0,
+    enoughEfolds: efoldsAtExit >= 60,
+    efoldsMatchesAnalytic: Math.abs(efoldsAtExit - efoldsAnalytic) / efoldsAnalytic < 0.05,
+  }
 }
 
 export function main(): void {
-  console.log('P30: inflation from a time-varying growth rate')
+  console.log('P30: inflation from slow-roll, derived (not a hardcoded two-phase rate)')
   console.log('')
-  const r = inflate({
-    generations: 16,
-    initialWidth: 2,
-    inflationGenerations: 6,
-    qInflation: 1.0,
-    qNormal: 0.05,
-    seed: 1,
-  })
-  console.log('  front width per generation:')
-  console.log('    ' + r.widths.join(', '))
+  const r = inflate({ phi0: 16 })
+  console.log('  inflaton in V = 1/2 m^2 phi^2, integrated from phi0 = 16 (slow-roll attractor):')
   console.log('')
-  console.log('  expansion rate per generation (width ratio):')
-  console.log('    ' + r.ratesPerGen.map((x) => x.toFixed(2)).join(', '))
+  console.log(`  equation of state during inflation: w = ${r.wDuringInflation.toFixed(3)} (near -1, vacuum-like, accelerating)`)
+  console.log(`  expansion accelerates during inflation (w < -1/3): ${r.acceleratesDuringInflation ? 'YES' : 'no'}`)
+  console.log(`  e-folds of inflation (computed): ${r.efolds.toFixed(1)} (analytic phi0^2/4 = ${r.efoldsAnalytic.toFixed(1)})`)
+  console.log(`  e-folds match the analytic value: ${r.efoldsMatchesAnalytic ? 'YES' : 'no'}`)
+  console.log(`  enough e-folds to solve the horizon problem (>= 60): ${r.enoughEfolds ? 'YES' : 'no'}`)
+  console.log(`  graceful exit (expansion decelerates after the field leaves slow-roll): ${r.gracefulExit ? 'YES' : 'no'}`)
   console.log('')
-  const earlyRate = r.ratesPerGen.slice(0, 6).reduce((a, b) => a + b, 0) / 6
-  const lateRate = r.ratesPerGen.slice(6).reduce((a, b) => a + b, 0) / Math.max(1, r.ratesPerGen.length - 6)
-  console.log(`  inflationary epoch (first 6 generations): mean rate ${earlyRate.toFixed(2)}, ${r.inflationEfolds.toFixed(1)} e-folds`)
-  console.log(`  after the graceful exit: mean rate ${lateRate.toFixed(2)} (ordinary slow expansion)`)
-  console.log('')
-  console.log('  With a high early spawn rate the front expands rapidly, by several e-folds in a')
-  console.log('  few generations, then the rate drops to just above one and the universe settles')
-  console.log('  into ordinary slow expansion. That is the inflationary profile (a burst of')
-  console.log('  accelerated expansion with a graceful exit), here emerging from a purely local')
-  console.log('  growth rule with a time-varying birth rate, no inflaton field added by hand. The')
-  console.log('  early burst would stretch and smooth the universe, the standard role of inflation.')
+  console.log('  Inflation is not assigned, it is derived. Integrating the inflaton equations of')
+  console.log('  motion, the field slow-rolls while it is large: the potential dominates, the equation')
+  console.log('  of state sits near -1, and the universe accelerates through many e-folds, with the')
+  console.log('  count coming out as phi0^2/4. Inflation then ends by itself, a graceful exit, when the')
+  console.log('  field rolls down to where the slow-roll condition fails and the kinetic energy takes')
+  console.log('  over, decelerating the expansion. The two phases and the WHY of the transition emerge')
+  console.log('  from the field rolling, not from a hardcoded rate.')
 }
 
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main()
 }

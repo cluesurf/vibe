@@ -81,14 +81,14 @@ import { fibonacciNavigation } from '~/experiment/p42-fibonacci-navigation'
 import { freedomChoice } from '~/experiment/p43-freedom-choice'
 import { universality } from '~/experiment/p44-universality'
 import { dodecagrid } from '~/experiment/p45-dodecagrid'
-import { everpresentDynamical } from '~/experiment/p46-everpresent-dynamical'
+import { everpresent } from '~/experiment/p46-everpresent-dynamical'
 import { coxeterUnification } from '~/experiment/p47-coxeter-unification'
 import { modularBase } from '~/experiment/p48-modular-base'
 import { crystalHiddenHierarchical } from '~/experiment/p49-crystal-hidden-hierarchical'
 import { goldenAndFree } from '~/experiment/p50-golden-and-free'
 import { fullLadder } from '~/experiment/p51-full-ladder'
 import { continuumLimit } from '~/experiment/p52-continuum-limit'
-import { coarseGrainingFixedPoint } from '~/experiment/p53-coarse-graining-fixed-point'
+import { renormalization, isingRG } from '~/experiment/p53-coarse-graining-fixed-point'
 import { sampledDimension, largeNHardening } from '~/experiment/p54-large-n-hardening'
 import { oneRuleAllSectors } from '~/experiment/p55-one-rule-all-sectors'
 import { eternalLadder } from '~/experiment/p56-eternal-ladder'
@@ -850,23 +850,15 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 46. P30 inflation: a high early spawn rate gives a burst of rapid expansion (several
-// e-folds) with a graceful exit to slow expansion.
+// 46. P30 inflation: DERIVED from slow-roll, not a hardcoded two-phase rate. Integrating the
+// inflaton EOM gives an accelerating phase (w near -1) of e-folds = phi0^2/4 (computed), followed by
+// a graceful exit (the field leaves slow-roll by itself and the expansion decelerates).
 {
-  const r = inflate({
-    generations: 16,
-    initialWidth: 2,
-    inflationGenerations: 6,
-    qInflation: 1.0,
-    qNormal: 0.05,
-    seed: 1,
-  })
-  const early = r.ratesPerGen.slice(0, 6).reduce((a, b) => a + b, 0) / 6
-  const late = r.ratesPerGen.slice(6).reduce((a, b) => a + b, 0) / Math.max(1, r.ratesPerGen.length - 6)
+  const r = inflate({ phi0: 16 })
   check({
-    name: 'P30 inflation: rapid early expansion with a graceful exit (time-varying birth rate)',
-    ok: early > 1.5 && late < 1.3 && r.inflationEfolds > 3,
-    detail: `early rate ${early.toFixed(2)}, ${r.inflationEfolds.toFixed(1)} e-folds, late rate ${late.toFixed(2)}`,
+    name: 'P30 inflation: slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)',
+    ok: r.acceleratesDuringInflation && r.enoughEfolds && r.efoldsMatchesAnalytic && r.gracefulExit,
+    detail: `w ${r.wDuringInflation.toFixed(3)}, e-folds ${r.efolds.toFixed(1)} (analytic ${r.efoldsAnalytic.toFixed(1)}), graceful exit ${r.gracefulExit}`,
   })
 }
 
@@ -927,16 +919,17 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 51. P35 contact with data: the everpresent-Lambda prediction matches the observed
-// dark energy to order of magnitude, and the framework predicts no linear Lorentz
-// violation, which gamma-ray-burst timing confirms.
+// 51. P35 contact with data: the ADOPTED everpresent-Lambda scaling (Sorkin), evaluated at the
+// observed 4-volume, lands at the observed dark-energy order of magnitude (the value is adopted, not
+// independently derived; the everpresent MECHANISM and -1/2 scaling are demonstrated in P46). The
+// framework predicts no linear Lorentz violation, which gamma-ray-burst timing confirms.
 {
   const de = darkEnergyPrediction()
   const liv = lorentzPrediction()
   check({
-    name: 'P35 contact with data: dark-energy magnitude matches, no linear Lorentz violation',
+    name: 'P35 contact with data: adopted everpresent scaling lands at the observed dark-energy order of magnitude (value adopted, not derived), no linear Lorentz violation',
     ok: de.ratio > 0.1 && de.ratio < 10 && liv.frameworkLinearLIV === false && liv.gribBoundInPlanck > 1,
-    detail: `Lambda predicted/observed ratio ${de.ratio.toFixed(2)} (order-of-magnitude match), framework linear LIV ${liv.frameworkLinearLIV}`,
+    detail: `Lambda predicted/observed ratio ${de.ratio.toFixed(2)} (order of magnitude, adopted scaling), framework linear LIV ${liv.frameworkLinearLIV}`,
   })
 }
 
@@ -1073,14 +1066,16 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 62. P46 everpresent Lambda: the conjugate-volume (dynamical) model gives the everpresent
-// delta-Lambda ~ V^-0.5, closing the dark-energy direction the static action only approached.
+// 62. P46 everpresent Lambda: from GENUINE Poisson draws of the discrete element count (the correct
+// conjugate-volume observable), delta-Lambda ~ V^-0.5 is recovered, and the adopted everpresent
+// scaling at the observed 4-volume lands at the observed order of magnitude. The value/sign are not
+// independently derived (honest scope); P19/P29's static-action attempts used the wrong observable.
 {
-  const r = everpresentDynamical({ volumes: [1e2, 1e3, 1e4, 1e5, 1e6], repeats: 20000, seed: 1 })
+  const r = everpresent({ seed: 1 })
   check({
-    name: 'P46 everpresent Lambda: conjugate-volume model gives the V^-0.5 everpresent scaling',
-    ok: r.exponent < -0.45 && r.exponent > -0.55,
-    detail: `delta-Lambda ~ V^${r.exponent.toFixed(3)} (everpresent prediction -0.5)`,
+    name: 'P46 everpresent Lambda: genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude (value not independently derived)',
+    ok: r.solved && r.matchesEverpresent && r.sameOrderAsObserved,
+    detail: `delta-Lambda ~ V^${r.exponent.toFixed(3)} (everpresent -0.5), predicted 1e${Math.round(r.darkEnergyOrderOfMagnitude)} vs observed 1e${Math.round(r.observedOrderOfMagnitude)}`,
   })
 }
 
@@ -1155,15 +1150,17 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 69. P53 coarse-graining fixed point: the dimension is invariant under repeated
-// decimation, so the continuum dimension is a renormalization fixed point.
+// 69. P53 renormalization group: a genuine block-spin RG on the Ising-like tone dynamics. The
+// renormalized coupling is MEASURED from the blocked chain and matches the exact decimation recursion
+// tanh K' = tanh^2 K, and iterating drives the coupling to the fixed point K* = 0 (a real flow, not a
+// trivial decimation). The causal-set dimension being a coarse-graining invariant is the secondary fact.
 {
-  const two = coarseGrainingFixedPoint({ dimension: 2, count: 5000, levels: 3, seed: 1 })
-  const three = coarseGrainingFixedPoint({ dimension: 3, count: 5000, levels: 3, seed: 1 })
+  const r = renormalization({ seed: 1 })
+  const rg = isingRG({ seed: 1 })
   check({
-    name: 'P53 coarse-graining: dimension invariant under decimation (renormalization fixed point)',
-    ok: two.fixedPoint && three.fixedPoint,
-    detail: `2D dims ${two.dims.map((d) => d.toFixed(2)).join('/')}, 3D dims ${three.dims.map((d) => d.toFixed(2)).join('/')}`,
+    name: 'P53 renormalization: measured block-spin coupling matches tanh K\' = tanh^2 K and flows to the fixed point K* = 0 (dimension a coarse-graining invariant)',
+    ok: r.solved && r.matchesRecursion && r.flowsToFixedPoint && r.dimensionInvariant,
+    detail: `flow ${rg.flow.map((x) => x.toFixed(2)).join('->')}, matches recursion ${r.matchesRecursion}, dim invariant ${r.dimensionInvariant}`,
   })
 }
 
@@ -1217,16 +1214,16 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 74. P58 emergent macro-rule: coarse-graining along the system's coherent domains (the
-// integrated wholes), the renormalized macro-rule (real couplings plus self-coupling) has
-// the coarse-grained self as a fixed point, with agreement climbing to ~1 on the larger
-// (genuine higher-vibe) domains, far beyond arbitrary-block coarse-graining.
+// 74. P58 emergent macro-rule: coarse-graining along GEOMETRIC (tone-independent) blocks, the
+// renormalized signed-majority macro-rule holds the coarse-grained fixed point in the ordered regime
+// (far beyond the naive rule) and honestly fails in the frustrated regime, so it is genuine emergence,
+// not a same-tone-cluster tautology.
 {
   const r = emergentMacroRule({ count: 1500, seed: 1 })
   check({
-    name: 'P58 emergent macro-rule: renormalization fixed point on the integrated higher vibes',
-    ok: r.solved && r.bigDomainRenorm > 0.9 && r.domainRenorm > r.randomRenorm + 0.2,
-    detail: `random ${r.randomRenorm.toFixed(2)}, domain ${r.domainRenorm.toFixed(2)}, big ${r.bigDomainRenorm.toFixed(2)}, by size ${r.bySize.map((b) => b.agreement.toFixed(2)).join('/')}`,
+    name: 'P58 emergent macro-rule: renormalized rule emerges on tone-independent blocks in the ordered regime (beats naive), fails when frustrated',
+    ok: r.solved && r.emergesInOrderedRegime && r.beatsNaive && r.failsWhenFrustrated,
+    detail: `ordered renorm ${r.orderedRenorm.toFixed(2)} vs naive ${r.orderedNaive.toFixed(2)}, frustrated ${r.frustratedRenorm.toFixed(2)}, sweep ${r.coherenceSweep.map((c) => c.renorm.toFixed(2)).join('/')}`,
   })
 }
 
@@ -1331,16 +1328,16 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 83. P67 synchronicity: two subsystems with no link between them show correlated transitions
-// when they share a deep ancestry (the same memory landscape), under a common ambient rhythm,
-// and stay uncorrelated when their ancestry is unrelated. Correlation from the shared past, not
-// a present signal (the same mechanism as the Bell result P7).
+// 83. P67 synchronicity: two subsystems with no link, sharing a common ANCESTOR but DIVERGED (not a
+// copy), show correlated transitions under a common rhythm that TRACK the inherited ancestry and fall
+// to the unrelated baseline as they diverge. Correlation from the shared past, not a present signal
+// (the same mechanism as the Bell result P7).
 {
   const r = synchronicity({ seed: 1 })
   check({
-    name: 'P67 synchronicity: shared-ancestry subsystems correlate without a link, unrelated do not',
-    ok: r.solved && r.sharedCorrelation > 0.8 && r.unrelatedCorrelation < 0.2 && !r.hasDirectLink,
-    detail: `shared ${(100*r.sharedCorrelation).toFixed(0)}%, unrelated ${(100*r.unrelatedCorrelation).toFixed(0)}%, link ${r.hasDirectLink}`,
+    name: 'P67 synchronicity: diverged-but-related subsystems correlate without a link, tracking inherited ancestry and fading with divergence',
+    ok: r.solved && r.sharedCorrelation > 0.5 && r.sharedCorrelation > r.unrelatedCorrelation + 0.4 && r.tracksAncestry && r.monotoneDecreasing && !r.hasDirectLink,
+    detail: `shared ${(100*r.sharedCorrelation).toFixed(0)}% vs unrelated ${(100*r.unrelatedCorrelation).toFixed(0)}%, tracks ancestry ${r.tracksAncestry}, falls with divergence ${r.monotoneDecreasing}`,
   })
 }
 

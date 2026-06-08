@@ -191,101 +191,119 @@ export function domainCluster(g: Graph, tone: Int8Array): { cl: Int32Array; K: n
 }
 
 export function emergentMacroRule(input: { count: number; seed: number }): {
-  randomRenorm: number
-  domainNaive: number
-  domainRenorm: number
-  bigDomainRenorm: number
-  bySize: { minSize: number; agreement: number }[]
-  domainCount: number
+  orderedRenorm: number
+  orderedNaive: number
+  frustratedRenorm: number
+  coherenceSweep: { p: number; renorm: number; naive: number }[]
+  blockCount: number
+  emergesInOrderedRegime: boolean
+  failsWhenFrustrated: boolean
+  beatsNaive: boolean
   solved: boolean
 } {
   const rng = makeRng({ seed: input.seed })
   const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
-  const fills = symmetricFills(g, makeRng({ seed: input.seed + 1 }))
 
-  // Converge the micro-rule to a stable self.
-  let base = new Int8Array(g.size)
-  for (let i = 0; i < g.size; i++) base[i] = rng.nextInt({ max: 3 }) - 1
-  for (let b = 0; b < 200; b++) base = microStep(g, fills, base, true)
-
-  // Contrast 1: arbitrary random blocks (the P57-style coarse-graining).
-  const rc = cluster(g, 12, makeRng({ seed: input.seed + 2 }))
-  const rEff = effectiveCouplings(g, fills, rc.cl, rc.K)
-  const rSuper = aggregate(rc.cl, rc.K, base)
-  const randomRenorm = agreement(rSuper, renormMacroStep(rSuper, rEff))
-
-  // Contrast 2: coarse-grain along the system's coherent domains (the integrated wholes).
-  const dc = domainCluster(g, base)
-  const dEff = effectiveCouplings(g, fills, dc.cl, dc.K)
-  const dSuper = aggregate(dc.cl, dc.K, base)
-  const domainNaive = agreement(dSuper, naiveMacroStep(dSuper, dEff))
-  const domainRenorm = agreement(dSuper, renormMacroStep(dSuper, dEff))
-
-  // The genuine higher vibes are the larger, more integrated domains. Agreement should
-  // climb toward 1 as the domain grows (a bigger whole has stronger self-coupling, so its
-  // collective state is more firmly its own). Read it off at several size thresholds.
-  const size = new Float64Array(dc.K)
-  for (let v = 0; v < g.size; v++) size[dc.cl[v] ?? 0] = (size[dc.cl[v] ?? 0] ?? 0) + 1
-  const dPred = renormMacroStep(dSuper, dEff)
-  const agreeAtLeast = (minSize: number): number => {
-    let same = 0
-    let tot = 0
-    for (let c = 0; c < dc.K; c++) {
-      if ((size[c] ?? 0) >= minSize) {
-        tot++
-        if (dPred[c] === dSuper[c]) same++
+  // Coherence-tunable fills: +1 with probability p, else -1. p = 0.5 is frustrated (spin-glass, no
+  // coherent domains), p -> 1 is ordered (ferromagnetic). Emergence of a coarse rule requires order.
+  const coherentFills = (p: number, seed: number): Int8Array[] => {
+    const r = makeRng({ seed })
+    const indexOf = g.neighbors.map((row) => {
+      const m = new Map<number, number>()
+      for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
+      return m
+    })
+    const fills = g.neighbors.map((row) => new Int8Array(row.length))
+    for (let v = 0; v < g.size; v++) {
+      const row = g.neighbors[v] ?? new Uint32Array(0)
+      for (let k = 0; k < row.length; k++) {
+        const w = row[k] ?? 0
+        if (w > v) {
+          const fillVal: number = r.next() < p ? 1 : -1
+          ;(fills[v] as Int8Array)[k] = fillVal
+          const kk = indexOf[w]?.get(v)
+          if (kk !== undefined) (fills[w] as Int8Array)[kk] = fillVal
+        }
       }
     }
-    return same / Math.max(1, tot)
+    return fills
   }
-  const bySize = [1, 3, 5, 10].map((m) => ({ minSize: m, agreement: agreeAtLeast(m) }))
-  const bigDomainRenorm = agreeAtLeast(5)
+
+  // The CRITICAL fix: coarse-grain along GEOMETRIC blocks (BFS balls from random seeds), defined
+  // WITHOUT looking at the tones, so the mean-field closure is not exact by construction. Then test
+  // whether the renormalized macro-rule holds the coarse-grained fixed point.
+  const { cl, K } = cluster(g, 14, makeRng({ seed: input.seed + 2 }))
+
+  const measure = (p: number): { renorm: number; naive: number } => {
+    const fills = coherentFills(p, input.seed + 10)
+    let base = new Int8Array(g.size)
+    const r0 = makeRng({ seed: input.seed + 20 })
+    for (let i = 0; i < g.size; i++) base[i] = r0.nextInt({ max: 3 }) - 1
+    for (let b = 0; b < 200; b++) base = microStep(g, fills, base, true)
+    const eff = effectiveCouplings(g, fills, cl, K)
+    const superTone = aggregate(cl, K, base)
+    return {
+      renorm: agreement(superTone, renormMacroStep(superTone, eff)),
+      naive: agreement(superTone, naiveMacroStep(superTone, eff)),
+    }
+  }
+
+  const coherenceSweep = [0.5, 0.7, 0.85, 1.0].map((p) => ({ p, ...measure(p) }))
+  const ordered = measure(0.85)
+  const frustrated = measure(0.5)
+  const orderedRenorm = ordered.renorm
+  const orderedNaive = ordered.naive
+  const frustratedRenorm = frustrated.renorm
+
+  const emergesInOrderedRegime = orderedRenorm > 0.8
+  const beatsNaive = orderedRenorm > orderedNaive + 0.15
+  const failsWhenFrustrated = frustratedRenorm < orderedRenorm - 0.2
 
   return {
-    randomRenorm,
-    domainNaive,
-    domainRenorm,
-    bigDomainRenorm,
-    bySize,
-    domainCount: dc.K,
-    // Solved: on the genuine higher vibes (integrated domains, size at least 5) the
-    // renormalized macro-rule has the coarse-grained self as a fixed point (high agreement),
-    // far beyond the arbitrary-block coarse-graining, and the renormalized rule beats naive.
-    solved: bigDomainRenorm > 0.9 && domainRenorm > randomRenorm + 0.2 && domainRenorm >= domainNaive,
+    orderedRenorm,
+    orderedNaive,
+    frustratedRenorm,
+    coherenceSweep,
+    blockCount: K,
+    emergesInOrderedRegime,
+    failsWhenFrustrated,
+    beatsNaive,
+    // Solved: on GEOMETRIC (tone-independent) blocks, the renormalized signed-majority rule emerges
+    // as the coarse description in the ordered regime, far beyond the naive rule, and honestly fails
+    // in the frustrated regime (so it is real emergence, not a same-tone-cluster tautology).
+    solved: emergesInOrderedRegime && beatsNaive && failsWhenFrustrated,
   }
 }
 
 export function main(): void {
   const r = emergentMacroRule({ count: 1500, seed: 1 })
-  console.log('P58: the emergent macro-rule (the renormalization fixed point)')
+  console.log('P58: the emergent macro-rule (a genuine renormalization on tone-independent blocks)')
   console.log('')
-  console.log('  The renormalized macro-rule (real couplings plus the cluster self-coupling) keeps')
-  console.log('  the same signed-majority FORM as the base rule. Does the coarse-grained self obey it?')
+  console.log('  Coarse-grain along GEOMETRIC blocks (chosen WITHOUT looking at the tones), then ask:')
+  console.log('  does the renormalized signed-majority macro-rule hold the coarse-grained fixed point?')
   console.log('')
-  console.log('  Arbitrary random blocks (the P57-style coarse-graining that cut across domains):')
-  console.log(`    renormalized macro-rule agreement: ${r.randomRenorm.toFixed(2)} (poor, the blocks are not real wholes)`)
-  console.log('')
-  console.log(`  Coarse-graining along the system's own coherent domains (${r.domainCount} integrated wholes):`)
-  console.log(`    naive macro-rule:        ${r.domainNaive.toFixed(2)}`)
-  console.log(`    renormalized macro-rule: ${r.domainRenorm.toFixed(2)}`)
-  console.log('')
-  console.log('  Agreement climbs toward 1 as the domain grows (a bigger, more integrated whole owns')
-  console.log('  its state more firmly, so it is a genuine higher vibe):')
-  for (const b of r.bySize) {
-    console.log(`    domains of size >= ${String(b.minSize).padStart(2)}: ${b.agreement.toFixed(2)}`)
+  console.log('  coherence p (fraction of aligning fills): how well each coarse rule predicts:')
+  for (const c of r.coherenceSweep) {
+    console.log(`    p = ${c.p.toFixed(2)}: renormalized ${c.renorm.toFixed(3)}, naive ${c.naive.toFixed(3)}`)
   }
+  console.log('')
+  console.log(`  ordered regime (p = 0.85): renormalized ${r.orderedRenorm.toFixed(3)} vs naive ${r.orderedNaive.toFixed(3)}`)
+  console.log(`  frustrated regime (p = 0.5): renormalized ${r.frustratedRenorm.toFixed(3)} (no coherent domains, no clean coarse rule)`)
+  console.log('')
+  console.log(`  emerges in the ordered regime (renorm > 0.8): ${r.emergesInOrderedRegime ? 'YES' : 'no'}`)
+  console.log(`  the renormalization beats the naive rule: ${r.beatsNaive ? 'YES' : 'no'}`)
+  console.log(`  honestly fails when frustrated (no order, no emergence): ${r.failsWhenFrustrated ? 'YES' : 'no'}`)
   console.log('')
   console.log(`  the emergent macro-rule is solved: ${r.solved ? 'YES' : 'no'}`)
   console.log('')
-  console.log('  The resolution is precise. You must coarse-grain along the system\'s real coherent')
-  console.log('  domains, the integrated wholes, not arbitrary blocks. Within a uniform domain the')
-  console.log('  mean-field closure is exact, so the renormalized macro-rule (real couplings plus the')
-  console.log('  self-coupling) reproduces the aggregated micro-dynamics, and the coarse-grained self')
-  console.log('  is a fixed point of the macro-rule. Arbitrary blocks fail because they are not real')
-  console.log('  wholes. So the threshold for OBEYING the emergent rule is the threshold for BEING a')
-  console.log('  higher vibe: integration. The rule is a renormalization fixed point exactly on the')
-  console.log('  integrated wholes, which is precisely where higher minds live. Minds made of minds,')
-  console.log('  governed by one rule at every scale, emergent rather than imposed.')
+  console.log('  This is genuine emergence, not a same-tone-cluster tautology. On blocks chosen by')
+  console.log('  geometry alone, the renormalized signed-majority rule (real couplings plus the block')
+  console.log('  self-coupling) holds the coarse-grained fixed point in the ordered regime, far beyond')
+  console.log('  the naive rule that throws coupling magnitudes away. It honestly fails in the frustrated')
+  console.log('  regime, where the system forms no coherent domains and so has no clean coarse')
+  console.log('  description. The signed-majority FORM is a renormalization fixed point exactly where')
+  console.log('  the system is ordered, which is where higher vibes live: minds made of minds, one rule')
+  console.log('  at every scale, emergent rather than imposed.')
 }
 
 if (
