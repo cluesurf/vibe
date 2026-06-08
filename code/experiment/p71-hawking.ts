@@ -1,131 +1,176 @@
-// P71: Hawking radiation (temperature, thermal spectrum, the information turn).
-// P33 gave the black-hole area-law entropy. Here come the temperature, the thermal spectrum, and
-// the Page curve. A horizon splits the field into an inside and an outside that can no longer
-// communicate. Pair creation across it leaves the two sides in a two-mode squeezed vacuum. The
-// outside observer cannot see the inside, so traces it out, and the reduced state is exactly
-// thermal:
-//   |psi> = (1/cosh r) sum_n tanh^n r |n>_in |n>_out,  trace out in  ->  <n_out> = sinh^2 r.
-// With the horizon mixing tanh r_w = exp(-pi w / kappa), this gives <n_w> = 1/(exp(2 pi w/kappa) - 1),
-// a Bose-Einstein spectrum at the Hawking temperature T = kappa / (2 pi). The temperature scales
-// as 1/M (from the area law S ~ M^2 and the first law T = dM/dS), so small holes are hot. And the
-// entropy of the emitted radiation follows the Page curve: it rises, then falls back, so the
-// information is not lost. Run: npx tsx code/experiment/p71-hawking.ts
+// P71: Hawking/Unruh radiation, with thermality DERIVED, not plugged in.
+// The earlier version plugged in the Bogoliubov mixing tanh r = exp(-pi w / kappa) (the answer) and
+// hardcoded a triangular Page curve. This version derives both:
+//
+//   1. Thermal spectrum from the Unruh detector response. A uniformly accelerated detector (the
+//      equivalence-principle stand-in for a horizon of surface gravity kappa = a) couples to the
+//      field correlator along its worldline. The 4D massless Wightman function on that worldline
+//      depends only on the proper-time gap, W(dtau) ~ 1 / sinh^2(a(dtau - i eps)/2). The detector
+//      response is its Fourier transform F(E) = integral dtau e^{-iE dtau} W(dtau). We compute F(E)
+//      NUMERICALLY and find detailed balance F(E)/F(-E) = exp(-2 pi E / a): the thermal factor
+//      emerges from the transform, it is not put in. So the temperature T = a/(2 pi) = kappa/(2 pi)
+//      is read off, not assumed.
+//   2. T ~ 1/M follows from the Schwarzschild surface gravity kappa = 1/(4M) and the derived
+//      T = kappa/(2 pi): computing T at several masses and fitting gives T ~ M^-1.
+//   3. The Page curve from random-state entanglement (Page 1993). For a black hole plus radiation in
+//      a random pure state, the radiation's average entanglement entropy S(m,n) rises while the
+//      radiation is the smaller subsystem and falls once it is larger, turning over at the Page time.
+//      Computed from the entropy formula, it is a genuine turnover, not a drawn triangle.
+// Run: npx tsx code/experiment/p71-hawking.ts
 
 import { pathToFileURL } from 'node:url'
 
-function linFit(xs: number[], ys: number[]): { slope: number; intercept: number; r2: number } {
-  const n = xs.length
-  const mx = xs.reduce((a, b) => a + b, 0) / n
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    sxy += (xs[i]! - mx) * (ys[i]! - my)
-    sxx += (xs[i]! - mx) ** 2
-    syy += (ys[i]! - my) ** 2
+// The Unruh detector response F(E): Fourier transform of the worldline field correlator.
+function unruhResponse(input: { E: number; a: number; eps: number; samples: number }): number {
+  const { E, a, eps } = input
+  const T = 30 / a
+  const N = input.samples
+  const d = (2 * T) / N
+  let re = 0
+  let im = 0
+  for (let i = 0; i < N; i++) {
+    const dtau = -T + (i + 0.5) * d
+    // sinh(a(dtau - i eps)/2), complex
+    const reArg = (a * dtau) / 2
+    const imArg = (-a * eps) / 2
+    const shRe = Math.sinh(reArg) * Math.cos(imArg)
+    const shIm = Math.cosh(reArg) * Math.sin(imArg)
+    // ( (2/a) sinh )^2
+    const c = 2 / a
+    const sqRe = c * c * (shRe * shRe - shIm * shIm)
+    const sqIm = c * c * (2 * shRe * shIm)
+    // W = -1/(4 pi^2) * 1 / sq
+    const den = sqRe * sqRe + sqIm * sqIm
+    const wRe = (-1 / (4 * Math.PI * Math.PI)) * (sqRe / den)
+    const wIm = (-1 / (4 * Math.PI * Math.PI)) * (-sqIm / den)
+    // e^{-iE dtau}
+    const cc = Math.cos(E * dtau)
+    const ss = -Math.sin(E * dtau)
+    re += (wRe * cc - wIm * ss) * d
+    im += (wRe * ss + wIm * cc) * d
   }
-  const slope = sxy / sxx
-  return { slope, intercept: my - slope * mx, r2: syy === 0 ? 1 : (sxy * sxy) / (sxx * syy) }
+  return Math.hypot(re, im)
 }
 
-// The thermal spectrum across a horizon of surface gravity kappa, DERIVED from the squeezed
-// vacuum (not assumed): for each frequency, the horizon mixing fixes the squeezing, the interior
-// is traced out, and the outside occupation is sinh^2 of the squeezing.
-function thermalSpectrum(kappa: number): { omega: number; occupation: number }[] {
-  const out: { omega: number; occupation: number }[] = []
-  for (let i = 1; i <= 20; i++) {
-    const omega = 0.1 * i * kappa
-    const tanhR = Math.exp(-Math.PI * omega / kappa) // Bogoliubov mixing at the horizon
-    const r = Math.atanh(tanhR)
-    const occupation = Math.sinh(r) * Math.sinh(r) // <n_out> after tracing out the interior
-    out.push({ omega, occupation })
+// Temperature read off the detailed balance F(E)/F(-E) = exp(-E/T), averaged over several E.
+function temperatureFromResponse(a: number, samples: number): number {
+  const Es = [0.5 * a, 1.0 * a, 1.5 * a]
+  let acc = 0
+  for (const E of Es) {
+    const fp = unruhResponse({ E, a, eps: 0.01 / a, samples })
+    const fm = unruhResponse({ E: -E, a, eps: 0.01 / a, samples })
+    acc += -E / Math.log(fp / fm)
   }
-  return out
+  return acc / Es.length
+}
+
+// Page average entanglement entropy of subsystem dim m in an m*n random pure state (m <= n).
+function pageEntropy(m: number, n: number): number {
+  if (m > n) {
+    const t = m
+    m = n
+    n = t
+  }
+  let s = 0
+  for (let k = n + 1; k <= m * n; k++) s += 1 / k
+  return s - (m - 1) / (2 * n)
 }
 
 export function hawking(input: Record<string, never> = {}): {
-  spectrumThermal: boolean
   fittedTemperature: number
   expectedTemperature: number
-  temperatureExponent: number // T ~ M^p, expect -1
+  thermalResidual: number
+  spectrumThermal: boolean
+  temperatureExponent: number
   pageCurveTurnsOver: boolean
   pagePeakFraction: number
   solved: boolean
 } {
   void input
-  // 1. The spectrum across a horizon (kappa = 1) is Bose-Einstein at T = kappa / 2pi.
-  const kappa = 1
-  const spec = thermalSpectrum(kappa)
-  // A thermal occupation satisfies log(1 + 1/n) = omega / T, a straight line through the origin
-  // with slope 1/T. Fit it.
-  const xs = spec.map((s) => s.omega)
-  const ys = spec.map((s) => Math.log(1 + 1 / s.occupation))
-  const fit = linFit(xs, ys)
-  const fittedTemperature = 1 / fit.slope
-  const expectedTemperature = kappa / (2 * Math.PI)
-  const spectrumThermal = fit.r2 > 0.999 && Math.abs(fittedTemperature - expectedTemperature) < 0.01
+  const samples = 60000
 
-  // 2. T ~ 1/M. Area law: S = A/4 with A ~ M^2 (horizon radius ~ M, area ~ radius^2), so S ~ M^2.
-  // First law: T = dM/dS = 1/(dS/dM) ~ 1/M. Measure the exponent across a range of masses.
-  const masses = [1, 2, 4, 8, 16, 32]
-  const cS = 1 // S = cS * M^2
-  const temps = masses.map((M) => 1 / (2 * cS * M)) // T = 1/(dS/dM) = 1/(2 cS M)
-  const tExp = linFit(masses.map((M) => Math.log(M)), temps.map((T) => Math.log(T)))
-  const temperatureExponent = tExp.slope
+  // 1. Thermal spectrum: detailed balance at a = 1 gives T = 1/(2 pi). Check the ratio matches the
+  // thermal factor across several E (the residual is how far the emergent ratio is from exp(-2pi E)).
+  const a = 1
+  let thermalResidual = 0
+  for (const E of [0.5, 1.0, 1.5, 2.0]) {
+    const fp = unruhResponse({ E, a, eps: 0.01, samples })
+    const fm = unruhResponse({ E: -E, a, eps: 0.01, samples })
+    const ratio = fp / fm
+    const expected = Math.exp((-2 * Math.PI * E) / a)
+    thermalResidual = Math.max(thermalResidual, Math.abs(ratio - expected) / expected)
+  }
+  const fittedTemperature = temperatureFromResponse(a, samples)
+  const expectedTemperature = a / (2 * Math.PI)
+  const spectrumThermal = thermalResidual < 0.05 && Math.abs(fittedTemperature - expectedTemperature) < 0.02
 
-  // 3. Page curve. As the hole evaporates a fraction f, the radiation's entanglement entropy is
-  // min(emitted, remaining) ~ min(f, 1-f) of the total, rising to a peak at f = 1/2 then falling
-  // back to zero, so information is returned rather than lost.
-  const totalEntropy = 1
-  const fractions = Array.from({ length: 21 }, (_, i) => i / 20)
-  const radEntropy = fractions.map((f) => Math.min(f, 1 - f) * 2 * totalEntropy)
-  let peakIndex = 0
-  for (let i = 1; i < radEntropy.length; i++) if ((radEntropy[i] ?? 0) > (radEntropy[peakIndex] ?? 0)) peakIndex = i
-  const pagePeakFraction = fractions[peakIndex] ?? 0
-  const pageCurveTurnsOver = (radEntropy[radEntropy.length - 1] ?? 1) < 0.05 && Math.abs(pagePeakFraction - 0.5) < 0.06
+  // 2. T ~ 1/M: Schwarzschild surface gravity kappa = 1/(4M), and the derived T = kappa/(2 pi).
+  const masses = [1, 2, 4]
+  const temps = masses.map((M) => temperatureFromResponse(1 / (4 * M), samples))
+  // fit log T vs log M
+  const lx = masses.map((M) => Math.log(M))
+  const ly = temps.map((T) => Math.log(T))
+  const mx = lx.reduce((p, q) => p + q, 0) / lx.length
+  const my = ly.reduce((p, q) => p + q, 0) / ly.length
+  let num = 0
+  let den = 0
+  for (let i = 0; i < masses.length; i++) {
+    num += ((lx[i] ?? 0) - mx) * ((ly[i] ?? 0) - my)
+    den += ((lx[i] ?? 0) - mx) ** 2
+  }
+  const temperatureExponent = den === 0 ? 0 : num / den
+
+  // 3. Page curve from random-state entanglement.
+  const totalQubits = 12
+  let peak = 0
+  let peakFraction = 0
+  const curve: number[] = []
+  for (let q = 1; q < totalQubits; q++) {
+    const s = pageEntropy(Math.pow(2, q), Math.pow(2, totalQubits - q)) / Math.log(2)
+    curve.push(s)
+    if (s > peak) {
+      peak = s
+      peakFraction = q / totalQubits
+    }
+  }
+  const pageCurveTurnsOver = (curve[0] ?? 0) < peak && (curve[curve.length - 1] ?? 0) < peak
 
   return {
-    spectrumThermal,
     fittedTemperature,
     expectedTemperature,
+    thermalResidual,
+    spectrumThermal,
     temperatureExponent,
     pageCurveTurnsOver,
-    pagePeakFraction,
+    pagePeakFraction: peakFraction,
     solved: spectrumThermal && Math.abs(temperatureExponent + 1) < 0.05 && pageCurveTurnsOver,
   }
 }
 
 export function main(): void {
   const r = hawking()
-  console.log('P71: Hawking radiation (temperature, thermal spectrum, the information turn)')
+  console.log('P71: Hawking/Unruh radiation, thermality derived (not plugged in)')
   console.log('')
-  console.log('  1. The spectrum across a horizon, derived by tracing out the interior:')
-  console.log(`     it is thermal (Bose-Einstein): ${r.spectrumThermal ? 'YES' : 'no'}`)
-  console.log(`     fitted temperature ${r.fittedTemperature.toFixed(5)} vs the Hawking value kappa/2pi = ${r.expectedTemperature.toFixed(5)}`)
+  console.log('  1. thermal spectrum from the Unruh detector response (Fourier transform of the worldline correlator):')
+  console.log(`     detailed-balance ratio F(E)/F(-E) vs exp(-2 pi E / a), max relative residual ${r.thermalResidual.toExponential(2)}`)
+  console.log(`     temperature read off the response: ${r.fittedTemperature.toFixed(4)} (expected kappa/2pi = ${r.expectedTemperature.toFixed(4)})`)
+  console.log(`     spectrum is thermal at T = kappa/2pi (emergent, not assumed): ${r.spectrumThermal ? 'YES' : 'no'}`)
   console.log('')
-  console.log('  2. The temperature scales with mass (area law plus the first law):')
-  console.log(`     T ~ M^${r.temperatureExponent.toFixed(3)} (the Hawking law is T ~ 1/M, exponent -1)`)
+  console.log(`  2. T ~ 1/M (kappa = 1/4M, T = kappa/2pi): fitted exponent ${r.temperatureExponent.toFixed(3)} (expect -1)`)
   console.log('')
-  console.log('  3. The information turn (Page curve):')
-  console.log(`     the radiation entropy peaks at evaporated fraction ${r.pagePeakFraction.toFixed(2)} and returns to zero: ${r.pageCurveTurnsOver ? 'YES' : 'no'}`)
+  console.log(`  3. Page curve from random-state entanglement: peak at fraction ${r.pagePeakFraction.toFixed(2)}, turns over: ${r.pageCurveTurnsOver ? 'YES' : 'no'}`)
   console.log('')
-  console.log(`  Hawking radiation solved: ${r.solved ? 'YES' : 'no'}`)
+  console.log(`  Hawking radiation solved (thermality derived): ${r.solved ? 'YES' : 'no'}`)
   console.log('')
-  console.log('  A horizon cuts the field into an inside and an outside that can no longer reach each')
-  console.log('  other. Pair creation across the cut leaves the two sides in a squeezed vacuum, and the')
-  console.log('  outside observer, unable to see the inside, traces it out. The state that remains is')
-  console.log('  exactly thermal, a Bose-Einstein spectrum at the Hawking temperature kappa over two pi,')
-  console.log('  so the black hole glows. Because the entropy follows the area (P33), the first law makes')
-  console.log('  the temperature rise as one over the mass, so a hole gets hotter as it shrinks. And the')
-  console.log('  entropy of the radiation rises only to the halfway point and then falls back to zero,')
-  console.log('  the Page curve, so the information is carried out in the correlations, not destroyed.')
-  console.log('  The remaining open piece is the detailed microstate map behind the late-time return.')
+  console.log('  The thermal spectrum is not put in. The detector response, the Fourier transform of the')
+  console.log('  field correlator along an accelerated (horizon-mimicking) worldline, satisfies detailed')
+  console.log('  balance F(E)/F(-E) = exp(-2 pi E / a), so the Planck factor and the temperature')
+  console.log('  T = kappa/(2 pi) emerge from the transform. With the Schwarzschild surface gravity')
+  console.log('  kappa = 1/(4M) this gives T ~ 1/M, hot small holes. And the radiation entanglement')
+  console.log('  entropy, from random-state averaging, rises and then falls, the Page curve, so the')
+  console.log('  evaporation is unitary and information is not lost.')
 }
 
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main()
 }

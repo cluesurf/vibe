@@ -58,7 +58,7 @@ import { photonStudy } from '~/experiment/p20-photon'
 import { gravitonStudy } from '~/experiment/p21-graviton'
 import { higgsStudy } from '~/experiment/p22-higgs'
 import { gaugeFromAction } from '~/experiment/p23-gauge-from-action'
-import { gravitonFromAction } from '~/experiment/p24-graviton-from-action'
+import { gravitonFromAction, bdSignature } from '~/experiment/p24-graviton-from-action'
 import { electroweak } from '~/experiment/p25-electroweak'
 import { swerveDiffusion } from '~/experiment/p26-swerves'
 import { latticeAnisotropy, lorentzSafety } from '~/experiment/p27-lorentz-violation'
@@ -717,16 +717,18 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 37. P21 graviton: the massless graviton is spin-2 with exactly two transverse-
-// traceless polarizations (a massive spin-2 has five), and a massless dispersion.
+// 37. P21 graviton: the two physical polarizations are READ FROM THE SPECTRUM of the derived
+// operator (P24), not from a projector: two propagating modes at +(1/2)|k|^2 and three exact
+// diffeomorphism gauge zeros at every momentum, with a massless dispersion. A massive spin-2 has five.
 {
   const r = gravitonStudy()
   const massless = r.masslessPolarizations.every((p) => p === 2)
+  const gauge = r.gaugeModes.every((g) => g === 3)
   const shrinks = (r.dispersion[r.dispersion.length - 1]?.omega2 ?? 9) < (r.dispersion[0]?.omega2 ?? 0)
   check({
-    name: 'P21 graviton: massless spin-2, two transverse-traceless polarizations (massive has five)',
-    ok: massless && r.massivePolarizations === 5 && shrinks,
-    detail: `TT polarizations ${r.masslessPolarizations.join('/')}, massive ${r.massivePolarizations}, dispersion shrinks ${shrinks}`,
+    name: 'P21 graviton: two polarizations measured from the derived operator spectrum (2 physical + 3 gauge zeros), massless dispersion',
+    ok: massless && gauge && r.allTwo && r.massiveDof === 5 && shrinks,
+    detail: `physical ${r.masslessPolarizations.join('/')}, gauge ${r.gaugeModes.join('/')}, massive dof ${r.massiveDof}, dispersion shrinks ${shrinks}`,
   })
 }
 
@@ -761,15 +763,17 @@ function allFinite(xs: ArrayLike<number>): boolean {
   })
 }
 
-// 40. P24: the graviton is derived from the linearized Einstein operator. It is
-// diffeomorphism-invariant (pure-gauge perturbations annihilated) with exactly two
-// massless modes at eigenvalue (1/2)|k|^2.
+// 40. P24: the graviton operator is DERIVED, not typed in. The scalar d'Alembertian emerges from
+// the discrete Benincasa-Dowker action on a sprinkling (its Lorentzian signature recovered robustly:
+// the paired time-vs-space difference is positive at many sigma), and the spin-2 operator built via
+// the Christoffel -> Ricci -> Einstein pipeline is diffeomorphism-invariant with two massless modes.
 {
   const r = gravitonFromAction({ k: [1, 1, 1] })
+  const bd = bdSignature({ realizations: 150, count: 1800, seed: 1 })
   check({
-    name: 'P24: graviton derived from the gravitational action (diffeo-invariant, two modes)',
-    ok: r.gravitonModes === 2 && r.diffeoResidual < 1e-10 && Math.abs(r.gravitonEigenvalue - 0.5 * r.k2) < 1e-9,
-    detail: `${r.gravitonModes} modes at (1/2)|k|^2 = ${r.gravitonEigenvalue.toFixed(2)}, diffeo residual ${r.diffeoResidual.toExponential(1)}`,
+    name: 'P24: graviton operator derived (BD d\'Alembertian recovers box from a sprinkling; pipeline gives diffeo-invariance + two modes)',
+    ok: r.gravitonModes === 2 && r.diffeoResidual < 1e-10 && Math.abs(r.gravitonEigenvalue - 0.5 * r.k2) < 1e-9 && bd.robustlyPositive && bd.recoversBox,
+    detail: `${r.gravitonModes} modes at (1/2)|k|^2 = ${r.gravitonEigenvalue.toFixed(2)}, diffeo residual ${r.diffeoResidual.toExponential(1)}; BD box-diff ${bd.diffMean.toFixed(0)}+/-${bd.diffSem.toFixed(0)} (continuum ${bd.expectedDiff.toFixed(0)})`,
   })
 }
 
@@ -1378,24 +1382,30 @@ function allFinite(xs: ArrayLike<number>): boolean {
   check({ name: 'P70 Born rule: exponent 2 forced by quadrature + additivity (functional equation), fair sampling gives |c|^2', ok: r.solved && r.uniqueExponent === 2 && r.quadratureResidual < 1e-6 && r.samplingError < 0.01, detail: `quadrature residual ${r.quadratureResidual.toExponential(1)}, exponent forced ${r.uniqueExponent}, sampling error ${r.samplingError.toFixed(4)}` })
 }
 
-// 87. P71 Hawking: the across-horizon spectrum is thermal at T = kappa/2pi, T ~ 1/M, Page curve turns over.
+// 87. P71 Hawking: thermality is DERIVED, not plugged in. The Unruh detector response (Fourier
+// transform of the worldline field correlator) satisfies detailed balance F(E)/F(-E) = exp(-2pi E/a),
+// so the Planck factor and T = kappa/2pi EMERGE; T ~ 1/M follows from kappa = 1/4M; and the Page curve
+// turns over (computed from random-state entanglement entropy, not a hardcoded triangle).
 {
   const r = hawking()
-  check({ name: 'P71 Hawking: thermal spectrum at kappa/2pi, T ~ 1/M, Page curve turns over', ok: r.solved && r.spectrumThermal && Math.abs(r.temperatureExponent + 1) < 0.05 && r.pageCurveTurnsOver, detail: `T ${r.fittedTemperature.toFixed(4)} vs ${r.expectedTemperature.toFixed(4)}, T~M^${r.temperatureExponent.toFixed(2)}, peak ${r.pagePeakFraction.toFixed(2)}` })
+  check({ name: 'P71 Hawking: thermal spectrum derived from the Unruh response (detailed balance), T = kappa/2pi, T ~ 1/M, Page curve turns over', ok: r.solved && r.spectrumThermal && r.thermalResidual < 0.05 && Math.abs(r.temperatureExponent + 1) < 0.05 && r.pageCurveTurnsOver, detail: `T ${r.fittedTemperature.toFixed(4)} vs ${r.expectedTemperature.toFixed(4)} (residual ${r.thermalResidual.toExponential(1)}), T~M^${r.temperatureExponent.toFixed(2)}, Page peak ${r.pagePeakFraction.toFixed(2)}` })
 }
 
-// 88. P72 nonlinear Einstein: the exact FRW solutions satisfy Friedmann, acceleration, and
-// continuity together to machine precision, and the nonlinearity is essential.
+// 88. P72 nonlinear Einstein: a(t) is INTEGRATED forward (RK4), not plugged in. The power laws
+// emerge as measured slopes, the independent acceleration equation holds along the trajectory with
+// a residual that SHRINKS with the step size (integration, not machine-epsilon plug-in), and the
+// multi-component history (no closed form) shows the deceleration-to-acceleration transition.
 {
   const r = nonlinearEinstein()
-  check({ name: 'P72 nonlinear Einstein: Friedmann + acceleration + continuity consistent, nonlinearity essential', ok: r.solved && r.friedmannHolds && r.nonlinearEssential, detail: `resid fried ${r.friedmannResidual.toExponential(1)} acc ${r.accelerationResidual.toExponential(1)} cont ${r.continuityResidual.toExponential(1)}, lin off ${r.linearizedResidual.toFixed(2)}` })
+  check({ name: 'P72 nonlinear Einstein: a(t) integrated (not plugged in), power laws emerge, acceleration residual shrinks with dt, decel-to-accel transition', ok: r.solved && r.powerLawsEmergent && r.convergesAsIntegration && r.transitionHappens, detail: `slopes rad ${r.radiationSlope.toFixed(3)} mat ${r.matterSlope.toFixed(3)}, accel resid ${r.accelResidualCoarse.toExponential(1)}->${r.accelResidualFine.toExponential(1)}, q ${r.decelerationEarly.toFixed(2)}->${r.accelerationLate.toFixed(2)}` })
 }
 
-// 89. P73 discrete graviton: the lattice linearized Einstein operator is gauge-invariant, massless,
-// with two transverse-traceless polarizations.
+// 89. P73 discrete graviton: the lattice linearized Einstein operator is gauge-invariant and massless,
+// and the two polarizations are now MEASURED, not hardcoded: the two transverse-traceless modes are
+// verified to be propagating eigenvectors of the operator, alongside 4 gauge zero-modes in the spectrum.
 {
   const r = discreteGraviton({ seed: 1 })
-  check({ name: 'P73 discrete graviton: gauge-invariant, massless, two polarizations', ok: r.solved && r.gaugeResidual < 1e-9 && r.massTermResidual < 1e-9 && r.dispersionMassless && r.polarizations === 2, detail: `gauge ${r.gaugeResidual.toExponential(1)}, mass ${r.massTermResidual.toExponential(1)}, pol ${r.polarizations}` })
+  check({ name: 'P73 discrete graviton: gauge-invariant, massless, two polarizations verified as propagating eigenmodes (4 gauge zeros in the spectrum)', ok: r.solved && r.gaugeResidual < 1e-9 && r.massTermResidual < 1e-9 && r.dispersionMassless && r.polarizations === 2 && r.polarizationGaugeModes === 4, detail: `gauge ${r.gaugeResidual.toExponential(1)}, mass ${r.massTermResidual.toExponential(1)}, physical pol ${r.polarizations}, gauge modes ${r.polarizationGaugeModes}` })
 }
 
 // 90. P74 large-N crossing: the height-changing cluster move sweeps the height range where the

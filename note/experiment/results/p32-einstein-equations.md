@@ -34,3 +34,9 @@ remaining step.
 
 `p24-graviton-from-action.md` (the operator), `p16-newtonian.md` (the Newtonian limit),
 `p21-graviton.md` (the graviton kinematics), and `p32-einstein-equations` (the experiment).
+
+## Update
+
+The contracted Bianchi identity (k . G[h] = 0) and the graviton speed are now verified on the
+operator DERIVED in P24 (Christoffel to Ricci to Einstein, and the Benincasa-Dowker d'Alembertian
+from a sprinkling), not on a typed-in formula.

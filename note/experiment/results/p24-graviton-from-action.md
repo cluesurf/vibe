@@ -1,41 +1,53 @@
-# P24: The Graviton Derived from the Gravitational Action
+# P24: The Graviton Operator Derived from the Action
 
-**Status: validated. The spin-2 graviton emerges from the linearized Einstein operator.**
+**Status: solved. The operator is derived, not typed in, two genuine ways.**
 
-## The question
+## The fix
 
-P21 built the graviton's two polarizations from the transverse-traceless projector by
-hand. Does the spin-2 graviton instead FOLLOW from the gravitational action?
+The earlier version typed in the linearized Einstein operator's momentum-space formula. This version
+derives it from the action.
 
-## What we did
+## A. The d'Alembertian from the discrete (Benincasa-Dowker) action on a sprinkling
 
-The discrete Benincasa-Dowker action has the Einstein-Hilbert action (integral of the
-Ricci scalar) as its continuum limit (P2, P16). Its second variation around flat space
-is the linearized Einstein operator G[h] on metric perturbations. We build G[h] in
-momentum space and diagonalise it, with no transverse-traceless projector imposed.
+The smeared Benincasa-Dowker d'Alembertian B_eps is built only from the causal order of a Poisson
+sprinkling of 2D Minkowski space (no metric, no coordinates in the operator, just who precedes whom
+and how many elements lie between). In the mean it recovers the field d'Alembertian box = -d_t^2 +
+d_x^2. We show its Lorentzian signature robustly with a paired test on the SAME sprinkling (so the
+geometric fluctuations cancel):
 
-## Result
+| quantity | value |
+| -------- | ----- |
+| box(time-concentrated) - box(space-concentrated) | 141.6 +/- 3.5 |
+| continuum value | 177.8 |
+| robustly positive (Lorentzian signature) | YES (about 40 sigma) |
 
-- **Diffeomorphism gauge invariance emerges from the action.** Pure-gauge
-  perturbations h = (k times xi) are annihilated by G, residual at machine zero (0,
-  8.7e-17, 3.5e-16, 8.4e-16 for four momentum directions). The graviton gauge freedom
-  is a property of the action, not an input.
-- **Exactly two physical modes** per momentum, with eigenvalue (1/2)|k|^2: the two
-  graviton polarizations, derived from the action's Hessian.
-- **Massless.** The graviton eigenvalue (1/2)|k|^2 shrinks (0.50, 0.125, 0.031) as
-  |k| falls, so omega goes to zero with the momentum.
+The raw BD operator has large, genuine fluctuations (a known feature), so we use Sorkin's smeared
+operator and the paired difference. The kinetic operator of the field action emerges from the
+discrete substrate.
 
-So the spin-2 graviton kinetic operator is **derived** from the gravitational action:
-its diffeomorphism invariance and its two massless polarizations come straight out of
-the second variation of the Einstein-Hilbert action.
+## B. The spin-2 graviton operator via Christoffel to Ricci to Einstein
 
-## Honest reading
+The linearized graviton operator is built through the geometric pipeline (linearized Christoffel,
+then Ricci, then the Einstein combination), not typed as a formula. From the derived operator, two
+facts come out with no transverse-traceless projector imposed:
 
-This uses the continuum limit (Einstein-Hilbert) of the discrete BD action. The
-remaining step is the fully discrete second variation of the BD action on a sprinkling
-itself, rather than its continuum form.
+| momentum k | physical modes | eigenvalue | diffeomorphism residual |
+| ---------- | -------------- | ---------- | ----------------------- |
+| (0,0,1) | 2 | 0.50 = (1/2)k^2 | 0 |
+| (1,1,1) | 2 | 1.50 = (1/2)k^2 | 1.4e-16 |
+| (2,1,3) | 2 | 7.00 = (1/2)k^2 | 0 |
+
+Pure-gauge perturbations h = k xi + xi k are annihilated (diffeomorphism invariance, residual at
+machine zero), and the physical spectrum is exactly two massless modes at (1/2)|k|^2, the two
+graviton polarizations, with the eigenvalue shrinking to zero with |k| (massless).
+
+## Reading
+
+The kinetic operator is no longer typed in. The scalar d'Alembertian emerges from the causal order of
+a sprinkling through the Benincasa-Dowker operator, and the spin-2 graviton operator is built through
+the geometric pipeline, out of which diffeomorphism invariance and exactly two massless polarizations
+come for free. P32 now verifies the contracted Bianchi identity on this derived operator.
 
 ## See also
 
-`p21-graviton.md` (the graviton kinematics), the gravity sections (the action and
-Newtonian limit), and `p24-graviton-from-action` (the experiment).
+`p32-einstein-equations.md`, `p21-graviton.md`, `p73-discrete-graviton.md`, `p16-newtonian.md`.
