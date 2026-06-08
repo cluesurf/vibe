@@ -120,6 +120,10 @@ import { massHierarchy } from '~/experiment/p81-mass-hierarchy'
 import { predictionsVsBounds } from '~/experiment/p82-predictions-vs-bounds'
 import { deterministicGrowth } from '~/experiment/p83-deterministic-growth'
 import { lorentzBoost } from '~/experiment/p84-lorentz-boost'
+import { coxeterEngine } from '~/experiment/p85-coxeter-engine'
+import { autoSelection } from '~/experiment/p86-auto-selection'
+import { wordEngine } from '~/experiment/p87-word-engine'
+import { effectiveMetric } from '~/experiment/p88-effective-metric'
 
 let passed = 0
 let failed = 0
@@ -1484,6 +1488,39 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = lorentzBoost({ seed: 1 })
   check({ name: 'P84 Lorentz boost: sprinkle rapidity flat + boost-covariant, lattice peaked at a rest frame', ok: r.solved && r.sprinkleIsFlat && r.latticeIsPeaked && r.boostCovariant, detail: `sprinkle flatness ${r.sprinkleFlatness.toFixed(3)} (std ${r.sprinkleStd.toFixed(2)}), lattice flatness ${r.latticeFlatness.toFixed(3)} (std ${r.latticeStd.toFixed(2)}), boost shape change ${r.flatnessUnderBoost.toFixed(3)}` })
+}
+
+// P85: the general Coxeter engine builds any tiling with its TRUE full facet-adjacency (the
+// heptagrid cell has 7 neighbors, the dodecagrid {5,3,4} has 12), grows in parallel exploding
+// generations, and runs the signed-majority rule on the real 3D dodecagrid.
+{
+  const r = coxeterEngine()
+  const dodeca = r.facetCounts.find((f) => f.symbol === '{5,3,4}')
+  check({ name: 'P85 Coxeter engine: full facet-adjacency exact (heptagrid 7, dodecagrid 12), parallel explosion, dodecagrid runs', ok: r.solved && r.allFacetsCorrect && dodeca?.facetCount === 12 && r.dodecagridExplodes, detail: `facets ${r.facetCounts.map((f) => `${f.symbol}=${f.facetCount}`).join(' ')}, dodecagrid settled ${r.dodecagridDynamics.settledFraction.toFixed(2)}` })
+}
+
+// P86: ternary (q=3) plus minimality (the tightest clean eternal closure) deterministically
+// pick {5,3,4}, with the golden 5 forced (dodeca reaches it at r=4, cube needs 5, tetra never).
+{
+  const r = autoSelection()
+  check({ name: 'P86 auto-selection: ternary + minimal eternal closure forces {5,3,4}, the 5 emerges', ok: r.solved && r.forcedSymbol === '{5,3,4}' && r.fiveIsForced, detail: `q3 compact ${r.allQ3Compact.map((c) => c.symbol).join(',')}, tightest ${r.tightestQ3}` })
+}
+
+// P87: the exact word-problem engine. ShortLex normal forms enumerate finite Coxeter groups to
+// their exact order (H3 = 120, the dodecahedron) and give the exact cell facet counts of the
+// hyperbolic crystals (heptagrid 7, dodecagrid 12) coordinate-free, with no rim crowding.
+{
+  const r = wordEngine()
+  check({ name: 'P87 word engine: exact finite orders (H3=120) and exact cell facets (dodecagrid 12), coordinate-free', ok: r.solved && r.finiteAllExact && r.facetsAllExact && r.dodecagridFacet === 12, detail: `finite ${r.finiteOrders.map((f) => `${f.name}=${f.chambers}`).join(' ')}, facets ${r.cellFacets.map((f) => `${f.symbol}=${f.facet}`).join(' ')}` })
+}
+
+// P88: the effective metric from the fills. Matter strengthens the local fills, raising the
+// effective index, so a ray bends toward matter (lensing), the deflection scales with the mass
+// and falls with impact parameter, and the effective curvature is sourced at the matter. Gravity
+// as an emergent metric from the fills, upgrading P16/P24/P32.
+{
+  const r = effectiveMetric()
+  check({ name: 'P88 effective metric from fills: rays bend toward matter (lensing) scaling with mass, curvature sourced by matter', ok: r.solved && r.scalesWithMass && r.decreasesWithImpact && r.curvaturePeakAtMass, detail: `deflection M=${r.deflectionWithMass.toFixed(3)} 2M=${r.deflectionDoubleMass.toFixed(3)} (ratio ${r.massRatio.toFixed(2)}), near ${r.deflectionNear.toFixed(3)} far ${r.deflectionFar.toFixed(3)}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

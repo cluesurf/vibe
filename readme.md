@@ -140,32 +140,32 @@ move that unblocks the large-N free-energy crossing.
 
 P75 to P78 close out the smaller open problems: selves as attractors in
 full (real basins of attraction, identity over time, capacity that grows
-with size), 3D addressed navigation (greedy hyperbolic-address routing on
-the dodecagrid delivers every pair at the shortest path), chiral gauge
-theory (an honest partial: the fermion-doubling obstruction and its
-vector-theory resolution, with the fully chiral theory left open as in
-lattice physics generally), and the primordial fluctuation seed (the
+with size), 3D addressed navigation (greedy hyperbolic-address routing
+on the dodecagrid delivers every pair at the shortest path), chiral
+gauge theory (an honest partial: the fermion-doubling obstruction and
+its vector-theory resolution, with the fully chiral theory left open as
+in lattice physics generally), and the primordial fluctuation seed (the
 substrate gives a clean scale-free Poisson seed, with the observed tilt
 and gravitational growth still ahead).
 
 P79 to P81 open the Standard Model content. Anomaly freedom, the same
-consistency the substrate already requires, fixes the hypercharges of one
-generation uniquely to the Standard Model values and forces charge
-quantization, the electron at exactly -1 and atoms neutral. The substrate
-supplies all three Sakharov conditions for baryogenesis, with each shown
-necessary. And the fermion mass hierarchy, five orders of magnitude,
-follows from exponential overlap on a curved substrate turning evenly
-spaced modes into an exponentially spread spectrum. These assume the
-gauge group and representation content. Deriving the gauge group itself,
-and the number of generations, remains open.
+consistency the substrate already requires, fixes the hypercharges of
+one generation uniquely to the Standard Model values and forces charge
+quantization, the electron at exactly -1 and atoms neutral. The
+substrate supplies all three Sakharov conditions for baryogenesis, with
+each shown necessary. And the fermion mass hierarchy, five orders of
+magnitude, follows from exponential overlap on a curved substrate
+turning evenly spaced modes into an exponentially spread spectrum. These
+assume the gauge group and representation content. Deriving the gauge
+group itself, and the number of generations, remains open.
 
 P82 sharpens the observational predictions. The substrate is Lorentz
 invariant in distribution, so it predicts no first-order Lorentz
-violation at all, passing the Fermi-LAT gamma-ray-burst timing bound that
-excludes a regular lattice, and the swerve (momentum diffusion from
-discreteness) shrinks as the discreteness fines, far below the cosmic-ray
-bound. A confirmed first-order energy-dependent photon speed would
-falsify the model.
+violation at all, passing the Fermi-LAT gamma-ray-burst timing bound
+that excludes a regular lattice, and the swerve (momentum diffusion from
+discreteness) shrinks as the discreteness fines, far below the
+cosmic-ray bound. A confirmed first-order energy-dependent photon speed
+would falsify the model.
 
 The model itself is specified in [note/the-model.md](note/the-model.md)
 and constructed in [code/model/vibe.ts](code/model/vibe.ts). Full detail
@@ -249,14 +249,14 @@ in [note/experiment/results/](note/experiment/results/) and
 | P73     | fully-discrete graviton                          | solved                                                 | the discrete linearized Einstein operator on a lattice is gauge-invariant (annihilates pure-gauge perturbations to 1e-16), massless (the dispersion runs through the origin, no mass term), and spin-2 (two transverse-traceless polarizations), the genuinely discrete graviton                                                                                                |
 | P74     | large-N crossing (cluster move)                  | solved                                                 | the height-changing cluster move (toggle an asserted relation, recompute the closure) sweeps 85 to 100 percent of the height range at N = 64 and 96, where the single-pair move that stalled P12 reaches under 25 percent, unblocking the large-N free-energy crossing                                                                                                          |
 | P75     | selves as attractors, fully                      | solved                                                 | a stored self recovers from perturbations up to a 40 percent flip (its basin), keeps its identity over many beats (overlap 1.000), and a mesh holds several selves with the count growing with size (18 at N = 120, 26 at N = 240)                                                                                                                                              |
-| P76     | 3D addressed navigation                          | solved                                                 | greedy routing on the hyperbolic address delivers 100 percent of pairs at stretch 1.00 on the dodecagrid {5,3,4}, carrying the exact addressed routing of P42 to the real 3D crystal                                                                                                                                                                                           |
+| P76     | 3D addressed navigation                          | solved                                                 | greedy routing on the hyperbolic address delivers 100 percent of pairs at stretch 1.00 on the dodecagrid {5,3,4}, carrying the exact addressed routing of P42 to the real 3D crystal                                                                                                                                                                                            |
 | P77     | chiral gauge theory                              | partial                                                | the naive lattice fermion has 2^d species whose chiralities cancel (the Nielsen-Ninomiya obstruction), a Wilson term leaves one species and fixes the vector theory, and the fully chiral gauge theory is marked open as it is in lattice physics generally                                                                                                                     |
 | P78     | primordial fluctuation seed                      | first step                                             | a sprinkled substrate gives a clean scale-free Poisson density seed (the contrast scales as count^-0.509, predicted -0.5), the same one-over-root-volume law as the everpresent constant; the observed spectral tilt and gravitational growth remain open                                                                                                                       |
-| P79     | anomaly cancellation, charge quantization        | solved (assumes the group + reps)                      | the unique anomaly-free, Yukawa-consistent solution for one generation is exactly the Standard Model hypercharges, the unused cubic and color anomalies cancel to 1e-12, and electric charges come out quantized in thirds with the electron at -1 and neutral atoms                                                                                                             |
+| P79     | anomaly cancellation, charge quantization        | solved (assumes the group + reps)                      | the unique anomaly-free, Yukawa-consistent solution for one generation is exactly the Standard Model hypercharges, the unused cubic and color anomalies cancel to 1e-12, and electric charges come out quantized in thirds with the electron at -1 and neutral atoms                                                                                                            |
 | P80     | baryogenesis (Sakharov conditions)               | solved (structural)                                    | the substrate supplies all three Sakharov conditions (B violation from growth, CP from directed notes, out-of-equilibrium from eternal growth); a matter excess builds up and removing any one condition erases it; the observed magnitude is open                                                                                                                              |
 | P81     | mass hierarchy from hyperbolic overlaps          | solved (structural)                                    | exponential overlap on a hyperbolic substrate spans the observed 5.5-decade charged-fermion mass range from evenly spaced modes (about two shells apart), where a flat power law gives only 2.3 decades; the specific masses are open                                                                                                                                           |
-| P82     | sharp predictions vs experimental bounds         | solved                                                 | predicts zero first-order Lorentz violation (passes Fermi-LAT GRB 090510, where a lattice with order-one anisotropy is excluded), passes the quadratic bound, and the swerve vanishes as discreteness fines (rate ~ density^-1.61); a confirmed first-order energy-dependent photon speed would falsify it                                                                       |
-| P83     | deterministic eternal growth                     | solved                                                 | the mesh grows one cell at a time at the frontier, deterministically and append-only (interior frozen as the past), resumable with no rebuild (chunked growth equals one shot), faithful to the static tiling ring for ring, with the hyperbolic ball-growth ratio emerging at the golden-ratio law (2.6186 vs 2.6180)                                                            |
+| P82     | sharp predictions vs experimental bounds         | solved                                                 | predicts zero first-order Lorentz violation (passes Fermi-LAT GRB 090510, where a lattice with order-one anisotropy is excluded), passes the quadratic bound, and the swerve vanishes as discreteness fines (rate ~ density^-1.61); a confirmed first-order energy-dependent photon speed would falsify it                                                                      |
+| P83     | deterministic eternal growth                     | solved                                                 | the mesh grows one cell at a time at the frontier, deterministically and append-only (interior frozen as the past), resumable with no rebuild (chunked growth equals one shot), faithful to the static tiling ring for ring, with the hyperbolic ball-growth ratio emerging at the golden-ratio law (2.6186 vs 2.6180)                                                          |
 
 Legend: **validated** means a stated prediction was confirmed by the
 testbed. **measured** means a quantity that was previously only bounded
@@ -305,7 +305,7 @@ vibe model
   mesh      hyperbolic          random hyperbolic causal mesh, Lorentz-safe, degree ~10
   tone      ternary             {-1, 0, +1}, the felt quality of a vibe
   fill      ternary-symmetric   each note carries a ternary fill (a shared relational vibe)
-  rule      signed-majority     next(v) = sign( sum over neighbours w of fill(v,w) * will(w) )
+  rule      signed-majority     next(v) = sign(sum over neighbours w of fill(v,w) * will(w))
   schedule  asynchronous        local, neighbours only, no global clock
   growth    net-positive        eternal expansion by local birth
   size 1500, seed 1

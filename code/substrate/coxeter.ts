@@ -6,9 +6,28 @@
 // the 3D builder reflects a central dodecahedron across its faces, both reflection-group
 // orbits. See the choosing-the-base analysis.
 
-import { Graph } from '~/tool/graph'
+import { Graph, makeGraph } from '~/tool/graph'
 import { hyperbolicTiling } from '~/substrate/hyperbolic-graph'
 import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
+import { buildCoxeterMesh } from '~/substrate/coxeter/engine'
+
+// The general Coxeter engine as a Graph: the REAL full facet-adjacency for any {p,q} or
+// {p,q,r} (a {7,3} cell has its true 7 neighbors, the dodecagrid {5,3,4} its true 12), built
+// by reflecting the fundamental chamber and deduping coincident chambers. This is the proper
+// replacement for the spanning-tree generators below. Use buildCoxeterMesh directly when you
+// also need the Poincare coordinates or the per-generation growth.
+export function coxeterMeshGraph(input: {
+  schlafli: number[]
+  depth?: number
+  maxChambers?: number
+}): Graph {
+  const mesh = buildCoxeterMesh({
+    symbol: input.schlafli,
+    depth: input.depth,
+    maxChambers: input.maxChambers,
+  })
+  return makeGraph({ size: mesh.cellCount, directed: false, neighbors: mesh.neighbors })
+}
 
 // Generate the tessellation named by a Schlafli symbol. A two-symbol {p,q} is a 2D
 // tiling, the three-symbol {5,3,4} is the 3D dodecagrid. Sensible per-symbol generation
