@@ -124,6 +124,8 @@ import { coxeterEngine } from '~/experiment/p85-coxeter-engine'
 import { autoSelection } from '~/experiment/p86-auto-selection'
 import { wordEngine } from '~/experiment/p87-word-engine'
 import { effectiveMetric } from '~/experiment/p88-effective-metric'
+import { analogHawking } from '~/experiment/p89-analog-hawking'
+import { braneworld } from '~/experiment/p90-braneworld'
 
 let passed = 0
 let failed = 0
@@ -1521,6 +1523,24 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = effectiveMetric()
   check({ name: 'P88 effective metric from fills: rays bend toward matter (lensing) scaling with mass, curvature sourced by matter', ok: r.solved && r.scalesWithMass && r.decreasesWithImpact && r.curvaturePeakAtMass, detail: `deflection M=${r.deflectionWithMass.toFixed(3)} 2M=${r.deflectionDoubleMass.toFixed(3)} (ratio ${r.massRatio.toFixed(2)}), near ${r.deflectionNear.toFixed(3)} far ${r.deflectionFar.toFixed(3)}` })
+}
+
+// P89: dynamical analog-Hawking on the real {7,3} crystal. A fill profile makes an effective
+// horizon, a dynamically traced null ray freezes there with the exponential redshift (measured
+// surface gravity matches the metric), and the near-horizon detector response is thermal at the
+// Hawking temperature T_H = kappa / 2pi (detailed balance), scaling with kappa.
+{
+  const r = analogHawking()
+  check({ name: 'P89 analog-Hawking on the crystal: ray redshift gives surface gravity, detector thermal at T_H = kappa/2pi', ok: r.solved && r.redshiftMatches && r.thermalMatches && r.temperatureScales, detail: `kappa metric ${r.kappaMetric.toFixed(2)} ray ${r.kappaRay.toFixed(2)}, T_H ${r.hawkingTemperature.toFixed(3)} detailed-balance ${r.detailedBalanceTemperature.toFixed(3)}` })
+}
+
+// P90: the short-range gravity test, 3D substrate versus 4D bulk. A bare 3D substrate is pure
+// inverse-square (force exponent -2) at every scale, while a 4D bulk with a compact extra dimension
+// is 4D (exponent -3) at short range and 3D (-2) at long range, crossing over at the bulk size. So a
+// short-range deviation from inverse-square would reveal a 4D bulk, and its absence bounds the bulk.
+{
+  const r = braneworld()
+  check({ name: 'P90 braneworld test: 3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range', ok: r.solved && r.substrateFlat && r.braneShowsCrossover && r.distinguishable, detail: `substrate short ${r.substrateShortExponent.toFixed(2)}, brane short ${r.braneShortExponent.toFixed(2)} long ${r.braneLongExponent.toFixed(2)}, crossover ${r.crossoverScaleOverL.toFixed(2)}L` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)
