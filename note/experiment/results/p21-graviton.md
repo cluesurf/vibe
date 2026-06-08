@@ -1,44 +1,35 @@
-# P21: The Graviton (Massless Spin-2 Field)
+# P21: The Graviton (Polarizations Read from the Operator Spectrum)
 
-**Status: validated. Massless, spin-2, two transverse-traceless polarizations.**
+**Status: solved. The two polarizations are measured, not imposed by a projector.**
 
-## The question
+## The fix
 
-Gravity so far is the action (P2), the Newtonian limit (P16), and the phase that
-selects spacetime. The graviton is the propagating excitation of the geometry, a
-symmetric rank-2 tensor perturbation. Is it a proper massless spin-2 field?
-
-## What we did
-
-The massless graviton, like the photon, is gauge-invariant and transverse-traceless.
-We build the transverse-traceless projector on symmetric rank-2 tensors for each
-momentum direction, diagonalise it, and count the physical polarizations. We compare
-to a massive spin-2 field (traceless only) and read off the massless dispersion.
+The earlier version counted polarizations as the rank of a transverse-traceless projector, which is 2
+by construction. This version reads the count from the SPECTRUM of the graviton operator derived in
+P24 (Christoffel to Ricci to Einstein), where nothing is imposed by hand.
 
 ## Result
 
-- **Two transverse-traceless polarizations** for every momentum direction tested (the
-  two physical graviton polarizations, the signature of spin two).
-- A **massive spin-2 field has five** polarizations (the vDVZ count), so the massless
-  case is genuinely different.
-- **Massless dispersion**: the lowest omega^2 on a lattice of side L is 4 sin^2(pi/L),
-  which shrinks (2.00, 1.00, 0.586 for L = 4, 6, 8) toward zero as the lattice grows.
-  So omega goes to zero as the momentum does: no gap, a massless graviton.
+The spectrum of the derived operator at any momentum k is, in units of (1/2)|k|^2:
 
-So the propagating excitation of the geometry is a proper **massless spin-2
-graviton**: a symmetric rank-2 tensor (spin two), gauge-invariant under
-diffeomorphisms, with exactly two transverse-traceless polarizations, the tensor
-analogue of the photon's two (P20).
+| eigenvalue | count | meaning |
+| ---------- | ----- | ------- |
+| +(1/2)\|k\|^2 | 2 | physical, propagating graviton polarizations |
+| 0 | 3 | diffeomorphism gauge modes (exact zeros) |
+| -(1/2)\|k\|^2 | 1 | unphysical trace mode |
 
-## Honest reading
+Across momentum directions (0,0,1), (1,1,0), (1,1,1), (2,1,3): always 2 physical and 3 gauge. The
+masslessness is read from the lattice dispersion (lowest omega^2 = 4 sin^2(pi/L) shrinks to zero as
+L grows). A massive spin-2 would carry 5 degrees of freedom (the traceless symmetric tensor), because
+it has no diffeomorphism gauge freedom.
 
-This establishes the graviton's kinematics (spin, polarization count, masslessness)
-cleanly. The remaining step is to DERIVE this spin-2 kinetic operator from the
-discrete gravitational action itself (P16, P2), rather than constructing it from the
-transverse-traceless projector. The action is in hand, the linearisation around a
-sprinkled background that yields the graviton mode is the next rung.
+## Reading
+
+The two physical polarizations are not imposed by a transverse-traceless projector. They are read off
+the spectrum of the operator derived from the action: two modes propagate at +(1/2)|k|^2, three are
+pure diffeomorphism gauge (exact zeros), and one trace mode is unphysical. That is the signature of a
+massless spin-2 field, the graviton, measured rather than asserted.
 
 ## See also
 
-`p20-photon.md` (the photon, the spin-1 analogue), `p16-newtonian.md` and the gravity
-sections (the action and the Newtonian limit), and `p21-graviton` (the experiment).
+`p24-graviton-from-action.md`, `p73-discrete-graviton.md`, `p32-einstein-equations.md`.

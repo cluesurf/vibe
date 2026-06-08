@@ -1,4 +1,4 @@
-# vibe-test
+# Experimentally Testing/Simulating Vibe Theory
 
 A discrete-spacetime / Vibe Theory testbed. One library that generates a
 discrete substrate, runs a local rule over it, and measures the emergent
@@ -13,7 +13,7 @@ never as the base.
 
 ```
 code/
-  core/        rng, bitset, embedding, graph, poset, substrate, gauge-field
+  tool/        rng, bitset, embedding, graph, poset, substrate, gauge-field
   linalg/      complex, dense, sparse, eig-jacobi, eig-lanczos
   tone/        alphabet, configuration
   substrate/   sprinkle-minkowski, sprinkle-curved, lattice, tiling-pq,

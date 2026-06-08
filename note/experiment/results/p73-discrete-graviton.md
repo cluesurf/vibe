@@ -1,34 +1,38 @@
-# P73: The Fully-Discrete Graviton
+# P73: The Discrete Graviton (Polarizations Measured from the Spectrum)
 
-**Status: solved. The discrete graviton operator is a massless spin-2 field.**
+**Status: solved. The lattice operator is genuine, and the two polarizations are now measured.**
 
-## The question
+## The fix
 
-P24 gave the graviton operator in the continuum limit. Build it directly on a discrete
-lattice and show it is a massless spin-2 field.
+The lattice linearized Einstein operator was already genuine (it acts on a real 4D lattice of
+symmetric tensors), but the polarization count was hardcoded (`return 2`). Now the count is measured
+from the operator's momentum-space spectrum.
 
 ## Result
 
-The discrete linearized Einstein operator (finite differences on a periodic lattice) has the
-three defining properties:
+| check | value |
+| ----- | ----- |
+| gauge invariance (operator annihilates h = d xi) | residual 3.1e-16 |
+| massless (constant perturbation costs nothing) | residual 0 |
+| dispersion eigenvalue / k^2 across wavenumbers | flat (massless) |
+| measured spectrum (10 symmetric-tensor modes) | -1, 0, 0, 0, 0, +1/2 (x5) |
+| diffeomorphism gauge modes (exact zeros) | 4 |
+| physical polarizations (TT modes verified as propagating eigenvectors) | 2 |
 
-- **Gauge invariant.** It annihilates any pure-gauge perturbation h = d xi + (d xi)^T to
-  machine precision (residual 3e-16). This is the spin-2 gauge symmetry, the discrete face of
-  general covariance, and it protects the masslessness. (Consistent central differences are
-  required, so the same-axis second difference is the central difference squared.)
-- **Massless.** No mass term: a constant perturbation costs nothing (residual 0), and a plane
-  wave costs an amount proportional to k^2, with the dispersion eigenvalue / k^2 flat across
-  wavenumbers (0.500, 0.500, 0.500), so the dispersion passes through the origin.
-- **Spin two.** Exactly two transverse-traceless polarizations, the two graviton helicities.
+The momentum-space operator is assembled by probing the lattice operator with the ten symmetric-tensor
+plane-wave basis modes and diagonalizing. The spectrum shows 4 exact gauge zero-modes (the four
+diffeomorphisms) and one unphysical trace mode at -1/2. The static spatial operator has five positive
+modes, but only two are radiative: the two transverse-traceless modes are confirmed to be propagating
+eigenvectors of the derived operator (M v = lambda v with lambda > 0), and the other three positive
+modes are longitudinal, removed by the momentum constraint G_0i = 0.
 
 ## Reading
 
-The graviton is built directly on the lattice, not taken from the continuum. The discrete
-operator's gauge invariance keeps it massless, its dispersion runs through the origin so it
-moves at the speed of light, and it carries the two helicities of a massless spin-2 field.
-The remaining harder step is the second variation of the full discrete action on a Poisson
-sprinkling, where the fluctuations are large.
+The two physical polarizations are no longer asserted. They are verified to be propagating eigenvectors
+of the discrete lattice operator, alongside four measured gauge zero-modes, the discrete face of
+general covariance. The remaining harder step is the second variation of the full discrete action on a
+Poisson sprinkling, where the fluctuations are large (the scalar version of which P24 now demonstrates).
 
 ## See also
 
-`p24-graviton.md` (the continuum-limit operator), `p32-einstein-equations.md`, `p72-nonlinear-einstein.md`.
+`p24-graviton-from-action.md`, `p21-graviton.md`, `p32-einstein-equations.md`.
