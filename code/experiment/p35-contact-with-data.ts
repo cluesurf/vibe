@@ -61,7 +61,10 @@ export function main(): void {
   console.log(`     same order of magnitude as the measured dark energy: ${deMatch ? 'YES' : 'no'}`)
   console.log('     The everpresent Lambda predicts about 10^-122 in Planck units, and the')
   console.log('     measured dark energy is about 10^-122. This is the order-of-magnitude match,')
-  console.log('     the one quantitative cosmological success of causal-set theory.')
+  console.log('     the one quantitative cosmological success of causal-set theory. Scope: the -1/2')
+  console.log('     scaling and mechanism are demonstrated from genuine Poisson statistics in P46;')
+  console.log('     this value is Sorkin\'s everpresent prediction at the observed 4-volume, adopted')
+  console.log('     here (order of magnitude, fluctuating sign), not an independent derivation.')
   console.log('')
 
   console.log('  2. LORENTZ VIOLATION (Planck-scale)')
