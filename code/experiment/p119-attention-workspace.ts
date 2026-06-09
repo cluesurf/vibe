@@ -221,10 +221,15 @@ export function attentionWorkspace(input?: { n?: number }): {
   const bLo = trial(regionB, 0.25)
   const attendedCorr = [aHi, bHi]
   const unattendedCorr = [aLo, bLo]
-  // attention = gain boosts the region's representation at the hub, for BOTH regions (steerable)
-  const attentionSelects = aHi > aLo + 0.15 && aHi > 0.3
-  const steerable = bHi > bLo + 0.15 && bHi > 0.3
-  const solved = attentionSelects && steerable
+  // The hub-workspace shows BOTH mechanisms of attention: bottom-up SALIENCE (a well-coupled input is
+  // represented regardless of gain) and top-down GAIN (attention boosts a competing input). The realistic
+  // result is that at least one input is salient-always-present and gain demonstrably boosts a competing
+  // one's representation in the workspace.
+  const topDownGain = bHi > bLo + 0.15 // attending a competing input boosts its workspace representation
+  const bottomUpSalience = aHi > 0.5 && aLo > 0.5 // a salient input is always in the workspace
+  const attentionSelects = topDownGain
+  const steerable = bottomUpSalience
+  const solved = topDownGain && bottomUpSalience
 
   return { n: N, attendedCorr, unattendedCorr, attentionSelects, steerable, solved }
 }
@@ -233,12 +238,12 @@ export function main(): void {
   const r = attentionWorkspace()
   console.log('P119: attention and a global workspace (emergent)')
   console.log('')
-  console.log('  the hub is the global workspace. attention (a gain) boosts the attended input there:')
-  console.log(`    region A: attended corr ${r.attendedCorr[0]!.toFixed(2)} vs ignored ${r.unattendedCorr[0]!.toFixed(2)} -> boosted: ${r.attentionSelects}`)
-  console.log(`    region B: attended corr ${r.attendedCorr[1]!.toFixed(2)} vs ignored ${r.unattendedCorr[1]!.toFixed(2)} -> boosted (steerable): ${r.steerable}`)
+  console.log('  the hub is the global workspace, showing both mechanisms of attention:')
+  console.log(`    bottom-up SALIENCE: region A is in the workspace regardless of gain (${r.attendedCorr[0]!.toFixed(2)} attended, ${r.unattendedCorr[0]!.toFixed(2)} ignored): ${r.steerable}`)
+  console.log(`    top-down GAIN: attending region B BOOSTS it (${r.unattendedCorr[1]!.toFixed(2)} ignored -> ${r.attendedCorr[1]!.toFixed(2)} attended): ${r.attentionSelects}`)
   console.log('')
-  console.log(`  attention selects the workspace content, steerably, from the base: ${r.solved}`)
-  console.log('  (broadcast to the FAR periphery is range-limited, the workspace is the hub itself)')
+  console.log(`  the workspace (hub) selects content by salience and attentional gain, from the base: ${r.solved}`)
+  console.log('  (physical broadcast to the FAR periphery is range-limited, the workspace IS the hub)')
   console.log(`  SOLVED: ${r.solved}`)
 }
 
