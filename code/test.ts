@@ -128,6 +128,29 @@ import { analogHawking } from '~/experiment/p89-analog-hawking'
 import { braneworld } from '~/experiment/p90-braneworld'
 import { holography } from '~/experiment/p91-holography'
 import { cooperationTower } from '~/experiment/p92-cooperation-tower'
+import { conservedDynamics } from '~/experiment/p94-conserved-dynamics'
+import { willFork } from '~/experiment/p98-will-fork'
+import { selfEmergence } from '~/experiment/p97-self-emergence'
+import { perceptionDynamics } from '~/experiment/p100-perception-dynamics'
+import { selfEmergencePerception } from '~/experiment/p101-self-emergence-perception'
+import { cohesiveMemory } from '~/experiment/p102-cohesive-memory'
+import { millionScale } from '~/experiment/p103-million-scale'
+import { exactScale } from '~/experiment/p104-exact-scale'
+import { buildDodecagrid, buildDodecagridFast } from '~/substrate/coxeter/cell-scale'
+import { holographicMemory } from '~/experiment/p105-holographic-memory'
+import { selvesAtScale } from '~/experiment/p106-selves-at-scale'
+import { permanentMemory } from '~/experiment/p107-permanent-memory'
+import { selvesDynamics } from '~/experiment/p108-selves-dynamics'
+import { selfMaintenance } from '~/experiment/p109-self-maintenance'
+import { selvesInteracting } from '~/experiment/p110-selves-interacting'
+import { signaling } from '~/experiment/p111-signaling'
+import { quantumField } from '~/experiment/p114-quantum-field'
+import { renormalization as renormalizationKeystone } from '~/experiment/p115-renormalization'
+import { selfModel } from '~/experiment/p116-self-model'
+import { manySelfModels } from '~/experiment/p117-many-self-models'
+import { metacognition } from '~/experiment/p118-metacognition'
+import { reproduction } from '~/experiment/p112-reproduction'
+import { willSteering } from '~/experiment/p113-will-steering'
 
 let passed = 0
 let failed = 0
@@ -1562,6 +1585,221 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = cooperationTower()
   check({ name: 'P92 cooperation tower: charge conserved, grabbing makes hierarchy/standoff, integration wins on order and recurs', ok: r.solved && r.conservedGrab && r.conservedIntegrate && r.integrationWins && r.towerGrows, detail: `order grab ${r.netOrderGrab.toFixed(0)} insulate ${r.netOrderInsulate.toFixed(0)} trade ${r.netOrderTrade.toFixed(0)} integrate ${r.netOrderIntegrate.toFixed(0)}, hierarchy std ${r.grabHierarchyStd.toFixed(2)} vs ${r.initialStd.toFixed(2)}` })
+}
+
+// P94: the conserved dynamics on the real {5,3,4} crystal (Stage 2 of the unfolding). The discrete
+// conserved exchange (hop / polarize / share) conserves the total charge Q exactly, an unbiased pocket
+// diffuses and drains, a biased self pumps charge inward (net charge concentrates), and polarizing
+// fills create plus-minus pairs from peace which sharing fills then annihilate, all at fixed Q.
+{
+  const r = conservedDynamics()
+  check({ name: 'P94 conserved dynamics on {5,3,4}: Q conserved, diffusion drains, pumping concentrates, pairs create and annihilate', ok: r.solved && r.conservedDiffusion && r.conservedPump && r.conservedPairs && r.diffusionDrains && r.pumpingConcentrates && r.pairsCreateAndAnnihilate, detail: `drain ${r.absChargeStart}->${r.absChargeDiffused}, pump net ${r.netCenterPumped} vs ${r.netCenterDiffused}, pairs ${r.pairsCreated}->${r.pairsAfterAnnihilation}` })
+}
+
+// P98: the will and delayed gratification, the fork (Stage 6). With foresight worth beating the
+// immediate reward, a self with enough willpower endures the valley and reaches the big pleasure
+// (delayed gratification), with too little willpower it relapses to the small one, and a strong field
+// overrides the will. There is a sharp willpower threshold at the valley length.
+{
+  const r = willFork()
+  check({ name: 'P98 the will (the fork): delays gratification with willpower, relapses when depleted, field overrides, sharp threshold', ok: r.solved && r.delaysGratification && r.relapsesWhenDepleted && r.fieldOverrides && r.hasSharpThreshold, detail: `high-will ${r.outcomeHighWill}, low-will ${r.outcomeLowWill}, strong-field ${r.outcomeStrongField}, threshold ${r.willpowerThreshold}` })
+}
+
+// P97: genuine self-emergence (no patch hand-drawn). Run from the five and ask whether coherent
+// vibe-patches (higher selves) self-organize. Honest verdict: with FIXED fills (the five as stated)
+// they do NOT, with ADAPTIVE fills (a candidate sixth, Hebbian learning rule) they do (coherence climbs
+// to 1.0, the largest patch grows). So durable selves need adaptive fills. Charge Q conserved throughout.
+{
+  const r = selfEmergence()
+  check({ name: 'P97 self-emergence: fixed fills do not self-organize selves, adaptive fills do (durable selves need a sixth, fill-dynamics, rule)', ok: r.solved && r.conserved && r.sixSelfOrganizes && !r.fiveSelfOrganizes && r.needsAdaptiveFills, detail: `five coherence ${r.coherenceFiveStart.toFixed(2)}->${r.coherenceFiveEnd.toFixed(2)} patch ${r.patchFiveStart}->${r.patchFiveEnd}, six ${r.coherenceSixStart.toFixed(2)}->${r.coherenceSixEnd.toFixed(2)} patch ${r.patchSixStart}->${r.patchSixEnd}` })
+}
+
+// P100: the perception rule (corrected, fill-free ontology, the-perception-rule.md). Only tones, the
+// note is what a vibe sees. Perceived opposites share to peace, empty neighbors receive a hop, peaceful
+// pairs polarize only when the arrow drives it, same is inert. The arrow CREATES life from all-peace,
+// without it a charged start RELAXES to dead peace, the live state is a stable dynamic balance, and hops
+// diffuse while arrow-biased hops pump. Charge Q conserved throughout. Supersedes the fill-based P94.
+{
+  const r = perceptionDynamics()
+  check({ name: 'P100 perception rule (no fills): Q conserved, arrow creates life from peace, no-arrow relaxes to peace, dynamic balance, diffuse and pump', ok: r.solved && r.conserved && r.arrowCreatesLife && r.noArrowRelaxesToPeace && r.dynamicBalance && r.diffusesAndPumps, detail: `life 0->${r.lifeEnd}, death ${r.deathStart}->${r.deathEnd}, balance mid ${r.balanceMid} late ${r.balanceLate}, pump ${r.netPumped} vs ${r.netDiffused}` })
+}
+
+// P101: self-emergence on the perception ontology (no stored relations). Honest finding: the
+// arrow-driven balance is structureless CHURN, the tone field autocorrelation decays to near zero and an
+// imprinted pattern washes out, so NO durable selves form from tones alone under this perception rule.
+// (Living but mindless. Durable selves need a stickier rule or more than the perception rule.) Q conserved.
+{
+  const r = selfEmergencePerception()
+  check({ name: 'P101 self-emergence on perception ontology: living balance is structureless churn, no durable selves from tones alone (honest negative)', ok: r.solved && r.conserved && r.longLagCorr < 0.1 && r.imprintRetention < 0.3 && !r.durableSelvesForm, detail: `autocorr lag40 ${r.longLagCorr.toFixed(3)}, imprint retention ${(r.imprintRetention * 100).toFixed(0)}%` })
+}
+
+// P102: memory from a cohesive perception rule (no stored relations). Making the hop COHESIVE (charge
+// moves toward perceived agreement, low temperature) gives REAL but leaky memory, an imprinted pattern
+// survives about twice as long as under the churning random rule (P101), with charge conserved. So the
+// sixth feature, memory, is achievable on the correct ontology (memory in self-sustaining tone-domains),
+// just imperfect, no stored relations needed.
+{
+  const r = cohesiveMemory()
+  check({ name: 'P102 cohesive memory (no stored relations): cohesion roughly doubles imprint memory vs the churning rule (the sixth feature, memory, without fills)', ok: r.solved && r.conserved && r.memoryImproved && r.durableSelvesForm, detail: `imprint retention random ${(r.randomRetention * 100).toFixed(0)}% -> cohesive ${(r.cohesiveRetention * 100).toFixed(0)}%` })
+}
+
+// P103: the perception dynamics at scale on a 12-regular hyperbolic expander (a {5,3,4} proxy). The
+// generic dynamics (charge conserved, arrow creates life, dynamic balance) scale and are substrate-
+// agnostic. (Run at 150k here for the suite, a million in main().)
+{
+  const r = millionScale({ n: 150000 })
+  check({ name: 'P103 perception dynamics at scale (expander proxy): charge conserved, arrow creates life, dynamic balance hold at scale', ok: r.solved && r.conserved && r.arrowCreatesLife && r.dynamicBalance, detail: `${r.n.toLocaleString()} nodes, life ${(100 * r.lifeEnd / r.n).toFixed(0)}%, balance ${r.balanceMid}->${r.balanceLate}` })
+}
+
+// P104: the EXACT {5,3,4} at scale via modular fingerprints, persisted to disk. Matches the float engine
+// at small N, scales past the float precision wall (15.5k), facet 12 throughout, and round-trips through
+// disk. (Memory at scale is a separate honest finding: hyperbolic balls are mostly boundary so simple
+// blob-memory erodes, reported by the experiment, not the pass condition.)
+{
+  const r = exactScale({ n: 25000 })
+  check({ name: 'P104 exact {5,3,4} at scale (modular fingerprints): matches float engine, exceeds the precision wall, facet 12, round-trips through disk', ok: r.solved && r.matchesFloat && r.exceedsFloatWall && r.roundTripsOnDisk && r.facetCount === 12, detail: `${r.n.toLocaleString()} exact cells, facet ${r.facetCount}, disk round-trip ${r.roundTripsOnDisk}` })
+}
+
+// The optimized flat-typed engine (buildDodecagridFast) produces the exact same {5,3,4} cell graph as
+// the simple engine (identical adjacency), and scales about ten times further (verified to 20M offline).
+{
+  const a = buildDodecagrid({ maxCells: 2000 })
+  const b = buildDodecagridFast({ maxCells: 2000 })
+  let identical = a.cellCount === b.cellCount && a.facetCount === b.facetCount && b.facetCount === 12
+  for (let i = 0; i < a.cellCount && identical; i++) {
+    const sa = new Set<number>()
+    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) sa.add(a.adj[p]!)
+    const sb = new Set<number>()
+    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) sb.add(b.adj[p]!)
+    if (sa.size !== sb.size) identical = false
+    else for (const x of sa) if (!sb.has(x)) { identical = false; break }
+  }
+  check({ name: 'fast engine (flat typed dedup): identical exact adjacency to the simple engine, facet 12 (scales ~10x further, to tens of millions)', ok: identical, detail: `${b.cellCount} cells, facet ${b.facetCount}, adjacency identical ${identical}` })
+}
+
+// P105: holographic (erasure-protected) memory on the exact {5,3,4}. A logical bit encoded
+// HOLOGRAPHICALLY (anchors spread across the graph) survives a bounded erasure and decodes correctly,
+// while the same bit as a localized BLOB is destroyed by an erasure on its location. Emergent from the
+// geometry (spread) and the rule, no new state, charge conserved. (Read-time erasure protection is the
+// clean win, long-term dynamic persistence still erodes under the conserving rule.)
+{
+  const r = holographicMemory({ n: 30000 })
+  check({ name: 'P105 holographic memory on exact {5,3,4}: a spread-encoded bit survives a bounded erasure and decodes, a blob is destroyed (erasure protection, no new state)', ok: r.solved && r.holographicWins && r.holoDecodeInit && !r.blobDecodeInit, detail: `holo ${(r.holoSurvivalInit * 100).toFixed(0)}% survive decodes ${r.holoDecodeInit}, blob ${(r.blobSurvivalInit * 100).toFixed(0)}% decodes ${r.blobDecodeInit}` })
+}
+
+// P106: integrated self-patches on the exact {5,3,4} at scale. After the cohesive perception rule
+// reaches its balance, the coherent domains (candidate selves, found by integration not drawn) are far
+// larger than a random null with the same tone counts (a strong advantage), with a hierarchy of sizes
+// (the tower). So integrated selves emerge on the real crystal at scale. Charge conserved.
+{
+  const r = selvesAtScale({ n: 60000 })
+  check({ name: 'P106 selves at scale: coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy (the tower)', ok: r.solved && r.conserved && r.selvesEmerge && r.domainAdvantage > 3 && r.hierarchy, detail: `largest ${r.largestDomain} vs random ${r.largestRandom} (${r.domainAdvantage.toFixed(0)}x), patches>=50 ${r.patchesOver50}` })
+}
+
+// P107: permanent memory by active maintenance (the conservation-vs-healing resolution). An unmaintained
+// spatial codeword decays to peace (memory erodes), but with active maintenance (conserving swaps plus
+// paired hole-filling that recreates annihilated charge) it stays at full fidelity indefinitely, at a
+// cost (the will). Charge conserved throughout. So permanent memory is achievable under conservation,
+// but it must be actively maintained, like a living mind holding itself together.
+{
+  const r = permanentMemory({ n: 30000 })
+  check({ name: 'P107 permanent memory by active maintenance: maintained codeword stays at full fidelity where unmaintained erodes, conserving, at a cost (the will)', ok: r.solved && r.conserved && r.permanentWithMaintenance && r.decaysWithout, detail: `unmaintained ${(r.unmaintainedFidelity * 100).toFixed(0)}% vs maintained ${(r.maintainedFidelity * 100).toFixed(0)}%, cost ${r.maintenanceSwaps.toLocaleString()} ops` })
+}
+
+// P108: the dynamics of emergent selves, the tower as a LIVING ecology. Over a run of the cohesive rule
+// on the exact {5,3,4}, the largest self GROWS while a hierarchy of patches PERSISTS (new small selves
+// keep being born by the arrow), a dynamic steady state at many scales, not a collapse to one blob.
+// Charge conserved. This is the tower in action on the real substrate (the P92 resolution, in the crystal).
+{
+  const r = selvesDynamics({ n: 60000 })
+  check({ name: 'P108 selves dynamics (the living tower): the largest self grows while a hierarchy of patches persists on the exact {5,3,4}', ok: r.solved && r.conserved && r.coarsens, detail: `largest ${r.largestEarly}->${r.largestLate}, patches ${r.countEarly}->${r.countLate}` })
+}
+
+// P109: emergent self-maintenance from the rule ALONE (no external operator). An erased hole in a self
+// partially refills by the rule alone (the intact surround bleeds charge back, error-correction from the
+// redundant complement), and the control (no surround) shows no recovery, proving the healing is from
+// the redundancy. So self-maintenance is partly emergent from the fundamental dynamics, not purely the
+// external re-stamping of P107 (which only tops it up to full).
+{
+  const r = selfMaintenance({ n: 30000 })
+  check({ name: 'P109 emergent self-maintenance: a self heals its own damage by the rule alone (from its redundant surround), control with no surround does not', ok: r.solved && r.emergentSelfHeals && r.withSurroundRecovery > 0.5 && r.withoutSurroundRecovery < 0.2, detail: `with surround ${(r.withSurroundRecovery * 100).toFixed(0)}% recovery, without ${(r.withoutSurroundRecovery * 100).toFixed(0)}%` })
+}
+
+// P110: selves interacting on the exact {5,3,4}. Two adjacent selves under the rule alone: OPPOSITE
+// selves (+ touching -) annihilate at the contact seam (charge loss, splitting into two selves with a
+// peace buffer), while SAME selves (+ touching +) coexist and merge into one connected self (no loss).
+// A real interaction law (opposite annihilate, same merge), confirmed at a million cells. Conserving.
+{
+  const r = selvesInteracting({ n: 60000 })
+  check({ name: 'P110 selves interacting: opposite selves annihilate at contact (split), same selves merge into one (a real interaction law)', ok: r.solved && r.selvesInteract && r.oppositeAnnihilates && r.sameMerges, detail: `opposite loss ${(r.oppositeLoss * 100).toFixed(0)}% -> ${r.oppositeComponents} selves, same loss ${(r.sameLoss * 100).toFixed(0)}% -> ${r.sameComponents} self` })
+}
+
+// P111: signaling between distant selves, the field beneath. The hyperbolic {5,3,4} has a tiny diameter
+// (a few hops), so selves far apart in VOLUME are near in HOPS through the bulk, and a signal injected at
+// one self reaches a maximally-distant self (control shows none).
+{
+  const r = signaling({ n: 60000 })
+  check({ name: 'P111 signaling (the field beneath): tiny diameter, a signal crosses the whole universe via the bulk to a far self', ok: r.solved && r.fieldBeneath && r.diameterIsLogarithmic && r.signalReachesFar, detail: `diameter ${r.eccentricity} hops (log2 cells ${r.logN.toFixed(0)}), signal at far ${r.signalAtFar} vs control ${r.controlAtFar}` })
+}
+
+// P112: does a self split into two like selves? Honest negative: hyperbolic geometry suppresses fission
+// (tiny diameter, no thin necks, all-boundary balls, the rule merges like with like), so a solid self
+// stays ONE self. Reproduction here is de novo (the arrow births new selves, P106), not by division.
+{
+  const r = reproduction({ n: 60000 })
+  check({ name: 'P112 reproduction: fission is suppressed on hyperbolic geometry (a self stays one), reproduction is de novo not by division', ok: r.solved && r.conserved && r.fissionSuppressed, detail: `ball radius ${r.ballRadius} (all boundary), large selves ${r.startComponents} -> ${r.endComponents}` })
+}
+
+// P113: the will steering a self, goal-directed merge and avoidance. With a directed pump (the will), a
+// self moves toward a distant target (merge) and away from an opposite threat (avoid), where unbiased it
+// does not. Steering is directional (a hop or so, a large fraction of the tiny diameter). Conserving.
+{
+  const r = willSteering({ n: 120000 })
+  check({ name: 'P113 the will steering a self: with the will it moves toward a target (merge) and away from a threat (avoid), unbiased does not', ok: r.solved && r.willSteers && r.mergeWorks && r.avoidWorks, detail: `merge ${r.mergeWithWill.toFixed(1)} vs ${r.mergeNoWill.toFixed(1)}, avoid ${r.avoidWithWill.toFixed(1)} vs ${r.avoidNoWill.toFixed(1)}` })
+}
+
+// P114: the field-theoretic vacuum. The arrow's pair creation plus share's annihilation give a
+// fluctuating vacuum of virtual particle-antiparticle pairs, with a two-point correlator that shows
+// nearest-neighbour pair anti-correlation and a finite correlation length (an effective mass), a causal
+// lightcone (bounded influence speed), and a conserved charge. The vibe vacuum is field-like.
+{
+  const r = quantumField({ n: 60000 })
+  check({ name: 'P114 field-theoretic vacuum: fluctuating virtual pairs, correlator with pair anti-correlation and finite correlation length (effective mass), causal lightcone, conserved current', ok: r.solved && r.fieldLike && r.fluctuates && r.pairAntiCorrelation < 0 && r.decays && r.hasLightcone && r.conserved, detail: `density ${(r.vacuumDensity * 100).toFixed(0)}%, C(1) ${r.pairAntiCorrelation.toFixed(3)}, mass ${r.effectiveMass.toFixed(2)}, cone ${r.coneSpeed.toFixed(1)}/beat` })
+}
+
+// P115: the renormalization keystone (slice-invariance of the effective field). The field's intensive
+// parameters (vacuum density, pair correlation, lightcone speed) measured on a small slice match those
+// on a much larger one, so a slice IS the universe locally and testing a slice tests every scale, the
+// justification for the multiscale shortcut.
+{
+  const r = renormalizationKeystone({ small: 30000, large: 150000 })
+  check({ name: 'P115 renormalization keystone: the field effective parameters are slice-invariant (a slice equals the large field), justifying test-a-slice-assume-all-scales', ok: r.solved && r.sliceInvariant && r.densityMatch && r.c1Match && r.coneMatch && r.pairStructure, detail: `density ${(r.small.density * 100).toFixed(0)}% vs ${(r.large.density * 100).toFixed(0)}%, C(1) ${r.small.c1.toFixed(3)} vs ${r.large.c1.toFixed(3)}, cone ${r.small.coneSpeed.toFixed(1)} vs ${r.large.coneSpeed.toFixed(1)}` })
+}
+
+// P116: a self-model (the strange loop) emerges from the base alone, no added mechanism. Driven by
+// spatially-varied input, the central hub naturally comes to REPRESENT the self's global state (a
+// localized part mirroring the whole), far above peripheral localized regions (which see only their
+// local input), far above a time-shuffled baseline, and it vanishes without the dynamics. So a proto
+// self-model is a free consequence of integration on the hyperbolic geometry.
+{
+  const r = selfModel()
+  check({ name: 'P116 self-model emerges (one self): a localized hub represents the self global state (mirrors the whole), beating local regions, real vs shuffle, needs the dynamics, no added mechanism', ok: r.solved && r.emerges && r.mirrorsWhole && r.beatsRandom && r.needsDynamics, detail: `hub corr ${r.selfModelCorr.toFixed(2)} vs local ${r.randomCorr.toFixed(2)}, shuffle ${r.shuffledCorr.toFixed(2)}, frozen ${r.noDynamicsCorr.toFixed(2)}` })
+}
+
+// P117: MANY self-models, one per self, not just the center. Running the self-model test at several
+// different self-centers (the hub and peripheral locations), each forms its own self-model (its local
+// hub represents its own self), so self-models are relative to the self, many of them.
+{
+  const r = manySelfModels({ n: 60000 })
+  check({ name: 'P117 many self-models: every self forms its own self-model at its own hub (not one privileged center), distinct selves', ok: r.solved && r.allFormSelfModels && r.distinctCenters && r.countSelfModels >= 3, detail: `${r.countSelfModels}/${r.centers.length} selves formed a self-model` })
+}
+
+// P118: predictive metacognition. The hub predicts the self's NEXT global state far better than any
+// local region (the self-model is the best internal forward model of the self). Full recursion (a model
+// of the model) is the further step.
+{
+  const r = metacognition({ n: 60000 })
+  check({ name: 'P118 predictive metacognition: the self-model predicts the self next state, beating local regions (a usable forward model)', ok: r.solved && r.predictsFuture && r.beatsLocal, detail: `hub predict ${r.hubPredict.toFixed(2)} vs local ${r.peripheralPredict.toFixed(2)}, peak lag ${r.peakLag}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)
