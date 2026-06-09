@@ -149,6 +149,13 @@ import { renormalization as renormalizationKeystone } from '~/experiment/p115-re
 import { selfModel } from '~/experiment/p116-self-model'
 import { manySelfModels } from '~/experiment/p117-many-self-models'
 import { metacognition } from '~/experiment/p118-metacognition'
+import { attentionWorkspace } from '~/experiment/p119-attention-workspace'
+import { heredity } from '~/experiment/p120-heredity'
+import { recursion as modelOfModel } from '~/experiment/p121-recursion'
+import { rgStep } from '~/experiment/p122-rg-step'
+import { sliverTransport } from '~/experiment/p123-sliver-transport'
+import { lorentzIsotropy as lorentzIsotropyTensor } from '~/experiment/p124-lorentz-isotropy'
+import { lorentzFlow } from '~/experiment/p125-lorentz-flow'
 import { reproduction } from '~/experiment/p112-reproduction'
 import { willSteering } from '~/experiment/p113-will-steering'
 
@@ -1800,6 +1807,66 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = metacognition({ n: 60000 })
   check({ name: 'P118 predictive metacognition: the self-model predicts the self next state, beating local regions (a usable forward model)', ok: r.solved && r.predictsFuture && r.beatsLocal, detail: `hub predict ${r.hubPredict.toFixed(2)} vs local ${r.peripheralPredict.toFixed(2)}, peak lag ${r.peakLag}` })
+}
+
+// P119: attention and a global workspace. The hub is the workspace where boundary sectors converge, and
+// it shows both bottom-up SALIENCE (a well-coupled input is always represented) and top-down GAIN
+// (attending a competing input boosts its representation). Physical broadcast to the far periphery is
+// range-limited, so the workspace is the hub itself.
+{
+  const r = attentionWorkspace({ n: 60000 })
+  check({ name: 'P119 attention and global workspace: the hub-workspace shows bottom-up salience and top-down attentional gain, from the base', ok: r.solved && r.attentionSelects && r.steerable, detail: `salient A ${r.attendedCorr[0]!.toFixed(2)}/${r.unattendedCorr[0]!.toFixed(2)}, gain B ${r.unattendedCorr[1]!.toFixed(2)}->${r.attendedCorr[1]!.toFixed(2)}` })
+}
+
+// P120: reproduction with heredity, and the conservation answer. A daughter inherits a parent's pattern
+// (resemblance 1.0 at no mutation, tunable down with mutation = heritable variation, the substrate of
+// evolution), and copying necessarily writes charge into empty cells, so reproduction REQUIRES a
+// creative (non-conserving) source. So strict conservation forbids reproduction, life needs a controlled
+// creative source. Tested at an EFFECTIVE level (cells are heritable units, not Planck vibes).
+{
+  const r = heredity({ n: 60000 })
+  check({ name: 'P120 heredity + conservation: a daughter inherits the parent with tunable variation, and reproduction is CONSERVING creation (the arrow), so the base supports it', ok: r.solved && r.heredityWorks && r.heritableVariation && r.conservingCreation, detail: `resemblance mu0 ${r.resemblanceMu0.toFixed(2)} mu20 ${r.resemblanceMu2.toFixed(2)} mu50 ${r.resemblanceMu5.toFixed(2)}, structure ${r.structureWritten} net charge ${r.netChargeCreated}` })
+}
+
+// P121: full recursion, a model of the model. Self 1 forms hub1 (a model of the world), hub1 is wired as
+// the input to self 2, which forms hub2 representing hub1, a model of a model. hub2 tracks hub1 (0.83)
+// far above shuffle/frozen, and better than the raw world, so it models the MODEL one step removed. The
+// chain world -> model1 -> model2(model1) holds.
+{
+  const r = modelOfModel({ n: 60000 })
+  check({ name: 'P121 full recursion (a model of the model): hub2 represents hub1 (the tower of self-models), the chain world->model1->model2(model1)', ok: r.solved && r.realModel && r.modelsTheModel && r.hub1ModelsWorld > 0.4, detail: `hub1~world ${r.hub1ModelsWorld.toFixed(2)}, hub2~hub1 ${r.hub2ModelsHub1.toFixed(2)} vs shuffle ${r.shuffledBaseline.toFixed(2)}, frozen ${r.noDynamics.toFixed(2)}` })
+}
+
+// P122: one renormalization step (vibe mesh -> coarse layer). The first inter-layer transform enriches
+// the alphabet (ternary -> many-valued) and conserves charge, but a BALL is too short (tiny hyperbolic
+// diameter) to measure transport, motivating the sliver.
+{
+  const r = rgStep({ n: 30000 })
+  check({ name: 'P122 RG step: the first inter-layer transform enriches the alphabet and conserves charge (a ball is too short to show transport)', ok: r.solved && r.alphabetEnriched && r.conserved, detail: `${r.numBlocks} blocks, alphabet range ${r.alphabetRange}, slow-diffusion ${r.slowDiffusion} (rejected on a ball)` })
+}
+
+// P123: transport on a long SLIVER (geodesic tube). The tube is far longer than a ball (spine 100+), and
+// a single charge moves BALLISTICALLY (positive escape speed, the hyperbolic rate-of-escape theorem), a
+// finite propagation speed = a lightcone, the relativistic-field ingredient, not slow diffusion.
+{
+  const r = sliverTransport({ length: 70, beats: 40, runs: 400 })
+  check({ name: 'P123 sliver transport: a long geodesic tube reveals BALLISTIC transport (finite escape speed = a lightcone), the relativistic-field ingredient, not diffusion', ok: r.solved && r.longSliver && r.isBallistic && !r.isDiffusive, detail: `spine ${r.spineLength}, exponent ${r.exponent.toFixed(2)} (ballistic), v ${Math.sqrt(r.msdFull / (r.beats * r.beats)).toFixed(2)}/beat` })
+}
+
+// P124: emergent rotational invariance (the isotropy half of Lorentz). The one-step diffusion tensor (the
+// 12 face-direction covariance) has equal eigenvalues, so transport is isotropic, the {5,3,4}'s
+// icosahedral cell symmetry gives emergent rotational invariance for free. Boosts remain.
+{
+  const r = lorentzIsotropyTensor({ maxCells: 8000 })
+  check({ name: 'P124 Lorentz isotropy: the one-step diffusion tensor is isotropic (equal eigenvalues), emergent rotational invariance from the icosahedral cell symmetry', ok: r.solved && r.isotropic, detail: `eigenvalues ${r.eigenvalues.map((e) => e.toFixed(3)).join('/')}, anisotropy ${r.anisotropy.toFixed(3)}` })
+}
+
+// P125: Lorentz restoration. The higher-order angular anisotropy (rank-4, rank-6) shrinks as a charge
+// propagates over more steps (the central-limit washout), while rank-2 sits at the floor. So rotational
+// invariance is emergent AND improves with coarse-graining.
+{
+  const r = lorentzFlow({ maxCells: 9000 })
+  check({ name: 'P125 Lorentz restoration: higher-order angular anisotropy (rank-4, rank-6) shrinks under coarse-graining, rank-2 at the floor', ok: r.solved && r.a4Shrinks && r.a6Shrinks && r.rank2AtFloor, detail: `rank4 ${r.a4[0]!.toFixed(2)}->${r.a4[r.a4.length - 1]!.toFixed(2)}, rank6 ${r.a6[0]!.toFixed(2)}->${r.a6[r.a6.length - 1]!.toFixed(2)}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

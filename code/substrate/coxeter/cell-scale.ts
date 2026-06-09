@@ -435,6 +435,146 @@ export function buildDodecagridFast(input: { maxCells: number }): ScaleGraph {
   return { cellCount: n, facetCount, offsets, adj, hit }
 }
 
+// Build a long thin SLIVER (a geodesic tube) of the {5,3,4}, exactly. A ball has tiny diameter (~log N),
+// useless for measuring transport. A tube along a geodesic axis can be arbitrarily LONG with bounded
+// width, giving many spatial layers. We walk straight by alternating two opposite face reflections
+// (T = Fa*Fb is a hyperbolic translation), generate the spine, and add `width` layers of wall around it.
+// Returns the tube graph plus `position` = the 1D spine coordinate of each cell.
+export function buildSliver(input: { length: number; width?: number }): {
+  cellCount: number
+  spineLength: number
+  facetCount: number
+  offsets: Int32Array
+  adj: Int32Array
+  position: Int32Array
+} {
+  const L = input.length
+  const width = input.width ?? 1
+  const p1 = primeBelow(67108837)
+  const p2 = primeBelow(66000000)
+  const g1 = buildGeneratorsMod(p1)
+  const g2 = buildGeneratorsMod(p2)
+
+  // the 12 face reflections (distinct conjugates h R3 h^{-1} over the cell stabilizer H = <R0,R1,R2>)
+  const stab1: IMat[] = [identityMod()]
+  const stab2: IMat[] = [identityMod()]
+  const stabSeen = new Set<string>([matKey(stab1[0]!)])
+  for (let head = 0; head < stab1.length; head++) {
+    for (let i = 0; i < 3; i++) {
+      const m1 = matMulMod(g1.R[i]!, stab1[head]!, p1)
+      const k = matKey(m1)
+      if (!stabSeen.has(k)) {
+        stabSeen.add(k)
+        stab1.push(m1)
+        stab2.push(matMulMod(g2.R[i]!, stab2[head]!, p2))
+      }
+    }
+    if (stab1.length > 100000) break
+  }
+  const faces1: IMat[] = []
+  const faces2: IMat[] = []
+  const faceSeen = new Set<string>()
+  for (let idx = 0; idx < stab1.length; idx++) {
+    const f1 = matMulMod(matMulMod(stab1[idx]!, g1.R[3]!, p1), matInvMod(stab1[idx]!, p1), p1)
+    const f2 = matMulMod(matMulMod(stab2[idx]!, g2.R[3]!, p2), matInvMod(stab2[idx]!, p2), p2)
+    const k = matKey(f1)
+    if (!faceSeen.has(k)) {
+      faceSeen.add(k)
+      faces1.push(f1)
+      faces2.push(f2)
+    }
+  }
+  const F = faces1.length
+  const c01 = g1.cartanInvCol3
+  const c02 = g2.cartanInvCol3
+  const fp = (m1: IMat, m2: IMat): string => vecKey(matVecMod(m1, c01, p1)) + '|' + vecKey(matVecMod(m2, c02, p2))
+
+  // find two faces whose alternating walk is a geodesic (stays all-distinct) for the full length
+  const walkLen = (a: number, b: number): number => {
+    let M1 = identityMod()
+    let M2 = identityMod()
+    const seen = new Set<string>([fp(M1, M2)])
+    for (let t = 0; t < 2 * L; t++) {
+      const even = t % 2 === 0
+      M1 = matMulMod(M1, even ? faces1[a]! : faces1[b]!, p1)
+      M2 = matMulMod(M2, even ? faces2[a]! : faces2[b]!, p2)
+      const k = fp(M1, M2)
+      if (seen.has(k)) return seen.size
+      seen.add(k)
+    }
+    return seen.size
+  }
+  let ba = 0
+  let bb = 1
+  let best = 0
+  for (let a = 0; a < F && best < 2 * L; a++) for (let b = 0; b < F; b++) {
+    if (a === b) continue
+    const d = walkLen(a, b)
+    if (d > best) {
+      best = d
+      ba = a
+      bb = b
+    }
+    if (best >= 2 * L) break
+  }
+
+  // collect cells: the spine, then `width` layers of wall around it
+  const cellM1: IMat[] = []
+  const cellM2: IMat[] = []
+  const pos: number[] = []
+  const index = new Map<string, number>()
+  const add = (m1: IMat, m2: IMat, p: number): number => {
+    const k = fp(m1, m2)
+    let id = index.get(k)
+    if (id === undefined) {
+      id = cellM1.length
+      index.set(k, id)
+      cellM1.push(m1)
+      cellM2.push(m2)
+      pos.push(p)
+    }
+    return id
+  }
+  let M1 = identityMod()
+  let M2 = identityMod()
+  add(M1, M2, 0)
+  for (let t = 0; t < best - 1; t++) {
+    const even = t % 2 === 0
+    M1 = matMulMod(M1, even ? faces1[ba]! : faces1[bb]!, p1)
+    M2 = matMulMod(M2, even ? faces2[ba]! : faces2[bb]!, p2)
+    add(M1, M2, t + 1)
+  }
+  const spineLength = cellM1.length
+  let layerStart = 0
+  let layerEnd = cellM1.length
+  for (let w = 0; w < width; w++) {
+    for (let i = layerStart; i < layerEnd; i++) {
+      for (let m = 0; m < F; m++) add(matMulMod(cellM1[i]!, faces1[m]!, p1), matMulMod(cellM2[i]!, faces2[m]!, p2), pos[i]!)
+    }
+    layerStart = layerEnd
+    layerEnd = cellM1.length
+  }
+
+  // adjacency among collected cells (face-neighbors that are present)
+  const n = cellM1.length
+  const nbr: number[][] = Array.from({ length: n }, () => [])
+  for (let i = 0; i < n; i++) for (let m = 0; m < F; m++) {
+    const k = fp(matMulMod(cellM1[i]!, faces1[m]!, p1), matMulMod(cellM2[i]!, faces2[m]!, p2))
+    const j = index.get(k)
+    if (j !== undefined && j !== i && !nbr[i]!.includes(j)) nbr[i]!.push(j)
+  }
+  let facetCount = 0
+  for (const a of nbr) if (a.length > facetCount) facetCount = a.length
+  const offsets = new Int32Array(n + 1)
+  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + nbr[i]!.length
+  const adj = new Int32Array(offsets[n]!)
+  let q = 0
+  for (let i = 0; i < n; i++) for (const w of nbr[i]!) adj[q++] = w
+  const position = Int32Array.from(pos)
+
+  return { cellCount: n, spineLength, facetCount, offsets, adj, position }
+}
+
 // matrix inverse mod p via Gauss-Jordan (4x4)
 function matInvMod(m: IMat, p: number): IMat {
   const a: number[][] = []
