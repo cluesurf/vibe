@@ -126,6 +126,8 @@ import { wordEngine } from '~/experiment/p87-word-engine'
 import { effectiveMetric } from '~/experiment/p88-effective-metric'
 import { analogHawking } from '~/experiment/p89-analog-hawking'
 import { braneworld } from '~/experiment/p90-braneworld'
+import { holography } from '~/experiment/p91-holography'
+import { cooperationTower } from '~/experiment/p92-cooperation-tower'
 
 let passed = 0
 let failed = 0
@@ -1541,6 +1543,25 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = braneworld()
   check({ name: 'P90 braneworld test: 3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range', ok: r.solved && r.substrateFlat && r.braneShowsCrossover && r.distinguishable, detail: `substrate short ${r.substrateShortExponent.toFixed(2)}, brane short ${r.braneShortExponent.toFixed(2)} long ${r.braneLongExponent.toFixed(2)}, crossover ${r.crossoverScaleOverL.toFixed(2)}L` })
+}
+
+// P91: holography on the real {7,3} crystal (the AdS spatial slice). The bulk geodesic length is
+// the boundary entanglement entropy (Ryu-Takayanagi), scaling as log(sin(theta/2)) (the CFT2 law),
+// far-apart boundary cells are near through the bulk (the geodesic shortcut), and the bulk depth of
+// the connecting geodesic encodes the boundary separation (depth is the renormalization scale).
+{
+  const r = holography()
+  check({ name: 'P91 holography on the crystal: Ryu-Takayanagi log law (CFT2 entropy), geodesic shortcut, depth-as-scale', ok: r.solved && r.rtLogLawHolds && r.isShortcut && r.depthIsScale, detail: `S = ${r.logLawSlope.toFixed(2)} log sin(theta/2), R^2 ${r.logLawR2.toFixed(3)}, shortcut ${r.shortcutRatio.toFixed(1)}x` })
+}
+
+// P92: competing drives resolve into the tower. On the {7,3} substrate, the conserved pleasure-charge
+// is preserved exactly under every strategy. Pure grabbing yields hierarchy (varied strengths) or a
+// wasteful standoff (equal strengths), both net-negative. Integration wins on total order (a
+// super-linear positive-sum good) while balancing the charge within, and it recurs (bigger merged
+// wholes build disproportionately more order), which is the tower.
+{
+  const r = cooperationTower()
+  check({ name: 'P92 cooperation tower: charge conserved, grabbing makes hierarchy/standoff, integration wins on order and recurs', ok: r.solved && r.conservedGrab && r.conservedIntegrate && r.integrationWins && r.towerGrows, detail: `order grab ${r.netOrderGrab.toFixed(0)} insulate ${r.netOrderInsulate.toFixed(0)} trade ${r.netOrderTrade.toFixed(0)} integrate ${r.netOrderIntegrate.toFixed(0)}, hierarchy std ${r.grabHierarchyStd.toFixed(2)} vs ${r.initialStd.toFixed(2)}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

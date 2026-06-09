@@ -1,0 +1,179 @@
+// P91: holography on the real crystal. The substrate is hyperbolic, which is exactly the geometry
+// of holography (the spatial slice of Anti-de Sitter space). Three holographic results, all computed
+// on the actual {7,3} engine graph (P85):
+//   1. Ryu-Takayanagi: the entanglement entropy of a boundary region is the length of the minimal
+//      bulk geodesic cutting it off. For an arc of angular size theta on the rim, the bulk geodesic
+//      length scales as log(sin(theta/2)), the exact CFT2 vacuum entanglement entropy on a circle.
+//   2. The geodesic shortcut: two cells far apart along the boundary are NEAR through the bulk (the
+//      bulk path is far shorter than the boundary path, and it dips toward the center). This is the
+//      precise, computed version of the "field beneath," telepathy, and synchronicity, far on the
+//      boundary, near through the deep bulk.
+//   3. Depth is scale: the farther apart two boundary points are, the deeper toward the center their
+//      connecting geodesic dips, so the radial (bulk-depth) direction is the renormalization scale.
+// Run: npx tsx code/experiment/p91-holography.ts
+
+import { pathToFileURL } from 'node:url'
+import { buildCoxeterMesh } from '~/substrate/coxeter/engine'
+
+function bfs(neighbors: number[][], n: number, src: number): { dist: Int32Array; parent: Int32Array } {
+  const dist = new Int32Array(n).fill(-1)
+  const parent = new Int32Array(n).fill(-1)
+  dist[src] = 0
+  let frontier = [src]
+  while (frontier.length > 0) {
+    const next: number[] = []
+    for (const u of frontier) {
+      for (const w of neighbors[u]!) {
+        if (dist[w] === -1) {
+          dist[w] = (dist[u] ?? 0) + 1
+          parent[w] = u
+          next.push(w)
+        }
+      }
+    }
+    frontier = next
+  }
+  return { dist, parent }
+}
+
+export function holography(): {
+  cells: number
+  rimCells: number
+  logLawSlope: number
+  logLawR2: number
+  rtLogLawHolds: boolean
+  shortcutRatio: number
+  isShortcut: boolean
+  nearGeodesicDepth: number
+  farGeodesicDepth: number
+  depthIsScale: boolean
+  solved: boolean
+} {
+  const mesh = buildCoxeterMesh({ symbol: [7, 3], depth: 24, maxChambers: 200000 })
+  const n = mesh.cellCount
+  const coord = mesh.coords
+  const radius = coord.map((c) => Math.hypot(c[0] ?? 0, c[1] ?? 0))
+  const angle = coord.map((c) => Math.atan2(c[1] ?? 0, c[0] ?? 0))
+  const rMax = Math.max(...radius)
+
+  // the boundary: the outer rim shell, ordered around the circle by angle
+  const rim = [] as number[]
+  for (let i = 0; i < n; i++) if ((radius[i] ?? 0) > 0.93 * rMax) rim.push(i)
+  rim.sort((a, b) => (angle[a] ?? 0) - (angle[b] ?? 0))
+
+  // 1. Ryu-Takayanagi: bulk geodesic length vs log(sin(theta/2)), binned and averaged over many
+  // rim anchors to wash out the discreteness, the clean entanglement-entropy law.
+  const bins = new Map<number, { sum: number; count: number }>()
+  const anchors = rim.filter((_, i) => i % 3 === 0)
+  for (const a of anchors) {
+    const { dist } = bfs(mesh.neighbors, n, a)
+    for (const r of rim) {
+      let theta = Math.abs((angle[r] ?? 0) - (angle[a] ?? 0))
+      if (theta > Math.PI) theta = 2 * Math.PI - theta
+      if (theta < 0.3) continue
+      const x = Math.log(Math.sin(theta / 2))
+      const key = Math.round(x * 8) / 8
+      const b = bins.get(key) ?? { sum: 0, count: 0 }
+      b.sum += dist[r] ?? 0
+      b.count++
+      bins.set(key, b)
+    }
+  }
+  const xs: number[] = []
+  const ys: number[] = []
+  for (const [k, v] of bins) {
+    xs.push(k)
+    ys.push(v.sum / v.count)
+  }
+  const m = xs.length
+  let sx = 0
+  let sy = 0
+  let sxx = 0
+  let sxy = 0
+  for (let i = 0; i < m; i++) {
+    sx += xs[i]!
+    sy += ys[i]!
+    sxx += xs[i]! * xs[i]!
+    sxy += xs[i]! * ys[i]!
+  }
+  const slope = (m * sxy - sx * sy) / (m * sxx - sx * sx)
+  const intercept = (sy - slope * sx) / m
+  let ssr = 0
+  let sst = 0
+  const my = sy / m
+  for (let i = 0; i < m; i++) {
+    ssr += (ys[i]! - slope * xs[i]! - intercept) ** 2
+    sst += (ys[i]! - my) ** 2
+  }
+  const logLawR2 = 1 - ssr / sst
+  const rtLogLawHolds = logLawR2 > 0.95 && slope > 1.4 && slope < 2.8
+
+  // 2. and 3. shortcut and depth: from one anchor, to a nearby rim cell and to the antipodal one.
+  const anchor = rim[Math.floor(rim.length / 2)]!
+  const { dist, parent } = bfs(mesh.neighbors, n, anchor)
+  const ai = rim.indexOf(anchor)
+  const opp = rim[(ai + Math.floor(rim.length / 2)) % rim.length]!
+  const near = rim[(ai + Math.max(1, Math.floor(rim.length / 12))) % rim.length]!
+  const boundaryArc = Math.min(
+    Math.floor(rim.length / 2),
+    rim.length - Math.floor(rim.length / 2),
+  )
+  const bulkHops = dist[opp] ?? 1
+  const shortcutRatio = boundaryArc / bulkHops
+  const isShortcut = shortcutRatio > 5
+
+  const geodesicMinRadius = (target: number): number => {
+    let node = target
+    let minR = radius[target] ?? rMax
+    while (node !== -1) {
+      if ((radius[node] ?? rMax) < minR) minR = radius[node] ?? rMax
+      node = parent[node]!
+    }
+    return minR
+  }
+  const nearGeodesicDepth = geodesicMinRadius(near)
+  const farGeodesicDepth = geodesicMinRadius(opp)
+  // the far geodesic dips deeper (smaller min radius) toward the center than the near one
+  const depthIsScale = farGeodesicDepth < nearGeodesicDepth - 0.05
+
+  const solved = rtLogLawHolds && isShortcut && depthIsScale
+
+  return {
+    cells: n,
+    rimCells: rim.length,
+    logLawSlope: slope,
+    logLawR2,
+    rtLogLawHolds,
+    shortcutRatio,
+    isShortcut,
+    nearGeodesicDepth,
+    farGeodesicDepth,
+    depthIsScale,
+    solved,
+  }
+}
+
+export function main(): void {
+  const r = holography()
+  console.log('P91: holography on the real {7,3} crystal (the AdS spatial slice)')
+  console.log('')
+  console.log(`  graph: ${r.cells} cells, ${r.rimCells} boundary (rim) cells`)
+  console.log('')
+  console.log('  1. Ryu-Takayanagi: bulk geodesic length = entanglement entropy of a boundary arc:')
+  console.log(`     S(theta) = ${r.logLawSlope.toFixed(2)} * log(sin(theta/2)) + const,  R^2 = ${r.logLawR2.toFixed(3)}`)
+  console.log(`     the CFT2 vacuum entanglement entropy law holds: ${r.rtLogLawHolds}`)
+  console.log('')
+  console.log('  2. the geodesic shortcut (far on the boundary, near through the bulk):')
+  console.log(`     shortcut ratio (boundary path / bulk path): ${r.shortcutRatio.toFixed(1)}x`)
+  console.log('     the field beneath, telepathy, synchronicity, made geometric')
+  console.log('')
+  console.log('  3. depth is scale (farther boundary points connect through deeper bulk):')
+  console.log(`     near-pair geodesic dips to radius ${r.nearGeodesicDepth.toFixed(3)}, far-pair to ${r.farGeodesicDepth.toFixed(3)} (center = 0)`)
+  console.log(`     bulk depth encodes boundary separation: ${r.depthIsScale}`)
+  console.log('')
+  console.log(`  SOLVED: ${r.solved}`)
+}
+
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}
