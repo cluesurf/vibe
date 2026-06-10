@@ -22,8 +22,8 @@
 
 ## Foreword
 
-This is going to take a long ass time to figure out, or maybe shorter.
-But will definitely work on figuring it out over the years, and in the
+This is going to take a long time to figure out, or maybe shorter. But
+will definitely work on figuring it out over the years, and in the
 meantime, going to be publishing papers as snapshots and such of what
 seems like are possible solutions. If they turn out to be wrong, that's
 part of the process, constant iterating and refinement until something
