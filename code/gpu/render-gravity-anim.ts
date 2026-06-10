@@ -90,7 +90,7 @@ function run(): void {
   const tone = new Int8Array(n)
   for (let i = 0; i < n; i++) {
     const r = rng.next()
-    tone[i] = (r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0) as -1 | 0 | 1
+    tone[i] = (r < SEED_DENSITY ? 1 : r < 2 * SEED_DENSITY ? -1 : 0) as -1 | 0 | 1 // BALANCED, net charge 0
   }
   const q0 = (() => {
     let s = 0
@@ -98,22 +98,28 @@ function run(): void {
     return s
   })()
   const moved = new Uint8Array(n)
-  const d0 = new Float32Array(n)
-  const d1 = new Float32Array(n)
-  const dens = new Float32Array(n)
-
-  const computeDens = (): void => {
-    for (let i = 0; i < n; i++) d0[i] = tone[i] !== 0 ? 1 : 0
+  // SIGN-AWARE gravity, separate mass fields for the two charges, so like attracts like and the two signs
+  // condense into separate bodies (blue +1 bodies, red -1 bodies) instead of all falling into the same well
+  const d1P = new Float32Array(n)
+  const d1M = new Float32Array(n)
+  const densP = new Float32Array(n)
+  const densM = new Float32Array(n)
+  const diffuse = (isPlus: boolean, d1: Float32Array, out: Float32Array): void => {
+    const sign = isPlus ? 1 : -1
     for (let i = 0; i < n; i++) {
-      let s = d0[i]!
-      for (let p = off[i]!; p < off[i + 1]!; p++) s += d0[adj[p]!]!
+      let s = tone[i] === sign ? 1 : 0
+      for (let p = off[i]!; p < off[i + 1]!; p++) s += tone[adj[p]!] === sign ? 1 : 0
       d1[i] = s
     }
     for (let i = 0; i < n; i++) {
       let s = d1[i]! * (1 - SCREEN)
       for (let p = off[i]!; p < off[i + 1]!; p++) s += SCREEN * d1[adj[p]!]!
-      dens[i] = s
+      out[i] = s
     }
+  }
+  const computeDens = (): void => {
+    diffuse(true, d1P, densP)
+    diffuse(false, d1M, densM)
   }
   // the DRIVE is the DISCRETE arrow (discreteArrow), a deterministic minimal creation schedule, no float, no
   // randomness, keeping the system far from equilibrium so the self flows instead of freezing
@@ -127,6 +133,7 @@ function run(): void {
     for (let s = 0; s < n; s++) {
       const v = (st + s) % n
       if (moved[v] || tone[v] === 0) continue
+      const dens = tone[v] === 1 ? densP : densM // pull toward SAME-sign mass, like attracts like
       let bestJ = -1
       let bestD = dens[v]!
       for (let p = off[v]!; p < off[v + 1]!; p++) {
@@ -172,7 +179,8 @@ function run(): void {
     for (const c of band) {
       const t = tone[c.index]!
       if (t === 0) continue
-      const inten = 0.15 + 0.85 * Math.min(dens[c.index]! / DMAX, 1) // brightness by local mass density
+      const dfield = t === 1 ? densP : densM
+      const inten = 0.15 + 0.85 * Math.min(dfield[c.index]! / DMAX, 1) // brightness by same-sign mass density
       const r8 = t === 1 ? Math.round(40 + 90 * inten) : Math.round(120 + 135 * inten)
       const g8 = t === 1 ? Math.round(70 + 170 * inten) : Math.round(40 + 90 * inten)
       const b8 = t === 1 ? Math.round(120 + 135 * inten) : Math.round(70 + 90 * inten)
@@ -195,7 +203,8 @@ function run(): void {
       let charged = 0
       let q = 0
       for (let i = 0; i < n; i++) {
-        if (dens[i]! > maxD) maxD = dens[i]!
+        const d = Math.max(densP[i]!, densM[i]!)
+        if (d > maxD) maxD = d
         if (tone[i] !== 0) charged++
         q += tone[i]!
       }
