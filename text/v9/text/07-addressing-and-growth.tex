@@ -1,0 +1,264 @@
+\section{Addressing, Growth, and the Exact Engine}
+
+The crystal is an infinite object. To compute on it we have to name its cells, count how it expands, and
+build it in memory without error. These three demands turn out to be one demand seen from three angles. The
+same Fibonacci and golden-ratio structure that grows the crystal also addresses it, and the same exact
+integer arithmetic that addresses it also builds it.
+
+This section develops the golden ratio that pervades
+the substrate, the Fibonacci addressing that names every cell, the graph the crystal becomes once geometry
+is stripped away, the integer ladder that fixes the whole construction without free parameters, the growth
+series that counts the expansion exactly, and the modular engine that realizes the crystal to tens of
+millions of cells with no drift.
+
+\subsection{The golden ratio and the Fibonacci numbers}
+
+The Fibonacci sequence begins $1, 1, 2, 3, 5, 8, 13, 21, \dots$, each term the sum of the two before it,
+$F(n) = F(n-1) + F(n-2)$. The ratios of successive terms converge on a single constant, the golden ratio
+$\phi \approx 1.6180339887$, the number satisfying
+\begin{equation}
+  \phi^2 = \phi + 1.
+\end{equation}
+Squaring $\phi$ is the same as adding one to it. Dividing through gives $\phi = 1 + 1/\phi$, so $\phi$ is one
+plus its own reciprocal. Its continued fraction is the all-ones expansion $1 + 1/(1 + 1/(1 + \cdots))$, which
+is the slowest-converging of all continued fractions.
+
+In the precise sense of continued-fraction
+approximation, $\phi$ is the most irrational number. No simple fraction ever gets a good grip on it, which is
+why packing at golden-ratio angles never lines up with itself and never leaves large gaps.
+
+The golden ratio is not bolted onto the theory. It arrives in the $\{5,3,4\}$ substrate from three
+independent directions, all verified together (P50).
+\begin{itemize}
+  \item First, as the fixed point of the self-referential equation $x = 1 + 1/x$, reached by pure iteration.
+  \item Second, as the limiting growth ratio of the Fibonacci recurrence, a property of a growth process rather than an equation.
+  \item Third, as the plane geometry of the pentagon, whose diagonal over its side equals $2\cos(\pi/5) = \phi$.
+\end{itemize}
+Arithmetic, a growth recurrence, and
+plane geometry each give $\phi$, and the three agree to within one part in a million. When a single constant
+arrives by three roads that share no machinery, this is the signature of one unified object rather than a
+coincidence.
+
+The third road explains why $\phi$ must appear at all. The leading $5$ in $\{5,3,4\}$ says the
+faces of every cell are regular pentagons, and the pentagon and $\phi$ are the same fact wearing two hats. To
+choose a pentagonal substrate is already to choose $\phi$, whether or not one intends to.
+
+\subsection{Fibonacci addressing and greedy routing}
+
+For a signal to cross the crystal, every cell needs a name from which it can compute its own neighbors with
+no global map. Margenstern's splitting method supplies exactly this \cite{margenstern2013}. Pick any cell as
+the root. Its immediate neighbors form ring one, their further neighbors ring two, and so on.
+
+Following each
+cell one step back toward the root traces a spanning tree, a skeleton that touches every cell exactly once.
+Hyperbolic geometry is already tree-like, since the number of cells at distance $r$ grows like a constant to
+the power $r$, so the spanning tree reads off a structure the geometry already carries rather than imposing
+one.
+
+The splitting method decomposes a wedge of the tiling into a leading tile plus smaller copies of a few
+standard region types, recursing forever. That recursion is the tree, and counting new tiles per ring yields
+the Fibonacci sequence $1, 2, 3, 5, 8, 13, \dots$. Number the cells ring by ring as the tree is walked
+outward, then rewrite each number in the Fibonacci base.
+
+By Zeckendorf's theorem every positive integer is a
+unique sum of non-adjacent Fibonacci numbers. Writing that sum as a string of digits over the place values
+$1, 2, 3, 5, 8, 13, \dots$ gives a clean, collision-free address for every cell. The first twelve are $1$,
+$10$, $100$, $101$, $1000$, $1001$, $1010$, $10000$, $10001$, $10010$, $10100$, $10101$, as Table~\ref{tab:zeckendorf}
+lays out. No address ever has
+two ones in a row, because no integer ever needs two adjacent Fibonacci numbers. The set of valid addresses
+is therefore a regular language, recognizable by a fixed-size machine with no global memory. A tiny automaton
+inside every cell can navigate an infinite crystal.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccc}
+\toprule
+Cell number & Fibonacci sum & Address \\
+\midrule
+1  & $1$         & $1$     \\
+2  & $2$         & $10$    \\
+3  & $3$         & $100$   \\
+4  & $3 + 1$     & $101$   \\
+5  & $5$         & $1000$  \\
+6  & $5 + 1$     & $1001$  \\
+7  & $5 + 2$     & $1010$  \\
+8  & $8$         & $10000$ \\
+9  & $8 + 1$     & $10001$ \\
+10 & $8 + 2$     & $10010$ \\
+11 & $8 + 3$     & $10100$ \\
+12 & $8 + 3 + 1$ & $10101$ \\
+\bottomrule
+\end{tabular}
+\caption{The Zeckendorf addresses of the first twelve cells. Each cell number is the unique sum of non-adjacent
+Fibonacci numbers, and no address has two adjacent ones.}
+\label{tab:zeckendorf}
+\end{table}
+
+The address is a turn-by-turn route from the root. To find a cell's parent, strip one digit. To find its
+children, extend by one legal step. To route from cell A to cell B, compare the two addresses from the left,
+walk up A's route to the shared common ancestor by dropping digits, then walk down B's route by appending its
+remaining digits.
+
+Consider sending a message from cell $12$ at address $10101$ to cell $9$ at address
+$10001$. Comparing from the left, $1$ matches, $0$ matches, then cell $12$ has $1$ where cell $9$ has $0$, so
+the paths split. The shared prefix is $10$, which is the address of cell $2$, their common ancestor. Walking
+up from $12$ by dropping one digit at a time gives $10101 \to 1010$ (cell $7$) $\to 101$ (cell $4$) $\to 10$
+(cell $2$). Walking down to $9$ by appending its remaining digits gives $10 \to 100$ (cell $3$) $\to 1000$
+(cell $5$) $\to 10001$ (cell $9$). The full path is $12, 7, 4, 2, 3, 5, 9$, six hops, and every cell on it
+only compared two short strings. Each address in this route can be read straight from Table~\ref{tab:zeckendorf}.
+
+No cell ever consulted a map of the crystal. On the 2D heptagrid this exact
+addressed routing delivered $100$ percent of random pairs at low stretch (P42). On the real 3D dodecagrid,
+greedy hyperbolic routing, where each cell forwards to the neighbor whose address is closest to the target,
+delivered over $90$ percent of pairs at stretch under $2$ (P76). The addresses are not stored labels. They
+are implicit in each cell's place in the web and can be computed from local structure whenever needed.
+
+\subsection{The crystal as a graph}
+
+Strip away the drawing, the cell shapes, and the curved-space picture, and what remains is a graph. Each cell
+is a vertex, each shared face an edge. A dodecahedron has twelve faces, so in the interior every cell touches
+exactly twelve others. The graph is $12$-regular. Distance is step-counting, the fewest edges between two
+cells, and this step-counting distance is what space will mean.
+
+Because the crystal lives in negatively
+curved space, the graph is an expander, with no bottlenecks. Any region not larger than half the graph has a
+boundary that is a fixed fraction of its size, so the graph cannot be cut into two large pieces by snipping
+few edges. This is the same exponential ball growth seen as connectivity. The graph is also tree-like, since
+the exponential branching that makes it an expander is the exponential ball growth that makes it tree-like,
+two views of one fact.
+
+Together these force a tiny diameter, logarithmic in the cell count. On roughly
+$120{,}000$ exact $\{5,3,4\}$ cells the worst-case separation is about six hops through the bulk, close to
+$\log_B N$ with growth base $B \approx 7.87$ (P111). Among a hundred thousand cells, no two are more than
+about six steps apart. That tiny $O(\log N)$ diameter is the engine behind fast global integration, against
+the $N^{1/3}$ crawl a flat cubic lattice would require.
+
+\subsection{The integer ladder}
+
+The entire substrate is built from the plain whole numbers with no free parameters at any step. One picks the
+integers, which cannot be picked differently, and the crystal $\{5,3,4\}$, which is itself forced. Everything
+else follows by deterministic construction. The ladder runs upward through four rungs, each verified (P48,
+P104, P51, P83).
+
+Asking the integers for their symmetries returns the modular group $\mathrm{PSL}(2,\mathbb{Z})$,
+the integer matrices of determinant one, with nothing to tune. This parameter-free modular base tessellates
+hyperbolic space Lorentz-safely, is addressed by a deterministic finite automaton through continued
+fractions, and carries the golden ratio as its central geodesic, the all-ones continued fraction whose
+convergents are the Fibonacci ratios (P48).
+
+The next rung represents the exact dodecahedral cells of
+$\{5,3,4\}$ in pure integer arithmetic (P104). Above it the whole tower runs as one continuous program, from
+integer generator data up to running physics, through a single shared pipeline for three different bases
+(P51). The top rung grows the crystal one cell at a time by a fixed deterministic rule, resumable,
+append-only, and faithful to the static tiling ring for ring, with the hyperbolic curvature and the golden
+ratio emerging on their own rather than being inserted (P83).
+
+The integers are the bones, the small ones
+carry the laws, and there are essentially no free parameters anywhere in the foundation.
+
+\subsection{The growth series}
+
+How fast does the crystal expand? Stand on one cell and count the cells one step out, two steps out, three
+steps out. The growth function $f(n)$ records the number of cells added at ring $n$. For the dodecagrid the
+first counts are $1, 12, 102, 812, 6402, 50412, \dots$.
+
+These counts are fixed exactly by the same mirror
+data that defines the crystal. Steinberg's formula computes them by packing the sequence into a generating
+function $W(t) = \sum_n f(n)\, t^n$ and expressing its reciprocal as an alternating sum over the finite
+parabolic subgroups,
+\begin{equation}
+  \frac{1}{W(t)} = \sum_{\text{finite } T} \frac{(-1)^{|T|}}{f_T(t)},
+\end{equation}
+where each $f_T(t)$ is the Poincare growth polynomial of a finite reflection subgroup. The whole computation
+runs in exact integer and rational arithmetic over polynomials, with no rounding.
+
+The denominator of $W(t)$
+gives a linear recurrence. For $\{5,3,4\}$ the recurrence is
+\begin{equation}
+  f(n) = 9\, f(n-1) - 9\, f(n-2) + f(n-3),
+\end{equation}
+seeded by $1, 12, 102, 812$. Verifying on the seeds, the next term is
+$f(4) = 9(812) - 9(102) + 12 = 7308 - 918 + 12 = 6402$, and the one after is
+$f(5) = 9(6402) - 9(812) + 102 = 50412$, both matching the series exactly. The denominator $1 - 9t + 9t^2 -
+t^3$ has characteristic polynomial $x^3 - 9x^2 + 9x - 1 = (x-1)(x^2 - 8x + 1)$, with roots $1$, $4 +
+\sqrt{15}$, and $4 - \sqrt{15}$. The growth base is
+\begin{equation}
+  B = 4 + \sqrt{15} \approx 7.873.
+\end{equation}
+The reciprocal root $4 - \sqrt{15} \approx 0.127$ lies strictly inside the unit circle, which is the proof of
+exponential growth. Each ring is about $7.87$ times the size of the one before it, and that is the universe's
+expansion rate in cells. A direct breadth-first count returns the same $1, 12, 102, 812, 6402, 50412$, with
+the ring-to-ring ratio climbing $8.50, 7.96, 7.88, 7.87$ toward $4 + \sqrt{15}$.
+
+Table~\ref{tab:layers} lists the first ten rings of the two-dimensional heptagrid $\{7,3\}$ and the
+three-dimensional dodecagrid $\{5,3,4\}$ side by side. The heptagrid grows at the golden ratio squared,
+about $2.618$ per ring, and the dodecagrid grows at $4 + \sqrt{15}$, about $7.87$ per ring. The dodecagrid
+reaches more than a billion cells by the tenth ring.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrrr}
+\toprule
+ & \multicolumn{2}{c}{Heptagrid $\{7,3\}$} & \multicolumn{2}{c}{Dodecagrid $\{5,3,4\}$} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Ring & Added & Cumulative & Added & Cumulative \\
+\midrule
+0 & 1 & 1 & 1 & 1 \\
+1 & 7 & 8 & 12 & 13 \\
+2 & 21 & 29 & 102 & 115 \\
+3 & 56 & 85 & 812 & 927 \\
+4 & 147 & 232 & 6{,}402 & 7{,}329 \\
+5 & 385 & 617 & 50{,}412 & 57{,}741 \\
+6 & 1{,}008 & 1{,}625 & 396{,}902 & 454{,}643 \\
+7 & 2{,}639 & 4{,}264 & 3{,}124{,}812 & 3{,}579{,}455 \\
+8 & 6{,}909 & 11{,}173 & 24{,}601{,}602 & 28{,}181{,}057 \\
+9 & 18{,}088 & 29{,}261 & 193{,}688{,}012 & 221{,}869{,}069 \\
+10 & 47{,}355 & 76{,}616 & 1{,}524{,}902{,}502 & 1{,}746{,}771{,}571 \\
+\bottomrule
+\end{tabular}
+\caption{Cells added and cumulative total per ring for the two crystals. The heptagrid grows by about
+$2.618$ per ring (the golden ratio squared), the dodecagrid by about $7.87$ (the root $4 + \sqrt{15}$).}
+\label{tab:layers}
+\end{table}
+
+Two distinct sequences must
+be kept apart. The cell-shell growth above counts honeycomb cells at each distance from a seed cell. The
+Coxeter group growth, which Steinberg's formula also produces, counts group elements by word length, giving
+$1, 4, 9, 17, 29, 46, \dots$ for $\{5,3,4\}$, a different object. The cell-shell series is the physically
+meaningful one.
+
+The two-dimensional warm-ups $\{7,3\}$ and $\{5,4\}$ share the denominator $1 - 3t + t^2$ and
+grow at base $(3 + \sqrt5)/2 \approx 2.618 = \phi^2$, exactly the square of the golden ratio, so the
+golden thread runs through the smaller cases as well.
+
+\subsection{The exact modular-fingerprint engine}
+
+Building the crystal by float coordinates fails at a hard precision wall. Tracking each cell by its center as
+$g \cdot c_0$ projected into the Poincare ball works only while distinct cell centers stay further apart than
+a $64$-bit float can resolve. Hyperbolic space grows exponentially and cells crowd toward the boundary of the
+ball, so their coordinates pile up with gaps shrinking exponentially with distance. In practice the float
+engine caps out near $15{,}500$ cells. This is not a coding flaw but the geometry.
+
+The escape is to notice
+that the reflection matrices of $\{5,3,4\}$ are made of a small set of exact algebraic numbers, with the only
+irrational ingredients being $\sqrt5$ inside $\phi$ and $\sqrt2$. A finite field of integers modulo a prime
+$p$ contains both square roots exactly when $p \equiv 1 \pmod{40}$, since then $2$ and $5$ are both quadratic
+residues. The roots are computed by Tonelli-Shanks, $\phi$ is built from $\sqrt5$, and every dodecahedral
+reflection becomes exact integer arithmetic with zero rounding.
+
+A single prime carries a tiny risk that two
+distinct cells share one residue, so the engine uses two primes at once, near $67{,}108{,}837$ and near
+$66{,}000{,}000$, both congruent to $1 \bmod 40$. A cell's fingerprint is its center reduced modulo both
+primes, and two cells collide only if they collide modulo both at once, which by the Chinese Remainder
+Theorem means agreeing modulo a product above $4 \times 10^{15}$. The twelve face reflections are derived by
+conjugating the outer generator by each of the $120$ elements of the dodecahedral cell stabilizer, so
+adjacency is read straight off the group rather than measured. A typed open-addressing hash on the packed
+fingerprints deduplicates cells with no allocation.
+
+The result has been run offline to $20$ million cells at
+a few seconds per million, every cell carrying exactly twelve facet neighbors throughout, verified against an
+independent float build below the wall and persisted to disk without loss (P104). For transport tests, which
+a tiny-diameter ball cannot support, the same exact arithmetic builds a sliver, a long thin geodesic tube
+with bounded width whose alternating face product is a hyperbolic translation, giving genuine distance to
+travel along a one-dimensional spine. The physics of the theory is therefore measured on the true crystal,
+not on a guess of it.

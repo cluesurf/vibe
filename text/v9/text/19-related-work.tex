@@ -1,0 +1,398 @@
+\section{Related Work}
+
+Vibe Theory sits inside a long and serious tradition. For decades careful researchers have asked whether
+spacetime is fundamentally discrete, whether physics is computation, and whether geometry comes from
+information. Vibe Theory does not invent that question. It joins a conversation that already includes causal
+sets, causal dynamical triangulations, loop quantum gravity, the Wolfram Physics Project, the
+cellular-automaton interpretation of quantum mechanics, quantum cellular automata, holographic
+error-correcting codes, hyperbolic lattices, hyperbolic cellular automata, and the informational
+reconstructions of quantum mechanics.
+
+Much of what Vibe Theory needs has already been proven by other
+people. The framing we adopt is that Vibe Theory assembles established results onto one specific substrate
+and then asks one further question those programs mostly leave aside. What is the felt interior of the thing,
+and what direction does it move in.
+
+This section places Vibe Theory among those programs. For each family it states what is shared, what differs,
+and what Vibe Theory adds, and it points to the specific experiment that touches each one. We try to credit
+the prior work generously and to claim for Vibe Theory only what it earns. In particular, the quantum-field
+route that Vibe Theory uses is not a new discovery. It is the established quantum-cellular-automaton and
+quantum-walk derivation of the Dirac equation, applied on a hyperbolic substrate. All experiments referenced
+here are recorded in the accompanying codebase \cite{pollard2026vibetest}.
+
+\subsection{Causal sets}
+
+Causal-set theory, in the line of Bombelli, Lee, Meyer, and Sorkin \cite{bombelli1987} and the classical
+sequential-growth dynamics of Rideout and Sorkin \cite{rideout1999}, takes the most radical version of the
+discrete idea seriously. Spacetime is a discrete set of events with a partial order, and order plus number is
+all there is. Surya's review collects the program's reach and its open problems \cite{surya2019}. Vibe Theory
+shares the core commitment. Space and time are read off a discrete relational structure, and distance is
+step-counting on a graph rather than a length measured by an external ruler.
+
+The difference is the price of Lorentz invariance. Causal-set theory pays for it with randomness. A Poisson
+sprinkling of Minkowski space has no preferred direction in distribution, so the discreteness does not pick
+out a rest frame. The cost is that the substrate is not a lawful, repeatable structure. Vibe Theory takes the
+opposite route. It keeps an exact, ordered, deterministic crystal and gets Lorentz safety from curvature
+instead of from disorder. A flat lattice has a grain that announces a rest frame. A negatively curved crystal
+scrambles directions under transport, so it looks frameless from inside even though every cell is identical.
+
+What Vibe Theory adds is the demonstration that one need not choose between lawfulness and Lorentz invariance.
+Experiment P84 reproduces the causal-set result itself. A Poisson sprinkle gives a flat rapidity distribution
+that stays flat under a genuine boost, while the matched flat lattice gives a peaked one. Then P40 and P45
+show every hyperbolic substrate tested, including the three-dimensional $\{5,3,4\}$ dodecagrid, lands in the
+same low-anisotropy band as the random sprinkle, while the flat lattice fails.
+
+So Vibe Theory keeps the
+determinism causal sets give up and still passes the test that motivated their randomness. Curvature rather
+than disorder buys Lorentz invariance, and that is the bridge between the two programs.
+
+\subsection{Causal dynamical triangulations}
+
+Causal dynamical triangulations, in the work of Ambjorn, Jurkiewicz, and Loll \cite{ambjorn2004}, build
+spacetime from small simplices glued along a fixed causal slicing and sum over the geometries. The central
+result is that a sensible four-dimensional spacetime emerges from the dynamics rather than being put in by
+hand. Loll's review gives the current picture \cite{loll2019}. Vibe Theory shares the goal of letting
+dimension and large-scale geometry be outputs of a discrete dynamics rather than postulates, and the
+insistence on a causal, time-ordered substrate rather than a Euclidean one.
+
+The difference is method. Causal dynamical triangulations is a path integral. It sums over many triangulated
+geometries weighted by an action, so the geometry is an ensemble average. Vibe Theory does the opposite. It
+fixes one rigid geometry, the $\{5,3,4\}$ crystal, and never sums over alternatives. The dynamics lives in
+the tone on that fixed lattice, not in a fluctuating triangulation, and Vibe Theory commits to negative
+curvature where the triangulations program lets effective curvature emerge from the averaged ensemble.
+
+What Vibe Theory adds is a single committed geometry on which spectral and dimensional quantities are measured
+directly rather than averaged over a path integral. The two programs make opposite methodological bets.
+Triangulations trust the ensemble to find the geometry. Vibe Theory trusts a forced geometry and measures
+on it.
+
+\subsection{Loop quantum gravity and spin networks}
+
+Loop quantum gravity, and the spin networks of Rovelli and Smolin \cite{rovelli1995}, quantize geometry
+itself. Area and volume become operators with discrete spectra, and the quantum state of space is a graph
+with spins on its edges. Geometry is built from a combinatorial, graph-theoretic object, and continuous
+space is a coarse-grained description of it. Vibe Theory shares the picture that space is a graph of relations
+with discrete capacity per cell, and that the smooth manifold is emergent.
+
+The difference is the status of the graph. In loop quantum gravity the spin network is the quantum state of
+geometry, and the graph and its labels fluctuate under the dynamics. Vibe Theory holds the graph fixed and
+puts the only dynamical variable, the ternary tone, on the cells. So where spin networks make geometry the
+quantum degree of freedom, Vibe Theory makes geometry the fixed stage and the tone the actor on it.
+
+What Vibe Theory adds is a fixed graph on which the quantum field is a separate, measured object rather than
+identical to the geometry. This keeps the substrate analysis and the field analysis cleanly apart. The crystal
+is studied as pure structure, and the quantum behavior is studied as the tone's dynamics on it (P151, P158).
+
+A single thread runs through this whole family. Each program has to answer how a discrete structure can look
+the same to every observer. Causal sets answer with random sprinkling, triangulations with an averaged
+ensemble, loop quantum gravity with a fluctuating quantum geometry, and Vibe Theory with hyperbolic
+regularity. The negative curvature of the $\{5,3,4\}$ crystal scrambles transported directions so that no rest
+frame is visible from inside, even though the lattice is exact and deterministic (P40, P45, P84). Vibe Theory
+does not claim this is the only way to buy Lorentz safety. It claims it is a way that keeps the substrate exact
+and repeatable, which the random and ensemble routes give up.
+
+\subsection{The Wolfram Physics Project}
+
+The Wolfram Physics Project \cite{wolfram2020}, building on the earlier program of \cite{wolfram2002}, is the
+closest neighbor in spirit. It builds the universe from a graph or hypergraph and a local rewriting rule,
+treats the rule's repeated application as time, reads space off the connectivity rather than positing it, and
+reads causal structure off the dependency graph of rewrite events. Vibe Theory agrees on every word of that.
+The crystal is a graph, cells are vertices, shared faces are edges, the universe is one local rule running on
+it, and the run is time. Both programs also insist that the drawing is not the content. Only the connection
+pattern is real.
+
+The deepest difference is the status of the graph. In the Wolfram program the hypergraph grows and rewrites
+itself. Nodes and edges are created and destroyed by the rule, the graph's structure is the dynamical
+variable, and a vast space of candidate rules is searched for one whose emergent behavior matches physics.
+Vibe Theory fixes the graph. The $\{5,3,4\}$ dodecagrid is not searched for and not rewritten. It is held
+constant, and the only dynamical variable is a ternary tone living on each fixed cell, evolving by one
+conserving rule.
+
+Vibe Theory argues the substrate is forced rather than chosen, by curvature, dimension, and a
+minimality preference, where the Wolfram program embraces the multiplicity of rules and studies the whole
+rulial space. Wolfram's updating-order ambiguity, the multiway system, becomes a central object for him. Vibe
+Theory sidesteps it by putting the dynamics in the tone on a rigid lattice generated once and for all by
+reflections rather than discovered by rewriting search.
+
+What Vibe Theory adds is a committed, frozen substrate with a stable local alphabet, which makes the emergent
+physics measurable on the exact structure rather than dependent on which rewrite rule was selected. The two
+programs are best read as complementary bets. Wolfram bets the right structure is found by searching a vast
+rule space. Vibe Theory bets it is forced by a few demands and that the interesting freedom lives in the tone
+and the arrow, not in the graph.
+
+\subsection{The cellular-automaton interpretation of quantum mechanics}
+
+The cellular-automaton interpretation of quantum mechanics \cite{thooft2014} argues that beneath the quantum
+formalism there is a deterministic, reversible classical automaton, and that quantum states are statistical
+descriptions of its underlying ontological states. The program takes seriously that a discrete deterministic
+rule can carry the full content of quantum theory once the right basis and the right unitary are identified.
+Vibe Theory is squarely in this spirit. Its perception rule, read strictly, is a deterministic reversible
+block automaton, and its quantum character appears only when that rule is given its unitary completion (P151,
+P126). The conviction that quantum mechanics can sit on top of a deterministic discrete substrate is t
+Hooft's, and Vibe Theory inherits it rather than originating it.
+
+The difference is specificity of realization. The cellular-automaton interpretation works largely at the level
+of principle and toy models, mapping classes of deterministic systems to quantum ones. Vibe Theory commits to
+one concrete substrate and one concrete rule, then measures the resulting dispersion and interference. What it
+adds is a specific deterministic-reversible rule on a forced curved lattice whose unitary completion is
+measured to give Dirac dispersion and the Born rule, with the reversibility preconditions checked directly
+(P126, P128, P131). This is a concrete instance of the thesis on a substrate chosen for independent geometric
+reasons, not a generic toy.
+
+\subsection{Quantum cellular automata and quantum walks to the Dirac equation}
+
+This is the family Vibe Theory leans on most heavily, and it is the deepest overlap, so it is important to be
+exact about the debt. A line of rigorous work shows that a discrete, local, unitary evolution can have free
+quantum field theory as its continuum limit.
+
+\begin{itemize}
+\item D'Ariano and Perinotti derive free quantum field theory and the
+Dirac dynamics from a denumerable causal network of quantum systems under locality, homogeneity, and
+unitarity, with no spacetime assumed in advance \cite{dariano2014}.
+\item Bisio, D'Ariano, and Tosini derive the
+Dirac equation as the small-wavevector limit of a quantum cellular automaton \cite{bisio2015}, and the program
+extends to the Weyl, Dirac, and Maxwell fields in higher dimensions \cite{bisio2016}.
+\item Arrighi, Nesme, and Werner establish the unitarity, causality, and
+localizability of quantum cellular automata, the theorem that a local unitary evolution is exactly a
+finite-depth circuit of local gates \cite{arrighi2011}, and Arrighi, Nesme, and Forets establish the discrete
+Lorentz covariance of quantum walks \cite{arrighi2014}.
+\item Farrelly and Short show causal fermions in discrete
+spacetime arise from the same quantum-walk construction \cite{farrelly2014}.
+\end{itemize}
+
+The Arrighi program supplies the structural backbone. The foundational fact, going back
+to the coined quantum walk, is that the unitary version of nearest-neighbor spin exchange spreads ballistically
+and its continuum limit is the Dirac equation, with the coin angle setting the mass.
+
+The difference is mostly the substrate. This literature works mostly on regular flat lattices or abstract
+Cayley graphs. Vibe Theory runs the same construction on the hyperbolic $\{5,3,4\}$ dodecagrid, where the
+curvature additionally delivers Lorentz safety, which a flat lattice cannot. A second difference is that the
+program generally assumes unitarity, homogeneity, and locality as axioms of the network, where Vibe Theory
+derives the unitary object as the completion of a tone rule whose classical, decohered version it also
+exhibits.
+
+What Vibe Theory adds must be stated carefully. Vibe Theory does not discover the quantum-walk-to-Dirac route.
+That result is established and belongs to the authors above. P151 is the established route applied on the
+hyperbolic substrate, not a new derivation of it. What Vibe Theory contributes is to show that its own
+perception rule, read strictly, is exactly this construction, and to run it on the forced crystal.
+
+The
+stochastic version of the rule gives a massive diffusive field (P136, P137), the classical decohered shadow, a
+feature the quantum-cellular-automaton program does not usually exhibit alongside the quantum one. Removing the
+illegitimate coin flip leaves a deterministic reversible charge-conserving block automaton that propagates
+ballistically (P148, P149). Its unitary completion is a coined quantum walk, and P151 measures the Dirac
+dispersion directly, with a ballistic exponent near one, a tunable mass from the coin angle, and reflection
+positivity by construction. P154 confirms the exact massless lightcone, and P158 the interference and the Born
+rule, with the reversibility preconditions measured directly (P126, P128, P131).
+
+So the contribution is the
+hyperbolic substrate, the classical-stochastic shadow, and the forced geometry, plus a demonstration that the
+established route is identical to Vibe Theory's stripped rule.
+
+A focused subfamily studies quantum walks on Cayley graphs, whose vertices are group elements and whose edges
+are generators. Lopez Acevedo and collaborators classify scalar and coined quantum walks on Cayley graphs and
+connect their continuum limits to relativistic equations \cite{lopezacevedo2006}. This matters because the
+$\{5,3,4\}$ crystal is generated by a Coxeter group of reflections, which makes it a Cayley-like graph of that
+group. The cells are group elements, the moves to neighbors are generators, and a walk on the crystal is a
+walk on a Cayley graph in exactly the sense this literature studies.
+
+That literature is usually agnostic about
+which group and often works with flat or free groups. Vibe Theory's group is the specific hyperbolic
+reflection group of the dodecagrid, which carries the negative curvature and exponential growth that flat or
+abelian Cayley graphs lack. The walk theory is borrowed. The hyperbolic Cayley arena is the contribution.
+
+\subsection{Holography, tensor networks, and holographic codes}
+
+Holography is the idea that the information in a region is encoded on its boundary, that a higher-dimensional
+gravitational bulk is dual to a lower-dimensional theory on the edge. Maldacena's AdS/CFT correspondence
+\cite{maldacena1998}, the Ryu-Takayanagi formula for entanglement entropy as a bulk minimal area
+\cite{ryu2006}, Van Raamsdonk's argument that spacetime connectivity is built from entanglement
+\cite{vanraamsdonk2010}, and Swingle's identification of the MERA tensor network with a discretized
+hyperbolic geometry \cite{swingle2012} together make the case that geometry comes from entanglement and that
+the natural home for it is a negatively curved bulk.
+
+A discrete, code-theoretic wing of this program is even
+closer to Vibe Theory. The HaPPY pentagon code of Pastawski, Yoshida, Harlow, and Preskill realizes
+holography as a quantum error-correcting code on a hyperbolic tiling, where a boundary region reconstructs a
+bulk operator \cite{pastawski2015}. Jahn and Eisert review the whole holographic tensor-network field
+\cite{jahn2021}. Vibe Theory shares the geometric setting completely. Its substrate is hyperbolic, its bulk
+is the anti-de-Sitter-like interior of the $\{5,3,4\}$ crystal, and it treats the boundary-bulk relation as
+physical.
+
+The difference is that the holographic codes and tensor networks above are largely static. A fixed network of
+tensors on a fixed hyperbolic tiling realizes a fixed code, and the analysis is about the equilibrium
+entanglement structure of that state. Vibe Theory starts from a fixed combinatorial crystal but lets a rule
+run on it, and asks whether the area law, the bulk shortcut, and a working code appear as measured properties
+of the running dynamics rather than as the design of a chosen static network. So Vibe Theory's holography is a
+dynamical cousin of the static holographic codes, on a hyperbolic bulk built by reflection rather than wired
+by hand.
+
+What Vibe Theory adds is direct measurement on the exact crystal, and a dynamical, growing version of the
+holographic code. Experiment P91 measures an entanglement-entropy-like quantity for boundary regions on the
+hyperbolic crystal and recovers the Ryu-Takayanagi log law, the entropy set by the length of the subtending
+bulk geodesic, with a fit quality near one. The geodesic is a genuine shortcut, and depth into the bulk plays
+the role of scale, exactly as in the MERA picture.
+
+Experiments P105 and P127 treat the crystal as a
+holographic memory and a growing holographic code, where the code is accreted as the structure grows, the
+dynamical counterpart of the static HaPPY construction. P111 then measures the tiny $O(\log N)$ diameter. On a
+hundred thousand exact cells no two are more than about six hops apart through the bulk. The same shortcut that
+lets entropy ride a geodesic lets a far region of the emergent surface be reached almost instantly through the
+interior.
+
+\subsection{Hyperbolic lattices in physics}
+
+A fast-growing experimental and theoretical area puts real physics on hyperbolic lattices. Kollar,
+Fitzpatrick, and Houck realize hyperbolic lattices in circuit quantum electrodynamics, building negatively
+curved tilings on a superconducting chip \cite{kollar2019}. Maciejko and Rayan develop hyperbolic band
+theory, the analog of Bloch theory for these lattices \cite{maciejko2021}. Together these show the hyperbolic
+lattice is not a mathematical curiosity but a place where real and simulated physics is being done. Vibe
+Theory's substrate is exactly such a lattice, the $\{5,3,4\}$ dodecagrid.
+
+The difference is scope. This literature mostly studies specific phenomena, band structure, spectra, or scalar
+fields, on a hyperbolic lattice taken as a given backdrop. Vibe Theory proposes the hyperbolic lattice as the
+fundamental substrate of everything, not as a platform for one phenomenon, and runs a single conserving rule on
+it. What it adds is the claim that the lattice is fundamental rather than a backdrop, together with a grounding
+connection to real experiment. The circuit realizations mean the geometry Vibe Theory bets on is one that
+laboratories can build and probe, and its own measurements of dispersion, entropy, and diameter on the
+$\{5,3,4\}$ crystal sit alongside the band-theory results as different questions asked of the same geometry.
+
+\subsection{Hyperbolic cellular automata}
+
+Margenstern's body of work proves that cellular automata on hyperbolic tilings are computationally universal,
+including a ternary universal automaton on the heptagrid \cite{margenstern2008} and universality across
+hyperbolic spaces generally using the railway model \cite{margenstern2013}, where a locomotive runs forever
+along tracks and reading-and-flipping switches is the computation, because gliders cannot be choreographed
+reliably in hyperbolic space the way they can on a flat grid. Margenstern's splitting method also supplies
+the Fibonacci addressing Vibe Theory uses for navigation. Vibe Theory shares the substrate exactly. Its mesh
+is a hyperbolic tiling in Margenstern's family, and the $\{5,3,4\}$ dodecagrid is one of the tilings these
+theorems cover.
+
+The difference is that Margenstern's universality is a theorem about an abstract automaton wired onto the
+tiling, separate from any particular physical dynamics. Vibe Theory needs universality on its own perception
+rule, the rule that also produces the quantum field. What it adds is two confirmations of universality on the
+live dynamics, anchored to Margenstern's theorem.
+
+\begin{itemize}
+\item Experiment P44 shows functional completeness on the running
+rule. The ternary signed-majority update is exactly NAND at the right settings, and gates built as real
+subgraphs settle to the correct answer as stable fixed points, including a six-gate XOR.
+\item Experiment P141 runs
+a full Turing-universal Minsky machine with registers stored as charge in the mesh, computing multiplication
+using only create, annihilate, and count, the substrate's own primitives.
+\end{itemize}
+
+So Margenstern supplies the theorem
+on the exact tiling, and P44 and P141 show that Vibe Theory's own rule realizes that universality. Vibe Theory
+is careful that universality settles structure only, never feeling, which it treats separately.
+
+\subsection{Hyperbolic graphs and geometric group theory}
+
+A mathematical literature studies the graph-theoretic and large-scale geometry of hyperbolic spaces. Cannon's
+exposition of hyperbolic geometry \cite{cannon1997} and Hamann's results on tree-likeness in hyperbolic
+graphs \cite{hamann2011} establish that negatively curved graphs are expanders, are tree-like at large scale,
+and have exponential ball growth. Vibe Theory uses these facts as the backbone of its substrate analysis. The
+crystal graph is a twelve-regular expander, it is tree-like, and its balls grow exponentially at the golden
+ratio, which together force a tiny diameter and underwrite the Fibonacci addressing.
+
+The difference is that this literature is pure geometry and combinatorics. It describes the structure without
+putting dynamics or physics on it. Vibe Theory turns the same structural facts into physical consequences, a
+speed limit from degree-twelve locality, an emergent metric, fast integration, and a holographic readout, and
+confirms them by measurement on the exact crystal.
+
+P49 shows the $\{5,3,4\}$ reads like a featureless foam
+locally yet is tree-like in its connectivity, unlike a flat lattice. P103 shows the dynamics survive to a
+million cells on a twelve-regular hyperbolic expander, because expansion holds at every scale. P111 and P139
+measure the logarithmic diameter and the fast $O(\log N)$ coordination the geometry predicts. So Vibe Theory
+imports the established hyperbolic-graph mathematics and adds the dynamical measurements and the physical
+reading.
+
+\subsection{Informational reconstructions of quantum mechanics}
+
+Chiribella, D'Ariano, and Perinotti derive the full mathematical framework of quantum theory from a short
+list of information-theoretic principles, most notably purification, the requirement that every mixed state
+arises from a pure state of a larger system \cite{chiribella2011}. This work shows that quantum theory is not
+an arbitrary formalism but follows from reasonable demands on how information behaves. Vibe Theory shares the
+conviction that quantum structure should be derived, not postulated, and that the right starting point is a
+structural or informational one rather than a Hilbert space assumed from the outset.
+
+The difference is that the informational reconstructions are axiomatic and substrate-free. They tell you what
+any theory satisfying the principles must look like, without committing to a physical realization. Vibe Theory
+is the opposite. It commits to a concrete substrate and rule, lets the quantum structure fall out of the
+dynamics, then checks whether the resulting object is genuinely quantum.
+
+What it adds is a specific physical
+model whose quantum character is measured rather than assumed. It exhibits a running rule whose unitary
+completion shows the two signatures the reconstructions take as targets, interference and the Born rule (P158),
+with complex amplitudes that destructively cancel where no classical process can, while the total norm stays
+one so that the squared amplitude is a genuine probability. So where Chiribella and colleagues say what
+principles force quantum theory, Vibe Theory shows one concrete substrate on which those features appear as
+outputs. The two are complementary, the axiomatic why and the constructive how.
+
+\subsection{Consciousness theory}
+
+Every program above is, by intent, a theory of structure. None of them addresses why any arrangement of
+parts should be felt from the inside. Chalmers named this the hard problem of consciousness, the gap that
+remains even after a complete structural and functional account is given \cite{chalmers1995}. Integrated
+information theory, developed by Tononi, attempts to make experience precise by identifying consciousness with
+integrated information, a measurable quantity capturing how much a system's whole exceeds the sum of its parts
+in a way that cannot be decomposed \cite{tononi2004}. The older informational intuition that physical things
+derive their existence from answered questions, Wheeler's it-from-bit, sits at the root of the whole
+computational-universe lineage \cite{wheeler1990}.
+
+The difference is that Vibe Theory takes experience as the substance of the substrate rather than as a
+quantity computed from structure. Where integrated information theory measures a property of an organization,
+Vibe Theory treats the tone of each cell as a felt state from the start. This is the one step the structural
+programs deliberately leave aside, and Vibe Theory is explicit that it is a premise, not a measured result.
+Nothing in the experiments measures feeling. What the experiments settle is structure, and the claim that the
+structure is felt is a metaphysical commitment placed at the foundation, close in spirit to idealism and to
+Wheeler's informational starting point.
+
+\subsection{What Vibe Theory adds overall}
+
+Set against this body of prior work, what is genuinely Vibe Theory's own contribution is narrow and specific.
+We state it plainly so as not to oversell it.
+
+\textbf{A forced substrate rather than a random or chosen or assumed one.} Causal sets choose randomness, the
+Wolfram program searches a rule space and lets the graph rewrite itself, the triangulations program averages
+over an ensemble, and the quantum-cellular-automaton literature assumes a convenient lattice. Vibe Theory
+argues the substrate is forced down to a small residue of choice.
+
+Hyperbolic curvature is forced by the demand
+for room to grow, the right symmetries, and Lorentz safety at once. Three dimensions are forced by the
+existence theorem for compact regular hyperbolic honeycombs and by stable closed orbits. The specific
+$\{5,3,4\}$ follows from a stated minimality preference, not a theorem, and Vibe Theory says so. This is a
+strong reduction of arbitrariness, not a derivation from nothing.
+
+\textbf{A ternary tone plus the arrow as a value-direction.} The dynamical content is not a rewrite of the
+graph but a ternary tone, $-1$, $0$, $+1$, the minimal signed alphabet with opposition and a rest state,
+evolving by one local conserving rule. To this Vibe Theory adds one thing none of the prior programs carry,
+the arrow, pain below peace below pleasure with desire leaning toward pleasure. The arrow is the single
+deliberate posit, a value rather than a derived quantity, and it is what keeps the universe from relaxing to
+dead peace. Discrete-physics programs aim at physics. The arrow is what lets the same substrate aim at life,
+mind, and intelligence.
+
+\textbf{One substrate that yields physics and life and mind.} The prior programs are theories of physics. Vibe
+Theory's larger claim is that the same crystal and the same rule that grow a relativistic quantum field also
+grow living, perceiving, intentional systems, with universality (P44, P141) as the capability floor and the
+arrow as the direction. This larger claim is more speculative than the physics results, and it is treated as
+such.
+
+\textbf{Experiential monism.} Vibe Theory treats the tone of each cell as a felt state from the start.
+Universality settles structure and never feeling, and feeling is handled by treating experience as the
+substance of the cells rather than as a product of computation. This is a metaphysical commitment, not a
+measured result, and it is the part of Vibe Theory furthest outside the established literature.
+
+\textbf{A falsifiable single-substrate experimental program.} Every physics claim above is a number measured
+on the same $\{5,3,4\}$ substrate under the same rule, with stated fits and stated negatives. The stochastic
+field is reported as massive and diffusive before the unitary completion resolves it. The Lorentz tests
+include genuine boosts, not rotation proxies. The crystal step is flagged as a preference and the arrow as a
+choice. Much of this reproduces established results to show they live on this one crystal.
+
+In short, Vibe Theory's quantum-field route is the established quantum-cellular-automaton and
+quantum-walk-to-Dirac result, run on a hyperbolic substrate whose Lorentz safety is the established
+causal-set lesson recast as curvature, with holography and universality inherited from the holographic-code
+and hyperbolic-cellular-automaton programs, and a deterministic-substrate spirit inherited from the
+cellular-automaton interpretation of quantum mechanics. What is new is the forced substrate, the ternary tone
+with the arrow as a value-direction, the experiential monism, and the single-crystal experimental program
+that ties physics to life and mind. We claim no more than that.

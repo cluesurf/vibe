@@ -1,0 +1,137 @@
+\section{Intelligence}
+
+Intelligence in this theory is not a faculty added to matter, life, and mind. It is the same five base things read as a solver. To make the claim precise we begin with three definitions, stated formally, and then show that the substrate supplies every part each definition names.
+
+\begin{definition}[Intelligence]
+Intelligence is problem-solving capability. It is the capacity of a system to take a problem and produce a solution.
+\end{definition}
+
+Intelligence is to be kept distinct from consciousness throughout. Intelligence is problem-solving capability. Consciousness is a separate thing, integrated experience, the felt going-through of reality. A system can in principle have one without the other. The present section treats intelligence alone. Consciousness is taken up later as integrated experience.
+
+\begin{definition}[Problem]
+A problem is the difference between a desired state and the current state. Writing $D$ for the desired state and $C$ for the current state,
+\begin{equation}
+P = D - C
+\end{equation}
+When $P$ is zero there is nothing to solve. The size of $P$, under whatever ordering the system carries, is the size of the problem.
+\end{definition}
+
+\begin{definition}[Solution]
+A solution is a path from the current state $C$ to the desired state $D$. It is a sequence of moves that drives $P$ to zero.
+\end{definition}
+
+These three definitions name four things a solver must have. It must be able to compute paths at all, which is the \emph{means}. It must hold a desired state $D$ and an ordering that measures progress, which is the \emph{goal} and the \emph{value}. And it must keep the moves that reduce $P$ and discard the rest, which is the \emph{selection}.
+
+The argument of this section is that the substrate already holds every one of these, that the combination is intentional problem-solving, and that the intelligence so produced is maximal by geometry. We then map what it can construct, the level-relative shape of its limits, how it evolves, and how it sits inside the whole architecture.
+
+\subsection{The Means: The Substrate Is Computationally Universal}
+
+A solver must be able to compute an arbitrary path. The substrate can, because the $\{5,3,4\}$ hyperbolic crystal is computationally universal. Margenstern proved that cellular automata on hyperbolic tilings, including the dodecagrid $\{5,3,4\}$ which is our exact mesh, are computationally universal \cite{margenstern2013}. The construction is a five-state railway automaton, weakly universal on a periodic background, in which registers are track loops and a locomotive that reads and flips switches as it travels is the computation itself. Universality means the substrate can compute any function a Turing machine can.
+
+We confirm this at toy scale in experiment (P141). We run a two-counter Minsky machine, which is itself Turing-universal, directly on the mesh. The two registers are stored as charge in regions of the mesh. The three Minsky operations map to physical acts of the tone. Increment is to create a charge in the region, decrement is to annihilate one, and test-zero is to count the charge.
+
+We load a multiplication program and let it run. The machine computes $a \times b$ correctly across its test cases. So the means is present, made of nothing but the five base things. The registers and the operations are charge and the rule. This is the load-bearing claim of the section. Everything that follows is a way of aiming this universal computation at a goal.
+
+\subsection{The Gap: Computation Is Goal-Neutral}
+
+Universal computation is goal-neutral. A universal machine can compute anything, but it has no reason to compute the solution rather than garbage. A machine that can multiply can equally well shuffle bits forever. Computability is a capacity, not a tendency. By the definitions above, the means alone is not intelligence. Intelligence also requires the goal $D$, the value ordering, and the selection. Without these the computation drifts. With them it converges. So the question is not whether the substrate can compute. It can. The question is what supplies the direction.
+
+\subsection{The Ends: The Arrow Is the Goal and the Value}
+
+The arrow, base thing five, is exactly a goal and a value. It is the gap between the current tone and the desired tone, equipped with a better-or-worse ordering. The arrow carries both the target $D$ and the measure of progress toward it. The gap-closing perception rule is exactly the selection. By construction it moves the tone toward the desired state and conserves charge while doing so.
+
+What the value measures is how much a given state helps the self close its gap. That usefulness is meaning.
+
+\begin{definition}[Meaning]
+The usefulness of information to a self.
+\end{definition}
+
+So the substrate holds both halves of intelligence with nothing added. The universal means is Margenstern. The intentional ends is the arrow. The bridge between them is the gap-closing search. Computation becomes intentional the moment a universal machine runs under the arrow's value with the rule as its selection loop. We do not bolt on a planner or a reward signal. The reward and the planner are already the arrow and the rule.
+
+\subsection{Direction and Intention, Measured}
+
+Experiment (P147) measures the bridge. The target is a pattern of $K$ cells, the current state is the present pattern, and the problem $P$ is the Hamming distance between them. We scan $K = 10, 20, 30$.
+
+Direction is the first result. A goal-directed search, in which the arrow values the negative gap and the selection keeps every gap-reducing move, reaches a $K$-cell target in about $K$ steps, reliably. An un-goaled search, which sets a random cell to a random value with no selection, does not reach the target at all. So adding the arrow makes the same universal computation goal-directed.
+
+Intention is the second result, and it is quantitative. The goal-directed search solves in about $K$ steps a problem an un-goaled machine would only stumble onto by about $2^{K}$ chance. At $K = 30$ the un-goaled machine fails outright within a budget of $200000$ steps, because $2^{30}$ is about a billion. The distance between aimless and intentional at $K = 30$ is astronomical, roughly $10^{7}$.
+
+So the arrow plus a keep-what-helps loop turns goal-neutral computation into intentional problem-solving, and the size of the effect grows exponentially with the problem. The number to hold onto is the intention gap of about ten million at $K = 30$. That is the quantitative distance between a universal machine that merely can compute and a directed one that actually does solve.
+
+Reactive intention, pure gap-closing, gets stuck at barriers, places where every immediate move makes the gap worse before it gets better. Planning, which is lookahead, crosses them, and it emerges from the base with nothing added (P143). This lookahead search is reasoning.
+
+\begin{definition}[Reasoning]
+The use of logic to solve problems.
+\end{definition} Where the greedy search stalls, the will tries a sustained push against the gradient, the system rolls out its own rule in imagination as a forward model, the arrow scores the imagined outcome, and the best option is committed.
+
+So intentional problem-solving spans both the reactive form (P147) and the planned form (P143), and both are compositions of the same five things. The deferred value that planning needs, accepting a worse step now for a later gain, is the arrow's own posit, to sustain a smaller pain to reach a larger pleasure.
+
+\subsection{Maximal Intelligence by Geometric Integration, Not Criticality}
+
+A maximal solver must coordinate a global problem across all of its parts, and do it fast. The hyperbolic geometry delivers this through fast integration rather than through a critical edge.
+
+The integration is logarithmic in the system size. In experiment (P139) we pose a global problem, coordinating all $N$ cells around a decision made at one point, where the gap is the count of cells not yet reached by the decision. We scan $N = 4000, 16000, 64000$. The coordination distance, which is the hyperbolic diameter, grows logarithmically and stays tiny, a handful of hops, far below a Euclidean $N^{1/3}$. A global problem over the whole system is solved in $O(\log N)$ hops rather than in a slow Euclidean crawl. Hierarchical problem-solving comes from this fast global communication, not from critical avalanches.
+
+We tested the alternative route to hierarchy and ruled it out. Self-organized criticality does not occur on the crystal (P138). There are no scale-free avalanches at any background. Perturbations spread with a span of about one, ballistically, not in branching cascades. The ballistic lightcone that makes the model good for relativity is exactly what precludes branching avalanches. So criticality is not the source of the hierarchy, and we say so plainly rather than assume the opposite.
+
+What the demand-driven feedback does organize is a homeostatic set-point (P135). Demand-driven creation self-tunes the activity to a single interior operating point from any starting level, with no external tuning. This is homeostasis, a stable place to run, riding on top of the geometric hierarchy, not a critical edge.
+
+So every capability a maximal solver needs is present. Problems come from the arrow. Local solving comes from the rule. Fast routing, hierarchy, and integration come from the hyperbolic geometry (P139). Robust memory comes from holography. A self-model comes from the central hub. Composition comes from fast integration. The maximality is geometric, and we earn the claim by ruling out the criticality alternative rather than by assuming it.
+
+\subsection{Constructive Reach: The Substrate Builds What Is Asked}
+
+Universality (P141) together with the goal-directed search (P147) means the substrate can not only compute but construct. Building structures never seen before is creativity.
+
+\begin{definition}[Creativity]
+The solving of new problems.
+\end{definition}
+
+Three experiments map the reach and its boundary.
+
+Any balanced structure is realizable (P161). We take several different arbitrary target structures, blocks, stripes, and a fully random pattern, each a balanced information pattern at net charge zero. The goal-directed builder reaches every one, so the gap closes, and active maintenance holds every one at fidelity $1.0$. So the model can realize whatever balanced structure is asked for, not only one special case.
+
+The absolute limits are absolute (P162). A few limits hold at every coarse-graining level because conservation and causality pass up every codec exactly. Net charge cannot be minted. $Q$ is conserved at the fine level, every move is charge-neutral, and even an aggressive all-create minting attempt cannot raise $Q$, with the coarse block-charge total equal to the fine $Q$ at every step. The lightcone cannot be outrun. The front speed is finite at the fine level and no larger when coarse-grained. So no level mints net well-being and no level signals faster than light. These are the true edges of the possible.
+
+The affordance ladder is open upward (P163). A structure impossible at the base can be possible at a higher composite level. A single base cell is ternary, an alphabet of $3$. A block of three cells stores $7$ distinct symbols by net charge, which a ternary cell cannot, and we store and read back every one of them. The capacity strictly grows up the ladder, $3 \to 7 \to 19 \to 55$. So a $K$-ary symbol with $K > 3$ is impossible at the ternary base yet trivial one level up, and the ladder keeps opening.
+
+Read together, (P161) establishes the constructive claim that the model builds what is needed at the right level, (P162) draws the hard boundary that the few absolute laws hold everywhere, and (P163) shows the ladder is genuinely open above the base.
+
+\subsection{The Level-Relative Principle}
+
+The three constructive experiments carry a general lesson. When the model appears to forbid something, the claim must always be qualified by the level. Most apparent limits are properties of the hyperbolic bulk geometry and are liftable at emergent levels, because the substrate is computationally universal and the levels are programmable. Only a few limits are absolute, true at every level.
+
+Three facts make almost any positive high-level structure realizable at some level. Universality (P141) means the base can construct any pattern consistent with the absolute laws. Multiscale composition through codecs (P115) means higher levels are coarse-grainings with their own effective geometry and dynamics, so a higher level is programmable. Emergent geometries differ from the bulk (P142), so while the bulk is hyperbolic, curved, all-boundary, and tiny-diameter, a horosphere is an emergent flat two-dimensional sheet, and higher composite levels can carry other effective geometries and dimensions.
+
+The absolute limits, true at every level and never liftable, follow from the conserved quantities and causality. There is no net creation of charge, since $Q$ is conserved exactly and passes up every codec exactly, so net well-being is zero-sum at every level and only balanced information is free. There is no faster-than-lightcone signaling, since a finite causal speed is preserved under coarse-graining. And there is no hidden state at the base, since the base has only the tone, with higher levels carrying rich effective state that is always a tone pattern rather than a new fundamental variable.
+
+The level-specific limits are geometric facts of the bulk, not laws, and the emergent levels escape them. Reproduction by fission is forbidden in the all-boundary bulk (P112) but possible on the emergent flat layer where thin necks exist (P160). Bulk-scale anisotropy (P124) washes out under coarse-graining so the emergent field is isotropic (P125). The stochastic bulk field is massive and diffusive, but the deterministic and unitary reading is the relativistic massless field. Large-scale directed action is geometrically frustrated on the curved scaffold but natural on the flat layer.
+
+The pattern is consistent. The bulk's curvature constrains the bulk, and the emergent flat and higher levels, where physics and life actually live, escape those constraints. So given universality plus multiscale composition, the base can realize almost any positive structure at some level, subject only to the absolute laws.
+
+\subsection{Evolving Intelligence}
+
+Intelligence in the model is not static. Experiment (P165) runs a population of planning agents together. Each agent's genome is its lookahead horizon, the depth of foresight it can afford. The task is a sequence of barriers with increasing span requirements, and an agent crosses a barrier only if its horizon spans it, by the same lookahead mechanism as (P143). Fitness is goal-progress minus the cost of foresight, so a deeper horizon plans better but costs more. We select the fitter, reproduce with mutation, and watch.
+
+Two results hold. First, average problem-solving rises over generations. Mean fitness climbs across the run, so the population literally evolves better problem-solving. Second, the population adapts its foresight to task difficulty. An easy task of three barriers with modest spans evolves a smaller horizon, while a harder task of six barriers with wider spans evolves a larger horizon, and both populations end up solving most of the goal, reaching above $85$ percent.
+
+Foresight is not fixed by fiat. It is tuned by selection to the difficulty of the world. So life, meaning heredity, variation, selection, and competition, and mind, meaning planning and foresight, co-evolve from the same base, neither one bolted on.
+
+\subsection{The Multiscale Architecture}
+
+The theory has two great arcs from the same base. The vibe-to-field ladder is physics, recovered by coarse-graining the vibe dynamics into a quantum field. The computable-to-intentional ladder is mind, in which the substrate is universal as the means, the arrow gives the goal as the ends, and the gap-closing rule is the selection. These are not in tension.
+
+Physics is what the substrate is when one watches its tones. Mind is what it does when the arrow points its universal computation at a goal. Read top-down, mind is the deeper reading, the substrate being a maximal problem-solver and physics one thing it computes. Read bottom-up, physics is the deeper reading, the field unfolding and minds emerging in it. Both rest on the five base things.
+
+The two ladders are joined by a coarse-graining chain, which is also why the theory is testable without building a universe. A vibe is sub-Planck, so a particle is about $10^{60}$ vibes and a mind is hopeless to build from the bottom. We never build from the bottom. Because the dynamics is scale-invariant across the sizes tested, from thirty thousand to a million (P115), a slice at the right effective level stands for the whole.
+
+Each layer boundary carries a codec, an up-map that coarse-grains a block of fine units into one richer high-level symbol, and a down-map that lifts a high-level symbol back to a representative fine pattern. A layer map is faithful when its dynamics commute, so that coarse-graining then evolving equals evolving then coarse-graining. We test the mechanism at its own level, never by simulating the bottom, exactly as biology studies cells without simulating quarks.
+
+The within-domain rungs, field to coarser field, are proven for both the conserved charge and the wave dynamics. The harder claim is the cross-domain chain, where the kind of variable changes at each rung, since a field is a function, a particle is a point, and a composite is a body. Experiment (P168) climbs the first two cross-domain rungs on the unitary field.
+
+At rung one, field to particle, a field excitation's centroid obeys free-particle motion, moving at a constant velocity below the light speed with a near-perfect linear fit, $R^{2}$ about $1.0$, which is Ehrenfest's theorem realized on the lattice. At rung two, particle to composite, two interacting particles have a center of mass that moves uniformly with momentum conserved through the interaction, $R^{2}$ about $0.997$, so two points coarse-grain to one composite body whose translational law is free despite the messy collision. The higher rungs, composite to agent and above, are the genuinely open links, but the method is demonstrated end to end. Every rung, within-domain or cross-domain, is settled by the same commuting square.
+
+\subsection{How Intelligence Fits the Whole}
+
+Intelligence is not a new layer on top of physics, life, and mind. It is the same five things read as a solver. The arrow that drives physics is the problem $P = D - C$. The conserving rule that runs the dynamics is the local solution. The hyperbolic geometry that gives relativity its lightcone is the fast integrator that builds hierarchy. The hub that makes a self into a mind is the solver's self-model. Memory is holographic, composition is fast integration, and homeostasis is the demand-driven set-point.
+
+The same geometry plays a double role, which is the key economy of the model. The ballistic lightcone is good for relativity, and it is exactly what rules out self-organized criticality, so the one fact that grounds physics also forces the intelligence to draw its hierarchy from fast integration rather than from critical avalanches. Physics and intelligence are not two stories. They are one substrate described from two angles.
