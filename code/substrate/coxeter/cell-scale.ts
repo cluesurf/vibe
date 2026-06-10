@@ -602,3 +602,77 @@ function matInvMod(m: IMat, p: number): IMat {
   for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) out[i * 4 + j] = a[i]![j + 4]!
   return out
 }
+
+// A LAZY engine for {5,3,4}, the seed of the WebGPU lazy path (note/plan/vibe-webgpu-billion-cell-sim.md).
+// Given a cell's group matrices (mod the two primes), it computes the 12 neighbor matrices and the cell's
+// identity fingerprint ON DEMAND, with NO stored adjacency graph. Correctness is verified against
+// buildDodecagrid in P183. Honest note, carrying the 4x4 matrix is not itself a memory win (it is bigger
+// than a 12-neighbor list), the memory win comes from compact FORMULA addressing (the plan's Stage 1). This
+// proves the on-demand neighbor MECHANISM that the shader port builds on.
+export interface LazyCell {
+  g1: Int32Array
+  g2: Int32Array
+}
+export interface LazyEngine {
+  origin: LazyCell
+  faceCount: number
+  neighbors: (cell: LazyCell) => LazyCell[]
+  fingerprint: (cell: LazyCell) => string
+}
+
+export function makeLazyEngine(): LazyEngine {
+  const p1 = primeBelow(67108837)
+  const p2 = primeBelow(66000000)
+  const gen1 = buildGeneratorsMod(p1)
+  const gen2 = buildGeneratorsMod(p2)
+
+  // cell stabilizer H = <R0,R1,R2> (order 120), used to derive the 12 face reflections
+  const stab1: IMat[] = [identityMod()]
+  const stab2: IMat[] = [identityMod()]
+  const stabSeen = new Set<string>([matKey(stab1[0]!)])
+  for (let head = 0; head < stab1.length; head++) {
+    for (let i = 0; i < 3; i++) {
+      const m1 = matMulMod(gen1.R[i]!, stab1[head]!, p1)
+      const k = matKey(m1)
+      if (!stabSeen.has(k)) {
+        stabSeen.add(k)
+        stab1.push(m1)
+        stab2.push(matMulMod(gen2.R[i]!, stab2[head]!, p2))
+      }
+    }
+    if (stab1.length > 100000) break
+  }
+
+  // the 12 face reflections = distinct conjugates h R3 h^{-1}, paired across both primes
+  const faces1: IMat[] = []
+  const faces2: IMat[] = []
+  const faceSeen = new Set<string>()
+  for (let idx = 0; idx < stab1.length; idx++) {
+    const h1 = stab1[idx]!
+    const f1 = matMulMod(matMulMod(h1, gen1.R[3]!, p1), matInvMod(h1, p1), p1)
+    const k = matKey(f1)
+    if (!faceSeen.has(k)) {
+      faceSeen.add(k)
+      faces1.push(f1)
+      const h2 = stab2[idx]!
+      faces2.push(matMulMod(matMulMod(h2, gen2.R[3]!, p2), matInvMod(h2, p2), p2))
+    }
+  }
+
+  const c01 = gen1.cartanInvCol3
+  const c02 = gen2.cartanInvCol3
+
+  return {
+    origin: { g1: identityMod(), g2: identityMod() },
+    faceCount: faces1.length,
+    neighbors: (cell: LazyCell): LazyCell[] => {
+      const out: LazyCell[] = []
+      for (let i = 0; i < faces1.length; i++) {
+        out.push({ g1: matMulMod(cell.g1, faces1[i]!, p1), g2: matMulMod(cell.g2, faces2[i]!, p2) })
+      }
+      return out
+    },
+    fingerprint: (cell: LazyCell): string =>
+      vecKey(matVecMod(cell.g1, c01, p1)) + '|' + vecKey(matVecMod(cell.g2, c02, p2)),
+  }
+}

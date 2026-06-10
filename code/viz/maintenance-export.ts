@@ -68,10 +68,10 @@ export function exportMaintenance(input?: {
   arrow?: number
   mediumDensity?: number
 }): { bulkCells: number; viewCells: number; regionCells: number; frames: number; outputPath: string } {
-  const maxCells = input?.maxCells ?? 80000
-  const regionSize = input?.regionSize ?? 700
-  const surroundLayers = input?.surroundLayers ?? 2
-  const frameCount = input?.frames ?? 120
+  const maxCells = input?.maxCells ?? 50000
+  const regionSize = input?.regionSize ?? 600
+  const surroundLayers = input?.surroundLayers ?? 1
+  const frameCount = input?.frames ?? 100
   const stride = input?.stride ?? 1
   const arrow = input?.arrow ?? 0.1
   const mediumDensity = input?.mediumDensity ?? 0.25
@@ -147,7 +147,7 @@ export function exportMaintenance(input?: {
     return [r * Math.cos(i * GOLDEN), r * Math.sin(i * GOLDEN)]
   })
   const ideal = 1.6 / Math.sqrt(view.length)
-  const iterations = 180
+  const iterations = 110
   for (let iter = 0; iter < iterations; iter++) {
     const dispX = new Float64Array(view.length)
     const dispY = new Float64Array(view.length)
