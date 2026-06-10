@@ -210,6 +210,14 @@ import { boostVelocityAddition } from '~/experiment/p175-boost-velocity-addition
 import { reversibleUniversality } from '~/experiment/p176-reversible-universality'
 import { substrateComputer } from '~/experiment/p177-substrate-computer'
 import { emergentSelfRobust } from '~/experiment/p178-emergent-self-robust'
+import { autonomousSelf } from '~/experiment/p179-autonomous-self'
+import { horosphereSelf } from '~/experiment/p180-horosphere-self'
+import { rarityCascade } from '~/experiment/p181-rarity-cascade'
+import { rarityMeasures } from '~/experiment/p183-rarity-measures'
+import { causalEmergence } from '~/experiment/p185-causal-emergence'
+import { areaLaw } from '~/experiment/p186-area-law'
+import { exactHorosphere } from '~/experiment/p182-exact-horosphere'
+import { lazyNeighbors } from '~/experiment/p184-lazy-neighbors'
 import { bulkNonlocality } from '~/experiment/p170-bulk-nonlocality'
 import { persistentSelf } from '~/experiment/p171-persistent-self'
 import { reproduction } from '~/experiment/p112-reproduction'
@@ -2392,6 +2400,96 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = substrateComputer({ n: 5000 })
   check({ name: 'P177 substrate computer: a programmable register machine on the {5,3,4} charge dynamics runs three different programs (add, monus, multiply) correctly with charge conserved, an explicit general-purpose computer in the system', ok: r.solved && r.allCorrect && r.allConserved && r.generalPurpose, detail: `${r.cases.length} cases all correct ${r.allCorrect}, ${r.programsRun} programs, charge conserved ${r.allConserved}` })
+}
+
+// P178: the robust, non-hand-placed self (the honest fix to P171's hand-placed disk and non-conserving
+// restore). In hyperbolic space a self cannot be a compact blob, it is a net-charged self-maintaining
+// pattern. (1) Structure EMERGES (cohesion builds a self far larger than a shuffled null, not drawn).
+// (2) CONSERVING maintenance (the arrow's balanced refill, a +1 in the self, a -1 in the ground) holds the
+// self at high fidelity vs decay, with the total charge EXACTLY conserved (P171's restore was not), at a
+// work cost (P107). (3) The unmaintained self is a finite lifetime (no attractor), longer-lived than pure
+// diffusion (P102). Nothing is hand-placed and nothing creates charge from nothing.
+{
+  const r = emergentSelfRobust({ n: 20000 })
+  check({ name: 'P178 robust emergent self: a self EMERGES by cohesion (not hand-placed), CONSERVING maintenance holds it at high fidelity vs decay (charge exactly conserved, the honest fix to P171), and the unmaintained self is a finite lifetime, with the honest hyperbolic limits (no compact blobs, no free permanence)', ok: r.solved && r.structureEmerges && r.maintenanceHoldsSelf && r.maintainedConserved && r.finiteLifetime, detail: `self ${r.emergentCluster} vs null ${r.nullCluster}, maintained ${(r.maintainedFidelity * 100).toFixed(0)}% vs ${(r.unmaintainedFidelity * 100).toFixed(0)}%, conserved ${r.maintainedConserved}, cost ${r.workPerBeat.toFixed(0)}/beat` })
+}
+
+// P179: autonomous (autopoietic) self-maintenance, the last external hand removed. The repair is a purely
+// LOCAL rule (each cell reads only its own neighborhood, never a global target list), so the self maintains
+// itself because of what it locally IS. Conserving, holds fidelity vs decay.
+{
+  const r = autonomousSelf({ n: 20000 })
+  check({ name: 'P179 autonomous self: the self maintains ITSELF by a purely local rule (no global target list, no outside knower), holding fidelity vs decay, charge exactly conserved, closing the last external-hand gap from P178', ok: r.solved && r.maintenanceHoldsSelf && r.usesOnlyLocalInfo && r.conserved, detail: `local ${r.usesOnlyLocalInfo}, fidelity ${(r.maintainedFidelity * 100).toFixed(0)}% vs ${(r.unmaintainedFidelity * 100).toFixed(0)}%, conserved ${r.conserved}, cost ${r.workPerBeat.toFixed(0)}/beat` })
+}
+
+// P180: selves belong on the horosphere, and it scales 1000x without the bulk. (1) The boundary/volume of
+// balls FALLS on the flat horosphere (compact selves possible) but stays high in the hyperbolic bulk (all
+// boundary). (2) The same self leaks less and persists far better (passive fidelity) on the horosphere.
+// (3) The horosphere is flat, so it is built DIRECTLY as a 2D lattice with no bulk, ~1000x larger, conserved.
+// This validates the layered ontology, bulk = experience, horosphere = selves, physics = the distilled surface.
+{
+  const r = horosphereSelf()
+  check({ name: 'P180 horosphere self: selves are compact-possible, lower-leak, and far more persistent on the flat horosphere than in the hyperbolic bulk, and the horosphere is built DIRECTLY as a 2D lattice ~1000x larger than any affordable bulk (the layered ontology: bulk experience, horosphere selves, physics the distilled surface)', ok: r.solved && r.compactPossibleOnFlat && r.flatLowerLeak && r.flatMorePassive && r.bigBuilt && r.bigConserved, detail: `flat ball BV ${r.flatBallBV[r.flatBallBV.length - 1]!.toFixed(2)} vs bulk ${r.bulkBallBV[r.bulkBallBV.length - 1]!.toFixed(2)}, passive ${(r.flatPassive * 100).toFixed(0)}% vs ${(r.bulkPassive * 100).toFixed(0)}%, scale ${r.scaleFactor}x (${r.bigCells.toLocaleString()} cells)` })
+}
+
+// P181: the rarity cascade, what fraction of matter is alive. Condensation is a MULTIPLICATIVE cascade
+// (charge -> structure -> integrated self -> persistent self), each rung keeps a small fraction, and the
+// fractions compound to extreme rarity. The measured per-rung factor over a cosmic number of rungs (about
+// 7 to 12) reproduces the cosmic one-in-100-trillion order, so the rarity is a prediction of the cascade.
+// Most charge stays low-organization churn, and the alive set is a thin film, matching cosmic-composition.md.
+{
+  const r = rarityCascade({ L: 600 })
+  check({ name: 'P181 rarity cascade: life is rare in the model for the same reason it is rare cosmically, condensation is a multiplicative cascade (structure x integrated x persistent) whose small per-rung fractions compound, and the per-rung factor over a cosmic number of rungs reproduces the one-in-100-trillion order (most matter stays churn, the alive set is a thin film)', ok: r.solved && r.spectrumMostlyChurn && r.aliveIsThinFilm && r.cascadeReproducesCosmic, detail: `structure ${(r.fStructure * 100).toFixed(1)}% x integrated ${(r.fIntegrated * 100).toFixed(1)}% x persistent ${(r.fPersistent * 100).toFixed(0)}% = alive ${(r.fractionAlive * 100).toFixed(2)}%, per-rung ${r.perRungFactor.toFixed(2)} over ${r.rungsToCosmic.toFixed(1)} rungs reaches cosmic` })
+}
+
+// P183: rarity from three more independent angles. (2) the integration spectrum, most charge is low-Phi
+// churn and only a tiny high-Phi tail is alive. (5) the thin-film dimension, the alive set is a thin
+// lower-dimensional film (box dimension well below the matter's). (4) the density threshold, almost nothing
+// condenses below a critical charge density, and it stays modest above (life rare even with abundant matter).
+{
+  const r = rarityMeasures({ L: 300 })
+  check({ name: 'P183 rarity measures: three independent measures confirm life is a rare, thin, threshold-gated tail of matter (integration spectrum high-Phi tail tiny, alive set lower box-dimension than matter, condensation gated by a critical density)', ok: r.solved && r.spectrumTailRare && r.thinFilm && r.thresholdExists, detail: `alive tail ${(r.phiTailFraction * 100).toFixed(1)}% vs churn ${(r.lowPhiFraction * 100).toFixed(0)}%, dim alive ${r.aliveDimension.toFixed(2)} vs matter ${r.matterDimension.toFixed(2)}, threshold density ${r.thresholdDensity.toFixed(2)}` })
+}
+
+// P185: causal emergence (related-works theme 11/13). A coarse-grained macro level (a self) can be a
+// stronger CAUSE than the micro substrate, measured by effective information. Degenerate micro
+// configurations funneling to one attractor are causally weak (the effect cannot tell them apart), and
+// grouping them into a macro-state removes the degeneracy, so EI(macro) > EI(micro), growing with the
+// degeneracy. This grounds downward causation and the macro-compatibilist free will, no base change.
+{
+  const r = causalEmergence({ K: 16 })
+  check({ name: 'P185 causal emergence: a coarse-grained macro (self) has more effective information (causal power) than the degenerate micro substrate, growing with degeneracy, grounding downward causation and macro-compatibilist free will without changing the base', ok: r.solved && r.emerges && r.growsWithDegeneracy, detail: `EI micro ${r.eiMicro.toFixed(2)} vs macro ${r.eiMacro.toFixed(2)} bits, emergence ${r.emergence.toFixed(2)}, grows to ${r.byDegeneracy[r.byDegeneracy.length - 1]!.emergence.toFixed(2)}` })
+}
+
+// P186: the emergent field obeys the AREA law (the gravity and holography precondition, related-works theme
+// 7/8). The free-fermion (Dirac) ground state's entanglement entropy SATURATES for a massive field (area
+// law) and grows as (c/6) ln L with c about 1 for the massless field (the conformal / Ryu-Takayanagi law),
+// while a thermal state grows linearly (volume law). Ground-state area-law versus thermal volume-law is the
+// dividing line emergent gravity needs. No base change.
+{
+  const r = areaLaw({ L: 96 })
+  check({ name: 'P186 area law: the emergent fields ground state is area-law (massive entanglement saturates, massless grows as a conformal log with central charge ~1) while a thermal state is volume-law, the precondition for emergent gravity and holography', ok: r.solved && r.massiveSaturates && r.masslessLog && r.volumeLaw, detail: `massive saturates at ${r.massiveEntropies[r.massiveEntropies.length - 1]!.toFixed(2)}, central charge ${r.centralCharge.toFixed(2)} (R2 ${r.conformalR2.toFixed(2)}), volume slope ${r.volumeSlope.toFixed(2)}` })
+}
+
+// P182: an exact {4,4} horosphere (the paracompact honeycomb {4,4,3}) validates the flat-self idealization.
+// On the exact square horosphere the geometric self-physics is identical to the triangular idealization,
+// boundary/volume falls (compact possible) and per-beat leak matches (both far below the bulk), so the
+// result is a fact about FLAT CURVATURE, not the lattice or honeycomb. Passive persistence additionally
+// improves with coordination number (6-neighbour > 4-neighbour), an honest secondary effect. So the {5,3,4}
+// horosphere idealization was sound, and {5,3,4} keeps its forced geometry.
+{
+  const r = exactHorosphere()
+  check({ name: 'P182 exact horosphere: on the EXACT {4,4} square horosphere of {4,4,3} the geometric self-physics (compact-possible, low per-beat leak) is identical to the triangular {5,3,4}-horosphere idealization and absent in the bulk, so it is a fact about flat curvature, validating the idealization while {5,3,4} keeps its forced geometry', ok: r.solved && r.squareCompact && r.squareLeakMatchesTriangular && r.bothFlatBeatBulkLeak, detail: `square ball BV ${r.squareBallBV[r.squareBallBV.length - 1]!.toFixed(2)} vs triangular ${r.triangularBallBV[r.triangularBallBV.length - 1]!.toFixed(2)} vs bulk ${r.bulkBallBV[r.bulkBallBV.length - 1]!.toFixed(2)}, leak square ${(r.squareLeak * 100).toFixed(0)}% = triangular ${(r.triangularLeak * 100).toFixed(0)}% < bulk ${(r.bulkLeak * 100).toFixed(0)}%` })
+}
+
+// P184: lazy on-demand neighbor computation, Stage 0 of the WebGPU billion-cell plan (note/plan/
+// vibe-webgpu-billion-cell-sim.md). The lazy engine computes a cell's 12 neighbors purely from its own group
+// matrices (the 12 face reflections, exact mod two primes), with NO stored adjacency. A lazy BFS reproduces
+// the exact buildDodecagrid graph byte for byte, and random-access to a deep cell computes its neighbors on
+// demand with no graph stored. Proves the on-demand mechanism the shader port builds on.
+{
+  const r = lazyNeighbors({ n: 20000 })
+  check({ name: 'P184 lazy neighbors: on-demand neighbor computation (no stored adjacency) reproduces the exact buildDodecagrid graph byte-for-byte and supports random access to any deep cell, the verified seed of the lazy WebGPU billion-cell path', ok: r.solved && r.graphsIdentical && r.cameFromIsNeighbor && r.lazyCellCount === r.storedCellCount, detail: `identical ${r.graphsIdentical} (${r.lazyCellCount} cells), random-access depth ${r.randomAccessDepth} -> ${r.randomAccessNeighbors} neighbors, came-from-is-neighbor ${r.cameFromIsNeighbor}` })
 }
 
 // P170: the non-local bulk channel beneath the physical layer. The physical world lives on the emergent

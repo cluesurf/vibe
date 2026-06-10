@@ -274,3 +274,106 @@ export function buildHorosphere(input: { symbol?: number[]; maxCells?: number; b
     idealPoint: xi,
   }
 }
+
+// TARGETED horosphere generator, a Busemann-pruned BFS that grows ONLY the horosphere band slab, so the
+// whole cell budget goes to the flat slice instead of the exponential bulk (O(band), not O(bulk)). It picks
+// an ideal point xi up front (a deep walk along one facet), then BFS from the origin expanding only cells
+// within (half + margin) of the Busemann level 0, dropping everything outside the slab. Returns the slab
+// graph (run the dynamics on it) plus the Busemann value per cell (filter |b| < half for the band) and xi
+// (for the 2D projection). Reaches far more band cells than slicing a full bulk of the same size. See
+// note/research/vibe/notes/horosphere-extraction-algorithms.md and the WebGPU plan.
+export function buildHorosphereBand(input: { symbol?: number[]; maxBand?: number; half?: number; margin?: number }): {
+  cellCount: number
+  bandCount: number
+  neighbors: number[][]
+  coords: Vec[]
+  busemann: number[]
+  idealPoint: Vec
+} {
+  const symbol = input.symbol ?? [5, 3, 4]
+  const maxBand = input.maxBand ?? 100000
+  const half = input.half ?? 0.5
+  const margin = input.margin ?? 0.6
+  const { normals, metric, timeAxis } = mirrorFrame(symbol)
+  const dim = metric.length
+  const cellMirrors = symbol.length
+
+  const R: Mat[] = normals.map((nrm) => reflectionMatrix(nrm, metric))
+  const stab: Mat[] = [identity(dim)]
+  const stabSeen = new Set<string>([keyOf(stab[0]!.flat())])
+  for (let head = 0; head < stab.length; head++) {
+    for (let i = 0; i < cellMirrors; i++) {
+      const g = matMul(R[i]!, stab[head]!)
+      const k = keyOf(g.flat())
+      if (!stabSeen.has(k)) {
+        stabSeen.add(k)
+        stab.push(g)
+      }
+    }
+    if (stab.length > 100000) break
+  }
+  const outerNormal = normals[normals.length - 1]!
+  const faceNormals: Vec[] = []
+  const faceSeen = new Set<string>()
+  for (const h of stab) {
+    const fn = matVec(h, outerNormal)
+    const k = keyOf(fn)
+    if (!faceSeen.has(k)) {
+      faceSeen.add(k)
+      faceNormals.push(fn)
+    }
+  }
+  const F: Mat[] = faceNormals.map((fn) => reflectionMatrix(fn, metric))
+  const c0 = cellCenter(normals, metric, cellMirrors, timeAxis)
+
+  const norm = (v: Vec): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+  // the ideal point, a deep walk along one facet direction, normalized to the boundary
+  let gw = identity(dim)
+  for (let i = 0; i < 40; i++) gw = matMul(gw, F[0]!)
+  const xc = toPoincare(matVec(gw, c0), timeAxis)
+  const xn = norm(xc) || 1
+  const xi = xc.map((v) => v / xn)
+  const busOf = (coord: Vec): number => {
+    let d2 = 0
+    for (let k = 0; k < coord.length; k++) d2 += (coord[k]! - xi[k]!) ** 2
+    return Math.log(d2 / Math.max(1e-12, 1 - coord.reduce((s, v) => s + v * v, 0)))
+  }
+  const expandLimit = half + margin
+
+  const c0coord = toPoincare(c0, timeAxis)
+  const cellMat: Mat[] = [identity(dim)]
+  const cellCoord: Vec[] = [c0coord]
+  const cellBus: number[] = [busOf(c0coord)]
+  const cellKey = new Map<string, number>([[keyOf(c0coord), 0]])
+  const neighbors: number[][] = [[]]
+  let bandCount = Math.abs(cellBus[0]!) < half ? 1 : 0
+
+  for (let head = 0; head < cellMat.length; head++) {
+    if (Math.abs(cellBus[head]!) >= expandLimit) continue // pruned, outside the slab, do not expand
+    const g = cellMat[head]!
+    for (const f of F) {
+      const gp = matMul(g, f)
+      const coord = toPoincare(matVec(gp, c0), timeAxis)
+      const b = busOf(coord)
+      if (Math.abs(b) >= expandLimit) continue // drop cells outside the slab entirely
+      const k = keyOf(coord)
+      let id = cellKey.get(k)
+      if (id === undefined) {
+        id = cellMat.length
+        cellKey.set(k, id)
+        cellMat.push(gp)
+        cellCoord.push(coord)
+        cellBus.push(b)
+        neighbors.push([])
+        if (Math.abs(b) < half) bandCount++
+      }
+      if (id !== head && !neighbors[head]!.includes(id)) {
+        neighbors[head]!.push(id)
+        neighbors[id]!.push(head)
+      }
+    }
+    if (bandCount >= maxBand) break
+  }
+
+  return { cellCount: cellMat.length, bandCount, neighbors, coords: cellCoord, busemann: cellBus, idealPoint: xi }
+}
