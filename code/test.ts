@@ -203,6 +203,13 @@ import { integratedAgent as integratedMetaAgent } from '~/experiment/p162-integr
 import { deterministicSpatialRP } from '~/experiment/p169-deterministic-spatial-rp'
 import { waveChain } from '~/experiment/p167-wave-chain'
 import { crossDomainChain } from '~/experiment/p168-cross-domain-chain'
+import { boundComposite } from '~/experiment/p172-bound-composite'
+import { entanglementBell } from '~/experiment/p173-entanglement-bell'
+import { spinStatistics } from '~/experiment/p174-spin-statistics'
+import { boostVelocityAddition } from '~/experiment/p175-boost-velocity-addition'
+import { reversibleUniversality } from '~/experiment/p176-reversible-universality'
+import { substrateComputer } from '~/experiment/p177-substrate-computer'
+import { emergentSelfRobust } from '~/experiment/p178-emergent-self-robust'
 import { bulkNonlocality } from '~/experiment/p170-bulk-nonlocality'
 import { persistentSelf } from '~/experiment/p171-persistent-self'
 import { reproduction } from '~/experiment/p112-reproduction'
@@ -2333,6 +2340,58 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = crossDomainChain()
   check({ name: 'P168 cross-domain chain: field -> particle (centroid obeys free-particle motion, Ehrenfest) and particle -> composite (center of mass moves freely, momentum conserved through interaction), cross-domain rungs commute', ok: r.solved && r.rung1.commutes && r.rung2.commutes, detail: `particle speed ${r.rung1.speed.toFixed(2)} (R2 ${r.rung1.linearR2.toFixed(3)}), CoM R2 ${r.rung2.comR2.toFixed(3)}` })
+}
+
+// P172: true binding, a bound composite with internal structure (completes rung 2 of the cross-domain
+// chain). Two attracting particles form a TRUE bound state (localized, energy below the free band, positive
+// binding energy), where no interaction gives a delocalized band state. A deeper well has MULTIPLE discrete
+// bound levels, the atom's internal energy levels, a new discrete variable seeding the next rung. With P168
+// (free center of mass) this completes particle -> composite, a bound atom that moves freely.
+{
+  const r = boundComposite()
+  check({ name: 'P172 bound composite: two attracting particles form a true bound state (localized, positive binding energy) with discrete internal energy levels, completing particle -> composite (a bound atom, with P168 free center of mass)', ok: r.solved && r.trueBoundState && r.localized && r.discreteInternalLevels, detail: `binding energy ${r.bindingEnergy.toFixed(2)}, spread ${r.groundSpread.toFixed(1)} vs free ${r.freeSpread.toFixed(1)}, deep-well levels ${r.boundLevelsDeep}` })
+}
+
+// P173: genuine entanglement and a Bell-CHSH violation from the substrate's own exchange dynamics. The hop
+// (the spin exchange, P131) applied to a product state produces a maximally entangled state (concurrence 1)
+// whose correlations violate CHSH at the Tsirelson bound 2 sqrt(2), impossible for any classical theory.
+{
+  const r = entanglementBell()
+  check({ name: 'P173 entanglement and Bell violation: the exchange dynamics produces a maximally entangled state (concurrence 1) that violates CHSH at the Tsirelson bound, so the substrate is quantum in the strongest sense', ok: r.solved && r.bellViolated && r.maximallyEntangled && r.productIsClassical, detail: `CHSH ${r.entangledCHSH.toFixed(3)} (Tsirelson ${r.tsirelson.toFixed(3)}), concurrence ${r.entangledConcurrence.toFixed(2)}, product control ${r.productCHSH.toFixed(2)}` })
+}
+
+// P174: spin-statistics. The substrate's hard-core charges (same-sign inert, no co-occupation) are
+// equivalent to free fermions, so they anti-bunch in a Hong-Ou-Mandel test (coincidence 1) where bosons
+// would bunch (coincidence 0). Matter in the model is fermionic, with Pauli exclusion, from the rule alone.
+{
+  const r = spinStatistics()
+  check({ name: 'P174 spin-statistics: the hard-core charges anti-bunch like fermions (HOM coincidence 1) where bosons bunch (0), so matter in the model is fermionic with Pauli exclusion from the rule alone', ok: r.solved && r.fermionAntiBunches && r.bosonBunches && r.substrateIsFermionic, detail: `boson coincidence ${r.bosonCoincidence.toFixed(2)}, fermion coincidence ${r.fermionCoincidence.toFixed(2)}` })
+}
+
+// P175: a direct boost test. The massless lightcone is boost-invariant to machine precision, no group
+// velocity exceeds c, velocities add relativistically (v+u)/(1+uv), and the IR dispersion is boost-invariant.
+// Boosts act as genuine Lorentz transformations, completing the operational relativity picture.
+{
+  const r = boostVelocityAddition()
+  check({ name: 'P175 boost and velocity addition: the lightcone is frame-independent (deviation ~1e-15), no group velocity exceeds c, and velocities add relativistically, so boosts are genuine Lorentz transformations', ok: r.solved && r.lightconeFrameInvariant && r.noSuperluminal && r.relativisticAddition, detail: `cone dev ${r.masslessConeMaxDeviation.toExponential(1)}, max speed ${r.maxGroupSpeed.toFixed(3)}, vel-add error ${r.velocityAdditionError.toExponential(1)}` })
+}
+
+// P176: the {5,3,4} with our reversible conserving rule is computationally universal. Margenstern gives the
+// geometry (a universal CA exists on the dodecagrid), our nine-state rule is a reversible bijection, a
+// universal reversible gate (Toffoli) gives functional completeness, and routing (P42/P76), gates (P44), and
+// memory (P105/P107) are present. Reversibility is no obstacle to universality.
+{
+  const r = reversibleUniversality()
+  check({ name: 'P176 reversible universality: the {5,3,4} with our reversible rule is computationally universal (Margenstern geometry + a reversible-bijection rule + Toffoli completeness + routing + gates + memory), reconciling with Margenstern', ok: r.solved && r.ruleIsBijection && r.toffoliComputesNand && r.reversibleUniversal, detail: `rule bijection ${r.ruleIsBijection}, Toffoli NAND ${r.toffoliComputesNand}, routing+gates+memory ${r.hasRouting && r.hasGates && r.hasMemory}` })
+}
+
+// P177: a full general-purpose computer on the substrate. A programmable register machine (INC, DECJZ,
+// HALT, Turing-complete) with registers as charge in mesh regions, INC/DEC as the arrow's create/annihilate
+// moves, and test-zero as perception. The SAME machine runs three different programs (add, monus, multiply),
+// all correct, with the total charge conserved throughout, an explicit universal machine in the system.
+{
+  const r = substrateComputer({ n: 5000 })
+  check({ name: 'P177 substrate computer: a programmable register machine on the {5,3,4} charge dynamics runs three different programs (add, monus, multiply) correctly with charge conserved, an explicit general-purpose computer in the system', ok: r.solved && r.allCorrect && r.allConserved && r.generalPurpose, detail: `${r.cases.length} cases all correct ${r.allCorrect}, ${r.programsRun} programs, charge conserved ${r.allConserved}` })
 }
 
 // P170: the non-local bulk channel beneath the physical layer. The physical world lives on the emergent

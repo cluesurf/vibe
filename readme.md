@@ -20,6 +20,19 @@
 <br/>
 <br/>
 
+## Foreword
+
+This is going to take a long ass time to figure out, or maybe shorter.
+But will definitely work on figuring it out over the years, and in the
+meantime, going to be publishing papers as snapshots and such of what
+seems like are possible solutions. If they turn out to be wrong, that's
+part of the process, constant iterating and refinement until something
+works perfectly.
+
+In the meantime, I think the general ideas are the way forward, but the
+exact technical details are the hard things to get perfectly right from
+there.
+
 ## Introduction
 
 Vibe Theory treats reality as one thing: a vast, growing crystal of
