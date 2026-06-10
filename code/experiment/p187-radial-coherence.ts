@@ -57,7 +57,7 @@ function pearson(a: Float64Array, b: Float64Array): number {
   return va > 0 && vb > 0 ? num / Math.sqrt(va * vb) : 0
 }
 
-export function radialCoherence(input?: { n?: number }): {
+export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   n: number
   scales: number[]
   radialPersistence: number[]
@@ -68,7 +68,8 @@ export function radialCoherence(input?: { n?: number }): {
   solved: boolean
 } {
   const n = input?.n ?? 40000
-  const g = buildCellGraph({ symbol: [5, 3, 4], maxCells: n })
+  const symbol = input?.symbol ?? [5, 3, 4]
+  const g = buildCellGraph({ symbol, maxCells: n })
   const N = g.cellCount
   const dim = g.coords[0]!.length
 

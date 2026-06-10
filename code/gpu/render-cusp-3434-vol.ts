@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
 
-const L = 96 // cube side, N = L^3 cells of flat 3D space
+const L = Number(process.argv[2]) || 96 // cube side, N = L^3 cells of flat 3D space (pass a larger arg to scale up)
 const FRAMES = 180
 const IMG = 1000
 const WORKGROUP = 256
@@ -151,32 +151,26 @@ async function run(): Promise<void> {
     accR.fill(0)
     accG.fill(0)
     accB.fill(0)
-    // house palette, +1 blue, -1 red, 0 black (peace is never drawn)
+    // house palette, +1 blue, -1 red, 0 black. BACK-TO-FRONT alpha compositing, blends (never sums to white)
     const BLUE: [number, number, number] = [59, 130, 246]
     const RED: [number, number, number] = [248, 90, 114]
-    for (let z = 0; z < L; z++) {
-      for (let y = 0; y < L; y++) {
-        for (let x = 0; x < L; x++) {
-          const t = currentOf(field[idx(x, y, z)]!)
-          if (t === 0) continue
-          const [px, py, pz] = project(x, y, z)
-          const cxp = px | 0
-          const cyp = py | 0
-          if (cxp < -SPLAT || cxp >= IMG + SPLAT || cyp < -SPLAT || cyp >= IMG + SPLAT) continue
-          const depth = 0.55 + 0.45 * (pz / L + 0.5) // front brighter
-          const col = t === 1 ? BLUE : RED
-          const w = (GAIN * depth) / 255
-          for (let dy = -SPLAT; dy <= SPLAT; dy++) {
-            for (let dx = -SPLAT; dx <= SPLAT; dx++) {
-              const ix = cxp + dx
-              const iy = cyp + dy
-              if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
-              const pix = iy * IMG + ix
-              accR[pix] = accR[pix]! + col[0] * w
-              accG[pix] = accG[pix]! + col[1] * w
-              accB[pix] = accB[pix]! + col[2] * w
-            }
-          }
+    for (let k = 0; k < N; k++) {
+      const cell = order[k]!
+      const t = currentOf(field[cell]!)
+      if (t === 0) continue
+      const col = t === 1 ? BLUE : RED
+      const d = DEPTH[cell]!
+      const cxp = PX[cell]!
+      const cyp = PY[cell]!
+      for (let dy = -SPLAT; dy <= SPLAT; dy++) {
+        for (let dx = -SPLAT; dx <= SPLAT; dx++) {
+          const ix = cxp + dx
+          const iy = cyp + dy
+          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
+          const pix = iy * IMG + ix
+          accR[pix] = accR[pix]! * (1 - ALPHA) + col[0] * d * ALPHA
+          accG[pix] = accG[pix]! * (1 - ALPHA) + col[1] * d * ALPHA
+          accB[pix] = accB[pix]! * (1 - ALPHA) + col[2] * d * ALPHA
         }
       }
     }
