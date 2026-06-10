@@ -1,0 +1,230 @@
+\section{The Crystal: Coxeter Groups, Schl\"afli Symbols, and the Dodecagrid}
+
+The previous section showed that the crystal of experience must be a regular tiling of hyperbolic space.
+This section names that tiling exactly and shows how it is generated. The natural question is where an
+infinite, perfectly regular crystal comes from. The answer is not that someone laid down cell after cell by
+hand. The whole tiling is generated automatically, from one tile, by mirrors. This is the theory of Coxeter
+groups. We give the reflection picture, the Schl\"afli notation that names the crystal in a few integers,
+the curvature rule with a worked side-by-side calculation, the two crystals the theory works with, and the
+argument that fixes the dimension at three.
+
+\subsection{Coxeter groups as reflection groups}
+
+Look into a kaleidoscope. A few scraps of colored glass sit between mirrors, and you see a vast, perfectly
+symmetric pattern. The mirrors did all the work. Each mirror reflects the scrap to the other side, those
+reflections have their own reflections, and the copies multiply until the whole field is full. A regular
+tiling is made the same way. Take one tile, stand a mirror along each face, and each mirror reflects the
+tile to a copy on the far side. Reflections of reflections fill the space with identical tiles. You never
+placed a single one after the first.
+
+Fix one tile, the fundamental chamber, and put a mirror on each of its faces. In three dimensions a chamber
+is a simplex with four faces, so there are four mirrors, with reflections $s_0, s_1, s_2, s_3$. Each $s_i$
+flips the chamber across face $i$ onto a fresh copy. A reflection done twice is the identity, so every
+generator satisfies $s_i s_i = e$, and each generator is its own inverse. Composing reflections lands you on
+some copy of the chamber, and every copy is reached by exactly such a sequence. The set of all these
+sequences, under composition, is the Coxeter group. The tiling is what you see when you apply every group
+element to one chamber.
+
+One more family of relations carries the geometry. Two mirrors that share an edge meet at a dihedral angle
+of $\pi / m$. Reflecting back and forth between them is a rotation, and after $m$ round trips it closes back
+to the identity, so $(s_i s_j)^m = e$. The integer $m$, written $m_{ij}$, is the only thing chosen for that
+pair of mirrors. When two mirrors are perpendicular, $m_{ij} = 2$ and the reflections commute.
+
+The full presentation is generators $s_0, \dots, s_n$ with relations $(s_i s_j)^{m_{ij}} = e$, where
+$m_{ii} = 1$ and $m_{ij} = m_{ji} \ge 2$ for $i \ne j$. A handful of integers fixes the angles, the angles
+fix the mirrors, the mirrors generate the tiling, and the tiling fixes the curvature.
+
+The cleanest fact in the subject is that one chamber equals one group element. The fundamental chamber is
+the identity $e$, the chamber $s_i e$ is the one across mirror $i$, and so on. Every copy of the chamber
+matches exactly one group element, and the chamber is a fundamental domain. To list the chambers is to list
+the group elements, and to find a chamber's neighbors is to multiply by generators. Geometry becomes word
+combinatorics, and the crystal can be enumerated with no coordinates at all, by reducing words to a
+canonical ShortLex normal form (P85, P87).
+
+\subsection{The $[5,3,4]$ group}
+
+Assemble the pieces for the crystal of the theory. The Coxeter group $[5,3,4]$ has four generators and the
+relations
+\begin{align}
+s_i s_i &= e && \text{for every } i, \\
+(s_0 s_1)^5 &= e && \text{the pentagon angle}, \\
+(s_1 s_2)^3 &= e && \text{the triangle angle}, \\
+(s_2 s_3)^4 &= e && \text{four cells around an edge}, \\
+(s_i s_j)^2 &= e && \text{perpendicular otherwise}.
+\end{align}
+The Gram matrix of the mirror normals has a signature with exactly one negative eigenvalue. That one
+negative direction is the timelike axis, and the geometry is hyperbolic. The cell of the crystal is the
+dodecahedron $\{5,3\}$, whose symmetry group is the icosahedral group $H_3$ of order $120$. The word engine
+enumerates this cell stabilizer to exactly $120$ chambers, with no approximation. Around each edge of the
+crystal four dodecahedra meet, the $r = 4$ in the symbol, and each cell has exactly $12$ neighbors, one
+across each of its twelve pentagonal faces. Both the order $120$ and the neighbor count $12$ are confirmed
+exactly (P85, P87).
+
+The same one machine yields every other regular tessellation by changing the symbol alone (P47), so the
+theory does not posit the crystal as a bespoke object. It posits a universal generator and a tiny integer
+input. The crystal is the output. The general study of automata and computation on such hyperbolic tilings
+is developed by Margenstern \cite{margenstern2013}.
+
+\subsection{Schl\"afli symbols and the curvature rule}
+
+A Schl\"afli symbol is a short list of whole numbers that names a regular shape, tiling, or honeycomb
+completely. The symbol grows one number at a time, and each number says how the pieces from the level below
+fit together at the next level up. One number, $\{p\}$, names a regular $p$-gon. Two numbers, $\{p,q\}$,
+name $q$ copies of the $p$-gon around every vertex, which is either a polyhedron or a tiling. Three numbers,
+$\{p,q,r\}$, name a honeycomb whose cells are the solids $\{p,q\}$, with $r$ of those cells packed around
+every edge.
+
+For a two-number symbol the curvature follows from a single check. Compute $1/p + 1/q$ and compare it to
+$1/2$. If the sum is greater than $1/2$ the tiling closes into a ball and is spherical. If it equals $1/2$
+the tiling lies flat and is Euclidean. If it is less than $1/2$ the tiling ruffles into a saddle and is
+hyperbolic. The same fact in product form is to compare $(p-2)(q-2)$ to $4$, below being spherical, equal
+flat, above hyperbolic.
+
+Run it on $\{7,3\}$. One seventh plus one third is about $0.476$, below $0.5$, so it is hyperbolic, and
+$(7-2)(3-2) = 5$, above $4$, agrees. Run it on $\{6,3\}$. One sixth plus one third is exactly $0.5$ and
+$(6-2)(3-2) = 4$, so it is flat, right on the boundary. Seven is the smallest side count that bends the
+plane at three faces to a corner.
+
+\subsection{The worked calculation for three honeycombs}
+
+For a three-number honeycomb the deciding question is how much angle the cells use up around an edge. Each
+cell $\{p,q\}$ has a fixed dihedral angle $d$ along its edges, computed from
+\begin{equation}
+\sin\!\left(\frac{d}{2}\right) = \frac{\cos(\pi/q)}{\sin(\pi/p)}.
+\end{equation}
+Multiplying $d$ by $r$, the number of cells around an edge, and comparing the total to $360$ degrees decides
+the geometry. A total under $360$ leaves a gap and closes up, so it is spherical. A total of exactly $360$
+fills the angle and is Euclidean. A total over $360$ is too much angle for flat space, and the overflow is
+absorbed by negative curvature, so it is hyperbolic. Three honeycombs show the dial walking from one regime
+to the next.
+
+For $\{4,3,4\}$, the cubic honeycomb, the cell $\{4,3\}$ is the cube. Here
+$\sin(d/2) = \cos(\pi/3)/\sin(\pi/4) = 0.5/0.7071 = 0.7071$, so $d/2 = 45$ degrees and the dihedral is $90$
+degrees. Four cubes around an edge give $4 \times 90 = 360$ exactly. The geometry is Euclidean. This is
+ordinary flat three-dimensional space, tiled by cubes.
+
+For $\{4,3,3\}$, the boundary of the tesseract, the cell is again the cube with a $90$ degree dihedral, but
+only $r = 3$ cells meet at an edge. The total is $3 \times 90 = 270$ degrees, under $360$. The geometry is
+spherical, and the honeycomb closes up into the finite four-cell-boundary of a hypercube.
+
+For $\{5,3,4\}$, the dodecagrid, the cell is the dodecahedron. Its dihedral angle is about $116.57$ degrees,
+and $r = 4$ cells meet at an edge, so the total is $4 \times 116.57 = 466.3$ degrees, well over $360$. There
+is no way to fit four dodecahedra around an edge in flat space, since they would overlap. Curving the space
+hyperbolically opens up exactly enough room for the fourth cell. So $\{5,3,4\}$ is forced into
+three-dimensional hyperbolic space.
+
+Changing a single number in the symbol walks the geometry from spherical at $270$ to flat at $360$ to
+hyperbolic at $466$, and $\{5,3,4\}$ is the first dodecahedral honeycomb that overflows the edge. Once the
+symbol is fixed there are no further parameters. The neighbor count, the symmetry group, the growth rate,
+and the curvature all follow by computation.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lllll}
+\toprule
+Honeycomb & Cell dihedral & Cells per edge & Total angle & Geometry \\
+\midrule
+$\{4,3,4\}$ & $90$ degrees & $4$ & $360$ degrees & Euclidean \\
+$\{4,3,3\}$ & $90$ degrees & $3$ & $270$ degrees & Spherical \\
+$\{5,3,4\}$ & $116.57$ degrees & $4$ & $466.3$ degrees & Hyperbolic \\
+\bottomrule
+\end{tabular}
+\caption{The curvature dial for three honeycombs.}
+\label{tab:curvature-dial}
+\end{table}
+
+\subsection{The two crystals}
+
+The theory works with two crystals, one dimension apart. The first is a drawable study model, the second is
+the real substrate. The heptagrid $\{7,3\}$ is the regular tiling of the hyperbolic plane by seven-sided
+cells, three meeting at every corner. Each cell has exactly seven neighbors, one across each of its seven
+edges, confirmed exactly in the same facet experiment that pins the dodecagrid at twelve (P85).
+
+Drawn in the Poincare disk it is one of the cleanest pictures in mathematics, a central heptagon ringed by
+more heptagons, each ring holding far more cells than the last, all appearing to shrink toward the rim. The
+shrinking is an artifact of the drawing. In the true geometry every cell is the same size.
+
+The heptagrid is the picture to hold when imagining the crystal of experience. Color each cell by its tone
+and let two touching cells mean two feelings experiencing each other through their shared edge, and the
+colored heptagrid is a faithful, literal picture of the model, just in two dimensions instead of three.
+
+\begin{figure}[h]\centering\includegraphics[width=0.47\textwidth]{vibe-mesh-73.pdf}\caption{The heptagrid, the regular tiling of the hyperbolic plane by seven-sided cells, three to a corner, the simplest face of the crystal. Each cell is a vibe and each shared edge is a perceived relation. Cells appear to shrink toward the rim only because the Poincare disk compresses the infinite plane into a finite picture. In the true geometry every cell is the same size.}\label{fig:heptagrid}\end{figure}
+
+The real substrate is one dimension up. It is the dodecagrid $\{5,3,4\}$, a packing of dodecahedra filling
+curved three-dimensional space. The symbol reads as a chain. The $5$ means each face of a cell is a
+pentagon, the $3$ means three pentagons meet at each corner of a cell, which assembles a dodecahedron, and
+the $4$ means four dodecahedra meet around every edge. Each dodecahedral cell has exactly $12$ neighbors,
+one across each of its twelve pentagonal faces, and this is the central number of the whole theory (P85,
+P104).
+
+You cannot fully picture this crystal, and that is fine. It is the exact three-dimensional analogue of the
+heptagrid. Everything true of the heptagrid is true of the dodecagrid, with regular identical cells, no
+preferred direction, exponential room, and the same kaleidoscope of reflections. The build is exact to tens
+of millions of cells by an integer fingerprint method that avoids any floating-point drift (P104).
+
+The heptagrid is the version you can see. The dodecagrid is the real substrate. Time is its growth, the
+birth of new cells at the frontier, generation after generation, with each new layer the next moment.
+
+\begin{figure}[h]\centering\includegraphics[width=\textwidth]{vibe-mesh-534.png}\caption{The dodecagrid $\{5,3,4\}$, the three-dimensional substrate, dodecahedral cells with four meeting around every edge, filling curved three-dimensional space. It is the heptagrid one dimension up, the crystal of which physical space is made. Time is its growth.}\label{fig:dodecagrid}\end{figure}
+
+\subsection{Why three dimensions}
+
+The dimension of space is not a dial in this theory. It is forced, and forced twice over, then narrowed
+further to the specific crystal. The first squeeze is pure geometry. A crystal here is a regular tiling of
+hyperbolic space with finite cells, a compact regular hyperbolic honeycomb. Such a honeycomb exists only
+when both its cell and its vertex figure are themselves finite, which is a sharp constraint on the symbol.
+
+Experiment P62 enumerates every such symbol by Gram-matrix signatures and finds a hard pattern. The
+hyperbolic plane admits infinitely many. Three-dimensional hyperbolic space admits exactly four, one of
+which is the dodecagrid $\{5,3,4\}$. Four-dimensional hyperbolic space admits exactly five. Five dimensions
+and above admit none, ever. The window of nonzero dimensions is precisely two, three, and four. A
+finite-celled crystal substrate simply cannot be built above four dimensions, so there is no room for hidden
+spatial dimensions to hide.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{2.1cm}p{3.1cm}p{7.2cm}}
+\toprule
+Dimension & Compact regular hyperbolic honeycombs & Examples \\
+\midrule
+$2$ & infinitely many & all $\{p,q\}$ with $1/p + 1/q < 1/2$ \\
+$3$ & four & $\{3,5,3\}$, $\{4,3,5\}$, $\{5,3,4\}$, $\{5,3,5\}$ \\
+$4$ & five & $\{3,3,3,5\}$, $\{4,3,3,5\}$, $\{5,3,3,3\}$, $\{5,3,3,4\}$, $\{5,3,3,5\}$ \\
+$5$ and above & none & none \\
+\bottomrule
+\end{tabular}
+\caption{The dimension window. Compact regular hyperbolic crystals exist only in dimensions $2$, $3$, and
+$4$, with the dodecagrid $\{5,3,4\}$ the chosen one.}
+\label{tab:dimension-window}
+\end{table}
+
+The second squeeze is physics and picks one of the three survivors. For stable matter to exist, orbits must
+close and retrace themselves, otherwise nothing stays bound over time. Whether an orbit closes depends on
+how force falls off with distance, which depends on the dimension. Experiment P68 integrates these orbits
+across the allowed window and measures the apsidal angle, the angle swept from one closest approach to the
+next.
+
+In two dimensions the orbit precesses and never quite closes, too loose to hold structure. In three
+dimensions the inverse-square law gives an apsidal angle of exactly $180$ degrees, so the orbit retraces the
+same ellipse, the world of stable atoms and solar systems. In four dimensions and above the orbit is
+unstable, spiraling in or flying off at the slightest nudge.
+
+Geometry allows two, three, or four. Physics allows only three. The intersection is a single number. A
+confirming measurement grows a crystal from scratch and reads back its intrinsic dimension from connectivity
+alone, returning values near the targets without bias (P69).
+
+The two squeezes fix the dimension at three, but three-dimensional hyperbolic space still has four compact
+crystals. The auto-selection result shows $\{5,3,4\}$ is derived rather than chosen from that menu (P86).
+The ternary tone of each vibe makes the cell vertices three-valent, which is the middle entry $q = 3$. The
+finite three-valent cells are exactly the tetrahedron $\{3,3\}$, the cube $\{4,3\}$, and the dodecahedron
+$\{5,3\}$.
+
+Eternal growth requires a genuinely hyperbolic crystal that does not close into a finite ball, and the
+theory takes the tightest such crystal, the one with the fewest cells per edge. The tetrahedron reaches no
+compact crystal at all. The cube needs $r = 5$. The dodecahedron reaches a compact hyperbolic crystal at
+$r = 4$, the tightest closure across all three-valent candidates. The forced symbol is exactly $\{5,3,4\}$.
+
+The golden ratio that builds the dodecahedron is not smuggled in. The five falls out of the requirement to
+be the tightest eternal crystal with three-valent cells. The crystal at the root of reality is the unique
+survivor of constraints the theory committed to for other reasons, and the dimension is a result rather than
+an input.
