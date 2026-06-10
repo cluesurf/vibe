@@ -25,6 +25,14 @@ All output is written to `make/` (gitignored).
 | `render-band-anim.ts` | per-beat animation of the TARGETED horosphere band (the free wave, hundreds of thousands of cells) |
 | `render-band-life-anim.ts` | per-beat animation of the band under the COHESIVE rule (charges cluster, but blobs flicker) |
 | `render-persistence-anim.ts [free\|maintained]` | the SELFHOOD test, colours by persistence-of-identity, flicker stays dark, a maintained self glows |
+| `render-jewel-mesh.ts` | the recursive subdivision of a dodecahedron (the "jewel mesh"), 3D surface render |
+
+### {3,4,3,4} (the 4D candidate, see `note/research/vibe/notes/testing-3434-results.md`)
+
+| script | what it does |
+|---|---|
+| `run-bulk-3434.ts` | the wave on the {3,4,3,4} 4D bulk graph (24-neighbour) on the GPU, self-checked and benchmarked (GPU==CPU, ~5 billion cell-updates/sec) |
+| `render-cusp-3434-vol.ts` | per-beat VOLUME render of the flat 3D cusp ({4,3,4} cubic space), GPU wave, rotated and depth-shaded with additive OPACITY (red -1, blue +1, black 0) so the 3D wave-shells glow |
 
 ## Render a horosphere video (the main flow)
 

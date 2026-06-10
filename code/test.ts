@@ -216,6 +216,8 @@ import { rarityCascade } from '~/experiment/p181-rarity-cascade'
 import { rarityMeasures } from '~/experiment/p183-rarity-measures'
 import { causalEmergence } from '~/experiment/p185-causal-emergence'
 import { areaLaw } from '~/experiment/p186-area-law'
+import { fourDAutoSelection } from '~/experiment/p188-4d-auto-selection'
+import { nestedStructure534 } from '~/experiment/p189-nested-structure-534'
 import { exactHorosphere } from '~/experiment/p182-exact-horosphere'
 import { lazyNeighbors } from '~/experiment/p184-lazy-neighbors'
 import { bulkNonlocality } from '~/experiment/p170-bulk-nonlocality'
@@ -2469,6 +2471,25 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = areaLaw({ L: 96 })
   check({ name: 'P186 area law: the emergent fields ground state is area-law (massive entanglement saturates, massless grows as a conformal log with central charge ~1) while a thermal state is volume-law, the precondition for emergent gravity and holography', ok: r.solved && r.massiveSaturates && r.masslessLog && r.volumeLaw, detail: `massive saturates at ${r.massiveEntropies[r.massiveEntropies.length - 1]!.toFixed(2)}, central charge ${r.centralCharge.toFixed(2)} (R2 ${r.conformalR2.toFixed(2)}), volume slope ${r.volumeSlope.toFixed(2)}` })
+}
+
+// P188: auto-selection in 4D (the substrate-dimension question). 3D, ternary q=3 plus minimal compact
+// closure forces {5,3,4}. 4D, the UNIQUE ideal honeycomb with finite cells and a Euclidean cusp is
+// {3,4,3,4}, but its bulk has q=4 (not the ternary 3) and it is ideal not compact, so it is NOT forced by
+// the same principle, the ternary q=3 lives only in its cubic cusp (the emergent 3D space). Verdict, keep
+// {5,3,4}, with {3,4,3,4} a unique candidate requiring extra postulates.
+{
+  const r = fourDAutoSelection()
+  check({ name: 'P188 4D auto-selection: {5,3,4} stays forced in 3D (ternary q=3, compact), and {3,4,3,4} is the unique ideal cubic-cusp H4 honeycomb but is NOT forced by the same principle (bulk q=4, ideal not compact, ternary only in the cusp), so the substrate stays {5,3,4} with {3,4,3,4} a candidate', ok: r.solved && r.keepFiveThreeFour && r.fourDUniqueCandidate === '{3,4,3,4}' && !r.fourDForcedBySamePrinciple, detail: `3D forced ${r.threeDForced}, 4D unique candidate ${r.fourDUniqueCandidate}, bulk q=${r.fourDBulkTernaryQ}, cusp carries ternary ${r.fourDCuspCarriesTernary}` })
+}
+
+// P189: nested structure on {5,3,4}. BFS shells from a seed cell are exponential (1, 12, 102, 812, 6402,
+// 50412, 396902), the shell-to-shell ratio converges to a constant ~7.87 (self-similar recursive nesting,
+// a renormalization fixed point), and the mean Poincare radius climbs monotonically to ~1 (the nested
+// shells crowd the boundary sphere). The mesh is recursively nested at every scale.
+{
+  const r = nestedStructure534()
+  check({ name: 'P189 nested structure on {5,3,4}: BFS shells grow exponentially with a CONVERGING ratio (self-similar recursive nesting, growth constant ~7.87) and accumulate toward the boundary (mean Poincare radius -> 1 monotonically), confirming the mesh is recursively nested at every scale', ok: r.solved && r.exponentialNesting && r.ratioConverges && r.boundaryAccumulation, detail: `clean shells ${r.cleanShells.join('/')}, growth constant ${r.growthConstant.toFixed(3)}, radius ${r.meanRadius[0]!.toFixed(2)} -> ${r.meanRadius[r.meanRadius.length - 1]!.toFixed(3)}` })
 }
 
 // P182: an exact {4,4} horosphere (the paracompact honeycomb {4,4,3}) validates the flat-self idealization.
