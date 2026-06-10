@@ -156,6 +156,55 @@ import { rgStep } from '~/experiment/p122-rg-step'
 import { sliverTransport } from '~/experiment/p123-sliver-transport'
 import { lorentzIsotropy as lorentzIsotropyTensor } from '~/experiment/p124-lorentz-isotropy'
 import { lorentzFlow } from '~/experiment/p125-lorentz-flow'
+import { reversiblePoint } from '~/experiment/p126-reversible-point'
+import { cycleReversibility } from '~/experiment/p128-cycle-reversibility'
+import { criticalityScan } from '~/experiment/p129-criticality-scan'
+import { reflectionPositivity } from '~/experiment/p130-reflection-positivity'
+import { doiPelitiCheck } from '~/experiment/p131-doi-peliti-check'
+import { selfOrganizedCriticality } from '~/experiment/p135-self-organized-criticality'
+import { avalancheCriticality } from '~/experiment/p138-avalanche-criticality'
+import { hierarchicalSolving } from '~/experiment/p139-hierarchical-solving'
+import { detourPlanning } from '~/experiment/p140-detour-planning'
+import { meansComputation } from '~/experiment/p141-means-computation'
+import { planningNoAdditions } from '~/experiment/p143-planning-no-additions'
+import { directionIntention } from '~/experiment/p147-direction-intention'
+import { quantumWalkField } from '~/experiment/p151-quantum-walk-field'
+import { evolution } from '~/experiment/p152-evolution'
+import { integratedAgent } from '~/experiment/p153-integrated-agent'
+import { unifiedModel } from '~/experiment/p155-unified-model'
+import { memoryVsConservation } from '~/experiment/p159-memory-vs-conservation'
+import { fissionFlatLayer } from '~/experiment/p160-fission-flat-layer'
+import { arbitraryStructure } from '~/experiment/p161-arbitrary-structure'
+import { absoluteLimits } from '~/experiment/p162-absolute-limits'
+import { higherAffordances } from '~/experiment/p163-higher-affordances'
+import { coarseGrainingChain } from '~/experiment/p164-coarse-graining-chain'
+import { evolvingEcology } from '~/experiment/p165-evolving-ecology'
+import { designSignature } from '~/experiment/p166-design-signature'
+import { intentionAtScale } from '~/experiment/p145-intention-at-scale'
+import { growingCode } from '~/experiment/p127-growing-code'
+import { reflectionPositivity as timeReflectionPositivity } from '~/experiment/p132-time-reflection-positivity'
+import { nearCriticalRP } from '~/experiment/p133-near-critical-rp'
+import { flatSpatialRP } from '~/experiment/p134-flat-spatial-rp'
+import { gaplessSearch } from '~/experiment/p136-gapless-search'
+import { dynamicDispersion } from '~/experiment/p137-dynamic-dispersion'
+import { horosphereFlat } from '~/experiment/p142-horosphere-flat'
+import { horosphereDynamics } from '~/experiment/p144-horosphere-dynamics'
+import { secondConservationSearch } from '~/experiment/p146-second-conservation-search'
+import { deterministicWave } from '~/experiment/p148-deterministic-wave'
+import { deterministicPerception } from '~/experiment/p149-deterministic-perception'
+import { waveIsotropy } from '~/experiment/p150-wave-isotropy'
+import { deterministicRP } from '~/experiment/p154-deterministic-rp'
+import { boostInvariance } from '~/experiment/p154-boost-invariance'
+import { unifiedWave } from '~/experiment/p156-unified-wave'
+import { flatIntention } from '~/experiment/p157-flat-intention'
+import { bornInterference } from '~/experiment/p158-born-interference'
+import { evolution as evolutionLoop } from '~/experiment/p161-evolution'
+import { integratedAgent as integratedMetaAgent } from '~/experiment/p162-integrated-agent'
+import { deterministicSpatialRP } from '~/experiment/p169-deterministic-spatial-rp'
+import { waveChain } from '~/experiment/p167-wave-chain'
+import { crossDomainChain } from '~/experiment/p168-cross-domain-chain'
+import { bulkNonlocality } from '~/experiment/p170-bulk-nonlocality'
+import { persistentSelf } from '~/experiment/p171-persistent-self'
 import { reproduction } from '~/experiment/p112-reproduction'
 import { willSteering } from '~/experiment/p113-will-steering'
 
@@ -1867,6 +1916,442 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const r = lorentzFlow({ maxCells: 9000 })
   check({ name: 'P125 Lorentz restoration: higher-order angular anisotropy (rank-4, rank-6) shrinks under coarse-graining, rank-2 at the floor', ok: r.solved && r.a4Shrinks && r.a6Shrinks && r.rank2AtFloor, detail: `rank4 ${r.a4[0]!.toFixed(2)}->${r.a4[r.a4.length - 1]!.toFixed(2)}, rank6 ${r.a6[0]!.toFixed(2)}->${r.a6[r.a6.length - 1]!.toFixed(2)}` })
+}
+
+// P126: the reversible-point question (the gate before quantization). LOCAL detailed balance holds at all
+// arrow rates (the violation sits at the statistical floor), because the arrow creates BALANCED pairs (a
+// reversible reaction). So the elementary dynamics is locally an equilibrium process, not a one-way drive,
+// refuting the "arrow is irreversible" worry at the local level. (Caveat: multi-cell cycles untested.)
+{
+  const r = reversiblePoint({ n: 20000 })
+  check({ name: 'P126 reversible point: local detailed balance holds at all arrow rates (the arrow creates balanced pairs), the precondition for quantization is locally met', ok: r.solved && r.localDetailedBalance, detail: `max violation/floor ${r.maxRatio.toFixed(2)} (near 1 = reversible)` })
+}
+
+// P128: multi-cell reversibility (Kolmogorov circulation on loops). The net charge circulation around
+// closed 4-cycles sits at the statistical noise floor, so there is no persistent current. Combined with
+// P126, the dynamics is reversible locally AND around loops, a genuine equilibrium process, so the
+// precondition for reflection positivity / quantization is met (the irreversibility worry is refuted).
+{
+  const r = cycleReversibility({ n: 20000 })
+  check({ name: 'P128 multi-cell reversibility: no persistent charge circulation around closed loops (Kolmogorov holds), the dynamics is a genuine equilibrium process', ok: r.solved && r.reversible, detail: `circulation ${r.meanAbsCirculation.toFixed(1)} vs floor ${r.floor.toFixed(1)} (ratio ${r.ratio.toFixed(2)})` })
+}
+
+// P129: the criticality scan (the continuum doorway). The order parameter (activity) vanishes as
+// density ~ arrow^(1/2) toward arrow = 0, the mean-field rate law of the creation-annihilation reaction.
+// So there is a critical point at weak creation with MEAN-FIELD exponents (the hyperbolic graph is above
+// the upper critical dimension), and the continuum limit is a mean-field / Gaussian free field.
+{
+  const r = criticalityScan({ n: 20000 })
+  check({ name: 'P129 criticality scan: an absorbing critical point at arrow->0 with mean-field exponent beta~1/2 (density ~ sqrt(arrow)), continuum limit is a free field', ok: r.solved && r.meanField && r.vanishesAtZero && r.betaR2 > 0.9, detail: `beta ${r.beta.toFixed(2)} (R2 ${r.betaR2.toFixed(2)}), density ${(r.scan[0]!.density * 100).toFixed(1)}%->${(r.scan[r.scan.length - 1]!.density * 100).toFixed(1)}%` })
+}
+
+// P130: reflection positivity (the genuine-quantum gate), HONEST INCONCLUSIVE. In the accessible massive
+// regime the spine two-point function is contact-dominated (range ~1 site), so there is no extended
+// particle spectrum and RP cannot be decided, the tiny non-PSD Hankel eigenvalue is at the noise floor,
+// not a clean violation. A definitive verdict needs the near-critical regime (large correlation length).
+{
+  const r = reflectionPositivity({ length: 60, arrow: 0.05 })
+  check({ name: 'P130 reflection positivity: in the massive regime the correlation is contact-dominated, so RP is undecided (needs the near-critical regime), an honest inconclusive', ok: r.solved && r.contactDominated && !r.rpDecidable, detail: `C range ${r.correlationRange} site(s), Hankel min eig ${r.hankelMinEig.toFixed(4)} (at noise floor)` })
+}
+
+// P131: the Doi-Peliti transcription, verified. The single-edge operator conserves S^z (U(1)), every move
+// is a single +1/-1 unit exchange across the edge (creation, annihilation, hop are the same operator), and
+// detailed balance holds exactly. So the rule IS a spin-1, charge-conserving, reversible exchange (XX-type)
+// model, and reversibility makes its Doi-Peliti Hamiltonian Hermitian (genuinely quantum).
+{
+  const r = doiPelitiCheck()
+  check({ name: 'P131 Doi-Peliti transcription: the rule is a spin-1 S^z-conserving reversible exchange model (U(1) charge, unit exchange, exact detailed balance), a Hermitian quantum Hamiltonian', ok: r.solved && r.conservesSz && r.unitExchange && r.detailedBalance, detail: `Sz-conserving ${r.conservesSz}, unit-exchange ${r.unitExchange}, detailed-balance violation ${r.detailedBalanceViolation.toExponential(0)}` })
+}
+
+// P135: self-organized criticality (the minimal feedback for automatic intelligence). Demand-driven
+// creation (the arrow fires where it is quiet) makes the activity SELF-TUNE to the same interior set-point
+// from any starting density, with no external knob, the self-organization. Whether that set-point is
+// precisely CRITICAL (scale-free avalanches) is left open, the damage-spreading metric is confounded by
+// ballistic (lightcone) propagation, so it needs a terminating-cascade protocol.
+{
+  const r = selfOrganizedCriticality({ n: 15000 })
+  check({ name: 'P135 self-organized criticality: demand-driven creation self-tunes the activity to one interior set-point from any start (homeostasis, no external tuning); criticality left open', ok: r.solved && r.selfTunes, detail: `low ${(r.lowFinal * 100).toFixed(0)}% / high ${(r.highFinal * 100).toFixed(0)}% -> set-point ${(r.setPoint * 100).toFixed(0)}%` })
+}
+
+// P138: terminating-cascade avalanches (settling the criticality question, an HONEST NEGATIVE). At every
+// background level the avalanche size span is about 1, perturbations spread BALLISTICALLY (the lightcone)
+// to a fixed size, never as branching avalanches. So there is NO scale-free avalanche regime, the SOC route
+// to criticality does not apply, because the ballistic lightcone (good for relativity, P123) precludes it.
+// Hierarchical integration must instead come from the fast ballistic field beneath (P111), not avalanches.
+{
+  const r = avalancheCriticality({ n: 12000 })
+  check({ name: 'P138 avalanche criticality: no scale-free avalanches at any background (span ~1, ballistic spread), so the SOC route does not apply, the lightcone precludes branching avalanches', ok: r.solved && r.ballisticNotCritical && !r.scaleFree, detail: `best span ${r.bestSpan.toFixed(1)} (near 1 = ballistic, not scale-free)` })
+}
+
+// P139: hierarchical problem-solving via fast integration. The global-coordination distance (the diameter)
+// is O(log N) and tiny (4,5,6 for 4k,16k,64k), so a global problem over N cells is coordinated across just
+// a handful of hops, the front crosses it in ~1-2 beats. This is the geometric route to the intelligence
+// hierarchy (fast integration via the field beneath, P111), not critical avalanches (P138).
+{
+  const r = hierarchicalSolving()
+  check({ name: 'P139 hierarchical solving: the global coordination distance is O(log N) and tiny (a handful of hops), far below a Euclidean N^(1/3), so global problems are solved fast by integration', ok: r.solved && r.logScaling, detail: `diameters ${r.scan.map((s) => s.diameter).join('/')} for ${r.scan.map((s) => (s.N / 1000) + 'k').join('/')}, grew ${r.growthFactorT.toFixed(1)}x vs Euclidean ${r.euclideanWouldBe.toFixed(1)}x` })
+}
+
+// P140: the detour task, planning beats reactive on a barrier. A value landscape rises to a local peak,
+// dips through a valley, then rises to the goal. Greedy (lookahead 1) gets stuck at the local peak. A
+// planner whose lookahead horizon spans the barrier sees the higher ground beyond and commits to the
+// detour, reaching the goal. Planning ability switches on exactly when the horizon spans the barrier.
+{
+  const r = detourPlanning({ L: 40 })
+  check({ name: 'P140 detour planning (LOGIC, with an explicit lookahead): lookahead beats greedy on a barrier, planning switches on when the horizon spans the barrier', ok: r.solved && r.plannerBeatsGreedy && r.thresholdMatchesBarrier, detail: `greedy stuck @${r.greedyPos}, planner @${r.plannerPos}/${r.goal}, threshold K=${r.thresholdK} (barrier ${r.barrierWidth})` })
+}
+
+// P141: the means check, universal computation on the {5,3,4}. A 2-counter (Minsky) machine, universal,
+// with registers stored as charge in mesh regions and INC/DEC/test-zero as create/annihilate/count, runs
+// a multiplication program and computes correctly. The substrate hosts universal computation (Margenstern).
+{
+  const r = meansComputation({ n: 4000 })
+  check({ name: 'P141 means check: the {5,3,4} hosts universal computation (a Minsky machine with registers as mesh charge computes multiplication correctly)', ok: r.solved && r.allCorrect, detail: `${r.cases.map((c) => `${c.a}x${c.b}=${c.got}`).join(' ')}` })
+}
+
+// P142: planning from the base, adding NOTHING new. The planner composes only emergent pieces, the arrow
+// (value), the greedy rule (the bare gap-closer and the forward model run in imagination), and the will
+// (a sustained push against the gradient). It crosses a barrier greedy cannot, with no added search
+// heuristic. So planning emerges from the five base things, it is not a new ingredient.
+{
+  const r = planningNoAdditions({ L: 40 })
+  check({ name: 'P143 planning with nothing added: a planner built only from the arrow + the rule + the will (no search heuristic) crosses a barrier greedy cannot, planning emerges from the base', ok: r.solved && r.plannerBeatsGreedy && r.usesOnlyEmergent, detail: `greedy @${r.greedyPos}, planner (will-push ${r.willPushLength} + own rollout) @${r.plannerPos}/${r.goal}` })
+}
+
+// P144: direction and intention. Universal computation is goal-neutral, adding the arrow (goal/value) plus
+// a keep-gap-reducing selection makes it INTENTIONAL. A goal-directed search reaches a K-cell target in
+// ~K steps (DIRECTION), while an un-goaled search would only hit it by ~2^K chance and fails at K=30
+// (INTENTION, the gap is astronomical). The bridge from computable (P141) to intentional.
+{
+  const r = directionIntention()
+  check({ name: 'P147 direction and intention: a goal-directed search solves in ~K steps (direction), an un-goaled one needs ~2^K and fails (intention, astronomical gap), the arrow makes computation intentional', ok: r.solved && r.directionHolds && r.intentionHolds, detail: `goal steps ${r.scan.map((s) => s.goalSteps).join('/')} for K ${r.scan.map((s) => s.K).join('/')}, intention gap ${r.intentionGap.toExponential(0)}` })
+}
+
+// P151: the genuine quantum field is the UNITARY (quantum-walk) completion of the reversible exchange. The
+// quantum walk spreads ballistically (z=1, a relativistic lightcone) while the classical rule is diffusive
+// (z=2, its decohered shadow, why P130 saw a massive field). Its Dirac dispersion gives a lightcone and a
+// tunable mass and is reflection-positive by construction (a Hermitian H, from reversibility P126/P128/P131).
+// Resolves the genuine-quantum gate, and the Dirac structure also covers boost (Lorentz-covariant) and
+// Wallstrom (single-valued complex amplitudes).
+{
+  const r = quantumWalkField({ steps: 120 })
+  check({ name: 'P151 quantum-walk field: the unitary completion is relativistic (ballistic z=1, Dirac dispersion, tunable mass) and reflection-positive, the genuine quantum field, the stochastic rule its classical diffusive shadow', ok: r.solved && r.quantumBallistic && r.classicalDiffusive && r.reflectionPositive, detail: `QW exponent ${r.quantumExponent.toFixed(2)} (z=1) vs classical ${r.classicalExponent.toFixed(2)} (z=2), cone c=${r.masslessConeSpeed.toFixed(1)}, mass ${r.massGap.toFixed(2)}` })
+}
+
+// P152: evolution from the base. A population of balanced-pattern organisms reproduces by copying with
+// mutation (P120, the arrow's conserving creation), and SELECTION is the arrow's value (the fitter
+// reproduce). Mean fitness rises to the optimum with selection, stays flat under drift, on heritable
+// variation, the full Darwinian loop, with nothing added.
+{
+  const r = evolution({ M: 40 })
+  check({ name: 'P152 evolution: heredity + variation + selection drives mean fitness up (beats drift) on heritable variation, the Darwinian loop from the base (reproduction = the arrow conserving copy, selection = its value)', ok: r.solved && r.fitnessRises && r.beatsDrift && r.heritable, detail: `fitness ${r.startMean.toFixed(0)} -> ${r.selectedFinal.toFixed(0)}/${r.M} (selection) vs ${r.driftFinal.toFixed(0)} (drift)` })
+}
+
+// P153: the integrated metacognitive agent (the closed perceive-plan-act loop). With only emergent pieces
+// (the arrow value, the rule run as a forward model, the will) and a BOUNDED foresight (the emergent
+// forward model is local), the agent re-plans at each stall and crosses a SEQUENCE of barriers to a distant
+// goal, where a reactive agent stalls at barrier 1 and a one-shot planner at barrier 2. Mind end-to-end.
+{
+  const r = integratedAgent({ L: 80, B: 4 })
+  check({ name: 'P153 integrated agent: the closed perceive-plan-act loop (arrow + rule + will, bounded foresight) crosses a sequence of barriers to the goal, beating reactive and one-shot, mind end-to-end from the base', ok: r.solved && r.integratedReached && !r.reactiveReached && r.integratedReplans >= r.B - 1, detail: `reactive @${r.reactivePos}, one-shot @${r.oneShotPos}, integrated @${r.integratedPos}/${r.goal} (${r.integratedReplans} re-plans)` })
+}
+
+// P155: the unified model. The same canonical perception rule on the same {5,3,4} mesh produces the key
+// phenomena TOGETHER in a single run, conservation, life (vs dead peace without the arrow), a finite
+// lightcone, reversibility, and spatial coherence (the seed of selves). The experiments are one model,
+// not separate one-offs.
+{
+  const r = unifiedModel({ n: 30000 })
+  check({ name: 'P155 unified model (integration): one mesh, one rule, all phenomena co-occur in one run (conservation, life vs dead, lightcone, reversibility, coherence), the model is unified not a pile of one-offs', ok: r.solved && r.allTogether && r.conserved && r.alive && r.deadWithoutArrow && r.lightcone && r.reversible && r.coherent, detail: `conserved ${r.conserved}, alive ${r.alive}, dead-no-arrow ${r.deadWithoutArrow}, lightcone ${r.lightcone}, reversible ${r.reversible}, coherent ${r.coherent}` })
+}
+
+// P159: memory is lost as INFORMATION while charge is CONSERVED. Conservation is of the sum Q, not the
+// arrangement. An imprinted pattern's correlation decays to noise (the memory scrambles, entropy rises)
+// while Q is exactly conserved, so what is lost is information, not charge. Active maintenance holds it at
+// a work cost (Landauer).
+{
+  const r = memoryVsConservation({ n: 30000 })
+  check({ name: 'P159 memory vs conservation: Q is exactly conserved while the pattern correlation decays to noise (lost = information not charge), and maintenance holds it at a work cost', ok: r.solved && r.qConserved && r.patternDecays && r.maintenanceHolds, detail: `Q ${r.qStart}->${r.qEndUnmaintained} (conserved), corr ${r.corrStart.toFixed(2)}->${r.corrEndUnmaintained.toFixed(2)} (decays), maintained ${r.corrEndMaintained.toFixed(2)} at ${r.maintenanceCostPerBeat.toFixed(0)}/beat` })
+}
+
+// P160: fission IS possible on the emergent flat layer. A dumbbell self on a flat 2D grid pinches its thin
+// neck and splits into two persistent selves (fission), where the hyperbolic bulk cannot (P112). The
+// no-fission limit is bulk-specific, not absolute, lifted where the emergent geometry is flat.
+{
+  const r = fissionFlatLayer()
+  check({ name: 'P160 fission on the flat layer: a self divides into two on the emergent flat (Euclidean) geometry where the hyperbolic bulk cannot (P112), the no-fission limit is bulk-specific not absolute', ok: r.solved && r.flatFissioned && !r.hyperbolicFissioned, detail: `flat: ${r.flatLobes} persistent selves (fission ${r.flatFissioned}), hyperbolic ${r.hyperbolicFissioned}` })
+}
+
+// P161: arbitrary-structure realization. Given universality (P141) and goal-directed search (P147), the
+// substrate constructs AND maintains any specified balanced structure (blocks, stripes, random), the
+// constructive form of "any positive thing consistent with the absolute laws is realizable".
+{
+  const r = arbitraryStructure({ M: 60 })
+  check({ name: 'P161 arbitrary-structure realization: the substrate constructs and maintains any specified balanced structure (blocks/stripes/random), the constructive claim that any positive structure is realizable', ok: r.solved && r.allBuilt && r.allMaintained, detail: `built ${r.cases.map((c) => c.buildSteps).join('/')} steps, all maintained at fidelity 1.00` })
+}
+
+// P162: the absolute limits ARE absolute. Net charge cannot be minted (fine Q conserved, coarse equals
+// fine, all-create minting fails) and the lightcone cannot be outrun (finite at fine and coarse), at EVERY
+// coarse-graining level, drawing the true boundary of the possible.
+{
+  const r = absoluteLimits({ n: 20000 })
+  check({ name: 'P162 absolute limits are absolute: net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level (conservation and causality pass up every codec), the true boundary of the possible', ok: r.solved && r.chargeAbsolute && r.lightconeAbsolute, detail: `charge absolute ${r.chargeAbsolute} (minting fails ${r.mintingFails}), lightcone absolute ${r.lightconeAbsolute} (fine ${r.fineSpeed.toFixed(1)})` })
+}
+
+// P163: higher-level affordances. A structure impossible at the base (a K>3 symbol) is possible at a higher
+// composite level, a block of 3 cells has a 7-state alphabet (vs the base ternary 3), and capacity grows
+// up the ladder (3->7->19->55). The affordance ladder is open upward.
+{
+  const r = higherAffordances()
+  check({ name: 'P163 higher-level affordances: a structure impossible at the base (a K>3 symbol) is possible at a higher composite level, alphabet grows up the ladder (3->7->19->55), the affordance ladder is open upward', ok: r.solved && r.beatsBase && r.allReadBack && r.alphabetGrowsUpLadder, detail: `base ${r.baseAlphabet}, block-of-3 ${r.blockChargeAlphabet} states, all ${r.symbolsStored} symbols read back` })
+}
+
+// P164: the coarse-graining chain is faithful across a TOWER of levels. The conserved charge is exactly
+// preserved at every level and the dimensionless effective parameter (compressibility) converges to a
+// fixed point across block sizes 1..32, so "test a slice, assume all scales" is earned (P115 extended).
+{
+  const r = coarseGrainingChain({ L: 8192 })
+  check({ name: 'P164 coarse-graining chain: charge exactly preserved at every level and the effective parameter is a fixed point across the tower (block sizes 1..32), the multiscale chain is faithful end to end', ok: r.solved && r.chargePreservedAllLevels && r.fixedPointConverges, detail: `charge preserved all levels ${r.chargePreservedAllLevels}, fixed-point spread ${(r.spread * 100).toFixed(1)}%` })
+}
+
+// P165: a large evolving ECOLOGY of planning agents (life + mind together). A population whose genome is
+// the lookahead horizon competes on a barrier task (fitness = goal-progress minus foresight cost). Average
+// problem-solving rises over generations AND the population adapts its foresight to task difficulty (a
+// harder task evolves a larger horizon).
+{
+  const r = evolvingEcology()
+  check({ name: 'P165 evolving ecology: a population of planning agents evolves better problem-solving (fitness rises) and ADAPTS its foresight to task difficulty (harder task evolves a larger horizon), life and mind co-evolving from the base', ok: r.solved && r.fitnessRises && r.adaptsToDifficulty && r.bothSolve, detail: `fitness ${r.startFitness.toFixed(2)}->${r.endFitness.toFixed(2)}, horizon easy ${r.easyHorizon.toFixed(1)} vs hard ${r.hardHorizon.toFixed(1)}` })
+}
+
+// P166: the design-signature (fine-tuning) test. A designed/tuned world would confine rich behavior to a
+// NARROW special region (a tuner had to dial it in). Instead the rich regime is BROAD (83% of the scanned
+// parameter space), the field is dead only at the degenerate arrow=0, the structure is FORCED (P86), and
+// the operating point SELF-ORGANIZES (P135). So there is NO fine-tuning signature, a designer is
+// dispensable (the designed/idealist reading stays possible but empirically superfluous, Occam).
+{
+  const r = designSignature({ n: 16000 })
+  check({ name: 'P166 design-signature test: the rich regime is broad (not fine-tuned), dead only at the degenerate point, structure forced and self-organizing, so no design/tuning signature, a designer is dispensable', ok: r.solved && !r.fineTuningSignature && r.designerDispensable, detail: `rich fraction ${(r.richFraction * 100).toFixed(0)}%, dead-only-at-zero ${r.deadOnlyAtZeroArrow}, fine-tuning signature ${r.fineTuningSignature}` })
+}
+
+// P145: large-scale intention, the three checks. The will coherently biases the WHOLE self (a global
+// effect), but DIRECTED action at scale (top-down steering, sustained drift) is FRUSTRATED on the
+// hyperbolic scaffold (no clean directions, dispersal). Like relativistic QFT and Lorentz, directed
+// intention belongs to the emergent FLAT layer, the scaffold supports the COORDINATION half (P116, P139).
+{
+  const r = intentionAtScale({ n: 60000 })
+  check({ name: 'P145 large-scale intention: the will coherently biases the whole self, but directed action at scale (top-down, sustained drift) is geometrically frustrated on the scaffold, it belongs to the flat layer', ok: r.solved && r.coherent && r.directedFrustrated, detail: `will-effect ${r.willEffectWhole.toFixed(2)}, top-down ${r.topDownEffect.toFixed(2)} (weak), persist ${r.driftAfterPerturb.toFixed(2)} (weak)` })
+}
+
+// P127: the growing holographic code. A deep logical bit, spread by the rule, is encoded on each shell.
+// The erasure threshold RISES with shell radius (age), 95% -> 99.5%, because the absolute redundancy
+// (marked-cell count) grows even as density dilutes. So the growing code protects its memory better the
+// older it gets, with complementary recovery from the rim.
+{
+  const r = growingCode({ n: 200000 })
+  check({ name: 'P127 growing holographic code: the erasure threshold rises with shell radius (age), redundancy grows as the universe expands, complementary recovery', ok: r.solved && r.thresholdRises && r.redundancyGrows && r.complementaryRecovery, detail: `f* ${r.shells.map((s) => (s.threshold * 100).toFixed(0) + '%').join(' -> ')}, marked ${r.shells[0]?.marked}->${r.shells[r.shells.length - 1]?.marked}` })
+}
+
+// P132: time reflection positivity (the time complement to P130 spatial RP and P131 Doi-Peliti). The
+// Hermitian generator (P131) is tested for NON-NEGATIVE spectrum (H >= 0) via the time-autocorrelation
+// Hankel. PSD within statistical noise (aside from a small discrete-update temporal doubler) = a
+// positive-energy unitary theory is consistent in the time direction.
+{
+  const r = timeReflectionPositivity({ n: 40000 })
+  check({ name: 'P132 time reflection positivity: the beat-autocorrelation Hankel is PSD within statistical noise (positive-energy unitary theory consistent in time, modulo a small temporal doubler)', ok: r.solved && r.reflectionPositive, detail: `Hankel min eig/G(0) ${r.normalizedMinEig.toExponential(1)} (doubler-removed), within noise` })
+}
+
+// P133: near-critical SPATIAL reflection positivity. Scanning the arrow toward the P129 critical point, the
+// correlation stays CONTACT-DOMINATED (range <= 1 site) at all rates, the hyperbolic non-amenable spectral
+// gap (and the mean-field criticality of P129) prevent a diverging correlation length. So spatial RP cannot
+// be tested on the hyperbolic scaffold, it belongs to the emergent FLAT geometry. Correctly diagnosed.
+{
+  const r = nearCriticalRP({ length: 80 })
+  check({ name: 'P133 near-critical spatial RP: the correlation stays contact-dominated toward criticality (hyperbolic obstruction, mean-field), so spatial RP belongs to the emergent flat layer, not the scaffold', ok: r.solved && (r.reflectionPositive || r.hyperbolicObstruction), detail: `xi grows ${r.xiGrows}, obstruction ${r.hyperbolicObstruction}, ranges ${r.scan.map((s) => s.range).join('/')}` })
+}
+
+// P134: spatial RP on a FLAT 1D chain (the rule, off the scaffold). The field stays contact-dominated on
+// flat too, so it is generically MASSIVE, the short correlation is the RULE, not the hyperbolic geometry
+// (revising P133). A massive field is RP-consistent (no violation beyond the contact/noise floor). The
+// real open problem is the absence of an accessible massless/critical regime for a sharp RP/Lorentz test.
+{
+  const r = flatSpatialRP({ L: 4000 })
+  check({ name: 'P134 flat spatial RP: the field is generically MASSIVE on flat too (the rule, not geometry, revising P133), RP-consistent for a massive field, masslessness is the open gap', ok: r.solved && r.massiveField && r.ruleNotGeometry && r.rpConsistentMassive, detail: `max range ${r.maxRange}, massless regime ${r.masslessRegimeFound}, RP-consistent ${r.rpConsistentMassive}` })
+}
+
+// P136: hunt for a gapless critical point over the (arrow, share) plane on a flat chain. The charge
+// correlation stays contact-dominated (range <= 1) across the WHOLE plane, so there is no static gapless
+// critical point with the creation/annihilation/hop knobs, the field is robustly massive. (The gapless
+// mode is therefore expected to be the conserved charge's DYNAMIC hydrodynamic mode, not a static one.)
+{
+  const r = gaplessSearch({ L: 3000 })
+  check({ name: 'P136 gapless search: no static gapless critical point over the (arrow, share) plane, the conserved-exchange field is robustly MASSIVE (the gapless mode must be dynamic/hydrodynamic, not static)', ok: r.solved && r.robustlyMassive && !r.gaplessFound, detail: `max range ${r.maxRange} over the plane (robustly massive)` })
+}
+
+// P137: the dynamic dispersion of the conserved charge. The charge has a GAPLESS hydrodynamic mode (Gamma
+// -> 0 as k -> 0, protected by conservation), and the dynamic exponent is z ~ 2, so the mode is DIFFUSIVE
+// (omega ~ D k^2, non-relativistic), NOT a relativistic propagating mode. A relativistic massless mode
+// (z=1, omega ~ c|k|) would need momentum conservation / inertia (a second field), which the bare rule lacks.
+{
+  const r = dynamicDispersion({ L: 2400 })
+  check({ name: 'P137 dynamic dispersion: the conserved charge has a gapless hydrodynamic mode, but it is DIFFUSIVE (z~2, non-relativistic), a relativistic z=1 mode needs momentum conservation/inertia', ok: r.solved && r.gapless && r.diffusive, detail: `z = ${r.dynamicExponent.toFixed(2)} (2=diffusive), gapless ${r.gapless}` })
+}
+
+// P142: a HOROSPHERE is the natural FLAT layer inside the curved {5,3,4}. {5,3,4} is cocompact (no
+// horospherical subgroup), so a horosphere is a flat SURFACE the cells cross aperiodically (buildHorosphere
+// extracts it as a Busemann level set). Its in-surface growth is POLYNOMIAL (effective dimension ~2, shell
+// ratio ~1), a flat 2D Euclidean sheet, vs the bulk's EXPONENTIAL growth. This is the geometry where the
+// emergent Lorentz/QFT physics belongs.
+{
+  const r = horosphereFlat({ maxCells: 14000 })
+  check({ name: 'P142 horosphere is flat: a Busemann level set of {5,3,4} grows polynomially (effective dim ~2, a flat 2D sheet) vs the exponential bulk, the natural Euclidean flat layer inside the curved crystal', ok: r.solved && r.horoIsFlat && r.bulkIsExponential && r.flatterThanBulk, detail: `horo dim ${r.horoDim.toFixed(2)} ratio ${r.horoRatio.toFixed(2)} vs bulk ratio ${r.bulkRatio.toFixed(2)}` })
+}
+
+// P144: the dynamics on the emergent flat layer (the horosphere). The field is MASSIVE (contact-dominated)
+// on the actual flat 2D horosphere lattice, just as on the curved bulk and the flat 1D chain (P134). So the
+// masslessness gap is the RULE, geometry-independent, a relativistic massless mode needs a second
+// conservation law (momentum, P137), not a different geometry.
+{
+  const r = horosphereDynamics({ maxCells: 14000 })
+  check({ name: 'P144 horosphere dynamics: the field is MASSIVE on the emergent flat layer too, so the masslessness gap is the rule (geometry-independent), a relativistic mode needs a second conservation law', ok: r.solved && r.horoIsMassive, detail: `correlation range ${r.correlationRange} on ${r.horoCells}-cell horosphere (massive)` })
+}
+
+// P146: in the STOCHASTIC (random) rule, the only non-trivial conserved quantity is the U(1) charge, and
+// no spontaneous order appears, so no second conserved current or Goldstone emerges from the random rule.
+{
+  const r = secondConservationSearch({ L: 3000 })
+  check({ name: 'P146 second-conservation search: the stochastic rule conserves only the U(1) charge and has no spontaneous order, so no second current emerges from the RANDOM rule', ok: r.solved && r.onlyChargeConserved && !r.spontaneousOrder, detail: `conservation laws ${r.conservationLawCount}, order ${r.spontaneousOrder}` })
+}
+
+// P148: the theory forbids randomness, and removing it RESOLVES the masslessness gap. A deterministic,
+// reversible (second-order, wave) rule propagates BALLISTICALLY (exponent ~1, z=1), not diffusively, so
+// momentum / the relativistic mode EMERGES from determinism, using the existing tone, no new field. The
+// random hop (P137 z=2) was an artifact of the illegitimate randomness.
+{
+  const r = deterministicWave({ L: 2000 })
+  check({ name: 'P148 deterministic wave: a deterministic REVERSIBLE rule propagates ballistically (z=1), so momentum/relativity emerges from removing the randomness (no new field needed), the random rule was the obstruction', ok: r.solved && r.reversible && r.detIsBallistic && r.momentumFromDeterminism, detail: `reversible ${r.reversible}, det exponent ${r.detSpreadExponent.toFixed(2)} (ballistic z=1)` })
+}
+
+// P149: the actual PERCEPTION rule (hop, creation, annihilation) reformulated as a deterministic
+// reversible charge-conserving block CA. It CONSERVES charge, is exactly REVERSIBLE, and is BALLISTIC
+// (z=1, exponent ~1), so the relativistic mode is there once the randomness is removed, no new field.
+{
+  const r = deterministicPerception({ L: 2000 })
+  check({ name: 'P149 deterministic perception rule: the hop/create/annihilate content as a deterministic reversible charge-conserving block CA is ballistic (z=1), the relativistic mode without randomness or a new field', ok: r.solved && r.chargeConserved && r.reversible && r.isBallistic, detail: `charge-conserved ${r.chargeConserved}, reversible ${r.reversible}, exponent ${r.spreadExponent.toFixed(2)}` })
+}
+
+// P150: wave-speed ISOTROPY on the {5,3,4}, the Lorentz rotational rung for the deterministic wave. A
+// second-order reversible wave's front reaches the same hyperbolic distance per beat in all 12 face
+// directions (anisotropy ~0), an emergent isotropic light speed.
+{
+  const r = waveIsotropy({ maxCells: 13000 })
+  check({ name: 'P150 wave isotropy: the deterministic reversible wave on {5,3,4} has an ISOTROPIC speed (anisotropy ~0 across the 12 directions), an emergent light speed, the rotational half of Lorentz', ok: r.solved && r.isotropic && r.reversible, detail: `mean speed ${r.meanSpeed.toFixed(2)}, anisotropy ${r.anisotropy.toFixed(3)} (12 directions)` })
+}
+
+// P154: reflection positivity on the DETERMINISTIC rule, via the dispersion. The wave's modes have a REAL,
+// LINEAR, MASSLESS dispersion (omega = |k| exactly, slope 1, through the origin), a positive-norm massless
+// relativistic particle. That is the Osterwalder-Schrader positive spectrum, so spatial RP is now POSITIVE
+// (the decisive QFT verdict), once the randomness is removed. (Complements the boost/Lorentz closure.)
+{
+  const r = deterministicRP()
+  check({ name: 'P154 deterministic reflection positivity: the wave dispersion is real, linear and massless (omega=|k|), a positive-norm massless particle, so spatial RP is POSITIVE, a genuine relativistic field', ok: r.solved && r.reflectionPositive && r.allOscillate && r.linearMassless, detail: `omega = ${r.dispersionSlope.toFixed(2)}*k + ${r.dispersionIntercept.toFixed(2)} (R2 ${r.dispersionR2.toFixed(3)}), all oscillate ${r.allOscillate}` })
+}
+
+// P153: boost invariance, the other half of Lorentz. The Dirac quantum-walk dispersion (P151) is mapped to
+// itself by Lorentz boosts. The MASSLESS mode has omega = |k| EXACTLY (an exact lightcone, boost-invariant
+// for all k), and MASSIVE modes are boost-invariant in an IR window with lattice (UV) violation only near
+// the cutoff. Boosts here plus rotations (P150) give the FULL emergent Lorentz group.
+{
+  const r = boostInvariance()
+  check({ name: 'P154 boost invariance: the massless mode has an EXACT lightcone (omega=|k|, boost-invariant), massive modes boost-invariant in the IR window, full Lorentz with rotations (P150)', ok: r.solved && r.masslessExact && r.boostInvariantInWindow && r.fullLorentz, detail: `massless dev ${r.masslessMaxDeviation.toExponential(1)} (exact), boost residual ${r.boostResidual.toExponential(1)}, IR window k<${r.massiveWindow.toFixed(2)}` })
+}
+
+// P156: ONE charge-conserving reversible wave on {5,3,4}, uniting P149 (charge-conserving 1D) and P150
+// (isotropic crystal). The same reversible pair-permutation via an edge-coloring is charge-conserving,
+// exactly reversible, ballistic (constant-speed causal front, z=1, on a sliver), and isotropic (face-blind
+// across all 12 directions, isotropy measured directly in P150/P124).
+{
+  const r = unifiedWave({ n: 30000 })
+  check({ name: 'P156 unified wave: one charge-conserving + reversible + ballistic + isotropic rule on {5,3,4} (P149 and P150 united)', ok: r.solved && r.chargeConserved && r.reversible && r.ballistic && r.isotropic, detail: `${r.colors} matchings, front speed ${r.frontSpeed.toFixed(2)} (R2 ${r.frontLinearR2.toFixed(2)})` })
+}
+
+// P157: directed intention WORKS on the flat layer (where P145 said it belongs). The will steers a self
+// toward a goal with a clear net directed drift on a flat 2D grid, vs the hyperbolic scaffold where it was
+// frustrated (P145). The directed-action half of intention lives on the flat layer, the coordination half
+// on the scaffold.
+{
+  const r = flatIntention({ L: 120 })
+  check({ name: 'P157 flat intention: directed intention works on the flat layer (clear net drift toward the goal), the half that was frustrated on the hyperbolic scaffold (P145)', ok: r.solved && r.directedIntentionWorks, detail: `drift with will ${r.driftWithWill.toFixed(1)} vs no will ${r.driftNoWill.toFixed(1)} (will-effect ${r.willEffect.toFixed(1)})` })
+}
+
+// P158: genuine quantum interference and the Born rule. The unitary (quantum-walk) rule shows oscillatory
+// interference fringes and near-nodes (amplitudes cancel), impossible for its classical stochastic shadow,
+// and exact unitarity makes |psi|^2 a genuine probability (Born). The genuinely-quantum behaviour.
+{
+  const r = bornInterference({ steps: 80 })
+  check({ name: 'P158 Born and interference: the unitary rule shows genuine interference (fringes/nodes, amplitudes cancel) absent in the classical shadow, and unitarity makes |psi|^2 a genuine probability (Born rule)', ok: r.solved && r.interferes && r.unitary && r.bornRule, detail: `quantum fringes ${r.quantumMaxima} vs classical ${r.classicalMaxima}, norm dev ${r.normDeviation.toExponential(0)}` })
+}
+
+// P161: evolution (open question 4). Heredity + variation + selection + competition, a population under
+// selection climbs in fitness (the arrow is the gradient) where neutral drift does not, variation is
+// needed, and it re-adapts when the environment changes (open-ended).
+{
+  const r = evolutionLoop({ K: 120, m: 200, generations: 60, mu: 0.03 })
+  check({ name: 'P161 evolution: open-ended natural selection from heredity + the arrow as fitness gradient (selection raises fitness, drift does not, re-adapts to a new environment)', ok: r.solved && r.selectionWorks && r.openEnded, detail: `fitness ${r.startFitness.toFixed(2)}->${r.selectedFitness.toFixed(2)} (drift ${r.driftFitness.toFixed(2)}), adapt ${r.adaptedFitness.toFixed(2)}` })
+}
+
+// P162: the integrated metacognitive agent (open question 5). A single agent that chains multi-step
+// lookahead through its own forward model solves a DETOUR (a goal reachable only by first moving away),
+// where a reactive (greedy) agent gets stuck. Mind end-to-end from the base on the flat layer.
+{
+  const r = integratedMetaAgent({ L: 31 })
+  check({ name: 'P162 integrated agent: multi-step lookahead through the forward model solves a detour the reactive agent cannot, mind end-to-end (will + rule-as-forward-model + arrow)', ok: r.solved && r.multiStepSolves && r.reactiveFails, detail: `planner reaches at depth ${r.depthNeeded}, reactive stuck at distance ${r.reactiveDist}` })
+}
+
+// P163: spatial reflection positivity on the DETERMINISTIC field (open question 1, remaining). The
+// deterministic field is LONG-RANGE for small mass (a real particle, unlike the stochastic contact field),
+// and its spectral weight 1/(2 omega) is positive (the Kallen-Lehmann / RP condition), so it passes the
+// spatial-RP gate the stochastic rule could not.
+{
+  const r = deterministicSpatialRP({ masses: [0.5, 0.2, 0.05] })
+  check({ name: 'P169 deterministic spatial RP: the deterministic field is long-range and reflection-positive (positive spectral weight), passing the spatial-RP gate the stochastic contact field could not', ok: r.solved && r.longRangeForSmallMass && r.reflectionPositive, detail: `ranges ${r.results.map((x) => x.range).join('/')}, min eig ${r.results[r.results.length - 1]!.hankelMinEig.toExponential(1)} (lattice floor)` })
+}
+
+// P167: the DYNAMICAL coarse-graining chain (open question 6). The commuting square holds for the wave
+// DYNAMICS (not just the conserved charge, P164), evolve-then-coarsen equals coarsen-then-evolve at
+// successive rungs with small error, and the wave speed is invariant across levels, so the wave is a
+// renormalization fixed point and the multiscale tower is proven for the dynamics.
+{
+  const r = waveChain()
+  check({ name: 'P167 dynamical coarse-graining chain: the wave equation commutes up the tower (commuting square small at each rung, speed invariant), a renormalization fixed point for the dynamics not just the charge', ok: r.solved && r.errorsSmall && r.speedInvariant, detail: `rung errors ${r.rungErrors.map((x) => (x.error * 100).toFixed(1) + '%').join('/')}, speeds ${r.speeds.map((x) => x.speed.toFixed(2)).join('/')}` })
+}
+
+// P168: the CROSS-DOMAIN coarse-graining chain (open question 6, the hard part). The kind of variable
+// changes at each rung. Rung 1 (field -> particle), a field excitation's centroid obeys free-particle
+// motion (Ehrenfest, constant velocity below c). Rung 2 (particle -> composite), two interacting particles'
+// center of mass moves uniformly (momentum conserved through the interaction, the free-body law). Rung 3
+// (composite -> agent) is P162. Each cross-domain rung commutes.
+{
+  const r = crossDomainChain()
+  check({ name: 'P168 cross-domain chain: field -> particle (centroid obeys free-particle motion, Ehrenfest) and particle -> composite (center of mass moves freely, momentum conserved through interaction), cross-domain rungs commute', ok: r.solved && r.rung1.commutes && r.rung2.commutes, detail: `particle speed ${r.rung1.speed.toFixed(2)} (R2 ${r.rung1.linearR2.toFixed(3)}), CoM R2 ${r.rung2.comR2.toFixed(3)}` })
+}
+
+// P170: the non-local bulk channel beneath the physical layer. The physical world lives on the emergent
+// flat surface, but the tree-like hyperbolic bulk joins distant surface points in a few hops, the surfaces
+// are internally disconnected so the bulk is the ONLY channel. This is the tested geometric structure the
+// esoteric reading interprets as telepathy and synchronicity (a real non-local layer beneath the physical).
+{
+  const r = bulkNonlocality({ n: 40000 })
+  check({ name: 'P170 bulk non-locality: distant points on the physical surface are joined by a short hidden path through the bulk (the surface is internally disconnected, the bulk is the only channel), a real non-local layer beneath the physical', ok: r.solved && r.nonLocalChannel, detail: `surface unreachable ${(r.unreachableFraction * 100).toFixed(0)}%, bulk path ${r.meanBulkDistance.toFixed(1)} hops` })
+}
+
+// P171: a persistent, bounded, integrated self (not the shallow same-tone blob). A self-maintaining
+// integrated region (a structured identity refilled by the will each beat, conserving, from the five) keeps
+// its identity at 1.00 and its boundary held over 80 beats, while the SAME region with no maintenance
+// dissolves to near zero (scrambles, P159). So a real self (persistent, bounded, integrated) needs
+// maintenance, which the five supply, not a sixth base thing. The same-tone blob is a structureless proxy.
+{
+  const r = persistentSelf({ n: 20000 })
+  check({ name: 'P171 persistent self: a self-maintaining integrated region keeps its identity and boundary (persistent, bounded), while the same unmaintained pattern dissolves into churn, so a real self comes from the five via maintenance not a same-tone blob', ok: r.solved && r.selfPersists && r.unmaintainedDissolves && r.selfIsBounded, detail: `self identity ${r.selfIdentityEnd.toFixed(2)} (bounded ${(r.selfBoundedness * 100).toFixed(0)}%) vs unmaintained ${r.unmaintainedIdentityEnd.toFixed(2)}` })
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)

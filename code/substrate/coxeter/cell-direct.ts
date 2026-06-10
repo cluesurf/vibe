@@ -207,3 +207,70 @@ export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): 
     hit,
   }
 }
+
+// Extract a HOROSPHERE patch from a hyperbolic honeycomb, the natural FLAT (Euclidean) sheet inside the
+// curved crystal. Because {5,3,4} is COCOMPACT (no parabolic elements, no cusps), a horosphere is NOT a
+// reflection subgroup, it is a flat SURFACE the cells cross aperiodically. We pick an ideal point xi on
+// the boundary at infinity (the direction of the farthest cell), compute the Busemann function toward xi
+// (whose level sets ARE the horospheres), and keep the cells in a thin band around one level. The induced
+// subgraph is a flat 2D sheet, verified by its POLYNOMIAL (not exponential) growth.
+export interface HorospherePatch {
+  readonly cellCount: number
+  readonly neighbors: number[][] // induced adjacency among band cells (reindexed)
+  readonly coords: number[][]
+  readonly busemann: number[]
+  readonly idealPoint: number[]
+}
+
+export function buildHorosphere(input: { symbol?: number[]; maxCells?: number; bandHalfWidth?: number; level?: number }): HorospherePatch {
+  const symbol = input.symbol ?? [5, 3, 4]
+  const g = buildCellGraph({ symbol, maxCells: input.maxCells ?? 12000 })
+  const coords = g.coords
+  const n = g.cellCount
+  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
+  // ideal point xi = direction of the farthest cell (closest to the boundary), projected to the sphere
+  let far = 0
+  let fr = -1
+  for (let i = 0; i < n; i++) {
+    const r = norm(coords[i]!)
+    if (r > fr) {
+      fr = r
+      far = i
+    }
+  }
+  const fc = coords[far]!
+  const fn = norm(fc)
+  const xi = fc.map((v) => v / fn)
+
+  // Busemann function b(x) = log( |x - xi|^2 / (1 - |x|^2) ), level sets are the horospheres tangent at xi
+  const bus: number[] = coords.map((x) => {
+    let d2 = 0
+    for (let k = 0; k < x.length; k++) d2 += (x[k]! - xi[k]!) ** 2
+    const r2 = x.reduce((s, v) => s + v * v, 0)
+    return Math.log(d2 / Math.max(1e-12, 1 - r2))
+  })
+
+  const level = input.level ?? 0 // the horosphere through the origin
+  const half = input.bandHalfWidth ?? 0.3
+  const inBand: number[] = []
+  const reindex = new Int32Array(n).fill(-1)
+  for (let i = 0; i < n; i++) if (Math.abs(bus[i]! - level) < half) {
+    reindex[i] = inBand.length
+    inBand.push(i)
+  }
+  const neighbors: number[][] = inBand.map(() => [])
+  for (let a = 0; a < inBand.length; a++) {
+    for (const w of g.neighbors[inBand[a]!]!) {
+      const b = reindex[w]!
+      if (b >= 0) neighbors[a]!.push(b)
+    }
+  }
+  return {
+    cellCount: inBand.length,
+    neighbors,
+    coords: inBand.map((i) => coords[i]!),
+    busemann: inBand.map((i) => bus[i]!),
+    idealPoint: xi,
+  }
+}
