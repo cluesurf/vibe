@@ -1,0 +1,176 @@
+\section{Hyperbolic Geometry and Tilings}
+
+The crystal of experience does not float in featureless space. It lives in a space with a definite shape,
+and that shape is the first thing the theory borrows from mathematics. Most of physics quietly assumes flat
+space and adds curvature only when gravity forces the issue. The present model does the reverse. It begins
+from curvature, because a structure that must grow forever needs room that flat space cannot provide.
+
+This section builds the geometric intuition. We describe the three shapes a space can have, show how a
+resident can tell them apart from the inside, settle into hyperbolic space and its Poincare-disk portrait,
+explain why such a space keeps opening up while still reading as flat to anyone living in it, and tie the
+angle argument back to the $\{5,3,4\}$ crystal at the center of the theory.
+
+\subsection{The three shapes a space can have}
+
+There are exactly three uniform geometries, and all three are already familiar from ordinary surfaces. The
+mental move is to stop seeing them as bent sheets inside our world and to see each as a whole world in its
+own right.
+
+Take a flat tabletop. Draw a triangle. Its three angles sum to exactly $180$ degrees. Parallel lines hold
+the same distance forever. A circle of radius two has exactly twice the rim of a circle of radius one. This
+is flat space, the geometry of Euclid. Its curvature is zero.
+
+Now take the surface of a ball. Draw a large triangle from the north pole down to the equator, a quarter of
+the way along the equator, then back up to the pole. Every corner is a right angle, so the angles sum to
+$270$ degrees, more than $180$. Lines that start out parallel, such as two lines of longitude at the
+equator, bend toward each other and meet at the pole. Room runs out. This is round space, positively
+curved. A sphere is finite. You can walk all the way around and return home.
+
+Now imagine the opposite. A surface shaped like a saddle, or the ruffled edge of a leaf. Draw a triangle on
+it and the angles sum to less than $180$ degrees. Lines that start parallel curve away from each other and
+never meet. There is always more room than expected. This is hyperbolic space, negatively curved. It is the
+setting for everything that follows.
+
+\begin{table}[h]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllll}
+\toprule
+Geometry & Curvature & Triangle angle sum & Parallels through a point & Ball growth & Regular tilings of the plane \\
+\midrule
+Spherical & positive & greater than $180$ degrees & none & bounded & finitely many (the Platonic solids) \\
+Euclidean & zero & exactly $180$ degrees & exactly one & polynomial & exactly three \\
+Hyperbolic & negative & less than $180$ degrees & infinitely many & exponential & infinitely many \\
+\bottomrule
+\end{tabular}}
+\caption{The three uniform geometries and how to tell them apart from inside.}
+\label{tab:three-geometries}
+\end{table}
+
+\subsection{Telling them apart from inside}
+
+The key point is that a resident need not leave a space to know its curvature. Curvature is measurable from
+within, by checking how much room there is. This matters, because we are stuck inside our own universe with
+no outside vantage point. Every test below is one a resident can run.
+
+The cleanest test is the angle sum of a triangle. Flat space gives exactly $180$ degrees, round space gives
+more, hyperbolic space gives less. The gap from $180$ is proportional to the area of the triangle, so the
+larger the triangle, the louder curvature speaks.
+
+The next test is the fate of parallel lines. In flat space they hold their distance forever. In round space
+they converge and cross. In hyperbolic space they spread apart and race away from each other.
+
+The deepest test, and the one that drives the theory, is the growth of balls. Stand at a point and ask how
+many places sit within one step, within two, within ten. In flat space the room grows steadily, with the
+area inside a circle growing as the square of the radius. Double the radius and the room is four times
+larger. This is polynomial growth. In round space the room grows and then shrinks back as the space wraps
+around on itself. It runs out.
+
+In hyperbolic space the room grows faster and faster, exploding outward. The amount within a given distance
+does not merely grow. It grows exponentially. That last fact is the whole reason hyperbolic space matters
+here. It has, in a precise sense, endless room near every point. The further you look, the more the world
+opens up. The general theory of these growth rates and the geometry of negative curvature is developed by
+Cannon and collaborators \cite{cannon1997}.
+
+\subsection{Hyperbolic space and the Poincare disk}
+
+Our eyes were built for flat space, so hyperbolic space feels alien at first. One picture tames it. You
+cannot draw the whole of hyperbolic space honestly on a flat page, because there is too much of it, but
+there is a faithful way to squeeze all of it into a finite circle. It is the Poincare disk, the device
+behind the Escher prints in which figures shrink as they march toward the rim.
+
+Read it as follows. The entire infinite hyperbolic plane is shown inside one round disk. The catch is the
+scale. Near the center, distances look normal. Toward the rim, everything is drawn smaller and smaller. A
+shape near the edge looks tiny on the page, but in the real hyperbolic world it is exactly the same size as
+a shape in the middle. The shrinking is an artifact of cramming infinity into a circle, not a fact about the
+space itself.
+
+Two consequences follow. First, the rim is infinitely far away. As you walk toward the edge, your steps are
+drawn shorter and shorter on the page, so you never arrive. The edge is not a wall. It is the horizon at
+infinity. Second, there is always more room out there. Because room opens up exponentially, the closer you
+get to the rim, the more cells fit into each ring. The crowd at the edge outnumbers everything inside it.
+
+In the Poincare disk the shortest path between two points is drawn as an arc that bows gently toward the
+center. This looks wrong to a flat-space eye, but it is correct. That bowed arc is the cheapest route. The
+straight, cheap paths run through the deep interior, not along the crowded rim. The disk also seems to have
+a special center, but that is a lie of the drawing. Hyperbolic space looks exactly the same from every
+point and along every direction. You can slide the picture so any point becomes the center, and nothing
+about the geometry changes. Our universe has no preferred direction either, and a crystal built in this
+directionless space inherits that property for free.
+
+\subsection{The tiny diameter}
+
+Because the count of cells explodes exponentially with distance, the reverse is also true. To reach a vast
+number of cells you need travel only a tiny distance. Pack a billion cells around a point and the farthest
+of them sits a few steps away, not a billion steps. In flat space a billion cells would force a walk of
+roughly a thousand steps out. In hyperbolic space the same billion crowd into a ball of small radius. A
+hyperbolic structure of astronomical size can have a diameter that barely grows at all. If everything is
+close in graph distance, influence does not have to crawl across a wide expanse. This is the geometric root
+of the non-local field that underlies the flat layer we live on.
+
+If space is genuinely saddle-shaped, why does the room around you look flat? For the same reason the Earth
+looks flat from a sidewalk. Any curved space looks flat in a small enough patch. Curvature reveals itself
+only over large distances or in fine structure. We live in a patch, so day to day space reads as ordinary
+and Euclidean.
+
+There is a sharper version of this for hyperbolic space. A horosphere, the limit of a sphere whose center
+has drifted off to infinity, has an internal geometry that is perfectly flat. It is a genuine Euclidean
+sheet sitting inside a curved world, and the layer we experience as ordinary flat space is exactly this kind
+of surface. Curved underneath, flat to the touch.
+
+\subsection{The shape decides the curvature}
+
+A tiling is a way of covering a space with copies of shapes that fit together with no gaps and no overlaps.
+The shapes are the tiles, or cells. A tiling is regular when all tiles are the same regular shape and every
+vertex looks identical to every other. The same number of tiles meet at each corner, arranged the same way.
+A regular tiling has no preferred location and no tunable knobs. Once the cell and the vertex arrangement
+are named, the whole infinite pattern is determined.
+
+Stand at a single vertex where tiles meet and add up the corner angles of the tiles that surround it. That
+sum is the vertex angle total, and everything follows from comparing it to a full turn of $360$ degrees. If
+the angles total exactly $360$ degrees, the tiles lie perfectly flat, and the space is Euclidean. If they
+total less than $360$ degrees, there is a wedge of missing angle at each vertex, and to close that gap the
+surface must pucker inward into a ball, which is positive curvature. If they total more than $360$ degrees,
+there is too much angle to lie flat, and the surface must ruffle outward into a saddle, which is negative
+curvature.
+
+The missing or surplus wedge is the angle defect. This is the central move. The angle total at each vertex
+is a curvature dial, and because the angle total is fixed entirely by the tile shape and how many tiles
+meet, the tile choice and the curvature are one decision, not two.
+
+The flat plane allows exactly three regular tilings.
+\begin{itemize}
+\item Triangles, six to a corner.
+\item Squares, four to a corner.
+\item Hexagons, three to a corner.
+\end{itemize}
+That is the complete list. The reason is arithmetic. Squares contribute $90$ degrees each, so four make
+$360$. Triangles contribute $60$, so six make $360$. Hexagons contribute $120$, so three make $360$.
+Pentagons contribute $108$, and no whole number of these lands on $360$, so the pentagon is exiled from the
+flat plane.
+
+Two everyday examples sharpen the picture. The checkerboard is the square tiling with its tiles two-colored
+in alternation. The coloring changes nothing about the geometry, but it reveals a bipartite structure in
+which every tile borders only tiles of the opposite color. The soccerball, the truncated icosahedron of
+twelve pentagons and twenty hexagons fitted onto a sphere, is the shape of the $\mathrm{C}_{60}$ molecule,
+and it carries the same fivefold symmetry and golden ratio that the theory's dodecahedral cell does.
+
+\subsection{Why hyperbolic space is abundant}
+
+The flat plane offers three regular tilings. The sphere offers a small handful, the Platonic solids seen as
+tilings of a round surface. Hyperbolic space offers infinitely many. The reason is the surplus. Hyperbolic
+space has room to spare, so any arrangement whose angle total comes out over $360$ is welcome, because the
+surplus is exactly what the saddle geometry absorbs. Want seven-sided tiles, three to a corner? Their angles
+overflow $360$, so flat space refuses and hyperbolic space accepts. Want hundred-sided tiles? Also fine. The
+overflow that flat and round space cannot tolerate is the very thing the saddle needs.
+
+This is the property the theory depends on, because we want two things at once. We want perfect regularity,
+every cell and every vertex identical with no special points. We want endless room, a crystal that grows
+forever without folding back into a small finite shape. The sphere gives regularity but no room. The flat
+plane gives room but almost no regular patterns. Only hyperbolic space gives regularity and endless room
+together.
+
+So the crystal of experience must be a regular tiling of hyperbolic space, and the abundance of such tilings
+is what makes the precise, exotic cell the theory needs available at all. The same angle-defect logic
+carries to three dimensions, where cells pack around an edge and the relevant angle is the cell's dihedral
+angle. That is the route to the $\{5,3,4\}$ honeycomb, taken up in the next section.

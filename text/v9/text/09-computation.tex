@@ -1,0 +1,223 @@
+\section{Computation}
+
+The theory rests on a single local rule applied across the whole crystal, beat after beat. For that to
+grow atoms, weather, and minds, the substrate must be able in principle to express any structure at all.
+The guarantee that secures this is computational universality. A system is universal when it can carry out
+any computation that can be carried out and simulate any other computer.
+
+This section establishes that the
+$\{5,3,4\}$ dodecagrid has this property, at the level of an external theorem and at the level of the
+model's own running dynamics. It then draws the conclusion that the substrate is a computer rather than
+merely like one, marks the limit that universal computation is goal-neutral, and closes with the
+undecidability that comes packaged with the same power.
+
+\subsection{Cellular automata}
+
+A cellular automaton is a grid of identical cells, each holding one value from a small finite set, updating
+together on a shared clock by one fixed rule that reads only a cell and its immediate neighbors. The
+machine has four parts.
+\begin{itemize}
+  \item The cells are a regular array of sites.
+  \item The states are values from a small finite set, where two states already suffice for everything of interest.
+  \item The local rule is a single lookup from a cell and its neighbors to that cell's next state, the same rule everywhere.
+  \item The beats are synchronous, with the whole grid stepping at once.
+\end{itemize}
+There is no program counter, no central memory, and no operator. A
+quiescent state, the resting value such that a cell surrounded by quiescence stays quiescent, keeps a
+starting pattern finite so that only the live region acts.
+
+The lasting surprise is that such rules are not dull. On the line, an elementary rule with two states and
+three neighbors has only $256$ possibilities. One of them, Rule 110, was proved universal by Cook. In the
+plane, Conway's Game of Life turns a four-line neighbor-counting rule into gliders, guns, oscillators, and
+working calculators.
+
+The complexity is not in the rule. It is in the patterns the rule allows. A law
+statable in one breath, applied locally an enormous number of times, produces moving objects, memory, and
+full computation \cite{wolfram2020}. This is the permission slip for the theory. If a trivial rule on a
+flat board yields gliders and calculators, a well-chosen rule on a vast curved crystal can yield particles,
+forces, and minds. A complex world does not require a complex law.
+
+The deepest lesson concerns what counts as a thing. A glider in the Game of Life is not a fixed set of
+cells. It is a pattern that moves, re-forming one step over at each beat on different cells while keeping
+its shape. In the theory every thing is this kind of object. Every particle and every self is a stable
+traveling pattern the rule sustains, made of nothing but arrangement, while the cells beneath it come and
+go. This is why a self can persist while none of its underlying cells do.
+
+\subsection{The perception rule as a cellular automaton}
+
+The model's dynamics is a cellular automaton on the nose, not by analogy. The cells are the vibes, the
+sites of the $\{5,3,4\}$ dodecagrid, each with twelve touching neighbors. The states are the three tones
+$+1$, $0$, and $-1$. The local rule is the perception rule. For a pair of neighboring tones it shares
+opposite tones to peace, hops a charge into an empty neighbor, spawns a balanced pair from peace under the
+arrow, and leaves same tones inert. The beat sweeps the edges once with a no-double-move guard, which is
+exactly the synchronous tick. The quiescent state is peace, the tone $0$, doing nothing until touched. The
+arrow is the only asymmetry, the creation bias that keeps the grid alive rather than relaxing to dead peace.
+
+This is not a flat $256$-rule line and it is not the Game of Life. It is a three-state, twelve-neighbor
+cellular automaton on a three-dimensional hyperbolic honeycomb. It is the same kind of object, and it
+inherits the same lesson, that simple uniform local rules can produce open-ended complexity. The
+neighborhood of a cell, the thing the rule reads, is defined through Margenstern's recursive splitting of
+the hyperbolic tiling into a tree of nested regions addressed by Fibonacci arithmetic, which is what turns
+an undrawable infinite plane into a navigable, computing object \cite{margenstern2008}.
+
+Calling the
+universe a cellular automaton does not mean it runs inside an outside machine. There is no operator and no
+screen. The substrate is the automaton, and running the rule on the substrate is what existence does.
+
+\subsection{Universality on hyperbolic tilings}
+
+The strongest external result is Margenstern's. Cellular automata on hyperbolic tilings, the dodecagrid
+$\{5,3,4\}$ included, are computationally universal \cite{margenstern2013}. This is a rigorous
+construction, and the $\{5,3,4\}$ is the exact mesh of the theory, so the theorem lands directly on the
+substrate.
+
+Building a universal machine in hyperbolic space faces a special obstacle. There is no uniform zoom.
+Hyperbolic space has no similarity transformations, so the usual trick of nesting a shrunken copy of a
+machine is unavailable. Margenstern works around this with the railway model.
+
+Picture a computer made of
+trains. A single locomotive runs forever along the tracks. At junctions sit switches that can be flipped,
+and the configuration of all switches encodes the state of a register machine. As the locomotive passes
+through it reads switches and flips them, and that reading and flipping is the computation. Registers are
+stored as track loops the train can lengthen or shorten. A train confined to a track cannot drift apart the
+way free-flying signals do when hyperbolic lines diverge, so the railway keeps the computation literally on
+the rails.
+
+Lifted into hyperbolic three-space, the dodecahedral tiles each have twelve neighbors and can
+route signals over bridges the plane lacks, which shrinks the machine to five states, against nine for the
+two-dimensional pentagrid version. A five-state weakly universal automaton therefore lives on the exact
+mesh. Weakly universal means it computes on an infinite ultimately periodic background rather than on a
+blank quiet plane, which is the standard accepted sense for hyperbolic constructions.
+
+\subsection{Universality on the live dynamics}
+
+An external theorem is not enough. The theory needs universality on the model's own rule. The experiment
+P44 supplies it. The local update is the ternary signed-majority rule, where a cell takes the sign of the
+sum of its fill-weighted neighbor tones plus a bias. With both fills set to $-1$ and the bias set to $+1$,
+that update is exactly NAND. Encode \texttt{true} as $+1$ and \texttt{false} as $-1$. The cell then
+computes $\mathrm{out} = \operatorname{sign}(1 - a - b)$. The four input cases are as follows.
+
+\begin{center}
+\begin{tabular}{ccccc}
+\hline
+$a$ & $b$ & $1 - a - b$ & $\mathrm{out} = \operatorname{sign}(\cdot)$ & NAND \\
+\hline
+$+1$ & $+1$ & $-1$ & $-1$ (false) & T NAND T = F \\
+$+1$ & $-1$ & $+1$ & $+1$ (true) & T NAND F = T \\
+$-1$ & $+1$ & $+1$ & $+1$ (true) & F NAND T = T \\
+$-1$ & $-1$ & $+3$ & $+1$ (true) & F NAND F = T \\
+\hline
+\end{tabular}
+\end{center}
+
+The output is false only when both inputs are true, which is exactly NAND. NAND is functionally complete,
+so every Boolean function follows, and P44 builds NOT, AND, OR, XOR, and a full adder. The adder computes
+$a + b + \mathrm{carry}$ correctly across all eight inputs, so real arithmetic runs on the rule. P44 then
+reproduces the table of Rule 110 from rule-NANDs and evolves it non-trivially, tying the dynamics to a
+known-universal system expressed entirely in its own gate.
+
+The decisive part is stronger. The gates are not left as functions. Each is built as a real subgraph of
+cells with symmetric ternary fills, with inputs and a positive bias clamped. The free cells run the model's
+asynchronous signed-majority rule to a fixed point, and the output cells are read. NAND built this way
+settles to the correct answer, and a six-gate XOR composed as $\mathrm{AND}(\mathrm{OR}(a,b),
+\mathrm{NAND}(a,b))$ also settles correctly, since bus widths decrease downstream so each gate's margin
+beats the feedback from the next layer.
+
+Two worries are answered at once. The gates are run by the live
+dynamics, not painted on as a separate circuit, and every output is a genuine fixed point stable under any
+update order. A clamped-input gate is an attractor, not a decaying pulse, which defuses the concern that an
+asynchronous, dissipative dynamics could not hold a stable logical value.
+
+The experiment P141 closes the loop with a full Turing-universal machine running directly on the mesh. The
+target is a two-counter Minsky machine, one of the smallest known universal models. The mapping uses only
+the substrate's primitives. A register is a region of cells in the dodecagrid, and its value is the number
+of charged cells in that region. Increment is creating a charge, one unit of the arrow. Decrement is
+annihilating one charge. Test-zero is counting the charge.
+
+P141 loads a multiplication program built from
+increment and decrement-or-jump-if-zero, which is a universal instruction set, and computes
+$R_2 = R_0 \times R_1$ with a temporary register preserving the multiplicand. The machine computes
+$a \times b$ correctly across a spread of cases including a zero case, with registers and operations made
+of nothing but tone and the arrow.
+
+\subsection{The substrate is a computer}
+
+Three independent angles converge.
+\begin{itemize}
+  \item Margenstern proves the $\{5,3,4\}$ class universal as a theorem.
+  \item P44 shows functional completeness on the live dynamics, with NAND and a six-gate XOR settling as stable fixed points.
+  \item P141 runs a full universal machine with charge as memory.
+\end{itemize}
+The conclusion is not that the universe
+is like a computer. It is that the universe is one.
+
+This converts a wild claim into a modest one. The wild claim is that a single rule on a crystal produces
+atoms, galaxies, weather, and minds. The modest fact behind it is that the rule is universal, so any
+pattern that can exist at all is a pattern the rule can host. If a working mind is a pattern a computer
+could in principle run, the crystal can host it, because the crystal can run anything a computer can.
+
+Universality is about capacity, not freedom of outcome. The rule can in principle express anything, while
+the actual universe is fixed completely by the one rule, the single seed, and the deterministic growth that
+follows. The capacity is unlimited and the outcome is one.
+
+A clean boundary remains. Universality settles structure, never feeling. The theory treats experience as
+the substance of the cells from the start, rather than as a product of computation, so the felt interior is
+its own question and is not hidden inside the universality claim.
+
+\subsection{Computation is goal-neutral}
+
+Universality is necessary but not sufficient for mind. A universal computer can compute any function, but
+it has no preference among them. It will compute a multiplication, a heat equation, or pure noise with
+equal indifference. Universal computation is goal-neutral. It is raw capacity with no direction.
+
+Intelligence needs direction. A problem is a gap between a desired state and a current state, and a
+solution is a path that closes it. Solving a problem needs both the means, which is universal computation,
+and the ends, which is a goal that picks one path over another. The substrate supplies the ends through the
+arrow, the directional asymmetry the conserving rule selects toward.
+
+So P44 and P141 establish the means
+only. They show the substrate can compute anything. The bridge from computable to intentional is taken up
+in the section on intelligence, which adds the arrow and the goal-directed search that aims this universal
+computation at a target.
+
+\subsection{Undecidability and the super-Turing question}
+
+Power and limitation arrive together. The moment a system can simulate a universal machine, the halting
+problem for that system becomes undecidable, since any Turing-complete substrate drags undecidability in
+with it. This is not a flaw. It is the formal signature of a world where the only way to know the future is
+to live it. The undecidability concerns the observer's predictive shortcut, not the system's evolution. The
+rule still produces a perfectly definite future. There is simply no algorithm that fast-forwards to the
+answer in general.
+
+The cleanest undecidable problem living natively on the substrate is the domino problem. Given a finite set
+of tile types with edge-matching rules, can copies cover the whole plane with no gaps and no overlaps,
+every edge matching its neighbor. This is already undecidable in the Euclidean plane, proved by Berger in
+1966. The hyperbolic version stayed open for nearly three decades until Margenstern proved, in early 2007,
+that the domino problem is undecidable in the hyperbolic plane, with Kari proving the same result
+independently by a different method within days \cite{margenstern2013}.
+
+The proof has the classic shape.
+Force the tiling to draw a computer, then ask whether the computer halts. Inside the heptagrid $\{7,3\}$
+the matching rules force a rigid background, and on that scaffold a hierarchy of nested triangles forms a
+grid that becomes the space-and-time diagram of a Turing machine. The tiles complete into a full tiling if
+and only if the machine never halts. Since halting is undecidable, so is tiling.
+
+Because the substrate is a
+tiling, asking which local-matching patterns extend to cover the whole grid is the domino problem in
+disguise, so undecidability is a native feature of the geometry the theory is built on rather than an
+import from outside.
+
+The frontier question is whether a hyperbolic substrate could ever compute past the Turing barrier.
+Margenstern and Grigorieff sketch a model that does, on an infinigrid, a tiling by polygons with infinitely
+many sides. One such cell has infinitely many neighbors, so in one update it can test a property across
+infinitely many cells at once, evaluating a quantifier in a single tick. Chaining such cells decides every
+level of the arithmetical hierarchy, which would be super-Turing computation.
+
+The caveats are decisive and
+kept clearly speculative here. The model uses infinite objects, a tile with infinitely many sides and a
+cell reading infinitely many neighbors instantaneously, and such a thing cannot be built. It belongs to the
+same idealized family as infinite-time Turing machines and black-hole computation, with rigorous internal
+mathematics and no physical realizability \cite{thooft2014}. The dodecagrid has cells with twelve
+neighbors, not infinitely many, so the infinigrid result does not apply to the substrate as built. The
+right reading is a clean theorem on undecidability and a clearly labeled thought experiment on
+hypercomputation, never the two confused.

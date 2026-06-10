@@ -1,0 +1,95 @@
+\section{The Dynamics}
+
+The base sets the stage. The dynamics is the one rule that runs on it. It is local, acting on edges, it conserves a charge, and it is biased by the arrow. The rule turns out to be a known object, a spin-1 exchange model, which is what later allows it to become a quantum field and a computer.
+
+\subsection{The perception rule}
+
+The rule acts on each edge once per beat. For a pair of neighboring vibes with tones $(a, b)$, each vibe perceives its neighbor and acts. There are four cases.
+
+\begin{itemize}
+  \item Opposite tones share to peace, an annihilation. The pair $(+1, -1)$ becomes $(0, 0)$. Two opposite charges that meet cancel. This occurs at rate $s$.
+  \item A charge hops to an empty neighbor, a transport step. The pair $(\text{charge}, 0)$ becomes $(0, \text{charge})$. The charge moves into peace. This occurs at rate $h$, symmetrically.
+  \item Peace spawns a balanced pair, a creation driven by the arrow. The pair $(0, 0)$ becomes $(+1, -1)$ or $(-1, +1)$. The arrow makes structure from peace. This occurs at rate $c$, the arrow rate.
+  \item Same tones are inert. The pairs $(+1, +1)$ and $(-1, -1)$ do nothing.
+\end{itemize}
+
+A beat sweeps the edges once, with a guard that prevents any cell from moving twice. New frontier cells are born at peace.
+
+\subsection{The rule in full}
+
+The rule is small enough to write out completely. A pair of neighbors has two tones, so there are $3 \times 3 = 9$ possible pair-states. The rule is a single reversible permutation of those nine states, built from exactly three kinds of move. Table~\ref{tab:rule} gives every case.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccl}
+\toprule
+Pair in $(a,b)$ & Pair out & Move \\
+\midrule
+$(-1,-1)$ & $(-1,-1)$ & inert (like charges coexist) \\
+$(+1,+1)$ & $(+1,+1)$ & inert (like charges coexist) \\
+$(-1,0)$ & $(0,-1)$ & hop (the $-1$ charge moves right) \\
+$(0,-1)$ & $(-1,0)$ & hop (the $-1$ charge moves left) \\
+$(+1,0)$ & $(0,+1)$ & hop (the $+1$ charge moves right) \\
+$(0,+1)$ & $(+1,0)$ & hop (the $+1$ charge moves left) \\
+$(0,0)$ & $(+1,-1)$ & create (a pair is born from peace) \\
+$(+1,-1)$ & $(-1,+1)$ & flip (the born pair turns over) \\
+$(-1,+1)$ & $(0,0)$ & annihilate (the pair returns to peace) \\
+\bottomrule
+\end{tabular}
+\caption{The complete rule on the nine pair-states. It is one reversible permutation built from three move-types, hop, the create-flip-annihilate cycle, and inert.}
+\label{tab:rule}
+\end{table}
+
+The three move-types are these.
+
+\begin{itemize}
+  \item \textbf{Hop, transport.} A charge and an adjacent peace cell exchange, so the charge moves one step. This is how the tone pattern flows through the mesh. There are two hops, one for each sign of charge.
+  \item \textbf{Create and annihilate, the arrow.} Peace cycles through a born pair and a flipped pair and back to peace, $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$. Creation and annihilation are the same operator at two ends of one three-cycle, forced to be inverses by reversibility. This is the arrow, the source of structure from peace.
+  \item \textbf{Inert, no interaction.} The two same-sign pairs are fixed points. Like charges simply coexist.
+\end{itemize}
+
+So the whole rule is two hops, one create-annihilate cycle, and two fixed points, accounting for all nine pair-states. Two facts fall straight out of the table. The total charge is conserved, since no move ever changes the sum $a + b$ of a pair. And the rule is reversible, since the table is a permutation of the nine states with a well-defined inverse. The crystal runs this one rule across all twelve edge-directions of each cell, once per beat.
+
+\subsection{A worked beat}
+
+Consider a short line of five cells with tones $[+1, -1, 0, 0, +1]$. We sweep the edges from left to right, marking each touched cell so that it cannot move again this beat.
+
+Edge $(0,1)$ sees $(+1, -1)$, opposite tones, so they share to peace. Cells $0$ and $1$ become $0, 0$ and are marked. The state is now $[0, 0, 0, 0, +1]$.
+
+Edge $(1,2)$ sees cell $1$, already marked, so it is skipped.
+
+Edge $(2,3)$ sees $(0, 0)$, both at peace, so the arrow may fire. Suppose it does, creating a balanced pair $(+1, -1)$. Cells $2$ and $3$ are marked. The state is now $[0, 0, +1, -1, +1]$.
+
+Edge $(3,4)$ sees cell $3$, already marked, so it is skipped.
+
+Now check the charge. Before the beat, $Q = (+1) + (-1) + 0 + 0 + (+1) = +1$. After the beat, $Q = 0 + 0 + (+1) + (-1) + (+1) = +1$. The charge $Q$ is unchanged, as it must be, since every move was balanced.
+
+What changed is the arrangement. A charge pair annihilated on the left, and a fresh balanced pair was born in the middle. The total is conserved, and the pattern is not. That single fact is the seed of both the field vacuum and the memory account.
+
+\subsection{The conserved charge}
+
+Every move conserves the total charge
+\[
+Q = \sum_i t_i,
+\]
+the sum of all tones. Annihilation removes a $+1$ and a $-1$, for a net change of zero. The hop moves a charge without changing the total. Creation adds a $+1$ and a $-1$, again for a net change of zero. So $Q$ is exactly conserved, a conservation law of $U(1)$ type. This is the substrate's electric-charge-like current, confirmed in the field vacuum (P114). What is not conserved is order, the positive-sum integrated structure that the arrow can create.
+
+\subsection{The arrow, value and direction}
+
+The arrow is the only asymmetry. It states that peace is the optimum but pleasure is the pull, so the dynamics is biased to close the gap between the current tone-pattern and the desired one. Operationally the arrow is the creation bias. Peace spawns charge, which keeps the universe alive. Without it everything relaxes to dead peace (P100). With it the universe stays in a living dynamic balance. The arrow is also the seed of value, of better against worse, which becomes the goal of intelligence.
+
+The arrow's creation is balanced, a $+1$ and a $-1$ together, so it conserves $Q$. Creation, in the form of life, memory, and reproduction, coexists with conservation. The arrow is a controlled, conserving creative source. The only forbidden operation is net creation, the minting of pleasure from nothing. Information, in the form of balanced patterns, is free to make and copy. Net well-being is conserved.
+
+\subsection{Reversibility and detailed balance}
+
+The dynamics is reversible, and this is a measured fact. Although the arrow appears irreversible, the dynamics satisfies detailed balance, both locally, where single-edge transition counts are symmetric (P126), and around loops, where there is no persistent charge circulation, by Kolmogorov's criterion (P128). The reason is that the arrow creates balanced pairs, a reversible reaction rather than a one-way drive. The dynamics is therefore a genuine equilibrium process. This matters because reversibility is the precondition for a unitary quantum theory.
+
+\subsection{The rule as a spin-1 exchange model}
+
+Transcribed exactly through the Doi-Peliti formalism (P131), the rule is a spin-1 model. The tone is a spin-1 value of $S^z$, taking $+1$, $0$, or $-1$, and all three moves, creation, annihilation, and the hop, are the same elementary operation, the transfer of one unit of $S^z$ across an edge. The perception rule is therefore the nearest-neighbor exchange of $S^z$ quanta, an $XX$-type spin-1 model, free when the rates are equal and interacting otherwise.
+
+Its $U(1)$ symmetry is the charge conservation. Its reversibility makes the corresponding quantum Hamiltonian Hermitian, and the spin coherent-state path integral carries a Berry phase, the source of the quantum $i$. This identification tells us which field theory the substrate becomes in the continuum, a free $U(1)$ boson.
+
+\subsection{Summary}
+
+One local rule runs the universe. Opposite tones annihilate to peace, charges hop into empty neighbors, and peace spawns balanced pairs under the arrow. The rule conserves the total charge, a $U(1)$ current. It is reversible, by detailed balance, because the arrow's creation is balanced. It is exactly a spin-1 $S^z$-exchange model, in which the tone is a spin and creation, annihilation, and hopping are one and the same move, the transfer of a unit of spin across an edge. That single fact, together with reversibility, is what lets the dynamics become a genuine quantum field in the continuum.
