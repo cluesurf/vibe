@@ -1,30 +1,30 @@
 \babel@toc {english}{}\relax 
-\contentsline {part}{I\hspace {1em}Foundations}{5}{part.1}%
+\contentsline {part}{I\hspace {1em}Foundations}{6}{part.1}%
 \contentsline {section}{\numberline {1}Introduction}{6}{section.1}%
-\contentsline {section}{\numberline {2}The Foundation}{7}{section.2}%
+\contentsline {section}{\numberline {2}The Foundation}{8}{section.2}%
 \contentsline {subsection}{\numberline {2.1}The mesh narrows to the dodecagrid}{8}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}The tone narrows to ternary}{8}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.2}The tone narrows to ternary}{9}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}The rule is tightly constrained}{9}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Growth is reflection}{10}{subsection.2.4}%
 \contentsline {subsection}{\numberline {2.5}From nothing to something}{10}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}The arrow is the one deliberate posit}{10}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.6}The arrow is the one deliberate posit}{11}{subsection.2.6}%
 \contentsline {subsection}{\numberline {2.7}What this does and does not claim}{11}{subsection.2.7}%
 \contentsline {section}{\numberline {3}The Base: Five Elements, One State}{11}{section.3}%
 \contentsline {subsection}{\numberline {3.1}The one substance and the one state}{11}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}The five base elements}{11}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}The note is perception, not a thing}{12}{subsection.3.3}%
 \contentsline {subsection}{\numberline {3.4}Why exactly these five}{12}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}The non-negotiables}{12}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.5}The non-negotiables}{13}{subsection.3.5}%
 \contentsline {subsection}{\numberline {3.6}Summary}{13}{subsection.3.6}%
 \contentsline {section}{\numberline {4}The Dynamics}{13}{section.4}%
 \contentsline {subsection}{\numberline {4.1}The perception rule}{13}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}The rule in full}{13}{subsection.4.2}%
 \contentsline {subsection}{\numberline {4.3}A worked beat}{14}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}The conserved charge}{14}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.4}The conserved charge}{15}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}The arrow, value and direction}{15}{subsection.4.5}%
 \contentsline {subsection}{\numberline {4.6}Reversibility and detailed balance}{15}{subsection.4.6}%
 \contentsline {subsection}{\numberline {4.7}The rule as a spin-1 exchange model}{15}{subsection.4.7}%
-\contentsline {subsection}{\numberline {4.8}Summary}{15}{subsection.4.8}%
+\contentsline {subsection}{\numberline {4.8}Summary}{16}{subsection.4.8}%
 \contentsline {part}{II\hspace {1em}The Mathematical Substrate}{16}{part.2}%
 \contentsline {section}{\numberline {5}Hyperbolic Geometry and Tilings}{16}{section.5}%
 \contentsline {subsection}{\numberline {5.1}The three shapes a space can have}{16}{subsection.5.1}%
@@ -33,9 +33,9 @@
 \contentsline {subsection}{\numberline {5.4}The tiny diameter}{18}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}The shape decides the curvature}{18}{subsection.5.5}%
 \contentsline {subsection}{\numberline {5.6}Why hyperbolic space is abundant}{19}{subsection.5.6}%
-\contentsline {section}{\numberline {6}The Crystal: Coxeter Groups, Schl\"afli Symbols, and the Dodecagrid}{19}{section.6}%
+\contentsline {section}{\numberline {6}The Crystal: Coxeter Groups, Schl\"afli Symbols, and the Dodecagrid}{20}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Coxeter groups as reflection groups}{20}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}The $[5,3,4]$ group}{20}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.2}The $[5,3,4]$ group}{21}{subsection.6.2}%
 \contentsline {subsection}{\numberline {6.3}Schl\"afli symbols and the curvature rule}{21}{subsection.6.3}%
 \contentsline {subsection}{\numberline {6.4}The worked calculation for three honeycombs}{21}{subsection.6.4}%
 \contentsline {subsection}{\numberline {6.5}The two crystals}{22}{subsection.6.5}%
@@ -46,9 +46,9 @@
 \contentsline {subsection}{\numberline {7.3}The crystal as a graph}{27}{subsection.7.3}%
 \contentsline {subsection}{\numberline {7.4}The integer ladder}{28}{subsection.7.4}%
 \contentsline {subsection}{\numberline {7.5}The growth series}{28}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}The exact modular-fingerprint engine}{29}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.6}The exact modular-fingerprint engine}{30}{subsection.7.6}%
 \contentsline {section}{\numberline {8}Lorentz Safety}{30}{section.8}%
-\contentsline {subsection}{\numberline {8.1}The causal-set lesson}{30}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.1}The causal-set lesson}{31}{subsection.8.1}%
 \contentsline {subsection}{\numberline {8.2}Why curvature buys Lorentz safety}{31}{subsection.8.2}%
 \contentsline {subsection}{\numberline {8.3}Boost-covariance on the substrate}{31}{subsection.8.3}%
 \contentsline {subsection}{\numberline {8.4}Observational bounds}{32}{subsection.8.4}%
@@ -60,11 +60,11 @@
 \contentsline {subsection}{\numberline {9.4}Universality on the live dynamics}{35}{subsection.9.4}%
 \contentsline {subsection}{\numberline {9.5}The substrate is a computer}{36}{subsection.9.5}%
 \contentsline {subsection}{\numberline {9.6}Computation is goal-neutral}{36}{subsection.9.6}%
-\contentsline {subsection}{\numberline {9.7}Undecidability and the super-Turing question}{36}{subsection.9.7}%
+\contentsline {subsection}{\numberline {9.7}Undecidability and the super-Turing question}{37}{subsection.9.7}%
 \contentsline {part}{III\hspace {1em}Emergence}{37}{part.3}%
-\contentsline {section}{\numberline {10}Emergent Physics}{37}{section.10}%
+\contentsline {section}{\numberline {10}Emergent Physics}{38}{section.10}%
 \contentsline {subsection}{\numberline {10.1}The Field-Theoretic Vacuum}{38}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}Effective Gravity, Horizons, and Dimension}{38}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.2}Effective Gravity, Horizons, and Dimension}{39}{subsection.10.2}%
 \contentsline {subsection}{\numberline {10.3}Holography and the Field Beneath}{39}{subsection.10.3}%
 \contentsline {subsection}{\numberline {10.4}The Vibe-to-Field Ladder}{40}{subsection.10.4}%
 \contentsline {subsection}{\numberline {10.5}The Stochastic Shadow and the Unitary Completion}{41}{subsection.10.5}%
@@ -72,11 +72,11 @@
 \contentsline {section}{\numberline {11}Emergent Life}{43}{section.11}%
 \contentsline {subsection}{\numberline {11.1}The Arrow as the Life Engine}{43}{subsection.11.1}%
 \contentsline {subsection}{\numberline {11.2}The Definition of a Self}{44}{subsection.11.2}%
-\contentsline {subsection}{\numberline {11.3}The Levels, One Definition at Many Scales}{44}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.3}The Levels, One Definition at Many Scales}{45}{subsection.11.3}%
 \contentsline {subsection}{\numberline {11.4}Selves Emerge by Integration and Form a Tower}{45}{subsection.11.4}%
 \contentsline {subsection}{\numberline {11.5}Self-Healing, Interaction, and Will}{45}{subsection.11.5}%
 \contentsline {subsection}{\numberline {11.6}Memory, and What Is Actually Lost}{46}{subsection.11.6}%
-\contentsline {subsection}{\numberline {11.7}Heredity, Reproduction, and the Bulk-versus-Flat Surprise}{47}{subsection.11.7}%
+\contentsline {subsection}{\numberline {11.7}Heredity, Reproduction, and the Bulk-versus-Flat Surprise}{48}{subsection.11.7}%
 \contentsline {subsection}{\numberline {11.8}Persistence Needs Maintenance, Not a Sixth Element}{48}{subsection.11.8}%
 \contentsline {subsection}{\numberline {11.9}How Life Fits the Whole}{49}{subsection.11.9}%
 \contentsline {section}{\numberline {12}Emergent Mind}{49}{section.12}%
@@ -84,7 +84,7 @@
 \contentsline {subsection}{\numberline {12.2}The Architecture Is an Onion}{50}{subsection.12.2}%
 \contentsline {subsection}{\numberline {12.3}Predictive Metacognition, a Forward Model}{51}{subsection.12.3}%
 \contentsline {subsection}{\numberline {12.4}Recursion, a Model of a Model}{51}{subsection.12.4}%
-\contentsline {subsection}{\numberline {12.5}Attention and a Global Workspace}{51}{subsection.12.5}%
+\contentsline {subsection}{\numberline {12.5}Attention and a Global Workspace}{52}{subsection.12.5}%
 \contentsline {subsection}{\numberline {12.6}Planning, with Nothing Added}{52}{subsection.12.6}%
 \contentsline {subsection}{\numberline {12.7}The Integrated Metacognitive Agent}{53}{subsection.12.7}%
 \contentsline {subsection}{\numberline {12.8}How Mind Fits the Whole}{53}{subsection.12.8}%
