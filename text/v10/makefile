@@ -1,6 +1,6 @@
 text: clean
 	@lualatex vibe.tex
-	@bibtex vibe
+	@bibtex vibe || true
 	@lualatex vibe.tex
 	@lualatex vibe.tex
 .PHONY: text

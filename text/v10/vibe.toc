@@ -57,7 +57,7 @@
 \contentsline {subsection}{\numberline {8.4}The coordinates, and why they are the whole point}{32}{subsection.8.4}%
 \contentsline {subsection}{\numberline {8.5}The symmetry, the group $F_4$}{32}{subsection.8.5}%
 \contentsline {subsection}{\numberline {8.6}A crossroads of mathematics}{32}{subsection.8.6}%
-\contentsline {subsection}{\numberline {8.7}Why it is the right brick}{32}{subsection.8.7}%
+\contentsline {subsection}{\numberline {8.7}Why the 24-cell is the right cell}{32}{subsection.8.7}%
 \contentsline {subsection}{\numberline {8.8}A forward-looking resonance, the 24-web}{32}{subsection.8.8}%
 \contentsline {section}{\numberline {9}The $\{3,4,3,4\}$ Honeycomb}{33}{section.9}%
 \contentsline {subsection}{\numberline {9.1}In essence}{33}{subsection.9.1}%
@@ -253,7 +253,7 @@
 \contentsline {subsection}{\numberline {41.1}Mind, the central image}{99}{subsection.41.1}%
 \contentsline {subsection}{\numberline {41.2}Fire, the primary image}{99}{subsection.41.2}%
 \contentsline {subsection}{\numberline {41.3}Song, the vibrational nature}{99}{subsection.41.3}%
-\contentsline {subsection}{\numberline {41.4}Tree and seed, the structure and the origin}{100}{subsection.41.4}%
+\contentsline {subsection}{\numberline {41.4}Tree and seed, the structure and the origin}{99}{subsection.41.4}%
 \contentsline {subsection}{\numberline {41.5}Ocean and river, the whole and the current}{100}{subsection.41.5}%
 \contentsline {subsection}{\numberline {41.6}Beings and selves, what we are}{100}{subsection.41.6}%
 \contentsline {subsection}{\numberline {41.7}How they combine}{100}{subsection.41.7}%
@@ -265,7 +265,7 @@
 \contentsline {subsection}{\numberline {42.5}What it would feel like}{103}{subsection.42.5}%
 \contentsline {subsection}{\numberline {42.6}Where this substrate lands}{103}{subsection.42.6}%
 \contentsline {section}{\numberline {43}Computability and the Refining Universe}{103}{section.43}%
-\contentsline {subsection}{\numberline {43.1}What computability does and does not forbid}{104}{subsection.43.1}%
+\contentsline {subsection}{\numberline {43.1}What computability does and does not forbid}{103}{subsection.43.1}%
 \contentsline {subsection}{\numberline {43.2}The load-bearing commitment}{104}{subsection.43.2}%
 \contentsline {subsection}{\numberline {43.3}The refining picture and its real limit}{104}{subsection.43.3}%
 \contentsline {section}{\numberline {44}Related Work}{104}{section.44}%
@@ -349,22 +349,21 @@
 \contentsline {section}{\numberline {G}Formal Mathematics}{129}{appendix.G}%
 \contentsline {subsection}{\numberline {G.1}Notation, clear symbols}{130}{subsection.G.1}%
 \contentsline {subsection}{\numberline {G.2}The substrate}{130}{subsection.G.2}%
-\contentsline {subsection}{\numberline {G.3}The fill}{131}{subsection.G.3}%
+\contentsline {subsection}{\numberline {G.3}The will}{130}{subsection.G.3}%
 \contentsline {subsection}{\numberline {G.4}The dynamics}{131}{subsection.G.4}%
-\contentsline {subsection}{\numberline {G.5}Conservation and reversibility}{132}{subsection.G.5}%
+\contentsline {subsection}{\numberline {G.5}Conservation and reversibility}{131}{subsection.G.5}%
 \contentsline {subsection}{\numberline {G.6}The coin algebra}{132}{subsection.G.6}%
 \contentsline {subsection}{\numberline {G.7}Emergent propagation}{132}{subsection.G.7}%
 \contentsline {subsection}{\numberline {G.8}Geometry, growth, and cosmology}{133}{subsection.G.8}%
 \contentsline {subsection}{\numberline {G.9}Gauge and the Standard-Model numbers}{133}{subsection.G.9}%
 \contentsline {subsection}{\numberline {G.10}Gravity, as an equation of state}{134}{subsection.G.10}%
 \contentsline {subsection}{\numberline {G.11}Electromagnetism}{134}{subsection.G.11}%
-\contentsline {subsection}{\numberline {G.12}Addressing and computation}{135}{subsection.G.12}%
+\contentsline {subsection}{\numberline {G.12}Addressing and computation}{134}{subsection.G.12}%
 \contentsline {subsection}{\numberline {G.13}The discipline, and the recorded negatives}{135}{subsection.G.13}%
 \contentsline {section}{\numberline {H}The Two Cosmic Stories}{135}{appendix.H}%
 \contentsline {subsection}{\numberline {H.1}The shared ground}{136}{subsection.H.1}%
 \contentsline {subsection}{\numberline {H.2}The mirror symmetry}{136}{subsection.H.2}%
 \contentsline {subsection}{\numberline {H.3}Story A, the One unfolding}{137}{subsection.H.3}%
 \contentsline {subsection}{\numberline {H.4}Story B, the eternal becoming}{138}{subsection.H.4}%
-\contentsline {subsection}{\numberline {H.5}The perennial images}{140}{subsection.H.5}%
-\contentsline {subsection}{\numberline {H.6}Why we do not decide}{141}{subsection.H.6}%
-\contentsline {section}{References}{141}{subsection.H.6}%
+\contentsline {subsection}{\numberline {H.5}The perennial images}{139}{subsection.H.5}%
+\contentsline {section}{References}{140}{subsection.H.5}%
