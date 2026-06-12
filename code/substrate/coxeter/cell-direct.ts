@@ -119,6 +119,11 @@ export interface CellGraph {
   readonly neighbors: number[][]
   readonly coords: number[][]
   readonly hit: boolean // true if the build stopped at maxCells (more cells exist)
+  // faceNeighbor[cell][fi] = the neighbour reached through face fi (a fixed generator in the H-orbit of
+  // the outer generator), or -1 if that face landed outside the built patch. The face index fi is a
+  // consistent "direction type" across cells (the same local generator), which is what a
+  // generator-indexed addressing / neighbour automaton needs. Present for buildCellGraph only.
+  readonly faceNeighbor?: number[][]
 }
 
 export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): CellGraph {
@@ -167,11 +172,12 @@ export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): 
   const cellCoord: Vec[] = [toPoincare(c0, timeAxis)]
   const cellKey = new Map<string, number>([[keyOf(cellCoord[0]!), 0]])
   const neighbors: number[][] = [[]]
+  const faceNeighbor: number[][] = [new Array<number>(F.length).fill(-1)]
   let hit = false
   for (let head = 0; head < cellMat.length; head++) {
     const g = cellMat[head]!
-    for (const f of F) {
-      const gp = matMul(g, f)
+    for (let fi = 0; fi < F.length; fi++) {
+      const gp = matMul(g, F[fi]!)
       const center = matVec(gp, c0)
       const coord = toPoincare(center, timeAxis)
       const k = keyOf(coord)
@@ -186,7 +192,9 @@ export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): 
         cellMat.push(gp)
         cellCoord.push(coord)
         neighbors.push([])
+        faceNeighbor.push(new Array<number>(F.length).fill(-1))
       }
+      faceNeighbor[head]![fi] = id
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
@@ -205,6 +213,7 @@ export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): 
     neighbors,
     coords: cellCoord,
     hit,
+    faceNeighbor,
   }
 }
 
