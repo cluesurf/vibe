@@ -208,6 +208,56 @@ export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): 
   }
 }
 
+// FLAT (Euclidean) honeycomb builder. The cell-direct builder above is HYPERBOLIC-only, it projects a
+// Lorentzian space to the Poincare ball, so a EUCLIDEAN (affine) honeycomb stalls (its cell center is an ideal
+// point, the BFS finds 1 cell). Euclidean regular honeycombs are flat LATTICES, built directly here, so they
+// can be compared on equal footing (same observables) with the hyperbolic ones. Verified flat by POLYNOMIAL
+// (not exponential) shell growth. Supported, the 4D Euclidean regulars and their lower-D analogues,
+//   {3,4,3,3} = D4 lattice (24-cell honeycomb, degree 24, the FLAT D4, dual-compare to the hyperbolic {3,4,3,4})
+//   {3,3,4,3} = D4 lattice (16-cell honeycomb, the dual, degree 24)
+//   {4,3,3,4} = Z^4 tesseractic (degree 8) ; {4,3,4} = Z^3 cubic (degree 6) ; {4,4} = Z^2 square (degree 4)
+//   {3,6} / {6,3} = triangular / hexagonal (degree 3 / 6) ; {3,3,4,3,3}-Euclidean families fall through to Z^n
+export function buildEuclideanLattice(input: { symbol: number[]; maxCells?: number }): CellGraph {
+  const symbol = input.symbol
+  const maxCells = input.maxCells ?? 20000
+  const key = symbol.join(',')
+  // pick the lattice and neighbour offsets for the named Euclidean honeycomb
+  let dim: number
+  let offsets: number[][]
+  let onLattice: (p: number[]) => boolean = () => true
+  const axes = (d: number): number[][] => { const o: number[][] = []; for (let i = 0; i < d; i++) for (const s of [1, -1]) { const v = new Array<number>(d).fill(0); v[i] = s; o.push(v) } return o }
+  const dRoots = (d: number): number[][] => { const o: number[][] = []; for (let i = 0; i < d; i++) for (let j = i + 1; j < d; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = new Array<number>(d).fill(0); v[i] = si; v[j] = sj; o.push(v) } return o }
+  if (key === '3,4,3,3' || key === '3,3,4,3') { dim = 4; offsets = dRoots(4); onLattice = (p) => (p.reduce((s, x) => s + x, 0) % 2 === 0) } // D4
+  else if (key === '4,3,3,4') { dim = 4; offsets = axes(4) } // Z^4
+  else if (key === '4,3,4') { dim = 3; offsets = axes(3) } // Z^3 cubic
+  else if (key === '4,4') { dim = 2; offsets = axes(2) } // Z^2 square
+  else if (key === '3,6' || key === '6,3') { dim = 2; offsets = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]] } // triangular A2
+  else { dim = symbol.length; offsets = axes(symbol.length) } // fallback, Z^n
+  // BFS a box patch from the origin on the (sub)lattice
+  const start = new Array<number>(dim).fill(0)
+  const kOf = (p: number[]): string => p.join(',')
+  const idOf = new Map<string, number>([[kOf(start), 0]])
+  const coords: number[][] = [start]
+  const neighbors: number[][] = [[]]
+  for (let head = 0; head < coords.length; head++) {
+    const p = coords[head]!
+    for (const o of offsets) {
+      const q = p.map((x, i) => x + o[i]!)
+      if (!onLattice(q)) continue
+      const k = kOf(q)
+      let id = idOf.get(k)
+      if (id === undefined) {
+        if (coords.length >= maxCells) continue
+        id = coords.length; idOf.set(k, id); coords.push(q); neighbors.push([])
+      }
+      if (id !== head && !neighbors[head]!.includes(id)) { neighbors[head]!.push(id); neighbors[id]!.push(head) }
+    }
+  }
+  let facetCount = 0
+  for (const nb of neighbors) facetCount = Math.max(facetCount, nb.length)
+  return { symbol, cellCount: coords.length, facetCount, neighbors, coords, hit: coords.length >= maxCells }
+}
+
 // Extract a HOROSPHERE patch from a hyperbolic honeycomb, the natural FLAT (Euclidean) sheet inside the
 // curved crystal. Because {5,3,4} is COCOMPACT (no parabolic elements, no cusps), a horosphere is NOT a
 // reflection subgroup, it is a flat SURFACE the cells cross aperiodically. We pick an ideal point xi on
