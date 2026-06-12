@@ -1,0 +1,26 @@
+\section{Isotropy and Emergent Symmetry Restoration}
+
+Any lattice has preferred directions, the lines along which its cells are wired. Physical space does not. It looks the same in every direction to very high precision. A discrete substrate therefore owes an account of how rotational invariance can emerge from a structure that, at the smallest scale, plainly does not have it. The $24$-direction substrate gives a strong answer in the bulk, with a small and explicitly stated residual that lives on the cusp.
+
+\subsection{The 24-direction coin is isotropic to order four}
+
+Take the wave dispersion built from the local hops, $\omega^2(k) = \sum_d (1 - \cos(k \cdot d))$, summed over the local directions $d$. For the $D_4$ coin with its $24$ directions the fourth moment is isotropic. The relevant tensor satisfies $\sum d^4 = 3 \sum d^2 d^2 = 12$, so the leading correction to the dispersion has no preferred axis. The dispersion is isotropic to order four, and the axis-versus-diagonal anisotropy vanishes at that order. A cubic $\mathbb{Z}^3$ or hypercubic $\mathbb{Z}^4$ lattice carries roughly an eight to nine percent anisotropy at the same order. The result was first established analytically and then confirmed on the GPU. The $24$-direction light cone comes out round, with an isotropy ratio of $1.00$, where the $8$-direction cone is a faceted cross-polytope at $0.50$.
+
+\begin{result}[$D_4$ isotropy to order four]
+The dispersion of the $24$-direction $D_4$ coin is isotropic to order four, with $\sum d^4 = 3 \sum d^2 d^2 = 12$ and zero axis-vs-diagonal anisotropy, against roughly $8$ to $9$ percent for cubic or hypercubic lattices. The measured light-cone isotropy ratio is $1.00$ for $24$ directions and $0.50$ for $8$ \cite{pollard2026vibetest}.
+\end{result}
+
+\subsection{Emergent symmetry restoration}
+
+The reason the $24$-direction coin does better than a cubic lattice is triality, the extra symmetry of the $24$-cell that enlarges its automorphism group to $F_4$. Triality removes the order-four anisotropy outright. The group $F_4$ admits a single degree-four invariant where the hypercubic group $B_4$ admits two, and it is the second invariant that would carry the unwanted directional dependence. With only one degree-four invariant available, the leading anisotropic term has nowhere to live. In the long-wavelength limit the discrete $F_4$ symmetry therefore restores the continuous rotational symmetry $\mathrm{SO}(8)$. Isotropy is not assumed. It emerges, and it emerges because of the particular symmetry the $24$-cell carries.
+
+\begin{proposition}[Emergent $F_4 \to \mathrm{SO}(8)$ restoration]
+Triality enlarges the $24$-cell symmetry to $F_4$, which has one degree-four invariant against two for $B_4$. The single invariant kills the order-four anisotropy, so the discrete $F_4$ restores continuous $\mathrm{SO}(8)$ rotational symmetry in the infrared.
+\end{proposition}
+
+\subsection{The cusp caveat}
+
+This near-perfect isotropy is a property of the bulk, where the $24$ directions live. Physical matter does not propagate in the bulk. It propagates on the flat cubic honeycomb $\{4,3,4\}$ that forms the ideal cusp, and that cubic lattice is anisotropic at order four. The residual is small. It scales as $(E/E_{\mathrm{Planck}})^2$ and shows up as a prediction rather than a problem. The matter-propagation isotropy is therefore the cubic kind, sharp in the infrared with a tiny ultraviolet anisotropy, and it is distinct from the bulk's much rounder isotropy. This bulk-versus-cusp distinction is the key subtlety. The residual ultraviolet anisotropy lives on the cusp, not in the bulk, and stating where it lives is part of being accurate about what the substrate does.
+
+
+Rotational invariance is emergent on this substrate, and it is better realized on the $24$-cell than on a cubic lattice. Triality buys isotropy out to order four, which a cubic lattice cannot match.

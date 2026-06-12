@@ -1,0 +1,361 @@
+\section{The Complete Regular Hyperbolic Tessellation Catalog}
+\label{sec:tessellation-catalog}
+
+This appendix gives two things. First the complete catalog of regular hyperbolic tessellations, every dimension
+from 2D to 9D, one Schl\"afli symbol per row, with a one-line note on each. Then the measured sweep data for the
+substrate-relevant ones, dimension by dimension. The catalog is the complete list of what exists, so the
+selection of $\{3,4,3,4\}$ can be seen against the whole field. The sweeps give the degree, growth, and class
+that the selection argument rests on.
+
+A tessellation is crystallographic when its symbol uses only the marks $3$, $4$, and $6$. Any $5$, $7$, or higher
+mark makes it non-crystallographic, with no root system. Physical-space dimension equals the bulk dimension minus
+one, because the horosphere lives one dimension below the bulk. The classification and per-dimension symbols
+follow \cite{coxeter1973} and the catalog computations are recorded in \cite{pollard2026vibetest}.
+
+\subsection{The window, in one glance}
+
+{\small
+\begin{longtable}{r p{1.4in} p{1.9in} p{1.1in} l}
+\caption{The window of regular hyperbolic tessellations. Two hard cutoffs hold. Compact regulars exist only in
+2D--4D, and regular tessellations of any class exist only through 5D. The whole search space is finite and fully
+enumerated, living in dimensions 2--5.}
+\label{tab:window}\\
+\toprule
+Dim & Compact regular & Paracompact / noncompact regular & Regulars exist? & Physical space \\
+\midrule
+\endfirsthead
+\toprule
+Dim & Compact regular & Paracompact / noncompact regular & Regulars exist? & Physical space \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+2 & infinitely many & infinitely many more (apeirogonal) & yes & 1D \\
+3 & 4 & 11 paracompact $+$ 3 noncompact ($+$ hypercompact) & yes & 2D \\
+4 & 5 ($+$4 star) & 3 paracompact $+$ 2 noncompact & yes & 3D \\
+5 & 0 & 5 paracompact & yes (the last) & 4D \\
+6--9 & 0 & 0 & no (non-regular uniforms only) & 5D--8D \\
+\end{longtable}}
+
+\subsection{2D, hyperbolic tilings, physical space 1D}
+
+Infinitely many compact regulars exist, the $\{p,q\}$ with $1/p + 1/q < 1/2$. The catalog below lists the notable
+named representatives, plus the apeirogonal and star tilings. The $\{p,q\}$ family itself is infinite.
+
+{\small
+\begin{longtable}{l l c p{3.0in}}
+\caption{2D regular hyperbolic tilings, named representatives. Best in 2D is $\{7,3\}$ as the teaching anchor, but
+all 2D tilings give 1D physical space and carry no spinor, a prototype tier.}
+\label{tab:catalog-2d}\\
+\toprule
+Symbol & Class & Crystallographic & Note \\
+\midrule
+\endfirsthead
+\toprule
+Symbol & Class & Crystallographic & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{7,3\}$ & compact & no (7) & canonical minimal hyperbolic tiling, the testbed \\
+$\{3,7\}$ & compact & no (7) & dual of $\{7,3\}$, dense branching \\
+$\{8,3\}$ & compact & no (8) & octagonal \\
+$\{3,8\}$ & compact & no (8) & order-8 triangular \\
+$\{5,4\}$ & compact & no (5) & the HaPPY holographic-code host \\
+$\{4,5\}$ & compact & no (5) & HaPPY-adjacent \\
+$\{6,4\}$ & compact & yes (4,6) & compact and crystallographic, rare in 2D \\
+$\{4,6\}$ & compact & yes (4,6) & compact and crystallographic \\
+$\{5,5\}$ & compact & no (5) & self-dual \\
+$\{6,6\}$ & compact & yes (6) & self-dual, crystallographic \\
+$\{7,7\}$ & compact & no (7) & self-dual \\
+$\{8,8\}$ & compact & no (8) & self-dual \\
+$\{7/2,7\}$ & compact star & no & non-convex regular star tiling \\
+$\{9/2,9\}$ & compact star & no & non-convex regular star tiling \\
+$\{\infty,3\}$ & paracompact & n/a & apeirogonal, ideal, max boundary contact \\
+$\{3,\infty\}$ & paracompact & n/a & order-infinity triangular \\
+$\{\infty,\infty\}$ & paracompact & n/a & order-infinity apeirogonal \\
+\end{longtable}}
+
+\subsection{3D, hyperbolic honeycombs, physical space 2D, 21 regular}
+
+The four compact regulars all contain a $5$. The eleven paracompact regulars rest on ideal Euclidean cells or
+vertex figures. Three noncompact and a sample of hypercompact cases complete the list.
+
+{\small
+\begin{longtable}{l l c p{2.9in}}
+\caption{3D regular hyperbolic honeycombs. Best in 3D is $\{5,3,4\}$, the cleanest compact case and the
+Margenstern-addressed one, but all compacts carry a $5$ and give only 2D physical space.}
+\label{tab:catalog-3d}\\
+\toprule
+Symbol & Cell / class & Crystallographic & Note \\
+\midrule
+\endfirsthead
+\toprule
+Symbol & Cell / class & Crystallographic & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{5,3,4\}$ & dodecahedra & no (5) & original 3D pick, 12 directions, no spinor (the control) \\
+$\{4,3,5\}$ & cubes & no (5) & dual of $\{5,3,4\}$ \\
+$\{3,5,3\}$ & icosahedra & no (5) & self-dual, high local symmetry \\
+$\{5,3,5\}$ & dodecahedra & no (5) & self-dual \\
+$\{3,3,6\}$ & paracompact & yes & tetrahedral cells, ideal $\{3,6\}$ vertex figure \\
+$\{6,3,3\}$ & paracompact & yes & hexagonal-tiling cells (dual) \\
+$\{3,4,4\}$ & paracompact & yes & octahedral cells, ideal $\{4,4\}$ \\
+$\{4,4,3\}$ & paracompact & yes & square-tiling cells \\
+$\{3,6,3\}$ & paracompact & yes & self-dual, ideal $\{3,6\}$ cell \\
+$\{4,3,6\}$ & paracompact & yes & cubic cells, ideal $\{3,6\}$ vertex figure \\
+$\{6,3,4\}$ & paracompact & yes & hexagonal-tiling cells \\
+$\{4,4,4\}$ & paracompact & yes & self-dual, ideal square cell and vertex figure \\
+$\{6,3,6\}$ & paracompact & yes & self-dual hexagonal, ideal \\
+$\{5,3,6\}$ & paracompact & no (5) & dodecahedral cells, ideal vertex, carries a 5 \\
+$\{6,3,5\}$ & paracompact & no (5) & hexagonal-tiling cells, carries a 5 \\
+$\{3,3,7\}$ & noncompact & no (7) & order-7 tetrahedral, $\{3,7\}$ vertex figure \\
+$\{7,3,3\}$ & noncompact & no (7) & heptagonal-tiling cells (dual) \\
+$\{3,7,3\}$ & noncompact & no (7) & self-dual, order-7 \\
+$\{\infty,3,3\}$ & hypercompact & n/a & exotic, ideal, not a candidate \\
+$\{\infty,4,4\}$ & hypercompact & n/a & exotic \\
+$\{\infty,\infty,\infty\}$ & hypercompact & n/a & exotic \\
+\end{longtable}}
+
+\subsection{4D, hyperbolic tetracombs, physical space 3D, the home of the substrate}
+
+This is the last dimension with compact regulars. The five compact convex regulars all contain a $5$. There are
+also four compact star regulars, $\{3,3,5,5/2\}$ and kin, which are non-convex and carry no spinor. Three
+paracompact and two noncompact crystallographic cases complete the list.
+
+{\small
+\begin{longtable}{l p{1.6in} c p{2.4in}}
+\caption{4D regular hyperbolic tetracombs. The overall pick is $\{3,4,3,4\}$, the unique regular that is
+crystallographic, carries the 24-cell $D_4$ spinor facet, and has a flat 3D cubic cusp $\{4,3,4\}$.}
+\label{tab:catalog-4d}\\
+\toprule
+Symbol & Cell / class & Crystallographic & Note \\
+\midrule
+\endfirsthead
+\toprule
+Symbol & Cell / class & Crystallographic & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{3,3,3,5\}$ & 5-cells, compact & no (5) & simplex-tiled \\
+$\{5,3,3,3\}$ & 120-cells, compact & no (5) & 600-cell vertex figure \\
+$\{4,3,3,5\}$ & tesseracts, compact & no (5) & cubic family \\
+$\{5,3,3,4\}$ & 120-cells, compact & no (5) & richest 4D compact \\
+$\{5,3,3,5\}$ & 120-cells, compact & no (5) & self-dual, richest 4D compact \\
+$\{3,4,3,4\}$ & 24-cells, paracompact & yes (3,4) & the substrate, $D_4$ spinor, flat 3D cubic cusp \\
+$\{4,3,4,3\}$ & cubic, paracompact & yes & dual of $\{3,4,3,4\}$, ideal cells \\
+$\{3,4,6,4\}$ & Petrial, paracompact & yes (3,4,6) & exotic abstract regular, has a 6 \\
+$\{4,4,3,3\}$ & square-tiling, noncompact & yes & infinite cells \\
+$\{4,4,4,4\}$ & square-tiling, noncompact & yes & self-dual, infinite cells \\
+\end{longtable}}
+
+\subsection{5D, hyperbolic pentacombs, physical space 4D, the last regulars anywhere}
+
+There are no compact regulars in 5D. Five paracompact regulars exist, all crystallographic, all carrying a
+24-cell substructure, the $D_4$ hook.
+
+{\small
+\begin{longtable}{l c p{4.0in}}
+\caption{5D regular hyperbolic pentacombs. Best in 5D is $\{3,4,3,3,4\}$, the most direct $D_4$ hook, but all
+overshoot to 4D physical space and all are paracompact.}
+\label{tab:catalog-5d}\\
+\toprule
+Symbol & Crystallographic & Note \\
+\midrule
+\endfirsthead
+\toprule
+Symbol & Crystallographic & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{3,4,3,3,4\}$ & yes & best 5D alternative, carries the 24-cell tetracomb ($D_4$ / spinor hook) \\
+$\{3,4,3,3,3\}$ & yes & also carries the 24-cell hook (dual side) \\
+$\{3,3,4,3,3\}$ & yes & self-dual \\
+$\{4,3,3,4,3\}$ & yes & tesseractic flavor \\
+$\{3,3,3,4,3\}$ & yes & orthoplex endpoint \\
+\end{longtable}}
+
+\subsection{6D to 9D, physical space 5D to 8D, no regulars}
+
+{\small
+\begin{longtable}{r l l p{3.2in}}
+\caption{6D--9D. Listed only to complete the ladder. None are substrate candidates.}
+\label{tab:catalog-6d-9d}\\
+\toprule
+Dim & Physical space & Regulars & Note \\
+\midrule
+\endfirsthead
+\toprule
+Dim & Physical space & Regulars & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+6 & 5D & none & non-regular uniform paracompact plus infinitely many hypercompact \\
+7 & 6D & none & exotic uniforms only \\
+8 & 7D & none & exotic uniforms only \\
+9 & 8D & none & exotic uniforms only (the catalog stops here) \\
+\end{longtable}}
+
+The regular hyperbolic substrate search is a finite, fully enumerated set living in dimensions 2--5. Within it,
+$\{3,4,3,4\}$ is the unique regular that is simultaneously crystallographic, with marks $3$ and $4$ only,
+spinor-carrying, with 24-cell facets giving $D_4 = 8v + 8s + 8c$, and equipped with a flat 3D cubic cusp,
+$\{4,3,4\}$. Its only peers on the spinor axis are the 5D pentacombs $\{3,4,3,3,4\}$ and $\{3,4,3,3,3\}$, which
+have the same $D_4$ hook one dimension up but yield 4D physical space. The 3D compacts, $\{5,3,4\}$ and kin, are
+all non-crystallographic with no spinor. That triad of properties is the whole selection.
+
+\subsection{Measured sweep, 2D tilings}
+
+The remaining tables give the full per-tiling data from the scale sweeps. Each 2D tiling was swept to $20{,}000$
+cells. The bulk is 2D, so the flat layer is a 1D horocycle, physical space is 1D, the most degenerate family. All
+are compact. Degree equals $p$, since the coin is the first symbol. The holographic correlator is the universal
+clean $1/r^2$, with $\mu = 1/b$, on every one.
+
+{\small
+\begin{longtable}{l c c r r p{2.5in}}
+\caption{Measured sweep, the eight regular 2D tilings. In 2D one can get compact and crystallographic together,
+$\{6,4\}$ and $\{4,6\}$, which the 3D compact regulars never manage. Even those two have no spinor and only 1D
+physical space.}
+\label{tab:sweep-2d}\\
+\toprule
+Tiling & Compact & Crystallographic & Degree & Growth & Note \\
+\midrule
+\endfirsthead
+\toprule
+Tiling & Compact & Crystallographic & Degree & Growth & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{7,3\}$ & yes & no (7) & 7 & 2.63 & heptagonal, Margenstern Fibonacci addressing, canonical anchor \\
+$\{5,4\}$ & yes & no (5) & 5 & 2.63 & pentagons, 4/vertex, Margenstern-addressed \\
+$\{8,3\}$ & yes & no (8) & 8 & 3.74 & octagons \\
+$\{4,5\}$ & yes & no (5) & 4 & 2.31 & squares, 5/vertex \\
+$\{3,7\}$ & yes & no (7) & 3 & 1.67 & triangles, 7/vertex, max branching \\
+$\{6,4\}$ & yes & yes (3,4,6) & 6 & 3.74 & hexagons, 4/vertex, compact and crystallographic \\
+$\{5,5\}$ & yes & no (5) & 5 & 3.50 & pentagons, 5/vertex, highly curved \\
+$\{4,6\}$ & yes & yes (3,4,6) & 4 & 2.63 & squares, 6/vertex, compact and crystallographic \\
+\end{longtable}}
+
+\subsection{Measured sweep, 3D honeycombs}
+
+Each 3D honeycomb was swept to $20{,}000$ cells. The bulk is 3D, so the flat horosphere layer is 2D. The headline
+is that no 3D honeycomb is compact and crystallographic at once. The four compact regulars all contain a $5$, so
+all are non-crystallographic. Of the eleven paracompact regulars, nine are crystallographic and two carry a $5$.
+
+{\small
+\begin{longtable}{l l c r r p{2.4in}}
+\caption{Measured sweep, the 3D regular honeycombs. The ideal rows have an infinite Euclidean cell, so the
+builder truncates it and the degree reading becomes an artifact (roughly $8{,}000$ to $17{,}000$) with growth $0$.
+These are not meaningful degrees. The clean finite-cell builds are $\{3,3,6\}$, $\{3,4,4\}$, $\{4,3,6\}$, and
+$\{5,3,6\}$.}
+\label{tab:sweep-3d}\\
+\toprule
+Honeycomb & Class & Crystallographic & Degree & Growth & Note \\
+\midrule
+\endfirsthead
+\toprule
+Honeycomb & Class & Crystallographic & Degree & Growth & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{5,3,4\}$ & compact & no (5) & 12 & 5.94 & committed 3D candidate, Margenstern-addressed \\
+$\{4,3,5\}$ & compact & no (5) & 6 & 4.04 & order-5 cubic \\
+$\{3,5,3\}$ & compact & no (5) & 20 & 8.75 & icosahedral, self-dual \\
+$\{5,3,5\}$ & compact & no (5) & 12 & 7.10 & order-5 dodecahedral, self-dual \\
+$\{3,3,6\}$ & paracompact & yes & 4 & 2.41 & finite tetrahedral cell, clean build \\
+$\{3,4,4\}$ & paracompact & yes & 8 & 5.04 & clean build \\
+$\{4,3,6\}$ & paracompact & yes & 6 & 4.57 & clean build \\
+$\{5,3,6\}$ & paracompact & no (5) & 12 & 7.25 & non-crystallographic \\
+$\{6,3,3\}$ & paracompact & yes & ideal & --- & ideal hexagonal-tiling cell (infinite) \\
+$\{4,4,3\}$ & paracompact & yes & ideal & --- & ideal square-tiling cell \\
+$\{3,6,3\}$ & paracompact & yes & ideal & --- & self-dual, ideal cell \\
+$\{6,3,4\}$ & paracompact & yes & ideal & --- & ideal cell \\
+$\{6,3,5\}$ & paracompact & no (5) & ideal & --- & ideal cell, has a 5 \\
+$\{4,4,4\}$ & paracompact & yes & ideal & --- & ideal square cell and vertex figure \\
+$\{6,3,6\}$ & paracompact & yes & ideal & --- & self-dual hexagonal, ideal cell \\
+\end{longtable}}
+
+\subsection{Measured sweep, 4D honeycombs}
+
+Each 4D honeycomb was swept to $25{,}000$ cells, with the flat Euclidean references added for curvature contrast.
+This is the winning dimension. Every 4D honeycomb gives a 3D horosphere cusp, so physical space is 3D, the
+observed value. One correction matters. $\{3,4,3,4\}$ is paracompact, not compact, as earlier drafts wrongly
+stated. Its ideal element is the Euclidean $\{4,3,4\}$ cubic honeycomb, which is the flat 3D cusp. So the
+paracompactness is exactly what supplies the 3D space, a feature rather than a defect.
+
+{\small
+\begin{longtable}{l p{0.85in} c l r r p{1.7in}}
+\caption{Measured sweep, the 4D regular honeycombs plus flat references. The ideal and 120-cell rows saturate the
+$25{,}000$-cell patch in one or two hops, so their degree and growth are artifacts. The clean builds are
+$\{3,4,3,4\}$ (degree 24, growth 10.15, hyperbolic), the flat twin $\{3,4,3,3\}$ (degree 24, growth 2.47),
+$\{4,3,3,4\}$ (degree 8, flat), $\{4,3,3,5\}$ (degree 8), and $\{3,3,3,5\}$ (degree 5). Only $\{3,4,3,4\}$ has
+24-cell ($D_4$) facets, so it alone carries the spinor coin $8s + 8c$ and the $\mathfrak{so}(10)$ gauge.}
+\label{tab:sweep-4d}\\
+\toprule
+Honeycomb & Class & Cryst. & Coin & Degree & Growth & Note \\
+\midrule
+\endfirsthead
+\toprule
+Honeycomb & Class & Cryst. & Coin & Degree & Growth & Note \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{3,4,3,4\}$ & paracompact & yes & 24-cell ($D_4$) & 24 & 10.15 & the substrate, $\{4,3,4\}$ cusp, $8s+8c$ \\
+$\{4,3,4,3\}$ & paracompact & yes & cubic & ideal & --- & dual of $\{3,4,3,4\}$, ideal cells \\
+$\{3,4,6,4\}$ & paracompact & yes & exotic & ideal & --- & Petrial, has a 6, ideal cells \\
+$\{4,4,3,3\}$ & noncompact & yes & square-tiling & ideal & --- & ideal square-tiling cells \\
+$\{4,4,4,4\}$ & noncompact & yes & square-tiling & ideal & --- & self-dual, ideal cells \\
+$\{3,3,3,5\}$ & compact & no (5) & 5-cell & 5 & 2.66 & tetrahedral cells \\
+$\{5,3,3,3\}$ & compact & no (5) & 600-cell & ideal & --- & 120-cell cells \\
+$\{4,3,3,5\}$ & compact & no (5) & tesseract & 8 & 5.93 & cubic family \\
+$\{5,3,3,4\}$ & compact & no (5) & 120-cell & ideal & --- & order-4 120-cell \\
+$\{5,3,3,5\}$ & compact & no (5) & 120-cell & ideal & --- & self-dual 120-cell \\
+$\{3,4,3,3\}$ & Euclidean (flat) & yes & 24-cell ($D_4$) & 24 & 2.47 & the flat $D_4$ twin, no curvature \\
+$\{4,3,3,4\}$ & Euclidean (flat) & yes & tesseract & 8 & 2.27 & flat $\mathbb{Z}^4$ reference \\
+\end{longtable}}
+
+The decisive contrast is the flat twin. $\{3,4,3,4\}$, with growth $10.15$ and hyperbolic curvature, and
+$\{3,4,3,3\}$, with growth $2.47$ and flat, share the same degree-24 $D_4$ spinor coin and the same 3D layer. The
+only difference is curvature, exponential versus polynomial growth. The flat twin has no gravity, no holography,
+and no expansion. So curvature is the single decisive ingredient.
+
+\subsection{Measured sweep, 5D candidates}
+
+Each 5D candidate was swept to $30{,}000$ cells, against the $\{3,4,3,4\}$ champion shown for contrast. The bulk
+is 5D, so the flat layer is 4D, one dimension too many. These five are the best alternatives. They keep the $D_4$
+spinor hook but overshoot the dimension and lose compactness.
+
+{\small
+\begin{longtable}{l r l c c p{0.9in} r}
+\caption{Measured sweep, the 5D candidates with the 4D champion for reference. All are paracompact, forced by the
+fact that compact regular hyperbolic honeycombs exist only through $H^4$. The high-degree coins (303 to 626)
+saturate the patch in about two hops, so their bulk spectral-dimension readings (0.3 to 0.6) are artifacts. The
+true bulk dimension is the rank, 5D for all five. The holographic correlator is the universal clean $1/r^2$ on
+all of them. The one worth a deeper look, if an emergent dimensional reduction could fix the 4D problem, is
+$\{3,4,3,3,4\}$, the most direct $D_4$ hook.}
+\label{tab:sweep-5d}\\
+\toprule
+Honeycomb & Degree & Bulk / phys & Cryst. & $[3,4,3]$ hook & Compact & Growth \\
+\midrule
+\endfirsthead
+\toprule
+Honeycomb & Degree & Bulk / phys & Cryst. & $[3,4,3]$ hook & Compact & Growth \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\{3,4,3,4\}$ (ref, 4D) & 24 & 4D / 3D & yes & yes & paracompact & 18.7 \\
+$\{3,4,3,3,4\}$ & 303 & 5D / 4D & yes & yes & no & 98 \\
+$\{3,4,3,3,3\}$ & 303 & 5D / 4D & yes & yes & no & 98 \\
+$\{3,3,4,3,3\}$ & 626 & 5D / 4D & yes & yes & no & 47 \\
+$\{4,3,3,4,3\}$ & 609 & 5D / 4D & yes & yes & no & 48 \\
+$\{3,3,3,4,3\}$ & 32 & 5D / 4D & yes & yes & no & 16 \\
+$\{5,3,3,3,3\}$ & --- & 5D / 4D & no (5) & no & no & --- \\
+\end{longtable}}

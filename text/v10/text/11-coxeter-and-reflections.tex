@@ -1,0 +1,106 @@
+\section{Coxeter Groups and Reflections}
+
+The honeycomb is not built by placing $24$-cells by hand. It is generated from one tiny chamber by mirrors. That is the theory of \emph{Coxeter groups}, the algebraic engine under the geometry, and it is worth its own treatment because it is the mechanism behind both the substrate and the flat 3D cusp. The intuition is a kaleidoscope. A few mirrors set at exact angles multiply one small region into an infinite symmetric world. In $\{3,4,3,4\}$ those mirrors generate a $24$-cell crystal whose ideal corners expose the flat cubic $\{4,3,4\}$, ordinary 3D space.
+
+\subsection{Reflections as generators}
+
+For a 4D Coxeter honeycomb the fundamental chamber is a 4-simplex with five walls, so the group has five generators $s_0, s_1, s_2, s_3, s_4$, each reflecting the chamber across one wall. A reflection done twice is the identity, $s_i s_i = e$, so each generator is its own inverse. Composing them gives a word. A word like $s_2 s_4 s_1 s_0$ means reflect across wall $0$, then $1$, then $4$, then $2$, and every such word lands on some chamber of the infinite honeycomb. The group is the set of all reflection words, taken modulo the relations that identify equivalent ones.
+
+A single reflection reverses orientation, producing a mirror image. Even-length products preserve orientation and odd-length products reverse it. Repeated reflection does not decorate the space, it builds it. One chamber becomes two, two become many, and the mirror process recursively fills all of $H^4$.
+
+\subsection{The relations are the mirror-angle integers}
+
+If two mirrors meet at angle $\pi/m$, the product of their reflections is a rotation by $2\pi/m$, which closes after $m$ steps, so $(s_i s_j)^m = e$. A handful of integers therefore fixes the whole infinite honeycomb. For $[3,4,3,4]$ the neighbouring pairs satisfy $(s_0 s_1)^3$, $(s_1 s_2)^4$, $(s_2 s_3)^3$, and $(s_3 s_4)^4$, and all non-adjacent mirrors are perpendicular, with $m = 2$. The compressed picture is the \emph{Coxeter-Dynkin diagram}, one node per mirror with edge labels for the angles, $\circ\,3\,\circ\,4\,\circ\,3\,\circ\,4\,\circ$ \cite{coxeter1973}.
+
+The chain of dependence runs cleanly downhill. The numbers fix the mirror angles, the angles fix the chamber, the chamber's reflections generate the group, the group generates the honeycomb, and the honeycomb fixes the large-scale geometry.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+object & group & diagram \\
+\midrule
+$\{7,3\}$ & $[7,3]$ & $\circ\,7\,\circ\,3\,\circ$ \\
+$\{5,3,4\}$ & $[5,3,4]$ & $\circ\,5\,\circ\,3\,\circ\,4\,\circ$ \\
+$\{3,4,3,4\}$ & $[3,4,3,4]$ & $\circ\,3\,\circ\,4\,\circ\,3\,\circ\,4\,\circ$ \\
+\bottomrule
+\end{tabular}
+\caption{Three regular hyperbolic tessellations with their Coxeter groups and diagrams.}
+\end{table}
+
+\subsection{One chamber equals one group element}
+
+The starting chamber is the identity. Reflecting across $s_0$ reaches the chamber labelled $s_0$, then $s_3 s_0$, and so on, so every chamber gets an address as a word in the generators. The group acts freely and transitively on chambers, which means one chamber corresponds to exactly one group element. Neighbours are found by multiplying by a single generator, and the entire honeycomb can be listed as pure symbolic words with no coordinates at all. This is the deep payoff. Geometry becomes word combinatorics.
+
+\begin{result}[Geometry as words]
+The chambers of a regular Coxeter honeycomb are in exact bijection with the elements of its Coxeter group. Adjacency, growth, and address are all computable from words in the five generators, with no floating-point coordinates required.
+\end{result}
+
+\subsection{The word problem and exact construction}
+
+Different words can name the same chamber. Beyond the cancellation $s_i s_i = e$ there are \emph{braid relations} such as $s_i s_j s_i = s_j s_i s_j$ when $m = 3$. The word problem, the question of when two words name the same element, is exactly solvable for Coxeter groups. Cancel repeats, apply braid moves, reduce to the shortest form, and among the shortest forms take the lexicographically smallest, the \emph{shortlex} normal form. Two words name the same chamber exactly when they share a normal form.
+
+This matters in practice. Deep in hyperbolic space, coordinate points crowd toward the boundary and distinct chambers become numerically indistinguishable, the float-precision wall. The word engine never asks whether two points are nearly equal. It asks whether two words reduce to the same normal form, which is exact integer logic. For $\{3,4,3,4\}$, one dimension up and with ideal vertices, this exactness matters even more. Coordinate pictures are only shadows. The exact object is the group.
+
+\subsection{Products of two reflections, the basic engines}
+
+Two reflections are the basic engine of geometry, and the result depends entirely on how the two mirror hyperplanes meet.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+how the mirrors meet & the product & what it builds \\
+\midrule
+they cross at angle $\pi/m$ & a rotation by $2\pi/m$ & rosettes, cyclic structure around a face \\
+they are ultraparallel & a translation along a perpendicular & a geodesic line or tube \\
+they meet only at infinity & a parabolic motion & a horosphere, a flat Euclidean layer \\
+\bottomrule
+\end{tabular}
+\caption{The three outcomes of composing two reflections.}
+\end{table}
+
+This three-way split is the core vocabulary. In $\{3,4,3,4\}$, crossing mirrors build the local fourfold rotation, since the final $4$ means four $24$-cells meet around each triangular face. Ultraparallel mirrors build a geodesic tube of $24$-cells, a one-dimensional transport spine through the 4D bulk, the higher-dimensional analogue of the $\{5,3,4\}$ sliver. Asymptotic mirrors build the all-important flat layer.
+
+\subsection{Parabolics build the flat 3D cusp}
+
+This is the most important construction for the substrate. A \emph{parabolic} motion fixes one boundary point, has no fixed point inside hyperbolic space, preserves the horospheres centred on that boundary point, and acts on them exactly like a Euclidean translation. The dimension ladder is direct. In $H^2$ parabolics build flat 1D horocycles, in $H^3$ flat 2D horospheres, and in $H^4$ flat 3D horospheres.
+
+Because $\{3,4,3,4\}$ lives in $H^4$, its horospheres are intrinsically flat 3D spaces. And because its ideal vertex figure is $\{4,3,4\}$, the horosphere near an ideal vertex is not just abstract flat 3D space, it carries the cubic honeycomb. So the parabolic or affine subgroup at an ideal vertex builds the flat cubic 3D layer directly. This is cleaner than $\{5,3,4\}$, which is compact, has no ideal vertices, and has no exact parabolic cusp subgroup, so its horospheres cut the dodecahedral cells aperiodically into a rough slab. In $\{3,4,3,4\}$ the flat 3D cubic layer is not an extracted slice. It is the exact vertex figure.
+
+\begin{result}[The flat layer is the affine subgroup]
+Inside the hyperbolic group $[3,4,3,4]$ sits the Euclidean affine subgroup $[4,3,4]$, the symmetry of the cubic honeycomb. Flat 3D space is therefore not added to the model later. It is the vertex figure, encoded in the group from the start.
+\end{result}
+
+\subsection{Richer compositions and the subgroup dictionary}
+
+Longer products give mixed motions. A \emph{screw}, a rotation combined with a translation, builds a helix or a chiral chain, and it is richer in 4D where rotations can occur in two perpendicular planes at once. A \emph{glide}, a reflection combined with a translation, builds a staggered mirrored chain, a marching mirror. A rotary reflection builds alternating turned-and-flipped layers. Choosing a subgroup of $[3,4,3,4]$ chooses which large structure you build.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+subgroup & structure & dimension and type \\
+\midrule
+one reflection & a mirror wall & 3D hyperbolic subspace \\
+two crossing & a rotation or rosette & local, finite or cyclic \\
+translation subgroup & a sliver or tube of $24$-cells & 1D geodesic \\
+screw subgroup & a helical or chiral tube & 1D twisting \\
+affine subgroup $[4,3,4]$ & the cubic honeycomb layer & 3D flat, the cusp \\
+full group $[3,4,3,4]$ & the entire honeycomb & 4D hyperbolic \\
+\bottomrule
+\end{tabular}
+\caption{Subgroups of $[3,4,3,4]$ and the structures they generate.}
+\end{table}
+
+The cleanest classification is by fixed points on the $3$-sphere boundary at infinity. Two boundary fixed points give a line or tube, one gives a flat 3D horosphere, and an interior fixed set gives a rotation. The one-fixed-point parabolic case is the mechanism by which the 4D hyperbolic crystal exposes flat 3D space.
+
+\subsection{From chambers to 24-cells, and the exceptional symmetry}
+
+A $24$-cell is assembled from many chambers, and the cell stabilizer, all reflections except the final outward generator, is the cell's own symmetry group. For $[3,4,3,4]$ the cell is $\{3,4,3\}$ and its stabilizer is $[3,4,3]$, the full reflection group of the $24$-cell, the 4D group associated with $F_4$ of order $1152$. So the construction has two layers. Chambers assemble into one $24$-cell under $[3,4,3]$, and $24$-cells assemble into the honeycomb under $[3,4,3,4]$, with the outward generator attaching one $24$-cell to the next across a shared octahedral facet. The cell stabilizer being the exceptional $F_4$ group is why $\{3,4,3,4\}$ feels denser and more algebraically special than the icosahedral $[5,3]$ of $\{5,3,4\}$.
+
+\subsection{The three-layer reading and the universal machine}
+
+The reflection grammar hands the model exactly three structural layers. The bulk is the full group $[3,4,3,4]$, the 4D hyperbolic substrate of $24$-cells. The sliver is a translation subgroup, a 1D geodesic tube for transport and long-range probes. The flat emergent layer is the parabolic or affine subgroup at an ideal vertex, the cubic $\{4,3,4\}$ that is ordinary 3D physical space. The central image is a reflection-generated hyperbolic 4D crystal whose parabolic and ideal structure is ordinary flat 3D space.
+
+The honeycombs $\{7,3\}$, $\{5,3,4\}$, and $\{3,4,3,4\}$ are not separate inventions. They are outputs of one machine. Change only the integer symbol and the same reflection logic generates a different regular hyperbolic world. Choose the diagram, build the Coxeter matrix, generate words, reduce to normal form, enumerate chambers, group them into cells, and read off adjacency and growth. Tiny inputs, infinite outputs. The geometry is a group first, and the picture is the group made visible. The whole structure is forced by symmetry, not placed by hand.

@@ -1,0 +1,126 @@
+\section{Computation, Universality, and Addressing}
+
+Before life and mind, one fact licenses the whole climb. The substrate can compute anything. This is the permission slip for everything that follows. The wild claim, that one rule on a crystal yields atoms, weather, and minds, rests on a modest fact. The rule is universal, so any pattern that can exist at all is a pattern the rule can host. A complex world does not require a complex law. The rest of this part is more speculative than the physics that came before it, and the present chapter is the firmest rung in it, because universality and addressing are settled questions that can be checked in code rather than argued by analogy.
+
+\subsection{The substrate is a computer}
+
+The dynamics is a discrete-state, 24-neighbour \emph{cellular automaton} on the $\{3,4,3,4\}$ honeycomb. It is not a computer by analogy. It is a cellular automaton on the nose. There is no outside machine, no operator, no screen. Running the rule on the substrate is what existence does in this model. Universality rests on four legs, all run in the codebase \cite{pollard2026vibetest}. The first three give \emph{weak} universality, the standard hyperbolic cellular-automaton notion that allows an infinite or ultimately periodic background. The fourth gives \emph{strong} universality with no such crutch.
+
+\begin{itemize}
+  \item \textbf{Leg one, the Margenstern structure is present.} What Margenstern (margenstern2008) used to prove the hyperbolic grids $\{7,3\}$, $\{5,4\}$, and $\{5,3,4\}$ universal all has its $\{3,4,3,4\}$ analog. The Fibonacci tree becomes the addressing tree with growth near $18.4$, a bushier generalized-Fibonacci tree. The black and white son types become the region types of the splitting matrix. The preferred son becomes the digit-0 spine. The full 24 interior directions give abundant room for the railway model of a train on switched tracks, since a junction needs only three edge-disjoint directions.
+  \item \textbf{Leg two, the rule itself is functionally complete.} The model's own signed-majority update, with a $+1$ bias and two $-1$ fills, computes NAND, which is functionally complete. From NAND it builds NOT, AND, OR, XOR, a full adder, and in particular Rule 110, which Cook proved universal. The rule-built Rule 110 reproduces a reference Rule 110 exactly. The substrate's own ternary rule hosts a Cook-universal automaton.
+  \item \textbf{Leg three, a conserving register machine.} A two-counter Minsky machine, which is Turing-universal, runs directly on the mesh. Registers are charged subtrees navigated by address. Increment is the arrow creating a balanced pair. Decrement is annihilation. Test-for-zero is perception, counting the charges. Total tone stays exactly conserved throughout, so this is genuine substrate dynamics and not a circuit bolted on. It runs real programs. Addition gives $3+4=7$ and multiplication gives $3 \times 4 = 12$ and $5 \times 5 = 25$, with charge conserved at every step.
+  \item \textbf{Leg four, strong universality from the cusp.} The cusp is the Euclidean cubic honeycomb $\{4,3,4\} = \mathbb{Z}^3$, and Conway's Game of Life on a $\mathbb{Z}^2$ layer of it is a known universal cellular automaton. This is now run, not merely argued. A glider seeded on the actual $\{4,3,4\}$ cusp plane evolves identically to a reference $\mathbb{Z}^2$ Life and translates by $(1,-1)$ after its period-4 cycle. So the theory's emergent physical space is itself a universal computer, run in the codebase.
+\end{itemize}
+
+\begin{result}[Universality on four legs]
+The $\{3,4,3,4\}$ substrate is universal in four independent ways. Its addressing tree carries the Margenstern structure, its ternary rule computes NAND and hence Rule 110, a conserving Minsky machine runs on the mesh with charge exactly conserved, and Conway's Life runs on the flat cusp plane. The first three give weak universality, the fourth gives strong universality \cite{pollard2026vibetest}.
+\end{result}
+
+The distinction worth holding is capacity versus outcome. Universality is about what can be expressed, not about freedom of result. The capacity is unlimited. The outcome of any given run is exactly one.
+
+\subsection{Undecidability comes with the power}
+
+The moment a system can simulate a universal machine, its halting becomes undecidable. This is not a flaw. It is the formal signature of a world in which the only way to know the future is to live it. The rule still produces a perfectly definite future. There is simply no algorithm that fast-forwards to the answer in general. This is the same computational irreducibility that grounds the freedom argument later in the paper. The natively undecidable problem on the substrate is the domino problem, which asks whether given tile types can cover the plane. It is undecidable precisely because the substrate is a tiling, so undecidability is a native feature of the geometry rather than an import from outside it.
+
+There is a clearly speculative aside worth stating and then setting aside. If a cell had infinitely many neighbours, in the manner of the Margenstern-Grigorieff infinigrid, it could evaluate a quantifier in one tick and decide every level of the arithmetical hierarchy, which would be hypercomputation. We keep this firmly speculative. It needs unbuildable infinite objects, and $\{3,4,3,4\}$ has 24-direction cells rather than infinitely many, so the result does not apply to the actual substrate. The clean theorem on undecidability and the labelled thought experiment on hypercomputation are never confused.
+
+\subsection{Addressing $\{3,4,3,4\}$ at scale}
+
+For the universe to be computable and navigable in practice, every cell must compute its own neighbours from its own name, with no master map. Margenstern's splitting and Fibonacci-addressing program does this for $\{7,3\}$ and $\{5,3,4\}$ (margenstern2013), and it has now been extended to $\{3,4,3,4\}$ and verified. Steinberg's formula on the $[3,4,3,4]$ Coxeter group gives the exact shell recurrence, with shells of size $1, 24, 456, 8376, \ldots$, and a growth rate that defines a Zeckendorf-style numeration system for cell addresses. The surprise that makes the port clean is that $\{3,4,3,4\}$ has no same-shell cousins, so the hard 2D piece of Margenstern's method is simply absent. The neighbour map is then a finite generator-address transducer, a small automaton deterministic at window $K=2$ through shell three.
+
+\begin{result}[Addressing solved at scale]
+Every cell of $\{3,4,3,4\}$ has a unique, self-describing, $O(\log n)$ address, with zero duplicate addresses and zero decode round-trip failures. The neighbour set is reconstructed exactly from parent plus children plus the confluence transducer. Greedy address-routing delivers $1999/2000$ at mean stretch $1.004$. The core adjacency invariants, namely zero cousins, unique addresses, and deterministic confluence, were confirmed to survive to $2{,}000{,}000$ cells \cite{pollard2026vibetest}.
+\end{result}
+
+So $\{3,4,3,4\}$ is a computable substrate at scale. A cell knows where it is and who its neighbours are from its name alone. This enables large-scale simulation of the dynamics, and it makes good on the theory's claim that the universe is computable, and discrete rather than continuous, whether finite or infinite.
+
+\subsection{Margenstern's sons, ported to $\{3,4,3,4\}$}
+
+Margenstern's 2D method gives each tree node a type. The pentagrid has two, a black son with two children and a white son with three. The types reproduce each other by a fixed rule, the matrix of that rule generates the Fibonacci growth, and a preferred son continues the main spine. The $\{3,4,3,4\}$ port keeps the whole structure. It is richer but the same in shape.
+
+A cell's type is its number of canonical children. There are exactly ten types, with child counts running from 15 to 24, the $\{3,4,3,4\}$ analog of the pentagrid's black and white pair. The splitting matrix $M$ has $M[i][j]$ equal to the average number of type-$j$ children a type-$i$ cell has. Its dominant Perron eigenvalue is $18.284$, which equals the measured shell growth ratio, since $1, 24, 456, 8376$ has ratio tending to about $18.37$. Its characteristic polynomial is the shell recurrence. So $M$ plays exactly the role the pentagrid's small son-matrix plays, generalized from $2 \times 2$ to $10 \times 10$. The preferred son is the digit-0 child, the canonical spine successor running root to cell 1 to cell 25 and onward. The simplification is the absence of cousins. In 2D the hard part is the cousin automaton for same-ring neighbours across branches. Here every one of a cell's 24 neighbours is a parent or a child, so that automaton is not needed. The only non-tree structure is confluence, a cell reachable as a child of more than one parent, handled by a small finite transducer that is deterministic at window 2. The $\{3,4,3,4\}$ tree is therefore structurally simpler than the 2D originals it descends from.
+
+\subsection{The addressing idea in its cleanest form}
+
+The idea is most transparent in Margenstern's classic 2D case, the heptagrid $\{7,3\}$, where the growth is the Fibonacci recurrence and the addresses are \emph{Zeckendorf} strings. Number the cells ring by ring, then rewrite each number in the Fibonacci base, whose place values are $1, 2, 3, 5, 8, 13, \ldots$. By Zeckendorf's theorem every integer is a unique sum of non-adjacent Fibonacci numbers, so no address ever has two ones in a row, which makes the valid addresses a regular language that a tiny automaton recognizes.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}rll@{}}
+\toprule
+cell & Fibonacci sum & address \\
+\midrule
+1  & 1         & 1 \\
+2  & 2         & 10 \\
+3  & 3         & 100 \\
+4  & $3 + 1$     & 101 \\
+5  & 5         & 1000 \\
+6  & $5 + 1$     & 1001 \\
+7  & $5 + 2$     & 1010 \\
+8  & 8         & 10000 \\
+9  & $8 + 1$     & 10001 \\
+10 & $8 + 2$     & 10010 \\
+11 & $8 + 3$     & 10100 \\
+12 & $8 + 3 + 1$ & 10101 \\
+\bottomrule
+\end{tabular}
+\caption{Zeckendorf addressing on the heptagrid $\{7,3\}$.}
+\end{table}
+
+Routing is pure string surgery. The parent is found by stripping a digit, a child by extending by a legal digit. To route from $A$ to $B$ you compare addresses from the left, walk up to the common ancestor, then walk down. Sending a message from cell 12, with address 10101, to cell 9, with address 10001, the shared prefix is 10, which names cell 2 as the common ancestor. The path goes up from 12 to 7 to 4 to 2, then down from 2 to 3 to 5 to 9. The full route is $12, 7, 4, 2, 3, 5, 9$, six hops, with every cell comparing only two short strings and no map consulted. Heptagrid routing delivered 100 percent at low stretch in the runs. This is the clean 2D template. The $\{3,4,3,4\}$ case carries the same idea, with route-from-the-root, parent-by-strip, and common-prefix routing, but with a richer numeration whose growth root is near $18.3$ rather than the golden ratio, so the base is the 24-way child index rather than Zeckendorf binary, and with no cousins.
+
+\subsection{A worked address example}
+
+Addresses on $\{3,4,3,4\}$ are dot-separated digits. Each digit is the index of a cell among its parent's children, ordered deterministically by embedding, and the whole string is the route from the root. The root is the empty address written $e$. Shell-1 cells are single digits, shell-2 cells are two digits, and child counts vary by son type. The following cells are real output of the addressing code.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}rrlrr@{}}
+\toprule
+cell & shell & address & parent & children (son type) \\
+\midrule
+0  & 0 & $e$   & --- & 24 \\
+1  & 1 & 0   & 0 & 23 \\
+2  & 1 & 1   & 0 & 22 \\
+3  & 1 & 2   & 0 & 21 \\
+\dots & 1 & \dots & 0 & \dots \\
+24 & 1 & 23  & 0 & 15 \\
+25 & 2 & 0.0 & 1 & 22 \\
+26 & 2 & 0.1 & 1 & 21 \\
+\bottomrule
+\end{tabular}
+\caption{A few $\{3,4,3,4\}$ cells with shell, address, parent, and child count.}
+\end{table}
+
+A routing walk from cell $A$ to cell $B$ is pure address arithmetic. Compare the two addresses from the left, walk up from $A$ to the common ancestor by dropping the last digit to reach the parent, then walk down to $B$ by appending $B$'s remaining digits to reach the named child. Take $A$ to be cell 481, address 0.0.0, and $B$ to be cell 503, address 0.1.0. Their longest shared prefix is 0, so the common ancestor is cell 1, address 0.
+
+\begin{table}[ht]
+\centering
+\begin{tabularx}{\textwidth}{@{}rrlX@{}}
+\toprule
+step & cell & address & operation \\
+\midrule
+0 & 481 & 0.0.0 & start ($A$) \\
+1 & 25  & 0.0   & drop last digit, go to parent \\
+2 & 1   & 0     & drop last digit, reach the common ancestor \\
+3 & 26  & 0.1   & append digit 1, go to child \\
+4 & 503 & 0.1.0 & append digit 0, reach $B$ \\
+\bottomrule
+\end{tabularx}
+\caption{A routing walk from cell 481 to cell 503, four hops.}
+\end{table}
+
+Four hops, which equals the shortest-path distance, is exactly the address arithmetic the routing uses, with no map and no coordinates. The neighbour set of $A$ is likewise reconstructed from its name alone. It is parent 25, plus 21 children, plus 2 confluence alternate-parents, plus 0 alternate-children, totalling $A$'s full 24 facet-neighbours.
+
+\subsection{One structure, computation and physics}
+
+The decisive point is that the computation and the physics sit on the same structure. Margenstern's heptagrid and pentagrid carry the Fibonacci addressing and the universality, but nothing else. They are 2D, with no spinor, no Standard Model, and no 3D space. They are computation substrates and nothing more. The $\{3,4,3,4\}$ grid carries the whole package and the physics, because the same 24-cell coin that gives the bushy generalized-Fibonacci tree is the $D_4$ root system that gives the spinor, $SO(10)$, and the three generations, and the same cusp that runs Conway's Life is the flat 3D space where gravity and the light cone live.
+
+\begin{principle}[One substrate for navigation, universality, and physics]
+The 24-cell coin of $\{3,4,3,4\}$ is at once the address-tree generator and the $D_4$ root system, and its cusp is at once the flat 3D space of physics and a universal cellular automaton. Navigation, universality, and physics therefore sit on one structure, with nothing added between them.
+\end{principle}
+
+So the old trade-off, that $\{7,3\}$ wins universality while $\{3,4,3,4\}$ wins spin and the two are complementary, is dissolved. The $\{3,4,3,4\}$ grid has both, and it is structurally simpler with no cousins than the 2D grids it descends from. The substrate is at once Lorentz-safe, exactly addressable, computationally universal, both weakly through the ternary NAND, Rule 110, and the register machine, and strongly through cusp Life, and physically loaded. The key caveat is that universality covers the structure of any process, not the felt interior. The qualia, the inner light, is taken as the base in the monism. That is a stance, not a derivation.
+
+Computation is the floor under the whole ladder. The substrate can host any pattern, it cannot in general be shortcut because of undecidability, and it is navigable from local names alone through the addressing.
