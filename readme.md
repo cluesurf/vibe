@@ -69,9 +69,10 @@ spinor-carrying, and three-dimensional where physics lives.
 
 For the framework itself see the
 [companion papers](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch)
-and a high-level [overview](https://cluesurf.substack.com/p/vibe-mesh).
-The latest paper is in `text/v10/`, and a short distilled map of the
-model is in [note/the-model.md](note/the-model.md).
+and a high-level
+[overview](https://www.youtube.com/watch?v=IE2uHC0qX1o). The latest
+paper is in `text/v10/`, and a short distilled map of the model is in
+[note/the-model.md](note/the-model.md).
 
 ## What this repo is
 
