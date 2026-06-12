@@ -35,14 +35,15 @@ there.
 
 ## Introduction
 
-Vibe Theory treats reality as one thing, a vast growing crystal of
-experience. The image above is its simplest face, the hyperbolic `{7,3}`
-tessellation, and it is meant literally. Each tile is a **vibe**, the
-smallest unit of experience. Each vibe carries a ternary **tone**, its
-felt charge, shown as a color: **red is pain, green is peace, blue is
-pleasure**. Tiles that touch are vibes that **note** (experience) one
-another, so the edges of the crystal are the relations of the mesh.
-There is nothing else in the model but this.
+[Vibe Theory](https://doi.org/10.5281/zenodo.20665953) treats reality as
+one thing, a vast growing crystal of experience. The image above is its
+simplest face, the hyperbolic `{7,3}` tessellation, and it is meant
+literally. Each tile is a **vibe**, the smallest unit of experience.
+Each vibe carries a ternary **tone**, its felt charge, shown as a color:
+**red is pain, green is peace, blue is pleasure**. Tiles that touch are
+vibes that **note** (experience) one another, so the edges of the
+crystal are the relations of the mesh. There is nothing else in the
+model but this.
 
 To hold it at a glance: a single tile is one quantum of experience, a
 patch of tiles is a thing or a mind, and the whole crystal is the
@@ -78,8 +79,8 @@ model is in [note/the-model.md](note/the-model.md).
 turns the theory into runnable measurements. It is the bench where the
 model is built, stress-tested, and checked against known physics. It
 generates the discrete substrate (the mesh), runs the one local rule
-over it in discrete beats, and measures what emerges, so each
-question becomes a concrete experiment that either works or does not.
+over it in discrete beats, and measures what emerges, so each question
+becomes a concrete experiment that either works or does not.
 
 Everything is finite and seeded, so every result is exactly
 reproducible. Real numbers appear only as measured outputs (coordinates,
@@ -134,8 +135,8 @@ which is why a curved mesh is the committed choice.
   Coxeter engine, including the `{3,4,3,4}` cell graph with `O(log n)`
   addressing, plus hyperbolic random graphs, regular lattices, Minkowski
   and curved sprinklings, and classical sequential growth.
-- **tone**: the ternary alphabet and the directional fill carried on each
-  cell.
+- **tone**: the ternary alphabet and the directional fill carried on
+  each cell.
 - **rule**: synchronous, asynchronous, reversible, rewriting, and gauge
   updates.
 - **operator**: graph Laplacian, Kahler-Dirac and overlap fermions, the
