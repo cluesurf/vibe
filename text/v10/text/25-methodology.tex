@@ -1,0 +1,77 @@
+\section{Methodology}
+
+This part sits in the middle of the paper. It explains how each result was obtained and lays out the survey that
+ranges across every dimension. The chapters that follow give the selection argument itself. Here we describe the
+shared machinery once, so that the later claims can be read without stopping to ask what the words
+\emph{measured} or \emph{derived} stand for. The per-sector detail belongs to the longer methodology notes, and
+the per-dimension data belongs to the appendices. What is gathered here is the common ground that every
+computation in the paper rests on.
+
+\subsection{The construction}
+
+Everything begins with a single object, the cell-adjacency graph of a honeycomb. A \emph{cell-graph builder}
+takes a Schl\"afli symbol and grows the honeycomb outward. Each cell is tracked as a group element, that is, as a
+matrix in the symmetry group, and neighbours are reached by applying the face reflections. The traversal is a
+breadth-first search whose cost scales with the facet count times the number of cells visited. This works
+cleanly for the curved honeycombs that the paper cares about most. The flat references need a different route.
+A separate \emph{Euclidean lattice builder} constructs the flat cases, the $D_4$ root lattice and the integer
+lattices $\mathbb{Z}^n$, directly. The reason is geometric rather than a matter of taste. A flat honeycomb has
+its cell centre at an ideal point, which is to say at infinity, and the hyperbolic builder stalls there. Building
+the flat lattices by hand sidesteps that failure and gives clean controls.
+
+\subsection{The probes}
+
+A small set of probes turns the graph into numbers. Each one targets a different physical quantity, and together
+they cover dimension, dynamics, gravity, and the internal symmetry content. We list them here and return to each
+in the sectors where it does its work.
+
+\begin{itemize}
+  \item Breadth-first shells give the growth profile, which feeds dimension, curvature, cosmology, and the
+  hierarchy of scales.
+  \item The lazy random walk gives the spectral dimension through its return probability, which falls like
+  $t^{-d/2}$.
+  \item The Bethe-lattice cavity recursion gives the exact Green's function on the infinite tree, which feeds
+  gravity and holography.
+  \item The kernel polynomial method with a stochastic trace gives spectral quantities, such as the Skyrme sea
+  energy, without ever diagonalising a matrix. It uses only matrix-vector products and scales onto a GPU.
+  \item Representation theory reads off the directional coin's spinor and gauge content, which is where spin and
+  the unified group come from.
+  \item Variance-reduction methods, common random numbers and singular-part subtraction, cancel the
+  finite-patch and boundary contamination that would otherwise corrupt the gravity law.
+  \item WebGPU carries the large-scale dynamics, the $24$-direction lattice gas, the bulk wave, the skyrmion,
+  and the kernel polynomial spectra.
+\end{itemize}
+
+\subsection{The hyperbolic-bulk toolkit}
+
+Hyperbolic patches present a sharp practical problem. A finite ball in $H^n$ is almost all boundary, around $99$
+percent of its cells touch the edge, so a naive bulk measurement is swamped by surface effects. A dedicated
+toolkit, set out in full in the appendix, removes the confound by never trusting a raw finite patch. The Bethe
+recursion works on the infinite tree directly, so there is no finite patch to corrupt. Closed manifolds remove
+the boundary altogether. Hyperbolic band theory puts a momentum space on a closed manifold, which makes the
+spectrum tractable. Tensor networks contract at polynomial cost. The kernel polynomial method reads spectra from
+matrix-vector products alone. Bulk-local observables are designed to ignore the surface. The point of the whole
+kit is that any quantity claimed for the bulk has been measured by a method that the boundary cannot reach.
+
+\subsection{Reporting conventions}
+
+Every result in the paper carries one of four tags. \emph{Derived} means it follows by argument from the base.
+\emph{Measured} means it was computed on the substrate. \emph{Predicted} means the framework implies it but it has
+not yet been checked. \emph{Open} means the question is genuinely unsettled. We hold ourselves to two further
+commitments, and the appendix audits both.
+
+\begin{principle}[Tag every claim]
+No statement about the substrate is presented without one of the four tags. A measurement that was later found to
+be confounded, such as the early gravity exponents taken on small patches, is flagged as confounded and
+superseded by the result from the correct method, rather than quietly dropped.
+\end{principle}
+
+\begin{principle}[Nothing added to the base]
+No computation in the paper introduces a new term, field, bias, or rule beyond the stated base in order to make a
+result come out. When a phenomenon does not emerge from the base, the negative is reported. The base is
+fixed before the experiments run, and it stays fixed.
+\end{principle}
+
+These two rules are what let the selection argument carry weight. If the experiments could be tuned, a match
+with known physics would prove nothing. Because the base is frozen and every claim is tagged, a match is
+information and a failure is information, and the reader can tell which is which.

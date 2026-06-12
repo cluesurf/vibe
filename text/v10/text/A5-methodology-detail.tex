@@ -1,0 +1,227 @@
+\section{Methodology Detail, Per Sector}
+
+This appendix is the detailed record of how each result was actually measured, sector by sector. For each result
+it gives the exact method, the confound that had to be beaten, and the fix. The methodology chapter gives the
+overview. This is the detail. Every result is tagged MEASURED for direct simulation, DERIVED for group theory or
+exact calculation, or PREDICTED for a quantitative consequence not yet checked. The computational records are in
+\cite{pollard2026vibetest}.
+
+\subsection{Common methods}
+
+These are used across sectors.
+
+\begin{itemize}
+  \item \textbf{Cell-graph construction.} The cell-graph builder builds the honeycomb's cell
+  adjacency by tracking each cell as a group element, a matrix, and reaching neighbours via the face reflections.
+  This is an $O(\mathrm{facet} \cdot n)$ breadth-first search. The flat-lattice builder
+  builds the Euclidean references ($D_4$, $\mathbb{Z}^4$, $\mathbb{Z}^3$) directly. The hyperbolic builder stalls
+  on flat honeycombs because their cell center is an ideal point, which is a correct signal of flatness.
+  \item \textbf{BFS shells.} Breadth-first layers from a central cell give the growth profile, feeding dimension,
+  curvature, cosmology, and hierarchy.
+  \item \textbf{Lazy random-walk return probability.} $P(t) \sim t^{-d/2}$ gives the spectral dimension,
+  $d = -2\, \mathrm{d}\log P / \mathrm{d}\log t$.
+  \item \textbf{Bethe-lattice cavity recursion.} The exact infinite-tree Green's function, for gravity and
+  holography.
+  \item \textbf{Kernel Polynomial Method plus stochastic trace.} Spectral quantities such as sea energy and
+  density of states, without diagonalization, matvec-only and GPU-scalable.
+  \item \textbf{WebGPU.} Large-scale dynamics, the 24-direction gas, the bulk wave, the skyrmion, and the KPM, on
+  the GPU.
+\end{itemize}
+
+\subsection{Gravity}
+
+\begin{itemize}
+  \item \textbf{Flat-3D Newtonian $1/r$, the difference method (p224).} The lattice Green's function of the
+  Laplacian, $G(r)$. The naive finite-patch sum is contaminated by the $k = 0$ zero mode and boundary effects, and
+  earlier gave a garbage exponent $-1.33$. The fix computes $G(r) - G(r_0)$ with the regular cosine integrand, so
+  the $k = 0$ singularity cancels in the difference, then fits $G(r) - G(2) = a/r + b$. The result is
+  $a \approx 0.083 \approx 1/(4\pi)$, a clean $1/r$. MEASURED.
+  \item \textbf{Bulk-mediated correlator, the Bethe recursion (p239, p218).} The exact infinite-tree Green's
+  function by the cavity recursion, with no finite patch. The boundary-to-boundary correlator decays as
+  $1/r^\alpha$ with $\alpha = 2\ln(1/\mu)/\ln(b)$, and $\mu = 1/b$ universally, so $\alpha = 2$. Validated against
+  a directly solved finite tree. DERIVED and MEASURED.
+  \item \textbf{Cusp cross-check.} Re-measured on the $\{4,3,4\}$ cubic cusp by a screened-Laplacian solve.
+  Spectral dimension is 3. The exponent there is small-$r$ and finite-size limited, about $0.67$, read as a
+  convergence check. The clean $1/r$ is from the difference method.
+  \item \textbf{Caveat.} The bulk $1/r^2$, the holographic 2-point function, and the flat-layer $1/r$, the
+  Newtonian law, are different objects.
+\end{itemize}
+
+\subsection{Holography}
+
+\begin{itemize}
+  \item \textbf{Bulk-mediated boundary correlator (p239).} Bethe recursion, clean $1/r^2$. DERIVED and MEASURED.
+  \item \textbf{Same correlator by tensor network (p241).} A tree-tensor (MERA) of random isometries, with the
+  leaf-leaf 2-point function found by contracting the network. The decay is set by the ascending superoperator's
+  second eigenvalue. The result is about $1/r^{1.93}$, matching Bethe by a different algorithm at polynomial cost,
+  taming the exponential growth. Perfect tensors give the HaPPY code. MEASURED.
+  \item \textbf{Hyperbolic band theory (p243).} On a closed hyperbolic manifold, the $\mathrm{PSL}(2,7)$ Cayley
+  graph, the symmetry group is finite, so its irreps are the momenta and the spectrum block-diagonalizes by irrep.
+  Eigenvalue degeneracies equal the irrep dimensions, $\{1, 6, 7, 8\}$, a momentum space with no real-space patch.
+  MEASURED.
+  \item \textbf{Emergent nonlocality, Bell (p236).} CHSH for a local deterministic strategy by brute force, max
+  $2$, versus quantum with optimal angles, $2\sqrt{2} = 2.83$. A local discrete base obeys $\mathrm{CHSH} \le 2$,
+  so quantum nonlocality requires a nonlocal boundary, which holography supplies, since two boundary points
+  connect through the bulk. DERIVED.
+  \item \textbf{Caveat.} Finite hyperbolic patches are about $99$ percent boundary, so naive bulk measurements are
+  confounded. The holographic toolkit, recursion, closed manifolds, band theory, and tensor networks, is the
+  correct method.
+\end{itemize}
+
+\subsection{Cosmology and expansion}
+
+\begin{itemize}
+  \item \textbf{Bulk shell growth (p237).} The cell-graph builder then a BFS sweep recording shell sizes, the
+  cells at each radial distance, where radial distance equals cosmic time, one shell per beat. Shell sizes
+  $1, 24, 456, 8376, 31143$ give a constant ratio $R \approx 11$ per beat, exponential. MEASURED.
+  \item \textbf{Scale factor.} The 3D volume $\sim a^3$ grows by $R$ per beat, so $a(t) \sim R^{t/3} = e^{Ht}$ with
+  $H = \ln(R)/3 \approx 0.80$ per beat, and $a''/a = H^2 > 0$, accelerating, with $\Lambda = 3H^2 \approx 1.9$ in
+  beat units. DERIVED.
+  \item \textbf{Flat control.} $\{3,4,3,3\}$ grows polynomially, ratio about $2.5$, with no de Sitter, so the
+  expansion is a curvature effect.
+  \item \textbf{Caveat.} The geometric ratio to physical Hubble rate needs a beat-to-second and cell-to-length
+  identification, which is not pinned, so $H$ is in beat units. A multi-era cosmology with radiation and matter
+  before de Sitter needs matter back-reaction, not yet modelled.
+\end{itemize}
+
+\subsection{Spin and fermions}
+
+\begin{itemize}
+  \item \textbf{Spinor coin (p190).} Decompose the 24-direction coin, the 24-cell equal to $D_4$, under the
+  symmetry group, $24 = 8v + 8s + 8c$, the $\mathfrak{so}(8)$ vector plus two spinors, with $S_3$ triality
+  permuting them, the three generations. The control $\{5,3,4\}$, 12 directions, gives $1 + 3 + 3' + 5$,
+  icosahedral, no spinor. DERIVED.
+  \item \textbf{Self $=$ fermion (p206).} A self is a hopfion, the Hopf map $S^3 \to S^2$, with charge in
+  $\pi_3(S^2) = \mathbb{Z}$. Compute the Hopf linking charge, apply Finkelstein-Rubinstein and Wilczek-Zee, and an
+  odd charge picks up $-1$ under $2\pi$, a fermion. Triple-confirmed by Hopf charge, configuration-space $\pi_1$,
+  and spin-statistics. DERIVED.
+  \item \textbf{Skyrme stabilizer (Skyrme-twist simulation, GPU).} Measure the fermion sea energy of a
+  double-twist periodic texture by KPM, a Chebyshev expansion of $|H|$ with a stochastic trace, subtract a
+  single-helix control by common random numbers to isolate the Skyrme term, and fit $A q^2 + B q^4$. The result is
+  positive, $+798$ and $+814$, stabilizing, with exchange ratio about $1.5$. So matter forms and is stable, no
+  fine-tuning. MEASURED.
+  \item \textbf{Caveat.} Earlier localized-soliton attempts (p205, p214, p216) were confounded by
+  surface-dominated sea energy. The double-twist periodic method with the helix control supersedes them.
+\end{itemize}
+
+\subsection{Gauge and the Standard Model}
+
+\begin{itemize}
+  \item \textbf{$\mathfrak{so}(10)$ from coin plus tone (p221).} Combine the $D_4$ root system,
+  $\mathfrak{so}(8)$, with the ternary tone as an extra weight, building $D_5 = \mathfrak{so}(10)$. The 16 spinor
+  is one generation, $16 = 8s$ (tone $+$) and $8c$ (tone $-$). DERIVED.
+  \item \textbf{Breaking (p225, p227).} Take a self-condensate, the GUT Higgs, compute the unbroken subgroup,
+  $\mathfrak{so}(10) \to \mathfrak{su}(5) \to \mathrm{SM}$, the Georgi-Glashow chain, with
+  $16 = 1 + 10 + \bar{5}$. Any self-condensate gives $\mathfrak{su}(5)$, 20 unbroken roots, so the breaking is
+  automatic. DERIVED.
+  \item \textbf{$\sin^2\theta_W = 3/8$ (p228).} Sum over one generation,
+  $\sin^2\theta_W = \sum T_3^2 / \sum Q^2 = 3/8$ exactly at unification. DERIVED. The running to experiment is in
+  the elevating-the-predictions appendix.
+  \item \textbf{Mass relations (p231).} $b$-$\tau$ unification, $m_b = m_\tau$ at the GUT scale, the determinant
+  relation $\det(M_{\mathrm{lepton}}) = \det(M_{\mathrm{down}})$ from the discrete $\mathrm{Tr}\,Y = 0$ over the
+  16, and the Georgi-Jarlskog factor-3 relations. DERIVED.
+  \item \textbf{Non-abelian gauge field (p234).} $SO(3)$ link matrices, the prototype, identical in form for
+  $\mathfrak{so}(10)$. The Wilson loop, the trace of the ordered product, is gauge-invariant, has non-trivial
+  holonomy (curvature), and the links do not commute (non-abelian). MEASURED. The symmetric collision making
+  $\mathfrak{so}(10)$ the local symmetry is IR-forced by triality (p226).
+\end{itemize}
+
+\subsection{Dirac and Lorentz}
+
+\begin{itemize}
+  \item \textbf{Dirac dispersion (p230).} Simulate the discrete two-component left and right mover walk, measure
+  $E(k)$ by Fourier-transforming a tracked cell's time series. Massless, the pure discrete shift gives $E(k) = k$
+  exactly, no continuity. Massive, add a coin rotation by mass angle $m$, get $\cos E = \cos(m)\cos(k)$, the
+  lattice Dirac, with rest mass $E(0) = m$, so mass is the coarse-grained mixing rate. MEASURED.
+  \item \textbf{Light cone (p193, p211).} Propagate a pulse, front speed one cell per beat ($z = 1$), a finite
+  invariant speed. MEASURED.
+  \item \textbf{Caveat.} p230 is the clean 1D two-component demonstrator. The full 24-direction version is the bulk
+  wave, and cusp Lorentz invariance carries the small cubic anisotropy below, isotropic in the IR. The complex
+  quantum amplitudes are the emergent description, the base is the real discrete walk.
+\end{itemize}
+
+\subsection{Isotropy}
+
+\begin{itemize}
+  \item \textbf{Dispersion isotropy (p233, analytic).} Compute
+  $\omega^2(k) = \sum_{\mathrm{dir}} (1 - \cos(k \cdot d))$ for the $D_4$ 24-direction coin versus cubic
+  $\mathbb{Z}^3$ and hypercubic $\mathbb{Z}^4$, compare axis versus body diagonal at the same $|k|$, and check the
+  fourth-moment condition $\sum d_i^4 = 3 \sum d_i^2 d_j^2$. $D_4$ has an isotropic fourth moment, $12 = 3 \cdot
+  4$, isotropic to order 4, zero anisotropy, versus about 8 to 9 percent for cubic. MEASURED.
+  \item \textbf{Light-cone isotropy (isotropy simulation, GPU).} Pulse on a 4D lattice with the 24 $D_4$
+  directions versus the 8-direction hypercubic, measure front shape. The 24-direction front is round, ratio
+  $1.00$, versus faceted, $0.50$, on a 4D lattice of 331k cells. MEASURED.
+  \item \textbf{Symmetry restoration (p226).} Invariant-polynomial dimensions for $B_4$ (hypercubic) versus $F_4$
+  (24-cell with triality), via Newton's identities on power traces. $F_4$ has one degree-4 invariant versus
+  $B_4$'s two, so triality kills the order-4 anisotropy, discrete $F_4 \to$ continuous $\mathfrak{so}(8)$ in the
+  IR. DERIVED.
+  \item \textbf{Caveat.} This is the bulk $D_4$ isotropy. The physical cusp is the $\{4,3,4\}$ cubic, anisotropic
+  at order 4, the small $(E/E_{\mathrm{Planck}})^2$ residual, so matter-propagation isotropy on the cusp is the
+  cubic one, IR-isotropic with a tiny UV anisotropy. This bulk-versus-cusp distinction is the key subtlety.
+\end{itemize}
+
+\subsection{Electromagnetism}
+
+\begin{itemize}
+  \item \textbf{U(1) Gauss law (p223).} The rule's local charge conservation, charge in equals charge out per cell
+  per beat, is a discrete Gauss law, the conserved current sourcing the emergent U(1). A direct conservation check
+  on streaming. MEASURED.
+  \item \textbf{Emergent U(1) gauge field (p232).} A vortex gauge field, link phases winding around a plaquette to
+  give flux $\Phi$, on a 2D lattice. First, the Wilson loop, the sum of link phases, equals the enclosed flux and
+  is gauge-invariant under a random $A \to A + \mathrm{d}\lambda$, flux $0.7$ unchanged. Second, Aharonov-Bohm, a
+  charge encircling the flux picks up exactly $\Phi$, loop- and gauge-independent, and a non-enclosing loop gives
+  $0$. Third, the static sector is Coulomb $1/r$, the flat-3D Green's function (p224). MEASURED.
+  \item \textbf{Caveat.} A single link gives a flux dipole, net zero. The fix was the vortex winding construction
+  giving a single-plaquette flux, which made the Wilson loop clean. The non-abelian extension is the same
+  construction with matrices (p234).
+\end{itemize}
+
+\subsection{Physical space and the cusp}
+
+\begin{itemize}
+  \item \textbf{Horosphere flatness (horosphere-reality check).} Extract a horosphere band from a finite
+  $\{3,4,3,4\}$ ball, a Busemann-pruned BFS slab from the horosphere-band builder, measure intrinsic growth
+  (polynomial means flat) and degree histogram (uniform means clean periodic). The result is intrinsically flat at
+  finite distance, growth $1.52$, not the bulk's roughly $9$. MEASURED.
+  \item \textbf{Clean cusp versus generic slice (emergent-space check).} On the $\{3,4,3,4\}$ horosphere
+  band and the clean $\{4,3,4\}$ cubic cusp, measure spectral dimension, light-cone isotropy (front-radius CV),
+  and connectivity. The clean cusp is genuine 3D, spectral dimension $2.97$, while a generic slice is rough and
+  sub-3D, $2.16$. MEASURED.
+  \item \textbf{Sufficient size (cusp-convergence check).} The cusp's intrinsic structure is the $\{4,3,4\}$
+  cubic lattice, cheap $O(L^3)$ $\mathbb{Z}^3$ boxes. Build boxes of growing side $L$ and watch spectral dimension
+  approach 3 and the gravity exponent become $L$-independent. Continuum-like by $L \approx 17$ cells, a few beats,
+  and the observed universe at about $10^{61}$ cells is hugely sufficient. MEASURED.
+  \item \textbf{Physics holds on real space (physics-on-real-space check).} Compute the flat-layer observables
+  on the $\{4,3,4\}$ cusp versus a generic aperiodic slice. The physics holds on the cusp cubic and degrades on a
+  generic slice, so physical space equals the cusp cubic. MEASURED.
+  \item \textbf{Bulk-to-cusp projection (bulk-cusp-interface check).} Verify the spinor branching
+  $SO(4) \to SO(3)$, 4D Dirac to 3D Pauli, $4 \to 2 + 2$, and project the 24 bulk directions onto the cusp
+  tangent. DERIVED and MEASURED.
+  \item \textbf{Caveat.} A generic Busemann slice is a bad extraction, thin, aperiodic, and sub-3D. This corrected
+  an earlier optimistic guess that aperiodic meant isotropic. Whether the growing mesh dynamically settles matter
+  into clean cusp regions is the one open dynamical question, a defined next GPU experiment.
+\end{itemize}
+
+\subsection{Substrate selection}
+
+\begin{itemize}
+  \item \textbf{Sweep every dimension.} Build each regular honeycomb with the cell-graph builder, plus
+  the flat-lattice builder for flat references, measure coin degree, spectral dimension, the
+  crystallographic test (only 3, 4, 6 in the symbol), growth ratio (curvature), compactness class, and the Bethe
+  holographic exponent. Coverage is 8 in 2D, 15 in 3D (4 compact plus 11 paracompact), the full 4D set, and the 5D
+  candidates plus $\{5,3,3,3,3\}$.
+  \item \textbf{The dimension ladder.} Physical-space dimension equals bulk dimension minus one, since the
+  horosphere is one dimension lower. 2D to 1D, 3D to 2D, 4D to 3D, 5D to 4D. Only 4D gives the observed 3D.
+  MEASURED.
+  \item \textbf{Same-battery comparison (cross-dimension comparison).} The identical full battery on one
+  representative per dimension, $\{7,3\}$, $\{5,3,4\}$, $\{3,4,3,4\}$, $\{5,3,3,3,3\}$, plus the flat twin
+  $\{3,4,3,3\}$, apples-to-apples.
+  \item \textbf{Scored ranking (tessellation ranking).} Score by a rubric, spinor coin 3,
+  crystallographic 2, physical-dimension closeness 3, curvature 1, compactness, and $\{3,4,3,4\}$ tops it at
+  $9.5$. DERIVED and MEASURED.
+  \item \textbf{Caveats.} High-degree and 120-cell honeycombs saturate a finite patch, giving artifact
+  spectral-dimension and growth, so the clean reads are the low-degree ones. The lower-D substrates are not
+  strictly ruled out, since their missing features could emerge at higher layers. $\{3,4,3,4\}$ is the
+  least-emergence choice, not the only conceivable one. The rubric weights are a judgment call, but $\{3,4,3,4\}$
+  tops any reasonable weighting because it alone is non-zero on every factor.
+\end{itemize}

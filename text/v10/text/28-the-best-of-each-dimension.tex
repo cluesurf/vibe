@@ -1,0 +1,111 @@
+\section{The Best of Each Dimension}
+
+The selection argument is cleaner when it is made concrete. This chapter takes the single strongest
+representative of each dimension and runs them through the same battery side by side. The point is not to
+re-derive the ladder but to see it acting on real, well-studied honeycombs. The full per-dimension data lives in
+the appendices. What follows is the comparison in summary, together with a careful accounting of what "best in a
+dimension" actually means.
+
+\subsection{The four representatives}
+
+Each representative is the cleanest and best-addressed honeycomb of its dimension, which is not always the same as
+the winner on every axis. We use \emph{best} here to mean the canonical stand-in for that dimension, and we flag
+below where that differs from a battery score.
+
+\begin{itemize}
+  \item Two dimensions, $\{7,3\}$, heptagons three to a vertex. This is the canonical hyperbolic tiling, the home
+  of Margenstern's Fibonacci addressing. It is non-crystallographic, since it carries a $7$, and its physical
+  space is one-dimensional, but it is the reference two-dimensional substrate.
+  \item Three dimensions, $\{5,3,4\}$, dodecahedral and compact, also Margenstern-addressed. It is
+  non-crystallographic, since it carries a $5$, and its physical space is two-dimensional. As the note below
+  explains, it is the best-studied three-dimensional honeycomb, not the best-scoring one.
+  \item Four dimensions, $\{3,4,3,4\}$, the champion. Its cell is the $24$-cell, its coin is the $D_4$ root
+  system, it is crystallographic and hyperbolic, and its cusp is three-dimensional.
+  \item Five dimensions, $\{3,4,3,3,4\}$, the strongest five-dimensional case, the $D_4$ hook. It is
+  crystallographic and contains the $24$-cell, but its physical space is four-dimensional and it is paracompact.
+\end{itemize}
+
+\subsection{What best in three dimensions really means}
+
+The three-dimensional entry needs a careful qualification, because $\{5,3,4\}$ is not the unique best
+three-dimensional honeycomb. The compact regular three-dimensional hyperbolic honeycombs are exactly four,
+$\{3,5,3\}$, $\{4,3,5\}$, $\{5,3,4\}$, and $\{5,3,5\}$, and every one of them contains a $5$. So all of the
+compact three-dimensional regulars are non-crystallographic and carry no spinor. $\{5,3,4\}$ is singled out only
+because it is the cleanest and best-studied of the four, with dodecahedral cells and Margenstern's elegant
+Fibonacci addressing built for it. That makes it the natural three-dimensional representative, not a battery
+winner.
+
+If one scores crystallographic-ness alone, $\{5,3,4\}$ actually loses to the paracompact three-dimensional
+honeycombs $\{6,3,4\}$, $\{4,4,4\}$, and $\{3,6,3\}$, whose symbols use only $3$, $4$, and $6$, so they are
+crystallographic. But those are paracompact, with ideal cells, and they still give only a two-dimensional
+physical space. The decisive fact is the dimension ladder. An $H^3$ bulk has a two-dimensional boundary, so any
+three-dimensional substrate hands over only two-dimensional space. Three dimensions is ruled out before the
+battery even runs, and $\{5,3,4\}$ is simply the nicest three-dimensional control to run it on.
+
+\subsection{The preferred substrates}
+
+Across the sweeps, four substrates earn a permanent place, one per dimension. Two are the canonical
+well-addressed lower-dimensional tilings, valued for clean computability, and two are the physics champions.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{p{1.6cm}p{2.3cm}p{7.6cm}}
+\toprule
+Dimension & Preferred & Why it earns its place \\
+\midrule
+$2$D & $\{7,3\}$ & the canonical hyperbolic CA tiling, Margenstern Fibonacci addressing, the reference for computability \\
+$3$D & $\{5,3,4\}$ & the committed compact three-dimensional candidate, dodecahedral, also Margenstern-addressed \\
+$4$D & $\{3,4,3,4\}$ & the champion, $D_4$ spinor coin, flat three-dimensional cusp, full physics \\
+$5$D & $\{3,4,3,3,4\}$ & the $D_4$-hook overshoot, crystallographic and containing the $24$-cell, four-dimensional cusp \\
+\bottomrule
+\end{tabular}
+\caption{The four preferred substrates, two computational anchors and two physics anchors.}
+\end{table}
+
+The two roles are worth separating. $\{7,3\}$ and $\{5,3,4\}$ are the computational anchors. Their addressing is
+trusted, and they validate the tools and serve as controls. $\{3,4,3,4\}$ and $\{3,4,3,3,4\}$ are the physics
+anchors, the champion and its one-dimension-up sibling. The physics anchors also happen to be the best in their
+dimension, which is why they are at once preferred and best.
+
+\subsection{The same battery, side by side}
+
+Running all four through the identical battery makes the selection visible in a single table. The framework ports
+to every column. The physics-distinguishing axes do not.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{p{3.3cm}p{2.0cm}p{2.0cm}p{2.4cm}p{2.2cm}}
+\toprule
+Test & $\{7,3\}$ & $\{5,3,4\}$ & $\{3,4,3,4\}$ & $\{3,4,3,3,4\}$ \\
+\midrule
+physical space & $1$D & $2$D & $3$D & $4$D \\
+crystallographic / spinor & no / no & no / no & yes / yes & yes / hook \\
+curvature & hyperbolic & hyperbolic & hyperbolic & hyperbolic \\
+framework ports & yes & yes & yes & yes \\
+gravity / statistics & log / anyon & log / anyon & $1/r$ / fermion & $1/r^2$ / 4D \\
+\bottomrule
+\end{tabular}
+\caption{The same battery on the four representatives. Only $\{3,4,3,4\}$ scores on every physics axis at once.}
+\end{table}
+
+\begin{result}[Only one wins on every axis]
+The framework ports to all four representatives. Only $\{3,4,3,4\}$ scores on every physics-distinguishing axis
+at once, crystallographic, $D_4$ spinor, three-dimensional space, $1/r$ gravity, and fermions. $\{7,3\}$ is the
+canonical two-dimensional anchor but is one-dimensional and non-crystallographic. $\{5,3,4\}$ is compact but
+non-crystallographic and two-dimensional. $\{3,4,3,3,4\}$ keeps the $D_4$ hook but overshoots to four
+dimensions. \cite{pollard2026vibetest}
+\end{result}
+
+\subsection{The decisive contrast, the flat twin}
+
+The sharpest control is not in the table, because it is not hyperbolic. The flat $D_4$ honeycomb $\{3,4,3,3\}$,
+the Euclidean $24$-cell honeycomb, has the same coin and the same crystallographic spinor structure as
+$\{3,4,3,4\}$, but it is flat. Its growth ratio is around $2.5$ and polynomial, against the exponential growth of
+about $10$ for $\{3,4,3,4\}$. So the flat twin has the spinor coin and a three-dimensional space, yet no
+curvature, and therefore no gravity, no holography, and no expansion. Curvature is the single ingredient that
+separates the substrate from its flat twin, and it is what every cosmological and gravitational result depends
+on.
+
+
+The best of each dimension confirms the selection from the side of measured comparison rather than abstract
+counting. Only $\{3,4,3,4\}$ has the $D_4$ spinor coin and the right dimension and curvature together. It is the one substrate that yields a three-dimensional world of fermions.

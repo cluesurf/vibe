@@ -1,0 +1,83 @@
+\section{Hyperbolic Tessellations}
+
+Having narrowed the geometry to the hyperbolic case, it helps to step back and see the whole family the substrate belongs to. This section is the bridge to the all-dimension survey that comes later. It explains what hyperbolic tessellations are, how they behave across dimensions, and why a few names, $\{7,3\}$, $\{5,3,4\}$, and $\{3,4,3,4\}$, keep recurring.
+
+\subsection{The core idea}
+
+A \emph{tessellation}, also called a tiling or a honeycomb, fills a space completely with repeating shapes, leaving no gaps and no overlaps. Floor tiles, the hexagons of a beehive, and cubes stacked to fill a room are all tessellations. A \emph{hyperbolic tessellation} is the same idea carried into negatively curved space, where distances expand exponentially and far more arrangements fit.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+geometry & curvature & parallels & feeling \\
+\midrule
+Euclidean & zero & stay a fixed distance apart & flat, like graph paper \\
+spherical & positive & eventually meet & closed, like the Earth's surface \\
+hyperbolic & negative & diverge exponentially & a saddle, expanding \\
+\bottomrule
+\end{tabular}
+\caption{The three geometries by how their parallel lines behave.}
+\end{table}
+
+The key intuition is that hyperbolic space creates extra room. In flat space only a few regular polygons tile exactly, namely squares, hexagons, and triangles. Put three heptagons around a single corner and they leave too much room to lie flat, so the space has to curve negatively to absorb them. For a tiling $\{p,q\}$, with $p$-sided polygons meeting $q$ to a corner, the dividing rule is the value of $(p-2)(q-2)$. Less than $4$ is spherical, exactly $4$ is Euclidean, and greater than $4$ is hyperbolic. The heptagonal tiling $\{7,3\}$ gives $(7-2)(3-2) = 5$, so it is hyperbolic.
+
+\subsection{Schlafli symbols and the dimensional ladder}
+
+Hyperbolic tessellations are named by \emph{Schlafli symbols}, written $\{a,b,c,\dots\}$. Each new number adds a dimension by recording how the previous shape is assembled into the next. The same rules hold all the way up the ladder, and the family exists in only a handful of dimensions.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+dimension & object & example & built from \\
+\midrule
+2D & tiling & $\{7,3\}$ & heptagons, $3$ to a corner \\
+3D & honeycomb & $\{5,3,4\}$ & dodecahedra, $4$ to an edge \\
+4D & hyper-honeycomb & $\{3,4,3,4\}$ & $24$-cells, $4$ to a face \\
+5D & higher honeycomb & $\{3,3,3,4,3\}$ & the last dimension with any \\
+\bottomrule
+\end{tabular}
+\caption{The recurring regular hyperbolic tessellations by dimension.}
+\end{table}
+
+Five-dimensional hyperbolic space is the last that admits regular hyperbolic tessellations at all, and every one of them is paracompact. The geometric freedom runs out above five. This is a strong constraint, and it is part of what makes the survey of dimensions in the later parts of the paper land where it does.
+
+\subsection{How hyperbolic growth feels}
+
+In flat geometry circles grow polynomially and neighbourhoods grow slowly. In hyperbolic geometry shells grow exponentially. Almost everything in a large ball lies near its boundary, and the space behaves, at large scale, like a tree. That tree-likeness is why hyperbolic geometry keeps appearing in hierarchy, in semantic embeddings, in internet routing, in tensor networks, in recursive subdivision, and in holography \cite{gromov1987,hamann2011}. In the substrate it is the source of the cosmic expansion. Each shell of cells is roughly ten times the last.
+
+The structures themselves are made by \emph{reflection}. You start with one fundamental chamber and reflect it across its mirror walls, then reflect the copies, and continue forever. The reflections form a \emph{Coxeter group}, written $[5,3,4]$ for the dodecahedral honeycomb and $[3,4,3,4]$ for the $24$-cell honeycomb \cite{coxeter1973}. An infinite recursive order grows out of a tiny local rule.
+
+\subsection{The recurring pattern, curved bulk to flat boundary}
+
+The single most important pattern across the whole family is this. A hyperbolic bulk in dimension $n$ can produce a flat Euclidean space of dimension $n-1$ at its ideal boundary.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+hyperbolic bulk & flat boundary at infinity \\
+\midrule
+$H^2$ & a line or circle \\
+$H^3$ & flat 2D \\
+$H^4$ & flat 3D \\
+$H^5$ & flat 4D \\
+\bottomrule
+\end{tabular}
+\caption{Each hyperbolic dimension yields one flat dimension at its ideal boundary.}
+\end{table}
+
+Each extra hyperbolic dimension generates one extra flat dimension at infinity. When a tessellation's vertex figure is itself infinite, that is, Euclidean rather than finite, its corner is pushed out to infinity. Such a corner is called an \emph{ideal vertex}, the tessellation is called \emph{paracompact}, and the local cross-section near that ideal vertex is flat Euclidean space.
+
+\begin{result}[Flat boundary of a curved bulk]
+A paracompact regular hyperbolic honeycomb in $H^n$ has a flat Euclidean cross-section of dimension $n-1$ at each ideal vertex. For $\{3,4,3,4\}$ in $H^4$, with vertex figure the cubic honeycomb $\{4,3,4\}$, that cross-section is flat three-dimensional space.
+\end{result}
+
+This is exactly why $\{3,4,3,4\}$ hands over flat 3D space. Its vertex figure is the cubic honeycomb $\{4,3,4\}$, an infinite Euclidean tiling, so its corners are ideal and the cross-section there is the ordinary cubic grid. It is also why the dimension ladder developed later in the paper lands on 4D for our 3D world.
+
+\subsection{The universal themes and the mental model}
+
+Across the dimensions the same handful of themes repeat. Negative curvature creates room. Reflections generate structure. Exponential growth creates hierarchy. Ideal boundaries produce Euclidean geometry. Recursion creates infinite order. Coxeter groups encode the rules. Held together, these give a single mental model, an infinite recursive crystal growing exponentially outward through curved space.
+
+Each named example has its own flavour. The heptagrid $\{7,3\}$ feels like an endlessly branching 2D cathedral. The dodecahedral honeycomb $\{5,3,4\}$ feels like recursive dodecahedral architecture. The substrate $\{3,4,3,4\}$ feels like a 4D crystalline engine generating flat 3D order at its boundary. The deepest shift in viewpoint is that ordinary flat space starts to feel less fundamental. Flat geometry can emerge from hyperbolic geometry asymptotically, and lower-dimensional order can arise from higher-dimensional curvature. That one idea ties hyperbolic tessellations, holography, tensor networks, and the whole substrate picture into a single thread.

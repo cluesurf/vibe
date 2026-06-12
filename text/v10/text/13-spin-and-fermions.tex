@@ -1,0 +1,103 @@
+\section{Spin and Fermions}
+
+The coin carries spin, matter is fermionic, and the rule makes matter stable, all without adding anything to the
+base. The three facts come out of the substrate's own symmetry and the measured behavior of its collision, not
+from any extra ingredient grafted on for the purpose. This chapter reads them off in order.
+
+Two terms recur throughout, so a plain statement of each helps. A \emph{spinor} is the mathematical object that
+describes a particle with half-integer spin. Its signature oddity is that it must be turned twice around, through
+$720$ degrees rather than $360$, before it returns to itself. A \emph{fermion} is a particle of matter, an
+electron or a quark, no two of which can occupy the same state, which is why matter takes up space at all.
+Fermions have half-integer spin, so they are described by spinors. The two ideas are linked, and the substrate
+delivers that link rather than presupposing it.
+
+\subsection{The spinor coin}
+
+The $24$ local directions of the cell are the $24$-cell, equivalently the $D_4$ root system. Under that symmetry
+the $24$ directions decompose as $8v + 8s + 8c$, the $\mathrm{SO}(8)$ vector together with its two spinors,
+with triality, the order-three outer symmetry $S_3$, permuting the three eights. The two pieces $8s$ and $8c$ are
+genuine half-integer-spin representations. This is the precise sense in which the substrate carries spin at the
+base. It is not assumed and not put in by hand. It is a fact about how the local direction set transforms under
+its own symmetry group.
+
+\begin{proposition}[The spinor decomposition]
+The $24$ directions of the $24$-cell, as the $D_4$ root system, decompose under $\mathrm{SO}(8)$ as
+$8v + 8s + 8c$. The summands $8s$ and $8c$ are half-integer-spin representations, so the substrate carries
+spinors directly. Triality permutes the three eights and is the seed of three generations.
+\end{proposition}
+
+The control case sharpens the claim. The $12$ directions of $\{5,3,4\}$ decompose under the icosahedral
+symmetry as $1 + 3 + 3' + 5$, all of integer spin, with no spinor anywhere in the list. A substrate built on
+those $12$ directions would carry no fundamental spinor at all. That contrast is one of the reasons the selection
+argument lands on $\{3,4,3,4\}$ rather than $\{5,3,4\}$, and it is developed further where the crystallographic
+and spinor requirements are set side by side.
+
+\subsection{Matter is fermionic}
+
+A word of care first. A \emph{self}, in the broad sense used later in the paper, is any persistent
+self-maintaining pattern, and these range from a single vibe through ever larger patches and networks all the way
+up to the entire mesh. Most selves are not particles. What concerns us here is one particular kind of localized
+excitation, the topological soliton, which is the matter object the theory identifies with a fundamental fermion.
+
+\begin{definition}[Matter soliton]
+A \emph{matter soliton} is a topological knot in the tone field, a \emph{hopfion}, classified by its Hopf charge
+in $\pi_3(S^2) = \mathbb{Z}$. The integer charge counts how the tone configuration links with itself, and it
+cannot change under any smooth evolution of the field.
+\end{definition}
+
+A hopfion of odd Hopf charge picks up a minus sign under a $2\pi$ rotation. This is the Finkelstein-Rubinstein
+result, sharpened by the spin-statistics argument of Wilczek and Zee \cite{finkelsteinrubinstein1968,
+wilczekzee1983}. A minus sign under a single full turn is the defining mark of a fermion. So the spin-statistics
+connection here is geometric. A matter soliton of odd charge is automatically a fermion, with nothing assumed
+about it beyond its topology. In the carrying image such a soliton is a braid in the fabric, a knot of fire, and
+the topology simply is the weave.
+
+\begin{proposition}[Odd-charge solitons are fermions]
+A topological soliton in the tone field with odd Hopf charge transforms with a sign change under a $2\pi$
+rotation. By the spin-statistics connection it is a fermion. The matter solitons are therefore fermions as a
+consequence of their topology, with no separate statistical postulate.
+\end{proposition}
+
+It pays to keep the two ways spin appears in this theory cleanly apart, because they answer different questions.
+The first is the \emph{coin spinor}, the $D_4$ pieces $8s$ and $8c$. These are the fundamental fermion fields,
+and they genuinely require $\{3,4,3,4\}$, since the $12$-direction alternative carries no spinor at all. The
+second is the \emph{topological route}, the identification of a matter soliton with a hopfion and hence with a
+fermion. That route is substrate-independent and works even on $\{5,3,4\}$, because it rests only on $\pi_3(S^2)$
+and not on the direction set. The coin spinor is the load-bearing one for the fundamental matter fields and for
+the $\mathrm{SO}(10)$ gauge story of the next chapter but one. The topological route is why the matter solitons
+come out fermionic. The two agree, but the precise selection claim is that the coin spinor forces $\{3,4,3,4\}$, not that
+spin of any kind does.
+
+\subsection{Matter forms and persists}
+
+Why a stabilizer is needed at all is Derrick's theorem. Rescale a soliton by a factor $\lambda$. The exchange
+energy scales as $\lambda^{d-2}$ and a Skyrme term scales as $\lambda^{d-4}$. In three dimensions exchange alone
+scales as $\lambda$, so the soliton collapses, and a higher-gradient Skyrme term is required to arrest it
+\cite{skyrme1962}. In the two-dimensional cusp of $\{5,3,4\}$ exchange is scale-marginal and no stabilizer is
+needed, a neat tie to the bulk-cusp dimension split. The live question is therefore whether the rule's collision
+supplies a Skyrme term of the stabilizing sign. The Skyrme coefficient appears at the higher-gradient, Burnett
+order of the collision's gradient expansion, and the collision is the rule's last free part, fixed only by being
+conserving, reversible, local, and lattice-symmetric. So the matter of stability reduces to a definite sign of a
+definite quantity.
+
+The sign was measured. The fermion-sea energy of a double-twist periodic texture was evaluated with the kernel
+polynomial method, a Chebyshev expansion of the spectral density carried out with a stochastic trace on the GPU.
+A single-helix control was subtracted to isolate the Skyrme contribution from the bulk. The isolated Skyrme term
+came out positive, that is, stabilizing.
+
+\begin{result}[The Skyrme stabilizer is positive]
+The isolated Skyrme coefficient of the collision, measured as the fermion-sea energy of a double-twist periodic
+texture with a single-helix control subtracted \cite{pollard2026vibetest}, is positive. Solitons in the tone
+field are therefore stable on their own, with no fine-tuning. Matter forms and persists.
+\end{result}
+
+The earlier attempts that used localized solitons were confounded by surface-dominated sea energy, and the
+double-twist periodic method is the clean measurement that replaces them. Even had the result come out
+ambiguous, matter formation would by itself select the collision member with the stabilizing sign. The result
+being positive makes that fallback unnecessary.
+
+
+The matter sector comes from the substrate. The coin carries spinors, the matter solitons are fermions, and the
+rule stabilizes matter against collapse. Fermions are not added to the model. They emerge as the stable knots of
+the substrate, and the half-integer spin that defines them is already present in the way the cell's $24$ directions
+transform.

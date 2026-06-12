@@ -1,0 +1,71 @@
+\section{The Three Geometries}
+
+Before fixing the substrate's specific shape there is a prior question. Why a curved space at all, and why exactly the hyperbolic one? The answer turns on a fact that is older and tighter than it first appears. There are exactly three uniform geometries. Not four, not infinitely many. They are the spherical, the flat, and the hyperbolic, and the argument of this paper is that the substrate must be the third.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+geometry & curvature & triangle angles & room going outward & shape \\
+\midrule
+spherical & positive & sum to more than $180^\circ$ & shrinks, then wraps around & a ball's surface \\
+flat & zero & sum to exactly $180^\circ$ & grows steadily, like $r$ & a tabletop \\
+hyperbolic & negative & sum to less than $180^\circ$ & grows exponentially & a saddle \\
+\bottomrule
+\end{tabular}
+\caption{The three constant-curvature geometries.}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-spherical.png}\\
+spherical, positive
+\end{minipage}\hfill
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-euclidean.png}\\
+flat, zero
+\end{minipage}\hfill
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-hyperbolic.png}\\
+hyperbolic, negative
+\end{minipage}
+\caption{The three curvatures read off a triangle. On the sphere the sides bow outward and the angles sum to
+more than $180^\circ$. In the flat plane the sides are straight and the angles sum to exactly $180^\circ$. In the
+hyperbolic plane the sides cave inward and the angles sum to less than $180^\circ$.}
+\label{fig:curvatures}
+\end{figure}
+
+\subsection{Why exactly three}
+
+\emph{Curvature} is one number that measures how a space bends. It can be felt from inside in two equivalent ways. The first is by triangles (Figure~\ref{fig:curvatures}). Their angles sum to $180^\circ$ only in flat space, more than that if the curvature is positive, less if it is negative. The second is by room. A circle of radius $r$ has circumference $2\pi r$ in flat space, less if the curvature is positive, and exponentially more if it is negative.
+
+A uniform space is one that looks the same at every point and in every direction. Such a space must carry one constant curvature everywhere, a single real number. A real number has exactly three signs, positive, zero, and negative. So there are exactly three uniform geometries, one per sign. This is not a metaphor. It is the content of the Killing-Hopf classification of constant-curvature spaces, which gives one type per sign in every dimension.
+
+\begin{theorem}[Three signs, three geometries]
+A simply connected space of constant curvature is spherical, flat, or hyperbolic according to whether its curvature is positive, zero, or negative. There is no fourth possibility, because a real number has no fourth sign.
+\end{theorem}
+
+\subsection{Why there is nothing halfway}
+
+The tempting confusion is to imagine some intermediate geometry sitting between flat and hyperbolic. There is none, and the reason is worth stating carefully. The magnitude of curvature is continuous. It can be $K = -1$, or $-0.01$, or $-1000$, any value at all. But magnitude is only a scale, not a new type. A sphere of radius $1$ and a sphere of radius $2$ are both spherical, just zoomed differently. Hyperbolic space with $K = -1$ and with $K = -0.01$ are both hyperbolic, again just different sizes. Only the sign sets the type.
+
+A space with a tiny negative curvature is therefore already fully hyperbolic, simply with a very large radius. Near any point it looks almost flat, and it keeps that flat appearance until you zoom out far enough that the exponential room reappears. Flat space is the knife-edge between the two curved worlds. This is why our nearly-flat universe is so finely balanced. Near-flat is not a fourth option. It is a curved option seen at large scale.
+
+One formula carries all three regimes at once, with the curvature radius $R$ as the single knob. The circumference of a circle of radius $r$ is $2\pi R \sin(r/R)$ in the spherical case, $2\pi r$ in the flat case, and $2\pi R \sinh(r/R)$ in the hyperbolic case. Sine, line, and hyperbolic sine are one analytic family. They are the three faces of one sign.
+
+\subsection{Why the substrate is the hyperbolic one}
+
+Each geometry is ruled in or out by what the substrate has to do. The spherical case is out. It is finite and closed, so it runs out of room and wraps back on itself, and a substrate built on it could not grow forever. The flat case is out as well. It is infinite, but its room grows only steadily, like $r^3$ in three dimensions, which is not enough for the explosive branching growth the model needs. A flat regular lattice also carries preferred directions, its axes, and that breaks the isotropy our universe appears to have.
+
+The hyperbolic case is in, and for three reasons at once. It is infinite, so there is endless room for eternal growth. Its room grows exponentially, which supplies the branching. It has no preferred direction, so it is isotropic. It is also the only one of the three that hosts a rich family of regular crystals, including the heptagrid $\{7,3\}$, the dodecagrid $\{5,3,4\}$, and the substrate of this paper, $\{3,4,3,4\}$. As a bonus it is the spatial geometry of Anti-de Sitter space, the natural home of holography.
+
+\begin{result}[Hyperbolic by elimination]
+Among the three uniform geometries only the hyperbolic one is infinite, exponentially roomy, isotropic, and host to a rich family of regular honeycombs. Spherical fails on size, flat fails on growth and isotropy. The substrate is therefore hyperbolic.
+\end{result}
+
+\subsection{And lumpy real space}
+
+The three are the uniform geometries, the ones that look the same everywhere. Real spacetime, as general relativity describes it, is lumpy. It is curved differently at each point. That does not add a fourth type. A general curved space is built by patching the three local models together, one at each point, and each patch still carries a sign. The three uniform geometries are the local alphabet that every curved space, however irregular, is spelled in.
+
+So the substrate is uniformly hyperbolic at its base. The lumpy gravity of the everyday world is then the bending of that base by matter, the emergent gravity taken up later in the paper.

@@ -1,0 +1,81 @@
+\section{Emergent Dirac and Lorentz}
+
+The discrete walk reproduces relativistic propagation. The Dirac dispersion and a finite light cone are read off
+a simulation of the rule rather than assumed. What follows is a measurement of how the substrate already moves,
+not an importation of relativity into it.
+
+A few terms are worth stating plainly. The \emph{Dirac equation} is the law for how an electron-like particle
+moves when both quantum mechanics and special relativity apply at once, and its dispersion is the relation
+between a wave's energy and its wavelength. \emph{Lorentz invariance} is the content of special relativity, that
+the laws look the same to everyone moving at constant speed and that there is one finite top speed, light. A
+\emph{light cone} is the reach of that top speed, the set of places a signal can get to from a given point.
+
+\subsection{The light cone}
+
+A pulse spreads one cell per beat. That is a finite, frame-independent maximum speed, $z = 1$, and it is the
+light cone. For the massless case the spreading is exactly the discrete shift, a permutation of cell contents,
+so continuity is not invoked anywhere in the statement. The light cone built from the $24$ directions is also
+round, that is, isotropic at scale, a point taken up where isotropy is measured.
+
+\begin{result}[A discrete light cone]
+A pulse on the substrate spreads exactly one cell per beat \cite{pollard2026vibetest}. The maximum signal speed
+is finite and frame-independent, with dynamical exponent $z = 1$. In the massless case the propagation is the
+discrete shift itself, so the light cone is exact and uses no continuum limit.
+\end{result}
+
+\subsection{The Dirac dispersion}
+
+Simulate the discrete two-component walk, a left mover and a right mover, and measure its dispersion $E(k)$ by
+Fourier transforming the time series of a tracked cell. Two cases arise. In the massless case the rule is the
+pure discrete shift, the measured dispersion is $E = k$ exactly, and the light cone is the shift itself with no
+continuity assumed. In the massive case a coin rotation by the mass angle $m$ is added, the measured dispersion
+obeys $\cos E = \cos m \cos k$, the lattice Dirac dispersion, and the rest mass is $E(0) = m$. Mass is the
+coarse-grained mixing rate, nothing more.
+
+\begin{result}[The lattice Dirac dispersion]
+The discrete two-component walk has measured dispersion $E = k$ in the massless case and
+$\cos E = \cos m \cos k$ in the massive case \cite{pollard2026vibetest}, the latter being the lattice Dirac
+dispersion with rest mass $m$. The Dirac dispersion is thus the rule's own measured dispersion.
+\end{result}
+
+The reading is that the complex quantum amplitudes are the emergent description of the real discrete walk's
+oscillation modes. The quantum layer is emergent. The base is the real discrete walk, and the amplitudes are how
+that walk's modes are most economically written down. This is consistent with the cellular-automaton
+reconstructions of the free Dirac field by D'Ariano and Bisio \cite{dariano2014, bisio2015}, where the same
+lattice dispersion arises from a local, reversible update.
+
+\subsection{Why masslessness needs an even-faced cell}
+
+There is a clean geometric precondition for an exactly massless mode. The cell must have opposite faces. On an
+odd-faced cell the instruction to go straight lands between two faces, which forces a small zigzag of order
+$\pi/F$ at every step, an irreducible scatter. The lightest particle then has a floor mass of order
+$(\pi/2F)^2$, and nothing is exactly massless. An even-faced cell with opposite pairs lets a signal go dead
+straight, with mixing $\lambda = 0$, and so it hosts exactly massless modes. The $24$-cell is even-faced. Its
+$24$ facets form $12$ opposite pairs, so $\{3,4,3,4\}$ permits the exactly-massless $E = k$ mode above, where a
+generic odd tiling could not. The geometry is not cosmetic. The masslessness rests on the cell's antipodal
+structure.
+
+\begin{proposition}[The mass floor]
+An exactly massless mode requires a cell with opposite faces. On an odd-faced cell with $F$ faces, going straight
+forces a zigzag of order $\pi/F$ per step, giving every mode a floor mass of order $(\pi/2F)^2$. The $24$-cell's
+$24$ facets form $12$ opposite pairs, so $\{3,4,3,4\}$ admits the exactly-massless $E = k$ mode.
+\end{proposition}
+
+The telegraph picture ties the cases together with a single knob. A persistent walk that scatters at rate
+$\lambda$ is the telegrapher's equation, equivalently the Klein-Gordon or one-dimensional Dirac equation, with
+mass proportional to $\lambda$. Setting $\lambda = 0$ gives the massless wave with $z = 1$. A finite $\lambda$
+gives the relativistic massive case. Taking $\lambda$ to infinity recovers ordinary diffusion with $z = 2$. One
+mechanism covers three limits.
+
+
+This closes the bridge from the base to quantum mechanics. Relativistic quantum mechanics is an emergent limit
+of the discrete substrate, with the massless light cone being exactly discrete, needing no continuum, and mass
+emerging as a mixing rate.
+
+\subsection{Caveat}
+
+The cleanest reading is the one-dimensional, two-component demonstrator. The full $24$-direction version is the
+bulk wave, and Lorentz invariance on the physical cusp carries a small cubic anisotropy that washes out in the
+infrared. The precise statement is that the dispersion and the light cone are exact in the demonstrator and
+isotropic in the limit, with the residual lattice anisotropy treated where isotropy and falsifiability are
+discussed.

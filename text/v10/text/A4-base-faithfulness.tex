@@ -1,0 +1,72 @@
+\section{Base-Faithfulness Audit}
+
+The discipline is simple. The model has only the base ingredients, and nothing may be quietly added. No
+cohesion-bias, no maintenance term, no will, no gravity by hand, no repair. If a phenomenon does not emerge, the
+correct move is to report the negative, not to bolt on an ingredient. This appendix audits every sector and
+confirms that no test added anything to the base.
+
+\subsection{The base}
+
+\begin{enumerate}
+  \item \textbf{The mesh}, the $\{3,4,3,4\}$ honeycomb. Its 24-direction coin, its cusp, and its boundary are
+  properties of the one mesh, not separate ingredients.
+  \item \textbf{The ternary tone}, $\{-1, 0, +1\}$ per cell.
+  \item \textbf{The discrete beat}, the time step.
+  \item \textbf{The one local rule}, stream plus collide, which is local, conserving, and reversible.
+\end{enumerate}
+
+\subsection{The audit, sector by sector}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l p{6.2cm} l}
+\toprule
+Sector & What it used & Added to the base? \\
+\midrule
+spin / spinors & the mesh's 24-direction coin, decomposed by representation theory & no, a property of the mesh \\
+self $=$ fermion & a topological soliton in the tone field, its Hopf charge & no, the tone plus topology \\
+Skyrme stabilizer & the fermion sea energy of the emergent Dirac operator & no, emerges from the fermions \\
+gauge $\mathfrak{so}(10)$ & the coin ($D_4$) plus the tone as a weight & no, mesh coin plus tone \\
+$\sin^2\theta_W$, masses & the charges of the emergent matter (the 16) & no, derived counting \\
+Dirac / Lorentz & the rule's own walk, its measured dispersion & no, the rule \\
+gravity $1/r$ & the mesh's Laplacian, the tree recursion & no, mesh geometry \\
+electromagnetism & the rule's local charge conservation (Gauss law) & no, the rule \\
+isotropy & the coin's direction moments, its symmetry group & no, mesh coin \\
+cosmology / expansion & the mesh's shell growth & no, mesh geometry \\
+hierarchy & the mesh's radial tree & no, mesh geometry \\
+holography & the mesh's boundary, the bulk recursion & no, mesh geometry \\
+physical space / cusp & the mesh's horosphere, the $\{4,3,4\}$ cusp & no, mesh geometry \\
+cubic anisotropy & the cusp lattice's dispersion & no, mesh geometry \\
+eternal consistency & a reversible rule's long-time behaviour & no, the rule (see caveat) \\
+\bottomrule
+\end{tabular}
+\caption{The sector-by-sector faithfulness audit. Every result is a property of the mesh, a consequence of the
+tone, or a consequence of the rule. Nothing new was bolted on.}
+\label{tab:faithfulness}
+\end{table}
+
+\subsection{The caveats}
+
+So the audit is real and not a rubber stamp, four caveats are recorded.
+
+\begin{enumerate}
+  \item \textbf{Continuous math is emergent tooling, not base.} Lie groups such as $\mathfrak{so}(8)$ and
+  $\mathfrak{so}(10)$, Dirac operators, Green's functions, and Lie-algebra branchings are emergent and
+  coarse-grained descriptions and analysis tools. They are never base ingredients. They describe what the discrete
+  base flows to.
+  \item \textbf{Some experiments used a simplified rule as a demonstrator.} The eternal-bootstrap mod-3 wave and
+  the 2-component Dirac chain are examples. The conclusions transfer because the needed property was separately
+  verified for the actual 24-direction rule, which was confirmed reversible and conserving by
+  \texttt{run-gas-24dir} (p229).
+  \item \textbf{The rule's exact collision is a specification, not a new ingredient.} Choosing the local collision
+  specifies the single base rule. It does not add a second rule.
+  \item \textbf{The recorded negatives were reported, not patched.} The pure rule churns with no selves (P101).
+  Radial coarse-graining gives no tower (P187). The flat form-tower is a generic slow mode, not true nesting
+  (P208). This is the discipline working.
+\end{enumerate}
+
+\begin{principle}[Nothing added to the base]
+No test added anything to the base. Every result is a property of the mesh, the tone, the beat, or the one rule,
+or an emergent consequence of them, with continuous mathematics used only as emergent-layer description, and the
+recorded negatives reported rather than patched.
+\end{principle}

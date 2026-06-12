@@ -1,0 +1,370 @@
+\babel@toc {english}{}\relax 
+\contentsline {part}{I\hspace {1em}Foundations}{11}{part.1}%
+\contentsline {section}{\numberline {1}Introduction}{11}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The crystal of experience}{12}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}The monism}{12}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}The discreteness principle}{13}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Origins}{13}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}The central question}{14}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}What is new}{15}{subsection.1.6}%
+\contentsline {section}{\numberline {2}The Base}{15}{section.2}%
+\contentsline {subsection}{\numberline {2.1}The flow}{15}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Why the beat is constitutive}{16}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}The rule conserves total tone}{16}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}The rule is reversible}{16}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}The nothing-added discipline}{17}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}The arrow, a closer note on the rule}{17}{subsection.2.6}%
+\contentsline {section}{\numberline {3}The Rule, Exactly}{18}{section.3}%
+\contentsline {subsection}{\numberline {3.1}In essence}{19}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}The parts at a glance}{19}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}What exists, the four base elements}{19}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}The beat, stream then collide}{20}{subsection.3.4}%
+\contentsline {paragraph}{Stream, which is momentum.}{20}{paragraph*.1}%
+\contentsline {paragraph}{Collide, which is interaction, the arrow, and mass.}{20}{paragraph*.2}%
+\contentsline {subsection}{\numberline {3.5}The scalar pairwise shadow}{20}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}The three properties that fall out}{21}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}What each part gives}{21}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}The framing}{21}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}Anatomy of a single vibe}{22}{subsection.3.9}%
+\contentsline {subsection}{\numberline {3.10}One beat, walked through}{22}{subsection.3.10}%
+\contentsline {section}{\numberline {4}The Integer Ladder}{23}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The tower}{23}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}One object, many views}{24}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}The payoff}{24}{subsection.4.3}%
+\contentsline {part}{II\hspace {1em}The Geometry of the Substrate}{24}{part.2}%
+\contentsline {section}{\numberline {5}The Three Geometries}{24}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Why exactly three}{25}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Why there is nothing halfway}{25}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Why the substrate is the hyperbolic one}{26}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}And lumpy real space}{26}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Hyperbolic Tessellations}{26}{section.6}%
+\contentsline {subsection}{\numberline {6.1}The core idea}{27}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Schlafli symbols and the dimensional ladder}{27}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}How hyperbolic growth feels}{27}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}The recurring pattern, curved bulk to flat boundary}{28}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}The universal themes and the mental model}{28}{subsection.6.5}%
+\contentsline {section}{\numberline {7}The Fourth Dimension}{29}{section.7}%
+\contentsline {subsection}{\numberline {7.1}What a dimension actually is}{29}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}The analogy staircase}{29}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Shadows and slices}{29}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Rotation gets richer}{30}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Why 4D is uniquely special}{30}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}The reframe to carry}{30}{subsection.7.6}%
+\contentsline {section}{\numberline {8}The 24-Cell}{31}{section.8}%
+\contentsline {subsection}{\numberline {8.1}In essence}{31}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}The counts and the symbol}{31}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Why it is unique}{31}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}The coordinates, and why they are the whole point}{32}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}The symmetry, the group $F_4$}{32}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}A crossroads of mathematics}{32}{subsection.8.6}%
+\contentsline {subsection}{\numberline {8.7}Why it is the right brick}{32}{subsection.8.7}%
+\contentsline {subsection}{\numberline {8.8}A forward-looking resonance, the 24-web}{32}{subsection.8.8}%
+\contentsline {section}{\numberline {9}The $\{3,4,3,4\}$ Honeycomb}{33}{section.9}%
+\contentsline {subsection}{\numberline {9.1}In essence}{33}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}How to read the symbol}{33}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}The four layers}{33}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}The vertex figure is flat 3D space}{34}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Why paracompactness is a feature}{34}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}Hyperbolic, and built by reflection}{34}{subsection.9.6}%
+\contentsline {subsection}{\numberline {9.7}How to picture it}{35}{subsection.9.7}%
+\contentsline {subsection}{\numberline {9.8}The control and the substrate}{35}{subsection.9.8}%
+\contentsline {section}{\numberline {10}Coxeter Groups and Reflections}{36}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Reflections as generators}{36}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}The relations are the mirror-angle integers}{36}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}One chamber equals one group element}{37}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}The word problem and exact construction}{37}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Products of two reflections, the basic engines}{37}{subsection.10.5}%
+\contentsline {subsection}{\numberline {10.6}Parabolics build the flat 3D cusp}{37}{subsection.10.6}%
+\contentsline {subsection}{\numberline {10.7}Richer compositions and the subgroup dictionary}{38}{subsection.10.7}%
+\contentsline {subsection}{\numberline {10.8}From chambers to 24-cells, and the exceptional symmetry}{38}{subsection.10.8}%
+\contentsline {subsection}{\numberline {10.9}The three-layer reading and the universal machine}{39}{subsection.10.9}%
+\contentsline {section}{\numberline {11}The Staircase to $\{3,4,3,4\}$}{39}{section.11}%
+\contentsline {subsection}{\numberline {11.1}The conceptual staircase}{39}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}The hidden idea}{40}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}Why it feels discovered, not invented}{40}{subsection.11.3}%
+\contentsline {part}{III\hspace {1em}Emergent Physics}{40}{part.3}%
+\contentsline {section}{\numberline {12}Spin and Fermions}{41}{section.12}%
+\contentsline {subsection}{\numberline {12.1}The spinor coin}{41}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Matter is fermionic}{41}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Matter forms and persists}{42}{subsection.12.3}%
+\contentsline {section}{\numberline {13}Emergent Dirac and Lorentz}{43}{section.13}%
+\contentsline {subsection}{\numberline {13.1}The light cone}{43}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}The Dirac dispersion}{43}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Why masslessness needs an even-faced cell}{44}{subsection.13.3}%
+\contentsline {subsection}{\numberline {13.4}Caveat}{44}{subsection.13.4}%
+\contentsline {section}{\numberline {14}Gauge and the Standard Model}{44}{section.14}%
+\contentsline {subsection}{\numberline {14.1}$\mathrm {SO}(10)$ from coin and tone}{45}{subsection.14.1}%
+\contentsline {subsection}{\numberline {14.2}Breaking to the Standard Model}{45}{subsection.14.2}%
+\contentsline {subsection}{\numberline {14.3}The weak mixing angle}{46}{subsection.14.3}%
+\contentsline {subsection}{\numberline {14.4}The grand-unified mass relations}{46}{subsection.14.4}%
+\contentsline {subsection}{\numberline {14.5}The non-abelian gauge field}{46}{subsection.14.5}%
+\contentsline {section}{\numberline {15}Gravity}{47}{section.15}%
+\contentsline {subsection}{\numberline {15.1}The flat three-dimensional Newtonian $1/r$}{47}{subsection.15.1}%
+\contentsline {subsection}{\numberline {15.2}The bulk-mediated holographic correlator}{47}{subsection.15.2}%
+\contentsline {subsection}{\numberline {15.3}Full general relativity, not only Newton}{47}{subsection.15.3}%
+\contentsline {subsection}{\numberline {15.4}Why curvature is essential}{48}{subsection.15.4}%
+\contentsline {subsection}{\numberline {15.5}Caveat, the open frontier}{48}{subsection.15.5}%
+\contentsline {section}{\numberline {16}Electromagnetism}{49}{section.16}%
+\contentsline {subsection}{\numberline {16.1}The Gauss law}{49}{subsection.16.1}%
+\contentsline {subsection}{\numberline {16.2}The emergent gauge field}{49}{subsection.16.2}%
+\contentsline {subsection}{\numberline {16.3}The Coulomb potential}{49}{subsection.16.3}%
+\contentsline {subsection}{\numberline {16.4}The non-abelian extension}{50}{subsection.16.4}%
+\contentsline {section}{\numberline {17}Isotropy and Emergent Symmetry Restoration}{50}{section.17}%
+\contentsline {subsection}{\numberline {17.1}The 24-direction coin is isotropic to order four}{50}{subsection.17.1}%
+\contentsline {subsection}{\numberline {17.2}Emergent symmetry restoration}{50}{subsection.17.2}%
+\contentsline {subsection}{\numberline {17.3}The cusp caveat}{51}{subsection.17.3}%
+\contentsline {section}{\numberline {18}Cosmology and Hierarchy}{51}{section.18}%
+\contentsline {subsection}{\numberline {18.1}The expansion law}{51}{subsection.18.1}%
+\contentsline {subsection}{\numberline {18.2}The hierarchy}{51}{subsection.18.2}%
+\contentsline {subsection}{\numberline {18.3}Caveat}{52}{subsection.18.3}%
+\contentsline {subsection}{\numberline {18.4}Cosmic dilution toward peace}{52}{subsection.18.4}%
+\contentsline {subsection}{\numberline {18.5}The ladder of rarity}{52}{subsection.18.5}%
+\contentsline {subsection}{\numberline {18.6}Rarity and the cost of demonstration}{53}{subsection.18.6}%
+\contentsline {section}{\numberline {19}Quantum Foundations}{53}{section.19}%
+\contentsline {subsection}{\numberline {19.1}The Bell tension}{53}{subsection.19.1}%
+\contentsline {subsection}{\numberline {19.2}The resolution through holographic nonlocality}{54}{subsection.19.2}%
+\contentsline {subsection}{\numberline {19.3}The Born rule}{54}{subsection.19.3}%
+\contentsline {subsection}{\numberline {19.4}Where the complex unit comes from}{54}{subsection.19.4}%
+\contentsline {part}{IV\hspace {1em}Physical Space, the Cusp}{55}{part.4}%
+\contentsline {section}{\numberline {20}The Cusp Is Physical Space}{55}{section.20}%
+\contentsline {subsection}{\numberline {20.1}Paracompactness is a feature}{55}{subsection.20.1}%
+\contentsline {subsection}{\numberline {20.2}Flat at finite distance, not only at infinity}{56}{subsection.20.2}%
+\contentsline {subsection}{\numberline {20.3}The clean cusp versus a generic slice}{56}{subsection.20.3}%
+\contentsline {section}{\numberline {21}Finiteness and Growth}{57}{section.21}%
+\contentsline {subsection}{\numberline {21.1}The complete cusp is never reached, and need not be}{57}{subsection.21.1}%
+\contentsline {subsection}{\numberline {21.2}Convergence is fast}{57}{subsection.21.2}%
+\contentsline {subsection}{\numberline {21.3}The refining universe}{58}{subsection.21.3}%
+\contentsline {section}{\numberline {22}The Bulk-Cusp Interface}{58}{section.22}%
+\contentsline {subsection}{\numberline {22.1}The spinor projects}{58}{subsection.22.1}%
+\contentsline {subsection}{\numberline {22.2}The directions project}{59}{subsection.22.2}%
+\contentsline {subsection}{\numberline {22.3}The symmetry chain and the anisotropy}{59}{subsection.22.3}%
+\contentsline {section}{\numberline {23}The Robustness Audit}{59}{section.23}%
+\contentsline {subsection}{\numberline {23.1}Three layers, three fates}{60}{subsection.23.1}%
+\contentsline {subsection}{\numberline {23.2}The check on the cusp}{60}{subsection.23.2}%
+\contentsline {subsection}{\numberline {23.3}The problem ledger}{60}{subsection.23.3}%
+\contentsline {subsection}{\numberline {23.4}The one modification}{61}{subsection.23.4}%
+\contentsline {part}{V\hspace {1em}Why This Substrate}{61}{part.5}%
+\contentsline {section}{\numberline {24}Methodology}{61}{section.24}%
+\contentsline {subsection}{\numberline {24.1}The construction}{62}{subsection.24.1}%
+\contentsline {subsection}{\numberline {24.2}The probes}{62}{subsection.24.2}%
+\contentsline {subsection}{\numberline {24.3}The hyperbolic-bulk toolkit}{62}{subsection.24.3}%
+\contentsline {subsection}{\numberline {24.4}Reporting conventions}{63}{subsection.24.4}%
+\contentsline {section}{\numberline {25}The Dimension Ladder}{63}{section.25}%
+\contentsline {subsection}{\numberline {25.1}Physical space is the bulk dimension minus one}{63}{subsection.25.1}%
+\contentsline {subsection}{\numberline {25.2}What the wrong dimension costs}{64}{subsection.25.2}%
+\contentsline {subsection}{\numberline {25.3}The dimension window}{64}{subsection.25.3}%
+\contentsline {subsection}{\numberline {25.4}An independent confirmation of three dimensions}{65}{subsection.25.4}%
+\contentsline {section}{\numberline {26}The Crystallographic and Spinor Requirement}{65}{section.26}%
+\contentsline {subsection}{\numberline {26.1}Crystallographic means gauge is possible}{65}{subsection.26.1}%
+\contentsline {subsection}{\numberline {26.2}Only the 24-cell carries the spinor}{65}{subsection.26.2}%
+\contentsline {subsection}{\numberline {26.3}Spin is the sole discriminator}{66}{subsection.26.3}%
+\contentsline {subsection}{\numberline {26.4}The cost of imposing spin by hand}{66}{subsection.26.4}%
+\contentsline {subsection}{\numberline {26.5}The unique solution}{67}{subsection.26.5}%
+\contentsline {section}{\numberline {27}The Best of Each Dimension}{67}{section.27}%
+\contentsline {subsection}{\numberline {27.1}The four representatives}{67}{subsection.27.1}%
+\contentsline {subsection}{\numberline {27.2}What best in three dimensions really means}{68}{subsection.27.2}%
+\contentsline {subsection}{\numberline {27.3}The preferred substrates}{68}{subsection.27.3}%
+\contentsline {subsection}{\numberline {27.4}The same battery, side by side}{69}{subsection.27.4}%
+\contentsline {subsection}{\numberline {27.5}The decisive contrast, the flat twin}{69}{subsection.27.5}%
+\contentsline {section}{\numberline {28}Modeling Three Dimensions in Lower Dimensions}{69}{section.28}%
+\contentsline {subsection}{\numberline {28.1}Can three-dimensional physics live in a lower base}{69}{subsection.28.1}%
+\contentsline {subsection}{\numberline {28.2}The catch}{70}{subsection.28.2}%
+\contentsline {subsection}{\numberline {28.3}Why the four-dimensional substrate still wins}{70}{subsection.28.3}%
+\contentsline {part}{VI\hspace {1em}The Emergent Ladder}{70}{part.6}%
+\contentsline {section}{\numberline {29}Computation, Universality, and Addressing}{71}{section.29}%
+\contentsline {subsection}{\numberline {29.1}The substrate is a computer}{71}{subsection.29.1}%
+\contentsline {subsection}{\numberline {29.2}Undecidability comes with the power}{72}{subsection.29.2}%
+\contentsline {subsection}{\numberline {29.3}Addressing $\{3,4,3,4\}$ at scale}{72}{subsection.29.3}%
+\contentsline {subsection}{\numberline {29.4}Margenstern's sons, ported to $\{3,4,3,4\}$}{73}{subsection.29.4}%
+\contentsline {subsection}{\numberline {29.5}The addressing idea in its cleanest form}{73}{subsection.29.5}%
+\contentsline {subsection}{\numberline {29.6}A worked address example}{74}{subsection.29.6}%
+\contentsline {subsection}{\numberline {29.7}One structure, computation and physics}{75}{subsection.29.7}%
+\contentsline {section}{\numberline {30}The Climb, From Field to Mind}{75}{section.30}%
+\contentsline {subsection}{\numberline {30.1}Everything is a glider}{75}{subsection.30.1}%
+\contentsline {subsection}{\numberline {30.2}The multiscale shortcut}{75}{subsection.30.2}%
+\contentsline {subsection}{\numberline {30.3}What the middle layers are}{76}{subsection.30.3}%
+\contentsline {subsection}{\numberline {30.4}The climb, with status}{76}{subsection.30.4}%
+\contentsline {section}{\numberline {31}Life}{77}{section.31}%
+\contentsline {subsection}{\numberline {31.1}The central tension and its resolution}{77}{subsection.31.1}%
+\contentsline {subsection}{\numberline {31.2}The arrow is the life engine}{77}{subsection.31.2}%
+\contentsline {subsection}{\numberline {31.3}What a self is}{78}{subsection.31.3}%
+\contentsline {subsection}{\numberline {31.4}Selves emerge, heal, interact, want}{78}{subsection.31.4}%
+\contentsline {subsection}{\numberline {31.5}Memory costs work}{79}{subsection.31.5}%
+\contentsline {subsection}{\numberline {31.6}Reproduction, evolution, and value}{79}{subsection.31.6}%
+\contentsline {section}{\numberline {32}Mind}{80}{section.32}%
+\contentsline {subsection}{\numberline {32.1}The strange loop}{80}{subsection.32.1}%
+\contentsline {subsection}{\numberline {32.2}The self-model and the onion}{80}{subsection.32.2}%
+\contentsline {subsection}{\numberline {32.3}Prediction, recursion, attention}{80}{subsection.32.3}%
+\contentsline {subsection}{\numberline {32.4}Planning, with nothing added}{81}{subsection.32.4}%
+\contentsline {section}{\numberline {33}Intelligence}{81}{section.33}%
+\contentsline {subsection}{\numberline {33.1}The means: the substrate computes}{82}{subsection.33.1}%
+\contentsline {subsection}{\numberline {33.2}The ends: the arrow}{82}{subsection.33.2}%
+\contentsline {subsection}{\numberline {33.3}Maximal by integration, not criticality}{82}{subsection.33.3}%
+\contentsline {subsection}{\numberline {33.4}The level-relative principle}{83}{subsection.33.4}%
+\contentsline {section}{\numberline {34}The Unfolding: The Climb From Field to Human}{83}{section.34}%
+\contentsline {subsection}{\numberline {34.1}The climb, with status}{84}{subsection.34.1}%
+\contentsline {subsection}{\numberline {34.2}The biological sequence is the same climb}{84}{subsection.34.2}%
+\contentsline {subsection}{\numberline {34.3}The one-line ladder}{84}{subsection.34.3}%
+\contentsline {subsection}{\numberline {34.4}What drives the climb}{85}{subsection.34.4}%
+\contentsline {subsection}{\numberline {34.5}How one would know}{86}{subsection.34.5}%
+\contentsline {subsection}{\numberline {34.6}The capstone: rarity is the price of organization}{86}{subsection.34.6}%
+\contentsline {section}{\numberline {35}Consciousness}{86}{section.35}%
+\contentsline {subsection}{\numberline {35.1}The sharp distinction}{86}{subsection.35.1}%
+\contentsline {subsection}{\numberline {35.2}The two ingredients}{87}{subsection.35.2}%
+\contentsline {subsection}{\numberline {35.3}A matter of degree}{87}{subsection.35.3}%
+\contentsline {subsection}{\numberline {35.4}Inverting the hard problem}{87}{subsection.35.4}%
+\contentsline {subsection}{\numberline {35.5}The variety of experience}{88}{subsection.35.5}%
+\contentsline {subsection}{\numberline {35.6}Relation to integrated information theory}{88}{subsection.35.6}%
+\contentsline {section}{\numberline {36}Determinism and Freedom}{89}{section.36}%
+\contentsline {subsection}{\numberline {36.1}Determined yet not predestined}{89}{subsection.36.1}%
+\contentsline {subsection}{\numberline {36.2}Determined yet self-authored}{89}{subsection.36.2}%
+\contentsline {subsection}{\numberline {36.3}The strongest objection, and the micro door}{90}{subsection.36.3}%
+\contentsline {subsection}{\numberline {36.4}The will, finite and spendable}{90}{subsection.36.4}%
+\contentsline {part}{VII\hspace {1em}Implications and Open Questions}{91}{part.7}%
+\contentsline {section}{\numberline {37}Implications}{91}{section.37}%
+\contentsline {subsection}{\numberline {37.1}Time, the arrow, and expansion are one process}{91}{subsection.37.1}%
+\contentsline {subsection}{\numberline {37.2}An age and a horizon, on either reading}{91}{subsection.37.2}%
+\contentsline {subsection}{\numberline {37.3}Grand unification as geometry}{91}{subsection.37.3}%
+\contentsline {subsection}{\numberline {37.4}Computability and a discrete base}{92}{subsection.37.4}%
+\contentsline {subsection}{\numberline {37.5}Consciousness as the substrate}{92}{subsection.37.5}%
+\contentsline {subsection}{\numberline {37.6}Why these implications matter}{92}{subsection.37.6}%
+\contentsline {section}{\numberline {38}Predictions and Falsifiability}{92}{section.38}%
+\contentsline {subsection}{\numberline {38.1}Quantitative predictions}{92}{subsection.38.1}%
+\contentsline {subsection}{\numberline {38.2}Structural predictions}{93}{subsection.38.2}%
+\contentsline {subsection}{\numberline {38.3}The cleanest falsifier: cubic anisotropy}{93}{subsection.38.3}%
+\contentsline {subsection}{\numberline {38.4}What else would falsify it}{94}{subsection.38.4}%
+\contentsline {section}{\numberline {39}Scope and Coverage}{94}{section.39}%
+\contentsline {subsection}{\numberline {39.1}What is established}{95}{subsection.39.1}%
+\contentsline {subsection}{\numberline {39.2}What is extrapolated}{95}{subsection.39.2}%
+\contentsline {subsection}{\numberline {39.3}What is not covered}{95}{subsection.39.3}%
+\contentsline {subsection}{\numberline {39.4}Two items that moved off this list}{96}{subsection.39.4}%
+\contentsline {subsection}{\numberline {39.5}How to read the scope}{96}{subsection.39.5}%
+\contentsline {section}{\numberline {40}Open Problems}{96}{section.40}%
+\contentsline {subsection}{\numberline {40.1}The exact collision}{96}{subsection.40.1}%
+\contentsline {subsection}{\numberline {40.2}No absolute quantitative predictions yet}{97}{subsection.40.2}%
+\contentsline {subsection}{\numberline {40.3}The candidate fifth ingredient}{97}{subsection.40.3}%
+\contentsline {subsection}{\numberline {40.4}Dynamical settling into the cusp}{97}{subsection.40.4}%
+\contentsline {subsection}{\numberline {40.5}Absolute masses}{97}{subsection.40.5}%
+\contentsline {subsection}{\numberline {40.6}The supersymmetry tension}{98}{subsection.40.6}%
+\contentsline {subsection}{\numberline {40.7}Full addressing, now solved}{98}{subsection.40.7}%
+\contentsline {subsection}{\numberline {40.8}The finite-versus-infinite question}{98}{subsection.40.8}%
+\contentsline {part}{VIII\hspace {1em}The Whole Picture}{98}{part.8}%
+\contentsline {section}{\numberline {41}The Carrying Metaphors}{98}{section.41}%
+\contentsline {subsection}{\numberline {41.1}Mind, the central image}{99}{subsection.41.1}%
+\contentsline {subsection}{\numberline {41.2}Fire, the primary image}{99}{subsection.41.2}%
+\contentsline {subsection}{\numberline {41.3}Song, the vibrational nature}{99}{subsection.41.3}%
+\contentsline {subsection}{\numberline {41.4}Tree and seed, the structure and the origin}{100}{subsection.41.4}%
+\contentsline {subsection}{\numberline {41.5}Ocean and river, the whole and the current}{100}{subsection.41.5}%
+\contentsline {subsection}{\numberline {41.6}Beings and selves, what we are}{100}{subsection.41.6}%
+\contentsline {subsection}{\numberline {41.7}How they combine}{100}{subsection.41.7}%
+\contentsline {section}{\numberline {42}How Infinity Could Emerge}{101}{section.42}%
+\contentsline {subsection}{\numberline {42.1}Seven ways infinity could emerge}{101}{subsection.42.1}%
+\contentsline {subsection}{\numberline {42.2}Finite but growing, the cleanest account}{102}{subsection.42.2}%
+\contentsline {subsection}{\numberline {42.3}Infinity as the default}{102}{subsection.42.3}%
+\contentsline {subsection}{\numberline {42.4}The spectrum of positions}{102}{subsection.42.4}%
+\contentsline {subsection}{\numberline {42.5}What it would feel like}{103}{subsection.42.5}%
+\contentsline {subsection}{\numberline {42.6}Where this substrate lands}{103}{subsection.42.6}%
+\contentsline {section}{\numberline {43}Computability and the Refining Universe}{103}{section.43}%
+\contentsline {subsection}{\numberline {43.1}What computability does and does not forbid}{104}{subsection.43.1}%
+\contentsline {subsection}{\numberline {43.2}The load-bearing commitment}{104}{subsection.43.2}%
+\contentsline {subsection}{\numberline {43.3}The refining picture and its real limit}{104}{subsection.43.3}%
+\contentsline {section}{\numberline {44}Related Work}{104}{section.44}%
+\contentsline {subsection}{\numberline {44.1}Discrete spacetime}{105}{subsection.44.1}%
+\contentsline {subsection}{\numberline {44.2}Deterministic quantum substrates}{105}{subsection.44.2}%
+\contentsline {subsection}{\numberline {44.3}Holography and tensor networks}{105}{subsection.44.3}%
+\contentsline {subsection}{\numberline {44.4}Hyperbolic lattices and automata}{105}{subsection.44.4}%
+\contentsline {subsection}{\numberline {44.5}Foundations and mind}{106}{subsection.44.5}%
+\contentsline {subsection}{\numberline {44.6}Emergent and entropic gravity}{106}{subsection.44.6}%
+\contentsline {subsection}{\numberline {44.7}Positive geometry, a forward-looking ally}{106}{subsection.44.7}%
+\contentsline {subsection}{\numberline {44.8}Mind, agency, and the strongest adversary}{106}{subsection.44.8}%
+\contentsline {subsection}{\numberline {44.9}What is genuinely ours}{107}{subsection.44.9}%
+\contentsline {section}{\numberline {45}Speculative Interpretations}{107}{section.45}%
+\contentsline {subsection}{\numberline {45.1}The bulk as an inner dimension}{107}{subsection.45.1}%
+\contentsline {subsection}{\numberline {45.2}Consciousness, taken at the base}{107}{subsection.45.2}%
+\contentsline {subsection}{\numberline {45.3}The esoteric reading}{107}{subsection.45.3}%
+\contentsline {subsection}{\numberline {45.4}The discipline around speculation}{108}{subsection.45.4}%
+\contentsline {section}{\numberline {46}The Esoteric Reading}{108}{section.46}%
+\contentsline {subsection}{\numberline {46.1}The subtle plane and the hyperbolic bulk}{108}{subsection.46.1}%
+\contentsline {subsection}{\numberline {46.2}Telepathy and synchronicity}{108}{subsection.46.2}%
+\contentsline {subsection}{\numberline {46.3}Dreams and the know-thyself limit}{108}{subsection.46.3}%
+\contentsline {subsection}{\numberline {46.4}Angels and demons as valence on a large self}{109}{subsection.46.4}%
+\contentsline {subsection}{\numberline {46.5}Reincarnation as pattern independent of substrate}{109}{subsection.46.5}%
+\contentsline {subsection}{\numberline {46.6}The Tree of Life and the Tree of Knowledge}{109}{subsection.46.6}%
+\contentsline {subsection}{\numberline {46.7}The question of God}{109}{subsection.46.7}%
+\contentsline {section}{\numberline {47}Conclusion}{110}{section.47}%
+\contentsline {subsection}{\numberline {47.1}What came out}{110}{subsection.47.1}%
+\contentsline {subsection}{\numberline {47.2}What stays open}{110}{subsection.47.2}%
+\contentsline {subsection}{\numberline {47.3}The picture to carry}{111}{subsection.47.3}%
+\contentsline {section}{\numberline {A}The Hyperbolic-Bulk Measurement Toolkit}{111}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}The problem with naive methods}{111}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}The four tools}{111}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}The difference method for the cusp}{111}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}What the toolkit fixed}{111}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.5}The Euclidean-lattice builder}{112}{subsection.A.5}%
+\contentsline {subsection}{\numberline {A.6}Where the code lives}{112}{subsection.A.6}%
+\contentsline {section}{\numberline {B}The Complete Regular Hyperbolic Tessellation Catalog}{112}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}The window, in one glance}{112}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}2D, hyperbolic tilings, physical space 1D}{113}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}3D, hyperbolic honeycombs, physical space 2D, 21 regular}{113}{subsection.B.3}%
+\contentsline {subsection}{\numberline {B.4}4D, hyperbolic tetracombs, physical space 3D, the home of the substrate}{114}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}5D, hyperbolic pentacombs, physical space 4D, the last regulars anywhere}{115}{subsection.B.5}%
+\contentsline {subsection}{\numberline {B.6}6D to 9D, physical space 5D to 8D, no regulars}{115}{subsection.B.6}%
+\contentsline {subsection}{\numberline {B.7}Measured sweep, 2D tilings}{115}{subsection.B.7}%
+\contentsline {subsection}{\numberline {B.8}Measured sweep, 3D honeycombs}{116}{subsection.B.8}%
+\contentsline {subsection}{\numberline {B.9}Measured sweep, 4D honeycombs}{117}{subsection.B.9}%
+\contentsline {subsection}{\numberline {B.10}Measured sweep, 5D candidates}{118}{subsection.B.10}%
+\contentsline {section}{\numberline {C}Experiment Index}{118}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Substrate and builders}{118}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}The rule, conservation, and reversibility}{118}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Tessellation sweeps}{119}{subsection.C.3}%
+\contentsline {subsection}{\numberline {C.4}Spin, fermions, matter}{119}{subsection.C.4}%
+\contentsline {subsection}{\numberline {C.5}Persistence, defects, and the negatives}{119}{subsection.C.5}%
+\contentsline {subsection}{\numberline {C.6}Dirac, Lorentz, isotropy}{119}{subsection.C.6}%
+\contentsline {subsection}{\numberline {C.7}Gauge and Standard Model}{119}{subsection.C.7}%
+\contentsline {subsection}{\numberline {C.8}Gravity and holography}{119}{subsection.C.8}%
+\contentsline {subsection}{\numberline {C.9}Cosmology and expansion}{120}{subsection.C.9}%
+\contentsline {subsection}{\numberline {C.10}Renormalization, the coarse-graining tower, and rarity}{120}{subsection.C.10}%
+\contentsline {subsection}{\numberline {C.11}Physical space, the cusp}{120}{subsection.C.11}%
+\contentsline {subsection}{\numberline {C.12}Computation and universality}{120}{subsection.C.12}%
+\contentsline {subsection}{\numberline {C.13}The emergent ladder and observers}{120}{subsection.C.13}%
+\contentsline {subsection}{\numberline {C.14}Cosmology, the open question}{121}{subsection.C.14}%
+\contentsline {subsection}{\numberline {C.15}Note on the log}{121}{subsection.C.15}%
+\contentsline {section}{\numberline {D}Base-Faithfulness Audit}{121}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}The base}{121}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}The audit, sector by sector}{121}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}The caveats}{121}{subsection.D.3}%
+\contentsline {section}{\numberline {E}Methodology Detail, Per Sector}{122}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Common methods}{123}{subsection.E.1}%
+\contentsline {subsection}{\numberline {E.2}Gravity}{123}{subsection.E.2}%
+\contentsline {subsection}{\numberline {E.3}Holography}{123}{subsection.E.3}%
+\contentsline {subsection}{\numberline {E.4}Cosmology and expansion}{124}{subsection.E.4}%
+\contentsline {subsection}{\numberline {E.5}Spin and fermions}{124}{subsection.E.5}%
+\contentsline {subsection}{\numberline {E.6}Gauge and the Standard Model}{125}{subsection.E.6}%
+\contentsline {subsection}{\numberline {E.7}Dirac and Lorentz}{125}{subsection.E.7}%
+\contentsline {subsection}{\numberline {E.8}Isotropy}{125}{subsection.E.8}%
+\contentsline {subsection}{\numberline {E.9}Electromagnetism}{126}{subsection.E.9}%
+\contentsline {subsection}{\numberline {E.10}Physical space and the cusp}{126}{subsection.E.10}%
+\contentsline {subsection}{\numberline {E.11}Substrate selection}{127}{subsection.E.11}%
+\contentsline {section}{\numberline {F}Glossary}{127}{appendix.F}%
+\contentsline {section}{\numberline {G}Formal Mathematics}{129}{appendix.G}%
+\contentsline {subsection}{\numberline {G.1}Notation, clear symbols}{130}{subsection.G.1}%
+\contentsline {subsection}{\numberline {G.2}The substrate}{130}{subsection.G.2}%
+\contentsline {subsection}{\numberline {G.3}The fill}{131}{subsection.G.3}%
+\contentsline {subsection}{\numberline {G.4}The dynamics}{131}{subsection.G.4}%
+\contentsline {subsection}{\numberline {G.5}Conservation and reversibility}{132}{subsection.G.5}%
+\contentsline {subsection}{\numberline {G.6}The coin algebra}{132}{subsection.G.6}%
+\contentsline {subsection}{\numberline {G.7}Emergent propagation}{132}{subsection.G.7}%
+\contentsline {subsection}{\numberline {G.8}Geometry, growth, and cosmology}{133}{subsection.G.8}%
+\contentsline {subsection}{\numberline {G.9}Gauge and the Standard-Model numbers}{133}{subsection.G.9}%
+\contentsline {subsection}{\numberline {G.10}Gravity, as an equation of state}{134}{subsection.G.10}%
+\contentsline {subsection}{\numberline {G.11}Electromagnetism}{134}{subsection.G.11}%
+\contentsline {subsection}{\numberline {G.12}Addressing and computation}{135}{subsection.G.12}%
+\contentsline {subsection}{\numberline {G.13}The discipline, and the recorded negatives}{135}{subsection.G.13}%
+\contentsline {section}{\numberline {H}The Two Cosmic Stories}{135}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}The shared ground}{136}{subsection.H.1}%
+\contentsline {subsection}{\numberline {H.2}The mirror symmetry}{136}{subsection.H.2}%
+\contentsline {subsection}{\numberline {H.3}Story A, the One unfolding}{137}{subsection.H.3}%
+\contentsline {subsection}{\numberline {H.4}Story B, the eternal becoming}{138}{subsection.H.4}%
+\contentsline {subsection}{\numberline {H.5}The perennial images}{140}{subsection.H.5}%
+\contentsline {subsection}{\numberline {H.6}Why we do not decide}{141}{subsection.H.6}%
+\contentsline {section}{References}{141}{subsection.H.6}%

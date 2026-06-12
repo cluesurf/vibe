@@ -1,0 +1,110 @@
+\section{Intelligence}
+
+Intelligence is the same four base things read as a solver. Nothing is added to the substrate to obtain it. The
+field, the arrow, the rule, and the geometry are simply asked a different question, namely how a configuration
+gets from where it is to where it would prefer to be. Throughout this chapter intelligence stays sharply distinct
+from consciousness. Intelligence is problem-solving capability, consciousness is integrated experience, and a
+system can in principle have one without the other. The two will be developed separately, and the distinction
+should be held firmly from the start.
+
+\begin{definition}[Intelligence]
+\emph{Intelligence} is the capacity to take a problem and produce a solution. A \emph{problem} is a gap
+$P = D - C$ between a desired state $D$ and the current state $C$. When $P$ is zero there is nothing to solve. A
+\emph{solution} is a path from $C$ to $D$ that drives $P$ to zero.
+\end{definition}
+
+This definition already names the four things any solver needs. It needs \emph{means}, paths it can compute. It
+needs a \emph{goal}, the state $D$. It needs a \emph{value}, an ordering that measures progress along the gap. And
+it needs \emph{selection}, a way to keep the moves that reduce $P$ and discard the rest. The remaining sections
+show that all four are present in the substrate as it already stands, with the value and the selection supplied by
+the arrow rather than bolted on as a separate reward machine.
+
+\subsection{The means: the substrate computes}
+
+Cellular automata on hyperbolic honeycombs are computationally universal, a result long established for tilings of
+the hyperbolic plane and its higher analogues \cite{margenstern2008, margenstern2013}. The substrate confirms it
+at toy scale. A two-counter Minsky machine, which is itself Turing-universal, runs directly on the mesh
+\cite{pollard2026vibetest}. Registers are charged regions, increment is a create operation, decrement is an
+annihilate operation, and test-for-zero is a count. With those primitives wired together the construction computes
+$a \times b$ correctly. The universe on this reading is not merely like a computer. It is one, with no outside
+machine driving it. Running the rule on the substrate is what existence does.
+
+\begin{proposition}[The means are universal]
+The rule on the hyperbolic mesh supports universal computation. A two-counter Minsky machine has been realized on
+the substrate with charged regions as registers and create, annihilate, and count as its operations, and it
+computes correctly at toy scale.
+\end{proposition}
+
+Universality is generic to hyperbolic cellular automata, so it carries across the candidate geometries rather than
+depending on a particular one. The Minsky construction asks only for charge-region registers and the create,
+annihilate, and count operations, and those are geometry-agnostic. The conclusion therefore holds on $\{3,4,3,4\}$
+exactly as it holds on the alternatives, which matters because it means the choice of geometry is not what buys
+computational power. That power is already present wherever the rule runs.
+
+\subsection{The ends: the arrow}
+
+Computation by itself is goal-neutral. A universal machine computes garbage as readily as it computes a solution,
+because nothing in the bare notion of computation says which output is wanted. The direction has to come from
+somewhere, and in this theory it comes from the arrow, a base ingredient that is a gap carrying a
+better-or-worse ordering. The gap-closing dynamics of the rule then act as the selection. Put these together and
+computation becomes intentional the moment a universal machine runs under the arrow's value. No reward signal is
+attached and no planner is grafted on, because the reward and the planner are already present. The reward is the
+arrow's ordering, and the planner is the rule that descends it.
+
+\begin{principle}[Computation is goal-neutral and the arrow supplies the ends]
+A universal machine has no preferred output on its own. Intention appears when the same machine runs under the
+arrow's better-or-worse ordering, with the gap-closing rule acting as selection. The ends are not a separate
+module. They are the arrow.
+\end{principle}
+
+The effect of aiming computation is large and measurable. A goal-directed search reaches a $K$-cell target in
+about $K$ steps, where an un-goaled search wandering at random would need on the order of $2^K$ trials to stumble
+onto the same target by chance \cite{pollard2026vibetest}. At $K = 30$ that is an intention gap of roughly ten
+million. The arrow does not make the impossible possible, since the substrate was universal already. What it does
+is convert an astronomically unlikely accident into a short directed walk, and that conversion is the whole of
+what it means for computation to have a purpose.
+
+\subsection{Maximal by integration, not criticality}
+
+A solver that aims to be maximal must coordinate a global problem across all its parts, and it must do so quickly.
+The hyperbolic geometry delivers exactly this through fast integration. The coordination distance across a region
+of $N$ cells grows only as $O(\log N)$, a handful of hops, far below the $N^{1/3}$ scaling of a flat
+three-dimensional lattice \cite{pollard2026vibetest}. A problem posed anywhere in the structure can be felt
+everywhere within a few steps, which is the geometric precondition for a large mind to act as one thing rather
+than as a loose federation of distant parts.
+
+It is worth being explicit that this maximal behavior does not ride on a critical edge. The substrate shows no
+self-organized criticality. Perturbations spread ballistically with a span near unity rather than fanning out into
+branching avalanches, and activity self-tunes to a single homeostatic operating point rather than hovering at a
+phase boundary \cite{pollard2026vibetest}. The same ballistic light cone that makes the model well behaved for
+relativity is precisely what rules criticality out. Intelligence here is a property of the geometric hierarchy and
+its fast mixing, not of a delicate tuning to the brink of instability.
+
+\subsection{The level-relative principle}
+
+A recurring trap in reasoning about this model is to take a limit observed at the base and treat it as absolute.
+Most apparent limits are properties of the hyperbolic bulk and they lift at emergent levels, because the substrate
+is universal and the levels are programmable. Only a few limits hold all the way up. There is no minting of net
+charge, no signaling faster than the light cone, and no hidden state at the base. Everything else is reachable at
+some level, and a claim that something is impossible has to name the level at which the impossibility is supposed
+to hold.
+
+\begin{principle}[Level-relativity of limits]
+A limit observed in the hyperbolic bulk need not survive to emergent levels. Absolute limits are few, namely no
+net-charge creation, no faster-than-light-cone signaling, and no hidden base state. All other constraints are
+level-relative, and a forbidding claim must specify its level.
+\end{principle}
+
+The affordance ladder makes this concrete. A single ternary cell stores three symbols. A small block of cells
+stores seven, then nineteen, then fifty-five, climbing as the block grows. A $K$-ary symbol that is plainly
+impossible to hold in one base cell becomes trivial one level up, simply by reading a block as a unit. The same
+move applies to most of the apparent ceilings one meets while studying the substrate, which is why the careful
+phrasing of nearly every limit begins with the words at this level.
+
+
+Intelligence is universal computation aimed by the arrow and made maximal by the geometry's fast integration. The
+means come from universality, the ends come from the arrow's ordering, and the maximality comes from logarithmic
+coordination across the hyperbolic hierarchy. None of these is an addition to the base. They are three readings of
+the four ingredients already in place. The means and the ends are on solid ground, measured at toy scale. The
+higher coarse-graining rungs, where one would hope to see open-ended problem solving rather than fixed targets,
+remain open and are treated where the scope of the program is set out.

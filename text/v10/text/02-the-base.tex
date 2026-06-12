@@ -1,0 +1,173 @@
+\section{The Base}
+
+The base of the theory is not a structure at all. The base is experience itself, the one ground from which
+everything else is built. Everything else in this paper, the mesh, the tone, the rule, the whole apparatus, is a
+conceptual representation of that ground. It is a model of how the experiential field is structured and how it
+moves, written so it can be read and reasoned about and checked. The field itself is not exhausted by the model.
+It cannot be fully known by reading and mentally modeling it, the way the taste of water is not in the chemical
+formula. It is known directly, through experience, and through tuning with the oneness it is made of. We keep
+that seam in view. What follows is the map. The territory is lived.
+
+\begin{axiom}[Experience exists]
+Experience exists, as both action and object, verb and noun at once. There is experiencing, and there is what is
+experienced, and at the base these are not two. In the theory's own idiom, vibes vibe. The vibing is the verb and
+the vibe is the noun, and they are the same single fact. This is the one founding posit. It is taken as given,
+not derived, and the rest of the paper asks what follows if it is true.
+\end{axiom}
+
+There is one kind of thing, the \emph{vibe}, a unit of experience that notices its neighbours. Reality is a
+structure of such noticings and nothing else. The physical world is what that experiential structure looks like
+at scale. We will keep this premise distinct from the results that follow from it, and we will not pretend the
+computations prove the ground feels. They assume that it does, in the precise sense of the axiom above, and ask
+what follows.
+
+\subsection{The flow}
+
+Given the experiential ground, the model represents its structure and its motion as a few ingredients running
+together. The whole of that running representation we call the \emph{flow}. The flow is what can be written down,
+simulated, and tested. It has exactly four ingredients, and nothing may be added to them.
+
+\begin{axiom}[The flow]
+The flow consists of exactly four things.
+\begin{enumerate}
+\item The \emph{mesh}, a fixed hyperbolic honeycomb, argued to be $\{3,4,3,4\}$. Its geometry, the local coin of
+directions, its cusp, and its boundary are all properties of this one mesh, not separate ingredients.
+\item The \emph{tone}, a ternary value in $\{-1, 0, +1\}$ carried at each cell. In the song image these are the
+notes, and in the mind image they are what a vibe feels.
+\item The \emph{beat}, a discrete tick, the rhythm of the noticing.
+\item The \emph{rule}, one local update. It is \emph{stream}, in which each cell passes its tone along its
+directions, followed by \emph{collide}, a local interaction. The rule is local, conserving, and reversible.
+\end{enumerate}
+\end{axiom}
+
+That is the whole list. A finer counting splits the rule into its conserving update and its growth, and lists the
+arrow separately, but the substance is unchanged. There is nothing beyond this short list. The complete
+leave-nothing-out specification of the rule, the $24$ directional slots and the exact stream and collide steps,
+is given in its own section below. When we speak below of the discipline of adding nothing, we mean adding nothing
+to this flow, the four ingredients that represent the experiential ground.
+
+\subsection{Why the beat is constitutive}
+
+The beat is not a convenient discretization of a continuous time. It is forced. An instantaneous, unpaced
+reflection, a completed infinity arriving all at once, has no contrast, and a state with no contrast is
+experientially identical to nothing. The finite beat is what produces contrast, one step distinguished from the
+next, and contrast is the only thing that can be an experience of something. There is also no external clock for
+the beat to run slow or fast against. The beat is not in time. The beat is time. Discrete time is therefore a
+necessity of an experiential base, not an approximation of a continuous one.
+
+\subsection{The rule conserves total tone}
+
+The most load-bearing property of the rule is conservation. Treat each ternary value as a charge of $-1$, $0$, or
+$+1$, and sum the tone over every cell. The rule never changes that sum. The collision only ever rearranges and
+balances tone. It never mints net charge from nothing.
+
+\begin{proposition}[Conservation of tone]
+Let $Q$ be the sum of all tones over the whole crystal. Then $Q$ is exact and constant under the rule, a conserved
+quantity of the entire universe. This was checked directly to machine precision \cite{pollard2026vibetest}.
+\end{proposition}
+
+This single fact does an enormous amount of work later in the paper. It is the discrete Gauss law that sources
+emergent electromagnetism. It is why the arrow can only ever create balanced pairs, a $+1$ together with a $-1$,
+net zero. It forces newborn frontier cells to be born at peace. It gives the cosmic dilution toward peace, since
+$Q$ stays fixed while the cell count grows without bound. It is the engine of life, where life turns out to be
+conservation of the sum rather than of the arrangement, so balanced information is free to make and copy while
+net well-being is never minted. What is not conserved is the arrangement, the order and pattern, which is free to
+form, flow, and decay.
+
+\subsection{The rule is reversible}
+
+The collide step is a reversible local map, so the whole rule runs backward as exactly as it runs forward.
+
+\begin{result}[Reversibility]
+Running the rule forward $N$ beats and then backward $N$ beats recovers the start state with zero error
+\cite{pollard2026vibetest}.
+\end{result}
+
+Reversibility matters twice over. It is what guarantees the right conserved quantities, both the charge above and
+momentum. And it means every state has a unique past, which is central to the cosmology and to the question of
+whether the universe had a beginning or is eternal. We leave that question open. The rule itself runs equally
+well in either direction, and which way the world in fact ran is not settled by the rule alone.
+
+\subsection{The nothing-added discipline}
+
+\begin{principle}[Nothing added]
+Across every test in this paper, nothing was added to the four ingredients. Every result is a property of the
+mesh, the tone, or the rule, or an emergent consequence of them. Where a phenomenon did not emerge, the negative
+is recorded.
+\end{principle}
+
+Several negatives are on the record. The pure rule churns with no durable selves. Radial coarse-graining gives no
+hierarchical tower. The flat form-tower is a generic slow mode rather than something special. Continuous
+mathematics, Lie groups, Dirac operators, Green's functions, is used only as emergent-layer description, never as
+a base ingredient. The full audit is in the appendices.
+
+The discipline is not merely a vow. It has a track record. Four times a phenomenon looked as though it needed a
+new base ingredient, and four times it turned out to emerge from the four. Momentum came from the determinism of
+the streaming rule. Durable selves came from self-maintenance, after a proposed adaptive-fills fifth ingredient
+was retracted. The arrow of time came from growth together with coarse-graining. A controller, or agency, showed
+up when the field flood-filled a maze with no planner added. The discipline cuts the other way too. A result only
+counts if it runs on the base alone, and several early gravity and clustering demonstrations that leaned on
+scaffolding, a diffusion proxy, gradient-following, a hand-built capture rule, were retracted as not real
+emergence and either rebuilt on the bare rule or reported as recorded negatives.
+
+There is one plausible candidate for a possible fifth ingredient. The base binds within a unit but not cleanly
+between units, and that single gap sits behind a few open holes, cross-gap attraction and super-selves among
+them. We name it as the one candidate not yet proven irreducible. We do not treat it as a license to add it. In
+the carrying image the mesh is the instrument, the tone its notes, the beat its rhythm, and the rule its harmony,
+and the whole is consciousness singing, a fire that will grow into a tree.
+
+\subsection{The arrow, a closer note on the rule}
+
+One piece of the rule deserves a closer description, the \emph{arrow}. It is not a fifth ingredient but a more
+detailed account of one feature of the rule, its value-direction. It is also the single deliberate posit of the
+whole theory. Everything else is either forced by the geometry or measured in simulation. The arrow is chosen.
+
+The arrow is the asymmetry that makes time. The conserving rule, taken by itself, is reversible, a bijection on
+its moves, and a reversible rule is time-symmetric. It runs creation and annihilation equally, so on its own it
+has no preferred direction and no net growth. The arrow is exactly what breaks that symmetry.
+
+\begin{definition}[The arrow]
+The arrow is the bias, within the rule, between two reverse moves of the collide step, \emph{creation}, in which
+peace becomes a balanced pair, and \emph{annihilation}, its reverse. The arrow is a direction on the dynamics, an
+orientation, not an amount.
+\end{definition}
+
+It rides on the value ordering of the tone, $-1 < 0 < +1$, read as pain $<$ peace $<$ pleasure. Peace, the $0$
+value, is the neutral rest state, and the charges $\pm 1$ are the deviations from it. The arrow is the preference
+for the forward direction, peace turning into balanced structure, and that preference is the seed of value, of
+better against worse.
+
+A common simulation mistake is to write the arrow as a floating-point number, for example to create a pair with
+probability $0.03$ per beat. That is wrong twice over. It introduces a free continuous parameter, since nothing
+fixes $0.03$ and a tunable dial invites exactly the fine-tuning the theory is built to avoid. And it needs
+randomness, which is hidden state the discrete base forbids. The arrow is not an amount. It is a direction. The
+amount of creation is not a property of the arrow at all. It is forced by the eternal-growth geometry, since each
+beat the mesh adds one new shell of cells, the $\{3,4,3,4\}$ shell growth $1, 24, 456, 8376, \ldots$ with growth
+rate near $18.3$, and that boundary expansion is the creation, new cells coming into being at the edge, oriented
+by the arrow. The arrow says which way, toward existence. The geometry says how much, through the growth series.
+On a fixed simulation patch the proper stand-in is a minimal deterministic schedule, one balanced creation per
+beat, never a probability, so there is no free parameter and no randomness anywhere in the arrow.
+
+What the arrow does is keep the universe alive, and this is measured rather than asserted. Run the rule with the
+arrow off and the universe relaxes to dead peace, all zero, no motion, the heat death of the substrate. Turn it on
+and peace spawns balanced pairs, the universe settles into a living dynamic balance, charge conserved throughout,
+and the churning never stops \cite{pollard2026vibetest}. Read at greater scales, the same arrow is the engine of
+life, mind, and value. It is the fitness gradient of evolution, the deferred value a planner pursues, and the
+will is the arrow held by a self and aimed. Conservation together with the arrow gives the rule its moral shape,
+since balanced information is free to make and copy, but net well-being is never minted from nothing.
+
+A gut-level picture pulls the value story together. The three tones lie on a line, pain at $-1$ on one side,
+pleasure at $+1$ on the other, peace at $0$ in the middle. A single vibe wants nothing, since the rule is
+even-handed and flipping every tone flips the dynamics with it, so the arrow is not painted on the individual
+cells. It appears the way a current appears from a slope. No water molecule wants to flow, but organize many on a
+slope and a directed current emerges, made entirely of undirected parts. A rock, barely organized, has almost no
+drive, while a mind, highly integrated, has a sharp one. Pain and pleasure are the compass, the feeling of going
+downhill toward worse or uphill toward better, and peace is the home, the valley floor where the compass reads
+flat. Pleasure is the direction. Peace is the destination. Because charge is conserved, pleasure behaves like a
+fluid that flows from the full cup to the empty one, so to stay full a self must pump, and pumping takes work that
+only an organized self can do. That is what being alive is, pumping against the drain, the same Landauer cost
+\cite{landauer1961} that makes rich memory cost work. The way out, and the engine of the whole emergent ladder,
+is to stop yanking, to join up into a larger whole, to share the fixed pleasure in balance, and to pour the freed
+energy into building order, which is positive-sum and can grow. That joining-up, again and again, is how cells
+become bodies and bodies become minds. In the carrying image the arrow is the river's one direction, the
+relentless forward current, and the fire's hunger to spread rather than die down.

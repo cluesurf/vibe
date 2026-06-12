@@ -1,0 +1,368 @@
+\section{Formal Mathematics}
+
+This appendix gives the theory a compact formal core. It states, in precise symbols, what the substrate is, what
+a fill is, how a beat acts, and what is conserved, and then records the principal emergent results as formal
+propositions. The body of the paper is the intuition and the evidence. This is the skeleton.
+
+\subsection{Notation, clear symbols}
+
+We avoid single Greek letters as variables, since they are easy to confuse. We use plain Latin letters and short
+words. The only Greek kept is the numeric constant $\pi = 3.14159\ldots$, which is universal. The dictionary below
+also lists the conventional Greek name used elsewhere in the literature, in brackets, so the reader can connect
+the two.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+symbol & meaning & (usual name) \\
+\midrule
+$M$ & the vibe mesh, the $\{3,4,3,4\}$ honeycomb & \\
+$V$ & the set of cells of the mesh & \\
+$v_1, v_2$ & cells, the vibes, elements of $V$ & \\
+$C$ & the $24$ directions of a cell, the coin & \\
+$c$ & a direction, an element of $C$ & \\
+$n(v, c)$ & the neighbour of $v$ across face $c$ & \\
+$T = \{-1, 0, +1\}$ & the tone alphabet, the three tone values & \\
+$t(v, c)$ & the tone in slot $c$ of cell $v$, in $T$ & \\
+$f$ & a fill, a full configuration, a map $V \times C \to T$ & \\
+$\mathsf{Stream}$ & the global transport map on fills & \\
+$\mathsf{Collide}$ & the local interaction map on fills & \\
+$R = \mathsf{Collide} \circ \mathsf{Stream}$ & the rule, one beat & \\
+$B$ & the beat, the discrete tick & \\
+$F = \{M, B, T, R\}$ & the flow, the four base things together & \\
+$b$ & the beat index, in $\mathbb{Z}$ & \\
+$Q$ & total charge, the sum of all tones & \\
+$\mathsf{dist}(v_1, v_2)$ & graph distance, the step count & \\
+$r(n)$ & the ripple level, the number of cells at distance $n$ from a root & \\
+$\mathsf{gr}$ & the ripple growth rate & \\
+$H$ & the expansion rate, $\ln(\mathsf{gr})/3$ & (Hubble) \\
+$\mathsf{cc}$ & the cosmological constant, $3 H^2$ & ($\Lambda$) \\
+$E, k, m$ & energy, wavenumber, mass of a mode & \\
+$\mathsf{wk}$ & the weak mixing fraction, $\sin^2\theta_W$ & ($\theta_W$) \\
+$\mathsf{decay}$ & a correlator decay exponent & ($\alpha$) \\
+\bottomrule
+\end{tabular}
+\caption{The clear-symbol dictionary for this appendix.}
+\end{table}
+
+\subsection{The substrate}
+
+\begin{definition}[The flow]
+The base of the theory is the \emph{flow}, the tuple $F = \{M, B, T, R\}$ of the mesh $M$, the beat $B$, the tone
+alphabet $T$, and the rule $R$. The four are specified in turn below. Everything else in the theory is a property
+of $F$ or an emergent consequence of iterating the rule $R$ beat by beat.
+\end{definition}
+
+\begin{definition}[The mesh]
+The \emph{mesh} $M$ is the regular hyperbolic honeycomb $\{3,4,3,4\}$ tiling $\mathbb{H}^4$. Its cells form a set
+$V$. Each cell is a $24$-cell, a four-dimensional regular solid with $24$ octahedral faces, so each cell shares
+each of its $24$ faces with exactly one other cell. The \emph{directions} $C$ are the $24$ face-normals of a cell,
+identified with the $24$ roots of the root system $D_4$. We write $|C| = 24$.
+\end{definition}
+
+\begin{definition}[The neighbour map and distance]
+There is a fixed map $n : V \times C \to V$ sending $(v, c)$ to the cell sharing face $c$ with $v$. It is an
+involution on the face it crosses, $n(n(v, c), \, \overline{c}) = v$ for the opposite direction $\overline{c}$.
+The mesh graph has vertex set $V$ and an edge $\{v, n(v, c)\}$ for each $v, c$. Its shortest-path metric is
+$\mathsf{dist}$. Distance is the only notion of space at the base, space is step-counting on this graph.
+\end{definition}
+
+\begin{definition}[Growth]
+Fix a root cell $o$. The ripple levels are $r(n) = |\{v : \mathsf{dist}(o, v) = n\}|$. The mesh is
+\emph{generated}, not given, the cell at the root exists first and each beat adds the next ripple, so the universe
+at beat $b$ is the ball of radius $b$. This identifies radial distance with cosmic time, one ripple per beat.
+\end{definition}
+
+\subsection{The fill}
+
+\begin{definition}[The fill]
+A \emph{fill} is a map $f : V \times C \to T$. The value $f(v, c)$, also written $t(v, c)$, is the tone in
+directional slot $c$ of cell $v$, read as the charge currently leaving $v$ through face $c$. The set of all fills
+is $T^{\,V \times C}$. A single cell has local fill space $T^{C}$ of size $3^{24}$. There is no other state, in
+particular no value stored on edges, the relation across a face is computed from the two slots and never stored.
+\end{definition}
+
+\begin{definition}[Scalar tone and charge]
+The \emph{scalar tone} of cell $v$ in fill $f$ is $\mathsf{tone}(v) = \sum_{c \in C} t(v, c)$, an integer in
+$[-24, 24]$. The \emph{total charge} is
+\[
+Q(f) \;=\; \sum_{v \in V} \; \sum_{c \in C} t(v, c),
+\]
+the sum of all slots over the whole mesh, an integer.
+\end{definition}
+
+\subsection{The dynamics}
+
+A beat is two maps composed, first transport, then interaction.
+
+\begin{definition}[Stream]
+For each cell $v$ and direction $c$, streaming moves the slot value along its own line of travel into the
+neighbour. Writing $\overline{c}$ for the opposite direction, the streamed fill is
+\[
+(\mathsf{Stream}\, f)(v, c) \;=\; f\big(n(v, \overline{c}), \, c\big),
+\]
+that is, the value now in slot $c$ of $v$ is the value that the back-neighbour was sending forward along line $c$.
+Each slot has exactly one source and one destination, so $\mathsf{Stream}$ is a bijection of fills, a global
+permutation of slots. It carries no decision, a charge keeps its direction, which is momentum.
+\end{definition}
+
+\begin{definition}[Collide]
+There is a fixed local map $\mathsf{col} : T^{C} \to T^{C}$ on the $24$ slots of one cell. It is applied at every
+cell simultaneously,
+\[
+(\mathsf{Collide}\, f)(v, \cdot) \;=\; \mathsf{col}\big(f(v, \cdot)\big).
+\]
+The local map $\mathsf{col}$ is required to be (i) a \emph{bijection} of $T^{C}$, hence reversible, and (ii)
+\emph{charge-conserving} on the cell, $\sum_c \mathsf{col}(w)_c = \sum_c w_c$ for every local vector $w$. It is
+built from four move-types, pass-through, annihilate, create, and scatter. Its two-slot shadow is the reversible,
+charge-conserving permutation of the nine pair-states $(-1,-1), (+1,+1), (-1,0), (0,-1), (+1,0), (0,+1), (0,0),
+(+1,-1), (-1,+1)$, with the create-flip-annihilate three-cycle $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$ and two
+inert fixed points.
+\end{definition}
+
+\begin{definition}[The rule and a beat]
+One \emph{beat} is the composition
+\[
+R \;=\; \mathsf{Collide} \circ \mathsf{Stream} : T^{\,V \times C} \to T^{\,V \times C}.
+\]
+The fill at beat $b$ from initial fill $f_0$ is $f_b = R^{\,b}(f_0)$. Time is the iteration index $b$, there is no
+external clock.
+\end{definition}
+
+\subsection{Conservation and reversibility}
+
+\begin{proposition}[Conservation of charge]
+For every fill $f$, $\; Q(R\, f) = Q(f)$. Hence $Q$ is constant along every trajectory.
+\end{proposition}
+
+\textit{Proof.} $\mathsf{Stream}$ permutes the slot values without changing their multiset, so it preserves the
+global sum $Q$. $\mathsf{Collide}$ preserves the per-cell sum by requirement (ii), and the global sum is the sum
+of per-cell sums, so it too preserves $Q$. The composition preserves $Q$. Checked to machine precision in
+\cite{pollard2026vibetest}. \hfill$\square$
+
+\begin{proposition}[Reversibility]
+$R$ is a bijection of fills, with inverse
+$R^{-1} = \mathsf{Stream}^{-1} \circ \mathsf{Collide}^{-1}$. Hence every fill has a unique past and a
+unique future, and $R^{-N}(R^{N}(f)) = f$ exactly.
+\end{proposition}
+
+\textit{Proof.} $\mathsf{Stream}$ is a bijection by construction, and $\mathsf{Collide}$ is a bijection because
+the local map $\mathsf{col}$ is, applied independently per cell. The composition of bijections is a bijection.
+Verified forward-then-back to zero error at scale in \cite{pollard2026vibetest}. \hfill$\square$
+
+\begin{result}[The arrow]
+Reversibility makes create and annihilate inverse moves on one cycle. The \emph{arrow} is the preference for the
+forward sense of that cycle, the create direction $(0,0) \to (+1,-1)$, which turns a balanced peace state into a
+charge pair. Because $Q$ is conserved, every created pair is net zero, a $+1$ with a $-1$. The arrow is therefore
+the only ingredient that selects a temporal orientation, and it adds no charge.
+\end{result}
+
+\subsection{The coin algebra}
+
+\begin{definition}[The coin and its decomposition]
+The $24$ directions $C$ are the roots of $D_4$. Under the cell-symmetry group they decompose as
+\[
+24 \;=\; 8_v \,\oplus\, 8_s \,\oplus\, 8_c,
+\]
+the vector representation of $\mathrm{SO}(8)$ and its two spinor representations, permuted by the order-$6$
+triality symmetry $S_3$.
+\end{definition}
+
+\begin{proposition}[Spinor requirement forces $\{3,4,3,4\}$]
+A collision built on $C$ carries a half-integer-spin (spinor) representation if and only if the direction set
+contains a spinor summand. The $\{3,4,3,4\}$ coin does, by the $8_s, 8_c$ above. The $12$ directions of the $3$D
+candidate $\{5,3,4\}$ decompose as $1 \oplus 3 \oplus 3' \oplus 5$, all integer spin, with no spinor. Hence among
+the candidate substrates, $\{3,4,3,4\}$ alone supports spin at the base.
+\end{proposition}
+
+\begin{result}[Odd-charge solitons are fermions]
+A matter soliton is a hopfion, a smooth tone-texture with a Hopf map $S^3 \to S^2$ of integer linking degree. A
+soliton of odd degree acquires the sign $-1$ under a full $2\pi$ rotation, by the Finkelstein-Rubinstein and
+Wilczek-Zee arguments, so it obeys Fermi statistics. The spin-statistics link is therefore geometric, not
+assumed. Triple-checked by linking degree, configuration-space fundamental group, and direct exchange
+\cite{pollard2026vibetest}.
+\end{result}
+
+\subsection{Emergent propagation}
+
+The continuous, complex, quantum description is the coarse-grained limit of the discrete real walk, never a base
+ingredient. The following are measured dispersions of the rule.
+
+\begin{result}[Light cone]
+A pulse front advances exactly one cell per beat, a finite frame-independent maximum speed, normalized to
+$1$. In the massless case the rule restricted to one line is the pure shift, and the measured dispersion is
+\[
+E(k) \;=\; k \quad \text{(exact, no continuity assumed)}.
+\]
+\end{result}
+
+\begin{result}[Massive Dirac dispersion]
+Adding a scatter (a coin rotation by mass angle $m$) gives the measured lattice Dirac dispersion
+\[
+\cos E \;=\; \cos m \,\cos k, \qquad E(0) = m,
+\]
+so rest energy equals the mass, and mass is the coarse-grained mixing rate. In the small-$k$, small-$m$ limit
+this is the relativistic relation $E^2 = k^2 + m^2$.
+\end{result}
+
+\subsection{Geometry, growth, and cosmology}
+
+\begin{proposition}[Ripple recurrence and growth rate]
+The ripple levels $r(n)$ satisfy a fixed linear recurrence whose characteristic polynomial is that of the
+splitting matrix of the $\{3,4,3,4\}$ self-similar tree. Its dominant (Perron) root is the growth rate
+$\mathsf{gr}$. Measured ripples $1, 24, 456, 8376, \ldots$ give an asymptotic ratio $\mathsf{gr} \approx 18.3$,
+while an early-level average on a truncated ball gives $\mathsf{gr} \approx 11$.
+\end{proposition}
+
+\begin{result}[de Sitter expansion]
+With physical-space volume growing as the cube of a scale factor $a$, and the cell count growing by $\mathsf{gr}$
+per beat,
+\[
+a(b) \;\sim\; \mathsf{gr}^{\,b/3} \;=\; e^{H b}, \qquad H = \frac{\ln \mathsf{gr}}{3},
+\]
+so the expansion is exponential, $a''/a = H^2 > 0$, with cosmological constant $\mathsf{cc} = 3 H^2$. Using the
+early-level $\mathsf{gr} \approx 11$ gives $H \approx 0.80$ and $\mathsf{cc} \approx 1.9$ in beat units. The flat
+twin $\{3,4,3,3\}$ grows polynomially with ratio about $2.5$ and has no exponential expansion, so $H$ is a
+curvature effect.
+\end{result}
+
+\begin{definition}[The cusp]
+A \emph{horosphere} is a level set of a Busemann function toward an ideal boundary point of $\mathbb{H}^4$. It is
+intrinsically flat. The ideal $\{4,3,4\}$ cubic element of $\{3,4,3,4\}$ is such a horosphere, the \emph{cusp},
+combinatorially the Euclidean cubic lattice $\mathbb{Z}^3$. Physical space is the cusp. Its measured spectral
+dimension is $2.97$, against $2.16$ for a generic rough slice.
+\end{definition}
+
+\subsection{Gauge and the Standard-Model numbers}
+
+\begin{proposition}[$\mathrm{SO}(10)$ from coin and tone]
+Adjoining the ternary tone sign as one extra weight axis to the $D_4 = \mathrm{SO}(8)$ root system yields the
+$D_5 = \mathrm{SO}(10)$ root system. The $16$-dimensional spinor of $\mathrm{SO}(10)$ is exactly one fermion
+generation, split as $16 = 8_s$ (tone $+$) $\oplus\, 8_c$ (tone $-$). Triality gives three generations.
+\end{proposition}
+
+\begin{proposition}[Automatic breaking to the Standard Model]
+Any self-condensate (a Higgs in the $16$) leaves unbroken the subgroup $\mathrm{SU}(5)$ (twenty unbroken roots),
+and the Georgi-Glashow chain $\mathrm{SO}(10) \to \mathrm{SU}(5) \to \mathrm{SU}(3) \times \mathrm{SU}(2) \times
+\mathrm{U}(1)$ follows, with $16 = 1 \oplus 10 \oplus \overline{5}$, the complete matter content of one
+generation.
+\end{proposition}
+
+\begin{result}[The weak mixing fraction]
+Summing the weak isospin and charge over one generation,
+\[
+\mathsf{wk} \;=\; \frac{\sum T_3^2}{\sum q^2} \;=\; \frac{3}{8} \quad \text{exactly, at the unification scale,}
+\]
+where $T_3$ is the third weak-isospin component and $q$ the electric charge over the sixteen states. Running this
+down with standard renormalization reaches the measured $0.231$ for a supersymmetric low-energy content.
+\end{result}
+
+\begin{result}[Mass relations]
+At the unification scale, the bottom and tau masses are equal, $m_b = m_\tau$, and the determinant relation
+$\det(M_{\mathrm{lepton}}) = \det(M_{\mathrm{down}})$ holds, the latter from the discrete trace identity
+$\mathrm{Tr}\, Y = 0$ over the sixteen, where $Y$ is the hypercharge. These are ratios, not absolute masses.
+\end{result}
+
+\subsection{Gravity, as an equation of state}
+
+\begin{result}[Newtonian potential on the cusp]
+The static lattice Green's function $G(r)$ of the cusp Laplacian, computed by the difference method
+$G(r) - G(r_0)$ to cancel the zero-mode contamination, fits
+\[
+G(r) - G(2) \;=\; \frac{a_1}{r} + a_0, \qquad a_1 \approx 0.083 \approx \frac{1}{4\pi},
+\]
+a clean Newtonian $1/r$ in the $3$D cusp.
+\end{result}
+
+\begin{result}[Holographic boundary correlator]
+On the infinite tree of branching number $q$, the boundary-to-boundary correlator computed by the Bethe cavity
+recursion decays as $1/r^{\mathsf{decay}}$ with
+\[
+\mathsf{decay} \;=\; \frac{2 \ln(1/w)}{\ln q}, \qquad w = \frac{1}{q} \;\Rightarrow\; \mathsf{decay} = 2,
+\]
+a clean $1/r^2$, confirmed independently by a tree-tensor contraction at $1/r^{1.93}$.
+\end{result}
+
+\begin{result}[The Einstein field equations]
+Take the area-law entropy $\mathsf{Ent} = \mathsf{Area}/4$ (the holographic $1/4$) and the local horizon
+temperature $\mathsf{Temp} = \kappa / (2\pi)$ from the Unruh response, where $\kappa$ is the surface gravity.
+Requiring the Clausius balance $\delta\mathsf{Heat} = \mathsf{Temp}\, \delta\mathsf{Ent}$ across every local
+horizon, for all null directions, is equivalent to the full field equations
+\[
+\mathsf{Ein}(x) + \mathsf{cc}\,\mathsf{g}(x) \;=\; 8\pi\, \mathsf{Stress}(x),
+\]
+where $\mathsf{Ein}$ is the Einstein tensor, $\mathsf{g}$ the metric, and $\mathsf{Stress}$ the matter
+stress-energy. The coefficient $8\pi$ is forced by the area-law $1/4$ and is the same Newton constant as in the
+$1/r$ law. The weak field reduces to Poisson's equation $\nabla^2 \mathsf{pot} = 4\pi\, \mathsf{density}$, and a
+photon deflects by $4 G M / x$, twice the naive Newtonian value.
+\end{result}
+
+\begin{result}[Black-hole thermodynamics]
+With $\mathsf{Ent} = \mathsf{Area}/4 = 4\pi M^2$ and $\mathsf{Temp} = 1/(8\pi M)$ for a mass-$M$ horizon, the
+first law $\mathrm{d}M = \mathsf{Temp}\,\mathrm{d}\mathsf{Ent}$ holds, the Smarr identity $M = 2\,\mathsf{Temp}\,
+\mathsf{Ent}$ holds, the Bekenstein bound is saturated, the heat capacity $\mathrm{d}M/\mathrm{d}\mathsf{Temp} =
+-8\pi M^2$ is negative, and the evaporation lifetime scales as $M^3$. The substrate's own de Sitter horizon obeys
+the same laws with $\mathsf{Temp} = H/(2\pi)$ and $\mathsf{Ent} = \pi/H^2$.
+\end{result}
+
+\subsection{Electromagnetism}
+
+\begin{result}[Discrete Gauss law and the gauge field]
+Per-cell charge conservation, charge in equals charge out each beat, is a discrete Gauss law, the conserved
+current sourcing an emergent $\mathrm{U}(1)$. A vortex link field gives a single-plaquette flux $\mathsf{flux}$
+whose Wilson loop (the sum of link phases around the plaquette) equals $\mathsf{flux}$ and is invariant under a
+gauge shift $A \to A + \mathrm{d}\theta$, and a charge encircling it acquires exactly the phase $\mathsf{flux}$
+(Aharonov-Bohm), while a non-enclosing loop acquires $0$. The non-abelian case replaces phases by $\mathrm{SO}(3)$
+link matrices with non-commuting holonomy.
+\end{result}
+
+\subsection{Addressing and computation}
+
+\begin{proposition}[Self-describing addresses]
+Fix a root $o$ and the breadth-first spanning tree of the mesh graph. Each cell $v$ has a unique address, the
+sequence of child-indices on the path $o \to v$, of length $\mathsf{dist}(o, v) = O(\log |\,\text{ball}\,|)$.
+Crucially the tree has \emph{no same-level edges}, every neighbour of a cell is a parent or a child, so the parent
+is dropping the last digit and the children are appending an admissible digit. The only non-tree edges are
+confluences, a cell reachable as a child of more than one parent, and they form a finite-state transducer on a
+bounded window of the generator address (deterministic at window two over the verified ripples).
+\end{proposition}
+
+\begin{result}[Universality]
+The substrate is computationally universal. (i) The signed-majority form of the collision, with a $+1$ bias and
+two $-1$ fills, computes $\mathrm{NAND}$, which is functionally complete, so it builds any Boolean circuit and in
+particular the universal elementary rule $110$. (ii) A reversible, charge-conserving register machine
+(increment, decrement-or-jump, halt) runs on the mesh with registers held as charge in addressed subtrees, where
+increment is the create move and decrement is annihilation, computing correctly with $Q$ conserved. (iii) The
+cusp $\mathbb{Z}^3$ runs Conway's Life, a strongly universal cellular automaton. So the substrate is weakly
+universal by (i) and (ii), and strongly universal by (iii).
+\end{result}
+
+\subsection{The discipline, and the recorded negatives}
+
+\begin{principle}[Nothing added]
+Every result above is a property of the four base things of the flow $F = \{M, B, T, R\}$ or an emergent
+consequence of them. No fifth ingredient is used. Where a phenomenon does not emerge, the negative is recorded as
+a formal statement, not hidden.
+\end{principle}
+
+\begin{result}[Recorded negatives]
+The following are recorded negatives, established by the same standard as the positives.
+\begin{enumerate}
+\item \emph{No spontaneous selves from generic initial data.} The pure rule from a generic fill churns, a
+localized seed disperses (radius of gyration grows without bound, recentered pattern identity falls to zero), so
+durable selves do not crystallize from equilibrium initial data without seeding or topological protection.
+\item \emph{No genuine self-tower.} The coarse-grained net-charge persistence rises under coarse-graining on both
+the cusp and the bulk radial tree, but it does \emph{not} beat a plain-diffusion control, so it is a generic
+conserved-field slow mode, not hierarchical selfhood. The correct self-measure (identity through material
+turnover) confirms the cusp supports propagating self-patterns while the pure rule does not make one.
+\item \emph{No scale-free avalanches.} The ballistic light cone forbids branching-process self-organized
+criticality, so hierarchical integration, where it occurs, comes from fast ballistic routing, not sandpile
+cascades.
+\end{enumerate}
+\end{result}
+
+The one named candidate for a possible fifth ingredient is higher-order binding, the clean binding of structure
+\emph{between} units rather than within one. It sits behind the open holes, cross-gap attraction, super-selves,
+and the nesting tower. It is named, not added, and not yet proven either to emerge from the four or to be
+irreducible.

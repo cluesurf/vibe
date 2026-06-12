@@ -1,0 +1,62 @@
+\section{The Hyperbolic-Bulk Measurement Toolkit}
+
+Measuring physics in the curved 4D bulk is hard. The naive finite-patch sums are contaminated by boundary
+dominance, by the $k = 0$ zero mode, and by exponential growth. This appendix lists the tools that get clean
+answers, and the problem each one solves.
+
+\subsection{The problem with naive methods}
+
+A finite chunk of hyperbolic space is almost all boundary, because volume grows exponentially with radius. A naive
+Green's function or spectral sum on a finite patch is swamped by surface effects and by the $k = 0$ zero mode.
+Clean bulk physics needs methods that either cancel these contributions or avoid them altogether.
+
+\subsection{The four tools}
+
+\begin{itemize}
+  \item \textbf{Bethe-lattice cavity recursion.} The hyperbolic tree's self-similarity gives an exact recursion
+  for the resolvent, the cavity or self-energy method. It yields the bulk correlator exactly, with $\mu = 1/b$ and
+  $\alpha = 2$, the $1/r^2$ holographic decay. It is validated against a directly solved finite tree. This is the
+  gold-standard bulk tool.
+  \item \textbf{Closed hyperbolic manifolds.} Quotient the infinite space by a discrete group to get a finite,
+  boundaryless manifold. There is no surface contamination and the spectra are clean. This is used to cross-check
+  spectral dimension and band structure.
+  \item \textbf{Band theory, Bloch on the bulk.} Translation-like symmetries give a band picture, so dispersion
+  and gaps can be read off a small unit cell instead of a huge patch.
+  \item \textbf{Tensor networks, MERA and tree-tensor.} The holographic network contracts the bulk layer by
+  layer, giving the correlator at about $1/r^{1.93}$, matching the recursion's exponent of $2$, and making the
+  radial-equals-RG structure explicit.
+\end{itemize}
+
+\subsection{The difference method for the cusp}
+
+For the flat 3D cusp Green's function, the fix is the difference method. Computing $G(r) - G(r_0)$ with the regular
+cosine integrand cancels the $k = 0$ contamination that wrecked the naive finite-patch sums. This gives the clean
+$1/r$ with $a \approx 1/(4\pi)$. It supersedes the earlier confounded cusp gravity measurements.
+
+\subsection{What the toolkit fixed}
+
+These tools are not decorative. They overturned earlier artifacts. The naive finite-patch bulk gravity exponent
+read garbage, about $-4.3$, because of Euclidean-versus-geodesic distance confusion and the all-boundary problem.
+The Bethe recursion, which has no patch and uses tree distance, gives the clean $1/r^2$. The tensor-network
+contraction independently gives about $1/r^{1.93}$. Two different algorithms agreeing is the strongest support for
+the gravity-law claim. The closed manifold used is the $\mathrm{PSL}(2,7)$ Cayley graph, with $168$ vertices,
+degree $3$, and no boundary, which removes the roughly $99$ percent boundary confound at the root. On it the
+spectrum block-diagonalizes into irrep-dimension bands $\{1, 6, 7, 8\}$. A second, independent dimension
+estimator, the Myrheim-Meyer causal-set estimator built from causal-relation density, corroborates the
+spectral-dimension reading that the cusp is genuinely 3D. Two independent estimators are stronger than one.
+
+\subsection{The Euclidean-lattice builder}
+
+The cell-direct builder using the Poincar\'e projection is hyperbolic-only. Euclidean cell centers are ideal
+points, so its breadth-first search stalls. For flat honeycombs, the controls such as $\{3,4,3,3\}$, use
+the dedicated flat-lattice builder instead. This gives $D_4$ for $\{3,4,3,3\}$ and
+$\{3,3,4,3\}$, $\mathbb{Z}^4$ for $\{4,3,3,4\}$, and $\mathbb{Z}^3$ for $\{4,3,4\}$.
+
+\subsection{Where the code lives}
+
+The builders are in the cell-direct builder. The Steinberg growth series is in the Coxeter growth module. The
+kernel-polynomial and WebGPU spectral tools, and the experiment checks in Appendix~\ref{sec:experiment-index},
+complete the kit. The computational results are recorded
+in \cite{pollard2026vibetest}, and the bulk methods follow \cite{margenstern2013} and \cite{cannon1997} for the
+growth and addressing machinery, with the holographic reading aligned to \cite{maldacena1998} and
+\cite{ryu2006}.
