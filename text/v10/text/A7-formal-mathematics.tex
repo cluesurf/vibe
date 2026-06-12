@@ -1,7 +1,7 @@
 \section{Formal Mathematics}
 
 This appendix gives the theory a compact formal core. It states, in precise symbols, what the substrate is, what
-a fill is, how a beat acts, and what is conserved, and then records the principal emergent results as formal
+a will is, how a beat acts, and what is conserved, and then records the principal emergent results as formal
 propositions. The body of the paper is the intuition and the evidence. This is the skeleton.
 
 \subsection{Notation, clear symbols}
@@ -17,30 +17,22 @@ the two.
 \toprule
 symbol & meaning & (usual name) \\
 \midrule
-$M$ & the vibe mesh, the $\{3,4,3,4\}$ honeycomb & \\
-$V$ & the set of cells of the mesh & \\
-$v_1, v_2$ & cells, the vibes, elements of $V$ & \\
-$C$ & the $24$ directions of a cell, the coin & \\
-$c$ & a direction, an element of $C$ & \\
-$n(v, c)$ & the neighbour of $v$ across face $c$ & \\
-$T = \{-1, 0, +1\}$ & the tone alphabet, the three tone values & \\
-$t(v, c)$ & the tone in slot $c$ of cell $v$, in $T$ & \\
-$f$ & a fill, a full configuration, a map $V \times C \to T$ & \\
-$\mathsf{Stream}$ & the global transport map on fills & \\
-$\mathsf{Collide}$ & the local interaction map on fills & \\
-$R = \mathsf{Collide} \circ \mathsf{Stream}$ & the rule, one beat & \\
-$B$ & the beat, the discrete tick & \\
 $F = \{M, B, T, R\}$ & the flow, the four base things together & \\
+$M$ & the vibe mesh, the $\{3,4,3,4\}$ honeycomb & \\
+$V$ & the set of vibes (cells) of the mesh & \\
+$v_1, v_2$ & the vibes, elements of $V$ & \\
+$B$ & the beat, the discrete tick & \\
 $b$ & the beat index, in $\mathbb{Z}$ & \\
+$T = \{-1, 0, +1\}$ & the tone alphabet, the three tone values & \\
+$C$ & the $24$ directions of a vibe, the coin & \\
+$c$ & a direction, an element of $C$ & \\
+$n(v, c)$ & the neighbour (note) of $v$ across face $c$ & \\
+$t(v, c)$ & the tone in slot $c$ of cell $v$, in $T$ & \\
+$w$ & a will, a full configuration, a map $V \times C \to T$ & \\
 $Q$ & total charge, the sum of all tones & \\
-$\mathsf{dist}(v_1, v_2)$ & graph distance, the step count & \\
-$r(n)$ & the ripple level, the number of cells at distance $n$ from a root & \\
-$\mathsf{gr}$ & the ripple growth rate & \\
-$H$ & the expansion rate, $\ln(\mathsf{gr})/3$ & (Hubble) \\
-$\mathsf{cc}$ & the cosmological constant, $3 H^2$ & ($\Lambda$) \\
-$E, k, m$ & energy, wavenumber, mass of a mode & \\
-$\mathsf{wk}$ & the weak mixing fraction, $\sin^2\theta_W$ & ($\theta_W$) \\
-$\mathsf{decay}$ & a correlator decay exponent & ($\alpha$) \\
+$R = \mathsf{Collide} \circ \mathsf{Stream}$ & the rule, one beat & \\
+$\mathsf{Stream}$ & the global transport map on wills & \\
+$\mathsf{Collide}$ & the local interaction map on wills & \\
 \bottomrule
 \end{tabular}
 \caption{The clear-symbol dictionary for this appendix.}
@@ -48,7 +40,7 @@ $\mathsf{decay}$ & a correlator decay exponent & ($\alpha$) \\
 
 \subsection{The substrate}
 
-\begin{definition}[The flow]
+\begin{definition}[The flow tuple]
 The base of the theory is the \emph{flow}, the tuple $F = \{M, B, T, R\}$ of the mesh $M$, the beat $B$, the tone
 alphabet $T$, and the rule $R$. The four are specified in turn below. Everything else in the theory is a property
 of $F$ or an emergent consequence of iterating the rule $R$ beat by beat.
@@ -74,20 +66,20 @@ Fix a root cell $o$. The ripple levels are $r(n) = |\{v : \mathsf{dist}(o, v) = 
 at beat $b$ is the ball of radius $b$. This identifies radial distance with cosmic time, one ripple per beat.
 \end{definition}
 
-\subsection{The fill}
+\subsection{The will}
 
-\begin{definition}[The fill]
-A \emph{fill} is a map $f : V \times C \to T$. The value $f(v, c)$, also written $t(v, c)$, is the tone in
-directional slot $c$ of cell $v$, read as the charge currently leaving $v$ through face $c$. The set of all fills
-is $T^{\,V \times C}$. A single cell has local fill space $T^{C}$ of size $3^{24}$. There is no other state, in
+\begin{definition}[The will]
+A \emph{will} is a map $w : V \times C \to T$. The value $w(v, c)$, also written $t(v, c)$, is the tone in
+directional slot $c$ of cell $v$, read as the charge currently leaving $v$ through face $c$. The set of all wills
+is $T^{\,V \times C}$. A single cell has local will space $T^{C}$ of size $3^{24}$. There is no other state, in
 particular no value stored on edges, the relation across a face is computed from the two slots and never stored.
 \end{definition}
 
 \begin{definition}[Scalar tone and charge]
-The \emph{scalar tone} of cell $v$ in fill $f$ is $\mathsf{tone}(v) = \sum_{c \in C} t(v, c)$, an integer in
+The \emph{scalar tone} of cell $v$ in will $w$ is $\mathsf{tone}(v) = \sum_{c \in C} t(v, c)$, an integer in
 $[-24, 24]$. The \emph{total charge} is
 \[
-Q(f) \;=\; \sum_{v \in V} \; \sum_{c \in C} t(v, c),
+Q(w) \;=\; \sum_{v \in V} \; \sum_{c \in C} t(v, c),
 \]
 the sum of all slots over the whole mesh, an integer.
 \end{definition}
@@ -98,12 +90,12 @@ A beat is two maps composed, first transport, then interaction.
 
 \begin{definition}[Stream]
 For each cell $v$ and direction $c$, streaming moves the slot value along its own line of travel into the
-neighbour. Writing $\overline{c}$ for the opposite direction, the streamed fill is
+neighbour. Writing $\overline{c}$ for the opposite direction, the streamed will is
 \[
-(\mathsf{Stream}\, f)(v, c) \;=\; f\big(n(v, \overline{c}), \, c\big),
+(\mathsf{Stream}\, w)(v, c) \;=\; w\big(n(v, \overline{c}), \, c\big),
 \]
 that is, the value now in slot $c$ of $v$ is the value that the back-neighbour was sending forward along line $c$.
-Each slot has exactly one source and one destination, so $\mathsf{Stream}$ is a bijection of fills, a global
+Each slot has exactly one source and one destination, so $\mathsf{Stream}$ is a bijection of wills, a global
 permutation of slots. It carries no decision, a charge keeps its direction, which is momentum.
 \end{definition}
 
@@ -111,10 +103,10 @@ permutation of slots. It carries no decision, a charge keeps its direction, whic
 There is a fixed local map $\mathsf{col} : T^{C} \to T^{C}$ on the $24$ slots of one cell. It is applied at every
 cell simultaneously,
 \[
-(\mathsf{Collide}\, f)(v, \cdot) \;=\; \mathsf{col}\big(f(v, \cdot)\big).
+(\mathsf{Collide}\, w)(v, \cdot) \;=\; \mathsf{col}\big(w(v, \cdot)\big).
 \]
 The local map $\mathsf{col}$ is required to be (i) a \emph{bijection} of $T^{C}$, hence reversible, and (ii)
-\emph{charge-conserving} on the cell, $\sum_c \mathsf{col}(w)_c = \sum_c w_c$ for every local vector $w$. It is
+\emph{charge-conserving} on the cell, $\sum_c \mathsf{col}(u)_c = \sum_c u_c$ for every local will $u$. It is
 built from four move-types, pass-through, annihilate, create, and scatter. Its two-slot shadow is the reversible,
 charge-conserving permutation of the nine pair-states $(-1,-1), (+1,+1), (-1,0), (0,-1), (+1,0), (0,+1), (0,0),
 (+1,-1), (-1,+1)$, with the create-flip-annihilate three-cycle $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$ and two
@@ -126,14 +118,14 @@ One \emph{beat} is the composition
 \[
 R \;=\; \mathsf{Collide} \circ \mathsf{Stream} : T^{\,V \times C} \to T^{\,V \times C}.
 \]
-The fill at beat $b$ from initial fill $f_0$ is $f_b = R^{\,b}(f_0)$. Time is the iteration index $b$, there is no
+The will at beat $b$ from initial will $w_0$ is $w_b = R^{\,b}(w_0)$. Time is the iteration index $b$, there is no
 external clock.
 \end{definition}
 
 \subsection{Conservation and reversibility}
 
 \begin{proposition}[Conservation of charge]
-For every fill $f$, $\; Q(R\, f) = Q(f)$. Hence $Q$ is constant along every trajectory.
+For every will $w$, $\; Q(R\, w) = Q(w)$. Hence $Q$ is constant along every trajectory.
 \end{proposition}
 
 \textit{Proof.} $\mathsf{Stream}$ permutes the slot values without changing their multiset, so it preserves the
@@ -141,17 +133,17 @@ global sum $Q$. $\mathsf{Collide}$ preserves the per-cell sum by requirement (ii
 of per-cell sums, so it too preserves $Q$. The composition preserves $Q$. Checked to machine precision in
 \cite{pollard2026vibetest}. \hfill$\square$
 
-\begin{proposition}[Reversibility]
-$R$ is a bijection of fills, with inverse
-$R^{-1} = \mathsf{Stream}^{-1} \circ \mathsf{Collide}^{-1}$. Hence every fill has a unique past and a
-unique future, and $R^{-N}(R^{N}(f)) = f$ exactly.
+\begin{proposition}[Reversibility of the rule]
+$R$ is a bijection of wills, with inverse
+$R^{-1} = \mathsf{Stream}^{-1} \circ \mathsf{Collide}^{-1}$. Hence every will has a unique past and a
+unique future, and $R^{-N}(R^{N}(w)) = w$ exactly.
 \end{proposition}
 
 \textit{Proof.} $\mathsf{Stream}$ is a bijection by construction, and $\mathsf{Collide}$ is a bijection because
 the local map $\mathsf{col}$ is, applied independently per cell. The composition of bijections is a bijection.
 Verified forward-then-back to zero error at scale in \cite{pollard2026vibetest}. \hfill$\square$
 
-\begin{result}[The arrow]
+\begin{result}[The arrow orients the create-annihilate cycle]
 Reversibility makes create and annihilate inverse moves on one cycle. The \emph{arrow} is the preference for the
 forward sense of that cycle, the create direction $(0,0) \to (+1,-1)$, which turns a balanced peace state into a
 charge pair. Because $Q$ is conserved, every created pair is net zero, a $+1$ with a $-1$. The arrow is therefore
@@ -176,7 +168,7 @@ candidate $\{5,3,4\}$ decompose as $1 \oplus 3 \oplus 3' \oplus 5$, all integer 
 the candidate substrates, $\{3,4,3,4\}$ alone supports spin at the base.
 \end{proposition}
 
-\begin{result}[Odd-charge solitons are fermions]
+\begin{result}[Fermi statistics from odd Hopf charge]
 A matter soliton is a hopfion, a smooth tone-texture with a Hopf map $S^3 \to S^2$ of integer linking degree. A
 soliton of odd degree acquires the sign $-1$ under a full $2\pi$ rotation, by the Finkelstein-Rubinstein and
 Wilczek-Zee arguments, so it obeys Fermi statistics. The spin-statistics link is therefore geometric, not
@@ -236,7 +228,7 @@ dimension is $2.97$, against $2.16$ for a generic rough slice.
 
 \subsection{Gauge and the Standard-Model numbers}
 
-\begin{proposition}[$\mathrm{SO}(10)$ from coin and tone]
+\begin{proposition}[Tone extends the coin to $\mathrm{SO}(10)$]
 Adjoining the ternary tone sign as one extra weight axis to the $D_4 = \mathrm{SO}(8)$ root system yields the
 $D_5 = \mathrm{SO}(10)$ root system. The $16$-dimensional spinor of $\mathrm{SO}(10)$ is exactly one fermion
 generation, split as $16 = 8_s$ (tone $+$) $\oplus\, 8_c$ (tone $-$). Triality gives three generations.
@@ -279,7 +271,7 @@ a clean Newtonian $1/r$ in the $3$D cusp.
 On the infinite tree of branching number $q$, the boundary-to-boundary correlator computed by the Bethe cavity
 recursion decays as $1/r^{\mathsf{decay}}$ with
 \[
-\mathsf{decay} \;=\; \frac{2 \ln(1/w)}{\ln q}, \qquad w = \frac{1}{q} \;\Rightarrow\; \mathsf{decay} = 2,
+\mathsf{decay} \;=\; \frac{2 \ln(1/z)}{\ln q}, \qquad z = \frac{1}{q} \;\Rightarrow\; \mathsf{decay} = 2,
 \]
 a clean $1/r^2$, confirmed independently by a tree-tensor contraction at $1/r^{1.93}$.
 \end{result}
@@ -330,7 +322,7 @@ bounded window of the generator address (deterministic at window two over the ve
 
 \begin{result}[Universality]
 The substrate is computationally universal. (i) The signed-majority form of the collision, with a $+1$ bias and
-two $-1$ fills, computes $\mathrm{NAND}$, which is functionally complete, so it builds any Boolean circuit and in
+two $-1$ inputs, computes $\mathrm{NAND}$, which is functionally complete, so it builds any Boolean circuit and in
 particular the universal elementary rule $110$. (ii) A reversible, charge-conserving register machine
 (increment, decrement-or-jump, halt) runs on the mesh with registers held as charge in addressed subtrees, where
 increment is the create move and decrement is annihilation, computing correctly with $Q$ conserved. (iii) The
@@ -340,16 +332,14 @@ universal by (i) and (ii), and strongly universal by (iii).
 
 \subsection{The discipline, and the recorded negatives}
 
-\begin{principle}[Nothing added]
-Every result above is a property of the four base things of the flow $F = \{M, B, T, R\}$ or an emergent
-consequence of them. No fifth ingredient is used. Where a phenomenon does not emerge, the negative is recorded as
-a formal statement, not hidden.
-\end{principle}
+By the nothing-added discipline of Principle~\ref{prin:nothing-added}, every result above is a property of the
+four base things of the flow $F = \{M, B, T, R\}$ or an emergent consequence of them. No fifth ingredient is used.
+Where a phenomenon does not emerge, the negative is recorded as a formal statement, not hidden.
 
 \begin{result}[Recorded negatives]
 The following are recorded negatives, established by the same standard as the positives.
 \begin{enumerate}
-\item \emph{No spontaneous selves from generic initial data.} The pure rule from a generic fill churns, a
+\item \emph{No spontaneous selves from generic initial data.} The pure rule from a generic will churns, a
 localized seed disperses (radius of gyration grows without bound, recentered pattern identity falls to zero), so
 durable selves do not crystallize from equilibrium initial data without seeding or topological protection.
 \item \emph{No genuine self-tower.} The coarse-grained net-charge persistence rises under coarse-graining on both
