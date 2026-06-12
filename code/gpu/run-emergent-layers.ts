@@ -52,8 +52,8 @@ async function run(): Promise<void> {
   const partitions = SCALES.map((R) => {
     const ballOf = new Int32Array(N).fill(-1); let nb = 0
     if (R === 0) { for (let i = 0; i < N; i++) ballOf[i] = i; return { ballOf, count: N } }
-    for (let s = 0; s < N; s++) { if (ballOf[s] >= 0) continue; const id = nb++; ballOf[s] = id; let frontier = [s]
-      for (let r = 0; r < R; r++) { const nx: number[] = []; for (const u of frontier) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) { const w = g.adj[p]!; if (ballOf[w] < 0) { ballOf[w] = id; nx.push(w) } } frontier = nx } }
+    for (let s = 0; s < N; s++) { if (ballOf[s]! >= 0) continue; const id = nb++; ballOf[s] = id; let frontier = [s]
+      for (let r = 0; r < R; r++) { const nx: number[] = []; for (const u of frontier) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) { const w = g.adj[p]!; if (ballOf[w]! < 0) { ballOf[w] = id; nx.push(w) } } frontier = nx } }
     return { ballOf, count: nb }
   })
   console.log('scale (radius) -> super-cells:', SCALES.map((R, i) => `R${R}:${partitions[i]!.count.toLocaleString()}`).join('  '))
@@ -80,7 +80,7 @@ async function run(): Promise<void> {
     for (let b = 0; b < K; b++) beatGpu()
     { const enc = device.createCommandEncoder(); enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4); device.queue.submit([enc.finish()]) }
     await staging.mapAsync(GPUMapMode.READ); const t = new Uint32Array(staging.getMappedRange().slice(0)); staging.unmap()
-    for (let sc = 0; sc < SCALES.length; sc++) { const ballOf = partitions[sc]!.ballOf; const arr = series[sc]![s]!; for (let i = 0; i < N; i++) { const q = t[i] === 1 ? 1 : t[i] === 2 ? -1 : 0; if (q) arr[ballOf[i]!] += q } }
+    for (let sc = 0; sc < SCALES.length; sc++) { const ballOf = partitions[sc]!.ballOf; const arr = series[sc]![s]!; for (let i = 0; i < N; i++) { const q = t[i] === 1 ? 1 : t[i] === 2 ? -1 : 0; if (q) { const bi = ballOf[i]!; arr[bi] = arr[bi]! + q } } }
   }
 
   // temporal autocorrelation C(tau) per scale, normalized to C(0)=1
