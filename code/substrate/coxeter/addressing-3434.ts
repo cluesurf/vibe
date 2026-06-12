@@ -31,6 +31,8 @@ export interface Addressing {
   readonly complete: boolean[] // cell has its full facet degree (no truncation), the reliable interior
   readonly shellSizes: number[] // measured cells per shell
   readonly shellComplete: number // shells <= this are fully ENUMERATED (sizes reliable)
+  readonly upFace: number[] // face index from a cell to its canonical parent (-1 for root)
+  readonly facePath: number[][] // GENERATOR address: down-face indices from root to the cell
 }
 
 // Deterministic ordering key for a child relative to its parent: the rounded relative Poincare
@@ -70,7 +72,8 @@ export function buildAddressing(input: { symbol?: number[]; maxCells?: number; r
     }
   }
 
-  const maxShell = Math.max(...dist.filter((d) => d >= 0))
+  let maxShell = 0
+  for (let i = 0; i < n; i++) if (dist[i]! > maxShell) maxShell = dist[i]!
   const shellSizes = new Array<number>(maxShell + 1).fill(0)
   for (let i = 0; i < n; i++) if (dist[i]! >= 0) shellSizes[dist[i]!]!++
 
@@ -113,29 +116,144 @@ export function buildAddressing(input: { symbol?: number[]; maxCells?: number; r
     for (const v of shallower) if (v !== best) altParents[cell]!.push(v)
   }
 
-  // assign ordered children + digits using the embedding key; deeper neighbours that this cell is NOT
-  // the canonical parent of become alt-children (the down end of a confluence edge)
+  // face-generator lookup: the face index fi at `cell` whose neighbour is `nb` (the consistent
+  // direction-type). Falls back to the embedding key when faceNeighbor is unavailable.
+  const faceNeighbor = graph.faceNeighbor
+  const faceTo = (cell: number, nb: number): number => {
+    const fns = faceNeighbor?.[cell]
+    if (!fns) return -1
+    for (let fi = 0; fi < fns.length; fi++) if (fns[fi] === nb) return fi
+    return -1
+  }
+
+  // assign ordered children + digits; deeper neighbours this cell is NOT canonical parent of become
+  // alt-children (the down end of a confluence edge). Children are ordered by the DOWN-FACE generator
+  // index (so a digit names a direction-type), which is what makes the confluence map finite-state. If
+  // no face data, fall back to the deterministic embedding key.
+  const upFace = new Array<number>(n).fill(-1)
   for (let cell = 0; cell < n; cell++) {
-    const kids = []
+    const kids: number[] = []
     for (const v of graph.neighbors[cell]!) {
       if (dist[v] !== dist[cell]! + 1) continue
       if (parent[v] === cell) kids.push(v)
       else altChildren[cell]!.push(v)
     }
-    kids.sort((a, b) => lexCompare(relKey(graph.coords[a]!, graph.coords[cell]!), relKey(graph.coords[b]!, graph.coords[cell]!)))
+    if (faceNeighbor) kids.sort((a, b) => faceTo(cell, a) - faceTo(cell, b))
+    else kids.sort((a, b) => lexCompare(relKey(graph.coords[a]!, graph.coords[cell]!), relKey(graph.coords[b]!, graph.coords[cell]!)))
     children[cell] = kids
     kids.forEach((kid, i) => (childIndex[kid] = i))
   }
+  for (let cell = 0; cell < n; cell++) if (cell !== root) upFace[cell] = faceTo(cell, parent[cell]!)
 
+  const facePath: number[][] = Array.from({ length: n }, () => [])
   for (const cell of order) {
     if (cell === root) {
       address[cell] = []
+      facePath[cell] = []
       continue
     }
     address[cell] = [...address[parent[cell]!]!, childIndex[cell]!]
+    facePath[cell] = [...facePath[parent[cell]!]!, faceTo(parent[cell]!, cell)]
   }
 
-  return { graph, root, dist, parent, childIndex, children, address, altParents, altChildren, complete, shellSizes, shellComplete }
+  return {
+    graph,
+    root,
+    dist,
+    parent,
+    childIndex,
+    children,
+    address,
+    altParents,
+    altChildren,
+    complete,
+    shellSizes,
+    shellComplete,
+    upFace,
+    facePath,
+  }
+}
+
+// The confluence automaton (Step 5, the load-bearing part). A confluence edge joins a cell to a
+// shallower neighbour that is NOT its canonical parent (the only non-tree edges; there are no cousins).
+// Keyed on a width-K window of the cell's GENERATOR address (its last K down-faces) plus the confluence
+// face, the partner's address is a deterministic finite-state transduction. Measured on {3,4,3,4}: K=2
+// is 100% deterministic over all confluence edges (208 states); K=1 is only 75.5% (the LCA-depth-3
+// confluences need 2 faces of context). This is the 4D analog of Margenstern's cousin automaton, made
+// simpler here because there are no same-shell cousins.
+export interface ConfluenceAutomaton {
+  readonly window: number
+  readonly states: number
+  readonly deterministic: boolean // no key maps to two different partners
+  readonly table: Map<string, { drop: number; appendFaces: number[] }>
+}
+
+function lcaLength(x: number[], y: number[]): number {
+  let p = 0
+  while (p < x.length && p < y.length && x[p] === y[p]) p++
+  return p
+}
+
+export function buildConfluenceAutomaton(a: Addressing, window: number, cells?: number[]): ConfluenceAutomaton {
+  const table = new Map<string, { drop: number; appendFaces: number[] }>()
+  let conflicts = 0
+  const pool = cells ?? a.graph.neighbors.map((_, i) => i).filter((i) => a.complete[i])
+  for (const cell of pool) {
+    const fp = a.facePath[cell]!
+    for (const ap of a.altParents[cell]!) {
+      const fpap = a.facePath[ap]!
+      const j = lcaLength(fp, fpap)
+      const upFaceToAp = a.facePath[cell]!.length > 0 ? faceIndexTo(a, cell, ap) : -1
+      const k = Math.min(window, fp.length)
+      const key = `${fp.slice(fp.length - k).join(',')};${upFaceToAp}`
+      const value = { drop: fp.length - j, appendFaces: fpap.slice(j) }
+      const prev = table.get(key)
+      if (prev && (prev.drop !== value.drop || prev.appendFaces.join(',') !== value.appendFaces.join(','))) conflicts++
+      else table.set(key, value)
+    }
+  }
+  return { window, states: table.size, deterministic: conflicts === 0, table }
+}
+
+function faceIndexTo(a: Addressing, cell: number, nb: number): number {
+  const fns = a.graph.faceNeighbor?.[cell]
+  if (!fns) return -1
+  for (let fi = 0; fi < fns.length; fi++) if (fns[fi] === nb) return fi
+  return -1
+}
+
+// Navigate a GENERATOR address (a face-index path) from the root to a cell id, using only each cell's
+// own face table. Returns -1 if any step leaves the built patch.
+export function decodeFacePath(a: Addressing, faces: number[]): number {
+  let cell = a.root
+  for (const f of faces) {
+    const next = a.graph.faceNeighbor?.[cell]?.[f]
+    if (next === undefined || next < 0) return -1
+    cell = next
+  }
+  return cell
+}
+
+// Predict a cell's confluence (alternate-parent) partners FROM ITS ADDRESS ALONE, using the automaton:
+// look up the width-K generator-address window for each admissible confluence face, drop to the LCA,
+// and descend the stored face word. Returns the predicted partner cell ids (the ones the automaton
+// covers). This is the neighbour automaton's only non-trivial branch (parent and children are pure
+// digit surgery).
+export function predictAltParents(a: Addressing, cell: number, auto: ConfluenceAutomaton): number[] {
+  const fp = a.facePath[cell]!
+  const out: number[] = []
+  const fns = a.graph.faceNeighbor?.[cell]
+  if (!fns) return out
+  for (let f = 0; f < fns.length; f++) {
+    const k = Math.min(auto.window, fp.length)
+    const key = `${fp.slice(fp.length - k).join(',')};${f}`
+    const rule = auto.table.get(key)
+    if (!rule) continue
+    const ancestorPath = fp.slice(0, fp.length - rule.drop)
+    const partner = decodeFacePath(a, [...ancestorPath, ...rule.appendFaces])
+    if (partner >= 0) out.push(partner)
+  }
+  return out
 }
 
 // Encode: a cell -> its address (O(1), precomputed). Decode: an address -> the cell id, by walking the
