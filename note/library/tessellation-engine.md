@@ -4,12 +4,13 @@ The exact Coxeter reflection engine. It classifies and builds ANY regular hyperb
 tessellation from its Schlafli symbol, and produces the cell-adjacency graph the dynamics runs on. This is
 the substrate layer, everything physical in the model lives on a graph this engine produces.
 
-> This is the gating unlock from the frontier agenda, delivered generically. Any hyperbolic tessellation can
-> now be classified and built through one robust API, so the 4D-CA, cusp-physics, and zoo-survey directions
-> can proceed on {3,4,3,4} (or anything else) immediately. The exact-coordinate scaling and the rank-5 word
-> engine are the natural next pieces.
+> This is the substrate layer the whole program rests on, delivered generically. Any hyperbolic tessellation
+> is classified and built through one robust API, so the experiments run on {3,4,3,4} (or anything else)
+> through the same machinery. The whole-catalog survey is built on top of this engine, see the catalog in
+> `code/substrate/tessellation-catalog`, the battery in `code/measure/tessellation-battery`, and
+> `note/cross-tessellation-experiments.md` for how to run an experiment against every tessellation at once.
 
-Source, `code/substrate/coxeter/`. Validated by `code/experiment/p199-generic-tessellation-engine.ts`.
+Source, `code/substrate/coxeter/`. Validated by `test/experiment/substrate-survey/generic-tessellation-engine.ts`.
 
 ---
 
@@ -51,7 +52,7 @@ Start with `tessellation.ts`. It is the one entry point a caller should use.
 ### Classify a symbol (no build)
 
 ```ts
-import { describeTessellation } from '~/substrate/coxeter/tessellation'
+import { describeTessellation } from '@/code/substrate/coxeter/tessellation'
 
 const d = describeTessellation([3, 4, 3, 4])
 // d.geometry           -> 'hyperbolic'
@@ -69,7 +70,7 @@ const d = describeTessellation([3, 4, 3, 4])
 ### Build the cell graph
 
 ```ts
-import { buildTessellation, inspectTessellation } from '~/substrate/coxeter/tessellation'
+import { buildTessellation, inspectTessellation } from '@/code/substrate/coxeter/tessellation'
 
 const { descriptor, graph } = buildTessellation({ symbol: [3, 4, 3, 4], maxCells: 50000 })
 if (graph) {
@@ -90,7 +91,7 @@ silently degenerates.
 ### Extract the flat layer (horosphere)
 
 ```ts
-import { buildHorosphereBand } from '~/substrate/coxeter/cell-direct'
+import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 
 // the flat 2D Euclidean slice of {5,3,4}, the emergent flat layer, as a graph the dynamics runs on
 const sheet = buildHorosphereBand({ symbol: [5, 3, 4], maxBand: 120000, half: 0.5 })
@@ -100,8 +101,8 @@ const sheet = buildHorosphereBand({ symbol: [5, 3, 4], maxBand: 120000, half: 0.
 ### Lower-level pieces (if needed)
 
 ```ts
-import { classifyGeometry, gramMatrix, mirrorFrame } from '~/substrate/coxeter/schlafli'
-import { buildCellGraph } from '~/substrate/coxeter/cell-direct'
+import { classifyGeometry, gramMatrix, mirrorFrame } from '@/code/substrate/coxeter/schlafli'
+import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 
 classifyGeometry([7, 3])         // 'hyperbolic'
 gramMatrix([5, 3, 4])            // the 4x4 Gram matrix of the mirror normals
@@ -161,7 +162,7 @@ What is not yet built (the next pieces),
 
 ---
 
-## Worked examples (verified, P199)
+## Worked examples (verified, `substrate-survey/generic-tessellation-engine`)
 
 | symbol | geometry | dimension | cell | facet degree | compactness |
 | ------ | -------- | --------- | ---- | ------------ | ----------- |
@@ -187,6 +188,11 @@ frontier research agenda needs.
 
 ## See also
 
-`code/experiment/p199-generic-tessellation-engine.ts` (the validation), and in the research notes
-`investigating-h4-honeycombs.md`, `comparing-534-and-3434.md`, `hyperbolic-tessellation-catalog.md`,
-`understanding-hyperbolic-tessellations.md`, and the frontier agenda `theory-v0.7.0/notes/frontier-research-agenda.md`.
+- `api/substrate.md`, the brief consumer guide to building a mesh (this doc is the deeper dive on the engine under it).
+- `../cross-tessellation-experiments.md`, how to run an experiment against every regular hyperbolic tessellation.
+- `code/substrate/tessellation-catalog.ts`, the full enumerated catalog of regular hyperbolic tessellations.
+- `code/measure/tessellation-battery.ts`, the one reusable battery that measures any tessellation.
+- `test/experiment/substrate-survey/generic-tessellation-engine.ts` (the engine validation) and
+  `test/experiment/substrate-survey/tessellation-survey.ts` (the whole-catalog survey).
+- `note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv`, every substrate and its measured properties.
+- The source catalog notes in `note/research/vibe/explorations/emergent-geometry/paper/notes/hyperbolic-tessellations`.

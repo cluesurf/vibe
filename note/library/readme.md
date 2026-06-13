@@ -29,7 +29,19 @@ Build a mesh, optionally put a tone state on it, either run the local rule or bu
 | [api/tool](api/tool.md) | the substrate-agnostic primitives, the seeded rng, graphs, posets, bitsets | you need a building block |
 | [api/draw-and-render](api/draw-and-render.md) | the 2D drawing primitives, the render scripts, the WebGPU compute runners | you want a figure or a GPU run |
 
-A deeper dive lives alongside these: [tessellation-engine.md](tessellation-engine.md) explains the exact Coxeter reflection engine that builds any tessellation from its Schläfli symbol, the layer under `api/substrate`.
+## Deep dives (how the engines work inside)
+
+The `api/` guides say WHICH function to call. These deep dives explain HOW each engine works, the algorithm and the idea, the layer under the API.
+
+| deep dive | the engine it explains |
+| --------- | ---------------------- |
+| [tessellation-engine](tessellation-engine.md) | the exact Coxeter reflection engine, classifies and builds any tessellation from its Schläfli symbol |
+| [rule-engine](rule-engine.md) | the reversible charge-conserving directional lattice gas, collide-then-stream, why it is exactly reversible |
+| [fermion-engine](fermion-engine.md) | the Kahler-Dirac operator, a fermion as forms on a cell complex, D = d + delta squaring to the Laplacian |
+| [spinor-coin](spinor-coin.md) | the 24-direction D4 coin, the binary tetrahedral double cover, triality, the 2pi minus-one sign |
+| [spectral-engine](spectral-engine.md) | the eigensolvers and spectral methods, Lanczos, the complex-Hermitian embedding, KPM, the Bethe resolvent |
+| [causal-set-sampler](causal-set-sampler.md) | the discrete path integral over causal orders, the Benincasa-Dowker action and the uniform-measure MCMC |
+| [evolution-and-propagation](evolution-and-propagation.md) | the leapfrog unitary evolution and the return-probability test for extended versus localized |
 
 ## Start here
 

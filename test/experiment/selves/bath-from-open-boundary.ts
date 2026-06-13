@@ -25,34 +25,13 @@ import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-
-const sideOf = (mesh: Mesh): number => Math.round(Math.pow(mesh.cellCount, 1 / 4))
+import { absorbBoundary } from '@/code/dynamics/bath'
 
 // the total absolute charge, the amount of structure present. Conserved by the bulk, drained by the boundary.
 function totalCharge(will: Will): number {
   let sum = 0
   for (let i = 0; i < will.data.length; i++) sum += Math.abs(will.data[i]!)
   return sum
-}
-
-// is a cell on the boundary shell, any of its four coordinates at the lattice edge.
-function isBoundary(cell: number, side: number): boolean {
-  const x = cell % side
-  const y = Math.floor(cell / side) % side
-  const z = Math.floor(cell / (side * side)) % side
-  const w = Math.floor(cell / (side * side * side)) % side
-  return [x, y, z, w].some((c) => c === 0 || c === side - 1)
-}
-
-// reset the boundary shell to peace, the absorbing bath, whatever radiated to the edge has left to infinity.
-function absorbBoundary(will: Will, side: number): void {
-  const degree = will.mesh.degree
-  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-    if (isBoundary(cell, side)) {
-      const base = cell * degree
-      for (let d = 0; d < degree; d++) will.data[base + d] = 0
-    }
-  }
 }
 
 // the absolute charge within graph radius `radius` of the centre, the structure still at the middle.
@@ -112,7 +91,7 @@ export default defineExperiment({
     let open = cloneWill(burst())
     for (let t = 0; t < beats; t++) {
       open = beat(open, rule)
-      absorbBoundary(open, side)
+      absorbBoundary(open)
     }
     const openChargeFinal = totalCharge(open)
     const openCentralFinal = centralCharge({ will: open, center, radius })
