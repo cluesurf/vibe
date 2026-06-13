@@ -8,29 +8,28 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import {
+  Quaternion,
+  quaternion,
+  multiply,
+  conjugate,
+  quaternionKey,
+  binaryTetrahedral,
+} from '@/code/algebra/group/quaternion'
+import { rotationKey } from '@/code/algebra/group/rotation'
 
-// ---- quaternion algebra (exact) ----
+// ---- quaternion algebra in the tuple form used by this experiment, over the
+// shared @/code/algebra/group/quaternion primitives ----
 type Q = readonly [number, number, number, number] // (w, x, y, z)
-const qmul = (a: Q, b: Q): Q => [
-  a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3],
-  a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2],
-  a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1],
-  a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0],
-]
-const qconj = (a: Q): Q => [a[0], -a[1], -a[2], -a[3]]
-const qkey = (a: Q): string => a.map((x) => Math.round(x * 1e6)).join(',')
-const qclose = (a: Q, b: Q): boolean => a.every((x, i) => Math.abs(x - b[i]!) < 1e-9)
+const toQ = (a: Q): Quaternion => quaternion(a[0], a[1], a[2], a[3])
+const fromQ = (q: Quaternion): Q => [q.w, q.x, q.y, q.z]
+const qmul = (a: Q, b: Q): Q => fromQ(multiply(toQ(a), toQ(b)))
+const qconj = (a: Q): Q => fromQ(conjugate(toQ(a)))
+const qkey = (a: Q): string => quaternionKey(toQ(a))
 
 // the 24 unit Hurwitz quaternions = binary tetrahedral group 2T = the 24 directions of {3,4,3,4}
 function hurwitzUnits(): Q[] {
-  const out: Q[] = []
-  // 8 unit-axis quaternions (the 8 roots of D4 of integer form, the {3,4,3,4} cell axes)
-  for (let i = 0; i < 4; i++) for (const s of [1, -1]) {
-    const q = [0, 0, 0, 0]; q[i] = s; out.push(q as unknown as Q)
-  }
-  // 16 half-integer quaternions
-  for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) out.push([a, b, c, d])
-  return out
+  return binaryTetrahedral().map(fromQ)
 }
 
 export function sp1SpinDoubleCover(): {
@@ -51,11 +50,7 @@ export function sp1SpinDoubleCover(): {
   const isGroup = closed && U.length === 24
 
   // (B) conjugation q -> (v -> q v q^-1) is the DOUBLE COVER: 24 quaternions -> 12 rotations, 2-to-1
-  const rotKey = (q: Q): string => {
-    // image of the three imaginary basis vectors under conjugation, the 3x3 rotation matrix
-    const cols = ([[0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]] as Q[]).map((e) => qmul(qmul(q, e), qconj(q)))
-    return cols.map((c) => [c[1], c[2], c[3]].map((x) => Math.round(x)).join(',')).join(';')
-  }
+  const rotKey = (q: Q): string => rotationKey(toQ(q), 0)
   const rots = new Set(U.map(rotKey))
   const rotationOrder = rots.size
   const doubleCover = rotationOrder === 12 && rotKey([1, 0, 0, 0]) === rotKey([-1, 0, 0, 0])

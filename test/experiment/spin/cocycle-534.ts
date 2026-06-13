@@ -8,6 +8,7 @@ import {
   quaternionKey,
   type Quaternion,
 } from '@/code/algebra/group/quaternion'
+import { rotationKey } from '@/code/algebra/group/rotation'
 import { commutatorSubgroup, contains, type GroupOps } from '@/code/algebra/group/finite-group'
 
 // The decisive cocycle test for spin on {5,3,4}. The icosahedral symmetry A5 has Schur multiplier
@@ -17,16 +18,6 @@ import { commutatorSubgroup, contains, type GroupOps } from '@/code/algebra/grou
 // which means the extension is NONSPLIT and the cocycle in H^2(A5, Z2) is genuinely nontrivial.
 // The control is the SPLIT cover A5 times Z2, where the central minus one is NOT a commutator. And
 // the loop holonomy, a 2pi rotation, gives the spinor minus one.
-
-const rotationKey = (value: Quaternion): string => {
-  const basis = [quaternion(0, 1, 0, 0), quaternion(0, 0, 1, 0), quaternion(0, 0, 0, 1)]
-  return basis
-    .map((axis) => {
-      const rotated = multiply(multiply(value, axis), conjugate(value))
-      return [rotated.x, rotated.y, rotated.z].map((part) => Math.round(part * 1e4)).join(',')
-    })
-    .join(';')
-}
 
 type SplitElement = { rotation: string; sign: number }
 

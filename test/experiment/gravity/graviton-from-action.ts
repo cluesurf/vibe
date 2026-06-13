@@ -17,7 +17,7 @@
 //      spectrum is exactly TWO massless modes at eigenvalue (1/2)|k|^2 (the graviton polarizations).
 // Run: npx tsx code/experiment/p24-graviton-from-action.ts
 
-import { makeDense } from '@/code/algebra/linear/dense'
+import { operatorToVoigtMatrix } from '@/code/algebra/linear/voigt'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
@@ -109,30 +109,8 @@ export function bdSignature(input: { realizations: number; count: number; seed: 
 
 // ---------- B. The graviton operator via Christoffel -> Ricci -> Einstein ----------
 
-const ROOT2 = Math.SQRT2
-function tensorToVec(t: number[][]): number[] {
-  return [t[0]?.[0] ?? 0, t[1]?.[1] ?? 0, t[2]?.[2] ?? 0, ROOT2 * (t[0]?.[1] ?? 0), ROOT2 * (t[0]?.[2] ?? 0), ROOT2 * (t[1]?.[2] ?? 0)]
-}
-function vecToTensor(v: number[]): number[][] {
-  const xy = (v[3] ?? 0) / ROOT2
-  const xz = (v[4] ?? 0) / ROOT2
-  const yz = (v[5] ?? 0) / ROOT2
-  return [
-    [v[0] ?? 0, xy, xz],
-    [xy, v[1] ?? 0, yz],
-    [xz, yz, v[2] ?? 0],
-  ]
-}
-
-function einsteinMatrix(k: number[]): ReturnType<typeof makeDense> {
-  const m = makeDense({ rows: 6, cols: 6 })
-  for (let a = 0; a < 6; a++) {
-    const e = [0, 0, 0, 0, 0, 0]
-    e[a] = 1
-    const col = tensorToVec(einsteinOp(vecToTensor(e), k))
-    for (let r = 0; r < 6; r++) m.data[r * 6 + a] = col[r] ?? 0
-  }
-  return m
+function einsteinMatrix(k: number[]): ReturnType<typeof operatorToVoigtMatrix> {
+  return operatorToVoigtMatrix((h) => einsteinOp(h, k))
 }
 
 export function gravitonFromAction(input: { k: number[] }): {

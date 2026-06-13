@@ -8,68 +8,27 @@
 // Run: npx tsx code/experiment/p141-means-computation.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import {
+  carveRegisters,
+  minskyMultiplyProgram,
+  RegisterMachine,
+} from '@/code/operator/register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// a register = a region of cells; its value = the number of charged (+1) cells in it
-type Reg = { cells: number[] }
-
-function makeMachine(n: number): { tone: Int8Array; regs: Reg[] } {
-  const g = buildDodecagrid({ maxCells: n })
-  const N = g.cellCount
-  const tone = new Int8Array(N)
-  // four disjoint regions (R0..R3) carved from the cell index space
-  const per = Math.floor(N / 4)
-  const regs: Reg[] = []
-  for (let r = 0; r < 4; r++) {
-    const cells: number[] = []
-    for (let i = r * per; i < (r + 1) * per; i++) cells.push(i)
-    regs.push({ cells })
-  }
-  return { tone, regs }
-}
-
-// the three Minsky operations, realized on the mesh charge
-const value = (tone: Int8Array, reg: Reg): number => {
-  let c = 0
-  for (const i of reg.cells) if (tone[i] === 1) c++
-  return c
-}
-const inc = (tone: Int8Array, reg: Reg): void => {
-  for (const i of reg.cells) if (tone[i] === 0) {
-    tone[i] = 1 // create a charge (the arrow), one unit
-    return
-  }
-}
-const dec = (tone: Int8Array, reg: Reg): boolean => {
-  for (const i of reg.cells) if (tone[i] === 1) {
-    tone[i] = 0 // annihilate one charge
-    return true
-  }
-  return false // was zero
-}
-
-// run R2 = R0 * R1 with R3 as temp, using only inc / dec-or-jump-if-zero (a universal instruction set)
+// run R2 = R0 * R1 on a conserving Minsky machine whose registers are charge held
+// in regions carved from the dodecagrid cell index space (R3 the scratch counter,
+// the rest the ground holding the balancing -1 charges).
 function multiply(a: number, b: number, n: number): number {
-  const { tone, regs } = makeMachine(n)
-  const [R0, R1, R2, R3] = regs as [Reg, Reg, Reg, Reg]
-  for (let i = 0; i < a; i++) inc(tone, R0)
-  for (let i = 0; i < b; i++) inc(tone, R1)
-  let guard = 0
-  // while R0 > 0: R0--, then add R1 to R2 (via R3 temp to preserve R1)
-  while (value(tone, R0) > 0 && guard++ < 1e7) {
-    dec(tone, R0)
-    while (value(tone, R1) > 0) {
-      dec(tone, R1)
-      inc(tone, R2)
-      inc(tone, R3)
-    }
-    while (value(tone, R3) > 0) {
-      dec(tone, R3)
-      inc(tone, R1)
-    }
-  }
-  return value(tone, R2)
+  const g = buildDodecagrid({ maxCells: n })
+  const cells = Array.from({ length: g.cellCount }, (_, i) => i)
+  const per = Math.floor(g.cellCount / 8)
+  const { regions, ground } = carveRegisters({ cells, numRegisters: 4, perRegister: per })
+  const m = new RegisterMachine({ tone: new Int8Array(g.cellCount), regions, ground })
+  m.set(0, a)
+  m.set(1, b)
+  m.run(minskyMultiplyProgram())
+  return m.read(2)
 }
 
 export function meansComputation(input?: { n?: number }): {

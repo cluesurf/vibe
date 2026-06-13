@@ -10,7 +10,7 @@
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { groupVelocity1d } from '@/code/measure/group-speed'
-import { boostEnergyMomentum } from '@/code/measure/rapidity'
+import { addVelocities, boostEnergyMomentum } from '@/code/measure/rapidity'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -68,7 +68,7 @@ export function boostVelocityAddition(): {
     const v = groupVelocity(k0, m) // the packet's velocity in the rest frame of measurement
     for (const phi of [0.3, 0.7, 1.1]) {
       const u = Math.tanh(phi) // the boost's frame velocity
-      const relativistic = (v + u) / (1 + u * v)
+      const relativistic = addVelocities({ velocity: v, frame: u })
       // boost the on-shell point (omega(k0), k0) and read the new velocity as dw'/dk' = (slope after boost)
       const w0 = omega(k0, m)
       const e = 1e-5

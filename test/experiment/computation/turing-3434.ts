@@ -25,8 +25,8 @@
 import { buildAddressing, regionTypes, type Addressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { lifeStep } from '@/code/operator/conway-life'
-import { type Bit, bitToNum as toNum, functionFromTable as fromTable, nand } from '@/code/operator/logic-gate'
-import { carveRegisters, type Instr, RegisterMachine } from '@/code/operator/register-machine'
+import { type Bit, bitToNum as toNum, elementaryRuleStep, functionFromTable as fromTable, nand } from '@/code/operator/logic-gate'
+import { carveRegisters, minskyAddProgram, minskyMultiplyProgram, RegisterMachine } from '@/code/operator/register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -88,7 +88,7 @@ function legTernary(): boolean {
   let matches = true
   for (let step = 0; step < 40; step++) {
     const next: Bit[] = line.map((_, i) => fn(line[(i - 1 + W) % W]!, line[i]!, line[(i + 1) % W]!))
-    const refNext = ref.map((_, i) => rule110[(ref[(i - 1 + W) % W]! << 2) | (ref[i]! << 1) | ref[(i + 1) % W]!]!)
+    const refNext = elementaryRuleStep({ line: ref, rule: 110 })
     for (let i = 0; i < W; i++) if (toNum(next[i]!) !== refNext[i]) matches = false
     line = next
     ref = refNext
@@ -114,19 +114,8 @@ function makeMachine3434(a: Addressing, numRegisters: number, perReg: number): R
 const R0 = 0
 const R1 = 1
 const R2 = 2
-const R3 = 3
-const PROG_ADD: Instr[] = [{ op: 'decjz', r: R1, addr: 3 }, { op: 'inc', r: R0 }, { op: 'jmp', addr: 0 }, { op: 'halt' }]
-const PROG_MUL: Instr[] = [
-  { op: 'decjz', r: R0, addr: 8 },
-  { op: 'decjz', r: R1, addr: 5 },
-  { op: 'inc', r: R2 },
-  { op: 'inc', r: R3 },
-  { op: 'jmp', addr: 1 },
-  { op: 'decjz', r: R3, addr: 0 },
-  { op: 'inc', r: R1 },
-  { op: 'jmp', addr: 5 },
-  { op: 'halt' },
-]
+const PROG_ADD = minskyAddProgram()
+const PROG_MUL = minskyMultiplyProgram()
 
 function legRegisterMachine(a: Addressing): boolean {
   const cases: { name: string; inputs: number[]; expected: number; got: number; conserved: boolean }[] = []

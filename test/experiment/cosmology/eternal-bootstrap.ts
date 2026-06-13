@@ -8,19 +8,15 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { signedTone } from '@/code/tone/pack'
+import { torusGrid } from '@/code/substrate/torus-grid'
 import { makeRng } from '@/code/tool/rng'
 
 const L = 24
 const N = L * L * L
-const idx = (x: number, y: number, z: number): number => (((z % L) + L) % L * L + ((y % L) + L) % L) * L + ((x % L) + L) % L
-function neighbors(i: number): number[] {
-  const x = i % L, y = Math.floor(i / L) % L, z = Math.floor(i / (L * L))
-  return [idx(x + 1, y, z), idx(x - 1, y, z), idx(x, y + 1, z), idx(x, y - 1, z), idx(x, y, z + 1), idx(x, y, z - 1)]
-}
 
 export function eternalBootstrap(): { reversibleEternal: boolean; reversibleConserved: boolean; irreversibleDecays: boolean; reversibleExact: boolean } {
   const rng = makeRng({ seed: 12345 }); const rnd = (): number => rng.next()
-  const nbCache: number[][] = Array.from({ length: N }, (_, i) => neighbors(i))
+  const nbCache: number[][] = torusGrid(3, L).map((row) => Array.from(row))
   // (1) the REVERSIBLE mod-3 wave from RANDOM init (no seed)
   const cur0 = new Int8Array(N), prev0 = new Int8Array(N)
   for (let i = 0; i < N; i++) { cur0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2; prev0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2 }

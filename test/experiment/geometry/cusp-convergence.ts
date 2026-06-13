@@ -7,25 +7,17 @@
 
 import { spectralDimension } from '@/code/measure/dimension'
 import { greensFunctionExponent } from '@/code/measure/greens-function'
+import { cubicLattice, cubicLatticeCenter } from '@/code/substrate/cubic-lattice'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Z^3 cubic box of side L (centered at the origin), 6-neighbour, with Dirichlet boundary (boundary cells absent)
+// Z^3 cubic box of side L (centered at the origin), 6-neighbour, with Dirichlet boundary (boundary cells absent).
+// The cubic-lattice builder lives in code/substrate/cubic-lattice; the coords are repacked as number[][].
 function cubicBox(L: number): { nb: number[][]; coord: number[][]; center: number } {
-  const idx = (x: number, y: number, z: number): number => (z * L + y) * L + x
-  const N = L * L * L
-  const nb: number[][] = Array.from({ length: N }, () => [])
+  const lat = cubicLattice(L, 3)
   const coord: number[][] = []
-  for (let z = 0; z < L; z++) for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) {
-    coord.push([x, y, z])
-    const i = idx(x, y, z)
-    for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]] as [number, number, number][]) {
-      const a = x + dx, b = y + dy, c = z + dz
-      if (a >= 0 && a < L && b >= 0 && b < L && c >= 0 && c < L) nb[i]!.push(idx(a, b, c))
-    }
-  }
-  const h = L >> 1
-  return { nb, coord, center: idx(h, h, h) }
+  for (let i = 0; i < lat.size; i++) coord.push([lat.coords[i * 3]!, lat.coords[i * 3 + 1]!, lat.coords[i * 3 + 2]!])
+  return { nb: lat.neighbors, coord, center: cubicLatticeCenter({ lattice: lat, side: L }) }
 }
 
 // The spectral dimension (lazy-walk return probability) and the Dirichlet Green's

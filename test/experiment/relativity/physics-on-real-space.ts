@@ -7,7 +7,7 @@
 
 import { buildEuclideanLattice, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { extractBand } from '@/code/substrate/horosphere'
-import { largestComponentNodes } from '@/code/tool/graph'
+import { largestComponentNodes, mostConnectedNode } from '@/code/tool/graph'
 import { spectralDimension } from '@/code/measure/dimension'
 import { gravityExponent as gravityExponentMeasure } from '@/code/measure/gravity-exponent'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -41,7 +41,7 @@ export function physicsOnRealSpace(): void {
   const lcc = largestComponent(bnb)
   const lmap = new Map(lcc.map((v, i) => [v, i]))
   const lnb: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)).filter((x) => x !== undefined) as number[])
-  let lc0 = 0, bd = -1; for (let i = 0; i < lnb.length; i++) if (lnb[i]!.length > bd) { bd = lnb[i]!.length; lc0 = i }
+  const lc0 = mostConnectedNode(lnb)
   const bandDim = spectralDim(lnb, lc0, 3, 12)
   const bandGrav = gravityExponent(lnb, lc0)
   const cuspHolds = Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
@@ -92,14 +92,7 @@ export default defineExperiment({
       (v) =>
         bnb[v]!.map((w) => lmap.get(w)).filter((x) => x !== undefined) as number[],
     )
-    let bandCenter = 0
-    let bestDegree = -1
-    for (let i = 0; i < lnb.length; i++) {
-      if (lnb[i]!.length > bestDegree) {
-        bestDegree = lnb[i]!.length
-        bandCenter = i
-      }
-    }
+    const bandCenter = mostConnectedNode(lnb)
     const bandDim = spectralDim(lnb, bandCenter, 3, 12)
     const bandGrav = gravityExponent(lnb, bandCenter)
 

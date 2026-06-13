@@ -6,35 +6,13 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { dihedralFacePermutationDecomposition } from '@/code/algebra/group/dihedral'
 
 export function spinor73(): { hasSpinor: boolean; decomposition: string } {
-  // D7 = order 14 (7 rotations, 7 reflections). Conjugacy classes: e, r^k (k=1..3 paired), reflections.
-  // Permutation character of the 7 faces: chi(e)=7, chi(rotation)=0 (no fixed face), chi(reflection)=1 (one fixed face).
-  // Irreps of D7: trivial(1), sign(1), and three 2D irreps E1,E2,E3 with chi_Ej(e)=2, chi_Ej(r^k)=2cos(2pi j k/7), chi(refl)=0.
-  const n = 7
-  const classes = [
-    { rep: 'e', size: 1, char: 7 },
-    { rep: 'r', size: 2, char: 0, k: 1 },
-    { rep: 'r2', size: 2, char: 0, k: 2 },
-    { rep: 'r3', size: 2, char: 0, k: 3 },
-    { rep: 'reflection', size: 7, char: 1 },
-  ]
-  const order = 14
-  // inner product of the perm char with each irrep char
-  const irrepChar = (name: string, c: typeof classes[number]): number => {
-    if (name === 'triv') return 1
-    if (name === 'sign') return c.rep === 'reflection' ? -1 : 1
-    const j = Number(name[1]) // E1,E2,E3
-    if (c.rep === 'e') return 2
-    if (c.rep === 'reflection') return 0
-    return 2 * Math.cos((2 * Math.PI * j * (c.k ?? 0)) / n)
-  }
-  const irreps = ['triv', 'sign', 'E1', 'E2', 'E3']
-  const dec: Record<string, number> = {}
-  for (const ir of irreps) dec[ir] = Math.round((classes.reduce((s, c) => s + c.size * c.char * irrepChar(ir, c), 0) / order) * 100) / 100
-  const decomposition = Object.entries(dec).filter(([, m]) => Math.abs(m) > 1e-6).map(([nm, m]) => `${m}x${nm}`).join(' + ')
-  // a permutation rep of a (non-double-cover) point group contains NO spinor irrep
-  const hasSpinor = false
+  // The 7 faces of the heptagon carry the permutation rep of D7. Its decomposition into
+  // irreps (trivial + the three 2D vector irreps E1,E2,E3, no spinor) is the general
+  // dihedral-face computation in algebra/group/dihedral.
+  const { hasSpinor, decomposition } = dihedralFacePermutationDecomposition(7)
   return { hasSpinor, decomposition }
 }
 

@@ -6,7 +6,8 @@
 // star tetracombs ({3,3,5,5/2} etc.) are non-convex and not built here. Run: npx tsx code/experiment/4d-tessellations.ts
 
 import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { bfsShells } from '@/code/measure/shells'
+import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -36,15 +37,12 @@ function measure(sym: number[], flat: boolean, scale: number = SCALE): { ok: boo
     const g = flat ? buildEuclideanLattice({ symbol: sym as never, maxCells: scale }) : buildCellGraph({ symbol: sym as never, maxCells: scale })
     const N = g.cellCount, nb = g.neighbors
     if (N < 50) return { ok: false, cells: N, degree: 0, growth: 0, betheAlpha: 0 }
-    const { offsets: off, adj } = toCsr(nb)
-    let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
+    let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = nb[i]!.length; if (d > best) { best = d; center = i } }
     const degree = best
-    const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-    while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } if (nf.length) shell.push(nf.length); fr = nf }
+    const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
     const mid = shell.slice(2, Math.min(6, shell.length))
     const growth = mid.length > 1 ? Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
-    const b = degree - 1, mu = b > 0 ? (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b) : 0
-    const betheAlpha = b > 1 ? Math.round((2 * Math.log(1 / mu)) / Math.log(b) * 100) / 100 : 0
+    const betheAlpha = betheCorrelatorExponent(degree)
     return { ok: true, cells: N, degree, growth, betheAlpha }
   } catch (e) { return { ok: false, cells: 0, degree: 0, growth: 0, betheAlpha: 0 } }
 }

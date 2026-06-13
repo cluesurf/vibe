@@ -167,3 +167,59 @@ export function diffusionTensorAnisotropy(input: {
   const anisotropy = meanEig > 0 ? (eig[2]! - eig[0]!) / meanEig : 1
   return { eigenvalues: eig, anisotropy, count }
 }
+
+// Anisotropy of a direction set from its front support function h(u) = max_d (d . u)
+// over random unit probe directions u. The support function is the distance the
+// convex front reaches in direction u; its coefficient of variation (std / mean)
+// over many random u is the anisotropy (0 = perfectly isotropic, the front is a
+// sphere). Each direction's contribution is normalised by the common direction norm.
+// Probe directions are drawn as random unit vectors (Box-Muller per axis) from the
+// supplied generator, so the result is reproducible at a fixed seed.
+export function supportFunctionAnisotropy(input: {
+  directions: number[][]
+  rng: { next: () => number }
+  samples?: number
+}): number {
+  const { directions, rng } = input
+  const samples = input.samples ?? 4000
+  const dimension = directions[0]?.length ?? 0
+  const norm = Math.hypot(...(directions[0] ?? []))
+  const supports: number[] = []
+  for (let t = 0; t < samples; t++) {
+    const gaussian = new Array<number>(dimension).fill(0).map(() => {
+      const u1 = rng.next() || 1e-9
+      const u2 = rng.next()
+      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+    })
+    const gaussianNorm = Math.hypot(...gaussian)
+    const u = gaussian.map((x) => x / gaussianNorm)
+    let best = -Infinity
+    for (const d of directions) {
+      let s = 0
+      for (let i = 0; i < dimension; i++) s += d[i]! * u[i]!
+      if (s > best) best = s
+    }
+    supports.push(best / norm)
+  }
+  const mean = supports.reduce((a, b) => a + b, 0) / supports.length
+  const variance = supports.reduce((a, b) => a + (b - mean) ** 2, 0) / supports.length
+  return Math.sqrt(variance) / mean
+}
+
+// Order-4 angular moments of a direction set: the diagonal sum d_x^4 and the mixed sum d_x^2 d_y^2
+// over the first two components. A set isotropic to order 4 satisfies diagonal = 3 * mixed (the
+// continuum identity for the 4th moment), so |diagonal - 3 * mixed| measures the residual order-4
+// anisotropy. Inputs may be raw lattice vectors (all of equal length) or unit directions.
+export function directionFourthMoments(directions: number[][]): {
+  diagonal: number
+  mixed: number
+  anisotropy: number
+} {
+  let diagonal = 0
+  let mixed = 0
+  for (const d of directions) {
+    diagonal += (d[0] ?? 0) ** 4
+    mixed += (d[0] ?? 0) ** 2 * (d[1] ?? 0) ** 2
+  }
+  return { diagonal, mixed, anisotropy: Math.abs(diagonal - 3 * mixed) }
+}

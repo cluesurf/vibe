@@ -13,23 +13,14 @@ import { join } from 'node:path'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { saveGraph, loadGraph, type StoredGraph } from '@/code/tool/graph-store'
-import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
+import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 // The CSR-to-edge-list conversion lives in code/tool/graph.
-
-function agree(tone: Int8Array, offsets: Int32Array, adj: Int32Array, i: number, q: number, except: number): number {
-  let c = 0
-  for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
-    const w = adj[p]!
-    if (w !== except && tone[w] === q) c++
-  }
-  return c
-}
 
 function beat(
   tone: Int8Array,
@@ -43,42 +34,10 @@ function beat(
   cohesive: boolean,
   temp: number,
 ): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      const doHop = cohesive ? agree(tone, offsets, adj, e, q, c) >= agree(tone, offsets, adj, c, q, e) || rng.next() < temp : rng.next() < 0.5
-      if (doHop) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrowProb) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
+  if (cohesive) {
+    cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: arrowProb, escapeProbability: temp })
+  } else {
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: arrowProb })
   }
 }
 
@@ -89,25 +48,7 @@ function imprintRetention(g: StoredGraph, eu: Int32Array, ev: Int32Array, cohesi
   const moved = new Uint8Array(n)
   const rngWarm = makeRng({ seed: 9 })
   for (let b = 0; b < 30; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rngWarm, 0.05, cohesive, 0.02)
-  // blob = BFS ball around node 0
-  const blob: number[] = []
-  const seen = new Uint8Array(n)
-  let fr = [0]
-  seen[0] = 1
-  while (fr.length > 0 && blob.length < blobSize) {
-    const nf: number[] = []
-    for (const u of fr) {
-      blob.push(u)
-      for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
-        const w = g.adj[p]!
-        if (!seen[w] && blob.length + nf.length < blobSize) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
+  const blob = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: n, source: 0, limit: blobSize })
   for (const i of blob) tone[i] = 1
   const meanBlob = (): number => blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
   const start = meanBlob()

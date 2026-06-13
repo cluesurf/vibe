@@ -6,6 +6,23 @@
 // See note/questions/p4-chirality-spec.md.
 
 import { Complex, cAdd, cMul, cScale, cConj, cAbs2 } from '@/code/algebra/linear/complex'
+import { makeDense } from '@/code/algebra/linear/dense'
+import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+
+// Positive-energy branch of the 1D lattice Dirac Hamiltonian at momentum k and mass
+// m: H(k) = [[m, sin k], [sin k, -m]], a real symmetric 2x2 whose eigenvalues are
+// +/- sqrt(m^2 + sin^2 k). The gap at k = 0 is m (the rest energy) and the small-k
+// dispersion is omega^2 = k^2 + m^2 (relativistic). Computed from the matrix
+// eigenvalues rather than the closed form.
+export function latticeDiracEnergy1d(input: { k: number; m: number }): number {
+  const h = makeDense({ rows: 2, cols: 2 })
+  h.data[0] = input.m
+  h.data[1] = Math.sin(input.k)
+  h.data[2] = Math.sin(input.k)
+  h.data[3] = -input.m
+  const eig = eigSymmetric({ matrix: h })
+  return Math.max(eig.values[0] ?? 0, eig.values[1] ?? 0)
+}
 
 // A 2x2 complex matrix in row-major fields.
 export interface Mat2 {

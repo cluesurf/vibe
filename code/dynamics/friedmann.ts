@@ -76,3 +76,20 @@ export function integrateFriedmann(input: {
   }
   return { t, a, rho: rhoTot, p: pTot }
 }
+
+// Deceleration parameter q = -a'' a / a'^2 at index i of a sampled scale factor a(t), with the
+// derivatives taken by central differences at uniform step dt. q > 0 is decelerating expansion,
+// q < 0 accelerating.
+export function decelerationParameter(input: {
+  a: ReadonlyArray<number>
+  index: number
+  dt: number
+}): number {
+  const { a, index: i, dt } = input
+  const aPrev = a[i - 1] ?? 0
+  const aCur = a[i] ?? 1
+  const aNext = a[i + 1] ?? 0
+  const adot = (aNext - aPrev) / (2 * dt)
+  const addot = (aNext - 2 * aCur + aPrev) / (dt * dt)
+  return (-addot * aCur) / Math.max(1e-12, adot * adot)
+}

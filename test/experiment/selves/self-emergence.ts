@@ -20,24 +20,13 @@
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
+import { edgesOf } from '@/code/tool/graph'
+import { totalCharge as sumTone } from '@/code/model/self-kit'
+import { fillCoherence as coherence, largestSharingPatch as largestPatch } from '@/code/measure/fill-coherence'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesOf(neighbors: number[][]): Array<[number, number]> {
-  const edges: Array<[number, number]> = []
-  for (let v = 0; v < neighbors.length; v++) {
-    for (const w of neighbors[v]!) if (w > v) edges.push([v, w])
-  }
-  return edges
-}
-
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
 
 // One beat of the conserved exchange, per-note fills (hop / polarize / share), conserves every pair sum.
 function beat(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array, rng: Rng): void {
@@ -90,50 +79,6 @@ function adaptFills(tone: Int8Array, edges: Array<[number, number]>, fill: Int8A
   }
 }
 
-// fraction of notes whose fill is consistent with its two tones (a measure of ordered integration)
-function coherence(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array): number {
-  let sat = 0
-  for (let i = 0; i < edges.length; i++) {
-    const tv = tone[edges[i]![0]]!
-    const tw = tone[edges[i]![1]]!
-    const f = fill[i]!
-    const ok =
-      f === 1 ? tv !== 0 && tv === tw : f === -1 ? tv !== 0 && tw !== 0 && tv !== tw : tv === 0 || tw === 0
-    if (ok) sat++
-  }
-  return sat / edges.length
-}
-
-// largest connected domain of same-sign cells bound by sharing (+1) fills, the biggest higher self
-function largestPatch(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array, n: number): number {
-  const parent = new Int32Array(n)
-  for (let i = 0; i < n; i++) parent[i] = i
-  const find = (x: number): number => {
-    let r = x
-    while (parent[r] !== r) r = parent[r]!
-    while (parent[x] !== r) {
-      const nx = parent[x]!
-      parent[x] = r
-      x = nx
-    }
-    return r
-  }
-  for (let i = 0; i < edges.length; i++) {
-    if (fill[i] !== 1) continue
-    const v = edges[i]![0]
-    const w = edges[i]![1]
-    if (tone[v] !== 0 && tone[v] === tone[w]) parent[find(v)] = find(w)
-  }
-  const size = new Int32Array(n)
-  let best = 0
-  for (let i = 0; i < n; i++) {
-    if (tone[i] === 0) continue
-    const r = find(i)
-    size[r]!++
-    if (size[r]! > best) best = size[r]!
-  }
-  return best
-}
 
 export function selfEmergence(): {
   cells: number

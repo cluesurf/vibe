@@ -8,30 +8,15 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import { supportFunctionAnisotropy } from '@/code/measure/isotropy'
 
-function d4Roots(): number[][] {
-  const r: number[][] = []
-  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; r.push(v) }
-  return r
-}
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
+const d4Roots = (): number[][] => rootsD4()
 
 // anisotropy of a direction set: the front support function h(u) = max_d (root_d . u), measured over random
 // unit directions u in R^4. coefficient of variation std/mean = anisotropy (0 = perfectly isotropic).
 function anisotropy(dirs: number[][], seed: number): number {
-  const rng = makeRng({ seed })
-  const rnd = (): number => rng.next()
-  const norm = Math.hypot(...dirs[0]!)
-  const hs: number[] = []
-  for (let t = 0; t < 4000; t++) {
-    // random unit vector in R^4 (Box-Muller)
-    const g = [0, 0, 0, 0].map(() => { const u1 = rnd() || 1e-9, u2 = rnd(); return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) })
-    const gn = Math.hypot(...g), u = g.map((x) => x / gn)
-    hs.push(Math.max(...dirs.map((d) => dot(d, u))) / norm) // normalize by direction norm
-  }
-  const mean = hs.reduce((a, b) => a + b, 0) / hs.length
-  const variance = hs.reduce((a, b) => a + (b - mean) ** 2, 0) / hs.length
-  return Math.sqrt(variance) / mean
+  return supportFunctionAnisotropy({ directions: dirs, rng: makeRng({ seed }) })
 }
 
 export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean; diracOk: boolean; arrowRises: boolean } {

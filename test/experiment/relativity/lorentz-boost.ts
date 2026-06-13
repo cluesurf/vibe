@@ -21,6 +21,7 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { causalLattice } from '@/code/substrate/causal-lattice'
 import { histogramFlatness } from '@/code/measure/histogram'
 import { linkRapidities, boostCoords } from '@/code/measure/rapidity'
+import { standardDeviation as std } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -28,12 +29,6 @@ import { verdict } from '@/test/scaffold/verdict'
 // near 0 = concentrated (preferred frame).
 function flatness(etas: number[], range: number, bins: number): number {
   return histogramFlatness({ samples: etas, range, bins })
-}
-
-function std(xs: number[]): number {
-  if (xs.length === 0) return 0
-  const m = xs.reduce((a, b) => a + b, 0) / xs.length
-  return Math.sqrt(xs.reduce((s, x) => s + (x - m) ** 2, 0) / xs.length)
 }
 
 export function lorentzBoost(input: { seed: number }): {

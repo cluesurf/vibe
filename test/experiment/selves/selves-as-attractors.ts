@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p75-selves-as-attractors.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { storedPatterns, hebbianFills, step, overlap } from '@/test/experiment/selves/dreaming-and-waking'
+import { storedPatterns, hebbianFills, hopfieldStep as step, toneOverlap as overlap } from '@/code/operator/hopfield'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

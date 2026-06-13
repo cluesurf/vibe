@@ -9,6 +9,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
+import { ballGrowthDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,55 +21,6 @@ function spatialDistance(coords: Float64Array, d: number, a: number, b: number):
     s += delta * delta
   }
   return Math.sqrt(s)
-}
-
-// Ball-growth dimension of a graph from log N(r) versus log r, averaged over centers.
-function ballDimension(neighbors: number[][], centers: number[], maxRadius: number): number {
-  const slopes: number[] = []
-  for (const c of centers) {
-    const dist = new Map<number, number>()
-    dist.set(c, 0)
-    let frontier = [c]
-    const counts = new Array(maxRadius + 1).fill(0)
-    counts[0] = 1
-    for (let r = 1; r <= maxRadius; r++) {
-      const nextFrontier: number[] = []
-      for (const v of frontier) {
-        for (const w of neighbors[v] ?? []) {
-          if (!dist.has(w)) {
-            dist.set(w, r)
-            nextFrontier.push(w)
-          }
-        }
-      }
-      counts[r] = counts[r - 1] + nextFrontier.length
-      frontier = nextFrontier
-    }
-    // log-log fit of cumulative ball size versus radius, over r = 1..maxRadius.
-    const xs: number[] = []
-    const ys: number[] = []
-    for (let r = 1; r <= maxRadius; r++) {
-      if (counts[r] > counts[r - 1]) {
-        xs.push(Math.log(r))
-        ys.push(Math.log(counts[r]))
-      }
-    }
-    if (xs.length >= 2) {
-      const n = xs.length
-      const mx = xs.reduce((a, b) => a + b, 0) / n
-      const my = ys.reduce((a, b) => a + b, 0) / n
-      let num = 0
-      let den = 0
-      for (let i = 0; i < n; i++) {
-        num += (xs[i]! - mx) * (ys[i]! - my)
-        den += (xs[i]! - mx) * (xs[i]! - mx)
-      }
-      if (den > 0) {
-        slopes.push(num / den)
-      }
-    }
-  }
-  return slopes.reduce((a, b) => a + b, 0) / Math.max(1, slopes.length)
 }
 
 export function sliceDimension(input: { dimension: number; count: number; seed: number }): {
@@ -121,7 +73,7 @@ export function sliceDimension(input: { dimension: number; count: number; seed: 
   // Centers: the most-connected slice nodes (interior, not on the slice boundary).
   const order = neighbors.map((row, i) => [i, row.length] as const).sort((a, b) => b[1] - a[1])
   const centers = order.slice(0, 12).map(([i]) => i)
-  const spatialDimension = ballDimension(neighbors, centers, d === 2 ? 6 : 4)
+  const spatialDimension = ballGrowthDimension({ neighbors, centers, maxRadius: d === 2 ? 6 : 4 })
 
   return {
     sliceSize: slice.length,

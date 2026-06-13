@@ -7,17 +7,10 @@
 // the 4D Benincasa-Dowker action fluctuation directly. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p19-dark-energy-4d.ts
 
-import { makeRng } from '@/code/tool/rng'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
-import { logLogSlope } from '@/code/measure/regression'
+import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function std(xs: number[]): number {
-  const m = xs.reduce((a, b) => a + b, 0) / xs.length
-  return Math.sqrt(xs.reduce((a, b) => a + (b - m) * (b - m), 0) / xs.length)
-}
 
 export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
   sizes: number[]
@@ -25,18 +18,14 @@ export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
   actionExponent: number
   lambdaExponent: number
 } {
-  const action = benincasaDowkerAction({ epsilon: 1, dimension: 4 })
-  const stds: number[] = []
-  for (const nn of input.sizes) {
-    const samples: number[] = []
-    for (let r = 0; r < input.repeats; r++) {
-      const poset = sprinkleMinkowski({ dimension: 4, count: nn, rng: makeRng({ seed: nn * 1000 + r }) })
-      samples.push(action.value({ poset }))
-    }
-    stds.push(std(samples))
-  }
-  const actionExponent = logLogSlope(input.sizes, stds)
-  return { sizes: input.sizes, stds, actionExponent, lambdaExponent: actionExponent - 1 }
+  const r = actionFluctuationExponent({
+    action: benincasaDowkerAction({ epsilon: 1, dimension: 4 }),
+    sizes: input.sizes,
+    repeats: input.repeats,
+    dimension: 4,
+    seedMultiplier: 1000,
+  })
+  return { sizes: r.sizes, stds: r.stds, actionExponent: r.exponent, lambdaExponent: r.exponent - 1 }
 }
 
 export default defineExperiment({

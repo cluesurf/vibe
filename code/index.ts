@@ -27,6 +27,8 @@ export * from './algebra/linear/eig-hermitian'
 export * from './algebra/linear/kernel-polynomial'
 export * from './algebra/linear/bethe-resolvent'
 export * from './measure/regression'
+export * from './measure/tone-census'
+export * from './measure/connected-correlation'
 
 // tone
 export * from './tone/alphabet'
@@ -41,6 +43,9 @@ export * from './substrate/hyperbolic-graph'
 export * from './substrate/grow-csg'
 export * from './substrate/triangulated-surface'
 export * from './substrate/layered-order'
+export * from './substrate/regular-graph'
+export * from './substrate/perfect-tensor-tree'
+export * from './substrate/modular-group'
 
 // rules
 export * from './rule/rule'

@@ -187,3 +187,91 @@ export function measuredCoinedWalkFrequency(input: {
   }
   return (2 * Math.PI * bestFrequency) / beats
 }
+
+// A 1D two-component Dirac quantum walk with chirality tracking. The state is a
+// right-mover psiR[x] and left-mover psiL[x] (complex). Each beat applies the mass
+// coin (R' = cos(m) R - i sin(m) L, L' = -i sin(m) R + cos(m) L) then the shift (R
+// to x+1, L to x-1) on a periodic ring. A localized seed at the centre is either
+// 'symmetric' (equal weight in both chiralities, splits into +/- movers when
+// massless) or 'right' (a pure right-mover). Massless: chirality (|R|^2 - |L|^2) is
+// conserved and each chirality streams at +/- the light speed. A mass couples the
+// chiralities so it oscillates. The walk is unitary so the norm stays one. Returns
+// the per-beat chirality and norm series and the final signed packet centres.
+export function diracQuantumWalk(input: {
+  size: number
+  mass: number
+  steps: number
+  seedMode: 'symmetric' | 'right'
+}): { chirality: number[]; centerR: number; centerL: number; center: number; norm: number[] } {
+  const { size: L, mass, steps, seedMode } = input
+  type C = readonly [number, number]
+  const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
+  const cmul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+  const cabs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
+  const I: C = [0, 1]
+  const wrap = (x: number): number => ((x % L) + L) % L
+  let R: C[] = new Array(L).fill([0, 0])
+  let Lf: C[] = new Array(L).fill([0, 0])
+  const x0 = L >> 1
+  if (seedMode === 'symmetric') {
+    R[x0] = [1 / Math.SQRT2, 0]
+    Lf[x0] = [1 / Math.SQRT2, 0]
+  } else {
+    R[x0] = [1, 0]
+    Lf[x0] = [0, 0]
+  }
+  const c = Math.cos(mass)
+  const s = Math.sin(mass)
+  const chirality: number[] = []
+  const norm: number[] = []
+  for (let t = 0; t < steps; t++) {
+    // coin: mass mixes the two chiralities
+    const R2: C[] = new Array(L)
+    const L2: C[] = new Array(L)
+    for (let x = 0; x < L; x++) {
+      R2[x] = cadd([c * R[x]![0], c * R[x]![1]], cmul([-s, 0], cmul(I, Lf[x]!)))
+      L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [c * Lf[x]![0], c * Lf[x]![1]])
+    }
+    // shift: R moves +1, L moves -1
+    const R3: C[] = new Array(L)
+    const L3: C[] = new Array(L)
+    for (let x = 0; x < L; x++) {
+      R3[wrap(x + 1)] = R2[x]!
+      L3[wrap(x - 1)] = L2[x]!
+    }
+    R = R3
+    Lf = L3
+    let chR = 0
+    let chL = 0
+    let nn = 0
+    for (let x = 0; x < L; x++) {
+      chR += cabs2(R[x]!)
+      chL += cabs2(Lf[x]!)
+      nn += cabs2(R[x]!) + cabs2(Lf[x]!)
+    }
+    chirality.push(chR - chL)
+    norm.push(nn)
+  }
+  // centres of the two chiralities (signed displacement from x0)
+  let cR = 0
+  let wR = 0
+  let cL = 0
+  let wL = 0
+  for (let x = 0; x < L; x++) {
+    const dx = ((x - x0 + L + L / 2) % L) - L / 2
+    cR += dx * cabs2(R[x]!)
+    wR += cabs2(R[x]!)
+    cL += dx * cabs2(Lf[x]!)
+    wL += cabs2(Lf[x]!)
+  }
+  // combined packet centre (weighted by total probability)
+  let cc = 0
+  let wc = 0
+  for (let x = 0; x < L; x++) {
+    const dx = ((x - x0 + L + L / 2) % L) - L / 2
+    const w = cabs2(R[x]!) + cabs2(Lf[x]!)
+    cc += dx * w
+    wc += w
+  }
+  return { chirality, centerR: cR / (wR || 1), centerL: cL / (wL || 1), center: cc / (wc || 1), norm }
+}

@@ -13,6 +13,7 @@
 // Run: npx tsx code/experiment/p83-deterministic-growth.ts
 
 import { tilingPQ } from '@/code/substrate/tiling-pq'
+import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -65,25 +66,7 @@ class GrowingMesh {
 
 // BFS ring sizes from the root.
 function ringSizes(adjacency: number[][]): number[] {
-  const n = adjacency.length
-  const depth = new Int32Array(n).fill(-1)
-  depth[0] = 0
-  let frontier = [0]
-  const rings: number[] = []
-  while (frontier.length > 0) {
-    rings.push(frontier.length)
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of adjacency[v] ?? []) {
-        if (depth[w] === -1) {
-          depth[w] = (depth[v] ?? 0) + 1
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return rings
+  return bfsShells({ neighbors: adjacency, root: 0 }).shellCounts
 }
 
 function sameAdjacency(a: number[][], b: number[][]): boolean {
@@ -155,11 +138,7 @@ export function deterministicGrowth(input: Record<string, never> = {}): {
   // 4. Geometry emerges: the ball-growth ratio converges to the golden-ratio law. The final ring
   // of a mesh grown to an arbitrary size is incomplete, so we exclude it (use complete rings only).
   const rings = ringSizes(oneShot.adjacency)
-  const ratios: number[] = []
-  for (let i = 4; i < rings.length - 2; i++) {
-    if ((rings[i] ?? 0) > 0) ratios.push((rings[i + 1] ?? 0) / (rings[i] ?? 1))
-  }
-  const growthRatio = ratios.length > 0 ? ratios.reduce((a, b) => a + b, 0) / ratios.length : 0
+  const growthRatio = branchingRatio({ shellCounts: rings, from: 5, to: rings.length - 1 })
   const geometryEmerges = Math.abs(growthRatio - GOLDEN_GROWTH) < 0.05
 
   // Degree stays bounded, as a finite-cell crystal requires.

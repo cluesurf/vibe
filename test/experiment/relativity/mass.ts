@@ -9,39 +9,22 @@
 // not done here.
 // See note/questions/next-version.md (P14). Run: npx tsx code/experiment/p14-mass.ts
 
-import { makeDense } from '@/code/algebra/linear/dense'
-import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { latticeDiracEnergy1d } from '@/code/operator/lattice-fermion'
+import { relativisticDispersionFit } from '@/code/measure/dispersion'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Positive-energy branch of the 1D lattice Dirac Hamiltonian at momentum k.
 // H(k) = [[m, sin k], [sin k, -m]], eigenvalues +/- sqrt(m^2 + sin^2 k).
 function diracEnergy(input: { k: number; m: number }): number {
-  const h = makeDense({ rows: 2, cols: 2 })
-  h.data[0] = input.m
-  h.data[1] = Math.sin(input.k)
-  h.data[2] = Math.sin(input.k)
-  h.data[3] = -input.m
-  const eig = eigSymmetric({ matrix: h })
-  return Math.max(eig.values[0] ?? 0, eig.values[1] ?? 0)
+  return latticeDiracEnergy1d(input)
 }
 
 // Least squares fit omega^2 = a * k^2 + b. The relativistic dispersion has a = 1
 // (the speed of light) and b = m^2 (the rest energy squared).
 function fitDispersion(ks: number[], omegas: number[]): { a: number; b: number } {
-  const x = ks.map((k) => k * k)
-  const y = omegas.map((w) => w * w)
-  const n = x.length
-  const mx = x.reduce((p, q) => p + q, 0) / n
-  const my = y.reduce((p, q) => p + q, 0) / n
-  let cov = 0
-  let varx = 0
-  for (let i = 0; i < n; i++) {
-    cov += ((x[i] ?? 0) - mx) * ((y[i] ?? 0) - my)
-    varx += ((x[i] ?? 0) - mx) * ((x[i] ?? 0) - mx)
-  }
-  const a = varx === 0 ? 0 : cov / varx
-  return { a, b: my - a * mx }
+  const fit = relativisticDispersionFit({ wavenumbers: ks, frequencies: omegas })
+  return { a: fit.speedSquared, b: fit.massSquared }
 }
 
 export function massStudy(input: { m: number }): { gap: number; a: number; b: number } {

@@ -15,38 +15,18 @@
 // Run: npx tsx code/experiment/p89-analog-hawking.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
+import { rayFreezeSurfaceGravity } from '@/code/measure/acoustic-horizon'
 import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
-import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// The effective wave speed along the radius, set by the fills, with a horizon at rHorizon where
-// it falls to zero. Far out it saturates to 1. The slope at the horizon is the surface gravity.
-function speed(r: number, rHorizon: number, gradient: number): number {
-  if (r <= rHorizon) return 0
-  return Math.tanh(gradient * (r - rHorizon))
-}
-
-// Dynamical ingoing null ray: dr/dt = -c(r). Near the horizon c ~ kappa (r - rHorizon), so the
-// ray freezes with (r - rHorizon) ~ exp(-kappa t). Fit kappa from the late-time exponential tail.
+// Dynamical ingoing null ray surface gravity on the tanh horizon profile.
 function rayKappa(input: { rHorizon: number; gradient: number; rStart: number }): number {
-  const { rHorizon, gradient, rStart } = input
-  let r = rStart
-  let t = 0
-  const dt = 0.002
-  const times: number[] = []
-  const logGaps: number[] = []
-  for (let i = 0; i < 400000 && r - rHorizon > 1e-7; i++) {
-    r -= speed(r, rHorizon, gradient) * dt
-    t += dt
-    const gap = r - rHorizon
-    if (gap < 0.15 && gap > 1e-6) {
-      times.push(t)
-      logGaps.push(Math.log(gap))
-    }
-  }
-  const start = Math.max(0, times.length - 3000)
-  return -linearFit({ xs: times.slice(start), ys: logGaps.slice(start) }).slope
+  return rayFreezeSurfaceGravity({
+    horizon: input.rHorizon,
+    gradient: input.gradient,
+    start: input.rStart,
+  })
 }
 
 // The near-horizon Unruh-DeWitt detector response F(E), the real part of the transform of the thermal

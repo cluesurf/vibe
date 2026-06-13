@@ -11,48 +11,17 @@
 // at large N. Run: npx tsx code/experiment/p74-large-n-crossing.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
-import { makeBitMatrix, BitMatrix, getBit, setBit } from '@/code/tool/bitset'
+import {
+  makeBitMatrix,
+  getBit,
+  setBit,
+  clearBit,
+  bitMatricesEqual as bitsEqual,
+  bitMatrixTransitiveClosure as closure,
+  bitMatrixHeight as heightOf,
+} from '@/code/tool/bitset'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function clearBit(m: BitMatrix, input: { row: number; col: number }): void {
-  const idx = input.row * m.stride + (input.col >>> 5)
-  m.words[idx] = (m.words[idx] ?? 0) & ~(1 << (input.col & 31))
-}
-
-// Transitive closure of the asserted relation (i < j only), Warshall with word-parallel OR.
-function closure(asserted: BitMatrix, n: number): BitMatrix {
-  const f = makeBitMatrix({ rows: n, cols: n })
-  for (let i = 0; i < n * f.stride; i++) f.words[i] = asserted.words[i] ?? 0
-  for (let k = 0; k < n; k++) {
-    for (let i = 0; i < n; i++) {
-      if (getBit(f, { row: i, col: k })) {
-        const ib = i * f.stride
-        const kb = k * f.stride
-        for (let w = 0; w < f.stride; w++) f.words[ib + w] = (f.words[ib + w] ?? 0) | (f.words[kb + w] ?? 0)
-      }
-    }
-  }
-  return f
-}
-
-function heightOf(f: BitMatrix, n: number): number {
-  const h = new Int32Array(n).fill(1)
-  let best = 1
-  for (let j = 0; j < n; j++) {
-    for (let i = 0; i < j; i++) if (getBit(f, { row: i, col: j })) h[j] = Math.max(h[j] ?? 1, (h[i] ?? 1) + 1)
-    best = Math.max(best, h[j] ?? 1)
-  }
-  return best
-}
-
-// Is the closure of a direct relation still transitively closed if we add/remove one CLOSURE bit
-// directly (the single-pair move)? Removing an implied relation, or adding one that creates a
-// transitivity violation, is invalid. We test validity by comparing to the recomputed closure.
-function bitsEqual(a: BitMatrix, b: BitMatrix, n: number): boolean {
-  for (let i = 0; i < n * a.stride; i++) if ((a.words[i] ?? 0) !== (b.words[i] ?? 0)) return false
-  return true
-}
 
 // How many distinct heights does a move type reach in a flat (accept-in-range) random walk?
 function heightReach(input: { n: number; maxHeight: number; steps: number; cluster: boolean; seed: number }): { distinct: number; rangeCovered: number } {

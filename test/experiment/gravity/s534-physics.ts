@@ -5,27 +5,25 @@
 // 2D, so the Newtonian potential is LOGARITHMIC (not 1/r). Run: npx tsx code/experiment/s534-physics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { mostConnectedNode } from '@/code/tool/graph'
 import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { betheBoundaryExponent } from '@/code/algebra/linear/bethe-resolvent'
+import { icosahedronVertexDirections } from '@/code/algebra/group/root-system'
+import { directionFourthMoments } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const phi = (1 + Math.sqrt(5)) / 2
 
 export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaIsotropic: boolean } {
   // (1) Bethe holographic correlator, z=12 -> clean 1/r^2 (ports)
   const betheAlpha = Math.round(betheBoundaryExponent({ coordination: 12, energy: 12 }) * 100) / 100
   // (2) cosmology + hierarchy, bulk shell growth ratio (exponential = expansion, radial tree = RG)
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
-  const N = g.cellCount, nb = g.neighbors
-  let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
+  const nb = g.neighbors
+  const center = mostConnectedNode(nb)
   const { shellCounts: shell } = bfsShells({ neighbors: nb, root: center })
   const growthRatio = Math.round(branchingRatio({ shellCounts: shell, from: 3, to: 6 }) * 100) / 100
   // (3) icosahedral isotropy, the 12 directions, 4th-moment isotropy check sum d_i^4 = 3 sum d_i^2 d_j^2
-  const verts: number[][] = []
-  for (const a of [1, -1]) for (const c of [phi, -phi]) verts.push([0, a, c], [a, c, 0], [c, 0, a])
-  let m4diag = 0, m4mix = 0; for (const v of verts) { const n2 = v[0]! ** 2 + v[1]! ** 2 + v[2]! ** 2; const u = v.map((x) => x / Math.sqrt(n2)); m4diag += u[0]! ** 4; m4mix += u[0]! ** 2 * u[1]! ** 2 }
-  const icosaIsotropic = Math.abs(m4diag - 3 * m4mix) < 1e-6
+  const icosaIsotropic = directionFourthMoments(icosahedronVertexDirections()).anisotropy < 1e-6
   return { betheAlpha, growthRatio, icosaIsotropic }
 }
 

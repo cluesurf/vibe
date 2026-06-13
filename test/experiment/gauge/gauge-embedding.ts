@@ -4,35 +4,15 @@
 // against D5 = so(10) (the minimal SO(N) GUT). Clean finite root-system computation.
 // Run: npx tsx code/experiment/p217-gauge-embedding.ts
 
-import { dotVec, rootsDn, vecEqExact } from '@/code/algebra/group/root-system'
+import { rootsDn, standardModelEmbedsInRootSystem } from '@/code/algebra/group/root-system'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const dot = dotVec
-const has = (R: number[][], v: number[]): boolean => R.some((r) => vecEqExact(r, v))
-
-// does D_n contain A2 (+) A1 (su(3) x su(2)), i.e. an A2 with a root orthogonal to all of it?
-function smEmbeds(n: number): { a2: boolean; a2a1: boolean; example?: string } {
-  const R = rootsDn(n)
-  let a2Found = false
-  for (const a of R) for (const b of R) {
-    if (dot(a, b) !== -1) continue // 120 degrees -> A2 generator pair
-    const ab = a.map((x, i) => x + b[i]!)
-    if (!has(R, ab)) continue // a+b must be a root (A2 closes)
-    a2Found = true
-    // look for an A1 orthogonal to the whole A2 (orthogonal to a and b => to a+b too)
-    for (const c of R) {
-      if (dot(c, a) === 0 && dot(c, b) === 0) {
-        return { a2: true, a2a1: true, example: `A2={+-(${a.join('')}),+-(${b.join('')}),...}  orthogonal A1=+-(${c.join('')})` }
-      }
-    }
-  }
-  return { a2: a2Found, a2a1: false }
-}
-
 export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
-  const r4 = smEmbeds(4), r5 = smEmbeds(5)
-  return { d4: r4.a2a1, d5: r5.a2a1 }
+  return {
+    d4: standardModelEmbedsInRootSystem(rootsDn(4)),
+    d5: standardModelEmbedsInRootSystem(rootsDn(5)),
+  }
 }
 
 export default defineExperiment({

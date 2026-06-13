@@ -62,3 +62,17 @@ export function functionFromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => 
     return acc
   }
 }
+
+// One step of a Wolfram elementary cellular automaton (rule number 0..255) on a
+// 0/1 line with periodic boundaries. The reference advance Rule 110 (Cook-universal)
+// and other elementary rules are checked against.
+export function elementaryRuleStep(input: { line: number[]; rule: number }): number[] {
+  const { line, rule } = input
+  const width = line.length
+  return line.map((_, i) => {
+    const l = line[(i - 1 + width) % width]!
+    const c = line[i]!
+    const r = line[(i + 1) % width]!
+    return (rule >> ((l << 2) | (c << 1) | r)) & 1
+  })
+}

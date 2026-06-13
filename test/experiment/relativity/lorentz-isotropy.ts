@@ -9,6 +9,7 @@
 // of Lorentz for free. Run: npx tsx code/experiment/p124-lorentz-isotropy.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { innermostCell } from '@/code/substrate/radial-tree'
 import { diffusionTensorAnisotropy } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -31,8 +32,8 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   // but distortion grows toward the boundary. Start at the cell CLOSEST TO THE ORIGIN and keep the spread
   // small, so the cloud lives where the model is nearly Euclidean and the covariance shape is faithful.
   const r2 = (i: number): number => g.coords[i]!.reduce((s, x) => s + x * x, 0)
-  let center = 0
-  for (let i = 1; i < N; i++) if (r2(i) < r2(center)) center = i
+  const radii2 = Array.from({ length: N }, (_, i) => r2(i))
+  const center = innermostCell(radii2)
   const c0 = g.coords[center]!
 
   // The clean, artifact-free isotropy test: the ONE-STEP diffusion tensor. A symmetric random walk's

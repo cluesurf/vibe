@@ -8,48 +8,11 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// complex helpers (re, im)
-type C = readonly [number, number]
-const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
-const cmul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
-const cabs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
-const I: C = [0, 1]
+import { diracQuantumWalk } from '@/code/dynamics/quantum-walk'
 
 // 1D Dirac quantum walk: state psiR[x], psiL[x] (complex). coin (mass angle theta) then shift.
-function diracWalk(L: number, mass: number, steps: number, seedMode: 'symmetric' | 'right'): { chirality: number[]; centerR: number; centerL: number; center: number; norm: number[] } {
-  const wrap = (x: number): number => ((x % L) + L) % L
-  let R: C[] = new Array(L).fill([0, 0]); let Lf: C[] = new Array(L).fill([0, 0])
-  // localized packet at center, equal weight in both chiralities (a moving Dirac packet uses a phase; here a
-  // standing seed that splits into +/- movers when massless)
-  const x0 = L >> 1
-  if (seedMode === 'symmetric') { R[x0] = [1 / Math.SQRT2, 0]; Lf[x0] = [1 / Math.SQRT2, 0] } else { R[x0] = [1, 0]; Lf[x0] = [0, 0] }
-  const c = Math.cos(mass), s = Math.sin(mass)
-  const chirality: number[] = []
-  const norm: number[] = []
-  for (let t = 0; t < steps; t++) {
-    // coin: R' = c R - i s L,  L' = -i s R + c L   (mass mixes the two chiralities)
-    const R2: C[] = new Array(L), L2: C[] = new Array(L)
-    for (let x = 0; x < L; x++) {
-      R2[x] = cadd([c * R[x]![0], c * R[x]![1]], cmul([-s, 0], cmul(I, Lf[x]!)))
-      L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [c * Lf[x]![0], c * Lf[x]![1]])
-    }
-    // shift: R moves +1, L moves -1
-    const R3: C[] = new Array(L), L3: C[] = new Array(L)
-    for (let x = 0; x < L; x++) { R3[wrap(x + 1)] = R2[x]!; L3[wrap(x - 1)] = L2[x]! }
-    R = R3; Lf = L3
-    let chR = 0, chL = 0, nn = 0
-    for (let x = 0; x < L; x++) { chR += cabs2(R[x]!); chL += cabs2(Lf[x]!); nn += cabs2(R[x]!) + cabs2(Lf[x]!) }
-    chirality.push(chR - chL); norm.push(nn)
-  }
-  // centers of the two chiralities (signed displacement from x0)
-  let cR = 0, wR = 0, cL = 0, wL = 0
-  for (let x = 0; x < L; x++) { const dx = ((x - x0 + L + L / 2) % L) - L / 2; cR += dx * cabs2(R[x]!); wR += cabs2(R[x]!); cL += dx * cabs2(Lf[x]!); wL += cabs2(Lf[x]!) }
-  // combined packet center (weighted by total probability)
-  let cc = 0, wc = 0
-  for (let x = 0; x < L; x++) { const dx = ((x - x0 + L + L / 2) % L) - L / 2; const w = cabs2(R[x]!) + cabs2(Lf[x]!); cc += dx * w; wc += w }
-  return { chirality, centerR: cR / (wR || 1), centerL: cL / (wL || 1), center: cc / (wc || 1), norm }
-}
+const diracWalk = (L: number, mass: number, steps: number, seedMode: 'symmetric' | 'right'): { chirality: number[]; centerR: number; centerL: number; center: number; norm: number[] } =>
+  diracQuantumWalk({ size: L, mass, steps, seedMode })
 
 export function spSpinorField(): { chiralityConservedMassless: boolean; chiralityMixesMassive: boolean; lightSpeedMassless: boolean; subluminalMassive: boolean; normConserved: boolean; fermionExchange: boolean } {
   const L = 201, steps = 60

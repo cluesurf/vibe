@@ -4,7 +4,7 @@
 // Run: npx tsx code/experiment/p196-horosphere-3434.ts
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,17 +13,12 @@ export function horosphere3434(): { cells: number; meanDegree: number; specDim16
   const n = slab.cellCount
   let sum = 0, mx = 0
   for (let i = 0; i < n; i++) { const d = slab.neighbors[i]!.length; sum += d; if (d > mx) mx = d }
-  const { offsets: off, adj } = toCsr(slab.neighbors)
-  let center = 0, best = -1; for (let i = 0; i < n; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  let p = new Float64Array(n); p[center] = 1; let np = new Float64Array(n); const P: number[] = []
-  for (let t = 0; t < 36; t++) {
-    P.push(p[center]!); np.fill(0)
-    for (let i = 0; i < n; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; const sh = (0.5 * pi) / d; np[i] = np[i]! + 0.5 * pi; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh }
-    const tmp = p; p = np; np = tmp
-  }
-  const ds = (t: number): number => (-2 * (Math.log(P[t + 2]!) - Math.log(P[t - 2]!))) / (Math.log(t + 2) - Math.log(t - 2))
+  let center = 0, best = -1; for (let i = 0; i < n; i++) { const d = slab.neighbors[i]!.length; if (d > best) { best = d; center = i } }
+  // spectral dimension via the lazy-walk return probability, the central difference at
+  // t = 16 is the endpoint slope between t = 14 and t = 18.
+  const specDim16 = spectralDimension({ neighbors: slab.neighbors, start: center, t1: 14, t2: 18 })
   const meanDegree = Math.round((sum / n) * 10) / 10
-  return { cells: n, meanDegree, specDim16: ds(16) }
+  return { cells: n, meanDegree, specDim16 }
 }
 
 // The generic horosphere of the {3,4,3,4} bulk is a thin slab, not clean flat 3D space. We

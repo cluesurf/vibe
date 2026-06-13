@@ -7,43 +7,13 @@
 // 1D Jackiw-Rebbi Dirac, real-symmetric Hamiltonian, eigenvalues by Jacobi. (1D is the tractable proxy for the
 // 3D Skyrme sign, same fermion-induced-stiffness mechanism.) Run: npx tsx code/experiment/p214-actual-rule-soliton.ts
 
+import { jackiwRebbiHamiltonian } from '@/code/operator/jackiw-rebbi'
+import { jacobiEigenvalues } from '@/code/algebra/linear/eig-jacobi'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// real-symmetric 1D Dirac H = [[m(x), -D],[D, -m(x)]], D = central difference (antisymmetric)
-function buildH(N: number, m0: number, R: number): number[][] {
-  const n = 2 * N
-  const H: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0))
-  const m = (i: number): number => m0 * Math.tanh((i - N / 2) / R)
-  for (let i = 0; i < N; i++) {
-    H[2 * i]![2 * i] = m(i)
-    H[2 * i + 1]![2 * i + 1] = -m(i)
-    if (i + 1 < N) { // -D on (u,v), +D on (v,u); D[i][i+1] = +1/2
-      H[2 * i]![2 * (i + 1) + 1] = -0.5; H[2 * (i + 1) + 1]![2 * i] = -0.5
-      H[2 * i + 1]![2 * (i + 1)] = 0.5; H[2 * (i + 1)]![2 * i + 1] = 0.5
-    }
-  }
-  return H
-}
-// eigenvalues of a real symmetric matrix via cyclic Jacobi (values only)
-function jacobiEigenvalues(A: number[][], n: number): number[] {
-  const a = A.map((r) => r.slice())
-  for (let sweep = 0; sweep < 60; sweep++) {
-    let off = 0
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
-    if (off < 1e-12) break
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
-      const apq = a[p]![q]!; if (Math.abs(apq) < 1e-14) continue
-      const app = a[p]![p]!, aqq = a[q]![q]!
-      const phi = 0.5 * Math.atan2(2 * apq, aqq - app), c = Math.cos(phi), s = Math.sin(phi)
-      for (let k = 0; k < n; k++) { const akp = a[k]![p]!, akq = a[k]![q]!; a[k]![p] = c * akp - s * akq; a[k]![q] = s * akp + c * akq }
-      for (let k = 0; k < n; k++) { const apk = a[p]![k]!, aqk = a[q]![k]!; a[p]![k] = c * apk - s * aqk; a[q]![k] = s * apk + c * aqk }
-    }
-  }
-  return Array.from({ length: n }, (_, i) => a[i]![i]!)
-}
 function seaEnergy(N: number, m0: number, R: number): number {
-  const ev = jacobiEigenvalues(buildH(N, m0, R), 2 * N)
+  const ev = jacobiEigenvalues(jackiwRebbiHamiltonian({ sites: N, mass: m0, width: R }))
   let s = 0; for (const e of ev) if (e < 0) s += e
   return s
 }

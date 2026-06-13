@@ -3,10 +3,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import {
   diracGamma,
   cmMultiply,
-  cmAdd,
-  cmScale,
-  cmIdentity,
   cmIsScalar,
+  cliffordRotor,
+  cmScalarTrace,
+  cmEquals,
   type ComplexMatrix,
 } from '@/code/algebra/group/clifford'
 import { complex } from '@/code/algebra/linear/complex'
@@ -22,18 +22,11 @@ import { complex } from '@/code/algebra/linear/complex'
 // the spin holonomy rotor for a contractible loop enclosing hyperbolic area A (Gauss-Bonnet, curvature -1):
 // a rotation by A, rotor(A) = cos(A/2) + sin(A/2) B with B the unit bivector gamma1 gamma2.
 const holonomyRotor = (area: number, bivector: ComplexMatrix): ComplexMatrix =>
-  cmAdd(cmScale(cmIdentity(4), Math.cos(area / 2)), cmScale(bivector, Math.sin(area / 2)))
+  cliffordRotor({ angle: area, bivector, size: 4 })
 
-const traceScalar = (matrix: ComplexMatrix): number =>
-  (matrix[0]![0]!.re + matrix[1]![1]!.re + matrix[2]![2]!.re + matrix[3]![3]!.re) / 4
+const traceScalar = (matrix: ComplexMatrix): number => cmScalarTrace(matrix)
 
-const matrixEquals = (left: ComplexMatrix, right: ComplexMatrix): boolean =>
-  left.every((row, rowIndex) =>
-    row.every((value, columnIndex) => {
-      const target = right[rowIndex]![columnIndex]!
-      return Math.abs(value.re - target.re) < 1e-9 && Math.abs(value.im - target.im) < 1e-9
-    }),
-  )
+const matrixEquals = (left: ComplexMatrix, right: ComplexMatrix): boolean => cmEquals(left, right)
 
 export default defineExperiment({
   id: 'spin/continuum-holonomy-534',

@@ -16,7 +16,11 @@
 //      signature of integration rather than machine-epsilon plug-in.
 // Run: npx tsx code/experiment/p72-nonlinear-einstein.ts
 
-import { FluidComponent as Comp, integrateFriedmann as integrate } from '@/code/dynamics/friedmann'
+import {
+  decelerationParameter,
+  FluidComponent as Comp,
+  integrateFriedmann as integrate,
+} from '@/code/dynamics/friedmann'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -85,15 +89,7 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
     { rho: 0.02, w: -1 },
   ]
   const traj = integrate({ comps, a0: 1, t0: 1, tMax: 60, dt: 0.002 })
-  const qAt = (i: number): number => {
-    const dt = 0.002
-    const aPrev = traj.a[i - 1] ?? 0
-    const aCur = traj.a[i] ?? 1
-    const aNext = traj.a[i + 1] ?? 0
-    const adot = (aNext - aPrev) / (2 * dt)
-    const addot = (aNext - 2 * aCur + aPrev) / (dt * dt)
-    return (-addot * aCur) / Math.max(1e-12, adot * adot)
-  }
+  const qAt = (i: number): number => decelerationParameter({ a: traj.a, index: i, dt: 0.002 })
   const decelerationEarly = qAt(5)
   const accelerationLate = qAt(traj.a.length - 3)
   const transitionHappens = decelerationEarly > 0 && accelerationLate < 0

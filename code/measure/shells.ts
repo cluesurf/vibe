@@ -66,6 +66,23 @@ export function branchingRatio(input: {
   return count ? sum / count : 0
 }
 
+// The geometric-mean growth ratio of a width (or shell-size) series across steps, exp(mean log(b/a)).
+// The geometric mean is the natural average of a multiplicative expansion rate: a static front gives 1,
+// a steadily expanding one gives a value above 1. Non-positive entries are skipped (no log).
+export function geometricGrowthRatio(widths: ReadonlyArray<number>): number {
+  let logSum = 0
+  let count = 0
+  for (let g = 1; g < widths.length; g++) {
+    const a = widths[g - 1] ?? 1
+    const b = widths[g] ?? 1
+    if (a > 0 && b > 0) {
+      logSum += Math.log(b / a)
+      count += 1
+    }
+  }
+  return count > 0 ? Math.exp(logSum / count) : 1
+}
+
 // All nodes within a geodesic radius of the root (the ball, in BFS order).
 export function geodesicBall(input: {
   neighbors: Neighbors

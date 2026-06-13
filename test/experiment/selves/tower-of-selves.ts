@@ -17,6 +17,7 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeGraph, Graph } from '@/code/tool/graph'
+import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { aggregate, effectiveCouplings, renormMacroStep, agreement } from '@/test/experiment/renormalization/emergent-macro-rule'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -56,22 +57,6 @@ function hierarchicalMesh(input: { branching: number; depth: number; cellSize: n
   const g = makeGraph({ size: n, directed: false, neighbors })
   const countAtLevel = (level: number): number => Math.max(1, Math.round(n / (cellSize * b ** level)))
   return { g, fills, unitAtLevel, countAtLevel }
-}
-
-function settleAsync(g: Graph, fills: Int8Array[], init: Int8Array, sweeps: number, rng: Rng): Int8Array {
-  const n = g.size
-  const t = Int8Array.from(init)
-  for (let sweep = 0; sweep < sweeps; sweep++) {
-    for (let s = 0; s < n; s++) {
-      const v = rng.nextInt({ max: n })
-      const nb = g.neighbors[v] ?? new Uint32Array(0)
-      const fl = fills[v] ?? new Int8Array(0)
-      let h = 0
-      for (let k = 0; k < nb.length; k++) h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
-      t[v] = h > 0 ? 1 : h < 0 ? -1 : (t[v] ?? 0)
-    }
-  }
-  return t
 }
 
 interface Rung {
@@ -117,7 +102,7 @@ export function towerOfSelves(input: { seed: number }): {
   for (let v = 0; v < g.size; v++) tone[v] = toneOfUnit(0, unitAtLevel(v, 0)) as -1 | 0 | 1
 
   // Settle so the assignment is a genuine (metastable) self of the rule.
-  const base = settleAsync(g, fills, tone, 60, makeRng({ seed: input.seed + 2 }))
+  const base = settleAsync({ graph: g, fills, init: tone, sweeps: 60, rng: makeRng({ seed: input.seed + 2 }) }).state
 
   const names = ['cells', 'tissues', 'organs', 'systems', 'body']
   const rungs: Rung[] = []

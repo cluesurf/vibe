@@ -9,7 +9,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph, neighborsOf } from '@/code/tool/graph'
+import { Graph, mostConnectedNode, neighborsOf } from '@/code/tool/graph'
 import { bfsShells } from '@/code/measure/shells'
 import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -30,15 +30,7 @@ export function propagation(input: { count: number; beats: number; seed: number 
   const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: makeRng({ seed: input.seed + 1 }) })
 
   // A central source (most-connected node).
-  let source = 0
-  let best = -1
-  for (let i = 0; i < g.size; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) {
-      best = d
-      source = i
-    }
-  }
+  const source = mostConnectedNode(g.neighbors)
   const dist = distancesFrom(g, source)
 
   // Random initial state, then the perturbed copy flips the source.

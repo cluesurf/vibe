@@ -14,23 +14,10 @@
 // is Sorkin's everpresent prediction evaluated at the observed 4-volume, adopted, not independently
 // derived here. Run: npx tsx code/experiment/p46-everpresent-dynamical.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng, poissonSample } from '@/code/tool/rng'
 import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// A genuine Poisson draw (Knuth's algorithm), valid for the moderate volumes used here (e^-V must be
-// representable). This is the actual element-count distribution of a causal-set sprinkling.
-function poissonDraw(lambda: number, rng: Rng): number {
-  const L = Math.exp(-lambda)
-  let k = 0
-  let p = 1
-  do {
-    k++
-    p *= rng.next()
-  } while (p > L)
-  return k - 1
-}
 
 // Measure the RMS of the implied Lambda fluctuation, delta-Lambda = (N - V) / V, from GENUINE Poisson
 // draws of the element count N at expected 4-volume V (in Planck units, N = V at unit density).
@@ -42,7 +29,7 @@ export function everpresentDynamical(input: { volumes: number[]; repeats: number
   const rms = input.volumes.map((v) => {
     let sumSq = 0
     for (let r = 0; r < input.repeats; r++) {
-      const n = poissonDraw(v, rng) // the genuine causal-set element count, Poisson(V)
+      const n = poissonSample({ lambda: v, rng }) // the genuine causal-set element count, Poisson(V)
       const lambda = (n - v) / v
       sumSq += lambda * lambda
     }

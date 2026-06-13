@@ -17,6 +17,7 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeGraph, Graph } from '@/code/tool/graph'
+import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -62,22 +63,6 @@ export function modularMesh(input: { numCells: number; cellSize: number; intraDe
   return { g, fills, cellOf }
 }
 
-function settleAsync(g: Graph, fills: Int8Array[], init: Int8Array, sweeps: number, rng: Rng): Int8Array {
-  const n = g.size
-  const t = Int8Array.from(init)
-  for (let sweep = 0; sweep < sweeps; sweep++) {
-    for (let s = 0; s < n; s++) {
-      const v = rng.nextInt({ max: n })
-      const nb = g.neighbors[v] ?? new Uint32Array(0)
-      const fl = fills[v] ?? new Int8Array(0)
-      let h = 0
-      for (let k = 0; k < nb.length; k++) h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
-      t[v] = h > 0 ? 1 : h < 0 ? -1 : (t[v] ?? 0)
-    }
-  }
-  return t
-}
-
 export function nestedSelves(input: { seed: number }): {
   byFraction: { fraction: number; cellRecovery: number; bodyIntegrity: number }[]
   smallWoundHeals: number
@@ -92,7 +77,7 @@ export function nestedSelves(input: { seed: number }): {
 
   // The body's coherent self: all cells aligned. Converge to confirm it is a fixed point.
   let base = new Int8Array(g.size).fill(1)
-  base = settleAsync(g, fills, base, 40, makeRng({ seed: input.seed + 1 }))
+  base = settleAsync({ graph: g, fills, init: base, sweeps: 40, rng: makeRng({ seed: input.seed + 1 }) }).state
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
   for (let v = 0; v < g.size; v++) members[cellOf[v] ?? 0]?.push(v)
@@ -114,7 +99,7 @@ export function nestedSelves(input: { seed: number }): {
         const v = mem[i] ?? 0
         perturbed[v] = (-(base[v] ?? 0)) as -1 | 0 | 1
       }
-      const settled = settleAsync(g, fills, perturbed, 50, pr)
+      const settled = settleAsync({ graph: g, fills, init: perturbed, sweeps: 50, rng: pr }).state
       let cellBack = 0
       for (const v of mem) if (settled[v] === base[v]) cellBack++
       recs.push(cellBack / mem.length)

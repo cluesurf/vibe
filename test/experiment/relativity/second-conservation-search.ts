@@ -17,19 +17,9 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { relativeStandardDeviation as relStd } from '@/code/measure/statistics'
+import { ringEdges } from '@/code/substrate/ring'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// 1D-ring edges (i, i+1) so the conserving perception sweep runs on a line
-function ringEdges(L: number): { eu: Int32Array; ev: Int32Array } {
-  const eu = new Int32Array(L)
-  const ev = new Int32Array(L)
-  for (let i = 0; i < L; i++) {
-    eu[i] = i
-    ev[i] = (i + 1) % L
-  }
-  return { eu, ev }
-}
 
 function beat(tone: Int8Array, ring: { eu: Int32Array; ev: Int32Array }, moved: Uint8Array, rng: Rng, arrow: number): void {
   conservingEdgeSweep({ tone, eu: ring.eu, ev: ring.ev, moved, rng, arrow })

@@ -34,6 +34,23 @@ export function wilsonLoopValue(input: {
   return Math.cos(wilsonLoopPhase(input))
 }
 
+// The Creutz-ratio string tension chi(2,2) from four already-averaged Wilson loops,
+//   chi = -ln[ (W(2,2) W(1,1)) / (W(2,1) W(1,2)) ]
+// the area-law signature of confinement (positive tension). Averaging the loops before
+// forming the ratio keeps the Monte Carlo estimator stable. Returns 0 if any loop average
+// is non-positive (the logarithm is undefined). (For a single config, see the lattice-level
+// creutzRatio in dynamics/su2-lattice.)
+export function creutzRatioFromLoops(input: {
+  loop11: number
+  loop21: number
+  loop12: number
+  loop22: number
+}): number {
+  const numerator = input.loop22 * input.loop11
+  const denominator = input.loop21 * input.loop12
+  return numerator > 0 && denominator > 0 ? -Math.log(numerator / denominator) : 0
+}
+
 // A coarse string-tension proxy: the mean of (1 - Wilson value) over all
 // plaquettes. Near 0 in a deconfined / flat field, growing as plaquettes carry
 // field strength. Returns 0 when there are no plaquettes.

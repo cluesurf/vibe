@@ -1,6 +1,6 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { pauli, cmCommutator, cmAdd, cmScale, type ComplexMatrix } from '@/code/algebra/group/clifford'
+import { pauli, cmCommutator, cmAdd, cmScale, cmFrobeniusNorm as frobenius } from '@/code/algebra/group/clifford'
 import { complex } from '@/code/algebra/linear/complex'
 
 // Non-abelian gauge structure on the {3,4,3,4} vector sector, the road to the weak and strong
@@ -9,9 +9,6 @@ import { complex } from '@/code/algebra/linear/complex'
 // algebra with nonzero structure constants, and two gauge potentials in different colour directions
 // have a nonzero commutator (the W and gluon self-coupling vertex), while a U(1) potential commutes
 // (no self-interaction). The 8v vector sector has 8 components, matching the 8 gluons of SU(3).
-
-const frobenius = (matrix: ComplexMatrix): number =>
-  Math.sqrt(matrix.reduce((sum, row) => sum + row.reduce((rowSum, value) => rowSum + value.re * value.re + value.im * value.im, 0), 0))
 
 export default defineExperiment({
   id: 'gauge/non-abelian-3434',

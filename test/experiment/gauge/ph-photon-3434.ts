@@ -7,6 +7,7 @@
 // Run: npx tsx code/experiment/p249-ph-photon-3434.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { GridGauge, plaquetteFlux, gridWilsonLoop } from '@/code/tool/grid-gauge'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,7 +21,7 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   const Ay: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
   // plaquette (field strength) at (x,y): sum of oriented link phases around the unit square
   const plaq = (ax: number[][], ay: number[][], x: number, y: number): number =>
-    ax[x]![y]! + ay[wrap(x + 1, Lx)]![y]! - ax[x]![wrap(y + 1, Ly)]! - ay[x]![y]!
+    plaquetteFlux({ Ax: ax, Ay: ay }, { x, y, side: Lx })
 
   // PH2: gauge transform A -> A + grad(g), check every plaquette unchanged
   const g: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
@@ -31,15 +32,9 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   const gaugeInvariant = maxDP < 1e-9
 
   // PH4: discrete Stokes, flux through a 3x3 region = holonomy around its boundary loop
+  const field: GridGauge = { Ax, Ay }
   const regionFlux = (): number => { let f = 0; for (let x = 0; x < 3; x++) for (let y = 0; y < 3; y++) f += plaq(Ax, Ay, x, y); return f }
-  const boundaryHolonomy = (): number => {
-    let h = 0
-    for (let x = 0; x < 3; x++) h += Ax[x]![0]!
-    for (let y = 0; y < 3; y++) h += Ay[3]![y]!
-    for (let x = 2; x >= 0; x--) h -= Ax[x]![3]!
-    for (let y = 2; y >= 0; y--) h -= Ay[0]![y]!
-    return h
-  }
+  const boundaryHolonomy = (): number => gridWilsonLoop(field, { x0: 0, x1: 3, y0: 0, y1: 3 })
   const stokes = Math.abs(regionFlux() - boundaryHolonomy()) < 1e-9
 
   // PH1/PH3: the free photon dispersion is massless (gapless, linear). lattice: omega(k) = 2|sin(k/2)|

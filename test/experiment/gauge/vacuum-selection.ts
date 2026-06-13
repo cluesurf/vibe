@@ -6,15 +6,12 @@
 // su(5)), so the discrete selection gives so(10) -> su(5) -> SM. No continuum, just counting discrete roots and
 // weights. Run: npx tsx code/experiment/p227-vacuum-selection.ts
 
+import { rootsDn, dotVec as dot, spinorWeightsDn } from '@/code/algebra/group/root-system'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
-function d5Roots(): number[][] { const R: number[][] = []; for (let i = 0; i < 5; i++) for (let j = i + 1; j < 5; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0, 0]; v[i] = si; v[j] = sj; R.push(v) } return R }
-function spinorWeights(): number[][] { const W: number[][] = []; for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) for (const e of [0.5, -0.5]) { const w = [a, b, c, d, e]; if (w.filter((x) => x < 0).length % 2 === 0) W.push(w) } return W }
-
 export function vacuumSelection(): { maxUnbroken: number; singletWins: boolean } {
-  const roots = d5Roots(), weights = spinorWeights()
+  const roots = rootsDn(5), weights = spinorWeightsDn(5)
   // for each discrete weight, count unbroken so(10) roots (orthogonal to the VEV direction)
   const scored = weights.map((w) => ({ w, unbroken: roots.filter((r) => dot(r, w) === 0).length, minus: w.filter((x) => x < 0).length }))
   const maxUnbroken = Math.max(...scored.map((s) => s.unbroken))

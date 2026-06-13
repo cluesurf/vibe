@@ -43,3 +43,31 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
   }
   return { size, coords, dim, neighbors }
 }
+
+// Row-major index of the centre site (every coordinate at floor(side / 2)).
+export function cubicLatticeCenter(input: { lattice: CubicLattice; side: number }): number {
+  const { lattice, side } = input
+  const mid = Math.floor(side / 2)
+  let j = 0
+  let place = 1
+  for (let a = 0; a < lattice.dim; a++) {
+    j += mid * place
+    place *= side
+  }
+  return j
+}
+
+// Euclidean distance between two lattice sites in integer coordinate units.
+export function cubicLatticeDistance(input: {
+  lattice: CubicLattice
+  from: number
+  to: number
+}): number {
+  const { lattice, from, to } = input
+  let s = 0
+  for (let a = 0; a < lattice.dim; a++) {
+    const d = (lattice.coords[from * lattice.dim + a] ?? 0) - (lattice.coords[to * lattice.dim + a] ?? 0)
+    s += d * d
+  }
+  return Math.sqrt(s)
+}

@@ -8,34 +8,23 @@
 // action fluctuation across sprinklings. See note/questions/next-version.md (P10).
 // Run: npx tsx code/experiment/p10-cosmological-constant.ts
 
-import { makeRng } from '@/code/tool/rng'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
-import { logLogSlope } from '@/code/measure/regression'
+import { smearedBenincasaDowker, Action } from '@/code/dynamics/action'
+import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function stdAndMean(xs: number[]): { mean: number; std: number } {
-  const mean = xs.reduce((a, b) => a + b, 0) / xs.length
-  const variance = xs.reduce((a, b) => a + (b - mean) * (b - mean), 0) / xs.length
-  return { mean, std: Math.sqrt(variance) }
-}
 
 function actionFluctuation(input: { action: Action; sizes: number[]; repeats: number }): {
   sizes: number[]
   stds: number[]
   exponent: number
 } {
-  const stds: number[] = []
-  for (const n of input.sizes) {
-    const samples: number[] = []
-    for (let r = 0; r < input.repeats; r++) {
-      const poset = sprinkleMinkowski({ dimension: 2, count: n, rng: makeRng({ seed: n * 100 + r }) })
-      samples.push(input.action.value({ poset }))
-    }
-    stds.push(stdAndMean(samples).std)
-  }
-  return { sizes: input.sizes, stds, exponent: logLogSlope(input.sizes, stds) }
+  return actionFluctuationExponent({
+    action: input.action,
+    sizes: input.sizes,
+    repeats: input.repeats,
+    dimension: 2,
+    seedMultiplier: 100,
+  })
 }
 
 export default defineExperiment({

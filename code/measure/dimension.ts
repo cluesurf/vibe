@@ -2,7 +2,7 @@
 // for causal sets (reads dimension off the ordering fraction), and ball-growth
 // for graphs where there is no Lorentzian order.
 
-import { linearFit } from '@/code/measure/regression'
+import { linearFit, logLogSlope } from '@/code/measure/regression'
 import { Poset, relationCount } from '@/code/tool/poset'
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
@@ -133,6 +133,116 @@ export function ballGrowth(input: {
   return growth
 }
 
+// The ball-growth (box-counting) dimension of a graph given as a neighbor list, averaged over a set of
+// centers. For each center it does a BFS, accumulates the cumulative ball size N(r) out to maxRadius,
+// and fits the log-log slope of N(r) versus r (the exponent d in N ~ r^d). Averaging over interior
+// centers gives the spatial dimension of the graph, the (d-1)-space of a coexisting spacetime slice.
+export function ballGrowthDimension(input: {
+  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  centers: ReadonlyArray<number>
+  maxRadius: number
+}): number {
+  const { neighbors, centers, maxRadius } = input
+  const slopes: number[] = []
+  for (const c of centers) {
+    const dist = new Map<number, number>()
+    dist.set(c, 0)
+    let frontier = [c]
+    const counts = new Array(maxRadius + 1).fill(0)
+    counts[0] = 1
+    for (let r = 1; r <= maxRadius; r++) {
+      const nextFrontier: number[] = []
+      for (const v of frontier) {
+        for (const w of neighbors[v] ?? []) {
+          if (!dist.has(w)) {
+            dist.set(w, r)
+            nextFrontier.push(w)
+          }
+        }
+      }
+      counts[r] = counts[r - 1] + nextFrontier.length
+      frontier = nextFrontier
+    }
+    const xs: number[] = []
+    const ys: number[] = []
+    for (let r = 1; r <= maxRadius; r++) {
+      if (counts[r] > counts[r - 1]) {
+        xs.push(r)
+        ys.push(counts[r])
+      }
+    }
+    if (xs.length >= 2) {
+      slopes.push(logLogSlope(xs, ys))
+    }
+  }
+  return slopes.reduce((a, b) => a + b, 0) / Math.max(1, slopes.length)
+}
+
+// The box-counting (Minkowski) dimension of a set of cells on an L x L grid, where cell i has x = i %
+// L and y = floor(i / L). For each box size b it counts how many b x b boxes the set touches, then fits
+// the slope of log N(b) versus log(1/b). A space-filling sheet gives dimension near 2, a thin film
+// less. Returns 0 for sets too small to fit.
+export function boxCountingDimension(input: {
+  cells: ReadonlyArray<number>
+  sideLength: number
+  boxSizes?: ReadonlyArray<number>
+}): number {
+  const { cells, sideLength: L } = input
+  if (cells.length < 4) return 0
+  const sizes = input.boxSizes ?? [2, 4, 8, 16, 32]
+  const inverseBoxSizes: number[] = []
+  const boxCounts: number[] = []
+  for (const b of sizes) {
+    const boxes = new Set<number>()
+    const K = Math.ceil(L / b)
+    for (const i of cells) {
+      const x = i % L
+      const y = Math.floor(i / L)
+      boxes.add(Math.floor(x / b) * K + Math.floor(y / b))
+    }
+    inverseBoxSizes.push(1 / b)
+    boxCounts.push(boxes.size)
+  }
+  return logLogSlope(inverseBoxSizes, boxCounts)
+}
+
+// Is a substrate's reachability (ball growth) exponential? Picks the highest-degree
+// cell as centre, takes the cumulative ball growth out to maxRadius, and averages the
+// per-step ratios in the UNSATURATED regime (ball below half the final size). The mean
+// ratio above `threshold` (default 1.8) is the exponential-reach signature of a
+// negatively curved substrate. The substrate-survey sibling of growthIsExponential,
+// with the survey's own thresholds.
+export function reachIsExponential(input: {
+  substrate: Substrate
+  maxRadius?: number
+  threshold?: number
+}): boolean {
+  const { substrate } = input
+  const maxRadius = input.maxRadius ?? 16
+  const threshold = input.threshold ?? 1.8
+  const adjacency = undirectedAdjacency({ substrate })
+  let center = 0
+  let best = -1
+  for (let i = 0; i < substrate.size; i++) {
+    const d = (adjacency[i] ?? new Uint32Array(0)).length
+    if (d > best) {
+      best = d
+      center = i
+    }
+  }
+  const growth = ballGrowth({ substrate, center, maxRadius })
+  const final = growth[growth.length - 1] ?? 1
+  const ratios: number[] = []
+  for (let r = 1; r < growth.length; r++) {
+    const prev = growth[r - 1] ?? 0
+    const cur = growth[r] ?? 0
+    if (prev >= 2 && prev < 0.5 * final && cur > prev) {
+      ratios.push(cur / prev)
+    }
+  }
+  return ratios.length > 0 && ratios.reduce((a, b) => a + b, 0) / ratios.length > threshold
+}
+
 // Heuristic: is ball growth exponential rather than polynomial? Look at the late
 // log-differences of the cumulative counts. Exponential growth has a roughly
 // constant, positive log-slope; polynomial growth has a log-slope that decays
@@ -220,6 +330,19 @@ export function geometricUnsaturatedGrowthRatio(input: {
     }
   }
   return count > 0 ? Math.exp(logSum / count) : 0
+}
+
+// The boundary two-point correlator falloff exponent of a Bethe lattice (regular tree)
+// of coordination number `degree`. With branching b = degree - 1, the smallest root
+// mu = (degree - sqrt(degree^2 - 4b)) / (2b) of the recurrence gives the correlator
+// decay G(r) ~ r^(-alpha) with alpha = 2 ln(1/mu) / ln(b). A flat-bulk 3D hyperbolic
+// honeycomb (degree 12) reads alpha near 2, the clean 1/r^2 falloff. Returns 0 when
+// the branching is too small (degree <= 2) for the formula. Rounded to two decimals.
+export function betheCorrelatorExponent(degree: number): number {
+  const b = degree - 1
+  if (b <= 1) return 0
+  const mu = (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b)
+  return Math.round(((2 * Math.log(1 / mu)) / Math.log(b)) * 100) / 100
 }
 
 // The spectral dimension of a graph from a lazy random-walk return probability. A

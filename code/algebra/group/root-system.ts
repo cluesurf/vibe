@@ -54,6 +54,37 @@ export function isRootSystem(roots: number[][]): boolean {
   return true
 }
 
+// Does the Standard Model semisimple algebra A2 (+) A1 (su(3) x su(2)) embed in this root system?
+// True iff the roots contain an A2 sub-root-system (a pair a, b at 120 degrees, dot = -1, with a + b
+// also a root) plus an A1 root c orthogonal to the whole A2 (the commuting su(2)).
+export function standardModelEmbedsInRootSystem(roots: number[][]): boolean {
+  for (const a of roots) for (const b of roots) {
+    if (dotVec(a, b) !== -1) continue // 120 degrees -> A2 generator pair
+    const ab = a.map((x, i) => x + b[i]!)
+    if (!roots.some((r) => vecEqExact(r, ab))) continue // a + b must be a root (A2 closes)
+    // an A1 orthogonal to the whole A2 (orthogonal to a and b, hence to a + b)
+    if (roots.some((c) => dotVec(c, a) === 0 && dotVec(c, b) === 0)) return true
+  }
+  return false
+}
+
+// The positive-chirality spinor weights of D_n (so(2n)): the half-integer vectors (+-1/2)^n with an
+// EVEN number of minus signs, the 2^(n-1) weights of one spinor representation. For n = 5 these are the
+// 16 weights of the so(10) generation. The odd-parity set is the conjugate spinor.
+export function spinorWeightsDn(n: number): number[][] {
+  const weights: number[][] = []
+  const build = (acc: number[]): void => {
+    if (acc.length === n) {
+      if (acc.filter((x) => x < 0).length % 2 === 0) weights.push(acc)
+      return
+    }
+    build([...acc, 0.5])
+    build([...acc, -0.5])
+  }
+  build([])
+  return weights
+}
+
 // D4, the 24 roots, all coordinate permutations of (+-1, +-1, 0, 0). These are
 // the 24 directions of the cell, each of norm squared 2.
 export function rootsD4(): number[][] {

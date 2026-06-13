@@ -15,23 +15,17 @@
 // overlap at every point. So the correlation is inherited, not transmitted.
 // Run: npx tsx code/experiment/p67-synchronicity.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
-import { storedPatterns, hebbianFills, step, overlap } from '@/test/experiment/selves/dreaming-and-waking'
+import { makeRng } from '@/code/tool/rng'
+import {
+  storedPatterns,
+  hebbianFills,
+  hopfieldStep as step,
+  toneOverlap as overlap,
+  mutatePattern,
+  bankOverlap as patternOverlap,
+} from '@/code/operator/hopfield'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Diverge a pattern from the common ancestor: flip each bit independently with probability d.
-function mutate(p: Int8Array, d: number, rng: Rng): Int8Array {
-  const q = Int8Array.from(p)
-  for (let i = 0; i < q.length; i++) if (rng.next() < d) q[i] = (rng.next() < 0.5 ? -1 : 1) as -1 | 1
-  return q
-}
-// Mean inherited overlap between the two memory landscapes (the measurable shared ancestry).
-function patternOverlap(pA: Int8Array[], pB: Int8Array[]): number {
-  let s = 0
-  for (let m = 0; m < pA.length; m++) s += Math.abs(overlap(pA[m] ?? new Int8Array(0), pB[m] ?? new Int8Array(0)))
-  return s / Math.max(1, pA.length)
-}
 
 // Two separate subsystems (no edges between them), each its own Hopfield landscape, both driven by
 // the SAME ambient rhythm (mode sequence). Each is cued toward ITS OWN pattern m, then relaxes.
@@ -87,8 +81,8 @@ export function synchronicity(input: { seed: number }): {
   const modeSeq = Array.from({ length: windows }, (_, i) => makeRng({ seed: input.seed + 7 + i }).nextInt({ max: K }))
 
   const sweep = [0, 0.15, 0.3, 0.5, 0.75].map((d) => {
-    const pA = root.map((p, i) => mutate(p, d, makeRng({ seed: input.seed + 100 + i })))
-    const pB = root.map((p, i) => mutate(p, d, makeRng({ seed: input.seed + 200 + i })))
+    const pA = root.map((p, i) => mutatePattern({ pattern: p, rate: d, rng: makeRng({ seed: input.seed + 100 + i }) }))
+    const pB = root.map((p, i) => mutatePattern({ pattern: p, rate: d, rng: makeRng({ seed: input.seed + 200 + i }) }))
     return {
       d,
       correlation: runPair({ size, pA, pB, modeSeq, seed: input.seed + 10 }),

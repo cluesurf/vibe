@@ -11,30 +11,11 @@ import { makeRng } from '@/code/tool/rng'
 import { smearedBenincasaDowker } from '@/code/dynamics/action'
 import { parallelTempering } from '@/code/dynamics/parallel-tempering'
 import { orderStatistics } from '@/code/measure/order-stats'
+import { populationVariance as variance } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const SIZE = 48
-
-function mean(xs: number[]): number {
-  if (xs.length === 0) {
-    return 0
-  }
-  let s = 0
-  for (const x of xs) {
-    s += x
-  }
-  return s / xs.length
-}
-
-function variance(xs: number[]): number {
-  const m = mean(xs)
-  let s = 0
-  for (const x of xs) {
-    s += (x - m) * (x - m)
-  }
-  return xs.length > 0 ? s / xs.length : 0
-}
 
 export default defineExperiment({
   id: 'gravity/tempering',

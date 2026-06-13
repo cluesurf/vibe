@@ -7,22 +7,19 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
+import { persistentWalkMeanDisplacement } from '@/code/dynamics/random-walk'
+import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
+import { coordinateAxes } from '@/code/measure/probe-directions'
 
 // (1) persistent walk (the directional rule for one charge) vs random walk (scalar): displacement vs time
 function walk(mix: number, T: number, trials: number, seed: number): number {
-  const rng = makeRng({ seed })
-  const rnd = (): number => rng.next()
-  const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
-  let tot = 0
-  for (let t = 0; t < trials; t++) {
-    let x = 0, y = 0, z = 0, d = Math.floor(rnd() * 6)
-    for (let s = 0; s < T; s++) {
-      if (rnd() < mix) d = Math.floor(rnd() * 6) // collision scrambles direction = mass
-      x += dirs[d]![0]!; y += dirs[d]![1]!; z += dirs[d]![2]!
-    }
-    tot += Math.hypot(x, y, z)
-  }
-  return tot / trials
+  return persistentWalkMeanDisplacement({
+    directions: coordinateAxes(3),
+    mix,
+    steps: T,
+    runs: trials,
+    rng: makeRng({ seed }),
+  })
 }
 
 export function directionalRule(): { ballistic: number; diffusive: number; diracOk: boolean } {
@@ -35,8 +32,8 @@ export function directionalRule(): { ballistic: number; diffusive: number; dirac
   // (2) Dirac dispersion cos E = cos(theta) cos(k)
   let diracOk = true
   for (const m of [0.0, 0.2, 0.6]) {
-    const E0 = Math.acos(Math.cos(m) * Math.cos(0))
-    const k = 0.1, Ek = Math.acos(Math.cos(m) * Math.cos(k)), rel = Math.sqrt(m * m + k * k)
+    const E0 = coinedWalkDispersion({ theta: m, k: 0 })
+    const k = 0.1, Ek = coinedWalkDispersion({ theta: m, k }), rel = Math.sqrt(m * m + k * k)
     if (Math.abs(E0 - m) > 1e-6 || Math.abs((Ek * Ek - k * k) - m * m) > 1e-2) diracOk = false
   }
   return { ballistic, diffusive, diracOk }

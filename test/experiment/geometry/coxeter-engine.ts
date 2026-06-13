@@ -15,57 +15,9 @@
 // Run: npx tsx code/experiment/p85-coxeter-engine.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
-import { makeRng } from '@/code/tool/rng'
+import { runAsynchronousSignedMajority } from '@/code/operator/signed-majority'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// The committed signed-majority rule, run on an explicit adjacency: each vibe's next tone is
-// the sign of the fill-weighted vote of its neighbors. Ternary tones, ternary fills.
-function runSignedMajority(input: {
-  neighbors: number[][]
-  beats: number
-  seed: number
-}): { settledFraction: number; toneHistogram: { minus: number; zero: number; plus: number } } {
-  const { neighbors, beats } = input
-  const n = neighbors.length
-  const rng = makeRng({ seed: input.seed })
-  const tone = new Int8Array(n)
-  for (let i = 0; i < n; i++) tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
-  // symmetric ternary fill per undirected note
-  const fill: Map<number, number>[] = Array.from({ length: n }, () => new Map<number, number>())
-  for (let a = 0; a < n; a++) {
-    for (const b of neighbors[a]!) {
-      if (b > a) {
-        const f = rng.nextInt({ max: 3 }) - 1
-        fill[a]!.set(b, f)
-        fill[b]!.set(a, f)
-      }
-    }
-  }
-  let changedLast = n
-  for (let beat = 0; beat < beats; beat++) {
-    let changed = 0
-    for (let s = 0; s < n; s++) {
-      const v = rng.nextInt({ max: n })
-      let h = 0
-      for (const w of neighbors[v]!) h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
-      const next = h > 0 ? 1 : h < 0 ? -1 : 0
-      if (next !== tone[v]) changed++
-      tone[v] = next as number
-    }
-    changedLast = changed
-  }
-  let minus = 0
-  let zero = 0
-  let plus = 0
-  for (let i = 0; i < n; i++) {
-    const t = tone[i] ?? 0
-    if (t < 0) minus++
-    else if (t === 0) zero++
-    else plus++
-  }
-  return { settledFraction: 1 - changedLast / n, toneHistogram: { minus, zero, plus } }
-}
 
 export function coxeterEngine(): {
   facetCounts: { symbol: string; geometry: string; cells: number; facetCount: number; expected: number }[]
@@ -113,7 +65,7 @@ export function coxeterEngine(): {
     (dodecagridGenerations[3]?.newCells ?? 0) > (dodecagridGenerations[2]?.newCells ?? 0) &&
     (dodecagridGenerations[2]?.newCells ?? 0) > (dodecagridGenerations[1]?.newCells ?? 0)
 
-  const dodecagridDynamics = runSignedMajority({ neighbors: dodeca.neighbors, beats: 200, seed: 7 })
+  const dodecagridDynamics = runAsynchronousSignedMajority({ neighbors: dodeca.neighbors, beats: 200, seed: 7 })
 
   const solved =
     allFacetsCorrect &&

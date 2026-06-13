@@ -5,16 +5,9 @@
 // tagged by the tone sign. So one SM generation = the coin spinors graded by the tone. Triality (three 8-reps)
 // -> three generations. We verify the root-system + spinor-weight facts. Run: npx tsx code/experiment/p221-gauge-from-coin-tone.ts
 
+import { rootsDn as dRoots, vecEqExact as eq, isRootSystem, spinorWeightsDn, standardModelEmbedsInRootSystem } from '@/code/algebra/group/root-system'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
-const eq = (a: number[], b: number[]): boolean => a.length === b.length && a.every((x, i) => Math.abs(x - b[i]!) < 1e-9)
-function reflect(v: number[], a: number[]): number[] { const f = (2 * dot(v, a)) / dot(a, a); return v.map((x, i) => x - f * a[i]!) }
-function isRootSystem(R: number[][]): boolean { for (const a of R) for (const v of R) { const w = reflect(v, a); if (!R.some((r) => eq(r, w))) return false } return true }
-function dRoots(n: number): number[][] { const R: number[][] = []; for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = new Array<number>(n).fill(0); v[i] = si; v[j] = sj; R.push(v) } return R }
-// A2 (+) A1 test (SM semisimple part) from p217
-function smEmbeds(R: number[][]): boolean { for (const a of R) for (const b of R) { if (dot(a, b) !== -1) continue; const ab = a.map((x, i) => x + b[i]!); if (!R.some((r) => eq(r, ab))) continue; if (R.some((c) => dot(c, a) === 0 && dot(c, b) === 0)) return true } return false }
 
 export function gaugeFromCoinTone(): { d5IsRootSystem: boolean; smInD5: boolean; sixteenSplit: string } {
   // D4 from the coin (e1..e4), then add the tone as the 5th axis e5 -> D5
@@ -25,10 +18,9 @@ export function gaugeFromCoinTone(): { d5IsRootSystem: boolean; smInD5: boolean;
   const vectors8 = [0, 1, 2, 3].flatMap((i) => [1, -1].map((s) => { const v = [0, 0, 0, 0, 0]; v[i] = s; return v }))
   const extraIsVxTone = extra.every((r) => { const proj = [r[0]!, r[1]!, r[2]!, r[3]!, 0]; return vectors8.some((v) => eq(v, proj)) && Math.abs(r[4]!) === 1 })
   const d5IsRootSystem = isRootSystem(d5) && d5.length === 40
-  const smInD5 = smEmbeds(d5)
+  const smInD5 = standardModelEmbedsInRootSystem(d5)
   // SO(10) generation 16 = spinor weights (+-1/2)^5 with EVEN # of minus. Split by the tone (5th) sign:
-  const sixteen: number[][] = []
-  for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) for (const e of [0.5, -0.5]) { const w = [a, b, c, d, e]; if (w.filter((x) => x < 0).length % 2 === 0) sixteen.push(w) }
+  const sixteen = spinorWeightsDn(5)
   const tonePlus = sixteen.filter((w) => w[4]! > 0)  // tone +: first 4 coords have EVEN minus -> 8s
   const toneMinus = sixteen.filter((w) => w[4]! < 0) // tone -: first 4 coords have ODD minus  -> 8c
   const okS = tonePlus.every((w) => w.slice(0, 4).filter((x) => x < 0).length % 2 === 0)

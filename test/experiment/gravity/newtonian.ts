@@ -7,7 +7,12 @@
 // This is one rung. The full Einstein equations and the graviton are the long road
 // (see note/questions/next-version.md P16). Run: npx tsx code/experiment/p16-newtonian.ts
 
-import { cubicLattice, CubicLattice } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenter,
+  cubicLatticeDistance,
+  CubicLattice,
+} from '@/code/substrate/cubic-lattice'
 import { graphLaplacianGreensFunction } from '@/code/operator/graph-laplacian'
 import { fitForm } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -15,33 +20,13 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Lat = CubicLattice
 
-function centerNode(lat: Lat, side: number): number {
-  const mid = Math.floor(side / 2)
-  let j = 0
-  let place = 1
-  for (let a = 0; a < lat.dim; a++) {
-    j += mid * place
-    place *= side
-  }
-  return j
-}
-
-function distance(lat: Lat, i: number, j: number): number {
-  let s = 0
-  for (let a = 0; a < lat.dim; a++) {
-    const d = (lat.coords[i * lat.dim + a] ?? 0) - (lat.coords[j * lat.dim + a] ?? 0)
-    s += d * d
-  }
-  return Math.sqrt(s)
-}
-
 // The static potential phi = L^{-1} (source) is the graph Laplacian Green's function
 // of a unit charge at the center against a uniform neutral background. This is the
 // Poisson equation on the mesh, the weak-field limit. We then bin it by distance.
 export function potentialProfile(input: { lat: Lat; side: number }): { r: number[]; phi: number[] } {
   const lat = input.lat
   const n = lat.size
-  const center = centerNode(lat, input.side)
+  const center = cubicLatticeCenter({ lattice: lat, side: input.side })
   const phi = graphLaplacianGreensFunction({ neighbors: lat.neighbors, center })
   const rMin = 1.5
   const rMax = input.side / 2 - 1.5 // stay off the boundary
@@ -51,7 +36,7 @@ export function potentialProfile(input: { lat: Lat; side: number }): { r: number
     if (j === center) {
       continue
     }
-    const d = distance(lat, center, j)
+    const d = cubicLatticeDistance({ lattice: lat, from: center, to: j })
     if (d < rMin || d > rMax) {
       continue
     }

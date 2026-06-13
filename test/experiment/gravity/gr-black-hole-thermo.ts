@@ -16,15 +16,15 @@
 
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { branchingRatio } from '@/code/measure/shells'
+import {
+  deSitterHorizon,
+  hawkingTemperature as hawkingTemp,
+  schwarzschildEntropy as bhEntropy,
+  schwarzschildEvaporationLifetime,
+  schwarzschildRadius as horizonRadius,
+} from '@/code/measure/black-hole-thermodynamics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Schwarzschild black hole of mass M (G=c=1): horizon r_s = 2M.
-const horizonRadius = (M: number): number => 2 * M
-const horizonArea = (M: number): number => 4 * Math.PI * horizonRadius(M) ** 2 // 16 pi M^2
-const bhEntropy = (M: number): number => horizonArea(M) / 4 // S = A/4 = 4 pi M^2 (the area law's 1/4)
-const surfaceGravity = (M: number): number => 1 / (4 * M) // kappa = 1/(4M)
-const hawkingTemp = (M: number): number => surfaceGravity(M) / (2 * Math.PI) // T = kappa/2pi = 1/(8 pi M)
 
 function firstLaw(): { maxRelError: number; ok: boolean } {
   // dM = T dS must hold for Schwarzschild at every mass. Check numerically by finite differences.
@@ -75,26 +75,14 @@ function evaporation(): { lifetimeExponent: number; ok: boolean } {
   // small FRACTION of M per step, so the integration is logarithmic in M (a few thousand steps) instead
   // of a fixed dt, which would need ~1e11 steps to drain M under the M^-2 power law. The lifetime still
   // scales exactly as M0^3, so the measured exponent is identical, just computed without the brute force.
-  const lifetimeOf = (M0: number): number => {
-    let M = M0
-    let t = 0
-    while (M > 1e-3) {
-      const A = horizonArea(M)
-      const T = hawkingTemp(M)
-      const power = A * T ** 4 // Stefan-Boltzmann luminosity (up to constants)
-      const dt = (0.002 * M) / power // adaptive: drain 0.2% of M per step
-      M -= power * dt
-      t += dt
-    }
-    return t
-  }
+  const lifetimeOf = (M0: number): number => schwarzschildEvaporationLifetime({ mass: M0 })
   const m1 = 2
   const m2 = 4
   const exponent = Math.log(lifetimeOf(m2) / lifetimeOf(m1)) / Math.log(m2 / m1)
   return { lifetimeExponent: exponent, ok: Math.abs(exponent - 3) < 0.1 }
 }
 
-function deSitterHorizon(): { H: number; T: number; S: number; Lambda: number } {
+function deSitterFromSubstrate(): { H: number; T: number; S: number; Lambda: number } {
   // The substrate's OWN cosmological horizon, from the measured shell growth R (de Sitter). We use the
   // SAME measurement as cosmology-and-anisotropy.ts (early-shell average, R ~ 11, H ~ 0.80) to stay
   // consistent with the paper. (The truncation-clean asymptotic ratio is ~18.4 -> H ~ 0.97; the de Sitter
@@ -102,12 +90,8 @@ function deSitterHorizon(): { H: number; T: number; S: number; Lambda: number } 
   const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 600 })
   const R = branchingRatio({ shellCounts: a.shellSizes, from: 3, to: 7 })
   const H = Math.log(R) / 3 // a(t) ~ R^(t/3) = e^(H t)
-  const radius = 1 / H // Hubble / de Sitter horizon radius (c=1)
-  const area = 4 * Math.PI * radius ** 2
-  const S = area / 4 // Gibbons-Hawking entropy S = A/4 = pi / H^2
-  const T = H / (2 * Math.PI) // Gibbons-Hawking temperature
-  const Lambda = 3 * H ** 2 // cosmological constant
-  return { H, T, S, Lambda }
+  const horizon = deSitterHorizon(H)
+  return { H, T: horizon.temperature, S: horizon.entropy, Lambda: horizon.cosmologicalConstant }
 }
 
 export default defineExperiment({
@@ -123,7 +107,7 @@ export default defineExperiment({
     const bek = bekensteinSaturation()
     const hc = heatCapacity()
     const ev = evaporation()
-    const ds = deSitterHorizon()
+    const ds = deSitterFromSubstrate()
     const ok = fl.ok && sm.ok && bek.ok && hc.negative && ev.ok
     return verdict({
       status: ok ? 'pass' : 'fail',

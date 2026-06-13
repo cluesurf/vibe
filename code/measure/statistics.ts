@@ -1,5 +1,29 @@
 // Small statistical measures shared across experiments.
 
+// Arithmetic mean of a series (0 for an empty series).
+export function mean(series: ArrayLike<number>): number {
+  const n = series.length
+  if (n === 0) return 0
+  let s = 0
+  for (let i = 0; i < n; i++) s += series[i]!
+  return s / n
+}
+
+// Population variance (divide by n) of a series (0 for an empty series).
+export function populationVariance(series: ArrayLike<number>): number {
+  const n = series.length
+  if (n === 0) return 0
+  const m = mean(series)
+  let s = 0
+  for (let i = 0; i < n; i++) s += (series[i]! - m) ** 2
+  return s / n
+}
+
+// Population standard deviation (sqrt of the population variance) of a series.
+export function standardDeviation(series: ArrayLike<number>): number {
+  return Math.sqrt(populationVariance(series))
+}
+
 // Pearson correlation coefficient between two equal-length series. Returns 0 when
 // either series has variance at or below `epsilon` (the degenerate, no-signal
 // case). The default epsilon of 0 keeps the strict `variance > 0` guard; pass a

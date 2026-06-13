@@ -10,27 +10,8 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// director field: angle phi(x), physics is mod pi (n and -n identified). winding counts pi-rotations.
-// director winding in pi-units around the ring
-function directorWinding(phi: number[]): number {
-  const L = phi.length; let tot = 0
-  for (let i = 0; i < L; i++) { let d = phi[(i + 1) % L]! - phi[i]!; while (d > Math.PI / 2) d -= Math.PI; while (d < -Math.PI / 2) d += Math.PI; tot += d } // wrap mod pi (director)
-  return tot / Math.PI // in units of pi: a 1/2 disclination gives 1 (= 1/2 vector winding)
-}
-// nematic relaxation: heat-flow on the director, respecting the mod-pi (n ~ -n) identification
-function relaxDirector(phi0: number[], steps: number, dt: number): number[] {
-  const L = phi0.length; let cur = phi0.slice()
-  for (let t = 0; t < steps; t++) {
-    const next = cur.map((p, i) => {
-      const wrap = (a: number): number => { let d = a; while (d > Math.PI / 2) d -= Math.PI; while (d < -Math.PI / 2) d += Math.PI; return d }
-      const dRight = wrap(cur[(i + 1) % L]! - p), dLeft = wrap(cur[(i + L - 1) % L]! - p)
-      return p + dt * (dRight + dLeft) // diffuse toward neighbors (mod pi)
-    })
-    cur = next
-  }
-  return cur
-}
+import { directorWinding } from '@/code/measure/winding'
+import { relaxDirector } from '@/code/dynamics/director-relaxation'
 
 export function persistentSpinorDefect(): { halfInteger: boolean; topologicalConserved: boolean; persists: boolean; spinorHolonomy: boolean; isPersistentSpinor: boolean } {
   const L = 60
@@ -40,7 +21,7 @@ export function persistentSpinorDefect(): { halfInteger: boolean; topologicalCon
   const halfInteger = Math.abs(W0 - 1) < 1e-6 // director winding 1 pi-unit = 1/2 vector winding (a disclination)
 
   // (2)/(3) topological conservation: relax the director, the half-integer winding cannot change continuously
-  const relaxed = relaxDirector(phi, 3000, 0.2)
+  const relaxed = relaxDirector({ phi, steps: 3000, dt: 0.2 })
   const W1 = directorWinding(relaxed)
   const topologicalConserved = Math.abs(W1 - W0) < 1e-3
   const persists = topologicalConserved // a conserved topological charge = a persistent defect

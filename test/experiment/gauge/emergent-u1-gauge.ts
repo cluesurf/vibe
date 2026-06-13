@@ -7,36 +7,21 @@
 // So the discrete charge rule yields emergent ELECTROMAGNETISM. Run: npx tsx code/experiment/p232-emergent-u1-gauge.ts
 
 import { makeRng } from '@/code/tool/rng'
+import {
+  GridGauge as Gauge,
+  makeGridGrid,
+  gridWilsonLoop,
+  gridGaugeTransform,
+} from '@/code/tool/grid-gauge'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const L = 24
 // link gauge field A, Ax[x][y] = phase on the link (x,y)->(x+1,y), Ay similarly for (x,y)->(x,y+1)
-type Gauge = { Ax: number[][]; Ay: number[][] }
-const grid = (): number[][] => Array.from({ length: L }, () => new Array<number>(L).fill(0))
-
-// plaquette flux (curl A) at the cell with lower-left corner (x,y)
-function flux(g: Gauge, x: number, y: number): number {
-  return g.Ax[x]![y]! + g.Ay[(x + 1) % L]![y]! - g.Ax[x]![(y + 1) % L]! - g.Ay[x]![y]!
-}
-// Wilson loop = sum of A around a rectangular loop [x0,x1] x [y0,y1] = sum of enclosed plaquette fluxes
-function wilsonLoop(g: Gauge, x0: number, x1: number, y0: number, y1: number): number {
-  let s = 0
-  for (let x = x0; x < x1; x++) s += g.Ax[x]![y0]!
-  for (let y = y0; y < y1; y++) s += g.Ay[x1]![y]!
-  for (let x = x1 - 1; x >= x0; x--) s -= g.Ax[x]![y1]!
-  for (let y = y1 - 1; y >= y0; y--) s -= g.Ay[x0]![y]!
-  return s
-}
-// gauge transformation A_link -> A + lambda(end) - lambda(start)
-function gaugeTransform(g: Gauge, lam: number[][]): Gauge {
-  const Ax = grid(), Ay = grid()
-  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) {
-    Ax[x]![y] = g.Ax[x]![y]! + lam[(x + 1) % L]![y]! - lam[x]![y]!
-    Ay[x]![y] = g.Ay[x]![y]! + lam[x]![(y + 1) % L]! - lam[x]![y]!
-  }
-  return { Ax, Ay }
-}
+const grid = (): number[][] => makeGridGrid(L)
+const wilsonLoop = (g: Gauge, x0: number, x1: number, y0: number, y1: number): number =>
+  gridWilsonLoop(g, { x0, x1, y0, y1 })
+const gaugeTransform = (g: Gauge, lam: number[][]): Gauge => gridGaugeTransform(g, lam, L)
 
 export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boolean } {
   const rng = makeRng({ seed: 13 })

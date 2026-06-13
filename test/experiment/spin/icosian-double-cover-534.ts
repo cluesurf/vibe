@@ -3,11 +3,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import {
   binaryIcosahedral,
   multiply,
-  conjugate,
   quaternion,
   quaternionKey,
-  type Quaternion,
 } from '@/code/algebra/group/quaternion'
+import { rotationKey } from '@/code/algebra/group/rotation'
 
 // {5,3,4}'s icosahedral rotation symmetry A5 has Schur multiplier Z2, so it has a genuine
 // spinor double cover, the binary icosahedral group 2I (the 600-cell, order 120). The 12
@@ -15,16 +14,6 @@ import {
 // but the PROJECTIVE rep is a spinor, exactly as 2T (order 24) is the spin coin of {3,4,3,4}.
 // So the {5,3,4} hyperbolic bulk CAN carry spin, in the projective rep, and the no-spinor
 // result was only about the direction rep.
-
-const rotationKey = (value: Quaternion): string => {
-  const basis = [quaternion(0, 1, 0, 0), quaternion(0, 0, 1, 0), quaternion(0, 0, 0, 1)]
-  return basis
-    .map((axis) => {
-      const rotated = multiply(multiply(value, axis), conjugate(value))
-      return [rotated.x, rotated.y, rotated.z].map((part) => Math.round(part * 1e4)).join(',')
-    })
-    .join(';')
-}
 
 export default defineExperiment({
   id: 'spin/icosian-double-cover-534',
@@ -44,7 +33,7 @@ export default defineExperiment({
     )
 
     // (2) conjugation collapses the 120 quaternions onto the rotations, 2-to-1, the double cover
-    const rotations = new Set(group.map(rotationKey))
+    const rotations = new Set(group.map((value) => rotationKey(value)))
     const rotationOrder = rotations.size
     const minusOne = quaternion(-1, 0, 0, 0)
     const hasMinusOne = keys.has(quaternionKey(minusOne))

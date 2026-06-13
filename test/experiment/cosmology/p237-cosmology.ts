@@ -4,7 +4,7 @@
 // cosmology, eternal expansion from the hyperbolic growth, the cusp as flat space, peace as the initial state.
 // Run: npx tsx code/experiment/p237-cosmology.ts
 
-import { bfsShells } from '@/code/measure/shells'
+import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -14,9 +14,7 @@ export function cosmology(): { growthRatio: number; exponential: boolean } {
   const N = g.cellCount
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = g.neighbors[i]!.length; if (d > best) { best = d; center = i } }
   const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
-  const mid = shell.slice(2, Math.min(7, shell.length))
-  const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
-  const growthRatio = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
+  const growthRatio = Math.round(branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100) / 100
   const exponential = growthRatio > 1.5
   return { growthRatio, exponential }
 }

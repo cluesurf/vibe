@@ -16,6 +16,7 @@
 
 import { lorentzSafety, latticeAnisotropy } from '@/test/experiment/relativity/lorentz-violation'
 import { swerveDiffusion } from '@/test/experiment/relativity/swerves'
+import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -26,21 +27,6 @@ const GRB_LINEAR_EQG_OVER_PLANCK = 7.6
 const XI1_BOUND = 1 / GRB_LINEAR_EQG_OVER_PLANCK
 // Fermi-LAT quadratic bound, E_QG2 > ~1.3e11 GeV.
 const GRB_QUADRATIC_EQG_GEV = 1.3e11
-
-function logFit(xs: number[], ys: number[]): number {
-  const n = xs.length
-  const lx = xs.map((x) => Math.log(x))
-  const ly = ys.map((y) => Math.log(y))
-  const mx = lx.reduce((a, b) => a + b, 0) / n
-  const my = ly.reduce((a, b) => a + b, 0) / n
-  let sxy = 0
-  let sxx = 0
-  for (let i = 0; i < n; i++) {
-    sxy += (lx[i]! - mx) * (ly[i]! - my)
-    sxx += (lx[i]! - mx) ** 2
-  }
-  return sxy / sxx
-}
 
 export function predictionsVsBounds(input: { seed: number }): {
   modelLinearXi: number
@@ -72,7 +58,7 @@ export function predictionsVsBounds(input: { seed: number }): {
   // (vastly finer than any lab scale) is unobservably small and consistent with cosmic-ray data.
   const densities = [0.5, 1, 2, 4]
   const slopes = densities.map((d) => swerveDiffusion({ density: d, seed: input.seed, trajectories: 200 }).slope)
-  const swerveScalingExponent = logFit(densities, slopes)
+  const swerveScalingExponent = logLogSlope(densities, slopes)
   const swerveVanishesWithDiscreteness = swerveScalingExponent < -0.5
 
   return {

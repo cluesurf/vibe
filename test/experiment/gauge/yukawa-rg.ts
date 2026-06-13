@@ -4,23 +4,17 @@
 //     relation, det(M_e) = det(M_d) at GUT, so (m_d m_s m_b)/(m_e m_mu m_tau) at M_Z = (QCD factor)^3, an
 //     order-10 prediction (observed ~13). Run: npx tsx code/experiment/yukawa-rg.ts
 
+import { qcdRunningMassFactor } from '@/code/dynamics/renormalization-group'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const MZ = 91.19, MGUT = 2e16
 const asMZ = 0.1184 // alpha_s(M_Z)
 
-// 1-loop alpha_s running, alpha_s^-1(mu) = alpha_s^-1(MZ) - (b3/2pi) ln(mu/MZ)
-function asAt(mu: number, b3: number): number {
-  const inv = 1 / asMZ - (b3 / (2 * Math.PI)) * Math.log(mu / MZ)
-  return 1 / inv
-}
 // QCD running-mass factor m(MZ)/m(MGUT) = [alpha_s(MZ)/alpha_s(MGUT)]^(gamma0/(2 b0)), gamma0 = 8 (= 6 C_F),
 // b0 = |b3|. (1-loop, the dominant, QCD-only, the electroweak pieces add ~10-15 percent.)
 function qcdMassFactor(b3: number): number {
-  const asGUT = asAt(MGUT, b3)
-  const exponent = 8 / (2 * Math.abs(b3))
-  return (asMZ / asGUT) ** exponent
+  return qcdRunningMassFactor({ couplingAtReference: asMZ, beta3: b3, referenceScale: MZ, highScale: MGUT })
 }
 
 export function yukawaRG(): { bTauSM: number; bTauMSSM: number; detRatio: number } {

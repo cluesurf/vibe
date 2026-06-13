@@ -9,7 +9,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph, hyperbolicSunflower } from '@/code/substrate/hyperbolic-graph'
-import { Graph, meanDegree } from '@/code/tool/graph'
+import { Graph, meanDegree, mostConnectedNode } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { ballGrowth, meanUnsaturatedGrowthRatio } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -24,22 +24,9 @@ function exponentialReach(growth: Uint32Array): boolean {
   return Number.isFinite(mean) && mean > 1.8
 }
 
-function centralNode(g: Graph): number {
-  let center = 0
-  let best = -1
-  for (let i = 0; i < g.size; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) {
-      best = d
-      center = i
-    }
-  }
-  return center
-}
-
 function evaluate(g: Graph, seed: number): { meanDegree: number; anisotropy: number; reach: boolean } {
   const aniso = lorentzIsotropy({ substrate: g, samples: 3000, rng: makeRng({ seed }) })
-  const growth = ballGrowth({ substrate: g, center: centralNode(g), maxRadius: 12 })
+  const growth = ballGrowth({ substrate: g, center: mostConnectedNode(g.neighbors), maxRadius: 12 })
   return { meanDegree: meanDegree(g), anisotropy: aniso.anisotropy, reach: exponentialReach(growth) }
 }
 

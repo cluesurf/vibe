@@ -7,9 +7,7 @@
 // Run: npx tsx code/experiment/p4-spinor.ts
 
 import { lattice } from '@/code/substrate/lattice'
-import { cellComplexOf, kahlerDirac } from '@/code/operator/dirac'
-import { sparseMatVec, LinearOperator } from '@/code/algebra/linear/sparse'
-import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
+import { cellComplexOf, kahlerDiracZeroModes } from '@/code/operator/dirac'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,20 +18,11 @@ function study(): { smallestMagnitudes: number[]; nearZero: number } {
     signature: 'riemannian',
   })
   const complex = cellComplexOf({ substrate, maxGrade: 2 })
-  const dirac = kahlerDirac({ complex })
-
-  // D^2 as a positive operator: apply D twice.
-  const dSquared: LinearOperator = {
-    size: dirac.rows,
-    apply: ({ x }) => sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
-  }
-  const squared = lowestEigenvalues({ operator: dSquared, count: 16 })
-  const smallestMagnitudes = Array.from(squared, (v) =>
-    Math.round(Math.sqrt(Math.max(0, v)) * 1000) / 1000,
+  const result = kahlerDiracZeroModes({ complex, count: 16, threshold: 0.05 })
+  const smallestMagnitudes = result.smallestMagnitudes.map(
+    (x) => Math.round(x * 1000) / 1000,
   )
-  const nearZero = smallestMagnitudes.filter((x) => x < 0.05).length
-
-  return { smallestMagnitudes, nearZero }
+  return { smallestMagnitudes, nearZero: result.zeroModes }
 }
 
 export default defineExperiment({

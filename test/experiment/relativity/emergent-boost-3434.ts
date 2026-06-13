@@ -7,12 +7,12 @@
 // Run: npx tsx code/experiment/p259-emergent-boost-3434.ts
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
-import { boostEnergyMomentum } from '@/code/measure/rapidity'
+import { addVelocities, boostEnergyMomentum, relativisticEnergy } from '@/code/measure/rapidity'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // continuum (IR) dispersion E = sqrt(m^2 + p^2); a boost of rapidity phi
-const Eof = (m: number, p: number): number => Math.sqrt(m * m + p * p)
+const Eof = (m: number, p: number): number => relativisticEnergy({ mass: m, momentum: p })
 const boost = (E: number, p: number, phi: number): [number, number] => {
   const b = boostEnergyMomentum({ omega: E, wavenumber: p, rapidity: -phi })
   return [b.omega, b.wavenumber]
@@ -31,7 +31,7 @@ export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRel
   // (2) relativistic velocity addition u' = (u+v)/(1+uv), NOT Galilean u+v
   let velocitiesAddRelativistically = true, galileanWrong = false
   for (const u of [0.3, 0.6, 0.9]) for (const v of [0.4, 0.8]) {
-    const rel = (u + v) / (1 + u * v) // relativistic sum, always < 1
+    const rel = addVelocities({ velocity: u, frame: v }) // relativistic sum, always < 1
     const gal = u + v
     if (rel >= 1 || rel <= 0) velocitiesAddRelativistically = false
     if (gal > 1) galileanWrong = true // Galilean would exceed c, relativistic never does

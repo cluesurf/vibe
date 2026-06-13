@@ -11,7 +11,7 @@
 // See the integer-ladder analysis. Run: npx tsx code/experiment/p51-full-ladder.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { modularGraph } from '@/test/experiment/geometry/modular-base'
+import { modularGraph } from '@/code/substrate/modular-group'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { Graph } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'

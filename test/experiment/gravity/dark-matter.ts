@@ -10,7 +10,7 @@
 
 import { cubicLattice } from '@/code/substrate/cubic-lattice'
 import { solveGraphPoisson } from '@/code/operator/graph-laplacian'
-import { linearFit } from '@/code/measure/regression'
+import { rotationCurveFromPotential } from '@/code/measure/rotation-curve'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -65,24 +65,8 @@ export function rotationCurve(input: { side: number; nonlocal: number }): { r: n
       phiR.push((sum[bn] ?? 0) / (cnt[bn] ?? 1))
     }
   }
-  // v^2(r) = r * |dphi/dr| (circular-orbit speed squared).
-  const rr: number[] = []
-  const v2: number[] = []
-  for (let k = 1; k < r.length - 1; k++) {
-    const dphi = ((phiR[k + 1] ?? 0) - (phiR[k - 1] ?? 0)) / ((r[k + 1] ?? 1) - (r[k - 1] ?? 1))
-    rr.push(r[k] ?? 0)
-    v2.push((r[k] ?? 0) * Math.abs(dphi))
-  }
-  // Slope of v^2 over the outer half (negative = Keplerian decline, near zero = flat).
-  const half = Math.floor(rr.length / 2)
-  const outerSlope = linearFit({ xs: rr.slice(half), ys: v2.slice(half) }).slope
-  // Flatness ratio: mean v^2 over the outer third versus the inner third. Below one
-  // is a Keplerian decline, at or above one is a flat (or rising) curve.
-  const third = Math.max(1, Math.floor(v2.length / 3))
-  const innerMean = v2.slice(0, third).reduce((a, b2) => a + b2, 0) / third
-  const outerMean = v2.slice(v2.length - third).reduce((a, b2) => a + b2, 0) / third
-  const flatnessRatio = innerMean > 0 ? outerMean / innerMean : 0
-  return { r: rr, v2, outerSlope, flatnessRatio }
+  // v^2(r) = r * |dphi/dr| (circular-orbit speed squared), with the outer slope and flatness ratio.
+  return rotationCurveFromPotential({ radii: r, potential: phiR })
 }
 
 export default defineExperiment({

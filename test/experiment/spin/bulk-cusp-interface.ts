@@ -7,6 +7,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { rootsD4 } from '@/code/algebra/group/root-system'
 
 // (A) SO(4) = SU(2)_L x SU(2)_R -> diagonal SU(2) = SO(3) (rotations fixing the radial/time direction).
 // The 4D vector is the bifundamental (2,2). The 4D Dirac spinor is (2,1) + (1,2). Under the DIAGONAL SU(2),
@@ -25,8 +26,7 @@ function spinorBranching(): { fourToThree: string; ok: boolean } {
 // (B) project the 24 D4 directions (+-e_i+-e_j) onto the 3D tangent space orthogonal to a radial (ideal)
 // direction, and count the distinct resulting directions and their symmetry.
 function directionProjection(radial: number[]): { distinct: number; lengths: number[] } {
-  const dirs: number[][] = []
-  for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) for (const sa of [1, -1]) for (const sb of [1, -1]) { const v = [0, 0, 0, 0]; v[a] = sa; v[b] = sb; dirs.push(v) }
+  const dirs = rootsD4()
   const rn = Math.hypot(...radial); const rhat = radial.map((x) => x / rn)
   const proj = dirs.map((d) => { const dot = d.reduce((s, x, i) => s + x * rhat[i]!, 0); return d.map((x, i) => x - dot * rhat[i]!) })
   // cluster by direction (unit vector up to sign), collect lengths

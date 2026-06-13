@@ -11,43 +11,25 @@
 // effective metric. The connection from fills to n(x) is asserted in the prose, not computed here.
 // Run: npx tsx code/experiment/p88-effective-metric.ts
 
-import { rayDeflection } from '@/code/dynamics/graded-index-ray'
+import { rayDeflection, softenedMassIndexField } from '@/code/dynamics/graded-index-ray'
 import { fieldLaplacianProfile } from '@/code/measure/field-laplacian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const SOFT = 1 // softening so the well is finite at the center (mass at the origin)
-
-// The effective index of the medium: the uniform background plus the matter's contribution,
-// which falls off with distance (the matter sources a fill potential, the P16 Green's function).
-// Higher near the mass, so a ray bends toward it.
-function indexAt(x: number, y: number, mass: number): number {
-  return 1 + mass / (Math.hypot(x, y) + SOFT)
-}
-
-function indexGradient(x: number, y: number, mass: number): [number, number] {
-  const r = Math.hypot(x, y)
-  if (r < 1e-9) return [0, 0]
-  const g = -mass / ((r + SOFT) * (r + SOFT))
-  return [g * (x / r), g * (y / r)]
-}
 
 // Trace a ray (a geodesic of the effective metric) through the hand-built 1/r index field and read
 // off the deflection toward the mass at the origin (positive means it bent toward the matter).
 function deflectionAngle(input: { impact: number; mass: number }): number {
   const { impact, mass } = input
-  return rayDeflection({
-    impact,
-    index: (x, y) => indexAt(x, y, mass),
-    indexGradient: (x, y) => indexGradient(x, y, mass),
-  })
+  const field = softenedMassIndexField({ mass })
+  return rayDeflection({ impact, index: field.index, indexGradient: field.indexGradient })
 }
 
 // The effective Gaussian curvature, the Laplacian of ln(index), concentrated where the fills
 // (hence the matter) are. Sampled on a grid around the mass. Returns the peak cell and the total.
 function effectiveCurvature(mass: number): { peakR: number; total: number } {
+  const field = softenedMassIndexField({ mass })
   const profile = fieldLaplacianProfile({
-    field: (x, y) => Math.log(indexAt(x, y, mass)),
+    field: (x, y) => Math.log(field.index(x, y)),
     radius: 20,
   })
   return { peakR: profile.peakRadius, total: profile.total }
