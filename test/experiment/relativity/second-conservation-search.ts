@@ -14,7 +14,6 @@
 // If only Q is conserved AND no spontaneous order appears, momentum does NOT emerge from the bare rule and
 // must be added. Run: npx tsx code/experiment/p146-second-conservation-search.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -148,28 +147,6 @@ export function secondConservationSearch(input?: { L?: number }): {
     momentumEmergent,
     solved,
   }
-}
-
-export function main(): void {
-  const r = secondConservationSearch()
-  console.log('P146: can a second conserved current (momentum) EMERGE from the five things?')
-  console.log('')
-  console.log('  (A) what the rule conserves:')
-  for (const c of r.conserved) console.log(`    ${c.name.padEnd(28)} relStd ${c.relStd.toExponential(1)}  conserved: ${c.isConserved}`)
-  console.log(`    => non-trivial conservation laws: ${r.conservationLawCount} (only the U(1) charge: ${r.onlyChargeConserved})`)
-  console.log('')
-  console.log('  (B) scan for spontaneous order (a z=1 Goldstone carrier):')
-  for (const s of r.staggeredScan) console.log(`    arrow ${s.arrow.toFixed(3)}: staggered (Neel) correlation range ${s.staggeredRange}`)
-  console.log(`    => long-range order anywhere (a Goldstone): ${r.spontaneousOrder}`)
-  console.log('')
-  console.log(`  momentum / a second current EMERGES from the bare rule: ${r.momentumEmergent}`)
-  if (!r.momentumEmergent) console.log('  => NO. Only the U(1) charge is conserved and there is no spontaneous order, so a relativistic')
-  if (!r.momentumEmergent) console.log('     massless mode needs momentum ADDED (a velocity/current degree of freedom), not the bare five.')
-  console.log(`  SOLVED (search conclusive): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

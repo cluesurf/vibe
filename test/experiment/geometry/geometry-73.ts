@@ -3,8 +3,9 @@
 // interior cells have degree 7. Contrast, {5,3,4} is a 3D bulk, {3,4,3,4} a 4D bulk, {7,3} is 2D.
 // Run: npx tsx code/experiment/p200-geometry-73.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function geometry73(): { specDim4: number; growth: number; interiorDegree: number } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 20000 })
@@ -38,7 +39,33 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
   return { specDim4, growth, interiorDegree }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = geometry73()
-  console.log(`SOLVED: {7,3} 2D (spec dim ${r.specDim4}), exponential growth ${r.growth}, degree ${r.interiorDegree}`)
-}
+// The {7,3} heptagrid is 2D hyperbolic. Its spectral dimension reads near 2, its shells
+// grow exponentially (the Margenstern growth, the hyperbolic hallmark), and interior cells
+// have degree 7. These are known properties of the tiling, measured here, so L1.
+export default defineExperiment({
+  id: 'geometry/geometry-73',
+  title: 'the {7,3} heptagrid is 2D hyperbolic with exponential shell growth and degree 7',
+  category: 'geometry',
+  substrates: 'any',
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = geometry73()
+    const is2D = Math.abs(r.specDim4 - 2) < 0.6
+    const exponential = r.growth > 1.5
+    const degree7 = r.interiorDegree === 7
+    const ok = is2D && exponential && degree7
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {7,3} heptagrid reads spectral dimension near 2, grows exponentially, and has interior degree 7',
+      metrics: {
+        spectralDimension: r.specDim4,
+        shellGrowthRatio: r.growth,
+        interiorDegree: r.interiorDegree,
+      },
+      notes:
+        'L1, known properties of the heptagrid measured here. The exponential growth is the hyperbolic signature, contrasting the polynomial growth of a flat lattice.',
+    })
+  },
+})

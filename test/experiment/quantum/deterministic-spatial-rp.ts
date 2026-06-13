@@ -9,7 +9,6 @@
 // matrix H[i][j] = C(i+j) is positive semi-definite, the Osterwalder-Schrader spatial condition, a
 // positive-norm particle spectrum, a genuine quantum field. Run: npx tsx code/experiment/p169-deterministic-spatial-rp.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -105,28 +104,6 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
     contrastWithStochastic: 'stochastic rule (P133/P134): contact-dominated, range ~1, RP inconclusive',
     solved,
   }
-}
-
-export function main(): void {
-  const r = deterministicSpatialRP()
-  console.log('P169: spatial reflection positivity on the DETERMINISTIC field (the decisive gate)')
-  console.log('')
-  console.log('  mass     correlation range   Hankel min eig / C(0)   long-range   PSD (reflection positive)')
-  for (const x of r.results) {
-    console.log(`  ${x.mass.toFixed(2)}     ${String(x.range).padEnd(17)}   ${x.hankelMinEig.toExponential(2).padEnd(21)}   ${String(x.longRange).padEnd(10)}   ${x.psd}`)
-  }
-  console.log('')
-  console.log(`  LONG-RANGE for small mass (a real propagating particle, unlike the stochastic field): ${r.longRangeForSmallMass}`)
-  console.log('  the spectral weight 1/(2 omega) is POSITIVE for every mode = the Kallen-Lehmann / RP condition, manifest')
-  console.log(`  REFLECTION POSITIVE (positive spectral measure + Hankel PSD within the lattice-UV floor): ${r.reflectionPositive}`)
-  console.log(`  contrast: ${r.contrastWithStochastic}`)
-  console.log('')
-  console.log(`  the deterministic field passes the spatial-RP gate that the stochastic rule could not: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

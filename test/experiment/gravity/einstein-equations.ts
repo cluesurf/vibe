@@ -16,7 +16,6 @@
 // plugged-in operator, not evidence that the substrate generates general relativity.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p32-einstein-equations.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { einsteinOp, gravitonFromAction } from '@/test/experiment/gravity/graviton-from-action'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -70,38 +69,6 @@ export function gravitonSpeed(kMag: number): number {
   const r = gravitonFromAction({ k: [kMag, 0, 0] })
   const omega = Math.sqrt(2 * r.gravitonEigenvalue)
   return omega / kMag
-}
-
-export function main(): void {
-  console.log('P32: the Einstein equations as equations of motion, and graviton dynamics')
-  console.log('')
-  console.log('  Conservation (contracted Bianchi identity): k . G[h] for random perturbations h')
-  for (const k of [[0, 0, 1], [1, 1, 0], [2, 1, 3]]) {
-    const res = bianchiResidual({ k, samples: 50, seed: 1 })
-    console.log(`    k=(${k.join(',')}): worst |k . G[h]| / |h| = ${res.toExponential(1)} (zero = transverse, conservation holds)`)
-  }
-  console.log('')
-  console.log('  The Newtonian limit: the static Einstein equation is the Poisson equation, whose')
-  console.log('  point-source solution is the 1/r potential (validated in P16, R^2 0.997 in 3D).')
-  console.log('  So Newton gravity IS the static weak-field Einstein equation.')
-  console.log('')
-  console.log('  Graviton dynamics (vacuum wave speed omega/|k|, the speed of light):')
-  for (const k of [0.25, 0.5, 1.0]) {
-    console.log(`    |k| = ${k}: omega/|k| = ${gravitonSpeed(k).toFixed(4)}`)
-  }
-  console.log('  The speed is one and frequency-independent, by construction of the assumed operator.')
-  console.log('')
-  console.log('  ANALYTIC CHECK (assumes the linearized Einstein operator G[h] and the 1/r Poisson')
-  console.log('  solution, NOT emergent): the transversality, the static Newtonian limit, and the')
-  console.log('  massless wave speed are all properties of the plugged-in operator, self-consistent.')
-  console.log('  They do not show the substrate derives general relativity.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

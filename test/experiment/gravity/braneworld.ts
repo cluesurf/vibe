@@ -14,7 +14,6 @@
 // tens of microns, so a bulk's extra dimension must be smaller than that, or the substrate is 3D.
 // Run: npx tsx code/experiment/p90-braneworld.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -99,29 +98,6 @@ export function braneworld(): {
     distinguishable,
     solved,
   }
-}
-
-export function main(): void {
-  const r = braneworld()
-  console.log('P90: short-range gravity test, 3D substrate versus 4D bulk')
-  console.log('')
-  console.log('  force-law exponent (inverse-square is -2, 4D is -3):')
-  console.log(`    bare 3D substrate:  short ${r.substrateShortExponent.toFixed(2)}   long ${r.substrateLongExponent.toFixed(2)}  (flat at -2: ${r.substrateFlat})`)
-  console.log(`    4D bulk + 3D brane: short ${r.braneShortExponent.toFixed(2)}   long ${r.braneLongExponent.toFixed(2)}  (crossover: ${r.braneShowsCrossover})`)
-  console.log('')
-  console.log(`  crossover scale (in units of the extra-dimension size L): ${r.crossoverScaleOverL.toFixed(2)}`)
-  console.log('')
-  console.log('  the signature: a short-range deviation from inverse-square means a 4D bulk;')
-  console.log('  pure inverse-square at all scales means a bare 3D substrate.')
-  console.log(`  distinguishable: ${r.distinguishable}`)
-  console.log('  (gravity is inverse-square down to tens of microns, so any extra dimension is')
-  console.log('   smaller than that, or the substrate is simply 3D)')
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

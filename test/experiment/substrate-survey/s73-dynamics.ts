@@ -3,8 +3,9 @@
 // and the U(1) charge Gauss law holds. All POSITIVE. (Note degree 7 = 1 mod 3, so the mod-3 wave invariant
 // differs from {5,3,4}/{3,4,3,4}, but charge is still conserved.) Run: npx tsx code/experiment/s73-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Dynamics(): { chargeConserved: boolean; lightSpeed: number; churns: boolean } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
@@ -41,7 +42,27 @@ export function s73Dynamics(): { chargeConserved: boolean; lightSpeed: number; c
   return { chargeConserved, lightSpeed, churns }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s73Dynamics()
-  console.log(`SOLVED: {7,3} dynamics POSITIVE, charge conserved ${r.chargeConserved}, light cone z=${r.lightSpeed}, churns ${r.churns}, U(1) Gauss law holds. The rule ports fully.`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/s73-dynamics',
+  title: 'the directional rule ports to the 2D {7,3} heptagrid, conserving charge and churning',
+  category: 'substrate-survey',
+  substrates: ['73'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s73Dynamics()
+    const ok = r.chargeConserved && r.churns
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'directional streaming conserves total charge exactly and the mod-3 wave churns on the {7,3} heptagrid, so the rule is substrate-general',
+      metrics: {
+        chargeConserved: r.chargeConserved ? 1 : 0,
+        churns: r.churns ? 1 : 0,
+        lightSpeed: r.lightSpeed,
+      },
+      notes:
+        'L1, charge conservation is exact integer streaming and churn is measured. The initial states are a fixed-seed pseudo-random fill, deterministic but one configuration. The light speed z=1 is hard-set in the function, not measured, so it is reported only and not load-bearing. Degree 7 = 1 mod 3, so the mod-3 wave invariant differs from {5,3,4}/{3,4,3,4} but charge is still conserved.',
+    })
+  },
+})

@@ -6,7 +6,8 @@
 // behavior. This completes the persistence-to-particle story (PS5) on top of p257.
 // Run: npx tsx code/experiment/p258-defect-particles-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Z = { re: number; im: number }
 function winding(theta: number[]): number {
@@ -60,7 +61,34 @@ export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersis
   return { pairAnnihilates, likeChargesPersist, chargeConserved, particleLike }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = defectParticles()
-  console.log(`SOLVED DEFECT-PARTICLES: pair-annihilates ${r.pairAnnihilates}, like-persist ${r.likeChargesPersist}, charge-conserved ${r.chargeConserved}, particle-like ${r.particleLike} => ${r.particleLike ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'spin/defect-particles-3434',
+  title: 'topological defects annihilate in opposite-charge pairs and persist as like charges',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = defectParticles()
+    const ok =
+      r.pairAnnihilates && r.likeChargesPersist && r.chargeConserved
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a defect and an anti-defect (total winding zero) relax to vacuum and annihilate, two like defects (total winding two) cannot decay and lock their energy above the topological minimum, and the total winding is conserved at every step, exactly particle-antiparticle behaviour',
+      metrics: {
+        pairAnnihilates: r.pairAnnihilates ? 1 : 0,
+        likeChargesPersist: r.likeChargesPersist ? 1 : 0,
+        chargeConserved: r.chargeConserved ? 1 : 0,
+      },
+      control: {
+        // the like-charge pair is the negative control for annihilation: same
+        // relaxation, but the conserved total winding forbids decay, so the energy
+        // stays up while the opposite-charge pair falls to vacuum.
+        likeChargesPersist: r.likeChargesPersist ? 1 : 0,
+      },
+      notes:
+        'L2, known physics (topological defects in a complex order parameter, the Kibble-Zurek and XY-model picture). The like-vs-opposite charge pair is a genuine control. HONEST CAVEAT: this is a heat-flow relaxation on a 1D phase ring, NOT the directional lattice-gas base rule, so it shows the topological-charge bookkeeping, not that the base dynamics produces these defects. Deterministic given the seeded fields.',
+    })
+  },
+})

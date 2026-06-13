@@ -14,7 +14,6 @@
 // All three are read off the discrete operator on the lattice, so this is the genuinely discrete
 // graviton, not the continuum operator. Run: npx tsx code/experiment/p73-discrete-graviton.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
@@ -352,39 +351,6 @@ function countPolarizationsFromSpectrum(L: number, kn: number): { physical: numb
   for (const mode of [ttPlus, ttCross]) if (isPropagatingEigenvector(mode)) physical += 1
 
   return { physical, gauge, eigenvalues }
-}
-
-export function main(): void {
-  const r = discreteGraviton({ seed: 1 })
-  console.log('P73: the fully-discrete graviton')
-  console.log('')
-  console.log('  the discrete linearized Einstein operator on a lattice:')
-  console.log('')
-  console.log(`  1. gauge invariant (annihilates a pure-gauge h = d xi): residual ${r.gaugeResidual.toExponential(2)}`)
-  console.log(`  2. massless (a constant perturbation costs nothing, no mass term): residual ${r.massTermResidual.toExponential(2)}`)
-  console.log(`     dispersion eigenvalue / k^2 across wavenumbers: ${r.planeWaveEigenOverK2.map((x) => x.toFixed(3)).join(', ')} (flat = massless)`)
-  console.log(`  3. spin two: ${r.polarizations} transverse-traceless modes verified as propagating eigenvectors of the operator, and ${r.polarizationGaugeModes} gauge zero-modes`)
-  console.log(`     measured spectrum: ${r.polarizationSpectrum.map((x) => x.toFixed(2)).join(', ')} (4 gauge zeros, 1 unphysical trace at -1, the radiative pair at +1/2)`)
-  console.log('')
-  console.log(`  fully-discrete graviton solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The graviton is built directly on the discrete lattice, not taken from the continuum.')
-  console.log('  The discrete linearized Einstein operator annihilates every pure-gauge perturbation, an')
-  console.log('  infinitesimal change of coordinates, to machine precision, which is the spin-2 gauge')
-  console.log('  symmetry (the discrete face of general covariance) and is what keeps the graviton')
-  console.log('  massless. It carries no mass term: a constant perturbation costs nothing, and a plane')
-  console.log('  wave costs an amount proportional to k squared with no gap, so the dispersion runs')
-  console.log('  through the origin and the graviton moves at the speed of light. And for any direction')
-  console.log('  there are exactly two transverse-traceless polarizations, the two helicities of a')
-  console.log('  massless spin-2 field. The remaining harder step is the second variation of the full')
-  console.log('  discrete action on a Poisson sprinkling, where the fluctuations are large.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

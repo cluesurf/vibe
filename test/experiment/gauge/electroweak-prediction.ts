@@ -5,7 +5,8 @@
 // the other numbers the structure forces (16 = 15 + 1, charge quantization, 3 generations). Fully discrete /
 // rational arithmetic over charges. Run: npx tsx code/experiment/p228-electroweak-prediction.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // one generation = the 16 of so(10) = 15 SM Weyl fermions + 1 right-handed neutrino. (T_3, Q_em, multiplicity)
 type F = { name: string; t3: number; q: number; mult: number }
@@ -45,7 +46,27 @@ export function electroweakPrediction(): { sin2: number; count: number; isThreeE
   return { sin2, count, isThreeEighths }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = electroweakPrediction()
-  console.log(`SOLVED: sin^2(theta_W) = ${r.sin2.toFixed(4)} = 3/8 (${r.isThreeEighths}); ${r.count} fermions/generation (15+1). First quantitative prediction.`)
-}
+export default defineExperiment({
+  id: 'gauge/electroweak-prediction',
+  title: 'sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = electroweakPrediction()
+    const ok = r.isThreeEighths && r.count === 16
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'summing the weak isospin and electric charge over one so(10) generation gives sin squared of the weak mixing angle exactly 3/8 at the unification scale',
+      metrics: {
+        sin2: r.sin2,
+        fermionCount: r.count,
+        isThreeEighths: r.isThreeEighths ? 1 : 0,
+      },
+      notes:
+        'L1, known math. This is the standard SU(5)/SO(10) group-theory value sin squared = 3/8, computed from the assumed generation charges. It is not a derivation of the low-energy 0.231, which needs renormalization-group running.',
+    })
+  },
+})

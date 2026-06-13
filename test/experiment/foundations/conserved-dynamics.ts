@@ -13,7 +13,6 @@
 // and polarizing fills CREATE pairs from peace which sharing fills then ANNIHILATE, all at fixed Q.
 // Run: npx tsx code/experiment/p94-conserved-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -224,31 +223,6 @@ export function conservedDynamics(): {
     pairsCreateAndAnnihilate,
     solved,
   }
-}
-
-export function main(): void {
-  const r = conservedDynamics()
-  console.log('P94: the conserved dynamics on the real {5,3,4} crystal')
-  console.log('')
-  console.log(`  ${r.cells} cells, the discrete conserved exchange (hop / polarize / share)`)
-  console.log('')
-  console.log('  charge conserved exactly under every regime:')
-  console.log(`    diffusion ${r.conservedDiffusion}, pumping ${r.conservedPump}, pairs ${r.conservedPairs}`)
-  console.log('')
-  console.log('  diffusion drains a pocket (unbiased hops spread it):')
-  console.log(`    charge within the center fell ${r.absChargeStart} -> ${r.absChargeDiffused}, drains ${r.diffusionDrains}`)
-  console.log('')
-  console.log('  pumping concentrates (biased hops pull + in, push - out):')
-  console.log(`    net center charge: pumped ${r.netCenterPumped}, diffused ${r.netCenterDiffused}, concentrates ${r.pumpingConcentrates}`)
-  console.log('')
-  console.log('  pairs create from peace then annihilate (conserving Q = 0 throughout):')
-  console.log(`    created ${r.pairsCreated} charged cells, then down to ${r.pairsAfterAnnihilation}: ${r.pairsCreateAndAnnihilate}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -8,7 +8,6 @@
 // Whether such a term emerges, and at what scale, is an open question. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p18-dark-matter.ts
 
-import { pathToFileURL } from 'node:url'
 import { cubicLattice } from '@/test/experiment/gravity/newtonian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -147,34 +146,6 @@ export function rotationCurve(input: { side: number; nonlocal: number }): { r: n
   const outerMean = v2.slice(v2.length - third).reduce((a, b2) => a + b2, 0) / third
   const flatnessRatio = innerMean > 0 ? outerMean / innerMean : 0
   return { r: rr, v2, outerSlope: varx === 0 ? 0 : cov / varx, flatnessRatio }
-}
-
-export function main(): void {
-  console.log('P18: dark matter from nonlocal gravity (flat rotation curves, no dark particle)')
-  console.log('')
-  for (const w of [0, 1.5]) {
-    const r = rotationCurve({ side: 27, nonlocal: w })
-    const label = w === 0 ? 'Newtonian (local gravity)' : `nonlocal gravity (1/L^2 weight ${w})`
-    console.log(`  ${label}:`)
-    console.log('    r:    ' + r.r.map((x) => x.toFixed(0).padStart(5)).join(''))
-    console.log('    v^2:  ' + r.v2.map((x) => x.toFixed(2).padStart(5)).join(''))
-    console.log(`    outer/inner v^2 ratio ${r.flatnessRatio.toFixed(2)} (below 1 = Keplerian decline, at or above 1 = flat or rising)`)
-    console.log('')
-  }
-  console.log('  ANALYTIC CHECK (assumes a hand-chosen nonlocal 1/L^2 term, NOT emergent):')
-  console.log('  with local (Newtonian) gravity the rotation curve falls with radius, the')
-  console.log('  Keplerian decline. With the ASSUMED nonlocal (infrared-enhanced) term the curve')
-  console.log('  FLATTENS. This flattening is self-consistent with the assumed term. It is a')
-  console.log('  demonstration of the mechanism, not a derivation. The substrate is not shown to')
-  console.log('  produce the nonlocal term, the weight is a free input, and whether the scale lands')
-  console.log('  at galactic radii (true MOND phenomenology) is an open question, not tested here.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

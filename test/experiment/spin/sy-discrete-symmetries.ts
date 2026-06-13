@@ -5,7 +5,8 @@
 // Dirac walk run backward recovers the past exactly. (3) the massless walk commutes with parity (R<->L, x->-x).
 // Run: npx tsx code/experiment/p250-sy-discrete-symmetries.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function d4Roots(): number[][] {
   const r: number[][] = []
@@ -78,8 +79,33 @@ export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClose
   return { parityClosed, reflectionClosed, timeReversal, parityCommutes, cptExact }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = syDiscreteSymmetries()
-  const pass = r.parityClosed && r.reflectionClosed && r.timeReversal && r.parityCommutes && r.cptExact
-  console.log(`SOLVED SY7: parity ${r.parityClosed && r.reflectionClosed}, time-reversal ${r.timeReversal}, parity-commutes ${r.parityCommutes}, CPT ${r.cptExact} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'spin/sy-discrete-symmetries',
+  title: 'C, P, T, and CPT are exact on the {3,4,3,4} substrate',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = syDiscreteSymmetries()
+    const ok =
+      r.parityClosed &&
+      r.reflectionClosed &&
+      r.timeReversal &&
+      r.parityCommutes &&
+      r.cptExact
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the D4 root set is closed under negation and every coordinate reflection (exact parity), the unitary Dirac walk run forward then backward recovers the start to machine precision (exact time reversal), and the massless step commutes with parity, so C, P, T and CPT are all exact on the substrate',
+      metrics: {
+        parityClosed: r.parityClosed ? 1 : 0,
+        reflectionClosed: r.reflectionClosed ? 1 : 0,
+        timeReversal: r.timeReversal ? 1 : 0,
+        parityCommutes: r.parityCommutes ? 1 : 0,
+      },
+      notes:
+        'L2. Parity closure is an exact structural fact about the D4 roots (a consistency check). Time reversal and parity-commutation are MEASURED from the unitary Dirac walk to better than 1e-12, which is the substantive content (exact reversibility of the rule). It reproduces the known exact-CPT property of a unitary quantum walk on a symmetric coin, not a novel emergence. C (charge symmetry) is asserted from the conserving rule, not separately measured here.',
+    })
+  },
+})

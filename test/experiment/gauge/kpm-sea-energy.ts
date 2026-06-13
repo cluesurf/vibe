@@ -6,7 +6,8 @@
 // If Delta E_sea RISES as the soliton sharpens (R -> small), the fermion adds POSITIVE stiffness -> the rule's
 // fermion supplies a STABILIZING term (the Skyrme sign). Run: npx tsx code/experiment/p216-kpm-sea-energy.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
 import { newCx } from '@/code/algebra/linear/complex-vector'
 import {
@@ -59,7 +60,28 @@ export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolea
   return { deltaE, hasMinimum }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = kpmSeaEnergy()
-  console.log(`RESULT: Delta E_sea ${r.deltaE.map((d) => d[1]).join("/")}, interior minimum (Skyrme>0) ${r.hasMinimum}`)
-}
+export default defineExperiment({
+  id: 'gauge/kpm-sea-energy',
+  title: 'the 3D Dirac sea energy of a texture soliton, probed for an interior minimum, the Skyrme sign',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = kpmSeaEnergy()
+    const first = r.deltaE[0]?.[1] ?? 0
+    const last = r.deltaE[r.deltaE.length - 1]?.[1] ?? 0
+    return verdict({
+      status: r.hasMinimum ? 'pass' : 'open',
+      claim:
+        'the fermion sea energy of a 3D texture soliton is estimated by the kernel polynomial method against soliton width, and an interior minimum would mean a positive stabilizing Skyrme coefficient',
+      metrics: {
+        firstDeltaSea: first,
+        lastDeltaSea: last,
+        hasInteriorMinimum: r.hasMinimum ? 1 : 0,
+      },
+      notes:
+        'L2, known method, the kernel polynomial estimate of a Dirac sea energy. It uses a stochastic trace over pseudo-random Rademacher probe vectors, so the result is a statistical estimate, not a deterministic-base quantity. If no interior minimum appears the Skyrme sign is not cleanly isolated, reported open rather than a forced pass.',
+    })
+  },
+})

@@ -15,7 +15,6 @@
 // same integration logic that makes a cluster a genuine higher vibe (P57, P58).
 // Run: npx tsx code/experiment/p59-nested-selves.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeGraph, Graph } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -147,41 +146,6 @@ export function nestedSelves(input: { seed: number }): {
     // the body away from the wound is undisturbed (the higher self keeps its identity).
     solved: smallWoundHeals > 0.85 && wholeCellPersists < 0.2 && bodyIntegrity > 0.95,
   }
-}
-
-export function main(): void {
-  const r = nestedSelves({ seed: 1 })
-  console.log('P59: nested selves (cells in a body)')
-  console.log('')
-  console.log('  A modular mesh of 30 cohesive cells (a self made of cells). Flip a fraction of one')
-  console.log('  cell, re-settle, and watch how much returns to the body and how intact the rest stays.')
-  console.log('')
-  console.log('  fraction of cell flipped | cell returns to body | rest of body intact')
-  for (const b of r.byFraction) {
-    console.log(`            ${(b.fraction * 100).toFixed(0).padStart(3)}%          |        ${b.cellRecovery.toFixed(2)}         |       ${b.bodyIntegrity.toFixed(2)}`)
-  }
-  console.log('')
-  console.log(`  small wound heals (homeostasis):     ${r.smallWoundHeals.toFixed(2)}`)
-  console.log(`  whole-cell flip persists (autonomy): ${r.wholeCellPersists.toFixed(2)} returns, so it KEEPS its new identity`)
-  console.log(`  body away from the wound undisturbed: ${r.bodyIntegrity.toFixed(2)}`)
-  console.log(`  nested selves solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  A small wound inside a cell heals: the cell\'s internal cohesion pulls the flipped')
-  console.log('  parts back to the body\'s pattern (homeostasis). Flipping a whole cell persists: its')
-  console.log('  cohesion makes the flipped state stable too, and the weak outside coupling cannot')
-  console.log('  undo it, so the cell keeps a new identity (autonomy), like a cell holding its type or')
-  console.log('  a growth that no longer obeys the body. The crossover from healed to autonomous is a')
-  console.log('  threshold in how much of the cell is hit, the same integration logic that makes a')
-  console.log('  cluster a genuine higher vibe. And the body away from the wound is undisturbed, so')
-  console.log('  the higher self keeps its identity through it. A self made of selves: cells in a body,')
-  console.log('  and the same shape repeats for organs in a being and beings in a greater whole.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

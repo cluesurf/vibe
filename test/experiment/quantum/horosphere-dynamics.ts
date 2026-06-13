@@ -13,7 +13,6 @@
 //       conservation law), not the geometry (P134, P136).
 // Run: npx tsx code/experiment/p144-horosphere-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -215,27 +214,6 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
     horoIsMassive,
     solved,
   }
-}
-
-export function main(): void {
-  const r = horosphereDynamics()
-  console.log('P144: the dynamics on the emergent FLAT layer (a horosphere)')
-  console.log('')
-  console.log(`  horosphere lattice: ${r.horoCells} cells (a flat 2D sheet from the {5,3,4})`)
-  console.log('')
-  console.log(`  STATIC field correlation range on the horosphere: ${r.correlationRange} site(s) (<= 2 = MASSIVE): ${r.horoIsMassive}`)
-  console.log('  => the field is MASSIVE (contact-dominated) on the ACTUAL emergent flat layer, so the')
-  console.log('     masslessness gap is the RULE, not the geometry. It holds on the curved bulk, the flat 1D')
-  console.log('     chain (P134), AND the flat 2D horosphere. A relativistic massless mode needs a SECOND')
-  console.log('     conservation law (momentum, P137), confirmed independent of geometry.')
-  console.log('')
-  console.log(`  (transport: MSD exponents bulk ${r.bulkMsdExp.toFixed(2)}, horo ${r.horoMsdExp.toFixed(2)} are SATURATED here and not conclusive,`)
-  console.log('   the established contrast is the bulk-ballistic sliver P123 vs the flat-diffusive dispersion P137.)')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

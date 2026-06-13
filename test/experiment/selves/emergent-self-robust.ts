@@ -25,7 +25,6 @@
 //       as no-attractors demands. Intrinsic healing from redundancy exists too (P109) but is partial here.
 // Run: npx tsx code/experiment/p178-emergent-self-robust.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -258,29 +257,6 @@ export function emergentSelfRobust(input?: { n?: number }): {
     finiteLifetime,
     solved,
   }
-}
-
-export function main(): void {
-  const r = emergentSelfRobust()
-  console.log('P178: the robust, non-hand-placed self (honest hyperbolic geometry, conserving maintenance)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells. A self is a net-charged, self-maintaining pattern, not a blob`)
-  console.log('  (hyperbolic geometry forbids compact low-boundary blobs).')
-  console.log('')
-  console.log(`  (1) STRUCTURE EMERGES: cohesion builds a self of ${r.emergentCluster} vs shuffled null ${r.nullCluster}: ${r.structureEmerges}`)
-  console.log(`  (2) CONSERVING MAINTENANCE HOLDS THE SELF: maintained fidelity ${(r.maintainedFidelity * 100).toFixed(0)}% vs unmaintained ${(r.unmaintainedFidelity * 100).toFixed(0)}%: ${r.maintenanceHoldsSelf}`)
-  console.log(`      total charge exactly conserved by the balanced refill (P171's restore was not): ${r.maintainedConserved}`)
-  console.log(`      cost ${r.workPerBeat.toFixed(1)} creation events per beat (maintenance costs work, P107)`)
-  console.log(`  (3) LIFETIME: cohesion holds ${(r.cohesiveLocalization * 100).toFixed(0)}% local vs diffusion ${(r.diffusiveLocalization * 100).toFixed(0)}%, longer-lived but finite: ${r.persistsLongerThanDiffusion && r.finiteLifetime}`)
-  console.log('')
-  console.log('  => the self EMERGES (not drawn), and CONSERVING maintenance holds it at full fidelity (not a')
-  console.log('     hand-coded charge-from-nothing restore), the material flowing through while the form')
-  console.log('     persists. Honest limits, no compact blobs in H^3, no free permanence without work.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

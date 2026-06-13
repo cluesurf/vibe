@@ -6,7 +6,8 @@
 // rescaling. Reproducing the exact SM beta functions needs gauge + matter on the mesh (the open dynamical sim).
 // Run: npx tsx code/experiment/rg-from-coarse-graining.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // 1D Ising decimation RG, integrate out every other spin, the coupling renormalizes as K' = (1/2) ln cosh(2K).
 // This is a coupling FLOWING purely from coarse-graining, the simplest exact RG, with a real beta function.
@@ -47,7 +48,28 @@ export function rgFromCoarseGraining(): { flows: boolean; betaSign: number } {
   return { flows, betaSign }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = rgFromCoarseGraining()
-  console.log(`SOLVED: coarse-graining generates a coupling flow with a beta function (flows ${r.flows}), and the bulk radial direction IS that coarse-graining (holographic RG). The running is a derived geometric mechanism; the exact SM beta functions need the dynamical matter sim.`)
-}
+export default defineExperiment({
+  id: 'renormalization/rg-from-coarse-graining',
+  title: 'the 1D decimation RG shows a coupling flows with a beta function under coarse-graining',
+  category: 'renormalization',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = rgFromCoarseGraining()
+    const betaAtOne = decimate(1.0) - 1.0
+    const ok = r.flows && r.betaSign < 0
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the exact 1D Ising decimation recursion gives a nonzero negative beta function, a coupling that runs down to the disordered fixed point purely from integrating out short-distance detail',
+      metrics: {
+        betaAtKOne: betaAtOne,
+        betaSign: r.betaSign,
+        flows: r.flows ? 1 : 0,
+      },
+      notes:
+        'L1 known math. This is the textbook 1D Ising decimation RG (K prime equals one half ln cosh 2K), so the running and its beta function are established, not derived from the substrate. The link to the bulk radial direction as a holographic RG is narrative only here. Reproducing the actual Standard-Model beta coefficients needs gauge and matter on the mesh, which is open.',
+    })
+  },
+})

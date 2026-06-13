@@ -14,8 +14,9 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-black-hole-thermo.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // Schwarzschild black hole of mass M (G=c=1): horizon r_s = 2M.
 const horizonRadius = (M: number): number => 2 * M
@@ -108,38 +109,36 @@ function deSitterHorizon(): { H: number; T: number; S: number; Lambda: number } 
   return { H, T, S, Lambda }
 }
 
-export function main(): void {
-  console.log('Quantitative black-hole thermodynamics on the substrate (G=c=hbar=k=1)')
-  console.log('Substrate inputs: area law S=A/4 (P15/P33), Hawking T=kappa/2pi (P71), de Sitter H (cosmology).\n')
-
-  console.log('=== Schwarzschild black hole, the quantitative relations ===')
-  console.log('  S = A/4 = 4 pi M^2,  T = 1/(8 pi M),  r_s = 2M')
-  const fl = firstLaw()
-  console.log(`  first law dM = T dS: max rel error ${fl.maxRelError.toExponential(2)} -> ${fl.ok ? 'HOLDS' : 'FAILS'}`)
-  const sm = smarr()
-  console.log(`  Smarr formula M = 2 T S: max rel error ${sm.maxRelError.toExponential(2)} -> ${sm.ok ? 'HOLDS' : 'FAILS'}`)
-  const bek = bekensteinSaturation()
-  console.log(`  Bekenstein bound S = 2 pi r_s M (saturated): max rel error ${bek.maxRelError.toExponential(2)} -> ${bek.ok ? 'SATURATES' : 'FAILS'}`)
-  const hc = heatCapacity()
-  console.log(`  heat capacity C = dM/dT = ${hc.value.toFixed(1)} (= -8 pi M^2 at M=5 -> ${(-8 * Math.PI * 25).toFixed(1)}): negative -> ${hc.negative} (evaporation instability)`)
-  const ev = evaporation()
-  console.log(`  evaporation lifetime ~ M^${ev.lifetimeExponent.toFixed(2)} (Stefan-Boltzmann predicts M^3) -> ${ev.ok ? 'CONFIRMED' : 'off'}`)
-
-  console.log('\n=== the substrate\'s OWN de Sitter horizon (from the measured expansion) ===')
-  const ds = deSitterHorizon()
-  console.log(`  H = ln(R)/3 = ${ds.H.toFixed(4)} per beat (R = shell growth ~18.37)`)
-  console.log(`  Gibbons-Hawking temperature T = H/2pi = ${ds.T.toFixed(4)}`)
-  console.log(`  horizon entropy S = pi/H^2 = ${ds.S.toFixed(3)} (= A/4)`)
-  console.log(`  cosmological constant Lambda = 3 H^2 = ${ds.Lambda.toFixed(4)}`)
-  console.log(`  -> the de Sitter horizon obeys the SAME thermodynamics, with numbers fixed by the substrate's growth.`)
-
-  const all = fl.ok && sm.ok && bek.ok && hc.negative && ev.ok
-  console.log(`\nANALYTIC CHECK (assumes Schwarzschild r_s=2M, S=A/4, T=1/8piM, NOT emergent): relations ${all ? 'self-consistent' : 'inconsistent'}`)
-  console.log('(First law, Smarr, Bekenstein saturation, negative heat capacity, and the M^3 lifetime all follow as')
-  console.log(' algebra from the assumed closed-form formulas. The de Sitter numbers apply the same assumed thermodynamics.)')
-  console.log('See note/research/vibe/notes/theory-v0.6.0/general-relativity-on-the-substrate.md')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'gravity/gr-black-hole-thermo',
+  title: 'the assumed Schwarzschild relations are thermodynamically self-consistent',
+  category: 'gravity',
+  substrates: 'any',
+  depth: 'L0',
+  paper: false,
+  run() {
+    const fl = firstLaw()
+    const sm = smarr()
+    const bek = bekensteinSaturation()
+    const hc = heatCapacity()
+    const ev = evaporation()
+    const ds = deSitterHorizon()
+    const ok = fl.ok && sm.ok && bek.ok && hc.negative && ev.ok
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'given the hardcoded Schwarzschild formulas the first law, Smarr relation, Bekenstein saturation, negative heat capacity, and M cubed evaporation lifetime all follow as algebra',
+      metrics: {
+        firstLawError: fl.maxRelError,
+        smarrError: sm.maxRelError,
+        bekensteinError: bek.maxRelError,
+        heatCapacity: hc.value,
+        evaporationExponent: ev.lifetimeExponent,
+        deSitterH: ds.H,
+        deSitterLambda: ds.Lambda,
+      },
+      notes:
+        'L0 circular. The horizon radius, area, area-law entropy, surface gravity, and Hawking temperature are all hardcoded closed forms, so every relation here is a consequence of those assumed formulas, not evidence that the substrate generates black-hole thermodynamics. The de Sitter section reads the substrate shell-growth H but applies the same assumed horizon thermodynamics to it.',
+    })
+  },
+})

@@ -14,7 +14,6 @@
 // Together with P181's cascade and extrapolation, these show the model's rarity has the SAME structure
 // that makes life cosmically rare. Run: npx tsx code/experiment/p183-rarity-measures.ts
 
-import { pathToFileURL } from 'node:url'
 import { flatGraph, beat, type Graph } from '@/test/experiment/misc/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -193,28 +192,6 @@ export function rarityMeasures(input?: { L?: number }): {
     thresholdExists,
     solved,
   }
-}
-
-export function main(): void {
-  const r = rarityMeasures()
-  console.log('P183: rarity from three more angles (spectrum, dimension, threshold)')
-  console.log('')
-  console.log(`  flat ${r.L}x${r.L} sheet`)
-  console.log('  (2) INTEGRATION SPECTRUM, mass by integration Phi:')
-  console.log(`      high-Phi alive TAIL ${(r.phiTailFraction * 100).toFixed(1)}% of charge, low-Phi churn ${(r.lowPhiFraction * 100).toFixed(1)}% -> tail is rare: ${r.spectrumTailRare}`)
-  console.log('  (5) THIN-FILM DIMENSION (box-counting on the 2D sheet):')
-  console.log(`      matter dimension ${r.matterDimension.toFixed(2)} vs alive dimension ${r.aliveDimension.toFixed(2)} -> alive is a thin lower-dimensional film: ${r.thinFilm}`)
-  console.log('  (4) DENSITY THRESHOLD for condensation:')
-  console.log(`      density   ${r.densities.map((d) => d.toFixed(2).padStart(5)).join(' ')}`)
-  console.log(`      condensed ${r.condensedByDensity.map((c) => (c * 100).toFixed(0).padStart(4) + '%').join(' ')}`)
-  console.log(`      threshold near density ${r.thresholdDensity.toFixed(2)} (below it almost nothing condenses, above it stays modest): ${r.thresholdExists}`)
-  console.log('')
-  console.log('  three independent measures all show life is a rare, thin, threshold-gated tail of the matter.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

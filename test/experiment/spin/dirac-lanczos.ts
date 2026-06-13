@@ -7,7 +7,8 @@
 // GAP vs soliton size R, if it scales ~ 1/R the bound fermion resists collapse (a 3D stabilization signal).
 // Run: npx tsx code/experiment/p215-dirac-lanczos.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 14
 const N = L * L * L
@@ -154,7 +155,32 @@ export function diracLanczos(): { zeroModesHedgehog: number; zeroModesFree: numb
   return { zeroModesHedgehog, zeroModesFree, gapVsSize }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = diracLanczos()
-  console.log(`RESULT: hedgehog near-zero modes ${r.zeroModesHedgehog} vs free ${r.zeroModesFree}; gap(R) ${r.gapVsSize.map((g) => g[1]).join('/')}`)
-}
+export default defineExperiment({
+  id: 'spin/dirac-lanczos',
+  title: 'a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks',
+  category: 'spin',
+  substrates: ['any'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = diracLanczos()
+    const ok = r.zeroModesHedgehog > r.zeroModesFree && r.zeroModesFree === 0
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'solving a 3D Dirac fermion (Dirac times isospin, eight components) on a hedgehog skyrmion background by Lanczos, the hedgehog binds near-zero fermion modes that the uniform-mass vacuum does not, so the topological self traps a fermion, the index and baryon mechanism confirmed dynamically in 3D',
+      metrics: {
+        zeroModesHedgehog: r.zeroModesHedgehog,
+        zeroModesFree: r.zeroModesFree,
+        dimension: 8 * L * L * L,
+      },
+      control: {
+        // the uniform-mass background is the negative control: no winding core, so it
+        // binds zero near-zero modes, against the hedgehog's bound modes.
+        zeroModesFree: r.zeroModesFree,
+      },
+      notes:
+        'L2, known physics (the Jackiw-Rebbi and index-theorem bound fermion zero mode on a soliton). The uniform-mass run is a genuine negative control. HONEST CAVEAT: the gap-vs-size scan is NOT a clean 1/R (the header notes it is confounded by the near-zero-mode count changing with R), so this does NOT settle the Skyrme stabilization sign, which needs the full Dirac-sea energy. Lanczos uses a deterministic LCG fill for the start vector, the spectrum is a property of the operator, not the start.',
+    })
+  },
+})

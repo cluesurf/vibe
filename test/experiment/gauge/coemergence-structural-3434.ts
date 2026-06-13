@@ -8,7 +8,8 @@
 // frontier, this proves the structural co-existence, not the coupled dynamics.
 // Run: npx tsx code/experiment/p256-coemergence-structural-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPreserveSectors: boolean; trialityMixes: boolean; oneRuleForced: boolean } {
   // 24 directions = 8 axis (8v) + 16 half (8s even-parity, 8c odd-parity)
@@ -53,7 +54,32 @@ export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPre
   return { sectorsCover24, rotationsPreserveSectors, trialityMixes, oneRuleForced }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = coemergenceStructural()
-  console.log(`SOLVED CO-EMERGENCE (structural): partition ${r.sectorsCover24}, rotations-preserve-sectors ${r.rotationsPreserveSectors}, triality-relates ${r.trialityMixes}, one-rule-forced ${r.oneRuleForced} => ${r.oneRuleForced ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'gauge/coemergence-structural-3434',
+  title: 'the rotation subgroup forces the photon 8v and fermion 8s, 8c sectors as invariant subspaces',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = coemergenceStructural()
+    const ok =
+      r.sectorsCover24 &&
+      r.rotationsPreserveSectors &&
+      r.trialityMixes &&
+      r.oneRuleForced
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the 24 directions partition as 8v plus 8s plus 8c, every rotation preserves each sector while triality relates them, so any rotation-symmetric rule must carry the photon and fermion sectors together',
+      metrics: {
+        sectorsCover24: r.sectorsCover24 ? 1 : 0,
+        rotationsPreserveSectors: r.rotationsPreserveSectors ? 1 : 0,
+        trialityMixes: r.trialityMixes ? 1 : 0,
+        oneRuleForced: r.oneRuleForced ? 1 : 0,
+      },
+      notes:
+        'L1, known math. This is a representation-theory fact about the SO(8) sectors, proving structural co-existence only. A single coupled evolution propagating both sectors with a QED interaction is the open frontier, not shown here.',
+    })
+  },
+})

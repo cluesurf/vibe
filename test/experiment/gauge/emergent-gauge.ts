@@ -8,8 +8,9 @@
 // (coin) current -> no non-abelian gauge, the full so(10) gauging needs an so(10)-SYMMETRIC collision (the
 // rule's last freedom). Run: npx tsx code/experiment/p223-emergent-gauge.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function graph(): { N: number; off: Int32Array; adj: Int32Array } {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 8000 })
@@ -80,7 +81,26 @@ export function emergentGauge(): { chargeLocallyConserved: boolean; internalLoca
   return { chargeLocallyConserved, internalLocallyConserved }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = emergentGauge()
-  console.log(`SOLVED: U(1) Gauss law (EM) free from the rule = ${r.chargeLocallyConserved}; non-abelian needs a symmetric collision (internal conserved generically = ${r.internalLocallyConserved}).`)
-}
+export default defineExperiment({
+  id: 'gauge/emergent-gauge',
+  title: 'the bare rule locally conserves charge, a U(1) Gauss law, but not a generic internal current',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = emergentGauge()
+    const ok = r.chargeLocallyConserved && r.internalLocallyConserved === false
+    return verdict({
+      status: ok ? 'partial' : 'fail',
+      claim:
+        'the perception rule conserves charge exactly per pair, a local U(1) Gauss law, so an emergent U(1) gauge field is free, while a generic internal collision does not locally conserve an internal current',
+      metrics: {
+        chargeLocallyConserved: r.chargeLocallyConserved ? 1 : 0,
+        internalLocallyConserved: r.internalLocallyConserved ? 1 : 0,
+      },
+      notes:
+        'Mixed depth, reported as partial. The U(1) per-pair charge conservation is measured on the actual rule (L2), though it uses a pseudo-random tone fill and a random pairing order, so it is an ensemble statement, not a deterministic-base one. The internal-current part is SET BY HAND (internalViol = 1, not measured), so it is L0 circular and must be read as a note, not evidence. The full so(10) gauging needs a symmetric collision, not shown here.',
+    })
+  },
+})

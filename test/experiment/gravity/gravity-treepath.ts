@@ -4,8 +4,9 @@
 // (2D boundary, expect ~ 1/r) then read {3,4,3,4} (3D boundary, expect steeper, toward 1/r^2).
 // Run: npx tsx code/experiment/p210-gravity-treepath.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function measure(symbol: number[], maxCells: number, tau: number): { N: number; slope: number; pairs: number } {
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
@@ -49,7 +50,26 @@ export function gravityTreePath(): { fiveSlope: number; fourSlope: number; calib
   return { fiveSlope: a.slope, fourSlope: b.slope, calibrated }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gravityTreePath()
-  console.log(`RESULT: {5,3,4} r^${r.fiveSlope.toFixed(1)}, {3,4,3,4} r^${r.fourSlope.toFixed(1)}, calibrated ${r.calibrated}`)
-}
+export default defineExperiment({
+  id: 'gravity/gravity-treepath',
+  title: 'a common-ancestor tree-path propagator on the real cell graph, calibrated against {5,3,4}',
+  category: 'gravity',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = gravityTreePath()
+    return verdict({
+      status: r.calibrated ? 'pass' : 'open',
+      claim:
+        'a common-ancestor tree-path coupling on the real {5,3,4} and {3,4,3,4} cell graphs is fit against surface distance, with {5,3,4} as the near -1 calibration control',
+      metrics: {
+        fiveSlope: r.fiveSlope,
+        fourSlope: r.fourSlope,
+        calibrated: r.calibrated ? 1 : 0,
+      },
+      notes:
+        'L1. The radial BFS tree and surface distances are read from the real substrate adjacency, but the coupling form tau to the tree-path length is an assumed ansatz with tau hardcoded at 0.5, so the fitted slope is partly an artifact of that choice. The {5,3,4} 2D-boundary calibration (expected near -1) is the control. Not emergent gravity, the propagator is put in by hand, though it removes the all-boundary confound of the naive diffusion probe.',
+    })
+  },
+})

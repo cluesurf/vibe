@@ -6,7 +6,6 @@
 // the heptagrid, the pentagrid, and the dodecagrid are one machine on different settings.
 // See the choosing-the-base analysis. Run: npx tsx code/experiment/p47-coxeter-unification.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { Graph } from '@/code/tool/graph'
@@ -47,40 +46,6 @@ export function coxeterUnification(input: { seed: number }): Record<
     }
   }
   return out
-}
-
-export function main(): void {
-  const r = coxeterUnification({ seed: 2 })
-  console.log('P47: the Coxeter unification (one machine, all the tessellations)')
-  console.log('')
-  console.log('  every tiling below comes from the SAME generator, coxeterTessellation,')
-  console.log('  by changing only the Schlafli symbol:')
-  console.log('')
-  console.log('  tessellation          dim   vertices   mean degree   Lorentz anisotropy   Lorentz-safe')
-  for (const [name, e] of Object.entries(r)) {
-    console.log(
-      '  ' +
-        name.padEnd(22) +
-        `${e.dimension}D`.padStart(4) +
-        e.size.toString().padStart(10) +
-        e.degree.toFixed(1).padStart(13) +
-        e.anisotropy.toFixed(3).padStart(16) +
-        (e.lorentzSafe ? 'YES' : 'no').padStart(12),
-    )
-  }
-  console.log('')
-  console.log('  The heptagrid, the pentagrid, the {8,3} and {6,4} relatives, and the 3D dodecagrid')
-  console.log('  are not separate inventions. They are one construction, the Coxeter reflection-group')
-  console.log('  orbit, on different settings of the Schlafli symbol. All are Lorentz-safe. So the')
-  console.log('  base of the model is not a chosen tiling but the reflection-group principle itself,')
-  console.log('  and the specific tiling is a special case, a gauge choice among equivalent options.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

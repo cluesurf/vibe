@@ -3,7 +3,8 @@
 // still lies on the dispersion at long wavelength (E^2 - k^2 = m^2 invariant), and the group velocity is
 // subluminal, reaching c=1 only for the massless case. Run: npx tsx code/experiment/p211-lorentz.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const E = (m: number, k: number): number => Math.acos(Math.max(-1, Math.min(1, Math.cos(m) * Math.cos(k))))
 
@@ -36,7 +37,26 @@ export function lorentz(): { invariantSmallK: boolean; masslessIsLightspeed: boo
   return { invariantSmallK, masslessIsLightspeed, maxGroupVelocity }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = lorentz()
-  console.log(`SOLVED: Lorentz-invariant small-k ${r.invariantSmallK}, massless=lightspeed ${r.masslessIsLightspeed}`)
-}
+export default defineExperiment({
+  id: 'relativity/lorentz',
+  title: 'the Dirac dispersion is boost-invariant at small k with a massless light-speed mode',
+  category: 'relativity',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = lorentz()
+    const ok =
+      r.invariantSmallK &&
+      r.masslessIsLightspeed &&
+      Math.abs(r.maxGroupVelocity - 1) < 0.05
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the assumed dispersion cos E = cos(m) cos(k) keeps E^2 - k^2 = m^2 invariant under a boost at small k and gives a massless mode at the speed of light',
+      metrics: { maxGroupVelocityMassless: r.maxGroupVelocity },
+      notes:
+        'L1, closed-form algebra of the ASSUMED Dirac dispersion. Boost invariance and the light-speed massless mode are properties of the assumed formula, not measured from dynamics, so this is a consistency check. The massive subluminal versus massless light-speed comparison is the internal control.',
+    })
+  },
+})

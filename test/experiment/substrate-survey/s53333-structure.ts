@@ -6,8 +6,9 @@
 // makes the coin 5-fold / H-family / NON-crystallographic, so NO root-system gauge and NO spinor.
 // Run: npx tsx code/experiment/s53333-structure.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
   const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
@@ -38,7 +39,28 @@ export function s53333Structure(): { degree: number; specDim: number; crystallog
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s53333Structure()
-  console.log(`SOLVED: {5,3,3,3,3} bulk 5D (paracompact, beyond compact H^4), degree ${r.degree}, 4D horosphere; crystallographic ${r.crystallographic} (NO -> no gauge), spinor ${r.hasSpinor} (NO). Over-dimensional (4D physical space).`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/s53333-structure',
+  title: 'the {5,3,3,3,3} bulk builds as a 5D hyperbolic graph, over-dimensional with no spinor',
+  category: 'substrate-survey',
+  substrates: ['53333'],
+  depth: 'L0',
+  paper: false,
+  run() {
+    const r = s53333Structure()
+    const ok = r.degree > 0 && r.specDim > 0 && !r.crystallographic && !r.hasSpinor
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {5,3,3,3,3} cell graph builds with a measured bulk degree and spectral dimension, and is recorded as non-crystallographic with no spinor because its leading 5 forces the H5 reflection group',
+      metrics: {
+        degree: r.degree,
+        specDim: r.specDim,
+        crystallographic: r.crystallographic ? 1 : 0,
+        hasSpinor: r.hasSpinor ? 1 : 0,
+      },
+      notes:
+        'L0 for the spin and gauge content, the crystallographic and hasSpinor flags are hard-set to false by hand from the known fact that a 5 in the symbol gives a non-crystallographic H5 group, they are not measured. Only the bulk degree and spectral dimension are measured. The dimension and spinor conclusions are stated, not derived here.',
+    })
+  },
+})

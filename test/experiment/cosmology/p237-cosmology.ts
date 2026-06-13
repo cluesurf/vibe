@@ -4,8 +4,9 @@
 // cosmology, eternal expansion from the hyperbolic growth, the cusp as flat space, peace as the initial state.
 // Run: npx tsx code/experiment/p237-cosmology.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function cosmology(): { growthRatio: number; exponential: boolean } {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 30000 })
@@ -35,7 +36,27 @@ export function cosmology(): { growthRatio: number; exponential: boolean } {
   return { growthRatio, exponential }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = cosmology()
-  console.log(`SOLVED: bulk growth ratio ${r.growthRatio} (exponential ${r.exponential}) = eternal expansion; flat cusp = space; radial = cosmic time. Cosmology built into the geometry.`)
-}
+export default defineExperiment({
+  id: 'cosmology/p237-cosmology',
+  title:
+    'the hyperbolic {3,4,3,4} bulk grows exponentially with radius, the eternal expansion',
+  category: 'cosmology',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = cosmology()
+    const ok = r.exponential
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {3,4,3,4} bulk shells grow by a constant ratio greater than one per radial step, an exponential expansion of the substrate',
+      metrics: {
+        growthRatio: r.growthRatio,
+        exponential: r.exponential ? 1 : 0,
+      },
+      notes:
+        'L1, the exponential shell growth is a measured graph-growth property of a hyperbolic tiling, a known geometric fact framed as cosmic expansion, not an emergent dynamical result.',
+    })
+  },
+})

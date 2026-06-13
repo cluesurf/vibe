@@ -15,7 +15,6 @@
 // overlap at every point. So the correlation is inherited, not transmitted.
 // Run: npx tsx code/experiment/p67-synchronicity.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { storedPatterns, hebbianFills, step, overlap } from '@/test/experiment/selves/dreaming-and-waking'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -126,40 +125,6 @@ export function synchronicity(input: { seed: number }): {
       tracksAncestry &&
       monotoneDecreasing,
   }
-}
-
-export function main(): void {
-  const r = synchronicity({ seed: 1 })
-  console.log('P67: synchronicity (correlated transitions from shared ancestry, no link)')
-  console.log('')
-  console.log('  Two separate subsystems, no edges between them, both exposed to the same ambient rhythm.')
-  console.log('  A and B share a common ANCESTOR (root memories) but have diverged. How correlated are')
-  console.log('  their transitions, and does the correlation track how much ancestry they still share?')
-  console.log('')
-  console.log('  divergence d from the common root -> state correlation (inherited pattern overlap):')
-  for (const s of r.divergenceSweep) {
-    console.log(`    d = ${s.d.toFixed(2)}: correlation ${s.correlation.toFixed(3)} (ancestry ${s.ancestry.toFixed(3)})`)
-  }
-  console.log(`    unrelated (independent roots): correlation ${r.unrelatedCorrelation.toFixed(3)}`)
-  console.log('')
-  console.log(`  the correlation tracks the inherited ancestry: ${r.tracksAncestry ? 'YES' : 'no'}`)
-  console.log(`  it falls as the two diverge from the common root: ${r.monotoneDecreasing ? 'YES' : 'no'}`)
-  console.log(`  a direct link carries the correlation: ${r.hasDirectLink ? 'yes' : 'NO'}`)
-  console.log('')
-  console.log(`  synchronicity solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Two subsystems with no link between them move together in proportion to the ancestry')
-  console.log('  they share. Having branched from a common root and then drifted apart, their correlated')
-  console.log('  transitions under a common rhythm equal the inherited overlap of their inner landscapes,')
-  console.log('  and fade to the unrelated baseline as they diverge. The correlation is laid down in the')
-  console.log('  shared past, not transmitted in the present, exactly the mechanism behind the Bell')
-  console.log('  correlations without signaling. This is synchronicity as the model allows it: not')
-  console.log('  spooky action, but the surfacing of a common origin through the deep field where things')
-  console.log('  far apart in space can be near through a shared root.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

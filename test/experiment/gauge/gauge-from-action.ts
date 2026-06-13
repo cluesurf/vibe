@@ -8,7 +8,6 @@
 // shrinking the field and showing the Wilson action converges to the Maxwell form.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p23-gauge-from-action.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { maxwellSpectrum } from '@/test/experiment/gauge/photon'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -83,33 +82,6 @@ export function gaugeFromAction(input: { side: number }): { epsilons: number[]; 
     return wilsonAction(theta, plaqs) / maxwellAction(theta, plaqs)
   })
   return { epsilons, ratios }
-}
-
-export function main(): void {
-  console.log('P23: the gauge (Maxwell) operator derived from the Wilson action')
-  console.log('')
-  const r = gaugeFromAction({ side: 4 })
-  console.log('  field scale eps    Wilson action / Maxwell action')
-  for (let i = 0; i < r.epsilons.length; i++) {
-    console.log(`    ${(r.epsilons[i] ?? 0).toFixed(2)}              ${(r.ratios[i] ?? 0).toFixed(5)}`)
-  }
-  console.log('')
-  // The Maxwell operator (the Hessian of the small-field limit) is massless (P20).
-  const spec = maxwellSpectrum({ side: 4, mass: 0 }).filter((v) => v > 1e-6).sort((a, b) => a - b)
-  console.log(`  the resulting Maxwell operator is massless: smallest physical omega^2 = ${(spec[0] ?? 0).toFixed(3)}`)
-  console.log('')
-  console.log('  As the field shrinks the Wilson action divided by the Maxwell action converges')
-  console.log('  to one, so the lattice gauge action of P8 reduces to the Maxwell action in the')
-  console.log('  small-fluctuation limit. The photon kinetic operator (P20) is therefore DERIVED')
-  console.log('  from the discrete gauge action, not put in by hand: the photon is the small')
-  console.log('  excitation of the Wilson-action gauge field, and it is massless (curl-curl).')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

@@ -10,7 +10,6 @@
 // the winning content is available AT the workspace, not copied to every distant cell. That is the
 // realistic emergent workspace. Run: npx tsx code/experiment/p119-attention-workspace.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -234,23 +233,6 @@ export function attentionWorkspace(input?: { n?: number }): {
   const solved = topDownGain && bottomUpSalience
 
   return { n: N, attendedCorr, unattendedCorr, attentionSelects, steerable, solved }
-}
-
-export function main(): void {
-  const r = attentionWorkspace()
-  console.log('P119: attention and a global workspace (emergent)')
-  console.log('')
-  console.log('  the hub is the global workspace, showing both mechanisms of attention:')
-  console.log(`    bottom-up SALIENCE: region A is in the workspace regardless of gain (${r.attendedCorr[0]!.toFixed(2)} attended, ${r.unattendedCorr[0]!.toFixed(2)} ignored): ${r.steerable}`)
-  console.log(`    top-down GAIN: attending region B BOOSTS it (${r.unattendedCorr[1]!.toFixed(2)} ignored -> ${r.attendedCorr[1]!.toFixed(2)} attended): ${r.attentionSelects}`)
-  console.log('')
-  console.log(`  the workspace (hub) selects content by salience and attentional gain, from the base: ${r.solved}`)
-  console.log('  (physical broadcast to the FAR periphery is range-limited, the workspace IS the hub)')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

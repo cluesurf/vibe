@@ -13,7 +13,6 @@
 // hyperbolic and paracompact, and have the cubic {4,3,4} vertex figure (its Euclidean cusp).
 // Run: npx tsx code/experiment/p199-generic-tessellation-engine.ts
 
-import { pathToFileURL } from 'node:url'
 import { describeTessellation, buildTessellation, inspectTessellation } from '@/code/substrate/coxeter/tessellation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -76,26 +75,6 @@ export function genericTessellationEngine(): {
   const head34 = cell3434FacetDegree === 24 && cell3434VertexFigure === '{4,3,4}'
   const solved = allPass && head34
   return { rows, cell3434FacetDegree, cell3434VertexFigure, allPass, solved }
-}
-
-export function main(): void {
-  const r = genericTessellationEngine()
-  console.log('P199: generic tessellation engine across the zoo')
-  console.log('')
-  console.log('  symbol        geometry     facet  compactness     build  checks')
-  for (const row of r.rows) {
-    const ok = row.geomOk && row.facetOk && row.compactOk && row.buildOk ? 'OK' : 'FAIL'
-    const why = ok === 'FAIL' ? ` [geom ${row.geomOk} facet ${row.facetOk} compact ${row.compactOk} build ${row.buildOk}]` : ''
-    console.log(`  ${row.symbol.padEnd(12)} ${row.geometry.padEnd(11)} ${String(row.facet === -1 ? '-' : row.facet).padStart(4)}  ${row.compactness.padEnd(15)} ${String(row.buildable).padEnd(5)} ${ok}${why}`)
-  }
-  console.log('')
-  console.log(`  headline {3,4,3,4}: facet degree ${r.cell3434FacetDegree} (expect 24), vertex figure ${r.cell3434VertexFigure} (expect {4,3,4} cubic cusp)`)
-  console.log(`  all cases pass: ${r.allPass}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

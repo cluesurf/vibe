@@ -7,7 +7,8 @@
 //   C5 gauge: the massless plaquette is gauge-invariant, a Proca mass term m^2 A^2 is NOT (caught).
 // Run: npx tsx code/experiment/p252-controls-battery.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: boolean } {
   // ---- C1 reversibility: injective (reversible) vs lossy (irreversible) ----
@@ -75,8 +76,28 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
   return { c1, c2, c4, c5 }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = controlsBattery()
-  const pass = r.c1 && r.c2 && r.c4 && r.c5
-  console.log(`SOLVED CONTROLS: reversibility-discriminates ${r.c1}, flatness-discriminates ${r.c2}, parity-discriminates ${r.c4}, gauge-discriminates ${r.c5} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'foundations/controls-battery',
+  title: 'a negative-control battery, each property test catches a deliberately broken rule',
+  category: 'foundations',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = controlsBattery()
+    const ok = r.c1 && r.c2 && r.c4 && r.c5
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'each key property test (reversibility, flatness, parity, gauge invariance) catches a deliberately broken control rule that should fail',
+      metrics: {
+        c1: r.c1 ? 1 : 0,
+        c2: r.c2 ? 1 : 0,
+        c4: r.c4 ? 1 : 0,
+        c5: r.c5 ? 1 : 0,
+      },
+      notes:
+        'the C5 gauge control uses a seeded pseudo-random gauge field, the discrimination itself is deterministic and exact',
+    })
+  },
+})

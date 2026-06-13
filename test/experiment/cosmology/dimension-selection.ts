@@ -11,7 +11,6 @@
 // independently also selects odd dimensions, of which 3 is the only one in the window.
 // Run: npx tsx code/experiment/p68-dimension-selection.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -111,41 +110,6 @@ export function dimensionSelection(input: Record<string, never> = {}): {
     // Solved: exactly one dimension in the allowed window has stable closed orbits, and it is 3.
     solved: selected.length === 1 && selected[0] === 3,
   }
-}
-
-export function main(): void {
-  const r = dimensionSelection()
-  console.log('P68: dimension selection (why three, of two, three, four)')
-  console.log('')
-  console.log('  Gravitational orbits in d spatial dimensions (force ~ 1 / r^(d-1)):')
-  console.log('')
-  console.log('  d | apsidal angle | stable orbit | closed orbit | precession/orbit | clean waves (Huygens)')
-  for (const row of r.byDimension) {
-    const ap = Number.isNaN(row.apsidalAngleDeg) ? '   n/a' : `${row.apsidalAngleDeg.toFixed(0)} deg`
-    const pr = Number.isNaN(row.precessionPerOrbit) ? ' unstable' : `${row.precessionPerOrbit.toFixed(2)} rad`
-    console.log(`  ${row.dimension} |   ${ap.padStart(7)}   |     ${row.stable ? 'yes' : 'NO '}     |     ${row.closed ? 'yes' : 'NO '}     |    ${pr.padStart(9)}    |        ${row.cleanWaves ? 'yes' : 'no'}`)
-  }
-  console.log('')
-  console.log(`  dimension(s) with stable closed orbits: ${r.selected.join(', ')}`)
-  console.log(`  dimension selection solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Among the allowed window {2, 3, 4} (P62), three spatial dimensions is uniquely')
-  console.log('  selected. Two dimensions gives bound but PRECESSING orbits (the apsidal angle is')
-  console.log('  128 degrees, not 180, so the orbit never closes, no stable repeating structure).')
-  console.log('  Three dimensions gives the inverse-square law, stable CLOSED ellipses (atoms, solar')
-  console.log('  systems, lasting structure), the apsidal angle exactly 180 degrees, zero precession.')
-  console.log('  Four dimensions and up give no stable bound orbit at all (the test mass spirals in or')
-  console.log('  escapes). Clean, wake-free wave propagation (Huygens) independently selects odd')
-  console.log('  dimensions, and three is the only odd one in the window. Two criteria, one answer:')
-  console.log('  of the dimensions a crystal substrate can exist in, only three supports stable matter')
-  console.log('  and clean signals, so the universe we can live in is three-dimensional in space.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

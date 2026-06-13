@@ -8,11 +8,12 @@
 // note/experiment/results/p1-law.md.
 // Run: npx tsx code/experiment/p1-emergent.ts
 
-import { pathToFileURL } from 'node:url'
 import { lattice } from '@/code/substrate/lattice'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { Graph } from '@/code/tool/graph'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function ringDistance(i: number, j: number, n: number): number {
   const d = Math.abs(i - j)
@@ -51,77 +52,38 @@ function interactionRange(input: { matrix: ReturnType<typeof makeDense>; n: numb
   return maxRange
 }
 
-export function main(): void {
-  console.log('P1 resolution: the emergent-mesh Hamiltonian (graph Laplacian)')
-
-  // LOCAL and BOUNDED BELOW, at two sizes (range stays 1, spectrum stays >= 0).
-  console.log('  --- local and bounded below ---')
-  let vectors48: Float64Array | null = null
-  let values48: Float64Array | null = null
-  for (const n of [24, 48]) {
-    const graph = lattice({ dimension: 1, extent: n, signature: 'riemannian' }) as Graph
-    const L = denseLaplacian(graph)
-    const range = interactionRange({ matrix: L, n })
-    const eig = eigSymmetric({ matrix: L })
-    let lo = Infinity
-    let hi = -Infinity
+export default defineExperiment({
+  id: 'foundations/emergent',
+  title: 'the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once',
+  category: 'foundations',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const n = 48
+    const graph = lattice({
+      dimension: 1,
+      extent: n,
+      signature: 'riemannian',
+    }) as Graph
+    const laplacian = denseLaplacian(graph)
+    const range = interactionRange({ matrix: laplacian, n })
+    const eig = eigSymmetric({ matrix: laplacian })
+    let minEig = Infinity
+    let maxEig = -Infinity
     for (let i = 0; i < eig.values.length; i++) {
-      const v = eig.values[i] ?? 0
-      lo = Math.min(lo, v)
-      hi = Math.max(hi, v)
+      const value = eig.values[i] ?? 0
+      minEig = Math.min(minEig, value)
+      maxEig = Math.max(maxEig, value)
     }
-    console.log(
-      `  N=${n}: interaction range ${range} (local), spectrum [${lo.toFixed(3)}, ${hi.toFixed(2)}] (bounded below)`,
-    )
-    if (n === 48) {
-      vectors48 = eig.vectors
-      values48 = eig.values
-    }
-  }
-
-  // PROPAGATING: evolve a state localized at node 0 under e^{-iLt} and measure the
-  // mean spread. Finite-speed (ballistic) growth is the lightcone.
-  console.log('  --- propagating (finite-speed lightcone) ---')
-  const n = 48
-  const vectors = vectors48 as Float64Array
-  const values = values48 as Float64Array
-  const meanSpread = (t: number): number => {
-    let prob = 0
-    let weighted = 0
-    for (let j = 0; j < n; j++) {
-      let re = 0
-      let im = 0
-      for (let k = 0; k < n; k++) {
-        const v0 = vectors[0 * n + k] ?? 0
-        const vj = vectors[j * n + k] ?? 0
-        const lambda = values[k] ?? 0
-        const amp = v0 * vj
-        re += amp * Math.cos(lambda * t)
-        im += amp * -Math.sin(lambda * t)
-      }
-      const p = re * re + im * im
-      prob += p
-      weighted += ringDistance(0, j, n) * p
-    }
-    return prob > 0 ? weighted / prob : 0
-  }
-  let prev = 0
-  for (const t of [0.5, 1, 2, 3, 4]) {
-    const spread = meanSpread(t)
-    const speed = t > 0.5 ? (spread - prev) / (t - (t === 1 ? 0.5 : t - 1)) : spread / t
-    prev = spread
-    console.log(`  t=${t.toFixed(1)}: mean spread ${spread.toFixed(2)} sites`)
-  }
-  console.log('')
-  console.log('  All three at once: local (range 1, size-independent), bounded below')
-  console.log('  (spectrum >= 0), and propagating (spread grows with t). The trilemma')
-  console.log('  is resolved by putting the Hamiltonian on the emergent mesh, not in')
-  console.log('  the log of the microscopic rule.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const ok = range === 1 && minEig >= -1e-6 && maxEig > 1
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the graph Laplacian on the emergent 1D mesh has interaction range one (local) and a non-negative spectrum (bounded below) simultaneously',
+      metrics: { range, minEig, maxEig },
+      notes:
+        'L2, the graph Laplacian is a standard local bounded-below operator, this reproduces that on the emergent mesh rather than discovering it. Propagation (the light cone) is not measured in run, only locality and boundedness',
+    })
+  },
+})

@@ -5,7 +5,8 @@
 // (1, 3, 3, 6, 7, 8), the spectrum is the sum over hyperbolic "bands". This is momentum-space-on-a-hyperbolic-
 // lattice made concrete. Run: npx tsx code/experiment/p243-hyperbolic-bands.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Mat = [number, number, number, number]
 const P = 7
@@ -58,7 +59,31 @@ export function hyperbolicBands(): { degeneracies: number[]; matchesIrreps: bool
   return { degeneracies: degSet, matchesIrreps }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = hyperbolicBands()
-  console.log(`SOLVED: closed-manifold spectrum decomposes into irrep BANDS, the irrep dims {1,6,7,8} all appear, plus accidental block coincidences. Hyperbolic band theory on a hyperbolic lattice.`)
-}
+// On a closed hyperbolic manifold the symmetry group is finite, so the adjacency spectrum
+// decomposes into irrep blocks, the hyperbolic bands. We compute the adjacency spectrum of
+// the PSL(2,7) Cayley graph and show its eigenvalue degeneracies match the real irrep
+// dimensions {1,6,7,8}. This is established representation theory (a Cayley graph spectrum
+// block-diagonalizes by irrep), so L1.
+export default defineExperiment({
+  id: 'geometry/hyperbolic-bands',
+  title: 'the PSL(2,7) Cayley-graph spectrum decomposes into irrep bands of dimension 1, 6, 7, 8',
+  category: 'geometry',
+  substrates: 'any',
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = hyperbolicBands()
+    const ok = r.matchesIrreps
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the adjacency spectrum of the PSL(2,7) Cayley graph has eigenvalue degeneracies matching the real irrep dimensions 1, 6, 7, 8',
+      metrics: {
+        distinctDegeneracies: r.degeneracies.length,
+        irrepsMatched: r.matchesIrreps ? 1 : 0,
+      },
+      notes:
+        'L1, established representation theory. A Cayley graph spectrum block-diagonalizes by irrep, so the degeneracies are the irrep dimensions. This is hyperbolic band theory on a closed hyperbolic lattice, a known construction.',
+    })
+  },
+})

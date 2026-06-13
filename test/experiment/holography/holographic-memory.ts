@@ -15,7 +15,6 @@
 // and decodes correctly, while the SAME bit encoded as a BLOB is destroyed by an erasure on its location.
 // The advantage holds after running the conserving dynamics. Run: npx tsx code/experiment/p105-holographic-memory.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -194,28 +193,6 @@ export function holographicMemory(input?: { n?: number }): {
     holographicWins,
     solved,
   }
-}
-
-export function main(): void {
-  const r = holographicMemory()
-  console.log('P105: holographic (erasure-protected) memory on the exact {5,3,4}')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, ${r.anchors} anchors carry one logical bit (+1), erase a ${r.erased}-cell region`)
-  console.log('')
-  console.log('  right after the erasure:')
-  console.log(`    holographic (spread): ${(r.holoSurvivalInit * 100).toFixed(0)}% anchors survive, bit decodes correct: ${r.holoDecodeInit}`)
-  console.log(`    blob (localized):     ${(r.blobSurvivalInit * 100).toFixed(0)}% anchors survive, bit decodes correct: ${r.blobDecodeInit}`)
-  console.log('')
-  console.log('  after running the conserving dynamics:')
-  console.log(`    holographic: ${(r.holoSurvivalAfter * 100).toFixed(0)}% survive, decodes: ${r.holoDecodeAfter}`)
-  console.log(`    blob:        ${(r.blobSurvivalAfter * 100).toFixed(0)}% survive, decodes: ${r.blobDecodeAfter}`)
-  console.log('')
-  console.log(`  holographic memory survives erasure where the blob is destroyed: ${r.holographicWins}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

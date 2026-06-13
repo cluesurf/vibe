@@ -12,7 +12,6 @@
 // peace and settles to a dynamic balance, and the cohesive rule gives memory (imprint retention beats
 // the churning random rule), all in feasible time and memory. Run: npx tsx code/experiment/p103-million-scale.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -248,26 +247,6 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
     runMs: 0,
     solved,
   }
-}
-
-export function main(): void {
-  const start = Date.now()
-  const r = millionScale({ n: 1_000_000 })
-  const elapsed = Date.now() - start
-  console.log('P103: perception dynamics at MILLION scale (12-regular hyperbolic expander, a {5,3,4} proxy)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} vibes, ${r.edges.toLocaleString()} relations, total wall time ${(elapsed / 1000).toFixed(1)}s`)
-  console.log('')
-  console.log(`  charge conserved at a million: ${r.conserved}`)
-  console.log(`  arrow creates life from peace: nonzero -> ${r.lifeEnd.toLocaleString()} (${(100 * r.lifeEnd / r.n).toFixed(0)}%), ${r.arrowCreatesLife}`)
-  console.log(`  dynamic balance stable: mid ${r.balanceMid.toLocaleString()}, late ${r.balanceLate.toLocaleString()}, ${r.dynamicBalance}`)
-  console.log(`  cohesive memory beats churn: random ${(r.randomRetention * 100).toFixed(0)}% -> cohesive ${(r.cohesiveRetention * 100).toFixed(0)}%, ${r.memoryImproved}`)
-  console.log('')
-  console.log(`  SOLVED at a million: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

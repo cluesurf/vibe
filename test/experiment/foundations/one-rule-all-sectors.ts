@@ -12,7 +12,6 @@
 // the remaining integration. See note/roadmap.md.
 // Run: npx tsx code/experiment/p55-one-rule-all-sectors.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, makeGraph } from '@/code/tool/graph'
@@ -262,33 +261,6 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
     radiationLightCone: lc.holds,
     radiationPropagates: lc.propagated,
   }
-}
-
-export function main(): void {
-  const r = oneRuleAllSectors({ count: 1200, seed: 1 })
-  console.log('P55: one rule, all sectors, in one run')
-  console.log('')
-  console.log(`  ONE mesh of ${r.meshSize} cells, built by the committed rule, and ONE emergent operator on it:`)
-  console.log('')
-  console.log(`  matter / energy sector (the operator's spectrum):`)
-  console.log(`    bounded below and local: ${r.matterBoundedBelow ? 'YES' : 'no'} (min eigenvalue ${r.matterMin.toFixed(4)})`)
-  console.log(`  force / static sector (the operator's Green's function):`)
-  console.log(`    static potential decays with distance: ${r.forceDecays ? 'YES' : 'no'} (potential-vs-distance correlation ${r.forcePotentialCorrelation.toFixed(2)})`)
-  console.log(`  radiation sector (the rule's own propagation):`)
-  console.log(`    finite-speed light-cone: ${r.radiationLightCone ? "YES" : "no"}, and it propagates: ${r.radiationPropagates ? "YES" : "no"}`)
-  console.log('')
-  console.log('  Matter, static force, and radiation are three faces of ONE emergent operator on')
-  console.log('  ONE mesh grown by ONE rule, all read from a single run. The field modes, the static')
-  console.log('  potential, and the propagating signal are not separate theories bolted together,')
-  console.log('  they are the same dynamics seen three ways. Folding the fermionic and non-abelian')
-  console.log('  gauge sectors into the same single evolution is the remaining integration.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

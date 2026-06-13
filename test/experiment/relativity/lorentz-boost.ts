@@ -16,7 +16,6 @@
 // unchanged under an actual boost of the coordinates).
 // Run: npx tsx code/experiment/p84-lorentz-boost.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -188,29 +187,6 @@ export function lorentzBoost(input: { seed: number }): {
     boostCovariant,
     solved: sprinkleIsFlat && latticeIsPeaked && boostCovariant,
   }
-}
-
-export function main(): void {
-  const r = lorentzBoost({ seed: 1 })
-  console.log('P84: a genuine Lorentz (boost) invariance test')
-  console.log('')
-  console.log('  causal-link rapidity distribution (rapidity = boost parameter):')
-  console.log(`    sprinkle flatness (normalized entropy, 1 = boost-invariant): ${r.sprinkleFlatness.toFixed(3)}`)
-  console.log(`    lattice  flatness:                                           ${r.latticeFlatness.toFixed(3)}`)
-  console.log(`    sprinkle rapidity spread: ${r.sprinkleStd.toFixed(3)}   lattice spread: ${r.latticeStd.toFixed(3)}`)
-  console.log('')
-  console.log('  boost-covariance of the sprinkle (boost by rapidity 1.0, compare shape):')
-  console.log(`    flatness before ${r.sprinkleFlatness.toFixed(3)}, after ${r.boostedFlatness.toFixed(3)}, change ${r.flatnessUnderBoost.toFixed(3)}`)
-  console.log('')
-  console.log(`  sprinkle is flat (no preferred frame): ${r.sprinkleIsFlat ? 'YES' : 'no'}`)
-  console.log(`  lattice is peaked (preferred rest frame): ${r.latticeIsPeaked ? 'YES' : 'no'}`)
-  console.log(`  sprinkle distribution is boost-covariant: ${r.boostCovariant ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  genuine Lorentz boost test solved: ${r.solved ? 'YES' : 'no'}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

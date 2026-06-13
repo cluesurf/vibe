@@ -14,7 +14,6 @@
 // pattern survives), so durable selves DO form as self-sustaining tone-domains, with no stored relations.
 // Run: npx tsx code/experiment/p102-cohesive-memory.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -215,29 +214,6 @@ export function cohesiveMemory(): {
     durableSelvesForm,
     solved,
   }
-}
-
-export function main(): void {
-  const r = cohesiveMemory()
-  console.log('P102: memory from a cohesive perception rule (no stored relations)')
-  console.log('')
-  console.log('  persistence (long-lag tone autocorrelation):')
-  console.log(`    random hop (P101):  ${r.randomLongLag.toFixed(3)}`)
-  console.log(`    cohesive hop:       ${r.cohesiveLongLag.toFixed(3)}  improved: ${r.persistenceImproved}`)
-  console.log('')
-  console.log('  imprint memory (a pleasure pattern surviving above background):')
-  console.log(`    random hop (P101):  ${(r.randomRetention * 100).toFixed(1)}%`)
-  console.log(`    cohesive hop:       ${(r.cohesiveRetention * 100).toFixed(1)}%  improved: ${r.memoryImproved}`)
-  console.log('')
-  console.log(`  charge conserved: ${r.conserved}`)
-  console.log('')
-  console.log(`  real (but leaky) memory from a cohesive rule, no stored relations: ${r.durableSelvesForm}`)
-  console.log('  (the sixth feature, memory, IS achievable on the correct ontology, just imperfect)')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

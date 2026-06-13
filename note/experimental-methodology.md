@@ -61,7 +61,13 @@ as long as they are LABELED as such.
 ## 3. The principles we hold
 
 - **Determinism.** The base is deterministic, there is no fundamental randomness. We do not test random
-  structures as foundational, randomness only appears as an emergent, coarse-grained effect.
+  structures as foundational, randomness only appears as an emergent, coarse-grained effect. This extends to
+  TEST INITIAL CONDITIONS. A test seeds a deterministic state, a vacuum (the create move makes it dynamic on
+  its own) or a fixed structured pattern, never a pseudo-random fill or a random schedule. Robustness comes
+  from varying the lattice SIZE or the perturbation location, not from averaging over random seeds. If a
+  result only holds on average over random draws, it is a statistical claim about an ensemble, not a property
+  of the deterministic rule, and we say so. The directional lattice-gas is fully deterministic (a synchronous
+  beat, no random cell order), and the experiments on it stay that way.
 - **Exactness.** The rule is a reversible permutation, so it is integer arithmetic, not floating point. We
   assert EQUALITY, not tolerance, wherever the quantity should be exact. A loose epsilon hiding a bug is a
   failure of method.
@@ -104,6 +110,7 @@ These are the ways a test lies, and we hunt for them in our OWN work as hard as 
 - **No control.** A yes with nothing that could give a no.
 - **Qualitative dressed as proof.** It has a Dirac dispersion, with no measured coefficient.
 - **Loose tolerance hiding a bug.** A 1e-2 epsilon where the quantity should be exact.
+- **Random reliance.** A pseudo-random fill, a random schedule, or a result that only holds averaged over seeds. The base is deterministic, so a test initial condition is a vacuum or a fixed pattern, and robustness comes from varying size, not seeds.
 - **Overclaim.** PASSED or novel for an L1 known fact or an L2 reproduction.
 
 ## 6. How we implement

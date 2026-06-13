@@ -6,7 +6,6 @@
 // continuum-limit check the hardening roadmap asks for.
 // Run: npx tsx code/experiment/p52-continuum-limit.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
@@ -55,34 +54,6 @@ export function continuumLimit(input: { dimension: number; sizes: number[]; repe
   // so a flat or rising error is never printed under a convergence claim.
   const converging = convergenceExponent < 0
   return { estimates, errors, maxError, agrees, converging, convergenceExponent }
-}
-
-export function main(): void {
-  console.log('P52: the continuum limit (larger-N convergence of the dimension)')
-  console.log('')
-  const sizes = [500, 1000, 2000, 4000]
-  for (const d of [2, 3]) {
-    const r = continuumLimit({ dimension: d, sizes, repeats: 6, seed: 1 })
-    console.log(`  ${d}D sprinkling (true dimension ${d}):`)
-    for (let i = 0; i < sizes.length; i++) {
-      console.log(`    N = ${String(sizes[i]).padStart(4)}: dimension ${(r.estimates[i] ?? 0).toFixed(3)}, error ${(r.errors[i] ?? 0).toFixed(3)}`)
-    }
-    console.log(`    accurate at all N (max error ${r.maxError.toFixed(3)} < 0.1): ${r.agrees ? 'YES' : 'no'}`)
-    console.log(`    error decreasing with N (genuine convergence, trend N^${r.convergenceExponent.toFixed(2)}): ${r.converging ? 'YES' : 'no, at the noise floor'}`)
-    console.log('')
-  }
-  console.log('  The dimension estimate agrees with the true continuum value to about one percent')
-  console.log('  at every N tested. In 2D it is already at the continuum value (the estimator is')
-  console.log('  near-exact, error at the noise floor), and in 3D the error shrinks as a negative')
-  console.log('  power of N. So the discrete model sits at its continuum description across scales,')
-  console.log('  the continuum-limit check the hardening roadmap asked for.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

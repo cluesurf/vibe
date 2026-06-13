@@ -14,7 +14,6 @@
 //     generation while the mesh stays whole.
 // Run: npx tsx code/experiment/p85-coxeter-engine.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -130,37 +129,6 @@ export function coxeterEngine(): {
     dodecagridDynamics,
     solved,
   }
-}
-
-export function main(): void {
-  const r = coxeterEngine()
-  console.log('P85: the general Coxeter engine, the real dodecagrid, parallel growth')
-  console.log('')
-  console.log('  T2: full facet-adjacency, the true neighbor count per cell:')
-  for (const f of r.facetCounts) {
-    const ok = f.facetCount === f.expected ? 'OK' : 'XX'
-    console.log(
-      `    ${f.symbol.padEnd(9)} ${f.geometry.padEnd(11)} cells=${String(f.cells).padStart(5)}  neighbors=${f.facetCount} (expected ${f.expected}) ${ok}`,
-    )
-  }
-  console.log(`  all facet counts correct: ${r.allFacetsCorrect}`)
-  console.log('')
-  console.log('  T5: parallel reflection growth of the dodecagrid {5,3,4}, cells per generation:')
-  for (const g of r.dodecagridGenerations.slice(0, 8)) {
-    console.log(`    gen ${g.generation}: +${String(g.newCells).padStart(4)} new, ${g.total} total`)
-  }
-  console.log(`  explodes (super-linear): ${r.dodecagridExplodes}`)
-  console.log('')
-  console.log('  T3: signed-majority rule run on the real dodecagrid (12 neighbors per cell):')
-  console.log(`    settled fraction: ${r.dodecagridDynamics.settledFraction.toFixed(3)}`)
-  const h = r.dodecagridDynamics.toneHistogram
-  console.log(`    tone histogram: -1=${h.minus}  0=${h.zero}  +1=${h.plus}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

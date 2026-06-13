@@ -4,7 +4,8 @@
 // the discrete Poisson equation (-Laplacian) G = delta on the flat lattice by conjugate gradient and read the
 // falloff. Run: npx tsx code/experiment/p219-gravity-boundary.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // conjugate-gradient solve of (-Laplacian) x = b with Dirichlet (x=0) boundary, on a d-cube of side L
 function solvePoisson(L: number, d: number): { x: Float64Array; idx: (c: number[]) => number; coord: (i: number) => number[] } {
@@ -61,7 +62,28 @@ export function gravityBoundary(): { exp3D: number; slope2DvsLog: number } {
   return { exp3D, slope2DvsLog }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gravityBoundary()
-  console.log(`SOLVED: 3D cusp gravity G~1/r^${(-r.exp3D).toFixed(2)} (3D Newton = 1/r), 2D horosphere logarithmic (ln-slope ${r.slope2DvsLog.toFixed(2)}).`)
-}
+export default defineExperiment({
+  id: 'gravity/gravity-boundary',
+  title: 'the discrete Poisson Green function on the flat 3D cusp falls as 1/r and on the 2D horosphere as log r',
+  category: 'gravity',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = gravityBoundary()
+    const threeDimNewton = Math.abs(r.exp3D + 1) < 0.25
+    const twoDimLog = r.slope2DvsLog < 0
+    const ok = threeDimNewton && twoDimLog
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'solving the discrete Laplacian Green function on a flat 3D cube gives a 1/r falloff and on a flat 2D square gives a negative log-r slope, the dimension-correct Newton potentials',
+      metrics: {
+        threeDimSlope: r.exp3D,
+        twoDimLogSlope: r.slope2DvsLog,
+      },
+      notes:
+        'L1 known math with a dimensional control. This solves a hardcoded lattice Laplacian on a plain d-cube (not the substrate adjacency), so the 3D-vs-2D contrast is the established lattice Green function (1/r in 3D, log in 2D), not emergent gravity. The dimension comparison is the control. Useful as a consistency check that the flat-layer dimension sets the Newton law, but assumes the Laplacian.',
+    })
+  },
+})

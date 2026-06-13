@@ -14,7 +14,6 @@
 //      cancellation, the genuinely chiral gauge theory, remains open here as it is in the field.
 // Run: npx tsx code/experiment/p77-chiral-gauge.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -74,40 +73,6 @@ export function chiralGauge(input: Record<string, never> = {}): {
     // resolution works. The fully chiral gauge theory is marked open, not claimed.
     solved: doublingShown && chiralityCancels && wilsonFixesVector,
   }
-}
-
-export function main(): void {
-  const r = chiralGauge()
-  console.log('P77: chiral gauge theory (the obstruction and its partial resolution)')
-  console.log('')
-  console.log('  d | naive species (2^d) | net chirality | species after a Wilson term')
-  for (const x of r.byDimension) {
-    console.log(`  ${x.dimension} |         ${String(x.naiveSpecies).padStart(2)}          |      ${String(x.netChirality).padStart(2)}       |             ${x.wilsonSpecies}`)
-  }
-  console.log('')
-  console.log(`  fermion doubling shown (2^d species): ${r.doublingShown ? 'YES' : 'no'}`)
-  console.log(`  the doublers cancel chirality (net chirality zero): ${r.chiralityCancels ? 'YES' : 'no'}`)
-  console.log(`  a Wilson term leaves one species, fixing the vector theory: ${r.wilsonFixesVector ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  obstruction and vector resolution shown: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  This is an honest partial. A naive lattice fermion is not one species but two to the')
-  console.log('  power of the dimension, the extra doublers sitting at the corners of momentum space,')
-  console.log('  and they carry opposite chiralities that sum to zero, so a single chiral fermion cannot')
-  console.log('  be isolated. That is the Nielsen-Ninomiya obstruction, and it is a fact about discrete')
-  console.log('  space in general, not a flaw of this model. A Wilson term gives the doublers a large')
-  console.log('  mass and leaves exactly one light species, which is what makes the vector gauge theory')
-  console.log('  of P8 work, and the Ginsparg-Wilson and overlap construction restores an exact lattice')
-  console.log('  chiral symmetry on top of that. What stays open, here as in lattice physics generally,')
-  console.log('  is the genuinely chiral gauge theory, coupling one handedness to the gauge field with')
-  console.log('  gauge invariance and anomaly cancellation. We mark it open rather than claim it.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

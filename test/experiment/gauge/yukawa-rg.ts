@@ -4,7 +4,8 @@
 //     relation, det(M_e) = det(M_d) at GUT, so (m_d m_s m_b)/(m_e m_mu m_tau) at M_Z = (QCD factor)^3, an
 //     order-10 prediction (observed ~13). Run: npx tsx code/experiment/yukawa-rg.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const MZ = 91.19, MGUT = 2e16
 const asMZ = 0.1184 // alpha_s(M_Z)
@@ -53,7 +54,27 @@ export function yukawaRG(): { bTauSM: number; bTauMSSM: number; detRatio: number
   return { bTauSM, bTauMSSM, detRatio }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = yukawaRG()
-  console.log(`SOLVED: b-tau runs from 1 (GUT) to ~${r.bTauMSSM} (MSSM) / ~${r.bTauSM} (SM) at M_Z (obs 2.35); det ratio ~${r.detRatio} (obs ~13). GUT mass relations elevated to computed-and-compared.`)
-}
+export default defineExperiment({
+  id: 'gauge/yukawa-rg',
+  title: 'running b-tau unification down gives the observed mass ratio and determinant relation',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = yukawaRG()
+    const ok = r.bTauMSSM > 1.8 && r.bTauMSSM < 3 && r.detRatio > 5
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'running the GUT mass relations down at one loop gives a low-energy b over tau mass ratio near the observed 2.35 and a down-quark over lepton determinant ratio of order ten near the observed value',
+      metrics: {
+        bTauStandardModel: r.bTauSM,
+        bTauMssm: r.bTauMSSM,
+        determinantRatio: r.detRatio,
+      },
+      notes:
+        'L2, known physics, one-loop renormalization-group running of standard GUT mass relations compared to experiment. The running uses textbook QCD beta functions, not the substrate dynamics. The substrate supplies only the GUT-scale boundary conditions. Deriving the beta functions from the rule is open.',
+    })
+  },
+})

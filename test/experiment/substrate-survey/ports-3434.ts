@@ -3,7 +3,8 @@
 // (P101), (3) two opposite selves ANNIHILATE on contact (P110). Ported from the throwaway probes.
 // Run: npx tsx code/experiment/p193-ports-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 61
 const at = (x: number, y: number, z: number): number => (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
@@ -80,7 +81,27 @@ export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: 
   return { lightconeOk: lc.ok, churnPct, annihilates }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = ports()
-  console.log(`SOLVED: lightcone z=1 ${r.lightconeOk}, churn ${r.churnPct}%, annihilation ${r.annihilates}`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/ports-3434',
+  title: 'the {5,3,4} behaviours port to the {4,3,4} cubic cusp, a z=1 light cone, churn, and self annihilation',
+  category: 'substrate-survey',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = ports()
+    const ok = r.lightconeOk && r.annihilates
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'on the {4,3,4} cubic cusp the wave spreads as a ballistic z=1 light cone and two opposite selves annihilate on contact, matching the {5,3,4} ports',
+      metrics: {
+        lightconeOk: r.lightconeOk ? 1 : 0,
+        churnPct: r.churnPct,
+        annihilates: r.annihilates ? 1 : 0,
+      },
+      notes:
+        'L2, a ballistic light cone and pair annihilation reproduced on the cubic cusp. The light cone front is measured from a single deterministic delta seed. The churn and annihilation runs start from a fixed-seed pseudo-random fill, so the churn percent is a property of that one configuration, not an ensemble average, and the annihilation check only verifies the positive count drops, not full cancellation.',
+    })
+  },
+})

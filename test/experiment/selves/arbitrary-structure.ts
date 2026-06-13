@@ -12,7 +12,6 @@
 // builder reaches each (the gap closes) and active maintenance holds each, so the model can realize
 // whatever structure is asked for, not just one. Run: npx tsx code/experiment/p161-arbitrary-structure.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -101,23 +100,6 @@ export function arbitraryStructure(input?: { M?: number }): {
   const solved = allBuilt && allMaintained
 
   return { M, cases, allBuilt, allMaintained, solved }
-}
-
-export function main(): void {
-  const r = arbitraryStructure()
-  console.log('P161: arbitrary-structure realization (construct and maintain any specified structure)')
-  console.log('')
-  console.log(`  ${r.M}-cell balanced target structures (net charge zero, respecting conservation):`)
-  for (const c of r.cases) console.log(`    ${c.kind.padEnd(8)} built in ${c.buildSteps} steps (${c.built}), maintained at fidelity ${c.maintainFidelity.toFixed(2)}`)
-  console.log('')
-  console.log(`  every arbitrary structure was CONSTRUCTED (${r.allBuilt}) and MAINTAINED (${r.allMaintained})`)
-  console.log('  => given universality (P141) and the goal-directed search (P147), the model can realize ANY')
-  console.log('     positive structure consistent with the absolute laws, the constructive claim holds.')
-  console.log(`  INVALID (fidelity guaranteed by copy-target maintain, not emergent): solved=${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

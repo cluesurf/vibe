@@ -8,7 +8,8 @@
 // {3,4,3,4} rule dynamically produces conserved-winding fields is the deeper open question.
 // Run: npx tsx code/experiment/p257-topological-persistence-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // winding number of a phase field on a ring: (1/2pi) sum of wrapped phase differences
 function winding(theta: number[]): number {
@@ -66,7 +67,32 @@ export function topologicalPersistence(): { windingConserved: boolean; energyRel
   return { windingConserved, energyRelaxes, defectPersists, trivialDecays, discriminates }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = topologicalPersistence()
-  console.log(`SOLVED PERSISTENCE (topological): winding-conserved ${r.windingConserved}, energy-relaxes ${r.energyRelaxes}, defect-persists ${r.defectPersists}, control-decays ${r.trivialDecays}, discriminates ${r.discriminates} => ${r.discriminates ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'selves/topological-persistence-3434',
+  title: 'a winding-1 defect persists under relaxation while a winding-0 bump decays',
+  category: 'selves',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = topologicalPersistence()
+    const ok = r.discriminates
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'under a local relaxation rule a winding-1 phase defect keeps its topological charge and persists while a winding-0 bump relaxes to uniform, so a conserved winding is the mechanism for a particle that cannot decay locally',
+      metrics: {
+        windingConserved: r.windingConserved ? 1 : 0,
+        energyRelaxes: r.energyRelaxes ? 1 : 0,
+        defectPersists: r.defectPersists ? 1 : 0,
+        trivialDecays: r.trivialDecays ? 1 : 0,
+      },
+      control: {
+        windingOneSurvives: r.defectPersists ? 1 : 0,
+        windingZeroDecays: r.trivialDecays ? 1 : 0,
+      },
+      notes:
+        'L2 with the winding-0 control. Deterministic. The relaxation uses an amplitude-restoring term, an added ingredient, not the bare rule, so this shows the topological mechanism, not base emergence. The honest caveat is that whether the bare {3,4,3,4} rule dynamically produces conserved-winding fields is the deeper open question.',
+    })
+  },
+})

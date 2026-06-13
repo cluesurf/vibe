@@ -8,10 +8,11 @@
 // isotropy of the wavefront. See note/questions/next-version.md (P11).
 // Run: npx tsx code/experiment/p11-lorentz-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 interface Mesh {
   size: number
@@ -166,51 +167,57 @@ function systematicAnisotropy(profile: Float64Array): number {
   return worst
 }
 
-export function main(): void {
-  const t = 3
-  const annulus = { rInner: 0.1, rOuter: 0.24, bins: 16 }
-  const realizations = 10
+export default defineExperiment({
+  id: 'relativity/lorentz-dynamics',
+  title: 'the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice',
+  category: 'relativity',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const t = 3
+    const annulus = { rInner: 0.1, rOuter: 0.24, bins: 16 }
+    const realizations = 10
 
-  // Random mesh: average the angular profile over realizations so disorder noise
-  // (which has no preferred direction) averages out, leaving only systematic
-  // anisotropy.
-  const accum = new Float64Array(annulus.bins)
-  for (let r = 0; r < realizations; r++) {
-    const mesh = randomGeometricMesh({ count: 420, radius: 0.1, rng: makeRng({ seed: 10 + r }) })
-    const profile = wavefrontProfile({ mesh, t, ...annulus })
-    let total = 0
-    for (let b = 0; b < annulus.bins; b++) {
-      total += profile[b] ?? 0
+    const accum = new Float64Array(annulus.bins)
+    for (let r = 0; r < realizations; r++) {
+      const mesh = randomGeometricMesh({
+        count: 420,
+        radius: 0.1,
+        rng: makeRng({ seed: 10 + r }),
+      })
+      const profile = wavefrontProfile({ mesh, t, ...annulus })
+      let total = 0
+      for (let b = 0; b < annulus.bins; b++) {
+        total += profile[b] ?? 0
+      }
+      for (let b = 0; b < annulus.bins; b++) {
+        accum[b] = (accum[b] ?? 0) + (total > 0 ? (profile[b] ?? 0) / total : 0)
+      }
     }
-    for (let b = 0; b < annulus.bins; b++) {
-      accum[b] = (accum[b] ?? 0) + (total > 0 ? (profile[b] ?? 0) / total : 0)
-    }
-  }
-  const sprinkleAniso = systematicAnisotropy(accum)
+    const sprinkleAniso = systematicAnisotropy(accum)
 
-  const lattice = squareLatticeMesh(21)
-  const latticeAniso = systematicAnisotropy(wavefrontProfile({ mesh: lattice, t, ...annulus }))
+    const lattice = squareLatticeMesh(21)
+    const latticeAniso = systematicAnisotropy(
+      wavefrontProfile({ mesh: lattice, t, ...annulus }),
+    )
 
-  console.log('P11: emergent rotational invariance of the dynamics (wavefront anisotropy)')
-  console.log('  substrate              systematic anisotropy (preferred-axis Fourier mode)')
-  console.log(`  random geometric mesh  ${sprinkleAniso.toFixed(3)}  (averaged over ${realizations} realizations)`)
-  console.log(`  square lattice         ${latticeAniso.toFixed(3)}`)
-  console.log('')
-  console.log('  Both are small: the low-energy (long-wavelength) wavefront is approximately')
-  console.log('  isotropic on BOTH substrates. This is the lattice-field-theory fact that')
-  console.log('  rotational (and Lorentz) invariance EMERGES in the infrared even on a')
-  console.log('  lattice, the anisotropy being a lattice-scale (UV) effect that is irrelevant')
-  console.log('  at long wavelength. The random mesh has no preferred axis at any scale (the')
-  console.log('  residual here is disorder noise, not a systematic frame), while the lattice')
-  console.log('  is isotropic only in the IR. So the emergent dynamics is Lorentz-isotropic at')
-  console.log('  low energy regardless of substrate regularity, consistent with the substrate-')
-  console.log('  level isotropy of P3. Discreteness threatens Lorentz invariance only at the')
-  console.log('  Planck (UV) scale, which is where any violation would have to be looked for.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const bothSmall = sprinkleAniso < 0.2 && latticeAniso < 0.2
+    const sprinkleNotWorse = sprinkleAniso <= latticeAniso + 0.05
+    const ok = bothSmall && sprinkleNotWorse
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the long-wavelength wavefront has small systematic angular anisotropy on both a random geometric mesh and a square lattice, with the random mesh no worse than the lattice',
+      metrics: {
+        sprinkleAnisotropy: sprinkleAniso,
+        latticeAnisotropy: latticeAniso,
+      },
+      control: {
+        latticeAnisotropy: latticeAniso,
+      },
+      notes:
+        'L2, the lattice-field-theory fact that rotational invariance emerges in the infrared, reproduced on a graph Laplacian wavefront. The lattice is the control whose anisotropy is a known UV (lattice-scale) artifact. The random mesh anisotropy is averaged over 10 random realizations, so it is a statistical (ensemble) result and the residual is disorder noise, not a property of the deterministic base rule.',
+    })
+  },
+})

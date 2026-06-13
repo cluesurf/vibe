@@ -9,7 +9,6 @@
 // recurrence, the signature of the heptagrid. See note/deterministic-substrate.md.
 // Run: npx tsx code/experiment/p42-fibonacci-navigation.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -207,35 +206,6 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
     meanStretch: stretchSum / Math.max(1, stretchCount),
     levelGrowthRatio,
   }
-}
-
-export function main(): void {
-  const r = fibonacciNavigation({ pairs: 1500, seed: 1 })
-  console.log('P42: addressed propagation (Fibonacci-tree navigation on the heptagrid)')
-  console.log('')
-  console.log(`  heptagrid {7,3}: ${r.cells} cells, spanning-tree depth ${r.treeDepth}`)
-  console.log(`  tree level sizes grow by a factor of ${r.levelGrowthRatio.toFixed(2)} per ring in the bulk (exponential, Fibonacci-like, before the finite-patch boundary)`)
-  console.log('')
-  console.log('  routing every pair by address arithmetic alone (up to the common ancestor, then')
-  console.log('  down by the target address), using only local parent and ordered children:')
-  console.log(`    exact delivery rate: ${(100 * r.deliveryRate).toFixed(1)} percent`)
-  console.log(`    mean hops per route: ${r.meanHops.toFixed(1)} (logarithmic in the cell count)`)
-  console.log(`    mean stretch vs the true shortest path: ${r.meanStretch.toFixed(2)}`)
-  console.log('')
-  console.log('  Every signal reaches its target exactly, using no global map, only each cell\'s')
-  console.log('  address and its local parent and children. The route length grows like the tree')
-  console.log('  depth, logarithmic in the number of cells, so it is efficient. This turns P37 from')
-  console.log('  "a disturbance propagates" into "a signal is routed to a named destination," the')
-  console.log('  exact navigation Margenstern built on the heptagrid, now on the model substrate.')
-  console.log('  Combined with P40 and P41, the regular tilings are Lorentz-safe AND exactly')
-  console.log('  addressable, solving the both-worlds problem of P3 better than the random graph.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

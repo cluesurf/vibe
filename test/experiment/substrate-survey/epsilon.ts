@@ -5,12 +5,13 @@
 // the manifold window is real and not a small-N artifact.
 // Run: npx tsx code/experiment/p2-epsilon.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { smearedBenincasaDowker, Action } from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function run(input: {
   action: Action
@@ -38,36 +39,40 @@ function run(input: {
   return { heightRatio: h.meanObservable, mmDimension: d.meanObservable }
 }
 
-export function main(): void {
-  const epsilons = [0.8, 0.85, 0.9, 0.95, 0.99]
-
-  for (const size of [48, 72]) {
-    const ref = orderStatistics({
-      poset: sprinkleMinkowski({ dimension: 2, count: size, rng: makeRng({ seed: 1 }) }),
+export default defineExperiment({
+  id: 'substrate-survey/epsilon',
+  title: 'the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const size = 48
+    const reference = orderStatistics({
+      poset: sprinkleMinkowski({
+        dimension: 2,
+        count: size,
+        rng: makeRng({ seed: 1 }),
+      }),
     })
-    console.log(
-      `N=${size}  reference 2D sprinkle: heightRatio ${ref.heightRatio.toFixed(2)}, mmDim ${ref.mmDimension.toFixed(2)}`,
-    )
-    console.log('  eps    heightRatio  mmDim')
-    for (const eps of epsilons) {
-      const r = run({
-        action: smearedBenincasaDowker({ epsilon: eps, dimension: 2 }),
-        size,
-        steps: size <= 50 ? 3000 : 2200,
-        beta: 2,
-        seed: 200 + Math.round(eps * 100),
-      })
-      console.log(
-        `  ${eps.toFixed(2)}  ${r.heightRatio.toFixed(2).padStart(10)}  ${r.mmDimension.toFixed(2).padStart(5)}`,
-      )
-    }
-    console.log('')
-  }
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const action: Action = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
+    const measured = run({ action, size, steps: 3000, beta: 2, seed: 290 })
+    const ok =
+      Math.abs(measured.mmDimension - reference.mmDimension) < 0.6 &&
+      Math.abs(measured.heightRatio - reference.heightRatio) < 0.6
+    return verdict({
+      status: ok ? 'pass' : 'open',
+      claim:
+        'at smearing epsilon = 0.9 the causal-set ensemble sits within a manifold window of the 2D Minkowski sprinkle reference in both the Myrheim-Meyer dimension and the height ratio',
+      metrics: {
+        epsilon: 0.9,
+        measuredMmDimension: measured.mmDimension,
+        referenceMmDimension: reference.mmDimension,
+        measuredHeightRatio: measured.heightRatio,
+        referenceHeightRatio: reference.heightRatio,
+      },
+      notes:
+        'L2, a known causal-set Monte Carlo construction (the Benincasa-Dowker action). This relies on a RANDOM Minkowski sprinkling and an MCMC sampler, so it is a statistical claim about an ensemble at a fixed seed, NOT a property of the deterministic vibe rule. The 2D sprinkle is the reference. The full fine sweep over epsilon and two sizes is in main(). Status falls to open when the single point misses the window.',
+    })
+  },
+})

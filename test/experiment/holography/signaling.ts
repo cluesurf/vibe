@@ -7,7 +7,6 @@
 // maximally-distant self, while a control with no signal shows nothing there.
 // Run: npx tsx code/experiment/p111-signaling.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -129,25 +128,6 @@ export function signaling(input?: { n?: number }): {
     fieldBeneath,
     solved,
   }
-}
-
-export function main(): void {
-  const big = process.argv.includes('--million')
-  const r = signaling({ n: big ? 1_000_000 : 120000 })
-  console.log('P111: signaling between distant selves (the field beneath)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells`)
-  console.log(`  diameter (max hops from one self): ${r.eccentricity}, vs log2(cells) = ${r.logN.toFixed(1)}`)
-  console.log(`  far-in-VOLUME selves are near-in-HOPS (field beneath): ${r.diameterIsLogarithmic}`)
-  console.log('')
-  console.log(`  a signal injected at one self reaches the maximally-distant self: ${r.signalAtFar} cells (control ${r.controlAtFar})`)
-  console.log(`  signal crosses the whole universe via the bulk: ${r.signalReachesFar}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

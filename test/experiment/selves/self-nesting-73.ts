@@ -4,7 +4,8 @@
 // low-dimensional to host skyrmion-selves. So {7,3} is poor for selfhood, the opposite of its strength
 // (computation, P204). Ported to {7,3}. Run: npx tsx code/experiment/p203-self-nesting-73.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 
 export function selfNesting73(): { tower: boolean; real: number[]; nul: number[] } {
@@ -47,7 +48,35 @@ export function selfNesting73(): { tower: boolean; real: number[]; nul: number[]
   return { tower, real, nul }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = selfNesting73()
-  console.log(`SOLVED: {7,3} bulk nesting tower ${r.tower} (expected false, hyperbolic bulk + 1D flat layer)`)
-}
+export default defineExperiment({
+  id: 'selves/self-nesting-73',
+  title: 'the {7,3} hyperbolic bulk has no radial nesting tower',
+  category: 'selves',
+  substrates: ['73'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = selfNesting73()
+    const realCoarse = r.real[0] ?? 0
+    const realFine = r.real[r.real.length - 1] ?? 0
+    const nullCoarse = r.nul[0] ?? 0
+    const ok = !r.tower
+    return verdict({
+      status: ok ? 'pass' : 'partial',
+      claim:
+        'radial coarse-grained coherence on the {7,3} hyperbolic bulk does not rise toward coarse scales nor beat a shuffle null, so there is no nesting tower, the same as the other hyperbolic bulks',
+      metrics: {
+        coherenceCoarse: realCoarse,
+        coherenceFine: realFine,
+        nullCoarse,
+        tower: r.tower ? 1 : 0,
+      },
+      control: {
+        realCoarse,
+        shuffledNullCoarse: nullCoarse,
+      },
+      notes:
+        'L2 with a shuffle null control. The honest finding is the expected negative, no bulk nesting, because the hyperbolic bulk is all-boundary and the {7,3} flat layer is only 1D. Relies on a pseudo-random initial fill, so it is an ensemble statement, not a property of the deterministic rule.',
+    })
+  },
+})

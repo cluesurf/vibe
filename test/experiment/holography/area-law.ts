@@ -11,7 +11,6 @@
 // contrast). Ground state area-law versus thermal volume-law is exactly the dividing line emergent gravity
 // needs. No base change, this is a property of the emergent field. Run: npx tsx code/experiment/p186-area-law.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -167,28 +166,6 @@ export function areaLaw(input?: { L?: number }): {
     groundStateAreaLaw,
     solved,
   }
-}
-
-export function main(): void {
-  const r = areaLaw()
-  console.log('P186: the emergent field obeys the AREA law (the gravity and holography precondition)')
-  console.log('')
-  console.log(`  free-fermion (Dirac) field, chain of ${r.L} sites, entanglement entropy of intervals`)
-  console.log('')
-  console.log('  (1) MASSIVE field, the entropy SATURATES (area law, depends on the boundary not the length):')
-  console.log(`      S at lengths ${r.lengths.slice(-4).join(',')} = ${r.massiveEntropies.slice(-4).map((s) => s.toFixed(2)).join(', ')} -> saturates: ${r.massiveSaturates}`)
-  console.log('  (2) MASSLESS / critical field, S = (c/3) ln L, the conformal / Ryu-Takayanagi law:')
-  console.log(`      central charge c = ${r.centralCharge.toFixed(2)} (expect ~1), fit R^2 ${r.conformalR2.toFixed(3)} -> conformal log: ${r.masslessLog}`)
-  console.log('  (3) maximally-mixed (thermal) state, S grows LINEARLY (the volume law, the contrast):')
-  console.log(`      slope ${r.volumeSlope.toFixed(2)} per site -> volume law: ${r.volumeLaw}`)
-  console.log('')
-  console.log(`  the GROUND STATE is area-law (massive saturates, massless log-violates), thermal is volume-law: ${r.groundStateAreaLaw}`)
-  console.log('  => the precondition for emergent gravity and holography holds on the emergent field, no base change.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

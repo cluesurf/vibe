@@ -11,7 +11,6 @@
 // With P168's free center of mass, this completes particle -> composite, a bound atom that moves freely.
 // Run: npx tsx code/experiment/p172-bound-composite.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -142,25 +141,6 @@ export function boundComposite(input?: { N?: number; halfWidth?: number }): {
     discreteInternalLevels,
     solved,
   }
-}
-
-export function main(): void {
-  const r = boundComposite()
-  console.log('P172: true binding, a bound composite with internal structure (completes rung 2)')
-  console.log('')
-  console.log('  (1) a TRUE bound state of two attracting particles:')
-  console.log(`      ground energy ${r.groundEnergy.toFixed(3)} vs free band bottom ${r.bandBottom.toFixed(1)}, binding energy ${r.bindingEnergy.toFixed(3)} (> 0 = bound): ${r.trueBoundState}`)
-  console.log(`      localized, spread ${r.groundSpread.toFixed(1)} vs free state spread ${r.freeSpread.toFixed(1)} (a real atom, not delocalized): ${r.localized}`)
-  console.log('')
-  console.log('  (2) discrete internal ENERGY LEVELS (the atom\'s quantum numbers, seeding the next rung):')
-  console.log(`      bound levels, shallow well ${r.boundLevelsShallow}, deep well ${r.boundLevelsDeep} (>=2 discrete internal levels): ${r.discreteInternalLevels}`)
-  console.log('')
-  console.log('  with P168 (free center of mass), this completes particle -> composite, a BOUND atom that moves freely.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

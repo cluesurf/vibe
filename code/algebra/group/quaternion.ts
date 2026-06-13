@@ -27,6 +27,11 @@ export function conjugate(value: Quaternion): Quaternion {
   return { w: value.w, x: -value.x, y: -value.y, z: -value.z }
 }
 
+// The additive inverse, the -1 the spinor double cover turns on.
+export function negate(value: Quaternion): Quaternion {
+  return { w: -value.w, x: -value.x, y: -value.y, z: -value.z }
+}
+
 export function equals(left: Quaternion, right: Quaternion, tolerance = 1e-9): boolean {
   return (
     Math.abs(left.w - right.w) < tolerance &&
@@ -62,4 +67,62 @@ export function binaryTetrahedral(): Quaternion[] {
     }
   }
   return units
+}
+
+// The 120 unit icosians, the binary icosahedral group 2I, also the 600-cell vertices:
+// the 24 of 2T plus 96 even permutations of (+-phi/2, +-1/2, +-1/(2 phi), 0). This is the
+// spinor double cover of the icosahedral rotation group A5, the spin algebra of {5,3,4}.
+// The 12 face-directions of {5,3,4} carry no spinor in the LINEAR rep, but A5 has Schur
+// multiplier Z2, so the PROJECTIVE rep is a spinor, exactly as 2T is the coin of {3,4,3,4}.
+export function binaryIcosahedral(): Quaternion[] {
+  const units = binaryTetrahedral()
+  const phi = (1 + Math.sqrt(5)) / 2
+  const magnitudes = [phi / 2, 0.5, 1 / (2 * phi), 0]
+  const positions = [0, 1, 2, 3]
+  for (const order of evenPermutations(positions)) {
+    const base = [0, 0, 0, 0]
+    for (let index = 0; index < 4; index++) base[order[index]!] = magnitudes[index]!
+    const zeroSlot = order[3]!
+    const nonzero = positions.filter((position) => position !== zeroSlot)
+    for (let signMask = 0; signMask < 8; signMask++) {
+      const components = [...base]
+      for (let bit = 0; bit < 3; bit++) {
+        if ((signMask >> bit) & 1) components[nonzero[bit]!] = -components[nonzero[bit]!]!
+      }
+      units.push(quaternion(components[0]!, components[1]!, components[2]!, components[3]!))
+    }
+  }
+  return units
+}
+
+// The even permutations of a list (the alternating group action), used to build the icosians.
+export function evenPermutations(items: number[]): number[][] {
+  const result: number[][] = []
+  const recurse = (current: number[], rest: number[]): void => {
+    if (rest.length === 0) {
+      if (permutationParity(current) === 0) result.push(current)
+      return
+    }
+    for (let index = 0; index < rest.length; index++) {
+      recurse([...current, rest[index]!], rest.filter((_, other) => other !== index))
+    }
+  }
+  recurse([], items)
+  return result
+}
+
+function permutationParity(permutation: number[]): number {
+  let inversions = 0
+  for (let left = 0; left < permutation.length; left++) {
+    for (let right = left + 1; right < permutation.length; right++) {
+      if (permutation[left]! > permutation[right]!) inversions++
+    }
+  }
+  return inversions % 2
+}
+
+// A canonical rounded key for a unit quaternion, for membership and closure tests.
+export function quaternionKey(value: Quaternion): string {
+  const round = (component: number): number => Math.round(component * 1e6)
+  return `${round(value.w)},${round(value.x)},${round(value.y)},${round(value.z)}`
 }

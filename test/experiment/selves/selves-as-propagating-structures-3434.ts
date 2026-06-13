@@ -15,7 +15,8 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/selves-as-propagating-structures-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 
@@ -163,35 +164,60 @@ function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
   return { identity, rgGrowth, isSelf }
 }
 
-export function main(): void {
-  console.log('What is a self, measured properly (propagating coherent pattern, NOT charge correlation)')
-  console.log('Measure, identity-through-turnover (same form, different matter) + coherent motion + stays localized.\n')
-
-  console.log('=== 1. CALIBRATION: a Conway\'s Life glider on the {4,3,4} cusp (a genuine propagating self) ===')
+// The identity-through-turnover measure separates a genuine propagating self (the glider
+// calibration) from the churn of the pure perception rule on a generic seed (the contrast).
+export function propagatingSelves(): {
+  gliderIdentity: number
+  gliderTurnover: number
+  gliderSpeed: number
+  gliderIsSelf: boolean
+  vibeIdentity: number
+  vibeRgGrowth: number
+  vibeIsSelf: boolean
+  separates: boolean
+} {
   const gl = gliderSelf()
-  console.log(`  pattern identity (recentered, one period later): ${gl.identity.toFixed(2)} (a self keeps its FORM)`)
-  console.log(`  material turnover per beat: ${gl.turnover.toFixed(2)} (the MATTER flows through, same form)`)
-  console.log(`  centroid speed: ${gl.speed.toFixed(2)} cells/beat (it PROPAGATES)`)
-  console.log(`  radius-of-gyration drift: ${gl.rgGrowth.toFixed(2)} (stays LOCALIZED, no dispersal)`)
-  console.log(`  => scored as a SELF by the right measure: ${gl.isSelf}`)
-
-  console.log('\n=== 2. CONTRAST: the vibe perception rule from a localized seed (does a self crystallize?) ===')
   const vc = vibeChurn()
-  console.log(`  pattern identity after 30 beats (recentered): ${vc.identity.toFixed(2)} (low => the form is lost)`)
-  console.log(`  radius-of-gyration growth: ${vc.rgGrowth.toFixed(2)} (large => the blob DISPERSED, churned)`)
-  console.log(`  => scored as a self: ${vc.isSelf} (the pure rule does NOT make a propagating self from a generic seed)`)
-
-  console.log('\n=== Verdict ===')
-  console.log(`  The RIGHT measure (identity-through-turnover) cleanly separates a self (glider: ${gl.isSelf}) from churn (vibe seed: ${vc.isSelf}).`)
-  console.log('  So the {3,4,3,4} cusp (physical space) SUPPORTS propagating, particle-like self-patterns, and we can')
-  console.log('  MEASURE them correctly. But the pure perception rule does not spontaneously crystallize one from a')
-  console.log('  generic seed (it churns, p101). The genuine vibe-self is the topological HOPFION (p192), which is')
-  console.log('  seeded and protected, persists through material turnover (p171), and is a fermion. Whether such')
-  console.log('  selves NEST into higher selves is the open higher-order-binding gap (the charge-tower that hinted')
-  console.log('  at nesting was a coarsening artifact, selves-tower-3434.ts + p208).')
-  console.log('See note/research/vibe/notes/theory-v0.6.0/selves-and-the-tower-on-3434.md')
+  const separates = gl.isSelf && !vc.isSelf
+  return {
+    gliderIdentity: gl.identity,
+    gliderTurnover: gl.turnover,
+    gliderSpeed: gl.speed,
+    gliderIsSelf: gl.isSelf,
+    vibeIdentity: vc.identity,
+    vibeRgGrowth: vc.rgGrowth,
+    vibeIsSelf: vc.isSelf,
+    separates,
+  }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'selves/selves-as-propagating-structures-3434',
+  title: 'identity-through-turnover scores a glider as a self and the perception-rule seed as churn',
+  category: 'selves',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = propagatingSelves()
+    const ok = r.separates
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'an identity-through-turnover measure scores a Conway glider high as a propagating self while scoring the pure perception rule from a generic seed low, so the cusp supports self-like patterns but the bare rule does not spontaneously make one',
+      metrics: {
+        gliderIdentity: r.gliderIdentity,
+        gliderTurnover: r.gliderTurnover,
+        gliderSpeed: r.gliderSpeed,
+        vibeIdentity: r.vibeIdentity,
+        vibeRgGrowth: r.vibeRgGrowth,
+      },
+      control: {
+        gliderIsSelf: r.gliderIsSelf ? 1 : 0,
+        vibeIsSelf: r.vibeIsSelf ? 1 : 0,
+      },
+      notes:
+        'L2 with a control. The Conway glider is the positive calibration (a known propagating self) and the perception-rule seed is the negative contrast. The honest reading is that the cusp SUPPORTS propagating self-patterns and the right measure detects them, but the pure rule churns and does not crystallize one from a generic seed, consistent with the churn finding. The vibe contrast uses a pseudo-random update order, so its churn is an ensemble statement. The genuine seeded self is the topological hopfion, and self nesting is the open frontier.',
+    })
+  },
+})

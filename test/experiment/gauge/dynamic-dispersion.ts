@@ -9,7 +9,6 @@
 // / sound / relativistic mode (omega ~ c |k|, a massless relativistic particle, the photon-like mode we
 // want). This decides whether the gapless mode is relativistic. Run: npx tsx code/experiment/p137-dynamic-dispersion.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -163,29 +162,6 @@ export function dynamicDispersion(input?: { L?: number; arrow?: number }): {
   const solved = gapless && (diffusive || relativistic)
 
   return { L, modes, dynamicExponent, gapless, diffusive, relativistic, solved }
-}
-
-export function main(): void {
-  const r = dynamicDispersion()
-  console.log('P137: dynamic dispersion of the conserved charge (the gapless hydrodynamic mode)')
-  console.log('')
-  console.log('  mode n   k        relax rate Gamma(k)   relax time   propagating')
-  for (const md of r.modes) {
-    console.log(`  ${String(md.n).padEnd(6)}   ${md.k.toFixed(4)}   ${md.relaxRate.toFixed(4).padEnd(18)}   ${md.relaxTime.toFixed(2).padEnd(10)}   ${md.propagating}`)
-  }
-  console.log('')
-  console.log(`  the mode is GAPLESS (small k relaxes slowest, Gamma -> 0 as k -> 0): ${r.gapless}`)
-  console.log(`  dynamic exponent z = ${r.dynamicExponent.toFixed(2)}  (2 = diffusive, 1 = propagating/relativistic)`)
-  console.log(`  diffusive (omega ~ D k^2, non-relativistic): ${r.diffusive}`)
-  console.log(`  relativistic (omega ~ c |k|, a massless relativistic mode): ${r.relativistic}`)
-  console.log('')
-  if (r.diffusive) console.log('  => the gapless mode is DIFFUSIVE, a relativistic (z=1) mode would need momentum conservation / inertia (a second field), which the bare rule lacks.')
-  if (r.relativistic) console.log('  => the gapless mode is RELATIVISTIC, a massless propagating particle, exactly the photon/sound-like mode the QFT needs.')
-  console.log(`  SOLVED (gapless mode found and classified): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

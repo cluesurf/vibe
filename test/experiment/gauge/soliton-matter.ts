@@ -3,7 +3,8 @@
 // rest mass scales with its topological charge (additive matter). Measured on the 2D direction field.
 // Run: npx tsx code/experiment/p209-soliton-matter.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
 const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
@@ -57,7 +58,26 @@ export function solitonMatter(): { binding: [number, number][]; bound: boolean; 
   return { binding, bound, massRatio }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = solitonMatter()
-  console.log(`SOLVED: bound state ${r.bound}, mass(Q=2)/mass(Q=1) ${r.massRatio}`)
-}
+export default defineExperiment({
+  id: 'gauge/soliton-matter',
+  title: 'two solitons bind at a finite separation and the rest mass is additive in topological charge',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = solitonMatter()
+    const ok = r.bound && r.massRatio > 1.7 && r.massRatio < 2.3
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'with the Skyrme term, two charge-one solitons have an interaction energy with a minimum at finite separation, a bound state, and a charge-two configuration has roughly twice the rest mass of a charge-one one',
+      metrics: {
+        bound: r.bound ? 1 : 0,
+        massRatio: r.massRatio,
+      },
+      notes:
+        'L2, known physics, measured on a 2D direction field with the Skyrme coefficient kappa set by hand. The binding and the additive mass are the measured content. Whether the rule actually supplies a positive kappa is the open Skyrme-sign question, assumed here.',
+    })
+  },
+})

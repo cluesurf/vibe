@@ -8,7 +8,6 @@
 // re-planning loop reaches the distant goal. Every piece is emergent (arrow value, rule rollout, will), so
 // the agent is the base running end-to-end. Run: npx tsx code/experiment/p153-integrated-agent.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -113,25 +112,6 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
     integratedReplans: replans,
     solved,
   }
-}
-
-export function main(): void {
-  const r = integratedAgent()
-  console.log('P153: the integrated metacognitive agent (the closed perceive-plan-act loop)')
-  console.log('')
-  console.log(`  landscape length ${r.L}, ${r.B} barriers in sequence, goal at ${r.goal}`)
-  console.log('')
-  console.log(`  REACTIVE (greedy only): stalls at ${r.reactivePos}, reached goal: ${r.reactiveReached}`)
-  console.log(`  ONE-SHOT planner (one detour): reaches ${r.oneShotPos}, reached goal: ${r.oneShotReached}`)
-  console.log(`  INTEGRATED agent (re-plans at each stall, ${r.integratedReplans} times): reaches ${r.integratedPos}/${r.goal}, reached goal: ${r.integratedReached}`)
-  console.log('')
-  console.log('  => the integrated agent runs the closed loop (perceive gap, plan with the forward model,')
-  console.log('     act with the will, repeat) and crosses a SEQUENCE of barriers, mind end-to-end from the base.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

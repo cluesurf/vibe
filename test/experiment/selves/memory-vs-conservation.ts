@@ -7,7 +7,6 @@
 // (entropy), not charge. Then active maintenance (re-writing the pattern, conservingly) holds the
 // correlation high at a measurable WORK cost. Run: npx tsx code/experiment/p159-memory-vs-conservation.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -177,26 +176,6 @@ export function memoryVsConservation(input?: { n?: number }): {
     maintenanceCostPerBeat,
     solved,
   }
-}
-
-export function main(): void {
-  const r = memoryVsConservation()
-  console.log('P159: memory lost as INFORMATION while charge is CONSERVED')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, a memory codeword imprinted on a region`)
-  console.log('')
-  console.log(`  total charge Q: start ${r.qStart}, end ${r.qEndUnmaintained}, EXACTLY conserved: ${r.qConserved}`)
-  console.log(`  pattern correlation: start ${r.corrStart.toFixed(2)}, end ${r.corrEndUnmaintained.toFixed(2)}, the memory DECAYS: ${r.patternDecays}`)
-  console.log('  => Q is conserved but the ARRANGEMENT scrambles, what is lost is INFORMATION (entropy), not charge.')
-  console.log('')
-  console.log(`  WITH active maintenance: correlation held at ${r.corrEndMaintained.toFixed(2)}, at a cost of ${r.maintenanceCostPerBeat.toFixed(0)} re-writes/beat (work)`)
-  console.log('')
-  console.log(`  conserved yet lost, and maintenance restores at a cost (Landauer): ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

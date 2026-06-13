@@ -9,7 +9,6 @@
 // gap shrinks as the lattice grows, unlike a massive vector), and two transverse
 // polarizations. See note/questions/frontiers.md. Run: npx tsx code/experiment/p20-photon.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -91,38 +90,6 @@ export function photonStudy(input: { side: number }): {
     minPhysicalOmega2: free.minPhysical,
     massiveMinOmega2: massive.minPhysical,
   }
-}
-
-export function main(): void {
-  console.log('P20: the photon (free U(1) gauge field on a periodic 3D lattice)')
-  console.log('')
-  console.log('  L   links   gauge modes   physical modes   min physical omega^2   (massive: min omega^2)')
-  for (const side of [3, 4, 5]) {
-    const r = photonStudy({ side })
-    console.log(
-      `  ${side}   ${String(r.dof).padStart(5)}   ${String(r.gauge).padStart(11)}   ${String(r.physical).padStart(14)}   ${r.minPhysicalOmega2.toFixed(3).padStart(20)}   ${r.massiveMinOmega2.toFixed(2)}`,
-    )
-  }
-  console.log('')
-  console.log('  Three photon facts come straight out:')
-  console.log('  - Gauge invariance: about one third of the modes (the gradient, longitudinal')
-  console.log('    directions) are EXACT zero modes, the photon gauge freedom. The physical')
-  console.log('    modes are the other two thirds, the two transverse polarizations.')
-  console.log('  - Massless: the smallest physical omega^2 SHRINKS as the lattice grows (the')
-  console.log('    lowest momentum 2pi/L falls), so the photon has no gap, omega -> 0 as k -> 0.')
-  console.log('  - Contrast: a mass term (Proca) gives a fixed gap (min omega^2 near m^2 = 1),')
-  console.log('    independent of L. The free gauge field is massless, a massive one is not.')
-  console.log('')
-  console.log('  So the photon is fully present: the U(1) gauge field couples to matter (P8) and')
-  console.log('  propagates as a massless, gauge-invariant, two-polarization field. The graviton')
-  console.log('  (a propagating spin-2 mode) and a Higgs scalar are the fields still to add.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

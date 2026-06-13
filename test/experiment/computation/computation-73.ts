@@ -4,8 +4,9 @@
 // navigation, (b) interior cells rich enough to host railway junctions (>=3 independent directions). Ported.
 // Run: npx tsx code/experiment/p204-computation-73.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function computation73(): { fibonacciGrowth: boolean; junctionCapable: boolean; growthRatio: number } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 15000 })
@@ -36,7 +37,33 @@ export function computation73(): { fibonacciGrowth: boolean; junctionCapable: bo
   return { fibonacciGrowth, junctionCapable, growthRatio }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = computation73()
-  console.log(`SOLVED: {7,3} tree-addressing ${r.fibonacciGrowth} (ratio ${r.growthRatio}), junction-capable ${r.junctionCapable}; Margenstern-universal`)
-}
+// The {7,3} heptagrid carries the two structural prerequisites of Margenstern and Morita's
+// universality proof, a Fibonacci-family tree addressing (shell growth near phi^2) and
+// junction-capable interior cells (degree 7, at least 3 tracks for railway switches and
+// crossings). The universality itself is cited prior art, proven by Margenstern and Morita,
+// not run here. We only verify the prerequisites, so L1, established structural facts about
+// the heptagrid, and paper is false.
+export default defineExperiment({
+  id: 'computation/computation-73',
+  title: 'the {7,3} heptagrid carries the structural prerequisites of the proven universal railway model',
+  category: 'computation',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = computation73()
+    const ok = r.fibonacciGrowth && r.junctionCapable
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {7,3} heptagrid has Fibonacci-family tree addressing and junction-capable interior cells, the prerequisites of the proven universal railway model',
+      metrics: {
+        shellGrowthRatio: r.growthRatio,
+        fibonacciGrowthOk: r.fibonacciGrowth ? 1 : 0,
+        junctionCapableOk: r.junctionCapable ? 1 : 0,
+      },
+      notes:
+        'L1, established structural facts about the heptagrid. Universality itself is cited prior art (Margenstern and Morita), not run here. This only checks the prerequisites the proof relies on.',
+    })
+  },
+})

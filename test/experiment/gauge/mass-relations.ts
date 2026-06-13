@@ -6,7 +6,8 @@
 // Jarlskog factor 3 for the second generation (m_mu = 3 m_s, m_e = m_d/3) from the 45-Higgs Clebsch.
 // Run: npx tsx code/experiment/p231-mass-relations.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // one generation, (name, T_3, Q, hypercharge Y = Q - T_3, multiplicity)
 type F = { name: string; t3: number; q: number; mult: number }
@@ -43,7 +44,27 @@ export function massRelations(): { traceY: number; detRelationHolds: boolean; bT
   return { traceY, detRelationHolds, bTauGut }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = massRelations()
-  console.log(`SOLVED: Tr Y = ${r.traceY} -> det(M_e)=det(M_d) (${r.detRelationHolds}); b-tau unification m_b/m_tau=1 at GUT (-> ~2.3 observed). GUT mass relations predicted.`)
-}
+export default defineExperiment({
+  id: 'gauge/mass-relations',
+  title: 'the hypercharge is traceless over the 16, giving the GUT determinant mass relation',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = massRelations()
+    const ok = r.detRelationHolds && Math.abs(r.traceY) < 1e-9
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the hypercharge trace over the so(10) 16 vanishes, which forces the determinant mass relation that the charged-lepton and down-quark mass products are equal at the unification scale',
+      metrics: {
+        traceY: r.traceY,
+        detRelationHolds: r.detRelationHolds ? 1 : 0,
+        bTauGut: r.bTauGut,
+      },
+      notes:
+        'L1, known math. The traceless-hypercharge fact is measured, but b-tau unification (bTauGut = 1) is the canonical GUT input set by hand, not derived here. These are standard so(10)/su(5) mass relations, the only new content is their appearance from the discrete charges.',
+    })
+  },
+})

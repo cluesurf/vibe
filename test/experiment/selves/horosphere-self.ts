@@ -20,7 +20,6 @@
 //       See the-three-layers-and-the-self.md for the full justification.
 // Run: npx tsx code/experiment/p180-horosphere-self.ts
 
-import { pathToFileURL } from 'node:url'
 import { bulkGraph, flatGraph, beat, emergeSelf, countPlus, totalCharge, boundaryFraction, ball, type Graph } from '@/test/experiment/misc/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -125,30 +124,6 @@ export function horosphereSelf(input?: { bulkCells?: number; flatL?: number; big
     scaleFactor,
     solved,
   }
-}
-
-export function main(): void {
-  const r = horosphereSelf()
-  console.log('P180: selves belong on the horosphere, and it scales 1000x without the bulk')
-  console.log('')
-  console.log('  (1) GEOMETRY, boundary-to-volume of balls by radius (low = compact, possible self):')
-  console.log(`      radius        ${r.radii.join('     ')}`)
-  console.log(`      bulk (H^3)    ${r.bulkBallBV.map((x) => x.toFixed(2)).join('  ')}  (stays high, all boundary)`)
-  console.log(`      flat (horo)   ${r.flatBallBV.map((x) => x.toFixed(2)).join('  ')}  (falls, compact possible)`)
-  console.log(`      compact selves possible on the horosphere, not the bulk: ${r.compactPossibleOnFlat}`)
-  console.log('')
-  console.log(`  (2) DYNAMICS, the same self: leak/beat bulk ${(r.bulkLeak * 100).toFixed(0)}% vs flat ${(r.flatLeak * 100).toFixed(0)}% (${r.flatLowerLeak}),`)
-  console.log(`      passive fidelity bulk ${(r.bulkPassive * 100).toFixed(0)}% vs flat ${(r.flatPassive * 100).toFixed(0)}% (${r.flatMorePassive})`)
-  console.log('')
-  console.log(`  (3) SCALE, built the horosphere DIRECTLY (no bulk): ${r.bigCells.toLocaleString()} cells, ${r.scaleFactor.toLocaleString()}x the bulk, conserved ${r.bigConserved}`)
-  console.log('')
-  console.log('  => the bulk is raw experience, selves condense on the flat horosphere where the geometry lets')
-  console.log('     them be compact and persistent, and that surface is a lattice we simulate ~1000x larger.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

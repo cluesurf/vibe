@@ -3,7 +3,8 @@
 // diffusion rule; (b) DISCRETENESS, is the coarse field distinct bounded regions or one smooth blob; (c)
 // MULTI-SCALE, do several scales carry coherence at once. Run: npx tsx code/experiment/p208-nesting-controls.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 40
 const at = (x: number, y: number, z: number): number => (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
@@ -73,7 +74,34 @@ export function nestingControls(): { perception: number[]; diffusion: number[]; 
   return { perception: P.persist, diffusion: D.persist, beatsDiffusion, multiScale }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = nestingControls()
-  console.log(`SOLVED: beats diffusion ${r.beatsDiffusion}, multi-scale ${r.multiScale}`)
-}
+export default defineExperiment({
+  id: 'selves/nesting-controls',
+  title: 'the flat-cusp form-tower against a pure-diffusion control',
+  category: 'selves',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = nestingControls()
+    const finalPerception = r.perception[r.perception.length - 1] ?? 0
+    const finalDiffusion = r.diffusion[r.diffusion.length - 1] ?? 0
+    const ok = !r.beatsDiffusion
+    return verdict({
+      status: ok ? 'pass' : 'partial',
+      claim:
+        'the coarse-grained form persistence on the flat cusp does not beat a same-conservation pure-diffusion control, so the tower is a generic slow mode and not genuine nesting',
+      metrics: {
+        finalPerception,
+        finalDiffusion,
+        beatsDiffusion: r.beatsDiffusion ? 1 : 0,
+        multiScale: r.multiScale ? 1 : 0,
+      },
+      control: {
+        diffusionPersistence: finalDiffusion,
+        perceptionPersistence: finalPerception,
+      },
+      notes:
+        'L2 with a control. The pure-diffusion rule (same conservation, no annihilate/create structure) is the negative control. The honest finding is that perception does not beat diffusion, so the form-tower is a generic conserved-field slow mode, not hierarchical selfhood. This relies on a pseudo-random initial fill, so it is an ensemble statement, not a property of the deterministic rule.',
+    })
+  },
+})

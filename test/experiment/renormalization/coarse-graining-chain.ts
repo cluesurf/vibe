@@ -9,7 +9,6 @@
 // chain. A stable fixed point across many levels = a faithful multiscale tower.
 // Run: npx tsx code/experiment/p164-coarse-graining-chain.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -112,23 +111,6 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const solved = chargePreservedAllLevels && fixedPointConverges
 
   return { L, levels, chargePreservedAllLevels, fixedPointConverges, spread, solved }
-}
-
-export function main(): void {
-  const r = coarseGrainingChain()
-  console.log('P164: the coarse-graining chain is faithful across a tower of levels')
-  console.log('')
-  console.log('  level  blockSize  totalCharge  compressibility (Var/blockSize)')
-  for (const l of r.levels) console.log(`  ${String(l.level).padEnd(6)} ${String(l.blockSize).padEnd(10)} ${String(l.totalCharge).padEnd(12)} ${l.compressibility.toFixed(3)}`)
-  console.log('')
-  console.log(`  total charge EXACTLY preserved at every level (conservation passes up every codec): ${r.chargePreservedAllLevels}`)
-  console.log(`  the effective parameter converges to a FIXED POINT across the tower (spread ${(r.spread * 100).toFixed(1)}%): ${r.fixedPointConverges}`)
-  console.log('  => the multiscale chain is faithful end to end, "test a slice, assume all scales" is earned.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

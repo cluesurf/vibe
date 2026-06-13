@@ -3,7 +3,8 @@
 // screen), the dimension the holographic dual would live in. Also confirm the area-law shape, the boundary cut
 // of a ball scales with the shell (boundary), not the interior. Run: npx tsx code/experiment/p212-holography.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 
 function boundaryDimension(symbol: number[], maxCells: number): { N: number; nb: number; boundaryDim: number } {
@@ -44,7 +45,27 @@ export function holography(): { fiveBoundaryDim: number; fourBoundaryDim: number
   return { fiveBoundaryDim: a.boundaryDim, fourBoundaryDim: b.boundaryDim, confounded }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = holography()
-  console.log(`RESULT: {5,3,4} shell dim ${r.fiveBoundaryDim}, {3,4,3,4} shell dim ${r.fourBoundaryDim}, method confounded ${r.confounded} (screen dimension OPEN)`)
-}
+export default defineExperiment({
+  id: 'holography/p212-holography',
+  title: 'finite-patch shell extraction cannot read a clean holographic screen dimension',
+  category: 'holography',
+  substrates: ['534', '3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = holography()
+    const ok = r.confounded
+    return verdict({
+      status: ok ? 'open' : 'pass',
+      claim:
+        'extracting the outer-shell intrinsic dimension of a finite hyperbolic patch does not return the expected screen dimensions of 2 and 3 because the patch is almost entirely boundary, so the holographic screen dimension is open and needs an ideal-boundary construction',
+      metrics: {
+        fiveBoundaryDim: r.fiveBoundaryDim,
+        fourBoundaryDim: r.fourBoundaryDim,
+        confounded: r.confounded ? 1 : 0,
+      },
+      notes:
+        'L1, honest open negative. Deterministic. The method is confounded, a finite hyperbolic patch is roughly 99 percent boundary so a thin screen cannot be isolated and the readings are wrong. This is the same limitation as the finite-patch gravity measure. The result is reported as open, not as a measured screen dimension.',
+    })
+  },
+})

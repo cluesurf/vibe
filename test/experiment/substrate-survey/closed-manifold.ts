@@ -7,7 +7,8 @@
 // hyperbolic lattice. Every vertex has the same degree (NO boundary), so the wave conserves and spectra are
 // measured with zero edge artifact. Run: npx tsx code/experiment/p240-closed-manifold.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Mat = [number, number, number, number] // 2x2 over F_7, [a,b,c,d]
 const P = 7
@@ -58,7 +59,23 @@ export function closedManifold(): { vertices: number; vertexTransitive: boolean;
   return { vertices: N, vertexTransitive, conserves, specDim }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = closedManifold()
-  console.log(`SOLVED: closed hyperbolic manifold (PSL(2,7), ${r.vertices} vertices, no boundary ${r.vertexTransitive}); rule runs edge-artifact-free. The all-boundary confound is removed at the root.`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/closed-manifold',
+  title: 'a boundary-free closed hyperbolic lattice, the Cayley graph of PSL(2,7), removes the all-boundary confound',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = closedManifold()
+    const ok = r.vertices === 168 && r.vertexTransitive
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the Cayley graph of PSL(2,7) is a vertex-transitive closed hyperbolic lattice of 168 cells with no boundary, so a wave runs on it with no edge artifact',
+      metrics: { vertices: r.vertices, specDim: r.specDim },
+      notes:
+        'L1 known group theory, PSL(2,7) has order 168 and its Cayley graph on four generators is vertex-transitive (degree 4). The conserves flag is ALIASED to vertexTransitive, not independently measured, so treat it as a consistency note. The spectral dimension is a measured short-time slope, reported but not load-bearing for the pass.',
+    })
+  },
+})

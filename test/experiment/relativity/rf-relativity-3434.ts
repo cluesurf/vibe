@@ -5,7 +5,8 @@
 // rises from a low-entropy start while the micro rule stays reversible (the arrow).
 // Run: npx tsx code/experiment/p247-rf-relativity-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function d4Roots(): number[][] {
   const r: number[][] = []
@@ -88,8 +89,49 @@ export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean;
   return { ballistic, isotropyImproves, diracOk, arrowRises }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = rfRelativity()
-  const pass = r.ballistic && r.isotropyImproves && r.diracOk && r.arrowRises
-  console.log(`SOLVED RF: ballistic-cone ${r.ballistic}, isotropy-24>6 ${r.isotropyImproves}, Dirac ${r.diracOk}, arrow ${r.arrowRises} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'relativity/rf-relativity-3434',
+  title: 'a ballistic light cone, 24-direction isotropy, the Dirac dispersion, and a rising arrow on {3,4,3,4}',
+  category: 'relativity',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = rfRelativity()
+    const ok = r.ballistic && r.isotropyImproves && r.diracOk && r.arrowRises
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'on the 24 D4 directions a free charge streams ballistically while a scalar diffuses, the 24 directions are more isotropic than the cubic 6, the dispersion matches Dirac, and coarse entropy rises',
+      metrics: {
+        anisotropy24: anisotropy(d4Roots(), 7),
+        anisotropy6: anisotropy(
+          [
+            [1, 0, 0, 0],
+            [-1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, -1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, -1, 0],
+          ],
+          7,
+        ),
+      },
+      control: {
+        anisotropy6Cubic: anisotropy(
+          [
+            [1, 0, 0, 0],
+            [-1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, -1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, -1, 0],
+          ],
+          7,
+        ),
+      },
+      notes:
+        'L2. The ballistic versus diffusive displacement and the 24-versus-6 isotropy are MEASURED, with the diffusive scalar and the cubic 6-direction set as controls. The Dirac check is analytic (the assumed cos E = cos(m) cos(k)), a consistency note not a derivation. The diffusive baseline, the isotropy sampling, and the arrow walk use a deterministic LCG, so they are pseudo-random not truly random, reproducible but a statistical contrast rather than a property of the deterministic rule alone.',
+    })
+  },
+})

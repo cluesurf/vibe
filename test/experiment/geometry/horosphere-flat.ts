@@ -8,7 +8,6 @@
 // bulk, whose ball grows EXPONENTIALLY. Flat growth confirms the horosphere is the Euclidean layer.
 // Run: npx tsx code/experiment/p142-horosphere-flat.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -158,27 +157,6 @@ export function horosphereFlat(input?: { maxCells?: number }): {
     flatterThanBulk,
     solved,
   }
-}
-
-export function main(): void {
-  const r = horosphereFlat()
-  console.log('P142: the horosphere is a FLAT layer inside the curved {5,3,4}')
-  console.log('')
-  console.log(`  bulk: ${r.bulkCells} cells. BFS shell-to-shell ratio ${r.bulkRatio.toFixed(2)} (>1 = EXPONENTIAL, curved): ${r.bulkIsExponential}`)
-  console.log(`  horosphere band: ${r.horoCells} cells (a Busemann level set), measured via the in-surface proximity graph`)
-  console.log(`    effective dimension (cumulative ~ r^d) = ${r.horoDim.toFixed(2)} (near 2 = a flat 2D sheet)`)
-  console.log(`    BFS shell-to-shell ratio ${r.horoRatio.toFixed(2)} (-> 1 = POLYNOMIAL, FLAT)`)
-  console.log('')
-  console.log(`  the horosphere is FLAT (polynomial near-2D growth): ${r.horoIsFlat}`)
-  console.log(`  the bulk is exponential, and the horosphere is far flatter: ${r.flatterThanBulk}`)
-  console.log('')
-  console.log('  => a horosphere is the natural Euclidean FLAT sheet inside the curved hyperbolic crystal,')
-  console.log('     the geometry where the emergent Lorentz/QFT physics belongs.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

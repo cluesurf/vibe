@@ -7,7 +7,6 @@
 // it against the random sprinkle on the same isotropy and reach tests.
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p39-deterministic-substrate.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph, hyperbolicSunflower } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -81,32 +80,6 @@ export function deterministicSubstrate(input: { count: number; seed: number }): 
   // band as the random one (within a small margin), and it still reaches exponentially.
   const deterministicIsSafe = sunflower.anisotropy <= random.anisotropy + 0.1 && sunflower.reach
   return { random, sunflower, deterministicIsSafe }
-}
-
-export function main(): void {
-  const r = deterministicSubstrate({ count: 1500, seed: 1 })
-  console.log('P39: a non-random substrate (the golden-angle hyperbolic sunflower)')
-  console.log('')
-  console.log('  random sprinkle:        ' + `mean degree ${r.random.meanDegree.toFixed(1)}, Lorentz anisotropy ${r.random.anisotropy.toFixed(3)}, exponential reach ${r.random.reach}`)
-  console.log('  deterministic sunflower: ' + `mean degree ${r.sunflower.meanDegree.toFixed(1)}, Lorentz anisotropy ${r.sunflower.anisotropy.toFixed(3)}, exponential reach ${r.sunflower.reach}`)
-  console.log('')
-  console.log(`  the deterministic substrate is as Lorentz-safe as the random one: ${r.deterministicIsSafe ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The golden-angle sunflower uses no random numbers at all. Its radius is the exact')
-  console.log('  area inverse-CDF at stratified heights, and its angle is the golden angle, the')
-  console.log('  most irrational rotation, which gives the lowest-discrepancy aperiodic placement,')
-  console.log('  no spokes and no lattice. It is non-arbitrary, the unique optimum for spreading')
-  console.log('  points evenly with no preferred direction. And it comes out as isotropic as the')
-  console.log('  random sprinkle, or better. So the substrate does not need randomness: a')
-  console.log('  deterministic, non-arbitrary mesh is just as Lorentz-safe. The remaining frontier')
-  console.log('  is to get the same isotropy from a deterministic GROWTH rule, not a static placement.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

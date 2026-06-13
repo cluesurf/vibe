@@ -9,7 +9,6 @@
 // oscillatory real linear dispersion = a positive-norm massless relativistic particle = reflection
 // positive. Run: npx tsx code/experiment/p154-deterministic-rp.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -85,28 +84,6 @@ export function deterministicRP(input?: { ks?: number[] }): {
     reflectionPositive,
     solved,
   }
-}
-
-export function main(): void {
-  const r = deterministicRP()
-  console.log('P154: reflection positivity on the DETERMINISTIC rule via the dispersion (the decisive quantum-field test)')
-  console.log('')
-  console.log('  Fourier-mode dispersion of the deterministic reversible wave:')
-  console.log('    k        omega(k)   oscillates (a real-frequency particle, not a decaying diffusive mode)')
-  for (const md of r.modes) console.log(`    ${md.k.toFixed(3)}    ${md.omega.toFixed(3)}      ${md.oscillates}`)
-  console.log('')
-  console.log(`  every mode OSCILLATES (a real positive spectrum, not diffusion): ${r.allOscillate}`)
-  console.log(`  dispersion omega(k) = ${r.dispersionSlope.toFixed(2)} * k + ${r.dispersionIntercept.toFixed(3)} (R2 ${r.dispersionR2.toFixed(3)})`)
-  console.log(`  LINEAR through the origin (omega ~ c|k|, a MASSLESS relativistic particle): ${r.linearMassless}`)
-  console.log('')
-  console.log(`  REFLECTION POSITIVE (a real, positive, massless particle spectrum, a genuine relativistic field): ${r.reflectionPositive}`)
-  console.log('  => with the randomness removed, the dynamics is a WAVE whose modes have a real linear')
-  console.log('     dispersion, a massless relativistic particle, the decisive Osterwalder-Schrader verdict.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -6,7 +6,8 @@
 // (a non-abelian flux) is GAUGE-INVARIANT, (2) the holonomy is a non-trivial rotation (curvature), (3) it is
 // NON-ABELIAN (order matters, two paths differ). Run: npx tsx code/experiment/p234-nonabelian-gauge.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type M3 = number[][]
 const I3: M3 = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
@@ -56,7 +57,27 @@ export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolea
   return { gaugeInvariant, curvedFlux, nonAbelian }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = nonabelianGauge()
-  console.log(`SOLVED: non-abelian Wilson loop gauge-invariant (${r.gaugeInvariant}), curved (${r.curvedFlux}), non-commuting (${r.nonAbelian}). Base -> non-abelian gauge closed.`)
-}
+export default defineExperiment({
+  id: 'gauge/nonabelian-gauge',
+  title: 'a non-abelian SO(3) Wilson loop is gauge invariant, curved, and order-dependent',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = nonabelianGauge()
+    const ok = r.gaugeInvariant && r.curvedFlux && r.nonAbelian
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the trace of an ordered product of SO(3) link matrices around a plaquette is invariant under corner gauge transforms, is a non-trivial rotation, and changes when the link order is swapped',
+      metrics: {
+        gaugeInvariant: r.gaugeInvariant ? 1 : 0,
+        curvedFlux: r.curvedFlux ? 1 : 0,
+        nonAbelian: r.nonAbelian ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, standard non-abelian lattice gauge theory shown on an SO(3) prototype. The links are a pseudo-random SO(3) fill, but gauge invariance and non-commutativity are exact properties of any links, so the random draw only samples them. The claim that so(10) is the actual local symmetry is asserted from triality (p226), not measured here.',
+    })
+  },
+})

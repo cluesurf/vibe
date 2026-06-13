@@ -12,7 +12,6 @@
 // group and the representation content rather than deriving them.
 // Run: npx tsx code/experiment/p79-anomaly-charge-quantization.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -119,47 +118,6 @@ export function anomalyChargeQuantization(input: Record<string, never> = {}): {
     atomNeutral,
     solved: matchesStandardModel && unusedAnomaliesCancel && chargesQuantized && atomNeutral,
   }
-}
-
-export function main(): void {
-  const r = anomalyChargeQuantization()
-  console.log('P79: anomaly cancellation forces charge quantization')
-  console.log('')
-  console.log('  solving Yukawa gauge-invariance plus the linear anomalies (Higgs Y fixed to 1/2):')
-  console.log('  field | hypercharge Y | Standard Model')
-  const sm: Record<string, string> = { Q: '1/6', uc: '-2/3', dc: '1/3', L: '-1/2', ec: '1' }
-  for (const k of ['Q', 'uc', 'dc', 'L', 'ec']) {
-    console.log(`   ${k.padEnd(3)} |   ${(r.hypercharges[k] ?? 0).toFixed(4).padStart(8)}   |   ${sm[k]}`)
-  }
-  console.log(`  unique solution equals the Standard Model: ${r.matchesStandardModel ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  anomalies not used in the solve, which must cancel on their own:')
-  console.log(`    SU(3)^2 U(1) color anomaly: ${r.colorAnomaly.toFixed(12)}`)
-  console.log(`    U(1)^3 cubic anomaly:       ${r.cubicAnomaly.toFixed(12)}`)
-  console.log(`    both cancel: ${r.unusedAnomaliesCancel ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  electric charges Q = T3 + Y come out quantized in thirds:')
-  console.log(`    up quark +2/3, down quark -1/3, neutrino 0, electron -1`)
-  console.log(`    charges quantized (multiples of 1/3): ${r.chargesQuantized ? 'YES' : 'no'}`)
-  console.log(`    proton (uud) and electron cancel, atoms neutral: ${r.atomNeutral ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  anomaly-forced charge quantization solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The substrate cannot carry a gauge theory that is anomalous, inconsistent under its')
-  console.log('  own gauge transformations, the same index-theorem requirement behind P8. Imposing only')
-  console.log('  that requirement, plus gauge-invariant mass terms, on one generation of the usual')
-  console.log('  representations fixes every hypercharge uniquely, and the answer is exactly the')
-  console.log('  Standard Model. The charges then come out quantized in thirds, the electron at exactly')
-  console.log('  minus one and the proton at plus one, which is why atoms are neutral, a fact left')
-  console.log('  unexplained in the Standard Model itself. We are explicit about the limit: this assumes')
-  console.log('  the gauge group and the representation content. Deriving those is the work that remains.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

@@ -6,7 +6,8 @@
 // (omega -> |k| = c|k|), unlike a massive mode, with D-2 = 2 transverse polarizations in 4D.
 // Run: npx tsx code/experiment/p249-ph-photon-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless: boolean; linearAtLongWave: boolean; transversePolarizations: boolean } {
   const Lx = 12, Ly = 12
@@ -61,8 +62,34 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   return { gaugeInvariant, stokes, massless, linearAtLongWave, transversePolarizations }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = phPhoton()
-  const pass = r.gaugeInvariant && r.stokes && r.massless && r.linearAtLongWave && r.transversePolarizations
-  console.log(`SOLVED PH: U(1)-gauge-invariant ${r.gaugeInvariant}, Stokes ${r.stokes}, massless ${r.massless}, linear-c ${r.linearAtLongWave}, 2-transverse ${r.transversePolarizations} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'gauge/ph-photon-3434',
+  title: 'the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = phPhoton()
+    const ok =
+      r.gaugeInvariant &&
+      r.stokes &&
+      r.massless &&
+      r.linearAtLongWave &&
+      r.transversePolarizations
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the 8v vector sector is a U(1) gauge field whose plaquette is gauge invariant and obeys discrete Stokes, with a gapless dispersion that is linear at long wavelength, the massless photon',
+      metrics: {
+        gaugeInvariant: r.gaugeInvariant ? 1 : 0,
+        stokes: r.stokes ? 1 : 0,
+        massless: r.massless ? 1 : 0,
+        linearAtLongWave: r.linearAtLongWave ? 1 : 0,
+        transversePolarizations: r.transversePolarizations ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, standard lattice U(1) gauge theory. The link phases are a pseudo-random fill, but gauge invariance and Stokes are exact for any field. The transverse-polarization count is the trivial arithmetic D minus 2 equals 2, not a measurement. The masslessness comes from the assumed dispersion 2|sin(k/2)|, not derived from the substrate rule here.',
+    })
+  },
+})

@@ -5,7 +5,8 @@
 // FD1/FD6 it is deterministic and the streaming is a conflict-free permutation of slots.
 // Run: npx tsx code/experiment/p245-fd-foundational-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // ---- the 24 D4 roots = the 24 directions of {3,4,3,4} ----
 function d4Roots(): number[][] {
@@ -93,8 +94,34 @@ export function fdFoundational(): { neighborsOk: boolean; closes: boolean; count
   return { neighborsOk, closes, countConserved, momentumConserved, reversible }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = fdFoundational()
-  const pass = r.neighborsOk && r.closes && r.countConserved && r.momentumConserved && r.reversible
-  console.log(`SOLVED FD: mesh ${r.neighborsOk && r.closes}, count-conserved ${r.countConserved}, momentum-conserved ${r.momentumConserved}, reversible ${r.reversible} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/fd-foundational-3434',
+  title: 'the D4 lattice-gas rule closes on 24 neighbours and is exactly reversible, conserving count and momentum',
+  category: 'substrate-survey',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = fdFoundational()
+    const ok =
+      r.neighborsOk &&
+      r.closes &&
+      r.countConserved &&
+      r.momentumConserved &&
+      r.reversible
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'on a finite D4 torus every cell has 24 in-lattice neighbours and the stream-and-collide rule is a deterministic reversible permutation that conserves particle count and momentum exactly',
+      metrics: {
+        neighborsOk: r.neighborsOk ? 1 : 0,
+        closes: r.closes ? 1 : 0,
+        countConserved: r.countConserved ? 1 : 0,
+        momentumConserved: r.momentumConserved ? 1 : 0,
+        reversible: r.reversible ? 1 : 0,
+      },
+      notes:
+        'L1, exact integer arithmetic confirming the rule is a permutation (forward then inverse recovers the start bit for bit). The initial occupancy is a fixed-seed deterministic pseudo-random fill, so the conservation and reversibility hold for that fixed state. The base itself is deterministic, the fill only chooses one starting configuration.',
+    })
+  },
+})

@@ -7,7 +7,8 @@
 // the Bombelli / Friedman-Sorkin reading and the monist-spinor route.
 // Run: npx tsx code/experiment/p4-topology.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { triangulatedSurface } from '@/code/substrate/triangulated-surface'
 import { cellComplexOf, kahlerDirac } from '@/code/operator/dirac'
 import { sparseMatVec, LinearOperator } from '@/code/algebra/linear/sparse'
@@ -42,33 +43,56 @@ function zeroModeCount(input: {
   }
 }
 
-export function main(): void {
-  const cases = [
-    { name: 'disk', wrapWidth: false, wrapHeight: false, predicted: 1 },
-    { name: 'cylinder', wrapWidth: true, wrapHeight: false, predicted: 2 },
-    { name: 'torus', wrapWidth: true, wrapHeight: true, predicted: 4 },
-  ]
-  console.log('P4 validation: Kahler-Dirac zero modes vs topology (Betti sum)')
-  console.log('  surface    cells(v,e,f)   predicted  measured  smallest |eig|')
-  for (const c of cases) {
-    const r = zeroModeCount({
+export default defineExperiment({
+  id: 'spin/topology',
+  title: 'the Kahler-Dirac zero-mode count matches the Betti sum across disk, cylinder, and torus',
+  category: 'spin',
+  substrates: ['any'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const disk = zeroModeCount({
       width: 9,
       height: 9,
-      wrapWidth: c.wrapWidth,
-      wrapHeight: c.wrapHeight,
+      wrapWidth: false,
+      wrapHeight: false,
     })
-    const ok = r.zeroModes === c.predicted ? 'OK' : 'MISMATCH'
-    console.log(
-      `  ${c.name.padEnd(9)} ${r.cells.padStart(12)}   ${String(c.predicted).padStart(8)}  ${String(r.zeroModes).padStart(8)}  ${r.smallest.join(', ')}  ${ok}`,
-    )
-  }
-  console.log('')
-  console.log('  match means the Dirac zero-mode count is a topological invariant.')
-}
+    const cylinder = zeroModeCount({
+      width: 9,
+      height: 9,
+      wrapWidth: true,
+      wrapHeight: false,
+    })
+    const torus = zeroModeCount({
+      width: 9,
+      height: 9,
+      wrapWidth: true,
+      wrapHeight: true,
+    })
 
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    // predicted Betti sums b0 + b1 + b2: disk 1, cylinder 2, torus 4.
+    const diskOk = disk.zeroModes === 1
+    const cylinderOk = cylinder.zeroModes === 2
+    const torusOk = torus.zeroModes === 4
+    const ok = diskOk && cylinderOk && torusOk
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the number of near-zero modes of the Kahler-Dirac operator equals the sum of the surface Betti numbers, one on a disk, two on a cylinder, four on a torus, so the zero-mode count is a topological invariant rather than a metric accident',
+      metrics: {
+        diskZeroModes: disk.zeroModes,
+        cylinderZeroModes: cylinder.zeroModes,
+        torusZeroModes: torus.zeroModes,
+      },
+      control: {
+        // the three topologies are controls for one another: the same operator and
+        // mesh size give different counts only because the topology (the wrapping)
+        // differs, so a metric artifact is ruled out.
+        cylinderZeroModes: cylinder.zeroModes,
+        torusZeroModes: torus.zeroModes,
+      },
+      notes:
+        'L2, known math (Hodge theory, the Kahler-Dirac zero modes equal the harmonic forms, counted by the Betti numbers). The disk, cylinder and torus are genuine controls, the count tracks the topology not the metric. This is an established theorem reproduced on the triangulated surfaces, not a novel emergence, so it is L2, not L3.',
+    })
+  },
+})

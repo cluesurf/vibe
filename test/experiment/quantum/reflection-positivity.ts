@@ -9,7 +9,6 @@
 // stochastic mimic. We also test the STAGGERED two-point function (the field has pair anti-correlation,
 // P114), whose particles may sit at the band edge. Run: npx tsx code/experiment/p130-reflection-positivity.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -183,28 +182,6 @@ export function reflectionPositivity(input?: { length?: number; arrow?: number }
   const solved = contactDominated && !rpNaive && !rpStaggered // correctly diagnosed: contact-dominated, RP undecided
 
   return { spineLength: s.spineLength, c, hankelMinEig, hankelMaxEig, staggeredMinEig, rpNaive, rpStaggered, contactDominated, correlationRange, rpDecidable, solved }
-}
-
-export function main(): void {
-  const r = reflectionPositivity()
-  console.log('P130: reflection positivity (genuinely quantum vs classical mimic)')
-  console.log('')
-  console.log(`  sliver spine ${r.spineLength}, two-point function C(r):`)
-  console.log('    ' + r.c.slice(0, 9).map((v, i) => `C${i}=${v.toFixed(4)}`).join('  '))
-  console.log('')
-  console.log(`  Hankel matrix min eigenvalue = ${r.hankelMinEig.toFixed(5)} (max ${r.hankelMaxEig.toFixed(4)})`)
-  console.log(`  correlation range (|C(r)| > 5% of C0): ${r.correlationRange} sites`)
-  console.log('')
-  console.log(`  contact-dominated (range <= 1, no extended particle spectrum): ${r.contactDominated}`)
-  console.log('  => RP is UNDECIDED in this massive regime: the two-point function is contact-dominated, so')
-  console.log('     there is no propagating particle to test. The tiny non-PSD eigenvalue is at the noise')
-  console.log('     floor, NOT a clean RP violation. A definitive verdict needs the NEAR-CRITICAL regime')
-  console.log('     (large correlation length, weak signal), a dedicated high-statistics measurement.')
-  console.log(`  SOLVED (correctly diagnosed, RP pending near-criticality): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

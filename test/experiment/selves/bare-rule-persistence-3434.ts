@@ -11,7 +11,8 @@
 //   precise remaining frontier.
 // Run: npx tsx code/experiment/p262-bare-rule-persistence-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
 const cabs = (z: C): number => Math.hypot(z[0], z[1])
@@ -71,7 +72,32 @@ export function bareRulePersistence(): { linearLosesWinding: boolean; linearDisp
   return { linearLosesWinding, linearDisperses, nonlinearKeepsWinding, nonlinearPersists, mechanismIdentified }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = bareRulePersistence()
-  console.log(`SOLVED BARE-RULE-PERSISTENCE (honest): linear-loses-winding ${r.linearLosesWinding}, linear-disperses ${r.linearDisperses}, nonlinear-keeps ${r.nonlinearKeepsWinding}, nonlinear-persists ${r.nonlinearPersists}, mechanism-identified ${r.mechanismIdentified} => ${r.mechanismIdentified ? 'MECHANISM FOUND (bare-rule sufficiency OPEN)' : 'INCONCLUSIVE'}`)
-}
+export default defineExperiment({
+  id: 'selves/bare-rule-persistence-3434',
+  title: 'a linear field rule loses winding while an amplitude-preserving nonlinear rule locks it',
+  category: 'selves',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = bareRulePersistence()
+    const ok = r.mechanismIdentified
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a linear field rule lets a topological winding slip and disperse while an amplitude-preserving nonlinearity locks the winding and the defect persists',
+      metrics: {
+        linearLosesWinding: r.linearLosesWinding ? 1 : 0,
+        linearDisperses: r.linearDisperses ? 1 : 0,
+        nonlinearKeepsWinding: r.nonlinearKeepsWinding ? 1 : 0,
+        nonlinearPersists: r.nonlinearPersists ? 1 : 0,
+      },
+      control: {
+        linearWindingLost: r.linearLosesWinding ? 1 : 0,
+        nonlinearWindingLocked: r.nonlinearKeepsWinding ? 1 : 0,
+      },
+      notes:
+        'L2, not base-emergent. This tests a LINEAR vs a NONLINEAR field PDE, illustrating the principle, NOT the bare 24-direction rule. The amplitude-preserving nonlinearity is an added ingredient, not one of the five base things. The honest reading is that the linear (bare-walk envelope) rule does not give persistent winding, and a sigma-model constraint is needed. Whether the conserving lattice-gas collision supplies that constraint is the open frontier. The linear-vs-nonlinear pair is the control.',
+    })
+  },
+})

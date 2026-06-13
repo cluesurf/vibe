@@ -3,7 +3,8 @@
 // solitons) but the DIRECTIONAL order parameter (a direction field) carries winding (solitons exist).
 // Ported from the throwaway probes. Run: npx tsx code/experiment/p194-derrick-stabilizer.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function derrickStabilizer(): { stable3D: boolean; scalarWinds: boolean; directionWinds: boolean } {
   // (1) Derrick: E(lambda) = A*lambda^(d-2) [exchange] + B*lambda^(d-4) [Skyrme]
@@ -48,7 +49,27 @@ export function derrickStabilizer(): { stable3D: boolean; scalarWinds: boolean; 
   return { stable3D, scalarWinds: scalarWind !== 0, directionWinds: dirWind !== 0 }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = derrickStabilizer()
-  console.log(`SOLVED: 3D stable with Skyrme ${r.stable3D}, scalar winds ${r.scalarWinds}, direction winds ${r.directionWinds}`)
-}
+export default defineExperiment({
+  id: 'selves/derrick-stabilizer',
+  title: 'Derrick scaling needs a Skyrme term in 3D and only a direction field carries winding',
+  category: 'selves',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = derrickStabilizer()
+    const ok = r.stable3D && !r.scalarWinds && r.directionWinds
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'in 3D exchange alone collapses a soliton while exchange plus a Skyrme term has a stable minimum, and a scalar tone carries no winding while a direction field does',
+      metrics: {
+        stable3D: r.stable3D ? 1 : 0,
+        scalarWinding: r.scalarWinds ? 1 : 0,
+        directionWinding: r.directionWinds ? 1 : 0,
+      },
+      notes:
+        'L1, known math. The Derrick scaling E(lambda) = A lambda^(d-2) + B lambda^(d-4) is an analytic formula and the windings are computed on hand-built fields, not produced by the rule. The scalar-vs-direction comparison is the control that shows the directional order parameter is the one that can host topological selves. This is a prerequisite check, not an emergence claim.',
+    })
+  },
+})

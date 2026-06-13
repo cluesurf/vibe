@@ -12,7 +12,6 @@
 // If these hold, the substrate reproduces a field vacuum, and at greater scale (more RAM) it is the same
 // field from which richer structure can emerge. Run: npx tsx code/experiment/p114-quantum-field.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -222,29 +221,6 @@ export function quantumField(input?: { n?: number }): {
     fieldLike,
     solved,
   }
-}
-
-export function main(): void {
-  const r = quantumField()
-  console.log('P114: the field-theoretic vacuum on the exact {5,3,4}')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells`)
-  console.log(`  vacuum density ${(r.vacuumDensity * 100).toFixed(0)}% nonzero, fluctuating (pairs create/annihilate): ${r.fluctuates}`)
-  console.log('')
-  console.log('  two-point correlation C(r) (the field correlator):')
-  for (const p of r.correlation) console.log(`    r=${p.r}  C=${p.c.toFixed(4)}`)
-  console.log(`    nearest-neighbour PAIR anti-correlation (C(1) < 0): ${r.pairAntiCorrelation.toFixed(4)}`)
-  console.log(`    correlation length xi=${r.correlationLength.toFixed(2)}  ->  effective mass m=${r.effectiveMass.toFixed(3)}, decays: ${r.decays}`)
-  console.log('')
-  console.log(`  causal lightcone: influence front spreads at ${r.coneSpeed.toFixed(2)} hops/beat (bounded): ${r.hasLightcone}`)
-  console.log(`  charge conserved (the current): ${r.conserved}`)
-  console.log('')
-  console.log(`  the substrate reproduces a field vacuum (fluctuating pairs, correlation length/mass, lightcone, conserved current): ${r.fieldLike}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

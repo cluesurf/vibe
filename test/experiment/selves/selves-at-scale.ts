@@ -11,7 +11,6 @@
 //
 // No patch is ever drawn by hand. Charge Q is conserved by the dynamics. Run: npx tsx code/experiment/p106-selves-at-scale.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -183,29 +182,6 @@ export function selvesAtScale(input?: { n?: number }): {
     selvesEmerge,
     solved,
   }
-}
-
-export function main(): void {
-  const big = process.argv.includes('--million')
-  const n = big ? 1_000_000 : 120000
-  const t0 = Date.now()
-  const r = selvesAtScale({ n })
-  console.log('P106: integrated self-patches on the exact {5,3,4} at scale')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, ${r.nonzero.toLocaleString()} active, in ${((Date.now() - t0) / 1000).toFixed(1)}s`)
-  console.log('')
-  console.log('  coherent domains (candidate selves, found by integration not drawn):')
-  console.log(`    largest patch: ${r.largestDomain.toLocaleString()} cells  vs random null ${r.largestRandom}  (advantage ${r.domainAdvantage.toFixed(1)}x)`)
-  console.log(`    patches >= 50 cells: ${r.patchesOver50}, >= 200 cells: ${r.patchesOver200}`)
-  console.log(`    hierarchy of sizes (the tower): ${r.hierarchy}`)
-  console.log('')
-  console.log(`  charge conserved: ${r.conserved}`)
-  console.log(`  integrated self-patches emerge at scale: ${r.selvesEmerge}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

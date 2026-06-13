@@ -5,7 +5,8 @@
 // point), unification IS the statement that sin^2(theta_W) = 3/8 holds at the GUT scale. We run 1-loop for the
 // Standard Model and for the MSSM. Run: npx tsx code/experiment/rg-unification.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const MZ = 91.19 // GeV
 // measured couplings at M_Z, GUT-normalized alpha_1 (= 5/3 alpha_Y), inverse fine-structure form
@@ -52,7 +53,26 @@ export function rgUnification(): { smGap: number; mssmGap: number } {
   return { smGap: sm.a3gap, mssmGap: mssm.a3gap }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = rgUnification()
-  console.log(`SOLVED: sin^2(theta_W)=3/8 runs to ~0.21 (SM, gap ${Math.abs(r.smGap)}) or 0.231 (MSSM, gap ${Math.abs(r.mssmGap)}~0). Elevatable to computed-vs-experiment, and it predicts low-energy SUSY. Full derivation-from-the-rule is open.`)
-}
+export default defineExperiment({
+  id: 'gauge/rg-unification',
+  title: 'running the measured couplings up unifies in the MSSM but misses in the bare Standard Model',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = rgUnification()
+    const ok = Math.abs(r.mssmGap) < 1 && Math.abs(r.smGap) > Math.abs(r.mssmGap)
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'running the measured gauge couplings up at one loop, the three nearly meet in the MSSM spectrum but miss in the bare Standard Model, confirming that sin squared 3/8 unification needs low-energy supersymmetry',
+      metrics: {
+        standardModelGap: r.smGap,
+        mssmGap: r.mssmGap,
+      },
+      notes:
+        'L2, known physics, standard one-loop renormalization-group unification. The beta functions are textbook inputs, not derived from the substrate rule. The Standard Model miss is the control that makes the MSSM near-unification meaningful. Deriving the beta functions from the dynamics is the open frontier.',
+    })
+  },
+})

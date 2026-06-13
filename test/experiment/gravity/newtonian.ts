@@ -7,7 +7,6 @@
 // This is one rung. The full Einstein equations and the graviton are the long road
 // (see note/questions/next-version.md P16). Run: npx tsx code/experiment/p16-newtonian.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -181,42 +180,6 @@ export function fitForm(r: number[], phi: number[], f: (x: number) => number): {
     ssTot += ((phi[i] ?? 0) - mp) * ((phi[i] ?? 0) - mp)
   }
   return { a, r2: ssTot === 0 ? 0 : 1 - ssRes / ssTot }
-}
-
-export function main(): void {
-  console.log('P16: the Newtonian limit, static potential phi(r) on a cubic lattice')
-  console.log('  continuum prediction: 1D linear (confining), 2D logarithmic, 3D ~ 1/r')
-  console.log('')
-
-  const one = potentialProfile({ lat: cubicLattice(201, 1), side: 201 })
-  const oneFit = fitForm(one.r, one.phi, (r) => r)
-  console.log(`  1D: phi = a*r + c, a = ${oneFit.a.toFixed(3)} (negative = confining), R^2 = ${oneFit.r2.toFixed(4)}`)
-
-  const two = potentialProfile({ lat: cubicLattice(81, 2), side: 81 })
-  const twoFit = fitForm(two.r, two.phi, (r) => Math.log(r))
-  console.log(`  2D: phi = a*ln(r) + c, a = ${twoFit.a.toFixed(3)} (negative = logarithmic), R^2 = ${twoFit.r2.toFixed(4)}`)
-
-  const three = potentialProfile({ lat: cubicLattice(27, 3), side: 27 })
-  const inv = fitForm(three.r, three.phi, (r) => 1 / r)
-  const invSq = fitForm(three.r, three.phi, (r) => 1 / (r * r))
-  const logf = fitForm(three.r, three.phi, (r) => Math.log(r))
-  console.log(`  3D: best fit among forms (higher R^2 wins):`)
-  console.log(`        1/r   (Newtonian):  R^2 = ${inv.r2.toFixed(4)}  (a = ${inv.a.toFixed(3)})`)
-  console.log(`        1/r^2:               R^2 = ${invSq.r2.toFixed(4)}`)
-  console.log(`        ln(r):               R^2 = ${logf.r2.toFixed(4)}`)
-  const newtonWins = inv.r2 > invSq.r2 && inv.r2 > logf.r2
-  console.log(`        Newtonian 1/r is the best fit: ${newtonWins ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The emergent static potential matches the continuum Green’s function in each')
-  console.log('  dimension: confining in 1D, logarithmic in 2D, and Newtonian (1/r) in 3D. This')
-  console.log('  is the weak-field rung. The Einstein equations and the graviton remain ahead.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

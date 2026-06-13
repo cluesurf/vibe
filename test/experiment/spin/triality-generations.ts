@@ -8,7 +8,8 @@
 // from the simple reading and remains UNPROVEN. An honest result on the novel bet, not an overclaim.
 // Run: npx tsx code/experiment/p254-triality-generations.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function trialityGenerations(): { threeReps: boolean; trialityOrder3: boolean; eightEach: boolean; chiralitySplit: boolean; threeGenerationsEstablished: boolean } {
   // the three 8-dim reps of SO(8) on the 24-cell coordinates
@@ -48,9 +49,30 @@ export function trialityGenerations(): { threeReps: boolean; trialityOrder3: boo
   return { threeReps, trialityOrder3, eightEach, chiralitySplit, threeGenerationsEstablished }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = trialityGenerations()
-  // an HONEST test: the structural facts PASS, the generation claim is honestly reported as NOT established
-  const pass = r.eightEach && r.trialityOrder3 && r.chiralitySplit
-  console.log(`SOLVED TRIALITY (honest): three-8dim-reps ${r.eightEach}, order-3 triality ${r.trialityOrder3}, chirality-split ${r.chiralitySplit}, three-generations-established ${r.threeGenerationsEstablished} => structure ${pass ? 'CONFIRMED' : 'FAILED'}, generations OPEN`)
-}
+export default defineExperiment({
+  id: 'spin/triality-generations',
+  title: 'SO(8) triality is a real order-3 symmetry but the naive reading gives vector plus two chiralities, not three generations',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = trialityGenerations()
+    // the structural facts hold; the generation claim is an honest negative, so the
+    // verdict is partial.
+    const structureOk = r.eightEach && r.trialityOrder3 && r.chiralitySplit
+    return verdict({
+      status: structureOk ? 'partial' : 'fail',
+      claim:
+        'the three 8-dimensional reps of SO(8) on the 24-cell coordinates are cycled by an order-3 triality, but 8s and 8c are the two chiralities of one generation and 8v is the vector, so the naive triple is a vector plus two chiralities, not three matter generations',
+      metrics: {
+        eightEach: r.eightEach ? 1 : 0,
+        trialityOrder3: r.trialityOrder3 ? 1 : 0,
+        chiralitySplit: r.chiralitySplit ? 1 : 0,
+        threeGenerationsEstablished: r.threeGenerationsEstablished ? 1 : 0,
+      },
+      notes:
+        'L1, known math (SO(8) triality). The necessary structural condition (an order-3 symmetry cycling three 8-dim reps) is verified, but the program\'s novel bet, three generations, does NOT follow from the simple 8v/8s/8c reading, which is a vector plus two chiralities. Reported honestly as partial, the generation count is the open frontier. Companion to spin/generations-f4-jordan, which finds the better path through F4 and J3(O).',
+    })
+  },
+})

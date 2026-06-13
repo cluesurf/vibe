@@ -12,7 +12,6 @@
 // charge conserved. The experiment establishes the honest negative and its geometric cause.
 // Run: npx tsx code/experiment/p112-reproduction.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -175,24 +174,6 @@ export function reproduction(input?: { n?: number }): {
   const solved = conserved && fissionSuppressed
 
   return { n: N, ballRadius, ballCells: self.length, startComponents, endComponents, conserved, fissionSuppressed, solved }
-}
-
-export function main(): void {
-  const big = process.argv.includes('--million')
-  const r = reproduction({ n: big ? 1_000_000 : 120000 })
-  console.log('P112: does a self split into two like selves (fission)?')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, a solid self of ${r.ballCells} cells, radius only ${r.ballRadius} (almost all boundary)`)
-  console.log(`  large selves: start ${r.startComponents} -> end ${r.endComponents}`)
-  console.log(`  the self stays ONE self, fission is suppressed by the hyperbolic geometry: ${r.fissionSuppressed}`)
-  console.log('  (no thin necks to pinch, balls are all-boundary, and the rule MERGES like with like)')
-  console.log('  => reproduction here is DE NOVO, new selves are born from peace by the arrow (P106), not by division')
-  console.log(`  charge conserved: ${r.conserved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

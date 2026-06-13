@@ -10,7 +10,6 @@
 // the win comes from compact formula addressing (the plan's Stage 1), this stage proves on-demand neighbor
 // CORRECTNESS, the seed the shader port builds on. Run: npx tsx code/experiment/p183-lazy-neighbors.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid, makeLazyEngine, type LazyCell } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -112,25 +111,6 @@ export function lazyNeighbors(input?: { n?: number }): {
     noGraphStored,
     solved,
   }
-}
-
-export function main(): void {
-  const r = lazyNeighbors()
-  console.log('P184: lazy on-demand neighbor computation (Stage 0 of the WebGPU billion-cell plan)')
-  console.log('')
-  console.log(`  (1) lazy build reproduces the stored graph EXACTLY: ${r.graphsIdentical} (${r.lazyCellCount.toLocaleString()} cells, stored ${r.storedCellCount.toLocaleString()})`)
-  console.log(`  (2) RANDOM ACCESS: walked to depth ${r.randomAccessDepth}, computed ${r.randomAccessNeighbors} neighbors on demand with NO graph stored`)
-  console.log(`      consistency, the cell we came from is among the computed neighbors: ${r.cameFromIsNeighbor}`)
-  console.log('')
-  console.log('  => neighbors are computed on demand from each cell using only its own matrices, no stored')
-  console.log('     adjacency, and the result matches the exact engine. This is the seed of the lazy WebGPU path.')
-  console.log('     The memory win itself comes next, from compact formula addressing (plan Stage 1), the matrix')
-  console.log('     here is only the correctness proof of the on-demand mechanism.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

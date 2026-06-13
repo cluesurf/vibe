@@ -12,7 +12,6 @@
 //      connecting geodesic dips, so the radial (bulk-depth) direction is the renormalization scale.
 // Run: npx tsx code/experiment/p91-holography.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -153,31 +152,6 @@ export function holography(): {
     depthIsScale,
     solved,
   }
-}
-
-export function main(): void {
-  const r = holography()
-  console.log('P91: holography on the real {7,3} crystal (the AdS spatial slice)')
-  console.log('')
-  console.log(`  graph: ${r.cells} cells, ${r.rimCells} boundary (rim) cells`)
-  console.log('')
-  console.log('  1. Ryu-Takayanagi: bulk geodesic length = entanglement entropy of a boundary arc:')
-  console.log(`     S(theta) = ${r.logLawSlope.toFixed(2)} * log(sin(theta/2)) + const,  R^2 = ${r.logLawR2.toFixed(3)}`)
-  console.log(`     the CFT2 vacuum entanglement entropy law holds: ${r.rtLogLawHolds}`)
-  console.log('')
-  console.log('  2. the geodesic shortcut (far on the boundary, near through the bulk):')
-  console.log(`     shortcut ratio (boundary path / bulk path): ${r.shortcutRatio.toFixed(1)}x`)
-  console.log('     the field beneath, telepathy, synchronicity, made geometric')
-  console.log('')
-  console.log('  3. depth is scale (farther boundary points connect through deeper bulk):')
-  console.log(`     near-pair geodesic dips to radius ${r.nearGeodesicDepth.toFixed(3)}, far-pair to ${r.farGeodesicDepth.toFixed(3)} (center = 0)`)
-  console.log(`     bulk depth encodes boundary separation: ${r.depthIsScale}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

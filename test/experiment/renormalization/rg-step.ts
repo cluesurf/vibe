@@ -8,7 +8,6 @@
 // evolution), check the alphabet ENRICHES (block charge ranges over many integers, not ternary), and that
 // total charge is conserved. Run: npx tsx code/experiment/p122-rg-step.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -269,29 +268,6 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     alphabetEnriched,
     solved,
   }
-}
-
-export function main(): void {
-  const r = rgStep()
-  console.log('P122: one renormalization step (vibe mesh -> coarse hydrodynamic layer L1)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells -> ${r.numBlocks.toLocaleString()} blocks`)
-  console.log(`  block-charge alphabet range: ${r.alphabetRange} values (ternary base enriched to a macro alphabet): ${r.alphabetEnriched}`)
-  console.log('')
-  console.log('  tested the diffusion hypothesis dQ_block = D * Laplacian(Q):')
-  console.log(`    D = ${r.diffusionConstant.toFixed(4)}, held-out R^2 = ${r.fitR2.toFixed(2)} -> a slow diffusion mode: ${r.slowDiffusion} (REJECTED)`)
-  console.log('')
-  console.log(`  the coarse charge field flattens in ${r.mixingTime} beat(s) (variance decay ${r.varDecay.toFixed(2)}): fast mixing ${r.fastMixing}`)
-  console.log(`  total charge conserved across the map: ${r.conserved}`)
-  console.log('')
-  console.log('  L1 characterized: the first RG step gives a CONSERVED, alphabet-ENRICHED layer whose coarse')
-  console.log('  dynamics is FAST hyperbolic mixing (the field beneath), NOT slow Euclidean diffusion.')
-  console.log(`  => a ball mixes too fast to show transport. Need a long thin SLIVER (P123) to see it.`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

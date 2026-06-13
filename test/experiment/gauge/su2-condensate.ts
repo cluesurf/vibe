@@ -6,39 +6,42 @@
 // condensate. See note/questions/remaining-frontier-spec.md (B2).
 // Run: npx tsx code/experiment/p8-su2-condensate.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
 
-export function main(): void {
-  console.log('B2: chiral condensate in a dynamical SU(2) gauge field')
-  console.log('  disorder   near-zero density (condensate signal)')
-  let free = 0
-  let maxSignal = 0
-  for (const disorder of [0, 0.3, 0.6, 1.0]) {
-    const r = chiralCondensateSignalSU2({
-      length: 4,
-      disorder,
-      configs: 10,
-      rng: makeRng({ seed: 600 + Math.round(disorder * 100) }),
+export default defineExperiment({
+  id: 'gauge/su2-condensate',
+  title: 'a chiral condensate forms in a dynamical non-abelian SU(2) gauge field, near zero in the free theory',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const disorders = [0, 0.3, 0.6, 1.0]
+    const densities = disorders.map(
+      (disorder) =>
+        chiralCondensateSignalSU2({
+          length: 4,
+          disorder,
+          configs: 10,
+          rng: makeRng({ seed: 600 + Math.round(disorder * 100) }),
+        }).nearZeroDensity,
+    )
+    const free = densities[0] ?? 0
+    const maxSignal = Math.max(...densities)
+    const ok = free < 0.005 && maxSignal > free
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the overlap fermion near-zero density is near zero in the free theory and nonzero in a dynamical SU(2) gauge field, the non-abelian analogue of the Schwinger chiral condensate',
+      metrics: {
+        freeDensity: free,
+        maxDensity: maxSignal,
+      },
+      notes:
+        'L2, known physics, a vector-like overlap fermion in a dynamical SU(2) field. The gauge configurations are pseudo-random, so the densities are Monte Carlo estimates over an ensemble. The free theory is the near-zero control. Statistical reproduction one rung below the open chiral gauge theory, not an emergent claim.',
     })
-    if (disorder === 0) {
-      free = r.nearZeroDensity
-    }
-    if (r.nearZeroDensity > maxSignal) {
-      maxSignal = r.nearZeroDensity
-    }
-    console.log(`  ${disorder.toFixed(2).padStart(6)}     ${r.nearZeroDensity.toFixed(4).padStart(10)}`)
-  }
-  console.log('')
-  console.log(`  condensate forms in the non-Abelian field: ${free < 0.005 && maxSignal > free ? 'YES' : 'roughly'}`)
-  console.log('  the chiral fermion couples to a dynamical SU(2) field and a condensate')
-  console.log('  forms from the anomaly, the rung below the open chiral gauge theory.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+  },
+})

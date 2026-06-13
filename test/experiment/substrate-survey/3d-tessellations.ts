@@ -4,8 +4,9 @@
 // while the paracompact ones containing a 6 (and only 3,4,6) ARE crystallographic. So 3D never delivers
 // compact-AND-crystallographic together. Run: npx tsx code/experiment/3d-tessellations.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; compact: boolean; note: string }
 const HONEYCOMBS: Cand[] = [
@@ -73,7 +74,28 @@ export function threedTessellations(): void {
   console.log('   (D4 spinors) + 3D physical space coincide. No 3D honeycomb can.')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  threedTessellations()
-  console.log('SOLVED: all 15 3D regular honeycombs swept. Compact ones are non-crystallographic (have a 5), crystallographic ones are paracompact (have a 6), all give 2D physical space. None is compact + crystallographic + 3D, which only {3,4,3,4} achieves.')
-}
+export default defineExperiment({
+  id: 'substrate-survey/3d-tessellations',
+  title: 'a sweep of 3D hyperbolic honeycombs, compact ones are non-crystallographic, crystallographic ones are paracompact',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    threedTessellations()
+    const reference = measure([5, 3, 4])
+    const ok = reference.ok && reference.degree === 12
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the 3D hyperbolic regular honeycombs build as cell graphs, but no one is compact and crystallographic at once, the compact regulars contain a 5 and the crystallographic ones are paracompact, and all give a 2D horosphere',
+      metrics: {
+        referenceDegree: reference.degree,
+        referenceBetheAlpha: reference.betheAlpha,
+        referenceGrowth: reference.growth,
+      },
+      notes:
+        'L1 known geometry, a survey. The pass checks only that the reference {5,3,4} builds with its dodecahedral degree 12. The compact-versus-crystallographic and 2D-horosphere conclusions are read from the Schlafli symbols and the cusp dimension, not measured here. This is a catalog entry that motivates the 4D substrate.',
+    })
+  },
+})

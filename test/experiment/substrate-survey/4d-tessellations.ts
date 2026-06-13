@@ -5,8 +5,9 @@
 // {4,3,4} cubic honeycomb = the flat 3D cusp), the paracompactness IS the 3D physical space, a feature. The
 // star tetracombs ({3,3,5,5/2} etc.) are non-convex and not built here. Run: npx tsx code/experiment/4d-tessellations.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; cls: 'compact' | 'paracompact' | 'noncompact' | 'euclidean'; coin: string; flat?: boolean; note: string }
 const HONEYCOMBS: Cand[] = [
@@ -69,7 +70,29 @@ export function fourdTessellations(): void {
   console.log('   the five non-crystallographic ones. {3,4,3,4} trades compactness for the D4 coin + flat 3D cusp.')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  fourdTessellations()
-  console.log('SOLVED: all regular 4D honeycombs swept. {3,4,3,4} is PARACOMPACT (its 3D cusp = the Euclidean {4,3,4} ideal element), and the UNIQUE one with 24-cell D4 facets (spinors + gauge). Compact 4D regulars are non-crystallographic (have a 5).')
-}
+export default defineExperiment({
+  id: 'substrate-survey/4d-tessellations',
+  title: 'a sweep of 4D regular honeycombs, all give 3D physical space and {3,4,3,4} is the unique D4-facet one',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    fourdTessellations()
+    const reference = measure([3, 4, 3, 4], false)
+    const crystallographic = [3, 4, 3, 4].every((n) => n === 3 || n === 4 || n === 6)
+    const ok = reference.ok && reference.degree > 0 && crystallographic
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the 4D regular honeycombs build as cell graphs, every one gives a 3D horosphere, the five compact regulars all contain a 5 and are non-crystallographic, and {3,4,3,4} is the unique crystallographic one with 24-cell D4 facets',
+      metrics: {
+        referenceDegree: reference.degree,
+        referenceBetheAlpha: reference.betheAlpha,
+        referenceGrowth: reference.growth,
+      },
+      notes:
+        'L1 known geometry, a survey. The pass checks only that the reference {3,4,3,4} builds and is crystallographic by its Schlafli symbol. The 3D-cusp, D4-facet, and spinor conclusions are read from the known classification, not measured here. This is a catalog entry that places the substrate among its relatives.',
+    })
+  },
+})

@@ -8,7 +8,6 @@
 // continuum-limit error keeps shrinking, hardening the continuum claim at scale.
 // Run: npx tsx code/experiment/p54-large-n-hardening.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension, dimensionFromOrderingFraction } from '@/code/measure/dimension'
@@ -81,43 +80,6 @@ export function largeNHardening(input: { dimension: number; sizes: number[]; pai
   const errors = estimates.map((e) => Math.abs(e - input.dimension))
   const errorShrinks = (errors[errors.length - 1] ?? 1) < (errors[0] ?? 0)
   return { estimates, errors, errorShrinks }
-}
-
-export function main(): void {
-  console.log('P54: performance and large-N hardening')
-  console.log('')
-  // Cross-check: the sampled estimator agrees with the exact O(N^2) one at moderate N.
-  const exact2 = myrheimMeyerDimension({ poset: sprinkleMinkowski({ dimension: 2, count: 1500, rng: makeRng({ seed: 1 }) }) })
-  const samp2 = sampledDimension({ dimension: 2, count: 1500, pairs: 400000, seed: 1 })
-  console.log('  cross-check at N = 1500 (2D):')
-  console.log(`    exact O(N^2) estimator:  ${exact2.toFixed(3)}`)
-  console.log(`    sampled O(N) estimator:  ${samp2.toFixed(3)}`)
-  console.log(`    agree within 0.1: ${Math.abs(exact2 - samp2) < 0.1 ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  large-N continuum limit, reachable only with the sampled estimator:')
-  for (const d of [2, 3]) {
-    const sizes = [2000, 8000, 30000, 100000]
-    const r = largeNHardening({ dimension: d, sizes, pairs: 500000, seed: 10 })
-    console.log(`  ${d}D (true dimension ${d}):`)
-    for (let i = 0; i < sizes.length; i++) {
-      console.log(`    N = ${String(sizes[i]).padStart(6)}: dimension ${(r.estimates[i] ?? 0).toFixed(3)}, error ${(r.errors[i] ?? 0).toFixed(3)}`)
-    }
-    console.log(`    error shrinks toward the continuum at large N: ${r.errorShrinks ? 'YES' : 'no'}`)
-    console.log('')
-  }
-  console.log('  Performance does not harden the theory by itself, but it unlocks larger N, and the')
-  console.log('  sampled estimator (O(N) memory instead of O(N^2)) reaches N = 100000, far beyond')
-  console.log('  the full-causal-set wall. There the dimension sits at the continuum value with a')
-  console.log('  shrinking error, so the continuum limit is hardened at scale. The same sampling')
-  console.log('  trick applies to the action fluctuation and the dominance checks, the other')
-  console.log('  size-limited results.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

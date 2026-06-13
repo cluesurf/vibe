@@ -15,7 +15,6 @@
 // (death), the live state is a stable dynamic balance (not 0, not saturated), and hops DIFFUSE a pocket
 // while arrow-biased hops PUMP it. Run: npx tsx code/experiment/p100-perception-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -230,33 +229,6 @@ export function perceptionDynamics(): {
     diffusesAndPumps,
     solved,
   }
-}
-
-export function main(): void {
-  const r = perceptionDynamics()
-  console.log('P100: the perception rule on the real {5,3,4} crystal (no fills)')
-  console.log('')
-  console.log(`  ${r.cells} cells, only tones, the note is what a vibe sees`)
-  console.log('')
-  console.log('  charge conserved under the perception rule:', r.conserved)
-  console.log('')
-  console.log('  the arrow creates life from all-peace:')
-  console.log(`    nonzero ${r.lifeStart} -> ${r.lifeEnd} of ${r.cells}, creates life: ${r.arrowCreatesLife}`)
-  console.log('')
-  console.log('  without the arrow, a charged start relaxes to peace (death):')
-  console.log(`    nonzero ${r.deathStart} -> ${r.deathEnd}, relaxes: ${r.noArrowRelaxesToPeace}`)
-  console.log('')
-  console.log('  the live state is a dynamic balance (stable, not dead, not saturated):')
-  console.log(`    nonzero mid ${r.balanceMid}, late ${r.balanceLate}, stable balance: ${r.dynamicBalance}`)
-  console.log('')
-  console.log('  hops diffuse a pocket, arrow-biased hops pump it:')
-  console.log(`    abs charge ${r.absChargeStart} -> ${r.absDiffused} (drain), net center pumped ${r.netPumped} vs diffused ${r.netDiffused}: ${r.diffusesAndPumps}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

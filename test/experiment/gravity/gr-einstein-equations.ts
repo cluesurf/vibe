@@ -14,8 +14,9 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-einstein-equations.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- Route A, Jacobson: area-law coefficient -> Einstein coefficient -> Newtonian 4pi ----------
 
@@ -121,39 +122,33 @@ function cosmologicalConstant(): { H: number; Lambda: number } {
   return { H, Lambda: 3 * H ** 2 }
 }
 
-export function main(): void {
-  console.log('The Einstein field equations on the substrate (G=c=1)')
-  console.log('Beyond Newtonian 1/r and the holographic correlator: the full equation, via Jacobson + light bending.\n')
-
-  console.log('=== Route A, Jacobson: the area law -> the Einstein equation ===')
-  const jc = jacobsonCoefficient()
-  console.log(`  area-law entropy S = A/4G, eta = 1/4G`)
-  console.log(`  Clausius dQ=TdS forces R_uv k k = (2pi/eta) T_uv k k for ALL null k => G_uv + Lambda g_uv = ${(jc.einsteinCoeff / Math.PI).toFixed(3)} pi G T_uv`)
-  console.log(`  Einstein coefficient 2pi/eta = ${jc.einsteinCoeff.toFixed(4)} (= 8 pi = ${(8 * Math.PI).toFixed(4)}) -> ${jc.ok ? 'EXACT' : 'off'}`)
-  console.log(`  weak-field reduction: nabla^2 Phi = ${(jc.poissonCoeff / Math.PI).toFixed(2)} pi G rho (Newtonian Poisson, the 4pi) -> consistent`)
-
-  console.log('\n=== the weak-field Poisson limit on the {4,3,4}=Z^3 cusp (recovers Newton 1/r) ===')
-  const pc = poissonOnCusp()
-  console.log(`  solved nabla^2 Phi = 4pi rho for a point source; fit quality R^2: 1/r = ${pc.rFit.toFixed(4)}, 1/r^2 = ${pc.r2Fit.toFixed(4)}`)
-  console.log(`  -> Phi(r) ~ 1/r (Newtonian) ${pc.ok ? 'CONFIRMED' : 'off'} (1/r fits far better than 1/r^2)`)
-
-  console.log('\n=== Route B, light bending = 4GM/b (the GR factor 2 over Newton) ===')
-  const lb = lightBending(1, 10)
-  console.log(`  Newtonian deflection (time curvature only): ${lb.newtonAngle.toFixed(5)} = 2M/b = ${(2 / 10).toFixed(5)}`)
-  console.log(`  GR deflection (time + space curvature):     ${lb.grAngle.toFixed(5)} = 4M/b = ${(4 / 10).toFixed(5)}`)
-  console.log(`  ratio GR/Newton = ${lb.ratio.toFixed(4)} (GR predicts exactly 2) -> ${lb.ok ? 'CONFIRMED' : 'off'}`)
-
-  console.log('\n=== the cosmological constant from the substrate ===')
-  const cc = cosmologicalConstant()
-  console.log(`  Lambda = 3 H^2 = ${cc.Lambda.toFixed(4)} (H = ${cc.H} per beat), the de Sitter integration constant of the equation of state`)
-
-  const all = jc.ok && pc.ok && lb.ok
-  console.log(`\nVerdict: the Einstein field equations on the substrate: ${all ? 'ESTABLISHED' : 'INCOMPLETE'}`)
-  console.log('(Jacobson: area law => the full nonlinear G_uv = 8piG T_uv, with the SAME G as Newton; the cusp')
-  console.log(' Poisson limit recovers 1/r; light bends by 4GM/b, the GR factor 2; Lambda = 3H^2 from expansion.)')
-  console.log('See note/research/vibe/notes/theory-v0.6.0/general-relativity-on-the-substrate.md')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'gravity/gr-einstein-equations',
+  title: 'the assumed area-law and weak-field formulas reproduce the Einstein coefficient, 1/r on the cusp, and 4GM/b bending',
+  category: 'gravity',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const jc = jacobsonCoefficient()
+    const pc = poissonOnCusp()
+    const lb = lightBending(1, 10)
+    const cc = cosmologicalConstant()
+    const ok = jc.ok && pc.ok && lb.ok
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the hardcoded area-law density gives the 8 pi G Einstein coefficient, a discrete Poisson solve on the cubic cusp recovers a 1/r potential better than 1/r squared, and the assumed weak-field metric bends light by 4GM over b',
+      metrics: {
+        einsteinCoeff: jc.einsteinCoeff,
+        poissonCoeff: jc.poissonCoeff,
+        cuspOneOverRFit: pc.rFit,
+        cuspOneOverRSquaredFit: pc.r2Fit,
+        bendingRatio: lb.ratio,
+        cosmologicalConstant: cc.Lambda,
+      },
+      notes:
+        'Mostly L0 algebra. The Jacobson coefficient and the 4GM/b bending are pure consequences of assumed formulas (the area-law density and the weak-field metric), not derived from the substrate. The one measured part is the cusp Poisson solve, which reads a 1/r falloff against a 1/r squared control on the real {4,3,4} lattice, but it solves a hardcoded lattice Laplacian, so it is L1 known math (the lattice Green function is 1/r in 3D), not emergent gravity.',
+    })
+  },
+})

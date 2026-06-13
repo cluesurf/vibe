@@ -12,7 +12,6 @@
 // ternary vertices, and the 5 (the golden dodecahedron) is forced, not chosen.
 // Run: npx tsx code/experiment/p86-auto-selection.ts
 
-import { pathToFileURL } from 'node:url'
 import { classifyGeometry, edgeRegime, dihedralAngleDegrees } from '@/code/substrate/coxeter/schlafli'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -92,38 +91,6 @@ export function autoSelection(): {
     fiveIsForced,
     solved,
   }
-}
-
-export function main(): void {
-  const r = autoSelection()
-  console.log('P86: does a local rule deterministically pick {5,3,4}?')
-  console.log('')
-  console.log('  step 1, ternary forces three-valent cells {p,3}. finite ones (the candidates):')
-  for (const c of r.ternaryCells) {
-    console.log(`    ${c.cell.padEnd(7)} finite=${c.finite}  dihedral=${c.dihedral} deg`)
-  }
-  console.log('')
-  console.log('  step 2, minimal cells-per-edge for a COMPACT eternal crystal, per cell:')
-  for (const c of r.minimalClosure) {
-    const overflow = c.minimalCompactR
-      ? edgeRegime({ p: Number(c.cell[1]), q: 3, r: c.minimalCompactR })
-      : null
-    const tag = c.symbol
-      ? `-> ${c.symbol} (r=${c.minimalCompactR}, ${overflow?.totalAngleDegrees.toFixed(0)} deg)`
-      : '-> none compact (paracompact only)'
-    console.log(`    ${c.cell.padEnd(7)} ${tag}`)
-  }
-  console.log('')
-  console.log(`  all q=3 compact hyperbolic honeycombs: ${r.allQ3Compact.map((c) => c.symbol).join(', ')}`)
-  console.log(`  tightest (minimal cells per edge): ${r.tightestQ3}`)
-  console.log(`  the 5 is forced (dodeca r=4, cube r=5, tetra none): ${r.fiveIsForced}`)
-  console.log('')
-  console.log(`  forced crystal: ${r.forcedSymbol}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

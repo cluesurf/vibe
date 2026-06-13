@@ -14,7 +14,6 @@
 // is Sorkin's everpresent prediction evaluated at the observed 4-volume, adopted, not independently
 // derived here. Run: npx tsx code/experiment/p46-everpresent-dynamical.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -98,39 +97,6 @@ export function everpresent(input: { seed: number }): {
     // observed order of magnitude. The exact value and sign are not independently derived.
     solved: matchesEverpresent && sameOrderAsObserved,
   }
-}
-
-export function main(): void {
-  const r = everpresent({ seed: 1 })
-  console.log('P46: dynamical everpresent Lambda, from genuine Poisson statistics')
-  console.log('')
-  const det = everpresentDynamical({ volumes: [50, 100, 200, 400], repeats: 40000, seed: 1 })
-  console.log('  genuine Poisson element-count draws (the discrete causal-set volume):')
-  ;[50, 100, 200, 400].forEach((v, i) => {
-    console.log(`    V = ${String(v).padStart(3)}: delta-Lambda RMS = ${(det.rms[i] ?? 0).toExponential(2)} (1/sqrt(V) = ${(1 / Math.sqrt(v)).toExponential(2)})`)
-  })
-  console.log('')
-  console.log(`  measured scaling: delta-Lambda ~ V^${r.exponent.toFixed(3)} (everpresent prediction -0.5): ${r.matchesEverpresent ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  the three approaches to the cosmological constant:')
-  console.log('    P19 sharp 4D action (static variance, WRONG observable):  delta-Lambda ~ V^+0.16')
-  console.log('    P29 smeared 4D kernel (static variance):                  delta-Lambda ~ V^+0.06')
-  console.log(`    P46 conjugate volume (the correct observable):            delta-Lambda ~ V^${r.exponent.toFixed(2)}`)
-  console.log('')
-  console.log(`  at the observed 4-volume, the adopted everpresent scaling gives delta-Lambda ~ 1e${Math.round(r.darkEnergyOrderOfMagnitude)},`)
-  console.log(`  the same order of magnitude as the observed Lambda (~ 1e${Math.round(r.observedOrderOfMagnitude)} in Planck units): ${r.sameOrderAsObserved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Honest scope: the everpresent MECHANISM and -1/2 SCALING are reproduced from genuine')
-  console.log('  Poisson statistics of the discrete volume, which is the correct conjugate-volume')
-  console.log('  observable, reconciling the wrong-observable static-action attempts (P19/P29). The')
-  console.log('  fluctuation has a FLUCTUATING sign (plus or minus 1/sqrt(V)), and the dark-energy value')
-  console.log('  (about 1e-122) is Sorkin\'s everpresent prediction evaluated at the observed 4-volume,')
-  console.log('  adopted here, not independently derived. The model gives the mechanism, the scaling,')
-  console.log('  and the order of magnitude, not the precise value.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

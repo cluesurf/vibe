@@ -11,7 +11,6 @@
 // and a self facing an opposite one retains far more charge (avoid) than unbiased. Charge conserved.
 // Run: npx tsx code/experiment/p113-will-steering.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -206,24 +205,6 @@ export function willSteering(input?: { n?: number }): {
     willSteers,
     solved,
   }
-}
-
-export function main(): void {
-  const big = process.argv.includes('--million')
-  const r = willSteering({ n: big ? 1_000_000 : 120000 })
-  console.log('P113: the will steering a self (goal-directed merge and avoidance)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells`)
-  console.log('')
-  console.log(`  MERGE goal: self centroid distance to the target, with will ${r.mergeWithWill.toFixed(1)} vs unbiased ${r.mergeNoWill.toFixed(1)} (lower = moved toward): ${r.mergeWorks}`)
-  console.log(`  AVOID goal: self centroid distance from the threat, with will ${r.avoidWithWill.toFixed(1)} vs unbiased ${r.avoidNoWill.toFixed(1)} (higher = fled away): ${r.avoidWorks}`)
-  console.log('')
-  console.log(`  the will steers a self toward a goal and away from a threat: ${r.willSteers}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

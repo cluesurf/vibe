@@ -17,7 +17,6 @@
 // forced by the same bare principle that forces {5,3,4} (different q, different closure). So keep {5,3,4},
 // with {3,4,3,4} a candidate requiring extra postulates. Run: npx tsx code/experiment/p188-4d-auto-selection.ts
 
-import { pathToFileURL } from 'node:url'
 import { classifyGeometry } from '@/code/substrate/coxeter/schlafli'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -117,34 +116,6 @@ export function fourDAutoSelection(): {
     keepFiveThreeFour,
     solved,
   }
-}
-
-export function main(): void {
-  const r = fourDAutoSelection()
-  console.log('P188: auto-selection in 4D, is {3,4,3,4} forced, or does {5,3,4} stand?')
-  console.log('')
-  console.log('  (1) 3D, ternary q=3 plus minimal COMPACT closure:')
-  console.log(`      forced substrate ${r.threeDForced} (compact: ${r.threeDIsCompact}, ternary q=${r.threeDTernaryQ} in the bulk)`)
-  console.log('')
-  console.log('  (2) 4D, all IDEAL honeycombs with finite cells and Euclidean cusps:')
-  console.log(`      ideal-finite-cell honeycombs found: ${r.idealFourD.join(', ') || 'none'}`)
-  console.log(`      with a CUBIC cusp {4,3,4}: ${r.idealCubicCuspFourD.join(', ') || 'none'}`)
-  console.log(`      unique cubic-cusp candidate: ${r.fourDUniqueCandidate ?? 'NOT unique'}`)
-  console.log('')
-  console.log('  (3) the decisive test on {3,4,3,4}:')
-  console.log(`      bulk q = ${r.fourDBulkTernaryQ} (ternary needs 3) -> bulk carries ternary: ${r.fourDBulkHasTernary}`)
-  console.log(`      cusp {4,3,4} middle = 3 -> the ternary q=3 lives in the EMERGENT 3D space (the cusp): ${r.fourDCuspCarriesTernary}`)
-  console.log(`      is it COMPACT like {5,3,4}? ${r.fourDIsCompact} (it is IDEAL, a different closure regime)`)
-  console.log(`      forced by the SAME principle (q=3 in bulk AND compact)? ${r.fourDForcedBySamePrinciple}`)
-  console.log('')
-  console.log(`  VERDICT, keep {5,3,4} (forced in 3D), {3,4,3,4} is the unique ideal cubic-cusp candidate but NOT forced: ${r.keepFiveThreeFour}`)
-  console.log('  => {3,4,3,4} requires extra postulates (ideal not compact closure, and the ternary signature')
-  console.log('     relocated from the bulk to the cubic cusp), so it is a strong candidate, not forced.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -7,7 +7,6 @@
 // hydrodynamic layer L1), MSD ~ t^2 is ballistic. Identifying this law is the first real rung of the
 // vibe-mesh-to-quantum-field ladder. Run: npx tsx code/experiment/p123-sliver-transport.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -154,28 +153,6 @@ export function sliverTransport(input?: { length?: number; beats?: number; runs?
     longSliver,
     solved,
   }
-}
-
-export function main(): void {
-  const r = sliverTransport()
-  console.log('P123: the transport law on a long sliver (the geodesic tube)')
-  console.log('')
-  console.log(`  sliver: ${r.cellCount} cells, spine length ${r.spineLength} (position 0..${r.spineLength - 1}), far longer than a ball (~7): ${r.longSliver}`)
-  console.log('')
-  console.log(`  single-charge mean-square displacement along the spine over ${r.beats} beats:`)
-  console.log(`    MSD(half) = ${r.msdHalf.toFixed(1)}, MSD(full) = ${r.msdFull.toFixed(1)}`)
-  console.log(`    fitted exponent alpha = ${r.exponent.toFixed(2)}  (1 = diffusion, 2 = BALLISTIC)`)
-  console.log(`    escape speed v = ${Math.sqrt(r.msdFull / (r.beats * r.beats)).toFixed(3)} cells/beat`)
-  console.log('')
-  console.log(`  transport is BALLISTIC (positive escape speed): ${r.isBallistic}  (diffusive: ${r.isDiffusive})`)
-  console.log('  => hyperbolic geometry gives a random walk a FINITE escape speed (the rate-of-escape')
-  console.log('     theorem), i.e. a LIGHTCONE, the relativistic-field ingredient, NOT slow diffusion.')
-  console.log(`  L1 identified on the sliver: ballistic/wave transport with a finite speed: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

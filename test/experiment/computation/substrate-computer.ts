@@ -12,7 +12,6 @@
 // each verified correct, which is what makes it a general-purpose computer rather than a fixed circuit.
 // Run: npx tsx code/experiment/p177-substrate-computer.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -185,24 +184,6 @@ export function substrateComputer(input?: { n?: number }): {
   const solved = allCorrect && allConserved && generalPurpose
 
   return { n, cases, allCorrect, allConserved, programsRun, generalPurpose, solved }
-}
-
-export function main(): void {
-  const r = substrateComputer()
-  console.log('P177: a general-purpose computer running on the substrate')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, registers as charge, INC/DEC as the arrow's create/annihilate moves:`)
-  for (const c of r.cases) console.log(`    ${c.program.padEnd(9)} ${c.inputs.join(',').padEnd(6)} -> ${c.got} (expected ${c.expected}) ${c.got === c.expected ? 'ok' : 'WRONG'}, charge conserved ${c.conserved}`)
-  console.log('')
-  console.log(`  ${r.programsRun} different programs run on the SAME machine, all correct: ${r.generalPurpose}`)
-  console.log(`  total charge conserved throughout (genuine substrate dynamics): ${r.allConserved}`)
-  console.log('  => a programmable, Turing-complete register machine runs on the {5,3,4} charge dynamics,')
-  console.log('     an explicit general-purpose computer in the system, not a fixed circuit.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

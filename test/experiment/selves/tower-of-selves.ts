@@ -15,7 +15,6 @@
 // reduces to a single self at the top, but only because the mesh was constructed that way.
 // Run: npx tsx code/experiment/p60-tower-of-selves.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeGraph, Graph } from '@/code/tool/graph'
 import { aggregate, effectiveCouplings, renormMacroStep, agreement } from '@/test/experiment/renormalization/emergent-macro-rule'
@@ -165,44 +164,6 @@ export function towerOfSelves(input: { seed: number }): {
     // larger whole integrates more diverse parts, which is expected, not a failure.)
     solved: descendsToOne && cleanBranching && ruleHoldsEveryLevel,
   }
-}
-
-export function main(): void {
-  const r = towerOfSelves({ seed: 1 })
-  console.log('P60: the tower of selves (the fractal of wholes-within-wholes)')
-  console.log('')
-  console.log(`  A recursively modular mesh of ${r.baseVibes} vibes: vibes in cells in tissues in organs in`)
-  console.log('  systems in a body.')
-  console.log('')
-  console.log('  level | name    | units (selves) | internal alignment | emergent rule holds')
-  for (const rung of r.rungs) {
-    const ra = rung.level < 4 && rung.units >= 3 ? rung.ruleAgreement.toFixed(2) : ' n/a'
-    console.log(`    ${rung.level}   | ${rung.name.padEnd(7)} |     ${String(rung.units).padStart(6)}     |        ${rung.coherence.toFixed(2)}        |       ${ra}`)
-  }
-  console.log('')
-  console.log(`  the tower descends to a single top self: ${r.descendsToOne ? 'YES' : 'no'}`)
-  console.log(`  clean branching (each level divides by ~3): ${r.cleanBranching ? 'YES' : 'no'}`)
-  console.log(`  the same emergent rule holds at every level: ${r.ruleHoldsEveryLevel ? 'YES' : 'no'}`)
-  console.log(`  NOT EMERGENT (adds a hand-built recursively modular mesh, not one of the five base things): ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  (Internal alignment falls with scale: a body integrates diverse organs, so its tone')
-  console.log('  is not uniform. That is expected. Self-ness at the higher levels is carried by')
-  console.log('  obeying the rule and integrating the parts, not by being all one tone.)')
-  console.log('')
-  console.log('  The same structure repeats all the way up the tower. Vibes gather into cells, cells')
-  console.log('  into blocks, blocks into organs, organs into the body, fewer at each level, each one')
-  console.log('  a coherent self made of the selves beneath it, until the whole is a single self at')
-  console.log('  the top. Every rung obeys the same emergent rule. This is the fractal of')
-  console.log('  wholes-within-wholes: one law at every scale, from the micro-vibe to the one self that')
-  console.log('  contains them all, the literal shape of cells in tissues in organs in a being, and of')
-  console.log('  beings in greater beings beyond.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

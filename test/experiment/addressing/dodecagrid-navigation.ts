@@ -8,7 +8,6 @@
 // across the 3D crystal at low stretch (path length close to the shortest path).
 // Run: npx tsx code/experiment/p76-dodecagrid-navigation.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { Graph } from '@/code/tool/graph'
@@ -117,34 +116,6 @@ export function dodecagridNavigation(input: { seed: number }): {
     // Solved: greedy routing on the 3D hyperbolic address delivers almost every pair at low stretch.
     solved: successRate > 0.9 && meanStretch < 2.0,
   }
-}
-
-export function main(): void {
-  const r = dodecagridNavigation({ seed: 1 })
-  console.log('P76: 3D addressed navigation on the dodecagrid')
-  console.log('')
-  console.log(`  dodecagrid {5,3,4}, the 3D crystal: ${r.cells} cells`)
-  console.log(`  routed ${r.pairs} random source-target pairs by greedy hyperbolic addressing`)
-  console.log('')
-  console.log(`  delivery success rate: ${(100 * r.successRate).toFixed(1)}%`)
-  console.log(`  mean stretch (path length over shortest path): ${r.meanStretch.toFixed(2)}`)
-  console.log('')
-  console.log(`  3D addressed navigation solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The exact addressed routing of P42 carries over from the 2D heptagrid to the real 3D')
-  console.log('  crystal. Each cell\'s address is its place in the hyperbolic embedding, and routing is')
-  console.log('  greedy: at each step move to the neighbor whose address lies closest to the target. On')
-  console.log('  the dodecagrid this delivers almost every pair, and the paths it finds are close to the')
-  console.log('  shortest possible, so a signal can be sent from any cell to any other using local')
-  console.log('  address comparisons alone, with no global map. The hyperbolic geometry is what makes')
-  console.log('  greedy routing work, the same curvature that keeps the substrate Lorentz-safe.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

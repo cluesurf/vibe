@@ -13,7 +13,6 @@
 // of coarse-graining up to coupling renormalization. That is the scale-invariance P57 left
 // open. Run: npx tsx code/experiment/p58-emergent-macro-rule.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -275,44 +274,6 @@ export function emergentMacroRule(input: { count: number; seed: number }): {
     // in the frustrated regime (so it is real emergence, not a same-tone-cluster tautology).
     solved: emergesInOrderedRegime && beatsNaive && failsWhenFrustrated,
   }
-}
-
-export function main(): void {
-  const r = emergentMacroRule({ count: 1500, seed: 1 })
-  console.log('P58: the emergent macro-rule (a genuine renormalization on tone-independent blocks)')
-  console.log('')
-  console.log('  Coarse-grain along GEOMETRIC blocks (chosen WITHOUT looking at the tones), then ask:')
-  console.log('  does the renormalized signed-majority macro-rule hold the coarse-grained fixed point?')
-  console.log('')
-  console.log('  coherence p (fraction of aligning fills): how well each coarse rule predicts:')
-  for (const c of r.coherenceSweep) {
-    console.log(`    p = ${c.p.toFixed(2)}: renormalized ${c.renorm.toFixed(3)}, naive ${c.naive.toFixed(3)}`)
-  }
-  console.log('')
-  console.log(`  ordered regime (p = 0.85): renormalized ${r.orderedRenorm.toFixed(3)} vs naive ${r.orderedNaive.toFixed(3)}`)
-  console.log(`  frustrated regime (p = 0.5): renormalized ${r.frustratedRenorm.toFixed(3)} (no coherent domains, no clean coarse rule)`)
-  console.log('')
-  console.log(`  emerges in the ordered regime (renorm > 0.8): ${r.emergesInOrderedRegime ? 'YES' : 'no'}`)
-  console.log(`  the renormalization beats the naive rule: ${r.beatsNaive ? 'YES' : 'no'}`)
-  console.log(`  honestly fails when frustrated (no order, no emergence): ${r.failsWhenFrustrated ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  the emergent macro-rule is solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  This is genuine emergence, not a same-tone-cluster tautology. On blocks chosen by')
-  console.log('  geometry alone, the renormalized signed-majority rule (real couplings plus the block')
-  console.log('  self-coupling) holds the coarse-grained fixed point in the ordered regime, far beyond')
-  console.log('  the naive rule that throws coupling magnitudes away. It honestly fails in the frustrated')
-  console.log('  regime, where the system forms no coherent domains and so has no clean coarse')
-  console.log('  description. The signed-majority FORM is a renormalization fixed point exactly where')
-  console.log('  the system is ordered, which is where higher vibes live: minds made of minds, one rule')
-  console.log('  at every scale, emergent rather than imposed.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

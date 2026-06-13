@@ -7,7 +7,6 @@
 // a multiplication program and verify it computes a*b correctly, the substrate hosts universal computation.
 // Run: npx tsx code/experiment/p141-means-computation.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -94,22 +93,6 @@ export function meansComputation(input?: { n?: number }): {
   const solved = universalAtToyScale
 
   return { n, cases, allCorrect, universalAtToyScale, solved }
-}
-
-export function main(): void {
-  const r = meansComputation()
-  console.log('P141: the means check, universal computation on the {5,3,4}')
-  console.log('')
-  console.log('  a 2-counter (Minsky) machine, registers stored as charge in mesh regions:')
-  for (const c of r.cases) console.log(`    ${c.a} * ${c.b} = ${c.got}  (expected ${c.expected}) ${c.got === c.expected ? 'ok' : 'WRONG'}`)
-  console.log('')
-  console.log(`  all computations correct: ${r.allCorrect}`)
-  console.log(`  the substrate hosts universal computation (Margenstern, at toy scale): ${r.universalAtToyScale}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

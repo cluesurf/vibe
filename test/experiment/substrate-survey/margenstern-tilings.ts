@@ -7,7 +7,6 @@
 // all Lorentz-safe.
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p41-margenstern-tilings.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -81,38 +80,6 @@ export function margensternTilings(input: { seed: number }): Record<
     }
   }
   return out
-}
-
-export function main(): void {
-  const r = margensternTilings({ seed: 2 })
-  console.log("P41: the Margenstern hyperbolic tilings, surveyed")
-  console.log('')
-  console.log('  tiling             vertices   mean degree   Lorentz anisotropy   reach   Lorentz-safe')
-  for (const [name, e] of Object.entries(r)) {
-    console.log(
-      '  ' +
-        name.padEnd(18) +
-        e.size.toString().padStart(7) +
-        e.degree.toFixed(1).padStart(13) +
-        e.anisotropy.toFixed(3).padStart(16) +
-        (e.reach ? 'yes' : 'no').padStart(10) +
-        (e.lorentzSafe ? 'YES' : 'no').padStart(12),
-    )
-  }
-  console.log('')
-  console.log('  Both Margenstern families, {p,4} (the pentagrid and relatives) and {p,3} (the')
-  console.log('  heptagrid and relatives), are Lorentz-safe, with small anisotropy and exponential')
-  console.log('  reach throughout. This confirms the P40 lesson across the whole program: every')
-  console.log('  regular hyperbolic tiling is Lorentz-safe, because curvature scrambles the global')
-  console.log('  directions a flat lattice would line up. So Margensterns tilings are a large')
-  console.log('  family of deterministic, exactly-addressable, Lorentz-safe substrates for the model.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

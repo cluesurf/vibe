@@ -18,7 +18,6 @@
 // then durable selves need adaptive fills (a real sixth thing). If FIVE also self-organizes, the five
 // suffice. Charge Q is conserved throughout (fills never touch tones). Run: npx tsx code/experiment/p97-self-emergence.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -224,30 +223,6 @@ export function selfEmergence(): {
     needsAdaptiveFills,
     solved,
   }
-}
-
-export function main(): void {
-  const r = selfEmergence()
-  console.log('P97: genuine self-emergence (no patch hand-drawn)')
-  console.log('')
-  console.log(`  ${r.cells} cells. A higher self = a coherent vibe-patch, found by integration, not drawn.`)
-  console.log('')
-  console.log('  FIVE (fixed fills, the five as stated):')
-  console.log(`    coherence ${r.coherenceFiveStart.toFixed(3)} -> ${r.coherenceFiveEnd.toFixed(3)}, largest patch ${r.patchFiveStart} -> ${r.patchFiveEnd}`)
-  console.log(`    self-organizes: ${r.fiveSelfOrganizes}`)
-  console.log('')
-  console.log('  SIX (adaptive fills, the candidate sixth rule):')
-  console.log(`    coherence ${r.coherenceSixStart.toFixed(3)} -> ${r.coherenceSixEnd.toFixed(3)}, largest patch ${r.patchSixStart} -> ${r.patchSixEnd}`)
-  console.log(`    self-organizes: ${r.sixSelfOrganizes}`)
-  console.log('')
-  console.log(`  charge conserved throughout: ${r.conserved}`)
-  console.log('')
-  console.log(`  VERDICT: durable selves need adaptive fills (a sixth thing): ${r.needsAdaptiveFills}`)
-  console.log(`  SOLVED (clean verdict + conserved): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

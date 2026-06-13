@@ -10,7 +10,6 @@
 // dimension of traceless symmetric tensors), because it has no diffeomorphism gauge freedom.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p21-graviton.ts
 
-import { pathToFileURL } from 'node:url'
 import { gravitonFromAction } from '@/test/experiment/gravity/graviton-from-action'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -60,36 +59,6 @@ export function gravitonStudy(): {
     dispersion: [4, 6, 8].map((side) => ({ side, omega2: minDispersion(side) })),
     allTwo: counts.every((c) => c.physical === 2 && c.gauge === 3),
   }
-}
-
-export function main(): void {
-  const r = gravitonStudy()
-  console.log('P21: the graviton (massless spin-2), polarizations read from the derived operator spectrum')
-  console.log('')
-  console.log(`  physical (propagating) polarizations per momentum direction: ${r.masslessPolarizations.join(', ')}`)
-  console.log(`  diffeomorphism gauge modes (exact zero eigenvalues) per direction: ${r.gaugeModes.join(', ')}`)
-  console.log('  (measured from the operator: two physical modes at +(1/2)|k|^2, three gauge zeros,')
-  console.log('   and one unphysical trace mode at -(1/2)|k|^2, with NO projector imposed)')
-  console.log('')
-  console.log(`  a massive spin-2 would carry ${r.massiveDof} degrees of freedom (no gauge freedom): the contrast that fixes spin two`)
-  console.log('')
-  console.log('  massless dispersion, lowest omega^2 on a lattice of side L:')
-  for (const d of r.dispersion) {
-    console.log(`    L = ${d.side}: omega^2 = ${d.omega2.toFixed(3)}`)
-  }
-  console.log('  (shrinks as the lattice grows, so the graviton is massless: omega -> 0 as k -> 0)')
-  console.log('')
-  console.log(`  graviton has exactly two physical polarizations (measured, not projected): ${r.allTwo ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The graviton is the propagating excitation of the geometry. Its two physical')
-  console.log('  polarizations are not imposed by a transverse-traceless projector, they are read off')
-  console.log('  the spectrum of the operator derived from the action in P24: two modes propagate at')
-  console.log('  +(1/2)|k|^2, three are pure diffeomorphism gauge (exact zeros), and one trace mode is')
-  console.log('  unphysical. That is the signature of a massless spin-2 field, the graviton.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

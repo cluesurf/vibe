@@ -8,7 +8,6 @@
 // That point, if it exists, is where coarse-graining flows to a scale-invariant continuum theory.
 // Run: npx tsx code/experiment/p129-criticality-scan.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -129,28 +128,6 @@ export function criticalityScan(input?: { n?: number }): {
   const solved = meanField && vanishesAtZero && betaR2 > 0.9
 
   return { n: N, scan, beta, betaR2, meanField, vanishesAtZero, solved }
-}
-
-export function main(): void {
-  const r = criticalityScan()
-  console.log('P129: the criticality scan (the doorway to the continuum)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, activity and susceptibility vs arrow rate`)
-  console.log('')
-  console.log('  arrow    density')
-  for (const s of r.scan) console.log(`  ${s.arrow.toFixed(3)}    ${(s.density * 100).toFixed(2)}%`)
-  console.log('')
-  console.log(`  order parameter fit: density ~ arrow^beta, beta = ${r.beta.toFixed(3)} (R^2 ${r.betaR2.toFixed(3)})`)
-  console.log(`  density vanishes as arrow -> 0 (absorbing critical point at arrow_c = 0): ${r.vanishesAtZero}`)
-  console.log(`  mean-field exponent (beta near 1/2, the pair-reaction rate law rho ~ sqrt(arrow)): ${r.meanField}`)
-  console.log('  => the continuum doorway is the WEAK-CREATION limit, a critical point at arrow -> 0 with')
-  console.log('     MEAN-FIELD exponents (hyperbolic = above the upper critical dimension), so the continuum')
-  console.log('     limit is a mean-field / Gaussian FREE field, the simplest quantum field theory.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -14,7 +14,6 @@
 //     solve by astronomically-unlikely chance (~2^K), the gap between aimless and intentional, quantified.
 // The target is a pattern of K cells, the gap is the Hamming distance to it. Run: npx tsx code/experiment/p147-direction-intention.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -90,24 +89,6 @@ export function directionIntention(): {
   const solved = directionHolds && intentionHolds
 
   return { scan, directionHolds, intentionGap, intentionHolds, solved }
-}
-
-export function main(): void {
-  const r = directionIntention()
-  console.log('P147: the direction and intention checks')
-  console.log('')
-  console.log('  K     goal-directed steps    un-goaled solved?    expected un-goaled (~2^K)')
-  for (const s of r.scan) console.log(`  ${String(s.K).padEnd(5)} ${String(s.goalSteps).padEnd(22)} ${String(s.undirectedSolved).padEnd(20)} ${s.expectedUndirected.toExponential(1)}`)
-  console.log('')
-  console.log(`  DIRECTION, goal-directed reliably solves, un-goaled does not: ${r.directionHolds}`)
-  console.log(`  INTENTION, the gap (aimless time / intentional time) is ${r.intentionGap.toExponential(1)}, astronomical: ${r.intentionHolds}`)
-  console.log('  => the arrow plus a keep-what-helps loop turns goal-neutral computation into INTENTIONAL')
-  console.log('     problem-solving, the bridge from computable (P141) to intentional.')
-  console.log(`  INVALID (success guaranteed by the copy-target search, not emergent): solved=${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

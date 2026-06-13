@@ -7,7 +7,8 @@
 // co-emergence in a single time evolution is the remaining L3 step, this is the structural core.
 // Run: npx tsx code/experiment/p255-unified-emergence-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // quaternion helpers (the 8v as vectors via conjugation, the 8s/8c as spinors via left multiplication)
 type Q = readonly [number, number, number, number]
@@ -49,7 +50,32 @@ export function unifiedEmergence(): { partitions: boolean; vectorIsBoson: boolea
   return { partitions, vectorIsBoson, spinorsAreFermions, oneSubstrateBothSectors }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = unifiedEmergence()
-  console.log(`SOLVED UNIFIED (structural): partitions ${r.partitions}, 8v-boson ${r.vectorIsBoson}, 8s/8c-fermions ${r.spinorsAreFermions}, one-substrate-both ${r.oneSubstrateBothSectors} => ${r.oneSubstrateBothSectors ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/unified-emergence-3434',
+  title: 'one 24-direction substrate splits into 8v+8s+8c, a boson sector and two fermion sectors under one 2pi rotation',
+  category: 'substrate-survey',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = unifiedEmergence()
+    const ok =
+      r.partitions &&
+      r.vectorIsBoson &&
+      r.spinorsAreFermions &&
+      r.oneSubstrateBothSectors
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the 24 directions partition into 8v plus 8s plus 8c, and under one 2pi rotation the 8v vector sector returns to +1 (a boson) while the 8s and 8c spinor sectors go to -1 (fermions), so one substrate carries both sectors',
+      metrics: {
+        partitions: r.partitions ? 1 : 0,
+        vectorIsBoson: r.vectorIsBoson ? 1 : 0,
+        spinorsAreFermions: r.spinorsAreFermions ? 1 : 0,
+        oneSubstrateBothSectors: r.oneSubstrateBothSectors ? 1 : 0,
+      },
+      notes:
+        'L1 known math, a quaternion-algebra fact about the D4 / 24-cell triality, structural not dynamical. The vector-versus-spinor contrast under the same 2pi rotation is the built-in control, the vectors return to +1 where the spinors flip to -1. The full dynamical co-emergence of a photon and matter in one time evolution is the remaining L3 step, not shown here.',
+    })
+  },
+})

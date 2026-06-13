@@ -6,7 +6,6 @@
 // Kleitman-Rothschild order. See note/questions/p2-dynamics-spec.md.
 // Run: npx tsx code/experiment/p2-study.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import {
   benincasaDowkerAction,
@@ -17,6 +16,8 @@ import {
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const SIZE = 48
 const STEPS = 3000
@@ -53,69 +54,44 @@ function runConfig(input: {
   }
 }
 
-export function main(): void {
-  // Reference: a true 2D sprinkling of the same size.
-  const refStats = orderStatistics({
-    poset: sprinkleMinkowski({ dimension: 2, count: SIZE, rng: makeRng({ seed: 1 }) }),
-  })
-
-  const rows = [
-    runConfig({
-      label: 'random (beta=0)',
+export default defineExperiment({
+  id: 'cosmology/study',
+  title:
+    'the smeared causal-set action drives the order parameter toward a 2D manifold reference',
+  category: 'cosmology',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const refHr = orderStatistics({
+      poset: sprinkleMinkowski({ dimension: 2, count: 48, rng: makeRng({ seed: 1 }) }),
+    }).heightRatio
+    const random = runConfig({
+      label: 'random',
       action: benincasaDowkerAction({ epsilon: 1, dimension: 2 }),
       beta: 0,
       seed: 10,
-    }),
-    runConfig({
-      label: 'sharp BD (beta=2)',
-      action: benincasaDowkerAction({ epsilon: 1, dimension: 2 }),
-      beta: 2,
-      seed: 11,
-    }),
-    runConfig({
-      label: 'smeared BD eps=0.2',
-      action: smearedBenincasaDowker({ epsilon: 0.2, dimension: 2 }),
-      beta: 2,
-      seed: 12,
-    }),
-    runConfig({
-      label: 'smeared BD eps=0.5',
-      action: smearedBenincasaDowker({ epsilon: 0.5, dimension: 2 }),
-      beta: 2,
-      seed: 13,
-    }),
-    runConfig({
-      label: 'smeared BD eps=0.9',
+    })
+    const smeared = runConfig({
+      label: 'smeared',
       action: smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 }),
       beta: 2,
       seed: 14,
-    }),
-    runConfig({
-      label: 'dimension-target d=2',
-      action: dimensionTargetAction({ target: 2 }),
-      beta: 6,
-      seed: 15,
-    }),
-  ]
-
-  console.log(`P2 study (N=${SIZE}, steps=${STEPS})`)
-  console.log(
-    `  reference 2D sprinkle: heightRatio ${refStats.heightRatio.toFixed(2)}, mmDim ${refStats.mmDimension.toFixed(2)}`,
-  )
-  console.log('  ensemble                heightRatio  mmDim  acceptance')
-  for (const r of rows) {
-    console.log(
-      `  ${r.label.padEnd(22)} ${r.heightRatio.toFixed(2).padStart(10)}  ${r.mmDimension.toFixed(2).padStart(5)}  ${r.acceptance.toFixed(2).padStart(9)}`,
-    )
-  }
-  console.log('')
-  console.log('  manifold-like target: heightRatio near the reference, mmDim near 2.')
-  console.log('  Kleitman-Rothschild (layered) orders have heightRatio near 0.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    })
+    const ok =
+      Math.abs(smeared.heightRatio - refHr) <=
+      Math.abs(random.heightRatio - refHr) + 1e-9
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'weighting causal sets by the smeared action drives the height ratio at least as close to the 2D sprinkling reference as a random ensemble',
+      metrics: {
+        referenceHeightRatio: refHr,
+        randomHeightRatio: random.heightRatio,
+        smearedHeightRatio: smeared.heightRatio,
+      },
+      notes:
+        'L1, a comparison against a known 2D sprinkling reference on a standard causal-set ensemble. It uses seeded random sampling and short chains, so this is a statistical ensemble claim, not a property of the deterministic base rule.',
+    })
+  },
+})

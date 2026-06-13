@@ -17,7 +17,8 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/selves-tower-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
@@ -192,42 +193,54 @@ function bulkTower(): { real: number[]; diff: number[]; nul: number[]; depths: n
   return { real: r(real), diff: r(diff), nul: r(nul), depths, beatsDiffusion }
 }
 
-export function main(): void {
-  console.log('Nested-self (coherence tower) test on {3,4,3,4}, cusp vs bulk, WITH the diffusion control')
-  console.log('NOTE, "net charge per block persists" is a WEAK self-proxy. The decisive control is whether the')
-  console.log('PERCEPTION rule beats PLAIN DIFFUSION. If it does not, the "tower" is a generic conserved-field')
-  console.log('slow mode, NOT genuine hierarchical selfhood (a self is a propagating coherent pattern, not a')
-  console.log('charge correlation). See selves-as-propagating-structures-3434.ts for the right measure.\n')
-
-  console.log('=== the FLAT 3D CUSP ({4,3,4} = Z^3), coarse by cubic blocks ===')
+// Head-to-head, the perception rule against a pure-diffusion control on both the flat cusp
+// and the hyperbolic bulk. If perception does not beat diffusion, the form-tower is a slow mode.
+export function selvesTower(): {
+  cuspBeatsDiffusion: boolean
+  bulkBeatsDiffusion: boolean
+  cuspRealCoarse: number
+  cuspDiffCoarse: number
+  bulkRealCoarse: number
+  bulkDiffCoarse: number
+} {
   const cusp = cuspTower()
-  console.log(`  block sizes (fine->coarse): ${cusp.blocks.join(' ')}`)
-  console.log(`  perception form-persistence: ${cusp.real.join(' ')}`)
-  console.log(`  DIFFUSION  form-persistence: ${cusp.diff.join(' ')}  <- the control`)
-  console.log(`  random-null form-persistence: ${cusp.nul.join(' ')}`)
-  console.log(`  => perception BEATS diffusion (genuine, not a slow mode): ${cusp.beatsDiffusion}`)
-
-  console.log('\n=== the HYPERBOLIC 4D BULK (actual {3,4,3,4} cell graph), coarse by the ADDRESS tree ===')
   const bulk = bulkTower()
-  console.log(`  address-prefix depth (fine->coarse): ${bulk.depths.join(' ')}`)
-  console.log(`  perception form-persistence: ${bulk.real.join(' ')}`)
-  console.log(`  DIFFUSION  form-persistence: ${bulk.diff.join(' ')}  <- the control`)
-  console.log(`  random-null form-persistence: ${bulk.nul.join(' ')}`)
-  console.log(`  => perception BEATS diffusion: ${bulk.beatsDiffusion}`)
-
-  console.log('\n=== Verdict ===')
-  console.log(`  cusp: perception beats diffusion = ${cusp.beatsDiffusion} | bulk: perception beats diffusion = ${bulk.beatsDiffusion}`)
-  if (!cusp.beatsDiffusion && !bulk.beatsDiffusion) {
-    console.log('  HONEST NEGATIVE. The coarse-grained "form tower" is a GENERIC CONSERVED-FIELD SLOW MODE, plain')
-    console.log('  diffusion shows the same rise. It is NOT evidence of hierarchical selves. This confirms the')
-    console.log('  user\'s recollection and p208 (perception does not beat diffusion). The net-charge-per-block')
-    console.log('  measure is the WRONG measure for a self. A self is a fuzzy PROPAGATING COHERENT PATTERN (a')
-    console.log('  soliton/particle/cell that keeps its identity through material turnover), not a charge')
-    console.log('  correlation. The genuine self-object (the hopfion, p192) and self NESTING are the open frontier.')
+  return {
+    cuspBeatsDiffusion: cusp.beatsDiffusion,
+    bulkBeatsDiffusion: bulk.beatsDiffusion,
+    cuspRealCoarse: cusp.real[cusp.real.length - 1] ?? 0,
+    cuspDiffCoarse: cusp.diff[cusp.diff.length - 1] ?? 0,
+    bulkRealCoarse: bulk.real[bulk.real.length - 1] ?? 0,
+    bulkDiffCoarse: bulk.diff[bulk.diff.length - 1] ?? 0,
   }
-  console.log('See note/research/vibe/notes/theory-v0.6.0/selves-and-the-tower-on-3434.md')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'selves/selves-tower-3434',
+  title: 'the coarse-grained form-tower on {3,4,3,4} does not beat a pure-diffusion control',
+  category: 'selves',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = selvesTower()
+    const ok = !r.cuspBeatsDiffusion && !r.bulkBeatsDiffusion
+    return verdict({
+      status: ok ? 'pass' : 'partial',
+      claim:
+        'on both the flat cusp and the hyperbolic bulk of {3,4,3,4} the perception rule form-persistence does not beat plain diffusion, so the coarse-grained form-tower is a generic conserved-field slow mode and not hierarchical selfhood',
+      metrics: {
+        cuspBeatsDiffusion: r.cuspBeatsDiffusion ? 1 : 0,
+        bulkBeatsDiffusion: r.bulkBeatsDiffusion ? 1 : 0,
+        cuspRealCoarse: r.cuspRealCoarse,
+        bulkRealCoarse: r.bulkRealCoarse,
+      },
+      control: {
+        cuspDiffusionCoarse: r.cuspDiffCoarse,
+        bulkDiffusionCoarse: r.bulkDiffCoarse,
+      },
+      notes:
+        'L2 with a diffusion control and a shuffle null. The honest negative, net charge per block is the wrong measure for a self, and the rise it shows is reproduced by plain diffusion. A self is a propagating coherent pattern, not a charge correlation. Relies on a pseudo-random initial fill, so it is an ensemble statement, not a property of the deterministic rule.',
+    })
+  },
+})

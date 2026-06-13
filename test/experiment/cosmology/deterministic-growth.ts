@@ -12,7 +12,6 @@
 //   4. geometry emerges: the ball-growth ratio converges to the pentagrid's golden-ratio law.
 // Run: npx tsx code/experiment/p83-deterministic-growth.ts
 
-import { pathToFileURL } from 'node:url'
 import { tilingPQ } from '@/code/substrate/tiling-pq'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -179,37 +178,6 @@ export function deterministicGrowth(input: Record<string, never> = {}): {
     degreeBounded,
     solved: resumableMatchesOneShot && appendOnly && matchesStaticRings && geometryEmerges && degreeBounded,
   }
-}
-
-export function main(): void {
-  const r = deterministicGrowth()
-  console.log('P83: deterministic eternal growth, not static placement')
-  console.log('')
-  console.log(`  resumable (many small steps equal one big step, no rebuild): ${r.resumableMatchesOneShot ? 'YES' : 'no'}`)
-  console.log(`  append-only (the interior is frozen once grown): ${r.appendOnly ? 'YES' : 'no'}`)
-  console.log(`  faithful (the grown mesh matches the static tiling ring for ring): ${r.matchesStaticRings ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  ball-growth ratio from the growth: ${r.growthRatio.toFixed(4)} (golden-ratio law ${r.goldenGrowth.toFixed(4)})`)
-  console.log(`  hyperbolic geometry emerges from the growth: ${r.geometryEmerges ? 'YES' : 'no'}`)
-  console.log(`  degree stays bounded (max ${r.maxDegree}): ${r.degreeBounded ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  deterministic eternal growth solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The mesh now grows the way the model says the universe does: one cell at a time, at')
-  console.log('  the frontier, by a fixed deterministic rule, with no randomness and no rebuilding. What')
-  console.log('  has already grown is never touched again, the interior frozen as the past, the activity')
-  console.log('  all at the leading edge that is the present. Because nothing is recomputed, growth can')
-  console.log('  continue forever in as many small steps as one likes, and the result is identical to')
-  console.log('  growing all at once, and identical to the static tiling cell for cell. The hyperbolic')
-  console.log('  geometry is not put in: the ball-growth ratio converges on its own to the pentagrid\'s')
-  console.log('  golden-ratio law, so the curvature emerges from the growth rather than being assumed.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

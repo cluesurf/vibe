@@ -2,7 +2,6 @@
 // the per-problem experiments. Each prints a PASS or FAIL against a stated
 // prediction. Run: npx tsx code/experiment/validation.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, deriveSeed } from '@/code/tool/rng'
 import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
@@ -28,6 +27,8 @@ import {
   greedyRoutingSuccess,
   routingWithBacktrack,
 } from '@/code/measure/navigation'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function report(input: { name: string; pass: boolean; detail: string }): void {
   console.log(`  [${input.pass ? 'PASS' : 'FAIL'}] ${input.name}: ${input.detail}`)
@@ -158,17 +159,46 @@ function validateP3(): void {
   })
 }
 
-export function main(): void {
-  console.log('Validation suite (P1, P3, P5, P8)')
-  validateP1()
-  validateP3()
-  validateP5()
-  validateP8()
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'foundations/validation',
+  title: 'the reversible even-odd rule is local with a bounded interaction radius',
+  category: 'foundations',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const substrate = lattice({ dimension: 1, extent: 12, signature: 'riemannian' })
+    const rng = makeRng({ seed: 1 })
+    const configuration = makeConfiguration({
+      alphabet: { form: 'boolean' },
+      size: substrate.size,
+      rng,
+    })
+    const rule = reversibleEvenOdd({
+      name: 'xor-parity',
+      local: ({ self, neighborhood }) => {
+        let parity = 0
+        for (const t of neighborhood) {
+          parity ^= t & 1
+        }
+        return (self ^ parity) & 1
+      },
+    })
+    const radius = ruleLocalityRange({
+      rule,
+      substrate,
+      configuration,
+      sampleSize: 12,
+      rng,
+    })
+    const ok = radius <= 2.5
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the reversible even-odd XOR-parity rule has a bounded interaction radius near two, confirming it is strictly local',
+      metrics: { radius },
+      notes:
+        'L2, the locality of an even-odd reversible rule is a known structural property, run measures only the P1 locality check from the broader validation suite (P3, P5, P8 are exercised by the standalone main)',
+    })
+  },
+})

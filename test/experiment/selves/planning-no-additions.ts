@@ -12,7 +12,6 @@
 // "explore with the will, simulate with my own rule, judge with the arrow." If this crosses a barrier that
 // greedy cannot, planning is demonstrated FROM THE BASE. Run: npx tsx code/experiment/p143-planning-no-additions.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -87,25 +86,6 @@ export function planningNoAdditions(input?: { L?: number }): {
   const solved = plannerBeatsGreedy && usesOnlyEmergent
 
   return { L, goal, greedyPos, greedyReachedGoal, plannerPos, plannerReachedGoal, willPushLength: bestK, usesOnlyEmergent, plannerBeatsGreedy, solved }
-}
-
-export function main(): void {
-  const r = planningNoAdditions()
-  console.log('P143: planning from the base, adding nothing new')
-  console.log('')
-  console.log('  pieces used: value = the ARROW, rollout = the GREEDY RULE, exploration = the WILL, all emergent.')
-  console.log('')
-  console.log(`  GREEDY (bare rule): stuck at ${r.greedyPos}, reached goal: ${r.greedyReachedGoal}`)
-  console.log(`  PLANNER (will-push of length ${r.willPushLength}, then own greedy rollout, scored by the arrow):`)
-  console.log(`    reached ${r.plannerPos}/${r.goal}, reached goal: ${r.plannerReachedGoal}`)
-  console.log('')
-  console.log(`  the planner used ONLY emergent pieces (no added search heuristic): ${r.usesOnlyEmergent}`)
-  console.log(`  planner beats greedy, so PLANNING emerges from the base (will + forward model + arrow): ${r.plannerBeatsGreedy}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

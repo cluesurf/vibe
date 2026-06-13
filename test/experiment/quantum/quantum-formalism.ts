@@ -9,7 +9,6 @@
 // the mesh is the open problem, we show the formalism is consistent and present. See
 // note/questions/frontiers.md. Run: npx tsx code/experiment/p31-quantum-formalism.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -120,36 +119,6 @@ export function quantumFormalism(input: { n: number }): {
     quantumSum,
     bornConserved,
   }
-}
-
-export function main(): void {
-  const r = quantumFormalism({ n: 40 })
-  console.log('P31: the quantum formalism (unitarity, interference, the Born rule)')
-  console.log('')
-  console.log('  1. Unitarity. Total probability sum |psi|^2 at times 0, 2, 5, 9, 14:')
-  console.log('     ' + r.norms.map((v) => v.toFixed(6)).join(', '))
-  console.log(`     conserved at one (unitary evolution): ${r.bornConserved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  2. Interference. Probability at a target from two sources:')
-  console.log(`     classical (probabilities add): ${r.classicalSum.toFixed(4)}`)
-  console.log(`     quantum (amplitudes add):      ${r.quantumSum.toFixed(4)}`)
-  console.log(`     interference term: ${r.interferenceTerm.toFixed(4)} (nonzero, so amplitudes interfere)`)
-  console.log('')
-  console.log('  3. The Born rule. |psi|^2 is non-negative and sums to one at all times, a')
-  console.log('     conserved probability over the mesh sites.')
-  console.log('')
-  console.log('  All three pillars of the quantum formalism are present on the mesh: unitary')
-  console.log('  evolution, interference of amplitudes (not probabilities), and a conserved Born')
-  console.log('  probability. This is a down-payment, not the full theory. The open problem is to')
-  console.log('  DERIVE why the probability is |psi|^2 (and not another power) and the measurement')
-  console.log('  rule from the mesh itself, building on the superdeterministic hinge of P7.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

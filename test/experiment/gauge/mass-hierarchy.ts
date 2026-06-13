@@ -12,7 +12,6 @@
 // mechanism is the result; the specific mass values are not derived.
 // Run: npx tsx code/experiment/p81-mass-hierarchy.ts
 
-import { pathToFileURL } from 'node:url'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -144,42 +143,6 @@ export function massHierarchy(input: Record<string, never> = {}): {
     mechanismHolds,
     solved: mechanismHolds && sameOrderAsObserved,
   }
-}
-
-export function main(): void {
-  const r = massHierarchy()
-  console.log('P81: the mass hierarchy from hyperbolic overlaps')
-  console.log('')
-  console.log(`  spacing is NOT fitted to the masses. It is the crystal's own inter-shell hyperbolic`)
-  console.log(`  distance, ${r.interShellDistance.toFixed(2)} (localization length = one curvature radius). The span is a prediction.`)
-  console.log('')
-  console.log('  mass spread (largest over smallest), in orders of magnitude:')
-  console.log(`    exponential overlap (hyperbolic substrate): ${r.exponentialSpanDecades.toFixed(1)} decades  <- geometric prediction`)
-  console.log(`    power-law overlap (flat substrate):         ${r.powerSpanDecades.toFixed(1)} decades`)
-  console.log(`    observed (top quark over electron):         ${r.observedSpanDecades.toFixed(1)} decades`)
-  console.log(`    same order of magnitude as observed:        ${r.sameOrderAsObserved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  to hit the observed span exactly would need a localization length of ${r.localizationLengthForObserved.toFixed(2)} curvature radii`)
-  console.log(`  (an extra input, plausible but not derived).`)
-  console.log('')
-  console.log(`  exponential mechanism gives a multi-decade hierarchy and beats the flat power law: ${r.mechanismHolds ? 'YES' : 'no'}`)
-  console.log(`  mass hierarchy mechanism solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The huge spread of fermion masses, unexplained in the Standard Model, follows in FORM')
-  console.log('  from geometry. A mass is the overlap of a mode with the Higgs, and on a curved substrate')
-  console.log('  that overlap falls off exponentially with separation. With the spacing fixed to the')
-  console.log('  crystal\'s own inter-shell step (no tuning), modes at consecutive shells get couplings in')
-  console.log('  a geometric sequence whose masses span several decades, the same order of magnitude as')
-  console.log('  the observed range, while a flat substrate (power-law overlap) gives under two decades.')
-  console.log('  The mechanism and the order of magnitude are the result. The exact span depends on the')
-  console.log('  localization length, and the specific masses are not derived.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

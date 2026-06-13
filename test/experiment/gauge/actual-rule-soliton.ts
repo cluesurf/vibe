@@ -7,7 +7,8 @@
 // 1D Jackiw-Rebbi Dirac, real-symmetric Hamiltonian, eigenvalues by Jacobi. (1D is the tractable proxy for the
 // 3D Skyrme sign, same fermion-induced-stiffness mechanism.) Run: npx tsx code/experiment/p214-actual-rule-soliton.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // real-symmetric 1D Dirac H = [[m(x), -D],[D, -m(x)]], D = central difference (antisymmetric)
 function buildH(N: number, m0: number, R: number): number[][] {
@@ -67,7 +68,28 @@ export function fermionInducedStabilizer(): { data: { R: number; sea: number }[]
   return { data, risesAsSharpens }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = fermionInducedStabilizer()
-  console.log(`RESULT: sea energy ${r.data.map((d) => d.sea).join('/')}, stabilizing sign ${r.risesAsSharpens}`)
-}
+export default defineExperiment({
+  id: 'gauge/actual-rule-soliton',
+  title: 'a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an honest open gate',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = fermionInducedStabilizer()
+    const sharp = r.data[0]?.sea ?? 0
+    const smooth = r.data[r.data.length - 1]?.sea ?? 0
+    return verdict({
+      status: 'open',
+      claim:
+        'the 1D Jackiw-Rebbi fermion sea energy falls as the soliton sharpens, which is destabilizing, but 1D is not a valid proxy for the 3D Skyrme sign so the gate stays open',
+      metrics: {
+        sharpestSea: sharp,
+        smoothestSea: smooth,
+        risesAsSharpens: r.risesAsSharpens ? 1 : 0,
+      },
+      notes:
+        'L2 computation, honest open result. The 1D Dirac sea is computed correctly, but the stabilizing 3D Skyrme sign comes from a specifically-3D chiral-anomaly structure with no 1D analog, so the 1D trend is irrelevant to the 3D sign. None of the tractable proxies resolve it. Reported open, not a pass.',
+    })
+  },
+})

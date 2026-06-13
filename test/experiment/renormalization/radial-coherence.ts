@@ -11,9 +11,10 @@
 // far more than the fine scale AND more than the null, the substrate's tree carries a real coherence tower,
 // the scaffold the dynamics could not make on its own. Run: npx tsx code/experiment/p187-radial-coherence.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // the exact 9-state perception permutation on an ordered pair
 function perm(a: number, b: number): [number, number] {
@@ -230,25 +231,34 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   return { n: N, scales: SCALES, radialPersistence, nullPersistence, groupCounts, radialBeatsNull, coarseBeatsFine, solved }
 }
 
-export function main(): void {
-  const r = radialCoherence()
-  console.log('P187: radial coherence, does coarse-graining up the reflection tree reveal a persistence tower?')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} bulk cells, pure rule (no interventions), persistence = lag-${LAG} autocorrelation of the coarse field`)
-  console.log('')
-  console.log(`  ${'scale (depth)'.padEnd(16)} ${'groups'.padEnd(10)} ${'radial'.padEnd(10)} null`)
-  for (let si = 0; si < r.scales.length; si++) {
-    console.log(`  ${String(r.scales[si]).padEnd(16)} ${String(r.groupCounts[si]).padEnd(10)} ${r.radialPersistence[si]!.toFixed(3).padEnd(10)} ${r.nullPersistence[si]!.toFixed(3)}`)
-  }
-  console.log('')
-  console.log(`  coarse persists far more than fine (a tower): ${r.coarseBeatsFine}`)
-  console.log(`  radial beats the random-grouping null (the tree, not just averaging): ${r.radialBeatsNull}`)
-  console.log('')
-  console.log('  => if both hold, the substrate radial tree carries a real coherence tower the tangential')
-  console.log('     dynamics could not make on its own, selfhood and the layers live on the scale axis.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'renormalization/radial-coherence',
+  title: 'coarse-graining up the {5,3,4} reflection tree does not build a persistence tower the fine scale lacks',
+  category: 'renormalization',
+  substrates: ['534'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = radialCoherence()
+    return verdict({
+      status: r.solved ? 'pass' : 'fail',
+      claim:
+        'running the exact deterministic rule and coarse-graining by the radial reflection tree, the coarse persistence does not both beat the fine scale and beat a matched-size random-grouping null',
+      metrics: {
+        finePersistence: r.radialPersistence[0] ?? 0,
+        coarsePersistence:
+          r.radialPersistence[r.radialPersistence.length - 1] ?? 0,
+        nullCoarsePersistence:
+          r.nullPersistence[r.nullPersistence.length - 1] ?? 0,
+        coarseBeatsFine: r.coarseBeatsFine ? 1 : 0,
+        radialBeatsNull: r.radialBeatsNull ? 1 : 0,
+      },
+      control: {
+        nullCoarsePersistence:
+          r.nullPersistence[r.nullPersistence.length - 1] ?? 0,
+      },
+      notes:
+        'Honest negative with a control. The dynamics are the exact deterministic 9-state permutation (no random fill), and the random-grouping null is the right control against plain averaging. The pure rule does not earn a radial coherence tower, consistent with the finding that radial coarse-graining gives no tower. The null partition uses a seeded random shuffle, which only affects the control baseline, not the measured dynamics.',
+    })
+  },
+})

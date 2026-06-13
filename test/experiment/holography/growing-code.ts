@@ -8,7 +8,6 @@
 // older it gets. If it FALLS, the dynamics dilute the datum (a lossy encoder, the isometry gap).
 // Run: npx tsx code/experiment/p126-growing-code.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -151,28 +150,6 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   const solved = thresholdRises && complementaryRecovery && redundancyGrows
 
   return { n: N, maxRadius: R, shells, thresholdRises, complementaryRecovery, densityDilutes, redundancyGrows, solved }
-}
-
-export function main(): void {
-  const r = growingCode()
-  console.log('P127: the growing holographic code (does the erasure threshold rise with age)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, radius ${r.maxRadius}, a logical bit written deep and spread by the rule`)
-  console.log('')
-  console.log('  shell (age)  cells     marked   density   erasure f*   survives erasing')
-  for (const s of r.shells) {
-    console.log(`    r=${String(s.r).padEnd(3)}       ${String(s.cells).padEnd(8)}  ${String(s.marked).padEnd(6)}   ${(s.density * 100).toFixed(0).padEnd(4)}%     ${(s.threshold * 100).toFixed(1).padEnd(6)}%    ${(s.threshold * 100).toFixed(1)}% of the shell`)
-  }
-  console.log('')
-  console.log(`  density DILUTES with radius (fewer marked per cell): ${r.densityDilutes}`)
-  console.log(`  but absolute REDUNDANCY (marked-cell count) GROWS with radius: ${r.redundancyGrows}`)
-  console.log(`  so the erasure threshold RISES with radius, the code protects better as it grows: ${r.thresholdRises}`)
-  console.log(`  complementary recovery (recoverable from a large patch at the rim): ${r.complementaryRecovery}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

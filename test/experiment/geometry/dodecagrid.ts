@@ -7,7 +7,6 @@
 // Lorentz isotropy against a flat 3D cubic lattice. See note/deterministic-substrate.md.
 // Run: npx tsx code/experiment/p45-dodecagrid.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { lattice } from '@/code/substrate/lattice'
@@ -74,41 +73,6 @@ export function dodecagrid(input: { seed: number }): {
       lorentzSafe: la.anisotropy < 0.25,
     },
   }
-}
-
-export function main(): void {
-  const r = dodecagrid({ seed: 2 })
-  console.log('P45: the dodecagrid, the 3D hyperbolic honeycomb {5,3,4}')
-  console.log('')
-  console.log('  substrate                     mean degree   Lorentz anisotropy   reach   Lorentz-safe')
-  console.log(
-    '  dodecagrid {5,3,4} (3D hyper.)' +
-      r.honeycomb.degree.toFixed(1).padStart(9) +
-      r.honeycomb.anisotropy.toFixed(3).padStart(16) +
-      (r.honeycomb.reach ? 'yes' : 'no').padStart(10) +
-      (r.honeycomb.lorentzSafe ? 'YES' : 'no').padStart(12),
-  )
-  console.log(
-    '  flat cubic lattice (3D, control)' +
-      r.flatLattice.degree.toFixed(1).padStart(7) +
-      r.flatLattice.anisotropy.toFixed(3).padStart(16) +
-      'no'.padStart(10) +
-      (r.flatLattice.lorentzSafe ? 'YES' : 'no').padStart(12),
-  )
-  console.log('')
-  console.log('  The dodecagrid, built deterministically by reflecting a right-angled hyperbolic')
-  console.log('  dodecahedron across its faces, is Lorentz-safe (small anisotropy) with exponential')
-  console.log('  reach, while the flat 3D cubic lattice has a strong preferred frame. So the P40')
-  console.log('  lesson holds in three dimensions too: a regular hyperbolic honeycomb is Lorentz-')
-  console.log('  safe, because curvature scrambles the global directions a flat lattice lines up.')
-  console.log('  Margenstern\'s 3D dodecagrid is a deterministic, non-random, Lorentz-safe substrate.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

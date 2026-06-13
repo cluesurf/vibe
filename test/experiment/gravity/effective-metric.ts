@@ -11,7 +11,6 @@
 // effective metric. The connection from fills to n(x) is asserted in the prose, not computed here.
 // Run: npx tsx code/experiment/p88-effective-metric.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -132,30 +131,6 @@ export function effectiveMetric(): {
     curvatureScalesWithMass,
     solved,
   }
-}
-
-export function main(): void {
-  const r = effectiveMetric()
-  console.log('P88: effective metric from the fills, gravity as its curvature')
-  console.log('')
-  console.log('  ray deflection toward matter (a geodesic bending toward the mass = lensing):')
-  console.log(`    no mass:  ${r.deflectionNoMass.toFixed(5)}`)
-  console.log(`    mass M:   ${r.deflectionWithMass.toFixed(5)}`)
-  console.log(`    mass 2M:  ${r.deflectionDoubleMass.toFixed(5)}  (ratio ${r.massRatio.toFixed(2)}, expect ~2)`)
-  console.log(`    bends toward matter, scales with mass: ${r.scalesWithMass}`)
-  console.log('')
-  console.log('  deflection vs impact parameter (closer beams bend more, like 1/b lensing):')
-  console.log(`    near (impact 3): ${r.deflectionNear.toFixed(5)}   far (impact 8): ${r.deflectionFar.toFixed(5)}`)
-  console.log(`    decreases with impact: ${r.decreasesWithImpact}`)
-  console.log('')
-  console.log('  effective curvature (Laplacian of ln index), sourced by the matter:')
-  console.log(`    peak at the mass: ${r.curvaturePeakAtMass}   scales with mass: ${r.curvatureScalesWithMass}`)
-  console.log('')
-  console.log(`  ANALYTIC CHECK (assumes the hand-built 1/r index n(x) = 1 + mass/(r + SOFT), NOT emergent): graded-index lensing self-consistent: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

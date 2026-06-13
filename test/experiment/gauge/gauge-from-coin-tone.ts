@@ -5,7 +5,8 @@
 // tagged by the tone sign. So one SM generation = the coin spinors graded by the tone. Triality (three 8-reps)
 // -> three generations. We verify the root-system + spinor-weight facts. Run: npx tsx code/experiment/p221-gauge-from-coin-tone.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
 const eq = (a: number[], b: number[]): boolean => a.length === b.length && a.every((x, i) => Math.abs(x - b[i]!) < 1e-9)
@@ -51,7 +52,26 @@ export function gaugeFromCoinTone(): { d5IsRootSystem: boolean; smInD5: boolean;
   return { d5IsRootSystem, smInD5, sixteenSplit }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gaugeFromCoinTone()
-  console.log(`SOLVED: coin D4 + tone = so(10) root system ${r.d5IsRootSystem}, SM embeds ${r.smInD5}; ${r.sixteenSplit}`)
-}
+export default defineExperiment({
+  id: 'gauge/gauge-from-coin-tone',
+  title: 'the coin D4 plus the tone as a fifth axis builds D5 = so(10) and embeds the Standard Model',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = gaugeFromCoinTone()
+    const ok = r.d5IsRootSystem && r.smInD5
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'adding the tone as a fifth axis to the coin D4 root system gives the genuine D5 = so(10) root system, which embeds the Standard Model and splits one generation into the two coin spinors graded by the tone sign',
+      metrics: {
+        d5IsRootSystem: r.d5IsRootSystem ? 1 : 0,
+        smInD5: r.smInD5 ? 1 : 0,
+      },
+      notes:
+        'L1, known math. A root-system and spinor-weight identity. It resolves the structural obstruction that the coin alone cannot carry the Standard Model. Whether the dynamics actually gauges so(10) and breaks it is a separate open question.',
+    })
+  },
+})

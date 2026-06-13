@@ -9,7 +9,6 @@
 // not done here.
 // See note/questions/next-version.md (P14). Run: npx tsx code/experiment/p14-mass.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -55,31 +54,6 @@ export function massStudy(input: { m: number }): { gap: number; a: number; b: nu
   const gap = diracEnergy({ k: 0, m: input.m })
   const fit = fitDispersion(ks, omegas)
   return { gap, a: fit.a, b: fit.b }
-}
-
-export function main(): void {
-  console.log('P14: mass and the relativistic dispersion E^2 = p^2 + m^2')
-  console.log('  1D lattice Dirac H(k) = m*sigma_z + sin(k)*sigma_x')
-  console.log('  m      gap = omega(0)    dispersion fit omega^2 = a*k^2 + b')
-  for (const m of [0, 0.3, 0.6]) {
-    const s = massStudy({ m })
-    console.log(
-      `  ${m.toFixed(1)}    ${s.gap.toFixed(3).padStart(10)}        a = ${s.a.toFixed(3)}, b = ${s.b.toFixed(3)} (m^2 = ${(m * m).toFixed(3)})`,
-    )
-  }
-  console.log('')
-  console.log('  ANALYTIC CHECK (assumes the lattice Dirac H(k) = m*sigma_z + sin(k)*sigma_x, NOT')
-  console.log('  emergent): the gap at zero momentum equals m and the fit gives a near 1 and b near')
-  console.log('  m^2, self-consistent with the closed-form eigenvalues +/- sqrt(m^2 + sin^2 k). This')
-  console.log('  is a property of the assumed matrix, not a derivation of mass from the substrate.')
-  console.log('  Connecting any such gap to the internal clock-tone frequency is not done here.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

@@ -11,7 +11,6 @@
 // decimation is kept as a secondary fact (a coarse-graining invariant), no longer the headline.
 // Run: npx tsx code/experiment/p53-coarse-graining-fixed-point.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { decimate } from '@/code/dynamics/coarsegrain'
@@ -106,36 +105,6 @@ export function renormalization(input: { seed: number }): {
     dimensionInvariant: cg.dimensionInvariant,
     solved: rg.matchesRecursion && rg.flowsToFixedPoint && cg.dimensionInvariant,
   }
-}
-
-export function main(): void {
-  console.log('P53: the renormalization group (a genuine coupling flow, measured)')
-  console.log('')
-  const rg = isingRG({ seed: 1 })
-  console.log('  block-spin RG on the Ising-like tone chain (decimate every other tone):')
-  for (const s of rg.steps) {
-    console.log(`    K = ${s.K.toFixed(3)}  ->  K' measured ${s.kPrimeMeasured.toFixed(3)}, exact recursion tanh K' = tanh^2 K gives ${s.kPrimeExact.toFixed(3)}`)
-  }
-  console.log(`    measured K' matches the recursion and K' < K (a genuine coarse-graining flow): ${rg.matchesRecursion ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  iterating the block-spin step from K = 1.5: ${rg.flow.map((x) => x.toFixed(3)).join(' -> ')}`)
-  console.log(`    flows to the fixed point K* = 0 (the disordered fixed point): ${rg.flowsToFixedPoint ? 'YES' : 'no'}`)
-  console.log('')
-  for (const d of [2, 3]) {
-    const r = coarseGrainingFixedPoint({ dimension: d, count: 6000, levels: 4, seed: 1 })
-    console.log(`  secondary: ${d}D causal-set dimension under decimation: ${r.dims.map((x) => x.toFixed(2)).join(', ')} (invariant: ${r.dimensionInvariant ? 'YES' : 'no'})`)
-  }
-  console.log('')
-  console.log('  Coarse-graining is a genuine renormalization group, not trivial decimation. The')
-  console.log("  Ising-like tone coupling is MEASURED to shrink under block-spinning, exactly as the")
-  console.log("  decimation recursion tanh K' = tanh^2 K demands, and iterating the step drives the")
-  console.log('  coupling to the fixed point K* = 0. The causal-set dimension is, separately, a')
-  console.log('  coarse-graining invariant. So the model has a real RG flow with a fixed point, the')
-  console.log('  scale-structure the roadmap asked for.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

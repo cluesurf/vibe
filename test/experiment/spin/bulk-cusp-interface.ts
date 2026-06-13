@@ -5,7 +5,8 @@
 // (B) DIRECTION projection, the 24 bulk directions (D4) project onto the cusp's 3D tangent space, we compute the
 // resulting arrangement and its symmetry. Run: npx tsx code/experiment/bulk-cusp-interface.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // (A) SO(4) = SU(2)_L x SU(2)_R -> diagonal SU(2) = SO(3) (rotations fixing the radial/time direction).
 // The 4D vector is the bifundamental (2,2). The 4D Dirac spinor is (2,1) + (1,2). Under the DIAGONAL SU(2),
@@ -65,7 +66,29 @@ export function bulkCuspInterface(): void {
   console.log('   why the cusp carries the small order-4 anisotropy while the bulk (D4/F4) is isotropic to order 4.')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  bulkCuspInterface()
-  console.log('SOLVED: the bulk-cusp interface is a projection. Spin reduces SO(4)->SO(3) (4D Dirac -> 3D Pauli, 4->2+2), the 24 directions project to the cusp coin, and the cusp symmetry is the octahedral cubic group (SO(3) emergent in IR), which is the source of the cubic anisotropy.')
-}
+export default defineExperiment({
+  id: 'spin/bulk-cusp-interface',
+  title: 'the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const branching = spinorBranching()
+    // the 4-component bulk Dirac spinor must branch to two 3D Pauli spinors under the
+    // diagonal SU(2), each carrying spin one-half (Casimir 0.75).
+    const projection = directionProjection([1, 1, 1, 1])
+    const ok = branching.ok && projection.distinct > 0
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the bulk-cusp interface is a projection, the spacetime rotation reduces SO(4) to SO(3) on the cusp so the 4-component bulk Dirac spinor branches to two 3D Pauli spinors (4 goes to 2 plus 2), and the 24 bulk directions project onto a smaller set in the cusp tangent space',
+      metrics: {
+        spinorBranchingOk: branching.ok ? 1 : 0,
+        projectedDirections: projection.distinct,
+      },
+      notes:
+        'L1, known math (the dimensional reduction of a (3+1)D Dirac fermion to its 3D spatial spinor, Spin(3) = SU(2)). The spinor branching is the standard SO(4) to SO(3) reduction, verified by the diagonal-SU(2) Casimir. The direction projection counts how the 24 bulk directions collapse onto the cusp tangent (depends on the radial direction). It is structure, not a measurement that the cusp coin emerges from the dynamics. The cubic-anisotropy reading is a remark, not measured here.',
+    })
+  },
+})

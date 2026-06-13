@@ -13,12 +13,13 @@
 // The manifold phase dominates where Delta logZ > 0. See note/questions/next-version.md (P12).
 // Run: npx tsx code/experiment/p12-free-energy.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { kleitmanRothschildOrder } from '@/code/substrate/layered-order'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { smearedBenincasaDowker } from '@/code/dynamics/action'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // Mean smeared action over fresh typical configs of one phase. Fresh configs avoid
 // the metastable-decay contamination of a sampled branch, so the per-phase action
@@ -89,50 +90,27 @@ export function p12Crossing(input: { size: number }): { betaStar: number | null;
   return { betaStar: r.betaStar, g: r.g, dS: r.sL - r.sM }
 }
 
-export function main(): void {
-  console.log('P12: the free-energy crossing (which phase dominates the sum over histories)')
-  console.log('')
-  for (const size of [16, 24, 32]) {
-    const r = crossingStudy({
-      size,
-      epsilon: 0.9,
-      betas: [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
-      steps: 40000,
+export default defineExperiment({
+  id: 'cosmology/free-energy',
+  title: 'the manifold phase wins the sum over histories above a finite coupling',
+  category: 'cosmology',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = p12Crossing({ size: 24 })
+    const ok = r.dS > 0 && r.betaStar !== null && r.betaStar > 0
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the smeared action favors the manifold phase by a positive extensive gap, giving a finite crossing coupling above which the manifold phase dominates the free energy',
+      metrics: {
+        betaStar: r.betaStar ?? 0,
+        entropyGap: r.g,
+        actionGap: r.dS,
+      },
+      notes:
+        'L2, a thermodynamic-integration free-energy crossing, a standard statistical-mechanics construction on a known causal-set ensemble (uses seeded sampling). The entropy gap is measurable only up to about N=32, so the large-N crossing scaling is open, the structure (a finite crossing, manifold dominant above it) is what is shown.',
     })
-    console.log(
-      `N = ${size}: entropy gap g = ${r.g.toFixed(2)}, action gap S_layered - S_manifold = ${(r.sL - r.sM).toFixed(2)} per unit beta`,
-    )
-    console.log('  beta    Delta logZ (>0 = manifold dominates)    equilibrium manifold fraction')
-    for (let b = 0; b < r.betas.length; b++) {
-      console.log(
-        `  ${(r.betas[b] ?? 0).toFixed(1)}     ${(r.deltaLogZ[b] ?? 0).toFixed(2).padStart(8)}                          ${(r.manifoldFractionEq[b] ?? 0).toFixed(3)}`,
-      )
-    }
-    console.log(`  => beta-star = ${r.betaStar === null ? 'none (no action gap)' : r.betaStar.toFixed(2)}: manifold spacetime dominates above this coupling.`)
-    console.log('')
-  }
-  console.log('  Reading the result, with its honest limits:')
-  console.log('  - The action robustly and EXTENSIVELY favors the manifold phase: S_layered -')
-  console.log('    S_manifold is large and positive and grows with N (order N^2). The smeared')
-  console.log('    action prefers smooth spacetime by a wide, well-sampled margin.')
-  console.log('  - So a finite equilibrium crossing beta-star exists, and the manifold')
-  console.log('    (spacetime) phase is the global free-energy minimum, the DOMINANT phase,')
-  console.log('    above it. This is the answer P2 was missing: spacetime does not merely')
-  console.log('    coexist, it wins the sum over histories above a finite coupling.')
-  console.log('  - Reconciliation with P2: beta-star is the EQUILIBRIUM crossing. The layered')
-  console.log('    phase stays METASTABLE far above it (the cold-start runs of P2 sit in the')
-  console.log('    layered basin up to beta ~ 1 because of the first-order barrier). Dominant')
-  console.log('    phase and metastable phase are different things, both consistent here.')
-  console.log('  - Honest limit: the entropy gap g is read from the beta = 0 manifold fraction,')
-  console.log('    reliably measurable only up to about N = 32 (beyond that the fraction falls')
-  console.log('    below the sampling floor). The precise large-N beta-star scaling needs an')
-  console.log('    entropy-estimation method (Wang-Landau or multicanonical). The structure')
-  console.log('    (a finite crossing, manifold dominant above it) is established.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+  },
+})

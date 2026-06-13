@@ -4,7 +4,8 @@
 // signals + reversible collisions the BBMCA is universal, so the flat cusp computes. Ported as a runnable demo.
 // Run: npx tsx code/experiment/p213-universality.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 40
 const at = (x: number, y: number): number => ((y % L) + L) % L * L + (((x % L) + L) % L)
@@ -47,7 +48,34 @@ export function universality(): { ballistic: boolean; reversible: boolean; displ
   return { ballistic, reversible, displacement }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = universality()
-  console.log(`SOLVED: ballistic wire ${r.ballistic} (disp ${r.displacement}), reversible ${r.reversible}; BBMCA universal`)
-}
+// The flat {4,3,4} cusp runs the Margolus billiard-ball CA, a reversible block rule proven
+// Turing-complete. We demonstrate the two universality primitives, a lone ball flies
+// ballistically (a wire) and the rule is exactly reversible (forward then backward recovers
+// the field bit-for-bit). With ballistic signals and reversible collisions the BBMCA is
+// universal. This reproduces a known universal construction on the cusp, so L2. The
+// reversibility test seeds via a deterministic LCG field, but the reversibility is exact and
+// holds for any field.
+export default defineExperiment({
+  id: 'computation/p213-universality',
+  title: 'the flat {4,3,4} cusp runs the reversible Margolus billiard-ball CA (ballistic wire plus exact reversibility)',
+  category: 'computation',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = universality()
+    const ok = r.ballistic && r.reversible
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the flat cusp runs the Margolus billiard-ball CA, with a lone ball flying ballistically and the rule exactly reversible, the primitives of a universal construction',
+      metrics: {
+        displacement: r.displacement,
+        ballistic: r.ballistic ? 1 : 0,
+        reversible: r.reversible ? 1 : 0,
+      },
+      notes:
+        'L2, a known universal reversible CA (the Margolus BBMCA) reproduced on the cusp. The reversibility test seeds a deterministic LCG field, but reversibility is exact and holds for any field. Universality is the standard ballistic-plus-reversible argument, cited, not re-proven.',
+    })
+  },
+})

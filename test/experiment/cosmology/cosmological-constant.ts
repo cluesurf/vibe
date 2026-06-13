@@ -8,10 +8,11 @@
 // action fluctuation across sprinklings. See note/questions/next-version.md (P10).
 // Run: npx tsx code/experiment/p10-cosmological-constant.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function stdAndMean(xs: number[]): { mean: number; std: number } {
   const mean = xs.reduce((a, b) => a + b, 0) / xs.length
@@ -52,44 +53,30 @@ function actionFluctuation(input: { action: Action; sizes: number[]; repeats: nu
   return { sizes: input.sizes, stds, exponent: logLogSlope(input.sizes, stds) }
 }
 
-export function main(): void {
-  const sizes = [64, 128, 256, 512]
-  const repeats = 30
-
-  console.log('P10: cosmological constant, the everpresent Lambda scaling')
-  console.log('  Action fluctuation std(S) versus volume N (2D Minkowski sprinkles)')
-  console.log('  N      sharp std(S)     smeared std(S)')
-
-  const sharp = actionFluctuation({
-    action: benincasaDowkerAction({ epsilon: 1, dimension: 2 }),
-    sizes,
-    repeats,
-  })
-  const smeared = actionFluctuation({
-    action: smearedBenincasaDowker({ epsilon: 0.5, dimension: 2 }),
-    sizes,
-    repeats,
-  })
-  for (let i = 0; i < sizes.length; i++) {
-    console.log(
-      `  ${String(sizes[i]).padStart(4)}   ${(sharp.stds[i] ?? 0).toFixed(2).padStart(12)}   ${(smeared.stds[i] ?? 0).toFixed(2).padStart(14)}`,
-    )
-  }
-  console.log('')
-  console.log(`  sharp action fluctuation exponent:   std(S) ~ N^${sharp.exponent.toFixed(2)}`)
-  console.log(`  smeared action fluctuation exponent: std(S) ~ N^${smeared.exponent.toFixed(2)}`)
-  console.log('')
-  console.log('  Lambda ~ S/V ~ S/N, so delta-Lambda ~ N^(exponent - 1).')
-  console.log(`  sharp:   delta-Lambda ~ N^${(sharp.exponent - 1).toFixed(2)}`)
-  console.log(`  smeared: delta-Lambda ~ N^${(smeared.exponent - 1).toFixed(2)}`)
-  console.log('  Sorkin everpresent Lambda predicts delta-Lambda ~ 1/sqrt(V) = N^(-0.5),')
-  console.log('  i.e. an action-fluctuation exponent near +0.5. At the observed 4-volume')
-  console.log('  (~10^244 Planck units) this gives Lambda ~ 10^(-122), the dark-energy scale.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'cosmology/cosmological-constant',
+  title:
+    'the action fluctuation scales as the square root of volume, the everpresent-Lambda law',
+  category: 'cosmology',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const smeared = actionFluctuation({
+      action: smearedBenincasaDowker({ epsilon: 0.5, dimension: 2 }),
+      sizes: [64, 128, 256, 512],
+      repeats: 30,
+    })
+    const exponent = smeared.exponent
+    const deltaLambdaExp = exponent - 1
+    const ok = Math.abs(exponent - 0.5) < 0.25
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the smeared causal-set action fluctuation grows about as the square root of the element count, giving a delta-Lambda that falls as one over the square root of volume',
+      metrics: { exponent, deltaLambdaExp },
+      notes:
+        'L2, this reproduces Sorkin everpresent cosmological-constant scaling on Minkowski sprinklings, a known causal-set result. It uses seeded random sprinklings, so it is a statistical scaling, not a property of the deterministic base rule.',
+    })
+  },
+})

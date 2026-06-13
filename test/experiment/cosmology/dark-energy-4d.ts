@@ -7,7 +7,6 @@
 // the 4D Benincasa-Dowker action fluctuation directly. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p19-dark-energy-4d.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
@@ -52,37 +51,6 @@ export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
   }
   const actionExponent = logLogSlope(input.sizes, stds)
   return { sizes: input.sizes, stds, actionExponent, lambdaExponent: actionExponent - 1 }
-}
-
-export function main(): void {
-  console.log('P19: dark energy in 4D, the everpresent Lambda scaling')
-  console.log('')
-  const r = darkEnergy4D({ sizes: [64, 128, 256, 512], repeats: 20 })
-  console.log('  N      std(S) of the 4D Benincasa-Dowker action')
-  for (let i = 0; i < r.sizes.length; i++) {
-    console.log(`  ${String(r.sizes[i]).padStart(4)}   ${(r.stds[i] ?? 0).toFixed(2)}`)
-  }
-  console.log('')
-  console.log(`  action fluctuation: std(S) ~ N^${r.actionExponent.toFixed(2)}`)
-  console.log(`  implied Lambda fluctuation: delta-Lambda ~ N^${r.lambdaExponent.toFixed(2)}`)
-  console.log('  Sorkin everpresent Lambda predicts delta-Lambda ~ 1/sqrt(V) = N^(-0.5).')
-  console.log('')
-  console.log('  Reading the result. The implied exponent is positive (about +0.16), so the')
-  console.log('  SHARP 4D Benincasa-Dowker action shows the known fluctuation problem: its')
-  console.log('  fluctuation grows faster than the volume, less severely than in 2D (+0.47 there)')
-  console.log('  but still the wrong sign for the everpresent Lambda. This matches P10: the sharp')
-  console.log('  action has the fluctuation problem, and only the SMEARED (nonlocal) action tames')
-  console.log('  it so the implied Lambda shrinks with volume. We showed that in 2D (P10,')
-  console.log('  delta-Lambda ~ N^-0.29). The 4D smeared kernel (the 4D nonlocal smearing function')
-  console.log('  of Benincasa-Dowker) is the next implementation step to recover the everpresent')
-  console.log('  1/sqrt(V) in four dimensions. The mechanism is in hand, the 4D smearing is the gap.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({
