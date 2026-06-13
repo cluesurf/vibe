@@ -12,49 +12,8 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// A flat d-dimensional mesh grown by the local rule: each cell joins its two neighbors along
-// each axis (periodic, so there is no boundary to truncate the shells).
-function torusGrid(d: number, L: number): Uint32Array[] {
-  const n = Math.pow(L, d)
-  const pow = Array.from({ length: d }, (_, a) => Math.pow(L, a))
-  const neighbors: Uint32Array[] = new Array(n)
-  for (let i = 0; i < n; i++) {
-    const ns: number[] = []
-    for (let a = 0; a < d; a++) {
-      const stride = pow[a] ?? 1
-      const coord = Math.floor(i / stride) % L
-      const base = i - coord * stride
-      ns.push(base + ((coord + 1) % L) * stride)
-      ns.push(base + ((coord - 1 + L) % L) * stride)
-    }
-    neighbors[i] = Uint32Array.from(ns)
-  }
-  return neighbors
-}
-
-// A Bethe lattice (regular tree of degree q): the cleanest discrete negatively-curved space, the
-// tree limit of a hyperbolic tessellation. Grown outward from a root.
-function betheTree(q: number, depth: number): Uint32Array[] {
-  const adj: number[][] = [[]]
-  let frontier = [0]
-  let curDepth = 0
-  while (curDepth < depth) {
-    const next: number[] = []
-    for (const parent of frontier) {
-      const children = curDepth === 0 ? q : q - 1
-      for (let c = 0; c < children; c++) {
-        const id = adj.length
-        adj.push([parent])
-        adj[parent]!.push(id)
-        next.push(id)
-      }
-    }
-    frontier = next
-    curDepth++
-  }
-  return adj.map((row) => Uint32Array.from(row))
-}
+import { torusGrid } from '@/code/substrate/torus-grid'
+import { betheTree } from '@/code/substrate/bethe-tree'
 
 // Average shell sizes |S(r)| from a source, by breadth-first search in graph hops.
 function shellFrom(adjacency: ReadonlyArray<Uint32Array>, source: number, maxR: number): number[] {
