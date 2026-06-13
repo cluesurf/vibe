@@ -14,8 +14,8 @@
 // it scales with the discreteness and extrapolate to the Planck scale, where it is far below the
 // cosmic-ray bound. Run: npx tsx code/experiment/p82-predictions-vs-bounds.ts
 
-import { lorentzSafety, latticeAnisotropy } from '@/test/experiment/relativity/lorentz-violation'
-import { swerveDiffusion } from '@/test/experiment/relativity/swerves'
+import { lorentzSafety, latticeAnisotropy } from '@/code/measure/lorentz'
+import { swerveDiffusion } from '@/code/measure/swerve-diffusion'
 import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

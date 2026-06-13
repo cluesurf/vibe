@@ -3,7 +3,7 @@
 // throwaway probe. Run: npx tsx code/experiment/p195-bulk-dimension-3434.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { cubicLattice } from '@/code/substrate/cubic-lattice'
+import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -13,20 +13,11 @@ import { verdict } from '@/test/scaffold/verdict'
 // between t = 2 and t = 6. The calibration grids are cubic lattices (code/substrate).
 // The d_s at t = 4 reads the genuine small-scale dimension.
 
-// The index of the centre cell (all coordinates = side >> 1) of an equal-side cubic lattice.
-function cubicCenter(side: number, dim: number): number {
-  const h = side >> 1
-  let index = 0
-  let place = 1
-  for (let a = 0; a < dim; a++) { index += h * place; place *= side }
-  return index
-}
-
 export function bulkDimension(): { d4: number; d3: number; bulk: number } {
   const g4 = cubicLattice(13, 4)
   const g3 = cubicLattice(40, 3)
-  const d4 = spectralDimension({ neighbors: g4.neighbors, start: cubicCenter(13, 4), t1: 2, t2: 6 })
-  const d3 = spectralDimension({ neighbors: g3.neighbors, start: cubicCenter(40, 3), t1: 2, t2: 6 })
+  const d4 = spectralDimension({ neighbors: g4.neighbors, start: cubicLatticeCenterBySide({ side: 13, dim: 4 }), t1: 2, t2: 6 })
+  const d3 = spectralDimension({ neighbors: g3.neighbors, start: cubicLatticeCenterBySide({ side: 40, dim: 3 }), t1: 2, t2: 6 })
   const g34 = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: 50000 })
   let c = 0, best = -1
   for (let i = 0; i < g34.cellCount; i++) { const d = g34.neighbors[i]!.length; if (d > best) { best = d; c = i } }

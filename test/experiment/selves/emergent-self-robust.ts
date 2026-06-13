@@ -26,103 +26,10 @@
 // Run: npx tsx code/experiment/p178-emergent-self-robust.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { beat, countPlus, largestPositiveCluster, totalCharge } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-// the cohesive perception beat, conserving. opposite tones annihilate, a charge hops toward like company,
-// peace spawns a balanced pair at the (low) arrow rate. cohesion>0 gives cohesion, cohesion=0 is diffusion.
-function beat(tone: Int8Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrow: number, cohesion: number): void {
-  const N = tone.length
-  moved.fill(0)
-  const start = Math.floor(rng.next() * N)
-  for (let s = 0; s < N; s++) {
-    const v = (start + s) % N
-    if (moved[v]) continue
-    const a = tone[v]!
-    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-      const w = adj[p]!
-      if (moved[w]) continue
-      const b = tone[w]!
-      if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-        tone[v] = 0
-        tone[w] = 0
-        moved[v] = 1
-        moved[w] = 1
-        break
-      } else if (a !== 0 && b === 0) {
-        let like = 0
-        for (let q = offsets[w]!; q < offsets[w + 1]!; q++) {
-          const u = adj[q]!
-          if (u !== v && tone[u] === a) like++
-        }
-        const pHop = 0.1 + cohesion * Math.min(like, 4)
-        if (rng.next() < pHop) {
-          tone[w] = a as -1 | 1
-          tone[v] = 0
-          moved[v] = 1
-          moved[w] = 1
-          break
-        }
-      } else if (a === 0 && b === 0) {
-        if (arrow > 0 && rng.next() < arrow) {
-          if (rng.next() < 0.5) {
-            tone[v] = 1
-            tone[w] = -1
-          } else {
-            tone[v] = -1
-            tone[w] = 1
-          }
-          moved[v] = 1
-          moved[w] = 1
-          break
-        }
-      }
-    }
-  }
-}
-
-const totalCharge = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
-
-function largestPositiveCluster(tone: Int8Array, offsets: Int32Array, adj: Int32Array): number[] {
-  const N = tone.length
-  const seen = new Uint8Array(N)
-  let best: number[] = []
-  for (let s = 0; s < N; s++) {
-    if (tone[s] !== 1 || seen[s]) continue
-    const cells: number[] = []
-    let fr = [s]
-    seen[s] = 1
-    while (fr.length) {
-      const nf: number[] = []
-      for (const u of fr) {
-        cells.push(u)
-        for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-          const w = adj[p]!
-          if (tone[w] === 1 && !seen[w]) {
-            seen[w] = 1
-            nf.push(w)
-          }
-        }
-      }
-      fr = nf
-    }
-    if (cells.length > best.length) best = cells
-  }
-  return best
-}
-
-const countPlus = (tone: Int8Array, cells: number[]): number => {
-  let c = 0
-  for (const i of cells) if (tone[i] === 1) c++
-  return c
-}
 
 export function emergentSelfRobust(input?: { n?: number }): {
   n: number
@@ -153,8 +60,8 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const r = rng.next()
     tone[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0) as -1 | 0 | 1
   }
-  for (let t = 0; t < 70; t++) beat(tone, g.offsets, g.adj, moved, rng, 0.01, 0.22)
-  const cluster = largestPositiveCluster(tone, g.offsets, g.adj)
+  for (let t = 0; t < 70; t++) beat(tone, g, moved, rng, 0.01, 0.22)
+  const cluster = largestPositiveCluster(tone, g)
   const emergentCluster = cluster.length
   const shuf = tone.slice()
   for (let i = N - 1; i > 0; i--) {
@@ -163,7 +70,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     shuf[i] = shuf[j]!
     shuf[j] = tmp
   }
-  const nullCluster = largestPositiveCluster(shuf, g.offsets, g.adj).length
+  const nullCluster = largestPositiveCluster(shuf, g).length
   const structureEmerges = emergentCluster > nullCluster * 2
 
   // the self's pattern is "these core cells hold +1". the ground pool absorbs the balancing -1 charges.
@@ -209,7 +116,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const beats = 60
     for (let t = 0; t < beats; t++) {
       if (maintaining) workTotal += maintain(t2)
-      beat(t2, g.offsets, g.adj, moved, rng2, 0, 0.22)
+      beat(t2, g, moved, rng2, 0, 0.22)
     }
     return { fidelity: countPlus(t2, cluster) / cluster.length, work: workTotal / beats, q: totalCharge(t2) - q0 }
   }
@@ -229,7 +136,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const t3 = tone.slice()
     const start = countPlus(t3, cluster)
     const rng3 = makeRng({ seed: 31 })
-    for (let t = 0; t < 60; t++) beat(t3, g.offsets, g.adj, moved, rng3, 0, cohesion)
+    for (let t = 0; t < 60; t++) beat(t3, g, moved, rng3, 0, cohesion)
     return start > 0 ? countPlus(t3, cluster) / start : 0
   }
   const cohesiveLocalization = localize(0.22)
