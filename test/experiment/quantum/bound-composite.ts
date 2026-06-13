@@ -13,6 +13,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeRng } from '@/code/tool/rng'
 
 // relative-coordinate lattice Hamiltonian, H phi(r) = -t (phi[r-1]+phi[r+1]) + V[r] phi[r], open ends.
 // the free band is [-2t, 2t]; an attractive well (V<0) can pull states BELOW -2t (bound).
@@ -47,10 +48,9 @@ function lowestEigenpairs(V: Float64Array, t: number, k: number, seedBase: numbe
   const found: { energy: number; state: Float64Array }[] = []
   for (let j = 0; j < k; j++) {
     let phi = new Float64Array(N)
-    let seed = seedBase + j * 7919
+    const rng = makeRng({ seed: seedBase + j * 7919 })
     for (let r = 0; r < N; r++) {
-      seed = (seed * 1103515245 + 12345) & 0x7fffffff
-      phi[r] = seed / 0x7fffffff - 0.5
+      phi[r] = rng.next() - 0.5
     }
     normalize(phi)
     for (let iter = 0; iter < 1500; iter++) {

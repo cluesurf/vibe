@@ -11,7 +11,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/test/experiment/misc/self-kit'
+import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
 import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
 
 function jaccardDistance(a: Set<number>, b: Set<number>): number {

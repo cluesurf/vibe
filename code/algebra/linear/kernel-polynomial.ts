@@ -5,6 +5,7 @@
 // estimates traces of spectral functions, like Tr|H| for a Dirac-sea energy.
 
 import { Cx, newCx, dotR } from '@/code/algebra/linear/complex-vector'
+import { makeRng } from '@/code/tool/rng'
 
 // A Hermitian operator as a matrix-vector product: writes H applied to `input`
 // into `output`.
@@ -83,10 +84,9 @@ export function spectralBound(input: {
 }): number {
   const { operator, dim } = input
   const v = newCx(dim)
-  let state = 1
+  const rng = makeRng({ seed: 1 })
   for (let i = 0; i < dim; i++) {
-    state = (state * 1103515245 + 12345) & 0x7fffffff
-    v.re[i] = state / 0x7fffffff - 0.5
+    v.re[i] = rng.next() - 0.5
   }
   let norm = Math.sqrt(dotR(v, v, dim))
   for (let i = 0; i < dim; i++) {

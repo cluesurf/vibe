@@ -105,3 +105,43 @@ export function pairCollision(input: {
     }
   }
 }
+
+// The momentum-conserving collision, the generalization of momentumRotate2D to any coin. It rotates a
+// zero-momentum HEAD-ON pair from one direction-line to an empty partner line, and does nothing else. A
+// head-on pair is an opposite pair carrying the same tone (s, s), which has zero net momentum, so moving it
+// to another line keeps momentum zero. A lone particle, or any net-momentum configuration, is left untouched
+// and therefore STREAMS BALLISTICALLY, which is exactly what the pinning pair table denies. The lines are
+// paired two at a time, and the move (one line full, its partner empty) is its own inverse, so the rule is a
+// reversible involution that conserves both charge and momentum.
+export function headOnRotate(input: { opposite: number[] }): Collision {
+  const lines: Array<[number, number]> = []
+  for (let direction = 0; direction < input.opposite.length; direction++) {
+    const other = input.opposite[direction]!
+    if (direction < other) lines.push([direction, other])
+  }
+  const linePairs: Array<[[number, number], [number, number]]> = []
+  for (let k = 0; k + 1 < lines.length; k += 2) linePairs.push([lines[k]!, lines[k + 1]!])
+  return (slots, base) => {
+    for (const [li, lj] of linePairs) {
+      const ai = slots[base + li[0]] ?? 0
+      const bi = slots[base + li[1]] ?? 0
+      const aj = slots[base + lj[0]] ?? 0
+      const bj = slots[base + lj[1]] ?? 0
+      const iHeadOn = ai === bi && ai !== 0
+      const jHeadOn = aj === bj && aj !== 0
+      const iEmpty = ai === 0 && bi === 0
+      const jEmpty = aj === 0 && bj === 0
+      if (iHeadOn && jEmpty) {
+        slots[base + lj[0]] = ai as Tone
+        slots[base + lj[1]] = ai as Tone
+        slots[base + li[0]] = 0
+        slots[base + li[1]] = 0
+      } else if (jHeadOn && iEmpty) {
+        slots[base + li[0]] = aj as Tone
+        slots[base + li[1]] = aj as Tone
+        slots[base + lj[0]] = 0
+        slots[base + lj[1]] = 0
+      }
+    }
+  }
+}

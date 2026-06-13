@@ -17,22 +17,14 @@
 //       universal computer.
 // Run: npx tsx code/experiment/p176-reversible-universality.ts
 
+import { PAIR_FORWARD } from '@/code/rule/collision'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// the exact nine-state transition of the perception rule on a pair (left, right), tones in {-1,0,+1}
-function ruleStep(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
-  if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]
-  if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]
-  if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]
-  if (a === 1 && b === -1) return [-1, 1]
-  if (a === -1 && b === 1) return [0, 0]
-  throw new Error('unreachable')
-}
+// the exact nine-state transition of the perception rule on a pair (left, right), tones
+// in {-1,0,+1}. The canonical table lives in code/rule/collision as PAIR_FORWARD,
+// keyed by (left+1)*3+(right+1).
+const ruleStep = (a: number, b: number): [number, number] => PAIR_FORWARD[(a + 1) * 3 + (b + 1)]!
 
 // the Toffoli (controlled-controlled-NOT) gate, a universal reversible gate
 function toffoli(x: number, y: number, z: number): [number, number, number] {

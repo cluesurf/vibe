@@ -8,7 +8,7 @@
 // Run: npx tsx code/experiment/p3-study.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { Substrate } from '@/code/tool/substrate'
+import { Substrate, substrateMeanDegree } from '@/code/tool/substrate'
 import { Graph } from '@/code/tool/graph'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
@@ -28,20 +28,8 @@ interface Row {
   routeSuccess: number
 }
 
-function meanDegree(substrate: Substrate): number {
-  if (substrate.form !== 'graph') {
-    let total = 0
-    for (let i = 0; i < substrate.size; i++) {
-      total += (substrate.links[i] ?? new Uint32Array(0)).length
-    }
-    return total / Math.max(1, substrate.size)
-  }
-  let total = 0
-  for (let i = 0; i < substrate.size; i++) {
-    total += (substrate.neighbors[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, substrate.size)
-}
+// substrateMeanDegree (mean out-degree over either a Poset or a Graph) is a library
+// capability in code/tool/substrate.
 
 function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }): Row {
   const rng = makeRng({ seed: 17 })
@@ -53,7 +41,7 @@ function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }):
   return {
     name: input.name,
     size: input.substrate.size,
-    meanDegree: meanDegree(input.substrate),
+    meanDegree: substrateMeanDegree({ substrate: input.substrate }),
     reach: growthIsExponential({ growth }),
     anisotropy: iso.anisotropy,
     routeSuccess: route.successRate,

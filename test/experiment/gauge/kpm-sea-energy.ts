@@ -6,6 +6,7 @@
 // If Delta E_sea RISES as the soliton sharpens (R -> small), the fermion adds POSITIVE stiffness -> the rule's
 // fermion supplies a STABILIZING term (the Skyrme sign). Run: npx tsx code/experiment/p216-kpm-sea-energy.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
@@ -37,10 +38,10 @@ export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolea
       ),
     ) * 1.2
   const dMu: Float64Array[] = Rs.map(() => new Float64Array(MCHEB)) // accumulated Delta moments per R
-  let rng = 12345
+  const rng = makeRng({ seed: 12345 })
   const xi = newCx(dim)
   for (let r = 0; r < NRV; r++) {
-    for (let i = 0; i < dim; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; xi.re[i] = (rng & 1) ? 1 : -1; xi.im[i] = 0 } // Rademacher
+    for (let i = 0; i < dim; i++) { xi.re[i] = (rng.next() < 0.5) ? 1 : -1; xi.im[i] = 0 } // Rademacher
     const muV = chebyshevMoments({ operator: vac.applyH, scale: a, probe: xi, count: MCHEB, dim })
     hedges.forEach((h, ri) => { const muH = chebyshevMoments({ operator: h.applyH, scale: a, probe: xi, count: MCHEB, dim }); for (let n = 0; n < MCHEB; n++) dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV })
   }

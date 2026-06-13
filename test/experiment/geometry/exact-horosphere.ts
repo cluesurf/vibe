@@ -11,7 +11,7 @@
 // about the lattice or the honeycomb, so the idealization was sound and {5,3,4} can keep its forced
 // geometry while we simulate selves on a flat layer. Run: npx tsx code/experiment/p182-exact-horosphere.ts
 
-import { bulkGraph, flatGraph, squareGraph, beat, emergeSelf, countPlus, boundaryFraction, ball, type Graph } from '@/test/experiment/misc/self-kit'
+import { bulkGraph, flatGraph, squareGraph, beat, emergeSelf, countPlus, boundaryFraction, ball, type Graph } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

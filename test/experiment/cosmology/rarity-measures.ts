@@ -14,7 +14,7 @@
 // Together with P181's cascade and extrapolation, these show the model's rarity has the SAME structure
 // that makes life cosmically rare. Run: npx tsx code/experiment/p183-rarity-measures.ts
 
-import { flatGraph, beat, type Graph } from '@/test/experiment/misc/self-kit'
+import { flatGraph, beat, type Graph } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

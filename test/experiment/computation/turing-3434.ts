@@ -24,6 +24,9 @@
 
 import { buildAddressing, regionTypes, type Addressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { lifeStep } from '@/code/operator/conway-life'
+import { type Bit, bitToNum as toNum, functionFromTable as fromTable, nand } from '@/code/operator/logic-gate'
+import { carveRegisters, type Instr, RegisterMachine } from '@/code/operator/register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -59,33 +62,9 @@ function legStructure(a: Addressing): boolean {
 }
 
 // ---------- Leg 2, the ternary rule is functionally complete (NAND -> Rule 110) ----------
-
-type Bit = 1 | -1
-// the model's update as a 2-input gate: field = bias + sum(fill_i * input_i), then sign. bias +1 with
-// two -1 fills is exactly NAND. This is one application of the substrate's signed-majority rule.
-const ruleGate = (inputs: Bit[], fills: number[], bias: number): Bit => {
-  let h = bias
-  for (let i = 0; i < inputs.length; i++) h += (fills[i] ?? 0) * (inputs[i] ?? 1)
-  return h > 0 ? 1 : -1
-}
-const nand = (x: Bit, y: Bit): Bit => ruleGate([x, y], [-1, -1], 1)
-const not = (x: Bit): Bit => nand(x, x)
-const and = (x: Bit, y: Bit): Bit => not(nand(x, y))
-const or = (x: Bit, y: Bit): Bit => nand(not(x), not(y))
-const toNum = (b: Bit): number => (b === 1 ? 1 : 0)
-
-// Build any 3-input Boolean function as a NAND tree (sum of minterms), every gate a rule-NAND.
-function fromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => Bit {
-  return (l, c, r) => {
-    const lit = (v: Bit, bit: number): Bit => (bit === 1 ? v : not(v))
-    let acc: Bit = -1
-    for (let p = 0; p < 8; p++) {
-      if (!table[p]) continue
-      acc = or(acc, and(and(lit(l, (p >> 2) & 1), lit(c, (p >> 1) & 1)), lit(r, p & 1)))
-    }
-    return acc
-  }
-}
+// The gate algebra (rule-NAND and arbitrary 3-input functions) lives in
+// code/operator/logic-gate; the model's signed-majority rule with bias +1 and two -1
+// fills is exactly NAND, which is functionally complete.
 
 function legTernary(): boolean {
   const nandTable: Record<string, Bit> = { '1,1': -1, '1,-1': 1, '-1,1': 1, '-1,-1': 1 }
@@ -119,80 +98,17 @@ function legTernary(): boolean {
 
 // ---------- Leg 3, a Minsky register machine on the {3,4,3,4} cell graph ----------
 
-type Instr =
-  | { op: 'inc'; r: number }
-  | { op: 'decjz'; r: number; addr: number }
-  | { op: 'jmp'; addr: number }
-  | { op: 'halt' }
-
-// Registers are ternary CHARGE in address-defined regions of the {3,4,3,4} tree; a ground region holds
-// the balancing -1 charges so the total tone is exactly conserved. INC = the arrow making a +1/-1 pair,
-// DEC = +1 meets -1 and both return to 0 (annihilation). Identical mechanics to P177, on {3,4,3,4}.
-class Machine3434 {
-  tone: Int8Array
-  regions: number[][]
-  ground: number[]
-  charge0: number
-  constructor(a: Addressing, numRegisters: number, perReg: number) {
-    const n = a.graph.cellCount
-    this.tone = new Int8Array(n)
-    // carve registers from disjoint address-ordered blocks of complete cells (subtrees of the Fibonacci
-    // tree), the ground is everything else, navigation is by address
-    const interior: number[] = []
-    for (let c = 0; c < n; c++) if (a.complete[c]) interior.push(c)
-    interior.sort((x, y) => (a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1))
-    this.regions = []
-    let cur = 0
-    for (let r = 0; r < numRegisters; r++) {
-      const cells: number[] = []
-      for (let i = 0; i < perReg && cur < interior.length; i++, cur++) cells.push(interior[cur]!)
-      this.regions.push(cells)
-    }
-    this.ground = interior.slice(cur)
-    this.charge0 = this.charge()
-  }
-  charge(): number {
-    let s = 0
-    for (let i = 0; i < this.tone.length; i++) s += this.tone[i]!
-    return s
-  }
-  read(r: number): number {
-    let c = 0
-    for (const i of this.regions[r]!) if (this.tone[i] === 1) c++
-    return c
-  }
-  set(r: number, value: number): void {
-    for (const i of this.regions[r]!) this.tone[i] = 0
-    for (let k = 0; k < value; k++) this.inc(r)
-  }
-  inc(r: number): void {
-    let placed = false
-    for (const i of this.regions[r]!) if (this.tone[i] === 0) { this.tone[i] = 1; placed = true; break }
-    if (!placed) throw new Error('register overflow')
-    for (const i of this.ground) if (this.tone[i] === 0) { this.tone[i] = -1; return }
-    throw new Error('ground overflow')
-  }
-  dec(r: number): void {
-    for (const i of this.regions[r]!) if (this.tone[i] === 1) { this.tone[i] = 0; break }
-    for (const i of this.ground) if (this.tone[i] === -1) { this.tone[i] = 0; return }
-  }
-  run(program: Instr[], maxSteps = 2_000_000): { conserved: boolean } {
-    let pc = 0
-    let steps = 0
-    let conserved = true
-    while (pc < program.length && steps < maxSteps) {
-      const instr = program[pc]!
-      steps++
-      if (instr.op === 'halt') break
-      else if (instr.op === 'inc') { this.inc(instr.r); pc++ }
-      else if (instr.op === 'decjz') {
-        if (this.read(instr.r) === 0) pc = instr.addr
-        else { this.dec(instr.r); pc++ }
-      } else if (instr.op === 'jmp') pc = instr.addr
-      if (this.charge() !== this.charge0) conserved = false
-    }
-    return { conserved }
-  }
+// The conserving charge register machine (Instr set, INC/DEC/test-zero, conserved run)
+// lives in code/operator/register-machine. The {3,4,3,4}-specific wiring here is the
+// carving: registers are address-ordered blocks of COMPLETE cells (subtrees of the
+// Fibonacci tree), the ground is everything else.
+function makeMachine3434(a: Addressing, numRegisters: number, perReg: number): RegisterMachine {
+  const n = a.graph.cellCount
+  const interior: number[] = []
+  for (let c = 0; c < n; c++) if (a.complete[c]) interior.push(c)
+  interior.sort((x, y) => (a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1))
+  const { regions, ground } = carveRegisters({ cells: interior, numRegisters, perRegister: perReg })
+  return new RegisterMachine({ tone: new Int8Array(n), regions, ground })
 }
 
 const R0 = 0
@@ -215,14 +131,14 @@ const PROG_MUL: Instr[] = [
 function legRegisterMachine(a: Addressing): boolean {
   const cases: { name: string; inputs: number[]; expected: number; got: number; conserved: boolean }[] = []
   for (const [x, y] of [[3, 4], [7, 2], [0, 5]] as [number, number][]) {
-    const m = new Machine3434(a, 5, 60)
+    const m = makeMachine3434(a, 5, 60)
     m.set(R0, x)
     m.set(R1, y)
     const { conserved } = m.run(PROG_ADD)
     cases.push({ name: 'add', inputs: [x, y], expected: x + y, got: m.read(R0), conserved })
   }
   for (const [x, y] of [[3, 4], [5, 5], [2, 0]] as [number, number][]) {
-    const m = new Machine3434(a, 5, 60)
+    const m = makeMachine3434(a, 5, 60)
     m.set(R0, x)
     m.set(R1, y)
     const { conserved } = m.run(PROG_MUL)
@@ -256,8 +172,7 @@ function legCuspLife(): boolean {
       planeCells.push({ id, x: c[0]!, y: c[1]! })
     }
   })
-  // Moore neighbourhood (8 cells incl. diagonals) from coordinate offsets on the cubic lattice
-  const moore = [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => [dx, dy])).filter(([dx, dy]) => dx !== 0 || dy !== 0)
+  // Conway's Life step (Moore neighbourhood) lives in code/operator/conway-life.
   const alive = new Set<string>()
   // a glider, placed well inside the plane
   const cx = 10
@@ -265,19 +180,6 @@ function legCuspLife(): boolean {
   const glider: [number, number][] = [[0, 0], [1, 0], [2, 0], [2, 1], [1, 2]]
   for (const [dx, dy] of glider) alive.add(`${cx + dx},${cy + dy}`)
   const refAlive = new Set(alive)
-  const lifeStep = (state: Set<string>): Set<string> => {
-    const count = new Map<string, number>()
-    for (const k of state) {
-      const [x, y] = k.split(',').map(Number)
-      for (const [dx, dy] of moore) {
-        const nk = `${x! + dx!},${y! + dy!}`
-        count.set(nk, (count.get(nk) ?? 0) + 1)
-      }
-    }
-    const next = new Set<string>()
-    for (const [k, c] of count) if (c === 3 || (c === 2 && state.has(k))) next.add(k)
-    return next
-  }
   // run the cusp-graph version (only keep cells that EXIST on the cusp plane) AND a reference version
   let cusp = new Set(alive)
   let ref = new Set(refAlive)

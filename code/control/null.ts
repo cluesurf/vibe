@@ -1,4 +1,5 @@
 import { Will, cloneWill, charge } from '@/code/tone/will'
+import { makeRng } from '@/code/tool/rng'
 
 // Controls, the baselines a real result must beat. The audit found that the gap
 // between a deep result and a circular one is almost always the control, so they
@@ -11,10 +12,9 @@ import { Will, cloneWill, charge } from '@/code/tone/will'
 export function randomNull(will: Will, seed: number): Will {
   const shuffled = cloneWill(will)
   const data = shuffled.data
-  let state = seed >>> 0
+  const rng = makeRng({ seed })
   for (let index = data.length - 1; index > 0; index--) {
-    state = (state * 1103515245 + 12345) & 0x7fffffff
-    const swap = state % (index + 1)
+    const swap = rng.nextInt({ max: index + 1 })
     const held = data[index] ?? 0
     data[index] = data[swap] ?? 0
     data[swap] = held

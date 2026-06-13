@@ -10,7 +10,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, squareGraph, bulkGraph, ball, boundaryFraction, type Graph } from '@/test/experiment/misc/self-kit'
+import { flatGraph, squareGraph, bulkGraph, ball, boundaryFraction, type Graph } from '@/code/model/self-kit'
 
 // grow a ball around a center until it reaches at least the target size, then its boundary fraction.
 function fractionAtSize(input: { graph: Graph; center: number; targetSize: number; maxRadius: number }): {

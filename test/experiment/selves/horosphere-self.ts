@@ -20,7 +20,7 @@
 //       See the-three-layers-and-the-self.md for the full justification.
 // Run: npx tsx code/experiment/p180-horosphere-self.ts
 
-import { bulkGraph, flatGraph, beat, emergeSelf, countPlus, totalCharge, boundaryFraction, ball, type Graph } from '@/test/experiment/misc/self-kit'
+import { bulkGraph, flatGraph, beat, emergeSelf, countPlus, totalCharge, boundaryFraction, ball, type Graph } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

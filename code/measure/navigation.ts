@@ -42,6 +42,39 @@ function targetDistance(input: {
   return Math.acosh(poincareCoshFromParts(sum2, 1 - nodeNorm2, 1 - targetNorm2))
 }
 
+// Greedy geometric routing for a single source/target pair: from the source, step
+// each time to the neighbor closest to the target by embedding distance, until the
+// target is reached. Returns the hop count, or -1 if it gets stuck at a local minimum
+// or exceeds the hop budget. The single-pair primitive under greedyRoutingSuccess.
+export function greedyRouteHops(input: {
+  graph: Graph
+  source: number
+  target: number
+  maxHops?: number
+}): number {
+  const { graph, source, target } = input
+  const maxHops = input.maxHops ?? 4 * graph.size
+  let current = source
+  let hops = 0
+  while (current !== target && hops < maxHops) {
+    const row = graph.neighbors[current] ?? new Uint32Array(0)
+    let best = -1
+    let bestDistance = targetDistance({ graph, node: current, target })
+    for (let k = 0; k < row.length; k++) {
+      const neighbor = row[k] ?? 0
+      const distance = targetDistance({ graph, node: neighbor, target })
+      if (distance < bestDistance) {
+        bestDistance = distance
+        best = neighbor
+      }
+    }
+    if (best === -1) return -1 // stuck at a local minimum, greedy failed
+    current = best
+    hops += 1
+  }
+  return current === target ? hops : -1
+}
+
 // Greedy geometric routing: from the source, repeatedly step to the neighbor
 // closest to the target by embedding distance. Success if the target is reached
 // without getting stuck at a local minimum and within a hop budget.

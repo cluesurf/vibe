@@ -6,6 +6,7 @@
 // Run: npx tsx code/gpu/render-nesting-wave-534.ts (after `pnpm add webgpu`), then ffmpeg the frames.
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
@@ -64,8 +65,8 @@ async function run(): Promise<void> {
 
   // seed: peace everywhere, a deterministic charge packet in the central shells
   const seed = new Uint32Array(n)
-  let rng = 2246822519 % 0x7fffffff
-  const nextR = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 2246822519 })
+  const nextR = (): number => rng.next()
   for (let i = 0; i < n; i++) {
     if (depth[i]! >= 0 && depth[i]! <= SEED_DEPTH) seed[i] = pack({ current: 1 + Math.floor(nextR() * 2), previous: 1 + Math.floor(nextR() * 2) })
     else seed[i] = pack({ current: 0, previous: 0 })

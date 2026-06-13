@@ -5,20 +5,17 @@
 // Run: npx tsx code/experiment/p246-gm-geometry-3434.ts
 
 import { add } from '@/code/algebra/vector'
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import { sinkhornW1 } from '@/code/measure/transport'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function d4Roots(): number[][] {
-  const r: number[][] = []
-  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; r.push(v) }
-  return r
-}
 const key = (p: number[]): string => p.join(',')
 const euc = (p: number[]): number => Math.hypot(p[0]!, p[1]!, p[2]!, p[3]!)
 
 // BFS ball: graph distance from origin out to radius R
 function ball(R: number): { dist: Map<string, number>; cells: number[][]; roots: number[][] } {
-  const roots = d4Roots()
+  const roots = rootsD4()
   const dist = new Map<string, number>([['0,0,0,0', 0]])
   const cells: number[][] = [[0, 0, 0, 0]]
   let frontier = [[0, 0, 0, 0]]
@@ -36,19 +33,6 @@ function graphDist(a: number[], b: number[], roots: number[][], cap: number): nu
   const seen = new Set([key(a)]); let frontier = [a]
   for (let r = 1; r <= cap; r++) { const next: number[][] = []; for (const p of frontier) for (const root of roots) { const q = add(p, root); const k = key(q); if (k === key(b)) return r; if (!seen.has(k)) { seen.add(k); next.push(q) } } frontier = next }
   return cap + 1
-}
-
-// Sinkhorn W1 between two uniform distributions over equal-size supports with cost matrix C
-function sinkhornW1(C: number[][], eps: number, iters: number): number {
-  const n = C.length, m = C[0]!.length
-  const K = C.map((row) => row.map((c) => Math.exp(-c / eps)))
-  let u = new Array(n).fill(1), v = new Array(m).fill(1)
-  for (let it = 0; it < iters; it++) {
-    for (let i = 0; i < n; i++) { let s = 0; for (let j = 0; j < m; j++) s += K[i]![j]! * v[j]!; u[i] = (1 / n) / (s || 1e-300) }
-    for (let j = 0; j < m; j++) { let s = 0; for (let i = 0; i < n; i++) s += K[i]![j]! * u[i]!; v[j] = (1 / m) / (s || 1e-300) }
-  }
-  let w = 0; for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) w += u[i]! * K[i]![j]! * v[j]! * C[i]![j]!
-  return w
 }
 
 export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexponential: boolean; metricLinear: boolean; ricciFlat: boolean } {

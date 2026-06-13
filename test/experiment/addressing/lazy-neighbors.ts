@@ -10,45 +10,14 @@
 // the win comes from compact formula addressing (the plan's Stage 1), this stage proves on-demand neighbor
 // CORRECTNESS, the seed the shader port builds on. Run: npx tsx code/experiment/p183-lazy-neighbors.ts
 
-import { buildDodecagrid, makeLazyEngine, type LazyCell } from '@/code/substrate/coxeter/cell-scale'
+import { buildDodecagrid, buildDodecagridLazy, makeLazyEngine, type LazyCell } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
-import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// build the graph LAZILY, mirroring the stored build's BFS but getting neighbors from the lazy engine only
-function lazyBuild(maxCells: number): { offsets: Uint32Array; adj: Uint32Array; cellCount: number } {
-  const eng = makeLazyEngine()
-  const cells: LazyCell[] = [eng.origin]
-  const idOf = new Map<string, number>([[eng.fingerprint(eng.origin), 0]])
-  const nbr: number[][] = [[]]
-  let hit = false
-  for (let head = 0; head < cells.length; head++) {
-    const ns = eng.neighbors(cells[head]!) // computed on demand, no stored graph
-    for (const nc of ns) {
-      const k = eng.fingerprint(nc)
-      let id = idOf.get(k)
-      if (id === undefined) {
-        if (cells.length >= maxCells) {
-          hit = true
-          continue
-        }
-        id = cells.length
-        idOf.set(k, id)
-        cells.push(nc)
-        nbr.push([])
-      }
-      if (id !== head && !nbr[head]!.includes(id)) {
-        nbr[head]!.push(id)
-        nbr[id]!.push(head)
-      }
-    }
-    if (hit) break
-  }
-  const n = cells.length
-  const { offsets, adj } = toCsr(nbr)
-  return { offsets, adj, cellCount: n }
-}
+// The lazy BFS dodecagrid build (neighbors computed on demand from each cell's group
+// matrices, no stored adjacency during traversal) lives in
+// code/substrate/coxeter/cell-scale as buildDodecagridLazy.
 
 export function lazyNeighbors(input?: { n?: number }): {
   n: number
@@ -64,7 +33,7 @@ export function lazyNeighbors(input?: { n?: number }): {
   const n = input?.n ?? 20000
 
   // (1) lazy build reproduces the stored graph exactly
-  const lazy = lazyBuild(n)
+  const lazy = buildDodecagridLazy({ maxCells: n })
   const stored = buildDodecagrid({ maxCells: n })
   let identical = lazy.cellCount === stored.cellCount && lazy.offsets.length === stored.offsets.length && lazy.adj.length === stored.adj.length
   if (identical) {

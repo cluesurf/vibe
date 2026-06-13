@@ -41,6 +41,20 @@ import { dot as vdot, norm as vnorm, sub as vsub, normalize as vnormalize, inner
 import { bfsShells, geodesicBall } from '@/code/measure/shells'
 import { toCsr } from '@/code/tool/graph'
 import { pack as packTone, currentOf, previousOf, signedTone } from '@/code/tone/pack'
+import {
+  octonionMultiply,
+  octonionUnit,
+  octonionNormSquared,
+  octonionEquals,
+} from '@/code/algebra/octonion'
+import {
+  hermitianOctonionDimension,
+  maxJordanIdentityResidual,
+  diagonalJordanFrame,
+  isJordanIdempotent,
+  areJordanOrthogonal,
+} from '@/code/algebra/jordan'
+import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -428,6 +442,36 @@ export function runConformance(): { passed: number; failed: number } {
     // tone pack round-trip and signed mapping
     const pk = packTone({ current: 1, previous: 2 })
     check({ name: 'tone pack/unpack', ok: currentOf(pk) === 1 && previousOf(pk) === 2 && signedTone(1) === 1 && signedTone(2) === -1 && signedTone(0) === 0 })
+
+    // octonions: the Fano table (e1 e2 = e3, e2 e1 = -e3) and the multiplicative norm
+    const e1e2 = octonionMultiply(octonionUnit(1), octonionUnit(2))
+    const e2e1 = octonionMultiply(octonionUnit(2), octonionUnit(1))
+    check({ name: 'octonion Fano product', ok: octonionEquals(e1e2, octonionUnit(3)) && octonionEquals(e2e1, octonionUnit(3).map((x) => -x)) })
+    const ox = [1, 2, 0, -1, 0, 3, 0, 1]
+    const oy = [0, 1, -2, 0, 1, 0, 1, 2]
+    const normMultiplicative = Math.abs(octonionNormSquared(octonionMultiply(ox, oy)) - octonionNormSquared(ox) * octonionNormSquared(oy)) < 1e-9
+    check({ name: 'octonion norm multiplicative', ok: normMultiplicative })
+
+    // the exceptional Jordan algebra J3(O): dimension 27, a rank-three frame, and the
+    // Jordan identity holding at n <= 3 but failing at n = 4 (octonion non-associativity)
+    check({ name: 'jordan H3(O) dimension 27', ok: hermitianOctonionDimension(3) === 27 })
+    const frame = diagonalJordanFrame(3)
+    const frameOk = frame.length === 3 && frame.every(isJordanIdempotent) && areJordanOrthogonal(frame[0]!, frame[1]!) && areJordanOrthogonal(frame[0]!, frame[2]!) && areJordanOrthogonal(frame[1]!, frame[2]!)
+    check({ name: 'jordan rank-3 frame', ok: frameOk })
+    check({ name: 'jordan identity holds at n<=3', ok: maxJordanIdentityResidual(2) < 1e-9 && maxJordanIdentityResidual(3) < 1e-9 })
+    check({ name: 'jordan identity fails at n=4 (control)', ok: maxJordanIdentityResidual(4) > 1e-3 })
+
+    // Landau levels: the Dirac operator in a uniform field has a relativistic zero mode at
+    // E^2 = m^2 (the g=2 fingerprint), the spinless scalar's lowest level is m^2 + qB (no mode)
+    const landauN = 24
+    const landauB = 0.2
+    const landauM = 0.5
+    const diracVals = eigHermitian({ matrix: diracLandauHamiltonian({ levels: landauN, fieldStrength: landauB, mass: landauM }) }).values
+    const diracLowSquared = Math.min(...Array.from(diracVals).map((x) => x * x))
+    const scalarLowSquared = Math.min(...Array.from(eigSymmetric({ matrix: scalarLandauSquared({ levels: landauN, fieldStrength: landauB, mass: landauM }) }).values))
+    check({ name: 'landau Dirac zero mode at m^2 (g=2)', ok: Math.abs(diracLowSquared - landauM * landauM) < 1e-3 })
+    check({ name: 'landau scalar lowest at m^2+qB (no zero mode, control)', ok: Math.abs(scalarLowSquared - (landauM * landauM + landauB)) < 1e-3 })
+    check({ name: 'landau g-factor reads 2', ok: Math.abs((2 * (scalarLowSquared - diracLowSquared)) / landauB - 2) < 1e-3 })
   }
 
   return { passed, failed }

@@ -9,7 +9,7 @@
 // Run: pnpm tsx code/gpu/render-persistence-anim.ts [free|maintained]   then task/render-video.sh
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { toCSR, beat, sameSignNeighbors, discreteArrow, type Graph } from '@/test/experiment/misc/self-kit'
+import { toCSR, beat, sameSignNeighbors, discreteArrow, type Graph } from '@/code/model/self-kit'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'

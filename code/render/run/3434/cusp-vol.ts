@@ -6,6 +6,7 @@
 // legible. Run: pnpm tsx code/gpu/render-cusp-3434-vol.ts   then task/render-video.sh
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 import { PLEASURE, PAIN } from '@/code/draw/color'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
@@ -61,11 +62,8 @@ async function run(): Promise<void> {
   // a central blob of random tones, the wave expands from it as rich 3D shells
   const seed = new Uint32Array(N)
   const c = L >> 1
-  let rr = 12345
-  const rnd = (): number => {
-    rr = (rr * 1103515245 + 12345) & 0x7fffffff
-    return rr / 0x7fffffff
-  }
+  const rr = makeRng({ seed: 12345 })
+  const rnd = (): number => rr.next()
   const B = 6
   for (let z = -B; z <= B; z++) for (let y = -B; y <= B; y++) for (let x = -B; x <= B; x++) {
     if (x * x + y * y + z * z > B * B) continue

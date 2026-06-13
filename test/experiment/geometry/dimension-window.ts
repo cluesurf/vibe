@@ -16,50 +16,15 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Leading principal minors of the (k+1)x(k+1) Schlafli/Gram matrix of a linear Coxeter
-// diagram for the symbol {p1, ..., pk}: G_ii = 1, G_{i,i+1} = -cos(pi / p_i).
-function gram(symbol: number[]): number[][] {
-  const m = symbol.length + 1
-  const G: number[][] = Array.from({ length: m }, () => new Array<number>(m).fill(0))
-  for (let i = 0; i < m; i++) G[i]![i] = 1
-  for (let i = 0; i < symbol.length; i++) {
-    const c = -Math.cos(Math.PI / (symbol[i] ?? 2))
-    G[i]![i + 1] = c
-    G[i + 1]![i] = c
-  }
-  return G
-}
-
-function determinant(a: number[][]): number {
-  const n = a.length
-  const m = a.map((row) => row.slice())
-  let det = 1
-  for (let col = 0; col < n; col++) {
-    let pivot = col
-    for (let r = col + 1; r < n; r++) if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
-    if (Math.abs(m[pivot]![col]!) < 1e-15) return 0
-    if (pivot !== col) {
-      const tmp = m[pivot]!
-      m[pivot] = m[col]!
-      m[col] = tmp
-      det = -det
-    }
-    det *= m[col]![col]!
-    for (let r = col + 1; r < n; r++) {
-      const f = m[r]![col]! / m[col]![col]!
-      for (let c = col; c < n; c++) m[r]![c]! -= f * m[col]![c]!
-    }
-  }
-  return det
-}
+import { gramMatrix } from '@/code/substrate/coxeter/schlafli'
+import { determinant } from '@/code/algebra/linear/dense'
 
 type Kind = 'spherical' | 'euclidean' | 'hyperbolic' | 'higher'
 
 // Classify a linear Coxeter symbol by the signature of its Gram matrix, read off the leading
 // principal minors (Sylvester): number of negative eigenvalues = sign changes in 1, D1, ..., Dm.
 function classify(symbol: number[]): Kind {
-  const G = gram(symbol)
+  const G = gramMatrix(symbol)
   const m = G.length
   const minors: number[] = [1]
   for (let k = 1; k <= m; k++) {

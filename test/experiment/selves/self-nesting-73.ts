@@ -4,6 +4,7 @@
 // low-dimensional to host skyrmion-selves. So {7,3} is poor for selfhood, the opposite of its strength
 // (computation, P204). Ported to {7,3}. Run: npx tsx code/experiment/p203-self-nesting-73.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
@@ -19,7 +20,7 @@ export function selfNesting73(): { tower: boolean; real: number[]; nul: number[]
   while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; par[w] = u; nf.push(w) } } fr = nf }
   // run the mod-3 wave from a seeded patch, then measure radial-cone coherence at several cone depths
   let cur = new Int8Array(N), prev = new Int8Array(N), nxt = new Int8Array(N)
-  let rng = 9; const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 9 }); const rnd = (): number => rng.next()
   for (let i = 0; i < N; i++) if (dist[i]! < 4) cur[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
   const series: Int8Array[] = []
   for (let b = 0; b < 40; b++) { for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2 } const t = prev; prev = cur; cur = nxt; nxt = t; if (b >= 10) series.push(cur.slice()) }

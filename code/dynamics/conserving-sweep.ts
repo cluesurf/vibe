@@ -53,3 +53,65 @@ export function conservingEdgeSweep(input: {
     }
   }
 }
+
+// A position-indexed hash giving a deterministic uniform value per (key, beat, salt).
+// Used by the hashed sweep so that perturbing one cell does NOT shift the random
+// stream seen by distant edges (which would be a spurious instantaneous global
+// difference). Both copies of a damage-spreading run see the same hash per edge.
+export function hashRand(key: number, beat: number, salt: number): number {
+  let h = (Math.imul(key, 73856093) ^ Math.imul(beat, 19349663) ^ Math.imul(salt, 83492791)) | 0
+  h = Math.imul(h ^ (h >>> 13), 1274126177)
+  h = h ^ (h >>> 16)
+  return (h >>> 0) / 4294967296
+}
+
+// One beat of the conserving perception rule using the position-indexed hash instead
+// of a stream RNG, so differences between two copies propagate only locally (a damage-
+// spreading / front-velocity probe). Same local update as conservingEdgeSweep: opposite
+// tones annihilate, a charge next to a 0 hops in half the time, two 0s spawn a +/- pair
+// with probability `arrow`. `beat` is the current time-step, used to index the hash.
+export function conservingEdgeSweepHashed(input: {
+  tone: Int8Array
+  eu: Int32Array
+  ev: Int32Array
+  moved: Uint8Array
+  beat: number
+  arrow: number
+}): void {
+  const { tone, eu, ev, moved, beat, arrow } = input
+  moved.fill(0)
+  for (let k = 0; k < eu.length; k++) {
+    const v = eu[k]!
+    const w = ev[k]!
+    if (moved[v] || moved[w]) continue
+    const a = tone[v]!
+    const b = tone[w]!
+    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
+      tone[v] = 0
+      tone[w] = 0
+      moved[v] = 1
+      moved[w] = 1
+    } else if ((a === 0) !== (b === 0)) {
+      const c = a === 0 ? w : v
+      const e = a === 0 ? v : w
+      if (hashRand(k, beat, 1) < 0.5) {
+        tone[e] = tone[c]!
+        tone[c] = 0
+        moved[v] = 1
+        moved[w] = 1
+      }
+    } else if (a === 0 && b === 0) {
+      if (hashRand(k, beat, 2) < arrow) {
+        if (hashRand(k, beat, 3) < 0.5) {
+          tone[v] = 1
+          tone[w] = -1
+        } else {
+          tone[v] = -1
+          tone[w] = 1
+        }
+        moved[v] = 1
+        moved[w] = 1
+      }
+    }
+  }
+}

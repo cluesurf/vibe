@@ -13,103 +13,20 @@
 // Run: npx tsx code/experiment/p177-substrate-computer.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { carveRegisters, type Instr, RegisterMachine } from '@/code/operator/register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Instr =
-  | { op: 'inc'; r: number }
-  | { op: 'decjz'; r: number; addr: number }
-  | { op: 'jmp'; addr: number }
-  | { op: 'halt' }
-
-// the machine, registers as charge regions on a real {5,3,4}, a ground region for the balancing -1 charges
-class SubstrateComputer {
-  tone: Int8Array
-  regions: number[][] // regions[r] = cell indices of register r
-  ground: number[]
-  totalCharge0: number
-
-  constructor(n: number, numRegisters: number) {
-    const g = buildDodecagrid({ maxCells: n })
-    const N = g.cellCount
-    this.tone = new Int8Array(N)
-    // partition cells into numRegisters register-regions plus a large ground region
-    const perReg = 220
-    this.regions = []
-    let cursor = 0
-    for (let r = 0; r < numRegisters; r++) {
-      const cells: number[] = []
-      for (let i = 0; i < perReg && cursor < N; i++, cursor++) cells.push(cursor)
-      this.regions.push(cells)
-    }
-    this.ground = []
-    for (; cursor < N; cursor++) this.ground.push(cursor)
-    this.totalCharge0 = this.charge()
-  }
-
-  charge(): number {
-    let s = 0
-    for (let i = 0; i < this.tone.length; i++) s += this.tone[i]!
-    return s
-  }
-  read(r: number): number {
-    let c = 0
-    for (const i of this.regions[r]!) if (this.tone[i] === 1) c++
-    return c
-  }
-  set(r: number, value: number): void {
-    for (const i of this.regions[r]!) this.tone[i] = 0
-    for (let k = 0; k < value; k++) this.inc(r)
-  }
-  // INC, the arrow creates a balanced pair, +1 into register r, -1 into the ground (conserving)
-  inc(r: number): void {
-    let placedPlus = false
-    for (const i of this.regions[r]!) if (this.tone[i] === 0) {
-      this.tone[i] = 1
-      placedPlus = true
-      break
-    }
-    if (!placedPlus) throw new Error('register overflow')
-    for (const i of this.ground) if (this.tone[i] === 0) {
-      this.tone[i] = -1
-      return
-    }
-    throw new Error('ground overflow')
-  }
-  // DEC, annihilation, a +1 in r meets a -1 in the ground, both return to peace
-  dec(r: number): void {
-    for (const i of this.regions[r]!) if (this.tone[i] === 1) {
-      this.tone[i] = 0
-      break
-    }
-    for (const i of this.ground) if (this.tone[i] === -1) {
-      this.tone[i] = 0
-      return
-    }
-  }
-  // run a stored program, return whether the total charge stayed conserved the whole time
-  run(program: Instr[], maxSteps = 2_000_000): { steps: number; conserved: boolean } {
-    let pc = 0
-    let steps = 0
-    let conserved = true
-    while (pc < program.length && steps < maxSteps) {
-      const instr = program[pc]!
-      steps++
-      if (instr.op === 'halt') break
-      else if (instr.op === 'inc') {
-        this.inc(instr.r)
-        pc++
-      } else if (instr.op === 'decjz') {
-        if (this.read(instr.r) === 0) pc = instr.addr
-        else {
-          this.dec(instr.r)
-          pc++
-        }
-      } else if (instr.op === 'jmp') pc = instr.addr
-      if (this.charge() !== this.totalCharge0) conserved = false
-    }
-    return { steps, conserved }
-  }
+// The conserving charge register machine (Instr set, INC/DEC/test-zero, conserved run)
+// lives in code/operator/register-machine. The {5,3,4}-specific wiring here is the
+// carving: 220-cell register-regions from the dodecagrid's cell indices plus a large
+// ground region for the balancing -1 charges.
+function makeSubstrateComputer(n: number, numRegisters: number): RegisterMachine {
+  const g = buildDodecagrid({ maxCells: n })
+  const N = g.cellCount
+  const cells = Array.from({ length: N }, (_, i) => i)
+  const { regions, ground } = carveRegisters({ cells, numRegisters, perRegister: 220 })
+  return new RegisterMachine({ tone: new Int8Array(N), regions, ground })
 }
 
 // registers, R0..R5 plus RZERO for unconditional jumps (never incremented)
@@ -157,8 +74,8 @@ export function substrateComputer(input?: { n?: number }): {
   const n = input?.n ?? 5000
   const cases: { program: string; inputs: number[]; expected: number; got: number; conserved: boolean }[] = []
 
-  const runCase = (name: string, prog: Instr[], setup: (m: SubstrateComputer) => void, readOut: (m: SubstrateComputer) => number, inputs: number[], expected: number): void => {
-    const m = new SubstrateComputer(n, 5)
+  const runCase = (name: string, prog: Instr[], setup: (m: RegisterMachine) => void, readOut: (m: RegisterMachine) => number, inputs: number[], expected: number): void => {
+    const m = makeSubstrateComputer(n, 5)
     setup(m)
     const { conserved } = m.run(prog)
     cases.push({ program: name, inputs, expected, got: readOut(m), conserved })

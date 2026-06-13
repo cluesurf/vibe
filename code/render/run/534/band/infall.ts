@@ -9,7 +9,7 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
-import { toCSR, beat } from '@/test/experiment/misc/self-kit'
+import { toCSR, beat } from '@/code/model/self-kit'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'

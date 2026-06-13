@@ -179,10 +179,10 @@ export function csrEccentricity(input: {
   return { dist, far }
 }
 
-// Breadth-first hop distance from `source` over a number[][] neighbor list.
-// Returns an Int32Array of distances (-1 for unreached).
+// Breadth-first hop distance from `source` over a neighbor list (number[][] or the Graph's
+// Uint32Array rows). Returns an Int32Array of distances (-1 for unreached).
 export function neighborDistances(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: ReadonlyArray<ReadonlyArray<number> | Uint32Array>
   size: number
   source: number
 }): Int32Array {
@@ -214,4 +214,45 @@ export function edgeList(g: Graph): Array<{ a: number; b: number }> {
     }
   }
   return out
+}
+
+// The connected component containing the most-connected node, returned as a fresh Graph with ids
+// remapped to a dense 0..k range and the embedding carried over. Picking the max-degree seed lands
+// in the bulk, and isolating one component makes a Laplacian solve well posed (a disconnected graph
+// carries a spurious zero mode per component).
+export function largestComponent(g: Graph): Graph {
+  let center = 0
+  let best = -1
+  for (let i = 0; i < g.size; i++) {
+    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
+    if (d > best) { best = d; center = i }
+  }
+  const reach = new Int32Array(g.size).fill(-1)
+  reach[center] = 0
+  let frontier = [center]
+  const kept: number[] = [center]
+  while (frontier.length > 0) {
+    const next: number[] = []
+    for (const v of frontier) {
+      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
+        if (reach[w] === -1) {
+          reach[w] = 1
+          kept.push(w)
+          next.push(w)
+        }
+      }
+    }
+    frontier = next
+  }
+  const remap = new Map<number, number>()
+  kept.forEach((old, i) => remap.set(old, i))
+  const dim = g.embedding?.dimension ?? 2
+  const oldCoords = g.embedding?.coords ?? new Float64Array(0)
+  const coords = new Float64Array(kept.length * dim)
+  const neighbors: number[][] = kept.map((old, i) => {
+    for (let a = 0; a < dim; a++) coords[i * dim + a] = oldCoords[old * dim + a] ?? 0
+    return Array.from(g.neighbors[old] ?? new Uint32Array(0)).map((w) => remap.get(w) ?? -1).filter((x) => x >= 0)
+  })
+  const embedding = g.embedding ? { ...g.embedding, coords } : undefined
+  return makeGraph({ size: kept.length, directed: false, neighbors, embedding })
 }

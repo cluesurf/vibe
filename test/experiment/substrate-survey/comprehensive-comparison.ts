@@ -6,6 +6,7 @@
 
 import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -32,7 +33,7 @@ function battery(s: Sub): Record<string, string> {
   const crystallographic = s.sym.every((n) => n === 3 || n === 4 || n === 6)
   const spinorHook = degree === 24 || s.sym.join(',').includes('3,4,3') // 24-cell / D4 coin
   // rule, charge conservation under directional streaming
-  let rng = 9; const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 9 }); const rnd = (): number => rng.next()
   let charge: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
   const tot = (c: number[][]): number => c.reduce((a, r) => a + r.reduce((x, y) => x + y, 0), 0)
   const t0 = tot(charge)

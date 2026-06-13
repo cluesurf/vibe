@@ -6,6 +6,7 @@
 // Run: pnpm tsx code/gpu/render-lightcone.ts   then assemble with ffmpeg
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
@@ -46,7 +47,7 @@ function run(): void {
   for (let i = 0; i < E; i++) { const at = cur[color[i]!]!++; edgeV[at] = eu[i]!; edgeW[at] = ev[i]! }
 
   // identical random background; copy A gets a tiny central perturbation
-  const A = new Uint8Array(n), B = new Uint8Array(n); let r = 987654321; const rr = () => { r = (r * 1103515245 + 12345) & 0x7fffffff; return r / 0x7fffffff }
+  const A = new Uint8Array(n), B = new Uint8Array(n); const r = makeRng({ seed: 987654321 }); const rr = () => r.next()
   for (let i = 0; i < n; i++) { const x = rr(); const v = x < 0.2 ? 1 : x < 0.4 ? 2 : 0; A[i] = v; B[i] = v }
   // centre cell + a few neighbours, bump the tone (the perturbation) only in A
   let ctr = bandCells[0]!, bd = 1e9; for (let j = 0; j < bandCells.length; j++) { const d = Math.hypot(uv[j]![0] - cu, uv[j]![1] - cv); if (d < bd) { bd = d; ctr = bandCells[j]! } }

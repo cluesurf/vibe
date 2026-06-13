@@ -5,6 +5,7 @@
 // FD1/FD6 it is deterministic and the streaming is a conflict-free permutation of slots.
 // Run: npx tsx code/experiment/p245-fd-foundational-3434.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -72,8 +73,8 @@ export function fdFoundational(): { neighborsOk: boolean; closes: boolean; count
   const momentum = (occ: number[]): number[] => { const m = [0, 0, 0, 0]; for (let c = 0; c < N; c++) { const o = occ[c]!; for (let d = 0; d < D; d++) if ((o >> d) & 1) for (let q = 0; q < 4; q++) m[q]! += roots[d]![q]! } return m }
 
   // deterministic pseudo-random initial state (a fixed seed, integer)
-  let seed = 12345
-  const rnd = (): number => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff }
+  const rng = makeRng({ seed: 12345 })
+  const rnd = (): number => rng.next()
   const occ0 = new Array(N).fill(0).map(() => { let o = 0; for (let d = 0; d < D; d++) if (rnd() < 0.25) o |= (1 << d); return o })
 
   // run forward T, check conservation each step

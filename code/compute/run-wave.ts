@@ -6,6 +6,7 @@
 // See note/plan/vibe-webgpu-billion-cell-sim.md.
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 import { WAVE_STEP_WGSL } from '@/code/compute/wave.wgsl'
 
 // install the WebGPU global constants (GPUBufferUsage, GPUMapMode, ...) and the navigator.gpu entry point
@@ -98,11 +99,8 @@ async function run(): Promise<void> {
   const beats = 60
   const seed = new Uint32Array(sw * sh)
   // a deterministic pseudo-random field in both tone slots, so the second-order rule has history
-  let r = 123456789
-  const nextR = (): number => {
-    r = (r * 1103515245 + 12345) & 0x7fffffff
-    return r / 0x7fffffff
-  }
+  const r = makeRng({ seed: 123456789 })
+  const nextR = (): number => r.next()
   for (let i = 0; i < seed.length; i++) seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
 
   const field = makeField(device, seed, sw, sh)
