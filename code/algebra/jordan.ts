@@ -167,3 +167,44 @@ export function maxJordanIdentityResidual(n: number): number {
   }
   return worst
 }
+
+// Every permutation of {0, 1, ..., n-1} as an index array, the symmetric group S_n. n is
+// expected to be small (this is used for the 3 Jordan slots, S_3).
+export function permutations(n: number): number[][] {
+  if (n <= 1) return [Array.from({ length: n }, (_, i) => i)]
+  const out: number[][] = []
+  for (const sub of permutations(n - 1)) {
+    for (let position = 0; position <= sub.length; position++) {
+      out.push([...sub.slice(0, position), n - 1, ...sub.slice(position)])
+    }
+  }
+  return out
+}
+
+// Relabel a Hermitian octonion matrix by a permutation of its slots, A -> P A P^transpose
+// with P the real permutation matrix sending i to perm[i]. Because the permutation entries
+// are real (and so associate with the octonions), this is an AUTOMORPHISM of the Jordan
+// algebra: it preserves Hermiticity and the symmetrized product, and it sends the diagonal
+// frame idempotent E_i to E_{perm[i]}. For H_3(O) these are the S_3 family permutations of
+// the three slots, the generation (horizontal) symmetry of the substrate's exceptional algebra.
+export function permutationConjugate(matrix: OctonionMatrix, perm: number[]): OctonionMatrix {
+  const n = matrix.length
+  const out = octonionMatrixZero(n)
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) out[perm[i]!]![perm[j]!] = matrix[i]![j]!
+  return out
+}
+
+// Whether a slot permutation acts as a Jordan automorphism on H_n(O): for deterministic test
+// elements A, B it must satisfy P(A . B) = P(A) . P(B). True for every permutation, this is
+// the verification, not an assumption.
+export function isJordanAutomorphism(perm: number[], tolerance = 1e-9): boolean {
+  const n = perm.length
+  for (let variant = 0; variant < 3; variant++) {
+    const a = deterministicHermitian(n, variant)
+    const b = deterministicHermitian(n, variant + 1)
+    const left = permutationConjugate(jordanProduct(a, b), perm)
+    const right = jordanProduct(permutationConjugate(a, perm), permutationConjugate(b, perm))
+    if (!octonionMatrixEquals(left, right, tolerance)) return false
+  }
+  return true
+}

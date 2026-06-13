@@ -5,7 +5,7 @@
 // consumer of a Mesh never knows or cares which substrate it was handed.
 
 import { modulo } from '@/code/tool/integer'
-import { rootsD4 } from '@/code/algebra/group/root-system'
+import { rootsD4, rootsB4 } from '@/code/algebra/group/root-system'
 
 export interface Mesh {
   readonly id: string
@@ -113,6 +113,48 @@ export function d4Mesh(input: { side: number }): Mesh {
     },
     opposite(direction) {
       return D4_OPPOSITE[direction] ?? direction
+    },
+  }
+}
+
+// The 32 B4 root directions, the two-speed coin: the 24 long D4 roots plus the 8
+// short axis roots, computed once with their opposite (negated root) indices.
+const B4_ROOTS = rootsB4()
+const B4_OPPOSITE = B4_ROOTS.map((root) =>
+  B4_ROOTS.findIndex((other) =>
+    other.every((value, axis) => value === -(root[axis] ?? 0)),
+  ),
+)
+
+// A periodic four-dimensional lattice on the 32 B4 root directions, the TWO-SPEED
+// coin (Option 4, routes-to-nested-selves). A long step (+-1, +-1, 0, 0) moves two
+// coordinates per beat, a short step (+-1, 0, 0, 0) moves one. The extra speed is
+// what lets a bound state drift slowly while its parts move fast, which the single-
+// speed D4 coin forbids. cellCount is side^4, so keep side small.
+export function b4Mesh(input: { side: number }): Mesh {
+  const side = input.side
+  const area = side * side
+  const volume = area * side
+  const hyper = volume * side
+  const wrap = (value: number): number => modulo(value, side)
+  return {
+    id: `b4-${side}`,
+    degree: 32,
+    cellCount: hyper,
+    neighbour(cell, direction) {
+      const x = cell % side
+      const y = Math.floor(cell / side) % side
+      const z = Math.floor(cell / area) % side
+      const w = Math.floor(cell / volume) % side
+      const root = B4_ROOTS[direction] ?? [0, 0, 0, 0]
+      const nx = wrap(x + (root[0] ?? 0))
+      const ny = wrap(y + (root[1] ?? 0))
+      const nz = wrap(z + (root[2] ?? 0))
+      const nw = wrap(w + (root[3] ?? 0))
+      return nw * volume + nz * area + ny * side + nx
+    },
+    opposite(direction) {
+      return B4_OPPOSITE[direction] ?? direction
     },
   }
 }

@@ -23,21 +23,11 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cloneWill, type Will } from '@/code/tone/will'
+import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { beat, inverseBeat } from '@/code/rule/lattice-gas'
-import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
 
 const sideOf = (mesh: Mesh): number => Math.round(Math.pow(mesh.cellCount, 1 / 4))
-
-// a typical mixed gas, high occupancy so the closed bulk relaxes to a rich flat equilibrium.
-function gasInit(input: { mesh: Mesh; rng: ReturnType<typeof makeRng>; density: number }): Will {
-  const will = makeWill(input.mesh)
-  for (let i = 0; i < will.data.length; i++) {
-    if (input.rng.next() < input.density) will.data[i] = input.rng.next() < 0.5 ? 1 : -1
-  }
-  return will
-}
 
 // hold a frontier slab (cells at a fixed x-coordinate) at peace, modelling cells continuously born at peace.
 function bornAtPeace(will: Will, frontierX: number): void {
@@ -129,7 +119,10 @@ export default defineExperiment({
     const forward: Collision = pairCollision({ opposite, forward: true })
     const inverse: Collision = pairCollision({ opposite, forward: false })
 
-    const init = gasInit({ mesh, rng: makeRng(24681), density: 0.4 })
+    // a deterministic structured fill (a fixed ternary function of the slot index, never random), the methodology
+    // initial condition, with about a third peace so the create move has room to act.
+    const init = makeWill(mesh)
+    fillWillPattern(init)
     const frontierX = 0
 
     // 1, the Loschmidt echo. Closed returns exactly, open does not.

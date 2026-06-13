@@ -53,8 +53,13 @@ import {
   diagonalJordanFrame,
   isJordanIdempotent,
   areJordanOrthogonal,
+  permutations,
+  isJordanAutomorphism,
+  permutationConjugate,
+  octonionMatrixEquals,
 } from '@/code/algebra/jordan'
 import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
+import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -460,6 +465,12 @@ export function runConformance(): { passed: number; failed: number } {
     check({ name: 'jordan rank-3 frame', ok: frameOk })
     check({ name: 'jordan identity holds at n<=3', ok: maxJordanIdentityResidual(2) < 1e-9 && maxJordanIdentityResidual(3) < 1e-9 })
     check({ name: 'jordan identity fails at n=4 (control)', ok: maxJordanIdentityResidual(4) > 1e-3 })
+    // the S3 family symmetry: all 6 slot permutations are Jordan automorphisms, the cyclic one
+    // permutes the frame E0 -> E1 -> E2 (the candidate generation triality)
+    const s3 = permutations(3)
+    const frame3 = diagonalJordanFrame(3)
+    check({ name: 'jordan S3 all automorphisms', ok: s3.length === 6 && s3.every((p) => isJordanAutomorphism(p)) })
+    check({ name: 'jordan cyclic permutes frame', ok: octonionMatrixEquals(permutationConjugate(frame3[0]!, [1, 2, 0]), frame3[1]!) })
 
     // Landau levels: the Dirac operator in a uniform field has a relativistic zero mode at
     // E^2 = m^2 (the g=2 fingerprint), the spinless scalar's lowest level is m^2 + qB (no mode)
@@ -472,6 +483,14 @@ export function runConformance(): { passed: number; failed: number } {
     check({ name: 'landau Dirac zero mode at m^2 (g=2)', ok: Math.abs(diracLowSquared - landauM * landauM) < 1e-3 })
     check({ name: 'landau scalar lowest at m^2+qB (no zero mode, control)', ok: Math.abs(scalarLowSquared - (landauM * landauM + landauB)) < 1e-3 })
     check({ name: 'landau g-factor reads 2', ok: Math.abs((2 * (scalarLowSquared - diracLowSquared)) / landauB - 2) < 1e-3 })
+
+    // the coupled Schwinger evolution: at e=0 the sectors decouple (no field sourced), at e>0 the
+    // moving charge sources a field. This is the engine the co-emergence and coupling experiments share.
+    const schwingerArgs = { sites: 64, mass: 0.25, flavors: 1, backgroundField: 0, momentumStart: 0.9, steps: 40, dt: 0.1 }
+    const decoupled = runCoupledSchwinger({ ...schwingerArgs, coupling: 0 })
+    const coupled = runCoupledSchwinger({ ...schwingerArgs, coupling: 0.5 })
+    check({ name: 'schwinger e=0 sources no field (decoupled)', ok: decoupled.fieldEnergy < 1e-12 })
+    check({ name: 'schwinger e>0 sources a field', ok: coupled.fieldEnergy > 1e-6 })
   }
 
   return { passed, failed }

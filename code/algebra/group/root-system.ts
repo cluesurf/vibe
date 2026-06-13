@@ -104,6 +104,23 @@ export function rootsD4(): number[][] {
   return roots
 }
 
+// B4, the 32 roots of so(9): the 24 long D4 roots (+-1, +-1, 0, 0), norm squared 2,
+// plus the 8 short axis roots (+-1, 0, 0, 0) and permutations, norm squared 1. This
+// is a TWO-SPEED coin, a long step moves two coordinates per beat, a short step moves
+// one, which is what a moving bound state needs (a slow centre of mass with fast
+// internal parts). All roots are integer, so the lattice mesh stays exact.
+export function rootsB4(): number[][] {
+  const roots: number[][] = rootsD4()
+  for (let axis = 0; axis < 4; axis++) {
+    for (const sign of [1, -1]) {
+      const root = [0, 0, 0, 0]
+      root[axis] = sign
+      roots.push(root)
+    }
+  }
+  return roots
+}
+
 // The 12 icosahedron vertex directions, the directions of the {5,3,4} coin (the 12
 // dodecahedron faces). The vertices (0, +-1, +-phi) and its two cyclic rotations,
 // normalized to the unit sphere. Their rotation symmetry is the icosahedral group

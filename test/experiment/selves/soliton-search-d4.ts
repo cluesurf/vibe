@@ -17,77 +17,10 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
-import { makeWill, type Will } from '@/code/tone/will'
+import { makeWill, gliderLine } from '@/code/tone/will'
 import { passThrough, headOnRotate, type Collision } from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
-
-// the number of cells holding at least one nonzero slot, the localization measure. A tight structure keeps a
-// small count, a dispersing one grows it.
-function occupiedCells(will: Will): number {
-  const mesh = will.mesh
-  const degree = mesh.degree
-  let count = 0
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const base = cell * degree
-    let any = false
-    for (let d = 0; d < degree; d++) if (will.data[base + d] !== 0) { any = true; break }
-    if (any) count++
-  }
-  return count
-}
-
-// the set of cells holding any charge, used to check the structure has moved off its start.
-function occupiedSet(will: Will): Set<number> {
-  const mesh = will.mesh
-  const degree = mesh.degree
-  const set = new Set<number>()
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const base = cell * degree
-    for (let d = 0; d < degree; d++) if (will.data[base + d] !== 0) { set.add(cell); break }
-  }
-  return set
-}
-
-// the number of connected clusters among the occupied cells (adjacency by the mesh coin). One tight cluster is a
-// bound composite, two separated clusters mean the structures survived and parted (pass-through or scatter).
-function componentCount(will: Will): number {
-  const mesh = will.mesh
-  const occupied = occupiedSet(will)
-  const seen = new Set<number>()
-  let components = 0
-  for (const start of occupied) {
-    if (seen.has(start)) continue
-    components++
-    const stack = [start]
-    seen.add(start)
-    while (stack.length > 0) {
-      const cell = stack.pop()!
-      for (let d = 0; d < mesh.degree; d++) {
-        const next = mesh.neighbour(cell, d)
-        if (occupied.has(next) && !seen.has(next)) {
-          seen.add(next)
-          stack.push(next)
-        }
-      }
-    }
-  }
-  return components
-}
-
-// a co-moving glider, `length` particles of tone +1 all in direction `dir`, on consecutive cells along that
-// line so they stream together. Returns the will and the line of cells it occupies.
-function glider(input: { mesh: Mesh; start: number; dir: number; length: number }): { will: Will; cells: number[] } {
-  const { mesh, start, dir, length } = input
-  const will = makeWill(mesh)
-  const cells: number[] = []
-  let cell = start
-  for (let i = 0; i < length; i++) {
-    will.data[cell * mesh.degree + dir] = 1
-    cells.push(cell)
-    cell = mesh.neighbour(cell, dir)
-  }
-  return { will, cells }
-}
+import { occupiedCells, occupiedSet, componentCount } from '@/code/check/structure'
 
 const movedOff = (start: number[], after: Set<number>): boolean => start.every((c) => !after.has(c))
 
@@ -108,7 +41,7 @@ export default defineExperiment({
 
     // 1, a single free glider, persistence and mobility under the momentum-conserving rule.
     const center = 8 + 8 * side + 8 * side * side + 8 * side * side * side
-    const g = glider({ mesh, start: center, dir, length: gliderLength })
+    const g = gliderLine({ mesh, start: center, direction: dir, length: gliderLength })
     const mobile: Collision = headOnRotate({ opposite: Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d)) })
     const gliderFinal = run({ mesh, data: g.will.data.slice() }, mobile, beats)
     const gliderCells = occupiedCells(gliderFinal)
@@ -116,12 +49,12 @@ export default defineExperiment({
     const gliderMoved = movedOff(g.cells, occupiedSet(gliderFinal))
 
     // 2, two gliders launched head-on with a clean gap between them, do they bind into one cluster or part?
-    const a = glider({ mesh, start: center, dir, length: gliderLength })
+    const a = gliderLine({ mesh, start: center, direction: dir, length: gliderLength })
     // the second glider sits a clear gap ahead along dir and travels the opposite way, so they approach, meet,
     // and (if they survive) part. The gap keeps the two clusters disjoint at the start (two components).
     let bStart = center
     for (let i = 0; i < gliderLength + 3; i++) bStart = mesh.neighbour(bStart, dir)
-    const b = glider({ mesh, start: bStart, dir: opp, length: gliderLength })
+    const b = gliderLine({ mesh, start: bStart, direction: opp, length: gliderLength })
     const collide = makeWill(mesh)
     for (let i = 0; i < collide.data.length; i++) collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
     const startComponents = componentCount(collide) // two disjoint gliders
