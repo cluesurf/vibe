@@ -8,21 +8,22 @@
 // (v + u) / (1 + u v), never v + u, and never exceeding 1. We verify both directly from the dispersion, and
 // confirm no group velocity is ever superluminal. Run: npx tsx code/experiment/p175-boost-velocity-addition.ts
 
+import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
+import { groupVelocity1d } from '@/code/measure/group-speed'
+import { boostEnergyMomentum } from '@/code/measure/rapidity'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the coined quantum-walk (Dirac) dispersion, cos(omega) = cos(m) cos(k), so omega(k) = arccos(cos(m) cos(k))
-const omega = (k: number, m: number): number => Math.acos(Math.cos(m) * Math.cos(k))
+const omega = (k: number, m: number): number => coinedWalkDispersion({ theta: m, k })
 // group velocity v = d omega / d k, by a centered finite difference
 function groupVelocity(k: number, m: number): number {
-  const e = 1e-6
-  return (omega(k + e, m) - omega(k - e, m)) / (2 * e)
+  return groupVelocity1d({ omega: (kk) => omega(kk, m), k })
 }
 // a Lorentz boost of rapidity phi acting on a two-vector (omega, k)
 function boost(w: number, k: number, phi: number): { w: number; k: number } {
-  const ch = Math.cosh(phi)
-  const sh = Math.sinh(phi)
-  return { w: w * ch + k * sh, k: k * ch + w * sh }
+  const b = boostEnergyMomentum({ omega: w, wavenumber: k, rapidity: phi })
+  return { w: b.omega, k: b.wavenumber }
 }
 
 export function boostVelocityAddition(): {

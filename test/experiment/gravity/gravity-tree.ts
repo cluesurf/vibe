@@ -5,15 +5,16 @@
 // with alpha = -2 ln t / ln b (b = branching, r = boundary distance ~ b^(tree-distance/2)). We read off alpha
 // for the MASSLESS mode (band edge) and a massive mode. Run: npx tsx code/experiment/p218-gravity-tree.ts
 
+import { betheBoundaryExponent } from '@/code/algebra/linear/bethe-resolvent'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Bethe lattice, coordination z = b+1. Off-diagonal Green's-function per-step amplitude at spectral parameter s
-// (adjacency resolvent (s - A)^-1): t(s) = [s - sqrt(s^2 - 4(z-1))] / (2(z-1)). Band edge (massless) s = 2*sqrt(z-1).
-function perStep(z: number, s: number): number { const b = z - 1; const disc = s * s - 4 * b; const sq = disc > 0 ? Math.sqrt(disc) : 0; return (s - sq) / (2 * b) }
-// boundary coupling exponent: two leaves at tree-distance 2k have boundary distance r ~ b^k, coupling ~ t^(2k)
-// = r^(2 ln t / ln b), so 1/r^alpha with alpha = -2 ln t / ln b.
-function alpha(z: number, s: number): number { const b = z - 1, t = perStep(z, s); return (-2 * Math.log(t)) / Math.log(b) }
+// The boundary coupling exponent alpha = -2 ln t / ln b for coordination z at spectral parameter s
+// (band edge s = 2 sqrt(z-1) is the massless point). The Bethe resolvent's per-step amplitude t(s)
+// gives the bulk-mediated boundary coupling 1/r^alpha (r = boundary distance ~ b^(tree-distance/2)).
+function alpha(z: number, s: number): number {
+  return betheBoundaryExponent({ coordination: z, energy: s })
+}
 
 export function gravityTree(): { masslessAlpha: number; massiveAlpha: number } {
   const cases = [{ name: '{5,3,4} bulk (z=12)', z: 12 }, { name: '{3,4,3,4} bulk (z=24)', z: 24 }, { name: 'generic z=4', z: 4 }]

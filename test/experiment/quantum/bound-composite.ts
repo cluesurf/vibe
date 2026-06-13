@@ -13,7 +13,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeRng } from '@/code/tool/rng'
+import { lowestEigenpairs as lowestEigenpairsOf } from '@/code/algebra/linear/power-iteration'
 
 // relative-coordinate lattice Hamiltonian, H phi(r) = -t (phi[r-1]+phi[r+1]) + V[r] phi[r], open ends.
 // the free band is [-2t, 2t]; an attractive well (V<0) can pull states BELOW -2t (bound).
@@ -29,47 +29,18 @@ function applyH(phi: Float64Array, V: Float64Array, t: number): Float64Array {
   return out
 }
 
-function dot(a: Float64Array, b: Float64Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) s += a[i]! * b[i]!
-  return s
-}
-
-function normalize(a: Float64Array): void {
-  const n = Math.sqrt(dot(a, a))
-  for (let i = 0; i < a.length; i++) a[i]! /= n
-}
-
-// lowest `k` eigenpairs by power iteration on A = cI - H (largest A eigenvalue = lowest H), with deflation
+// lowest `k` eigenpairs of the relative-coordinate Hamiltonian, by shifted power iteration with
+// deflation. The shift cI must bound the spectrum from above so cI - H is positive.
 function lowestEigenpairs(V: Float64Array, t: number, k: number, seedBase: number): { energy: number; state: Float64Array }[] {
   const N = V.length
-  let c = 2 * t + 1
-  for (let r = 0; r < N; r++) c = Math.max(c, -V[r]! + 2 * t + 1)
-  const found: { energy: number; state: Float64Array }[] = []
-  for (let j = 0; j < k; j++) {
-    let phi = new Float64Array(N)
-    const rng = makeRng({ seed: seedBase + j * 7919 })
-    for (let r = 0; r < N; r++) {
-      phi[r] = rng.next() - 0.5
-    }
-    normalize(phi)
-    for (let iter = 0; iter < 1500; iter++) {
-      // A phi = c phi - H phi
-      const Hphi = applyH(phi, V, t)
-      const next = new Float64Array(N)
-      for (let r = 0; r < N; r++) next[r] = c * phi[r]! - Hphi[r]!
-      // deflate against previously found states
-      for (const f of found) {
-        const proj = dot(next, f.state)
-        for (let r = 0; r < N; r++) next[r]! -= proj * f.state[r]!
-      }
-      normalize(next)
-      phi = next
-    }
-    const energy = dot(phi, applyH(phi, V, t))
-    found.push({ energy, state: phi })
-  }
-  return found
+  let shift = 2 * t + 1
+  for (let r = 0; r < N; r++) shift = Math.max(shift, -V[r]! + 2 * t + 1)
+  return lowestEigenpairsOf({
+    operator: { size: N, apply: ({ x }) => applyH(x, V, t) },
+    count: k,
+    shift,
+    seed: seedBase,
+  })
 }
 
 function spread(state: Float64Array, center: number): number {

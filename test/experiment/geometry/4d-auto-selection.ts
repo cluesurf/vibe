@@ -17,30 +17,16 @@
 // forced by the same bare principle that forces {5,3,4} (different q, different closure). So keep {5,3,4},
 // with {3,4,3,4} a candidate requiring extra postulates. Run: npx tsx code/experiment/p188-4d-auto-selection.ts
 
-import { classifyGeometry } from '@/code/substrate/coxeter/schlafli'
+import {
+  honeycombVertexFigure as vertexFigure,
+  isCompactHoneycomb as isCompact,
+  isIdealFiniteCellHoneycomb as isIdealFiniteCell,
+} from '@/code/substrate/coxeter/schlafli'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const cell = (s: number[]): number[] => s.slice(0, -1)
-const vertexFigure = (s: number[]): number[] => s.slice(1)
-
-// a COMPACT regular honeycomb, hyperbolic with finite cells AND finite vertices
-function isCompact(symbol: number[]): boolean {
-  return (
-    classifyGeometry(symbol) === 'hyperbolic' &&
-    classifyGeometry(cell(symbol)) === 'spherical' &&
-    classifyGeometry(vertexFigure(symbol)) === 'spherical'
-  )
-}
-
-// an IDEAL regular honeycomb with FINITE cells, hyperbolic, finite cells, but Euclidean (ideal) vertices
-function isIdealFiniteCell(symbol: number[]): boolean {
-  return (
-    classifyGeometry(symbol) === 'hyperbolic' &&
-    classifyGeometry(cell(symbol)) === 'spherical' &&
-    classifyGeometry(vertexFigure(symbol)) === 'euclidean'
-  )
-}
+// The honeycomb classifiers (compact, ideal-with-finite-cells, cell, vertex figure)
+// live in code/substrate/coxeter/schlafli.
 
 export function fourDAutoSelection(): {
   threeDForced: string | null

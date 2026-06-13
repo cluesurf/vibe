@@ -10,7 +10,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { meanDegree } from '@/code/tool/graph'
-import { ballGrowth } from '@/code/measure/dimension'
+import { ballGrowth, geometricUnsaturatedGrowthRatio } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess, routingWithBacktrack } from '@/code/measure/navigation'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -20,17 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // exponential reach this is well above 1; for polynomial growth it tends to 1.
 // More robust than a boolean at constant density, where the disc saturates fast.
 function growthRatio(input: { growth: Uint32Array; total: number }): number {
-  let logSum = 0
-  let count = 0
-  for (let r = 0; r + 1 < input.growth.length; r++) {
-    const cur = input.growth[r] ?? 0
-    const next = input.growth[r + 1] ?? 0
-    if (cur > 1 && cur < 0.6 * input.total && next > cur) {
-      logSum += Math.log(next / cur)
-      count += 1
-    }
-  }
-  return count > 0 ? Math.exp(logSum / count) : 0
+  return geometricUnsaturatedGrowthRatio(input)
 }
 
 interface Row {

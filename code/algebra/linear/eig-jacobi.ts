@@ -41,6 +41,44 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
   return [a[0]![0]!, a[1]![1]!, a[2]![2]!]
 }
 
+// Eigenvalues only of an n x n symmetric matrix, cyclic Jacobi over all off-diagonal
+// pairs per sweep, returned ascending. The eigenvalues-only sibling of eigSymmetric
+// (no eigenvectors), for spectra where only the levels and their degeneracies matter
+// (e.g. a Cayley-graph adjacency spectrum decomposing into irrep bands).
+export function jacobiEigenvalues(
+  matrix: number[][],
+  sweeps = 60,
+  tolerance = 1e-9,
+): number[] {
+  const n = matrix.length
+  const a = matrix.map((r) => r.slice())
+  for (let sweep = 0; sweep < sweeps; sweep++) {
+    let off = 0
+    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
+    if (off < tolerance) break
+    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+      const apq = a[p]![q]!
+      if (Math.abs(apq) < 1e-12) continue
+      const phi = 0.5 * Math.atan2(2 * apq, a[q]![q]! - a[p]![p]!)
+      const c = Math.cos(phi)
+      const s = Math.sin(phi)
+      for (let k = 0; k < n; k++) {
+        const kp = a[k]![p]!
+        const kq = a[k]![q]!
+        a[k]![p] = c * kp - s * kq
+        a[k]![q] = s * kp + c * kq
+      }
+      for (let k = 0; k < n; k++) {
+        const pk = a[p]![k]!
+        const qk = a[q]![k]!
+        a[p]![k] = c * pk - s * qk
+        a[q]![k] = s * pk + c * qk
+      }
+    }
+  }
+  return Array.from({ length: n }, (_, i) => a[i]![i]!).sort((x, y) => x - y)
+}
+
 export interface EigenResult {
   readonly values: Float64Array // ascending
   // eigenvectors as columns: vectors[i * n + j] is component i of eigenvector j

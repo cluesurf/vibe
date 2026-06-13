@@ -7,6 +7,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
 import { toCsr } from '@/code/tool/graph'
+import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -26,9 +27,7 @@ function measure(symbol: number[], maxCells: number): { N: number; nb: number; s
   for (const b of boundary) { if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) continue; pts.push([dist[b]!, p[b]!]) }
   const maxd = Math.max(...pts.map((x) => x[0]))
   const mid = pts.filter((x) => x[0] >= Math.round(maxd * 0.15) && x[0] <= Math.round(maxd * 0.6))
-  let n = mid.length, sx = 0, sy = 0, sxx = 0, sxy = 0
-  for (const [r, v] of mid) { const X = Math.log(r), Y = Math.log(v); sx += X; sy += Y; sxx += X * X; sxy += X * Y }
-  const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx)
+  const slope = logLogSlope(mid.map((x) => x[0]), mid.map((x) => x[1]))
   return { N, nb: boundary.length, slope, calibrated: false }
 }
 

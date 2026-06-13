@@ -5,7 +5,8 @@
 // 2D, so the Newtonian potential is LOGARITHMIC (not 1/r). Run: npx tsx code/experiment/s534-physics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { bfsShells } from '@/code/measure/shells'
+import { bfsShells, branchingRatio } from '@/code/measure/shells'
+import { betheBoundaryExponent } from '@/code/algebra/linear/bethe-resolvent'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,15 +14,13 @@ const phi = (1 + Math.sqrt(5)) / 2
 
 export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaIsotropic: boolean } {
   // (1) Bethe holographic correlator, z=12 -> clean 1/r^2 (ports)
-  const z = 12, b = z - 1, mu = (z - Math.sqrt(z * z - 4 * b)) / (2 * b)
-  const betheAlpha = Math.round((2 * Math.log(1 / mu)) / Math.log(b) * 100) / 100
+  const betheAlpha = Math.round(betheBoundaryExponent({ coordination: 12, energy: 12 }) * 100) / 100
   // (2) cosmology + hierarchy, bulk shell growth ratio (exponential = expansion, radial tree = RG)
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
   const N = g.cellCount, nb = g.neighbors
   let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
   const { shellCounts: shell } = bfsShells({ neighbors: nb, root: center })
-  const mid = shell.slice(2, Math.min(6, shell.length))
-  const growthRatio = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
+  const growthRatio = Math.round(branchingRatio({ shellCounts: shell, from: 3, to: 6 }) * 100) / 100
   // (3) icosahedral isotropy, the 12 directions, 4th-moment isotropy check sum d_i^4 = 3 sum d_i^2 d_j^2
   const verts: number[][] = []
   for (const a of [1, -1]) for (const c of [phi, -phi]) verts.push([0, a, c], [a, c, 0], [c, 0, a])

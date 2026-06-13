@@ -10,32 +10,14 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 // hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is inert)
 function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
+  conservingHopSweep({ tone, eu, ev, moved, rng })
 }
 
 export function growingCode(input?: { n?: number; beats?: number }): {

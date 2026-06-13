@@ -134,3 +134,22 @@ export function loglogExponentWindow(input: {
   }
   return (m * sxy - sx * sy) / (m * sxx - sx * sx)
 }
+
+// The local force-law exponent d ln(force) / d ln(r) of a potential at radius r, where force = -dG/dr.
+// Both the force (a central difference of the potential) and the exponent (a centered log-log slope
+// across r) are taken numerically. An inverse-square force gives -2, a 4D short-range force gives -3.
+export function localForceLawExponent(input: {
+  potential: (r: number) => number
+  r: number
+  derivativeFraction?: number
+  exponentFraction?: number
+}): number {
+  const { potential, r } = input
+  const h = r * (input.derivativeFraction ?? 0.01)
+  const force = (rr: number): number => -(potential(rr + h) - potential(rr - h)) / (2 * h)
+  const f = input.exponentFraction ?? 0.05
+  return (
+    (Math.log(force(r * (1 + f))) - Math.log(force(r * (1 - f)))) /
+    (Math.log(r * (1 + f)) - Math.log(r * (1 - f)))
+  )
+}

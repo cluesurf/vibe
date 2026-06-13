@@ -11,7 +11,7 @@ import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph, hyperbolicSunflower } from '@/code/substrate/hyperbolic-graph'
 import { Graph, meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { ballGrowth } from '@/code/measure/dimension'
+import { ballGrowth, meanUnsaturatedGrowthRatio } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,20 +20,8 @@ import { verdict } from '@/test/scaffold/verdict'
 // on the very uniform sunflower (it reaches everything in four hops), so we read the
 // early ratios directly. The same test is applied to both substrates.
 function exponentialReach(growth: Uint32Array): boolean {
-  const final = growth[growth.length - 1] ?? 1
-  const ratios: number[] = []
-  for (let r = 1; r < growth.length; r++) {
-    const prev = growth[r - 1] ?? 0
-    const cur = growth[r] ?? 0
-    if (prev >= 2 && prev < 0.5 * final && cur > prev) {
-      ratios.push(cur / prev)
-    }
-  }
-  if (ratios.length === 0) {
-    return false
-  }
-  const mean = ratios.reduce((a, b) => a + b, 0) / ratios.length
-  return mean > 1.8
+  const mean = meanUnsaturatedGrowthRatio({ growth })
+  return Number.isFinite(mean) && mean > 1.8
 }
 
 function centralNode(g: Graph): number {

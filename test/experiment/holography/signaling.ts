@@ -9,31 +9,14 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 // conserved hop diffusion of a signal (no arrow, no opposite charge, so the pulse just spreads)
 function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 0) !== (b === 0)) {
-      if (rng.next() < 0.5) {
-        const t = tone[v]!
-        tone[v] = tone[w]!
-        tone[w] = t
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
+  conservingHopSweep({ tone, eu, ev, moved, rng })
 }
 
 export function signaling(input?: { n?: number }): {

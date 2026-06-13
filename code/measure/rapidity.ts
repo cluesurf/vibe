@@ -33,6 +33,24 @@ export function linkRapidities(input: {
   return out
 }
 
+// Lorentz boost of an energy-momentum two-vector (omega, k) by rapidity phi:
+//   omega' = omega cosh(phi) + k sinh(phi),
+//   k'     = k cosh(phi) + omega sinh(phi).
+// A lightlike vector (|omega| = |k|) stays lightlike under any boost, the
+// frame-independent lightcone.
+export function boostEnergyMomentum(input: {
+  omega: number
+  wavenumber: number
+  rapidity: number
+}): { omega: number; wavenumber: number } {
+  const ch = Math.cosh(input.rapidity)
+  const sh = Math.sinh(input.rapidity)
+  return {
+    omega: input.omega * ch + input.wavenumber * sh,
+    wavenumber: input.wavenumber * ch + input.omega * sh,
+  }
+}
+
 // Active Lorentz boost of 1+1 coordinates by rapidity xi:
 //   t' = cosh(xi) * t + sinh(xi) * x,
 //   x' = sinh(xi) * t + cosh(xi) * x.

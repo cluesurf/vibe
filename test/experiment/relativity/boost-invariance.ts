@@ -14,14 +14,14 @@
 // Combined with the isotropy of P150, IR boost-invariance gives the FULL emergent Lorentz group.
 // Run: npx tsx code/experiment/p154-boost-invariance.ts
 
+import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the exact dispersion of the 1D Dirac quantum walk (P151), from the trace of U(k) = Shift(k) Coin(m):
 // U(k) eigenvalues are exp(+- i omega) with 2 cos(omega) = trace = 2 cos(k) cos(m).
 function omegaOf(k: number, m: number): number {
-  const c = Math.cos(k) * Math.cos(m)
-  return Math.acos(Math.max(-1, Math.min(1, c)))
+  return coinedWalkDispersion({ theta: m, k })
 }
 
 export function boostInvariance(input?: { masses?: number[]; boosts?: number[] }): {
