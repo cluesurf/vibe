@@ -3,6 +3,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 
 export type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array; coords?: number[][] }
 export type Rng = { next: () => number }
@@ -285,6 +286,31 @@ export function emergeSelf(g: Graph, rng: Rng, moved: Uint8Array, opts?: { beats
   }
   for (let t = 0; t < (opts?.beats ?? 70); t++) beat(tone, g, moved, rng, 0.01, 0.22)
   return { tone, cluster: largestPositiveCluster(tone, g) }
+}
+
+// Two measures of how well an emerged self holds together under the passive (arrow-off)
+// rule on a given graph: the fraction of the self's +1 charge lost in a single beat
+// (leakPerBeat), and the fraction still present after a long passive run (passiveFidelity).
+// Lower leak and higher fidelity mean a more stable, compact self. Deterministic in `seed`.
+export function selfLeakAndFidelity(input: { g: Graph; seed: number; settleBeats?: number; cohesion?: number }): {
+  leakPerBeat: number
+  passiveFidelity: number
+} {
+  const { g, seed } = input
+  const cohesion = input.cohesion ?? 0.22
+  const settle = input.settleBeats ?? 50
+  const moved = new Uint8Array(g.cellCount)
+  const rng = makeRng({ seed })
+  const { tone, cluster } = emergeSelf(g, rng, moved)
+  const tl = tone.slice()
+  const before = countPlus(tl, cluster)
+  beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, cohesion)
+  const leakPerBeat = before > 0 ? 1 - countPlus(tl, cluster) / before : 1
+  const t2 = tone.slice()
+  const rng2 = makeRng({ seed: seed + 2 })
+  for (let b = 0; b < settle; b++) beat(t2, g, moved, rng2, 0, cohesion)
+  const passiveFidelity = cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
+  return { leakPerBeat, passiveFidelity }
 }
 
 // The DISCRETE arrow (defining-the-arrow.md). The arrow is a committed +1 DIRECTION (creation, never the

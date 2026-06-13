@@ -273,6 +273,46 @@ export function neighborDistances(input: {
   return dist
 }
 
+// BFS over an adjacency list returning both the distance and the predecessor (parent)
+// of every reached node, so a geodesic path back to the source can be reconstructed by
+// walking parents. Unreached nodes keep dist = -1, parent = -1.
+export function neighborBfsTree(input: {
+  neighbors: ReadonlyArray<ReadonlyArray<number> | Uint32Array>
+  size: number
+  source: number
+}): { dist: Int32Array; parent: Int32Array } {
+  const { neighbors, size, source } = input
+  const dist = new Int32Array(size).fill(-1)
+  const parent = new Int32Array(size).fill(-1)
+  dist[source] = 0
+  let frontier = [source]
+  while (frontier.length > 0) {
+    const next: number[] = []
+    for (const u of frontier) for (const w of neighbors[u]!) if (dist[w] === -1) {
+      dist[w] = (dist[u] ?? 0) + 1
+      parent[w] = u
+      next.push(w)
+    }
+    frontier = next
+  }
+  return { dist, parent }
+}
+
+// Whether two adjacency lists describe the same undirected graph: same node count and,
+// for every node, the same neighbor set (order-insensitive).
+export function adjacencyListsEqual(
+  a: ReadonlyArray<ReadonlyArray<number>>,
+  b: ReadonlyArray<ReadonlyArray<number>>,
+): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    const x = [...(a[i] ?? [])].sort((p, q) => p - q)
+    const y = [...(b[i] ?? [])].sort((p, q) => p - q)
+    if (x.length !== y.length || x.some((v, k) => v !== y[k])) return false
+  }
+  return true
+}
+
 // Undirected edge list (each edge once, a < b). Useful for curvature and gauge.
 // Undirected edges of an adjacency list as [v, w] tuples with v < w (each edge once).
 export function edgesOf(neighbors: ReadonlyArray<ArrayLike<number>>): Array<[number, number]> {

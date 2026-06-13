@@ -13,183 +13,14 @@
 // of coarse-graining up to coupling renormalization. That is the scale-invariance P57 left
 // open. Run: npx tsx code/experiment/p58-emergent-macro-rule.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { signedMajorityStep } from '@/code/operator/signed-majority'
+import { agreementFraction, clusterMajority } from '@/code/measure/agreement'
+import { geometricBlocks, coherentFills } from '@/code/dynamics/renormalization-blocks'
+import { effectiveCouplings, naiveMacroStep, renormMacroStep } from '@/code/operator/macro-rule'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-export function symmetricFills(g: Graph, rng: Rng): Int8Array[] {
-  const indexOf = g.neighbors.map((row) => {
-    const m = new Map<number, number>()
-    for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
-    return m
-  })
-  const fills = g.neighbors.map((row) => new Int8Array(row.length))
-  for (let v = 0; v < g.size; v++) {
-    const fv = fills[v]
-    const row = g.neighbors[v] ?? new Uint32Array(0)
-    if (!fv) continue
-    for (let k = 0; k < row.length; k++) {
-      const w = row[k] ?? 0
-      if (w > v) {
-        const f = rng.nextInt({ max: 3 }) - 1
-        fv[k] = f
-        const fw = fills[w]
-        const kk = indexOf[w]?.get(v)
-        if (fw && kk !== undefined) fw[kk] = f
-      }
-    }
-  }
-  return fills
-}
-
-const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
-
-// One synchronous micro step. Ties keep the current tone (so the base settles cleanly).
-export function microStep(g: Graph, fills: Int8Array[], tone: Int8Array, keepOnTie: boolean): Int8Array {
-  const next = new Int8Array(g.size)
-  for (let v = 0; v < g.size; v++) {
-    const nb = g.neighbors[v] ?? new Uint32Array(0)
-    const fl = fills[v] ?? new Int8Array(0)
-    let h = 0
-    for (let k = 0; k < nb.length; k++) h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
-    next[v] = h > 0 ? 1 : h < 0 ? -1 : keepOnTie ? (tone[v] ?? 0) : 0
-  }
-  return next
-}
-
-function cluster(g: Graph, blockSize: number, rng: Rng): { cl: Int32Array; K: number } {
-  const n = g.size
-  const numSeeds = Math.max(2, Math.floor(n / blockSize))
-  const seedSet = new Set<number>()
-  while (seedSet.size < numSeeds) seedSet.add(rng.nextInt({ max: n }))
-  const cl = new Int32Array(n).fill(-1)
-  let frontier: number[] = []
-  ;[...seedSet].forEach((sd, c) => {
-    cl[sd] = c
-    frontier.push(sd)
-  })
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (cl[w] === -1) {
-          cl[w] = cl[v] ?? 0
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  let nc = seedSet.size
-  for (let v = 0; v < n; v++) if (cl[v] === -1) cl[v] = nc++
-  return { cl, K: nc }
-}
-
-export function aggregate(cl: Int32Array, K: number, tone: Int8Array): Int8Array {
-  const s = new Float64Array(K)
-  for (let v = 0; v < tone.length; v++) s[cl[v] ?? 0] = (s[cl[v] ?? 0] ?? 0) + (tone[v] ?? 0)
-  const out = new Int8Array(K)
-  for (let c = 0; c < K; c++) out[c] = sign(s[c] ?? 0)
-  return out
-}
-
-export function agreement(a: Int8Array, b: Int8Array): number {
-  let same = 0
-  for (let i = 0; i < a.length; i++) if (a[i] === b[i]) same++
-  return same / Math.max(1, a.length)
-}
-
-export interface Effective {
-  Jself: Float64Array
-  nbr: number[][]
-  Jcross: Float64Array[]
-}
-
-// Effective couplings: Jself(c) = sum of intra-cluster fills (cohesion), Jcross(c,d) = real
-// sum of cross-cluster fills (the renormalized coupling, magnitude kept).
-export function effectiveCouplings(g: Graph, fills: Int8Array[], cl: Int32Array, K: number): Effective {
-  const Jself = new Float64Array(K)
-  const crossMap = new Map<string, number>()
-  const nbrSet: Set<number>[] = Array.from({ length: K }, () => new Set<number>())
-  for (let v = 0; v < g.size; v++) {
-    const cv = cl[v] ?? 0
-    const row = g.neighbors[v] ?? new Uint32Array(0)
-    const fl = fills[v] ?? new Int8Array(0)
-    for (let k = 0; k < row.length; k++) {
-      const w = row[k] ?? 0
-      const cw = cl[w] ?? 0
-      const f = fl[k] ?? 0
-      if (cv === cw) {
-        Jself[cv] = (Jself[cv] ?? 0) + f
-      } else {
-        nbrSet[cv]?.add(cw)
-        const key = `${cv},${cw}`
-        crossMap.set(key, (crossMap.get(key) ?? 0) + f)
-      }
-    }
-  }
-  const nbr = nbrSet.map((s) => [...s])
-  const Jcross = nbr.map((row, c) => Float64Array.from(row, (d) => crossMap.get(`${c},${d}`) ?? 0))
-  return { Jself, nbr, Jcross }
-}
-
-// The two macro-rules, both signed-majority in FORM.
-function naiveMacroStep(superTone: Int8Array, eff: Effective): Int8Array {
-  const K = superTone.length
-  const out = new Int8Array(K)
-  for (let c = 0; c < K; c++) {
-    let h = 0
-    const nb = eff.nbr[c] ?? []
-    const jc = eff.Jcross[c] ?? new Float64Array(0)
-    for (let k = 0; k < nb.length; k++) h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
-    out[c] = sign(h)
-  }
-  return out
-}
-
-export function renormMacroStep(superTone: Int8Array, eff: Effective): Int8Array {
-  const K = superTone.length
-  const out = new Int8Array(K)
-  for (let c = 0; c < K; c++) {
-    let h = (eff.Jself[c] ?? 0) * (superTone[c] ?? 0)
-    const nb = eff.nbr[c] ?? []
-    const jc = eff.Jcross[c] ?? new Float64Array(0)
-    for (let k = 0; k < nb.length; k++) h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
-    out[c] = sign(h)
-  }
-  return out
-}
-
-// Coarse-grain along the system's own coherent domains: the connected regions of one tone.
-// Each domain is internally uniform (coherence 1), an integrated whole, a genuine higher
-// vibe. This is the coarse-graining that respects the structure, so the mean-field closure
-// (a member is its domain's tone) is exact.
-export function domainCluster(g: Graph, tone: Int8Array): { cl: Int32Array; K: number } {
-  const n = g.size
-  const cl = new Int32Array(n).fill(-1)
-  let K = 0
-  for (let s = 0; s < n; s++) {
-    if (cl[s] !== -1) continue
-    cl[s] = K
-    let frontier = [s]
-    while (frontier.length > 0) {
-      const next: number[] = []
-      for (const v of frontier) {
-        for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-          if (cl[w] === -1 && tone[w] === tone[v]) {
-            cl[w] = K
-            next.push(w)
-          }
-        }
-      }
-      frontier = next
-    }
-    K++
-  }
-  return { cl, K }
-}
 
 export function emergentMacroRule(input: { count: number; seed: number }): {
   orderedRenorm: number
@@ -205,47 +36,24 @@ export function emergentMacroRule(input: { count: number; seed: number }): {
   const rng = makeRng({ seed: input.seed })
   const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
 
-  // Coherence-tunable fills: +1 with probability p, else -1. p = 0.5 is frustrated (spin-glass, no
-  // coherent domains), p -> 1 is ordered (ferromagnetic). Emergence of a coarse rule requires order.
-  const coherentFills = (p: number, seed: number): Int8Array[] => {
-    const r = makeRng({ seed })
-    const indexOf = g.neighbors.map((row) => {
-      const m = new Map<number, number>()
-      for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
-      return m
-    })
-    const fills = g.neighbors.map((row) => new Int8Array(row.length))
-    for (let v = 0; v < g.size; v++) {
-      const row = g.neighbors[v] ?? new Uint32Array(0)
-      for (let k = 0; k < row.length; k++) {
-        const w = row[k] ?? 0
-        if (w > v) {
-          const fillVal: number = r.next() < p ? 1 : -1
-          ;(fills[v] as Int8Array)[k] = fillVal
-          const kk = indexOf[w]?.get(v)
-          if (kk !== undefined) (fills[w] as Int8Array)[kk] = fillVal
-        }
-      }
-    }
-    return fills
-  }
-
   // The CRITICAL fix: coarse-grain along GEOMETRIC blocks (BFS balls from random seeds), defined
   // WITHOUT looking at the tones, so the mean-field closure is not exact by construction. Then test
   // whether the renormalized macro-rule holds the coarse-grained fixed point.
-  const { cl, K } = cluster(g, 14, makeRng({ seed: input.seed + 2 }))
+  const { cl, K } = geometricBlocks(g, 14, makeRng({ seed: input.seed + 2 }))
 
   const measure = (p: number): { renorm: number; naive: number } => {
-    const fills = coherentFills(p, input.seed + 10)
+    // Coherence-tunable fills: +1 with probability p, else -1. p = 0.5 is frustrated (spin-glass, no
+    // coherent domains), p -> 1 is ordered (ferromagnetic). Emergence of a coarse rule requires order.
+    const fills = coherentFills(g, p, makeRng({ seed: input.seed + 10 }))
     let base = new Int8Array(g.size)
     const r0 = makeRng({ seed: input.seed + 20 })
     for (let i = 0; i < g.size; i++) base[i] = r0.nextInt({ max: 3 }) - 1
-    for (let b = 0; b < 200; b++) base = microStep(g, fills, base, true)
+    for (let b = 0; b < 200; b++) base = signedMajorityStep({ neighbors: g.neighbors, fills, tone: base, keepOnTie: true })
     const eff = effectiveCouplings(g, fills, cl, K)
-    const superTone = aggregate(cl, K, base)
+    const superTone = clusterMajority(cl, K, base)
     return {
-      renorm: agreement(superTone, renormMacroStep(superTone, eff)),
-      naive: agreement(superTone, naiveMacroStep(superTone, eff)),
+      renorm: agreementFraction(superTone, renormMacroStep(superTone, eff)),
+      naive: agreementFraction(superTone, naiveMacroStep(superTone, eff)),
     }
   }
 

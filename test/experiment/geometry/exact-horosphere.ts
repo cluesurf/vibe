@@ -11,28 +11,12 @@
 // about the lattice or the honeycomb, so the idealization was sound and {5,3,4} can keep its forced
 // geometry while we simulate selves on a flat layer. Run: npx tsx code/experiment/p182-exact-horosphere.ts
 
-import { bulkGraph, flatGraph, squareGraph, beat, emergeSelf, countPlus, boundaryFraction, ball, type Graph } from '@/code/model/self-kit'
-import { makeRng } from '@/code/tool/rng'
+import { bulkGraph, flatGraph, squareGraph, boundaryFraction, ball, selfLeakAndFidelity, type Graph } from '@/code/model/self-kit'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function ballScaling(g: Graph, center: number, radii: number[]): number[] {
   return radii.map((r) => boundaryFraction(ball(g, center, r), g))
-}
-
-function selfDynamics(g: Graph, seed: number): { leakPerBeat: number; passiveFidelity: number } {
-  const moved = new Uint8Array(g.cellCount)
-  const rng = makeRng({ seed })
-  const { tone, cluster } = emergeSelf(g, rng, moved)
-  const tl = tone.slice()
-  const before = countPlus(tl, cluster)
-  beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, 0.22)
-  const leakPerBeat = before > 0 ? 1 - countPlus(tl, cluster) / before : 1
-  const t2 = tone.slice()
-  const rng2 = makeRng({ seed: seed + 2 })
-  for (let b = 0; b < 50; b++) beat(t2, g, moved, rng2, 0, 0.22)
-  const passiveFidelity = cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
-  return { leakPerBeat, passiveFidelity }
 }
 
 export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
@@ -69,9 +53,9 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
   const squareCompact = squareBallBV[last]! < squareBallBV[0]! * 0.6
 
   // (2) dynamics, same self on the exact square horosphere vs the triangular idealization vs the bulk
-  const sd = selfDynamics(sq, 11)
-  const td = selfDynamics(tri, 11)
-  const bd = selfDynamics(bulkGraph(bulkCells), 11)
+  const sd = selfLeakAndFidelity({ g: sq, seed: 11 })
+  const td = selfLeakAndFidelity({ g: tri, seed: 11 })
+  const bd = selfLeakAndFidelity({ g: bulkGraph(bulkCells), seed: 11 })
 
   // the GEOMETRIC core (compactness, per-beat leak) is the same on the exact square horosphere as on the
   // triangular idealization, and both flat layers leak far less than the bulk. This is the curvature fact.

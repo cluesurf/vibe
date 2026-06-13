@@ -13,13 +13,7 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
 import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
-
-function jaccardDistance(a: Set<number>, b: Set<number>): number {
-  let inter = 0
-  for (const x of a) if (b.has(x)) inter++
-  const union = a.size + b.size - inter
-  return union > 0 ? 1 - inter / union : 0
-}
+import { jaccardDistance } from '@/code/measure/point-set'
 
 function maintain(input: { L: number; beats: number; cohesion: number; seed: number }): {
   persistence: number

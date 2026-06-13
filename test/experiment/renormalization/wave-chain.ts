@@ -9,42 +9,10 @@
 // and the speed is invariant, the wave dynamics is a renormalization FIXED POINT, the multiscale tower is
 // proven for the DYNAMICS, not just the conserved charge. Run: npx tsx code/experiment/p167-wave-chain.ts
 
+import { leapfrogWaveStep, blockAverage } from '@/code/dynamics/leapfrog-wave'
+import { relativeL2Error } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// one step of the deterministic reversible (leapfrog) wave, speed set by the Courant number r
-function waveStep(u: Float64Array, uPrev: Float64Array, r2: number): Float64Array {
-  const L = u.length
-  const next = new Float64Array(L)
-  for (let i = 0; i < L; i++) {
-    const left = u[(i - 1 + L) % L]!
-    const right = u[(i + 1) % L]!
-    next[i] = 2 * u[i]! - uPrev[i]! + r2 * (left + right - 2 * u[i]!)
-  }
-  return next
-}
-
-function blockAverage(u: Float64Array, b: number): Float64Array {
-  const M = Math.floor(u.length / b)
-  const out = new Float64Array(M)
-  for (let I = 0; I < M; I++) {
-    let s = 0
-    for (let j = 0; j < b; j++) s += u[I * b + j]!
-    out[I] = s / b
-  }
-  return out
-}
-
-function relError(a: Float64Array, b: Float64Array): number {
-  const n = Math.min(a.length, b.length)
-  let num = 0
-  let den = 0
-  for (let i = 0; i < n; i++) {
-    num += (a[i]! - b[i]!) ** 2
-    den += a[i]! * a[i]!
-  }
-  return den > 0 ? Math.sqrt(num / den) : 0
-}
 
 export function waveChain(input?: { L?: number; r?: number }): {
   L: number
@@ -76,7 +44,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
     let u = u0.slice()
     let uPrev = uPrev0.slice()
     for (let t = 0; t < b * K; t++) {
-      const nx = waveStep(u, uPrev, r2)
+      const nx = leapfrogWaveStep(u, uPrev, r2)
       uPrev = u
       u = nx
     }
@@ -85,12 +53,12 @@ export function waveChain(input?: { L?: number; r?: number }): {
     let U = blockAverage(u0, b)
     let UPrev = blockAverage(uPrev0, b)
     for (let t = 0; t < K; t++) {
-      const nx = waveStep(U, UPrev, r2)
+      const nx = leapfrogWaveStep(U, UPrev, r2)
       UPrev = U
       U = nx
     }
     const B = U
-    rungErrors.push({ b, error: relError(A, B) })
+    rungErrors.push({ b, error: relativeL2Error(A, B) })
   }
   const errorsSmall = rungErrors.every((x) => x.error < 0.1)
   const errorsShrink = rungErrors.length >= 2 && rungErrors[rungErrors.length - 1]!.error <= rungErrors[0]!.error + 0.02
@@ -109,7 +77,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
     }
     const f0 = frontOf(u)
     for (let t = 0; t < steps; t++) {
-      const nx = waveStep(u, uPrev, r2)
+      const nx = leapfrogWaveStep(u, uPrev, r2)
       uPrev = u
       u = nx
     }

@@ -26,6 +26,8 @@ import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
 import { beat, inverseBeat } from '@/code/rule/lattice-gas'
+import { disagreementFraction } from '@/code/measure/agreement'
+import { profileGradient } from '@/code/measure/profile'
 
 const sideOf = (mesh: Mesh): number => Math.round(Math.pow(mesh.cellCount, 1 / 4))
 
@@ -40,13 +42,6 @@ function bornAtPeace(will: Will, frontierX: number): void {
       for (let d = 0; d < degree; d++) will.data[base + d] = 0
     }
   }
-}
-
-// the fraction of slots that differ between two wills.
-function difference(a: Will, b: Will): number {
-  let diff = 0
-  for (let i = 0; i < a.data.length; i++) if (a.data[i] !== b.data[i]) diff++
-  return diff / a.data.length
 }
 
 // the Loschmidt echo, forward `beats` then the exact inverse bulk backward `beats`, the recovery error.
@@ -64,7 +59,7 @@ function loschmidtEcho(input: {
     if (input.open) bornAtPeace(current, input.frontierX)
   }
   for (let t = 0; t < input.beats; t++) current = inverseBeat(current, input.inverse)
-  return difference(current, input.init)
+  return disagreementFraction(current.data, input.init.data)
 }
 
 // the time-averaged occupancy profile over the x-slabs, taken over the second half of a run (the steady state).
@@ -96,13 +91,6 @@ function occupancyProfile(input: {
   return profile.map((p) => p / samples)
 }
 
-// the gradient signature of a profile, its range divided by its mean (flat is near zero, a gradient is large).
-function gradient(profile: number[]): number {
-  const mean = profile.reduce((a, b) => a + b, 0) / profile.length
-  if (mean === 0) return 0
-  return (Math.max(...profile) - Math.min(...profile)) / mean
-}
-
 export default defineExperiment({
   id: 'selves/growth-arrow-irreversibility',
   title: 'a growing open mesh carries an arrow of time (broken echo, steady gradient) that the closed reversible bulk does not',
@@ -132,8 +120,8 @@ export default defineExperiment({
     // 2, the steady-state occupancy gradient. Closed is flat, open holds a gradient.
     const closedProfile = occupancyProfile({ init, forward, beats: profileBeats, open: false, frontierX })
     const openProfile = occupancyProfile({ init, forward, beats: profileBeats, open: true, frontierX })
-    const closedGradient = gradient(closedProfile)
-    const openGradient = gradient(openProfile)
+    const closedGradient = profileGradient(closedProfile)
+    const openGradient = profileGradient(openProfile)
 
     const ok =
       closedEcho < 1e-12 &&

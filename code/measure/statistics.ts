@@ -79,6 +79,20 @@ export function relativeStandardDeviation(series: ArrayLike<number>): number {
   return Math.sqrt(v) / scale
 }
 
+// Relative root-mean-square error between two series, sqrt( sum (a-b)^2 / sum a^2 ), normalized by the
+// reference `a`. Zero when they coincide. The commuting-square fidelity (how close coarsen-then-evolve
+// is to evolve-then-coarsen) and other agreement-of-fields checks read off this.
+export function relativeL2Error(a: ArrayLike<number>, b: ArrayLike<number>): number {
+  const n = Math.min(a.length, b.length)
+  let num = 0
+  let den = 0
+  for (let i = 0; i < n; i++) {
+    num += (a[i]! - b[i]!) ** 2
+    den += a[i]! * a[i]!
+  }
+  return den > 0 ? Math.sqrt(num / den) : 0
+}
+
 // Mutual information I(X; Y) in BITS from a joint COUNT table joint[x][y]. Normalizes the counts
 // to a probability, then sums p(x,y) log2( p(x,y) / (p(x) p(y)) ) over non-empty cells. Zero when
 // the variables are independent, used to quantify measurement dependence (the setting-versus-hidden

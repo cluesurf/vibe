@@ -3,6 +3,8 @@
 // degeneracy (if any) is discovered, not imposed. Effective information is the information an intervention
 // that sets the current state gives about the next state, the causal power of the dynamics at that grain.
 
+import { quantileLabels, countMatrix, rowStochastic } from './transition-matrix'
+
 // Effective information of a row-stochastic transition matrix, in bits. EI is the average over states of the
 // KL divergence of that state's output distribution from the mean output distribution.
 export function effectiveInformation(tpm: number[][]): number {
@@ -35,4 +37,40 @@ export function coarseGrainTpm(input: { tpm: number[][]; groups: number[] }): nu
     }
   }
   return macro
+}
+
+// Structured-versus-random effective-information of a coarse observable trajectory. The
+// series is quantile-binned into `fine` micro states, a lag-1 transition matrix is read
+// off it, and EI is measured three ways, the micro matrix, a STRUCTURED coarse-graining
+// that merges adjacent bins into `macroCount` macro states (respecting the dynamics), and
+// a RANDOM coarse-graining of the same coarseness (the control). A structured macro that
+// keeps more EI than the random macro is the signature of a genuine coarse level. The
+// `rng.next()` draws drive a Fisher-Yates shuffle of the random group labels.
+export function emergenceGain(input: {
+  series: number[]
+  fine: number
+  macroCount: number
+  rng: { next: () => number }
+}): {
+  eiMicro: number
+  eiSpatial: number
+  eiRandom: number
+} {
+  const labels = quantileLabels({ series: input.series, bins: input.fine })
+  const micro = rowStochastic(countMatrix({ trajectory: labels, stateCount: input.fine, lag: 1 }))
+  const eiMicro = effectiveInformation(micro)
+
+  const block = input.fine / input.macroCount
+  const spatialGroups = Array.from({ length: input.fine }, (_, i) => Math.floor(i / block))
+  const eiSpatial = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: spatialGroups }))
+
+  const randomGroups = Array.from({ length: input.fine }, (_, i) => i % input.macroCount)
+  for (let i = input.fine - 1; i > 0; i--) {
+    const j = Math.floor(input.rng.next() * (i + 1))
+    const tmp = randomGroups[i]!
+    randomGroups[i] = randomGroups[j]!
+    randomGroups[j] = tmp
+  }
+  const eiRandom = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: randomGroups }))
+  return { eiMicro, eiSpatial, eiRandom }
 }

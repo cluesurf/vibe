@@ -16,6 +16,7 @@
 // Run: npx tsx code/experiment/p43-freedom-choice.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
+import { toneOverlap as overlap } from '@/code/operator/hopfield'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -33,14 +34,6 @@ function ternaryVector(n: number, rng: Rng): Int8Array {
 function makeSelf(input: { n: number; patterns: number; seed: number }): Int8Array[] {
   const rng = makeRng({ seed: input.seed })
   return Array.from({ length: input.patterns }, () => ternaryVector(input.n, rng))
-}
-
-function overlap(a: Int8Array, b: Int8Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
-  return s / a.length
 }
 
 // Settle the self under an urge, from a neutral start. The local field is the Hopfield

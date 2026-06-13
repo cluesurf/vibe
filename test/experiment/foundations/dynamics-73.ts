@@ -5,6 +5,8 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { csrDistances } from '@/code/tool/graph'
+import { totalCharge as sumOf } from '@/code/measure/tone-census'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -26,8 +28,7 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
   // conserves charge EXACTLY on any graph (it permutes charges locally).
   let cur = new Int8Array(N), prev = new Int8Array(N), nxt = new Int8Array(N)
   cur[center] = 1
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } fr = nf }
+  const dist = csrDistances({ offsets: off, adj, size: N, source: center })
   let maxReached = 0
   for (let b = 0; b < 10; b++) {
     for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2 }
@@ -42,7 +43,6 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
   for (let k = 0; k < 100; k++) t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
-  const sumOf = (a: Int8Array): number => { let s = 0; for (let i = 0; i < N; i++) s += a[i]!; return s }
   const sumBefore = sumOf(t)
   for (let b = 0; b < 50; b++) {
     const used = new Uint8Array(N); const order = [...Array(N).keys()]

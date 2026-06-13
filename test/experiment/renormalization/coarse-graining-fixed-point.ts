@@ -11,39 +11,13 @@
 // decimation is kept as a secondary fact (a coarse-graining invariant), no longer the headline.
 // Run: npx tsx code/experiment/p53-coarse-graining-fixed-point.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { decimate } from '@/code/dynamics/coarsegrain'
+import { measuredBlockSpinCoupling } from '@/code/operator/ising-rg'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Sample a 1D Ising chain of tones, P(s) proportional to exp(K sum s_i s_{i+1}), exactly (a 1D chain
-// factorizes: each next tone aligns with the previous with probability e^K / (e^K + e^-K)).
-function sampleChain(n: number, K: number, rng: Rng): Int8Array {
-  const s = new Int8Array(n)
-  s[0] = rng.next() < 0.5 ? -1 : 1
-  const pAlign = Math.exp(K) / (Math.exp(K) + Math.exp(-K))
-  for (let i = 1; i < n; i++) s[i] = (rng.next() < pAlign ? s[i - 1] : -(s[i - 1] ?? 1)) as -1 | 1
-  return s
-}
-function nnCorrelation(s: Int8Array): number {
-  let c = 0
-  for (let i = 0; i + 1 < s.length; i++) c += (s[i] ?? 0) * (s[i + 1] ?? 0)
-  return c / Math.max(1, s.length - 1)
-}
-// One block-spin (decimation) step: measure the renormalized coupling K' from the blocked chain.
-function renormalizedCoupling(n: number, K: number, samples: number, seed: number): number {
-  const rng = makeRng({ seed })
-  let acc = 0
-  for (let r = 0; r < samples; r++) {
-    const s = sampleChain(n, K, rng)
-    const blocked = new Int8Array(Math.floor(n / 2))
-    for (let i = 0; i < blocked.length; i++) blocked[i] = s[2 * i] ?? 0
-    acc += nnCorrelation(blocked)
-  }
-  return Math.atanh(acc / samples)
-}
 
 export function isingRG(input: { seed: number }): {
   steps: { K: number; kPrimeMeasured: number; kPrimeExact: number }[]
@@ -53,7 +27,7 @@ export function isingRG(input: { seed: number }): {
 } {
   const Ks = [2.0, 1.0, 0.5, 0.25]
   const steps = Ks.map((K) => {
-    const measured = renormalizedCoupling(20000, K, 40, input.seed)
+    const measured = measuredBlockSpinCoupling({ length: 20000, coupling: K, samples: 40, seed: input.seed })
     const exact = Math.atanh(Math.tanh(K) ** 2)
     return { K, kPrimeMeasured: measured, kPrimeExact: exact }
   })
@@ -62,7 +36,7 @@ export function isingRG(input: { seed: number }): {
   let K = 1.5
   const flow = [K]
   for (let i = 0; i < 6; i++) {
-    K = renormalizedCoupling(20000, K, 40, input.seed + 1 + i)
+    K = measuredBlockSpinCoupling({ length: 20000, coupling: K, samples: 40, seed: input.seed + 1 + i })
     flow.push(K)
   }
   const flowsToFixedPoint = Math.abs(flow[flow.length - 1] ?? 1) < 0.1 && (flow[flow.length - 1] ?? 1) < (flow[0] ?? 0)

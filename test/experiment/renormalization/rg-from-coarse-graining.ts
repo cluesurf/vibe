@@ -6,20 +6,20 @@
 // rescaling. Reproducing the exact SM beta functions needs gauge + matter on the mesh (the open dynamical sim).
 // Run: npx tsx code/experiment/rg-from-coarse-graining.ts
 
+import { isingDecimationFormula } from '@/code/operator/ising-rg'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // 1D Ising decimation RG, integrate out every other spin, the coupling renormalizes as K' = (1/2) ln cosh(2K).
 // This is a coupling FLOWING purely from coarse-graining, the simplest exact RG, with a real beta function.
-const decimate = (K: number): number => 0.5 * Math.log(Math.cosh(2 * K))
 
 export function rgFromCoarseGraining(): { flows: boolean; betaSign: number } {
   for (const K0 of [2.0, 1.0, 0.5]) {
     let K = K0; const traj: number[] = [K]
-    for (let step = 0; step < 6; step++) { K = decimate(K); traj.push(Math.round(K * 1000) / 1000) }
+    for (let step = 0; step < 6; step++) { K = isingDecimationFormula(K); traj.push(Math.round(K * 1000) / 1000) }
   }
   // the beta function, beta(K) = K' - K per coarse-graining step (the change of the coupling with scale)
-  const betaAt = (K: number): number => decimate(K) - K
+  const betaAt = (K: number): number => isingDecimationFormula(K) - K
   const flows = Math.abs(betaAt(1.0)) > 0.05
   const betaSign = betaAt(1.0) < 0 ? -1 : 1
   return { flows, betaSign }
@@ -34,7 +34,7 @@ export default defineExperiment({
   paper: false,
   run() {
     const r = rgFromCoarseGraining()
-    const betaAtOne = decimate(1.0) - 1.0
+    const betaAtOne = isingDecimationFormula(1.0) - 1.0
     const ok = r.flows && r.betaSign < 0
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -14,29 +14,9 @@
 
 import { linearFit } from '@/code/measure/regression'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
+import { neighborBfsTree } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function bfs(neighbors: number[][], n: number, src: number): { dist: Int32Array; parent: Int32Array } {
-  const dist = new Int32Array(n).fill(-1)
-  const parent = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let frontier = [src]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const u of frontier) {
-      for (const w of neighbors[u]!) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[u] ?? 0) + 1
-          parent[w] = u
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return { dist, parent }
-}
 
 export function holography(): {
   cells: number
@@ -68,7 +48,7 @@ export function holography(): {
   const bins = new Map<number, { sum: number; count: number }>()
   const anchors = rim.filter((_, i) => i % 3 === 0)
   for (const a of anchors) {
-    const { dist } = bfs(mesh.neighbors, n, a)
+    const { dist } = neighborBfsTree({ neighbors: mesh.neighbors, size: n, source: a })
     for (const r of rim) {
       let theta = Math.abs((angle[r] ?? 0) - (angle[a] ?? 0))
       if (theta > Math.PI) theta = 2 * Math.PI - theta
@@ -92,7 +72,7 @@ export function holography(): {
 
   // 2. and 3. shortcut and depth: from one anchor, to a nearby rim cell and to the antipodal one.
   const anchor = rim[Math.floor(rim.length / 2)]!
-  const { dist, parent } = bfs(mesh.neighbors, n, anchor)
+  const { dist, parent } = neighborBfsTree({ neighbors: mesh.neighbors, size: n, source: anchor })
   const ai = rim.indexOf(anchor)
   const opp = rim[(ai + Math.floor(rim.length / 2)) % rim.length]!
   const near = rim[(ai + Math.max(1, Math.floor(rim.length / 12))) % rim.length]!

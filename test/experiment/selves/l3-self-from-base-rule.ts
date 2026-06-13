@@ -23,29 +23,14 @@ import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
+import { weightedGridRadiusOfGyration } from '@/code/measure/profile'
 
 function radiusOfGyration(input: { will: Will; side: number }): number {
-  const { will, side } = input
-  let total = 0
-  let cx = 0
-  let cy = 0
-  for (let i = 0; i < will.mesh.cellCount; i++) {
-    const w = Math.abs(cellTone(will, i))
-    total += w
-    cx += w * (i % side)
-    cy += w * Math.floor(i / side)
-  }
-  if (total <= 0) return 0
-  cx /= total
-  cy /= total
-  let m2 = 0
-  for (let i = 0; i < will.mesh.cellCount; i++) {
-    const w = Math.abs(cellTone(will, i))
-    const dx = (i % side) - cx
-    const dy = Math.floor(i / side) - cy
-    m2 += w * (dx * dx + dy * dy)
-  }
-  return Math.sqrt(m2 / total)
+  return weightedGridRadiusOfGyration({
+    cellCount: input.will.mesh.cellCount,
+    side: input.side,
+    weightOf: (cell) => Math.abs(cellTone(input.will, cell)),
+  })
 }
 
 function uniformGyration(side: number): number {

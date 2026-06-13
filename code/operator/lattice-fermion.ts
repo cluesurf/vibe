@@ -194,6 +194,22 @@ export function overlapDirac2D(input: {
   return matAdd(IDENTITY2, matMul(GAMMA5, v))
 }
 
+// The corners of the d-dimensional Brillouin zone, k_mu in {0, pi}: the 2^d points
+// where a naive massless lattice fermion has a Dirac zero (a doubled species). Just
+// the vertices of the unit hypercube scaled by pi.
+export function brillouinZoneCorners(dimension: number): number[][] {
+  let out: number[][] = [[]]
+  for (let axis = 0; axis < dimension; axis++) {
+    const next: number[][] = []
+    for (const corner of out) {
+      next.push([...corner, 0])
+      next.push([...corner, Math.PI])
+    }
+    out = next
+  }
+  return out
+}
+
 // Scan a Brillouin-zone grid (which includes k = 0 and k = pi when n is even) and
 // return the species count (grid points where the smallest singular value is near
 // zero) and the worst Ginsparg-Wilson residual.

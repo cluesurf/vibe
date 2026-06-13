@@ -14,6 +14,11 @@ export function agreementFraction(a: Int8Array, b: Int8Array): number {
   return same / Math.max(1, a.length)
 }
 
+// Fraction of entries that differ, the complement of the agreement fraction.
+export function disagreementFraction(a: Int8Array, b: Int8Array): number {
+  return 1 - agreementFraction(a, b)
+}
+
 // Coarse-grain a tone field into K cluster tones, each the sign of the sum of its
 // members (the cluster majority). `cluster[v]` is the cluster index of cell v.
 export function clusterMajority(cluster: Int32Array, clusterCount: number, tone: Int8Array): Int8Array {

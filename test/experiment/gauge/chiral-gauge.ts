@@ -14,26 +14,12 @@
 //      cancellation, the genuinely chiral gauge theory, remains open here as it is in the field.
 // Run: npx tsx code/experiment/p77-chiral-gauge.ts
 
+import { brillouinZoneCorners } from '@/code/operator/lattice-fermion'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Enumerate the corners of the Brillouin zone in d dimensions, k_mu in {0, pi}. The naive
-// massless lattice fermion has a zero (a species) at every corner: 2^d of them.
-function corners(d: number): number[][] {
-  let out: number[][] = [[]]
-  for (let axis = 0; axis < d; axis++) {
-    const next: number[][] = []
-    for (const c of out) {
-      next.push([...c, 0])
-      next.push([...c, Math.PI])
-    }
-    out = next
-  }
-  return out
-}
-
 function analyze(d: number): { naiveSpecies: number; netChirality: number; wilsonSpecies: number } {
-  const cs = corners(d)
+  const cs = brillouinZoneCorners(d)
   let netChirality = 0
   let wilsonSpecies = 0
   for (const c of cs) {

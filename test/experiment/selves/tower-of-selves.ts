@@ -18,7 +18,8 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeGraph, Graph } from '@/code/tool/graph'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
-import { aggregate, effectiveCouplings, renormMacroStep, agreement } from '@/test/experiment/renormalization/emergent-macro-rule'
+import { clusterMajority as aggregate, agreementFraction as agreement } from '@/code/measure/agreement'
+import { effectiveCouplings, renormMacroStep } from '@/code/operator/macro-rule'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

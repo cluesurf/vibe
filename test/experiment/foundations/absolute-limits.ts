@@ -12,7 +12,8 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
-import { edgesFromCsr } from '@/code/tool/graph'
+import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
+import { totalCharge as totalQ } from '@/code/measure/tone-census'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -54,12 +55,6 @@ function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array
       }
     }
   }
-}
-
-const totalQ = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
 }
 
 export function absoluteLimits(input?: { n?: number }): {
@@ -116,18 +111,8 @@ export function absoluteLimits(input?: { n?: number }): {
   const mintingFails = totalQ(mint) === q0m // still zero, only balanced pairs made
 
   // (B) lightcone, fine front speed, then coarse (block) front speed, both finite
-  let center = 0
-  const distC = new Int32Array(N).fill(-1)
-  distC[center] = 0
-  let fr = [center]
-  while (fr.length) {
-    const nx: number[] = []
-    for (const u of fr) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) if (distC[g.adj[p]!] === -1) {
-      distC[g.adj[p]!] = distC[u]! + 1
-      nx.push(g.adj[p]!)
-    }
-    fr = nx
-  }
+  const center = 0
+  const distC = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center })
   const base = new Int8Array(N)
   for (let i = 0; i < N; i++) base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
   const s = base.slice()

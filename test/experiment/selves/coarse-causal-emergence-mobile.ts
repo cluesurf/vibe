@@ -22,8 +22,7 @@ import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
 import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
-import { quantileLabels, countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
-import { effectiveInformation, coarseGrainTpm } from '@/code/coarse/causal-emergence'
+import { emergenceGain } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
 
 // the observable, the charge-weighted mean x-coordinate of the gas, recorded once per beat. This is a SPATIAL
@@ -55,32 +54,6 @@ function centroidSeries(input: { init: Will; collision: Collision; beats: number
   return series
 }
 
-// structured-minus-random effective-information gain of a coarse observable trajectory.
-function emergenceGain(input: { series: number[]; fine: number; macroCount: number; seed: number }): {
-  eiMicro: number
-  eiSpatial: number
-  eiRandom: number
-} {
-  const labels = quantileLabels({ series: input.series, bins: input.fine })
-  const micro = rowStochastic(countMatrix({ trajectory: labels, stateCount: input.fine, lag: 1 }))
-  const eiMicro = effectiveInformation(micro)
-
-  const block = input.fine / input.macroCount
-  const spatialGroups = Array.from({ length: input.fine }, (_, i) => Math.floor(i / block))
-  const eiSpatial = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: spatialGroups }))
-
-  const rng = makeRng(input.seed)
-  const randomGroups = Array.from({ length: input.fine }, (_, i) => i % input.macroCount)
-  for (let i = input.fine - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
-    const tmp = randomGroups[i]!
-    randomGroups[i] = randomGroups[j]!
-    randomGroups[j] = tmp
-  }
-  const eiRandom = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: randomGroups }))
-  return { eiMicro, eiSpatial, eiRandom }
-}
-
 export default defineExperiment({
   id: 'selves/coarse-causal-emergence-mobile',
   title: 'mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode (honest negative)',
@@ -106,8 +79,8 @@ export default defineExperiment({
     const mobileSeries = centroidSeries({ init, collision: mobile, beats })
     const pinningSeries = centroidSeries({ init, collision: pinning, beats })
 
-    const mobileEi = emergenceGain({ series: mobileSeries, fine, macroCount, seed: 7777 })
-    const pinningEi = emergenceGain({ series: pinningSeries, fine, macroCount, seed: 7777 })
+    const mobileEi = emergenceGain({ series: mobileSeries, fine, macroCount, rng: makeRng(7777) })
+    const pinningEi = emergenceGain({ series: pinningSeries, fine, macroCount, rng: makeRng(7777) })
 
     const gainMobile = mobileEi.eiSpatial - mobileEi.eiRandom
     const gainPinning = pinningEi.eiSpatial - pinningEi.eiRandom

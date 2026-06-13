@@ -182,3 +182,24 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
     }
   }
 }
+
+// The sticky-reflection collision (routes-to-nested-selves, the capture channel). A cell with a single charge
+// is left ALONE, so a lone particle streams freely (mobility). But a CROWDED cell, two or more charges meeting
+// (a collision), REFLECTS every charge, swapping each slot with its opposite, bouncing the colliding charges
+// back toward each other. Free particles move, colliding particles are trapped, an inelastic-like CAPTURE that
+// is nonetheless a reversible involution (reflecting twice is the identity, and the crowded condition is
+// reflection-invariant) and charge-conserving. This is the binding channel the elastic momentum-rotate lacks,
+// the cost is that the captured cluster does not conserve momentum, so it is bound but pinned.
+export function stickyReflect(input: { opposite: number[] }): Collision {
+  const lines = linesOf(input.opposite)
+  return (slots, base, degree) => {
+    let count = 0
+    for (let direction = 0; direction < degree; direction++) if (slots[base + direction] !== 0) count++
+    if (count < 2) return
+    for (const [left, right] of lines) {
+      const temporary = slots[base + left]!
+      slots[base + left] = slots[base + right]!
+      slots[base + right] = temporary
+    }
+  }
+}

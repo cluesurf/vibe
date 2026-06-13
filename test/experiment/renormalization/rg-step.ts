@@ -10,44 +10,11 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
-import { edgesFromCsr } from '@/code/tool/graph'
+import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { csrVoronoiBlocks } from '@/code/dynamics/renormalization-blocks'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-// compact Voronoi blocks: scatter seeds, assign each cell to its nearest seed (multi-source BFS)
-function blockize(offsets: Int32Array, adj: Int32Array, n: number, targetSize: number, rng: Rng): { blockOf: Int32Array; numBlocks: number } {
-  const numSeeds = Math.max(1, Math.floor(n / targetSize))
-  const isSeed = new Uint8Array(n)
-  const seeds: number[] = []
-  while (seeds.length < numSeeds) {
-    const c = Math.floor(rng.next() * n)
-    if (!isSeed[c]) {
-      isSeed[c] = 1
-      seeds.push(c)
-    }
-  }
-  const blockOf = new Int32Array(n).fill(-1)
-  let fr: number[] = []
-  for (let s = 0; s < seeds.length; s++) {
-    blockOf[seeds[s]!] = s
-    fr.push(seeds[s]!)
-  }
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (blockOf[w] === -1) {
-        blockOf[w] = blockOf[u]!
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return { blockOf, numBlocks: numSeeds }
-}
 
 export function rgStep(input?: { n?: number; blockSize?: number }): {
   n: number
@@ -72,7 +39,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
   // block the crystal, build the block adjacency graph
   const seedRng = makeRng({ seed: 17 })
-  const { blockOf, numBlocks } = blockize(g.offsets, g.adj, N, blockSize, seedRng)
+  const { blockOf, numBlocks } = csrVoronoiBlocks({ offsets: g.offsets, adj: g.adj, size: N, targetSize: blockSize, rng: seedRng })
   const nbrSet: Set<number>[] = Array.from({ length: numBlocks }, () => new Set<number>())
   for (let k = 0; k < eu.length; k++) {
     const a = blockOf[eu[k]!]!
@@ -87,22 +54,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   // run the base dynamics, record block net charge each beat
   // BFS distance from a pole, to impose a radial NET-charge gradient that then RELAXES by diffusion
   // (diffusion is only visible while a gradient relaxes, an equilibrium state shows only noise)
-  const distP = new Int32Array(N).fill(-1)
-  distP[0] = 0
-  let frd: number[] = [0]
+  const distP = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
   let maxd = 0
-  while (frd.length > 0) {
-    const nx: number[] = []
-    for (const u of frd) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
-      const w = g.adj[p]!
-      if (distP[w] === -1) {
-        distP[w] = distP[u]! + 1
-        if (distP[w]! > maxd) maxd = distP[w]!
-        nx.push(w)
-      }
-    }
-    frd = nx
-  }
+  for (let i = 0; i < N; i++) if (distP[i]! > maxd) maxd = distP[i]!
   // Identify the CONSERVED-CHARGE sector's effective rule. We isolate transport (a dilute +1 charge gas
   // relaxing a radial gradient, hops only, no creation), and ENSEMBLE-AVERAGE over many realizations so
   // the deterministic hydrodynamic limit emerges from the stochastic noise.
