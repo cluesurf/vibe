@@ -13,14 +13,16 @@ export * from './tool/graph'
 export * from './tool/poset'
 export * from './tool/substrate'
 export * from './tool/gauge-field'
+export * from './tool/mesh'
+export * from './tool/integer'
 
-// linalg
-export * from './linalg/complex'
-export * from './linalg/dense'
-export * from './linalg/sparse'
-export * from './linalg/eig-jacobi'
-export * from './linalg/eig-lanczos'
-export * from './linalg/eig-hermitian'
+// algebra/linear
+export * from './algebra/linear/complex'
+export * from './algebra/linear/dense'
+export * from './algebra/linear/sparse'
+export * from './algebra/linear/eig-jacobi'
+export * from './algebra/linear/eig-lanczos'
+export * from './algebra/linear/eig-hermitian'
 
 // tone
 export * from './tone/alphabet'
@@ -79,7 +81,3 @@ export * from './dynamics/su2-lattice'
 export * from './dynamics/parallel-tempering'
 export * from './dynamics/exact-enumeration'
 export * from './dynamics/uniform-sampler'
-
-// experiment infrastructure
-export * from './experiment/runner'
-export * from './experiment/report'

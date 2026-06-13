@@ -1,8 +1,8 @@
 // A configuration assigns a tone value to every element (or every component of
 // every element, for the spinor alphabet). Stored densely in an Int32Array.
 
-import { Alphabet, slotsPerElement, randomValue } from '~/tone/alphabet'
-import { Rng } from '~/tool/rng'
+import { Alphabet, slotsPerElement, randomValue } from '@/code/tone/alphabet'
+import { Rng } from '@/code/tool/rng'
 
 export interface Configuration {
   readonly form: 'configuration'

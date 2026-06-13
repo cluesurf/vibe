@@ -1,0 +1,188 @@
+// P172: TRUE binding, a bound composite with internal structure (completes rung 2). (P168, the-coarse-graining-chain.md, open-question 6.)
+//
+// P168 rung 2 showed two particles' CENTER OF MASS moves freely (momentum conserved through interaction),
+// the composite's TRANSLATIONAL law. The missing half was a true BOUND state, an internal structure that
+// holds the pair together (a real atom, not just a free center of mass). The simple contact phase did not
+// bind. Here we solve the RELATIVE-coordinate problem directly, two particles with an attractive
+// interaction, and find the bound spectrum. We check, (1) a TRUE bound state exists, localized (not
+// spread across the box) with energy BELOW the free band (positive binding energy), where no well gives a
+// delocalized band state, and (2) a deeper well has MULTIPLE discrete bound levels, the atom's internal
+// ENERGY LEVELS, a NEW discrete variable (a quantum number) that seeds the next coarse-graining rung.
+// With P168's free center of mass, this completes particle -> composite, a bound atom that moves freely.
+// Run: npx tsx code/experiment/p172-bound-composite.ts
+
+import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
+
+// relative-coordinate lattice Hamiltonian, H phi(r) = -t (phi[r-1]+phi[r+1]) + V[r] phi[r], open ends.
+// the free band is [-2t, 2t]; an attractive well (V<0) can pull states BELOW -2t (bound).
+function applyH(phi: Float64Array, V: Float64Array, t: number): Float64Array {
+  const N = phi.length
+  const out = new Float64Array(N)
+  for (let r = 0; r < N; r++) {
+    let v = V[r]! * phi[r]!
+    if (r > 0) v += -t * phi[r - 1]!
+    if (r < N - 1) v += -t * phi[r + 1]!
+    out[r] = v
+  }
+  return out
+}
+
+function dot(a: Float64Array, b: Float64Array): number {
+  let s = 0
+  for (let i = 0; i < a.length; i++) s += a[i]! * b[i]!
+  return s
+}
+
+function normalize(a: Float64Array): void {
+  const n = Math.sqrt(dot(a, a))
+  for (let i = 0; i < a.length; i++) a[i]! /= n
+}
+
+// lowest `k` eigenpairs by power iteration on A = cI - H (largest A eigenvalue = lowest H), with deflation
+function lowestEigenpairs(V: Float64Array, t: number, k: number, seedBase: number): { energy: number; state: Float64Array }[] {
+  const N = V.length
+  let c = 2 * t + 1
+  for (let r = 0; r < N; r++) c = Math.max(c, -V[r]! + 2 * t + 1)
+  const found: { energy: number; state: Float64Array }[] = []
+  for (let j = 0; j < k; j++) {
+    let phi = new Float64Array(N)
+    let seed = seedBase + j * 7919
+    for (let r = 0; r < N; r++) {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff
+      phi[r] = seed / 0x7fffffff - 0.5
+    }
+    normalize(phi)
+    for (let iter = 0; iter < 1500; iter++) {
+      // A phi = c phi - H phi
+      const Hphi = applyH(phi, V, t)
+      const next = new Float64Array(N)
+      for (let r = 0; r < N; r++) next[r] = c * phi[r]! - Hphi[r]!
+      // deflate against previously found states
+      for (const f of found) {
+        const proj = dot(next, f.state)
+        for (let r = 0; r < N; r++) next[r]! -= proj * f.state[r]!
+      }
+      normalize(next)
+      phi = next
+    }
+    const energy = dot(phi, applyH(phi, V, t))
+    found.push({ energy, state: phi })
+  }
+  return found
+}
+
+function spread(state: Float64Array, center: number): number {
+  // <|r - center|> under |phi|^2
+  let s = 0
+  for (let r = 0; r < state.length; r++) s += Math.abs(r - center) * state[r]! * state[r]!
+  return s
+}
+
+export function boundComposite(input?: { N?: number; halfWidth?: number }): {
+  N: number
+  bandBottom: number
+  groundEnergy: number
+  bindingEnergy: number
+  groundSpread: number
+  freeSpread: number
+  localized: boolean
+  trueBoundState: boolean
+  boundLevelsShallow: number
+  boundLevelsDeep: number
+  discreteInternalLevels: boolean
+  solved: boolean
+} {
+  const N = input?.N ?? 161
+  const a = input?.halfWidth ?? 3
+  const center = Math.floor(N / 2)
+  const t = 1
+  const bandBottom = -2 * t
+
+  const wellOf = (V0: number): Float64Array => {
+    const V = new Float64Array(N)
+    for (let r = 0; r < N; r++) if (Math.abs(r - center) <= a) V[r] = -V0
+    return V
+  }
+
+  // a moderate well, the bound ground state
+  const moderate = lowestEigenpairs(wellOf(1.0), t, 1, 1)[0]!
+  const groundEnergy = moderate.energy
+  const bindingEnergy = bandBottom - groundEnergy // > 0 if below the band (bound)
+  const groundSpread = spread(moderate.state, center)
+  const trueBoundState = groundEnergy < bandBottom - 1e-4 && groundSpread < N / 6
+
+  // control, no well, the lowest state is a delocalized band state (spread ~ box)
+  const free = lowestEigenpairs(wellOf(0), t, 1, 1)[0]!
+  const freeSpread = spread(free.state, center)
+  const localized = groundSpread < 0.3 * freeSpread
+
+  // a SHALLOW vs DEEP well, count discrete bound levels (E < band bottom) = the atom's internal levels
+  const countBound = (V0: number): number => {
+    const eigs = lowestEigenpairs(wellOf(V0), t, 4, 2)
+    return eigs.filter((e) => e.energy < bandBottom - 1e-4).length
+  }
+  const boundLevelsShallow = countBound(0.6)
+  const boundLevelsDeep = countBound(4.0)
+  const discreteInternalLevels = boundLevelsDeep >= 2 // multiple discrete internal energy levels
+
+  const solved = trueBoundState && localized && discreteInternalLevels
+  return {
+    N,
+    bandBottom,
+    groundEnergy,
+    bindingEnergy,
+    groundSpread,
+    freeSpread,
+    localized,
+    trueBoundState,
+    boundLevelsShallow,
+    boundLevelsDeep,
+    discreteInternalLevels,
+    solved,
+  }
+}
+
+export function main(): void {
+  const r = boundComposite()
+  console.log('P172: true binding, a bound composite with internal structure (completes rung 2)')
+  console.log('')
+  console.log('  (1) a TRUE bound state of two attracting particles:')
+  console.log(`      ground energy ${r.groundEnergy.toFixed(3)} vs free band bottom ${r.bandBottom.toFixed(1)}, binding energy ${r.bindingEnergy.toFixed(3)} (> 0 = bound): ${r.trueBoundState}`)
+  console.log(`      localized, spread ${r.groundSpread.toFixed(1)} vs free state spread ${r.freeSpread.toFixed(1)} (a real atom, not delocalized): ${r.localized}`)
+  console.log('')
+  console.log('  (2) discrete internal ENERGY LEVELS (the atom\'s quantum numbers, seeding the next rung):')
+  console.log(`      bound levels, shallow well ${r.boundLevelsShallow}, deep well ${r.boundLevelsDeep} (>=2 discrete internal levels): ${r.discreteInternalLevels}`)
+  console.log('')
+  console.log('  with P168 (free center of mass), this completes particle -> composite, a BOUND atom that moves freely.')
+  console.log(`  SOLVED: ${r.solved}`)
+}
+
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}
+
+export default defineExperiment({
+  id: 'quantum/bound-composite',
+  title: 'two attracting particles form a true bound state with discrete levels',
+  category: 'quantum',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = boundComposite()
+    const ok = r.solved && r.trueBoundState && r.localized && r.discreteInternalLevels
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'two attracting particles form a localized bound state with positive binding energy and discrete internal levels, completing particle to composite',
+      metrics: {
+        bindingEnergy: r.bindingEnergy,
+        groundSpread: r.groundSpread,
+        freeSpread: r.freeSpread,
+        boundLevelsDeep: r.boundLevelsDeep,
+      },
+    })
+  },
+})

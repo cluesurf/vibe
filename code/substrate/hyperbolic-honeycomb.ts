@@ -4,8 +4,9 @@
 // dodecahedron across its face-planes (spheres orthogonal to the unit ball), breadth
 // first. See note/deterministic-substrate.md.
 
-import { Embedding, ManifoldSpec } from '~/tool/embedding'
-import { Graph, makeGraph } from '~/tool/graph'
+import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
+import { Graph, makeGraph } from '@/code/tool/graph'
+import { poincareCoshFromParts } from '@/code/geometry/distance'
 
 interface V3 {
   x: number
@@ -226,7 +227,7 @@ export function hyperbolicDodecagrid(input: { depth: number; connectThreshold: n
       const dx = (vx[i] ?? 0) - (vx[j] ?? 0)
       const dy = (vy[i] ?? 0) - (vy[j] ?? 0)
       const dz = (vz[i] ?? 0) - (vz[j] ?? 0)
-      const coshd = 1 + (2 * (dx * dx + dy * dy + dz * dz)) / ((oneMinus[i] ?? 1) * (oneMinus[j] ?? 1))
+      const coshd = poincareCoshFromParts(dx * dx + dy * dy + dz * dz, oneMinus[i] ?? 1, oneMinus[j] ?? 1)
       if (coshd <= coshThreshold) {
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)

@@ -5,14 +5,14 @@
 // construction. The low spectrum read as a dispersion relation gives the P4
 // fermion-doubling check.
 
-import { Substrate, undirectedAdjacency } from '~/tool/substrate'
+import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 import {
   SparseMatrix,
   Triplet,
   sparseFromTriplets,
   operatorFromSparse,
-} from '~/linalg/sparse'
-import { lowestEigenvalues } from '~/linalg/eig-lanczos'
+} from '@/code/algebra/linear/sparse'
+import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 
 // A cell complex: cellCount[k] is the number of k-cells, boundary[k] is the
 // boundary map from k-cells to (k-1)-cells with orientation signs. boundary[0]

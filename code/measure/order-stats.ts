@@ -4,8 +4,8 @@
 // ratio is order 1, while a KR order has height 3 and the ratio falls toward 0.
 // See note/questions/p2-dynamics-spec.md.
 
-import { Poset, relationCount } from '~/tool/poset'
-import { myrheimMeyerDimension } from '~/measure/dimension'
+import { Poset, relationCount } from '@/code/tool/poset'
+import { myrheimMeyerDimension } from '@/code/measure/dimension'
 
 // Longest chain length in elements (the order's height). Assumes the labelling is
 // topological (a precedes b implies a < b), which holds for sprinklings and for

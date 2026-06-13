@@ -2,8 +2,8 @@
 // fixed probability and inherit the induced order on the survivors. Bombelli's
 // renormalization move and the testbed's nesting operator.
 
-import { Poset, subPoset } from '~/tool/poset'
-import { Rng } from '~/tool/rng'
+import { Poset, subPoset } from '@/code/tool/poset'
+import { Rng } from '@/code/tool/rng'
 
 export function decimate(input: {
   poset: Poset

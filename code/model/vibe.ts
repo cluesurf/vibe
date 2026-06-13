@@ -10,17 +10,17 @@
 //   const world = model.build().run(40)            // build the mesh, run 40 beats
 //   console.log(world.read())                      // emergent structures read off the mesh
 
-import { makeRng, Rng } from '~/tool/rng'
-import { Substrate, undirectedAdjacency } from '~/tool/substrate'
-import { hyperbolicGraph } from '~/substrate/hyperbolic-graph'
-import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
-import { coxeterTessellation } from '~/substrate/coxeter'
-import { lattice } from '~/substrate/lattice'
-import { sprinkleMinkowski } from '~/substrate/sprinkle-minkowski'
-import { lorentzIsotropy } from '~/measure/lorentz'
-import { ballGrowth, growthIsExponential } from '~/measure/dimension'
-import { algebraicConnectivity } from '~/measure/integration'
-import { laplacianSpectrum } from '~/operator/laplacian'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
+import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
+import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
+import { coxeterTessellation } from '@/code/substrate/coxeter'
+import { lattice } from '@/code/substrate/lattice'
+import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
+import { lorentzIsotropy } from '@/code/measure/lorentz'
+import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
+import { algebraicConnectivity } from '@/code/measure/integration'
+import { laplacianSpectrum } from '@/code/operator/laplacian'
 
 // The committed mesh is the random hyperbolic causal mesh. The two crystals are the ideal
 // forms it approximates: the 2D heptagrid {7,3} and the real 3D substrate, the dodecagrid

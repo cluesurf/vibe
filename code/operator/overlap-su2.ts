@@ -7,9 +7,10 @@
 // is an SU(2) matrix acting on color, and gamma5 acts on spin. See
 // note/questions/remaining-frontier-spec.md (B2).
 
-import { ComplexMatrix, makeComplexMatrix } from '~/linalg/dense'
-import { hermitianMatrixSign, eigHermitian } from '~/linalg/eig-hermitian'
-import { Rng } from '~/tool/rng'
+import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import { modulo } from '@/code/tool/integer'
+import { hermitianMatrixSign, eigHermitian } from '@/code/algebra/linear/eig-hermitian'
+import { Rng } from '@/code/tool/rng'
 
 interface C4 {
   re: [number, number, number, number]
@@ -23,7 +24,7 @@ const SPIN_I_MINUS_SY: C4 = { re: [1, 0, 0, 1], im: [0, 1, -1, 0] }
 const SPIN_I_PLUS_SY: C4 = { re: [1, 0, 0, 1], im: [0, -1, 1, 0] }
 
 function site(n1: number, n2: number, L: number): number {
-  return (((n1 % L) + L) % L) + (((n2 % L) + L) % L) * L
+  return modulo(n1, L) + modulo(n2, L) * L
 }
 
 // An SU(2) matrix from a unit quaternion: U = q0 I + i(q.sigma).

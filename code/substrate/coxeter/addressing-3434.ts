@@ -16,7 +16,7 @@
 //
 // See note/research/vibe/notes/theory-v0.6.0/addressing-3434-plan.md and addressing-3434-results.md.
 
-import { buildCellGraph, type CellGraph } from '~/substrate/coxeter/cell-direct'
+import { buildCellGraph, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
 
 export interface Addressing {
   readonly graph: CellGraph

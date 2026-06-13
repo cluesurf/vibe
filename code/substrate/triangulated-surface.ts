@@ -5,7 +5,7 @@
 // validate that the Kahler-Dirac zero-mode count equals the surface topology
 // (the sum of Betti numbers): the "spin from topology" check for P4.
 
-import { Graph, makeGraph } from '~/tool/graph'
+import { Graph, makeGraph } from '@/code/tool/graph'
 
 export function triangulatedSurface(input: {
   width: number

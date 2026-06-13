@@ -2,8 +2,8 @@
 // for causal sets (reads dimension off the ordering fraction), and ball-growth
 // for graphs where there is no Lorentzian order.
 
-import { Poset, relationCount } from '~/tool/poset'
-import { Substrate, undirectedAdjacency } from '~/tool/substrate'
+import { Poset, relationCount } from '@/code/tool/poset'
+import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
 // Lanczos approximation to the natural log of the gamma function. Standard
 // coefficients (g = 7, n = 9). Accurate to ~1e-10 for the range we solve over.

@@ -9,14 +9,14 @@
 // are held constant; the invertibility of the half-step is the caller's
 // responsibility through the choice of `local`.
 
-import { Rule, LocalMap } from '~/rule/rule'
-import { adjacencyOf } from '~/tool/substrate'
+import { Rule, LocalMap } from '@/code/rule/rule'
+import { adjacencyOf } from '@/code/tool/substrate'
 import {
   Configuration,
   cloneConfiguration,
   getTone,
   setTone,
-} from '~/tone/configuration'
+} from '@/code/tone/configuration'
 
 // Update every element of one parity, reading neighborhood tones from the given
 // source configuration and writing into the target.

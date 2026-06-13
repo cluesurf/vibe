@@ -4,7 +4,7 @@
 // superdeterminism (settings determined by the hidden state). With
 // settingCorrelation = 0 and any local model, |S| <= 2 (the classical bound).
 
-import { Rng } from '~/tool/rng'
+import { Rng } from '@/code/tool/rng'
 
 // A hidden ontological value carried by the substrate.
 export type Lambda = number

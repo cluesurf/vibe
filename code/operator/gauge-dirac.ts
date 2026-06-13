@@ -6,9 +6,9 @@
 // diracSpectrum can run on it. A full implementation would carry separate
 // re / im channels and build a Hermitian complex operator.
 
-import { CellComplex } from '~/operator/dirac'
-import { GaugeField, linkPhase } from '~/tool/gauge-field'
-import { SparseMatrix, Triplet, sparseFromTriplets } from '~/linalg/sparse'
+import { CellComplex } from '@/code/operator/dirac'
+import { GaugeField, linkPhase } from '@/code/tool/gauge-field'
+import { SparseMatrix, Triplet, sparseFromTriplets } from '@/code/algebra/linear/sparse'
 
 export function covariantKahlerDirac(input: {
   complex: CellComplex

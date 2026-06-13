@@ -5,7 +5,7 @@
 // Nielsen-Ninomiya: one species and exact lattice chiral symmetry.
 // See note/questions/p4-chirality-spec.md.
 
-import { Complex } from '~/linalg/complex'
+import { Complex, cAdd, cMul, cScale, cConj, cAbs2 } from '@/code/algebra/linear/complex'
 
 // A 2x2 complex matrix in row-major fields.
 export interface Mat2 {
@@ -13,26 +13,6 @@ export interface Mat2 {
   readonly m01: Complex
   readonly m10: Complex
   readonly m11: Complex
-}
-
-function cadd(a: Complex, b: Complex): Complex {
-  return { re: a.re + b.re, im: a.im + b.im }
-}
-
-function cmul(a: Complex, b: Complex): Complex {
-  return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }
-}
-
-function cscale(a: Complex, s: number): Complex {
-  return { re: a.re * s, im: a.im * s }
-}
-
-function cconj(a: Complex): Complex {
-  return { re: a.re, im: -a.im }
-}
-
-function cabs2(a: Complex): number {
-  return a.re * a.re + a.im * a.im
 }
 
 const ZERO: Complex = { re: 0, im: 0 }
@@ -67,51 +47,51 @@ export const GAMMA5: Mat2 = PAULI_Z
 
 export function matAdd(a: Mat2, b: Mat2): Mat2 {
   return {
-    m00: cadd(a.m00, b.m00),
-    m01: cadd(a.m01, b.m01),
-    m10: cadd(a.m10, b.m10),
-    m11: cadd(a.m11, b.m11),
+    m00: cAdd(a.m00, b.m00),
+    m01: cAdd(a.m01, b.m01),
+    m10: cAdd(a.m10, b.m10),
+    m11: cAdd(a.m11, b.m11),
   }
 }
 
 export function matScaleReal(a: Mat2, s: number): Mat2 {
   return {
-    m00: cscale(a.m00, s),
-    m01: cscale(a.m01, s),
-    m10: cscale(a.m10, s),
-    m11: cscale(a.m11, s),
+    m00: cScale(a.m00, s),
+    m01: cScale(a.m01, s),
+    m10: cScale(a.m10, s),
+    m11: cScale(a.m11, s),
   }
 }
 
 export function matScaleComplex(a: Mat2, z: Complex): Mat2 {
   return {
-    m00: cmul(a.m00, z),
-    m01: cmul(a.m01, z),
-    m10: cmul(a.m10, z),
-    m11: cmul(a.m11, z),
+    m00: cMul(a.m00, z),
+    m01: cMul(a.m01, z),
+    m10: cMul(a.m10, z),
+    m11: cMul(a.m11, z),
   }
 }
 
 export function matMul(a: Mat2, b: Mat2): Mat2 {
   return {
-    m00: cadd(cmul(a.m00, b.m00), cmul(a.m01, b.m10)),
-    m01: cadd(cmul(a.m00, b.m01), cmul(a.m01, b.m11)),
-    m10: cadd(cmul(a.m10, b.m00), cmul(a.m11, b.m10)),
-    m11: cadd(cmul(a.m10, b.m01), cmul(a.m11, b.m11)),
+    m00: cAdd(cMul(a.m00, b.m00), cMul(a.m01, b.m10)),
+    m01: cAdd(cMul(a.m00, b.m01), cMul(a.m01, b.m11)),
+    m10: cAdd(cMul(a.m10, b.m00), cMul(a.m11, b.m10)),
+    m11: cAdd(cMul(a.m10, b.m01), cMul(a.m11, b.m11)),
   }
 }
 
 export function matDagger(a: Mat2): Mat2 {
   return {
-    m00: cconj(a.m00),
-    m01: cconj(a.m10),
-    m10: cconj(a.m01),
-    m11: cconj(a.m11),
+    m00: cConj(a.m00),
+    m01: cConj(a.m10),
+    m10: cConj(a.m01),
+    m11: cConj(a.m11),
   }
 }
 
 export function matFrobenius(a: Mat2): number {
-  return Math.sqrt(cabs2(a.m00) + cabs2(a.m01) + cabs2(a.m10) + cabs2(a.m11))
+  return Math.sqrt(cAbs2(a.m00) + cAbs2(a.m01) + cAbs2(a.m10) + cAbs2(a.m11))
 }
 
 // The matrix sign of a 2x2 Hermitian matrix, in closed form. Write H = t I + N
@@ -124,7 +104,7 @@ export function hermitianSign(h: Mat2): Mat2 {
   const d = h.m11.re
   const t = (a + d) / 2
   const diff = (a - d) / 2
-  const offDiag2 = cabs2(h.m01)
+  const offDiag2 = cAbs2(h.m01)
   const s = Math.sqrt(diff * diff + offDiag2)
   if (s < 1e-14) {
     const sgn = t > 0 ? 1 : t < 0 ? -1 : 0
@@ -145,7 +125,7 @@ export function minSingularValue(d: Mat2): number {
   const dd = m.m11.re
   const t = (a + dd) / 2
   const diff = (a - dd) / 2
-  const s = Math.sqrt(diff * diff + cabs2(m.m01))
+  const s = Math.sqrt(diff * diff + cAbs2(m.m01))
   return Math.sqrt(Math.max(0, t - s))
 }
 

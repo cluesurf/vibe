@@ -6,10 +6,10 @@
 // the 3D builder reflects a central dodecahedron across its faces, both reflection-group
 // orbits. See the choosing-the-base analysis.
 
-import { Graph, makeGraph } from '~/tool/graph'
-import { hyperbolicTiling } from '~/substrate/hyperbolic-graph'
-import { hyperbolicDodecagrid } from '~/substrate/hyperbolic-honeycomb'
-import { buildCoxeterMesh } from '~/substrate/coxeter/engine'
+import { Graph, makeGraph } from '@/code/tool/graph'
+import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
+import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
+import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 
 // The general Coxeter engine as a Graph: the REAL full facet-adjacency for any {p,q} or
 // {p,q,r} (a {7,3} cell has its true 7 neighbors, the dodecagrid {5,3,4} its true 12), built

@@ -13,8 +13,8 @@
 // modification factor to 1/t for the rest, which converges reliably where pure
 // halving stalls. The per-height action is measured in the converged 1/t regime.
 
-import { Rng } from '~/tool/rng'
-import { makeBitMatrix, setBit } from '~/tool/bitset'
+import { Rng } from '@/code/tool/rng'
+import { makeBitMatrix, setBit } from '@/code/tool/bitset'
 import {
   makeState,
   isRelated,
@@ -22,7 +22,7 @@ import {
   toggleKeepsValid,
   height,
   smearedAction,
-} from '~/dynamics/uniform-sampler'
+} from '@/code/dynamics/uniform-sampler'
 
 // A transitive chain on the first k elements (0 < 1 < ... < k-1), as a future
 // relation, so a fresh state can start at height k (used to seed WL windows above

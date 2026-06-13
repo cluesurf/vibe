@@ -2,14 +2,14 @@
 // every neighborhood tone from the SAME (input) configuration. This is the
 // global beat.
 
-import { Rule, LocalMap } from '~/rule/rule'
-import { adjacencyOf } from '~/tool/substrate'
+import { Rule, LocalMap } from '@/code/rule/rule'
+import { adjacencyOf } from '@/code/tool/substrate'
 import {
   Configuration,
   cloneConfiguration,
   getTone,
   setTone,
-} from '~/tone/configuration'
+} from '@/code/tone/configuration'
 
 export function synchronousRule(input: { name: string; local: LocalMap }): Rule {
   return {

@@ -13,8 +13,8 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
-import { buildCellGraph } from '~/substrate/coxeter/cell-direct'
-import { makeRng } from '~/tool/rng'
+import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 
 type Rng = { next: () => number }
 

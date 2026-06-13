@@ -4,9 +4,9 @@
 // limit recovers the Ricci scalar curvature.
 // and Benincasa & Dowker, "The Scalar Curvature of a Causal Set" (2010).
 
-import { Poset, pastMatrix, relationCount, intervalSize } from '~/tool/poset'
-import { forEachSetBit } from '~/tool/bitset'
-import { myrheimMeyerDimension } from '~/measure/dimension'
+import { Poset, pastMatrix, relationCount, intervalSize } from '@/code/tool/poset'
+import { forEachSetBit } from '@/code/tool/bitset'
+import { myrheimMeyerDimension } from '@/code/measure/dimension'
 
 export interface Action {
   readonly form: 'action'

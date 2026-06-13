@@ -5,9 +5,10 @@
 // Both sprinkle the hyperbolic disc by the hyperbolic area measure, then connect by
 // hyperbolic proximity. See note/deterministic-substrate.md.
 
-import { Rng } from '~/tool/rng'
-import { Embedding, ManifoldSpec } from '~/tool/embedding'
-import { Graph, makeGraph } from '~/tool/graph'
+import { Rng } from '@/code/tool/rng'
+import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
+import { polarCoshFromParts } from '@/code/geometry/distance'
+import { Graph, makeGraph } from '@/code/tool/graph'
 
 // Connect points (given radial r and angular theta) by hyperbolic proximity, embed in
 // the Poincare disc, and return the graph. Shared by both builders.
@@ -37,9 +38,7 @@ function connectAndEmbed(input: {
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       const dTheta = (theta[i] ?? 0) - (theta[j] ?? 0)
-      const coshD =
-        (coshR[i] ?? 0) * (coshR[j] ?? 0) -
-        (sinhR[i] ?? 0) * (sinhR[j] ?? 0) * Math.cos(dTheta)
+      const coshD = polarCoshFromParts(coshR[i] ?? 0, sinhR[i] ?? 0, coshR[j] ?? 0, sinhR[j] ?? 0, dTheta)
       if (coshD < coshThreshold) {
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)

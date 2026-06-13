@@ -3,10 +3,10 @@
 // (weight e^{-beta*S} rather than the oscillatory e^{iS}) so the chain actually
 // converges.
 
-import { Poset, makePosetFromFuture } from '~/tool/poset'
-import { BitMatrix, makeBitMatrix, getBit } from '~/tool/bitset'
-import { Rng } from '~/tool/rng'
-import { Action } from '~/dynamics/action'
+import { Poset, makePosetFromFuture } from '@/code/tool/poset'
+import { BitMatrix, makeBitMatrix, getBit } from '@/code/tool/bitset'
+import { Rng } from '@/code/tool/rng'
+import { Action } from '@/code/dynamics/action'
 
 // How often (in steps) we record the observable into the trace.
 const OBSERVE_EVERY = 1

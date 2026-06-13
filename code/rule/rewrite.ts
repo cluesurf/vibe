@@ -1,8 +1,8 @@
 // Rewrite rule: change the substrate (graph) itself, not just the tones. This is
 // causal graph dynamics, the self-rewriting mesh that lets the substrate grow.
 
-import { Rule } from '~/rule/rule'
-import { Substrate } from '~/tool/substrate'
+import { Rule } from '@/code/rule/rule'
+import { Substrate } from '@/code/tool/substrate'
 
 export function rewriteRule(input: {
   name: string

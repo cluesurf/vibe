@@ -3,14 +3,14 @@
 // influence later ones. This realizes "no global clock, only local causal
 // coordination".
 
-import { Rule, LocalMap } from '~/rule/rule'
-import { adjacencyOf } from '~/tool/substrate'
+import { Rule, LocalMap } from '@/code/rule/rule'
+import { adjacencyOf } from '@/code/tool/substrate'
 import {
   cloneConfiguration,
   getTone,
   setTone,
-} from '~/tone/configuration'
-import { Rng } from '~/tool/rng'
+} from '@/code/tone/configuration'
+import { Rng } from '@/code/tool/rng'
 
 // Fisher-Yates permutation of [0, size) using the seeded rng.
 function randomOrder(input: { size: number; rng: Rng }): number[] {

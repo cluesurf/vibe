@@ -2,7 +2,7 @@
 // optional edge weights, optional Margenstern/Fibonacci addresses (tilings),
 // and an optional embedding.
 
-import { Embedding } from '~/tool/embedding'
+import { Embedding } from '@/code/tool/embedding'
 
 export interface Graph {
   readonly form: 'graph'

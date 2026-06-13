@@ -2,8 +2,8 @@
 // even where the local field strength is zero. It is the charge times the Wilson
 // loop phase (the line integral of the connection around the loop).
 
-import { GaugeField } from '~/tool/gauge-field'
-import { wilsonLoopPhase } from '~/measure/wilson-loop'
+import { GaugeField } from '@/code/tool/gauge-field'
+import { wilsonLoopPhase } from '@/code/measure/wilson-loop'
 
 // charge * (accumulated link phase around the ordered loop).
 export function aharonovBohmPhase(input: {

@@ -4,8 +4,9 @@
 // addressing, and the third leg of the P3 fork. Greedy geometric routing on a
 // hyperbolic graph is the candidate both-worlds answer.
 
-import { Graph } from '~/tool/graph'
-import { Rng } from '~/tool/rng'
+import { Graph } from '@/code/tool/graph'
+import { poincareCoshFromParts } from '@/code/geometry/distance'
+import { Rng } from '@/code/tool/rng'
 
 // Distance used by greedy routing. For a hyperbolic (Poincare-disc) embedding we
 // use the true hyperbolic disc distance; otherwise Euclidean in the coordinates.
@@ -38,7 +39,7 @@ function targetDistance(input: {
   if (denom <= 0) {
     return Math.sqrt(sum2)
   }
-  return Math.acosh(1 + (2 * sum2) / denom)
+  return Math.acosh(poincareCoshFromParts(sum2, 1 - nodeNorm2, 1 - targetNorm2))
 }
 
 // Greedy geometric routing: from the source, repeatedly step to the neighbor

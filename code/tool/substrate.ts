@@ -1,9 +1,9 @@
 // The substrate union and a shared adjacency view, so measurements that need
 // only adjacency run on either a Poset (causal set) or a Graph (mesh / tiling).
 
-import { Poset } from '~/tool/poset'
-import { Graph } from '~/tool/graph'
-import { Embedding } from '~/tool/embedding'
+import { Poset } from '@/code/tool/poset'
+import { Graph } from '@/code/tool/graph'
+import { Embedding } from '@/code/tool/embedding'
 
 export type Substrate = Poset | Graph
 

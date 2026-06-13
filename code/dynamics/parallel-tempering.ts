@@ -5,11 +5,11 @@
 // periodically swap adjacent replicas. Configurations migrate across the ladder
 // and escape basins, giving true equilibrium. See p2-p6-optimal-path.md.
 
-import { Poset, makePosetFromFuture } from '~/tool/poset'
-import { BitMatrix, makeBitMatrix } from '~/tool/bitset'
-import { Rng } from '~/tool/rng'
-import { Action } from '~/dynamics/action'
-import { transitiveClosure } from '~/dynamics/mcmc'
+import { Poset, makePosetFromFuture } from '@/code/tool/poset'
+import { BitMatrix, makeBitMatrix } from '@/code/tool/bitset'
+import { Rng } from '@/code/tool/rng'
+import { Action } from '@/code/dynamics/action'
+import { transitiveClosure } from '@/code/dynamics/mcmc'
 
 interface Replica {
   relation: BitMatrix

@@ -4,9 +4,9 @@
 // directions are at discrete angles, via angular Fourier order parameters. A
 // square lattice has a strong 4-fold component; a sprinkling has none.
 
-import { Substrate, undirectedAdjacency } from '~/tool/substrate'
-import { coordOf } from '~/tool/embedding'
-import { Rng } from '~/tool/rng'
+import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
+import { coordOf } from '@/code/tool/embedding'
+import { Rng } from '@/code/tool/rng'
 
 const PREFERRED_FRAME_THRESHOLD = 0.25
 // Angular harmonics to probe. A lattice concentrates direction at a few discrete

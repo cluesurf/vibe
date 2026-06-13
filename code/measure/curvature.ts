@@ -1,7 +1,7 @@
 // Combinatorial curvature. A simplified Forman-Ricci curvature per edge, from
 // degrees and shared neighbors, and its mean over the substrate's edges.
 
-import { Substrate, undirectedAdjacency } from '~/tool/substrate'
+import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
 // Count common neighbors of a and b given the adjacency.
 function triangleCount(input: {

@@ -1,9 +1,9 @@
 // A rule maps the current configuration to the next, reading only a bounded
 // neighborhood per element. Some rules also rewrite the substrate.
 
-import { Substrate } from '~/tool/substrate'
-import { Configuration } from '~/tone/configuration'
-import { Rng } from '~/tool/rng'
+import { Substrate } from '@/code/tool/substrate'
+import { Configuration } from '@/code/tone/configuration'
+import { Rng } from '@/code/tool/rng'
 
 export interface RuleStepInput {
   substrate: Substrate

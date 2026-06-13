@@ -1,0 +1,81 @@
+import { Verdict } from '@/test/scaffold/verdict'
+
+// The test unit. Every test exports one Experiment through defineExperiment, so
+// the catalog (category, substrate, depth, paper) lives in the code instead of a
+// separate spreadsheet, and the suites read the registry.
+
+export type Category =
+  | 'foundations'
+  | 'geometry'
+  | 'relativity'
+  | 'spin'
+  | 'gauge'
+  | 'gravity'
+  | 'cosmology'
+  | 'holography'
+  | 'quantum'
+  | 'renormalization'
+  | 'selves'
+  | 'computation'
+  | 'addressing'
+  | 'substrate-survey'
+
+export type Depth = 'L0' | 'L1' | 'L2' | 'L3'
+
+export interface Context {
+  seed: number
+}
+
+export interface Experiment {
+  id: string
+  title: string
+  category: Category
+  substrates: string[] | 'any'
+  depth: Depth
+  paper: boolean
+  run(context: Context): Verdict
+}
+
+const registry = new Map<string, Experiment>()
+
+export function defineExperiment(experiment: Experiment): Experiment {
+  if (registry.has(experiment.id)) {
+    throw new Error(`duplicate experiment id: ${experiment.id}`)
+  }
+  registry.set(experiment.id, experiment)
+  return experiment
+}
+
+export function allExperiments(): Experiment[] {
+  return [...registry.values()]
+}
+
+export interface SuiteResult {
+  id: string
+  verdict: Verdict
+}
+
+// Run a set of experiments. The integrity rule, an experiment that declares a
+// deep (L3) result must return a control, otherwise the runner downgrades it to
+// partial. This is what stops a circular test from quietly printing green.
+export function runSuite(
+  experiments: Experiment[],
+  context: Context,
+): SuiteResult[] {
+  return experiments.map((experiment) => {
+    const result = experiment.run(context)
+    const hasControl =
+      result.control !== undefined && Object.keys(result.control).length > 0
+    if (experiment.depth === 'L3' && !hasControl) {
+      return {
+        id: experiment.id,
+        verdict: {
+          ...result,
+          status: 'partial',
+          notes: `${result.notes ?? ''} [downgraded: an L3 claim must carry a control]`.trim(),
+        },
+      }
+    }
+    return { id: experiment.id, verdict: result }
+  })
+}

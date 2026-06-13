@@ -2,8 +2,8 @@
 // smooth spacetime rather than a random order. Combines a finite Myrheim-Meyer
 // dimension with a check that the order is not a flat Kleitman-Rothschild order.
 
-import { Poset } from '~/tool/poset'
-import { myrheimMeyerDimension } from '~/measure/dimension'
+import { Poset } from '@/code/tool/poset'
+import { myrheimMeyerDimension } from '@/code/measure/dimension'
 
 // Height of the poset: the number of links in the longest chain anywhere in the
 // order (so a single antichain has height 0, a path of L+1 elements has height

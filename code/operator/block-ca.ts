@@ -6,7 +6,7 @@
 // has a more local Hamiltonian than the linear XOR-parity rule. See
 // note/questions/roadmap.md and note/experiment/results/p1-locality.md.
 
-import { ComplexMatrix, makeComplexMatrix } from '~/linalg/dense'
+import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
 
 // A reversible gate on a block of `blockSize` cells, given as a permutation of the
 // 2^blockSize block values.

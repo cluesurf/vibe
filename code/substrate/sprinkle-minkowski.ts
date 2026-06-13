@@ -2,9 +2,9 @@
 // Uniform-by-volume sampling makes the process Poisson, hence Lorentz invariant:
 // the thing a regular lattice cannot be.
 
-import { Rng } from '~/tool/rng'
-import { Embedding, ManifoldSpec } from '~/tool/embedding'
-import { Poset, makePosetFromRelation } from '~/tool/poset'
+import { Rng } from '@/code/tool/rng'
+import { Embedding, ManifoldSpec } from '@/code/tool/embedding'
+import { Poset, makePosetFromRelation } from '@/code/tool/poset'
 
 // Sample points uniformly in the causal diamond (Alexandrov interval) between
 // (0, 0, ...) and (1, 0, ...). The diamond is the set of points with

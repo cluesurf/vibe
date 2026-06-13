@@ -6,9 +6,10 @@
 // nonzero condensate. The Schwinger condensate is nonzero purely from the anomaly,
 // and grows with gauge disorder. See note/questions/remaining-frontier-spec.md (A4).
 
-import { ComplexMatrix, makeComplexMatrix } from '~/linalg/dense'
-import { hermitianMatrixSign, eigHermitian } from '~/linalg/eig-hermitian'
-import { Rng } from '~/tool/rng'
+import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import { modulo } from '@/code/tool/integer'
+import { hermitianMatrixSign, eigHermitian } from '@/code/algebra/linear/eig-hermitian'
+import { Rng } from '@/code/tool/rng'
 
 interface Block {
   re: [number, number, number, number]
@@ -20,7 +21,7 @@ const I_MINUS_SY: Block = { re: [1, 0, 0, 1], im: [0, 1, -1, 0] }
 const I_PLUS_SY: Block = { re: [1, 0, 0, 1], im: [0, -1, 1, 0] }
 
 function site(n1: number, n2: number, L: number): number {
-  return (((n1 % L) + L) % L) + (((n2 % L) + L) % L) * L
+  return modulo(n1, L) + modulo(n2, L) * L
 }
 
 function addBlock(input: {
