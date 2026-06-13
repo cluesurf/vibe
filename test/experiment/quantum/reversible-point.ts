@@ -9,7 +9,6 @@
 // statistical floor (a reversible point) or stays clearly above it (inherently irreversible).
 // Run: npx tsx code/experiment/p126-reversible-point.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -152,28 +151,6 @@ export function reversiblePoint(input?: { n?: number }): {
   const solved = localDetailedBalance
 
   return { n: g.cellCount, scan, maxRatio, localDetailedBalance, solved }
-}
-
-export function main(): void {
-  const r = reversiblePoint()
-  console.log('P126: does the dynamics have a time-reversible point (the gate before quantization)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, detailed-balance violation vs arrow rate`)
-  console.log('')
-  console.log('  arrow   violation   floor   activity')
-  for (const s of r.scan) console.log(`  ${s.arrow.toFixed(2)}     ${s.violation.toFixed(4)}    ${s.floor.toFixed(4)}   ${(s.activity * 100).toFixed(0)}%`)
-  console.log('')
-  console.log(`  LOCAL detailed balance holds at all arrow rates (max violation/floor = ${r.maxRatio.toFixed(2)}): ${r.localDetailedBalance}`)
-  console.log('  => the arrow creates BALANCED pairs (a reversible reaction), so the elementary dynamics is')
-  console.log('     locally an equilibrium process, NOT a one-way drive. The "arrow is irreversible" worry')
-  console.log('     is refuted at the local level, a good sign for reflection positivity and quantization.')
-  console.log('  CAVEAT: this is local (single-edge). Full reversibility needs multi-cell cycle (Kolmogorov)')
-  console.log('  tests, still to do. So the precondition is locally met, not yet globally proven.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -7,7 +7,6 @@
 // and measure how far the difference can reach by each beat.
 // See note/the-model.md. Run: npx tsx code/experiment/p37-one-rule-propagation.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -129,34 +128,6 @@ export function propagation(input: { count: number; beats: number; seed: number 
   }
   const frontAdvances = (frontRadius[2] ?? 0) > (frontRadius[0] ?? 0)
   return { frontRadius, lightConeHolds, frontAdvances }
-}
-
-export function main(): void {
-  const r = propagation({ count: 700, beats: 8, seed: 1 })
-  console.log('P37: one rule, causal propagation (the signal sector from the rule itself)')
-  console.log('')
-  console.log('  perturb one vibe, run two copies of the ternary rule in lockstep,')
-  console.log('  measure the furthest graph-distance the difference reaches by each beat:')
-  console.log('    beat:          ' + r.frontRadius.map((_, i) => (i + 1).toString().padStart(3)).join(''))
-  console.log('    front radius:  ' + r.frontRadius.map((x) => x.toString().padStart(3)).join(''))
-  console.log('')
-  console.log(`  light-cone holds (front radius never exceeds the beat number): ${r.lightConeHolds ? 'YES' : 'no'}`)
-  console.log(`  the front advances (a disturbance really propagates): ${r.frontAdvances ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  So the microscopic rule itself carries causal propagation at finite speed, with a')
-  console.log('  strict light-cone of one hop per beat. The signal sector, a disturbance traveling')
-  console.log('  through the mesh, is not a separate operator added on top. It is what the one rule')
-  console.log('  already does. Matter and signals ride the same dynamics that builds the geometry.')
-  console.log('  The front then stays contained rather than swamping the mesh, because the dynamics')
-  console.log('  is dissipative and locally stable (the convergence of P34), so a small disturbance')
-  console.log('  stays small. Causality from the rule, stability from the rule, one mechanism.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

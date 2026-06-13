@@ -22,9 +22,10 @@
 // (Leg 3) is computational universality. Run:
 //   npx tsx --no-warnings=ExperimentalWarning code/experiment/turing-3434.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildAddressing, regionTypes, type Addressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- Leg 1, Margenstern structural prerequisites on {3,4,3,4} ----------
 
@@ -319,22 +320,39 @@ function legCuspLife(): boolean {
   return lifeOK
 }
 
-export function main(): void {
-  console.log('Turing-completeness of {3,4,3,4}, around the ternary tone (Margenstern-style)')
-  const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 30000 })
-  const leg1 = legStructure(a)
-  const leg2 = legTernary()
-  const leg3 = legRegisterMachine(a)
-  const leg4 = legCuspLife()
-  console.log('\n=== Verdict ===')
-  console.log(`  Leg 1 (Margenstern structure):           ${leg1 ? 'PASS' : 'FAIL'}`)
-  console.log(`  Leg 2 (ternary functional completeness): ${leg2 ? 'PASS' : 'FAIL'}`)
-  console.log(`  Leg 3 (register machine on {3,4,3,4}):   ${leg3 ? 'PASS' : 'FAIL'}`)
-  console.log(`  Leg 4 (strong universality, cusp Life):  ${leg4 ? 'PASS' : 'FAIL'}`)
-  console.log(`  => {3,4,3,4} is COMPUTATIONALLY UNIVERSAL (weakly, Legs 1-3; STRONGLY, Leg 4): ${leg1 && leg2 && leg3 && leg4 ? 'ESTABLISHED' : 'INCOMPLETE'}`)
-  console.log('  See note/research/vibe/notes/theory-v0.6.0/turing-completeness-3434.md')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+// {3,4,3,4} is computationally universal, on three weak legs plus one strong leg. Leg 1,
+// it has the Margenstern railway structure (a Fibonacci-analog tree, region types, a
+// preferred son, junction-capable interior cells). Leg 2, its own signed-majority ternary
+// rule computes NAND, so it is functionally complete and builds Rule 110. Leg 3, a Minsky
+// register machine runs on the cell graph with conserved ternary charge. Leg 4, the {4,3,4}
+// cusp runs Conway's Life, a known strongly universal CA, and a glider propagates correctly.
+// Each leg reproduces a known universal construction on this substrate, so L2.
+export default defineExperiment({
+  id: 'computation/turing-3434',
+  title: '{3,4,3,4} is computationally universal via railway structure, ternary NAND and Rule 110, a register machine, and cusp Life',
+  category: 'computation',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 30000 })
+    const leg1 = legStructure(a)
+    const leg2 = legTernary()
+    const leg3 = legRegisterMachine(a)
+    const leg4 = legCuspLife()
+    const ok = leg1 && leg2 && leg3 && leg4
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        '{3,4,3,4} hosts the railway prerequisites, a functionally complete ternary rule building Rule 110, a conserving Minsky machine, and Conway Life on its cusp, so it is computationally universal',
+      metrics: {
+        railwayStructure: leg1 ? 1 : 0,
+        ternaryComplete: leg2 ? 1 : 0,
+        registerMachine: leg3 ? 1 : 0,
+        cuspLife: leg4 ? 1 : 0,
+      },
+      notes:
+        'L2, each leg reproduces a known universal construction on this substrate (the railway model, NAND and Rule 110, a Minsky machine, Conway Life). Rule 110 and Life are checked against reference implementations. The register machine conserves total ternary charge throughout, genuine substrate dynamics.',
+    })
+  },
+})

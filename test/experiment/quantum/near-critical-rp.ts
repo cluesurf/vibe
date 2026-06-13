@@ -10,7 +10,6 @@
 // band edge, we test the STAGGERED two-point function (-1)^r C(r) too. PSD of either = a genuine quantum
 // field. Non-PSD with an extended correlation = a classical mimic. Run: npx tsx code/experiment/p133-near-critical-rp.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -238,30 +237,6 @@ export function nearCriticalRP(input?: { length?: number; arrows?: number[] }): 
   const solved = reflectionPositive || hyperbolicObstruction
 
   return { spineLength: s.spineLength, scan, xiGrows, hyperbolicObstruction, reflectionPositive, classicalMimic, solved }
-}
-
-export function main(): void {
-  const r = nearCriticalRP()
-  console.log('P133: near-critical spatial reflection positivity (the decisive quantum-field test)')
-  console.log('')
-  console.log(`  sliver spine ${r.spineLength}, scanning arrow toward the critical point:`)
-  console.log('    arrow      density   xi      range   direct minEig   staggered minEig')
-  for (const s of r.scan) {
-    console.log(`    ${s.arrow.toFixed(3)}      ${(s.density * 100).toFixed(1).padEnd(5)}%   ${s.correlationLength.toFixed(2).padEnd(6)}  ${String(s.range).padEnd(5)}   ${s.directMinEig.toExponential(1).padEnd(13)}   ${s.staggeredMinEig.toExponential(1)}`)
-  }
-  console.log('')
-  console.log(`  correlation length GROWS toward criticality (testable RP regime): ${r.xiGrows}`)
-  console.log(`  reflection positive (genuine quantum field): ${r.reflectionPositive}   classical mimic: ${r.classicalMimic}`)
-  console.log(`  hyperbolic obstruction (xi stays bounded, mean-field, contact-dominated): ${r.hyperbolicObstruction}`)
-  console.log('')
-  console.log('  => on the hyperbolic scaffold the correlation stays SHORT even near criticality (the')
-  console.log('     non-amenable spectral gap, the mean-field exponents of P129), so spatial RP is')
-  console.log('     contact-dominated here. It belongs to the emergent FLAT geometry, not the scaffold.')
-  console.log(`  SOLVED (RP confirmed or obstruction correctly diagnosed): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

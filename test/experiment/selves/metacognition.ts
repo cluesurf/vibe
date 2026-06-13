@@ -10,7 +10,6 @@
 // self). Full RECURSION (a model of the model) is noted as the further step, the onion has one hub, so a
 // second-order model would need added structure. Run: npx tsx code/experiment/p118-metacognition.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -213,23 +212,6 @@ export function metacognition(input?: { n?: number }): {
   const solved = predictsFuture && beatsLocal
 
   return { n: N, hubPredict, peripheralPredict, peakLag, hubMirror, predictsFuture, beatsLocal, solved }
-}
-
-export function main(): void {
-  const r = metacognition()
-  console.log('P118: predictive metacognition (does the self-model predict the self)')
-  console.log('')
-  console.log(`  hub predicts the self's NEXT global state: corr ${r.hubPredict.toFixed(2)}`)
-  console.log(`  a peripheral region predicting the same: ${r.peripheralPredict.toFixed(2)} (hub beats local: ${r.beatsLocal})`)
-  console.log(`  hub mirrors current state: ${r.hubMirror.toFixed(2)}, cross-correlation peak at lag ${r.peakLag}`)
-  console.log('')
-  console.log(`  the self-model is a usable forward model (best internal predictor of the self): ${r.solved}`)
-  console.log('  (full recursion, a model of the model, is the further step)')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -12,7 +12,6 @@
 // classical walk's diffusive z=2, show a DIRAC dispersion with a tunable mass, and confirm reflection
 // positivity (the dispersion is real, a positive spectral measure). Run: npx tsx code/experiment/p151-quantum-walk-field.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -153,29 +152,6 @@ export function quantumWalkField(input?: { steps?: number }): {
     reflectionPositive,
     solved,
   }
-}
-
-export function main(): void {
-  const r = quantumWalkField()
-  console.log('P151: the genuine quantum field is the unitary (quantum-walk) version')
-  console.log('')
-  console.log(`  spreading exponent (MSD ~ t^a): quantum walk ${r.quantumExponent.toFixed(2)} (ballistic z=1), classical ${r.classicalExponent.toFixed(2)} (diffusive z=2)`)
-  console.log(`    quantum is BALLISTIC (relativistic lightcone): ${r.quantumBallistic}`)
-  console.log(`    classical is DIFFUSIVE (the decohered shadow, P130/P137): ${r.classicalDiffusive}`)
-  console.log('')
-  console.log('  Dirac dispersion omega(k) = arccos(cos(theta) cos k):')
-  console.log(`    massless cone speed (theta=0): ${r.masslessConeSpeed.toFixed(2)} (a lightcone, c=1)`)
-  console.log(`    mass gap (theta=0.3): omega(0) = ${r.massGap.toFixed(3)} (a tunable relativistic mass)`)
-  console.log(`    dispersion real for all k (positive spectral measure): ${r.dispersionReal}`)
-  console.log('')
-  console.log(`  REFLECTION POSITIVE (a Hermitian H gives a unitary quantum field): ${r.reflectionPositive}`)
-  console.log('  => the unitary completion of the reversible exchange (P126/P128/P131) IS a relativistic,')
-  console.log('     reflection-positive quantum field (Dirac), the stochastic rule is its classical shadow.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

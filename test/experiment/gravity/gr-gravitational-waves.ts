@@ -14,7 +14,8 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-gravitational-waves.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- 1. the graviton: massless spin-2, 2 TT polarizations, z=1 ----------
 
@@ -136,38 +137,37 @@ function chirp(m1: number, m2: number, a0: number): { exponent: number; ok: bool
   return { exponent: slope, ok: Math.abs(slope + 3 / 8) < 0.03, chirpMass }
 }
 
-export function main(): void {
-  console.log('Gravitational-wave forms on the substrate (G=c=1)')
-  console.log('Substrate input: the emergent massless spin-2 graviton on the flat cusp at z=1 (P21/P24/P73).\n')
-
-  console.log('=== 1. the graviton (massless spin-2, 2 polarizations, z=1) ===')
-  const gm = gravitonModes()
-  console.log(`  dispersion omega -> |k| at small k (light cone z=1): ${gm.dispersionOK}`)
-  console.log(`  massless (no gap as k->0): ${gm.massless}`)
-  console.log(`  transverse-traceless polarizations for k=z: ${gm.polarizationCount} (GR predicts 2, the + and x helicities)`)
-
-  console.log('\n=== 2. quadrupole waveform of a circular binary (m1=1.4, m2=1.4, a=10) ===')
-  const wf = binaryWaveform(1.4, 1.4, 10, 16)
-  console.log(`  orbital omega = ${wf.omega.toFixed(4)}; GW frequency = ${wf.gwFreqRatio} x orbital (quadrupole doubling)`)
-  console.log(`  h_+ samples (first 4): ${wf.hplus.slice(0, 4).map((h) => h.toExponential(2)).join(', ')}`)
-  console.log(`  h_x samples (first 4): ${wf.hcross.slice(0, 4).map((h) => h.toExponential(2)).join(', ')}`)
-  console.log('  (h_+ ~ -cos(2 phi), h_x ~ -sin(2 phi): the two polarizations, 90 deg out of phase, face-on)')
-  const pw = radiatedPower(1.4, 1.4, 10)
-  console.log(`  radiated power P = (32/5) mu^2 a^4 omega^6 = ${pw.measured.toExponential(3)} = formula -> ${pw.ok}`)
-
-  console.log('\n=== 3. the inspiral chirp (m1=1.4, m2=1.4) ===')
-  const ch = chirp(1.4, 1.4, 10)
-  console.log(`  chirp mass M_c = (m1 m2)^(3/5)/(m1+m2)^(1/5) = ${ch.chirpMass.toFixed(4)}`)
-  console.log(`  late-inspiral frequency f_GW ~ (t_c - t)^${ch.exponent.toFixed(3)} (GR predicts -0.375 = -3/8) -> ${ch.ok ? 'CONFIRMED' : 'off'}`)
-  console.log('  (the signature LIGO chirp: rising frequency and amplitude as the orbit decays to merger)')
-
-  const all = gm.dispersionOK && gm.massless && gm.polarizationCount === 2 && pw.ok && ch.ok
-  console.log(`\nANALYTIC CHECK (assumes the GR quadrupole waveform, Peters decay, -3/8 chirp, NOT emergent): forms ${all ? 'self-consistent' : 'inconsistent'}`)
-  console.log('(The 2 polarizations, the quadrupole waveform, the radiated power, and the -3/8 chirp slope all follow')
-  console.log(' as algebra and curve-fitting from the assumed closed-form GR formulas, not from the substrate.)')
-  console.log('See note/research/vibe/notes/theory-v0.6.0/general-relativity-on-the-substrate.md')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'gravity/gr-gravitational-waves',
+  title: 'the assumed general-relativistic waveform formulas are internally self-consistent',
+  category: 'gravity',
+  substrates: 'any',
+  depth: 'L0',
+  paper: false,
+  run() {
+    const gm = gravitonModes()
+    const wf = binaryWaveform(1.4, 1.4, 10, 16)
+    const pw = radiatedPower(1.4, 1.4, 10)
+    const ch = chirp(1.4, 1.4, 10)
+    const ok =
+      gm.dispersionOK &&
+      gm.massless &&
+      gm.polarizationCount === 2 &&
+      pw.ok &&
+      ch.ok
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'given the hardcoded quadrupole waveform, Peters decay, and radiated-power formulas the two polarizations, the frequency doubling, and the minus three eighths chirp slope all follow as algebra',
+      metrics: {
+        polarizationCount: gm.polarizationCount,
+        gwFrequencyRatio: wf.gwFreqRatio,
+        radiatedPower: pw.measured,
+        chirpExponent: ch.exponent,
+        chirpMass: ch.chirpMass,
+      },
+      notes:
+        'L0 circular. The massless spin-2 field, the closed-form quadrupole strain, the Peters orbital-decay equation, and the quadrupole power are all assumed, so the polarization count and the chirp slope are consequences of those formulas, not evidence that the substrate radiates gravitational waves.',
+    })
+  },
+})

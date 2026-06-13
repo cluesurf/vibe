@@ -10,7 +10,8 @@
 //   spinor defects is the remaining link.
 // Run: npx tsx code/experiment/p263-soliton-persistence-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // box-ball system: a reversible conserving CA. carrier sweeps left to right, picks up balls, drops them.
 function bbsStep(s: number[]): number[] {
@@ -72,7 +73,28 @@ export function solitonPersistence(): { singlePersists: boolean; constantSpeed: 
   return { singlePersists, constantSpeed, identityPreserved, chargeConserved, solitonsExist }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = solitonPersistence()
-  console.log(`SOLVED SOLITON-PERSISTENCE: single-persists ${r.singlePersists}, constant-speed ${r.constantSpeed}, identity-preserved ${r.identityPreserved}, charge-conserved ${r.chargeConserved}, solitons-exist ${r.solitonsExist} => ${r.solitonsExist ? 'PASSED (persistence realizable in the rule class)' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'selves/soliton-persistence-3434',
+  title: 'a reversible conserving box-ball rule produces persistent solitons that survive collisions',
+  category: 'selves',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = solitonPersistence()
+    const ok = r.solitonsExist
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the box-ball system, a reversible conserving lattice gas of the same class as the directional rule, gives a single soliton that moves at constant speed equal to its size and two solitons that collide and emerge with their sizes preserved, with the ball count exactly conserved',
+      metrics: {
+        singlePersists: r.singlePersists ? 1 : 0,
+        constantSpeed: r.constantSpeed ? 1 : 0,
+        identityPreserved: r.identityPreserved ? 1 : 0,
+        chargeConserved: r.chargeConserved ? 1 : 0,
+      },
+      notes:
+        'L2, known physics reproduced. The box-ball system is a known reversible conserving cellular automaton with KdV-like soliton identity, fully deterministic. This shows persistence is realizable in the rule CLASS, the collision nonlinearity is the gas itself. It does NOT show the specific 24-direction rule produces these solitons, nor that they are the spinor defects, which is the remaining link.',
+    })
+  },
+})

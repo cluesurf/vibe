@@ -12,7 +12,6 @@
 // therefore the old structural measure) completely unchanged.
 // Run: npx tsx code/experiment/p63-integrated-information.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { undirectedAdjacency } from '@/code/tool/substrate'
 import { toneIntegration, algebraicConnectivity } from '@/code/measure/integration'
@@ -115,37 +114,6 @@ export function integratedInformation(input: { seed: number }): {
     // and the structural measure, are unchanged).
     solved: separation > 3 && localMaxFraction > 0.7 && readsDynamics && structuralPhiUnchanged,
   }
-}
-
-export function main(): void {
-  const r = integratedInformation({ seed: 1 })
-  console.log('P63: integrated information (selves as local maxima), tone-aware')
-  console.log('')
-  console.log("  tone-integration Phi = the weakest bipartition's cross-influence in the RULE dynamics")
-  console.log('')
-  console.log(`  a genuine self (a cell):            Phi = ${r.phiCell.toFixed(3)}`)
-  console.log(`  a random same-size bag of vibes:    Phi = ${r.phiRandom.toFixed(3)}`)
-  console.log(`  selves are ${r.separation.toFixed(0)}x more tone-integrated than random bags`)
-  console.log('')
-  console.log(`  a self is a LOCAL MAXIMUM (swapping members in or out lowers Phi): ${(100 * r.localMaxFraction).toFixed(0)}% of cells`)
-  console.log('')
-  console.log('  decisive check that it reads the dynamics, not just the wiring:')
-  console.log(`    one cell, fills intact:                 tone-Phi = ${r.tonePhiFull.toFixed(3)}`)
-  console.log(`    same cell, fills cut across the middle:  tone-Phi = ${r.tonePhiFillsCut.toFixed(3)}  (graph unchanged)`)
-  console.log(`    the structural measure is blind to this (same graph): ${r.structuralPhiUnchanged ? 'YES' : 'no'}`)
-  console.log(`    tone-integration collapses when the dynamics decouple: ${r.readsDynamics ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  integrated information (tone-aware) solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Tone-integration does the defining job AND reads the actual dynamics. A genuine self')
-  console.log("  resists being cut in the rule's own behaviour, so it scores high, while a random bag")
-  console.log('  has cuts that lose nothing. A self is a local maximum. And crucially, zeroing the fills')
-  console.log('  across a cell collapses its integration while the wiring (and the old structural proxy)')
-  console.log('  stays the same, proving the measure tracks the dynamics of feeling, not just topology.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

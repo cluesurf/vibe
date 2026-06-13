@@ -8,7 +8,6 @@
 // entropy is set by its area. See note/questions/frontiers.md. Run:
 // npx tsx code/experiment/p33-black-hole.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense, DenseMatrix } from '@/code/algebra/linear/dense'
 import { correlationMatrix, regionEntropy } from '@/test/experiment/holography/entanglement'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -88,33 +87,6 @@ export function blackHoleEntropy(input: { side: number }): {
     volumeResidual: volumeFit.residual,
     areaBeatsVolume: areaFit.residual < volumeFit.residual,
   }
-}
-
-export function main(): void {
-  const r = blackHoleEntropy({ side: 8 })
-  console.log('P33: black-hole entropy (the Bekenstein-Hawking area law in 3D)')
-  console.log('')
-  console.log('  entanglement entropy of an l x l x l region:')
-  console.log('    l:        ' + r.ells.map((l) => l.toFixed(0).padStart(8)).join(''))
-  console.log('    entropy:  ' + r.entropies.map((s) => s.toFixed(2).padStart(8)).join(''))
-  console.log('')
-  console.log(`  fit to AREA (l^2):   residual ${r.areaResidual.toExponential(2)}`)
-  console.log(`  fit to VOLUME (l^3): residual ${r.volumeResidual.toExponential(2)}`)
-  console.log(`  entropy scales with AREA, not volume: ${r.areaBeatsVolume ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The entanglement entropy of a region scales with its SURFACE AREA, not its')
-  console.log('  volume. Reading the region as a black hole and its boundary as the horizon, this')
-  console.log('  is the Bekenstein-Hawking law: a black hole\'s entropy lives on its horizon and is')
-  console.log('  proportional to the horizon area, S = A/4. The microscopic origin is the')
-  console.log('  entanglement across the horizon, here on the mesh. The full Hawking radiation,')
-  console.log('  the exact 1/4 coefficient, and the information question remain the long road ahead.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

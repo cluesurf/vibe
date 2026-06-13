@@ -7,7 +7,6 @@
 // implied Lambda shrinks with the spacetime 4-volume, the dark-energy behaviour?
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p29-dark-energy-smeared.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
@@ -71,34 +70,6 @@ export function darkEnergySmeared4D(input: { sizes: number[]; repeats: number; e
     sharpLambda: sharp.exponent - 1,
     smearedLambda: smeared.exponent - 1,
   }
-}
-
-export function main(): void {
-  console.log('P29: dark energy in 4D with the smeared kernel (closing P19)')
-  console.log('')
-  const r = darkEnergySmeared4D({ sizes: [64, 128, 256, 512], repeats: 20, epsilon: 0.3 })
-  console.log('  4D action fluctuation std(S) ~ N^p, implied delta-Lambda ~ N^(p-1):')
-  console.log(`    sharp 4D action:   std(S) ~ N^${r.sharpExponent.toFixed(2)}, delta-Lambda ~ N^${r.sharpLambda.toFixed(2)}`)
-  console.log(`    smeared 4D action: std(S) ~ N^${r.smearedExponent.toFixed(2)}, delta-Lambda ~ N^${r.smearedLambda.toFixed(2)}`)
-  console.log('  Sorkin everpresent Lambda predicts delta-Lambda ~ 1/sqrt(V) = N^(-0.5).')
-  console.log('')
-  console.log('  Reading the result. The 4D smeared kernel TAMES the fluctuation: the implied')
-  console.log('  Lambda exponent drops from +0.16 (sharp) toward zero (+0.06 smeared), the')
-  console.log('  everpresent direction, the same effect smearing has in 2D (P10). It does not yet')
-  console.log('  reach the full shrinking (-0.5) at these sizes, the static action-fluctuation')
-  console.log('  exponent in 4D flattens near zero rather than going clearly negative. The honest')
-  console.log('  status: smearing confirms the mechanism (it pushes the implied Lambda toward')
-  console.log('  shrinking with volume), and the full everpresent 1/sqrt(V) needs the dynamical')
-  console.log('  conjugate-volume model (Lambda as the conjugate of the fluctuating 4-volume),')
-  console.log('  not just the static action variance, plus larger N. At the observed 4-volume the')
-  console.log('  everpresent scaling would give Lambda of order 10^(-122), the dark-energy scale.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

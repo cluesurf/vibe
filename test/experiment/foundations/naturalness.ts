@@ -9,7 +9,6 @@
 // (the setting tracks an unrelated feature). See note/questions/roadmap.md (B3).
 // Run: npx tsx code/experiment/p7-naturalness.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -58,32 +57,6 @@ export function chshShared(input: {
     (count[i] ?? 0) === 0 ? 0 : (sum[i] ?? 0) / (count[i] ?? 1)
   // S = E(0,0) - E(0,1) + E(1,0) + E(1,1)
   return e(0) - e(1) + e(2) + e(3)
-}
-
-export function main(): void {
-  const etas = [0, 0.25, 0.5, 0.75, 1]
-  console.log('P7 naturalness: CHSH versus shared-past fraction eta')
-  console.log('  eta    aligned S    random S')
-  for (let i = 0; i < etas.length; i++) {
-    const eta = etas[i] ?? 0
-    const aligned = chshShared({ eta, mode: 'aligned', trials: 60000, seed: 100 + i })
-    const random = chshShared({ eta, mode: 'random', trials: 60000, seed: 200 + i })
-    console.log(
-      `  ${eta.toFixed(2)}  ${aligned.toFixed(3).padStart(10)}  ${random.toFixed(3).padStart(10)}`,
-    )
-  }
-  console.log('')
-  console.log('  bounds: classical 2, quantum (Tsirelson) ~2.83, algebraic max 4')
-  console.log('  aligned rises to 4 as the shared past grows: determinism enables violation.')
-  console.log('  random stays near classical even at eta=1: a GENERIC shared past is not enough,')
-  console.log('  the correlation must take the specific form the outcomes use.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

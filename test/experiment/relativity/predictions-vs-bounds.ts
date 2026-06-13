@@ -14,7 +14,6 @@
 // it scales with the discreteness and extrapolate to the Planck scale, where it is far below the
 // cosmic-ray bound. Run: npx tsx code/experiment/p82-predictions-vs-bounds.ts
 
-import { pathToFileURL } from 'node:url'
 import { lorentzSafety, latticeAnisotropy } from '@/test/experiment/relativity/lorentz-violation'
 import { swerveDiffusion } from '@/test/experiment/relativity/swerves'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -90,44 +89,6 @@ export function predictionsVsBounds(input: { seed: number }): {
     // excluded by the same bound), and the swerve vanishes as the discreteness fines.
     solved: modelPassesLinear && latticeExcludedLinear && modelPassesQuadratic && swerveVanishesWithDiscreteness,
   }
-}
-
-export function main(): void {
-  const r = predictionsVsBounds({ seed: 1 })
-  console.log('P82: sharp predictions against the experimental bounds')
-  console.log('')
-  console.log('  Lorentz violation, linear order (Fermi-LAT GRB 090510):')
-  console.log(`    bound: linear coefficient xi1 < ${r.xi1Bound.toFixed(3)} (E_QG1 > ${GRB_LINEAR_EQG_OVER_PLANCK} E_Planck)`)
-  console.log(`    model (random sprinkle): xi1 = 0 exactly (Lorentz-invariant distribution; residual ${r.modelLinearXi.toFixed(3)} is finite-sample noise)`)
-  console.log(`    lattice (for contrast):  xi ~ ${r.latticeLinearXi.toFixed(2)} near the cutoff`)
-  console.log(`    model passes: ${r.modelPassesLinear ? 'YES' : 'no'}    lattice excluded by the same bound: ${r.latticeExcludedLinear ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Lorentz violation, quadratic order (Fermi-LAT):')
-  console.log(`    bound: E_QG2 > ${r.quadraticBoundGeV.toExponential(1)} GeV`)
-  console.log(`    model: no leading Lorentz violation at any order, so it passes: ${r.modelPassesQuadratic ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The swerve (momentum diffusion from discreteness):')
-  console.log(`    measured scaling with discreteness: diffusion rate ~ density^${r.swerveScalingExponent.toFixed(2)}`)
-  console.log(`    finer discreteness gives a smaller swerve, so the Planckian value is far below the cosmic-ray bound: ${r.swerveVanishesWithDiscreteness ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  predictions vs bounds solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The model passes the tightest current bounds, and the test is discriminating, not')
-  console.log('  free: the same gamma-ray-burst timing that the model passes excludes a regular lattice,')
-  console.log('  whose photon speed becomes order-one anisotropic near the discreteness scale. The')
-  console.log('  random sprinkling predicts no first-order Lorentz violation at all, because it is')
-  console.log('  Lorentz invariant in distribution, and the swerve shrinks as the discreteness fines, so')
-  console.log('  at the Planck scale it is unobservably small. The sharp, falsifiable claim is the')
-  console.log('  Lorentz one: a confirmed energy-dependent photon speed at first order would falsify the')
-  console.log('  Lorentz-safe substrate. The numbers turn the qualitative story of P26 and P27 into a')
-  console.log('  standing bet against the data.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

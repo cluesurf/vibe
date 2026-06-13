@@ -5,7 +5,8 @@
 // with alpha = -2 ln t / ln b (b = branching, r = boundary distance ~ b^(tree-distance/2)). We read off alpha
 // for the MASSLESS mode (band edge) and a massive mode. Run: npx tsx code/experiment/p218-gravity-tree.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // Bethe lattice, coordination z = b+1. Off-diagonal Green's-function per-step amplitude at spectral parameter s
 // (adjacency resolvent (s - A)^-1): t(s) = [s - sqrt(s^2 - 4(z-1))] / (2(z-1)). Band edge (massless) s = 2*sqrt(z-1).
@@ -39,7 +40,28 @@ export function gravityTree(): { masslessAlpha: number; massiveAlpha: number } {
   return { masslessAlpha, massiveAlpha }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gravityTree()
-  console.log(`SOLVED: massless boundary coupling ~ 1/r^${r.masslessAlpha.toFixed(2)} (1/r = 3D Newtonian potential), massive ~ 1/r^${r.massiveAlpha.toFixed(2)} (screened).`)
-}
+export default defineExperiment({
+  id: 'gravity/gravity-tree',
+  title: 'the Bethe-lattice band-edge boundary coupling falls as 1/r for every branching, but the tree is dimension-blind',
+  category: 'gravity',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = gravityTree()
+    const masslessIsOneOverR = Math.abs(r.masslessAlpha - 1) < 0.05
+    const massiveSteeper = r.massiveAlpha > r.masslessAlpha + 0.05
+    const ok = masslessIsOneOverR && massiveSteeper
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the analytic Bethe-lattice resolvent gives a band-edge boundary coupling that falls as 1/r for every branching and steeper for a massive mode, but cannot tell a 2D from a 3D boundary',
+      metrics: {
+        masslessAlpha: r.masslessAlpha,
+        massiveAlpha: r.massiveAlpha,
+      },
+      notes:
+        'L1 known math. The exponent comes from the closed-form Bethe-lattice (infinite regular tree) Green function, so the 1/r is a property of the assumed resolvent, not a measured emergent law. The massive-vs-massless contrast acts as a sanity control. Honest caveat from the header, the tree is dimension-blind (alpha equals 1 for any branching), so this does not prove the dimension-correct Newton law and is not emergent gravity.',
+    })
+  },
+})

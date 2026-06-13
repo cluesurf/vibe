@@ -4,7 +4,8 @@
 // long wavelength (Lorentz). Ported from the throwaway probes.
 // Run: npx tsx code/experiment/p191-directional-rule.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // (1) persistent walk (the directional rule for one charge) vs random walk (scalar): displacement vs time
 function walk(mix: number, T: number, trials: number, seed: number): number {
@@ -46,7 +47,36 @@ export function directionalRule(): { ballistic: number; diffusive: number; dirac
   return { ballistic, diffusive, diracOk }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = directionalRule()
-  console.log(`SOLVED: ballistic ${r.ballistic.toFixed(0)} vs diffusive ${r.diffusive.toFixed(1)}, Dirac ${r.diracOk}`)
-}
+export default defineExperiment({
+  id: 'spin/directional-rule',
+  title: 'a charge with a direction streams ballistically while a memoryless scalar diffuses',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = directionalRule()
+    // ballistic reach should be near the beat count (64), diffusive near sqrt(64) = 8.
+    const ballisticFar = r.ballistic > 40
+    const diffusiveSlow = r.diffusive < 16
+    const ok = ballisticFar && diffusiveSlow && r.diracOk
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a charge that carries a coin direction travels ballistically (displacement near the beat count) while a memoryless scalar diffuses (displacement near the square root), the coin-to-scalar mixing acts as a Dirac mass, and the dispersion follows cos E = cos m cos k with the rest mass equal to the coin angle',
+      metrics: {
+        ballisticReach: r.ballistic,
+        diffusiveReach: r.diffusive,
+        beats: 64,
+        diracDispersionOk: r.diracOk ? 1 : 0,
+      },
+      control: {
+        // the diffusive (fully-scrambled) walk is the negative control for the
+        // ballistic (no-scatter) walk: same lattice, only the direction memory differs.
+        diffusiveReach: r.diffusive,
+      },
+      notes:
+        'L2, known physics (the directional walk to Dirac correspondence). HONEST CAVEAT: the walk part (1) uses a pseudo-random scatter schedule and averages over trials, so it is a STATISTICAL claim about an ensemble, not the deterministic base rule. The base is deterministic, the proper measurement is the synchronous lattice-gas, this is the throwaway-probe version ported. Part (2) the Dirac dispersion is ANALYTIC, the relation cos E = cos m cos k is computed and then verified, a consistency check, not a measured dispersion read out of the dynamics.',
+    })
+  },
+})

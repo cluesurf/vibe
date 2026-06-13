@@ -6,45 +6,34 @@
 // smallest |eigenvalues of D|. Near-zero values are the fermion zero modes.
 // Run: npx tsx code/experiment/p4-spinor.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { lattice } from '@/code/substrate/lattice'
 import { cellComplexOf, kahlerDirac } from '@/code/operator/dirac'
 import { sparseMatVec, LinearOperator } from '@/code/algebra/linear/sparse'
 import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 
-export function main(): { smallestMagnitudes: number[]; nearZero: number } {
-  const substrate = lattice({
-    dimension: 2,
-    extent: 10,
-    signature: 'riemannian',
-  })
-  const complex = cellComplexOf({ substrate, maxGrade: 2 })
-  const dirac = kahlerDirac({ complex })
-
-  // D^2 as a positive operator: apply D twice.
-  const dSquared: LinearOperator = {
-    size: dirac.rows,
-    apply: ({ x }) => sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
-  }
-  const squared = lowestEigenvalues({ operator: dSquared, count: 16 })
-  const smallestMagnitudes = Array.from(squared, (v) =>
-    Math.round(Math.sqrt(Math.max(0, v)) * 1000) / 1000,
-  )
-  const nearZero = smallestMagnitudes.filter((x) => x < 0.05).length
-
-  console.log('P4 Kahler-Dirac on a 2D mesh')
-  console.log('  cell counts (0,1,2):', complex.cellCount.join(', '))
-  console.log(
-    '  smallest |eigenvalues|:',
-    smallestMagnitudes.slice(0, 8).join(', '),
-  )
-  console.log('  near-zero modes       :', nearZero)
-  return { smallestMagnitudes, nearZero }
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'spin/spinor',
+  title: 'the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum',
+  category: 'spin',
+  substrates: ['any'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const result = main()
+    // a flat disk (Betti sum b0 + b1 + b2 = 1) carries one harmonic zero mode.
+    const ok = result.nearZero >= 1
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the Kahler-Dirac operator on a 2D cell complex is indefinite with a spectrum symmetric about zero, and taking the smallest eigenvalues of its square recovers near-zero fermion modes sitting in the middle of the spectrum',
+      metrics: {
+        nearZeroModes: result.nearZero,
+        smallestMagnitude: result.smallestMagnitudes[0] ?? 0,
+      },
+      notes:
+        'L2, known math and physics (the Kahler-Dirac operator and its harmonic zero modes). This finds the zero modes on a single disk, the topological count (zero modes equal the Betti sum, with a cylinder and torus as controls) is the companion experiment spin/topology. Deterministic Lanczos, no random seed in the result.',
+    })
+  },
+})

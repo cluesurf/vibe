@@ -6,7 +6,6 @@
 // memory, plus spatial coherence (the seed of selves). If all co-occur on one substrate, the theory is
 // unified, not a pile of one-offs. Run: npx tsx code/experiment/p155-unified-model.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -180,25 +179,6 @@ export function unifiedModel(input?: { n?: number }): {
   const solved = allTogether
 
   return { n: N, conserved, alive, deadWithoutArrow, lightcone, reversible, coherent, allTogether, solved }
-}
-
-export function main(): void {
-  const r = unifiedModel()
-  console.log('P155: the unified model, one mesh, one rule, all phenomena together')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, the canonical perception rule, a single run:`)
-  console.log(`    conservation (Q constant): ${r.conserved}`)
-  console.log(`    life (active with the arrow): ${r.alive}, dead without it (control): ${r.deadWithoutArrow}`)
-  console.log(`    lightcone (finite bounded propagation speed): ${r.lightcone}`)
-  console.log(`    reversibility (detailed balance, low transition asymmetry): ${r.reversible}`)
-  console.log(`    coherence (neighbours correlated, the seed of selves): ${r.coherent}`)
-  console.log('')
-  console.log(`  ALL co-occur on ONE substrate from ONE rule, the model is unified: ${r.allTogether}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

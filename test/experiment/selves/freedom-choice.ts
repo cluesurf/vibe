@@ -15,7 +15,6 @@
 //      response to the urge, so it must be lived out, not read off.
 // Run: npx tsx code/experiment/p43-freedom-choice.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -189,35 +188,6 @@ export function freedomChoice(input: { n: number; seed: number }): {
     meanSettlingBeats,
     irreducible,
   }
-}
-
-export function main(): void {
-  const r = freedomChoice({ n: 80, seed: 1 })
-  console.log('P43: freedom and choice, modeled and tested')
-  console.log('')
-  console.log(`  1. determinism (same self and urge always give the same choice): ${r.deterministic ? 'YES' : 'no'} (not random)`)
-  console.log(`  2. self-determination (same urge, different selves choose differently): diversity ${r.selfDiversity.toFixed(2)} > 0: ${r.selfDiversity > 0.05 ? 'YES' : 'no'}`)
-  console.log(`  3. the urge matters too (same self, different urges can flip the choice): ${r.urgeCanFlip ? 'YES' : 'no'}`)
-  console.log('  4. agency scales with structure (a stronger self imposes itself over the urge):')
-  for (const a of r.agencyByCoupling) {
-    console.log(`       coupling ${a.coupling.toString().padStart(3)}: overlap with self ${a.selfOverlap.toFixed(2)}, with urge ${a.urgeOverlap.toFixed(2)}`)
-  }
-  console.log(`     self-overlap rises with coupling: ${r.agencyMonotone ? 'YES' : 'no'}`)
-  console.log(`  5. irreducibility (the choice takes ${r.meanSettlingBeats.toFixed(1)} beats to settle and is not the one-step response): ${r.irreducible ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  So the choice is fully DETERMINED (it reproduces exactly, no randomness), yet it')
-  console.log('  is jointly authored by the self AND the urge (neither part alone fixes it), the')
-  console.log('  self\'s own structure is a real cause whose say grows with its depth, and the')
-  console.log('  outcome is computationally irreducible (it must be settled out beat by beat, not')
-  console.log('  read off in one step). That is freedom as the writeup describes it: not random,')
-  console.log('  not predetermined by any part, not shortcut-able, but self-determined and lived.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

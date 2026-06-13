@@ -16,7 +16,6 @@
 //      signature of integration rather than machine-epsilon plug-in.
 // Run: npx tsx code/experiment/p72-nonlinear-einstein.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -170,43 +169,6 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
     transitionHappens,
     solved: powerLawsEmergent && convergesAsIntegration && transitionHappens,
   }
-}
-
-export function main(): void {
-  const r = nonlinearEinstein()
-  console.log('P72: the nonlinear Einstein equation, genuinely integrated')
-  console.log('')
-  console.log('  a(t) is INTEGRATED forward from Friedmann + continuity (RK4), not plugged in.')
-  console.log('')
-  console.log('  1. emergent power laws (slope of log a vs log t, not assumed):')
-  console.log(`       radiation: ${r.radiationSlope.toFixed(4)} (expect 0.5000)`)
-  console.log(`       matter:    ${r.matterSlope.toFixed(4)} (expect 0.6667)`)
-  console.log(`       power laws emerge from the dynamics: ${r.powerLawsEmergent ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  2. the INDEPENDENT acceleration equation holds along the integrated trajectory:')
-  console.log(`       residual at dt = 0.02:  ${r.accelResidualCoarse.toExponential(2)}`)
-  console.log(`       residual at dt = 0.005: ${r.accelResidualFine.toExponential(2)}`)
-  console.log(`       residual shrinks with dt (integration, not machine-epsilon plug-in): ${r.convergesAsIntegration ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  3. multi-component history (no closed form), deceleration parameter q:')
-  console.log(`       early (radiation/matter): q = ${r.decelerationEarly.toFixed(3)} (decelerating)`)
-  console.log(`       late (dark energy):       q = ${r.accelerationLate.toFixed(3)} (accelerating)`)
-  console.log(`       deceleration-to-acceleration transition emerges: ${r.transitionHappens ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  nonlinear Einstein equation solved (integrated, not assumed): ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The scale factor is not assumed. It is integrated from the nonlinear Friedmann equation')
-  console.log('  (H squared equals the density) together with energy conservation, and the independent')
-  console.log('  acceleration equation then holds along the trajectory through the nonlinear Bianchi')
-  console.log('  identity, with a residual that shrinks as the step shrinks, the honest signature of')
-  console.log('  integration. The power laws come out as measured slopes, and the full radiation-to-')
-  console.log('  matter-to-dark-energy history, which has no closed form, integrates cleanly and shows')
-  console.log('  the universe switch from decelerating to accelerating. That is the genuinely nonlinear')
-  console.log('  Einstein equation at work, solved rather than plugged in.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

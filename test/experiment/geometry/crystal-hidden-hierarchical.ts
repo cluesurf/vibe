@@ -10,7 +10,6 @@
 //      size. So the crystal is tree-like and the flat lattice is not.
 // Run: npx tsx code/experiment/p49-crystal-hidden-hierarchical.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
@@ -98,34 +97,6 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
     latticeDelta,
     crystalIsTreeLike,
   }
-}
-
-export function main(): void {
-  const r = crystalHiddenHierarchical({ seed: 2 })
-  console.log('P49: the crystal is hidden and hierarchical (implications 1 and 4)')
-  console.log('')
-  console.log('  1. Hidden from inside (Lorentz anisotropy, the test that catches a lattice):')
-  console.log(`     hyperbolic crystal {7,3}: ${r.crystalAnisotropy.toFixed(3)}`)
-  console.log(`     random foam (sprinkle):   ${r.foamAnisotropy.toFixed(3)}`)
-  console.log(`     flat lattice:             ${r.latticeAnisotropy.toFixed(3)}`)
-  console.log(`     crystal indistinguishable from the foam, both unlike the lattice: ${r.indistinguishable ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  4. Hierarchical and tree-like (Gromov delta-hyperbolicity, 0 = a tree):')
-  console.log(`     hyperbolic crystal {7,3}: delta = ${r.crystalDelta.toFixed(1)} (small, tree-like)`)
-  console.log(`     flat lattice:             delta = ${r.latticeDelta.toFixed(1)} (large, grid-like)`)
-  console.log(`     the crystal is tree-like, the lattice is not: ${r.crystalIsTreeLike ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  So a regular hyperbolic crystal hides behind the very measurement that exposes a')
-  console.log('  flat lattice, reading the same as a random foam from inside, and it is tree-like,')
-  console.log('  natively hierarchical, where the flat lattice is not. Order at the foundation is')
-  console.log('  undetectable from within and brings the branching hierarchy the framework wanted.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

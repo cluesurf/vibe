@@ -17,7 +17,6 @@
 //       universal computer.
 // Run: npx tsx code/experiment/p176-reversible-universality.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -104,28 +103,6 @@ export function reversibleUniversality(): {
     reversibleUniversal,
     solved,
   }
-}
-
-export function main(): void {
-  const r = reversibleUniversality()
-  console.log('P176: the {5,3,4} with our reversible rule is computationally universal')
-  console.log('')
-  console.log('  (1) our crystal IS the Margenstern dodecagrid (12 neighbors, exact, P85, P87): ' + r.geometryMatchesMargenstern)
-  console.log('  (2) reversibility is no obstacle:')
-  console.log(`      our nine-state rule is a bijection (reversible, P126, P128): ${r.ruleIsBijection}`)
-  console.log(`      a universal reversible gate (Toffoli) is a bijection: ${r.toffoliIsBijection}`)
-  console.log(`      Toffoli with an ancilla computes NAND, functional completeness: ${r.toffoliComputesNand}`)
-  console.log('  (3) the three computational primitives are present:')
-  console.log(`      routing (P42, P76, P123): ${r.hasRouting}, gates (P44): ${r.hasGates}, memory (P105, P107): ${r.hasMemory}`)
-  console.log('')
-  console.log(`  the {5,3,4} with our reversible conserving rule is computationally UNIVERSAL: ${r.reversibleUniversal}`)
-  console.log('  => Margenstern gives the geometry, our rule supplies reversible gates plus routing plus memory,')
-  console.log('     and reversible computation is universal, so nothing extra is needed to make it computable.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

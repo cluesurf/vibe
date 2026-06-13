@@ -13,7 +13,6 @@
 //      infinite tower of self-models fits in barely more than the universe itself.
 // Run: npx tsx code/experiment/p61-no-self-storage.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -113,44 +112,6 @@ export function noSelfStorage(input: { count: number; seed: number }): {
     // the lossy nested regress converges to a finite total while the full-copy regress diverges.
     solved: losslessNeedsWholeThing && regressCompressedTotal < 2 * N && regressFullCopyDiverges,
   }
-}
-
-export function main(): void {
-  const r = noSelfStorage({ count: 1500, seed: 1 })
-  console.log('P61: no complete self-storage (no infinite mirror)')
-  console.log('')
-  console.log('  A self-model of size K (a compressed record of the whole), reconstructed and scored:')
-  console.log('')
-  console.log('  model size (fraction of the whole) | reconstruction fidelity')
-  for (const b of r.byRatio) {
-    console.log(`              ${(b.ratio * 100).toFixed(0).padStart(3)}% (${String(b.modelSize).padStart(4)} nodes)         |         ${b.fidelity.toFixed(2)}`)
-  }
-  console.log('')
-  console.log(`  a complete (lossless) self-record needs the WHOLE thing, so it cannot fit inside: ${r.losslessNeedsWholeThing ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The infinite regress (a model of the model of the model ...):')
-  console.log(`    with lossy compression (each level x${r.compressionRatio.toFixed(3)} the last), the WHOLE infinite tower`)
-  console.log(`    fits in ${r.regressCompressedTotal.toFixed(0)} nodes (just over the universe's own ${(r.regressCompressedTotal / (r.regressCompressedTotal * (1 - r.compressionRatio))).toFixed(2)}x), finite.`)
-  console.log(`    with full copies, after just 10 levels it already needs ${r.regressFullCopyAfter10} nodes and keeps`)
-  console.log('    growing without bound, the infinite-mirror paradox.')
-  console.log('')
-  console.log(`  no complete self-storage solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The universe cannot store a complete record of itself. A faithful copy needs as many')
-  console.log('  distinguishable elements as the original, but a proper part has strictly fewer, so a')
-  console.log('  full self-record is impossible (it would have to BE the whole). Self-representation is')
-  console.log('  therefore necessarily lossy, a compressed summary. This is exactly what the higher-vibe')
-  console.log('  aggregates are (P57): heavy compressions, not copies. Because each level of self-model')
-  console.log('  is compressed, the entire infinite tower of models-of-models fits in barely more than')
-  console.log('  the universe itself, so the regress converges instead of exploding. There is no')
-  console.log('  infinite mirror: the world knows itself only in summary, never in full.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

@@ -6,7 +6,8 @@
 // the pair is ANTISYMMETRIC (fermions), the exact link from the double cover (p244) to Pauli exclusion.
 // Run: npx tsx code/experiment/p248-sp-spinor-field-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // complex helpers (re, im)
 type C = readonly [number, number]
@@ -78,8 +79,41 @@ export function spSpinorField(): { chiralityConservedMassless: boolean; chiralit
   return { chiralityConservedMassless, chiralityMixesMassive, lightSpeedMassless, subluminalMassive, normConserved, fermionExchange }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = spSpinorField()
-  const pass = r.chiralityConservedMassless && r.chiralityMixesMassive && r.lightSpeedMassless && r.subluminalMassive && r.normConserved && r.fermionExchange
-  console.log(`SOLVED SP-field: chirality-conserved-massless ${r.chiralityConservedMassless}, mixes-massive ${r.chiralityMixesMassive}, lightspeed ${r.lightSpeedMassless}, subluminal ${r.subluminalMassive}, unitary ${r.normConserved}, fermion-exchange ${r.fermionExchange} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'spin/sp-spinor-field-3434',
+  title: 'a 2-component Dirac walk on {3,4,3,4} streams chirality at the light speed and mixes it under a mass',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = spSpinorField()
+    const ok =
+      r.chiralityConservedMassless &&
+      r.chiralityMixesMassive &&
+      r.lightSpeedMassless &&
+      r.subluminalMassive &&
+      r.normConserved
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a unitary two-component Dirac quantum walk propagates a spinor packet coherently, conserving chirality and streaming each chirality at the light speed when massless, while a mass term couples the two chiralities and makes the packet subluminal, with total probability conserved throughout',
+      metrics: {
+        chiralityConservedMassless: r.chiralityConservedMassless ? 1 : 0,
+        lightSpeedMassless: r.lightSpeedMassless ? 1 : 0,
+        chiralityMixesMassive: r.chiralityMixesMassive ? 1 : 0,
+        subluminalMassive: r.subluminalMassive ? 1 : 0,
+        normConserved: r.normConserved ? 1 : 0,
+      },
+      control: {
+        // the massless run is the control for the massive run: chirality is exactly
+        // conserved (range 0) with no mass, and oscillates only when the mass term is
+        // switched on.
+        masslessChiralityConserved: r.chiralityConservedMassless ? 1 : 0,
+        massiveChiralityMixes: r.chiralityMixesMassive ? 1 : 0,
+      },
+      notes:
+        'L2, known physics (the Dirac quantum walk, the QCA-to-Dirac program). The massless-vs-massive comparison is a genuine internal control. The fermion-exchange line (cos(pi) = -1) is NOT measured from an adiabatic exchange, it just restates the 2pi double-cover sign, so it is excluded from the verdict booleans and left as an analytic remark. This is a 1D reduction of the spinor sectors, not the full 24-direction coin dynamics.',
+    })
+  },
+})

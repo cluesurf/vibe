@@ -7,7 +7,6 @@
 // transferring one S^z quantum), and (3) the matrix satisfies DETAILED BALANCE (reversible), which is what
 // makes the Doi-Peliti Hamiltonian Hermitian / genuinely quantum. Run: npx tsx code/experiment/p131-doi-peliti-check.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -99,23 +98,6 @@ export function doiPelitiCheck(): {
   const solved = conservesSz && unitExchange && detailedBalance
 
   return { conservesSz, unitExchange, detailedBalanceViolation, detailedBalance, solved }
-}
-
-export function main(): void {
-  const r = doiPelitiCheck()
-  console.log('P131: verifying the Doi-Peliti transcription (single-edge operator)')
-  console.log('')
-  console.log(`  (1) every move conserves total S^z (the U(1) charge): ${r.conservesSz}`)
-  console.log(`  (2) every move is a single +1/-1 unit exchange across the edge: ${r.unitExchange}`)
-  console.log(`  (3) detailed balance holds (reversible, violation ${r.detailedBalanceViolation.toExponential(1)}): ${r.detailedBalance}`)
-  console.log('')
-  console.log('  => the rule IS a spin-1, S^z-conserving, reversible EXCHANGE model, exactly as the')
-  console.log('     Doi-Peliti transcription claims. Reversibility makes its Hamiltonian Hermitian (quantum).')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -6,7 +6,6 @@
 // each N. See note/questions/next-version.md (P12). Run:
 // npx tsx code/experiment/p12-wang-landau.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import {
   wangLandauHeight,
@@ -14,6 +13,8 @@ import {
   crossingBeta,
   manifoldFractionAt,
 } from '@/code/dynamics/wang-landau'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function wangLandauCrossing(input: { size: number; maxSteps: number }): {
   size: number
@@ -42,33 +43,28 @@ export function wangLandauCrossing(input: { size: number; maxSteps: number }): {
   }
 }
 
-export function main(): void {
-  console.log('P12 refinement: free-energy crossing by Wang-Landau density of states')
-  console.log('')
-  for (const [size, steps] of [[32, 9_000_000], [48, 14_000_000]] as const) {
-    const r = wangLandauCrossing({ size, maxSteps: steps })
-    console.log(
-      `N = ${size}: entropy gap g = ${r.entropyGap.toFixed(2)} (layered favored), measured beta-star = ${r.betaStar === null ? 'none' : r.betaStar.toFixed(3)}`,
-    )
-    console.log('   equilibrium manifold fraction:  ' + r.fractionAt.map((f) => `beta=${f.beta}:${f.fraction.toFixed(2)}`).join('  '))
-  }
-  console.log('')
-  console.log('  Wang-Landau crosses the barrier and measures the full density of states, so the')
-  console.log('  entropy gap and the crossing beta-star are computed directly where the first')
-  console.log('  P12 pass could only bound them. The measured crossing is beta-star about 0.13')
-  console.log('  to 0.16, roughly independent of N (a finite continuum transition coupling): the')
-  console.log('  manifold (spacetime) phase DOMINATES the sum over histories for beta above this.')
-  console.log('  This upgrades P2 from a coexisting stable phase to a measured dominant phase.')
-  console.log('')
-  console.log('  Honest limit: the entropy barrier steepens with N, so N = 64 and beyond do not')
-  console.log('  converge in this step budget (the rare manifold heights go unsampled). The two')
-  console.log('  converged sizes already give a roughly N-independent beta-star. Larger N needs')
-  console.log('  more steps or replica-exchange Wang-Landau.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'renormalization/wang-landau',
+  title: 'Wang-Landau measures the entropy gap and a roughly N-independent crossing beta-star in the causal-set action',
+  category: 'renormalization',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = wangLandauCrossing({ size: 32, maxSteps: 9_000_000 })
+    const ok = r.converged && Number.isFinite(r.entropyGap)
+    return verdict({
+      status: ok ? 'pass' : 'partial',
+      claim:
+        'a Wang-Landau density-of-states estimate crosses the entropy barrier and reports an entropy gap and a finite crossing beta-star for the smeared causal-set action',
+      metrics: {
+        size: r.size,
+        converged: r.converged ? 1 : 0,
+        entropyGap: r.entropyGap,
+        betaStar: r.betaStar ?? 0,
+      },
+      notes:
+        'L2 known physics (a Wang-Landau density-of-states measurement of a continuum transition). This is a STATISTICAL ensemble method that relies on a seeded random flat-histogram walk, not a deterministic-rule property, and robustness should come from varying SIZE rather than the seed. There is no negative-substrate control. Larger N does not converge in this step budget, which the header reports honestly.',
+    })
+  },
+})

@@ -12,7 +12,6 @@
 //      reimposes its urge.
 // Run: npx tsx code/experiment/p64-subtle-layer-urges.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -122,38 +121,6 @@ export function subtleLayerUrges(input: { seed: number }): {
     // deeply coupled), and after disorder the surface reasserts the deep pattern.
     solved: steeringRises && reassertion > 0.8,
   }
-}
-
-export function main(): void {
-  const r = subtleLayerUrges({ seed: 1 })
-  console.log('P64: subtle-layer urges (the deep self biasing the surface)')
-  console.log('')
-  console.log('  Steering: same surface situation, two opposite deep states, how much the surface differs:')
-  console.log('')
-  console.log('  coupling depth | surface steered by the deep state')
-  for (const b of r.byCoupling) {
-    console.log(`        ${b.coupling}        |   ${(100 * b.steering).toFixed(0)}%`)
-  }
-  console.log('')
-  console.log(`  steering rises with coupling depth (none when uncoupled): ${r.steeringRises ? 'YES' : 'no'}`)
-  console.log(`  after the surface is thrown into disorder, it reasserts the deep pattern: ${(100 * r.reassertion).toFixed(0)}%`)
-  console.log(`  subtle-layer urges solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The urge is a real layer, not an abstract field. A slow, deep, subtle layer biases the')
-  console.log('  fast surface through their shared notes. With no coupling the surface ignores the depth')
-  console.log('  and the same situation always resolves the same way. As the coupling deepens, the same')
-  console.log('  surface situation resolves differently depending on the deep state: that difference is')
-  console.log('  the urge, a pull from below shaping what the surface chooses (P43). And the deep layer')
-  console.log('  persists: throw the surface into disorder and it relaxes back toward the deep pattern,')
-  console.log('  the deep self enduring and reimposing its urge after the storm. The surface is loud and')
-  console.log('  fast, the depths are quiet and slow, and the quiet slow layer is what steers.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

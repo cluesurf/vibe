@@ -13,7 +13,6 @@
 // disproportionately more order, which is the tower (P60).
 // Run: npx tsx code/experiment/p92-cooperation-tower.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -209,34 +208,6 @@ export function cooperationTower(): {
     towerGrows,
     solved,
   }
-}
-
-export function main(): void {
-  const r = cooperationTower()
-  console.log('P92: competing drives resolve into the tower')
-  console.log('')
-  console.log(`  ${r.selves} selves on the {7,3} substrate, total charge ${r.chargeSumStart.toFixed(6)}`)
-  console.log('')
-  console.log('  charge conserved exactly under every strategy:')
-  console.log(`    grab ${r.conservedGrab}, insulate ${r.conservedInsulate}, trade ${r.conservedTrade}, integrate ${r.conservedIntegrate}`)
-  console.log('')
-  console.log('  pure grabbing is net-negative for the whole:')
-  console.log(`    varied strengths -> HIERARCHY: charge spread ${r.grabHierarchyStd.toFixed(3)} (started ${r.initialStd.toFixed(3)})`)
-  console.log(`    equal strengths  -> STANDOFF: wasted work ${r.grabStandoffWaste.toFixed(1)}, no hierarchy`)
-  console.log('')
-  console.log('  total order built (the positive-sum good), higher is better:')
-  console.log(`    grab ${r.netOrderGrab.toFixed(0)}   insulate ${r.netOrderInsulate.toFixed(0)}   trade ${r.netOrderTrade.toFixed(0)}   integrate ${r.netOrderIntegrate.toFixed(0)}`)
-  console.log(`    integration wins, and balances the charge within (spread ${r.integrateStd.toFixed(3)}): ${r.integrationWins}`)
-  console.log('')
-  console.log('  the tower: order grows super-linearly as integration climbs:')
-  for (const lv of r.towerOrderByLevel) console.log(`    group size ${String(lv.groupSize).padStart(2)} -> order ${lv.order.toFixed(0)}`)
-  console.log(`    tower grows: ${r.towerGrows}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

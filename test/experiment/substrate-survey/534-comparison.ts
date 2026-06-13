@@ -5,8 +5,9 @@
 // (spin, gauge, the Standard Model, 3D space) does NOT port, which is exactly why {3,4,3,4} was chosen.
 // Run: npx tsx code/experiment/p242-534-comparison.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // {5,3,4} bulk spectral dimension (should read ~3, a 3D hyperbolic bulk)
 function bulkDim534(): { N: number; degree: number; specDim: number } {
@@ -54,7 +55,27 @@ export function comparison534(): { specDim: number; degree: number; betheAlpha: 
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = comparison534()
-  console.log(`SOLVED: {5,3,4} (3D bulk dim ${r.specDim}, degree ${r.degree}) is FULLY SOLVABLE for the framework (Bethe 1/r^${r.betheAlpha}, gravity, holography, cosmology, hierarchy), but FAILS on spin / gauge / 3D-physics (no spinor, no root system, 2D cusp). So {5,3,4} = the control that proves why {3,4,3,4} is needed.`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/534-comparison',
+  title: 'the framework ports to {5,3,4} (3D bulk, clean 1/r^2 correlator), the control isolating what needs {3,4,3,4}',
+  category: 'substrate-survey',
+  substrates: ['534'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = comparison534()
+    const ok = r.degree === 12 && Math.abs(r.betheAlpha - 2) < 0.3
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the substrate-general framework is fully solvable on the {5,3,4} honeycomb, a hyperbolic bulk with dodecahedral degree 12 and a clean 1/r^2 Bethe correlator, which is the control that isolates the spin gauge and 3D-space physics that only {3,4,3,4} supplies',
+      metrics: {
+        degree: r.degree,
+        specDim: r.specDim,
+        betheAlpha: r.betheAlpha,
+      },
+      notes:
+        'L1 known math, a closed-form Bethe-lattice correlator on the degree-12 {5,3,4} cell graph. The spectral dimension is read from a crude short-time lazy-walk return slope, which overshoots on a strongly hyperbolic graph (it reads ~4 here, not the geometric 3), so it is reported but NOT used in the pass. The pass rests on the exact degree and the clean correlator. The spin gauge and 3D claims are asserted from icosahedral geometry, not measured. This is a positive control for the framework, not a physics result.',
+    })
+  },
+})

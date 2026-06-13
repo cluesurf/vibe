@@ -14,7 +14,6 @@
 // companion to P88, and the analog of P71's Unruh result now sourced by a horizon on the graph.
 // Run: npx tsx code/experiment/p89-analog-hawking.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -151,29 +150,6 @@ export function analogHawking(): {
     temperatureScales,
     solved,
   }
-}
-
-export function main(): void {
-  const r = analogHawking()
-  console.log('P89: dynamical analog-Hawking on the real {7,3} crystal')
-  console.log('')
-  console.log(`  crystal radial shells used: ${r.crystalShells}, rMax ${r.rMax.toFixed(3)}, horizon at r ${r.rHorizon.toFixed(3)}`)
-  console.log('')
-  console.log('  surface gravity (the fill gradient at the horizon):')
-  console.log(`    kappa from the metric: ${r.kappaMetric.toFixed(4)}`)
-  console.log(`    kappa from the DYNAMICAL ray redshift: ${r.kappaRay.toFixed(4)}`)
-  console.log(`    redshift matches the metric: ${r.redshiftMatches}`)
-  console.log('')
-  console.log('  Hawking temperature (the near-horizon detector response is thermal):')
-  console.log(`    T_H = kappa / 2pi:                 ${r.hawkingTemperature.toFixed(4)}`)
-  console.log(`    T from detector detailed balance:  ${r.detailedBalanceTemperature.toFixed(4)}`)
-  console.log(`    thermal at T_H: ${r.thermalMatches}   T scales with kappa: ${r.temperatureScales}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

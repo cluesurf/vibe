@@ -6,7 +6,8 @@
 // su(5)), so the discrete selection gives so(10) -> su(5) -> SM. No continuum, just counting discrete roots and
 // weights. Run: npx tsx code/experiment/p227-vacuum-selection.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
 function d5Roots(): number[][] { const R: number[][] = []; for (let i = 0; i < 5; i++) for (let j = i + 1; j < 5; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0, 0]; v[i] = si; v[j] = sj; R.push(v) } return R }
@@ -41,7 +42,26 @@ export function vacuumSelection(): { maxUnbroken: number; singletWins: boolean }
   return { maxUnbroken, singletWins }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = vacuumSelection()
-  console.log(`SOLVED: ALL 16 spinor weights -> 20 unbroken roots = su(5) (robust ); any self-condensate breaks so(10)->su(5)->SM, no fine-tuning.`)
-}
+export default defineExperiment({
+  id: 'gauge/vacuum-selection',
+  title: 'every one of the 16 spinor weights leaves 20 unbroken roots, so any self-condensate breaks so(10) to su(5)',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = vacuumSelection()
+    const ok = r.singletWins && r.maxUnbroken === 20
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'counting unbroken so(10) roots for each of the 16 discrete spinor weights gives exactly 20 for every one, a conjugate su(5), so any self-condensate breaks so(10) to su(5) with no fine-tuning',
+      metrics: {
+        maxUnbroken: r.maxUnbroken,
+        allGiveSu5: r.singletWins ? 1 : 0,
+      },
+      notes:
+        'L1, known math. The 16 spinor weights are Weyl-equivalent, so the result that each preserves su(5) is a group-theory fact, a robustness statement for the first breaking, not a dynamical vacuum-formation result.',
+    })
+  },
+})

@@ -18,7 +18,6 @@
 //      Computed from the entropy formula, it is a genuine turnover, not a drawn triangle.
 // Run: npx tsx code/experiment/p71-hawking.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -147,34 +146,6 @@ export function hawking(input: Record<string, never> = {}): {
     pagePeakFraction: peakFraction,
     solved: spectrumThermal && Math.abs(temperatureExponent + 1) < 0.05 && pageCurveTurnsOver,
   }
-}
-
-export function main(): void {
-  const r = hawking()
-  console.log('P71: Hawking/Unruh radiation, thermality derived (not plugged in)')
-  console.log('')
-  console.log('  1. thermal spectrum from the Unruh detector response (Fourier transform of the worldline correlator):')
-  console.log(`     detailed-balance ratio F(E)/F(-E) vs exp(-2 pi E / a), max relative residual ${r.thermalResidual.toExponential(2)}`)
-  console.log(`     temperature read off the response: ${r.fittedTemperature.toFixed(4)} (expected kappa/2pi = ${r.expectedTemperature.toFixed(4)})`)
-  console.log(`     spectrum is thermal at T = kappa/2pi (emergent, not assumed): ${r.spectrumThermal ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  2. T ~ 1/M (kappa = 1/4M, T = kappa/2pi): fitted exponent ${r.temperatureExponent.toFixed(3)} (expect -1)`)
-  console.log('')
-  console.log(`  3. Page curve from random-state entanglement: peak at fraction ${r.pagePeakFraction.toFixed(2)}, turns over: ${r.pageCurveTurnsOver ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  Hawking radiation solved (thermality derived): ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The thermal spectrum is not put in. The detector response, the Fourier transform of the')
-  console.log('  field correlator along an accelerated (horizon-mimicking) worldline, satisfies detailed')
-  console.log('  balance F(E)/F(-E) = exp(-2 pi E / a), so the Planck factor and the temperature')
-  console.log('  T = kappa/(2 pi) emerge from the transform. With the Schwarzschild surface gravity')
-  console.log('  kappa = 1/(4M) this gives T ~ 1/M, hot small holes. And the radiation entanglement')
-  console.log('  entropy, from random-state averaging, rises and then falls, the Page curve, so the')
-  console.log('  evaporation is unitary and information is not lost.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

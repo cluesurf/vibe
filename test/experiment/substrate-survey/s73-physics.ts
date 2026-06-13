@@ -3,8 +3,9 @@
 // the emergent ISOTROPY is strong (7-fold is isotropic to order 6 in 2D). The DIFFERENCE, physical-space gravity
 // is in 1D, so the potential is LINEAR (confining), not 1/r. Run: npx tsx code/experiment/s73-physics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFoldIsotropic: boolean } {
   // Bethe holographic correlator, z=7
@@ -37,7 +38,30 @@ export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFo
   return { betheAlpha, growthRatio, sevenFoldIsotropic }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s73Physics()
-  console.log(`SOLVED: {7,3} physics, holographic 1/r^${r.betheAlpha} + cosmology (growth ${r.growthRatio}) + hierarchy PORT; isotropy 7-fold-isotropic ${r.sevenFoldIsotropic} (to order 6); only difference is 1D LINEAR gravity in physical space.`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/s73-physics',
+  title: 'the holographic correlator, cosmology, and 7-fold isotropy port to {7,3}, with 1D linear gravity',
+  category: 'substrate-survey',
+  substrates: ['73'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s73Physics()
+    const ok =
+      Math.abs(r.betheAlpha - 2) < 0.3 &&
+      r.growthRatio > 1.2 &&
+      r.sevenFoldIsotropic
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the Bethe correlator on {7,3} is a clean 1/r^2, the bulk shells grow exponentially, and the 7-fold coin is isotropic to fourth moment, while physical-space gravity is 1D and linear',
+      metrics: {
+        betheAlpha: r.betheAlpha,
+        growthRatio: r.growthRatio,
+        sevenFoldIsotropic: r.sevenFoldIsotropic ? 1 : 0,
+      },
+      notes:
+        'L1, the correlator, shell growth, and the fourth-moment isotropy check are all computed. The 1D linear-gravity statement is an analytic consequence of the 1D horocycle, stated in the notes, not measured here.',
+    })
+  },
+})

@@ -17,6 +17,31 @@ export interface Mesh {
   opposite(direction: number): number
 }
 
+// The graph distance from `source` to every cell, by breadth-first search over the
+// coin. Distance is the number of single-direction hops, so it is the natural radius
+// for a light cone (one cell per beat) and for any shell measure on a mesh.
+// Unreachable cells stay -1 (none, on a connected periodic mesh).
+export function shellDistances(mesh: Mesh, source: number): Int32Array {
+  const distance = new Int32Array(mesh.cellCount).fill(-1)
+  distance[source] = 0
+  let frontier = [source]
+  while (frontier.length > 0) {
+    const next: number[] = []
+    for (const cell of frontier) {
+      const here = distance[cell]!
+      for (let direction = 0; direction < mesh.degree; direction++) {
+        const neighbour = mesh.neighbour(cell, direction)
+        if (distance[neighbour] === -1) {
+          distance[neighbour] = here + 1
+          next.push(neighbour)
+        }
+      }
+    }
+    frontier = next
+  }
+  return distance
+}
+
 // A periodic square lattice in two dimensions, four directions (E, W, N, S). The
 // minimal directional mesh, used to pin the rule against the known 2D result.
 // Direction order: 0 is +x (E), 1 is -x (W), 2 is +y (N), 3 is -y (S).

@@ -11,7 +11,6 @@
 // creation (minting net charge) is forbidden, balanced information is free to make and copy.
 // Run: npx tsx code/experiment/p120-heredity.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -170,29 +169,6 @@ export function heredity(input?: { n?: number }): {
     conservingCreation,
     solved,
   }
-}
-
-export function main(): void {
-  const r = heredity()
-  console.log('P120: reproduction with heredity, and the conservation question')
-  console.log('')
-  console.log('  daughter resembles parent (heredity), tuned by mutation rate:')
-  console.log(`    mutation 0%:  resemblance ${r.resemblanceMu0.toFixed(2)} (perfect copy)`)
-  console.log(`    mutation 20%: resemblance ${r.resemblanceMu2.toFixed(2)} (inherits with variation)`)
-  console.log(`    mutation 50%: resemblance ${r.resemblanceMu5.toFixed(2)} (no inheritance, like random)`)
-  console.log(`  heredity works: ${r.heredityWorks}, heritable variation (the substrate of evolution): ${r.heritableVariation}`)
-  console.log('')
-  console.log(`  copying WROTE ${r.structureWritten} units of structure into empty cells, NET charge ${r.netChargeCreated}`)
-  console.log(`  the daughter is a balanced CODE (information), so its creation is CONSERVING: ${r.conservingCreation}`)
-  console.log('  => reproduction needs a CREATIVE SOURCE, and the ARROW already provides it (balanced')
-  console.log('     pair creation from peace), conserving Q. So the base SUPPORTS reproduction, no')
-  console.log('     non-conservation needed. The conservation answer: the arrow is the creative source.')
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

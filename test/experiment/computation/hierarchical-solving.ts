@@ -8,7 +8,6 @@
 // dynamics propagate it, and measure the SOLVE-TIME versus N. Logarithmic growth = fast hierarchical
 // solving. Run: npx tsx code/experiment/p139-hierarchical-solving.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -189,26 +188,6 @@ export function hierarchicalSolving(): {
   const solved = logScaling
 
   return { scan, growthFactorN, growthFactorT, logScaling, euclideanWouldBe, solved }
-}
-
-export function main(): void {
-  const r = hierarchicalSolving()
-  console.log('P139: hierarchical problem-solving via fast integration')
-  console.log('')
-  console.log('  global coordination solve-time (beats for the front to cross the system) vs size:')
-  console.log('  N         diameter   solve-time')
-  for (const s of r.scan) console.log(`  ${s.N.toLocaleString().padEnd(9)} ${String(s.diameter).padEnd(10)} ${s.t}`)
-  console.log('')
-  console.log(`  problem grew ${r.growthFactorN.toFixed(0)}x (N), the coordination distance (diameter) grew only ${r.growthFactorT.toFixed(2)}x`)
-  console.log(`  a Euclidean 3D lattice would grow about ${r.euclideanWouldBe.toFixed(1)}x (N^(1/3)), and be far larger in absolute terms`)
-  console.log(`  the coordination distance is O(log N) and tiny, front crosses it in ~1-2 beats: ${r.logScaling}`)
-  console.log('  => a global problem over N cells is coordinated across ~log N hops (a handful), the geometric')
-  console.log('     route to the intelligence hierarchy, fast integration via the field beneath (P111).')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

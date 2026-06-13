@@ -2,8 +2,9 @@
 // hyperbolic bulk), calibrated against 4D and 3D grids; the cusp {4,3,4} is flat 3D. Ported from the
 // throwaway probe. Run: npx tsx code/experiment/p195-bulk-dimension-3434.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type G = { N: number; off: Int32Array; adj: Int32Array }
 
@@ -51,7 +52,39 @@ export function bulkDimension(): { d4: number; d3: number; bulk: number } {
   return { d4: get(r4), d3: get(r3), bulk: get(rb) }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = bulkDimension()
-  console.log(`SOLVED: 4D-calib ${r.d4.toFixed(1)}, 3D-calib ${r.d3.toFixed(1)}, {3,4,3,4} bulk ${r.bulk.toFixed(1)} (4D)`)
-}
+// The {3,4,3,4} bulk is genuinely four dimensional. We measure the small-scale spectral
+// dimension of the cell graph by a lazy random walk return probability, and it reads near
+// 4, the same as a 4D grid and clearly above a 3D grid (the calibration controls). The 4D
+// grid reading ~4 and the 3D grid reading ~3 are the controls that give the {3,4,3,4}
+// number its meaning. This is a measured property of a known tessellation, an established
+// mathematical fact, so L1.
+export default defineExperiment({
+  id: 'geometry/bulk-dimension-3434',
+  title: 'the {3,4,3,4} bulk reads spectral dimension ~4, a genuine 4D substrate',
+  category: 'geometry',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = bulkDimension()
+    const calibrationOk = Math.abs(r.d4 - 4) < 0.6 && Math.abs(r.d3 - 3) < 0.6
+    const bulkIs4D = Math.abs(r.bulk - 4) < 0.7
+    const ok = calibrationOk && bulkIs4D
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the small-scale spectral dimension of the {3,4,3,4} bulk reads near 4, matching a 4D grid and above a 3D grid',
+      metrics: {
+        bulkDimension: r.bulk,
+        grid4dDimension: r.d4,
+        grid3dDimension: r.d3,
+      },
+      control: {
+        grid4dDimension: r.d4,
+        grid3dDimension: r.d3,
+      },
+      notes:
+        'L1, the dimension of a known tessellation measured by a lazy-walk return exponent. The 4D and 3D grids are the calibration controls. Not a discovery, an established geometric fact.',
+    })
+  },
+})

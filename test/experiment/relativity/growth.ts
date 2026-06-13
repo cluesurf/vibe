@@ -7,13 +7,14 @@
 // stable, growing vibe mesh. See note/questions/roadmap.md (A2).
 // Run: npx tsx code/experiment/p3-growth.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
 import { ballGrowth } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess, routingWithBacktrack } from '@/code/measure/navigation'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function meanDegree(graph: Graph): number {
   let total = 0
@@ -90,33 +91,34 @@ function snapshot(input: { size: number; base: number }): Row {
   }
 }
 
-export function main(): void {
-  const base = 400
-  const sizes = [400, 800, 1600, 3200]
-  console.log('P3 under growth: an expanding hyperbolic mesh (density held constant)')
-  console.log('  size   radius  meanDeg  growthRatio  anisotropy  greedy   backtrack')
-  const rows = sizes.map((size) => snapshot({ size, base }))
-  for (const r of rows) {
-    console.log(
-      `  ${String(r.size).padStart(4)}   ${r.radius.toFixed(2).padStart(5)}  ${r.meanDegree.toFixed(1).padStart(6)}  ${r.growthRatio.toFixed(2).padStart(10)}  ${r.anisotropy.toFixed(3).padStart(9)}  ${(r.greedy * 100).toFixed(0).padStart(5)}%  ${(r.backtrack * 100).toFixed(0).padStart(8)}%`,
-    )
-  }
-  const allReach = rows.every((r) => r.growthRatio > 1.5)
-  const allIsotropic = rows.every((r) => r.anisotropy < 0.25)
-  const allNavigable = rows.every((r) => r.backtrack > 0.95)
-  console.log('')
-  console.log(`  reach exponential (growth ratio > 1.5):  ${allReach ? 'YES' : 'no'}`)
-  console.log(`  Lorentz-safe (anisotropy < 0.25):        ${allIsotropic ? 'YES' : 'no'}`)
-  console.log(`  navigable (backtrack > 95%):             ${allNavigable ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(
-    `  both-worlds property survives growth: ${allReach && allIsotropic && allNavigable ? 'YES' : 'no'}`,
-  )
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'relativity/growth',
+  title: 'an expanding hyperbolic mesh keeps exponential reach, isotropy, and navigability',
+  category: 'relativity',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const base = 400
+    const sizes = [400, 800, 1600, 3200]
+    const rows = sizes.map((size) => snapshot({ size, base }))
+    const allReach = rows.every((r) => r.growthRatio > 1.5)
+    const allIsotropic = rows.every((r) => r.anisotropy < 0.25)
+    const allNavigable = rows.every((r) => r.backtrack > 0.95)
+    const ok = allReach && allIsotropic && allNavigable
+    const last = rows[rows.length - 1]!
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a hyperbolic mesh grown at constant density keeps exponential reach, low Lorentz anisotropy, and high routing success at every size',
+      metrics: {
+        largestSize: last.size,
+        largestGrowthRatio: last.growthRatio,
+        largestAnisotropy: last.anisotropy,
+        largestBacktrack: last.backtrack,
+      },
+      notes:
+        'L2, the both-worlds hyperbolic-graph result extended across lattice SIZE (the deterministic-friendly robustness axis). The growth ratio above 1.5 is the exponential-reach control against polynomial growth tending to 1. The graph is built from random point placement at fixed seeds, so reach and isotropy are statistical properties of the ensemble, not of the deterministic base rule.',
+    })
+  },
+})

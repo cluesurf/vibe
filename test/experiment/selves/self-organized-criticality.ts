@@ -9,7 +9,6 @@
 //       heavy-tailed distribution), versus a uniform-creation control whose response is not scale-free.
 // Run: npx tsx code/experiment/p135-self-organized-criticality.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -180,29 +179,6 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const solved = selfTunes
 
   return { n: N, lowFinal, highFinal, setPoint, selfTunes, avalancheMedian, avalancheMax, avalancheScaleSpan, controlScaleSpan, scaleFree, solved }
-}
-
-export function main(): void {
-  const r = selfOrganizedCriticality()
-  console.log('P135: self-organized criticality (demand-driven creation)')
-  console.log('')
-  console.log('  (a) self-tuning, convergence from different starts:')
-  console.log(`    low start  -> activity ${(r.lowFinal * 100).toFixed(1)}%`)
-  console.log(`    high start -> activity ${(r.highFinal * 100).toFixed(1)}%`)
-  console.log(`    converge to the same interior set-point (${(r.setPoint * 100).toFixed(1)}%): ${r.selfTunes}`)
-  console.log('')
-  console.log('  (b) avalanches (damage spreading) -- CONFOUNDED by ballistic spread:')
-  console.log(`    median ${r.avalancheMedian}, max ${r.avalancheMax}, scale span (max/median) ${r.avalancheScaleSpan.toFixed(1)} (narrow)`)
-  console.log('    the damage spreads ballistically (the lightcone), to a roughly fixed size, so this')
-  console.log('    metric does NOT resolve criticality. Scale-free avalanches: undetermined here.')
-  console.log('')
-  console.log(`  RESULT: the system SELF-ORGANIZES (homeostasis) to a set-point with no external tuning: ${r.solved}`)
-  console.log('  Criticality (scale-free avalanches) is left OPEN, it needs a terminating-cascade protocol.')
-  console.log(`  SOLVED (self-organization demonstrated): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -12,7 +12,6 @@
 // MASSLESS / critical regime, which is what a sharp spatial-RP (and emergent-Lorentz) test requires.
 // Run: npx tsx code/experiment/p134-flat-spatial-rp.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -195,30 +194,6 @@ export function flatSpatialRP(input?: { L?: number; arrows?: number[] }): {
   const solved = massiveField && ruleNotGeometry && rpConsistentMassive
 
   return { L, scan, maxRange, massiveField, ruleNotGeometry, rpConsistentMassive, masslessRegimeFound, solved }
-}
-
-export function main(): void {
-  const r = flatSpatialRP()
-  console.log('P134: spatial reflection positivity on the FLAT effective layer (the rule, off the hyperbolic scaffold)')
-  console.log('')
-  console.log(`  the conserved-exchange rule on a flat 1D chain of ${r.L} sites, scanning the arrow:`)
-  console.log('    arrow      density   xi      range   direct minEig   staggered minEig')
-  for (const s of r.scan) {
-    console.log(`    ${s.arrow.toFixed(3)}      ${(s.density * 100).toFixed(1).padEnd(5)}%   ${s.correlationLength.toFixed(2).padEnd(6)}  ${String(s.range).padEnd(5)}   ${s.directMinEig.toExponential(1).padEnd(13)}   ${s.staggeredMinEig.toExponential(1)}`)
-  }
-  console.log('')
-  console.log(`  the field stays SHORT-correlated on FLAT too (max range ${r.maxRange}), so it is generically MASSIVE: ${r.massiveField}`)
-  console.log(`  => the contact-dominance is the RULE, not the hyperbolic geometry (this REVISES P133): ${r.ruleNotGeometry}`)
-  console.log(`  a massless / critical (long-range) regime was found: ${r.masslessRegimeFound}`)
-  console.log('')
-  console.log(`  reflection positivity is CONSISTENT with a massive field (no violation beyond the contact/noise floor): ${r.rpConsistentMassive}`)
-  console.log('  => a massive field is RP-compatible. The real open problem is the absence of an accessible')
-  console.log('     MASSLESS regime, which is what a sharp spatial-RP (and Lorentz) test needs.')
-  console.log(`  SOLVED (correct diagnosis: massive, RP-consistent, masslessness is the open gap): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

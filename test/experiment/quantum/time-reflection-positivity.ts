@@ -14,7 +14,6 @@
 // the discrete-update temporal doubler and the statistical noise) would mean a non-quantum mimic.
 // Run: npx tsx code/experiment/p132-time-reflection-positivity.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -246,28 +245,6 @@ export function reflectionPositivity(input?: { n?: number }): {
     reflectionPositive,
     solved,
   }
-}
-
-export function main(): void {
-  const r = reflectionPositivity()
-  console.log('P132: time reflection positivity (does the Hermitian generator have H >= 0)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, reversible steady state, beat-autocorrelation G(tau):`)
-  console.log('    ' + r.autocorr.slice(0, 9).map((c, i) => `G(${i})=${c.toFixed(4)}`).join('  '))
-  console.log('')
-  console.log(`  raw Hankel min eig / G(0) = ${r.rawMinEig.toExponential(2)} (a small temporal DOUBLER from the discrete update: ${r.hasDoubler})`)
-  console.log(`  doubler-removed (stride-2) Hankel min eig / G(0) = ${r.normalizedMinEig.toExponential(2)}`)
-  console.log(`  reflection positive once the doubler is removed (positive-energy unitary theory exists): ${r.reflectionPositive}`)
-  console.log('')
-  console.log('  => apart from a small period-2 lattice artifact (the temporal doubler, which the')
-  console.log('     continuum-time limit removes), the beat IS the imaginary-time evolution of a real')
-  console.log('     quantum system with H >= 0. The quantization rung passes IN TIME. Spatial reflection')
-  console.log('     positivity (across a {5,3,4} mirror) is the next, harder step.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

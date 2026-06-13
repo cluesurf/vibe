@@ -9,7 +9,6 @@
 // fitness RISES to the optimum with selection, stays flat without it (drift), and that offspring are
 // HERITABLE. Run: npx tsx code/experiment/p152-evolution.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -113,26 +112,6 @@ export function evolution(input?: { M?: number }): {
   const solved = fitnessRises && beatsDrift && heritable
 
   return { M, selectedFinal, driftFinal, startMean, heritability, fitnessRises, beatsDrift, heritable, solved }
-}
-
-export function main(): void {
-  const r = evolution()
-  console.log('P152: evolution, heredity plus variation plus selection (from the base)')
-  console.log('')
-  console.log(`  niche pattern of ${r.M} cells, fitness = matching cells (max ${r.M})`)
-  console.log(`  start (random) mean fitness: ${r.startMean.toFixed(1)}`)
-  console.log(`  WITH selection (the arrow's value): final mean fitness ${r.selectedFinal.toFixed(1)} / ${r.M}`)
-  console.log(`  WITHOUT selection (drift control):  final mean fitness ${r.driftFinal.toFixed(1)} / ${r.M}`)
-  console.log(`  offspring heritable (parent-child fitness covariance ${r.heritability.toFixed(1)} > 0): ${r.heritable}`)
-  console.log('')
-  console.log(`  mean fitness RISES with selection, beats drift, on heritable variation: ${r.solved}`)
-  console.log('  => the full Darwinian loop runs from the base, reproduction is the arrow conserving copy')
-  console.log('     (P120), variation is copy error, selection is the arrow value, evolution emerges.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

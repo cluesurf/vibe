@@ -9,7 +9,6 @@
 // for coarsening: the largest patch grows and the number of patches falls over time. Charge conserved.
 // Run: npx tsx code/experiment/p108-selves-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -182,28 +181,6 @@ export function selvesDynamics(input?: { n?: number }): {
     coarsens,
     solved,
   }
-}
-
-export function main(): void {
-  const r = selvesDynamics()
-  console.log('P108: the dynamics of emergent selves (the tower in action)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, watching the coherent self-patches evolve`)
-  console.log('')
-  console.log('  beat   largest patch   patches(>=20)   mean size')
-  for (const t of r.trajectory) {
-    console.log(`  ${String(t.beat).padStart(4)}   ${String(t.largest).padStart(11)}   ${String(t.countOver20).padStart(11)}   ${t.mean.toFixed(1).padStart(8)}`)
-  }
-  console.log('')
-  console.log(`  a living tower: the largest self grows while a hierarchy of patches persists: ${r.coarsens}`)
-  console.log(`    largest patch ${r.largestEarly} -> ${r.largestLate} (grows), patch count steady ${r.countEarly} -> ${r.countLate} (small selves keep being born)`)
-  console.log('')
-  console.log(`  charge conserved: ${r.conserved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

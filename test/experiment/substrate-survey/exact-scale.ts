@@ -8,7 +8,6 @@
 // failed. So memory needs the real local geometry, which the exact engine now provides at scale.
 // Run: npx tsx code/experiment/p104-exact-scale.ts
 
-import { pathToFileURL } from 'node:url'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
@@ -187,36 +186,6 @@ export function exactScale(input?: { n?: number }): {
     memoryOnRealGeometry,
     solved,
   }
-}
-
-export function main(): void {
-  const big = process.argv.includes('--million')
-  const n = big ? 1_000_000 : 60000
-  const t0 = Date.now()
-  console.log(`P104: exact {5,3,4} at scale (target ${n.toLocaleString()} cells)`)
-  console.log('')
-  const r = exactScale({ n })
-  console.log(`  exact cells built: ${r.n.toLocaleString()}, facet ${r.facetCount}, in ${((Date.now() - t0) / 1000).toFixed(1)}s`)
-  console.log(`  matches the float engine at small N: ${r.matchesFloat}`)
-  console.log(`  exceeds the float precision wall (15.5k): ${r.exceedsFloatWall}`)
-  console.log(`  round-trips through disk (save then load identical): ${r.roundTripsOnDisk}`)
-  console.log('')
-  console.log('  memory-at-scale finding (imprint retention on a large hyperbolic substrate):')
-  console.log(`    cohesive ${(r.cohesiveRetention * 100).toFixed(0)}% vs random ${(r.randomRetention * 100).toFixed(0)}%`)
-  console.log(`    simple blob-memory holds at scale: ${r.memoryOnRealGeometry} (hyperbolic balls are mostly boundary, so blobs erode, memory at scale needs a holographic / error-correcting mechanism)`)
-  console.log('')
-  console.log(`  SOLVED (exact engine + persistence): ${r.solved}`)
-
-  if (big) {
-    const path = join(process.cwd(), 'dodecagrid-1m.graph')
-    const g = buildDodecagrid({ maxCells: 1_000_000 })
-    saveGraph(path, { cellCount: g.cellCount, offsets: g.offsets, adj: g.adj })
-    console.log(`\n  saved 1,000,000-cell exact {5,3,4} to ${path}`)
-  }
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

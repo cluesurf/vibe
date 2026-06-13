@@ -10,7 +10,6 @@
 //       signals faster than light.
 // Run: npx tsx code/experiment/p162-absolute-limits.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -165,26 +164,6 @@ export function absoluteLimits(input?: { n?: number }): {
   const solved = chargeAbsolute && lightconeAbsolute
 
   return { n: N, fineQConserved, mintingFails, coarseEqualsFine, fineSpeed, coarseSpeed, lightconeAbsolute, chargeAbsolute, solved }
-}
-
-export function main(): void {
-  const r = absoluteLimits()
-  console.log('P162: the absolute limits ARE absolute (hold at every level)')
-  console.log('')
-  console.log('  (A) net charge cannot be minted, at any level:')
-  console.log(`      fine Q conserved: ${r.fineQConserved}, coarse block-Q equals fine at every step: ${r.coarseEqualsFine}`)
-  console.log(`      aggressive all-create "minting attempt" still cannot raise Q (balanced pairs only): ${r.mintingFails}`)
-  console.log('  (B) the lightcone cannot be outrun, at any level:')
-  console.log(`      fine front speed ${r.fineSpeed.toFixed(2)} (finite), coarse speed ${r.coarseSpeed.toFixed(2)} (no larger): ${r.lightconeAbsolute}`)
-  console.log('')
-  console.log(`  charge absolute: ${r.chargeAbsolute}, lightcone absolute: ${r.lightconeAbsolute}`)
-  console.log('  => the few absolute laws (no net-charge minting, no faster-than-light) hold at EVERY level,')
-  console.log('     drawing the true boundary of the possible.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

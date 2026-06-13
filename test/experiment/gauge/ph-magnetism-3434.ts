@@ -6,7 +6,8 @@
 // test catalog. g = 2 must be derived from the Dirac coupling in future work, it is set by hand here.
 // Run: npx tsx code/experiment/p251-ph-magnetism-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
 const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
@@ -65,9 +66,27 @@ export function phMagnetism(): { lorentzDeflects: boolean; deflectionGrowsWithB:
   return { lorentzDeflects, deflectionGrowsWithB, spinPrecesses }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = phMagnetism()
-  // only PH5 (the genuine lattice Lorentz force) counts toward PASS; PH6 is an assumed demonstration, not scored.
-  const pass = r.lorentzDeflects && r.deflectionGrowsWithB
-  console.log(`SOLVED PH5 (genuine): Lorentz-deflects ${r.lorentzDeflects}, grows-with-B ${r.deflectionGrowsWithB} => ${pass ? 'PASSED' : 'FAILED'}; PH6 (g=2 Larmor) is ASSUMED, not a test, see catalog`)
-}
+export default defineExperiment({
+  id: 'gauge/ph-magnetism-3434',
+  title: 'a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = phMagnetism()
+    const ok = r.lorentzDeflects && r.deflectionGrowsWithB
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a charged wavepacket on the lattice with Peierls phases deflects transversely in a magnetic field with the deflection growing with the field, and travels straight when the field is zero',
+      metrics: {
+        lorentzDeflects: r.lorentzDeflects ? 1 : 0,
+        deflectionGrowsWithB: r.deflectionGrowsWithB ? 1 : 0,
+        spinPrecesses: r.spinPrecesses ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, the lattice Lorentz force from a gauge coupling, with the B = 0 straight-line control. Only the PH5 field-magnetism part is scored. The PH6 spin precession assumes g = 2 by hand and integrates the Larmor equation, so it is L0 circular and does not enter the pass.',
+    })
+  },
+})

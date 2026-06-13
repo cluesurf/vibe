@@ -8,7 +8,8 @@
 //   VERDICT: a persistent spin-1/2 particle as a topological disclination, the M5 milestone, realized.
 // Run: npx tsx code/experiment/p264-persistent-spinor-defect-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // director field: angle phi(x), physics is mod pi (n and -n identified). winding counts pi-rotations.
 // director winding in pi-units around the ring
@@ -60,7 +61,27 @@ export function persistentSpinorDefect(): { halfInteger: boolean; topologicalCon
   return { halfInteger, topologicalConserved, persists, spinorHolonomy, isPersistentSpinor }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = persistentSpinorDefect()
-  console.log(`SOLVED PERSISTENT-SPINOR-DEFECT: half-integer ${r.halfInteger}, topological-conserved ${r.topologicalConserved}, persists ${r.persists}, spinor-holonomy ${r.spinorHolonomy}, is-persistent-spinor ${r.isPersistentSpinor} => ${r.isPersistentSpinor ? 'PASSED (M5: persistent spin-1/2 particle)' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'spin/persistent-spinor-defect-3434',
+  title: 'a half-integer disclination is a persistent topological defect carrying the spinor minus sign',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = persistentSpinorDefect()
+    const ok = r.halfInteger && r.persists && r.spinorHolonomy
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a one-half disclination in a director field has half-integer winding, its winding is topologically conserved under nematic relaxation so the defect persists rather than decaying, and a vector carried around it picks up the spinor minus sign',
+      metrics: {
+        halfInteger: r.halfInteger ? 1 : 0,
+        persists: r.persists ? 1 : 0,
+        spinorHolonomy: r.spinorHolonomy ? 1 : 0,
+      },
+      notes:
+        'L2, known physics (nematic disclinations and the half-integer defect). The MEASURED content is the persistence, the half-integer winding survives relaxation and cannot decay continuously. The spinor holonomy (a vector rotates by pi, R(pi) = -1) is a GEOMETRIC FACT of the half-integer winding, not a measured dynamical sign, as the file header states. So this connects persistence to the spinor sign, but the sign itself is geometry, not emergence. No negative control (a winding-one defect that decays) is run here.',
+    })
+  },
+})

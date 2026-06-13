@@ -12,7 +12,6 @@
 // computational universality. See note (the universality writeup).
 // Run: npx tsx code/experiment/p44-universality.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -294,38 +293,6 @@ export function universality(): {
     substrateXorCorrect,
     substrateFixedPoint,
   }
-}
-
-export function main(): void {
-  const r = universality()
-  console.log('P44: computational universality (Turing-completeness) of the rule')
-  console.log('')
-  console.log(`  1. the signed-majority rule realizes NAND (a functionally complete gate): ${r.nandCorrect ? 'YES' : 'no'}`)
-  console.log(`  2. a full adder built only from rule-NANDs computes a+b+carry correctly: ${r.adderCorrect ? 'YES' : 'no'}`)
-  console.log(`  3. the universal Rule 110, built from rule-NANDs, reproduces its table: ${r.rule110Expressible ? 'YES' : 'no'}`)
-  console.log(`     and it runs and evolves non-trivially on the rule's gates: ${r.rule110Evolves ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  4. the decisive check: gates run on the model\'s OWN asynchronous dynamics, not as functions')
-  console.log(`     NAND as a real subgraph, settled by the rule to a fixed point: ${r.substrateNandCorrect ? 'YES' : 'no'}`)
-  console.log(`     a 6-gate XOR composed and run entirely by the dynamics: ${r.substrateXorCorrect ? 'YES' : 'no'}`)
-  console.log(`     every output is a stable fixed point (no dissipation, stable under any update order): ${r.substrateFixedPoint ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The model\'s own local rule realizes NAND, which is functionally complete. And it is not')
-  console.log('  only a function: built as a real subgraph and run by the asynchronous rule itself, NAND')
-  console.log('  and a multi-gate XOR settle to the correct answer as STABLE FIXED POINTS on the live')
-  console.log('  substrate. That directly answers the dissipation worry (a clamped-input gate is an')
-  console.log('  attractor, not a decaying pulse) and shows gates compose on the dynamics, not just on')
-  console.log('  paper. Circuit universality on the running substrate follows. Unbounded-tape Turing')
-  console.log('  completeness additionally needs the growing, exactly-addressable space of the tilings')
-  console.log('  (P42, P83) for memory, which is Margenstern\'s result. The felt interior is a separate')
-  console.log('  question, untouched by universality.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

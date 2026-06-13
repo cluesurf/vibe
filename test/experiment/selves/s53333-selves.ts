@@ -4,7 +4,8 @@
 // could be fermionic, but the COIN supplies no spinor (s53333-structure), and the dimension is wrong (4D not
 // 3D). The form-tower is a generic slow-mode (NEUTRAL). Run: npx tsx code/experiment/s53333-selves.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Selves(): { solitonsExist: boolean; instantonCharge: number; overDimensional: boolean } {
   // 4D instanton topological charge, pi_3(S^3) = Z. A BPST-like profile on a 4D radial grid, winding = 1.
@@ -35,7 +36,27 @@ export function s53333Selves(): { solitonsExist: boolean; instantonCharge: numbe
   return { solitonsExist, instantonCharge, overDimensional }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s53333Selves()
-  console.log(`SOLVED: {5,3,3,3,3} selves, 4D instantons exist ${r.solitonsExist} (charge ${r.instantonCharge}, POSITIVE), but OVER-dimensional ${r.overDimensional} (4D space, no base spinor/gauge). Overshoots the dimension.`)
-}
+export default defineExperiment({
+  id: 'selves/s53333-selves',
+  title: 'topological solitons exist on the 4D horosphere but are over-dimensional',
+  category: 'selves',
+  substrates: ['53333'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s53333Selves()
+    const ok = r.solitonsExist && r.instantonCharge === 1 && r.overDimensional
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a 4D instanton on the horosphere carries topological charge one so solitons exist, but they live in a 4D physical space, one dimension too many versus the observed three',
+      metrics: {
+        instantonCharge: r.instantonCharge,
+        solitonsExist: r.solitonsExist ? 1 : 0,
+        overDimensional: r.overDimensional ? 1 : 0,
+      },
+      notes:
+        'L1, known math. The instanton charge is the analytic pi_3(S^3) = Z winding of a hand-built BPST-like profile, not produced by the rule. The honest verdict is that selves form but are over-dimensional, and the coin supplies no fundamental spinor. The form-tower is a generic slow mode.',
+    })
+  },
+})

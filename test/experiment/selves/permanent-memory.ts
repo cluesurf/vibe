@@ -12,7 +12,6 @@
 // MAINTAINED one stays high indefinitely, at a measured maintenance cost, and charge Q is conserved
 // throughout (the maintenance is conserving). Run: npx tsx code/experiment/p107-permanent-memory.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -217,24 +216,6 @@ export function permanentMemory(input?: { n?: number }): {
     decaysWithout,
     solved,
   }
-}
-
-export function main(): void {
-  const r = permanentMemory()
-  console.log('P107: permanent memory by active maintenance (the conservation-vs-healing resolution)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, a spatial codeword run for ${r.beats} beats`)
-  console.log('')
-  console.log(`  UNMAINTAINED: fidelity to the codeword decays to ${(r.unmaintainedFidelity * 100).toFixed(0)}% (memory erodes): ${r.decaysWithout}`)
-  console.log(`  MAINTAINED:   fidelity stays at ${(r.maintainedFidelity * 100).toFixed(0)}% (memory is permanent): ${r.permanentWithMaintenance}`)
-  console.log(`  maintenance cost: ${r.maintenanceSwaps.toLocaleString()} conserving swaps (the will holding the self together)`)
-  console.log('')
-  console.log(`  charge conserved throughout: ${r.conserved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

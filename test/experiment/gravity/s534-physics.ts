@@ -4,8 +4,9 @@
 // hedral kills anisotropy up to order 5, better than cubic). The one DIFFERENCE, physical-space gravity is in
 // 2D, so the Newtonian potential is LOGARITHMIC (not 1/r). Run: npx tsx code/experiment/s534-physics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const phi = (1 + Math.sqrt(5)) / 2
 
@@ -41,7 +42,29 @@ export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaI
   return { betheAlpha, growthRatio, icosaIsotropic }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s534Physics()
-  console.log(`SOLVED: {5,3,4} physics, holographic 1/r^${r.betheAlpha} + cosmology (growth ${r.growthRatio}) + hierarchy PORT; isotropy icosahedral-isotropic ${r.icosaIsotropic} (to order 5, strong); only difference is 2D LOG gravity in physical space.`)
-}
+export default defineExperiment({
+  id: 'gravity/s534-physics',
+  title: 'the {5,3,4} suite, a Bethe 1/r squared correlator, exponential shell growth, and exact icosahedral 4th-moment isotropy',
+  category: 'gravity',
+  substrates: ['534'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s534Physics()
+    const correlatorClean = Math.abs(r.betheAlpha - 2) < 0.1
+    const expanding = r.growthRatio > 1
+    const ok = correlatorClean && expanding && r.icosaIsotropic
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'on {5,3,4} the analytic Bethe boundary correlator is a clean 1/r squared, the measured bulk shells grow exponentially, and the 12 icosahedral directions are exactly isotropic at the 4th moment',
+      metrics: {
+        betheAlpha: r.betheAlpha,
+        growthRatio: r.growthRatio,
+        icosaIsotropic: r.icosaIsotropic ? 1 : 0,
+      },
+      notes:
+        'L1 mixed consistency suite. The 1/r squared correlator is the closed-form Bethe (z=12) resolvent, the icosahedral 4th-moment identity is exact group theory, both put in by hand. Only the shell growth is measured on the real {5,3,4} graph. Useful as a confirmation that {5,3,4} ports the same structures, but no emergent gravity, and the physical-space gravity here would be 2D logarithmic, not the 3D 1/r law.',
+    })
+  },
+})

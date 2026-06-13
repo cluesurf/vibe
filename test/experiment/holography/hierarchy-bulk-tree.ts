@@ -6,7 +6,8 @@
 // the boundary size (the holographic / RG relation). So hierarchy is the BULK TREE, not flat self-nesting.
 // Run: npx tsx code/experiment/p238-hierarchy-bulk-tree.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 
 export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boolean } {
@@ -40,7 +41,26 @@ export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boo
   return { branching, depthLogsBoundary }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = hierarchyBulkTree()
-  console.log(`SOLVED: the bulk radial tree is a self-similar hierarchy (branching ${r.branching}, depth ~ log boundary ${r.depthLogsBoundary}) = the holographic RG. Resolves P208 (hierarchy = bulk tree, not flat self-nesting).`)
-}
+export default defineExperiment({
+  id: 'holography/hierarchy-bulk-tree',
+  title: 'the {3,4,3,4} bulk radial tree is a self-similar hierarchy with constant branching',
+  category: 'holography',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = hierarchyBulkTree()
+    const ok = r.branching > 1 && r.depthLogsBoundary
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the radial BFS tree of the {3,4,3,4} bulk has a constant branching ratio and a radial depth that scales as the logarithm of the boundary shell size, the self-similar tree of a holographic renormalization hierarchy',
+      metrics: {
+        branching: r.branching,
+        depthLogsBoundary: r.depthLogsBoundary ? 1 : 0,
+      },
+      notes:
+        'L1, known math. The constant shell-growth ratio and the depth-equals-log-boundary relation are geometric properties of a hyperbolic tessellation, computed deterministically from the cell graph. This resolves the earlier flat-layer nesting negative by relocating the hierarchy to the bulk radial tree, but the tree structure itself is established geometry, not an emergence claim.',
+    })
+  },
+})

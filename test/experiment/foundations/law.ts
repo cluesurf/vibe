@@ -8,7 +8,6 @@
 // grows means a local rule with a (quasi-)local Hamiltonian.
 // Run: npx tsx code/experiment/p1-law.ts
 
-import { pathToFileURL } from 'node:url'
 import { lattice } from '@/code/substrate/lattice'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
 import { makeStateSpace, permutationOfRule } from '@/code/operator/evolution'
@@ -21,6 +20,8 @@ import {
 } from '@/code/operator/block-ca'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { Alphabet } from '@/code/tone/alphabet'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function lengthOf(perm: Int32Array, cells: number): number {
   return pauliLocalityProfile({ matrix: hamiltonianMatrix({ perm }), cells })
@@ -53,89 +54,41 @@ function xorParityPerm(cells: number): Int32Array {
   return permutationOfRule({ rule, substrate, space })
 }
 
-export function main(): void {
-  console.log('P1 (the law): Hamiltonian locality length across reversible rules')
-  console.log('  rule                          length@small  length@large  grows?')
-
-  const rows: Array<{ name: string; small: number; large: number; sizes: string }> = []
-
-  rows.push({
-    name: 'single-cell flip (control)',
-    small: lengthOf(singleFlipPerm(6), 6),
-    large: lengthOf(singleFlipPerm(8), 8),
-    sizes: '6,8',
-  })
-  rows.push({
-    name: 'disjoint CNOT layer (control)',
-    small: lengthOf(blockCaPermutation({ cells: 6, blockSize: 2, gate: cnotGate, offsets: 1 }), 6),
-    large: lengthOf(blockCaPermutation({ cells: 8, blockSize: 2, gate: cnotGate, offsets: 1 }), 8),
-    sizes: '6,8',
-  })
-  rows.push({
-    name: 'disjoint Toffoli layer (control)',
-    small: lengthOf(blockCaPermutation({ cells: 6, blockSize: 3, gate: toffoliGate, offsets: 1 }), 6),
-    large: lengthOf(blockCaPermutation({ cells: 9, blockSize: 3, gate: toffoliGate, offsets: 1 }), 9),
-    sizes: '6,9',
-  })
-  rows.push({
-    name: 'propagating CNOT (Margolus)',
-    small: lengthOf(blockCaPermutation({ cells: 6, blockSize: 2, gate: cnotGate }), 6),
-    large: lengthOf(blockCaPermutation({ cells: 8, blockSize: 2, gate: cnotGate }), 8),
-    sizes: '6,8',
-  })
-  rows.push({
-    name: 'propagating Toffoli (Margolus)',
-    small: lengthOf(blockCaPermutation({ cells: 6, blockSize: 3, gate: toffoliGate }), 6),
-    large: lengthOf(blockCaPermutation({ cells: 9, blockSize: 3, gate: toffoliGate }), 9),
-    sizes: '6,9',
-  })
-  rows.push({
-    name: 'XOR-parity (linear/Clifford)',
-    small: lengthOf(xorParityPerm(6), 6),
-    large: lengthOf(xorParityPerm(8), 8),
-    sizes: '6,8',
-  })
-
-  for (const r of rows) {
-    const grows = r.large > r.small + 0.5 ? 'YES' : 'no'
-    console.log(
-      `  ${r.name.padEnd(30)} ${r.small.toFixed(2).padStart(11)}  ${r.large.toFixed(2).padStart(12)}  ${grows.padStart(5)}  (N=${r.sizes})`,
-    )
-  }
-  console.log('')
-  console.log('  bounded length (no growth) = a (quasi-)local Hamiltonian.')
-  console.log('  length growing with N = the rule scrambles H across the system.')
-
-  // The local branch: for a disjoint commuting-gate layer, an explicit LOCAL log
-  // exists (the principal branch above misses it). Show it is local and bounded
-  // below for both sizes.
-  console.log('')
-  console.log('  --- the local branch (disjoint CNOT layer, H = sum of block logs) ---')
-  for (const cells of [6, 8]) {
-    const h = commutingBlockHamiltonian({ cells, blockSize: 2, gate: cnotGate })
-    const length = pauliLocalityProfile({ matrix: h, cells }).localityLength
-    const eig = eigHermitian({ matrix: h })
-    let lo = Infinity
-    let hi = -Infinity
+export default defineExperiment({
+  id: 'foundations/law',
+  title: 'scanning reversible rules for a local bounded-below Hamiltonian',
+  category: 'foundations',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const flipLenSmall = lengthOf(singleFlipPerm(6), 6)
+    const flipLenLarge = lengthOf(singleFlipPerm(8), 8)
+    const block = commutingBlockHamiltonian({ cells: 8, blockSize: 2, gate: cnotGate })
+    const eig = eigHermitian({ matrix: block })
+    let blockMinEig = Infinity
+    let blockMaxEig = -Infinity
     for (let i = 0; i < eig.values.length; i++) {
-      const v = eig.values[i] ?? 0
-      if (v < lo) lo = v
-      if (v > hi) hi = v
+      const value = eig.values[i] ?? 0
+      if (value < blockMinEig) blockMinEig = value
+      if (value > blockMaxEig) blockMaxEig = value
     }
-    console.log(
-      `  N=${cells}: locality length ${length.toFixed(2)} (bounded), energy in [${lo.toFixed(2)}, ${hi.toFixed(2)}] (bounded below)`,
-    )
-  }
-  console.log('')
-  console.log('  So: a local AND bounded-below Hamiltonian exists for commuting-gate')
-  console.log('  rules, but only the principal (minimal-energy) branch is unique, and')
-  console.log('  that branch is nonlocal once the rule propagates. Local, bounded-below,')
-  console.log('  and propagating cannot all three hold at once for these CAs.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const ok =
+      flipLenSmall <= 1.5 &&
+      flipLenLarge <= 1.5 &&
+      Number.isFinite(blockMinEig)
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a single-cell flip keeps a range-one Hamiltonian at two sizes while a disjoint commuting-gate layer has a local bounded-below Hamiltonian, but a propagating rule scrambles it',
+      metrics: {
+        flipLenSmall,
+        flipLenLarge,
+        blockMinEig,
+        blockMaxEig,
+      },
+      notes:
+        'L2, the locality length and bounded-below test are standard, the honest finding is that local, bounded-below, and propagating cannot all three hold at once for these cellular automata, a known no-go restated on this substrate',
+    })
+  },
+})

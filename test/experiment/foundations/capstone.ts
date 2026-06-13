@@ -10,7 +10,6 @@
 //     stable structured states from the dynamics, and the arrow of accumulation.
 // See note/the-model.md. Run: npx tsx code/experiment/p34-capstone.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
@@ -169,39 +168,6 @@ export function capstone(input: { count: number; seed: number }): {
     laplacianBoundedBelow: lapMin > -1e-9,
     arrowMonotone,
   }
-}
-
-export function main(): void {
-  const r = capstone({ count: 1500, seed: 1 })
-  console.log('P34: the capstone, the committed model run end-to-end')
-  console.log('')
-  console.log('  ONE substrate, the growing random hyperbolic causal mesh:')
-  console.log(`    mean degree ${r.meanDegree.toFixed(1)} (a vibe notes about this many neighbors)`)
-  console.log(`    Lorentz anisotropy ${r.anisotropy.toFixed(3)} (low = no preferred frame)`)
-  console.log(`    exponential reach: ${r.reachExponential ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  ONE rule, the ternary signed-majority update on that mesh:')
-  console.log(`    tones stay strictly ternary: ${r.allTernary ? 'YES' : 'no'}`)
-  console.log(`    converges to stable structured states (flip fraction falls to ${r.finalFlipFraction.toFixed(3)}): ${r.dynamicsConverges ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The emergent physics, read off the same mesh:')
-  console.log(`    the emergent Hamiltonian (graph Laplacian) is bounded below (min eigenvalue ${r.laplacianMin.toFixed(4)} >= 0): ${r.laplacianBoundedBelow ? 'YES' : 'no'}, and local (range 1 by construction)`)
-  console.log(`    the arrow of time (relations only accumulate as the mesh grows): ${r.arrowMonotone ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  So the model of the-model.md runs as ONE system: a growing random hyperbolic')
-  console.log('  mesh with the ternary signed-majority rule. From that single instantiation come')
-  console.log('  a definite geometry with no preferred frame, stable structured states (the basis')
-  console.log('  for persistent matter and selves), the emergent local bounded-below Hamiltonian')
-  console.log('  (the flow of time and energy), and the arrow of accumulation. The matter, force,')
-  console.log('  and gravity sectors are read off the same mesh by their operators (P4, P8, P16).')
-  console.log('  This is the committed model working end-to-end, not idealized pieces.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

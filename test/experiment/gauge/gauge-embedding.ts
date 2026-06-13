@@ -4,7 +4,8 @@
 // against D5 = so(10) (the minimal SO(N) GUT). Clean finite root-system computation.
 // Run: npx tsx code/experiment/p217-gauge-embedding.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // D_n roots: all +-e_i +-e_j (i<j), norm^2 = 2
 function dnRoots(n: number): number[][] {
@@ -55,7 +56,26 @@ export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
   return { d4: r4.a2a1, d5: r5.a2a1 }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gaugeEmbedding()
-  console.log(`SOLVED: SM fits in D4=so(8) ${r.d4} (NO), in D5=so(10) ${r.d5} (YES). The coin symmetry must grow D4->D5 for the SM.`)
-}
+export default defineExperiment({
+  id: 'gauge/gauge-embedding',
+  title: 'the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = gaugeEmbedding()
+    const ok = r.d4 === false && r.d5 === true
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the Standard Model semisimple algebra A2 plus A1 has no embedding in the coin symmetry D4 = so(8) but does embed in D5 = so(10)',
+      metrics: {
+        fitsInD4: r.d4 ? 1 : 0,
+        fitsInD5: r.d5 ? 1 : 0,
+      },
+      notes:
+        'L1, known math, and an honest negative for the coin. Rank matching 4 = 4 was necessary but not sufficient. The {3,4,3,4} coin symmetry alone cannot carry the Standard Model gauge group, it must grow D4 to D5.',
+    })
+  },
+})

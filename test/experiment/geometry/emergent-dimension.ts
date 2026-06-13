@@ -10,7 +10,6 @@
 // fingerprint of curvature. Either way the geometry is read off the relations (P5), never from an
 // embedding. Run: npx tsx code/experiment/p69-emergent-dimension.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -164,43 +163,6 @@ export function emergentDimension(input: Record<string, never> = {}): {
   const curvedIsExponential = curved.every((c) => c.exponentialR2 >= c.powerR2 && c.growthRatio > 1.8)
 
   return { flat, curved, flatUnbiased, curvedIsExponential, solved: flatUnbiased && curvedIsExponential }
-}
-
-export function main(): void {
-  const r = emergentDimension()
-  console.log('P69: emergent spatial geometry from pure growth (bias-free)')
-  console.log('')
-  console.log('  Dimension read INTRINSICALLY from grown connectivity (shell growth in hops, no coordinates).')
-  console.log('')
-  console.log('  grown flat mesh | target dimension | measured dimension | fit quality')
-  for (const f of r.flat) {
-    console.log(`        ${f.target}D         |        ${f.target}         |        ${f.measured.toFixed(2)}        |   r2 = ${f.r2.toFixed(3)}`)
-  }
-  console.log('')
-  console.log(`  flat dimension is unbiased (matches the target): ${r.flatUnbiased ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  grown curved mesh | power-law fit | exponential fit | per-ring growth')
-  for (const c of r.curved) {
-    console.log(`  ${c.name.padEnd(20)} | r2 = ${c.powerR2.toFixed(3)}  | r2 = ${c.exponentialR2.toFixed(3)}    | x${c.growthRatio.toFixed(2)} per ring`)
-  }
-  console.log('')
-  console.log(`  the curved mesh grows EXPONENTIALLY (negative curvature), not as a power: ${r.curvedIsExponential ? 'YES' : 'no'}`)
-  console.log(`  emergent spatial geometry from pure growth solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The spatial geometry is read off the grown connectivity alone, with no embedding and')
-  console.log('  no coordinates. On a grown flat mesh the shell of vibes at distance r grows as a power')
-  console.log('  of r, and that power plus one IS the dimension, recovered cleanly and without bias')
-  console.log('  (where P38, from a sprinkle on a coordinate slice, came out biased low). On a grown')
-  console.log('  negatively-curved mesh (the tree limit of a hyperbolic tessellation) the same shell')
-  console.log('  grows exponentially, the fingerprint of curvature. Space, its dimension and its')
-  console.log('  curvature alike, is a property of who-notes-whom, not of any container the vibes sit in.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

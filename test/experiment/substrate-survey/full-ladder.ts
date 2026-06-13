@@ -10,7 +10,6 @@
 //   Rung 5  the vibe model, run on it (ternary rule, Lorentz-safe, determined)
 // See the integer-ladder analysis. Run: npx tsx code/experiment/p51-full-ladder.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { modularGraph } from '@/test/experiment/geometry/modular-base'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
@@ -120,37 +119,6 @@ export function fullLadder(input: { base: 'modular' | number[]; seed: number }):
     modelDeterministic: model.deterministic,
     modelEvolves: model.evolves,
   }
-}
-
-export function main(): void {
-  console.log('P51: the full integer ladder in one program')
-  console.log('')
-  console.log('  Rung 0: the integers Z (generator matrices and Schlafli symbols)')
-  console.log('  Rung 1+6: the group, grown deterministically by its automaton, no randomness')
-  console.log('  Rung 3+4: the tessellation, emitted and embedded')
-  console.log('  Rung 5: the vibe model, run on it')
-  console.log('')
-  for (const base of ['modular', [7, 3], [5, 4]] as ('modular' | number[])[]) {
-    const r = fullLadder({ base, seed: 2 })
-    console.log(`  ${r.name}:`)
-    console.log(`    from the integers, no randomness in generation: ${r.fromIntegers ? 'YES' : 'no'}`)
-    console.log(`    tessellation of ${r.size} cells, Lorentz anisotropy ${r.anisotropy.toFixed(3)}, Lorentz-safe ${r.lorentzSafe ? 'YES' : 'no'}`)
-    console.log(`    model runs on it, reproducible ${r.modelDeterministic ? 'YES' : 'no'}, evolves ${r.modelEvolves ? 'YES' : 'no'}`)
-    console.log('')
-  }
-  console.log('  The whole tower stands as one construction. From integer generator data, a')
-  console.log('  deterministic automaton grows the group and emits the tessellation, and the vibe')
-  console.log('  rule runs on the result, Lorentz-safe and reproducible. The modular group (the')
-  console.log('  parameter-free base) and the {7,3} and {5,4} crystals all come through the same')
-  console.log('  pipeline, integers to lived substrate, with nothing arbitrary and no randomness in')
-  console.log('  the generation. This is the canonical base, built end to end.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

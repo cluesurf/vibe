@@ -16,7 +16,8 @@
 // reserve to do so), and the total charge Q is conserved exactly throughout. Willpower is the reserve,
 // emergent, not a sixth base thing. Run: npx tsx code/experiment/p99-willpower-grounded.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 
@@ -234,27 +235,34 @@ export function willpowerGrounded(): {
   }
 }
 
-export function main(): void {
-  const r = willpowerGrounded()
-  console.log('P99: willpower grounded in the five (no scalar posited)')
-  console.log('')
-  console.log(`  ${r.cells} cells, a self of ${r.selfSize} cells holding a reserve of charge`)
-  console.log(`  willpower = the measured reserve (self charge), not a posited number`)
-  console.log('')
-  console.log('  the reserve depletes while pumping against the field:')
-  console.log(`    reserve ${r.reserveStart} -> ${r.reserveEndPumped} (strong field), depletes: ${r.reserveDepletes}`)
-  console.log('')
-  console.log('  a stronger field drains it faster (shorter endurance):')
-  console.log(`    weak field endurance ${r.enduranceWeakField} beats, strong field ${r.enduranceStrongField} beats, faster: ${r.strongerFieldDrainsFaster}`)
-  console.log('')
-  console.log('  pumping prolongs the hold versus not pumping (spends the reserve to do so):')
-  console.log(`    pumped ${r.endurancePumped} beats vs no-pump ${r.enduranceNoPump} beats, prolongs: ${r.pumpingProlongs}`)
-  console.log('')
-  console.log(`  charge Q conserved throughout: ${r.conserved}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
-}
+export default defineExperiment({
+  id: 'selves/willpower-grounded',
+  title: 'a charge reserve depletes when a self pumps against a draining field',
+  category: 'selves',
+  substrates: ['534'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = willpowerGrounded()
+    const ok = r.solved
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a self holding a reserve of charge depletes that reserve while pumping against a draining field, a stronger field drains it faster, pumping prolongs the hold, and total charge is conserved exactly',
+      metrics: {
+        reserveStart: r.reserveStart,
+        reserveEndPumped: r.reserveEndPumped,
+        enduranceWeakField: r.enduranceWeakField,
+        enduranceStrongField: r.enduranceStrongField,
+        enduranceNoPump: r.enduranceNoPump,
+      },
+      control: {
+        weakFieldEndurance: r.enduranceWeakField,
+        strongFieldEndurance: r.enduranceStrongField,
+        noPumpEndurance: r.enduranceNoPump,
+      },
+      notes:
+        'L1, not base-emergent. Charge is conserved, but the dynamics inject a PUMP, a hand-set bias of interior hops toward the center, and a field-leak parameter. The pump is an added ingredient beyond the five base things, so this models willpower as a reserve but does not show the bias emerging from the bare rule. It also relies on a pseudo-random hop schedule. The field-strength and pump-vs-no-pump comparisons are the controls.',
+    })
+  },
+})

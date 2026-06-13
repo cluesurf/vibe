@@ -4,8 +4,9 @@
 // are rank-6 (5D bulk -> 4D physical space) and paracompact (beyond the H^4 compact limit). We build each at
 // scale and measure the scoreboard. Run: npx tsx code/experiment/5d-tessellations.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
 const CANDIDATES: Cand[] = [
@@ -70,7 +71,29 @@ export function manyTessellations(): void {
   console.log('   substrate. These five are the best ALTERNATIVES (they keep the crystallographic hook), not betters.')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  manyTessellations()
-  console.log('SOLVED: all 5 candidates are crystallographic with the [3,4,3] D4/spinor hook (a plus), but all are 5D/4D-physical and paracompact (overshoot dimension, lose compactness). None beats {3,4,3,4} (compact + crystallographic + 3D).')
-}
+export default defineExperiment({
+  id: 'substrate-survey/5d-tessellations',
+  title: 'a sweep of 5D crystallographic honeycombs, all overshoot to 4D physical space and lose compactness',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    manyTessellations()
+    const reference = measure([3, 4, 3, 4])
+    const ok = reference.cells > 50 && reference.degree > 0
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the candidate 5D crystallographic honeycombs build as cell graphs and keep the [3,4,3] D4 spinor hook, but all are rank-6 giving 4D physical space and all are paracompact, so none beats the compact 3D-physical {3,4,3,4}',
+      metrics: {
+        referenceDegree: reference.degree,
+        referenceCells: reference.cells,
+        referenceBetheAlpha: reference.betheAlpha,
+        referenceGrowth: reference.growth,
+      },
+      notes:
+        'L1 known geometry, a survey. The pass checks only that the reference {3,4,3,4} builds. The crystallographic and 24-cell-hook flags are read from the Schlafli symbols, and the 4D-physical and paracompact verdicts from the rank and the H^4 compact limit, not measured here. This is a catalog entry, the alternatives that keep the spinor hook but overshoot the dimension.',
+    })
+  },
+})

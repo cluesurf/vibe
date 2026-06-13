@@ -6,7 +6,8 @@
 // and with it the measured dispersion is the Dirac relation cos E = cos(m) cos(k). So the base is the discrete
 // shift + discrete flips, the Dirac equation is the emergent description. Run: npx tsx code/experiment/p230-dirac-from-discrete.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const LX = 256
 
@@ -71,7 +72,29 @@ export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean }
   return { masslessOk, massiveOk }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = diracFromDiscrete()
-  console.log(`SOLVED: massless light-cone exactly discrete (${r.masslessOk}); massive Dirac dispersion emerges, mass = coarse-grained mixing (${r.massiveOk}).`)
-}
+export default defineExperiment({
+  id: 'relativity/dirac-from-discrete',
+  title: 'the discrete walk dispersion measured by DFT, massless light cone and massive Dirac',
+  category: 'relativity',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = diracFromDiscrete()
+    const mass = 0.6
+    const massCheckK = (2 * Math.PI * 24) / 256
+    const massE = measureE(24, mass, 512)
+    const ok = r.masslessOk && r.massiveOk
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the dispersion measured by DFT from the simulated two-component discrete walk is the light cone E = k when massless and the Dirac relation cos E = cos(m) cos(k) when massive',
+      metrics: {
+        measuredCosE: Math.cos(massE),
+        expectedCosEMassive: Math.cos(mass) * Math.cos(massCheckK),
+      },
+      notes:
+        'L2, the Dirac quantum walk reproduced on the discrete shift. The dispersion is MEASURED (the dominant DFT frequency of the real plane wave), not assumed. The massless case is an exact permutation giving E = k, which is the control against the massive Dirac branch. The mass is the emergent coarse-grained direction-flip rate. No random seeds, the walk is deterministic from a fixed plane-wave start.',
+    })
+  },
+})

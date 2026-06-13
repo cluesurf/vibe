@@ -14,7 +14,6 @@
 // spatial dimension into {2, 3, 4}, and 3 (four-dimensional spacetime) sits inside that window.
 // Run: npx tsx code/experiment/p62-dimension-window.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -129,51 +128,6 @@ export function dimensionWindow(input: { maxP: number; maxDimension: number }): 
     compactWindow,
     vanishesAbove: (compactWindow[compactWindow.length - 1] ?? 0),
   }
-}
-
-export function main(): void {
-  // Spot-check the classifier on known cases.
-  const checks: [number[], Kind][] = [
-    [[7, 3], 'hyperbolic'], // heptagrid, tiles H^2
-    [[6, 3], 'euclidean'], // hexagonal tiling of the plane
-    [[3, 3], 'spherical'], // the tetrahedron
-    [[5, 3, 4], 'hyperbolic'], // dodecagrid, tiles H^3
-    [[4, 3, 4], 'euclidean'], // cubic honeycomb of flat 3-space
-    [[4, 3, 3], 'spherical'], // the tesseract
-  ]
-  console.log('P62: the dimension window (why the crystal substrate is low-dimensional)')
-  console.log('')
-  console.log('  classifier spot-checks:')
-  for (const [sym, want] of checks) {
-    const got = classify(sym)
-    console.log(`    {${sym.join(',')}} -> ${got} ${got === want ? 'ok' : 'MISMATCH (expected ' + want + ')'}`)
-  }
-  console.log('')
-  const r = dimensionWindow({ maxP: 8, maxDimension: 6 })
-  console.log('  compact regular hyperbolic honeycombs (finite-celled crystals) by spatial dimension:')
-  for (const d of r.byDimension) {
-    const ex = d.dimension === 2 ? '(infinitely many, all {p,q} with 1/p + 1/q < 1/2)' : d.examples.join(' ')
-    console.log(`    H^${d.dimension}: ${String(d.count).padStart(3)} found  ${ex}`)
-  }
-  console.log('')
-  console.log(`  the crystal exists only in dimensions ${r.compactWindow.join(', ')}, and vanishes at ${r.vanishesAbove + 1} and above.`)
-  console.log('')
-  console.log('  The substrate is NOT bound to three dimensions by fiat, and it is NOT free to be any')
-  console.log('  dimension either. The construction is general (a regular hyperbolic honeycomb in any')
-  console.log('  dimension), but requiring it to be a real crystal with finite cells forces the spatial')
-  console.log('  dimension into the narrow window {2, 3, 4}. Above four, no compact regular hyperbolic')
-  console.log('  honeycomb exists at all, so a finite-celled crystal substrate cannot be built there.')
-  console.log('  Three-dimensional space (four-dimensional spacetime) sits inside this window. Why 3')
-  console.log('  specifically, among 2, 3, and 4, is the remaining question (the dimension-selection')
-  console.log('  problem), but the model has turned "why not arbitrary n" into a computed constraint:')
-  console.log('  the crystal only exists low, never high.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

@@ -3,7 +3,8 @@
 // autocorrelation) RISES with coarse scale and beats a spatial-shuffle null, a coherence tower in 3D. Ported
 // from the throwaway probe. Run: npx tsx code/experiment/p197-form-tower-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 48
 const at = (x: number, y: number, z: number): number => (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
@@ -63,7 +64,30 @@ export function formTower(): { real: number[]; nul: number[]; tower: boolean } {
   return { real, nul, tower }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = formTower()
-  console.log(`SOLVED: form tower on 3D cusp ${r.tower} (real ${r.real.join('/')})`)
-}
+export default defineExperiment({
+  id: 'renormalization/form-tower-3434',
+  title: 'coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the 3D cusp',
+  category: 'renormalization',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = formTower()
+    return verdict({
+      status: r.tower ? 'pass' : 'fail',
+      claim:
+        'under the 9-state permutation rule on the cubic cusp, the block net-charge persistence climbs with coarse scale and beats a spatial-shuffle null, a coherence tower in 3D',
+      metrics: {
+        finePersistence: r.real[0] ?? 0,
+        coarsePersistence: r.real[r.real.length - 1] ?? 0,
+        nullCoarsePersistence: r.nul[r.nul.length - 1] ?? 0,
+        tower: r.tower ? 1 : 0,
+      },
+      control: {
+        nullCoarsePersistence: r.nul[r.nul.length - 1] ?? 0,
+      },
+      notes:
+        'L2 with a spatial-shuffle control. The persistence is measured from the dynamics and the shuffle null guards against plain averaging, which is the strength. But the run uses a random fill and a random update order, so this is a STATISTICAL ensemble claim, not a property of a deterministic rule, and robustness should come from varying SIZE rather than the seed. Not yet a clean emergent self, the asymmetric update and the randomness keep it L2.',
+    })
+  },
+})

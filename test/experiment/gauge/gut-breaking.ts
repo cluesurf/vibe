@@ -5,7 +5,8 @@
 // 16-spinor decomposes under su(5) as 1 + 10 + 5bar, so it HAS a singlet whose VEV preserves su(5).
 // Run: npx tsx code/experiment/p225-gut-breaking.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
 const eq = (a: number[], b: number[]): boolean => a.length === b.length && a.every((x, i) => Math.abs(x - b[i]!) < 1e-9)
@@ -43,7 +44,26 @@ export function gutBreaking(): { su5InSo10: boolean; smInSu5: boolean; sixteenSp
   return { su5InSo10, smInSu5, sixteenSplit }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gutBreaking()
-  console.log(`SOLVED: so(10) -> su(5) ${r.su5InSo10} -> SM ${r.smInSu5}; ${r.sixteenSplit} (the self/spinor condensate is the GUT Higgs).`)
-}
+export default defineExperiment({
+  id: 'gauge/gut-breaking',
+  title: 'so(10) breaks to su(5) to the Standard Model with the 16-spinor carrying a singlet',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = gutBreaking()
+    const ok = r.su5InSo10 && r.smInSu5
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'su(5) embeds in so(10) and the Standard Model embeds in su(5), and the 16-spinor decomposes as 1 plus 10 plus 5bar so it has a singlet whose condensate breaks so(10) to su(5)',
+      metrics: {
+        su5InSo10: r.su5InSo10 ? 1 : 0,
+        smInSu5: r.smInSu5 ? 1 : 0,
+      },
+      notes:
+        'L1, known math, the standard Georgi-Glashow chain on the root systems. It verifies the breaking chain is consistent, not that the self-condensate dynamically forms in the singlet direction.',
+    })
+  },
+})

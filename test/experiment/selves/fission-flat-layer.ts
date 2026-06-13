@@ -8,7 +8,6 @@
 // a bridge), where the same erosion does NOT leave two persistent lobes. So the no-fission limit is
 // BULK-specific, not absolute, lifted at the emergent flat level. Run: npx tsx code/experiment/p160-fission-flat-layer.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -154,23 +153,6 @@ export function fissionFlatLayer(): {
   const solved = liftedAtFlatLevel
 
   return { flatLobes: flat.lobes, flatFissioned: flat.bothSubstantial, hyperbolicFissioned: hyp.bothSubstantial, liftedAtFlatLevel, solved }
-}
-
-export function main(): void {
-  const r = fissionFlatLayer()
-  console.log('P160: fission IS possible on the emergent flat layer')
-  console.log('')
-  console.log(`  FLAT layer (Euclidean): the dumbbell pinches its neck and splits into ${r.flatLobes} persistent selves, fission: ${r.flatFissioned}`)
-  console.log(`  HYPERBOLIC bulk: the same erosion does NOT leave two persistent selves (P112): ${r.hyperbolicFissioned}`)
-  console.log('')
-  console.log(`  fission is lifted at the emergent flat level (bulk-forbidden, flat-possible): ${r.liftedAtFlatLevel}`)
-  console.log('  => the no-fission limit is BULK-specific, not absolute. Reproduction by division works where')
-  console.log('     the emergent geometry is flat, which is where life lives.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

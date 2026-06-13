@@ -10,7 +10,6 @@
 // discreteness allows, and measure the rapidity diffusion. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p26-swerves.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -139,43 +138,6 @@ export function swerveDiffusion(input: { density: number; seed: number; trajecto
     varx += (p.tau - mx) * (p.tau - mx)
   }
   return { density: input.density, slope: varx === 0 ? 0 : cov / varx, points }
-}
-
-export function main(): void {
-  console.log('P26: swerves (momentum diffusion from discreteness)')
-  console.log('')
-  console.log('  rapidity variance grows linearly with proper time (a diffusion) at every')
-  console.log('  sprinkling density (the discreteness scale):')
-  console.log('')
-  for (const density of [0.6, 1.2, 2.4]) {
-    const r = swerveDiffusion({ density, seed: 1, trajectories: 400 })
-    console.log(`  density ${density}: rapidity variance ~ ${r.slope.toFixed(4)} per unit proper time`)
-  }
-  console.log('')
-  const ref = swerveDiffusion({ density: 1.2, seed: 1, trajectories: 400 })
-  console.log('  variance versus proper time (density 1.2):')
-  console.log('    tau:   ' + ref.points.map((p) => p.tau.toFixed(1).padStart(6)).join(''))
-  console.log('    var:   ' + ref.points.map((p) => p.varRapidity.toFixed(3).padStart(6)).join(''))
-  console.log('')
-  console.log('  The rapidity does not stay constant: it random-walks, its variance rising')
-  console.log('  linearly with proper time over the clean range. That is the swerve, momentum')
-  console.log('  diffusion forced by discreteness, with no continuum analogue: a free particle')
-  console.log('  on a continuum geodesic keeps its velocity forever, on a causal set it cannot.')
-  console.log('  Over cosmic times this heats particles, a distinctive observational signature')
-  console.log('  (cosmic rays, the dark sector) that a continuum theory cannot produce.')
-  console.log('')
-  console.log('  Honest limits: the variance saturates at large proper time as wide-rapidity')
-  console.log('  trajectories leave the finite box (a boundary effect, fit excluded). And the')
-  console.log('  precise dependence of the diffusion constant on density is not clean in this')
-  console.log('  simple fixed-band selection, the canonical Dowker-Henson-Sorkin scaling needs a')
-  console.log('  fully covariant trajectory rule. The swerve itself (diffusion exists) is robust.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

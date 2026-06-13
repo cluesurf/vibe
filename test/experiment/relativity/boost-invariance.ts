@@ -14,7 +14,6 @@
 // Combined with the isotropy of P150, IR boost-invariance gives the FULL emergent Lorentz group.
 // Run: npx tsx code/experiment/p154-boost-invariance.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -96,29 +95,6 @@ export function boostInvariance(input?: { masses?: number[]; boosts?: number[] }
     fullLorentz,
     solved,
   }
-}
-
-export function main(): void {
-  const r = boostInvariance()
-  console.log('P154: boost invariance, the other half of Lorentz')
-  console.log('')
-  console.log('  (1) MASSLESS mode (m=0): is the lightcone omega = |k| EXACT?')
-  console.log(`      max deviation of omega(k) from |k| = ${r.masslessMaxDeviation.toExponential(2)} -> exact lightcone: ${r.masslessExact}`)
-  console.log('      => the massless speed is EXACTLY c in every frame, exact boost invariance.')
-  console.log('')
-  console.log('  (2) MASSIVE modes: the Lorentz invariant omega^2 - k^2 = m^2 holds out to k =', r.massiveWindow.toFixed(2), '(the IR window)')
-  console.log('')
-  console.log('  (3) the dispersion is mapped to ITSELF by a boost (within the window):')
-  console.log(`      mean boost residual = ${r.boostResidual.toExponential(2)} -> boost-invariant: ${r.boostInvariantInWindow}`)
-  console.log('')
-  console.log(`  FULL Lorentz (boosts here + rotations P150): ${r.fullLorentz}`)
-  console.log('  => massless modes are EXACTLY boost-invariant, massive modes in the IR window, lattice')
-  console.log('     (UV) violation only near the cutoff, the standard emergent-Lorentz picture.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

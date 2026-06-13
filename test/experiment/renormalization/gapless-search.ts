@@ -10,7 +10,6 @@
 // massive with these knobs and the rule itself would need a new process to be gapless.
 // Run: npx tsx code/experiment/p136-gapless-search.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -137,29 +136,6 @@ export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: 
   const solved = gaplessFound || robustlyMassive // a clear verdict either way
 
   return { L, grid, best, maxRange, gaplessFound, robustlyMassive, solved }
-}
-
-export function main(): void {
-  const r = gaplessSearch()
-  console.log('P136: hunt for a gapless critical point (arrow x share scan on a flat chain)')
-  console.log('')
-  console.log('  arrow   share   density   range   xi')
-  for (const g of r.grid) {
-    console.log(`  ${g.arrow.toFixed(3)}   ${g.share.toFixed(2)}    ${(g.density * 100).toFixed(1).padEnd(5)}%   ${String(g.range).padEnd(4)}   ${g.correlationLength.toFixed(2)}`)
-  }
-  console.log('')
-  console.log('  (note: xi > 5 with range 0 are noise-tail fits of a flat correlation, RANGE is the robust measure)')
-  console.log(`  longest correlation range ${r.maxRange} at arrow=${r.best.arrow}, share=${r.best.share}`)
-  console.log(`  GAPLESS critical regime found (range >= 5): ${r.gaplessFound}`)
-  console.log(`  robustly massive across the whole plane (range <= 2): ${r.robustlyMassive}`)
-  console.log('')
-  if (r.gaplessFound) console.log('  => a long-range regime exists, this is where spatial RP and emergent Lorentz become testable.')
-  else console.log('  => no gapless point with (arrow, share, hop), the field is robustly massive, the rule needs a new process to be gapless.')
-  console.log(`  SOLVED (clear verdict): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -11,7 +11,6 @@
 // Together these are exactly recursive nesting, the structure repeats at every scale and crowds the
 // boundary. Run: npx tsx code/experiment/p189-nested-structure-534.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -77,26 +76,6 @@ export function nestedStructure534(maxCells = 500000): {
   const solved = exponentialNesting && ratioConverges && boundaryAccumulation
 
   return { shellCounts, cleanShells, ratios, growthConstant, ratioConverges, meanRadius, boundaryAccumulation, exponentialNesting, solved }
-}
-
-export function main(): void {
-  const r = nestedStructure534()
-  console.log('P189: nested structure on {5,3,4}')
-  console.log('')
-  console.log(`  shell counts (raw): ${r.shellCounts.join(', ')}`)
-  console.log(`  clean shells (untruncated): ${r.cleanShells.join(', ')}`)
-  console.log(`  shell-to-shell ratios: ${r.ratios.map((x) => x.toFixed(3)).join(', ')}`)
-  console.log(`  growth constant (converged ratio): ${r.growthConstant.toFixed(3)}`)
-  console.log(`  ratio converges (self-similar nesting): ${r.ratioConverges}`)
-  console.log(`  mean Poincare radius by shell: ${r.meanRadius.map((x) => x.toFixed(3)).join(', ')}`)
-  console.log(`  boundary accumulation (radius -> 1, monotone): ${r.boundaryAccumulation}`)
-  console.log(`  exponential nesting: ${r.exponentialNesting}`)
-  console.log('')
-  console.log(`  => {5,3,4} is recursively nested, exponential self-similar shells crowding the boundary. SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

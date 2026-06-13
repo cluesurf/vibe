@@ -4,7 +4,8 @@
 // spin requirement. We confirm the cusp reads 3D (spectral dimension), and note why 3D is special (spinors,
 // the Hopf fibration, stable 1/r^2 orbits, knots). Run: npx tsx code/experiment/p235-why-3plus1.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // spectral dimension of the flat cubic cusp (the lattice random-walk return exponent)
 function cuspSpectralDim(L: number): number {
@@ -36,7 +37,31 @@ export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
   return { cuspDim, isThreeD }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = why3plus1()
-  console.log(`SOLVED: cusp spectral dim = ${r.cuspDim} (3D, ${r.isThreeD}); 3+1 = cusp(3) + beat(1), selected by spin, and 3D is special (spinors, hopfions, stable orbits, knots).`)
-}
+// The cusp of {3,4,3,4} is flat 3D cubic. We measure the spectral dimension of the {4,3,4}
+// cubic cusp and it reads near 3, so spacetime is 3 cusp dimensions plus 1 beat = 3+1. Only
+// the dimension is measured here. The claim that 3 spatial dimensions FOLLOW from selecting
+// the substrate for spin is a selection argument made elsewhere, not measured in this file.
+// L1, the dimension of a known cubic lattice.
+export default defineExperiment({
+  id: 'geometry/why-3plus1',
+  title: 'the {4,3,4} cusp reads spectral dimension ~3, so spacetime is 3 space plus 1 beat',
+  category: 'geometry',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = why3plus1()
+    const ok = r.isThreeD
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {4,3,4} cubic cusp reads spectral dimension near 3, giving 3 spatial dimensions plus the one-dimensional beat',
+      metrics: {
+        cuspDimension: r.cuspDim,
+        isThreeD: r.isThreeD ? 1 : 0,
+      },
+      notes:
+        'L1, the dimension of the known {4,3,4} cubic lattice. Only the cusp dimension is measured. The argument that 3 spatial dimensions follow from selecting the substrate for spin is a selection claim made elsewhere, not measured here.',
+    })
+  },
+})

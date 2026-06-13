@@ -8,7 +8,6 @@
 // process has ZERO net circulation, only statistical noise. A persistent nonzero circulation is a steady
 // current, the signature of irreversibility. Run: npx tsx code/experiment/p128-cycle-reversibility.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -149,26 +148,6 @@ export function cycleReversibility(input?: { n?: number }): {
   const solved = reversible
 
   return { n: N, cycles: cycleCount, meanAbsCirculation, floor, ratio, reversible, solved }
-}
-
-export function main(): void {
-  const r = cycleReversibility()
-  console.log('P128: multi-cell reversibility (Kolmogorov circulation on loops)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, ${r.cycles} closed 4-cycles measured`)
-  console.log('')
-  console.log(`  mean |circulation| around 4-cycles = ${r.meanAbsCirculation.toFixed(2)}`)
-  console.log(`  statistical noise floor            = ${r.floor.toFixed(2)}`)
-  console.log(`  ratio = ${r.ratio.toFixed(2)}  (near 1 = no persistent current = reversible)`)
-  console.log('')
-  console.log(`  no persistent circulation, multi-cell reversibility holds: ${r.reversible}`)
-  console.log('  => with P126, the dynamics is reversible locally AND around loops, so it is a genuine')
-  console.log('     equilibrium process, the precondition for reflection positivity / quantization is met.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

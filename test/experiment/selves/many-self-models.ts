@@ -7,7 +7,6 @@
 // many of them, not a single privileged center.
 // Run: npx tsx code/experiment/p117-many-self-models.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -214,24 +213,6 @@ export function manySelfModels(input?: { n?: number }): {
   const solved = allFormSelfModels && distinctCenters
 
   return { n: N, centers, results, countSelfModels, allFormSelfModels, distinctCenters, solved }
-}
-
-export function main(): void {
-  const r = manySelfModels()
-  console.log('P117: many self-models, one per self (not just the center)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, ${r.centers.length} selves at different locations:`)
-  for (const res of r.results) {
-    console.log(`    self at cell ${res.center}: hub corr ${res.hubCorr.toFixed(2)} vs peripheral ${res.periCorr.toFixed(2)} -> self-model: ${res.isSelfModel}`)
-  }
-  console.log('')
-  console.log(`  ${r.countSelfModels} of ${r.centers.length} selves formed their own self-model (distinct centers: ${r.distinctCenters})`)
-  console.log(`  self-models are relative to the self, many of them, not one privileged center: ${r.allFormSelfModels}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

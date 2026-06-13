@@ -8,7 +8,6 @@
 // population ADAPTS when the environment changes (open-ended), (3) variation is necessary (zero mutation
 // stalls). Run: npx tsx code/experiment/p161-evolution.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -124,23 +123,6 @@ export function evolution(input?: { K?: number; m?: number; generations?: number
     openEnded,
     solved,
   }
-}
-
-export function main(): void {
-  const r = evolution()
-  console.log('P161: evolution (heredity + variation + selection + competition)')
-  console.log('')
-  console.log(`  population ${r.K}, fitness = alignment with the arrow-favored environment`)
-  console.log(`  (1) SELECTION raises fitness: ${r.startFitness.toFixed(2)} -> ${r.selectedFitness.toFixed(2)}  (neutral drift: ${r.driftFitness.toFixed(2)})  -> ${r.selectionWorks}`)
-  console.log(`  (3) VARIATION needed: zero-mutation reaches only ${r.noMutationFitness.toFixed(2)} vs ${r.selectedFitness.toFixed(2)} with mutation -> ${r.variationNeeded}`)
-  console.log(`  (2) OPEN-ENDED: environment changes, fitness re-rises ${(r.selectedFitness).toFixed(2)}-then-drops-then -> ${r.adaptedFitness.toFixed(2)} on the new target -> ${r.openEnded}`)
-  console.log('')
-  console.log(`  open-ended evolution by natural selection, from heredity + the arrow as the fitness gradient: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

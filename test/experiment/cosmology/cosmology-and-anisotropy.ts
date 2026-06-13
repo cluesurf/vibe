@@ -8,8 +8,9 @@
 //     At physical energy E this is delta = c (E/E_cutoff)^2, we compute it at GeV / TeV / GZK and compare to
 //     Lorentz-violation bounds. Run: npx tsx code/experiment/cosmology-and-anisotropy.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function expansionLaw(): { ratio: number; H: number } {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 40000 })
@@ -69,7 +70,30 @@ export function cosmologyAndAnisotropy(): void {
   void e; void a
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  cosmologyAndAnisotropy()
-  console.log('SOLVED: expansion law a(t)=e^(Ht) (de Sitter, Lambda=3H^2); cubic anisotropy delta = (1/18)(E/E_Planck)^2, passes Lorentz bounds. {3,4,3,4} quantitative tasks complete.')
-}
+export default defineExperiment({
+  id: 'cosmology/cosmology-and-anisotropy',
+  title:
+    'the {3,4,3,4} bulk grows exponentially (de Sitter) and the cusp cubic anisotropy passes Lorentz bounds',
+  category: 'cosmology',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const e = expansionLaw()
+    const a = anisotropyBound()
+    const ok = e.ratio > 1.5 && a.deltaGZK < 1e-3
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {3,4,3,4} bulk shells grow by a constant ratio per beat giving a de Sitter scale factor, and the cubic cusp dispersion anisotropy at the GZK energy is far below Lorentz-violation bounds',
+      metrics: {
+        growthRatio: e.ratio,
+        hubble: e.H,
+        anisotropyCoeff: a.coeff,
+        deltaGZK: a.deltaGZK,
+      },
+      notes:
+        'L1, the exponential bulk growth is a measured graph-growth property of a hyperbolic tiling mapped to a Friedmann reading, and the anisotropy is an analytic dispersion calculation, both established rather than emergent. The Lorentz bound passes only under the assumption the lattice cutoff sits at the Planck scale.',
+    })
+  },
+})

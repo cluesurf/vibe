@@ -8,7 +8,8 @@
 // rule is local and so would obey CHSH <= 2. Whether a nonlocal boundary actually emerges from it is an open
 // claim, not tested here. Run: npx tsx code/experiment/p236-bell-nonlocality.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function bellNonlocality(): { localMax: number; quantumMax: number; gap: boolean } {
   // (1) local deterministic hidden-variable CHSH, brute force all strategies a0,a1,b0,b1 in {+-1}
@@ -43,7 +44,27 @@ export function bellNonlocality(): { localMax: number; quantumMax: number; gap: 
   return { localMax, quantumMax, gap }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = bellNonlocality()
-  console.log(`ANALYTIC CHECK (assumes textbook CHSH bound 2 and Tsirelson 2 sqrt 2, NOT emergent): local=${r.localMax}, quantum=${r.quantumMax.toFixed(2)} self-consistent. The local/quantum gap is restated, not derived from the substrate.`)
-}
+export default defineExperiment({
+  id: 'quantum/bell-nonlocality',
+  title: 'the local CHSH bound is 2 and the quantum value is 2 sqrt 2, a restated gap',
+  category: 'quantum',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = bellNonlocality()
+    const ok = r.localMax === 2 && Math.abs(r.quantumMax - 2 * Math.sqrt(2)) < 1e-9 && r.gap
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'enumerating local deterministic strategies gives the CHSH bound 2 and the textbook optimal angles give the quantum value 2 sqrt 2, a known gap not produced by the substrate',
+      metrics: {
+        localMax: r.localMax,
+        quantumMax: r.quantumMax,
+        tsirelson: 2 * Math.sqrt(2),
+      },
+      notes:
+        'L1, an analytic restatement of textbook CHSH facts. The local bound is brute-forced over the four deterministic strategies (a genuine enumeration), but the quantum value plugs the standard optimal angles into cos(x - y), so it is assumed, not produced by the vibe rule. This file does NOT show the substrate reaches the quantum value. The local discrete base obeys CHSH <= 2, the holographic-boundary resolution is a conjecture stated in prose, not tested.',
+    })
+  },
+})

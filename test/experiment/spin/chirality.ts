@@ -7,7 +7,8 @@
 // ideal resolution of Nielsen-Ninomiya. See note/questions/p4-chirality-spec.md.
 // Run: npx tsx code/experiment/p4-chirality.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import {
   naiveDirac2D,
   wilsonDirac2D,
@@ -15,57 +16,59 @@ import {
   scanBrillouin,
 } from '@/code/operator/lattice-fermion'
 
-export function main(): void {
-  const gridSize = 12 // even, so k = 0 and k = pi are grid points
-  const r = 1
-  const m0 = 1 // in (0, 2r), keeps the physical mode and lifts doublers
+export default defineExperiment({
+  id: 'spin/chirality',
+  title: 'the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry',
+  category: 'spin',
+  substrates: ['any'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const gridSize = 12
+    const r = 1
+    const m0 = 1
 
-  const naive = scanBrillouin({
-    operator: ({ k1, k2 }) => naiveDirac2D({ k1, k2 }),
-    gridSize,
-  })
-  const wilson = scanBrillouin({
-    operator: ({ k1, k2 }) => wilsonDirac2D({ k1, k2, m: 0, r }),
-    gridSize,
-  })
-  const overlap = scanBrillouin({
-    operator: ({ k1, k2 }) => overlapDirac2D({ k1, k2, m0, r }),
-    gridSize,
-  })
+    const naive = scanBrillouin({
+      operator: ({ k1, k2 }) => naiveDirac2D({ k1, k2 }),
+      gridSize,
+    })
+    const wilson = scanBrillouin({
+      operator: ({ k1, k2 }) => wilsonDirac2D({ k1, k2, m: 0, r }),
+      gridSize,
+    })
+    const overlap = scanBrillouin({
+      operator: ({ k1, k2 }) => overlapDirac2D({ k1, k2, m0, r }),
+      gridSize,
+    })
 
-  console.log('P4 / Stage D: the chirality wall (2D, momentum space)')
-  console.log('  operator   species(zeros)  GW residual   reading')
-  console.log(
-    `  naive      ${String(naive.species).padStart(13)}  ${naive.gwResidualMax.toExponential(2).padStart(11)}   doubled (2^2 = 4)`,
-  )
-  console.log(
-    `  wilson     ${String(wilson.species).padStart(13)}  ${wilson.gwResidualMax.toExponential(2).padStart(11)}   1 species, chiral symmetry broken`,
-  )
-  console.log(
-    `  overlap    ${String(overlap.species).padStart(13)}  ${overlap.gwResidualMax.toExponential(2).padStart(11)}   1 species, exact GW chiral symmetry`,
-  )
-  console.log('')
+    const naiveDoubled = naive.species === 4
+    const wilsonOne = wilson.species === 1
+    const wilsonBroken = wilson.gwResidualMax > 1e-3
+    const overlapOne = overlap.species === 1
+    const overlapChiral = overlap.gwResidualMax < 1e-9
 
-  const naiveDoubled = naive.species === 4
-  const wilsonOne = wilson.species === 1
-  const overlapOne = overlap.species === 1
-  const overlapChiral = overlap.gwResidualMax < 1e-9
-  const wilsonBroken = wilson.gwResidualMax > 1e-3
-
-  console.log(`  naive shows 4 doublers:                 ${naiveDoubled ? 'YES' : 'no'}`)
-  console.log(`  Wilson removes doublers to 1 species:   ${wilsonOne ? 'YES' : 'no'}`)
-  console.log(`  Wilson breaks chiral symmetry:          ${wilsonBroken ? 'YES' : 'no'}`)
-  console.log(`  overlap: 1 species:                     ${overlapOne ? 'YES' : 'no'}`)
-  console.log(`  overlap: exact chiral symmetry (GW=0):  ${overlapChiral ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(
-    `  chirality wall threaded: ${overlapOne && overlapChiral ? 'YES (overlap)' : 'no'}`,
-  )
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const ok =
+      naiveDoubled && wilsonOne && wilsonBroken && overlapOne && overlapChiral
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'in 2D momentum space the naive lattice Dirac operator has four doublers, the Wilson operator cuts it to one species but breaks chiral symmetry, and the overlap operator gives one species with a zero Ginsparg-Wilson residual, the exact-chiral resolution of Nielsen-Ninomiya',
+      metrics: {
+        naiveSpecies: naive.species,
+        wilsonSpecies: wilson.species,
+        wilsonGwResidual: wilson.gwResidualMax,
+        overlapSpecies: overlap.species,
+        overlapGwResidual: overlap.gwResidualMax,
+      },
+      control: {
+        // the naive and Wilson operators are the negative controls: doublers present,
+        // or chiral symmetry broken. Only the overlap operator achieves both one
+        // species and a vanishing GW residual.
+        naiveDoublers: naive.species,
+        wilsonChiralBroken: wilsonBroken ? 1 : 0,
+      },
+      notes:
+        'L2, known physics (lattice fermions, the Ginsparg-Wilson and overlap construction). The naive and Wilson operators are real negative controls (doublers, broken chirality). This reproduces a textbook lattice-QCD result in 2D momentum space, it is not specific to the vibe coin, so the substrate is any.',
+    })
+  },
+})

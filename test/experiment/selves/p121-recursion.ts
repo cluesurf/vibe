@@ -11,7 +11,6 @@
 // from the world. The wiring between selves is mere connectivity, the modeling itself is emergent.
 // Run: npx tsx code/experiment/p121-recursion.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -219,24 +218,6 @@ export function recursion(input?: { n?: number }): {
     modelsTheModel,
     solved,
   }
-}
-
-export function main(): void {
-  const r = recursion()
-  console.log('P121: full recursion, a model of the model (the tower of self-models)')
-  console.log('')
-  console.log(`  level 1: hub1 models the WORLD: corr ${r.hub1ModelsWorld.toFixed(2)}`)
-  console.log(`  level 2: hub2 models HUB1 (a model of the model): corr ${r.hub2ModelsHub1.toFixed(2)}`)
-  console.log(`    vs time-shuffled baseline: ${r.shuffledBaseline.toFixed(2)} (real model: ${r.realModel})`)
-  console.log(`    vs no dynamics (frozen):   ${r.noDynamics.toFixed(2)}`)
-  console.log(`    hub2 tracks hub1 (${r.hub2ModelsHub1.toFixed(2)}) at least as well as the raw world (${r.hub2ModelsWorld.toFixed(2)}): ${r.modelsTheModel}`)
-  console.log('')
-  console.log(`  the chain world -> model1 -> model2(model1) holds, a model of a model: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

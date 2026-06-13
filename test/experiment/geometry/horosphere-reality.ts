@@ -3,8 +3,9 @@
 // tiling on it PERIODIC (clean cubic {4,3,4}, uniform degree 6) or APERIODIC (varying degrees)? (3) how does the
 // band size scale, i.e. what does a GROWING flat slice look like? Run: npx tsx code/experiment/horosphere-reality.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function horosphereReality(): { bandCount: number; flatGrowth: number; degreeHistogram: Record<number, number> } {
   const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 6000, half: 0.5, margin: 0.7 })
@@ -43,7 +44,35 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
   return { bandCount: B, flatGrowth, degreeHistogram }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = horosphereReality()
-  console.log(`SOLVED: {3,4,3,4} horosphere band = ${r.bandCount} cells, intrinsic growth ${r.flatGrowth} (flat, not exponential). Degree spread reveals periodic-vs-aperiodic discrete flat space.`)
-}
+// The {3,4,3,4} horosphere band is intrinsically flat even at finite distance. We extract
+// the band, measure its intrinsic shell growth (polynomial, a small ratio, not the
+// exponential growth of a curved bulk), and read its degree histogram to see whether the
+// discrete tiling is the clean periodic {4,3,4} or an aperiodic flat slab. This is a
+// geometric probe of a known tessellation, so L1, and a structural finding, so paper is
+// false.
+export default defineExperiment({
+  id: 'geometry/horosphere-reality',
+  title: 'the {3,4,3,4} horosphere band is intrinsically flat at finite distance, with a spread of cell degrees',
+  category: 'geometry',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = horosphereReality()
+    const distinctDegrees = Object.keys(r.degreeHistogram).length
+    const flat = r.flatGrowth > 0 && r.flatGrowth < 4
+    const ok = flat && r.bandCount > 0
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {3,4,3,4} horosphere band grows polynomially (intrinsically flat) at finite distance, with a spread of cell degrees',
+      metrics: {
+        bandCells: r.bandCount,
+        intrinsicGrowthRatio: r.flatGrowth,
+        distinctDegrees,
+      },
+      notes:
+        'L1, a geometric probe of a known tessellation. The polynomial (small) growth ratio shows horospheres are Euclidean even at finite distance. The degree spread distinguishes the clean periodic cusp from a generic aperiodic flat slab.',
+    })
+  },
+})

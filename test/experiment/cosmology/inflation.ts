@@ -12,7 +12,6 @@
 // computed from the integration, not assigned.
 // Run: npx tsx code/experiment/p30-inflation.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -80,32 +79,6 @@ export function inflate(input: { phi0: number; m?: number }): {
     enoughEfolds: efoldsAtExit >= 60,
     efoldsMatchesAnalytic: Math.abs(efoldsAtExit - efoldsAnalytic) / efoldsAnalytic < 0.05,
   }
-}
-
-export function main(): void {
-  console.log('P30: inflation from slow-roll, derived (not a hardcoded two-phase rate)')
-  console.log('')
-  const r = inflate({ phi0: 16 })
-  console.log('  inflaton in V = 1/2 m^2 phi^2, integrated from phi0 = 16 (slow-roll attractor):')
-  console.log('')
-  console.log(`  equation of state during inflation: w = ${r.wDuringInflation.toFixed(3)} (near -1, vacuum-like, accelerating)`)
-  console.log(`  expansion accelerates during inflation (w < -1/3): ${r.acceleratesDuringInflation ? 'YES' : 'no'}`)
-  console.log(`  e-folds of inflation (computed): ${r.efolds.toFixed(1)} (analytic phi0^2/4 = ${r.efoldsAnalytic.toFixed(1)})`)
-  console.log(`  e-folds match the analytic value: ${r.efoldsMatchesAnalytic ? 'YES' : 'no'}`)
-  console.log(`  enough e-folds to solve the horizon problem (>= 60): ${r.enoughEfolds ? 'YES' : 'no'}`)
-  console.log(`  graceful exit (expansion decelerates after the field leaves slow-roll): ${r.gracefulExit ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Inflation is not assigned, it is derived. Integrating the inflaton equations of')
-  console.log('  motion, the field slow-rolls while it is large: the potential dominates, the equation')
-  console.log('  of state sits near -1, and the universe accelerates through many e-folds, with the')
-  console.log('  count coming out as phi0^2/4. Inflation then ends by itself, a graceful exit, when the')
-  console.log('  field rolls down to where the slow-roll condition fails and the kinetic energy takes')
-  console.log('  over, decelerating the expansion. The two phases and the WHY of the transition emerge')
-  console.log('  from the field rolling, not from a hardcoded rate.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

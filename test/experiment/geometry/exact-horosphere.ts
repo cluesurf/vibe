@@ -11,7 +11,6 @@
 // about the lattice or the honeycomb, so the idealization was sound and {5,3,4} can keep its forced
 // geometry while we simulate selves on a flat layer. Run: npx tsx code/experiment/p182-exact-horosphere.ts
 
-import { pathToFileURL } from 'node:url'
 import { bulkGraph, flatGraph, squareGraph, beat, emergeSelf, countPlus, boundaryFraction, ball, type Graph } from '@/test/experiment/misc/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -104,35 +103,6 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
     idealizationValidated,
     solved,
   }
-}
-
-export function main(): void {
-  const r = exactHorosphere()
-  console.log('P182: an exact {4,4} horosphere ({4,4,3}) validates the flat-self physics')
-  console.log('')
-  console.log('  the {4,4,3} horosphere is EXACTLY the {4,4} square lattice (no idealization), cell-for-cell.')
-  console.log('')
-  console.log('  (1) GEOMETRY, ball boundary/volume by radius:')
-  console.log(`      exact square (horo)  ${r.squareBallBV.map((x) => x.toFixed(2)).join('  ')}  (falls, compact: ${r.squareCompact})`)
-  console.log(`      triangular (ideal)   ${r.triangularBallBV.map((x) => x.toFixed(2)).join('  ')}  (same trend)`)
-  console.log(`      hyperbolic bulk      ${r.bulkBallBV.map((x) => x.toFixed(2)).join('  ')}  (stays high)`)
-  console.log('')
-  console.log('  (2) DYNAMICS, the same self:')
-  console.log(`      leak/beat     square ${(r.squareLeak * 100).toFixed(0)}%   triangular ${(r.triangularLeak * 100).toFixed(0)}%   bulk ${(r.bulkLeak * 100).toFixed(0)}%`)
-  console.log(`      passive       square ${(r.squarePassive * 100).toFixed(0)}%   triangular ${(r.triangularPassive * 100).toFixed(0)}%   bulk ${(r.bulkPassive * 100).toFixed(0)}%`)
-  console.log(`      GEOMETRIC core (compact + per-beat leak) matches between exact square and triangular: ${r.squareLeakMatchesTriangular}`)
-  console.log(`      both flat layers leak far less than the bulk: ${r.bothFlatBeatBulkLeak}`)
-  console.log(`      passive persistence improves with coordination (triangular 6-nbr > square 4-nbr): ${r.passiveImprovesWithCoordination}`)
-  console.log('')
-  console.log('  => the GEOMETRIC self-physics (compact-possible, low per-beat leak) is identical on the EXACT')
-  console.log('     {4,4} horosphere and the triangular idealization, and absent in the bulk, so it is a fact')
-  console.log('     about FLAT CURVATURE. The idealization was sound, {5,3,4} keeps its forced geometry, and a')
-  console.log('     richer (higher-coordination) flat layer holds selves even longer, an honest bonus.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -13,7 +13,6 @@
 // perturbation spreads BALLISTICALLY (RMS width ~ t, exponent ~1), versus the stochastic rule's diffusion
 // (exponent ~1/2). Run: npx tsx code/experiment/p148-deterministic-wave.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -214,26 +213,6 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     momentumFromDeterminism,
     solved,
   }
-}
-
-export function main(): void {
-  const r = deterministicWave()
-  console.log('P148: a deterministic reversible rule gives ballistic (z=1) propagation (momentum from determinism)')
-  console.log('')
-  console.log(`  the deterministic second-order rule is exactly REVERSIBLE (no information lost): ${r.reversible}`)
-  console.log('')
-  console.log('  spread of a localized perturbation, RMS width ~ t^exponent:')
-  console.log(`    DETERMINISTIC reversible rule: exponent ${r.detSpreadExponent.toFixed(2)} (1 = BALLISTIC, a wave at finite speed): ${r.detIsBallistic}`)
-  console.log(`    STOCHASTIC perception rule:    exponent ${r.stochSpreadExponent.toFixed(2)} (crude/update-biased here, the clean diffusive z=2 is P137)`)
-  console.log('')
-  console.log('  => removing the randomness turns DIFFUSION (z=2, no momentum) into a WAVE (z=1, ballistic,')
-  console.log('     finite speed). Momentum / the relativistic mode EMERGES from a DETERMINISTIC, REVERSIBLE')
-  console.log('     rule, using the existing tone, no new field. The randomness was the obstruction.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

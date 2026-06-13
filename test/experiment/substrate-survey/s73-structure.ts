@@ -4,8 +4,9 @@
 // spinor and NO root-system gauge, and physical space would be 1D. Even more degenerate than {5,3,4}.
 // Run: npx tsx code/experiment/s73-structure.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
@@ -38,7 +39,28 @@ export function s73Structure(): { degree: number; specDim: number; crystallograp
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s73Structure()
-  console.log(`SOLVED: {7,3} bulk 2D degree ${r.degree}, 1D horocycle; crystallographic ${r.crystallographic} (NO -> no gauge), spinor ${r.hasSpinor} (NO -> no fermions). Even more degenerate (1D physical space).`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/s73-structure',
+  title: 'the 7 directions of {7,3} are non-crystallographic (measured), so no root-system gauge and 1D physical space',
+  category: 'substrate-survey',
+  substrates: ['73'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s73Structure()
+    const ok = r.degree === 7 && r.specDim > 0 && !r.crystallographic && !r.hasSpinor
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {7,3} bulk has degree 7 and its 7-fold directions fail the crystallographic integer test, so they form no root system and carry no gauge group',
+      metrics: {
+        degree: r.degree,
+        specDim: r.specDim,
+        crystallographic: r.crystallographic ? 1 : 0,
+        hasSpinor: r.hasSpinor ? 1 : 0,
+      },
+      notes:
+        'L1 known math, the non-crystallographic verdict IS measured by the 2(a.b)/(b.b) integer test on the heptagon directions. The hasSpinor flag is hard-set to false from the known D7 reflection group, not measured. The 1D horocycle dimension is stated, not measured.',
+    })
+  },
+})

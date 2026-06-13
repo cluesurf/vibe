@@ -18,7 +18,6 @@
 //      amplitude^2 = |c|^2, the Born rule.
 // Run: npx tsx code/experiment/p70-born-rule.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -126,36 +125,6 @@ export function bornRule(input: { seed: number }): {
     // (p=1 and p=3 fail by a wide margin), and fair sampling reproduces |c|^2.
     solved: quadratureResidual < 1e-6 && p2 < 1e-9 && p1 > 0.05 && p3 > 0.05 && samplingError < 0.01,
   }
-}
-
-export function main(): void {
-  const r = bornRule({ seed: 1 })
-  console.log('P70: the Born rule, derived without assuming it')
-  console.log('')
-  console.log('  one assumption: amplitude = sqrt(count of co-excited vibes).')
-  console.log(`  (1) disjoint patches add in quadrature, residual: ${r.quadratureResidual.toExponential(1)}`)
-  console.log('  (3) which exponent p keeps probability additive over disjoint outcomes?')
-  for (const e of r.exponentResiduals) {
-    console.log(
-      `        p = ${e.p}: functional-equation residual ${e.residual.toExponential(2)}${e.residual < 1e-9 ? '   <- forced' : ''}`,
-    )
-  }
-  console.log(`      exponent forced to: ${r.uniqueExponent}`)
-  console.log('  (4) fair sampling of the substrate vs the Born answer |c|^2:')
-  console.log(`        sampled:  ${r.sampled.map((x) => x.toFixed(3)).join('  ')}`)
-  console.log(`        |c|^2:    ${r.born.map((x) => x.toFixed(3)).join('  ')}`)
-  console.log(`        max error: ${r.samplingError.toFixed(4)}`)
-  console.log('')
-  console.log(`  Born rule derived (exponent 2 forced, not assumed): ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The squaring is not put in. Amplitudes add in quadrature because they are square roots')
-  console.log('  of vibe counts and disjoint counts add, while probabilities must add over disjoint')
-  console.log('  outcomes, and the ONLY exponent reconciling those two is 2. Fair sampling of the')
-  console.log('  substrate then yields probability equal to amplitude squared.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -6,7 +6,8 @@
 // beta, alongside the average plaquette rising from disorder toward order.
 // Run: npx tsx code/experiment/p8-confinement.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import {
   makeSu2Lattice,
@@ -66,32 +67,33 @@ function study(input: { beta: number; seed: number }): {
   }
 }
 
-export function main(): void {
-  const betas = [0.5, 1.0, 1.6, 2.2, 3.0]
-  const rows = betas.map((beta, i) => study({ beta, seed: 50 + i }))
-
-  console.log('P8 Stage C: 3D SU(2) confinement (L=6)')
-  console.log('  beta   avgPlaquette  stringTension(2,2)  acceptance')
-  for (const r of rows) {
-    console.log(
-      `  ${r.beta.toFixed(1).padStart(4)}  ${r.plaquette.toFixed(3).padStart(11)}  ${r.stringTension.toFixed(3).padStart(17)}  ${r.acceptance.toFixed(2).padStart(10)}`,
-    )
-  }
-  const tensions = rows.map((r) => r.stringTension)
-  const allPositive = tensions.every((t) => t > 0)
-  const decreasing = (tensions[0] ?? 0) > (tensions[tensions.length - 1] ?? 0)
-  console.log('')
-  console.log(
-    `  confinement (string tension > 0 at all beta): ${allPositive ? 'YES' : 'no'}`,
-  )
-  console.log(
-    `  tension decreases as beta rises (weakening): ${decreasing ? 'YES' : 'no'}`,
-  )
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'gauge/confinement',
+  title: '3D SU(2) lattice gauge theory confines, a positive string tension that weakens with the coupling',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const betas = [0.5, 1.0, 1.6, 2.2, 3.0]
+    const rows = betas.map((beta, index) => study({ beta, seed: 50 + index }))
+    const tensions = rows.map((row) => row.stringTension)
+    const allPositive = tensions.every((tension) => tension > 0)
+    const decreasing =
+      (tensions[0] ?? 0) > (tensions[tensions.length - 1] ?? 0)
+    const ok = allPositive && decreasing
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'in 3D SU(2) lattice gauge theory the Creutz-ratio string tension is positive at every coupling and decreases as the coupling rises, the area-law signature of confinement',
+      metrics: {
+        firstStringTension: tensions[0] ?? 0,
+        lastStringTension: tensions[tensions.length - 1] ?? 0,
+        allPositive: allPositive ? 1 : 0,
+        decreasing: decreasing ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, textbook 3D SU(2) confinement. The Metropolis sweeps use a pseudo-random number generator, so each string tension is a Monte Carlo estimate over an ensemble, not a deterministic-base quantity. The result is a statistical reproduction of a known lattice fact, not an emergent claim about the substrate.',
+    })
+  },
+})

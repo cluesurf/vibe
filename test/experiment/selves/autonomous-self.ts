@@ -8,7 +8,6 @@
 // where its body is. We confirm, the repair reads only local neighborhoods, the self persists at high
 // fidelity vs decay, and the total charge is exactly conserved. Run: npx tsx code/experiment/p179-autonomous-self.ts
 
-import { pathToFileURL } from 'node:url'
 import { bulkGraph, beat, emergeSelf, countPlus, totalCharge, sameSignNeighbors, type Graph } from '@/test/experiment/misc/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -96,25 +95,6 @@ export function autonomousSelf(input?: { n?: number }): {
     workPerBeat: maintained.work,
     solved,
   }
-}
-
-export function main(): void {
-  const r = autonomousSelf()
-  console.log('P179: autonomous (autopoietic) self-maintenance, no outside knower')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, emergent self ${r.emergent} cells`)
-  console.log(`  repair is a LOCAL rule (each cell reads only its neighborhood, never the self list): ${r.usesOnlyLocalInfo}`)
-  console.log(`  the self maintains ITSELF: fidelity ${(r.maintainedFidelity * 100).toFixed(0)}% vs unmaintained ${(r.unmaintainedFidelity * 100).toFixed(0)}%: ${r.maintenanceHoldsSelf}`)
-  console.log(`  total charge exactly conserved by the balanced local repair: ${r.conserved}`)
-  console.log(`  cost ${r.workPerBeat.toFixed(0)} local repairs per beat`)
-  console.log('')
-  console.log('  => the self repairs itself from local self-density alone, no global target, no outside hand.')
-  console.log('     It persists because of what it IS, the last external knower is gone.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -10,7 +10,6 @@
 // note/experiment/results/p7-naturalness.md.
 // Run: npx tsx code/experiment/p7-alignment.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -104,35 +103,6 @@ export function measureChshAndDependence(input: {
     }
   }
   return { s, mutualInfo: mi }
-}
-
-export function main(): void {
-  console.log('P7 alignment: CHSH value versus measurement dependence (bits)')
-  console.log('  mode        eta    CHSH S    I(setting;lambda) bits')
-  const modes: Mode[] = ['aligned', 'misaligned', 'random']
-  for (let mi = 0; mi < modes.length; mi++) {
-    const mode = modes[mi] ?? 'aligned'
-    for (const eta of [0, 0.5, 1]) {
-      const r = measureChshAndDependence({ eta, mode, trials: 120000, seed: 300 + mi * 50 + Math.round(eta * 10) })
-      console.log(
-        `  ${mode.padEnd(10)}  ${eta.toFixed(1)}  ${r.s.toFixed(3).padStart(7)}  ${r.mutualInfo.toFixed(3).padStart(18)}`,
-      )
-    }
-  }
-  console.log('')
-  console.log('  At eta=1, aligned and misaligned both have ~1 bit of measurement')
-  console.log('  dependence, yet aligned reaches S=4 and misaligned stays near S=1.')
-  console.log('  So the currency of Bell violation is ALIGNED bits, not bits: Hall')
-  console.log('  measurement-dependence is necessary but radically insufficient. A monist')
-  console.log('  mesh must produce a correlation aligned with the measured observables,')
-  console.log('  a far stronger requirement than merely giving up free choice.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

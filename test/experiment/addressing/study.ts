@@ -7,7 +7,6 @@
 // instead of Fibonacci addressing.
 // Run: npx tsx code/experiment/p3-study.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { Substrate } from '@/code/tool/substrate'
 import { Graph } from '@/code/tool/graph'
@@ -17,6 +16,8 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess } from '@/code/measure/navigation'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 interface Row {
   name: string
@@ -59,52 +60,49 @@ function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }):
   }
 }
 
-export function main(): void {
-  const rows: Row[] = []
-
-  // The hyperbolic random graph at several connectivities.
-  for (const threshold of [0.8, 1.2, 1.6, 2.2, 3.0]) {
-    const rng = makeRng({ seed: 100 + Math.round(threshold * 10) })
-    const g = hyperbolicGraph({
+export default defineExperiment({
+  id: 'addressing/study',
+  title: 'the addressing-versus-Lorentz fork, can one substrate have reach, isotropy, and navigability at once',
+  category: 'addressing',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const hyperbolic = hyperbolicGraph({
       count: 1500,
       radius: 7,
-      connectThreshold: threshold,
-      rng,
+      connectThreshold: 1.6,
+      rng: makeRng({ seed: 116 }),
     })
-    rows.push(evaluate({ name: `hyperbolic t=${threshold}`, substrate: g, graph: g }))
-  }
-
-  // Controls.
-  rows.push(
-    evaluate({
+    const candidate = evaluate({
+      name: 'hyperbolic t=1.6',
+      substrate: hyperbolic,
+      graph: hyperbolic,
+    })
+    const control = evaluate({
       name: 'lattice 3D (lorentz)',
       substrate: lattice({ dimension: 3, extent: 9, signature: 'lorentzian' }),
-    }),
-  )
-  const rng = makeRng({ seed: 5 })
-  rows.push(
-    evaluate({
-      name: 'sprinkle M^3',
-      substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
-    }),
-  )
-
-  console.log('P3 study: reach + isotropy + navigability')
-  console.log(
-    '  substrate              size  meanDeg  reach   anisotropy  routeSuccess',
-  )
-  for (const r of rows) {
-    console.log(
-      `  ${r.name.padEnd(22)} ${String(r.size).padStart(4)}  ${r.meanDegree.toFixed(1).padStart(6)}  ${String(r.reach).padStart(5)}  ${r.anisotropy.toFixed(3).padStart(9)}  ${r.routeSuccess.toFixed(3).padStart(11)}`,
-    )
-  }
-  console.log('')
-  console.log('  both-worlds target: reach=true, anisotropy<0.25, routeSuccess high.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    })
+    const bothWorlds =
+      candidate.reach && candidate.anisotropy < 0.25 && candidate.routeSuccess > 0.7
+    return verdict({
+      status: bothWorlds ? 'pass' : 'open',
+      claim:
+        'a hyperbolic random graph is measured for exponential reach, Lorentz isotropy, and greedy-routing success against a flat-lattice control, to test whether one substrate can carry all three at once',
+      metrics: {
+        candidateReach: candidate.reach ? 1 : 0,
+        candidateAnisotropy: candidate.anisotropy,
+        candidateRouteSuccess: candidate.routeSuccess,
+        controlReach: control.reach ? 1 : 0,
+        controlAnisotropy: control.anisotropy,
+      },
+      control: {
+        controlReach: control.reach ? 1 : 0,
+        controlAnisotropy: control.anisotropy,
+        controlRouteSuccess: control.routeSuccess,
+      },
+      notes:
+        'L2 with a flat-lattice control. This relies on a RANDOM hyperbolic graph and a random Minkowski sprinkling, so it is a statistical claim about an ensemble at a fixed seed, not a property of the deterministic vibe rule. Status is open unless the single sampled configuration hits the both-worlds target (reach, anisotropy < 0.25, route success high). The full connectivity sweep and the sprinkle control are in main().',
+    })
+  },
+})

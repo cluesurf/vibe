@@ -9,7 +9,6 @@
 // deepest open cosmological problem. See note/questions/next-version.md (P13).
 // Run: npx tsx code/experiment/p13-expansion.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
 import { makePosetFromFuture, Poset } from '@/code/tool/poset'
@@ -117,31 +116,6 @@ export function deSitterExpansion(input: { count: number; hubble: number; seed: 
     expands: lateWidth > earlyWidth,
     dimension: myrheimMeyerDimension({ poset }),
   }
-}
-
-export function main(): void {
-  console.log('P13 refinement: cosmological expansion from an expanding (de Sitter) geometry')
-  console.log('')
-  const r = deSitterExpansion({ count: 500, hubble: 1, seed: 1 })
-  console.log('  Intrinsic spatial slice width by causal depth (read from the order):')
-  console.log(`    early third ${r.earlyWidth.toFixed(1)}   late third ${r.lateWidth.toFixed(1)}   slices grow with time: ${r.expands ? 'YES' : 'no'}`)
-  console.log(`  recovered dimension: ${r.dimension.toFixed(2)} (finite and manifold-like; the flat-space`)
-  console.log('    Myrheim-Meyer estimator runs somewhat high for an expanding patch, not KR-divergent)')
-  console.log('')
-  console.log('  Sprinkled into an expanding de Sitter universe, the causal order EXPANDS: its')
-  console.log('  intrinsic spatial slices grow strongly with proper time (here more than threefold),')
-  console.log('  the opposite of plain transitive percolation, and the dimension stays finite and')
-  console.log('  manifold-like. So the causal-set framework faithfully represents cosmological')
-  console.log('  expansion, the committed eternal-expansion fate as a geometry. Deriving the same')
-  console.log('  expansion from a pure microscopic growth rule (no imposed metric) is the remaining')
-  console.log('  open cosmological problem.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

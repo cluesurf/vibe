@@ -7,7 +7,6 @@
 // boundary of the region, not its volume. See note/questions/next-version.md (P15).
 // Run: npx tsx code/experiment/p15-entanglement.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense, DenseMatrix } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -146,30 +145,6 @@ export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaB
     return r
   }
   return { boundaryFit, areaBeatsVolume: resid(ellArr) < resid(ell2Arr) }
-}
-
-export function main(): void {
-  console.log('P15: the entanglement area law (holography rung)')
-  console.log('')
-  const slope1D = logLawSlope1D({ n: 120 })
-  console.log(`  1D ring: S ~ a*ln(L), a = ${slope1D.toFixed(3)} (conformal prediction c/3 = 0.333, c = 1)`)
-  console.log('')
-  const two = areaLaw2D({ side: 12 })
-  console.log(`  2D torus: S of an l x l block grows like the boundary l, slope ${two.boundaryFit.toFixed(3)}`)
-  console.log(`  area law (boundary) beats a volume law (l^2): ${two.areaBeatsVolume ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The free-fermion ground-state entanglement follows the conformal log law in')
-  console.log('  1D (slope near 1/3, central charge c = 1) and an AREA law in 2D (entropy set')
-  console.log('  by the boundary of the region, not its volume). Entropy living on boundaries,')
-  console.log('  not volumes, is the signature behind holography and black-hole entropy. The')
-  console.log('  full holographic correspondence remains the long road ahead.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

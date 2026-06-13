@@ -9,7 +9,6 @@
 // and the speed is invariant, the wave dynamics is a renormalization FIXED POINT, the multiscale tower is
 // proven for the DYNAMICS, not just the conserved charge. Run: npx tsx code/experiment/p167-wave-chain.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -136,27 +135,6 @@ export function waveChain(input?: { L?: number; r?: number }): {
   const solved = errorsSmall && speedInvariant
 
   return { L, r, rungErrors, errorsShrink, errorsSmall, speeds, speedInvariant, solved }
-}
-
-export function main(): void {
-  const r = waveChain()
-  console.log('P167: the dynamical coarse-graining chain (the wave equation commutes up the tower)')
-  console.log('')
-  console.log('  the commuting square at each rung (evolve-then-coarsen vs coarsen-then-evolve):')
-  for (const x of r.rungErrors) console.log(`    block size ${x.b}: relative error ${(x.error * 100).toFixed(1)}%`)
-  console.log(`  errors small (< 10%): ${r.errorsSmall}, and do not grow up the chain: ${r.errorsShrink}`)
-  console.log('')
-  console.log('  wave speed at each level (fine-cell units, should be invariant):')
-  for (const x of r.speeds) console.log(`    block size ${x.level}: speed ${x.speed.toFixed(3)}`)
-  console.log(`  speed invariant across levels: ${r.speedInvariant}`)
-  console.log('')
-  console.log(`  the wave DYNAMICS is a renormalization fixed point, the commuting square holds up the chain: ${r.solved}`)
-  console.log('  => the multiscale tower is proven for the DYNAMICS, not just the conserved charge (P164).')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

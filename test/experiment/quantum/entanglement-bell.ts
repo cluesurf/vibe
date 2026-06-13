@@ -8,7 +8,6 @@
 // inequality (S > 2, up to the Tsirelson bound 2 sqrt(2)), which is impossible for any local hidden-variable
 // theory. A product-state control gives concurrence 0 and S <= 2. Run: npx tsx code/experiment/p173-entanglement-bell.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -172,26 +171,6 @@ export function entanglementBell(): {
     productIsClassical,
     solved,
   }
-}
-
-export function main(): void {
-  const r = entanglementBell()
-  console.log('P173: entanglement and a Bell-CHSH violation from the exchange dynamics')
-  console.log('')
-  console.log('  apply the substrate exchange (the hop, P131) to the product state |01>:')
-  console.log(`    concurrence ${r.entangledConcurrence.toFixed(3)} (1 = maximally entangled): ${r.maximallyEntangled}`)
-  console.log(`    CHSH S = ${r.entangledCHSH.toFixed(3)} (classical bound 2, Tsirelson ${r.tsirelson.toFixed(3)})`)
-  console.log(`    Bell inequality VIOLATED (S > 2, impossible classically): ${r.bellViolated}`)
-  console.log('')
-  console.log(`  product-state control: concurrence ${r.productConcurrence.toFixed(3)}, CHSH ${r.productCHSH.toFixed(3)} (classical): ${r.productIsClassical}`)
-  console.log('')
-  console.log('  => the substrate generates genuine entanglement from its own exchange dynamics, and the')
-  console.log('     correlations violate Bell, so the model is quantum in the strongest sense, not a classical mimic.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

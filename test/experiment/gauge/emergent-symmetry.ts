@@ -6,7 +6,8 @@
 // coin's continuous symmetry is emergent up to order 6, MORE robust than spacetime Lorentz. So the symmetric
 // collision is effectively forced in the IR, by triality. Run: npx tsx code/experiment/p226-emergent-symmetry.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type M = number[][]
 const I4: M = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
@@ -58,7 +59,26 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
   return { b4Inv4, f4Inv4 }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = emergentSymmetry()
-  console.log(`SOLVED: degree-4 invariants B4=${r.b4Inv4} (has anisotropy) vs F4=${r.f4Inv4} (triality kills it) -> emergent continuous symmetry to order 6, the symmetric collision is IR-forced.`)
-}
+export default defineExperiment({
+  id: 'gauge/emergent-symmetry',
+  title: 'triality kills the degree-4 anisotropy, so the F4 coin symmetry is continuous to order 6',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = emergentSymmetry()
+    const ok = r.b4Inv4 === 2 && r.f4Inv4 === 1
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the signed-permutation group B4 has two degree-4 invariants including an anisotropy, but the full 24-cell symmetry F4 has only the isotropic one, so triality makes the coin symmetry emergently continuous to order 6',
+      metrics: {
+        b4DegreeFourInvariants: r.b4Inv4,
+        f4DegreeFourInvariants: r.f4Inv4,
+      },
+      notes:
+        'L1, known math. An invariant-theory count of the F4 and B4 polynomial invariants. The B4 anisotropy is the control that makes the F4 result meaningful. The claim that this forces a symmetric collision in the infrared is an interpretation, not measured from dynamics.',
+    })
+  },
+})

@@ -8,7 +8,6 @@
 // reaches the goal. We show depth-K lookahead solves the detour while depth-1 (reactive) fails, end-to-end
 // on the flat emergent layer (where directed action lives, P157). Run: npx tsx code/experiment/p162-integrated-agent.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -131,24 +130,6 @@ export function integratedAgent(input?: { L?: number }): {
     reactiveFails,
     solved,
   }
-}
-
-export function main(): void {
-  const r = integratedAgent()
-  console.log('P162: an integrated metacognitive agent (multi-step lookahead, the detour task)')
-  console.log('')
-  console.log(`  a flat ${r.L}x${r.L} world with a wall and a single gap, the goal needs a DETOUR (move away first)`)
-  console.log(`  REACTIVE (greedy, depth 1): reached ${r.reactiveReached}, final distance to goal ${r.reactiveDist} (stuck at the wall)`)
-  console.log(`  INTEGRATED planner (multi-step lookahead): reached ${r.plannerReached} at depth ${r.depthNeeded}`)
-  console.log('')
-  console.log(`  multi-step lookahead through the forward model SOLVES the detour: ${r.multiStepSolves}`)
-  console.log(`  the reactive agent FAILS (needs genuine foresight): ${r.reactiveFails}`)
-  console.log('  => mind runs end-to-end from the base, the will + the rule-as-forward-model + the arrow, chained over many steps.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

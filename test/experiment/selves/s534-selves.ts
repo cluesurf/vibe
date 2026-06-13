@@ -4,7 +4,8 @@
 // 2D anyonic, fundamentally DIFFERENT from the 3D fermions of {3,4,3,4}. The form-coherence tower is a generic
 // slow-mode (NEUTRAL, same as {3,4,3,4} P208). Run: npx tsx code/experiment/s534-selves.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s534Selves(): { solitonsExist: boolean; fermionic: boolean; anyonic: boolean } {
   // 2D baby-skyrmion topological charge, pi_2(S^2) = Z, the same Berg-Luscher winding works on the 2D horosphere
@@ -37,7 +38,27 @@ export function s534Selves(): { solitonsExist: boolean; fermionic: boolean; anyo
   return { solitonsExist, fermionic, anyonic }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s534Selves()
-  console.log(`SOLVED: {5,3,4} selves, 2D solitons exist ${r.solitonsExist} (POSITIVE), but ANYONIC ${r.anyonic} not fermionic ${r.fermionic} (DIFFERENT, 2D, no spinor). Matter is a different kind than {3,4,3,4}'s 3D fermions.`)
-}
+export default defineExperiment({
+  id: 'selves/s534-selves',
+  title: 'solitons on the 2D horosphere are anyonic, not the 3D fermions of {3,4,3,4}',
+  category: 'selves',
+  substrates: ['534'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s534Selves()
+    const ok = r.solitonsExist && r.anyonic && !r.fermionic
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'baby skyrmions exist on the 2D horosphere of {5,3,4} so selves form, but their statistics are anyonic and there is no fundamental spinor, a different kind of matter than the 3D fermions of {3,4,3,4}',
+      metrics: {
+        solitonsExist: r.solitonsExist ? 1 : 0,
+        anyonic: r.anyonic ? 1 : 0,
+        fermionic: r.fermionic ? 1 : 0,
+      },
+      notes:
+        'L1, known math. The baby-skyrmion charge is the analytic pi_2(S^2) = Z Berg-Luscher winding of a hand-built hedgehog texture, not produced by the rule. The contrast with {3,4,3,4} (3D fermions via the Hopf charge) is the comparison that makes the result meaningful. The form-tower is a generic slow mode.',
+    })
+  },
+})

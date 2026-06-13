@@ -6,7 +6,8 @@
 // (anisotropy only at order 6, matching p226 / F4), while Z3 and Z4 are anisotropic already at order 4. So the
 // 24 directions give emergent rotational symmetry the cubic lacks. Run: npx tsx code/experiment/p233-isotropy-24dir.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
   const R: number[][] = []
@@ -54,7 +55,31 @@ export function isotropy24dir(): { z3: number; z4: number; d4: number; d4Best: b
   return { z3, z4, d4, d4Best }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = isotropy24dir()
-  console.log(`SOLVED: anisotropy at |k|=1.2: Z3=${r.z3.toExponential(1)}, Z4=${r.z4.toExponential(1)}, D4(24 dir)=${r.d4.toExponential(1)} -> D4 vastly more isotropic (${r.d4Best}).`)
-}
+export default defineExperiment({
+  id: 'relativity/isotropy-24dir',
+  title: 'the 24 D4 directions give a wave dispersion isotropic to order four, the cubic does not',
+  category: 'relativity',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = isotropy24dir()
+    const ok = r.d4Best && r.d4 < 0.02
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the wave dispersion built from the 24 D4 directions has an axis-versus-diagonal anisotropy far below the cubic 6-direction and hypercubic 8-direction sets, isotropic to order four',
+      metrics: {
+        anisotropyD4: r.d4,
+        anisotropyZ4: r.z4,
+        anisotropyZ3: r.z3,
+      },
+      control: {
+        anisotropyZ3Cubic: r.z3,
+        anisotropyZ4Hypercubic: r.z4,
+      },
+      notes:
+        'L2, a known lattice-isotropy fact reproduced on the substrate directions. The dispersion omega^2(k) is computed from the actual D4 neighbour set, and the order-4 isotropy (sum d_1^4 = 3 sum d_1^2 d_2^2, exact integer arithmetic) is measured, not assumed. The cubic Z3 and hypercubic Z4 sets are the controls, anisotropic already at order 4. D4 anisotropy only appears at order 6, matching F4.',
+    })
+  },
+})

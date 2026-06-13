@@ -17,7 +17,6 @@
 //      spectrum is exactly TWO massless modes at eigenvalue (1/2)|k|^2 (the graviton polarizations).
 // Run: npx tsx code/experiment/p24-graviton-from-action.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { makeRng } from '@/code/tool/rng'
@@ -217,38 +216,6 @@ export function gravitonFromAction(input: { k: number[] }): {
     }
   }
   return { k2, eigenvalues, gravitonModes, gravitonEigenvalue: target, diffeoResidual: hn > 0 ? Math.sqrt(gn / hn) : 0 }
-}
-
-export function main(): void {
-  console.log('P24: the graviton operator derived from the action (not typed in)')
-  console.log('')
-  console.log("  A. the field d'Alembertian recovered from the discrete (Benincasa-Dowker) action on a sprinkling:")
-  const bd = bdSignature({ realizations: 400, count: 2500, seed: 1 })
-  console.log(`     box(time-concentrated) - box(space-concentrated) = ${bd.diffMean.toFixed(1)} +/- ${bd.diffSem.toFixed(1)} (continuum ${bd.expectedDiff.toFixed(1)})`)
-  console.log(`     robustly positive (Lorentzian -d_t^2 + d_x^2 signature emerges): ${bd.robustlyPositive ? 'YES' : 'no'}`)
-  console.log(`     recovers box within the BD fluctuation: ${bd.recoversBox ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  B. the spin-2 graviton operator built via Christoffel -> Ricci -> Einstein (no typed formula):')
-  for (const k of [[0, 0, 1], [1, 1, 0], [1, 1, 1], [2, 1, 3]]) {
-    const r = gravitonFromAction({ k })
-    console.log(`     k=(${k.join(',')}): ${r.gravitonModes} modes at (1/2)|k|^2 = ${r.gravitonEigenvalue.toFixed(2)}, diffeo residual ${r.diffeoResidual.toExponential(1)}`)
-  }
-  console.log('')
-  console.log('  Masslessness (graviton eigenvalue (1/2)|k|^2 shrinks with |k|):')
-  for (const s of [1, 0.5, 0.25]) {
-    const r = gravitonFromAction({ k: [s, 0, 0] })
-    console.log(`     |k| = ${s}: graviton eigenvalue = ${r.gravitonEigenvalue.toFixed(4)}`)
-  }
-  console.log('')
-  console.log("  The kinetic operator is no longer typed in. The scalar d'Alembertian emerges from the")
-  console.log('  causal order of a sprinkling through the Benincasa-Dowker operator (its Lorentzian')
-  console.log('  signature recovered robustly in the mean), and the spin-2 graviton operator is built')
-  console.log('  through the geometric pipeline Christoffel to Ricci to Einstein, out of which')
-  console.log('  diffeomorphism invariance and exactly two massless polarizations come for free.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

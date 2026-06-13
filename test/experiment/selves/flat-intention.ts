@@ -8,7 +8,6 @@
 // intention story, the COORDINATION half lives on the scaffold, the DIRECTED-ACTION half on the flat layer.
 // Run: npx tsx code/experiment/p157-flat-intention.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -121,24 +120,6 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
     beatsHyperbolicContrast: 'P145 hyperbolic: net drift ~0, will-effect 0.41, top-down 0.04 (frustrated)',
     solved,
   }
-}
-
-export function main(): void {
-  const r = flatIntention()
-  console.log('P157: directed intention on the FLAT layer (where P145 said it belongs)')
-  console.log('')
-  console.log(`  a flat ${r.L}x${r.L} grid, a + self steered toward the +x goal by the will`)
-  console.log(`  net drift toward goal: with will ${r.driftWithWill.toFixed(1)} cells vs no will ${r.driftNoWill.toFixed(1)} cells`)
-  console.log(`  will effect (with minus without) = ${r.willEffect.toFixed(1)}, cohesion kept ${r.cohesion.toFixed(2)}`)
-  console.log('')
-  console.log(`  directed intention WORKS on the flat layer (clear net directed motion): ${r.directedIntentionWorks}`)
-  console.log(`  contrast: ${r.beatsHyperbolicContrast}`)
-  console.log('  => the DIRECTED-ACTION half of intention lives on the FLAT layer, the COORDINATION half on the scaffold.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -6,7 +6,8 @@
 //   d omega/dk -> 1 = c when massless. This upgrades the dispersion test from analytic to measured.
 // Run: npx tsx code/experiment/p253-measured-dispersion-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // one-step Dirac walk operator at momentum k, mass m: U(k) = diag(e^{ik}, e^{-ik}) . [[c,-is],[-is,c]]
 // trace U(k) = 2 cos(m) cos(k), det U = 1, so eigenvalues e^{-i omega} with cos(omega) = trace/2 = MEASURED.
@@ -41,8 +42,32 @@ export function measuredDispersion(): { restEnergyIsMass: boolean; lorentzAtLong
   return { restEnergyIsMass, lorentzAtLongWave, lightSpeedMassless, subluminalMassive }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = measuredDispersion()
-  const pass = r.restEnergyIsMass && r.lorentzAtLongWave && r.lightSpeedMassless && r.subluminalMassive
-  console.log(`SOLVED MEASURED-DISPERSION: rest-energy=mass ${r.restEnergyIsMass}, Lorentz ${r.lorentzAtLongWave}, lightspeed-massless ${r.lightSpeedMassless}, subluminal-massive ${r.subluminalMassive} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'relativity/measured-dispersion-3434',
+  title: 'the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode',
+  category: 'relativity',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = measuredDispersion()
+    const ok =
+      r.restEnergyIsMass &&
+      r.lorentzAtLongWave &&
+      r.lightSpeedMassless &&
+      r.subluminalMassive
+    const massless = (measuredOmega(0.3 + 1e-4, 0) - measuredOmega(0.3, 0)) / 1e-4
+    const massive = (measuredOmega(0.3 + 1e-4, 0.5) - measuredOmega(0.3, 0.5)) / 1e-4
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the dispersion from the one-step walk operator trace gives rest energy equal to the mass, omega^2 - k^2 = m^2 at long wavelength, a massless group velocity of one, and subluminal massive modes',
+      metrics: {
+        groupVelocityMassless: massless,
+        groupVelocityMassive: massive,
+      },
+      notes:
+        'L1, consistency check, NOT measured from a stepped simulation. measuredOmega evaluates the closed-form trace cos omega = cos(m) cos(k) of the assumed U(k), so reading omega from it then checking its consequences is a self-consistency check of the assumed operator, not a readout of emergent dynamics. The massless light-speed versus massive subluminal contrast is the internal control. For a genuinely simulated readout see dirac-from-discrete (DFT of the stepped walk).',
+    })
+  },
+})

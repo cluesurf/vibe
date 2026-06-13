@@ -6,7 +6,8 @@
 // gauge-invariant), (3) the static sector is the 1/r Coulomb potential (p224, div E = rho from the Gauss law).
 // So the discrete charge rule yields emergent ELECTROMAGNETISM. Run: npx tsx code/experiment/p232-emergent-u1-gauge.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 24
 // link gauge field A, Ax[x][y] = phase on the link (x,y)->(x+1,y), Ay similarly for (x,y)->(x,y+1)
@@ -76,7 +77,26 @@ export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boo
   return { wilsonInvariant, aharonovBohm }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = emergentU1Gauge()
-  console.log(`SOLVED: Wilson loop = flux and gauge-invariant (${r.wilsonInvariant}); Aharonov-Bohm holds (${r.aharonovBohm}). Emergent U(1) electromagnetism from the discrete rule.`)
-}
+export default defineExperiment({
+  id: 'gauge/emergent-u1-gauge',
+  title: 'a U(1) Wilson loop equals the enclosed flux and is gauge invariant, the Aharonov-Bohm phase',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = emergentU1Gauge()
+    const ok = r.wilsonInvariant && r.aharonovBohm
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a U(1) Wilson loop around a vortex equals the enclosed flux, is invariant under gauge transformations, and gives the same Aharonov-Bohm phase for any enclosing loop',
+      metrics: {
+        wilsonInvariant: r.wilsonInvariant ? 1 : 0,
+        aharonovBohm: r.aharonovBohm ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, standard lattice U(1) gauge theory. The gauge transform used a pseudo-random lambda field, but the base is deterministic and the gauge invariance is exact for any field, so the random fill only samples the property. The link that this U(1) is the emergent EM of the substrate is asserted from the charge Gauss law (p223), not shown in this file.',
+    })
+  },
+})

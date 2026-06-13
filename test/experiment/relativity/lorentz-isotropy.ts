@@ -8,7 +8,6 @@
 // (and rank-4) tensors to be isotropic, so we expect a near-perfect sphere. That is the rotational part
 // of Lorentz for free. Run: npx tsx code/experiment/p124-lorentz-isotropy.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -109,29 +108,6 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   const solved = isotropic
 
   return { cellCount: N, samples: count, eigenvalues: eig, anisotropy, isotropic, solved }
-}
-
-export function main(): void {
-  const r = lorentzIsotropy()
-  console.log('P124: emergent rotational invariance (the isotropy half of Lorentz)')
-  console.log('')
-  console.log(`  ${r.cellCount.toLocaleString()} cells (float {5,3,4} ball), one-step diffusion tensor over ${r.samples} face-directions near the origin`)
-  console.log('')
-  console.log('  diffusion tensor (12-neighbor direction covariance):')
-  console.log(`    eigenvalues: ${r.eigenvalues.map((e) => e.toFixed(4)).join(', ')}`)
-  console.log(`    anisotropy (max-min)/mean = ${r.anisotropy.toFixed(3)}  (0 = perfect sphere)`)
-  console.log('')
-  console.log(`  transport is ISOTROPIC at leading (rank-2) order: ${r.isotropic}`)
-  console.log('  => the icosahedral 12-neighbor cell symmetry gives emergent ROTATIONAL invariance at')
-  console.log('     leading order, the spatial half of Lorentz, for free.')
-  console.log('  NOTE: higher-order anisotropy can remain (the measure/lorentz sprinkling test shows the')
-  console.log('  regular lattice is more anisotropic than a random sprinkling at higher order), and boosts')
-  console.log('  are the remaining half. Full Lorentz needs those to wash out under coarse-graining.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

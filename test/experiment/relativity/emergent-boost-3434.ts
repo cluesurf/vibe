@@ -6,7 +6,8 @@
 // short wavelength (a lattice artifact), exactly as expected for an emergent-spacetime substrate.
 // Run: npx tsx code/experiment/p259-emergent-boost-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // continuum (IR) dispersion E = sqrt(m^2 + p^2); a boost of rapidity phi
 const Eof = (m: number, p: number): number => Math.sqrt(m * m + p * p)
@@ -49,8 +50,34 @@ export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRel
   return { invariantPreserved, velocitiesAddRelativistically: velocitiesAddRelativistically && galileanWrong, latticeBreaksUV, emergentInIR }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = emergentBoost()
-  const pass = r.invariantPreserved && r.velocitiesAddRelativistically && r.emergentInIR && r.latticeBreaksUV
-  console.log(`SOLVED BOOST: invariant-preserved ${r.invariantPreserved}, relativistic-addition ${r.velocitiesAddRelativistically}, emergent-IR ${r.emergentInIR}, lattice-breaks-UV ${r.latticeBreaksUV} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'relativity/emergent-boost-3434',
+  title: 'boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet',
+  category: 'relativity',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = emergentBoost()
+    const ok =
+      r.invariantPreserved &&
+      r.velocitiesAddRelativistically &&
+      r.emergentInIR &&
+      r.latticeBreaksUV
+    const m = 0.4
+    const invariantIR = ElatticeFromK(m, 0.05) ** 2 - 0.05 ** 2
+    const invariantUV = ElatticeFromK(m, 1.5) ** 2 - 1.5 ** 2
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the assumed continuum dispersion is boost-invariant and velocities add relativistically, while the lattice dispersion holds the invariant in the infrared and breaks it in the ultraviolet',
+      metrics: {
+        massSquared: m * m,
+        invariantInfrared: invariantIR,
+        invariantUltraviolet: invariantUV,
+      },
+      notes:
+        'L1, closed-form algebra of an ASSUMED continuum dispersion E = sqrt(m^2 + p^2) and the lattice dispersion cos E = cos(m) cos(k). Boost invariance and relativistic velocity addition are properties of the assumed forms, not measured from the directional rule, so this is a consistency check, not a derivation. The infrared-holds versus ultraviolet-breaks contrast is the control. The honest negative is that the lattice breaks boosts at short wavelength.',
+    })
+  },
+})

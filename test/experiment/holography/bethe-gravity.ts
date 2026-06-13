@@ -6,7 +6,8 @@
 // b^(tree-distance/2). We get a CLEAN exponent (no finite-patch artifact), and validate the recursion against a
 // directly-solved finite tree. Run: npx tsx code/experiment/p239-bethe-gravity.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 import {
   betheCavityDecay,
   betheBoundaryExponent,
@@ -62,7 +63,32 @@ export function betheGravity(): { alpha24: number; alpha12: number; massiveAlpha
   return { alpha24, alpha12, massiveAlpha, validated }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = betheGravity()
-  console.log(`SOLVED: exact Bethe boundary correlator ~ 1/r^${r.alpha24} (clean, universal), recursion validated ${r.validated}. Fixes the p210 confound via recursion + geodesic distance.`)
-}
+export default defineExperiment({
+  id: 'holography/bethe-gravity',
+  title: 'the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2',
+  category: 'holography',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = betheGravity()
+    const ok =
+      Math.abs(r.alpha24 - 2) < 0.01 &&
+      Math.abs(r.alpha12 - 2) < 0.01 &&
+      r.massiveAlpha > 2 &&
+      r.validated
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the exact infinite-tree Bethe Green function gives a massless bulk-mediated boundary correlator that decays as a clean universal 1/r^2 at both coordination 24 and 12, a massive bulk field decays steeper, and the cavity recursion is validated against a directly-solved finite tree',
+      metrics: {
+        alpha24: r.alpha24,
+        alpha12: r.alpha12,
+        massiveAlpha: r.massiveAlpha,
+        validated: r.validated ? 1 : 0,
+      },
+      notes:
+        'L1, known math. This is the analytic Bethe-lattice cavity recursion with geodesic distance, validated against a finite-tree solve, which is the consistency check. The massless-vs-massive comparison shows the exponent responds correctly. This is the bulk-mediated holographic boundary correlator, distinct from the physical-space Newtonian potential. It fixes the earlier finite-patch confound but is established math, not an emergence claim.',
+    })
+  },
+})

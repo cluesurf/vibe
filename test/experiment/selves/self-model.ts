@@ -12,7 +12,6 @@
 // the correlation collapses without the dynamics (no hops). So a proto self-model emerges from the five.
 // Run: npx tsx code/experiment/p116-self-model.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -225,23 +224,6 @@ export function selfModel(): {
     emerges,
     solved: emerges,
   }
-}
-
-export function main(): void {
-  const r = selfModel()
-  console.log('P116: emergence of a self-model (the strange loop) from the base alone')
-  console.log('')
-  console.log(`  central core mirrors the rest of the self: corr ${r.selfModelCorr.toFixed(3)}`)
-  console.log(`    vs random scattered sub-regions: ${r.randomCorr.toFixed(3)} (beats random: ${r.beatsRandom})`)
-  console.log(`    vs time-shuffled baseline:       ${r.shuffledCorr.toFixed(3)} (a real representation: ${r.mirrorsWhole})`)
-  console.log(`    vs no dynamics (frozen):         ${r.noDynamicsCorr.toFixed(3)} (needs integration: ${r.needsDynamics})`)
-  console.log('')
-  console.log(`  a localized part represents the whole self, from the base dynamics alone: ${r.emerges}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

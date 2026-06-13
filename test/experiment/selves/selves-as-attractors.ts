@@ -8,7 +8,6 @@
 //   - capacity: how many selves a mesh can hold, and that the count grows with size.
 // Run: npx tsx code/experiment/p75-selves-as-attractors.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { storedPatterns, hebbianFills, step, overlap } from '@/test/experiment/selves/dreaming-and-waking'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -99,43 +98,6 @@ export function selvesAsAttractors(input: { seed: number }): {
     // holds several of them with the count growing with size.
     solved: basinRadius >= 0.2 && identityOverlap > 0.98 && capacityGrows && (capacityByN[0]?.capacity ?? 0) >= 4,
   }
-}
-
-export function main(): void {
-  const r = selvesAsAttractors({ seed: 1 })
-  console.log('P75: selves as attractors, fully')
-  console.log('')
-  console.log('  Stability and basin (recovery of a self from a perturbation):')
-  console.log('  perturbation flipped | recovery')
-  for (const b of r.byFraction) {
-    console.log(`         ${(b.fraction * 100).toFixed(0).padStart(3)}%         |   ${b.recovery.toFixed(2)}`)
-  }
-  console.log(`  basin radius (largest perturbation still recovered): ${(r.basinRadius * 100).toFixed(0)}%`)
-  console.log('')
-  console.log(`  identity over time (a settled self stays itself across many beats): ${r.identityOverlap.toFixed(3)}`)
-  console.log('')
-  console.log('  capacity (how many selves the mesh holds), by size:')
-  for (const c of r.capacityByN) {
-    console.log(`    N = ${c.n}: ${c.capacity} selves (${(c.ratio * 100).toFixed(0)}% of N)`)
-  }
-  console.log(`  capacity grows with size: ${r.capacityGrows ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  selves as attractors solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  A self is a stable attractor of the mesh, and it behaves like one in every way the')
-  console.log('  roadmap asked about. It recovers from a partial disturbance, snapping back to itself')
-  console.log('  for perturbations inside a real basin and only losing its identity once the disturbance')
-  console.log('  grows too large. Once settled, it keeps its identity across many beats, a genuine fixed')
-  console.log('  point. And a single mesh holds several distinct selves at once, with the number it can')
-  console.log('  hold growing as the mesh grows. Selves are not a metaphor laid over the dynamics, they')
-  console.log('  are stable, recoverable, persistent patterns the dynamics actually supports.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

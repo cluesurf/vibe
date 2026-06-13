@@ -9,7 +9,6 @@
 // grows on its own and the order is manifold-like. See note/questions/next-version.md
 // (P13). Run: npx tsx code/experiment/p13-growth-expansion.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
 import { makePosetFromFuture, Poset } from '@/code/tool/poset'
@@ -130,32 +129,6 @@ export function branchingExpansion(input: { spawnProb: number; seed: number }): 
     expands: (widthPerGen[widthPerGen.length - 1] ?? 0) > 2 * (widthPerGen[0] ?? 0),
     dimension: myrheimMeyerDimension({ poset }),
   }
-}
-
-export function main(): void {
-  console.log('P13 deepest edge: expansion from a pure local growth rule')
-  console.log('')
-  for (const q of [0, 0.3]) {
-    const r = branchingExpansion({ spawnProb: q, seed: 1 })
-    console.log(`spawn probability q = ${q} (net birth ${(1 + q).toFixed(1)} per cell):`)
-    console.log('  front width per generation: ' + r.widthPerGen.join(', '))
-    console.log(`  emergent expansion rate ${r.rate.toFixed(3)} per generation, expands: ${r.expands ? 'YES' : 'no'}, dimension ${r.dimension.toFixed(2)}`)
-    console.log('')
-  }
-  console.log('  With q = 0 (net birth one) the front stays roughly constant: a static universe.')
-  console.log('  With q > 0 (net birth above one) the front GROWS on its own, generation after')
-  console.log('  generation, with no metric imposed. Expansion emerges from the local birth rule,')
-  console.log('  and the order is manifold-like. So the committed eternal-expansion fate, net')
-  console.log('  positive birth, realised as a purely local rule, produces an expanding universe.')
-  console.log('  This is the growth-side companion to the de Sitter geometry result: there the')
-  console.log('  expansion was imposed as a metric, here it emerges from the rule itself.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

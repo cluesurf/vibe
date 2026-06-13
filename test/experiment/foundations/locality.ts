@@ -6,12 +6,13 @@
 // See note/questions/roadmap.md (A1).
 // Run: npx tsx code/experiment/p1-locality.ts
 
-import { pathToFileURL } from 'node:url'
 import { lattice } from '@/code/substrate/lattice'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
 import { makeStateSpace, permutationOfRule } from '@/code/operator/evolution'
 import { hamiltonianMatrix, pauliLocalityProfile } from '@/code/operator/ca-hamiltonian'
 import { Alphabet } from '@/code/tone/alphabet'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // Positive control: flip a single cell (s -> s XOR 1). The principal-branch log
 // is H = (pi/2)(I - X_0), whose only non-identity term is X_0, range 1. The
@@ -56,32 +57,27 @@ function localityOf(cells: number): {
   return { cells, fractions: profile.weightByRange, localityLength: profile.localityLength }
 }
 
-export function main(): void {
-  console.log('P1 (open part): locality profile of H = i log U')
-  const control = controlLocality(6)
-  console.log(
-    `  control (single-cell flip, provably range-1): r1 weight ${((control.fractions[1] ?? 0) * 100).toFixed(0)}%, locality length ${control.localityLength.toFixed(2)} (expect 1.00)`,
-  )
-  console.log('  --- the XOR-parity reversible CA ---')
-  for (const cells of [6, 8]) {
-    const r = localityOf(cells)
-    const parts: string[] = []
-    for (let range = 1; range <= cells; range++) {
-      parts.push(`r${range}:${((r.fractions[range] ?? 0) * 100).toFixed(0)}%`)
-    }
-    console.log(`  cells=${cells}: ${parts.join('  ')}`)
-    console.log(
-      `           locality length (weighted-average range) = ${r.localityLength.toFixed(2)} of ${cells}`,
-    )
-  }
-  console.log('')
-  console.log('  short-range concentration + decay = (quasi-)local Hamiltonian.')
-  console.log('  weight spread to large range = local rule does NOT give a local H.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'foundations/locality',
+  title: 'the Pauli locality profile of a reversible Hamiltonian, validated by a provable control',
+  category: 'foundations',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const control = controlLocality(6)
+    const xor = localityOf(8)
+    const ok = Math.abs(control.localityLength - 1) < 1e-6
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the locality measure returns range one for the single-cell flip whose log is provably range one, validating the profile, and reports the spread of the XOR-parity Hamiltonian',
+      metrics: {
+        controlLength: control.localityLength,
+        xorLength: xor.localityLength,
+      },
+      notes:
+        'L2, this validates the locality measure against a control with a known answer (range one) and reports the XOR-parity spread, it does not by itself establish a quasi-local Hamiltonian for a propagating rule',
+    })
+  },
+})

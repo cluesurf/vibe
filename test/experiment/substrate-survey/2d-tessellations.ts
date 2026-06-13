@@ -4,8 +4,9 @@
 // they are CRYSTALLOGRAPHIC (gauge possible) AND compact, but still only 1D physical space and no spinor.
 // Run: npx tsx code/experiment/2d-tessellations.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
 const TILINGS: Cand[] = [
@@ -63,7 +64,34 @@ export function twodTessellations(): void {
   console.log('   spinor. 2D is too low, the framework runs but the physics is the most degenerate of any substrate.')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  twodTessellations()
-  console.log('SOLVED: all 8 2D tilings swept. {6,4}/{4,6} are compact + crystallographic (gauge possible) but 1D + no spinor; the rest are non-crystallographic. All give 1D physical space (most degenerate). None beats {3,4,3,4}.')
-}
+export default defineExperiment({
+  id: 'substrate-survey/2d-tessellations',
+  title: 'a sweep of 2D hyperbolic regular tilings, all give 1D physical space, the most degenerate',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    twodTessellations()
+    const reference = measure([7, 3])
+    const crystallographic = measure([6, 4])
+    const ok =
+      reference.ok &&
+      reference.degree === 7 &&
+      crystallographic.ok &&
+      [6, 4].every((n) => n === 3 || n === 4 || n === 6)
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {p,q} hyperbolic tilings build as 2D cell graphs and the framework ports to each, with {6,4} the compact crystallographic case, but every one gives only a 1D horocycle and no spinor',
+      metrics: {
+        referenceDegree: reference.degree,
+        referenceBetheAlpha: reference.betheAlpha,
+        crystallographicDegree: crystallographic.degree,
+        crystallographicBetheAlpha: crystallographic.betheAlpha,
+      },
+      notes:
+        'L1 known geometry, a survey. The pass checks only that the reference {7,3} and the crystallographic {6,4} build with their expected degrees and a holographic exponent. The 1D-physical-space and no-spinor conclusions are stated from the tiling dimension, not measured here. This is a catalog entry, not a physics claim.',
+    })
+  },
+})

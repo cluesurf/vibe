@@ -8,7 +8,6 @@
 // interference, the heart of quantum behaviour, emerge on the mesh.
 // Run: npx tsx code/experiment/p17-quantum-walk.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -89,47 +88,6 @@ function logLogSlope(xs: number[], ys: number[]): number {
     den += ((lx[i] ?? 0) - mx) * ((lx[i] ?? 0) - mx)
   }
   return den === 0 ? 0 : num / den
-}
-
-export function main(): void {
-  const n = 301
-  const center = Math.floor(n / 2)
-  const times = [4, 8, 16, 32, 48]
-
-  const ops = chainOperators(n)
-  const eigA = eigSymmetric({ matrix: ops.adjacency })
-  const eigL = eigSymmetric({ matrix: ops.laplacian })
-
-  console.log('P17: quantum coherence on the mesh (quantum walk vs classical walk)')
-  console.log('  width = sqrt(mean square displacement) from the center, on a 1D chain')
-  console.log('  t      quantum width    classical width')
-  const qWidths: number[] = []
-  const cWidths: number[] = []
-  for (const t of times) {
-    const q = Math.sqrt(quantumMsd({ eig: eigA, n, center, t }))
-    const c = Math.sqrt(classicalMsd({ eig: eigL, n, center, t }))
-    qWidths.push(q)
-    cWidths.push(c)
-    console.log(`  ${String(t).padStart(3)}    ${q.toFixed(2).padStart(12)}    ${c.toFixed(2).padStart(13)}`)
-  }
-  const qExp = logLogSlope(times, qWidths)
-  const cExp = logLogSlope(times, cWidths)
-  console.log('')
-  console.log(`  quantum walk width ~ t^${qExp.toFixed(2)}  (ballistic, exponent near 1)`)
-  console.log(`  classical walk width ~ t^${cExp.toFixed(2)}  (diffusive, exponent near 0.5)`)
-  console.log('')
-  console.log('  The quantum walk spreads ballistically (linearly in time) because amplitudes')
-  console.log('  interfere, while the classical walk only diffuses (sqrt of time). Coherent')
-  console.log('  interference, the heart of quantum behaviour, emerges on the mesh from the')
-  console.log('  unitary evolution e^{-iHt}. The full formalism (Born rule, measurement) is')
-  console.log('  the long road ahead, but the coherence is here.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

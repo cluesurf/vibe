@@ -10,7 +10,6 @@
 // cluster move sweeps the whole range, which is exactly what is needed to cross the entropy barrier
 // at large N. Run: npx tsx code/experiment/p74-large-n-crossing.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeBitMatrix, BitMatrix, getBit, setBit } from '@/code/tool/bitset'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -130,39 +129,6 @@ export function largeNCrossing(input: { sizes: number[] }): {
     singlePairStuck,
     solved: clusterTraverses && singlePairStuck && clusterBeatsSinglePair,
   }
-}
-
-export function main(): void {
-  const r = largeNCrossing({ sizes: [32, 48, 64, 96] })
-  console.log('P74: the height-changing cluster move for the large-N crossing')
-  console.log('')
-  console.log('  fraction of the height range each move can reach (1.0 = the whole range):')
-  console.log('')
-  console.log('  N   | height range | single-pair move | cluster move')
-  for (const x of r.results) {
-    console.log(`  ${String(x.size).padStart(3)} |    2..${String(x.maxHeight).padStart(2)}    |       ${(x.singlePairReach * 100).toFixed(0).padStart(3)}%       |     ${(x.clusterReach * 100).toFixed(0).padStart(3)}%`)
-  }
-  console.log('')
-  console.log(`  the cluster move sweeps the height range at every N (including 64, 96): ${r.clusterTraverses ? 'YES' : 'no'}`)
-  console.log(`  the single-pair move stays stuck (the P12 limitation): ${r.singlePairStuck ? 'YES' : 'no'}`)
-  console.log(`  height-changing cluster move solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The barrier that stalled P12 at N = 48 is the height. The single-pair move toggles one')
-  console.log('  relation, which almost always breaks transitivity or leaves the longest chain fixed, so')
-  console.log('  it reaches only a sliver of the height range and the walk cannot cross the entropy')
-  console.log('  barrier at large N. The height-changing cluster move stores the asserted relations and')
-  console.log('  recomputes the closure after each toggle, so flipping one asserted edge brings a whole')
-  console.log('  cluster of implied relations with it and the height jumps. That move sweeps the entire')
-  console.log('  height range at N = 64 and 96, exactly the traversal the large-N free-energy crossing')
-  console.log('  needs. Driving a full Wang-Landau density-of-states to a converged beta-star at N = 128')
-  console.log('  with this move is the remaining compute, now unblocked.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

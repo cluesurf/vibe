@@ -3,8 +3,9 @@
 // persistent self (the P101 result, on the 2D hyperbolic graph). Ported to {7,3}.
 // Run: npx tsx code/experiment/p202-dynamics-73.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function graph(): { N: number; off: Int32Array; adj: Int32Array; center: number } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
@@ -62,7 +63,27 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
   return { conserves, frontSpeed, churnPct }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = dynamics73()
-  console.log(`SOLVED: {7,3} conserves ${r.conserves}, front speed ${r.frontSpeed} (z=1), churn ${r.churnPct}%`)
-}
+export default defineExperiment({
+  id: 'foundations/dynamics-73',
+  title: 'the directional rule on the {7,3} cell graph conserves charge exactly and gives a z=1 light cone',
+  category: 'foundations',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const r = dynamics73()
+    const ok = r.conserves && r.frontSpeed >= 0.9 && r.churnPct > 5
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the perception rule on the {7,3} hyperbolic cell graph conserves net charge exactly and the mod-3 wave front advances about one cell per beat with steady churn',
+      metrics: {
+        conserves: r.conserves ? 1 : 0,
+        frontSpeed: r.frontSpeed,
+        churnPct: r.churnPct,
+      },
+      notes:
+        'the seed tone is a pseudo-random fill, charge conservation is exact because the rule permutes charges locally (a consistency property, not a discovery), front speed and churn are the measured parts',
+    })
+  },
+})

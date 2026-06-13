@@ -11,7 +11,6 @@
 // origin, so no Poincare distortion). We do it after 1, 2, 4, 8 steps and check the higher-order
 // anisotropy decreases. Run: npx tsx code/experiment/p125-lorentz-flow.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -105,28 +104,6 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
   const solved = a4Shrinks && a6Shrinks && rank2AtFloor
 
   return { cellCount: N, steps, a2, a4, a6, a4Shrinks, a6Shrinks, rank2AtFloor, solved }
-}
-
-export function main(): void {
-  const r = lorentzFlow()
-  console.log('P125: Lorentz restoration, does higher-order anisotropy shrink with scale')
-  console.log('')
-  console.log(`  ${r.cellCount.toLocaleString()} cells (float {5,3,4} ball), angular anisotropy vs number of steps`)
-  console.log('')
-  console.log('  steps:  ' + r.steps.map((s) => String(s).padStart(7)).join(''))
-  console.log('  rank-2: ' + r.a2.map((a) => a.toFixed(3).padStart(7)).join(''))
-  console.log('  rank-4: ' + r.a4.map((a) => a.toFixed(3).padStart(7)).join(''))
-  console.log('  rank-6: ' + r.a6.map((a) => a.toFixed(3).padStart(7)).join(''))
-  console.log('')
-  console.log(`  rank-2 already at the floor (icosahedral leading-order isotropy): ${r.rank2AtFloor}`)
-  console.log(`  rank-4 anisotropy shrinks with scale: ${r.a4Shrinks}`)
-  console.log(`  rank-6 anisotropy shrinks with scale: ${r.a6Shrinks}`)
-  console.log(`  => higher-order anisotropy washes out with coarse-graining: rotational Lorentz RESTORES: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -11,35 +11,49 @@
 // note/experiment/results/p7-naturalness.md.
 // Run: npx tsx code/experiment/p7-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { chshShared } from '@/test/experiment/foundations/naturalness'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
-export function main(): void {
-  const xi = 2.0 // mesh correlation length (shared-past decay scale)
-  console.log('P7: CHSH violation versus measurement separation in a natural mesh')
-  console.log('  (shared-past fraction eta(d) = exp(-d/xi), aligned correlation)')
-  console.log('  separation d   eta(d)   CHSH S   note')
-  for (const d of [0, 1, 2, 4, 8]) {
-    const eta = Math.exp(-d / xi)
-    const r = chshShared({ eta, mode: 'aligned', trials: 80000, seed: 900 + d })
-    const note =
-      r > 2.83 ? 'above quantum' : r > 2 ? 'above classical' : 'classical'
-    console.log(
-      `  ${String(d).padStart(10)}   ${eta.toFixed(3)}   ${r.toFixed(3)}   ${note}`,
-    )
-  }
-  console.log('')
-  console.log('  quantum mechanics: S ~ 2.83 at ANY separation (flat).')
-  console.log('  the natural mesh: S decays toward the classical bound as separation grows,')
-  console.log('  because the shared past shrinks. So a natural causal mesh reproduces')
-  console.log('  quantum violation only for nearby measurements, not spacelike ones,')
-  console.log('  unless the correlation is fine-tuned. That is the precise residual')
-  console.log('  difficulty of the classical-base reading, now made quantitative.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+export default defineExperiment({
+  id: 'quantum/dynamics',
+  title: 'in a natural mesh the CHSH violation decays with separation, unlike flat quantum violation',
+  category: 'quantum',
+  substrates: 'any',
+  depth: 'L1',
+  paper: true,
+  run() {
+    const xi = 2.0
+    const sNear = chshShared({
+      eta: Math.exp(-0 / xi),
+      mode: 'aligned',
+      trials: 80000,
+      seed: 900,
+    })
+    const sFar = chshShared({
+      eta: Math.exp(-8 / xi),
+      mode: 'aligned',
+      trials: 80000,
+      seed: 908,
+    })
+    const nearViolates = sNear > 2
+    const farDecays = sFar < sNear && sFar < 2.4
+    const ok = nearViolates && farDecays
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a natural causal mesh reproduces CHSH violation only for nearby measurements, with the violation decaying toward the classical bound as separation grows, unlike the flat separation-independent quantum violation',
+      metrics: {
+        sNear,
+        sFar,
+        classicalBound: 2,
+        quantumValue: 2 * Math.sqrt(2),
+      },
+      control: {
+        sFar,
+      },
+      notes:
+        'L1, an honest negative. The shared-past fraction eta(d) = exp(-d/xi) is an ASSUMED decay model, not measured from a stepped mesh, so the result quantifies a tension rather than deriving it from the base rule. The far-separation point, where the violation decays, is the control against the near point. It uses random sampling over 80000 trials, so each S is a Monte Carlo estimate. The finding is the precise residual difficulty, a natural mesh gives quantum violation only for nearby measurements, not spacelike ones.',
+    })
+  },
+})

@@ -4,7 +4,8 @@
 // and no fundamental spinor. Matter on {7,3} is 1D kinks, the most degenerate case. The form-tower is a generic
 // slow-mode (NEUTRAL). Run: npx tsx code/experiment/s73-selves.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Selves(): { solitonsExist: boolean; kinkCharge: number; hasExchangeStatistics: boolean } {
   // 1D kink (phi^4 / sine-Gordon), field phi(x) = tanh((x-c)/w) interpolates between vacua -1 and +1
@@ -30,7 +31,28 @@ export function s73Selves(): { solitonsExist: boolean; kinkCharge: number; hasEx
   return { solitonsExist, kinkCharge, hasExchangeStatistics }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s73Selves()
-  console.log(`SOLVED: {7,3} selves, 1D kinks exist ${r.solitonsExist} (charge ${r.kinkCharge}, POSITIVE), but NO exchange statistics ${r.hasExchangeStatistics} (DIFFERENT, 1D, neither fermions nor anyons). Most degenerate matter.`)
-}
+export default defineExperiment({
+  id: 'selves/s73-selves',
+  title: 'solitons on the 1D horocycle are kinks with no exchange statistics',
+  category: 'selves',
+  substrates: ['73'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s73Selves()
+    const ok =
+      r.solitonsExist && Math.abs(r.kinkCharge) === 1 && !r.hasExchangeStatistics
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a phi-four kink exists on the 1D horocycle of {7,3} so selves form, but 1D forbids braiding so there are neither fermions nor anyons and no fundamental spinor, the most degenerate kind of matter',
+      metrics: {
+        kinkCharge: r.kinkCharge,
+        solitonsExist: r.solitonsExist ? 1 : 0,
+        hasExchangeStatistics: r.hasExchangeStatistics ? 1 : 0,
+      },
+      notes:
+        'L1, known math. The kink charge is the analytic pi_0 winding of a hand-built tanh profile, not produced by the rule. The 1D-has-no-braiding fact is the discriminator against the higher-dimensional substrates. The form-tower is a generic slow mode.',
+    })
+  },
+})

@@ -21,7 +21,6 @@
 // dynamics with nothing added beyond the five (the-will-from-the-four.md), is the separate job of P99.
 // Run: npx tsx code/experiment/p98-will-fork.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -113,29 +112,6 @@ export function willFork(): {
     hasSharpThreshold,
     solved,
   }
-}
-
-export function main(): void {
-  const r = willFork()
-  console.log('P98: the will and delayed gratification, the fork')
-  console.log('')
-  console.log(`  small pleasure now = ${SMALL}, big pleasure across a valley of ${VALLEY} = ${BIG}`)
-  console.log(`  foresight: the modeled worth of the far reward = ${r.goalWorth.toFixed(2)}, worth pursuing: ${r.worthPursuing}`)
-  console.log('')
-  console.log('  outcomes:')
-  console.log(`    high willpower (10), weak field  -> ${r.outcomeHighWill}  (delays gratification, reaches the big pleasure: ${r.delaysGratification})`)
-  console.log(`    low willpower (2),  weak field   -> ${r.outcomeLowWill}  (willpower runs out, relapses to the small: ${r.relapsesWhenDepleted})`)
-  console.log(`    high willpower (10), strong field -> ${r.outcomeStrongField}  (field overrides the will: ${r.fieldOverrides})`)
-  console.log('')
-  console.log('  willpower sweep (the threshold for enduring the valley):')
-  console.log('    ' + r.willpowerSweep.map((s) => `${s.willpower}:${s.outcome}`).join('  '))
-  console.log(`    sharp threshold at willpower ${r.willpowerThreshold} (= valley length): ${r.hasSharpThreshold}`)
-  console.log('')
-  console.log(`  NOT EMERGENT (adds willpower as a scalar budget plus foresight and field formulas, not one of the five base things): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

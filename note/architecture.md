@@ -118,7 +118,7 @@ export default defineExperiment({
   title: 'one sentence, the headline',
   category: 'relativity',           // from the Category union in suite.ts
   substrates: ['3434'],             // or 'any'
-  depth: 'L2',                      // L0 analytic, L1 single measure, L2 emergent, L3 deep
+  depth: 'L2',                      // the depth rubric, see below
   paper: true,                      // is this a headline result
   run() {
     const measured = someMeasure({ ... })
@@ -132,6 +132,23 @@ export default defineExperiment({
   },
 })
 ```
+
+### The depth rubric
+
+The grade states what a result actually establishes, not whether it prints PASSED.
+This is the authoritative rubric from `experimental-methodology.md`. Read it.
+
+| depth | what it establishes |
+| --- | --- |
+| `L0` | **circular**, the answer was put in by hand. Proves nothing. Relabel or delete. |
+| `L1` | **known math**, correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one). |
+| `L2` | **known physics**, reproduces a known construction on this substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone). |
+| `L3` | **emergent and novel**, a single base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
+
+Grade honestly. Most results in a young program are L1 and L2, and that is fine, as
+long as they are labeled as such. Never let an L1 or L2 masquerade as L3. An algebra
+fact (SP1, the 2pi sign on the coin) is L1, the dynamical version (a spinor carrying
+the sign under the rule) is the L3 target.
 
 Rules that the runner enforces:
 

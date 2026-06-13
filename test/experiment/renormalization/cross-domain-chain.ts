@@ -13,7 +13,6 @@
 // Rung 3 (composite -> agent) is P162 (a self of composites with goal-directed dynamics). Together these
 // climb the cross-domain tower. Run: npx tsx code/experiment/p168-cross-domain-chain.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -244,29 +243,6 @@ export function crossDomainChain(): {
     rung3Note: 'rung 3 (composite -> agent) is P162, a self of composites with goal-directed effective dynamics',
     solved,
   }
-}
-
-export function main(): void {
-  const r = crossDomainChain()
-  console.log('P168: the cross-domain coarse-graining chain (field -> particle -> composite)')
-  console.log('')
-  console.log('  RUNG 1 (field -> particle), a field excitation coarse-grains to a POINT particle:')
-  console.log(`    centroid moves at constant velocity ${r.rung1.speed.toFixed(3)} (linear fit R^2 ${r.rung1.linearR2.toFixed(3)}), below c (massive): ${r.rung1.massive}`)
-  console.log(`    => the particle obeys free-particle motion (Ehrenfest), the commuting square holds: ${r.rung1.commutes}`)
-  console.log('')
-  console.log('  RUNG 2 (particle -> composite), two interacting particles coarse-grain to one BODY:')
-  console.log(`    center of mass moves uniformly (R^2 ${r.rung2.comR2.toFixed(3)}) = momentum conserved despite interaction: ${r.rung2.comFree}`)
-  console.log(`    relative spread ${r.rung2.relGrowthInteracting.toFixed(2)} (best interacting) vs ${r.rung2.relGrowthFree.toFixed(2)} (free), a true bound state: ${r.rung2.bound} (the harder refinement)`)
-  console.log(`    => the composite's CENTER OF MASS obeys the free-body law (momentum conserved), the commuting square holds: ${r.rung2.commutes}`)
-  console.log('')
-  console.log(`  ${r.rung3Note}`)
-  console.log('')
-  console.log(`  the cross-domain tower climbs, field -> particle -> composite, each rung a new KIND that commutes: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

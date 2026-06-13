@@ -7,7 +7,8 @@
 // test would be the adiabatic-exchange Berry-phase simulation, which is not done here.
 // Run: npx tsx code/experiment/p207-exchange-phase.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function exchangePhase(): { table: { H: number; spin: number; exchange: number; kind: string }[]; consistent: boolean } {
   const Hs = [0, 1, 2, 3]
@@ -27,7 +28,25 @@ export function exchangePhase(): { table: { H: number; spin: number; exchange: n
   return { table: table.map((r) => ({ H: r.H, spin: r.spin, exchange: r.exchange, kind: r.kind })), consistent }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = exchangePhase()
-  console.log(`ANALYTIC CHECK (assumes spin-statistics theorem spin=H/2 and exchange e^(i pi H), NOT emergent): rotation sign equals exchange sign for every H = ${r.consistent} self-consistent. H=1 self labelled ${r.table[1]!.kind} from the assumed rule, not derived from the substrate.`)
-}
+export default defineExperiment({
+  id: 'spin/exchange-phase',
+  title: 'an analytic consistency check that the assumed spin-statistics formulas agree, not an emergent result',
+  category: 'spin',
+  substrates: ['any'],
+  depth: 'L0',
+  paper: false,
+  run() {
+    const r = exchangePhase()
+    return verdict({
+      status: 'open',
+      claim:
+        'assuming the textbook relations spin equals H over two and exchange phase equals e to the i pi H, the 2pi rotation sign and the exchange sign agree for every Hopf charge, an identity that follows from the assumed formulas rather than from the substrate',
+      metrics: {
+        consistent: r.consistent ? 1 : 0,
+        hopfChargeChecked: r.table.length,
+      },
+      notes:
+        'L0, circular. The file header is explicit, this ASSUMES the spin-statistics theorem (spin = H/2 and exchange = e^(i pi H)) and then confirms the two assumed formulas agree, which they must. It does NOT independently compute an exchange phase from the dynamics and it is NOT evidence the substrate generates spin-statistics. Reported as a consistency note with status open, not a pass. The real test is an adiabatic Berry-phase exchange simulation, which is not done here.',
+    })
+  },
+})

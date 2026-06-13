@@ -7,7 +7,6 @@
 // every direction. Low anisotropy = an emergent isotropic light speed, the rotational half of Lorentz, now
 // for the WAVE rather than the diffusion tensor (P124). Run: npx tsx code/experiment/p150-wave-isotropy.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -128,23 +127,6 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
     reversible,
     solved,
   }
-}
-
-export function main(): void {
-  const r = waveIsotropy()
-  console.log('P150: wave-speed isotropy on the {5,3,4} (the Lorentz rung for the deterministic wave)')
-  console.log('')
-  console.log(`  ${r.cells} cells, the second-order wave is exactly REVERSIBLE: ${r.reversible}`)
-  console.log(`  wavefront after ${r.beats} beats: ${r.frontSpeeds.length} directions reached`)
-  console.log(`    mean wave speed ${r.meanSpeed.toFixed(3)} (hyperbolic distance per beat)`)
-  console.log(`    anisotropy (max-min)/mean = ${r.anisotropy.toFixed(3)} (low = isotropic, an emergent light speed)`)
-  console.log('')
-  console.log(`  the wave speed is ISOTROPIC (the rotational half of Lorentz, for the wave): ${r.isotropic}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

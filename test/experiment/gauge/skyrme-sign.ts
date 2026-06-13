@@ -5,7 +5,8 @@
 // question is only whether the rule supplies kappa > 0, argued via the fermion in p192 / does-the-rule-...).
 // Run: npx tsx code/experiment/p205-skyrme-sign.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
 const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
@@ -60,7 +61,27 @@ export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveK
   return { exExp, skExp, stableForPositiveKappa }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = skyrmeSign()
-  console.log(`SOLVED: exchange R^${r.exExp}, Skyrme R^${r.skExp}, stable for kappa>0 ${r.stableForPositiveKappa}`)
-}
+export default defineExperiment({
+  id: 'gauge/skyrme-sign',
+  title: 'on a real 3D texture the exchange energy grows with size and the Skyrme energy falls, the Derrick scaling',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = skyrmeSign()
+    const ok = r.stableForPositiveKappa
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'measured on a real 3D direction field, the exchange energy scales up with soliton size and the Skyrme energy scales down, the opposite scaling that gives a stable minimum only for a positive Skyrme coefficient',
+      metrics: {
+        exchangeExponent: r.exExp,
+        skyrmeExponent: r.skExp,
+        stableForPositiveKappa: r.stableForPositiveKappa ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, the Derrick scaling argument confirmed on a real field. The measured exponents are the content, and the opposing signs are the meaningful contrast. This confirms the scaling only. The actual sign of the Skyrme coefficient kappa is argued from the fermion the self carries, not measured here, so it stays open.',
+    })
+  },
+})

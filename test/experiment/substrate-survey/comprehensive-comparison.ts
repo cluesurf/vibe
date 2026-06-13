@@ -4,8 +4,9 @@
 // spinor coin, the rule (conservation / light cone / churn), electromagnetism, the holographic correlator,
 // physical-space gravity, isotropy, cosmology, hierarchy, and selves. Run: npx tsx code/experiment/comprehensive-comparison.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type Sub = { sym: number[]; flat: boolean; bulk: number; space: number; coin: string; soliton: string; stats: string }
 const SUBS: Sub[] = [
@@ -81,7 +82,34 @@ export function comprehensiveComparison(): void {
   console.log('separates {3,4,3,4} (hyperbolic) from {3,4,3,3} (flat). {3,4,3,4} alone wins every physics row.')
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  comprehensiveComparison()
-  console.log('\nSOLVED: identical battery run on {7,3}/{5,3,4}/{3,4,3,4}/{5,3,3,3,3}/{3,4,3,3} (flat). Framework ports everywhere; only {3,4,3,4} scores on spinor + crystallographic + 3D + 1/r gravity + fermions + curvature together.')
-}
+export default defineExperiment({
+  id: 'substrate-survey/comprehensive-comparison',
+  title: 'the same battery on one substrate per dimension, only {3,4,3,4} scores on every physics row',
+  category: 'substrate-survey',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    comprehensiveComparison()
+    const champion = SUBS.find((s) => s.sym.join(',') === '3,4,3,4')!
+    const row = battery(champion)
+    const conserved = row.rule!.includes('conserved true')
+    const churns = row.rule!.includes('churns true')
+    const spinor = row.spinor!.includes('YES')
+    const crystallographic = row.crystallographic!.includes('YES')
+    const ok = conserved && churns && spinor && crystallographic
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'an identical validation battery on {7,3}, {5,3,4}, {3,4,3,4}, {5,3,3,3,3}, and the flat {3,4,3,3} shows the framework rows port everywhere while only {3,4,3,4} scores on crystallographic, spinor, and the rule rows together',
+      metrics: {
+        conserved: conserved ? 1 : 0,
+        churns: churns ? 1 : 0,
+        spinor: spinor ? 1 : 0,
+        crystallographic: crystallographic ? 1 : 0,
+      },
+      notes:
+        'L1, a comparative survey. The pass reads the {3,4,3,4} row, where charge conservation is exact integer streaming and the spinor and crystallographic flags come from the degree-24 D4 coin. The charge and churn states are a fixed-seed pseudo-random fill, deterministic but one configuration. The gravity, cosmology, and selves rows are labels derived from the known dimension, not measured. This is a catalog comparison.',
+    })
+  },
+})

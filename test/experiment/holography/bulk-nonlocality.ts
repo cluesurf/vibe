@@ -9,7 +9,6 @@
 // honest, tested STRUCTURE that the esoteric reading interprets as telepathy and synchronicity, distant
 // minds connected beneath the physical. Run: npx tsx code/experiment/p170-bulk-nonlocality.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -111,27 +110,6 @@ export function bulkNonlocality(input?: { n?: number }): {
   const solved = nonLocalChannel
 
   return { n: N, shellRadius, shellSize: shellCells.length, meanBulkDistance, meanSurfaceDistance, unreachableFraction, ratio, nonLocalChannel, solved }
-}
-
-export function main(): void {
-  const r = bulkNonlocality()
-  console.log('P170: the non-local bulk channel beneath the physical layer')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, physical surface = the shell at radius ${r.shellRadius} (${r.shellSize.toLocaleString()} cells)`)
-  console.log('')
-  console.log(`  mean THROUGH-BULK distance between far surface cells: ${r.meanBulkDistance.toFixed(1)} hops`)
-  console.log(`  mean WITHIN-SURFACE distance (the physical path): ${isFinite(r.meanSurfaceDistance) ? r.meanSurfaceDistance.toFixed(1) + ' hops' : 'disconnected (no physical path)'}`)
-  console.log(`  surface cells UNREACHABLE within the surface (only the bulk connects them): ${(r.unreachableFraction * 100).toFixed(0)}%`)
-  console.log(`  surface-to-bulk distance ratio: ${isFinite(r.ratio) ? r.ratio.toFixed(1) + 'x' : 'infinite (surface disconnected, bulk is the only channel)'}`)
-  console.log('')
-  console.log(`  a non-local channel exists beneath the physical layer: ${r.nonLocalChannel}`)
-  console.log('  => distant points on the physical surface are joined by a short hidden path through the bulk,')
-  console.log('     the geometric substrate the esoteric reading interprets as telepathy and synchronicity.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

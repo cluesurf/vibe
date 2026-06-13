@@ -13,7 +13,6 @@
 // Slice-invariance of the intensive parameters is the robust statement, and is what the shortcut needs.
 // Run: npx tsx code/experiment/p115-renormalization.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -161,25 +160,6 @@ export function renormalization(input?: { small?: number; large?: number }): {
   const solved = sliceInvariant
 
   return { small, large, densityMatch, c1Match, coneMatch, pairStructure, sliceInvariant, solved }
-}
-
-export function main(): void {
-  const r = renormalization()
-  console.log('P115: the renormalization keystone (slice-invariance of the effective field)')
-  console.log('')
-  console.log('  field parameter        small slice        large slice')
-  console.log(`  cells                  ${r.small.n.toLocaleString().padEnd(16)} ${r.large.n.toLocaleString()}`)
-  console.log(`  vacuum density         ${(r.small.density * 100).toFixed(1)}%             ${(r.large.density * 100).toFixed(1)}%   match: ${r.densityMatch}`)
-  console.log(`  pair corr C(1)         ${r.small.c1.toFixed(4)}          ${r.large.c1.toFixed(4)}   match: ${r.c1Match}`)
-  console.log(`  lightcone speed        ${r.small.coneSpeed.toFixed(2)}/beat          ${r.large.coneSpeed.toFixed(2)}/beat   match: ${r.coneMatch}`)
-  console.log('')
-  console.log(`  the slice's effective field equals the large field (slice-invariant): ${r.sliceInvariant}`)
-  console.log('  => a slice IS the universe locally, so testing a slice tests every scale')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

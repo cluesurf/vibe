@@ -15,7 +15,6 @@
 // Whatever the numbers say is the verdict. Charge Q is conserved throughout.
 // Run: npx tsx code/experiment/p101-self-emergence-perception.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -193,29 +192,6 @@ export function selfEmergencePerception(): {
     verdict,
     solved,
   }
-}
-
-export function main(): void {
-  const r = selfEmergencePerception()
-  console.log('P101: self-emergence on the perception ontology (no stored relations)')
-  console.log('')
-  console.log(`  ${r.cells} cells, only tones, durable self = self-sustaining tone-pattern`)
-  console.log('')
-  console.log('  persistence (temporal autocorrelation of the tone field):')
-  for (const a of r.autocorr) console.log(`    lag ${String(a.lag).padStart(2)} beats -> corr ${a.c.toFixed(3)}`)
-  console.log(`    long-lag correlation: ${r.longLagCorr.toFixed(3)}`)
-  console.log('')
-  console.log('  imprint memory (does a pleasure blob survive above background):')
-  console.log(`    retention after 40 beats: ${(r.imprintRetention * 100).toFixed(1)}%`)
-  console.log('')
-  console.log(`  charge conserved: ${r.conserved}`)
-  console.log('')
-  console.log(`  VERDICT: ${r.verdict}`)
-  console.log(`  durable selves form: ${r.durableSelvesForm}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

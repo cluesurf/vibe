@@ -18,7 +18,6 @@
 // exactly zero: epsilon = 0 (no CP), no B-violation (no source term), or clamping to equilibrium.
 // Run: npx tsx code/experiment/p80-baryogenesis.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -109,36 +108,6 @@ export function baryogenesis(input: { seed: number }): {
     // characteristic freeze-out peak at intermediate washout.
     solved: allThreeNeeded && etaNotEqualEpsilon && freezeOutNonMonotonic,
   }
-}
-
-export function main(): void {
-  const r = baryogenesis({ seed: 1 })
-  console.log('P80: baryogenesis from genuine out-of-equilibrium dynamics')
-  console.log('')
-  console.log(`  CP input epsilon = ${r.epsilon}`)
-  console.log('  final net asymmetry eta (integrated from the Boltzmann equations):')
-  console.log(`    all three conditions present:          ${r.full.toFixed(5)}   (eta = epsilon * ${r.efficiency.toFixed(3)}, NOT epsilon)`)
-  console.log(`    no C/CP violation (epsilon = 0):       ${r.noCP.toFixed(5)}`)
-  console.log(`    in equilibrium (no departure):         ${r.equilibrium.toFixed(5)}`)
-  console.log(`    no baryon-number violation:            ${r.noBViolation.toFixed(5)}`)
-  console.log('')
-  console.log(`  eta emerges and is not equal to epsilon: ${r.etaNotEqualEpsilon ? 'YES' : 'no'}`)
-  console.log(`  all three Sakharov conditions necessary: ${r.allThreeNeeded ? 'YES' : 'no'}`)
-  console.log(`  efficiency peaks at intermediate washout K = ${r.freezeOutPeakK} (freeze-out curve): ${r.freezeOutNonMonotonic ? 'YES' : 'no'}`)
-  console.log('')
-  console.log(`  baryogenesis solved (emergent, non-tautological): ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  The matter excess is no longer inserted. It is the integral of the real out-of-')
-  console.log('  equilibrium decay equations, so it comes out as epsilon times an efficiency the')
-  console.log('  dynamics compute, peaking at intermediate washout and vanishing at strong washout')
-  console.log('  (equilibrium erases it) and at weak washout (too little is generated). Remove the CP')
-  console.log('  tilt, forbid the number-changing source, or clamp the field to equilibrium, and the')
-  console.log('  dynamics give exactly zero. Each Sakharov condition is necessary, the asymmetry is')
-  console.log('  emergent, and its size depends on the true CP violation in the substrate, left open.')
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

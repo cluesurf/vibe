@@ -18,6 +18,16 @@ export function cloneWill(will: Will): Will {
   return { mesh: will.mesh, data: will.data.slice() }
 }
 
+// Fill every slot with a deterministic structured ternary pattern. The base is
+// deterministic, never random, so a test initial condition is a fixed function of
+// the slot index, not a pseudo-random draw. `phase` shifts the pattern for a second
+// independent (still deterministic) initial condition.
+export function fillWillPattern(will: Will, phase = 0): void {
+  for (let index = 0; index < will.data.length; index++) {
+    will.data[index] = ((index + phase) % 3) - 1
+  }
+}
+
 // the total tone over the whole mesh, the conserved charge.
 export function charge(will: Will): number {
   let sum = 0

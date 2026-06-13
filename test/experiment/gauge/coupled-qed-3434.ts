@@ -12,7 +12,8 @@
 // {3,4,3,4} rule. Frontier 1 is SOLVABLE.
 // Run: npx tsx code/experiment/p260-coupled-qed-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
 const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
@@ -89,9 +90,29 @@ export function coupledQED(): { chargeConserved: boolean; gaussLaw: boolean; gau
   return { chargeConserved, gaussLaw, gaugeInvariant, minimalCoupling, backReaction }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = coupledQED()
-  // PASS rests on the REAL results (charge conservation, gauge invariance, back-reaction); Gauss law and minimal coupling are by-construction consistency checks, reported but not the evidence.
-  const pass = r.chargeConserved && r.gaugeInvariant && r.backReaction
-  console.log(`SOLVED COUPLED-QED: [real] charge-conserved ${r.chargeConserved}, gauge-invariant ${r.gaugeInvariant}, back-reaction ${r.backReaction}; [by-construction] gauss-law ${r.gaussLaw}, minimal-coupling ${r.minimalCoupling} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+export default defineExperiment({
+  id: 'gauge/coupled-qed-3434',
+  title: 'one coupled rule conserves charge, stays gauge invariant, and back-reacts, lattice QED',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = coupledQED()
+    const ok = r.chargeConserved && r.gaugeInvariant && r.backReaction
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'one coupled fermion and gauge evolution conserves total charge, keeps the minimal-coupling hopping term gauge invariant, and lets the fermion current source a back-reacting electric field',
+      metrics: {
+        chargeConserved: r.chargeConserved ? 1 : 0,
+        gaugeInvariant: r.gaugeInvariant ? 1 : 0,
+        backReaction: r.backReaction ? 1 : 0,
+        gaussLaw: r.gaussLaw ? 1 : 0,
+        minimalCoupling: r.minimalCoupling ? 1 : 0,
+      },
+      notes:
+        'L2, known physics, the lattice Schwinger model realized on the substrate sectors. The pass rests on charge conservation, gauge invariance, and back-reaction. Gauss law and minimal coupling are by-construction consistency checks, not evidence. Gauge invariance is checked against a pseudo-random gauge field, but it is exact for any field. The interaction is built in, not emergent.',
+    })
+  },
+})

@@ -9,7 +9,6 @@
 // space. A large fraction = robust = no fine-tuning signature = a designer is dispensable. A tiny fraction
 // = fine-tuned = a tuner is needed. Run: npx tsx code/experiment/p166-design-signature.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -138,29 +137,6 @@ export function designSignature(input?: { n?: number }): {
   const solved = !fineTuningSignature && designerDispensable
 
   return { n: N, grid, richFraction, deadOnlyAtZeroArrow, geometryForced, selfOrganizes, fineTuningSignature, designerDispensable, solved }
-}
-
-export function main(): void {
-  const r = designSignature()
-  console.log('P166: the design-signature (fine-tuning) test')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, scanning the arrow rate x the share rate:`)
-  console.log(`  rich fraction of parameter space: ${(r.richFraction * 100).toFixed(0)}% (broad = robust, not fine-tuned)`)
-  console.log(`  the field is dead only at arrow = 0 (the degenerate point), alive across positive rates: ${r.deadOnlyAtZeroArrow}`)
-  console.log('')
-  console.log('  the three anti-design facts:')
-  console.log(`    structure is FORCED (P86, {5,3,4} is the unique minimal solution, not a tuned choice): ${r.geometryForced}`)
-  console.log(`    the rich regime is BROAD (no dialing needed): ${r.richFraction > 0.5}`)
-  console.log(`    the operating point SELF-ORGANIZES (P135, an attractor, not a knife-edge): ${r.selfOrganizes}`)
-  console.log('')
-  console.log(`  a fine-tuning (design) signature is present: ${r.fineTuningSignature}`)
-  console.log(`  => a designer/tuner is DISPENSABLE (the richness is forced + robust + self-organizing): ${r.designerDispensable}`)
-  console.log('  The designed/idealist reading remains logically possible but is empirically superfluous (Occam).')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

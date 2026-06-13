@@ -14,7 +14,6 @@
 //      wholes-within-wholes.
 // Run: npx tsx code/experiment/p57-recursion.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, makeGraph } from '@/code/tool/graph'
@@ -279,43 +278,6 @@ export function recursion(input: { count: number; seed: number }): {
     towerCells: cg2.superG.size,
     towerValid: towerTernary && cg2.superG.size >= 2,
   }
-}
-
-export function main(): void {
-  const r = recursion({ count: 1500, seed: 1 })
-  console.log('P57: recursion (vibes into higher vibes, the model as a fractal)')
-  console.log('')
-  console.log(`  base mesh: ${r.baseCells} vibes`)
-  console.log(`  coarse-grained into ${r.superCells} super-vibes (clusters acting as single higher vibes)`)
-  console.log('')
-  console.log('  the higher vibe is the AGGREGATE of the micro-tones (a derived view), not a stored tone.')
-  console.log('')
-  console.log('  1. self-similar structure (the aggregate view is the SAME kind of object):')
-  console.log(`     aggregate tones are ternary: ${r.superTernary ? 'YES' : 'no'}`)
-  console.log(`     aggregate mesh Lorentz-safe: ${r.superLorentzSafe ? 'YES' : 'no'} (anisotropy ${r.superAnisotropy.toFixed(3)})`)
-  console.log('  2. no separate storage (the higher self is stable BECAUSE the micro-self is):')
-  console.log(`     running the micro-rule more leaves the aggregate unchanged: ${r.inheritedStable ? 'YES' : 'no'} (overlap ${r.inheritedOverlap.toFixed(3)})`)
-  console.log('  3. emergent macro-rule (partial, the deep open question):')
-  console.log(`     the aggregated micro-step matches the macro-rule by ${r.emergence.toFixed(2)} (1 = fully emergent, the open frontier)`)
-  console.log('  4. the tower (aggregating again yields a valid higher view):')
-  console.log(`     second level of ${r.towerCells} super-super-vibes, still ternary and valid: ${r.towerValid ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  A coherent mesh of vibes can be READ as a single higher vibe: its tone is the')
-  console.log('  aggregate (majority) of its members, a derived view, with no new stored tone and no')
-  console.log('  separate dynamics. Only the ternary micro-tones are ever stored. The aggregate view')
-  console.log('  is the same kind of object as the base (ternary, Lorentz-safe), its stability is')
-  console.log('  inherited from the micro-self below it, and the tower continues to another level.')
-  console.log('  The higher-level law is emergent from the micro-dynamics (partial here), which is the')
-  console.log('  honest open frontier. The model is recursive and self-similar, minds made of minds,')
-  console.log('  with the higher levels being summaries of the one ternary base, never abstractions')
-  console.log('  stored beside it.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

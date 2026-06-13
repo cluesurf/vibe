@@ -7,7 +7,6 @@
 // geometry). See note/questions/next-version.md (P13).
 // Run: npx tsx code/experiment/p13-cosmology.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { growCsg } from '@/code/substrate/grow-csg'
 import { getBit } from '@/code/tool/bitset'
@@ -101,45 +100,6 @@ export function csgCosmology(input: { size: number; p: number; seed: number }): 
     widthGrows: lateWidth > earlyWidth,
     dimension: myrheimMeyerDimension({ poset }),
   }
-}
-
-export function main(): void {
-  console.log('P13: the arrow of time and cosmology from classical sequential growth')
-  console.log('')
-  const r = csgCosmology({ size: 240, p: 0.08, seed: 1 })
-
-  console.log('  Arrow of time (distinctions accumulate as the order grows):')
-  console.log('    growth-time k    accumulated relations')
-  for (const g of r.relationGrowth) {
-    console.log(`    ${String(g.k).padStart(6)}            ${g.relations}`)
-  }
-  console.log(`  monotonically increasing (irreversible accumulation): ${r.arrowMonotone ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  A growing, aging universe:')
-  console.log(`    final volume 240 elements, age (proper time / height) ${r.height} steps, dimension ${r.dimension.toFixed(2)}`)
-  console.log('')
-  console.log('  Slice width versus proper time (honest measurement):')
-  console.log(`    early half ${r.earlyWidth.toFixed(1)}   late half ${r.lateWidth.toFixed(1)}   slices widen with time: ${r.widthGrows ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  Reading the result:')
-  console.log('  - The ARROW OF TIME is clean and solid. Relations (distinctions) only')
-  console.log('    accumulate as the order grows, monotonically and irreversibly. You cannot')
-  console.log('    un-happen what is. This is exactly the irreversible cascade of the bootstrap.')
-  console.log('  - The universe GROWS: volume and age (proper time) both increase, a growing')
-  console.log('    time-oriented causal order with a definite beginning.')
-  console.log('  - Honest on EXPANSION: plain transitive percolation does NOT show cosmological')
-  console.log('    expansion (its slices narrow with proper time, and it is chain-dominated,')
-  console.log('    dimension below 2). The committed eternal-expansion fate needs richer growth')
-  console.log('    dynamics (an originary / de Sitter-like sequential growth with tuned')
-  console.log('    couplings), which is the refinement. The arrow is here, accelerating')
-  console.log('    expansion is the next dial to turn.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

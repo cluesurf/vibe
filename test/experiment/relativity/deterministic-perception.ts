@@ -12,7 +12,6 @@
 // The Margolus alternating partition gives left- AND right-movers (set by parity), so charges propagate
 // ballistically and can collide. Run: npx tsx code/experiment/p149-deterministic-perception.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -124,25 +123,6 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
   const solved = chargeConserved && reversible && isBallistic
 
   return { L, chargeConserved, reversible, spreadExponent, isBallistic, solved }
-}
-
-export function main(): void {
-  const r = deterministicPerception()
-  console.log('P149: the perception rule as a deterministic reversible charge-conserving block CA')
-  console.log('')
-  console.log(`  charge Q is CONSERVED by the rule: ${r.chargeConserved}`)
-  console.log(`  the rule is exactly REVERSIBLE (forward then backward recovers the start): ${r.reversible}`)
-  console.log('')
-  console.log(`  a localized perturbation spreads with RMS width ~ t^${r.spreadExponent.toFixed(2)} (1 = BALLISTIC, a wave): ${r.isBallistic}`)
-  console.log('')
-  console.log('  => the actual perception content (hop transport, pair creation and annihilation) made')
-  console.log('     DETERMINISTIC and REVERSIBLE is charge-conserving and BALLISTIC (z=1), a finite-speed')
-  console.log('     wave. The relativistic mode is there once the randomness is gone, no new field.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -12,7 +12,6 @@
 // Same mesh, same rule, same memories. The only difference is whether the shared external
 // constraint is imposed. Run: npx tsx code/experiment/p65-dreaming-and-waking.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -150,39 +149,6 @@ export function dreamingAndWaking(input: { seed: number }): {
     // stored landscape, and the waking completion faithfully matches the input.
     solved: wakingVisited.size === 1 && wakingVeridical > 0.8 && dreamVisited.size >= K - 1,
   }
-}
-
-export function main(): void {
-  const r = dreamingAndWaking({ seed: 1 })
-  console.log('P65: dreaming and waking (one mesh, two regimes)')
-  console.log('')
-  console.log(`  the mesh stores ${r.storedCount} patterns (memories), each a stable attractor.`)
-  console.log('')
-  console.log('  WAKING (external input clamps the surface to a stimulus):')
-  console.log(`    distinct patterns the mesh settles on: ${r.wakingDistinct} (pinned to the one the world shows it)`)
-  console.log(`    the completion faithfully matches the input: ${(100 * r.wakingVeridical).toFixed(0)}% (veridical)`)
-  console.log('')
-  console.log('  DREAMING (no external clamp, a slow internal rhythm drives from within):')
-  console.log(`    distinct stored patterns visited in one trajectory: ${r.dreamingDistinct} of ${r.storedCount} (roams its memories)`)
-  console.log(`    fraction of moments that were blends, not pure memories: ${(100 * r.dreamingBlendFraction).toFixed(0)}% (recombination)`)
-  console.log('')
-  console.log(`  dreaming and waking solved: ${r.solved ? 'YES' : 'no'}`)
-  console.log('')
-  console.log('  One mesh, one rule, one set of memories, two regimes. In waking, an external input')
-  console.log('  clamps the surface, and the mesh completes to the matching memory and holds it,')
-  console.log('  veridical and stable, anchored to the shared world. In dreaming, the clamp is gone,')
-  console.log('  and a slow internal rhythm sweeps the mesh through its own stored patterns, wandering')
-  console.log('  the whole landscape (and, with softer cues, blending memories in the transitions). The only difference')
-  console.log('  is whether the shared external constraint is imposed: pinned to reality when awake,')
-  console.log('  free to roam its own depths when dreaming. This is also why dreams are made of your')
-  console.log('  own material, recombined: a dream is the mesh exploring itself with the world let go.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

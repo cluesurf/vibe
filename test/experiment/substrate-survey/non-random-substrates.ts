@@ -8,7 +8,6 @@
 // hyperbolic curvature scrambles the global directions a flat lattice would line up.
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p40-non-random-substrates.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import {
   hyperbolicGraph,
@@ -82,42 +81,6 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
     out[name] = { ...e, lorentzSafe: e.anisotropy < 0.25 }
   }
   return out
-}
-
-export function main(): void {
-  const r = nonRandomSubstrates({ seed: 1 })
-  console.log('P40: a family of non-random substrates, and which are Lorentz-safe')
-  console.log('')
-  console.log('  substrate                  mean degree   Lorentz anisotropy   reach   Lorentz-safe')
-  for (const [name, e] of Object.entries(r)) {
-    console.log(
-      '  ' +
-        name.padEnd(26) +
-        e.degree.toFixed(1).padStart(7) +
-        e.anisotropy.toFixed(3).padStart(16) +
-        (e.reach ? 'yes' : 'no').padStart(10) +
-        (e.lorentzSafe ? 'YES' : 'no').padStart(12),
-    )
-  }
-  console.log('')
-  console.log('  The flat lattice has a strong preferred frame (anisotropy near one). Every')
-  console.log('  hyperbolic substrate is Lorentz-safe (anisotropy small), INCLUDING the regular')
-  console.log('  {7,3} and {5,4} tessellations, which come out as isotropic as the random sprinkle')
-  console.log('  or better. The reason is curvature: in hyperbolic space there is no global')
-  console.log('  parallelism, so a regular tiling fans its cell directions around the disc and')
-  console.log('  never lines them up the way a flat lattice does. So regularity does not cost')
-  console.log('  Lorentz invariance once the space is curved.')
-  console.log('')
-  console.log('  Several non-random substrates work: the golden-angle sunflower, the Halton disc,')
-  console.log('  and the regular {7,3} and {5,4} tilings. Randomness is not required for a')
-  console.log('  Lorentz-safe mesh. What matters is hyperbolic curvature, not disorder.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

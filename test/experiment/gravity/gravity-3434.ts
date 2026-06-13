@@ -4,8 +4,9 @@
 // law is OPEN, it needs a proper common-ancestor tree-path propagator at large scale, not naive diffusion.
 // Ported from the throwaway probe. Run: npx tsx code/experiment/p198-gravity-3434.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function measure(symbol: number[], maxCells: number): { N: number; nb: number; slope: number; calibrated: boolean } {
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
@@ -43,7 +44,26 @@ export function gravity3434(): { fiveSlope: number; fourSlope: number; confounde
   return { fiveSlope: a.slope, fourSlope: b.slope, confounded }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gravity3434()
-  console.log(`RESULT: {5,3,4} ${r.fiveSlope.toFixed(1)}, {3,4,3,4} ${r.fourSlope.toFixed(1)}, method confounded ${r.confounded} (gravity law OPEN)`)
-}
+export default defineExperiment({
+  id: 'gravity/gravity-3434',
+  title: 'the naive screened-diffusion gravity propagator is confounded, the gravity law is open',
+  category: 'gravity',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = gravity3434()
+    return verdict({
+      status: 'open',
+      claim:
+        'a naive screened-diffusion boundary propagator fails its own {5,3,4} calibration because a finite hyperbolic patch is almost all boundary, so the exact gravity law stays open',
+      metrics: {
+        fiveSlope: r.fiveSlope,
+        fourSlope: r.fourSlope,
+        confounded: r.confounded ? 1 : 0,
+      },
+      notes:
+        'Honest negative. The {5,3,4} calibration (which should read about -1 for its 2D boundary) fails, which flags the method as confounded rather than producing a gravity law. The finite patch is roughly 99 percent boundary so there is no bulk to propagate through. The exact law needs a proper common-ancestor tree-path propagator at large scale.',
+    })
+  },
+})

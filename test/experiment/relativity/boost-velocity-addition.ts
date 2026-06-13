@@ -8,7 +8,6 @@
 // (v + u) / (1 + u v), never v + u, and never exceeding 1. We verify both directly from the dispersion, and
 // confirm no group velocity is ever superluminal. Run: npx tsx code/experiment/p175-boost-velocity-addition.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -102,24 +101,6 @@ export function boostVelocityAddition(): {
     irLorentzInvariant,
     solved,
   }
-}
-
-export function main(): void {
-  const r = boostVelocityAddition()
-  console.log('P175: a direct boost test, frame-independent lightcone and relativistic velocity addition')
-  console.log('')
-  console.log(`  (1) the massless lightcone omega = |k| is boost-invariant, max deviation ${r.masslessConeMaxDeviation.toExponential(1)}: ${r.lightconeFrameInvariant}`)
-  console.log(`  (2) no group velocity exceeds c = 1, max speed ${r.maxGroupSpeed.toFixed(3)}: ${r.noSuperluminal}`)
-  console.log(`  (3) velocities add RELATIVISTICALLY (v+u)/(1+uv), max error ${r.velocityAdditionError.toExponential(1)}: ${r.relativisticAddition}`)
-  console.log(`  (4) the IR dispersion omega^2 - k^2 = m^2 is boost-invariant, deviation ${r.irLorentzInvariant}: ${r.irLorentzInvariant}`)
-  console.log('')
-  console.log('  => boosts act as genuine Lorentz transformations on the substrate. Every frame sees the same')
-  console.log('     light speed, nothing outruns it, and velocities compose by the relativistic law.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -10,7 +10,6 @@
 // symmetrically) and the deterministic reversible wave's isotropy was measured directly in P150 and P124.
 // Run: npx tsx code/experiment/p156-unified-wave.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid, buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -158,24 +157,6 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
 
   const solved = chargeConserved && reversible && ballistic && isotropic
   return { n: N, colors: ec.byColor.length, chargeConserved, reversible, frontSpeed, frontLinearR2, ballistic, directionSymmetric, isotropic, solved }
-}
-
-export function main(): void {
-  const r = unifiedWave()
-  console.log('P156: one charge-conserving reversible wave on {5,3,4} (uniting P149 and P150)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, edge-colored into ${r.colors} matchings`)
-  console.log(`  (1) charge CONSERVED across the map: ${r.chargeConserved}`)
-  console.log(`  (2) exactly REVERSIBLE (forward then inverse returns to start): ${r.reversible}`)
-  console.log(`  (3) BALLISTIC, the causal front grows at a CONSTANT speed ${r.frontSpeed.toFixed(2)} cells/beat (linear fit R^2 ${r.frontLinearR2.toFixed(2)}): ${r.ballistic}`)
-  console.log(`  (4) ISOTROPIC, the rule is face-blind across all ${r.colors} directions (isotropy measured directly in P150/P124): ${r.isotropic}`)
-  console.log('')
-  console.log(`  ONE rule with all four, charge-conserving + reversible + ballistic + isotropic: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

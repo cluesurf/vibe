@@ -4,7 +4,8 @@
 // polynomial growth means no fractal boundary and no holographic 1/r, the price paid for spin.
 // Run: npx tsx code/experiment/p246-gm-geometry-3434.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function d4Roots(): number[][] {
   const r: number[][] = []
@@ -86,8 +87,35 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
   return { exponent, dimensionOk, subexponential, metricLinear, ricciFlat }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gmGeometry()
-  const pass = r.dimensionOk && r.subexponential && r.metricLinear && r.ricciFlat
-  console.log(`SOLVED GM: dim-4 ${r.dimensionOk}, polynomial ${r.subexponential}, metric ${r.metricLinear}, flat-curvature ${r.ricciFlat} => ${pass ? 'PASSED' : 'FAILED'}`)
-}
+// The {3,4,3,4} D4 lattice is flat, the honest cost of choosing spin over hyperbolic
+// geometry. On a D4 ball the volume grows polynomially as r^4 (dimension 4, not the
+// exponential growth of {5,3,4}), the graph distance tracks the Euclidean metric linearly,
+// and the Ollivier-Ricci curvature of an edge is near zero (flat). Polynomial growth means
+// no fractal boundary and no holographic 1/r, the price paid for spin. These are known
+// properties of the flat D4 root lattice, so L1.
+export default defineExperiment({
+  id: 'geometry/gm-geometry-3434',
+  title: 'the {3,4,3,4} D4 lattice is flat: polynomial r^4 growth, linear metric, near-zero curvature',
+  category: 'geometry',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = gmGeometry()
+    const ok = r.dimensionOk && r.subexponential && r.metricLinear && r.ricciFlat
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {3,4,3,4} D4 ball grows polynomially as r^4, tracks the Euclidean metric linearly, and has near-zero edge curvature, so it is flat',
+      metrics: {
+        volumeExponent: r.exponent,
+        dimensionFourOk: r.dimensionOk ? 1 : 0,
+        polynomialGrowthOk: r.subexponential ? 1 : 0,
+        metricLinearOk: r.metricLinear ? 1 : 0,
+        curvatureFlatOk: r.ricciFlat ? 1 : 0,
+      },
+      notes:
+        'L1, known geometry of the flat D4 root lattice. The contrast is the hyperbolic {5,3,4} with negative curvature and exponential growth. Flatness is the honest cost of choosing spin, no fractal boundary, no holographic 1/r.',
+    })
+  },
+})

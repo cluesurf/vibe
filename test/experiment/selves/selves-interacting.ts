@@ -13,7 +13,6 @@
 // the same pair ends as ONE connected self (merger), while the opposite pair splits into two selves with
 // a peace buffer (mutual retreat). Charge conserved by the rule. Run: npx tsx code/experiment/p110-selves-interacting.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -181,28 +180,6 @@ export function selvesInteracting(input?: { n?: number }): {
     oppositeAnnihilates,
     solved,
   }
-}
-
-export function main(): void {
-  const big = process.argv.includes('--million')
-  const n = big ? 1_000_000 : 120000
-  const t0 = Date.now()
-  const r = selvesInteracting({ n })
-  console.log('P110: selves interacting on the exact {5,3,4}')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, two adjacent selves, in ${((Date.now() - t0) / 1000).toFixed(1)}s`)
-  console.log('')
-  console.log(`  OPPOSITE selves (+ touching -): charge loss ${(r.oppositeLoss * 100).toFixed(0)}% (annihilate at the seam), ends as ${r.oppositeComponents} selves`)
-  console.log(`  SAME selves (+ touching +):     charge loss ${(r.sameLoss * 100).toFixed(0)}% (no annihilation), ends as ${r.sameComponents} self`)
-  console.log('')
-  console.log(`  opposite selves destroy each other on contact: ${r.oppositeAnnihilates}`)
-  console.log(`  same selves merge into one: ${r.sameMerges}`)
-  console.log(`  selves interact (a real interaction law): ${r.selvesInteract}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -3,8 +3,9 @@
 // (H5 coin). The DIFFERENCE, physical-space gravity is in 4D, so the Newtonian potential is 1/r^2 (the 4D
 // Laplacian), not 1/r, OVER-dimensional. Run: npx tsx code/experiment/s53333-physics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Physics(): { betheAlpha: number; growthRatio: number; spaceGravityExp: number } {
   const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
@@ -33,7 +34,30 @@ export function s53333Physics(): { betheAlpha: number; growthRatio: number; spac
   return { betheAlpha, growthRatio, spaceGravityExp }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s53333Physics()
-  console.log(`SOLVED: {5,3,3,3,3} physics, holographic 1/r^${r.betheAlpha} + cosmology (growth ${r.growthRatio}) + hierarchy + isotropy PORT; difference is 4D space -> gravity 1/r^${r.spaceGravityExp} (OVER-dimensional, not 1/r).`)
-}
+export default defineExperiment({
+  id: 'substrate-survey/s53333-physics',
+  title: 'the holographic correlator and cosmology port to {5,3,3,3,3}, but physical-space gravity is 4D (1/r^2, over-dimensional)',
+  category: 'substrate-survey',
+  substrates: ['53333'],
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = s53333Physics()
+    const ok =
+      Math.abs(r.betheAlpha - 2) < 0.3 &&
+      r.growthRatio > 1.2 &&
+      r.spaceGravityExp === 2
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the Bethe correlator on {5,3,3,3,3} is a clean 1/r^2 and the bulk shells grow exponentially, but the flat layer is 4D so physical-space gravity would be 1/r^2, over-dimensional versus the observed 3D 1/r',
+      metrics: {
+        betheAlpha: r.betheAlpha,
+        growthRatio: r.growthRatio,
+        spaceGravityExp: r.spaceGravityExp,
+      },
+      notes:
+        'L1, the Bethe correlator and shell growth are computed from the built cell graph. The physical-space gravity exponent is a hand-derived consequence of the 4D Laplacian (spaceDim - 2), set in the function, not measured, so that part is an analytic note. {5,3,3,3,3} is paracompact, beyond the H^4 compact limit.',
+    })
+  },
+})

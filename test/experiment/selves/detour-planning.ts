@@ -14,7 +14,6 @@
 // goal. Greedy climbs to the local peak and STOPS. A planner whose lookahead spans the barrier sees the
 // higher ground beyond and commits to the detour, reaching the goal. Run: npx tsx code/experiment/p140-detour-planning.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -120,26 +119,6 @@ export function detourPlanning(input?: { L?: number }): {
     thresholdMatchesBarrier,
     solved,
   }
-}
-
-export function main(): void {
-  const r = detourPlanning()
-  console.log('P140: the detour task, planning beats reactive on a barrier')
-  console.log('')
-  console.log(`  landscape length ${r.L}, goal at ${r.goal}, barrier width ${r.barrierWidth}`)
-  console.log('')
-  console.log(`  GREEDY (lookahead 1): stuck at position ${r.greedyPos}, reached goal: ${r.greedyReachedGoal}`)
-  console.log(`  PLANNER (lookahead past the barrier): reached position ${r.plannerPos}, reached goal: ${r.plannerReachedGoal}`)
-  console.log('')
-  console.log(`  planning ability switches on at lookahead horizon K = ${r.thresholdK} (barrier width ${r.barrierWidth})`)
-  console.log(`  the threshold matches the barrier width (lookahead must span the barrier): ${r.thresholdMatchesBarrier}`)
-  console.log('')
-  console.log(`  planner beats greedy (planning verified): ${r.plannerBeatsGreedy}`)
-  console.log(`  NOT EMERGENT (adds a hand-coded K-step lookahead, not one of the five base things): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -11,7 +11,6 @@
 // Together these are the genuinely-quantum behaviour, present in the unitary rule, absent in its classical
 // (stochastic) shadow. Run: npx tsx code/experiment/p158-born-interference.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -132,28 +131,6 @@ export function bornInterference(input?: { steps?: number }): {
     bornRule,
     solved,
   }
-}
-
-export function main(): void {
-  const r = bornInterference()
-  console.log('P158: genuine quantum interference and the Born rule')
-  console.log('')
-  console.log(`  ${r.steps}-step walk, quantum (coherent amplitudes) vs classical (incoherent probabilities)`)
-  console.log('')
-  console.log('  INTERFERENCE (oscillatory fringes and near-nodes where amplitudes cancel, impossible classically):')
-  console.log(`    quantum fringes (local maxima): ${r.quantumMaxima}   classical: ${r.classicalMaxima}`)
-  console.log(`    quantum near-nodes (deep dips): ${r.quantumNodes}`)
-  console.log(`    quantum fringe contrast: ${r.quantumFringeContrast.toFixed(2)}   classical: ${r.classicalFringeContrast.toFixed(2)}`)
-  console.log(`    genuine interference (quantum cancels, classical does not): ${r.interferes}`)
-  console.log('')
-  console.log(`  UNITARITY / BORN, total |psi|^2 = 1 (deviation ${r.normDeviation.toExponential(1)}), so |psi|^2 is a genuine probability: ${r.bornRule}`)
-  console.log('')
-  console.log(`  the unitary rule shows real quantum behaviour (interference + Born), its classical shadow does not: ${r.solved}`)
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

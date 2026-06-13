@@ -11,7 +11,6 @@
 // discreteness would not. See note/questions/frontiers.md. Run:
 // npx tsx code/experiment/p27-lorentz-violation.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -93,41 +92,6 @@ export function lorentzSafety(): { sprinkle: number; lattice: number } {
   const sprinkle = linkDirectionAnisotropy(sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }))
   const lattice = linkDirectionAnisotropy(latticePoints(30))
   return { sprinkle, lattice }
-}
-
-export function main(): void {
-  console.log('P27: Lorentz violation, and why the causal-set substrate avoids it')
-  console.log('')
-  console.log('  Part A: a LATTICE has Lorentz violation. Group-speed anisotropy versus energy:')
-  console.log('    |k| (energy)    mean speed    anisotropy (0 = Lorentz-safe)')
-  for (const k of [0.2, 0.5, 1.0, 1.8, 2.6]) {
-    const r = latticeAnisotropy(k)
-    console.log(`    ${k.toFixed(1)}             ${r.meanSpeed.toFixed(3)}         ${r.anisotropy.toFixed(3)}`)
-  }
-  console.log('  At low energy the speed is one and isotropic (Lorentz-invariant). At high energy')
-  console.log('  it falls below one and becomes direction-dependent: energy-dependent, directional')
-  console.log('  Lorentz violation, the kind gamma-ray-burst photon timing constrains.')
-  console.log('')
-  const s = lorentzSafety()
-  console.log('  Part B: the causal-set substrate is Lorentz-safe at the discreteness scale.')
-  console.log('  Nearest-neighbor link-direction anisotropy (4-fold preferred-axis component):')
-  console.log(`    random sprinkling: ${s.sprinkle.toFixed(3)}   (isotropic, no preferred frame)`)
-  console.log(`    regular lattice:   ${s.lattice.toFixed(3)}   (strong preferred axes)`)
-  console.log('')
-  console.log('  So a Poisson sprinkling, Lorentz-invariant in distribution, has no preferred')
-  console.log('  frame even at the discreteness scale, where a lattice has four. Vibe Theory uses')
-  console.log('  the sprinkling, so it predicts NO first-order, directional Lorentz violation, in')
-  console.log('  agreement with the stringent observational null results, whereas lattice')
-  console.log('  discreteness would predict a large, already-excluded effect. The discreteness')
-  console.log('  scale is bounded only from below, by those null results. The residual effect of')
-  console.log('  discreteness is not coherent LIV but the stochastic swerve of P26.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

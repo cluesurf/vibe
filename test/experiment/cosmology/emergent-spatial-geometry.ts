@@ -7,7 +7,6 @@
 // d-1: about 1 for a 2D spacetime, about 2 for a 3D one.
 // See note/the-model.md. Run: npx tsx code/experiment/p38-emergent-spatial-geometry.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -129,35 +128,6 @@ export function sliceDimension(input: { dimension: number; count: number; seed: 
     meanDegree: degSum / Math.max(1, slice.length),
     spatialDimension,
   }
-}
-
-export function main(): void {
-  console.log('P38: emergent spatial geometry (the dimension of a coexisting slice)')
-  console.log('')
-  const two = sliceDimension({ dimension: 2, count: 6000, seed: 1 })
-  const three = sliceDimension({ dimension: 3, count: 14000, seed: 1 })
-  const step = three.spatialDimension - two.spatialDimension
-  console.log('  a thin "now" slice (antichain band) of a sprinkled causal set, then its')
-  console.log('  spatial-neighbor graph, then the ball-growth dimension of that graph:')
-  console.log(`    2D spacetime: slice of ${two.sliceSize} elements, mean degree ${two.meanDegree.toFixed(1)}, spatial dimension ${two.spatialDimension.toFixed(2)}`)
-  console.log(`    3D spacetime: slice of ${three.sliceSize} elements, mean degree ${three.meanDegree.toFixed(1)}, spatial dimension ${three.spatialDimension.toFixed(2)}`)
-  console.log(`    rise from 2D to 3D: ${step.toFixed(2)} (expected about 1, since the slice is d-1 dimensional)`)
-  console.log('')
-  console.log('  The coexisting present is a definite space of dimension below the spacetime, and')
-  console.log('  its dimension rises by about one when the spacetime dimension rises by one, the')
-  console.log('  d-1 trend of a spatial slice. The absolute value reads low because finite size and')
-  console.log('  the slice boundary bias ball-growth downward, a known effect. So this is honest')
-  console.log('  progress: the slice IS a lower-dimensional geometry tracking d-1, recovered from')
-  console.log('  the order, advancing P13 from "the slices grow" to "the slices are a geometry."')
-  console.log('  A bias-free estimator, a coordinate-free adjacency, and the same from a pure')
-  console.log('  growth rule rather than a sprinkle, are the harder steps still ahead.')
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
 }
 
 export default defineExperiment({

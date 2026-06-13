@@ -19,7 +19,6 @@
 // from the fundamental dynamics (the full 100 percent of P107 needs active maintenance on top). Charge
 // is conserved by the rule. Run: npx tsx code/experiment/p109-self-maintenance.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -159,25 +158,6 @@ export function selfMaintenance(input?: { n?: number }): {
     emergentSelfHeals,
     solved,
   }
-}
-
-export function main(): void {
-  const r = selfMaintenance()
-  console.log('P109: emergent self-maintenance from the rule alone (no external operator)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} exact cells, a self (+ region) with an erased inner chunk, only the rule runs`)
-  console.log('')
-  console.log(`  baseline (undamaged) chunk + fraction after the rule: ${(r.baselineFrac * 100).toFixed(0)}%`)
-  console.log(`  WITH a surrounding self: erased chunk recovers to ${(r.withSurroundFrac * 100).toFixed(0)}% (${(r.withSurroundRecovery * 100).toFixed(0)}% of baseline), by the rule ALONE`)
-  console.log(`  WITHOUT a surround (self is only the chunk): recovery ${(r.withoutSurroundRecovery * 100).toFixed(0)}% (nothing to heal from)`)
-  console.log('')
-  console.log(`  self-maintenance is emergent from the fundamental dynamics (partial, no external hand): ${r.emergentSelfHeals}`)
-  console.log('  (the full 100% of P107 needs active maintenance on top, but the laws alone give substantial self-repair)')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

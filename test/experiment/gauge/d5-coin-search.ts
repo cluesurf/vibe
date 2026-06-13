@@ -5,7 +5,8 @@
 // (a genuine root system = D4), (b) D5 has 40 roots but the 5D regular polytopes have 6 / 32 / 10 vertices, none
 // is 40, so NO regular honeycomb coin can carry D5. Run: npx tsx code/experiment/p220-d5-coin-search.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // 24-cell vertices = D4 roots: all +-e_i +-e_j (i<j) in 4D
 function cell24(): number[][] { const R: number[][] = []; for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; R.push(v) } return R }
@@ -46,7 +47,27 @@ export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyR
   return { cell24IsD4, d5RootCount, anyRegular5DHas40 }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = d5CoinSearch()
-  console.log(`SOLVED: 24-cell is D4 ${r.cell24IsD4}; no 5D regular polytope has ${r.d5RootCount} vertices (${r.anyRegular5DHas40}) -> no D5 coin, the honeycomb family tops out at D4.`)
-}
+export default defineExperiment({
+  id: 'gauge/d5-coin-search',
+  title: 'no regular honeycomb coin carries D5 = so(10), the geometry tops out at D4',
+  category: 'gauge',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = d5CoinSearch()
+    const ok = r.cell24IsD4 && r.d5RootCount === 40 && r.anyRegular5DHas40 === false
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the 24-cell is the D4 root system but no 5D regular polytope has the 40 vertices of D5, so no regular honeycomb coin can carry so(10)',
+      metrics: {
+        cell24IsD4: r.cell24IsD4 ? 1 : 0,
+        d5RootCount: r.d5RootCount,
+        anyRegular5DHasD5: r.anyRegular5DHas40 ? 1 : 0,
+      },
+      notes:
+        'L1, known math, and an honest negative. The 24-cell is the unique non-simplex regular polytope that is a root system, and it exists only in 4D. The geometric coin family tops out at D4, so the gauge path of growing the coin to D5 is blocked in the honeycomb geometry.',
+    })
+  },
+})

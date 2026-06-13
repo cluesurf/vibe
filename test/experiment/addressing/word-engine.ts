@@ -13,7 +13,6 @@
 //   - Exact chamber ball-growth (the growth function), integer for integer.
 // Run: npx tsx code/experiment/p87-word-engine.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildWordMesh } from '@/code/substrate/coxeter/word'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -68,33 +67,6 @@ export function wordEngine(): {
     dodecagridFacet: dodecaFacet,
     solved,
   }
-}
-
-export function main(): void {
-  const r = wordEngine()
-  console.log('P87: the exact word-problem engine (ShortLex normal forms)')
-  console.log('')
-  console.log('  finite Coxeter groups, enumerated to exact order (coordinate-free):')
-  for (const f of r.finiteOrders) {
-    const ok = f.chambers === f.expected ? 'OK' : 'XX'
-    console.log(`    ${f.name.padEnd(7)} ${f.symbol.padEnd(7)} chambers=${f.chambers} (expected ${f.expected}) ${ok}`)
-  }
-  console.log(`  all finite orders exact: ${r.finiteAllExact}`)
-  console.log('')
-  console.log('  hyperbolic crystals, exact cell facet count (no rim crowding):')
-  for (const f of r.cellFacets) {
-    const ok = f.facet === f.expected ? 'OK' : 'XX'
-    console.log(`    ${f.symbol.padEnd(9)} facet=${f.facet} (expected ${f.expected}) cells=${f.cells} ${ok}`)
-  }
-  console.log(`  all facet counts exact: ${r.facetsAllExact}`)
-  console.log('')
-  console.log(`  heptagrid exact chamber ball-growth: ${r.heptagridBallGrowth.join(', ')}`)
-  console.log('')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

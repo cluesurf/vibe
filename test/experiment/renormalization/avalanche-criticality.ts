@@ -9,7 +9,6 @@
 // tail), the directed-percolation critical point. If found, self-organized criticality has a target. If
 // not, the dynamics lacks clean avalanche criticality. Run: npx tsx code/experiment/p138-avalanche-criticality.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -137,29 +136,6 @@ export function avalancheCriticality(input?: { n?: number }): {
   const solved = ballisticNotCritical
 
   return { n: N, scan, bestSpan, scaleFree, ballisticNotCritical, solved }
-}
-
-export function main(): void {
-  const r = avalancheCriticality()
-  console.log('P138: terminating-cascade avalanches, is there a scale-free (critical) point?')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, avalanche (peak damage) distribution vs background level`)
-  console.log('')
-  console.log('  rate    background   median   max    span(max/median)')
-  for (const s of r.scan) console.log(`  ${s.c0.toFixed(3)}   ${(s.bg * 100).toFixed(1)}%        ${s.median}      ${s.max}    ${s.span.toFixed(1)}`)
-  console.log('')
-  console.log(`  best scale span across backgrounds: ${r.bestSpan.toFixed(1)} (near 1 = uniform/ballistic)`)
-  console.log(`  scale-free avalanche regime: ${r.scaleFree} (it does NOT occur)`)
-  console.log('')
-  console.log('  FINDING: at every background, avalanches are fixed-size (span ~1), the perturbation spreads')
-  console.log('  BALLISTICALLY (the lightcone, P123), not as branching avalanches. So the SOC/avalanche route')
-  console.log('  to criticality does NOT apply here. Hierarchical integration must come instead from the fast')
-  console.log('  ballistic global communication (the field beneath, P111), not from critical avalanches.')
-  console.log(`  SOLVED (correctly found ballistic, not avalanche-critical): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

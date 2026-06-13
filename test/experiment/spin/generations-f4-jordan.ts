@@ -9,7 +9,8 @@
 //   frontier. Verdict: not solved, but a genuine path EXISTS through the substrate's F4 symmetry.
 // Run: npx tsx code/experiment/p261-generations-f4-jordan.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const key = (p: number[]): string => p.map((x) => Math.round(x * 1e4)).join(',')
 
@@ -47,8 +48,34 @@ export function generationsF4Jordan(): { longRootsAre3434: boolean; f4Has48Roots
   return { longRootsAre3434, f4Has48Roots, jordanDim27, threeFoldStructure, threeGenerationsEstablished }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = generationsF4Jordan()
-  const structureOk = r.longRootsAre3434 && r.f4Has48Roots && r.jordanDim27 && r.threeFoldStructure
-  console.log(`SOLVED GENERATIONS (honest path): {3,4,3,4}=F4-long-roots ${r.longRootsAre3434}, F4-48-roots ${r.f4Has48Roots}, Jordan-dim-27 ${r.jordanDim27}, 3-fold ${r.threeFoldStructure}, generations-established ${r.threeGenerationsEstablished} => path ${structureOk ? 'CONFIRMED' : 'FAILED'}, generations OPEN (Boyle)`)
-}
+export default defineExperiment({
+  id: 'spin/generations-f4-jordan',
+  title: 'a structural path from {3,4,3,4} to the exceptional Jordan algebra exists, but three generations stays open',
+  category: 'spin',
+  substrates: ['3434'],
+  depth: 'L1',
+  paper: true,
+  run() {
+    const r = generationsF4Jordan()
+    // the structural chain is verified; the generation identification is honestly NOT
+    // established, so the verdict is partial, not a pass.
+    const structureOk =
+      r.longRootsAre3434 &&
+      r.f4Has48Roots &&
+      r.jordanDim27 &&
+      r.threeFoldStructure
+    return verdict({
+      status: structureOk ? 'partial' : 'fail',
+      claim:
+        'the 24 directions of {3,4,3,4} are the long roots of F4, F4 has 48 roots and equals the automorphism group of the 27-dimensional exceptional Jordan algebra whose 3-by-3 structure carries a natural three-fold, but identifying those three slots with three Standard Model generations is Boyle\'s open conjecture, not established',
+      metrics: {
+        longRootsAre3434: r.longRootsAre3434 ? 1 : 0,
+        f4Has48Roots: r.f4Has48Roots ? 1 : 0,
+        jordanDim27: r.jordanDim27 ? 1 : 0,
+        threeGenerationsEstablished: r.threeGenerationsEstablished ? 1 : 0,
+      },
+      notes:
+        'L1, known math (the F4 root system and F4 = Aut(J3(O))). The structural chain is exact and verified. The headline claim, three Jordan slots equal three SM generations, is honestly reported as UNPROVEN (Boyle\'s conjecture), so the status is partial, not pass. This is a genuine path, better than the naive 8v/8s/8c triality reading, but it is not a solved generation count.',
+    })
+  },
+})

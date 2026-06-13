@@ -4,8 +4,9 @@
 // light cone is anisotropic (faceted)? (C) the expansion law, how the spatial slice grows with radial level.
 // Run: npx tsx code/experiment/emergent-space-test.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildHorosphereBand, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // largest connected component of an adjacency list
 function largestComponent(nb: number[][]): number[] {
@@ -81,7 +82,60 @@ export function emergentSpaceTest(): void {
   console.log(`  isotropy: aperiodic band CV ${bandCV} vs cubic CV ${cubeCV}, ${bandCV >= 0 && bandCV < cubeCV ? 'aperiodicity gives a ROUNDER (more isotropic) light cone' : 'see numbers'}`)
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  emergentSpaceTest()
-  console.log('SOLVED: measured the {3,4,3,4} horosphere band coherence, spectral dimension, light-cone isotropy vs cubic, and the expansion-slice sizes.')
-}
+// The {3,4,3,4} aperiodic horosphere band coarse-grains to a coherent, more-isotropic 3D
+// space. We extract the band, take its largest connected component, and measure its
+// spectral dimension (near 3, coherent space) and its light-cone front coefficient of
+// variation (lower is rounder, more isotropic). The clean cubic {4,3,4} is the control,
+// its faceted light cone gives a higher coefficient of variation, so the aperiodic band is
+// rounder. These are geometric measurements on known tessellations, so L2.
+export default defineExperiment({
+  id: 'geometry/emergent-space-test',
+  title: 'the {3,4,3,4} horosphere band is a coherent 3D space with a rounder light cone than the cubic crystal',
+  category: 'geometry',
+  substrates: ['3434'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
+    const bandIdx: number[] = []
+    const rmap = new Map<number, number>()
+    for (let i = 0; i < h.cellCount; i++) if (Math.abs(h.busemann[i]!) < 1.0) { rmap.set(i, bandIdx.length); bandIdx.push(i) }
+    const bnb: number[][] = bandIdx.map(() => [])
+    for (let a = 0; a < bandIdx.length; a++) for (const w of h.neighbors[bandIdx[a]!]!) { const b = rmap.get(w); if (b !== undefined) bnb[a]!.push(b) }
+    const bcoords = bandIdx.map((i) => h.coords[i]!)
+    const lcc = largestComponent(bnb)
+    const lccFrac = Math.round((lcc.length / bandIdx.length) * 100)
+    const lmap = new Map(lcc.map((v, i) => [v, i]))
+    const lnb: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)!).filter((x) => x !== undefined) as number[])
+    const lcoords = lcc.map((v) => bcoords[v]!)
+    let lc0 = 0, bd = -1
+    for (let i = 0; i < lnb.length; i++) if (lnb[i]!.length > bd) { bd = lnb[i]!.length; lc0 = i }
+    const bandDim = Math.round(spectralDim(lnb, lc0, 3, 12) * 100) / 100
+    const bandCV = frontCV(lnb, lcoords, lc0, 6)
+
+    const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 9000 })
+    let cc = 0
+    for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
+    const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
+
+    const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1
+    const rounder = bandCV >= 0 && bandCV < cubeCV
+    const ok = coherent && rounder
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the {3,4,3,4} horosphere band is a coherent near-3D space whose light cone is rounder than the cubic crystal',
+      metrics: {
+        largestComponentPercent: lccFrac,
+        bandSpectralDimension: bandDim,
+        bandLightConeVariation: bandCV,
+        cubicLightConeVariation: cubeCV,
+      },
+      control: {
+        cubicLightConeVariation: cubeCV,
+      },
+      notes:
+        'L2, geometric measurements on known tessellations. The clean cubic {4,3,4} is the isotropy control, its faceted cone has a larger coefficient of variation. Coherence (a single large component, dimension near 3) is a structural check.',
+    })
+  },
+})

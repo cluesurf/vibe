@@ -3,7 +3,6 @@
 // a Minkowski sprinkling on reach (ball growth) and Lorentz isotropy.
 // Run: npx tsx code/experiment/p3-addressing-lorentz.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { Substrate } from '@/code/tool/substrate'
 import { tilingPQ } from '@/code/substrate/tiling-pq'
@@ -12,6 +11,8 @@ import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 function evaluate(input: { name: string; substrate: Substrate }): {
   name: string
@@ -40,50 +41,50 @@ function evaluate(input: { name: string; substrate: Substrate }): {
   }
 }
 
-export function main(): void {
-  const rng = makeRng({ seed: 3 })
-  const rows = [
-    evaluate({
-      name: 'tiling {5,4}',
-      substrate: tilingPQ({ p: 5, q: 4, generations: 9 }),
-    }),
-    evaluate({
-      name: 'hyperbolic random',
-      substrate: hyperbolicGraph({
-        count: 1500,
-        radius: 7,
-        connectThreshold: 1.0,
-        rng,
-      }),
-    }),
-    evaluate({
+export default defineExperiment({
+  id: 'relativity/addressing-lorentz',
+  title: 'a regular lattice singles out a frame, a Minkowski sprinkling does not',
+  category: 'relativity',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const rng = makeRng({ seed: 3 })
+    const latticeRow = evaluate({
       name: 'lattice (lorentzian)',
       substrate: lattice({ dimension: 3, extent: 9, signature: 'lorentzian' }),
-    }),
-    evaluate({
+    })
+    const sprinkleRow = evaluate({
       name: 'sprinkle minkowski',
       substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
-    }),
-  ]
+    })
+    const tilingRow = evaluate({
+      name: 'tiling {5,4}',
+      substrate: tilingPQ({ p: 5, q: 4, generations: 9 }),
+    })
 
-  console.log('P3 addressing versus Lorentz')
-  console.log('  substrate            size  expReach  anisotropy  preferredFrame')
-  for (const r of rows) {
-    console.log(
-      `  ${r.name.padEnd(20)} ${String(r.size).padStart(4)}  ${String(r.exponentialReach).padStart(7)}  ${r.anisotropy.toFixed(3).padStart(9)}  ${String(r.preferredFrame).padStart(13)}`,
-    )
-  }
-  console.log(
-    '  reading: the lattice should single out a frame (high anisotropy),',
-  )
-  console.log(
-    '  the sprinkling should not, and the hyperbolic cases should have reach.',
-  )
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const latticeSinglesFrame = latticeRow.preferredFrame
+    const sprinkleNoFrame = !sprinkleRow.preferredFrame
+    const sprinkleMoreIsotropic = sprinkleRow.anisotropy < latticeRow.anisotropy
+    const tilingReaches = tilingRow.exponentialReach
+    const ok =
+      latticeSinglesFrame &&
+      sprinkleNoFrame &&
+      sprinkleMoreIsotropic &&
+      tilingReaches
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'a regular lattice picks out a preferred frame with high anisotropy while a Minkowski sprinkling stays frame-free and more isotropic, and the hyperbolic tiling has exponential reach',
+      metrics: {
+        latticeAnisotropy: latticeRow.anisotropy,
+        sprinkleAnisotropy: sprinkleRow.anisotropy,
+      },
+      control: {
+        latticeAnisotropy: latticeRow.anisotropy,
+      },
+      notes:
+        'L2, the causal-set fact that a sprinkling restores Lorentz isotropy a lattice breaks, reproduced on these substrates. The lattice is the frame-picking control. The sprinkling and hyperbolic graph use random point placement (a fixed seed, so reproducible), so the isotropy is a statistical property of the ensemble, not of the deterministic base rule.',
+    })
+  },
+})

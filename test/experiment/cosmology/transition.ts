@@ -9,7 +9,6 @@
 // sharp action is the contrast. See note/questions/frontier-spec.md (Front 2).
 // Run: npx tsx code/experiment/p2-transition.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { Poset } from '@/code/tool/poset'
 import { Action, smearedBenincasaDowker, benincasaDowkerAction } from '@/code/dynamics/action'
@@ -17,6 +16,8 @@ import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { kleitmanRothschildOrder } from '@/code/substrate/layered-order'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const SIZE = 72
 const STEPS = 1800
@@ -48,58 +49,49 @@ function equilibratedHeightRatio(input: {
   return count > 0 ? sum / count : 0
 }
 
-export function main(): void {
-  const sprinkle = sprinkleMinkowski({
-    dimension: 2,
-    count: SIZE,
-    rng: makeRng({ seed: 1 }),
-  })
-  const layered = kleitmanRothschildOrder({ size: SIZE })
-  const ref = orderStatistics({ poset: sprinkle })
-  const refLayered = orderStatistics({ poset: layered })
-
-  console.log(`P2 transition (N=${SIZE}, smeared action eps=0.9)`)
-  console.log(
-    `  warm starts: sprinkle heightRatio ${ref.heightRatio.toFixed(2)} (dim ${ref.mmDimension.toFixed(2)}), layered ${refLayered.heightRatio.toFixed(2)}`,
-  )
-  console.log('  beta   sprinkle-start hr   layered-start hr   gap')
-
-  const smeared = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
-  for (const beta of [0.5, 1, 2, 4]) {
+export default defineExperiment({
+  id: 'cosmology/transition',
+  title:
+    'the manifold phase is a stable basin under the smeared action and decays under the sharp action',
+  category: 'cosmology',
+  substrates: 'any',
+  depth: 'L2',
+  paper: false,
+  run() {
+    const sprinkle = sprinkleMinkowski({
+      dimension: 2,
+      count: 72,
+      rng: makeRng({ seed: 1 }),
+    })
+    const layered = kleitmanRothschildOrder({ size: 72 })
+    const smeared = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
     const fromManifold = equilibratedHeightRatio({
       action: smeared,
-      beta,
+      beta: 2,
       start: sprinkle,
-      seed: 100 + Math.round(beta * 10),
+      seed: 120,
     })
     const fromLayered = equilibratedHeightRatio({
       action: smeared,
-      beta,
+      beta: 2,
       start: layered,
-      seed: 200 + Math.round(beta * 10),
+      seed: 220,
     })
-    console.log(
-      `  ${beta.toFixed(1).padStart(4)}  ${fromManifold.toFixed(2).padStart(16)}  ${fromLayered.toFixed(2).padStart(17)}  ${Math.abs(fromManifold - fromLayered).toFixed(2).padStart(5)}`,
-    )
-  }
-
-  // Contrast: the sharp action should drive even the manifold start to layered.
-  const sharp = benincasaDowkerAction({ epsilon: 1, dimension: 2 })
-  const sharpFromManifold = equilibratedHeightRatio({
-    action: sharp,
-    beta: 2,
-    start: sprinkle,
-    seed: 900,
-  })
-  console.log('')
-  console.log(
-    `  contrast: sharp action, beta=2, sprinkle start -> heightRatio ${sharpFromManifold.toFixed(2)} (manifold start decays toward layered)`,
-  )
-}
-
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
-  main()
-}
+    const gap = Math.abs(fromManifold - fromLayered)
+    const sharp = equilibratedHeightRatio({
+      action: benincasaDowkerAction({ epsilon: 1, dimension: 2 }),
+      beta: 2,
+      start: sprinkle,
+      seed: 900,
+    })
+    const ok = gap > 0.1 && sharp < fromManifold + 1e-9
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'under the smeared action the manifold and layered starts hold a persistent height-ratio gap (a metastable coexistence), while the sharp action drives the manifold start down toward the layered order',
+      metrics: { fromManifold, fromLayered, gap, sharp },
+      notes:
+        'L2, a metastable coexistence and basin test on a known causal-set ensemble, the sharp action is the negative contrast. It uses seeded random sampling, so this is a statistical ensemble claim, and run uses one size and shortened chains.',
+    })
+  },
+})

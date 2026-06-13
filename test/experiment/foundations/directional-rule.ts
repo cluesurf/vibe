@@ -1,7 +1,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh, d4Mesh } from '@/code/tool/mesh'
-import { makeWill, Will } from '@/code/tone/will'
+import { makeWill, fillWillPattern } from '@/code/tone/will'
 import {
   momentumRotate2D,
   pairCollision,
@@ -9,15 +9,6 @@ import {
   PAIR_INVERSE,
 } from '@/code/rule/collision'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
-
-// Fill a will deterministically with ternary tones, so the run is reproducible.
-function fillWill(will: Will, seed: number): void {
-  let state = seed
-  for (let index = 0; index < will.data.length; index++) {
-    state = (state * 1103515245 + 12345) & 0x7fffffff
-    will.data[index] = Math.floor((state / 0x7fffffff) * 3) - 1
-  }
-}
 
 // The base discipline of the committed substrate (experiment SP11). The directional
 // lattice-gas conserves total charge and runs backward exactly, on both the 2D square
@@ -36,14 +27,14 @@ export default defineExperiment({
     // The 2D reference: the momentum-rotate involution on a periodic square mesh.
     const square = squareMesh({ side: 48 })
     const squareWill = makeWill(square)
-    fillWill(squareWill, 7)
+    fillWillPattern(squareWill)
     const squareConserves = conservesCharge(squareWill, momentumRotate2D, 200)
     const squareReverses = isReversible(squareWill, momentumRotate2D, 200)
 
     // The committed coin: the 9-state directional rule on the 24-direction D4 mesh.
     const d4 = d4Mesh({ side: 6 })
     const d4Will = makeWill(d4)
-    fillWill(d4Will, 11)
+    fillWillPattern(d4Will, 1)
     const opposite = Array.from({ length: d4.degree }, (_, direction) =>
       d4.opposite(direction),
     )

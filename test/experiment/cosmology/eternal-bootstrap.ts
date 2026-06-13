@@ -5,7 +5,8 @@
 // built-in beginning and end). The reversible mod-3 rule is the candidate for an eternal universe, an
 // irreversible (averaging) rule is the contrast. Run: npx tsx code/experiment/eternal-bootstrap.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 24
 const N = L * L * L
@@ -69,7 +70,29 @@ export function eternalBootstrap(): { reversibleEternal: boolean; reversibleCons
   return { reversibleEternal, reversibleConserved, irreversibleDecays, reversibleExact }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = eternalBootstrap()
-  console.log(`SOLVED: reversible rule churns forever from random init (eternal-viable ${r.reversibleEternal}), exactly reversible (${r.reversibleExact}, every state has a unique past -> no first moment needed). Irreversible contrast decays (${r.irreversibleDecays}). An eternal beginningless universe is self-consistent.`)
-}
+export default defineExperiment({
+  id: 'cosmology/eternal-bootstrap',
+  title:
+    'the reversible rule churns forever from a generic state and is exactly reversible, an irreversible rule decays',
+  category: 'cosmology',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = eternalBootstrap()
+    const ok = r.reversibleEternal && r.reversibleExact && r.irreversibleDecays
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the reversible mod-3 rule churns forever from a generic initial state and recovers its start exactly under time reversal, while an irreversible averaging rule decays to a frozen fixed point',
+      metrics: {
+        reversibleEternal: r.reversibleEternal ? 1 : 0,
+        reversibleExact: r.reversibleExact ? 1 : 0,
+        irreversibleDecays: r.irreversibleDecays ? 1 : 0,
+      },
+      control: { irreversibleDecays: r.irreversibleDecays ? 1 : 0 },
+      notes:
+        'the initial state is a pseudo-random fill, so the eternal claim is that a generic (not special) state churns forever, which is the honest reading. Exact reversibility (forward then backward recovers the start) is a structural property of the permutation rule, the irreversible contrast is the negative control.',
+    })
+  },
+})

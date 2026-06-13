@@ -10,7 +10,6 @@
 // (its identity scrambles, P159). So persistence does not need a sixth base thing, it needs maintenance,
 // which the five supply. Run: npx tsx code/experiment/p171-persistent-self.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -205,27 +204,6 @@ export function persistentSelf(input?: { n?: number }): {
     blobIsStructureless,
     solved,
   }
-}
-
-export function main(): void {
-  const r = persistentSelf()
-  console.log('P171: a persistent, bounded, integrated self (not the shallow same-tone blob)')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, a self region of ${r.regionSize} cells with an internal identity pattern`)
-  console.log('')
-  console.log(`  SELF (structured + self-maintained): identity persists at ${r.selfIdentityEnd.toFixed(2)} after 80 beats: ${r.selfPersists}`)
-  console.log(`  SAME region, NO maintenance: identity dissolves to ${r.unmaintainedIdentityEnd.toFixed(2)} (scrambles into churn): ${r.unmaintainedDissolves}`)
-  console.log(`  the self is INTEGRATED (internal match ${(r.selfIntegration * 100).toFixed(0)}%) and BOUNDED (boundary held ${(r.selfBoundedness * 100).toFixed(0)}%): ${r.selfIsBounded}`)
-  console.log(`  the shallow same-tone blob is STRUCTURELESS (no internal identity to persist): ${r.blobIsStructureless}`)
-  console.log('')
-  console.log('  => a persistent, bounded, integrated self IS demonstrable from the five base things, via')
-  console.log('     self-maintenance (redundancy plus the will), not as a passive blob. Persistence needs')
-  console.log('     maintenance, which the five supply, not a sixth base thing.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

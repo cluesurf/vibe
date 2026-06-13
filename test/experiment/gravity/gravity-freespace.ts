@@ -3,7 +3,8 @@
 // - cos kz)] d^3k. This is the infinite-volume lattice Coulomb/Newton potential, ~ 1/(4 pi r), so the log-log
 // slope is exactly -1 (no Dirichlet image charge to steepen it, unlike p219/p222). Run: npx tsx code/experiment/p224-gravity-freespace.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 // DIFFERENCE Green's function G(r) - G(r0) along the x-axis. The integrand [cos(k r) - cos(k r0)] / (2 D(k))
 // is REGULAR at k=0 (the cos-difference ~ k^2 cancels the 1/k^2 singularity), so the grid sum is clean, no
@@ -47,7 +48,29 @@ export function gravityFreeSpace(): { coeffA: number; fitResidual: number } {
   return { coeffA, fitResidual }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = gravityFreeSpace()
-  console.log(`SOLVED: free-space 3D gravity G = a/r with a=${r.coeffA} vs 1/(4pi)=${(1/(4*Math.PI)).toFixed(4)}, residual ${r.fitResidual.toExponential(1)} -> clean 1/r Newton.`)
-}
+export default defineExperiment({
+  id: 'gravity/gravity-freespace',
+  title: 'the free-space 3D lattice Green function is exactly 1/(4 pi r), the clean 1/r Newton law',
+  category: 'gravity',
+  substrates: 'any',
+  depth: 'L1',
+  paper: false,
+  run() {
+    const r = gravityFreeSpace()
+    const expectedCoeff = 1 / (4 * Math.PI)
+    const ok =
+      Math.abs(r.coeffA - expectedCoeff) < 0.01 && r.fitResidual < 1e-3
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the infinite-volume cubic lattice Green function computed in k-space fits a/r with a equal to 1/(4 pi) and a tiny residual, the clean 1/r Newton potential with no box artifact',
+      metrics: {
+        coeffA: r.coeffA,
+        expectedCoeff,
+        fitResidual: r.fitResidual,
+      },
+      notes:
+        'L1 known math. This evaluates the standard infinite-volume cubic-lattice Coulomb Green function, whose continuum limit is 1/(4 pi r) by textbook lattice field theory. It removes the box and k=0 artifacts of the boundary solve but assumes the Laplacian, so it confirms established math, not emergent gravity from the dynamics.',
+    })
+  },
+})

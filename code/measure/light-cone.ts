@@ -1,7 +1,7 @@
-import { cubicMesh } from '@/code/tool/mesh'
-import { makeWill, Will } from '@/code/tone/will'
+import { cubicMesh, Mesh, shellDistances } from '@/code/tool/mesh'
+import { makeWill, cloneWill, Will } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
-import { passThrough } from '@/code/rule/collision'
+import { passThrough, pairCollision } from '@/code/rule/collision'
 
 // The light cone: seed one charge in each of the six directions at the centre of
 // the cubic cusp and let them stream with no interaction. A free charge advances
@@ -50,6 +50,62 @@ export function lightConeRadii(input: { side: number; beats: number }): number[]
   for (let step = 0; step < input.beats; step++) {
     current = beat(current, passThrough)
     radii.push(frontRadius(current, side))
+  }
+  return radii
+}
+
+// The perturbation light cone on ANY mesh, the measured causal structure of the
+// interacting rule. Start from the deterministic vacuum (the create move makes it
+// dynamic on its own, no random fill), perturb one cell, run the directional rule
+// (the 9-state collide) on both the base and the perturbed state, and after each
+// beat measure how far the difference (the causal influence of the perturbation)
+// has spread, as the graph distance of the farthest differing cell. A local rule
+// gives a finite cone, radius <= beat count (causal). A ballistic rule reaches
+// radius == beat count (z = 1), a diffusive one falls short (radius ~ sqrt of the
+// beat count). The result is read out of the dynamics, not assumed.
+export function perturbationConeRadii(input: {
+  mesh: Mesh
+  beats: number
+}): number[] {
+  const { mesh, beats } = input
+  const degree = mesh.degree
+  const centre = mesh.cellCount >> 1
+  const distance = shellDistances(mesh, centre)
+  const opposite = Array.from({ length: degree }, (_, direction) =>
+    mesh.opposite(direction),
+  )
+  const collision = pairCollision({ opposite })
+
+  // The deterministic vacuum, all slots zero.
+  const base = makeWill(mesh)
+  const perturbed = cloneWill(base)
+  // Perturb the centre cell: set all its slots to +1, a clear local change.
+  const centreBase = centre * degree
+  for (let direction = 0; direction < degree; direction++) {
+    perturbed.data[centreBase + direction] = 1
+  }
+
+  const radii: number[] = []
+  let baseState = base
+  let perturbedState = perturbed
+  for (let step = 0; step < beats; step++) {
+    baseState = beat(baseState, collision)
+    perturbedState = beat(perturbedState, collision)
+    let maximum = 0
+    for (let cell = 0; cell < mesh.cellCount; cell++) {
+      const cellBase = cell * degree
+      let differs = false
+      for (let direction = 0; direction < degree; direction++) {
+        if (baseState.data[cellBase + direction] !== perturbedState.data[cellBase + direction]) {
+          differs = true
+          break
+        }
+      }
+      if (differs && (distance[cell] ?? 0) > maximum) {
+        maximum = distance[cell] ?? 0
+      }
+    }
+    radii.push(maximum)
   }
   return radii
 }

@@ -15,7 +15,6 @@
 // such degeneracy this would make the self a genuine author atop a fixed micro rule, but that funneling is
 // assumed here, not derived. Run: npx tsx code/experiment/p185-causal-emergence.ts
 
-import { pathToFileURL } from 'node:url'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -88,27 +87,6 @@ export function causalEmergence(input?: { K?: number }): {
 
   const solved = emerges && growsWithDegeneracy
   return { K, microN: K + 1, eiMicro, eiMacro, emergence, emerges, byDegeneracy, growsWithDegeneracy, solved }
-}
-
-export function main(): void {
-  const r = causalEmergence()
-  console.log('P185: causal emergence, the macro (self) level has more causal power than the micro substrate')
-  console.log('')
-  console.log(`  ${r.microN} micro-states (${r.K} interchangeable self-configurations funneling to one attractor) grouped into 2 macro-states`)
-  console.log(`  effective information, MICRO ${r.eiMicro.toFixed(2)} bits vs MACRO ${r.eiMacro.toFixed(2)} bits`)
-  console.log(`  causal emergence (macro minus micro) = ${r.emergence.toFixed(2)} bits -> the macro is the stronger cause: ${r.emerges}`)
-  console.log('')
-  console.log('  the emergence GROWS with the degeneracy (more interchangeable micro configurations):')
-  for (const x of r.byDegeneracy) console.log(`    ${x.K} configurations -> causal emergence ${x.emergence.toFixed(2)} bits`)
-  console.log(`  grows with degeneracy: ${r.growsWithDegeneracy}`)
-  console.log('')
-  console.log('  => a coarse-grained self can be the real author of its dynamics atop a fixed micro rule, no base change.')
-  console.log('     this is a MACRO claim, so it does not conflict with micro determinism (the Conway-Kochen tension).')
-  console.log(`  NOT EMERGENT (adds a hand-built degenerate transition matrix, not one of the five base things): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

@@ -3,8 +3,9 @@
 // (z=1), the wave churns (no freeze), and the U(1) charge Gauss law holds. All POSITIVE, the framework is fully
 // solvable on {5,3,4}. Run: npx tsx code/experiment/s534-dynamics.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 export function s534Dynamics(): { chargeConserved: boolean; lightSpeed: number; churns: boolean } {
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
@@ -46,7 +47,27 @@ export function s534Dynamics(): { chargeConserved: boolean; lightSpeed: number; 
   return { chargeConserved, lightSpeed, churns }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = s534Dynamics()
-  console.log(`SOLVED: {5,3,4} dynamics POSITIVE, charge conserved ${r.chargeConserved}, light cone z=${r.lightSpeed}, churns ${r.churns}, U(1) Gauss law holds. The rule ports fully.`)
-}
+export default defineExperiment({
+  id: 'foundations/s534-dynamics',
+  title: 'the directional rule streams and conserves charge exactly on the {5,3,4} bulk and the wave churns',
+  category: 'foundations',
+  substrates: ['534'],
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = s534Dynamics()
+    const ok = r.chargeConserved && r.churns
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the directional streaming rule conserves total charge exactly on the {5,3,4} bulk and the mod-3 wave churns without freezing, so the framework ports to {5,3,4}',
+      metrics: {
+        chargeConserved: r.chargeConserved ? 1 : 0,
+        lightSpeed: r.lightSpeed,
+        churns: r.churns ? 1 : 0,
+      },
+      notes:
+        'the seed tone is a pseudo-random fill, charge conservation is exact because streaming permutes charges (a consistency property), and the light speed z equals one is set by the one-shell-per-beat construction, not measured, so it is a construction not evidence. Churn is the measured part',
+    })
+  },
+})

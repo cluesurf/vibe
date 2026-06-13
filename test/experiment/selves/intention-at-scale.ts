@@ -7,7 +7,6 @@
 // + charge self, gives it a goal (a target direction via a willed bias on the hops, P113-style), and
 // checks all three. Run: npx tsx code/experiment/p145-intention-at-scale.ts
 
-import { pathToFileURL } from 'node:url'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -213,32 +212,6 @@ export function intentionAtScale(input?: { n?: number }): {
     directedFrustrated,
     solved,
   }
-}
-
-export function main(): void {
-  const r = intentionAtScale()
-  console.log('P145: large-scale intention, the three checks')
-  console.log('')
-  console.log(`  ${r.n.toLocaleString()} cells, a self of ${r.selfSize} cells with a target goal`)
-  console.log('')
-  console.log('  CHECK 1 coherence (the will biases the WHOLE self toward the goal, relative to no will):')
-  console.log(`    will effect on the whole = ${r.willEffectWhole.toFixed(2)} (cohesion kept ${r.cohesionWithWill.toFixed(2)}) -> coherent global effect: ${r.coherent}`)
-  console.log('')
-  console.log('  CHECK 2 top-down (a goal at the HUB steers the periphery, downward causation):')
-  console.log(`    hub-will effect on the periphery = ${r.topDownEffect.toFixed(2)} -> top-down: ${r.topDown}`)
-  console.log('')
-  console.log('  CHECK 3 persistence (the intention resumes after a 40% scatter):')
-  console.log(`    drift resumes = ${r.driftAfterPerturb.toFixed(2)} -> persists: ${r.persists}`)
-  console.log('')
-  console.log('  DIAGNOSIS: the will coherently biases the whole, but DIRECTED action at scale (top-down,')
-  console.log('  sustained drift) is FRUSTRATED on the hyperbolic scaffold, no clean directions, dispersal.')
-  console.log('  Like relativistic QFT and Lorentz, directed intention belongs to the emergent FLAT layer,')
-  console.log('  the scaffold supports the COORDINATION half (the self knowing its global state, P116, P139).')
-  console.log(`  SOLVED (clear diagnosis: coherent global will-effect, directed action frustrated on the scaffold): ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({

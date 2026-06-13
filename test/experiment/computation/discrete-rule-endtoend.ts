@@ -7,7 +7,8 @@
 // continuum (the coarse-grained density evolves smoothly from the discrete rule). This grounds "discrete base ->
 // emergent continuum" in the actual rule. Run: npx tsx code/experiment/p229-discrete-rule-endtoend.ts
 
-import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
 
 const L = 64
 const N = L * L
@@ -88,7 +89,35 @@ export function discreteRuleEndToEnd(): { chargeOk: boolean; momentumOk: boolean
   return { chargeOk, momentumOk, reversible, smooth }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = discreteRuleEndToEnd()
-  console.log(`SOLVED: discrete rule conserves charge ${r.chargeOk} + momentum ${r.momentumOk}, reversible ${r.reversible}, emergent smooth continuum ${r.smooth}.`)
-}
+// One fully-specified discrete directional rule, run as the actual dynamics with integer
+// state. It conserves charge and momentum exactly (integer equality, not tolerance), is
+// exactly reversible (forward then inverse recovers the start bit-for-bit), and a localized
+// blob coarse-grains to a smooth continuum density. This is a reversible conserving lattice
+// gas coarse-graining to hydrodynamics, a known construction, so L2. The conservation test
+// seeds via a deterministic LCG fill, a pseudo-random initial condition, though the exact
+// conservation and reversibility are properties of the rule and hold for any fill.
+export default defineExperiment({
+  id: 'computation/discrete-rule-endtoend',
+  title: 'one discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains smooth',
+  category: 'computation',
+  substrates: 'any',
+  depth: 'L2',
+  paper: true,
+  run() {
+    const r = discreteRuleEndToEnd()
+    const ok = r.chargeOk && r.momentumOk && r.reversible && r.smooth
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains to a smooth continuum density',
+      metrics: {
+        chargeConserved: r.chargeOk ? 1 : 0,
+        momentumConserved: r.momentumOk ? 1 : 0,
+        reversible: r.reversible ? 1 : 0,
+        smoothContinuum: r.smooth ? 1 : 0,
+      },
+      notes:
+        'L2, a reversible conserving lattice gas coarse-graining to hydrodynamics. Conservation and reversibility are exact integer equalities. The conservation test seeds via a deterministic LCG fill (a pseudo-random initial condition), but exact conservation and reversibility hold for any fill, they are properties of the rule.',
+    })
+  },
+})

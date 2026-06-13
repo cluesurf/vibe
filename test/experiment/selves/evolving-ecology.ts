@@ -8,7 +8,6 @@
 // a HARDER task (wider barriers) evolves a LARGER horizon than an EASY one. Intelligence that evolves and
 // adapts, from the base. Run: npx tsx code/experiment/p165-evolving-ecology.ts
 
-import { pathToFileURL } from 'node:url'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -99,26 +98,6 @@ export function evolvingEcology(): {
     bothSolve,
     solved,
   }
-}
-
-export function main(): void {
-  const r = evolvingEcology()
-  console.log('P165: a large evolving ecology of planning agents (life + mind together)')
-  console.log('')
-  console.log(`  hard-task population: mean fitness ${r.startFitness.toFixed(2)} -> ${r.endFitness.toFixed(2)} over generations (intelligence rises): ${r.fitnessRises}`)
-  console.log('')
-  console.log('  the population ADAPTS its foresight to the task difficulty:')
-  console.log(`    EASY task: evolved mean horizon ${r.easyHorizon.toFixed(1)}, reaches ${(r.easyReach * 100).toFixed(0)}% of goal`)
-  console.log(`    HARD task: evolved mean horizon ${r.hardHorizon.toFixed(1)}, reaches ${(r.hardReach * 100).toFixed(0)}% of goal`)
-  console.log(`    harder task evolved a LARGER horizon (adaptation): ${r.adaptsToDifficulty}`)
-  console.log('')
-  console.log('  => a population of planning agents EVOLVES better problem-solving and ADAPTS its')
-  console.log('     intelligence to the environment, life and mind co-evolving from the base.')
-  console.log(`  SOLVED: ${r.solved}`)
-}
-
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main()
 }
 
 export default defineExperiment({
