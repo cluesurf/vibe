@@ -4,9 +4,7 @@
 // are rank-6 (5D bulk -> 4D physical space) and paracompact (beyond the H^4 compact limit). We build each at
 // scale and measure the scoreboard. Run: npx tsx code/experiment/5d-tessellations.ts
 
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { bfsShells } from '@/code/measure/shells'
-import { betheCorrelatorExponent, spectralDimension } from '@/code/measure/dimension'
+import { surveyTessellation } from '@/code/measure/tessellation-survey'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -24,18 +22,8 @@ const SCALE = 30000
 const SURVEY_SCALE = 1500
 
 function measure(sym: number[], scale: number = SCALE): { cells: number; degree: number; specDim: number; growth: number; betheAlpha: number } {
-  const g = buildCellGraph({ symbol: sym as never, maxCells: scale })
-  const N = g.cellCount, nb = g.neighbors
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = nb[i]!.length; if (d > best) { best = d; center = i } }
-  const degree = best
-  // bulk spectral dimension (lazy-walk return), the central difference at t = 3 is the endpoint slope t = 2..4
-  const specDim = Math.round(spectralDimension({ neighbors: nb, start: center, t1: 2, t2: 4 }) * 100) / 100
-  // cosmology growth ratio
-  const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-  const mid = shell.slice(1, Math.min(4, shell.length))
-  const growth = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
-  const betheAlpha = betheCorrelatorExponent(degree)
-  return { cells: N, degree, specDim, growth, betheAlpha }
+  const m = surveyTessellation({ symbol: sym, maxCells: scale, minCells: 0, growthFrom: 1, growthTo: 4, safeDenominator: true, withSpectralDimension: true, specDimT1: 2, specDimT2: 4 })
+  return { cells: m.cells, degree: m.degree, specDim: m.specDim, growth: m.growth, betheAlpha: m.betheAlpha }
 }
 
 export function manyTessellations(): void {

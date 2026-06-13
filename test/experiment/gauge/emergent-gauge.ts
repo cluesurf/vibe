@@ -10,16 +10,15 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function graph(): { N: number; off: Int32Array; adj: Int32Array } {
+function graph(): { N: number; off: ArrayLike<number>; adj: ArrayLike<number> } {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 8000 })
-  const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  return { N, off, adj }
+  const { offsets, adj } = toCsr(g.neighbors)
+  return { N: g.cellCount, off: offsets, adj }
 }
 
 export function emergentGauge(): { chargeLocallyConserved: boolean; internalLocallyConserved: boolean } {

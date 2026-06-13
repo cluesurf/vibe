@@ -3,23 +3,19 @@
 // rest mass scales with its topological charge (additive matter). Measured on the 2D direction field.
 // Run: npx tsx code/experiment/p209-soliton-matter.ts
 
-import { directionFieldDerrickEnergy2d } from '@/code/measure/skyrme-energy'
+import {
+  directionFieldDerrickEnergy2d,
+  blankDirectionField2d,
+  placeSkyrmion2d,
+} from '@/code/measure/skyrme-energy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
-const norm = (v: V): V => { const m = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / m, v[1] / m, v[2] / m] }
 const N = 80
-const blank = (): V[][] => Array.from({ length: N }, () => Array.from({ length: N }, () => [0, 0, 1] as V))
-function addSky(f: V[][], cx: number, cy: number, R: number, ch: number): void {
-  for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {
-    const r = Math.hypot(x - cx, y - cy); if (r > 2.2 * R) continue
-    const phi = Math.atan2(y - cy, x - cx) * ch, fr = Math.PI * Math.max(0, 1 - r / R)
-    const nv = norm([Math.sin(fr) * Math.cos(phi), Math.sin(fr) * Math.sin(phi), Math.cos(fr)])
-    // superpose toward the new texture only inside the core (so two solitons can coexist)
-    if (1 - f[x]![y]![2] < 1 - nv[2]) f[x]![y] = nv
-  }
-}
+const blank = (): V[][] => blankDirectionField2d(N)
+const addSky = (f: V[][], cx: number, cy: number, R: number, ch: number): void =>
+  placeSkyrmion2d({ field: f, centerX: cx, centerY: cy, radius: R, charge: ch })
 const energy = (f: V[][], kappa: number): number => directionFieldDerrickEnergy2d(f, kappa)
 
 export function solitonMatter(): { binding: [number, number][]; bound: boolean; massRatio: number } {

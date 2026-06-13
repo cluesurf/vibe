@@ -13,49 +13,10 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { totalCharge as totalQ } from '@/code/measure/tone-census'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number, onlyCreate: boolean): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if (!onlyCreate && ((a === 1 && b === -1) || (a === -1 && b === 1))) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if (!onlyCreate && (a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 export function absoluteLimits(input?: { n?: number }): {
   n: number
@@ -98,7 +59,7 @@ export function absoluteLimits(input?: { n?: number }): {
   const q0 = totalQ(tone)
   let coarseMatches = true
   for (let t = 0; t < 60; t++) {
-    beat(tone, eu, ev, moved, rng, arrow, false)
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     if (totalQ(tone) !== q0) coarseMatches = false
     if (coarseQ(tone) !== q0) coarseMatches = false
   }
@@ -107,7 +68,7 @@ export function absoluteLimits(input?: { n?: number }): {
   // minting attempt, run ONLY the create move aggressively, Q must not rise (it creates balanced pairs)
   const mint = new Int8Array(N)
   const q0m = totalQ(mint)
-  for (let t = 0; t < 40; t++) beat(mint, eu, ev, moved, rng, 0.9, true)
+  for (let t = 0; t < 40; t++) conservingEdgeSweep({ tone: mint, eu, ev, moved, rng, arrow: 0.9, onlyCreate: true })
   const mintingFails = totalQ(mint) === q0m // still zero, only balanced pairs made
 
   // (B) lightcone, fine front speed, then coarse (block) front speed, both finite
@@ -122,8 +83,8 @@ export function absoluteLimits(input?: { n?: number }): {
   const rb = makeRng({ seed: 31 })
   const T = 5
   for (let t = 0; t < T; t++) {
-    beat(s, eu, ev, moved, ra, arrow, false)
-    beat(s2, eu, ev, moved, rb, arrow, false)
+    conservingEdgeSweep({ tone: s, eu, ev, moved, rng: ra, arrow })
+    conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow })
   }
   let fineFront = 0
   for (let i = 0; i < N; i++) if (s[i] !== s2[i] && distC[i]! > fineFront) fineFront = distC[i]!

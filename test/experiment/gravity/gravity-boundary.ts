@@ -5,42 +5,19 @@
 // falloff. Run: npx tsx code/experiment/p219-gravity-boundary.ts
 
 import { logLogSlope, linearFit } from '@/code/measure/regression'
+import { dCubePoissonGreens } from '@/code/operator/dcube-poisson'
+import { radialFieldProfile } from '@/code/measure/profile'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// conjugate-gradient solve of (-Laplacian) x = b with Dirichlet (x=0) boundary, on a d-cube of side L
-function solvePoisson(L: number, d: number): { x: Float64Array; idx: (c: number[]) => number; coord: (i: number) => number[] } {
-  const N = d === 3 ? L * L * L : L * L
-  const idx = (c: number[]): number => d === 3 ? (c[2]! * L + c[1]!) * L + c[0]! : c[1]! * L + c[0]!
-  const coord = (i: number): number[] => d === 3 ? [i % L, ((i / L) | 0) % L, (i / (L * L)) | 0] : [i % L, (i / L) | 0]
-  const lap = (p: Float64Array, o: Float64Array): void => {
-    for (let i = 0; i < N; i++) {
-      const c = coord(i); let v = 2 * d * p[i]!
-      for (let k = 0; k < d; k++) for (const s of [-1, 1]) { const cc = c.slice(); cc[k]! += s; if (cc[k]! >= 0 && cc[k]! < L) v -= p[idx(cc)]! }
-      o[i] = v
-    }
-  }
-  const dot = (a: Float64Array, b: Float64Array): number => { let s = 0; for (let i = 0; i < N; i++) s += a[i]! * b[i]!; return s }
-  const b = new Float64Array(N); const c0 = d === 3 ? [L >> 1, L >> 1, L >> 1] : [L >> 1, L >> 1]; b[idx(c0)] = 1
-  const x = new Float64Array(N), r = b.slice(), p = b.slice(), Ap = new Float64Array(N)
-  let rs = dot(r, r)
-  for (let it = 0; it < 4000; it++) {
-    lap(p, Ap); const al = rs / dot(p, Ap)
-    for (let i = 0; i < N; i++) { x[i]! += al * p[i]!; r[i]! -= al * Ap[i]! }
-    const rs2 = dot(r, r); if (Math.sqrt(rs2) < 1e-7) break
-    const be = rs2 / rs; for (let i = 0; i < N; i++) p[i] = r[i]! + be * p[i]!; rs = rs2
-  }
-  return { x, idx, coord }
-}
-function radial(sol: { x: Float64Array; coord: (i: number) => number[] }, L: number, d: number): { r: number; g: number }[] {
-  const c0 = L / 2; const bins = new Map<number, { s: number; n: number }>()
-  for (let i = 0; i < sol.x.length; i++) {
-    const c = sol.coord(i); let r2 = 0; for (let k = 0; k < d; k++) r2 += (c[k]! - c0) ** 2
-    const r = Math.round(Math.sqrt(r2)); if (r < 2 || r > L * 0.35) continue
-    const b = bins.get(r) ?? { s: 0, n: 0 }; b.s += sol.x[i]!; b.n++; bins.set(r, b)
-  }
-  return [...bins.entries()].map(([r, b]) => ({ r, g: b.s / b.n })).sort((a, b) => a.r - b.r)
-}
+const solvePoisson = (L: number, d: number): ReturnType<typeof dCubePoissonGreens> =>
+  dCubePoissonGreens({ side: L, dimension: d })
+const radial = (
+  sol: { x: Float64Array; coord: (i: number) => number[] },
+  L: number,
+  d: number,
+): { r: number; g: number }[] =>
+  radialFieldProfile({ values: sol.x, coord: sol.coord, side: L, dimension: d, minRadius: 2, maxRadius: L * 0.35 })
 
 export function gravityBoundary(): { exp3D: number; slope2DvsLog: number } {
   // 3D cusp ({4,3,4}): Newton 1/r  -> g(r)*r ~ const, i.e. log g vs log r slope ~ -1

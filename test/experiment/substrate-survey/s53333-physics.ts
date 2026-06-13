@@ -5,19 +5,20 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
+import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
 import { betheCorrelatorExponent } from '@/code/measure/dimension'
+import { mostConnectedNode } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Physics(): { betheAlpha: number; growthRatio: number; spaceGravityExp: number } {
   const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
-  const N = g.cellCount, nb = g.neighbors
-  let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
-  const betheAlpha = betheCorrelatorExponent(best)
+  const nb = g.neighbors
+  const center = mostConnectedNode(nb)
+  const betheAlpha = betheCorrelatorExponent(nb[center]!.length)
   // cosmology + hierarchy, bulk shell growth
   const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-  const mid = shell.slice(1, Math.min(4, shell.length))
-  const growthRatio = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
+  const growthRatio = shellGrowthRatio({ shellCounts: shell, from: 1, to: 4, safeDenominator: true })
   // physical-space gravity exponent, the flat layer is 4D, so the Laplacian Green's function ~ 1/r^(d-2) = 1/r^2
   const spaceDim = 4, spaceGravityExp = spaceDim - 2
   return { betheAlpha, growthRatio, spaceGravityExp }

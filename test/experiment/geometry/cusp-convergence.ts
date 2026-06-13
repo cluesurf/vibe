@@ -7,17 +7,14 @@
 
 import { spectralDimension } from '@/code/measure/dimension'
 import { greensFunctionExponent } from '@/code/measure/greens-function'
-import { cubicLattice, cubicLatticeCenter } from '@/code/substrate/cubic-lattice'
+import { cubicBoxRows } from '@/code/substrate/cubic-lattice'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Z^3 cubic box of side L (centered at the origin), 6-neighbour, with Dirichlet boundary (boundary cells absent).
-// The cubic-lattice builder lives in code/substrate/cubic-lattice; the coords are repacked as number[][].
 function cubicBox(L: number): { nb: number[][]; coord: number[][]; center: number } {
-  const lat = cubicLattice(L, 3)
-  const coord: number[][] = []
-  for (let i = 0; i < lat.size; i++) coord.push([lat.coords[i * 3]!, lat.coords[i * 3 + 1]!, lat.coords[i * 3 + 2]!])
-  return { nb: lat.neighbors, coord, center: cubicLatticeCenter({ lattice: lat, side: L }) }
+  const box = cubicBoxRows({ side: L, dim: 3 })
+  return { nb: box.neighbors, coord: box.coords, center: box.center }
 }
 
 // The spectral dimension (lazy-walk return probability) and the Dirichlet Green's

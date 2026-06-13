@@ -8,14 +8,12 @@
 // 3D Skyrme sign, same fermion-induced-stiffness mechanism.) Run: npx tsx code/experiment/p214-actual-rule-soliton.ts
 
 import { jackiwRebbiHamiltonian } from '@/code/operator/jackiw-rebbi'
-import { jacobiEigenvalues } from '@/code/algebra/linear/eig-jacobi'
+import { diracSeaEnergy } from '@/code/measure/dirac-sea-energy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function seaEnergy(N: number, m0: number, R: number): number {
-  const ev = jacobiEigenvalues(jackiwRebbiHamiltonian({ sites: N, mass: m0, width: R }))
-  let s = 0; for (const e of ev) if (e < 0) s += e
-  return s
+  return diracSeaEnergy({ hamiltonian: jackiwRebbiHamiltonian({ sites: N, mass: m0, width: R }) })
 }
 
 export function fermionInducedStabilizer(): { data: { R: number; sea: number }[]; risesAsSharpens: boolean } {

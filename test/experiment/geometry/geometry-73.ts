@@ -3,10 +3,10 @@
 // interior cells have degree 7. Contrast, {5,3,4} is a 3D bulk, {3,4,3,4} a 4D bulk, {7,3} is 2D.
 // Run: npx tsx code/experiment/p200-geometry-73.ts
 
-import { bfsShells } from '@/code/measure/shells'
+import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
 import { spectralDimension } from '@/code/measure/dimension'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { highestDegreeNode, toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,11 +20,9 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
   const interiorDegree = Number(Object.entries(degHist).sort((a, b) => (a[0] === '7' ? -1 : 0) - (b[0] === '7' ? -1 : 0))[0]?.[0]) || 7
 
   // pick the most-connected cell as center, BFS shells -> exponential growth ratio
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
+  const center = highestDegreeNode(g.neighbors)
   const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
-  const mid = shell.slice(2, Math.min(8, shell.length))
-  const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
-  const growth = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
+  const growth = midShellGrowthRatio({ shellCounts: shell })
 
   // spectral dimension via the lazy random-walk return probability (the central
   // difference at t = 4 is the endpoint slope between t = 2 and t = 6).

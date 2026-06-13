@@ -13,7 +13,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { avalancheSizes, toneDensity } from '@/code/measure/avalanche'
+import { settledAvalancheSizes } from '@/code/measure/avalanche'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -21,21 +21,19 @@ import { verdict } from '@/test/scaffold/verdict'
 function avalanches(c0: number, g: { offsets: Int32Array; adj: Int32Array; cellCount: number }, eu: Int32Array, ev: Int32Array): { sizes: number[]; bg: number } {
   const N = g.cellCount
   const moved = new Uint8Array(N)
-  const base = new Int8Array(N)
-  const rng0 = makeRng({ seed: 5 })
-  for (let t = 0; t < 150; t++) conservingEdgeSweep({ tone: base, eu, ev, moved, rng: rng0, arrow: c0 }) // settle to the low background
-  const bg = toneDensity(base)
-  const sizes = avalancheSizes({
-    base,
+  const { sizes, background } = settledAvalancheSizes({
+    size: N,
+    settleSteps: 150, // settle to the low background
     steps: 30,
     trials: 150,
+    settleSeed: 5,
     perturbSeed: 7000,
     streamSeed: 222,
     makeRng: (seed) => makeRng({ seed }),
     relax: (state, rng) => conservingEdgeSweep({ tone: state, eu, ev, moved, rng, arrow: c0 }),
     mode: 'peak',
   })
-  return { sizes, bg }
+  return { sizes, bg: background }
 }
 
 export function avalancheCriticality(input?: { n?: number }): {

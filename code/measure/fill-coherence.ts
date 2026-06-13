@@ -21,6 +21,19 @@ export function fillCoherence(tone: Int8Array, edges: Array<[number, number]>, f
   return sat / edges.length
 }
 
+// The Hebbian fill update (the candidate "sixth rule"): every edge's fill follows the
+// tone relationship of its endpoints, binding (sharing, +1) agreeing non-zero neighbors,
+// polarizing (-1) opposing ones, and insulating (0) when either endpoint is at peace.
+// This makes fills LEARN the tone structure rather than staying fixed.
+export function adaptFills(tone: Int8Array, edges: ReadonlyArray<readonly [number, number]>, fill: Int8Array): void {
+  for (let i = 0; i < edges.length; i++) {
+    const tv = tone[edges[i]![0]]!
+    const tw = tone[edges[i]![1]]!
+    if (tv !== 0 && tw !== 0) fill[i] = tv === tw ? 1 : -1
+    else fill[i] = 0
+  }
+}
+
 // Size of the largest connected domain of same-sign cells bound by sharing (+1) fills,
 // the biggest coherent patch (a candidate higher self). `n` is the cell count.
 export function largestSharingPatch(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array, n: number): number {

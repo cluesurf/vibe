@@ -135,6 +135,35 @@ export function loglogExponentWindow(input: {
   return (m * sxy - sx * sy) / (m * sxx - sx * sx)
 }
 
+// A power-law fit over (x, y) in log-log space: the slope (exponent) plus the largest
+// deviation of any sample from the fit line, measured in log y. A small maxDeviation
+// means the data hug a single power law with no special or critical point, the
+// "is this a clean power law" measure.
+export function powerLawFit(input: {
+  xs: ReadonlyArray<number>
+  ys: ReadonlyArray<number>
+}): { exponent: number; maxDeviation: number } {
+  const { xs, ys } = input
+  const logX = xs.map((x) => Math.log(x))
+  const logY = ys.map((y) => Math.log(y))
+  const n = logX.length
+  const meanX = logX.reduce((a, b) => a + b, 0) / n
+  const meanY = logY.reduce((a, b) => a + b, 0) / n
+  let cov = 0
+  let varx = 0
+  for (let i = 0; i < n; i++) {
+    cov += (logX[i]! - meanX) * (logY[i]! - meanY)
+    varx += (logX[i]! - meanX) * (logX[i]! - meanX)
+  }
+  const exponent = cov / varx
+  let maxDeviation = 0
+  for (let i = 0; i < n; i++) {
+    const predicted = meanY + exponent * (logX[i]! - meanX)
+    maxDeviation = Math.max(maxDeviation, Math.abs(logY[i]! - predicted))
+  }
+  return { exponent, maxDeviation }
+}
+
 // The local force-law exponent d ln(force) / d ln(r) of a potential at radius r, where force = -dG/dr.
 // Both the force (a central difference of the potential) and the exponent (a centered log-log slope
 // across r) are taken numerically. An inverse-square force gives -2, a 4D short-range force gives -3.

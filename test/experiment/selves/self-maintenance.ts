@@ -21,32 +21,10 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
-import { edgesFromCsr } from '@/code/tool/graph'
+import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function ballSet(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  const out: number[] = []
-  const seen = new Uint8Array(n)
-  seen[start] = 1
-  let fr = [start]
-  while (fr.length > 0 && out.length < size) {
-    const nf: number[] = []
-    for (const u of fr) {
-      out.push(u)
-      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-        const w = adj[p]!
-        if (!seen[w] && out.length + nf.length < size) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
-  return out
-}
 
 // the rule alone: share + cohesive hop, NO external maintenance, NO arrow (to isolate healing)
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
@@ -68,8 +46,8 @@ export function selfMaintenance(input?: { n?: number }): {
   const moved = new Uint8Array(N)
   const beats = 30
 
-  const self = ballSet(g.offsets, g.adj, N, 0, 3000) // the self: a + region
-  const chunk = ballSet(g.offsets, g.adj, N, 0, 800) // an inner chunk to erase
+  const self = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 3000 }) // the self: a + region
+  const chunk = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 800 }) // an inner chunk to erase
   const chunkSet = new Set(chunk)
   const plusInChunk = (t: Int8Array): number => {
     let c = 0

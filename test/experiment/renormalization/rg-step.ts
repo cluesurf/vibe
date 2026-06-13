@@ -13,6 +13,8 @@ import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { csrVoronoiBlocks } from '@/code/dynamics/renormalization-blocks'
+import { sumFieldByGroup } from '@/code/coarse/group-field'
+import { populationVariance } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -64,11 +66,8 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   const numSamples = 12
   const warmup = 0
   const R = 24
-  const blockCharge = (tone: Int8Array): Float64Array => {
-    const q = new Float64Array(numBlocks)
-    for (let i = 0; i < N; i++) q[blockOf[i]!]! += tone[i]!
-    return q
-  }
+  const blockCharge = (tone: Int8Array): Float64Array =>
+    sumFieldByGroup({ field: tone, group: blockOf, groupCount: numBlocks })
   const meanBC: Float64Array[] = Array.from({ length: numSamples + 1 }, () => new Float64Array(numBlocks))
   let alphaMin = Infinity
   let alphaMax = -Infinity
@@ -133,14 +132,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
   // the spatial variance of the coarse charge field over time (does it relax slowly = diffusion, or
   // fast = hyperbolic mixing). variance across blocks at each sampled beat.
-  const varAt = (q: Float64Array): number => {
-    let mean = 0
-    for (let b = 0; b < numBlocks; b++) mean += q[b]!
-    mean /= numBlocks
-    let v = 0
-    for (let b = 0; b < numBlocks; b++) v += (q[b]! - mean) ** 2
-    return v / numBlocks
-  }
+  const varAt = (q: Float64Array): number => populationVariance(q)
   const var0 = varAt(meanBC[0]!)
   let mixingTime = numSamples
   for (let s = 0; s < meanBC.length; s++) if (varAt(meanBC[s]!) < 0.5 * var0) {

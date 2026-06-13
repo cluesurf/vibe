@@ -253,6 +253,50 @@ export function positiveClusters(tone: Int8Array, g: Graph): number[][] {
   return out
 }
 
+// Count of connected same-sign tone components at least `minSize` cells big. With sign 'positive'
+// only +1 cells are clustered (each cluster is one sign, +); with sign 'either' both +1 and -1
+// cluster, an edge joining two cells of the SAME nonzero tone. When `cells` is given only those
+// cells participate (and only edges with both endpoints inside it), otherwise the whole graph does.
+// Union-find over the participating cells. Used to count how many distinct large selves survive.
+export function countLargeSameSignComponents(input: {
+  tone: Int8Array
+  g: Graph
+  minSize: number
+  sign?: 'positive' | 'either'
+  cells?: number[]
+}): number {
+  const { tone, g, minSize } = input
+  const sign = input.sign ?? 'either'
+  const { offsets, adj } = g
+  const cells = input.cells ?? Array.from({ length: g.cellCount }, (_, i) => i)
+  const inSet = input.cells ? new Set(input.cells) : null
+  const active = (v: number): boolean => (sign === 'positive' ? tone[v] === 1 : tone[v] !== 0)
+  const parent = new Map<number, number>()
+  for (const v of cells) parent.set(v, v)
+  const find = (x: number): number => {
+    let r = x
+    while (parent.get(r) !== undefined && parent.get(r) !== r) r = parent.get(r)!
+    return r
+  }
+  for (const v of cells) {
+    if (!active(v)) continue
+    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
+      const w = adj[p]!
+      if (inSet && !inSet.has(w)) continue
+      if (tone[w] === tone[v]) parent.set(find(v), find(w))
+    }
+  }
+  const size = new Map<number, number>()
+  for (const v of cells) {
+    if (!active(v)) continue
+    const r = find(v)
+    size.set(r, (size.get(r) ?? 0) + 1)
+  }
+  let big = 0
+  for (const s of size.values()) if (s >= minSize) big++
+  return big
+}
+
 // The integration measure Phi of a cluster: the fraction of its cells' edges that stay inside the
 // cluster (internal connectivity). A lone speck has Phi 0, a dense blob approaches 1.
 export function clusterIntegration(cluster: number[], g: Graph): number {

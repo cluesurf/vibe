@@ -15,8 +15,9 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { busemann, idealDirection } from '@/code/substrate/horosphere'
 import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { pearson } from '@/code/measure/statistics'
-import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
+import { lagAutocorrelation } from '@/code/measure/persistence'
+import { coarseFieldByGroup } from '@/code/coarse/group-field'
+import { perceptionMatchingSweepCsr } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -113,37 +114,13 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   // run the PURE rule (deterministic matching), record coarse fields over the measure window
   const tone = new Int8Array(N)
   const matched = new Uint8Array(N)
-  const step = (f: number): void => {
-    matched.fill(0)
-    const start = (f * 2654435761) % N
-    for (let s = 0; s < N; s++) {
-      const v = (start + s) % N
-      if (matched[v]) continue
-      for (let p = off[v]!; p < off[v + 1]!; p++) {
-        const w = adj[p]!
-        if (matched[w]) continue
-        const [a, b] = perm(tone[v]!, tone[w]!)
-        tone[v] = a as -1 | 0 | 1
-        tone[w] = b as -1 | 0 | 1
-        matched[v] = 1
-        matched[w] = 1
-        break
-      }
-    }
-  }
+  const step = (f: number): void =>
+    perceptionMatchingSweepCsr({ tone, offsets: off, adj, matched, start: (f * 2654435761) % N })
   for (let f = 0; f < WARMUP; f++) step(f)
 
   // coarse field = mean tone per group, recorded each measure beat for radial and null at every scale
-  const coarse = (group: Int32Array, k: number): Float64Array => {
-    const sum = new Float64Array(k)
-    const cnt = new Float64Array(k)
-    for (let i = 0; i < N; i++) {
-      sum[group[i]!]! += tone[i]!
-      cnt[group[i]!]!++
-    }
-    for (let gid = 0; gid < k; gid++) sum[gid] = cnt[gid]! > 0 ? sum[gid]! / cnt[gid]! : 0
-    return sum
-  }
+  const coarse = (group: Int32Array, k: number): Float64Array =>
+    coarseFieldByGroup({ field: tone, group, groupCount: k })
   const radialSeries: Float64Array[][] = SCALES.map(() => [])
   const nullSeries: Float64Array[][] = SCALES.map(() => [])
   for (let f = 0; f < MEASURE + LAG; f++) {
@@ -155,17 +132,8 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   }
 
   // persistence = mean over the window of the lag-LAG autocorrelation of the coarse field
-  const persistenceOf = (series: Float64Array[]): number => {
-    let acc = 0
-    let cnt = 0
-    for (let t = 0; t + LAG < series.length; t++) {
-      acc += pearson({ a: series[t]!, b: series[t + LAG]! })
-      cnt++
-    }
-    return cnt > 0 ? acc / cnt : 0
-  }
-  const radialPersistence = SCALES.map((_, si) => persistenceOf(radialSeries[si]!))
-  const nullPersistence = SCALES.map((_, si) => persistenceOf(nullSeries[si]!))
+  const radialPersistence = SCALES.map((_, si) => lagAutocorrelation({ series: radialSeries[si]!, lag: LAG }))
+  const nullPersistence = SCALES.map((_, si) => lagAutocorrelation({ series: nullSeries[si]!, lag: LAG }))
 
   const last = SCALES.length - 1
   const radialBeatsNull = radialPersistence[last]! > nullPersistence[last]! + 0.1

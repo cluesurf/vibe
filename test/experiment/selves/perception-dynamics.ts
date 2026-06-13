@@ -17,12 +17,11 @@
 
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
+import { conservingEdgeListSweepPumped } from '@/code/dynamics/conserving-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 const nonzero = (t: Int8Array): number => {
   let s = 0
@@ -30,50 +29,6 @@ const nonzero = (t: Int8Array): number => {
   return s
 }
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
-
-// One beat of the perception rule. arrowProb is the arrow's creation drive (chance a peaceful pair
-// polarizes). pump, if given, biases hops (+ toward lower distance, - toward higher). All moves conserve
-// the pair sum.
-function beat(tone: Int8Array, edges: Array<[number, number]>, rng: Rng, arrowProb: number, pump: Int32Array | null): void {
-  const moved = new Uint8Array(tone.length)
-  for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0 // share: perceived opposite relaxes to peace
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      // hop: charge into the perceived-empty neighbor
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      const doHop = pump ? (q > 0 ? dd(pump, e) < dd(pump, c) : dd(pump, e) > dd(pump, c)) : rng.next() < 0.5
-      if (doHop) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      // polarize: the arrow creates a pole from peace
-      if (rng.next() < arrowProb) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-    // same nonzero: inert
-  }
-}
 
 export function perceptionDynamics(): {
   cells: number
@@ -98,6 +53,7 @@ export function perceptionDynamics(): {
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
+  const moved = new Uint8Array(n)
 
   let center = 0
   for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
@@ -111,7 +67,7 @@ export function perceptionDynamics(): {
   const lifeStart = nonzero(life)
   let balanceMid = 0
   for (let b = 0; b < 120; b++) {
-    beat(life, edges, rngL, 0.1, null)
+    conservingEdgeListSweepPumped({ tone: life, edges, moved, rng: rngL, arrow: 0.1, pump: null })
     if (b === 59) balanceMid = nonzero(life)
   }
   const lifeEnd = nonzero(life)
@@ -139,7 +95,7 @@ export function perceptionDynamics(): {
   const qDeath = sumTone(death)
   const deathStart = nonzero(death)
   const rngD = makeRng({ seed: 14 })
-  for (let b = 0; b < 300; b++) beat(death, edges, rngD, 0, null)
+  for (let b = 0; b < 300; b++) conservingEdgeListSweepPumped({ tone: death, edges, moved, rng: rngD, arrow: 0, pump: null })
   const deathEnd = nonzero(death)
   const conservedDeath = sumTone(death) === qDeath
 
@@ -166,7 +122,7 @@ export function perceptionDynamics(): {
   const qDiff = sumTone(diff)
   const absChargeStart = absInR0(diff)
   const rngDi = makeRng({ seed: 5 })
-  for (let b = 0; b < 80; b++) beat(diff, edges, rngDi, 0, null)
+  for (let b = 0; b < 80; b++) conservingEdgeListSweepPumped({ tone: diff, edges, moved, rng: rngDi, arrow: 0, pump: null })
   const absDiffused = absInR0(diff)
   const netDiffused = netInR0(diff)
   const conservedDiff = sumTone(diff) === qDiff
@@ -174,7 +130,7 @@ export function perceptionDynamics(): {
   const pump = makePocket()
   const qPump = sumTone(pump)
   const rngPu = makeRng({ seed: 5 })
-  for (let b = 0; b < 80; b++) beat(pump, edges, rngPu, 0, distC)
+  for (let b = 0; b < 80; b++) conservingEdgeListSweepPumped({ tone: pump, edges, moved, rng: rngPu, arrow: 0, pump: distC })
   const netPumped = netInR0(pump)
   const conservedPump = sumTone(pump) === qPump
 

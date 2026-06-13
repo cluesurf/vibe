@@ -16,61 +16,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { gramMatrix } from '@/code/substrate/coxeter/schlafli'
-import { determinant } from '@/code/algebra/linear/dense'
-
-type Kind = 'spherical' | 'euclidean' | 'hyperbolic' | 'higher'
-
-// Classify a linear Coxeter symbol by the signature of its Gram matrix, read off the leading
-// principal minors (Sylvester): number of negative eigenvalues = sign changes in 1, D1, ..., Dm.
-function classify(symbol: number[]): Kind {
-  const G = gramMatrix(symbol)
-  const m = G.length
-  const minors: number[] = [1]
-  for (let k = 1; k <= m; k++) {
-    const sub = G.slice(0, k).map((row) => row.slice(0, k))
-    minors.push(determinant(sub))
-  }
-  const tol = 1e-9
-  // Euclidean: positive definite up to the last, with the full determinant zero.
-  if (Math.abs(minors[m] ?? 0) < tol) {
-    let posDefBefore = true
-    for (let k = 1; k < m; k++) if ((minors[k] ?? 0) <= tol) posDefBefore = false
-    if (posDefBefore) return 'euclidean'
-  }
-  let signChanges = 0
-  let prev = 1
-  for (let k = 1; k <= m; k++) {
-    const cur = minors[k] ?? 0
-    if (Math.abs(cur) < tol) return 'euclidean' // degenerate interior minor, treat as parabolic
-    if (cur * prev < 0) signChanges++
-    prev = cur
-  }
-  if (signChanges === 0) return 'spherical'
-  if (signChanges === 1) return 'hyperbolic'
-  return 'higher'
-}
-
-function isCompactHyperbolicHoneycomb(symbol: number[]): boolean {
-  if (symbol.length < 2) return false
-  if (classify(symbol) !== 'hyperbolic') return false
-  const cell = symbol.slice(0, -1)
-  const vertexFigure = symbol.slice(1)
-  return classify(cell) === 'spherical' && classify(vertexFigure) === 'spherical'
-}
-
-function enumerate(dimension: number, maxP: number): number[][] {
-  const found: number[][] = []
-  const rec = (prefix: number[]): void => {
-    if (prefix.length === dimension) {
-      if (isCompactHyperbolicHoneycomb(prefix)) found.push(prefix.slice())
-      return
-    }
-    for (let p = 3; p <= maxP; p++) rec([...prefix, p])
-  }
-  rec([])
-  return found
-}
+import { enumerateCompactHoneycombs } from '@/code/substrate/coxeter/schlafli'
 
 export function dimensionWindow(input: { maxP: number; maxDimension: number }): {
   byDimension: { dimension: number; count: number; examples: string[] }[]
@@ -79,7 +25,7 @@ export function dimensionWindow(input: { maxP: number; maxDimension: number }): 
 } {
   const byDimension: { dimension: number; count: number; examples: string[] }[] = []
   for (let n = 2; n <= input.maxDimension; n++) {
-    const found = enumerate(n, input.maxP)
+    const found = enumerateCompactHoneycombs({ dimension: n, maxEntry: input.maxP })
     byDimension.push({
       dimension: n,
       count: found.length,

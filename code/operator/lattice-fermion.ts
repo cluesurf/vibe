@@ -210,6 +210,32 @@ export function brillouinZoneCorners(dimension: number): number[][] {
   return out
 }
 
+// The naive-fermion doubler census in d dimensions. Each Brillouin-zone corner is a
+// species; its chirality is the product of sign(cos k_mu) (+1 at 0, -1 at pi), and the
+// Wilson term lifts every corner with one or more pi-components, so only the all-zero
+// corner stays light. Returns the naive species count (2^d), the net chirality (zero by
+// Nielsen-Ninomiya), and the count of corners the Wilson term leaves massless.
+export function latticeFermionDoublers(dimension: number): {
+  naiveSpecies: number
+  netChirality: number
+  wilsonSpecies: number
+} {
+  const corners = brillouinZoneCorners(dimension)
+  let netChirality = 0
+  let wilsonSpecies = 0
+  for (const corner of corners) {
+    let chirality = 1
+    let piCount = 0
+    for (const k of corner) {
+      chirality *= Math.cos(k) >= 0 ? 1 : -1
+      if (Math.abs(k - Math.PI) < 1e-9) piCount += 1
+    }
+    netChirality += chirality
+    if (piCount === 0) wilsonSpecies += 1
+  }
+  return { naiveSpecies: corners.length, netChirality, wilsonSpecies }
+}
+
 // Scan a Brillouin-zone grid (which includes k = 0 and k = pi when n is even) and
 // return the species count (grid points where the smallest singular value is near
 // zero) and the worst Ginsparg-Wilson residual.

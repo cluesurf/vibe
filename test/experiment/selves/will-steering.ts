@@ -12,73 +12,13 @@
 // Run: npx tsx code/experiment/p113-will-steering.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
+import { csrBallNodes, csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
+import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
-function ballSet(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  const out: number[] = []
-  const seen = new Uint8Array(n)
-  seen[start] = 1
-  let fr = [start]
-  while (fr.length > 0 && out.length < size) {
-    const nf: number[] = []
-    for (const u of fr) {
-      out.push(u)
-      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-        const w = adj[p]!
-        if (!seen[w] && out.length + nf.length < size) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
-  return out
-}
-
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
-
-// one beat with an optional WILL: a directed pump on the + hops, toward (sign -1) or away (sign +1) the
-// goal measured by distGoal. share annihilates opposites. conserving.
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, distGoal: Int32Array | null, towardSign: number): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      let doHop: boolean
-      if (distGoal && q > 0) {
-        // will: move + toward (towardSign<0) or away (towardSign>0) the goal
-        const better = towardSign < 0 ? dd(distGoal, e) < dd(distGoal, c) : dd(distGoal, e) > dd(distGoal, c)
-        doHop = better
-      } else {
-        doHop = rng.next() < 0.5
-      }
-      if (doHop) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 export function willSteering(input?: { n?: number }): {
   n: number
@@ -110,7 +50,7 @@ export function willSteering(input?: { n?: number }): {
     }
     return c > 0 ? s / c : 0
   }
-  const selfA = ballSet(g.offsets, g.adj, N, 0, 2000)
+  const selfA = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 2000 })
   const mk = (): Int8Array => {
     const t = new Int8Array(N)
     for (const i of selfA) t[i] = 1
@@ -119,16 +59,16 @@ export function willSteering(input?: { n?: number }): {
   const beats = 12 * dd(dist, far)
   const willM = mk()
   const r1 = makeRng({ seed: 3 })
-  for (let b = 0; b < beats; b++) beat(willM, eu, ev, moved, r1, distTarget, -1)
+  for (let b = 0; b < beats; b++) conservingEdgeSweepSteered({ tone: willM, eu, ev, moved, rng: r1, distGoal: distTarget, towardSign: -1 })
   const mergeWithWill = meanDistTo(willM, distTarget) // lower = moved toward the target
   const noWillM = mk()
   const r2 = makeRng({ seed: 3 })
-  for (let b = 0; b < beats; b++) beat(noWillM, eu, ev, moved, r2, null, 0)
+  for (let b = 0; b < beats; b++) conservingEdgeSweepSteered({ tone: noWillM, eu, ev, moved, rng: r2, distGoal: null, towardSign: 0 })
   const mergeNoWill = meanDistTo(noWillM, distTarget)
   const mergeWorks = mergeWithWill < mergeNoWill - 1 // the will moved the self meaningfully toward the target
 
   // AVOID: a + self and an adjacent - self (a split region). the will pumps + away from the - side
-  const region = ballSet(g.offsets, g.adj, N, 0, 4000)
+  const region = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 4000 })
   const half = Math.floor(region.length / 2)
   const minusCenter = region[region.length - 1]! // a cell on the - side
   const distMinus = csrEccentricity({ offsets: g.offsets, adj: g.adj, size: N, source: minusCenter }).dist
@@ -145,11 +85,11 @@ export function willSteering(input?: { n?: number }): {
   void plus
   const willA = mkSplit()
   const r3 = makeRng({ seed: 3 })
-  for (let b = 0; b < 50; b++) beat(willA, eu, ev, moved, r3, distMinus, +1) // pump + away from the - side
+  for (let b = 0; b < 50; b++) conservingEdgeSweepSteered({ tone: willA, eu, ev, moved, rng: r3, distGoal: distMinus, towardSign: 1 }) // pump + away from the - side
   const avoidWithWill = meanDistTo(willA, distMinus) // higher = the + fled away from the - threat
   const noWillA = mkSplit()
   const r4 = makeRng({ seed: 3 })
-  for (let b = 0; b < 50; b++) beat(noWillA, eu, ev, moved, r4, null, 0)
+  for (let b = 0; b < 50; b++) conservingEdgeSweepSteered({ tone: noWillA, eu, ev, moved, rng: r4, distGoal: null, towardSign: 0 })
   const avoidNoWill = meanDistTo(noWillA, distMinus)
   // the will moves the self about a hop away, near the geometric ceiling (the diameter is tiny, so a hop
   // is a large fraction of the whole universe, the steering is directional, not large in raw hops)

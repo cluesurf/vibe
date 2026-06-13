@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p81-mass-hierarchy.ts
 
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
-import { bfsShells } from '@/code/measure/shells'
+import { bfsShells, meanShellDistanceStep } from '@/code/measure/shells'
 import { neighborsOf } from '@/code/tool/graph'
 import { poincareDistanceIndexed } from '@/code/geometry/distance'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -45,24 +45,15 @@ function meanInterShellDistance(): number {
     }
   }
   const hyp = (a: number, b: number): number => poincareDistanceIndexed(coords, dim, a, b)
-  // BFS shells
+  // BFS shells, then the mean hyperbolic step between consecutive shells
   const { depth: shell, shellCounts } = bfsShells({ neighbors: neighborsOf(g), root: center })
-  const maxShell = shellCounts.length - 1
-  // mean hyperbolic distance from center to each shell, then the step between consecutive shells
-  const sums = new Float64Array(maxShell + 1)
-  const counts = new Int32Array(maxShell + 1)
-  for (let i = 0; i < g.size; i++) {
-    const s = shell[i] ?? -1
-    if (s > 0) {
-      sums[s]! += hyp(center, i)
-      counts[s]! += 1
-    }
-  }
-  const means: number[] = []
-  for (let s = 1; s <= maxShell; s++) if (counts[s]! > 0) means.push(sums[s]! / counts[s]!)
-  let stepSum = 0
-  for (let i = 1; i < means.length; i++) stepSum += means[i]! - means[i - 1]!
-  return means.length > 1 ? stepSum / (means.length - 1) : 0
+  return meanShellDistanceStep({
+    count: g.size,
+    center,
+    shell,
+    shellCount: shellCounts.length,
+    distance: hyp,
+  })
 }
 
 export function massHierarchy(input: Record<string, never> = {}): {

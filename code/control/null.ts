@@ -27,3 +27,18 @@ export function randomNull(will: Will, seed: number): Will {
 export function preservesCharge(will: Will, seed: number): boolean {
   return charge(randomNull(will, seed)) === charge(will)
 }
+
+// The spatial-shuffle null for a tone field: a fresh Fisher-Yates permutation of the cells, so the tone
+// multiset (and total charge) is preserved while all spatial structure is destroyed. The control a coarse-
+// graining coherence claim must beat to show it measures structure rather than plain averaging.
+export function shuffledToneField(input: { tone: Int8Array; rng: { next: () => number } }): Int8Array {
+  const { tone, rng } = input
+  const out = tone.slice()
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng.next() * (i + 1))
+    const held = out[i]!
+    out[i] = out[j]!
+    out[j] = held
+  }
+  return out
+}

@@ -4,9 +4,7 @@
 // they are CRYSTALLOGRAPHIC (gauge possible) AND compact, but still only 1D physical space and no spinor.
 // Run: npx tsx code/experiment/2d-tessellations.ts
 
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { bfsShells } from '@/code/measure/shells'
-import { betheCorrelatorExponent } from '@/code/measure/dimension'
+import { surveyTessellation } from '@/code/measure/tessellation-survey'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -25,18 +23,7 @@ const TILINGS: Cand[] = [
 const SCALE = 20000
 
 function measure(sym: number[]): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
-  try {
-    const g = buildCellGraph({ symbol: sym as never, maxCells: SCALE })
-    const N = g.cellCount, nb = g.neighbors
-    if (N < 50) return { ok: false, cells: N, degree: 0, growth: 0, betheAlpha: 0 }
-    let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = nb[i]!.length; if (d > best) { best = d; center = i } }
-    const degree = best
-    const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-    const mid = shell.slice(2, Math.min(7, shell.length))
-    const growth = mid.length > 1 ? Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
-    const betheAlpha = betheCorrelatorExponent(degree)
-    return { ok: true, cells: N, degree, growth, betheAlpha }
-  } catch (e) { return { ok: false, cells: 0, degree: 0, growth: 0, betheAlpha: 0 } }
+  return surveyTessellation({ symbol: sym, maxCells: SCALE, growthFrom: 2, growthTo: 7 })
 }
 
 export function twodTessellations(): void {

@@ -6,6 +6,7 @@
 import { makeRng, deriveSeed } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
+import { mean as meanOf, standardDeviation } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -19,12 +20,7 @@ function study(): { mean: number; std: number; samples: number[] } {
     const poset = sprinkleMinkowski({ dimension: targetDimension, count, rng })
     dims.push(myrheimMeyerDimension({ poset }))
   }
-  const mean = dims.reduce((a, b) => a + b, 0) / dims.length
-  const variance =
-    dims.reduce((a, b) => a + (b - mean) * (b - mean), 0) / dims.length
-  const std = Math.sqrt(variance)
-
-  return { mean, std, samples: dims }
+  return { mean: meanOf(dims), std: standardDeviation(dims), samples: dims }
 }
 
 export default defineExperiment({

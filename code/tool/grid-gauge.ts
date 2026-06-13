@@ -32,6 +32,28 @@ export function gridWilsonLoop(g: GridGauge, input: { x0: number; x1: number; y0
 
 // A gauge transformation A_link -> A + lambda(end) - lambda(start), with periodic wraparound. The
 // fluxes and Wilson loops are invariant under this.
+// A single-vortex U(1) gauge field on the side x side grid: the link phases are the lattice
+// gradient of the angle around the flux center (fx + 1/2, fy + 1/2), scaled so the curl is the
+// total flux through that one plaquette and zero everywhere else. A Wilson loop enclosing the
+// center returns exactly `flux`. The Aharonov-Bohm / emergent-EM input.
+export function vortexGaugeField(input: {
+  side: number
+  flux: number
+  centerX: number
+  centerY: number
+}): GridGauge {
+  const { side: L, flux: Phi, centerX: fx, centerY: fy } = input
+  const Ax = makeGridGrid(L)
+  const Ay = makeGridGrid(L)
+  const wrap = (d: number): number => d - 2 * Math.PI * Math.round(d / (2 * Math.PI))
+  const theta = (px: number, py: number): number => Math.atan2(py - (fy + 0.5), px - (fx + 0.5))
+  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) {
+    Ax[x]![y] = (Phi / (2 * Math.PI)) * wrap(theta(x + 1, y) - theta(x, y))
+    Ay[x]![y] = (Phi / (2 * Math.PI)) * wrap(theta(x, y + 1) - theta(x, y))
+  }
+  return { Ax, Ay }
+}
+
 export function gridGaugeTransform(g: GridGauge, lambda: number[][], side: number): GridGauge {
   const Ax = makeGridGrid(side)
   const Ay = makeGridGrid(side)

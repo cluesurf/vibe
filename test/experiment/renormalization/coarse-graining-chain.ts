@@ -9,20 +9,11 @@
 // chain. A stable fixed point across many levels = a faithful multiscale tower.
 // Run: npx tsx code/experiment/p164-coarse-graining-chain.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
-import { conservingRingSweep } from '@/code/dynamics/conserving-sweep'
+import { makeRng } from '@/code/tool/rng'
+import { evolveConservingRing } from '@/code/dynamics/conserving-sweep'
+import { blockChargeTower } from '@/code/coarse/block-charge-tower'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// the perception rule on a 1D ring (a clean slice for hierarchical blocking, the sliver is ~1D)
-function evolveRing(tone: Int8Array, beats: number, arrow: number, rng: Rng): void {
-  const L = tone.length
-  for (let t = 0; t < beats; t++) {
-    const moved = new Uint8Array(L)
-    const start = Math.floor(rng.next() * L)
-    conservingRingSweep({ tone, length: L, start, moved, rng, arrow })
-  }
-}
 
 export function coarseGrainingChain(input?: { L?: number }): {
   L: number
@@ -37,7 +28,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const tone = new Int8Array(L)
   for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
   // balance to a fixed total so coarse charge has a clean reference
-  evolveRing(tone, 200, 0.12, rng)
+  evolveConservingRing({ tone, beats: 200, arrow: 0.12, rng })
 
   const q0 = (() => {
     let s = 0
@@ -46,27 +37,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   })()
 
   // coarse-grain repeatedly, block consecutive cells, block charge = sum
-  let level = new Float64Array(L)
-  for (let i = 0; i < L; i++) level[i] = tone[i]!
-  const levels: { level: number; blockSize: number; totalCharge: number; compressibility: number }[] = []
-  let blockSize = 1
-  for (let lv = 0; lv <= 5; lv++) {
-    // total charge at this level
-    let total = 0
-    for (let i = 0; i < level.length; i++) total += level[i]!
-    // compressibility, Var(block charge) / block size (a fixed point if the field is scale-invariant)
-    const mean = total / level.length
-    let varSum = 0
-    for (let i = 0; i < level.length; i++) varSum += (level[i]! - mean) ** 2
-    const variance = varSum / level.length
-    const compressibility = variance / blockSize
-    levels.push({ level: lv, blockSize, totalCharge: Math.round(total), compressibility })
-    // build the next coarser level, sum pairs
-    const next = new Float64Array(Math.floor(level.length / 2))
-    for (let i = 0; i < next.length; i++) next[i] = level[2 * i]! + level[2 * i + 1]!
-    level = next
-    blockSize *= 2
-  }
+  const levels = blockChargeTower({ field: tone, levels: 5 })
 
   const chargePreservedAllLevels = levels.every((l) => l.totalCharge === q0)
   // fixed point, the compressibility at levels 2..5 (past the lattice artifact) is nearly constant

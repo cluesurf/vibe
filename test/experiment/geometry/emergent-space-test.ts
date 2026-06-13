@@ -4,39 +4,27 @@
 // light cone is anisotropic (faceted)? (C) the expansion law, how the spatial slice grows with radial level.
 // Run: npx tsx code/experiment/emergent-space-test.ts
 
-import { buildHorosphereBand, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { largestComponentNodes } from '@/code/tool/graph'
+import { buildHorosphereBand, buildEuclideanLattice, bandLargestComponentSubgraph } from '@/code/substrate/coxeter/cell-direct'
 import { spectralDimension } from '@/code/measure/dimension'
 import { frontCoefficientOfVariation } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// The geometry measures, the largest connected component (largestComponentNodes), the
-// spectral dimension by lazy-walk return probability (spectralDimension), and the
-// light-cone front isotropy (frontCoefficientOfVariation), all live in code/.
-const largestComponent = largestComponentNodes
+// The geometry measures, the band largest-component extraction (bandLargestComponentSubgraph), the
+// spectral dimension by lazy-walk return probability (spectralDimension), and the light-cone front
+// isotropy (frontCoefficientOfVariation), all live in code/.
 const spectralDim = (nb: number[][], start: number, t1: number, t2: number): number =>
   spectralDimension({ neighbors: nb, start, t1, t2 })
 const frontCV = (nb: number[][], coords: number[][], start: number, R: number): number =>
   frontCoefficientOfVariation({ neighbors: nb, coords, start, radius: R })
 
 export function emergentSpaceTest(): void {
-  // (A) the horosphere band
+  // (A) the horosphere band, coherent largest component
   const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
-  const bandIdx: number[] = []; const rmap = new Map<number, number>()
-  for (let i = 0; i < h.cellCount; i++) if (Math.abs(h.busemann[i]!) < 1.0) { rmap.set(i, bandIdx.length); bandIdx.push(i) }
-  const bnb: number[][] = bandIdx.map(() => [])
-  for (let a = 0; a < bandIdx.length; a++) for (const w of h.neighbors[bandIdx[a]!]!) { const b = rmap.get(w); if (b !== undefined) bnb[a]!.push(b) }
-  const bcoords = bandIdx.map((i) => h.coords[i]!)
-  const lcc = largestComponent(bnb)
-  const lccFrac = Math.round((lcc.length / bandIdx.length) * 100)
-  // induced graph on the LCC
-  const lmap = new Map(lcc.map((v, i) => [v, i]))
-  const lnb: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)!).filter((x) => x !== undefined) as number[])
-  const lcoords = lcc.map((v) => bcoords[v]!)
-  let lc0 = 0, bd = -1; for (let i = 0; i < lnb.length; i++) if (lnb[i]!.length > bd) { bd = lnb[i]!.length; lc0 = i }
-  const bandDim = Math.round(spectralDim(lnb, lc0, 3, 12) * 100) / 100
-  const bandCV = frontCV(lnb, lcoords, lc0, 6)
+  const slice = bandLargestComponentSubgraph({ band: h, halfWidth: 1.0 })
+  const lccFrac = slice.largestComponentPercent
+  const bandDim = Math.round(spectralDim(slice.neighbors, slice.start, 3, 12) * 100) / 100
+  const bandCV = frontCV(slice.neighbors, slice.coords, slice.start, 6)
   // (B) isotropy vs the clean cubic {4,3,4}
   const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 9000 })
   let cc = 0; for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
@@ -64,21 +52,10 @@ export default defineExperiment({
   paper: true,
   run() {
     const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
-    const bandIdx: number[] = []
-    const rmap = new Map<number, number>()
-    for (let i = 0; i < h.cellCount; i++) if (Math.abs(h.busemann[i]!) < 1.0) { rmap.set(i, bandIdx.length); bandIdx.push(i) }
-    const bnb: number[][] = bandIdx.map(() => [])
-    for (let a = 0; a < bandIdx.length; a++) for (const w of h.neighbors[bandIdx[a]!]!) { const b = rmap.get(w); if (b !== undefined) bnb[a]!.push(b) }
-    const bcoords = bandIdx.map((i) => h.coords[i]!)
-    const lcc = largestComponent(bnb)
-    const lccFrac = Math.round((lcc.length / bandIdx.length) * 100)
-    const lmap = new Map(lcc.map((v, i) => [v, i]))
-    const lnb: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)!).filter((x) => x !== undefined) as number[])
-    const lcoords = lcc.map((v) => bcoords[v]!)
-    let lc0 = 0, bd = -1
-    for (let i = 0; i < lnb.length; i++) if (lnb[i]!.length > bd) { bd = lnb[i]!.length; lc0 = i }
-    const bandDim = Math.round(spectralDim(lnb, lc0, 3, 12) * 100) / 100
-    const bandCV = frontCV(lnb, lcoords, lc0, 6)
+    const slice = bandLargestComponentSubgraph({ band: h, halfWidth: 1.0 })
+    const lccFrac = slice.largestComponentPercent
+    const bandDim = Math.round(spectralDim(slice.neighbors, slice.start, 3, 12) * 100) / 100
+    const bandCV = frontCV(slice.neighbors, slice.coords, slice.start, 6)
 
     const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 9000 })
     let cc = 0

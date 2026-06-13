@@ -12,6 +12,7 @@ import {
   makeGridGrid,
   gridWilsonLoop,
   gridGaugeTransform,
+  vortexGaugeField,
 } from '@/code/tool/grid-gauge'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -27,14 +28,8 @@ export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boo
   const rng = makeRng({ seed: 13 })
   const rnd = (): number => rng.next()
   // VORTEX gauge field, A winds around the plaquette (fx,fy) so its curl = Phi there and 0 elsewhere
-  const g: Gauge = { Ax: grid(), Ay: grid() }
   const Phi = 0.7, fx = 12, fy = 12
-  const wrap = (d: number): number => d - 2 * Math.PI * Math.round(d / (2 * Math.PI))
-  const theta = (px: number, py: number): number => Math.atan2(py - (fy + 0.5), px - (fx + 0.5))
-  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) {
-    g.Ax[x]![y] = (Phi / (2 * Math.PI)) * wrap(theta(x + 1, y) - theta(x, y)) // horizontal link (x,y)->(x+1,y)
-    g.Ay[x]![y] = (Phi / (2 * Math.PI)) * wrap(theta(x, y + 1) - theta(x, y)) // vertical link (x,y)->(x,y+1)
-  }
+  const g = vortexGaugeField({ side: L, flux: Phi, centerX: fx, centerY: fy })
   // (1) Wilson loop around the flux = Phi, and gauge-INVARIANT
   const w0 = wilsonLoop(g, 8, 16, 8, 16) // a loop enclosing the flux
   const lam = grid(); for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) lam[x]![y] = rnd() * 2 - 1 // random gauge

@@ -6,32 +6,15 @@
 // Run: npx tsx code/experiment/p205-skyrme-sign.ts
 
 import { logLogSlope } from '@/code/measure/regression'
-import { directionFieldEnergy3d } from '@/code/measure/skyrme-energy'
+import { directionFieldEnergy3d, hedgehogTexture3d } from '@/code/measure/skyrme-energy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type V = [number, number, number]
-const norm = (v: V): V => { const m = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / m, v[1] / m, v[2] / m] }
-
-// a 3D texture of size R: a hedgehog with a radial profile (nonzero exchange AND topological-current density)
-function texture(M: number, R: number): V[][][] {
-  const c = M / 2
-  const f: V[][][] = Array.from({ length: M }, () => Array.from({ length: M }, () => Array.from({ length: M }, () => [0, 0, 1] as V)))
-  for (let x = 0; x < M; x++) for (let y = 0; y < M; y++) for (let z = 0; z < M; z++) {
-    const dx = x - c, dy = y - c, dz = z - c, rho = Math.hypot(dx, dy, dz)
-    const prof = Math.PI * Math.max(0, 1 - rho / R)
-    const rhat: V = rho > 1e-6 ? [dx / rho, dy / rho, dz / rho] : [0, 0, 1]
-    // tilt the local frame by the profile to make a winding texture
-    f[x]![y]![z] = norm([Math.sin(prof) * rhat[0], Math.sin(prof) * rhat[1], Math.cos(prof) + 0.6 * Math.sin(prof) * rhat[2]])
-  }
-  return f
-}
 
 export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveKappa: boolean } {
   const M = 40
   const Rs = [5, 7, 10, 14]
   const data = Rs.map((R) => {
-    const { exchange, skyrme } = directionFieldEnergy3d(texture(M, R))
+    const { exchange, skyrme } = directionFieldEnergy3d(hedgehogTexture3d({ size: M, radius: R }))
     return { R, ex: exchange, sk: skyrme }
   })
   // fit log E vs log R for the exponents

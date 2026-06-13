@@ -5,9 +5,12 @@
 // physical-space gravity, isotropy, cosmology, hierarchy, and selves. Run: npx tsx code/experiment/comprehensive-comparison.ts
 
 import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { mostConnectedNode } from '@/code/tool/graph'
 import { bfsShells } from '@/code/measure/shells'
+import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
 import { betheCorrelatorExponent } from '@/code/measure/dimension'
+import { streamDirectionalCharge, totalDirectionalCharge } from '@/code/operator/directional-charge-stream'
+import { churnCount } from '@/code/measure/churn'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -28,31 +31,26 @@ function build(s: Sub): CellGraph { return s.flat ? buildEuclideanLattice({ symb
 function battery(s: Sub): Record<string, string> {
   const g = build(s)
   const N = g.cellCount, nb = g.neighbors
-  const { offsets: off, adj } = toCsr(nb)
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  const degree = best
+  const center = mostConnectedNode(nb)
+  const degree = nb[center]!.length
   // crystallographic + spinor hook
   const crystallographic = s.sym.every((n) => n === 3 || n === 4 || n === 6)
   const spinorHook = degree === 24 || s.sym.join(',').includes('3,4,3') // 24-cell / D4 coin
   // rule, charge conservation under directional streaming
   const rng = makeRng({ seed: 9 }); const rnd = (): number => rng.next()
-  let charge: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
-  const tot = (c: number[][]): number => c.reduce((a, r) => a + r.reduce((x, y) => x + y, 0), 0)
-  const t0 = tot(charge)
-  for (let step = 0; step < 8; step++) { const nx: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => 0)); for (let i = 0; i < N; i++) for (let k = 0; k < nb[i]!.length; k++) { const j = nb[i]![k]!; const b = nb[j]!.indexOf(i); if (b >= 0) nx[j]![b] = nx[j]![b]! + charge[i]![k]! } charge = nx }
-  const conserved = t0 === tot(charge)
+  const charge0: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
+  const t0 = totalDirectionalCharge(charge0)
+  const charge = streamDirectionalCharge({ neighbors: nb, charge: charge0, steps: 8 })
+  const conserved = t0 === totalDirectionalCharge(charge)
   // churn (mod-3 wave)
-  let cur = new Int8Array(N), prev = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
-  let changes = 0
-  for (let t = 0; t < 15; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let sm = 0; for (let q = off[i]!; q < off[i + 1]!; q++) sm += cur[adj[q]!]!; const v = ((((sm - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
-  const churns = changes > N
+  const cur = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
+  const churns = churnCount({ neighbors: nb, initial: cur, steps: 15, modulus: 3 }) > N
   // holographic correlator (Bethe, universal), and physical-space gravity law by dimension
   const betheAlpha = betheCorrelatorExponent(degree)
   const gravity = s.space === 1 ? 'linear ~|x| (confining)' : s.space === 2 ? 'log r' : s.space === 3 ? '1/r' : `1/r^${s.space - 2}`
   // cosmology / hierarchy growth ratio
   const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-  const mid = shell.slice(2, Math.min(6, shell.length))
-  const growth = mid.length > 1 ? Math.round((mid.slice(1).reduce((a, v, i) => a + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
+  const growth = shellGrowthRatio({ shellCounts: shell, from: 2, to: 6 })
   return {
     geometry: `bulk ${s.bulk}D -> space ${s.space}D, degree ${degree}, ${s.flat ? 'FLAT (Euclidean)' : 'hyperbolic'} growth ${growth}`,
     crystallographic: crystallographic ? 'YES (gauge possible)' : 'no (5/7/8-fold)',

@@ -24,3 +24,30 @@ export function screenedGreensFunction(input: {
   }
   return phi
 }
+
+// A clamped-source leaky random walk on a CSR graph: the source is pinned to 1 each step, every
+// other cell pushes a fraction (1 - leak) of its mass equally to its neighbours, and the leak is
+// lost. After many steps the stationary occupancy is the screened (massive) boundary propagator;
+// its radial falloff is the gravity-law probe. Returns the per-node occupancy.
+export function clampedLeakyDiffusion(input: {
+  offsets: ArrayLike<number>
+  adjacency: ArrayLike<number>
+  nodeCount: number
+  source: number
+  leak: number
+  iterations: number
+}): Float64Array {
+  const { offsets: off, adjacency: adj, nodeCount: N, source: src, leak, iterations } = input
+  let p = new Float64Array(N); p[src] = 1; let np = new Float64Array(N)
+  for (let t = 0; t < iterations; t++) {
+    np.fill(0); np[src] = 1
+    for (let i = 0; i < N; i++) {
+      const pi = p[i]!; if (!pi) continue
+      const d = off[i + 1]! - off[i]!
+      const sh = ((1 - leak) * pi) / d
+      for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh
+    }
+    const tmp = p; p = np; np = tmp
+  }
+  return p
+}

@@ -22,63 +22,10 @@ import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
-import { fillCoherence as coherence, largestSharingPatch as largestPatch } from '@/code/measure/fill-coherence'
+import { adaptFills, fillCoherence as coherence, largestSharingPatch as largestPatch } from '@/code/measure/fill-coherence'
+import { fillGatedSweep } from '@/code/dynamics/fill-gated-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-// One beat of the conserved exchange, per-note fills (hop / polarize / share), conserves every pair sum.
-function beat(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array, rng: Rng): void {
-  const moved = new Uint8Array(tone.length)
-  for (let i = 0; i < edges.length; i++) {
-    const v = edges[i]![0]
-    const w = edges[i]![1]
-    if (moved[v] || moved[w]) continue
-    const f = fill[i]!
-    const tv = tone[v]!
-    const tw = tone[w]!
-    if (f === -1) {
-      if (tv === 0 && tw === 0) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (f === 1) {
-      if ((tv === 1 && tw === -1) || (tv === -1 && tw === 1)) {
-        tone[v] = 0
-        tone[w] = 0
-        moved[v] = 1
-        moved[w] = 1
-      } else if ((tv === 0) !== (tw === 0) && rng.next() < 0.5) {
-        // hop: swap the charged with the neutral
-        const tmp = tone[v]!
-        tone[v] = tone[w]!
-        tone[w] = tmp
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
-
-// Hebbian fill update (the candidate sixth rule): a note binds (sharing) agreeing neighbors, polarizes
-// opposing ones, insulates when either is at peace. Fills follow the tone relationships (learning).
-function adaptFills(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array): void {
-  for (let i = 0; i < edges.length; i++) {
-    const tv = tone[edges[i]![0]]!
-    const tw = tone[edges[i]![1]]!
-    if (tv !== 0 && tw !== 0) fill[i] = tv === tw ? 1 : -1
-    else fill[i] = 0
-  }
-}
-
 
 export function selfEmergence(): {
   cells: number
@@ -123,7 +70,7 @@ export function selfEmergence(): {
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
   const rngF = makeRng({ seed: 21 })
-  for (let b = 0; b < BEATS; b++) beat(tF, edges, fF, rngF)
+  for (let b = 0; b < BEATS; b++) fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
   const coherenceFiveEnd = coherence(tF, edges, fF)
   const patchFiveEnd = largestPatch(tF, edges, fF, n)
   const conservedFive = sumTone(tF) === qF0
@@ -136,7 +83,7 @@ export function selfEmergence(): {
   const patchSixStart = largestPatch(tS, edges, fS, n)
   const rngS = makeRng({ seed: 21 })
   for (let b = 0; b < BEATS; b++) {
-    beat(tS, edges, fS, rngS)
+    fillGatedSweep({ tone: tS, edges, fill: fS, rng: rngS })
     adaptFills(tS, edges, fS)
   }
   const coherenceSixEnd = coherence(tS, edges, fS)
