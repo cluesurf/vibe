@@ -21,25 +21,10 @@ import { makeWill, charge, type Will } from '@/code/tone/will'
 import { passThrough, headOnRotate, type Collision } from '@/code/rule/collision'
 import { collide, run } from '@/code/rule/lattice-gas'
 import { isReversible } from '@/code/check/invariant'
+import { momentum } from '@/code/check/structure'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsD4()
-
-function momentum(will: Will): [number, number, number, number] {
-  const m: [number, number, number, number] = [0, 0, 0, 0]
-  const degree = will.mesh.degree
-  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-    const base = cell * degree
-    for (let d = 0; d < degree; d++) {
-      const t = will.data[base + d] ?? 0
-      if (t !== 0) {
-        const r = ROOTS[d]!
-        for (let k = 0; k < 4; k++) m[k]! += t * (r[k] ?? 0)
-      }
-    }
-  }
-  return m
-}
 
 const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v === b[i])
 const differs = (a: Will, b: Will): boolean => a.data.some((v, i) => v !== b.data[i])
@@ -67,14 +52,14 @@ export default defineExperiment({
     const headOn = makeWill(mesh)
     headOn.data[center * degree + dir] = 1
     headOn.data[center * degree + opp] = 1
-    const mBeforePair = momentum(headOn)
+    const mBeforePair = momentum(headOn, ROOTS)
 
     const deflected = { mesh, data: headOn.data.slice() }
     collide(deflected, mobile)
     // after the momentum-conserving collide the incoming line is empty (the pair moved to its partner line).
     const incomingEmptied = deflected.data[center * degree + dir] === 0 && deflected.data[center * degree + opp] === 0
     const stillTwoCharges = deflected.data.reduce((s, v) => s + Math.abs(v), 0) === 2
-    const deflectMomentumOk = sameVector(mBeforePair, momentum(deflected))
+    const deflectMomentumOk = sameVector(mBeforePair, momentum(deflected, ROOTS))
 
     // the control, passThrough leaves the pair on its incoming line (a straight crossing, no deflection).
     const crossed = { mesh, data: headOn.data.slice() }
@@ -87,12 +72,12 @@ export default defineExperiment({
     approach.data[mesh.neighbour(center, opp) * degree + dir] = 1 // streams forward into the center along dir
     approach.data[mesh.neighbour(center, dir) * degree + opp] = 1 // streams back into the center along opp
     const beats = 4
-    const mStart = momentum(approach)
+    const mStart = momentum(approach, ROOTS)
 
     const scattered = run({ mesh, data: approach.data.slice() }, mobile, beats)
     const crossedRun = run({ mesh, data: approach.data.slice() }, passThrough, beats)
     const interacted = differs(scattered, crossedRun)
-    const runMomentumOk = sameVector(mStart, momentum(scattered))
+    const runMomentumOk = sameVector(mStart, momentum(scattered, ROOTS))
     const chargeOk = charge(scattered) === charge(approach)
 
     // 3, the scattering event is reversible.

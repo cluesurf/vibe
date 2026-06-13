@@ -28,75 +28,12 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cellTone, type Will } from '@/code/tone/will'
+import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { loneParticle } from '@/code/tone/will'
 import { pairCollision, headOnRotate, bindAndMove, type Collision } from '@/code/rule/collision'
-import { run, beat } from '@/code/rule/lattice-gas'
+import { run } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
-
-function occupiedCells(will: Will): number {
-  const mesh = will.mesh
-  const degree = mesh.degree
-  let count = 0
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const base = cell * degree
-    for (let d = 0; d < degree; d++) if (will.data[base + d] !== 0) { count++; break }
-  }
-  return count
-}
-
-function componentCount(will: Will): number {
-  const mesh = will.mesh
-  const degree = mesh.degree
-  const occupied = new Set<number>()
-  for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const base = cell * degree
-    for (let d = 0; d < degree; d++) if (will.data[base + d] !== 0) { occupied.add(cell); break }
-  }
-  const seen = new Set<number>()
-  let components = 0
-  for (const start of occupied) {
-    if (seen.has(start)) continue
-    components++
-    const stack = [start]
-    seen.add(start)
-    while (stack.length > 0) {
-      const cell = stack.pop()!
-      for (let d = 0; d < degree; d++) {
-        const next = mesh.neighbour(cell, d)
-        if (occupied.has(next) && !seen.has(next)) { seen.add(next); stack.push(next) }
-      }
-    }
-  }
-  return components
-}
-
-function travelDistance(mesh: Mesh, will: Will, start: number): number {
-  const dist = shellDistances(mesh, start)
-  let max = 0
-  for (let c = 0; c < mesh.cellCount; c++) if (cellTone(will, c) !== 0 && dist[c]! > max) max = dist[c]!
-  return max
-}
-
-// a lone +1 charge in direction `dir` at one cell, the cleanest probe of mobility and vacuum stability.
-function loneCharge(mesh: Mesh, cell: number, dir: number): Will {
-  const will = makeWill(mesh)
-  will.data[cell * mesh.degree + dir] = 1
-  return will
-}
-
-// the maximum occupied-cell count reached over the run, phase-independent (the create cycle breathes globally,
-// so a snapshot is phase-dependent, but the max over the trajectory robustly flags an active vacuum).
-function maxOccupancy(will: Will, collision: Collision, beats: number): number {
-  let current: Will = { mesh: will.mesh, data: will.data.slice() }
-  let max = occupiedCells(current)
-  for (let t = 0; t < beats; t++) {
-    current = beat(current, collision)
-    const o = occupiedCells(current)
-    if (o > max) max = o
-  }
-  return max
-}
+import { travelDistance, maxOccupancy } from '@/code/check/structure'
 
 export default defineExperiment({
   id: 'selves/bind-and-move-collision',
@@ -119,15 +56,15 @@ export default defineExperiment({
     const bind: Collision = bindAndMove({ opposite })
     const bindInverse: Collision = bindAndMove({ opposite, forward: false })
 
-    const start = () => loneCharge(mesh, center, dir)
+    const start = () => loneParticle(mesh, center, dir)
 
     // the build is valid, bindAndMove is reversible and charge-conserving.
     const bindReversible = isReversible(start(), bind, beats, bindInverse)
     const bindChargeOk = conservesCharge(start(), bind, beats)
 
     // mobility axis, a lone charge travels under headOnRotate, pins under pairCollision.
-    const headOnTravel = travelDistance(mesh, run(start(), mobile, beats), center)
-    const pairTravel = travelDistance(mesh, run(start(), pair, beats), center)
+    const headOnTravel = travelDistance({ will: run(start(), mobile, beats), start: center })
+    const pairTravel = travelDistance({ will: run(start(), pair, beats), start: center })
 
     // vacuum-stability axis, the max occupied cells reached over the run from a single charge. The create
     // binding engine (in pairCollision and bindAndMove) makes the vacuum active, headOnRotate (no create) leaves

@@ -17,6 +17,19 @@ The rule that keeps them clean:
 - **`test/` imports `code/` freely.** A test is `code/` plus an assertion.
 - A render script or a verify script lives in `code/` only if it is a tool the
   library ships. A check that asserts a scientific claim lives in `test/`.
+- **Any potentially reusable logic MUST live in `code/`, never inline in `test/`.**
+  If a function computes a named quantity, runs a dynamics or rule step, builds a
+  substrate or graph, applies a geometric or algebraic transform, or is a measure,
+  it is a library capability and belongs under `code/` (by category, see the decision
+  guide below) EVEN IF only one experiment uses it today, and even if it has tuned
+  constants (parameterize them). An experiment must stay THIN, keeping inline ONLY
+  its irreducible identity, the `run()` body that wires library calls for this one
+  claim, its specific check/verdict and pass-criterion thresholds (the `solved`
+  logic), and any initial condition that hardcodes this experiment's own pattern.
+  The test is "could this function have a sensible standalone name and docstring
+  that another file might call?" If yes, it goes in `code/`. The rule is "no general
+  capability inline in `test/`", what remains in an experiment is the science, not
+  the library.
 
 ## The path alias
 

@@ -19,21 +19,12 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cloneWill, type Will } from '@/code/tone/will'
+import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
 import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { quantileLabels, countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
 import { effectiveInformation, coarseGrainTpm } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
-
-// a random gas, each slot independently filled with a tone at the given density.
-function gasInit(input: { mesh: Mesh; rng: ReturnType<typeof makeRng>; density: number }): Will {
-  const will = makeWill(input.mesh)
-  for (let i = 0; i < will.data.length; i++) {
-    if (input.rng.next() < input.density) will.data[i] = input.rng.next() < 0.5 ? 1 : -1
-  }
-  return will
-}
 
 // the observable, the charge-weighted mean x-coordinate of the gas, recorded once per beat. This is a SPATIAL
 // coordinate, so adjacent quantile bins are genuine dynamical neighbours (a packet drifts and scatters between
@@ -107,7 +98,10 @@ export default defineExperiment({
     const mobile: Collision = headOnRotate({ opposite })
     const pinning: Collision = pairCollision({ opposite, forward: true })
 
-    const init = gasInit({ mesh, rng: makeRng(13579), density: 0.25 })
+    // a deterministic structured fill (a fixed ternary function of the slot index, never random), the
+    // methodology initial condition.
+    const init = makeWill(mesh)
+    fillWillPattern(init)
 
     const mobileSeries = centroidSeries({ init, collision: mobile, beats })
     const pinningSeries = centroidSeries({ init, collision: pinning, beats })

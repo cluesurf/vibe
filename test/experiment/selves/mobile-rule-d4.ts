@@ -16,52 +16,20 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cellTone, type Will } from '@/code/tone/will'
+import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { loneParticle, type Will } from '@/code/tone/will'
 import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
+import { travelDistance, momentum } from '@/code/check/structure'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsD4()
 
-function momentum(will: Will): [number, number, number, number] {
-  const m: [number, number, number, number] = [0, 0, 0, 0]
-  const degree = will.mesh.degree
-  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-    const base = cell * degree
-    for (let d = 0; d < degree; d++) {
-      const t = will.data[base + d] ?? 0
-      if (t !== 0) {
-        const r = ROOTS[d]!
-        m[0] += t * (r[0] ?? 0)
-        m[1] += t * (r[1] ?? 0)
-        m[2] += t * (r[2] ?? 0)
-        m[3] += t * (r[3] ?? 0)
-      }
-    }
-  }
-  return m
-}
-
 const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v === b[i])
 
 // a single particle, one tone in direction 0 at the center cell.
-function singleParticle(mesh: Mesh, cell: number): Will {
-  const will = makeWill(mesh)
-  will.data[cell * mesh.degree + 0] = 1
-  return will
-}
-
-// the graph distance the charge has reached from its start, the max over all nonzero cells.
-function travelDistance(input: { mesh: Mesh; will: Will; start: number }): number {
-  const dist = shellDistances(input.mesh, input.start)
-  let max = 0
-  for (let c = 0; c < input.mesh.cellCount; c++) {
-    if (cellTone(input.will, c) !== 0 && dist[c]! > max) max = dist[c]!
-  }
-  return max
-}
+const singleParticle = (mesh: Mesh, cell: number): Will => loneParticle(mesh, cell, 0)
 
 export default defineExperiment({
   id: 'selves/mobile-rule-d4',
@@ -82,17 +50,17 @@ export default defineExperiment({
     // 1 and 2, headOnRotate is reversible, conserves charge, conserves momentum.
     const reversible = isReversible(singleParticle(mesh, center), mobile, beats)
     const chargeOk = conservesCharge(singleParticle(mesh, center), mobile, beats)
-    const mStart = momentum(singleParticle(mesh, center))
-    const mMobile = momentum(run(singleParticle(mesh, center), mobile, beats))
+    const mStart = momentum(singleParticle(mesh, center), ROOTS)
+    const mMobile = momentum(run(singleParticle(mesh, center), mobile, beats), ROOTS)
     const momentumMobileOk = sameVector(mStart, mMobile)
 
     // 3, the pair table does not conserve momentum, it reflects.
-    const mPinning = momentum(run(singleParticle(mesh, center), pinning, beats))
+    const mPinning = momentum(run(singleParticle(mesh, center), pinning, beats), ROOTS)
     const momentumPinningOk = sameVector(mStart, mPinning)
 
     // 4, travel distance, ballistic versus pinned.
-    const travelMobile = travelDistance({ mesh, will: run(singleParticle(mesh, center), mobile, beats), start: center })
-    const travelPinning = travelDistance({ mesh, will: run(singleParticle(mesh, center), pinning, beats), start: center })
+    const travelMobile = travelDistance({ will: run(singleParticle(mesh, center), mobile, beats), start: center })
+    const travelPinning = travelDistance({ will: run(singleParticle(mesh, center), pinning, beats), start: center })
 
     const ok =
       reversible &&

@@ -17,92 +17,27 @@
 //
 // Deterministic throughout: fixed Gaussian wavepacket, fixed background field, no randomness.
 
-import { type Complex, cAbs2, cAdd, cConj, cFromPhase, cMul, cScale, complex } from '@/code/algebra/linear/complex'
+import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const L = 96
-const wrap = (x: number): number => ((x % L) + L) % L
-const ZERO: Complex = complex({ re: 0, im: 0 })
-
-// the lattice momentum of the two-component fermion: <p> = sum Im(psi*_x psi_{x+1}) / norm,
-// the gauge-naive momentum, enough to detect acceleration (the change is what we measure)
-function meanMomentum(R: Complex[], Lf: Complex[]): number {
-  let current = 0
-  let norm = 0
-  for (let x = 0; x < L; x++) {
-    const next = wrap(x + 1)
-    current += cMul(cConj(R[x]!), R[next]!).im + cMul(cConj(Lf[x]!), Lf[next]!).im
-    norm += cAbs2(R[x]!) + cAbs2(Lf[x]!)
-  }
-  return norm > 0 ? current / norm : 0
-}
-
-// one coupled run. coupling e binds the sectors. backgroundField applies a constant E0 to test the
-// field -> fermion direction. Returns the field energy sourced and the fermion momentum drift.
+// one coupled run on the shared Schwinger evolution. coupling e binds the sectors, backgroundField
+// applies a constant E0 to test the field -> fermion direction. Returns the field energy sourced
+// and the fermion momentum drift.
 function coupledRun(input: { coupling: number; backgroundField: number; momentumStart: number }): {
   fieldEnergy: number
   momentumDrift: number
 } {
-  const e = input.coupling
-  const mass = 0.25
-  const cosM = Math.cos(mass)
-  const sinM = Math.sin(mass)
-  const dt = 0.1
-
-  // a charged Gaussian wavepacket on the right-mover, given initial momentum
-  let R: Complex[] = new Array(L).fill(ZERO)
-  let Lf: Complex[] = new Array(L).fill(ZERO)
-  const x0 = L / 2
-  const width = 6
-  for (let x = 0; x < L; x++) {
-    const envelope = Math.exp(-((x - x0) ** 2) / (2 * width * width))
-    R[x] = cScale(cFromPhase({ phase: input.momentumStart * x }), envelope)
-  }
-  let norm = 0
-  for (let x = 0; x < L; x++) norm += cAbs2(R[x]!) + cAbs2(Lf[x]!)
-  const inverse = 1 / Math.sqrt(norm)
-  R = R.map((z) => cScale(z, inverse))
-  Lf = Lf.map((z) => cScale(z, inverse))
-
-  // the gauge field: link phase theta and electric field E, seeded with the constant background
-  const theta = new Array(L).fill(0)
-  const E = new Array(L).fill(input.backgroundField)
-
-  const imaginary: Complex = complex({ re: 0, im: 1 })
-  const step = (): void => {
-    // (1) fermion mass coin, mixes the two chiralities
-    const R2: Complex[] = new Array(L)
-    const L2: Complex[] = new Array(L)
-    for (let x = 0; x < L; x++) {
-      R2[x] = cAdd(cScale(R[x]!, cosM), cScale(cMul(imaginary, Lf[x]!), -sinM))
-      L2[x] = cAdd(cScale(cMul(imaginary, R[x]!), -sinM), cScale(Lf[x]!, cosM))
-    }
-    // (2) the fermion current across each bond, before the gauge-covariant shift
-    const j = Array.from({ length: L }, (_, x) => cAbs2(R2[x]!) - cAbs2(L2[wrap(x + 1)]!))
-    // (3) gauge-covariant shift: R hops +1 with phase e^{i e theta}, L hops -1 with e^{-i e theta}
-    const R3: Complex[] = new Array(L).fill(ZERO)
-    const L3: Complex[] = new Array(L).fill(ZERO)
-    for (let x = 0; x < L; x++) {
-      R3[wrap(x + 1)] = cMul(R2[x]!, cFromPhase({ phase: e * theta[x]! }))
-      L3[wrap(x - 1)] = cMul(L2[x]!, cFromPhase({ phase: -e * theta[wrap(x - 1)]! }))
-    }
-    R = R3
-    Lf = L3
-    // (4) the gauge field back-reacts to the current (Ampere) and evolves the link (the field equation)
-    for (let x = 0; x < L; x++) E[x]! -= e * j[x]! * dt
-    for (let x = 0; x < L; x++) theta[x]! += E[x]! * dt
-  }
-
-  const p0 = meanMomentum(R, Lf)
-  // the field energy ABOVE the constant background, the part the fermion actually sourced
-  const backgroundEnergy = input.backgroundField * input.backgroundField * L
-  const steps = 80
-  for (let t = 0; t < steps; t++) step()
-  const p1 = meanMomentum(R, Lf)
-  const fieldEnergy = E.reduce((a, v) => a + v * v, 0) - backgroundEnergy
-
-  return { fieldEnergy: Math.abs(fieldEnergy), momentumDrift: p1 - p0 }
+  return runCoupledSchwinger({
+    sites: 96,
+    coupling: input.coupling,
+    mass: 0.25,
+    flavors: 1,
+    backgroundField: input.backgroundField,
+    momentumStart: input.momentumStart,
+    steps: 80,
+    dt: 0.1,
+  })
 }
 
 export function coemergenceDynamical(): {
