@@ -63,8 +63,6 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
   const dimensionOk = Math.abs(exponent - 4) < 0.5
   const ratios = [6, 7, 8, 9].map((r) => Vr[r]! / Vr[r - 1]!)
   const subexponential = ratios.every((q) => q < 2.2) && ratios[3]! < ratios[0]! + 0.01 // ratio decreasing toward 1, not constant > 1
-  console.log(`P246 (GM2/GM3) D4 ball volume V(r): ${Vr.slice(0, 10).join(', ')}`)
-  console.log(`  log-log growth exponent ${exponent.toFixed(2)} (expect 4, dimension 4): ${dimensionOk}; shell ratios ${ratios.map((q) => q.toFixed(2)).join(', ')} decreasing toward 1 => POLYNOMIAL not exponential: ${subexponential}`)
 
   // GM6: graph distance vs Euclidean, linear correlation
   const samples = [...dist.entries()].filter(([, d]) => d >= 1 && d <= 6).slice(0, 400)
@@ -72,7 +70,6 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
   for (const [k, d] of samples) { const e = euc(k.split(',').map(Number)); cx += d; cy += e; cxx += d * d; cyy += e * e; cxy += d * e; cn++ }
   const corr = (cn * cxy - cx * cy) / Math.sqrt((cn * cxx - cx * cx) * (cn * cyy - cy * cy))
   const metricLinear = corr > 0.9 // D4 word metric is flat but anisotropic, strong linear correlation with Euclidean
-  console.log(`P246 (GM6) graph-distance vs Euclidean correlation ${corr.toFixed(4)} (strong linear correlation, the flat D4 word metric is recovered up to lattice anisotropy): ${metricLinear}`)
 
   // GM1: Ollivier-Ricci of an edge (origin, root0), Sinkhorn W1 over the two 24-neighbour distributions
   const x = [0, 0, 0, 0], y = roots[0]!
@@ -81,8 +78,6 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
   const w1 = sinkhornW1(C, 0.05, 400)
   const ricci = 1 - w1 / 1 // d(x,y) = 1
   const ricciFlat = Math.abs(ricci) < 0.12
-  console.log(`P246 (GM1) Ollivier-Ricci of an edge: W1 ${w1.toFixed(3)}, kappa ${ricci.toFixed(3)} (~0 = FLAT, contrast {5,3,4} negative): ${ricciFlat}`)
-  console.log(`P246 (GM4/GM5) polynomial growth => no fractal ideal boundary, no holographic 1/r. The honest cost of spin: {3,4,3,4} is flat.\n`)
 
   return { exponent, dimensionOk, subexponential, metricLinear, ricciFlat }
 }

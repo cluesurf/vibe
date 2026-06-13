@@ -75,21 +75,6 @@ export function classicalMsd(input: { eig: { values: number[] | Float64Array; ve
   return msd
 }
 
-function logLogSlope(xs: number[], ys: number[]): number {
-  const lx = xs.map((x) => Math.log(x))
-  const ly = ys.map((y) => Math.log(y))
-  const n = lx.length
-  const mx = lx.reduce((a, b) => a + b, 0) / n
-  const my = ly.reduce((a, b) => a + b, 0) / n
-  let num = 0
-  let den = 0
-  for (let i = 0; i < n; i++) {
-    num += ((lx[i] ?? 0) - mx) * ((ly[i] ?? 0) - my)
-    den += ((lx[i] ?? 0) - mx) * ((lx[i] ?? 0) - mx)
-  }
-  return den === 0 ? 0 : num / den
-}
-
 export default defineExperiment({
   id: 'quantum/quantum-walk',
   title: 'a quantum walk is ballistic while a classical walk is diffusive',

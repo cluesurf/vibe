@@ -35,15 +35,6 @@ export function s534Dynamics(): { chargeConserved: boolean; lightSpeed: number; 
   let changes = 0
   for (let t = 0; t < 30; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
   const churns = changes > N // many changes over 30 beats -> not frozen
-  console.log('S534-DYNAMICS ({5,3,4}):')
-  console.log(`  (1) directional streaming on the bulk, total charge ${t0} -> ${t1}, conserved: ${chargeConserved}`)
-  console.log(`  (2) light cone, one BFS shell per beat (z=${lightSpeed}), finite propagation speed`)
-  console.log(`  (3) mod-3 wave churns (no freeze), ${changes} cell-changes over 30 beats: ${churns}`)
-  console.log(`  (4) U(1) charge Gauss law, local charge conservation holds (the streaming is locally conserving) -> emergent electromagnetism, same as {3,4,3,4} (p223/p232)`)
-  console.log('')
-  console.log('Verdicts, ALL POSITIVE (the rule is substrate-general, fully solvable on {5,3,4}):')
-  console.log('  - conservation, light cone, churn, Gauss law / U(1) all hold exactly as on {3,4,3,4}.')
-  console.log('  - the {5,3,4} degree is 12 = 0 mod 3, so the mod-3 wave also has a clean charge invariant.')
   return { chargeConserved, lightSpeed, churns }
 }
 

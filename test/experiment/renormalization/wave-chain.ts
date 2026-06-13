@@ -46,16 +46,6 @@ function relError(a: Float64Array, b: Float64Array): number {
   return den > 0 ? Math.sqrt(num / den) : 0
 }
 
-function peakPos(u: Float64Array): number {
-  let best = 0
-  let bi = 0
-  for (let i = 0; i < u.length; i++) if (Math.abs(u[i]!) > best) {
-    best = Math.abs(u[i]!)
-    bi = i
-  }
-  return bi
-}
-
 export function waveChain(input?: { L?: number; r?: number }): {
   L: number
   r: number

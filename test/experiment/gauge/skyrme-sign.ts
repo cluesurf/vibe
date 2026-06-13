@@ -43,8 +43,6 @@ export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveK
   const M = 40
   const Rs = [5, 7, 10, 14]
   const data = Rs.map((R) => ({ R, ...energies(texture(M, R), M) }))
-  console.log('P205 Derrick measurement on a real 3D field:')
-  for (const d of data) console.log(`  R=${d.R}: exchange E_ex=${d.ex.toFixed(1)}, Skyrme E_sk=${d.sk.toFixed(2)}`)
   // fit log E vs log R for the exponents
   const fit = (key: 'ex' | 'sk'): number => {
     let n = data.length, sx = 0, sy = 0, sxx = 0, sxy = 0
@@ -52,12 +50,8 @@ export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveK
     return (n * sxy - sx * sy) / (n * sxx - sx * sx)
   }
   const exExp = Math.round(fit('ex') * 100) / 100, skExp = Math.round(fit('sk') * 100) / 100
-  console.log(`  measured exponents: exchange ~ R^${exExp} (Derrick predicts +1 in 3D), Skyrme ~ R^${skExp} (predicts -1)`)
   // E(R) = a R^exExp + kappa b R^skExp. With exExp>0 and skExp<0, kappa>0 gives a minimum, kappa<=0 does not.
   const stableForPositiveKappa = exExp > 0.3 && skExp < -0.3
-  console.log(`  => exchange grows, Skyrme falls (opposite scaling), so E_ex + kappa*E_sk has a stable minimum`)
-  console.log(`     for kappa > 0 and NONE for kappa <= 0: ${stableForPositiveKappa}. The gate is the SIGN of kappa,`)
-  console.log('     argued forced-positive (the fermion the self carries, p192). Here the SCALING is confirmed on a real field.')
   return { exExp, skExp, stableForPositiveKappa }
 }
 

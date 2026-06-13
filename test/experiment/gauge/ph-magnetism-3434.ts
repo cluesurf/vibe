@@ -49,8 +49,6 @@ export function phMagnetism(): { lorentzDeflects: boolean; deflectionGrowsWithB:
   const d0 = deflection(0, L, steps), dB = deflection(0.25, L, steps), dB2 = deflection(0.5, L, steps)
   const lorentzDeflects = Math.abs(dB) > 0.05 && Math.abs(d0) < 0.02
   const deflectionGrowsWithB = Math.abs(dB2) > Math.abs(dB)
-  console.log(`P251 (PH5) lattice Lorentz force: transverse drift B=0 -> ${d0.toFixed(3)} (straight), B=0.25 -> ${dB.toFixed(3)}, B=0.5 -> ${dB2.toFixed(3)}`)
-  console.log(`  => a charge deflects in a B field (the Lorentz force), deflection grows with B: deflects ${lorentzDeflects}, grows ${deflectionGrowsWithB}`)
 
   // PH6 (ASSUMED, NOT a test): IF g = 2 (set by hand), the Larmor equation dS/dt = (g/2m) S x B precesses the
   // spin. This only DEMONSTRATES precession given the assumption, it does NOT derive g. Honest L0. To make it
@@ -60,8 +58,6 @@ export function phMagnetism(): { lorentzDeflects: boolean; deflectionGrowsWithB:
   for (let t = 0; t < N; t++) { const cross = [S[1]! * Bz, -S[0]! * Bz, 0]; for (let k = 0; k < 3; k++) S[k]! += (gAssumed * q / (2 * m)) * cross[k]! * dt; const n = Math.hypot(...S); S = S.map((x) => x / n) }
   const finalAngle = Math.atan2(S[1]!, S[0]!)
   const spinPrecesses = Math.abs(S[2]!) < 1e-6 && Math.abs(finalAngle) > 0.1
-  console.log(`P251 (PH6 ASSUMED) given g=2 by hand, the Larmor equation precesses the spin in-plane (Sz=${S[2]!.toExponential(1)}, angle ${finalAngle.toFixed(2)} rad)`)
-  console.log(`  => this DEMONSTRATES precession, it does NOT derive g. NOT an independent test (L0). g=2 must come from the Dirac coupling.\n`)
 
   return { lorentzDeflects, deflectionGrowsWithB, spinPrecesses }
 }

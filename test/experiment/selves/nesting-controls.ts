@@ -62,15 +62,8 @@ function towerOf(step: (t: Int8Array) => void): { persist: number[]; domains: nu
 
 export function nestingControls(): { perception: number[]; diffusion: number[]; beatsDiffusion: boolean; multiScale: boolean } {
   const P = towerOf(stepPerception), D = towerOf(stepDiffusion)
-  console.log('P208 nesting controls on the flat 3D cusp:')
-  console.log(`  perception rule form-persistence ${P.persist.join(' ')} (coarse domains ${P.domains})`)
-  console.log(`  pure-diffusion control          ${D.persist.join(' ')} (coarse domains ${D.domains})`)
   const beatsDiffusion = P.persist[P.persist.length - 1]! > D.persist[D.persist.length - 1]! + 0.1
   const multiScale = P.persist.filter((x) => x > 0.3).length >= 2
-  console.log(`  (a) perception beats pure diffusion: ${beatsDiffusion} (if false, the tower is a generic slow-mode, not from the rule)`)
-  console.log(`  (b) discreteness: ${P.domains} coarse sign-domains (bounded regions, not one blob)`)
-  console.log(`  (c) multi-scale: ${multiScale} (>=2 scales carry coherence at once)`)
-  console.log('  => honest read of whether the form-tower is genuine hierarchy or single-scale coarsening.')
   return { perception: P.persist, diffusion: D.persist, beatsDiffusion, multiScale }
 }
 

@@ -52,7 +52,6 @@ export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean;
   const ballisticDisp = walk(0, 1), diffusive = walk(1, 400)
   const expectedBallistic = T * Math.hypot(...roots[0]!) // T * sqrt(2)
   const ballistic = Math.abs(ballisticDisp - expectedBallistic) < 1e-6 && ballisticDisp > 8 * diffusive
-  console.log(`P247 (RF1/RF3) light cone: free charge displacement ${ballisticDisp.toFixed(1)} (= T*sqrt2 = ${expectedBallistic.toFixed(1)}, BALLISTIC, c = root norm/beat) vs scalar ${diffusive.toFixed(1)} (~sqrt T): ${ballistic}`)
 
   // RF2: isotropy, 24 D4 directions vs 6 cubic directions
   const cubic6 = [[1, 0, 0, 0], [-1, 0, 0, 0], [0, 1, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, -1, 0]] // a 3D-like cubic set in 4D
@@ -60,13 +59,10 @@ export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean;
   for (const a of [1, -1]) for (const b of [1, -1]) for (const c of [1, -1]) cube8.push([a, b, c, 0])
   const aniso24 = anisotropy(roots, 7), aniso6 = anisotropy(cubic6, 7), aniso8 = anisotropy(cube8, 7)
   const isotropyImproves = aniso24 < aniso6 && aniso24 < 0.2
-  console.log(`P247 (RF2) front anisotropy (std/mean of support fn, lower = more isotropic): 24 D4 = ${aniso24.toFixed(3)}, 6 cubic = ${aniso6.toFixed(3)}, 8 cube = ${aniso8.toFixed(3)}`)
-  console.log(`  => the 24 directions are markedly more isotropic than 6, the reason 24 beats 12: ${isotropyImproves}`)
 
   // RF4: Dirac dispersion cos E = cos(m) cos(k), E^2 - k^2 = m^2 at long wavelength
   let diracOk = true
   for (const m of [0.0, 0.2, 0.6]) { const k = 0.1, Ek = Math.acos(Math.cos(m) * Math.cos(k)); if (Math.abs((Ek * Ek - k * k) - m * m) > 1e-2) diracOk = false }
-  console.log(`P247 (RF4) Dirac dispersion E^2 - k^2 = m^2 at long wavelength (rest mass = coin angle): ${diracOk}`)
 
   // RF6: arrow of time, coarse entropy rises from a low-entropy start, micro reversible
   const M = 8
@@ -84,7 +80,6 @@ export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean;
   for (let t = 0; t < 30; t++) for (const pt of parts) for (let q = 0; q < 4; q++) pt.p[q]! += roots[pt.d]![q]!
   const H1 = coarseEntropy()
   const arrowRises = H1 > H0 + 0.5
-  console.log(`P247 (RF6) arrow of time: coarse entropy ${H0.toFixed(2)} -> ${H1.toFixed(2)} (rises while the micro rule is reversible): ${arrowRises}\n`)
 
   return { ballistic, isotropyImproves, diracOk, arrowRises }
 }

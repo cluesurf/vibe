@@ -35,11 +35,6 @@ export function spinor73(): { hasSpinor: boolean; decomposition: string } {
   const decomposition = Object.entries(dec).filter(([, m]) => Math.abs(m) > 1e-6).map(([nm, m]) => `${m}x${nm}`).join(' + ')
   // a permutation rep of a (non-double-cover) point group contains NO spinor irrep
   const hasSpinor = false
-  console.log(`P201 {7,3} spin: 7-face permutation character (e:7, rot:0, refl:1) under D7`)
-  console.log(`  decomposition: ${decomposition} (trivial + the three 2D vector irreps, all integer-type)`)
-  console.log(`  => NO spinor (a permutation rep of D7 has no half-integer irrep). {7,3} is a scalar/vector substrate.`)
-  console.log('  => 2D would allow ANYONS in principle, but {7,3}\'s flat layer is 1D (a horocycle), so spin is starved.')
-  console.log('     Only {3,4,3,4} (24 = 8v+8s+8c) supplies genuine spinors. {7,3} matches {5,3,4}: no spin one-half.')
   return { hasSpinor, decomposition }
 }
 

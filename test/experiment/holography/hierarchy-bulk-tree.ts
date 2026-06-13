@@ -25,19 +25,6 @@ export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boo
   const testShell = mid[mid.length - 1]!, depthForIt = shell.indexOf(testShell)
   const predictedDepth = Math.log(testShell) / Math.log(branching)
   const depthLogsBoundary = Math.abs(depthForIt - predictedDepth) < 2
-  console.log('P238 hierarchy = the bulk radial tree (the holographic RG):')
-  console.log(`  bulk radial shells (boundary size vs radius): ${shell.slice(0, 7).join(', ')} ...`)
-  console.log(`  tree branching (the RG scale factor) = ${branching} (constant -> a clean self-similar hierarchy)`)
-  console.log(`  holographic relation, depth to reach shell ${testShell} = ${depthForIt} vs log_${branching}(${testShell}) = ${predictedDepth.toFixed(1)}: ${depthLogsBoundary}`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The flat-layer form-tower (P208) was a generic slow-mode, NOT self-nesting. The genuine multi-scale')
-  console.log('   HIERARCHY is the BULK RADIAL TREE, a self-similar tree with constant branching, each radial level')
-  console.log('   coarse-grains the boundary at the next scale. That IS a renormalization hierarchy (the holographic')
-  console.log('   RG / a MERA tensor network), and the radial depth ~ log(boundary size) is the holographic relation.')
-  console.log(' - So nesting / hierarchy is real, but it lives in the bulk-as-RG (selves at every scale = the radial')
-  console.log('   tree levels), not as solitons-inside-solitons in the flat layer. This resolves P208, the hierarchy')
-  console.log('   was looked for in the wrong place, it is the bulk tree, which the substrate has for free.')
   return { branching, depthLogsBoundary }
 }
 

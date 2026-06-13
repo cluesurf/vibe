@@ -39,7 +39,6 @@ export function fdFoundational(): { neighborsOk: boolean; closes: boolean; count
   // FD4: every cell has exactly 24 distinct in-lattice neighbours, and the lattice closes under the roots
   const neighborsOk = neigh.every((ns) => ns.length === D && new Set(ns).size === D && ns.every((n) => n >= 0))
   const closes = cells.every((p) => roots.every((r) => (p[0]! + r[0]! + p[1]! + r[1]! + p[2]! + r[2]! + p[3]! + r[3]!) % 2 === 0))
-  console.log(`P245 (FD4) D4 torus: ${N} cells, 24 roots, every cell has 24 in-lattice neighbours ${neighborsOk}, lattice closes (even sum preserved) ${closes}`)
 
   // opp[d] = direction index of -root[d]
   const opp = roots.map((r) => roots.findIndex((s) => s.every((x, k) => x === -r[k]!)))
@@ -83,13 +82,10 @@ export function fdFoundational(): { neighborsOk: boolean; closes: boolean; count
   const c0 = count(occ), m0 = momentum(occ)
   let countConserved = true, momentumConserved = true
   for (let t = 0; t < T; t++) { occ = step(occ); if (count(occ) !== c0) countConserved = false; const m = momentum(occ); if (!m.every((x, q) => x === m0[q]!)) momentumConserved = false }
-  console.log(`P245 (FD2) after ${T} steps: count ${c0} conserved ${countConserved}, momentum [${m0}] conserved ${momentumConserved}`)
 
   // FD3: run inverse T, must recover occ0 EXACTLY
   for (let t = 0; t < T; t++) occ = stepInv(occ)
   const reversible = occ.every((o, c) => o === occ0[c]!)
-  console.log(`P245 (FD3) forward ${T} then inverse ${T}: recovered the start exactly ${reversible}`)
-  console.log(`P245 (FD1/FD6) the rule is a deterministic, conflict-free permutation of slots (exact integer arithmetic).\n`)
 
   return { neighborsOk, closes, countConserved, momentumConserved, reversible }
 }

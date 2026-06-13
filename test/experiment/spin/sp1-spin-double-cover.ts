@@ -49,8 +49,6 @@ export function sp1SpinDoubleCover(): {
   let closed = true
   for (const a of U) for (const b of U) if (!set.has(qkey(qmul(a, b)))) closed = false
   const isGroup = closed && U.length === 24
-  console.log(`P244 (A) the 24 {3,4,3,4} directions = unit Hurwitz quaternions:`)
-  console.log(`  count ${U.length}, closed under multiplication ${closed} => binary tetrahedral group 2T (order 24): ${isGroup}`)
 
   // (B) conjugation q -> (v -> q v q^-1) is the DOUBLE COVER: 24 quaternions -> 12 rotations, 2-to-1
   const rotKey = (q: Q): string => {
@@ -61,9 +59,6 @@ export function sp1SpinDoubleCover(): {
   const rots = new Set(U.map(rotKey))
   const rotationOrder = rots.size
   const doubleCover = rotationOrder === 12 && rotKey([1, 0, 0, 0]) === rotKey([-1, 0, 0, 0])
-  console.log(`P244 (B) conjugation collapses 24 quaternions -> ${rotationOrder} rotations (tetrahedral group T, order 12)`)
-  console.log(`  q and -q give the SAME rotation (2-to-1 double cover): ${rotKey([1, 0, 0, 0]) === rotKey([-1, 0, 0, 0])}`)
-  console.log(`  => 2T is the double cover of T: ${doubleCover}`)
 
   // (C) THE GATE: a 2*pi rotation gives a spinor a MINUS sign, a vector NO sign. 4*pi restores the spinor.
   // rotation quaternion about z by angle theta: q = (cos(theta/2), 0, 0, sin(theta/2))
@@ -80,11 +75,6 @@ export function sp1SpinDoubleCover(): {
   const spinorMinusAt2pi = Math.abs(s2 - -1) < 1e-9
   const spinorPlusAt4pi = Math.abs(s4 - 1) < 1e-9
   const vectorPlusAt2pi = Math.abs(v2 - 1) < 1e-9
-  console.log(`P244 (C) THE GATE, rotate through theta and read the overlap with the start:`)
-  console.log(`  spinor overlap cos(theta/2):  theta=0 -> ${spinorOverlap(0).toFixed(3)}, 2pi -> ${s2.toFixed(3)}, 4pi -> ${s4.toFixed(3)}`)
-  console.log(`  vector overlap cos(theta):    theta=0 -> ${vectorOverlap(0).toFixed(3)}, 2pi -> ${v2.toFixed(3)}, 4pi -> ${vectorOverlap(FOUR_PI).toFixed(3)}`)
-  console.log(`  => spinor is MINUS at 2pi (${spinorMinusAt2pi}), restored only at 4pi (${spinorPlusAt4pi}); vector restored at 2pi (${vectorPlusAt2pi})`)
-  console.log(`  => SPIN-1/2 double cover, the 24-direction D4 substrate genuinely carries spinors. SP1 PASSED.\n`)
 
   return { groupOrder: U.length, isGroup, rotationOrder, doubleCover, spinorMinusAt2pi, spinorPlusAt4pi, vectorPlusAt2pi }
 }

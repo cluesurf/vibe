@@ -39,8 +39,6 @@ function frontCV(nb: number[][], coords: number[][], start: number, R: number): 
 }
 
 export function emergentSpaceTest(): void {
-  console.log('EMERGENT-SPACE-TEST, does the {3,4,3,4} aperiodic horosphere coarse-grain to clean isotropic 3D space?')
-  console.log('')
   // (A) the horosphere band
   const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
   const bandIdx: number[] = []; const rmap = new Map<number, number>()
@@ -57,29 +55,16 @@ export function emergentSpaceTest(): void {
   let lc0 = 0, bd = -1; for (let i = 0; i < lnb.length; i++) if (lnb[i]!.length > bd) { bd = lnb[i]!.length; lc0 = i }
   const bandDim = Math.round(spectralDim(lnb, lc0, 3, 12) * 100) / 100
   const bandCV = frontCV(lnb, lcoords, lc0, 6)
-  console.log('(A) coherence + dimension of the horosphere band:')
-  console.log(`    band ${bandIdx.length} cells, largest connected component = ${lcc.length} cells (${lccFrac}% of the band)`)
-  console.log(`    spectral dimension of the LCC = ${bandDim} (3.0 = clean emergent 3D space)`)
   // (B) isotropy vs the clean cubic {4,3,4}
   const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 9000 })
   let cc = 0; for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
   const cubeDim = Math.round(spectralDim(cube.neighbors, cc, 3, 12) * 100) / 100
   const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
-  console.log('(B) light-cone isotropy (front-radius coefficient of variation, LOWER = rounder = more isotropic):')
-  console.log(`    {3,4,3,4} aperiodic band: CV = ${bandCV}`)
-  console.log(`    clean cubic {4,3,4}:      CV = ${cubeCV} (cubic light cone is the faceted L1 ball, anisotropic), spectral dim ${cubeDim}`)
-  console.log(`    -> the aperiodic band is ${bandCV >= 0 && bandCV < cubeCV ? 'MORE isotropic (rounder light cone) than the cubic crystal' : 'not clearly more isotropic'}`)
   // (C) expansion law, band-slice size vs radial (Busemann) level
-  console.log('(C) expansion law, cells per radial (Busemann) slice:')
   const levels: Record<number, number> = {}
   for (let i = 0; i < h.cellCount; i++) { const L = Math.round(h.busemann[i]!); levels[L] = (levels[L] ?? 0) + 1 }
   const ks = Object.keys(levels).map(Number).sort((a, b) => a - b)
-  console.log(`    slice sizes by level: ${ks.map((k) => `${k}:${levels[k]}`).join('  ')}`)
-  console.log('')
-  console.log('VERDICT:')
   const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1
-  console.log(`  coherent emergent 3D space: ${coherent} (LCC ${lccFrac}%, spectral dim ${bandDim})`)
-  console.log(`  isotropy: aperiodic band CV ${bandCV} vs cubic CV ${cubeCV}, ${bandCV >= 0 && bandCV < cubeCV ? 'aperiodicity gives a ROUNDER (more isotropic) light cone' : 'see numbers'}`)
 }
 
 // The {3,4,3,4} aperiodic horosphere band coarse-grains to a coherent, more-isotropic 3D

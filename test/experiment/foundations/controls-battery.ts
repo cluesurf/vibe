@@ -19,8 +19,6 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
   const injective = (f: (x: number) => number): boolean => { const seen = new Set<number>(); for (let x = 0; x < N; x++) seen.add(f(x)); return seen.size === N }
   const realReversible = injective(rotate), controlReversible = injective(lossy)
   const c1 = realReversible && !controlReversible
-  console.log(`P252 C1 reversibility: real streaming injective (reversible) ${realReversible}; lossy collision injective ${controlReversible} (should be FALSE)`)
-  console.log(`  => the reversibility test CATCHES the broken rule: ${c1}`)
 
   // ---- C2 flatness: D4 polynomial vs Bethe tree (degree 3) exponential ----
   function d4Shells(R: number): number[] {
@@ -39,8 +37,6 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
   const d4 = d4Shells(8), bethe = betheShells(8, 3)
   const d4Ratio = d4[8]! / d4[7]!, betheRatio = bethe[8]! / bethe[7]!
   const c2 = d4Ratio < 1.6 && betheRatio > 1.9 // D4 ratio falls toward 1, Bethe stays at deg-1 = 2
-  console.log(`P252 C2 flatness: D4 shell ratio ${d4Ratio.toFixed(2)} (polynomial, ->1) vs Bethe tree ratio ${betheRatio.toFixed(2)} (EXPONENTIAL, ->2)`)
-  console.log(`  => the polynomial-growth test DISTINGUISHES flat from curved: ${c2}`)
 
   // ---- C4 parity: symmetric rule commutes with reflection, chiral does not ----
   const L = 9
@@ -54,8 +50,6 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
   }
   const symCommutes = commutes(symmetric), chiralCommutes = commutes(chiral)
   const c4 = symCommutes && !chiralCommutes
-  console.log(`P252 C4 parity: symmetric rule commutes with reflection ${symCommutes}; chiral rule commutes ${chiralCommutes} (should be FALSE)`)
-  console.log(`  => the parity test CATCHES the parity-violating rule: ${c4}`)
 
   // ---- C5 gauge: massless plaquette gauge-invariant vs Proca mass term not ----
   const Lg = 8, wrap = (x: number): number => ((x % Lg) + Lg) % Lg
@@ -70,8 +64,6 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
   let plaqChange = 0; for (let x = 0; x < Lg; x++) for (let y = 0; y < Lg; y++) plaqChange = Math.max(plaqChange, Math.abs(plaq(Ax, Ay, x, y) - plaq(Ax2, Ay2, x, y)))
   const massChange = Math.abs(massTerm(Ax, Ay) - massTerm(Ax2, Ay2))
   const c5 = plaqChange < 1e-9 && massChange > 0.1
-  console.log(`P252 C5 gauge: massless plaquette change under gauge transform ${plaqChange.toExponential(1)} (invariant); Proca mass term change ${massChange.toFixed(2)} (NOT invariant)`)
-  console.log(`  => the gauge-invariance test DISTINGUISHES gauge (massless) from non-gauge (massive): ${c5}\n`)
 
   return { c1, c2, c4, c5 }
 }

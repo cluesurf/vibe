@@ -46,15 +46,11 @@ export function solitonMatter(): { binding: [number, number][]; bound: boolean; 
     const f = blank(); addSky(f, c - d / 2, c, R, 1); addSky(f, c + d / 2, c, R, 1)
     const E = Math.round(energy(f, kappa) * 10) / 10; binding.push([d, E]); if (d === 30) eInf = E
   }
-  console.log('P209 (1) two-self interaction energy E(separation), with the Skyrme term:')
-  for (const [d, E] of binding) console.log(`  separation ${d}: E = ${E}  (binding ${Math.round((E - eInf) * 10) / 10})`)
   const minE = Math.min(...binding.map((b) => b[1])); const bound = binding[binding.length - 1]![1] - minE > 1 && binding.find((b) => b[1] === minE)![0] < 30
-  console.log(`  => a minimum at finite separation means a BOUND STATE (composite matter): ${bound}`)
   // (2) mass vs charge (additive matter)
   const one = blank(); addSky(one, c, c, R, 1); const m1 = energy(one, kappa)
   const two = blank(); addSky(two, c - 16, c, R, 1); addSky(two, c + 16, c, R, 1)
   const massRatio = Math.round((energy(two, kappa) / m1) * 100) / 100
-  console.log(`P209 (2) rest mass additivity: Q=1 mass ${m1.toFixed(0)}, Q=2 (separated) / Q=1 = ${massRatio} (~2, additive); charges Q=${charge(one)},${charge(two)}`)
   return { binding, bound, massRatio }
 }
 

@@ -23,19 +23,6 @@ export function s53333Structure(): { degree: number; specDim: number; crystallog
   // the symbol contains a 5 -> H-family Coxeter group -> NON-crystallographic (no root lattice, like {5,3,4})
   const crystallographic = false // a 5 in the Schlafli symbol forces 5-fold symmetry, forbidden crystallographically
   const hasSpinor = false // H5 is a non-crystallographic reflection group, the coin carries no spinor
-  console.log('S53333-STRUCTURE ({5,3,3,3,3}, 5D hyperbolic):')
-  console.log(`  EXISTENCE, compact regular hyperbolic honeycombs stop at H^4, so {5,3,3,3,3} (H^5) is PARACOMPACT /`)
-  console.log(`  Lorentzian (non-compact, ideal vertices). The local cell graph still builds, so experiments run.`)
-  console.log(`  bulk, ${N} cells, degree ${degree} (5D cell {5,3,3,3}), spectral dim ${specDim} (5D-ish hyperbolic)`)
-  console.log(`  flat layer = a 4D HOROSPHERE, so physical space would be 4D (OVER-dimensional); boundary = S^4`)
-  console.log(`  crystallographic (a root system)? ${crystallographic} (the leading 5 -> H5, 5-fold, non-crystallographic)`)
-  console.log(`  spinor present? ${hasSpinor} (H5 non-crystallographic coin, no spinor)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log(' - geometry, builds, but PARACOMPACT/Lorentzian (not a compact tiling, beyond the H^4 compact limit).')
-  console.log(' - SPIN, NEGATIVE, no spinor (5-fold H5, not the D4 24-cell).')
-  console.log(' - GAUGE, NEGATIVE, the 5 makes it non-crystallographic, NOT a root system, no so(N), no Standard Model.')
-  console.log(' - DIMENSION, the flat layer is 4D, so physical space is 4D, OVER-dimensional (too many, vs the observed 3D).')
   return { degree, specDim, crystallographic, hasSpinor }
 }
 

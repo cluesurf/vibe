@@ -19,28 +19,14 @@ export function gutBreaking(): { su5InSo10: boolean; smInSu5: boolean; sixteenSp
   const D5 = d5(), A4 = a4()
   // (a) su(5)=A4 embeds in so(10)=D5 (the e_i-e_j roots are a subset of +-e_i+-e_j)
   const su5InSo10 = A4.every((r) => D5.some((d) => eq(d, r))) && A4.length === 20
-  console.log('P225 GUT breaking so(10) -> su(5) -> SM (self = spinor Higgs):')
-  console.log(`  (a) su(5)=A4 (${A4.length} roots) embeds in so(10)=D5 (${D5.length} roots): ${su5InSo10}`)
   // (b) the SM embeds in su(5) (Georgi-Glashow)
   const smInSu5 = smIn(A4)
-  console.log(`  (b) the Standard Model (A2 (+) A1) embeds in su(5): ${smInSu5}`)
   // (c) the 16-spinor under su(5): split the (+-1/2)^5 even-minus weights by minus-count (the u(1) grade)
   const six: number[][] = []
   for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) for (const e of [0.5, -0.5]) { const w = [a, b, c, d, e]; if (w.filter((x) => x < 0).length % 2 === 0) six.push(w) }
   const byMinus: Record<number, number> = {}; for (const w of six) { const m = w.filter((x) => x < 0).length; byMinus[m] = (byMinus[m] ?? 0) + 1 }
   const sixteenSplit = `16 = ${byMinus[0]} (singlet 1) + ${byMinus[2]} (10) + ${byMinus[4]} (5bar)`
   const hasSinglet = byMinus[0] === 1
-  console.log(`  (c) the 16-spinor under su(5): ${sixteenSplit}  (a single SINGLET exists: ${hasSinglet})`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - so(10) = D5 contains su(5) = A4 (a), and su(5) contains the Standard Model (b, Georgi-Glashow).')
-  console.log(' - The 16-spinor (= one generation = a SELF, p221) decomposes under su(5) as 1 + 10 + 5bar, so it')
-  console.log('   has a SINGLET. A self-CONDENSATE pointed along that singlet (a spinor VEV) breaks so(10) -> su(5)')
-  console.log('   while preserving su(5). Then su(5) -> SM is the standard adjoint (24) breaking.')
-  console.log(' => the GUT-breaking Higgs is the SELF itself (a spinor condensate), a DYNAMICAL breaking by the')
-  console.log('    model\'s own matter, no external Higgs. so(10) -> su(5) -> SU(3) x SU(2) x U(1). The breaking')
-  console.log('    CHAIN is now natural and verified; the remaining dynamical step is whether the self-condensate')
-  console.log('    actually forms in the singlet direction (standard dynamical-symmetry-breaking, a vacuum-selection).')
   return { su5InSo10, smInSu5, sixteenSplit }
 }
 

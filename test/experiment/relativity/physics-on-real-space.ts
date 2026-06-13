@@ -40,17 +40,11 @@ function gravityExponent(nb: number[][], start: number): number {
 }
 
 export function physicsOnRealSpace(): void {
-  console.log('PHYSICS-ON-REAL-SPACE, do the flat-layer findings hold on the actual physical space?')
-  console.log('')
   // Space A, the clean {4,3,4} cubic cusp (the physical space)
   const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 12000 })
   let cc = 0; for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
   const cubeDim = spectralDim(cube.neighbors, cc, 3, 12)
   const cubeGrav = gravityExponent(cube.neighbors, cc)
-  console.log('Space A, the {4,3,4} CUBIC CUSP (the physical space):')
-  console.log(`  spectral dimension = ${cubeDim} (expect 3, clean 3D)`)
-  console.log(`  gravity Green's function exponent alpha = ${cubeGrav} (expect 1, the 3D Coulomb / Newton 1/r)`)
-  console.log(`  isotropy, light cone CV ~ 0.14 (from emergent-space-test, isotropic to leading order, order-4 cubic residual)`)
   // Space B, a generic aperiodic horosphere slice
   const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
   const bandIdx: number[] = []; const rmap = new Map<number, number>()
@@ -63,18 +57,7 @@ export function physicsOnRealSpace(): void {
   let lc0 = 0, bd = -1; for (let i = 0; i < lnb.length; i++) if (lnb[i]!.length > bd) { bd = lnb[i]!.length; lc0 = i }
   const bandDim = spectralDim(lnb, lc0, 3, 12)
   const bandGrav = gravityExponent(lnb, lc0)
-  console.log('')
-  console.log('Space B, a GENERIC aperiodic horosphere slice (a bad extraction, NOT the cusp):')
-  console.log(`  spectral dimension = ${bandDim} (sub-3D, rough)`)
-  console.log(`  gravity Green's function exponent alpha = ${bandGrav} (degraded, not the 3D 1/r)`)
-  console.log(`  isotropy, light cone CV ~ 0.32 (rougher than the cubic)`)
-  console.log('')
-  console.log('VERDICT, the flat-layer physics findings:')
   const cuspHolds = Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
-  console.log(`  ON THE CUBIC CUSP (physical space), they HOLD: ${cuspHolds} (3D dim ${cubeDim}, 1/r gravity alpha ${cubeGrav})`)
-  console.log(`  ON THE GENERIC slice, they DEGRADE (dim ${bandDim}, gravity alpha ${bandGrav}), confirming the generic`)
-  console.log('     slice is NOT physical space, the clean cusp cubic is. So the findings survive PROVIDED physical')
-  console.log('     space is the cusp cubic, with the one modification being the cubic order-4 anisotropy (small UV).')
 }
 
 export default defineExperiment({

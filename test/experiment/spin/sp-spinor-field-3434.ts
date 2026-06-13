@@ -57,24 +57,20 @@ export function spSpinorField(): { chiralityConservedMassless: boolean; chiralit
   const m0 = diracWalk(L, 0, steps, 'symmetric')
   const chiralityConservedMassless = m0.chirality.every((c) => Math.abs(c - m0.chirality[0]!) < 1e-9)
   const lightSpeedMassless = Math.abs(m0.centerR - steps) < 1 && Math.abs(m0.centerL + steps) < 1
-  console.log(`P248 (SP3 massless) chirality (|R|^2 - |L|^2) constant ${chiralityConservedMassless}; R moves to +${m0.centerR.toFixed(0)}, L to ${m0.centerL.toFixed(0)} (= +/- c*steps, light speed): ${lightSpeedMassless}`)
 
   // SP3/SP2 massive: chirality oscillates (mass couples L,R), packet is subluminal
   const mm = diracWalk(L, 0.5, steps, 'right')
   const range = Math.max(...mm.chirality) - Math.min(...mm.chirality)
   const chiralityMixesMassive = range > 0.3
   const subluminalMassive = Math.abs(mm.center) < steps - 5
-  console.log(`P248 (SP3/SP2 massive m=0.5) chirality oscillates, range ${range.toFixed(2)} (mass couples 8s,8c): ${chiralityMixesMassive}; packet subluminal |center| ${Math.abs(mm.center).toFixed(0)} < ${steps} = c*steps: ${subluminalMassive}`)
 
   // norm (probability) conserved = unitary walk
   const normConserved = m0.norm.every((n) => Math.abs(n - 1) < 1e-9) && mm.norm.every((n) => Math.abs(n - 1) < 1e-9)
-  console.log(`P248 (SP2) the walk is unitary, total norm conserved at 1: ${normConserved}`)
 
   // SP6 spin-statistics: exchanging two identical spinors = a 2*pi rotation of the relative coordinate.
   // the spinor exchange amplitude is the quaternion 2*pi rotation overlap = cos(pi) = -1 => antisymmetric => fermion.
   const exchangeSign = Math.cos(Math.PI) // 2*pi rotation, half-angle pi
   const fermionExchange = Math.abs(exchangeSign - -1) < 1e-12
-  console.log(`P248 (SP6) spin-statistics: exchange of two spinors = 2*pi relative rotation, amplitude cos(pi) = ${exchangeSign.toFixed(0)} => ANTISYMMETRIC, the 8s/8c are FERMIONS (Pauli), exact link from the double cover: ${fermionExchange}\n`)
 
   return { chiralityConservedMassless, chiralityMixesMassive, lightSpeedMassless, subluminalMassive, normConserved, fermionExchange }
 }

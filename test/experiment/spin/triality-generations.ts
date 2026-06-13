@@ -21,7 +21,6 @@ export function trialityGenerations(): { threeReps: boolean; trialityOrder3: boo
 
   const eightEach = v8.length === 8 && s8.length === 8 && c8.length === 8
   const threeReps = true
-  console.log(`P254 (1) three 8-dim reps: 8v(${v8.length}) + 8s(${s8.length}) + 8c(${c8.length}), all dimension 8: ${eightEach}`)
 
   // (1) triality order 3: the Hadamard/2 maps 8v -> 8s; the triality automorphism has order 3, cycling the reps
   const Had = [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]].map((r) => r.map((x) => x / 2))
@@ -31,20 +30,15 @@ export function trialityGenerations(): { threeReps: boolean; trialityOrder3: boo
   // v -> s, then check the map has order 3 in the outer-automorphism sense (3 distinct reps in one orbit)
   const vToS = eq(setOf(apply(v8)), setOf(s8))
   const trialityOrder3 = vToS && !eq(setOf(v8), setOf(s8)) && !eq(setOf(s8), setOf(c8)) && !eq(setOf(v8), setOf(c8))
-  console.log(`P254 (1) triality maps 8v -> 8s ${vToS}, and 8v, 8s, 8c are three DISTINCT reps in a size-3 orbit: ${trialityOrder3}`)
 
   // (2) HONEST: 8s and 8c are the two CHIRALITIES (opposite minus-parity), i.e. left and right Weyl of ONE
   // generation, not two generations. 8v is the vector (gauge). So the triple is vector + 2 chiralities.
   const sParity = s8.every((c) => c.filter((x) => x < 0).length % 2 === 0)
   const cParity = c8.every((c) => c.filter((x) => x < 0).length % 2 === 1)
   const chiralitySplit = sParity && cParity
-  console.log(`P254 (2) HONEST GAP: 8s is even-parity (one chirality) ${sParity}, 8c is odd-parity (the other) ${cParity}`)
-  console.log(`  => the triality triple is VECTOR(8v) + 2 CHIRALITIES(8s,8c) of ONE generation, NOT three matter generations.`)
 
   // verdict
   const threeGenerationsEstablished = false // the naive reading does NOT give three generations
-  console.log(`P254 VERDICT: the 3-fold triality structure is REAL (necessary condition met), but three GENERATIONS`)
-  console.log(`  do NOT follow from the simple 8v/8s/8c reading. The novel bet is UNPROVEN: ${threeGenerationsEstablished} (honest negative, the open frontier).\n`)
 
   return { threeReps, trialityOrder3, eightEach, chiralitySplit, threeGenerationsEstablished }
 }

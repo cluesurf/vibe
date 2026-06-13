@@ -4,12 +4,29 @@
 // framework's terms, it does not claim to capture experience itself.
 // Run: npx tsx code/experiment/p9-integration.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
-import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { makeConfiguration } from '@/code/tone/configuration'
 import { integrationCorrelates } from '@/code/measure/integration'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
+
+function study(): { markovBlanketScore: number; integrationPhi: number } {
+  const rng = makeRng({ seed: 13 })
+  const substrate = hyperbolicGraph({
+    count: 400,
+    radius: 5,
+    connectThreshold: 1.4,
+    rng,
+  })
+  const configuration = makeConfiguration({
+    alphabet: { form: 'ternary' },
+    size: substrate.size,
+    rng,
+  })
+  const c = integrationCorrelates({ substrate, configuration })
+  return c
+}
 
 export default defineExperiment({
   id: 'selves/integration',
@@ -19,7 +36,7 @@ export default defineExperiment({
   depth: 'L0',
   paper: false,
   run() {
-    const c = main()
+    const c = study()
     const ok =
       Number.isFinite(c.markovBlanketScore) &&
       Number.isFinite(c.integrationPhi)

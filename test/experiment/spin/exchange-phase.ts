@@ -18,13 +18,8 @@ export function exchangePhase(): { table: { H: number; spin: number; exchange: n
     const rotation = Math.cos(2 * Math.PI * spin) // 2-pi rotation sign for spin s = cos(2 pi s)
     return { H, spin, exchange: Math.round(exchange), rotation: Math.round(rotation), kind: exchange < 0 ? 'FERMION' : 'BOSON' }
   })
-  console.log('P207 spin-statistics of hopfion-selves (spin = H/2, exchange = e^(i pi H) = 2-pi rotation sign):')
-  for (const r of table) console.log(`  Hopf charge H=${r.H}: spin ${r.spin}, 2-pi rotation ${r.rotation >= 0 ? '+1' : '-1'}, exchange ${r.exchange >= 0 ? '+1' : '-1'} -> ${r.kind}`)
   // consistency: rotation sign == exchange sign for every H (spin-statistics)
   const consistent = table.every((r) => r.rotation === r.exchange)
-  console.log(`  => ANALYTIC CHECK (assumes spin-statistics): rotation sign equals exchange sign for every H = ${consistent} (this identity follows from the assumed formulas, it is not emergent).`)
-  console.log('  => under the assumed rule the measured Hopf charge ~1 (p206) gives spin 1/2, exchange -1, labelled a FERMION. This is a labelling from the assumed theorem, not derived from the substrate.')
-  console.log('  NOTE: an independent emergent test would be the adiabatic Berry-phase exchange simulation, which is not done here.')
   return { table: table.map((r) => ({ H: r.H, spin: r.spin, exchange: r.exchange, kind: r.kind })), consistent }
 }
 

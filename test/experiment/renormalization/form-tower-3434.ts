@@ -57,10 +57,6 @@ export function formTower(): { real: number[]; nul: number[]; tower: boolean } {
   const persist = (ser: Float64Array[]): number => { let acc = 0, c = 0; for (let t = 0; t + LAG < ser.length; t++) { acc += pearson(ser[t]!, ser[t + LAG]!); c++ } return Math.round((acc / c) * 100) / 100 }
   const real = blocks.map((_, bi) => persist(realS[bi]!)), nul = blocks.map((_, bi) => persist(nulS[bi]!))
   const tower = real[real.length - 1]! > real[0]! + 0.15 && real[real.length - 1]! > (nul[nul.length - 1]! ?? 0) + 0.2
-  console.log(`P197 form-coherence tower on the {4,3,4} cusp, blocks ${blocks.join('/')}:`)
-  console.log(`  real form-persistence ${real.join(' ')}`)
-  console.log(`  null form-persistence ${nul.join(' ')}`)
-  console.log(`  => coarse persistence RISES and beats the null, a coherence tower in 3D: ${tower}`)
   return { real, nul, tower }
 }
 

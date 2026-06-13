@@ -22,28 +22,12 @@ function isRootSystem(R: number[][]): boolean {
 export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyRegular5DHas40: boolean } {
   const R = cell24()
   const cell24IsD4 = isRootSystem(R) && R.length === 24
-  console.log('P220 D5-coin search (the gauge path):')
-  console.log(`  {3,4,3,4} coin = 24-cell vertices (24): closed under reflections (a genuine root system, = D4)? ${cell24IsD4}`)
   // D_n root count = 2n(n-1); regular polytope vertex counts by dimension
   const dRoots = (n: number): number => 2 * n * (n - 1)
   const d5RootCount = dRoots(5) // 40
-  console.log(`  D5 = so(10) root count = ${d5RootCount} (the SM needs this, p217)`)
   // 5D regular polytopes: 5-simplex (6 vertices), 5-cube (32), 5-orthoplex (10). NONE has 40.
   const regular5D = [{ name: '5-simplex {3,3,3,3}', v: 6 }, { name: '5-cube {4,3,3,3}', v: 32 }, { name: '5-orthoplex {3,3,3,4}', v: 10 }]
-  console.log('  5D regular polytopes (the only candidate honeycomb coins in 5D):')
-  for (const p of regular5D) console.log(`    ${p.name}: ${p.v} vertices`)
   const anyRegular5DHas40 = regular5D.some((p) => p.v === d5RootCount)
-  console.log(`  any 5D regular polytope with ${d5RootCount} vertices (= D5)? ${anyRegular5DHas40}`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The 24-cell (D4) is the UNIQUE non-simplex regular polytope that is a root system, and it exists')
-  console.log('   ONLY in 4D (it is what gives triality). In 5D the regular polytopes are just simplex / cube /')
-  console.log('   orthoplex (6 / 32 / 10 vertices), none is the 40-vertex D5 root polytope (which is not regular).')
-  console.log(' - So NO regular honeycomb coin can carry D5 = so(10). The geometric coin family TOPS OUT at D4.')
-  console.log('   The gauge path "grow the coin D4 -> D5" is BLOCKED in the honeycomb geometry, the Standard-Model')
-  console.log('   gauge group is NOT reachable from a regular-honeycomb coin alone, it needs structure beyond the')
-  console.log('   coin (a composite / internal index, or a non-regular substrate). Triality (D4, 4D-special) is the')
-  console.log('   ceiling of what the geometry gives for free.')
   return { cell24IsD4, d5RootCount, anyRegular5DHas40 }
 }
 

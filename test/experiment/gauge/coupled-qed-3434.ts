@@ -58,14 +58,12 @@ export function coupledQED(): { chargeConserved: boolean; gaussLaw: boolean; gau
   for (let t = 0; t < 60; t++) step()
   const Q1 = rho().reduce((a, b) => a + b, 0)
   const chargeConserved = Math.abs(Q1 - Q0) < 1e-9
-  console.log(`P260 (1) CHARGE CONSERVATION under coupled QED evolution: Q ${Q0.toFixed(6)} -> ${Q1.toFixed(6)} (conserved: ${chargeConserved})`)
 
   // (2) Gauss law: solve div E = rho for a static charge, verify E_n - E_{n-1} = rho_n
   const rhoStatic = Array.from({ length: L }, (_, x) => (x === 40 ? 1 : 0) - 1 / L) // a charge at 40, neutralizing background
   const Eg = new Array(L).fill(0); for (let x = 1; x < L; x++) Eg[x] = Eg[x - 1]! + rhoStatic[x]!
   let gaussErr = 0; for (let x = 1; x < L; x++) gaussErr = Math.max(gaussErr, Math.abs((Eg[x]! - Eg[x - 1]!) - rhoStatic[x]!))
   const gaussLaw = gaussErr < 1e-9
-  console.log(`P260 (2) GAUSS LAW (CONSISTENCY CHECK, not emergent): the Coulomb solver satisfies div E = rho, max error ${gaussErr.toExponential(1)}; preserved by the dynamics because charge is conserved (1): ${gaussLaw}`)
 
   // (3) gauge invariance: hopping term psi*_n e^{i theta_n} psi_{n+1} invariant under psi_n -> e^{i a_n} psi_n, theta_n -> theta_n + a_n - a_{n+1}
   let seed = 5; const rnd = (): number => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed / 0x7fffffff) * 2 * Math.PI }
@@ -75,17 +73,14 @@ export function coupledQED(): { chargeConserved: boolean; gaussLaw: boolean; gau
   const Rg = R.map((z, x) => cmul(z, eUp(a[x]!))), thetaG = theta.map((t, x) => t + a[x]! - a[wrap(x + 1)]!)
   const after = hop(Rg, thetaG)
   const gaugeInvariant = Math.abs(before[0] - after[0]) < 1e-9 && Math.abs(before[1] - after[1]) < 1e-9
-  console.log(`P260 (3) GAUGE INVARIANCE of the coupled hopping psi* U psi: change under gauge transform ${Math.hypot(before[0] - after[0], before[1] - after[1]).toExponential(1)} (${gaugeInvariant})`)
 
   // (4) minimal coupling: a constant gauge field A shifts the fermion dispersion k -> k - A (Peierls)
   const dispShift = (A: number, k: number): number => Math.acos(Math.max(-1, Math.min(1, Math.cos(mass) * Math.cos(k - A)))) // omega with the Peierls shift
   const minimalCoupling = Math.abs(dispShift(0.4, 0.4) - dispShift(0, 0)) < 1e-9 // E(k=A, A) = E(k=0, 0): the field shifts the momentum origin
-  console.log(`P260 (4) MINIMAL COUPLING (BY CONSTRUCTION): the gauge field enters as the Peierls phase k -> k - A, this is the implementation not a test, the real effect is p251 PH5: ${minimalCoupling}`)
 
   // (5) back-reaction: a moving charge sources a CHANGING E field (radiation), measure E grew from zero
   const Eactivity = E.reduce((a2, e) => a2 + e * e, 0)
   const backReaction = Eactivity > 1e-6
-  console.log(`P260 (5) BACK-REACTION: the fermion current sourced a gauge field, total E^2 = ${Eactivity.toFixed(4)} (a moving charge radiates: ${backReaction})\n`)
 
   return { chargeConserved, gaussLaw, gaugeInvariant, minimalCoupling, backReaction }
 }

@@ -24,17 +24,6 @@ export function s534Selves(): { solitonsExist: boolean; fermionic: boolean; anyo
   const solitonsExist = Math.abs(Math.round(Q) - Q) < 0.1 && Math.abs(Math.round(Q)) >= 1
   const fermionic = false // 2D -> the spin-statistics link gives ANYONS, not fermions, and there is no fundamental spinor
   const anyonic = true
-  console.log('S534-SELVES ({5,3,4}, 2D horosphere):')
-  console.log(`  baby-skyrmion topological charge Q = ${Q.toFixed(3)} (pi_2(S^2) = Z), 2D solitons EXIST: ${solitonsExist}`)
-  console.log(`  statistics in 2D, ANYONIC (not fermionic): ${anyonic} (the 2D braid group is infinite, any phase allowed)`)
-  console.log(`  fundamental fermions from the geometry: ${fermionic} (no spinor in the 12-direction coin, s534-structure)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log('  - SELVES exist, POSITIVE, topological solitons (baby skyrmions, vortices) form on the 2D horosphere.')
-  console.log('  - but they are 2D ANYONS, not 3D fermions, DIFFERENT, the spin-statistics structure of {3,4,3,4}')
-  console.log('    (self = fermion via the Hopf charge, p206) does NOT carry over, 2D braiding gives anyons and there')
-  console.log('    is no fundamental spinor. So matter on {5,3,4} is a genuinely different (2D, anyonic) kind.')
-  console.log('  - the form-coherence tower is a generic slow-mode (NEUTRAL), same conclusion as {3,4,3,4} (P208).')
   return { solitonsExist, fermionic, anyonic }
 }
 

@@ -24,18 +24,6 @@ export function s73Structure(): { degree: number; specDim: number; crystallograp
   let crystallographic = true, exampleNonInt = 0
   for (const a of dirs) for (const b of dirs) { const r = (2 * dot(a, b)) / dot(b, b); if (Math.abs(r - Math.round(r)) > 1e-6) { crystallographic = false; exampleNonInt = Math.round(r * 1000) / 1000 } }
   const hasSpinor = false // 7-fold dihedral D7 is a real reflection group, the 7-direction perm rep carries no spinor
-  console.log('S73-STRUCTURE ({7,3} heptagrid):')
-  console.log(`  bulk, ${N} cells, degree ${degree} (heptagonal, 7 edges), spectral dim ${specDim} (2D hyperbolic)`)
-  console.log(`  flat layer = a 1D HOROCYCLE (intrinsically Euclidean 1D), so physical space would be 1D; boundary = S^1`)
-  console.log(`  the 7 directions are 7-FOLD, crystallographic (a root system)? ${crystallographic} (2(a.b)/(b.b) = ${exampleNonInt} non-integer, 7-fold is forbidden by the crystallographic restriction -> NON-crystallographic)`)
-  console.log(`  spinor present? ${hasSpinor} (the 7-direction perm rep of D7 carries no spinor, integer reps only)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log(' - geometry, POSITIVE (2D hyperbolic bulk, 1D horocycle, degree 7), well-defined and buildable.')
-  console.log(' - SPIN, NEGATIVE, no spinor (7-fold, not the D4 24-cell), no fundamental fermions from the geometry.')
-  console.log(' - GAUGE, NEGATIVE, 7-fold is non-crystallographic (crystallographic restriction forbids 5,7-fold),')
-  console.log('   NOT a root system, so no so(N) gauge, no GUT, no Standard Model.')
-  console.log(' - DIMENSION, the flat layer is 1D, so physical space is 1D (even more degenerate than {5,3,4} 2D).')
   return { degree, specDim, crystallographic, hasSpinor }
 }
 

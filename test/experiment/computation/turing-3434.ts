@@ -30,12 +30,10 @@ import { verdict } from '@/test/scaffold/verdict'
 // ---------- Leg 1, Margenstern structural prerequisites on {3,4,3,4} ----------
 
 function legStructure(a: Addressing): boolean {
-  console.log('\n=== Leg 1, Margenstern structure on {3,4,3,4} (the railway prerequisites) ===')
 
   // (a) the Fibonacci-tree analog: a spanning tree whose shells obey a linear recurrence, O(log n) addr.
   const ratio = a.shellSizes[a.shellComplete]! / a.shellSizes[a.shellComplete - 1]!
   const treeOK = a.shellSizes[1] === 24 && ratio > 1
-  console.log(`  (a) Fibonacci-analog tree: shells ${a.shellSizes.slice(0, a.shellComplete + 1).join(', ')}, growth ~${ratio.toFixed(2)} (heptagrid's is phi^2=2.618; here ~18.4), O(log n) addresses -> ${treeOK}`)
 
   // (b) black/white sons -> the splitting-matrix region TYPES. Margenstern's pentagrid has 2 son colours
   //     (black=2 sons, white=3 sons) giving the Fibonacci recurrence. {3,4,3,4} is richer: each node has
@@ -43,24 +41,20 @@ function legStructure(a: Addressing): boolean {
   //     value IS the growth rate, its characteristic polynomial IS the recurrence).
   const rt = regionTypes(a)
   const sonColours = rt.typeList.length
-  console.log(`  (b) black/white-son analog: ${sonColours} son region-types (splitting matrix), Perron(M)=${rt.perron.toFixed(2)} == growth rate -> the tree IS a generalized-Fibonacci tree`)
 
   // (c) the preferred son: a canonical child continuing the spine (digit 0), the analog of Margenstern's
   //     preferred son used to lay the main track.
   const root = a.root
   const preferred = a.children[root]?.[0]
   const preferredOK = preferred !== undefined
-  console.log(`  (c) preferred son: the digit-0 child is the canonical spine successor (root -> cell ${preferred}) -> ${preferredOK}`)
 
   // (d) railway junction capability: a track needs to branch (switch) and cross. An interior cell must
   //     offer >= 3 edge-disjoint directions. {3,4,3,4} interior cells have the full 24.
   let interiorDeg = 0
   for (let c = 0; c < a.graph.cellCount; c++) if (a.complete[c]) { interiorDeg = a.graph.neighbors[c]!.length; break }
   const junctionOK = interiorDeg >= 3
-  console.log(`  (d) railway junctions: interior cell has ${interiorDeg} independent tracks (>=3 for switches/crossings) -> ${junctionOK}`)
 
   const ok = treeOK && sonColours > 0 && preferredOK && junctionOK
-  console.log(`  => structural prerequisites for the railway / universal-CA construction: ${ok ? 'ALL PRESENT' : 'INCOMPLETE'}`)
   return ok
 }
 
@@ -94,11 +88,9 @@ function fromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => Bit {
 }
 
 function legTernary(): boolean {
-  console.log('\n=== Leg 2, the ternary signed-majority rule is functionally complete ===')
   const nandTable: Record<string, Bit> = { '1,1': -1, '1,-1': 1, '-1,1': 1, '-1,-1': 1 }
   let nandOK = true
   for (const x of [-1, 1] as Bit[]) for (const y of [-1, 1] as Bit[]) if (nand(x, y) !== nandTable[`${x},${y}`]) nandOK = false
-  console.log(`  the rule (bias +1, two -1 fills) computes NAND: ${nandOK} -> functionally complete`)
 
   // Rule 110 from rule-NANDs, then evolve it as a CA on a line and confirm it advances.
   const rule110 = Array.from({ length: 8 }, (_, p) => (110 >> p) & 1)
@@ -122,8 +114,6 @@ function legTernary(): boolean {
     line = next
     ref = refNext
   }
-  console.log(`  Rule 110 expressible from rule-NANDs: ${exprOK}; matches reference Rule 110 over 40 steps: ${matches}`)
-  console.log('  => the substrate hosts a Cook-universal CA via its own ternary rule.')
   return nandOK && exprOK && matches
 }
 
@@ -223,7 +213,6 @@ const PROG_MUL: Instr[] = [
 ]
 
 function legRegisterMachine(a: Addressing): boolean {
-  console.log('\n=== Leg 3, a Minsky register machine on {3,4,3,4} (ternary charge, conserving) ===')
   const cases: { name: string; inputs: number[]; expected: number; got: number; conserved: boolean }[] = []
   for (const [x, y] of [[3, 4], [7, 2], [0, 5]] as [number, number][]) {
     const m = new Machine3434(a, 5, 60)
@@ -245,9 +234,7 @@ function legRegisterMachine(a: Addressing): boolean {
     const ok = c.got === c.expected
     if (!ok) allCorrect = false
     if (!c.conserved) allConserved = false
-    console.log(`  ${c.name}(${c.inputs.join(', ')}) = ${c.got} (expected ${c.expected}) ${ok ? 'OK' : 'WRONG'}, charge conserved: ${c.conserved}`)
   }
-  console.log(`  => programmable INC/DECJZ machine, all correct: ${allCorrect}, total tone conserved throughout: ${allConserved}`)
   return allCorrect && allConserved
 }
 
@@ -259,7 +246,6 @@ function legRegisterMachine(a: Addressing): boolean {
 // 4, translating by (1,1)), matching a reference Life. A faithful glider => the cusp runs Life => strong
 // universality (Life is universal, not merely weakly).
 function legCuspLife(): boolean {
-  console.log('\n=== Leg 4, STRONG universality: Conway\'s Life on the {4,3,4}=Z^3 cusp ===')
   const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 }) // Z^3 cusp
   // extract the z=0 plane and index cells by (x,y)
   const cellAt = new Map<string, number>()
@@ -314,9 +300,6 @@ function legCuspLife(): boolean {
   const survived = cusp.size === 5 // a glider is 5 cells, period 4
   const moved = !sameSet(cusp, refAlive) && (dx !== 0 || dy !== 0)
   const lifeOK = matchesRef && survived && moved
-  console.log(`  cusp z=0 plane: ${planeCells.length} cells; Moore (8-cell) neighbourhood from edge/vertex contact`)
-  console.log(`  glider after 1 period (4 steps): evolves IDENTICALLY to reference Life -> ${matchesRef}; survived (5 cells) -> ${survived}; translated by (${dx},${dy}) -> ${moved}`)
-  console.log(`  => the cusp runs Conway's Life (a universal CA), so the substrate's physical space is STRONGLY universal: ${lifeOK}`)
   return lifeOK
 }
 

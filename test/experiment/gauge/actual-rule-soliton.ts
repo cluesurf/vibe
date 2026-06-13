@@ -52,19 +52,10 @@ export function fermionInducedStabilizer(): { data: { R: number; sea: number }[]
   const N = 80, m0 = 1.0
   const Rs = [2, 3, 5, 8, 13]
   const data = Rs.map((R) => ({ R, sea: Math.round(seaEnergy(N, m0, R) * 1000) / 1000 }))
-  console.log('P214 fermion-induced stiffness, Dirac sea energy vs soliton width R (the Skyrme-sign mechanism):')
-  for (const d of data) console.log(`  R=${d.R}: fermion sea energy = ${d.sea}`)
   // induced stiffness: does the (more negative) sea energy go UP (less negative) as the soliton sharpens (small R)?
   // a sharper soliton costing MORE fermion energy = positive induced gradient stiffness = stabilizing.
   const sharp = data[0]!.sea, smooth = data[data.length - 1]!.sea
   const risesAsSharpens = sharp > smooth // sea energy higher (less bound) for the sharp soliton
-  console.log(`  sharpest R=${data[0]!.R}: ${sharp}   smoothest R=${data[data.length - 1]!.R}: ${smooth}`)
-  console.log(`  => fermion energy rises as the soliton sharpens: ${risesAsSharpens} (here FALSE, it falls -> 1D fermion prefers sharp)`)
-  console.log('  HONEST CONCLUSION: this does NOT settle the gate. 1D is NOT a valid proxy for the 3D Skyrme term,')
-  console.log('  the stabilizing Skyrme sign comes from a specifically-3D chiral-anomaly / Wess-Zumino structure with NO')
-  console.log('  1D analog. So the 1D trend (destabilizing) is irrelevant to the 3D sign. The Skyrme-sign gate stays OPEN,')
-  console.log('  it needs the full 3D fermion-in-skyrmion spectrum (Lanczos, needs real linear algebra) or the analytic')
-  console.log('  Chapman-Enskog Burnett coefficient. None of the tractable proxies (p205 texture, dynamics, this 1D) resolve it.')
   return { data, risesAsSharpens }
 }
 

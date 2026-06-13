@@ -21,23 +21,8 @@ export function vacuumSelection(): { maxUnbroken: number; singletWins: boolean }
   // group by minus-count (the su(5) multiplet structure: 0->singlet, 2->10, 4->5bar)
   const byMinus: Record<number, number> = {}
   for (const s of scored) byMinus[s.minus] = s.unbroken // same within a multiplet
-  console.log('P227 discrete GUT vacuum selection (residual so(10) symmetry per spinor weight):')
-  console.log(`  weight type "singlet" (0 minus, all +1/2): ${byMinus[0]} unbroken roots`)
-  console.log(`  weight type "10"      (2 minus):           ${byMinus[2]} unbroken roots`)
-  console.log(`  weight type "5bar"    (4 minus):           ${byMinus[4]} unbroken roots`)
-  console.log(`  maximum residual symmetry = ${maxUnbroken} unbroken roots`)
   // every spinor weight preserves exactly 20 roots: they are Weyl-equivalent, each preserves a (conjugate) su(5)
   const allGiveSu5 = scored.every((s) => s.unbroken === 20)
-  console.log(`  EVERY one of the 16 spinor weights leaves exactly 20 roots unbroken = su(5): ${allGiveSu5}`)
-  console.log('')
-  console.log('Reading (a robustness result, better than expected):')
-  console.log(' - All 16 DISCRETE spinor weights are Weyl-equivalent and each preserves a (conjugate) su(5) (20')
-  console.log('   roots, the unique rank-4 algebra with 20 roots). So a self / spinor condensate breaks so(10) ->')
-  console.log('   su(5) for ANY direction it points, the first GUT breaking is AUTOMATIC and ROBUST, no fine-tuning.')
-  console.log(' - That removes the vacuum-selection worry for the FIRST breaking entirely, a discrete fact (16')
-  console.log('   weights, all -> su(5)). The remaining su(5) -> SU(3) x SU(2) x U(1) is the standard adjoint step.')
-  console.log(' - So so(10) -> su(5) is forced by any self-condensate (discrete, robust); the SM then follows by')
-  console.log('   the ordinary su(5) -> SM breaking. The discrete vacuum selection lands on the Standard Model.')
   const singletWins = allGiveSu5
   return { maxUnbroken, singletWins }
 }

@@ -33,8 +33,6 @@ export function universality(): { ballistic: boolean; reversible: boolean; displ
   let bx = -1, by = -1; for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) if (g[at(x, y)]) { bx = x; by = y }
   const displacement = Math.round(Math.hypot(bx - start[0], by - start[1]) * 10) / 10
   const ballistic = displacement > 6 // moved a clear distance in 16 steps (a propagating signal)
-  console.log('P213 universality on the flat {4,3,4} cusp (Margolus billiard-ball CA):')
-  console.log(`  (1) lone ball: moved from (${start[0]},${start[1]}) to (${bx},${by}), displacement ${displacement} after 16 steps (a ballistic WIRE): ${ballistic}`)
   // (2) exact reversibility: random field, forward T then backward T = identity
   let rng = 17; const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
   const h = new Uint8Array(L * L); for (let i = 0; i < L * L; i++) h[i] = rnd() < 0.25 ? 1 : 0
@@ -42,9 +40,6 @@ export function universality(): { ballistic: boolean; reversible: boolean; displ
   for (let t = 0; t < T; t++) step(h, t % 2)
   for (let t = T - 1; t >= 0; t--) step(h, t % 2) // inverse = same block rotation in reverse parity order
   let reversible = true; for (let i = 0; i < L * L; i++) if (h[i] !== orig[i]) { reversible = false; break }
-  console.log(`  (2) exact reversibility (forward ${T} then backward ${T} = identity): ${reversible}`)
-  console.log('  => ballistic signals + reversible collisions = the Margolus BBMCA, which is TURING-COMPLETE.')
-  console.log('     So the flat {4,3,4} cusp computes (universality demonstrated by the standard reversible construction).')
   return { ballistic, reversible, displacement }
 }
 

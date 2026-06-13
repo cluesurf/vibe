@@ -36,34 +36,10 @@ function directionProjection(radial: number[]): { distinct: number; lengths: num
 }
 
 export function bulkCuspInterface(): void {
-  console.log('BULK-CUSP-INTERFACE, how the 4D bulk D4 spinors relate to the 3D cubic cusp:')
-  console.log('')
-  console.log('(A) SPINOR projection, the spacetime rotation reduces SO(4) -> SO(3) on the cusp:')
   const a = spinorBranching()
-  console.log(`    ${a.fourToThree}`)
-  console.log(`    verified (both pieces branch to spin 1/2): ${a.ok}`)
-  console.log('    so the 4D BULK Dirac spinor PROJECTS to 3D Pauli spinors, bulk spin -> cusp spin, exactly the')
-  console.log('    standard dimensional reduction of a (3+1)D Dirac fermion to its 3D spatial spinor (Spin(3)=SU(2)).')
-  console.log('')
-  console.log('(B) DIRECTION projection, the 24 D4 directions onto the cusp 3D tangent (orthogonal to the radial):')
   for (const radial of [[1, 1, 1, 1], [1, 0, 0, 0], [1, 1, 0, 0]]) {
     const r = directionProjection(radial)
-    console.log(`    radial = (${radial.join(',')}): ${r.distinct} distinct projected directions, lengths ${r.lengths.join(', ')}`)
   }
-  console.log('    (the 24 bulk directions collapse to a smaller 3D set, this is the cusp coin, the exact count and')
-  console.log('     symmetry depend on the radial / ideal direction, the {4,3,4} cusp coin is the cubic 6 in the')
-  console.log('     long-wavelength limit, the projected set above is the lattice-level structure feeding it.)')
-  console.log('')
-  console.log('THE PICTURE (the scope and solution):')
-  console.log(' - The bulk-cusp interface IS a PROJECTION, the horosphere is a 3D slice of the 4D bulk, and both the')
-  console.log('   spin and the coin directions reduce from 4D to 3D on it.')
-  console.log(' - SPIN, SO(4) -> SO(3) branches the 4D Dirac spinor to 3D Pauli spinors (verified, 4 -> 2+2). The')
-  console.log('   D4 / so(8) coin structure (8v+8s+8c, triality) is the INTERNAL symmetry, the spacetime spin that')
-  console.log('   matter carries on the cusp is the SO(3) projection of the bulk spinor.')
-  console.log(' - DIRECTIONS, the 24 bulk directions project to the cusp coin (the cubic 6 in the IR limit).')
-  console.log(' - ANISOTROPY, on the cusp the exact rotation symmetry is the octahedral CUBIC point group (a finite')
-  console.log('   subgroup of SO(3), the {4,3,4} symmetry), with full SO(3) restored only in the IR, this is exactly')
-  console.log('   why the cusp carries the small order-4 anisotropy while the bulk (D4/F4) is isotropic to order 4.')
 }
 
 export default defineExperiment({

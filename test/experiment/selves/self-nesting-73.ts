@@ -40,11 +40,6 @@ export function selfNesting73(): { tower: boolean; real: number[]; nul: number[]
   const real = depths.map((d) => persist(d, false)), nul = depths.map((d) => persist(d, true))
   // a tower would RISE toward coarse (small depth); on the hyperbolic bulk it FALLS / loses to null
   const tower = real[0]! > real[real.length - 1]! + 0.15 && real[0]! > (nul[0]! ?? 0) + 0.2
-  console.log(`P203 {7,3} bulk nesting (radial cones, depth ${depths.join('/')}, coarse=small depth):`)
-  console.log(`  real coherence ${real.join(' ')}`)
-  console.log(`  null coherence ${nul.join(' ')}`)
-  console.log(`  => coherence does NOT rise toward coarse and does not crush the null: tower ${tower} (NO bulk nesting,`)
-  console.log('     same as {5,3,4}/{3,4,3,4} bulks). And the {7,3} flat layer is 1D, too low for skyrmion-selves.')
   return { tower, real, nul }
 }
 

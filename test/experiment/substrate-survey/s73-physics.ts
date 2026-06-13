@@ -23,18 +23,6 @@ export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFo
   const dirs = Array.from({ length: 7 }, (_, k) => [Math.cos((2 * Math.PI * k) / 7), Math.sin((2 * Math.PI * k) / 7)])
   let m4diag = 0, m4mix = 0; for (const d of dirs) { m4diag += d[0]! ** 4; m4mix += d[0]! ** 2 * d[1]! ** 2 }
   const sevenFoldIsotropic = Math.abs(m4diag - 3 * m4mix) < 1e-6
-  console.log('S73-PHYSICS ({7,3} heptagrid):')
-  console.log(`  (1) Bethe holographic boundary correlator (z=7): mu = ${mu.toFixed(4)} (= 1/6), clean 1/r^${betheAlpha} (PORTS)`)
-  console.log(`  (2) cosmology, bulk shells ${shell.slice(0, 7).join(', ')} ..., growth ratio ${growthRatio} (exponential = eternal expansion, PORTS)`)
-  console.log(`  (3) hierarchy, the radial tree with branching ${growthRatio} = the holographic RG (PORTS)`)
-  console.log(`  (4) 7-fold isotropy, sum d^4 = ${m4diag.toFixed(3)} vs 3 sum d^2 d^2 = ${(3 * m4mix).toFixed(3)} -> 4th moment isotropic: ${sevenFoldIsotropic}`)
-  console.log(`      (7-fold symmetry is isotropic to ORDER 6 in 2D, the first anisotropy is at order 7)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log('  - holographic correlator (1/r^2), cosmology (expansion), hierarchy (RG tree), POSITIVE, all port.')
-  console.log('  - emergent ISOTROPY, POSITIVE and STRONG (7-fold, isotropic to order 6).')
-  console.log('  - physical-space GRAVITY, DIFFERENT, the flat layer is 1D so the potential is LINEAR (confining,')
-  console.log('    ~|x|), not 1/r. Correct for 1D, but the most degenerate of the three substrates.')
   return { betheAlpha, growthRatio, sevenFoldIsotropic }
 }
 

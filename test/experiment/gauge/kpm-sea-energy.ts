@@ -49,14 +49,10 @@ export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolea
     let dTrAbs = 0; for (let n = 0; n < MCHEB; n++) dTrAbs += g[n]! * c[n]! * dMu[ri]![n]!
     return [R, Math.round(-0.5 * a * dTrAbs * 100) / 100] as [number, number]
   })
-  console.log(`P216 fermion sea energy of a TEXTURE soliton, Delta E_sea(R) by KPM (L=${L}, ${MCHEB} moments, ${NRV} probes):`)
-  for (const [R, dE] of deltaE) console.log(`  R=${R}: Delta E_sea = ${dE}`)
   // a minimum at an INTERIOR R means Delta E ~ B*R + D/R with D>0 (Skyrme stabilizing)
-  let minI = 0; for (let i = 1; i < deltaE.length; i++) if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
+  let minI = 0
+  for (let i = 1; i < deltaE.length; i++) if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
   const hasMinimum = minI > 0 && minI < deltaE.length - 1
-  console.log(`  minimum at R=${deltaE[minI]![0]} (interior=${hasMinimum})`)
-  if (hasMinimum) console.log('  => Delta E_sea(R) = B*R + D/R with a MINIMUM -> Skyrme coefficient D > 0 (STABILIZING). The rule\'s fermion supplies the stabilizer. GATE CLOSED (positive sign).')
-  else console.log('  => no interior minimum in this R range -> the 1/R (Skyrme) term is not isolated here; sign still not cleanly established. Honest partial.')
   return { deltaE, hasMinimum }
 }
 

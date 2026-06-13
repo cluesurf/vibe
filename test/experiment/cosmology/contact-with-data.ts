@@ -22,14 +22,6 @@ const AGE_OF_UNIVERSE = 4.35e17 // s (13.8 Gyr)
 const LAMBDA_OBSERVED = 1.1e-52 // observed cosmological constant, m^-2
 
 // Order-of-magnitude formatting.
-function oom(x: number): string {
-  if (x === 0) {
-    return '0'
-  }
-  const e = Math.floor(Math.log10(Math.abs(x)))
-  const m = x / 10 ** e
-  return `${m.toFixed(1)}e${e}`
-}
 
 export function darkEnergyPrediction(): { predicted: number; observed: number; ratio: number } {
   // Spacetime 4-volume of the observable past, in Planck 4-volumes: (c t / l_P)^4.

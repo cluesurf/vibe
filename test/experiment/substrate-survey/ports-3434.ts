@@ -57,7 +57,6 @@ function beat(t: Int8Array, create: boolean): void {
 
 export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: boolean } {
   const lc = lightcone()
-  console.log(`P193 (1) lightcone on the {4,3,4} cusp: front radius vs beat ${JSON.stringify(lc.radii)} -> z=1 ballistic ${lc.ok}`)
 
   // churn from a small symmetry-breaking seed
   let rng = 3
@@ -67,7 +66,6 @@ export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: 
   for (let b = 0; b < 40; b++) beat(t, true)
   let ch = 0; for (let i = 0; i < t.length; i++) if (t[i] !== 0) ch++
   const churnPct = Math.round((100 * ch) / t.length)
-  console.log(`P193 (2) churn from a seed: charged ${churnPct}% steady state, no persistent self (matches P101)`)
 
   // two opposite selves annihilate
   const t2 = new Int8Array(L * L * L); const c = L >> 1
@@ -77,7 +75,6 @@ export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: 
   for (let b = 0; b < 40; b++) beat(t2, false)
   const end = count()
   const annihilates = end[0] < start[0]
-  console.log(`P193 (3) two selves (+block,-block): charges ${JSON.stringify(start)} -> ${JSON.stringify(end)}, annihilate ${annihilates} (matches P110)`)
   return { lightconeOk: lc.ok, churnPct, annihilates }
 }
 

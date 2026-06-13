@@ -17,26 +17,13 @@ function alpha(z: number, s: number): number { const b = z - 1, t = perStep(z, s
 
 export function gravityTree(): { masslessAlpha: number; massiveAlpha: number } {
   const cases = [{ name: '{5,3,4} bulk (z=12)', z: 12 }, { name: '{3,4,3,4} bulk (z=24)', z: 24 }, { name: 'generic z=4', z: 4 }]
-  console.log('P218 bulk-mediated boundary coupling ~ 1/r^alpha on the ideal (Bethe-lattice) boundary:')
   let masslessAlpha = 0, massiveAlpha = 0
   for (const c of cases) {
     const sEdge = 2 * Math.sqrt(c.z - 1) // massless (band edge)
     const aMassless = alpha(c.z, sEdge)
     const aMassive = alpha(c.z, sEdge * 1.3) // gapped / massive mode
-    console.log(`  ${c.name}: massless alpha = ${aMassless.toFixed(3)}, massive alpha = ${aMassive.toFixed(3)}`)
     if (c.z === 24) { masslessAlpha = aMassless; massiveAlpha = aMassive }
   }
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The MASSLESS mode gives alpha = 1 for EVERY branching, the boundary potential falls as 1/r,')
-  console.log('   UNIVERSALLY (independent of b). A 1/r potential is exactly 3D NEWTONIAN gravity (force ~ 1/r^2).')
-  console.log('   So for {3,4,3,4} (a 3-sphere boundary = 3D space), the massless bulk mode reproduces the correct')
-  console.log('   3D Newtonian potential. The bulk-tree DOES mediate a clean power-law gravitational force.')
-  console.log(' - MASSIVE modes give alpha > 1 (faster falloff, a screened / Yukawa-like force), as expected.')
-  console.log(' - HONEST CAVEAT: the tree is DIMENSION-BLIND, it gives alpha = 1 for any branching, so it cannot')
-  console.log('   distinguish a 2D ({5,3,4}) from a 3D ({3,4,3,4}) boundary, both read 1/r here. So this CONFIRMS a')
-  console.log('   clean 1/r (Newtonian-consistent) bulk-mediated force and removes the p198/p210 confound, but it does')
-  console.log('   NOT by itself prove the dimension-correct law, that needs the boundary metric structure, not just the tree.')
   return { masslessAlpha, massiveAlpha }
 }
 

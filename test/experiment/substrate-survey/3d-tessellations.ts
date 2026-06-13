@@ -51,27 +51,12 @@ function measure(sym: number[]): { ok: boolean; cells: number; degree: number; g
 }
 
 export function threedTessellations(): void {
-  console.log(`THREED-TESSELLATIONS scale sweep (maxCells=${SCALE}), all are 3D bulk -> 2D physical space:`)
-  console.log('')
   for (const c of HONEYCOMBS) {
     const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
     const m = measure(c.sym)
     const tag = c.compact ? 'COMPACT' : 'paracompact'
-    if (!m.ok) { console.log(`{${c.sym.join(',')}}  ${tag}, ${crystallographic ? 'cryst.' : 'NON-cryst.'}  -> build degenerate/failed (likely ideal/infinite cell)`); continue }
-    console.log(`{${c.sym.join(',')}}  ${tag}, ${crystallographic ? 'crystallographic' : 'NON-crystallographic'}  built ${m.cells.toLocaleString()} cells, degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}  (${c.note})`)
+    if (!m.ok) { continue }
   }
-  console.log('')
-  console.log('Reading:')
-  console.log(' - ALL 15 are 3D bulk -> 2D HOROSPHERE, so physical space is 2D (under-dimensional, like {5,3,4}).')
-  console.log(' - The 4 COMPACT regulars ({5,3,4},{4,3,5},{3,5,3},{5,3,5}) all contain a 5 -> NON-crystallographic,')
-  console.log('   so no root system, no gauge, no spinor (same as {5,3,4}). Compact but non-crystallographic.')
-  console.log(' - The PARACOMPACT regulars with a 6 (and only 3,4,6) ARE crystallographic (gauge possible), but they')
-  console.log('   are paracompact (ideal Euclidean cells / vertex figures), not genuine compact tilings. The two with')
-  console.log('   a 5 ({5,3,6},{6,3,5}) are non-crystallographic too.')
-  console.log(' - So in 3D you get COMPACT-but-non-crystallographic OR crystallographic-but-paracompact, NEVER both,')
-  console.log('   and ALWAYS only 2D physical space. The framework (Bethe 1/r^2, cosmology, etc.) ports to all.')
-  console.log(' - This is exactly why the substrate has to be 4D ({3,4,3,4}), only there do compact + crystallographic')
-  console.log('   (D4 spinors) + 3D physical space coincide. No 3D honeycomb can.')
 }
 
 export default defineExperiment({

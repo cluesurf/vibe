@@ -33,15 +33,9 @@ function boundaryDimension(symbol: number[], maxCells: number): { N: number; nb:
 export function holography(): { fiveBoundaryDim: number; fourBoundaryDim: number; confounded: boolean } {
   const a = boundaryDimension([5, 3, 4], 40000)
   const b = boundaryDimension([3, 4, 3, 4], 40000)
-  console.log('P212 holographic screen dimension (the boundary at infinity):')
-  console.log(`  {5,3,4}: ${a.nb}/${a.N} cells qualify as boundary, shell intrinsic dimension ${a.boundaryDim} (expected ~2)`)
-  console.log(`  {3,4,3,4}: ${b.nb}/${b.N} cells qualify, shell intrinsic dimension ${b.boundaryDim} (expected ~3)`)
   // a finite hyperbolic patch is ~99% boundary, so the "shell" is the whole bulk (and the 4D shell sub-graph
   // fragments), the readings (2->3.07, 3->0.45) are wrong -> the method is CONFOUNDED, same as the gravity measure.
   const confounded = Math.abs(a.boundaryDim - 2) > 0.7 || Math.abs(b.boundaryDim - 3) > 0.7
-  console.log(`  => CONFOUNDED ${confounded}: a finite hyperbolic patch is ~99% boundary, so a thin screen cannot be`)
-  console.log('     extracted (the readings are wrong). Holographic screen dimension is OPEN, it needs an ideal-boundary')
-  console.log('     construction, not finite-patch shell extraction (the same limitation as the gravity measurement, p210).')
   return { fiveBoundaryDim: a.boundaryDim, fourBoundaryDim: b.boundaryDim, confounded }
 }
 

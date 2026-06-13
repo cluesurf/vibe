@@ -13,6 +13,7 @@
 
 import { classifyGeometry, type Geometry } from '@/code/substrate/coxeter/schlafli'
 import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
 
 export type Compactness = 'compact' | 'paracompact' | 'hyperideal' | 'finite-polytope' | 'unknown'
 export type Builder = 'orbit' | 'euclidean-lattice' | 'none'
@@ -114,7 +115,6 @@ export function inspectTessellation(graph: CellGraph): {
   shellCounts: number[] // BFS shell sizes from cell 0
   growthRatios: number[] // shell-to-shell ratios (exponential if > 1 and roughly constant)
 } {
-  const n = graph.cellCount
   // the full (interior) facet degree is the MAX neighbour count, boundary cells have fewer
   let facetDegree = 0
   for (const nb of graph.neighbors) if (nb.length > facetDegree) facetDegree = nb.length
@@ -122,9 +122,7 @@ export function inspectTessellation(graph: CellGraph): {
   for (const nb of graph.neighbors) if (nb.length === facetDegree) matching++
   const uniformInterior = matching >= 1 // a regular honeycomb has at least the seed at full degree
 
-  const depth = new Array<number>(n).fill(-1); depth[0] = 0
-  let frontier = [0]; const shellCounts: number[] = [1]
-  while (frontier.length) { const next: number[] = []; for (const u of frontier) for (const v of graph.neighbors[u]!) if (depth[v]! < 0) { depth[v] = depth[u]! + 1; next.push(v) } if (next.length) shellCounts.push(next.length); frontier = next }
+  const { shellCounts } = bfsShells({ neighbors: graph.neighbors })
   const growthRatios = shellCounts.slice(1).map((c, i) => c / shellCounts[i]!)
   return { facetDegree, uniformInterior, shellCounts, growthRatios }
 }

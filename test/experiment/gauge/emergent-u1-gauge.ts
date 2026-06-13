@@ -55,25 +55,11 @@ export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boo
   const g2 = gaugeTransform(g, lam)
   const w1 = wilsonLoop(g2, 8, 16, 8, 16)
   const wilsonInvariant = Math.abs(w0 - w1) < 1e-9 && Math.abs(w0 - Phi) < 1e-9
-  console.log('P232 emergent U(1) gauge field from the discrete charge rule:')
-  console.log(`  (1) Wilson loop enclosing flux Phi=${Phi}: before gauge transform = ${w0.toFixed(4)}, after = ${w1.toFixed(4)}`)
-  console.log(`      -> equals the flux and is GAUGE-INVARIANT: ${wilsonInvariant}`)
   // (2) Aharonov-Bohm, holonomy around the flux is Phi regardless of which enclosing loop / gauge
   const wA = wilsonLoop(g, 6, 18, 6, 18), wB = wilsonLoop(g2, 10, 15, 10, 15)
   const aharonovBohm = Math.abs(wA - Phi) < 1e-9 && Math.abs(wB - Phi) < 1e-9
-  console.log(`  (2) Aharonov-Bohm, two different enclosing loops (and gauges): ${wA.toFixed(4)}, ${wB.toFixed(4)} (both = Phi): ${aharonovBohm}`)
   // a loop NOT enclosing the flux -> 0
   const wNone = wilsonLoop(g, 2, 6, 2, 6)
-  console.log(`      a loop NOT enclosing the flux = ${wNone.toFixed(4)} (= 0, no flux, no phase)`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The discrete rule LOCALLY conserves charge (the Gauss law, p223/p229). That forces a U(1) gauge')
-  console.log('   symmetry, the gauge field A is the emergent connection (link phases at the quantum / Dirac-walk layer).')
-  console.log(' - Its physical content is the field strength F (plaquette flux), GAUGE-INVARIANT, Wilson loops and the')
-  console.log('   Aharonov-Bohm phase depend only on the enclosed flux, not on the gauge choice of A. That IS a genuine')
-  console.log('   U(1) gauge field = ELECTROMAGNETISM.')
-  console.log(' - The static sector is the 1/r Coulomb potential (p224, div E = rho from the same Gauss law). So the')
-  console.log('   discrete charge rule yields emergent electromagnetism, base -> gauge closed for the U(1).')
   return { wilsonInvariant, aharonovBohm }
 }
 

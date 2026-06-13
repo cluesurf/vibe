@@ -42,20 +42,6 @@ export function hyperbolicBands(): { degeneracies: number[]; matchesIrreps: bool
   const realIrrepDims = [1, 6, 7, 8]
   const matchesIrreps = realIrrepDims.every((d) => degSet.includes(d)) // the irrep dims all appear as bands
   const accidental = degSet.filter((d) => !realIrrepDims.includes(d)) // merges of >1 block at one eigenvalue
-  console.log('P243 hyperbolic band theory (spectrum by irreps) on the closed manifold PSL(2,7):')
-  console.log(`  ${N} vertices, ${mults.length} distinct eigenvalue levels, degeneracy multiplicities present: ${degSet.join(', ')}`)
-  console.log(`  PSL(2,7) real irrep dimensions: 1, 6 (=3+3bar), 6, 7, 8 (the "bands")`)
-  console.log(`  the irrep dimensions {1,6,7,8} all appear as spectral bands: ${matchesIrreps}`)
-  console.log(`  accidental coincidences (two or three blocks at one eigenvalue): ${accidental.join(', ') || 'none'} (e.g. 14 = 7+7 or 6+8, 22 = a triple)`)
-  console.log(`  eigenvalue range [${ev[0]!.toFixed(2)}, ${ev[N - 1]!.toFixed(2)}] (the band structure of the closed hyperbolic lattice)`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - On a CLOSED hyperbolic manifold the translation symmetry is a FINITE group, so its IRREPS are the')
-  console.log('   "momenta", and the Laplacian / adjacency spectrum block-diagonalizes by irrep. The eigenvalue')
-  console.log('   degeneracies are exactly the irrep DIMENSIONS (1,3,6,7,8 for PSL(2,7)), the hyperbolic "bands".')
-  console.log(' - This is hyperbolic band theory made concrete, momentum space ON a hyperbolic lattice, with NO')
-  console.log('   real-space patch. The spectrum (dispersion, density of states) is read off the irrep blocks. For')
-  console.log('   bigger closed manifolds PSL(2,q), the same decomposition gives finer bands, scalable on the GPU.')
   return { degeneracies: degSet, matchesIrreps }
 }
 

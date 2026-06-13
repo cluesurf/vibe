@@ -41,21 +41,7 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
   // triality generator: Hadamard/2 (maps 8v -> 8s, mixing the three 16-cells), order 2, extends B4 -> F4
   const H: M = [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]].map((r) => r.map((x) => x / 2))
   const F4 = closure([cyc, swap, flip, H])
-  console.log('P226 emergent symmetry (is the symmetric collision forced?):')
-  console.log(`  |B4| (signed perms, no triality) = ${B4.length};  |F4| (24-cell symmetry, WITH triality) = ${F4.length}`)
   const b4Inv2 = invDim(B4, 2), b4Inv4 = invDim(B4, 4), f4Inv2 = invDim(F4, 2), f4Inv4 = invDim(F4, 4)
-  console.log(`  degree-2 invariants: B4 = ${b4Inv2}, F4 = ${f4Inv2}  (both 1 = only |x|^2, the isotropic kinetic/mass term)`)
-  console.log(`  degree-4 invariants: B4 = ${b4Inv4}, F4 = ${f4Inv4}`)
-  console.log('')
-  console.log('Reading:')
-  console.log(` - WITHOUT triality (B4): ${b4Inv4} degree-4 invariants, i.e. |x|^4 AND an ANISOTROPY (sum x_i^4), so a`)
-  console.log('   discrete-symmetric term can break the continuous symmetry already at 4-derivative order.')
-  console.log(` - WITH triality (F4 = the 24-cell symmetry): ${f4Inv4} degree-4 invariant (only |x|^4), the anisotropy`)
-  console.log('   is KILLED. So the coin\'s continuous symmetry is emergent up to order 6 (the F4 invariants are degree')
-  console.log('   2,6,8,12), MORE robust than the cubic lattice\'s emergent Lorentz (which breaks at order 4).')
-  console.log(' => emergent symmetry restoration (the same mechanism as emergent Lorentz, p211) enhances the forced')
-  console.log('    DISCRETE coin symmetry to the CONTINUOUS so(8)/so(10) in the IR, and TRIALITY makes it especially')
-  console.log('    robust. So the so(10)-symmetric collision is EFFECTIVELY FORCED at long wavelength. (3) resolved.')
   return { b4Inv4, f4Inv4 }
 }
 

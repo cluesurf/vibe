@@ -28,7 +28,6 @@ export function unifiedEmergence(): { partitions: boolean; vectorIsBoson: boolea
   const s8 = half.filter((q) => [q[1], q[2], q[3]].concat(q[0]).filter((x) => x < 0).length % 2 === 0)
   const c8 = half.filter((q) => [q[1], q[2], q[3]].concat(q[0]).filter((x) => x < 0).length % 2 === 1)
   const partitions = v8.length === 8 && s8.length === 8 && c8.length === 8 && (v8.length + s8.length + c8.length) === 24
-  console.log(`P255 partition of the 24 directions: 8v(${v8.length}) + 8s(${s8.length}) + 8c(${c8.length}) = 24: ${partitions}`)
 
   // a 2*pi rotation about z as a quaternion: q = (cos(pi), 0, 0, sin(pi)) = (-1, 0, 0, 0)
   const rot2pi: Q = [Math.cos(Math.PI), 0, 0, Math.sin(Math.PI)]
@@ -39,13 +38,8 @@ export function unifiedEmergence(): { partitions: boolean; vectorIsBoson: boolea
 
   const vectorIsBoson = v8.every((v) => vectorSign(v) === 1)
   const spinorsAreFermions = s8.every((p) => spinorSign(p) === -1) && c8.every((p) => spinorSign(p) === -1)
-  console.log(`P255 under ONE 2*pi rotation: 8v vector sector sign = +1 (BOSON, photon candidate): ${vectorIsBoson}`)
-  console.log(`  8s and 8c spinor sectors sign = -1 (FERMIONS, matter): ${spinorsAreFermions}`)
 
   const oneSubstrateBothSectors = partitions && vectorIsBoson && spinorsAreFermions
-  console.log(`P255 => ONE 24-direction substrate carries a BOSON sector (8v -> photon) AND fermion sectors (8s,8c -> matter),`)
-  console.log(`  the three pieces of one structure, NOT separately constructed: ${oneSubstrateBothSectors}`)
-  console.log(`  (structural unification confirmed; the full dynamical co-emergence in one evolution is the next L3 step.)\n`)
 
   return { partitions, vectorIsBoson, spinorsAreFermions, oneSubstrateBothSectors }
 }

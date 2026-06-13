@@ -60,7 +60,7 @@ export default defineExperiment({
     const adj = new Int32Array(off[n]!)
     {
       let p = 0
-      for (let i = 0; i < n; i++)
+      
         for (const w of g.neighbors[i]!) adj[p++] = w
     }
 
