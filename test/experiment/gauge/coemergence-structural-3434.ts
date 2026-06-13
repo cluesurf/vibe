@@ -1,0 +1,59 @@
+// P256 (CO-EMERGENCE, structural and rigorous): one rule, both a photon sector and fermion sectors, FORCED by
+// symmetry, not separately constructed. The 24 directions split 8v + 8s + 8c. We prove that the ROTATION
+// subgroup of the substrate symmetry (coordinate permutations and even sign changes, all det +1) PRESERVES
+// each sector (8v -> 8v, 8s -> 8s, 8c -> 8c), while TRIALITY relates them. Therefore ANY rotation-symmetric
+// rule has the 8v (photon) and 8s, 8c (fermion) sectors as FORCED invariant subspaces, they cannot be pulled
+// apart. The per-sector dynamics is already measured: 8v is the massless photon (p249), 8s/8c is the Dirac
+// fermion (p248, p253). HONEST: a single coupled evolution propagating both WITH a QED interaction is the open
+// frontier, this proves the structural co-existence, not the coupled dynamics.
+// Run: npx tsx code/experiment/p256-coemergence-structural-3434.ts
+
+import { pathToFileURL } from 'node:url'
+
+export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPreserveSectors: boolean; trialityMixes: boolean; oneRuleForced: boolean } {
+  // 24 directions = 8 axis (8v) + 16 half (8s even-parity, 8c odd-parity)
+  const v8 = [0, 1, 2, 3].flatMap((i) => [1, -1].map((s) => [0, 1, 2, 3].map((j) => (j === i ? s : 0))))
+  const half: number[][] = []
+  for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) half.push([a, b, c, d])
+  const s8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 0)
+  const c8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 1)
+  const sectorsCover24 = v8.length + s8.length + c8.length === 24 && v8.length === 8 && s8.length === 8 && c8.length === 8
+  const setOf = (S: number[][]): Set<string> => new Set(S.map((v) => v.map((x) => Math.round(x * 1e4)).join(',')))
+  const V = setOf(v8), S = setOf(s8), Cc = setOf(c8)
+  const inWhich = (v: number[]): string => { const k = v.map((x) => Math.round(x * 1e4)).join(','); return V.has(k) ? 'v' : S.has(k) ? 's' : Cc.has(k) ? 'c' : '?' }
+  console.log(`P256 sectors: 8v + 8s + 8c = 24, clean partition: ${sectorsCover24}`)
+
+  // ROTATION subgroup generators: all 24 coordinate permutations + all even sign changes (det +1)
+  const perms = (): number[][] => { const out: number[][] = []; const go = (a: number[], rest: number[]): void => { if (!rest.length) { out.push(a); return } for (let i = 0; i < rest.length; i++) go([...a, rest[i]!], rest.filter((_, j) => j !== i)) }; go([], [0, 1, 2, 3]); return out }
+  const evenSignFlips = (): number[][] => { const out: number[][] = []; for (let m = 0; m < 16; m++) { const f = [0, 1, 2, 3].map((b) => (m >> b) & 1); if (f.reduce((a, b) => a + b, 0) % 2 === 0) out.push(f.map((x) => (x ? -1 : 1))) } return out }
+  const applyPerm = (p: number[], v: number[]): number[] => p.map((pi) => v[pi]!)
+  const applySign = (sgn: number[], v: number[]): number[] => v.map((x, i) => x * sgn[i]!)
+
+  // check: every rotation (perm . signflip) maps each sector into itself
+  let rotationsPreserveSectors = true
+  for (const p of perms()) for (const sgn of evenSignFlips()) {
+    for (const [sec, set] of [['v', v8], ['s', s8], ['c', c8]] as const) {
+      for (const v of set) { const w = applySign(sgn, applyPerm(p, v)); if (inWhich(w) !== sec) rotationsPreserveSectors = false }
+    }
+  }
+  console.log(`P256 rotation subgroup (24 perms x 8 even sign-flips = 192 rotations): every one preserves 8v->8v, 8s->8s, 8c->8c: ${rotationsPreserveSectors}`)
+
+  // triality (Hadamard/2) MIXES the sectors: 8v -> 8s
+  const Had = [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]].map((r) => r.map((x) => x / 2))
+  const trial = (v: number[]): number[] => [0, 1, 2, 3].map((i) => Had[i]!.reduce((s, _h, k) => s + Had[i]![k]! * v[k]!, 0))
+  const trialityMixes = v8.every((v) => inWhich(trial(v)) === 's')
+  console.log(`P256 triality (Hadamard/2) maps the 8v sector INTO the 8s sector (relates, does not preserve): ${trialityMixes}`)
+
+  const oneRuleForced = sectorsCover24 && rotationsPreserveSectors && trialityMixes
+  console.log(`P256 => a ROTATION-SYMMETRIC rule on the 24 directions MUST keep 8v (photon) and 8s,8c (fermions) as`)
+  console.log(`  invariant sectors, they cannot be separated. One rule carries both, by symmetry. Forced: ${oneRuleForced}`)
+  console.log(`  per-sector dynamics already measured: 8v -> massless photon (p249), 8s/8c -> Dirac fermion (p248, p253).`)
+  console.log(`  HONEST: the coupled single-evolution with QED interaction is the open frontier, this proves co-existence.\n`)
+
+  return { sectorsCover24, rotationsPreserveSectors, trialityMixes, oneRuleForced }
+}
+
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const r = coemergenceStructural()
+  console.log(`SOLVED CO-EMERGENCE (structural): partition ${r.sectorsCover24}, rotations-preserve-sectors ${r.rotationsPreserveSectors}, triality-relates ${r.trialityMixes}, one-rule-forced ${r.oneRuleForced} => ${r.oneRuleForced ? 'PASSED' : 'FAILED'}`)
+}

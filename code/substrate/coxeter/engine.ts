@@ -13,7 +13,7 @@
 // by point reflections alone, no matrices. Distinct chambers that land on the same cell center
 // are the cell's stabilizer, so the cell centers dedupe to the cells.
 
-import { mirrorFrame, classifyGeometry, type Geometry } from '~/substrate/coxeter/schlafli'
+import { mirrorFrame, classifyGeometry, type Geometry } from '@/code/substrate/coxeter/schlafli'
 
 function innerJ(x: number[], y: number[], metric: number[]): number {
   let s = 0

@@ -7,17 +7,17 @@
 // This is an operational locality proxy. The full Pauli-expansion locality
 // profile of a Hamiltonian (testbed 04, localityProfile) is a future addition.
 
-import { Rule } from '~/rule/rule'
-import { Substrate } from '~/tool/substrate'
+import { Rule } from '@/code/rule/rule'
+import { Substrate } from '@/code/tool/substrate'
 import {
   Configuration,
   cloneConfiguration,
   getTone,
   setTone,
-} from '~/tone/configuration'
-import { valueCount } from '~/tone/alphabet'
-import { Rng, makeRng } from '~/tool/rng'
-import { graphDistance } from '~/measure/distance'
+} from '@/code/tone/configuration'
+import { valueCount } from '@/code/tone/alphabet'
+import { Rng, makeRng } from '@/code/tool/rng'
+import { graphDistance } from '@/code/measure/distance'
 
 // Build a fresh deterministic Rng from a seed, so a baseline run and a perturbed
 // run share an identical random stream and differ only by the perturbation.

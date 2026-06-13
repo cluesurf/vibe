@@ -1,0 +1,204 @@
+// P127: the growing holographic code. (growing-holographic-code.md, P105, P109.)
+//
+// Claim to test: as the mesh grows, each new (larger) shell re-encodes a deep logical datum more
+// redundantly, so the ERASURE THRESHOLD rises with shell radius (= age). We write a logical bit into the
+// deep bulk (clamp the core to +1 or -1), let the perception rule spread it outward, and at each shell
+// radius r measure f*(r), the maximum fraction of that shell we can erase and still recover the bit
+// (sign of the surviving cells). If f*(r) RISES with r, the growing code protects its history better the
+// older it gets. If it FALLS, the dynamics dilute the datum (a lossy encoder, the isometry gap).
+// Run: npx tsx code/experiment/p126-growing-code.ts
+
+import { pathToFileURL } from 'node:url'
+import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { makeRng } from '@/code/tool/rng'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
+
+type Rng = { next: () => number }
+
+function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
+  const eu: number[] = []
+  const ev: number[] = []
+  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
+    const w = adj[p]!
+    if (w > v) {
+      eu.push(v)
+      ev.push(w)
+    }
+  }
+  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
+}
+
+// hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is inert)
+function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+  moved.fill(0)
+  for (let k = 0; k < eu.length; k++) {
+    const v = eu[k]!
+    const w = ev[k]!
+    if (moved[v] || moved[w]) continue
+    const a = tone[v]!
+    const b = tone[w]!
+    if ((a === 0) !== (b === 0)) {
+      const c = a === 0 ? w : v
+      const e = a === 0 ? v : w
+      if (rng.next() < 0.5) {
+        tone[e] = tone[c]!
+        tone[c] = 0
+        moved[v] = 1
+        moved[w] = 1
+      }
+    }
+  }
+}
+
+export function growingCode(input?: { n?: number; beats?: number }): {
+  n: number
+  maxRadius: number
+  shells: { r: number; cells: number; marked: number; density: number; threshold: number }[]
+  thresholdRises: boolean
+  complementaryRecovery: boolean
+  densityDilutes: boolean
+  redundancyGrows: boolean
+  solved: boolean
+} {
+  const n = input?.n ?? 200000
+  const beats = input?.beats ?? 100
+  const g = buildDodecagrid({ maxCells: n })
+  const N = g.cellCount
+  const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
+  const moved = new Uint8Array(N)
+
+  // BFS shells from the center
+  const dist = new Int32Array(N).fill(-1)
+  dist[0] = 0
+  let fr = [0]
+  let R = 0
+  while (fr.length > 0) {
+    const next: number[] = []
+    for (const u of fr) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
+      const w = g.adj[p]!
+      if (dist[w] === -1) {
+        dist[w] = dist[u]! + 1
+        if (dist[w]! > R) R = dist[w]!
+        next.push(w)
+      }
+    }
+    fr = next
+  }
+  const core: number[] = []
+  for (let i = 0; i < N; i++) if (dist[i]! <= 1) core.push(i)
+  const shellCells: number[][] = Array.from({ length: R + 1 }, () => [])
+  for (let i = 0; i < N; i++) shellCells[dist[i]!]!.push(i)
+
+  // run the encoder for both logical values, clamping the core as a persistent source
+  const encode = (bit: 1 | -1): Int8Array => {
+    const tone = new Int8Array(N)
+    const rng = makeRng({ seed: 5 })
+    for (let t = 0; t < beats; t++) {
+      for (const i of core) tone[i] = bit
+      hopBeat(tone, eu, ev, moved, rng)
+      for (const i of core) tone[i] = bit
+    }
+    return tone
+  }
+  const tonePos = encode(1)
+  const toneNeg = encode(-1)
+
+  // recover the bit from a shell after erasing a fraction f (sign of the surviving cells), success over
+  // many random erasures and BOTH bits. f*(r) = the largest f with success rate >= 0.85.
+  const rngE = makeRng({ seed: 21 })
+  const recoverRate = (cells: number[], tone: Int8Array, bit: number, f: number): number => {
+    let ok = 0
+    const trials = 40
+    for (let t = 0; t < trials; t++) {
+      let sum = 0
+      for (const c of cells) if (rngE.next() >= f) sum += tone[c]!
+      if (Math.sign(sum) === bit) ok++
+    }
+    return ok / trials
+  }
+  // scan to EXTREME erasure, the absolute redundancy (count of marked cells) grows with radius even as
+  // density dilutes, so the threshold should keep rising into the >95% regime
+  const fGrid = [0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.995, 0.998, 0.999]
+  const thresholdFor = (cells: number[]): number => {
+    let best = 0
+    for (const f of fGrid) {
+      const rate = (recoverRate(cells, tonePos, 1, f) + recoverRate(cells, toneNeg, -1, f)) / 2
+      if (rate >= 0.85) best = f
+    }
+    return best
+  }
+
+  const shells: { r: number; cells: number; marked: number; density: number; threshold: number }[] = []
+  for (let r = 2; r <= R - 1; r++) {
+    const cells = shellCells[r]!
+    if (cells.length < 20) continue
+    let nz = 0
+    for (const c of cells) if (tonePos[c] !== 0) nz++
+    shells.push({ r, cells: cells.length, marked: nz, density: nz / cells.length, threshold: thresholdFor(cells) })
+  }
+
+  // the threshold should be monotonically non-decreasing in radius, with the rim clearly above the core.
+  // Near the ceiling the right gauge is the SURVIVAL fraction 1 - f*, which should keep shrinking.
+  let monotonic = true
+  for (let i = 1; i < shells.length; i++) if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9) monotonic = false
+  const first = shells[0]
+  const last = shells[shells.length - 1]
+  const thresholdRises = shells.length > 1 && monotonic && last!.threshold > first!.threshold + 0.02
+  const complementaryRecovery = shells.length > 0 && last!.threshold >= 0.5
+  const densityDilutes = shells.length > 1 && last!.density < first!.density * 0.5
+  const redundancyGrows = shells.length > 1 && last!.marked > first!.marked // absolute redundancy rises
+  const solved = thresholdRises && complementaryRecovery && redundancyGrows
+
+  return { n: N, maxRadius: R, shells, thresholdRises, complementaryRecovery, densityDilutes, redundancyGrows, solved }
+}
+
+export function main(): void {
+  const r = growingCode()
+  console.log('P127: the growing holographic code (does the erasure threshold rise with age)')
+  console.log('')
+  console.log(`  ${r.n.toLocaleString()} cells, radius ${r.maxRadius}, a logical bit written deep and spread by the rule`)
+  console.log('')
+  console.log('  shell (age)  cells     marked   density   erasure f*   survives erasing')
+  for (const s of r.shells) {
+    console.log(`    r=${String(s.r).padEnd(3)}       ${String(s.cells).padEnd(8)}  ${String(s.marked).padEnd(6)}   ${(s.density * 100).toFixed(0).padEnd(4)}%     ${(s.threshold * 100).toFixed(1).padEnd(6)}%    ${(s.threshold * 100).toFixed(1)}% of the shell`)
+  }
+  console.log('')
+  console.log(`  density DILUTES with radius (fewer marked per cell): ${r.densityDilutes}`)
+  console.log(`  but absolute REDUNDANCY (marked-cell count) GROWS with radius: ${r.redundancyGrows}`)
+  console.log(`  so the erasure threshold RISES with radius, the code protects better as it grows: ${r.thresholdRises}`)
+  console.log(`  complementary recovery (recoverable from a large patch at the rim): ${r.complementaryRecovery}`)
+  console.log(`  SOLVED: ${r.solved}`)
+}
+
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}
+
+export default defineExperiment({
+  id: 'holography/growing-code',
+  title: 'the growing holographic code raises its erasure threshold with shell age',
+  category: 'holography',
+  substrates: ['534'],
+  depth: 'L3',
+  paper: true,
+  run() {
+    const r = growingCode({ n: 200000 })
+    const ok =
+      r.solved && r.thresholdRises && r.redundancyGrows && r.complementaryRecovery
+    const first = r.shells[0]
+    const last = r.shells[r.shells.length - 1]
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the erasure threshold rises with shell radius as the absolute redundancy grows even while density dilutes, with complementary recovery from the rim',
+      metrics: {
+        firstThreshold: first?.threshold ?? 0,
+        lastThreshold: last?.threshold ?? 0,
+        firstMarked: first?.marked ?? 0,
+        lastMarked: last?.marked ?? 0,
+      },
+      control: { firstThreshold: first?.threshold ?? 0 },
+    })
+  },
+})

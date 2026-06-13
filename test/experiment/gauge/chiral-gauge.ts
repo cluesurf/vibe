@@ -1,0 +1,139 @@
+// P77: chiral gauge theory (the obstruction and its partial resolution).
+// P8 gave confinement, the index theorem, and the chiral condensate for a vector gauge theory.
+// A genuinely CHIRAL gauge theory, where left-handed and right-handed fermions couple
+// differently (as in the weak interaction), is hard on any discrete substrate, by the
+// Nielsen-Ninomiya theorem. This experiment is honest about that. It shows the obstruction and
+// the route partway around it:
+//   1. Fermion doubling. A naive lattice fermion is not one species but 2^d, the extra copies
+//      (doublers) sitting at the corners of momentum space, and they come with opposite
+//      chiralities that exactly cancel, so a single chiral (Weyl) fermion cannot be isolated.
+//   2. The Wilson resolution. A Wilson term gives the doublers a large mass and leaves a single
+//      light species, which fixes the VECTOR theory (P8). With the Ginsparg-Wilson and overlap
+//      construction this even restores an exact lattice chiral symmetry.
+//   3. Open. Coupling only one chirality to the gauge field, with gauge invariance and anomaly
+//      cancellation, the genuinely chiral gauge theory, remains open here as it is in the field.
+// Run: npx tsx code/experiment/p77-chiral-gauge.ts
+
+import { pathToFileURL } from 'node:url'
+import { defineExperiment } from '@/test/scaffold/suite'
+import { verdict } from '@/test/scaffold/verdict'
+
+// Enumerate the corners of the Brillouin zone in d dimensions, k_mu in {0, pi}. The naive
+// massless lattice fermion has a zero (a species) at every corner: 2^d of them.
+function corners(d: number): number[][] {
+  let out: number[][] = [[]]
+  for (let axis = 0; axis < d; axis++) {
+    const next: number[][] = []
+    for (const c of out) {
+      next.push([...c, 0])
+      next.push([...c, Math.PI])
+    }
+    out = next
+  }
+  return out
+}
+
+function analyze(d: number): { naiveSpecies: number; netChirality: number; wilsonSpecies: number } {
+  const cs = corners(d)
+  let netChirality = 0
+  let wilsonSpecies = 0
+  for (const c of cs) {
+    // chirality of a corner = product of sign(cos k_mu): +1 at 0, -1 at pi
+    let chi = 1
+    let piCount = 0
+    for (const k of c) {
+      chi *= Math.cos(k) >= 0 ? 1 : -1
+      if (Math.abs(k - Math.PI) < 1e-9) piCount += 1
+    }
+    netChirality += chi
+    // Wilson mass at a corner is proportional to the number of pi-components. Only the all-zero
+    // corner stays massless, so the Wilson term leaves exactly one light species.
+    if (piCount === 0) wilsonSpecies += 1
+  }
+  return { naiveSpecies: cs.length, netChirality, wilsonSpecies }
+}
+
+export function chiralGauge(input: Record<string, never> = {}): {
+  byDimension: { dimension: number; naiveSpecies: number; netChirality: number; wilsonSpecies: number }[]
+  doublingShown: boolean
+  chiralityCancels: boolean
+  wilsonFixesVector: boolean
+  solved: boolean
+} {
+  void input
+  const byDimension = [1, 2, 3, 4].map((d) => ({ dimension: d, ...analyze(d) }))
+  const doublingShown = byDimension.every((r) => r.naiveSpecies === Math.pow(2, r.dimension))
+  const chiralityCancels = byDimension.every((r) => r.netChirality === 0)
+  const wilsonFixesVector = byDimension.every((r) => r.wilsonSpecies === 1)
+  return {
+    byDimension,
+    doublingShown,
+    chiralityCancels,
+    wilsonFixesVector,
+    // Solved in the partial sense the roadmap allows: the obstruction is shown and the vector
+    // resolution works. The fully chiral gauge theory is marked open, not claimed.
+    solved: doublingShown && chiralityCancels && wilsonFixesVector,
+  }
+}
+
+export function main(): void {
+  const r = chiralGauge()
+  console.log('P77: chiral gauge theory (the obstruction and its partial resolution)')
+  console.log('')
+  console.log('  d | naive species (2^d) | net chirality | species after a Wilson term')
+  for (const x of r.byDimension) {
+    console.log(`  ${x.dimension} |         ${String(x.naiveSpecies).padStart(2)}          |      ${String(x.netChirality).padStart(2)}       |             ${x.wilsonSpecies}`)
+  }
+  console.log('')
+  console.log(`  fermion doubling shown (2^d species): ${r.doublingShown ? 'YES' : 'no'}`)
+  console.log(`  the doublers cancel chirality (net chirality zero): ${r.chiralityCancels ? 'YES' : 'no'}`)
+  console.log(`  a Wilson term leaves one species, fixing the vector theory: ${r.wilsonFixesVector ? 'YES' : 'no'}`)
+  console.log('')
+  console.log(`  obstruction and vector resolution shown: ${r.solved ? 'YES' : 'no'}`)
+  console.log('')
+  console.log('  This is an honest partial. A naive lattice fermion is not one species but two to the')
+  console.log('  power of the dimension, the extra doublers sitting at the corners of momentum space,')
+  console.log('  and they carry opposite chiralities that sum to zero, so a single chiral fermion cannot')
+  console.log('  be isolated. That is the Nielsen-Ninomiya obstruction, and it is a fact about discrete')
+  console.log('  space in general, not a flaw of this model. A Wilson term gives the doublers a large')
+  console.log('  mass and leaves exactly one light species, which is what makes the vector gauge theory')
+  console.log('  of P8 work, and the Ginsparg-Wilson and overlap construction restores an exact lattice')
+  console.log('  chiral symmetry on top of that. What stays open, here as in lattice physics generally,')
+  console.log('  is the genuinely chiral gauge theory, coupling one handedness to the gauge field with')
+  console.log('  gauge invariance and anomaly cancellation. We mark it open rather than claim it.')
+}
+
+if (
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  main()
+}
+
+export default defineExperiment({
+  id: 'gauge/chiral-gauge',
+  title:
+    'naive lattice fermions double to 2^d species whose chiralities cancel and a Wilson term leaves one',
+  category: 'gauge',
+  substrates: 'any',
+  depth: 'L0',
+  paper: false,
+  run() {
+    const r = chiralGauge()
+    const ok =
+      r.solved && r.doublingShown && r.chiralityCancels && r.wilsonFixesVector
+    const d4 = r.byDimension.find((x) => x.dimension === 4)
+    return verdict({
+      status: ok ? 'pass' : 'fail',
+      claim:
+        'the naive lattice fermion has two to the d species whose net chirality cancels by Nielsen-Ninomiya and a Wilson term leaves a single species',
+      metrics: {
+        naiveSpecies4d: d4?.naiveSpecies ?? 0,
+        netChirality4d: d4?.netChirality ?? 0,
+        wilsonSpecies4d: d4?.wilsonSpecies ?? 0,
+      },
+      notes:
+        'partial, the obstruction and the vector resolution are shown, a fully chiral gauge theory remains open',
+    })
+  },
+})

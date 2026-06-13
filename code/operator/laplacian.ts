@@ -2,14 +2,14 @@
 // adjacency. Its low spectrum gives effective dimension and the heat-kernel
 // return probability, a cross-check on measure/dimension.
 
-import { Substrate, undirectedAdjacency } from '~/tool/substrate'
+import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 import {
   SparseMatrix,
   Triplet,
   sparseFromTriplets,
   operatorFromSparse,
-} from '~/linalg/sparse'
-import { lowestEigenvalues } from '~/linalg/eig-lanczos'
+} from '@/code/algebra/linear/sparse'
+import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 
 // Build L = D - A. Diagonal entry is the degree of the node, each undirected
 // edge contributes a -1 off-diagonal in both directions.

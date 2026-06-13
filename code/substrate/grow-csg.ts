@@ -4,9 +4,9 @@
 // covariance (the label order is unphysical). This is a transitive-percolation
 // variant of the CSG model.
 
-import { Rng } from '~/tool/rng'
-import { BitMatrix, makeBitMatrix, setBit, getBit } from '~/tool/bitset'
-import { Poset, makePosetFromFuture } from '~/tool/poset'
+import { Rng } from '@/code/tool/rng'
+import { BitMatrix, makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
+import { Poset, makePosetFromFuture } from '@/code/tool/poset'
 
 export function growCsg(input: {
   size: number

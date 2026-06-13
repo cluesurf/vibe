@@ -22,7 +22,7 @@
 //   - No Poincare-disc embedding is attached (the tree alone fixes no canonical
 //     disc layout without the cousin geometry); embedding is omitted.
 
-import { Graph, makeGraph } from '~/tool/graph'
+import { Graph, makeGraph } from '@/code/tool/graph'
 
 interface TilingNode {
   readonly id: number

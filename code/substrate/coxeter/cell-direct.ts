@@ -12,7 +12,7 @@
 // facet neighbors. Tracking each cell by a group-element matrix g, its center is g*c0 and its neighbors
 // are g*F_i for the precomputed face reflections F_i.
 
-import { mirrorFrame } from '~/substrate/coxeter/schlafli'
+import { mirrorFrame } from '@/code/substrate/coxeter/schlafli'
 
 type Mat = number[][]
 type Vec = number[]

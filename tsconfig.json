@@ -20,9 +20,9 @@
     "typeRoots": ["node_modules/@types"],
     "noImplicitAny": false,
     "paths": {
-      "~/*": ["./code/*"]
+      "@/*": ["./*"]
     }
   },
   "include": ["*.ts", "**/*.ts", "*.d.ts"],
-  "exclude": ["node_modules", "host", "tmp", "test"]
+  "exclude": ["node_modules", "host", "tmp"]
 }

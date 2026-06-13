@@ -6,8 +6,10 @@
 // genuine coupling of the chiral fermion (P4) to the gauge field (P8).
 // See note/questions/frontier-spec.md.
 
-import { ComplexMatrix, makeComplexMatrix } from '~/linalg/dense'
-import { eigHermitian } from '~/linalg/eig-hermitian'
+import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import { modulo } from '@/code/tool/integer'
+import { cMul, cConj } from '@/code/algebra/linear/complex'
+import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 
 // A 2x2 complex block in row-major arrays [00, 01, 10, 11].
 interface Block {
@@ -63,8 +65,8 @@ function linkPhase(input: {
   // boundary twist in U_2 supplies the holonomy, so a neighbor at n2 = L is the
   // link at n2 = 0, not exp(-i F L).
   const L = input.length
-  const n1 = ((input.n1 % L) + L) % L
-  const n2 = ((input.n2 % L) + L) % L
+  const n1 = modulo(input.n1, L)
+  const n2 = modulo(input.n2, L)
   let phase = 0
   if (input.mu === 1) {
     phase = -input.flux * n2
@@ -75,7 +77,7 @@ function linkPhase(input: {
 }
 
 function site(n1: number, n2: number, L: number): number {
-  return ((n1 % L) + L) % L + (((n2 % L) + L) % L) * L
+  return modulo(n1, L) + modulo(n2, L) * L
 }
 
 // Total gauge flux (sum of plaquette phases). Self-check: equals 2 pi Q.
@@ -90,20 +92,13 @@ export function totalFlux(input: { length: number; charge: number }): number {
       const u1y = linkPhase({ mu: 1, n1, n2: n2 + 1, flux: F, length: L })
       const u2 = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
       // plaquette = U1(x) U2(x+1) U1(x+2)* U2(x)*
-      const a = cmulScalar(u1, u2x)
-      const b = cmulScalar({ re: u1y.re, im: -u1y.im }, { re: u2.re, im: -u2.im })
-      const p = cmulScalar(a, b)
+      const a = cMul(u1, u2x)
+      const b = cMul(cConj(u1y), cConj(u2))
+      const p = cMul(a, b)
       total += Math.atan2(p.im, p.re)
     }
   }
   return total
-}
-
-function cmulScalar(
-  a: { re: number; im: number },
-  b: { re: number; im: number },
-): { re: number; im: number } {
-  return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }
 }
 
 // Build the gauge Wilson-Dirac operator (m = 0) on the L by L torus with charge Q.

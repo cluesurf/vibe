@@ -4,11 +4,11 @@
 // performs one Metropolis sweep that MUTATES field.link in place (acceptable for
 // this research tool). The configuration passes through unchanged.
 
-import { Rule } from '~/rule/rule'
+import { Rule } from '@/code/rule/rule'
 import {
   GaugeField,
   linkPhase,
-} from '~/tool/gauge-field'
+} from '@/code/tool/gauge-field'
 
 // A triangle plaquette through an edge (a -> b): a third vertex c adjacent to
 // both endpoints. The loop is a -> b -> c -> a. Its Wilson action term is

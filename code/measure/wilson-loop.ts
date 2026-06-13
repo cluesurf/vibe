@@ -3,7 +3,7 @@
 // loop value, and the mean (1 - value) over plaquettes is a coarse string-tension
 // proxy (the static potential).
 
-import { GaugeField, PlaquetteSet, linkPhase } from '~/tool/gauge-field'
+import { GaugeField, PlaquetteSet, linkPhase } from '@/code/tool/gauge-field'
 
 // Sum of link phases around the ordered loop vertices (wrapping the last vertex
 // back to the first). The loop is a list of vertex ids tracing a closed cycle.

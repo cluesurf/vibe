@@ -5,7 +5,7 @@
 // distributed over interaction range. A profile concentrated at short range and
 // decaying means H is (quasi-)local. See note/questions/roadmap.md (A1).
 
-import { ComplexMatrix, makeComplexMatrix } from '~/linalg/dense'
+import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
 
 // Build H (Hermitian) from a permutation U via U = e^{-iH}. On each cycle of
 // length L the eigenphases are theta_m = 2 pi m / L wrapped to (-pi, pi], so H is

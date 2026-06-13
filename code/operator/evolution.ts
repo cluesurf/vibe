@@ -4,16 +4,16 @@
 // read off the permutation's cycle structure as eigen-phases, avoiding any
 // complex matrix logarithm.
 
-import { Substrate } from '~/tool/substrate'
-import { Rule } from '~/rule/rule'
-import { Alphabet, valueCount } from '~/tone/alphabet'
+import { Substrate } from '@/code/tool/substrate'
+import { Rule } from '@/code/rule/rule'
+import { Alphabet, valueCount } from '@/code/tone/alphabet'
 import {
   Configuration,
   makeConfiguration,
   getTone,
   setTone,
-} from '~/tone/configuration'
-import { makeRng } from '~/tool/rng'
+} from '@/code/tone/configuration'
+import { makeRng } from '@/code/tool/rng'
 
 // The finite state space of `cells` elements over an alphabet. The full space
 // has dimension valueCount(alphabet)^cells, so callers keep `cells` small.

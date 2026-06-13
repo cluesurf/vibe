@@ -9,6 +9,8 @@
 // face reflections (H_cell-conjugates of the outer generator). Dedup by the center fingerprint.
 
 // modular arithmetic, all products kept under 2^53 by using primes below 2^26
+import { modulo } from '@/code/tool/integer'
+
 function modpow(base: number, exp: number, p: number): number {
   let r = 1
   let b = base % p
@@ -22,12 +24,12 @@ function modpow(base: number, exp: number, p: number): number {
 }
 
 function modInv(a: number, p: number): number {
-  return modpow(((a % p) + p) % p, p - 2, p)
+  return modpow(modulo(a, p), p - 2, p)
 }
 
 // Tonelli-Shanks modular square root (p prime, returns r with r*r = a mod p, or -1 if none)
 function modSqrt(a: number, p: number): number {
-  a = ((a % p) + p) % p
+  a = modulo(a, p)
   if (a === 0) return 0
   if (modpow(a, (p - 1) / 2, p) !== 1) return -1
   let q = p - 1
@@ -148,7 +150,7 @@ function buildGeneratorsMod(p: number): { R: IMat[]; cartanInvCol3: IVec } {
 // solve C x = e_col mod p, returning x (a column of C^{-1})
 function invColumnMod(C: number[][], col: number, p: number): IVec {
   const n = 4
-  const a = C.map((row) => row.map((v) => ((v % p) + p) % p))
+  const a = C.map((row) => row.map((v) => modulo(v, p)))
   const b = new Array<number>(n).fill(0)
   b[col] = 1
   for (let i = 0; i < n; i++) {
@@ -170,7 +172,7 @@ function invColumnMod(C: number[][], col: number, p: number): IVec {
       b[r] = ((b[r]! - f * b[i]!) % p + p) % p
     }
   }
-  return Int32Array.from(b.map((v) => ((v % p) + p) % p))
+  return Int32Array.from(b.map((v) => modulo(v, p)))
 }
 
 export interface ScaleGraph {

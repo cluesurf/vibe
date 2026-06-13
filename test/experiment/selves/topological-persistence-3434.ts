@@ -1,0 +1,72 @@
+// P257 (THE CENTRAL GAP, persistence): the pure rule gives churn with no persistent selves (P101). The one
+// honest route to a persistent PARTICLE is TOPOLOGICAL: a defect whose winding number is a conserved charge,
+// so it cannot decay locally. We test this directly. A phase field on a ring (the spinor phase) with winding
+// w = 1 (a kink) is evolved by a LOCAL relaxation rule. The profile relaxes (energy drops) but the winding w
+// is LOCKED, the defect PERSISTS. Control: a w = 0 bump relaxes all the way to uniform (no persistence). So
+// topological charge gives genuine persistence, the mechanism the program needs. HONEST CAVEAT: this shows a
+// field with winding structure persists, the spinor field (8s/8c) has this structure, but whether the bare
+// {3,4,3,4} rule dynamically produces conserved-winding fields is the deeper open question.
+// Run: npx tsx code/experiment/p257-topological-persistence-3434.ts
+
+import { pathToFileURL } from 'node:url'
+
+// winding number of a phase field on a ring: (1/2pi) sum of wrapped phase differences
+function winding(theta: number[]): number {
+  const L = theta.length; let w = 0
+  for (let i = 0; i < L; i++) { let d = theta[(i + 1) % L]! - theta[i]!; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; w += d }
+  return Math.round(w / (2 * Math.PI))
+}
+
+// local relaxation of a complex field psi = r e^{i theta} (a lattice Ginzburg-Landau / heat flow that keeps |psi|>0)
+function relax(psi: { re: number; im: number }[], steps: number, dt: number): { re: number; im: number }[] {
+  const L = psi.length
+  let cur = psi.map((z) => ({ ...z }))
+  for (let t = 0; t < steps; t++) {
+    const next = cur.map((z, i) => {
+      const a = cur[(i + 1) % L]!, b = cur[(i + L - 1) % L]!
+      // discrete Laplacian (diffusion) + a weak |psi|->1 restoring term (keeps the field from vanishing)
+      const lapRe = a.re + b.re - 2 * z.re, lapIm = a.im + b.im - 2 * z.im
+      const r2 = z.re * z.re + z.im * z.im, restore = (1 - r2)
+      return { re: z.re + dt * (lapRe + restore * z.re), im: z.im + dt * (lapIm + restore * z.im) }
+    })
+    cur = next
+  }
+  return cur
+}
+
+const phase = (z: { re: number; im: number }): number => Math.atan2(z.im, z.re)
+const energy = (psi: { re: number; im: number }[]): number => { const L = psi.length; let e = 0; for (let i = 0; i < L; i++) { const a = psi[(i + 1) % L]!, z = psi[i]!; e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2 } return e }
+
+export function topologicalPersistence(): { windingConserved: boolean; energyRelaxes: boolean; defectPersists: boolean; trivialDecays: boolean; discriminates: boolean } {
+  const L = 64
+  // w = 1 kink: psi = e^{i * 2pi x / L} (winds once around the ring)
+  const kink = Array.from({ length: L }, (_, x) => ({ re: Math.cos(2 * Math.PI * x / L), im: Math.sin(2 * Math.PI * x / L) }))
+  const w0 = winding(kink.map(phase)), e0 = energy(kink)
+  const kinkRelaxed = relax(kink, 4000, 0.1)
+  const w1 = winding(kinkRelaxed.map(phase)), e1 = energy(kinkRelaxed)
+  const windingConserved = w0 === 1 && w1 === 1
+  const energyRelaxes = e1 < e0 - 1e-6
+  const defectPersists = windingConserved // the winding is locked => the defect cannot decay
+  console.log(`P257 winding-1 defect: w ${w0} -> ${w1} (LOCKED, conserved: ${windingConserved}); energy ${e0.toFixed(2)} -> ${e1.toFixed(2)} (relaxes: ${energyRelaxes})`)
+  console.log(`  => the defect PERSISTS, the profile smooths but the topological charge cannot decay: ${defectPersists}`)
+
+  // CONTROL: w = 0 bump (a local perturbation, no winding) relaxes all the way to uniform
+  const bump = Array.from({ length: L }, (_, x) => { const g = Math.exp(-((x - L / 2) ** 2) / 50); return { re: 1 - 0.8 * g, im: 0.3 * g } })
+  const wb0 = winding(bump.map(phase)), eb0 = energy(bump)
+  const bumpRelaxed = relax(bump, 4000, 0.1)
+  const eb1 = energy(bumpRelaxed)
+  const trivialDecays = wb0 === 0 && eb1 < eb0 * 0.05 // relaxes to (near) uniform
+  console.log(`P257 CONTROL winding-0 bump: w ${wb0}, energy ${eb0.toFixed(2)} -> ${eb1.toFixed(4)} (decays to ~uniform: ${trivialDecays})`)
+
+  const discriminates = defectPersists && trivialDecays
+  console.log(`P257 => topological charge DISCRIMINATES a persistent particle (w=1, locked) from a decaying lump (w=0): ${discriminates}`)
+  console.log(`  the honest persistence mechanism: a conserved winding gives a particle that cannot decay locally.`)
+  console.log(`  CAVEAT: the spinor field carries winding structure, whether the bare rule produces conserved-winding fields is open.\n`)
+
+  return { windingConserved, energyRelaxes, defectPersists, trivialDecays, discriminates }
+}
+
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const r = topologicalPersistence()
+  console.log(`SOLVED PERSISTENCE (topological): winding-conserved ${r.windingConserved}, energy-relaxes ${r.energyRelaxes}, defect-persists ${r.defectPersists}, control-decays ${r.trivialDecays}, discriminates ${r.discriminates} => ${r.discriminates ? 'PASSED' : 'FAILED'}`)
+}

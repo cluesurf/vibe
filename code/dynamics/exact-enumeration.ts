@@ -6,9 +6,9 @@
 // inverse temperature, including beta = 0 (the true uniform / entropic average).
 // This is exact, with no detailed-balance worry. See p2-p6-optimal-path.md.
 
-import { Poset, makePosetFromFuture } from '~/tool/poset'
-import { makeBitMatrix, setBit } from '~/tool/bitset'
-import { Action } from '~/dynamics/action'
+import { Poset, makePosetFromFuture } from '@/code/tool/poset'
+import { makeBitMatrix, setBit } from '@/code/tool/bitset'
+import { Action } from '@/code/dynamics/action'
 
 // Enumerate every transitive upper-triangular relation on N elements and compute,
 // for each beta, the partition function and the Boltzmann average of each observer.

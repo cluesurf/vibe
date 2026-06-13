@@ -5,7 +5,7 @@
 // as an area law for Wilson loops, measured by the Creutz ratio (the string
 // tension).
 
-import { Rng } from '~/tool/rng'
+import { Rng } from '@/code/tool/rng'
 
 // An SU(2) element as a unit quaternion (q0 + q1 i + q2 j + q3 k). The matrix is
 // q0 I + i (q . sigma), so (1/2) Tr U = q0.

@@ -10,8 +10,8 @@
 // ingredient. Run: npx tsx code/viz/gravity-test.ts
 
 import { pathToFileURL } from 'node:url'
-import { buildCellGraph } from '~/substrate/coxeter/cell-direct'
-import { makeRng } from '~/tool/rng'
+import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 
 type Rng = { next: () => number }
 
