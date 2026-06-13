@@ -5,6 +5,7 @@
 // Lorentz-restoration experiments.
 
 import { dot } from '@/code/algebra/vector'
+import { jacobiEigenvalues3 } from '@/code/algebra/linear/eig-jacobi'
 
 // Light-cone front isotropy: the coefficient of variation of the embedding radius of
 // the BFS front at graph distance R from a start cell. A round (isotropic) cone has
@@ -128,4 +129,41 @@ export function nearestLinkHarmonicAnisotropy(input: {
     }
   }
   return n > 0 ? Math.hypot(re, im) / n : 0
+}
+
+// The one-step diffusion tensor of a symmetric walk and its eigenvalue anisotropy.
+// Over the given sample cells, the covariance of the UNIT neighbour-displacement
+// directions (so radial scale variation cancels) is accumulated into a 3x3 tensor.
+// Its three eigenvalues are equal when transport is isotropic (an invariant rank-2
+// tensor of an irreducible point group is a multiple of the identity), so the
+// anisotropy (max - min) / mean of the eigenvalues is the rotational-invariance
+// measure. Returns the sorted eigenvalues, the anisotropy, and the displacement
+// count used.
+export function diffusionTensorAnisotropy(input: {
+  coords: number[][]
+  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  cells: number[]
+}): { eigenvalues: number[]; anisotropy: number; count: number } {
+  const { coords, neighbors, cells } = input
+  const cov = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ]
+  let count = 0
+  for (const ci of cells) {
+    const cc = coords[ci]!
+    for (const w of neighbors[ci] ?? []) {
+      const d = [coords[w]![0]! - cc[0]!, coords[w]![1]! - cc[1]!, coords[w]![2]! - cc[2]!]
+      const len = Math.hypot(d[0]!, d[1]!, d[2]!)
+      if (len < 1e-9) continue
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) cov[i]![j]! += (d[i]! / len) * (d[j]! / len)
+      count++
+    }
+  }
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) cov[i]![j]! /= count
+  const eig = jacobiEigenvalues3(cov).sort((a, b) => a - b)
+  const meanEig = (eig[0]! + eig[1]! + eig[2]!) / 3
+  const anisotropy = meanEig > 0 ? (eig[2]! - eig[0]!) / meanEig : 1
+  return { eigenvalues: eig, anisotropy, count }
 }

@@ -15,6 +15,26 @@ export function latticeDispersion(input: {
   return directions.reduce((sum, d) => sum + (1 - Math.cos(dot(wave, d))), 0)
 }
 
+// Axis-versus-diagonal anisotropy of the lattice dispersion at fixed momentum
+// magnitude q: the relative difference of omega^2 / (number of directions) between a
+// pure axis wave (q, 0, ...) and a body-diagonal wave (q/sqrt(dim), ...), both of
+// magnitude q. Zero is isotropic. The D4 24-direction set is isotropic to order four
+// (tiny anisotropy), while the cubic and hypercubic axis sets are anisotropic
+// already at order four.
+export function dispersionAxisDiagonalAnisotropy(input: {
+  directions: number[][]
+  dimension: number
+  magnitude: number
+}): number {
+  const { directions, dimension, magnitude } = input
+  const axis = new Array<number>(dimension).fill(0)
+  axis[0] = magnitude
+  const diagonal = new Array<number>(dimension).fill(magnitude / Math.sqrt(dimension))
+  const axisOmega = latticeDispersion({ directions, wave: axis }) / directions.length
+  const diagonalOmega = latticeDispersion({ directions, wave: diagonal }) / directions.length
+  return Math.abs(axisOmega - diagonalOmega) / ((axisOmega + diagonalOmega) / 2)
+}
+
 // The oscillation frequency omega(k) of a single Fourier mode of the second-order
 // reversible wave on a 1D ring with nearest neighbours at +/-1. A plane wave
 // e^{ikx} evolves under the linear recurrence q(t+1) = 2 cos(k) q(t) - q(t-1)

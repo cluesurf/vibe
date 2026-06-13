@@ -122,3 +122,68 @@ export function continuousClassicalWalkMsd(input: {
 export function coinedWalkDispersion(input: { theta: number; k: number }): number {
   return Math.acos(Math.cos(input.theta) * Math.cos(input.k))
 }
+
+// The MEASURED dispersion frequency E of the two-component (left/right mover) coined
+// walk at a given wavenumber, simulated from a real plane-wave seed and read off by
+// DFT. The right-mover is seeded as cos(k x), the left-mover at zero; each beat
+// applies the exact discrete shift (R moves +1, L moves -1) and then the mass coin
+// (a rotation by `mass`, with mass = 0 the identity, a pure discrete shift). One
+// cell's right-mover component is tracked for `beats` steps and its dominant DFT
+// frequency bin gives E. Massless gives E = k (the lightcone); massive gives the
+// Dirac relation cos E = cos(mass) cos(k). This MEASURES the dispersion from the
+// simulated rule rather than assuming the analytic coinedWalkDispersion.
+export function measuredCoinedWalkFrequency(input: {
+  wavenumberIndex: number
+  size: number
+  mass: number
+  beats: number
+}): number {
+  const { wavenumberIndex, size, mass, beats } = input
+  const k = (2 * Math.PI * wavenumberIndex) / size
+  const right = new Float64Array(size)
+  const left = new Float64Array(size)
+  for (let x = 0; x < size; x++) right[x] = Math.cos(k * x)
+  const series = new Float64Array(beats)
+  const rightNext = new Float64Array(size)
+  const leftNext = new Float64Array(size)
+  const cm = Math.cos(mass)
+  const sm = Math.sin(mass)
+  for (let t = 0; t < beats; t++) {
+    series[t] = right[0]! // track one cell's right-mover component
+    // SHIFT (exactly discrete, a permutation): R moves +1, L moves -1
+    for (let x = 0; x < size; x++) {
+      rightNext[x] = right[(x - 1 + size) % size]!
+      leftNext[x] = left[(x + 1) % size]!
+    }
+    // COIN / MASS (massless = identity = pure discrete shift)
+    if (mass === 0) {
+      right.set(rightNext)
+      left.set(leftNext)
+    } else {
+      for (let x = 0; x < size; x++) {
+        const r = rightNext[x]!
+        const l = leftNext[x]!
+        right[x] = cm * r - sm * l
+        left[x] = sm * r + cm * l
+      }
+    }
+  }
+  // DFT: find the dominant frequency bin
+  let bestFrequency = 0
+  let bestPower = -1
+  for (let f = 1; f < beats / 2; f++) {
+    let re = 0
+    let im = 0
+    for (let t = 0; t < beats; t++) {
+      const phase = (-2 * Math.PI * f * t) / beats
+      re += series[t]! * Math.cos(phase)
+      im += series[t]! * Math.sin(phase)
+    }
+    const power = re * re + im * im
+    if (power > bestPower) {
+      bestPower = power
+      bestFrequency = f
+    }
+  }
+  return (2 * Math.PI * bestFrequency) / beats
+}

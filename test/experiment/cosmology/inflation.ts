@@ -12,6 +12,7 @@
 // computed from the integration, not assigned.
 // Run: npx tsx code/experiment/p30-inflation.ts
 
+import { inflatonHubble, inflatonStep } from '@/code/dynamics/inflaton'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -39,7 +40,7 @@ export function inflate(input: { phi0: number; m?: number }): {
   let sampledW = false
 
   for (let i = 0; i < 600000; i++) {
-    const H = Math.sqrt(Math.max(0, (0.5 * phid * phid + V(phi)) / 3))
+    const H = inflatonHubble({ phi, phidot: phid, potential: V })
     // acceleration: a''/a = (V - phidot^2) / 3 (positive while the potential dominates).
     const accel = (V(phi) - phid * phid) / 3
     const eps = 0.5 * (Vp(phi) / Math.max(1e-30, V(phi))) ** 2
@@ -53,16 +54,9 @@ export function inflate(input: { phi0: number; m?: number }): {
     }
     if (exited) minAccelAfterExit = Math.min(minAccelAfterExit, accel)
     // RK4 step on (phi, phid); lnA by H dt.
-    const deriv = (p: number, pd: number): { dp: number; dpd: number } => {
-      const h = Math.sqrt(Math.max(0, (0.5 * pd * pd + V(p)) / 3))
-      return { dp: pd, dpd: -3 * h * pd - Vp(p) }
-    }
-    const k1 = deriv(phi, phid)
-    const k2 = deriv(phi + 0.5 * dt * k1.dp, phid + 0.5 * dt * k1.dpd)
-    const k3 = deriv(phi + 0.5 * dt * k2.dp, phid + 0.5 * dt * k2.dpd)
-    const k4 = deriv(phi + dt * k3.dp, phid + dt * k3.dpd)
-    phi += (dt / 6) * (k1.dp + 2 * k2.dp + 2 * k3.dp + k4.dp)
-    phid += (dt / 6) * (k1.dpd + 2 * k2.dpd + 2 * k3.dpd + k4.dpd)
+    const next = inflatonStep({ phi, phidot: phid, potential: V, potentialSlope: Vp, dt })
+    phi = next.phi
+    phid = next.phidot
     lnA += H * dt
     if (exited && Math.abs(phi) < 0.1 && Math.abs(phid) < 0.1) break
   }

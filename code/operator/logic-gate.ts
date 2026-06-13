@@ -35,6 +35,14 @@ export function fullAdder(a: Bit, b: Bit, cin: Bit): { sum: Bit; carry: Bit } {
   return { sum, carry }
 }
 
+// The Toffoli (controlled-controlled-NOT) gate on three 0/1 bits: flip the third bit
+// when the first two are both 1, pass the first two through. A universal reversible
+// gate (a bijection on the eight three-bit states), and with the third input fixed to
+// 1 its third output is NAND(x, y), so it is functionally complete.
+export function toffoli(x: number, y: number, z: number): [number, number, number] {
+  return [x, y, x === 1 && y === 1 ? 1 - z : z]
+}
+
 // Build any 3-input Boolean function as a NAND tree (sum of minterms), every gate
 // a rule-NAND. table[p] is the output bit for the neighbourhood p = (l<<2)|(c<<1)|r.
 export function functionFromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => Bit {

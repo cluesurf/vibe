@@ -6,14 +6,19 @@
 // short wavelength (a lattice artifact), exactly as expected for an emergent-spacetime substrate.
 // Run: npx tsx code/experiment/p259-emergent-boost-3434.ts
 
+import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
+import { boostEnergyMomentum } from '@/code/measure/rapidity'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // continuum (IR) dispersion E = sqrt(m^2 + p^2); a boost of rapidity phi
 const Eof = (m: number, p: number): number => Math.sqrt(m * m + p * p)
-const boost = (E: number, p: number, phi: number): [number, number] => [E * Math.cosh(phi) - p * Math.sinh(phi), p * Math.cosh(phi) - E * Math.sinh(phi)]
+const boost = (E: number, p: number, phi: number): [number, number] => {
+  const b = boostEnergyMomentum({ omega: E, wavenumber: p, rapidity: -phi })
+  return [b.omega, b.wavenumber]
+}
 // lattice dispersion cos E = cos(m) cos(k) (from the directional rule)
-const ElatticeFromK = (m: number, k: number): number => Math.acos(Math.max(-1, Math.min(1, Math.cos(m) * Math.cos(k))))
+const ElatticeFromK = (m: number, k: number): number => coinedWalkDispersion({ theta: m, k })
 
 export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRelativistically: boolean; latticeBreaksUV: boolean; emergentInIR: boolean } {
   // (1) E^2 - p^2 = m^2 preserved under boosts (the Lorentz invariant)

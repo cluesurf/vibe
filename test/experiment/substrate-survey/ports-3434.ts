@@ -4,9 +4,12 @@
 // Run: npx tsx code/experiment/p193-ports-3434.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { parityBlockBeat3D } from '@/code/operator/ternary-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+// The deterministic ternary pair rule and its 3D Margolus parity block sweep live in
+// code/operator/ternary-permutation.
 const L = 61
 const at = (x: number, y: number, z: number): number => (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
 
@@ -31,30 +34,8 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
   return { ok, radii }
 }
 
-function perm(a: number, b: number, create: boolean): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
-  if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]
-  if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]
-  if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return create ? [1, -1] : [0, 0]
-  if (a === 1 && b === -1) return [-1, 1]
-  if (a === -1 && b === 1) return [0, 0]
-  return [a, b]
-}
-function beat(t: Int8Array, create: boolean): void {
-  for (const [dx, dy, dz, axis] of [[1, 0, 0, 0], [0, 1, 0, 1], [0, 0, 1, 2]] as const) {
-    for (const par of [0, 1]) {
-      for (let z = 0; z < L; z++) for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) {
-        const base = axis === 0 ? x : axis === 1 ? y : z
-        if (base % 2 !== par) continue
-        const i = at(x, y, z), j = at(x + dx, y + dy, z + dz)
-        const [na, nb] = perm(t[i]!, t[j]!, create); t[i] = na as -1 | 0 | 1; t[j] = nb as -1 | 0 | 1
-      }
-    }
-  }
-}
+const beat = (t: Int8Array, create: boolean): void =>
+  parityBlockBeat3D({ tone: t, side: L, index: at, create })
 
 export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: boolean } {
   const lc = lightcone()
