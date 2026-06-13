@@ -52,48 +52,22 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
     const d = g.coords[i]!.reduce((s, v, k) => s + (v - cx[k]!) ** 2, 0)
     if (d < bd) { bd = d; src = i }
   }
-  const phi = new Float64Array(n)
   const rho = new Float64Array(n)
   rho[src] = 1
   // Dirichlet boundary (the box edge, where deg < 6) is clamped to Phi = 0, so the discrete Poisson
   // -nabla^2 Phi = 4 pi rho is well posed and relaxes to the lattice Green's function ~ +1/r.
-  const isBoundary = (i: number): boolean => g.neighbors[i]!.length < 6
-  for (let it = 0; it < 2000; it++) {
-    const next = new Float64Array(n)
-    for (let i = 0; i < n; i++) {
-      if (isBoundary(i)) { next[i] = 0; continue }
-      let s = 0
-      for (const j of g.neighbors[i]!) s += phi[j]!
-      next[i] = (s + 4 * Math.PI * rho[i]!) / g.neighbors[i]!.length
-    }
-    phi.set(next)
-  }
+  const phi = latticePoissonJacobi({ neighbors: g.neighbors, source: rho, interiorDegree: 6, iterations: 2000 })
   // collect (r, Phi) in a clean window well inside the box, fit Phi = a*f(r) + c for f = 1/r and 1/r^2,
   // report R^2 of each. Newtonian gravity => 1/r fits far better.
   const norm = (c: number[]): number => Math.sqrt(c.reduce((s, v, k) => s + (v - g.coords[src]![k]!) ** 2, 0))
-  const data: { r: number; phi: number }[] = []
+  const rs: number[] = []
+  const phis: number[] = []
   for (let i = 0; i < n; i++) {
     const r = norm(g.coords[i]!)
-    if (r >= 2 && r <= 9 && phi[i]! > 1e-9) data.push({ r, phi: phi[i]! })
+    if (r >= 2 && r <= 9 && phi[i]! > 1e-9) { rs.push(r); phis.push(phi[i]!) }
   }
-  const r2 = (f: (r: number) => number): number => {
-    const xs = data.map((d) => f(d.r))
-    const ys = data.map((d) => d.phi)
-    const m = xs.length
-    const mx = xs.reduce((s, x) => s + x, 0) / m
-    const my = ys.reduce((s, y) => s + y, 0) / m
-    let sxx = 0
-    let sxy = 0
-    for (let i = 0; i < m; i++) { sxx += (xs[i]! - mx) ** 2; sxy += (xs[i]! - mx) * (ys[i]! - my) }
-    const a = sxy / sxx
-    const b = my - a * mx
-    let ssRes = 0
-    let ssTot = 0
-    for (let i = 0; i < m; i++) { ssRes += (ys[i]! - (a * xs[i]! + b)) ** 2; ssTot += (ys[i]! - my) ** 2 }
-    return 1 - ssRes / ssTot
-  }
-  const rFit = r2((r) => 1 / r)
-  const r2Fit = r2((r) => 1 / (r * r))
+  const rFit = fitForm(rs, phis, (r) => 1 / r).r2
+  const r2Fit = fitForm(rs, phis, (r) => 1 / (r * r)).r2
   return { rFit, r2Fit, ok: rFit > 0.97 && rFit > r2Fit }
 }
 

@@ -90,3 +90,42 @@ export function harmonicAnisotropy(input: {
   }
   return worst
 }
+
+// Directional anisotropy of the nearest-neighbour link directions of a 2D point set,
+// as the magnitude of the order-`harmonic` angular Fourier component (default the
+// 4-fold component for square lattices), normalised by the number of points. Each
+// point's link is the direction to its single nearest other point. A lattice has a
+// strong preferred-axis harmonic; a Poisson sprinkle averages to near zero.
+export function nearestLinkHarmonicAnisotropy(input: {
+  points: { x: number; y: number }[]
+  harmonic?: number
+}): number {
+  const { points } = input
+  const harmonic = input.harmonic ?? 4
+  let re = 0
+  let im = 0
+  let n = 0
+  for (let i = 0; i < points.length; i++) {
+    let best = -1
+    let bestD = Infinity
+    for (let j = 0; j < points.length; j++) {
+      if (i === j) continue
+      const dx = (points[j]?.x ?? 0) - (points[i]?.x ?? 0)
+      const dy = (points[j]?.y ?? 0) - (points[i]?.y ?? 0)
+      const d = dx * dx + dy * dy
+      if (d < bestD) {
+        bestD = d
+        best = j
+      }
+    }
+    if (best >= 0) {
+      const dx = (points[best]?.x ?? 0) - (points[i]?.x ?? 0)
+      const dy = (points[best]?.y ?? 0) - (points[i]?.y ?? 0)
+      const ang = Math.atan2(dy, dx)
+      re += Math.cos(harmonic * ang)
+      im += Math.sin(harmonic * ang)
+      n += 1
+    }
+  }
+  return n > 0 ? Math.hypot(re, im) / n : 0
+}

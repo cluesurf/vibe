@@ -56,6 +56,66 @@ export function coinedWalkMSD(input: {
   return { msd }
 }
 
+interface SpectralOperator {
+  values: number[] | Float64Array
+  vectors: Float64Array // columns: vectors[i * n + k] is component i of eigenvector k
+}
+
+// Mean-square displacement of a CONTINUOUS-time quantum walk e^{-iAt} on a graph, from `center`, from
+// the eigendecomposition of the hopping operator A. Amplitudes interfere, so the spread is BALLISTIC
+// (width ~ t). The amplitude to reach site j is sum_k v[center,k] v[j,k] e^{-i lambda_k t}.
+export function continuousQuantumWalkMsd(input: {
+  eig: SpectralOperator
+  n: number
+  center: number
+  t: number
+}): number {
+  const { eig, n, center, t } = input
+  let msd = 0
+  for (let j = 0; j < n; j++) {
+    let re = 0
+    let im = 0
+    for (let k = 0; k < n; k++) {
+      const amp = (eig.vectors[center * n + k] ?? 0) * (eig.vectors[j * n + k] ?? 0)
+      const lambda = eig.values[k] ?? 0
+      re += amp * Math.cos(lambda * t)
+      im += amp * -Math.sin(lambda * t)
+    }
+    const prob = re * re + im * im
+    msd += prob * (j - center) * (j - center)
+  }
+  return msd
+}
+
+// Mean-square displacement of a CONTINUOUS-time classical random walk (heat kernel e^{-Lt}) on a graph,
+// from `center`, from the eigendecomposition of the graph Laplacian L. Probabilities (not amplitudes)
+// propagate, so the spread is DIFFUSIVE (width ~ sqrt t). The distribution is renormalized to sum to 1.
+export function continuousClassicalWalkMsd(input: {
+  eig: SpectralOperator
+  n: number
+  center: number
+  t: number
+}): number {
+  const { eig, n, center, t } = input
+  const prob = new Float64Array(n)
+  let norm = 0
+  for (let j = 0; j < n; j++) {
+    let p = 0
+    for (let k = 0; k < n; k++) {
+      const amp = (eig.vectors[center * n + k] ?? 0) * (eig.vectors[j * n + k] ?? 0)
+      const lambda = eig.values[k] ?? 0
+      p += amp * Math.exp(-lambda * t)
+    }
+    prob[j] = Math.max(0, p)
+    norm += prob[j] ?? 0
+  }
+  let msd = 0
+  for (let j = 0; j < n; j++) {
+    msd += ((prob[j] ?? 0) / Math.max(norm, 1e-300)) * (j - center) * (j - center)
+  }
+  return msd
+}
+
 // The dispersion relation of the coined walk, omega(k) = arccos(cos(theta) cos(k)). Massless (theta = 0)
 // gives omega = |k|, a pure lightcone of speed 1. Massive (theta > 0) gives a gap at k = 0 and a relativistic
 // omega^2 ~ c^2 k^2 + m^2. omega(0) = theta is the mass gap.

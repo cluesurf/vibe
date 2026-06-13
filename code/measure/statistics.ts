@@ -59,12 +59,14 @@ export function relativeStandardDeviation(series: ArrayLike<number>): number {
 // to a probability, then sums p(x,y) log2( p(x,y) / (p(x) p(y)) ) over non-empty cells. Zero when
 // the variables are independent, used to quantify measurement dependence (the setting-versus-hidden
 // -state correlation) in the Bell / superdeterminism experiments.
-export function mutualInformationBits(joint: ReadonlyArray<ReadonlyArray<number>>): number {
-  let total = 0
-  for (const row of joint) for (const c of row) total += c
-  if (total <= 0) return 0
+export function mutualInformationBits(joint: ArrayLike<ArrayLike<number>>): number {
   const rows = joint.length
   const cols = joint[0]?.length ?? 0
+  let total = 0
+  for (let x = 0; x < rows; x++) {
+    for (let y = 0; y < cols; y++) total += joint[x]![y] ?? 0
+  }
+  if (total <= 0) return 0
   const px = new Array<number>(rows).fill(0)
   const py = new Array<number>(cols).fill(0)
   for (let x = 0; x < rows; x++) {

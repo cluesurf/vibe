@@ -7,31 +7,16 @@
 // hyperbolic lattice. Every vertex has the same degree (NO boundary), so the wave conserves and spectra are
 // measured with zero edge artifact. Run: npx tsx code/experiment/p240-closed-manifold.ts
 
+import { pslCayleyGraph, standardPslGenerators } from '@/code/substrate/psl-cayley'
+import { spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Mat = [number, number, number, number] // 2x2 over F_7, [a,b,c,d]
-const P = 7
-const mod = (x: number): number => ((x % P) + P) % P
-function mmul(A: Mat, B: Mat): Mat { return [mod(A[0] * B[0] + A[1] * B[2]), mod(A[0] * B[1] + A[1] * B[3]), mod(A[2] * B[0] + A[3] * B[2]), mod(A[2] * B[1] + A[3] * B[3])] }
-// canonical rep in PSL(2,7) = SL(2,7)/{+-I}, pick the representative whose first nonzero entry is <= 3
-function canon(M: Mat): string {
-  const neg: Mat = [mod(-M[0]), mod(-M[1]), mod(-M[2]), mod(-M[3])]
-  const lead = (m: Mat): number => m.find((x) => x !== 0)!
-  const chosen = lead(M) <= 3 ? M : neg
-  return chosen.join(',')
-}
-
 export function closedManifold(): { vertices: number; vertexTransitive: boolean; conserves: boolean; specDim: number } {
-  const I: Mat = [1, 0, 0, 1]
-  const S: Mat = [1, 1, 0, 1], Sinv: Mat = [1, 6, 0, 1], T: Mat = [0, 6, 1, 0], Tinv: Mat = [0, 1, 6, 0]
-  const gens = [S, Sinv, T, Tinv]
-  // BFS-generate the group as canonical strings
-  const elems = new Map<string, Mat>([[canon(I), I]]); const q: Mat[] = [I]
-  while (q.length) { const g = q.shift()!; for (const gen of gens) { const h = mmul(gen, g); const k = canon(h); if (!elems.has(k)) { elems.set(k, h); q.push(h) } } }
-  const keys = [...elems.keys()]; const id = new Map(keys.map((k, i) => [k, i])); const N = keys.length
-  // Cayley graph adjacency
-  const adj: number[][] = keys.map((k) => { const M = elems.get(k)!; const ns = new Set<number>(); for (const gen of gens) ns.add(id.get(canon(mmul(gen, M)))!); return [...ns] })
+  // The PSL(2,7) Cayley graph (a boundary-free closed hyperbolic lattice) lives in
+  // code/substrate/psl-cayley.
+  const { adjacency: adj } = pslCayleyGraph({ p: 7, generators: standardPslGenerators(7) })
+  const N = adj.length
   const degs = adj.map((a) => a.length)
   const vertexTransitive = degs.every((d) => d === degs[0])
   // mod-3 wave on the closed graph, charge conservation (no boundary leak)
@@ -42,9 +27,7 @@ export function closedManifold(): { vertices: number; vertexTransitive: boolean;
   // degree on the Cayley graph = 4 (= |gens|); 4 mod 3 = 1, so net charge follows sum(nxt)=sum(cur)-sum(prev) on a REGULAR graph -> a clean invariant exists (no boundary leak). check the second-order invariant is bounded.
   const conserves = vertexTransitive // on a vertex-transitive (boundary-free) graph the wave has no edge leak, the defining win
   // spectral dimension via lazy walk return (a closed graph saturates at long time = finite, measure short-time slope)
-  let p = new Float64Array(N); p[0] = 1; let np = new Float64Array(N); const ret: number[] = []
-  for (let t = 0; t < 12; t++) { ret.push(p[0]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = adj[i]!.length; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (const j of adj[i]!) np[j] = np[j]! + sh } const tmp = p; p = np; np = tmp }
-  const specDim = Math.round((-2 * (Math.log(ret[4]!) - Math.log(ret[2]!))) / (Math.log(4) - Math.log(2)) * 100) / 100
+  const specDim = Math.round(spectralDimension({ neighbors: adj, start: 0, t1: 2, t2: 4 }) * 100) / 100
   return { vertices: N, vertexTransitive, conserves, specDim }
 }
 

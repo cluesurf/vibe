@@ -1,7 +1,8 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { latticeDispersion } from '@/code/measure/dispersion'
+import { dispersionAnisotropyAtScale } from '@/code/measure/dispersion'
+import { coordinateAxes, probeDirections } from '@/code/measure/probe-directions'
 
 // The discrete-to-continuous bridge. The base is DISCRETE, the 24 directions of {3,4,3,4}
 // have the finite symmetry F4, not the continuous rotation group SO(4). Yet at long wavelength
@@ -10,42 +11,8 @@ import { latticeDispersion } from '@/code/measure/dispersion'
 // wavelength, and show it falls toward zero as the momentum goes to zero, faster for the 24 D4
 // directions than for a coarser 8-direction cubic set. Continuity is emergent, not assumed.
 
-const eightAxes = (): number[][] => {
-  const axes: number[][] = []
-  for (let index = 0; index < 4; index++) {
-    for (const sign of [1, -1]) {
-      const axis = [0, 0, 0, 0]
-      axis[index] = sign
-      axes.push(axis)
-    }
-  }
-  return axes
-}
-
-// a deterministic, well-spread set of probe directions on the unit 3-sphere (additive recurrence,
-// no random seed), used to measure how isotropic the dispersion is at a given momentum scale.
-const probeDirections = (count: number): number[][] => {
-  const alpha = [0.7548776662466927, 0.5698402909980532, 0.4301597090019468, 0.3247179572447458]
-  const directions: number[][] = []
-  for (let index = 1; index <= count; index++) {
-    const raw = alpha.map((a) => ((index * a) % 1) - 0.5)
-    const norm = Math.hypot(...raw)
-    directions.push(raw.map((value) => value / norm))
-  }
-  return directions
-}
-
-// the lattice dispersion on a direction set: omega(k) = sqrt(sum over directions of (1 - cos(k . dir)))
-const dispersion = (wave: number[], dirs: number[][]): number =>
-  Math.sqrt(latticeDispersion({ directions: dirs, wave }))
-
-// the anisotropy of the dispersion at a momentum scale: the spread of the speed omega/|k| over directions
-const anisotropyAtScale = (scale: number, dirs: number[][], probes: number[][]): number => {
-  const speeds = probes.map((probe) => dispersion(probe.map((value) => value * scale), dirs) / scale)
-  const mean = speeds.reduce((sum, value) => sum + value, 0) / speeds.length
-  const variance = speeds.reduce((sum, value) => sum + (value - mean) ** 2, 0) / speeds.length
-  return Math.sqrt(variance) / mean
-}
+const anisotropyAtScale = (scale: number, dirs: number[][], probes: number[][]): number =>
+  dispersionAnisotropyAtScale({ directions: dirs, probes, scale })
 
 export default defineExperiment({
   id: 'relativity/symmetry-restoration-3434',
@@ -56,8 +23,8 @@ export default defineExperiment({
   paper: true,
   run() {
     const d4 = rootsD4()
-    const cubic = eightAxes()
-    const probes = probeDirections(600)
+    const cubic = coordinateAxes(4)
+    const probes = probeDirections({ count: 600, dimension: 4 })
     const scales = [0.8, 0.4, 0.2, 0.1, 0.05]
 
     const d4Anisotropy = scales.map((scale) => anisotropyAtScale(scale, d4, probes))

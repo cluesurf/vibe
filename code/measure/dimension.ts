@@ -166,6 +166,62 @@ export function growthIsExponential(input: { growth: Uint32Array }): boolean {
   return mean > 1.4 && lastRatio > 0.7 * first
 }
 
+// The mean per-step ball-growth ratio over the UNSATURATED radii, i.e. the average
+// of growth[r] / growth[r-1] across radii where the ball is still growing and is
+// below `saturationFraction` of the final size (so finite-substrate saturation does
+// not drag the ratio toward 1). Only radii with growth[r-1] >= minimumPrevious
+// count. Returns NaN when no radius qualifies. Exponential reach shows a mean ratio
+// well above 1; polynomial reach decays toward 1.
+export function meanUnsaturatedGrowthRatio(input: {
+  growth: Uint32Array
+  minimumPrevious?: number
+  saturationFraction?: number
+}): number {
+  const g = input.growth
+  const minimumPrevious = input.minimumPrevious ?? 2
+  const saturationFraction = input.saturationFraction ?? 0.5
+  const final = g[g.length - 1] ?? 1
+  const ratios: number[] = []
+  for (let r = 1; r < g.length; r++) {
+    const prev = g[r - 1] ?? 0
+    const cur = g[r] ?? 0
+    if (prev >= minimumPrevious && prev < saturationFraction * final && cur > prev) {
+      ratios.push(cur / prev)
+    }
+  }
+  if (ratios.length === 0) return NaN
+  return ratios.reduce((a, b) => a + b, 0) / ratios.length
+}
+
+// The GEOMETRIC mean of the unsaturated per-step ball-growth ratios, i.e.
+// exp(mean(log(growth[r+1]/growth[r]))) over radii where the ball is still growing
+// and below `saturationFraction` of the final size, counting only radii with
+// growth[r] > minimumPrevious. The geometric mean is more robust than the
+// arithmetic one at constant density (where the disc saturates fast). Above 1 for
+// exponential reach; toward 1 for polynomial growth. Returns 0 when no radius
+// qualifies.
+export function geometricUnsaturatedGrowthRatio(input: {
+  growth: Uint32Array
+  total: number
+  minimumPrevious?: number
+  saturationFraction?: number
+}): number {
+  const { growth, total } = input
+  const minimumPrevious = input.minimumPrevious ?? 1
+  const saturationFraction = input.saturationFraction ?? 0.6
+  let logSum = 0
+  let count = 0
+  for (let r = 0; r + 1 < growth.length; r++) {
+    const cur = growth[r] ?? 0
+    const next = growth[r + 1] ?? 0
+    if (cur > minimumPrevious && cur < saturationFraction * total && next > cur) {
+      logSum += Math.log(next / cur)
+      count += 1
+    }
+  }
+  return count > 0 ? Math.exp(logSum / count) : 0
+}
+
 // The spectral dimension of a graph from a lazy random-walk return probability. A
 // lazy walk (stay with probability 1/2, otherwise step to a uniform neighbour) keeps
 // P(t) = probability of being back at the start after t steps, and on a

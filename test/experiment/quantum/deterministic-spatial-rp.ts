@@ -12,19 +12,11 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
+import { diracEqualTimeCorrelator } from '@/code/measure/two-point'
 
 // the deterministic field's equal-time vacuum correlator from the Dirac-walk dispersion (P151)
-function correlator(m: number, maxR: number, modes: number): number[] {
-  const c = new Float64Array(maxR + 1)
-  for (let n = 1; n < modes; n++) {
-    const k = (Math.PI * n) / modes
-    const omega = Math.acos(Math.max(-1, Math.min(1, Math.cos(k) * Math.cos(m))))
-    if (omega < 1e-9) continue
-    const w = 1 / (2 * omega) // the positive spectral weight (Kallen-Lehmann)
-    for (let r = 0; r <= maxR; r++) c[r]! += (w * Math.cos(k * r)) / modes
-  }
-  return Array.from(c)
-}
+const correlator = (m: number, maxR: number, modes: number): number[] =>
+  diracEqualTimeCorrelator({ mass: m, maxR, modes })
 
 export function deterministicSpatialRP(input?: { masses?: number[] }): {
   masses: number[]

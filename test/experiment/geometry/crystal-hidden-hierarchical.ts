@@ -10,53 +10,17 @@
 //      size. So the crystal is tree-like and the flat lattice is not.
 // Run: npx tsx code/experiment/p49-crystal-hidden-hierarchical.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
-import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
+import { Substrate } from '@/code/tool/substrate'
+import { gromovDelta } from '@/code/measure/curvature'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function bfs(adj: ReadonlyArray<Uint32Array>, source: number, size: number): Int32Array {
-  const dist = new Int32Array(size).fill(-1)
-  dist[source] = 0
-  let frontier = [source]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of adj[v] ?? new Uint32Array(0)) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[v] ?? 0) + 1
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return dist
-}
-
-// Gromov delta from the four-point condition, sampled. For four points, of the three
-// sums of opposite-pair distances, the largest two differ by at most 2 delta.
-function gromovDelta(s: Substrate, samples: number, rng: Rng): number {
-  const adj = undirectedAdjacency({ substrate: s })
-  const size = s.size
-  let worst = 0
-  for (let k = 0; k < samples; k++) {
-    const pts = [rng.nextInt({ max: size }), rng.nextInt({ max: size }), rng.nextInt({ max: size }), rng.nextInt({ max: size })]
-    const d = pts.map((p) => bfs(adj, p, size))
-    const dij = (a: number, b: number): number => d[a]?.[pts[b]!] ?? 0
-    const s1 = dij(0, 1) + dij(2, 3)
-    const s2 = dij(0, 2) + dij(1, 3)
-    const s3 = dij(0, 3) + dij(1, 2)
-    const sorted = [s1, s2, s3].sort((a, b) => b - a)
-    const delta = ((sorted[0] ?? 0) - (sorted[1] ?? 0)) / 2
-    worst = Math.max(worst, delta)
-  }
-  return worst
-}
+// Gromov delta-hyperbolicity (the tree-likeness measure) lives in code/measure/curvature.
 
 function anisotropyOf(s: Substrate, seed: number): number {
   return lorentzIsotropy({ substrate: s, samples: 3000, rng: makeRng({ seed }) }).anisotropy
@@ -84,8 +48,8 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
     Math.abs(crystalAnisotropy - foamAnisotropy) < 0.1 &&
     Math.abs(crystalAnisotropy - latticeAnisotropy) > 0.5
 
-  const crystalDelta = gromovDelta(crystal, 150, makeRng({ seed: input.seed + 2 }))
-  const latticeDelta = gromovDelta(flat, 150, makeRng({ seed: input.seed + 2 }))
+  const crystalDelta = gromovDelta({ substrate: crystal, samples: 150, rng: makeRng({ seed: input.seed + 2 }) })
+  const latticeDelta = gromovDelta({ substrate: flat, samples: 150, rng: makeRng({ seed: input.seed + 2 }) })
   const crystalIsTreeLike = crystalDelta < 0.5 * latticeDelta
 
   return {

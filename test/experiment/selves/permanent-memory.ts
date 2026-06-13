@@ -45,40 +45,8 @@ const sumTone = (t: Int8Array): number => {
   return s
 }
 
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void {
-  moved.fill(0)
-  const agree = (i: number, q: number, except: number): number => {
-    let c = 0
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
-      const w = adj[p]!
-      if (w !== except && tone[w] === q) c++
-    }
-    return c
-  }
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      if (agree(e, q, c) >= agree(c, q, e) || rng.next() < 0.02) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
+const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
+  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0 })
 
 // conserving maintenance toward target, two conserving moves:
 //   1. SWAP cells that drifted opposite ways (one above its target, one below), fixing both.

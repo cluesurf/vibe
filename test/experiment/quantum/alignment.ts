@@ -11,6 +11,7 @@
 // Run: npx tsx code/experiment/p7-alignment.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { mutualInformationBits } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -51,7 +52,6 @@ export function measureChshAndDependence(input: {
   const count = [0, 0, 0, 0]
   // joint histogram of (setting-A bit, lambda bin) for the mutual information.
   const joint = [new Float64Array(BINS), new Float64Array(BINS)]
-  let total = 0
 
   for (let t = 0; t < input.trials; t++) {
     const lambda = rng.next() * Math.PI
@@ -71,37 +71,14 @@ export function measureChshAndDependence(input: {
     if (arr) {
       arr[bin] = (arr[bin] ?? 0) + 1
     }
-    total += 1
   }
 
   const e = (i: number): number =>
     (count[i] ?? 0) === 0 ? 0 : (sum[i] ?? 0) / (count[i] ?? 1)
   const s = e(0) - e(1) + e(2) + e(3)
 
-  // Mutual information I(setting; lambda-bin) in bits.
-  const pA = [0, 0]
-  const pBin = new Float64Array(BINS)
-  for (let aBit = 0; aBit < 2; aBit++) {
-    const arr = joint[aBit] ?? new Float64Array(BINS)
-    for (let bin = 0; bin < BINS; bin++) {
-      const c = (arr[bin] ?? 0) / total
-      pA[aBit] = (pA[aBit] ?? 0) + c
-      pBin[bin] = (pBin[bin] ?? 0) + c
-    }
-  }
-  let mi = 0
-  for (let aBit = 0; aBit < 2; aBit++) {
-    const arr = joint[aBit] ?? new Float64Array(BINS)
-    for (let bin = 0; bin < BINS; bin++) {
-      const pjoint = (arr[bin] ?? 0) / total
-      if (pjoint > 0) {
-        const denom = (pA[aBit] ?? 0) * (pBin[bin] ?? 0)
-        if (denom > 0) {
-          mi += pjoint * Math.log2(pjoint / denom)
-        }
-      }
-    }
-  }
+  // Mutual information I(setting; lambda-bin) in bits, from the joint count histogram.
+  const mi = mutualInformationBits(joint)
   return { s, mutualInfo: mi }
 }
 

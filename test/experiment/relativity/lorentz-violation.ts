@@ -12,67 +12,23 @@
 // npx tsx code/experiment/p27-lorentz-violation.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
+import { latticeDispersion } from '@/code/measure/dispersion'
+import { groupSpeedAnisotropy } from '@/code/measure/group-speed'
+import { nearestLinkHarmonicAnisotropy } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Lattice scalar dispersion omega(k) = sqrt(sum 4 sin^2(k_i/2)) and its group speed
-// |grad_k omega|. The continuum is omega = |k| (speed 1, isotropic).
+// Lattice scalar dispersion omega(k) = sqrt(sum 4 sin^2(k_i/2)), the square-lattice
+// nearest-neighbour dispersion. The continuum is omega = |k| (speed 1, isotropic).
+const SQUARE_DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 function omega(kx: number, ky: number): number {
-  return Math.sqrt(4 * Math.sin(kx / 2) ** 2 + 4 * Math.sin(ky / 2) ** 2)
-}
-function groupSpeed(kx: number, ky: number): number {
-  const h = 1e-5
-  const dwx = (omega(kx + h, ky) - omega(kx - h, ky)) / (2 * h)
-  const dwy = (omega(kx, ky + h) - omega(kx, ky - h)) / (2 * h)
-  return Math.hypot(dwx, dwy)
+  return Math.sqrt(latticeDispersion({ directions: SQUARE_DIRECTIONS, wave: [kx, ky] }))
 }
 
 // Group-speed anisotropy at a fixed momentum magnitude: (max - min) / mean over
 // directions. Zero is perfectly Lorentz-safe, large is strong LIV.
 export function latticeAnisotropy(kMag: number): { meanSpeed: number; anisotropy: number } {
-  const speeds: number[] = []
-  for (let a = 0; a < 24; a++) {
-    const theta = (a / 24) * (Math.PI / 2) // one quadrant by symmetry
-    speeds.push(groupSpeed(kMag * Math.cos(theta), kMag * Math.sin(theta)))
-  }
-  const mean = speeds.reduce((p, q) => p + q, 0) / speeds.length
-  const max = Math.max(...speeds)
-  const min = Math.min(...speeds)
-  return { meanSpeed: mean, anisotropy: mean > 0 ? (max - min) / mean : 0 }
-}
-
-// Directional anisotropy of nearest-neighbor link directions at the discreteness
-// scale: the 4-fold Fourier component, normalised. A lattice has strong 4-fold
-// structure (preferred axes), a Poisson sprinkling has none (isotropic).
-function linkDirectionAnisotropy(points: { x: number; y: number }[]): number {
-  let cos4 = 0
-  let sin4 = 0
-  let n = 0
-  for (let i = 0; i < points.length; i++) {
-    let best = -1
-    let bestD = Infinity
-    for (let j = 0; j < points.length; j++) {
-      if (i === j) {
-        continue
-      }
-      const dx = (points[j]?.x ?? 0) - (points[i]?.x ?? 0)
-      const dy = (points[j]?.y ?? 0) - (points[i]?.y ?? 0)
-      const d = dx * dx + dy * dy
-      if (d < bestD) {
-        bestD = d
-        best = j
-      }
-    }
-    if (best >= 0) {
-      const dx = (points[best]?.x ?? 0) - (points[i]?.x ?? 0)
-      const dy = (points[best]?.y ?? 0) - (points[i]?.y ?? 0)
-      const ang = Math.atan2(dy, dx)
-      cos4 += Math.cos(4 * ang)
-      sin4 += Math.sin(4 * ang)
-      n += 1
-    }
-  }
-  return n > 0 ? Math.hypot(cos4, sin4) / n : 0
+  return groupSpeedAnisotropy({ omega, kMag, samples: 24 })
 }
 
 function sprinklePoints(input: { count: number; rng: Rng }): { x: number; y: number }[] {
@@ -89,8 +45,8 @@ function latticePoints(side: number): { x: number; y: number }[] {
 }
 
 export function lorentzSafety(): { sprinkle: number; lattice: number } {
-  const sprinkle = linkDirectionAnisotropy(sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }))
-  const lattice = linkDirectionAnisotropy(latticePoints(30))
+  const sprinkle = nearestLinkHarmonicAnisotropy({ points: sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }) })
+  const lattice = nearestLinkHarmonicAnisotropy({ points: latticePoints(30) })
   return { sprinkle, lattice }
 }
 

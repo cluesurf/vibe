@@ -14,6 +14,7 @@
 // tens of microns, so a bulk's extra dimension must be smaller than that, or the substrate is 3D.
 // Run: npx tsx code/experiment/p90-braneworld.ts
 
+import { localForceLawExponent } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -31,12 +32,7 @@ function potential3D(r: number): number {
 
 // The local force-law exponent d ln(force) / d ln(r), force = -dG/dr.
 function forceExponent(potential: (r: number) => number, r: number): number {
-  const h = r * 0.01
-  const force = (rr: number): number => -(potential(rr + h) - potential(rr - h)) / (2 * h)
-  return (
-    (Math.log(force(r * 1.05)) - Math.log(force(r * 0.95))) /
-    (Math.log(r * 1.05) - Math.log(r * 0.95))
-  )
+  return localForceLawExponent({ potential, r })
 }
 
 export function braneworld(): {

@@ -14,7 +14,10 @@ export function betheCavityDecay(input: {
 }): number {
   const branching = input.coordination - 1
   const energy = input.energy
-  return (energy - Math.sqrt(energy * energy - 4 * branching)) / (2 * branching)
+  // At the band edge energy = 2 sqrt(branching) the discriminant is zero, but floating-point roundoff
+  // can make it slightly negative, so clamp it before the square root.
+  const disc = Math.max(0, energy * energy - 4 * branching)
+  return (energy - Math.sqrt(disc)) / (2 * branching)
 }
 
 // The boundary correlator exponent alpha: a bulk-mediated correlator on the

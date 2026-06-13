@@ -13,12 +13,11 @@
 // Run: npx tsx code/experiment/p112-reproduction.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
+import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 function bfsParents(offsets: Int32Array, adj: Int32Array, n: number, src: number): { dist: Int32Array; parent: Int32Array } {
   const dist = new Int32Array(n).fill(-1)
@@ -62,35 +61,8 @@ function ballSet(offsets: Int32Array, adj: Int32Array, n: number, start: number,
   return out
 }
 
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void {
-  moved.fill(0)
-  const agree = (i: number, q: number, except: number): number => {
-    let c = 0
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
-      const w = adj[p]!
-      if (w !== except && tone[w] === q) c++
-    }
-    return c
-  }
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      if (agree(e, q, c) >= agree(c, q, e) || rng.next() < 0.02) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
+const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
+  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: false, arrow: 0 })
 
 function largeComponents(tone: Int8Array, offsets: Int32Array, adj: Int32Array, n: number, minSize: number): number {
   const parent = new Int32Array(n)

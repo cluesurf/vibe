@@ -84,6 +84,37 @@ export function classifyGeometry(symbol: number[]): Geometry {
   return 'higher'
 }
 
+// The cell of a regular honeycomb symbol (drop the last entry) and its vertex figure
+// (drop the first entry), the two sub-symbols the honeycomb classifiers test.
+export function honeycombCell(symbol: number[]): number[] {
+  return symbol.slice(0, -1)
+}
+
+export function honeycombVertexFigure(symbol: number[]): number[] {
+  return symbol.slice(1)
+}
+
+// A COMPACT regular honeycomb: hyperbolic overall, with both finite (spherical) cells
+// AND a finite (spherical) vertex figure. The {5,3,4} regime.
+export function isCompactHoneycomb(symbol: number[]): boolean {
+  return (
+    classifyGeometry(symbol) === 'hyperbolic' &&
+    classifyGeometry(honeycombCell(symbol)) === 'spherical' &&
+    classifyGeometry(honeycombVertexFigure(symbol)) === 'spherical'
+  )
+}
+
+// An IDEAL regular honeycomb with finite cells: hyperbolic overall, spherical (finite)
+// cells, but a Euclidean (ideal, infinite) vertex figure. The {3,4,3,4} regime, whose
+// vertex figure is the cubic cusp {4,3,4}.
+export function isIdealFiniteCellHoneycomb(symbol: number[]): boolean {
+  return (
+    classifyGeometry(symbol) === 'hyperbolic' &&
+    classifyGeometry(honeycombCell(symbol)) === 'spherical' &&
+    classifyGeometry(honeycombVertexFigure(symbol)) === 'euclidean'
+  )
+}
+
 // The mirror normals v_i (rows) in the model space, with the diagonal metric J (entries
 // +1 spacelike, -1 timelike). Built from the eigendecomposition so that the J-inner product
 // of the normals reproduces the Gram matrix exactly. For a hyperbolic symbol J has exactly

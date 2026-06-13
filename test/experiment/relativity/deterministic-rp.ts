@@ -9,6 +9,8 @@
 // oscillatory real linear dispersion = a positive-norm massless relativistic particle = reflection
 // positive. Run: npx tsx code/experiment/p154-deterministic-rp.ts
 
+import { waveModeFrequency } from '@/code/measure/dispersion'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -29,45 +31,19 @@ export function deterministicRP(input?: { ks?: number[] }): {
   const ks = input?.ks ?? [0.157, 0.314, 0.471, 0.628, 0.785, 1.047]
   const modes: { k: number; omega: number; oscillates: boolean; bounded: boolean }[] = []
   for (const k of ks) {
-    const D = 2 * Math.cos(k)
-    let a = 0 // q(t-1), starting q(-1)
-    let b = 1 // q(t), starting q(0)
-    const zeros: number[] = []
-    let maxAbs = 1
-    for (let t = 0; t < 1500 && zeros.length < 2; t++) {
-      const c = D * b - a // q(t+1)
-      maxAbs = Math.max(maxAbs, Math.abs(c))
-      if ((b >= 0) !== (c >= 0)) zeros.push(t + b / (b - c)) // interpolated zero in (t, t+1)
-      a = b
-      b = c
-    }
-    // consecutive zeros of the mode are a HALF period apart, so omega = pi / spacing
-    const spacing = zeros.length >= 2 ? zeros[1]! - zeros[0]! : 0
-    const omega = spacing > 0 ? Math.PI / spacing : 0
-    const oscillates = zeros.length >= 2
-    const bounded = maxAbs < 10 // a real frequency stays bounded, an imaginary one (a tachyon) blows up
-    modes.push({ k, omega, oscillates, bounded })
+    const m = waveModeFrequency({ wavenumber: k })
+    modes.push({ k, omega: m.omega, oscillates: m.oscillates, bounded: m.bounded })
   }
 
   const allOscillate = modes.every((md) => md.oscillates && md.bounded)
   // fit omega(k) = slope*k + intercept over the oscillating modes
   const fitModes = modes.filter((md) => md.oscillates && md.omega > 0)
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let syy = 0
-  const mm = fitModes.length
-  for (const md of fitModes) {
-    sx += md.k
-    sy += md.omega
-    sxx += md.k * md.k
-    sxy += md.k * md.omega
-    syy += md.omega * md.omega
-  }
-  const dispersionSlope = mm > 1 ? (mm * sxy - sx * sy) / (mm * sxx - sx * sx) : 0
-  const dispersionIntercept = mm > 1 ? (sy - dispersionSlope * sx) / mm : 0
-  const dispersionR2 = mm > 1 ? (mm * sxy - sx * sy) ** 2 / ((mm * sxx - sx * sx) * (mm * syy - sy * sy) + 1e-30) : 0
+  const fit = fitModes.length > 1
+    ? linearFit({ xs: fitModes.map((md) => md.k), ys: fitModes.map((md) => md.omega) })
+    : { slope: 0, intercept: 0, r2: 0 }
+  const dispersionSlope = fit.slope
+  const dispersionIntercept = fit.intercept
+  const dispersionR2 = fit.r2
 
   // a LINEAR dispersion through the origin (omega ~ c|k|) with a positive slope = a massless particle
   const linearMassless = dispersionR2 > 0.9 && dispersionSlope > 0.2 && Math.abs(dispersionIntercept) < 0.15
