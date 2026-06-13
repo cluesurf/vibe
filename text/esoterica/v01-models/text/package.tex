@@ -14,25 +14,34 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
+
+% Render \part as a normal in-flow heading instead of a full blank page.
+\titleclass{\part}{straight}
+\titleformat{\part}[display]
+  {\centering\Huge\bfseries}
+  {\partname\ \thepart}
+  {0.6em}
+  {}
+\titlespacing*{\part}{0pt}{1.2\baselineskip}{1.2\baselineskip}
 \usepackage[
-    pdfauthor={Lance Pollard},
-    pdftitle={Esoteric Models of Reality, the Universe, and our Experience},
-    pdfsubject={Comparative Esoteric Cosmology},
-    pdfkeywords={esoteric, cosmology, Kabbalah, Buddhism, creation, consciousness},
-    pdfcreator={Lance Pollard},
-    pdfproducer={LuaLaTeX},
-    colorlinks=true,
-    linkcolor=black,
-    urlcolor=black,
-    citecolor=black
+ pdfauthor={Lance Pollard},
+ pdftitle={Esoteric Models of Reality, the Universe, and our Experience},
+ pdfsubject={Comparative Esoteric Cosmology},
+ pdfkeywords={esoteric, cosmology, Kabbalah, Buddhism, creation, consciousness},
+ pdfcreator={Lance Pollard},
+ pdfproducer={LuaLaTeX},
+ colorlinks=true,
+ linkcolor=black,
+ urlcolor=black,
+ citecolor=black
 ]{hyperref}
 
 \hypersetup{
-    pdfinfo={
-        ContactEmail={lancejpollard@gmail.com},
-        ContactURL={https://clue.surf},
-        Copyright={Copyright (C) 2026 ClueSurf}
-    }
+ pdfinfo={
+ ContactEmail={lancejpollard@gmail.com},
+ ContactURL={https://clue.surf},
+ Copyright={Copyright (C) 2026 ClueSurf}
+ }
 }
 
 \usepackage{etoolbox}
@@ -53,9 +62,9 @@
 \setlength{\footskip}{40pt}
 
 \fancypagestyle{plain}{
-  \fancyhf{}
-  \fancyfoot[C]{-- \thepage\ --}
-  \renewcommand{\headrulewidth}{0pt}
+ \fancyhf{}
+ \fancyfoot[C]{-- \thepage\ --}
+ \renewcommand{\headrulewidth}{0pt}
 }
 
 \setlist{itemsep=0pt, topsep=2pt}
@@ -63,9 +72,9 @@
 \onehalfspacing
 
 \title{
-  {\huge \textbf{Esoteric Models of Reality}} \\[2mm]
-  \large The Universe and our Experience, as the Traditions Have Mapped It
+ {\huge \textbf{Esoteric Models of Reality}} \\[2mm]
+ \large The Universe and our Experience, as the Traditions Have Mapped It
 }
 
 \author{Lance Pollard \\ \small lancejpollard@gmail.com}
-\date{2026}
+\date{June 2026}

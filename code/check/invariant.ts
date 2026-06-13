@@ -18,17 +18,20 @@ export function conservesCharge(
 }
 
 // running forward `beats` beats then backward `beats` beats recovers the start
-// exactly, with zero error.
+// exactly, with zero error. For an involution collision the inverse is the same
+// map (the default); a bijective collision passes its paired inverse, which
+// inverseBeat applies after un-streaming.
 export function isReversible(
   will: Will,
   collision: Collision,
   beats: number,
+  inverseCollision: Collision = collision,
 ): boolean {
   const start = cloneWill(will)
   let forward = cloneWill(will)
   for (let step = 0; step < beats; step++) forward = beat(forward, collision)
   let back = forward
-  for (let step = 0; step < beats; step++) back = inverseBeat(back, collision)
+  for (let step = 0; step < beats; step++) back = inverseBeat(back, inverseCollision)
   if (back.data.length !== start.data.length) return false
   for (let index = 0; index < back.data.length; index++) {
     if (back.data[index] !== start.data[index]) return false
