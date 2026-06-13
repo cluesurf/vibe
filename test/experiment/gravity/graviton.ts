@@ -10,7 +10,7 @@
 // dimension of traceless symmetric tensors), because it has no diffeomorphism gauge freedom.
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p21-graviton.ts
 
-import { gravitonFromAction } from '@/test/experiment/gravity/graviton-from-action'
+import { gravitonFromAction } from '@/code/operator/graviton'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

@@ -11,7 +11,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
 import { commutingSquareError, mostProbableNext } from '@/code/coarse/validator'
 import { beat } from '@/code/model/self-kit'
-import { selfTrajectory, positionBin, makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
+import { selfTrajectory, positionBin, makeRng } from '@/code/coarse/self-trajectory'
 
 export default defineExperiment({
   id: 'selves/coarse-commuting-square',

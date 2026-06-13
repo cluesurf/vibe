@@ -14,7 +14,7 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
 import { effectiveInformation, coarseGrainTpm } from '@/code/coarse/causal-emergence'
-import { selfTrajectory, makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
+import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 export default defineExperiment({
   id: 'selves/coarse-causal-emergence',
