@@ -13,6 +13,9 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { dot } from '@/code/algebra/vector'
+import { angularAnisotropy } from '@/code/measure/isotropy'
+import { randomWalkEndpoint } from '@/code/dynamics/random-walk'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -33,7 +36,7 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
   const runs = input?.runs ?? 6000
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells })
   const N = g.cellCount
-  const r2 = (i: number): number => g.coords[i]!.reduce((s, x) => s + x * x, 0)
+  const r2 = (i: number): number => dot(g.coords[i]!, g.coords[i]!)
   let origin = 0
   for (let i = 1; i < N; i++) if (r2(i) < r2(origin)) origin = i
   const c0 = g.coords[origin]!
@@ -56,22 +59,6 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
     axes.push([x, y, z])
   }
 
-  // anisotropy of <(n.u)^p> across axes, given a list of unit directions
-  const anisotropyAtOrder = (dirs: number[][], p: number): number => {
-    const vals = axes.map((u) => {
-      let s = 0
-      for (const n of dirs) {
-        const dot = n[0]! * u[0]! + n[1]! * u[1]! + n[2]! * u[2]!
-        s += Math.pow(dot, p)
-      }
-      return s / dirs.length
-    })
-    const mn = Math.min(...vals)
-    const mx = Math.max(...vals)
-    const mean = vals.reduce((a, b) => a + b, 0) / vals.length
-    return mean > 0 ? (mx - mn) / mean : 0
-  }
-
   const steps = [1, 2, 4, 8]
   const a2: number[] = []
   const a4: number[] = []
@@ -80,20 +67,16 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
     const dirs: number[][] = []
     for (let run = 0; run < runs; run++) {
       // single charge random walk from the origin cell for k steps
-      let cur = origin
       const rng = makeRng({ seed: 7000 + run * 17 + k })
-      for (let t = 0; t < k; t++) {
-        const nbrs = g.neighbors[cur]!
-        cur = nbrs[Math.floor(rng.next() * nbrs.length)]!
-      }
+      const cur = randomWalkEndpoint({ neighbors: g.neighbors, start: origin, steps: k, rng })
       const d = [g.coords[cur]![0]! - c0[0]!, g.coords[cur]![1]! - c0[1]!, g.coords[cur]![2]! - c0[2]!]
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
       if (len < 1e-9) continue
       dirs.push([d[0]! / len, d[1]! / len, d[2]! / len])
     }
-    a2.push(anisotropyAtOrder(dirs, 2))
-    a4.push(anisotropyAtOrder(dirs, 4))
-    a6.push(anisotropyAtOrder(dirs, 6))
+    a2.push(angularAnisotropy({ directions: dirs, axes, order: 2 }))
+    a4.push(angularAnisotropy({ directions: dirs, axes, order: 4 }))
+    a6.push(angularAnisotropy({ directions: dirs, axes, order: 6 }))
   }
 
   // Lorentz restoration: the higher-order angular anisotropy (rank-4 and rank-6) shrinks with scale,

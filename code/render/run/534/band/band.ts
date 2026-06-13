@@ -10,6 +10,9 @@ import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
+import { pack, currentOf } from '@/code/tone/pack'
+import { toCsr } from '@/code/tool/graph'
+import { extractBand } from '@/code/substrate/horosphere'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -26,8 +29,6 @@ const IMG = 1600
 const RADIUS = 1
 const ZOOM_FIT = 0.6
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
-const currentOf = (packed: number): number => packed & 3
 const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -67,8 +68,7 @@ async function run(): Promise<void> {
   // flatten the horosphere correctly by STEREOGRAPHIC INVERSION from the ideal point xi, w = (p - xi)/|p - xi|^2,
   // which maps the horosphere to a true Euclidean plane (an orthographic drop of xi folds it into a ring)
   const raw: { index: number; u: number; v: number }[] = []
-  for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+  for (const i of extractBand({ busemann: slab.busemann, level: 0, half: HALF })) {
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -92,20 +92,14 @@ async function run(): Promise<void> {
   }))
 
   // GPU bulk pipeline on the slab graph
-  const offsets = new Uint32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + slab.neighbors[i]!.length
-  const adj = new Uint32Array(offsets[n]!)
-  {
-    let p = 0
-    for (let i = 0; i < n; i++) for (const w of slab.neighbors[i]!) adj[p++] = w
-  }
+  const { offsets, adj } = toCsr(slab.neighbors)
   const seed = new Uint32Array(n)
   let rng = 1357924680 % 0x7fffffff
   const nextR = (): number => {
     rng = (rng * 1103515245 + 12345) & 0x7fffffff
     return rng / 0x7fffffff
   }
-  for (let i = 0; i < n; i++) seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  for (let i = 0; i < n; i++) seed[i] = pack({ current: Math.floor(nextR() * 3), previous: Math.floor(nextR() * 3) })
 
   const byteLength = n * 4
   const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })

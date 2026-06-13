@@ -11,6 +11,7 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { WAVE_STEP_WGSL, WAVE_RENDER_WGSL } from '@/code/compute/wave.wgsl'
+import { pack } from '@/code/tone/pack'
 
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
@@ -18,8 +19,6 @@ const navigator = { gpu: create([]) }
 const WORKGROUP = 256
 const SIZE = 1024 // both the simulation grid and the rendered image are SIZE x SIZE (row stride is 256-aligned)
 const BEATS = 320 // enough for the central pulse to grow a wide interference lightcone
-
-const pack = (current: number, previous: number): number => (previous << 2) | current
 
 // a minimal PNG encoder (no dependencies), RGBA, 8-bit, using Node's zlib for the IDAT stream
 const CRC_TABLE = (() => {
@@ -81,7 +80,7 @@ async function run(): Promise<void> {
 
   // a single central pulse, the cleanest expanding relativistic lightcone
   const seed = new Uint32Array(count)
-  seed[(SIZE >> 1) * SIZE + (SIZE >> 1)] = pack(1, 0)
+  seed[(SIZE >> 1) * SIZE + (SIZE >> 1)] = pack({ current: 1, previous: 0 })
 
   const makeBuf = (): GPUBuffer =>
     device.createBuffer({ size: byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })

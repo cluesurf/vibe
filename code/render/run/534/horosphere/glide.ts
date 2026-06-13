@@ -12,6 +12,9 @@ import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
+import { pack, currentOf, signedTone } from '@/code/tone/pack'
+import { toCsr } from '@/code/tool/graph'
+import { extractBand } from '@/code/substrate/horosphere'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -28,11 +31,8 @@ const SEED_FRACTION = 0.05 // localized charge column near the centre
 const SMOOTH_PASSES = 6 // coarse-graining for DISPLAY only (the base dynamics stays discrete)
 const DOT = 4
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
-const currentOf = (packed: number): number => packed & 3
 const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
-const signedTone = (c: number): number => (c === 0 ? 0 : c === 1 ? 1 : -1) // {0,1,2} -> {0,+1,-1}
 const BLUE: [number, number, number] = [60, 130, 255]
 const RED: [number, number, number] = [255, 60, 70]
 
@@ -60,9 +60,9 @@ async function run(): Promise<void> {
   for (let i = 0; i < n; i++) { const d = sub(slab.coords[i]!, xi, 1); const dd = dot(d, d) || 1e-9; const inv = d.map((x) => x / dd); U[i] = dot(inv, e1); V[i] = dot(inv, e2) }
 
   // the band (|busemann| < HALF) and its induced adjacency (for display coarse-graining)
-  const bandList: number[] = []
+  const bandList = extractBand({ busemann: slab.busemann, level: 0, half: HALF })
   const reindex = new Int32Array(n).fill(-1)
-  for (let i = 0; i < n; i++) if (Math.abs(slab.busemann[i]!) < HALF) { reindex[i] = bandList.length; bandList.push(i) }
+  for (let a = 0; a < bandList.length; a++) reindex[bandList[a]!] = a
   const B = bandList.length
   const bandNbr: number[][] = bandList.map(() => [])
   for (let a = 0; a < B; a++) for (const w of slab.neighbors[bandList[a]!]!) { const b = reindex[w]!; if (b >= 0) bandNbr[a]!.push(b) }
@@ -76,16 +76,13 @@ async function run(): Promise<void> {
   console.log(`slab ${n.toLocaleString()} cells, flat band ${B.toLocaleString()} cells`)
 
   // GPU: evolve the DISCRETE base rule (BULK_STEP) on the slab; seed a localized charge column
-  const offsets = new Uint32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + slab.neighbors[i]!.length
-  const adj = new Uint32Array(offsets[n]!)
-  { let p = 0; for (let i = 0; i < n; i++) for (const w of slab.neighbors[i]!) adj[p++] = w }
+  const { offsets, adj } = toCsr(slab.neighbors)
   const seed = new Uint32Array(n)
   let rng = 99194853 % 0x7fffffff
   const nextR = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
   const seedRadius = ext * SEED_FRACTION
   let seeded = 0
-  for (let i = 0; i < n; i++) if (Math.hypot(U[i]! - cu, V[i]! - cv) < seedRadius) { seed[i] = pack(1 + Math.floor(nextR() * 2), 1 + Math.floor(nextR() * 2)); seeded++ }
+  for (let i = 0; i < n; i++) if (Math.hypot(U[i]! - cu, V[i]! - cv) < seedRadius) { seed[i] = pack({ current: 1 + Math.floor(nextR() * 2), previous: 1 + Math.floor(nextR() * 2) }); seeded++ }
   console.log(`seeded ${seeded} cells in the central charge column`)
 
   const byteLength = n * 4

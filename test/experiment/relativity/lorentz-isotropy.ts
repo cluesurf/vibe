@@ -8,46 +8,13 @@
 // (and rank-4) tensors to be isotropic, so we expect a near-perfect sphere. That is the rotational part
 // of Lorentz for free. Run: npx tsx code/experiment/p124-lorentz-isotropy.ts
 
+import { jacobiEigenvalues3 } from '@/code/algebra/linear/eig-jacobi'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function jacobiEig3(A: number[][]): number[] {
-  const a = A.map((r) => r.slice())
-  for (let sweep = 0; sweep < 60; sweep++) {
-    let p = 0
-    let q = 1
-    let max = 0
-    for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) if (Math.abs(a[i]![j]!) > max) {
-      max = Math.abs(a[i]![j]!)
-      p = i
-      q = j
-    }
-    if (max < 1e-14) break
-    const app = a[p]![p]!
-    const aqq = a[q]![q]!
-    const apq = a[p]![q]!
-    const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
-    const c = Math.cos(phi)
-    const s = Math.sin(phi)
-    for (let k = 0; k < 3; k++) {
-      const akp = a[k]![p]!
-      const akq = a[k]![q]!
-      a[k]![p] = c * akp - s * akq
-      a[k]![q] = s * akp + c * akq
-    }
-    for (let k = 0; k < 3; k++) {
-      const apk = a[p]![k]!
-      const aqk = a[q]![k]!
-      a[p]![k] = c * apk - s * aqk
-      a[q]![k] = s * apk + c * aqk
-    }
-  }
-  return [a[0]![0]!, a[1]![1]!, a[2]![2]!]
-}
 
 export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; runs?: number }): {
   cellCount: number
@@ -101,7 +68,7 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   }
   for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) cov[i]![j]! /= count
 
-  const eig = jacobiEig3(cov).sort((a, b) => a - b)
+  const eig = jacobiEigenvalues3(cov).sort((a, b) => a - b)
   const meanEig = (eig[0]! + eig[1]! + eig[2]!) / 3
   const anisotropy = meanEig > 0 ? (eig[2]! - eig[0]!) / meanEig : 1
   const isotropic = anisotropy < 0.15

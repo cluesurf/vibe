@@ -3,6 +3,44 @@
 
 import { DenseMatrix } from '@/code/algebra/linear/dense'
 
+// Eigenvalues only of a 3x3 symmetric matrix, cyclic Jacobi on the single
+// largest off-diagonal per sweep. The lightweight covariance/diffusion-tensor
+// shape the geometry experiments use (max-abs convergence, 60 sweeps, no
+// eigenvectors). Returns the three diagonal values after rotation, unsorted.
+export function jacobiEigenvalues3(matrix: number[][]): number[] {
+  const a = matrix.map((r) => r.slice())
+  for (let sweep = 0; sweep < 60; sweep++) {
+    let p = 0
+    let q = 1
+    let max = 0
+    for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) if (Math.abs(a[i]![j]!) > max) {
+      max = Math.abs(a[i]![j]!)
+      p = i
+      q = j
+    }
+    if (max < 1e-14) break
+    const app = a[p]![p]!
+    const aqq = a[q]![q]!
+    const apq = a[p]![q]!
+    const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
+    const c = Math.cos(phi)
+    const s = Math.sin(phi)
+    for (let k = 0; k < 3; k++) {
+      const akp = a[k]![p]!
+      const akq = a[k]![q]!
+      a[k]![p] = c * akp - s * akq
+      a[k]![q] = s * akp + c * akq
+    }
+    for (let k = 0; k < 3; k++) {
+      const apk = a[p]![k]!
+      const aqk = a[q]![k]!
+      a[p]![k] = c * apk - s * aqk
+      a[q]![k] = s * apk + c * aqk
+    }
+  }
+  return [a[0]![0]!, a[1]![1]!, a[2]![2]!]
+}
+
 export interface EigenResult {
   readonly values: Float64Array // ascending
   // eigenvectors as columns: vectors[i * n + j] is component i of eigenvector j

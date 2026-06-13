@@ -9,6 +9,8 @@ import { create, globals } from 'webgpu'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
+import { pack, currentOf, toneColor } from '@/code/tone/pack'
+import { toCsr } from '@/code/tool/graph'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -24,16 +26,7 @@ const MARGIN = 0.94
 const DOT_SCALE = 34
 const SEED_DEPTH = 3 // seed a charge packet in shells 0..SEED_DEPTH at the centre
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
-const currentOf = (packed: number): number => packed & 3
 const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-
-// canonical tone colours: black = 0 (peace), blue = +1 (pleasure), red = -1 (pain)
-const COLORS: [number, number, number][] = [
-  [0, 0, 0], // 0, peace, black (background)
-  [60, 130, 255], // +1, pleasure, blue
-  [255, 60, 70], // -1, pain, red
-]
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
@@ -67,18 +60,15 @@ async function run(): Promise<void> {
   console.log(`bulk ${n.toLocaleString()} cells, rendering ${FRAMES} beats on GPU`)
 
   // GPU pipeline (CSR adjacency + ping-pong state), same as render-horosphere-anim
-  const offsets = new Uint32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
-  const adj = new Uint32Array(offsets[n]!)
-  { let p = 0; for (let i = 0; i < n; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
+  const { offsets, adj } = toCsr(g.neighbors)
 
   // seed: peace everywhere, a deterministic charge packet in the central shells
   const seed = new Uint32Array(n)
   let rng = 2246822519 % 0x7fffffff
   const nextR = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
   for (let i = 0; i < n; i++) {
-    if (depth[i]! >= 0 && depth[i]! <= SEED_DEPTH) seed[i] = pack(1 + Math.floor(nextR() * 2), 1 + Math.floor(nextR() * 2))
-    else seed[i] = pack(0, 0)
+    if (depth[i]! >= 0 && depth[i]! <= SEED_DEPTH) seed[i] = pack({ current: 1 + Math.floor(nextR() * 2), previous: 1 + Math.floor(nextR() * 2) })
+    else seed[i] = pack({ current: 0, previous: 0 })
   }
 
   const byteLength = n * 4
@@ -144,7 +134,7 @@ async function run(): Promise<void> {
     for (const d of dots) {
       const tone = currentOf(tones[d.index]!)
       if (tone === 0) continue // peace is black (the background), draw only the charges
-      drawDot(rgba, d.px, d.py, d.rad, COLORS[tone]!)
+      drawDot(rgba, d.px, d.py, d.rad, toneColor(tone))
     }
     writeFileSync(join(outDir, `wave-${String(f).padStart(3, '0')}.png`), encodePng(rgba, IMG, IMG))
     if (f % 20 === 0) console.log(`  beat ${f}/${FRAMES}`)

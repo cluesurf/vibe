@@ -16,6 +16,9 @@ import { TONE_COLORS } from '@/code/draw/color'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
+import { pack, currentOf } from '@/code/tone/pack'
+import { toCsr } from '@/code/tool/graph'
+import { idealDirection, busemann, extractBand } from '@/code/substrate/horosphere'
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -31,8 +34,6 @@ const LEVEL = 0 // the horosphere through the origin (a Busemann level set)
 const HALF = 0.5 // band half-width in Busemann units, wider catches more cells of the aperiodic slice
 const RADIUS = 2 // dot radius per horosphere cell, in pixels
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
-const currentOf = (packed: number): number => packed & 3
 const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -52,33 +53,11 @@ async function run(): Promise<void> {
   console.log(`built {5,3,4} bulk, ${n.toLocaleString()} cells (${dim}D ball coordinates)`)
 
   // Busemann function, the ideal point is the direction of the farthest cell, level sets are horospheres
-  let far = 0
-  let farR = -1
-  for (let i = 0; i < n; i++) {
-    const r = norm(coords[i]!)
-    if (r > farR) {
-      farR = r
-      far = i
-    }
-  }
-  const fc = coords[far]!
-  const fn = norm(fc)
-  const xi = fc.map((v) => v / fn)
-  const busemann = coords.map((x) => {
-    let d2 = 0
-    for (let k = 0; k < dim; k++) d2 += (x[k]! - xi[k]!) ** 2
-    const r2 = dot(x, x)
-    return Math.log(d2 / Math.max(1e-12, 1 - r2))
-  })
+  const xi = idealDirection(coords)
+  const heights = busemann({ coords, ideal: xi })
 
   // (2) evolve the whole bulk on the GPU, the wave on the irregular CSR graph
-  const offsets = new Uint32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
-  const adj = new Uint32Array(offsets[n]!)
-  {
-    let p = 0
-    for (let i = 0; i < n; i++) for (const w of g.neighbors[i]!) adj[p++] = w
-  }
+  const { offsets, adj } = toCsr(g.neighbors)
 
   const seed = new Uint32Array(n)
   let rng = 2468013579 % 0x7fffffff
@@ -86,7 +65,7 @@ async function run(): Promise<void> {
     rng = (rng * 1103515245 + 12345) & 0x7fffffff
     return rng / 0x7fffffff
   }
-  for (let i = 0; i < n; i++) seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  for (let i = 0; i < n; i++) seed[i] = pack({ current: Math.floor(nextR() * 3), previous: Math.floor(nextR() * 3) })
 
   const byteLength = n * 4
   const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
@@ -156,8 +135,7 @@ async function run(): Promise<void> {
 
   type Cell = { u: number; v: number; tone: number }
   const band: Cell[] = []
-  for (let i = 0; i < n; i++) {
-    if (Math.abs(busemann[i]! - LEVEL) >= HALF) continue
+  for (const i of extractBand({ busemann: heights, level: LEVEL, half: HALF })) {
     const x = coords[i]!
     const px = dot(x, xi)
     const proj = sub(x, xi, px) // component in the horosphere plane
