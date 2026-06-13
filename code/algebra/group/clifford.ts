@@ -119,6 +119,24 @@ export function spinGeneratorZ(): ComplexMatrix {
   return block(half, zero2, zero2, half) // (1/2) diag(sigma3, sigma3)
 }
 
+// The chirality operator gamma5 = i gamma0 gamma1 gamma2 gamma3. It anticommutes with each gamma_mu,
+// so it COMMUTES with the kinetic term alpha . p and ANTICOMMUTES with the mass term beta m. A massless
+// Dirac fermion conserves chirality, [H, gamma5] = 0, so it is two decoupled Weyl fermions, while a mass
+// term couples the two chiralities, [H, gamma5] proportional to the mass.
+export function diracGamma5(): ComplexMatrix {
+  const [gamma0, gamma1, gamma2, gamma3] = diracGamma()
+  const product = cmMultiply(cmMultiply(cmMultiply(gamma0!, gamma1!), gamma2!), gamma3!)
+  // multiply by i: i (re + i im) = -im + i re
+  return product.map((row) => row.map((z) => c(-z.im, z.re)))
+}
+
+// The largest entry magnitude of a complex matrix, a simple operator norm for the Clifford layer.
+export function cmMaxAbs(matrix: ComplexMatrix): number {
+  let worst = 0
+  for (const row of matrix) for (const z of row) worst = Math.max(worst, Math.hypot(z.re, z.im))
+  return worst
+}
+
 // A Clifford rotor for a rotation by `angle` in the plane of the unit bivector B
 // (B^2 = -1): rotor = cos(angle/2) I + sin(angle/2) B = exp((angle/2) B). Acting by
 // left multiplication it rotates a spinor (period 4pi, so angle = 2pi gives -I),

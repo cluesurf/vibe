@@ -63,6 +63,11 @@ import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
 import { returnProbability } from '@/code/measure/localization'
 import { disclinationHolonomy, collectiveModeOverlap } from '@/code/algebra/group/disclination'
 import { ryuTakayanagiScaling } from '@/code/measure/holography'
+import { kahlerDiracReturn } from '@/code/measure/fermion-propagation'
+import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
+import { measureTessellation } from '@/code/measure/tessellation-battery'
+import { TESSELLATIONS } from '@/code/substrate/tessellation-catalog'
+import { diracGamma5, diracHamiltonian, cmCommutator, cmMaxAbs } from '@/code/algebra/group/clifford'
 import { buildCellGraph as buildCellGraphForConformance } from '@/code/substrate/coxeter/cell-direct'
 
 export function runConformance(): { passed: number; failed: number } {
@@ -529,6 +534,24 @@ export function runConformance(): { passed: number; failed: number } {
     const rtTiling = buildCellGraphForConformance({ symbol: [7, 3], maxCells: 2000 })
     const rt = ryuTakayanagiScaling({ neighbors: rtTiling.neighbors, coords: rtTiling.coords })
     check({ name: 'Ryu-Takayanagi: {7,3} boundary geodesic is logarithmic', ok: rt.isLogarithmic && rt.logResidual < rt.linearResidual })
+
+    // Kahler-Dirac propagation: the fermion on the pentacomb mesh spreads (low clean return) while disorder traps it
+    const pentaMesh = buildCoxeterMatrixMesh([3, 4, 3, 3, 4], 1200)
+    const pentaReturn = kahlerDiracReturn({ neighbors: pentaMesh.adjacency })
+    check({ name: 'fermion propagation: pentacomb spreads, disorder localizes', ok: pentaReturn.clean < 0.2 && pentaReturn.localized > 2 * pentaReturn.clean && pentaReturn.normDrift < 0.05 })
+
+    // gamma5: a massive Dirac Hamiltonian couples the chiralities ([H,gamma5] != 0), a massless one does not
+    const g5 = diracGamma5()
+    const massive = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0.7 })
+    const massless = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0 })
+    check({ name: 'gamma5: mass couples chiralities, massless conserves (Weyl)', ok: Math.abs(cmMaxAbs(cmCommutator(massive, g5)) / 2 - 0.7) < 1e-9 && cmMaxAbs(cmCommutator(massless, g5)) < 1e-12 })
+
+    // tessellation battery: the catalog builds, {5,3,4} is hyperbolic with no spinor coin, {3,4,3,4} has the coin
+    const dodeca = measureTessellation({ schlafli: [5, 3, 4], maxCells: 1200 })
+    const icositetra = measureTessellation({ schlafli: [3, 4, 3, 4], maxCells: 1200 })
+    check({ name: 'tessellation battery: {5,3,4} hyperbolic, no spinor coin', ok: dodeca.hyperbolic && !dodeca.spinorHook && dodeca.cells > 500 })
+    check({ name: 'tessellation battery: {3,4,3,4} has the 24-cell spinor coin', ok: icositetra.hyperbolic && icositetra.spinorHook })
+    check({ name: 'tessellation catalog has 45 entries, 42 buildable', ok: TESSELLATIONS.length === 45 && TESSELLATIONS.filter((t) => t.buildable).length === 42 })
   }
 
   return { passed, failed }
