@@ -12,6 +12,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -54,24 +55,9 @@ export function criticalityScan(input?: { n?: number }): {
   }
 
   // fit log(density) = beta * log(arrow) + const
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let syy = 0
-  const m = scan.length
-  for (const s of scan) {
-    const x = Math.log(s.arrow)
-    const y = Math.log(s.density)
-    sx += x
-    sy += y
-    sxx += x * x
-    sxy += x * y
-    syy += y * y
-  }
-  const beta = (m * sxy - sx * sy) / (m * sxx - sx * sx)
-  const r = (m * sxy - sx * sy) / Math.sqrt((m * sxx - sx * sx) * (m * syy - sy * sy))
-  const betaR2 = r * r
+  const fit = linearFit({ xs: scan.map((s) => Math.log(s.arrow)), ys: scan.map((s) => Math.log(s.density)) })
+  const beta = fit.slope
+  const betaR2 = fit.r2
   const meanField = beta > 0.35 && beta < 0.65 // mean-field directed percolation, beta = 1/2
   const vanishesAtZero = scan[0]!.density < scan[scan.length - 1]!.density * 0.5 // order parameter -> 0 as arrow -> 0
   const solved = meanField && vanishesAtZero && betaR2 > 0.9

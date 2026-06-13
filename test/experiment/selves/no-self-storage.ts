@@ -16,7 +16,9 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
-import { symmetricFills, microStep, agreement, domainCluster } from '@/test/experiment/renormalization/emergent-macro-rule'
+import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
+import { agreementFraction } from '@/code/measure/agreement'
+import { domainBlocks } from '@/code/dynamics/renormalization-blocks'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -61,7 +63,7 @@ function modelFidelity(g: Graph, base: Int8Array, K: number, rng: Rng): number {
   for (let c = 0; c < blocks; c++) summary[c] = sign(sum[c] ?? 0)
   const recon = new Int8Array(g.size)
   for (let v = 0; v < g.size; v++) recon[v] = summary[cl[v] ?? 0] ?? 0
-  return agreement(base, recon)
+  return agreementFraction(base, recon)
 }
 
 export function noSelfStorage(input: { count: number; seed: number }): {
@@ -75,10 +77,10 @@ export function noSelfStorage(input: { count: number; seed: number }): {
 } {
   const rng = makeRng({ seed: input.seed })
   const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
-  const fills = symmetricFills(g, makeRng({ seed: input.seed + 1 }))
+  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: makeRng({ seed: input.seed + 1 }) })
   let base = new Int8Array(g.size)
   for (let i = 0; i < g.size; i++) base[i] = rng.nextInt({ max: 3 }) - 1
-  for (let b = 0; b < 200; b++) base = microStep(g, fills, base, true)
+  for (let b = 0; b < 200; b++) base = signedMajorityStep({ neighbors: g.neighbors, fills, tone: base, keepOnTie: true })
   const N = g.size
 
   const ratios = [0.02, 0.05, 0.1, 0.25, 0.5, 1.0]
@@ -91,7 +93,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
   const losslessNeedsWholeThing = (byRatio.find((b) => b.ratio === 1.0)?.fidelity ?? 0) > 0.99 && (byRatio.find((b) => b.ratio === 0.5)?.fidelity ?? 1) < 0.99
 
   // The recursion's natural compression: one domain coarse-graining step.
-  const { K: K1 } = domainCluster(g, base)
+  const { K: K1 } = domainBlocks(g, base)
   const compressionRatio = K1 / N
 
   // The nested regress: each self-model is compressed by compressionRatio. Total nodes for the

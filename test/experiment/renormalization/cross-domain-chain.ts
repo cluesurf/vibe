@@ -13,6 +13,7 @@
 // Rung 3 (composite -> agent) is P162 (a self of composites with goal-directed dynamics). Together these
 // climb the cross-domain tower. Run: npx tsx code/experiment/p168-cross-domain-chain.ts
 
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -64,28 +65,14 @@ function singleParticle(m: number, k0: number, L: number, steps: number): { spee
     im = ni
   }
   // linear fit of centroid vs t (skip first few for transient)
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let syy = 0
-  let cnt = 0
+  const ts: number[] = []
+  const ys: number[] = []
   for (let t = 5; t < steps; t++) {
-    sx += t
-    sy += xs[t]!
-    sxx += t * t
-    sxy += t * xs[t]!
-    syy += xs[t]! * xs[t]!
-    cnt++
+    ts.push(t)
+    ys.push(xs[t]!)
   }
-  const speed = (cnt * sxy - sx * sy) / (cnt * sxx - sx * sx)
-  const meanY = sy / cnt
-  const b = (sy - speed * sx) / cnt
-  let ssRes = 0
-  for (let t = 5; t < steps; t++) ssRes += (xs[t]! - (speed * t + b)) ** 2
-  const ssTot = syy - cnt * meanY * meanY
-  const linearR2 = ssTot > 0 ? 1 - ssRes / ssTot : 0
-  return { speed: Math.abs(speed), linearR2, massive: Math.abs(speed) < 0.99 }
+  const fit = linearFit({ xs: ts, ys })
+  return { speed: Math.abs(fit.slope), linearR2: fit.r2, massive: Math.abs(fit.slope) < 0.99 }
 }
 
 // ---------- RUNG 2, two-particle quantum walk with a contact interaction ----------
@@ -182,29 +169,15 @@ function twoParticle(m: number, k0: number, L: number, steps: number, theta: num
     }
   }
   // CoM linear fit + relative-coordinate growth (bound vs free)
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let syy = 0
-  let cnt = 0
+  const ts: number[] = []
+  const ys: number[] = []
   for (let t = 3; t < steps; t++) {
-    sx += t
-    sy += comList[t]!
-    sxx += t * t
-    sxy += t * comList[t]!
-    syy += comList[t]! * comList[t]!
-    cnt++
+    ts.push(t)
+    ys.push(comList[t]!)
   }
-  const comSpeed = (cnt * sxy - sx * sy) / (cnt * sxx - sx * sx)
-  const meanY = sy / cnt
-  const bC = (sy - comSpeed * sx) / cnt
-  let ssRes = 0
-  for (let t = 3; t < steps; t++) ssRes += (comList[t]! - (comSpeed * t + bC)) ** 2
-  const ssTot = syy - cnt * meanY * meanY
-  const comR2 = ssTot > 0 ? 1 - ssRes / ssTot : 0
+  const fit = linearFit({ xs: ts, ys })
   const relGrowth = relList[steps - 1]! - relList[0]! // how much the pair spread apart
-  return { comSpeed: Math.abs(comSpeed), comR2, relGrowth }
+  return { comSpeed: Math.abs(fit.slope), comR2: fit.r2, relGrowth }
 }
 
 export function crossDomainChain(): {

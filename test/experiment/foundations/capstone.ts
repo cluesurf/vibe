@@ -12,20 +12,13 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { Graph, meanDegree } from '@/code/tool/graph'
+import { symmetricEdgeFills } from '@/code/operator/signed-majority'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
 import { laplacianSpectrum } from '@/code/operator/laplacian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function meanDegree(g: Graph): number {
-  let total = 0
-  for (let i = 0; i < g.size; i++) {
-    total += (g.neighbors[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, g.size)
-}
 
 // The committed dynamics: ternary tones on vibes, ternary fills on the notes, and the
 // asynchronous signed-majority update. Returns the flip fraction per sweep (its
@@ -45,33 +38,7 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   // relational vibe, so fill(v,w) = fill(w,v)). Symmetric couplings make the
   // asynchronous signed-majority dynamics converge to stable structured states, the
   // basis for persistent matter and selves.
-  const indexOf = g.neighbors.map((row) => {
-    const m = new Map<number, number>()
-    for (let k = 0; k < row.length; k++) {
-      m.set(row[k] ?? -1, k)
-    }
-    return m
-  })
-  const fills = g.neighbors.map((row) => new Int8Array(row.length))
-  for (let v = 0; v < n; v++) {
-    const row = g.neighbors[v] ?? new Uint32Array(0)
-    const fv = fills[v]
-    if (!fv) {
-      continue
-    }
-    for (let k = 0; k < row.length; k++) {
-      const w = row[k] ?? 0
-      if (w > v) {
-        const f = (input.rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
-        fv[k] = f
-        const fw = fills[w]
-        const kk = indexOf[w]?.get(v)
-        if (fw && kk !== undefined) {
-          fw[kk] = f
-        }
-      }
-    }
-  }
+  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: input.rng })
   const flipFractions: number[] = []
   for (let sweep = 0; sweep < input.sweeps; sweep++) {
     let flips = 0

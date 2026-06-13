@@ -7,26 +7,13 @@
 // unified, not a pile of one-offs. Run: npx tsx code/experiment/p155-unified-model.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng, Rng } from '@/code/tool/rng'
-import { edgesFromCsr } from '@/code/tool/graph'
+import { makeRng } from '@/code/tool/rng'
+import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { totalCharge as sumQ } from '@/code/measure/tone-census'
+import { toneDensity as density } from '@/code/measure/avalanche'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// the canonical perception rule (the one rule used throughout): share, hop, arrow
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void =>
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-
-const sumQ = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
-const density = (t: Int8Array): number => {
-  let nz = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) nz++
-  return nz / t.length
-}
 
 export function unifiedModel(input?: { n?: number }): {
   n: number
@@ -51,7 +38,7 @@ export function unifiedModel(input?: { n?: number }): {
   const rng = makeRng({ seed: 7 })
   for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
   const q0 = sumQ(tone)
-  for (let t = 0; t < 80; t++) beat(tone, eu, ev, moved, rng, arrow)
+  for (let t = 0; t < 80; t++) conservingEdgeSweep({ tone: tone, eu, ev, moved, rng: rng, arrow: arrow })
 
   // (1) conservation, Q unchanged across the whole run
   const conserved = sumQ(tone) === q0
@@ -61,24 +48,14 @@ export function unifiedModel(input?: { n?: number }): {
   const dead = new Int8Array(N)
   const rngD = makeRng({ seed: 7 })
   for (let i = 0; i < N; i++) dead[i] = (rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-  for (let t = 0; t < 80; t++) beat(dead, eu, ev, moved, rngD, 0)
+  for (let t = 0; t < 80; t++) conservingEdgeSweep({ tone: dead, eu, ev, moved, rng: rngD, arrow: 0 })
   const deadWithoutArrow = density(dead) < density(tone) * 0.5
 
   // (3) lightcone, a perturbation spreads at a bounded finite speed (same RNG copies, position-indexed not
   // needed here, use the front radius growth)
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const distC = new Int32Array(N).fill(-1)
-  distC[center] = 0
-  let fr = [center]
-  while (fr.length > 0) {
-    const nx: number[] = []
-    for (const u of fr) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) if (distC[g.adj[p]!] === -1) {
-      distC[g.adj[p]!] = distC[u]! + 1
-      nx.push(g.adj[p]!)
-    }
-    fr = nx
-  }
+  const distC = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center })
   const s = tone.slice()
   const s2 = tone.slice()
   s2[center] = (s2[center]! === 0 ? 1 : 0) as -1 | 0 | 1
@@ -86,8 +63,8 @@ export function unifiedModel(input?: { n?: number }): {
   const rb = makeRng({ seed: 99 })
   const T = 4
   for (let t = 0; t < T; t++) {
-    beat(s, eu, ev, moved, ra, arrow)
-    beat(s2, eu, ev, moved, rb, arrow)
+    conservingEdgeSweep({ tone: s, eu, ev, moved, rng: ra, arrow: arrow })
+    conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow: arrow })
   }
   let front = 0
   for (let i = 0; i < N; i++) if (s[i] !== s2[i] && distC[i]! > front) front = distC[i]!
@@ -102,7 +79,7 @@ export function unifiedModel(input?: { n?: number }): {
   for (let k = 0; k < eu.length; k += 3) sample.push(k)
   for (let b = 0; b < 60; b++) {
     const pre = sample.map((k) => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))
-    beat(tone, eu, ev, moved, rng, arrow)
+    conservingEdgeSweep({ tone: tone, eu, ev, moved, rng: rng, arrow: arrow })
     for (let i = 0; i < sample.length; i++) {
       const k = sample[i]!
       C[pre[i]! * S9 + (st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))]! += 1

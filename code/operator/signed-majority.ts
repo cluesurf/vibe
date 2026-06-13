@@ -47,12 +47,15 @@ export function symmetricEdgeFills(input: { neighbors: Neighbors; rng: Rng }): I
 
 // One synchronous signed-majority beat: the whole next state is computed from the
 // current state at once. next[v] = sign( sum_k fills[v][k] * tone[neighbors[v][k]] ).
+// With `keepOnTie` a zero local field keeps the current tone (so the base settles
+// cleanly), otherwise a tie resets to 0.
 export function signedMajorityStep(input: {
   neighbors: Neighbors
   fills: Int8Array[]
   tone: Int8Array
+  keepOnTie?: boolean
 }): Int8Array {
-  const { neighbors, fills, tone } = input
+  const { neighbors, fills, tone, keepOnTie } = input
   const n = neighbors.length
   const next = new Int8Array(n)
   for (let v = 0; v < n; v++) {
@@ -62,7 +65,7 @@ export function signedMajorityStep(input: {
     for (let k = 0; k < nb.length; k++) {
       h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
     }
-    next[v] = h > 0 ? 1 : h < 0 ? -1 : 0
+    next[v] = h > 0 ? 1 : h < 0 ? -1 : keepOnTie ? (tone[v] ?? 0) : 0
   }
   return next
 }

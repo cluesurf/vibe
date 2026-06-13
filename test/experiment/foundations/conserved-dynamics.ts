@@ -15,19 +15,12 @@
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
-import { neighborDistances } from '@/code/tool/graph'
+import { neighborDistances, edgesOf } from '@/code/tool/graph'
+import { totalCharge as sumTone } from '@/code/measure/tone-census'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesOf(neighbors: number[][]): Array<[number, number]> {
-  const edges: Array<[number, number]> = []
-  for (let v = 0; v < neighbors.length; v++) {
-    for (const w of neighbors[v]!) if (w > v) edges.push([v, w])
-  }
-  return edges
-}
 
 // One beat of the conserved exchange. fillSign sets every note's fill. If pump is given, hops are
 // directed (+ toward lower distance, - toward higher), otherwise hops are an unbiased random walk.
@@ -87,12 +80,6 @@ function beat(
 
 function dist(d: Int32Array, i: number): number {
   return d[i] ?? 1e9
-}
-
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
 }
 
 export function conservedDynamics(): {

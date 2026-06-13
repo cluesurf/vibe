@@ -9,11 +9,10 @@
 // chain. A stable fixed point across many levels = a faithful multiscale tower.
 // Run: npx tsx code/experiment/p164-coarse-graining-chain.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingRingSweep } from '@/code/dynamics/conserving-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 // the perception rule on a 1D ring (a clean slice for hierarchical blocking, the sliver is ~1D)
 function evolveRing(tone: Int8Array, beats: number, arrow: number, rng: Rng): void {
@@ -21,40 +20,7 @@ function evolveRing(tone: Int8Array, beats: number, arrow: number, rng: Rng): vo
   for (let t = 0; t < beats; t++) {
     const moved = new Uint8Array(L)
     const start = Math.floor(rng.next() * L)
-    for (let s = 0; s < L; s++) {
-      const i = (start + s) % L
-      const j = (i + 1) % L
-      if (moved[i] || moved[j]) continue
-      const a = tone[i]!
-      const b = tone[j]!
-      if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-        tone[i] = 0
-        tone[j] = 0
-        moved[i] = 1
-        moved[j] = 1
-      } else if ((a === 0) !== (b === 0)) {
-        const c = a === 0 ? j : i
-        const e = a === 0 ? i : j
-        if (rng.next() < 0.5) {
-          tone[e] = tone[c]!
-          tone[c] = 0
-          moved[i] = 1
-          moved[j] = 1
-        }
-      } else if (a === 0 && b === 0) {
-        if (rng.next() < arrow) {
-          if (rng.next() < 0.5) {
-            tone[i] = 1
-            tone[j] = -1
-          } else {
-            tone[i] = -1
-            tone[j] = 1
-          }
-          moved[i] = 1
-          moved[j] = 1
-        }
-      }
-    }
+    conservingRingSweep({ tone, length: L, start, moved, rng, arrow })
   }
 }
 

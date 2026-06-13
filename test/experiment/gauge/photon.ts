@@ -10,6 +10,7 @@
 // polarizations. See note/questions/frontiers.md. Run: npx tsx code/experiment/p20-photon.ts
 
 import { maxwellLatticeSpectrum } from '@/code/operator/maxwell-lattice'
+import { zeroModeCensus } from '@/code/measure/spectrum'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -18,20 +19,10 @@ export function maxwellSpectrum(input: { side: number; mass: number }): number[]
   return maxwellLatticeSpectrum(input)
 }
 
+// Gauge zero modes versus physical (nonzero) modes, with the smallest physical omega^2.
 function summarize(values: number[]): { gauge: number; physical: number; minPhysical: number } {
-  const tol = 1e-6
-  let gauge = 0
-  let physical = 0
-  let minPhysical = Infinity
-  for (const v of values) {
-    if (v < tol) {
-      gauge += 1
-    } else {
-      physical += 1
-      minPhysical = Math.min(minPhysical, v)
-    }
-  }
-  return { gauge, physical, minPhysical }
+  const census = zeroModeCensus(values)
+  return { gauge: census.zero, physical: census.nonzero, minPhysical: census.minNonzero }
 }
 
 export function photonStudy(input: { side: number }): {

@@ -11,51 +11,10 @@
 // Run: npx tsx code/experiment/p136-gapless-search.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
+import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-// conserved-exchange rule on a 1D periodic chain with tunable annihilation (share) and hop probabilities
-function beat(tone: Int8Array, L: number, moved: Uint8Array, rng: Rng, arrow: number, share: number, hop: number): void {
-  moved.fill(0)
-  for (let i = 0; i < L; i++) {
-    const v = i
-    const w = (i + 1) % L
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      if (rng.next() < share) {
-        tone[v] = 0
-        tone[w] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < hop) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: number[] }): {
   L: number
@@ -76,7 +35,7 @@ export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: 
     const moved = new Uint8Array(L)
     const rng = makeRng({ seed: 17 })
     for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 400; t++) beat(tone, L, moved, rng, arrow, share, 0.5)
+    for (let t = 0; t < 400; t++) conservingRingSweepTunable({ tone, length: L, moved, rng, arrow, share, hop: 0.5 })
     const T = 2500
     const sumCC = new Float64Array(maxR + 1)
     let sumC = 0
@@ -87,7 +46,7 @@ export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: 
         for (let r = 0; r <= maxR; r++) sumCC[r]! += tone[x]! * tone[(x + r) % L]!
       }
       for (let x = 0; x < L; x++) if (tone[x] !== 0) nz++
-      beat(tone, L, moved, rng, arrow, share, 0.5)
+      conservingRingSweepTunable({ tone, length: L, moved, rng, arrow, share, hop: 0.5 })
     }
     const mean = sumC / (L * T)
     const c: number[] = []
@@ -101,25 +60,7 @@ export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: 
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
     const range = Math.max(rangeOf(c), rangeOf(cStag))
     // correlation length from the slower-decaying of direct / staggered |C(r)| over r=1..8
-    const xiOf = (cc: number[]): number => {
-      let sx = 0
-      let sy = 0
-      let sxx = 0
-      let sxy = 0
-      let mm = 0
-      for (let r = 1; r <= 8; r++) {
-        const ac = Math.abs(cc[r]!)
-        if (ac <= 1e-9) continue
-        const y = Math.log(ac)
-        sx += r
-        sy += y
-        sxx += r * r
-        sxy += r * y
-        mm++
-      }
-      const slope = mm > 1 ? (mm * sxy - sx * sy) / (mm * sxx - sx * sx) : 0
-      return slope < 0 ? -1 / slope : Infinity
-    }
+    const xiOf = (cc: number[]): number => correlationLengthFromDecay({ correlation: cc, rLo: 1, rHi: 8 })
     const xi = Math.max(xiOf(c), xiOf(cStag))
     return { range, xi: isFinite(xi) ? xi : 99, density: nz / (L * T) }
   }

@@ -21,6 +21,12 @@ import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
+import {
+  centroidOfCellSet,
+  recenterCellSet,
+  cellSetOverlap,
+  radiusOfGyrationOfCellSet,
+} from '@/code/measure/point-set'
 
 // ---------- the RIGHT measure ----------
 // Given a sequence of "occupied-cell" sets (the pattern over time), a self scores high on:
@@ -30,30 +36,7 @@ import { perceptionPermutation as perm } from '@/code/rule/perception-permutatio
 //               flows through, in [0,1]); a self has same form AND high turnover (a whirlpool, a flame)
 //   motion    = net displacement of the centroid per beat (it PROPAGATES, not just sits)
 //   localized = the pattern stays compact (radius of gyration does NOT grow without bound)
-
-function centroid(cells: Set<string>): [number, number] {
-  let sx = 0
-  let sy = 0
-  for (const k of cells) { const [x, y] = k.split(',').map(Number); sx += x!; sy += y! }
-  return [sx / cells.size, sy / cells.size]
-}
-function recenter(cells: Set<string>): Set<string> {
-  const [cx, cy] = centroid(cells)
-  const out = new Set<string>()
-  for (const k of cells) { const [x, y] = k.split(',').map(Number); out.add(`${x! - Math.round(cx)},${y! - Math.round(cy)}`) }
-  return out
-}
-function overlap(a: Set<string>, b: Set<string>): number {
-  let inter = 0
-  for (const k of a) if (b.has(k)) inter++
-  return inter / Math.max(1, Math.max(a.size, b.size))
-}
-function radiusOfGyration(cells: Set<string>): number {
-  const [cx, cy] = centroid(cells)
-  let s = 0
-  for (const k of cells) { const [x, y] = k.split(',').map(Number); s += (x! - cx) ** 2 + (y! - cy) ** 2 }
-  return Math.sqrt(s / cells.size)
-}
+// The shape measures (centroid, recenter, overlap, radius of gyration) live in measure/point-set.
 
 // ---------- 1. CALIBRATION: a Conway's Life glider on the cusp ----------
 
@@ -68,23 +51,23 @@ function gliderSelf(): { identity: number; turnover: number; speed: number; rgGr
   }
   let s = new Set<string>(['0,0', '1,0', '2,0', '2,1', '1,2'])
   const frames: Set<string>[] = [new Set(s)]
-  const centroids: [number, number][] = [centroid(s)]
-  for (let t = 0; t < 12; t++) { s = lifeStep(s); frames.push(new Set(s)); centroids.push(centroid(s)) }
+  const centroids: number[][] = [centroidOfCellSet(s)]
+  for (let t = 0; t < 12; t++) { s = lifeStep(s); frames.push(new Set(s)); centroids.push(centroidOfCellSet(s)) }
   // identity = overlap of recentered pattern with the recentered pattern one PERIOD (4) later
   let id = 0
   let idc = 0
-  for (let t = 0; t + 4 < frames.length; t++) { id += overlap(recenter(frames[t]!), recenter(frames[t + 4]!)); idc++ }
+  for (let t = 0; t + 4 < frames.length; t++) { id += cellSetOverlap(recenterCellSet(frames[t]!), recenterCellSet(frames[t + 4]!)); idc++ }
   const identity = id / idc
   // turnover = average fraction of occupied cells that differ frame-to-frame (the matter flows)
   let tov = 0
   let tovc = 0
-  for (let t = 0; t + 1 < frames.length; t++) { tov += 1 - overlap(frames[t]!, frames[t + 1]!); tovc++ }
+  for (let t = 0; t + 1 < frames.length; t++) { tov += 1 - cellSetOverlap(frames[t]!, frames[t + 1]!); tovc++ }
   const turnover = tov / tovc
   // speed = mean centroid displacement per beat; rgGrowth = radius-of-gyration drift (should stay ~constant)
   let disp = 0
-  for (let t = 0; t + 1 < centroids.length; t++) disp += Math.hypot(centroids[t + 1]![0] - centroids[t]![0], centroids[t + 1]![1] - centroids[t]![1])
+  for (let t = 0; t + 1 < centroids.length; t++) disp += Math.hypot(centroids[t + 1]![0]! - centroids[t]![0]!, centroids[t + 1]![1]! - centroids[t]![1]!)
   const speed = disp / (centroids.length - 1)
-  const rgGrowth = radiusOfGyration(frames[frames.length - 1]!) - radiusOfGyration(frames[0]!)
+  const rgGrowth = radiusOfGyrationOfCellSet(frames[frames.length - 1]!) - radiusOfGyrationOfCellSet(frames[0]!)
   const isSelf = identity > 0.8 && turnover > 0.3 && speed > 0.1 && Math.abs(rgGrowth) < 1
   return { identity, turnover, speed, rgGrowth, isSelf }
 }
@@ -109,14 +92,9 @@ function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
     for (let i = 0; i < n; i++) if (tone[i] === 1) s.add(`${g.coords[i]![0]},${g.coords[i]![1]},${g.coords[i]![2]}`)
     return s
   }
-  const rg3 = (cells: Set<string>): number => {
-    const pts = [...cells].map((k) => k.split(',').map(Number))
-    const c = [0, 1, 2].map((d) => pts.reduce((s, p) => s + p[d]!, 0) / pts.length)
-    return Math.sqrt(pts.reduce((s, p) => s + (p[0]! - c[0]!) ** 2 + (p[1]! - c[1]!) ** 2 + (p[2]! - c[2]!) ** 2, 0) / pts.length)
-  }
   const rng = makeRng({ seed: 3 })
   const frame0 = occupied()
-  const rg0 = rg3(frame0)
+  const rg0 = radiusOfGyrationOfCellSet(frame0)
   const step = (): void => {
     const used = new Uint8Array(n)
     const order = Array.from({ length: n }, (_, i) => i)
@@ -141,13 +119,8 @@ function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
   for (let t = 0; t < 30; t++) step()
   const frameT = occupied()
   // identity = overlap of recentered 3D patterns (does the seed keep its shape?), rgGrowth = does it disperse?
-  const recenter3 = (cells: Set<string>): Set<string> => {
-    const pts = [...cells].map((k) => k.split(',').map(Number))
-    const c = [0, 1, 2].map((d) => Math.round(pts.reduce((s, p) => s + p[d]!, 0) / pts.length))
-    return new Set(pts.map((p) => `${p[0]! - c[0]!},${p[1]! - c[1]!},${p[2]! - c[2]!}`))
-  }
-  const identity = overlap(recenter3(frame0), recenter3(frameT))
-  const rgGrowth = rg3(frameT) - rg0
+  const identity = cellSetOverlap(recenterCellSet(frame0), recenterCellSet(frameT))
+  const rgGrowth = radiusOfGyrationOfCellSet(frameT) - rg0
   const isSelf = identity > 0.8 && Math.abs(rgGrowth) < 1
   return { identity, rgGrowth, isSelf }
 }

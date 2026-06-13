@@ -14,7 +14,9 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph, largestComponent, neighborDistances } from '@/code/tool/graph'
+import { Graph, largestComponent, neighborDistances, mostConnectedNode } from '@/code/tool/graph'
+import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
+import { pearson } from '@/code/measure/statistics'
 import { laplacianSpectrum, laplacianGreensFunction } from '@/code/operator/laplacian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -24,51 +26,14 @@ import { verdict } from '@/test/scaffold/verdict'
 function lightCone(g: Graph, seed: number): { holds: boolean; propagated: boolean } {
   const n = g.size
   const rng = makeRng({ seed })
-  const indexOf = g.neighbors.map((row) => {
-    const m = new Map<number, number>()
-    for (let k = 0; k < row.length; k++) {
-      m.set(row[k] ?? -1, k)
-    }
-    return m
-  })
-  const fills = g.neighbors.map((row) => new Int8Array(row.length))
-  for (let v = 0; v < n; v++) {
-    const fv = fills[v]
-    const row = g.neighbors[v] ?? new Uint32Array(0)
-    if (!fv) continue
-    for (let k = 0; k < row.length; k++) {
-      const w = row[k] ?? 0
-      if (w > v) {
-        const f = rng.nextInt({ max: 3 }) - 1
-        fv[k] = f
-        const fw = fills[w]
-        const kk = indexOf[w]?.get(v)
-        if (fw && kk !== undefined) fw[kk] = f
-      }
-    }
-  }
-  let center = 0
-  let best = -1
-  for (let i = 0; i < n; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) { best = d; center = i }
-  }
+  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng })
+  const center = mostConnectedNode(g.neighbors)
   const dist = neighborDistances({ neighbors: g.neighbors, size: g.size, source: center })
   let a = new Int8Array(n)
   for (let i = 0; i < n; i++) a[i] = rng.nextInt({ max: 3 }) - 1
   let b = Int8Array.from(a)
   b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
-  const step = (tone: Int8Array): Int8Array => {
-    const next = new Int8Array(n)
-    for (let v = 0; v < n; v++) {
-      const nb = g.neighbors[v] ?? new Uint32Array(0)
-      const fl = fills[v] ?? new Int8Array(0)
-      let h = 0
-      for (let k = 0; k < nb.length; k++) h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
-      next[v] = h > 0 ? 1 : h < 0 ? -1 : 0
-    }
-    return next
-  }
+  const step = (tone: Int8Array): Int8Array => signedMajorityStep({ neighbors: g.neighbors, fills, tone })
   const radii: number[] = []
   let holds = true
   for (let beat = 1; beat <= 6; beat++) {
@@ -100,12 +65,7 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
   for (const v of spectrum) min = Math.min(min, v)
 
   // Force/static sector: the Green's function decays with graph distance.
-  let center = 0
-  let best = -1
-  for (let i = 0; i < g.size; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) { best = d; center = i }
-  }
+  const center = mostConnectedNode(g.neighbors)
   const phi = laplacianGreensFunction({ substrate: g, center })
   const dist = neighborDistances({ neighbors: g.neighbors, size: g.size, source: center })
   const xs: number[] = []
@@ -116,16 +76,7 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
       ys.push(phi[i] ?? 0)
     }
   }
-  const nx = xs.length
-  const mx = xs.reduce((a, b) => a + b, 0) / nx
-  const my = ys.reduce((a, b) => a + b, 0) / nx
-  let cov = 0, vx = 0, vy = 0
-  for (let i = 0; i < nx; i++) {
-    cov += (xs[i]! - mx) * (ys[i]! - my)
-    vx += (xs[i]! - mx) ** 2
-    vy += (ys[i]! - my) ** 2
-  }
-  const corr = cov / Math.sqrt(Math.max(1e-300, vx * vy))
+  const corr = pearson({ a: xs, b: ys })
 
   // Radiation sector: the rule's light-cone.
   const lc = lightCone(g, input.seed + 1)

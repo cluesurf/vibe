@@ -24,7 +24,7 @@
 
 import { buildAddressing, regionTypes, type Addressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { lifeStep } from '@/code/operator/conway-life'
+import { cellSetCentroid, cellSetEqual, lifeStep } from '@/code/operator/conway-life'
 import { type Bit, bitToNum as toNum, elementaryRuleStep, functionFromTable as fromTable, nand } from '@/code/operator/logic-gate'
 import { carveRegisters, minskyAddProgram, minskyMultiplyProgram, RegisterMachine } from '@/code/operator/register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -176,20 +176,13 @@ function legCuspLife(): boolean {
     cusp = new Set([...lifeStep(cusp)].filter((k) => cellAt.has(k))) // confined to the actual cusp lattice
     ref = lifeStep(ref)
   }
-  const sameSet = (p: Set<string>, q: Set<string>): boolean => p.size === q.size && [...p].every((k) => q.has(k))
-  const matchesRef = sameSet(cusp, ref) // the cusp evolves IDENTICALLY to a reference Z^2 Life (the proof)
-  const centroid = (s: Set<string>): [number, number] => {
-    let sx = 0
-    let sy = 0
-    for (const k of s) { const [x, y] = k.split(',').map(Number); sx += x!; sy += y! }
-    return [sx / s.size, sy / s.size]
-  }
-  const [x0, y0] = centroid(refAlive)
-  const [x1, y1] = centroid(cusp)
+  const matchesRef = cellSetEqual(cusp, ref) // the cusp evolves IDENTICALLY to a reference Z^2 Life (the proof)
+  const [x0, y0] = cellSetCentroid(refAlive)
+  const [x1, y1] = cellSetCentroid(cusp)
   const dx = Math.round(x1 - x0)
   const dy = Math.round(y1 - y0)
   const survived = cusp.size === 5 // a glider is 5 cells, period 4
-  const moved = !sameSet(cusp, refAlive) && (dx !== 0 || dy !== 0)
+  const moved = !cellSetEqual(cusp, refAlive) && (dx !== 0 || dy !== 0)
   const lifeOK = matchesRef && survived && moved
   return lifeOK
 }
