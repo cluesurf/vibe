@@ -10,7 +10,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { countMatrix, transitionEigenvalues, spectralGap } from '@/code/coarse/transition-matrix'
+import { countMatrix, transitionEigenvalues, spectralGap, quantileLabels } from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
 
 function shuffled(labels: number[], seed: number): number[] {
@@ -37,10 +37,13 @@ export default defineExperiment({
     const lag = 5
     const traj = selfTrajectory({ L: 64, beats: 600, bins, seed: 12345 })
 
-    const real = countMatrix({ trajectory: traj.labels, stateCount: bins, lag })
+    // bin the continuous centroid by quantiles so every bin is populated, no spurious empty-state modes.
+    const labels = quantileLabels({ series: traj.centroids, bins })
+
+    const real = countMatrix({ trajectory: labels, stateCount: bins, lag })
     const lambdaReal = spectralGap(transitionEigenvalues(real)).lambda2
 
-    const control = countMatrix({ trajectory: shuffled(traj.labels, 999), stateCount: bins, lag })
+    const control = countMatrix({ trajectory: shuffled(labels, 999), stateCount: bins, lag })
     const lambdaShuffled = spectralGap(transitionEigenvalues(control)).lambda2
 
     const ok = lambdaReal > lambdaShuffled + 0.15

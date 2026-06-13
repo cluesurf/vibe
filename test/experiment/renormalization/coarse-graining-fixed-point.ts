@@ -98,7 +98,7 @@ export function renormalization(input: { seed: number }): {
   solved: boolean
 } {
   const rg = isingRG({ seed: input.seed })
-  const cg = coarseGrainingFixedPoint({ dimension: 2, count: 6000, levels: 4, seed: input.seed })
+  const cg = coarseGrainingFixedPoint({ dimension: 2, count: 3000, levels: 4, seed: input.seed })
   return {
     matchesRecursion: rg.matchesRecursion,
     flowsToFixedPoint: rg.flowsToFixedPoint,

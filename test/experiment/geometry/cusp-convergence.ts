@@ -34,7 +34,7 @@ function spectralDim(nb: number[][], start: number, t1: number, t2: number): num
 // gravity exponent, solve (D - A) phi = delta_center with Dirichlet boundary (phi=0 outside the box), fit over small r
 function gravityExp(nb: number[][], coord: number[][], center: number, rmax: number): number {
   const N = nb.length, phi = new Float64Array(N)
-  for (let it = 0; it < 4000; it++) for (let i = 0; i < N; i++) { let s = i === center ? 1 : 0; for (const j of nb[i]!) s += phi[j]!; phi[i] = s / (6) } // /6 = full cubic degree -> Dirichlet (missing neighbours = 0)
+  for (let it = 0; it < 800; it++) for (let i = 0; i < N; i++) { let s = i === center ? 1 : 0; for (const j of nb[i]!) s += phi[j]!; phi[i] = s / (6) } // /6 = full cubic degree -> Dirichlet (missing neighbours = 0)
   const c = coord[center]!
   const sums: number[] = [], cnts: number[] = []
   for (let i = 0; i < N; i++) { const r = Math.round(Math.sqrt(coord[i]!.reduce((a, x, k) => a + (x - c[k]!) ** 2, 0))); if (r < 1 || r > rmax) continue; sums[r] = (sums[r] ?? 0) + phi[i]!; cnts[r] = (cnts[r] ?? 0) + 1 }

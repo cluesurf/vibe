@@ -5,6 +5,7 @@
 // 2D, so the Newtonian potential is LOGARITHMIC (not 1/r). Run: npx tsx code/experiment/s534-physics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -18,8 +19,7 @@ export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaI
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
   const N = g.cellCount, nb = g.neighbors
   let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (const w of nb[u]!) if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } if (nf.length) shell.push(nf.length); fr = nf }
+  const { shellCounts: shell } = bfsShells({ neighbors: nb, root: center })
   const mid = shell.slice(2, Math.min(6, shell.length))
   const growthRatio = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
   // (3) icosahedral isotropy, the 12 directions, 4th-moment isotropy check sum d_i^4 = 3 sum d_i^2 d_j^2

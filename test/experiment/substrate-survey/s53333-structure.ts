@@ -7,14 +7,14 @@
 // Run: npx tsx code/experiment/s53333-structure.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
   const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
   const N = g.cellCount, nb = g.neighbors
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(nb)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
   let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []

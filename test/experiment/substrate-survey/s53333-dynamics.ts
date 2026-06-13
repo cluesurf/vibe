@@ -3,6 +3,7 @@
 // the wave churns, and the U(1) Gauss law holds. All POSITIVE. Run: npx tsx code/experiment/s53333-dynamics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -22,8 +23,7 @@ export function s53333Dynamics(): { chargeConserved: boolean; lightSpeed: number
   let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
   const lightSpeed = 1
   let cur = new Int8Array(N), prev = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(nb)
   let changes = 0
   for (let t = 0; t < 20; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
   const churns = changes > N

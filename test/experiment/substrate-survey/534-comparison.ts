@@ -6,6 +6,7 @@
 // Run: npx tsx code/experiment/p242-534-comparison.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,8 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function bulkDim534(): { N: number; degree: number; specDim: number } {
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 20000 })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(g.neighbors)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
   let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []

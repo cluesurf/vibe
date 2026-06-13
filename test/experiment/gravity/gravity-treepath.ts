@@ -5,15 +5,15 @@
 // Run: npx tsx code/experiment/p210-gravity-treepath.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { norm } from '@/code/algebra/vector'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function measure(symbol: number[], maxCells: number, tau: number): { N: number; slope: number; pairs: number } {
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+  const { offsets: off, adj } = toCsr(g.neighbors)
   const rad = g.coords.map(norm); const rmax = Math.max(...rad)
   // root = innermost cell; radial BFS tree gives depth + parent
   let root = 0, rmin = Infinity; for (let i = 0; i < N; i++) if (rad[i]! < rmin) { rmin = rad[i]!; root = i }

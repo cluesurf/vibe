@@ -12,11 +12,12 @@
 
 import { buildDodecagrid, makeLazyEngine, type LazyCell } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // build the graph LAZILY, mirroring the stored build's BFS but getting neighbors from the lazy engine only
-function lazyBuild(maxCells: number): { offsets: Int32Array; adj: Int32Array; cellCount: number } {
+function lazyBuild(maxCells: number): { offsets: Uint32Array; adj: Uint32Array; cellCount: number } {
   const eng = makeLazyEngine()
   const cells: LazyCell[] = [eng.origin]
   const idOf = new Map<string, number>([[eng.fingerprint(eng.origin), 0]])
@@ -45,11 +46,7 @@ function lazyBuild(maxCells: number): { offsets: Int32Array; adj: Int32Array; ce
     if (hit) break
   }
   const n = cells.length
-  const offsets = new Int32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + nbr[i]!.length
-  const adj = new Int32Array(offsets[n]!)
-  let pos = 0
-  for (let i = 0; i < n; i++) for (const w of nbr[i]!) adj[pos++] = w
+  const { offsets, adj } = toCsr(nbr)
   return { offsets, adj, cellCount: n }
 }
 

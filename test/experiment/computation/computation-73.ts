@@ -5,28 +5,26 @@
 // Run: npx tsx code/experiment/p204-computation-73.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function computation73(): { fibonacciGrowth: boolean; junctionCapable: boolean; growthRatio: number } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 15000 })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
+  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = g.neighbors[i]!.length; if (d > best) { best = d; center = i } }
 
   // (a) spanning-tree shell growth -> the ratio should approach the {7,3} growth constant (golden-ratio family,
   //     ~ (3+sqrt(5))/2 = phi^2 = 2.618 for the heptagrid's Fibonacci-like tree), Margenstern's addressing.
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } if (nf.length) shell.push(nf.length); fr = nf }
+  const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
   const mid = shell.slice(2, Math.min(8, shell.length)); const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
   const growthRatio = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
   const phi2 = (3 + Math.sqrt(5)) / 2
   const fibonacciGrowth = Math.abs(growthRatio - phi2) < 0.6 // near the golden-ratio family
 
   // (b) junction capability: an interior cell must allow >=3 edge-disjoint outgoing tracks (for crossings/switches)
-  let interior = center; for (let i = 0; i < N; i++) if (off[i + 1]! - off[i]! === 7) { interior = i; break }
-  const outDeg = off[interior + 1]! - off[interior]!
+  let interior = center; for (let i = 0; i < N; i++) if (g.neighbors[i]!.length === 7) { interior = i; break }
+  const outDeg = g.neighbors[interior]!.length
   const junctionCapable = outDeg >= 3
   return { fibonacciGrowth, junctionCapable, growthRatio }
 }

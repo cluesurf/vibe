@@ -5,6 +5,7 @@
 // physical-space gravity, isotropy, cosmology, hierarchy, and selves. Run: npx tsx code/experiment/comprehensive-comparison.ts
 
 import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -24,8 +25,7 @@ function build(s: Sub): CellGraph { return s.flat ? buildEuclideanLattice({ symb
 function battery(s: Sub): Record<string, string> {
   const g = build(s)
   const N = g.cellCount, nb = g.neighbors
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(nb)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
   // crystallographic + spinor hook

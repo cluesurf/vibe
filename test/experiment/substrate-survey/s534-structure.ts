@@ -3,7 +3,9 @@
 // 12 directions are ICOSAHEDRAL (non-crystallographic) so NO spinor and NO root-system gauge. So physical space
 // would be 2D with no fundamental spin or gauge group. Run: npx tsx code/experiment/s534-structure.ts
 
+import { dot } from '@/code/algebra/vector'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,8 +15,7 @@ export function s534Structure(): { degree: number; specDim: number; crystallogra
   // bulk geometry
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(g.neighbors)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
   let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
@@ -23,7 +24,6 @@ export function s534Structure(): { degree: number; specDim: number; crystallogra
   // the 12 directions = icosahedron vertices, check the CRYSTALLOGRAPHIC (root-system) condition 2(a.b)/(b.b) in Z
   const verts: number[][] = []
   for (const a of [1, -1]) for (const b of [phi, -phi]) verts.push([0, a, b], [a, b, 0], [b, 0, a])
-  const dot = (u: number[], v: number[]): number => u[0]! * v[0]! + u[1]! * v[1]! + u[2]! * v[2]!
   let crystallographic = true; let exampleNonInt = 0
   for (const a of verts) for (const b of verts) { const r = (2 * dot(a, b)) / dot(b, b); if (Math.abs(r - Math.round(r)) > 1e-6) { crystallographic = false; exampleNonInt = Math.round(r * 1000) / 1000 } }
   const hasSpinor = false // a permutation rep of the icosahedral rotation group A5 = 1+3+3'+5, all integer spin (p190)

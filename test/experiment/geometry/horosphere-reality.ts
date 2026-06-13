@@ -3,12 +3,13 @@
 // tiling on it PERIODIC (clean cubic {4,3,4}, uniform degree 6) or APERIODIC (varying degrees)? (3) how does the
 // band size scale, i.e. what does a GROWING flat slice look like? Run: npx tsx code/experiment/horosphere-reality.ts
 
+import { bfsShells } from '@/code/measure/shells'
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function horosphereReality(): { bandCount: number; flatGrowth: number; degreeHistogram: Record<number, number> } {
-  const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 6000, half: 0.5, margin: 0.7 })
+  const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 3000, half: 0.5, margin: 0.7 })
   const N = h.cellCount
   // induced adjacency ON the band only (cells whose Busemann value is within half)
   const inBand: number[] = []
@@ -19,8 +20,7 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
   const B = inBand.length
   // (1) flatness, intrinsic growth of the band graph (BFS from a central band cell) should be POLYNOMIAL
   let c0 = 0, bestDeg = -1; for (let a = 0; a < B; a++) if (bnb[a]!.length > bestDeg) { bestDeg = bnb[a]!.length; c0 = a }
-  const dist = new Int32Array(B).fill(-1); dist[c0] = 0; let fr = [c0]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (const w of bnb[u]!) if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } if (nf.length) shell.push(nf.length); fr = nf }
+  const { shellCounts: shell } = bfsShells({ neighbors: bnb, root: c0 })
   const mid = shell.slice(2, Math.min(8, shell.length))
   const flatGrowth = mid.length > 1 ? Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
   // (2) periodicity, degree histogram of the band cells (clean cubic {4,3,4} -> mostly degree 6; aperiodic -> spread)

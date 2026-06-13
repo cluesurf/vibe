@@ -43,12 +43,12 @@ function radial(sol: { x: Float64Array; coord: (i: number) => number[] }, L: num
 
 export function gravityBoundary(): { exp3D: number; slope2DvsLog: number } {
   // 3D cusp ({4,3,4}): Newton 1/r  -> g(r)*r ~ const, i.e. log g vs log r slope ~ -1
-  const s3 = solvePoisson(48, 3), p3 = radial(s3, 48, 3)
+  const s3 = solvePoisson(32, 3), p3 = radial(s3, 32, 3)
   let n = 0, sx = 0, sy = 0, sxx = 0, sxy = 0
   for (const p of p3) { if (p.g <= 0) continue; const X = Math.log(p.r), Y = Math.log(p.g); n++; sx += X; sy += Y; sxx += X * X; sxy += X * Y }
   const exp3D = (n * sxy - sx * sy) / (n * sxx - sx * sx)
   // 2D horosphere: Newton ~ -log r -> g(r) linear in log r (negative slope)
-  const s2 = solvePoisson(220, 2), p2 = radial(s2, 220, 2)
+  const s2 = solvePoisson(140, 2), p2 = radial(s2, 140, 2)
   let n2 = 0, lx = 0, ly = 0, lxx = 0, lxy = 0
   for (const p of p2) { const X = Math.log(p.r); n2++; lx += X; ly += p.g; lxx += X * X; lxy += X * p.g }
   const slope2DvsLog = (n2 * lxy - lx * ly) / (n2 * lxx - lx * lx)

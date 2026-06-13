@@ -1,6 +1,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
+import { dot } from '@/code/algebra/vector'
 
 // The discrete-to-continuous bridge. The base is DISCRETE, the 24 directions of {3,4,3,4}
 // have the finite symmetry F4, not the continuous rotation group SO(4). Yet at long wavelength
@@ -33,8 +34,6 @@ const probeDirections = (count: number): number[][] => {
   }
   return directions
 }
-
-const dot = (a: number[], b: number[]): number => a.reduce((sum, value, index) => sum + value * b[index]!, 0)
 
 // the lattice dispersion on a direction set: omega(k) = sqrt(sum over directions of (1 - cos(k . dir)))
 const dispersion = (wave: number[], dirs: number[][]): number =>

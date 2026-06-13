@@ -4,6 +4,7 @@
 // polynomial growth means no fractal boundary and no holographic 1/r, the price paid for spin.
 // Run: npx tsx code/experiment/p246-gm-geometry-3434.ts
 
+import { add } from '@/code/algebra/vector'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,7 +14,6 @@ function d4Roots(): number[][] {
   return r
 }
 const key = (p: number[]): string => p.join(',')
-const add = (p: number[], r: number[]): number[] => [p[0]! + r[0]!, p[1]! + r[1]!, p[2]! + r[2]!, p[3]! + r[3]!]
 const euc = (p: number[]): number => Math.hypot(p[0]!, p[1]!, p[2]!, p[3]!)
 
 // BFS ball: graph distance from origin out to radius R

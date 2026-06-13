@@ -7,6 +7,8 @@
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/open-cusp-settling.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { busemann, idealDirection } from '@/code/substrate/horosphere'
+import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -23,25 +25,8 @@ export default defineExperiment({
     const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: 20000 })
     const n = g.cellCount
 
-    const norm = (v: number[]): number =>
-      Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-    let far = 0
-    let fr = -1
-    for (let i = 0; i < n; i++) {
-      const r = norm(g.coords[i]!)
-      if (r > fr) {
-        fr = r
-        far = i
-      }
-    }
-    const xi = g.coords[far]!.map((v) => v / norm(g.coords[far]!))
-    const bus = g.coords.map((x) => {
-      let d2 = 0
-      for (let k = 0; k < x.length; k++) d2 += (x[k]! - xi[k]!) ** 2
-      return Math.log(
-        d2 / Math.max(1e-12, 1 - x.reduce((s, v) => s + v * v, 0)),
-      )
-    })
+    const xi = idealDirection(g.coords)
+    const bus = busemann({ coords: g.coords, ideal: xi })
     const half = 0.4
     const inBand = (i: number): boolean => Math.abs(bus[i]! - 0) < half
     const bandCount = bus.filter((_, i) => inBand(i)).length
@@ -55,14 +40,7 @@ export default defineExperiment({
       prev[i] = rng.nextInt({ max: 3 }) as 0 | 1 | 2
     }
 
-    const off = new Int32Array(n + 1)
-    for (let i = 0; i < n; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-    const adj = new Int32Array(off[n]!)
-    {
-      let p = 0
-      for (let i = 0; i < n; i++)
-        for (const w of g.neighbors[i]!) adj[p++] = w
-    }
+    const { offsets: off, adj } = toCsr(g.neighbors)
 
     const bandActivityRatio = (): number => {
       let bandAct = 0

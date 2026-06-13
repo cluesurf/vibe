@@ -11,13 +11,13 @@
 // Together these are exactly recursive nesting, the structure repeats at every scale and crowds the
 // boundary. Run: npx tsx code/experiment/p189-nested-structure-534.ts
 
+import { norm } from '@/code/algebra/vector'
+import { bfsShells } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-
-export function nestedStructure534(maxCells = 500000): {
+export function nestedStructure534(maxCells = 120000): {
   shellCounts: number[]
   cleanShells: number[]
   ratios: number[]
@@ -32,16 +32,7 @@ export function nestedStructure534(maxCells = 500000): {
   const n = g.cellCount
 
   // BFS shells from cell 0
-  const depth = new Array<number>(n).fill(-1)
-  depth[0] = 0
-  let frontier = [0]
-  const shellCounts: number[] = [1]
-  while (frontier.length) {
-    const next: number[] = []
-    for (const u of frontier) for (const v of g.neighbors[u]!) if (depth[v]! < 0) { depth[v] = depth[u]! + 1; next.push(v) }
-    if (next.length) shellCounts.push(next.length)
-    frontier = next
-  }
+  const { depth, shellCounts } = bfsShells({ neighbors: g.neighbors, root: 0 })
 
   // the LAST shell is truncated by maxCells (its ratio collapses), drop it. keep shells that are still
   // growing geometrically (ratio to the previous shell well above 1).

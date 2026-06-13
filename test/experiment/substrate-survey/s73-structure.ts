@@ -4,15 +4,16 @@
 // spinor and NO root-system gauge, and physical space would be 1D. Even more degenerate than {5,3,4}.
 // Run: npx tsx code/experiment/s73-structure.ts
 
+import { dot } from '@/code/algebra/vector'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount, nb = g.neighbors
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(nb)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
   let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
@@ -20,7 +21,6 @@ export function s73Structure(): { degree: number; specDim: number; crystallograp
   const specDim = Math.round((-2 * (Math.log(ret[6]!) - Math.log(ret[3]!))) / (Math.log(6) - Math.log(3)) * 100) / 100
   // the 7 directions = heptagon edge-normals at angles 2*pi*k/7, crystallographic (root system) check 2(a.b)/(b.b) in Z
   const dirs = Array.from({ length: 7 }, (_, k) => [Math.cos((2 * Math.PI * k) / 7), Math.sin((2 * Math.PI * k) / 7)])
-  const dot = (u: number[], v: number[]): number => u[0]! * v[0]! + u[1]! * v[1]!
   let crystallographic = true, exampleNonInt = 0
   for (const a of dirs) for (const b of dirs) { const r = (2 * dot(a, b)) / dot(b, b); if (Math.abs(r - Math.round(r)) > 1e-6) { crystallographic = false; exampleNonInt = Math.round(r * 1000) / 1000 } }
   const hasSpinor = false // 7-fold dihedral D7 is a real reflection group, the 7-direction perm rep carries no spinor

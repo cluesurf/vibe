@@ -4,6 +4,7 @@
 // cosmology, eternal expansion from the hyperbolic growth, the cusp as flat space, peace as the initial state.
 // Run: npx tsx code/experiment/p237-cosmology.ts
 
+import { bfsShells } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -11,11 +12,8 @@ import { verdict } from '@/test/scaffold/verdict'
 export function cosmology(): { growthRatio: number; exponential: boolean } {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 30000 })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } if (nf.length) shell.push(nf.length); fr = nf }
+  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = g.neighbors[i]!.length; if (d > best) { best = d; center = i } }
+  const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
   const mid = shell.slice(2, Math.min(7, shell.length))
   const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
   const growthRatio = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100

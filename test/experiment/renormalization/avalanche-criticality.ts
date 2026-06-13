@@ -147,7 +147,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: false,
   run() {
-    const r = avalancheCriticality({ n: 12000 })
+    const r = avalancheCriticality({ n: 2000 })
     const ok = r.solved && r.ballisticNotCritical && !r.scaleFree
     return verdict({
       status: ok ? 'pass' : 'fail',

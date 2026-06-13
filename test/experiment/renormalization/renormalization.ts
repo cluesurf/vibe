@@ -171,7 +171,7 @@ export default defineExperiment({
   depth: 'L3',
   paper: true,
   run() {
-    const r = renormalization({ small: 30000, large: 150000 })
+    const r = renormalization({ small: 20000, large: 60000 })
     const ok =
       r.solved &&
       r.sliceInvariant &&

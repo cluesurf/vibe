@@ -6,6 +6,8 @@
 // Run: npx tsx code/experiment/physics-on-real-space.ts
 
 import { buildEuclideanLattice, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
+import { extractBand } from '@/code/substrate/horosphere'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -25,8 +27,7 @@ function gravityExponent(nb: number[][], start: number): number {
   const phi = new Float64Array(N)
   for (let it = 0; it < 3000; it++) for (let i = 0; i < N; i++) { let s = i === start ? 1 : 0; for (const j of nb[i]!) s += phi[j]!; phi[i] = s / (nb[i]!.length + m2) }
   // graph distance from start
-  const dist = new Int32Array(N).fill(-1); dist[start] = 0; let fr = [start]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (const w of nb[u]!) if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } fr = nf }
+  const dist = bfsShells({ neighbors: nb, root: start }).depth
   // average phi per shell, fit log phi vs log r over r = 2..6
   const sums: number[] = [], cnts: number[] = []
   for (let i = 0; i < N; i++) { const r = dist[i]!; if (r < 0) continue; sums[r] = (sums[r] ?? 0) + phi[i]!; cnts[r] = (cnts[r] ?? 0) + 1 }
@@ -47,8 +48,8 @@ export function physicsOnRealSpace(): void {
   const cubeGrav = gravityExponent(cube.neighbors, cc)
   // Space B, a generic aperiodic horosphere slice
   const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
-  const bandIdx: number[] = []; const rmap = new Map<number, number>()
-  for (let i = 0; i < h.cellCount; i++) if (Math.abs(h.busemann[i]!) < 1.0) { rmap.set(i, bandIdx.length); bandIdx.push(i) }
+  const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
+  const rmap = new Map<number, number>(); bandIdx.forEach((id, i) => rmap.set(id, i))
   const bnb: number[][] = bandIdx.map(() => [])
   for (let a = 0; a < bandIdx.length; a++) for (const w of h.neighbors[bandIdx[a]!]!) { const b = rmap.get(w); if (b !== undefined) bnb[a]!.push(b) }
   const lcc = largestComponent(bnb)
@@ -87,14 +88,9 @@ export default defineExperiment({
       half: 1.0,
       margin: 0.8,
     })
-    const bandIdx: number[] = []
+    const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
     const rmap = new Map<number, number>()
-    for (let i = 0; i < h.cellCount; i++) {
-      if (Math.abs(h.busemann[i]!) < 1.0) {
-        rmap.set(i, bandIdx.length)
-        bandIdx.push(i)
-      }
-    }
+    bandIdx.forEach((id, i) => rmap.set(id, i))
     const bnb: number[][] = bandIdx.map(() => [])
     for (let a = 0; a < bandIdx.length; a++) {
       for (const w of h.neighbors[bandIdx[a]!]!) {

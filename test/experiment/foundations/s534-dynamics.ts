@@ -4,6 +4,7 @@
 // solvable on {5,3,4}. Run: npx tsx code/experiment/s534-dynamics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -30,8 +31,7 @@ export function s534Dynamics(): { chargeConserved: boolean; lightSpeed: number; 
   const lightSpeed = 1 // one shell per beat, by construction of the local rule (finite, z=1)
   // (3) churn, mod-3 wave from random init does not freeze
   let cur = new Int8Array(N), prev = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(nb)
   let changes = 0
   for (let t = 0; t < 30; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
   const churns = changes > N // many changes over 30 beats -> not frozen

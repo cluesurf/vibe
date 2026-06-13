@@ -38,8 +38,10 @@ export interface Trajectory {
   graph: Graph
   L: number
   bins: number
-  // the position-bin label at each beat.
+  // the position-bin label at each beat (fixed bins over the lattice width).
   labels: number[]
+  // the continuous positive-centroid x at each beat, for quantile binning.
+  centroids: number[]
   // periodic tone snapshots, for the commuting-square test.
   snapshots: Int8Array[]
   // the mean cells-per-self at the end, the level-0 compression factor C.
@@ -60,16 +62,19 @@ export function selfTrajectory(input: {
   const moved = new Uint8Array(graph.cellCount)
   const { tone } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
   const labels: number[] = []
+  const centroids: number[] = []
   const snapshots: Int8Array[] = []
   const toBin = (x: number): number => Math.min(bins - 1, Math.max(0, Math.floor((x / L) * bins)))
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, 0.22)
-    labels.push(toBin(positiveCentroidX(tone, L)))
+    const cx = positiveCentroidX(tone, L)
+    centroids.push(cx)
+    labels.push(toBin(cx))
     if (t % snapshotEvery === 0) snapshots.push(tone.slice())
   }
   const positions = (cell: number): readonly [number, number] => [cell % L, Math.floor(cell / L)]
   const units = extractUnits({ tone, graph, positions, sign: 1, minSize: 3 })
-  return { graph, L, bins, labels, snapshots, meanSelfSize: meanUnitSize(units) }
+  return { graph, L, bins, labels, centroids, snapshots, meanSelfSize: meanUnitSize(units) }
 }
 
 // The position bin of a tone state, the coarse map used by the commuting-square test.

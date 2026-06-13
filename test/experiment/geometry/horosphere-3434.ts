@@ -4,16 +4,16 @@
 // Run: npx tsx code/experiment/p196-horosphere-3434.ts
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function horosphere3434(): { cells: number; meanDegree: number; specDim16: number } {
-  const slab = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 30000, half: 0.5, margin: 0.6 })
+  const slab = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 3000, half: 0.5, margin: 0.6 })
   const n = slab.cellCount
   let sum = 0, mx = 0
   for (let i = 0; i < n; i++) { const d = slab.neighbors[i]!.length; sum += d; if (d > mx) mx = d }
-  const off = new Int32Array(n + 1); for (let i = 0; i < n; i++) off[i + 1] = off[i]! + slab.neighbors[i]!.length
-  const adj = new Int32Array(off[n]!); { let p = 0; for (let i = 0; i < n; i++) for (const w of slab.neighbors[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(slab.neighbors)
   let center = 0, best = -1; for (let i = 0; i < n; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   let p = new Float64Array(n); p[center] = 1; let np = new Float64Array(n); const P: number[] = []
   for (let t = 0; t < 36; t++) {

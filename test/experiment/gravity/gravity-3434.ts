@@ -5,15 +5,15 @@
 // Ported from the throwaway probe. Run: npx tsx code/experiment/p198-gravity-3434.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { norm } from '@/code/algebra/vector'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function measure(symbol: number[], maxCells: number): { N: number; nb: number; slope: number; calibrated: boolean } {
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+  const { offsets: off, adj } = toCsr(g.neighbors)
   const rad = g.coords.map(norm); const rmax = Math.max(...rad)
   const boundary = [...Array(N).keys()].filter((i) => rad[i]! > 0.9 * rmax)
   const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1

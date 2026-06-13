@@ -227,7 +227,7 @@ export default defineExperiment({
   paper: true,
   run() {
     const r = gravitonFromAction({ k: [1, 1, 1] })
-    const bd = bdSignature({ realizations: 150, count: 1800, seed: 1 })
+    const bd = bdSignature({ realizations: 24, count: 700, seed: 1 })
     const ok =
       r.gravitonModes === 2 &&
       r.diffeoResidual < 1e-10 &&

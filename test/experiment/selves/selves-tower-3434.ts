@@ -22,6 +22,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { toCsr } from '@/code/tool/graph'
 
 // the exact 9-state conserving perception permutation on an ordered pair (the rule's collision)
 function perm(a: number, b: number): [number, number] {
@@ -50,7 +51,7 @@ function pearson(a: number[], b: number[]): number {
   return va > 1e-9 && vb > 1e-9 ? num / Math.sqrt(va * vb) : 0
 }
 
-type StepFn = (tone: Int8Array, offsets: Int32Array, adj: Int32Array, rng: { next: () => number }) => void
+type StepFn = (tone: Int8Array, offsets: Uint32Array, adj: Uint32Array, rng: { next: () => number }) => void
 
 // one beat on a CSR graph: a random maximal matching of cells, each matched pair updated by `pairOp` (so
 // charge is exactly conserved, every cell acts at most once per beat). perm = the perception rule; swap =
@@ -87,8 +88,8 @@ const stepDiffusion = makeStep((a, b) => [b, a])
 // form-persistence: lag-LAG autocorrelation of the per-group net charge, averaged over a run.
 function formPersistence(
   tone: Int8Array,
-  offsets: Int32Array,
-  adj: Int32Array,
+  offsets: Uint32Array,
+  adj: Uint32Array,
   groupOf: number[], // group index per cell, for ONE coarse scale
   rng: { next: () => number },
   opts: { lag: number; frames: number; step: StepFn },
@@ -121,10 +122,7 @@ function cuspTower(): { real: number[]; diff: number[]; nul: number[]; blocks: n
   const L = 24
   const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: L * L * L * 2 })
   const n = g.cellCount
-  const offsets = new Int32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(offsets[n]!)
-  { let p = 0; for (let i = 0; i < n; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
+  const { offsets, adj } = toCsr(g.neighbors)
   // block-of-size-b grouping from integer coords
   const groupAt = (b: number): number[] => {
     const idx = new Map<string, number>()
@@ -160,10 +158,7 @@ function cuspTower(): { real: number[]; diff: number[]; nul: number[]; blocks: n
 function bulkTower(): { real: number[]; diff: number[]; nul: number[]; depths: number[]; beatsDiffusion: boolean } {
   const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 20000 })
   const n = a.graph.cellCount
-  const offsets = new Int32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + a.graph.neighbors[i]!.length
-  const adj = new Int32Array(offsets[n]!)
-  { let p = 0; for (let i = 0; i < n; i++) for (const w of a.graph.neighbors[i]!) adj[p++] = w }
+  const { offsets, adj } = toCsr(a.graph.neighbors)
   // coarse-grain by truncating the ADDRESS to depth d (climb inward up the Fibonacci tree). d large = fine,
   // d small = coarse. Cells shallower than d join their own singleton (kept distinct).
   const groupAtDepth = (d: number): number[] => {

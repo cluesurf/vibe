@@ -9,7 +9,8 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { Graph, neighborsOf } from '@/code/tool/graph'
+import { bfsShells } from '@/code/measure/shells'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -62,22 +63,7 @@ function step(g: Graph, fills: Int8Array[], tone: Int8Array): Int8Array {
 
 // Graph-distance from a source by breadth-first search.
 function distancesFrom(g: Graph, source: number): Int32Array {
-  const dist = new Int32Array(g.size).fill(-1)
-  dist[source] = 0
-  let frontier = [source]
-  while (frontier.length > 0) {
-    const nextFrontier: number[] = []
-    for (const v of frontier) {
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[v] ?? 0) + 1
-          nextFrontier.push(w)
-        }
-      }
-    }
-    frontier = nextFrontier
-  }
-  return dist
+  return bfsShells({ neighbors: neighborsOf(g), root: source }).depth
 }
 
 export function propagation(input: { count: number; beats: number; seed: number }): {

@@ -6,6 +6,7 @@
 // star tetracombs ({3,3,5,5/2} etc.) are non-convex and not built here. Run: npx tsx code/experiment/4d-tessellations.ts
 
 import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -28,14 +29,14 @@ const HONEYCOMBS: Cand[] = [
 ]
 
 const SCALE = 25000
+const SURVEY_SCALE = 1200
 
-function measure(sym: number[], flat: boolean): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
+function measure(sym: number[], flat: boolean, scale: number = SCALE): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
   try {
-    const g = flat ? buildEuclideanLattice({ symbol: sym as never, maxCells: SCALE }) : buildCellGraph({ symbol: sym as never, maxCells: SCALE })
+    const g = flat ? buildEuclideanLattice({ symbol: sym as never, maxCells: scale }) : buildCellGraph({ symbol: sym as never, maxCells: scale })
     const N = g.cellCount, nb = g.neighbors
     if (N < 50) return { ok: false, cells: N, degree: 0, growth: 0, betheAlpha: 0 }
-    const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-    const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+    const { offsets: off, adj } = toCsr(nb)
     let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
     const degree = best
     const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
@@ -51,7 +52,7 @@ function measure(sym: number[], flat: boolean): { ok: boolean; cells: number; de
 export function fourdTessellations(): void {
   for (const c of HONEYCOMBS) {
     const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
-    const m = measure(c.sym, c.flat ?? false)
+    const m = measure(c.sym, c.flat ?? false, SURVEY_SCALE)
     const built = m.ok ? `degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}` : 'does not build (ideal tiles)'
   }
 }
