@@ -6,20 +6,12 @@
 // makes the coin 5-fold / H-family / NON-crystallographic, so NO root-system gauge and NO spinor.
 // Run: npx tsx code/experiment/s53333-structure.ts
 
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
-  const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
-  const N = g.cellCount, nb = g.neighbors
-  const { offsets: off, adj } = toCsr(nb)
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  const degree = best
-  let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
-  for (let t = 0; t < 10; t++) { ret.push(p[center]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const specDim = Math.round((-2 * (Math.log(ret[4]!) - Math.log(ret[2]!))) / (Math.log(4) - Math.log(2)) * 100) / 100
+  const { degree, specDim } = cellGraphSpectral({ symbol: [5, 3, 3, 3, 3], maxCells: 6000, t1: 2, t2: 4 })
   // the symbol contains a 5 -> H-family Coxeter group -> NON-crystallographic (no root lattice, like {5,3,4})
   const crystallographic = false // a 5 in the Schlafli symbol forces 5-fold symmetry, forbidden crystallographically
   const hasSpinor = false // H5 is a non-crystallographic reflection group, the coin carries no spinor

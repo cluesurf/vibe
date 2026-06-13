@@ -41,6 +41,26 @@ export function denseMatVec(m: DenseMatrix, input: { x: Float64Array }): Float64
   return y
 }
 
+// Plain square-matrix product over number[][]. The small dense multiply behind finite
+// matrix-group closures and invariant-theory counts.
+export function matrixProduct(a: number[][], b: number[][]): number[][] {
+  const n = a.length
+  const inner = b.length
+  const cols = b[0]?.length ?? 0
+  const out: number[][] = []
+  for (let i = 0; i < n; i++) {
+    const row: number[] = new Array(cols).fill(0)
+    for (let k = 0; k < inner; k++) {
+      const aik = a[i]![k]!
+      if (aik === 0) continue
+      const bk = b[k]!
+      for (let j = 0; j < cols; j++) row[j]! += aik * bk[j]!
+    }
+    out.push(row)
+  }
+  return out
+}
+
 // Determinant of a small square matrix (number[][]) by Gaussian elimination with partial pivoting.
 // Returns 0 on a (near) singular pivot. The exact-arithmetic-friendly routine behind Coxeter Gram
 // signature tests (leading principal minors) and other small linear-algebra checks.

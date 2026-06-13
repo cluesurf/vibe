@@ -7,19 +7,17 @@
 // collision is effectively forced in the IR, by triality. Run: npx tsx code/experiment/p226-emergent-symmetry.ts
 
 import { invariantPolynomialDimension } from '@/code/algebra/group/invariant-theory'
+import { closure as groupClosure } from '@/code/algebra/group/finite-group'
+import { matrixProduct } from '@/code/algebra/linear/dense'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type M = number[][]
 const I4: M = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-function mul(A: M, B: M): M { const C: M = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]; for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += A[i]![k]! * B[k]![j]!; C[i]![j] = s } return C }
+const mul = matrixProduct
 const key = (A: M): string => A.flat().map((x) => Math.round(x * 1000)).join(',')
 const trace = (A: M): number => A[0]![0]! + A[1]![1]! + A[2]![2]! + A[3]![3]!
-function closure(gens: M[]): M[] {
-  const seen = new Map<string, M>([[key(I4), I4]]); const q: M[] = [I4]
-  while (q.length) { const g = q.shift()!; for (const h of gens) { const p = mul(h, g); const k = key(p); if (!seen.has(k)) { seen.set(k, p); q.push(p) } } if (seen.size > 5000) break }
-  return [...seen.values()]
-}
+const closure = (gens: M[]): M[] => groupClosure(gens, { multiply: mul, inverse: (m) => m, key })
 // dim of degree-d invariant polynomials = (1/|G|) sum_g h_d(eigenvalues of g), h from power sums via Newton
 const invDim = (G: M[], d: 2 | 4): number =>
   invariantPolynomialDimension({ group: G, degree: d, identity: I4, multiply: mul, trace })

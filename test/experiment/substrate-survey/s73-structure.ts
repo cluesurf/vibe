@@ -4,25 +4,16 @@
 // spinor and NO root-system gauge, and physical space would be 1D. Even more degenerate than {5,3,4}.
 // Run: npx tsx code/experiment/s73-structure.ts
 
-import { dot } from '@/code/algebra/vector'
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
+import { directionsAreCrystallographic } from '@/code/measure/crystallographic'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
-  const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
-  const N = g.cellCount, nb = g.neighbors
-  const { offsets: off, adj } = toCsr(nb)
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  const degree = best
-  let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
-  for (let t = 0; t < 14; t++) { ret.push(p[center]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const specDim = Math.round((-2 * (Math.log(ret[6]!) - Math.log(ret[3]!))) / (Math.log(6) - Math.log(3)) * 100) / 100
+  const { degree, specDim } = cellGraphSpectral({ symbol: [7, 3], maxCells: 12000, t1: 3, t2: 6 })
   // the 7 directions = heptagon edge-normals at angles 2*pi*k/7, crystallographic (root system) check 2(a.b)/(b.b) in Z
   const dirs = Array.from({ length: 7 }, (_, k) => [Math.cos((2 * Math.PI * k) / 7), Math.sin((2 * Math.PI * k) / 7)])
-  let crystallographic = true, exampleNonInt = 0
-  for (const a of dirs) for (const b of dirs) { const r = (2 * dot(a, b)) / dot(b, b); if (Math.abs(r - Math.round(r)) > 1e-6) { crystallographic = false; exampleNonInt = Math.round(r * 1000) / 1000 } }
+  const crystallographic = directionsAreCrystallographic(dirs)
   const hasSpinor = false // 7-fold dihedral D7 is a real reflection group, the 7-direction perm rep carries no spinor
   return { degree, specDim, crystallographic, hasSpinor }
 }

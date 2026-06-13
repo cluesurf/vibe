@@ -20,70 +20,9 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
+import { pumpedReserveSweep } from '@/code/dynamics/pumped-reserve-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
-
-type Rng = { next: () => number }
-
-const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
-
-// One beat of conserved hops. Interior hops pump charge toward the center, boundary hops leak with
-// probability fieldLeak (the field draining the self), exterior hops are an unbiased random walk (so
-// escaped charge diffuses away). If pump is false, ALL hops are an unbiased random walk (no pumping).
-// Every swap preserves the pair sum, so Q is conserved.
-function beat(
-  tone: Int8Array,
-  edges: Array<[number, number]>,
-  inSelf: Uint8Array,
-  distC: Int32Array,
-  rng: Rng,
-  fieldLeak: number,
-  pump: boolean,
-): void {
-  const moved = new Uint8Array(tone.length)
-  for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
-    const tv = tone[v]!
-    const tw = tone[w]!
-    // hop candidate: exactly one neutral, one charged
-    let c = -1
-    let e = -1
-    if (tv === 0 && tw !== 0) {
-      e = v
-      c = w
-    } else if (tw === 0 && tv !== 0) {
-      e = w
-      c = v
-    } else {
-      continue
-    }
-    const crossing = inSelf[v] !== inSelf[w]
-    const interior = inSelf[v] === 1 && inSelf[w] === 1
-    let swap = false
-    if (pump && interior) {
-      // the field penetrates the interior with probability fieldLeak (disorder the self), otherwise
-      // the self pumps + toward the center. A stronger field overwhelms the pump from within.
-      if (rng.next() < fieldLeak) {
-        swap = rng.next() < 0.5 // field disorders the interior
-      } else {
-        swap = tone[c]! > 0 ? dd(distC, e) < dd(distC, c) : dd(distC, e) > dd(distC, c) // pump
-      }
-    } else if (pump && crossing) {
-      // leaky boundary: the field drains charge across with probability fieldLeak
-      swap = rng.next() < fieldLeak
-    } else {
-      // exterior, or no-pump control: unbiased random walk
-      swap = rng.next() < 0.5
-    }
-    if (swap) {
-      tone[e] = tone[c]!
-      tone[c] = 0
-      moved[v] = 1
-      moved[w] = 1
-    }
-  }
-}
-
 
 export function willpowerGrounded(): {
   cells: number
@@ -165,7 +104,7 @@ export function willpowerGrounded(): {
     const maxBeats = 200
     let beats = maxBeats
     for (let b = 1; b <= maxBeats; b++) {
-      beat(t, edges, inSelf, distC, rng, fieldLeak, pump)
+      pumpedReserveSweep({ tone: t, edges, inSelf, distC, rng, fieldLeak, pump })
       if (coreCharge(t) < 0.5 * core0) {
         beats = b
         break

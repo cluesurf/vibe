@@ -9,49 +9,14 @@
 // / sound / relativistic mode (omega ~ c |k|, a massless relativistic particle, the photon-like mode we
 // want). This decides whether the gapless mode is relativistic. Run: npx tsx code/experiment/p137-dynamic-dispersion.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
 import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 function beat(tone: Int8Array, L: number, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
-  for (let i = 0; i < L; i++) {
-    const v = i
-    const w = (i + 1) % L
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
+  conservingChainSweep({ tone, length: L, moved, rng, arrow })
 }
 
 export function dynamicDispersion(input?: { L?: number; arrow?: number }): {

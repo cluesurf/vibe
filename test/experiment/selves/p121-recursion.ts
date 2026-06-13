@@ -13,58 +13,11 @@
 
 import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
+import { csrDistances, csrFarthestNode, edgesFromCsr } from '@/code/tool/graph'
+import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-function bfsFar(offsets: Int32Array, adj: Int32Array, n: number, src: number): number {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let far = src
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        far = w
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return far
-}
-
-function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 export function recursion(input?: { n?: number }): {
   n: number
@@ -86,7 +39,7 @@ export function recursion(input?: { n?: number }): {
   // two selves, far apart
   let center1 = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center1 + 1]! - g.offsets[center1]!) center1 = i
-  const center2 = bfsFar(g.offsets, g.adj, N, center1)
+  const center2 = csrFarthestNode({ offsets: g.offsets, adj: g.adj, size: N, source: center1 })
   const d1 = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center1, maxRadius: 12 })
   const d2 = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center2, maxRadius: 12 })
   const r = 3
@@ -128,7 +81,7 @@ export function recursion(input?: { n?: number }): {
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
       const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0) as -1 | 0 | 1
       for (const i of boundary2) tone[i] = s2in
-      if (withDynamics) fullBeat(tone, eu, ev, moved, rng)
+      if (withDynamics) conservingEdgeSweepSteered({ tone, eu, ev, moved, rng, distGoal: null, towardSign: 0 })
       for (const i of boundary1) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
       for (const i of boundary2) tone[i] = s2in
       h1.push(meanOver(tone, hub1cells))

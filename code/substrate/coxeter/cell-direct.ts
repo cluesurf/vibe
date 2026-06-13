@@ -13,6 +13,7 @@
 // are g*F_i for the precomputed face reflections F_i.
 
 import { mirrorFrame } from '@/code/substrate/coxeter/schlafli'
+import { highestDegreeNode, largestComponentNodes } from '@/code/tool/graph'
 
 type Mat = number[][]
 type Vec = number[]
@@ -435,4 +436,41 @@ export function buildHorosphereBand(input: { symbol?: number[]; maxBand?: number
   }
 
   return { cellCount: cellMat.length, bandCount, neighbors, coords: cellCoord, busemann: cellBus, idealPoint: xi }
+}
+
+// Restrict a horosphere band to its flat slice (cells with |busemann| < halfWidth), reindexing them and
+// building their induced subgraph (adjacency among kept cells only) with the matching coords. The raw
+// flat slab the horosphere probes measure (degree histogram, intrinsic growth) before any component cut.
+export function bandInducedSubgraph(input: {
+  band: { cellCount: number; neighbors: number[][]; coords: Vec[]; busemann: number[] }
+  halfWidth: number
+}): { neighbors: number[][]; coords: number[][] } {
+  const { band, halfWidth } = input
+  const bandIdx: number[] = []
+  const rmap = new Map<number, number>()
+  for (let i = 0; i < band.cellCount; i++) if (Math.abs(band.busemann[i]!) < halfWidth) { rmap.set(i, bandIdx.length); bandIdx.push(i) }
+  const neighbors: number[][] = bandIdx.map(() => [])
+  for (let a = 0; a < bandIdx.length; a++) for (const w of band.neighbors[bandIdx[a]!]!) { const b = rmap.get(w); if (b !== undefined) neighbors[a]!.push(b) }
+  const coords = bandIdx.map((i) => band.coords[i]!)
+  return { neighbors, coords }
+}
+
+// Extract the coherent 3D space from a horosphere band: take the flat-slice induced subgraph
+// (bandInducedSubgraph), keep its LARGEST connected component, and return that component's induced
+// neighbours, coords, the highest-degree cell as a walk start, and the fraction (percent) of band cells
+// it covers. The coherence extraction the emergent-space probes run.
+export function bandLargestComponentSubgraph(input: {
+  band: { cellCount: number; neighbors: number[][]; coords: Vec[]; busemann: number[] }
+  halfWidth: number
+}): { neighbors: number[][]; coords: number[][]; start: number; largestComponentPercent: number } {
+  const { neighbors: bnb, coords: bcoords } = bandInducedSubgraph(input)
+  // largest connected component and its induced subgraph
+  const lcc = largestComponentNodes(bnb)
+  const largestComponentPercent = Math.round((lcc.length / bnb.length) * 100)
+  const lmap = new Map(lcc.map((v, i) => [v, i]))
+  const neighbors: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)!).filter((x) => x !== undefined) as number[])
+  const coords = lcc.map((v) => bcoords[v]!)
+  // highest-degree cell, the walk start for the spectral-dimension probe
+  const start = highestDegreeNode(neighbors)
+  return { neighbors, coords, start, largestComponentPercent }
 }

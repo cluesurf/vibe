@@ -5,7 +5,10 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
+import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
 import { betheCorrelatorExponent } from '@/code/measure/dimension'
+import { mostConnectedNode } from '@/code/tool/graph'
+import { directionFourthMoments } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -14,15 +17,13 @@ export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFo
   const betheAlpha = betheCorrelatorExponent(7)
   // cosmology + hierarchy, bulk shell growth
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
-  const N = g.cellCount, nb = g.neighbors
-  let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
+  const nb = g.neighbors
+  const center = mostConnectedNode(nb)
   const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-  const mid = shell.slice(2, Math.min(7, shell.length))
-  const growthRatio = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
+  const growthRatio = shellGrowthRatio({ shellCounts: shell, from: 2, to: 7, safeDenominator: true })
   // 7-fold 2D isotropy, 4th moment, sum d_x^4 = 3 sum d_x^2 d_y^2 (isotropic in 2D)
   const dirs = Array.from({ length: 7 }, (_, k) => [Math.cos((2 * Math.PI * k) / 7), Math.sin((2 * Math.PI * k) / 7)])
-  let m4diag = 0, m4mix = 0; for (const d of dirs) { m4diag += d[0]! ** 4; m4mix += d[0]! ** 2 * d[1]! ** 2 }
-  const sevenFoldIsotropic = Math.abs(m4diag - 3 * m4mix) < 1e-6
+  const sevenFoldIsotropic = directionFourthMoments(dirs).anisotropy < 1e-6
   return { betheAlpha, growthRatio, sevenFoldIsotropic }
 }
 

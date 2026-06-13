@@ -12,6 +12,37 @@ export function profileGradient(profile: ReadonlyArray<number>): number {
   return (Math.max(...profile) - Math.min(...profile)) / mean
 }
 
+// The radially-averaged value of a field over a d-cube of side L, binned by integer distance
+// from the center. Cells with rounded radius below `minRadius` or above `maxRadius` are dropped
+// (the near-source singularity and the boundary layer), and each kept radius reports the mean of
+// the field in that shell. The Green's-function falloff is read off this profile.
+export function radialFieldProfile(input: {
+  values: ArrayLike<number>
+  coord: (i: number) => number[]
+  side: number
+  dimension: number
+  minRadius: number
+  maxRadius: number
+}): { r: number; g: number }[] {
+  const { values, coord, side: L, dimension: d, minRadius, maxRadius } = input
+  const c0 = L / 2
+  const bins = new Map<number, { sum: number; count: number }>()
+  for (let i = 0; i < values.length; i++) {
+    const c = coord(i)
+    let r2 = 0
+    for (let k = 0; k < d; k++) r2 += (c[k]! - c0) ** 2
+    const r = Math.round(Math.sqrt(r2))
+    if (r < minRadius || r > maxRadius) continue
+    const bin = bins.get(r) ?? { sum: 0, count: 0 }
+    bin.sum += values[i]!
+    bin.count++
+    bins.set(r, bin)
+  }
+  return [...bins.entries()]
+    .map(([r, bin]) => ({ r, g: bin.sum / bin.count }))
+    .sort((a, b) => a.r - b.r)
+}
+
 // Weighted radius of gyration over a square grid of side `side`, where cell index i sits
 // at (i % side, floor(i / side)) and carries weight `weightOf(i)`. The root-mean-square
 // distance of the mass from its centre of mass, the compactness of a weighted blob.

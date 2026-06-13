@@ -9,8 +9,7 @@
 // and the speed is invariant, the wave dynamics is a renormalization FIXED POINT, the multiscale tower is
 // proven for the DYNAMICS, not just the conserved charge. Run: npx tsx code/experiment/p167-wave-chain.ts
 
-import { leapfrogWaveStep, blockAverage } from '@/code/dynamics/leapfrog-wave'
-import { relativeL2Error } from '@/code/measure/statistics'
+import { leapfrogWaveCommutingError, leapfrogWaveLevelSpeed } from '@/code/dynamics/leapfrog-wave'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -40,25 +39,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
   const rungErrors: { b: number; error: number }[] = []
   for (const b of [2, 4]) {
     const K = Math.floor(fineSteps / b)
-    // path A, evolve fine then coarse-grain
-    let u = u0.slice()
-    let uPrev = uPrev0.slice()
-    for (let t = 0; t < b * K; t++) {
-      const nx = leapfrogWaveStep(u, uPrev, r2)
-      uPrev = u
-      u = nx
-    }
-    const A = blockAverage(u, b)
-    // path B, coarse-grain then evolve the coarse wave
-    let U = blockAverage(u0, b)
-    let UPrev = blockAverage(uPrev0, b)
-    for (let t = 0; t < K; t++) {
-      const nx = leapfrogWaveStep(U, UPrev, r2)
-      UPrev = U
-      U = nx
-    }
-    const B = U
-    rungErrors.push({ b, error: relativeL2Error(A, B) })
+    rungErrors.push({ b, error: leapfrogWaveCommutingError({ u0, uPrev0, r2, blockSize: b, coarseSteps: K }) })
   }
   const errorsSmall = rungErrors.every((x) => x.error < 0.1)
   const errorsShrink = rungErrors.length >= 2 && rungErrors[rungErrors.length - 1]!.error <= rungErrors[0]!.error + 0.02
@@ -66,26 +47,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
   // wave speed at each level (peak displacement per step, in fine-cell units), should be invariant ~ r
   const speeds: { level: number; speed: number }[] = []
   for (const b of [1, 2, 4]) {
-    const steps = 80
-    let u = blockAverage(u0, b)
-    let uPrev = blockAverage(uPrev0, b)
-    // measure the RIGHT-moving front, track the rightmost cell above a threshold
-    const frontOf = (arr: Float64Array): number => {
-      let f = 0
-      for (let i = 0; i < arr.length; i++) if (Math.abs(arr[i]!) > 0.2) f = i
-      return f
-    }
-    const f0 = frontOf(u)
-    for (let t = 0; t < steps; t++) {
-      const nx = leapfrogWaveStep(u, uPrev, r2)
-      uPrev = u
-      u = nx
-    }
-    const f1 = frontOf(u)
-    // physical speed = (front displacement in coarse cells) / (coarse steps). The block-size factors
-    // cancel, b fine-cells per coarse-cell over b fine-steps per coarse-step, so this is already the
-    // physical fine-cell-per-fine-step speed.
-    speeds.push({ level: b, speed: (f1 - f0) / steps })
+    speeds.push({ level: b, speed: leapfrogWaveLevelSpeed({ u0, uPrev0, r2, blockSize: b, steps: 80, threshold: 0.2 }) })
   }
   const sMean = speeds.reduce((s, x) => s + x.speed, 0) / speeds.length
   const speedInvariant = speeds.every((x) => Math.abs(x.speed - sMean) < 0.15 * Math.abs(sMean) + 0.05)

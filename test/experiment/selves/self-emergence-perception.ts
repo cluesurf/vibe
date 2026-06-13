@@ -18,50 +18,13 @@
 import { pearson } from '@/code/measure/statistics'
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
+import { conservingEdgeListSweep } from '@/code/dynamics/conserving-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
-
-// the perception rule, one beat (share / hop / polarize, arrow-driven, no fills, conserving)
-function beat(tone: Int8Array, edges: Array<[number, number]>, rng: Rng, arrowProb: number): void {
-  const moved = new Uint8Array(tone.length)
-  for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrowProb) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 // Pearson correlation of two tone snapshots
 export function selfEmergencePerception(): {
@@ -78,6 +41,7 @@ export function selfEmergencePerception(): {
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
+  const moved = new Uint8Array(n)
 
   const ARROW = 0.1
 
@@ -85,7 +49,7 @@ export function selfEmergencePerception(): {
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < 80; b++) beat(t, edges, rng, ARROW)
+  for (let b = 0; b < 80; b++) conservingEdgeListSweep({ tone: t, edges, moved, rng, arrow: ARROW })
 
   // PERSISTENCE: autocorrelation of the tone field at increasing lags
   const base = t.slice()
@@ -95,7 +59,7 @@ export function selfEmergencePerception(): {
   let done = 0
   for (const lag of lags) {
     while (done < lag) {
-      beat(work, edges, rng, ARROW)
+      conservingEdgeListSweep({ tone: work, edges, moved, rng, arrow: ARROW })
       done++
     }
     autocorr.push({ lag, c: pearson({ a: base, b: work }) })
@@ -116,7 +80,7 @@ export function selfEmergencePerception(): {
   const meanBlob = (arr: Int8Array): number => blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 40; b++) beat(imp, edges, rng2, ARROW)
+  for (let b = 0; b < 40; b++) conservingEdgeListSweep({ tone: imp, edges, moved, rng: rng2, arrow: ARROW })
   const after = meanBlob(imp)
   // background mean tone for reference
   let bg = 0

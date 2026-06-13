@@ -14,85 +14,14 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
-import { edgesFromCsr } from '@/code/tool/graph'
+import { csrBallNodes, csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { countLargeSameSignComponents } from '@/code/model/self-kit'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function bfsParents(offsets: Int32Array, adj: Int32Array, n: number, src: number): { dist: Int32Array; parent: Int32Array } {
-  const dist = new Int32Array(n).fill(-1)
-  const parent = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        parent[w] = u
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return { dist, parent }
-}
-
-function ballSet(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  const out: number[] = []
-  const seen = new Uint8Array(n)
-  seen[start] = 1
-  let fr = [start]
-  while (fr.length > 0 && out.length < size) {
-    const nf: number[] = []
-    for (const u of fr) {
-      out.push(u)
-      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-        const w = adj[p]!
-        if (!seen[w] && out.length + nf.length < size) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
-  return out
-}
-
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
   cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: false, arrow: 0 })
-
-function largeComponents(tone: Int8Array, offsets: Int32Array, adj: Int32Array, n: number, minSize: number): number {
-  const parent = new Int32Array(n)
-  for (let i = 0; i < n; i++) parent[i] = i
-  const find = (x: number): number => {
-    let r = x
-    while (parent[r] !== r) r = parent[r]!
-    while (parent[x] !== r) {
-      const nx = parent[x]!
-      parent[x] = r
-      x = nx
-    }
-    return r
-  }
-  for (let v = 0; v < n; v++) {
-    if (tone[v] !== 1) continue
-    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-      const w = adj[p]!
-      if (w > v && tone[w] === 1) parent[find(v)] = find(w)
-    }
-  }
-  const size = new Map<number, number>()
-  for (let i = 0; i < n; i++) if (tone[i] === 1) {
-    const r = find(i)
-    size.set(r, (size.get(r) ?? 0) + 1)
-  }
-  let big = 0
-  for (const s of size.values()) if (s >= minSize) big++
-  return big
-}
 
 export function reproduction(input?: { n?: number }): {
   n: number
@@ -109,11 +38,10 @@ export function reproduction(input?: { n?: number }): {
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
-  void bfsParents
 
   // a solid self: a + ball. measure its radius to show it is almost all boundary (no clean bisection)
-  const self = ballSet(g.offsets, g.adj, N, 0, 6000)
-  const distAll = bfsParents(g.offsets, g.adj, N, 0).dist
+  const self = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 6000 })
+  const distAll = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
   let ballRadius = 0
   for (const i of self) if (distAll[i]! > ballRadius) ballRadius = distAll[i]!
   const tone = new Int8Array(N)
@@ -121,10 +49,10 @@ export function reproduction(input?: { n?: number }): {
   let q0 = 0
   for (let i = 0; i < N; i++) q0 += tone[i]!
 
-  const startComponents = largeComponents(tone, g.offsets, g.adj, N, 300)
+  const startComponents = countLargeSameSignComponents({ tone, g, minSize: 300, sign: 'positive' })
   const rng = makeRng({ seed: 5 })
   for (let b = 0; b < 30; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rng)
-  const endComponents = largeComponents(tone, g.offsets, g.adj, N, 300)
+  const endComponents = countLargeSameSignComponents({ tone, g, minSize: 300, sign: 'positive' })
   let q1 = 0
   for (let i = 0; i < N; i++) q1 += tone[i]!
   const conserved = q0 === q1

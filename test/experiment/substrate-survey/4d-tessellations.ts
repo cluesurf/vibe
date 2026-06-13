@@ -5,9 +5,7 @@
 // {4,3,4} cubic honeycomb = the flat 3D cusp), the paracompactness IS the 3D physical space, a feature. The
 // star tetracombs ({3,3,5,5/2} etc.) are non-convex and not built here. Run: npx tsx code/experiment/4d-tessellations.ts
 
-import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { bfsShells } from '@/code/measure/shells'
-import { betheCorrelatorExponent } from '@/code/measure/dimension'
+import { surveyTessellation } from '@/code/measure/tessellation-survey'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -33,18 +31,7 @@ const SCALE = 25000
 const SURVEY_SCALE = 1200
 
 function measure(sym: number[], flat: boolean, scale: number = SCALE): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
-  try {
-    const g = flat ? buildEuclideanLattice({ symbol: sym as never, maxCells: scale }) : buildCellGraph({ symbol: sym as never, maxCells: scale })
-    const N = g.cellCount, nb = g.neighbors
-    if (N < 50) return { ok: false, cells: N, degree: 0, growth: 0, betheAlpha: 0 }
-    let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = nb[i]!.length; if (d > best) { best = d; center = i } }
-    const degree = best
-    const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-    const mid = shell.slice(2, Math.min(6, shell.length))
-    const growth = mid.length > 1 ? Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
-    const betheAlpha = betheCorrelatorExponent(degree)
-    return { ok: true, cells: N, degree, growth, betheAlpha }
-  } catch (e) { return { ok: false, cells: 0, degree: 0, growth: 0, betheAlpha: 0 } }
+  return surveyTessellation({ symbol: sym, flat, maxCells: scale, growthFrom: 2, growthTo: 6 })
 }
 
 export function fourdTessellations(): void {

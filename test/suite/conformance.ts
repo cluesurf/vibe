@@ -61,7 +61,9 @@ import {
 import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
 import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
 import { returnProbability } from '@/code/measure/localization'
-import { disclinationHolonomy } from '@/code/algebra/group/disclination'
+import { disclinationHolonomy, collectiveModeOverlap } from '@/code/algebra/group/disclination'
+import { ryuTakayanagiScaling } from '@/code/measure/holography'
+import { buildCellGraph as buildCellGraphForConformance } from '@/code/substrate/coxeter/cell-direct'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -518,6 +520,15 @@ export function runConformance(): { passed: number; failed: number } {
     const disc2 = disclinationHolonomy({ winding: 2, steps: 24 })
     check({ name: 'disclination: odd winding gives spinor -1, vector +1', ok: disc1.spinorIsMinusOne && disc1.vectorReturnsToSelf })
     check({ name: 'disclination: even winding gives spinor +1 (Z2 control)', ok: disc2.spinorIsPlusOne && disc2.vectorReturnsToSelf })
+    // collective mode: an odd disclination flips a delocalized mode (overlap -1) regardless of the mode index
+    const coll1 = collectiveModeOverlap({ winding: 1, steps: 24, mode: 3 })
+    const coll2 = collectiveModeOverlap({ winding: 2, steps: 24, mode: 5 })
+    check({ name: 'collective spinor: odd disclination flips any mode (-1)', ok: Math.abs(coll1 + 1) < 1e-9 && Math.abs(coll2 - 1) < 1e-9 })
+
+    // Ryu-Takayanagi: the boundary geodesic grows logarithmically with the interval on a hyperbolic tiling
+    const rtTiling = buildCellGraphForConformance({ symbol: [7, 3], maxCells: 2000 })
+    const rt = ryuTakayanagiScaling({ neighbors: rtTiling.neighbors, coords: rtTiling.coords })
+    check({ name: 'Ryu-Takayanagi: {7,3} boundary geodesic is logarithmic', ok: rt.isLogarithmic && rt.logResidual < rt.linearResidual })
   }
 
   return { passed, failed }

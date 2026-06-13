@@ -8,45 +8,10 @@
 // intention story, the COORDINATION half lives on the scaffold, the DIRECTED-ACTION half on the flat layer.
 // Run: npx tsx code/experiment/p157-flat-intention.ts
 
+import { flatWilledDriftSweep } from '@/code/dynamics/flat-willed-drift-sweep'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-// a willed beat on a flat 2D square grid (4-neighbour). A charge hops toward the empty neighbour, biased
-// toward the goal (the +x edge), with strength `bias` (the will). bias=0 is unbiased.
-function beat(tone: Int8Array, L: number, moved: Uint8Array, rng: Rng, bias: number): void {
-  moved.fill(0)
-  // process the four edge-directions; for each charged cell try to move toward an empty neighbour
-  for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) {
-    const i = y * L + x
-    if (tone[i] === 0 || moved[i]) continue
-    // candidate moves: +x (toward goal), -x, +y, -y, with willed bias toward +x
-    const dirs: { j: number; toward: number }[] = []
-    if (x + 1 < L) dirs.push({ j: i + 1, toward: 1 })
-    if (x - 1 >= 0) dirs.push({ j: i - 1, toward: -1 })
-    if (y + 1 < L) dirs.push({ j: i + L, toward: 0 })
-    if (y - 1 >= 0) dirs.push({ j: i - L, toward: 0 })
-    // pick an empty neighbour, weighting +x by the will
-    let chosen = -1
-    let bestW = 0
-    for (const d of dirs) {
-      if (tone[d.j] !== 0 || moved[d.j]) continue
-      const w = (1 + bias * d.toward) * (0.5 + 0.5 * rng.next())
-      if (w > bestW) {
-        bestW = w
-        chosen = d.j
-      }
-    }
-    if (chosen >= 0 && rng.next() < 0.6) {
-      tone[chosen] = tone[i]!
-      tone[i] = 0
-      moved[i] = 1
-      moved[chosen] = 1
-    }
-  }
-}
 
 export function flatIntention(input?: { L?: number; beats?: number }): {
   L: number
@@ -94,7 +59,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
     }
     const c0 = centroidX()
     const sp0 = spreadOf()
-    for (let t = 0; t < beats; t++) beat(tone, L, moved, rng, bias)
+    for (let t = 0; t < beats; t++) flatWilledDriftSweep({ tone, length: L, moved, rng, bias })
     return { drift: centroidX() - c0, spread: spreadOf() / sp0, c0 }
   }
 

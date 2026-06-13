@@ -13,7 +13,11 @@
 import { buildDodecagrid, buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { greedyEdgeColoring } from '@/code/tool/graph'
-import { PERCEPTION_FORWARD as FWD, PERCEPTION_INVERSE as INV } from '@/code/rule/perception-permutation'
+import {
+  PERCEPTION_FORWARD as FWD,
+  PERCEPTION_INVERSE as INV,
+  perceptionEdgeColoringSweep,
+} from '@/code/rule/perception-permutation'
 import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -24,14 +28,7 @@ import { verdict } from '@/test/scaffold/verdict'
 //   cycle: (0,0)->(+1,-1)->(-1,+1)->(0,0) is 4->6->2->4 ;  fixed: (-1,-1)=0, (+1,+1)=8
 
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, byColor: number[][], table: number[], reverse: boolean): void {
-  const order = reverse ? [...byColor.keys()].reverse() : [...byColor.keys()]
-  for (const c of order) for (const e of byColor[c]!) {
-    const u = eu[e]!
-    const v = ev[e]!
-    const ni = table[3 * (tone[u]! + 1) + (tone[v]! + 1)]!
-    tone[u] = (Math.floor(ni / 3) - 1) as -1 | 0 | 1
-    tone[v] = (ni % 3 - 1) as -1 | 0 | 1
-  }
+  perceptionEdgeColoringSweep({ tone, eu, ev, byColor, table, reverse })
 }
 
 export function unifiedWave(input?: { n?: number; sliverLength?: number }): {

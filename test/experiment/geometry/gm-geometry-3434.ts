@@ -7,6 +7,8 @@
 import { add } from '@/code/algebra/vector'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { sinkhornW1 } from '@/code/measure/transport'
+import { loglogExponentWindow } from '@/code/measure/regression'
+import { pearson } from '@/code/measure/statistics'
 import { latticeBall, latticeWordDistance } from '@/code/substrate/lattice-ball'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -21,18 +23,16 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
   const Vr: number[] = []
   for (let r = 0; r <= 9; r++) { let c = 0; for (const d of dist.values()) if (d <= r) c++; Vr.push(c) }
   // fit log V ~ dim * log r over r = 3..9
-  let sx = 0, sy = 0, sxx = 0, sxy = 0, n = 0
-  for (let r = 3; r <= 9; r++) { const x = Math.log(r), y = Math.log(Vr[r]!); sx += x; sy += y; sxx += x * x; sxy += x * y; n++ }
-  const exponent = (n * sxy - sx * sy) / (n * sxx - sx * sx)
+  const exponent = loglogExponentWindow({ values: Vr, lo: 3, hi: 9 })
   const dimensionOk = Math.abs(exponent - 4) < 0.5
   const ratios = [6, 7, 8, 9].map((r) => Vr[r]! / Vr[r - 1]!)
   const subexponential = ratios.every((q) => q < 2.2) && ratios[3]! < ratios[0]! + 0.01 // ratio decreasing toward 1, not constant > 1
 
   // GM6: graph distance vs Euclidean, linear correlation
   const samples = [...dist.entries()].filter(([, d]) => d >= 1 && d <= 6).slice(0, 400)
-  let cx = 0, cy = 0, cxx = 0, cyy = 0, cxy = 0, cn = 0
-  for (const [k, d] of samples) { const e = euc(k.split(',').map(Number)); cx += d; cy += e; cxx += d * d; cyy += e * e; cxy += d * e; cn++ }
-  const corr = (cn * cxy - cx * cy) / Math.sqrt((cn * cxx - cx * cx) * (cn * cyy - cy * cy))
+  const graphDistances = samples.map(([, d]) => d)
+  const euclideanDistances = samples.map(([k]) => euc(k.split(',').map(Number)))
+  const corr = pearson({ a: graphDistances, b: euclideanDistances })
   const metricLinear = corr > 0.9 // D4 word metric is flat but anisotropic, strong linear correlation with Euclidean
 
   // GM1: Ollivier-Ricci of an edge (origin, root0), Sinkhorn W1 over the two 24-neighbour distributions

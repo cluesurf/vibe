@@ -71,6 +71,25 @@ export function cubicLatticeCenterBySide(input: { side: number; dim: number }): 
   return index
 }
 
+// A cubic box of side `side` in `dim` dimensions with its coordinates repacked as rows (number[][]),
+// the neighbour lists, and the centre cell index. The row-of-coordinates shape the spectral-dimension
+// and Green's-function measures consume (which want coords as number[][] rather than a flat Float64Array).
+export function cubicBoxRows(input: { side: number; dim: number }): {
+  neighbors: number[][]
+  coords: number[][]
+  center: number
+} {
+  const { side, dim } = input
+  const lattice = cubicLattice(side, dim)
+  const coords: number[][] = []
+  for (let i = 0; i < lattice.size; i++) {
+    const row: number[] = []
+    for (let a = 0; a < dim; a++) row.push(lattice.coords[i * dim + a]!)
+    coords.push(row)
+  }
+  return { neighbors: lattice.neighbors, coords, center: cubicLatticeCenter({ lattice, side }) }
+}
+
 // Euclidean distance between two lattice sites in integer coordinate units.
 export function cubicLatticeDistance(input: {
   lattice: CubicLattice

@@ -37,6 +37,34 @@ export function connectedCorrelationByDistance(input: {
   return c
 }
 
+// The time-and-space-averaged connected equal-time correlation C(r) = <s_x s_{x+r}> - <s>^2 of a
+// ternary field on a PERIODIC ring, over `beats` beats of an evolving dynamics. Each beat the current
+// state is accumulated (mean and the lag products for r = 0..maxR) then advanced by `relax`. The mean
+// and lag sums are averaged over both the ring and the beats. The static correlator of the conserving
+// ring field, whose decay range (and correlationLengthFromDecay) say whether the field is gapless.
+export function timeAveragedRingCorrelation(input: {
+  tone: Int8Array
+  length: number
+  maxR: number
+  beats: number
+  relax: () => void
+}): number[] {
+  const { tone, length: L, maxR, beats, relax } = input
+  const sumCC = new Float64Array(maxR + 1)
+  let sumC = 0
+  for (let t = 0; t < beats; t++) {
+    for (let x = 0; x < L; x++) {
+      sumC += tone[x]!
+      for (let r = 0; r <= maxR; r++) sumCC[r]! += tone[x]! * tone[(x + r) % L]!
+    }
+    relax()
+  }
+  const mean = sumC / (L * beats)
+  const c: number[] = []
+  for (let r = 0; r <= maxR; r++) c.push(sumCC[r]! / (L * beats) - mean * mean)
+  return c
+}
+
 // Correlation length xi from exponential decay |C(r)| ~ exp(-r / xi): a least-squares
 // line through (r, log|C(r)|) over the inclusive window [rLo, rHi] (skipping zero /
 // negative magnitudes), xi = -1 / slope. A non-decaying (slope >= 0) correlator has

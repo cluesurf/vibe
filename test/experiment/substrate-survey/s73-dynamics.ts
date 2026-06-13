@@ -4,8 +4,9 @@
 // differs from {5,3,4}/{3,4,3,4}, but charge is still conserved.) Run: npx tsx code/experiment/s73-dynamics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
+import { streamDirectionalCharge, totalDirectionalCharge } from '@/code/operator/directional-charge-stream'
+import { churnCount } from '@/code/measure/churn'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,24 +14,14 @@ export function s73Dynamics(): { chargeConserved: boolean; lightSpeed: number; c
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount, nb = g.neighbors
   const rng = makeRng({ seed: 9 }); const rnd = (): number => rng.next()
-  let charge: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
-  const total = (c: number[][]): number => c.reduce((s, row) => s + row.reduce((a, b) => a + b, 0), 0)
-  const t0 = total(charge)
-  for (let step = 0; step < 20; step++) {
-    const next: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => 0))
-    for (let i = 0; i < N; i++) for (let k = 0; k < nb[i]!.length; k++) { const j = nb[i]![k]!; const back = nb[j]!.indexOf(i); if (back >= 0) next[j]![back] = next[j]![back]! + charge[i]![k]! }
-    charge = next
-  }
-  const chargeConserved = t0 === total(charge)
-  // light cone
-  let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
+  const charge0: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
+  const t0 = totalDirectionalCharge(charge0)
+  const charge = streamDirectionalCharge({ neighbors: nb, charge: charge0, steps: 20 })
+  const chargeConserved = t0 === totalDirectionalCharge(charge)
   const lightSpeed = 1
   // churn, mod-3 wave from random init
-  let cur = new Int8Array(N), prev = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
-  const { offsets: off, adj } = toCsr(nb)
-  let changes = 0
-  for (let t = 0; t < 30; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
-  const churns = changes > N
+  const cur = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
+  const churns = churnCount({ neighbors: nb, initial: cur, steps: 30, modulus: 3 }) > N
   return { chargeConserved, lightSpeed, churns }
 }
 

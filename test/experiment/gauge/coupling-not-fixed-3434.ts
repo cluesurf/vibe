@@ -15,6 +15,7 @@
 // over it. Deterministic throughout (fixed wavepacket, fixed couplings, no randomness).
 
 import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
+import { powerLawFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -43,26 +44,10 @@ export function couplingNotFixed(): {
 } {
   const fields = COUPLINGS.map((e) => radiatedField(e))
 
-  // the log-log slope across the whole scan: a single clean exponent means a pure power law
-  const logE = COUPLINGS.map((e) => Math.log(e))
-  const logF = fields.map((f) => Math.log(f))
+  // the log-log slope across the whole scan: a single clean exponent means a pure power
+  // law, and the max deviation says how tightly the scan hugs it
+  const { exponent: scalingExponent, maxDeviation } = powerLawFit({ xs: COUPLINGS, ys: fields })
   const n = COUPLINGS.length
-  const meanX = logE.reduce((a, b) => a + b, 0) / n
-  const meanY = logF.reduce((a, b) => a + b, 0) / n
-  let cov = 0
-  let varx = 0
-  for (let i = 0; i < n; i++) {
-    cov += (logE[i]! - meanX) * (logF[i]! - meanY)
-    varx += (logE[i]! - meanX) * (logE[i]! - meanX)
-  }
-  const scalingExponent = cov / varx
-
-  // how tightly the scan hugs that single power law (max deviation of any point from the fit line)
-  let maxDeviation = 0
-  for (let i = 0; i < n; i++) {
-    const predicted = meanY + scalingExponent * (logE[i]! - meanX)
-    maxDeviation = Math.max(maxDeviation, Math.abs(logF[i]! - predicted))
-  }
   const isCleanPowerLaw = Math.abs(scalingExponent - 2) < 0.05 && maxDeviation < 0.02
 
   // strictly monotone, so there is no special coupling where the behaviour changes

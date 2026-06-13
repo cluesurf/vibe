@@ -114,6 +114,22 @@ export function neighborsOf(g: Graph): number[][] {
   return g.neighbors.map((row) => Array.from(row))
 }
 
+// The index of the highest-degree node of a plain neighbors list (the first on a tie). The most-
+// connected, most-interior cell, the natural walk start for spectral-dimension / shell probes that
+// want to begin deep inside a graph rather than at an arbitrary boundary cell.
+export function highestDegreeNode(neighbors: number[][]): number {
+  let best = -1
+  let node = 0
+  for (let i = 0; i < neighbors.length; i++) {
+    const d = neighbors[i]!.length
+    if (d > best) {
+      best = d
+      node = i
+    }
+  }
+  return node
+}
+
 // The node indices of the largest connected component of a plain neighbors list, in
 // BFS-discovery order. The lightweight sibling of largestComponent (which rebuilds a
 // whole Graph): this just returns the member indices so the caller can carve its own
@@ -249,6 +265,36 @@ export function csrEccentricity(input: {
     fr = next
   }
   return { dist, far }
+}
+
+// The LAST node discovered by a BFS from `source` (the deepest node in BFS-queue order, with
+// ties broken by adjacency order rather than by first-at-max-distance). Differs from
+// csrEccentricity().far, which returns the FIRST node reaching the maximum distance. Used as a
+// far-seed picker where the deepest-discovered cell, not a canonical eccentric one, is wanted.
+export function csrFarthestNode(input: {
+  offsets: ArrayLike<number>
+  adj: ArrayLike<number>
+  size: number
+  source: number
+}): number {
+  const { offsets, adj, size, source } = input
+  const dist = new Int32Array(size).fill(-1)
+  dist[source] = 0
+  let fr = [source]
+  let far = source
+  while (fr.length > 0) {
+    const next: number[] = []
+    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
+      const w = adj[p]!
+      if (dist[w] === -1) {
+        dist[w] = dist[u]! + 1
+        far = w
+        next.push(w)
+      }
+    }
+    fr = next
+  }
+  return far
 }
 
 // Breadth-first hop distance from `source` over a neighbor list (number[][] or the Graph's

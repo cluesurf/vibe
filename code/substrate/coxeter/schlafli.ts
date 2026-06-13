@@ -115,6 +115,23 @@ export function isIdealFiniteCellHoneycomb(symbol: number[]): boolean {
   )
 }
 
+// Every COMPACT regular hyperbolic honeycomb of the given dimension (symbol length), with each entry
+// scanned over 3..maxEntry. A symbol of length `dimension` is kept when isCompactHoneycomb holds. The
+// enumeration the dimension-window classification runs over (compact crystals exist only in 2, 3, 4).
+export function enumerateCompactHoneycombs(input: { dimension: number; maxEntry: number }): number[][] {
+  const { dimension, maxEntry } = input
+  const found: number[][] = []
+  const rec = (prefix: number[]): void => {
+    if (prefix.length === dimension) {
+      if (isCompactHoneycomb(prefix)) found.push(prefix.slice())
+      return
+    }
+    for (let p = 3; p <= maxEntry; p++) rec([...prefix, p])
+  }
+  rec([])
+  return found
+}
+
 // The mirror normals v_i (rows) in the model space, with the diagonal metric J (entries
 // +1 spacelike, -1 timelike). Built from the eigendecomposition so that the J-inner product
 // of the normals reproduces the Gram matrix exactly. For a hyperbolic symbol J has exactly

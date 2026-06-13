@@ -3,26 +3,21 @@
 // tiling on it PERIODIC (clean cubic {4,3,4}, uniform degree 6) or APERIODIC (varying degrees)? (3) how does the
 // band size scale, i.e. what does a GROWING flat slice look like? Run: npx tsx code/experiment/horosphere-reality.ts
 
-import { bfsShells } from '@/code/measure/shells'
-import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
+import { bandInducedSubgraph, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { highestDegreeNode } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function horosphereReality(): { bandCount: number; flatGrowth: number; degreeHistogram: Record<number, number> } {
   const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 3000, half: 0.5, margin: 0.7 })
-  const N = h.cellCount
   // induced adjacency ON the band only (cells whose Busemann value is within half)
-  const inBand: number[] = []
-  const reindex = new Map<number, number>()
-  for (let i = 0; i < N; i++) if (Math.abs(h.busemann[i]!) < 0.5) { reindex.set(i, inBand.length); inBand.push(i) }
-  const bnb: number[][] = inBand.map(() => [])
-  for (let a = 0; a < inBand.length; a++) for (const w of h.neighbors[inBand[a]!]!) { const b = reindex.get(w); if (b !== undefined) bnb[a]!.push(b) }
-  const B = inBand.length
+  const { neighbors: bnb } = bandInducedSubgraph({ band: h, halfWidth: 0.5 })
+  const B = bnb.length
   // (1) flatness, intrinsic growth of the band graph (BFS from a central band cell) should be POLYNOMIAL
-  let c0 = 0, bestDeg = -1; for (let a = 0; a < B; a++) if (bnb[a]!.length > bestDeg) { bestDeg = bnb[a]!.length; c0 = a }
+  const c0 = highestDegreeNode(bnb)
   const { shellCounts: shell } = bfsShells({ neighbors: bnb, root: c0 })
-  const mid = shell.slice(2, Math.min(8, shell.length))
-  const flatGrowth = mid.length > 1 ? Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
+  const flatGrowth = midShellGrowthRatio({ shellCounts: shell })
   // (2) periodicity, degree histogram of the band cells (clean cubic {4,3,4} -> mostly degree 6; aperiodic -> spread)
   const degreeHistogram: Record<number, number> = {}
   for (let a = 0; a < B; a++) { const d = bnb[a]!.length; degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1 }

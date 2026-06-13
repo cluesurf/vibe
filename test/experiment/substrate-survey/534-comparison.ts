@@ -5,27 +5,17 @@
 // (spin, gauge, the Standard Model, 3D space) does NOT port, which is exactly why {3,4,3,4} was chosen.
 // Run: npx tsx code/experiment/p242-534-comparison.ts
 
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
-import { betheCorrelatorExponent, spectralDimension } from '@/code/measure/dimension'
+import { betheCorrelatorExponent } from '@/code/measure/dimension'
+import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// {5,3,4} bulk spectral dimension via the lazy-walk return probability (the central
-// difference here is the endpoint slope between t = 3 and t = 6), and the Bethe-lattice
-// boundary correlator exponent, both in code/measure/dimension.
-function bulkDim534(): { N: number; degree: number; specDim: number } {
-  const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 20000 })
-  const N = g.cellCount
-  const { offsets: off } = toCsr(g.neighbors)
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  const degree = best
-  const specDim = Math.round(spectralDimension({ neighbors: g.neighbors, start: center, t1: 3, t2: 6 }) * 100) / 100
-  return { N, degree, specDim }
-}
-
 export function comparison534(): { specDim: number; degree: number; betheAlpha: number } {
-  const bulk = bulkDim534(), betheAlpha = betheCorrelatorExponent(12)
+  // {5,3,4} bulk spectral dimension via the lazy-walk return probability (the central
+  // difference here is the endpoint slope between t = 3 and t = 6), and the Bethe-lattice
+  // boundary correlator exponent, both in code/measure.
+  const bulk = cellGraphSpectral({ symbol: [5, 3, 4], maxCells: 20000, t1: 3, t2: 6 })
+  const betheAlpha = betheCorrelatorExponent(12)
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }
 }
 

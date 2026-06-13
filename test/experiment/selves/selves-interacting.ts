@@ -15,32 +15,11 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
-import { edgesFromCsr } from '@/code/tool/graph'
+import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { countLargeSameSignComponents } from '@/code/model/self-kit'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function ballOrder(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  const out: number[] = []
-  const seen = new Uint8Array(n)
-  seen[start] = 1
-  let fr = [start]
-  while (fr.length > 0 && out.length < size) {
-    const nf: number[] = []
-    for (const u of fr) {
-      out.push(u)
-      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-        const w = adj[p]!
-        if (!seen[w] && out.length + nf.length < size) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
-  return out
-}
 
 const absCharge = (t: Int8Array): number => {
   let s = 0
@@ -50,33 +29,6 @@ const absCharge = (t: Int8Array): number => {
 
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
   cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0 })
-
-// number of LARGE connected same-sign selves among the given cells (ignore tiny boundary escapees)
-function largeComponents(tone: Int8Array, offsets: Int32Array, adj: Int32Array, cells: number[], minSize: number): number {
-  const inSet = new Set(cells)
-  const parent = new Map<number, number>()
-  const find = (x: number): number => {
-    let r = x
-    while (parent.get(r) !== undefined && parent.get(r) !== r) r = parent.get(r)!
-    return r
-  }
-  for (const v of cells) if (!parent.has(v)) parent.set(v, v)
-  for (const v of cells) {
-    if (tone[v] === 0) continue
-    for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-      const w = adj[p]!
-      if (inSet.has(w) && tone[w] === tone[v]) parent.set(find(v), find(w))
-    }
-  }
-  const size = new Map<number, number>()
-  for (const v of cells) if (tone[v] !== 0) {
-    const r = find(v)
-    size.set(r, (size.get(r) ?? 0) + 1)
-  }
-  let big = 0
-  for (const s of size.values()) if (s >= minSize) big++
-  return big
-}
 
 export function selvesInteracting(input?: { n?: number; beats?: number; regionSize?: number }): {
   n: number
@@ -97,7 +49,7 @@ export function selvesInteracting(input?: { n?: number; beats?: number; regionSi
   const beats = input?.beats ?? 30
 
   // two adjacent selves = one region split into two halves (the seam is the contact interface)
-  const region = ballOrder(g.offsets, g.adj, N, 0, input?.regionSize ?? 6000)
+  const region = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: input?.regionSize ?? 6000 })
   const half = Math.floor(region.length / 2)
 
   // OPPOSITE: first half +, second half - (a + self touching a - self)
@@ -107,7 +59,7 @@ export function selvesInteracting(input?: { n?: number; beats?: number; regionSi
   const rngO = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) beat(opp, eu, ev, g.offsets, g.adj, moved, rngO)
   const oppositeLoss = (oppStart - absCharge(opp)) / oppStart
-  const oppositeComponents = largeComponents(opp, g.offsets, g.adj, region, 100)
+  const oppositeComponents = countLargeSameSignComponents({ tone: opp, g, minSize: 100, cells: region })
 
   // SAME: both halves + (a + self touching a + self)
   const same = new Int8Array(N)
@@ -116,7 +68,7 @@ export function selvesInteracting(input?: { n?: number; beats?: number; regionSi
   const rngS = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) beat(same, eu, ev, g.offsets, g.adj, moved, rngS)
   const sameLoss = (sameStart - absCharge(same)) / sameStart
-  const sameComponents = largeComponents(same, g.offsets, g.adj, region, 100)
+  const sameComponents = countLargeSameSignComponents({ tone: same, g, minSize: 100, cells: region })
 
   const oppositeAnnihilates = oppositeLoss > 0.1 && oppositeLoss > 5 * Math.max(sameLoss, 0.001)
   const sameMerges = sameComponents === 1 // one large merged self

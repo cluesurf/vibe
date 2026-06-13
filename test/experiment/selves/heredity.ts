@@ -12,51 +12,10 @@
 // Run: npx tsx code/experiment/p120-heredity.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrBallNodes, csrFarthestNode } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function ballOrder(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  const out: number[] = []
-  const seen = new Uint8Array(n)
-  seen[start] = 1
-  let fr = [start]
-  while (fr.length > 0 && out.length < size) {
-    const nf: number[] = []
-    for (const u of fr) {
-      out.push(u)
-      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-        const w = adj[p]!
-        if (!seen[w] && out.length + nf.length < size) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
-  return out
-}
-
-function bfsFar(offsets: Int32Array, adj: Int32Array, n: number, src: number): number {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let far = src
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        far = w
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return far
-}
 
 export function heredity(input?: { n?: number }): {
   n: number
@@ -77,9 +36,9 @@ export function heredity(input?: { n?: number }): {
   // parent region (around the hub) and a fresh daughter region (far away), same size, disjoint
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const far = bfsFar(g.offsets, g.adj, N, center)
+  const far = csrFarthestNode({ offsets: g.offsets, adj: g.adj, size: N, source: center })
   const size = 1500
-  const parentCells = ballOrder(g.offsets, g.adj, N, center, size)
+  const parentCells = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: center, limit: size })
   const parentSet = new Set(parentCells)
   // daughter from a far seed, avoiding parent cells
   const daughterCells: number[] = []

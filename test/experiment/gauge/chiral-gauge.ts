@@ -14,29 +14,11 @@
 //      cancellation, the genuinely chiral gauge theory, remains open here as it is in the field.
 // Run: npx tsx code/experiment/p77-chiral-gauge.ts
 
-import { brillouinZoneCorners } from '@/code/operator/lattice-fermion'
+import { latticeFermionDoublers } from '@/code/operator/lattice-fermion'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function analyze(d: number): { naiveSpecies: number; netChirality: number; wilsonSpecies: number } {
-  const cs = brillouinZoneCorners(d)
-  let netChirality = 0
-  let wilsonSpecies = 0
-  for (const c of cs) {
-    // chirality of a corner = product of sign(cos k_mu): +1 at 0, -1 at pi
-    let chi = 1
-    let piCount = 0
-    for (const k of c) {
-      chi *= Math.cos(k) >= 0 ? 1 : -1
-      if (Math.abs(k - Math.PI) < 1e-9) piCount += 1
-    }
-    netChirality += chi
-    // Wilson mass at a corner is proportional to the number of pi-components. Only the all-zero
-    // corner stays massless, so the Wilson term leaves exactly one light species.
-    if (piCount === 0) wilsonSpecies += 1
-  }
-  return { naiveSpecies: cs.length, netChirality, wilsonSpecies }
-}
+const analyze = latticeFermionDoublers
 
 export function chiralGauge(input: Record<string, never> = {}): {
   byDimension: { dimension: number; naiveSpecies: number; netChirality: number; wilsonSpecies: number }[]

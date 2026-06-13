@@ -3,9 +3,8 @@
 // 12 directions are ICOSAHEDRAL (non-crystallographic) so NO spinor and NO root-system gauge. So physical space
 // would be 2D with no fundamental spin or gauge group. Run: npx tsx code/experiment/s534-structure.ts
 
-import { dot } from '@/code/algebra/vector'
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
+import { directionsAreCrystallographic } from '@/code/measure/crystallographic'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,19 +12,11 @@ const phi = (1 + Math.sqrt(5)) / 2
 
 export function s534Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
   // bulk geometry
-  const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
-  const N = g.cellCount
-  const { offsets: off, adj } = toCsr(g.neighbors)
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
-  const degree = best
-  let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
-  for (let t = 0; t < 14; t++) { ret.push(p[center]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const specDim = Math.round((-2 * (Math.log(ret[6]!) - Math.log(ret[3]!))) / (Math.log(6) - Math.log(3)) * 100) / 100
+  const { degree, specDim } = cellGraphSpectral({ symbol: [5, 3, 4], maxCells: 16000, t1: 3, t2: 6 })
   // the 12 directions = icosahedron vertices, check the CRYSTALLOGRAPHIC (root-system) condition 2(a.b)/(b.b) in Z
   const verts: number[][] = []
   for (const a of [1, -1]) for (const b of [phi, -phi]) verts.push([0, a, b], [a, b, 0], [b, 0, a])
-  let crystallographic = true; let exampleNonInt = 0
-  for (const a of verts) for (const b of verts) { const r = (2 * dot(a, b)) / dot(b, b); if (Math.abs(r - Math.round(r)) > 1e-6) { crystallographic = false; exampleNonInt = Math.round(r * 1000) / 1000 } }
+  const crystallographic = directionsAreCrystallographic(verts)
   const hasSpinor = false // a permutation rep of the icosahedral rotation group A5 = 1+3+3'+5, all integer spin (p190)
   return { degree, specDim, crystallographic, hasSpinor }
 }
