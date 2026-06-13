@@ -10,7 +10,7 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
 import { commutingSquareError, mostProbableNext } from '@/code/coarse/validator'
-import { beat } from '@/test/experiment/misc/self-kit'
+import { beat } from '@/code/model/self-kit'
 import { selfTrajectory, positionBin, makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
 
 export default defineExperiment({

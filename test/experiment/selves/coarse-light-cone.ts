@@ -10,7 +10,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/test/experiment/misc/self-kit'
+import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
 import { distancesFrom } from '@/code/coarse/self-criteria'
 import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
 

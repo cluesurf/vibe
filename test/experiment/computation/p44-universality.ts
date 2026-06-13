@@ -13,11 +13,19 @@
 // Run: npx tsx code/experiment/p44-universality.ts
 
 import { makeRng } from '@/code/tool/rng'
+import {
+  and,
+  type Bit,
+  bitToNum as toNum,
+  fullAdder,
+  functionFromTable,
+  nand,
+  not,
+  or,
+  xor,
+} from '@/code/operator/logic-gate'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Booleans are tones: true = +1, false = -1.
-type Bit = 1 | -1
 
 // --- Genuine on-substrate computation: gates built from the model's OWN running dynamics ---
 // A circuit is an actual graph of cells with SYMMETRIC TERNARY fills. Inputs and a +1 bias are
@@ -131,54 +139,10 @@ function busValue(tone: Int8Array, bus: number[]): Bit {
   return s >= 0 ? 1 : -1
 }
 
-// The model's own update applied as a two-input gate: a vibe whose field is the bias
-// plus the fill-weighted wills of its two input neighbours, then sign. With bias +1 and
-// both fills -1 this is exactly NAND.
-function ruleGate(inputs: Bit[], fills: number[], bias: number): Bit {
-  let h = bias
-  for (let i = 0; i < inputs.length; i++) {
-    h += (fills[i] ?? 0) * (inputs[i] ?? 1)
-  }
-  return h > 0 ? 1 : -1
-}
-
-const nand = (a: Bit, b: Bit): Bit => ruleGate([a, b], [-1, -1], 1)
-const not = (a: Bit): Bit => nand(a, a)
-const and = (a: Bit, b: Bit): Bit => not(nand(a, b))
-const or = (a: Bit, b: Bit): Bit => nand(not(a), not(b))
-const xor = (a: Bit, b: Bit): Bit => and(or(a, b), nand(a, b))
-
-function fullAdder(a: Bit, b: Bit, cin: Bit): { sum: Bit; carry: Bit } {
-  const s1 = xor(a, b)
-  const c1 = and(a, b)
-  const sum = xor(s1, cin)
-  const c2 = and(s1, cin)
-  const carry = or(c1, c2)
-  return { sum, carry }
-}
-
+// The gate algebra (rule-NAND and its derived gates, a full adder, and arbitrary
+// 3-input functions) lives in code/operator/logic-gate. Boolean values are tones:
+// true = +1, false = -1.
 const BITS: Bit[] = [-1, 1]
-const toNum = (b: Bit): number => (b === 1 ? 1 : 0)
-
-// Build an arbitrary 3-input Boolean function as a NAND circuit (sum of minterms, every
-// gate a rule-NAND). table[p] is the output for neighbourhood p = (l<<2)|(c<<1)|r.
-function functionFromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => Bit {
-  return (l: Bit, c: Bit, r: Bit): Bit => {
-    const lit = (val: Bit, bit: number): Bit => (bit === 1 ? val : not(val))
-    let acc: Bit = -1 // false
-    for (let p = 0; p < 8; p++) {
-      if (!table[p]) {
-        continue
-      }
-      const lb = (p >> 2) & 1
-      const cb = (p >> 1) & 1
-      const rb = p & 1
-      const minterm = and(and(lit(l, lb), lit(c, cb)), lit(r, rb))
-      acc = or(acc, minterm)
-    }
-    return acc
-  }
-}
 
 export function universality(): {
   nandCorrect: boolean

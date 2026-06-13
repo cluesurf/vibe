@@ -6,6 +6,7 @@
 // Run: pnpm tsx --max-old-space-size=8192 code/gpu/run-emergent-layers.ts
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
@@ -61,7 +62,7 @@ async function run(): Promise<void> {
   // GPU buffers
   const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
   const toneBuf = device.createBuffer({ size: N * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
-  const seed = new Uint32Array(N); let r = 987654321; const nx = () => { r = (r * 1103515245 + 12345) & 0x7fffffff; return r / 0x7fffffff }
+  const seed = new Uint32Array(N); const r = makeRng({ seed: 987654321 }); const nx = () => r.next()
   for (let i = 0; i < N; i++) { const x = nx(); seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0 }
   device.queue.writeBuffer(toneBuf, 0, seed)
   const vBuf = device.createBuffer({ size: E * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST }); device.queue.writeBuffer(vBuf, 0, edgeV)

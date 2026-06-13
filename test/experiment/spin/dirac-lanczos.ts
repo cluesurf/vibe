@@ -9,6 +9,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeRng } from '@/code/tool/rng'
 
 const L = 14
 const N = L * L * L
@@ -81,7 +82,7 @@ const newCx = (): Cx => ({ re: new Float64Array(DIM), im: new Float64Array(DIM) 
 
 // largest eigenvalue of H^2 by power iteration (for the fold constant)
 function lambdaMaxH2(applyH: (v: Cx, o: Cx) => void): number {
-  let v = newCx(); let rng = 1; for (let i = 0; i < DIM; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; v.re[i] = rng / 0x7fffffff - 0.5 }
+  let v = newCx(); const rng = makeRng({ seed: 1 }); for (let i = 0; i < DIM; i++) { v.re[i] = rng.next() - 0.5 }
   let nrm = Math.sqrt(dotR(v, v)); for (let i = 0; i < DIM; i++) v.re[i]! /= nrm
   const t = newCx(), w = newCx(); let lam = 0
   for (let it = 0; it < 40; it++) { applyH(v, t); applyH(t, w); lam = dotR(v, w); nrm = Math.sqrt(dotR(w, w)); for (let i = 0; i < DIM; i++) { v.re[i] = w.re[i]! / nrm; v.im[i] = w.im[i]! / nrm } }
@@ -102,7 +103,7 @@ function jacobiEig(A: number[][], n: number): number[] {
 // Lanczos on (C*I - H^2) for its LARGEST eigenvalues (= smallest of H^2 = near-zero |lambda| of H)
 function lowestAbsEig(applyH: (v: Cx, o: Cx) => void, Cfold: number, m: number): number[] {
   const Vs: Cx[] = []
-  let v = newCx(); let rng = 7; for (let i = 0; i < DIM; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; v.re[i] = rng / 0x7fffffff - 0.5 }
+  let v = newCx(); const rng = makeRng({ seed: 7 }); for (let i = 0; i < DIM; i++) { v.re[i] = rng.next() - 0.5 }
   let nrm = Math.sqrt(dotR(v, v)); for (let i = 0; i < DIM; i++) v.re[i]! /= nrm
   const alpha: number[] = [], beta: number[] = []
   const t = newCx(), w = newCx()

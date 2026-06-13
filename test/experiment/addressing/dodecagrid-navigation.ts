@@ -10,69 +10,14 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
-import { Graph } from '@/code/tool/graph'
+import { graphDistance } from '@/code/measure/distance'
+import { greedyRouteHops } from '@/code/measure/navigation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Hyperbolic distance between two points in the Poincare ball.
-function hyperbolicDistance(coords: Float64Array, dim: number, a: number, b: number): number {
-  let na = 0
-  let nb = 0
-  let d = 0
-  for (let k = 0; k < dim; k++) {
-    const xa = coords[a * dim + k] ?? 0
-    const xb = coords[b * dim + k] ?? 0
-    na += xa * xa
-    nb += xb * xb
-    d += (xa - xb) * (xa - xb)
-  }
-  const denom = Math.max(1e-12, (1 - na) * (1 - nb))
-  return Math.acosh(1 + (2 * d) / denom)
-}
-
-function bfsDistance(g: Graph, source: number, target: number): number {
-  const n = g.size
-  const dist = new Int32Array(n).fill(-1)
-  dist[source] = 0
-  let frontier = [source]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      if (v === target) return dist[target] ?? -1
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[v] ?? 0) + 1
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return dist[target] ?? -1
-}
-
-// Greedy route on the hyperbolic address: step to the neighbor closest to the target.
-function greedyRoute(g: Graph, coords: Float64Array, dim: number, source: number, target: number): number {
-  let cur = source
-  let steps = 0
-  const maxSteps = 4 * g.size
-  while (cur !== target && steps < maxSteps) {
-    const nb = g.neighbors[cur] ?? new Uint32Array(0)
-    let best = -1
-    let bestD = hyperbolicDistance(coords, dim, cur, target)
-    for (const w of nb) {
-      const d = hyperbolicDistance(coords, dim, w, target)
-      if (d < bestD) {
-        bestD = d
-        best = w
-      }
-    }
-    if (best === -1) return -1 // stuck at a local minimum, greedy failed
-    cur = best
-    steps += 1
-  }
-  return cur === target ? steps : -1
-}
+// Greedy hyperbolic-address routing (greedyRouteHops) and BFS hop distance
+// (graphDistance) are library capabilities; routing steps to the neighbor closest to
+// the target in Poincare-ball distance.
 
 export function dodecagridNavigation(input: { seed: number }): {
   cells: number
@@ -82,8 +27,6 @@ export function dodecagridNavigation(input: { seed: number }): {
   solved: boolean
 } {
   const g = hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: 1500 })
-  const dim = g.embedding?.dimension ?? 3
-  const coords = g.embedding?.coords ?? new Float64Array(0)
   const rng = makeRng({ seed: input.seed })
 
   let delivered = 0
@@ -95,10 +38,10 @@ export function dodecagridNavigation(input: { seed: number }): {
     const s = rng.nextInt({ max: g.size })
     let t = rng.nextInt({ max: g.size })
     if (t === s) t = (t + 1) % g.size
-    const shortest = bfsDistance(g, s, t)
+    const shortest = graphDistance({ substrate: g, from: s, to: t })
     if (shortest <= 0) continue // not connected (or same), skip
     attempted += 1
-    const hops = greedyRoute(g, coords, dim, s, t)
+    const hops = greedyRouteHops({ graph: g, source: s, target: t })
     if (hops > 0) {
       delivered += 1
       stretchSum += hops / shortest

@@ -7,6 +7,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeRng } from '@/code/tool/rng'
 
 function d4Roots(): number[][] {
   const r: number[][] = []
@@ -18,8 +19,8 @@ const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * 
 // anisotropy of a direction set: the front support function h(u) = max_d (root_d . u), measured over random
 // unit directions u in R^4. coefficient of variation std/mean = anisotropy (0 = perfectly isotropic).
 function anisotropy(dirs: number[][], seed: number): number {
-  let s = seed
-  const rnd = (): number => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff }
+  const rng = makeRng({ seed })
+  const rnd = (): number => rng.next()
   const norm = Math.hypot(...dirs[0]!)
   const hs: number[] = []
   for (let t = 0; t < 4000; t++) {
@@ -38,8 +39,8 @@ export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean;
 
   // RF1/RF3: ballistic vs diffusive displacement after T beats
   const T = 80
-  let s = 1
-  const rnd = (): number => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff }
+  const rng = makeRng({ seed: 1 })
+  const rnd = (): number => rng.next()
   const walk = (mix: number, trials: number): number => {
     let tot = 0
     for (let tr = 0; tr < trials; tr++) {

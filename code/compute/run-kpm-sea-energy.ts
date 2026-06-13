@@ -5,6 +5,7 @@
 // (the fermion supplies the stabilizer). Run: pnpm tsx code/gpu/run-kpm-sea-energy.ts
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
@@ -154,10 +155,10 @@ async function run(): Promise<void> {
   const vacN = nrt3('uniformz', 0)
   const texN = Rs.map((R) => nrt3('texture', R))
   const dMu = Rs.map(() => new Float64Array(MCHEB))
-  let rng = 999
+  const rng = makeRng({ seed: 999 })
   console.log(`GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`)
   for (let r = 0; r < NRV; r++) {
-    const xd = new Float32Array(FN); for (let i = 0; i < FN; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; xd[i] = (rng & 1) ? 1 : -1 }
+    const xd = new Float32Array(FN); for (let i = 0; i < FN; i++) { xd[i] = (rng.next() < 0.5 ? -1 : 1) }
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN); device.queue.writeBuffer(B[0]!, 0, xd); const muV = await computeMoments()
     for (let ri = 0; ri < Rs.length; ri++) { device.queue.writeBuffer(nrt, 0, texN[ri]!); device.queue.writeBuffer(B[0]!, 0, xd); const muH = await computeMoments(); for (let n = 0; n < MCHEB; n++) dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV }

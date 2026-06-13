@@ -5,13 +5,14 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Dynamics(): { chargeConserved: boolean; lightSpeed: number; churns: boolean } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount, nb = g.neighbors
-  let rng = 9; const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 9 }); const rnd = (): number => rng.next()
   let charge: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
   const total = (c: number[][]): number => c.reduce((s, row) => s + row.reduce((a, b) => a + b, 0), 0)
   const t0 = total(charge)

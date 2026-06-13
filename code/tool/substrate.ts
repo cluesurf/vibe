@@ -74,3 +74,14 @@ export function undirectedAdjacency(input: {
   }
   return out.map((r) => Uint32Array.from([...new Set(r)].sort((x, y) => x - y)))
 }
+
+// Mean out-degree over a substrate (a Poset's links or a Graph's neighbours). Works
+// on either form, unlike the Graph-only meanDegree in tool/graph.
+export function substrateMeanDegree(input: { substrate: Substrate }): number {
+  const view = adjacencyOf({ substrate: input.substrate })
+  let total = 0
+  for (let node = 0; node < view.size; node++) {
+    total += view.outDegree({ node })
+  }
+  return total / Math.max(1, view.size)
+}

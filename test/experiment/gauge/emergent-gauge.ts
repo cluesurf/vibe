@@ -9,6 +9,7 @@
 // rule's last freedom). Run: npx tsx code/experiment/p223-emergent-gauge.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -29,8 +30,8 @@ function perm(a: number, b: number): [number, number] {
 
 export function emergentGauge(): { chargeLocallyConserved: boolean; internalLocallyConserved: boolean } {
   const { N, off, adj } = graph()
-  let rng = 5
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 5 })
+  const rnd = (): number => rng.next()
   const t = new Int8Array(N)
   for (let i = 0; i < N; i++) t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
   // (1) U(1) Gauss law: run one beat tracking per-pair charge flux; verify each cell's d(rho) = net inflow EXACTLY

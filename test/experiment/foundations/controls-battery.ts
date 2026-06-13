@@ -7,6 +7,7 @@
 //   C5 gauge: the massless plaquette is gauge-invariant, a Proca mass term m^2 A^2 is NOT (caught).
 // Run: npx tsx code/experiment/p252-controls-battery.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -53,7 +54,7 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
 
   // ---- C5 gauge: massless plaquette gauge-invariant vs Proca mass term not ----
   const Lg = 8, wrap = (x: number): number => ((x % Lg) + Lg) % Lg
-  let seed = 7; const rnd = (): number => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed / 0x7fffffff) * 2 * Math.PI }
+  const rng = makeRng({ seed: 7 }); const rnd = (): number => rng.next() * 2 * Math.PI
   const Ax = Array.from({ length: Lg }, () => Array.from({ length: Lg }, () => rnd()))
   const Ay = Array.from({ length: Lg }, () => Array.from({ length: Lg }, () => rnd()))
   const g = Array.from({ length: Lg }, () => Array.from({ length: Lg }, () => rnd()))

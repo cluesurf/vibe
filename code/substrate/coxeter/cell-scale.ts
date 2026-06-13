@@ -10,6 +10,7 @@
 
 // modular arithmetic, all products kept under 2^53 by using primes below 2^26
 import { modulo } from '@/code/tool/integer'
+import { toCsr } from '@/code/tool/graph'
 
 function modpow(base: number, exp: number, p: number): number {
   let r = 1
@@ -677,4 +678,45 @@ export function makeLazyEngine(): LazyEngine {
     fingerprint: (cell: LazyCell): string =>
       vecKey(matVecMod(cell.g1, c01, p1)) + '|' + vecKey(matVecMod(cell.g2, c02, p2)),
   }
+}
+
+// Build the dodecagrid cell graph LAZILY: a breadth-first build that gets each cell's
+// neighbors from the lazy engine on demand (no stored adjacency during traversal),
+// deduping cells by their identity fingerprint. Returns the same CSR graph that
+// buildDodecagrid stores, so the two can be compared byte for byte. This is the
+// on-demand neighbor mechanism the WebGPU billion-cell path builds on.
+export function buildDodecagridLazy(input: { maxCells: number }): {
+  offsets: Uint32Array
+  adj: Uint32Array
+  cellCount: number
+} {
+  const eng = makeLazyEngine()
+  const cells: LazyCell[] = [eng.origin]
+  const idOf = new Map<string, number>([[eng.fingerprint(eng.origin), 0]])
+  const nbr: number[][] = [[]]
+  let hit = false
+  for (let head = 0; head < cells.length; head++) {
+    const ns = eng.neighbors(cells[head]!) // computed on demand, no stored graph
+    for (const nc of ns) {
+      const k = eng.fingerprint(nc)
+      let id = idOf.get(k)
+      if (id === undefined) {
+        if (cells.length >= input.maxCells) {
+          hit = true
+          continue
+        }
+        id = cells.length
+        idOf.set(k, id)
+        cells.push(nc)
+        nbr.push([])
+      }
+      if (id !== head && !nbr[head]!.includes(id)) {
+        nbr[head]!.push(id)
+        nbr[id]!.push(head)
+      }
+    }
+    if (hit) break
+  }
+  const { offsets, adj } = toCsr(nbr)
+  return { offsets, adj, cellCount: cells.length }
 }

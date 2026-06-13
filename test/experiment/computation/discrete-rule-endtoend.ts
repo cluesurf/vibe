@@ -7,49 +7,32 @@
 // continuum (the coarse-grained density evolves smoothly from the discrete rule). This grounds "discrete base ->
 // emergent continuum" in the actual rule. Run: npx tsx code/experiment/p229-discrete-rule-endtoend.ts
 
+import {
+  cloneLatticeGas as clone,
+  collide,
+  latticeCharge as charge,
+  latticeDensity as density,
+  latticeIndex,
+  latticeMomentum as momentum,
+  type LatticeGasState as State,
+  stream as streamRaw,
+  streamInverse as streamInverseRaw,
+} from '@/code/operator/directional-lattice-gas'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+// The directional ternary lattice gas (4 charges per cell, COLLIDE then STREAM, exactly
+// reversible and charge/momentum conserving) lives in code/operator/directional-lattice-gas.
 const L = 64
 const N = L * L
-const idx = (x: number, y: number): number => ((y % L) + L) % L * L + (((x % L) + L) % L)
-// state: 4 ternary arrays, one per direction (E,W,N,S)
-type State = { E: Int8Array; W: Int8Array; N: Int8Array; S: Int8Array }
-const clone = (s: State): State => ({ E: s.E.slice(), W: s.W.slice(), N: s.N.slice(), S: s.S.slice() })
-
-// COLLIDE: reversible involution. (qE,qW,qN,qS)=(s,s,0,0) <-> (0,0,s,s) for s=+-1. Else unchanged. (conserves
-// charge sum and momentum (qE-qW, qN-qS)=0 in both, an involution.)
-function collide(s: State): void {
-  for (let i = 0; i < N; i++) {
-    const e = s.E[i]!, w = s.W[i]!, n = s.N[i]!, so = s.S[i]!
-    if (n === 0 && so === 0 && e === w && e !== 0) { s.E[i] = 0; s.W[i] = 0; s.N[i] = e as -1 | 1; s.S[i] = e as -1 | 1 }
-    else if (e === 0 && w === 0 && n === so && n !== 0) { s.N[i] = 0; s.S[i] = 0; s.E[i] = n as -1 | 1; s.W[i] = n as -1 | 1 }
-  }
-}
-// STREAM: each charge moves one cell in its direction. qE_new[x,y] = qE_old[x-1,y], etc.
-function stream(s: State): State {
-  const o: State = { E: new Int8Array(N), W: new Int8Array(N), N: new Int8Array(N), S: new Int8Array(N) }
-  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) {
-    o.E[idx(x, y)] = s.E[idx(x - 1, y)]!; o.W[idx(x, y)] = s.W[idx(x + 1, y)]!
-    o.N[idx(x, y)] = s.N[idx(x, y - 1)]!; o.S[idx(x, y)] = s.S[idx(x, y + 1)]!
-  }
-  return o
-}
-function streamInverse(s: State): State {
-  const o: State = { E: new Int8Array(N), W: new Int8Array(N), N: new Int8Array(N), S: new Int8Array(N) }
-  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) {
-    o.E[idx(x, y)] = s.E[idx(x + 1, y)]!; o.W[idx(x, y)] = s.W[idx(x - 1, y)]!
-    o.N[idx(x, y)] = s.N[idx(x, y + 1)]!; o.S[idx(x, y)] = s.S[idx(x, y - 1)]!
-  }
-  return o
-}
-const charge = (s: State): number => { let c = 0; for (let i = 0; i < N; i++) c += s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!; return c }
-const momentum = (s: State): [number, number] => { let px = 0, py = 0; for (let i = 0; i < N; i++) { px += s.E[i]! - s.W[i]!; py += s.N[i]! - s.S[i]! } return [px, py] }
-function density(s: State): Float64Array { const d = new Float64Array(N); for (let i = 0; i < N; i++) d[i] = s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!; return d }
+const idx = (x: number, y: number): number => latticeIndex(L, x, y)
+const stream = (s: State): State => streamRaw(L, s)
+const streamInverse = (s: State): State => streamInverseRaw(L, s)
 
 export function discreteRuleEndToEnd(): { chargeOk: boolean; momentumOk: boolean; reversible: boolean; smooth: boolean } {
-  let rng = 7
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 7 })
+  const rnd = (): number => rng.next()
   const init: State = { E: new Int8Array(N), W: new Int8Array(N), N: new Int8Array(N), S: new Int8Array(N) }
   for (let i = 0; i < N; i++) { init.E[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1; init.W[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1; init.N[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1; init.S[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1 }
   const c0 = charge(init), [px0, py0] = momentum(init)

@@ -8,6 +8,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { signedTone } from '@/code/tone/pack'
+import { makeRng } from '@/code/tool/rng'
 
 const L = 24
 const N = L * L * L
@@ -18,7 +19,7 @@ function neighbors(i: number): number[] {
 }
 
 export function eternalBootstrap(): { reversibleEternal: boolean; reversibleConserved: boolean; irreversibleDecays: boolean; reversibleExact: boolean } {
-  let rng = 12345; const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 12345 }); const rnd = (): number => rng.next()
   const nbCache: number[][] = Array.from({ length: N }, (_, i) => neighbors(i))
   // (1) the REVERSIBLE mod-3 wave from RANDOM init (no seed)
   const cur0 = new Int8Array(N), prev0 = new Int8Array(N)

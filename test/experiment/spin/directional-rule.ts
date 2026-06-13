@@ -6,11 +6,12 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { makeRng } from '@/code/tool/rng'
 
 // (1) persistent walk (the directional rule for one charge) vs random walk (scalar): displacement vs time
 function walk(mix: number, T: number, trials: number, seed: number): number {
-  let rng = seed
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed })
+  const rnd = (): number => rng.next()
   const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
   let tot = 0
   for (let t = 0; t < trials; t++) {

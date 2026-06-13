@@ -7,18 +7,17 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/open-rg-flow.ts
 
+import {
+  isingBetaFunction,
+  isingDecimationBySummation,
+  isingDecimationFormula,
+} from '@/code/operator/ising-rg'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Decimate the middle spin of a 1D chain by DIRECT summation, returning the effective coupling K'.
-// Sum_s exp(K(s1 s + s s2)) = e^{C + K' s1 s2}. Reading off s1=s2 and s1=-s2 gives K' exactly.
-function decimateBySummation(K: number): number {
-  // s = +1 and s = -1
-  const same = Math.exp(K * (1 + 1)) + Math.exp(K * (-1 - 1)) // s1=s2=+1: sum_s exp(K(s + s)) = e^{2K}+e^{-2K}
-  const diff = Math.exp(K * (1 - 1)) + Math.exp(K * (-1 + 1)) // s1=+1,s2=-1: sum_s exp(K(s - s)) = 1 + 1 = 2
-  // e^{C+K'} = same, e^{C-K'} = diff  =>  K' = (1/2) ln(same/diff)
-  return 0.5 * Math.log(same / diff)
-}
+// The exact 1D Ising real-space RG (block-spin decimation by direct summation, its
+// closed form K' = (1/2) ln cosh 2K, and the beta function) lives in
+// code/operator/ising-rg.
 
 export default defineExperiment({
   id: 'general/open-rg-flow',
@@ -31,8 +30,8 @@ export default defineExperiment({
     // (1) verify K' = (1/2) ln cosh(2K) against direct block-spin summation.
     let maxErr = 0
     for (let K = 0.05; K <= 2; K += 0.05) {
-      const bySum = decimateBySummation(K)
-      const byFormula = 0.5 * Math.log(Math.cosh(2 * K))
+      const bySum = isingDecimationBySummation(K)
+      const byFormula = isingDecimationFormula(K)
       maxErr = Math.max(maxErr, Math.abs(bySum - byFormula))
     }
     const decimationExact = maxErr < 1e-12
@@ -41,13 +40,10 @@ export default defineExperiment({
     // coarse-graining), and vanishes at the Gaussian fixed point K = 0.
     let fixedPointOk = true
     for (const K of [0.1, 0.5, 1.0, 1.5, 2.0]) {
-      const Kp = 0.5 * Math.log(Math.cosh(2 * K))
-      const beta = (Kp - K) / Math.log(2)
+      const beta = isingBetaFunction(K)
       if (beta > 1e-9) fixedPointOk = false
     }
-    const betaSmall = Math.abs(
-      (0.5 * Math.log(Math.cosh(2 * 1e-4)) - 1e-4) / Math.log(2),
-    )
+    const betaSmall = Math.abs(isingBetaFunction(1e-4))
     const fixedPointAtZero = betaSmall < 1e-3
 
     const ok = decimationExact && fixedPointOk && fixedPointAtZero

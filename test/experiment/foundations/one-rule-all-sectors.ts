@@ -14,132 +14,10 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph, makeGraph } from '@/code/tool/graph'
-import { laplacian, laplacianSpectrum } from '@/code/operator/laplacian'
+import { Graph, largestComponent, neighborDistances } from '@/code/tool/graph'
+import { laplacianSpectrum, laplacianGreensFunction } from '@/code/operator/laplacian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// The connected component containing the most-connected node, as a fresh Graph, so the
-// Laplacian solve is well posed (a disconnected graph has extra zero modes).
-function largestComponent(g: Graph): Graph {
-  let center = 0
-  let best = -1
-  for (let i = 0; i < g.size; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) { best = d; center = i }
-  }
-  const reach = new Int32Array(g.size).fill(-1)
-  reach[center] = 0
-  let frontier = [center]
-  const kept: number[] = [center]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (reach[w] === -1) {
-          reach[w] = 1
-          kept.push(w)
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  const remap = new Map<number, number>()
-  kept.forEach((old, i) => remap.set(old, i))
-  const dim = g.embedding?.dimension ?? 2
-  const oldCoords = g.embedding?.coords ?? new Float64Array(0)
-  const coords = new Float64Array(kept.length * dim)
-  const neighbors: number[][] = kept.map((old, i) => {
-    for (let a = 0; a < dim; a++) coords[i * dim + a] = oldCoords[old * dim + a] ?? 0
-    return Array.from(g.neighbors[old] ?? new Uint32Array(0)).map((w) => remap.get(w) ?? -1).filter((x) => x >= 0)
-  })
-  const embedding = g.embedding ? { ...g.embedding, coords } : undefined
-  return makeGraph({ size: kept.length, directed: false, neighbors, embedding })
-}
-
-function bfsDistances(g: Graph, source: number): Int32Array {
-  const dist = new Int32Array(g.size).fill(-1)
-  dist[source] = 0
-  let frontier = [source]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[v] ?? 0) + 1
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return dist
-}
-
-// Apply a CSR sparse matrix to a vector.
-function applySparse(m: { rowPtr: Uint32Array; colIdx: Uint32Array; value: Float64Array }, x: Float64Array, out: Float64Array): void {
-  for (let i = 0; i < out.length; i++) {
-    let s = 0
-    for (let k = m.rowPtr[i] ?? 0; k < (m.rowPtr[i + 1] ?? 0); k++) {
-      s += (m.value[k] ?? 0) * (x[m.colIdx[k] ?? 0] ?? 0)
-    }
-    out[i] = s
-  }
-}
-
-function dot(a: Float64Array, b: Float64Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
-  return s
-}
-
-function subtractMean(x: Float64Array): void {
-  let m = 0
-  for (let i = 0; i < x.length; i++) {
-    m += x[i] ?? 0
-  }
-  m /= x.length
-  for (let i = 0; i < x.length; i++) {
-    x[i] = (x[i] ?? 0) - m
-  }
-}
-
-// The static potential phi = L^{-1}(delta - background) by deflated conjugate gradient.
-function greensFunction(g: Graph, center: number): Float64Array {
-  const n = g.size
-  const L = laplacian({ substrate: g })
-  const b = new Float64Array(n)
-  b.fill(-1 / n)
-  b[center] = 1 - 1 / n
-  const phi = new Float64Array(n)
-  const residual = Float64Array.from(b)
-  const direction = Float64Array.from(b)
-  const temp = new Float64Array(n)
-  let rsOld = dot(residual, residual)
-  for (let iter = 0; iter < 4 * n; iter++) {
-    applySparse(L, direction, temp)
-    subtractMean(temp)
-    const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)
-    for (let i = 0; i < n; i++) {
-      phi[i] = (phi[i] ?? 0) + alpha * (direction[i] ?? 0)
-      residual[i] = (residual[i] ?? 0) - alpha * (temp[i] ?? 0)
-    }
-    const rsNew = dot(residual, residual)
-    if (rsNew < 1e-14) {
-      break
-    }
-    const beta = rsNew / rsOld
-    for (let i = 0; i < n; i++) {
-      direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
-    }
-    rsOld = rsNew
-  }
-  subtractMean(phi)
-  return phi
-}
 
 // The radiation sector: a disturbance propagates with a finite light-cone under the
 // ternary rule. Two synchronous copies, one perturbed, in lockstep.
@@ -175,7 +53,7 @@ function lightCone(g: Graph, seed: number): { holds: boolean; propagated: boolea
     const d = (g.neighbors[i] ?? new Uint32Array(0)).length
     if (d > best) { best = d; center = i }
   }
-  const dist = bfsDistances(g, center)
+  const dist = neighborDistances({ neighbors: g.neighbors, size: g.size, source: center })
   let a = new Int8Array(n)
   for (let i = 0; i < n; i++) a[i] = rng.nextInt({ max: 3 }) - 1
   let b = Int8Array.from(a)
@@ -228,8 +106,8 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
     const d = (g.neighbors[i] ?? new Uint32Array(0)).length
     if (d > best) { best = d; center = i }
   }
-  const phi = greensFunction(g, center)
-  const dist = bfsDistances(g, center)
+  const phi = laplacianGreensFunction({ substrate: g, center })
+  const dist = neighborDistances({ neighbors: g.neighbors, size: g.size, source: center })
   const xs: number[] = []
   const ys: number[] = []
   for (let i = 0; i < g.size; i++) {

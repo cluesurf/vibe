@@ -8,7 +8,7 @@
 // where its body is. We confirm, the repair reads only local neighborhoods, the self persists at high
 // fidelity vs decay, and the total charge is exactly conserved. Run: npx tsx code/experiment/p179-autonomous-self.ts
 
-import { bulkGraph, beat, emergeSelf, countPlus, totalCharge, sameSignNeighbors, type Graph } from '@/test/experiment/misc/self-kit'
+import { bulkGraph, beat, emergeSelf, countPlus, totalCharge, sameSignNeighbors, type Graph } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'

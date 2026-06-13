@@ -1,5 +1,6 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
 // The 5D pentacomb as a working MESH with the directional rule running on the ACTUAL generated cell graph, the
 // dynamical side of substrate-survey/pentacomb-spin-curvature. We generate the pentacomb {3,4,3,3,4} cell
@@ -11,56 +12,6 @@ import { verdict } from '@/test/scaffold/verdict'
 // which grows more slowly.
 
 const RANK = 6 // {3,4,3,3,4} has 6 reflection generators
-
-// the reflection matrices of a linear Coxeter symbol, in the simple-root basis
-const reflections = (symbol: number[]): number[][][] => {
-  const n = symbol.length + 1
-  const gram: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
-  for (let edge = 0; edge < symbol.length; edge++) {
-    const value = -Math.cos(Math.PI / symbol[edge]!)
-    gram[edge]![edge + 1] = value
-    gram[edge + 1]![edge] = value
-  }
-  return Array.from({ length: n }, (_, i) =>
-    Array.from({ length: n }, (_, k) => Array.from({ length: n }, (_, j) => (k === i ? (j === i ? 1 : 0) - 2 * gram[i]![j]! : k === j ? 1 : 0))),
-  )
-}
-
-const multiply = (a: number[][], b: number[][]): number[][] =>
-  a.map((row) => b[0]!.map((_, j) => row.reduce((sum, value, k) => sum + value * b[k]![j]!, 0)))
-
-const key = (matrix: number[][]): string => matrix.flat().map((value) => Math.round(value * 1e5)).join(',')
-
-// BFS the cell graph and return the shell sizes AND the adjacency (for each cell, the index of its neighbour
-// across each generator, or -1 if that neighbour is outside the truncated mesh).
-const buildMesh = (symbol: number[], maxCells: number): { shells: number[]; adjacency: number[][] } => {
-  const generators = reflections(symbol)
-  const degree = generators.length
-  const n = symbol.length + 1
-  const identity: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
-  const index = new Map<string, number>([[key(identity), 0]])
-  const matrices: number[][][] = [identity]
-  let frontier = [0]
-  const shells = [1]
-  while (index.size < maxCells && frontier.length > 0) {
-    const next: number[] = []
-    for (const cell of frontier) {
-      for (let g = 0; g < degree; g++) {
-        const neighbour = multiply(matrices[cell]!, generators[g]!)
-        const id = key(neighbour)
-        if (!index.has(id)) { index.set(id, matrices.length); matrices.push(neighbour); next.push(index.get(id)!) }
-      }
-      if (index.size >= maxCells) break
-    }
-    if (next.length > 0) shells.push(next.length)
-    frontier = next
-  }
-  // resolve the adjacency now that all cells are known
-  const adjacency = matrices.map((matrix) =>
-    generators.map((generator) => index.get(key(multiply(matrix, generator))) ?? -1),
-  )
-  return { shells, adjacency }
-}
 
 const growthRatio = (shells: number[]): number => {
   const count = shells.length
@@ -77,7 +28,7 @@ export default defineExperiment({
   paper: true,
   run() {
     // (1) build the pentacomb mesh, confirm it grows FASTER than flat (the curvature signature)
-    const penta = buildMesh([3, 4, 3, 3, 4], 3000)
+    const penta = buildCoxeterMatrixMesh([3, 4, 3, 3, 4], 3000)
     const pentaRatio = growthRatio(penta.shells)
     const adjacency = penta.adjacency
     const cells = adjacency.length
@@ -99,7 +50,7 @@ export default defineExperiment({
     const collide = (state: number[][], forward: boolean): number[][] =>
       state.map((slots) => slots.map((_, d) => slots[forward ? (d + RANK - 1) % RANK : (d + 1) % RANK]!))
     // a deterministic initial charge pattern (no randomness): occupy direction (cell mod 6) at each cell
-    let occupation = Array.from({ length: cells }, (_, cell) => Array.from({ length: RANK }, (_, d) => (d === cell % RANK ? 1 : 0)))
+    let occupation: number[][] = Array.from({ length: cells }, (_, cell) => Array.from({ length: RANK }, (_, d) => (d === cell % RANK ? 1 : 0)))
     const initial = occupation.map((slots) => [...slots])
     const count = (state: number[][]): number => state.reduce((sum, slots) => sum + slots.reduce((s, v) => s + v, 0), 0)
     const charge0 = count(occupation)
@@ -115,7 +66,7 @@ export default defineExperiment({
 
     // CONTROL: a EUCLIDEAN Coxeter mesh ({3,4,3,3}) grows more slowly (lower ratio), so the pentacomb's faster
     // growth is genuine negative curvature
-    const euclid = buildMesh([3, 4, 3, 3], 3000)
+    const euclid = buildCoxeterMatrixMesh([3, 4, 3, 3], 3000)
     const euclidRatio = growthRatio(euclid.shells)
     const growsFasterThanFlat = pentaRatio > 1.5 && pentaRatio > euclidRatio + 0.2
 

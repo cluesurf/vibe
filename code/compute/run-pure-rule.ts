@@ -7,6 +7,7 @@
 // Run: pnpm tsx --max-old-space-size=8192 code/gpu/run-pure-rule.ts
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 
 Object.assign(globalThis, globals)
@@ -80,8 +81,8 @@ async function run(): Promise<void> {
   console.log(`edge-colouring: ${C} colours (matchings), ${C} passes per beat`)
 
   // seed: mostly peace plus a balanced sprinkle of charges (deterministic pseudo-random), net charge fixed
-  const seed = new Uint32Array(N); let r = 987654321
-  const nextR = (): number => { r = (r * 1103515245 + 12345) & 0x7fffffff; return r / 0x7fffffff }
+  const seed = new Uint32Array(N); const r = makeRng({ seed: 987654321 })
+  const nextR = (): number => r.next()
   for (let i = 0; i < N; i++) { const x = nextR(); seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0 }
   const startCharge = charge(seed)
 

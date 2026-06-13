@@ -4,6 +4,7 @@
 // MULTI-SCALE, do several scales carry coherence at once. Run: npx tsx code/experiment/p208-nesting-controls.ts
 
 import { pearson } from '@/code/measure/statistics'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -18,8 +19,8 @@ function perm(a: number, b: number): [number, number] {
   if (a === 0 && b === 0) return [1, -1]; if (a === 1 && b === -1) return [-1, 1]
   if (a === -1 && b === 1) return [0, 0]; return [a, b]
 }
-let rng = 7
-const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+const rng = makeRng({ seed: 7 })
+const rnd = (): number => rng.next()
 const shuf = <T>(a: T[]): T[] => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const t = a[i]!; a[i] = a[j]!; a[j] = t } return a }
 
 function stepPerception(t: Int8Array): void {

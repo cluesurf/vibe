@@ -11,131 +11,14 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { buildAddressedTree, routeByAddress } from '@/code/substrate/tree-addressing'
+import { graphDistance } from '@/code/measure/distance'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Tree {
-  parent: Int32Array
-  depth: Int32Array
-  children: number[][]
-  address: number[][] // address[v] = path of child-ordinals from the root to v
-  root: number
-  levelSizes: number[]
-}
-
-// Breadth-first spanning tree from the most-connected (central) cell. Children are
-// ordered by embedding angle, so the addressing is deterministic.
-function spanningTree(g: Graph): Tree {
-  let root = 0
-  let best = -1
-  for (let i = 0; i < g.size; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) {
-      best = d
-      root = i
-    }
-  }
-  const coords = g.embedding?.coords ?? new Float64Array(0)
-  const dim = g.embedding?.dimension ?? 2
-  const angleOf = (v: number): number => Math.atan2(coords[v * dim + 1] ?? 0, coords[v * dim] ?? 0)
-
-  const parent = new Int32Array(g.size).fill(-1)
-  const depth = new Int32Array(g.size).fill(-1)
-  const children: number[][] = g.neighbors.map(() => [])
-  parent[root] = root
-  depth[root] = 0
-  let frontier = [root]
-  const levelSizes = [1]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      const kids: number[] = []
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (depth[w] === -1) {
-          depth[w] = (depth[v] ?? 0) + 1
-          parent[w] = v
-          kids.push(w)
-          next.push(w)
-        }
-      }
-      kids.sort((a, b) => angleOf(a) - angleOf(b))
-      children[v] = kids
-    }
-    if (next.length > 0) {
-      levelSizes.push(next.length)
-    }
-    frontier = next
-  }
-
-  // Addresses: append the child-ordinal at each step down from the root.
-  const address: number[][] = g.neighbors.map(() => [])
-  // Process in depth order so a parent's address is set before its children.
-  const order = Array.from({ length: g.size }, (_, i) => i)
-    .filter((i) => depth[i] !== -1)
-    .sort((a, b) => (depth[a] ?? 0) - (depth[b] ?? 0))
-  for (const v of order) {
-    if (v === root) {
-      continue
-    }
-    const p = parent[v] ?? root
-    const ordinal = (children[p] ?? []).indexOf(v)
-    address[v] = [...(address[p] ?? []), ordinal]
-  }
-  return { parent, depth, children, address, root, levelSizes }
-}
-
-// Route from s to t using addresses only: up to the common ancestor, then down by the
-// target's address suffix. Returns the path (a walk along tree edges, which are graph
-// edges). Uses only local parent and ordered-children information.
-function routeByAddress(tree: Tree, s: number, t: number): number[] {
-  const as = tree.address[s] ?? []
-  const at = tree.address[t] ?? []
-  let common = 0
-  while (common < as.length && common < at.length && as[common] === at[common]) {
-    common++
-  }
-  const up: number[] = []
-  let cur = s
-  while ((tree.depth[cur] ?? 0) > common) {
-    up.push(cur)
-    cur = tree.parent[cur] ?? tree.root
-  }
-  // cur is now the common ancestor (depth == common).
-  const ancestor = cur
-  const down: number[] = []
-  let node = ancestor
-  for (let i = common; i < at.length; i++) {
-    node = (tree.children[node] ?? [])[at[i] ?? 0] ?? node
-    down.push(node)
-  }
-  return [...up, ancestor, ...down]
-}
-
-function bfsDistance(g: Graph, s: number, t: number): number {
-  if (s === t) {
-    return 0
-  }
-  const dist = new Int32Array(g.size).fill(-1)
-  dist[s] = 0
-  let frontier = [s]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[v] ?? 0) + 1
-          if (w === t) {
-            return dist[w] ?? -1
-          }
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return -1
-}
+// The Margenstern tree addressing (a BFS spanning tree with embedding-angle child
+// order plus child-ordinal addresses) and the address-arithmetic router live in
+// code/substrate/tree-addressing.
 
 export function fibonacciNavigation(input: { pairs: number; seed: number }): {
   cells: number
@@ -146,7 +29,7 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
   levelGrowthRatio: number
 } {
   const g = hyperbolicTiling({ p: 7, q: 3, depth: 6, connectThreshold: 0.5, maxVertices: 2200 })
-  const tree = spanningTree(g)
+  const tree = buildAddressedTree(g)
 
   // Adjacency sets for an honest validity check of each route.
   const adj = g.neighbors.map((row) => new Set<number>(Array.from(row)))
@@ -174,7 +57,7 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
       delivered++
       const hops = path.length - 1
       hopSum += hops
-      const d = bfsDistance(g, s, t)
+      const d = graphDistance({ substrate: g, from: s, to: t })
       if (d > 0) {
         stretchSum += hops / d
         stretchCount++

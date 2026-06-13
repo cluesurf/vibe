@@ -6,6 +6,7 @@
 // (omega -> |k| = c|k|), unlike a massive mode, with D-2 = 2 transverse polarizations in 4D.
 // Run: npx tsx code/experiment/p249-ph-photon-3434.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,8 +14,8 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   const Lx = 12, Ly = 12
   const wrap = (x: number, L: number): number => ((x % L) + L) % L
   // U(1) link phases on a periodic 2D plaquette lattice (the gauge field, the 8v sector)
-  let seed = 999
-  const rnd = (): number => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed / 0x7fffffff) * 2 * Math.PI }
+  const rng = makeRng({ seed: 999 })
+  const rnd = (): number => rng.next() * 2 * Math.PI
   const Ax: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
   const Ay: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
   // plaquette (field strength) at (x,y): sum of oriented link phases around the unit square

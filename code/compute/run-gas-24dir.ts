@@ -6,6 +6,7 @@
 // {3,4,3,4} directional rule with collisions. Run: pnpm tsx code/gpu/run-gas-24dir.ts
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
@@ -70,8 +71,8 @@ async function run(): Promise<void> {
   device.queue.writeBuffer(swapBuf, 0, new Uint32Array(swap))
   device.queue.writeBuffer(uni, 0, new Uint32Array([L, 0, 0, 0]))
   // random ternary initial populations
-  const init = new Int32Array(SZ); let rng = 7
-  for (let i = 0; i < SZ; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; init[i] = (rng % 3) - 1 }
+  const init = new Int32Array(SZ); const rng = makeRng({ seed: 7 })
+  for (let i = 0; i < SZ; i++) { init[i] = rng.nextInt({ max: 3 }) - 1 }
   device.queue.writeBuffer(a, 0, init)
   const layout = pipeline.getBindGroupLayout(0)
   const stepOnce = (src: GPUBuffer, dst: GPUBuffer): void => {

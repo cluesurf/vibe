@@ -7,7 +7,7 @@
 // and the claims that use it are statistical, labeled L2. Robustness comes from varying the lattice size L,
 // not from averaging seeds. The seed only fixes one reproducible realization.
 
-import { flatGraph, emergeSelf, beat, type Graph, type Rng } from '@/test/experiment/misc/self-kit'
+import { flatGraph, emergeSelf, beat, type Graph, type Rng } from '@/code/model/self-kit'
 import { extractUnits, meanUnitSize } from '@/code/coarse/macro-unit'
 
 export function makeRng(seed: number): Rng {

@@ -6,6 +6,7 @@
 // Run: pnpm tsx code/gpu/run-skyrmion-3d.ts
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
@@ -73,8 +74,8 @@ async function run(): Promise<void> {
 
   // deterministic random initial direction field (unit vectors), the symmetry-broken start
   const seed = new Float32Array(N * 4)
-  let r = 22222221
-  const rnd = (): number => { r = (r * 1103515245 + 12345) & 0x7fffffff; return r / 0x7fffffff }
+  const r = makeRng({ seed: 22222221 })
+  const rnd = (): number => r.next()
   for (let i = 0; i < N; i++) {
     const u = 2 * rnd() - 1, ph = 2 * Math.PI * rnd(), s = Math.sqrt(1 - u * u)
     seed[i * 4] = s * Math.cos(ph); seed[i * 4 + 1] = s * Math.sin(ph); seed[i * 4 + 2] = u

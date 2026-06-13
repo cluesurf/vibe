@@ -7,6 +7,7 @@
 // n(x,y) = (sin(qx), -cos(qx)sin(qy), cos(qx)cos(qy)), unit, periodic for q = 2*pi*k/L, Skyrme density ~ q^4.
 
 import { create, globals } from 'webgpu'
+import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
@@ -144,10 +145,10 @@ async function run(): Promise<void> {
   const vacN = nrt3(0)
   const dblN = Ks.map((k) => nrt3(k)), helN = Ks.map((k) => nrt3helix(k))
   const dMuD = Ks.map(() => new Float64Array(MCHEB)), dMuH = Ks.map(() => new Float64Array(MCHEB))
-  let rng = 271
+  const rng = makeRng({ seed: 271 })
   console.log(`GPU Skyrme twist (double + helix control), L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, a=${A.toFixed(2)}`)
   for (let r = 0; r < NRV; r++) {
-    const xd = new Float32Array(FN); for (let i = 0; i < FN; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; xd[i] = (rng & 1) ? 1 : -1 }
+    const xd = new Float32Array(FN); for (let i = 0; i < FN; i++) { xd[i] = (rng.next() < 0.5 ? -1 : 1) }
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN); device.queue.writeBuffer(Bb[0]!, 0, xd); const muV = await computeMoments()
     for (let ki = 0; ki < Ks.length; ki++) {

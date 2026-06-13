@@ -7,6 +7,7 @@
 // Run: pnpm tsx code/gpu/render-pure-band-anim.ts   then task/render-video.sh
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
@@ -57,7 +58,7 @@ function run(): void {
   for (let i = 0; i < E; i++) { const at = cur[color[i]!]!++; edgeV[at] = eu[i]!; edgeW[at] = ev[i]! }
 
   // seed: mostly peace plus a balanced sprinkle of charges
-  const tone = new Uint8Array(n); let r = 987654321; const rr = () => { r = (r * 1103515245 + 12345) & 0x7fffffff; return r / 0x7fffffff }
+  const tone = new Uint8Array(n); const r = makeRng({ seed: 987654321 }); const rr = () => r.next()
   for (let i = 0; i < n; i++) { const x = rr(); tone[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0 }
 
   const pureBeat = (): void => { for (let c = 0; c < C; c++) for (let e = off[c]!; e < off[c + 1]!; e++) { const v = edgeV[e]!, w = edgeW[e]!; const o = PERM[tone[v]! * 3 + tone[w]!]!; tone[v] = (o / 3) | 0; tone[w] = o % 3 } }

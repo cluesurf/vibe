@@ -4,6 +4,7 @@
 // Run: npx tsx code/experiment/p202-dynamics-73.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -43,8 +44,8 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
     if (a === 0 && b === 0) return [1, -1]; if (a === 1 && b === -1) return [-1, 1]
     if (a === -1 && b === 1) return [0, 0]; return [a, b]
   }
-  let rng = 5
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 5 })
+  const rnd = (): number => rng.next()
   const t = new Int8Array(N)
   for (let k = 0; k < 100; k++) t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   const sumOf = (a: Int8Array): number => { let s = 0; for (let i = 0; i < N; i++) s += a[i]!; return s }

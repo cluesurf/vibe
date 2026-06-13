@@ -6,6 +6,7 @@
 // (a non-abelian flux) is GAUGE-INVARIANT, (2) the holonomy is a non-trivial rotation (curvature), (3) it is
 // NON-ABELIAN (order matters, two paths differ). Run: npx tsx code/experiment/p234-nonabelian-gauge.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -17,8 +18,8 @@ const tr = (A: M3): number => A[0]![0]! + A[1]![1]! + A[2]![2]!
 function rot(axis: number[], ang: number): M3 { const n = Math.hypot(...axis), k = axis.map((x) => x / n); const c = Math.cos(ang), s = Math.sin(ang); const K: M3 = [[0, -k[2]!, k[1]!], [k[2]!, 0, -k[0]!], [-k[1]!, k[0]!, 0]]; const o: M3 = k.map((a) => k.map((b) => a * b)); return [0, 1, 2].map((i) => [0, 1, 2].map((j) => c * (i === j ? 1 : 0) + s * K[i]![j]! + (1 - c) * o[i]![j]!)) }
 
 export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolean; nonAbelian: boolean } {
-  let rng = 5
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 5 })
+  const rnd = (): number => rng.next()
   const rr = (): M3 => rot([rnd() - 0.5, rnd() - 0.5, rnd() - 0.5], rnd() * 2) // random SO(3) link
   // a plaquette, 4 link matrices (bottom, right, top, left). Holonomy H = U_b U_r U_t^T U_l^T (around the loop)
   const Ub = rr(), Ur = rr(), Ut = rr(), Ul = rr()

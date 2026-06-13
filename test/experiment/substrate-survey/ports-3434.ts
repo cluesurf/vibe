@@ -3,6 +3,7 @@
 // (P101), (3) two opposite selves ANNIHILATE on contact (P110). Ported from the throwaway probes.
 // Run: npx tsx code/experiment/p193-ports-3434.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -59,8 +60,8 @@ export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: 
   const lc = lightcone()
 
   // churn from a small symmetry-breaking seed
-  let rng = 3
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 3 })
+  const rnd = (): number => rng.next()
   const t = new Int8Array(L * L * L)
   for (let k = 0; k < 200; k++) t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   for (let b = 0; b < 40; b++) beat(t, true)

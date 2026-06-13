@@ -11,6 +11,7 @@
 // Run: npx tsx code/experiment/p156-unified-wave.ts
 
 import { buildDodecagrid, buildSliver } from '@/code/substrate/coxeter/cell-scale'
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -79,10 +80,9 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   const ec = edgeColoring(g.offsets, g.adj, N)
 
   // (1) charge conservation + (2) reversibility on a random crystal state
-  let seed = 12345
-  const rnd = (): number => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
+  const rng = makeRng({ seed: 12345 })
   const tone = new Int8Array(N)
-  for (let i = 0; i < N; i++) tone[i] = (rnd() < 0.3 ? (rnd() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
   const q0 = tone.reduce((s, x) => s + x, 0)
   const init = tone.slice()
   const T = 30
@@ -103,10 +103,9 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   const maxPos = s.spineLength - 1
   let center = 0
   for (let i = 0; i < sN; i++) if (Math.abs(s.position[i]! - maxPos / 2) < Math.abs(s.position[center]! - maxPos / 2)) center = i
-  let s2 = 999
-  const rnd2 = (): number => ((s2 = (s2 * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
+  const rng2 = makeRng({ seed: 999 })
   const baseS = new Int8Array(sN)
-  for (let i = 0; i < sN; i++) baseS[i] = (rnd2() < 0.3 ? (rnd2() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < sN; i++) baseS[i] = (rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
   const pertS = baseS.slice()
   pertS[center] = (baseS[center]! === 0 ? 1 : 0) as -1 | 0 | 1
   const pos0 = s.position[center]!

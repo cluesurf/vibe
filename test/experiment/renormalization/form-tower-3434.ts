@@ -3,6 +3,7 @@
 // autocorrelation) RISES with coarse scale and beats a spatial-shuffle null, a coherence tower in 3D. Ported
 // from the throwaway probe. Run: npx tsx code/experiment/p197-form-tower-3434.ts
 
+import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -30,8 +31,8 @@ function pearson(a: Float64Array, b: Float64Array): number {
 
 export function formTower(): { real: number[]; nul: number[]; tower: boolean } {
   const N = L * L * L
-  let rng = 12345
-  const rnd = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng / 0x7fffffff }
+  const rng = makeRng({ seed: 12345 })
+  const rnd = (): number => rng.next()
   const tone = new Int8Array(N), m = new Uint8Array(N)
   const step = (): void => {
     m.fill(0); const s0 = Math.floor(rnd() * N)

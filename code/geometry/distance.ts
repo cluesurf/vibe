@@ -54,6 +54,31 @@ export function poincareDistance(left: number[], right: number[]): number {
   return Math.acosh(poincareCosh(left, right))
 }
 
+// The hyperbolic distance between two points stored in a flat, stride-`dimension`
+// coordinate buffer (the layout the cell-graph embeddings use), so callers route on
+// the embedding without slicing per point.
+export function poincareDistanceIndexed(
+  coords: ArrayLike<number>,
+  dimension: number,
+  a: number,
+  b: number,
+): number {
+  let normA = 0
+  let normB = 0
+  let differenceSquared = 0
+  for (let k = 0; k < dimension; k++) {
+    const xa = coords[a * dimension + k] ?? 0
+    const xb = coords[b * dimension + k] ?? 0
+    normA += xa * xa
+    normB += xb * xb
+    differenceSquared += (xa - xb) * (xa - xb)
+  }
+  const oneMinusA = 1 - normA
+  const oneMinusB = 1 - normB
+  const denom = Math.max(1e-12, oneMinusA * oneMinusB)
+  return Math.acosh(1 + (2 * differenceSquared) / denom)
+}
+
 // cosh of the hyperbolic distance from native polar coordinates, with the radius
 // terms precomputed. `coshLeft`/`sinhLeft` are cosh(r1)/sinh(r1), and
 // `angleBetween` is theta1 - theta2.

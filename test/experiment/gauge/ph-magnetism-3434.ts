@@ -82,7 +82,7 @@ export default defineExperiment({
         spinPrecesses: r.spinPrecesses ? 1 : 0,
       },
       notes:
-        'L2, known physics, the lattice Lorentz force from a gauge coupling, with the B = 0 straight-line control. Only the PH5 field-magnetism part is scored. The PH6 spin precession assumes g = 2 by hand and integrates the Larmor equation, so it is L0 circular and does not enter the pass.',
+        'L2, known physics, the lattice Lorentz force from a gauge coupling, with the B = 0 straight-line control. Only the PH5 field-magnetism part is scored. The PH6 spin precession here assumes g = 2 by hand and integrates the Larmor equation, so it is L0 circular and does not enter the pass. PH6 is now done properly in gauge/g-factor-3434, which DERIVES g = 2 from the Dirac Landau spectrum (no g input) with a scalar control.',
     })
   },
 })
