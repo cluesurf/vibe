@@ -7,45 +7,14 @@
 // many of them, not a single privileged center.
 // Run: npx tsx code/experiment/p117-many-self-models.ts
 
+import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number, maxR: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let r = 0
-  while (fr.length > 0 && r < maxR) {
-    r++
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = r
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return dist
-}
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
   moved.fill(0)
@@ -73,29 +42,6 @@ function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8A
   }
 }
 
-function corr(x: number[], y: number[]): number {
-  const n = x.length
-  let mx = 0
-  let my = 0
-  for (let i = 0; i < n; i++) {
-    mx += x[i]!
-    my += y[i]!
-  }
-  mx /= n
-  my /= n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    const dx = x[i]! - mx
-    const dy = y[i]! - my
-    sxy += dx * dy
-    sxx += dx * dx
-    syy += dy * dy
-  }
-  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0
-}
-
 // run the self-model test for a self centered at `center`; return hub-vs-global and peripheral-vs-global
 function selfModelAt(
   g: { offsets: Int32Array; adj: Int32Array; cellCount: number },
@@ -106,7 +52,7 @@ function selfModelAt(
 ): { hubCorr: number; periCorr: number } {
   const N = g.cellCount
   const moved = new Uint8Array(N)
-  const dist = bfs(g.offsets, g.adj, N, center, 12)
+  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
   const rSelf = 4
   const self: number[] = []
   for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
@@ -170,9 +116,9 @@ function selfModelAt(
     coreSeries.push(meanOver(tone, core))
     for (let p = 0; p < peripherals.length; p++) periSeries[p]!.push(meanOver(tone, peripherals[p]!))
   }
-  const hubCorr = Math.abs(corr(coreSeries, gSeries))
+  const hubCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
   let periCorr = 0
-  for (let p = 0; p < peripherals.length; p++) periCorr += Math.abs(corr(periSeries[p]!, gSeries))
+  for (let p = 0; p < peripherals.length; p++) periCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   periCorr /= peripherals.length
   return { hubCorr, periCorr }
 }
@@ -194,7 +140,7 @@ export function manySelfModels(input?: { n?: number }): {
   // pick several self-centers spread across the graph (the hub plus peripheral cells at various depths)
   let hub = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[hub + 1]! - g.offsets[hub]!) hub = i
-  const distHub = bfs(g.offsets, g.adj, N, hub, 12)
+  const distHub = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: hub, maxRadius: 12 })
   const centers = [hub]
   for (const target of [3, 4, 5]) {
     for (let i = 0; i < N; i++) if (distHub[i] === target && g.offsets[i + 1]! - g.offsets[i]! >= 6) {

@@ -11,44 +11,12 @@
 // second-order model would need added structure. Run: npx tsx code/experiment/p118-metacognition.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number, maxR: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let r = 0
-  while (fr.length > 0 && r < maxR) {
-    r++
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = r
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return dist
-}
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
   moved.fill(0)
@@ -126,7 +94,7 @@ export function metacognition(input?: { n?: number }): {
   const moved = new Uint8Array(N)
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dist = bfs(g.offsets, g.adj, N, center, 12)
+  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
   const rSelf = 5
   const self: number[] = []
   for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)

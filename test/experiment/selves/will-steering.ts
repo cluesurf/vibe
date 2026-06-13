@@ -12,35 +12,12 @@
 // Run: npx tsx code/experiment/p113-will-steering.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number): { dist: Int32Array; far: number } {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let far = src
-  let ecc = 0
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        if (dist[w]! > ecc) {
-          ecc = dist[w]!
-          far = w
-        }
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return { dist, far }
-}
 
 function ballSet(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
   const out: number[] = []
@@ -62,19 +39,6 @@ function ballSet(offsets: Int32Array, adj: Int32Array, n: number, start: number,
     fr = nf
   }
   return out
-}
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
 }
 
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
@@ -132,8 +96,8 @@ export function willSteering(input?: { n?: number }): {
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
-  const { dist, far } = bfs(g.offsets, g.adj, N, 0)
-  const distTarget = bfs(g.offsets, g.adj, N, far).dist // distance to the far target
+  const { dist, far } = csrEccentricity({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
+  const distTarget = csrEccentricity({ offsets: g.offsets, adj: g.adj, size: N, source: far }).dist // distance to the far target
 
   // MERGE: a + self at node 0, target = the far cell. measure the self's CENTROID distance to the target
   // (with the will it moves toward the target, unbiased it diffuses symmetrically and stays put)
@@ -167,7 +131,7 @@ export function willSteering(input?: { n?: number }): {
   const region = ballSet(g.offsets, g.adj, N, 0, 4000)
   const half = Math.floor(region.length / 2)
   const minusCenter = region[region.length - 1]! // a cell on the - side
-  const distMinus = bfs(g.offsets, g.adj, N, minusCenter).dist
+  const distMinus = csrEccentricity({ offsets: g.offsets, adj: g.adj, size: N, source: minusCenter }).dist
   const mkSplit = (): Int8Array => {
     const t = new Int8Array(N)
     for (let k = 0; k < region.length; k++) t[region[k]!] = k < half ? 1 : -1

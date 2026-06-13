@@ -1,7 +1,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { dot } from '@/code/algebra/vector'
+import { latticeDispersion } from '@/code/measure/dispersion'
 
 // The discrete-to-continuous bridge. The base is DISCRETE, the 24 directions of {3,4,3,4}
 // have the finite symmetry F4, not the continuous rotation group SO(4). Yet at long wavelength
@@ -37,7 +37,7 @@ const probeDirections = (count: number): number[][] => {
 
 // the lattice dispersion on a direction set: omega(k) = sqrt(sum over directions of (1 - cos(k . dir)))
 const dispersion = (wave: number[], dirs: number[][]): number =>
-  Math.sqrt(dirs.reduce((sum, dir) => sum + (1 - Math.cos(dot(wave, dir))), 0))
+  Math.sqrt(latticeDispersion({ directions: dirs, wave }))
 
 // the anisotropy of the dispersion at a momentum scale: the spread of the speed omega/|k| over directions
 const anisotropyAtScale = (scale: number, dirs: number[][], probes: number[][]): number => {

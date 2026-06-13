@@ -17,6 +17,7 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/selves-tower-3434.ts
 
+import { pearson } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
@@ -35,20 +36,6 @@ function perm(a: number, b: number): [number, number] {
   if (a === 0 && b === 0) return [1, -1]
   if (a === 1 && b === -1) return [-1, 1]
   return [0, 0] // (-1, 1)
-}
-
-function pearson(a: number[], b: number[]): number {
-  const n = a.length
-  let ma = 0
-  let mb = 0
-  for (let i = 0; i < n; i++) { ma += a[i]!; mb += b[i]! }
-  ma /= n
-  mb /= n
-  let num = 0
-  let va = 0
-  let vb = 0
-  for (let i = 0; i < n; i++) { const da = a[i]! - ma; const db = b[i]! - mb; num += da * db; va += da * da; vb += db * db }
-  return va > 1e-9 && vb > 1e-9 ? num / Math.sqrt(va * vb) : 0
 }
 
 type StepFn = (tone: Int8Array, offsets: Uint32Array, adj: Uint32Array, rng: { next: () => number }) => void
@@ -105,7 +92,7 @@ function formPersistence(
   }
   let acc = 0
   let c = 0
-  for (let t = 0; t + opts.lag < series.length; t++) { acc += pearson(series[t]!, series[t + opts.lag]!); c++ }
+  for (let t = 0; t + opts.lag < series.length; t++) { acc += pearson({ a: series[t]!, b: series[t + opts.lag]!, epsilon: 1e-9 }); c++ }
   return acc / c
 }
 

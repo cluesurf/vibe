@@ -5,13 +5,14 @@
 // 16-spinor decomposes under su(5) as 1 + 10 + 5bar, so it HAS a singlet whose VEV preserves su(5).
 // Run: npx tsx code/experiment/p225-gut-breaking.ts
 
+import { dotVec, rootsAn, rootsDn } from '@/code/algebra/group/root-system'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
+const dot = dotVec
 const eq = (a: number[], b: number[]): boolean => a.length === b.length && a.every((x, i) => Math.abs(x - b[i]!) < 1e-9)
-function d5(): number[][] { const R: number[][] = []; for (let i = 0; i < 5; i++) for (let j = i + 1; j < 5; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0, 0]; v[i] = si; v[j] = sj; R.push(v) } return R }
-function a4(): number[][] { const R: number[][] = []; for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) if (i !== j) { const v = [0, 0, 0, 0, 0]; v[i] = 1; v[j] = -1; R.push(v) } return R }
+const d5 = (): number[][] => rootsDn(5)
+const a4 = (): number[][] => rootsAn(5)
 // A2 (+) A1 (the SM semisimple part) inside a root set
 function smIn(R: number[][]): boolean { for (const a of R) for (const b of R) { if (dot(a, b) !== -1) continue; const ab = a.map((x, i) => x + b[i]!); if (!R.some((r) => eq(r, ab))) continue; if (R.some((c) => dot(c, a) === 0 && dot(c, b) === 0)) return true } return false }
 

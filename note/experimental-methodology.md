@@ -83,6 +83,14 @@ as long as they are LABELED as such.
 - **Prior art.** Much of what we reproduce is established (the QCA to Dirac and Maxwell program, lattice gauge
   theory, classical group theory). We cite it. Reproducing known work is fine and valuable, dressing it as new
   is not.
+- **DRY, reuse the library.** All generalizable code lives in `code/`, and every experiment imports it. We do
+  NOT reinvent the wheel, copy-paste a substrate builder, re-roll a collision table, hand-write another BFS, or
+  hack a one-off helper inline. Before writing a function in a test, look for it in `code/` first. If it does
+  not exist and it is reusable, write the GENERAL version into the right `code/` module (`tool/`, `geometry/`,
+  `algebra/`, `substrate/`, `rule/`, `tone/`, `operator/`, `measure/`, `dynamics/`), unit-test it in the
+  conformance suite, and import it. A test file holds only the logic UNIQUE to its question. When two
+  experiments grow the same helper, that helper is promoted to `code/` and both import the one copy. Duplicated
+  or hacked-together code is a method failure, the same as a loose tolerance.
 
 ## 4. The standards each experiment must meet
 
@@ -112,6 +120,9 @@ These are the ways a test lies, and we hunt for them in our OWN work as hard as 
 - **Loose tolerance hiding a bug.** A 1e-2 epsilon where the quantity should be exact.
 - **Random reliance.** A pseudo-random fill, a random schedule, or a result that only holds averaged over seeds. The base is deterministic, so a test initial condition is a vacuum or a fixed pattern, and robustness comes from varying size, not seeds.
 - **Overclaim.** PASSED or novel for an L1 known fact or an L2 reproduction.
+- **Reinvented wheel.** A substrate, rule, collision table, BFS, fit, or algebra helper copy-pasted or
+  hand-rolled inline when it exists (or should exist) in `code/`. Duplicated and hacked-together code rots and
+  drifts out of sync, so it is forbidden. The general version goes in `code/` and every test imports it.
 
 ## 6. How we implement
 
@@ -123,8 +134,11 @@ These are the ways a test lies, and we hunt for them in our OWN work as hard as 
 - **The algebra layer.** Quaternions, Clifford algebra, and discrete exterior calculus, each with unit tests
   on its own identities (a 2pi rotation gives minus one, d composed with d is zero) so the spinor and field
   machinery is correct independent of the dynamics.
-- **The experiment.** One file per question, self-contained, with a single command to run, a clear set of
-  booleans, and a final line that states the result and its honest level.
+- **The experiment.** One file per question, with a single command to run, a clear set of booleans, and a
+  final line that states the result and its honest level. It is self-contained in its QUESTION, not in its
+  code. It imports the substrate, rule, collision, algebra, measures, controls, and fits from `code/`, and
+  holds only the logic unique to its question. A test that rebuilds shared machinery inline is rewritten to
+  import it.
 
 ## 7. How we verify and report
 

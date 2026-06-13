@@ -7,7 +7,7 @@
 // On the perception rule the only state is the vibe tones, so a durable higher-self must be a
 // SELF-SUSTAINING TONE-PATTERN, not a stored fill-structure. This test asks, honestly, whether such
 // patterns form. It measures two things at the arrow-driven dynamic balance:
-//   - PERSISTENCE: the temporal autocorrelation of the tone field, corr(tone at t, tone at t+lag). If it
+//   - PERSISTENCE: the temporal autocorrelation of the tone field, pearson({ a: tone at t, b: tone at t+lag }). If it
 //     stays high at long lag, coherent structure persists (durable selves). If it decays to zero, the
 //     balance is structureless churn (no durable selves).
 //   - IMPRINT MEMORY: imprint a pattern (a pleasure blob), run, and see whether it survives above the
@@ -15,27 +15,14 @@
 // Whatever the numbers say is the verdict. Charge Q is conserved throughout.
 // Run: npx tsx code/experiment/p101-self-emergence-perception.ts
 
+import { pearson } from '@/code/measure/statistics'
+import { neighborDistances } from '@/code/tool/graph'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(neighbors: number[][], n: number, src: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let frontier = [src]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const u of frontier) for (const w of neighbors[u]!) if (dist[w] === -1) {
-      dist[w] = (dist[u] ?? 0) + 1
-      next.push(w)
-    }
-    frontier = next
-  }
-  return dist
-}
 
 function edgesOf(neighbors: number[][]): Array<[number, number]> {
   const e: Array<[number, number]> = []
@@ -88,30 +75,6 @@ function beat(tone: Int8Array, edges: Array<[number, number]>, rng: Rng, arrowPr
 }
 
 // Pearson correlation of two tone snapshots
-function corr(x: Int8Array, y: Int8Array): number {
-  const n = x.length
-  let mx = 0
-  let my = 0
-  for (let i = 0; i < n; i++) {
-    mx += x[i]!
-    my += y[i]!
-  }
-  mx /= n
-  my /= n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    const dx = x[i]! - mx
-    const dy = y[i]! - my
-    sxy += dx * dy
-    sxx += dx * dx
-    syy += dy * dy
-  }
-  if (sxx === 0 || syy === 0) return 0
-  return sxy / Math.sqrt(sxx * syy)
-}
-
 export function selfEmergencePerception(): {
   cells: number
   conserved: boolean
@@ -146,7 +109,7 @@ export function selfEmergencePerception(): {
       beat(work, edges, rng, ARROW)
       done++
     }
-    autocorr.push({ lag, c: corr(base, work) })
+    autocorr.push({ lag, c: pearson({ a: base, b: work }) })
   }
   const longLagCorr = autocorr[autocorr.length - 1]!.c
   const conservedRun = sumTone(t) === q0
@@ -154,7 +117,7 @@ export function selfEmergencePerception(): {
   // IMPRINT MEMORY: imprint a pleasure blob, run, measure its survival above background
   let center = 0
   for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = bfs(neighbors, n, center)
+  const distC = neighborDistances({ neighbors, size: n, source: center })
   const imp = t.slice() // start from the balanced state
   const blob: number[] = []
   for (let i = 0; i < n; i++) if (dd(distC, i) <= 3) {

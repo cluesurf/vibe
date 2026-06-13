@@ -7,51 +7,13 @@
 // This is one rung. The full Einstein equations and the graviton are the long road
 // (see note/questions/next-version.md P16). Run: npx tsx code/experiment/p16-newtonian.ts
 
+import { cubicLattice, CubicLattice } from '@/code/substrate/cubic-lattice'
+import { graphLaplacian } from '@/code/operator/graph-laplacian'
+import { fitForm } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-interface Lat {
-  size: number
-  coords: Float64Array // size * dim
-  dim: number
-  neighbors: number[][]
-}
-
-// A d-dimensional cubic lattice of the given side length, coordinates in integer
-// units, nearest-neighbor adjacency.
-export function cubicLattice(side: number, dim: number): Lat {
-  const size = side ** dim
-  const coords = new Float64Array(size * dim)
-  const neighbors: number[][] = Array.from({ length: size }, () => [])
-  const coordOf = (idx: number): number[] => {
-    const c: number[] = []
-    let x = idx
-    for (let a = 0; a < dim; a++) {
-      c.push(x % side)
-      x = Math.floor(x / side)
-    }
-    return c
-  }
-  for (let i = 0; i < size; i++) {
-    const c = coordOf(i)
-    for (let a = 0; a < dim; a++) {
-      coords[i * dim + a] = c[a] ?? 0
-    }
-    for (let a = 0; a < dim; a++) {
-      if ((c[a] ?? 0) + 1 < side) {
-        let j = 0
-        let place = 1
-        for (let b = 0; b < dim; b++) {
-          j += ((c[b] ?? 0) + (b === a ? 1 : 0)) * place
-          place *= side
-        }
-        neighbors[i]?.push(j)
-        neighbors[j]?.push(i)
-      }
-    }
-  }
-  return { size, coords, dim, neighbors }
-}
+type Lat = CubicLattice
 
 function centerNode(lat: Lat, side: number): number {
   const mid = Math.floor(side / 2)
@@ -71,18 +33,6 @@ function distance(lat: Lat, i: number, j: number): number {
     s += d * d
   }
   return Math.sqrt(s)
-}
-
-// Apply the graph Laplacian L = D - A to a vector, using the sparse neighbor list.
-function applyLaplacian(lat: Lat, x: Float64Array, out: Float64Array): void {
-  for (let i = 0; i < lat.size; i++) {
-    const row = lat.neighbors[i] ?? []
-    let v = row.length * (x[i] ?? 0)
-    for (const j of row) {
-      v -= x[j] ?? 0
-    }
-    out[i] = v
-  }
 }
 
 function dot(a: Float64Array, b: Float64Array): number {
@@ -121,7 +71,7 @@ export function potentialProfile(input: { lat: Lat; side: number }): { r: number
   const temp = new Float64Array(n)
   let rsOld = dot(residual, residual)
   for (let iter = 0; iter < 5 * n; iter++) {
-    applyLaplacian(lat, direction, temp)
+    graphLaplacian({ neighbors: lat.neighbors, x: direction, out: temp })
     subtractMean(temp)
     const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)
     for (let i = 0; i < n; i++) {
@@ -155,31 +105,6 @@ export function potentialProfile(input: { lat: Lat; side: number }): { r: number
     out.push(phi[j] ?? 0)
   }
   return { r, phi: out }
-}
-
-// Fit phi(r) ~ a * f(r) + c by least squares (the constant absorbs the finite-box
-// offset). Returns the coefficient and the fit quality R^2.
-export function fitForm(r: number[], phi: number[], f: (x: number) => number): { a: number; r2: number } {
-  const g = r.map(f)
-  const n = g.length
-  const mg = g.reduce((a, b) => a + b, 0) / n
-  const mp = phi.reduce((a, b) => a + b, 0) / n
-  let cov = 0
-  let varg = 0
-  for (let i = 0; i < n; i++) {
-    cov += ((g[i] ?? 0) - mg) * ((phi[i] ?? 0) - mp)
-    varg += ((g[i] ?? 0) - mg) * ((g[i] ?? 0) - mg)
-  }
-  const a = varg === 0 ? 0 : cov / varg
-  const c = mp - a * mg
-  let ssRes = 0
-  let ssTot = 0
-  for (let i = 0; i < n; i++) {
-    const pred = a * (g[i] ?? 0) + c
-    ssRes += ((phi[i] ?? 0) - pred) * ((phi[i] ?? 0) - pred)
-    ssTot += ((phi[i] ?? 0) - mp) * ((phi[i] ?? 0) - mp)
-  }
-  return { a, r2: ssTot === 0 ? 0 : 1 - ssRes / ssTot }
 }
 
 export default defineExperiment({

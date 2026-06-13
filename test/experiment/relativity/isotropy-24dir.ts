@@ -6,18 +6,19 @@
 // (anisotropy only at order 6, matching p226 / F4), while Z3 and Z4 are anisotropic already at order 4. So the
 // 24 directions give emergent rotational symmetry the cubic lacks. Run: npx tsx code/experiment/p233-isotropy-24dir.ts
 
+import { rootsD4 } from '@/code/algebra/group/root-system'
+import { latticeDispersion } from '@/code/measure/dispersion'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
+  if (kind === 'D4') return rootsD4()
   const R: number[][] = []
   if (kind === 'Z3') { for (let i = 0; i < 3; i++) for (const s of [1, -1]) { const v = [0, 0, 0]; v[i] = s; R.push(v) } }
-  else if (kind === 'Z4') { for (let i = 0; i < 4; i++) for (const s of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = s; R.push(v) } }
-  else { for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; R.push(v) } }
+  else { for (let i = 0; i < 4; i++) for (const s of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = s; R.push(v) } }
   return R
 }
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * (b[i] ?? 0), 0)
-const omega2 = (R: number[][], k: number[]): number => R.reduce((s, d) => s + (1 - Math.cos(dot(k, d))), 0)
+const omega2 = (R: number[][], k: number[]): number => latticeDispersion({ directions: R, wave: k })
 
 // anisotropy: relative difference of omega^2 between an axis direction and a body-diagonal at the same |k|
 function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {

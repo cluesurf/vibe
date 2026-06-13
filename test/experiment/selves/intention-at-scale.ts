@@ -8,29 +8,12 @@
 // checks all three. Run: npx tsx code/experiment/p145-intention-at-scale.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return dist
-}
 
 function edges(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
   const eu: number[] = []
@@ -65,11 +48,11 @@ export function intentionAtScale(input?: { n?: number }): {
   const moved = new Uint8Array(N)
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const distC = bfs(g.offsets, g.adj, N, center)
+  const distC = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center })
   // target = a far cell (the goal direction); dT = distance to the target
   let target = 0
   for (let i = 1; i < N; i++) if (distC[i]! > distC[target]!) target = i
-  const dT = bfs(g.offsets, g.adj, N, target)
+  const dT = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: target })
   const rSelf = 4
   const self: number[] = []
   for (let i = 0; i < N; i++) if (distC[i]! <= rSelf) self.push(i)

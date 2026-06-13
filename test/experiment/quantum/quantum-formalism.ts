@@ -11,6 +11,7 @@
 
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { evolveByEigendecomposition } from '@/code/operator/unitary-evolution'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -26,47 +27,7 @@ function ringHamiltonian(n: number): ReturnType<typeof makeDense> {
 }
 
 // Evolve a complex state psi (re, im) under e^{-iHt} using the eigendecomposition.
-function evolve(input: {
-  eig: { values: number[] | Float64Array; vectors: Float64Array }
-  n: number
-  re0: Float64Array
-  im0: Float64Array
-  t: number
-}): { re: Float64Array; im: Float64Array } {
-  const { eig, n, re0, im0, t } = input
-  // Project onto eigenbasis, phase-rotate, project back.
-  const cRe = new Float64Array(n)
-  const cIm = new Float64Array(n)
-  for (let k = 0; k < n; k++) {
-    let ar = 0
-    let ai = 0
-    for (let i = 0; i < n; i++) {
-      const v = eig.vectors[i * n + k] ?? 0
-      ar += v * (re0[i] ?? 0)
-      ai += v * (im0[i] ?? 0)
-    }
-    const lambda = eig.values[k] ?? 0
-    const c = Math.cos(lambda * t)
-    const s = Math.sin(lambda * t)
-    // multiply (ar + i ai) by e^{-i lambda t} = c - i s
-    cRe[k] = ar * c + ai * s
-    cIm[k] = ai * c - ar * s
-  }
-  const re = new Float64Array(n)
-  const im = new Float64Array(n)
-  for (let i = 0; i < n; i++) {
-    let r = 0
-    let m = 0
-    for (let k = 0; k < n; k++) {
-      const v = eig.vectors[i * n + k] ?? 0
-      r += v * (cRe[k] ?? 0)
-      m += v * (cIm[k] ?? 0)
-    }
-    re[i] = r
-    im[i] = m
-  }
-  return { re, im }
-}
+const evolve = evolveByEigendecomposition
 
 function norm(re: Float64Array, im: Float64Array): number {
   let s = 0

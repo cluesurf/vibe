@@ -4,24 +4,16 @@
 // against D5 = so(10) (the minimal SO(N) GUT). Clean finite root-system computation.
 // Run: npx tsx code/experiment/p217-gauge-embedding.ts
 
+import { dotVec, rootsDn, vecEqExact } from '@/code/algebra/group/root-system'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// D_n roots: all +-e_i +-e_j (i<j), norm^2 = 2
-function dnRoots(n: number): number[][] {
-  const R: number[][] = []
-  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) for (const si of [1, -1]) for (const sj of [1, -1]) {
-    const v = new Array<number>(n).fill(0); v[i] = si; v[j] = sj; R.push(v)
-  }
-  return R
-}
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
-const eq = (a: number[], b: number[]): boolean => a.every((x, i) => x === b[i])
-const has = (R: number[][], v: number[]): boolean => R.some((r) => eq(r, v))
+const dot = dotVec
+const has = (R: number[][], v: number[]): boolean => R.some((r) => vecEqExact(r, v))
 
 // does D_n contain A2 (+) A1 (su(3) x su(2)), i.e. an A2 with a root orthogonal to all of it?
 function smEmbeds(n: number): { a2: boolean; a2a1: boolean; example?: string } {
-  const R = dnRoots(n)
+  const R = rootsDn(n)
   let a2Found = false
   for (const a of R) for (const b of R) {
     if (dot(a, b) !== -1) continue // 120 degrees -> A2 generator pair

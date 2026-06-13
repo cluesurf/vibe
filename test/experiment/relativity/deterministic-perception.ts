@@ -13,6 +13,7 @@
 // ballistically and can collide. Run: npx tsx code/experiment/p149-deterministic-perception.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { powerLawExponent } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -35,25 +36,6 @@ function totalCharge(tone: Int8Array): number {
   let s = 0
   for (let i = 0; i < tone.length; i++) s += tone[i]!
   return s
-}
-
-function fitExponent(times: number[], spreads: number[]): number {
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let m = 0
-  for (let i = 0; i < times.length; i++) {
-    if (spreads[i]! <= 0) continue
-    const x = Math.log(times[i]!)
-    const y = Math.log(spreads[i]!)
-    sx += x
-    sy += y
-    sxx += x * x
-    sxy += x * y
-    m++
-  }
-  return m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
 }
 
 export function deterministicPerception(input?: { L?: number; beats?: number }): {
@@ -117,7 +99,7 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
       spreads.push(w > 0 ? Math.sqrt(sx2 / w) : 0)
     }
   }
-  const spreadExponent = fitExponent(times, spreads)
+  const spreadExponent = powerLawExponent({ times, spreads })
   const isBallistic = spreadExponent > 0.8
 
   const solved = chargeConserved && reversible && isBallistic

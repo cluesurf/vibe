@@ -1,6 +1,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quaternion, multiply, quaternionKey } from '@/code/algebra/group/quaternion'
+import { icosahedronVertexDirections } from '@/code/algebra/group/root-system'
 
 // The last frontier, honest. The {5,3,4} GEOMETRY carries the spin structure (cocycle-534,
 // spin-connection-534, continuum-holonomy-534). Does the BARE conserving lattice-gas RULE, the five base
@@ -15,13 +16,7 @@ import { quaternion, multiply, quaternionKey } from '@/code/algebra/group/quater
 // (8s, 8c) so its bare rule has spin, the 12 directions of {5,3,4} do not.
 
 // the 12 icosahedral directions of {5,3,4}, the icosahedron vertices (0, +-1, +-phi) and cyclic
-const icosahedralDirections = (): number[][] => {
-  const phi = (1 + Math.sqrt(5)) / 2
-  const raw: number[][] = []
-  for (const a of [1, -1]) for (const b of [phi, -phi]) raw.push([0, a, b], [a, b, 0], [b, 0, a])
-  const norm = Math.hypot(...raw[0]!)
-  return raw.map((vector) => vector.map((value) => value / norm))
-}
+const icosahedralDirections = (): number[][] => icosahedronVertexDirections()
 
 const rotateZ180 = (vector: number[]): number[] => [-vector[0]!, -vector[1]!, vector[2]!] // a 2-fold axis of the icosahedron
 

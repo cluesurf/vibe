@@ -9,20 +9,10 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
+import { poincareDistance } from '@/code/geometry/distance'
+import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function hdist(x: number[], y: number[]): number {
-  let d2 = 0
-  let rx = 0
-  let ry = 0
-  for (let k = 0; k < x.length; k++) {
-    d2 += (x[k]! - y[k]!) ** 2
-    rx += x[k]! * x[k]!
-    ry += y[k]! * y[k]!
-  }
-  return Math.acosh(1 + (2 * d2) / Math.max(1e-12, (1 - rx) * (1 - ry)))
-}
 
 export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
   cells: number
@@ -50,11 +40,7 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
 
   // second-order reversible wave on the crystal, s in {0,1,2}, perturbation at the centre
   const stepWave = (prev: Uint8Array, cur: Uint8Array, next: Uint8Array): void => {
-    for (let i = 0; i < N; i++) {
-      let sum = 0
-      for (const j of g.neighbors[i]!) sum += cur[j]!
-      next[i] = (((sum - prev[i]!) % 3) + 3) % 3
-    }
+    reversibleWaveStep({ neighbors: g.neighbors, previous: prev, current: cur, next, modulus: 3 })
   }
   let prev = new Uint8Array(N)
   let cur = new Uint8Array(N)
@@ -102,7 +88,7 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
         bd = m
       }
     }
-    const d = hdist(coords[0]!, c)
+    const d = poincareDistance(coords[0]!, c)
     if (d > frontDist[bd]!) frontDist[bd] = d
   }
   const frontSpeeds = frontDist.filter((d) => d > 0).map((d) => d / beats)

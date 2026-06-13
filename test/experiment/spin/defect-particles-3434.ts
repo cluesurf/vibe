@@ -6,24 +6,25 @@
 // behavior. This completes the persistence-to-particle story (PS5) on top of p257.
 // Run: npx tsx code/experiment/p258-defect-particles-3434.ts
 
+import { phaseWinding } from '@/code/measure/winding'
+import { Complex2, ringFieldEnergy, relaxRingField } from '@/code/dynamics/ginzburg-landau'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Z = { re: number; im: number }
-function winding(theta: number[]): number {
-  const L = theta.length; let w = 0
-  for (let i = 0; i < L; i++) { let d = theta[(i + 1) % L]! - theta[i]!; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; w += d }
-  return Math.round(w / (2 * Math.PI))
-}
+type Z = Complex2
+const winding = (theta: number[]): number => phaseWinding(theta)
 const phase = (z: Z): number => Math.atan2(z.im, z.re)
-const energy = (psi: Z[]): number => { const L = psi.length; let e = 0; for (let i = 0; i < L; i++) { const a = psi[(i + 1) % L]!, z = psi[i]!; e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2 } return e }
+const energy = (psi: Z[]): number => ringFieldEnergy(psi)
 function relax(psi: Z[], steps: number, dt: number): { hist: number[]; final: Z[] } {
-  const L = psi.length; let cur = psi.map((z) => ({ ...z })); const hist: number[] = []
-  for (let t = 0; t < steps; t++) {
-    const next = cur.map((z, i) => { const a = cur[(i + 1) % L]!, b = cur[(i + L - 1) % L]!; const lapRe = a.re + b.re - 2 * z.re, lapIm = a.im + b.im - 2 * z.im; const r2 = z.re * z.re + z.im * z.im, restore = 1 - r2; return { re: z.re + dt * (lapRe + restore * z.re), im: z.im + dt * (lapIm + restore * z.im) } })
-    cur = next; if (t % 500 === 0) hist.push(winding(cur.map(phase)))
-  }
-  return { hist, final: cur }
+  const hist: number[] = []
+  const final = relaxRingField({
+    field: psi,
+    steps,
+    dt,
+    sampleEvery: 500,
+    onSample: (cur) => hist.push(winding(cur.map(phase))),
+  })
+  return { hist, final }
 }
 // build a field of total winding w with the phase ramping smoothly around the ring
 const fieldWithWinding = (L: number, w: number): Z[] => Array.from({ length: L }, (_, x) => ({ re: Math.cos(2 * Math.PI * w * x / L), im: Math.sin(2 * Math.PI * w * x / L) }))

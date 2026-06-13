@@ -8,20 +8,10 @@
 // Whether such a term emerges, and at what scale, is an open question. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p18-dark-matter.ts
 
-import { cubicLattice } from '@/test/experiment/gravity/newtonian'
+import { cubicLattice } from '@/code/substrate/cubic-lattice'
+import { graphLaplacian } from '@/code/operator/graph-laplacian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function applyLaplacian(neighbors: number[][], x: Float64Array, out: Float64Array): void {
-  for (let i = 0; i < x.length; i++) {
-    const row = neighbors[i] ?? []
-    let v = row.length * (x[i] ?? 0)
-    for (const j of row) {
-      v -= x[j] ?? 0
-    }
-    out[i] = v
-  }
-}
 
 function subtractMean(x: Float64Array): void {
   let m = 0
@@ -52,7 +42,7 @@ function cgSolve(neighbors: number[][], b: Float64Array): Float64Array {
   const tmp = new Float64Array(n)
   let rs = dot(r, r)
   for (let it = 0; it < 5 * n; it++) {
-    applyLaplacian(neighbors, p, tmp)
+    graphLaplacian({ neighbors, x: p, out: tmp })
     subtractMean(tmp)
     const alpha = rs / Math.max(dot(p, tmp), 1e-300)
     for (let i = 0; i < n; i++) {

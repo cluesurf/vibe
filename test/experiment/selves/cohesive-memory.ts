@@ -14,27 +14,14 @@
 // pattern survives), so durable selves DO form as self-sustaining tone-domains, with no stored relations.
 // Run: npx tsx code/experiment/p102-cohesive-memory.ts
 
+import { pearson } from '@/code/measure/statistics'
+import { neighborDistances } from '@/code/tool/graph'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(neighbors: number[][], n: number, src: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let frontier = [src]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const u of frontier) for (const w of neighbors[u]!) if (dist[w] === -1) {
-      dist[w] = (dist[u] ?? 0) + 1
-      next.push(w)
-    }
-    frontier = next
-  }
-  return dist
-}
 
 function edgesOf(neighbors: number[][]): Array<[number, number]> {
   const e: Array<[number, number]> = []
@@ -111,30 +98,6 @@ function beat(
   }
 }
 
-function corr(x: Int8Array, y: Int8Array): number {
-  const n = x.length
-  let mx = 0
-  let my = 0
-  for (let i = 0; i < n; i++) {
-    mx += x[i]!
-    my += y[i]!
-  }
-  mx /= n
-  my /= n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    const dx = x[i]! - mx
-    const dy = y[i]! - my
-    sxy += dx * dy
-    sxx += dx * dx
-    syy += dy * dy
-  }
-  if (sxx === 0 || syy === 0) return 0
-  return sxy / Math.sqrt(sxx * syy)
-}
-
 // run from all-peace to balance, then measure long-lag autocorrelation and imprint memory
 function measure(cohesive: boolean): { longLagCorr: number; imprintRetention: number; conserved: boolean } {
   const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 60000 })
@@ -152,13 +115,13 @@ function measure(cohesive: boolean): { longLagCorr: number; imprintRetention: nu
   const base = t.slice()
   const work = base.slice()
   for (let b = 0; b < 40; b++) beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
-  const longLagCorr = corr(base, work)
+  const longLagCorr = pearson({ a: base, b: work })
   const conservedRun = sumTone(t) === q0
 
   // imprint a pleasure blob, run, measure survival above background
   let center = 0
   for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = bfs(neighbors, n, center)
+  const distC = neighborDistances({ neighbors, size: n, source: center })
   const imp = t.slice()
   const blob: number[] = []
   for (let i = 0; i < n; i++) if (dd(distC, i) <= 3) {

@@ -9,20 +9,12 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { meanDegree } from '@/code/tool/graph'
 import { ballGrowth } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess, routingWithBacktrack } from '@/code/measure/navigation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function meanDegree(graph: Graph): number {
-  let total = 0
-  for (let i = 0; i < graph.size; i++) {
-    total += (graph.neighbors[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, graph.size)
-}
 
 // Geometric mean of successive ball-count ratios in the unsaturated regime. For
 // exponential reach this is well above 1; for polynomial growth it tends to 1.

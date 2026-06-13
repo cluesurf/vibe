@@ -13,23 +13,11 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
+import { edgesFromCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 const sumTone = (t: Int8Array): number => {
   let s = 0
