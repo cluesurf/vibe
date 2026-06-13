@@ -4,6 +4,7 @@
 // 2D anyonic, fundamentally DIFFERENT from the 3D fermions of {3,4,3,4}. The form-coherence tower is a generic
 // slow-mode (NEUTRAL, same as {3,4,3,4} P208). Run: npx tsx code/experiment/s534-selves.ts
 
+import { dot } from '@/code/algebra/vector'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,7 +14,6 @@ export function s534Selves(): { solitonsExist: boolean; fermionic: boolean; anyo
   const L = 41, c = (L - 1) / 2, R = 12
   const n = (x: number, y: number): number[] => { const dx = x - c, dy = y - c, r = Math.hypot(dx, dy); const f = Math.PI * Math.min(1, r / R); const s = Math.sin(f); return r < 1e-9 ? [0, 0, 1] : [s * dx / r, s * dy / r, Math.cos(f)] }
   const cross = (a: number[], b: number[]): number[] => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!]
-  const dot = (a: number[], b: number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
   const tri = (p: number[], q: number[], r: number[]): number => { const num = dot(p, cross(q, r)); const den = 1 + dot(p, q) + dot(q, r) + dot(r, p); return 2 * Math.atan2(num, den) }
   let Q = 0
   for (let x = 0; x < L - 1; x++) for (let y = 0; y < L - 1; y++) {

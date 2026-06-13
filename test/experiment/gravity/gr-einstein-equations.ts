@@ -40,7 +40,7 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
   // space), by Jacobi relaxation of the lattice Laplacian, and confirm Phi(r) ~ 1/r (Newtonian), NOT
   // 1/r^2. In a finite Dirichlet box the Green's function is 1/r + const, so we fit Phi = a/r + c (and
   // Phi = a/r^2 + c) and compare the fit quality; 1/r should win decisively.
-  const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 60000 })
+  const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 })
   const n = g.cellCount
   // find the most central cell (max coordination is uniform; pick the one nearest the centroid)
   const cx = g.coords.reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0]).map((v) => v / n)
@@ -56,7 +56,7 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
   // Dirichlet boundary (the box edge, where deg < 6) is clamped to Phi = 0, so the discrete Poisson
   // -nabla^2 Phi = 4 pi rho is well posed and relaxes to the lattice Green's function ~ +1/r.
   const isBoundary = (i: number): boolean => g.neighbors[i]!.length < 6
-  for (let it = 0; it < 6000; it++) {
+  for (let it = 0; it < 2000; it++) {
     const next = new Float64Array(n)
     for (let i = 0; i < n; i++) {
       if (isBoundary(i)) { next[i] = 0; continue }

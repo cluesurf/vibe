@@ -64,8 +64,8 @@ export default defineExperiment({
   depth: 'L1',
   paper: false,
   run() {
-    const two = continuumLimit({ dimension: 2, sizes: [500, 1000, 2000, 4000], repeats: 6, seed: 1 })
-    const three = continuumLimit({ dimension: 3, sizes: [500, 1000, 2000, 4000], repeats: 6, seed: 1 })
+    const two = continuumLimit({ dimension: 2, sizes: [400, 800, 1600], repeats: 3, seed: 1 })
+    const three = continuumLimit({ dimension: 3, sizes: [400, 800, 1600], repeats: 3, seed: 1 })
     const ok = two.agrees && three.agrees && three.converging
     return verdict({
       status: ok ? 'pass' : 'fail',

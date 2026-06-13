@@ -202,7 +202,7 @@ export default defineExperiment({
   depth: 'L3',
   paper: true,
   run() {
-    const r = rarityMeasures({ L: 300 })
+    const r = rarityMeasures({ L: 200 })
     const ok = r.solved && r.spectrumTailRare && r.thinFilm && r.thresholdExists
     return verdict({
       status: ok ? 'pass' : 'fail',

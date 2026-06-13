@@ -37,6 +37,10 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { Graph } from '@/code/tool/graph'
 import { buildDodecagrid, buildDodecagridFast } from '@/code/substrate/coxeter/cell-scale'
 import { allFinite } from '@/test/scaffold/numeric'
+import { dot as vdot, norm as vnorm, sub as vsub, normalize as vnormalize, innerJ } from '@/code/algebra/vector'
+import { bfsShells, geodesicBall } from '@/code/measure/shells'
+import { toCsr } from '@/code/tool/graph'
+import { pack as packTone, currentOf, previousOf, signedTone } from '@/code/tone/pack'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -401,6 +405,29 @@ export function runConformance(): { passed: number; failed: number } {
       ok: identical,
       detail: `${b.cellCount} cells, facet ${b.facetCount}, adjacency identical ${identical}`,
     })
+  }
+
+  // refactor primitives: the reusable kit extracted from the experiments
+  {
+    // vector ops
+    check({ name: 'vector dot/norm', ok: vdot([1, 2, 2], [1, 2, 2]) === 9 && vnorm([3, 4]) === 5 })
+    check({ name: 'vector sub/normalize', ok: vsub([5, 5], [1, 1])[0] === 4 && Math.abs(vnorm(vnormalize([3, 4])) - 1) < 1e-12 })
+    check({ name: 'vector innerJ (Minkowski)', ok: innerJ([1, 1, 1], [1, 1, 1], [1, 1, -1]) === 1 })
+
+    // bfs shells on a 1D path graph (shells of size 1 from an end, branching ~1)
+    const path = Array.from({ length: 6 }, (_, i) => [i - 1, i + 1].filter((j) => j >= 0 && j < 6))
+    const sh = bfsShells({ neighbors: path, root: 0 })
+    check({ name: 'bfsShells path graph', ok: sh.shellCounts.length === 6 && sh.shellCounts.every((c) => c === 1) && sh.depth[5] === 5 })
+    const ball = geodesicBall({ neighbors: path, root: 0, radius: 2 })
+    check({ name: 'geodesicBall radius 2', ok: ball.length === 3 })
+
+    // csr round-trip
+    const csr = toCsr([[1, 2], [0], [0]])
+    check({ name: 'toCsr offsets/adj', ok: csr.offsets[0] === 0 && csr.offsets[1] === 2 && csr.offsets[3] === 4 && csr.adj.length === 4 })
+
+    // tone pack round-trip and signed mapping
+    const pk = packTone({ current: 1, previous: 2 })
+    check({ name: 'tone pack/unpack', ok: currentOf(pk) === 1 && previousOf(pk) === 2 && signedTone(1) === 1 && signedTone(2) === -1 && signedTone(0) === 0 })
   }
 
   return { passed, failed }

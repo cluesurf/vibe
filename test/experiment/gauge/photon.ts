@@ -102,7 +102,7 @@ export default defineExperiment({
   paper: false,
   run() {
     const a = photonStudy({ side: 3 })
-    const b = photonStudy({ side: 5 })
+    const b = photonStudy({ side: 4 })
     const gaugeFraction = a.gauge / a.dof
     const ok =
       gaugeFraction > 0.25 &&

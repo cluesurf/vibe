@@ -7,6 +7,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { signedTone } from '@/code/tone/pack'
 
 const L = 24
 const N = L * L * L
@@ -22,7 +23,7 @@ export function eternalBootstrap(): { reversibleEternal: boolean; reversibleCons
   // (1) the REVERSIBLE mod-3 wave from RANDOM init (no seed)
   const cur0 = new Int8Array(N), prev0 = new Int8Array(N)
   for (let i = 0; i < N; i++) { cur0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2; prev0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2 }
-  const netCharge = (a: Int8Array): number => { let s = 0; for (let i = 0; i < N; i++) s += (a[i] === 1 ? 1 : a[i] === 2 ? -1 : 0); return s }
+  const netCharge = (a: Int8Array): number => { let s = 0; for (let i = 0; i < N; i++) s += signedTone(a[i]!); return s }
   let cur = cur0.slice(), prev = prev0.slice()
   const c0 = netCharge(cur)
   const activity: number[] = []

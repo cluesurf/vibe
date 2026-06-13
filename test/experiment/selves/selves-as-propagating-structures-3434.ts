@@ -19,6 +19,7 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { toCsr } from '@/code/tool/graph'
 
 // ---------- the RIGHT measure ----------
 // Given a sequence of "occupied-cell" sets (the pattern over time), a self scores high on:
@@ -104,10 +105,7 @@ function perm(a: number, b: number): [number, number] {
 function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
   const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 })
   const n = g.cellCount
-  const offsets = new Int32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(offsets[n]!)
-  { let p = 0; for (let i = 0; i < n; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
+  const { offsets, adj } = toCsr(g.neighbors)
   // a localized +1 blob near the centre in a sea of 0 (a "particle" seed)
   const tone = new Int8Array(n)
   const cx = g.coords.reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0]).map((v) => v / n)

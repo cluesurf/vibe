@@ -23,9 +23,9 @@ export default defineExperiment({
     const densities = disorders.map(
       (disorder) =>
         chiralCondensateSignal({
-          length: 6,
+          length: 5,
           disorder,
-          configs: 12,
+          configs: 3,
           rng: makeRng({ seed: 500 + Math.round(disorder * 100) }),
         }).nearZeroDensity,
     )

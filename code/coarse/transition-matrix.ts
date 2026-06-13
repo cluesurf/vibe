@@ -4,6 +4,23 @@
 // negative. The eigenvalues are computed on the reversibilized symmetric matrix, so a symmetric Jacobi
 // solver suffices and the values are exact-real, not a non-symmetric approximation.
 
+// Quantile-bin a continuous series into equal-occupancy integer labels in [0, bins). Every bin is populated,
+// which avoids the spurious eigenvalue-1 modes that empty fixed bins would produce in the Markov model.
+export function quantileLabels(input: { series: number[]; bins: number }): number[] {
+  const { series, bins } = input
+  if (series.length === 0) return []
+  const sorted = [...series].sort((a, b) => a - b)
+  const thresholds = Array.from(
+    { length: bins - 1 },
+    (_, k) => sorted[Math.floor(((k + 1) / bins) * sorted.length)] ?? sorted[sorted.length - 1]!,
+  )
+  return series.map((x) => {
+    let b = 0
+    while (b < bins - 1 && x > thresholds[b]!) b++
+    return b
+  })
+}
+
 // Count matrix at lag tau. counts[i][j] = number of times the trajectory is in state i at time t and state
 // j at time t+tau. The trajectory is an array of integer state labels in [0, stateCount).
 export function countMatrix(input: {
@@ -86,7 +103,9 @@ export function transitionEigenvalues(counts: number[][]): number[] {
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     const di = degree[i]!
     const dj = degree[j]!
-    s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : i === j ? 1 : 0
+    // an unvisited state (degree 0) is left at 0, so it contributes a zero eigenvalue, not a spurious slow
+    // mode at 1. Spurious 1-eigenvalues from empty bins would otherwise mask the real spectral gap.
+    s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : 0
   }
   return symmetricEigenvalues(s)
 }

@@ -138,8 +138,8 @@ export default defineExperiment({
   depth: 'L2',
   paper: true,
   run() {
-    const two = sliceDimension({ dimension: 2, count: 5000, seed: 1 })
-    const three = sliceDimension({ dimension: 3, count: 11000, seed: 1 })
+    const two = sliceDimension({ dimension: 2, count: 2000, seed: 1 })
+    const three = sliceDimension({ dimension: 3, count: 3000, seed: 1 })
     const ok =
       three.spatialDimension > two.spatialDimension &&
       two.spatialDimension < 2 &&

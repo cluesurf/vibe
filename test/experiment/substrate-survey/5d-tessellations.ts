@@ -5,6 +5,7 @@
 // scale and measure the scoreboard. Run: npx tsx code/experiment/5d-tessellations.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -19,12 +20,12 @@ const CANDIDATES: Cand[] = [
 ]
 
 const SCALE = 30000
+const SURVEY_SCALE = 1500
 
-function measure(sym: number[]): { cells: number; degree: number; specDim: number; growth: number; betheAlpha: number } {
-  const g = buildCellGraph({ symbol: sym as never, maxCells: SCALE })
+function measure(sym: number[], scale: number = SCALE): { cells: number; degree: number; specDim: number; growth: number; betheAlpha: number } {
+  const g = buildCellGraph({ symbol: sym as never, maxCells: scale })
   const N = g.cellCount, nb = g.neighbors
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+  const { offsets: off, adj } = toCsr(nb)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
   // bulk spectral dimension (lazy-walk return)
@@ -47,7 +48,7 @@ export function manyTessellations(): void {
     const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
     const has24 = c.sym.join(',').includes('3,4,3')
     const compact = bulkDim <= 4 // compact regular hyperbolic honeycombs exist only through H^4
-    const m = measure(c.sym)
+    const m = measure(c.sym, SURVEY_SCALE)
   }
 }
 

@@ -9,16 +9,14 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
 
 export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boolean } {
   const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 30000 })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
+  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = g.neighbors[i]!.length; if (d > best) { best = d; center = i } }
   // radial BFS tree, shell sizes = the boundary size at each radius; branching = shell ratio
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } if (nf.length) shell.push(nf.length); fr = nf }
+  const shell = bfsShells({ neighbors: g.neighbors, root: center }).shellCounts
   const mid = shell.slice(2, Math.min(7, shell.length))
   const branching = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100
   // holographic relation, radial depth d to reach a shell of size S is ~ log_branching(S)

@@ -5,6 +5,7 @@
 // Run: npx tsx code/experiment/2d-tessellations.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -27,8 +28,7 @@ function measure(sym: number[]): { ok: boolean; cells: number; degree: number; g
     const g = buildCellGraph({ symbol: sym as never, maxCells: SCALE })
     const N = g.cellCount, nb = g.neighbors
     if (N < 50) return { ok: false, cells: N, degree: 0, growth: 0, betheAlpha: 0 }
-    const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + nb[i]!.length
-    const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of nb[i]!) adj[p++] = w }
+    const { offsets: off, adj } = toCsr(nb)
     let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
     const degree = best
     const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]

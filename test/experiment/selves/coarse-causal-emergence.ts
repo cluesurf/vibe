@@ -32,9 +32,7 @@ export default defineExperiment({
 
     // structured map, merge each block of adjacent fine bins into one macro bin.
     const block = fine / macroCount
-    const spatial = traj.labels.map(() => 0)
     const spatialGroups = Array.from({ length: fine }, (_, i) => Math.floor(i / block))
-    void spatial
     const eiSpatial = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: spatialGroups }))
 
     // random map of the same coarseness, the control.

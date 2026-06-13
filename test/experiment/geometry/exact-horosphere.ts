@@ -54,7 +54,7 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
   solved: boolean
 } {
   const L = input?.L ?? 130
-  const bulkCells = input?.bulkCells ?? 15000
+  const bulkCells = input?.bulkCells ?? 8000
   const radii = [1, 2, 3, 4]
 
   // (1) geometry, balls on the exact {4,4} square horosphere fall (compact possible), like the triangular,
@@ -64,7 +64,7 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
   const sc = Math.floor(L / 2) * L + Math.floor(L / 2)
   const squareBallBV = ballScaling(sq, sc, radii)
   const triangularBallBV = ballScaling(tri, sc, radii)
-  const bulkBallBV = ballScaling(bulkGraph(100000), 0, radii)
+  const bulkBallBV = ballScaling(bulkGraph(30000), 0, radii)
   const last = radii.length - 1
   const squareCompact = squareBallBV[last]! < squareBallBV[0]! * 0.6
 

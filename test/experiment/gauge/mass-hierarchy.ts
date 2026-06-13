@@ -13,6 +13,8 @@
 // Run: npx tsx code/experiment/p81-mass-hierarchy.ts
 
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
+import { bfsShells } from '@/code/measure/shells'
+import { neighborsOf } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -55,23 +57,8 @@ function meanInterShellDistance(): number {
     return Math.acosh(1 + (2 * d) / Math.max(1e-12, (1 - na) * (1 - nb)))
   }
   // BFS shells
-  const shell = new Int32Array(g.size).fill(-1)
-  shell[center] = 0
-  let frontier = [center]
-  let maxShell = 0
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
-        if (shell[w] === -1) {
-          shell[w] = (shell[v] ?? 0) + 1
-          maxShell = Math.max(maxShell, shell[w]!)
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
+  const { depth: shell, shellCounts } = bfsShells({ neighbors: neighborsOf(g), root: center })
+  const maxShell = shellCounts.length - 1
   // mean hyperbolic distance from center to each shell, then the step between consecutive shells
   const sums = new Float64Array(maxShell + 1)
   const counts = new Int32Array(maxShell + 1)

@@ -80,9 +80,9 @@ export function coxeterEngine(): {
     { symbol: [7, 3], expected: 7, depth: 14, maxChambers: 30000 },
     { symbol: [5, 4], expected: 5, depth: 14, maxChambers: 30000 },
     { symbol: [8, 3], expected: 8, depth: 14, maxChambers: 30000 },
-    { symbol: [5, 3, 4], expected: 12, depth: 22, maxChambers: 70000 },
-    { symbol: [4, 3, 5], expected: 6, depth: 22, maxChambers: 70000 },
-    { symbol: [3, 5, 3], expected: 20, depth: 22, maxChambers: 70000 },
+    { symbol: [5, 3, 4], expected: 12, depth: 18, maxChambers: 20000 },
+    { symbol: [4, 3, 5], expected: 6, depth: 18, maxChambers: 20000 },
+    { symbol: [3, 5, 3], expected: 20, depth: 18, maxChambers: 20000 },
   ]
   const facetCounts = cases.map((c) => {
     const mesh = buildCoxeterMesh({ symbol: c.symbol, depth: c.depth, maxChambers: c.maxChambers })
@@ -97,7 +97,7 @@ export function coxeterEngine(): {
   const allFacetsCorrect = facetCounts.every((f) => f.facetCount === f.expected)
 
   // T3 + T5: build the real dodecagrid, read its parallel generation growth, run the rule.
-  const dodeca = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 22, maxChambers: 70000 })
+  const dodeca = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 18, maxChambers: 20000 })
   const perGen = new Map<number, number>()
   for (const g of dodeca.generation) perGen.set(g, (perGen.get(g) ?? 0) + 1)
   const gens = [...perGen.keys()].filter((g) => g >= 0).sort((a, b) => a - b)

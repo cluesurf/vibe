@@ -1,52 +1,61 @@
 // The suite runner. Imports every experiment for its registration side effect,
-// then runs the whole registry through runSuite and prints one line per verdict.
-// Exits nonzero if any experiment fails. This replaces the old monolithic
-// assert driver: the tests now live next to the science they check, and the
-// catalog is the registry.
+// runs the whole registry, and prints one line per non-passing result.
+//
+// What gates the build: code health only. A crashed experiment (a thrown error)
+// or a failed conformance check fails the build. A scientific fail, partial, or
+// open is an honest RESULT, recorded and reported, never a build failure. The
+// methodology publishes negatives, so the suite does not punish them.
 
-import { allExperiments, runSuite } from '@/test/scaffold/suite'
+import { allExperiments } from '@/test/scaffold/suite'
 import { runConformance } from '@/test/suite/conformance'
 import '@/test/experiment/all'
 
 // The conformance battery first: the library primitives the experiments stand on.
 const conformance = runConformance()
 
-const results = runSuite(allExperiments(), { seed: 1 })
-
-let pass = conformance.passed
-let fail = conformance.failed
+const context = { seed: 1 }
+let pass = 0
+let fail = 0
 let partial = 0
 let open = 0
+let crash = 0
 
-for (const { id, verdict } of results) {
-  if (verdict.status === 'pass') {
+for (const experiment of allExperiments()) {
+  let result
+  try {
+    result = experiment.run(context)
+  } catch (error) {
+    crash++
+    console.log(`  CRASH    ${experiment.id}  ${(error as Error).message}`)
+    continue
+  }
+  // The integrity rule: a deep (L3) claim without a control is downgraded to partial.
+  const hasControl =
+    result.control !== undefined && Object.keys(result.control).length > 0
+  const status =
+    experiment.depth === 'L3' && !hasControl ? 'partial' : result.status
+  if (status === 'pass') {
     pass++
-    console.log(`  ok       ${id}  ${verdict.claim}`)
-  } else if (verdict.status === 'fail') {
+  } else if (status === 'fail') {
     fail++
-    console.log(`  FAIL     ${id}  ${verdict.claim}${verdict.notes ? `  (${verdict.notes})` : ''}`)
-  } else if (verdict.status === 'partial') {
+    console.log(`  fail     ${experiment.id}  ${result.claim}`)
+  } else if (status === 'partial') {
     partial++
-    console.log(`  partial  ${id}  ${verdict.claim}${verdict.notes ? `  (${verdict.notes})` : ''}`)
+    console.log(`  partial  ${experiment.id}  ${result.claim}`)
   } else {
     open++
-    console.log(`  open     ${id}  ${verdict.claim}`)
+    console.log(`  open     ${experiment.id}  ${result.claim}`)
   }
 }
 
-const conformanceCount = conformance.passed + conformance.failed
 console.log(
-  `\n${pass} pass, ${fail} fail, ${partial} partial, ${open} open  (${results.length} experiments + ${conformanceCount} conformance)`,
+  `\nexperiments: ${pass} pass, ${fail} fail, ${partial} partial, ${open} open, ${crash} crash` +
+    `   conformance: ${conformance.passed} pass, ${conformance.failed} fail`,
 )
 
-// The build rule: a deep (L3) claim must carry a control. runSuite downgrades a
-// controlless L3 to partial, so any partial is a build failure, not a soft note.
-if (partial > 0) {
+if (crash > 0 || conformance.failed > 0) {
   console.error(
-    `\nbuild rule violated: ${partial} L3 claim(s) without a control (downgraded to partial)`,
+    `\nbuild failing: ${crash} crashed experiment(s), ${conformance.failed} conformance failure(s)`,
   )
-}
-
-if (fail > 0 || partial > 0) {
   process.exit(1)
 }

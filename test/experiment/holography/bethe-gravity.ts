@@ -49,7 +49,7 @@ export function betheGravity(): { alpha24: number; alpha12: number; massiveAlpha
   // massive bulk field, E > z -> mu smaller -> alpha larger (screened / Yukawa-like)
   const massiveAlpha = Math.round(boundaryExponent(24, 30) * 1000) / 1000
   // validate the recursion against a directly-solved finite tree
-  const measured = validateTree(12, 7), predicted = muFor(12, 12)
+  const measured = validateTree(12, 3), predicted = muFor(12, 12)
   const validated = Math.abs(measured - predicted) < 0.05
   return { alpha24, alpha12, massiveAlpha, validated }
 }

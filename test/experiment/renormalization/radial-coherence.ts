@@ -12,6 +12,8 @@
 // the scaffold the dynamics could not make on its own. Run: npx tsx code/experiment/p187-radial-coherence.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { busemann, idealDirection } from '@/code/substrate/horosphere'
+import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -72,36 +74,13 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   const symbol = input?.symbol ?? [5, 3, 4]
   const g = buildCellGraph({ symbol, maxCells: n })
   const N = g.cellCount
-  const dim = g.coords[0]!.length
 
   // CSR adjacency
-  const off = new Int32Array(N + 1)
-  for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!)
-  {
-    let p = 0
-    for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w
-  }
+  const { offsets: off, adj } = toCsr(g.neighbors)
 
   // Busemann function (ideal point = farthest cell), the radial coordinate
-  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-  let far = 0
-  let fr = -1
-  for (let i = 0; i < N; i++) {
-    const r = norm(g.coords[i]!)
-    if (r > fr) {
-      fr = r
-      far = i
-    }
-  }
-  const fc = g.coords[far]!
-  const fn = norm(fc)
-  const xi = fc.map((v) => v / fn)
-  const bus = g.coords.map((x) => {
-    let d2 = 0
-    for (let k = 0; k < dim; k++) d2 += (x[k]! - xi[k]!) ** 2
-    return Math.log(d2 / Math.max(1e-12, 1 - x.reduce((s, v) => s + v * v, 0)))
-  })
+  const xi = idealDirection(g.coords)
+  const bus = busemann({ coords: g.coords, ideal: xi })
 
   // radial PARENT, the neighbour most inward (smallest Busemann), the tree toward the root
   const parent = new Int32Array(N)

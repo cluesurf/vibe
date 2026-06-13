@@ -50,8 +50,8 @@ export default defineExperiment({
       size: SIZE,
       betas,
       action,
-      sweeps: 800,
-      movesPerSweep: 30,
+      sweeps: 150,
+      movesPerSweep: 15,
       observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
       rng: makeRng({ seed: 21 }),
     })

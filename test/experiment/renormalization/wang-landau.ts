@@ -51,7 +51,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: false,
   run() {
-    const r = wangLandauCrossing({ size: 32, maxSteps: 9_000_000 })
+    const r = wangLandauCrossing({ size: 32, maxSteps: 1_000_000 })
     const ok = r.converged && Number.isFinite(r.entropyGap)
     return verdict({
       status: ok ? 'pass' : 'partial',

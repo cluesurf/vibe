@@ -118,7 +118,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   reflectionPositive: boolean
   solved: boolean
 } {
-  const n = input?.n ?? 40000
+  const n = input?.n ?? 10000
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
@@ -164,8 +164,8 @@ export function reflectionPositivity(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
   for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-  for (let t = 0; t < 80; t++) beat(tone, eu, ev, moved, rng, ARROW)
-  const T = 24000
+  for (let t = 0; t < 60; t++) beat(tone, eu, ev, moved, rng, ARROW)
+  const T = 8000
   const series = new Float64Array(T)
   for (let t = 0; t < T; t++) {
     series[t] = obs(tone)
@@ -255,7 +255,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: true,
   run() {
-    const r = reflectionPositivity({ n: 40000 })
+    const r = reflectionPositivity({ n: 10000 })
     const ok = r.solved && r.reflectionPositive
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -15,6 +15,7 @@
 
 import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { bfsShells } from '@/code/measure/shells'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -54,25 +55,9 @@ function proximityGraph(coords: number[][]): number[][] {
   return g
 }
 
-function bfsDist(neighbors: number[][], seed: number): Int32Array {
-  const n = neighbors.length
-  const d = new Int32Array(n).fill(-1)
-  d[seed] = 0
-  let fr = [seed]
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (const w of neighbors[u]!) if (d[w] === -1) {
-      d[w] = d[u]! + 1
-      next.push(w)
-    }
-    fr = next
-  }
-  return d
-}
-
 // single-charge random walk on a graph, MSD (graph distance from start)^2 vs time, fit the exponent
 function msdExponent(neighbors: number[][], start: number, beats: number, runs: number): number {
-  const dist = bfsDist(neighbors, start)
+  const dist = bfsShells({ neighbors, root: start }).depth
   const msd = new Float64Array(beats + 1)
   for (let run = 0; run < runs; run++) {
     const rng = makeRng({ seed: 100 + run })
@@ -169,7 +154,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   // static correlation on the horosphere lattice: run the field, measure C(r) by graph distance
   const edges: [number, number][] = []
   for (let v = 0; v < hg.length; v++) for (const w of hg[v]!) if (w > v) edges.push([v, w])
-  const dCenter = bfsDist(hg, center)
+  const dCenter = bfsShells({ neighbors: hg, root: center }).depth
   const maxR = Math.min(8, Math.max(...Array.from(dCenter)))
   const tone = new Int8Array(hg.length)
   const moved = new Uint8Array(hg.length)

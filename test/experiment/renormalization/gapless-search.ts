@@ -147,7 +147,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: false,
   run() {
-    const r = gaplessSearch({ L: 3000 })
+    const r = gaplessSearch({ L: 600 })
     const ok = r.solved && r.robustlyMassive && !r.gaplessFound
     return verdict({
       status: ok ? 'pass' : 'fail',

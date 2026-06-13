@@ -8,6 +8,7 @@
 // for the WAVE rather than the diffusion tensor (P124). Run: npx tsx code/experiment/p150-wave-isotropy.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { norm } from '@/code/algebra/vector'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -43,7 +44,7 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
   // the 12 face directions = unit vectors toward the neighbours of the centre cell (cell 0 at the origin)
   const dirs: number[][] = g.neighbors[0]!.map((j) => {
     const c = coords[j]!
-    const n = Math.sqrt(c.reduce((s, v) => s + v * v, 0))
+    const n = norm(c)
     return c.map((v) => v / Math.max(1e-12, n))
   })
 
@@ -88,7 +89,7 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
   for (let i = 1; i < N; i++) {
     if (cur[i] === 0) continue
     const c = coords[i]!
-    const n = Math.sqrt(c.reduce((s, v) => s + v * v, 0))
+    const n = norm(c)
     if (n < 1e-9) continue
     // nearest face-direction by angle
     let bd = 0

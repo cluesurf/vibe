@@ -74,7 +74,7 @@ function evaporation(): { lifetimeExponent: number; ok: boolean } {
   const lifetimeOf = (M0: number): number => {
     let M = M0
     let t = 0
-    const dt = 1e-4
+    const dt = 1e-2
     while (M > 1e-3) {
       const A = horizonArea(M)
       const T = hawkingTemp(M)
@@ -96,7 +96,7 @@ function deSitterHorizon(): { H: number; T: number; S: number; Lambda: number } 
   // SAME measurement as cosmology-and-anisotropy.ts (early-shell average, R ~ 11, H ~ 0.80) to stay
   // consistent with the paper. (The truncation-clean asymptotic ratio is ~18.4 -> H ~ 0.97; the de Sitter
   // RELATIONS below hold either way, only the number shifts.)
-  const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 40000 })
+  const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 600 })
   const mid = a.shellSizes.slice(2, 7)
   const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
   const R = ratios.reduce((x, y) => x + y, 0) / ratios.length

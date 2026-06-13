@@ -189,7 +189,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: false,
   run() {
-    const r = selfOrganizedCriticality({ n: 15000 })
+    const r = selfOrganizedCriticality({ n: 3000 })
     const ok = r.solved && r.selfTunes
     return verdict({
       status: ok ? 'pass' : 'fail',

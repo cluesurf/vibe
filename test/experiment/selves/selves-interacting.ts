@@ -123,7 +123,7 @@ function largeComponents(tone: Int8Array, offsets: Int32Array, adj: Int32Array, 
   return big
 }
 
-export function selvesInteracting(input?: { n?: number }): {
+export function selvesInteracting(input?: { n?: number; beats?: number; regionSize?: number }): {
   n: number
   oppositeLoss: number
   sameLoss: number
@@ -139,10 +139,10 @@ export function selvesInteracting(input?: { n?: number }): {
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
-  const beats = 30
+  const beats = input?.beats ?? 30
 
   // two adjacent selves = one region split into two halves (the seam is the contact interface)
-  const region = ballOrder(g.offsets, g.adj, N, 0, 6000)
+  const region = ballOrder(g.offsets, g.adj, N, 0, input?.regionSize ?? 6000)
   const half = Math.floor(region.length / 2)
 
   // OPPOSITE: first half +, second half - (a + self touching a - self)

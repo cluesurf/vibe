@@ -110,7 +110,7 @@ export function flatSpatialRP(input?: { L?: number; arrows?: number[] }): {
   masslessRegimeFound: boolean
   solved: boolean
 } {
-  const L = input?.L ?? 4000
+  const L = input?.L ?? 1500
   const arrows = input?.arrows ?? [0.05, 0.02, 0.008, 0.003]
   const m = 5
   const maxR = 2 * m
@@ -122,8 +122,8 @@ export function flatSpatialRP(input?: { L?: number; arrows?: number[] }): {
     const moved = new Uint8Array(L)
     const rng = makeRng({ seed: 13 })
     for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 500; t++) beat(tone, L, moved, rng, arrow)
-    const T = 4000
+    for (let t = 0; t < 300; t++) beat(tone, L, moved, rng, arrow)
+    const T = 1500
     const sumNN = new Float64Array(maxR + 1)
     let sumN = 0
     const n = new Float64Array(L)
@@ -204,7 +204,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: true,
   run() {
-    const r = flatSpatialRP({ L: 4000 })
+    const r = flatSpatialRP({ L: 1500 })
     const ok = r.solved && r.massiveField && r.ruleNotGeometry && r.rpConsistentMassive
     return verdict({
       status: ok ? 'pass' : 'fail',

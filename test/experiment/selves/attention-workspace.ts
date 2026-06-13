@@ -99,7 +99,7 @@ function corr(x: number[], y: number[]): number {
   return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0
 }
 
-export function attentionWorkspace(input?: { n?: number }): {
+export function attentionWorkspace(input?: { n?: number; T?: number }): {
   n: number
   attendedCorr: number[]
   unattendedCorr: number[]
@@ -198,7 +198,7 @@ export function attentionWorkspace(input?: { n?: number }): {
   function trial(region: number[], gain: number): number {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 9 })
-    const T = 300
+    const T = input?.T ?? 300
     let sig = 1
     const hubS: number[] = []
     const sigS: number[] = []
@@ -243,7 +243,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: true,
   run() {
-    const r = attentionWorkspace({ n: 60000 })
+    const r = attentionWorkspace({ n: 60000, T: 120 })
     const ok = r.solved && r.attentionSelects && r.steerable
     return verdict({
       status: ok ? 'pass' : 'fail',

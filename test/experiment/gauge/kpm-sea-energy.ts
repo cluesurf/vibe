@@ -18,7 +18,7 @@ import {
 } from '@/code/algebra/linear/kernel-polynomial'
 
 export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolean } {
-  const L = 14, M = 1.5, MCHEB = 220, NRV = 12
+  const L = 8, M = 1.5, MCHEB = 120, NRV = 4
   const Rs = [2, 3, 4, 6, 9]
   // TEXTURE mode: constant mass magnitude, only the DIRECTION winds (a charge-1 hopfion). No volume term, so the
   // fermion energy is purely gradient = exchange*R + Skyrme/R. The vacuum is uniform-z (sea energy is

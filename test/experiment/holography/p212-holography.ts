@@ -6,13 +6,13 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { norm } from '@/code/algebra/vector'
+import { toCsr } from '@/code/tool/graph'
 
 function boundaryDimension(symbol: number[], maxCells: number): { N: number; nb: number; boundaryDim: number } {
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
   const N = g.cellCount
-  const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
-  const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
-  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+  const { offsets: off, adj } = toCsr(g.neighbors)
   const rad = g.coords.map(norm); const rmax = Math.max(...rad)
   const boundary = [...Array(N).keys()].filter((i) => rad[i]! > 0.78 * rmax)
   const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1
@@ -20,8 +20,7 @@ function boundaryDimension(symbol: number[], maxCells: number): { N: number; nb:
   const bAdj: number[][] = boundary.map((b) => { const out: number[] = []; for (let q = off[b]!; q < off[b + 1]!; q++) { if (isB[adj[q]!]) out.push(adj[q]!) } return out })
   const id = new Map<number, number>(); boundary.forEach((b, i) => id.set(b, i))
   const nb = boundary.length
-  const boff = new Int32Array(nb + 1); for (let i = 0; i < nb; i++) boff[i + 1] = boff[i]! + bAdj[i]!.length
-  const badj = new Int32Array(boff[nb]!); { let p = 0; for (let i = 0; i < nb; i++) for (const w of bAdj[i]!) badj[p++] = id.get(w)! }
+  const { offsets: boff, adj: badj } = toCsr(bAdj.map((row) => row.map((w) => id.get(w)!)))
   // spectral dimension of the boundary graph alone (its intrinsic dimension)
   let center = 0, best = -1; for (let i = 0; i < nb; i++) { const d = boff[i + 1]! - boff[i]!; if (d > best) { best = d; center = i } }
   let p = new Float64Array(nb); p[center] = 1; let np = new Float64Array(nb); const P: number[] = []
