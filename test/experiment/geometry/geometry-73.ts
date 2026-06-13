@@ -4,6 +4,7 @@
 // Run: npx tsx code/experiment/p200-geometry-73.ts
 
 import { bfsShells } from '@/code/measure/shells'
+import { spectralDimension } from '@/code/measure/dimension'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -12,7 +13,7 @@ import { verdict } from '@/test/scaffold/verdict'
 export function geometry73(): { specDim4: number; growth: number; interiorDegree: number } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 20000 })
   const N = g.cellCount
-  const { offsets: off, adj } = toCsr(g.neighbors)
+  const { offsets: off } = toCsr(g.neighbors)
   // interior degree (the modal degree of cells with full neighbourhood)
   const degHist: Record<number, number> = {}
   for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; degHist[d] = (degHist[d] ?? 0) + 1 }
@@ -25,11 +26,9 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
   const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
   const growth = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
 
-  // spectral dimension via lazy random-walk return probability
-  let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const P: number[] = []
-  for (let t = 0; t < 20; t++) { P.push(p[center]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const ds = (t: number): number => (-2 * (Math.log(P[t + 2]!) - Math.log(P[t - 2]!))) / (Math.log(t + 2) - Math.log(t - 2))
-  const specDim4 = Math.round(ds(4) * 100) / 100
+  // spectral dimension via the lazy random-walk return probability (the central
+  // difference at t = 4 is the endpoint slope between t = 2 and t = 6).
+  const specDim4 = Math.round(spectralDimension({ neighbors: g.neighbors, start: center, t1: 2, t2: 6 }) * 100) / 100
 
   return { specDim4, growth, interiorDegree }
 }

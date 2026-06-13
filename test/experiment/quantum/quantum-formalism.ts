@@ -9,22 +9,11 @@
 // the mesh is the open problem, we show the formalism is consistent and present. See
 // note/questions/frontiers.md. Run: npx tsx code/experiment/p31-quantum-formalism.ts
 
-import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { evolveByEigendecomposition } from '@/code/operator/unitary-evolution'
+import { ringHoppingHamiltonian } from '@/code/operator/tight-binding'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Ring adjacency Hamiltonian (the hopping operator) on n sites.
-function ringHamiltonian(n: number): ReturnType<typeof makeDense> {
-  const h = makeDense({ rows: n, cols: n })
-  for (let i = 0; i < n; i++) {
-    const j = (i + 1) % n
-    h.data[i * n + j] = 1
-    h.data[j * n + i] = 1
-  }
-  return h
-}
 
 // Evolve a complex state psi (re, im) under e^{-iHt} using the eigendecomposition.
 const evolve = evolveByEigendecomposition
@@ -45,7 +34,7 @@ export function quantumFormalism(input: { n: number }): {
   bornConserved: boolean
 } {
   const n = input.n
-  const eig = eigSymmetric({ matrix: ringHamiltonian(n) })
+  const eig = eigSymmetric({ matrix: ringHoppingHamiltonian({ n }) })
 
   // 1. Unitarity: norm of an evolving state at several times.
   const re0 = new Float64Array(n)

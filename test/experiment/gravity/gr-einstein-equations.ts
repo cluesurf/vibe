@@ -15,6 +15,8 @@
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-einstein-equations.ts
 
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { latticePoissonJacobi } from '@/code/operator/lattice-poisson-jacobi'
+import { fitForm } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

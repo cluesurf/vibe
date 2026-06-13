@@ -4,18 +4,19 @@
 // spin requirement. We confirm the cusp reads 3D (spectral dimension), and note why 3D is special (spinors,
 // the Hopf fibration, stable 1/r^2 orbits, knots). Run: npx tsx code/experiment/p235-why-3plus1.ts
 
+import { cubicLattice } from '@/code/substrate/cubic-lattice'
+import { spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// spectral dimension of the flat cubic cusp (the lattice random-walk return exponent)
+// The cusp's spectral dimension is the lattice random-walk return exponent
+// (spectralDimension in code/measure/dimension) on the {4,3,4} = cubic lattice. The
+// central difference at t = 6 is the endpoint slope between t = 4 and t = 8.
 function cuspSpectralDim(L: number): number {
-  const N = L * L * L
-  const idx = (x: number, y: number, z: number): number => (z * L + y) * L + x
-  const off: number[][] = Array.from({ length: N }, () => [])
-  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) for (let z = 0; z < L; z++) { const i = idx(x, y, z); for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]] as [number, number, number][]) { const a = x + dx, b = y + dy, c = z + dz; if (a >= 0 && a < L && b >= 0 && b < L && c >= 0 && c < L) off[i]!.push(idx(a, b, c)) } }
-  const c = L >> 1; let p = new Float64Array(N); p[idx(c, c, c)] = 1; let np = new Float64Array(N); const P: number[] = []
-  for (let t = 0; t < 20; t++) { P.push(p[idx(c, c, c)]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i]!.length; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (const j of off[i]!) np[j] = np[j]! + sh } const tmp = p; p = np; np = tmp }
-  return (-2 * (Math.log(P[8]!) - Math.log(P[4]!))) / (Math.log(8) - Math.log(4))
+  const g = cubicLattice(L, 3)
+  const h = L >> 1
+  const center = h + h * L + h * L * L
+  return spectralDimension({ neighbors: g.neighbors, start: center, t1: 4, t2: 8 })
 }
 
 export function why3plus1(): { cuspDim: number; isThreeD: boolean } {

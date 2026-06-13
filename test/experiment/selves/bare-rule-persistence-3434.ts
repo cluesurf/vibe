@@ -11,17 +11,14 @@
 //   precise remaining frontier.
 // Run: npx tsx code/experiment/p262-bare-rule-persistence-3434.ts
 
+import { phaseWinding } from '@/code/measure/winding'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
 const cabs = (z: C): number => Math.hypot(z[0], z[1])
 const cphase = (z: C): number => Math.atan2(z[1], z[0])
-function winding(psi: C[]): number {
-  const L = psi.length; let w = 0
-  for (let i = 0; i < L; i++) { let d = cphase(psi[(i + 1) % L]!) - cphase(psi[i]!); while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; w += d }
-  return Math.round(w / (2 * Math.PI))
-}
+const winding = (psi: C[]): number => phaseWinding(psi.map(cphase))
 const peak = (psi: C[]): number => Math.max(...psi.map(cabs))
 
 // evolve a complex field: linear Schrodinger (free, the bare-walk envelope) OR nonlinear sigma-model (|psi|->1)

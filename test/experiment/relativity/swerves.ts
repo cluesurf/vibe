@@ -10,85 +10,12 @@
 // discreteness allows, and measure the rapidity diffusion. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p26-swerves.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
+import { sprinkleBox } from '@/code/substrate/sprinkle-box'
+import { swerveWalk } from '@/code/dynamics/swerve-walk'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-interface Point {
-  t: number
-  x: number
-}
-
-// Poisson-sprinkle points into a 2D Minkowski box [0, tMax] x [-xMax, xMax].
-function sprinkleBox(input: { density: number; tMax: number; xMax: number; rng: Rng }): Point[] {
-  const area = input.tMax * 2 * input.xMax
-  const n = Math.round(input.density * area)
-  const pts: Point[] = []
-  for (let i = 0; i < n; i++) {
-    pts.push({ t: input.rng.next() * input.tMax, x: (input.rng.next() * 2 - 1) * input.xMax })
-  }
-  pts.sort((a, b) => a.t - b.t)
-  return pts
-}
-
-// One swerving trajectory. From the current point, with the current rapidity, choose
-// the future point in a proper-time shell whose hop rapidity is closest to the current
-// one (as straight ahead as the discreteness allows). Return the rapidity samples
-// against accumulated proper time.
-function swerveWalk(input: {
-  points: Point[]
-  steps: number
-  tauLo: number
-  tauHi: number
-}): { tau: number; rapidity: number }[] {
-  const pts = input.points
-  // Start near the bottom center, moving forward in time (rapidity 0).
-  let cur: Point = { t: 0, x: 0 }
-  let xi = 0
-  let tau = 0
-  const trace: { tau: number; rapidity: number }[] = []
-  for (let s = 0; s < input.steps; s++) {
-    let best: Point | null = null
-    let bestRapidity = 0
-    let bestDelta = Infinity
-    let bestTau = 0
-    for (const q of pts) {
-      const dt = q.t - cur.t
-      if (dt <= 0) {
-        continue
-      }
-      const dx = q.x - cur.x
-      const interval2 = dt * dt - dx * dx
-      if (interval2 <= 0) {
-        continue // not timelike-future
-      }
-      const properTime = Math.sqrt(interval2)
-      if (properTime < input.tauLo || properTime > input.tauHi) {
-        continue
-      }
-      const v = dx / dt
-      if (Math.abs(v) >= 0.999) {
-        continue
-      }
-      const rapidity = Math.atanh(v)
-      const delta = Math.abs(rapidity - xi)
-      if (delta < bestDelta) {
-        bestDelta = delta
-        best = q
-        bestRapidity = rapidity
-        bestTau = properTime
-      }
-    }
-    if (best === null) {
-      break
-    }
-    cur = best
-    xi = bestRapidity
-    tau += bestTau
-    trace.push({ tau, rapidity: xi })
-  }
-  return trace
-}
 
 // Slope of rapidity variance versus proper time (the diffusion constant: variance =
 // 2 k tau).
@@ -128,16 +55,10 @@ export function swerveDiffusion(input: { density: number; seed: number; trajecto
   // variance saturates as wide-rapidity trajectories leave the finite box, a boundary
   // effect, not the diffusion.
   const linear = points.filter((p) => p.tau <= 11)
-  const n = linear.length
-  const mx = linear.reduce((a, p) => a + p.tau, 0) / Math.max(1, n)
-  const my = linear.reduce((a, p) => a + p.varRapidity, 0) / Math.max(1, n)
-  let cov = 0
-  let varx = 0
-  for (const p of linear) {
-    cov += (p.tau - mx) * (p.varRapidity - my)
-    varx += (p.tau - mx) * (p.tau - mx)
-  }
-  return { density: input.density, slope: varx === 0 ? 0 : cov / varx, points }
+  const slope = linear.length > 0
+    ? linearFit({ xs: linear.map((p) => p.tau), ys: linear.map((p) => p.varRapidity) }).slope
+    : 0
+  return { density: input.density, slope, points }
 }
 
 export default defineExperiment({

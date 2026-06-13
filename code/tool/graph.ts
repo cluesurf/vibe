@@ -99,6 +99,31 @@ export function neighborsOf(g: Graph): number[][] {
   return g.neighbors.map((row) => Array.from(row))
 }
 
+// The node indices of the largest connected component of a plain neighbors list, in
+// BFS-discovery order. The lightweight sibling of largestComponent (which rebuilds a
+// whole Graph): this just returns the member indices so the caller can carve its own
+// induced subgraph.
+export function largestComponentNodes(
+  neighbors: ReadonlyArray<ReadonlyArray<number>>,
+): number[] {
+  const n = neighbors.length
+  const seen = new Int32Array(n).fill(-1)
+  let best: number[] = []
+  for (let s = 0; s < n; s++) {
+    if (seen[s]! >= 0) continue
+    const comp: number[] = []
+    const q = [s]
+    seen[s] = s
+    for (let h = 0; h < q.length; h++) {
+      const u = q[h]!
+      comp.push(u)
+      for (const w of neighbors[u]!) if (seen[w]! < 0) { seen[w] = s; q.push(w) }
+    }
+    if (comp.length > best.length) best = comp
+  }
+  return best
+}
+
 // Breadth-first hop distance from `source` over a CSR adjacency. Returns an
 // Int32Array of distances (-1 for unreached). With `maxRadius` the sweep stops
 // after that many rings (cells beyond stay -1). With `allowed` (a truthy-per-node

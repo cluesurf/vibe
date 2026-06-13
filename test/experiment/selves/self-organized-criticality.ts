@@ -12,74 +12,10 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
+import { socEdgeSweep } from '@/code/dynamics/soc-sweep'
+import { avalancheSizes, toneDensity as density } from '@/code/measure/avalanche'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-// local activity around an edge = fraction of nonzero cells among the two endpoints' neighbors
-function localActivity(tone: Int8Array, offsets: Int32Array, adj: Int32Array, v: number, w: number): number {
-  let nz = 0
-  let tot = 0
-  for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    if (tone[adj[p]!] !== 0) nz++
-    tot++
-  }
-  for (let p = offsets[w]!; p < offsets[w + 1]!; p++) {
-    if (tone[adj[p]!] !== 0) nz++
-    tot++
-  }
-  return tot > 0 ? nz / tot : 0
-}
-
-// SOC beat: share + hop + DEMAND-DRIVEN creation (c0*(1-localActivity)). uniform=true ignores the feedback.
-function socBeat(tone: Int8Array, g: { offsets: Int32Array; adj: Int32Array }, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, c0: number, uniform: boolean): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      // edge-seeking feedback: revive ONLY near-dead neighborhoods, so activity hovers just above the
-      // absorbing edge (the critical point), rather than stabilizing a fixed level
-      const quiet = localActivity(tone, g.offsets, g.adj, v, w) < 0.12
-      const rate = uniform ? c0 * 0.5 : quiet ? c0 : 0
-      if (rng.next() < rate) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
-
-const density = (t: Int8Array): number => {
-  let nz = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) nz++
-  return nz / t.length
-}
 
 export function selfOrganizedCriticality(input?: { n?: number }): {
   n: number
@@ -108,7 +44,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     for (let i = 0; i < N; i++) tone[i] = (rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
     let last = 0
     for (let t = 0; t < 160; t++) {
-      socBeat(tone, g, eu, ev, moved, rng, c0, false)
+      socEdgeSweep({ tone, offsets: g.offsets, adj: g.adj, eu, ev, moved, rng, arrow: c0, uniform: false })
       if (t >= 150) last += density(tone) / 10
     }
     return { tone, finalRho: last }
@@ -121,36 +57,26 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const selfTunes = Math.abs(lowFinal - highFinal) < 0.05 && setPoint > 0.03 && setPoint < 0.9
 
   // (b) avalanches via damage spreading at the self-organized state, and a uniform-creation control
-  const avalancheSizes = (uniform: boolean): number[] => {
+  const avalancheRun = (uniform: boolean): number[] => {
     const base = new Int8Array(N)
     const rng0 = makeRng({ seed: 5 })
     for (let i = 0; i < N; i++) base[i] = (rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 120; t++) socBeat(base, g, eu, ev, moved, rng0, c0, uniform) // settle
-    const sizes: number[] = []
-    const trials = 120
-    const T = 22
-    for (let tr = 0; tr < trials; tr++) {
-      const s = base.slice()
-      const s2 = base.slice()
-      const pr = makeRng({ seed: 9000 + tr })
-      const cell = Math.floor(pr.next() * N)
-      s2[cell] = (s2[cell]! === 0 ? 1 : 0) as -1 | 0 | 1 // the perturbation
-      const ra = makeRng({ seed: 333 + tr })
-      const rb = makeRng({ seed: 333 + tr })
-      // relax with creation OFF, so we measure the PURE perturbation cascade (the avalanche) through the
-      // self-organized background, not creation noise
-      for (let t = 0; t < T; t++) {
-        socBeat(s, g, eu, ev, moved, ra, 0, uniform)
-        socBeat(s2, g, eu, ev, moved, rb, 0, uniform)
-      }
-      let diff = 0
-      for (let i = 0; i < N; i++) if (s[i] !== s2[i]) diff++
-      sizes.push(diff)
-    }
-    return sizes.sort((a, b) => a - b)
+    for (let t = 0; t < 120; t++) socEdgeSweep({ tone: base, offsets: g.offsets, adj: g.adj, eu, ev, moved, rng: rng0, arrow: c0, uniform }) // settle
+    // relax with creation OFF, so we measure the PURE perturbation cascade (the avalanche) through the
+    // self-organized background, not creation noise
+    return avalancheSizes({
+      base,
+      steps: 22,
+      trials: 120,
+      perturbSeed: 9000,
+      streamSeed: 333,
+      makeRng: (seed) => makeRng({ seed }),
+      relax: (state, rng) => socEdgeSweep({ tone: state, offsets: g.offsets, adj: g.adj, eu, ev, moved, rng, arrow: 0, uniform }),
+      mode: 'final',
+    })
   }
-  const soc = avalancheSizes(false)
-  const ctrl = avalancheSizes(true)
+  const soc = avalancheRun(false)
+  const ctrl = avalancheRun(true)
   const median = (a: number[]): number => a[Math.floor(a.length / 2)]!
   const avalancheMedian = median(soc)
   const avalancheMax = soc[soc.length - 1]!

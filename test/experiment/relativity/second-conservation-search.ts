@@ -14,49 +14,25 @@
 // If only Q is conserved AND no spontaneous order appears, momentum does NOT emerge from the bare rule and
 // must be added. Run: npx tsx code/experiment/p146-second-conservation-search.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { relativeStandardDeviation as relStd } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
-function beat(tone: Int8Array, L: number, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
+// 1D-ring edges (i, i+1) so the conserving perception sweep runs on a line
+function ringEdges(L: number): { eu: Int32Array; ev: Int32Array } {
+  const eu = new Int32Array(L)
+  const ev = new Int32Array(L)
   for (let i = 0; i < L; i++) {
-    const v = i
-    const w = (i + 1) % L
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0 && rng.next() < arrow) {
-      const flip = rng.next() < 0.5
-      tone[v] = (flip ? 1 : -1) as -1 | 1
-      tone[w] = (flip ? -1 : 1) as -1 | 1
-      moved[v] = 1
-      moved[w] = 1
-    }
+    eu[i] = i
+    ev[i] = (i + 1) % L
   }
+  return { eu, ev }
 }
 
-const relStd = (series: number[]): number => {
-  const m = series.reduce((s, x) => s + x, 0) / series.length
-  const v = series.reduce((s, x) => s + (x - m) ** 2, 0) / series.length
-  const scale = Math.max(1e-9, ...series.map((x) => Math.abs(x)))
-  return Math.sqrt(v) / scale
+function beat(tone: Int8Array, ring: { eu: Int32Array; ev: Int32Array }, moved: Uint8Array, rng: Rng, arrow: number): void {
+  conservingEdgeSweep({ tone, eu: ring.eu, ev: ring.ev, moved, rng, arrow })
 }
 
 export function secondConservationSearch(input?: { L?: number }): {
@@ -70,13 +46,14 @@ export function secondConservationSearch(input?: { L?: number }): {
   solved: boolean
 } {
   const L = input?.L ?? 3000
+  const ring = ringEdges(L)
 
   // (A) which quantities are conserved
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 5 })
   for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-  for (let t = 0; t < 60; t++) beat(tone, L, moved, rng, 0.1)
+  for (let t = 0; t < 60; t++) beat(tone, ring, moved, rng, 0.1)
   const T = 1500
   const Q: number[] = []
   const count: number[] = []
@@ -96,7 +73,7 @@ export function secondConservationSearch(input?: { L?: number }): {
     count.push(L)
     activity.push(act)
     staggered.push(stag)
-    beat(tone, L, moved, rng, 0.1)
+    beat(tone, ring, moved, rng, 0.1)
   }
   const conserved = [
     { name: 'charge Q = sum tone', relStd: relStd(Q), isConserved: relStd(Q) < 1e-6 },
@@ -114,13 +91,13 @@ export function secondConservationSearch(input?: { L?: number }): {
     const mv = new Uint8Array(L)
     const r2 = makeRng({ seed: 9 })
     for (let i = 0; i < L; i++) tn[i] = (r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 300; t++) beat(tn, L, mv, r2, arrow)
+    for (let t = 0; t < 300; t++) beat(tn, ring, mv, r2, arrow)
     const maxR = 12
     const sumCC = new Float64Array(maxR + 1)
     const TT = 2000
     for (let t = 0; t < TT; t++) {
       for (let x = 0; x < L; x++) for (let r = 0; r <= maxR; r++) sumCC[r]! += tn[x]! * tn[(x + r) % L]!
-      beat(tn, L, mv, r2, arrow)
+      beat(tn, ring, mv, r2, arrow)
     }
     // STAGGERED correlation magnitude (-1)^r C(r), the Neel order parameter at long range
     const c0 = sumCC[0]! / (L * TT)

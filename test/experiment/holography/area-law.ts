@@ -11,24 +11,19 @@
 // contrast). Ground state area-law versus thermal volume-law is exactly the dividing line emergent gravity
 // needs. No base change, this is a property of the emergent field. Run: npx tsx code/experiment/p186-area-law.ts
 
-import { makeDense } from '@/code/algebra/linear/dense'
 import { linearFit } from '@/code/measure/regression'
 import {
   freeFermionCorrelationMatrix,
   regionEntanglementEntropy,
 } from '@/code/measure/entanglement'
+import { staggeredMassChainHamiltonian } from '@/code/operator/tight-binding'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the ground-state correlation matrix C_ij = <c_i^dag c_j> of a tight-binding chain with a staggered mass.
 // hopping = -1, on-site potential (-1)^i * mass, half filling (occupy the lowest L/2 single-particle states).
 function correlationMatrix(L: number, mass: number): Float64Array {
-  const h = makeDense({ rows: L, cols: L })
-  for (let i = 0; i < L; i++) h.data[i * L + i] = (i % 2 === 0 ? 1 : -1) * mass
-  for (let i = 0; i < L - 1; i++) {
-    h.data[i * L + (i + 1)] = -1
-    h.data[(i + 1) * L + i] = -1
-  }
+  const h = staggeredMassChainHamiltonian({ n: L, mass })
   return freeFermionCorrelationMatrix({ h, n: L })
 }
 

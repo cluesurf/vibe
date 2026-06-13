@@ -8,35 +8,14 @@
 // entropy is set by its area. See note/questions/frontiers.md. Run:
 // npx tsx code/experiment/p33-black-hole.ts
 
-import { makeDense, DenseMatrix } from '@/code/algebra/linear/dense'
 import { linearFit } from '@/code/measure/regression'
 import {
   freeFermionCorrelationMatrix,
   regionEntanglementEntropy,
 } from '@/code/measure/entanglement'
+import { torusHoppingHamiltonian } from '@/code/operator/tight-binding'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// 3D periodic hopping Hamiltonian.
-function torus3D(side: number): DenseMatrix {
-  const n = side * side * side
-  const h = makeDense({ rows: n, cols: n })
-  const idx = (x: number, y: number, z: number): number =>
-    (((z + side) % side) * side + ((y + side) % side)) * side + ((x + side) % side)
-  for (let z = 0; z < side; z++) {
-    for (let y = 0; y < side; y++) {
-      for (let x = 0; x < side; x++) {
-        const v = idx(x, y, z)
-        for (const [dx, dy, dz] of [[1, 0, 0], [0, 1, 0], [0, 0, 1]] as const) {
-          const w = idx(x + dx, y + dy, z + dz)
-          h.data[v * n + w] = 1
-          h.data[w * n + v] = 1
-        }
-      }
-    }
-  }
-  return h
-}
 
 export function blackHoleEntropy(input: { side: number }): {
   ells: number[]
@@ -47,7 +26,7 @@ export function blackHoleEntropy(input: { side: number }): {
 } {
   const side = input.side
   const n = side * side * side
-  const c = freeFermionCorrelationMatrix({ h: torus3D(side), n })
+  const c = freeFermionCorrelationMatrix({ h: torusHoppingHamiltonian({ dimension: 3, side }), n })
   const ells = [2, 3, 4]
   const entropies: number[] = []
   for (const l of ells) {

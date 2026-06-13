@@ -107,3 +107,30 @@ export function linearFit(input: {
   const r2 = ssTot > 0 ? 1 - residual / ssTot : 0
   return { slope, intercept, residual, r2 }
 }
+
+// The log-log exponent of a series indexed by step, fit over an inclusive index window [lo, hi]. Fits
+// log(t) versus log(values[t]) and returns the slope, dropping non-positive samples (no log). The
+// mean-square-displacement exponent z (ballistic ~ 2, diffusive ~ 1) is read off this way.
+export function loglogExponentWindow(input: {
+  values: ReadonlyArray<number>
+  lo: number
+  hi: number
+}): number {
+  const { values, lo, hi } = input
+  let sx = 0
+  let sy = 0
+  let sxx = 0
+  let sxy = 0
+  let m = 0
+  for (let t = lo; t <= hi; t++) {
+    if ((values[t] ?? 0) <= 0) continue
+    const x = Math.log(t)
+    const y = Math.log(values[t]!)
+    sx += x
+    sy += y
+    sxx += x * x
+    sxy += x * y
+    m++
+  }
+  return (m * sxy - sx * sy) / (m * sxx - sx * sx)
+}

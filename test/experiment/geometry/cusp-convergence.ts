@@ -5,6 +5,8 @@
 // dimension -> 3 and (b) the gravity Green's function exponent -> 1 (the 1/r law). The L where they are within
 // tolerance is the "sufficient level". We then map L to a beat / layer count. Run: npx tsx code/experiment/cusp-convergence.ts
 
+import { spectralDimension } from '@/code/measure/dimension'
+import { greensFunctionExponent } from '@/code/measure/greens-function'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -26,24 +28,13 @@ function cubicBox(L: number): { nb: number[][]; coord: number[][]; center: numbe
   return { nb, coord, center: idx(h, h, h) }
 }
 
-function spectralDim(nb: number[][], start: number, t1: number, t2: number): number {
-  const N = nb.length; let p = new Float64Array(N); p[start] = 1; let np = new Float64Array(N); const P: number[] = []
-  for (let t = 0; t <= t2; t++) { P.push(p[start]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = nb[i]!.length; if (d === 0) { np[i] = np[i]! + pi; continue } np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (const j of nb[i]!) np[j] = np[j]! + sh } const tmp = p; p = np; np = tmp }
-  return Math.round((-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) / (Math.log(t2) - Math.log(t1)) * 100) / 100
-}
-// gravity exponent, solve (D - A) phi = delta_center with Dirichlet boundary (phi=0 outside the box), fit over small r
-function gravityExp(nb: number[][], coord: number[][], center: number, rmax: number): number {
-  const N = nb.length, phi = new Float64Array(N)
-  for (let it = 0; it < 800; it++) for (let i = 0; i < N; i++) { let s = i === center ? 1 : 0; for (const j of nb[i]!) s += phi[j]!; phi[i] = s / (6) } // /6 = full cubic degree -> Dirichlet (missing neighbours = 0)
-  const c = coord[center]!
-  const sums: number[] = [], cnts: number[] = []
-  for (let i = 0; i < N; i++) { const r = Math.round(Math.sqrt(coord[i]!.reduce((a, x, k) => a + (x - c[k]!) ** 2, 0))); if (r < 1 || r > rmax) continue; sums[r] = (sums[r] ?? 0) + phi[i]!; cnts[r] = (cnts[r] ?? 0) + 1 }
-  const pts: [number, number][] = []
-  for (let r = 1; r <= rmax; r++) if (cnts[r] && sums[r]! > 0) pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
-  if (pts.length < 3) return NaN
-  const n = pts.length, sx = pts.reduce((a, p) => a + p[0], 0), sy = pts.reduce((a, p) => a + p[1], 0), sxx = pts.reduce((a, p) => a + p[0] * p[0], 0), sxy = pts.reduce((a, p) => a + p[0] * p[1], 0)
-  return Math.round(-((n * sxy - sx * sy) / (n * sxx - sx * sx)) * 100) / 100
-}
+// The spectral dimension (lazy-walk return probability) and the Dirichlet Green's
+// function falloff exponent both live in code/measure. The cubic cusp has full
+// coordination 6, the degree the Dirichlet solve uses.
+const spectralDim = (nb: number[][], start: number, t1: number, t2: number): number =>
+  Math.round(spectralDimension({ neighbors: nb, start, t1, t2 }) * 100) / 100
+const gravityExp = (nb: number[][], coord: number[][], center: number, rmax: number): number =>
+  greensFunctionExponent({ neighbors: nb, coords: coord, center, degree: 6, rmax })
 
 export function cuspConvergence(): void {
   const H = 0.8 // de Sitter rate per beat (cosmology-and-anisotropy), L ~ e^(H t) -> t = ln(L)/H

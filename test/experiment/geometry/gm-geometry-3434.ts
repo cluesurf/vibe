@@ -7,36 +7,16 @@
 import { add } from '@/code/algebra/vector'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { sinkhornW1 } from '@/code/measure/transport'
+import { latticeBall, latticeWordDistance } from '@/code/substrate/lattice-ball'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const key = (p: number[]): string => p.join(',')
 const euc = (p: number[]): number => Math.hypot(p[0]!, p[1]!, p[2]!, p[3]!)
 
-// BFS ball: graph distance from origin out to radius R
-function ball(R: number): { dist: Map<string, number>; cells: number[][]; roots: number[][] } {
-  const roots = rootsD4()
-  const dist = new Map<string, number>([['0,0,0,0', 0]])
-  const cells: number[][] = [[0, 0, 0, 0]]
-  let frontier = [[0, 0, 0, 0]]
-  for (let r = 1; r <= R; r++) {
-    const next: number[][] = []
-    for (const p of frontier) for (const root of roots) { const q = add(p, root); const k = key(q); if (!dist.has(k)) { dist.set(k, r); cells.push(q); next.push(q) } }
-    frontier = next
-  }
-  return { dist, cells, roots }
-}
-
-// graph distance between two cells via local BFS (both near the origin edge)
-function graphDist(a: number[], b: number[], roots: number[][], cap: number): number {
-  if (key(a) === key(b)) return 0
-  const seen = new Set([key(a)]); let frontier = [a]
-  for (let r = 1; r <= cap; r++) { const next: number[][] = []; for (const p of frontier) for (const root of roots) { const q = add(p, root); const k = key(q); if (k === key(b)) return r; if (!seen.has(k)) { seen.add(k); next.push(q) } } frontier = next }
-  return cap + 1
-}
-
 export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexponential: boolean; metricLinear: boolean; ricciFlat: boolean } {
-  const { dist, roots } = ball(9)
+  // The D4 lattice BFS ball and word-metric distance live in code/substrate/lattice-ball.
+  const roots = rootsD4()
+  const { dist } = latticeBall({ generators: roots, radius: 9 })
   // GM2/GM3: V(r) volume growth
   const Vr: number[] = []
   for (let r = 0; r <= 9; r++) { let c = 0; for (const d of dist.values()) if (d <= r) c++; Vr.push(c) }
@@ -58,7 +38,7 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
   // GM1: Ollivier-Ricci of an edge (origin, root0), Sinkhorn W1 over the two 24-neighbour distributions
   const x = [0, 0, 0, 0], y = roots[0]!
   const nx = roots.map((r) => add(x, r)), ny = roots.map((r) => add(y, r))
-  const C = nx.map((a) => ny.map((b) => graphDist(a, b, roots, 6)))
+  const C = nx.map((a) => ny.map((b) => latticeWordDistance({ a, b, generators: roots, cap: 6 })))
   const w1 = sinkhornW1(C, 0.05, 400)
   const ricci = 1 - w1 / 1 // d(x,y) = 1
   const ricciFlat = Math.abs(ricci) < 0.12

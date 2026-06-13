@@ -9,8 +9,8 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
-import { poincareDistance } from '@/code/geometry/distance'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
+import { directionalFrontDistances, rangeAnisotropy } from '@/code/measure/front-speed'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -29,7 +29,6 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells })
   const N = g.cellCount
   const coords = g.coords
-  const dim = coords[0]!.length
 
   // the 12 face directions = unit vectors toward the neighbours of the centre cell (cell 0 at the origin)
   const dirs: number[][] = g.neighbors[0]!.map((j) => {
@@ -71,35 +70,14 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
 
   // the wave SPEED in each of the 12 face-directions = the farthest activated cell in that direction's
   // angular sector, in hyperbolic distance, per beat. Isotropy = low spread of the speed across directions.
-  const frontDist = new Array<number>(dirs.length).fill(0)
-  for (let i = 1; i < N; i++) {
-    if (cur[i] === 0) continue
-    const c = coords[i]!
-    const n = norm(c)
-    if (n < 1e-9) continue
-    // nearest face-direction by angle
-    let bd = 0
-    let bdot = -Infinity
-    for (let m = 0; m < dirs.length; m++) {
-      let dot = 0
-      for (let k = 0; k < dim; k++) dot += (c[k]! / n) * dirs[m]![k]!
-      if (dot > bdot) {
-        bdot = dot
-        bd = m
-      }
-    }
-    const d = poincareDistance(coords[0]!, c)
-    if (d > frontDist[bd]!) frontDist[bd] = d
-  }
+  const frontDist = directionalFrontDistances({
+    coords,
+    directions: dirs,
+    center: 0,
+    activated: (i) => cur[i] !== 0,
+  })
   const frontSpeeds = frontDist.filter((d) => d > 0).map((d) => d / beats)
-  const meanSpeed = frontSpeeds.reduce((s, x) => s + x, 0) / Math.max(1, frontSpeeds.length)
-  let mn = Infinity
-  let mx = -Infinity
-  for (const v of frontSpeeds) {
-    if (v < mn) mn = v
-    if (v > mx) mx = v
-  }
-  const anisotropy = frontSpeeds.length > 1 ? (mx - mn) / meanSpeed : 1
+  const { meanSpeed, anisotropy } = rangeAnisotropy(frontSpeeds)
 
   const isotropic = frontSpeeds.length >= 12 && anisotropy < 0.25 // a nearly uniform wave speed
   const solved = isotropic && reversible

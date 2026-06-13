@@ -11,38 +11,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function minEigenvalue(input: number[][]): number {
-  const n = input.length
-  const a = input.map((r) => r.slice())
-  for (let sweep = 0; sweep < 100; sweep++) {
-    let off = 0
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
-    if (off < 1e-24) break
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
-      if (Math.abs(a[p]![q]!) < 1e-22) continue
-      const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
-      const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
-      const c = 1 / Math.sqrt(t * t + 1)
-      const s = t * c
-      for (let k = 0; k < n; k++) {
-        const akp = a[k]![p]!
-        const akq = a[k]![q]!
-        a[k]![p] = c * akp - s * akq
-        a[k]![q] = s * akp + c * akq
-      }
-      for (let k = 0; k < n; k++) {
-        const apk = a[p]![k]!
-        const aqk = a[q]![k]!
-        a[p]![k] = c * apk - s * aqk
-        a[q]![k] = s * apk + c * aqk
-      }
-    }
-  }
-  let mn = Infinity
-  for (let i = 0; i < n; i++) mn = Math.min(mn, a[i]![i]!)
-  return mn
-}
+import { hankelMinEigenvalue } from '@/code/measure/hankel'
 
 // the deterministic field's equal-time vacuum correlator from the Dirac-walk dispersion (P151)
 function correlator(m: number, maxR: number, modes: number): number[] {
@@ -75,13 +44,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
     let range = 0
     for (let r = 1; r <= maxR; r++) if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
     // Hankel matrix H[i][j] = C(i+j), PSD test
-    const H: number[][] = []
-    for (let i = 0; i <= mHankel; i++) {
-      const row: number[] = []
-      for (let j = 0; j <= mHankel; j++) row.push(c[i + j]!)
-      H.push(row)
-    }
-    const minEig = minEigenvalue(H) / c[0]!
+    const minEig = hankelMinEigenvalue({ sequence: c, size: mHankel })
     results.push({ mass, range, hankelMinEig: minEig, longRange: range >= 4, psd: minEig > -1e-6 })
   }
   const smallest = results[results.length - 1]!

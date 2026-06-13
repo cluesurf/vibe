@@ -8,25 +8,12 @@
 // checks all three. Run: npx tsx code/experiment/p145-intention-at-scale.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { csrDistances } from '@/code/tool/graph'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edges(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 export function intentionAtScale(input?: { n?: number }): {
   n: number
@@ -44,7 +31,7 @@ export function intentionAtScale(input?: { n?: number }): {
   const n = input?.n ?? 60000
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
-  const { eu, ev } = edges(g.offsets, g.adj, N)
+  const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i

@@ -5,6 +5,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -37,13 +38,6 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
   const frontSpeed = Math.round((maxReached / 9) * 100) / 100
 
   // (2) perception rule (greedy graph matching per beat) from a seed -> EXACT charge conservation + churn
-  function perm(a: number, b: number): [number, number] {
-    if (a === -1 && b === -1) return [-1, -1]; if (a === 1 && b === 1) return [1, 1]
-    if (a === -1 && b === 0) return [0, -1]; if (a === 0 && b === -1) return [-1, 0]
-    if (a === 1 && b === 0) return [0, 1]; if (a === 0 && b === 1) return [1, 0]
-    if (a === 0 && b === 0) return [1, -1]; if (a === 1 && b === -1) return [-1, 1]
-    if (a === -1 && b === 1) return [0, 0]; return [a, b]
-  }
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)

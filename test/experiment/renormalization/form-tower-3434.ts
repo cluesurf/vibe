@@ -4,30 +4,14 @@
 // from the throwaway probe. Run: npx tsx code/experiment/p197-form-tower-3434.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { pearson } from '@/code/measure/statistics'
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const L = 48
 const at = (x: number, y: number, z: number): number => (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
 const DIRS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
-
-function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
-  if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]
-  if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]
-  if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]
-  if (a === 1 && b === -1) return [-1, 1]
-  if (a === -1 && b === 1) return [0, 0]
-  return [a, b]
-}
-function pearson(a: Float64Array, b: Float64Array): number {
-  const n = a.length; let ma = 0, mb = 0; for (let i = 0; i < n; i++) { ma += a[i]!; mb += b[i]! } ma /= n; mb /= n
-  let num = 0, va = 0, vb = 0; for (let i = 0; i < n; i++) { const da = a[i]! - ma, db = b[i]! - mb; num += da * db; va += da * da; vb += db * db }
-  return va > 1e-9 && vb > 1e-9 ? num / Math.sqrt(va * vb) : 0
-}
 
 export function formTower(): { real: number[]; nul: number[]; tower: boolean } {
   const N = L * L * L
@@ -55,7 +39,7 @@ export function formTower(): { real: number[]; nul: number[]; tower: boolean } {
   const LAG = 10, M = 30
   const realS: Float64Array[][] = blocks.map(() => []), nulS: Float64Array[][] = blocks.map(() => [])
   for (let f = 0; f < M + LAG; f++) { step(); const sh = shuffle(tone); blocks.forEach((b, bi) => { realS[bi]!.push(coarse(tone, b)); nulS[bi]!.push(coarse(sh, b)) }) }
-  const persist = (ser: Float64Array[]): number => { let acc = 0, c = 0; for (let t = 0; t + LAG < ser.length; t++) { acc += pearson(ser[t]!, ser[t + LAG]!); c++ } return Math.round((acc / c) * 100) / 100 }
+  const persist = (ser: Float64Array[]): number => { let acc = 0, c = 0; for (let t = 0; t + LAG < ser.length; t++) { acc += pearson({ a: ser[t]!, b: ser[t + LAG]!, epsilon: 1e-9 }); c++ } return Math.round((acc / c) * 100) / 100 }
   const real = blocks.map((_, bi) => persist(realS[bi]!)), nul = blocks.map((_, bi) => persist(nulS[bi]!))
   const tower = real[real.length - 1]! > real[0]! + 0.15 && real[real.length - 1]! > (nul[nul.length - 1]! ?? 0) + 0.2
   return { real, nul, tower }

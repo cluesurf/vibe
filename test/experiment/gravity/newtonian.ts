@@ -8,7 +8,7 @@
 // (see note/questions/next-version.md P16). Run: npx tsx code/experiment/p16-newtonian.ts
 
 import { cubicLattice, CubicLattice } from '@/code/substrate/cubic-lattice'
-import { graphLaplacian } from '@/code/operator/graph-laplacian'
+import { graphLaplacianGreensFunction } from '@/code/operator/graph-laplacian'
 import { fitForm } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -35,60 +35,14 @@ function distance(lat: Lat, i: number, j: number): number {
   return Math.sqrt(s)
 }
 
-function dot(a: Float64Array, b: Float64Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
-  return s
-}
-
-function subtractMean(x: Float64Array): void {
-  let m = 0
-  for (let i = 0; i < x.length; i++) {
-    m += x[i] ?? 0
-  }
-  m /= x.length
-  for (let i = 0; i < x.length; i++) {
-    x[i] = (x[i] ?? 0) - m
-  }
-}
-
-// The static potential phi = L^{-1} (source) by conjugate gradient on the sparse
-// Laplacian. The source is a unit charge at the center against a uniform neutral
-// background (so the right side is zero-mean and the singular zero mode is
-// projected out). This is the Poisson equation on the mesh, the weak-field limit.
+// The static potential phi = L^{-1} (source) is the graph Laplacian Green's function
+// of a unit charge at the center against a uniform neutral background. This is the
+// Poisson equation on the mesh, the weak-field limit. We then bin it by distance.
 export function potentialProfile(input: { lat: Lat; side: number }): { r: number[]; phi: number[] } {
   const lat = input.lat
   const n = lat.size
   const center = centerNode(lat, input.side)
-  const b = new Float64Array(n)
-  b.fill(-1 / n)
-  b[center] = 1 - 1 / n // unit charge minus uniform background, total zero
-  const phi = new Float64Array(n)
-  const residual = new Float64Array(b)
-  const direction = new Float64Array(b)
-  const temp = new Float64Array(n)
-  let rsOld = dot(residual, residual)
-  for (let iter = 0; iter < 5 * n; iter++) {
-    graphLaplacian({ neighbors: lat.neighbors, x: direction, out: temp })
-    subtractMean(temp)
-    const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)
-    for (let i = 0; i < n; i++) {
-      phi[i] = (phi[i] ?? 0) + alpha * (direction[i] ?? 0)
-      residual[i] = (residual[i] ?? 0) - alpha * (temp[i] ?? 0)
-    }
-    const rsNew = dot(residual, residual)
-    if (rsNew < 1e-16) {
-      break
-    }
-    const beta = rsNew / rsOld
-    for (let i = 0; i < n; i++) {
-      direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
-    }
-    rsOld = rsNew
-  }
-  subtractMean(phi)
+  const phi = graphLaplacianGreensFunction({ neighbors: lat.neighbors, center })
   const rMin = 1.5
   const rMax = input.side / 2 - 1.5 // stay off the boundary
   const r: number[] = []

@@ -10,77 +10,14 @@
 // P114), whose particles may sit at the band edge. Run: npx tsx code/experiment/p130-reflection-positivity.ts
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { hankelMatrix, symmetricEigenvalues } from '@/code/measure/hankel'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
-function eigSym(A: number[][]): number[] {
-  const n = A.length
-  const a = A.map((r) => r.slice())
-  for (let sweep = 0; sweep < 100; sweep++) {
-    let off = 0
-    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i]![j]! * a[i]![j]!
-    if (off < 1e-20) break
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
-      if (Math.abs(a[p]![q]!) < 1e-16) continue
-      const phi = 0.5 * Math.atan2(2 * a[p]![q]!, a[q]![q]! - a[p]![p]!)
-      const c = Math.cos(phi)
-      const s = Math.sin(phi)
-      for (let k = 0; k < n; k++) {
-        const akp = a[k]![p]!
-        const akq = a[k]![q]!
-        a[k]![p] = c * akp - s * akq
-        a[k]![q] = s * akp + c * akq
-      }
-      for (let k = 0; k < n; k++) {
-        const apk = a[p]![k]!
-        const aqk = a[q]![k]!
-        a[p]![k] = c * apk - s * aqk
-        a[q]![k] = s * apk + c * aqk
-      }
-    }
-  }
-  return a.map((r, i) => r[i]!)
-}
-
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
+  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 }
 
 export function reflectionPositivity(input?: { length?: number; arrow?: number }): {
@@ -152,18 +89,12 @@ export function reflectionPositivity(input?: { length?: number; arrow?: number }
 
   // Hankel matrix H[i][j] = C(i+j), check positive semi-definiteness
   const K = 6
-  const H: number[][] = []
-  const Hs: number[][] = []
-  for (let i = 0; i <= K; i++) {
-    H.push([])
-    Hs.push([])
-    for (let j = 0; j <= K; j++) {
-      H[i]!.push(c[i + j]!)
-      Hs[i]!.push((i + j) % 2 === 0 ? c[i + j]! : -c[i + j]!) // staggered (absorb pair anti-correlation)
-    }
-  }
-  const eig = eigSym(H)
-  const eigS = eigSym(Hs)
+  const H = hankelMatrix({ sequence: c, size: K })
+  // staggered Hankel (absorb pair anti-correlation, a band-edge particle)
+  const cStag = c.map((v, r) => ((r % 2 === 0 ? v : -v)))
+  const Hs = hankelMatrix({ sequence: cStag, size: K })
+  const eig = symmetricEigenvalues(H)
+  const eigS = symmetricEigenvalues(Hs)
   const hankelMinEig = Math.min(...eig)
   const hankelMaxEig = Math.max(...eig)
   const staggeredMinEig = Math.min(...eigS)

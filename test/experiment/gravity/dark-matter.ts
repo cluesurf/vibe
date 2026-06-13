@@ -9,58 +9,14 @@
 // Run: npx tsx code/experiment/p18-dark-matter.ts
 
 import { cubicLattice } from '@/code/substrate/cubic-lattice'
-import { graphLaplacian } from '@/code/operator/graph-laplacian'
+import { solveGraphPoisson } from '@/code/operator/graph-laplacian'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function subtractMean(x: Float64Array): void {
-  let m = 0
-  for (let i = 0; i < x.length; i++) {
-    m += x[i] ?? 0
-  }
-  m /= x.length
-  for (let i = 0; i < x.length; i++) {
-    x[i] = (x[i] ?? 0) - m
-  }
-}
-
-function dot(a: Float64Array, b: Float64Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) {
-    s += (a[i] ?? 0) * (b[i] ?? 0)
-  }
-  return s
-}
-
 // Solve L phi = b (zero-mean) by conjugate gradient, projecting out the constant.
 function cgSolve(neighbors: number[][], b: Float64Array): Float64Array {
-  const n = b.length
-  const phi = new Float64Array(n)
-  const r = new Float64Array(b)
-  subtractMean(r)
-  const p = new Float64Array(r)
-  const tmp = new Float64Array(n)
-  let rs = dot(r, r)
-  for (let it = 0; it < 5 * n; it++) {
-    graphLaplacian({ neighbors, x: p, out: tmp })
-    subtractMean(tmp)
-    const alpha = rs / Math.max(dot(p, tmp), 1e-300)
-    for (let i = 0; i < n; i++) {
-      phi[i] = (phi[i] ?? 0) + alpha * (p[i] ?? 0)
-      r[i] = (r[i] ?? 0) - alpha * (tmp[i] ?? 0)
-    }
-    const rsNew = dot(r, r)
-    if (rsNew < 1e-18) {
-      break
-    }
-    const beta = rsNew / rs
-    for (let i = 0; i < n; i++) {
-      p[i] = (r[i] ?? 0) + beta * (p[i] ?? 0)
-    }
-    rs = rsNew
-  }
-  subtractMean(phi)
-  return phi
+  return solveGraphPoisson({ neighbors, b, maxIterationFactor: 5, tolerance: 1e-18 })
 }
 
 // Rotation curve v^2(r) = r * |dphi/dr| from the modified potential phi = L^-1 b +
@@ -119,23 +75,14 @@ export function rotationCurve(input: { side: number; nonlocal: number }): { r: n
   }
   // Slope of v^2 over the outer half (negative = Keplerian decline, near zero = flat).
   const half = Math.floor(rr.length / 2)
-  const ox = rr.slice(half)
-  const oy = v2.slice(half)
-  const mx = ox.reduce((a, b2) => a + b2, 0) / Math.max(1, ox.length)
-  const my = oy.reduce((a, b2) => a + b2, 0) / Math.max(1, oy.length)
-  let cov = 0
-  let varx = 0
-  for (let i = 0; i < ox.length; i++) {
-    cov += ((ox[i] ?? 0) - mx) * ((oy[i] ?? 0) - my)
-    varx += ((ox[i] ?? 0) - mx) * ((ox[i] ?? 0) - mx)
-  }
+  const outerSlope = linearFit({ xs: rr.slice(half), ys: v2.slice(half) }).slope
   // Flatness ratio: mean v^2 over the outer third versus the inner third. Below one
   // is a Keplerian decline, at or above one is a flat (or rising) curve.
   const third = Math.max(1, Math.floor(v2.length / 3))
   const innerMean = v2.slice(0, third).reduce((a, b2) => a + b2, 0) / third
   const outerMean = v2.slice(v2.length - third).reduce((a, b2) => a + b2, 0) / third
   const flatnessRatio = innerMean > 0 ? outerMean / innerMean : 0
-  return { r: rr, v2, outerSlope: varx === 0 ? 0 : cov / varx, flatnessRatio }
+  return { r: rr, v2, outerSlope, flatnessRatio }
 }
 
 export default defineExperiment({

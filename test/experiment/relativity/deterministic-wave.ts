@@ -15,49 +15,27 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { powerLawExponent } from '@/code/measure/regression'
+import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// deterministic reversible second-order step: next = (cur[x-1] + cur[x+1] - prev[x]) mod 3
-function step(prev: Uint8Array, cur: Uint8Array, next: Uint8Array, L: number): void {
-  for (let x = 0; x < L; x++) {
-    const left = cur[(x - 1 + L) % L]!
-    const right = cur[(x + 1) % L]!
-    next[x] = (((left + right - prev[x]! ) % 3) + 3) % 3
-  }
+// 1D-ring neighbours (x-1, x+1) for the second-order reversible wave on a line
+function ringNeighbors(L: number): number[][] {
+  const neighbors: number[][] = []
+  for (let x = 0; x < L; x++) neighbors.push([(x - 1 + L) % L, (x + 1) % L])
+  return neighbors
 }
 
-// stochastic perception rule (the random hop), for the diffusive comparison
-function stochasticBeat(tone: Int8Array, L: number, moved: Uint8Array, rng: { next: () => number }, arrow: number): void {
-  moved.fill(0)
+// 1D-ring edges (i, i+1) for the conserving perception sweep on a line
+function ringEdges(L: number): { eu: Int32Array; ev: Int32Array } {
+  const eu = new Int32Array(L)
+  const ev = new Int32Array(L)
   for (let i = 0; i < L; i++) {
-    const v = i
-    const w = (i + 1) % L
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0 && rng.next() < arrow) {
-      const flip = rng.next() < 0.5
-      tone[v] = (flip ? 1 : -1) as -1 | 1
-      tone[w] = (flip ? -1 : 1) as -1 | 1
-      moved[v] = 1
-      moved[w] = 1
-    }
+    eu[i] = i
+    ev[i] = (i + 1) % L
   }
+  return { eu, ev }
 }
 
 export function deterministicWave(input?: { L?: number; beats?: number }): {
@@ -73,6 +51,10 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
   const L = input?.L ?? 2000
   const beats = input?.beats ?? 90
   const rng0 = makeRng({ seed: 7 })
+  const neighbors = ringNeighbors(L)
+  const ring = ringEdges(L)
+  const step = (prev: Uint8Array, cur: Uint8Array, next: Uint8Array): void =>
+    reversibleWaveStep({ neighbors, previous: prev, current: cur, next, modulus: 3 })
 
   // (1) reversibility: run forward, then step backward, recover the initial pair exactly
   const prev0 = new Uint8Array(L)
@@ -85,14 +67,14 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
   let cur = cur0.slice()
   for (let t = 0; t < 50; t++) {
     const next = new Uint8Array(L)
-    step(prev, cur, next, L)
+    step(prev, cur, next)
     prev = cur
     cur = next
   }
   // reverse: the inverse step recovers prev from (cur, next), so step backward with roles swapped
   for (let t = 0; t < 50; t++) {
     const back = new Uint8Array(L)
-    step(cur, prev, back, L) // symmetric form recovers the earlier slice
+    step(cur, prev, back) // symmetric form recovers the earlier slice
     cur = prev
     prev = back
   }
@@ -122,8 +104,8 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     for (let t = 1; t <= beats; t++) {
       const na = new Uint8Array(L)
       const nb = new Uint8Array(L)
-      step(pa, ca, na, L)
-      step(pb, cb, nb, L)
+      step(pa, ca, na)
+      step(pb, cb, nb)
       pa = ca
       ca = na
       pb = cb
@@ -158,7 +140,7 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
       const r = makeRng({ seed: 200 + run })
       let pos = center
       for (let t = 1; t <= beats; t++) {
-        stochasticBeat(tone, L, moved, r, 0)
+        conservingEdgeSweep({ tone, eu: ring.eu, ev: ring.ev, moved, rng: r, arrow: 0 })
         if (tone[pos] === 0) for (let d = -1; d <= 1; d += 2) if (tone[(pos + d + L) % L] === 1) {
           pos = (pos + d + L) % L
           break

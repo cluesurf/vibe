@@ -18,35 +18,11 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
+import { causalLattice } from '@/code/substrate/causal-lattice'
 import { histogramFlatness } from '@/code/measure/histogram'
+import { linkRapidities, boostCoords } from '@/code/measure/rapidity'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Rapidities of the timelike causal links, optionally within a central time band
-// (to suppress the diamond's boundary bias).
-function linkRapidities(
-  coords: Float64Array,
-  links: ReadonlyArray<Uint32Array>,
-  band: { lo: number; hi: number } | null,
-): number[] {
-  const out: number[] = []
-  for (let a = 0; a < links.length; a++) {
-    const ta = coords[a * 2] ?? 0
-    const xa = coords[a * 2 + 1] ?? 0
-    for (const b of links[a] ?? []) {
-      const tb = coords[b * 2] ?? 0
-      const xb = coords[b * 2 + 1] ?? 0
-      const dt = tb - ta
-      const dx = xb - xa
-      if (dt <= 1e-9) continue
-      const v = dx / dt
-      if (Math.abs(v) >= 1 - 1e-9) continue // null/spacelike, no finite rapidity
-      if (band && (ta < band.lo || tb > band.hi)) continue
-      out.push(Math.atanh(v))
-    }
-  }
-  return out
-}
 
 // Normalized Shannon entropy of the rapidity histogram, 1 = flat (boost-invariant),
 // near 0 = concentrated (preferred frame).
@@ -58,47 +34,6 @@ function std(xs: number[]): number {
   if (xs.length === 0) return 0
   const m = xs.reduce((a, b) => a + b, 0) / xs.length
   return Math.sqrt(xs.reduce((s, x) => s + (x - m) ** 2, 0) / xs.length)
-}
-
-// A 1+1 causal lattice: integer points in a diamond, causal order dt >= |dx|.
-function latticeCausalSet(half: number): { coords: Float64Array; links: ReadonlyArray<Uint32Array> } {
-  const pts: Array<[number, number]> = []
-  for (let t = 0; t <= 2 * half; t++) {
-    const reach = Math.min(t, 2 * half - t)
-    for (let x = -reach; x <= reach; x++) pts.push([t, x])
-  }
-  const n = pts.length
-  const coords = new Float64Array(n * 2)
-  pts.forEach(([t, x], i) => {
-    coords[i * 2] = t
-    coords[i * 2 + 1] = x
-  })
-  // full future relation, then transitive reduction (direct cover computation)
-  const future: number[][] = Array.from({ length: n }, () => [])
-  for (let a = 0; a < n; a++) {
-    for (let b = 0; b < n; b++) {
-      const dt = (pts[b]![0]) - (pts[a]![0])
-      const dx = (pts[b]![1]) - (pts[a]![1])
-      if (dt > 0 && dt >= Math.abs(dx)) future[a]!.push(b)
-    }
-  }
-  const futureSet = future.map((f) => new Set(f))
-  const links: Uint32Array[] = []
-  for (let a = 0; a < n; a++) {
-    const covers: number[] = []
-    for (const b of future[a] ?? []) {
-      let isCover = true
-      for (const c of future[a] ?? []) {
-        if (c !== b && futureSet[c]?.has(b)) {
-          isCover = false
-          break
-        }
-      }
-      if (isCover) covers.push(b)
-    }
-    links.push(Uint32Array.from(covers))
-  }
-  return { coords, links }
 }
 
 export function lorentzBoost(input: { seed: number }): {
@@ -120,12 +55,13 @@ export function lorentzBoost(input: { seed: number }): {
   const RANGE = 2.0
   const BINS = 16
 
-  const sprinkleEtas = linkRapidities(coords, poset.links, band)
+  const sprinkleEtas = linkRapidities({ coords, links: poset.links, band })
   const sprinkleFlatness = flatness(sprinkleEtas, RANGE, BINS)
   const sprinkleStd = std(sprinkleEtas)
 
-  const lat = latticeCausalSet(14)
-  const latticeEtas = linkRapidities(lat.coords, lat.links, null)
+  const lat = causalLattice({ half: 14 })
+  const latticeCoords = lat.embedding?.coords ?? new Float64Array(0)
+  const latticeEtas = linkRapidities({ coords: latticeCoords, links: lat.links, band: null })
   const latticeFlatness = flatness(latticeEtas, RANGE, BINS)
   const latticeStd = std(latticeEtas)
 
@@ -135,20 +71,12 @@ export function lorentzBoost(input: { seed: number }): {
   // slice, and check the distribution shape (flatness) is preserved.
   const xi = 1.0
   const ch = Math.cosh(xi)
-  const sh = Math.sinh(xi)
-  const n = coords.length / 2
-  const boosted = new Float64Array(coords.length)
-  for (let i = 0; i < n; i++) {
-    const t = coords[i * 2] ?? 0
-    const x = coords[i * 2 + 1] ?? 0
-    boosted[i * 2] = ch * t + sh * x
-    boosted[i * 2 + 1] = sh * t + ch * x
-  }
+  const boosted = boostCoords({ coords, rapidity: xi })
   // boosted time band: map the central band's centre through the boost
   const tc = 0.5
   const boostedCentre = ch * tc
   const boostedBand = { lo: boostedCentre - 0.25 * ch, hi: boostedCentre + 0.25 * ch }
-  const boostedEtas = linkRapidities(boosted, poset.links, boostedBand)
+  const boostedEtas = linkRapidities({ coords: boosted, links: poset.links, band: boostedBand })
   // de-mean both so we compare shape, not the (expected) shift by xi
   const meanShift = boostedEtas.length ? boostedEtas.reduce((a, b) => a + b, 0) / boostedEtas.length : 0
   const boostedCentered = boostedEtas.map((e) => e - meanShift)

@@ -64,3 +64,23 @@ export function regionEntanglementEntropy(input: {
   }
   return s
 }
+
+// The Page average entanglement entropy (Page 1993) of a subsystem of Hilbert-space dimension m in a
+// random pure state of an m * n bipartite system, S(m, n) = sum_{k=n+1}^{m n} 1/k - (m - 1) / (2 n)
+// for m <= n (symmetric in m and n). For a black hole plus its radiation this rises while the
+// radiation is the smaller side and falls once it is larger, the turnover at the Page time. Returns
+// the entropy in nats.
+export function pageAverageEntropy(input: { dimA: number; dimB: number }): number {
+  let m = input.dimA
+  let n = input.dimB
+  if (m > n) {
+    const t = m
+    m = n
+    n = t
+  }
+  let s = 0
+  for (let k = n + 1; k <= m * n; k++) {
+    s += 1 / k
+  }
+  return s - (m - 1) / (2 * n)
+}
