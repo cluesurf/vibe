@@ -14,6 +14,8 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { powerLawExponent } from '@/code/measure/regression'
+import { differenceRmsWidthRing } from '@/code/measure/front-speed'
+import { totalCharge } from '@/code/measure/tone-census'
 import {
   PERCEPTION_FORWARD as FWD,
   PERCEPTION_INVERSE as INV,
@@ -24,12 +26,6 @@ import { verdict } from '@/test/scaffold/verdict'
 
 function blockBeat(tone: Int8Array, L: number, parity: number, table: number[]): void {
   perceptionBlockBeat({ tone, length: L, parity, table })
-}
-
-function totalCharge(tone: Int8Array): number {
-  let s = 0
-  for (let i = 0; i < tone.length; i++) s += tone[i]!
-  return s
 }
 
 export function deterministicPerception(input?: { L?: number; beats?: number }): {
@@ -82,15 +78,8 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
     blockBeat(a, L, (t - 1) % 2, FWD)
     blockBeat(b, L, (t - 1) % 2, FWD)
     if (t % 5 === 0) {
-      let w = 0
-      let sx2 = 0
-      for (let x = 0; x < L; x++) if (a[x] !== b[x]) {
-        const d = Math.min(Math.abs(x - center), L - Math.abs(x - center))
-        w++
-        sx2 += d * d
-      }
       times.push(t)
-      spreads.push(w > 0 ? Math.sqrt(sx2 / w) : 0)
+      spreads.push(differenceRmsWidthRing({ a, b, length: L, center }))
     }
   }
   const spreadExponent = powerLawExponent({ times, spreads })

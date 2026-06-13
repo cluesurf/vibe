@@ -5,7 +5,7 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { spectralDimension } from '@/code/measure/dimension'
-import { highestDegreeNode } from '@/code/tool/graph'
+import { mostConnectedNode } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -14,7 +14,7 @@ export function horosphere3434(): { cells: number; meanDegree: number; specDim16
   const n = slab.cellCount
   let sum = 0
   for (let i = 0; i < n; i++) sum += slab.neighbors[i]!.length
-  const center = highestDegreeNode(slab.neighbors)
+  const center = mostConnectedNode(slab.neighbors)
   // spectral dimension via the lazy-walk return probability, the central difference at
   // t = 16 is the endpoint slope between t = 14 and t = 18.
   const specDim16 = spectralDimension({ neighbors: slab.neighbors, start: center, t1: 14, t2: 18 })

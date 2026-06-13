@@ -13,7 +13,7 @@
 // are g*F_i for the precomputed face reflections F_i.
 
 import { mirrorFrame } from '@/code/substrate/coxeter/schlafli'
-import { highestDegreeNode, largestComponentNodes } from '@/code/tool/graph'
+import { largestComponentNodes, mostConnectedNode } from '@/code/tool/graph'
 
 type Mat = number[][]
 type Vec = number[]
@@ -471,6 +471,6 @@ export function bandLargestComponentSubgraph(input: {
   const neighbors: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)!).filter((x) => x !== undefined) as number[])
   const coords = lcc.map((v) => bcoords[v]!)
   // highest-degree cell, the walk start for the spectral-dimension probe
-  const start = highestDegreeNode(neighbors)
+  const start = mostConnectedNode(neighbors)
   return { neighbors, coords, start, largestComponentPercent }
 }

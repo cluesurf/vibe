@@ -18,29 +18,16 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { kahlerDirac, cellComplexOf } from '@/code/operator/dirac'
-import { operatorFromSparse, sparseMatVec, type LinearOperator, type SparseMatrix } from '@/code/algebra/linear/sparse'
+import { sparseWithAubryAndrePotential, type LinearOperator, type SparseMatrix } from '@/code/algebra/linear/sparse'
 import { returnProbability } from '@/code/measure/localization'
 import { makeGraph } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const GOLDEN = 0.6180339887498949
-
 // the Kahler-Dirac operator with a deterministic quasiperiodic on-site potential of given strength
 // added to the diagonal. strength 0 is the clean operator. A large strength localizes (Aubry-Andre).
-function diracOperator(dirac: SparseMatrix, strength: number): LinearOperator {
-  if (strength === 0) return operatorFromSparse(dirac)
-  const potential = new Float64Array(dirac.rows)
-  for (let i = 0; i < dirac.rows; i++) potential[i] = strength * Math.cos(2 * Math.PI * GOLDEN * i)
-  return {
-    size: dirac.rows,
-    apply: ({ x }) => {
-      const y = sparseMatVec(dirac, { x })
-      for (let i = 0; i < dirac.rows; i++) y[i] = y[i]! + potential[i]! * x[i]!
-      return y
-    },
-  }
-}
+const diracOperator = (dirac: SparseMatrix, strength: number): LinearOperator =>
+  sparseWithAubryAndrePotential(dirac, strength)
 
 // build D on a {5,3,4} bulk of the given size and return the time-averaged return probability for the
 // clean fermion and for the strongly disordered one, from the most-connected central cell

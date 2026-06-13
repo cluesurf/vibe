@@ -8,40 +8,20 @@
 // interference, the heart of quantum behaviour, emerge on the mesh.
 // Run: npx tsx code/experiment/p17-quantum-walk.ts
 
-import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import {
   continuousQuantumWalkMsd,
   continuousClassicalWalkMsd,
 } from '@/code/dynamics/quantum-walk'
+import { chainOperators } from '@/code/operator/chain-operators'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// the continuous-time walk MSDs live in the dynamics library; re-exported under the names this
-// experiment (and test/test.ts) have always used.
+// the continuous-time walk MSDs live in the dynamics library, the 1D chain operators in
+// code/operator/chain-operators; re-exported under the names test/test.ts has always used.
 export const quantumMsd = continuousQuantumWalkMsd
 export const classicalMsd = continuousClassicalWalkMsd
-
-// A 1D chain of n sites: adjacency A (hopping) and Laplacian L = D - A.
-export function chainOperators(n: number): { adjacency: ReturnType<typeof makeDense>; laplacian: ReturnType<typeof makeDense> } {
-  const adjacency = makeDense({ rows: n, cols: n })
-  const laplacian = makeDense({ rows: n, cols: n })
-  for (let i = 0; i < n; i++) {
-    let degree = 0
-    if (i > 0) {
-      adjacency.data[i * n + (i - 1)] = 1
-      laplacian.data[i * n + (i - 1)] = -1
-      degree++
-    }
-    if (i < n - 1) {
-      adjacency.data[i * n + (i + 1)] = 1
-      laplacian.data[i * n + (i + 1)] = -1
-      degree++
-    }
-    laplacian.data[i * n + i] = degree
-  }
-  return { adjacency, laplacian }
-}
+export { chainOperators }
 
 export default defineExperiment({
   id: 'quantum/quantum-walk',

@@ -1,7 +1,6 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import type { DenseMatrix } from '@/code/algebra/linear/dense'
+import { gramSignature, symbolContainsSubdiagram } from '@/code/substrate/coxeter/gram-signature'
 import { trialityClasses } from '@/code/algebra/group/cell-24'
 import { multiply, quaternion, quaternionKey, negate, type Quaternion } from '@/code/algebra/group/quaternion'
 
@@ -14,28 +13,10 @@ import { multiply, quaternion, quaternionKey, negate, type Quaternion } from '@/
 // control is the EUCLIDEAN 24-cell honeycomb {3,4,3,3}, the same 24-cell but flat, so the curvature is the 5D
 // extension, not the 24-cell.
 
-// the Coxeter Gram matrix signature for a linear Schlafli symbol, the count of negative and zero eigenvalues
-const signature = (symbol: number[]): { negative: number; zero: number } => {
-  const size = symbol.length + 1
-  const data = new Float64Array(size * size)
-  for (let index = 0; index < size; index++) data[index * size + index] = 1
-  for (let edge = 0; edge < symbol.length; edge++) {
-    const value = -Math.cos(Math.PI / symbol[edge]!)
-    data[edge * size + (edge + 1)] = value
-    data[(edge + 1) * size + edge] = value
-  }
-  const matrix: DenseMatrix = { form: 'dense', rows: size, cols: size, data }
-  const values = Array.from(eigSymmetric({ matrix }).values)
-  return { negative: values.filter((value) => value < -1e-9).length, zero: values.filter((value) => Math.abs(value) < 1e-9).length }
-}
-
-// does the symbol contain the consecutive sub-diagram [3,4,3] (the F4 / 24-cell / D4 substructure)
-const contains24Cell = (symbol: number[]): boolean => {
-  for (let start = 0; start + 2 < symbol.length; start++) {
-    if (symbol[start] === 3 && symbol[start + 1] === 4 && symbol[start + 2] === 3) return true
-  }
-  return false
-}
+// the Coxeter Gram matrix signature and the [3,4,3] (F4 / 24-cell / D4) sub-diagram test live in
+// code/substrate/coxeter/gram-signature.
+const signature = gramSignature
+const contains24Cell = (symbol: number[]): boolean => symbolContainsSubdiagram(symbol, [3, 4, 3])
 
 const rotation2pi = quaternion(Math.cos(Math.PI), 0, 0, Math.sin(Math.PI)) // equals minus one
 const carriesSpinor = (representative: Quaternion): boolean =>

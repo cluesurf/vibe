@@ -5,33 +5,11 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { norm } from '@/code/algebra/vector'
-import { toCsr } from '@/code/tool/graph'
-
-function boundaryDimension(symbol: number[], maxCells: number): { N: number; nb: number; boundaryDim: number } {
-  const g = buildCellGraph({ symbol: symbol as never, maxCells })
-  const N = g.cellCount
-  const { offsets: off, adj } = toCsr(g.neighbors)
-  const rad = g.coords.map(norm); const rmax = Math.max(...rad)
-  const boundary = [...Array(N).keys()].filter((i) => rad[i]! > 0.78 * rmax)
-  const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1
-  // sub-adjacency restricted to the boundary shell
-  const bAdj: number[][] = boundary.map((b) => { const out: number[] = []; for (let q = off[b]!; q < off[b + 1]!; q++) { if (isB[adj[q]!]) out.push(adj[q]!) } return out })
-  const id = new Map<number, number>(); boundary.forEach((b, i) => id.set(b, i))
-  const nb = boundary.length
-  const { offsets: boff, adj: badj } = toCsr(bAdj.map((row) => row.map((w) => id.get(w)!)))
-  // spectral dimension of the boundary graph alone (its intrinsic dimension)
-  let center = 0, best = -1; for (let i = 0; i < nb; i++) { const d = boff[i + 1]! - boff[i]!; if (d > best) { best = d; center = i } }
-  let p = new Float64Array(nb); p[center] = 1; let np = new Float64Array(nb); const P: number[] = []
-  for (let t = 0; t < 16; t++) { P.push(p[center]!); np.fill(0); for (let i = 0; i < nb; i++) { const pi = p[i]!; if (!pi) continue; const d = boff[i + 1]! - boff[i]!; if (!d) { np[i] = np[i]! + pi; continue } np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = boff[i]!; q < boff[i + 1]!; q++) np[badj[q]!] = np[badj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const ds = (t: number): number => (-2 * (Math.log(P[t + 2]!) - Math.log(P[t - 2]!))) / (Math.log(t + 2) - Math.log(t - 2))
-  return { N, nb, boundaryDim: Math.round(ds(4) * 100) / 100 }
-}
+import { boundaryDimension } from '@/code/measure/boundary-dimension'
 
 export function holography(): { fiveBoundaryDim: number; fourBoundaryDim: number; confounded: boolean } {
-  const a = boundaryDimension([5, 3, 4], 40000)
-  const b = boundaryDimension([3, 4, 3, 4], 40000)
+  const a = boundaryDimension({ symbol: [5, 3, 4], maxCells: 40000 })
+  const b = boundaryDimension({ symbol: [3, 4, 3, 4], maxCells: 40000 })
   // a finite hyperbolic patch is ~99% boundary, so the "shell" is the whole bulk (and the 4D shell sub-graph
   // fragments), the readings (2->3.07, 3->0.45) are wrong -> the method is CONFOUNDED, same as the gravity measure.
   const confounded = Math.abs(a.boundaryDim - 2) > 0.7 || Math.abs(b.boundaryDim - 3) > 0.7

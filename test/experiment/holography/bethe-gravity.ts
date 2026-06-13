@@ -11,37 +11,17 @@ import { verdict } from '@/test/scaffold/verdict'
 import {
   betheCavityDecay,
   betheBoundaryExponent,
+  finiteTreeResolventRatio,
 } from '@/code/algebra/linear/bethe-resolvent'
 
-// local aliases keeping the (z, E) call shape of this experiment
+// local aliases keeping the (z, E) call shape of this experiment; the finite-tree validation solve lives
+// in code/algebra/linear/bethe-resolvent.
 const muFor = (z: number, E: number): number =>
   betheCavityDecay({ coordination: z, energy: E })
 const boundaryExponent = (z: number, E: number): number =>
   betheBoundaryExponent({ coordination: z, energy: E })
-
-// validate, build a finite rooted tree (branching b, depth D), solve (z I - A) phi = delta_root, measure
-// phi(d)/phi(d-1) -> should equal mu
-function validateTree(z: number, depth: number): number {
-  const b = z - 1
-  // nodes by level, level 0 = root (1 node), level k has b^k nodes; parent of a node = previous level
-  const levelSize: number[] = [1]; for (let k = 1; k <= depth; k++) levelSize.push(levelSize[k - 1]! * b)
-  const offset: number[] = [0]; for (let k = 1; k <= depth + 1; k++) offset.push(offset[k - 1]! + (levelSize[k - 1] ?? 0))
-  const N = offset[depth + 1]!
-  const level = (i: number): number => { let k = 0; while (k <= depth && i >= offset[k + 1]!) k++; return k }
-  const parent = (i: number): number => { const k = level(i); if (k === 0) return -1; const within = i - offset[k]!; return offset[k - 1]! + Math.floor(within / b) }
-  // degree, root has b children (z would be b+1 but root has no parent), interior has 1 parent + b children = z,
-  // leaves have 1 parent. Use the actual degree per node for L = deg*I - A.
-  const children = (i: number): number[] => { const k = level(i); if (k >= depth) return []; const within = i - offset[k]!; const base = offset[k + 1]! + within * b; return Array.from({ length: b }, (_, j) => base + j) }
-  // solve (D - A) phi = delta_0 by Gauss-Seidel-ish (the tree is small)
-  const phi = new Float64Array(N); const src = new Float64Array(N); src[0] = 1
-  const deg = (i: number): number => { let d = 0; if (parent(i) >= 0) d++; d += children(i).length; return d }
-  for (let it = 0; it < 4000; it++) {
-    for (let i = 0; i < N; i++) { let s = src[i]!; const p = parent(i); if (p >= 0) s += phi[p]!; for (const c of children(i)) s += phi[c]!; phi[i] = s / (deg(i) + 0.0) }
-  }
-  // measure phi at level d (one representative) ratio
-  const r2 = phi[offset[2]!]!, r3 = phi[offset[3]!]!
-  return r3 / r2
-}
+const validateTree = (z: number, depth: number): number =>
+  finiteTreeResolventRatio({ coordination: z, depth })
 
 export function betheGravity(): { alpha24: number; alpha12: number; massiveAlpha: number; validated: boolean } {
   const alpha24 = Math.round(boundaryExponent(24, 24) * 1000) / 1000 // {3,4,3,4} bulk, z=24, Laplacian E=z

@@ -15,49 +15,9 @@
 // The target is a pattern of K cells, the gap is the Hamming distance to it. Run: npx tsx code/experiment/p147-direction-intention.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { solveGoalDirected, solveUndirected } from '@/code/dynamics/goal-directed-search'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function solveGoalDirected(target: Int8Array, rng: { next: () => number }): number {
-  // start random, then KEEP gap-reducing moves (the arrow values -gap, the selection keeps improvements)
-  const K = target.length
-  const s = new Int8Array(K)
-  for (let i = 0; i < K; i++) s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
-  let steps = 0
-  let gap = 0
-  for (let i = 0; i < K; i++) if (s[i] !== target[i]) gap++
-  const guard = 1000 * K
-  while (gap > 0 && steps < guard) {
-    steps++
-    const i = Math.floor(rng.next() * K)
-    // a move toward the goal is KEPT only if it reduces the gap (goal-directed selection)
-    if (s[i] !== target[i]) {
-      s[i] = target[i]!
-      gap--
-    }
-  }
-  return steps
-}
-
-function solveUndirected(target: Int8Array, rng: { next: () => number }, budget: number): { solved: boolean; steps: number } {
-  // no goal, set a random cell to a random value (aimless computation), success only by chance
-  const K = target.length
-  const s = new Int8Array(K)
-  for (let i = 0; i < K; i++) s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
-  let gap = 0
-  for (let i = 0; i < K; i++) if (s[i] !== target[i]) gap++
-  for (let steps = 1; steps <= budget; steps++) {
-    const i = Math.floor(rng.next() * K)
-    const v = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
-    if (s[i] !== v) {
-      if (s[i] === target[i]) gap++
-      else if (v === target[i]) gap--
-      s[i] = v
-    }
-    if (gap === 0) return { solved: true, steps }
-  }
-  return { solved: false, steps: budget }
-}
 
 export function directionIntention(): {
   scan: { K: number; goalSteps: number; undirectedSolved: boolean; expectedUndirected: number }[]
@@ -72,11 +32,11 @@ export function directionIntention(): {
   const scan = Ks.map((K) => {
     const target = new Int8Array(K)
     for (let i = 0; i < K; i++) target[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
-    const goalSteps = solveGoalDirected(target, rng)
+    const goalSteps = solveGoalDirected({ target, rng })
     // average undirected success over a few trials
     let solvedCount = 0
     const trials = 3
-    for (let t = 0; t < trials; t++) if (solveUndirected(target, rng, budget).solved) solvedCount++
+    for (let t = 0; t < trials; t++) if (solveUndirected({ target, rng, budget }).solved) solvedCount++
     return { K, goalSteps, undirectedSolved: solvedCount > trials / 2, expectedUndirected: Math.pow(2, K) }
   })
 

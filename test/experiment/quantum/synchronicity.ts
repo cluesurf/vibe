@@ -18,52 +18,15 @@
 import { makeRng } from '@/code/tool/rng'
 import {
   storedPatterns,
-  hebbianFills,
-  hopfieldStep as step,
-  toneOverlap as overlap,
   mutatePattern,
   bankOverlap as patternOverlap,
+  runHopfieldPair as runPair,
 } from '@/code/operator/hopfield'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// Two separate subsystems (no edges between them), each its own Hopfield landscape, both driven by
-// the SAME ambient rhythm (mode sequence). Each is cued toward ITS OWN pattern m, then relaxes.
-// Returns the mean state overlap at the end of each window.
-function runPair(input: { size: number; pA: Int8Array[]; pB: Int8Array[]; modeSeq: number[]; seed: number }): number {
-  const { size, pA, pB, modeSeq } = input
-  const Ja = hebbianFills(pA, size)
-  const Jb = hebbianFills(pB, size)
-  const ra = makeRng({ seed: input.seed })
-  const rb = makeRng({ seed: input.seed + 1 })
-  let a = Int8Array.from({ length: size }, () => (ra.nextInt({ max: 3 }) - 1) as -1 | 0 | 1)
-  let b = Int8Array.from({ length: size }, () => (rb.nextInt({ max: 3 }) - 1) as -1 | 0 | 1)
-  const zero = new Float64Array(size)
-  const cueCount = Math.round(0.55 * size)
-  const cueHold = 4
-  const dwell = 30
-  const overlaps: number[] = []
-  for (let t = 0; t < modeSeq.length * dwell; t++) {
-    const phase = t % dwell
-    const m = modeSeq[Math.floor(t / dwell)] ?? 0
-    let cueA: Int8Array | null = null
-    let cueB: Int8Array | null = null
-    if (phase < cueHold) {
-      cueA = new Int8Array(size)
-      cueB = new Int8Array(size)
-      const qa = pA[m] ?? new Int8Array(size)
-      const qb = pB[m] ?? new Int8Array(size)
-      for (let i = 0; i < cueCount; i++) {
-        cueA[i] = qa[i] as -1 | 0 | 1
-        cueB[i] = qb[i] as -1 | 0 | 1
-      }
-    }
-    a = step(Ja, a, zero, cueA)
-    b = step(Jb, b, zero, cueB)
-    if (phase === dwell - 1) overlaps.push(Math.abs(overlap(a, b)))
-  }
-  return overlaps.reduce((x, y) => x + y, 0) / Math.max(1, overlaps.length)
-}
+// The two-subsystem Hopfield pair (no link, shared rhythm) lives in code/operator/hopfield as
+// runHopfieldPair, imported here under the name this experiment has always used.
 
 export function synchronicity(input: { seed: number }): {
   sharedCorrelation: number

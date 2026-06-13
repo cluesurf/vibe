@@ -1,5 +1,6 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { recoverByMajority, corruptConnectedRegion as corruptRegion } from '@/code/measure/redundancy-code'
 
 // Persistence via holographic error correction on {5,3,4}, the route to a persistent self that does not
 // depend on the unsolved bare-rule persistence. The pure rule churns (P101), but {5,3,4} is HOLOGRAPHIC, the
@@ -11,19 +12,10 @@ import { verdict } from '@/test/scaffold/verdict'
 // region a small fraction of the exponential boundary, so local damage is always below the threshold, the
 // self is protected by the whole boundary.
 
-// the boundary is N sites carrying the logical bit redundantly, a connected region is corrupted (flipped),
-// and the bulk logical is recovered by majority vote over the boundary
-const recoverByMajority = (boundary: number[]): number => {
-  const ones = boundary.reduce((sum, bit) => sum + bit, 0)
-  return ones * 2 >= boundary.length ? 1 : 0
-}
-
-const corruptConnectedRegion = (size: number, fraction: number, logical: number): number[] => {
-  const boundary = new Array(size).fill(logical)
-  const corrupt = Math.round(size * fraction)
-  for (let index = 0; index < corrupt; index++) boundary[index] = 1 - logical // flip a connected block
-  return boundary
-}
+// the classical holographic redundancy code (majority recovery, connected-region corruption) lives in
+// code/measure/redundancy-code.
+const corruptConnectedRegion = (size: number, fraction: number, logical: number): number[] =>
+  corruptRegion({ size, fraction, logical })
 
 export default defineExperiment({
   id: 'holography/holographic-code-534',

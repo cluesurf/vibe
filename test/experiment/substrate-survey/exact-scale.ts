@@ -13,53 +13,10 @@ import { join } from 'node:path'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { saveGraph, loadGraph, type StoredGraph } from '@/code/tool/graph-store'
-import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
-import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { edgesFromCsr } from '@/code/tool/graph'
+import { imprintRetention } from '@/code/measure/imprint-retention'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// The CSR-to-edge-list conversion lives in code/tool/graph.
-
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  offsets: Int32Array,
-  adj: Int32Array,
-  moved: Uint8Array,
-  rng: Rng,
-  arrowProb: number,
-  cohesive: boolean,
-  temp: number,
-): void {
-  if (cohesive) {
-    cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: arrowProb, escapeProbability: temp })
-  } else {
-    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: arrowProb })
-  }
-}
-
-// imprint a BFS-ball pleasure blob, run, return its retention above background
-function imprintRetention(g: StoredGraph, eu: Int32Array, ev: Int32Array, cohesive: boolean, blobSize: number): number {
-  const n = g.cellCount
-  const tone = new Int8Array(n)
-  const moved = new Uint8Array(n)
-  const rngWarm = makeRng({ seed: 9 })
-  for (let b = 0; b < 30; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rngWarm, 0.05, cohesive, 0.02)
-  const blob = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: n, source: 0, limit: blobSize })
-  for (const i of blob) tone[i] = 1
-  const meanBlob = (): number => blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
-  const start = meanBlob()
-  const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 30; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rng2, 0.05, cohesive, 0.02)
-  const after = meanBlob()
-  let bg = 0
-  for (let i = 0; i < n; i++) bg += tone[i]!
-  bg /= n
-  return (after - bg) / (start - bg || 1)
-}
 
 export function exactScale(input?: { n?: number }): {
   n: number
@@ -96,8 +53,8 @@ export function exactScale(input?: { n?: number }): {
   // memory on the real {5,3,4} geometry
   const { eu, ev } = edgesFromCsr(loaded.offsets, loaded.adj, loaded.cellCount)
   const blobSize = Math.min(2000, Math.floor(loaded.cellCount / 8))
-  const cohesiveRetention = imprintRetention(loaded, eu, ev, true, blobSize)
-  const randomRetention = imprintRetention(loaded, eu, ev, false, blobSize)
+  const cohesiveRetention = imprintRetention({ graph: loaded, eu, ev, cohesive: true, blobSize })
+  const randomRetention = imprintRetention({ graph: loaded, eu, ev, cohesive: false, blobSize })
   const memoryOnRealGeometry = cohesiveRetention > 0.4 && cohesiveRetention > randomRetention + 0.15
 
   // The engine + persistence is the deliverable. Memory-at-scale is a separate, honest research finding:

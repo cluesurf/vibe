@@ -18,57 +18,13 @@
 //      amplitude^2 = |c|^2, the Born rule.
 // Run: npx tsx code/experiment/p70-born-rule.ts
 
-import { makeRng, sampleEmpiricalFrequencies } from '@/code/tool/rng'
+import {
+  quadratureAdditivityResidual,
+  exponentResidual,
+  fairSampleFrequencies,
+} from '@/code/measure/born-rule'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Realise the model's one assumption: amplitude_k = sqrt(count_k). Given amplitudes
-// c_k we build disjoint vibe sets of size n_k = round(c_k^2 * scale). Writing
-// n_k = c_k^2 here is the DEFINITION amplitude = sqrt(count), not the Born rule; the
-// Born rule is the separate claim that probability equals the share of vibes, derived
-// below by fair sampling.
-function patchesFromAmplitudes(amps: number[], scale: number): { counts: number[]; total: number } {
-  const counts = amps.map((c) => Math.max(1, Math.round(c * c * scale)))
-  const total = counts.reduce((a, b) => a + b, 0)
-  return { counts, total }
-}
-
-// (1) Substrate fact: disjoint patches' amplitudes add in quadrature. Merge adjacent
-// disjoint patches and check sqrt(n1+n2)^2 == sqrt(n1)^2 + sqrt(n2)^2.
-function quadratureAdditivityResidual(amps: number[], scale: number): number {
-  const { counts } = patchesFromAmplitudes(amps, scale)
-  let maxRes = 0
-  for (let i = 0; i + 1 < counts.length; i++) {
-    const n1 = counts[i] ?? 0
-    const n2 = counts[i + 1] ?? 0
-    const a1 = Math.sqrt(n1)
-    const a2 = Math.sqrt(n2)
-    const merged = Math.sqrt(n1 + n2)
-    maxRes = Math.max(maxRes, Math.abs(merged * merged - (a1 * a1 + a2 * a2)))
-  }
-  return maxRes
-}
-
-// (3) The functional equation that selects the exponent. For random amplitude pairs,
-// measure how badly (a1^2 + a2^2)^(p/2) differs from a1^p + a2^p. Zero only at p=2.
-function exponentResidual(p: number, seed: number): number {
-  const rng = makeRng({ seed })
-  let maxRel = 0
-  for (let i = 0; i < 4000; i++) {
-    const a1 = rng.next() + 0.05
-    const a2 = rng.next() + 0.05
-    const lhs = Math.pow(a1 * a1 + a2 * a2, p / 2)
-    const rhs = Math.pow(a1, p) + Math.pow(a2, p)
-    maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / (rhs || 1))
-  }
-  return maxRel
-}
-
-// (4) Fair sampling of the vibes: frequency of outcome k -> n_k / total = |c_k|^2.
-function fairSampleFrequencies(amps: number[], scale: number, draws: number, seed: number): number[] {
-  const { counts } = patchesFromAmplitudes(amps, scale)
-  return sampleEmpiricalFrequencies({ counts, draws, rng: makeRng({ seed }) })
-}
 
 export function bornRule(input: { seed: number }): {
   born: number[]
@@ -85,13 +41,13 @@ export function bornRule(input: { seed: number }): {
   const scale = 100000
 
   const quadratureResidual = quadratureAdditivityResidual(amps, scale)
-  const exponentResiduals = [1, 2, 3].map((p) => ({ p, residual: exponentResidual(p, input.seed + p) }))
+  const exponentResiduals = [1, 2, 3].map((p) => ({ p, residual: exponentResidual({ p, seed: input.seed + p }) }))
   const uniqueExponent = exponentResiduals.reduce(
     (best, e) => (e.residual < best.residual ? e : best),
     exponentResiduals[0] ?? { p: 2, residual: 0 },
   ).p
 
-  const sampled = fairSampleFrequencies(amps, scale, 400000, input.seed + 17)
+  const sampled = fairSampleFrequencies({ amps, scale, draws: 400000, seed: input.seed + 17 })
   let samplingError = 0
   for (let k = 0; k < born.length; k++) {
     samplingError = Math.max(samplingError, Math.abs((sampled[k] ?? 0) - (born[k] ?? 0)))

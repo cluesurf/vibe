@@ -1,6 +1,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
+import { streamCoxeterMeshGas, collideCoxeterMeshGas, countCoxeterMeshGas } from '@/code/operator/coxeter-mesh-gas'
 
 // The 5D pentacomb as a working MESH with the directional rule running on the ACTUAL generated cell graph, the
 // dynamical side of substrate-survey/pentacomb-spin-curvature. We generate the pentacomb {3,4,3,3,4} cell
@@ -39,20 +40,14 @@ export default defineExperiment({
     // (neighbour of the neighbour is the cell itself), streaming per direction is an involution, hence a
     // bijection: charge-conserving and exactly reversible. A collision (a fixed cyclic permutation of the 6
     // directions per cell) makes the dynamics non-trivial while staying reversible and conserving.
-    const stream = (state: number[][]): number[][] => {
-      const out = Array.from({ length: cells }, () => new Array(RANK).fill(0))
-      for (let cell = 0; cell < cells; cell++) for (let d = 0; d < RANK; d++) {
-        const target = adjacency[cell]![d]! === -1 ? cell : adjacency[cell]![d]!
-        out[target]![d] = state[cell]![d]!
-      }
-      return out
-    }
-    const collide = (state: number[][], forward: boolean): number[][] =>
-      state.map((slots) => slots.map((_, d) => slots[forward ? (d + RANK - 1) % RANK : (d + 1) % RANK]!))
+    // the reversible charge-conserving lattice-gas rule on the generated mesh adjacency lives in
+    // code/operator/coxeter-mesh-gas.
+    const stream = (state: number[][]): number[][] => streamCoxeterMeshGas({ state, adjacency, rank: RANK })
+    const collide = (state: number[][], forward: boolean): number[][] => collideCoxeterMeshGas({ state, rank: RANK, forward })
     // a deterministic initial charge pattern (no randomness): occupy direction (cell mod 6) at each cell
     let occupation: number[][] = Array.from({ length: cells }, (_, cell) => Array.from({ length: RANK }, (_, d) => (d === cell % RANK ? 1 : 0)))
     const initial = occupation.map((slots) => [...slots])
-    const count = (state: number[][]): number => state.reduce((sum, slots) => sum + slots.reduce((s, v) => s + v, 0), 0)
+    const count = countCoxeterMeshGas
     const charge0 = count(occupation)
 
     const steps = 30

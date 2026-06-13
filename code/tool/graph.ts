@@ -114,22 +114,6 @@ export function neighborsOf(g: Graph): number[][] {
   return g.neighbors.map((row) => Array.from(row))
 }
 
-// The index of the highest-degree node of a plain neighbors list (the first on a tie). The most-
-// connected, most-interior cell, the natural walk start for spectral-dimension / shell probes that
-// want to begin deep inside a graph rather than at an arbitrary boundary cell.
-export function highestDegreeNode(neighbors: number[][]): number {
-  let best = -1
-  let node = 0
-  for (let i = 0; i < neighbors.length; i++) {
-    const d = neighbors[i]!.length
-    if (d > best) {
-      best = d
-      node = i
-    }
-  }
-  return node
-}
-
 // The node indices of the largest connected component of a plain neighbors list, in
 // BFS-discovery order. The lightweight sibling of largestComponent (which rebuilds a
 // whole Graph): this just returns the member indices so the caller can carve its own
@@ -265,6 +249,30 @@ export function csrEccentricity(input: {
     fr = next
   }
   return { dist, far }
+}
+
+// The full BFS visitation order from node 0 over a CSR graph, as an Int32Array of length `size`
+// (every node listed once, in the order a breadth-first traversal reaches it). Used where a
+// deterministic distance-sorted index of all cells is wanted (e.g. taking BFS-order prefixes).
+export function csrBfsOrder(input: { offsets: ArrayLike<number>; adj: ArrayLike<number>; size: number }): Int32Array {
+  const { offsets, adj, size } = input
+  const order = new Int32Array(size)
+  const seen = new Uint8Array(size)
+  let head = 0
+  let tail = 0
+  seen[0] = 1
+  order[tail++] = 0
+  while (head < tail) {
+    const u = order[head++]!
+    for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
+      const w = adj[p]!
+      if (!seen[w]) {
+        seen[w] = 1
+        order[tail++] = w
+      }
+    }
+  }
+  return order
 }
 
 // The LAST node discovered by a BFS from `source` (the deepest node in BFS-queue order, with

@@ -15,6 +15,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { powerLawExponent } from '@/code/measure/regression'
+import { differenceRmsWidthRing } from '@/code/measure/front-speed'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { ringEdges, ringNeighbors } from '@/code/substrate/ring'
@@ -94,15 +95,8 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
       pb = cb
       cb = nb
       if (t % 5 === 0) {
-        let w = 0
-        let sx2 = 0
-        for (let x = 0; x < L; x++) if (ca[x] !== cb[x]) {
-          const d = Math.min(Math.abs(x - center), L - Math.abs(x - center))
-          w++
-          sx2 += d * d
-        }
         times.push(t)
-        spreads.push(w > 0 ? Math.sqrt(sx2 / w) : 0)
+        spreads.push(differenceRmsWidthRing({ a: ca, b: cb, length: L, center }))
       }
     }
     return { times, spreads }

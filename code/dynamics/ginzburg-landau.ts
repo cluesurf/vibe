@@ -11,6 +11,26 @@ export interface Complex2 {
   im: number
 }
 
+// A unit-modulus ring field of total winding w, the phase ramping uniformly around the ring.
+// The like-charge (nonzero total winding) configuration that cannot relax to vacuum.
+export function ringFieldWithWinding(length: number, winding: number): Complex2[] {
+  return Array.from({ length }, (_, x) => ({
+    re: Math.cos((2 * Math.PI * winding * x) / length),
+    im: Math.sin((2 * Math.PI * winding * x) / length),
+  }))
+}
+
+// A localized defect / anti-defect pair on the ring (net winding zero): the phase bumps up by 2pi
+// over the first half and back down over the second, so a +1 and a -1 defect sit on the same ring.
+// The opposite-charge configuration that annihilates to vacuum.
+export function ringDefectPair(length: number): Complex2[] {
+  return Array.from({ length }, (_, x) => {
+    const t = x / length
+    const th = 2 * Math.PI * (t < 0.5 ? Math.sin(Math.PI * 2 * t) : Math.sin(Math.PI * 2 * (1 - t)))
+    return { re: Math.cos(th), im: Math.sin(th) }
+  })
+}
+
 // The discrete Dirichlet energy of a complex field on the ring, sum over edges of
 // the squared difference between neighbouring values.
 export function ringFieldEnergy(psi: ReadonlyArray<Complex2>): number {
