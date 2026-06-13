@@ -70,18 +70,20 @@ function heatCapacity(): { negative: boolean; value: number } {
 
 function evaporation(): { lifetimeExponent: number; ok: boolean } {
   // Stefan-Boltzmann on the horizon: dM/dt = -sigma A T^4 ~ -M^2 * M^-4 = -M^-2. Integrating,
-  // M^3 ~ (t_end - t), so the lifetime ~ M0^3. Integrate numerically and fit the lifetime exponent.
+  // M^3 ~ (t_end - t), so the lifetime ~ M0^3. We integrate with an ADAPTIVE step that removes a fixed
+  // small FRACTION of M per step, so the integration is logarithmic in M (a few thousand steps) instead
+  // of a fixed dt, which would need ~1e11 steps to drain M under the M^-2 power law. The lifetime still
+  // scales exactly as M0^3, so the measured exponent is identical, just computed without the brute force.
   const lifetimeOf = (M0: number): number => {
     let M = M0
     let t = 0
-    const dt = 1e-2
     while (M > 1e-3) {
       const A = horizonArea(M)
       const T = hawkingTemp(M)
       const power = A * T ** 4 // Stefan-Boltzmann luminosity (up to constants)
+      const dt = (0.002 * M) / power // adaptive: drain 0.2% of M per step
       M -= power * dt
       t += dt
-      if (t > 1e9) break
     }
     return t
   }

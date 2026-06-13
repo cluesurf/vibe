@@ -9,6 +9,9 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
+import { pack, currentOf, toneColor } from '@/code/tone/pack'
+import { toCsr } from '@/code/tool/graph'
+import { idealDirection, busemann, extractBand } from '@/code/substrate/horosphere'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -26,13 +29,8 @@ const RADIUS = 3 // dot radius in pixels
 const ZOOM_FIT = 0.6
 const SEED_FRACTION = 0.10 // seed cells within this fraction of the band spread, at the centre
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
-const currentOf = (packed: number): number => packed & 3
 const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
-
-// blue = +1 (pleasure), red = -1 (pain), black = 0 (peace, undrawn)
-const COLORS: [number, number, number][] = [[0, 0, 0], [60, 130, 255], [255, 60, 70]]
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
@@ -43,11 +41,8 @@ async function run(): Promise<void> {
   const n = g.cellCount
   const coords = g.coords
   const dim = coords[0]!.length
-  let far = 0, farR = -1
-  for (let i = 0; i < n; i++) { const r = norm(coords[i]!); if (r > farR) { farR = r; far = i } }
-  const fc = coords[far]!, fn = norm(fc)
-  const xi = fc.map((v) => v / fn)
-  const busemann = coords.map((x) => { let d2 = 0; for (let k = 0; k < dim; k++) d2 += (x[k]! - xi[k]!) ** 2; return Math.log(d2 / Math.max(1e-12, 1 - dot(x, x))) })
+  const xi = idealDirection(coords)
+  const heights = busemann({ coords, ideal: xi })
 
   // orthonormal basis of the horosphere plane (perpendicular to the ideal direction xi)
   const seedVec = (k: number): number[] => Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
@@ -62,8 +57,7 @@ async function run(): Promise<void> {
 
   // extract the flat horosphere band once: cell index + (u,v) in the flat plane
   const raw: { index: number; u: number; v: number }[] = []
-  for (let i = 0; i < n; i++) {
-    if (Math.abs(busemann[i]! - LEVEL) >= HALF) continue
+  for (const i of extractBand({ busemann: heights, level: LEVEL, half: HALF })) {
     const x = coords[i]!
     const proj = sub(x, xi, dot(x, xi))
     raw.push({ index: i, u: dot(proj, e1), v: dot(proj, e2) })
@@ -77,10 +71,7 @@ async function run(): Promise<void> {
   console.log(`bulk ${n.toLocaleString()} cells, flat horosphere band ${band.length.toLocaleString()} cells`)
 
   // GPU pipeline
-  const offsets = new Uint32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
-  const adj = new Uint32Array(offsets[n]!)
-  { let p = 0; for (let i = 0; i < n; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
+  const { offsets, adj } = toCsr(g.neighbors)
 
   // seed: peace everywhere, a localized charge COLUMN through the bulk at the central (u,v). A thin band
   // cannot hold a 2D packet (charge leaks into the bulk perpendicular to the slice), so we seed the whole
@@ -95,7 +86,7 @@ async function run(): Promise<void> {
     const x = coords[i]!
     const proj = sub(x, xi, dot(x, xi))
     const u = dot(proj, e1), v = dot(proj, e2)
-    if (Math.hypot(u - cu, v - cv) < seedRadius) { seed[i] = pack(1 + Math.floor(nextR() * 2), 1 + Math.floor(nextR() * 2)); seeded++ }
+    if (Math.hypot(u - cu, v - cv) < seedRadius) { seed[i] = pack({ current: 1 + Math.floor(nextR() * 2), previous: 1 + Math.floor(nextR() * 2) }); seeded++ }
   }
   console.log(`seeded ${seeded} bulk cells in the central column (u,v radius fraction ${SEED_FRACTION})`)
 
@@ -137,7 +128,7 @@ async function run(): Promise<void> {
     for (const c of band) {
       const tone = currentOf(tones[c.index]!)
       if (tone === 0) continue
-      const col = COLORS[tone]!
+      const col = toneColor(tone)
       for (let dy = -RADIUS; dy <= RADIUS; dy++) for (let dx = -RADIUS; dx <= RADIUS; dx++) {
         if (dx * dx + dy * dy > RADIUS * RADIUS) continue
         const x = c.px + dx, y = c.py + dy

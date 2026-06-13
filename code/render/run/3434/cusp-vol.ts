@@ -10,6 +10,7 @@ import { PLEASURE, PAIN } from '@/code/draw/color'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
+import { pack, currentOf } from '@/code/tone/pack'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -26,8 +27,6 @@ const AY = 0.9
 const ALPHA = 0.35 // per-cell opacity for back-to-front compositing (blends, never sums to white)
 const SPLAT = 1 // each projected cell paints a small square so sparse shells stay visible
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
-const currentOf = (packed: number): number => packed & 3 // tone in {0,1,2} = {peace,+1,-1} convention below
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
@@ -70,7 +69,7 @@ async function run(): Promise<void> {
   const B = 6
   for (let z = -B; z <= B; z++) for (let y = -B; y <= B; y++) for (let x = -B; x <= B; x++) {
     if (x * x + y * y + z * z > B * B) continue
-    seed[idx(c + x, c + y, c + z)] = pack(Math.floor(rnd() * 3), Math.floor(rnd() * 3))
+    seed[idx(c + x, c + y, c + z)] = pack({ current: Math.floor(rnd() * 3), previous: Math.floor(rnd() * 3) })
   }
 
   const byteLength = N * 4
