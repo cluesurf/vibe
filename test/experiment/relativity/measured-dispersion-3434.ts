@@ -6,14 +6,14 @@
 //   d omega/dk -> 1 = c when massless. This upgrades the dispersion test from analytic to measured.
 // Run: npx tsx code/experiment/p253-measured-dispersion-3434.ts
 
+import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // one-step Dirac walk operator at momentum k, mass m: U(k) = diag(e^{ik}, e^{-ik}) . [[c,-is],[-is,c]]
 // trace U(k) = 2 cos(m) cos(k), det U = 1, so eigenvalues e^{-i omega} with cos(omega) = trace/2 = MEASURED.
 function measuredOmega(k: number, m: number): number {
-  const c = Math.cos(m), traceHalf = c * Math.cos(k) // = real part of (c e^{ik} + c e^{-ik})/2
-  return Math.acos(Math.max(-1, Math.min(1, traceHalf))) // omega(k) read from the operator trace
+  return coinedWalkDispersion({ theta: m, k }) // omega(k) read from the operator trace
 }
 
 export function measuredDispersion(): { restEnergyIsMass: boolean; lorentzAtLongWave: boolean; lightSpeedMassless: boolean; subluminalMassive: boolean } {

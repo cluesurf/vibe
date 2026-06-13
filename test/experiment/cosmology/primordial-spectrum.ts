@@ -11,45 +11,10 @@
 // Run: npx tsx code/experiment/p78-primordial-spectrum.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { densityContrast } from '@/code/measure/density-contrast'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function linFit(xs: number[], ys: number[]): { slope: number; r2: number } {
-  const n = xs.length
-  const mx = xs.reduce((a, b) => a + b, 0) / n
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    sxy += (xs[i]! - mx) * (ys[i]! - my)
-    sxx += (xs[i]! - mx) ** 2
-    syy += (ys[i]! - my) ** 2
-  }
-  return { slope: sxy / sxx, r2: syy === 0 ? 1 : (sxy * sxy) / (sxx * syy) }
-}
-
-// Sprinkle N points uniformly in the unit cube, bin into a grid of cells, and return the density
-// contrast delta = std(counts) / mean(counts) along with the mean count per cell.
-function densityContrast(points: number[][], binsPerAxis: number): { meanCount: number; delta: number } {
-  const cells = new Map<number, number>()
-  for (const p of points) {
-    let idx = 0
-    for (let a = 0; a < 3; a++) {
-      const c = Math.min(binsPerAxis - 1, Math.floor((p[a] ?? 0) * binsPerAxis))
-      idx = idx * binsPerAxis + c
-    }
-    cells.set(idx, (cells.get(idx) ?? 0) + 1)
-  }
-  const totalCells = binsPerAxis ** 3
-  const counts: number[] = []
-  for (let i = 0; i < totalCells; i++) counts.push(cells.get(i) ?? 0)
-  const mean = counts.reduce((a, b) => a + b, 0) / counts.length
-  let varc = 0
-  for (const c of counts) varc += (c - mean) ** 2
-  varc /= counts.length
-  return { meanCount: mean, delta: Math.sqrt(varc) / Math.max(1e-9, mean) }
-}
 
 export function primordialSpectrum(input: { seed: number }): {
   byScale: { binsPerAxis: number; meanCount: number; delta: number }[]

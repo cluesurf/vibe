@@ -1,5 +1,14 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import {
+  Pauli,
+  popcount,
+  pauliCommute,
+  stabilizerGroup,
+  logicalOperators,
+  codeDistance,
+  erasureCorrectable,
+} from '@/code/algebra/stabilizer'
 
 // The QUANTUM HaPPY code on {5,3,4}, the genuine stabilizer version of persistence by error correction
 // (beyond the classical redundancy of holography/holographic-code-534). The HaPPY code tiles the [[5,1,3]]
@@ -12,31 +21,12 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // a Pauli on five qubits is (x, z), bitmasks over the five qubits, X on qubit q sets bit q of x, Z sets bit q
 // of z. The stabilizers of the [[5,1,3]] code, the cyclic X Z Z X I.
-type Pauli = { x: number; z: number }
-const popcount = (value: number): number => { let n = 0; while (value) { n += value & 1; value >>= 1 } return n }
-const weight = (p: Pauli): number => popcount(p.x | p.z)
-const commute = (a: Pauli, b: Pauli): boolean => (popcount(a.x & b.z) + popcount(a.z & b.x)) % 2 === 0
-
 const stabilizers: Pauli[] = [
   { x: 0b01001, z: 0b00110 }, // X Z Z X I
   { x: 0b10010, z: 0b01100 }, // I X Z Z X
   { x: 0b00101, z: 0b11000 }, // X I X Z Z
   { x: 0b01010, z: 0b10001 }, // Z X I X Z
 ]
-
-// the stabilizer group (mod phase) is the GF(2) span of the four generators, 16 elements
-const stabilizerSpan = (): Set<number> => {
-  const span = new Set<number>()
-  for (let bits = 0; bits < 16; bits++) {
-    let x = 0
-    let z = 0
-    for (let g = 0; g < 4; g++) if (bits & (1 << g)) { x ^= stabilizers[g]!.x; z ^= stabilizers[g]!.z }
-    span.add(x | (z << 5))
-  }
-  return span
-}
-
-const supportSet = (p: Pauli): number => p.x | p.z // the qubits this operator touches
 
 export default defineExperiment({
   id: 'holography/happy-code-534',
@@ -48,21 +38,13 @@ export default defineExperiment({
   run() {
     // (1) the four stabilizers pairwise commute, a valid code
     let stabilizersCommute = true
-    for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) if (!commute(stabilizers[a]!, stabilizers[b]!)) stabilizersCommute = false
+    for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) if (!pauliCommute(stabilizers[a]!, stabilizers[b]!)) stabilizersCommute = false
 
     // (2) the logical operators are the Paulis that commute with every stabilizer but are NOT in the
     // stabilizer group. The code distance is the minimum weight of a logical, it should be 3.
-    const span = stabilizerSpan()
-    const logicals: Pauli[] = []
-    let distance = 99
-    for (let x = 0; x < 32; x++) for (let z = 0; z < 32; z++) {
-      if (x === 0 && z === 0) continue
-      const p: Pauli = { x, z }
-      if (!stabilizers.every((s) => commute(p, s))) continue // not in the normalizer
-      if (span.has(x | (z << 5))) continue // in the stabilizer group, a trivial logical
-      logicals.push(p)
-      distance = Math.min(distance, weight(p))
-    }
+    const span = stabilizerGroup({ generators: stabilizers, qubits: 5 })
+    const logicals = logicalOperators({ generators: stabilizers, span, qubits: 5 })
+    const distance = codeDistance(logicals)
     const distanceThree = distance === 3
 
     // (3) the perfect / holographic property, ANY two physical qubits can be erased and the logical recovered.
@@ -72,7 +54,7 @@ export default defineExperiment({
       for (let mask = 0; mask < 32; mask++) if (popcount(mask) === size) out.push(mask)
       return out
     }
-    const correctable = (erased: number): boolean => !logicals.some((l) => (supportSet(l) & ~erased) === 0)
+    const correctable = (erased: number): boolean => erasureCorrectable({ logicals, erased })
     const allTwoErasuresRecover = subsets(2).every((erased) => correctable(erased))
 
     // CONTROL: the threshold, SOME three-qubit erasures are NOT correctable (a weight-3 logical sits on them),

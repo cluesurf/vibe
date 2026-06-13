@@ -7,26 +7,21 @@
 // 24 directions give emergent rotational symmetry the cubic lacks. Run: npx tsx code/experiment/p233-isotropy-24dir.ts
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { latticeDispersion } from '@/code/measure/dispersion'
+import { latticeDispersion, dispersionAxisDiagonalAnisotropy } from '@/code/measure/dispersion'
+import { coordinateAxes } from '@/code/measure/probe-directions'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
   if (kind === 'D4') return rootsD4()
-  const R: number[][] = []
-  if (kind === 'Z3') { for (let i = 0; i < 3; i++) for (const s of [1, -1]) { const v = [0, 0, 0]; v[i] = s; R.push(v) } }
-  else { for (let i = 0; i < 4; i++) for (const s of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = s; R.push(v) } }
-  return R
+  return kind === 'Z3' ? coordinateAxes(3) : coordinateAxes(4)
 }
 const omega2 = (R: number[][], k: number[]): number => latticeDispersion({ directions: R, wave: k })
 
 // anisotropy: relative difference of omega^2 between an axis direction and a body-diagonal at the same |k|
 function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {
-  const R = neighbors(kind), dim = kind === 'Z3' ? 3 : 4
-  const axis = new Array<number>(dim).fill(0); axis[0] = q
-  const diag = new Array<number>(dim).fill(q / Math.sqrt(dim)) // |diag| = q
-  const wa = omega2(R, axis) / R.length, wd = omega2(R, diag) / R.length
-  return Math.abs(wa - wd) / ((wa + wd) / 2)
+  const dim = kind === 'Z3' ? 3 : 4
+  return dispersionAxisDiagonalAnisotropy({ directions: neighbors(kind), dimension: dim, magnitude: q })
 }
 
 export function isotropy24dir(): { z3: number; z4: number; d4: number; d4Best: boolean } {

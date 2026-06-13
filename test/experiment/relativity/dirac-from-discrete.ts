@@ -6,6 +6,7 @@
 // and with it the measured dispersion is the Dirac relation cos E = cos(m) cos(k). So the base is the discrete
 // shift + discrete flips, the Dirac equation is the emergent description. Run: npx tsx code/experiment/p230-dirac-from-discrete.ts
 
+import { measuredCoinedWalkFrequency } from '@/code/dynamics/quantum-walk'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,30 +14,7 @@ const LX = 256
 
 // simulate the 2-component discrete walk, return the measured frequency E for a given wavenumber index kIdx
 function measureE(kIdx: number, mass: number, T: number): number {
-  const k = (2 * Math.PI * kIdx) / LX
-  // real plane-wave right-mover seed
-  let R = new Float64Array(LX), L = new Float64Array(LX)
-  for (let x = 0; x < LX; x++) { R[x] = Math.cos(k * x); L[x] = 0 }
-  const series = new Float64Array(T)
-  const Rn = new Float64Array(LX), Ln = new Float64Array(LX)
-  const cm = Math.cos(mass), sm = Math.sin(mass)
-  for (let t = 0; t < T; t++) {
-    series[t] = R[0]! // track one cell's right-mover component
-    // SHIFT (exactly discrete, a permutation): R moves +1, L moves -1
-    for (let x = 0; x < LX; x++) { Rn[x] = R[(x - 1 + LX) % LX]!; Ln[x] = L[(x + 1) % LX]! }
-    // COIN / MASS (emergent coarse-grained mixing; massless = identity = pure discrete shift)
-    if (mass === 0) { R.set(Rn); L.set(Ln) }
-    else { for (let x = 0; x < LX; x++) { const r = Rn[x]!, l = Ln[x]!; R[x] = cm * r - sm * l; L[x] = sm * r + cm * l } }
-  }
-  // DFT: find the dominant frequency bin
-  let bestF = 0, bestP = -1
-  for (let f = 1; f < T / 2; f++) {
-    let re = 0, im = 0
-    for (let t = 0; t < T; t++) { const ph = (-2 * Math.PI * f * t) / T; re += series[t]! * Math.cos(ph); im += series[t]! * Math.sin(ph) }
-    const p = re * re + im * im
-    if (p > bestP) { bestP = p; bestF = f }
-  }
-  return (2 * Math.PI * bestF) / T
+  return measuredCoinedWalkFrequency({ wavenumberIndex: kIdx, size: LX, mass, beats: T })
 }
 
 export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean } {

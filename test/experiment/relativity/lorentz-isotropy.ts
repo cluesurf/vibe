@@ -8,13 +8,10 @@
 // (and rank-4) tensors to be isotropic, so we expect a near-perfect sphere. That is the rotational part
 // of Lorentz for free. Run: npx tsx code/experiment/p124-lorentz-isotropy.ts
 
-import { jacobiEigenvalues3 } from '@/code/algebra/linear/eig-jacobi'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeRng } from '@/code/tool/rng'
+import { diffusionTensorAnisotropy } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; runs?: number }): {
   cellCount: number
@@ -48,33 +45,17 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   void runs
   const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => r2(a) - r2(b))
   const sampleCells = order.slice(0, 200) // the 200 cells nearest the origin
-  const cov = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-  ]
-  let count = 0
-  for (const ci of sampleCells) {
-    const cc = g.coords[ci]!
-    for (const w of g.neighbors[ci]!) {
-      const d = [g.coords[w]![0]! - cc[0]!, g.coords[w]![1]! - cc[1]!, g.coords[w]![2]! - cc[2]!]
-      // normalize each displacement to a unit direction, so the tensor measures DIRECTION isotropy,
-      // free of any residual radial scale variation
-      const len = Math.hypot(d[0]!, d[1]!, d[2]!)
-      if (len < 1e-9) continue
-      for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) cov[i]![j]! += (d[i]! / len) * (d[j]! / len)
-      count++
-    }
-  }
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) cov[i]![j]! /= count
-
-  const eig = jacobiEigenvalues3(cov).sort((a, b) => a - b)
-  const meanEig = (eig[0]! + eig[1]! + eig[2]!) / 3
-  const anisotropy = meanEig > 0 ? (eig[2]! - eig[0]!) / meanEig : 1
+  const tensor = diffusionTensorAnisotropy({
+    coords: g.coords,
+    neighbors: g.neighbors,
+    cells: sampleCells,
+  })
+  const eig = tensor.eigenvalues
+  const anisotropy = tensor.anisotropy
   const isotropic = anisotropy < 0.15
   const solved = isotropic
 
-  return { cellCount: N, samples: count, eigenvalues: eig, anisotropy, isotropic, solved }
+  return { cellCount: N, samples: tensor.count, eigenvalues: eig, anisotropy, isotropic, solved }
 }
 
 export default defineExperiment({

@@ -5,7 +5,31 @@
 // See note/questions/p2-dynamics-spec.md.
 
 import { Poset, relationCount } from '@/code/tool/poset'
+import { getBit } from '@/code/tool/bitset'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
+
+// The intrinsic spatial slice widths of a causal order by causal depth: assign each element the length
+// of the longest chain ending at it (its depth), then count how many elements sit at each depth. The
+// width profile is the order's slices through cosmic (proper) time, read from the order alone. Growing
+// widths mean an expanding universe. Assumes a topological labelling (a precedes b implies a < b).
+export function causalSliceWidths(input: { poset: Poset }): number[] {
+  const p = input.poset
+  const n = p.size
+  const d = new Int32Array(n).fill(1)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < i; j++) {
+      if (getBit(p.future, { row: j, col: i }) && (d[j] ?? 0) + 1 > (d[i] ?? 0)) {
+        d[i] = (d[j] ?? 0) + 1
+      }
+    }
+  }
+  const maxDepth = d.reduce((a, b) => Math.max(a, b), 0)
+  const widths = new Array(maxDepth + 1).fill(0)
+  for (let i = 0; i < n; i++) {
+    widths[d[i] ?? 0] += 1
+  }
+  return widths.slice(1)
+}
 
 // Longest chain length in elements (the order's height). Assumes the labelling is
 // topological (a precedes b implies a < b), which holds for sprinklings and for

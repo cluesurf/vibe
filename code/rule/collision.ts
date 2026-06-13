@@ -77,26 +77,25 @@ function invertPairTable(forward: Array<[Tone, Tone]>): Array<[Tone, Tone]> {
 export const PAIR_FORWARD: Array<[Tone, Tone]> = buildPairForward()
 export const PAIR_INVERSE: Array<[Tone, Tone]> = invertPairTable(PAIR_FORWARD)
 
-// A collision that runs the 9-state pair table on every opposite-direction pair.
-// `opposite[direction]` is the slot index of the direction opposite `direction`,
-// so the two tones moving head-on through the cell interact. This is the 24-slot
-// collide on the {3,4,3,4} D4 coin (twelve opposite pairs), and the same map runs
-// on any mesh whose coin closes under opposite. Pass forward: false for the
-// inverse, which the engine streams through inverseBeat to run the rule backward.
-export function pairCollision(input: {
-  opposite: number[]
-  forward?: boolean
-}): Collision {
-  const table = (input.forward ?? true) ? PAIR_FORWARD : PAIR_INVERSE
-  const pairs: Array<[number, number]> = []
-  for (let direction = 0; direction < input.opposite.length; direction++) {
-    const other = input.opposite[direction]!
-    if (direction < other) {
-      pairs.push([direction, other])
-    }
+// the opposite-pair lines of a coin, each direction paired once with its opposite.
+function linesOf(opposite: number[]): Array<[number, number]> {
+  const lines: Array<[number, number]> = []
+  for (let direction = 0; direction < opposite.length; direction++) {
+    const other = opposite[direction]!
+    if (direction < other) lines.push([direction, other])
   }
+  return lines
+}
+
+// A collision that runs a 9-state per-line table on every opposite-direction pair.
+// `opposite[direction]` is the slot index of the direction opposite `direction`, so
+// the two tones moving head-on through the cell interact. This is the shared engine
+// for any per-line reversible table on a coin that closes under opposite (the D4
+// coin's twelve lines, the square coin's two, and so on).
+function tableCollision(table: Array<[Tone, Tone]>, opposite: number[]): Collision {
+  const lines = linesOf(opposite)
   return (slots, base) => {
-    for (const [left, right] of pairs) {
+    for (const [left, right] of lines) {
       const a = (slots[base + left] ?? 0) as Tone
       const b = (slots[base + right] ?? 0) as Tone
       const out = table[pairKey(a, b)]!
@@ -104,6 +103,44 @@ export function pairCollision(input: {
       slots[base + right] = out[1]
     }
   }
+}
+
+// The committed 9-state pair table on every opposite pair. Pass forward: false for
+// the inverse, which the engine streams through inverseBeat to run time backward.
+export function pairCollision(input: { opposite: number[]; forward?: boolean }): Collision {
+  return tableCollision((input.forward ?? true) ? PAIR_FORWARD : PAIR_INVERSE, input.opposite)
+}
+
+// The bind-and-move table (Option 3, routes-to-nested-selves). It is the committed
+// pair table with the HOP turned off, the lone-charge states (s, 0) and (0, s) are
+// left UNTOUCHED instead of being swapped. Disabling the hop is exactly what removes
+// the pinning, so lone charges stream ballistically (mobility). The create-flip-
+// annihilate cycle on the charge-zero states is kept intact, which is the binding /
+// breathing engine, a head-on opposite-charge pair can lock into a localized
+// create-annihilate oscillation. So the one rule both moves (lone charges stream)
+// and binds (opposite charges can capture into a breather), staying reversible and
+// charge-conserving. It is not an involution (the create cycle is a 3-cycle), so it
+// has a paired inverse, like the pair table.
+function buildBindMoveForward(): Array<[Tone, Tone]> {
+  const table = new Array<[Tone, Tone]>(9)
+  table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
+  table[pairKey(1, 1)] = [1, 1]
+  table[pairKey(-1, 0)] = [-1, 0] // HOP OFF, the lone charge is left to stream (mobility)
+  table[pairKey(0, -1)] = [0, -1]
+  table[pairKey(1, 0)] = [1, 0]
+  table[pairKey(0, 1)] = [0, 1]
+  table[pairKey(0, 0)] = [1, -1] // the binding engine, peace creates a balanced pair
+  table[pairKey(1, -1)] = [-1, 1] // the pair flips
+  table[pairKey(-1, 1)] = [0, 0] // annihilation closes the cycle
+  return table
+}
+
+export const BIND_MOVE_FORWARD: Array<[Tone, Tone]> = buildBindMoveForward()
+export const BIND_MOVE_INVERSE: Array<[Tone, Tone]> = invertPairTable(BIND_MOVE_FORWARD)
+
+// The bind-and-move collision. Pass forward: false for its paired inverse.
+export function bindAndMove(input: { opposite: number[]; forward?: boolean }): Collision {
+  return tableCollision((input.forward ?? true) ? BIND_MOVE_FORWARD : BIND_MOVE_INVERSE, input.opposite)
 }
 
 // The momentum-conserving collision, the generalization of momentumRotate2D to any coin. It rotates a
