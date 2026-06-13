@@ -11,7 +11,7 @@
 // note/experiment/results/p7-naturalness.md.
 // Run: npx tsx code/experiment/p7-dynamics.ts
 
-import { chshShared } from '@/test/experiment/foundations/naturalness'
+import { chshShared } from '@/code/measure/bell'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

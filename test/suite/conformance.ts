@@ -61,6 +61,7 @@ import {
 import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
 import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
 import { returnProbability } from '@/code/measure/localization'
+import { disclinationHolonomy } from '@/code/algebra/group/disclination'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -511,6 +512,12 @@ export function runConformance(): { passed: number; failed: number } {
     const trapped = returnProbability({ operator: diagonalOnly, source: 20, steps: 120, dt: 0.1, sampleEvery: 10 })
     check({ name: 'return probability: hopping spreads (low return)', ok: spread.timeAverage < 0.5 && spread.normDrift < 0.05 })
     check({ name: 'return probability: no hopping traps (return ~ 1)', ok: trapped.timeAverage > 0.99 })
+
+    // disclination holonomy: odd winding flips the spinor (-1), even returns it (+1), vector always blind
+    const disc1 = disclinationHolonomy({ winding: 1, steps: 24 })
+    const disc2 = disclinationHolonomy({ winding: 2, steps: 24 })
+    check({ name: 'disclination: odd winding gives spinor -1, vector +1', ok: disc1.spinorIsMinusOne && disc1.vectorReturnsToSelf })
+    check({ name: 'disclination: even winding gives spinor +1 (Z2 control)', ok: disc2.spinorIsPlusOne && disc2.vectorReturnsToSelf })
   }
 
   return { passed, failed }

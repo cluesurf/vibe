@@ -57,6 +57,20 @@ export function cubicLatticeCenter(input: { lattice: CubicLattice; side: number 
   return j
 }
 
+// Row-major index of the centre cell (every coordinate at side >> 1) of an equal-side
+// cubic lattice, given only the side and dimension (no built lattice object needed).
+export function cubicLatticeCenterBySide(input: { side: number; dim: number }): number {
+  const { side, dim } = input
+  const h = side >> 1
+  let index = 0
+  let place = 1
+  for (let a = 0; a < dim; a++) {
+    index += h * place
+    place *= side
+  }
+  return index
+}
+
 // Euclidean distance between two lattice sites in integer coordinate units.
 export function cubicLatticeDistance(input: {
   lattice: CubicLattice

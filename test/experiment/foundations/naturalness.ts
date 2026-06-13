@@ -9,55 +9,9 @@
 // (the setting tracks an unrelated feature). See note/questions/roadmap.md (B3).
 // Run: npx tsx code/experiment/p7-naturalness.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { chshShared } from '@/code/measure/bell'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// A high-frequency bit of lambda, decorrelated from the outcome's region
-// structure: a generic shared-past dependence that is not aligned with physics.
-function randomBit(lambda: number, salt: number): number {
-  return Math.sin(lambda * 137.0 + salt) >= 0 ? 0 : 1
-}
-
-export function chshShared(input: {
-  eta: number
-  mode: 'aligned' | 'random'
-  trials: number
-  seed: number
-}): number {
-  const rng = makeRng({ seed: input.seed })
-  const sum = [0, 0, 0, 0] // cells (ai*2+bi)
-  const count = [0, 0, 0, 0]
-  for (let t = 0; t < input.trials; t++) {
-    const lambda = rng.next() * Math.PI
-    // The setting bit determined by the common cause (the hidden state).
-    const sharedA =
-      input.mode === 'aligned'
-        ? Math.sin(2 * lambda) >= 0
-          ? 0
-          : 1
-        : randomBit(lambda, 1)
-    const sharedB =
-      input.mode === 'aligned'
-        ? Math.cos(2 * lambda) >= 0
-          ? 0
-          : 1
-        : randomBit(lambda, 2)
-    // With probability eta the setting comes from the shared past, else local.
-    const ai = rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
-    const bi = rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
-    // The superdeterministic outcomes: A always +1, B set by the lambda region.
-    const a = 1
-    const b = lambda >= Math.PI / 4 && lambda < Math.PI / 2 ? -1 : 1
-    const cell = ai * 2 + bi
-    sum[cell] = (sum[cell] ?? 0) + a * b
-    count[cell] = (count[cell] ?? 0) + 1
-  }
-  const e = (i: number): number =>
-    (count[i] ?? 0) === 0 ? 0 : (sum[i] ?? 0) / (count[i] ?? 1)
-  // S = E(0,0) - E(0,1) + E(1,0) + E(1,1)
-  return e(0) - e(1) + e(2) + e(3)
-}
 
 export default defineExperiment({
   id: 'foundations/naturalness-shared-past',

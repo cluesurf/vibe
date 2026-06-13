@@ -11,44 +11,9 @@
 // discreteness would not. See note/questions/frontiers.md. Run:
 // npx tsx code/experiment/p27-lorentz-violation.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
-import { latticeDispersion } from '@/code/measure/dispersion'
-import { groupSpeedAnisotropy } from '@/code/measure/group-speed'
-import { nearestLinkHarmonicAnisotropy } from '@/code/measure/isotropy'
+import { latticeAnisotropy, lorentzSafety } from '@/code/measure/lorentz'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Lattice scalar dispersion omega(k) = sqrt(sum 4 sin^2(k_i/2)), the square-lattice
-// nearest-neighbour dispersion. The continuum is omega = |k| (speed 1, isotropic).
-const SQUARE_DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-function omega(kx: number, ky: number): number {
-  return Math.sqrt(latticeDispersion({ directions: SQUARE_DIRECTIONS, wave: [kx, ky] }))
-}
-
-// Group-speed anisotropy at a fixed momentum magnitude: (max - min) / mean over
-// directions. Zero is perfectly Lorentz-safe, large is strong LIV.
-export function latticeAnisotropy(kMag: number): { meanSpeed: number; anisotropy: number } {
-  return groupSpeedAnisotropy({ omega, kMag, samples: 24 })
-}
-
-function sprinklePoints(input: { count: number; rng: Rng }): { x: number; y: number }[] {
-  return Array.from({ length: input.count }, () => ({ x: input.rng.next(), y: input.rng.next() }))
-}
-function latticePoints(side: number): { x: number; y: number }[] {
-  const pts: { x: number; y: number }[] = []
-  for (let i = 0; i < side; i++) {
-    for (let j = 0; j < side; j++) {
-      pts.push({ x: i / side, y: j / side })
-    }
-  }
-  return pts
-}
-
-export function lorentzSafety(): { sprinkle: number; lattice: number } {
-  const sprinkle = nearestLinkHarmonicAnisotropy({ points: sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }) })
-  const lattice = nearestLinkHarmonicAnisotropy({ points: latticePoints(30) })
-  return { sprinkle, lattice }
-}
 
 export default defineExperiment({
   id: 'relativity/lorentz-violation',
