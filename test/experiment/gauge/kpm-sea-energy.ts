@@ -7,7 +7,7 @@
 // fermion supplies a STABILIZING term (the Skyrme sign). Run: npx tsx code/experiment/p216-kpm-sea-energy.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeDirac, newCx, dotR, lambdaMaxH2, type Cx } from '../lib/dirac-skyrmion'
+import { makeDirac, newCx, dotR, lambdaMaxH2, type Cx } from '@/code/operator/dirac-skyrmion'
 
 // Chebyshev coefficients of |x| on [-1,1]: c0 = 2/pi, c_{2k} = -(4/pi)(-1)^k/(4k^2-1), odd = 0
 function absCoeffs(M: number): number[] {

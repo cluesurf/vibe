@@ -5,12 +5,16 @@
 // catalog is the registry.
 
 import { allExperiments, runSuite } from '@/test/scaffold/suite'
+import { runConformance } from '@/test/suite/conformance'
 import '@/test/experiment/all'
+
+// The conformance battery first: the library primitives the experiments stand on.
+const conformance = runConformance()
 
 const results = runSuite(allExperiments(), { seed: 1 })
 
-let pass = 0
-let fail = 0
+let pass = conformance.passed
+let fail = conformance.failed
 let partial = 0
 let open = 0
 
@@ -30,8 +34,9 @@ for (const { id, verdict } of results) {
   }
 }
 
+const conformanceCount = conformance.passed + conformance.failed
 console.log(
-  `\n${pass} pass, ${fail} fail, ${partial} partial, ${open} open  (of ${results.length} experiments)`,
+  `\n${pass} pass, ${fail} fail, ${partial} partial, ${open} open  (${results.length} experiments + ${conformanceCount} conformance)`,
 )
 
 if (fail > 0) {

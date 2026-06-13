@@ -1,0 +1,348 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{Abstract}{i}{chapter*.1}%
+\contentsline {chapter}{Introduction}{1}{chapter*.3}%
+\contentsline {chapter}{How to Read This Collection}{4}{chapter*.4}%
+\contentsline {part}{I\hspace {1em}The Two Base Models}{5}{part.1}%
+\contentsline {chapter}{\numberline {1}The Kabbalah Model}{6}{chapter.1}%
+\contentsline {section}{\numberline {1.1}The Creation Model}{6}{section.1.1}%
+\contentsline {section}{\numberline {1.2}The Infinite (Ein Sof)}{8}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}The Two Registers of the Ultimate}{8}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Ein Sof, Without End}{8}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}Atzmut and Ein Sof}{9}{subsection.1.2.3}%
+\contentsline {subsection}{\numberline {1.2.4}Ein Sof Or, the Infinite Light}{9}{subsection.1.2.4}%
+\contentsline {subsection}{\numberline {1.2.5}Sovev and Memale, Transcendence and Immanence}{10}{subsection.1.2.5}%
+\contentsline {subsection}{\numberline {1.2.6}Nistar and Nigleh, Hidden and Revealed}{10}{subsection.1.2.6}%
+\contentsline {subsection}{\numberline {1.2.7}Bittul, Self-Nullification}{11}{subsection.1.2.7}%
+\contentsline {section}{\numberline {1.3}The Contraction (Tzimtzum)}{11}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Tzimtzum, the Contraction}{11}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}The Empty Space, the Residue, the Ray}{12}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Literal or Figurative, the Great Debate}{12}{subsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.3.4}The Purpose of Creation}{13}{subsection.1.3.4}%
+\contentsline {subsection}{\numberline {1.3.5}The Bread of Shame}{13}{subsection.1.3.5}%
+\contentsline {subsection}{\numberline {1.3.6}The Desire to Give and the Desire to Receive}{13}{subsection.1.3.6}%
+\contentsline {section}{\numberline {1.4}The Ten Emanations (Sefirot)}{14}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}The Ten in Order}{14}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}The Three Pillars}{16}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.3}The Tree of Life and the 22 Paths}{16}{subsection.1.4.3}%
+\contentsline {subsection}{\numberline {1.4.4}The Lightning Flash}{16}{subsection.1.4.4}%
+\contentsline {section}{\numberline {1.5}The Four Worlds and the Chain of Descent}{17}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}The Four (or Five) Worlds}{17}{subsection.1.5.1}%
+\contentsline {subsection}{\numberline {1.5.2}Hishtalshelut, the Chain of Descent}{18}{subsection.1.5.2}%
+\contentsline {subsection}{\numberline {1.5.3}Hitlabshut, the Worlds as Garments}{18}{subsection.1.5.3}%
+\contentsline {subsection}{\numberline {1.5.4}The Seven Heikhalot, the Palaces}{18}{subsection.1.5.4}%
+\contentsline {section}{\numberline {1.6}The Shattering of the Vessels and the Sparks}{19}{section.1.6}%
+\contentsline {subsection}{\numberline {1.6.1}Olam ha-Tohu, the World of Chaos}{19}{subsection.1.6.1}%
+\contentsline {subsection}{\numberline {1.6.2}Shevirat ha-Kelim, the Shattering}{19}{subsection.1.6.2}%
+\contentsline {subsection}{\numberline {1.6.3}The Kings of Edom}{19}{subsection.1.6.3}%
+\contentsline {subsection}{\numberline {1.6.4}The Qelippot, the Shells}{20}{subsection.1.6.4}%
+\contentsline {subsection}{\numberline {1.6.5}The Sparks (Netzotzot)}{20}{subsection.1.6.5}%
+\contentsline {subsection}{\numberline {1.6.6}Evil as Broken Structure}{20}{subsection.1.6.6}%
+\contentsline {section}{\numberline {1.7}The Divine Faces and the Repair (Tikkun)}{21}{section.1.7}%
+\contentsline {subsection}{\numberline {1.7.1}Tikkun, the Repair}{21}{subsection.1.7.1}%
+\contentsline {subsection}{\numberline {1.7.2}The Partzufim, the Divine Faces}{21}{subsection.1.7.2}%
+\contentsline {subsection}{\numberline {1.7.3}Mochin, the Brains}{22}{subsection.1.7.3}%
+\contentsline {subsection}{\numberline {1.7.4}The Tikkunim of the Beard}{22}{subsection.1.7.4}%
+\contentsline {subsection}{\numberline {1.7.5}The Lurianic and Zoharic Models Contrasted}{23}{subsection.1.7.5}%
+\contentsline {section}{\numberline {1.8}The Names, the Letters, and Number}{23}{section.1.8}%
+\contentsline {subsection}{\numberline {1.8.1}The Twenty-Two Letters as Building Blocks}{24}{subsection.1.8.1}%
+\contentsline {subsection}{\numberline {1.8.2}The Sealing of the Six Directions}{24}{subsection.1.8.2}%
+\contentsline {subsection}{\numberline {1.8.3}The Divine Names}{24}{subsection.1.8.3}%
+\contentsline {subsection}{\numberline {1.8.4}Gematria and the Methods}{26}{subsection.1.8.4}%
+\contentsline {section}{\numberline {1.9}The Soul and Its Work}{27}{section.1.9}%
+\contentsline {subsection}{\numberline {1.9.1}The Five Levels of Soul}{27}{subsection.1.9.1}%
+\contentsline {subsection}{\numberline {1.9.2}Gilgul and Ibbur}{27}{subsection.1.9.2}%
+\contentsline {subsection}{\numberline {1.9.3}The 288 Sparks}{28}{subsection.1.9.3}%
+\contentsline {subsection}{\numberline {1.9.4}The Body as the Image of the Divine}{28}{subsection.1.9.4}%
+\contentsline {subsection}{\numberline {1.9.5}The Human as the Active Repairer}{28}{subsection.1.9.5}%
+\contentsline {section}{\numberline {1.10}Cosmic Time and the World to Come}{29}{section.1.10}%
+\contentsline {subsection}{\numberline {1.10.1}The Shape of Cosmic Time}{29}{subsection.1.10.1}%
+\contentsline {subsection}{\numberline {1.10.2}The Shemittot and the Great Yovel}{29}{subsection.1.10.2}%
+\contentsline {subsection}{\numberline {1.10.3}Eternal or Created in Time}{30}{subsection.1.10.3}%
+\contentsline {subsection}{\numberline {1.10.4}The Worlds God Built and Destroyed}{30}{subsection.1.10.4}%
+\contentsline {subsection}{\numberline {1.10.5}The Messianic Age, Resurrection, and the World to Come}{31}{subsection.1.10.5}%
+\contentsline {subsection}{\numberline {1.10.6}The Shekhinah in Exile and Her Redemption}{31}{subsection.1.10.6}%
+\contentsline {section}{\numberline {1.11}The Kabbalah Model in Summary and Comparison}{32}{section.1.11}%
+\contentsline {subsection}{\numberline {1.11.1}The Whole Model in One Arc}{32}{subsection.1.11.1}%
+\contentsline {subsection}{\numberline {1.11.2}Against the Universal Theme}{32}{subsection.1.11.2}%
+\contentsline {subsection}{\numberline {1.11.3}How It Will Rhyme with the Buddhist Model}{33}{subsection.1.11.3}%
+\contentsline {subsection}{\numberline {1.11.4}How Kabbalah Frames the Goal}{33}{subsection.1.11.4}%
+\contentsline {chapter}{\numberline {2}The Buddhist (Tibetan) Model}{34}{chapter.2}%
+\contentsline {section}{\numberline {2.1}The Creation Model}{35}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Emptiness and the Two Truths}{36}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Mind, the Ground, and Buddha-Nature}{40}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Dependent Origination and Karma}{42}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Ignorance as the Root}{42}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}The Twelve Links}{43}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Karma and the Mindstream}{43}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Rebirth Without a Self}{44}{subsection.2.4.4}%
+\contentsline {subsection}{\numberline {2.4.5}The Four Noble Truths as the Frame}{44}{subsection.2.4.5}%
+\contentsline {section}{\numberline {2.5}The Realms and the World-System}{45}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}The Three Realms and the Thirty-One Planes}{45}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}The Six Realms}{45}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}The Heavens}{46}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}The Hells}{46}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}The World-System of Mount Meru}{47}{subsection.2.5.5}%
+\contentsline {subsection}{\numberline {2.5.6}The Pure Lands}{47}{subsection.2.5.6}%
+\contentsline {section}{\numberline {2.6}Cosmic Time and the World-Cycles}{48}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Beginningless Time}{48}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}The Kalpa and Its Kinds}{48}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}The Four Phases of a World-Cycle}{48}{subsection.2.6.3}%
+\contentsline {subsection}{\numberline {2.6.4}The Three Destructions}{49}{subsection.2.6.4}%
+\contentsline {subsection}{\numberline {2.6.5}The Fortunate Aeon}{49}{subsection.2.6.5}%
+\contentsline {subsection}{\numberline {2.6.6}The Kalachakra Mapping}{50}{subsection.2.6.6}%
+\contentsline {section}{\numberline {2.7}The Aggregates and the Eight Consciousnesses}{50}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}The Five Aggregates}{50}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}The Sense-Bases and Elements}{50}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.3}The Fifty-One Mental Factors}{51}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}The Eight Consciousnesses}{51}{subsection.2.7.4}%
+\contentsline {subsection}{\numberline {2.7.5}The Three Natures}{52}{subsection.2.7.5}%
+\contentsline {section}{\numberline {2.8}The Path of Return}{53}{section.2.8}%
+\contentsline {subsection}{\numberline {2.8.1}The precious human rebirth}{53}{subsection.2.8.1}%
+\contentsline {subsection}{\numberline {2.8.2}The path as reversing the twelve links}{53}{subsection.2.8.2}%
+\contentsline {subsection}{\numberline {2.8.3}The thirty-seven wings of awakening}{54}{subsection.2.8.3}%
+\contentsline {subsection}{\numberline {2.8.4}Calm abiding joined to insight}{54}{subsection.2.8.4}%
+\contentsline {subsection}{\numberline {2.8.5}The Mahayana raising of the aim}{55}{subsection.2.8.5}%
+\contentsline {subsection}{\numberline {2.8.6}The six and ten perfections}{55}{subsection.2.8.6}%
+\contentsline {subsection}{\numberline {2.8.7}The five paths and ten grounds}{56}{subsection.2.8.7}%
+\contentsline {section}{\numberline {2.9}The Vajrayana and the Subtle Body}{56}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Taking the fruit as the path}{56}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2}The five buddha families}{56}{subsection.2.9.2}%
+\contentsline {subsection}{\numberline {2.9.3}Deity, mantra, mandala}{57}{subsection.2.9.3}%
+\contentsline {subsection}{\numberline {2.9.4}The four classes of tantra}{57}{subsection.2.9.4}%
+\contentsline {subsection}{\numberline {2.9.5}The subtle body}{58}{subsection.2.9.5}%
+\contentsline {subsection}{\numberline {2.9.6}The Six Yogas of Naropa}{58}{subsection.2.9.6}%
+\contentsline {subsection}{\numberline {2.9.7}Dzogchen and Mahamudra}{59}{subsection.2.9.7}%
+\contentsline {section}{\numberline {2.10}Death and the Intermediate States}{59}{section.2.10}%
+\contentsline {subsection}{\numberline {2.10.1}The dissolution of the elements}{59}{subsection.2.10.1}%
+\contentsline {subsection}{\numberline {2.10.2}The white, the red, and the black}{60}{subsection.2.10.2}%
+\contentsline {subsection}{\numberline {2.10.3}The clear light of death}{60}{subsection.2.10.3}%
+\contentsline {subsection}{\numberline {2.10.4}The three bardos}{61}{subsection.2.10.4}%
+\contentsline {subsection}{\numberline {2.10.5}The hundred deities as the mind's own nature}{61}{subsection.2.10.5}%
+\contentsline {subsection}{\numberline {2.10.6}Recognition as liberation}{61}{subsection.2.10.6}%
+\contentsline {section}{\numberline {2.11}The Fruition, in Summary and Comparison}{62}{section.2.11}%
+\contentsline {subsection}{\numberline {2.11.1}The three bodies}{62}{subsection.2.11.1}%
+\contentsline {subsection}{\numberline {2.11.2}The marks and qualities of a buddha}{62}{subsection.2.11.2}%
+\contentsline {subsection}{\numberline {2.11.3}Samsara and nirvana are one reality}{62}{subsection.2.11.3}%
+\contentsline {subsection}{\numberline {2.11.4}Comparison to the Kabbalah model}{63}{subsection.2.11.4}%
+\contentsline {subsection}{\numberline {2.11.5}Tie to the universal theme}{63}{subsection.2.11.5}%
+\contentsline {part}{II\hspace {1em}The Six Esoteric Standards}{64}{part.2}%
+\contentsline {chapter}{\numberline {3}The Six Esoteric Standards}{65}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Hinduism}{65}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}The Creation Model}{66}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}In the beginning, neither being nor non-being}{66}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}The one becomes the many}{66}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}The world breathed out and breathed in}{67}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.5}The honesty at the end}{67}{subsection.3.1.5}%
+\contentsline {subsection}{\numberline {3.1.6}Brahman, Atman, and Maya}{67}{subsection.3.1.6}%
+\contentsline {subsection}{\numberline {3.1.7}Brahman, the one ground}{67}{subsection.3.1.7}%
+\contentsline {subsection}{\numberline {3.1.8}Atman and the great sayings}{68}{subsection.3.1.8}%
+\contentsline {subsection}{\numberline {3.1.9}Maya, the power of appearance}{68}{subsection.3.1.9}%
+\contentsline {subsection}{\numberline {3.1.10}Two models of how the world relates to Brahman}{68}{subsection.3.1.10}%
+\contentsline {subsection}{\numberline {3.1.11}Ishvara and the Trimurti}{68}{subsection.3.1.11}%
+\contentsline {subsection}{\numberline {3.1.12}The Advaita versus dualist split}{69}{subsection.3.1.12}%
+\contentsline {subsection}{\numberline {3.1.13}The core teaching of the Bhagavad Gita}{69}{subsection.3.1.13}%
+\contentsline {subsection}{\numberline {3.1.14}The split, restated}{70}{subsection.3.1.14}%
+\contentsline {subsection}{\numberline {3.1.15}The Tattvas, the Ages, and the Subtle Body}{70}{subsection.3.1.15}%
+\contentsline {subsection}{\numberline {3.1.16}The 25 tattvas of Samkhya}{70}{subsection.3.1.16}%
+\contentsline {subsection}{\numberline {3.1.17}The three gunas}{71}{subsection.3.1.17}%
+\contentsline {subsection}{\numberline {3.1.18}The four yugas and the day of Brahma}{72}{subsection.3.1.18}%
+\contentsline {subsection}{\numberline {3.1.19}The 14 lokas}{72}{subsection.3.1.19}%
+\contentsline {subsection}{\numberline {3.1.20}The five koshas and the three bodies}{73}{subsection.3.1.20}%
+\contentsline {subsection}{\numberline {3.1.21}The seven chakras and the subtle body}{73}{subsection.3.1.21}%
+\contentsline {subsection}{\numberline {3.1.22}Sound as the substance of creation}{74}{subsection.3.1.22}%
+\contentsline {subsection}{\numberline {3.1.23}Comparison to the base models}{74}{subsection.3.1.23}%
+\contentsline {section}{\numberline {3.2}Christianity}{74}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}The Creation Model}{74}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}The Source Beyond Being}{75}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}The Groundless Abyss of Boehme}{75}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}The Nine Angelic Orders}{76}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.5}The Return of the Soul}{76}{subsection.3.2.5}%
+\contentsline {subsection}{\numberline {3.2.6}The Gnostic Variant}{77}{subsection.3.2.6}%
+\contentsline {subsection}{\numberline {3.2.7}Comparison to the Base Models}{77}{subsection.3.2.7}%
+\contentsline {section}{\numberline {3.3}Sufism}{77}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}The Creation Model}{78}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Oneness and the Hidden Essence}{78}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}The Oneness of Being}{78}{subsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.3.4}The Soul and Its Refinement}{79}{subsection.3.3.4}%
+\contentsline {subsection}{\numberline {3.3.5}The Worlds}{79}{subsection.3.3.5}%
+\contentsline {subsection}{\numberline {3.3.6}Comparison to the Base Models}{80}{subsection.3.3.6}%
+\contentsline {section}{\numberline {3.4}Sikhism}{80}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}The Creation Model}{80}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}The One}{80}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}The Name and the Order}{81}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}The Thieves and the Virtues}{81}{subsection.3.4.4}%
+\contentsline {subsection}{\numberline {3.4.5}The Five Realms}{82}{subsection.3.4.5}%
+\contentsline {subsection}{\numberline {3.4.6}Comparison to the Base Models}{82}{subsection.3.4.6}%
+\contentsline {section}{\numberline {3.5}Taoism}{82}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}The Creation Model}{82}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}The Way and Its Two Aspects}{83}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}The Cosmogony of Chapter Forty-Two}{83}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Yin and Yang}{84}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}The Five Phases}{84}{subsection.3.5.5}%
+\contentsline {subsection}{\numberline {3.5.6}The Book of Changes}{84}{subsection.3.5.6}%
+\contentsline {subsection}{\numberline {3.5.7}The Three Treasures and the Energy Fields}{85}{subsection.3.5.7}%
+\contentsline {subsection}{\numberline {3.5.8}Effortless Action and the Return}{85}{subsection.3.5.8}%
+\contentsline {subsection}{\numberline {3.5.9}Comparison to the Base Models}{85}{subsection.3.5.9}%
+\contentsline {section}{\numberline {3.6}Hermeticism}{86}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}The Creation Model}{86}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}The One, the All, and the Mind}{86}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}The Poimandres Sequence}{87}{subsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.6.4}The Seven Spheres and the Soul's Ascent}{87}{subsection.3.6.4}%
+\contentsline {subsection}{\numberline {3.6.5}As Above, So Below}{88}{subsection.3.6.5}%
+\contentsline {subsection}{\numberline {3.6.6}Macrocosm and Microcosm}{88}{subsection.3.6.6}%
+\contentsline {subsection}{\numberline {3.6.7}The Rebirth}{88}{subsection.3.6.7}%
+\contentsline {subsection}{\numberline {3.6.8}An Honest Note on the Kybalion}{88}{subsection.3.6.8}%
+\contentsline {subsection}{\numberline {3.6.9}Comparison to the Base Models}{88}{subsection.3.6.9}%
+\contentsline {section}{\numberline {3.7}The Six Standards in Comparison}{89}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}The Eight Systems at a Glance}{89}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}The Common Threads}{90}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}The Genuine Differences}{90}{subsection.3.7.3}%
+\contentsline {subsection}{\numberline {3.7.4}The Universal Theme}{91}{subsection.3.7.4}%
+\contentsline {part}{III\hspace {1em}The Six Ancient Cosmologies}{91}{part.3}%
+\contentsline {chapter}{\numberline {4}The Six Ancient Cosmologies}{92}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Greek}{92}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}The Creation Model}{92}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}The Model with Its Names}{93}{subsection.4.1.2}%
+\contentsline {subsubsection}{Chaos and the First Powers}{93}{subsubsection*.5}%
+\contentsline {subsubsection}{Ouranos, the Titans, and the First Succession}{94}{subsubsection*.6}%
+\contentsline {subsubsection}{Kronos, Zeus, and the Titanomachy}{94}{subsubsection*.7}%
+\contentsline {subsubsection}{The Division of the Cosmos by Lot}{94}{subsubsection*.8}%
+\contentsline {subsubsection}{The Ages of Man}{95}{subsubsection*.9}%
+\contentsline {subsubsection}{Prometheus and Pandora}{95}{subsubsection*.10}%
+\contentsline {subsubsection}{The Olympians}{96}{subsubsection*.11}%
+\contentsline {subsubsection}{The Underworld and the Soul}{96}{subsubsection*.12}%
+\contentsline {subsubsection}{The Fates}{97}{subsubsection*.13}%
+\contentsline {subsubsection}{The Mystery Cults}{97}{subsubsection*.14}%
+\contentsline {subsection}{\numberline {4.1.3}Comparison}{98}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}Roman}{98}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}The Creation Model}{98}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}The Model with Its Names}{98}{subsection.4.2.2}%
+\contentsline {subsubsection}{Janus and the Doorway}{99}{subsubsection*.15}%
+\contentsline {subsubsection}{The Greek-to-Roman Mapping}{99}{subsubsection*.16}%
+\contentsline {subsubsection}{The Household and State Religion}{99}{subsubsection*.17}%
+\contentsline {subsubsection}{The Underworld and the Cult of the Dead}{100}{subsubsection*.18}%
+\contentsline {subsection}{\numberline {4.2.3}Comparison}{100}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Norse}{101}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}The Creation Model}{101}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}The Void and the Two Poles}{101}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}The First Being and the Birth of the Powers}{102}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}The Slaying and the World from the Body}{102}{subsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.3.5}The First Humans}{103}{subsection.4.3.5}%
+\contentsline {subsection}{\numberline {4.3.6}The Nine Worlds and the World-Tree}{103}{subsection.4.3.6}%
+\contentsline {subsection}{\numberline {4.3.7}The Two Tribes of Gods}{104}{subsection.4.3.7}%
+\contentsline {subsection}{\numberline {4.3.8}Fate and the Norns}{104}{subsection.4.3.8}%
+\contentsline {subsection}{\numberline {4.3.9}The Afterlives}{105}{subsection.4.3.9}%
+\contentsline {subsection}{\numberline {4.3.10}Ragnarok and the Renewed World}{105}{subsection.4.3.10}%
+\contentsline {subsection}{\numberline {4.3.11}Comparison}{106}{subsection.4.3.11}%
+\contentsline {section}{\numberline {4.4}Egyptian}{106}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}The Creation Model}{106}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}The Starting State}{107}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}The Three Creation Theologies}{107}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Maat Versus Isfet}{108}{subsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.4.5}The Solar Cycle}{108}{subsection.4.4.5}%
+\contentsline {subsection}{\numberline {4.4.6}The Parts of the Soul}{109}{subsection.4.4.6}%
+\contentsline {subsection}{\numberline {4.4.7}The Duat and the Weighing of the Heart}{109}{subsection.4.4.7}%
+\contentsline {subsection}{\numberline {4.4.8}Comparison}{110}{subsection.4.4.8}%
+\contentsline {section}{\numberline {4.5}Mesopotamian}{110}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}The Creation Model}{110}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}The Model with Its Names}{111}{subsection.4.5.2}%
+\contentsline {subsubsection}{The Sumerian Layer}{111}{subsubsection*.19}%
+\contentsline {subsubsection}{The Babylonian Enuma Elish}{112}{subsubsection*.20}%
+\contentsline {subsubsection}{The Great Gods}{112}{subsubsection*.21}%
+\contentsline {subsection}{\numberline {4.5.3}The Anunnaki and the Me}{113}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}The Sexagesimal God-Numbers}{113}{subsection.4.5.4}%
+\contentsline {subsection}{\numberline {4.5.5}The Underworld and the Descent of Inanna}{114}{subsection.4.5.5}%
+\contentsline {subsection}{\numberline {4.5.6}Human Mortality and Gilgamesh}{114}{subsection.4.5.6}%
+\contentsline {subsection}{\numberline {4.5.7}Comparison}{115}{subsection.4.5.7}%
+\contentsline {section}{\numberline {4.6}Chinese}{115}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}The Creation Model}{115}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}The Model with Its Names}{116}{subsection.4.6.2}%
+\contentsline {subsubsection}{Hundun, the Primordial Chaos}{116}{subsubsection*.22}%
+\contentsline {subsubsection}{Pangu and the Cosmic Egg}{116}{subsubsection*.23}%
+\contentsline {subsubsection}{Nuwa, Shaper and Mender}{116}{subsubsection*.24}%
+\contentsline {subsubsection}{The Sovereigns and the Founders}{117}{subsubsection*.25}%
+\contentsline {subsection}{\numberline {4.6.3}A Note on the Philosophical Layer}{117}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}Comparison}{117}{subsection.4.6.4}%
+\contentsline {section}{\numberline {4.7}The Ancient Cosmologies in Comparison}{117}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}The Six at a Glance}{118}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}The Shared Moves}{118}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}From the Anthropomorphic to the Abstract}{119}{subsection.4.7.3}%
+\contentsline {subsection}{\numberline {4.7.4}The Go-Out-and-Return}{120}{subsection.4.7.4}%
+\contentsline {part}{IV\hspace {1em}Indigenous and Less-Documented Cosmologies}{120}{part.4}%
+\contentsline {chapter}{\numberline {5}Eighteen Indigenous and Less-Documented Cosmologies}{121}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Zoroastrian}{121}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}The Creation Model}{121}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Key Motifs}{122}{subsection.5.1.2}%
+\contentsline {section}{\numberline {5.2}Maya}{122}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}The Creation Model}{123}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Key Motifs}{123}{subsection.5.2.2}%
+\contentsline {section}{\numberline {5.3}Aztec}{123}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}The Creation Model}{123}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Key Motifs}{124}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Navajo}{124}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}The Creation Model}{124}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Key Motifs}{125}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}Zuni}{125}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}The Creation Model}{125}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Key Motifs}{126}{subsection.5.5.2}%
+\contentsline {section}{\numberline {5.6}Hopi}{126}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}The Creation Model}{126}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}Key Motifs}{126}{subsection.5.6.2}%
+\contentsline {section}{\numberline {5.7}Andean (Inca)}{127}{section.5.7}%
+\contentsline {subsection}{\numberline {5.7.1}The Creation Model}{127}{subsection.5.7.1}%
+\contentsline {subsection}{\numberline {5.7.2}Key Motifs}{127}{subsection.5.7.2}%
+\contentsline {section}{\numberline {5.8}Celtic}{128}{section.5.8}%
+\contentsline {subsection}{\numberline {5.8.1}The Creation Model}{128}{subsection.5.8.1}%
+\contentsline {subsection}{\numberline {5.8.2}Key Motifs}{128}{subsection.5.8.2}%
+\contentsline {section}{\numberline {5.9}Finnish}{129}{section.5.9}%
+\contentsline {subsection}{\numberline {5.9.1}The Creation Model}{129}{subsection.5.9.1}%
+\contentsline {subsection}{\numberline {5.9.2}Key Motifs}{129}{subsection.5.9.2}%
+\contentsline {section}{\numberline {5.10}Slavic}{130}{section.5.10}%
+\contentsline {subsection}{\numberline {5.10.1}The Creation Model}{130}{subsection.5.10.1}%
+\contentsline {subsection}{\numberline {5.10.2}Key Motifs}{130}{subsection.5.10.2}%
+\contentsline {section}{\numberline {5.11}Baltic}{130}{section.5.11}%
+\contentsline {subsection}{\numberline {5.11.1}The Creation Model}{131}{subsection.5.11.1}%
+\contentsline {subsection}{\numberline {5.11.2}Key Motifs}{131}{subsection.5.11.2}%
+\contentsline {section}{\numberline {5.12}Shinto}{131}{section.5.12}%
+\contentsline {subsection}{\numberline {5.12.1}The Creation Model}{132}{subsection.5.12.1}%
+\contentsline {subsection}{\numberline {5.12.2}Key Motifs}{132}{subsection.5.12.2}%
+\contentsline {section}{\numberline {5.13}Tamil}{132}{section.5.13}%
+\contentsline {subsection}{\numberline {5.13.1}The Creation Model}{133}{subsection.5.13.1}%
+\contentsline {subsection}{\numberline {5.13.2}Key Motifs}{133}{subsection.5.13.2}%
+\contentsline {section}{\numberline {5.14}Polynesian}{133}{section.5.14}%
+\contentsline {subsection}{\numberline {5.14.1}The Creation Model}{134}{subsection.5.14.1}%
+\contentsline {subsection}{\numberline {5.14.2}Key Motifs}{134}{subsection.5.14.2}%
+\contentsline {section}{\numberline {5.15}Aboriginal Australian}{134}{section.5.15}%
+\contentsline {subsection}{\numberline {5.15.1}The Creation Model}{135}{subsection.5.15.1}%
+\contentsline {subsection}{\numberline {5.15.2}Key Motifs}{135}{subsection.5.15.2}%
+\contentsline {section}{\numberline {5.16}Korean}{135}{section.5.16}%
+\contentsline {subsection}{\numberline {5.16.1}The Creation Model}{135}{subsection.5.16.1}%
+\contentsline {subsection}{\numberline {5.16.2}Key Motifs}{136}{subsection.5.16.2}%
+\contentsline {section}{\numberline {5.17}Yoruba (Ifa)}{136}{section.5.17}%
+\contentsline {subsection}{\numberline {5.17.1}The Creation Model}{136}{subsection.5.17.1}%
+\contentsline {subsection}{\numberline {5.17.2}Key Motifs}{137}{subsection.5.17.2}%
+\contentsline {section}{\numberline {5.18}Inuit}{137}{section.5.18}%
+\contentsline {subsection}{\numberline {5.18.1}The Creation Model}{137}{subsection.5.18.1}%
+\contentsline {subsection}{\numberline {5.18.2}Key Motifs}{138}{subsection.5.18.2}%
+\contentsline {section}{\numberline {5.19}The Indigenous Cosmologies in Comparison}{138}{section.5.19}%
+\contentsline {subsection}{\numberline {5.19.1}The Shared Moves}{138}{subsection.5.19.1}%
+\contentsline {subsection}{\numberline {5.19.2}The Eighteen by Dominant Motif}{138}{subsection.5.19.2}%
+\contentsline {subsection}{\numberline {5.19.3}The Go-Out-and-Return}{139}{subsection.5.19.3}%
+\contentsline {part}{V\hspace {1em}Synthesis}{139}{part.5}%
+\contentsline {chapter}{\numberline {6}The Common Threads}{140}{chapter.6}%
+\contentsline {section}{\numberline {6.1}The Families of God-Definitions}{140}{section.6.1}%
+\contentsline {section}{\numberline {6.2}The Shapes of Creation}{141}{section.6.2}%
+\contentsline {section}{\numberline {6.3}The Architecture of Reality}{141}{section.6.3}%
+\contentsline {section}{\numberline {6.4}The Shape of Time}{142}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Light and Dark, Good and Evil}{142}{section.6.5}%
+\contentsline {section}{\numberline {6.6}The Self and the Path}{143}{section.6.6}%
+\contentsline {chapter}{\numberline {7}The One Model Behind the Many}{144}{chapter.7}%
+\contentsline {section}{\numberline {7.1}The Seven Movements}{144}{section.7.1}%
+\contentsline {section}{\numberline {7.2}The Model Across the Traditions}{145}{section.7.2}%
+\contentsline {section}{\numberline {7.3}The Thing Behind the Thing}{146}{section.7.3}%
+\contentsline {section}{\numberline {7.4}On the Differences}{147}{section.7.4}%
+\contentsline {chapter}{\numberline {8}Conclusion}{148}{chapter.8}%
+\contentsline {part}{VI\hspace {1em}Appendix}{148}{part.6}%
+\contentsline {chapter}{\numberline {A}Appendix}{149}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Term Mappings, Modern English to Native Terms}{149}{section.A.1}%
+\contentsline {section}{\numberline {A.2}The Creation Stories in Native Terminology}{149}{section.A.2}%

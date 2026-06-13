@@ -46,6 +46,12 @@ export * from './rule/reversible'
 export * from './rule/rewrite'
 export * from './rule/gauge'
 
+// the directional lattice-gas, the committed v10 rule
+export * from './rule/collision'
+export * from './rule/lattice-gas'
+export * from './tone/will'
+export * from './check/invariant'
+
 // operators
 export * from './operator/laplacian'
 export * from './operator/dirac'
