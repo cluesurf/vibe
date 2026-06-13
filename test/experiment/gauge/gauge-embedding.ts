@@ -40,7 +40,7 @@ function smEmbeds(n: number): { a2: boolean; a2a1: boolean; example?: string } {
 
 export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
   const r4 = smEmbeds(4), r5 = smEmbeds(5)
-  if (r5.example)   return { d4: r4.a2a1, d5: r5.a2a1 }
+  return { d4: r4.a2a1, d5: r5.a2a1 }
 }
 
 export default defineExperiment({
