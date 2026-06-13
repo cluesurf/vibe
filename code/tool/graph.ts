@@ -46,6 +46,30 @@ export function degree(g: Graph, input: { node: number }): number {
   return (g.neighbors[input.node] ?? new Uint32Array(0)).length
 }
 
+// Return a copy of the graph whose embedding coordinates are SCRAMBLED by a fixed deterministic permutation
+// (each node receives another node's coordinates), keeping the graph topology unchanged. Greedy routing, which
+// works only when a node's address encodes its geometric position, then fails. This is the control for
+// greedy-routing experiments, it isolates the geometric embedding by destroying the position-address link
+// without touching the graph. The permutation is a fixed half-rotation, so it is deterministic.
+export function withScrambledEmbedding(g: Graph): Graph {
+  if (!g.embedding) {
+    return g
+  }
+  const size = g.size
+  const dimension = g.embedding.dimension
+  const source = g.embedding.coords
+  const coords = new Float64Array(source.length)
+  const shift = Math.floor(size / 2)
+  for (let node = 0; node < size; node++) {
+    const from = (node + shift) % size
+    for (let axis = 0; axis < dimension; axis++) {
+      coords[node * dimension + axis] = source[from * dimension + axis] ?? 0
+    }
+  }
+  const embedding: Embedding = { ...g.embedding, coords }
+  return { ...g, embedding }
+}
+
 // The average number of neighbours per node, the density readout the substrate
 // experiments use to hold connectivity fixed as the size grows.
 export function meanDegree(g: Graph): number {

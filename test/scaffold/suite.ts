@@ -18,6 +18,7 @@ export type Category =
   | 'selves'
   | 'computation'
   | 'addressing'
+  | 'data-structure'
   | 'substrate-survey'
 
 export type Depth = 'L0' | 'L1' | 'L2' | 'L3'

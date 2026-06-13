@@ -1,3 +1,11 @@
+// CROSS-TESSELLATION PATTERN, worked example (build any tessellation). To make an experiment run against
+// ALL the regular hyperbolic tessellations, not one pinned substrate, see `note/cross-tessellation-experiments.md`.
+// In short: loop `TESSELLATIONS` from `@/code/substrate/tessellation-catalog`, build each with the Coxeter
+// engine (this file shows the true-facet-adjacency build; `buildCoxeterMatrixMesh` is the uniform one), and
+// measure each with `measureTessellation` from `@/code/measure/tessellation-battery`. `dimension.ts` is the
+// companion "take one measure across the catalog" example, and `substrate-survey/tessellation-survey` is the
+// canonical full survey.
+//
 // P85: the general Coxeter engine, the real dodecagrid, and parallel reflection growth.
 // (Implements todos T2, T3, T5.)
 //

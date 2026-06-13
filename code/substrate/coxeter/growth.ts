@@ -73,6 +73,30 @@ export function toStrings(seq: bigint[]): string[] {
   return seq.map(String)
 }
 
+// The growth ratio of the last two COMPLETE shells of a BFS / reflection mesh. The final shell is usually
+// truncated by a cell cap, so it is dropped. A faster-growing (more negatively curved) mesh has a higher ratio,
+// a flat honeycomb tends toward 1. The capacity signature for the bulk-as-data experiments.
+export function lastCompleteShellRatio(shells: number[]): number {
+  const count = shells.length
+  if (count < 4) {
+    return 1
+  }
+  return shells[count - 2]! / shells[count - 3]!
+}
+
+// The fraction of cells that lie in the last COMPLETE shell (the truncated final shell is dropped). On a
+// negatively curved mesh the boundary dominates, this is bounded away from 0, on a flat mesh it tends to 0.
+// The boundary-dominance signature, the honest caveat that the bulk interior is nearly empty.
+export function outermostShellFraction(shells: number[]): number {
+  const count = shells.length
+  if (count < 3) {
+    return 0
+  }
+  const complete = shells.slice(0, count - 1) // drop the truncated final shell
+  const total = complete.reduce((sum, size) => sum + size, 0)
+  return total > 0 ? complete[complete.length - 1]! / total : 0
+}
+
 export function main(): void {
   const count = 12
   console.log('{7,3} face layers:', toStrings(polygonsAddedPerLayer73(count)).join(', '))

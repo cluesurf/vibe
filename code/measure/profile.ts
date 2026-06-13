@@ -5,6 +5,27 @@
 // near zero for a flat equilibrium profile and large for a sustained non-equilibrium
 // gradient.
 
+import { Will } from '@/code/tone/will'
+
+// The mean absolute charge per cell, binned by a cell-to-slab map, the activity (or density) profile across
+// slabs. `binOf` maps a cell to its slab index in [0, bins). Used to read a vacuum-density profile across the
+// lattice (e.g. by x-coordinate) and so to measure pressure imbalances between regions.
+export function chargeDensityProfile(input: { will: Will; binOf: (cell: number) => number; bins: number }): number[] {
+  const { will, binOf, bins } = input
+  const degree = will.mesh.degree
+  const sum = new Array<number>(bins).fill(0)
+  const count = new Array<number>(bins).fill(0)
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    const bin = binOf(cell)
+    const base = cell * degree
+    let q = 0
+    for (let direction = 0; direction < degree; direction++) q += Math.abs(will.data[base + direction]!)
+    sum[bin]! += q
+    count[bin]!++
+  }
+  return sum.map((s, b) => (count[b]! > 0 ? s / count[b]! : 0))
+}
+
 // Gradient signature of a profile, its range over its mean. Flat is near zero.
 export function profileGradient(profile: ReadonlyArray<number>): number {
   const mean = profile.reduce((a, b) => a + b, 0) / profile.length
