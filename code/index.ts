@@ -56,6 +56,7 @@ export * from './tone/will'
 export * from './check/invariant'
 
 // operators
+export * from './operator/block'
 export * from './operator/laplacian'
 export * from './operator/dirac'
 export * from './operator/evolution'

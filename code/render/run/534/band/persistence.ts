@@ -11,6 +11,7 @@
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { toCSR, beat, sameSignNeighbors, discreteArrow, type Graph } from '@/test/experiment/misc/self-kit'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -258,7 +259,7 @@ function run(): void {
         }
       }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     if (f % 40 === 0 || f === FRAMES - 1) {
       // the test, average persistence inside the self vs the background band

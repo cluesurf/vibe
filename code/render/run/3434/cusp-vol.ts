@@ -9,6 +9,7 @@ import { create, globals } from 'webgpu'
 import { PLEASURE, PAIN } from '@/code/draw/color'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -182,7 +183,7 @@ async function run(): Promise<void> {
       rgba[i * 4 + 2] = Math.min(255, 9 + accB[i]!)
       rgba[i * 4 + 3] = 255
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     // advance one beat on the GPU
     const enc = device.createCommandEncoder()

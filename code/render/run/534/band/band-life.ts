@@ -9,6 +9,7 @@ import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
 import { toCSR, beat, largestPositiveCluster, discreteArrow } from '@/test/experiment/misc/self-kit'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -119,7 +120,7 @@ function run(): void {
         }
       }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     // the emergence test, the largest self over time, it should grow as clusters condense
     if (f % 40 === 0 || f === FRAMES - 1) {

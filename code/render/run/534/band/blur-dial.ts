@@ -8,6 +8,7 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -91,7 +92,7 @@ function run(): void {
         : [Math.round(255 * m), Math.round(60 * m), Math.round(70 * m)]
       drawDot(rgba, px[a]!, py[a]!, col)
     }
-    writeFileSync(join(outDir, `blur_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG, prefix: 'blur_' })
     // turn the dial: one more coarse-graining pass (display only, the base field stays discrete)
     const ns = new Float32Array(B)
     for (let a = 0; a < B; a++) { let s = field[a]!, d = 1; for (const b of bandNbr[a]!) { s += field[b]!; d++ } ns[a] = s / d }

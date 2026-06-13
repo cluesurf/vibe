@@ -6,8 +6,10 @@
 // Pure CPU (no GPU needed). Run: npx tsx code/gpu/render-nesting-534.ts, then ffmpeg the frames.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { encodePng } from '@/code/draw/png'
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
+import { makeCanvas, drawDisk, setPixel } from '@/code/draw/raster'
+import { writeFrame } from '@/code/draw/animation'
+import { norm } from '@/code/draw/vector'
+import { mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -16,8 +18,6 @@ const SLICE = 0.05 // keep cells with |z| < SLICE, a thin slab through the origi
 const IMG = 1400
 const MARGIN = 0.94
 const DOT_SCALE = 30 // pixels per unit conformal size at the centre
-
-const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 
 // a depth -> colour palette, warm at the centre, cool toward the boundary (rainbow by shell)
 function shellColor(depth: number, maxDepth: number): [number, number, number] {
@@ -76,29 +76,14 @@ function run(): void {
   const half = IMG / 2
   const scale = half * MARGIN
 
-  // draw a filled disk (cell dot) into the rgba buffer
-  const drawDot = (rgba: Uint8Array, cx: number, cy: number, rad: number, col: [number, number, number]): void => {
-    const r0 = Math.max(0, Math.floor(cx - rad)), r1 = Math.min(IMG - 1, Math.ceil(cx + rad))
-    const c0 = Math.max(0, Math.floor(cy - rad)), c1 = Math.min(IMG - 1, Math.ceil(cy + rad))
-    const rr = rad * rad
-    for (let py = c0; py <= c1; py++) for (let px = r0; px <= r1; px++) {
-      const dx = px - cx, dy = py - cy
-      if (dx * dx + dy * dy <= rr) {
-        const o = (py * IMG + px) * 4
-        rgba[o] = col[0]; rgba[o + 1] = col[1]; rgba[o + 2] = col[2]; rgba[o + 3] = 255
-      }
-    }
-  }
-
   // one cumulative frame per shell: frame f shows shells 0..f
   for (let f = 0; f <= maxClean; f++) {
-    const rgba = new Uint8Array(IMG * IMG * 4)
-    for (let i = 0; i < rgba.length; i += 4) { rgba[i] = 12; rgba[i + 1] = 12; rgba[i + 2] = 16; rgba[i + 3] = 255 }
+    const rgba = makeCanvas({ width: IMG, height: IMG, background: [12, 12, 16] })
     // boundary circle (sphere at infinity), dim grey ring
     for (let a = 0; a < 3600; a++) {
       const th = (a / 3600) * 2 * Math.PI
       const px = Math.round(half + scale * Math.cos(th)), py = Math.round(half + scale * Math.sin(th))
-      if (px >= 0 && px < IMG && py >= 0 && py < IMG) { const o = (py * IMG + px) * 4; rgba[o] = 70; rgba[o + 1] = 70; rgba[o + 2] = 78 }
+      if (px >= 0 && px < IMG && py >= 0 && py < IMG) setPixel(rgba, IMG, px, py, [70, 70, 78])
     }
     // draw cells up to shell f, deepest first so shallow shells sit on top
     for (let s = f; s >= 0; s--) {
@@ -109,11 +94,10 @@ function run(): void {
         const r2 = norm(g.coords[i]!) ** 2
         const px = half + scale * x, py = half - scale * y
         const rad = Math.max(0.7, DOT_SCALE * (1 - r2))
-        drawDot(rgba, px, py, rad, col)
+        drawDisk({ rgba, width: IMG, height: IMG, centerX: px, centerY: py, radius: rad, color: col })
       }
     }
-    const path = join(outDir, `nesting-${String(f).padStart(3, '0')}.png`)
-    writeFileSync(path, encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG, prefix: 'nesting-', pad: 3 })
   }
   console.log(`wrote ${maxClean + 1} frames to ${outDir}`)
   console.log(`ffmpeg -framerate 2 -i ${join(outDir, 'nesting-%03d.png')} -vf "scale=${IMG}:${IMG}" -pix_fmt yuv420p ${join(here, 'nesting-534.mp4')}`)
