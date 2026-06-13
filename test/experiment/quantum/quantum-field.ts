@@ -13,44 +13,12 @@
 // field from which richer structure can emerge. Run: npx tsx code/experiment/p114-quantum-field.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
-
-function bfsDist(offsets: Int32Array, adj: Int32Array, n: number, src: number, maxR: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let r = 0
-  while (fr.length > 0 && r < maxR) {
-    r++
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = r
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return dist
-}
 
 const sumTone = (t: Int8Array): number => {
   let s = 0
@@ -148,7 +116,7 @@ export function quantumField(input?: { n?: number }): {
   const samples = 250
   for (let s = 0; s < samples; s++) {
     const src = Math.floor(rng2.next() * N)
-    const dist = bfsDist(g.offsets, g.adj, N, src, maxR)
+    const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: src, maxRadius: maxR })
     for (let i = 0; i < N; i++) {
       const r = dist[i]!
       if (r >= 0 && r <= maxR) {
@@ -185,7 +153,7 @@ export function quantumField(input?: { n?: number }): {
   // causal lightcone: perturb the center, run both copies with the same noise, measure the front radius
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dcenter = bfsDist(g.offsets, g.adj, N, center, 12)
+  const dcenter = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
   const base = vac.slice()
   const pert = vac.slice()
   pert[center] = (pert[center]! + 1) % 2 === 0 ? 1 : (pert[center]! === 1 ? -1 : 1) // flip the center

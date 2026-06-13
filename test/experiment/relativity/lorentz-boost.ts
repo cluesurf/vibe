@@ -18,6 +18,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
+import { histogramFlatness } from '@/code/measure/histogram'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -47,27 +48,10 @@ function linkRapidities(
   return out
 }
 
-// Normalized Shannon entropy of a histogram over [-range, range], in [0, 1].
-// 1 means flat (boost-invariant), near 0 means concentrated (preferred frame).
+// Normalized Shannon entropy of the rapidity histogram, 1 = flat (boost-invariant),
+// near 0 = concentrated (preferred frame).
 function flatness(etas: number[], range: number, bins: number): number {
-  if (etas.length === 0) return 0
-  const h = new Array<number>(bins).fill(0)
-  let kept = 0
-  for (const e of etas) {
-    if (e < -range || e > range) continue
-    const k = Math.min(bins - 1, Math.floor(((e + range) / (2 * range)) * bins))
-    h[k] = (h[k] ?? 0) + 1
-    kept += 1
-  }
-  if (kept === 0) return 0
-  let ent = 0
-  for (const c of h) {
-    if (c > 0) {
-      const p = c / kept
-      ent -= p * Math.log(p)
-    }
-  }
-  return ent / Math.log(bins)
+  return histogramFlatness({ samples: etas, range, bins })
 }
 
 function std(xs: number[]): number {

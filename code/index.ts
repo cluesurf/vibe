@@ -26,6 +26,7 @@ export * from './algebra/linear/eig-lanczos'
 export * from './algebra/linear/eig-hermitian'
 export * from './algebra/linear/kernel-polynomial'
 export * from './algebra/linear/bethe-resolvent'
+export * from './measure/regression'
 
 // tone
 export * from './tone/alphabet'
@@ -66,6 +67,7 @@ export * from './operator/gauge-index'
 export * from './operator/overlap-condensate'
 export * from './operator/overlap-su2'
 export * from './operator/ca-hamiltonian'
+export * from './operator/unitary-evolution'
 export * from './operator/block-ca'
 
 // measures
@@ -81,6 +83,7 @@ export * from './measure/locality'
 export * from './measure/integration'
 export * from './measure/wilson-loop'
 export * from './measure/aharonov-bohm'
+export * from './measure/entanglement'
 
 // dynamics and search
 export * from './dynamics/action'

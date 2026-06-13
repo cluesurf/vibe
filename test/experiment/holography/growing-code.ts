@@ -9,24 +9,12 @@
 // Run: npx tsx code/experiment/p126-growing-code.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 // hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is inert)
 function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
@@ -68,22 +56,9 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   const moved = new Uint8Array(N)
 
   // BFS shells from the center
-  const dist = new Int32Array(N).fill(-1)
-  dist[0] = 0
-  let fr = [0]
+  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
   let R = 0
-  while (fr.length > 0) {
-    const next: number[] = []
-    for (const u of fr) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
-      const w = g.adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        if (dist[w]! > R) R = dist[w]!
-        next.push(w)
-      }
-    }
-    fr = next
-  }
+  for (let i = 0; i < N; i++) if (dist[i]! > R) R = dist[i]!
   const core: number[] = []
   for (let i = 0; i < N; i++) if (dist[i]! <= 1) core.push(i)
   const shellCells: number[][] = Array.from({ length: R + 1 }, () => [])

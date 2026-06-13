@@ -9,23 +9,12 @@
 
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
+import { edgesFromCsr } from '@/code/tool/graph'
+import { powerLawExponent } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 // hop-only beat: a lone charge random-walks into empty neighbors (pure transport, no creation)
 function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
@@ -112,22 +101,13 @@ export function sliverTransport(input?: { length?: number; beats?: number; runs?
   for (let t = 0; t <= beats; t++) msd[t]! /= runs
 
   // fit exponent: log MSD ~ alpha * log t, over t in [4, beats]
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let m = 0
+  const fitTimes: number[] = []
+  const fitMsd: number[] = []
   for (let t = 4; t <= beats; t++) {
-    if (msd[t]! <= 0) continue
-    const x = Math.log(t)
-    const y = Math.log(msd[t]!)
-    sx += x
-    sy += y
-    sxx += x * x
-    sxy += x * y
-    m++
+    fitTimes.push(t)
+    fitMsd.push(msd[t]!)
   }
-  const exponent = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
+  const exponent = powerLawExponent({ times: fitTimes, spreads: fitMsd })
   const msdFull = msd[beats]!
   const msdHalf = msd[Math.floor(beats / 2)]!
   const diffusionConstant = msdFull / (2 * beats) // MSD = 2 D t for 1D diffusion

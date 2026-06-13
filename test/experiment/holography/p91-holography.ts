@@ -12,6 +12,7 @@
 //      connecting geodesic dips, so the radial (bulk-depth) direction is the renormalization scale.
 // Run: npx tsx code/experiment/p91-holography.ts
 
+import { linearFit } from '@/code/measure/regression'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -86,27 +87,7 @@ export function holography(): {
     xs.push(k)
     ys.push(v.sum / v.count)
   }
-  const m = xs.length
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  for (let i = 0; i < m; i++) {
-    sx += xs[i]!
-    sy += ys[i]!
-    sxx += xs[i]! * xs[i]!
-    sxy += xs[i]! * ys[i]!
-  }
-  const slope = (m * sxy - sx * sy) / (m * sxx - sx * sx)
-  const intercept = (sy - slope * sx) / m
-  let ssr = 0
-  let sst = 0
-  const my = sy / m
-  for (let i = 0; i < m; i++) {
-    ssr += (ys[i]! - slope * xs[i]! - intercept) ** 2
-    sst += (ys[i]! - my) ** 2
-  }
-  const logLawR2 = 1 - ssr / sst
+  const { slope, r2: logLawR2 } = linearFit({ xs, ys })
   const rtLogLawHolds = logLawR2 > 0.95 && slope > 1.4 && slope < 2.8
 
   // 2. and 3. shortcut and depth: from one anchor, to a nearby rim cell and to the antipodal one.

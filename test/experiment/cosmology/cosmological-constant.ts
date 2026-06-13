@@ -11,6 +11,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
+import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -18,22 +19,6 @@ function stdAndMean(xs: number[]): { mean: number; std: number } {
   const mean = xs.reduce((a, b) => a + b, 0) / xs.length
   const variance = xs.reduce((a, b) => a + (b - mean) * (b - mean), 0) / xs.length
   return { mean, std: Math.sqrt(variance) }
-}
-
-// Slope of log(y) versus log(x), the power-law exponent.
-function logLogSlope(xs: number[], ys: number[]): number {
-  const lx = xs.map((x) => Math.log(x))
-  const ly = ys.map((y) => Math.log(y))
-  const n = lx.length
-  const mx = lx.reduce((a, b) => a + b, 0) / n
-  const my = ly.reduce((a, b) => a + b, 0) / n
-  let num = 0
-  let den = 0
-  for (let i = 0; i < n; i++) {
-    num += ((lx[i] ?? 0) - mx) * ((ly[i] ?? 0) - my)
-    den += ((lx[i] ?? 0) - mx) * ((lx[i] ?? 0) - mx)
-  }
-  return den === 0 ? 0 : num / den
 }
 
 function actionFluctuation(input: { action: Action; sizes: number[]; repeats: number }): {

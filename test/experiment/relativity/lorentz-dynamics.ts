@@ -11,6 +11,7 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { harmonicAnisotropy } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -137,36 +138,6 @@ function wavefrontProfile(input: {
   return profile
 }
 
-// Systematic angular anisotropy of a profile: the strongest angular Fourier
-// harmonic (a preferred-axis pattern, like the lattice's 4-fold), normalised by
-// the mean. Random disorder noise has no systematic harmonic and averages away,
-// so this isolates a genuine preferred frame from mere graph randomness.
-function systematicAnisotropy(profile: Float64Array): number {
-  const bins = profile.length
-  let total = 0
-  for (let b = 0; b < bins; b++) {
-    total += profile[b] ?? 0
-  }
-  if (total <= 0) {
-    return 0
-  }
-  let worst = 0
-  for (const m of [2, 3, 4, 6]) {
-    let re = 0
-    let im = 0
-    for (let b = 0; b < bins; b++) {
-      const theta = (2 * Math.PI * (b + 0.5)) / bins
-      re += (profile[b] ?? 0) * Math.cos(m * theta)
-      im += (profile[b] ?? 0) * Math.sin(m * theta)
-    }
-    const mag = Math.hypot(re, im) / total
-    if (mag > worst) {
-      worst = mag
-    }
-  }
-  return worst
-}
-
 export default defineExperiment({
   id: 'relativity/lorentz-dynamics',
   title: 'the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice',
@@ -195,12 +166,12 @@ export default defineExperiment({
         accum[b] = (accum[b] ?? 0) + (total > 0 ? (profile[b] ?? 0) / total : 0)
       }
     }
-    const sprinkleAniso = systematicAnisotropy(accum)
+    const sprinkleAniso = harmonicAnisotropy({ profile: accum })
 
     const lattice = squareLatticeMesh(21)
-    const latticeAniso = systematicAnisotropy(
-      wavefrontProfile({ mesh: lattice, t, ...annulus }),
-    )
+    const latticeAniso = harmonicAnisotropy({
+      profile: wavefrontProfile({ mesh: lattice, t, ...annulus }),
+    })
 
     const bothSmall = sprinkleAniso < 0.2 && latticeAniso < 0.2
     const sprinkleNotWorse = sprinkleAniso <= latticeAniso + 0.05

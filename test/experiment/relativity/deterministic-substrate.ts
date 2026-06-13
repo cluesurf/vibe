@@ -9,7 +9,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph, hyperbolicSunflower } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { Graph, meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { ballGrowth } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -34,14 +34,6 @@ function exponentialReach(growth: Uint32Array): boolean {
   }
   const mean = ratios.reduce((a, b) => a + b, 0) / ratios.length
   return mean > 1.8
-}
-
-function meanDegree(g: Graph): number {
-  let total = 0
-  for (let i = 0; i < g.size; i++) {
-    total += (g.neighbors[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, g.size)
 }
 
 function centralNode(g: Graph): number {

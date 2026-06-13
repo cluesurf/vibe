@@ -25,3 +25,39 @@ export function angularAnisotropy(input: {
   const mean = vals.reduce((a, b) => a + b, 0) / vals.length
   return mean > 0 ? (mx - mn) / mean : 0
 }
+
+// Systematic angular anisotropy of a binned angular profile (one value per angular
+// bin around a circle). Takes the strongest angular Fourier harmonic among the given
+// orders, normalized by the total. A preferred-axis pattern (a lattice's 4-fold)
+// shows up as a large harmonic, while disorder noise has no systematic harmonic and
+// averages away. Default orders {2, 3, 4, 6} cover the common lattice symmetries.
+export function harmonicAnisotropy(input: {
+  profile: ArrayLike<number>
+  orders?: number[]
+}): number {
+  const profile = input.profile
+  const orders = input.orders ?? [2, 3, 4, 6]
+  const bins = profile.length
+  let total = 0
+  for (let b = 0; b < bins; b++) {
+    total += profile[b] ?? 0
+  }
+  if (total <= 0) {
+    return 0
+  }
+  let worst = 0
+  for (const m of orders) {
+    let re = 0
+    let im = 0
+    for (let b = 0; b < bins; b++) {
+      const theta = (2 * Math.PI * (b + 0.5)) / bins
+      re += (profile[b] ?? 0) * Math.cos(m * theta)
+      im += (profile[b] ?? 0) * Math.sin(m * theta)
+    }
+    const mag = Math.hypot(re, im) / total
+    if (mag > worst) {
+      worst = mag
+    }
+  }
+  return worst
+}

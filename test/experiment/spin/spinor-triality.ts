@@ -5,6 +5,7 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { icosahedronVertexDirections } from '@/code/algebra/group/root-system'
 
 const phi = (1 + Math.sqrt(5)) / 2
 
@@ -29,10 +30,7 @@ function rot(axis: number[], ang: number): M {
 
 export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boolean; trialityPresent: boolean } {
   // 12 icosahedron vertex directions = the 12 dodecahedron faces
-  const verts: number[][] = []
-  for (const a of [1, -1]) for (const b of [phi, -phi]) verts.push([0, a, b], [a, b, 0], [b, 0, a])
-  const nv = Math.hypot(...verts[0]!)
-  const V = verts.map((v) => v.map((x) => x / nv))
+  const V = icosahedronVertexDirections()
   const perm = (Mx: M): number[] => V.map((v) => {
     const w = mv(Mx, v)
     let best = 0, bd = Infinity

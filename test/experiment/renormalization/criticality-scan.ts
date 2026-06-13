@@ -10,61 +10,10 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
+import { edgesFromCsr } from '@/code/tool/graph'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
-
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 export function criticalityScan(input?: { n?: number }): {
   n: number
@@ -91,14 +40,14 @@ export function criticalityScan(input?: { n?: number }): {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 3 })
     for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 200; t++) beat(tone, eu, ev, moved, rng, arrow) // relax to steady state
+    for (let t = 0; t < 200; t++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // relax to steady state
     const samples = 100
     let mean = 0
     for (let s = 0; s < samples; s++) {
       let active = 0
       for (let i = 0; i < N; i++) if (tone[i] !== 0) active++
       mean += active / N
-      beat(tone, eu, ev, moved, rng, arrow)
+      conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     }
     mean /= samples
     scan.push({ arrow, density: mean })

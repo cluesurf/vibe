@@ -14,6 +14,7 @@
 // (exponent ~1/2). Run: npx tsx code/experiment/p148-deterministic-wave.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { powerLawExponent } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -57,26 +58,6 @@ function stochasticBeat(tone: Int8Array, L: number, moved: Uint8Array, rng: { ne
       moved[w] = 1
     }
   }
-}
-
-// fit log(spread) ~ exponent * log(t)
-function fitExponent(times: number[], spreads: number[]): number {
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let m = 0
-  for (let i = 0; i < times.length; i++) {
-    if (spreads[i]! <= 0) continue
-    const x = Math.log(times[i]!)
-    const y = Math.log(spreads[i]!)
-    sx += x
-    sy += y
-    sxx += x * x
-    sxy += x * y
-    m++
-  }
-  return m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
 }
 
 export function deterministicWave(input?: { L?: number; beats?: number }): {
@@ -162,7 +143,7 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     return { times, spreads }
   }
   const det = measureDet()
-  const detSpreadExponent = fitExponent(det.times, det.spreads)
+  const detSpreadExponent = powerLawExponent({ times: det.times, spreads: det.spreads })
 
   // stochastic comparison: a localized charge, RMS displacement (the diffusive z=2 charge mode)
   const measureStoch = (): { times: number[]; spreads: number[] } => {
@@ -193,7 +174,7 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     return { times, spreads }
   }
   const stoch = measureStoch()
-  const stochSpreadExponent = fitExponent(stoch.times, stoch.spreads)
+  const stochSpreadExponent = powerLawExponent({ times: stoch.times, spreads: stoch.spreads })
 
   const detIsBallistic = detSpreadExponent > 0.8
   // the clean diffusive (z=2) result for the stochastic rule is P137's dispersion measurement, this crude

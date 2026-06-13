@@ -10,6 +10,7 @@
 // minds connected beneath the physical. Run: npx tsx code/experiment/p170-bulk-nonlocality.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -32,22 +33,8 @@ export function bulkNonlocality(input?: { n?: number }): {
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) out.push(g.adj[p]!)
     return out
   }
-  const bfs = (src: number, allowed?: Uint8Array): Int32Array => {
-    const d = new Int32Array(N).fill(-1)
-    d[src] = 0
-    let fr = [src]
-    while (fr.length) {
-      const nf: number[] = []
-      for (const u of fr) for (const w of nbr(u)) {
-        if (d[w] !== -1) continue
-        if (allowed && !allowed[w]) continue
-        d[w] = d[u]! + 1
-        nf.push(w)
-      }
-      fr = nf
-    }
-    return d
-  }
+  const bfs = (src: number, allowed?: Uint8Array): Int32Array =>
+    csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: src, allowed })
 
   // radial layers from a root, the shell at radius R is a "physical surface" (a horosphere-like sphere)
   const radial = bfs(0)

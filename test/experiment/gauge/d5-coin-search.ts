@@ -5,22 +5,13 @@
 // (a genuine root system = D4), (b) D5 has 40 roots but the 5D regular polytopes have 6 / 32 / 10 vertices, none
 // is 40, so NO regular honeycomb coin can carry D5. Run: npx tsx code/experiment/p220-d5-coin-search.ts
 
+import { isRootSystem, rootsDn } from '@/code/algebra/group/root-system'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// 24-cell vertices = D4 roots: all +-e_i +-e_j (i<j) in 4D
-function cell24(): number[][] { const R: number[][] = []; for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; R.push(v) } return R }
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
-const eq = (a: number[], b: number[]): boolean => a.every((x, i) => x === b[i])
-// reflection of v in the hyperplane perpendicular to root a: v - 2 (v.a)/(a.a) a
-function reflect(v: number[], a: number[]): number[] { const f = (2 * dot(v, a)) / dot(a, a); return v.map((x, i) => x - f * a[i]!) }
-function isRootSystem(R: number[][]): boolean {
-  for (const a of R) for (const v of R) { const w = reflect(v, a); if (!R.some((r) => eq(r, w))) return false }
-  return true
-}
-
 export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyRegular5DHas40: boolean } {
-  const R = cell24()
+  // 24-cell vertices = D4 roots: all +-e_i +-e_j (i<j) in 4D
+  const R = rootsDn(4)
   const cell24IsD4 = isRootSystem(R) && R.length === 24
   // D_n root count = 2n(n-1); regular polytope vertex counts by dimension
   const dRoots = (n: number): number => 2 * n * (n - 1)

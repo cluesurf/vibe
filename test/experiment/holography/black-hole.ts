@@ -9,7 +9,11 @@
 // npx tsx code/experiment/p33-black-hole.ts
 
 import { makeDense, DenseMatrix } from '@/code/algebra/linear/dense'
-import { correlationMatrix, regionEntropy } from '@/test/experiment/holography/entanglement'
+import { linearFit } from '@/code/measure/regression'
+import {
+  freeFermionCorrelationMatrix,
+  regionEntanglementEntropy,
+} from '@/code/measure/entanglement'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -34,25 +38,6 @@ function torus3D(side: number): DenseMatrix {
   return h
 }
 
-function fit(xs: number[], ys: number[]): { slope: number; residual: number } {
-  const n = xs.length
-  const mx = xs.reduce((a, b) => a + b, 0) / n
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let cov = 0
-  let varx = 0
-  for (let i = 0; i < n; i++) {
-    cov += ((xs[i] ?? 0) - mx) * ((ys[i] ?? 0) - my)
-    varx += ((xs[i] ?? 0) - mx) * ((xs[i] ?? 0) - mx)
-  }
-  const slope = varx === 0 ? 0 : cov / varx
-  const c0 = my - slope * mx
-  let residual = 0
-  for (let i = 0; i < n; i++) {
-    residual += ((ys[i] ?? 0) - (slope * (xs[i] ?? 0) + c0)) ** 2
-  }
-  return { slope, residual }
-}
-
 export function blackHoleEntropy(input: { side: number }): {
   ells: number[]
   entropies: number[]
@@ -62,7 +47,7 @@ export function blackHoleEntropy(input: { side: number }): {
 } {
   const side = input.side
   const n = side * side * side
-  const c = correlationMatrix({ h: torus3D(side), n })
+  const c = freeFermionCorrelationMatrix({ h: torus3D(side), n })
   const ells = [2, 3, 4]
   const entropies: number[] = []
   for (const l of ells) {
@@ -74,12 +59,12 @@ export function blackHoleEntropy(input: { side: number }): {
         }
       }
     }
-    entropies.push(regionEntropy({ c, n, region }))
+    entropies.push(regionEntanglementEntropy({ c, n, region }))
   }
   const area = ells.map((l) => l * l) // horizon surface area ~ l^2
   const volume = ells.map((l) => l * l * l)
-  const areaFit = fit(area, entropies)
-  const volumeFit = fit(volume, entropies)
+  const areaFit = linearFit({ xs: area, ys: entropies })
+  const volumeFit = linearFit({ xs: volume, ys: entropies })
   return {
     ells,
     entropies,

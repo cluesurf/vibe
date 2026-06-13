@@ -10,61 +10,12 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
+import { edgesFromCsr } from '@/code/tool/graph'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
-
-function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
 
 // compact Voronoi blocks: scatter seeds, assign each cell to its nearest seed (multi-source BFS)
 function blockize(offsets: Int32Array, adj: Int32Array, n: number, targetSize: number, rng: Rng): { blockOf: Int32Array; numBlocks: number } {
@@ -176,7 +127,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       tone[i] = (rng.next() < grad ? 1 : 0) as 0 | 1
     }
     const q0 = tone.reduce((s, x) => s + x, 0)
-    for (let t = 0; t < warmup; t++) fullBeat(tone, eu, ev, moved, rng, 0)
+    for (let t = 0; t < warmup; t++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
     for (let s = 0; s <= numSamples; s++) {
       const bc = blockCharge(tone)
       for (let b = 0; b < numBlocks; b++) {
@@ -184,7 +135,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
         if (bc[b]! < alphaMin) alphaMin = bc[b]!
         if (bc[b]! > alphaMax) alphaMax = bc[b]!
       }
-      if (s < numSamples) for (let k = 0; k < tau; k++) fullBeat(tone, eu, ev, moved, rng, 0)
+      if (s < numSamples) for (let k = 0; k < tau; k++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
     }
     if (tone.reduce((s, x) => s + x, 0) !== q0) conserved = false
   }

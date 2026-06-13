@@ -18,29 +18,11 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { neighborDistances } from '@/code/tool/graph'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 
 type Rng = { next: () => number }
-
-function bfs(neighbors: number[][], n: number, src: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let frontier = [src]
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const u of frontier) {
-      for (const w of neighbors[u]!) {
-        if (dist[w] === -1) {
-          dist[w] = (dist[u] ?? 0) + 1
-          next.push(w)
-        }
-      }
-    }
-    frontier = next
-  }
-  return dist
-}
 
 function edgesOf(neighbors: number[][]): Array<[number, number]> {
   const edges: Array<[number, number]> = []
@@ -137,7 +119,7 @@ export function willpowerGrounded(): {
 
   let center = 0
   for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = bfs(neighbors, n, center)
+  const distC = neighborDistances({ neighbors, size: n, source: center })
 
   // {5,3,4} is very dense, so use BFS-ORDER prefixes for a small, controllable self and core (a
   // distance shell would grab hundreds of cells). The self is a modest reserve, the core is the held

@@ -3,6 +3,7 @@
 // diffusion rule; (b) DISCRETENESS, is the coarse field distinct bounded regions or one smooth blob; (c)
 // MULTI-SCALE, do several scales carry coherence at once. Run: npx tsx code/experiment/p208-nesting-controls.ts
 
+import { pearson } from '@/code/measure/statistics'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -41,11 +42,6 @@ function coarse(t: Int8Array, b: number): Float64Array {
   for (let i = 0; i < L * L * L; i++) { const x = i % L, y = ((i / L) | 0) % L, z = (i / (L * L)) | 0; const bc = ((((z / b) | 0) * (L / b) + ((y / b) | 0)) * (L / b)) + ((x / b) | 0); sum[bc] = sum[bc]! + t[i]! }
   return sum
 }
-function pearson(a: Float64Array, b: Float64Array): number {
-  const n = a.length; let ma = 0, mb = 0; for (let i = 0; i < n; i++) { ma += a[i]!; mb += b[i]! } ma /= n; mb /= n
-  let num = 0, va = 0, vb = 0; for (let i = 0; i < n; i++) { const da = a[i]! - ma, db = b[i]! - mb; num += da * db; va += da * da; vb += db * db }
-  return va > 1e-9 && vb > 1e-9 ? num / Math.sqrt(va * vb) : 0
-}
 function towerOf(step: (t: Int8Array) => void): { persist: number[]; domains: number } {
   const t = new Int8Array(L * L * L)
   for (let i = 0; i < L * L * L; i++) t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
@@ -53,7 +49,7 @@ function towerOf(step: (t: Int8Array) => void): { persist: number[]; domains: nu
   const blocks = [2, 4, 8], LAG = 8, M = 24
   const ser: Float64Array[][] = blocks.map(() => [])
   for (let f = 0; f < M + LAG; f++) { step(t); blocks.forEach((b, bi) => ser[bi]!.push(coarse(t, b))) }
-  const persist = blocks.map((_, bi) => { let acc = 0, c = 0; for (let s = 0; s + LAG < ser[bi]!.length; s++) { acc += pearson(ser[bi]![s]!, ser[bi]![s + LAG]!); c++ } return Math.round((acc / c) * 100) / 100 })
+  const persist = blocks.map((_, bi) => { let acc = 0, c = 0; for (let s = 0; s + LAG < ser[bi]!.length; s++) { acc += pearson({ a: ser[bi]![s]!, b: ser[bi]![s + LAG]!, epsilon: 1e-9 }); c++ } return Math.round((acc / c) * 100) / 100 })
   // discreteness: number of sign-domains at the coarsest scale (distinct bounded regions vs one blob)
   const cg = coarse(t, 8); let pos = 0, neg = 0; for (let i = 0; i < cg.length; i++) { if (cg[i]! > 1) pos++; else if (cg[i]! < -1) neg++ }
   const domains = pos + neg

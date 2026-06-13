@@ -11,32 +11,14 @@
 // from the world. The wiring between selves is mere connectivity, the modeling itself is emergent.
 // Run: npx tsx code/experiment/p121-recursion.ts
 
+import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number, maxR: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let r = 0
-  while (fr.length > 0 && r < maxR) {
-    r++
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = r
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return dist
-}
 
 function bfsFar(offsets: Int32Array, adj: Int32Array, n: number, src: number): number {
   const dist = new Int32Array(n).fill(-1)
@@ -56,19 +38,6 @@ function bfsFar(offsets: Int32Array, adj: Int32Array, n: number, src: number): n
     fr = next
   }
   return far
-}
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
 }
 
 function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
@@ -97,29 +66,6 @@ function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8A
   }
 }
 
-function corr(x: number[], y: number[]): number {
-  const n = x.length
-  let mx = 0
-  let my = 0
-  for (let i = 0; i < n; i++) {
-    mx += x[i]!
-    my += y[i]!
-  }
-  mx /= n
-  my /= n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    const dx = x[i]! - mx
-    const dy = y[i]! - my
-    sxy += dx * dy
-    sxx += dx * dx
-    syy += dy * dy
-  }
-  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0
-}
-
 export function recursion(input?: { n?: number }): {
   n: number
   hub1ModelsWorld: number
@@ -141,8 +87,8 @@ export function recursion(input?: { n?: number }): {
   let center1 = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center1 + 1]! - g.offsets[center1]!) center1 = i
   const center2 = bfsFar(g.offsets, g.adj, N, center1)
-  const d1 = bfs(g.offsets, g.adj, N, center1, 12)
-  const d2 = bfs(g.offsets, g.adj, N, center2, 12)
+  const d1 = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center1, maxRadius: 12 })
+  const d2 = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center2, maxRadius: 12 })
   const r = 3
   const boundary1: number[] = []
   const hub1cells: number[] = []
@@ -197,11 +143,11 @@ export function recursion(input?: { n?: number }): {
   const live = run(true)
   const dead = run(false)
 
-  const hub1ModelsWorld = Math.abs(corr(live.h1, live.world))
-  const hub2ModelsHub1 = Math.abs(corr(live.h2, live.h1))
-  const hub2ModelsWorld = Math.abs(corr(live.h2, live.world))
-  const shuffledBaseline = Math.abs(corr(live.h2, live.h1.slice().reverse()))
-  const noDynamics = Math.abs(corr(dead.h2, dead.h1))
+  const hub1ModelsWorld = Math.abs(pearson({ a: live.h1, b: live.world }))
+  const hub2ModelsHub1 = Math.abs(pearson({ a: live.h2, b: live.h1 }))
+  const hub2ModelsWorld = Math.abs(pearson({ a: live.h2, b: live.world }))
+  const shuffledBaseline = Math.abs(pearson({ a: live.h2, b: live.h1.slice().reverse() }))
+  const noDynamics = Math.abs(pearson({ a: dead.h2, b: dead.h1 }))
 
   const realModel = hub2ModelsHub1 > 0.4 && hub2ModelsHub1 > shuffledBaseline + 0.3 && hub2ModelsHub1 > noDynamics + 0.3
   const modelsTheModel = hub2ModelsHub1 >= hub2ModelsWorld - 0.05 // tracks the model at least as well as the world

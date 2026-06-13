@@ -8,48 +8,12 @@
 // Run: npx tsx code/experiment/p111-signaling.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number): { dist: Int32Array; far: number; ecc: number } {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let frontier = [src]
-  let far = src
-  let ecc = 0
-  while (frontier.length > 0) {
-    const next: number[] = []
-    for (const u of frontier) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = dist[u]! + 1
-        if (dist[w]! > ecc) {
-          ecc = dist[w]!
-          far = w
-        }
-        next.push(w)
-      }
-    }
-    frontier = next
-  }
-  return { dist, far, ecc }
-}
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 // conserved hop diffusion of a signal (no arrow, no opposite charge, so the pulse just spreads)
 function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
@@ -87,7 +51,8 @@ export function signaling(input?: { n?: number }): {
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
-  const { dist, far, ecc } = bfs(g.offsets, g.adj, N, 0)
+  const { dist, far } = csrEccentricity({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
+  const ecc = dist[far]!
   const logN = Math.log2(N)
   const diameterIsLogarithmic = ecc < 3 * logN // a few hops, not order N
 

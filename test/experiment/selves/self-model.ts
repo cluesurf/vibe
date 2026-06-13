@@ -12,45 +12,14 @@
 // the correlation collapses without the dynamics (no hops). So a proto self-model emerges from the five.
 // Run: npx tsx code/experiment/p116-self-model.ts
 
+import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
-
-function bfs(offsets: Int32Array, adj: Int32Array, n: number, src: number, maxR: number): Int32Array {
-  const dist = new Int32Array(n).fill(-1)
-  dist[src] = 0
-  let fr = [src]
-  let r = 0
-  while (fr.length > 0 && r < maxR) {
-    r++
-    const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (dist[w] === -1) {
-        dist[w] = r
-        next.push(w)
-      }
-    }
-    fr = next
-  }
-  return dist
-}
-
-function edgesFromCsr(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array } {
-  const eu: number[] = []
-  const ev: number[] = []
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      eu.push(v)
-      ev.push(w)
-    }
-  }
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
-}
 
 // full perception beat (share annihilates opposite, hop transports into empty). Charge flows freely,
 // including out of the clamped input cells, which are re-clamped to the signal after each beat (a source).
@@ -80,29 +49,6 @@ function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8A
   }
 }
 
-function corr(x: number[], y: number[]): number {
-  const n = x.length
-  let mx = 0
-  let my = 0
-  for (let i = 0; i < n; i++) {
-    mx += x[i]!
-    my += y[i]!
-  }
-  mx /= n
-  my /= n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    const dx = x[i]! - mx
-    const dy = y[i]! - my
-    sxy += dx * dy
-    sxx += dx * dx
-    syy += dy * dy
-  }
-  return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : 0
-}
-
 function run(withDynamics: boolean): {
   selfModelCorr: number
   randomCorr: number
@@ -116,7 +62,7 @@ function run(withDynamics: boolean): {
   // the self = a central patch; the hub = the most-connected cell
   let center = 0
   for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dist = bfs(g.offsets, g.adj, N, center, 12)
+  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
   const rSelf = 5
   const self: number[] = []
   for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
@@ -187,11 +133,11 @@ function run(withDynamics: boolean): {
     for (let p = 0; p < peripherals.length; p++) periSeries[p]!.push(meanOver(tone, peripherals[p]!))
   }
 
-  const selfModelCorr = Math.abs(corr(coreSeries, gSeries))
+  const selfModelCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
   let randomCorr = 0
-  for (let p = 0; p < peripherals.length; p++) randomCorr += Math.abs(corr(periSeries[p]!, gSeries))
+  for (let p = 0; p < peripherals.length; p++) randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   randomCorr /= peripherals.length
-  const shuffledCorr = Math.abs(corr(coreSeries, gSeries.slice().reverse()))
+  const shuffledCorr = Math.abs(pearson({ a: coreSeries, b: gSeries.slice().reverse() }))
 
   return { selfModelCorr, randomCorr, shuffledCorr }
 }

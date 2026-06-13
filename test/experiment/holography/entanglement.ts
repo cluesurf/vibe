@@ -8,53 +8,13 @@
 // Run: npx tsx code/experiment/p15-entanglement.ts
 
 import { makeDense, DenseMatrix } from '@/code/algebra/linear/dense'
-import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import { linearFit } from '@/code/measure/regression'
+import {
+  freeFermionCorrelationMatrix,
+  regionEntanglementEntropy,
+} from '@/code/measure/entanglement'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// The two-point correlation matrix C_ij = <c_i^dagger c_j> of the half-filled
-// free-fermion ground state of the hopping Hamiltonian H (fill the lowest half of
-// the modes, the Fermi sea).
-export function correlationMatrix(input: { h: DenseMatrix; n: number }): Float64Array {
-  const { h, n } = input
-  const eig = eigSymmetric({ matrix: h })
-  const order = Array.from({ length: n }, (_, k) => k).sort(
-    (a, b) => (eig.values[a] ?? 0) - (eig.values[b] ?? 0),
-  )
-  const occupied = order.slice(0, Math.floor(n / 2))
-  const c = new Float64Array(n * n)
-  for (const k of occupied) {
-    for (let i = 0; i < n; i++) {
-      const vik = eig.vectors[i * n + k] ?? 0
-      if (vik === 0) {
-        continue
-      }
-      for (let j = 0; j < n; j++) {
-        c[i * n + j] = (c[i * n + j] ?? 0) + vik * (eig.vectors[j * n + k] ?? 0)
-      }
-    }
-  }
-  return c
-}
-
-// Entanglement entropy of a region from the eigenvalues zeta of the restricted
-// correlation matrix: S = -sum [ zeta ln zeta + (1-zeta) ln(1-zeta) ].
-export function regionEntropy(input: { c: Float64Array; n: number; region: number[] }): number {
-  const m = input.region.length
-  const sub = makeDense({ rows: m, cols: m })
-  for (let a = 0; a < m; a++) {
-    for (let b = 0; b < m; b++) {
-      sub.data[a * m + b] = input.c[(input.region[a] ?? 0) * input.n + (input.region[b] ?? 0)] ?? 0
-    }
-  }
-  const eig = eigSymmetric({ matrix: sub })
-  let s = 0
-  for (let i = 0; i < m; i++) {
-    const z = Math.min(1 - 1e-12, Math.max(1e-12, eig.values[i] ?? 0))
-    s -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
-  }
-  return s
-}
 
 function ring1D(n: number): DenseMatrix {
   const h = makeDense({ rows: n, cols: n })
@@ -83,38 +43,25 @@ function torus2D(side: number): DenseMatrix {
   return h
 }
 
-function slope(xs: number[], ys: number[]): number {
-  const n = xs.length
-  const mx = xs.reduce((a, b) => a + b, 0) / n
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let cov = 0
-  let varx = 0
-  for (let i = 0; i < n; i++) {
-    cov += ((xs[i] ?? 0) - mx) * ((ys[i] ?? 0) - my)
-    varx += ((xs[i] ?? 0) - mx) * ((xs[i] ?? 0) - mx)
-  }
-  return varx === 0 ? 0 : cov / varx
-}
-
 // 1D: slope of S versus ln(block length), expected near c/3 = 1/3 for c = 1.
 export function logLawSlope1D(input: { n: number }): number {
-  const c = correlationMatrix({ h: ring1D(input.n), n: input.n })
+  const c = freeFermionCorrelationMatrix({ h: ring1D(input.n), n: input.n })
   const lengths = [4, 6, 8, 12, 16, 20, 24]
   const lnL: number[] = []
   const s: number[] = []
   for (const L of lengths) {
     const region = Array.from({ length: L }, (_, i) => i)
     lnL.push(Math.log(L))
-    s.push(regionEntropy({ c, n: input.n, region }))
+    s.push(regionEntanglementEntropy({ c, n: input.n, region }))
   }
-  return slope(lnL, s)
+  return linearFit({ xs: lnL, ys: s }).slope
 }
 
 // 2D: entropy of an l x l block versus l. An area law is linear in l (the boundary),
 // not in l^2 (the volume). Returns the boundary slope and whether area beats volume.
 export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaBeatsVolume: boolean } {
   const n = input.side * input.side
-  const c = correlationMatrix({ h: torus2D(input.side), n })
+  const c = freeFermionCorrelationMatrix({ h: torus2D(input.side), n })
   const ells = [2, 3, 4, 5]
   const ellArr: number[] = []
   const ell2Arr: number[] = []
@@ -128,23 +75,13 @@ export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaB
     }
     ellArr.push(l)
     ell2Arr.push(l * l)
-    s.push(regionEntropy({ c, n, region }))
+    s.push(regionEntanglementEntropy({ c, n, region }))
   }
   // Residual of a linear (boundary) fit versus a quadratic (volume) fit.
-  const boundaryFit = slope(ellArr, s)
-  const resid = (xs: number[]): number => {
-    const k = slope(xs, s)
-    const mx = xs.reduce((a, b) => a + b, 0) / xs.length
-    const ms = s.reduce((a, b) => a + b, 0) / s.length
-    const c0 = ms - k * mx
-    let r = 0
-    for (let i = 0; i < xs.length; i++) {
-      const pred = k * (xs[i] ?? 0) + c0
-      r += ((s[i] ?? 0) - pred) ** 2
-    }
-    return r
-  }
-  return { boundaryFit, areaBeatsVolume: resid(ellArr) < resid(ell2Arr) }
+  const boundaryFit = linearFit({ xs: ellArr, ys: s }).slope
+  const areaResidual = linearFit({ xs: ellArr, ys: s }).residual
+  const volumeResidual = linearFit({ xs: ell2Arr, ys: s }).residual
+  return { boundaryFit, areaBeatsVolume: areaResidual < volumeResidual }
 }
 
 export default defineExperiment({
