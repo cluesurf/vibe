@@ -120,7 +120,7 @@ export function benincasaDowkerAction(input: {
 // element and x. epsilon in (0,1) sets the nonlocality: the kernel spreads over
 // about 1/epsilon layers with geometric decay and alternating signs. At epsilon
 // near 1 only n = 0 (links) survives, recovering the sharp action.
-function smearedKernel2D(input: { n: number; epsilon: number }): number {
+export function smearedKernel2D(input: { n: number; epsilon: number }): number {
   const e = input.epsilon
   const n = input.n
   const oneMinus = 1 - e

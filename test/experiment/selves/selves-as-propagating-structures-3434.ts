@@ -20,6 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { toCsr } from '@/code/tool/graph'
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 
 // ---------- the RIGHT measure ----------
 // Given a sequence of "occupied-cell" sets (the pattern over time), a self scores high on:
@@ -90,17 +91,6 @@ function gliderSelf(): { identity: number; turnover: number; speed: number; rgGr
 
 // ---------- 2. CONTRAST: the vibe perception rule from a localized seed ----------
 
-function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
-  if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]
-  if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]
-  if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]
-  if (a === 1 && b === -1) return [-1, 1]
-  return [0, 0]
-}
 
 function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
   const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 })

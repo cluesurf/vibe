@@ -5,6 +5,7 @@
 
 import { pearson } from '@/code/measure/statistics'
 import { makeRng } from '@/code/tool/rng'
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -12,13 +13,6 @@ const L = 40
 const at = (x: number, y: number, z: number): number => (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
 const DIRS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
 
-function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]; if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]; if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]; if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]; if (a === 1 && b === -1) return [-1, 1]
-  if (a === -1 && b === 1) return [0, 0]; return [a, b]
-}
 const rng = makeRng({ seed: 7 })
 const rnd = (): number => rng.next()
 const shuf = <T>(a: T[]): T[] => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const t = a[i]!; a[i] = a[j]!; a[j] = t } return a }

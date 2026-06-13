@@ -7,45 +7,21 @@
 // boundary of the region, not its volume. See note/questions/next-version.md (P15).
 // Run: npx tsx code/experiment/p15-entanglement.ts
 
-import { makeDense, DenseMatrix } from '@/code/algebra/linear/dense'
 import { linearFit } from '@/code/measure/regression'
 import {
   freeFermionCorrelationMatrix,
   regionEntanglementEntropy,
 } from '@/code/measure/entanglement'
+import {
+  ringHoppingHamiltonian,
+  torusHoppingHamiltonian,
+} from '@/code/operator/tight-binding'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function ring1D(n: number): DenseMatrix {
-  const h = makeDense({ rows: n, cols: n })
-  for (let i = 0; i < n; i++) {
-    const j = (i + 1) % n
-    h.data[i * n + j] = 1
-    h.data[j * n + i] = 1
-  }
-  return h
-}
-
-function torus2D(side: number): DenseMatrix {
-  const n = side * side
-  const h = makeDense({ rows: n, cols: n })
-  const idx = (x: number, y: number): number => ((y + side) % side) * side + ((x + side) % side)
-  for (let y = 0; y < side; y++) {
-    for (let x = 0; x < side; x++) {
-      const v = idx(x, y)
-      for (const [dx, dy] of [[1, 0], [0, 1]] as const) {
-        const w = idx(x + dx, y + dy)
-        h.data[v * n + w] = 1
-        h.data[w * n + v] = 1
-      }
-    }
-  }
-  return h
-}
-
 // 1D: slope of S versus ln(block length), expected near c/3 = 1/3 for c = 1.
 export function logLawSlope1D(input: { n: number }): number {
-  const c = freeFermionCorrelationMatrix({ h: ring1D(input.n), n: input.n })
+  const c = freeFermionCorrelationMatrix({ h: ringHoppingHamiltonian({ n: input.n }), n: input.n })
   const lengths = [4, 6, 8, 12, 16, 20, 24]
   const lnL: number[] = []
   const s: number[] = []
@@ -61,7 +37,7 @@ export function logLawSlope1D(input: { n: number }): number {
 // not in l^2 (the volume). Returns the boundary slope and whether area beats volume.
 export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaBeatsVolume: boolean } {
   const n = input.side * input.side
-  const c = freeFermionCorrelationMatrix({ h: torus2D(input.side), n })
+  const c = freeFermionCorrelationMatrix({ h: torusHoppingHamiltonian({ dimension: 2, side: input.side }), n })
   const ells = [2, 3, 4, 5]
   const ellArr: number[] = []
   const ell2Arr: number[] = []

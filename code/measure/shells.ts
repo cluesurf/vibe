@@ -4,22 +4,29 @@
 // shell-growth on a typed Substrate stays in measure/dimension.ts (ballGrowth), this is its plain-neighbors
 // sibling, and both share the same BFS shape.
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = ReadonlyArray<ArrayLike<number>>
 
-// BFS from a root, returning the geodesic depth of every node and the size of each shell.
+// BFS from a root, returning the geodesic depth of every node and the size of each
+// shell. maxRadius caps the traversal depth (the shell list then holds at most
+// maxRadius + 1 entries), so callers that only read a near window do not pay for the
+// whole graph.
 export function bfsShells(input: {
   neighbors: Neighbors
   root?: number
+  maxRadius?: number
 }): { depth: Int32Array; shellCounts: number[] } {
   const neighbors = input.neighbors
   const n = neighbors.length
   const root = input.root ?? 0
+  const maxRadius = input.maxRadius ?? Infinity
   const depth = new Int32Array(n).fill(-1)
   if (n === 0) return { depth, shellCounts: [] }
   depth[root] = 0
   let frontier = [root]
   const shellCounts: number[] = [1]
-  while (frontier.length) {
+  let r = 0
+  while (frontier.length && r < maxRadius) {
+    r++
     const next: number[] = []
     for (const u of frontier) {
       const row = neighbors[u] ?? []

@@ -13,6 +13,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { avalancheSizes, toneDensity } from '@/code/measure/avalanche'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -23,33 +24,18 @@ function avalanches(c0: number, g: { offsets: Int32Array; adj: Int32Array; cellC
   const base = new Int8Array(N)
   const rng0 = makeRng({ seed: 5 })
   for (let t = 0; t < 150; t++) conservingEdgeSweep({ tone: base, eu, ev, moved, rng: rng0, arrow: c0 }) // settle to the low background
-  let bgNz = 0
-  for (let i = 0; i < N; i++) if (base[i] !== 0) bgNz++
-  const bg = bgNz / N
-
-  const sizes: number[] = []
-  const trials = 150
-  const T = 30
-  for (let tr = 0; tr < trials; tr++) {
-    const s = base.slice()
-    const s2 = base.slice()
-    const pr = makeRng({ seed: 7000 + tr })
-    const cell = Math.floor(pr.next() * N)
-    s2[cell] = (s2[cell]! === 0 ? 1 : 0) as -1 | 0 | 1 // seed perturbation
-    const ra = makeRng({ seed: 222 + tr })
-    const rb = makeRng({ seed: 222 + tr })
-    let peak = 0
-    for (let t = 0; t < T; t++) {
-      conservingEdgeSweep({ tone: s, eu, ev, moved, rng: ra, arrow: c0 })
-      conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow: c0 })
-      let diff = 0
-      for (let i = 0; i < N; i++) if (s[i] !== s2[i]) diff++
-      if (diff > peak) peak = diff
-      if (diff === 0) break // the cascade healed, terminated
-    }
-    sizes.push(peak)
-  }
-  return { sizes: sizes.sort((a, b) => a - b), bg }
+  const bg = toneDensity(base)
+  const sizes = avalancheSizes({
+    base,
+    steps: 30,
+    trials: 150,
+    perturbSeed: 7000,
+    streamSeed: 222,
+    makeRng: (seed) => makeRng({ seed }),
+    relax: (state, rng) => conservingEdgeSweep({ tone: state, eu, ev, moved, rng, arrow: c0 }),
+    mode: 'peak',
+  })
+  return { sizes, bg }
 }
 
 export function avalancheCriticality(input?: { n?: number }): {

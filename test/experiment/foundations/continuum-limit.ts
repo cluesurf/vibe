@@ -9,23 +9,9 @@
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
+import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function logLogSlope(xs: number[], ys: number[]): number {
-  const n = xs.length
-  const lx = xs.map((x) => Math.log(x))
-  const ly = ys.map((y) => Math.log(y))
-  const mx = lx.reduce((a, b) => a + b, 0) / n
-  const my = ly.reduce((a, b) => a + b, 0) / n
-  let num = 0
-  let den = 0
-  for (let i = 0; i < n; i++) {
-    num += ((lx[i] ?? 0) - mx) * ((ly[i] ?? 0) - my)
-    den += ((lx[i] ?? 0) - mx) * ((lx[i] ?? 0) - mx)
-  }
-  return den === 0 ? 0 : num / den
-}
 
 export function continuumLimit(input: { dimension: number; sizes: number[]; repeats: number; seed: number }): {
   estimates: number[]

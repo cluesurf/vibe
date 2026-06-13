@@ -6,38 +6,24 @@
 // Run: npx tsx code/experiment/physics-on-real-space.ts
 
 import { buildEuclideanLattice, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { bfsShells } from '@/code/measure/shells'
 import { extractBand } from '@/code/substrate/horosphere'
+import { largestComponentNodes } from '@/code/tool/graph'
+import { spectralDimension } from '@/code/measure/dimension'
+import { gravityExponent as gravityExponentMeasure } from '@/code/measure/gravity-exponent'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+const round2 = (x: number): number => Math.round(x * 100) / 100
+
 function largestComponent(nb: number[][]): number[] {
-  const N = nb.length, seen = new Int32Array(N).fill(-1); let best: number[] = []
-  for (let s = 0; s < N; s++) { if (seen[s]! >= 0) continue; const comp: number[] = []; const q = [s]; seen[s] = s; for (let h = 0; h < q.length; h++) { const u = q[h]!; comp.push(u); for (const w of nb[u]!) if (seen[w]! < 0) { seen[w] = s; q.push(w) } } if (comp.length > best.length) best = comp }
-  return best
+  return largestComponentNodes(nb)
 }
 function spectralDim(nb: number[][], start: number, t1: number, t2: number): number {
-  const N = nb.length; let p = new Float64Array(N); p[start] = 1; let np = new Float64Array(N); const P: number[] = []
-  for (let t = 0; t <= t2; t++) { P.push(p[start]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = nb[i]!.length; if (d === 0) { np[i] = np[i]! + pi; continue } np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (const j of nb[i]!) np[j] = np[j]! + sh } const tmp = p; p = np; np = tmp }
-  return Math.round((-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) / (Math.log(t2) - Math.log(t1)) * 100) / 100
+  return round2(spectralDimension({ neighbors: nb, start, t1, t2 }))
 }
 // gravity, screened Laplacian Green's function (D - A + m^2) phi = delta, fit phi ~ r^-alpha over mid distances
 function gravityExponent(nb: number[][], start: number): number {
-  const N = nb.length, m2 = 0.004
-  const phi = new Float64Array(N)
-  for (let it = 0; it < 3000; it++) for (let i = 0; i < N; i++) { let s = i === start ? 1 : 0; for (const j of nb[i]!) s += phi[j]!; phi[i] = s / (nb[i]!.length + m2) }
-  // graph distance from start
-  const dist = bfsShells({ neighbors: nb, root: start }).depth
-  // average phi per shell, fit log phi vs log r over r = 2..6
-  const sums: number[] = [], cnts: number[] = []
-  for (let i = 0; i < N; i++) { const r = dist[i]!; if (r < 0) continue; sums[r] = (sums[r] ?? 0) + phi[i]!; cnts[r] = (cnts[r] ?? 0) + 1 }
-  const pts: [number, number][] = []
-  for (let r = 2; r <= 6; r++) if (cnts[r]) pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
-  if (pts.length < 3) return NaN
-  const n = pts.length, sx = pts.reduce((a, p) => a + p[0], 0), sy = pts.reduce((a, p) => a + p[1], 0)
-  const sxx = pts.reduce((a, p) => a + p[0] * p[0], 0), sxy = pts.reduce((a, p) => a + p[0] * p[1], 0)
-  const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx)
-  return Math.round(-slope * 100) / 100 // alpha in phi ~ r^-alpha (3D Coulomb -> 1)
+  return round2(gravityExponentMeasure({ neighbors: nb, start }))
 }
 
 export function physicsOnRealSpace(): void {

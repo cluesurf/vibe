@@ -24,19 +24,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { toCsr } from '@/code/tool/graph'
-
-// the exact 9-state conserving perception permutation on an ordered pair (the rule's collision)
-function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
-  if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]
-  if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]
-  if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]
-  if (a === 1 && b === -1) return [-1, 1]
-  return [0, 0] // (-1, 1)
-}
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 
 type StepFn = (tone: Int8Array, offsets: Uint32Array, adj: Uint32Array, rng: { next: () => number }) => void
 

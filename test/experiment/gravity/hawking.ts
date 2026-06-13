@@ -18,63 +18,31 @@
 //      Computed from the entropy formula, it is a genuine turnover, not a drawn triangle.
 // Run: npx tsx code/experiment/p71-hawking.ts
 
+import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
+import { pageAverageEntropy } from '@/code/measure/entanglement'
+import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// The Unruh detector response F(E): Fourier transform of the worldline field correlator.
+// The Unruh detector response F(E): the magnitude of the transform of the worldline field correlator.
 function unruhResponse(input: { E: number; a: number; eps: number; samples: number }): number {
-  const { E, a, eps } = input
-  const T = 30 / a
-  const N = input.samples
-  const d = (2 * T) / N
-  let re = 0
-  let im = 0
-  for (let i = 0; i < N; i++) {
-    const dtau = -T + (i + 0.5) * d
-    // sinh(a(dtau - i eps)/2), complex
-    const reArg = (a * dtau) / 2
-    const imArg = (-a * eps) / 2
-    const shRe = Math.sinh(reArg) * Math.cos(imArg)
-    const shIm = Math.cosh(reArg) * Math.sin(imArg)
-    // ( (2/a) sinh )^2
-    const c = 2 / a
-    const sqRe = c * c * (shRe * shRe - shIm * shIm)
-    const sqIm = c * c * (2 * shRe * shIm)
-    // W = -1/(4 pi^2) * 1 / sq
-    const den = sqRe * sqRe + sqIm * sqIm
-    const wRe = (-1 / (4 * Math.PI * Math.PI)) * (sqRe / den)
-    const wIm = (-1 / (4 * Math.PI * Math.PI)) * (-sqIm / den)
-    // e^{-iE dtau}
-    const cc = Math.cos(E * dtau)
-    const ss = -Math.sin(E * dtau)
-    re += (wRe * cc - wIm * ss) * d
-    im += (wRe * ss + wIm * cc) * d
-  }
-  return Math.hypot(re, im)
+  const f = unruhDetectorResponse({
+    energy: input.E,
+    kappa: input.a,
+    eps: input.eps,
+    halfWindow: 30,
+    step: (2 * (30 / input.a)) / input.samples,
+    prefactor: -1 / (4 * Math.PI * Math.PI),
+  })
+  return Math.hypot(f.real, f.imaginary)
 }
 
 // Temperature read off the detailed balance F(E)/F(-E) = exp(-E/T), averaged over several E.
 function temperatureFromResponse(a: number, samples: number): number {
-  const Es = [0.5 * a, 1.0 * a, 1.5 * a]
-  let acc = 0
-  for (const E of Es) {
-    const fp = unruhResponse({ E, a, eps: 0.01 / a, samples })
-    const fm = unruhResponse({ E: -E, a, eps: 0.01 / a, samples })
-    acc += -E / Math.log(fp / fm)
-  }
-  return acc / Es.length
-}
-
-// Page average entanglement entropy of subsystem dim m in an m*n random pure state (m <= n).
-function pageEntropy(m: number, n: number): number {
-  if (m > n) {
-    const t = m
-    m = n
-    n = t
-  }
-  let s = 0
-  for (let k = n + 1; k <= m * n; k++) s += 1 / k
-  return s - (m - 1) / (2 * n)
+  return temperatureFromDetailedBalance({
+    kappa: a,
+    response: (E) => unruhResponse({ E, a, eps: 0.01 / a, samples }),
+  })
 }
 
 export function hawking(input: Record<string, never> = {}): {
@@ -109,17 +77,7 @@ export function hawking(input: Record<string, never> = {}): {
   const masses = [1, 2, 4]
   const temps = masses.map((M) => temperatureFromResponse(1 / (4 * M), samples))
   // fit log T vs log M
-  const lx = masses.map((M) => Math.log(M))
-  const ly = temps.map((T) => Math.log(T))
-  const mx = lx.reduce((p, q) => p + q, 0) / lx.length
-  const my = ly.reduce((p, q) => p + q, 0) / ly.length
-  let num = 0
-  let den = 0
-  for (let i = 0; i < masses.length; i++) {
-    num += ((lx[i] ?? 0) - mx) * ((ly[i] ?? 0) - my)
-    den += ((lx[i] ?? 0) - mx) ** 2
-  }
-  const temperatureExponent = den === 0 ? 0 : num / den
+  const temperatureExponent = logLogSlope(masses, temps)
 
   // 3. Page curve from random-state entanglement.
   const totalQubits = 12
@@ -127,7 +85,7 @@ export function hawking(input: Record<string, never> = {}): {
   let peakFraction = 0
   const curve: number[] = []
   for (let q = 1; q < totalQubits; q++) {
-    const s = pageEntropy(Math.pow(2, q), Math.pow(2, totalQubits - q)) / Math.log(2)
+    const s = pageAverageEntropy({ dimA: Math.pow(2, q), dimB: Math.pow(2, totalQubits - q) }) / Math.log(2)
     curve.push(s)
     if (s > peak) {
       peak = s

@@ -14,78 +14,18 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { torusGrid } from '@/code/substrate/torus-grid'
 import { betheTree } from '@/code/substrate/bethe-tree'
+import { bfsShells } from '@/code/measure/shells'
+import {
+  shellDimension,
+  shellExponentialFit,
+  shellPowerR2,
+} from '@/code/measure/dimension'
 
-// Average shell sizes |S(r)| from a source, by breadth-first search in graph hops.
-function shellFrom(adjacency: ReadonlyArray<Uint32Array>, source: number, maxR: number): number[] {
-  const n = adjacency.length
-  const dist = new Int32Array(n).fill(-1)
-  dist[source] = 0
-  let frontier = [source]
-  const shells = [1]
-  let r = 0
-  while (frontier.length > 0 && r < maxR) {
-    const next: number[] = []
-    for (const v of frontier) {
-      for (const w of adjacency[v] ?? new Uint32Array(0)) {
-        if (dist[w] === -1) {
-          dist[w] = r + 1
-          next.push(w)
-        }
-      }
-    }
-    r++
-    shells.push(next.length)
-    frontier = next
-  }
-  return shells
-}
-
-function linFit(xs: number[], ys: number[]): { slope: number; r2: number } {
-  const n = xs.length
-  const mx = xs.reduce((a, b) => a + b, 0) / n
-  const my = ys.reduce((a, b) => a + b, 0) / n
-  let sxy = 0
-  let sxx = 0
-  let syy = 0
-  for (let i = 0; i < n; i++) {
-    sxy += (xs[i]! - mx) * (ys[i]! - my)
-    sxx += (xs[i]! - mx) ** 2
-    syy += (ys[i]! - my) ** 2
-  }
-  return { slope: sxy / sxx, r2: syy === 0 ? 1 : (sxy * sxy) / (sxx * syy) }
-}
-
-function shellDimension(shell: number[], rLo: number, rHi: number): { dimension: number; r2: number } {
-  const xs: number[] = []
-  const ys: number[] = []
-  for (let r = rLo; r <= rHi; r++) {
-    xs.push(Math.log(r))
-    ys.push(Math.log(shell[r] ?? 1))
-  }
-  const f = linFit(xs, ys)
-  return { dimension: f.slope + 1, r2: f.r2 }
-}
-
-function powerR2(shell: number[], rLo: number, rHi: number): number {
-  const xs: number[] = []
-  const ys: number[] = []
-  for (let r = rLo; r <= rHi; r++) {
-    xs.push(Math.log(r))
-    ys.push(Math.log(shell[r] ?? 1))
-  }
-  return linFit(xs, ys).r2
-}
-
-function exponentialFit(shell: number[], rLo: number, rHi: number): { growthRatio: number; r2: number } {
-  const xs: number[] = []
-  const ys: number[] = []
-  for (let r = rLo; r <= rHi; r++) {
-    xs.push(r)
-    ys.push(Math.log(shell[r] ?? 1))
-  }
-  const f = linFit(xs, ys)
-  return { growthRatio: Math.exp(f.slope), r2: f.r2 }
-}
+// The intrinsic geometry is read off the grown connectivity with no coordinates: the
+// SHELL counts (nodes at exactly graph distance r) via bfsShells, then the shell-based
+// dimension and curvature measures in code/measure/dimension. On a flat mesh the shell
+// grows as r^(d-1) (shellDimension recovers d), on a curved mesh it grows
+// exponentially (shellExponentialFit beats shellPowerR2).
 
 export function emergentDimension(input: Record<string, never> = {}): {
   flat: { target: number; measured: number; r2: number }[]
@@ -102,8 +42,8 @@ export function emergentDimension(input: Record<string, never> = {}): {
   ]
   const flat = flatSpecs.map((spec) => {
     const adj = torusGrid(spec.target, spec.L)
-    const shell = shellFrom(adj, 0, spec.rHi + 1)
-    const sd = shellDimension(shell, spec.rLo, spec.rHi)
+    const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
+    const sd = shellDimension({ shell, rLo: spec.rLo, rHi: spec.rHi })
     return { target: spec.target, measured: sd.dimension, r2: sd.r2 }
   })
 
@@ -113,9 +53,9 @@ export function emergentDimension(input: Record<string, never> = {}): {
   ]
   const curved = treeSpecs.map((spec) => {
     const adj = betheTree(spec.q, spec.depth)
-    const shell = shellFrom(adj, 0, spec.rHi + 1)
-    const ef = exponentialFit(shell, spec.rLo, spec.rHi)
-    return { name: spec.name, powerR2: powerR2(shell, spec.rLo, spec.rHi), exponentialR2: ef.r2, growthRatio: ef.growthRatio }
+    const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
+    const ef = shellExponentialFit({ shell, rLo: spec.rLo, rHi: spec.rHi })
+    return { name: spec.name, powerR2: shellPowerR2({ shell, rLo: spec.rLo, rHi: spec.rHi }), exponentialR2: ef.r2, growthRatio: ef.growthRatio }
   })
 
   const flatUnbiased = flat.every((f) => Math.abs(f.measured - f.target) < 0.2)

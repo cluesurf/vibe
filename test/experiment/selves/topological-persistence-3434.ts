@@ -8,15 +8,9 @@
 // {3,4,3,4} rule dynamically produces conserved-winding fields is the deeper open question.
 // Run: npx tsx code/experiment/p257-topological-persistence-3434.ts
 
+import { phaseWinding as winding } from '@/code/measure/winding'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// winding number of a phase field on a ring: (1/2pi) sum of wrapped phase differences
-function winding(theta: number[]): number {
-  const L = theta.length; let w = 0
-  for (let i = 0; i < L; i++) { let d = theta[(i + 1) % L]! - theta[i]!; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; w += d }
-  return Math.round(w / (2 * Math.PI))
-}
 
 // local relaxation of a complex field psi = r e^{i theta} (a lattice Ginzburg-Landau / heat flow that keeps |psi|>0)
 function relax(psi: { re: number; im: number }[], steps: number, dt: number): { re: number; im: number }[] {

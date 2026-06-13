@@ -15,6 +15,7 @@
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-black-hole-thermo.ts
 
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
+import { branchingRatio } from '@/code/measure/shells'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -99,9 +100,7 @@ function deSitterHorizon(): { H: number; T: number; S: number; Lambda: number } 
   // consistent with the paper. (The truncation-clean asymptotic ratio is ~18.4 -> H ~ 0.97; the de Sitter
   // RELATIONS below hold either way, only the number shifts.)
   const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 600 })
-  const mid = a.shellSizes.slice(2, 7)
-  const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
-  const R = ratios.reduce((x, y) => x + y, 0) / ratios.length
+  const R = branchingRatio({ shellCounts: a.shellSizes, from: 3, to: 7 })
   const H = Math.log(R) / 3 // a(t) ~ R^(t/3) = e^(H t)
   const radius = 1 / H // Hubble / de Sitter horizon radius (c=1)
   const area = 4 * Math.PI * radius ** 2

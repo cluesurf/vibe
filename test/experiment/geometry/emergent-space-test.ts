@@ -5,38 +5,20 @@
 // Run: npx tsx code/experiment/emergent-space-test.ts
 
 import { buildHorosphereBand, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import { largestComponentNodes } from '@/code/tool/graph'
+import { spectralDimension } from '@/code/measure/dimension'
+import { frontCoefficientOfVariation } from '@/code/measure/isotropy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// largest connected component of an adjacency list
-function largestComponent(nb: number[][]): number[] {
-  const N = nb.length, seen = new Int32Array(N).fill(-1)
-  let best: number[] = []
-  for (let s = 0; s < N; s++) {
-    if (seen[s]! >= 0) continue
-    const comp: number[] = []; const q = [s]; seen[s] = s
-    for (let h = 0; h < q.length; h++) { const u = q[h]!; comp.push(u); for (const w of nb[u]!) if (seen[w]! < 0) { seen[w] = s; q.push(w) } }
-    if (comp.length > best.length) best = comp
-  }
-  return best
-}
-// spectral dimension via lazy-walk return probability, d_s = -2 dlogP / dlogt
-function spectralDim(nb: number[][], start: number, t1: number, t2: number): number {
-  const N = nb.length; let p = new Float64Array(N); p[start] = 1; let np = new Float64Array(N); const P: number[] = []
-  for (let t = 0; t <= t2; t++) { P.push(p[start]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = nb[i]!.length; if (d === 0) { np[i] = np[i]! + pi; continue } np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (const j of nb[i]!) np[j] = np[j]! + sh } const tmp = p; p = np; np = tmp }
-  return (-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) / (Math.log(t2) - Math.log(t1))
-}
-// light-cone isotropy, BFS front at graph distance R, coefficient of variation of embedding radius (low = round = isotropic)
-function frontCV(nb: number[][], coords: number[][], start: number, R: number): number {
-  const N = nb.length, dist = new Int32Array(N).fill(-1); dist[start] = 0; let fr = [start]
-  for (let r = 0; r < R; r++) { const nf: number[] = []; for (const u of fr) for (const w of nb[u]!) if (dist[w] === -1) { dist[w] = r + 1; nf.push(w) } fr = nf }
-  const c = coords[start]!
-  const radii = fr.map((i) => Math.sqrt(coords[i]!.reduce((s, x, k) => s + (x - c[k]!) ** 2, 0)))
-  if (radii.length < 4) return -1
-  const mean = radii.reduce((a, b) => a + b, 0) / radii.length
-  const sd = Math.sqrt(radii.reduce((a, r) => a + (r - mean) ** 2, 0) / radii.length)
-  return Math.round((sd / mean) * 1000) / 1000
-}
+// The geometry measures, the largest connected component (largestComponentNodes), the
+// spectral dimension by lazy-walk return probability (spectralDimension), and the
+// light-cone front isotropy (frontCoefficientOfVariation), all live in code/.
+const largestComponent = largestComponentNodes
+const spectralDim = (nb: number[][], start: number, t1: number, t2: number): number =>
+  spectralDimension({ neighbors: nb, start, t1, t2 })
+const frontCV = (nb: number[][], coords: number[][], start: number, R: number): number =>
+  frontCoefficientOfVariation({ neighbors: nb, coords, start, radius: R })
 
 export function emergentSpaceTest(): void {
   // (A) the horosphere band

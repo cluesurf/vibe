@@ -21,20 +21,18 @@ import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { pastMatrix, intervalSize } from '@/code/tool/poset'
+import { pastMatrix } from '@/code/tool/poset'
+import { benincasaDowkerDalembertian } from '@/code/operator/benincasa-dowker'
+import { linearizedEinsteinTensor } from '@/code/operator/linearized-curvature'
+
+// Re-exported for the einstein-equations experiment, which builds on the derived operator.
+export const einsteinOp = linearizedEinsteinTensor
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- A. The Benincasa-Dowker d'Alembertian from a sprinkling ----------
 
-// Smeared 2D BD layer weight (Sorkin / Dowker-Glaser): a smooth replacement for the (1,-2,1) layer
-// coefficients that tames the operator's variance. n is the interval cardinality between y and x.
-function bdWeight(eps: number, n: number): number {
-  const a = 1 - eps
-  return Math.pow(a, n) * (1 - (2 * eps * n) / a + (eps * eps * n * (n - 1)) / (2 * a * a))
-}
-
-// B_eps phi(x) = 4 eps rho ( -1/2 phi(x) + eps sum_{y precedes x} bdWeight(eps, n_{yx}) phi(y) ).
+// B_eps phi at point xi on the sprinkling, the smeared causal-set d'Alembertian.
 function bdApply(
   phi: (t: number, x: number) => number,
   coords: Float64Array,
@@ -44,18 +42,15 @@ function bdApply(
   rho: number,
   eps: number,
 ): number {
-  const tx = coords[xi * 2] ?? 0
-  const xx = coords[xi * 2 + 1] ?? 0
-  let s = 0
-  for (let y = 0; y < p.size; y++) {
-    if (y === xi) continue
-    const dt = tx - (coords[y * 2] ?? 0)
-    const dx = xx - (coords[y * 2 + 1] ?? 0)
-    if (dt <= 0 || dt * dt - dx * dx < 0) continue // y must be in the causal past
-    const n = intervalSize(p, { a: y, b: xi, past })
-    s += bdWeight(eps, n) * phi(coords[y * 2] ?? 0, coords[y * 2 + 1] ?? 0)
-  }
-  return 4 * eps * rho * (-0.5 * phi(tx, xx) + eps * s)
+  return benincasaDowkerDalembertian({
+    phi,
+    coords,
+    poset: p,
+    past,
+    index: xi,
+    density: rho,
+    epsilon: eps,
+  })
 }
 
 // Paired test: a time-concentrated Gaussian (box > 0) minus a space-concentrated one (box < 0),
@@ -127,53 +122,6 @@ function vecToTensor(v: number[]): number[][] {
     [xy, v[1] ?? 0, yz],
     [xz, yz, v[2] ?? 0],
   ]
-}
-
-// Linearized Christoffel symbol at momentum k (spatial metric, delta for raising):
-//   Gamma^l_ij = (1/2)( k_i h_lj + k_j h_li - k_l h_ij ).
-function christoffel(h: number[][], k: number[]): number[][][] {
-  const G: number[][][] = [
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-  ]
-  for (let l = 0; l < 3; l++) {
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        G[l]![i]![j] = 0.5 * ((k[i] ?? 0) * (h[l]?.[j] ?? 0) + (k[j] ?? 0) * (h[l]?.[i] ?? 0) - (k[l] ?? 0) * (h[i]?.[j] ?? 0))
-      }
-    }
-  }
-  return G
-}
-// Linearized Ricci from the Christoffel (the i^2 from two derivatives gives the overall minus):
-//   R_ij = -( k_l Gamma^l_ij - k_j Gamma^l_il ).
-function ricci(h: number[][], k: number[]): number[][] {
-  const G = christoffel(h, k)
-  const R: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      let klG = 0
-      for (let l = 0; l < 3; l++) klG += (k[l] ?? 0) * (G[l]?.[i]?.[j] ?? 0)
-      let trG = 0
-      for (let l = 0; l < 3; l++) trG += G[l]?.[i]?.[l] ?? 0
-      R[i]![j] = -(klG - (k[j] ?? 0) * trG)
-    }
-  }
-  return R
-}
-// Linearized Einstein operator G_ij = R_ij - (1/2) delta_ij R, DERIVED through the pipeline above.
-export function einsteinOp(h: number[][], k: number[]): number[][] {
-  const R = ricci(h, k)
-  let tr = 0
-  for (let i = 0; i < 3; i++) tr += R[i]?.[i] ?? 0
-  const E: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      E[i]![j] = (R[i]?.[j] ?? 0) - (i === j ? 0.5 * tr : 0)
-    }
-  }
-  return E
 }
 
 function einsteinMatrix(k: number[]): ReturnType<typeof makeDense> {

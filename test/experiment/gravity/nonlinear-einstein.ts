@@ -16,68 +16,9 @@
 //      signature of integration rather than machine-epsilon plug-in.
 // Run: npx tsx code/experiment/p72-nonlinear-einstein.ts
 
+import { FluidComponent as Comp, integrateFriedmann as integrate } from '@/code/dynamics/friedmann'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Comp = { rho: number; w: number }
-
-// One RK4 step of [a, rho_0, rho_1, ...]. Returns the new state.
-function rk4Step(a: number, rhos: number[], comps: Comp[], dt: number): { a: number; rhos: number[] } {
-  const H = (av: number, rs: number[]): number => {
-    let tot = 0
-    for (const r of rs) tot += r
-    void av
-    return Math.sqrt(Math.max(0, tot))
-  }
-  const deriv = (av: number, rs: number[]): { da: number; dr: number[] } => {
-    const h = H(av, rs)
-    return {
-      da: av * h,
-      dr: rs.map((r, i) => -3 * h * (1 + (comps[i]?.w ?? 0)) * r),
-    }
-  }
-  const k1 = deriv(a, rhos)
-  const k2 = deriv(a + 0.5 * dt * k1.da, rhos.map((r, i) => r + 0.5 * dt * (k1.dr[i] ?? 0)))
-  const k3 = deriv(a + 0.5 * dt * k2.da, rhos.map((r, i) => r + 0.5 * dt * (k2.dr[i] ?? 0)))
-  const k4 = deriv(a + dt * k3.da, rhos.map((r, i) => r + dt * (k3.dr[i] ?? 0)))
-  return {
-    a: a + (dt / 6) * (k1.da + 2 * k2.da + 2 * k3.da + k4.da),
-    rhos: rhos.map((r, i) => r + (dt / 6) * ((k1.dr[i] ?? 0) + 2 * (k2.dr[i] ?? 0) + 2 * (k3.dr[i] ?? 0) + (k4.dr[i] ?? 0))),
-  }
-}
-
-// Integrate from t0 to tMax, returning the trajectory.
-function integrate(input: { comps: Comp[]; a0: number; t0: number; tMax: number; dt: number }): {
-  t: number[]
-  a: number[]
-  rho: number[]
-  p: number[]
-} {
-  const t: number[] = []
-  const a: number[] = []
-  const rhoTot: number[] = []
-  const pTot: number[] = []
-  let av = input.a0
-  let rhos = input.comps.map((c) => c.rho)
-  let time = input.t0
-  while (time <= input.tMax) {
-    let rt = 0
-    let pt = 0
-    rhos.forEach((r, i) => {
-      rt += r
-      pt += (input.comps[i]?.w ?? 0) * r
-    })
-    t.push(time)
-    a.push(av)
-    rhoTot.push(rt)
-    pTot.push(pt)
-    const next = rk4Step(av, rhos, input.comps, input.dt)
-    av = next.a
-    rhos = next.rhos
-    time += input.dt
-  }
-  return { t, a, rho: rhoTot, p: pTot }
-}
 
 // Emergent power-law slope d(log a)/d(log t) over the middle of a single-component run.
 function emergentSlope(w: number): number {

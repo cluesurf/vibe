@@ -14,6 +14,7 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-gravitational-waves.ts
 
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -128,12 +129,7 @@ function chirp(m1: number, m2: number, a0: number): { exponent: number; ok: bool
     .map((ti, i) => ({ x: Math.log(tc - ti + 1e-9), y: Math.log(fgw[i]!) }))
     .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y))
     .slice(Math.floor(times.length * 0.3), Math.floor(times.length * 0.9))
-  const n = pts.length
-  const sx = pts.reduce((s, p) => s + p.x, 0)
-  const sy = pts.reduce((s, p) => s + p.y, 0)
-  const sxx = pts.reduce((s, p) => s + p.x * p.x, 0)
-  const sxy = pts.reduce((s, p) => s + p.x * p.y, 0)
-  const slope = (n * sxy - sx * sy) / (n * sxx - sx * sx)
+  const slope = linearFit({ xs: pts.map((p) => p.x), ys: pts.map((p) => p.y) }).slope
   return { exponent: slope, ok: Math.abs(slope + 3 / 8) < 0.03, chirpMass }
 }
 

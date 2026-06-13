@@ -10,12 +10,11 @@
 // Run: npx tsx code/experiment/p108-selves-dynamics.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
+import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 const sumTone = (t: Int8Array): number => {
   let s = 0
@@ -23,52 +22,8 @@ const sumTone = (t: Int8Array): number => {
   return s
 }
 
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrowProb: number): void {
-  moved.fill(0)
-  const agree = (i: number, q: number, except: number): number => {
-    let c = 0
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
-      const w = adj[p]!
-      if (w !== except && tone[w] === q) c++
-    }
-    return c
-  }
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      if (agree(e, q, c) >= agree(c, q, e) || rng.next() < 0.02) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrowProb) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
+const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrowProb: number): void =>
+  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: arrowProb })
 
 function domainStats(tone: Int8Array, offsets: Int32Array, adj: Int32Array, n: number): { largest: number; countOver20: number; mean: number } {
   const parent = new Int32Array(n)

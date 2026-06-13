@@ -15,6 +15,8 @@
 // Run: npx tsx code/experiment/p89-analog-hawking.ts
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
+import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -32,68 +34,31 @@ function rayKappa(input: { rHorizon: number; gradient: number; rStart: number })
   let r = rStart
   let t = 0
   const dt = 0.002
-  const samples: Array<[number, number]> = []
+  const times: number[] = []
+  const logGaps: number[] = []
   for (let i = 0; i < 400000 && r - rHorizon > 1e-7; i++) {
     r -= speed(r, rHorizon, gradient) * dt
     t += dt
     const gap = r - rHorizon
-    if (gap < 0.15 && gap > 1e-6) samples.push([t, Math.log(gap)])
-  }
-  const tail = samples.slice(-Math.min(samples.length, 3000))
-  const n = tail.length
-  let st = 0
-  let sl = 0
-  let stt = 0
-  let stl = 0
-  for (const [tt, ll] of tail) {
-    st += tt
-    sl += ll
-    stt += tt * tt
-    stl += tt * ll
-  }
-  return -(n * stl - st * sl) / (n * stt - st * st)
-}
-
-// The Unruh-DeWitt detector response F(E), the Fourier transform of the near-horizon thermal
-// Wightman function W(tau) ~ 1 / sinh^2(kappa (tau - i eps) / 2). Returns the real response rate.
-function response(E: number, kappa: number, eps: number): number {
-  let re = 0
-  const T = 80 / kappa
-  const dt = 0.002 / kappa
-  for (let tau = -T; tau <= T; tau += dt) {
-    const a = (kappa * tau) / 2
-    const b = -(kappa * eps) / 2
-    const sr = Math.sinh(a) * Math.cos(b)
-    const si = Math.cosh(a) * Math.sin(b)
-    // 1 / sinh^2 = conj(sinh^2) / |sinh^2|^2
-    const s2r = sr * sr - si * si
-    const s2i = 2 * sr * si
-    const m = s2r * s2r + s2i * s2i
-    const invr = s2r / m
-    const invi = -s2i / m
-    const c = Math.cos(E * tau)
-    const s = Math.sin(E * tau)
-    re += (invr * c + invi * s) * dt
-  }
-  return re
-}
-
-// The temperature read off the detector's detailed balance: F(E)/F(-E) = exp(-E/T), so
-// T = -E / ln( F(E)/F(-E) ). Averaged over a few probe energies.
-function temperatureFromDetailedBalance(kappa: number): number {
-  let sum = 0
-  let count = 0
-  for (const factor of [0.5, 1, 1.5]) {
-    const E = factor * kappa
-    const fp = response(E, kappa, 0.02)
-    const fm = response(-E, kappa, 0.02)
-    // detailed balance is in the RATIO F(E)/F(-E) = exp(-E/T); only the same sign is needed
-    if (fp !== 0 && fm !== 0 && fp / fm > 0) {
-      sum += -E / Math.log(fp / fm)
-      count++
+    if (gap < 0.15 && gap > 1e-6) {
+      times.push(t)
+      logGaps.push(Math.log(gap))
     }
   }
-  return sum / Math.max(1, count)
+  const start = Math.max(0, times.length - 3000)
+  return -linearFit({ xs: times.slice(start), ys: logGaps.slice(start) }).slope
+}
+
+// The near-horizon Unruh-DeWitt detector response F(E), the real part of the transform of the thermal
+// Wightman function W(tau) ~ 1 / sinh^2(kappa (tau - i eps) / 2).
+function response(E: number, kappa: number, eps: number): number {
+  return unruhDetectorResponse({
+    energy: E,
+    kappa,
+    eps,
+    halfWindow: 80,
+    step: 0.002 / kappa,
+  }).real
 }
 
 export function analogHawking(): {
@@ -124,7 +89,10 @@ export function analogHawking(): {
   const redshiftMatches = Math.abs(kappaMetric - kappaRay) / kappaMetric < 0.03
 
   const hawkingTemperature = kappaMetric / (2 * Math.PI)
-  const detailedBalanceTemperature = temperatureFromDetailedBalance(kappaMetric)
+  const detailedBalanceTemperature = temperatureFromDetailedBalance({
+    kappa: kappaMetric,
+    response: (E) => response(E, kappaMetric, 0.02),
+  })
   const thermalMatches =
     Math.abs(detailedBalanceTemperature - hawkingTemperature) / hawkingTemperature < 0.08
 

@@ -14,22 +14,16 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { powerLawExponent } from '@/code/measure/regression'
+import {
+  PERCEPTION_FORWARD as FWD,
+  PERCEPTION_INVERSE as INV,
+  perceptionBlockBeat,
+} from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// the charge-conserving reversible permutation on pair-state index (a+1)*3 + (b+1), a,b in {-1,0,1}
-const FWD = [0, 3, 4, 1, 6, 7, 2, 5, 8]
-const INV = [0, 3, 6, 1, 2, 7, 4, 5, 8]
-
 function blockBeat(tone: Int8Array, L: number, parity: number, table: number[]): void {
-  for (let i = parity; i < L; i += 2) {
-    const v = i
-    const w = (i + 1) % L
-    const idx = (tone[v]! + 1) * 3 + (tone[w]! + 1)
-    const ni = table[idx]!
-    tone[v] = (Math.floor(ni / 3) - 1) as -1 | 0 | 1
-    tone[w] = ((ni % 3) - 1) as -1 | 0 | 1
-  }
+  perceptionBlockBeat({ tone, length: L, parity, table })
 }
 
 function totalCharge(tone: Int8Array): number {

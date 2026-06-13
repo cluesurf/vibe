@@ -9,112 +9,16 @@
 // Run: npx tsx code/experiment/p142-horosphere-flat.ts
 
 import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
+import { growthFromShells } from '@/code/measure/dimension'
+import { centerNearestOrigin, proximityGraph } from '@/code/substrate/proximity-graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// hyperbolic distance between two Poincare-ball points
-function hdist(x: number[], y: number[]): number {
-  let d2 = 0
-  let rx = 0
-  let ry = 0
-  for (let k = 0; k < x.length; k++) {
-    d2 += (x[k]! - y[k]!) ** 2
-    rx += x[k]! * x[k]!
-    ry += y[k]! * y[k]!
-  }
-  return Math.acosh(1 + (2 * d2) / Math.max(1e-12, (1 - rx) * (1 - ry)))
-}
-
-// nearest-neighbour proximity graph on a set of points (the INTRINSIC surface connectivity), connecting
-// cells within a threshold ambient distance, chosen from the median nearest-neighbour distance
-function proximityGraph(coords: number[][]): number[][] {
-  const n = coords.length
-  const nnDist: number[] = []
-  for (let i = 0; i < n; i++) {
-    let mn = Infinity
-    for (let j = 0; j < n; j++) if (j !== i) {
-      const d = hdist(coords[i]!, coords[j]!)
-      if (d < mn) mn = d
-    }
-    nnDist.push(mn)
-  }
-  const sorted = [...nnDist].sort((a, b) => a - b)
-  const median = sorted[Math.floor(n / 2)]!
-  const threshold = 1.7 * median
-  const neighbors: number[][] = coords.map(() => [])
-  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (hdist(coords[i]!, coords[j]!) < threshold) {
-    neighbors[i]!.push(j)
-    neighbors[j]!.push(i)
-  }
-  return neighbors
-}
-
-// BFS shell sizes from a seed in an adjacency list
-function shells(neighbors: number[][], seed: number, maxR: number): number[] {
-  const n = neighbors.length
-  const dist = new Int32Array(n).fill(-1)
-  dist[seed] = 0
-  let fr = [seed]
-  const sizes = [1]
-  let r = 0
-  while (fr.length > 0 && r < maxR) {
-    r++
-    const next: number[] = []
-    for (const u of fr) for (const w of neighbors[u]!) if (dist[w] === -1) {
-      dist[w] = r
-      next.push(w)
-    }
-    if (next.length === 0) break
-    sizes.push(next.length)
-    fr = next
-  }
-  return sizes
-}
-
-// effective dimension d from cumulative count C(r) ~ r^d (log-log slope), and the avg shell-to-shell ratio
-function growthFromShells(sizes: number[]): { dim: number; ratio: number } {
-  const cum: number[] = []
-  let s = 0
-  for (const x of sizes) {
-    s += x
-    cum.push(s)
-  }
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let m = 0
-  for (let r = 1; r < cum.length; r++) {
-    const x = Math.log(r + 1)
-    const y = Math.log(cum[r]!)
-    sx += x
-    sy += y
-    sxx += x * x
-    sxy += x * y
-    m++
-  }
-  const dim = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
-  let rs = 0
-  let rc = 0
-  for (let r = 2; r < sizes.length; r++) if (sizes[r - 1]! > 0) {
-    rs += sizes[r]! / sizes[r - 1]!
-    rc++
-  }
-  return { dim, ratio: rc > 0 ? rs / rc : 0 }
-}
-
-function centerNearestOrigin(coords: number[][]): number {
-  let center = 0
-  let best = Infinity
-  for (let i = 0; i < coords.length; i++) {
-    const r = coords[i]!.reduce((s, v) => s + v * v, 0)
-    if (r < best) {
-      best = r
-      center = i
-    }
-  }
-  return center
-}
+// The geometry is read intrinsically off the connectivity: BFS shells (bfsShells), an
+// effective dimension and shell ratio from them (growthFromShells), and for the sheet
+// its in-surface nearest-neighbour adjacency (proximityGraph, seeded at the cell
+// nearest the origin). All live in code/measure and code/substrate.
 
 export function horosphereFlat(input?: { maxCells?: number }): {
   bulkCells: number
@@ -132,12 +36,12 @@ export function horosphereFlat(input?: { maxCells?: number }): {
   const horo = buildHorosphere({ symbol: [5, 3, 4], maxCells, bandHalfWidth: 0.3 })
 
   // bulk: intrinsic growth via the face-adjacency BFS shells (exponential on the hyperbolic crystal)
-  const bulkG = growthFromShells(shells(bulk.neighbors, 0, 9))
+  const bulkG = growthFromShells(bfsShells({ neighbors: bulk.neighbors, root: 0, maxRadius: 9 }).shellCounts)
 
   // horosphere: build the in-surface PROXIMITY graph, then BFS shells (linear if flat, exponential if curved)
-  const prox = proximityGraph(horo.coords)
+  const prox = proximityGraph({ coords: horo.coords })
   const hc = centerNearestOrigin(horo.coords)
-  const horoG = growthFromShells(shells(prox, hc, 14))
+  const horoG = growthFromShells(bfsShells({ neighbors: prox, root: hc, maxRadius: 14 }).shellCounts)
 
   // flat = POLYNOMIAL (finite-dimensional, sub-exponential) growth, the slab is a few cells thick so the
   // dimension sits a little above 2, the decisive signal is polynomial vs the bulk's exponential

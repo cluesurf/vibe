@@ -15,50 +15,15 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { busemann, idealDirection } from '@/code/substrate/horosphere'
 import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
+import { pearson } from '@/code/measure/statistics'
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// the exact 9-state perception permutation on an ordered pair
-function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]
-  if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]
-  if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]
-  if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]
-  if (a === 1 && b === -1) return [-1, 1]
-  return [0, 0]
-}
 
 const SCALES = [0, 2, 4, 6] // tree depths, 0 is the fine per-cell scale, larger is coarser
 const WARMUP = 80
 const MEASURE = 60
 const LAG = 12 // beats, the coarse pattern is compared with itself this many beats later
-
-// pearson correlation of two equal-length vectors
-function pearson(a: Float64Array, b: Float64Array): number {
-  const m = a.length
-  let ma = 0
-  let mb = 0
-  for (let i = 0; i < m; i++) {
-    ma += a[i]!
-    mb += b[i]!
-  }
-  ma /= m
-  mb /= m
-  let num = 0
-  let va = 0
-  let vb = 0
-  for (let i = 0; i < m; i++) {
-    const da = a[i]! - ma
-    const db = b[i]! - mb
-    num += da * db
-    va += da * da
-    vb += db * db
-  }
-  return va > 0 && vb > 0 ? num / Math.sqrt(va * vb) : 0
-}
 
 export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   n: number
@@ -194,7 +159,7 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
     let acc = 0
     let cnt = 0
     for (let t = 0; t + LAG < series.length; t++) {
-      acc += pearson(series[t]!, series[t + LAG]!)
+      acc += pearson({ a: series[t]!, b: series[t + LAG]! })
       cnt++
     }
     return cnt > 0 ? acc / cnt : 0

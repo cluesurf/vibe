@@ -17,148 +17,18 @@
 import { makeRng } from '@/code/tool/rng'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
+import {
+  GRAVITON_DIMENSION as D,
+  TensorField as Field,
+  linearizedEinstein,
+  makeTensorField as makeField,
+  gravitonSiteIndex as siteIndex,
+  gravitonCoordsOf as coordsOf,
+  gravitonShift as shift,
+  tensorFieldMaxAbs as maxAbs,
+} from '@/code/operator/linearized-einstein'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const D = 4
-const ETA = [-1, 1, 1, 1] // Minkowski signature, diagonal
-
-// A periodic 4D lattice of symmetric rank-2 tensors h_{mu nu}(x).
-interface Field {
-  L: number
-  // data[site][mu*D+nu]
-  data: Float64Array[]
-}
-
-function siteIndex(coords: number[], L: number): number {
-  let idx = 0
-  for (let a = D - 1; a >= 0; a--) idx = idx * L + (coords[a] ?? 0)
-  return idx
-}
-function coordsOf(idx: number, L: number): number[] {
-  const c: number[] = []
-  let r = idx
-  for (let a = 0; a < D; a++) {
-    c.push(r % L)
-    r = Math.floor(r / L)
-  }
-  return c
-}
-function shift(coords: number[], axis: number, delta: number, L: number): number[] {
-  const c = coords.slice()
-  c[axis] = ((c[axis] ?? 0) + delta + L) % L
-  return c
-}
-
-// Central first difference along axis of a scalar accessor.
-function makeField(L: number): Field {
-  const n = Math.pow(L, D)
-  return { L, data: Array.from({ length: n }, () => new Float64Array(D * D)) }
-}
-
-// Apply the gauge-invariant linearized Einstein operator G[h]_{mu nu}:
-//   G = -1/2 ( box h_{mu nu} - d_mu d^a h_{a nu} - d_nu d^a h_{a mu} + d_mu d_nu h
-//             - eta_{mu nu} box h + eta_{mu nu} d^a d^b h_{ab} )
-// with all derivatives central differences on the periodic lattice, indices raised with eta.
-function linearizedEinstein(h: Field): Field {
-  const L = h.L
-  const n = h.data.length
-  const out = makeField(L)
-  const at = (site: number, mu: number, nu: number): number => h.data[site]![mu * D + nu] ?? 0
-  // first derivative d_alpha of component (mu,nu)
-  const d1 = (coords: number[], alpha: number, mu: number, nu: number): number => {
-    const p = siteIndex(shift(coords, alpha, 1, L), L)
-    const m = siteIndex(shift(coords, alpha, -1, L), L)
-    return (at(p, mu, nu) - at(m, mu, nu)) / 2
-  }
-  // second derivative d_alpha d_beta of component (mu,nu)
-  const d2 = (coords: number[], alpha: number, beta: number, mu: number, nu: number): number => {
-    if (alpha === beta) {
-      // central-difference squared (D0 . D0), so it composes with the central first differences
-      // used to build pure-gauge perturbations, making gauge invariance exact on the lattice.
-      const pp = siteIndex(shift(coords, alpha, 2, L), L)
-      const mm = siteIndex(shift(coords, alpha, -2, L), L)
-      const c = siteIndex(coords, L)
-      return (at(pp, mu, nu) - 2 * at(c, mu, nu) + at(mm, mu, nu)) / 4
-    }
-    const pp = siteIndex(shift(shift(coords, alpha, 1, L), beta, 1, L), L)
-    const pm = siteIndex(shift(shift(coords, alpha, 1, L), beta, -1, L), L)
-    const mp = siteIndex(shift(shift(coords, alpha, -1, L), beta, 1, L), L)
-    const mm = siteIndex(shift(shift(coords, alpha, -1, L), beta, -1, L), L)
-    return (at(pp, mu, nu) - at(pm, mu, nu) - at(mp, mu, nu) + at(mm, mu, nu)) / 4
-  }
-  for (let site = 0; site < n; site++) {
-    const coords = coordsOf(site, L)
-    // trace h = eta^{ab} h_{ab}
-    // box h (trace) and d^a d^b h_{ab}
-    let boxTrace = 0
-    let divdiv = 0
-    for (let a = 0; a < D; a++) {
-      boxTrace += (ETA[a] ?? 1) * d2(coords, a, a, 0, 0) * 0 // placeholder, fixed below
-    }
-    // compute box(trace) and d^a d^b h_ab properly
-    boxTrace = 0
-    divdiv = 0
-    for (let a = 0; a < D; a++) {
-      // box acting on trace: sum_c eta^cc d_c d_c (trace)
-      // trace at a point handled via component sums inside d2 is awkward; compute trace field on the fly
-    }
-    // Because the trace and divergences mix components, compute them directly here.
-    const traceAt = (s: number): number => {
-      let t = 0
-      for (let a = 0; a < D; a++) t += (ETA[a] ?? 1) * (h.data[s]![a * D + a] ?? 0)
-      return t
-    }
-    const d1trace = (alpha: number): number => {
-      const p = siteIndex(shift(coords, alpha, 1, L), L)
-      const m = siteIndex(shift(coords, alpha, -1, L), L)
-      return (traceAt(p) - traceAt(m)) / 2
-    }
-    const d2trace = (alpha: number, beta: number): number => {
-      if (alpha === beta) {
-        const pp = siteIndex(shift(coords, alpha, 2, L), L)
-        const mm = siteIndex(shift(coords, alpha, -2, L), L)
-        const c = siteIndex(coords, L)
-        return (traceAt(pp) - 2 * traceAt(c) + traceAt(mm)) / 4
-      }
-      const pp = siteIndex(shift(shift(coords, alpha, 1, L), beta, 1, L), L)
-      const pm = siteIndex(shift(shift(coords, alpha, 1, L), beta, -1, L), L)
-      const mp = siteIndex(shift(shift(coords, alpha, -1, L), beta, 1, L), L)
-      const mm = siteIndex(shift(shift(coords, alpha, -1, L), beta, -1, L), L)
-      return (traceAt(pp) - traceAt(pm) - traceAt(mp) + traceAt(mm)) / 4
-    }
-    for (let a = 0; a < D; a++) {
-      boxTrace += (ETA[a] ?? 1) * d2trace(a, a)
-      for (let b = 0; b < D; b++) divdiv += (ETA[a] ?? 1) * (ETA[b] ?? 1) * d2(coords, a, b, a, b)
-    }
-    for (let mu = 0; mu < D; mu++) {
-      for (let nu = mu; nu < D; nu++) {
-        let boxH = 0
-        for (let a = 0; a < D; a++) boxH += (ETA[a] ?? 1) * d2(coords, a, a, mu, nu)
-        let divMu = 0 // d^a h_{a nu}, then d_mu of it -> d_mu d^a h_{a nu}
-        let divNu = 0
-        for (let a = 0; a < D; a++) {
-          divMu += (ETA[a] ?? 1) * d2(coords, mu, a, a, nu)
-          divNu += (ETA[a] ?? 1) * d2(coords, nu, a, a, mu)
-        }
-        const ddTrace = d2trace(mu, nu)
-        const etaMuNu = mu === nu ? (ETA[mu] ?? 1) : 0
-        const g = -0.5 * (boxH - divMu - divNu + ddTrace - etaMuNu * boxTrace + etaMuNu * divdiv)
-        out.data[site]![mu * D + nu] = g
-        out.data[site]![nu * D + mu] = g
-      }
-    }
-    void d1
-    void d1trace
-  }
-  return out
-}
-
-function maxAbs(f: Field): number {
-  let m = 0
-  for (const row of f.data) for (const v of row) m = Math.max(m, Math.abs(v))
-  return m
-}
 
 export function discreteGraviton(input: { seed: number }): {
   gaugeResidual: number

@@ -6,6 +6,35 @@
 
 import { dot } from '@/code/algebra/vector'
 
+// Light-cone front isotropy: the coefficient of variation of the embedding radius of
+// the BFS front at graph distance R from a start cell. A round (isotropic) cone has
+// all front cells at nearly the same embedded radius, so the coefficient is small; a
+// faceted (anisotropic) cone spreads the radii, so it is large. Returns -1 when the
+// front has too few cells (under 4) to estimate. Lower is rounder.
+export function frontCoefficientOfVariation(input: {
+  neighbors: number[][]
+  coords: number[][]
+  start: number
+  radius: number
+}): number {
+  const { neighbors, coords, start, radius } = input
+  const N = neighbors.length
+  const dist = new Int32Array(N).fill(-1)
+  dist[start] = 0
+  let fr = [start]
+  for (let r = 0; r < radius; r++) {
+    const nf: number[] = []
+    for (const u of fr) for (const w of neighbors[u]!) if (dist[w] === -1) { dist[w] = r + 1; nf.push(w) }
+    fr = nf
+  }
+  const c = coords[start]!
+  const radii = fr.map((i) => Math.sqrt(coords[i]!.reduce((s, x, k) => s + (x - c[k]!) ** 2, 0)))
+  if (radii.length < 4) return -1
+  const mean = radii.reduce((a, b) => a + b, 0) / radii.length
+  const sd = Math.sqrt(radii.reduce((a, r) => a + (r - mean) ** 2, 0) / radii.length)
+  return Math.round((sd / mean) * 1000) / 1000
+}
+
 // Anisotropy of the order-p angular moment <(n . u)^order> across the probe axes u, for the directions n.
 // Returns (max - min) / mean of the per-axis moment, 0 = isotropic.
 export function angularAnisotropy(input: {

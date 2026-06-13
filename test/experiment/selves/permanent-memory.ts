@@ -13,12 +13,11 @@
 // throughout (the maintenance is conserving). Run: npx tsx code/experiment/p107-permanent-memory.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
+import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 function bfsOrder(offsets: Int32Array, adj: Int32Array, n: number): Int32Array {
   const order = new Int32Array(n)

@@ -16,81 +16,14 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { hankelMatrix, symmetricMinEigenvalue } from '@/code/measure/hankel'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
-}
-
-// minimum eigenvalue of a symmetric matrix via cyclic Jacobi rotations
-function minEigenvalue(input: number[][]): number {
-  const n = input.length
-  const a = input.map((r) => r.slice())
-  for (let sweep = 0; sweep < 100; sweep++) {
-    let off = 0
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
-    if (off < 1e-20) break
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
-      if (Math.abs(a[p]![q]!) < 1e-18) continue
-      const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
-      const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
-      const c = 1 / Math.sqrt(t * t + 1)
-      const s = t * c
-      for (let k = 0; k < n; k++) {
-        const akp = a[k]![p]!
-        const akq = a[k]![q]!
-        a[k]![p] = c * akp - s * akq
-        a[k]![q] = s * akp + c * akq
-      }
-      for (let k = 0; k < n; k++) {
-        const apk = a[p]![k]!
-        const aqk = a[q]![k]!
-        a[p]![k] = c * apk - s * aqk
-        a[q]![k] = s * apk + c * aqk
-      }
-    }
-  }
-  let mn = Infinity
-  for (let i = 0; i < n; i++) mn = Math.min(mn, a[i]![i]!)
-  return mn
+  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 }
 
 export function reflectionPositivity(input?: { n?: number }): {
@@ -179,13 +112,7 @@ export function reflectionPositivity(input?: { n?: number }): {
       }
       ac.push(s / c)
     }
-    const H: number[][] = []
-    for (let i = 0; i <= m; i++) {
-      const row: number[] = []
-      for (let j = 0; j <= m; j++) row.push(ac[i + j]!)
-      H.push(row)
-    }
-    return minEigenvalue(H) / ac[0]!
+    return symmetricMinEigenvalue(hankelMatrix({ sequence: ac, size: m })) / ac[0]!
   }
 
   // full-sample autocorrelation (for reporting)

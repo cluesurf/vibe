@@ -12,93 +12,20 @@
 // MASSLESS / critical regime, which is what a sharp spatial-RP (and emergent-Lorentz) test requires.
 // Run: npx tsx code/experiment/p134-flat-spatial-rp.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
+import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type Rng = { next: () => number }
 
 // the conserved-exchange rule (share annihilates opposite, hop transports into empty, the arrow creates a
 // balanced pair from peace) on a 1D PERIODIC chain
 function beat(tone: Int8Array, L: number, moved: Uint8Array, rng: Rng, arrow: number): void {
-  moved.fill(0)
-  for (let i = 0; i < L; i++) {
-    const v = i
-    const w = (i + 1) % L
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      if (rng.next() < 0.5) {
-        tone[e] = tone[c]!
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrow) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
+  conservingChainSweep({ tone, length: L, moved, rng, arrow })
 }
 
-function minEigenvalue(input: number[][]): number {
-  const n = input.length
-  const a = input.map((r) => r.slice())
-  for (let sweep = 0; sweep < 100; sweep++) {
-    let off = 0
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
-    if (off < 1e-22) break
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
-      if (Math.abs(a[p]![q]!) < 1e-20) continue
-      const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
-      const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
-      const c = 1 / Math.sqrt(t * t + 1)
-      const s = t * c
-      for (let k = 0; k < n; k++) {
-        const akp = a[k]![p]!
-        const akq = a[k]![q]!
-        a[k]![p] = c * akp - s * akq
-        a[k]![q] = s * akp + c * akq
-      }
-      for (let k = 0; k < n; k++) {
-        const apk = a[p]![k]!
-        const aqk = a[q]![k]!
-        a[p]![k] = c * apk - s * aqk
-        a[q]![k] = s * apk + c * aqk
-      }
-    }
-  }
-  let mn = Infinity
-  for (let i = 0; i < n; i++) mn = Math.min(mn, a[i]![i]!)
-  return mn
-}
-
-function hankelMinEig(c: number[], m: number): number {
-  const H: number[][] = []
-  for (let i = 0; i <= m; i++) {
-    const row: number[] = []
-    for (let j = 0; j <= m; j++) row.push(c[i + j]!)
-    H.push(row)
-  }
-  return minEigenvalue(H) / c[0]!
-}
+const hankelMinEig = (c: number[], m: number): number =>
+  hankelMinEigenvalue({ sequence: c, size: m })
 
 export function flatSpatialRP(input?: { L?: number; arrows?: number[] }): {
   L: number

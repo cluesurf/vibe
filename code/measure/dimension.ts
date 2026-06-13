@@ -2,6 +2,7 @@
 // for causal sets (reads dimension off the ordering fraction), and ball-growth
 // for graphs where there is no Lorentzian order.
 
+import { linearFit } from '@/code/measure/regression'
 import { Poset, relationCount } from '@/code/tool/poset'
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
@@ -163,4 +164,142 @@ export function growthIsExponential(input: { growth: Uint32Array }): boolean {
   // Exponential growth keeps the per-step ratio multiplicative and roughly flat.
   // Polynomial growth (r^d) has ratios that decay toward 1 as r grows.
   return mean > 1.4 && lastRatio > 0.7 * first
+}
+
+// The spectral dimension of a graph from a lazy random-walk return probability. A
+// lazy walk (stay with probability 1/2, otherwise step to a uniform neighbour) keeps
+// P(t) = probability of being back at the start after t steps, and on a
+// d_s-dimensional space P(t) ~ t^(-d_s/2), so d_s = -2 dlogP/dlogt read between two
+// times t1 and t2. Isolated nodes (degree 0) are absorbing. Neighbors-native so a
+// CellGraph (number[][]) feeds it directly.
+export function spectralDimension(input: {
+  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  start: number
+  t1: number
+  t2: number
+}): number {
+  const { neighbors, start, t1, t2 } = input
+  const N = neighbors.length
+  let p = new Float64Array(N)
+  p[start] = 1
+  let np = new Float64Array(N)
+  const P: number[] = []
+  for (let t = 0; t <= t2; t++) {
+    P.push(p[start]!)
+    np.fill(0)
+    for (let i = 0; i < N; i++) {
+      const pi = p[i]!
+      if (!pi) continue
+      const row = neighbors[i] ?? []
+      const d = row.length
+      if (d === 0) {
+        np[i] = np[i]! + pi
+        continue
+      }
+      np[i] = np[i]! + 0.5 * pi
+      const sh = (0.5 * pi) / d
+      for (const j of row) np[j] = np[j]! + sh
+    }
+    const tmp = p
+    p = np
+    np = tmp
+  }
+  return (-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) / (Math.log(t2) - Math.log(t1))
+}
+
+// Spatial dimension read INTRINSICALLY off shell counts (no coordinates). On a flat
+// mesh of dimension d the shell |S(r)| ~ r^(d-1), so the log-log slope of |S| against
+// r over a window [rLo, rHi] is d-1 and the dimension is that plus one. Returns the
+// dimension and the fit quality r2. shell[r] is the number of nodes at exactly graph
+// distance r (e.g. bfsShells(...).shellCounts).
+export function shellDimension(input: {
+  shell: ReadonlyArray<number>
+  rLo: number
+  rHi: number
+}): { dimension: number; r2: number } {
+  const xs: number[] = []
+  const ys: number[] = []
+  for (let r = input.rLo; r <= input.rHi; r++) {
+    xs.push(Math.log(r))
+    ys.push(Math.log(input.shell[r] ?? 1))
+  }
+  const f = linearFit({ xs, ys })
+  return { dimension: f.slope + 1, r2: f.r2 }
+}
+
+// The power-law (log-log) fit quality of shell counts over [rLo, rHi]. High on a flat
+// mesh (shells grow as a power of r), lower on a curved mesh (shells grow
+// exponentially), so it pairs with shellExponentialFit to classify curvature.
+export function shellPowerR2(input: {
+  shell: ReadonlyArray<number>
+  rLo: number
+  rHi: number
+}): number {
+  const xs: number[] = []
+  const ys: number[] = []
+  for (let r = input.rLo; r <= input.rHi; r++) {
+    xs.push(Math.log(r))
+    ys.push(Math.log(input.shell[r] ?? 1))
+  }
+  return linearFit({ xs, ys }).r2
+}
+
+// Effective dimension and average shell ratio from a list of shell sizes. The
+// dimension is the log-log slope of the CUMULATIVE count C(r) ~ r^d (so a Euclidean
+// disk reads near 2, a ball near 3), and the ratio is the mean shell-to-shell growth
+// (near 1 for flat, well above 1 for exponential/curved). Used to classify an
+// extracted sheet as flat (polynomial) versus the bulk's exponential growth.
+export function growthFromShells(sizes: ReadonlyArray<number>): {
+  dim: number
+  ratio: number
+} {
+  const cum: number[] = []
+  let s = 0
+  for (const x of sizes) {
+    s += x
+    cum.push(s)
+  }
+  let sx = 0
+  let sy = 0
+  let sxx = 0
+  let sxy = 0
+  let m = 0
+  for (let r = 1; r < cum.length; r++) {
+    const x = Math.log(r + 1)
+    const y = Math.log(cum[r]!)
+    sx += x
+    sy += y
+    sxx += x * x
+    sxy += x * y
+    m++
+  }
+  const dim = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
+  let rs = 0
+  let rc = 0
+  for (let r = 2; r < sizes.length; r++) {
+    if (sizes[r - 1]! > 0) {
+      rs += sizes[r]! / sizes[r - 1]!
+      rc++
+    }
+  }
+  return { dim, ratio: rc > 0 ? rs / rc : 0 }
+}
+
+// The exponential growth ratio of shell counts over [rLo, rHi]. On a negatively
+// curved mesh |S(r)| ~ g^r, so the slope of log|S| against r (linear, not log-log) is
+// log g and the growth ratio is exp(slope). A ratio above 1 with a higher r2 than the
+// power-law fit is the fingerprint of hyperbolic curvature.
+export function shellExponentialFit(input: {
+  shell: ReadonlyArray<number>
+  rLo: number
+  rHi: number
+}): { growthRatio: number; r2: number } {
+  const xs: number[] = []
+  const ys: number[] = []
+  for (let r = input.rLo; r <= input.rHi; r++) {
+    xs.push(r)
+    ys.push(Math.log(input.shell[r] ?? 1))
+  }
+  const f = linearFit({ xs, ys })
+  return { growthRatio: Math.exp(f.slope), r2: f.r2 }
 }

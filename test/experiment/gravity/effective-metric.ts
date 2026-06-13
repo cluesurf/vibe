@@ -11,6 +11,8 @@
 // effective metric. The connection from fills to n(x) is asserted in the prose, not computed here.
 // Run: npx tsx code/experiment/p88-effective-metric.ts
 
+import { rayDeflection } from '@/code/dynamics/graded-index-ray'
+import { fieldLaplacianProfile } from '@/code/measure/field-laplacian'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -30,55 +32,25 @@ function indexGradient(x: number, y: number, mass: number): [number, number] {
   return [g * (x / r), g * (y / r)]
 }
 
-// Trace a ray (a geodesic of the effective metric) entering from the left at height `impact`,
-// integrating the graded-index ray equation d(n t)/ds = grad n. Returns the downward turn toward
-// the mass at the origin (positive means it bent toward the matter). This is the deflection.
+// Trace a ray (a geodesic of the effective metric) through the hand-built 1/r index field and read
+// off the deflection toward the mass at the origin (positive means it bent toward the matter).
 function deflectionAngle(input: { impact: number; mass: number }): number {
   const { impact, mass } = input
-  const L = 40
-  const ds = 0.02
-  let x = -L
-  let y = impact
-  let tx = 1
-  let ty = 0
-  const steps = Math.floor((2 * L) / ds)
-  for (let s = 0; s < steps && x < L; s++) {
-    const n = indexAt(x, y, mass)
-    const [gx, gy] = indexGradient(x, y, mass)
-    const dot = tx * gx + ty * gy
-    // turn the tangent toward the perpendicular component of grad n, scaled by 1/n
-    tx += ((gx - tx * dot) / n) * ds
-    ty += ((gy - ty * dot) / n) * ds
-    const norm = Math.hypot(tx, ty)
-    tx /= norm
-    ty /= norm
-    x += tx * ds
-    y += ty * ds
-  }
-  // entered going +x (ty = 0) above the mass, bending toward the mass turns ty negative
-  return -ty
+  return rayDeflection({
+    impact,
+    index: (x, y) => indexAt(x, y, mass),
+    indexGradient: (x, y) => indexGradient(x, y, mass),
+  })
 }
 
 // The effective Gaussian curvature, the Laplacian of ln(index), concentrated where the fills
 // (hence the matter) are. Sampled on a grid around the mass. Returns the peak cell and the total.
 function effectiveCurvature(mass: number): { peakR: number; total: number } {
-  const R = 20
-  const h = 1
-  const L = (x: number, y: number): number => Math.log(indexAt(x, y, mass))
-  let peakVal = -Infinity
-  let peakR = Infinity
-  let total = 0
-  for (let i = -R; i <= R; i++) {
-    for (let j = -R; j <= R; j++) {
-      const lap = L(i + h, j) + L(i - h, j) + L(i, j + h) + L(i, j - h) - 4 * L(i, j)
-      total += Math.abs(lap)
-      if (Math.abs(lap) > peakVal) {
-        peakVal = Math.abs(lap)
-        peakR = Math.hypot(i, j)
-      }
-    }
-  }
-  return { peakR, total }
+  const profile = fieldLaplacianProfile({
+    field: (x, y) => Math.log(indexAt(x, y, mass)),
+    radius: 20,
+  })
+  return { peakR: profile.peakRadius, total: profile.total }
 }
 
 export function effectiveMetric(): {
