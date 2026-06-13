@@ -9,42 +9,15 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
-import { Graph } from '@/code/tool/graph'
+import { Graph, meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { ballGrowth } from '@/code/measure/dimension'
+import { reachIsExponential } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function meanDegree(g: Graph): number {
-  let total = 0
-  for (let i = 0; i < g.size; i++) {
-    total += (g.neighbors[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, g.size)
-}
-
-function reachExponential(g: Graph): boolean {
-  let center = 0
-  let best = -1
-  for (let i = 0; i < g.size; i++) {
-    const d = (g.neighbors[i] ?? new Uint32Array(0)).length
-    if (d > best) {
-      best = d
-      center = i
-    }
-  }
-  const growth = ballGrowth({ substrate: g, center, maxRadius: 16 })
-  const final = growth[growth.length - 1] ?? 1
-  const ratios: number[] = []
-  for (let r = 1; r < growth.length; r++) {
-    const prev = growth[r - 1] ?? 0
-    const cur = growth[r] ?? 0
-    if (prev >= 2 && prev < 0.5 * final && cur > prev) {
-      ratios.push(cur / prev)
-    }
-  }
-  return ratios.length > 0 && ratios.reduce((a, b) => a + b, 0) / ratios.length > 1.8
-}
+// meanDegree lives in code/tool/graph, the exponential-reach classifier in
+// code/measure/dimension.
+const reachExponential = (g: Graph): boolean => reachIsExponential({ substrate: g, maxRadius: 16 })
 
 interface TilingSpec {
   name: string

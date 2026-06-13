@@ -67,6 +67,30 @@ export function determinant(a: number[][]): number {
   return det
 }
 
+// Solve the dense linear system A x = b by Gauss-Jordan elimination with partial pivoting. A is a
+// square matrix as rows, b the right-hand side. Returns the solution vector x.
+export function solveLinearSystem(input: { matrix: number[][]; rightHandSide: number[] }): number[] {
+  const A = input.matrix
+  const b = input.rightHandSide
+  const n = b.length
+  const m = A.map((row, i) => [...row, b[i] ?? 0])
+  for (let col = 0; col < n; col++) {
+    let pivot = col
+    for (let r = col + 1; r < n; r++) if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
+    const tmp = m[col]!
+    m[col] = m[pivot]!
+    m[pivot] = tmp
+    const d = m[col]![col]!
+    for (let c = col; c <= n; c++) m[col]![c]! /= d
+    for (let r = 0; r < n; r++) {
+      if (r === col) continue
+      const factor = m[r]![col]!
+      for (let c = col; c <= n; c++) m[r]![c]! -= factor * m[col]![c]!
+    }
+  }
+  return m.map((row) => row[n]!)
+}
+
 export interface ComplexMatrix {
   readonly form: 'complex-matrix'
   readonly rows: number

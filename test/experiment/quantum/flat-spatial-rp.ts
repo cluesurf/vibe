@@ -15,6 +15,7 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
+import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -75,26 +76,10 @@ export function flatSpatialRP(input?: { L?: number; arrows?: number[] }): {
     let range = 0
     for (let r = 1; r <= maxR; r++) if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
-    let sx = 0
-    let sy = 0
-    let sxx = 0
-    let sxy = 0
-    let mm = 0
-    for (let r = 1; r <= maxR; r++) {
-      const ac = Math.abs(c[r]!)
-      if (ac <= 1e-9) continue
-      const y = Math.log(ac)
-      sx += r
-      sy += y
-      sxx += r * r
-      sxy += r * y
-      mm++
-    }
-    const slope = mm > 1 ? (mm * sxy - sx * sy) / (mm * sxx - sx * sx) : 0
     scan.push({
       arrow,
       density,
-      correlationLength: slope < 0 ? -1 / slope : Infinity,
+      correlationLength: correlationLengthFromDecay({ correlation: c, rLo: 1, rHi: maxR }),
       range,
       directMinEig: hankelMinEig(c, m),
       staggeredMinEig: hankelMinEig(cStag, m),

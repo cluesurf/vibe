@@ -8,18 +8,12 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
-import { Graph } from '@/code/tool/graph'
+import { meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function meanDegree(g: Graph): number {
-  let total = 0
-  for (let i = 0; i < g.size; i++) {
-    total += (g.neighbors[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, g.size)
-}
+// meanDegree lives in code/tool/graph.
 
 const SYMBOLS: { name: string; schlafli: number[] }[] = [
   { name: 'heptagrid {7,3}', schlafli: [7, 3] },

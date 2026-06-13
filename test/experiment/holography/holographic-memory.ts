@@ -16,75 +16,20 @@
 // The advantage holds after running the conserving dynamics. Run: npx tsx code/experiment/p105-holographic-memory.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng } from '@/code/tool/rng'
+import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
+import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { totalCharge as sumTone } from '@/code/measure/tone-census'
+import { makeRng, Rng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
 function ball(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  const out: number[] = []
-  const seen = new Uint8Array(n)
-  seen[start] = 1
-  let fr = [start]
-  while (fr.length > 0 && out.length < size) {
-    const nf: number[] = []
-    for (const u of fr) {
-      out.push(u)
-      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-        const w = adj[p]!
-        if (!seen[w] && out.length + nf.length < size) {
-          seen[w] = 1
-          nf.push(w)
-        }
-      }
-    }
-    fr = nf
-  }
-  return out
+  return csrBallNodes({ offsets, adj, size: n, source: start, limit: size })
 }
 
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
-
-// the conserving perception rule (cohesive hop), one beat
+// the conserving perception rule (cohesive hop, no arrow), one beat
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void {
-  moved.fill(0)
-  const agree = (i: number, q: number, except: number): number => {
-    let c = 0
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
-      const w = adj[p]!
-      if (w !== except && tone[w] === q) c++
-    }
-    return c
-  }
-  for (let k = 0; k < eu.length; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      if (agree(e, q, c) >= agree(c, q, e) || rng.next() < 0.02) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
-  }
+  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0, escapeProbability: 0.02 })
 }
 
 export function holographicMemory(input?: { n?: number }): {

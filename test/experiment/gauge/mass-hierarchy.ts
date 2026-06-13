@@ -15,6 +15,7 @@
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { bfsShells } from '@/code/measure/shells'
 import { neighborsOf } from '@/code/tool/graph'
+import { poincareDistanceIndexed } from '@/code/geometry/distance'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -43,19 +44,7 @@ function meanInterShellDistance(): number {
       center = i
     }
   }
-  const hyp = (a: number, b: number): number => {
-    let na = 0
-    let nb = 0
-    let d = 0
-    for (let k = 0; k < dim; k++) {
-      const xa = coords[a * dim + k] ?? 0
-      const xb = coords[b * dim + k] ?? 0
-      na += xa * xa
-      nb += xb * xb
-      d += (xa - xb) * (xa - xb)
-    }
-    return Math.acosh(1 + (2 * d) / Math.max(1e-12, (1 - na) * (1 - nb)))
-  }
+  const hyp = (a: number, b: number): number => poincareDistanceIndexed(coords, dim, a, b)
   // BFS shells
   const { depth: shell, shellCounts } = bfsShells({ neighbors: neighborsOf(g), root: center })
   const maxShell = shellCounts.length - 1

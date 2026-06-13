@@ -4,19 +4,19 @@
 // is in 1D, so the potential is LINEAR (confining), not 1/r. Run: npx tsx code/experiment/s73-physics.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
+import { bfsShells } from '@/code/measure/shells'
+import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFoldIsotropic: boolean } {
   // Bethe holographic correlator, z=7
-  const z = 7, b = z - 1, mu = (z - Math.sqrt(z * z - 4 * b)) / (2 * b)
-  const betheAlpha = Math.round((2 * Math.log(1 / mu)) / Math.log(b) * 100) / 100
+  const betheAlpha = betheCorrelatorExponent(7)
   // cosmology + hierarchy, bulk shell growth
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount, nb = g.neighbors
   let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (const w of nb[u]!) if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } if (nf.length) shell.push(nf.length); fr = nf }
+  const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
   const mid = shell.slice(2, Math.min(7, shell.length))
   const growthRatio = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
   // 7-fold 2D isotropy, 4th moment, sum d_x^4 = 3 sum d_x^2 d_y^2 (isotropic in 2D)

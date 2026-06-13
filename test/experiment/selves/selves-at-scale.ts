@@ -14,15 +14,10 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
+import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
 
 // cohesive perception rule, one beat (conserving)
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrowProb: number): void =>

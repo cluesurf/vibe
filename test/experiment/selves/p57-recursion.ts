@@ -17,74 +17,13 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, makeGraph } from '@/code/tool/graph'
+import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
+import { settleAsync } from '@/code/operator/signed-majority-settle'
+import { toneOverlap as overlap } from '@/code/operator/hopfield'
+import { agreementFraction, clusterMajority } from '@/code/measure/agreement'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Symmetric ternary fills on a graph.
-function symmetricFills(g: Graph, rng: Rng): Int8Array[] {
-  const indexOf = g.neighbors.map((row) => {
-    const m = new Map<number, number>()
-    for (let k = 0; k < row.length; k++) {
-      m.set(row[k] ?? -1, k)
-    }
-    return m
-  })
-  const fills = g.neighbors.map((row) => new Int8Array(row.length))
-  for (let v = 0; v < g.size; v++) {
-    const fv = fills[v]
-    const row = g.neighbors[v] ?? new Uint32Array(0)
-    if (!fv) continue
-    for (let k = 0; k < row.length; k++) {
-      const w = row[k] ?? 0
-      if (w > v) {
-        const f = rng.nextInt({ max: 3 }) - 1
-        fv[k] = f
-        const fw = fills[w]
-        const kk = indexOf[w]?.get(v)
-        if (fw && kk !== undefined) fw[kk] = f
-      }
-    }
-  }
-  return fills
-}
-
-function step(g: Graph, fills: Int8Array[], tone: Int8Array): Int8Array {
-  const next = new Int8Array(g.size)
-  for (let v = 0; v < g.size; v++) {
-    const nb = g.neighbors[v] ?? new Uint32Array(0)
-    const fl = fills[v] ?? new Int8Array(0)
-    let h = 0
-    for (let k = 0; k < nb.length; k++) h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
-    next[v] = h > 0 ? 1 : h < 0 ? -1 : 0
-  }
-  return next
-}
-
-// Asynchronous settle (Hopfield-style, converges with symmetric fills). Ties (a zero
-// local field) keep the current tone rather than going to peace, which removes the
-// energy-neutral plateau of the 0-state so the dynamics reaches a genuine fixed point.
-// Returns the converged state and the flip fraction in the final sweep (0 means fixed).
-function settleAsync(g: Graph, fills: Int8Array[], init: Int8Array, sweeps: number, rng: Rng): { state: Int8Array; finalFlip: number } {
-  const n = g.size
-  const t = Int8Array.from(init)
-  let finalFlip = 1
-  for (let sweep = 0; sweep < sweeps; sweep++) {
-    let flips = 0
-    for (let s = 0; s < n; s++) {
-      const v = rng.nextInt({ max: n })
-      const nb = g.neighbors[v] ?? new Uint32Array(0)
-      const fl = fills[v] ?? new Int8Array(0)
-      let h = 0
-      for (let k = 0; k < nb.length; k++) h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
-      const nt: -1 | 0 | 1 = h > 0 ? 1 : h < 0 ? -1 : (t[v] ?? 0) as -1 | 0 | 1
-      if (nt !== t[v]) flips++
-      t[v] = nt
-    }
-    finalFlip = flips / Math.max(1, n)
-  }
-  return { state: t, finalFlip }
-}
 
 interface Coarse {
   superG: Graph
@@ -92,30 +31,6 @@ interface Coarse {
   superFills: Int8Array[]
   cluster: Int32Array
   K: number
-}
-
-// Aggregate micro-tones into the higher-level view: the majority tone of each cluster.
-// This is read on demand from the base, not stored.
-function aggregate(cluster: Int32Array, K: number, tone: Int8Array): Int8Array {
-  const sum = new Float64Array(K)
-  for (let v = 0; v < tone.length; v++) sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
-  const out = new Int8Array(K)
-  for (let c = 0; c < K; c++) out[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
-  return out
-}
-
-function overlapAt(a: Int8Array, b: Int8Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
-  return s / Math.max(1, a.length)
-}
-
-// Fraction of entries that agree (the right measure for "unchanged", since the dot-product
-// overlap of a ternary vector with itself only counts the non-zero entries).
-function agreement(a: Int8Array, b: Int8Array): number {
-  let same = 0
-  for (let i = 0; i < a.length; i++) if (a[i] === b[i]) same++
-  return same / Math.max(1, a.length)
 }
 
 // Coarse-grain a graph into super-vibes by clustering (nearest seed, multi-source BFS).
@@ -201,12 +116,6 @@ function coarseGrain(g: Graph, fills: Int8Array[], tone: Int8Array, blockSize: n
   return { superG, superTone, superFills, cluster, K }
 }
 
-function overlap(a: Int8Array, b: Int8Array): number {
-  let s = 0
-  for (let i = 0; i < a.length; i++) s += (a[i] ?? 0) * (b[i] ?? 0)
-  return s / a.length
-}
-
 export function recursion(input: { count: number; seed: number }): {
   baseCells: number
   superCells: number
@@ -221,13 +130,13 @@ export function recursion(input: { count: number; seed: number }): {
 } {
   const rng = makeRng({ seed: input.seed })
   const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
-  const fills = symmetricFills(g, makeRng({ seed: input.seed + 1 }))
+  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: makeRng({ seed: input.seed + 1 }) })
   const init = new Int8Array(g.size)
   for (let i = 0; i < g.size; i++) init[i] = rng.nextInt({ max: 3 }) - 1
 
   // The only dynamics is the micro-rule on micro-tones. Converge it (asynchronously, so it
   // reaches a genuine fixed point) to a stable self.
-  const baseRun = settleAsync(g, fills, init, 120, makeRng({ seed: input.seed + 6 }))
+  const baseRun = settleAsync({ graph: g, fills, init, sweeps: 120, rng: makeRng({ seed: input.seed + 6 }) })
   const base = baseRun.state
 
   // The higher vibe is the DERIVED aggregate of the micro-tones, never stored. We fix one
@@ -244,10 +153,10 @@ export function recursion(input: { count: number; seed: number }): {
   // the MICRO rule a few more beats and re-read the aggregate. If the micro-self is a fixed
   // point, the aggregate view does not change, so the higher vibe's stability is inherited
   // from below, not maintained by any stored super-state.
-  const base2 = settleAsync(g, fills, base, 6, makeRng({ seed: input.seed + 7 })).state
-  const aggBefore = aggregate(cg.cluster, cg.K, base)
-  const aggAfter = aggregate(cg.cluster, cg.K, base2)
-  const inheritedOverlap = agreement(aggBefore, aggAfter)
+  const base2 = settleAsync({ graph: g, fills, init: base, sweeps: 6, rng: makeRng({ seed: input.seed + 7 }) }).state
+  const aggBefore = clusterMajority(cg.cluster, cg.K, base)
+  const aggAfter = clusterMajority(cg.cluster, cg.K, base2)
+  const inheritedOverlap = agreementFraction(aggBefore, aggAfter)
   const inheritedStable = inheritedOverlap > 0.95
 
   // Emergent macro-rule (partial): does the macro-rule applied to an aggregate match the
@@ -256,10 +165,10 @@ export function recursion(input: { count: number; seed: number }): {
   // stored layer. It is expected to be partial, the deep open question.
   const r0 = new Int8Array(g.size)
   for (let i = 0; i < g.size; i++) r0[i] = rng.nextInt({ max: 3 }) - 1
-  const aggR0 = aggregate(cg.cluster, cg.K, r0)
-  const aggMicro = aggregate(cg.cluster, cg.K, step(g, fills, r0))
-  const macroStep = step(cg.superG, cg.superFills, aggR0)
-  const emergence = overlapAt(aggMicro, macroStep)
+  const aggR0 = clusterMajority(cg.cluster, cg.K, r0)
+  const aggMicro = clusterMajority(cg.cluster, cg.K, signedMajorityStep({ neighbors: g.neighbors, fills, tone: r0 }))
+  const macroStep = signedMajorityStep({ neighbors: cg.superG.neighbors, fills: cg.superFills, tone: aggR0 })
+  const emergence = overlap(aggMicro, macroStep)
 
   // The tower: aggregate again, still a valid same-kind view.
   const cg2 = coarseGrain(cg.superG, cg.superFills, cg.superTone, 6, makeRng({ seed: input.seed + 4 }))

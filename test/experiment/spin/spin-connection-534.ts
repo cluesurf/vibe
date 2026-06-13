@@ -1,13 +1,9 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
-  diracGamma,
-  cmMultiply,
-  cmAdd,
-  cmScale,
-  cmIdentity,
+  coxeterEdgeRotor,
+  cmPower,
   cmIsScalar,
-  type ComplexMatrix,
 } from '@/code/algebra/group/clifford'
 import { complex } from '@/code/algebra/linear/complex'
 
@@ -18,23 +14,6 @@ import { complex } from '@/code/algebra/linear/complex'
 // holonomy is MINUS ONE once around the loop and PLUS ONE twice around, the spinor double cover realized
 // geometrically on the actual {5,3,4} frame bundle. So spinors propagate on {5,3,4} with the double-cover
 // sign, the dynamical spin structure, not just the abstract cover of spin/cocycle-534.
-
-// raise a complex matrix to an integer power
-const power = (matrix: ComplexMatrix, exponent: number): ComplexMatrix => {
-  let result = cmIdentity(matrix.length)
-  for (let step = 0; step < exponent; step++) result = cmMultiply(result, matrix)
-  return result
-}
-
-// the rotor n_i n_j for two unit spacelike Coxeter normals at the angle that makes (n_i n_j)^m a 2pi
-// rotation: normals at angle pi(m-1)/m, built from the spacelike gammas gamma1 and gamma2.
-const edgeRotor = (m: number): ComplexMatrix => {
-  const gamma = diracGamma()
-  const angle = (Math.PI * (m - 1)) / m
-  const normalI = gamma[1]! // gamma1, a unit spacelike vector
-  const normalJ = cmAdd(cmScale(gamma[1]!, Math.cos(angle)), cmScale(gamma[2]!, Math.sin(angle)))
-  return cmMultiply(normalI, normalJ)
-}
 
 export default defineExperiment({
   id: 'spin/spin-connection-534',
@@ -52,9 +31,9 @@ export default defineExperiment({
     const onceMinusOne: number[] = []
     const twicePlusOne: number[] = []
     for (const m of relations) {
-      const rotor = edgeRotor(m)
-      const once = power(rotor, m) // around the edge once, a 2pi rotation
-      const twice = power(rotor, 2 * m) // around twice, 4pi
+      const rotor = coxeterEdgeRotor(m)
+      const once = cmPower(rotor, m) // around the edge once, a 2pi rotation
+      const twice = cmPower(rotor, 2 * m) // around twice, 4pi
       onceMinusOne.push(cmIsScalar(once, minusOne) ? 1 : 0)
       twicePlusOne.push(cmIsScalar(twice, plusOne) ? 1 : 0)
     }

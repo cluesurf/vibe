@@ -18,7 +18,7 @@
 //      amplitude^2 = |c|^2, the Born rule.
 // Run: npx tsx code/experiment/p70-born-rule.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, sampleEmpiricalFrequencies } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -66,22 +66,8 @@ function exponentResidual(p: number, seed: number): number {
 
 // (4) Fair sampling of the vibes: frequency of outcome k -> n_k / total = |c_k|^2.
 function fairSampleFrequencies(amps: number[], scale: number, draws: number, seed: number): number[] {
-  const { counts, total } = patchesFromAmplitudes(amps, scale)
-  const cum: number[] = []
-  let acc = 0
-  for (const c of counts) {
-    acc += c
-    cum.push(acc)
-  }
-  const rng = makeRng({ seed })
-  const hits = new Array<number>(counts.length).fill(0)
-  for (let d = 0; d < draws; d++) {
-    const u = rng.nextInt({ max: total }) // pick one vibe, uniformly
-    let k = 0
-    while (k < cum.length && u >= (cum[k] ?? 0)) k++
-    hits[k] = (hits[k] ?? 0) + 1
-  }
-  return hits.map((h) => h / draws)
+  const { counts } = patchesFromAmplitudes(amps, scale)
+  return sampleEmpiricalFrequencies({ counts, draws, rng: makeRng({ seed }) })
 }
 
 export function bornRule(input: { seed: number }): {

@@ -1,51 +1,26 @@
+import {
+  perfectTensorRecoverable,
+  perfectTensorMinimalKillSet,
+  perfectTensorContiguousThreshold,
+} from '@/code/substrate/perfect-tensor-tree'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The HaPPY code WIRED onto the {5,3,4} hyperbolic bulk, the tiled version of holography/happy-code-534. Each
 // cell of the bulk carries a [[5,1,3]] perfect tensor (the building block, any 3 of 5 legs reconstruct it),
 // and the tensors are contracted along the hyperbolic bulk tree, the geodesic tree of the {5,3,4} tiling, with
-// the boundary qubits at the leaves. We implement the real perfect-tensor reconstruction rule (a bulk tensor
-// is recoverable iff at least 3 of its 5 neighbours are recoverable) and propagate it from the boundary
-// inward. The result is the holographic code property, the code distance protecting a bulk logical grows as
-// 3^depth, so a self living deep in the bulk is protected against ANY boundary erasure short of an
-// exponentially large region. The control is the threshold, the distance is finite (a constructed erasure of
-// size 3^depth does destroy the self) and it GROWS with depth (the deeper the bulk, the more protected).
-
-// the bulk tree, each node a perfect tensor with 5 children, depth L, the boundary is the 5^L leaves. A node
-// is RECOVERABLE from the surviving boundary iff at least 3 of its 5 children are recoverable (the perfect
-// [[5,1,3]] erasure rule). A leaf is recoverable iff it was not erased.
-const recoverable = (level: number, offset: number, erased: Set<number>): boolean => {
-  if (level === 0) return !erased.has(offset)
-  const childSize = 5 ** (level - 1)
-  let alive = 0
-  for (let child = 0; child < 5; child++) if (recoverable(level - 1, offset + child * childSize, erased)) alive++
-  return alive >= 3
-}
-
-// the minimal erasure that destroys the root logical, recursively kill 3 of the 5 children, size 3^level
-const minimalKillSet = (level: number, offset: number): number[] => {
-  if (level === 0) return [offset]
-  const childSize = 5 ** (level - 1)
-  const out: number[] = []
-  for (let child = 0; child < 3; child++) out.push(...minimalKillSet(level - 1, offset + child * childSize))
-  return out
-}
-
-// the largest contiguous boundary erasure such that EVERY window of that size leaves the root recoverable, the
-// holographic wedge threshold
-const contiguousThreshold = (level: number): number => {
-  const leaves = 5 ** level
-  for (let size = 1; size <= leaves; size++) {
-    let allRecover = true
-    for (let start = 0; start + size <= leaves; start++) {
-      const erased = new Set<number>()
-      for (let i = start; i < start + size; i++) erased.add(i)
-      if (!recoverable(level, 0, erased)) { allRecover = false; break }
-    }
-    if (!allRecover) return size - 1
-  }
-  return leaves
-}
+// the boundary qubits at the leaves. The real perfect-tensor reconstruction rule (a bulk tensor is recoverable
+// iff at least 3 of its 5 neighbours are recoverable, branching 5, threshold 3) lives in
+// code/substrate/perfect-tensor-tree. The result is the holographic code property, the code distance
+// protecting a bulk logical grows as 3^depth, so a self living deep in the bulk is protected against ANY
+// boundary erasure short of an exponentially large region. The control is the threshold, the distance is
+// finite (a constructed erasure of size 3^depth does destroy the self) and it GROWS with depth.
+const recoverable = (level: number, offset: number, erased: Set<number>): boolean =>
+  perfectTensorRecoverable({ level, offset, erased, branching: 5, threshold: 3 })
+const minimalKillSet = (level: number, offset: number): number[] =>
+  perfectTensorMinimalKillSet({ level, offset, branching: 5, threshold: 3 })
+const contiguousThreshold = (level: number): number =>
+  perfectTensorContiguousThreshold({ level, branching: 5, threshold: 3 })
 
 export default defineExperiment({
   id: 'holography/happy-tiling-534',

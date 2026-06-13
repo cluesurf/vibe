@@ -7,31 +7,22 @@
 // implied Lambda shrinks with the spacetime 4-volume, the dark-energy behaviour?
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p29-dark-energy-smeared.ts
 
-import { makeRng } from '@/code/tool/rng'
-import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
-import { logLogSlope } from '@/code/measure/regression'
+import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function std(xs: number[]): number {
-  const m = xs.reduce((a, b) => a + b, 0) / xs.length
-  return Math.sqrt(xs.reduce((a, b) => a + (b - m) * (b - m), 0) / xs.length)
-}
 
 function fluctuationExponent(input: { action: Action; sizes: number[]; repeats: number }): {
   stds: number[]
   exponent: number
 } {
-  const stds = input.sizes.map((nn) => {
-    const samples: number[] = []
-    for (let r = 0; r < input.repeats; r++) {
-      const poset = sprinkleMinkowski({ dimension: 4, count: nn, rng: makeRng({ seed: nn * 1000 + r }) })
-      samples.push(input.action.value({ poset }))
-    }
-    return std(samples)
+  return actionFluctuationExponent({
+    action: input.action,
+    sizes: input.sizes,
+    repeats: input.repeats,
+    dimension: 4,
+    seedMultiplier: 1000,
   })
-  return { stds, exponent: logLogSlope(input.sizes, stds) }
 }
 
 export function darkEnergySmeared4D(input: { sizes: number[]; repeats: number; epsilon: number }): {

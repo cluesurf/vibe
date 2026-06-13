@@ -16,19 +16,13 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { totalCharge as sumTone, liveCount as nonzero } from '@/code/measure/tone-census'
+import {
+  connectedCorrelationByDistance,
+  correlationLengthFromDecay,
+} from '@/code/measure/connected-correlation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
-const nonzero = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) s++
-  return s
-}
 
 // vacuum dynamics: the arrow creates pairs, share annihilates, hops carry charge (the field)
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
@@ -73,45 +67,21 @@ export function quantumField(input?: { n?: number }): {
   const conserved = sumTone(vac) === q0
 
   // two-point connected correlation C(r) = <s_x s_y> - <s>^2, over graph distance r
-  const mean = sumTone(vac) / N
   const maxR = 6
-  const sums = new Float64Array(maxR + 1)
-  const counts = new Float64Array(maxR + 1)
-  const rng2 = makeRng({ seed: 11 })
-  const samples = 250
-  for (let s = 0; s < samples; s++) {
-    const src = Math.floor(rng2.next() * N)
-    const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: src, maxRadius: maxR })
-    for (let i = 0; i < N; i++) {
-      const r = dist[i]!
-      if (r >= 0 && r <= maxR) {
-        sums[r]! += (vac[src]! - mean) * (vac[i]! - mean)
-        counts[r]!++
-      }
-    }
-  }
-  const correlation: { r: number; c: number }[] = []
-  for (let r = 0; r <= maxR; r++) correlation.push({ r, c: counts[r]! > 0 ? sums[r]! / counts[r]! : 0 })
+  const c = connectedCorrelationByDistance({
+    tone: vac,
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    maxRadius: maxR,
+    samples: 250,
+    rng: makeRng({ seed: 11 }),
+  })
+  const correlation: { r: number; c: number }[] = c.map((cv, r) => ({ r, c: cv }))
   const pairAntiCorrelation = correlation[1]!.c // nearest-neighbour correlation (pair structure)
 
   // correlation length from |C(r)| ~ exp(-r/xi), fit log|C| vs r over r=1..4
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let m = 0
-  for (let r = 1; r <= 4; r++) {
-    const ac = Math.abs(correlation[r]!.c)
-    if (ac <= 0) continue
-    const y = Math.log(ac)
-    sx += r
-    sy += y
-    sxx += r * r
-    sxy += r * y
-    m++
-  }
-  const slope = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
-  const correlationLength = slope < 0 ? -1 / slope : Infinity
+  const correlationLength = correlationLengthFromDecay({ correlation: c, rLo: 1, rHi: 4 })
   const effectiveMass = correlationLength > 0 && isFinite(correlationLength) ? 1 / correlationLength : 0
   const decays = Math.abs(correlation[4]!.c) < Math.abs(correlation[1]!.c) * 0.5
 

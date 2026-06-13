@@ -7,26 +7,25 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
+import { betheCorrelatorExponent, spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// {5,3,4} bulk spectral dimension (should read ~3, a 3D hyperbolic bulk)
+// {5,3,4} bulk spectral dimension via the lazy-walk return probability (the central
+// difference here is the endpoint slope between t = 3 and t = 6), and the Bethe-lattice
+// boundary correlator exponent, both in code/measure/dimension.
 function bulkDim534(): { N: number; degree: number; specDim: number } {
   const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 20000 })
   const N = g.cellCount
-  const { offsets: off, adj } = toCsr(g.neighbors)
+  const { offsets: off } = toCsr(g.neighbors)
   let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
   const degree = best
-  let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
-  for (let t = 0; t < 16; t++) { ret.push(p[center]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const specDim = Math.round((-2 * (Math.log(ret[6]!) - Math.log(ret[3]!))) / (Math.log(6) - Math.log(3)) * 100) / 100
+  const specDim = Math.round(spectralDimension({ neighbors: g.neighbors, start: center, t1: 3, t2: 6 }) * 100) / 100
   return { N, degree, specDim }
 }
-// Bethe boundary correlator on {5,3,4} (z=12): clean 1/r^2 (the gravity/holography toolkit ports)
-function bethe534(): number { const z = 12, b = z - 1, mu = (z - Math.sqrt(z * z - 4 * b)) / (2 * b); return Math.round((2 * Math.log(1 / mu)) / Math.log(b) * 100) / 100 }
 
 export function comparison534(): { specDim: number; degree: number; betheAlpha: number } {
-  const bulk = bulkDim534(), betheAlpha = bethe534()
+  const bulk = bulkDim534(), betheAlpha = betheCorrelatorExponent(12)
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }
 }
 

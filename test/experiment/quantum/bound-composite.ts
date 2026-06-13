@@ -14,20 +14,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lowestEigenpairs as lowestEigenpairsOf } from '@/code/algebra/linear/power-iteration'
-
-// relative-coordinate lattice Hamiltonian, H phi(r) = -t (phi[r-1]+phi[r+1]) + V[r] phi[r], open ends.
-// the free band is [-2t, 2t]; an attractive well (V<0) can pull states BELOW -2t (bound).
-function applyH(phi: Float64Array, V: Float64Array, t: number): Float64Array {
-  const N = phi.length
-  const out = new Float64Array(N)
-  for (let r = 0; r < N; r++) {
-    let v = V[r]! * phi[r]!
-    if (r > 0) v += -t * phi[r - 1]!
-    if (r < N - 1) v += -t * phi[r + 1]!
-    out[r] = v
-  }
-  return out
-}
+import { openChainPotentialApply } from '@/code/operator/tight-binding'
 
 // lowest `k` eigenpairs of the relative-coordinate Hamiltonian, by shifted power iteration with
 // deflation. The shift cI must bound the spectrum from above so cI - H is positive.
@@ -36,7 +23,7 @@ function lowestEigenpairs(V: Float64Array, t: number, k: number, seedBase: numbe
   let shift = 2 * t + 1
   for (let r = 0; r < N; r++) shift = Math.max(shift, -V[r]! + 2 * t + 1)
   return lowestEigenpairsOf({
-    operator: { size: N, apply: ({ x }) => applyH(x, V, t) },
+    operator: { size: N, apply: ({ x }) => openChainPotentialApply({ phi: x, potential: V, hopping: t }) },
     count: k,
     shift,
     seed: seedBase,

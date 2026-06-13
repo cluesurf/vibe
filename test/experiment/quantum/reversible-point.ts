@@ -11,14 +11,11 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { detailedBalanceViolation } from '@/code/coarse/transition-matrix'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
-}
 
 const st = (t: number): number => t + 1 // -1,0,1 -> 0,1,2
 
@@ -30,7 +27,7 @@ function dbViolation(arrow: number, g: { offsets: Int32Array; adj: Int32Array; c
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 3 })
   for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-  for (let t = 0; t < 60; t++) beat(tone, eu, ev, moved, rng, arrow) // reach steady state
+  for (let t = 0; t < 60; t++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // reach steady state
 
   // sample a fixed subset of edges, count (a,b) -> (a',b') transitions over many beats (9 states each)
   const sampleEdges: number[] = []
@@ -41,7 +38,7 @@ function dbViolation(arrow: number, g: { offsets: Int32Array; adj: Int32Array; c
   const C = new Float64Array(S9 * S9)
   for (let b = 0; b < beats; b++) {
     const pre = sampleEdges.map((k) => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))
-    beat(tone, eu, ev, moved, rng, arrow)
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     for (let i = 0; i < sampleEdges.length; i++) {
       const k = sampleEdges[i]!
       const post = st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!)
@@ -51,29 +48,7 @@ function dbViolation(arrow: number, g: { offsets: Int32Array; adj: Int32Array; c
     for (let i = 0; i < N; i++) if (tone[i] !== 0) active++
     activeSum += active / N
   }
-  // asymmetry = sum |C[s][s'] - C[s'][s]| over s<s', normalized by total off-diagonal flux
-  let asym = 0
-  let total = 0
-  for (let s = 0; s < S9; s++) for (let sp = s + 1; sp < S9; sp++) {
-    const f = C[s * S9 + sp]!
-    const r = C[sp * S9 + s]!
-    asym += Math.abs(f - r)
-    total += f + r
-  }
-  const violation = total > 0 ? asym / total : 0
-  // statistical floor: for symmetric counts with Poisson noise, expected |f-r|/(f+r) ~ sqrt(2/(f+r)).
-  // estimate using the mean off-diagonal count.
-  let pairs = 0
-  let meanCount = 0
-  for (let s = 0; s < S9; s++) for (let sp = s + 1; sp < S9; sp++) {
-    const tot = C[s * S9 + sp]! + C[sp * S9 + s]!
-    if (tot > 0) {
-      meanCount += tot
-      pairs++
-    }
-  }
-  meanCount = pairs > 0 ? meanCount / pairs : 1
-  const floor = Math.sqrt(2 / Math.max(meanCount, 1))
+  const { violation, floor } = detailedBalanceViolation({ counts: C, states: S9 })
   const activity = activeSum / beats
   return { violation, floor, activity }
 }

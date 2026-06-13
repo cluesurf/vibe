@@ -8,6 +8,7 @@
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { latticeDispersion, dispersionAxisDiagonalAnisotropy } from '@/code/measure/dispersion'
+import { directionFourthMoments } from '@/code/measure/isotropy'
 import { coordinateAxes } from '@/code/measure/probe-directions'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -25,12 +26,10 @@ function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {
 }
 
 export function isotropy24dir(): { z3: number; z4: number; d4: number; d4Best: boolean } {
-  const qs = [0.4, 0.8, 1.2]
-  for (const q of qs) {
-  }
   // 4th-moment isotropy check (the order-4 anisotropy): sum d_i^4 vs 3 sum d_i^2 d_j^2
-  const m4 = (R: number[][]): { diag: number; mixed: number } => { let dg = 0, mx = 0; for (const d of R) { dg += d[0]! ** 4; mx += d[0]! ** 2 * (d[1] ?? 0) ** 2 } return { diag: dg, mixed: mx } }
-  const md4 = m4(neighbors('D4')), mz4 = m4(neighbors('Z4'))
+  const md4 = directionFourthMoments(neighbors('D4')), mz4 = directionFourthMoments(neighbors('Z4'))
+  void md4
+  void mz4
   const z3 = anisotropy('Z3', 1.2), z4 = anisotropy('Z4', 1.2), d4 = anisotropy('D4', 1.2)
   const d4Best = d4 < z4 / 5 && d4 < z3 / 5
   return { z3, z4, d4, d4Best }

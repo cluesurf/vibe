@@ -13,14 +13,14 @@
 // sense in which a self is independent of its substrate. Run: npx tsx code/experiment/p66-reincarnation.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { storedPatterns, hebbianFills, step, overlap } from '@/test/experiment/selves/dreaming-and-waking'
+import { storedPatterns, hebbianFills, hopfieldStep, toneOverlap as overlap } from '@/code/operator/hopfield'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function settle(J: Int8Array[], state: Int8Array, steps: number): Int8Array {
   const zero = new Float64Array(state.length)
   let t = state
-  for (let i = 0; i < steps; i++) t = step(J, t, zero, null)
+  for (let i = 0; i < steps; i++) t = hopfieldStep(J, t, zero, null)
   return t
 }
 

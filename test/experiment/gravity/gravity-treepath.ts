@@ -7,6 +7,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
 import { toCsr } from '@/code/tool/graph'
+import { radialBfsTree, surfaceDistances } from '@/code/substrate/radial-tree'
 import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -15,20 +16,17 @@ function measure(symbol: number[], maxCells: number, tau: number): { N: number; 
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
   const N = g.cellCount
   const { offsets: off, adj } = toCsr(g.neighbors)
-  const rad = g.coords.map(norm); const rmax = Math.max(...rad)
-  // root = innermost cell; radial BFS tree gives depth + parent
-  let root = 0, rmin = Infinity; for (let i = 0; i < N; i++) if (rad[i]! < rmin) { rmin = rad[i]!; root = i }
-  const depth = new Int32Array(N).fill(-1), par = new Int32Array(N).fill(-1); depth[root] = 0; let fr = [root]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (depth[w] === -1) { depth[w] = depth[u]! + 1; par[w] = u; nf.push(w) } } fr = nf }
-  const maxDepth = Math.max(...depth)
+  const rad = g.coords.map(norm)
+  // root = innermost cell; radial BFS tree gives depth + parent + lowest-common-ancestor depth
+  const tree = radialBfsTree({ neighbors: g.neighbors, radii: rad })
+  const depth = tree.depth
+  const maxDepth = tree.maxDepth
+  const lcaDepth = tree.lcaDepth
   const boundary = [...Array(N).keys()].filter((i) => depth[i]! >= maxDepth - 1)
   const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1
-  // LCA depth via walking up
-  const lcaDepth = (a: number, b: number): number => { let x = a, y = b; while (depth[x]! > depth[y]!) x = par[x]!; while (depth[y]! > depth[x]!) y = par[y]!; while (x !== y) { x = par[x]!; y = par[y]! } return depth[x]! }
   // source boundary cell; surface BFS distance to other boundary cells
   const src = boundary[0]!
-  const sdist = new Int32Array(N).fill(-1); sdist[src] = 0; let f2 = [src]
-  while (f2.length) { const nf: number[] = []; for (const u of f2) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (isB[w] && sdist[w] === -1) { sdist[w] = sdist[u]! + 1; nf.push(w) } } f2 = nf }
+  const sdist = surfaceDistances({ offsets: off, adjacency: adj, isBoundary: isB, source: src, nodeCount: N })
   const pts: [number, number][] = []
   for (const b of boundary) { if (b === src || sdist[b]! <= 0) continue; const treePath = depth[src]! + depth[b]! - 2 * lcaDepth(src, b); const coupling = Math.pow(tau, treePath); pts.push([sdist[b]!, coupling]) }
   const maxs = Math.max(...pts.map((x) => x[0]))

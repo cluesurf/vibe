@@ -14,6 +14,12 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/gr-gravitational-waves.ts
 
+import {
+  binaryQuadrupoleStrain,
+  chirpMass as chirpMassOf,
+  petersInspiralTrack,
+  quadrupoleRadiatedPower,
+} from '@/code/measure/gravitational-wave'
 import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -69,27 +75,15 @@ function binaryWaveform(m1: number, m2: number, a: number, samples: number): {
   omega: number
   gwFreqRatio: number
 } {
-  const Mtot = m1 + m2
-  const mu = (m1 * m2) / Mtot
-  const omega = Math.sqrt(Mtot / a ** 3) // Kepler
-  const r = 100 // observer distance (far field)
-  const hplus: number[] = []
-  const hcross: number[] = []
-  const dt = (2 * Math.PI) / omega / 12 // 12 samples per orbit (avoids landing on sine nodes)
-  for (let n = 0; n < samples; n++) {
-    const t = n * dt
-    const phi = omega * t
-    // positions (reduced one-body): x = a cos phi, y = a sin phi
-    // second mass-quadrupole derivative for a circular orbit gives the standard face-on result:
-    // h_+ = -(4 mu omega^2 a^2 / r) cos(2 phi),  h_x = -(4 mu omega^2 a^2 / r) sin(2 phi)
-    const amp = (4 * mu * omega ** 2 * a ** 2) / r
-    hplus.push(-amp * Math.cos(2 * phi))
-    hcross.push(-amp * Math.sin(2 * phi))
-  }
-  // GW frequency is twice the orbital frequency: measure zero-crossings of h_+ vs orbit period
-  // h_+ ~ cos(2 phi) so its frequency is 2 omega -> ratio 2
-  const gwFreqRatio = 2
-  return { hplus, hcross, omega, gwFreqRatio }
+  // h_+ ~ cos(2 phi), so the GW frequency is twice the orbital frequency -> ratio 2.
+  const w = binaryQuadrupoleStrain({
+    mass1: m1,
+    mass2: m2,
+    separation: a,
+    distance: 100, // observer distance (far field)
+    samples,
+  })
+  return { hplus: w.hplus, hcross: w.hcross, omega: w.omega, gwFreqRatio: 2 }
 }
 
 function radiatedPower(m1: number, m2: number, a: number): { measured: number; formula: number; ok: boolean } {
@@ -98,7 +92,7 @@ function radiatedPower(m1: number, m2: number, a: number): { measured: number; f
   const mu = (m1 * m2) / Mtot
   const omega = Math.sqrt(Mtot / a ** 3)
   const measured = (32 / 5) * mu ** 2 * a ** 4 * omega ** 6
-  const formula = (32 / 5) * (m1 ** 2 * m2 ** 2 * Mtot) / a ** 5
+  const formula = quadrupoleRadiatedPower({ mass1: m1, mass2: m2, separation: a })
   return { measured, formula, ok: Math.abs(measured - formula) / formula < 1e-9 }
 }
 
@@ -107,30 +101,15 @@ function radiatedPower(m1: number, m2: number, a: number): { measured: number; f
 function chirp(m1: number, m2: number, a0: number): { exponent: number; ok: boolean; chirpMass: number } {
   // Peters (1964): da/dt = -(64/5) m1 m2 (m1+m2) / a^3. The orbit shrinks, omega and the GW frequency
   // sweep UP, and f_GW(t) ~ (t_c - t)^(-3/8). Integrate the orbit decay and fit the late-time exponent.
-  const Mtot = m1 + m2
-  const chirpMass = Math.pow(m1 * m2, 3 / 5) / Math.pow(Mtot, 1 / 5)
-  let a = a0
-  const dt = 1e-3
-  const times: number[] = []
-  const fgw: number[] = []
-  let t = 0
-  while (a > 0.05 && t < 1e7) {
-    const dadt = -(64 / 5) * (m1 * m2 * Mtot) / a ** 3
-    a += dadt * dt
-    t += dt
-    if (a <= 0) break
-    const omega = Math.sqrt(Mtot / a ** 3)
-    times.push(t)
-    fgw.push((2 * omega) / (2 * Math.PI)) // GW frequency = 2 x orbital
-  }
-  const tc = t // coalescence time
+  const track = petersInspiralTrack({ mass1: m1, mass2: m2, separation: a0 })
+  const { times, gwFrequencies: fgw, coalescenceTime: tc } = track
   // fit log f vs log(tc - t) over the late inspiral; slope should be -3/8
   const pts = times
     .map((ti, i) => ({ x: Math.log(tc - ti + 1e-9), y: Math.log(fgw[i]!) }))
     .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y))
     .slice(Math.floor(times.length * 0.3), Math.floor(times.length * 0.9))
   const slope = linearFit({ xs: pts.map((p) => p.x), ys: pts.map((p) => p.y) }).slope
-  return { exponent: slope, ok: Math.abs(slope + 3 / 8) < 0.03, chirpMass }
+  return { exponent: slope, ok: Math.abs(slope + 3 / 8) < 0.03, chirpMass: chirpMassOf({ mass1: m1, mass2: m2 }) }
 }
 
 export default defineExperiment({

@@ -42,6 +42,28 @@ export function staggeredMassChainHamiltonian(input: {
   return h
 }
 
+// Matrix-free apply of a 1D OPEN-chain tight-binding Hamiltonian with an arbitrary on-site
+// potential: (H phi)[r] = -t (phi[r-1] + phi[r+1]) + V[r] phi[r], open ends. The free band is
+// [-2t, 2t]; an attractive well (V < 0) pulls bound states below -2t. Matrix-free so power
+// iteration can find the bound spectrum on large chains without materializing the matrix.
+export function openChainPotentialApply(input: {
+  phi: Float64Array
+  potential: Float64Array
+  hopping?: number
+}): Float64Array {
+  const { phi, potential } = input
+  const t = input.hopping ?? 1
+  const n = phi.length
+  const out = new Float64Array(n)
+  for (let r = 0; r < n; r++) {
+    let v = potential[r]! * phi[r]!
+    if (r > 0) v += -t * phi[r - 1]!
+    if (r < n - 1) v += -t * phi[r + 1]!
+    out[r] = v
+  }
+  return out
+}
+
 // `dimension`-dimensional periodic hypercubic lattice of side `side` (so side^dimension sites),
 // hopping `t` (default 1) along each of the `dimension` axis directions. side^2 is the 2D torus,
 // side^3 the 3D torus used for the Bekenstein-Hawking area-law test.

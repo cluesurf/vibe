@@ -7,12 +7,9 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import { rootsD4 } from '@/code/algebra/group/root-system'
 
-function d4Roots(): number[][] {
-  const r: number[][] = []
-  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) { const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; r.push(v) }
-  return r
-}
+const d4Roots = (): number[][] => rootsD4()
 const key = (p: number[]): string => p.join(',')
 
 export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClosed: boolean; timeReversal: boolean; parityCommutes: boolean; cptExact: boolean } {

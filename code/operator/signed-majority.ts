@@ -4,7 +4,7 @@
 // symmetric couplings (the same value on both half-edges of an undirected edge)
 // this is the perception rule of the committed vibe model, run synchronously.
 
-import { Rng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
 
 type Neighbors = ReadonlyArray<ArrayLike<number>>
 
@@ -65,4 +65,54 @@ export function signedMajorityStep(input: {
     next[v] = h > 0 ? 1 : h < 0 ? -1 : 0
   }
   return next
+}
+
+// The ASYNCHRONOUS signed-majority rule on an explicit number[][] adjacency: a random
+// ternary tone initial condition, symmetric ternary edge fills, then `beats` sweeps of
+// n random single-cell updates each. Reports the settled fraction (1 - changed/n on the
+// last beat) and the final tone histogram. The driver the Coxeter-mesh dynamics use to
+// confirm the committed rule settles on a freshly built tiling.
+export function runAsynchronousSignedMajority(input: {
+  neighbors: number[][]
+  beats: number
+  seed: number
+}): { settledFraction: number; toneHistogram: { minus: number; zero: number; plus: number } } {
+  const { neighbors, beats } = input
+  const n = neighbors.length
+  const rng = makeRng({ seed: input.seed })
+  const tone = new Int8Array(n)
+  for (let i = 0; i < n; i++) tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
+  const fill: Map<number, number>[] = Array.from({ length: n }, () => new Map<number, number>())
+  for (let a = 0; a < n; a++) {
+    for (const b of neighbors[a]!) {
+      if (b > a) {
+        const f = rng.nextInt({ max: 3 }) - 1
+        fill[a]!.set(b, f)
+        fill[b]!.set(a, f)
+      }
+    }
+  }
+  let changedLast = n
+  for (let beat = 0; beat < beats; beat++) {
+    let changed = 0
+    for (let s = 0; s < n; s++) {
+      const v = rng.nextInt({ max: n })
+      let h = 0
+      for (const w of neighbors[v]!) h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
+      const next = h > 0 ? 1 : h < 0 ? -1 : 0
+      if (next !== tone[v]) changed++
+      tone[v] = next as number
+    }
+    changedLast = changed
+  }
+  let minus = 0
+  let zero = 0
+  let plus = 0
+  for (let i = 0; i < n; i++) {
+    const t = tone[i] ?? 0
+    if (t < 0) minus++
+    else if (t === 0) zero++
+    else plus++
+  }
+  return { settledFraction: 1 - changedLast / n, toneHistogram: { minus, zero, plus } }
 }

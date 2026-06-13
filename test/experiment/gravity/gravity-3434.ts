@@ -7,6 +7,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
 import { toCsr } from '@/code/tool/graph'
+import { boundaryByRadius, surfaceDistances } from '@/code/substrate/radial-tree'
 import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -15,14 +16,13 @@ function measure(symbol: number[], maxCells: number): { N: number; nb: number; s
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
   const N = g.cellCount
   const { offsets: off, adj } = toCsr(g.neighbors)
-  const rad = g.coords.map(norm); const rmax = Math.max(...rad)
-  const boundary = [...Array(N).keys()].filter((i) => rad[i]! > 0.9 * rmax)
+  const rad = g.coords.map(norm)
+  const boundary = boundaryByRadius({ radii: rad, fraction: 0.9 })
   const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1
   const src = boundary[0]!
   const leak = 0.1; let p = new Float64Array(N); p[src] = 1; let np = new Float64Array(N)
   for (let t = 0; t < 400; t++) { np.fill(0); np[src] = 1; for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; const sh = ((1 - leak) * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const dist = new Int32Array(N).fill(-1); dist[src] = 0; let fr = [src]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (isB[w] && dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } fr = nf }
+  const dist = surfaceDistances({ offsets: off, adjacency: adj, isBoundary: isB, source: src, nodeCount: N })
   const pts: [number, number][] = []
   for (const b of boundary) { if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) continue; pts.push([dist[b]!, p[b]!]) }
   const maxd = Math.max(...pts.map((x) => x[0]))

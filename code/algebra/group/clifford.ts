@@ -118,3 +118,58 @@ export function spinGeneratorZ(): ComplexMatrix {
   const half = cmScale(sigma3, 0.5)
   return block(half, zero2, zero2, half) // (1/2) diag(sigma3, sigma3)
 }
+
+// A Clifford rotor for a rotation by `angle` in the plane of the unit bivector B
+// (B^2 = -1): rotor = cos(angle/2) I + sin(angle/2) B = exp((angle/2) B). Acting by
+// left multiplication it rotates a spinor (period 4pi, so angle = 2pi gives -I),
+// and by conjugation R v R^{-1} it rotates a vector (period 2pi). `size` is the
+// matrix dimension (4 for the Dirac gammas).
+export function cliffordRotor(input: { angle: number; bivector: ComplexMatrix; size: number }): ComplexMatrix {
+  const { angle, bivector, size } = input
+  return cmAdd(cmScale(cmIdentity(size), Math.cos(angle / 2)), cmScale(bivector, Math.sin(angle / 2)))
+}
+
+// The Coxeter edge rotor n_i n_j for a relation of order m, built from two unit spacelike
+// Coxeter normals at angle pi(m-1)/m in the gamma1-gamma2 plane. Its m-th power is a 2pi
+// rotation (minus one on a spinor), its 2m-th power a 4pi rotation (plus one), realizing the
+// spinor double cover on a {p,q,r} honeycomb edge loop where m cells meet.
+export function coxeterEdgeRotor(m: number): ComplexMatrix {
+  const gamma = diracGamma()
+  const angle = (Math.PI * (m - 1)) / m
+  const normalI = gamma[1]!
+  const normalJ = cmAdd(cmScale(gamma[1]!, Math.cos(angle)), cmScale(gamma[2]!, Math.sin(angle)))
+  return cmMultiply(normalI, normalJ)
+}
+
+// Real part of the normalised trace (1/size) Re tr(M), the scalar component of a
+// Clifford-algebra element (the cos(angle/2) part of a rotor).
+export function cmScalarTrace(matrix: ComplexMatrix): number {
+  let s = 0
+  for (let i = 0; i < matrix.length; i++) s += matrix[i]![i]!.re
+  return s / matrix.length
+}
+
+// A complex matrix raised to a non-negative integer power by repeated multiply.
+export function cmPower(matrix: ComplexMatrix, exponent: number): ComplexMatrix {
+  let result = cmIdentity(matrix.length)
+  for (let step = 0; step < exponent; step++) result = cmMultiply(result, matrix)
+  return result
+}
+
+// The Frobenius norm of a complex matrix, sqrt(sum |entry|^2). Zero only for the zero matrix,
+// so it is a scalar witness that a commutator (a non-abelian self-interaction) is nonvanishing.
+export function cmFrobeniusNorm(matrix: ComplexMatrix): number {
+  let sum = 0
+  for (const row of matrix) for (const value of row) sum += value.re * value.re + value.im * value.im
+  return Math.sqrt(sum)
+}
+
+// Entrywise equality of two complex matrices within a tolerance.
+export function cmEquals(left: ComplexMatrix, right: ComplexMatrix, tolerance = 1e-9): boolean {
+  return left.every((row, rowIndex) =>
+    row.every((value, columnIndex) => {
+      const target = right[rowIndex]![columnIndex]!
+      return Math.abs(value.re - target.re) < tolerance && Math.abs(value.im - target.im) < tolerance
+    }),
+  )
+}

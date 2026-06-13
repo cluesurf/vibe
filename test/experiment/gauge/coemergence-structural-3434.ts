@@ -8,16 +8,20 @@
 // frontier, this proves the structural co-existence, not the coupled dynamics.
 // Run: npx tsx code/experiment/p256-coemergence-structural-3434.ts
 
+import {
+  vectorRep8,
+  spinorRepEven8,
+  spinorRepOdd8,
+  applyTriality,
+} from '@/code/algebra/group/so8-triality'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPreserveSectors: boolean; trialityMixes: boolean; oneRuleForced: boolean } {
   // 24 directions = 8 axis (8v) + 16 half (8s even-parity, 8c odd-parity)
-  const v8 = [0, 1, 2, 3].flatMap((i) => [1, -1].map((s) => [0, 1, 2, 3].map((j) => (j === i ? s : 0))))
-  const half: number[][] = []
-  for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) half.push([a, b, c, d])
-  const s8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 0)
-  const c8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 1)
+  const v8 = vectorRep8()
+  const s8 = spinorRepEven8()
+  const c8 = spinorRepOdd8()
   const sectorsCover24 = v8.length + s8.length + c8.length === 24 && v8.length === 8 && s8.length === 8 && c8.length === 8
   const setOf = (S: number[][]): Set<string> => new Set(S.map((v) => v.map((x) => Math.round(x * 1e4)).join(',')))
   const V = setOf(v8), S = setOf(s8), Cc = setOf(c8)
@@ -38,9 +42,7 @@ export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPre
   }
 
   // triality (Hadamard/2) MIXES the sectors: 8v -> 8s
-  const Had = [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]].map((r) => r.map((x) => x / 2))
-  const trial = (v: number[]): number[] => [0, 1, 2, 3].map((i) => Had[i]!.reduce((s, _h, k) => s + Had[i]![k]! * v[k]!, 0))
-  const trialityMixes = v8.every((v) => inWhich(trial(v)) === 's')
+  const trialityMixes = applyTriality(v8).every((v) => inWhich(v) === 's')
 
   const oneRuleForced = sectorsCover24 && rotationsPreserveSectors && trialityMixes
 

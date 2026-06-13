@@ -10,26 +10,28 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
+import {
+  vectorRep8,
+  spinorRepEven8,
+  spinorRepOdd8,
+  applyTriality,
+  vectorSetsEqual,
+} from '@/code/algebra/group/so8-triality'
 
 export function trialityGenerations(): { threeReps: boolean; trialityOrder3: boolean; eightEach: boolean; chiralitySplit: boolean; threeGenerationsEstablished: boolean } {
   // the three 8-dim reps of SO(8) on the 24-cell coordinates
-  const v8 = [0, 1, 2, 3].flatMap((i) => [1, -1].map((s) => [0, 1, 2, 3].map((j) => (j === i ? s : 0)))) // 8 axis vectors
-  const half: number[][] = []
-  for (const a of [0.5, -0.5]) for (const b of [0.5, -0.5]) for (const c of [0.5, -0.5]) for (const d of [0.5, -0.5]) half.push([a, b, c, d])
-  const s8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 0) // even minus-parity = one chirality
-  const c8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 1) // odd minus-parity = other chirality
+  const v8 = vectorRep8() // 8 axis vectors
+  const s8 = spinorRepEven8() // even minus-parity = one chirality
+  const c8 = spinorRepOdd8() // odd minus-parity = other chirality
 
   const eightEach = v8.length === 8 && s8.length === 8 && c8.length === 8
   const threeReps = true
 
   // (1) triality order 3: the Hadamard/2 maps 8v -> 8s; the triality automorphism has order 3, cycling the reps
-  const Had = [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]].map((r) => r.map((x) => x / 2))
-  const apply = (S: number[][]): number[][] => S.map((v) => [0, 1, 2, 3].map((i) => Had[i]!.reduce((s, _h, k) => s + Had[i]![k]! * v[k]!, 0)))
-  const setOf = (S: number[][]): Set<string> => new Set(S.map((v) => v.map((x) => Math.round(x * 1e4)).join(',')))
-  const eq = (A: Set<string>, B: Set<string>): boolean => A.size === B.size && [...A].every((x) => B.has(x))
+  const eq = vectorSetsEqual
   // v -> s, then check the map has order 3 in the outer-automorphism sense (3 distinct reps in one orbit)
-  const vToS = eq(setOf(apply(v8)), setOf(s8))
-  const trialityOrder3 = vToS && !eq(setOf(v8), setOf(s8)) && !eq(setOf(s8), setOf(c8)) && !eq(setOf(v8), setOf(c8))
+  const vToS = eq(applyTriality(v8), s8)
+  const trialityOrder3 = vToS && !eq(v8, s8) && !eq(s8, c8) && !eq(v8, c8)
 
   // (2) HONEST: 8s and 8c are the two CHIRALITIES (opposite minus-parity), i.e. left and right Weyl of ONE
   // generation, not two generations. 8v is the vector (gauge). So the triple is vector + 2 chiralities.

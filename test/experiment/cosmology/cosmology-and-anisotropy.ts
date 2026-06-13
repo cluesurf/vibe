@@ -8,7 +8,7 @@
 //     At physical energy E this is delta = c (E/E_cutoff)^2, we compute it at GeV / TeV / GZK and compare to
 //     Lorentz-violation bounds. Run: npx tsx code/experiment/cosmology-and-anisotropy.ts
 
-import { bfsShells } from '@/code/measure/shells'
+import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -19,9 +19,7 @@ function expansionLaw(): { ratio: number; H: number } {
   let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
   const { shellCounts: shell } = bfsShells({ neighbors: nb, root: center })
   // the radial shell sizes = spatial volume per cosmic-time step. The growth ratio R (constant = exponential)
-  const mid = shell.slice(2, Math.min(7, shell.length))
-  const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
-  const ratio = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
+  const ratio = Math.round(branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100) / 100
   const H = Math.round((Math.log(ratio) / 3) * 1000) / 1000 // a ~ R^(t/3), H = ln R / 3
   return { ratio, H }
 }

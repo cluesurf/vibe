@@ -9,7 +9,9 @@ import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 import {
   SparseMatrix,
   Triplet,
+  LinearOperator,
   sparseFromTriplets,
+  sparseMatVec,
   operatorFromSparse,
 } from '@/code/algebra/linear/sparse'
 import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
@@ -193,4 +195,30 @@ export function diracSpectrum(input: {
   const matrix = kahlerDirac({ complex: input.complex })
   const operator = operatorFromSparse(matrix)
   return lowestEigenvalues({ operator, count: input.count })
+}
+
+// The smallest |eigenvalues| of the Kahler-Dirac operator D, plus a count of those
+// below `threshold` (the harmonic zero modes). D is indefinite, so zero modes sit in
+// the MIDDLE of its spectrum. We find them as the smallest eigenvalues of the positive
+// operator D^2 and return their square roots. The zero-mode count is a topological
+// invariant equal to the Betti sum of the complex.
+export function kahlerDiracZeroModes(input: {
+  complex: CellComplex
+  count: number
+  threshold: number
+  steps?: number
+}): { smallestMagnitudes: number[]; zeroModes: number } {
+  const dirac = kahlerDirac({ complex: input.complex })
+  const dSquared: LinearOperator = {
+    size: dirac.rows,
+    apply: ({ x }) => sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
+  }
+  const squared = lowestEigenvalues({
+    operator: dSquared,
+    count: input.count,
+    ...(input.steps === undefined ? {} : { steps: input.steps }),
+  })
+  const smallestMagnitudes = Array.from(squared, (v) => Math.sqrt(Math.max(0, v)))
+  const zeroModes = smallestMagnitudes.filter((x) => x < input.threshold).length
+  return { smallestMagnitudes, zeroModes }
 }

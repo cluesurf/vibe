@@ -30,6 +30,47 @@ export function getBit(m: BitMatrix, input: { row: number; col: number }): boole
   return ((m.words[i] ?? 0) & (1 << (input.col & 31))) !== 0
 }
 
+export function clearBit(m: BitMatrix, input: { row: number; col: number }): void {
+  const i = input.row * m.stride + (input.col >>> 5)
+  m.words[i] = (m.words[i] ?? 0) & ~(1 << (input.col & 31))
+}
+
+// Whether two bit matrices agree over the first n rows (n * stride words). The strides must match.
+export function bitMatricesEqual(a: BitMatrix, b: BitMatrix, n: number): boolean {
+  for (let i = 0; i < n * a.stride; i++) if ((a.words[i] ?? 0) !== (b.words[i] ?? 0)) return false
+  return true
+}
+
+// The transitive closure of an asserted relation (upper-triangular, i < j) by Warshall with
+// word-parallel OR. Returns a new bit matrix where row a has every b reachable from a. The input is
+// treated as the directly-asserted relations.
+export function bitMatrixTransitiveClosure(asserted: BitMatrix, n: number): BitMatrix {
+  const f = makeBitMatrix({ rows: n, cols: n })
+  for (let i = 0; i < n * f.stride; i++) f.words[i] = asserted.words[i] ?? 0
+  for (let k = 0; k < n; k++) {
+    for (let i = 0; i < n; i++) {
+      if (getBit(f, { row: i, col: k })) {
+        const ib = i * f.stride
+        const kb = k * f.stride
+        for (let w = 0; w < f.stride; w++) f.words[ib + w] = (f.words[ib + w] ?? 0) | (f.words[kb + w] ?? 0)
+      }
+    }
+  }
+  return f
+}
+
+// The height (longest chain length in elements) of a DAG stored as a closure bit matrix with a
+// topological labelling (a precedes b implies a < b).
+export function bitMatrixHeight(f: BitMatrix, n: number): number {
+  const h = new Int32Array(n).fill(1)
+  let best = 1
+  for (let j = 0; j < n; j++) {
+    for (let i = 0; i < j; i++) if (getBit(f, { row: i, col: j })) h[j] = Math.max(h[j] ?? 1, (h[i] ?? 1) + 1)
+    best = Math.max(best, h[j] ?? 1)
+  }
+  return best
+}
+
 function popcount32(x: number): number {
   let v = x - ((x >>> 1) & 0x55555555)
   v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)

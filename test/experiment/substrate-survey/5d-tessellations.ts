@@ -5,7 +5,8 @@
 // scale and measure the scoreboard. Run: npx tsx code/experiment/5d-tessellations.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { toCsr } from '@/code/tool/graph'
+import { bfsShells } from '@/code/measure/shells'
+import { betheCorrelatorExponent, spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -25,20 +26,15 @@ const SURVEY_SCALE = 1500
 function measure(sym: number[], scale: number = SCALE): { cells: number; degree: number; specDim: number; growth: number; betheAlpha: number } {
   const g = buildCellGraph({ symbol: sym as never, maxCells: scale })
   const N = g.cellCount, nb = g.neighbors
-  const { offsets: off, adj } = toCsr(nb)
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; if (d > best) { best = d; center = i } }
+  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = nb[i]!.length; if (d > best) { best = d; center = i } }
   const degree = best
-  // bulk spectral dimension (lazy-walk return)
-  let p = new Float64Array(N); p[center] = 1; let np = new Float64Array(N); const ret: number[] = []
-  for (let t = 0; t < 9; t++) { ret.push(p[center]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = off[i + 1]! - off[i]!; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh } const tmp = p; p = np; np = tmp }
-  const specDim = Math.round((-2 * (Math.log(ret[4]!) - Math.log(ret[2]!))) / (Math.log(4) - Math.log(2)) * 100) / 100
+  // bulk spectral dimension (lazy-walk return), the central difference at t = 3 is the endpoint slope t = 2..4
+  const specDim = Math.round(spectralDimension({ neighbors: nb, start: center, t1: 2, t2: 4 }) * 100) / 100
   // cosmology growth ratio
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } if (nf.length) shell.push(nf.length); fr = nf }
+  const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
   const mid = shell.slice(1, Math.min(4, shell.length))
   const growth = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / Math.max(1, mid.length - 1)) * 100) / 100
-  const b = degree - 1, mu = (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b)
-  const betheAlpha = Math.round((2 * Math.log(1 / mu)) / Math.log(b) * 100) / 100
+  const betheAlpha = betheCorrelatorExponent(degree)
   return { cells: N, degree, specDim, growth, betheAlpha }
 }
 

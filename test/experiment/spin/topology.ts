@@ -10,9 +10,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { triangulatedSurface } from '@/code/substrate/triangulated-surface'
-import { cellComplexOf, kahlerDirac } from '@/code/operator/dirac'
-import { sparseMatVec, LinearOperator } from '@/code/algebra/linear/sparse'
-import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
+import { cellComplexOf, kahlerDiracZeroModes } from '@/code/operator/dirac'
 
 function zeroModeCount(input: {
   width: number
@@ -22,23 +20,18 @@ function zeroModeCount(input: {
 }): { zeroModes: number; smallest: number[]; cells: string } {
   const surface = triangulatedSurface(input)
   const complex = cellComplexOf({ substrate: surface, maxGrade: 2 })
-  const dirac = kahlerDirac({ complex })
-  const dSquared: LinearOperator = {
-    size: dirac.rows,
-    apply: ({ x }) => sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
-  }
   // The zero eigenvalue is degenerate (multiplicity = Betti sum), so the Krylov
   // dimension must be well above that multiplicity to resolve every copy.
-  const squared = lowestEigenvalues({
-    operator: dSquared,
+  const totalCells = complex.cellCount.reduce((s, n) => s + n, 0)
+  const result = kahlerDiracZeroModes({
+    complex,
     count: 12,
-    steps: Math.min(dirac.rows, 220),
+    threshold: 5e-4,
+    steps: Math.min(totalCells, 220),
   })
-  const magnitudes = Array.from(squared, (v) => Math.sqrt(Math.max(0, v)))
-  const zeroModes = magnitudes.filter((x) => x < 5e-4).length
   return {
-    zeroModes,
-    smallest: magnitudes.slice(0, 6).map((x) => Math.round(x * 1000) / 1000),
+    zeroModes: result.zeroModes,
+    smallest: result.smallestMagnitudes.slice(0, 6).map((x) => Math.round(x * 1000) / 1000),
     cells: complex.cellCount.join(','),
   }
 }

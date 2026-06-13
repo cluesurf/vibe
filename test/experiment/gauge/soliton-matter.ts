@@ -3,12 +3,11 @@
 // rest mass scales with its topological charge (additive matter). Measured on the 2D direction field.
 // Run: npx tsx code/experiment/p209-soliton-matter.ts
 
+import { directionFieldDerrickEnergy2d } from '@/code/measure/skyrme-energy'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
-const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-const cross = (a: V, b: V): V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 const norm = (v: V): V => { const m = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / m, v[1] / m, v[2] / m] }
 const N = 80
 const blank = (): V[][] => Array.from({ length: N }, () => Array.from({ length: N }, () => [0, 0, 1] as V))
@@ -21,21 +20,7 @@ function addSky(f: V[][], cx: number, cy: number, R: number, ch: number): void {
     if (1 - f[x]![y]![2] < 1 - nv[2]) f[x]![y] = nv
   }
 }
-const triA = (a: V, b: V, c: V): number => 2 * Math.atan2(dot(a, cross(b, c)), 1 + dot(a, b) + dot(b, c) + dot(c, a))
-function energy(f: V[][], kappa: number): number {
-  let ex = 0, sk = 0
-  for (let x = 0; x < N - 1; x++) for (let y = 0; y < N - 1; y++) {
-    const n = f[x]![y]!, nx = f[x + 1]![y]!, ny = f[x]![y + 1]!
-    ex += (1 - dot(n, nx)) + (1 - dot(n, ny))
-    const q = triA(n, nx, ny); sk += q * q
-  }
-  return ex + kappa * sk
-}
-function charge(f: V[][]): number {
-  let q = 0
-  for (let x = 0; x < N - 1; x++) for (let y = 0; y < N - 1; y++) { const a = f[x]![y]!, b = f[x + 1]![y]!, c = f[x + 1]![y + 1]!, d = f[x]![y + 1]!; q += triA(a, b, c) + triA(a, c, d) }
-  return Math.round(q / (4 * Math.PI))
-}
+const energy = (f: V[][], kappa: number): number => directionFieldDerrickEnergy2d(f, kappa)
 
 export function solitonMatter(): { binding: [number, number][]; bound: boolean; massRatio: number } {
   const kappa = 2, R = 7, c = N / 2

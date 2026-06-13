@@ -7,15 +7,15 @@
 // NON-ABELIAN (order matters, two paths differ). Run: npx tsx code/experiment/p234-nonabelian-gauge.ts
 
 import { makeRng } from '@/code/tool/rng'
+import {
+  Matrix3 as M3,
+  multiply3 as mul,
+  transpose3 as T,
+  trace3 as tr,
+  rotationMatrix3 as rot,
+} from '@/code/algebra/group/rotation-matrix'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-type M3 = number[][]
-const I3: M3 = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-function mul(A: M3, B: M3): M3 { const C: M3 = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { let s = 0; for (let k = 0; k < 3; k++) s += A[i]![k]! * B[k]![j]!; C[i]![j] = s } return C }
-const T = (A: M3): M3 => [[A[0]![0]!, A[1]![0]!, A[2]![0]!], [A[0]![1]!, A[1]![1]!, A[2]![1]!], [A[0]![2]!, A[1]![2]!, A[2]![2]!]]
-const tr = (A: M3): number => A[0]![0]! + A[1]![1]! + A[2]![2]!
-function rot(axis: number[], ang: number): M3 { const n = Math.hypot(...axis), k = axis.map((x) => x / n); const c = Math.cos(ang), s = Math.sin(ang); const K: M3 = [[0, -k[2]!, k[1]!], [k[2]!, 0, -k[0]!], [-k[1]!, k[0]!, 0]]; const o: M3 = k.map((a) => k.map((b) => a * b)); return [0, 1, 2].map((i) => [0, 1, 2].map((j) => c * (i === j ? 1 : 0) + s * K[i]![j]! + (1 - c) * o[i]![j]!)) }
 
 export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolean; nonAbelian: boolean } {
   const rng = makeRng({ seed: 5 })

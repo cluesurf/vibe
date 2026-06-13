@@ -5,6 +5,10 @@
 // point), unification IS the statement that sin^2(theta_W) = 3/8 holds at the GUT scale. We run 1-loop for the
 // Standard Model and for the MSSM. Run: npx tsx code/experiment/rg-unification.ts
 
+import {
+  oneLoopInverseCoupling,
+  couplingMeetingTime,
+} from '@/code/dynamics/renormalization-group'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -19,21 +23,19 @@ const a3inv0 = asInv // SU(3)
 const bSM = [41 / 10, -19 / 6, -7]
 const bMSSM = [33 / 5, 1, -3]
 
-function runAndCheck(b: number[], label: string): { logMu12: number; a3gap: number } {
-  const inv = (i0: number, bi: number, t: number): number => i0 - (bi / (2 * Math.PI)) * t
-  // find t where alpha_1^-1 = alpha_2^-1 (the 1-2 meeting), solve linear in t
-  // a1inv0 - b1/2pi t = a2inv0 - b2/2pi t  ->  t = (a1inv0 - a2inv0) / ((b1 - b2)/2pi)
-  const t12 = (a1inv0 - a2inv0) / ((b[0]! - b[1]!) / (2 * Math.PI))
-  const a12 = inv(a1inv0, b[0]!, t12) // common value of alpha_1^-1 = alpha_2^-1 there
-  const a3 = inv(a3inv0, b[2]!, t12)
+function runAndCheck(b: number[]): { logMu12: number; a3gap: number } {
+  // find t where alpha_1^-1 = alpha_2^-1 (the 1-2 meeting)
+  const t12 = couplingMeetingTime({ inverseAtZeroFirst: a1inv0, inverseAtZeroSecond: a2inv0, betaFirst: b[0]!, betaSecond: b[1]! })
+  const a12 = oneLoopInverseCoupling({ inverseAtZero: a1inv0, beta: b[0]!, t: t12 }) // common value of alpha_1^-1 = alpha_2^-1 there
+  const a3 = oneLoopInverseCoupling({ inverseAtZero: a3inv0, beta: b[2]!, t: t12 })
   const gap = Math.round((a3 - a12) * 100) / 100 // mismatch, 0 = perfect three-way unification
   const logMu12 = Math.round((Math.log10(MZ) + t12 / Math.log(10)) * 10) / 10 // log10(mu) in GeV
   return { logMu12, a3gap: gap }
 }
 
 export function rgUnification(): { smGap: number; mssmGap: number } {
-  const sm = runAndCheck(bSM, 'Standard Model (1-loop)')
-  const mssm = runAndCheck(bMSSM, 'MSSM / low-energy SUSY (1-loop)')
+  const sm = runAndCheck(bSM)
+  const mssm = runAndCheck(bMSSM)
   return { smGap: sm.a3gap, mssmGap: mssm.a3gap }
 }
 

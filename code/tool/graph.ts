@@ -56,6 +56,21 @@ export function meanDegree(g: Graph): number {
   return total / Math.max(1, g.size)
 }
 
+// Index of the most-connected node (highest degree), the deterministic centre the substrate
+// experiments root their balls, walks, and spectral probes at. Ties resolve to the lowest index.
+export function mostConnectedNode(neighbors: ReadonlyArray<ArrayLike<number>>): number {
+  let node = 0
+  let best = -1
+  for (let i = 0; i < neighbors.length; i++) {
+    const d = neighbors[i]!.length
+    if (d > best) {
+      best = d
+      node = i
+    }
+  }
+  return node
+}
+
 // Compressed sparse row form of a neighbors list. The GPU uploads and many experiments built this inline,
 // offsets[i]..offsets[i+1] index into adj for node i's neighbors. Accepts a plain number[][] or the Graph's
 // Uint32Array rows.
@@ -172,6 +187,38 @@ export function csrDistances(input: {
   return dist
 }
 
+// A connected BFS ball: the first up-to-`limit` nodes reached from `source` in
+// breadth-first order, returned in that order. The contiguous blob the memory /
+// imprint experiments stamp onto the tone before testing retention.
+export function csrBallNodes(input: {
+  offsets: ArrayLike<number>
+  adj: ArrayLike<number>
+  size: number
+  source: number
+  limit: number
+}): number[] {
+  const { offsets, adj, size, source, limit } = input
+  const ball: number[] = []
+  const seen = new Uint8Array(size)
+  let frontier = [source]
+  seen[source] = 1
+  while (frontier.length > 0 && ball.length < limit) {
+    const next: number[] = []
+    for (const u of frontier) {
+      ball.push(u)
+      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
+        const w = adj[p]!
+        if (!seen[w] && ball.length + next.length < limit) {
+          seen[w] = 1
+          next.push(w)
+        }
+      }
+    }
+    frontier = next
+  }
+  return ball
+}
+
 // Like csrDistances (unbounded) but also returns the eccentric (farthest) node,
 // chosen as the first node reaching the maximum distance in BFS order.
 export function csrEccentricity(input: {
@@ -227,6 +274,64 @@ export function neighborDistances(input: {
 }
 
 // Undirected edge list (each edge once, a < b). Useful for curvature and gauge.
+// Undirected edges of an adjacency list as [v, w] tuples with v < w (each edge once).
+export function edgesOf(neighbors: ReadonlyArray<ArrayLike<number>>): Array<[number, number]> {
+  const edges: Array<[number, number]> = []
+  for (let v = 0; v < neighbors.length; v++) {
+    const row = neighbors[v]
+    if (!row) {
+      continue
+    }
+    for (let k = 0; k < row.length; k++) {
+      const w = row[k] ?? 0
+      if (w > v) {
+        edges.push([v, w])
+      }
+    }
+  }
+  return edges
+}
+
+// A greedy proper edge coloring of a CSR graph: each color class is a set of disjoint edges
+// (a matching), so updating all edges of one color in parallel touches every vertex at most
+// once. Returns the edge endpoint arrays eu, ev (one entry per undirected edge w > v) and
+// byColor, the edge indices grouped by color. Used to drive a reversible edge-local block
+// rule over a whole crystal one matching at a time (run the colors backward to invert).
+export function greedyEdgeColoring(input: {
+  offsets: ArrayLike<number>
+  adjacency: ArrayLike<number>
+  size: number
+}): { eu: Int32Array; ev: Int32Array; byColor: number[][] } {
+  const { offsets, adjacency, size } = input
+  const eu: number[] = []
+  const ev: number[] = []
+  const incident: number[][] = Array.from({ length: size }, () => [])
+  for (let v = 0; v < size; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
+    const w = adjacency[p]!
+    if (w > v) {
+      const e = eu.length
+      eu.push(v)
+      ev.push(w)
+      incident[v]!.push(e)
+      incident[w]!.push(e)
+    }
+  }
+  const color = new Int32Array(eu.length).fill(-1)
+  for (let e = 0; e < eu.length; e++) {
+    const used = new Set<number>()
+    for (const f of incident[eu[e]!]!) if (color[f]! >= 0) used.add(color[f]!)
+    for (const f of incident[ev[e]!]!) if (color[f]! >= 0) used.add(color[f]!)
+    let c = 0
+    while (used.has(c)) c++
+    color[e] = c
+  }
+  let colorCount = 0
+  for (let e = 0; e < eu.length; e++) colorCount = Math.max(colorCount, color[e]! + 1)
+  const byColor: number[][] = Array.from({ length: colorCount }, () => [])
+  for (let e = 0; e < eu.length; e++) byColor[color[e]!]!.push(e)
+  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev), byColor }
+}
+
 export function edgeList(g: Graph): Array<{ a: number; b: number }> {
   const out: Array<{ a: number; b: number }> = []
   for (let a = 0; a < g.size; a++) {

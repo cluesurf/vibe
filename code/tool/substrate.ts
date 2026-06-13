@@ -85,3 +85,15 @@ export function substrateMeanDegree(input: { substrate: Substrate }): number {
   }
   return total / Math.max(1, view.size)
 }
+
+// Mean UNDIRECTED degree over a substrate: builds the symmetrized neighbour list
+// (so a -> b also counts at b) and averages its length. The right notion when the
+// substrate's edges are physically undirected (the spatial-substrate comparisons).
+export function substrateUndirectedMeanDegree(input: { substrate: Substrate }): number {
+  const adjacency = undirectedAdjacency({ substrate: input.substrate })
+  let total = 0
+  for (let node = 0; node < input.substrate.size; node++) {
+    total += (adjacency[node] ?? new Uint32Array(0)).length
+  }
+  return total / Math.max(1, input.substrate.size)
+}

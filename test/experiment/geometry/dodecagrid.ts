@@ -10,44 +10,16 @@
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { lattice } from '@/code/substrate/lattice'
-import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
+import { Substrate, substrateUndirectedMeanDegree } from '@/code/tool/substrate'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { ballGrowth } from '@/code/measure/dimension'
+import { reachIsExponential } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function meanDegree(s: Substrate): number {
-  const adj = undirectedAdjacency({ substrate: s })
-  let total = 0
-  for (let i = 0; i < s.size; i++) {
-    total += (adj[i] ?? new Uint32Array(0)).length
-  }
-  return total / Math.max(1, s.size)
-}
+const meanDegree = (s: Substrate): number => substrateUndirectedMeanDegree({ substrate: s })
 
-function reachExponential(s: Substrate): boolean {
-  const adj = undirectedAdjacency({ substrate: s })
-  let center = 0
-  let best = -1
-  for (let i = 0; i < s.size; i++) {
-    const d = (adj[i] ?? new Uint32Array(0)).length
-    if (d > best) {
-      best = d
-      center = i
-    }
-  }
-  const growth = ballGrowth({ substrate: s, center, maxRadius: 18 })
-  const final = growth[growth.length - 1] ?? 1
-  const ratios: number[] = []
-  for (let r = 1; r < growth.length; r++) {
-    const prev = growth[r - 1] ?? 0
-    const cur = growth[r] ?? 0
-    if (prev >= 2 && prev < 0.5 * final && cur > prev) {
-      ratios.push(cur / prev)
-    }
-  }
-  return ratios.length > 0 && ratios.reduce((a, b) => a + b, 0) / ratios.length > 1.8
-}
+// The exponential-reach classifier lives in code/measure/dimension.
+const reachExponential = (s: Substrate): boolean => reachIsExponential({ substrate: s, maxRadius: 18 })
 
 export function dodecagrid(input: { seed: number }): {
   honeycomb: { size: number; degree: number; anisotropy: number; reach: boolean; lorentzSafe: boolean }

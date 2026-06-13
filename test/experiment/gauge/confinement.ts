@@ -15,6 +15,7 @@ import {
   averagePlaquette,
   wilsonLoop,
 } from '@/code/dynamics/su2-lattice'
+import { creutzRatioFromLoops } from '@/code/measure/wilson-loop'
 
 function study(input: { beta: number; seed: number }): {
   beta: number
@@ -54,10 +55,7 @@ function study(input: { beta: number; seed: number }): {
   w12 /= measurements
   w22 /= measurements
 
-  const numerator = w22 * w11
-  const denominator = w21 * w12
-  const stringTension =
-    numerator > 0 && denominator > 0 ? -Math.log(numerator / denominator) : 0
+  const stringTension = creutzRatioFromLoops({ loop11: w11, loop21: w21, loop12: w12, loop22: w22 })
 
   return {
     beta: input.beta,

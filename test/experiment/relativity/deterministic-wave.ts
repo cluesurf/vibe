@@ -17,26 +17,9 @@ import { makeRng } from '@/code/tool/rng'
 import { powerLawExponent } from '@/code/measure/regression'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { ringEdges, ringNeighbors } from '@/code/substrate/ring'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// 1D-ring neighbours (x-1, x+1) for the second-order reversible wave on a line
-function ringNeighbors(L: number): number[][] {
-  const neighbors: number[][] = []
-  for (let x = 0; x < L; x++) neighbors.push([(x - 1 + L) % L, (x + 1) % L])
-  return neighbors
-}
-
-// 1D-ring edges (i, i+1) for the conserving perception sweep on a line
-function ringEdges(L: number): { eu: Int32Array; ev: Int32Array } {
-  const eu = new Int32Array(L)
-  const ev = new Int32Array(L)
-  for (let i = 0; i < L; i++) {
-    eu[i] = i
-    ev[i] = (i + 1) % L
-  }
-  return { eu, ev }
-}
 
 export function deterministicWave(input?: { L?: number; beats?: number }): {
   L: number

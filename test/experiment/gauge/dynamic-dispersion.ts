@@ -10,6 +10,7 @@
 // want). This decides whether the gapless mode is relativistic. Run: npx tsx code/experiment/p137-dynamic-dispersion.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { logLogSlope } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -138,22 +139,11 @@ export function dynamicDispersion(input?: { L?: number; arrow?: number }): {
 
   // dynamic exponent z from Gamma(k) ~ k^z (log-log fit), only over modes that actually RELAXED within
   // the window (relax time well below the ceiling), capped modes would bias the slope
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let mm = 0
-  for (const md of modes) {
-    if (md.relaxRate <= 0 || !isFinite(md.relaxRate) || md.relaxTime > maxTau * 0.8) continue
-    const x = Math.log(md.k)
-    const y = Math.log(md.relaxRate)
-    sx += x
-    sy += y
-    sxx += x * x
-    sxy += x * y
-    mm++
-  }
-  const dynamicExponent = mm > 1 ? (mm * sxy - sx * sy) / (mm * sxx - sx * sx) : 0
+  const relaxed = modes.filter(
+    (md) => md.relaxRate > 0 && isFinite(md.relaxRate) && md.relaxTime <= maxTau * 0.8,
+  )
+  const dynamicExponent =
+    relaxed.length > 1 ? logLogSlope(relaxed.map((md) => md.k), relaxed.map((md) => md.relaxRate)) : 0
 
   // the k=0 mode is exactly conserved, so the mode is gapless by construction. Check Gamma falls toward 0
   const gapless = modes[0]!.relaxRate < modes[modes.length - 1]!.relaxRate // smallest k relaxes slowest

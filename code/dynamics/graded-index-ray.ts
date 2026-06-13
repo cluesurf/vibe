@@ -52,3 +52,24 @@ export function rayDeflection(input: {
 }): number {
   return -traceGradedIndexRay(input).tangentY
 }
+
+// The softened 1/r refractive-index field of a point mass at the origin and its analytic gradient:
+//   n(x, y) = 1 + mass / (r + soft),   r = hypot(x, y),
+// the standard effective-metric / weak-lensing index built from a softened Newtonian potential. The
+// softening keeps the well finite at the centre. Higher near the mass, so rays bend toward it.
+export function softenedMassIndexField(input: { mass: number; soft?: number }): {
+  index: (x: number, y: number) => number
+  indexGradient: (x: number, y: number) => Vector2
+} {
+  const { mass } = input
+  const soft = input.soft ?? 1
+  return {
+    index: (x, y) => 1 + mass / (Math.hypot(x, y) + soft),
+    indexGradient: (x, y) => {
+      const r = Math.hypot(x, y)
+      if (r < 1e-9) return [0, 0]
+      const g = -mass / ((r + soft) * (r + soft))
+      return [g * (x / r), g * (y / r)]
+    },
+  }
+}

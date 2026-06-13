@@ -12,6 +12,7 @@ import { growCsg } from '@/code/substrate/grow-csg'
 import { getBit } from '@/code/tool/bitset'
 import { Poset } from '@/code/tool/poset'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
+import { causalSliceWidths } from '@/code/measure/order-stats'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -27,34 +28,6 @@ function prefixRelations(poset: Poset, k: number): number {
     }
   }
   return count
-}
-
-// Causal depth of each element: the length of the longest chain ending at it. CSG
-// labels are topological (a precedes b implies a < b), so a single forward pass
-// works. Depth is the discrete proper time from the beginning.
-function depths(poset: Poset): Int32Array {
-  const n = poset.size
-  const d = new Int32Array(n).fill(1)
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < i; j++) {
-      if (getBit(poset.future, { row: j, col: i }) && (d[j] ?? 0) + 1 > (d[i] ?? 0)) {
-        d[i] = (d[j] ?? 0) + 1
-      }
-    }
-  }
-  return d
-}
-
-// Spatial slice widths: how many elements sit at each causal depth. A slice is a
-// time-slice of the universe, its width the spatial size at that moment.
-function sliceWidths(poset: Poset): number[] {
-  const d = depths(poset)
-  const maxDepth = d.reduce((a, b) => Math.max(a, b), 0)
-  const widths = new Array(maxDepth + 1).fill(0)
-  for (let i = 0; i < poset.size; i++) {
-    widths[d[i] ?? 0] += 1
-  }
-  return widths.slice(1) // depth 0 is unused
 }
 
 export function csgCosmology(input: { size: number; p: number; seed: number }): {
@@ -85,7 +58,7 @@ export function csgCosmology(input: { size: number; p: number; seed: number }): 
 
   // Spatial slice widths versus proper-time depth, and the height (total proper
   // time, the age of the universe).
-  const widths = sliceWidths(poset)
+  const widths = causalSliceWidths({ poset })
   const half = Math.floor(widths.length / 2)
   const mean = (arr: number[]): number => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0)
   const earlyWidth = mean(widths.slice(0, half))

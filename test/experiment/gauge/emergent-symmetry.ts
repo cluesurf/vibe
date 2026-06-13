@@ -6,6 +6,7 @@
 // coin's continuous symmetry is emergent up to order 6, MORE robust than spacetime Lorentz. So the symmetric
 // collision is effectively forced in the IR, by triality. Run: npx tsx code/experiment/p226-emergent-symmetry.ts
 
+import { invariantPolynomialDimension } from '@/code/algebra/group/invariant-theory'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,17 +21,8 @@ function closure(gens: M[]): M[] {
   return [...seen.values()]
 }
 // dim of degree-d invariant polynomials = (1/|G|) sum_g h_d(eigenvalues of g), h from power sums via Newton
-function invDim(G: M[], d: number): number {
-  let total = 0
-  for (const g of G) {
-    let gp = I4; const p: number[] = [0, 0, 0, 0, 0]
-    for (let k = 1; k <= 4; k++) { gp = mul(gp, g); p[k] = trace(gp) }
-    const e1 = p[1]!, e2 = (e1 * p[1]! - p[2]!) / 2, e3 = (e2 * p[1]! - e1 * p[2]! + p[3]!) / 3, e4 = (e3 * p[1]! - e2 * p[2]! + e1 * p[3]! - p[4]!) / 4
-    const h1 = e1, h2 = e1 * h1 - e2, h3 = e1 * h2 - e2 * h1 + e3, h4 = e1 * h3 - e2 * h2 + e3 * h1 - e4
-    total += d === 2 ? h2 : h4
-  }
-  return Math.round(total / G.length)
-}
+const invDim = (G: M[], d: 2 | 4): number =>
+  invariantPolynomialDimension({ group: G, degree: d, identity: I4, multiply: mul, trace })
 
 export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
   // B4 (hyperoctahedral, signed permutations) generators

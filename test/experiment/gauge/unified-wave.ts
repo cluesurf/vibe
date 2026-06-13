@@ -12,44 +12,16 @@
 
 import { buildDodecagrid, buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
+import { greedyEdgeColoring } from '@/code/tool/graph'
+import { PERCEPTION_FORWARD as FWD, PERCEPTION_INVERSE as INV } from '@/code/rule/perception-permutation'
+import { linearFit } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// reversible, charge-conserving pair permutation, index = 3*(a+1)+(b+1) in 0..8:
+// reversible, charge-conserving pair permutation (PERCEPTION_FORWARD / PERCEPTION_INVERSE),
+// index = 3*(a+1)+(b+1) in 0..8:
 //   hop:   (+1,0)<->(0,+1) is 7<->5,   (-1,0)<->(0,-1) is 1<->3
 //   cycle: (0,0)->(+1,-1)->(-1,+1)->(0,0) is 4->6->2->4 ;  fixed: (-1,-1)=0, (+1,+1)=8
-const FWD = [0, 3, 4, 1, 6, 7, 2, 5, 8]
-const INV = [0, 3, 6, 1, 2, 7, 4, 5, 8]
-
-function edgeColoring(offsets: Int32Array, adj: Int32Array, n: number): { eu: Int32Array; ev: Int32Array; byColor: number[][] } {
-  const eu: number[] = []
-  const ev: number[] = []
-  const incident: number[][] = Array.from({ length: n }, () => [])
-  for (let v = 0; v < n; v++) for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    const w = adj[p]!
-    if (w > v) {
-      const e = eu.length
-      eu.push(v)
-      ev.push(w)
-      incident[v]!.push(e)
-      incident[w]!.push(e)
-    }
-  }
-  const color = new Int32Array(eu.length).fill(-1)
-  for (let e = 0; e < eu.length; e++) {
-    const used = new Set<number>()
-    for (const f of incident[eu[e]!]!) if (color[f]! >= 0) used.add(color[f]!)
-    for (const f of incident[ev[e]!]!) if (color[f]! >= 0) used.add(color[f]!)
-    let c = 0
-    while (used.has(c)) c++
-    color[e] = c
-  }
-  let nc = 0
-  for (let e = 0; e < eu.length; e++) nc = Math.max(nc, color[e]! + 1)
-  const byColor: number[][] = Array.from({ length: nc }, () => [])
-  for (let e = 0; e < eu.length; e++) byColor[color[e]!]!.push(e)
-  return { eu: Int32Array.from(eu), ev: Int32Array.from(ev), byColor }
-}
 
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, byColor: number[][], table: number[], reverse: boolean): void {
   const order = reverse ? [...byColor.keys()].reverse() : [...byColor.keys()]
@@ -77,7 +49,7 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   const n = input?.n ?? 30000
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
-  const ec = edgeColoring(g.offsets, g.adj, N)
+  const ec = greedyEdgeColoring({ offsets: g.offsets, adjacency: g.adj, size: N })
 
   // (1) charge conservation + (2) reversibility on a random crystal state
   const rng = makeRng({ seed: 12345 })
@@ -99,7 +71,7 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   // causal (difference) front along the spine should grow at a CONSTANT speed (linear in beats = z=1).
   const s = buildSliver({ length: input?.sliverLength ?? 60, width: 1 })
   const sN = s.cellCount
-  const sec = edgeColoring(s.offsets, s.adj, sN)
+  const sec = greedyEdgeColoring({ offsets: s.offsets, adjacency: s.adj, size: sN })
   const maxPos = s.spineLength - 1
   let center = 0
   for (let i = 0; i < sN; i++) if (Math.abs(s.position[i]! - maxPos / 2) < Math.abs(s.position[center]! - maxPos / 2)) center = i
@@ -121,32 +93,16 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   // LINEAR fit front = v*t + b over the growth phase (skip noisy start, stop before saturation)
   const tlo = 6
   const cap = maxPos / 2 - 3
-  let sx = 0
-  let sy = 0
-  let sxx = 0
-  let sxy = 0
-  let syy = 0
-  let m = 0
+  const fitT: number[] = []
+  const fitFront: number[] = []
   for (let t = tlo; t < beatsB; t++) {
     if (fronts[t]! >= cap) break
-    sx += t
-    sy += fronts[t]!
-    sxx += t * t
-    sxy += t * fronts[t]!
-    syy += fronts[t]! * fronts[t]!
-    m++
+    fitT.push(t)
+    fitFront.push(fronts[t]!)
   }
-  const frontSpeed = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
-  const meanY = m > 0 ? sy / m : 0
-  const ssTot = syy - m * meanY * meanY
-  const bIntercept = m > 0 ? (sy - frontSpeed * sx) / m : 0
-  let ssRes = 0
-  for (let t = tlo; t < beatsB; t++) {
-    if (fronts[t]! >= cap) break
-    const pred = frontSpeed * t + bIntercept
-    ssRes += (fronts[t]! - pred) ** 2
-  }
-  const frontLinearR2 = ssTot > 0 ? 1 - ssRes / ssTot : 0
+  const fit = fitT.length > 1 ? linearFit({ xs: fitT, ys: fitFront }) : { slope: 0, r2: 0 }
+  const frontSpeed = fit.slope
+  const frontLinearR2 = fit.r2
   const ballistic = frontSpeed > 0.1 && frontLinearR2 > 0.9 // constant speed = ballistic = z=1
 
   // (4) isotropy is INHERITED, the rule uses all 12 faces symmetrically (no face is privileged in the

@@ -12,29 +12,9 @@
 // group and the representation content rather than deriving them.
 // Run: npx tsx code/experiment/p79-anomaly-charge-quantization.ts
 
+import { solveLinearSystem } from '@/code/algebra/linear/dense'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// Solve a small linear system A x = b by Gaussian elimination with partial pivoting.
-function solveLinear(A: number[][], b: number[]): number[] {
-  const n = b.length
-  const m = A.map((row, i) => [...row, b[i] ?? 0])
-  for (let col = 0; col < n; col++) {
-    let piv = col
-    for (let r = col + 1; r < n; r++) if (Math.abs(m[r]![col]!) > Math.abs(m[piv]![col]!)) piv = r
-    const tmp = m[col]!
-    m[col] = m[piv]!
-    m[piv] = tmp
-    const d = m[col]![col]!
-    for (let c = col; c <= n; c++) m[col]![c]! /= d
-    for (let r = 0; r < n; r++) {
-      if (r === col) continue
-      const factor = m[r]![col]!
-      for (let c = col; c <= n; c++) m[r]![c]! -= factor * m[col]![c]!
-    }
-  }
-  return m.map((row) => row[n]!)
-}
 
 // One generation of left-handed Weyl fermions, with their multiplicities (color x weak) and the
 // SU(3) and SU(2) embedding used by the anomaly coefficients.
@@ -78,7 +58,7 @@ export function anomalyChargeQuantization(input: Record<string, never> = {}): {
     [6, 3, 3, 2, 1],
   ]
   const b = [-YH, YH, YH, 0, 0]
-  const [YQ, Yu, Yd, YL, Ye] = solveLinear(A, b)
+  const [YQ, Yu, Yd, YL, Ye] = solveLinearSystem({ matrix: A, rightHandSide: b })
   const Y: Record<string, number> = { Q: YQ ?? 0, uc: Yu ?? 0, dc: Yd ?? 0, L: YL ?? 0, ec: Ye ?? 0 }
 
   const sm = { Q: 1 / 6, uc: -2 / 3, dc: 1 / 3, L: -1 / 2, ec: 1 }

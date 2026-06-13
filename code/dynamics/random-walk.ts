@@ -103,3 +103,36 @@ export function randomWalkPath(input: {
   }
   return path
 }
+
+// Mean final displacement of a PERSISTENT (correlated) random walk in d dimensions.
+// Each step is taken along the current direction (one of `directions`); with
+// probability `mix` the direction is first scrambled to a fresh uniform choice (the
+// collision that acts as a Dirac mass). mix = 0 is a straight ballistic line
+// (displacement ~ steps), mix = 1 is a memoryless walk (displacement ~ sqrt(steps)).
+// Returns the mean Euclidean displacement over `runs` trials. The caller supplies
+// the Rng so the walk stays deterministic.
+export function persistentWalkMeanDisplacement(input: {
+  directions: number[][]
+  mix: number
+  steps: number
+  runs: number
+  rng: Rng
+}): number {
+  const { directions, mix, steps, runs, rng } = input
+  const dimension = directions[0]?.length ?? 0
+  const directionCount = directions.length
+  let total = 0
+  for (let run = 0; run < runs; run++) {
+    const position = new Array<number>(dimension).fill(0)
+    let d = Math.floor(rng.next() * directionCount)
+    for (let s = 0; s < steps; s++) {
+      if (rng.next() < mix) d = Math.floor(rng.next() * directionCount)
+      const step = directions[d]!
+      for (let a = 0; a < dimension; a++) position[a]! += step[a]!
+    }
+    let sumSquares = 0
+    for (let a = 0; a < dimension; a++) sumSquares += position[a]! * position[a]!
+    total += Math.sqrt(sumSquares)
+  }
+  return total / runs
+}

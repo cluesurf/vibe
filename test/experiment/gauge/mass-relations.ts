@@ -8,25 +8,14 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// one generation, (name, T_3, Q, hypercharge Y = Q - T_3, multiplicity)
-type F = { name: string; t3: number; q: number; mult: number }
-const generation: F[] = [
-  { name: 'u', t3: 0.5, q: 2 / 3, mult: 3 }, { name: 'd', t3: -0.5, q: -1 / 3, mult: 3 },
-  { name: 'nu', t3: 0.5, q: 0, mult: 1 }, { name: 'e', t3: -0.5, q: -1, mult: 1 },
-  { name: 'uc', t3: 0, q: -2 / 3, mult: 3 }, { name: 'dc', t3: 0, q: 1 / 3, mult: 3 },
-  { name: 'ec', t3: 0, q: 1, mult: 1 }, { name: 'nuc', t3: 0, q: 0, mult: 1 },
-]
+import { hyperchargeTrace } from '@/code/measure/standard-model-charges'
 
 export function massRelations(): { traceY: number; detRelationHolds: boolean; bTauGut: number } {
   // (2) Tr Y = 0 over the 16 (the discrete fact behind the determinant relation)
-  const traceY = generation.reduce((s, f) => s + f.mult * (f.q - f.t3), 0)
+  const traceY = hyperchargeTrace()
   const detRelationHolds = Math.abs(traceY) < 1e-9
-  // (1) b-tau unification
-  const bTauGut = 1 // m_b / m_tau at the GUT scale
-  // (3) Georgi-Jarlskog second-generation factor (from the 45-Higgs Clebsch)
-  // a low-energy sanity check of the GJ ratio m_mu/m_e vs 9 m_s/m_d (order-of-magnitude, masses in MeV/GeV)
-  const mmu = 105.7, me = 0.511, ms = 95, md = 4.7 // MeV-ish running values
+  // (1) b-tau unification, m_b / m_tau = 1 at the GUT scale (canonical GUT input)
+  const bTauGut = 1
   return { traceY, detRelationHolds, bTauGut }
 }
 

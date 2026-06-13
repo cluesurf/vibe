@@ -102,6 +102,39 @@ export class RegisterMachine {
   }
 }
 
+// Canonical Minsky programs over registers R0..R3. ADD leaves R0 = R0 + R1 (R1
+// drained). MUL leaves R2 = R0 * R1, using R3 as a scratch counter (R0 drained, R1
+// restored). The standard two-counter constructions used to demonstrate that the
+// charge machine is Turing-complete.
+export function minskyAddProgram(input?: { r0?: number; r1?: number }): Instr[] {
+  const r0 = input?.r0 ?? 0
+  const r1 = input?.r1 ?? 1
+  return [{ op: 'decjz', r: r1, addr: 3 }, { op: 'inc', r: r0 }, { op: 'jmp', addr: 0 }, { op: 'halt' }]
+}
+
+export function minskyMultiplyProgram(input?: {
+  r0?: number
+  r1?: number
+  r2?: number
+  r3?: number
+}): Instr[] {
+  const r0 = input?.r0 ?? 0
+  const r1 = input?.r1 ?? 1
+  const r2 = input?.r2 ?? 2
+  const r3 = input?.r3 ?? 3
+  return [
+    { op: 'decjz', r: r0, addr: 8 },
+    { op: 'decjz', r: r1, addr: 5 },
+    { op: 'inc', r: r2 },
+    { op: 'inc', r: r3 },
+    { op: 'jmp', addr: 1 },
+    { op: 'decjz', r: r3, addr: 0 },
+    { op: 'inc', r: r1 },
+    { op: 'jmp', addr: 5 },
+    { op: 'halt' },
+  ]
+}
+
 // Carve `numRegisters` register-regions of `perRegister` cells each from a sorted
 // list of usable cells, with the remainder as the ground region. The shared layout
 // the charge machine uses (the order of `cells` is the caller's choice, e.g. cell

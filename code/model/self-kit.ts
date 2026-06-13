@@ -221,6 +221,52 @@ export function largestPositiveCluster(tone: Int8Array, g: Graph): number[] {
   return best
 }
 
+// Every connected cluster of positive-tone cells (not just the largest), each as a list of cell ids.
+// Same single-sign flood as largestPositiveCluster, collecting all components.
+export function positiveClusters(tone: Int8Array, g: Graph): number[][] {
+  const { offsets, adj } = g
+  const N = tone.length
+  const seen = new Uint8Array(N)
+  const out: number[][] = []
+  for (let s = 0; s < N; s++) {
+    if (tone[s] !== 1 || seen[s]) continue
+    const cells: number[] = []
+    let fr = [s]
+    seen[s] = 1
+    while (fr.length) {
+      const nf: number[] = []
+      for (const u of fr) {
+        cells.push(u)
+        for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
+          const w = adj[p]!
+          if (tone[w] === 1 && !seen[w]) {
+            seen[w] = 1
+            nf.push(w)
+          }
+        }
+      }
+      fr = nf
+    }
+    out.push(cells)
+  }
+  return out
+}
+
+// The integration measure Phi of a cluster: the fraction of its cells' edges that stay inside the
+// cluster (internal connectivity). A lone speck has Phi 0, a dense blob approaches 1.
+export function clusterIntegration(cluster: number[], g: Graph): number {
+  const inCluster = new Set(cluster)
+  let internal = 0
+  let total = 0
+  for (const u of cluster) {
+    for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
+      total++
+      if (inCluster.has(g.adj[p]!)) internal++
+    }
+  }
+  return total > 0 ? internal / total : 0
+}
+
 export const countPlus = (tone: Int8Array, cells: number[]): number => {
   let c = 0
   for (const i of cells) if (tone[i] === 1) c++

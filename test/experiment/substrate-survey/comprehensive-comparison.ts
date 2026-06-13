@@ -6,6 +6,8 @@
 
 import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
+import { bfsShells } from '@/code/measure/shells'
+import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -45,12 +47,10 @@ function battery(s: Sub): Record<string, string> {
   for (let t = 0; t < 15; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let sm = 0; for (let q = off[i]!; q < off[i + 1]!; q++) sm += cur[adj[q]!]!; const v = ((((sm - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
   const churns = changes > N
   // holographic correlator (Bethe, universal), and physical-space gravity law by dimension
-  const b = degree - 1, mu = (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b)
-  const betheAlpha = Math.round((2 * Math.log(1 / mu)) / Math.log(b) * 100) / 100
+  const betheAlpha = betheCorrelatorExponent(degree)
   const gravity = s.space === 1 ? 'linear ~|x| (confining)' : s.space === 2 ? 'log r' : s.space === 3 ? '1/r' : `1/r^${s.space - 2}`
   // cosmology / hierarchy growth ratio
-  const dist = new Int32Array(N).fill(-1); dist[center] = 0; let fr = [center]; const shell: number[] = [1]
-  while (fr.length) { const nf: number[] = []; for (const u of fr) for (let q = off[u]!; q < off[u + 1]!; q++) { const w = adj[q]!; if (dist[w] === -1) { dist[w] = dist[u]! + 1; nf.push(w) } } if (nf.length) shell.push(nf.length); fr = nf }
+  const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
   const mid = shell.slice(2, Math.min(6, shell.length))
   const growth = mid.length > 1 ? Math.round((mid.slice(1).reduce((a, v, i) => a + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100 : 0
   return {

@@ -16,6 +16,7 @@
 
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { latticePoissonJacobi } from '@/code/operator/lattice-poisson-jacobi'
+import { weakFieldLightDeflection } from '@/code/measure/gravity-potential'
 import { fitForm } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -75,18 +76,10 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
 
 function lightBending(M: number, b: number): { grAngle: number; newtonAngle: number; ratio: number; ok: boolean } {
   // Weak-field metric ds^2 = -(1+2Phi)dt^2 + (1-2Phi)dx^2, Phi = -M/r. A photon curves under BOTH the
-  // time term and the space term, so its transverse deflection integrand is 2 * d_perp Phi (GR), versus
-  // 1 * d_perp Phi for a Newtonian particle at speed c. Integrate along the (nearly straight) path.
-  const dPerpPhi = (x: number): number => (M * b) / (x * x + b * b) ** 1.5 // = -d_y Phi at y=b, Phi=-M/r
-  let integral = 0
-  const L = 4000 * b
-  const dx = b / 200
-  for (let x = -L; x <= L; x += dx) integral += dPerpPhi(x) * dx
-  const newtonAngle = integral // 2M/b
-  const grAngle = 2 * integral // 4M/b (time + space)
-  const ratio = grAngle / newtonAngle
-  const ok = Math.abs(grAngle - 4 * M / b) / (4 * M / b) < 0.01 && Math.abs(ratio - 2) < 0.01
-  return { grAngle, newtonAngle, ratio, ok }
+  // time term and the space term, so the GR deflection is twice the Newtonian one (the factor-2 of GR).
+  const d = weakFieldLightDeflection({ mass: M, impact: b })
+  const ok = Math.abs(d.grAngle - 4 * M / b) / (4 * M / b) < 0.01 && Math.abs(d.ratio - 2) < 0.01
+  return { grAngle: d.grAngle, newtonAngle: d.newtonAngle, ratio: d.ratio, ok }
 }
 
 // ---------- the cosmological constant from the substrate ----------

@@ -6,30 +6,13 @@
 // Run: npx tsx code/experiment/p245-fd-foundational-3434.ts
 
 import { makeRng } from '@/code/tool/rng'
+import { buildD4Torus } from '@/code/substrate/d4-torus'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// ---- the 24 D4 roots = the 24 directions of {3,4,3,4} ----
-function d4Roots(): number[][] {
-  const r: number[][] = []
-  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) for (const si of [1, -1]) for (const sj of [1, -1]) {
-    const v = [0, 0, 0, 0]; v[i] = si; v[j] = sj; r.push(v)
-  }
-  return r // 6 pairs * 4 signs = 24
-}
-
-// ---- a finite D4 torus: even-sum integer points mod M (M even keeps even-sum well defined) ----
-function buildTorus(M: number): { cells: number[][]; index: Map<string, number>; roots: number[][]; neigh: number[][] } {
-  const roots = d4Roots()
-  const cells: number[][] = []
-  const index = new Map<string, number>()
-  for (let a = 0; a < M; a++) for (let b = 0; b < M; b++) for (let c = 0; c < M; c++) for (let d = 0; d < M; d++) {
-    if ((a + b + c + d) % 2 === 0) { index.set(`${a},${b},${c},${d}`, cells.length); cells.push([a, b, c, d]) }
-  }
-  const wrap = (x: number): number => ((x % M) + M) % M
-  const neigh: number[][] = cells.map((p) => roots.map((r) => index.get(`${wrap(p[0]! + r[0]!)},${wrap(p[1]! + r[1]!)},${wrap(p[2]! + r[2]!)},${wrap(p[3]! + r[3]!)}`)!))
-  return { cells, index, roots, neigh }
-}
+// The 24 D4 roots (= the 24 directions of {3,4,3,4}) and the finite even-sum D4 torus
+// live in code/algebra/group/root-system and code/substrate/d4-torus.
+const buildTorus = buildD4Torus
 
 export function fdFoundational(): { neighborsOk: boolean; closes: boolean; countConserved: boolean; momentumConserved: boolean; reversible: boolean } {
   const M = 4

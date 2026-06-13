@@ -12,70 +12,17 @@
 // peace and settles to a dynamic balance, and the cohesive rule gives memory (imprint retention beats
 // the churning random rule), all in feasible time and memory. Run: npx tsx code/experiment/p103-million-scale.ts
 
-import { makeRng } from '@/code/tool/rng'
+import { makeRng, Rng } from '@/code/tool/rng'
+import { csrBallNodes } from '@/code/tool/graph'
+import { buildRegularGraph } from '@/code/substrate/regular-graph'
+import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
+import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { totalCharge, liveCount } from '@/code/measure/tone-census'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Rng = { next: () => number }
-
-// a random degree-regular graph via the configuration model, returned as a flat edge list (eu, ev) and
-// CSR adjacency (offsets, adj). Typed arrays only, so a million nodes fits in ~100 MB.
-function buildRegular(n: number, deg: number, rng: Rng): {
-  eu: Int32Array
-  ev: Int32Array
-  offsets: Int32Array
-  adj: Int32Array
-} {
-  const stubs = new Int32Array(n * deg)
-  for (let i = 0; i < n; i++) for (let d = 0; d < deg; d++) stubs[i * deg + d] = i
-  // Fisher-Yates shuffle
-  for (let i = stubs.length - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
-    const t = stubs[i]!
-    stubs[i] = stubs[j]!
-    stubs[j] = t
-  }
-  const m = Math.floor(stubs.length / 2)
-  const eu = new Int32Array(m)
-  const ev = new Int32Array(m)
-  let e = 0
-  const deg2 = new Int32Array(n)
-  for (let k = 0; k < m; k++) {
-    const a = stubs[2 * k]!
-    const b = stubs[2 * k + 1]!
-    if (a === b) continue // drop self-loops
-    eu[e] = a
-    ev[e] = b
-    e++
-    deg2[a]!++
-    deg2[b]!++
-  }
-  const euT = eu.slice(0, e)
-  const evT = ev.slice(0, e)
-  const offsets = new Int32Array(n + 1)
-  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + deg2[i]!
-  const adj = new Int32Array(offsets[n]!)
-  const cur = offsets.slice(0, n)
-  for (let k = 0; k < e; k++) {
-    const a = euT[k]!
-    const b = evT[k]!
-    adj[cur[a]!++] = b
-    adj[cur[b]!++] = a
-  }
-  return { eu: euT, ev: evT, offsets, adj }
-}
-
-function agreeCount(tone: Int8Array, offsets: Int32Array, adj: Int32Array, i: number, q: number, except: number): number {
-  let c = 0
-  const end = offsets[i + 1]!
-  for (let p = offsets[i]!; p < end; p++) {
-    const w = adj[p]!
-    if (w !== except && tone[w] === q) c++
-  }
-  return c
-}
-
-// one beat of the perception rule on the edge list (share / hop / polarize), conserving every pair sum
+// one beat of the perception rule on the edge list. cohesive = company-driven hop (blobs form),
+// random = unconditional 50/50 hop. both annihilate opposite tones and mint pairs at `arrowProb`.
 function beat(
   tone: Int8Array,
   eu: Int32Array,
@@ -88,63 +35,26 @@ function beat(
   cohesive: boolean,
   temp: number,
 ): void {
-  moved.fill(0)
-  const m = eu.length
-  for (let k = 0; k < m; k++) {
-    const v = eu[k]!
-    const w = ev[k]!
-    if (moved[v] || moved[w]) continue
-    const a = tone[v]!
-    const b = tone[w]!
-    if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
-      tone[v] = 0
-      tone[w] = 0
-      moved[v] = 1
-      moved[w] = 1
-    } else if ((a === 0) !== (b === 0)) {
-      const c = a === 0 ? w : v
-      const e = a === 0 ? v : w
-      const q = tone[c]!
-      let doHop: boolean
-      if (cohesive) {
-        const ac = agreeCount(tone, offsets, adj, c, q, e)
-        const ae = agreeCount(tone, offsets, adj, e, q, c)
-        doHop = ae >= ac ? true : rng.next() < temp
-      } else {
-        doHop = rng.next() < 0.5
-      }
-      if (doHop) {
-        tone[e] = q
-        tone[c] = 0
-        moved[v] = 1
-        moved[w] = 1
-      }
-    } else if (a === 0 && b === 0) {
-      if (rng.next() < arrowProb) {
-        if (rng.next() < 0.5) {
-          tone[v] = 1
-          tone[w] = -1
-        } else {
-          tone[v] = -1
-          tone[w] = 1
-        }
-        moved[v] = 1
-        moved[w] = 1
-      }
-    }
+  if (cohesive) {
+    cohesiveEdgeSweep({
+      tone,
+      eu,
+      ev,
+      offsets,
+      adj,
+      moved,
+      rng,
+      annihilate: true,
+      arrow: arrowProb,
+      escapeProbability: temp,
+    })
+  } else {
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: arrowProb })
   }
 }
 
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
-const nonzero = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) s++
-  return s
-}
+const sumTone = totalCharge
+const nonzero = liveCount
 
 export function millionScale(input?: { n?: number; nowMs?: number }): {
   n: number
@@ -166,7 +76,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   const deg = 12
   const rng = makeRng({ seed: 2 })
   const t0 = input?.nowMs ?? 0
-  const g = buildRegular(n, deg, rng)
+  const g = buildRegularGraph({ n, degree: deg, rng })
   const buildMs = (input?.nowMs ?? 0) - t0 // wall time stamped by caller if provided
   const moved = new Uint8Array(n)
   const ARROW = 0.08
@@ -188,24 +98,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
     const t = life.slice() // start from the balanced state
     const q0 = sumTone(t)
     // blob = a BFS ball around node 0
-    const blob: number[] = []
-    const seen = new Uint8Array(n)
-    let fr = [0]
-    seen[0] = 1
-    while (fr.length > 0 && blob.length < 4000) {
-      const nf: number[] = []
-      for (const u of fr) {
-        blob.push(u)
-        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
-          const w = g.adj[p]!
-          if (!seen[w] && blob.length + nf.length < 4000) {
-            seen[w] = 1
-            nf.push(w)
-          }
-        }
-      }
-      fr = nf
-    }
+    const blob = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: n, source: 0, limit: 4000 })
     for (const i of blob) t[i] = 1
     const meanBlob = (arr: Int8Array): number => blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
     const start = meanBlob(t)

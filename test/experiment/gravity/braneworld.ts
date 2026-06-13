@@ -14,20 +14,19 @@
 // tens of microns, so a bulk's extra dimension must be smaller than that, or the substrate is 3D.
 // Run: npx tsx code/experiment/p90-braneworld.ts
 
+import { branePotential, newtonianPotential3D } from '@/code/measure/gravity-potential'
 import { localForceLawExponent } from '@/code/measure/regression'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const PI = Math.PI
-
 // Potential felt on the brane in a 4D bulk with a compact extra dimension of size L (the KK sum).
 function potentialBrane(r: number, L: number): number {
-  return 1 / (4 * PI * L * r * (1 - Math.exp((-2 * PI * r) / L)))
+  return branePotential({ radius: r, extraDimension: L })
 }
 
 // Potential in a bare 3D substrate (matter fills all three dimensions): pure 1/r.
 function potential3D(r: number): number {
-  return 1 / (4 * PI * r)
+  return newtonianPotential3D(r)
 }
 
 // The local force-law exponent d ln(force) / d ln(r), force = -dG/dr.

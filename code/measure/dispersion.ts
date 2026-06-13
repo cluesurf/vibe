@@ -5,6 +5,21 @@
 // 24-direction set is isotropic to order four, the cubic 6 and hypercubic 8 are not.
 
 import { dot } from '@/code/algebra/vector'
+import { linearFit } from '@/code/measure/regression'
+
+// Least-squares fit of a relativistic dispersion omega^2 = speedSquared * k^2 + massSquared, by
+// regressing omega^2 on k^2. The continuum relativistic relation has speedSquared = 1 (the light
+// speed) and massSquared = m^2 (the rest energy squared, the gap at k = 0).
+export function relativisticDispersionFit(input: {
+  wavenumbers: ReadonlyArray<number>
+  frequencies: ReadonlyArray<number>
+}): { speedSquared: number; massSquared: number } {
+  const fit = linearFit({
+    xs: input.wavenumbers.map((k) => k * k),
+    ys: input.frequencies.map((w) => w * w),
+  })
+  return { speedSquared: fit.slope, massSquared: fit.intercept }
+}
 
 // omega^2(k) for a lattice whose nearest-neighbour offsets are `directions`.
 export function latticeDispersion(input: {

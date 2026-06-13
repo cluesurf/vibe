@@ -10,6 +10,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
+import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -19,13 +20,6 @@ function graph(): { N: number; off: Int32Array; adj: Int32Array } {
   const off = new Int32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i]! + g.neighbors[i]!.length
   const adj = new Int32Array(off[N]!); { let p = 0; for (let i = 0; i < N; i++) for (const w of g.neighbors[i]!) adj[p++] = w }
   return { N, off, adj }
-}
-function perm(a: number, b: number): [number, number] {
-  if (a === -1 && b === -1) return [-1, -1]; if (a === 1 && b === 1) return [1, 1]
-  if (a === -1 && b === 0) return [0, -1]; if (a === 0 && b === -1) return [-1, 0]
-  if (a === 1 && b === 0) return [0, 1]; if (a === 0 && b === 1) return [1, 0]
-  if (a === 0 && b === 0) return [1, -1]; if (a === 1 && b === -1) return [-1, 1]
-  if (a === -1 && b === 1) return [0, 0]; return [a, b]
 }
 
 export function emergentGauge(): { chargeLocallyConserved: boolean; internalLocallyConserved: boolean } {

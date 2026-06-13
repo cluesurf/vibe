@@ -40,6 +40,39 @@ export function countMatrix(input: {
   return counts
 }
 
+// Detailed-balance violation of a flat (states x states) transition-count matrix.
+// `violation` is the total off-diagonal asymmetry sum |C[s][s'] - C[s'][s]| over s<s'
+// normalized by the total off-diagonal flux. `floor` is the statistical noise floor
+// expected for genuinely symmetric counts with Poisson fluctuations,
+// sqrt(2 / mean off-diagonal pair count). A reversible (detailed-balance) process sits
+// near or below its floor; an irreversible drive sits clearly above it.
+export function detailedBalanceViolation(input: {
+  counts: ArrayLike<number>
+  states: number
+}): { violation: number; floor: number } {
+  const { counts, states } = input
+  let asymmetry = 0
+  let total = 0
+  let pairs = 0
+  let meanCount = 0
+  for (let s = 0; s < states; s++) {
+    for (let sp = s + 1; sp < states; sp++) {
+      const f = counts[s * states + sp]!
+      const r = counts[sp * states + s]!
+      asymmetry += Math.abs(f - r)
+      total += f + r
+      if (f + r > 0) {
+        meanCount += f + r
+        pairs++
+      }
+    }
+  }
+  const violation = total > 0 ? asymmetry / total : 0
+  meanCount = pairs > 0 ? meanCount / pairs : 1
+  const floor = Math.sqrt(2 / Math.max(meanCount, 1))
+  return { violation, floor }
+}
+
 // Row-stochastic transition matrix from a count matrix. An empty row (an unvisited state) maps to itself.
 export function rowStochastic(counts: number[][]): number[][] {
   const n = counts.length

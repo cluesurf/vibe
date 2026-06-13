@@ -14,6 +14,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { dot } from '@/code/algebra/vector'
+import { innermostCell } from '@/code/substrate/radial-tree'
 import { angularAnisotropy } from '@/code/measure/isotropy'
 import { randomWalkEndpoint } from '@/code/dynamics/random-walk'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -36,9 +37,7 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
   const runs = input?.runs ?? 6000
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells })
   const N = g.cellCount
-  const r2 = (i: number): number => dot(g.coords[i]!, g.coords[i]!)
-  let origin = 0
-  for (let i = 1; i < N; i++) if (r2(i) < r2(origin)) origin = i
+  const origin = innermostCell(Array.from({ length: N }, (_, i) => dot(g.coords[i]!, g.coords[i]!)))
   const c0 = g.coords[origin]!
 
   // a fixed set of probe axes (unit vectors): coordinate axes plus random directions

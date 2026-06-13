@@ -7,25 +7,14 @@
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// one generation = the 16 of so(10) = 15 SM Weyl fermions + 1 right-handed neutrino. (T_3, Q_em, multiplicity)
-type F = { name: string; t3: number; q: number; mult: number }
-const generation: F[] = [
-  { name: 'u (up quark, doublet)', t3: 0.5, q: 2 / 3, mult: 3 }, // 3 colours
-  { name: 'd (down quark, doublet)', t3: -0.5, q: -1 / 3, mult: 3 },
-  { name: 'nu (neutrino, doublet)', t3: 0.5, q: 0, mult: 1 },
-  { name: 'e (electron, doublet)', t3: -0.5, q: -1, mult: 1 },
-  { name: 'u^c (up antiquark singlet)', t3: 0, q: -2 / 3, mult: 3 },
-  { name: 'd^c (down antiquark singlet)', t3: 0, q: 1 / 3, mult: 3 },
-  { name: 'e^c (positron singlet)', t3: 0, q: 1, mult: 1 },
-  { name: 'nu^c (RH neutrino, so(10) singlet)', t3: 0, q: 0, mult: 1 },
-]
+import {
+  generationFermionCount,
+  weinbergAngleAtUnification,
+} from '@/code/measure/standard-model-charges'
 
 export function electroweakPrediction(): { sin2: number; count: number; isThreeEighths: boolean } {
-  const count = generation.reduce((s, f) => s + f.mult, 0)
-  const sumT3sq = generation.reduce((s, f) => s + f.mult * f.t3 * f.t3, 0)
-  const sumQsq = generation.reduce((s, f) => s + f.mult * f.q * f.q, 0)
-  const sin2 = sumT3sq / sumQsq
+  const count = generationFermionCount()
+  const sin2 = weinbergAngleAtUnification()
   const isThreeEighths = Math.abs(sin2 - 3 / 8) < 1e-9
   return { sin2, count, isThreeEighths }
 }

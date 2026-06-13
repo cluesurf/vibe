@@ -12,66 +12,10 @@
 // Same mesh, same rule, same memories. The only difference is whether the shared external
 // constraint is imposed. Run: npx tsx code/experiment/p65-dreaming-and-waking.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
+import { storedPatterns, hebbianFills, hopfieldStep, toneOverlap as overlap, nearestPattern } from '@/code/operator/hopfield'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
-
-export function storedPatterns(count: number, size: number, rng: Rng): Int8Array[] {
-  return Array.from({ length: count }, () => Int8Array.from({ length: size }, () => (rng.next() < 0.5 ? -1 : 1)))
-}
-
-// Signed Hebbian coupling: ternary fill = sign of the correlation across stored patterns, so
-// each stored pattern is an attractor and the fills stay ternary.
-export function hebbianFills(patterns: Int8Array[], size: number): Int8Array[] {
-  const J: Int8Array[] = Array.from({ length: size }, () => new Int8Array(size))
-  for (let i = 0; i < size; i++) {
-    for (let j = i + 1; j < size; j++) {
-      let s = 0
-      for (const p of patterns) s += (p[i] ?? 0) * (p[j] ?? 0)
-      const f = sign(s)
-      J[i]![j] = f
-      J[j]![i] = f
-    }
-  }
-  return J
-}
-
-export function overlap(tone: Int8Array, pattern: Int8Array): number {
-  let s = 0
-  for (let i = 0; i < tone.length; i++) s += (tone[i] ?? 0) * (pattern[i] ?? 0)
-  return s / tone.length
-}
-
-function nearestPattern(tone: Int8Array, patterns: Int8Array[]): { index: number; overlap: number } {
-  let best = -1
-  let bestOv = -2
-  patterns.forEach((p, k) => {
-    const o = Math.abs(overlap(tone, p))
-    if (o > bestOv) {
-      bestOv = o
-      best = k
-    }
-  })
-  return { index: best, overlap: bestOv }
-}
-
-export function step(J: Int8Array[], tone: Int8Array, bias: Float64Array, clamp: Int8Array | null): Int8Array {
-  const n = tone.length
-  const next = new Int8Array(n)
-  for (let i = 0; i < n; i++) {
-    if (clamp && clamp[i] !== 0) {
-      next[i] = clamp[i] as -1 | 0 | 1
-      continue
-    }
-    const row = J[i] ?? new Int8Array(0)
-    let h = bias[i] ?? 0
-    for (let j = 0; j < n; j++) h += (row[j] ?? 0) * (tone[j] ?? 0)
-    next[i] = h > 0 ? 1 : h < 0 ? -1 : (tone[i] ?? 0)
-  }
-  return next
-}
 
 export function dreamingAndWaking(input: { seed: number }): {
   storedCount: number
@@ -97,7 +41,7 @@ export function dreamingAndWaking(input: { seed: number }): {
   let waking = Int8Array.from({ length: size }, () => rng.nextInt({ max: 3 }) - 1)
   const wakingVisited = new Set<number>()
   for (let t = 0; t < 200; t++) {
-    waking = step(J, waking, zeroBias, clamp)
+    waking = hopfieldStep(J, waking, zeroBias, clamp)
     if (t % 25 === 24) {
       const np = nearestPattern(waking, patterns)
       if (np.overlap > 0.5) wakingVisited.add(np.index)
@@ -126,7 +70,7 @@ export function dreamingAndWaking(input: { seed: number }): {
       cue = new Int8Array(size)
       for (let i = 0; i < cueCount; i++) cue[i] = p[i] as -1 | 0 | 1
     }
-    dreaming = step(J, dreaming, zeroBias, cue) // brief internal cue, then free relaxation
+    dreaming = hopfieldStep(J, dreaming, zeroBias, cue) // brief internal cue, then free relaxation
     // sample at the window midpoint (transition, blends) and end (settled memory)
     if (phase === Math.floor(dwell / 2)) {
       const np = nearestPattern(dreaming, patterns)

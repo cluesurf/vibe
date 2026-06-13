@@ -15,7 +15,8 @@
 // (death), the live state is a stable dynamic balance (not 0, not saturated), and hops DIFFUSE a pocket
 // while arrow-biased hops PUMP it. Run: npx tsx code/experiment/p100-perception-dynamics.ts
 
-import { neighborDistances } from '@/code/tool/graph'
+import { neighborDistances, edgesOf } from '@/code/tool/graph'
+import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { defineExperiment } from '@/test/scaffold/suite'
@@ -23,17 +24,6 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
 
-function edgesOf(neighbors: number[][]): Array<[number, number]> {
-  const e: Array<[number, number]> = []
-  for (let v = 0; v < neighbors.length; v++) for (const w of neighbors[v]!) if (w > v) e.push([v, w])
-  return e
-}
-
-const sumTone = (t: Int8Array): number => {
-  let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
-  return s
-}
 const nonzero = (t: Int8Array): number => {
   let s = 0
   for (let i = 0; i < t.length; i++) if (t[i] !== 0) s++
