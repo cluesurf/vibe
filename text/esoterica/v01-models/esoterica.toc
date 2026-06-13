@@ -267,7 +267,7 @@
 \contentsline {subsection}{\numberline {4.7.1}The Six at a Glance}{118}{subsection.4.7.1}%
 \contentsline {subsection}{\numberline {4.7.2}The Shared Moves}{118}{subsection.4.7.2}%
 \contentsline {subsection}{\numberline {4.7.3}From the Anthropomorphic to the Abstract}{119}{subsection.4.7.3}%
-\contentsline {subsection}{\numberline {4.7.4}The Go-Out-and-Return}{120}{subsection.4.7.4}%
+\contentsline {subsection}{\numberline {4.7.4}The Go-Out-and-Return}{119}{subsection.4.7.4}%
 \contentsline {part}{IV\hspace {1em}Indigenous and Less-Documented Cosmologies}{120}{part.4}%
 \contentsline {chapter}{\numberline {5}Eighteen Indigenous and Less-Documented Cosmologies}{121}{chapter.5}%
 \contentsline {section}{\numberline {5.1}Zoroastrian}{121}{section.5.1}%
@@ -342,7 +342,72 @@
 \contentsline {section}{\numberline {7.3}The Thing Behind the Thing}{146}{section.7.3}%
 \contentsline {section}{\numberline {7.4}On the Differences}{147}{section.7.4}%
 \contentsline {chapter}{\numberline {8}Conclusion}{148}{chapter.8}%
-\contentsline {part}{VI\hspace {1em}Appendix}{148}{part.6}%
-\contentsline {chapter}{\numberline {A}Appendix}{149}{appendix.A}%
-\contentsline {section}{\numberline {A.1}Term Mappings, Modern English to Native Terms}{149}{section.A.1}%
-\contentsline {section}{\numberline {A.2}The Creation Stories in Native Terminology}{149}{section.A.2}%
+\contentsline {part}{VI\hspace {1em}Appendix}{149}{part.6}%
+\contentsline {chapter}{\numberline {A}Appendix}{150}{appendix.A}%
+\contentsline {section}{\numberline {A.1}A Comparative Table of Terms}{150}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Per-Tradition Term Mappings}{152}{section.A.2}%
+\contentsline {subsection}{\numberline {A.2.1}Kabbalah}{152}{subsection.A.2.1}%
+\contentsline {subsection}{\numberline {A.2.2}Buddhism}{153}{subsection.A.2.2}%
+\contentsline {subsection}{\numberline {A.2.3}Hinduism}{155}{subsection.A.2.3}%
+\contentsline {subsection}{\numberline {A.2.4}Christianity}{155}{subsection.A.2.4}%
+\contentsline {subsection}{\numberline {A.2.5}Sufism}{156}{subsection.A.2.5}%
+\contentsline {subsection}{\numberline {A.2.6}Sikhism}{157}{subsection.A.2.6}%
+\contentsline {subsection}{\numberline {A.2.7}Taoism}{157}{subsection.A.2.7}%
+\contentsline {subsection}{\numberline {A.2.8}Hermeticism}{158}{subsection.A.2.8}%
+\contentsline {subsection}{\numberline {A.2.9}Greek}{158}{subsection.A.2.9}%
+\contentsline {subsection}{\numberline {A.2.10}Roman}{159}{subsection.A.2.10}%
+\contentsline {subsection}{\numberline {A.2.11}Norse}{160}{subsection.A.2.11}%
+\contentsline {subsection}{\numberline {A.2.12}Egyptian}{160}{subsection.A.2.12}%
+\contentsline {subsection}{\numberline {A.2.13}Mesopotamian}{161}{subsection.A.2.13}%
+\contentsline {subsection}{\numberline {A.2.14}Chinese}{161}{subsection.A.2.14}%
+\contentsline {subsection}{\numberline {A.2.15}Zoroastrian}{162}{subsection.A.2.15}%
+\contentsline {subsection}{\numberline {A.2.16}Maya}{162}{subsection.A.2.16}%
+\contentsline {subsection}{\numberline {A.2.17}Aztec}{163}{subsection.A.2.17}%
+\contentsline {subsection}{\numberline {A.2.18}Navajo}{163}{subsection.A.2.18}%
+\contentsline {subsection}{\numberline {A.2.19}Zuni}{164}{subsection.A.2.19}%
+\contentsline {subsection}{\numberline {A.2.20}Hopi}{164}{subsection.A.2.20}%
+\contentsline {subsection}{\numberline {A.2.21}Andean (Inca)}{165}{subsection.A.2.21}%
+\contentsline {subsection}{\numberline {A.2.22}Celtic}{165}{subsection.A.2.22}%
+\contentsline {subsection}{\numberline {A.2.23}Finnish}{165}{subsection.A.2.23}%
+\contentsline {subsection}{\numberline {A.2.24}Slavic}{166}{subsection.A.2.24}%
+\contentsline {subsection}{\numberline {A.2.25}Baltic}{166}{subsection.A.2.25}%
+\contentsline {subsection}{\numberline {A.2.26}Shinto}{166}{subsection.A.2.26}%
+\contentsline {subsection}{\numberline {A.2.27}Tamil}{167}{subsection.A.2.27}%
+\contentsline {subsection}{\numberline {A.2.28}Polynesian}{167}{subsection.A.2.28}%
+\contentsline {subsection}{\numberline {A.2.29}Aboriginal Australian}{168}{subsection.A.2.29}%
+\contentsline {subsection}{\numberline {A.2.30}Korean}{168}{subsection.A.2.30}%
+\contentsline {subsection}{\numberline {A.2.31}Yoruba (Ifa)}{168}{subsection.A.2.31}%
+\contentsline {subsection}{\numberline {A.2.32}Inuit}{169}{subsection.A.2.32}%
+\contentsline {section}{\numberline {A.3}The Creation Stories in Native Terms}{169}{section.A.3}%
+\contentsline {subsection}{\numberline {A.3.1}Kabbalah}{169}{subsection.A.3.1}%
+\contentsline {subsection}{\numberline {A.3.2}Buddhism}{171}{subsection.A.3.2}%
+\contentsline {subsection}{\numberline {A.3.3}Hinduism}{172}{subsection.A.3.3}%
+\contentsline {subsection}{\numberline {A.3.4}Christianity}{173}{subsection.A.3.4}%
+\contentsline {subsection}{\numberline {A.3.5}Sufism}{174}{subsection.A.3.5}%
+\contentsline {subsection}{\numberline {A.3.6}Sikhism}{174}{subsection.A.3.6}%
+\contentsline {subsection}{\numberline {A.3.7}Taoism}{175}{subsection.A.3.7}%
+\contentsline {subsection}{\numberline {A.3.8}Hermeticism}{176}{subsection.A.3.8}%
+\contentsline {subsection}{\numberline {A.3.9}Greek}{176}{subsection.A.3.9}%
+\contentsline {subsection}{\numberline {A.3.10}Roman}{177}{subsection.A.3.10}%
+\contentsline {subsection}{\numberline {A.3.11}Norse}{177}{subsection.A.3.11}%
+\contentsline {subsection}{\numberline {A.3.12}Egyptian}{178}{subsection.A.3.12}%
+\contentsline {subsection}{\numberline {A.3.13}Mesopotamian}{178}{subsection.A.3.13}%
+\contentsline {subsection}{\numberline {A.3.14}Chinese}{179}{subsection.A.3.14}%
+\contentsline {subsection}{\numberline {A.3.15}Zoroastrian}{180}{subsection.A.3.15}%
+\contentsline {subsection}{\numberline {A.3.16}Maya}{180}{subsection.A.3.16}%
+\contentsline {subsection}{\numberline {A.3.17}Aztec}{180}{subsection.A.3.17}%
+\contentsline {subsection}{\numberline {A.3.18}Navajo}{181}{subsection.A.3.18}%
+\contentsline {subsection}{\numberline {A.3.19}Zuni}{181}{subsection.A.3.19}%
+\contentsline {subsection}{\numberline {A.3.20}Hopi}{181}{subsection.A.3.20}%
+\contentsline {subsection}{\numberline {A.3.21}Andean (Inca)}{182}{subsection.A.3.21}%
+\contentsline {subsection}{\numberline {A.3.22}Celtic}{182}{subsection.A.3.22}%
+\contentsline {subsection}{\numberline {A.3.23}Finnish}{182}{subsection.A.3.23}%
+\contentsline {subsection}{\numberline {A.3.24}Slavic}{183}{subsection.A.3.24}%
+\contentsline {subsection}{\numberline {A.3.25}Baltic}{183}{subsection.A.3.25}%
+\contentsline {subsection}{\numberline {A.3.26}Shinto}{183}{subsection.A.3.26}%
+\contentsline {subsection}{\numberline {A.3.27}Tamil}{183}{subsection.A.3.27}%
+\contentsline {subsection}{\numberline {A.3.28}Polynesian}{184}{subsection.A.3.28}%
+\contentsline {subsection}{\numberline {A.3.29}Aboriginal Australian}{184}{subsection.A.3.29}%
+\contentsline {subsection}{\numberline {A.3.30}Korean}{184}{subsection.A.3.30}%
+\contentsline {subsection}{\numberline {A.3.31}Yoruba (Ifa)}{185}{subsection.A.3.31}%
+\contentsline {subsection}{\numberline {A.3.32}Inuit}{185}{subsection.A.3.32}%

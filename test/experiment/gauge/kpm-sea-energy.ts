@@ -7,35 +7,14 @@
 // fermion supplies a STABILIZING term (the Skyrme sign). Run: npx tsx code/experiment/p216-kpm-sea-energy.ts
 
 import { pathToFileURL } from 'node:url'
-import { makeDirac, newCx, dotR, lambdaMaxH2, type Cx } from '@/code/operator/dirac-skyrmion'
-
-// Chebyshev coefficients of |x| on [-1,1]: c0 = 2/pi, c_{2k} = -(4/pi)(-1)^k/(4k^2-1), odd = 0
-function absCoeffs(M: number): number[] {
-  const c = new Array<number>(M).fill(0); c[0] = 2 / Math.PI
-  for (let k = 1; 2 * k < M; k++) c[2 * k] = (-4 / Math.PI) * ((-1) ** k) / (4 * k * k - 1)
-  return c
-}
-// Jackson damping (kills Gibbs oscillation of |x| at 0)
-function jackson(M: number): number[] {
-  const g = new Array<number>(M).fill(0); const Np = M + 1
-  for (let n = 0; n < M; n++) g[n] = ((Np - n) * Math.cos((Math.PI * n) / Np) + Math.sin((Math.PI * n) / Np) / Math.tan(Math.PI / Np)) / Np
-  return g
-}
-// Chebyshev moments mu_n = <xi| T_n(H/a) |xi> for n=0..M-1 (matvec only)
-function moments(applyH: (v: Cx, o: Cx) => void, a: number, xi: Cx, M: number, dim: number): Float64Array {
-  const mu = new Float64Array(M)
-  let t0 = { re: xi.re.slice(), im: xi.im.slice() }
-  let t1 = newCx(dim); applyH(t0, t1); for (let i = 0; i < dim; i++) { t1.re[i]! /= a; t1.im[i]! /= a }
-  mu[0] = dotR(xi, t0, dim); mu[1] = dotR(xi, t1, dim)
-  let tn = newCx(dim); const tmp = newCx(dim)
-  for (let n = 2; n < M; n++) {
-    applyH(t1, tmp)
-    for (let i = 0; i < dim; i++) { tn.re[i] = (2 * tmp.re[i]!) / a - t0.re[i]!; tn.im[i] = (2 * tmp.im[i]!) / a - t0.im[i]! }
-    mu[n] = dotR(xi, tn, dim)
-    const sw = t0; t0 = t1; t1 = tn; tn = sw
-  }
-  return mu
-}
+import { makeDirac } from '@/code/operator/dirac-skyrmion'
+import { newCx } from '@/code/algebra/linear/complex-vector'
+import {
+  absoluteValueCoefficients,
+  jacksonKernel,
+  chebyshevMoments,
+  spectralBound,
+} from '@/code/algebra/linear/kernel-polynomial'
 
 export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolean } {
   const L = 14, M = 1.5, MCHEB = 220, NRV = 12
@@ -46,17 +25,23 @@ export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolea
   // the Skyrme coefficient D > 0 (stabilizing).
   const vac = makeDirac(L, M, 0, 'uniformz')
   const dim = vac.dim
-  const c = absCoeffs(MCHEB), g = jackson(MCHEB)
+  const c = absoluteValueCoefficients(MCHEB), g = jacksonKernel(MCHEB)
   const hedges = Rs.map((R) => makeDirac(L, M, R, 'texture'))
   // spectral bound: max over vacuum and the SHARPEST texture (sharp textures have the largest spectrum)
-  const a = Math.sqrt(Math.max(lambdaMaxH2(vac.applyH, dim), lambdaMaxH2(hedges[0]!.applyH, dim))) * 1.2
+  const a =
+    Math.sqrt(
+      Math.max(
+        spectralBound({ operator: vac.applyH, dim }),
+        spectralBound({ operator: hedges[0]!.applyH, dim }),
+      ),
+    ) * 1.2
   const dMu: Float64Array[] = Rs.map(() => new Float64Array(MCHEB)) // accumulated Delta moments per R
   let rng = 12345
   const xi = newCx(dim)
   for (let r = 0; r < NRV; r++) {
     for (let i = 0; i < dim; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; xi.re[i] = (rng & 1) ? 1 : -1; xi.im[i] = 0 } // Rademacher
-    const muV = moments(vac.applyH, a, xi, MCHEB, dim)
-    hedges.forEach((h, ri) => { const muH = moments(h.applyH, a, xi, MCHEB, dim); for (let n = 0; n < MCHEB; n++) dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV })
+    const muV = chebyshevMoments({ operator: vac.applyH, scale: a, probe: xi, count: MCHEB, dim })
+    hedges.forEach((h, ri) => { const muH = chebyshevMoments({ operator: h.applyH, scale: a, probe: xi, count: MCHEB, dim }); for (let n = 0; n < MCHEB; n++) dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV })
   }
   // Delta E_sea(R) = -(1/2) * a * sum_n g_n c_n Delta mu_n
   const deltaE: [number, number][] = Rs.map((R, ri) => {
