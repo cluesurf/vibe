@@ -41,34 +41,23 @@ function measureE(kIdx: number, mass: number, T: number): number {
 
 export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean } {
   const T = 512
-  console.log('P230 Dirac dispersion measured FROM the simulated discrete walk:')
   // (1) MASSLESS = exactly the discrete shift -> E(k) = k (the light cone), no continuity
-  console.log('  (1) massless (pure discrete shift, a permutation), measured E(k) vs k:')
   let masslessOk = true
   for (const kIdx of [8, 16, 32, 48]) {
     const k = (2 * Math.PI * kIdx) / LX, E = measureE(kIdx, 0, T)
     const ok = Math.abs(E - k) < 0.05
     if (!ok) masslessOk = false
-    console.log(`    k=${k.toFixed(3)}: measured E=${E.toFixed(3)} (expect E=k for the light cone) ${ok ? 'OK' : 'X'}`)
   }
-  console.log(`  => the massless relativistic LIGHT CONE (E=k) is EXACTLY the discrete shift: ${masslessOk}`)
   // (2) MASSIVE (emergent mixing rate m) -> cos E = cos(m) cos(k), the Dirac relation
   const m = 0.6
-  console.log(`  (2) massive (emergent mixing m=${m}), check cos E = cos(m) cos(k):`)
   let massiveOk = true
   for (const kIdx of [8, 24, 48]) {
     const k = (2 * Math.PI * kIdx) / LX, E = measureE(kIdx, m, T)
     const lhs = Math.cos(E), rhs = Math.cos(m) * Math.cos(k)
     const ok = Math.abs(lhs - rhs) < 0.05
     if (!ok) massiveOk = false
-    console.log(`    k=${k.toFixed(3)}: cos E=${lhs.toFixed(3)} vs cos(m)cos(k)=${rhs.toFixed(3)} ${ok ? 'OK' : 'X'}; rest mass E(0)~m: E(k=0 limit)`)
   }
   const E0 = measureE(2, m, T)
-  console.log(`    near k=0: E=${E0.toFixed(3)} (rest mass = m = ${m})`)
-  console.log(`  => the massive DIRAC dispersion cos E = cos(m) cos(k) emerges, with mass = the coarse-grained mixing: ${massiveOk}`)
-  console.log('  HONEST: the massless light cone is EXACTLY discrete (a permutation). The mass m is EMERGENT (the')
-  console.log('  coarse-grained rate of discrete direction-flips). The Dirac equation and its complex amplitudes are')
-  console.log('  the emergent description of the real discrete walk\'s oscillation modes. Base discrete, Dirac emergent.')
   return { masslessOk, massiveOk }
 }
 

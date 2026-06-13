@@ -49,10 +49,6 @@ export function emergentGauge(): { chargeLocallyConserved: boolean; internalLoca
   }
   let viol = 0; for (let i = 0; i < N; i++) viol += Math.abs((t[i]! - before[i]!) - flux[i]!)
   const chargeLocallyConserved = viol === 0
-  console.log('P223 emergent gauge from local conservation (Gauss law correspondence):')
-  console.log(`  (1) U(1) charge: total local continuity violation over all cells = ${viol} -> Gauss law holds = ${chargeLocallyConserved}`)
-  console.log('      => the bare rule LOCALLY conserves charge, exactly a U(1) Gauss law, so an emergent U(1) gauge')
-  console.log('         field (ELECTROMAGNETISM) is free from the rule. One gauge boson, for free.')
   // (2) internal (non-abelian) current under a GENERIC (non-symmetric) collision. Model a coin with a 2-valued
   // internal index whose generic collision is NOT internal-symmetric, and check its internal charge is NOT
   // locally conserved. (If a collision WERE so(10)-symmetric, the internal current WOULD be conserved -> gauged.)
@@ -67,17 +63,6 @@ export function emergentGauge(): { chargeLocallyConserved: boolean; internalLoca
   // a generic aligning collision does not conserve the internal charge per pair (it relaxes it)
   internalViol = 1 // by construction the aligning collision is not internal-conserving
   const internalLocallyConserved = internalViol === 0
-  console.log(`  (2) internal (non-abelian) current under a GENERIC collision: locally conserved = ${internalLocallyConserved}`)
-  console.log('      => a generic collision RELAXES the internal current (no Gauss law), so it does NOT gauge a')
-  console.log('         non-abelian group. Full so(10) gauging requires an so(10)-SYMMETRIC collision (one whose')
-  console.log('         conserved currents ARE the so(10) currents). That is a symmetry condition on the collision,')
-  console.log('         the rule\'s last freedom (as with the Skyrme sign). Natural, but not yet forced.')
-  console.log('')
-  console.log('HONEST DEMARCATION of dynamical gauge:')
-  console.log(' - FREE from the bare rule: matter in so(10) reps (p221) + a U(1) gauge field (EM, the charge Gauss law).')
-  console.log(' - NEEDS an so(10)-symmetric collision: the non-abelian so(10) gauge bosons (their Gauss law = the')
-  console.log('   collision conserving the so(10) currents locally). Then so(10) is gauged and can break to the SM.')
-  console.log(' - So "does the rule gauge so(10)" reduces to "is the collision so(10)-symmetric", a clean condition.')
   return { chargeLocallyConserved, internalLocallyConserved }
 }
 

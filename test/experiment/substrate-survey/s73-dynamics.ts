@@ -30,15 +30,6 @@ export function s73Dynamics(): { chargeConserved: boolean; lightSpeed: number; c
   let changes = 0
   for (let t = 0; t < 30; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
   const churns = changes > N
-  console.log('S73-DYNAMICS ({7,3} heptagrid):')
-  console.log(`  (1) directional streaming, total charge ${t0} -> ${total(charge)}, conserved: ${chargeConserved}`)
-  console.log(`  (2) light cone, one BFS shell per beat (z=${lightSpeed}), finite propagation speed (center degree ${best})`)
-  console.log(`  (3) mod-3 wave churns, ${changes} cell-changes over 30 beats: ${churns}`)
-  console.log(`  (4) U(1) charge Gauss law, local charge conservation holds -> emergent electromagnetism (same as {3,4,3,4})`)
-  console.log('')
-  console.log('Verdicts, ALL POSITIVE (the rule is substrate-general, fully solvable on {7,3}):')
-  console.log('  - conservation, light cone, churn, Gauss law / U(1) all hold (note degree 7 = 1 mod 3, the wave')
-  console.log('    invariant differs but charge conservation is intact).')
   return { chargeConserved, lightSpeed, churns }
 }
 

@@ -27,18 +27,6 @@ export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaI
   for (const a of [1, -1]) for (const c of [phi, -phi]) verts.push([0, a, c], [a, c, 0], [c, 0, a])
   let m4diag = 0, m4mix = 0; for (const v of verts) { const n2 = v[0]! ** 2 + v[1]! ** 2 + v[2]! ** 2; const u = v.map((x) => x / Math.sqrt(n2)); m4diag += u[0]! ** 4; m4mix += u[0]! ** 2 * u[1]! ** 2 }
   const icosaIsotropic = Math.abs(m4diag - 3 * m4mix) < 1e-6
-  console.log('S534-PHYSICS ({5,3,4}):')
-  console.log(`  (1) Bethe holographic boundary correlator (z=12): clean 1/r^${betheAlpha} (PORTS, p239 toolkit)`)
-  console.log(`  (2) cosmology, bulk shells ${shell.slice(0, 6).join(', ')} ..., growth ratio ${growthRatio} (exponential = eternal expansion, PORTS)`)
-  console.log(`  (3) hierarchy, the radial tree with branching ${growthRatio} = the holographic RG (PORTS)`)
-  console.log(`  (4) icosahedral isotropy, sum d^4 = ${m4diag.toFixed(3)} vs 3 sum d^2 d^2 = ${(3 * m4mix).toFixed(3)} -> 4th moment isotropic: ${icosaIsotropic}`)
-  console.log(`      (icosahedral symmetry kills anisotropy up to ORDER 5, even better than the cubic order-4)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log('  - holographic correlator (1/r^2), cosmology (expansion), hierarchy (RG tree), POSITIVE, all port.')
-  console.log('  - emergent ISOTROPY, POSITIVE and STRONG, the 12 icosahedral directions are isotropic to order 5.')
-  console.log('  - physical-space GRAVITY, DIFFERENT, the flat layer is 2D so the Newtonian potential is LOGARITHMIC')
-  console.log('    (log r), not 1/r. Correct for 2D, but not the 3D law (which needs the 3D cusp of {3,4,3,4}).')
   return { betheAlpha, growthRatio, icosaIsotropic }
 }
 

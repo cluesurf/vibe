@@ -30,20 +30,14 @@ export function directionalRule(): { ballistic: number; diffusive: number; dirac
   const small = walk(0.05, T, 400, 7)
   const heavy = walk(0.3, T, 400, 9)
   const diffusive = walk(1.0, T, 400, 11)
-  console.log(`P191 (1) directional rule, displacement after ${T} beats (ballistic~${T}, diffusive~${Math.sqrt(T).toFixed(1)}):`)
-  console.log(`  coin no-scatter ${ballistic.toFixed(1)}, small mass ${small.toFixed(1)}, heavy ${heavy.toFixed(1)}, scalar ${diffusive.toFixed(1)}`)
-  console.log(`  => coin propagates ballistically, scalar diffuses, mixing = mass.\n`)
 
   // (2) Dirac dispersion cos E = cos(theta) cos(k)
-  console.log('P191 (2) Dirac dispersion cos E = cos(m) cos(k):')
   let diracOk = true
   for (const m of [0.0, 0.2, 0.6]) {
     const E0 = Math.acos(Math.cos(m) * Math.cos(0))
     const k = 0.1, Ek = Math.acos(Math.cos(m) * Math.cos(k)), rel = Math.sqrt(m * m + k * k)
     if (Math.abs(E0 - m) > 1e-6 || Math.abs((Ek * Ek - k * k) - m * m) > 1e-2) diracOk = false
-    console.log(`  m=${m}: E(0)=${E0.toFixed(3)} (rest mass), E(0.1)^2-k^2=${(Ek * Ek - k * k).toFixed(3)} vs m^2=${(m * m).toFixed(3)}`)
   }
-  console.log(`  => rest mass = coin angle, E^2-k^2=m^2 (Lorentz, c=1) at long wavelength: ${diracOk}`)
   return { ballistic, diffusive, diracOk }
 }
 

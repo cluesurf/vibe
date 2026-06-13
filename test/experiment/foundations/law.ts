@@ -37,23 +37,6 @@ function singleFlipPerm(cells: number): Int32Array {
   return perm
 }
 
-function xorParityPerm(cells: number): Int32Array {
-  const substrate = lattice({ dimension: 1, extent: cells, signature: 'riemannian' })
-  const alphabet: Alphabet = { form: 'boolean' }
-  const space = makeStateSpace({ cells, alphabet })
-  const rule = reversibleEvenOdd({
-    name: 'xor-parity',
-    local: ({ self, neighborhood }) => {
-      let parity = 0
-      for (const t of neighborhood) {
-        parity ^= t & 1
-      }
-      return (self ^ parity) & 1
-    },
-  })
-  return permutationOfRule({ rule, substrate, space })
-}
-
 export default defineExperiment({
   id: 'foundations/law',
   title: 'scanning reversible rules for a local bounded-below Hamiltonian',

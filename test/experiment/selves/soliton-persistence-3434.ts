@@ -44,7 +44,6 @@ export function solitonPersistence(): { singlePersists: boolean; constantSpeed: 
   const speeds = positions.slice(1).map((p, i) => p - positions[i]!)
   const constantSpeed = speeds.every((v) => Math.abs(v - 3) < 0.01) // size-3 soliton moves at speed 3
   const singlePersists = sizesStable && solitonSizes(s).length === 1
-  console.log(`P263 (1) single size-3 soliton: persists ${singlePersists}, moves at speed ${speeds[0]?.toFixed(1)} = size 3 (constant: ${constantSpeed})`)
 
   // (2) two solitons (sizes 3 and 1) collide, emerge with sizes PRESERVED (the big one overtakes the small)
   // runs(s) = list of {size, pos} for each maximal ball-run
@@ -59,16 +58,11 @@ export function solitonPersistence(): { singlePersists: boolean; constantSpeed: 
   const overtook = !!big1 && !!small1 && big0.pos < small0.pos && big1.pos > small1.pos
   const sizesPreserved = before.join(',') === after.join(',') && after.length === 2
   const identityPreserved = sizesPreserved && overtook
-  console.log(`P263 (2) soliton collision: sizes [${before}] -> [${after}]; the size-3 started behind (pos ${big0.pos}<${small0.pos}) and ends ahead (pos ${big1?.pos}>${small1?.pos}), overtook ${overtook}, sizes preserved (KdV identity): ${identityPreserved}`)
 
   // (3) charge (ball count) conserved exactly through everything
   const chargeConserved = ballCount(s2) === before.reduce((a, b) => a + b, 0)
-  console.log(`P263 (3) charge (ball count) conserved exactly: ${chargeConserved}`)
 
   const solitonsExist = singlePersists && constantSpeed && identityPreserved && chargeConserved
-  console.log(`P263 => a REVERSIBLE CONSERVING lattice gas (the {3,4,3,4} rule class) DOES produce persistent solitons,`)
-  console.log(`  particles that survive collisions preserving identity. Persistence IS realizable, the gas collision is the`)
-  console.log(`  nonlinearity. Remaining link: identifying these solitons with the spinor defects of the 24-direction rule.\n`)
 
   return { singlePersists, constantSpeed, identityPreserved, chargeConserved, solitonsExist }
 }

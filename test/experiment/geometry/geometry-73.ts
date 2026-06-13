@@ -31,11 +31,6 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
   const ds = (t: number): number => (-2 * (Math.log(P[t + 2]!) - Math.log(P[t - 2]!))) / (Math.log(t + 2) - Math.log(t - 2))
   const specDim4 = Math.round(ds(4) * 100) / 100
 
-  console.log(`P200 {7,3} heptagrid: ${N} cells, interior degree ${interiorDegree}`)
-  console.log(`  shell sizes ${shell.slice(0, 8).join(', ')} ... growth ratio ${growth} (EXPONENTIAL = hyperbolic)`)
-  console.log(`  spectral dimension t4=${specDim4} (reads ~2, a 2D substrate)`)
-  console.log('  => {7,3} is 2D hyperbolic with exponential growth. Its flat layer (a HOROCYCLE) is only 1D,')
-  console.log('     too low-dimensional for skyrmions/nesting, unlike the 2D horosphere of {5,3,4} or 3D cusp of {3,4,3,4}.')
   return { specDim4, growth, interiorDegree }
 }
 

@@ -28,7 +28,6 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   let maxDP = 0
   for (let x = 0; x < Lx; x++) for (let y = 0; y < Ly; y++) maxDP = Math.max(maxDP, Math.abs(plaq(Ax, Ay, x, y) - plaq(Ax2, Ay2, x, y)))
   const gaugeInvariant = maxDP < 1e-9
-  console.log(`P249 (PH2) local U(1) gauge invariance: max plaquette change under a random gauge transform = ${maxDP.toExponential(2)} (= 0): ${gaugeInvariant}`)
 
   // PH4: discrete Stokes, flux through a 3x3 region = holonomy around its boundary loop
   const regionFlux = (): number => { let f = 0; for (let x = 0; x < 3; x++) for (let y = 0; y < 3; y++) f += plaq(Ax, Ay, x, y); return f }
@@ -41,7 +40,6 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
     return h
   }
   const stokes = Math.abs(regionFlux() - boundaryHolonomy()) < 1e-9
-  console.log(`P249 (PH4) magnetic flux & Stokes: sum of plaquette fluxes ${regionFlux().toFixed(3)} = boundary holonomy ${boundaryHolonomy().toFixed(3)}: ${stokes}`)
 
   // PH1/PH3: the free photon dispersion is massless (gapless, linear). lattice: omega(k) = 2|sin(k/2)|
   const disp = (k: number): number => 2 * Math.abs(Math.sin(k / 2))
@@ -52,12 +50,8 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   const linearAtLongWave = Math.abs(slope - 1) < 0.01
   // a massive field for contrast would have omega(0) = m > 0 (a gap)
   const massiveGap = Math.hypot(0.3, 1e-4) // sqrt(m^2 + k^2), m = 0.3
-  console.log(`P249 (PH1/PH3) photon dispersion omega(k) = 2|sin(k/2)|: omega(k->0) = ${omega0.toExponential(1)} (GAPLESS, massless): ${massless}`)
-  console.log(`  group velocity omega/k -> ${slope.toFixed(4)} = c at long wavelength (linear, light): ${linearAtLongWave}; (a massive mode would gap at omega(0) = ${massiveGap.toFixed(2)})`)
   // transverse polarizations in 4D = D - 2 = 2 (the photon has 2 physical polarizations, the longitudinal is pure gauge)
   const D = 4, transversePolarizations = D - 2 === 2
-  console.log(`  transverse polarizations in ${D}D = D-2 = ${D - 2} (longitudinal mode is pure gauge): ${transversePolarizations}`)
-  console.log(`  => the 8v vector sector is a massless U(1) gauge boson, the PHOTON. PH1/PH2 PASSED.\n`)
 
   return { gaugeInvariant, stokes, massless, linearAtLongWave, transversePolarizations }
 }

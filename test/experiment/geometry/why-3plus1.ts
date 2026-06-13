@@ -20,20 +20,7 @@ function cuspSpectralDim(L: number): number {
 
 export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
   const cuspDim = Math.round(cuspSpectralDim(40) * 100) / 100
-  console.log('P235 why 3+1 dimensions:')
-  console.log(`  the cusp of {3,4,3,4} is {4,3,4} = flat 3D cubic, measured spectral dimension = ${cuspDim} (= 3)`)
-  console.log(`  the beat is 1 time dimension. So spacetime = cusp (3 space) + beat (1 time) = 3+1.`)
   const isThreeD = Math.abs(cuspDim - 3) < 0.4
-  console.log('')
-  console.log('Why 3 spatial dimensions (the selection + the specialness):')
-  console.log(' - SELECTION, {3,4,3,4} was chosen for SPIN (the 24 = 8v+8s+8c spinors, p190), and its cusp is 3D,')
-  console.log('   so 3 spatial dimensions FOLLOW from requiring emergent spin (the spinor / fermion structure).')
-  console.log(' - 3D is SPECIAL, only in 3 space dimensions do you get, (a) genuine spinors with Spin(3)=SU(2),')
-  console.log('   (b) the Hopf fibration pi_3(S^2)=Z (the hopfion-self = fermion, p206), (c) STABLE orbits under the')
-  console.log('   1/r gravity (p224), Newtonian 1/r^2 force has stable bound orbits only in 3D, (d) knotted field')
-  console.log('   configurations (codimension-2 defects are 1D strings that can knot only in 3D).')
-  console.log(' => 3+1 is not arbitrary, it is the cusp dimension of the spin-selected substrate, and 3D is exactly')
-  console.log('    where spinors, hopfion-fermions, stable gravity orbits, and knots all exist. Self-consistent.')
   return { cuspDim, isThreeD }
 }
 

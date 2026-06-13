@@ -27,13 +27,6 @@ export function s53333Dynamics(): { chargeConserved: boolean; lightSpeed: number
   let changes = 0
   for (let t = 0; t < 20; t++) { const nx = new Int8Array(N); for (let i = 0; i < N; i++) { let s = 0; for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!; const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== cur[i]!) changes++ } prev = cur; cur = nx }
   const churns = changes > N
-  console.log('S53333-DYNAMICS ({5,3,3,3,3}):')
-  console.log(`  (1) directional streaming, total charge ${t0} -> ${total(charge)}, conserved: ${chargeConserved}`)
-  console.log(`  (2) light cone, one shell per beat (z=${lightSpeed}), finite speed (center degree ${best})`)
-  console.log(`  (3) mod-3 wave churns, ${changes} cell-changes over 20 beats: ${churns}`)
-  console.log(`  (4) U(1) charge Gauss law holds -> emergent electromagnetism (same as the others)`)
-  console.log('')
-  console.log('Verdicts, ALL POSITIVE, the rule is substrate-general and ports to the 5D {5,3,3,3,3} bulk too.')
   return { chargeConserved, lightSpeed, churns }
 }
 

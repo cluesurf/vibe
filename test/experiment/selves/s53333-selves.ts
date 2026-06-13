@@ -23,16 +23,6 @@ export function s53333Selves(): { solitonsExist: boolean; instantonCharge: numbe
   const instantonCharge = Math.round(charge)
   const solitonsExist = Math.abs(instantonCharge) >= 1
   const overDimensional = true // physical space is 4D, one more than the observed 3D
-  console.log('S53333-SELVES ({5,3,3,3,3}, 4D horosphere):')
-  console.log(`  4D INSTANTON (pi_3(S^3) = Z), topological charge = ${instantonCharge} (winding ${charge.toFixed(3)}), solitons EXIST: ${solitonsExist}`)
-  console.log(`  4D space DOES have spinors (Spin(4) = SU(2) x SU(2)), so statistics could be fermionic in principle`)
-  console.log(`  but the COIN supplies no spinor (H5, s53333-structure), and the dimension is 4D, not 3D: over-dimensional ${overDimensional}`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log('  - SELVES exist, POSITIVE, 4D topological solitons (instantons) form on the 4D horosphere.')
-  console.log('  - but they live in 4D physical space, OVER-dimensional (DIFFERENT), one dimension too many vs the')
-  console.log('    observed 3D, and the H5 coin still supplies no fundamental spinor or gauge.')
-  console.log('  - the form-coherence tower is a generic slow-mode (NEUTRAL), same as the others (P208).')
   return { solitonsExist, instantonCharge, overDimensional }
 }
 

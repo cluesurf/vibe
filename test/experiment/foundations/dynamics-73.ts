@@ -34,8 +34,6 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
     maxReached = Math.max(maxReached, mr <= b + 1 ? mr : b + 1)
   }
   const frontSpeed = Math.round((maxReached / 9) * 100) / 100
-  console.log(`P202 {7,3} dynamics on the cell graph (${N} cells):`)
-  console.log(`  (1) mod-3 wave front: reaches graph-distance ~beat (a graph lightcone, z=1, speed ${frontSpeed})`)
 
   // (2) perception rule (greedy graph matching per beat) from a seed -> EXACT charge conservation + churn
   function perm(a: number, b: number): [number, number] {
@@ -59,7 +57,6 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
   const conserves = sumOf(t) === sumBefore // the perception rule permutes charges, net charge is exact
   let ch = 0; for (let i = 0; i < N; i++) if (t[i] !== 0) ch++
   const churnPct = Math.round((100 * ch) / N)
-  console.log(`  (2) perception rule from a seed: net charge conserved EXACTLY ${conserves} (sum ${sumBefore}); charged ${churnPct}% steady churn, no self (P101)`)
   return { conserves, frontSpeed, churnPct }
 }
 

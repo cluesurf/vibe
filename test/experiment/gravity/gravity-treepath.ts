@@ -41,12 +41,7 @@ function measure(symbol: number[], maxCells: number, tau: number): { N: number; 
 export function gravityTreePath(): { fiveSlope: number; fourSlope: number; calibrated: boolean } {
   const a = measure([5, 3, 4], 40000, 0.5)
   const b = measure([3, 4, 3, 4], 40000, 0.5)
-  console.log('P210 gravity via the common-ancestor tree-path propagator:')
-  console.log(`  {5,3,4} (2D boundary, expect ~ -1): coupling ~ r^${a.slope.toFixed(2)}  (${a.pairs} pairs)`)
-  console.log(`  {3,4,3,4} (3D boundary, expect steeper toward -2): coupling ~ r^${b.slope.toFixed(2)}  (${b.pairs} pairs)`)
   const calibrated = Math.abs(a.slope + 1) < 0.8
-  console.log(`  => {5,3,4} calibration near -1: ${calibrated}. If calibrated, {3,4,3,4} being steeper supports`)
-  console.log('     a 1/r^2 (3D-space) gravity law from the 4D bulk. Honest, the tree-path method, unlike p198 diffusion.')
   return { fiveSlope: a.slope, fourSlope: b.slope, calibrated }
 }
 

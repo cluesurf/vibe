@@ -23,10 +23,6 @@ export function horosphere3434(): { cells: number; meanDegree: number; specDim16
   }
   const ds = (t: number): number => (-2 * (Math.log(P[t + 2]!) - Math.log(P[t - 2]!))) / (Math.log(t + 2) - Math.log(t - 2))
   const meanDegree = Math.round((sum / n) * 10) / 10
-  console.log(`P196 {3,4,3,4} horosphere band: ${n} cells, band ${slab.bandCount}, mean degree ${meanDegree}, max ${mx}`)
-  console.log(`  spectral dim t4=${ds(4).toFixed(2)} t8=${ds(8).toFixed(2)} t16=${ds(16).toFixed(2)} (flat-3D ~3)`)
-  console.log('  => the GENERIC horosphere band is a thin slab reading ~2.5D; the clean flat-3D {4,3,4} is the')
-  console.log('     special CUSP, not a generic horosphere (same as {5,3,4}, whose generic horosphere is aperiodic-2D).')
   return { cells: n, meanDegree, specDim16: ds(16) }
 }
 

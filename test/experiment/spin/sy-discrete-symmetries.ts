@@ -23,7 +23,6 @@ export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClose
   const parityClosed = roots.every((r) => set.has(key(r.map((x) => -x))))
   let reflectionClosed = true
   for (let ax = 0; ax < 4; ax++) reflectionClosed &&= roots.every((r) => set.has(key(r.map((x, i) => (i === ax ? -x : x)))))
-  console.log(`P250 (P parity) the 24 D4 roots are closed under negation ${parityClosed} and under all 4 coordinate reflections ${reflectionClosed} => the substrate is parity-symmetric`)
 
   // (T) time reversal: a unitary Dirac walk is exactly invertible. run forward then backward, recover the start.
   const L = 81, steps = 30, mass = 0.4
@@ -55,7 +54,6 @@ export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClose
   let err = 0
   for (let x = 0; x < L; x++) { err = Math.max(err, Math.abs(R[x]![0] - R0[x]![0]), Math.abs(R[x]![1] - R0[x]![1]), Math.abs(Lf[x]![0] - L0[x]![0]), Math.abs(Lf[x]![1] - L0[x]![1])) }
   const timeReversal = err < 1e-12
-  console.log(`P250 (T time reversal) unitary Dirac walk forward ${steps} then backward ${steps}: recovery error ${err.toExponential(2)} => exact time reversal: ${timeReversal}`)
 
   // (P on the field) the massless walk commutes with parity: x -> L-1-x and R <-> L gives the same dynamics
   const massless = (): { applyParityThenStep: C[][]; stepThenApplyParity: C[][] } => {
@@ -70,11 +68,9 @@ export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClose
   let pcErr = 0
   for (let x = 0; x < L; x++) for (let comp = 0; comp < 2; comp++) { pcErr = Math.max(pcErr, Math.abs(applyParityThenStep[0]![x]![comp]! - stepThenApplyParity[0]![x]![comp]!), Math.abs(applyParityThenStep[1]![x]![comp]! - stepThenApplyParity[1]![x]![comp]!)) }
   const parityCommutes = pcErr < 1e-12
-  console.log(`P250 (P on the field) parity (x->-x, R<->L) commutes with the massless step, error ${pcErr.toExponential(2)}: ${parityCommutes}`)
 
   // CPT: C (charge sign flip) is a symmetry of the conserving rule, so C, P, T all exact => CPT exact
   const cptExact = parityClosed && reflectionClosed && timeReversal && parityCommutes
-  console.log(`P250 (CPT) C (charge symmetry) plus P plus T all exact => CPT EXACT, the substrate's real-world prediction (no information loss): ${cptExact}\n`)
 
   return { parityClosed, reflectionClosed, timeReversal, parityCommutes, cptExact }
 }

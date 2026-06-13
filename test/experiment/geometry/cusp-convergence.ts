@@ -46,10 +46,6 @@ function gravityExp(nb: number[][], coord: number[][], center: number, rmax: num
 }
 
 export function cuspConvergence(): void {
-  console.log('CUSP-CONVERGENCE, how many layers until the finite cusp chunk matches the continuum?')
-  console.log('(the cusp = the {4,3,4} cubic lattice, built as a Z^3 box of side L)')
-  console.log('')
-  console.log('  L (cells/side) | cells | spectral dim (->3) | gravity exponent (->1)')
   const H = 0.8 // de Sitter rate per beat (cosmology-and-anisotropy), L ~ e^(H t) -> t = ln(L)/H
   let sufficientL = 0; let prevGe = NaN
   for (const L of [5, 7, 11, 17, 25, 35]) {
@@ -63,24 +59,9 @@ export function cuspConvergence(): void {
     const gravConverged = Number.isFinite(prevGe) && Math.abs(ge - prevGe) < 0.1
     const ok = dimOk && gravConverged
     if (ok && sufficientL === 0) sufficientL = L
-    console.log(`  ${String(L).padStart(2)}             | ${String(L * L * L).padStart(5)} | ${sd}              | ${ge}   ${ok ? '<- continuum-like (L-converged)' : ''}`)
     prevGe = ge
   }
-  console.log('')
-  console.log(`SUFFICIENT LEVEL, the cusp chunk is continuum-like (dim ~3, gravity ~1/r) by side L ~ ${sufficientL || 35} cells.`)
   const tLocal = Math.round((Math.log(sufficientL || 35) / H) * 10) / 10
-  console.log(`  mapping L ~ e^(H t), that is only t ~ ln(L)/H ~ ${tLocal} BEATS of growth for clean LOCAL physics.`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - Convergence is FAST, local gravity / geometry are continuum-like by a few dozen cells, a handful')
-  console.log('   of beats. The cusp is locally {4,3,4} from the start, finite-size corrections decay as a power of')
-  console.log('   1/L, so only a small chunk is needed for clean LOCAL physics.')
-  console.log(' - The OBSERVED universe is ~10^61 Planck lengths across, so ~10^61 cells, astronomically DEEP in the')
-  console.log('   continuum regime, finite-size / edge effects are utterly negligible at any observable scale.')
-  console.log(' - What does NOT vanish with more layers, the cubic order-4 anisotropy, it is a fixed lattice (UV)')
-  console.log('   property ~ (E/E_Planck)^2, not a finite-size effect, but it is tiny and passes Lorentz bounds.')
-  console.log(' - So a finite, far-from-infinity cusp is MORE than sufficient to look like today\'s space, the')
-  console.log('   continuum regime is reached almost immediately and the real universe is vastly beyond it.')
 }
 
 // A finite cubic cusp chunk reaches continuum-like local physics quickly. The cusp of

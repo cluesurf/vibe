@@ -24,33 +24,14 @@ function qcdMassFactor(b3: number): number {
 }
 
 export function yukawaRG(): { bTauSM: number; bTauMSSM: number; detRatio: number } {
-  console.log('YUKAWA-RG, elevating the GUT mass relations to computed-and-compared:')
-  console.log('')
   // (1) b-tau, ratio at GUT is 1, at M_Z it is the QCD enhancement of m_b (the tau gets none)
   const etaSM = qcdMassFactor(-7) // SM b3
   const etaMSSM = qcdMassFactor(-3) // MSSM b3
   const ewBoost = 1.12 // approximate electroweak (hypercharge) correction, raises the ratio ~10 percent
   const bTauSM = Math.round(etaSM * ewBoost * 100) / 100
   const bTauMSSM = Math.round(etaMSSM * ewBoost * 100) / 100
-  console.log('(1) b-tau unification, m_b/m_tau = 1 at the GUT scale -> run down to M_Z:')
-  console.log(`    QCD enhancement of m_b, factor ${etaSM.toFixed(2)} (SM) / ${etaMSSM.toFixed(2)} (MSSM)`)
-  console.log(`    m_b/m_tau(M_Z) ~ ${bTauSM} (SM) / ${bTauMSSM} (MSSM), observed 4.18/1.78 = 2.35`)
-  console.log(`    -> b-tau unification CONFIRMED at the ~10-20 percent (1-loop) level, COMPUTED + MATCHES.`)
   // (2) determinant relation, det(M_d)/det(M_e) at M_Z = (QCD factor)^3 (each down quark enhanced, leptons not)
   const detRatio = Math.round(etaSM ** 3 * 10) / 10
-  console.log('')
-  console.log('(2) the determinant relation, det(M_e) = det(M_d) at GUT (from Tr Y = 0):')
-  console.log(`    at M_Z, (m_d m_s m_b)/(m_e m_mu m_tau) = (QCD factor)^3 ~ ${detRatio}, observed ~13.5`)
-  console.log(`    -> the determinant relation CONFIRMED to the right ORDER (1-loop), COMPUTED + MATCHES (order).`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - Both GUT mass relations (b-tau = 1, det(M_e) = det(M_d)) are DERIVED at the GUT scale, and the')
-  console.log('   1-loop running brings them to the measured low-energy values, m_b/m_tau ~ 2.3 (obs 2.35) and the')
-  console.log('   mass-product ratio ~order 10 (obs ~13). So they are elevated to COMPUTED-AND-COMPARED, like')
-  console.log('   sin^2(theta_W) = 3/8 (rg-unification.ts). 2-loop and threshold corrections sharpen the numbers.')
-  console.log(' - As with the gauge couplings, the running uses standard QFT (the substrate gives the GUT boundary')
-  console.log('   conditions and the matter content), full derivation FROM the rule needs the dynamical beta')
-  console.log('   functions, see rg-from-coarse-graining.ts for the mechanism.')
   return { bTauSM, bTauMSSM, detRatio }
 }
 

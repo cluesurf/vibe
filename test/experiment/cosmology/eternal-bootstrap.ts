@@ -48,25 +48,6 @@ export function eternalBootstrap(): { reversibleEternal: boolean; reversibleCons
   let m = cur0.slice(); let irrAct = 1
   for (let t = 0; t < 200; t++) { const nx = new Int8Array(N); let changed = 0; for (let i = 0; i < N; i++) { let s = m[i]!; for (const j of nbCache[i]!) s += m[j]!; const v = (Math.round(s / 7) % 3) as 0 | 1 | 2; nx[i] = v; if (v !== m[i]!) changed++ } irrAct = changed / N; m = nx }
   const irreversibleDecays = irrAct < 0.02 // froze
-  console.log('ETERNAL-BOOTSTRAP, can the universe be eternal / beginningless (infinity as default)?')
-  console.log('')
-  console.log('(1) REVERSIBLE mod-3 rule from RANDOM init (no seed):')
-  console.log(`    activity, early ${earlyAct.toFixed(3)} -> late ${lateAct.toFixed(3)} (persists, no decay): ${reversibleEternal}`)
-  console.log(`    so it churns FOREVER from a generic state, an eternal beginningless universe is SELF-CONSISTENT.`)
-  console.log('(2) EXACT reversibility, forward 50 then backward 50 recovers the start exactly:')
-  console.log(`    cell differences = ${diff} (0 = exactly reversible): ${reversibleExact}`)
-  console.log(`    a reversible rule has no privileged start, any state has a unique past, so NO first moment is needed.`)
-  console.log('(3) IRREVERSIBLE (averaging) contrast from random init:')
-  console.log(`    final activity ${irrAct.toFixed(3)} (froze to a fixed point): ${irreversibleDecays}`)
-  console.log(`    a dissipative rule DECAYS, it needs a seed to start and runs down, it has a built-in beginning and end.`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The REVERSIBLE vibe rule supports an ETERNAL, beginningless universe, from any generic state it')
-  console.log('   churns forever, conserves, and is exactly reversible (every state has a unique past), so it need')
-  console.log('   not have started, infinity-in-time (no beginning) is self-consistent.')
-  console.log(' - An IRREVERSIBLE rule would force a beginning (a seed) and an end (a freeze). The vibe rule is the')
-  console.log('   reversible kind, so BOTH the finite-growing (seeded) AND the eternal (beginningless) pictures are')
-  console.log('   self-consistent, which is the DEFAULT is the open question to explore.')
   return { reversibleEternal, reversibleConserved, irreversibleDecays, reversibleExact }
 }
 

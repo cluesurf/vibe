@@ -40,14 +40,9 @@ const show = (n: string, r: { t: number; ds: number }[]): string => `${n}: ` + r
 export function bulkDimension(): { d4: number; d3: number; bulk: number } {
   const g4 = gridGraph([13, 13, 13, 13]), g3 = gridGraph([40, 40, 40])
   const r4 = specDim(g4, ((6 * 13 + 6) * 13 + 6) * 13 + 6, 24), r3 = specDim(g3, (20 * 40 + 20) * 40 + 20, 24)
-  console.log('P195 spectral dimension (calibration):')
-  console.log('  ' + show('4D grid (expect ~4)', r4))
-  console.log('  ' + show('3D grid (expect ~3)', r3))
   const g34 = toG([3, 4, 3, 4], 50000)
   let c = 0, best = -1; for (let i = 0; i < g34.N; i++) { const d = g34.off[i + 1]! - g34.off[i]!; if (d > best) { best = d; c = i } }
   const rb = specDim(g34, c, 24)
-  console.log('  ' + show('{3,4,3,4} BULK     ', rb))
-  console.log('  => the {3,4,3,4} bulk reads ~4 at the smallest scale (genuine 4D hyperbolic), the cusp {4,3,4} is flat 3D.')
   const get = (r: { t: number; ds: number }[]): number => r.find((x) => x.t === 4)!.ds
   return { d4: get(r4), d3: get(r3), bulk: get(rb) }
 }

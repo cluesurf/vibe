@@ -40,7 +40,6 @@ export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersis
   const pr = relax(pair, 6000, 0.1)
   const ePairFinal = energy(pr.final)
   const pairAnnihilates = wPair === 0 && ePairFinal < 0.01
-  console.log(`P258 (1) defect+antidefect, total winding ${wPair}: energy -> ${ePairFinal.toFixed(4)} (annihilates to vacuum: ${pairAnnihilates})`)
 
   // (2) two LIKE defects (total winding +2) -> cannot annihilate, energy locked above topological minimum
   const like = fieldWithWinding(L, 2)
@@ -49,14 +48,11 @@ export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersis
   const eLikeFinal = energy(lk.final)
   const topoMin = (2 * Math.PI * 2) ** 2 / L // minimal energy of a total-winding-2 config on the ring
   const likeChargesPersist = wLike === 2 && eLikeFinal > 0.5 * topoMin
-  console.log(`P258 (2) two like defects, total winding ${wLike}: energy -> ${eLikeFinal.toFixed(3)} (topological minimum ~${topoMin.toFixed(3)}, cannot annihilate: ${likeChargesPersist})`)
 
   // (3) total winding conserved throughout BOTH evolutions (no phase slips)
   const chargeConserved = pr.hist.every((w) => w === 0) && lk.hist.every((w) => w === 2)
-  console.log(`P258 (3) total winding conserved through every step: pair ${pr.hist.join(',')} | like ${lk.hist.join(',')} => ${chargeConserved}`)
 
   const particleLike = pairAnnihilates && likeChargesPersist && chargeConserved
-  console.log(`P258 => defects behave as PARTICLES: opposite charges annihilate, like charges persist, charge conserved in collisions: ${particleLike}\n`)
 
   return { pairAnnihilates, likeChargesPersist, chargeConserved, particleLike }
 }

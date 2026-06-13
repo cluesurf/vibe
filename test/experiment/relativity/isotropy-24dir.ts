@@ -29,29 +29,14 @@ function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {
 }
 
 export function isotropy24dir(): { z3: number; z4: number; d4: number; d4Best: boolean } {
-  console.log('P233 wave-dispersion ISOTROPY, axis vs diagonal relative anisotropy (lower = more isotropic):')
   const qs = [0.4, 0.8, 1.2]
   for (const q of qs) {
-    console.log(`  |k|=${q}:  Z3 (6 dir) = ${anisotropy('Z3', q).toExponential(2)},  Z4 (8 dir) = ${anisotropy('Z4', q).toExponential(2)},  D4 (24 dir) = ${anisotropy('D4', q).toExponential(2)}`)
   }
   // 4th-moment isotropy check (the order-4 anisotropy): sum d_i^4 vs 3 sum d_i^2 d_j^2
   const m4 = (R: number[][]): { diag: number; mixed: number } => { let dg = 0, mx = 0; for (const d of R) { dg += d[0]! ** 4; mx += d[0]! ** 2 * (d[1] ?? 0) ** 2 } return { diag: dg, mixed: mx } }
   const md4 = m4(neighbors('D4')), mz4 = m4(neighbors('Z4'))
-  console.log('')
-  console.log(`  4th-moment isotropy (need sum d_1^4 = 3 sum d_1^2 d_2^2 for order-4 isotropy):`)
-  console.log(`    D4 (24 dir): sum d_1^4 = ${md4.diag}, 3 x sum d_1^2 d_2^2 = ${3 * md4.mixed}  -> ${md4.diag === 3 * md4.mixed ? 'EQUAL (isotropic to order 4)' : 'unequal'}`)
-  console.log(`    Z4 (8 dir):  sum d_1^4 = ${mz4.diag}, 3 x sum d_1^2 d_2^2 = ${3 * mz4.mixed}  -> ${mz4.diag === 3 * mz4.mixed ? 'EQUAL' : 'UNEQUAL (anisotropic at order 4)'}`)
   const z3 = anisotropy('Z3', 1.2), z4 = anisotropy('Z4', 1.2), d4 = anisotropy('D4', 1.2)
   const d4Best = d4 < z4 / 5 && d4 < z3 / 5
-  console.log('')
-  console.log('Reading:')
-  console.log(' - D4 (the {3,4,3,4} 24 directions) has an ISOTROPIC 4th moment (sum d^4 = 3 sum d^2 d^2 = 12), so its')
-  console.log('   wave dispersion is isotropic to ORDER 4, the axis-vs-diagonal anisotropy is far smaller than the')
-  console.log('   cubic Z3 or hypercubic Z4 (which are anisotropic already at order 4).')
-  console.log(' - This is the DYNAMICAL version of p226 (triality / F4 kills the order-4 anisotropy), the 24-direction')
-  console.log('   structure gives emergent ROTATIONAL symmetry the cubic lacks. The discrete rule on {3,4,3,4} thus')
-  console.log('   coarse-grains to an isotropic continuum (no lattice artifact until order 6), grounding emergent')
-  console.log('   Lorentz / rotational invariance in the actual 24-direction discrete substrate.')
   return { z3, z4, d4, d4Best }
 }
 

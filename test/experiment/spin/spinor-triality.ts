@@ -51,10 +51,7 @@ export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boo
   const P = [12, fixByOrder[5] ?? 0, fixByOrder[5] ?? 0, fixByOrder[2] ?? 0, fixByOrder[3] ?? 0]
   const dec: Record<string, number> = {}
   for (const [nm, c] of Object.entries(chi)) dec[nm] = Math.round((sizes.reduce((s, sz, k) => s + sz * P[k]! * c[k]!, 0) / grp.length) * 100) / 100
-  console.log(`{5,3,4}: icosahedral rotation group order ${grp.length}, 12-face perm char ${JSON.stringify(P)}`)
-  console.log(`  decomposition into A5 irreps: ${Object.entries(dec).map(([n, m]) => `${n}x${m}`).join(' + ')}  (ALL integer spin)`)
   const fiveNoSpinor = dec['4'] === 0 // only 1,3,3',5 appear, no half-integer rep
-  console.log(`  => {5,3,4} carries NO spinor (a permutation rep of A5 has no half-integer irreps): ${fiveNoSpinor}\n`)
 
   // ---- (2) {3,4,3,4}: 24-cell = 8v + 8s + 8c, two spinors; (4) spin-statistics ----
   const v8 = [0, 1, 2, 3].flatMap((i) => [1, -1].map((s) => [0, 1, 2, 3].map((j) => (j === i ? s : 0))))
@@ -64,8 +61,6 @@ export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boo
   const c8 = half.filter((c) => c.filter((x) => x < 0).length % 2 === 1)
   const sign = (S: number[][]): number => Math.round(Math.cos(2 * Math.PI * S[0]![0]!)) // 2-pi rotation sign
   const twentyFourSplits = v8.length === 8 && s8.length === 8 && c8.length === 8
-  console.log(`{3,4,3,4}: 24-cell = 8v(${v8.length}) + 8s(${s8.length}) + 8c(${c8.length}), splits ${twentyFourSplits}`)
-  console.log(`  2-pi rotation sign (=exchange statistics): 8v=${sign(v8)} (BOSON), 8s=${sign(s8)} (FERMION), 8c=${sign(c8)} (FERMION)`)
 
   // ---- (3) triality: Hadamard/2 swaps 8v and 8s ----
   const H: M[] = [] // 4x4 not 3x3; do inline
@@ -74,7 +69,6 @@ export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boo
   const setOf = (S: number[][]): Set<string> => new Set(S.map((v) => v.map((x) => Math.round(x * 1e4)).join(',')))
   const eqSet = (A: Set<string>, B: Set<string>): boolean => A.size === B.size && [...A].every((x) => B.has(x))
   const trialityPresent = eqSet(setOf(ap(v8)), setOf(s8))
-  console.log(`  triality: Hadamard/2 maps 8v -> 8s: ${trialityPresent} (an orthogonal symmetry swapping vector and spinor)\n`)
   void H
   return { fiveNoSpinor, twentyFourSplits, trialityPresent }
 }

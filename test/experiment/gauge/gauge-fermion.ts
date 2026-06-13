@@ -17,6 +17,34 @@ import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+function study(): { potential: number; lowest: number[] } {
+  const rng = makeRng({ seed: 9 })
+  const substrate = lattice({
+    dimension: 2,
+    extent: 12,
+    signature: 'riemannian',
+  })
+  // the riemannian lattice is a Graph
+  const graph = substrate as Graph
+  const field = makeGaugeField({ graph, group: { form: 'u1', q: 12 } })
+  const plaquettes = plaquettesOf({ graph })
+
+  for (let sweep = 0; sweep < 40; sweep++) {
+    heatBathSweep({ field, plaquettes, beta: 1.5, rng })
+  }
+  const potential = staticPotentialProxy({ field, plaquettes })
+
+  const complex = cellComplexOf({ substrate: graph, maxGrade: 2 })
+  const dirac = covariantKahlerDirac({ complex, field, charge: 1 })
+  const spectrum = lowestEigenvalues({
+    operator: operatorFromSparse(dirac),
+    count: 12,
+  })
+  const lowest = Array.from(spectrum, (x) => Math.round(x * 1000) / 1000)
+
+  return { potential, lowest }
+}
+
 export default defineExperiment({
   id: 'gauge/gauge-fermion',
   title: 'a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum',
@@ -25,7 +53,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: false,
   run() {
-    const result = main()
+    const result = study()
     const ok =
       result.lowest.length === 12 &&
       result.lowest.every((value) => Number.isFinite(value)) &&

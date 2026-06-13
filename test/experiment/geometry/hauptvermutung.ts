@@ -9,12 +9,24 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// The recovered dimension is stable across sprinklings, empirical support for the
-// Hauptvermutung (geometry recovers from a causal set up to small spread). We sprinkle the
-// same 3D Minkowski region with several seeds, recover the Myrheim-Meyer dimension each
-// time, and report a mean near 3 with a small standard deviation. This is the standard
-// causal-set construction, so L2. It relies on random sprinklings, so it is a statistical
-// claim about an ensemble, not a property of the deterministic base rule, and we say so.
+function study(): { mean: number; std: number; samples: number[] } {
+  const targetDimension = 3
+  const count = 700
+  const trials = 8
+  const dims: number[] = []
+  for (let i = 0; i < trials; i++) {
+    const rng = makeRng({ seed: deriveSeed({ base: 42, index: i }) })
+    const poset = sprinkleMinkowski({ dimension: targetDimension, count, rng })
+    dims.push(myrheimMeyerDimension({ poset }))
+  }
+  const mean = dims.reduce((a, b) => a + b, 0) / dims.length
+  const variance =
+    dims.reduce((a, b) => a + (b - mean) * (b - mean), 0) / dims.length
+  const std = Math.sqrt(variance)
+
+  return { mean, std, samples: dims }
+}
+
 export default defineExperiment({
   id: 'geometry/hauptvermutung',
   title: 'the recovered dimension is stable (near 3, low spread) across random sprinklings',
@@ -23,7 +35,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: false,
   run() {
-    const r = main()
+    const r = study()
     const meanNear3 = Math.abs(r.mean - 3) < 0.5
     const lowSpread = r.std < 0.3
     const ok = meanNear3 && lowSpread

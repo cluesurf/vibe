@@ -140,18 +140,9 @@ export function diracLanczos(): { zeroModesHedgehog: number; zeroModesFree: numb
   const zeroModesFree = freeSpec.filter((e) => e < 0.08).length
   const hedge = run(4)
   const zeroModesHedgehog = hedge.filter((e) => e < 0.08).length
-  console.log(`P215 3D Dirac on a hedgehog, Lanczos low |spectrum| (dim ${DIM}, L=${L}, M=${M}):`)
-  console.log(`  uniform mass (no soliton): lowest |lambda| ${freeSpec.slice(0, 5).map((e) => e.toFixed(3)).join(', ')} -> near-zero modes ${zeroModesFree}`)
-  console.log(`  hedgehog R=4:              lowest |lambda| ${hedge.slice(0, 5).map((e) => e.toFixed(3)).join(', ')} -> near-zero modes ${zeroModesHedgehog}`)
   // bound-state gap vs soliton size
   const gapVsSize: [number, number][] = []
   for (const R of [2, 4, 6]) { const sp = run(R); const gap = sp.find((e) => e > 0.08) ?? sp[sp.length - 1]!; gapVsSize.push([R, Math.round(gap * 1000) / 1000]) }
-  console.log(`  bound-state gap vs size (confounded by the changing zero-mode count): ${gapVsSize.map(([R, g]) => `R=${R}:gap=${g}`).join('  ')}`)
-  console.log('  => POSITIVE: a hedgehog BINDS near-zero fermion modes the uniform vacuum lacks (3 vs 0). The self')
-  console.log('     literally traps a fermion = the self IS a fermion, the index/baryon mechanism, confirmed dynamically in 3D')
-  console.log('     (complements p206 statistical argument). NOTE: the gap-vs-size is NOT a clean 1/R (it is confounded by the')
-  console.log('     near-zero-mode count changing with R), so this does NOT settle the Skyrme STABILIZATION sign, that still needs')
-  console.log('     the full Dirac-SEA energy or the regularized spectral asymmetry (all eigenvalues), beyond the low modes Lanczos gives.')
   return { zeroModesHedgehog, zeroModesFree, gapVsSize }
 }
 

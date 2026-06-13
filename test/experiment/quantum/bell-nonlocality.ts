@@ -24,23 +24,7 @@ export function bellNonlocality(): { localMax: number; quantumMax: number; gap: 
   const E = (x: number, y: number): number => Math.cos(x - y)
   const a0 = deg(0), a1 = deg(90), b0 = deg(45), b1 = deg(-45)
   const quantumMax = E(a0, b0) + E(a0, b1) + E(a1, b0) - E(a1, b1)
-  console.log('P236 Bell / quantum nonlocality:')
-  console.log(`  (1) LOCAL deterministic discrete rule (a local hidden-variable theory): max CHSH = ${localMax} (Bell bound = 2)`)
-  console.log(`  (2) QUANTUM mechanics: CHSH = ${quantumMax.toFixed(4)} (= 2*sqrt(2) = ${(2 * Math.sqrt(2)).toFixed(4)}, Tsirelson bound)`)
   const gap = quantumMax > localMax + 0.1
-  console.log(`  => quantum exceeds the local bound: ${gap}. So a LOCAL + DETERMINISTIC + DISCRETE base, taken literally,`)
-  console.log('     CANNOT reproduce quantum nonlocality. This is an honest tension, not a free pass.')
-  console.log('')
-  console.log('The proposed resolution (a CONJECTURE, not tested here), EMERGENT (holographic) nonlocality:')
-  console.log(' - The BULK rule is local, so the bulk obeys CHSH <= 2. But PHYSICS lives on the holographic BOUNDARY,')
-  console.log('   and two boundary points are connected THROUGH the 4D bulk (the bulk-tree propagator, p210/p218).')
-  console.log('   So the boundary theory is NONLOCAL (bulk-mediated), it is NOT a local HV model, and it CAN violate')
-  console.log('   Bell up to the quantum value.')
-  console.log(' - So nonlocality is EMERGENT, the local discrete bulk generates a nonlocal boundary, exactly the')
-  console.log('   holographic structure. The discreteness principle survives, the BASE is local + discrete, quantum')
-  console.log('   nonlocality is an emergent boundary phenomenon. (Born rule, |psi|^2 emerges as the natural measure')
-  console.log('   of the real discrete walk\'s oscillation amplitudes, the full measurement / collapse is the deeper')
-  console.log('   open piece.)')
   return { localMax, quantumMax, gap }
 }
 

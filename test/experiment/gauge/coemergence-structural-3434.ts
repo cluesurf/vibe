@@ -22,7 +22,6 @@ export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPre
   const setOf = (S: number[][]): Set<string> => new Set(S.map((v) => v.map((x) => Math.round(x * 1e4)).join(',')))
   const V = setOf(v8), S = setOf(s8), Cc = setOf(c8)
   const inWhich = (v: number[]): string => { const k = v.map((x) => Math.round(x * 1e4)).join(','); return V.has(k) ? 'v' : S.has(k) ? 's' : Cc.has(k) ? 'c' : '?' }
-  console.log(`P256 sectors: 8v + 8s + 8c = 24, clean partition: ${sectorsCover24}`)
 
   // ROTATION subgroup generators: all 24 coordinate permutations + all even sign changes (det +1)
   const perms = (): number[][] => { const out: number[][] = []; const go = (a: number[], rest: number[]): void => { if (!rest.length) { out.push(a); return } for (let i = 0; i < rest.length; i++) go([...a, rest[i]!], rest.filter((_, j) => j !== i)) }; go([], [0, 1, 2, 3]); return out }
@@ -37,19 +36,13 @@ export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPre
       for (const v of set) { const w = applySign(sgn, applyPerm(p, v)); if (inWhich(w) !== sec) rotationsPreserveSectors = false }
     }
   }
-  console.log(`P256 rotation subgroup (24 perms x 8 even sign-flips = 192 rotations): every one preserves 8v->8v, 8s->8s, 8c->8c: ${rotationsPreserveSectors}`)
 
   // triality (Hadamard/2) MIXES the sectors: 8v -> 8s
   const Had = [[1, 1, 1, 1], [1, -1, 1, -1], [1, 1, -1, -1], [1, -1, -1, 1]].map((r) => r.map((x) => x / 2))
   const trial = (v: number[]): number[] => [0, 1, 2, 3].map((i) => Had[i]!.reduce((s, _h, k) => s + Had[i]![k]! * v[k]!, 0))
   const trialityMixes = v8.every((v) => inWhich(trial(v)) === 's')
-  console.log(`P256 triality (Hadamard/2) maps the 8v sector INTO the 8s sector (relates, does not preserve): ${trialityMixes}`)
 
   const oneRuleForced = sectorsCover24 && rotationsPreserveSectors && trialityMixes
-  console.log(`P256 => a ROTATION-SYMMETRIC rule on the 24 directions MUST keep 8v (photon) and 8s,8c (fermions) as`)
-  console.log(`  invariant sectors, they cannot be separated. One rule carries both, by symmetry. Forced: ${oneRuleForced}`)
-  console.log(`  per-sector dynamics already measured: 8v -> massless photon (p249), 8s/8c -> Dirac fermion (p248, p253).`)
-  console.log(`  HONEST: the coupled single-evolution with QED interaction is the open frontier, this proves co-existence.\n`)
 
   return { sectorsCover24, rotationsPreserveSectors, trialityMixes, oneRuleForced }
 }

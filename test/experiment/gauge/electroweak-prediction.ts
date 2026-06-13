@@ -26,23 +26,7 @@ export function electroweakPrediction(): { sin2: number; count: number; isThreeE
   const sumT3sq = generation.reduce((s, f) => s + f.mult * f.t3 * f.t3, 0)
   const sumQsq = generation.reduce((s, f) => s + f.mult * f.q * f.q, 0)
   const sin2 = sumT3sq / sumQsq
-  console.log('P228 electroweak prediction from so(10) (one generation = the 16):')
-  console.log(`  fermions per generation = ${count}  (= 15 SM Weyl fermions + 1 RH neutrino, so(10) PREDICTS the nu^c)`)
-  console.log(`  sum T_3^2 = ${sumT3sq}  (= 2),  sum Q^2 = ${sumQsq.toFixed(4)}  (= 16/3 = ${(16 / 3).toFixed(4)})`)
-  console.log(`  sin^2(theta_W) = sum T_3^2 / sum Q^2 = ${sin2.toFixed(5)}  (= 3/8 = ${(3 / 8).toFixed(5)})`)
   const isThreeEighths = Math.abs(sin2 - 3 / 8) < 1e-9
-  console.log(`  equals 3/8 exactly: ${isThreeEighths}`)
-  console.log('')
-  console.log('Other numbers the structure FORCES (group theory, discrete):')
-  console.log(' - 16 = 15 + 1: one full SM generation PLUS a right-handed neutrino (so(10) predicts it -> neutrino mass / seesaw).')
-  console.log(' - CHARGE QUANTIZATION: all charges are multiples of 1/3, and Q(electron) = -1 = -3 x Q(d-quark) exactly,')
-  console.log('   forced by the d^c being a colour TRIPLET inside su(5). Charge is quantized, not free.')
-  console.log(' - THREE GENERATIONS: the discrete triality S3 on the three 8-reps (8v,8s,8c) of so(8) -> exactly 3 copies.')
-  console.log(' - ANOMALY-FREE: the 16 of so(10) is automatically anomaly-free (a real/safe spinor rep).')
-  console.log('')
-  console.log(`  => sin^2(theta_W) = 3/8 at the unification scale is the first clean QUANTITATIVE prediction. (RG running`)
-  console.log('     brings it to ~0.231 at the Z mass, the standard GUT story.) The number falls straight out of the')
-  console.log('     coin+tone = so(10), 16 = one generation structure, no free parameters.')
   return { sin2, count, isThreeEighths }
 }
 

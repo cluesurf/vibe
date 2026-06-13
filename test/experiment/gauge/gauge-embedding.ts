@@ -39,21 +39,8 @@ function smEmbeds(n: number): { a2: boolean; a2a1: boolean; example?: string } {
 }
 
 export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
-  console.log('P217 gauge embedding, does su(3)xsu(2)xu(1) (= A2 (+) A1 (+) u(1)) fit in the coin symmetry?')
   const r4 = smEmbeds(4), r5 = smEmbeds(5)
-  console.log(`  D4 = so(8)  ({3,4,3,4} coin): ${dnRoots(4).length} roots, has A2 = ${r4.a2}, has A2(+)A1 (the SM) = ${r4.a2a1}`)
-  console.log(`  D5 = so(10) (minimal GUT):    ${dnRoots(5).length} roots, has A2 = ${r5.a2}, has A2(+)A1 (the SM) = ${r5.a2a1}`)
-  if (r5.example) console.log(`    so(10) example: ${r5.example}`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - D4 has an A2 (su(3)) but NO root orthogonal to it, so su(3) x su(2) does NOT embed in so(8).')
-  console.log('   (D4 roots have exactly two non-zero entries, so none is orthogonal to a full A2.) So the')
-  console.log('   STANDARD MODEL gauge group does NOT fit in the {3,4,3,4} coin symmetry alone. Rank-matching (4=4)')
-  console.log('   was necessary but not sufficient. An honest NEGATIVE for "gauge from D4/triality alone".')
-  console.log(' - D5 = so(10) DOES contain su(3) x su(2) x u(1) (the minimal SO(N) GUT). And D4 (+) one node = D5,')
-  console.log('   so the constructive path is to ENLARGE the coin from D4 to D5, then so(10) -> SM. Triality (the')
-  console.log('   three 8-reps of D4) remains a suggestive hint for THREE generations, but the gauge GROUP needs D5.')
-  return { d4: r4.a2a1, d5: r5.a2a1 }
+  if (r5.example)   return { d4: r4.a2a1, d5: r5.a2a1 }
 }
 
 export default defineExperiment({

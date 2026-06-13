@@ -26,21 +26,7 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
   // (2) periodicity, degree histogram of the band cells (clean cubic {4,3,4} -> mostly degree 6; aperiodic -> spread)
   const degreeHistogram: Record<number, number> = {}
   for (let a = 0; a < B; a++) { const d = bnb[a]!.length; degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1 }
-  console.log('HOROSPHERE-REALITY ({3,4,3,4} flat 3D physical space, finite mesh):')
-  console.log(`  extracted band of ${B} cells (from a ${N}-cell horoball patch)`)
-  console.log(`  (1) flatness, intrinsic band growth ratio = ${flatGrowth} (POLYNOMIAL ~ a few, would be ~9 if curved/bulk)`)
-  console.log(`      shell sizes: ${shell.slice(0, 8).join(', ')} ... (flat 3D would grow ~ r^2, sub-exponential)`)
-  console.log(`  (2) periodicity, band-cell degree histogram (degree: count):`)
-  for (const d of Object.keys(degreeHistogram).map(Number).sort((a, b) => a - b)) console.log(`        degree ${d}: ${degreeHistogram[d]} cells`)
   const uniform = Object.keys(degreeHistogram).length <= 2
-  console.log(`      -> ${uniform ? 'fairly uniform (periodic-like, clean lattice)' : 'SPREAD of degrees (aperiodic, the cells cross the horosphere irregularly)'}`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The band is intrinsically FLAT (sub-exponential / polynomial growth), confirming horospheres are')
-  console.log('   Euclidean even at FINITE distance, not only at infinity.')
-  console.log(' - The degree spread shows whether the discrete tiling is the clean periodic {4,3,4} (only in the')
-  console.log('   exact cusp) or an APERIODIC flat slab (a generic horosphere in the bulk). This is the crux of the')
-  console.log('   "is space exact or approximate" question, see physical-space-finiteness-and-growth.md.')
   return { bandCount: B, flatGrowth, degreeHistogram }
 }
 

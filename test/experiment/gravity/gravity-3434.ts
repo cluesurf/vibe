@@ -35,12 +35,7 @@ function measure(symbol: number[], maxCells: number): { N: number; nb: number; s
 export function gravity3434(): { fiveSlope: number; fourSlope: number; confounded: boolean } {
   const a = measure([5, 3, 4], 45000)
   const b = measure([3, 4, 3, 4], 45000)
-  console.log(`P198 gravity propagator (geodesic distance), calibration + test:`)
-  console.log(`  {5,3,4} (2D boundary, should be ~ -1): slope ${a.slope.toFixed(2)}  (${a.nb}/${a.N} cells are boundary)`)
-  console.log(`  {3,4,3,4} (3D boundary, should be ~ -2): slope ${b.slope.toFixed(2)}  (${b.nb}/${b.N} cells are boundary)`)
   const confounded = Math.abs(a.slope + 1) > 1.5 // calibration should be near -1; if far, method confounded
-  console.log(`  => calibration ${confounded ? 'FAILS' : 'ok'} (a finite hyperbolic patch is ~99% boundary, no bulk to`)
-  console.log('     propagate through). Exact gravity law OPEN, needs a proper tree-path propagator at large scale.')
   return { fiveSlope: a.slope, fourSlope: b.slope, confounded }
 }
 

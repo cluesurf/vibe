@@ -42,33 +42,13 @@ function measure(sym: number[]): { cells: number; degree: number; specDim: numbe
 }
 
 export function manyTessellations(): void {
-  console.log(`MANY-TESSELLATIONS scale sweep (maxCells=${SCALE}):`)
-  console.log('')
   for (const c of CANDIDATES) {
     const rank = c.sym.length + 1, bulkDim = c.sym.length, physDim = bulkDim - 1
     const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
     const has24 = c.sym.join(',').includes('3,4,3')
     const compact = bulkDim <= 4 // compact regular hyperbolic honeycombs exist only through H^4
     const m = measure(c.sym)
-    console.log(`{${c.sym.join(',')}}  (${c.note})`)
-    console.log(`  built ${m.cells.toLocaleString()} cells, degree ${m.degree}, bulk spectral dim ${m.specDim} (bulk ${bulkDim}D, physical space ${physDim}D)`)
-    console.log(`  crystallographic (root system / gauge possible): ${crystallographic}`)
-    console.log(`  contains the 24-cell pattern [3,4,3] (D4 / spinor hook): ${has24}`)
-    console.log(`  compact tiling: ${compact} ${compact ? '' : '(PARACOMPACT, rank ' + rank + ' > H^4 limit)'}`)
-    console.log(`  holographic correlator (Bethe): 1/r^${m.betheAlpha} ;  cosmology growth ratio ${m.growth}`)
-    console.log('')
   }
-  console.log('Reading:')
-  console.log(' - All five candidates are CRYSTALLOGRAPHIC (only 3s and 4s) and contain the 24-cell pattern [3,4,3],')
-  console.log('   so unlike {5,3,4}/{7,3}/{5,3,3,3,3} they DO carry the D4 / spinor / gauge hook. That is a real plus.')
-  console.log(' - BUT all five are rank-6 -> 5D bulk -> 4D PHYSICAL SPACE (over-dimensional), and all are')
-  console.log('   PARACOMPACT (beyond the H^4 compact limit), not genuine compact tilings.')
-  console.log(' - The framework (rule, conservation, light cone, EM, holographic 1/r^2, cosmology, hierarchy,')
-  console.log('   isotropy, toolkit) PORTS to all of them (substrate-general, as everywhere).')
-  console.log(' - VERDICT, none beats {3,4,3,4}. They recover the spinor/gauge hook (better than the non-cryst.')
-  console.log('   substrates), but they overshoot the dimension (4D not 3D) AND lose compactness. {3,4,3,4} remains')
-  console.log('   the unique one that is compact AND crystallographic (D4 spinors) AND exactly 3D, the least-emergence')
-  console.log('   substrate. These five are the best ALTERNATIVES (they keep the crystallographic hook), not betters.')
 }
 
 export default defineExperiment({

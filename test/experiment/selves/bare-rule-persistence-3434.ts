@@ -55,19 +55,14 @@ export function bareRulePersistence(): { linearLosesWinding: boolean; linearDisp
   const linW = lin.wHist[lin.wHist.length - 1]!
   const linearLosesWinding = linW !== w0 || lin.wHist.some((w) => w !== w0)
   const linearDisperses = lin.peakHist[lin.peakHist.length - 1]! < p0 * 0.7
-  console.log(`P262 LINEAR field rule (principle, not the specific rule): winding ${w0} -> ${lin.wHist.join(',')} (slips/lost: ${linearLosesWinding}); peak ${p0.toFixed(2)} -> ${lin.peakHist[lin.peakHist.length - 1]!.toFixed(2)} (disperses: ${linearDisperses})`)
 
   // NONLINEAR (amplitude-preserving sigma-model): winding locked, defect persists
   const non = evolve(psi0, 4000, true)
   const nonW = non.wHist[non.wHist.length - 1]!
   const nonlinearKeepsWinding = nonW === w0 && non.wHist.every((w) => w === w0)
   const nonlinearPersists = non.peakHist[non.peakHist.length - 1]! > p0 * 0.7
-  console.log(`P262 NONLINEAR rule (amplitude-preserving): winding ${w0} -> ${non.wHist.join(',')} (locked: ${nonlinearKeepsWinding}); peak stays ${non.peakHist[non.peakHist.length - 1]!.toFixed(2)} (persists: ${nonlinearPersists})`)
 
   const mechanismIdentified = (linearLosesWinding || linearDisperses) && nonlinearKeepsWinding && nonlinearPersists
-  console.log(`P262 => a LINEAR field rule does NOT give persistent winding (amplitude collapses, slips, disperses, confirms P101).`)
-  console.log(`  Persistence REQUIRES an amplitude-preserving nonlinearity (a sigma-model constraint), which LOCKS the winding.`)
-  console.log(`  Mechanism identified: ${mechanismIdentified}. Whether the conserving lattice-gas collision supplies this is the precise frontier.\n`)
 
   return { linearLosesWinding, linearDisperses, nonlinearKeepsWinding, nonlinearPersists, mechanismIdentified }
 }

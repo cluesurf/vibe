@@ -19,20 +19,7 @@ export function cosmology(): { growthRatio: number; exponential: boolean } {
   const mid = shell.slice(2, Math.min(7, shell.length))
   const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
   const growthRatio = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
-  console.log('P237 cosmology, the bulk expansion:')
-  console.log(`  {3,4,3,4} bulk shell sizes: ${shell.slice(0, 7).join(', ')} ...`)
-  console.log(`  growth ratio per shell = ${growthRatio} (> 1 means EXPONENTIAL growth = eternal expansion)`)
   const exponential = growthRatio > 1.5
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The hyperbolic {3,4,3,4} bulk grows EXPONENTIALLY (each radial shell is ~' + growthRatio + 'x the last). That')
-  console.log('   exponential growth IS the eternal expansion of the substrate, a de-Sitter / inflating geometry built in.')
-  console.log(' - The flat 3D cusp / horosphere is the spatial slice (where physics lives), the radial direction is the')
-  console.log('   cosmic time / scale factor (growing exponentially), and PEACE (the all-zero tone) is the natural initial')
-  console.log('   state the rule starts from.')
-  console.log(' - So the cosmology is built into the geometry, eternal exponential expansion (the hyperbolic growth), flat')
-  console.log('   spatial sections (the cusp), and an emergent positive cosmological-constant-like curvature. The committed')
-  console.log('   eternal-expansion fate is the bulk growth, not an add-on.')
   return { growthRatio, exponential }
 }
 

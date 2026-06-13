@@ -68,20 +68,6 @@ function battery(s: Sub): Record<string, string> {
   }
 }
 
-export function comprehensiveComparison(): void {
-  const FIELDS = ['geometry', 'crystallographic', 'spinor', 'rule', 'lightcone', 'em', 'holographic', 'gravity', 'isotropy', 'cosmology', 'hierarchy', 'selves']
-  const results = SUBS.map((s) => ({ s, r: battery(s) }))
-  console.log('COMPREHENSIVE COMPARISON, same battery on every dimension representative:')
-  for (const { s, r } of results) {
-    console.log(`\n=== {${s.sym.join(',')}} ===`)
-    for (const f of FIELDS) console.log(`  ${f.padEnd(16)} ${r[f]}`)
-  }
-  console.log('\nVERDICT, the FRAMEWORK rows (rule, lightcone, em, holographic 1/r^2, cosmology, hierarchy, isotropy)')
-  console.log('are POSITIVE on every substrate. The PHYSICS rows differ, crystallographic+spinor only {3,4,3,4} (and')
-  console.log('its flat twin {3,4,3,3}), 3D physical space + 1/r gravity + fermions only the 4D ones, and curvature')
-  console.log('separates {3,4,3,4} (hyperbolic) from {3,4,3,3} (flat). {3,4,3,4} alone wins every physics row.')
-}
-
 export default defineExperiment({
   id: 'substrate-survey/comprehensive-comparison',
   title: 'the same battery on one substrate per dimension, only {3,4,3,4} scores on every physics row',
@@ -90,7 +76,6 @@ export default defineExperiment({
   depth: 'L1',
   paper: false,
   run() {
-    comprehensiveComparison()
     const champion = SUBS.find((s) => s.sym.join(',') === '3,4,3,4')!
     const row = battery(champion)
     const conserved = row.rule!.includes('conserved true')

@@ -42,26 +42,12 @@ function measure(sym: number[]): { ok: boolean; cells: number; degree: number; g
 }
 
 export function twodTessellations(): void {
-  console.log(`TWOD-TESSELLATIONS scale sweep (maxCells=${SCALE}), all are 2D bulk -> 1D physical space:`)
-  console.log('')
   for (const c of TILINGS) {
     const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
     const compact = 1 / c.sym[0]! + 1 / c.sym[1]! < 0.5 // hyperbolic 2D tilings are compact
     const m = measure(c.sym)
-    if (!m.ok) { console.log(`{${c.sym.join(',')}}  build failed`); continue }
-    console.log(`{${c.sym.join(',')}}  ${compact ? 'compact' : 'non-compact'}, ${crystallographic ? 'CRYSTALLOGRAPHIC' : 'non-cryst.'}  built ${m.cells.toLocaleString()} cells, degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}  (${c.note})`)
+    if (!m.ok) { continue }
   }
-  console.log('')
-  console.log('Reading:')
-  console.log(' - ALL eight are 2D bulk -> 1D HOROCYCLE, so physical space is 1D, the MOST degenerate (no exchange')
-  console.log('   statistics, linear gravity, kinks only), same as {7,3}.')
-  console.log(' - {6,4} and {4,6} are CRYSTALLOGRAPHIC (only 3,4,6) AND compact, so they could carry a root system')
-  console.log('   / gauge, unlike the others (which have a 5, 7, or 8 -> non-crystallographic). But they still have')
-  console.log('   NO spinor (2D, no D4 / 24-cell hook) and only 1D physical space.')
-  console.log(' - The rest ({5,4},{8,3},{4,5},{3,7},{5,5}) are non-crystallographic, no gauge, no spinor.')
-  console.log(' - The framework ports to all (universal clean 1/r^2 holographic correlator, exponential cosmology).')
-  console.log(' - So even the best 2D cases ({6,4},{4,6}, compact + crystallographic) fail on dimension (1D) and')
-  console.log('   spinor. 2D is too low, the framework runs but the physics is the most degenerate of any substrate.')
 }
 
 export default defineExperiment({

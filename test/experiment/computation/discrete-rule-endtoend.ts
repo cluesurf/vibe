@@ -63,10 +63,6 @@ export function discreteRuleEndToEnd(): { chargeOk: boolean; momentumOk: boolean
   for (let t = 0; t < T; t++) { r = streamInverse(r); collide(r) }
   let diff = 0; for (let i = 0; i < N; i++) diff += Math.abs(r.E[i]! - init.E[i]!) + Math.abs(r.W[i]! - init.W[i]!) + Math.abs(r.N[i]! - init.N[i]!) + Math.abs(r.S[i]! - init.S[i]!)
   const reversible = diff === 0
-  console.log('P229 the discrete directional rule, verified end-to-end (no continuum tools):')
-  console.log(`  (1) charge conserved exactly: ${chargeOk} (${c0} -> ${c1})`)
-  console.log(`  (2) momentum conserved exactly: ${momentumOk} (${[px0, py0]} -> ${[px1, py1]})`)
-  console.log(`  (3) exactly reversible (forward ${T} then inverse ${T} = identity): ${reversible} (diff ${diff})`)
   // (4) emergent smooth continuum: seed a localized density blob, evolve, coarse-grain, check it spreads SMOOTHLY
   const blob: State = { E: new Int8Array(N), W: new Int8Array(N), N: new Int8Array(N), S: new Int8Array(N) }
   const c = L >> 1
@@ -81,11 +77,6 @@ export function discreteRuleEndToEnd(): { chargeOk: boolean; momentumOk: boolean
   const meanAbs = (() => { let s2 = 0; for (let i = 0; i < cg.length; i++) s2 += Math.abs(cg[i]!); return s2 / cg.length })()
   const roughness = (tv / cnt) / (meanAbs + 1e-9)
   const smooth = roughness < 1.0 // coarse field varies slowly relative to its magnitude (a smooth continuum)
-  console.log(`  (4) emergent smooth continuum: coarse-grained density roughness = ${roughness.toFixed(2)} (smooth = <1): ${smooth}`)
-  console.log('  => one fully-specified DISCRETE rule conserves charge + momentum EXACTLY, is EXACTLY reversible, and')
-  console.log('     coarse-grains to a SMOOTH continuum density, all from the discrete dynamics, no continuum input.')
-  console.log('     On {3,4,3,4} (24 directions) the same construction gives emergent ISOTROPY (p226); the Dirac walk')
-  console.log('     and gauge structure are further emergent layers on top of this discrete base.')
   return { chargeOk, momentumOk, reversible, smooth }
 }
 

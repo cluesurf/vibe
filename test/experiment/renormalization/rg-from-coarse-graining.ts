@@ -14,37 +14,14 @@ import { verdict } from '@/test/scaffold/verdict'
 const decimate = (K: number): number => 0.5 * Math.log(Math.cosh(2 * K))
 
 export function rgFromCoarseGraining(): { flows: boolean; betaSign: number } {
-  console.log('RG-FROM-COARSE-GRAINING, the running emerges from coarse-graining (the mechanism):')
-  console.log('')
-  console.log('(1) a coupling FLOWS under coarse-graining (1D decimation RG, K\\\' = (1/2) ln cosh 2K):')
   for (const K0 of [2.0, 1.0, 0.5]) {
     let K = K0; const traj: number[] = [K]
     for (let step = 0; step < 6; step++) { K = decimate(K); traj.push(Math.round(K * 1000) / 1000) }
-    console.log(`    start K = ${K0}:  ${traj.join(' -> ')}`)
   }
   // the beta function, beta(K) = K' - K per coarse-graining step (the change of the coupling with scale)
   const betaAt = (K: number): number => decimate(K) - K
   const flows = Math.abs(betaAt(1.0)) > 0.05
   const betaSign = betaAt(1.0) < 0 ? -1 : 1
-  console.log(`    beta(K=1) = K' - K = ${Math.round(betaAt(1.0) * 1000) / 1000} (negative -> K flows DOWN to the disordered fixed point K* = 0)`)
-  console.log(`    so the coupling RUNS with scale, a beta function arises purely from integrating out short-distance detail.`)
-  console.log('')
-  console.log('(2) the substrate connection, the bulk radial direction IS this coarse-graining:')
-  console.log('    the {3,4,3,4} bulk radial tree (p238) rescales the boundary by a constant factor (~10) per radial')
-  console.log('    shell, so moving radially = one RG step, and radial position = energy / RG scale (p238, the')
-  console.log('    holographic RG, gut-and-the-geometry). Therefore a coupling defined on the mesh RUNS with radial')
-  console.log('    position, the RUNNING is a derived geometric feature, the same mechanism as the decimation above,')
-  console.log('    realized by the curvature.')
-  console.log('')
-  console.log('Reading:')
-  console.log(' - DEMONSTRATED, coarse-graining (integrating out short-distance detail) generates a coupling flow')
-  console.log('   with a beta function, this is the engine of "running", and the bulk\\\'s radial coarse-graining is')
-  console.log('   exactly such a process (the holographic RG), so the running of couplings is a DERIVED feature of')
-  console.log('   the geometry, not imported.')
-  console.log(' - OPEN (the remaining gap), reproducing the EXACT Standard-Model gauge and Yukawa beta functions')
-  console.log('   requires the gauge fields and fermion loops living on the mesh and being coarse-grained, the big')
-  console.log('   dynamical simulation. The MECHANISM (running from coarse-graining) is here, the SPECIFIC SM beta')
-  console.log('   coefficients are the next dynamical step.')
   return { flows, betaSign }
 }
 

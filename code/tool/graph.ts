@@ -46,6 +46,30 @@ export function degree(g: Graph, input: { node: number }): number {
   return (g.neighbors[input.node] ?? new Uint32Array(0)).length
 }
 
+// Compressed sparse row form of a neighbors list. The GPU uploads and many experiments built this inline,
+// offsets[i]..offsets[i+1] index into adj for node i's neighbors. Accepts a plain number[][] or the Graph's
+// Uint32Array rows.
+export function toCsr(neighbors: ReadonlyArray<ReadonlyArray<number>>): {
+  offsets: Uint32Array
+  adj: Uint32Array
+} {
+  const n = neighbors.length
+  const offsets = new Uint32Array(n + 1)
+  for (let i = 0; i < n; i++) offsets[i + 1] = offsets[i]! + (neighbors[i]?.length ?? 0)
+  const adj = new Uint32Array(offsets[n]!)
+  let p = 0
+  for (let i = 0; i < n; i++) {
+    const row = neighbors[i] ?? []
+    for (let k = 0; k < row.length; k++) adj[p++] = row[k]!
+  }
+  return { offsets, adj }
+}
+
+// A plain number[][] view of a Graph's neighbors (for the neighbors-native measures and renders).
+export function neighborsOf(g: Graph): number[][] {
+  return g.neighbors.map((row) => Array.from(row))
+}
+
 // Undirected edge list (each edge once, a < b). Useful for curvature and gauge.
 export function edgeList(g: Graph): Array<{ a: number; b: number }> {
   const out: Array<{ a: number; b: number }> = []

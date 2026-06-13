@@ -10,6 +10,20 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+function study(): { meanDimension: number; acceptance: number } {
+  const rng = makeRng({ seed: 11 })
+  const action = benincasaDowkerAction({ epsilon: 1, dimension: 2 })
+  const r = sampleCausalSets({
+    size: 48,
+    action,
+    beta: 1,
+    steps: 6000,
+    rng,
+    observe: ({ poset }) => myrheimMeyerDimension({ poset }),
+  })
+  return { meanDimension: r.meanObservable, acceptance: r.acceptanceRate }
+}
+
 export default defineExperiment({
   id: 'quantum/path-integral',
   title: 'a 2D Lorentzian causal-set path integral recovers a mean dimension near two',
@@ -18,7 +32,7 @@ export default defineExperiment({
   depth: 'L2',
   paper: true,
   run() {
-    const r = main()
+    const r = study()
     // The estimator returns a finite small dimension, but at this size and step
     // count the thermalized ensemble does not settle cleanly on the 2D value, so
     // the honest report is a finite-dimensional recovery, not a sharp dimension = 2.

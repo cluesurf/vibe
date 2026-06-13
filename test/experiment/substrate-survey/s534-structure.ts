@@ -27,18 +27,6 @@ export function s534Structure(): { degree: number; specDim: number; crystallogra
   let crystallographic = true; let exampleNonInt = 0
   for (const a of verts) for (const b of verts) { const r = (2 * dot(a, b)) / dot(b, b); if (Math.abs(r - Math.round(r)) > 1e-6) { crystallographic = false; exampleNonInt = Math.round(r * 1000) / 1000 } }
   const hasSpinor = false // a permutation rep of the icosahedral rotation group A5 = 1+3+3'+5, all integer spin (p190)
-  console.log('S534-STRUCTURE ({5,3,4}):')
-  console.log(`  bulk, ${N} cells, degree ${degree} (dodecahedral, 12 faces), spectral dim ${specDim} (3D hyperbolic, compact, no cusp)`)
-  console.log(`  flat layer = a 2D HOROSPHERE (intrinsically Euclidean 2D), so physical space would be 2D`)
-  console.log(`  the 12 directions are ICOSAHEDRAL, crystallographic (a root system)? ${crystallographic} (a non-integer 2(a.b)/(b.b) = ${exampleNonInt} appears, the golden ratio -> NON-crystallographic)`)
-  console.log(`  spinor present? ${hasSpinor} (the 12-direction perm rep of A5 = 1 + 3 + 3' + 5, all integer spin, p190)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log(' - geometry, POSITIVE (3D hyperbolic bulk, 2D horosphere, degree 12), well-defined and buildable.')
-  console.log(' - SPIN, NEGATIVE, no spinor (icosahedral, not the D4 24-cell), so no fundamental fermions from the geometry.')
-  console.log(' - GAUGE, NEGATIVE, the 12 directions are non-crystallographic (icosahedral, golden ratio), NOT a root')
-  console.log('   system, so no so(N) gauge group, no GUT, no sin^2(theta_W), no generations from triality.')
-  console.log(' - DIMENSION, the flat layer is 2D, so physical space is 2D (vs 3D for {3,4,3,4}).')
   return { degree, specDim, crystallographic, hasSpinor }
 }
 

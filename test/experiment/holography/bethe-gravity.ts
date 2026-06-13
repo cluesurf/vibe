@@ -46,20 +46,11 @@ function validateTree(z: number, depth: number): number {
 export function betheGravity(): { alpha24: number; alpha12: number; massiveAlpha: number; validated: boolean } {
   const alpha24 = Math.round(boundaryExponent(24, 24) * 1000) / 1000 // {3,4,3,4} bulk, z=24, Laplacian E=z
   const alpha12 = Math.round(boundaryExponent(12, 12) * 1000) / 1000 // {5,3,4} bulk, z=12
-  console.log('P239 Bethe-lattice exact bulk-mediated boundary correlator (geodesic / tree distance):')
-  console.log(`  z=24 ({3,4,3,4}): mu = ${muFor(24, 24).toFixed(4)} (= 1/23), boundary correlator ~ 1/r^${alpha24}`)
-  console.log(`  z=12 ({5,3,4}):   mu = ${muFor(12, 12).toFixed(4)} (= 1/11), boundary correlator ~ 1/r^${alpha12}`)
-  console.log(`  => the massless (Laplacian) bulk-mediated boundary correlator is a CLEAN 1/r^2, universally (mu = 1/b`)
-  console.log('     gives alpha = 2). No finite-patch confound, the exact recursion + geodesic distance fixes p210.')
   // massive bulk field, E > z -> mu smaller -> alpha larger (screened / Yukawa-like)
   const massiveAlpha = Math.round(boundaryExponent(24, 30) * 1000) / 1000
-  console.log(`  massive bulk field (E=30 > z): boundary correlator ~ 1/r^${massiveAlpha} (steeper, screened)`)
   // validate the recursion against a directly-solved finite tree
   const measured = validateTree(12, 7), predicted = muFor(12, 12)
   const validated = Math.abs(measured - predicted) < 0.05
-  console.log(`  validation, finite-tree solve gives per-step ratio ${measured.toFixed(3)} vs analytic mu ${predicted.toFixed(3)}: ${validated}`)
-  console.log('  NOTE, this is the bulk-MEDIATED (holographic) boundary correlator (a CFT 2-point function), distinct')
-  console.log('  from the flat-3D NEWTONIAN potential 1/r (p224, the physical-space gravity, already clean).')
   return { alpha24, alpha12, massiveAlpha, validated }
 }
 

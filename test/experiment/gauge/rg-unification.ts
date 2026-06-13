@@ -28,28 +28,12 @@ function runAndCheck(b: number[], label: string): { logMu12: number; a3gap: numb
   const a3 = inv(a3inv0, b[2]!, t12)
   const gap = Math.round((a3 - a12) * 100) / 100 // mismatch, 0 = perfect three-way unification
   const logMu12 = Math.round((Math.log10(MZ) + t12 / Math.log(10)) * 10) / 10 // log10(mu) in GeV
-  console.log(`  ${label}:`)
-  console.log(`    alpha_1 = alpha_2 at mu ~ 10^${logMu12} GeV, common alpha^-1 = ${a12.toFixed(1)}`)
-  console.log(`    alpha_3^-1 there = ${a3.toFixed(1)}, gap to the others = ${gap} (0 = clean 3-way unification)`)
   return { logMu12, a3gap: gap }
 }
 
 export function rgUnification(): { smGap: number; mssmGap: number } {
-  console.log('RG-UNIFICATION, does sin^2(theta_W) = 3/8 (the GUT value) run to the measured 0.231?')
-  console.log(`  inputs at M_Z, alpha_1^-1 = ${a1inv0.toFixed(1)}, alpha_2^-1 = ${a2inv0.toFixed(1)}, alpha_3^-1 = ${a3inv0.toFixed(1)} (sin^2 = ${sin2})`)
-  console.log('')
   const sm = runAndCheck(bSM, 'Standard Model (1-loop)')
   const mssm = runAndCheck(bMSSM, 'MSSM / low-energy SUSY (1-loop)')
-  console.log('')
-  console.log('Reading:')
-  console.log(' - Running the three couplings up, if they MEET at one scale, then sin^2(theta_W) = 3/8 holds at')
-  console.log('   that GUT scale and runs down to the measured 0.231, the 3/8 is then CONFIRMED against experiment.')
-  console.log(`  - Standard Model, the three MISS by ~${Math.abs(sm.a3gap)} (alpha_3 off), so 3/8 -> ~0.21 at M_Z, CLOSE but not exact.`)
-  console.log(`  - MSSM (low-energy SUSY), the three MEET (gap ~${Math.abs(mssm.a3gap)}) at ~10^${mssm.logMu12} GeV, so 3/8 -> 0.231,`)
-  console.log('    sin^2(theta_W) = 3/8 is CONFIRMED against experiment IF the spectrum is MSSM-like.')
-  console.log(' - So the prediction is elevatable to COMPUTED-AND-COMPARED, and it additionally PREDICTS low-energy')
-  console.log('   supersymmetry (clean unification needs the MSSM content). Full derivation FROM the discrete rule')
-  console.log('   (deriving the beta functions from the dynamics) is the open frontier.')
   return { smGap: sm.a3gap, mssmGap: mssm.a3gap }
 }
 

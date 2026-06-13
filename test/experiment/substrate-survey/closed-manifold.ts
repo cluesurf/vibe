@@ -34,8 +34,6 @@ export function closedManifold(): { vertices: number; vertexTransitive: boolean;
   const adj: number[][] = keys.map((k) => { const M = elems.get(k)!; const ns = new Set<number>(); for (const gen of gens) ns.add(id.get(canon(mmul(gen, M)))!); return [...ns] })
   const degs = adj.map((a) => a.length)
   const vertexTransitive = degs.every((d) => d === degs[0])
-  console.log(`P240 closed hyperbolic manifold = Cayley graph of PSL(2,7):`)
-  console.log(`  vertices = ${N}, every vertex degree = ${degs[0]} -> vertex-transitive, NO boundary: ${vertexTransitive}`)
   // mod-3 wave on the closed graph, charge conservation (no boundary leak)
   let cur = new Int8Array(N), prev = new Int8Array(N), nxt = new Int8Array(N); cur[0] = 1
   const net = (a: Int8Array): number => { let s = 0; for (let i = 0; i < N; i++) s += a[i]!; return ((s % 3) + 3) % 3 }
@@ -47,15 +45,6 @@ export function closedManifold(): { vertices: number; vertexTransitive: boolean;
   let p = new Float64Array(N); p[0] = 1; let np = new Float64Array(N); const ret: number[] = []
   for (let t = 0; t < 12; t++) { ret.push(p[0]!); np.fill(0); for (let i = 0; i < N; i++) { const pi = p[i]!; if (!pi) continue; const d = adj[i]!.length; np[i] = np[i]! + 0.5 * pi; const sh = (0.5 * pi) / d; for (const j of adj[i]!) np[j] = np[j]! + sh } const tmp = p; p = np; np = tmp }
   const specDim = Math.round((-2 * (Math.log(ret[4]!) - Math.log(ret[2]!))) / (Math.log(4) - Math.log(2)) * 100) / 100
-  console.log(`  mod-3 wave on the closed manifold runs with NO boundary leak (vertex-transitive): ${conserves}`)
-  console.log(`  short-time spectral dimension ~ ${specDim} (the local hyperbolic structure, measured with zero edge artifact)`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The Cayley graph of PSL(2,7) is a CLOSED hyperbolic lattice (a quotient of the (2,3,7) tiling), every')
-  console.log('   vertex is identical, there are NO boundary cells, so the ~99%-boundary confound simply does not exist.')
-  console.log(' - The rule runs and is measured with ZERO edge artifact. This is the general fix, run the dynamics on a')
-  console.log('   compact hyperbolic quotient (in 4D, an arithmetic / Davis-type closed 4-manifold) and the bulk')
-  console.log('   observables (gravity, spectra) become clean. Larger quotients (PSL(2,q), bigger q) scale on the GPU.')
   return { vertices: N, vertexTransitive, conserves, specDim }
 }
 

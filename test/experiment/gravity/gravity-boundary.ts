@@ -47,18 +47,11 @@ export function gravityBoundary(): { exp3D: number; slope2DvsLog: number } {
   let n = 0, sx = 0, sy = 0, sxx = 0, sxy = 0
   for (const p of p3) { if (p.g <= 0) continue; const X = Math.log(p.r), Y = Math.log(p.g); n++; sx += X; sy += Y; sxx += X * X; sxy += X * Y }
   const exp3D = (n * sxy - sx * sy) / (n * sxx - sx * sx)
-  console.log('P219 dimension-resolved gravity (flat-layer Green\'s function):')
-  console.log(`  3D cusp {4,3,4}: G(r) vs r log-log slope = ${exp3D.toFixed(2)} (Newton 1/r expects -1)`)
-  console.log(`    sample G(r)*r: ${p3.filter((p) => [3, 6, 10, 14].includes(p.r)).map((p) => `r${p.r}:${(p.g * p.r).toFixed(3)}`).join('  ')} (flat => 1/r)`)
   // 2D horosphere: Newton ~ -log r -> g(r) linear in log r (negative slope)
   const s2 = solvePoisson(220, 2), p2 = radial(s2, 220, 2)
   let n2 = 0, lx = 0, ly = 0, lxx = 0, lxy = 0
   for (const p of p2) { const X = Math.log(p.r); n2++; lx += X; ly += p.g; lxx += X * X; lxy += X * p.g }
   const slope2DvsLog = (n2 * lxy - lx * ly) / (n2 * lxx - lx * lx)
-  console.log(`  2D horosphere: G(r) vs ln(r) slope = ${slope2DvsLog.toFixed(3)} (Newton -log r expects a clear NEGATIVE slope)`)
-  console.log('  => the flat physical-space layer carries the DIMENSION-CORRECT Newton law: {3,4,3,4} 3D cusp gives 1/r')
-  console.log('     (slope ~ -1, the correct 3D gravity), {5,3,4} 2D horosphere gives a logarithm. This is the')
-  console.log('     dimension-resolved answer the dimension-blind tree (p218) could not give. Gravity lives on the flat layer.')
   return { exp3D, slope2DvsLog }
 }
 

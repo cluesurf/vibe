@@ -22,7 +22,6 @@ export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRel
     const E = Eof(m, p), [E2, p2] = boost(E, p, phi)
     if (Math.abs((E2 * E2 - p2 * p2) - m * m) > 1e-9) invariantPreserved = false
   }
-  console.log(`P259 (1) E^2 - p^2 = m^2 preserved under boosts (the Lorentz invariant), all m, p, rapidity: ${invariantPreserved}`)
 
   // (2) relativistic velocity addition u' = (u+v)/(1+uv), NOT Galilean u+v
   let velocitiesAddRelativistically = true, galileanWrong = false
@@ -34,7 +33,6 @@ export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRel
   }
   // verify a concrete case: 0.9 + 0.9 = 0.994... (< c), not 1.8
   const example = (0.9 + 0.9) / (1 + 0.81)
-  console.log(`P259 (2) velocity addition is RELATIVISTIC: 0.9 (+) 0.9 = ${example.toFixed(3)} < c (Galilean 1.8 would exceed c): ${velocitiesAddRelativistically && galileanWrong}`)
 
   // (3) HONEST: the lattice dispersion is NOT exactly boost-invariant, it breaks at short wavelength (UV)
   // measure the invariant E^2 - k^2 vs m^2 at small k (IR, should match) and large k (UV, should deviate)
@@ -43,9 +41,6 @@ export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRel
   const kUV = 1.5, EUV = ElatticeFromK(m, kUV), invUV = EUV * EUV - kUV * kUV
   const emergentInIR = Math.abs(invIR - m * m) < 1e-2
   const latticeBreaksUV = Math.abs(invUV - m * m) > 0.1
-  console.log(`P259 (3) lattice E^2 - k^2: IR (k=${kIR}) = ${invIR.toFixed(4)} ~ m^2 = ${(m * m).toFixed(4)} (boost-invariant: ${emergentInIR})`)
-  console.log(`        UV (k=${kUV}) = ${invUV.toFixed(3)} != m^2 (lattice BREAKS boosts at short wavelength: ${latticeBreaksUV})`)
-  console.log(`  => boost invariance is EMERGENT in the infrared, exact only at long wavelength, as expected for emergent spacetime.\n`)
 
   return { invariantPreserved, velocitiesAddRelativistically: velocitiesAddRelativistically && galileanWrong, latticeBreaksUV, emergentInIR }
 }

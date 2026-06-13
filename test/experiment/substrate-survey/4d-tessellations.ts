@@ -49,25 +49,11 @@ function measure(sym: number[], flat: boolean): { ok: boolean; cells: number; de
 }
 
 export function fourdTessellations(): void {
-  console.log(`4D-TESSELLATIONS full sweep (maxCells=${SCALE}), ALL give 3D physical space (the observed dimension):`)
-  console.log('')
   for (const c of HONEYCOMBS) {
     const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
     const m = measure(c.sym, c.flat ?? false)
     const built = m.ok ? `degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}` : 'does not build (ideal tiles)'
-    console.log(`{${c.sym.join(',')}}  ${c.cls}, ${crystallographic ? 'CRYSTALLOGRAPHIC' : 'non-cryst.'}, coin=${c.coin}  ${built}  (${c.note})`)
   }
-  console.log('')
-  console.log('Reading:')
-  console.log(' - EVERY 4D honeycomb gives a 3D horosphere / cusp -> physical space is 3D (the observed dimension).')
-  console.log(' - The 5 COMPACT convex regulars all contain a 5 -> NON-crystallographic, no gauge, no spinor.')
-  console.log(' - The crystallographic 4D honeycombs are the PARACOMPACT / noncompact ones (only 3,4,6),')
-  console.log('   {4,3,4,3} (cubic facets), {3,4,3,4} (24-cell = D4 facets!), {3,4,6,4} (exotic), {4,4,3,3}, {4,4,4,4}.')
-  console.log(' - {3,4,3,4} is the UNIQUE 4D honeycomb with 24-CELL (D4) facets, so it alone carries the spinor coin')
-  console.log('   (8s + 8c) and so(10) gauge. Its vertex figure is the Euclidean {4,3,4} cubic honeycomb = the flat')
-  console.log('   3D cusp = PHYSICAL SPACE. So {3,4,3,4} is paracompact, and that paracompactness IS the 3D space.')
-  console.log(' - CORRECTION to earlier docs, {3,4,3,4} is PARACOMPACT (not compact). The compact 4D regulars are')
-  console.log('   the five non-crystallographic ones. {3,4,3,4} trades compactness for the D4 coin + flat 3D cusp.')
 }
 
 export default defineExperiment({

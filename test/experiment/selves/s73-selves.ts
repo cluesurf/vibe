@@ -17,17 +17,6 @@ export function s73Selves(): { solitonsExist: boolean; kinkCharge: number; hasEx
   // also confirm the kink is localized (the gradient energy concentrates), a real soliton not a ramp
   let gradPeak = 0, gradAt = 0; for (let x = 1; x < L; x++) { const d = Math.abs(phi(x) - phi(x - 1)); if (d > gradPeak) { gradPeak = d; gradAt = x } }
   const hasExchangeStatistics = false // 1D, no braiding, particles cannot be exchanged without colliding
-  console.log('S73-SELVES ({7,3}, 1D horocycle):')
-  console.log(`  1D KINK (phi^4 / sine-Gordon), topological charge = ${kinkCharge} (pi_0(vacuum) = Z), solitons EXIST: ${solitonsExist}`)
-  console.log(`  the kink is localized, gradient peaks at x=${gradAt} (a real soliton, not a uniform ramp)`)
-  console.log(`  exchange statistics in 1D: ${hasExchangeStatistics} (no braiding, particles cannot pass, neither fermions NOR anyons)`)
-  console.log(`  fundamental spinor: false (no spinor in the 7-direction coin, s73-structure)`)
-  console.log('')
-  console.log('Verdicts:')
-  console.log('  - SELVES exist, POSITIVE, 1D topological kinks (domain walls) form on the 1D horocycle.')
-  console.log('  - but 1D has NO exchange statistics, DIFFERENT, no fermions and no anyons (1D forbids braiding), and')
-  console.log('    no fundamental spinor. Matter on {7,3} is the most degenerate kind, 1D kinks.')
-  console.log('  - the form-coherence tower is a generic slow-mode (NEUTRAL), same conclusion as {3,4,3,4} (P208).')
   return { solitonsExist, kinkCharge, hasExchangeStatistics }
 }
 

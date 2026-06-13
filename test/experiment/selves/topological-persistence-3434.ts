@@ -48,8 +48,6 @@ export function topologicalPersistence(): { windingConserved: boolean; energyRel
   const windingConserved = w0 === 1 && w1 === 1
   const energyRelaxes = e1 < e0 - 1e-6
   const defectPersists = windingConserved // the winding is locked => the defect cannot decay
-  console.log(`P257 winding-1 defect: w ${w0} -> ${w1} (LOCKED, conserved: ${windingConserved}); energy ${e0.toFixed(2)} -> ${e1.toFixed(2)} (relaxes: ${energyRelaxes})`)
-  console.log(`  => the defect PERSISTS, the profile smooths but the topological charge cannot decay: ${defectPersists}`)
 
   // CONTROL: w = 0 bump (a local perturbation, no winding) relaxes all the way to uniform
   const bump = Array.from({ length: L }, (_, x) => { const g = Math.exp(-((x - L / 2) ** 2) / 50); return { re: 1 - 0.8 * g, im: 0.3 * g } })
@@ -57,12 +55,8 @@ export function topologicalPersistence(): { windingConserved: boolean; energyRel
   const bumpRelaxed = relax(bump, 4000, 0.1)
   const eb1 = energy(bumpRelaxed)
   const trivialDecays = wb0 === 0 && eb1 < eb0 * 0.05 // relaxes to (near) uniform
-  console.log(`P257 CONTROL winding-0 bump: w ${wb0}, energy ${eb0.toFixed(2)} -> ${eb1.toFixed(4)} (decays to ~uniform: ${trivialDecays})`)
 
   const discriminates = defectPersists && trivialDecays
-  console.log(`P257 => topological charge DISCRIMINATES a persistent particle (w=1, locked) from a decaying lump (w=0): ${discriminates}`)
-  console.log(`  the honest persistence mechanism: a conserved winding gives a particle that cannot decay locally.`)
-  console.log(`  CAVEAT: the spinor field carries winding structure, whether the bare rule produces conserved-winding fields is open.\n`)
 
   return { windingConserved, energyRelaxes, defectPersists, trivialDecays, discriminates }
 }

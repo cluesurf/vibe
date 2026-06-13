@@ -33,27 +33,12 @@ export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolea
   const Ul2 = mul(mul(g00, Ul), T(g01)) // left 00->01
   const W1 = tr(holo(Ub2, Ur2, Ut2, Ul2))
   const gaugeInvariant = Math.abs(W0 - W1) < 1e-9
-  console.log('P234 non-abelian gauge field (SO(3) prototype, identical construction for so(10)):')
-  console.log(`  (1) Wilson loop Tr(holonomy) = ${W0.toFixed(5)}, after a gauge transform at all 4 corners = ${W1.toFixed(5)}`)
-  console.log(`      -> GAUGE-INVARIANT: ${gaugeInvariant}`)
   // (2) curvature, the holonomy is a non-trivial rotation (Tr != 3 = Tr(I))
   const curvedFlux = Math.abs(W0 - 3) > 1e-3
-  console.log(`  (2) holonomy is a non-trivial rotation (Tr ${W0.toFixed(3)} != 3): ${curvedFlux} (non-zero non-abelian flux / curvature)`)
   // (3) non-abelian, two different orderings of the SAME links give different holonomies (matrices do not commute)
   const Hrev = holo(Ur, Ub, Ul, Ut) // swapped order
   let nonAbelian = false
   for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) nonAbelian = true
-  console.log(`  (3) NON-ABELIAN, reordering the links changes the holonomy (the link matrices do not commute): ${nonAbelian}`)
-  console.log('')
-  console.log('Reading:')
-  console.log(' - The coin frame parallel-transports between cells by a link MATRIX (its local so(8)/so(10) frame')
-  console.log('   rotation). A local frame rotation is a gauge transformation U -> g U g^T, and the Wilson loop')
-  console.log('   Tr(ordered product) is GAUGE-INVARIANT, the genuine non-abelian field strength.')
-  console.log(' - The holonomy is a non-trivial group element (curvature) and the links do NOT commute, the')
-  console.log('   defining feature of a non-abelian gauge field. With so(10) link matrices this IS the so(10) gauge')
-  console.log('   field, the gauge bosons are its adjoint (45) fluctuations. So base -> gauge is closed for the full')
-  console.log('   non-abelian group, the same way p232 closed it for the U(1). (The symmetric collision that makes')
-  console.log('   so(10) the actual local symmetry is IR-forced by triality, p226.)')
   return { gaugeInvariant, curvedFlux, nonAbelian }
 }
 
