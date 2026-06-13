@@ -7,11 +7,16 @@
 // directly-solved finite tree. Run: npx tsx code/experiment/p239-bethe-gravity.ts
 
 import { pathToFileURL } from 'node:url'
+import {
+  betheCavityDecay,
+  betheBoundaryExponent,
+} from '@/code/algebra/linear/bethe-resolvent'
 
-// cavity decay mu(E) for the resolvent of the adjacency at spectral parameter E on a Bethe lattice (branching b)
-// the Laplacian static point is E = z (coordination), where mu = the Coulomb decay per tree-step.
-function muFor(z: number, E: number): number { const b = z - 1; return (E - Math.sqrt(E * E - 4 * b)) / (2 * b) }
-function boundaryExponent(z: number, E: number): number { const b = z - 1, mu = muFor(z, E); return (2 * Math.log(1 / mu)) / Math.log(b) }
+// local aliases keeping the (z, E) call shape of this experiment
+const muFor = (z: number, E: number): number =>
+  betheCavityDecay({ coordination: z, energy: E })
+const boundaryExponent = (z: number, E: number): number =>
+  betheBoundaryExponent({ coordination: z, energy: E })
 
 // validate, build a finite rooted tree (branching b, depth D), solve (z I - A) phi = delta_root, measure
 // phi(d)/phi(d-1) -> should equal mu

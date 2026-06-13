@@ -39,6 +39,14 @@ console.log(
   `\n${pass} pass, ${fail} fail, ${partial} partial, ${open} open  (${results.length} experiments + ${conformanceCount} conformance)`,
 )
 
-if (fail > 0) {
+// The build rule: a deep (L3) claim must carry a control. runSuite downgrades a
+// controlless L3 to partial, so any partial is a build failure, not a soft note.
+if (partial > 0) {
+  console.error(
+    `\nbuild rule violated: ${partial} L3 claim(s) without a control (downgraded to partial)`,
+  )
+}
+
+if (fail > 0 || partial > 0) {
   process.exit(1)
 }

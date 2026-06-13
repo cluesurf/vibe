@@ -18,11 +18,14 @@ export * from './tool/integer'
 
 // algebra/linear
 export * from './algebra/linear/complex'
+export * from './algebra/linear/complex-vector'
 export * from './algebra/linear/dense'
 export * from './algebra/linear/sparse'
 export * from './algebra/linear/eig-jacobi'
 export * from './algebra/linear/eig-lanczos'
 export * from './algebra/linear/eig-hermitian'
+export * from './algebra/linear/kernel-polynomial'
+export * from './algebra/linear/bethe-resolvent'
 
 // tone
 export * from './tone/alphabet'

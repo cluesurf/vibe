@@ -1,7 +1,8 @@
 // Shared 3D Dirac operator on a hedgehog/skyrmion background (Dirac(4) x isospin(2) = 8 complex components).
-// H = alpha.p + phi(r) (beta (x) (rhat.tau)). Used by p215 (Lanczos) and p216 (KPM sea energy).
+// H = alpha.p + phi(r) (beta (x) (rhat.tau)). Used by p215 (Lanczos) and p216 (KPM sea energy). The complex
+// vector and the spectral methods it feeds live in algebra/linear.
 
-export type Cx = { re: Float64Array; im: Float64Array }
+import { Cx } from '@/code/algebra/linear/complex-vector'
 
 const ALPHA: [number, number, number, number][][] = [
   [[0, 3, 1, 0], [1, 2, 1, 0], [2, 1, 1, 0], [3, 0, 1, 0]],
@@ -71,17 +72,4 @@ export function makeDirac(L: number, M: number, R: number, mode: BgMode = 'bag')
     }
   }
   return { dim: DIM, applyH }
-}
-
-export const newCx = (dim: number): Cx => ({ re: new Float64Array(dim), im: new Float64Array(dim) })
-export const dotR = (a: Cx, b: Cx, dim: number): number => { let s = 0; for (let i = 0; i < dim; i++) s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!; return s }
-
-// largest eigenvalue of H^2 by power iteration (for spectral bounds)
-export function lambdaMaxH2(applyH: (v: Cx, o: Cx) => void, dim: number): number {
-  const v = newCx(dim); let rng = 1
-  for (let i = 0; i < dim; i++) { rng = (rng * 1103515245 + 12345) & 0x7fffffff; v.re[i] = rng / 0x7fffffff - 0.5 }
-  let nrm = Math.sqrt(dotR(v, v, dim)); for (let i = 0; i < dim; i++) v.re[i]! /= nrm
-  const t = newCx(dim), w = newCx(dim); let lam = 0
-  for (let it = 0; it < 50; it++) { applyH(v, t); applyH(t, w); lam = dotR(v, w, dim); nrm = Math.sqrt(dotR(w, w, dim)); for (let i = 0; i < dim; i++) { v.re[i] = w.re[i]! / nrm; v.im[i] = w.im[i]! / nrm } }
-  return lam
 }
