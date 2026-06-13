@@ -10,7 +10,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { effectiveVibeCount } from '@/code/coarse/level-stack'
-import { selfTrajectory } from '@/test/experiment/selves/coarse-self-trajectory'
+import { selfTrajectory } from '@/code/coarse/self-trajectory'
 
 export default defineExperiment({
   id: 'selves/renormalization-tower',

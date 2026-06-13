@@ -15,7 +15,7 @@ import {
   impliedTimescale,
   quantileLabels,
 } from '@/code/coarse/transition-matrix'
-import { selfTrajectory, makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
+import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 function shuffle(labels: number[], seed: number): number[] {
   const rng = makeRng(seed)

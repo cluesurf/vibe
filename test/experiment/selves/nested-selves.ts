@@ -15,53 +15,11 @@
 // same integration logic that makes a cluster a genuine higher vibe (P57, P58).
 // Run: npx tsx code/experiment/p59-nested-selves.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
-import { makeGraph, Graph } from '@/code/tool/graph'
+import { makeRng } from '@/code/tool/rng'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
+import { modularMesh } from '@/code/substrate/modular-mesh'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// A modular mesh: numCells cohesive cells of cellSize vibes each, dense inside (fill +1, the
-// cohesion that makes a cell a self), sparse and weak between cells (a few +1 links).
-export function modularMesh(input: { numCells: number; cellSize: number; intraDegree: number; interPerCell: number; rng: Rng }): {
-  g: Graph
-  fills: Int8Array[]
-  cellOf: Int32Array
-} {
-  const { numCells, cellSize, intraDegree, interPerCell, rng } = input
-  const n = numCells * cellSize
-  const adj: Map<number, number>[] = Array.from({ length: n }, () => new Map())
-  const addEdge = (u: number, v: number, f: number): void => {
-    if (u === v) return
-    adj[u]?.set(v, f)
-    adj[v]?.set(u, f)
-  }
-  const cellOf = new Int32Array(n)
-  for (let c = 0; c < numCells; c++) {
-    for (let i = 0; i < cellSize; i++) cellOf[c * cellSize + i] = c
-    // dense intra-cell edges, fill +1 (strong cohesion)
-    for (let i = 0; i < cellSize; i++) {
-      const u = c * cellSize + i
-      for (let d = 0; d < intraDegree; d++) {
-        const v = c * cellSize + rng.nextInt({ max: cellSize })
-        addEdge(u, v, 1)
-      }
-    }
-  }
-  // sparse inter-cell edges, fill +1 (weak coupling)
-  for (let c = 0; c < numCells; c++) {
-    for (let e = 0; e < interPerCell; e++) {
-      const u = c * cellSize + rng.nextInt({ max: cellSize })
-      const other = (c + 1 + rng.nextInt({ max: numCells - 1 })) % numCells
-      const v = other * cellSize + rng.nextInt({ max: cellSize })
-      addEdge(u, v, 1)
-    }
-  }
-  const neighbors: number[][] = adj.map((m) => [...m.keys()])
-  const fills: Int8Array[] = adj.map((m) => Int8Array.from(m.values()))
-  const g = makeGraph({ size: n, directed: false, neighbors })
-  return { g, fills, cellOf }
-}
 
 export function nestedSelves(input: { seed: number }): {
   byFraction: { fraction: number; cellRecovery: number; bodyIntegrity: number }[]

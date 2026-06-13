@@ -23,7 +23,7 @@ import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/wil
 import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
-import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
+import { makeRng } from '@/code/coarse/self-trajectory'
 
 // the observable, the charge-weighted mean x-coordinate of the gas, recorded once per beat. This is a SPATIAL
 // coordinate, so adjacent quantile bins are genuine dynamical neighbours (a packet drifts and scatters between

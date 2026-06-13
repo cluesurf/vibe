@@ -17,7 +17,7 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p32-einstein-equations.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { einsteinOp, gravitonFromAction } from '@/test/experiment/gravity/graviton-from-action'
+import { einsteinOp, gravitonFromAction } from '@/code/operator/graviton'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

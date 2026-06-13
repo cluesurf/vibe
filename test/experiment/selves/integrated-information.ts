@@ -15,7 +15,7 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { undirectedAdjacency } from '@/code/tool/substrate'
 import { toneIntegration, algebraicConnectivity } from '@/code/measure/integration'
-import { modularMesh } from '@/test/experiment/selves/nested-selves'
+import { modularMesh } from '@/code/substrate/modular-mesh'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 

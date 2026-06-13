@@ -58,7 +58,9 @@ function measureSize(maxCells: number): { clean: number; localized: number; norm
     }
   }
 
-  const evolve = { source, steps: 140, dt: 0.08, sampleEvery: 10 }
+  // dt is kept well below 2 / ||H|| (the strength-8 potential raises ||H||) so the leapfrog stays
+  // near-unitary. Total evolution time is steps * dt ~ 11, the same physical window.
+  const evolve = { source, steps: 570, dt: 0.02, sampleEvery: 30 }
   const clean = returnProbability({ operator: diracOperator(dirac, 0), ...evolve })
   const localized = returnProbability({ operator: diracOperator(dirac, 8), ...evolve })
   return { clean: clean.timeAverage, localized: localized.timeAverage, normDrift: Math.max(clean.normDrift, localized.normDrift) }

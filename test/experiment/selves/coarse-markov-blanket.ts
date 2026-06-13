@@ -11,7 +11,7 @@ import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { flatGraph, emergeSelf, beat, largestPositiveCluster, ball } from '@/code/model/self-kit'
 import { regionPartition, blanketScreening } from '@/code/coarse/self-criteria'
-import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
+import { makeRng } from '@/code/coarse/self-trajectory'
 
 function sumTone(tone: Int8Array, cells: number[]): number {
   let s = 0

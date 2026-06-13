@@ -14,7 +14,7 @@
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { fitnessVariancePartition } from '@/code/coarse/individuality'
-import { makeRng } from '@/test/experiment/selves/coarse-self-trajectory'
+import { makeRng } from '@/code/coarse/self-trajectory'
 
 // Population WITHOUT group selection or a bottleneck. Members vary independently, groups are incidental
 // labels, so the variance is within groups and each member is an independent replicator.

@@ -15,7 +15,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { modularGraph } from '@/code/substrate/modular-group'
-import { runModel } from '@/test/experiment/substrate-survey/full-ladder'
+import { runModel } from '@/code/compute/run-model'
 import { Graph } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { defineExperiment } from '@/test/scaffold/suite'

@@ -60,6 +60,7 @@ import {
 } from '@/code/algebra/jordan'
 import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
 import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
+import { returnProbability } from '@/code/measure/localization'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -491,6 +492,25 @@ export function runConformance(): { passed: number; failed: number } {
     const coupled = runCoupledSchwinger({ ...schwingerArgs, coupling: 0.5 })
     check({ name: 'schwinger e=0 sources no field (decoupled)', ok: decoupled.fieldEnergy < 1e-12 })
     check({ name: 'schwinger e>0 sources a field', ok: coupled.fieldEnergy > 1e-6 })
+
+    // return probability: a hopping chain spreads (low return), a coupling-free diagonal traps (return ~ 1)
+    const chainSize = 41
+    const hopping = {
+      size: chainSize,
+      apply: ({ x }: { x: Float64Array }) => {
+        const y = new Float64Array(chainSize)
+        for (let i = 0; i < chainSize; i++) y[i] = (x[i - 1] ?? 0) + (x[i + 1] ?? 0)
+        return y
+      },
+    }
+    const diagonalOnly = {
+      size: chainSize,
+      apply: ({ x }: { x: Float64Array }) => x.map((v) => 2 * v) as Float64Array,
+    }
+    const spread = returnProbability({ operator: hopping, source: 20, steps: 120, dt: 0.1, sampleEvery: 10 })
+    const trapped = returnProbability({ operator: diagonalOnly, source: 20, steps: 120, dt: 0.1, sampleEvery: 10 })
+    check({ name: 'return probability: hopping spreads (low return)', ok: spread.timeAverage < 0.5 && spread.normDrift < 0.05 })
+    check({ name: 'return probability: no hopping traps (return ~ 1)', ok: trapped.timeAverage > 0.99 })
   }
 
   return { passed, failed }
