@@ -10,12 +10,7 @@ import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
 import { modulo } from '@/code/tool/integer'
 import { cMul, cConj } from '@/code/algebra/linear/complex'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
-
-// A 2x2 complex block in row-major arrays [00, 01, 10, 11].
-interface Block {
-  re: [number, number, number, number]
-  im: [number, number, number, number]
-}
+import { Block, addComplexBlock } from '@/code/operator/block'
 
 const I2: Block = { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }
 // Wilson projectors r I -/+ gamma_mu, with r = 1. gamma1 = sigma_x, gamma2 = sigma_y.
@@ -23,34 +18,6 @@ const P1_MINUS: Block = { re: [1, -1, -1, 1], im: [0, 0, 0, 0] }
 const P1_PLUS: Block = { re: [1, 1, 1, 1], im: [0, 0, 0, 0] }
 const P2_MINUS: Block = { re: [1, 0, 0, 1], im: [0, 1, -1, 0] }
 const P2_PLUS: Block = { re: [1, 0, 0, 1], im: [0, -1, 1, 0] }
-
-function addBlock(input: {
-  matrix: ComplexMatrix
-  rowSite: number
-  colSite: number
-  block: Block
-  phaseRe: number
-  phaseIm: number
-  coefficient: number
-}): void {
-  const n = input.matrix.rows
-  for (let s = 0; s < 2; s++) {
-    for (let t = 0; t < 2; t++) {
-      const k = s * 2 + t
-      // coefficient * phase * block[s,t]
-      const br = input.block.re[k] ?? 0
-      const bi = input.block.im[k] ?? 0
-      const pr = input.phaseRe * input.coefficient
-      const pi = input.phaseIm * input.coefficient
-      const re = pr * br - pi * bi
-      const im = pr * bi + pi * br
-      const row = input.rowSite * 2 + s
-      const col = input.colSite * 2 + t
-      input.matrix.re[row * n + col] = (input.matrix.re[row * n + col] ?? 0) + re
-      input.matrix.im[row * n + col] = (input.matrix.im[row * n + col] ?? 0) + im
-    }
-  }
-}
 
 // The uniform-flux U(1) link phases on an L by L torus with topological charge Q.
 // U_1(n1,n2) = exp(-i F n2); U_2(n1,n2) = exp(i F L n1) on the top row, else 1.
@@ -115,25 +82,25 @@ export function gaugeWilsonDirac(input: {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
       // diagonal mass term: M0 = r * dim = 2.
-      addBlock({ matrix: d, rowSite: x, colSite: x, block: I2, phaseRe: 1, phaseIm: 0, coefficient: 2 })
+      addComplexBlock({ matrix: d, rowSite: x, colSite: x, block: I2, phaseRe: 1, phaseIm: 0, coefficient: 2 })
 
       // mu = 1 (x direction)
       {
         const u = linkPhase({ mu: 1, n1, n2, flux: F, length: L })
         const xPlus = site(n1 + 1, n2, L)
-        addBlock({ matrix: d, rowSite: x, colSite: xPlus, block: P1_MINUS, phaseRe: u.re, phaseIm: u.im, coefficient: -0.5 })
+        addComplexBlock({ matrix: d, rowSite: x, colSite: xPlus, block: P1_MINUS, phaseRe: u.re, phaseIm: u.im, coefficient: -0.5 })
         const uBack = linkPhase({ mu: 1, n1: n1 - 1, n2, flux: F, length: L })
         const xMinus = site(n1 - 1, n2, L)
-        addBlock({ matrix: d, rowSite: x, colSite: xMinus, block: P1_PLUS, phaseRe: uBack.re, phaseIm: -uBack.im, coefficient: -0.5 })
+        addComplexBlock({ matrix: d, rowSite: x, colSite: xMinus, block: P1_PLUS, phaseRe: uBack.re, phaseIm: -uBack.im, coefficient: -0.5 })
       }
       // mu = 2 (y direction)
       {
         const u = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
         const xPlus = site(n1, n2 + 1, L)
-        addBlock({ matrix: d, rowSite: x, colSite: xPlus, block: P2_MINUS, phaseRe: u.re, phaseIm: u.im, coefficient: -0.5 })
+        addComplexBlock({ matrix: d, rowSite: x, colSite: xPlus, block: P2_MINUS, phaseRe: u.re, phaseIm: u.im, coefficient: -0.5 })
         const uBack = linkPhase({ mu: 2, n1, n2: n2 - 1, flux: F, length: L })
         const xMinus = site(n1, n2 - 1, L)
-        addBlock({ matrix: d, rowSite: x, colSite: xMinus, block: P2_PLUS, phaseRe: uBack.re, phaseIm: -uBack.im, coefficient: -0.5 })
+        addComplexBlock({ matrix: d, rowSite: x, colSite: xMinus, block: P2_PLUS, phaseRe: uBack.re, phaseIm: -uBack.im, coefficient: -0.5 })
       }
     }
   }

@@ -8,6 +8,7 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -80,7 +81,7 @@ function run(): void {
       const [cx, cy] = pix[j]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) for (let dx = -RADIUS; dx <= RADIUS; dx++) { const x = cx + dx, y = cy + dy; if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue; const idx = (y * IMG + x) * 4; rgba[idx] = col[0]; rgba[idx + 1] = col[1]; rgba[idx + 2] = col[2] }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
     if (f % 50 === 0) console.log(`  frame ${f}`)
   }
   console.log(`wrote ${FRAMES} frames to make/frames, assemble with task/render-video.sh`)

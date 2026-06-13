@@ -9,6 +9,7 @@
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -144,7 +145,7 @@ function run(): void {
         }
       }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     if (f % 40 === 0 || f === FRAMES - 1) {
       let charged = 0

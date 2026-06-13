@@ -11,6 +11,7 @@ import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
 import { toCSR, beat } from '@/test/experiment/misc/self-kit'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -115,7 +116,7 @@ function run(): void {
         const idx = (y * IMG + x) * 4; rgba[idx] = col[0]; rgba[idx + 1] = col[1]; rgba[idx + 2] = col[2]
       }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
     if (f % 40 === 0 || f === FRAMES - 1) console.log(`  frame ${f}, surround mean distance to mass ${meanSurroundDist().toFixed(1)}`)
   }
   const endDist = meanSurroundDist()

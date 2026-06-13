@@ -10,11 +10,8 @@ import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
 import { modulo } from '@/code/tool/integer'
 import { hermitianMatrixSign, eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { Rng } from '@/code/tool/rng'
+import { Block, addComplexBlock } from '@/code/operator/block'
 
-interface Block {
-  re: [number, number, number, number]
-  im: [number, number, number, number]
-}
 const I_MINUS_SX: Block = { re: [1, -1, -1, 1], im: [0, 0, 0, 0] }
 const I_PLUS_SX: Block = { re: [1, 1, 1, 1], im: [0, 0, 0, 0] }
 const I_MINUS_SY: Block = { re: [1, 0, 0, 1], im: [0, 1, -1, 0] }
@@ -24,32 +21,6 @@ function site(n1: number, n2: number, L: number): number {
   return modulo(n1, L) + modulo(n2, L) * L
 }
 
-function addBlock(input: {
-  m: ComplexMatrix
-  rowSite: number
-  colSite: number
-  block: Block
-  phaseRe: number
-  phaseIm: number
-  coef: number
-}): void {
-  const n = input.m.rows
-  for (let s = 0; s < 2; s++) {
-    for (let t = 0; t < 2; t++) {
-      const k = s * 2 + t
-      const br = input.block.re[k] ?? 0
-      const bi = input.block.im[k] ?? 0
-      const pr = input.phaseRe * input.coef
-      const pi = input.phaseIm * input.coef
-      const re = pr * br - pi * bi
-      const im = pr * bi + pi * br
-      const row = input.rowSite * 2 + s
-      const col = input.colSite * 2 + t
-      input.m.re[row * n + col] = (input.m.re[row * n + col] ?? 0) + re
-      input.m.im[row * n + col] = (input.m.im[row * n + col] ?? 0) + im
-    }
-  }
-}
 
 // A random U(1) gauge field: each link phase is uniform in [-disorder*pi,
 // disorder*pi]. disorder = 0 is the free field, larger is stronger coupling.
@@ -82,17 +53,17 @@ function gaugeWilsonDiracRandom(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
-      addBlock({ m: d, rowSite: x, colSite: x, block: { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }, phaseRe: 1, phaseIm: 0, coef: 2 })
+      addComplexBlock({ matrix: d, rowSite: x, colSite: x, block: { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }, phaseRe: 1, phaseIm: 0, coefficient: 2 })
       // mu = 1
       const u1x = ph(input.u1[x] ?? 0)
-      addBlock({ m: d, rowSite: x, colSite: site(n1 + 1, n2, L), block: I_MINUS_SX, phaseRe: u1x.re, phaseIm: u1x.im, coef: -0.5 })
+      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1 + 1, n2, L), block: I_MINUS_SX, phaseRe: u1x.re, phaseIm: u1x.im, coefficient: -0.5 })
       const u1b = ph(input.u1[site(n1 - 1, n2, L)] ?? 0)
-      addBlock({ m: d, rowSite: x, colSite: site(n1 - 1, n2, L), block: I_PLUS_SX, phaseRe: u1b.re, phaseIm: -u1b.im, coef: -0.5 })
+      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1 - 1, n2, L), block: I_PLUS_SX, phaseRe: u1b.re, phaseIm: -u1b.im, coefficient: -0.5 })
       // mu = 2
       const u2x = ph(input.u2[x] ?? 0)
-      addBlock({ m: d, rowSite: x, colSite: site(n1, n2 + 1, L), block: I_MINUS_SY, phaseRe: u2x.re, phaseIm: u2x.im, coef: -0.5 })
+      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1, n2 + 1, L), block: I_MINUS_SY, phaseRe: u2x.re, phaseIm: u2x.im, coefficient: -0.5 })
       const u2b = ph(input.u2[site(n1, n2 - 1, L)] ?? 0)
-      addBlock({ m: d, rowSite: x, colSite: site(n1, n2 - 1, L), block: I_PLUS_SY, phaseRe: u2b.re, phaseIm: -u2b.im, coef: -0.5 })
+      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1, n2 - 1, L), block: I_PLUS_SY, phaseRe: u2b.re, phaseIm: -u2b.im, coefficient: -0.5 })
     }
   }
   return d

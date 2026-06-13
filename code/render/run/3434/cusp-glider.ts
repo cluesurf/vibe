@@ -5,6 +5,7 @@
 // 0), no white. Run: pnpm tsx code/gpu/render-cusp-3434-glider.ts   then task/render-video.sh
 
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { PLEASURE, PAIN } from '@/code/draw/color'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -181,7 +182,7 @@ function run(): void {
       rgba[i * 4 + 2] = Math.min(255, 7 + accB[i]!)
       rgba[i * 4 + 3] = 255
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     step(tone, f)
   }

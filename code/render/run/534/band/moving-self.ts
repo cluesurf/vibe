@@ -10,6 +10,7 @@
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { toCSR, beat, discreteArrow } from '@/test/experiment/misc/self-kit'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -162,7 +163,7 @@ function run(): void {
         }
       }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
   }
   console.log(`wrote ${FRAMES} frames, the self glides left to right, assemble with task/render-video.sh`)
 }

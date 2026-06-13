@@ -7,6 +7,7 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -62,7 +63,7 @@ function run(): void {
     for (let i = 0; i < IMG * IMG; i++) { rgba[i * 4] = 6; rgba[i * 4 + 1] = 6; rgba[i * 4 + 2] = 9; rgba[i * 4 + 3] = 255 }
     let diff = 0
     for (let j = 0; j < bandCells.length; j++) { const i = bandCells[j]!; if (A[i] === B[i]) continue; diff++; const [cx, cy] = pix[j]!; const col: [number, number, number] = A[i]! > B[i]! ? [120, 230, 255] : [255, 200, 120]; for (let dy = -RADIUS; dy <= RADIUS; dy++) for (let dx = -RADIUS; dx <= RADIUS; dx++) { const x = cx + dx, y = cy + dy; if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue; const idx = (y * IMG + x) * 4; rgba[idx] = col[0]; rgba[idx + 1] = col[1]; rgba[idx + 2] = col[2] } }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
     if (f % 30 === 0) console.log(`  frame ${f}, cone ${diff.toLocaleString()} cells`)
   }
   console.log('wrote frames, assemble with ffmpeg')

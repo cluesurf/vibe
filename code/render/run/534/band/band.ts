@@ -9,6 +9,7 @@ import { TONE_COLORS } from '@/code/draw/color'
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -177,7 +178,7 @@ async function run(): Promise<void> {
         }
       }
     }
-    writeFileSync(join(outDir, `frame_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
   }
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log('assemble with, task/render-video.sh')

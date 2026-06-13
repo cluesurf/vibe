@@ -8,6 +8,7 @@ import { create, globals } from 'webgpu'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
+import { writeFrame } from '@/code/draw/animation'
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -144,7 +145,7 @@ async function run(): Promise<void> {
         const o = (y * IMG + x) * 4; rgba[o] = col[0]; rgba[o + 1] = col[1]; rgba[o + 2] = col[2]
       }
     }
-    writeFileSync(join(outDir, `ripple_${String(f).padStart(4, '0')}.png`), encodePng(rgba, IMG, IMG))
+    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG, prefix: 'ripple_' })
     if (f % 25 === 0) console.log(`  beat ${f}/${FRAMES}`)
   }
   console.log(`wrote ${FRAMES} frames to ${outDir}`)

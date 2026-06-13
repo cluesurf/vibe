@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "make": "rm -rf host && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "npx tsx --no-warnings=ExperimentalWarning test/run.ts && npx tsx --no-warnings=ExperimentalWarning test/test.ts",
+    "test": "npx tsx --no-warnings=ExperimentalWarning test/run.ts",
+    "test:full": "npx tsx --no-warnings=ExperimentalWarning test/run.ts && npx tsx --no-warnings=ExperimentalWarning test/test.ts",
     "call": "npx tsx --no-warnings=ExperimentalWarning",
     "host": "pnpm make && npm publish --access=public"
   },
