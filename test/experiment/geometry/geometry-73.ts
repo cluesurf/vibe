@@ -6,7 +6,7 @@
 import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
 import { spectralDimension } from '@/code/measure/dimension'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { highestDegreeNode, toCsr } from '@/code/tool/graph'
+import { mostConnectedNode, toCsr } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,7 +20,7 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
   const interiorDegree = Number(Object.entries(degHist).sort((a, b) => (a[0] === '7' ? -1 : 0) - (b[0] === '7' ? -1 : 0))[0]?.[0]) || 7
 
   // pick the most-connected cell as center, BFS shells -> exponential growth ratio
-  const center = highestDegreeNode(g.neighbors)
+  const center = mostConnectedNode(g.neighbors)
   const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
   const growth = midShellGrowthRatio({ shellCounts: shell })
 

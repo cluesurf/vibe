@@ -7,6 +7,18 @@
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import type { DenseMatrix } from '@/code/algebra/linear/dense'
 
+// Does a Schlafli symbol contain a given consecutive sub-diagram? Used to detect the [3,4,3]
+// (F4 / 24-cell / D4) substructure inside a higher-rank honeycomb symbol.
+export function symbolContainsSubdiagram(symbol: number[], pattern: number[]): boolean {
+  if (pattern.length === 0 || pattern.length > symbol.length) return false
+  for (let start = 0; start + pattern.length <= symbol.length; start++) {
+    let match = true
+    for (let k = 0; k < pattern.length; k++) if (symbol[start + k] !== pattern[k]) { match = false; break }
+    if (match) return true
+  }
+  return false
+}
+
 export function gramSignature(symbol: number[]): { negative: number; zero: number } {
   const size = symbol.length + 1
   const data = new Float64Array(size * size)

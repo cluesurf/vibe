@@ -8,23 +8,17 @@
 // Run: npx tsx code/experiment/p141-means-computation.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import {
-  carveRegisters,
-  minskyMultiplyProgram,
-  RegisterMachine,
-} from '@/code/operator/register-machine'
+import { minskyMultiplyProgram } from '@/code/operator/register-machine'
+import { buildDodecagridRegisterMachine } from '@/code/operator/dodecagrid-register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// run R2 = R0 * R1 on a conserving Minsky machine whose registers are charge held
-// in regions carved from the dodecagrid cell index space (R3 the scratch counter,
-// the rest the ground holding the balancing -1 charges).
+// run R2 = R0 * R1 on a conserving Minsky machine whose registers are charge held in regions carved from
+// the dodecagrid cell index space (R3 the scratch counter, the rest the ground holding the balancing -1
+// charges). The dodecagrid register-machine builder lives in code/operator/dodecagrid-register-machine.
 function multiply(a: number, b: number, n: number): number {
-  const g = buildDodecagrid({ maxCells: n })
-  const cells = Array.from({ length: g.cellCount }, (_, i) => i)
-  const per = Math.floor(g.cellCount / 8)
-  const { regions, ground } = carveRegisters({ cells, numRegisters: 4, perRegister: per })
-  const m = new RegisterMachine({ tone: new Int8Array(g.cellCount), regions, ground })
+  const per = Math.floor(buildDodecagrid({ maxCells: n }).cellCount / 8)
+  const m = buildDodecagridRegisterMachine({ maxCells: n, numRegisters: 4, perRegister: per })
   m.set(0, a)
   m.set(1, b)
   m.run(minskyMultiplyProgram())

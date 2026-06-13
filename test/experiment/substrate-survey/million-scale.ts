@@ -12,46 +12,13 @@
 // peace and settles to a dynamic balance, and the cohesive rule gives memory (imprint retention beats
 // the churning random rule), all in feasible time and memory. Run: npx tsx code/experiment/p103-million-scale.ts
 
-import { makeRng, Rng } from '@/code/tool/rng'
+import { makeRng } from '@/code/tool/rng'
 import { csrBallNodes } from '@/code/tool/graph'
 import { buildRegularGraph } from '@/code/substrate/regular-graph'
-import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
-import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
+import { perceptionEdgeBeat } from '@/code/dynamics/perception-edge-beat'
 import { totalCharge, liveCount } from '@/code/measure/tone-census'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-
-// one beat of the perception rule on the edge list. cohesive = company-driven hop (blobs form),
-// random = unconditional 50/50 hop. both annihilate opposite tones and mint pairs at `arrowProb`.
-function beat(
-  tone: Int8Array,
-  eu: Int32Array,
-  ev: Int32Array,
-  offsets: Int32Array,
-  adj: Int32Array,
-  moved: Uint8Array,
-  rng: Rng,
-  arrowProb: number,
-  cohesive: boolean,
-  temp: number,
-): void {
-  if (cohesive) {
-    cohesiveEdgeSweep({
-      tone,
-      eu,
-      ev,
-      offsets,
-      adj,
-      moved,
-      rng,
-      annihilate: true,
-      arrow: arrowProb,
-      escapeProbability: temp,
-    })
-  } else {
-    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: arrowProb })
-  }
-}
 
 const sumTone = totalCharge
 const nonzero = liveCount
@@ -86,9 +53,9 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   const life = new Int8Array(n)
   const qL = sumTone(life)
   const rngL = makeRng({ seed: 3 })
-  for (let b = 0; b < 40; b++) beat(life, g.eu, g.ev, g.offsets, g.adj, moved, rngL, ARROW, false, TEMP)
+  for (let b = 0; b < 40; b++) perceptionEdgeBeat({ tone: life, eu: g.eu, ev: g.ev, offsets: g.offsets, adj: g.adj, moved, rng: rngL, arrow: ARROW, cohesive: false, temperature: TEMP })
   const balanceMid = nonzero(life)
-  for (let b = 0; b < 40; b++) beat(life, g.eu, g.ev, g.offsets, g.adj, moved, rngL, ARROW, false, TEMP)
+  for (let b = 0; b < 40; b++) perceptionEdgeBeat({ tone: life, eu: g.eu, ev: g.ev, offsets: g.offsets, adj: g.adj, moved, rng: rngL, arrow: ARROW, cohesive: false, temperature: TEMP })
   const lifeEnd = nonzero(life)
   const balanceLate = lifeEnd
   const conservedLife = sumTone(life) === qL
@@ -103,7 +70,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
     const meanBlob = (arr: Int8Array): number => blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
     const start = meanBlob(t)
     const rng2 = makeRng({ seed: 31 })
-    for (let b = 0; b < 30; b++) beat(t, g.eu, g.ev, g.offsets, g.adj, moved, rng2, ARROW, cohesive, TEMP)
+    for (let b = 0; b < 30; b++) perceptionEdgeBeat({ tone: t, eu: g.eu, ev: g.ev, offsets: g.offsets, adj: g.adj, moved, rng: rng2, arrow: ARROW, cohesive, temperature: TEMP })
     const after = meanBlob(t)
     let bg = 0
     for (let i = 0; i < n; i++) bg += t[i]!

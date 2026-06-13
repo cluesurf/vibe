@@ -16,83 +16,14 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
+import { targetFidelity } from '@/code/measure/agreement'
+import { conservingMaintainToTarget } from '@/code/operator/maintain-to-target'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function bfsOrder(offsets: Int32Array, adj: Int32Array, n: number): Int32Array {
-  const order = new Int32Array(n)
-  const seen = new Uint8Array(n)
-  let head = 0
-  let tail = 0
-  seen[0] = 1
-  order[tail++] = 0
-  while (head < tail) {
-    const u = order[head++]!
-    for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (!seen[w]) {
-        seen[w] = 1
-        order[tail++] = w
-      }
-    }
-  }
-  return order
-}
-
-
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
   cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0 })
-
-// conserving maintenance toward target, two conserving moves:
-//   1. SWAP cells that drifted opposite ways (one above its target, one below), fixing both.
-//   2. PAIR-FILL holes: a hole needing +1 and a hole needing -1 become a (+1,-1) pair (the arrow
-//      recreating the charge that annihilation destroyed, conserving Q).
-// Returns the number of operations (the maintenance cost, the will holding the self together).
-function maintain(tone: Int8Array, target: Int8Array, n: number): number {
-  const tooHigh: number[] = []
-  const tooLow: number[] = []
-  for (let i = 0; i < n; i++) {
-    if (tone[i]! > target[i]!) tooHigh.push(i)
-    else if (tone[i]! < target[i]!) tooLow.push(i)
-  }
-  let ops = 0
-  const m = Math.min(tooHigh.length, tooLow.length)
-  for (let k = 0; k < m; k++) {
-    const hi = tooHigh[k]!
-    const lo = tooLow[k]!
-    const t = tone[hi]!
-    tone[hi] = tone[lo]!
-    tone[lo] = t
-    ops++
-  }
-  // remaining ZERO-holes (annihilated charge), pair a needs-(+1) hole with a needs-(-1) hole and create
-  // a (+1,-1) pair, this is conserving (0,0 -> +1,-1) and refills what annihilation destroyed
-  const needPlus: number[] = []
-  const needMinus: number[] = []
-  for (let i = 0; i < n; i++) {
-    if (tone[i]! !== 0) continue
-    if (target[i]! === 1) needPlus.push(i)
-    else if (target[i]! === -1) needMinus.push(i)
-  }
-  const f = Math.min(needPlus.length, needMinus.length)
-  for (let k = 0; k < f; k++) {
-    tone[needPlus[k]!] = 1
-    tone[needMinus[k]!] = -1 // create a (+1,-1) pair, conserving Q, filling two holes
-    ops++
-  }
-  return ops
-}
-
-function fidelity(tone: Int8Array, target: Int8Array, n: number): number {
-  let dot = 0
-  let norm = 0
-  for (let i = 0; i < n; i++) {
-    dot += tone[i]! * target[i]!
-    norm += target[i]! * target[i]!
-  }
-  return norm > 0 ? dot / norm : 0
-}
 
 export function permanentMemory(input?: { n?: number }): {
   n: number
@@ -112,7 +43,6 @@ export function permanentMemory(input?: { n?: number }): {
 
   // a spatial codeword that genuinely erodes: a balanced random +/- pattern (Q = 0), full of opposite
   // adjacencies that the share move annihilates, so without maintenance it collapses toward peace
-  void bfsOrder
   const target = new Int8Array(N)
   const rngT = makeRng({ seed: 2 })
   for (let i = 0; i < N; i++) target[i] = rngT.next() < 0.5 ? 1 : -1
@@ -136,7 +66,7 @@ export function permanentMemory(input?: { n?: number }): {
   const qa = sumTone(a)
   const rngA = makeRng({ seed: 4 })
   for (let b = 0; b < beats; b++) beat(a, eu, ev, g.offsets, g.adj, moved, rngA)
-  const unmaintainedFidelity = fidelity(a, target, N)
+  const unmaintainedFidelity = targetFidelity(a, target)
   const conservedA = sumTone(a) === qa
 
   // MAINTAINED: re-stamp every 10 beats
@@ -146,9 +76,9 @@ export function permanentMemory(input?: { n?: number }): {
   let maintenanceSwaps = 0
   for (let b = 0; b < beats; b++) {
     beat(bm, eu, ev, g.offsets, g.adj, moved, rngB)
-    if ((b + 1) % 10 === 0) maintenanceSwaps += maintain(bm, target, N)
+    if ((b + 1) % 10 === 0) maintenanceSwaps += conservingMaintainToTarget(bm, target, N)
   }
-  const maintainedFidelity = fidelity(bm, target, N)
+  const maintainedFidelity = targetFidelity(bm, target)
   const conservedB = sumTone(bm) === qb
 
   const conserved = conservedA && conservedB

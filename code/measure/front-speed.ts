@@ -45,6 +45,29 @@ export function directionalFrontDistances(input: {
 
 // Range anisotropy (max - min) / mean of a set of speeds; 0 means perfectly
 // uniform. Returns 1 (maximally anisotropic) when fewer than two speeds.
+// The RMS width of the difference between two same-length states on a periodic ring of length L,
+// measured as the root-mean-square periodic distance from `center` over the cells where the two
+// states disagree. The damage-spread (butterfly) front width used to read a transport exponent:
+// a deterministic ballistic wave grows it linearly in time, a diffusive rule as the square root.
+export function differenceRmsWidthRing(input: {
+  a: ArrayLike<number>
+  b: ArrayLike<number>
+  length: number
+  center: number
+}): number {
+  const { a, b, length: L, center } = input
+  let weight = 0
+  let sumSquared = 0
+  for (let x = 0; x < L; x++) {
+    if (a[x] !== b[x]) {
+      const d = Math.min(Math.abs(x - center), L - Math.abs(x - center))
+      weight++
+      sumSquared += d * d
+    }
+  }
+  return weight > 0 ? Math.sqrt(sumSquared / weight) : 0
+}
+
 export function rangeAnisotropy(speeds: number[]): { meanSpeed: number; anisotropy: number } {
   const meanSpeed = speeds.reduce((s, x) => s + x, 0) / Math.max(1, speeds.length)
   if (speeds.length < 2) return { meanSpeed, anisotropy: 1 }

@@ -5,7 +5,7 @@
 // sets each cell to the sign of its local field (the Hebbian recall plus an optional
 // bias), with clamped cells held fixed and ties keeping the current tone.
 
-import { Rng } from '@/code/tool/rng'
+import { Rng, makeRng } from '@/code/tool/rng'
 
 export const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
 
@@ -95,4 +95,45 @@ export function hopfieldStep(J: Int8Array[], tone: Int8Array, bias: Float64Array
     next[i] = h > 0 ? 1 : h < 0 ? -1 : (tone[i] ?? 0)
   }
   return next
+}
+
+// Two unlinked Hopfield subsystems (no couplings between them) driven by the SAME ambient rhythm (a
+// shared mode sequence). Each subsystem has its own pattern bank (pA, pB) and its own random initial
+// state. During the first `cueHold` phases of each dwell window the system is cued toward its own
+// pattern for the current mode, then it relaxes. Returns the mean end-of-window state overlap |<a,b>|
+// across windows, the synchronized-transition correlation between the two subsystems. They share no
+// link, so any correlation is inherited from how similar pA and pB are (their common ancestry).
+export function runHopfieldPair(input: { size: number; pA: Int8Array[]; pB: Int8Array[]; modeSeq: number[]; seed: number }): number {
+  const { size, pA, pB, modeSeq } = input
+  const Ja = hebbianFills(pA, size)
+  const Jb = hebbianFills(pB, size)
+  const ra = makeRng({ seed: input.seed })
+  const rb = makeRng({ seed: input.seed + 1 })
+  let a = Int8Array.from({ length: size }, () => (ra.nextInt({ max: 3 }) - 1) as -1 | 0 | 1)
+  let b = Int8Array.from({ length: size }, () => (rb.nextInt({ max: 3 }) - 1) as -1 | 0 | 1)
+  const zero = new Float64Array(size)
+  const cueCount = Math.round(0.55 * size)
+  const cueHold = 4
+  const dwell = 30
+  const overlaps: number[] = []
+  for (let t = 0; t < modeSeq.length * dwell; t++) {
+    const phase = t % dwell
+    const m = modeSeq[Math.floor(t / dwell)] ?? 0
+    let cueA: Int8Array | null = null
+    let cueB: Int8Array | null = null
+    if (phase < cueHold) {
+      cueA = new Int8Array(size)
+      cueB = new Int8Array(size)
+      const qa = pA[m] ?? new Int8Array(size)
+      const qb = pB[m] ?? new Int8Array(size)
+      for (let i = 0; i < cueCount; i++) {
+        cueA[i] = qa[i] as -1 | 0 | 1
+        cueB[i] = qb[i] as -1 | 0 | 1
+      }
+    }
+    a = hopfieldStep(Ja, a, zero, cueA)
+    b = hopfieldStep(Jb, b, zero, cueB)
+    if (phase === dwell - 1) overlaps.push(Math.abs(toneOverlap(a, b)))
+  }
+  return overlaps.reduce((x, y) => x + y, 0) / Math.max(1, overlaps.length)
 }

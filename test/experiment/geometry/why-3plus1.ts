@@ -4,7 +4,7 @@
 // spin requirement. We confirm the cusp reads 3D (spectral dimension), and note why 3D is special (spinors,
 // the Hopf fibration, stable 1/r^2 orbits, knots). Run: npx tsx code/experiment/p235-why-3plus1.ts
 
-import { cubicLattice } from '@/code/substrate/cubic-lattice'
+import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { spectralDimension } from '@/code/measure/dimension'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -14,8 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // central difference at t = 6 is the endpoint slope between t = 4 and t = 8.
 function cuspSpectralDim(L: number): number {
   const g = cubicLattice(L, 3)
-  const h = L >> 1
-  const center = h + h * L + h * L * L
+  const center = cubicLatticeCenterBySide({ side: L, dim: 3 })
   return spectralDimension({ neighbors: g.neighbors, start: center, t1: 4, t2: 8 })
 }
 

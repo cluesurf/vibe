@@ -12,21 +12,16 @@
 // each verified correct, which is what makes it a general-purpose computer rather than a fixed circuit.
 // Run: npx tsx code/experiment/p177-substrate-computer.ts
 
-import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { carveRegisters, type Instr, RegisterMachine } from '@/code/operator/register-machine'
+import { type Instr, RegisterMachine } from '@/code/operator/register-machine'
+import { buildDodecagridRegisterMachine } from '@/code/operator/dodecagrid-register-machine'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// The conserving charge register machine (Instr set, INC/DEC/test-zero, conserved run)
-// lives in code/operator/register-machine. The {5,3,4}-specific wiring here is the
-// carving: 220-cell register-regions from the dodecagrid's cell indices plus a large
-// ground region for the balancing -1 charges.
+// The conserving charge register machine (Instr set, INC/DEC/test-zero, conserved run) and its dodecagrid
+// wiring (220-cell register-regions from the cell indices plus a large ground region for the balancing -1
+// charges) live in code/operator/register-machine and code/operator/dodecagrid-register-machine.
 function makeSubstrateComputer(n: number, numRegisters: number): RegisterMachine {
-  const g = buildDodecagrid({ maxCells: n })
-  const N = g.cellCount
-  const cells = Array.from({ length: N }, (_, i) => i)
-  const { regions, ground } = carveRegisters({ cells, numRegisters, perRegister: 220 })
-  return new RegisterMachine({ tone: new Int8Array(N), regions, ground })
+  return buildDodecagridRegisterMachine({ maxCells: n, numRegisters, perRegister: 220 })
 }
 
 // registers, R0..R5 plus RZERO for unconditional jumps (never incremented)

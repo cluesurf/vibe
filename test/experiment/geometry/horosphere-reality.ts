@@ -5,7 +5,7 @@
 
 import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
 import { bandInducedSubgraph, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { highestDegreeNode } from '@/code/tool/graph'
+import { mostConnectedNode } from '@/code/tool/graph'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -15,7 +15,7 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
   const { neighbors: bnb } = bandInducedSubgraph({ band: h, halfWidth: 0.5 })
   const B = bnb.length
   // (1) flatness, intrinsic growth of the band graph (BFS from a central band cell) should be POLYNOMIAL
-  const c0 = highestDegreeNode(bnb)
+  const c0 = mostConnectedNode(bnb)
   const { shellCounts: shell } = bfsShells({ neighbors: bnb, root: c0 })
   const flatGrowth = midShellGrowthRatio({ shellCounts: shell })
   // (2) periodicity, degree histogram of the band cells (clean cubic {4,3,4} -> mostly degree 6; aperiodic -> spread)

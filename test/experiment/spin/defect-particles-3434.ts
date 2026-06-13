@@ -7,7 +7,13 @@
 // Run: npx tsx code/experiment/p258-defect-particles-3434.ts
 
 import { phaseWinding } from '@/code/measure/winding'
-import { Complex2, ringFieldEnergy, relaxRingField } from '@/code/dynamics/ginzburg-landau'
+import {
+  Complex2,
+  ringFieldEnergy,
+  relaxRingField,
+  ringFieldWithWinding,
+  ringDefectPair,
+} from '@/code/dynamics/ginzburg-landau'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -26,12 +32,8 @@ function relax(psi: Z[], steps: number, dt: number): { hist: number[]; final: Z[
   })
   return { hist, final }
 }
-// build a field of total winding w with the phase ramping smoothly around the ring
-const fieldWithWinding = (L: number, w: number): Z[] => Array.from({ length: L }, (_, x) => ({ re: Math.cos(2 * Math.PI * w * x / L), im: Math.sin(2 * Math.PI * w * x / L) }))
-// a localized defect/antidefect PAIR (net winding 0): phase bumps up 2pi then back down 2pi
-function defectPair(L: number): Z[] {
-  return Array.from({ length: L }, (_, x) => { const t = x / L; const th = 2 * Math.PI * (t < 0.5 ? Math.sin(Math.PI * 2 * t) : Math.sin(Math.PI * 2 * (1 - t))); return { re: Math.cos(th), im: Math.sin(th) } })
-}
+const fieldWithWinding = (L: number, w: number): Z[] => ringFieldWithWinding(L, w)
+const defectPair = (L: number): Z[] => ringDefectPair(L)
 
 export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersist: boolean; chargeConserved: boolean; particleLike: boolean } {
   const L = 64

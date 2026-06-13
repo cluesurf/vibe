@@ -15,22 +15,11 @@ import {
   twoQubitCorrelationMatrix,
   horodeckiMaxChsh,
 } from '@/code/measure/two-qubit'
+import { applyExchangeUnitary } from '@/code/operator/exchange-unitary'
 
-// the exchange unitary on the {|01>,|10>} subspace from H = XX + YY, at angle theta
-function applyExchange(re: Float64Array, im: Float64Array, theta: number): void {
-  const c = Math.cos(2 * theta)
-  const s = Math.sin(2 * theta)
-  // |01> (index 1) and |10> (index 2): |01> -> c|01> - i s|10>, |10> -> c|10> - i s|01>
-  const r1 = re[1]!
-  const i1 = im[1]!
-  const r2 = re[2]!
-  const i2 = im[2]!
-  // -i s |10> contribution to |01>: -i s * (r2 + i i2) = s i2 - i s r2
-  re[1] = c * r1 + s * i2
-  im[1] = c * i1 - s * r2
-  re[2] = c * r2 + s * i1
-  im[2] = c * i2 - s * r1
-}
+// the exchange unitary on the {|01>,|10>} subspace from H = XX + YY lives in
+// code/operator/exchange-unitary.
+const applyExchange = (re: Float64Array, im: Float64Array, theta: number): void => applyExchangeUnitary({ re, im, theta })
 
 function analyze(re: Float64Array, im: Float64Array): { concurrence: number; chsh: number } {
   const t = twoQubitCorrelationMatrix({ re, im }) // T_ij = <sigma_i (x) sigma_j>
