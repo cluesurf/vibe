@@ -350,3 +350,23 @@ export function regionTypes(a: Addressing): {
   const perron = den > 0 ? num / den : 0
   return { typeOf, typeList: typeSet, matrix, perron, perronVector: v }
 }
+
+// Summary statistics of a canonical addressing: the cell count, the maximum address length (the deepest route
+// from the root, the logarithmic-versus-polynomial signature), and whether every cell's address is unique
+// (canonical addressing has no collisions). The measure for the addressing data-structure experiment.
+export function addressingStats(a: Addressing): {
+  cellCount: number
+  maxAddressLength: number
+  allUnique: boolean
+} {
+  const cellCount = a.address.length
+  let maxAddressLength = 0
+  const seen = new Set<string>()
+  for (const address of a.address) {
+    if (address.length > maxAddressLength) {
+      maxAddressLength = address.length
+    }
+    seen.add(address.join(','))
+  }
+  return { cellCount, maxAddressLength, allUnique: seen.size === cellCount }
+}

@@ -182,6 +182,12 @@ After adding a file, also add its side-effect import to `test/experiment/all.ts`
 barrel). Files that are helpers, not tests, simply do not call `defineExperiment`;
 they are inert in the registry.
 
+To write an experiment that runs against ALL the regular hyperbolic tessellations (not
+one pinned substrate), see `cross-tessellation-experiments.md`: loop the catalog in
+`code/substrate/tessellation-catalog`, measure each with the battery in
+`code/measure/tessellation-battery`, and mark the experiment `substrates: 'any'`. The
+canonical example is `test/experiment/substrate-survey/tessellation-survey`.
+
 ### The conformance battery
 
 `test/suite/conformance.ts` holds the unit tests of the `code/` primitives

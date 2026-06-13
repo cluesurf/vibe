@@ -1,3 +1,10 @@
+// CROSS-TESSELLATION PATTERN, worked example (take one measure across the catalog). This experiment
+// measures one quantity on one substrate. To run a measure against ALL the regular hyperbolic
+// tessellations, see `note/cross-tessellation-experiments.md`. In short: write the per-substrate measure
+// once in `code/measure/`, wire it into `measureTessellation` (`@/code/measure/tessellation-battery`) so
+// every tessellation gets it, then loop `TESSELLATIONS` (`@/code/substrate/tessellation-catalog`) in a thin
+// `substrates: 'any'` experiment. `coxeter-engine.ts` is the companion "build any tessellation" example.
+//
 // P6: does the 2D path integral land on 2-dimensional orders?
 // P6 is the 2D specialisation of P2, and the P2 machinery (the 2D smeared action,
 // the correct uniform sampler) is already 2D. P6's own question is whether the

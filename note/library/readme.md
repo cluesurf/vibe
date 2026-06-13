@@ -1,0 +1,58 @@
+# The @cluesurf/vibe Library
+
+A finite, deterministic, reproducible toolkit for the vibe physics framework. You build a discrete substrate, put a state on it, run a rule or build an operator, and measure what emerges. Everything is seeded and finite, so every result is exactly reproducible.
+
+These are friendly, distilled guides for USING the library, not formal API reference. Each one covers a whole domain (many code files grouped into a few tables), with tiny snippets and pointers to real experiments. For how the whole thing fits together, read [overview.md](overview.md). For everything it solves for in one scannable page of tables, see [features.md](features.md).
+
+## The core pattern
+
+Almost everything is a composition of four steps.
+
+```
+substrate  ->  state        ->  rule / operator    ->  measure
+(a mesh)       (the tone)       (evolve or matrix)     (a number)
+```
+
+Build a mesh, optionally put a tone state on it, either run the local rule or build a matrix (a Laplacian, a Dirac operator) on it, then read a number off the result. The model DSL wraps the committed version of this in one line.
+
+## The map
+
+| guide | what it covers | reach for it when |
+| ----- | -------------- | ----------------- |
+| [api/model](api/model.md) | the `vibe()` fluent DSL, the committed {3,4,3,4} model in a few lines | you want the easy entry point |
+| [api/substrate](api/substrate.md) | build a mesh, any hyperbolic honeycomb, the D4 coin, flat lattices, sprinklings, the tessellation catalog | you need a geometry to run on |
+| [api/tone-and-rule](api/tone-and-rule.md) | the cell state (the tone) and the reversible conserving local rule (the lattice gas) | you want to run the base dynamics |
+| [api/operator](api/operator.md) | matrices built on a substrate, the Laplacian, the Dirac operator, gauge operators | you want to diagonalize or evolve a field |
+| [api/measure](api/measure.md) | read a number off a state, dimension, curvature, dispersion, entanglement, and more | you want to measure something |
+| [api/dynamics](api/dynamics.md) | sampling, MCMC, lattice gauge, wave and walk evolution, renormalization | you want search, sampling, or time evolution |
+| [api/algebra](api/algebra.md) | the symmetry algebra (D4, F4, quaternions, Clifford, octonions, Jordan) and the linear algebra (eigensolvers, KPM, Bethe) | you need spinors, roots, or an eigensolver |
+| [api/tool](api/tool.md) | the substrate-agnostic primitives, the seeded rng, graphs, posets, bitsets | you need a building block |
+| [api/draw-and-render](api/draw-and-render.md) | the 2D drawing primitives, the render scripts, the WebGPU compute runners | you want a figure or a GPU run |
+
+A deeper dive lives alongside these: [tessellation-engine.md](tessellation-engine.md) explains the exact Coxeter reflection engine that builds any tessellation from its Schläfli symbol, the layer under `api/substrate`.
+
+## Start here
+
+The fastest way in is the **model DSL**. The defaults are the committed model.
+
+```ts
+import { vibe } from '@/code/model/vibe'
+
+const world = vibe().size(1500).seed(1).build().run(40)
+console.log(world.read()) // the emergent structures read off the mesh
+```
+
+For custom work, the path is **substrate** then **tone-and-rule** (or **operator**) then **measure**. To write a new experiment, see `../architecture.md` (how to add one) and `../cross-tessellation-experiments.md` (how to run one against every tessellation).
+
+## Conventions
+
+- **Deterministic.** The library never uses `Math.random`. Use the seeded `makeRng` (see [api/tool](api/tool.md)) or `fillWillPattern`. Vary the lattice SIZE, not seeds.
+- **The `@/` alias.** Every import is absolute through `@/`, which points at the package root. No relative imports across folders, no `.js` extensions, no `/index`.
+- **Finite and exact.** Everything is finite. The base rule is integer arithmetic, so equalities are exact, not tolerant.
+
+## See also
+
+- [overview.md](overview.md), how the library works in general, what it contains, what it is for.
+- `../architecture.md`, where code and tests live, and how to add an experiment.
+- `../experimental-methodology.md`, the standards every experiment meets.
+- `../cross-tessellation-experiments.md`, how to run an experiment against every regular hyperbolic tessellation.
