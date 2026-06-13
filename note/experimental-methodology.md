@@ -164,6 +164,8 @@ Until then it is a consistency check or a work in progress, and we say so.
 
 ## See also
 
-The experiment code in `code/experiment/`, the engine in `code/gpu/` and `code/rule/`, and the substrate
-builders in `code/substrate/`. Each experiment file states its own purpose, method, and honest level in its
-header.
+The experiments in `test/experiment/` (by category), the harness in `test/scaffold/` and the named batteries
+in `test/suite/`. The shared library they import lives in `code/`, the rule and collision in `code/rule/`, the
+substrate builders in `code/substrate/`, and the algebra, measures, controls, and fits in `code/algebra/`,
+`code/measure/`, and `code/dynamics/`. The full layout and conventions are in `architecture.md`. Each
+experiment file states its own purpose, method, and honest level in its header.

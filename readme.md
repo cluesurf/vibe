@@ -80,12 +80,18 @@ generates the discrete substrate (the mesh), runs the one local rule
 over it in discrete beats, and measures what emerges, so each question
 becomes a concrete experiment that either works or does not.
 
-Everything is finite and seeded, so every result is exactly
-reproducible. Real numbers appear only as measured outputs (coordinates,
-eigenvalues, dimensions), never as the base, in keeping with the
-discreteness principle. Each numbered problem (P1, P2, and so on) is one
-such experiment, with its code in `code/experiment/`, its finding in
-`note/experiment/results/`, and its status in `note/questions/`.
+Everything is finite and deterministic, so every result is exactly
+reproducible. The base never relies on randomness. Real numbers appear
+only as measured outputs (coordinates, eigenvalues, dimensions), never as
+the base, in keeping with the discreteness principle. Each question is one
+experiment in `test/experiment/<category>/`, a single `defineExperiment`
+that returns a structured verdict (status, metrics, control, claim) graded
+by an honest depth level, from `L0` circular through `L1` known math and
+`L2` known physics to `L3` emergent and novel. The standard the
+experiments are held to is in
+[`note/experimental-methodology.md`](note/experimental-methodology.md),
+and the code and test layout is in
+[`note/architecture.md`](note/architecture.md).
 
 The goal is to find out whether this crystal model can actually
 reproduce our universe, by deriving space, matter, gravity, the quantum,
@@ -97,14 +103,16 @@ companion papers are snapshots of a _work very much in progress_.
 
 ```
 pnpm install
-pnpm test                                            # known-answer tests
-pnpm call code/experiment/p190-spinor-triality.ts    # the D4 spinor coin, three generations
-pnpm call code/experiment/p193-ports-3434.ts         # the framework ported to {3,4,3,4}
+pnpm test         # the full experiment registry plus the conformance battery
+pnpm test:full    # the above, then the extended check suite
 ```
 
-Each experiment is also a standalone script:
-`npx tsx code/experiment/pN-*.ts`. Findings are tracked in
-`note/experiment/results/`.
+Every experiment lives in `test/experiment/<category>/<name>.ts` as one
+`defineExperiment`, and the suite runner (`test/run.ts`) imports them all
+and runs the registry. The shared library they import is in `code/`, and
+the named batteries (conformance, paper) are in `test/suite/`. The build
+fails only on a code crash or a conformance failure, never on an honest
+scientific negative.
 
 ## Defining the model
 
@@ -140,16 +148,24 @@ which is why a curved mesh is the committed choice.
 - **operator**: graph Laplacian, Kahler-Dirac and overlap fermions, the
   gauge-covariant Dirac, the cellular-automaton Hamiltonian, and the
   gauge index.
+- **algebra**: quaternions and the binary tetrahedral 24-cell, the `D4`
+  and `F4` root systems, spinor and vector rotation, Clifford and
+  exterior calculus, and the linear-algebra kernels (Lanczos lowest
+  eigenvalues, the kernel-polynomial method, Bethe resolvents).
 - **measure**: dimension, distance, curvature, manifold-likeness,
-  Lorentz isotropy, navigation, CHSH, locality, integration, Wilson
-  loops, and Aharonov-Bohm phase.
+  Lorentz isotropy, streaming BFS shells, navigation, CHSH, locality,
+  integration, Wilson loops, and Aharonov-Bohm phase.
 - **dynamics**: the Benincasa-Dowker action, uniform-measure and
   Wang-Landau sampling, parallel tempering, coarse graining, and the
   Wilson heat bath.
-- **gpu** and **viz**: WebGPU renderers and figures for the bulk, the
-  cusp, gliders, gravity, and the nesting tower.
-- **experiment**: one runnable script per open problem, P1 through
-  P240-plus, plus a scan runner and report writer.
+- **control**: the negative controls that make a positive result mean
+  something (the substrate or rule where the answer must be no).
+- **draw**, **render**, and **viz**: renderers and figures for the bulk,
+  the cusp, gliders, gravity, and the nesting tower.
+- **test/experiment**: one `defineExperiment` per question, grouped by
+  category (foundations, geometry, relativity, spin, gauge, gravity,
+  cosmology, holography, quantum, renormalization, selves, computation,
+  addressing, substrate-survey), run by the suite runner in `test/`.
 
 ## License
 
