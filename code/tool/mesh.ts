@@ -117,6 +117,27 @@ export function d4Mesh(input: { side: number }): Mesh {
   }
 }
 
+// The D4 coin with an extra REST direction (index 24), a zero-speed slot. A charge in the rest slot never streams
+// (its neighbour is the cell itself), so it stays put, giving the coin an ENERGY SCALE, rest charges are the bound
+// body, moving charges (directions 0..23) are the radiation. The rest slot is its own opposite, so the line-paired
+// collisions (which require direction < opposite) never touch it. This is the 0C enrichment in
+// plans/bound-body-base-modifications, the minimal way to make a persistent bound identity discrete.
+export function d4MeshWithRest(input: { side: number }): Mesh {
+  const base = d4Mesh(input)
+  const rest = base.degree
+  return {
+    id: `d4-rest-${input.side}`,
+    degree: base.degree + 1,
+    cellCount: base.cellCount,
+    neighbour(cell, direction) {
+      return direction < base.degree ? base.neighbour(cell, direction) : cell
+    },
+    opposite(direction) {
+      return direction < base.degree ? base.opposite(direction) : rest
+    },
+  }
+}
+
 // The 32 B4 root directions, the two-speed coin: the 24 long D4 roots plus the 8
 // short axis roots, computed once with their opposite (negated root) indices.
 const B4_ROOTS = rootsB4()
