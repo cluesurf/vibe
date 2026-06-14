@@ -42,6 +42,8 @@ The `api/` guides say WHICH function to call. These deep dives explain HOW each 
 | [spectral-engine](spectral-engine.md) | the eigensolvers and spectral methods, Lanczos, the complex-Hermitian embedding, KPM, the Bethe resolvent |
 | [causal-set-sampler](causal-set-sampler.md) | the discrete path integral over causal orders, the Benincasa-Dowker action and the uniform-measure MCMC |
 | [evolution-and-propagation](evolution-and-propagation.md) | the leapfrog unitary evolution and the return-probability test for extended versus localized |
+| [lattice-gauge-engine](lattice-gauge-engine.md) | gauge fields on links, the Wilson plaquette action, Metropolis sweeps, the coupled Schwinger evolution |
+| [coarse-graining-and-selves](coarse-graining-and-selves.md) | coarse-graining the micro rule into macro levels, causal emergence, Markov blankets, the level tower, the honest null result |
 
 ## Start here
 

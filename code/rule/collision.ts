@@ -143,6 +143,34 @@ export function bindAndMove(input: { opposite: number[]; forward?: boolean }): C
   return tableCollision((input.forward ?? true) ? BIND_MOVE_FORWARD : BIND_MOVE_INVERSE, input.opposite)
 }
 
+// The leaky-confiner table (one-tone-photon-as-phonon). One reversible move on the single tone field that
+// CONFINES charged line-states (so a body keeps its identity) but leaves CHARGE-NEUTRAL line-states alone so
+// they STREAM as neutral ripples (phonons, the radiation). A lone charge (s, 0) reflects (s confined, it bounces
+// back inward, like the pair-table hop), a neutral pair (1, -1) is left to stream apart (a propagating neutral
+// disturbance), and there is NO create move, so the vacuum stays empty (no churn). So the matter is the tone
+// bound, the photon is the tone waving, in ONE field. It is a self-inverse involution (the reflects are 2-cycles,
+// the rest fixed), reversible and charge-conserving.
+function buildLeakyConfineForward(): Array<[Tone, Tone]> {
+  const table = new Array<[Tone, Tone]>(9)
+  table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
+  table[pairKey(1, 1)] = [1, 1]
+  table[pairKey(1, 0)] = [0, 1] // a lone charge REFLECTS (confine the body)
+  table[pairKey(0, 1)] = [1, 0]
+  table[pairKey(-1, 0)] = [0, -1]
+  table[pairKey(0, -1)] = [-1, 0]
+  table[pairKey(0, 0)] = [0, 0] // peace left alone, NO create move (the vacuum stays empty)
+  table[pairKey(1, -1)] = [1, -1] // a neutral pair STREAMS (the phonon, radiation)
+  table[pairKey(-1, 1)] = [-1, 1]
+  return table
+}
+
+export const LEAKY_CONFINE: Array<[Tone, Tone]> = buildLeakyConfineForward()
+
+// The leaky-confiner collision. A self-inverse involution, so the same table runs forward and backward.
+export function leakyConfine(input: { opposite: number[] }): Collision {
+  return tableCollision(LEAKY_CONFINE, input.opposite)
+}
+
 // The momentum-conserving collision, the generalization of momentumRotate2D to any coin. It rotates a
 // zero-momentum HEAD-ON pair from one direction-line to an empty partner line, and does nothing else. A
 // head-on pair is an opposite pair carrying the same tone (s, s), which has zero net momentum, so moving it
