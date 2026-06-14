@@ -1,31 +1,34 @@
-// The working substrate-native self, ONE field, no additions (one-tone-photon-as-phonon, the soliton resolution).
-// The static-body attempts sealed their own radiation, a confining rule reflects lone charges at the body edge,
-// trapping the disturbance. The resolution, make the body a MOVING SOLITON (a co-moving glider). It coheres by
-// CO-MOTION, not by trapping, so lone charges stream FREELY (disturbances radiate) while the body stays together
-// because its charges share one velocity. Confinement and radiation no longer conflict, the body holds by
-// co-motion, disturbances leave by streaming.
+// HONEST NEGATIVE. A line of co-moving charges under the momentum-conserving rule is NOT a bound self, it is free
+// parallel streaming with no binding. This experiment first looked like a self because the perturbation used was
+// EXTRA charges in OTHER directions, which have a different velocity and simply drift away, two non-interacting
+// crowds separating, not a body repairing itself. The decisive test is a hit to the body's OWN charges, redirect
+// one of the glider's charges and ask whether the body pulls it back.
 //
-// Under the momentum-conserving rule (headOnRotate) on the OPEN lattice, a glider is a soliton, it stays a tight
-// unit and travels, and a perturbation propagates AWAY from it (different velocity) and is absorbed at the bath,
-// so the glider returns to its clean form, it CORRECTS the disturbance. On the closed torus the disturbance
-// persists and wraps back. So the soliton is a self, identity (it keeps its clean form) and agency (it sheds
-// perturbations), in one tone field, with only the momentum-conserving collision and the open substrate, no
-// photon field, no second tone, no real numbers.
+// It does not. On the closed torus (nothing can leave) the difference from a clean glider STAYS AT ITS PEAK for
+// the whole run, the body never heals, there is zero restoring force. The redirected charge flies off on its new
+// heading and never rejoins, because lattice-gas particles only interact when they meet head-on, and parallel
+// charges never meet. So co-motion is kinematic coincidence, not binding.
 //
-// Depth L2, a soliton body that radiates and recovers a perturbation on the open lattice, with the closed torus
-// as the no-recovery control.
+// The lesson, a robust self needs genuine BINDING (a restoring interaction among its parts), which free streaming
+// does not provide. Confinement by reflection seals radiation (selves/leaky-confiner), free streaming has no
+// restoring force (this), so neither simple rule gives a self. The open requirement is a single rule whose body is
+// BOUND (a hit relaxes back) yet still radiates the excess to the bath. A topological kink (a domain wall in the
+// ternary tone, protected by topology, not amplitude) is the discrete candidate not yet tried.
+//
+// Depth L2, a body hit on a co-moving line, measured on the closed torus (no bath, so any healing would be
+// genuine), the difference staying at peak is the proof of no binding.
 
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cloneWill, gliderLine, type Will } from '@/code/tone/will'
+import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { cloneWill, gliderLine, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default defineExperiment({
-  id: 'selves/soliton-self',
-  title: 'a moving soliton is a self: it holds by co-motion, radiates a perturbation, and recovers via the bath',
+  id: 'selves/co-motion-not-bound',
+  title: 'co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -42,78 +45,77 @@ export default defineExperiment({
     const dir = 0
 
     const cleanGlider = (): Will => gliderLine({ mesh, start: center, direction: dir, length: 3 }).will
-    const perturbedGlider = (): Will => {
+
+    // the BODY hit, redirect one of the glider's own forward charges to a sideways direction. A bound soliton would
+    // pull it back into the clean form. Free parallel streaming loses it forever.
+    const bodyHitGlider = (): Will => {
       const will = cloneWill(cleanGlider())
-      // a real disturbance, a cluster of charges in OFF-glider directions at the centre (different velocities, so
-      // they separate from the glider and radiate). Dirs 6..13 are not the glider's dir 0.
-      for (let d = 6; d <= 13; d++) will.data[center * degree + d] = (d % 2 === 0 ? 1 : -1) as -1 | 1
+      for (let c = 0; c < mesh.cellCount; c++) {
+        if (will.data[c * degree + dir] !== 0) {
+          const v = will.data[c * degree + dir]!
+          will.data[c * degree + dir] = 0
+          will.data[c * degree + 6] = v as -1 | 1
+          break
+        }
+      }
       return will
     }
 
-    // 1, the glider is a soliton, it stays a tight unit over the run.
-    const cluster = (will: Will): { occupied: number; diameter: number } => {
-      const occ: number[] = []
-      for (let c = 0; c < mesh.cellCount; c++) {
-        const base = c * degree
-        for (let d = 0; d < degree; d++) if (will.data[base + d] !== 0) { occ.push(c); break }
-      }
-      if (occ.length <= 1) return { occupied: occ.length, diameter: 0 }
-      const dd = shellDistances(mesh, occ[0]!)
-      let m = 0
-      for (const c of occ) if (dd[c]! > m) m = dd[c]!
-      return { occupied: occ.length, diameter: m }
-    }
-    let g = cleanGlider()
-    let maxOcc = 0
-    let maxDiam = 0
-    for (let t = 0; t < beats; t++) { g = beat(g, rule); const s = cluster(g); if (s.occupied > maxOcc) maxOcc = s.occupied; if (s.diameter > maxDiam) maxDiam = s.diameter }
-    const solitonHolds = maxOcc <= 4 && maxDiam <= 3 // stayed a tight 3-cell unit (no dispersal)
-
-    // 2, recovery, the difference between the perturbed and clean runs (the perturbation) over time. The glider
-    // motion is common to both runs and cancels, so the difference IS the disturbance. Open absorbs it (recovery),
-    // closed keeps it (persists).
-    const differenceTrace = (open: boolean): { peak: number; final: number } => {
+    // difference between a clean glider and the body-hit glider over time.
+    const trace = (open: boolean): { peak: number; final: number } => {
       let clean = cleanGlider()
-      let pert = perturbedGlider()
+      let hit = bodyHitGlider()
       let peak = 0
       let final = 0
       for (let t = 0; t < beats; t++) {
-        clean = beat(clean, rule); pert = beat(pert, rule)
-        if (open) { absorbBoundary(clean); absorbBoundary(pert) }
+        clean = beat(clean, rule); hit = beat(hit, rule)
+        if (open) { absorbBoundary(clean); absorbBoundary(hit) }
         let diff = 0
-        for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== pert.data[i]) diff++
+        for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== hit.data[i]) diff++
         if (diff > peak) peak = diff
         final = diff
       }
       return { peak, final }
     }
-    const open = differenceTrace(true)
-    const closed = differenceTrace(false)
 
-    // the open lattice RECOVERS (the disturbance radiates away and is absorbed, final difference far below peak),
-    // the closed torus does NOT (the disturbance persists and wraps).
-    const openRecovers = open.final < open.peak * 0.3
-    const closedPersists = closed.final > open.final * 2
+    const closed = trace(false)
+    const open = trace(true)
 
-    const ok = solitonHolds && openRecovers && closedPersists
+    // the forward momentum (identity) of the hit body, start vs end on the open lattice.
+    const dirCharge = (will: Will, d: number): number => {
+      let s = 0
+      for (let c = 0; c < mesh.cellCount; c++) s += Math.abs(will.data[c * degree + d]!)
+      return s
+    }
+    let hit = bodyHitGlider()
+    const startDir0 = dirCharge(hit, dir)
+    for (let t = 0; t < beats; t++) { hit = beat(hit, rule); absorbBoundary(hit) }
+    const endDir0 = dirCharge(hit, dir)
+
+    // the honest negative, on the closed torus the body NEVER heals (final difference stays at peak), so there is
+    // no restoring force, the structure is not bound. PASS means we correctly demonstrated the absence of binding.
+    const neverHeals = closed.final >= closed.peak
+    const losesTheCharge = endDir0 < startDir0
+    const ok = neverHeals && losesTheCharge
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'a co-moving glider is a soliton that holds together by shared velocity (not by trapping), so under the momentum-conserving rule it stays a tight unit while a perturbation streams away from it, and on the open lattice the disturbance radiates to the bath and is absorbed so the glider returns to its clean form (recovery), while on the closed torus the disturbance persists and wraps back, so a moving soliton is a self with identity and agency, in one tone field with no additions',
+        'a line of co-moving charges under the momentum-conserving rule is NOT a bound self, it is free parallel streaming, when one of the body charges is redirected the closed-torus difference from a clean glider stays at its peak for the whole run (the body never heals, zero restoring force) and the redirected forward momentum is lost and never rejoins, because lattice-gas particles only interact head-on and parallel charges never meet, so co-motion is kinematic coincidence not binding, a robust self requires genuine binding which free streaming does not provide',
       metrics: {
-        solitonMaxOccupied: maxOcc,
-        solitonMaxDiameter: maxDiam,
-        openPeakDiff: open.peak,
-        openFinalDiff: open.final,
-        closedFinalDiff: closed.final,
-        solitonHolds: solitonHolds ? 1 : 0,
-        openRecovers: openRecovers ? 1 : 0,
-        closedPersists: closedPersists ? 1 : 0,
+        bodyHitClosedPeak: closed.peak,
+        bodyHitClosedFinal: closed.final,
+        bodyHitOpenPeak: open.peak,
+        bodyHitOpenFinal: open.final,
+        dir0ChargeStart: startDir0,
+        dir0ChargeEnd: endDir0,
+        neverHeals: neverHeals ? 1 : 0,
+        losesTheCharge: losesTheCharge ? 1 : 0,
         beats,
       },
-      control: { closedFinalDiff: closed.final },
+      control: { bodyHitClosedFinal: closed.final, bodyHitClosedPeak: closed.peak },
       notes:
-        'the soliton self, one tone field, momentum-conserving collision, open substrate, no photon field, no second tone, no real numbers. The body holds by CO-MOTION so radiation is not sealed, a perturbation streams away and the bath absorbs it, the glider recovers. The closed torus cannot recover (the disturbance recurs). This is the substrate-native self the reduced bath-coupled model stood in for',
+        'honest negative, supersedes the earlier soliton-self over-claim. The earlier recovery was an artifact, EXTRA charges in OTHER directions drift off (different velocity), which is two crowds separating, not a body healing. The real test (a hit to the body) is never healed on the torus. A working substrate-native self needs genuine binding (a restoring interaction), free streaming has none. Next candidate, a topological kink (a domain wall in the ternary tone, protected by topology not amplitude), still discrete, not yet tried',
     })
   },
 })
