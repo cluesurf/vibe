@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { coxeterPoincareGraph } from '@/code/substrate/coxeter/embedding'
@@ -20,7 +20,7 @@ const FAMILY: number[][] = [
   [3, 4, 3, 3, 4], // 5D
 ]
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/universal-geometric-profile',
   title: 'phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding',
   category: 'data-structure',

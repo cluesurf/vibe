@@ -14,7 +14,7 @@
 // Depth L2, a known lattice-gas property (ballistic transport from a momentum-conserving collision) realized
 // on the committed coin, with the pinning pair table as the control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { loneParticle, type Will } from '@/code/tone/will'
@@ -31,7 +31,7 @@ const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v ==
 // a single particle, one tone in direction 0 at the center cell.
 const singleParticle = (mesh: Mesh, cell: number): Will => loneParticle(mesh, cell, 0)
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/mobile-rule-d4',
   title: 'a momentum-conserving reversible collision makes a particle travel on the D4 coin, the pair table pins it',
   category: 'selves',

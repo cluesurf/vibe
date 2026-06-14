@@ -6,7 +6,7 @@
 // the boundary size (the holographic / RG relation). So hierarchy is the BULK TREE, not flat self-nesting.
 // Run: npx tsx code/experiment/p238-hierarchy-bulk-tree.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
@@ -26,7 +26,7 @@ export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boo
   return { branching, depthLogsBoundary }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/hierarchy-bulk-tree',
   title: 'the {3,4,3,4} bulk radial tree is a self-similar hierarchy with constant branching',
   category: 'holography',

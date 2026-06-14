@@ -5,7 +5,7 @@
 //
 // Depth L2, the same method check as coarse-spectral-gap, made robust over size.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, transitionEigenvalues, spectralGap, quantileLabels } from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
@@ -26,7 +26,7 @@ function lambda2(labels: number[], bins: number, lag: number): number {
   return spectralGap(transitionEigenvalues(countMatrix({ trajectory: labels, stateCount: bins, lag }))).lambda2
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-size-robustness',
   title: 'the self slow-mode survives across lattice sizes, and the shuffled control fails at every size',
   category: 'selves',

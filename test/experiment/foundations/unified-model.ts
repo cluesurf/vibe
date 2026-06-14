@@ -12,7 +12,7 @@ import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { totalCharge as sumQ } from '@/code/measure/tone-census'
 import { toneDensity as density } from '@/code/measure/avalanche'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function unifiedModel(input?: { n?: number }): {
@@ -110,7 +110,7 @@ export function unifiedModel(input?: { n?: number }): {
   return { n: N, conserved, alive, deadWithoutArrow, lightcone, reversible, coherent, allTogether, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/unified-model',
   title: 'one mesh and one rule produce all the key phenomena together in one run',
   category: 'foundations',

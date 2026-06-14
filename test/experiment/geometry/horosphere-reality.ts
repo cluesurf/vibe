@@ -6,7 +6,7 @@
 import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
 import { bandInducedSubgraph, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { mostConnectedNode } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function horosphereReality(): { bandCount: number; flatGrowth: number; degreeHistogram: Record<number, number> } {
@@ -31,7 +31,7 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
 // discrete tiling is the clean periodic {4,3,4} or an aperiodic flat slab. This is a
 // geometric probe of a known tessellation, so L1, and a structural finding, so paper is
 // false.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/horosphere-reality',
   title: 'the {3,4,3,4} horosphere band is intrinsically flat at finite distance, with a spread of cell degrees',
   category: 'geometry',

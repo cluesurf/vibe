@@ -28,7 +28,7 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { beat, countPlus, largestPositiveCluster, totalCharge } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function emergentSelfRobust(input?: { n?: number }): {
@@ -166,7 +166,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/emergent-self-robust',
   title: 'a self emerges by cohesion and conserving maintenance holds it against decay',
   category: 'selves',

@@ -10,10 +10,10 @@
 // Run: npx tsx code/experiment/p7-naturalness.ts
 
 import { chshShared } from '@/code/measure/bell'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/naturalness-shared-past',
   title: 'an aligned shared past violates CHSH while a generic one does not',
   category: 'foundations',
@@ -33,7 +33,7 @@ export default defineExperiment({
   },
 })
 
-defineExperiment({
+experiment({
   id: 'foundations/naturalness-separation-decay',
   title: 'the CHSH violation decays with measurement separation',
   category: 'foundations',

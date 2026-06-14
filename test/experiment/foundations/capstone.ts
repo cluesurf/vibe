@@ -17,7 +17,7 @@ import { symmetricEdgeFills } from '@/code/operator/signed-majority'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
 import { laplacianSpectrum } from '@/code/operator/laplacian'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The committed dynamics: ternary tones on vibes, ternary fills on the notes, and the
@@ -137,7 +137,7 @@ export function capstone(input: { count: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/capstone',
   title: 'the committed model runs end-to-end with all structures from one instantiation',
   category: 'foundations',

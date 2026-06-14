@@ -21,7 +21,7 @@ import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { conservingEdgeListSweep } from '@/code/dynamics/conserving-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
@@ -110,7 +110,7 @@ export function selfEmergencePerception(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/self-emergence-perception',
   title: 'living balance is structureless churn, no durable selves from tones alone',
   category: 'selves',

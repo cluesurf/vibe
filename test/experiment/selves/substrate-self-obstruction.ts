@@ -19,7 +19,7 @@
 // Depth L2, the body-versus-radiation tension measured on the committed coin, the honest obstruction to a
 // substrate-native bath-coupled self.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -28,7 +28,7 @@ import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 import { travelDistance } from '@/code/check/structure'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/substrate-self-obstruction',
   title: 'on the committed coin confinement and radiation conflict, no rule gives a confined body that radiates to the bath',
   category: 'selves',

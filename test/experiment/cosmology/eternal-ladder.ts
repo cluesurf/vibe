@@ -18,7 +18,7 @@ import { modularGraph } from '@/code/substrate/modular-group'
 import { runModel } from '@/code/compute/run-model'
 import { Graph } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface Epoch {
@@ -63,7 +63,7 @@ export function eternalLadder(input: { base: 'modular' | number[]; caps: number[
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/eternal-ladder',
   title: 'grows without bound, stays Lorentz-safe, model always runs',
   category: 'cosmology',

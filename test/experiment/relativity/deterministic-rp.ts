@@ -11,7 +11,7 @@
 
 import { waveModeFrequency } from '@/code/measure/dispersion'
 import { linearFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function deterministicRP(input?: { ks?: number[] }): {
@@ -62,7 +62,7 @@ export function deterministicRP(input?: { ks?: number[] }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/deterministic-rp',
   title: 'the wave dispersion is real linear and massless so spatial reflection positivity is positive',
   category: 'relativity',

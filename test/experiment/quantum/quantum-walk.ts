@@ -14,7 +14,7 @@ import {
   continuousClassicalWalkMsd,
 } from '@/code/dynamics/quantum-walk'
 import { chainOperators } from '@/code/operator/chain-operators'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the continuous-time walk MSDs live in the dynamics library, the 1D chain operators in
@@ -23,7 +23,7 @@ export const quantumMsd = continuousQuantumWalkMsd
 export const classicalMsd = continuousClassicalWalkMsd
 export { chainOperators }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/quantum-walk',
   title: 'a quantum walk is ballistic while a classical walk is diffusive',
   category: 'quantum',

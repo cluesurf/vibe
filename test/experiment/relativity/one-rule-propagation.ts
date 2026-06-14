@@ -12,7 +12,7 @@ import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, mostConnectedNode, neighborsOf } from '@/code/tool/graph'
 import { bfsShells } from '@/code/measure/shells'
 import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Graph-distance from a source by breadth-first search.
@@ -62,7 +62,7 @@ export function propagation(input: { count: number; beats: number; seed: number 
   return { frontRadius, lightConeHolds, frontAdvances }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/one-rule-propagation',
   title: 'the ternary rule carries a causal light-cone at finite speed',
   category: 'relativity',

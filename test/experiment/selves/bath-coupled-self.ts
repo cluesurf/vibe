@@ -13,11 +13,11 @@
 // Depth L2, the bath gives a captured body an attractor (identity) and a corrective response (agency), with the
 // closed reversible system as the no-attractor, no-correction control. This is the body becoming a self.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { oscillatorBathTrajectory, lateAmplitude } from '@/code/dynamics/oscillator-bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/bath-coupled-self',
   title: 'coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)',
   category: 'selves',

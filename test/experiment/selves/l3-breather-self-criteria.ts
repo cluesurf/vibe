@@ -16,7 +16,7 @@
 // Depth L2. The criteria are measured on the pure-rule structure with controls. An honest L3 self-level
 // would need all criteria to pass cleanly together, this reports which do.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
@@ -88,7 +88,7 @@ function perturbationRadius(input: { mesh: Mesh; base: Will; site: number; beats
   return maxRadius
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/l3-breather-self-criteria',
   title: 'the base-rule breather screens through its shell and contains an interior perturbation more than the vacuum',
   category: 'selves',

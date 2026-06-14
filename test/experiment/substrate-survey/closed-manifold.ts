@@ -9,7 +9,7 @@
 
 import { pslCayleyGraph, standardPslGenerators } from '@/code/substrate/psl-cayley'
 import { spectralDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function closedManifold(): { vertices: number; vertexTransitive: boolean; conserves: boolean; specDim: number } {
@@ -31,7 +31,7 @@ export function closedManifold(): { vertices: number; vertexTransitive: boolean;
   return { vertices: N, vertexTransitive, conserves, specDim }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/closed-manifold',
   title: 'a boundary-free closed hyperbolic lattice, the Cayley graph of PSL(2,7), removes the all-boundary confound',
   category: 'substrate-survey',

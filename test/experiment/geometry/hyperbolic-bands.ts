@@ -7,7 +7,7 @@
 
 import { jacobiEigenvalues } from '@/code/algebra/linear/eig-jacobi'
 import { pslCayleyGraph, standardPslGenerators } from '@/code/substrate/psl-cayley'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function hyperbolicBands(): { degeneracies: number[]; matchesIrreps: boolean } {
@@ -34,7 +34,7 @@ export function hyperbolicBands(): { degeneracies: number[]; matchesIrreps: bool
 // the PSL(2,7) Cayley graph and show its eigenvalue degeneracies match the real irrep
 // dimensions {1,6,7,8}. This is established representation theory (a Cayley graph spectrum
 // block-diagonalizes by irrep), so L1.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/hyperbolic-bands',
   title: 'the PSL(2,7) Cayley-graph spectrum decomposes into irrep bands of dimension 1, 6, 7, 8',
   category: 'geometry',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hashTableProbeStats } from '@/code/measure/sketch'
 
@@ -7,7 +7,7 @@ import { hashTableProbeStats } from '@/code/measure/sketch'
 // open-addressing hash table over the cells has O(1) expected probe length at a reasonable load, and degrades
 // only as the load approaches 1 (the honest threshold). Control: the high-load case, where probes grow.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/hash-table',
   title: 'SS2: keys hash to exact cell addresses, lookup is O(1) probes at a reasonable load',
   category: 'data-structure',

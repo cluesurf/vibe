@@ -12,7 +12,7 @@ import { hyperbolicGraph, hyperbolicSunflower } from '@/code/substrate/hyperboli
 import { Graph, meanDegree, mostConnectedNode } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { ballGrowth, meanUnsaturatedGrowthRatio } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Robust exponential-reach test: the mean ball-growth ratio over the unsaturated radii
@@ -49,7 +49,7 @@ export function deterministicSubstrate(input: { count: number; seed: number }): 
   return { random, sunflower, deterministicIsSafe }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/deterministic-substrate',
   title: 'a deterministic sunflower substrate is as Lorentz-safe as the random sprinkle',
   category: 'relativity',

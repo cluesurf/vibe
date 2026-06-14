@@ -8,7 +8,7 @@ import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { makeConfiguration } from '@/code/tone/configuration'
 import { integrationCorrelates } from '@/code/measure/integration'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): { markovBlanketScore: number; integrationPhi: number } {
@@ -28,7 +28,7 @@ function study(): { markovBlanketScore: number; integrationPhi: number } {
   return c
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/integration',
   title: 'a configuration has a Markov-blanket score and an integration proxy',
   category: 'selves',

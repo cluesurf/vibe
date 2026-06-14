@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { coxeterPoincareGraph } from '@/code/substrate/coxeter/embedding'
@@ -11,7 +11,7 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 // greedy routing by the H^5 metric delivers and collapses when the coordinates are scrambled. So the pentacomb
 // is backed by real 5D geometry, not only a combinatorial graph, closing the geometric-mesh refinement.
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/pentacomb-geometric',
   title: 'the 5D pentacomb has a genuine hyperbolic embedding, greedy routing on H^5 delivers',
   category: 'substrate-survey',

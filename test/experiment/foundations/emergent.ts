@@ -12,7 +12,7 @@ import { lattice } from '@/code/substrate/lattice'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { Graph } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function ringDistance(i: number, j: number, n: number): number {
@@ -52,7 +52,7 @@ function interactionRange(input: { matrix: ReturnType<typeof makeDense>; n: numb
   return maxRange
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/emergent',
   title: 'the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once',
   category: 'foundations',

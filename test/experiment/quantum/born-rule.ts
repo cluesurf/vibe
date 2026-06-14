@@ -23,7 +23,7 @@ import {
   exponentResidual,
   fairSampleFrequencies,
 } from '@/code/measure/born-rule'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function bornRule(input: { seed: number }): {
@@ -69,7 +69,7 @@ export function bornRule(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/born-rule',
   title: 'the exponent 2 is forced by quadrature plus additivity',
   category: 'quantum',

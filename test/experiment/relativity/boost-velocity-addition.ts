@@ -11,7 +11,7 @@
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { groupVelocity1d } from '@/code/measure/group-speed'
 import { addVelocities, boostEnergyMomentum } from '@/code/measure/rapidity'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the coined quantum-walk (Dirac) dispersion, cos(omega) = cos(m) cos(k), so omega(k) = arccos(cos(m) cos(k))
@@ -104,7 +104,7 @@ export function boostVelocityAddition(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/boost-velocity-addition',
   title: 'boosts are genuine Lorentz transformations',
   category: 'relativity',

@@ -5,7 +5,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeAssociativeMemory, storeWord, readWord, matchScore } from '@/code/operator/associative-memory'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a word that varies smoothly with the cell index, so cells with near indices are content-near, giving the
@@ -62,7 +62,7 @@ export function associativeChaining(input?: { maxCells?: number; wordBits?: numb
   return { cellCount: g.cellCount, distinctVisited, chainLength: chain.length, collapsed, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/chaining',
   title: 'free association as a content-cued walk, each recalled word cues the next nearest memory',
   category: 'associative',

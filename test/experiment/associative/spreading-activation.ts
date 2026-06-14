@@ -9,7 +9,7 @@ import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-l
 import { bfsShells } from '@/code/measure/shells'
 import { makeAssociativeMemory, ternaryWord, storeWord, broadcastWave } from '@/code/operator/associative-memory'
 import { coverageRadius } from '@/code/measure/associative-recall'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativeSpreadingActivation(input?: { maxCells?: number; wordBits?: number }): {
@@ -84,7 +84,7 @@ export function associativeSpreadingActivation(input?: { maxCells?: number; word
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/spreading-activation',
   title: 'spreading activation through semantic memory IS the bulk query wave, made logarithmic by hyperbolic geometry',
   category: 'associative',

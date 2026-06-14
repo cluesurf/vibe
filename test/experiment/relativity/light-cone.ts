@@ -1,10 +1,10 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lightConeRadii } from '@/code/measure/light-cone'
 
 // The discrete light cone on the cubic cusp. A free charge front advances exactly
 // one cell per beat, a finite frame-independent maximum speed, z = 1.
-export default defineExperiment({
+export default experiment({
   id: 'relativity/light-cone',
   title: 'Ballistic z = 1 light cone on the cubic cusp',
   category: 'relativity',

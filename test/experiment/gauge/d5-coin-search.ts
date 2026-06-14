@@ -6,7 +6,7 @@
 // is 40, so NO regular honeycomb coin can carry D5. Run: npx tsx code/experiment/p220-d5-coin-search.ts
 
 import { isRootSystem, rootsDn } from '@/code/algebra/group/root-system'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyRegular5DHas40: boolean } {
@@ -22,7 +22,7 @@ export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyR
   return { cell24IsD4, d5RootCount, anyRegular5DHas40 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/d5-coin-search',
   title: 'no regular honeycomb coin carries D5 = so(10), the geometry tops out at D4',
   category: 'gauge',

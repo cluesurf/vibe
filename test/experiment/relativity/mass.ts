@@ -11,7 +11,7 @@
 
 import { latticeDiracEnergy1d } from '@/code/operator/lattice-fermion'
 import { relativisticDispersionFit } from '@/code/measure/dispersion'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Positive-energy branch of the 1D lattice Dirac Hamiltonian at momentum k.
@@ -39,7 +39,7 @@ export function massStudy(input: { m: number }): { gap: number; a: number; b: nu
   return { gap, a: fit.a, b: fit.b }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/mass-dispersion',
   title: 'mass gives a gap = m and a relativistic dispersion b ~ m^2',
   category: 'relativity',

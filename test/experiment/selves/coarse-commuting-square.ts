@@ -6,14 +6,14 @@
 //
 // Depth L2, a known renormalization validity check (the commuting square) on this substrate, with a control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
 import { commutingSquareError, mostProbableNext } from '@/code/coarse/validator'
 import { beat } from '@/code/model/self-kit'
 import { selfTrajectory, positionBin, makeRng } from '@/code/coarse/self-trajectory'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-commuting-square',
   title: 'the learned effective rule commutes with one micro beat far better than a random rule',
   category: 'selves',

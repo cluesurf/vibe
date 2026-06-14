@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   diracGamma,
@@ -19,7 +19,7 @@ import { complex } from '@/code/algebra/linear/complex'
 // here is the same algebra the 24-direction coin carries through its quaternions (2T), so the
 // 3+1D Dirac spinor's rotations come from the {3,4,3,4} structure.
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/dirac-3plus1-3434',
   title: 'the full 3+1D Dirac equation, the Clifford algebra and the relativistic dispersion',
   category: 'spin',

@@ -10,7 +10,7 @@
 // proven for the DYNAMICS, not just the conserved charge. Run: npx tsx code/experiment/p167-wave-chain.ts
 
 import { leapfrogWaveCommutingError, leapfrogWaveLevelSpeed } from '@/code/dynamics/leapfrog-wave'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function waveChain(input?: { L?: number; r?: number }): {
@@ -57,7 +57,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
   return { L, r, rungErrors, errorsShrink, errorsSmall, speeds, speedInvariant, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/wave-chain',
   title:
     'the wave equation commutes up the coarse-graining tower with an invariant speed',

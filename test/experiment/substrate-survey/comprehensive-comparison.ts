@@ -12,7 +12,7 @@ import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { streamDirectionalCharge, totalDirectionalCharge } from '@/code/operator/directional-charge-stream'
 import { churnCount } from '@/code/measure/churn'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Sub = { sym: number[]; flat: boolean; bulk: number; space: number; coin: string; soliton: string; stats: string }
@@ -67,7 +67,7 @@ function battery(s: Sub): Record<string, string> {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/comprehensive-comparison',
   title: 'the same battery on one substrate per dimension, only {3,4,3,4} scores on every physics row',
   category: 'substrate-survey',

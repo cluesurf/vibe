@@ -6,12 +6,12 @@
 // condensate. See note/questions/remaining-frontier-spec.md (B2).
 // Run: npx tsx code/experiment/p8-su2-condensate.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/su2-condensate',
   title: 'a chiral condensate forms in a dynamical non-abelian SU(2) gauge field, near zero in the free theory',
   category: 'gauge',

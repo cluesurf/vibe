@@ -15,7 +15,7 @@
 // Run: npx tsx code/experiment/p77-chiral-gauge.ts
 
 import { latticeFermionDoublers } from '@/code/operator/lattice-fermion'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const analyze = latticeFermionDoublers
@@ -43,7 +43,7 @@ export function chiralGauge(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/chiral-gauge',
   title:
     'naive lattice fermions double to 2^d species whose chiralities cancel and a Wilson term leaves one',

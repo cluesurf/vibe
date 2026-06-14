@@ -5,7 +5,7 @@
 //     order-10 prediction (observed ~13). Run: npx tsx code/experiment/yukawa-rg.ts
 
 import { qcdRunningMassFactor } from '@/code/dynamics/renormalization-group'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const MZ = 91.19, MGUT = 2e16
@@ -29,7 +29,7 @@ export function yukawaRG(): { bTauSM: number; bTauMSSM: number; detRatio: number
   return { bTauSM, bTauMSSM, detRatio }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/yukawa-rg',
   title: 'running b-tau unification down gives the observed mass ratio and determinant relation',
   category: 'gauge',

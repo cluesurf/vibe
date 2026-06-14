@@ -11,7 +11,7 @@ import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -161,7 +161,7 @@ export function manySelfModels(input?: { n?: number }): {
   return { n: N, centers, results, countSelfModels, allFormSelfModels, distinctCenters, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/many-self-models',
   title: 'every self forms its own self-model at its own hub',
   category: 'selves',

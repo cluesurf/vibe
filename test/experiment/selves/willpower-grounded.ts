@@ -16,7 +16,7 @@
 // reserve to do so), and the total charge Q is conserved exactly throughout. Willpower is the reserve,
 // emergent, not a sixth base thing. Run: npx tsx code/experiment/p99-willpower-grounded.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
@@ -144,7 +144,7 @@ export function willpowerGrounded(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/willpower-grounded',
   title: 'a charge reserve depletes when a self pumps against a draining field',
   category: 'selves',

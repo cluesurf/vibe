@@ -16,7 +16,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { undirectedAdjacency } from '@/code/tool/substrate'
 import { toneIntegration, algebraicConnectivity } from '@/code/measure/integration'
 import { modularMesh } from '@/code/substrate/modular-mesh'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function tonePhi(
@@ -116,7 +116,7 @@ export function integratedInformation(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/integrated-information',
   title: 'selves are tone-integration local maxima and the measure reads the dynamics',
   category: 'selves',

@@ -15,7 +15,7 @@
 // defect even though its coin is spinless, a second independent spin route alongside SK1 Kahler-Dirac.
 
 import { disclinationHolonomy } from '@/code/algebra/group/disclination'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const WINDINGS = [0, 1, 2, 3, 4]
@@ -57,7 +57,7 @@ export function disclinationSpin(): {
   return { spinorParityCorrect, oddDisclinationFlipsSpinor, vectorAlwaysReturns, topological }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/disclination-spin-534',
   title: 'a half-winding disclination in the {5,3,4} director field gives the spinor a minus sign while the vector is blind, spin from topology',
   category: 'spin',

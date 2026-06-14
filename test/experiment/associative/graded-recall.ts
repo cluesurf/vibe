@@ -4,7 +4,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeAssociativeMemory, storeWord, readWord, searchBest } from '@/code/operator/associative-memory'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a REDUNDANT distributed word, each slot is an independent ternary hash of the cell index, so the cell's
@@ -73,7 +73,7 @@ export function associativeGradedRecall(input?: { maxCells?: number; wordBits?: 
   return { cellCount: g.cellCount, fidelityByKeep, maxDrop, monotone, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/graded-recall',
   title: 'graceful, graded recall, fidelity degrades smoothly as the cue shrinks',
   category: 'associative',

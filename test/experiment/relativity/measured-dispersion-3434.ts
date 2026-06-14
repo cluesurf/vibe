@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/p253-measured-dispersion-3434.ts
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // one-step Dirac walk operator at momentum k, mass m: U(k) = diag(e^{ik}, e^{-ik}) . [[c,-is],[-is,c]]
@@ -37,7 +37,7 @@ export function measuredDispersion(): { restEnergyIsMass: boolean; lorentzAtLong
   return { restEnergyIsMass, lorentzAtLongWave, lightSpeedMassless, subluminalMassive }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/measured-dispersion-3434',
   title: 'the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode',
   category: 'relativity',

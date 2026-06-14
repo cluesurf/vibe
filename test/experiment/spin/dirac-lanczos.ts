@@ -7,7 +7,7 @@
 // GAP vs soliton size R, if it scales ~ 1/R the bound fermion resists collapse (a 3D stabilization signal).
 // Run: npx tsx code/experiment/p215-dirac-lanczos.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
@@ -48,7 +48,7 @@ export function diracLanczos(): { zeroModesHedgehog: number; zeroModesFree: numb
   return { zeroModesHedgehog, zeroModesFree, gapVsSize }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/dirac-lanczos',
   title: 'a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks',
   category: 'spin',

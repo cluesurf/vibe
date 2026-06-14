@@ -22,7 +22,7 @@ import {
   permutationConjugate,
   permutations,
 } from '@/code/algebra/jordan'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function generationFamilySymmetry(): {
@@ -73,7 +73,7 @@ export function generationFamilySymmetry(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/generation-family-symmetry-3434',
   title: 'the three Jordan slots carry an exact S3 family symmetry but stay degenerate, so three distinct generations is not established',
   category: 'spin',

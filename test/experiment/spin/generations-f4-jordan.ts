@@ -30,7 +30,7 @@ import {
   octonionMatrixIdentity,
   octonionMatrixTrace,
 } from '@/code/algebra/jordan'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const vectorKey = (p: number[]): string => p.map((x) => Math.round(x * 1e4)).join(',')
@@ -102,7 +102,7 @@ export function generationsF4Jordan(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/generations-f4-jordan',
   title:
     'the substrate F4 symmetry forces an exceptional rank-three Jordan structure, but three generations stays Boyle\'s open conjecture',

@@ -18,7 +18,7 @@
 // exactly zero: epsilon = 0 (no CP), no B-violation (no source term), or clamping to equilibrium.
 // Run: npx tsx code/experiment/p80-baryogenesis.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Integrate the out-of-equilibrium decay equations and return the final net asymmetry eta.
@@ -110,7 +110,7 @@ export function baryogenesis(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/baryogenesis',
   title: 'emergent asymmetry, all three Sakharov conditions necessary, freeze-out peak at intermediate washout',
   category: 'cosmology',

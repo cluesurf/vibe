@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The deepest residual (plans/remaining-work). Does the BARE conserving reversible rule generate the
@@ -19,7 +19,7 @@ const subtreeParity = (level: number, offset: number, leaves: number[], branchin
   return parity
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/holography-from-rule',
   title: 'the bare reversible rule derives the causal wedge, but the erasure code needs the perfect-tensor constraint',
   category: 'holography',

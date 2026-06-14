@@ -16,7 +16,7 @@
 // emergence) on this very structure are the open frontier. Reversibility means the structure is a periodic
 // orbit, not an attractor.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
@@ -57,7 +57,7 @@ function packet(side: number): Will {
   return will
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/l3-self-from-base-rule',
   title: 'the pure reversible base rule confines a packet into a persistent bounded structure, streaming alone spreads it',
   category: 'selves',

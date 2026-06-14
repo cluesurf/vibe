@@ -18,7 +18,7 @@
 // Depth L2, a body hit on a co-moving line, measured on the closed torus (no bath, so any healing would be
 // genuine), the difference staying at peak is the proof of no binding.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { cloneWill, gliderLine, type Will } from '@/code/tone/will'
@@ -26,7 +26,7 @@ import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/co-motion-not-bound',
   title: 'co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)',
   category: 'selves',

@@ -19,7 +19,7 @@ import {
   modularGraph,
   rationalFromContinuedFraction,
 } from '@/code/substrate/modular-group'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function modularBase(input: { seed: number }): {
@@ -70,7 +70,7 @@ export function modularBase(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/modular-base',
   title: 'parameter-free modular base is Lorentz-safe, continued-fraction addressed, golden-ratio central',
   category: 'geometry',

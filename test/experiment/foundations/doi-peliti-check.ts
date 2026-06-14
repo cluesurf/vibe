@@ -7,7 +7,7 @@
 // transferring one S^z quantum), and (3) the matrix satisfies DETAILED BALANCE (reversible), which is what
 // makes the Doi-Peliti Hamiltonian Hermitian / genuinely quantum. Run: npx tsx code/experiment/p131-doi-peliti-check.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // tone t in {-1,0,1} -> index t+1 in {0,1,2}; state = 3*ai + bi (the ordered pair)
@@ -100,7 +100,7 @@ export function doiPelitiCheck(): {
   return { conservesSz, unitExchange, detailedBalanceViolation, detailedBalance, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/doi-peliti-check',
   title: 'the rule is a spin-1 charge-conserving reversible exchange model',
   category: 'foundations',

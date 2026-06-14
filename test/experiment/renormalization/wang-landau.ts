@@ -13,7 +13,7 @@ import {
   crossingBeta,
   manifoldFractionAt,
 } from '@/code/dynamics/wang-landau'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function wangLandauCrossing(input: { size: number; maxSteps: number }): {
@@ -43,7 +43,7 @@ export function wangLandauCrossing(input: { size: number; maxSteps: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/wang-landau',
   title: 'Wang-Landau measures the entropy gap and a roughly N-independent crossing beta-star in the causal-set action',
   category: 'renormalization',

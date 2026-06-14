@@ -10,7 +10,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { gridPlaquettes, gridWilsonAction as wilsonAction, gridMaxwellAction as maxwellAction } from '@/code/dynamics/wilson-grid'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function gaugeFromAction(input: { side: number }): { epsilons: number[]; ratios: number[] } {
@@ -33,7 +33,7 @@ export function gaugeFromAction(input: { side: number }): { epsilons: number[]; 
   return { epsilons, ratios }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/gauge-from-action',
   title:
     'the Maxwell operator is derived from the Wilson gauge action in the small-field limit',

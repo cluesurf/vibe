@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   polygonComplex,
@@ -17,7 +17,7 @@ import {
 const gradeOf = (index: number, bounds: number[][]): number =>
   bounds.findIndex(([start, end]) => index >= start! && index < end!)
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/kahler-dirac-534',
   title: 'Kahler-Dirac fermions on {5,3,4} forms, D = d + delta squares to the Laplacian',
   category: 'spin',

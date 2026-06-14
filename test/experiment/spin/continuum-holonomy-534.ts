@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   diracGamma,
@@ -28,7 +28,7 @@ const traceScalar = (matrix: ComplexMatrix): number => cmScalarTrace(matrix)
 
 const matrixEquals = (left: ComplexMatrix, right: ComplexMatrix): boolean => cmEquals(left, right)
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/continuum-holonomy-534',
   title: 'the {5,3,4} curvature-driven spin holonomy, a loop of hyperbolic area 2pi flips spinors not vectors',
   category: 'spin',

@@ -11,7 +11,7 @@
 // npx tsx code/experiment/p28-singularity-resolution.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface Point {
@@ -63,7 +63,7 @@ export function minimumInterval(input: { density: number; seed: number }): {
   return { density: input.density, meanLength, curvatureCap: meanLength > 0 ? 1 / (meanLength * meanLength) : 0 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/singularity-resolution',
   title: 'discreteness caps the curvature (finite, density-set)',
   category: 'cosmology',

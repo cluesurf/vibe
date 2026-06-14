@@ -6,10 +6,10 @@
 // Run: npx tsx code/experiment/p8-index.ts
 
 import { overlapIndex } from '@/code/operator/gauge-index'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/index-theorem',
   title: 'the overlap fermion zero-mode count equals the gauge topological charge, the lattice index theorem',
   category: 'gauge',

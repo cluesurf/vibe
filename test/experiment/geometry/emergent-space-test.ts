@@ -7,7 +7,7 @@
 import { buildHorosphereBand, buildEuclideanLattice, bandLargestComponentSubgraph } from '@/code/substrate/coxeter/cell-direct'
 import { spectralDimension } from '@/code/measure/dimension'
 import { frontCoefficientOfVariation } from '@/code/measure/isotropy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The geometry measures, the band largest-component extraction (bandLargestComponentSubgraph), the
@@ -43,7 +43,7 @@ export function emergentSpaceTest(): void {
 // variation (lower is rounder, more isotropic). The clean cubic {4,3,4} is the control,
 // its faceted light cone gives a higher coefficient of variation, so the aperiodic band is
 // rounder. These are geometric measurements on known tessellations, so L2.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/emergent-space-test',
   title: 'the {3,4,3,4} horosphere band is a coherent 3D space with a rounder light cone than the cubic crystal',
   category: 'geometry',

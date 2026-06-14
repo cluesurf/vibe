@@ -16,7 +16,7 @@ import {
   d4Count,
   d4Momentum,
 } from '@/code/operator/d4-lattice-gas'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function fdFoundational(): { neighborsOk: boolean; closes: boolean; countConserved: boolean; momentumConserved: boolean; reversible: boolean } {
@@ -55,7 +55,7 @@ export function fdFoundational(): { neighborsOk: boolean; closes: boolean; count
   return { neighborsOk, closes, countConserved, momentumConserved, reversible }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/fd-foundational-3434',
   title: 'the D4 lattice-gas rule closes on 24 neighbours and is exactly reversible, conserving count and momentum',
   category: 'substrate-survey',

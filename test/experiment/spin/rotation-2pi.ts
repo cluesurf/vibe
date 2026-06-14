@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   quaternion,
@@ -19,7 +19,7 @@ import {
 // returns the spinor. This spin-half double cover is exactly what the 12 directions
 // of {5,3,4} cannot carry (they split 1 + 3 + 3' + 5, no spinor rep). One run gates
 // the whole 24-cell substrate.
-export default defineExperiment({
+export default experiment({
   id: 'spin/rotation-2pi',
   title: 'a spinor on the 24-cell coin gains a minus sign at 2pi, returning only at 4pi',
   category: 'spin',

@@ -18,7 +18,7 @@
 //
 // Depth L2, the causal-emergence pipeline on a captured composite versus a dispersing packet control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
@@ -27,7 +27,7 @@ import { beat } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/code/tool/rng'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/composite-self-level',
   title: 'a captured composite has the metastable slow mode the self-level needs, a dispersing packet does not',
   category: 'selves',

@@ -17,7 +17,7 @@ import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/measure/tone-census'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -194,7 +194,7 @@ export function conservedDynamics(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/conserved-dynamics',
   title: 'conserved exchange on {5,3,4} keeps Q exact while charge diffuses, pumps, and pairs',
   category: 'foundations',

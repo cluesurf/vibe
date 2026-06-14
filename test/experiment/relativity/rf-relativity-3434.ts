@@ -5,7 +5,7 @@
 // rises from a low-entropy start while the micro rule stays reversible (the arrow).
 // Run: npx tsx code/experiment/p247-rf-relativity-3434.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { rootsD4 } from '@/code/algebra/group/root-system'
@@ -70,7 +70,7 @@ export function rfRelativity(): { ballistic: boolean; isotropyImproves: boolean;
   return { ballistic, isotropyImproves, diracOk, arrowRises }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/rf-relativity-3434',
   title: 'a ballistic light cone, 24-direction isotropy, the Dirac dispersion, and a rising arrow on {3,4,3,4}',
   category: 'relativity',

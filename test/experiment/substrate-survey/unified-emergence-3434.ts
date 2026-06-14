@@ -7,7 +7,7 @@
 // co-emergence in a single time evolution is the remaining L3 step, this is the structural core.
 // Run: npx tsx code/experiment/p255-unified-emergence-3434.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // quaternion helpers (the 8v as vectors via conjugation, the 8s/8c as spinors via left multiplication)
@@ -44,7 +44,7 @@ export function unifiedEmergence(): { partitions: boolean; vectorIsBoson: boolea
   return { partitions, vectorIsBoson, spinorsAreFermions, oneSubstrateBothSectors }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/unified-emergence-3434',
   title: 'one 24-direction substrate splits into 8v+8s+8c, a boson sector and two fermion sectors under one 2pi rotation',
   category: 'substrate-survey',

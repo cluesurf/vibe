@@ -22,7 +22,7 @@
 
 import { bulkGraph, flatGraph, beat, emergeSelf, countPlus, totalCharge, boundaryFraction, ball, type Graph } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // boundary-to-volume of balls of growing radius around a central cell
@@ -126,7 +126,7 @@ export function horosphereSelf(input?: { bulkCells?: number; flatL?: number; big
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/horosphere-self',
   title: 'selves are compact-possible and far more persistent on the flat horosphere than in the bulk',
   category: 'selves',

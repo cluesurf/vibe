@@ -17,14 +17,14 @@
 //
 // Depth L2, an emergent collective property, the soft (gapless) sound mode of the discrete conserving gas.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { coinLines, densityWaveAlongAxis, stripeContrast, firstMinimumTime } from '@/code/measure/sound-wave'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/emergent-soft-radiation',
   title: 'a soft (gapless) sound mode emerges from discrete ternary tones: period grows linearly with wavelength, no real numbers',
   category: 'selves',

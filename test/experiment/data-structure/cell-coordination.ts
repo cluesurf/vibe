@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { cellCoordination } from '@/code/measure/tessellation-profile'
 
@@ -20,7 +20,7 @@ const EXPECTED: Array<{ symbol: number[]; coordination: number }> = [
   { symbol: [5, 3, 3, 5], coordination: 120 }, // 120-cell, 120 facets
 ]
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/cell-coordination',
   title: 'phase 3: the exact B-tree order (cell coordination) of every tessellation, computed from its symbol',
   category: 'data-structure',

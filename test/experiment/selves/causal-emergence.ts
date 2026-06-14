@@ -15,7 +15,7 @@
 // such degeneracy this would make the self a genuine author atop a fixed micro rule, but that funneling is
 // assumed here, not derived. Run: npx tsx code/experiment/p185-causal-emergence.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // effective information of a row-stochastic transition matrix, in bits. EI = average over states of the
@@ -89,7 +89,7 @@ export function causalEmergence(input?: { K?: number }): {
   return { K, microN: K + 1, eiMicro, eiMacro, emergence, emerges, byDegeneracy, growsWithDegeneracy, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/causal-emergence',
   title: 'a coarse-grained macro has more effective information than the degenerate micro',
   category: 'selves',

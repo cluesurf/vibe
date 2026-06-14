@@ -16,7 +16,7 @@ import {
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const SIZE = 48
@@ -54,7 +54,7 @@ function runConfig(input: {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/study',
   title:
     'the smeared causal-set action drives the order parameter toward a 2D manifold reference',

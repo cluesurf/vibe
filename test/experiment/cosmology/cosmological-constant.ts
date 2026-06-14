@@ -10,7 +10,7 @@
 
 import { smearedBenincasaDowker, Action } from '@/code/dynamics/action'
 import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function actionFluctuation(input: { action: Action; sizes: number[]; repeats: number }): {
@@ -27,7 +27,7 @@ function actionFluctuation(input: { action: Action; sizes: number[]; repeats: nu
   })
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/cosmological-constant',
   title:
     'the action fluctuation scales as the square root of volume, the everpresent-Lambda law',

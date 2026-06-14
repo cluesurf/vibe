@@ -11,7 +11,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { innermostCell } from '@/code/substrate/radial-tree'
 import { diffusionTensorAnisotropy } from '@/code/measure/isotropy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; runs?: number }): {
@@ -59,7 +59,7 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   return { cellCount: N, samples: tensor.count, eigenvalues: eig, anisotropy, isotropic, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/lorentz-isotropy',
   title: 'the one-step diffusion tensor is isotropic from the icosahedral cell symmetry',
   category: 'relativity',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 import { bloomFalsePositiveRate } from '@/code/measure/sketch'
@@ -9,7 +9,7 @@ import { bloomFalsePositiveRate } from '@/code/measure/sketch'
 // fixed Bloom filter at a small boundary (one radius) and a large boundary (a few radii further out, where the
 // outermost shell is exponentially larger), holding the item count fixed. Reference, Bloom 1970.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/boundary-sketch',
   title: 'DS12: a Bloom filter on the exponential boundary has a false-positive rate that falls with radius',
   category: 'data-structure',

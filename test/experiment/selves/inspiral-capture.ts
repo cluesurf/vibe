@@ -20,7 +20,7 @@
 //
 // Depth L2, the recipe demonstrated with two controls, no bath (reflecting) and no attraction (repulsive).
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { oscillatorBathTrajectory, lateAmplitude as lateAmp } from '@/code/dynamics/oscillator-bath'
 
@@ -36,7 +36,7 @@ function lateAmplitude(input: { absorbing: boolean; stiffness: number }): { earl
   return { early, late: lateAmp(trajectory) }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/inspiral-capture',
   title: 'attraction plus a bath captures (inspiral and settle), removing either one prevents capture',
   category: 'selves',

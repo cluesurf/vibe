@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { dispersionAnisotropyAtScale } from '@/code/measure/dispersion'
@@ -14,7 +14,7 @@ import { coordinateAxes, probeDirections } from '@/code/measure/probe-directions
 const anisotropyAtScale = (scale: number, dirs: number[][], probes: number[][]): number =>
   dispersionAnisotropyAtScale({ directions: dirs, probes, scale })
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/symmetry-restoration-3434',
   title: 'discrete F4 restores to continuous rotational isotropy in the infrared on {3,4,3,4}',
   category: 'relativity',

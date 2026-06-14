@@ -10,7 +10,7 @@
 
 import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function expansionLaw(): { ratio: number; H: number } {
@@ -45,7 +45,7 @@ export function cosmologyAndAnisotropy(): void {
   void e; void a
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/cosmology-and-anisotropy',
   title:
     'the {3,4,3,4} bulk grows exponentially (de Sitter) and the cusp cubic anisotropy passes Lorentz bounds',

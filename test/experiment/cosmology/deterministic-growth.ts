@@ -16,7 +16,7 @@ import { tilingPQ } from '@/code/substrate/tiling-pq'
 import { GrowingPentagrid } from '@/code/substrate/growing-pentagrid'
 import { adjacencyListsEqual } from '@/code/tool/graph'
 import { bfsShells, branchingRatio } from '@/code/measure/shells'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // BFS ring sizes from the root.
@@ -104,7 +104,7 @@ export function deterministicGrowth(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/deterministic-growth',
   title: 'resumable, append-only, faithful, geometry emerges (golden ratio)',
   category: 'cosmology',

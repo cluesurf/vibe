@@ -21,7 +21,7 @@
 import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
 import { pageAverageEntropy } from '@/code/measure/entanglement'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The Unruh detector response F(E): the magnitude of the transform of the worldline field correlator.
@@ -106,7 +106,7 @@ export function hawking(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/hawking',
   title: 'thermal spectrum derived from the Unruh response, T = kappa/2pi, Page curve turns over',
   category: 'gravity',

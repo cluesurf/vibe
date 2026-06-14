@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
@@ -10,7 +10,7 @@ import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
 // flat honeycomb, whose shell ratio drifts toward 1 (no stable geometric level structure). Reference, the LSM
 // level design (a fixed fan-out per level).
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/lsm-levels',
   title: 'SS5: the radial shells are geometric LSM levels with a stable fan-out and logarithmic level count',
   category: 'data-structure',

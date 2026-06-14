@@ -14,7 +14,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { storedPatterns, hebbianFills, hopfieldStep, toneOverlap as overlap, nearestPattern } from '@/code/operator/hopfield'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function dreamingAndWaking(input: { seed: number }): {
@@ -95,7 +95,7 @@ export function dreamingAndWaking(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/dreaming-and-waking',
   title: 'waking is pinned to one veridical memory while dreaming roams the landscape',
   category: 'selves',

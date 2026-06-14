@@ -15,7 +15,7 @@
 import { coinedWalkMSD, coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { classicalWalkMSD } from '@/code/dynamics/random-walk'
 import { loglogExponentWindow } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function quantumWalkField(input?: { steps?: number }): {
@@ -71,7 +71,7 @@ export function quantumWalkField(input?: { steps?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/quantum-walk-field',
   title: 'the unitary completion is relativistic and reflection-positive',
   category: 'quantum',

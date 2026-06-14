@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { pauli, cmCommutator, cmAdd, cmScale, cmFrobeniusNorm as frobenius } from '@/code/algebra/group/clifford'
 import { complex } from '@/code/algebra/linear/complex'
@@ -10,7 +10,7 @@ import { complex } from '@/code/algebra/linear/complex'
 // have a nonzero commutator (the W and gluon self-coupling vertex), while a U(1) potential commutes
 // (no self-interaction). The 8v vector sector has 8 components, matching the 8 gluons of SU(3).
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/non-abelian-3434',
   title: 'the {3,4,3,4} vector sector can carry a non-abelian gauge field, the self-interaction vertex',
   category: 'gauge',

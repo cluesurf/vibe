@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/p251-ph-magnetism-3434.ts
 
 import { peierlsWavepacketDrift } from '@/code/dynamics/peierls-wavepacket'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // PH5: 2D tight-binding charged particle, Landau gauge A_y = B*x (Peierls phase on y-hops). A wavepacket with
@@ -34,7 +34,7 @@ export function phMagnetism(): { lorentzDeflects: boolean; deflectionGrowsWithB:
   return { lorentzDeflects, deflectionGrowsWithB, spinPrecesses }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/ph-magnetism-3434',
   title: 'a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control',
   category: 'gauge',

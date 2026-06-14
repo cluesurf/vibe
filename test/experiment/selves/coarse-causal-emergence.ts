@@ -10,13 +10,13 @@
 // honest negative recorded in the notes, since there is no degeneracy to remove. The structured-versus-random
 // result is the positive measured claim.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
 import { effectiveInformation, coarseGrainTpm } from '@/code/coarse/causal-emergence'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-causal-emergence',
   title: 'a structured coarse map keeps more effective information than a random one, measured on real self dynamics',
   category: 'selves',

@@ -12,7 +12,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { evolveConservingRing } from '@/code/dynamics/conserving-sweep'
 import { blockChargeTower } from '@/code/coarse/block-charge-tower'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function coarseGrainingChain(input?: { L?: number }): {
@@ -50,7 +50,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   return { L, levels, chargePreservedAllLevels, fixedPointConverges, spread, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/coarse-graining-chain',
   title:
     'charge is exactly preserved at every level and the effective parameter is a fixed point across the tower',

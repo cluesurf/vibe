@@ -27,7 +27,7 @@ import {
   greedyRoutingSuccess,
   routingWithBacktrack,
 } from '@/code/measure/navigation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // D^2 as a positive linear operator, for finding |eigenvalues of D|.
@@ -47,7 +47,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // P3: backtracking routing reaches essentially every connected target, where
 // pure greedy already does well, on the both-worlds hyperbolic substrate.
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/validation',
   title: 'the reversible even-odd rule is local with a bounded interaction radius',
   category: 'foundations',

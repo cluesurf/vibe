@@ -14,7 +14,7 @@ import {
   gridGaugeTransform,
   vortexGaugeField,
 } from '@/code/tool/grid-gauge'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const L = 24
@@ -44,7 +44,7 @@ export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boo
   return { wilsonInvariant, aharonovBohm }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/emergent-u1-gauge',
   title: 'a U(1) Wilson loop equals the enclosed flux and is gauge invariant, the Aharonov-Bohm phase',
   category: 'gauge',

@@ -4,7 +4,7 @@
 // could be fermionic, but the COIN supplies no spinor (s53333-structure), and the dimension is wrong (4D not
 // 3D). The form-tower is a generic slow-mode (NEUTRAL). Run: npx tsx code/experiment/s53333-selves.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Selves(): { solitonsExist: boolean; instantonCharge: number; overDimensional: boolean } {
@@ -26,7 +26,7 @@ export function s53333Selves(): { solitonsExist: boolean; instantonCharge: numbe
   return { solitonsExist, instantonCharge, overDimensional }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/s53333-selves',
   title: 'topological solitons exist on the 4D horosphere but are over-dimensional',
   category: 'selves',

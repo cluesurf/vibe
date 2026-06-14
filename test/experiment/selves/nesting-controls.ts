@@ -6,7 +6,7 @@
 import { pearson } from '@/code/measure/statistics'
 import { makeRng } from '@/code/tool/rng'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const L = 40
@@ -58,7 +58,7 @@ export function nestingControls(): { perception: number[]; diffusion: number[]; 
   return { perception: P.persist, diffusion: D.persist, beatsDiffusion, multiScale }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/nesting-controls',
   title: 'the flat-cusp form-tower against a pure-diffusion control',
   category: 'selves',

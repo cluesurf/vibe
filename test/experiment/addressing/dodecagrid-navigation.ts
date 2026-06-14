@@ -12,7 +12,7 @@ import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { graphDistance } from '@/code/measure/distance'
 import { greedyRouteHops } from '@/code/measure/navigation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Greedy hyperbolic-address routing (greedyRouteHops) and BFS hop distance
@@ -61,7 +61,7 @@ export function dodecagridNavigation(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/dodecagrid-navigation',
   title: 'greedy hyperbolic-address routing delivers at low stretch on the dodecagrid',
   category: 'addressing',

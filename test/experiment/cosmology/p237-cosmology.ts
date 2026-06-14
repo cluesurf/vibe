@@ -6,7 +6,7 @@
 
 import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function cosmology(): { growthRatio: number; exponential: boolean } {
@@ -19,7 +19,7 @@ export function cosmology(): { growthRatio: number; exponential: boolean } {
   return { growthRatio, exponential }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/p237-cosmology',
   title:
     'the hyperbolic {3,4,3,4} bulk grows exponentially with radius, the eternal expansion',

@@ -6,7 +6,7 @@
 // star tetracombs ({3,3,5,5/2} etc.) are non-convex and not built here. Run: npx tsx code/experiment/4d-tessellations.ts
 
 import { surveyTessellation } from '@/code/measure/tessellation-survey'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; cls: 'compact' | 'paracompact' | 'noncompact' | 'euclidean'; coin: string; flat?: boolean; note: string }
@@ -42,7 +42,7 @@ export function fourdTessellations(): void {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/4d-tessellations',
   title: 'a sweep of 4D regular honeycombs, all give 3D physical space and {3,4,3,4} is the unique D4-facet one',
   category: 'substrate-survey',

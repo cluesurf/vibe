@@ -7,7 +7,7 @@
 // ideal resolution of Nielsen-Ninomiya. See note/questions/p4-chirality-spec.md.
 // Run: npx tsx code/experiment/p4-chirality.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   naiveDirac2D,
@@ -16,7 +16,7 @@ import {
   scanBrillouin,
 } from '@/code/operator/lattice-fermion'
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/chirality',
   title: 'the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry',
   category: 'spin',

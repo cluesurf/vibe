@@ -13,7 +13,7 @@
 // Depth L2, the Casimir force shown to do mechanical work (drive mobile plates together), with the inert vacuum
 // as the no-force control. It confirms the attraction from the five things can actually capture.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
@@ -21,7 +21,7 @@ import { pairCollision, passThrough, type Collision } from '@/code/rule/collisio
 import { beat } from '@/code/rule/lattice-gas'
 import { chargeDensityProfile } from '@/code/measure/profile'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/casimir-capture-mobile',
   title: 'the vacuum Casimir pressure drives two mobile plates together (capture), the inert vacuum leaves them fixed',
   category: 'selves',

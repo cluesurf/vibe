@@ -7,7 +7,7 @@
 // shift + discrete flips, the Dirac equation is the emergent description. Run: npx tsx code/experiment/p230-dirac-from-discrete.ts
 
 import { measuredCoinedWalkFrequency } from '@/code/dynamics/quantum-walk'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const LX = 256
@@ -39,7 +39,7 @@ export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean }
   return { masslessOk, massiveOk }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/dirac-from-discrete',
   title: 'the discrete walk dispersion measured by DFT, massless light cone and massive Dirac',
   category: 'relativity',

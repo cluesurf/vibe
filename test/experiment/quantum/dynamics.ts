@@ -12,10 +12,10 @@
 // Run: npx tsx code/experiment/p7-dynamics.ts
 
 import { chshShared } from '@/code/measure/bell'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/dynamics',
   title: 'in a natural mesh the CHSH violation decays with separation, unlike flat quantum violation',
   category: 'quantum',

@@ -18,14 +18,14 @@
 //
 // Depth L2, an honest negative, even a vortex disperses, the apparent persistence is reversible recurrence.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/no-emergent-bound-body',
   title: 'no emergent bound body: even a vortex disperses, its persistence is only reversible recurrence',
   category: 'selves',

@@ -19,7 +19,7 @@ import {
   toneOverlap,
 } from '@/code/operator/hopfield'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Flip a fraction of the sites of a pattern to make a noisy cue. Deterministic given
@@ -112,7 +112,7 @@ export function hopfieldEmergentRecall(input?: { maxCells?: number; patternCount
   return { size, patternCount, hopfieldRecall, bareRecall, chance, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/hopfield-emergent-recall',
   title: 'attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the honest negative',
   category: 'associative',

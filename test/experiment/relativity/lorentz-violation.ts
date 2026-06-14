@@ -12,10 +12,10 @@
 // npx tsx code/experiment/p27-lorentz-violation.ts
 
 import { latticeAnisotropy, lorentzSafety } from '@/code/measure/lorentz'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/lorentz-violation',
   title: 'a lattice violates Lorentz invariance while a sprinkling is Lorentz-safe',
   category: 'relativity',

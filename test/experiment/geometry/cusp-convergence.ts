@@ -8,7 +8,7 @@
 import { spectralDimension } from '@/code/measure/dimension'
 import { greensFunctionExponent } from '@/code/measure/greens-function'
 import { cubicBoxRows } from '@/code/substrate/cubic-lattice'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Z^3 cubic box of side L (centered at the origin), 6-neighbour, with Dirichlet boundary (boundary cells absent).
@@ -50,7 +50,7 @@ export function cuspConvergence(): void {
 // changing with the box size (L-convergence). This is a known property of the cubic
 // lattice (a discrete Laplacian recovers 3D diffusion and a 1/r potential), reproduced on
 // this substrate, so L2. The small box is the control, it has not yet converged.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/cusp-convergence',
   title: 'a finite cubic cusp chunk becomes continuum-like (dim 3, settled gravity) within a few dozen cells',
   category: 'geometry',

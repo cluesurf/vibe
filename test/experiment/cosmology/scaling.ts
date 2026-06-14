@@ -11,7 +11,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function gapAtSize(n: number): number {
@@ -39,7 +39,7 @@ function gapAtSize(n: number): number {
   return warm.manifoldFraction - cold.manifoldFraction
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/scaling',
   title:
     'the manifold and layered phases coexist with a wide gap that persists as size grows',

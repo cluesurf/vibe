@@ -6,7 +6,7 @@
 
 import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
 import { directionsAreCrystallographic } from '@/code/measure/crystallographic'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
@@ -18,7 +18,7 @@ export function s73Structure(): { degree: number; specDim: number; crystallograp
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/s73-structure',
   title: 'the 7 directions of {7,3} are non-crystallographic (measured), so no root-system gauge and 1D physical space',
   category: 'substrate-survey',

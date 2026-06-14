@@ -9,7 +9,7 @@
 //
 // Depth L2, shell-growth on a hyperbolic tree versus the flat cusp, curvature disperses, it does not bind.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { betheMesh, d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 
@@ -29,7 +29,7 @@ function shellGrowthRatio(input: { mesh: Mesh; source: number; lo: number; hi: n
   return count > 0 ? Math.exp(logSum / count) : 0
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/bulk-curvature-disperses',
   title: 'bulk curvature disperses, it does not bind: hyperbolic shells grow exponentially, the flat cusp polynomially',
   category: 'selves',

@@ -11,7 +11,7 @@ import { reversibleEvenOdd } from '@/code/rule/reversible'
 import { makeStateSpace, permutationOfRule } from '@/code/operator/evolution'
 import { hamiltonianMatrix, pauliLocalityProfile } from '@/code/operator/ca-hamiltonian'
 import { Alphabet } from '@/code/tone/alphabet'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Positive control: flip a single cell (s -> s XOR 1). The principal-branch log
@@ -57,7 +57,7 @@ function localityOf(cells: number): {
   return { cells, fractions: profile.weightByRange, localityLength: profile.localityLength }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/locality',
   title: 'the Pauli locality profile of a reversible Hamiltonian, validated by a provable control',
   category: 'foundations',

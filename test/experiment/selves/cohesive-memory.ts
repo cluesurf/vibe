@@ -19,7 +19,7 @@ import { neighborDistances, edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -169,7 +169,7 @@ export function cohesiveMemory(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/cohesive-memory',
   title: 'a cohesive hop roughly doubles imprint memory versus the churning rule',
   category: 'selves',

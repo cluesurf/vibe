@@ -6,7 +6,7 @@
 // beta, alongside the average plaquette rising from disorder toward order.
 // Run: npx tsx code/experiment/p8-confinement.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import {
@@ -65,7 +65,7 @@ function study(input: { beta: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/confinement',
   title: '3D SU(2) lattice gauge theory confines, a positive string tension that weakens with the coupling',
   category: 'gauge',

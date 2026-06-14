@@ -5,7 +5,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeAssociativeMemory, ternaryWord, storeWord, searchBest, readWord } from '@/code/operator/associative-memory'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // build a simple path of cells, each the next graph neighbor not yet used, a deterministic temporal track.
@@ -78,7 +78,7 @@ export function associativeSequenceRecall(input?: { maxCells?: number; wordBits?
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/sequence-recall',
   title: 'episodic and sequence memory as stored temporal chains, replayed in order from the first cue',
   category: 'associative',

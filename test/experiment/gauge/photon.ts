@@ -11,7 +11,7 @@
 
 import { maxwellLatticeSpectrum } from '@/code/operator/maxwell-lattice'
 import { zeroModeCensus } from '@/code/measure/spectrum'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The lattice Maxwell (curl-curl) spectrum on a periodic L^3 lattice (omega^2 eigenvalues).
@@ -45,7 +45,7 @@ export function photonStudy(input: { side: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/photon',
   title:
     'the free U(1) gauge field is massless and gauge-invariant with about a third gauge zero modes',

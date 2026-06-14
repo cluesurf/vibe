@@ -15,7 +15,7 @@
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Order built by one cooperating unit of a given size, super-linear (increasing returns to
@@ -210,7 +210,7 @@ export function cooperationTower(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/cooperation-tower',
   title: 'integration wins on total order and recurs into a tower',
   category: 'selves',

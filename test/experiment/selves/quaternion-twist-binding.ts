@@ -18,11 +18,11 @@
 //
 // Depth L2, the DM stabilizer as a pure quaternion rotation (a twist angle, the coin's handedness), no real coupling.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeSkyrmionField, skyrmionDegree, skyrmionRadius, type Spin } from '@/code/dynamics/skyrmion-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/quaternion-twist-binding',
   title: 'the DM stabilizer is a pure quaternion rotation (a twist angle, the coin handedness), no real coupling: it binds a stable Skyrmion',
   category: 'selves',

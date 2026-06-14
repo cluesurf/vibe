@@ -6,7 +6,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function computation73(): { fibonacciGrowth: boolean; junctionCapable: boolean; growthRatio: number } {
@@ -35,7 +35,7 @@ export function computation73(): { fibonacciGrowth: boolean; junctionCapable: bo
 // crossings). The universality itself is cited prior art, proven by Margenstern and Morita,
 // not run here. We only verify the prerequisites, so L1, established structural facts about
 // the heptagrid, and paper is false.
-export default defineExperiment({
+export default experiment({
   id: 'computation/computation-73',
   title: 'the {7,3} heptagrid carries the structural prerequisites of the proven universal railway model',
   category: 'computation',

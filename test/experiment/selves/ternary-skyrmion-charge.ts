@@ -12,11 +12,11 @@
 //
 // Depth L2, a 3-trit-per-cell direction field encodes the Skyrmion charge exactly, robust to size and perturbation.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeSkyrmionField, skyrmionDegree, snapToTrits, type Spin } from '@/code/dynamics/skyrmion-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/ternary-skyrmion-charge',
   title: 'a 3-trit-per-cell direction field encodes the Skyrmion charge exactly (the topological state is fully ternary)',
   category: 'selves',

@@ -18,7 +18,7 @@ import { makeRng } from '@/code/tool/rng'
 import { lagAutocorrelation } from '@/code/measure/persistence'
 import { coarseFieldByGroup } from '@/code/coarse/group-field'
 import { perceptionMatchingSweepCsr } from '@/code/rule/perception-permutation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const SCALES = [0, 2, 4, 6] // tree depths, 0 is the fine per-cell scale, larger is coarser
@@ -143,7 +143,7 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   return { n: N, scales: SCALES, radialPersistence, nullPersistence, groupCounts, radialBeatsNull, coarseBeatsFine, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/radial-coherence',
   title: 'coarse-graining up the {5,3,4} reflection tree does not build a persistence tower the fine scale lacks',
   category: 'renormalization',

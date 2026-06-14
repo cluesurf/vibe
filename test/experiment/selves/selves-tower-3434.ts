@@ -18,7 +18,7 @@
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/selves-tower-3434.ts
 
 import { pearson } from '@/code/measure/statistics'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
@@ -185,7 +185,7 @@ export function selvesTower(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/selves-tower-3434',
   title: 'the coarse-grained form-tower on {3,4,3,4} does not beat a pure-diffusion control',
   category: 'selves',

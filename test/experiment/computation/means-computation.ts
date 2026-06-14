@@ -10,7 +10,7 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { minskyMultiplyProgram } from '@/code/operator/register-machine'
 import { buildDodecagridRegisterMachine } from '@/code/operator/dodecagrid-register-machine'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // run R2 = R0 * R1 on a conserving Minsky machine whose registers are charge held in regions carved from
@@ -48,7 +48,7 @@ export function meansComputation(input?: { n?: number }): {
   return { n, cases, allCorrect, universalAtToyScale, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'computation/means-computation',
   title: 'the {5,3,4} hosts universal computation via a Minsky machine',
   category: 'computation',

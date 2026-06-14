@@ -19,7 +19,7 @@ import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { targetFidelity } from '@/code/measure/agreement'
 import { conservingMaintainToTarget } from '@/code/operator/maintain-to-target'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
@@ -99,7 +99,7 @@ export function permanentMemory(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/permanent-memory',
   title: 'maintained codeword stays at full fidelity where unmaintained erodes, conserving, at a cost',
   category: 'selves',

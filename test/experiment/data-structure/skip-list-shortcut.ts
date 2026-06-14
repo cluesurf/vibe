@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
@@ -8,7 +8,7 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 // {7,3} against the flat {4,4} at the same cell count. The hyperbolic radius is logarithmic, the flat one is
 // polynomial (square-root in 2D), so the bulk gives logarithmic-reach shortcuts. Reference, Krioukov et al. 2010.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/skip-list-shortcut',
   title: 'DS9: the bulk diameter is logarithmic, every cell is a short path away (the skip-list shortcut)',
   category: 'data-structure',

@@ -16,7 +16,7 @@
 // Depth L2, a reversible breather demonstrated on the committed coin with a streaming control, and the honest
 // negative that it cannot be made to move.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
@@ -25,7 +25,7 @@ import { run, beat } from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
 import { travelDistance } from '@/code/check/structure'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/integrable-breather',
   title: 'a reversible breather (bound oscillating state) exists on the D4 coin, but it is pinned, no moving breather',
   category: 'selves',

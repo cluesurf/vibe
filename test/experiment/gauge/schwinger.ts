@@ -6,12 +6,12 @@
 // should rise with disorder. See note/questions/remaining-frontier-spec.md (A4).
 // Run: npx tsx code/experiment/p8-schwinger.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/schwinger',
   title: 'the Schwinger chiral condensate signal is near zero free and grows with gauge disorder',
   category: 'gauge',

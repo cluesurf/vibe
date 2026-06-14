@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { busemannLevels } from '@/code/measure/radial'
@@ -9,7 +9,7 @@ import { busemannLevels } from '@/code/measure/radial'
 // across the bulk would waste the interior, the array belongs on a single flat horosphere level. Control: a
 // flat RAM array is uniform, the bulk is not.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/cusp-array',
   title: 'SS14: a dense array belongs on the flat horosphere, the bulk interior is too sparse to be an array',
   category: 'data-structure',

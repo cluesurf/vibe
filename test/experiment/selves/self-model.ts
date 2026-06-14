@@ -16,7 +16,7 @@ import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -172,7 +172,7 @@ export function selfModel(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/self-model',
   title: 'a localized hub represents the self global state, beating local regions and a shuffle',
   category: 'selves',

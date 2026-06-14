@@ -5,7 +5,7 @@
 
 import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
 import { directionsAreCrystallographic } from '@/code/measure/crystallographic'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const phi = (1 + Math.sqrt(5)) / 2
@@ -21,7 +21,7 @@ export function s534Structure(): { degree: number; specDim: number; crystallogra
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/s534-structure',
   title: 'the 12 icosahedral directions of {5,3,4} are non-crystallographic (measured), so no root-system gauge',
   category: 'substrate-survey',

@@ -8,7 +8,7 @@ import {
   blankDirectionField2d,
   placeSkyrmion2d,
 } from '@/code/measure/skyrme-energy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type V = [number, number, number]
@@ -35,7 +35,7 @@ export function solitonMatter(): { binding: [number, number][]; bound: boolean; 
   return { binding, bound, massRatio }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/soliton-matter',
   title: 'two solitons bind at a finite separation and the rest mass is additive in topological charge',
   category: 'gauge',

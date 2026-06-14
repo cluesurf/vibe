@@ -10,7 +10,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -150,7 +150,7 @@ export function cycleReversibility(input?: { n?: number }): {
   return { n: N, cycles: cycleCount, meanAbsCirculation, floor, ratio, reversible, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/cycle-reversibility',
   title: 'no persistent charge circulation around closed loops',
   category: 'quantum',

@@ -6,7 +6,7 @@
 // b^(tree-distance/2). We get a CLEAN exponent (no finite-patch artifact), and validate the recursion against a
 // directly-solved finite tree. Run: npx tsx code/experiment/p239-bethe-gravity.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   betheCavityDecay,
@@ -34,7 +34,7 @@ export function betheGravity(): { alpha24: number; alpha12: number; massiveAlpha
   return { alpha24, alpha12, massiveAlpha, validated }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/bethe-gravity',
   title: 'the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2',
   category: 'holography',

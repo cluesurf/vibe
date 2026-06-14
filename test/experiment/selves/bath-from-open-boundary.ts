@@ -19,7 +19,7 @@
 // Depth L2, the same burst measured on the torus and on the absorbing-boundary lattice, the torus as the
 // no-bath control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -48,7 +48,7 @@ function centralCharge(input: { will: Will; center: number; radius: number }): n
   return sum
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/bath-from-open-boundary',
   title: 'an absorbing boundary is a bath (the burst radiates away and relaxes), the torus is not (it recurs)',
   category: 'selves',

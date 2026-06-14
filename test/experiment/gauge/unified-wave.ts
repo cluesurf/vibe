@@ -19,7 +19,7 @@ import {
   perceptionEdgeColoringSweep,
 } from '@/code/rule/perception-permutation'
 import { linearFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // reversible, charge-conserving pair permutation (PERCEPTION_FORWARD / PERCEPTION_INVERSE),
@@ -111,7 +111,7 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   return { n: N, colors: ec.byColor.length, chargeConserved, reversible, frontSpeed, frontLinearR2, ballistic, directionSymmetric, isotropic, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/unified-wave',
   title:
     'one charge-conserving reversible ballistic isotropic wave rule on the {5,3,4}',

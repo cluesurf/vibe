@@ -10,7 +10,7 @@
 // fingerprint of curvature. Either way the geometry is read off the relations (P5), never from an
 // embedding. Run: npx tsx code/experiment/p69-emergent-dimension.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { torusGrid } from '@/code/substrate/torus-grid'
 import { betheTree } from '@/code/substrate/bethe-tree'
@@ -64,7 +64,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
   return { flat, curved, flatUnbiased, curvedIsExponential, solved: flatUnbiased && curvedIsExponential }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/emergent-dimension',
   title: 'emergent dimension, flat grids unbiased (2/3/4), curved meshes exponential',
   category: 'geometry',

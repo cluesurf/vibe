@@ -3,7 +3,7 @@
 // orthogonal symmetry swapping vector and spinor, (4) spin-statistics, the spinors are FERMIONS.
 // Ported from the throwaway probes. Run: npx tsx code/experiment/p190-spinor-triality.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { icosahedralFacePermutationDecomposition } from '@/code/algebra/group/icosahedral'
 import {
@@ -30,7 +30,7 @@ export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boo
   return { fiveNoSpinor, twentyFourSplits, trialityPresent }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/spinor-triality',
   title: '{5,3,4} carries no spinor while {3,4,3,4} splits 8v + 8s + 8c with triality',
   category: 'spin',

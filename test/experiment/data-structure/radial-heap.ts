@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -7,7 +7,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 // confirm the heap property holds for every cell (parent depth < child depth), that peek-min is the root in
 // O(1), and that insert is a descent of depth O(log N). Control: a flat binary heap sifts in O(log N).
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/radial-heap',
   title: 'SS4: the radial depth is a heap order, peek-min is the root in O(1)',
   category: 'data-structure',

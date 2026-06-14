@@ -3,7 +3,7 @@
 // screen), the dimension the holographic dual would live in. Also confirm the area-law shape, the boundary cut
 // of a ball scales with the shell (boundary), not the interior. Run: npx tsx code/experiment/p212-holography.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { boundaryDimension } from '@/code/measure/boundary-dimension'
 
@@ -16,7 +16,7 @@ export function holography(): { fiveBoundaryDim: number; fourBoundaryDim: number
   return { fiveBoundaryDim: a.boundaryDim, fourBoundaryDim: b.boundaryDim, confounded }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/p212-holography',
   title: 'finite-patch shell extraction cannot read a clean holographic screen dimension',
   category: 'holography',

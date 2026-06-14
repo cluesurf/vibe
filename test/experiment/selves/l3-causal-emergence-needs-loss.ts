@@ -17,7 +17,7 @@
 //
 // We measure all of this directly. Depth L2.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { squareMesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
@@ -34,7 +34,7 @@ function chargeHash(will: Will): string {
   return parts.join(',')
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/l3-causal-emergence-needs-loss',
   title: 'the reversible base rule is a permutation with no degeneracy, so causal emergence needs information loss',
   category: 'selves',

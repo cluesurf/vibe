@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p260-coupled-qed-3434.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
@@ -86,7 +86,7 @@ export function coupledQED(): { chargeConserved: boolean; gaussLaw: boolean; gau
   return { chargeConserved, gaussLaw, gaugeInvariant, minimalCoupling, backReaction }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/coupled-qed-3434',
   title: 'one coupled rule conserves charge, stays gauge invariant, and back-reacts, lattice QED',
   category: 'gauge',

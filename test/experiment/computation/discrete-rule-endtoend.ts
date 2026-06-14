@@ -19,7 +19,7 @@ import {
   streamInverse as streamInverseRaw,
 } from '@/code/operator/directional-lattice-gas'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The directional ternary lattice gas (4 charges per cell, COLLIDE then STREAM, exactly
@@ -70,7 +70,7 @@ export function discreteRuleEndToEnd(): { chargeOk: boolean; momentumOk: boolean
 // gas coarse-graining to hydrodynamics, a known construction, so L2. The conservation test
 // seeds via a deterministic LCG fill, a pseudo-random initial condition, though the exact
 // conservation and reversibility are properties of the rule and hold for any fill.
-export default defineExperiment({
+export default experiment({
   id: 'computation/discrete-rule-endtoend',
   title: 'one discrete directional rule conserves charge and momentum exactly, is exactly reversible, and coarse-grains smooth',
   category: 'computation',

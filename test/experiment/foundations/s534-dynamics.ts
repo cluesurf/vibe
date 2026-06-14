@@ -6,7 +6,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s534Dynamics(): { chargeConserved: boolean; lightSpeed: number; churns: boolean } {
@@ -39,7 +39,7 @@ export function s534Dynamics(): { chargeConserved: boolean; lightSpeed: number; 
   return { chargeConserved, lightSpeed, churns }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/s534-dynamics',
   title: 'the directional rule streams and conserves charge exactly on the {5,3,4} bulk and the wave churns',
   category: 'foundations',

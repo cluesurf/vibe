@@ -10,7 +10,7 @@ import { makeRng } from '@/code/tool/rng'
 import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // meanDegree lives in code/tool/graph.
@@ -42,7 +42,7 @@ export function coxeterUnification(input: { seed: number }): Record<
   return out
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/coxeter-unification',
   title: 'one machine yields all the tessellations, all Lorentz-safe',
   category: 'geometry',

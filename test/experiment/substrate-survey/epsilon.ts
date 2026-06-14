@@ -10,7 +10,7 @@ import { smearedBenincasaDowker, Action } from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function run(input: {
@@ -39,7 +39,7 @@ function run(input: {
   return { heightRatio: h.meanObservable, mmDimension: d.meanObservable }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/epsilon',
   title: 'the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises',
   category: 'substrate-survey',

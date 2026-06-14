@@ -10,7 +10,7 @@ import { bfsShells, branchingRatio } from '@/code/measure/shells'
 import { betheBoundaryExponent } from '@/code/algebra/linear/bethe-resolvent'
 import { icosahedronVertexDirections } from '@/code/algebra/group/root-system'
 import { directionFourthMoments } from '@/code/measure/isotropy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaIsotropic: boolean } {
@@ -27,7 +27,7 @@ export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaI
   return { betheAlpha, growthRatio, icosaIsotropic }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/s534-physics',
   title: 'the {5,3,4} suite, a Bethe 1/r squared correlator, exponential shell growth, and exact icosahedral 4th-moment isotropy',
   category: 'gravity',

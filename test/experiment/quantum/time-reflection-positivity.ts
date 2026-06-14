@@ -19,7 +19,7 @@ import { edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMatrix, symmetricMinEigenvalue } from '@/code/measure/hankel'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
@@ -162,7 +162,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/time-reflection-positivity',
   title: 'the beat-autocorrelation Hankel is PSD within noise',
   category: 'quantum',

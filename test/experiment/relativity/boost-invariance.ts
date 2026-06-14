@@ -15,7 +15,7 @@
 // Run: npx tsx code/experiment/p154-boost-invariance.ts
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the exact dispersion of the 1D Dirac quantum walk (P151), from the trace of U(k) = Shift(k) Coin(m):
@@ -97,7 +97,7 @@ export function boostInvariance(input?: { masses?: number[]; boosts?: number[] }
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/boost-invariance',
   title: 'the massless mode has an exact boost-invariant lightcone with massive modes invariant in the IR window',
   category: 'relativity',

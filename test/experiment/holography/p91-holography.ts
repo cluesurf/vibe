@@ -15,7 +15,7 @@
 import { linearFit } from '@/code/measure/regression'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { neighborBfsTree } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function holography(): {
@@ -115,7 +115,7 @@ export function holography(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/p91-holography',
   title: 'Ryu-Takayanagi log law, geodesic shortcut, and depth-as-scale on the {7,3} crystal',
   category: 'holography',

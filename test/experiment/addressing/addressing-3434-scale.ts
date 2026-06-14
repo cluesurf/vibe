@@ -13,7 +13,7 @@
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/addressing-3434-scale.ts [maxCellsList]
 
 import { buildAddressing, buildConfluenceAutomaton, decode, predictAltParents } from '@/code/substrate/coxeter/addressing-3434'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface Report {
@@ -110,7 +110,7 @@ function checkAt(maxCells: number): Report {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/addressing-3434-scale',
   title: 'the {3,4,3,4} addressing invariants survive growth, clean at two build sizes',
   category: 'addressing',

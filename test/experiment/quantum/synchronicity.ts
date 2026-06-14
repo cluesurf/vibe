@@ -22,7 +22,7 @@ import {
   bankOverlap as patternOverlap,
   runHopfieldPair as runPair,
 } from '@/code/operator/hopfield'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The two-subsystem Hopfield pair (no link, shared rhythm) lives in code/operator/hopfield as
@@ -84,7 +84,7 @@ export function synchronicity(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/synchronicity',
   title: 'diverged-but-related subsystems correlate without a link',
   category: 'quantum',

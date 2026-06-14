@@ -6,7 +6,7 @@
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { spectralDimension } from '@/code/measure/dimension'
 import { mostConnectedNode } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function horosphere3434(): { cells: number; meanDegree: number; specDim16: number } {
@@ -28,7 +28,7 @@ export function horosphere3434(): { cells: number; meanDegree: number; specDim16
 // clean flat-3D {4,3,4} is the special cusp, not a generic horosphere. This is an honest
 // structural finding, not the headline result, so paper is false. L1, a measured property
 // of a known tessellation.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/horosphere-3434',
   title: 'the generic {3,4,3,4} horosphere band is a thin slab (~2.5D), not clean flat 3D',
   category: 'geometry',

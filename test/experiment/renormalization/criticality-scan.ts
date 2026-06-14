@@ -13,7 +13,7 @@ import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { linearFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function criticalityScan(input?: { n?: number }): {
@@ -65,7 +65,7 @@ export function criticalityScan(input?: { n?: number }): {
   return { n: N, scan, beta, betaR2, meanField, vanishesAtZero, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/criticality-scan',
   title:
     'an absorbing critical point at arrow zero with mean-field exponent beta near one half',

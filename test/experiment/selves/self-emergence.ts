@@ -24,7 +24,7 @@ import { edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { adaptFills, fillCoherence as coherence, largestSharingPatch as largestPatch } from '@/code/measure/fill-coherence'
 import { fillGatedSweep } from '@/code/dynamics/fill-gated-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function selfEmergence(): {
@@ -117,7 +117,7 @@ export function selfEmergence(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/self-emergence',
   title: 'fixed fills do not self-organize selves, adaptive fills do',
   category: 'selves',

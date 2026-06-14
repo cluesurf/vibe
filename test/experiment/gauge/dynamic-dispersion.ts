@@ -12,7 +12,7 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function beat(tone: Int8Array, L: number, moved: Uint8Array, rng: Rng, arrow: number): void {
@@ -119,7 +119,7 @@ export function dynamicDispersion(input?: { L?: number; arrow?: number }): {
   return { L, modes, dynamicExponent, gapless, diffusive, relativistic, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/dynamic-dispersion',
   title:
     'the conserved charge has a gapless hydrodynamic mode but it is diffusive not relativistic',

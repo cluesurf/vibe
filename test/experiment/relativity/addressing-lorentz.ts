@@ -11,7 +11,7 @@ import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function evaluate(input: { name: string; substrate: Substrate }): {
@@ -41,7 +41,7 @@ function evaluate(input: { name: string; substrate: Substrate }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/addressing-lorentz',
   title: 'a regular lattice singles out a frame, a Minkowski sprinkling does not',
   category: 'relativity',

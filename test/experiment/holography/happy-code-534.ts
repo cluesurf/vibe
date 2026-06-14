@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   Pauli,
@@ -28,7 +28,7 @@ const stabilizers: Pauli[] = [
   { x: 0b01010, z: 0b10001 }, // Z X I X Z
 ]
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/happy-code-534',
   title: 'the quantum HaPPY [[5,1,3]] perfect code on {5,3,4}, any 2 erasures recover the bulk logical qubit',
   category: 'holography',

@@ -17,7 +17,7 @@
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { rayFreezeSurfaceGravity } from '@/code/measure/acoustic-horizon'
 import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Dynamical ingoing null ray surface gravity on the tanh horizon profile.
@@ -100,7 +100,7 @@ export function analogHawking(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/analog-hawking',
   title: 'ray redshift gives surface gravity, detector thermal at T_H = kappa/2pi',
   category: 'gravity',

@@ -5,7 +5,7 @@
 // Dirac walk run backward recovers the past exactly. (3) the massless walk commutes with parity (R<->L, x->-x).
 // Run: npx tsx code/experiment/p250-sy-discrete-symmetries.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
@@ -72,7 +72,7 @@ export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClose
   return { parityClosed, reflectionClosed, timeReversal, parityCommutes, cptExact }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/sy-discrete-symmetries',
   title: 'C, P, T, and CPT are exact on the {3,4,3,4} substrate',
   category: 'spin',

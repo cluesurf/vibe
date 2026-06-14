@@ -7,12 +7,12 @@
 // honest about the realistic scale reached, which depends on C and L, and on the unverified assumption that
 // each higher level is as clean as level 0. The per-level cleanliness is what experiments E2, E3, E4 test.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { effectiveVibeCount } from '@/code/coarse/level-stack'
 import { selfTrajectory } from '@/code/coarse/self-trajectory'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/renormalization-tower',
   title: 'the measured level-0 compression composes into the effective vibe count N_top times C to the L',
   category: 'renormalization',

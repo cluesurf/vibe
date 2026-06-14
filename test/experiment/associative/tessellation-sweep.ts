@@ -8,7 +8,7 @@
 
 import { TESSELLATIONS } from '@/code/substrate/tessellation-catalog'
 import { measureTessellation } from '@/code/measure/tessellation-battery'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Small per-substrate build, the associative measure is cheap so the whole catalog runs in the suite.
@@ -33,7 +33,7 @@ export function associativeTessellationSweep(input?: { maxCells?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/tessellation-sweep',
   title: 'the content-addressable memory recalls every stored word exactly on every buildable regular hyperbolic tessellation',
   category: 'associative',

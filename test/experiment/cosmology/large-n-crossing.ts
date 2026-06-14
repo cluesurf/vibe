@@ -20,7 +20,7 @@ import {
   bitMatrixTransitiveClosure as closure,
   bitMatrixHeight as heightOf,
 } from '@/code/tool/bitset'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // How many distinct heights does a move type reach in a flat (accept-in-range) random walk?
@@ -100,7 +100,7 @@ export function largeNCrossing(input: { sizes: number[] }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/large-n-crossing',
   title: 'cluster move traverses heights, single-pair stuck',
   category: 'cosmology',

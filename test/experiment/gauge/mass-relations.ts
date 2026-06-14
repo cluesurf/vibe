@@ -6,7 +6,7 @@
 // Jarlskog factor 3 for the second generation (m_mu = 3 m_s, m_e = m_d/3) from the 45-Higgs Clebsch.
 // Run: npx tsx code/experiment/p231-mass-relations.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hyperchargeTrace } from '@/code/measure/standard-model-charges'
 
@@ -19,7 +19,7 @@ export function massRelations(): { traceY: number; detRelationHolds: boolean; bT
   return { traceY, detRelationHolds, bTauGut }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/mass-relations',
   title: 'the hypercharge is traceless over the 16, giving the GUT determinant mass relation',
   category: 'gauge',

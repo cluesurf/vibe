@@ -22,7 +22,7 @@ import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { toneOverlap as overlap } from '@/code/operator/hopfield'
 import { agreementFraction, clusterMajority } from '@/code/measure/agreement'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface Coarse {
@@ -189,7 +189,7 @@ export function recursion(input: { count: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/p57-recursion',
   title: 'higher vibes are aggregate views (no stored layer), self-similar, inherited-stable, towering',
   category: 'selves',

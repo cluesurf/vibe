@@ -11,10 +11,10 @@
 // Run: npx tsx code/experiment/p26-swerves.ts
 
 import { swerveDiffusion } from '@/code/measure/swerve-diffusion'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/swerves',
   title: 'momentum diffusion from discreteness, variance grows with proper time',
   category: 'relativity',

@@ -18,7 +18,7 @@ import { Graph, largestComponent, neighborDistances, mostConnectedNode } from '@
 import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
 import { pearson } from '@/code/measure/statistics'
 import { laplacianSpectrum, laplacianGreensFunction } from '@/code/operator/laplacian'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The radiation sector: a disturbance propagates with a finite light-cone under the
@@ -92,7 +92,7 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/one-rule-all-sectors',
   title: 'matter, force, and radiation all appear from one operator on one mesh',
   category: 'foundations',

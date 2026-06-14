@@ -24,7 +24,7 @@
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { runAsynchronousSignedMajority } from '@/code/operator/signed-majority'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function coxeterEngine(): {
@@ -91,7 +91,7 @@ export function coxeterEngine(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/coxeter-engine',
   title: 'Coxeter engine, full facet-adjacency exact (heptagrid 7, dodecagrid 12), dodecagrid runs',
   category: 'geometry',

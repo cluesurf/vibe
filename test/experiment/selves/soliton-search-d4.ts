@@ -14,7 +14,7 @@
 // lasting bound composite, the basin-forming ingredient, is still missing. This is the precise gap a future
 // binding mechanism (growth and the arrow, Option F) must fill.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, gliderLine } from '@/code/tone/will'
@@ -24,7 +24,7 @@ import { occupiedCells, occupiedSet, componentCount } from '@/code/check/structu
 
 const movedOff = (start: number[], after: Set<number>): boolean => start.every((c) => !after.has(c))
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/soliton-search-d4',
   title: 'free gliders are solitons (persist and move), but head-on collisions disperse rather than bind',
   category: 'selves',

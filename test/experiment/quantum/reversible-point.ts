@@ -14,7 +14,7 @@ import { edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { detailedBalanceViolation } from '@/code/coarse/transition-matrix'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const st = (t: number): number => t + 1 // -1,0,1 -> 0,1,2
@@ -81,7 +81,7 @@ export function reversiblePoint(input?: { n?: number }): {
   return { n: g.cellCount, scan, maxRatio, localDetailedBalance, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/reversible-point',
   title: 'local detailed balance holds at all arrow rates',
   category: 'quantum',

@@ -17,7 +17,7 @@ import { dot } from '@/code/algebra/vector'
 import { innermostCell } from '@/code/substrate/radial-tree'
 import { angularAnisotropy } from '@/code/measure/isotropy'
 import { randomWalkEndpoint } from '@/code/dynamics/random-walk'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -88,7 +88,7 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
   return { cellCount: N, steps, a2, a4, a6, a4Shrinks, a6Shrinks, rank2AtFloor, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/lorentz-flow',
   title: 'higher-order angular anisotropy washes out under coarse-graining',
   category: 'relativity',

@@ -22,10 +22,10 @@ import {
   regionTypes,
   type Addressing,
 } from '@/code/substrate/coxeter/addressing-3434'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/addressing-3434',
   title: 'the {3,4,3,4} cells carry unique O(log n) tree addresses with no cousin edges and exact neighbour reconstruction',
   category: 'addressing',

@@ -5,7 +5,7 @@
 // slow-mode (NEUTRAL, same as {3,4,3,4} P208). Run: npx tsx code/experiment/s534-selves.ts
 
 import { dot } from '@/code/algebra/vector'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s534Selves(): { solitonsExist: boolean; fermionic: boolean; anyonic: boolean } {
@@ -27,7 +27,7 @@ export function s534Selves(): { solitonsExist: boolean; fermionic: boolean; anyo
   return { solitonsExist, fermionic, anyonic }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/s534-selves',
   title: 'solitons on the 2D horosphere are anyonic, not the 3D fermions of {3,4,3,4}',
   category: 'selves',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { busemannLevels } from '@/code/measure/radial'
@@ -9,7 +9,7 @@ import { busemannLevels } from '@/code/measure/radial'
 // confirm the populations grow strongly outward, the level-of-detail pyramid. Control: a flat octree grows by a
 // fixed factor (8 in 3D), the hyperbolic pyramid grows by the curvature factor. Reference, Vidal 2007 (MERA).
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/radial-mipmap',
   title: 'DS7: the radial Busemann levels form a multiresolution pyramid, fine levels hold geometrically more cells',
   category: 'data-structure',

@@ -14,7 +14,7 @@ import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { socEdgeSweep } from '@/code/dynamics/soc-sweep'
 import { avalancheSizes, toneDensity as density } from '@/code/measure/avalanche'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function selfOrganizedCriticality(input?: { n?: number }): {
@@ -95,7 +95,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   return { n: N, lowFinal, highFinal, setPoint, selfTunes, avalancheMedian, avalancheMax, avalancheScaleSpan, controlScaleSpan, scaleFree, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/self-organized-criticality',
   title: 'demand-driven creation self-tunes the activity to one interior set-point from any start',
   category: 'selves',

@@ -5,7 +5,7 @@
 // Run: npx tsx code/experiment/2d-tessellations.ts
 
 import { surveyTessellation } from '@/code/measure/tessellation-survey'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
@@ -35,7 +35,7 @@ export function twodTessellations(): void {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/2d-tessellations',
   title: 'a sweep of 2D hyperbolic regular tilings, all give 1D physical space, the most degenerate',
   category: 'substrate-survey',

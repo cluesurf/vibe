@@ -10,7 +10,7 @@
 //   spinor defects is the remaining link.
 // Run: npx tsx code/experiment/p263-soliton-persistence-3434.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // box-ball system: a reversible conserving CA. carrier sweeps left to right, picks up balls, drops them.
@@ -67,7 +67,7 @@ export function solitonPersistence(): { singlePersists: boolean; constantSpeed: 
   return { singlePersists, constantSpeed, identityPreserved, chargeConserved, solitonsExist }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/soliton-persistence-3434',
   title: 'a reversible conserving box-ball rule produces persistent solitons that survive collisions',
   category: 'selves',

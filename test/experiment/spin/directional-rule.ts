@@ -4,7 +4,7 @@
 // long wavelength (Lorentz). Ported from the throwaway probes.
 // Run: npx tsx code/experiment/p191-directional-rule.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { persistentWalkMeanDisplacement } from '@/code/dynamics/random-walk'
@@ -39,7 +39,7 @@ export function directionalRule(): { ballistic: number; diffusive: number; dirac
   return { ballistic, diffusive, diracOk }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/directional-rule',
   title: 'a charge with a direction streams ballistically while a memoryless scalar diffuses',
   category: 'spin',

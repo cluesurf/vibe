@@ -16,7 +16,7 @@
 // spin-half. Pure algebra, deterministic.
 
 import { collectiveModeOverlap } from '@/code/algebra/group/disclination'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const MODES = [0, 1, 2, 3, 4, 5]
@@ -47,7 +47,7 @@ export function collectiveSpinor(): {
   return { oddFlipsEveryMode, evenPreservesEveryMode, modeIndependent }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/collective-spinor-534',
   title: 'a delocalized collective mode carries the disclination spinor sign for every mode, the topological spin is a field property',
   category: 'spin',

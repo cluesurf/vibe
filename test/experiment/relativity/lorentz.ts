@@ -6,7 +6,7 @@
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { boostEnergyMomentum } from '@/code/measure/rapidity'
 import { groupVelocity1d } from '@/code/measure/group-speed'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const E = (m: number, k: number): number => coinedWalkDispersion({ theta: m, k })
@@ -34,7 +34,7 @@ export function lorentz(): { invariantSmallK: boolean; masslessIsLightspeed: boo
   return { invariantSmallK, masslessIsLightspeed, maxGroupVelocity }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/lorentz',
   title: 'the Dirac dispersion is boost-invariant at small k with a massless light-speed mode',
   category: 'relativity',

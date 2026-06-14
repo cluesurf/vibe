@@ -10,7 +10,7 @@ import { toCsr } from '@/code/tool/graph'
 import { boundaryByRadius, surfaceDistances } from '@/code/substrate/radial-tree'
 import { clampedLeakyDiffusion } from '@/code/operator/screened-greens-function'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function measure(symbol: number[], maxCells: number): { N: number; nb: number; slope: number; calibrated: boolean } {
@@ -38,7 +38,7 @@ export function gravity3434(): { fiveSlope: number; fourSlope: number; confounde
   return { fiveSlope: a.slope, fourSlope: b.slope, confounded }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gravity-3434',
   title: 'the naive screened-diffusion gravity propagator is confounded, the gravity law is open',
   category: 'gravity',

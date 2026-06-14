@@ -13,7 +13,7 @@ import { makeRng } from '@/code/tool/rng'
 import { sprinkleDeSitter } from '@/code/substrate/sprinkle-desitter'
 import { causalSliceWidths } from '@/code/measure/order-stats'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function deSitterExpansion(input: { count: number; hubble: number; seed: number }): {
@@ -43,7 +43,7 @@ export function deSitterExpansion(input: { count: number; hubble: number; seed: 
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/expansion',
   title: 'expanding geometry gives an expanding causal order',
   category: 'cosmology',

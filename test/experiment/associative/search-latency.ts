@@ -8,7 +8,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { coverageRadius } from '@/code/measure/associative-recall'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativeSearchLatency(input?: { smallCells?: number; largeCells?: number }): {
@@ -56,7 +56,7 @@ export function associativeSearchLatency(input?: { smallCells?: number; largeCel
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/search-latency',
   title: 'bulk associative search latency scales logarithmically with size, sub-polynomially, versus N^(1/3) for a flat cubic memory',
   category: 'associative',

@@ -22,7 +22,7 @@
 // Depth L2, an honest negative, at the per-cell level a radiating rule shatters the kink and a static rule traps
 // the disturbance, so the localized corrective self must be emergent.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   makeTernaryField,
@@ -34,7 +34,7 @@ import {
   type TernaryField,
 } from '@/code/dynamics/ternary-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/per-cell-radiation-obstruction',
   title: 'per-cell ternary has no self: a radiating rule shatters the kink, a static rule traps the hit (the corrective self is emergent)',
   category: 'selves',

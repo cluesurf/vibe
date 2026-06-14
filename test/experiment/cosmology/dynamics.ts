@@ -9,10 +9,10 @@ import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { manifoldLikeness } from '@/code/measure/manifoldlike'
 import { runScan, ScanSpec } from '@/test/scaffold/runner'
 import { writeReport } from '@/test/scaffold/report'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/dynamics',
   title: 'a causal-set action raises manifold-likeness as the coupling rises',
   category: 'cosmology',

@@ -12,7 +12,7 @@
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { evolveByEigendecomposition } from '@/code/operator/unitary-evolution'
 import { ringHoppingHamiltonian } from '@/code/operator/tight-binding'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Evolve a complex state psi (re, im) under e^{-iHt} using the eigendecomposition.
@@ -71,7 +71,7 @@ export function quantumFormalism(input: { n: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/quantum-formalism',
   title: 'unitarity, the Born rule, and interference of amplitudes',
   category: 'quantum',

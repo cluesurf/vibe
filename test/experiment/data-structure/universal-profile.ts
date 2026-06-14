@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { tessellationDataProfile } from '@/code/measure/tessellation-profile'
 
@@ -18,7 +18,7 @@ const TESSELLATIONS: number[][] = [
   [4, 3, 3, 4, 3], [3, 4, 3, 3, 4], [3, 3, 4, 3, 3], [3, 4, 3, 3, 3], [3, 3, 3, 4, 3],
 ]
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/universal-profile',
   title: 'one module gives the data-structure profile of every 2D-to-5D tessellation, all have exponential capacity and logarithmic tree depth',
   category: 'data-structure',

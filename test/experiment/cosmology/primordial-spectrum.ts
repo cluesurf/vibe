@@ -13,7 +13,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { densityContrast } from '@/code/measure/density-contrast'
 import { linearFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function primordialSpectrum(input: { seed: number }): {
@@ -44,7 +44,7 @@ export function primordialSpectrum(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/primordial-spectrum',
   title: 'scale-free Poisson density contrast, exponent -1/2',
   category: 'cosmology',

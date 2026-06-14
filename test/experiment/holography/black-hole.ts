@@ -14,7 +14,7 @@ import {
   regionEntanglementEntropy,
 } from '@/code/measure/entanglement'
 import { torusHoppingHamiltonian } from '@/code/operator/tight-binding'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function blackHoleEntropy(input: { side: number }): {
@@ -53,7 +53,7 @@ export function blackHoleEntropy(input: { side: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/black-hole',
   title: 'region entropy scales with horizon area not volume (Bekenstein-Hawking)',
   category: 'holography',

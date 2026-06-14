@@ -14,7 +14,7 @@ import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -181,7 +181,7 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
   return { n: N, attendedCorr, unattendedCorr, attentionSelects, steerable, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/attention-workspace',
   title: 'the hub-workspace shows bottom-up salience and top-down attentional gain',
   category: 'selves',

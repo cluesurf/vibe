@@ -6,7 +6,7 @@
 // -> three generations. We verify the root-system + spinor-weight facts. Run: npx tsx code/experiment/p221-gauge-from-coin-tone.ts
 
 import { rootsDn as dRoots, vecEqExact as eq, isRootSystem, spinorWeightsDn, standardModelEmbedsInRootSystem } from '@/code/algebra/group/root-system'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function gaugeFromCoinTone(): { d5IsRootSystem: boolean; smInD5: boolean; sixteenSplit: string } {
@@ -29,7 +29,7 @@ export function gaugeFromCoinTone(): { d5IsRootSystem: boolean; smInD5: boolean;
   return { d5IsRootSystem, smInD5, sixteenSplit }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/gauge-from-coin-tone',
   title: 'the coin D4 plus the tone as a fifth axis builds D5 = so(10) and embeds the Standard Model',
   category: 'gauge',

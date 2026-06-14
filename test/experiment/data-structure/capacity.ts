@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
@@ -9,7 +9,7 @@ import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
 // the flat 24-cell honeycomb {3,4,3,3}. The hyperbolic mesh grows faster (ratio bounded above 1), the flat one
 // grows polynomially (ratio toward 1). Reference, Krioukov et al. 2010.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/capacity',
   title: 'DS1: the 4D hyperbolic bulk holds exponentially more cells per radius than the flat honeycomb',
   category: 'data-structure',

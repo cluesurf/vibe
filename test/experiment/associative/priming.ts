@@ -7,7 +7,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells, geodesicBall } from '@/code/measure/shells'
 import { broadcastWave } from '@/code/operator/associative-memory'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativePriming(input?: { maxCells?: number; primeRadius?: number }): {
@@ -48,7 +48,7 @@ export function associativePriming(input?: { maxCells?: number; primeRadius?: nu
   return { cellCount: g.cellCount, target, unprimedBeats, primedBeats, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/priming',
   title: 'priming as residual activation, a pre-activated region resolves a related query in fewer beats',
   category: 'associative',

@@ -18,7 +18,7 @@ import {
   nearestPattern,
 } from '@/code/operator/hopfield'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // One dense (higher-order) update beat. For each site, every stored pattern votes for its own
@@ -96,7 +96,7 @@ export function denseVsClassicalCapacity(input?: { size?: number; fraction?: num
   return { size, classicalCapacity, denseCapacity, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/dense-vs-classical-capacity',
   title: 'a dense higher-order energy stores more patterns than the classical Hopfield at matched recall',
   category: 'associative',

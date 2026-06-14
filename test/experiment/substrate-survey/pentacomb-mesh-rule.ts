@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 import { streamCoxeterMeshGas, collideCoxeterMeshGas, countCoxeterMeshGas } from '@/code/operator/coxeter-mesh-gas'
@@ -20,7 +20,7 @@ const growthRatio = (shells: number[]): number => {
   return shells[count - 2]! / shells[count - 3]!
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/pentacomb-mesh-rule',
   title: 'the 5D pentacomb is a curved mesh that runs the reversible conserving rule on its real generated geometry',
   category: 'substrate-survey',

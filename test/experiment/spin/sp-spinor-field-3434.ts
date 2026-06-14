@@ -6,7 +6,7 @@
 // the pair is ANTISYMMETRIC (fermions), the exact link from the double cover (p244) to Pauli exclusion.
 // Run: npx tsx code/experiment/p248-sp-spinor-field-3434.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { diracQuantumWalk } from '@/code/dynamics/quantum-walk'
 
@@ -38,7 +38,7 @@ export function spSpinorField(): { chiralityConservedMassless: boolean; chiralit
   return { chiralityConservedMassless, chiralityMixesMassive, lightSpeedMassless, subluminalMassive, normConserved, fermionExchange }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/sp-spinor-field-3434',
   title: 'a 2-component Dirac walk on {3,4,3,4} streams chirality at the light speed and mixes it under a mass',
   category: 'spin',

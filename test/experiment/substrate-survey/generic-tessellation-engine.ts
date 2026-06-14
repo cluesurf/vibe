@@ -14,7 +14,7 @@
 // Run: npx tsx code/experiment/p199-generic-tessellation-engine.ts
 
 import { describeTessellation, buildTessellation, inspectTessellation } from '@/code/substrate/coxeter/tessellation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface Case {
@@ -77,7 +77,7 @@ export function genericTessellationEngine(): {
   return { rows, cell3434FacetDegree, cell3434VertexFigure, allPass, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/generic-tessellation-engine',
   title:
     'one generic front-end classifies and builds any regular honeycomb from 2D to 4D with correct facet degrees',

@@ -14,7 +14,7 @@
 // Run: npx tsx code/experiment/p87-word-engine.ts
 
 import { buildWordMesh } from '@/code/substrate/coxeter/word'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function wordEngine(): {
@@ -69,7 +69,7 @@ export function wordEngine(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/word-engine',
   title: 'ShortLex normal forms give exact finite group orders and exact cell facet counts',
   category: 'addressing',

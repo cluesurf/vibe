@@ -11,7 +11,7 @@
 //
 // Depth L2, the bit budget of the attraction, ternary is too coarse, about four bits suffice and they are bounded.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -19,7 +19,7 @@ import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { bulkMass, relaxPotential, gravityMoves } from '@/code/dynamics/gravity-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/minimal-attraction-field',
   title: 'the attraction needs only a few bounded bits, not arbitrary integers: ternary is too coarse, about four bits repair a self',
   category: 'selves',

@@ -16,7 +16,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingChainSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the conserved-exchange rule (share annihilates opposite, hop transports into empty, the arrow creates a
@@ -108,7 +108,7 @@ export function flatSpatialRP(input?: { L?: number; arrows?: number[] }): {
   return { L, scan, maxRange, massiveField, ruleNotGeometry, rpConsistentMassive, masslessRegimeFound, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/flat-spatial-rp',
   title: 'the field is generically massive on flat too, the rule not geometry',
   category: 'quantum',

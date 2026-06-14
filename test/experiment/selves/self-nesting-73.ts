@@ -5,7 +5,7 @@
 // (computation, P204). Ported to {7,3}. Run: npx tsx code/experiment/p203-self-nesting-73.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 
@@ -44,7 +44,7 @@ export function selfNesting73(): { tower: boolean; real: number[]; nul: number[]
   return { tower, real, nul }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/self-nesting-73',
   title: 'the {7,3} hyperbolic bulk has no radial nesting tower',
   category: 'selves',

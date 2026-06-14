@@ -9,7 +9,7 @@
 // matrix H[i][j] = C(i+j) is positive semi-definite, the Osterwalder-Schrader spatial condition, a
 // positive-norm particle spectrum, a genuine quantum field. Run: npx tsx code/experiment/p169-deterministic-spatial-rp.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { diracEqualTimeCorrelator } from '@/code/measure/two-point'
@@ -61,7 +61,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/deterministic-spatial-rp',
   title: 'the deterministic field is long-range and reflection-positive',
   category: 'quantum',

@@ -4,7 +4,7 @@
 // layer is only 1D (a horocycle), so even that is starved. Contrast, {3,4,3,4} alone supplies real spinors.
 // Run: npx tsx code/experiment/p201-spinor-73.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { dihedralFacePermutationDecomposition } from '@/code/algebra/group/dihedral'
 
@@ -16,7 +16,7 @@ export function spinor73(): { hasSpinor: boolean; decomposition: string } {
   return { hasSpinor, decomposition }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/spinor-73',
   title: 'the {7,3} heptagonal coin carries no spinor, only integer-spin reps of D7',
   category: 'spin',

@@ -24,7 +24,7 @@ import {
   diracHamiltonian,
 } from '@/code/algebra/group/clifford'
 import { complex } from '@/code/algebra/linear/complex'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const MOMENTA = [
@@ -94,7 +94,7 @@ export function measuredEmergentMass(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/measured-emergent-mass-3434',
   title: 'the fermion mass is the 8s-8c chirality coupling, measured two agreeing ways, vanishing into a massless Weyl fermion when off',
   category: 'relativity',

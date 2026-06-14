@@ -8,7 +8,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { numericSearchSteps } from '@/code/operator/numeric-search'
 import { coverageRadius } from '@/code/measure/associative-recall'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativeParallelCost(input?: { smallCells?: number; largeCells?: number; wordBits?: number }): {
@@ -62,7 +62,7 @@ export function associativeParallelCost(input?: { smallCells?: number; largeCell
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/parallel-cost',
   title: 'on the bulk the associative search cost is constant in size and the communication radius grows logarithmically, versus polynomially on a flat cubic memory',
   category: 'associative',

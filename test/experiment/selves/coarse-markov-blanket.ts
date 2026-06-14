@@ -7,7 +7,7 @@
 // Depth L2, a measured screening test with a control. The screening is a documented partial-correlation
 // proxy for the conditional mutual information, not the full transfer entropy.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { flatGraph, emergeSelf, beat, largestPositiveCluster, ball } from '@/code/model/self-kit'
 import { regionPartition, blanketScreening } from '@/code/coarse/self-criteria'
@@ -19,7 +19,7 @@ function sumTone(tone: Int8Array, cells: number[]): number {
   return s
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-markov-blanket',
   title: 'an emergent self screens interior from exterior through its shell more cleanly than medium',
   category: 'selves',

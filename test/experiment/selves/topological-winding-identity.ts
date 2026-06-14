@@ -12,11 +12,11 @@
 //
 // Depth L2, the topological identity (a winding) is reversibly protected at the 24-cell resolution, not at ternary.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeTwist, stepClockRing, clockWinding, type ClockRing } from '@/code/dynamics/clock-winding'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/topological-winding-identity',
   title: 'the self identity is a topological winding, reversibly protected at the 24-cell resolution but not at coarse ternary',
   category: 'selves',

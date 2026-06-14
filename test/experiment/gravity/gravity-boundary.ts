@@ -7,7 +7,7 @@
 import { logLogSlope, linearFit } from '@/code/measure/regression'
 import { dCubePoissonGreens } from '@/code/operator/dcube-poisson'
 import { radialFieldProfile } from '@/code/measure/profile'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const solvePoisson = (L: number, d: number): ReturnType<typeof dCubePoissonGreens> =>
@@ -29,7 +29,7 @@ export function gravityBoundary(): { exp3D: number; slope2DvsLog: number } {
   return { exp3D, slope2DvsLog }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gravity-boundary',
   title: 'the discrete Poisson Green function on the flat 3D cusp falls as 1/r and on the 2D horosphere as log r',
   category: 'gravity',

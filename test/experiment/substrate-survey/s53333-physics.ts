@@ -8,7 +8,7 @@ import { bfsShells } from '@/code/measure/shells'
 import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
 import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { mostConnectedNode } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Physics(): { betheAlpha: number; growthRatio: number; spaceGravityExp: number } {
@@ -24,7 +24,7 @@ export function s53333Physics(): { betheAlpha: number; growthRatio: number; spac
   return { betheAlpha, growthRatio, spaceGravityExp }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/s53333-physics',
   title: 'the holographic correlator and cosmology port to {5,3,3,3,3}, but physical-space gravity is 4D (1/r^2, over-dimensional)',
   category: 'substrate-survey',

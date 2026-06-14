@@ -14,7 +14,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { storedPatterns, hebbianFills, hopfieldStep, toneOverlap as overlap } from '@/code/operator/hopfield'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function settle(J: Int8Array[], state: Int8Array, steps: number): Int8Array {
@@ -74,7 +74,7 @@ export function reincarnation(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/reincarnation',
   title: 'self persists through total turnover and reconstitutes from a seed',
   category: 'selves',

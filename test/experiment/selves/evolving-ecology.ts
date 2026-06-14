@@ -9,7 +9,7 @@
 // adapts, from the base. Run: npx tsx code/experiment/p165-evolving-ecology.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -100,7 +100,7 @@ export function evolvingEcology(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/evolving-ecology',
   title: 'a population of planning agents evolves better problem-solving and adapts its foresight',
   category: 'selves',

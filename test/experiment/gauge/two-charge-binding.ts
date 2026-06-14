@@ -20,7 +20,7 @@
 //
 // Depth L2, the 1D gauge confinement of two opposite charges, with the zero-coupling and like-charge controls.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // integrate two charges under the 1D gauge force, launched apart, return the max and final separation.
@@ -50,7 +50,7 @@ function evolve(input: { q1: number; q2: number; coupling: number }): { maxSepar
   return { maxSeparation, finalSeparation: Math.abs(x2 - x1) }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/two-charge-binding',
   title: 'the 1D gauge force confines two opposite charges (bound at any energy), zero coupling lets them escape',
   category: 'gauge',

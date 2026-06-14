@@ -22,11 +22,11 @@
 //
 // Depth L2, the fine-group push, no finite direction group rescues the discrete dynamics, the self is forced emergent.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeSkyrmionField, relaxSpins, precessSpins, skyrmionDegree, type Spin, type SkyrmionParams } from '@/code/dynamics/skyrmion-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/fine-group-too-coarse',
   title: 'no finite direction group (not even the 600-cell) is fine enough for a stable discrete dynamics, the self is forced emergent',
   category: 'selves',

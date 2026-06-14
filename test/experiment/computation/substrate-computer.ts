@@ -14,7 +14,7 @@
 
 import { type Instr, RegisterMachine } from '@/code/operator/register-machine'
 import { buildDodecagridRegisterMachine } from '@/code/operator/dodecagrid-register-machine'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The conserving charge register machine (Instr set, INC/DEC/test-zero, conserved run) and its dodecagrid
@@ -98,7 +98,7 @@ export function substrateComputer(input?: { n?: number }): {
   return { n, cases, allCorrect, allConserved, programsRun, generalPurpose, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'computation/substrate-computer',
   title: 'a programmable register machine runs on the charge dynamics',
   category: 'computation',

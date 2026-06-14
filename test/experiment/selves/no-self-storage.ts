@@ -19,7 +19,7 @@ import { Graph } from '@/code/tool/graph'
 import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
 import { agreementFraction } from '@/code/measure/agreement'
 import { domainBlocks } from '@/code/dynamics/renormalization-blocks'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
@@ -116,7 +116,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/no-self-storage',
   title: 'lossless self-record needs the whole, lossy regress converges, no infinite mirror',
   category: 'selves',

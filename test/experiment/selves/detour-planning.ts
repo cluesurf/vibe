@@ -14,7 +14,7 @@
 // goal. Greedy climbs to the local peak and STOPS. A planner whose lookahead spans the barrier sees the
 // higher ground beyond and commits to the detour, reaching the goal. Run: npx tsx code/experiment/p140-detour-planning.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // value landscape over positions 0..L: rise to a local peak, dip through a valley (barrier), rise to the
@@ -121,7 +121,7 @@ export function detourPlanning(input?: { L?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/detour-planning',
   title: 'lookahead beats greedy on a barrier when the horizon spans it',
   category: 'selves',

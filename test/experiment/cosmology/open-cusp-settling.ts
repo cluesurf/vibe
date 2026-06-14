@@ -10,10 +10,10 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { busemann, idealDirection } from '@/code/substrate/horosphere'
 import { toCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/open-cusp-settling',
   title:
     'matter does not dynamically settle onto the flat cusp under the pure reversible rule, an honest negative',

@@ -6,7 +6,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { streamDirectionalCharge, totalDirectionalCharge } from '@/code/operator/directional-charge-stream'
 import { churnCount } from '@/code/measure/churn'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s53333Dynamics(): { chargeConserved: boolean; lightSpeed: number; churns: boolean } {
@@ -23,7 +23,7 @@ export function s53333Dynamics(): { chargeConserved: boolean; lightSpeed: number
   return { chargeConserved, lightSpeed, churns }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/s53333-dynamics',
   title: 'the directional rule ports to the 5D {5,3,3,3,3} bulk, conserving charge and churning',
   category: 'substrate-survey',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   binaryIcosahedral,
@@ -18,7 +18,7 @@ const minusOne = quaternion(-1, 0, 0, 0)
 const hasMinusOne = (group: ReturnType<typeof binaryIcosahedral>): boolean =>
   group.some((element) => quaternionKey(element) === quaternionKey(minusOne))
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/spin-and-curvature-534',
   title: '{5,3,4} carries spin AND negative curvature, the trade-off flat {3,4,3,4} cannot resolve',
   category: 'spin',

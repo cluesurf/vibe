@@ -5,7 +5,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { spectralDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The small-scale spectral dimension is the lazy-walk return exponent (spectralDimension
@@ -31,7 +31,7 @@ export function bulkDimension(): { d4: number; d3: number; bulk: number } {
 // grid reading ~4 and the 3D grid reading ~3 are the controls that give the {3,4,3,4}
 // number its meaning. This is a measured property of a known tessellation, an established
 // mathematical fact, so L1.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/bulk-dimension-3434',
   title: 'the {3,4,3,4} bulk reads spectral dimension ~4, a genuine 4D substrate',
   category: 'geometry',

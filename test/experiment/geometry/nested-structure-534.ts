@@ -14,7 +14,7 @@
 import { norm } from '@/code/algebra/vector'
 import { bfsShells } from '@/code/measure/shells'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function nestedStructure534(maxCells = 120000): {
@@ -69,7 +69,7 @@ export function nestedStructure534(maxCells = 120000): {
   return { shellCounts, cleanShells, ratios, growthConstant, ratioConverges, meanRadius, boundaryAccumulation, exponentialNesting, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/nested-structure-534',
   title: 'BFS shells on {5,3,4} grow exponentially with a converging ratio and accumulate toward the boundary',
   category: 'geometry',

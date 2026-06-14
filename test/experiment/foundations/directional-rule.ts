@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh, d4Mesh } from '@/code/tool/mesh'
 import { makeWill, fillWillPattern } from '@/code/tone/will'
@@ -16,7 +16,7 @@ import { conservesCharge, isReversible } from '@/code/check/invariant'
 // pair table, a reversible bijection run backward through its paired inverse). The
 // 9-state table itself is a permutation of the nine pair states, so it is reversible
 // by construction.
-export default defineExperiment({
+export default experiment({
   id: 'foundations/directional-rule',
   title: 'the directional lattice-gas conserves charge and is exactly reversible',
   category: 'foundations',

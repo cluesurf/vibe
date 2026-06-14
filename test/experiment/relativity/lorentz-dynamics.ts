@@ -12,10 +12,10 @@ import { makeRng } from '@/code/tool/rng'
 import { randomGeometricMesh, squareLatticeMesh } from '@/code/substrate/geometric-mesh'
 import { wavefrontProfile } from '@/code/measure/wavefront'
 import { harmonicAnisotropy } from '@/code/measure/isotropy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/lorentz-dynamics',
   title: 'the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice',
   category: 'relativity',

@@ -11,7 +11,7 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p21-graviton.ts
 
 import { gravitonFromAction } from '@/code/operator/graviton'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Massless dispersion: lowest graviton omega^2 on a periodic lattice of side L is the
@@ -61,7 +61,7 @@ export function gravitonStudy(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/graviton',
   title: 'two graviton polarizations measured from the derived operator spectrum',
   category: 'gravity',

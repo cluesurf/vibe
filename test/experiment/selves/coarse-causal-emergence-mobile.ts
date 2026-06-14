@@ -16,7 +16,7 @@
 // Depth L2, Hoel effective information measured on real mobile-gas dynamics with a random-map control, plus the
 // pinning rule as a comparison. Reports whether macro exceeds micro (true causal emergence).
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
@@ -54,7 +54,7 @@ function centroidSeries(input: { init: Will; collision: Collision; beats: number
   return series
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-causal-emergence-mobile',
   title: 'mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode (honest negative)',
   category: 'selves',

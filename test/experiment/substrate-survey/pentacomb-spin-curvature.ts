@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { gramSignature, symbolContainsSubdiagram } from '@/code/substrate/coxeter/gram-signature'
 import { trialityClasses } from '@/code/algebra/group/cell-24'
@@ -22,7 +22,7 @@ const rotation2pi = quaternion(Math.cos(Math.PI), 0, 0, Math.sin(Math.PI)) // eq
 const carriesSpinor = (representative: Quaternion): boolean =>
   quaternionKey(multiply(rotation2pi, representative)) === quaternionKey(negate(representative))
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/pentacomb-spin-curvature',
   title: 'the 5D pentacomb {3,4,3,3,4} carries the D4 spinor directions AND negative curvature, spin plus curvature from the bare rule',
   category: 'substrate-survey',

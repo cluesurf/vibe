@@ -9,7 +9,7 @@
 // stalls). Run: npx tsx code/experiment/p161-evolution.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -125,7 +125,7 @@ export function evolution(input?: { K?: number; m?: number; generations?: number
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/p161-evolution',
   title: 'selection raises fitness, drift does not, and the population re-adapts to a new environment',
   category: 'selves',

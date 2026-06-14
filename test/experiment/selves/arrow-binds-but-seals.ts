@@ -19,7 +19,7 @@
 //
 // Depth L2, the bind-radiate tradeoff, the arrow binds but seals, the momentum rule radiates but will not bind.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -27,7 +27,7 @@ import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collisi
 import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/arrow-binds-but-seals',
   title: 'the arrow binds a body but seals radiation, the momentum rule radiates but will not bind, binding and radiation are disjoint',
   category: 'selves',

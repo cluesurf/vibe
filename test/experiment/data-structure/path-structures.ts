@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -8,7 +8,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 // root to build a path, confirm each step is a single physical neighbour (a child of the previous cell), that
 // the depth increases by one per push, and that pop (the parent) exactly reverses it.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/path-structures',
   title: 'SS10: a list is a cell path and a stack is a radial ray, O(1) per step, depth is the height',
   category: 'data-structure',

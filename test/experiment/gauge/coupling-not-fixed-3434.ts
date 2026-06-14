@@ -16,7 +16,7 @@
 
 import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
 import { powerLawFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const COUPLINGS = [0.1, 0.15, 0.2, 0.3, 0.4, 0.6, 0.8]
@@ -71,7 +71,7 @@ export function couplingNotFixed(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/coupling-not-fixed-3434',
   title: 'the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it',
   category: 'gauge',

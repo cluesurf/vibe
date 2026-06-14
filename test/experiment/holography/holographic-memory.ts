@@ -20,7 +20,7 @@ import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { totalCharge as sumTone } from '@/code/measure/tone-census'
 import { makeRng, Rng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function ball(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
@@ -128,7 +128,7 @@ export function holographicMemory(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/holographic-memory',
   title: 'a spread-encoded bit survives a bounded erasure while a localized blob is destroyed',
   category: 'holography',

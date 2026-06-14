@@ -5,7 +5,7 @@
 // built-in beginning and end). The reversible mod-3 rule is the candidate for an eternal universe, an
 // irreversible (averaging) rule is the contrast. Run: npx tsx code/experiment/eternal-bootstrap.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { signedTone } from '@/code/tone/pack'
 import { torusGrid } from '@/code/substrate/torus-grid'
@@ -49,7 +49,7 @@ export function eternalBootstrap(): { reversibleEternal: boolean; reversibleCons
   return { reversibleEternal, reversibleConserved, irreversibleDecays, reversibleExact }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/eternal-bootstrap',
   title:
     'the reversible rule churns forever from a generic state and is exactly reversible, an irreversible rule decays',

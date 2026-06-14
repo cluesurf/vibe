@@ -6,7 +6,7 @@
 // See code/model/vibe.ts and note/the-model.md. Run: npx tsx code/experiment/p36-dsl.ts
 
 import { vibe } from '@/code/model/vibe'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function dslDemo(): {
@@ -30,7 +30,7 @@ export function dslDemo(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/dsl',
   title: 'the DSL builds the committed model and expresses variants',
   category: 'foundations',

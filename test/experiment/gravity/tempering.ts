@@ -12,12 +12,12 @@ import { smearedBenincasaDowker } from '@/code/dynamics/action'
 import { parallelTempering } from '@/code/dynamics/parallel-tempering'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { populationVariance as variance } from '@/code/measure/statistics'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const SIZE = 48
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/tempering',
   title: 'parallel tempering finds a susceptibility peak and order-parameter coexistence in the causal-set action',
   category: 'gravity',

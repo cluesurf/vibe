@@ -12,7 +12,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is inert)
@@ -109,7 +109,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   return { n: N, maxRadius: R, shells, thresholdRises, complementaryRecovery, densityDilutes, redundancyGrows, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/growing-code',
   title: 'the growing holographic code raises its erasure threshold with shell age',
   category: 'holography',

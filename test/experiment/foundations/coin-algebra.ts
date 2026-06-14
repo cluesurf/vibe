@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   binaryTetrahedral,
@@ -14,7 +14,7 @@ import { rootsD4, rootsF4 } from '@/code/algebra/group/root-system'
 // split into three triality classes of eight, a vector and two spinors. This is the
 // structure that lets the directional rule carry spin, which the 12 directions of
 // {5,3,4} cannot (they split with no spinor).
-export default defineExperiment({
+export default experiment({
   id: 'foundations/coin-algebra',
   title: 'the 24 coin directions are the D4 roots with triality, the spin algebra',
   category: 'foundations',

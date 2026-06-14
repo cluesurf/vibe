@@ -5,7 +5,7 @@
 
 import { latticeGreenDifferenceX } from '@/code/operator/lattice-green-kspace'
 import { linearFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function gravityFreeSpace(): { coeffA: number; fitResidual: number } {
@@ -20,7 +20,7 @@ export function gravityFreeSpace(): { coeffA: number; fitResidual: number } {
   return { coeffA, fitResidual }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gravity-freespace',
   title: 'the free-space 3D lattice Green function is exactly 1/(4 pi r), the clean 1/r Newton law',
   category: 'gravity',

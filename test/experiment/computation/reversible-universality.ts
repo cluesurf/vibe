@@ -19,7 +19,7 @@
 
 import { PAIR_FORWARD } from '@/code/rule/collision'
 import { toffoli } from '@/code/operator/logic-gate'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the exact nine-state transition of the perception rule on a pair (left, right), tones
@@ -94,7 +94,7 @@ export function reversibleUniversality(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'computation/reversible-universality',
   title: 'the {5,3,4} with the reversible rule is computationally universal',
   category: 'computation',

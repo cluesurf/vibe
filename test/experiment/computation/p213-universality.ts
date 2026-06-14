@@ -6,7 +6,7 @@
 
 import { margolusStep } from '@/code/operator/margolus-billiard'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The Margolus billiard-ball block CA (margolusStep) lives in code/operator/margolus-billiard.
@@ -39,7 +39,7 @@ export function universality(): { ballistic: boolean; reversible: boolean; displ
 // universal. This reproduces a known universal construction on the cusp, so L2. The
 // reversibility test seeds via a deterministic LCG field, but the reversibility is exact and
 // holds for any field.
-export default defineExperiment({
+export default experiment({
   id: 'computation/p213-universality',
   title: 'the flat {4,3,4} cusp runs the reversible Margolus billiard-ball CA (ballistic wire plus exact reversibility)',
   category: 'computation',

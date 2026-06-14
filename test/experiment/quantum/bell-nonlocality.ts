@@ -8,7 +8,7 @@
 // rule is local and so would obey CHSH <= 2. Whether a nonlocal boundary actually emerges from it is an open
 // claim, not tested here. Run: npx tsx code/experiment/p236-bell-nonlocality.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function bellNonlocality(): { localMax: number; quantumMax: number; gap: boolean } {
@@ -28,7 +28,7 @@ export function bellNonlocality(): { localMax: number; quantumMax: number; gap: 
   return { localMax, quantumMax, gap }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/bell-nonlocality',
   title: 'the local CHSH bound is 2 and the quantum value is 2 sqrt 2, a restated gap',
   category: 'quantum',

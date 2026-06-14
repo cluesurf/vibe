@@ -9,7 +9,7 @@
 
 import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
 import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function fluctuationExponent(input: { action: Action; sizes: number[]; repeats: number }): {
@@ -49,7 +49,7 @@ export function darkEnergySmeared4D(input: { sizes: number[]; repeats: number; e
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/dark-energy-smeared',
   title: '4D smeared kernel tames the fluctuation (toward everpresent Lambda)',
   category: 'cosmology',

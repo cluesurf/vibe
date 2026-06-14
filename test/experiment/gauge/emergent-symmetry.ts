@@ -9,7 +9,7 @@
 import { invariantPolynomialDimension } from '@/code/algebra/group/invariant-theory'
 import { closure as groupClosure } from '@/code/algebra/group/finite-group'
 import { matrixProduct } from '@/code/algebra/linear/dense'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type M = number[][]
@@ -35,7 +35,7 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
   return { b4Inv4, f4Inv4 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/emergent-symmetry',
   title: 'triality kills the degree-4 anisotropy, so the F4 coin symmetry is continuous to order 6',
   category: 'gauge',

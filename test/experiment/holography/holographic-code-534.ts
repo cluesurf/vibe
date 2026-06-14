@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { recoverByMajority, corruptConnectedRegion as corruptRegion } from '@/code/measure/redundancy-code'
 
@@ -17,7 +17,7 @@ import { recoverByMajority, corruptConnectedRegion as corruptRegion } from '@/co
 const corruptConnectedRegion = (size: number, fraction: number, logical: number): number[] =>
   corruptRegion({ size, fraction, logical })
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/holographic-code-534',
   title: 'persistence via a holographic code on {5,3,4}, the boundary reconstructs the bulk self after local damage',
   category: 'holography',
