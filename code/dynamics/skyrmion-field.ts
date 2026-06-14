@@ -99,3 +99,14 @@ export function makeSkyrmionField(input: { size: number; coreRadius: number }): 
   }
   return spins
 }
+
+// snap each spin to a 3-TRIT spin, each component in {-1, 0, +1} (the 26-direction "ternary spin", the cube /
+// octahedron target). This is the fully ternary direction field, and it holds the Skyrmion charge exactly.
+export function snapToTrits(spins: Spin[]): Spin[] {
+  return spins.map((v) => {
+    const w: Spin = [Math.round(v[0]), Math.round(v[1]), Math.round(v[2])]
+    if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
+    const n = Math.hypot(w[0], w[1], w[2]) || 1
+    return [w[0] / n, w[1] / n, w[2] / n]
+  })
+}
