@@ -167,3 +167,52 @@ export function selfContainedShadowD4(input: {
   }
   return count ? netX / count : 0
 }
+
+// The 1D shadow well field, the net inward momentum a centered absorbing body casts. Returns nm[x] = (right-movers
+// minus left-movers) at each cell, negative on the body's right side (inward), positive on its left. Used to test
+// whether the well confines a moving body without a rest slot.
+export function shadowWellField1D(input: { length: number; center: number; bodyHalfWidth: number; beats: number }): Int32Array {
+  const { length, center, bodyHalfWidth, beats } = input
+  let right = new Int32Array(length)
+  let left = new Int32Array(length)
+  const bodyLo = center - bodyHalfWidth, bodyHi = center + bodyHalfWidth + 1
+  for (let t = 0; t < beats; t++) {
+    const r2 = new Int32Array(length), l2 = new Int32Array(length)
+    for (let x = 0; x < length; x++) { if (right[x]! && x + 1 < length) r2[x + 1] = r2[x + 1]! + right[x]!; if (left[x]! && x - 1 >= 0) l2[x - 1] = l2[x - 1]! + left[x]! }
+    right = r2; left = l2
+    for (let x = bodyLo; x < bodyHi; x++) { right[x] = 0; left[x] = 0 }
+    right[0] = right[0]! + 1; left[length - 1] = left[length - 1]! + 1
+  }
+  const nm = new Int32Array(length)
+  for (let x = 0; x < length; x++) nm[x] = right[x]! - left[x]!
+  return nm
+}
+
+// Test whether a test tone is CONFINED by a well field, starting at `center + startOffset` moving outward. A
+// SINGLE-SPEED tone always moves (|v|=1) and reverses when the inward push accumulates past `mass`, a REST-capable
+// tone may stop (v=0). Returns the max excursion and whether it ESCAPED to the boundary (not bound). This decides
+// whether the shadow well needs a rest slot, if single-speed stays bound at short range, the rest slot is optional.
+export function confineInWell(input: {
+  field: Int32Array
+  length: number
+  center: number
+  startOffset: number
+  singleSpeed: boolean
+  mass: number
+  beats: number
+}): { maxExcursion: number; escaped: boolean } {
+  const { field, length, center, startOffset, singleSpeed, mass, beats } = input
+  let p = center + startOffset
+  let v = 1
+  let m = 0
+  let maxExc = startOffset
+  for (let t = 0; t < beats; t++) {
+    m += field[p] ?? 0
+    if (singleSpeed) { if (m <= -mass) { v = -1; m = 0 } else if (m >= mass) { v = 1; m = 0 } p += v }
+    else { if (m <= -mass) { p -= 1; m = 0 } else if (m >= mass) { p += 1; m = 0 } }
+    const exc = p - center
+    if (exc > maxExc) maxExc = exc
+    if (p <= center + 2 || p >= length - 2) return { maxExcursion: maxExc, escaped: p >= length - 2 }
+  }
+  return { maxExcursion: maxExc, escaped: false }
+}
