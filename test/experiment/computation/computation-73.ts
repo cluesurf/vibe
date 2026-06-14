@@ -1,3 +1,8 @@
+// COMPARATIVE (cross-geometry). This is the {7,3} heptagrid (Margenstern's 2D hyperbolic tiling), a reference point,
+// NOT the canonical substrate. The committed model is {3,4,3,4}, whose universality lives in
+// `computation/turing-3434` and `computation/reversible-universality-3434`. This {7,3} result shows the railway
+// prerequisites also hold on Margenstern's classic geometry, useful as a cross-geometry comparison.
+//
 // P204: computation on {7,3}, the heptagrid's STANDOUT. Margenstern and Morita PROVED the {7,3} heptagrid
 // hosts universal computation (the railway / circuit model), so {7,3} is the COMPUTATION substrate. This
 // checks the two structural properties the proof relies on, (a) a tree-like (Fibonacci) addressing for
@@ -37,7 +42,7 @@ export function computation73(): { fibonacciGrowth: boolean; junctionCapable: bo
 // the heptagrid, and paper is false.
 export default experiment({
   id: 'computation/computation-73',
-  title: 'the {7,3} heptagrid carries the structural prerequisites of the proven universal railway model',
+  title: 'COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})',
   category: 'computation',
   substrates: 'any',
   depth: 'L1',
