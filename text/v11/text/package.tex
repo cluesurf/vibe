@@ -45,6 +45,9 @@
 
 \graphicspath{{figure/}}
 
+% Keep each bibliography entry whole, never split across a page break.
+\apptocmd{\thebibliography}{\interlinepenalty=10000}{}{}
+
 \widowpenalty=10000
 \clubpenalty=10000
 
@@ -94,6 +97,13 @@
   {0.5em}
   {}
 
+\titleformat{\part}[hang]
+  {\LARGE\bfseries}
+  {\thepart}
+  {0.6em}
+  {}
+\titlespacing*{\part}{0pt}{1.8em}{0.8em}
+
 \onehalfspacing
 
 \theoremstyle{definition}
@@ -129,7 +139,7 @@
 
 \title{
   {\huge \textbf{Vibe Theory}} \\[2mm]
-  \large A Discrete Hyperbolic Substrate for Emergent Physics, Life, and Mind
+  \large A Discrete Hyperbolic Substrate for the Emerging Conscious Universe
 }
 
 \author{Lance Pollard \\ \small lancejpollard@gmail.com}
