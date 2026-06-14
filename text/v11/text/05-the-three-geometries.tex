@@ -1,0 +1,31 @@
+\section{The Three Geometries}
+
+Before fixing the exact shape of the mesh there is a prior question, why a curved space at all, and why the hyperbolic one rather than the flat space we seem to live in. The answer rests on a fact that is older and tighter than it first looks. There are exactly three uniform geometries, no more, and the substrate must be the third of them.
+
+A geometry is uniform when it looks the same at every point and in every direction. Such a space carries one constant curvature everywhere, a single real number measuring how it bends, and a real number has exactly three signs. Positive curvature gives the spherical geometry, where a triangle's angles sum to more than $180^\circ$ and the room around a point eventually shrinks and closes. Zero curvature gives the flat geometry, the tabletop, where angles sum to exactly $180^\circ$ and room grows steadily with radius. Negative curvature gives the hyperbolic geometry, the saddle, where angles fall short of $180^\circ$ and room opens exponentially in every direction. One sign, one geometry, and no fourth possibility, because a number has no fourth sign.
+
+\begin{figure}[ht]
+\centering
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-spherical.png}\\
+spherical, positive
+\end{minipage}\hfill
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-euclidean.png}\\
+flat, zero
+\end{minipage}\hfill
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-hyperbolic.png}\\
+hyperbolic, negative
+\end{minipage}
+\caption{The three curvatures read from a triangle. On the sphere the sides bow out and the angles exceed $180^\circ$. In the plane the sides are straight and the angles sum to exactly $180^\circ$. In the hyperbolic plane the sides cave in and the angles fall short.}
+\label{fig:curvatures}
+\end{figure}
+
+\begin{theorem}[Three signs, three geometries]
+A simply connected space of constant curvature is spherical, flat, or hyperbolic according to whether its curvature is positive, zero, or negative. This is the Killing-Hopf classification, and it leaves no intermediate type, in any dimension.
+\end{theorem}
+
+It is tempting to imagine some geometry sitting halfway between flat and hyperbolic, and there is none. The magnitude of curvature is a continuous scale, $-1$ or $-0.01$ or $-1000$, but magnitude is only a size, not a new kind. A small sphere and a large sphere are both spherical, just zoomed differently, and a barely-curved hyperbolic space is still fully hyperbolic, merely with a very large radius. Near any point it looks almost flat, and keeps that flat appearance until you stand back far enough for the exponential room to reappear. Flat space is the knife-edge between the two curved worlds, which is one reason our nearly-flat universe looks so finely balanced. Near-flat is not a fourth option. It is a curved option seen up close.
+
+Each geometry is now ruled in or out by what the substrate has to do. The spherical case is out at once, because it is finite and closes back on itself, and a space that runs out of room cannot grow forever. The flat case is subtler but also out. It is infinite, but its room grows only polynomially, like $r^3$ in three dimensions, far too slowly for the branching, exponential growth the model needs, and worse, a flat regular lattice carries preferred directions along its axes, which would print a grain onto space that the universe does not show. Only the hyperbolic geometry grows without bound, opens exponentially so there is always room to branch, and does so with no preferred direction, the same even openness in which the symmetries of special relativity sit naturally rather than being imposed. The substrate must be hyperbolic, and the rest of this part fixes which hyperbolic crystal it is.

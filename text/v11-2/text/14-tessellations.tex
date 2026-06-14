@@ -1,0 +1,95 @@
+\section{Tessellations}
+
+Fill a space with copies of one regular cell and you have a tessellation, or honeycomb, named by a Schläfli symbol with one entry per dimension. The symbol $\{4,3,4\}$ is the cubic honeycomb, ordinary three-dimensional space cut into cubes. The base is $\{3,4,3,4\}$, a honeycomb of four-dimensional hyperbolic space whose docks are 24-cells, with four of them meeting around every shared face.
+
+The regular honeycombs of four-dimensional hyperbolic space are few. Some are compact, built on the golden-ratio polytopes, with everything closed and finite. Others are paracompact, with docks or corners pushed out to the boundary at infinity. The base is one of the paracompact ones, and its special feature is exactly its boundary.
+
+A word on what that boundary is, because the architecture turns on it. The corners of a honeycomb can sit in three kinds of place. A compact corner is an ordinary point inside the curved space, with finitely many cells meeting there. An ideal corner sits on the boundary at infinity, infinitely far away in the true hyperbolic distance even though the conformal drawing pins it to a finite rim, and cells crowd toward it without end. A honeycomb whose corners are ideal is the kind that grows a flat cusp, because the slice taken near an ideal corner is precisely the horosphere whose geometry is Euclidean. The base is of this kind, its corners ideal, which is exactly why it has a flat three-dimensional boundary at all.
+
+This raises a fair worry and answers it. If infinitely many cells crowd toward an ideal corner, does a small region not then hold infinite structure, breaking the discreteness the whole theory rests on? It does not, because the crowding is a fact about the picture, not the dynamics. The law runs on the true distances, where an ideal corner is infinitely far, so any region of finite reach holds finitely many cells. Every dock has the same finite count of neighbors, twenty-four, with no dock ever gaining more. And the mesh is finite at every beat in any case, never the completed infinite object. The one place the crowding is real is the boundary itself, the horizon, and that is exactly where the theory wants an infinity, because the boundary is the holographic screen. The infinity is put where physics already expects one, and nowhere else.
+
+\begin{definition}[Bulk]
+The four-dimensional hyperbolic interior of the mesh, where the tones live and move.
+\end{definition}
+
+\begin{definition}[Cusp]
+The flat three-dimensional boundary the bulk grows toward, the cubic honeycomb $\{4,3,4\}$, which is ordinary space.
+\end{definition}
+
+The interior of the honeycomb is the bulk, four-dimensional, tree-like, and vast. Its boundary is the cusp, and here the geometry does something remarkable. The shape of that boundary, the vertex figure of $\{3,4,3,4\}$, is precisely $\{4,3,4\}$, the cubic honeycomb. The flat three-dimensional space of ordinary physics is the boundary of the curved four-dimensional crystal. The bulk grows in the fourth direction, and that growth is time, so space is the boundary now while the bulk and its beats are the depth and the history. The flatness is not imposed, it is forced. The boundary slice is a horosphere, the surface a limiting rotation sweeps out, and a horosphere is intrinsically flat even while it sits inside curved space, so the one slice the curvature hands us is Euclidean.
+
+This bulk-and-cusp picture is not a private construction but a corner of an established field. A theorem of hyperbolic geometry says the cusp cross-section of any finite-volume hyperbolic space, one dimension lower, is intrinsically flat, a Euclidean slice of the curved whole, which is exactly why a flat three-dimensional world can sit inside a curved four-dimensional bulk. And the specific object is one that has been catalogued. The census of smallest cusped four-dimensional hyperbolic manifolds is built, all eleven hundred and seventy-one of them, by gluing the faces of the ideal 24-cell, the very figure the dock is. The central geometric claim of the theory sits inside known geometric topology, not beside it.
+
+Why this honeycomb, of all the ones that close up? Because four demands, taken together, pick it out and leave nothing else standing. It must be crystallographic, with a finite symmetry group and integer coordinates, so the base can be stored and stepped exactly. It must be hyperbolic, for the branching room that carries holography. Its dock must carry spinors, so that matter can have half-integer spin. And its cusp must be flat and three-dimensional, so the world we live in is ordinary space. Table~\ref{tab:selection} runs the candidates against these four.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+honeycomb & crystallographic & hyperbolic & spinors in dock & flat 3D cusp \\
+\midrule
+$\{4,3,4\}$ cubic & yes & no & no & --- \\
+$\{5,3,4\}$ & yes & yes & no & no \\
+compact golden & no & yes & yes & no \\
+$\{3,4,3,4\}$ & yes & yes & yes & yes \\
+\bottomrule
+\end{tabular}
+\caption{The selection. Only $\{3,4,3,4\}$ passes all four demands.}
+\label{tab:selection}
+\end{table}
+
+\begin{result}[Selection of $\{3,4,3,4\}$]
+Among the regular honeycombs, $\{3,4,3,4\}$ is the unique one that is at once crystallographic, hyperbolic, spinor-carrying in its dock, and flat and three-dimensional in its cusp. The discriminator against $\{5,3,4\}$ is the dock, whose twelve directions carry no spinor while the 24-cell's twenty-four do. This is derived, not assumed. \cite{pollard2026vibetest}
+\end{result}
+
+The choice is best seen by walking the whole ladder of regular tilings from the flat plane upward, Table~\ref{tab:ladder}, where the one column that decides everything is the growth of a ball, polynomial on the flat and spherical rows and exponential on every hyperbolic one.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+substrate & curvature & dim & ball growth & the familiar picture \\
+\midrule
+$\{4,4\}$ & flat & 2 & $r^2$ & a chessboard, Conway's Life \\
+$\{6,3\}$ & flat & 2 & $r^2$ & a honeycomb, the FHP fluid \\
+soccerball & spherical & 2 & closes off & a buckyball \\
+$\{7,3\}$ & hyperbolic & 2 & $2.62^r$ & a Poincar\'e-disk tiling \\
+$\{5,3,4\}$ & hyperbolic & 3 & $7.87^r$ & dodecahedra filling curved 3D \\
+$\{3,4,3,4\}$ & hyperbolic & 4 & $18.28^r$ & 24-cells, with a flat 3D cusp \\
+$\{3,4,3,3,4\}$ & hyperbolic & 5 & exponential & the 5D cousin, spin and curvature \\
+\bottomrule
+\end{tabular}
+\caption{The ladder of substrates. Ball growth is polynomial on the flat and spherical rows and exponential on every hyperbolic one, and that single difference decides the rest.}
+\label{tab:ladder}
+\end{table}
+
+Flat space can compute, the chessboard of Conway's Life is universal and the model reproduces it on the cusp, but it gives nothing more. Its ball grows only as its surface, so there is no branching room, no boundary that holds the bulk, and no short diameter, and a square lattice has preferred axes, so it fails the test of relativity outright, its anisotropy above the bound the gamma-ray bursts already exclude. The lesson is old, the square lattice gas flows with a grain while the hexagonal one recovers smooth even flow, geometry deciding isotropy already in two dimensions. Spherical space is worse still. A soccerball closes, a growing ball runs out of room and wraps back on itself, and a closed reversible world only recurs, by the same theorem that forbade a lasting self, so nothing can ever settle in it. Only hyperbolic space, growing exponentially, buys the whole list at once, the branching memory, the boundary that holds the bulk, the diameter of a few hops, and the Lorentz safety that every hyperbolic substrate keeps and every flat one breaks.
+
+The argument is not abstract. We built the law on each of these honeycombs and ran it. On the three-dimensional $\{5,3,4\}$, with its twelve directions, the whole framework ports cleanly, the conservation, the reversibility, the light cone, the holography, the cosmology. What it cannot do is matter. Its twelve directions carry no spinor, so it has no fermions, they are not a root system, so it has no gauge group, and its boundary is two-dimensional, so its gravity comes out logarithmic instead of falling as one over distance. The two-dimensional $\{7,3\}$ is thinner still, with a one-dimensional boundary, though it serves as the cleanest stage on which to measure holography. The committed honeycomb is the one that quickly and plainly had all three of the things the others lacked at once, a crystallographic lattice, spinors in its dock, and a flat three-dimensional cusp. That comparison is the whole of the selection argument. The framework is general, and the matter physics is specific to $\{3,4,3,4\}$. Table~\ref{tab:compare} sets the two head to head, and almost every line is a reason the base wins.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+feature & $\{5,3,4\}$, the cousin & $\{3,4,3,4\}$, the base \\
+\midrule
+space & hyperbolic $3$D & hyperbolic $4$D \\
+dock & dodecahedron, $12$ faces & 24-cell, $24$ faces \\
+boundary at infinity & a $2$-sphere & a $3$-sphere \\
+flat cusp & a $2$D tiling & the $3$D cubic honeycomb $\{4,3,4\}$ \\
+directions & $12$, no spinor & $24$, the $D_4$ roots, spinors \\
+symmetry & a $3$D reflection group & $F_4$, the 24-cell's own \\
+self-duality & none & self-dual, tied to $F_4$ \\
+\bottomrule
+\end{tabular}
+\caption{The committed substrate against its three-dimensional cousin. The cousin ports the whole framework but carries no matter, its dock holding no spinor and its cusp one dimension short of ours.}
+\label{tab:compare}
+\end{table}
+
+The substrate is not tuned to make observers possible. It is forced by mathematics, the one solution to four structural demands that have nothing to do with us. Where fine-tuning asks why the constants came out friendly to life, the selection argument answers a different and cleaner question, why this structure and not another, and answers it without ever mentioning observers.
+
+One last fact keeps the uniqueness from feeling fragile. Of the forty-five regular hyperbolic honeycombs catalogued, forty-two can be built and stepped, and a fermion propagates on every single one of them. The structure that gives clean half-integer spin, the native directions of the 24-cell, appears on only seven, the honeycombs whose docks are 24-cells, namely $\{3,4,3,4\}$, $\{4,3,4,3\}$, and five more in five dimensions. So matter is generic while clean spin is rare, and the base sits not on a knife edge but on the small shelf where spin is possible at all. One of the seven, the five-dimensional $\{3,4,3,3,4\}$, carries both the 24-cell spin structure and a full curvature that $\{3,4,3,4\}$ trades away, a richer cousin held in reserve.
+
+\begin{result}[Matter is generic, spin is selective]
+Across the forty-two buildable honeycombs a fermion propagates on all of them, while the native spinor structure of the 24-cell appears on only seven. The existence of matter is robust, the existence of clean spin is selective. \cite{pollard2026vibetest}
+\end{result}

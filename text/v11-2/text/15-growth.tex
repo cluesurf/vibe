@@ -1,0 +1,31 @@
+\section{Growth}
+
+A hyperbolic honeycomb grows explosively, and the rate is a clean number fixed by the symbol. Count the docks at each distance from a starting dock, layer by layer, the first ring of neighbors, then the ring around that. In flat space these counts grow like a power of the distance, a sphere's surface swelling as the square of its radius. In hyperbolic space they grow like an exponential, and the exact counts obey a fixed linear recurrence. Table~\ref{tab:growth} sets three substrates side by side.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}crrr@{}}
+\toprule
+layer & $\{7,3\}$ & $\{5,3,4\}$ & $\{3,4,3,4\}$ \\
+\midrule
+0 & $1$ & $1$ & $1$ \\
+1 & $7$ & $12$ & $24$ \\
+2 & $21$ & $102$ & $456$ \\
+3 & $56$ & $812$ & $8{,}376$ \\
+4 & $147$ & $6{,}402$ & ${\approx}\,153{,}000$ \\
+5 & $385$ & $50{,}412$ & ${\approx}\,2{,}800{,}000$ \\
+6 & $1{,}008$ & $396{,}902$ & ${\approx}\,51{,}000{,}000$ \\
+7 & $2{,}639$ & $3{,}124{,}812$ & ${\approx}\,940{,}000{,}000$ \\
+\midrule
+rate & $2.62$ & $7.87$ & $18.28$ \\
+\bottomrule
+\end{tabular}
+\caption{Docks per layer out from a starting dock. The early counts are exact and verified to two million docks. The $\{3,4,3,4\}$ entries past layer three follow its measured rate $18.28$, whose exact recurrence is still open.}
+\label{tab:growth}
+\end{table}
+
+The recurrences are simple. For $\{7,3\}$ each layer is three times the last minus the one before, a Fibonacci-like rule with ratio about $2.62$. For $\{5,3,4\}$ the rule is third-order, with ratio near $7.87$. For the committed substrate the ratio is about $18.28$, so a single dock has twenty-four neighbors, those reach four hundred and fifty-six, and a few layers out the count runs past a billion. The golden ratio and its cousins are not analogies here, they are the literal growth rates of the lower faces. \cite{pollard2026vibetest}
+
+These same numbers give every dock a short name and a fast route, worked out in the next part, where a position in the crystal becomes a string of digits and a step to a neighbor becomes arithmetic on that string.
+
+The growth is the engine of everything the boundary does. Because the interior swells exponentially while a region's surface grows only as its area, almost all of any region lies near its edge, and information about the interior is crowded outward onto the boundary with nowhere else to go. That crowding is holography, and it is why a self, a bounded pattern in the mesh, can hold far more inside than its size in flat space would ever allow.

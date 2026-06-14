@@ -1,0 +1,168 @@
+\section{The Formal Mathematics}
+
+This appendix collects the exact statements the body relies on, and states each one precisely. Conservation of total tone, the reversibility of the beat as a bijection, the F4 and exceptional Jordan structure, the double cover, and the $D_4$ root system are gathered here in one place. Each is given exactly, with no real number anywhere in the base. The substance of the theory is integer and group-theoretic at its foundation. Continuity, real numbers, and the smooth equations of physics appear only later, as emergent coarse-grained descriptions.
+
+A short reminder of the vocabulary, so the statements below read cleanly. The universe is a \emph{vibe mesh}, a \emph{flow} of eight atoms. Three of them name place. The \emph{mesh} is the whole $\{3,4,3,4\}$ tessellation. A \emph{dock} is one cell of it, a here-now. A \emph{site} is one of the $24$ directed slots out of a dock. One atom names the substance, the \emph{tone}, a ternary value in $\{-1,0,+1\}$ read as pain, peace, pleasure. The \emph{lean} is the value order $-1 < 0 < +1$ that gives charge and orients the create move. The \emph{knit} is the law of the state, collide then stream. The \emph{wake} is the growing edge of the mesh. The \emph{beat} is the discrete step of time. Everything below is a precise fact about these atoms.
+
+\subsection{The sites, the $D_4$ root system}
+
+Each dock has exactly $24$ sites, the directed slots out of the dock. There is no rest slot and no twenty-fifth direction. The directions are the $D_4$ roots, every coordinate permutation of $(\pm 1, \pm 1, 0, 0)$ in four dimensions, grouped by which two axes are nonzero.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+index & axes & the four directions \\
+\midrule
+$0$--$3$ & $x, y$ & $(+,+,0,0)$ \quad $(+,-,0,0)$ \quad $(-,+,0,0)$ \quad $(-,-,0,0)$ \\
+$4$--$7$ & $x, z$ & $(+,0,+,0)$ \quad $(+,0,-,0)$ \quad $(-,0,+,0)$ \quad $(-,0,-,0)$ \\
+$8$--$11$ & $x, w$ & $(+,0,0,+)$ \quad $(+,0,0,-)$ \quad $(-,0,0,+)$ \quad $(-,0,0,-)$ \\
+$12$--$15$ & $y, z$ & $(0,+,+,0)$ \quad $(0,+,-,0)$ \quad $(0,-,+,0)$ \quad $(0,-,-,0)$ \\
+$16$--$19$ & $y, w$ & $(0,+,0,+)$ \quad $(0,+,0,-)$ \quad $(0,-,0,+)$ \quad $(0,-,0,-)$ \\
+$20$--$23$ & $z, w$ & $(0,0,+,+)$ \quad $(0,0,+,-)$ \quad $(0,0,-,+)$ \quad $(0,0,-,-)$ \\
+\bottomrule
+\end{tabular}
+\caption{The $24$ sites of a dock, indexed and grouped by their two nonzero axes. These are the $D_4$ roots.}
+\label{tab:sites-d4}
+\end{table}
+
+The \emph{opposite} of a site is its negation, the direction whose root is the negative of the original. The $24$ sites form $12$ opposite-pairs, called \emph{lines}. Every direction has the same length, norm squared two, so the sites are \emph{single-speed}. A tone in a site advances one dock per beat, and there is no faster or slower channel.
+
+\begin{definition}[Site, line, single-speed]
+A \emph{site} is one of the $24$ $D_4$ roots, a directed slot out of a dock. A \emph{line} is an unordered pair of a site and its opposite, the two head-on slots through the dock. There are $12$ lines. All $24$ sites share one length, so the substrate is \emph{single-speed}.
+\end{definition}
+
+\begin{result}[The geometry of the sites]
+The $24$ sites are the vertices of the $24$-cell. They equal the Hurwitz unit quaternions, a group of order $24$, the binary tetrahedral group. This single object carries the entire local symmetry of a dock.
+\end{result}
+
+\subsection{The state and the beat}
+
+The whole world is one buffer of tones. The tone of dock $c$ in site $d$ is a value in $\{-1, 0, +1\}$. A line is a site $d$ and its opposite $o$, and its two slots are the two tones moving head-on through the dock. One \emph{beat} is collide then stream, the two phases of the knit.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+step & operation \\
+\midrule
+$1$ collide & apply the collision to every dock's $24$ slots, in place \\
+$2$ stream & each slot moves one dock along its own site, so the tone in \\
+ & site $d$ arrives from the neighbour in the opposite site \\
+\bottomrule
+\end{tabular}
+\caption{One beat of the knit, the collide-then-stream law.}
+\label{tab:beat}
+\end{table}
+
+The collide phase is local to each dock and acts on each of its $12$ lines independently. The stream phase is global but is a pure relabeling, every tone shifts by one dock along its own site. The two phases compose into a single beat, and the mesh advances by exactly one tick of time.
+
+\subsection{Conservation of total tone}
+
+The lean assigns a charge to every tone, the signed value itself. The charge of a line is the sum of its two tones. Summed over all lines and all docks, this is the total charge of the mesh.
+
+\begin{theorem}[Charge conservation]
+The collision conserves the per-line tone sum. For every line, $\mathrm{left} + \mathrm{right}$ after the collision equals $\mathrm{left} + \mathrm{right}$ before it. Summed over all lines and all docks, the total tone is invariant under one beat. The charge is conserved exactly, in integer arithmetic.
+\end{theorem}
+
+The collision acts on each line independently, so it suffices to check the per-line sum. Streaming is a pure relabeling, it moves tones between docks without altering any line sum at the moment of the collision bookkeeping. The proof is then by inspection of the pair table in the next subsection. Every row of that table preserves $\mathrm{left} + \mathrm{right}$, so charge is conserved on each line, hence on the whole mesh. Because the tones are integers in $\{-1,0,+1\}$, this is an exact equality and not a tolerance.
+
+\subsection{Reversibility of the beat}
+
+\begin{theorem}[The beat is a bijection]
+One beat is a bijection of the global state. The collision is a permutation of each dock's slots, and streaming is a pure relabeling, so their composition is invertible.
+\end{theorem}
+
+The inverse beat is the inverse stream followed by the inverse collision. The inverse stream takes the tone in site $d$ from the neighbour in site $d$, undoing the forward shift. The inverse collision is the pair table read with its one three-cycle reversed. Running forward then backward recovers the start state exactly. Because the state is integer, this is asserted as equality, not as a numerical tolerance. The bulk law has no built-in direction of time. The arrow that the body of the paper discusses is emergent, born of the wake and the create move acting along the lean, not of any irreversibility in the knit itself.
+
+\subsection{The committed collision, the pair table}
+
+The base collision acts on each of the $12$ lines independently. A line has two tones, so nine states. Writing a line as $(\mathrm{left}, \mathrm{right})$, the full forward table is the following.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+in $(\mathrm{left}, \mathrm{right})$ & out $(\mathrm{left}, \mathrm{right})$ & move-type \\
+\midrule
+$(-1, -1)$ & $(-1, -1)$ & inert \\
+$(+1, +1)$ & $(+1, +1)$ & inert \\
+$(-1, 0)$ & $(0, -1)$ & hop \\
+$(0, -1)$ & $(-1, 0)$ & hop \\
+$(+1, 0)$ & $(0, +1)$ & hop \\
+$(0, +1)$ & $(+1, 0)$ & hop \\
+$(0, 0)$ & $(+1, -1)$ & create, along the lean \\
+$(+1, -1)$ & $(-1, +1)$ & flip \\
+$(-1, +1)$ & $(0, 0)$ & annihilate \\
+\bottomrule
+\end{tabular}
+\caption{The committed collision, the pair table, on one line.}
+\label{tab:pair-table}
+\end{table}
+
+The structure is three kinds of move. There are two inert fixed points, the like-charged states that coexist unchanged. There are two hop swaps that transport a lone charge across the line. And there is one three-cycle, $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$, the create move along the lean, which lifts a charged pair out of peace, flips it, and folds it back. The table is a permutation of the nine line-states, so the collision is reversible. Every row preserves $\mathrm{left} + \mathrm{right}$, so it conserves charge.
+
+\begin{proposition}[The inverse pair table]
+The inverse collision is the same table with the single three-cycle reversed. The two inert rows and the four hop rows are self-inverse. Only the create three-cycle changes direction, $(0,0) \to (-1,+1) \to (+1,-1) \to (0,0)$.
+\end{proposition}
+
+The pair table conserves charge but not momentum. A head-on collision reflects. This reflection is exactly why the knit pins a bound pattern in place. It seals the radiation channel that would otherwise let a localized structure leak away, which is the mechanism the binding sections of the paper rely on.
+
+\subsection{The double cover}
+
+\begin{theorem}[A full turn acts as minus one]
+A full turn acts on a spinor as multiplication by $-1$. The $24$ sites form the binary tetrahedral group, the double cover of the rotational tetrahedral group.
+\end{theorem}
+
+The sites equal the Hurwitz unit quaternions, and the unit quaternions are the double cover of the three-dimensional rotation group. A rotation by a full turn in the base group corresponds to traversing the quaternion path that returns with a sign of $-1$ on a spinor. This is verified directly in the algebra layer, where a full rotation gives $-1$ and only a double turn returns to $+1$. It is the reason a self can carry a fermionic identity, a winding that cannot be undone without two full turns. The half-integer character of matter is therefore present in the substrate's own symmetry, not added by hand.
+
+\subsection{The F4 and exceptional Jordan structure}
+
+\begin{theorem}[F4 and the exceptional Jordan algebra]
+The symmetry group of the $24$ sites is F4, a finite group of order $1152$ in the base, and the $24$ sites are the long roots of F4. The group F4 is the automorphism group of the exceptional Jordan algebra, the $27$-dimensional Albert algebra of $3 \times 3$ Hermitian octonion matrices.
+\end{theorem}
+
+The exceptional Jordan algebra has a rank-three frame, three primitive orthogonal idempotents summing to the identity. This three is forced, not chosen. The Jordan identity holds for Hermitian octonion matrices at size three and below, and it fails at size four, because the octonions are non-associative. The size-four failure is the control. So the substrate's own symmetry forces an exactly three-fold exceptional structure, which is the algebraic seed of three generations in the body of the paper.
+
+\begin{result}[The family symmetry and its honest limit]
+The symmetric group on three elements, permuting the three frame slots, acts by genuine Jordan automorphisms, with a cyclic order-three triality among them. Because this symmetry is exact, the three slots are degenerate. Every quantity the algebra supplies is equal across them. The substrate gives a family symmetry but no family breaking. Splitting the three slots into three distinct masses stays open.
+\end{result}
+
+\subsection{Triality and the sector split}
+
+\begin{proposition}[The triality decomposition]
+Under triality the $24$ sites split as a vector plus two spinors, $8v + 8s + 8c$.
+\end{proposition}
+
+The $8v$ vector sector is the photon, charge-neutral. The $8s$ and $8c$ spinor sectors are the two fermion chiralities, charged. Every rotation preserves each sector while triality relates the three. The Dirac mass term is a coupling between $8s$ and $8c$, and it vanishes when the two chiralities decouple, leaving a massless Weyl fermion. The matter content of the body is read off this split, with the spin and the charge of each piece fixed by how the sites transform.
+
+\subsection{What stays exact, and what stays open}
+
+The honest accounting separates what the base settles exactly from what remains to be determined. The first group is integer or classical group theory, with no free real parameter. The second group is where the knit fixes the form of a quantity but not its numerical value.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+quantity & status \\
+\midrule
+total tone (charge) & conserved exactly, integer \\
+the beat & a bijection, exactly reversible, integer \\
+the $24$ sites as $D_4$ roots, $24$-cell, Hurwitz quaternions & exact, classical \\
+the double cover, a full turn gives $-1$ & exact, verified in the algebra layer \\
+F4 of order $1152$, long roots of F4 & exact, classical \\
+F4 as automorphisms of the exceptional Jordan algebra & exact, classical \\
+the forced rank-three frame, three from size-four failure & exact, the control is the size-four failure \\
+the three-slot splitting into distinct masses & open \\
+the gauge coupling value, the Yukawa mass values & open, the knit fixes the form not the value \\
+\bottomrule
+\end{tabular}
+\caption{The exact statements of the base versus the quantities that stay open.}
+\label{tab:exact-open}
+\end{table}
+
+\begin{principle}
+The base carries no real number. Charge, the beat, and the algebra are all exact integer or classical group statements. Continuity is only emergent. The smooth equations of physics, the real-valued couplings, and the masses appear in the coarse-grained description, never in the eight atoms themselves.
+\end{principle}
+
+The full knit specification and the collision tables in their working form are owned by the base anatomy appendix. The dynamics these theorems formalize is presented in the section on the knit. The triality split and the double cover feed the section on spin and fermions, and the F4 and exceptional Jordan structure feeds the sections on the standard model and on generations.

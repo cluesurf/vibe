@@ -1,0 +1,51 @@
+\section{Geometries}
+
+A space has curvature, and curvature comes in three signs. Positive curvature closes a space up, the way a sphere closes. Zero curvature leaves it flat, like a tabletop running on forever. Negative curvature opens it out, so the space spreads faster than flat space can, and we call it hyperbolic. These three exhaust the uniform possibilities, and there is no fourth.
+
+\begin{theorem}[Three geometries]
+A space of constant curvature is spherical, Euclidean, or hyperbolic, according as its curvature is positive, zero, or negative. There is no other kind.
+\end{theorem}
+
+\begin{figure}[ht]
+\centering
+\begin{minipage}{0.21\textwidth}
+\centering
+\includegraphics[width=\linewidth]{curvature-spherical}
+\\[2pt]{\small positive, closed}
+\end{minipage}\hspace{0.03\textwidth}
+\begin{minipage}{0.21\textwidth}
+\centering
+\includegraphics[width=\linewidth]{curvature-euclidean}
+\\[2pt]{\small zero, flat}
+\end{minipage}\hspace{0.03\textwidth}
+\begin{minipage}{0.21\textwidth}
+\centering
+\includegraphics[width=\linewidth]{curvature-hyperbolic}
+\\[2pt]{\small negative, open}
+\end{minipage}
+\caption{The three curvatures. The base is hyperbolic, the open case on the right, where space spreads faster than it does when flat.}
+\label{fig:curvatures}
+\end{figure}
+
+A regular tiling is named by a Schläfli symbol. The symbol $\{p, q\}$ means $q$ regular $p$-gons meet at every corner. Whether such a tiling closes depends only on the angles. At each corner, $q$ copies of a $p$-gon's interior angle have to fit around the point. If they add to less than a full turn, the surface curls up and closes into a sphere. If they add to exactly a full turn, it lies flat. If they overflow a full turn, it buckles, and the only way to seat the excess is to let the surface open out into the hyperbolic plane. The whole test is the sign of one quantity, $(p-2)(q-2) - 4$.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llp{0.44\textwidth}@{}}
+\toprule
+$(p-2)(q-2)$ & geometry & the regular tilings \\
+\midrule
+$< 4$ & spherical & \texttt{\{3,3\}}, \texttt{\{3,4\}}, \texttt{\{4,3\}}, \texttt{\{3,5\}}, \texttt{\{5,3\}} \newline the five Platonic solids \\
+\addlinespace
+$= 4$ & Euclidean & \texttt{\{3,6\}}, \texttt{\{4,4\}}, \texttt{\{6,3\}} \newline the three flat tilings \\
+\addlinespace
+$> 4$ & hyperbolic & \texttt{\{3,7\}, \{7,3\}, \{4,5\}, \{5,4\}}, $\dots$ \newline infinitely many \\
+\bottomrule
+\end{tabular}
+\caption{Which regular tilings close, by the angle-defect test. Most symbols are hyperbolic.}
+\label{tab:tilings}
+\end{table}
+
+The table already says something the rest of the paper relies on. Flat space is rare. Of all the regular tilings, only three are flat, a handful are spherical, and the great majority are hyperbolic. A space picked for richness rather than familiarity is hyperbolic by default.
+
+The base is hyperbolic, and the reason is room. In flat space a region grows only as fast as its surface. In hyperbolic space the interior swells, tree-like, with far more room a few steps out than any flat lattice allows. The standard picture of such a space is the Poincar\'e disk, an infinite world drawn inside a finite circle, its shapes shrinking toward the rim so that endlessly many fit, the way an Escher print tiles a ring. The geometric fact behind this is sharp. The number of docks within reach $n$ grows not as a power of $n$ but as an exponential in $n$. That exponential room is what later carries holography and lets a bounded region hold an unbounded interior. Which hyperbolic honeycomb the base actually uses is settled four sections on.
