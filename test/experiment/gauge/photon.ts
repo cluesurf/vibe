@@ -51,7 +51,7 @@ export default defineExperiment({
     'the free U(1) gauge field is massless and gauge-invariant with about a third gauge zero modes',
   category: 'gauge',
   substrates: 'any',
-  depth: 'L0',
+  depth: 'L1',
   paper: false,
   run() {
     const a = photonStudy({ side: 3 })
@@ -66,7 +66,7 @@ export default defineExperiment({
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the assumed lattice Maxwell operator has about a third gauge zero modes, a gapless physical spectrum, and a fixed gap when a mass term is added',
+        'the lattice Maxwell curl-curl operator has about a third gauge zero modes (gauge invariance), a gapless physical spectrum that closes as the lattice grows (a massless photon), and a fixed gap when a mass term is added (the massive-vector control)',
       metrics: {
         gaugeFraction,
         minPhysicalOmega2Small: a.minPhysicalOmega2,
@@ -74,7 +74,7 @@ export default defineExperiment({
         massiveMinOmega2: a.massiveMinOmega2,
       },
       notes:
-        'an analytic spectrum of the assumed lattice Maxwell curl-curl operator, not a derivation of the photon from the substrate',
+        'L1, known physics. This reads the spectrum of the standard lattice Maxwell curl-curl operator and confirms the free U(1) field is massless and gauge-invariant, with the massive vector as the discriminating control that could have failed. The operator is the textbook construction, so this reproduces free lattice electromagnetism, it does not DERIVE the photon from the substrate rule. The substrate-emergent photon (the 8v sector under the actual rule) is gauge/ph-photon-3434.',
     })
   },
 })

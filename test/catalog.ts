@@ -1,6 +1,13 @@
 // Generate the experiment catalog from the registry, so the catalog file and the
 // code are the same source of truth. Run with `npx tsx test/catalog.ts`. Writes
 // test/catalog.csv, one row per registered experiment.
+//
+// The `depth` column grades what each experiment establishes (sorted strongest first):
+//   L3 = emergent and novel (one rule, a measured consequence, with a control). The target.
+//   L2 = known physics reproduced on the substrate.
+//   L1 = known math correctly confirmed.
+//   L0 = circular, the answer put in by hand, kept only as an honest consistency note.
+// The full rubric is in note/experimental-methodology.md and the package readme.
 
 import { writeFileSync } from 'node:fs'
 import { allExperiments } from '@/test/scaffold/suite'

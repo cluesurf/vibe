@@ -19,7 +19,7 @@ export default defineExperiment({
   title: 'the 24 coin directions are the D4 roots with triality, the spin algebra',
   category: 'foundations',
   substrates: ['3434'],
-  depth: 'L0',
+  depth: 'L1',
   paper: true,
   run() {
     const d4 = rootsD4()
