@@ -1,0 +1,300 @@
+\section{The Knit}
+
+The whole law of the universe fits on one line. Collide the tones in each dock, then stream each tone one dock along its own site. That two-step law is the \emph{knit}, and the discrete tick it runs on is the \emph{beat}. Together they are the directional lattice gas that this paper takes for its base.
+
+The knit is the third of the eight atoms to act, after the mesh has laid out where things are and the tone has fixed what each site holds. It is the only law that changes the state, the values carried by the sites, from one beat to the next. A second law, the wake, changes the space by growing new docks at the frontier, and that is taken up later. This section is the knit alone, every collision table and the exact streaming map, with nothing left to interpretation.
+
+Two terms recur, so a plain statement of each helps. A \emph{dock} is one cell of the mesh, a here-and-now with $24$ directional \emph{sites} arranged in $12$ opposite-pairs called \emph{lines}. A \emph{tone} is the value a site carries, one of $\{-1, 0, +1\}$, read as pain, peace, and pleasure. The knit reads the tones in a dock, rewrites them in place, then moves each one to a neighbour. The base is \textbf{discrete} and \textbf{deterministic}. There are no real numbers and no randomness anywhere in the law.
+
+\subsection{What a collision must be}
+
+The collide half of the knit is a local, in-place map on one dock's sites. It reads and writes that one dock only, and it must satisfy four requirements at once.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+requirement & meaning \\
+\midrule
+local & reads and writes only the one dock's sites \\
+reversible & a permutation of the dock's states, invertible \\
+charge-conserving & the per-line tone sum is unchanged \\
+acts per line & a $9$-state table runs on each opposite-pair independently \\
+\bottomrule
+\end{tabular}
+\caption{The four requirements on a collision.}
+\label{tab:collision-requirements}
+\end{table}
+
+A \emph{line} is a site $d$ paired with its opposite $o$, the site whose direction is the negation of $d$'s. The two sites of a line carry the two tones moving head-on through the dock. A line holds two tones, each in $\{-1, 0, +1\}$, so a line has $3 \times 3 = 9$ possible states.
+
+A per-line collision is a \emph{permutation of those nine states}. We write a line as $(\mathrm{left}, \mathrm{right})$, the tone in a site and the tone in its opposite. A dock has $24$ sites, hence $12$ lines, and the committed collision runs the same nine-state table on every one of the $12$ lines, each line treated on its own.
+
+\begin{definition}[A collision]
+A \emph{collision} is a permutation of a dock's directional states that is local to the one dock and preserves every line's tone sum $\mathrm{left} + \mathrm{right}$. The committed collision factors into $12$ independent copies of a single $9$-state line permutation.
+\end{definition}
+
+\subsection{The committed collision, the pair table}
+
+This is the knit's collide half. It is one three-cycle, plus a pair of hops, plus two inert fixed points. The three-cycle is the create-flip-annihilate motion. It runs on every one of the $12$ lines, independently, every beat.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}cllll@{}}
+\toprule
+\# & in $(\mathrm{left}, \mathrm{right})$ & out $(\mathrm{left}, \mathrm{right})$ & move & plain meaning \\
+\midrule
+1 & $(-1, -1)$ & $(-1, -1)$ & inert & like tones coexist, nothing happens \\
+2 & $(+1, +1)$ & $(+1, +1)$ & inert & like tones coexist, nothing happens \\
+3 & $(-1, 0)$ & $(0, -1)$ & hop & the lone $-1$ tone moves across the dock \\
+4 & $(0, -1)$ & $(-1, 0)$ & hop & the lone $-1$ tone moves across the dock \\
+5 & $(+1, 0)$ & $(0, +1)$ & hop & the lone $+1$ tone moves across the dock \\
+6 & $(0, +1)$ & $(+1, 0)$ & hop & the lone $+1$ tone moves across the dock \\
+7 & $(0, 0)$ & $(+1, -1)$ & create & peace leans out a balanced pair \\
+8 & $(+1, -1)$ & $(-1, +1)$ & flip & the balanced pair reverses \\
+9 & $(-1, +1)$ & $(0, 0)$ & annihilate & the reversed pair returns to peace \\
+\bottomrule
+\end{tabular}
+\caption{The committed pair table, the collide half of the knit. Every one of the nine line-states is fixed with no draw.}
+\label{tab:pair-table-forward}
+\end{table}
+
+The structure is exactly three kinds of move. Two \emph{inert fixed points} (rows 1 and 2), where like tones on a line simply sit. Two \emph{hop swaps} (rows 3 through 6), where a lone tone moves across the dock to the opposite site. And one \emph{three-cycle} (rows 7, 8, 9), where peace leans out a balanced pair, the pair flips, and the pair annihilates back to peace, running the cycle $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$.
+
+Every entry of Table~\ref{tab:pair-table-forward} is a distinct line-state on each side, so the table is a permutation of the nine states and therefore reversible. Every row leaves $\mathrm{left} + \mathrm{right}$ unchanged, so it is charge-conserving. These two facts are not added constraints checked after the fact. They are visible in the table itself.
+
+To run time backward the inverse table is used. The hops and the inerts are self-inverse, so only the three-cycle reverses.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+in $(\mathrm{left}, \mathrm{right})$ & out $(\mathrm{left}, \mathrm{right})$ \\
+\midrule
+$(-1, -1)$ & $(-1, -1)$ \\
+$(+1, +1)$ & $(+1, +1)$ \\
+$(-1, 0)$ & $(0, -1)$ \\
+$(0, -1)$ & $(-1, 0)$ \\
+$(+1, 0)$ & $(0, +1)$ \\
+$(0, +1)$ & $(+1, 0)$ \\
+$(0, 0)$ & $(-1, +1)$ \\
+$(+1, -1)$ & $(0, 0)$ \\
+$(-1, +1)$ & $(+1, -1)$ \\
+\bottomrule
+\end{tabular}
+\caption{The inverse pair table. Forward the three-cycle runs $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$, backward it runs $(0,0) \to (-1,+1) \to (+1,-1) \to (0,0)$.}
+\label{tab:pair-table-inverse}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+property & value \\
+\midrule
+reversible & yes \\
+conserves charge & yes \\
+conserves momentum & no, it reflects, which is why it pins and seals radiation \\
+has the arrow & yes, through the create move (the active vacuum) \\
+good for & the arrow, a confined identity \\
+weak for & a self that must radiate, since the pinning seals the radiation channel \\
+\bottomrule
+\end{tabular}
+\caption{The behaviour of the committed pair table.}
+\label{tab:pair-table-behaviour}
+\end{table}
+
+\begin{principle}[The committed knit]
+The committed law is the pair table of Table~\ref{tab:pair-table-forward}, run on all $12$ lines of every dock, followed by streaming. It is reversible, local, and charge-conserving. Nothing in the base is added on top of it.
+\end{principle}
+
+\subsection{What falls out, not what is put in}
+
+The physics carried by the knit is not put in by hand. The knit is collide then stream and nothing more. A series of deep properties \emph{fall out} of that structure on their own. They are consequences, not extra ingredients. The right way to read the knit is for what it gives, not for what it costs, because each piece of the structure yields a piece of physics for free.
+
+\textbf{Charge conservation falls out.} Every row of the pair table preserves $\mathrm{left} + \mathrm{right}$, and streaming only moves tones without changing them. So the knit only rearranges tone. The total tone over the whole mesh is constant. Nothing was added to enforce it.
+
+\textbf{Reversibility falls out.} The pair table is a permutation of the nine line-states, so it has an exact inverse. Streaming is a bijection, so it has an exact inverse too. The whole beat is therefore invertible, and the bulk carries no built-in direction of time. That came for free from making the collision a permutation.
+
+\textbf{Momentum falls out of streaming.} A free tone streams one dock per beat along its own site, forever, never spreading. That ballistic travel \emph{is} momentum. Momentum is not a stored number. It is simply which site a tone sits in.
+
+\textbf{Mass falls out of colliding.} When tones meet in a dock, the collide step scatters them. The more a collision mixes one site into others, the slower and more zig-zag a tone's track. That mixing \emph{is} mass. A tone that never scatters runs dead straight at one dock per beat, the massless limit.
+
+\textbf{The active vacuum falls out of the create move.} The three-cycle runs $(0,0) \to (+1,-1) \to (-1,+1) \to (0,0)$. Peace alone can lean out a balanced pair, which then flips and annihilates back to peace. So a region of pure peace is not dead. It can bring forth a balanced pair and take it back. That cycle is the create move, and it is the seed of the emergent arrow.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+part of the knit & what falls out \\
+\midrule
+stream & momentum, ballistic propagation, free travel \\
+collide, the hop and scatter & interaction, scattering, mass \\
+collide, the create-flip-annihilate cycle & the active vacuum, pair production from peace, the seed of the arrow \\
+collide, the inert fixed points & like tones coexisting, free propagation \\
+the table being a permutation & reversibility, an exact inverse beat \\
+the table preserving the line sum & charge conservation, the conserved total \\
+\bottomrule
+\end{tabular}
+\caption{Each part of the knit and the physics it gives for free.}
+\label{tab:falls-out}
+\end{table}
+
+\begin{result}[The knit gives physics for free]
+None of charge conservation, reversibility, momentum, mass, or the active vacuum is a separate postulate. Each is what collide-then-stream already does. The emergent Dirac dispersion, the $U(1)$ Gauss law, and the light cone of later sections all trace back to these consequences of the knit, never to a new ingredient.
+\end{result}
+
+\subsection{Streaming, a pure relabeling}
+
+After the collision, each tone moves one dock along its own site. Streaming touches no values, it only moves them. It is a bijection, a relabeling of where each tone sits, so it is exactly reversible.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+operation & formula \\
+\midrule
+forward stream & $\mathrm{out}(\mathrm{dock}, d) = \mathrm{in}(\mathrm{neighbour}(\mathrm{dock}, \mathrm{opposite}(d)), d)$ \\
+inverse stream & $\mathrm{out}(\mathrm{dock}, d) = \mathrm{in}(\mathrm{neighbour}(\mathrm{dock}, d), d)$ \\
+\bottomrule
+\end{tabular}
+\caption{The streaming bijection, forward and inverse.}
+\label{tab:streaming}
+\end{table}
+
+Read the forward stream this way. The tone now in site $d$ at this dock came from the neighbour on the \emph{opposite} side, still traveling along $d$. A tone keeps its line of travel, which is why the opposite map must be well defined on the $24$ sites of the $24$-cell. Because the streaming map only relabels positions and never reads or writes a value, it is automatically reversible. Its inverse simply reads from the neighbour on the same side rather than the opposite side.
+
+Free tones travel ballistically, one dock per beat, never spreading. That is the momentum already noted. There is no rest site and no twenty-fifth slot. A dock has exactly $24$ sites, all of the same length, so the substrate is single-speed and every tone that is not scattered keeps moving.
+
+\subsection{The beat, collide then stream}
+
+One \emph{beat} is the discrete unit of time. It is two steps, applied synchronously to every dock at once.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+step & operation & detail \\
+\midrule
+1, collide & apply the collision to every dock's sites, in place & the per-line pair table runs on each of a dock's $12$ lines \\
+2, stream & each site moves one dock along its direction & the tone in a site comes from the neighbour on the opposite side \\
+\bottomrule
+\end{tabular}
+\caption{One beat of the knit.}
+\label{tab:the-beat}
+\end{table}
+
+There is no continuous time and no real-valued clock. Time is the integer count of beats. A self persists across countless beats, but a beat itself is a single tick, two operations, then done.
+
+\begin{axiom}[The beat]
+Each beat runs the knit once over the whole mesh, collide on every dock followed by stream on every site, synchronously. Time is the count of beats and nothing finer.
+\end{axiom}
+
+\subsection{The inverse beat, time backward}
+
+Because both halves are invertible, the whole beat is invertible. To run one beat backward, the two halves are undone in reverse order.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+step & operation \\
+\midrule
+1, un-stream & apply the inverse stream, $\mathrm{out}(c, d) = \mathrm{in}(\mathrm{neighbour}(c, d), d)$ \\
+2, un-collide & apply the inverse collision, the paired inverse table for the pair table \\
+\bottomrule
+\end{tabular}
+\caption{One inverse beat. For an involution the inverse collision is the same table, for the pair table it is Table~\ref{tab:pair-table-inverse}.}
+\label{tab:inverse-beat}
+\end{table}
+
+So the closed bulk has \textbf{no arrow of time}. Forward and backward are equally valid. The arrow of time is emergent, not base. It lives entirely in the wake and its open boundary, never in the beat itself. The bulk law is symmetric under reversal, and what breaks that symmetry is the growing frontier outside the bulk, taken up where the arrow is derived.
+
+\begin{proposition}[The bulk is time-symmetric]
+Every beat of the knit has an exact inverse beat. The forward and backward evolutions are equally lawful, so the closed bulk carries no preferred direction of time. The arrow is supplied only by the wake at the open frontier.
+\end{proposition}
+
+\subsection{Determinism}
+
+The beat is a deterministic function of the state. The committed collision tables are deterministic permutations, and streaming is a deterministic relabeling. The per-line table fixes the outcome of every one of the nine line-states with no draw.
+
+An older edge-matching formulation once drew a choice for the hop or the create. The committed deterministic knit does not. Whatever a line holds, the table names exactly one output. Where a probe needs to sample initial conditions, the variation is over \emph{size}, never over a random seed. The model never relies on randomness anywhere, neither in the law nor in how it is tested.
+
+\subsection{The variant collisions, probes not the law}
+
+Several other reversible, charge-conserving collisions were built to test one question each. None is the committed knit. They are catalogued here in full so the model's whole machinery is documented and so the one genuine open choice, which collision a self uses, can be stated precisely.
+
+The \emph{pass-through} collision is the identity, the no-interaction control, where every site streams forever and nothing collides. The \emph{momentum-rotate} collision, on the four-site square reference, rotates a zero-momentum head-on pair from one axis to the other, a reversible involution that conserves both charge and momentum, the canonical two-dimensional reference. Its generalization to a full dock, \emph{head-on-rotate}, pairs the $12$ lines into six line-pairs and moves a zero-momentum head-on pair $(s, s)$ from a full line to its empty partner, leaving any lone tone or any net-momentum configuration untouched so it streams ballistically. Head-on-rotate is exactly the mobility the pinning pair table denies, and it conserves momentum but has no create move and hence no arrow. It is the collision the self work favors, with binding then supplied by the emergent attraction rather than by the create move.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}cll l@{}}
+\toprule
+\# & in $(\mathrm{left}, \mathrm{right})$ & out $(\mathrm{left}, \mathrm{right})$ & move \\
+\midrule
+1 & $(-1, -1)$ & $(-1, -1)$ & inert \\
+2 & $(+1, +1)$ & $(+1, +1)$ & inert \\
+3 & $(-1, 0)$ & $(-1, 0)$ & hop off, the lone tone streams \\
+4 & $(0, -1)$ & $(0, -1)$ & hop off \\
+5 & $(+1, 0)$ & $(+1, 0)$ & hop off \\
+6 & $(0, +1)$ & $(0, +1)$ & hop off \\
+7 & $(0, 0)$ & $(+1, -1)$ & create \\
+8 & $(+1, -1)$ & $(-1, +1)$ & flip \\
+9 & $(-1, +1)$ & $(0, 0)$ & annihilate \\
+\bottomrule
+\end{tabular}
+\caption{The bind-and-move probe, the pair table with the hop off. Mobile, but the create move destabilizes the vacuum globally, so it gives no clean moving bound state.}
+\label{tab:bind-and-move}
+\end{table}
+
+A second probe, \emph{bind-and-move} (Table~\ref{tab:bind-and-move}), keeps the create-flip-annihilate cycle but turns the lone-charge hop off so lone tones stream. A third, \emph{leaky-confine} (Table~\ref{tab:leaky-confine}), confines charged line-states so a body keeps its identity but lets charge-neutral line-states stream as neutral ripples, the one-tone photon. It has no create move, so its vacuum stays empty. The matter is the tone bound, the photon is the tone waving, in one field. A fourth, \emph{sticky-reflect}, depends on the whole dock rather than a single line, leaving a dock with fewer than two nonzero sites untouched and reflecting every line in a dock with two or more, a reversible involution whose head-on reflection turns out elastic, so it does not capture.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}cll l@{}}
+\toprule
+\# & in $(\mathrm{left}, \mathrm{right})$ & out $(\mathrm{left}, \mathrm{right})$ & move \\
+\midrule
+1 & $(-1, -1)$ & $(-1, -1)$ & inert \\
+2 & $(+1, +1)$ & $(+1, +1)$ & inert \\
+3 & $(+1, 0)$ & $(0, +1)$ & reflect, the lone charge bounces inward \\
+4 & $(0, +1)$ & $(+1, 0)$ & reflect \\
+5 & $(-1, 0)$ & $(0, -1)$ & reflect \\
+6 & $(0, -1)$ & $(-1, 0)$ & reflect \\
+7 & $(0, 0)$ & $(0, 0)$ & peace left alone, no create move \\
+8 & $(+1, -1)$ & $(+1, -1)$ & stream, a neutral pair propagates \\
+9 & $(-1, +1)$ & $(-1, +1)$ & stream \\
+\bottomrule
+\end{tabular}
+\caption{The leaky-confine probe. Charged line-states are confined, neutral line-states stream as the one-tone photon, matter and photon in a single field.}
+\label{tab:leaky-confine}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llcccl@{}}
+\toprule
+collision & label & reversible & charge & momentum & key property \\
+\midrule
+pass-through & control & yes & yes & yes & no interaction \\
+\textbf{pair table} & \textbf{the knit} & yes & yes & no & the arrow (create), pins and confines \\
+momentum-rotate & reference & yes & yes & yes & two-dimensional head-on rotate \\
+head-on-rotate & variant & yes & yes & yes & mobile, elastic scatter, no arrow \\
+bind-and-move & variant & yes & yes & no & create kept, hop off, vacuum-unstable \\
+leaky-confine & variant & yes & yes & no & confine charge, stream neutral \\
+sticky-reflect & variant & yes & yes & no & crowd-reflect, elastic, no capture \\
+\bottomrule
+\end{tabular}
+\caption{Every collision in the machinery. Only the pair table is the committed knit, the rest are probes and controls.}
+\label{tab:collision-summary}
+\end{table}
+
+\begin{result}[The single open choice]
+The one open choice the model carries is which collision a self uses, the pinning pair table that carries the create move and its arrow, against the radiating momentum-conserving head-on-rotate that has no arrow but supports mobility. Every collision above is reversible and charge-conserving. The base law is the pair table. This choice is recorded as open.
+\end{result}
+
+\subsection{The complete dynamics in plain words}
+
+The whole knit is a small loop repeated each beat. First, \emph{collide}. Every dock reads its own sites and rewrites them in place. For each of its $12$ lines it looks up the pair $(\mathrm{left}, \mathrm{right})$ in the committed pair table and writes back the table's output. Second, \emph{stream}. Each tone moves one dock along its own site, the relabeling above, so the tone now sitting in a site at a dock came from the neighbour on the opposite side still traveling that way. Third, at the open frontier the wake grows new docks at peace and the bath absorbs what falls behind, which is where the arrow lives.
+
+That is the whole base dynamics. Every site stays in $\{-1, 0, +1\}$. Nothing else is stored and nothing else is stepped. Everything else in physics is what this knit grows into.

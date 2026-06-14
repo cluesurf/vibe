@@ -1,0 +1,142 @@
+\section{The Three Geometries}
+
+Before the mesh has a shape there is a prior question to settle. Why is the mesh curved at all, and why exactly the hyperbolic curve? The answer turns on a fact that is older and tighter than it first looks. There are exactly three uniform geometries. Not four, not infinitely many. They are the spherical, the flat, and the hyperbolic. The claim of this section is that the mesh must be the third.
+
+A short orientation to the vocabulary helps before the argument. The \emph{mesh} is the whole discrete space, a weave of \emph{docks}. A dock is one geometric cell, a here-now, with exactly $24$ \emph{sites}, the $24$ directions a vibe can move out along. The \emph{wake} is the growing edge of the mesh, where new docks are born. None of these is a continuous object at the base. But the mesh sits inside a smooth hyperbolic space, and that smooth space is what this section is about. The discrete crystal is taken up in the next sections. Here the concern is the curved continuum the crystal lives in, and why it has to be the negatively curved one.
+
+\subsection{The three, side by side}
+
+A uniform space is one that looks the same at every dock and along every site direction. Such a space must carry one constant curvature everywhere, a single real number. \emph{Curvature} is that one number, a measure of how the space bends. A real number has exactly three signs, positive, zero, and negative. So there are exactly three uniform geometries, one per sign. Table~\ref{tab:three-geometries} sets them side by side.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+geometry & curvature & triangle angles & room going outward & shape it feels like \\
+\midrule
+spherical & positive & sum to more than $180^\circ$ & shrinks, then wraps around & the surface of a ball \\
+flat & zero & sum to exactly $180^\circ$ & grows steadily, like $r$ & a tabletop \\
+hyperbolic & negative & sum to less than $180^\circ$ & grows exponentially & a saddle \\
+\bottomrule
+\end{tabular}
+\caption{The three constant-curvature geometries.}
+\label{tab:three-geometries}
+\end{table}
+
+\begin{figure}[ht]
+\centering
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-spherical.png}\\
+spherical, positive
+\end{minipage}\hfill
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-euclidean.png}\\
+flat, zero
+\end{minipage}\hfill
+\begin{minipage}[b]{0.31\textwidth}\centering
+\includegraphics[width=\textwidth]{curvature-hyperbolic.png}\\
+hyperbolic, negative
+\end{minipage}
+\caption{The three curvatures read off a triangle. On the sphere the sides bow outward and the angles sum to
+more than $180^\circ$. In the flat plane the sides are straight and the angles sum to exactly $180^\circ$. In the
+hyperbolic plane the sides cave inward and the angles sum to less than $180^\circ$.}
+\label{fig:curvatures}
+\end{figure}
+
+This count is not a metaphor and not a convenience. It is the content of a classical theorem.
+
+\begin{theorem}[Three signs, three geometries]
+A simply connected space of constant curvature is spherical, flat, or hyperbolic according to whether its
+curvature is positive, zero, or negative. This is the Killing-Hopf classification of constant-curvature spaces.
+It gives exactly one type per sign, in every dimension. There is no fourth possibility, because a real number
+has no fourth sign.
+\end{theorem}
+
+\subsection{How curvature is felt from inside}
+
+You never step outside the mesh to measure it. Curvature is felt from within, and there are two equivalent ways to feel it. They are two faces of the one curvature number, and they always agree.
+
+The first probe is by triangles, as in Figure~\ref{fig:curvatures}. Draw a large triangle and add up its three angles. Exactly $180^\circ$ means the space is flat. More than $180^\circ$ means the curvature is positive. Less than $180^\circ$ means it is negative.
+
+The second probe is by room. Walk out a circle of radius $r$ and measure its edge. In flat space the circumference is $2\pi r$. In positively curved space it is less than that, because the space is closing up around you. In negatively curved space it is exponentially more, because the space is opening out ahead of you faster than the radius grows.
+
+\begin{principle}
+Curvature is local and intrinsic. A dweller inside the space, equipped only with a ruler, can read off the sign
+of the curvature from either a triangle's angle sum or a circle's circumference, without ever leaving the space.
+\end{principle}
+
+\subsection{Why there is nothing halfway}
+
+The tempting confusion is to imagine some intermediate geometry sitting between flat and hyperbolic. There is none, and the reason is worth stating carefully.
+
+The magnitude of curvature is continuous. It can be $K = -1$, or $-0.01$, or $-1000$, any value at all. But magnitude is only a scale, not a new type. A sphere of radius $1$ and a sphere of radius $2$ are both spherical, just zoomed differently. Hyperbolic space at curvature $-1$ and at curvature $-0.01$ are both hyperbolic, again just different sizes. Only the sign sets the type. There are three signs, so there are three types.
+
+A space with a tiny negative curvature is therefore already fully hyperbolic, simply with a very large radius. Near any dock it looks almost flat, and it keeps that flat appearance until you zoom out far enough that the exponential room reappears. Flat space is the knife-edge between the two curved worlds. This is why our nearly-flat universe is so finely balanced. Near-flat is not a fourth option. It is a curved option seen at large scale.
+
+One formula carries all three regimes at once, with the curvature radius $R$ as the single knob. The circumference of a circle of radius $r$ is
+\[
+C(r) = \begin{cases}
+2\pi R \sin(r/R) & \text{spherical},\\
+2\pi r & \text{flat},\\
+2\pi R \sinh(r/R) & \text{hyperbolic}.
+\end{cases}
+\]
+Sine, line, and hyperbolic sine are one analytic family. They are the three faces of one sign.
+
+\subsection{Why the mesh is the hyperbolic one}
+
+Each geometry is ruled in or out by what the mesh has to do. Three demands decide it. The mesh must grow forever, so it needs endless room. It must branch as it grows, so it needs room that opens out fast. And it must have no built-in special directions, so it needs isotropy.
+
+The spherical case is out. It is finite and closed, so it runs out of room and wraps back on itself. A mesh built on it could not grow forever, and growth at the wake is not optional.
+
+The flat case is out as well. It is infinite, which is good. But its room grows only steadily. In three dimensions the volume of a ball grows like $r^3$, which is not enough for the explosive, tree-like branching the mesh needs at its wake. A flat regular lattice also carries preferred directions, its own axes, and that breaks the isotropy our universe appears to have.
+
+The hyperbolic case is in, and for several reasons at once. It is infinite, so there is endless room for eternal growth. Its room grows exponentially, which supplies the branching. It has no preferred direction, so it is isotropic. It is also the only one of the three that hosts a rich family of regular crystals, including the heptagrid $\{7,3\}$, the dodecagrid $\{5,3,4\}$, and the mesh of this paper, $\{3,4,3,4\}$. As a bonus it is the spatial geometry of Anti-de Sitter space, the natural home of holography.
+
+\begin{result}[Hyperbolic by elimination]
+Among the three uniform geometries only the hyperbolic one is infinite, exponentially roomy, isotropic, and host
+to a rich family of regular honeycombs. Spherical fails on size. Flat fails on growth and isotropy. The mesh is
+therefore hyperbolic.
+\end{result}
+
+\subsection{What exponential room feels like}
+
+In flat geometry, circles grow slowly and neighbourhoods fill in gently. In hyperbolic geometry the shells grow exponentially. Two consequences follow, and both matter for the mesh.
+
+First, almost every dock lies near the boundary. The number of docks within $n$ steps of a center is dominated by the outermost shell, because each shell is exponentially larger than the one before it. The boundary is where the space mostly is.
+
+Second, the space behaves like a tree. Each step outward branches, so a path from the center out fans into ever more paths. This is why hyperbolic geometry appears wherever hierarchy lives. Semantic embeddings, internet routing, tensor networks, recursive subdivision, and holography all find it natural.
+
+For the mesh this exponential growth is the cosmic expansion. The wake runs outward into ever-widening shells of new docks. The branching room of the hyperbolic continuum and the growth of the mesh at its wake are the same fact seen twice.
+
+\subsection{The mesh grows by reflection}
+
+The crystal is not placed by hand. It is generated. Start with one fundamental chamber. Reflect it across its mirror walls. Reflect the copies. Continue forever.
+
+The reflections form a Coxeter group, a tiny local rule with infinite recursive order. The general theory of these reflection groups, and the way one chamber unfolds into a full tiling, are taken up in the sections on the honeycombs and on generating a tessellation from its symbol. What matters here is only that the hyperbolic continuum is the one of the three that admits this rich reflective family at all.
+
+\subsection{And lumpy real space}
+
+The three are the uniform geometries, the ones that look the same everywhere. Real spacetime, as general relativity describes it, is lumpy. It is curved differently at each point. That does not add a fourth type.
+
+A general curved space is built by patching the three local models together, one at each point, and each patch still carries a sign. The three uniform geometries are the local alphabet that every curved space, however irregular, is spelled in.
+
+\begin{principle}
+Lumpy spacetime is not a fourth geometry. It is the three uniform geometries patched together pointwise, each
+patch keeping its sign. The uniform three are the local alphabet of all curved space.
+\end{principle}
+
+So the mesh is uniformly hyperbolic at its base. The lumpy gravity of the everyday world is the bending of that uniform base by matter, the emergent gravity taken up later in the paper. That bending is an emergent phenomenon, not a base ingredient.
+
+\subsection{The base stays discrete}
+
+One caution closes the section. Smooth curvature is the emergent picture, not the base one. The base is discrete and deterministic. It is a finite mesh of docks, with discrete sites, discrete beats, and a fixed law.
+
+The continuous hyperbolic space, with its smooth sine and hyperbolic-sine formulas, is the large-scale shadow of that discrete crystal. The crystal sits inside hyperbolic space. The smooth space is the limit the crystal approximates as you zoom out, never a base ingredient.
+
+\begin{result}[Continuum is the shadow, not the base]
+The hyperbolic continuum of this section is the emergent, large-scale model. The base object is the discrete
+$\{3,4,3,4\}$ honeycomb, finite at any beat and grown by reflecting one chamber. When this section speaks of
+curvature, sine, and saddle, read it as the continuum the discrete mesh lives inside, not as an added base
+ingredient.
+\end{result}

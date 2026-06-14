@@ -1,0 +1,138 @@
+\section{The Coupling Value}
+
+The substrate carries both matter and a force that ties matter together. A natural hope is that it would also fix the \emph{strength} of that force. In our world the strength of the electromagnetic interaction is set by one pure number, the fine-structure constant, close to $1/137$. The question of this section is whether the bare knit, the collide-then-stream law of the mesh, fixes its own analogue of that number.
+
+The honest answer is that it does not. The knit fixes the \emph{form} of every dependence on the coupling. It leaves the \emph{value} free. This section establishes that boundary cleanly, names the measurement that pins it, shows why the discreteness of the base does not rescue the value, and places the result beside the parallel boundary on the mass. The result is partial by design. It states exactly what the substrate does and does not fix, rather than papering over the gap.
+
+\begin{principle}[Form, not value]
+The knit determines the form of the dependence on the coupling. It does not determine the coupling's value.
+\end{principle}
+
+\subsection{The question}
+
+A short setup makes the claim precise. The mesh is the $\{3,4,3,4\}$ honeycomb, and each dock carries $24$ sites, the $24$ directions of the $D_4$ root system. Under triality those $24$ split as $8v + 8s + 8c$, a vector together with two spinors. The vector sector $8v$ is the photon. The two spinor sectors $8s$ and $8c$ are the fermion chiralities. The knit binds these sectors. A moving charge in the fermion sector sources a radiating field in the photon sector, and a background field accelerates the fermion. How strongly it does so is governed by a single number in the law, the \emph{coupling}, the substrate's stand-in for the fine-structure constant.
+
+\begin{definition}[The coupling]
+The \emph{coupling} is the single number that scales the binding between the fermion sectors $8s$, $8c$ and the photon sector $8v$ in the knit. It is the substrate's analogue of the fine-structure constant, the strength of the matter-to-photon interaction.
+\end{definition}
+
+The question is whether the bare knit fixes the magnitude of this coupling, or only the shape of how the physics depends on it. To answer it, scan the coupling across its range and watch what the substrate does.
+
+\subsection{The measurement}
+
+The probe is direct. Take a moving charge in the fermion sector. Vary the coupling from zero upward, and at each setting measure the field that the charge radiates into the photon sector, run as one coupled evolution of the whole law.
+
+\begin{result}[Featureless square-law]
+As the coupling is scanned, the radiated field follows a clean square-law in the coupling, with no special or critical value anywhere. It vanishes only at zero coupling. The curve is featureless except at the origin.
+\end{result}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+coupling & radiated field \\
+\midrule
+zero & vanishes exactly \\
+nonzero & clean square-law, no distinguished point \\
+\bottomrule
+\end{tabular}
+\caption{The radiated field as a function of the coupling. A pure power law with no bump, no critical value, and no preferred setting.}
+\label{tab:coupling-scan}
+\end{table}
+
+The shape of this curve is the whole content of the measurement. A pure power law with no distinguished point means the coupling enters purely as an overall scale. There is no bump, no critical value, no preferred setting. Nothing in the law singles out one magnitude over any other. The field grows as the square of the coupling and is otherwise structureless.
+
+So the knit fixes how the radiated field depends on the coupling, namely as a square-law. It does not fix what the coupling is. Were there a critical value, a renormalization-group fixed point, or any distinguished feature, that feature would mark a preferred magnitude. There is none. The only special point is zero, where the sectors decouple and the field switches off.
+
+\subsection{What this fixes and what it leaves open}
+
+The reading is unambiguous. The knit fixes the form of the dependence on the coupling, not its value.
+
+\begin{proposition}[The coupling is an overall scale]
+Because the radiated field is a featureless power law in the coupling with its only distinguished point at zero, the coupling enters the substrate purely as an overall scale. The bare knit therefore fixes no magnitude for it.
+\end{proposition}
+
+Fixing the value would require an extra principle that the bare knit does not contain. The kind of principle that would do it is well known in physics.
+
+\begin{itemize}
+\item a renormalization-group fixed point that pins a preferred coupling,
+\item anomaly matching across the charged spectrum,
+\item or the full charged-particle spectrum together with its running.
+\end{itemize}
+
+None of these lives in the bare knit. The knit is a finite, conserving, reversible permutation on the tones of a dock, followed by streaming. It carries no running coupling, no spectrum of charged states, and no fixed-point structure. So $1/137$ is not derived here, and this section makes no claim to derive it. What it does instead is locate the substrate's exact frontier on the fine-structure constant.
+
+\subsection{Why discreteness does not rescue the value}
+
+A reader might hope the discreteness of the base closes the gap. The base is fully discrete and deterministic. The tone is ternary, $\{-1,0,+1\}$. The knit is a finite permutation. There are no real numbers anywhere in the base. So a real coupling constant is not even a legitimate base ingredient. There is no continuous dial to turn.
+
+This sounds like progress, and in one sense it is. With no real numbers, the coupling cannot be a free real parameter. It must become something discrete. The honest design for that is one more move in the collision table of the knit, a reversible, charge-conserving swap between a matter site and a photon site. Its strength is then binary. The move is either in the table or it is not.
+
+\begin{definition}[The coupling as a discrete move]
+Kept discrete, the coupling is not a number but a set of allowed emission moves in the collision table of the knit. Each is a reversible swap that takes an excited matter tone in a fast direction to a relaxed matter tone in a slow direction, with a charge-neutral photon tone carrying the difference. Absorption is the exact inverse.
+\end{definition}
+
+This is the same object as a confined body that leaks. An excited matter charge emits a photon and drops to a slower state, like an atom relaxing. The photon streams freely to the open frontier, the wake, where it is carried away and never returns. Momentum is conserved by an exact integer sum of root vectors, $\mathrm{root}(\text{fast}) = \mathrm{root}(\text{slow}) + \mathrm{root}(\text{photon})$. Everything is discrete, with no real number at any step.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+continuum dial & discrete replacement \\
+\midrule
+a real coupling constant & the set of allowed emission moves in the table \\
+fine-tuned magnitude & the lattice size \\
+\bottomrule
+\end{tabular}
+\caption{Translating the continuum coupling into discrete ingredients. Robustness comes from size, never from a real parameter.}
+\label{tab:discrete-coupling}
+\end{table}
+
+But this reframing does not select a value either. The size of the move set, like the size of the lattice, is still a free choice. Making the coupling discrete turns the question from ``what real number is the coupling'' into ``which moves are in the table'', and that count is no more fixed by the knit than a real number was.
+
+\begin{result}[Discreteness reshapes the freedom, it does not remove it]
+Replacing the real coupling by a discrete set of emission moves changes the shape of the freedom but not its existence. The number of allowed moves, and the lattice size, remain unfixed by the bare knit. So discreteness does not select the coupling's value.
+\end{result}
+
+\subsection{The parallel with the mass}
+
+The same boundary appears for the fermion mass, and seeing the two together clarifies the pattern. The mass mechanism is itself a measured result of the substrate. The two spinor sectors $8s$ and $8c$ are the two chiralities, and the Dirac mass is the coupling between them. It is confirmed two independent ways that must agree. The dispersion mass, read from the squared Dirac operator coming out as the relativistic scalar $p^2 + m^2$ at every momentum. And the chirality-coupling mass, read from the size of the part of the Hamiltonian that does not commute with $\gamma_5$. The two agree to machine precision, and both vanish at zero coupling, where the chiralities decouple into a massless Weyl fermion, the control that could have failed and did not.
+
+So the mass mechanism is genuinely derived. But, exactly as with the gauge coupling, this fixes the mechanism and not the value. The mass value is the Yukawa parameter, and it stays open.
+
+\begin{principle}[Mechanisms, not values]
+The knit fixes the mechanisms. It fixes how the photon and fermion sectors couple, and how the chirality coupling gives mass. It does not fix the value of the gauge coupling or the value of the mass.
+\end{principle}
+
+\subsection{What is established}
+
+The status of each claim is worth stating plainly.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+claim & status \\
+\midrule
+the radiated field is a clean square-law in the coupling & measured \\
+no special or critical value, vanishing only at zero & measured \\
+the coupling enters purely as an overall scale & concluded \\
+the value $1/137$ is derived & no, honest negative \\
+a principle that selects the coupling & open \\
+\bottomrule
+\end{tabular}
+\caption{What the substrate fixes and what it leaves open on the coupling value.}
+\label{tab:coupling-status}
+\end{table}
+
+\subsection{Why it matters}
+
+This is the substrate's exact frontier on the fine-structure constant. Three statements carry it.
+
+\begin{itemize}
+\item The knit fixes the form of every coupling dependence.
+\item It treats the magnitude as a free overall scale.
+\item Deriving $1/137$ would need a principle outside the bare knit.
+\end{itemize}
+
+The result is partial on purpose. It draws the line precisely between what the substrate does and does not fix, rather than overclaiming. The open discovery it points to is a principle that selects the coupling. That is genuinely open in physics, not merely in our code. The same gap sits at the foundation of the Standard Model, where the fine-structure constant is an input and not a prediction. The substrate reaches that same frontier honestly, and stops there.

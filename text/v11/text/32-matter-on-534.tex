@@ -1,0 +1,207 @@
+\section{Matter on \texorpdfstring{$\{5,3,4\}$}{534}}
+
+The committed substrate of the theory is the mesh $\{3,4,3,4\}$, whose $24$ sites out of each dock carry genuine spinors. This section studies a different tessellation, $\{5,3,4\}$, the order-four dodecahedral honeycomb of three-dimensional hyperbolic space. It is the nearest neighbor of the committed mesh that keeps a three-dimensional cusp, and that makes it the right object for a comparison. Its $12$ directions out of a dock do not carry a spinor at the base. So the question is sharp. Can a substrate whose sites carry no spinor still host matter?
+
+The companion section on the spin obstruction proved that the bare knit on $\{5,3,4\}$ carries no spinor, and laid out four routes around that fact. This section reports the demonstrations. The spinor field actually moves. The defect actually carries spin. The collective mode actually flips. The decisive question is answered four independent ways. The one thing that does not measure cleanly, curved-bulk gravity, is logged honestly rather than forced.
+
+\begin{principle}[Matter without spinor sites]
+The tessellation $\{5,3,4\}$ can host matter. The spinless sites are no obstruction once one uses the form complex, the geometry's defects, or the boundary. The result is comparison and selection, not the thesis of the theory.
+\end{principle}
+
+Before any of this, two terms deserve a plain statement. A \emph{spinor} is the object that describes a particle of half-integer spin, and its mark is that it must be turned through $720$ degrees, not $360$, before it returns to itself. A \emph{site} is one of the directions out of a dock, the directed slot along which a tone streams. The knit is the collide-then-stream law that runs once each beat. The question of this section is whether matter can live in $\{5,3,4\}$ even though its sites carry no spinor of their own.
+
+\subsection{The question}
+
+The tessellation $\{5,3,4\}$ is the order-four dodecahedral honeycomb. Its $12$ directions out of a dock form the icosahedral group $A_5$. The bare knit on those directions carries no spinor. That is a theorem, not a difficulty, because a permutation representation is linear and a spinor is projective. A law that only permutes the $12$ directions can never produce the $720$-degree object.
+
+The geometry, however, carries the spin structure at every scale. The icosahedral loop holonomy is the binary icosahedral group $2I$, the double cover of $A_5$, and the frame bundle lifts to a spin bundle through the Clifford lift of the Coxeter reflections. The full account is in the section on the spin obstruction.
+
+So the open question was never whether the spin structure \emph{exists}. The geometry has it. The question is whether a field can \emph{live and move} in it. The results below settle that.
+
+\subsection{The Kahler-Dirac fermion propagates}
+
+The structural result puts the fermion on the form complex, the discrete analogue of differential forms on the mesh. There the operator $d + \delta$ squares to the Hodge Laplacian. That gives a spectrum, a static set of energy levels. The next question is sharper. Does the fermion \emph{move}?
+
+The Kahler-Dirac propagation experiment builds the operator on the actual $\{5,3,4\}$ bulk and measures the quantum \emph{return probability}, how much of a localized excitation stays at its starting dock under unitary evolution. A low return probability means the excitation spreads away and does not come back. A high one means it is trapped.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+run & return probability & phase \\
+\midrule
+clean $\{5,3,4\}$ substrate & $\approx 0.06$, decreasing with size & extended, propagating \\
+strong deterministic disorder & $\approx 0.4$ & localized, trapped \\
+\bottomrule
+\end{tabular}
+\caption{Return probability of the Kahler-Dirac fermion on $\{5,3,4\}$. The clean substrate is in the extended phase. A deterministic quasiperiodic potential traps it.}
+\label{tab:kahler-dirac-534}
+\end{table}
+
+On the clean substrate the return probability is low, about $0.06$, and decreasing with lattice size. The excitation spreads away and does not come back. The fermion is in the extended, propagating phase.
+
+The control is a strong \emph{deterministic} quasiperiodic potential, the golden-ratio cosine. There is no randomness. The base is discrete and deterministic, so the control respects that. This potential traps the excitation at a return probability near $0.4$.
+
+The control could have failed. A fermion already pinned by the hyperbolic disorder of the bulk would have returned high on the clean run too. It does not. It localizes when it should, under the trapping potential, and propagates when it should, on the clean substrate.
+
+\begin{result}[The form fermion moves]
+The Kahler-Dirac fermion on $\{5,3,4\}$ is a genuine moving mode, not a static spectrum. On the clean substrate it is in the extended, propagating phase, and a deterministic quasiperiodic potential localizes it, the discriminating control passing both ways.
+\end{result}
+
+This establishes propagation. The stronger claim, the full relativistic Dirac-cone dispersion, is not made. The substrate's irregularity makes a clean momentum-space dispersion hard. That refinement stays open.
+
+\subsection{Spin from a topological defect}
+
+The geometry's spinor minus-one can be borrowed by a defect, with no change to the knit. The disclination-spin experiment demonstrates it on the \emph{director field}, the tone read as an axis with no arrow. A director points along a line but does not distinguish the two ends, exactly the object whose rotation can pick up a half-turn sign.
+
+A \emph{disclination} is a defect in the director field, a place where the field winds by a fraction of a full turn as you circle it. We seed a winding-$w$ disclination and parallel-transport a probe around a loop that encloses it.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+object & holonomy around the disclination & meaning \\
+\midrule
+the spinor & $(-1)^{w}$ & odd disclination flips it, the double cover \\
+the vector & always $+1$ & the defect is invisible to vectors \\
+\bottomrule
+\end{tabular}
+\caption{Holonomy around a winding-$w$ disclination on $\{5,3,4\}$. The spinor flips for odd winding. The vector never flips.}
+\label{tab:disclination-534}
+\end{table}
+
+An odd, half-integer disclination flips the spinor sign, $(-1)^w$ with $w$ odd. The vector holonomy is always $+1$, so the defect is invisible to vectors. That second row is the control that makes the spinor minus-one a genuine spin effect and not a trivial rotation. If both objects flipped, the sign would be a property of the loop, not the spin structure. They do not. Only the spinor flips.
+
+The result is purely topological. It is independent of how finely the loop is discretized. It is the $\mathbb{Z}_2$ charge of the defect.
+
+\begin{result}[Spin-half from a tone defect]
+The tessellation $\{5,3,4\}$ hosts spin-half through a tone defect, with no spinor on its sites. A half-winding disclination gives the director field the spinor holonomy $-1$, while the vector holonomy stays $+1$, isolating the effect as a genuine $\mathbb{Z}_2$ spin charge.
+\end{result}
+
+\subsection{The collective mode carries it too}
+
+A point probe carrying the sign could be an artifact of localization. The collective-spinor experiment shows it is a genuine field property, not a quirk of where the probe sits.
+
+A \emph{delocalized} collective spinor mode, spread over the whole loop and varying with a mode index, is transported around the disclination. It returns to $(-1)^w$ times itself, for \emph{every} mode.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+input & result \\
+\midrule
+delocalized collective spinor, any mode & returns $(-1)^{w}$ times itself \\
+varying the mode index & sign does not change \\
+\bottomrule
+\end{tabular}
+\caption{Holonomy of a delocalized collective spinor mode around the disclination. An odd winding flips the whole mode, independent of the mode index.}
+\label{tab:collective-534}
+\end{table}
+
+An odd disclination flips the whole collective mode, and the result does not depend on which mode it is. Mode-independence is the control. If the sign came from a probe detail it would vary with the mode. It does not. So the spin-half is a topological property of the \emph{extended} excitation, not of any single dock.
+
+\begin{result}[A field property, not a probe artifact]
+A delocalized collective spinor mode on $\{5,3,4\}$ acquires the holonomy $(-1)^w$ around a disclination for every mode index. The mode-independence proves the spin-half is a topological property of the extended field, not an artifact of localization.
+\end{result}
+
+\subsection{The verdict, four independent ways}
+
+The decisive question of the substrate is answered four independent ways. Each is a separate experiment with its own discriminating control.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+route & result \\
+\midrule
+the form fermion propagates & extended phase, localization control passes \\
+a defect carries spin & half-disclination flips the spinor, vector blind \\
+a collective mode carries it too & every mode flips, mode-independent \\
+the loop holonomy is the double cover & icosahedral holonomy is $2I$ \\
+\bottomrule
+\end{tabular}
+\caption{The four independent demonstrations that $\{5,3,4\}$ hosts matter.}
+\label{tab:verdict-534}
+\end{table}
+
+The spinless sites are no obstruction. The substrate supplies a propagating, collective, topologically protected spin-half by way of its form complex and its geometry's defects.
+
+\begin{principle}[$\{5,3,4\}$ can host matter]
+A substrate whose sites carry no spinor can still host fermionic matter. The form complex gives a propagating mode, the geometry's defects carry the spin, and the loop holonomy realizes the double cover. The four routes agree.
+\end{principle}
+
+\subsection{The trade resolved on the pentacomb}
+
+The tessellation $\{5,3,4\}$ hosts matter by its form complex and its defects. But its $12$-direction sites still carry no spinor of their own. The bare directional knit needs the form detour or the defect detour. That is a real cost.
+
+The clean resolution changes the substrate, not the knit. Move to the five-dimensional $D_4$ pentacomb $\{3,4,3,3,4\}$, whose directions already carry the spinor. The pentacomb is hyperbolic, negatively curved, and it contains the $24$-cell, whose $24$ directions are the $D_4$ roots. Those roots split as $8v + 8s + 8c$, the vector together with two genuine spinor sectors. This is the same direction structure that makes the committed mesh $\{3,4,3,4\}$ carry spinors at its sites.
+
+The new result is the dynamical link. A Kahler-Dirac fermion propagates on the generated pentacomb dock graph. The measure is the same return probability as before, with a clean return of about $0.05$ in the extended phase against about $0.5$ when disorder-localized, robust across two sizes. The flat $24$-cell honeycomb $\{3,4,3,3\}$ is the control. It propagates too, which confirms the result is a spinor on a \emph{curved} substrate and not merely the flat $24$-cell.
+
+\begin{result}[The spin-curvature trade resolved]
+The pentacomb $\{3,4,3,3,4\}$ has spinor directions, negative curvature, and a propagating Kahler-Dirac fermion, all together. The flat $\{3,4,3,4\}$ has spin but no curvature, and $\{5,3,4\}$ has curvature but no spinor sites. The pentacomb has both, so the spin-versus-curvature trade is resolved by the substrate that carries both the directions and the dimension.
+\end{result}
+
+The full content of this resolution is the subject of the section on the pentacomb.
+
+\subsection{The boundary confirms the holography}
+
+The negative curvature that gives $\{5,3,4\}$ its spin structure also gives it a boundary. A hyperbolic space has an honest boundary at infinity, and that is where the holographic entanglement law lives.
+
+The law is confirmed cleanest on the two-dimensional testbed $\{7,3\}$, whose one-dimensional boundary is the simplest possible setting. The minimal bulk geodesic anchored on a boundary interval grows as the \emph{logarithm} of the interval length, the two-dimensional Ryu-Takayanagi area law. The flat $\{6,3\}$ control grows \emph{linearly}, the discriminating control that could have failed.
+
+So the holographic entanglement scaling is a property of the negative curvature, not of any particular tiling. The testbed $\{7,3\}$ prototypes the same measurement for the three-dimensional $\{5,3,4\}$ bulk. The law itself, the geodesic measurement, and the discriminating control are owned by the section on holography.
+
+\subsection{Honest residual, gravity does not measure cleanly yet}
+
+The $\{5,3,4\}$ gravity story is logged as honest open, not forced. The expected behavior depends on which slice of the geometry one stands in.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+setting & expected potential & reason \\
+\midrule
+flat 3D substrate (the $\{3,4,3,4\}$ cusp) & clean $1/r$ Newton & flat 3D Green function \\
+$\{5,3,4\}$ bulk (3D hyperbolic) & curvature-screened & negative curvature screens \\
+$\{5,3,4\}$ horosphere cusp (flat 2D) & the 2D logarithm & flat 2D, not $1/r$ \\
+\bottomrule
+\end{tabular}
+\caption{Expected gravitational potential in three slices of the $\{5,3,4\}$ geometry.}
+\label{tab:gravity-534}
+\end{table}
+
+Two attempts to measure the screening, the real-space Laplacian Green's function and the spectral gap, did not give a clean discriminator at reachable sizes. The reason is that the bulk is boundary-dominated. Most docks sit on the surface, not in the interior, so both measures are finite-size-distorted. The gravity story needs a deep-bulk generator or a better eigensolver before it is a real result.
+
+The negative-curvature signature that did measure cleanly is the Ryu-Takayanagi log law of the holography section. The dynamics residual here is exactly the one that section predicts for a boundary-dominated patch. So the failure is consistent with the theory, not a contradiction of it.
+
+\begin{principle}[An honest open]
+The curved-bulk gravity of $\{5,3,4\}$ does not yet measure cleanly. The bulk is boundary-dominated, so the real-space and spectral attempts are finite-size-distorted. This is logged as open, with the clean negative-curvature signature carried instead by the holographic log law.
+\end{principle}
+
+\subsection{Index of verified results}
+
+The results of this section and its companions, with their depth grades, are collected below. Depth $\mathrm{L}2$ is a measured dynamical result with a discriminating control. Depth $\mathrm{L}3$ adds a second independent confirmation. Depth $\mathrm{L}1$ is a structural fact established by construction.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+claim & depth \\
+\midrule
+the bare 12-direction knit carries no spinor (the obstruction) & $\mathrm{L}2$ \\
+the Kahler-Dirac fermion propagates (extended phase, control) & $\mathrm{L}2$ \\
+a half-winding disclination gives the spinor $-1$, the vector blind & $\mathrm{L}2$ \\
+a collective mode carries the sign for every mode & $\mathrm{L}2$ \\
+a fermion propagates on the 5D pentacomb (the trade resolved) & $\mathrm{L}2$ \\
+the icosahedral loop holonomy is the double cover $2I$ & $\mathrm{L}1$ \\
+the frame bundle carries spin (Clifford lift of Coxeter reflections) & $\mathrm{L}2$ \\
+the form Dirac operator squares to the Laplacian (static spectrum) & $\mathrm{L}2$ \\
+boundary entanglement follows the logarithmic Ryu-Takayanagi law & $\mathrm{L}3$ \\
+\bottomrule
+\end{tabular}
+\caption{Index of verified results for matter on $\{5,3,4\}$ and its neighbors.}
+\label{tab:index-534}
+\end{table}
+
+The throughline is simple. The tessellation $\{5,3,4\}$ can host matter, even though its sites carry no spinor, because the form complex and the geometry's defects supply what the sites lack. The committed mesh $\{3,4,3,4\}$ and the pentacomb $\{3,4,3,3,4\}$ do better still, carrying the spinor at the sites directly. This is the comparison that places the committed substrate, not a competitor to it.

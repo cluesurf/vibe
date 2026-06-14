@@ -1,0 +1,192 @@
+\section{The {3,4,3,4} Honeycomb}
+
+The previous section took a single 24-cell and named the 24 directions out of it as the \emph{sites} of one \emph{dock}. This section takes that one dock and fills space with it. The whole filling is the \emph{mesh}, the base geometry of the theory. The mesh is a flow of eight atoms, and the first three of those atoms are spatial. The mesh is the whole weave, a dock is one cell of it, and a site is one of the 24 directions out of a dock. This section fixes the shape of the weave once and for all.
+
+\begin{principle}[The one-line picture]
+$\{3,4,3,4\}$ is a curved four-dimensional crystal whose edge, seen up close, is flat three-dimensional space.
+\end{principle}
+
+\subsection{The one-paragraph picture}
+
+The symbol $\{3,4,3,4\}$ names a regular honeycomb. It fills four-dimensional \emph{hyperbolic} space completely with identical 24-cells, the way cubes fill ordinary three-dimensional space with no gaps and no overlaps.
+
+It is \textbf{regular}. Every cell, every face, every edge, and every corner is alike. There is no special place in it. This is the strongest possible kind of uniformity a tiling can have, and it is what lets a single fixed law act the same way everywhere.
+
+It is \textbf{hyperbolic}. It does not fit in flat four-space. The dihedral angles do not add up there. It closes only in negatively curved four-dimensional space.
+
+Its most important feature is subtle. The corners of the honeycomb sit \textbf{infinitely far away}. They are \textbf{ideal}. And the pattern you see when you look out toward one of those infinitely distant corners is the ordinary \textbf{cubic grid} of flat three-dimensional space. That cubic grid at the corner is where physics will live.
+
+\subsection{How to read the symbol}
+
+The Schläfli symbol $\{3,4,3,4\}$ is read left to right, and each number adds a dimension by saying how the shape built so far is assembled into the next one up.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+symbol & shape \\
+\midrule
+$\{3\}$ & a triangle \\
+$\{3,4\}$ & four triangles around a corner close into an octahedron \\
+$\{3,4,3\}$ & three octahedra around each edge close into the 24-cell \\
+$\{3,4,3,4\}$ & four 24-cells around each triangular face fill four-dimensional hyperbolic space \\
+\bottomrule
+\end{tabular}
+\caption{Reading the Schläfli symbol one dimension at a time.}
+\label{tab:schlafli-ladder}
+\end{table}
+
+Two facts can be read straight off the symbol, and both matter.
+
+The \textbf{cell} is obtained by dropping the last number. It is $\{3,4,3\}$, the 24-cell. That is the dock.
+
+The \textbf{vertex figure} is obtained by dropping the first number. It is $\{4,3,4\}$, the cubic honeycomb. That is the shape that surrounds each corner.
+
+The second fact is the magic of this honeycomb. The corner of $\{3,4,3,4\}$ is not a point. It is an entire copy of ordinary three-dimensional cubic space.
+
+\begin{proposition}[Cell and vertex figure]
+For the honeycomb $\{3,4,3,4\}$, the cell is the 24-cell $\{3,4,3\}$ and the vertex figure is the cubic honeycomb $\{4,3,4\}$. The vertex figure being an infinite honeycomb is precisely what pushes every corner out to infinity and makes the cross-section there a flat cubic grid.
+\end{proposition}
+
+\subsection{The dock is the 24-cell, the 24 sites are the $D_4$ roots}
+
+The mesh is built of 24-cells meeting face to face. In the lexicon of the theory, one 24-cell is one \textbf{dock}. A dock is a here-now, a place of transit. Each beat, tones arrive in a dock, they knit, and they move on to neighbours.
+
+Each dock has \textbf{24 neighbours}, one across each octahedral facet of the cell. The 24 directions out of a dock are its \textbf{24 sites}. These are the $D_4$ roots introduced in the previous section. There are exactly 24 of them, no rest slot, no twenty-fifth, no home. A dock is 24 sites and nothing more.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+object & atom & geometry \\
+\midrule
+one 24-cell & a \textbf{dock} & $\{3,4,3\}$ \\
+the 24 directions out & the \textbf{24 sites} & the $D_4$ roots \\
+one direction & a \textbf{site} & one root vector \\
+\bottomrule
+\end{tabular}
+\caption{The first three atoms of the flow and their geometry.}
+\label{tab:dock-site-geometry}
+\end{table}
+
+Each site holds one \emph{tone}, a value in $\{-1, 0, +1\}$ read as pain, peace, and pleasure. So a dock holds 24 tones, one per site. The geometry and the state buffer agree on the count by construction. There is exactly one tone slot for each direction a tone could travel.
+
+Distance on the mesh is the number of single-site hops between two docks. That hop count is the natural radius for any structure that lives on the mesh, and it is the radius used throughout the rest of the paper.
+
+\subsection{The vertex figure is flat three-dimensional space}
+
+This is the whole point of choosing this honeycomb, so it is worth stating with care.
+
+In a compact honeycomb the vertex figure is a finite shape, and so each corner is an ordinary point. Cubes tiling flat three-space are like this. Eight cubes meet at each corner, the vertex figure is a finite octahedron, and the corner is just a place.
+
+But $\{4,3,4\}$, the vertex figure of our honeycomb, is itself \textbf{infinite}. It is all of flat three-dimensional space. When the vertex figure is an infinite honeycomb rather than a finite polytope, the corner cannot be an ordinary point. It is pushed out to infinity. It becomes an \textbf{ideal vertex}.
+
+So the corners of $\{3,4,3,4\}$ live infinitely far away. The cross-section of the honeycomb around one of those ideal corners is exactly the \textbf{cubic grid of flat three-dimensional Euclidean space}.
+
+\begin{result}[Flat space at the corner]
+The corners of the bulk crystal are flat three-dimensional space. Each ideal vertex of $\{3,4,3,4\}$ has, as its surrounding cross-section, the cubic honeycomb $\{4,3,4\}$ of flat $\mathbb{R}^3$, exactly and with no approximation.
+\end{result}
+
+This is also why $\{3,4,3,4\}$ is called \textbf{paracompact}. A paracompact honeycomb is one that has ideal vertices. Paracompactness is a feature here, not a defect. It is the very thing that supplies the orderly flat three-dimensional space. A compact honeycomb would have no ideal vertex to read flat space off of. Its horosphere would cut its cells aperiodically into a rough slab. The clean cubic cusp of $\{3,4,3,4\}$ does not.
+
+\subsection{Bulk and cusp}
+
+The honeycomb has two regions, and they play opposite roles. Telling them apart is essential to everything that follows.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}p{0.13\textwidth}p{0.34\textwidth}p{0.42\textwidth}@{}}
+\toprule
+region & what it is & role \\
+\midrule
+\textbf{bulk} & the negatively curved hyperbolic interior of 24-cells & a stronger bath, it disperses structure exponentially, it does not bind \\
+\textbf{cusp} & a parabolic point at infinity, its cross-section a horosphere & where physics lives, the horosphere is a flat Euclidean lattice \\
+\bottomrule
+\end{tabular}
+\caption{The two regions of the honeycomb and their roles.}
+\label{tab:bulk-cusp}
+\end{table}
+
+Physics lives at the \textbf{cusp}, on a horosphere whose cross-section is the flat \textbf{$D_4$ lattice}, a four-dimensional integer lattice. The working substrate in the simulator is a finite, growing patch of this flat $D_4$ horosphere.
+
+The contrast in role is sharp. The \textbf{bulk disperses, the cusp can hold}. The negative curvature of the bulk spreads any structure apart exponentially, because room grows exponentially with radius there. Binding has no purchase against that. Binding lives at the flat cusp, where room grows only steadily and a structure can stay together.
+
+There is a reconciliation to make here, because the cusp is described two ways. The perfectly flat, infinite cusp is a limit, not a state the lattice is ever in at a finite beat. At any finite beat the lattice is a finite horosphere patch at finite cusp height. It is slightly curved, and it has a real frontier, the \emph{wake}. Eternal expansion is that patch flowing deeper toward the cusp, growing and flattening each beat, forever approaching the ideal infinite flat $D_4$ space and never reaching it. Both statements are true at different times. Finite and growing is the reality at every beat. The infinite perfectly flat cusp is the attractor as the beat count goes to infinity.
+
+\subsection{Hyperbolic, and built by reflection}
+
+The honeycomb does not fit in flat four-space. The angles do not add up there. It closes only in negatively curved four-dimensional hyperbolic space, a fact decided by the signature of the Gram matrix of its mirror angles.
+
+Being hyperbolic, the honeycomb \textbf{grows exponentially}. Count the 24-cells within radius $r$ and the number explodes like $e^{c r}$ for some positive constant $c$. Each shell is larger than everything inside it put together. This is the geometric source of the cosmic expansion taken up later in the paper.
+
+Almost all of the honeycomb lives out near its three-sphere boundary at infinity. The structure there, around the ideal corners, is the cubic three-dimensional grid.
+
+The honeycomb is generated the same way as any regular honeycomb. One fundamental chamber is reflected across its mirror walls forever, generating the Coxeter group $[3,4,3,4]$. The five-mirror construction and the staircase it produces belong to the earlier sections on generating a tessellation from its symbol and on reflections.
+
+A deep principle sits at the boundary. The Euclidean cubic lattice at infinity is the \textbf{affine} symmetry of the hyperbolic bulk. Flat space appears at infinity as the asymptotic symmetry of curved space. The everyday flatness of the world we live in is, on this reading, the boundary signature of a curved interior.
+
+\subsection{How to picture it}
+
+No one directly visualizes a four-dimensional hyperbolic honeycomb. The way in is to climb an analogy ladder, each rung a familiar object pushed one step further.
+
+\textbf{One dimension down.} In flat three-space, cubes tile the room as $\{4,3,4\}$ and each corner is just a point. Go one dimension up and bend space negatively. The honeycomb $\{3,4,3,4\}$ is the analogue whose \emph{corner} is a whole copy of that cubic tiling rather than a point.
+
+\textbf{The Escher disk.} Picture the hyperbolic disk where figures crowd toward the rim and shrink without limit. Now do it in four dimensions. The 24-cells crowd toward a three-sphere boundary, and the crowding pattern at the rim spells out cubic three-dimensional space.
+
+\textbf{The cusp funnel.} Look down an infinitely long funnel cut into the honeycomb. Far down the funnel the cross-section settles into a fixed cubic grid that never changes shape. It only recedes. That steady cubic cross-section is the flat three-dimensional space at the ideal corner.
+
+What you can hold in mind is this. The 24-cells are bricks. The curved four-dimensional space is the mortar. The corners are ideal, at infinity. And at each corner the cross-section is a cubic grid.
+
+\subsection{Why this honeycomb, $\{5,3,4\}$ versus $\{3,4,3,4\}$}
+
+An earlier stage of this program explored $\{5,3,4\}$, a three-dimensional hyperbolic honeycomb of dodecahedra, as a control. It is worth comparing the two side by side, because the comparison is what forces the final choice.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+feature & $\{5,3,4\}$ (the 3D control) & $\{3,4,3,4\}$ (the committed substrate) \\
+\midrule
+lives in & hyperbolic 3-space & hyperbolic 4-space \\
+cell & dodecahedron $\{5,3\}$ & 24-cell $\{3,4,3\}$ \\
+neighbours per dock & 12 & 24 \\
+vertex figure & octahedron, finite & cubic honeycomb $\{4,3,4\}$, infinite \\
+corners & ordinary points & ideal, at infinity \\
+flat slice & flat 2D & flat 3D, the cubic grid \\
+boundary at infinity & 2-sphere & 3-sphere \\
+spinor sites & no, icosahedral $1 + 3 + 3' + 5$ & \textbf{yes}, $D_4$ $\ 8v + 8s + 8c$ \\
+\bottomrule
+\end{tabular}
+\caption{The 3D control against the committed 4D substrate.}
+\label{tab:534-vs-3434}
+\end{table}
+
+Two headlines decide it.
+
+The first is dimension. The honeycomb $\{5,3,4\}$ gives flat two-dimensional slices. The honeycomb $\{3,4,3,4\}$ gives flat three-dimensional slices. That one extra dimension is exactly what ordinary physical space needs. A theory of our world needs three flat spatial dimensions at the cusp, and only $\{3,4,3,4\}$ supplies them.
+
+The second is spin. Only the 24-cell sites carry the spinor. The dodecahedral sites of $\{5,3,4\}$ decompose under their icosahedral symmetry as $1 + 3 + 3' + 5$, all of integer spin, with no spinor anywhere. The $D_4$ sites of the 24-cell decompose under $\mathrm{SO}(8)$ as $8v + 8s + 8c$, and the two summands $8s$ and $8c$ are genuine half-integer-spin representations. Free spin needs that spinor. So the substrate is forced to $\{3,4,3,4\}$.
+
+\begin{result}[The substrate is $\{3,4,3,4\}$]
+Among the regular hyperbolic honeycombs, $\{3,4,3,4\}$ is selected on two independent grounds. It is the one whose ideal cusp is flat three-dimensional space, the dimension our world requires, and it is the one whose sites carry a fundamental spinor. The three-dimensional control $\{5,3,4\}$ fails both. The committed base mesh is therefore $\{3,4,3,4\}$.
+\end{result}
+
+\subsection{The trade-off, ternary in the cusp}
+
+The choice is not free. There is one honest cost, and it is recorded rather than hidden.
+
+In the earlier $\{5,3,4\}$ program the ternary structure lived in the \textbf{bulk}. The bath and the three-octahedra-around-an-edge closure that gives the ternary tone its home were interior features. In $\{3,4,3,4\}$ the ternary structure now lives in the \textbf{cusp} rather than the bulk.
+
+This is a real change in where the ternary sits, and it is a committed trade-off, not a free lunch. The discriminator that wins anyway is the pair of features only $\{3,4,3,4\}$ can supply. A spinor in the sites and a flat three-dimensional cusp. Those two are worth moving the ternary for.
+
+\subsection{Why it matters}
+
+This honeycomb is the cleanest candidate known for where flat three-dimensional physical space comes from. It is the cubic cusp of a four-dimensional hyperbolic bulk, exact and with no approximation, sitting on a cell that already carries a spinor.
+
+If $\{5,3,4\}$ is an infinite cathedral of dodecahedra, $\{3,4,3,4\}$ is a crystalline four-dimensional engine. It recursively generates Euclidean order at infinity through perfect symmetry and negative curvature.
+
+\begin{principle}[The body and its edge]
+The honeycomb is the body of the fire, and its radiance at the edge is the space we live in.
+\end{principle}
+
+The base remains \textbf{discrete and deterministic}. The exponential growth, the flat cusp, and the continuous symmetry are all emergent. None of them is a base fact. The base is a finite, growing patch of a fixed regular honeycomb, 24 sites to a dock, one ternary tone to a site, and nothing more.

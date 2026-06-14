@@ -1,0 +1,141 @@
+\section{Data Structures Across Tessellations}
+
+The two sections before this one measured everything on one crystal. The bulk was read as a database, and the same bulk was read as an associative memory, and in both cases the carrier was the $\{3,4,3,4\}$ mesh of this paper. The natural worry is that the result was an accident of that single shape. A reader is entitled to ask whether the storage and recall machinery is a special gift of $\{3,4,3,4\}$, or whether it would survive a change of crystal.
+
+It survives. The data structures are not a property of $\{3,4,3,4\}$. They are a property of hyperbolic Coxeter geometry, and they construct identically on every tessellation in the family.
+
+\begin{result}[The structures are geometric, not crystal-specific]
+The data structures of the bulk are corollaries of two facts that hold on every hyperbolic Coxeter tessellation. They are not features of the one crystal the theory commits to. The choice of crystal is a choice of constants, not of capabilities.
+\end{result}
+
+This was checked by profiling all $42$ buildable hyperbolic tessellations from two dimensions to five. One module of the Schlafli symbol gives the profile of any of them. What changes from one tessellation to the next is only the constants, and those constants scale smoothly with dimension.
+
+\subsection{The finding in one paragraph}
+
+A Schlafli symbol is a Coxeter group. Reflecting its generators grows a chamber graph, a mesh of docks joined along their shared sites. On that graph every hyperbolic tessellation in the family shows the same two structural facts.
+
+\begin{itemize}
+\item \textbf{Exponential capacity.} The dock count grows geometrically with radius. A ball of address length $n$ holds on the order of $g^{n}$ docks, for a growth ratio $g > 1$ fixed by the crystal.
+\item \textbf{Logarithmic tree radius.} The address and the tree depth are $O(\log N)$ in the number of docks $N$. To reach any of $N$ docks costs a descent of length proportional to $\log N$, not $N$.
+\end{itemize}
+
+These are the same two levers that the database section relied on. Exponential capacity and logarithmic depth are what make the tree-shaped structures cheap, the B-tree, the trie, the heap, the Merkle tree, the union-find, and the distributed hash table. They are what let the hash structures fit on the boundary. They are what make the radial structures work, the log-structured merge tree, the mipmap, and the skip list. The point of this section is that they hold on every member of the family, not on one favoured crystal.
+
+\begin{principle}[One descent, every crystal]
+The B-tree that costs three physical steps on $\{3,4,3,4\}$ costs a logarithmic descent on $\{7,3\}$, on $\{5,3,4\}$, on the pentacombs, on all of them. The depth is set by the geometry, and the geometry is hyperbolic everywhere in the family.
+\end{principle}
+
+\subsection{How the construction works in general}
+
+The construction is one function of the symbol. It runs in three steps, and each step is the same regardless of which tessellation is passed in.
+
+\begin{enumerate}
+\item \textbf{Generate.} Reflect the Coxeter generators to grow the chamber graph, for any symbol of any rank. This covers rank three in two dimensions through rank six in five dimensions. The output is a mesh of docks with their site adjacencies.
+\item \textbf{Profile.} Read off the structural metrics. These are the capacity, that is the growth ratio, the tree radius, that is the depth of a breadth-first search, the boundary dominance, that is the fraction of docks living in the outermost shell, and the range-scan cost, that is the ratio of a ball to its shell.
+\item \textbf{Read the structures off the profile.} The combinatorial data structures are corollaries of the profile. A logarithmic radius \emph{is} the B-tree depth, the Merkle proof length, the union-find depth, and the hop count of the distributed hash table. The geometric growth \emph{is} the fan-out of the log-structured merge tree and the raw capacity. The breadth-first shells \emph{are} the traversal order.
+\end{enumerate}
+
+Five of the structures are geometric rather than purely combinatorial, and these need coordinates. They are greedy routing, the tree-embedding distortion bound, the Busemann mipmap, the cusp array, and the horoball R-tree. One extra construction supplies the coordinates, the embedding of the Coxeter symbol onto the hyperboloid, and that embedding is available for every tessellation too.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+construction & result \\
+\midrule
+greedy routing and the Busemann mipmap, two to five dimensions & worst success $0.97$ \\
+exact B-tree order per tessellation, equal to the dock coordination & $12$ for $\{5,3,4\}$, $24$ for $\{3,4,3,4\}$, $120$ for $\{5,3,3,5\}$ \\
+\bottomrule
+\end{tabular}
+\caption{The geometric structures and the exact fan-out, constructed from the symbol on every tessellation.}
+\label{tab:geometric-constructions}
+\end{table}
+
+The exact B-tree order on a given tessellation is the dock coordination, the number of docks meeting at a vertex figure, computed as a ratio of Coxeter group orders. That gives $12$ on $\{5,3,4\}$, $24$ on $\{3,4,3,4\}$, and $120$ on $\{5,3,3,5\}$. So the full set, the combinatorial structures, the geometric structures, and the exact fan-out, now constructs on every tessellation from the symbol alone.
+
+\subsection{The numbers, by dimension}
+
+All $42$ buildable tessellations confirm exponential capacity and logarithmic depth. The constants move monotonically with dimension. Table~\ref{tab:by-dimension} collects the family by dimension.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+dimension & tessellations & growth ratio (range, avg) & tree radius at $1500$ docks (avg) & boundary fraction (avg) \\
+\midrule
+2D & $10$ ($\{7,3\}$, $\{5,4\}$, \ldots) & $1.17$ to $1.50$, avg $1.30$ & $18$ & $0.23$ \\
+3D & $18$ ($\{5,3,4\}$, $\{3,5,3\}$, \ldots) & $1.32$ to $1.63$, avg $1.47$ & $12$ & $0.33$ \\
+4D & $9$ ($\{3,4,3,4\}$, $\{5,3,3,5\}$, \ldots) & $1.38$ to $1.95$, avg $1.58$ & $9$ & $0.39$ \\
+5D & $5$ (the pentacombs) & $1.64$ to $1.83$, avg $1.72$ & $8$ & $0.46$ \\
+\bottomrule
+\end{tabular}
+\caption{The structural profile of the $42$ buildable hyperbolic tessellations, by dimension.}
+\label{tab:by-dimension}
+\end{table}
+
+Three trends run monotonically across the table.
+
+\textbf{Capacity rises with dimension.} The growth ratio climbs from $1.30$ in two dimensions to $1.72$ in five. A higher dimension packs more docks into a given radius, so it stores more capacity per unit of address length.
+
+\textbf{Trees get shallower with dimension.} At a fixed count of $1500$ docks the tree radius falls from $18$ in two dimensions to $8$ in five. The higher coordination branches wider, so the same data sits at a shallower depth.
+
+\textbf{The boundary dominates more with dimension.} The outermost-shell fraction rises from $0.23$ in two dimensions to $0.46$ in five. The interior-empty caveat and the range-scan cost both sharpen as the dimension grows, and the dense-array part is squeezed onto an ever-thinner cusp.
+
+\subsection{The universal profile}
+
+The structures themselves never change. Only the constants do. Table~\ref{tab:universal} separates what is universal across all $42$ from what varies with the choice of crystal.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+property & universal across all $42$ & varies with the tessellation \\
+\midrule
+exponential capacity & yes & the exact growth ratio ($1.17$ to $1.95$) \\
+logarithmic tree depth & yes & the exact radius (the branching) \\
+heap-ordered breadth-first tree & yes & the fan-out \\
+boundary dominance & from 3D up & the strength (2D is mild, $0.23$) \\
+the data structures themselves & yes, all $25$ & the constants only \\
+\bottomrule
+\end{tabular}
+\caption{What is universal across the family, and what is set by the particular tessellation.}
+\label{tab:universal}
+\end{table}
+
+\begin{principle}[Constants, not capabilities]
+The choice of tessellation is a choice of constants, not of capabilities. Every member carries every structure. The crystal only sets how fast the capacity grows and how deep the tree runs.
+\end{principle}
+
+This is the same universality the associative-memory section found for recall, where the tessellation sweep recalled perfectly on all $42$ tessellations with one code path. The geometry sets capacity and latency. The structures are the same everywhere.
+
+\subsection{How to choose a tessellation}
+
+The profile turns the choice of crystal into a simple design dial. Each row of Table~\ref{tab:choose} reads a desired property off the trends above.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+you want & choose \\
+\midrule
+shallower trees and more capacity & go up in dimension \\
+a flat 1D, 2D, or 3D cusp for arrays & pick the dimension whose horosphere matches the flat data \\
+the mildest curvature and the cleanest theory & stay in 2D ($\{7,3\}$, $\{5,4\}$) \\
+navigation, universality, \emph{and} physics on one structure & $\{3,4,3,4\}$ \\
+\bottomrule
+\end{tabular}
+\caption{The design dial. The first three rows are pure engineering. The last row is the theory's commitment.}
+\label{tab:choose}
+\end{table}
+
+The last row is the reason the theory commits to $\{3,4,3,4\}$, and the data structures alone are not that reason. As the computation section showed, $\{3,4,3,4\}$ is the unique grid that carries the addressing tree, the universal flow of the knit, the $D_4$ spinor, and the flat three-dimensional cusp all at once. The full selection argument for $\{3,4,3,4\}$ is set out in the tessellation survey and the dimension ladder. The $24$ sites of a dock are both the bushy Fibonacci tree of the address and the $D_4$ root system of the physics, and only this crystal makes the two coincide.
+
+\subsection{The bottom line}
+
+The twenty-five data structures verified on $\{3,4,3,4\}$ are not special to it. They are corollaries of two facts, exponential capacity and logarithmic depth, that hold on every hyperbolic Coxeter tessellation from two dimensions to five. A single module of the Schlafli symbol profiles any of them, and the profile is confirmed on all $42$ at once.
+
+\begin{result}[The storage claim, in its strongest form]
+To construct these data structures on a new tessellation you do not write new code. You pass its symbol. The database engine is not a feature of one crystal that happened to work out. It is a theorem of hyperbolic geometry, and the theory's chosen crystal is just the one member of the family that also carries the physics.
+\end{result}
+
+So the storage and recall results of the previous two sections rest on the geometry, not on a lucky crystal. The bulk is a database because it is hyperbolic. It is also a physics because it is $\{3,4,3,4\}$. The two readings meet on one mesh, and that meeting is the whole point of the chosen crystal.

@@ -1,0 +1,154 @@
+\section{The Fourth Dimension}
+
+The mesh is four-dimensional. Every later claim about its cells, its directions, and its physics rests on that fact, so a reader needs a working intuition for four-dimensional space before going further. The aim of this section is modest but essential. It is to make four dimensions stop feeling impossible and start feeling like the natural next step of geometry, the rung the ladder was always going to reach.
+
+\begin{principle}[The shift to make]
+Stop trying to \emph{see} four dimensions. Start understanding their \emph{structure}. The eye is local and three-dimensional. The structure is not, and the structure is what carries the physics.
+\end{principle}
+
+The difficulty is real but narrow. The brain cannot point at a fourth perpendicular direction. Everything else about four dimensions, the counting, the symmetry, the algebra, follows the same rules as the three dimensions we live in. Once the visual demand is dropped, four-dimensional reasoning becomes ordinary.
+
+\subsection{What a dimension actually is}
+
+A dimension is not a mysterious realm. It is an \emph{independent direction} one can move, equivalently one more number needed to fix a position. The climb up the ladder is just the count of coordinates.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+dimension & coordinates & what lives there \\
+\midrule
+0D & none & a point \\
+1D & $x$ & segments \\
+2D & $(x, y)$ & polygons, circles, tilings \\
+3D & $(x, y, z)$ & cubes, spheres, ordinary space \\
+4D & $(x, y, z, w)$ & tesseracts, hyperspheres, the 24-cell \\
+\bottomrule
+\end{tabular}
+\caption{The dimension ladder, counted by coordinates.}
+\label{tab:dimension-ladder}
+\end{table}
+
+So four dimensions just means there is \emph{one more} independent direction $w$. It behaves exactly like $x$, $y$, and $z$. It is perpendicular to all of them at once, and that simultaneous perpendicularity is the only thing the eye cannot supply. The mental shift is to stop asking where the fourth direction is physically and ask instead what happens if one more coordinate exists.
+
+This is less exotic than it sounds. A careful reader already navigates high-dimensional spaces every day without calling them that. Color is three-dimensional, a point in a red-green-blue cube. A word embedding in a language model is a point in thousands of dimensions. None of these spaces can be pictured as a shape, yet all of them are reasoned about fluently. Dimension is a count, not a view.
+
+\subsection{The analogy staircase}
+
+There is a single master technique for building four-dimensional objects with no mental image at all. Sweep the current shape along a \emph{new direction} perpendicular to everything so far. Each step does exactly the same thing as the last.
+
+A point swept along a new direction makes a line. A line swept makes a square. A square swept makes a cube. A cube swept along one more perpendicular direction makes a \emph{tesseract}, the four-dimensional cube. The new perpendicular direction is precisely the thing the eye cannot picture. But the \emph{pattern never stops}, and the pattern is the intuition. The understanding lives in the recurrence, not in the snapshot.
+
+The same objects can be built a second way, by doubling.
+
+\begin{itemize}
+\item A cube is two squares with corresponding corners joined.
+\item A tesseract is two \emph{cubes} with corresponding corners joined. Eight vertices plus eight vertices makes sixteen.
+\end{itemize}
+
+So one can construct, count, and reason about four-dimensional objects perfectly with no mental image. That is what understanding four dimensions actually feels like. It is bookkeeping that obeys a rule, not a failed attempt to visualize.
+
+\begin{proposition}[Construction without picture]
+Every regular four-dimensional object is reachable by the sweep-and-double construction from lower dimensions. Its vertex count, edge count, and face structure follow by counting alone, so its existence and combinatorics are fully determined without any visual model.
+\end{proposition}
+
+\subsection{Two ways we glimpse it}
+
+We never see four dimensions directly. We catch it two ways, and both are familiar from one dimension down.
+
+The first is \emph{projection}. A drawn tesseract, the cube-inside-a-cube figure, is a three-dimensional shadow of the four-dimensional object, exactly as a drawn cube is a two-dimensional shadow on paper. The inner cube is not actually smaller. It is \emph{farther along} $w$, and projection shrinks whatever is farther along the suppressed direction, just as the far face of a drawn cube looks smaller though it is not.
+
+The second is \emph{cross-sections}, the Flatland method. A four-dimensional object passing through our three-dimensional space appears as a sequence of changing three-dimensional slices. A sphere passing through a plane appears to a two-dimensional being as a dot that grows to a circle and shrinks back to a dot. Watch the slices morph in order and the whole object is recovered. A four-dimensional shape passing through space gives a movie of solids, and the movie is the shape.
+
+\begin{result}[Two windows on the fourth direction]
+Four-dimensional structure is fully accessible through three-dimensional shadows (projection) and three-dimensional slices (cross-section). Neither requires seeing $w$ directly. Together they recover the object completely.
+\end{result}
+
+\subsection{Rotation gets richer}
+
+Here four dimensions turn exceptional, and the difference is structural rather than a matter of degree.
+
+In three dimensions a rotation turns \emph{around an axis}. A line stays fixed while everything else spins about it. In four dimensions a rotation instead turns \emph{in a plane}. And there are \emph{two independent simultaneous rotations} available. One can spin in the $xy$ plane \emph{and} in the separate $zw$ plane at once, a double rotation with no three-dimensional analogue. The two planes share no direction, so the two spins do not interfere, and a generic four-dimensional rotation is this combined motion.
+
+The extra room has sharp consequences.
+
+\begin{itemize}
+\item \textbf{Mirror images become superimposable.} A left hand turns into a right hand by passing through the fourth dimension, the way the flat letter p flips to q by passing through the third. What is rigidly distinct in three dimensions is freely interchangeable in four.
+\item \textbf{Two flat planes can meet at a single point.} In three dimensions two planes must share a whole line. In four they can touch at one point and nowhere else, because there is room for each plane to escape the other.
+\item \textbf{One-dimensional knots fall apart.} Knotting always needs exactly two extra dimensions. A one-dimensional string knots in three dimensions and comes undone in four. What knots in four dimensions instead is a two-dimensional sheet.
+\end{itemize}
+
+\subsection{Why four dimensions is uniquely special}
+
+Four dimensions are not just one more rung. They are structurally exceptional, and this matters because the mesh physics rides on exactly the features that make them so. Several deep facts appear here and nowhere else.
+
+\begin{itemize}
+\item \textbf{Quaternions.} The four-dimensional rotational numbers. They encode three-dimensional rotations so cleanly that graphics engines run on them. Rotation itself \emph{wants} a higher-dimensional algebra, and four dimensions is where that algebra lives.
+\item \textbf{The 24-cell.} A regular four-dimensional solid that exists \emph{only} in four dimensions. Not in three, not in five, nowhere else. Its bare existence is proof that four dimensions hold genuinely new structure. It is \emph{self-dual}, a sign of deep symmetry balance, and it is the cell of the committed honeycomb $\{3,4,3,4\}$ (Section 7, The Regular Hyperbolic Honeycombs).
+\item \textbf{The exceptional cascade.} A long chain of exceptional mathematics begins here. Four dimensions lead to quaternions, then to spinors, to Clifford algebras, to $D_4$, to triality, to the octonions, to the exceptional Lie groups, and on to $E_8$. The mesh sits at the \emph{mouth} of this cascade.
+\item \textbf{Spinors.} The objects that need a $720^\circ$ turn to return to themselves emerge naturally in four dimensions. And \emph{triality}, the rare three-way outer symmetry of $D_4$, makes the vector and the two kinds of spinor interchangeable. That three-way symmetry is a candidate seed of three generations of matter.
+\end{itemize}
+
+\begin{principle}[Four dimensions are the source]
+The features that make four dimensions exceptional, double rotations, quaternions, the 24-cell, spinors, and triality, are not curiosities in this theory. They are the machinery of the physics. The substrate is built where this machinery is native.
+\end{principle}
+
+\subsection{The last compact regular dimension}
+
+There is a second, harder reason the mesh lives in four dimensions. It is the last place the regular honeycomb family stays rich.
+
+Recall from Section 7 that the regular hyperbolic honeycombs thin out as dimension climbs and vanish above $H^5$. Four dimensions is the high end of the rich part of that family.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+hyperbolic dimension & regular honeycombs available \\
+\midrule
+$H^4$ & small family, holds the prize $\{3,4,3,4\}$, finite 24-cell, ideal cubic cusp \\
+$H^5$ & only a few paracompact honeycombs survive \\
+above $H^5$ & none \\
+\bottomrule
+\end{tabular}
+\caption{The regular hyperbolic family thins out and ends just above four dimensions.}
+\label{tab:hyperbolic-thinout}
+\end{table}
+
+The honeycomb $\{3,4,3,4\}$ has a \emph{finite} 24-cell as its cell and an \emph{ideal cubic cusp} that hands over flat three-dimensional space at its corner. Four dimensions is the highest place where a finite-celled hyperbolic crystal still exposes a flat space one dimension down.
+
+\begin{result}[Four dimensions is the boundary case]
+Four dimensions is the highest dimension in which a finite-celled regular hyperbolic honeycomb still exposes, at its ideal corner, a flat space of one dimension lower. That flat boundary is flat three-dimensional space, the space we live in.
+\end{result}
+
+The dimension ladder of Section 7 lands on $H^4$ for exactly this reason. Its flat boundary is flat three-dimensional space. One dimension lower would give a flat two-dimensional boundary, too small for our world. One dimension higher leaves the rich finite-celled family behind entirely. Four dimensions is the unique place where richness and a matching flat boundary coincide.
+
+\subsection{The reframe to carry}
+
+Dimension is \emph{relational, not visual}. It is coordinate freedom and symmetry behavior, not a picture in the mind. Human intuition is local and three-dimensional, but the universe of geometry is far larger than that intuition, and the larger structure is the one the physics uses.
+
+\begin{principle}[The standing reframe]
+Four dimensions are not another world beside ours. They are the next coherent extension of geometry, understood through symmetry, projection, and algebra rather than through shape.
+\end{principle}
+
+And it is negatively curved four-dimensional space, hyperbolic four-space, where the mesh lives. Its honeycomb $\{3,4,3,4\}$ is woven from 24-cells, joined across shared octahedral facets, with a flat three-dimensional Euclidean cross-section at its ideal corners. The mesh is a weave of docks, each dock a 24-cell, and each dock opens onto exactly 24 sites, one per facet-neighbour, with no twenty-fifth and no rest slot. The exceptional facts of four dimensions are the facts the mesh is built from.
+
+\subsection{A note on depth}
+
+One honest caution closes the section. The smooth four-dimensional space described above, with its continuous rotations and its quaternion algebra, is the \emph{continuum model}. It is the large-scale picture, not the base.
+
+The base of the theory is \emph{discrete and deterministic}. It is a finite graph of docks, each dock a 24-cell, joined across shared octahedral facets, so each dock has exactly 24 facet-neighbours, never more. There is no rest center and no twenty-fifth slot. Each site carries one tone in $\{-1, 0, +1\}$, read as pain, peace, and pleasure, and the state advances each beat by the knit, the collide-then-stream law. The space itself grows each beat at its wake, the open frontier where new docks come into being.
+
+\begin{result}[Continuum is emergent, never base]
+The continuous symmetries of four-dimensional space, the smooth rotations, the quaternion algebra, and the spinor structure, are \emph{emergent}. They are restored only in the large-scale limit of the discrete reflection construction of Section 8, Generating a Tessellation from Its Symbol. They are never base ingredients placed by hand. The base is the finite weave of docks, ternary tones, the knit, the wake, and the beat.
+\end{result}
+
+The exceptional features carry over into the discrete base in discrete form. The 24 facet directions of a dock are the 24 roots of $D_4$. The triality is the discrete outer symmetry of that root system. The spinors live in the way those 24 sites transform. The smooth four-dimensional rotations come back only when one stands far enough away from the weave that its discreteness washes out. The intuition of this section is the right intuition for the emergent geometry. The base underneath it stays finite and exact.
+
+\subsection{See also}
+
+\begin{itemize}
+\item Section 7, The Regular Hyperbolic Honeycombs, for the family that thins out and ends just above $H^5$.
+\item Section 10, The 24-Cell and the Sites, for the four-dimensional-only cell that lives at the mouth of the exceptional cascade.
+\item Section 11, The $\{3,4,3,4\}$ Honeycomb, for the committed four-dimensional substrate of the theory.
+\item Section 13, The Cusp Is Physical Space, for the flat three-dimensional space at the ideal corner.
+\end{itemize}

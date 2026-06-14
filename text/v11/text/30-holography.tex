@@ -1,0 +1,250 @@
+\section{Holography}
+
+There is one law that ties the geometry of the mesh to the information stored on its edge. The entanglement of a boundary region equals the geometry of a bulk surface anchored on that region. This is the holographic principle. On the simplest hyperbolic mesh it is not assumed and it is not imported from another theory. It is measured.
+
+This section states the law, then confirms it on a two-dimensional testbed where it can be drawn and checked by hand, then carries the same law into the three-dimensional bulk where it becomes the mechanism by which a self persists. Every claim is marked at an honest depth. The cleanest result, the Ryu-Takayanagi entanglement law, is fully measured. The persistence codes are realized but rest on one extra condition that is still open.
+
+\begin{principle}[The same fact, twice]
+The negative curvature that gives the mesh its exponentially large boundary is the same negative curvature that gives the logarithmic entanglement law. They are not two facts. They are one fact read two ways.
+\end{principle}
+
+A few terms recur, so a plain statement of each helps. The \emph{mesh} is the whole $\{3,4,3,4\}$ tessellation, a weave of \emph{docks}. A dock is one geometric cell, a here-now, carrying its $24$ \emph{sites}, the directions out of it. Each site holds one \emph{tone}, the ternary vibe value in $\{-1,0,+1\}$. The \emph{knit} is the law of how the tones change each beat, collide then stream. A \emph{self} is a bound, self-correcting, identity-bearing knot of tones woven across many docks over many beats. The holography below is what lets such a self survive.
+
+\subsection{The two-dimensional testbed and its role}
+
+Before the physical $\{3,4,3,4\}$ mesh, it pays to confirm the entanglement law on the cheapest possible stage. That stage is $\{7,3\}$, the order-three heptagonal tiling. It is the cover image of the whole theory and the easiest hyperbolic mesh to draw.
+
+$\{7,3\}$ is two-dimensional and hyperbolic. Its seven-fold symmetry is non-crystallographic, which means it can carry no gauge structure and no genuine spinor. Those limits are real and they are respected here. What $\{7,3\}$ is good for is geometry. Its boundary is one-dimensional, the simplest setting in which a boundary theory can live and a minimal-surface cut can be taken.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+property & value \\
+\midrule
+dimension & $2$, hyperbolic \\
+boundary & $1$D, the simplest possible \\
+symmetry & $7$-fold, non-crystallographic \\
+good for & static geometry, holography, prototyping \\
+not for & gauge, $3$D matter, fast dynamics \\
+\bottomrule
+\end{tabular}
+\caption{The $\{7,3\}$ testbed and the experiments it supports.}
+\label{tab:hol-testbed}
+\end{table}
+
+So the experiments here are holography, visualization, and prototyping. Never gauge, never three-dimensional physics. What measures clean on $\{7,3\}$ tells us what to measure on the $\{5,3,4\}$ and $\{3,4,3,4\}$ bulks that carry the real physics.
+
+\subsection{The Ryu-Takayanagi law, clean and decisive}
+
+The entanglement entropy of a boundary interval equals the length of the minimal bulk surface anchored on the interval's two endpoints. In a two-dimensional bulk that minimal surface is just a curve, the bulk \emph{geodesic} between the two endpoints. Its length is the entropy.
+
+\begin{definition}[Ryu-Takayanagi length]
+For a boundary interval with endpoints $p$ and $q$, the Ryu-Takayanagi entropy is the length of the shortest path through the bulk that joins $p$ to $q$. In a hyperbolic two-dimensional bulk that path is the unique bulk geodesic between them.
+\end{definition}
+
+The experiment grows the interval and watches the geodesic. On $\{7,3\}$ the geodesic does not hug the boundary. It dips into the negatively curved interior, because the interior offers a far shorter route. As the interval grows, the length of that dipping geodesic grows as the \emph{logarithm} of the interval. That logarithm is exactly the area law of a two-dimensional conformal field theory, entropy proportional to the log of the region.
+
+The control is what makes this decisive. Replace the hyperbolic $\{7,3\}$ with the flat $\{6,3\}$ tiling and rerun the same measurement. With no negative curvature there is no interior shortcut, so the minimal path hugs the boundary and its length grows \emph{linearly} with the interval. A linear law is a volume law, and a volume law is no holography at all.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+substrate & curvature & geodesic length scaling & law \\
+\midrule
+$\{7,3\}$ & negative & logarithmic in interval & area law, holographic \\
+$\{6,3\}$ control & flat & linear in interval & volume law, no holography \\
+\bottomrule
+\end{tabular}
+\caption{The hyperbolic mesh gives the area law, the flat control gives the volume law.}
+\label{tab:hol-rt}
+\end{table}
+
+The two fits are unambiguous and opposite. On $\{7,3\}$ a logarithmic fit leaves a residual of $0.30$ against $1.55$ for a linear fit. On flat $\{6,3\}$ a linear fit leaves a residual of $0.014$ against $63$ for a logarithmic fit. There is no overlap. The hyperbolic case is logarithmic, the flat case is linear, and neither could be mistaken for the other.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+case & log-fit residual & linear-fit residual \\
+\midrule
+$\{7,3\}$ & $0.30$ & $1.55$ \\
+$\{6,3\}$ flat & $63$ & $0.014$ \\
+\bottomrule
+\end{tabular}
+\caption{Fit residuals. The hyperbolic and flat cases are opposite and clean.}
+\label{tab:hol-residuals}
+\end{table}
+
+\begin{result}[The holographic entanglement law, measured]
+On the hyperbolic mesh $\{7,3\}$ the entanglement of a boundary interval follows the logarithmic Ryu-Takayanagi law. On the flat $\{6,3\}$ control the same measurement is linear, a volume law. The holographic scaling is a property of the negative curvature, not of any particular tiling. The flat control is the discriminator that could have failed, and it did not.
+\end{result}
+
+This is the cleanest holographic test anywhere in the program. The reason is that the static length accumulates the \emph{whole} geodesic at once, so it is robust even when the patch is small. The result on $\{7,3\}$ is the prototype for the same measurement on the three-dimensional $\{5,3,4\}$ bulk.
+
+\subsection{The boundary correlator and the area law}
+
+The entanglement law has a dual face, the boundary correlator. A signal sent through the bulk reaches a far boundary point with a fixed falloff, and that falloff is the same negative-curvature fact read in dynamics rather than in entropy.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+experiment & substrate & depth & finding \\
+\midrule
+area law & any & L3 & ground state is area-law, a thermal state is volume-law \\
+black hole & any & L3 & region entropy scales with horizon \textbf{area}, not volume \\
+Bethe correlator & any & L1 & exact bulk-mediated boundary correlator is a clean $1/r^2$ \\
+\bottomrule
+\end{tabular}
+\caption{The boundary correlator and the area law, with honest depths.}
+\label{tab:hol-correlator}
+\end{table}
+
+The area law is the ground-state signature. The emergent field in its lowest state has entanglement that scales with the \emph{boundary} of a region, not its volume. Heat it and the state crosses over to a volume law. The area-law experiment separates the two, and the separation is fully measured.
+
+The black-hole result is the same law applied to a horizon. The entropy of a region tracks the \emph{area} of its horizon, not the volume it encloses. That is the Bekenstein-Hawking law, recovered rather than assumed.
+
+The clean $1/r^2$ Bethe correlator is real but shallow. It is a tree-level, dimension-blind result, the exact bulk-mediated boundary correlator of an integrable chain, and it is not yet pinned to a physical three-dimensional mesh. We log it honestly as a propagator skeleton, not a finished gravity law.
+
+\begin{result}[Area law and horizon entropy]
+The emergent ground state is area-law and a thermal state is volume-law, and the two are cleanly separated. Applied to a horizon, the same law gives region entropy scaling with horizon area, the Bekenstein-Hawking relation. Both are fully measured.
+\end{result}
+
+\subsection{Holographic codes and how a self persists}
+
+The two-dimensional testbed confirms the law. The work it does for the physics happens in the three-dimensional bulk $\{5,3,4\}$, where the same holography becomes the mechanism of persistence.
+
+The bare knit on $\{5,3,4\}$, run on its own, produces structured churn rather than lasting selves. A localized pattern does not protect itself by the dynamics alone. The boundary at infinity supplies what the dynamics cannot. Because the bulk is negatively curved, a region of the boundary redundantly encodes a self deep in the bulk. The self then persists by error correction. The boundary reconstructs it after damage, the way a good code reconstructs a message after noise.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+experiment & depth & finding \\
+\midrule
+holographic code & L2 & a redundantly encoded bulk self recovers after corruption up to half the boundary, a non-redundant one dies on the first error \\
+perfect five-qubit code & L2 & the perfect $[[5,1,3]]$ code, any $2$ erasures recover the bulk logical qubit, distance $3$ \\
+tiled code & L2 & the code tiled on the bulk tree, code distance grows as $3^{\text{depth}}$ \\
+holographic memory & L3 & a spread-encoded bit survives bounded erasure, a localized blob is destroyed \\
+growing code & L3 & the growing code raises its erasure threshold with shell age \\
+\bottomrule
+\end{tabular}
+\caption{The holographic codes on $\{5,3,4\}$ that realize persistence.}
+\label{tab:hol-codes}
+\end{table}
+
+The classical version is the plainest statement. A self encoded redundantly across the boundary is recovered after local corruption up to half the boundary. A self encoded without redundancy dies on the first error. The exponential boundary does the heavy lifting, because any local damage is an exponentially small fraction of the whole edge.
+
+The quantum building block is the perfect five-qubit code, written $[[5,1,3]]$. It encodes one logical qubit into five physical ones so that any three of the five reconstruct it, which is to say any two can be erased and recovered. Its distance is three. The honest threshold is that some three-qubit erasures are uncorrectable, and that is the limit the code respects.
+
+\begin{proposition}[Code distance grows with depth]
+Tile the perfect five-qubit tensors on the $\{5,3,4\}$ bulk tree, with the rule that a tensor is recoverable if and only if at least three of its five neighbors are. The code distance grows as $3^{\text{depth}}$, taking the values $3$, $9$, $27$ on successive shells, and the contiguous holographic wedge deepens from $10$ to $50$. A self deeper in the bulk is exponentially more protected against boundary erasure.
+\end{proposition}
+
+This is the deep result of the persistence story.
+
+\begin{result}[Persistence by holography]
+The deeper a self lives in the bulk, the more protected it is. Persistence on $\{5,3,4\}$ is realizable as a holographic error-correcting code on the boundary, with the depth of the self setting the strength of the protection.
+\end{result}
+
+There is one honest gap. A separate experiment shows that a bare reversible knit \emph{derives the causal wedge for free}. The bulk is recoverable from the boundary region it reaches, and that wedge grows exponentially with depth, with no extra condition imposed. But a generic reversible knit loses the encoded value under a single erasure. The causal structure is free. The erasure-correcting code needs the perfect-tensor condition on top.
+
+\begin{principle}[The one deep residual]
+Whether a single knit built from the eight atoms can be \emph{both} charge-conserving \emph{and} a perfect tensor is the open frontier of the persistence story. The causal wedge is free. The perfect-tensor condition is the remaining constraint.
+\end{principle}
+
+\subsection{Bulk nonlocality, the shortcut through the inside}
+
+The same negative curvature that gives the entropy law and the persistence code gives a third thing, a shortcut. Two points far apart along the boundary can be joined by a short hidden path through the bulk. The boundary metric and the bulk metric disagree, and that disagreement is the holography seen from yet another angle.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+experiment & depth & finding \\
+\midrule
+bulk nonlocality & L3 & distant boundary points are joined by a short hidden path through the bulk \\
+signaling & L3 & a signal crosses the whole mesh through the bulk to a far self \\
+\bottomrule
+\end{tabular}
+\caption{The bulk shortcut, the third face of the same curvature.}
+\label{tab:hol-nonlocal}
+\end{table}
+
+Both are fully measured. The bulk geodesic between two boundary points is exponentially shorter than the boundary distance between them, because the mesh grows exponentially outward. A signal that travels through the bulk reaches a far self faster than any route along the boundary could.
+
+This is the same fact a third time. The geodesic that gives the logarithmic entanglement law above is the shortcut here. The boundary redundancy that gives the persistence code is the same redundancy. One curvature, three faces.
+
+\subsection{What the cheap testbed is and is not good for}
+
+The small hyperbolic patch that makes static geometry measure beautifully makes dynamics saturate. This is an honest property of the testbed and worth stating plainly.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+measurement & $\{7,3\}$ result & reason \\
+\midrule
+static Ryu-Takayanagi length & clean & accumulates the whole geodesic \\
+holographic codes & clean & integrate over a whole region \\
+causal-cone speed & saturates in $\sim 3$ beats & hyperbolic graph has logarithmic diameter \\
+pointwise bulk reconstruction & weak & boundary band only a couple of shells thick \\
+\bottomrule
+\end{tabular}
+\caption{The testbed measures static geometry cleanly and dynamics saturates.}
+\label{tab:hol-limits}
+\end{table}
+
+A hyperbolic graph has logarithmic diameter. Exponential growth puts almost every dock near the boundary, so a localized excitation reaches the edge of the patch in about three beats. A causal-cone front then saturates at the edge instead of giving a clean ballistic speed. The same measurement on a flat square lattice is cleanly ballistic.
+
+This is not a failure of physics. It is the patch being too small in the only direction that matters, depth. The lesson is concrete. Use $\{7,3\}$ for static holography that integrates over a whole path or region. Use a flat or much larger mesh for dynamics that need a long propagation depth.
+
+\subsection{The unifying picture}
+
+$\{7,3\}$ confirms the holographic entanglement-geometry link in the simplest possible setting, and the link then carries up into the three-dimensional bulk.
+
+\begin{itemize}
+\item The negative curvature that gives the mesh its exponential boundary gives the logarithmic Ryu-Takayanagi law.
+\item That same geodesic shortcut is the bulk nonlocality.
+\item That same boundary redundancy is the holographic code that gives a self its persistence on $\{5,3,4\}$.
+\end{itemize}
+
+The honest dynamics finding here is exactly why the curved-bulk gravity story, which needs propagation depth, does not yet measure cleanly on a boundary-dominated patch. That residual is logged with the matter sector.
+
+\subsection{Honest residuals}
+
+\begin{itemize}
+\item \textbf{Bulk reconstruction at scale.} Recovering a bulk quantity from boundary data alone, cleanly, needs a larger or deeper patch than the pointwise-depth measurement could resolve.
+\item \textbf{Dynamics on a deep patch.} A causal-cone speed and an isotropy comparison need a long propagation depth, which the small hyperbolic patch does not supply.
+\item \textbf{The boundary conformal field theory.} Whether boundary correlations are genuinely scale-free, a true two-dimensional conformal field theory, is the next geometric measurement.
+\item \textbf{The perfect-tensor gap.} Whether one knit built from the eight atoms can be both charge-conserving and a perfect tensor is the deep open frontier of persistence.
+\end{itemize}
+
+\subsection{Index of verified results}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+claim & depth \\
+\midrule
+boundary-interval entanglement follows the logarithmic Ryu-Takayanagi law on $\{7,3\}$ & L3 \\
+the flat $\{6,3\}$ control is linear, not logarithmic (the discriminator) & L3 \\
+the emergent ground state is area-law, a thermal state volume-law & L3 \\
+region entropy scales with horizon area (Bekenstein-Hawking) & L3 \\
+distant boundary points joined by a short bulk path & L3 \\
+a signal crosses the mesh through the bulk to a far self & L3 \\
+a spread-encoded bit survives bounded erasure, a blob dies & L3 \\
+the growing code raises its threshold with shell age & L3 \\
+persistence via a holographic code, the boundary reconstructs the self & L2 \\
+the perfect $[[5,1,3]]$ code, any $2$ erasures recover & L2 \\
+the tiled code distance grows as $3^{\text{depth}}$ & L2 \\
+the bare knit derives the causal wedge, not the erasure code & L2 \\
+the exact Bethe bulk correlator is a clean $1/r^2$ & L1 \\
+\bottomrule
+\end{tabular}
+\caption{Verified holography results and their depths.}
+\label{tab:hol-index}
+\end{table}
