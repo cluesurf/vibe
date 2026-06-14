@@ -1,0 +1,143 @@
+\section{The Computational Toolkit}
+
+Every numerical result in this paper is produced by a small set of engines. This appendix is a plain-words overview of what each engine does and why it does it. There are no code listings here, only the shape of each tool and the role it plays in the larger argument. The engines live in the project's code tree, grouped by what they build.
+
+Two properties hold across the whole toolkit, and they matter enough to state at the start. The toolkit is \emph{deterministic}. It never draws a random number. Where another study would average over many random seeds, this one fixes the configuration and varies the \emph{size} of the mesh instead, so that any trend is read off a clean sequence rather than a noisy ensemble. The toolkit is also \emph{finite}. Every object it builds is a finite patch of the mesh, a finite matrix, or a finite run of beats. Taken together these two properties make every result in the paper exactly reproducible. Run the same engine on the same mesh at the same size and the same numbers come out, bit for bit.
+
+A reminder of the vocabulary before the engines, since the toolkit is named after the model it computes. The universe is a vibe mesh, a flow of eight atoms. The \textbf{mesh} is the whole $\{3,4,3,4\}$ tessellation. A \textbf{dock} is one cell of it, a here-now. A \textbf{site} is one of the $24$ directions out of a dock, and the directed slot where a value lives. A \textbf{tone} is that value, a ternary $\{-1, 0, +1\}$ read as pain, peace, pleasure. The \textbf{knit} is the law of how the state changes each beat, collide then stream. The \textbf{wake} is the growing edge where new docks are born. The \textbf{beat} is the discrete step of time. The toolkit's job is to compute with these and nothing else.
+
+\subsection{The core pattern}
+
+Almost everything the toolkit does is a composition of the same four steps, in the same order. First build a piece of mesh. Then, optionally, lay a tone state on its sites. Then either run the local knit on that state for some beats, or assemble a matrix that encodes a question about the mesh. Finally read a single number off the result.
+
+\begin{principle}[The four-step pattern]
+Every engine is some specialization of
+\[
+\text{substrate} \;\longrightarrow\; \text{state} \;\longrightarrow\; \text{knit or operator} \;\longrightarrow\; \text{measure}.
+\]
+Build a mesh, optionally place a tone state on it, either run the local knit or build a matrix on it, then read a number off the result.
+\end{principle}
+
+The committed model is this pattern with its defaults filled in. The substrate is the $\{3,4,3,4\}$ honeycomb. The state-law is the base knit, collide then stream. Every other engine is the same skeleton with one stage swapped out, a different substrate to test a control, an operator in place of the knit to ask a spectral question, or a coarse-graining stage bolted onto the measure. Seeing the toolkit this way keeps the long list of engines below from looking like a grab bag. It is one pattern, specialized seven ways.
+
+\subsection{The tessellation engine}
+
+The first engine builds any regular tessellation from its Schl\"afli symbol, the short list of integers that names a regular honeycomb. It works by \textbf{exact reflections}, the Coxeter group of the symbol, so the geometry it builds is exact and not a floating-point approximation. Given a symbol it first classifies it. It decides whether the tessellation is compact or paracompact, what dimension it lives in, whether it is crystallographic, and whether its local direction set carries the spinor structure. Then it grows a patch of the mesh shell by shell out from a seed dock, recording the docks, their sites, and how they glue together.
+
+\begin{definition}[The tessellation engine]
+The tessellation engine takes a Schl\"afli symbol, classifies the regular honeycomb it names by exact reflections in the Coxeter group, and grows a finite patch of that honeycomb outward shell by shell. It is the source of the whole tessellation catalog and of every control geometry used for comparison.
+\end{definition}
+
+The hyperbolic shell-growth stalls on a flat honeycomb, because the flat case has no exponential frontier to push against and the projection it relies on degenerates. So a separate flat builder constructs the cusp geometry and the flat controls directly as integer lattices. The two builders cover the curved and the flat cases between them, and every substrate that appears anywhere in the paper, the committed $\{3,4,3,4\}$ and every control, comes out of one or the other.
+
+\subsection{The reversible knit engine}
+
+The second engine runs the base dynamics. The dynamics are a \textbf{reversible, charge-conserving directional lattice gas}, and the knit drives it. Each beat has two halves. The \emph{collide} step takes the tones sitting in a dock and updates each opposite-direction pair of sites by a fixed table, in place, without moving anything. The \emph{stream} step then moves each tone one dock along its own site, a pure relabeling of which dock holds which tone.
+
+\begin{definition}[The reversible knit engine]
+The reversible knit engine runs the base knit, collide then stream, on a tone state laid over a patch of mesh. Collide updates each opposite-direction site pair in a dock by a fixed table. Stream advances each tone one dock along its site. The engine works in exact integer arithmetic.
+\end{definition}
+
+Both halves are invertible permutations of the tone configuration. The collide table is its own kind of permutation on each pair, and stream is a relabeling, which is invertible by construction. A composition of invertible permutations is invertible, so the whole beat is \textbf{exactly reversible}. In a closed bulk, time can run backward and recover the earlier state exactly.
+
+\begin{result}[Exact reversibility of the bulk]
+Because collide and stream are each invertible permutations of the tone configuration, the full beat they compose is invertible. In a closed bulk the knit can be run backward to recover any earlier state without loss. The arrow of time is therefore not built into the law. It is emergent, supplied by the open wake.
+\end{result}
+
+Working in integer arithmetic matters here. The conserved quantities, the signed tone sum that the model reads as charge, are conserved \emph{exactly}, not up to a numerical tolerance. An equality the engine reports is a true equality. This engine produces every result about the base knit, about the active vacuum the open wake leaves behind, and about the selves that bind in it.
+
+\subsection{The K\"ahler-Dirac fermion engine}
+
+The third engine places a single \textbf{fermion} on the mesh and propagates it. The fermion is represented as differential forms on the cell complex of the mesh, that is, as numbers attached to the docks, the sites, and the higher cells in a way that respects how they fit together. The operator that evolves it is the exterior derivative together with its adjoint, written $d + \delta$. That operator has the defining relativistic property.
+
+\begin{proposition}[The Dirac square]
+The K\"ahler-Dirac operator $D = d + \delta$ on the cell complex squares to the Laplacian,
+\[
+(d + \delta)^2 = d\delta + \delta d = \Delta,
+\]
+the discrete analogue of $D^2 = \Box$. A first-order operator squaring to the second-order Laplacian is exactly the relation a relativistic fermion must satisfy, so a single fermion built this way propagates correctly on any hyperbolic substrate.
+\end{proposition}
+
+This is how the paper puts one fermion on a curved discrete space and watches it move, and it is the base for the spinor and mass measurements. A companion piece supplies the $24$-direction structure of a dock as an algebraic object. It carries the binary tetrahedral double cover of the site set, the triality that permutes its three eight-dimensional pieces, and the minus-one sign a spinor picks up under a full turn. The forms give the propagation, the spinor piece gives the half-integer character, and together they let the toolkit measure spin and mass off the same substrate.
+
+\subsection{The spectral methods}
+
+The fourth engine diagonalizes the matrices the other engines build, the Laplacian of a mesh patch, the K\"ahler-Dirac operator, the gauge operators. From eigenvalues come dispersion relations, band structures, and correlators, so this engine is the bridge from a built matrix to a physical number. It carries several solvers, each suited to a different size and structure of matrix.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+solver & what it is for \\
+\midrule
+dense diagonalization & small matrices, the full spectrum at once \\
+Lanczos iteration & the lowest eigenvalues of a large sparse matrix \\
+Hermitian embedding & complex operators, recast as larger real-symmetric ones \\
+kernel-polynomial method & a whole spectral density without diagonalizing \\
+Bethe resolvent & the exact self-similar recursion on the infinite hyperbolic tree \\
+\bottomrule
+\end{tabular}
+\caption{The solvers carried by the spectral engine, ordered roughly from small dense problems to large and infinite ones.}
+\label{tab:spectral-solvers}
+\end{table}
+
+The last entry deserves a word, because it is the one that escapes finite size entirely. The Bethe resolvent is an exact self-similar recursion on the infinite hyperbolic tree, the limit a hyperbolic mesh patch approaches as it grows. It solves the spectral problem on the true infinite bulk by exploiting the fact that every branch of the tree looks like the whole. This delivers a clean bulk correlator with no boundary contamination, the kind of result a finite patch can only approach. Between the dense solver at the small end and the Bethe resolvent at the infinite end, this engine produces the dispersion relations and band structures quoted throughout the paper.
+
+\subsection{The gauge engine}
+
+The fifth engine puts \textbf{gauge fields on the links} of the mesh, that is, on the sites that join neighboring docks, and evolves them. It builds the Wilson plaquette action, the standard discrete energy of a gauge field written in terms of small loops, and samples gauge configurations by Metropolis sweeps. Note that the Metropolis acceptance is a thermal weighting, not a source of randomness in the model's sense. The toolkit still varies size rather than seeds when it reports a trend. The engine then couples the gauge field to the fermion sectors, so the field and the matter on it evolve together.
+
+\begin{definition}[The gauge engine]
+The gauge engine places gauge fields on the linking sites of the mesh, builds the Wilson plaquette action over the small loops of the complex, samples configurations by Metropolis sweeps, and couples the field to the fermion sectors for joint evolution.
+\end{definition}
+
+This is the heaviest dynamical machinery in the toolkit, and several of its runs use a graphics-processor compute backend to finish in reasonable time. It is what produces the emergent photon, the local gauge invariance of the substrate, the lattice form of the Lorentz force, the coupled lattice quantum electrodynamics, and the non-abelian closure of the gauge sector. Where the knit engine handles the base tone dynamics, this engine handles everything that rides on the links above them.
+
+\subsection{The coarse-graining and selves engine}
+
+The sixth engine takes the \textbf{micro knit and blocks it into macro levels}. It groups docks into super-docks, reads off the effective rule that governs the blocked level, and asks whether that macro level carries causal power the micro level does not. This is the machinery of emergence and of selves.
+
+\begin{definition}[A self]
+A \emph{self} is a bound, self-correcting, identity-bearing knot woven across many docks over many beats. It is emergent, not a base atom. It is marked by a Markov blanket, a boundary of sites across which the inside and the outside are conditionally independent, so that the knot has a well-defined edge.
+\end{definition}
+
+The engine measures causal emergence, the gain in causal power when the micro dynamics are blocked into a macro level. It locates the Markov blankets that mark the boundary of a self, builds the level tower of persistent structures ordered by scale, and tracks how long each structure lasts. For each candidate self it reports an integrated-information figure and a persistence count in beats.
+
+It also reports the honest negatives, and this is one of the reasons the engine exists. On a closed system the bare knit gives only churn, no binding, no persistent self. A self needs the open wake, the low-entropy frontier that supplies the arrow, before it can hold together. The engine is built to find selves when they are there and to say plainly when they are not, rather than to read a self into noise.
+
+\begin{result}[Selves need the open wake]
+On a closed patch the reversible knit produces churn and no persistent self. Binding appears only once the open wake is present, supplying a low-entropy source and through it the arrow of time. The coarse-graining engine reports this as a clean negative on the closed case and a positive on the open one.
+\end{result}
+
+\subsection{The associative memory engine}
+
+The seventh engine treats the hyperbolic bulk itself as a \textbf{content-addressable store}. The geometry invites this. The bulk has a diameter that grows only logarithmically with its size, and the number of docks at radius $r$ grows exponentially. A space that is exponentially wide and logarithmically deep is the natural home of log-depth structures and of parallel search by content.
+
+\begin{definition}[The associative memory engine]
+The associative memory engine treats a hyperbolic mesh patch as a content-addressable store. A query is posed by content, every dock matches it in parallel, and the answer broadcasts back to the root in time logarithmic in the size of the patch.
+\end{definition}
+
+The engine measures recall, both exact recall and recall from a noisy query, the capacity per radius shell, and the latency of a search. Alongside it sit the classic data structures realized directly on the bulk, the search tree, distributed hash routing, the skip list, union-find, and Merkle proofs. Each rides the same logarithmic-depth geometry, so the bulk is not only a physical substrate but a usable computer, and this engine is where that claim is measured rather than asserted.
+
+\subsection{Summary}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+engine & what it does \\
+\midrule
+tessellation engine & builds any regular honeycomb exactly from its symbol, classifies it, grows the patch \\
+reversible knit engine & runs collide-then-stream, exactly reversible, integer-exact \\
+K\"ahler-Dirac fermion & a fermion as forms on the complex, $d + \delta$ squaring to the Laplacian, plus the spinor structure \\
+spectral methods & the eigensolvers, the kernel-polynomial density, the Bethe resolvent \\
+gauge engine & gauge fields on the linking sites, the Wilson action, Metropolis sweeps, coupled evolution \\
+coarse-graining and selves & blocks the micro knit into macro levels, finds selves, measures emergence \\
+associative memory engine & content-addressable search on the bulk, logarithmic broadcast, capacity per radius \\
+\bottomrule
+\end{tabular}
+\caption{The seven engines of the computational toolkit. All are deterministic and finite, and all are specializations of the same four-step pattern.}
+\label{tab:toolkit-engines}
+\end{table}
+
+All seven engines are deterministic and finite. They share the four-step pattern of substrate, state, knit or operator, and measure, and together they produce every numerical result in this paper. The bulk measurement methods that ride on these engines are collected in the hyperbolic bulk toolkit appendix. The experiments they run are cataloged in the experiment index. The discipline they are held to, deterministic, size-varied, and reported with its negatives, is set out in the methodology appendix.

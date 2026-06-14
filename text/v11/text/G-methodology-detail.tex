@@ -1,0 +1,164 @@
+\section{Methodology Detail}
+
+This appendix sets out the full methodology behind every result in the paper. It covers the depth rubric, the control requirement, the conformance battery, the determinism commitment, and the honest negatives. The standard rests on one commitment, plainly stated. We would rather report an honest negative than a dressed-up positive. A wall of green checkmarks is worth less than three honest results with two failures.
+
+The reason for this care is that the theory makes a strong claim. It says the entire physical world emerges from a small fixed base, the vibe mesh, a flow of eight atoms. If that claim is to mean anything, every result that supports it must survive an attack from the inside, before any outside reader ever sees it. The methodology below is that attack, made permanent.
+
+\subsection{The first commitment, double and triple check}
+
+Every test and experiment is double and triple checked for hacks, cheating, circularity, tautology, and surface-level shortcuts, and confirmed to be accurate, correct, valid, and useful. We do this three times, at three different moments.
+
+\begin{enumerate}
+\item \textbf{As written.} We trace every boolean back to its source. Is the value measured from real dynamics, or is it the input restated. Is a constant set by hand that then reappears in the conclusion. A test that quietly hands itself the answer is caught here.
+\item \textbf{Before it is called passed.} We ask whether a control could have failed. Is the threshold a knife edge. Does the printed claim match what was actually shown. Is the result useful, or is it a tautology dressed as proof.
+\item \textbf{In the standing audit.} We re-run under perturbation, a different mesh size, a different parameter, a different location, and we assign the honest depth level. A test passes only by surviving the attack.
+\end{enumerate}
+
+If any check fails, the test is relabeled honestly. A circular check becomes a consistency note rather than evidence, or it is removed outright. This is a permanent standard, not a one-time cleanup. Nothing is called a result until it has survived all three passes.
+
+\begin{principle}[Self-grading]
+We grade our own tests as harshly as a stranger's, because the easiest person to fool is ourselves.
+\end{principle}
+
+\subsection{What is being tested}
+
+The object under test is exactly the eight base atoms, nothing else. They are the furniture of the vibe mesh, and they divide cleanly by what they answer.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+atom & symbol & what it is & pillar \\
+\midrule
+mesh & $m$ & the whole $\{3,4,3,4\}$ tessellation & where \\
+dock & $d$ & the geometric cell, a here-now & where \\
+site & $s$ & one of the 24 directions out of a dock & where \\
+tone & $t$ & the vibe value, ternary $\{-1,0,+1\}$ & what \\
+lean & $l$ & the value order $-1 < 0 < +1$ & what \\
+knit & $k$ & collide then stream, the state law & how the state changes \\
+wake & $w$ & the growing edge, new docks at the frontier & how the space changes \\
+beat & $b$ & the discrete step & when \\
+\bottomrule
+\end{tabular}
+\caption{The eight base atoms, what every result must trace back to.}
+\label{tab:eight-atoms}
+\end{table}
+
+The mesh, the dock, and the site fix where. The tone and the lean fix what. The knit is how the state changes each beat, a collide-then-stream law. The wake is how the space changes, new docks born at peace on the open frontier. The beat is when.
+
+Each dock carries exactly 24 sites. There is no rest slot, no 25th site, no home slot folded into the base. The arrow of time and the attraction between bound patterns are emergent, not base. They are produced by the eight atoms acting together, never written in as a ninth.
+
+Everything physical must emerge from these eight. We never add a ninth ingredient and call the result emergent. The raw substrate is not physics directly. It passes through one to three emergent middle layers before any physical name applies. Raw tones are not particles. Raw clustering is not gravity. We never name a coarse pattern after a physical thing it has not earned.
+
+\begin{principle}[No ninth ingredient]
+Exactly eight atoms are under test. If a phenomenon does not emerge from the eight, we report the honest negative. We never quietly add a cohesion bias, a stabilizer, a will, or a gravity term and then call the outcome emergent.
+\end{principle}
+
+\subsection{The depth rubric, the central standard}
+
+The headline rubric is owned by the depth-rubric section of the main paper. Here it is the working standard. Every test is graded by what it actually establishes, not by whether it prints \emph{passed}. There are four levels.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+level & what it establishes & example \\
+\midrule
+\textbf{L0 circular} & the answer is put in by hand, proves nothing & hardcoding a formula then verifying it \\
+\textbf{L1 known math} & confirms an established mathematical fact & the 24 sites form the binary tetrahedral group \\
+\textbf{L2 known physics} & reproduces a known construction here & the Dirac quantum walk, lattice gauge theory \\
+\textbf{L3 emergent, novel} & a single base knit yields the result, with a control & the genuine target \\
+\bottomrule
+\end{tabular}
+\caption{The four depth levels. Most honest young results are L1 and L2.}
+\label{tab:depth-rubric}
+\end{table}
+
+L3 is the genuine target. It means a single base knit produces the result as a measured consequence, with a control, ideally a quantitative prediction that could have come out wrong. The grade is always stated with the result. Passed at L1 means correct and established, not a discovery.
+
+We never let an L1 or L2 result masquerade as L3. Most honest results in a young program are L1 and L2, and that is fine, as long as they are labeled as such. An L1 confirmation of known mathematics is valuable. An L1 confirmation dressed as a discovery is a lie.
+
+\subsection{The principles we hold}
+
+Six principles govern every experiment.
+
+\textbf{Determinism.} The base is deterministic. There is no fundamental randomness. This extends to test initial conditions. A test seeds a deterministic state, a vacuum where the create move makes it dynamic on its own, or a fixed structured pattern. Never a pseudo-random fill, never a random schedule. Robustness comes from varying the mesh size or the perturbation location, never from averaging over seeds. If a result holds only on average over random draws, it is a statistical claim about an ensemble, not a property of the deterministic knit, and we say so.
+
+\textbf{Exactness.} The knit is a reversible permutation, so it is integer arithmetic, not floating point. We assert equality, not tolerance, wherever the quantity should be exact. A loose epsilon hiding a bug is a failure of method.
+
+\textbf{Measured, not assumed.} A dispersion, a coupling, a charge, must be read out of the actual dynamics, not written in as a formula and confirmed. If we compute a thing and then verify the thing, that is a consistency check, and we label it as such.
+
+\textbf{Controls.} Every positive claim needs a negative control, a substrate, knit, or parameter where the answer should be no, and the test must give no there. A test that cannot fail proves nothing.
+
+\begin{result}[The model control]
+The $\{5,3,4\}$ no-spinor result is the model control. Its 12 sites decompose as $1 + 3 + 3' + 5$, all integer spin, with no spinor anywhere. That contrast is what makes the $\{3,4,3,4\}$ spinor result, where the 24 sites give $8v + 8s + 8c$, mean something. A yes with nothing that could give a no is not evidence.
+\end{result}
+
+\textbf{Robustness.} A result must survive perturbation. A number that clears a threshold by a hair, or holds only at one hardcoded setting, is a knife edge, and we say so.
+
+\textbf{Prior art.} Much of what we reproduce is established, the quantum-walk route to Dirac and Maxwell, lattice gauge theory, classical group theory. We cite it. Reproducing known work is fine and valuable. Dressing it as new is not.
+
+\textbf{Reuse the shared library.} Generalizable logic, the mesh builders, the knit, the collision tables, the measures, the transforms, lives in one shared place, and every experiment imports it. We do not copy-paste a substrate builder, re-roll a collision table, or hack a one-off helper inline. A test file holds only the logic unique to its question. Duplicated or hacked-together code is a method failure, the same as a loose tolerance.
+
+\subsection{The standards each experiment must meet}
+
+Before any test is called passed, it must satisfy all of the following.
+
+\begin{enumerate}
+\item \textbf{Correctness.} It computes what it claims. At least one number is re-derived by a second method or by hand. Tolerances are tight where the quantity is exact.
+\item \textbf{No circularity.} Every boolean is traced back to its source. If a constant is set by hand and then appears in the conclusion, the test is circular and is relabeled or deleted.
+\item \textbf{A control.} There is a case where the test gives no. If there is none, the result is marked weak.
+\item \textbf{Quantitative where possible.} A number that could have come out wrong is stronger than a boolean.
+\item \textbf{Honest claim.} The printed conclusion matches what was shown. No overclaim resting on a built-in answer or a loose threshold.
+\item \textbf{Reproducible.} Deterministic, runnable from one command, the size and the parameters recorded.
+\end{enumerate}
+
+\subsection{The conformance battery}
+
+The engine and its layers are verified before any dynamics is questioned. A claim about emergent physics is worthless if the substrate underneath it is wrong, so the substrate is proven first.
+
+\textbf{The engine.} A reversible, conserving local knit on the dock graph, run with exact integer state, verified bit-identical across implementations. Reversibility is tested by running the knit forward then backward and recovering the start exactly.
+
+\textbf{The substrate.} The mesh is built explicitly with its correct adjacency and its 24 sites per dock, and the structure is verified, neighbour counts, closure, and the representation decomposition, before any dynamics.
+
+\textbf{The algebra layer.} Quaternions, Clifford algebra, and discrete exterior calculus, each with unit tests on its own identities. A full turn gives minus one. The differential composed with itself gives zero. So the spinor and field machinery is correct independent of the dynamics it later describes.
+
+\begin{lemma}[Substrate before dynamics]
+No dynamical claim is accepted until the engine is bit-reversible, the mesh adjacency and the 24-site decomposition are verified, and the algebra identities pass on their own. A correct conclusion drawn on a broken substrate is an accident, not a result.
+\end{lemma}
+
+\subsection{The anti-patterns we forbid}
+
+These are the ways a test lies, and we hunt for them in our own work as hard as in anyone else's.
+
+\begin{itemize}
+\item \textbf{Circular or put-in-by-hand.} The conclusion is the input restated. The worst and most common.
+\item \textbf{Tautology.} Verifying a definition or a thing we just constructed.
+\item \textbf{Knife-edge threshold.} The result barely clears a bound, or holds only at one size.
+\item \textbf{No control.} A yes with nothing that could give a no.
+\item \textbf{Qualitative dressed as proof.} It looks like a Dirac dispersion, with no measured coefficient.
+\item \textbf{Loose tolerance hiding a bug.} A coarse epsilon where the quantity should be exact.
+\item \textbf{Random reliance.} A pseudo-random fill, a random schedule, or a result that holds only averaged over seeds.
+\item \textbf{Overclaim.} Passed or novel for an L1 known fact or an L2 reproduction.
+\item \textbf{Reinvented wheel.} A substrate, knit, table, or helper hand-rolled inline when it exists in the shared library.
+\end{itemize}
+
+\subsection{How we verify and report}
+
+\textbf{Self-audit as we write.} Every test is checked for circularity and surface cheating at the time it is written, not only later.
+
+\textbf{The adversarial audit.} A standing protocol re-runs each test under perturbation, traces every boolean, checks for a control, and assigns the depth level. A test passes only by surviving the attack.
+
+\textbf{The catalog.} Every test is recorded with its purpose, finding, depth, status, and validity. Circular and invalid tests are quarantined. They never appear in a results list as evidence.
+
+\textbf{The honest scoreboard.} Results are reported in tiers, the genuinely emergent, the confirmations of known physics, the honest negatives, and the open frontiers. The negatives are published. They are the integrity.
+
+\subsection{What we are striving for}
+
+The goal is not to accumulate green checkmarks. It is to find out, honestly, whether a single deterministic reversible knit on a discrete mesh can produce the physics we see, and to know exactly where it does, where it only reproduces what is already known, and where it fails or remains open. Every honest negative narrows the search. Every confirmation earns the right to the next claim.
+
+\begin{principle}[The bar for a result]
+A result is worth reporting when it could have come out the other way and did not, when there is a control that could have failed and did not, and when an independent reader, running the same command, gets the same number. Until then it is a consistency check or a work in progress, and we say so.
+\end{principle}
+
+The one thing we never do is fool ourselves.
