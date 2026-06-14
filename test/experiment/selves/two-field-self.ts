@@ -18,11 +18,11 @@
 // Depth L2, the self appears only with a propagating radiating field, the non-propagating field is the control,
 // isolating that the photon's masslessness is what lets the body radiate and become a self.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { oscillatorBathTrajectory, lateAmplitude } from '@/code/dynamics/oscillator-bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/two-field-self',
   title: 'a confined body becomes a self only when coupled to a PROPAGATING field (the photon), not a local one',
   category: 'selves',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quaternion, multiply, quaternionKey } from '@/code/algebra/group/quaternion'
 import { icosahedronVertexDirections } from '@/code/algebra/group/root-system'
@@ -22,7 +22,7 @@ const rotateZ180 = (vector: number[]): number[] => [-vector[0]!, -vector[1]!, ve
 
 const directionKey = (vector: number[]): string => vector.map((value) => Math.round(value * 1e4)).join(',')
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/lattice-gas-spinor-534',
   title: 'the bare {5,3,4} lattice-gas rule produces LINEAR modes, not spinors, the spinor needs the spin bundle',
   category: 'spin',

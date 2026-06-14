@@ -16,7 +16,7 @@ import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { kleitmanRothschildOrder } from '@/code/substrate/layered-order'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const SIZE = 72
@@ -49,7 +49,7 @@ function equilibratedHeightRatio(input: {
   return count > 0 ? sum / count : 0
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/transition',
   title:
     'the manifold phase is a stable basin under the smeared action and decays under the sharp action',

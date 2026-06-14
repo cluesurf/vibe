@@ -14,7 +14,7 @@
 // climb the cross-domain tower. Run: npx tsx code/experiment/p168-cross-domain-chain.ts
 
 import { singleParticleQuantumWalk, twoParticleQuantumWalk } from '@/code/dynamics/quantum-walk'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function crossDomainChain(): {
@@ -55,7 +55,7 @@ export function crossDomainChain(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/cross-domain-chain',
   title:
     'field to particle and particle to composite rungs commute as the kind of variable changes',

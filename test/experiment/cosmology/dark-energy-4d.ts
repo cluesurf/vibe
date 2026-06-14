@@ -9,7 +9,7 @@
 
 import { benincasaDowkerAction } from '@/code/dynamics/action'
 import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
@@ -28,7 +28,7 @@ export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
   return { sizes: r.sizes, stds: r.stds, actionExponent: r.exponent, lambdaExponent: r.exponent - 1 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/dark-energy-4d',
   title: 'the 4D action fluctuation scaling is measured',
   category: 'cosmology',

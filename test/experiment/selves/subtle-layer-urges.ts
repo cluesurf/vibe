@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p64-subtle-layer-urges.ts
 
 import { makeRng, Rng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface TwoScale {
@@ -123,7 +123,7 @@ export function subtleLayerUrges(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/subtle-layer-urges',
   title: 'deep layer steers the surface and reasserts after disorder',
   category: 'selves',

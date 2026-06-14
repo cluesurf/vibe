@@ -6,7 +6,7 @@
 // exact: the spinor overlap is cos(theta/2) (period 4*pi), the vector overlap is cos(theta) (period 2*pi).
 // Run: npx tsx code/experiment/p244-sp1-spin-double-cover.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   Quaternion,
@@ -74,7 +74,7 @@ export function sp1SpinDoubleCover(): {
   return { groupOrder: U.length, isGroup, rotationOrder, doubleCover, spinorMinusAt2pi, spinorPlusAt4pi, vectorPlusAt2pi }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/sp1-spin-double-cover',
   title: 'the 24 directions of {3,4,3,4} are the binary tetrahedral group, the spin-1/2 double cover',
   category: 'spin',

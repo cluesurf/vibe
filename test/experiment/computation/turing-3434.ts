@@ -27,7 +27,7 @@ import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { cellSetCentroid, cellSetEqual, lifeStep } from '@/code/operator/conway-life'
 import { type Bit, bitToNum as toNum, elementaryRuleStep, functionFromTable as fromTable, nand } from '@/code/operator/logic-gate'
 import { carveRegisters, minskyAddProgram, minskyMultiplyProgram, RegisterMachine } from '@/code/operator/register-machine'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- Leg 1, Margenstern structural prerequisites on {3,4,3,4} ----------
@@ -194,7 +194,7 @@ function legCuspLife(): boolean {
 // register machine runs on the cell graph with conserved ternary charge. Leg 4, the {4,3,4}
 // cusp runs Conway's Life, a known strongly universal CA, and a glider propagates correctly.
 // Each leg reproduces a known universal construction on this substrate, so L2.
-export default defineExperiment({
+export default experiment({
   id: 'computation/turing-3434',
   title: '{3,4,3,4} is computationally universal via railway structure, ternary NAND and Rule 110, a register machine, and cusp Life',
   category: 'computation',

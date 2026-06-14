@@ -20,7 +20,7 @@ import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { conservingEdgeListSweepPumped } from '@/code/dynamics/conserving-sweep'
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const nonzero = (t: Int8Array): number => {
@@ -163,7 +163,7 @@ export function perceptionDynamics(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/perception-dynamics',
   title: 'Q conserved, arrow creates life from peace, no-arrow relaxes, dynamic balance, diffuse and pump',
   category: 'selves',

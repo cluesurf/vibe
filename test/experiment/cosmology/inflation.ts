@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p30-inflation.ts
 
 import { inflatonHubble, inflatonStep } from '@/code/dynamics/inflaton'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function inflate(input: { phi0: number; m?: number }): {
@@ -75,7 +75,7 @@ export function inflate(input: { phi0: number; m?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/inflation',
   title: 'slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)',
   category: 'cosmology',

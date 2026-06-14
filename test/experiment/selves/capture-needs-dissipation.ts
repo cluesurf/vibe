@@ -22,7 +22,7 @@
 // Depth L2, the purpose-built reversible capture rule measured against the momentum rotate as a control,
 // establishing that capture is forbidden in the reversible bulk and must come from dissipation at the bath.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, loneParticle, gliderLine, type Will } from '@/code/tone/will'
@@ -31,7 +31,7 @@ import { run } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 import { componentCount, travelDistance } from '@/code/check/structure'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/capture-needs-dissipation',
   title: 'a reversible collision cannot capture, sticky reflection scatters elastically, so binding needs the bath',
   category: 'selves',

@@ -12,7 +12,7 @@ import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-d
 import { bfsShells } from '@/code/measure/shells'
 import { growthFromShells } from '@/code/measure/dimension'
 import { centerNearestOrigin, proximityGraph } from '@/code/substrate/proximity-graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The geometry is read intrinsically off the connectivity: BFS shells (bfsShells), an
@@ -63,7 +63,7 @@ export function horosphereFlat(input?: { maxCells?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/horosphere-flat',
   title: 'a Busemann level set of {5,3,4} grows polynomially, a flat 2D sheet inside the curved crystal',
   category: 'geometry',

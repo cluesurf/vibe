@@ -13,7 +13,7 @@ import { makeRng } from '@/code/tool/rng'
 import { growBranchingOrder } from '@/code/substrate/branching-order'
 import { geometricGrowthRatio } from '@/code/measure/shells'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function branchingExpansion(input: { spawnProb: number; seed: number }): {
@@ -38,7 +38,7 @@ export function branchingExpansion(input: { spawnProb: number; seed: number }): 
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/growth-expansion',
   title: 'net-positive birth gives emergent expansion (static control at q=0)',
   category: 'cosmology',

@@ -10,10 +10,10 @@
 import { makeRng } from '@/code/tool/rng'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/uniform',
   title: 'the uniform-measure sampler reproduces the exact manifold fraction at small size',
   category: 'foundations',

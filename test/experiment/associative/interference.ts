@@ -5,7 +5,7 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeAssociativeMemory, storeWord, readWord, searchExact, searchBest } from '@/code/operator/associative-memory'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a word that encodes its index in only the first `separation` slots, the rest a fixed shared background.
@@ -73,7 +73,7 @@ export function associativeInterference(input?: { maxCells?: number; wordBits?: 
   return { count, separations, exactBySep, nearestBySep, lowSepRecall, highSepRecall, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/interference',
   title: 'interference and forgetting as crosstalk, overlapping memories confuse recall while well-separated ones recall cleanly',
   category: 'associative',

@@ -13,7 +13,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { conservingRingSweepTunable } from '@/code/dynamics/conserving-sweep'
 import { correlationLengthFromDecay, timeAveragedRingCorrelation } from '@/code/measure/connected-correlation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: number[] }): {
@@ -76,7 +76,7 @@ export function gaplessSearch(input?: { L?: number; arrows?: number[]; shares?: 
   return { L, grid, best, maxRange, gaplessFound, robustlyMassive, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/gapless-search',
   title:
     'no static gapless critical point over the arrow-share plane, the conserved-exchange field is robustly massive',

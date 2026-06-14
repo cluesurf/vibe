@@ -12,10 +12,10 @@ import { makeRng } from '@/code/tool/rng'
 import { chsh, Lambda } from '@/code/measure/bell'
 import { runScan, ScanSpec } from '@/test/scaffold/runner'
 import { writeReport } from '@/test/scaffold/report'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/bell',
   title: 'an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises',
   category: 'quantum',

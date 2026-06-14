@@ -12,7 +12,7 @@
 // geometry while we simulate selves on a flat layer. Run: npx tsx code/experiment/p182-exact-horosphere.ts
 
 import { bulkGraph, flatGraph, squareGraph, boundaryFraction, ball, selfLeakAndFidelity, type Graph } from '@/code/model/self-kit'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function ballScaling(g: Graph, center: number, radii: number[]): number[] {
@@ -89,7 +89,7 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/exact-horosphere',
   title: 'an exact {4,4} square horosphere of {4,4,3} validates the flat-self idealization',
   category: 'geometry',

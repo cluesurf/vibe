@@ -18,7 +18,7 @@
 // Deterministic throughout: fixed Gaussian wavepacket, fixed background field, no randomness.
 
 import { runCoupledSchwinger } from '@/code/dynamics/schwinger-coupled'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // one coupled run on the shared Schwinger evolution. coupling e binds the sectors, backgroundField
@@ -72,7 +72,7 @@ export function coemergenceDynamical(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/coemergence-dynamical-3434',
   title: 'one coupled rule binds the photon and fermion sectors both ways, and decoupling kills both together',
   category: 'gauge',

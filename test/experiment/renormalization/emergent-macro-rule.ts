@@ -19,7 +19,7 @@ import { signedMajorityStep } from '@/code/operator/signed-majority'
 import { agreementFraction, clusterMajority } from '@/code/measure/agreement'
 import { geometricBlocks, coherentFills } from '@/code/dynamics/renormalization-blocks'
 import { effectiveCouplings, naiveMacroStep, renormMacroStep } from '@/code/operator/macro-rule'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function emergentMacroRule(input: { count: number; seed: number }): {
@@ -84,7 +84,7 @@ export function emergentMacroRule(input: { count: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/emergent-macro-rule',
   title:
     'a renormalized macro-rule emerges on tone-independent blocks in the ordered regime and fails when frustrated',

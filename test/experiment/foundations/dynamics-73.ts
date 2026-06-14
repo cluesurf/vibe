@@ -8,7 +8,7 @@ import { makeRng } from '@/code/tool/rng'
 import { csrDistances } from '@/code/tool/graph'
 import { totalCharge as sumOf } from '@/code/measure/tone-census'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function graph(): { N: number; off: Int32Array; adj: Int32Array; center: number } {
@@ -55,7 +55,7 @@ export function dynamics73(): { conserves: boolean; frontSpeed: number; churnPct
   return { conserves, frontSpeed, churnPct }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/dynamics-73',
   title: 'the directional rule on the {7,3} cell graph conserves charge exactly and gives a z=1 light cone',
   category: 'foundations',

@@ -11,7 +11,7 @@
 // structural honest negative about the base rule. It is not a claim that the base substrate produces a
 // transition.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { fitnessVariancePartition } from '@/code/coarse/individuality'
 import { makeRng } from '@/code/coarse/self-trajectory'
@@ -37,7 +37,7 @@ function withTransition(input: { groups: number; members: number; seed: number }
   })
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-individuality-transition',
   title: 'the transition signatures appear only with imposed group selection and a single-cell bottleneck, not from the base rule',
   category: 'selves',

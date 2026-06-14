@@ -16,7 +16,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMinEigenvalue } from '@/code/measure/hankel'
 import { correlationLengthFromDecay } from '@/code/measure/connected-correlation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
@@ -139,7 +139,7 @@ export function nearCriticalRP(input?: { length?: number; arrows?: number[] }): 
   return { spineLength: s.spineLength, scan, xiGrows, hyperbolicObstruction, reflectionPositive, classicalMimic, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/near-critical-rp',
   title: 'spatial RP belongs to the emergent flat layer, not the scaffold',
   category: 'quantum',

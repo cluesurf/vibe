@@ -21,7 +21,7 @@ import {
   quadrupoleRadiatedPower,
 } from '@/code/measure/gravitational-wave'
 import { linearFit } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- 1. the graviton: massless spin-2, 2 TT polarizations, z=1 ----------
@@ -112,7 +112,7 @@ function chirp(m1: number, m2: number, a0: number): { exponent: number; ok: bool
   return { exponent: slope, ok: Math.abs(slope + 3 / 8) < 0.03, chirpMass: chirpMassOf({ mass1: m1, mass2: m2 }) }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gr-gravitational-waves',
   title: 'the assumed general-relativistic waveform formulas are internally self-consistent',
   category: 'gravity',

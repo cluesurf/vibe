@@ -9,7 +9,7 @@ import { norm } from '@/code/algebra/vector'
 import { toCsr } from '@/code/tool/graph'
 import { radialBfsTree, surfaceDistances } from '@/code/substrate/radial-tree'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function measure(symbol: number[], maxCells: number, tau: number): { N: number; slope: number; pairs: number } {
@@ -42,7 +42,7 @@ export function gravityTreePath(): { fiveSlope: number; fourSlope: number; calib
   return { fiveSlope: a.slope, fourSlope: b.slope, calibrated }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gravity-treepath',
   title: 'a common-ancestor tree-path propagator on the real cell graph, calibrated against {5,3,4}',
   category: 'gravity',

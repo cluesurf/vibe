@@ -18,7 +18,7 @@
 // Depth L2, the leaky confiner measured for confinement (it holds a body) and radiation (it seals the
 // perturbation), with the momentum rotate (which radiates but disperses) as the contrast.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, cellTone, type Will } from '@/code/tone/will'
@@ -26,7 +26,7 @@ import { leakyConfine, headOnRotate, type Collision } from '@/code/rule/collisio
 import { beat } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/leaky-confiner',
   title: 'the leaky confiner holds a body but seals its radiation (the perturbation never reaches the bath)',
   category: 'selves',

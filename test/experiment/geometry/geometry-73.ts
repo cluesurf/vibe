@@ -7,7 +7,7 @@ import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
 import { spectralDimension } from '@/code/measure/dimension'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { mostConnectedNode, toCsr } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function geometry73(): { specDim4: number; growth: number; interiorDegree: number } {
@@ -34,7 +34,7 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
 // The {7,3} heptagrid is 2D hyperbolic. Its spectral dimension reads near 2, its shells
 // grow exponentially (the Margenstern growth, the hyperbolic hallmark), and interior cells
 // have degree 7. These are known properties of the tiling, measured here, so L1.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/geometry-73',
   title: 'the {7,3} heptagrid is 2D hyperbolic with exponential shell growth and degree 7',
   category: 'geometry',

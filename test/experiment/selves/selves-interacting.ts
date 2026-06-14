@@ -18,7 +18,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { countLargeSameSignComponents } from '@/code/model/self-kit'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const absCharge = (t: Int8Array): number => {
@@ -89,7 +89,7 @@ export function selvesInteracting(input?: { n?: number; beats?: number; regionSi
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/selves-interacting',
   title: 'opposite selves annihilate at contact, same selves merge into one',
   category: 'selves',

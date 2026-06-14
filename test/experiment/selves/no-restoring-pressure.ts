@@ -18,14 +18,14 @@
 //
 // Depth L2, the honest negative, no committed rule contracts a diffuse cloud, so there is no restoring pressure.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { bindAndMove, headOnRotate, pairCollision, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/no-restoring-pressure',
   title: 'no restoring pressure: no committed rule contracts a diffuse cloud, so the bound body does not emerge from the pure gas',
   category: 'selves',

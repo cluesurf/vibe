@@ -8,7 +8,7 @@
 // from the simple reading and remains UNPROVEN. An honest result on the novel bet, not an overclaim.
 // Run: npx tsx code/experiment/p254-triality-generations.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   vectorRep8,
@@ -45,7 +45,7 @@ export function trialityGenerations(): { threeReps: boolean; trialityOrder3: boo
   return { threeReps, trialityOrder3, eightEach, chiralitySplit, threeGenerationsEstablished }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/triality-generations',
   title: 'SO(8) triality is a real order-3 symmetry but the naive reading gives vector plus two chiralities, not three generations',
   category: 'spin',

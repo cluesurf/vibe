@@ -25,7 +25,7 @@ import {
   tensorFieldMaxAbs as maxAbs,
   gravitonPolarizationsFromSpectrum,
 } from '@/code/operator/linearized-einstein'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function discreteGraviton(input: { seed: number }): {
@@ -120,7 +120,7 @@ export function discreteGraviton(input: { seed: number }): {
     solved: gaugeResidual < 1e-9 && massTermResidual < 1e-9 && dispersionMassless && polarizations === 2,
   }
 }
-export default defineExperiment({
+export default experiment({
   id: 'gravity/discrete-graviton',
   title: 'discrete graviton is gauge-invariant, massless, two polarizations verified as eigenmodes',
   category: 'gravity',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quaternion, multiply } from '@/code/algebra/group/quaternion'
 
@@ -13,7 +13,7 @@ import { quaternion, multiply } from '@/code/algebra/group/quaternion'
 const energySquared = (kx: number, ky: number, kz: number, withChain: boolean): number =>
   Math.sin(kx) ** 2 + Math.sin(ky) ** 2 + (withChain ? Math.sin(kz) ** 2 : 0)
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/three-d-spinor-from-73',
   title: '3D space and a 3D spinor from 2D {7,3}, the deconstructed dimension is the third gamma',
   category: 'geometry',

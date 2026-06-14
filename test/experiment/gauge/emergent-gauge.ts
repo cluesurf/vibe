@@ -12,7 +12,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function graph(): { N: number; off: ArrayLike<number>; adj: ArrayLike<number> } {
@@ -60,7 +60,7 @@ export function emergentGauge(): { chargeLocallyConserved: boolean; internalLoca
   return { chargeLocallyConserved, internalLocallyConserved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/emergent-gauge',
   title: 'the bare rule locally conserves charge, a U(1) Gauss law, but not a generic internal current',
   category: 'gauge',

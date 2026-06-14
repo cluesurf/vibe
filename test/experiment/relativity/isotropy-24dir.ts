@@ -10,7 +10,7 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { latticeDispersion, dispersionAxisDiagonalAnisotropy } from '@/code/measure/dispersion'
 import { directionFourthMoments } from '@/code/measure/isotropy'
 import { coordinateAxes } from '@/code/measure/probe-directions'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
@@ -35,7 +35,7 @@ export function isotropy24dir(): { z3: number; z4: number; d4: number; d4Best: b
   return { z3, z4, d4, d4Best }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/isotropy-24dir',
   title: 'the 24 D4 directions give a wave dispersion isotropic to order four, the cubic does not',
   category: 'relativity',

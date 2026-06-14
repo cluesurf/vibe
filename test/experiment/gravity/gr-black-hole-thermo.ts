@@ -23,7 +23,7 @@ import {
   schwarzschildEvaporationLifetime,
   schwarzschildRadius as horizonRadius,
 } from '@/code/measure/black-hole-thermodynamics'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function firstLaw(): { maxRelError: number; ok: boolean } {
@@ -94,7 +94,7 @@ function deSitterFromSubstrate(): { H: number; T: number; S: number; Lambda: num
   return { H, T: horizon.temperature, S: horizon.entropy, Lambda: horizon.cosmologicalConstant }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gr-black-hole-thermo',
   title: 'the assumed Schwarzschild relations are thermodynamically self-consistent',
   category: 'gravity',

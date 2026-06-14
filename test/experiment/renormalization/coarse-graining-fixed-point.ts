@@ -16,7 +16,7 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { decimate } from '@/code/dynamics/coarsegrain'
 import { measuredBlockSpinCoupling } from '@/code/operator/ising-rg'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function isingRG(input: { seed: number }): {
@@ -81,7 +81,7 @@ export function renormalization(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/coarse-graining-fixed-point',
   title:
     'a measured block-spin coupling matches the decimation recursion and flows to the fixed point',

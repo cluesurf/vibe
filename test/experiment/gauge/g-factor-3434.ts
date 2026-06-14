@@ -19,7 +19,7 @@ import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
 import { distinctLevels } from '@/code/measure/spectrum'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // measure g from one (field, mass) setting by diagonalizing the Dirac and scalar operators
@@ -78,7 +78,7 @@ export function gFactor(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/g-factor-3434',
   title: 'the spinor g-factor is measured as 2 from the Dirac Landau spectrum, not assumed',
   category: 'gauge',

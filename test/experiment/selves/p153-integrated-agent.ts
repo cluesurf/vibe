@@ -8,7 +8,7 @@
 // re-planning loop reaches the distant goal. Every piece is emergent (arrow value, rule rollout, will), so
 // the agent is the base running end-to-end. Run: npx tsx code/experiment/p153-integrated-agent.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a landscape that rises overall toward the goal but has B downward DIPS (barriers), each making a local
@@ -114,7 +114,7 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/p153-integrated-agent',
   title: 'the closed perceive-plan-act loop crosses a sequence of barriers, beating reactive and one-shot',
   category: 'selves',

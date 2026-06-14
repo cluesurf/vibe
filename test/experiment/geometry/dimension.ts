@@ -18,7 +18,7 @@ import { makeRng } from '@/code/tool/rng'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { dimensionFromOrderingFraction } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The 2D smeared path integral lands on 2-dimensional causal orders. We warm-start the
@@ -28,7 +28,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // estimator on a random sprinkling, a known construction, so L2. It relies on a random
 // sprinkling, so it is a statistical claim about an ensemble, not a property of the
 // deterministic base rule, and we say so.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/dimension',
   title: 'the 2D smeared path integral stays on near-2-dimensional causal orders',
   category: 'geometry',

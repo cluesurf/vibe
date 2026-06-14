@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
@@ -10,7 +10,7 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const coordinateSum = (v: number[]): number => v.reduce((s, x) => s + x, 0)
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/implicit-neighbors',
   title: 'DS3: {3,4,3,4} neighbours are computed from the D4 coordinate, zero stored adjacency',
   category: 'data-structure',

@@ -21,7 +21,7 @@
 // dynamics with nothing added beyond the five (the-will-from-the-four.md), is the separate job of P99.
 // Run: npx tsx code/experiment/p98-will-fork.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const SMALL = 1 // the immediate small pleasure
@@ -114,7 +114,7 @@ export function willFork(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/will-fork',
   title: 'delays gratification with willpower, relapses when depleted, field overrides, sharp threshold',
   category: 'selves',

@@ -21,7 +21,7 @@ import { kahlerDirac, cellComplexOf } from '@/code/operator/dirac'
 import { sparseWithAubryAndrePotential, type LinearOperator, type SparseMatrix } from '@/code/algebra/linear/sparse'
 import { returnProbability } from '@/code/measure/localization'
 import { makeGraph } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the Kahler-Dirac operator with a deterministic quasiperiodic on-site potential of given strength
@@ -85,7 +85,7 @@ export function kahlerDiracPropagation(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/kahler-dirac-propagation-534',
   title: 'the Kahler-Dirac fermion on {5,3,4} propagates (the extended phase), localized only by strong deterministic disorder',
   category: 'spin',

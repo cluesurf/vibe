@@ -17,7 +17,7 @@
 //
 // Depth L2, the positive control, rest slot plus an explicit attraction give identity, self-repair, and radiation.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -25,7 +25,7 @@ import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/full-self-positive-control',
   title: 'positive control: rest slot plus an (explicit, cheat) attraction give a full self (identity, self-repair, radiation)',
   category: 'selves',

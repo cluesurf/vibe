@@ -10,7 +10,7 @@
 
 import { flatWilledDriftSweep } from '@/code/dynamics/flat-willed-drift-sweep'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function flatIntention(input?: { L?: number; beats?: number }): {
@@ -87,7 +87,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/flat-intention',
   title: 'directed intention works on the flat layer',
   category: 'selves',

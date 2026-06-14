@@ -18,7 +18,7 @@
 
 import { TESSELLATIONS } from '@/code/substrate/tessellation-catalog'
 import { measureTessellation } from '@/code/measure/tessellation-battery'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const PROPAGATION_SUBSET = ['{7,3}', '{5,3,4}', '{3,5,3}', '{5,3,3,4}', '{3,4,3,4}', '{3,4,3,3,4}']
@@ -63,7 +63,7 @@ export function tessellationSurvey(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/tessellation-survey',
   title: 'one battery across the whole regular hyperbolic catalog: matter propagates on every one, the spinor coin is exactly the 24-cell-faceted few',
   category: 'substrate-survey',

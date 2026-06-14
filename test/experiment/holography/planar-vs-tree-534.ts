@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
@@ -28,7 +28,7 @@ const reachableBoundary = (
   return reached
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/planar-vs-tree-534',
   title: 'the planar tiling loops keep more boundary reachable after a cut than the bulk tree (the HaPPY refinement)',
   category: 'holography',

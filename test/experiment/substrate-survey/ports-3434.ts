@@ -5,7 +5,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { parityBlockBeat3D } from '@/code/operator/ternary-permutation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The deterministic ternary pair rule and its 3D Margolus parity block sweep live in
@@ -60,7 +60,7 @@ export function ports(): { lightconeOk: boolean; churnPct: number; annihilates: 
   return { lightconeOk: lc.ok, churnPct, annihilates }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/ports-3434',
   title: 'the {5,3,4} behaviours port to the {4,3,4} cubic cusp, a z=1 light cone, churn, and self annihilation',
   category: 'substrate-survey',

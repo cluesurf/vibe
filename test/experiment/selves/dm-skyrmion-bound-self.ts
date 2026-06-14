@@ -17,11 +17,11 @@
 //
 // Depth L2, a DM-stabilized topological soliton is a stable reversibly-bound self-identity.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeSkyrmionField, relaxSpins, precessSpins, skyrmionDegree, skyrmionRadius, type Spin, type SkyrmionParams } from '@/code/dynamics/skyrmion-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/dm-skyrmion-bound-self',
   title: 'a DM-stabilized topological soliton is a stable reversibly-bound self: Q conserved, fixed size, robust to perturbation',
   category: 'selves',

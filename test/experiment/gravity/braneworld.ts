@@ -16,7 +16,7 @@
 
 import { branePotential, newtonianPotential3D } from '@/code/measure/gravity-potential'
 import { localForceLawExponent } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Potential felt on the brane in a 4D bulk with a compact extra dimension of size L (the KK sum).
@@ -95,7 +95,7 @@ export function braneworld(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/braneworld',
   title: '3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range',
   category: 'gravity',

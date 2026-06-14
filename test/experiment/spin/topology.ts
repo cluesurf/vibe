@@ -7,7 +7,7 @@
 // the Bombelli / Friedman-Sorkin reading and the monist-spinor route.
 // Run: npx tsx code/experiment/p4-topology.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { triangulatedSurface } from '@/code/substrate/triangulated-surface'
 import { cellComplexOf, kahlerDiracZeroModes } from '@/code/operator/dirac'
@@ -36,7 +36,7 @@ function zeroModeCount(input: {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/topology',
   title: 'the Kahler-Dirac zero-mode count matches the Betti sum across disk, cylinder, and torus',
   category: 'spin',

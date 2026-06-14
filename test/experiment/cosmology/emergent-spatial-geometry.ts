@@ -10,7 +10,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { ballGrowthDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Spatial Euclidean distance between two sprinkled elements (ignoring the time axis 0).
@@ -82,7 +82,7 @@ export function sliceDimension(input: { dimension: number; count: number; seed: 
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/emergent-spatial-geometry',
   title: 'slice dimension below spacetime, rising by ~1 (d-1 trend)',
   category: 'cosmology',

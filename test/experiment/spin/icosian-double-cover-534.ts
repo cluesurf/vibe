@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   binaryIcosahedral,
@@ -15,7 +15,7 @@ import { rotationKey } from '@/code/algebra/group/rotation'
 // So the {5,3,4} hyperbolic bulk CAN carry spin, in the projective rep, and the no-spinor
 // result was only about the direction rep.
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/icosian-double-cover-534',
   title: 'the icosahedral symmetry of {5,3,4} has a spinor double cover 2I, spin in the projective rep',
   category: 'spin',

@@ -13,7 +13,7 @@ import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { hankelMatrix, symmetricEigenvalues } from '@/code/measure/hankel'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
@@ -115,7 +115,7 @@ export function reflectionPositivity(input?: { length?: number; arrow?: number }
   return { spineLength: s.spineLength, c, hankelMinEig, hankelMaxEig, staggeredMinEig, rpNaive, rpStaggered, contactDominated, correlationRange, rpDecidable, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/reflection-positivity',
   title: 'in the massive regime spatial reflection positivity is undecided',
   category: 'quantum',

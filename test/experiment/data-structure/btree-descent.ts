@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing, addressingStats } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -9,7 +9,7 @@ import { buildAddressing, addressingStats } from '@/code/substrate/coxeter/addre
 // address length, the number of physical steps from the root to a target cell) is logarithmic in the cell
 // count, far below a flat linear scan. Reference, Margenstern 2007, the chamber-tree addressing.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/btree-descent',
   title: 'SS1: a B-tree point query on {3,4,3,4} is a logarithmic-depth descent with no stored child pointers',
   category: 'data-structure',

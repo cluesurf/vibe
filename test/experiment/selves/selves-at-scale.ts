@@ -16,7 +16,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // cohesive perception rule, one beat (conserving)
@@ -122,7 +122,7 @@ export function selvesAtScale(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/selves-at-scale',
   title: 'coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy',
   category: 'selves',

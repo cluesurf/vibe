@@ -9,7 +9,7 @@
 
 import { jackiwRebbiHamiltonian } from '@/code/operator/jackiw-rebbi'
 import { diracSeaEnergy } from '@/code/measure/dirac-sea-energy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function seaEnergy(N: number, m0: number, R: number): number {
@@ -27,7 +27,7 @@ export function fermionInducedStabilizer(): { data: { R: number; sea: number }[]
   return { data, risesAsSharpens }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/actual-rule-soliton',
   title: 'a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an honest open gate',
   category: 'gauge',

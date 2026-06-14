@@ -12,7 +12,7 @@
 // "explore with the will, simulate with my own rule, judge with the arrow." If this crosses a barrier that
 // greedy cannot, planning is demonstrated FROM THE BASE. Run: npx tsx code/experiment/p143-planning-no-additions.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function makeLandscape(L: number): { V: number[]; start: number; goal: number; localPeak: number; valley: number } {
@@ -88,7 +88,7 @@ export function planningNoAdditions(input?: { L?: number }): {
   return { L, goal, greedyPos, greedyReachedGoal, plannerPos, plannerReachedGoal, willPushLength: bestK, usesOnlyEmergent, plannerBeatsGreedy, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/planning-no-additions',
   title: 'a planner built only from the arrow, the rule, and the will crosses a barrier greedy cannot',
   category: 'selves',

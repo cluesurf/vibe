@@ -5,7 +5,7 @@
 // compact-AND-crystallographic together. Run: npx tsx code/experiment/3d-tessellations.ts
 
 import { surveyTessellation } from '@/code/measure/tessellation-survey'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; compact: boolean; note: string }
@@ -45,7 +45,7 @@ export function threedTessellations(): void {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/3d-tessellations',
   title: 'a sweep of 3D hyperbolic honeycombs, compact ones are non-crystallographic, crystallographic ones are paracompact',
   category: 'substrate-survey',

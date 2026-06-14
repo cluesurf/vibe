@@ -13,7 +13,7 @@ import { getBit } from '@/code/tool/bitset'
 import { Poset } from '@/code/tool/poset'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { causalSliceWidths } from '@/code/measure/order-stats'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Number of causal relations among the first k elements (the order grown so far).
@@ -75,7 +75,7 @@ export function csgCosmology(input: { size: number; p: number; seed: number }): 
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/p13-cosmology',
   title: 'growth gives a monotone arrow of time and a finite dimension',
   category: 'cosmology',

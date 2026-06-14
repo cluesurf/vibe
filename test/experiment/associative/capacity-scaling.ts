@@ -5,7 +5,7 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { bfsShells, geometricGrowthRatio } from '@/code/measure/shells'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativeCapacityScaling(input?: { maxCells?: number; cubicSide?: number }): {
@@ -36,7 +36,7 @@ export function associativeCapacityScaling(input?: { maxCells?: number; cubicSid
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/capacity-scaling',
   title: 'bulk associative capacity grows exponentially with radius while a flat cubic memory grows polynomially',
   category: 'associative',

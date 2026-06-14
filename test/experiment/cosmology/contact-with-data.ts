@@ -11,7 +11,7 @@
 // the vibe substrate produces any of these predictions. See note/questions/frontiers.md.
 // Run: npx tsx code/experiment/p35-contact-with-data.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Physical constants (SI) and the relevant measurements.
@@ -41,7 +41,7 @@ export function lorentzPrediction(): { gribBoundInPlanck: number; frameworkLinea
   return { gribBoundInPlanck: 7.6, frameworkLinearLIV: false }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/contact-with-data',
   title: 'adopted everpresent scaling lands at the observed dark-energy order of magnitude, no linear Lorentz violation',
   category: 'cosmology',

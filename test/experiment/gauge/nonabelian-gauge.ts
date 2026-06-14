@@ -14,7 +14,7 @@ import {
   trace3 as tr,
   rotationMatrix3 as rot,
 } from '@/code/algebra/group/rotation-matrix'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolean; nonAbelian: boolean } {
@@ -43,7 +43,7 @@ export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolea
   return { gaugeInvariant, curvedFlux, nonAbelian }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/nonabelian-gauge',
   title: 'a non-abelian SO(3) Wilson loop is gauge invariant, curved, and order-dependent',
   category: 'gauge',

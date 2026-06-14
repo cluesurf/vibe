@@ -14,7 +14,7 @@ import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { settledAvalancheSizes } from '@/code/measure/avalanche'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // avalanche sizes at a given background creation rate: seed a flip, track damage peak (terminating cascade)
@@ -71,7 +71,7 @@ export function avalancheCriticality(input?: { n?: number }): {
   return { n: N, scan, bestSpan, scaleFree, ballisticNotCritical, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/avalanche-criticality',
   title:
     'no scale-free avalanches at any background, perturbations spread ballistically to a fixed size',

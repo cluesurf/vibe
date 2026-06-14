@@ -22,7 +22,7 @@ import { causalLattice } from '@/code/substrate/causal-lattice'
 import { histogramFlatness } from '@/code/measure/histogram'
 import { linkRapidities, boostCoords } from '@/code/measure/rapidity'
 import { standardDeviation as std } from '@/code/measure/statistics'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Normalized Shannon entropy of the rapidity histogram, 1 = flat (boost-invariant),
@@ -96,7 +96,7 @@ export function lorentzBoost(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/lorentz-boost',
   title: 'sprinkle rapidity is flat and boost-covariant while a lattice peaks at a rest frame',
   category: 'relativity',

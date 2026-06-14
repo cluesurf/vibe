@@ -14,7 +14,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void =>
@@ -158,7 +158,7 @@ export function persistentSelf(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/persistent-self',
   title: 'a self-maintaining integrated region keeps its identity and boundary, the unmaintained pattern dissolves',
   category: 'selves',

@@ -17,7 +17,7 @@ import { lattice } from '@/code/substrate/lattice'
 import { Substrate } from '@/code/tool/substrate'
 import { gromovDelta } from '@/code/measure/curvature'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Gromov delta-hyperbolicity (the tree-likeness measure) lives in code/measure/curvature.
@@ -63,7 +63,7 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/crystal-hidden-hierarchical',
   title: 'crystal is indistinguishable from foam inside, tree-like, unlike a flat lattice',
   category: 'geometry',

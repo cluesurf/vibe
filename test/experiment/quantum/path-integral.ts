@@ -7,7 +7,7 @@ import { makeRng } from '@/code/tool/rng'
 import { benincasaDowkerAction } from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): { meanDimension: number; acceptance: number } {
@@ -24,7 +24,7 @@ function study(): { meanDimension: number; acceptance: number } {
   return { meanDimension: r.meanObservable, acceptance: r.acceptanceRate }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/path-integral',
   title: 'a 2D Lorentzian causal-set path integral recovers a mean dimension near two',
   category: 'quantum',

@@ -13,7 +13,7 @@ import { lattice } from '@/code/substrate/lattice'
 import { Substrate, substrateUndirectedMeanDegree } from '@/code/tool/substrate'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { reachIsExponential } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const meanDegree = (s: Substrate): number => substrateUndirectedMeanDegree({ substrate: s })
@@ -47,7 +47,7 @@ export function dodecagrid(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/dodecagrid',
   title: 'the 3D hyperbolic honeycomb {5,3,4} is Lorentz-safe, a flat cubic lattice is not',
   category: 'geometry',

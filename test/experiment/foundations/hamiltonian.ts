@@ -11,7 +11,7 @@ import {
   hamiltonianFromPermutation,
 } from '@/code/operator/evolution'
 import { Alphabet } from '@/code/tone/alphabet'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): {
@@ -49,7 +49,7 @@ function study(): {
   return { isPermutation: h.isPermutation, boundedBelow: h.boundedBelow, levels }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/hamiltonian',
   title: 'a reversible cellular automaton gives a permutation Hamiltonian bounded below',
   category: 'foundations',

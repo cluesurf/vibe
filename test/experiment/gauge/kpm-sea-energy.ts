@@ -7,7 +7,7 @@
 // fermion supplies a STABILIZING term (the Skyrme sign). Run: npx tsx code/experiment/p216-kpm-sea-energy.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeDirac } from '@/code/operator/dirac-skyrmion'
 import { newCx } from '@/code/algebra/linear/complex-vector'
@@ -57,7 +57,7 @@ export function kpmSeaEnergy(): { deltaE: [number, number][]; hasMinimum: boolea
   return { deltaE, hasMinimum }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/kpm-sea-energy',
   title: 'the 3D Dirac sea energy of a texture soliton, probed for an interior minimum, the Skyrme sign',
   category: 'gauge',

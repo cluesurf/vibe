@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -7,7 +7,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 // length is the cell's depth. We confirm the proof path (the parent chain to the root) has logarithmic length
 // for every cell, so proofs are O(log N). Control: a flat list inclusion proof is O(N). Reference, Merkle 1987.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/merkle-proof',
   title: 'DS11: a Merkle inclusion proof on the bulk tree is a logarithmic-length path to the root',
   category: 'data-structure',

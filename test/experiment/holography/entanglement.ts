@@ -16,7 +16,7 @@ import {
   ringHoppingHamiltonian,
   torusHoppingHamiltonian,
 } from '@/code/operator/tight-binding'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // 1D: slope of S versus ln(block length), expected near c/3 = 1/3 for c = 1.
@@ -60,7 +60,7 @@ export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaB
   return { boundaryFit, areaBeatsVolume: areaResidual < volumeResidual }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/entanglement',
   title: 'free-fermion entanglement follows a 1D conformal log law and a 2D area law',
   category: 'holography',

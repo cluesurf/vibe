@@ -13,7 +13,7 @@ import { makeRng } from '@/code/tool/rng'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
 import { buildAddressedTree, routeByAddress } from '@/code/substrate/tree-addressing'
 import { graphDistance } from '@/code/measure/distance'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The Margenstern tree addressing (a BFS spanning tree with embedding-angle child
@@ -91,7 +91,7 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/fibonacci-navigation',
   title: 'address arithmetic routes every signal exactly and efficiently on the heptagrid',
   category: 'addressing',

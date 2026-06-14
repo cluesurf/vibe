@@ -14,7 +14,7 @@ import {
   ringFieldWithWinding,
   ringDefectPair,
 } from '@/code/dynamics/ginzburg-landau'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Z = Complex2
@@ -60,7 +60,7 @@ export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersis
   return { pairAnnihilates, likeChargesPersist, chargeConserved, particleLike }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/defect-particles-3434',
   title: 'topological defects annihilate in opposite-charge pairs and persist as like charges',
   category: 'spin',

@@ -12,11 +12,11 @@
 //
 // Depth L2, the reversible discrete dynamics conserves the charge at small steps and is chaotic at large steps.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeSkyrmionField, relaxSpins, precessSpins, skyrmionDegree, type Spin, type SkyrmionParams } from '@/code/dynamics/skyrmion-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/reversible-dynamics-step-threshold',
   title: 'reversible discrete dynamics conserves the Skyrmion charge at small steps, chaotic at large (coarse) steps',
   category: 'selves',

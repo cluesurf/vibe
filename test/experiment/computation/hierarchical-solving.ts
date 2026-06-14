@@ -12,7 +12,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { conservingEdgeSweep, conservingEdgeSweepHashed } from '@/code/dynamics/conserving-sweep'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, type Rng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The conserving perception beat (conservingEdgeSweep) and its damage-spreading,
@@ -95,7 +95,7 @@ export function hierarchicalSolving(): {
   return { scan, growthFactorN, growthFactorT, logScaling, euclideanWouldBe, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'computation/hierarchical-solving',
   title: 'the global coordination distance is O(log N) and tiny',
   category: 'computation',

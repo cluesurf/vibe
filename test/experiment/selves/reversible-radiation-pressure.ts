@@ -13,14 +13,14 @@
 //
 // Depth L2, an honest negative, reversible radiation pressure on B4 disperses and oscillates, no coherent drift.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { b4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
 import type { Collision } from '@/code/rule/collision'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/reversible-radiation-pressure',
   title: 'reversible radiation pressure on B4 is sub-critical: a slow mass oscillates and disperses, it does not coherently drift toward depletion',
   category: 'selves',

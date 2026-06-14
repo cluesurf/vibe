@@ -11,7 +11,7 @@
 import { cubicLattice } from '@/code/substrate/cubic-lattice'
 import { solveGraphPoisson } from '@/code/operator/graph-laplacian'
 import { rotationCurveFromPotential } from '@/code/measure/rotation-curve'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Solve L phi = b (zero-mean) by conjugate gradient, projecting out the constant.
@@ -69,7 +69,7 @@ export function rotationCurve(input: { side: number; nonlocal: number }): { r: n
   return rotationCurveFromPotential({ radii: r, potential: phiR })
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/dark-matter',
   title: 'nonlocal gravity flattens the rotation curve (no dark particle)',
   category: 'gravity',

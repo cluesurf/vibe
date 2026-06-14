@@ -3,7 +3,7 @@
 // solitons) but the DIRECTIONAL order parameter (a direction field) carries winding (solitons exist).
 // Ported from the throwaway probes. Run: npx tsx code/experiment/p194-derrick-stabilizer.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function derrickStabilizer(): { stable3D: boolean; scalarWinds: boolean; directionWinds: boolean } {
@@ -40,7 +40,7 @@ export function derrickStabilizer(): { stable3D: boolean; scalarWinds: boolean; 
   return { stable3D, scalarWinds: scalarWind !== 0, directionWinds: dirWind !== 0 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/derrick-stabilizer',
   title: 'Derrick scaling needs a Skyrme term in 3D and only a direction field carries winding',
   category: 'selves',

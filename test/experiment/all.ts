@@ -1,4 +1,4 @@
-// Generated barrel. Imports every experiment file for its defineExperiment
+// Generated barrel. Imports every experiment file for its experiment
 // registration side effect, so the runner sees the whole registry.
 
 import '@/test/experiment/addressing/addressing-3434-scale'

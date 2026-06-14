@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { vsaRecallAccuracy } from '@/code/measure/associative-memory'
 
@@ -9,7 +9,7 @@ import { vsaRecallAccuracy } from '@/code/measure/associative-memory'
 // larger radius, exponentially more cells) and confirm the larger memory recalls far more accurately, so
 // capacity grows with the radius. References, Plate 1995, Kanerva 2009.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/associative-memory',
   title: 'DS10: associative-memory capacity scales with dimension, exponential in the bulk radius',
   category: 'data-structure',

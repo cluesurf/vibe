@@ -10,10 +10,10 @@
 import { smearedBenincasaDowker } from '@/code/dynamics/action'
 import { exactCausalSetAverages } from '@/code/dynamics/exact-enumeration'
 import { orderStatistics } from '@/code/measure/order-stats'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/exact',
   title: 'exact Boltzmann averages over every causal set on six elements',
   category: 'foundations',

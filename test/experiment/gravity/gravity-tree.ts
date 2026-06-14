@@ -6,7 +6,7 @@
 // for the MASSLESS mode (band edge) and a massive mode. Run: npx tsx code/experiment/p218-gravity-tree.ts
 
 import { betheBoundaryExponent } from '@/code/algebra/linear/bethe-resolvent'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The boundary coupling exponent alpha = -2 ln t / ln b for coordination z at spectral parameter s
@@ -28,7 +28,7 @@ export function gravityTree(): { masslessAlpha: number; massiveAlpha: number } {
   return { masslessAlpha, massiveAlpha }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gravity-tree',
   title: 'the Bethe-lattice band-edge boundary coupling falls as 1/r for every branching, but the tree is dimension-blind',
   category: 'gravity',

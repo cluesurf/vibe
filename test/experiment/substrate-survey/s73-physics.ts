@@ -9,7 +9,7 @@ import { shellGrowthRatio } from '@/code/measure/shell-growth-ratio'
 import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { mostConnectedNode } from '@/code/tool/graph'
 import { directionFourthMoments } from '@/code/measure/isotropy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFoldIsotropic: boolean } {
@@ -27,7 +27,7 @@ export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFo
   return { betheAlpha, growthRatio, sevenFoldIsotropic }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/s73-physics',
   title: 'the holographic correlator, cosmology, and 7-fold isotropy port to {7,3}, with 1D linear gravity',
   category: 'substrate-survey',

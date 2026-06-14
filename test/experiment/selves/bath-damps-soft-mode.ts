@@ -13,7 +13,7 @@
 //
 // Depth L2, an emergent dissipative property, the bath turning the reversible soft mode into a damped one.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { type Will } from '@/code/tone/will'
@@ -22,7 +22,7 @@ import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 import { coinLines, densityWaveAlongAxis, stripeContrast } from '@/code/measure/sound-wave'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/bath-damps-soft-mode',
   title: 'the bath damps the emergent soft mode: open radiates the disturbance away and heals, closed recurs',
   category: 'selves',

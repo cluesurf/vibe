@@ -17,7 +17,7 @@
 import { lorentzSafety, latticeAnisotropy } from '@/code/measure/lorentz'
 import { swerveDiffusion } from '@/code/measure/swerve-diffusion'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const E_PLANCK_GEV = 1.22e19
@@ -77,7 +77,7 @@ export function predictionsVsBounds(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/predictions-vs-bounds',
   title: 'the model passes the GRB Lorentz bound that excludes a lattice',
   category: 'relativity',

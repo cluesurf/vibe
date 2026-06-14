@@ -32,7 +32,7 @@ import {
   notBus,
   settle,
 } from '@/code/operator/substrate-gate'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The on-substrate gate construction (gates as cell subgraphs run by the model's own
@@ -161,7 +161,7 @@ export function universality(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'computation/universality',
   title: 'the rule is functionally complete and runs gates on the live dynamics',
   category: 'computation',

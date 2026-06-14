@@ -5,7 +5,7 @@
 // scale and measure the scoreboard. Run: npx tsx code/experiment/5d-tessellations.ts
 
 import { surveyTessellation } from '@/code/measure/tessellation-survey'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
@@ -36,7 +36,7 @@ export function manyTessellations(): void {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/5d-tessellations',
   title: 'a sweep of 5D crystallographic honeycombs, all overshoot to 4D physical space and lose compactness',
   category: 'substrate-survey',

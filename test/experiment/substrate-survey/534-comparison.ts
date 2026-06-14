@@ -7,7 +7,7 @@
 
 import { betheCorrelatorExponent } from '@/code/measure/dimension'
 import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function comparison534(): { specDim: number; degree: number; betheAlpha: number } {
@@ -19,7 +19,7 @@ export function comparison534(): { specDim: number; degree: number; betheAlpha: 
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/534-comparison',
   title: 'the framework ports to {5,3,4} (3D bulk, clean 1/r^2 correlator), the control isolating what needs {3,4,3,4}',
   category: 'substrate-survey',

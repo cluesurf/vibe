@@ -8,7 +8,7 @@
 // reaches the goal. We show depth-K lookahead solves the detour while depth-1 (reactive) fails, end-to-end
 // on the flat emergent layer (where directed action lives, P157). Run: npx tsx code/experiment/p162-integrated-agent.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a flat 2D grid with a WALL (a vertical barrier) that has a GAP near the top, the agent must DETOUR up
@@ -132,7 +132,7 @@ export function integratedAgent(input?: { L?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/p162-integrated-agent',
   title: 'multi-step lookahead through the forward model solves a detour the reactive agent cannot',
   category: 'selves',

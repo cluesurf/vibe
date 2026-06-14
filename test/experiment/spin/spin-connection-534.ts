@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   coxeterEdgeRotor,
@@ -15,7 +15,7 @@ import { complex } from '@/code/algebra/linear/complex'
 // geometrically on the actual {5,3,4} frame bundle. So spinors propagate on {5,3,4} with the double-cover
 // sign, the dynamical spin structure, not just the abstract cover of spin/cocycle-534.
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/spin-connection-534',
   title: 'the {5,3,4} spin connection, the edge-loop holonomy is the spinor double cover (minus one once, plus one twice)',
   category: 'spin',

@@ -8,7 +8,7 @@
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { addVelocities, boostEnergyMomentum, relativisticEnergy } from '@/code/measure/rapidity'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // continuum (IR) dispersion E = sqrt(m^2 + p^2); a boost of rapidity phi
@@ -50,7 +50,7 @@ export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRel
   return { invariantPreserved, velocitiesAddRelativistically: velocitiesAddRelativistically && galileanWrong, latticeBreaksUV, emergentInIR }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/emergent-boost-3434',
   title: 'boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet',
   category: 'relativity',

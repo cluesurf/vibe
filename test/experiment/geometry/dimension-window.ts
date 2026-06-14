@@ -14,7 +14,7 @@
 // spatial dimension into {2, 3, 4}, and 3 (four-dimensional spacetime) sits inside that window.
 // Run: npx tsx code/experiment/p62-dimension-window.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { enumerateCompactHoneycombs } from '@/code/substrate/coxeter/schlafli'
 
@@ -41,7 +41,7 @@ export function dimensionWindow(input: { maxP: number; maxDimension: number }): 
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/dimension-window',
   title: 'compact hyperbolic crystals only in dimensions 2, 3, 4 (H3 = 4, H4 = 5, H5 plus = 0)',
   category: 'geometry',

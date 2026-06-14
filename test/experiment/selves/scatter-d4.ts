@@ -14,7 +14,7 @@
 // Depth L2, the lattice-gas scattering property (a momentum-conserving collision deflects a head-on pair)
 // realized on the committed coin, with passThrough (free crossing) as the control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, charge, type Will } from '@/code/tone/will'
@@ -29,7 +29,7 @@ const ROOTS = rootsD4()
 const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v === b[i])
 const differs = (a: Will, b: Will): boolean => a.data.some((v, i) => v !== b.data[i])
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/scatter-d4',
   title: 'a head-on pair is deflected onto a rotated axis by the momentum-conserving collision, not passed through',
   category: 'selves',

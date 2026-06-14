@@ -8,7 +8,7 @@
 
 import { lattice } from '@/code/substrate/lattice'
 import { cellComplexOf, kahlerDiracZeroModes } from '@/code/operator/dirac'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): { smallestMagnitudes: number[]; nearZero: number } {
@@ -25,7 +25,7 @@ function study(): { smallestMagnitudes: number[]; nearZero: number } {
   return { smallestMagnitudes, nearZero: result.zeroModes }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/spinor',
   title: 'the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum',
   category: 'spin',

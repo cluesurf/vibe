@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { completeTree, embedTree, embeddingDistortion } from '@/code/geometry/tree-embedding'
 
@@ -8,7 +8,7 @@ import { completeTree, embedTree, embeddingDistortion } from '@/code/geometry/tr
 // Poincare disk (Sarkar) and into the Euclidean plane by the same recursive fan-out, and compare the worst-case
 // distortion. The hyperbolic distortion is far lower. References, Sarkar 2011, Nickel-Kiela 2017.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/tree-embedding',
   title: 'DS6: a tree embeds in the hyperbolic disk at low distortion, the Euclidean plane cannot',
   category: 'data-structure',

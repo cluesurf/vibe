@@ -10,7 +10,7 @@
 // HERITABLE. Run: npx tsx code/experiment/p152-evolution.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -114,7 +114,7 @@ export function evolution(input?: { M?: number }): {
   return { M, selectedFinal, driftFinal, startMean, heritability, fitnessRises, beatsDrift, heritable, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/p152-evolution',
   title: 'heredity plus variation plus selection drives mean fitness up, beating drift',
   category: 'selves',

@@ -10,7 +10,7 @@
 
 import { bulkGraph, beat, emergeSelf, countPlus, totalCharge, sameSignNeighbors, type Graph } from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the autonomous repair, purely local. It NEVER reads the self's cell list, only each cell's neighborhood.
@@ -97,7 +97,7 @@ export function autonomousSelf(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/autonomous-self',
   title: 'a self maintains itself by a purely local rule with no outside knower',
   category: 'selves',

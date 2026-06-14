@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p79-anomaly-charge-quantization.ts
 
 import { solveLinearSystem } from '@/code/algebra/linear/dense'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // One generation of left-handed Weyl fermions, with their multiplicities (color x weak) and the
@@ -100,7 +100,7 @@ export function anomalyChargeQuantization(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/anomaly-charge-quantization',
   title:
     'anomaly cancellation forces the Standard Model hypercharges and quantized electric charges',

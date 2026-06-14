@@ -11,7 +11,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
 import { directionalFrontDistances, rangeAnisotropy } from '@/code/measure/front-speed'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
@@ -94,7 +94,7 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/wave-isotropy',
   title: 'the deterministic reversible wave on the dodecagrid has an isotropic speed',
   category: 'relativity',

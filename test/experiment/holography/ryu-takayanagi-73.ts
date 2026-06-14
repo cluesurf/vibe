@@ -14,7 +14,7 @@
 
 import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { ryuTakayanagiScaling } from '@/code/measure/holography'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function ryuTakayanagi73(): {
@@ -41,7 +41,7 @@ export function ryuTakayanagi73(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/ryu-takayanagi-73',
   title: 'on {7,3} the boundary-interval entanglement follows the logarithmic Ryu-Takayanagi law, while the flat control is linear',
   category: 'holography',

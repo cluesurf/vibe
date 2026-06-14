@@ -16,7 +16,7 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess } from '@/code/measure/navigation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 interface Row {
@@ -48,7 +48,7 @@ function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }):
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/study',
   title: 'the addressing-versus-Lorentz fork, can one substrate have reach, isotropy, and navigability at once',
   category: 'addressing',

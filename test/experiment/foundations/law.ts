@@ -20,7 +20,7 @@ import {
 } from '@/code/operator/block-ca'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { Alphabet } from '@/code/tone/alphabet'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function lengthOf(perm: Int32Array, cells: number): number {
@@ -37,7 +37,7 @@ function singleFlipPerm(cells: number): Int32Array {
   return perm
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/law',
   title: 'scanning reversible rules for a local bounded-below Hamiltonian',
   category: 'foundations',

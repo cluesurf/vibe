@@ -19,7 +19,7 @@
 //
 // Depth L2, the vacuum-density suppression measured at three separations with the wall-free vacuum as the control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
@@ -27,7 +27,7 @@ import { pairCollision, type Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { chargeDensityProfile } from '@/code/measure/profile'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/casimir-vacuum-attraction',
   title: 'the active vacuum exerts a Casimir attraction, the gap between two walls is suppressed and the force falls with distance',
   category: 'selves',

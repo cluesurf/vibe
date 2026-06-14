@@ -8,7 +8,7 @@ import { lagAutocorrelation } from '@/code/measure/persistence'
 import { perceptionMatchingSweep3d } from '@/code/rule/perception-permutation'
 import { coarseFieldByGroup, cubicBlockGroups } from '@/code/coarse/group-field'
 import { shuffledToneField } from '@/code/control/null'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const L = 48
@@ -32,7 +32,7 @@ export function formTower(): { real: number[]; nul: number[]; tower: boolean } {
   return { real, nul, tower }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/form-tower-3434',
   title: 'coarse-grained form-persistence rises with scale and beats a spatial-shuffle null on the 3D cusp',
   category: 'renormalization',

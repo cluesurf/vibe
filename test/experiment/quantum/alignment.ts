@@ -12,7 +12,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { mutualInformationBits } from '@/code/measure/statistics'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function randomBit(lambda: number, salt: number): number {
@@ -82,7 +82,7 @@ export function measureChshAndDependence(input: {
   return { s, mutualInfo: mi }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/alignment',
   title: 'aligned bits, not bits, buy a CHSH violation',
   category: 'quantum',

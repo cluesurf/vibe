@@ -14,7 +14,7 @@ import {
   spinorRepOdd8,
   applyTriality,
 } from '@/code/algebra/group/so8-triality'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPreserveSectors: boolean; trialityMixes: boolean; oneRuleForced: boolean } {
@@ -49,7 +49,7 @@ export function coemergenceStructural(): { sectorsCover24: boolean; rotationsPre
   return { sectorsCover24, rotationsPreserveSectors, trialityMixes, oneRuleForced }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/coemergence-structural-3434',
   title: 'the rotation subgroup forces the photon 8v and fermion 8s, 8c sectors as invariant subspaces',
   category: 'gauge',

@@ -13,7 +13,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweepTunable } from '@/code/dynamics/conserving-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // "rich" = a living, structured field, alive (density in a healthy band) AND coherent (neighbours
@@ -86,7 +86,7 @@ export function designSignature(input?: { n?: number }): {
   return { n: N, grid, richFraction, deadOnlyAtZeroArrow, geometryForced, selfOrganizes, fineTuningSignature, designerDispensable, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/design-signature',
   title: 'the rich regime is broad so there is no fine-tuning signature',
   category: 'foundations',

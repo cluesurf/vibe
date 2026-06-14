@@ -8,7 +8,7 @@
 // Run: npx tsx code/experiment/p252-controls-battery.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: boolean } {
@@ -69,7 +69,7 @@ export function controlsBattery(): { c1: boolean; c2: boolean; c4: boolean; c5: 
   return { c1, c2, c4, c5 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/controls-battery',
   title: 'a negative-control battery, each property test catches a deliberately broken rule',
   category: 'foundations',

@@ -8,7 +8,7 @@
 // Depth L2, a measured perturb-and-watch with a control. It measures containment and radius, the agency
 // signature, on the self dynamics.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
 import { distancesFrom } from '@/code/coarse/self-criteria'
@@ -50,7 +50,7 @@ function perturbAndWatch(input: {
   return { peak, final, radius }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-light-cone',
   title: 'a self contains and corrects an interior perturbation, the medium spreads it',
   category: 'selves',

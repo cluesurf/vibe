@@ -12,7 +12,7 @@
 
 import { buildDodecagrid, buildDodecagridLazy, makeLazyEngine, type LazyCell } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The lazy BFS dodecagrid build (neighbors computed on demand from each cell's group
@@ -79,7 +79,7 @@ export function lazyNeighbors(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'addressing/lazy-neighbors',
   title: 'on-demand neighbor computation reproduces the exact dodecagrid graph with no stored adjacency',
   category: 'addressing',

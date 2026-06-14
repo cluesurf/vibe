@@ -13,7 +13,7 @@
 //
 // Depth L2, the attraction field encoded in ternary trits, one trit gives range 2, three trits range 3.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -21,7 +21,7 @@ import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { bulkMass, relaxPotential, gravityMoves } from '@/code/dynamics/gravity-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/ternary-field-attraction',
   title: 'the attraction field is ternary tones: one trit per cell repairs range 2, three trits range 3 (no bits, no unbounded integers)',
   category: 'selves',

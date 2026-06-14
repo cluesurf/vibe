@@ -17,7 +17,7 @@
 import { flatGraph, beat, positiveClusters, clusterIntegration, type Graph } from '@/code/model/self-kit'
 import { boxCountingDimension } from '@/code/measure/dimension'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function evolve(g: Graph, L: number, density: number, beats: number, seed: number): Int8Array {
@@ -120,7 +120,7 @@ export function rarityMeasures(input?: { L?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/rarity-measures',
   title: 'three independent measures confirm life is a rare, thin, threshold-gated tail of matter',
   category: 'cosmology',

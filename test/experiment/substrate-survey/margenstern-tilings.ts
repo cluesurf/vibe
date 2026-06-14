@@ -12,7 +12,7 @@ import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
 import { Graph, meanDegree } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { reachIsExponential } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // meanDegree lives in code/tool/graph, the exponential-reach classifier in
@@ -55,7 +55,7 @@ export function margensternTilings(input: { seed: number }): Record<
   return out
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/margenstern-tilings',
   title:
     'all the Margenstern {p,4} and {p,3} tilings are Lorentz-safe with exponential reach',

@@ -21,7 +21,7 @@ import {
   connectedCorrelationByDistance,
   correlationLengthFromDecay,
 } from '@/code/measure/connected-correlation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // vacuum dynamics: the arrow creates pairs, share annihilates, hops carry charge (the field)
@@ -126,7 +126,7 @@ export function quantumField(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/quantum-field',
   title: 'the vacuum is field-like with virtual pairs and a causal cone',
   category: 'quantum',

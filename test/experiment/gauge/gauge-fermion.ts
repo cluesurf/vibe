@@ -14,7 +14,7 @@ import { cellComplexOf } from '@/code/operator/dirac'
 import { covariantKahlerDirac } from '@/code/operator/gauge-dirac'
 import { operatorFromSparse } from '@/code/algebra/linear/sparse'
 import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function study(): { potential: number; lowest: number[] } {
@@ -45,7 +45,7 @@ function study(): { potential: number; lowest: number[] } {
   return { potential, lowest }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/gauge-fermion',
   title: 'a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum',
   category: 'gauge',

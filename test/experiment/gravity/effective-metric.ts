@@ -13,7 +13,7 @@
 
 import { rayDeflection, softenedMassIndexField } from '@/code/dynamics/graded-index-ray'
 import { fieldLaplacianProfile } from '@/code/measure/field-laplacian'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Trace a ray (a geodesic of the effective metric) through the hand-built 1/r index field and read
@@ -87,7 +87,7 @@ export function effectiveMetric(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/effective-metric',
   title: 'rays bend toward matter (lensing) scaling with mass, curvature sourced by matter',
   category: 'gravity',

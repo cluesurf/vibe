@@ -11,7 +11,7 @@
 // Together these are the genuinely-quantum behaviour, present in the unitary rule, absent in its classical
 // (stochastic) shadow. Run: npx tsx code/experiment/p158-born-interference.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   coinedWalkQuantumDistribution,
@@ -66,7 +66,7 @@ export function bornInterference(input?: { steps?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/born-interference',
   title: 'the unitary rule interferes and gives a genuine Born probability',
   category: 'quantum',

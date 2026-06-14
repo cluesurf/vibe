@@ -15,7 +15,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { saveGraph, loadGraph, type StoredGraph } from '@/code/tool/graph-store'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { imprintRetention } from '@/code/measure/imprint-retention'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function exactScale(input?: { n?: number }): {
@@ -76,7 +76,7 @@ export function exactScale(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/exact-scale',
   title:
     'the exact {5,3,4} modular-fingerprint engine matches the float engine, exceeds the precision wall, and round-trips through disk',

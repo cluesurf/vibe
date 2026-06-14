@@ -8,7 +8,7 @@
 
 import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
 import { symbolContainsSubdiagram } from '@/code/substrate/coxeter/gram-signature'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const PENTACOMB5D = [5, 3, 3, 3, 3]
@@ -23,7 +23,7 @@ export function s53333Structure(): { degree: number; specDim: number; crystallog
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/s53333-structure',
   title: 'the {5,3,3,3,3} bulk builds as a 5D hyperbolic graph, over-dimensional with no spinor',
   category: 'substrate-survey',

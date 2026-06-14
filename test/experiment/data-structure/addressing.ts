@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing, addressingStats } from '@/code/substrate/coxeter/addressing-3434'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
@@ -10,7 +10,7 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 // maximum address length is far shorter than the flat one (logarithmic versus polynomial). Reference,
 // Margenstern 2007.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/addressing',
   title: 'DS2: the hyperbolic bulk gives unique cell addresses of logarithmic length, far shorter than flat',
   category: 'data-structure',

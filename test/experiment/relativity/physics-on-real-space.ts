@@ -10,7 +10,7 @@ import { extractBand } from '@/code/substrate/horosphere'
 import { largestComponentNodes, mostConnectedNode } from '@/code/tool/graph'
 import { spectralDimension } from '@/code/measure/dimension'
 import { gravityExponent as gravityExponentMeasure } from '@/code/measure/gravity-exponent'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const round2 = (x: number): number => Math.round(x * 100) / 100
@@ -47,7 +47,7 @@ export function physicsOnRealSpace(): void {
   const cuspHolds = Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/physics-on-real-space',
   title: 'the flat-layer physics holds on the {4,3,4} cubic cusp and degrades on a generic slice',
   category: 'relativity',

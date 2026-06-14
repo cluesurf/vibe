@@ -6,7 +6,7 @@
 // Run: npx tsx code/experiment/p225-gut-breaking.ts
 
 import { rootsAn, rootsDn, vecEqExact as eq, standardModelEmbedsInRootSystem } from '@/code/algebra/group/root-system'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const d5 = (): number[][] => rootsDn(5)
@@ -27,7 +27,7 @@ export function gutBreaking(): { su5InSo10: boolean; smInSu5: boolean; sixteenSp
   return { su5InSo10, smInSu5, sixteenSplit }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/gut-breaking',
   title: 'so(10) breaks to su(5) to the Standard Model with the 16-spinor carrying a singlet',
   category: 'gauge',

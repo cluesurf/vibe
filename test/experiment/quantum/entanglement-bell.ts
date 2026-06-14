@@ -8,7 +8,7 @@
 // inequality (S > 2, up to the Tsirelson bound 2 sqrt(2)), which is impossible for any local hidden-variable
 // theory. A product-state control gives concurrence 0 and S <= 2. Run: npx tsx code/experiment/p173-entanglement-bell.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   twoQubitConcurrence,
@@ -72,7 +72,7 @@ export function entanglementBell(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/entanglement-bell',
   title: 'the exchange dynamics violates CHSH at the Tsirelson bound',
   category: 'quantum',

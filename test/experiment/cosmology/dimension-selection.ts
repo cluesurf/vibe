@@ -12,7 +12,7 @@
 // Run: npx tsx code/experiment/p68-dimension-selection.ts
 
 import { integrateCentralForceOrbit } from '@/code/dynamics/central-force-orbit'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Integrate a planar orbit in d spatial dimensions, reporting stability and perihelion precession.
@@ -48,7 +48,7 @@ export function dimensionSelection(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/dimension-selection',
   title: 'only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
   category: 'cosmology',

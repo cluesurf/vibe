@@ -21,7 +21,7 @@ import {
   PERCEPTION_INVERSE as INV,
   perceptionBlockBeat,
 } from '@/code/rule/perception-permutation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function blockBeat(tone: Int8Array, L: number, parity: number, table: number[]): void {
@@ -90,7 +90,7 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
   return { L, chargeConserved, reversible, spreadExponent, isBallistic, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/deterministic-perception',
   title: 'the perception rule as a reversible block CA is charge-conserving and ballistic',
   category: 'relativity',

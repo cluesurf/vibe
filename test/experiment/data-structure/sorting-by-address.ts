@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing, addressingStats } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -13,7 +13,7 @@ const lexCompare = (a: number[], b: number[]): number => {
   return a.length - b.length
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/sorting-by-address',
   title: 'SS7: the canonical address is a total order, sorting is reading cells in address order',
   category: 'data-structure',

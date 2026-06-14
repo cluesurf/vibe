@@ -11,7 +11,7 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances } from '@/code/tool/graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function bulkNonlocality(input?: { n?: number }): {
@@ -99,7 +99,7 @@ export function bulkNonlocality(input?: { n?: number }): {
   return { n: N, shellRadius, shellSize: shellCells.length, meanBulkDistance, meanSurfaceDistance, unreachableFraction, ratio, nonLocalChannel, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/bulk-nonlocality',
   title: 'distant surface points are joined by a short hidden path through the bulk',
   category: 'holography',

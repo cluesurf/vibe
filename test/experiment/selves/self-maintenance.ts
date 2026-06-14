@@ -23,7 +23,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { csrBallNodes, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the rule alone: share + cohesive hop, NO external maintenance, NO arrow (to isolate healing)
@@ -93,7 +93,7 @@ export function selfMaintenance(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/self-maintenance',
   title: 'a self heals its own damage by the rule alone, control with no surround does not',
   category: 'selves',

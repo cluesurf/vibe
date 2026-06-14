@@ -15,7 +15,7 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/selves-as-propagating-structures-3434.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
@@ -152,7 +152,7 @@ export function propagatingSelves(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/selves-as-propagating-structures-3434',
   title: 'identity-through-turnover scores a glider as a self and the perception-rule seed as churn',
   category: 'selves',

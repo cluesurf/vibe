@@ -16,7 +16,7 @@
 //
 // Depth L2, the attraction from the active vacuum (no new field) repairs range 2, mass-emission reaches range 3.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -24,7 +24,7 @@ import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { bulkMass, relaxPotential, vacuumDensity, gravityMoves } from '@/code/dynamics/gravity-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/vacuum-depletion-attraction',
   title: 'attraction from the active vacuum (no new field): depletion repairs range 2, a dedicated emission field range 3',
   category: 'selves',

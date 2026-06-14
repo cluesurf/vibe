@@ -7,7 +7,7 @@
 // weights. Run: npx tsx code/experiment/p227-vacuum-selection.ts
 
 import { rootsDn, dotVec as dot, spinorWeightsDn } from '@/code/algebra/group/root-system'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function vacuumSelection(): { maxUnbroken: number; singletWins: boolean } {
@@ -24,7 +24,7 @@ export function vacuumSelection(): { maxUnbroken: number; singletWins: boolean }
   return { maxUnbroken, singletWins }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/vacuum-selection',
   title: 'every one of the 16 spinor weights leaves 20 unbroken roots, so any self-condensate breaks so(10) to su(5)',
   category: 'gauge',

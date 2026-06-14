@@ -15,7 +15,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrBallNodes, csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
 import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
@@ -111,7 +111,7 @@ export function willSteering(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/will-steering',
   title: 'with the will a self moves toward a target and away from a threat, unbiased does not',
   category: 'selves',

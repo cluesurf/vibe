@@ -9,7 +9,7 @@
 // ingredient, not one of the pure base elements. So this shows autopoiesis given cohesion, and the control
 // shows it fails without it.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
 import { makeRng } from '@/code/coarse/self-trajectory'
@@ -48,7 +48,7 @@ function maintain(input: { L: number; beats: number; cohesion: number; seed: num
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-autopoietic-closure',
   title: 'the self maintains a stable organization while its cells turn over, the cohesion-off control does not',
   category: 'selves',

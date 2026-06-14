@@ -13,7 +13,7 @@
 // whatever structure is asked for, not just one. Run: npx tsx code/experiment/p161-arbitrary-structure.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -102,7 +102,7 @@ export function arbitraryStructure(input?: { M?: number }): {
   return { M, cases, allBuilt, allMaintained, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/arbitrary-structure',
   title: 'the goal-directed builder reaches and holds several arbitrary balanced targets',
   category: 'selves',

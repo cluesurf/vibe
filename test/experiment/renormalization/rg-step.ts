@@ -15,7 +15,7 @@ import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { csrVoronoiBlocks } from '@/code/dynamics/renormalization-blocks'
 import { sumFieldByGroup } from '@/code/coarse/group-field'
 import { populationVariance } from '@/code/measure/statistics'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function rgStep(input?: { n?: number; blockSize?: number }): {
@@ -167,7 +167,7 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/rg-step',
   title:
     'the first inter-layer transform enriches the alphabet and conserves charge',

@@ -13,7 +13,7 @@
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng } from '@/code/tool/rng'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
@@ -182,7 +182,7 @@ export function metacognition(input?: { n?: number }): {
   return { n: N, hubPredict, peripheralPredict, peakLag, hubMirror, predictsFuture, beatsLocal, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/metacognition',
   title: 'the self-model predicts the self next state, beating local regions',
   category: 'selves',

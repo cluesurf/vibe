@@ -18,7 +18,7 @@
 //
 // Depth L2, exact superposition measured at two separations with a head-on collision as the contact control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, loneParticle, type Will } from '@/code/tone/will'
@@ -49,7 +49,7 @@ function cellAt(side: number, x: number, y: number, z: number, w: number): numbe
   return m(w) * side * side * side + m(z) * side * side + m(y) * side + m(x)
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/emergent-attraction-search',
   title: 'the bare reversible rule has no emergent attraction, two separated charges obey exact superposition',
   category: 'selves',

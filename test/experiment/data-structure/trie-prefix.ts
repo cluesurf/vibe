@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -14,7 +14,7 @@ const isPrefixPlusOne = (parent: number[], child: number[]): boolean => {
   return true
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/trie-prefix',
   title: 'SS3: cell addresses form a trie, every address extends its parent by one digit',
   category: 'data-structure',

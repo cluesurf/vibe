@@ -9,7 +9,7 @@
 // BULK-specific, not absolute, lifted at the emergent flat level. Run: npx tsx code/experiment/p160-fission-flat-layer.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // connected components of the "on" (value 1) cells, via the given neighbor function
@@ -155,7 +155,7 @@ export function fissionFlatLayer(): {
   return { flatLobes: flat.lobes, flatFissioned: flat.bothSubstantial, hyperbolicFissioned: hyp.bothSubstantial, liftedAtFlatLevel, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/fission-flat-layer',
   title: 'a self divides on the flat layer where the hyperbolic bulk cannot',
   category: 'selves',

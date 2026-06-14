@@ -11,7 +11,7 @@
 // With P168's free center of mass, this completes particle -> composite, a bound atom that moves freely.
 // Run: npx tsx code/experiment/p172-bound-composite.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { lowestEigenpairs as lowestEigenpairsOf } from '@/code/algebra/linear/power-iteration'
 import { openChainPotentialApply } from '@/code/operator/tight-binding'
@@ -101,7 +101,7 @@ export function boundComposite(input?: { N?: number; halfWidth?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/bound-composite',
   title: 'two attracting particles form a true bound state with discrete levels',
   category: 'quantum',

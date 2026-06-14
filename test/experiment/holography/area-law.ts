@@ -17,7 +17,7 @@ import {
   regionEntanglementEntropy,
 } from '@/code/measure/entanglement'
 import { staggeredMassChainHamiltonian } from '@/code/operator/tight-binding'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the ground-state correlation matrix C_ij = <c_i^dag c_j> of a tight-binding chain with a staggered mass.
@@ -91,7 +91,7 @@ export function areaLaw(input?: { L?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/area-law',
   title: 'the emergent field ground state is area-law while a thermal state is volume-law',
   category: 'holography',

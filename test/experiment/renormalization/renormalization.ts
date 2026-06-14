@@ -17,7 +17,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type FieldParams = { n: number; density: number; c1: number; coneSpeed: number }
@@ -91,7 +91,7 @@ export function renormalization(input?: { small?: number; large?: number }): {
   return { small, large, densityMatch, c1Match, coneMatch, pairStructure, sliceInvariant, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/renormalization-keystone',
   title:
     'the effective field parameters measured on a small slice match those of a much larger field',

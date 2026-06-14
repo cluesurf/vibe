@@ -8,7 +8,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { GridGauge, plaquetteFlux, gridWilsonLoop } from '@/code/tool/grid-gauge'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless: boolean; linearAtLongWave: boolean; transversePolarizations: boolean } {
@@ -52,7 +52,7 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   return { gaugeInvariant, stokes, massless, linearAtLongWave, transversePolarizations }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/ph-photon-3434',
   title: 'the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion',
   category: 'gauge',

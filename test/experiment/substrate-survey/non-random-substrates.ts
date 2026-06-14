@@ -19,7 +19,7 @@ import { lattice } from '@/code/substrate/lattice'
 import { Substrate, substrateUndirectedMeanDegree } from '@/code/tool/substrate'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { reachIsExponential } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The exponential-reach classifier lives in code/measure/dimension.
@@ -50,7 +50,7 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
   return out
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/non-random-substrates',
   title:
     'every hyperbolic substrate is Lorentz-safe while the flat lattice is not',

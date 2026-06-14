@@ -21,7 +21,7 @@ import {
   FluidComponent as Comp,
   integrateFriedmann as integrate,
 } from '@/code/dynamics/friedmann'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Emergent power-law slope d(log a)/d(log t) over the middle of a single-component run.
@@ -108,7 +108,7 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/nonlinear-einstein',
   title: 'a(t) integrated forward, power laws emerge, deceleration to acceleration transition',
   category: 'gravity',

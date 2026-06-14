@@ -12,14 +12,14 @@ import {
   isingDecimationBySummation,
   isingDecimationFormula,
 } from '@/code/operator/ising-rg'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The exact 1D Ising real-space RG (block-spin decimation by direct summation, its
 // closed form K' = (1/2) ln cosh 2K, and the beta function) lives in
 // code/operator/ising-rg.
 
-export default defineExperiment({
+export default experiment({
   id: 'general/open-rg-flow',
   title: 'block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point',
   category: 'renormalization',

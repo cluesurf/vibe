@@ -7,7 +7,7 @@
 // Run: npx tsx code/experiment/rg-from-coarse-graining.ts
 
 import { isingDecimationFormula } from '@/code/operator/ising-rg'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // 1D Ising decimation RG, integrate out every other spin, the coupling renormalizes as K' = (1/2) ln cosh(2K).
@@ -25,7 +25,7 @@ export function rgFromCoarseGraining(): { flows: boolean; betaSign: number } {
   return { flows, betaSign }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'renormalization/rg-from-coarse-graining',
   title: 'the 1D decimation RG shows a coupling flows with a beta function under coarse-graining',
   category: 'renormalization',

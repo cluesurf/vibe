@@ -17,7 +17,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { csrBallNodes, csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { countLargeSameSignComponents } from '@/code/model/self-kit'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
@@ -64,7 +64,7 @@ export function reproduction(input?: { n?: number }): {
   return { n: N, ballRadius, ballCells: self.length, startComponents, endComponents, conserved, fissionSuppressed, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/reproduction',
   title: 'fission is suppressed on hyperbolic geometry, a self stays one',
   category: 'selves',

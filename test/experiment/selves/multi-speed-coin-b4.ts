@@ -24,7 +24,7 @@
 // honest conclusion, the route to capture is a block (Margolus) reversible update or the open-system growth bath,
 // not a richer single-update coin.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { b4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, loneParticle, type Will } from '@/code/tone/will'
@@ -38,7 +38,7 @@ const ROOTS = rootsB4()
 
 const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v === b[i])
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/multi-speed-coin-b4',
   title: 'the B4 two-speed coin is mobile and valid but does not lift the binding obstruction, capture is architectural',
   category: 'selves',

@@ -12,7 +12,7 @@
 // Run: npx tsx code/experiment/p262-bare-rule-persistence-3434.ts
 
 import { phaseWinding } from '@/code/measure/winding'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type C = [number, number]
@@ -64,7 +64,7 @@ export function bareRulePersistence(): { linearLosesWinding: boolean; linearDisp
   return { linearLosesWinding, linearDisperses, nonlinearKeepsWinding, nonlinearPersists, mechanismIdentified }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/bare-rule-persistence-3434',
   title: 'a linear field rule loses winding while an amplitude-preserving nonlinear rule locks it',
   category: 'selves',

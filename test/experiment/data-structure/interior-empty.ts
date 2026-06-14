@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 import { outermostShellFraction } from '@/code/substrate/coxeter/growth'
@@ -9,7 +9,7 @@ import { outermostShellFraction } from '@/code/substrate/coxeter/growth'
 // shell for the hyperbolic {3,4,3,4} (bounded away from 0, boundary-dominated) and the flat {3,4,3,3} (lower,
 // tending to 0). Reference, Gugelmann et al. 2012.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/interior-empty',
   title: 'DS13: the hyperbolic bulk is boundary-dominated, almost all cells lie in the outermost shell',
   category: 'data-structure',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { cellHash } from '@/code/measure/sketch'
 
@@ -8,7 +8,7 @@ import { cellHash } from '@/code/measure/sketch'
 // the corpus size). The exponential boundary makes the term dictionary cheap. Control: a flat scan of all
 // documents per query is O(corpus).
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/inverted-index',
   title: 'SS13: terms hash to boundary cells, retrieval is output-sensitive, not corpus-sized',
   category: 'data-structure',

@@ -7,7 +7,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { makeAssociativeMemory, ternaryWord, storeWord } from '@/code/operator/associative-memory'
 import { nearestRecallRate } from '@/code/measure/associative-recall'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativeNoisyRecall(input?: { maxCells?: number; wordBits?: number; sampleSize?: number }): {
@@ -37,7 +37,7 @@ export function associativeNoisyRecall(input?: { maxCells?: number; wordBits?: n
   return { recall0, recall10, recall20, recall40, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/noisy-recall',
   title: 'the bulk associative memory recalls a whole stored word from a corrupted cue, degrading gracefully past a threshold',
   category: 'associative',

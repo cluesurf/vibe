@@ -8,7 +8,7 @@
 //   VERDICT: a persistent spin-1/2 particle as a topological disclination, the M5 milestone, realized.
 // Run: npx tsx code/experiment/p264-persistent-spinor-defect-3434.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { directorWinding } from '@/code/measure/winding'
 import { relaxDirector } from '@/code/dynamics/director-relaxation'
@@ -36,7 +36,7 @@ export function persistentSpinorDefect(): { halfInteger: boolean; topologicalCon
   return { halfInteger, topologicalConserved, persists, spinorHolonomy, isPersistentSpinor }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/persistent-spinor-defect-3434',
   title: 'a half-integer disclination is a persistent topological defect carrying the spinor minus sign',
   category: 'spin',

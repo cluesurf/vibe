@@ -18,7 +18,7 @@ import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { latticePoissonJacobi } from '@/code/operator/lattice-poisson-jacobi'
 import { weakFieldLightDeflection } from '@/code/measure/gravity-potential'
 import { fitForm } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- Route A, Jacobson: area-law coefficient -> Einstein coefficient -> Newtonian 4pi ----------
@@ -91,7 +91,7 @@ function cosmologicalConstant(): { H: number; Lambda: number } {
   return { H, Lambda: 3 * H ** 2 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/gr-einstein-equations',
   title: 'the assumed area-law and weak-field formulas reproduce the Einstein coefficient, 1/r on the cusp, and 4GM/b bending',
   category: 'gravity',

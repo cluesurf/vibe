@@ -13,7 +13,7 @@ import {
   higgsBosonMassSquared,
   gaugeBosonMass,
 } from '@/code/dynamics/higgs-mechanism'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The photon gap (smallest mode of the lattice Maxwell operator) when the gauge field
@@ -46,7 +46,7 @@ export function higgsStudy(input: { side: number; coupling: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/higgs',
   title:
     'symmetry breaking gives a nonzero vacuum value and a massive photon while the symmetric phase stays massless',

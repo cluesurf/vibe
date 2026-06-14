@@ -18,7 +18,7 @@
 
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 import { kahlerDiracReturn } from '@/code/measure/fermion-propagation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function measureSize(maxCells: number): { cells: number; clean: number; localized: number; normDrift: number } {
@@ -65,7 +65,7 @@ export function pentacombPropagation(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/pentacomb-propagation',
   title: 'a fermion propagates on the 5D D4 pentacomb, which has the spinor coin AND curvature, resolving the spin-versus-curvature trade',
   category: 'substrate-survey',

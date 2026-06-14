@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
@@ -16,7 +16,7 @@ const commonPrefixLength = (a: number[], b: number[]): number => {
   return k
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/dht-routing',
   title: 'DS5: DHT key lookup routes up to the common prefix and down in O(log N) hops, O(1) state',
   category: 'data-structure',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
@@ -13,7 +13,7 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 // with the coordinates SCRAMBLED (the control). Greedy succeeds with the geometric embedding and collapses
 // with the scrambled one, isolating the embedding as the cause. References, Kleinberg 2007, Boguna et al. 2010.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/greedy-routing',
   title: 'DS4: greedy routing delivers on the hyperbolic metric and degrades on the Euclidean control',
   category: 'data-structure',

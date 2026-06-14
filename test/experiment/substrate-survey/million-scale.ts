@@ -17,7 +17,7 @@ import { csrBallNodes } from '@/code/tool/graph'
 import { buildRegularGraph } from '@/code/substrate/regular-graph'
 import { perceptionEdgeBeat } from '@/code/dynamics/perception-edge-beat'
 import { totalCharge, liveCount } from '@/code/measure/tone-census'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const sumTone = totalCharge
@@ -109,7 +109,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/million-scale',
   title:
     'the perception dynamics conserve charge, create life, and hold a dynamic balance at scale',

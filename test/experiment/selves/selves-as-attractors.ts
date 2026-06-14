@@ -10,7 +10,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { storedPatterns, hebbianFills, hopfieldStep as step, toneOverlap as overlap } from '@/code/operator/hopfield'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function settle(J: Int8Array[], state: Int8Array, steps: number): Int8Array {
@@ -100,7 +100,7 @@ export function selvesAsAttractors(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/selves-as-attractors',
   title: 'stable basin, persistent identity, capacity grows with size',
   category: 'selves',

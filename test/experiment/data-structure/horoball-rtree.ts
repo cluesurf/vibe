@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { busemannLevels } from '@/code/measure/radial'
@@ -8,7 +8,7 @@ import { busemannLevels } from '@/code/measure/radial'
 // Busemann sub-levels are strictly nested (each contains the inner one) and that the number of levels covering
 // the cells is logarithmic, so an R-tree-style query descends O(log N) bounding volumes.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/horoball-rtree',
   title: 'SS12: nested horoballs are an R-tree hierarchy, a query descends logarithmically many bounding volumes',
   category: 'data-structure',

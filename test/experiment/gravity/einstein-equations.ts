@@ -18,7 +18,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { einsteinOp, gravitonFromAction } from '@/code/operator/graviton'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Residual of the contracted Bianchi identity k_i G_ij[h], averaged over random
@@ -71,7 +71,7 @@ export function gravitonSpeed(kMag: number): number {
   return omega / kMag
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/einstein-equations',
   title: 'conservation (transverse G) and a c-speed graviton',
   category: 'gravity',

@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -7,7 +7,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 // shell (dist) partitions every cell exactly once and that the frontier at each depth equals the generation
 // shell. DFS is the radial descent (the parent chain). Control: a flat BFS needs an explicit O(N) queue.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/bfs-traversal',
   title: 'SS8: BFS frontier IS the growth shell, traversal is free with no explicit queue',
   category: 'data-structure',

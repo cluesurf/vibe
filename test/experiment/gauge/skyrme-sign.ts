@@ -7,7 +7,7 @@
 
 import { logLogSlope } from '@/code/measure/regression'
 import { directionFieldEnergy3d, hedgehogTexture3d } from '@/code/measure/skyrme-energy'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveKappa: boolean } {
@@ -25,7 +25,7 @@ export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveK
   return { exExp, skExp, stableForPositiveKappa }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/skyrme-sign',
   title: 'on a real 3D texture the exchange energy grows with size and the Skyrme energy falls, the Derrick scaling',
   category: 'gauge',

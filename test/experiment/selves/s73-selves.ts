@@ -4,7 +4,7 @@
 // and no fundamental spinor. Matter on {7,3} is 1D kinks, the most degenerate case. The form-tower is a generic
 // slow-mode (NEUTRAL). Run: npx tsx code/experiment/s73-selves.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function s73Selves(): { solitonsExist: boolean; kinkCharge: number; hasExchangeStatistics: boolean } {
@@ -20,7 +20,7 @@ export function s73Selves(): { solitonsExist: boolean; kinkCharge: number; hasEx
   return { solitonsExist, kinkCharge, hasExchangeStatistics }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/s73-selves',
   title: 'solitons on the 1D horocycle are kinks with no exchange statistics',
   category: 'selves',

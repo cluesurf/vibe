@@ -20,7 +20,7 @@
 // echo over a zero closed echo, and a steep open gradient over a flat closed one, is the genuine arrow that
 // growth supplies, the open-system source of irreversibility a closed reversible permutation cannot have.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
@@ -91,7 +91,7 @@ function occupancyProfile(input: {
   return profile.map((p) => p / samples)
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/growth-arrow-irreversibility',
   title: 'a growing open mesh carries an arrow of time (broken echo, steady gradient) that the closed reversible bulk does not',
   category: 'selves',

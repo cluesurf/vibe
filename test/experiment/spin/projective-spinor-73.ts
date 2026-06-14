@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   specialLinear,
@@ -15,7 +15,7 @@ import {
 // defining 2-dimensional rep, the spinor sign. So {7,3} has its own spinor double cover,
 // exactly parallel to 2I for {5,3,4} and 2T for {3,4,3,4}, the spinor in the projective rep.
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/projective-spinor-73',
   title: 'the {7,3} symmetry PSL(2,7) has a spinor double cover SL(2,7), spin in the projective rep',
   category: 'spin',

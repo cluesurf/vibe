@@ -10,7 +10,7 @@ import { makeRng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function continuumLimit(input: { dimension: number; sizes: number[]; repeats: number; seed: number }): {
@@ -42,7 +42,7 @@ export function continuumLimit(input: { dimension: number; sizes: number[]; repe
   return { estimates, errors, maxError, agrees, converging, convergenceExponent }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/continuum-limit',
   title: 'the dimension estimate agrees with the continuum value at all N',
   category: 'foundations',

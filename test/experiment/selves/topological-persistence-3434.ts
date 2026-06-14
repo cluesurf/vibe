@@ -9,7 +9,7 @@
 // Run: npx tsx code/experiment/p257-topological-persistence-3434.ts
 
 import { phaseWinding as winding } from '@/code/measure/winding'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // local relaxation of a complex field psi = r e^{i theta} (a lattice Ginzburg-Landau / heat flow that keeps |psi|>0)
@@ -55,7 +55,7 @@ export function topologicalPersistence(): { windingConserved: boolean; energyRel
   return { windingConserved, energyRelaxes, defectPersists, trivialDecays, discriminates }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/topological-persistence-3434',
   title: 'a winding-1 defect persists under relaxation while a winding-0 bump decays',
   category: 'selves',

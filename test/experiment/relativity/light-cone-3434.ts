@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, cubicMesh } from '@/code/tool/mesh'
 import { perturbationConeRadii } from '@/code/measure/light-cone'
@@ -11,7 +11,7 @@ import { perturbationConeRadii } from '@/code/measure/light-cone'
 // growth a diffusive process would give. The same holds on the 6-direction cubic
 // cusp, so the cone is the rule's causal structure, not an artifact of one coin.
 // L2, known physics (a ballistic light cone) reproduced on the D4 spin substrate.
-export default defineExperiment({
+export default experiment({
   id: 'relativity/light-cone-3434',
   title: 'a finite ballistic light cone (z = 1) on the 24-direction {3,4,3,4} coin',
   category: 'relativity',

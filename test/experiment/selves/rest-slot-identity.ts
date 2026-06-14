@@ -17,7 +17,7 @@
 // Depth L2, the rest slot, a persistent bound identity with an energy scale that radiates free disturbances, but
 // no self-repair without an added attraction.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -25,7 +25,7 @@ import { headOnRotate } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/rest-slot-identity',
   title: 'a rest slot gives a persistent bound identity that radiates free disturbances (0C), self-repair still needs attraction',
   category: 'selves',

@@ -18,7 +18,7 @@
 import { makeRng } from '@/code/tool/rng'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { modularMesh } from '@/code/substrate/modular-mesh'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function nestedSelves(input: { seed: number }): {
@@ -91,7 +91,7 @@ export function nestedSelves(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/nested-selves',
   title: 'small wounds heal, whole-cell flips persist, body stays intact',
   category: 'selves',

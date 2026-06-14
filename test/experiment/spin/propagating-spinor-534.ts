@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { type Complex, complex, cMul, cAbs2 } from '@/code/algebra/linear/complex'
 
@@ -27,7 +27,7 @@ const zero = (): Complex => complex({ re: 0, im: 0 })
 const closeTo = (spinor: Spinor, target: Spinor): boolean =>
   spinor.every((component, index) => Math.abs(component.re - target[index]!.re) < 1e-9 && Math.abs(component.im - target[index]!.im) < 1e-9)
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/propagating-spinor-534',
   title: 'a propagating spinor on curved {5,3,4}, streaming coupled to the spin connection returns minus itself per 2pi loop',
   category: 'spin',

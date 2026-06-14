@@ -20,7 +20,7 @@ import { makeGraph, Graph } from '@/code/tool/graph'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
 import { clusterMajority as aggregate, agreementFraction as agreement } from '@/code/measure/agreement'
 import { effectiveCouplings, renormMacroStep } from '@/code/operator/macro-rule'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // A recursively modular mesh. depth grouping levels, branching b, cellSize vibes per leaf
@@ -152,7 +152,7 @@ export function towerOfSelves(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/tower-of-selves',
   title: 'clean multi-level hierarchy to one top, rule holds every level',
   category: 'selves',

@@ -16,7 +16,7 @@ import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { Graph } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { runModel } from '@/code/compute/run-model'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function fullLadder(input: { base: 'modular' | number[]; seed: number }): {
@@ -50,7 +50,7 @@ export function fullLadder(input: { base: 'modular' | number[]; seed: number }):
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/full-ladder',
   title:
     'from integer generator data a deterministic automaton grows a Lorentz-safe substrate the model runs on',

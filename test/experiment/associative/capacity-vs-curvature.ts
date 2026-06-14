@@ -12,7 +12,7 @@ import { measureTessellation } from '@/code/measure/tessellation-battery'
 import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { bfsShells, geometricGrowthRatio } from '@/code/measure/shells'
 import { coverageRadius } from '@/code/measure/associative-recall'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // A representative ladder of buildable tessellations, ordered least to most curved by catalog growth ratio,
@@ -81,7 +81,7 @@ export function associativeCapacityVsCurvature(input?: { maxCells?: number; cubi
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/capacity-vs-curvature',
   title: 'associative capacity rises and search latency falls with curvature across the tessellation catalog, the flat cubic lattice being the worst on both',
   category: 'associative',

@@ -17,11 +17,11 @@
 // Depth L2, two bath-coupled bodies forming a higher composite self, with the closed reversible system as the
 // no-nesting control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { twoBodyBathTrajectory, lateAmplitude } from '@/code/dynamics/oscillator-bath'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/nested-bath-selves',
   title: 'two bath-coupled bodies bind into a higher composite self with its own identity and agency, selves nest',
   category: 'selves',

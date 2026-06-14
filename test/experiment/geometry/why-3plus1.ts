@@ -6,7 +6,7 @@
 
 import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
 import { spectralDimension } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The cusp's spectral dimension is the lattice random-walk return exponent
@@ -29,7 +29,7 @@ export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
 // the dimension is measured here. The claim that 3 spatial dimensions FOLLOW from selecting
 // the substrate for spin is a selection argument made elsewhere, not measured in this file.
 // L1, the dimension of a known cubic lattice.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/why-3plus1',
   title: 'the {4,3,4} cusp reads spectral dimension ~3, so spacetime is 3 space plus 1 beat',
   category: 'geometry',

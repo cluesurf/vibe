@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
@@ -11,7 +11,7 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 const ballSize = (shells: number[], radius: number): number =>
   shells.slice(0, radius + 1).reduce((sum, size) => sum + size, 0)
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/range-scan',
   title: 'DS14: a range scan in the hyperbolic bulk visits exponentially many cells (the caveat)',
   category: 'data-structure',

@@ -15,7 +15,7 @@ import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr, csrDistances } from '@/code/tool/graph'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { totalCharge as totalQ } from '@/code/measure/tone-census'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function absoluteLimits(input?: { n?: number }): {
@@ -100,7 +100,7 @@ export function absoluteLimits(input?: { n?: number }): {
   return { n: N, fineQConserved, mintingFails, coarseEqualsFine, fineSpeed, coarseSpeed, lightconeAbsolute, chargeAbsolute, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/absolute-limits',
   title: 'net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level',
   category: 'foundations',

@@ -15,7 +15,7 @@ import {
 } from '@/code/substrate/cubic-lattice'
 import { graphLaplacianGreensFunction } from '@/code/operator/graph-laplacian'
 import { fitForm } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Lat = CubicLattice
@@ -46,7 +46,7 @@ export function potentialProfile(input: { lat: Lat; side: number }): { r: number
   return { r, phi: out }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/newtonian',
   title: '3D static potential is Newtonian (1/r is the best fit)',
   category: 'gravity',

@@ -8,7 +8,7 @@
 // Markov-state-model construction on this substrate), it does not by itself claim a clean emergent level
 // from the pure base rule, that is the L3 target of the full tower.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { countMatrix, transitionEigenvalues, spectralGap, quantileLabels } from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
@@ -25,7 +25,7 @@ function shuffled(labels: number[], seed: number): number[] {
   return out
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-spectral-gap',
   title: 'the Markov model of a real self has a slow mode the time-shuffled control lacks',
   category: 'selves',

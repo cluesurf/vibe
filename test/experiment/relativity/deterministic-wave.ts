@@ -19,7 +19,7 @@ import { differenceRmsWidthRing } from '@/code/measure/front-speed'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { ringEdges, ringNeighbors } from '@/code/substrate/ring'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function deterministicWave(input?: { L?: number; beats?: number }): {
@@ -155,7 +155,7 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/deterministic-wave',
   title: 'a deterministic reversible rule propagates ballistically so momentum emerges',
   category: 'relativity',

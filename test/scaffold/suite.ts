@@ -1,6 +1,6 @@
 import { Verdict } from '@/test/scaffold/verdict'
 
-// The test unit. Every test exports one Experiment through defineExperiment, so
+// The test unit. Every test exports one Experiment through experiment, so
 // the catalog (category, substrate, depth, paper) lives in the code instead of a
 // separate spreadsheet, and the suites read the registry.
 
@@ -40,12 +40,12 @@ export interface Experiment {
 
 const registry = new Map<string, Experiment>()
 
-export function defineExperiment(experiment: Experiment): Experiment {
-  if (registry.has(experiment.id)) {
-    throw new Error(`duplicate experiment id: ${experiment.id}`)
+export function experiment(definition: Experiment): Experiment {
+  if (registry.has(definition.id)) {
+    throw new Error(`duplicate experiment id: ${definition.id}`)
   }
-  registry.set(experiment.id, experiment)
-  return experiment
+  registry.set(definition.id, definition)
+  return definition
 }
 
 export function allExperiments(): Experiment[] {

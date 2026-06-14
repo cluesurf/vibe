@@ -12,11 +12,11 @@
 //
 // Depth L2, an honest negative for the 2A route, the discrete kink shatters or blows up.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { makeWaveField, stepWaveField, doubleWellAccel, fieldMaxAbs, domainWallCount, type WaveField } from '@/code/dynamics/wave-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/discrete-kink-unstable',
   title: 'the discrete sine-Gordon kink is unstable: a bounded force shatters it, an unbounded force blows it up',
   category: 'selves',

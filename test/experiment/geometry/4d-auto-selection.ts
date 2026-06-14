@@ -22,7 +22,7 @@ import {
   isCompactHoneycomb as isCompact,
   isIdealFiniteCellHoneycomb as isIdealFiniteCell,
 } from '@/code/substrate/coxeter/schlafli'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The honeycomb classifiers (compact, ideal-with-finite-cells, cell, vertex figure)
@@ -104,7 +104,7 @@ export function fourDAutoSelection(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'geometry/4d-auto-selection',
   title: '{5,3,4} stays forced in 3D, {3,4,3,4} is the unique ideal cubic-cusp H4 candidate but not forced',
   category: 'geometry',

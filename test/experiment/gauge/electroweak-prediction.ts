@@ -5,7 +5,7 @@
 // the other numbers the structure forces (16 = 15 + 1, charge quantization, 3 generations). Fully discrete /
 // rational arithmetic over charges. Run: npx tsx code/experiment/p228-electroweak-prediction.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   generationFermionCount,
@@ -19,7 +19,7 @@ export function electroweakPrediction(): { sin2: number; count: number; isThreeE
   return { sin2, count, isThreeEighths }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/electroweak-prediction',
   title: 'sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges',
   category: 'gauge',

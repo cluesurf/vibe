@@ -8,7 +8,7 @@
 // Depth L2, a known geometric property (the isoperimetric contrast of flat versus hyperbolic) measured on
 // this substrate, with the bulk as the control. It is the reason the self experiments use the flat layer.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { flatGraph, squareGraph, bulkGraph, ball, boundaryFraction, type Graph } from '@/code/model/self-kit'
 
@@ -26,7 +26,7 @@ function fractionAtSize(input: { graph: Graph; center: number; targetSize: numbe
   return { fraction: boundaryFraction(cells, graph), size: cells.length }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/coarse-substrate-comparison',
   title: 'flat and square horospheres support compact low-leak selves, the hyperbolic bulk does not',
   category: 'substrate-survey',

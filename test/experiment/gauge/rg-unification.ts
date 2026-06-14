@@ -9,7 +9,7 @@ import {
   oneLoopInverseCoupling,
   couplingMeetingTime,
 } from '@/code/dynamics/renormalization-group'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const MZ = 91.19 // GeV
@@ -39,7 +39,7 @@ export function rgUnification(): { smGap: number; mssmGap: number } {
   return { smGap: sm.a3gap, mssmGap: mssm.a3gap }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/rg-unification',
   title: 'running the measured couplings up unifies in the MSSM but misses in the bare Standard Model',
   category: 'gauge',

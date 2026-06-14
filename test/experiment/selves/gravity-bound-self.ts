@@ -18,7 +18,7 @@
 //
 // Depth L2, the full self with a legitimate discrete gravity field at the cusp.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
@@ -27,7 +27,7 @@ import { beat } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 import { bulkMass, relaxPotential, gravityMoves } from '@/code/dynamics/gravity-field'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/gravity-bound-self',
   title: 'the full self on legitimate ingredients: a discrete gravity field (at the cusp) binds and self-repairs while disturbances radiate',
   category: 'selves',

@@ -12,7 +12,7 @@ import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
 import { powerLawExponent } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function sliverTransport(input?: { length?: number; beats?: number; runs?: number }): {
@@ -112,7 +112,7 @@ export function sliverTransport(input?: { length?: number; beats?: number; runs?
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/sliver-transport',
   title: 'a long geodesic tube shows ballistic transport with a finite escape speed',
   category: 'relativity',

@@ -6,7 +6,7 @@
 //
 // Depth L2, a standard MSM validity check on the self dynamics, with a control.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   countMatrix,
@@ -43,7 +43,7 @@ function coefficientOfVariation(values: number[]): number {
   return Math.sqrt(variance) / mean
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/coarse-implied-timescale',
   title: 'the self slow timescale plateaus across lags, the shuffled control has no timescale',
   category: 'selves',

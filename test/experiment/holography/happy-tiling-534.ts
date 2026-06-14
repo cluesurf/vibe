@@ -3,7 +3,7 @@ import {
   perfectTensorMinimalKillSet,
   perfectTensorContiguousThreshold,
 } from '@/code/substrate/perfect-tensor-tree'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The HaPPY code WIRED onto the {5,3,4} hyperbolic bulk, the tiled version of holography/happy-code-534. Each
@@ -22,7 +22,7 @@ const minimalKillSet = (level: number, offset: number): number[] =>
 const contiguousThreshold = (level: number): number =>
   perfectTensorContiguousThreshold({ level, branching: 5, threshold: 3 })
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/happy-tiling-534',
   title: 'the HaPPY code tiled on the {5,3,4} bulk, the code distance protecting a bulk self grows as 3^depth',
   category: 'holography',

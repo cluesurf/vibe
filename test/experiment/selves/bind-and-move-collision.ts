@@ -26,7 +26,7 @@
 // Depth L2, the three rules measured with each other as controls, establishing the single-speed obstruction and
 // the validity of the bindAndMove build.
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { loneParticle } from '@/code/tone/will'
@@ -35,7 +35,7 @@ import { run } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 import { travelDistance, maxOccupancy } from '@/code/check/structure'
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/bind-and-move-collision',
   title: 'no single-speed local reversible collision both binds and moves: mobility and the binding engine are mutually exclusive',
   category: 'selves',

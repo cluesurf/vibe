@@ -13,7 +13,7 @@ import { meanDegree } from '@/code/tool/graph'
 import { ballGrowth, geometricUnsaturatedGrowthRatio } from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess, routingWithBacktrack } from '@/code/measure/navigation'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Geometric mean of successive ball-count ratios in the unsaturated regime. For
@@ -73,7 +73,7 @@ function snapshot(input: { size: number; base: number }): Row {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/growth',
   title: 'an expanding hyperbolic mesh keeps exponential reach, isotropy, and navigability',
   category: 'relativity',

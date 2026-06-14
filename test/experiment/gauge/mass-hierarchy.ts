@@ -16,7 +16,7 @@ import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { bfsShells, meanShellDistanceStep } from '@/code/measure/shells'
 import { neighborsOf } from '@/code/tool/graph'
 import { poincareDistanceIndexed } from '@/code/geometry/distance'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const CHARGED_FERMIONS = 9 // e, mu, tau, u, c, t, d, s, b
@@ -112,7 +112,7 @@ export function massHierarchy(input: Record<string, never> = {}): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/mass-hierarchy',
   title:
     'unfitted geometric spacing gives a multi-decade exponential mass hierarchy beating a power law',

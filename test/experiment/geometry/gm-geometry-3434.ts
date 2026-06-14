@@ -10,7 +10,7 @@ import { sinkhornW1 } from '@/code/measure/transport'
 import { loglogExponentWindow } from '@/code/measure/regression'
 import { pearson } from '@/code/measure/statistics'
 import { latticeBall, latticeWordDistance } from '@/code/substrate/lattice-ball'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const euc = (p: number[]): number => Math.hypot(p[0]!, p[1]!, p[2]!, p[3]!)
@@ -52,7 +52,7 @@ export function gmGeometry(): { exponent: number; dimensionOk: boolean; subexpon
 // and the Ollivier-Ricci curvature of an edge is near zero (flat). Polynomial growth means
 // no fractal boundary and no holographic 1/r, the price paid for spin. These are known
 // properties of the flat D4 root lattice, so L1.
-export default defineExperiment({
+export default experiment({
   id: 'geometry/gm-geometry-3434',
   title: 'the {3,4,3,4} D4 lattice is flat: polynomial r^4 growth, linear metric, near-zero curvature',
   category: 'geometry',

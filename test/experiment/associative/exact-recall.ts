@@ -7,7 +7,7 @@ import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
 import { makeAssociativeMemory, ternaryWord, storeWord } from '@/code/operator/associative-memory'
 import { exactRecallRate, falsePositiveRate } from '@/code/measure/associative-recall'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function associativeExactRecall(input?: { maxCells?: number; wordBits?: number }): {
@@ -26,7 +26,7 @@ export function associativeExactRecall(input?: { maxCells?: number; wordBits?: n
   return { cellCount: g.cellCount, recall, falsePositive, solved: recall === 1 && falsePositive < 0.01 }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'associative/exact-recall',
   title: 'a content-addressable memory on the {3,4,3,4} bulk recalls every stored word exactly with no false positives',
   category: 'associative',

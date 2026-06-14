@@ -5,7 +5,7 @@
 // Run: npx tsx code/experiment/p217-gauge-embedding.ts
 
 import { rootsDn, standardModelEmbedsInRootSystem } from '@/code/algebra/group/root-system'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
@@ -15,7 +15,7 @@ export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'gauge/gauge-embedding',
   title: 'the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)',
   category: 'gauge',

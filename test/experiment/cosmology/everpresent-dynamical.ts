@@ -16,7 +16,7 @@
 
 import { makeRng, poissonSample } from '@/code/tool/rng'
 import { logLogSlope } from '@/code/measure/regression'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Measure the RMS of the implied Lambda fluctuation, delta-Lambda = (N - V) / V, from GENUINE Poisson
@@ -72,7 +72,7 @@ export function everpresent(input: { seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/everpresent-dynamical',
   title: 'genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude',
   category: 'cosmology',

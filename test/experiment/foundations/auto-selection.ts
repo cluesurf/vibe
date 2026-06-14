@@ -13,7 +13,7 @@
 // Run: npx tsx code/experiment/p86-auto-selection.ts
 
 import { classifyGeometry, edgeRegime, dihedralAngleDegrees } from '@/code/substrate/coxeter/schlafli'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function isCompactHyperbolic(symbol: number[]): boolean {
@@ -93,7 +93,7 @@ export function autoSelection(): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/auto-selection',
   title: 'ternary plus minimal eternal closure forces {5,3,4}',
   category: 'foundations',

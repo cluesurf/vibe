@@ -18,7 +18,7 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { kleitmanRothschildOrder } from '@/code/substrate/layered-order'
 import { sampleUniform } from '@/code/dynamics/uniform-sampler'
 import { smearedBenincasaDowker } from '@/code/dynamics/action'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Mean smeared action over fresh typical configs of one phase. Fresh configs avoid
@@ -90,7 +90,7 @@ export function p12Crossing(input: { size: number }): { betaStar: number | null;
   return { betaStar: r.betaStar, g: r.g, dS: r.sL - r.sM }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'cosmology/free-energy',
   title: 'the manifold phase wins the sum over histories above a finite coupling',
   category: 'cosmology',

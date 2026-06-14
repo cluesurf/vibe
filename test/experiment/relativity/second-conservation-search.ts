@@ -18,7 +18,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { relativeStandardDeviation as relStd } from '@/code/measure/statistics'
 import { ringEdges } from '@/code/substrate/ring'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function beat(tone: Int8Array, ring: { eu: Int32Array; ev: Int32Array }, moved: Uint8Array, rng: Rng, arrow: number): void {
@@ -116,7 +116,7 @@ export function secondConservationSearch(input?: { L?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'relativity/second-conservation-search',
   title: 'the stochastic rule conserves only the U(1) charge with no spontaneous order',
   category: 'relativity',

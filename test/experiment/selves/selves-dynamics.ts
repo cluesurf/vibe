@@ -14,7 +14,7 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrowProb: number): void =>
@@ -121,7 +121,7 @@ export function selvesDynamics(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/selves-dynamics',
   title: 'the largest self grows while a hierarchy of patches persists on the exact {5,3,4}',
   category: 'selves',

@@ -16,7 +16,7 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { solveGoalDirected, solveUndirected } from '@/code/dynamics/goal-directed-search'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function directionIntention(): {
@@ -51,7 +51,7 @@ export function directionIntention(): {
   return { scan, directionHolds, intentionGap, intentionHolds, solved }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'computation/direction-intention',
   title: 'a goal-directed search solves in K steps while an un-goaled one fails',
   category: 'computation',

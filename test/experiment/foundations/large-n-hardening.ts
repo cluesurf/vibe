@@ -11,7 +11,7 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension, dimensionFromOrderingFraction } from '@/code/measure/dimension'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Coordinates-only sprinkle of the causal diamond (no O(N^2) poset built). Same
@@ -82,7 +82,7 @@ export function largeNHardening(input: { dimension: number; sizes: number[]; pai
   return { estimates, errors, errorShrinks }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'foundations/large-n-hardening',
   title: 'the sampled dimension estimator matches exact and sharpens at large N',
   category: 'foundations',

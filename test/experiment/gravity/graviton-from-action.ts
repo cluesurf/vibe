@@ -22,7 +22,7 @@ import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { pastMatrix } from '@/code/tool/poset'
 import { benincasaDowkerDalembertian } from '@/code/operator/benincasa-dowker'
 import { gravitonFromAction } from '@/code/operator/graviton'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- A. The Benincasa-Dowker d'Alembertian from a sprinkling ----------
@@ -105,7 +105,7 @@ export function bdSignature(input: { realizations: number; count: number; seed: 
 // ---------- B. The graviton operator via Christoffel -> Ricci -> Einstein ----------
 // The derived operator (einsteinOp) and gravitonFromAction now live in code/operator/graviton.ts.
 
-export default defineExperiment({
+export default experiment({
   id: 'gravity/graviton-from-action',
   title: 'graviton operator derived from the action, not typed in',
   category: 'gravity',

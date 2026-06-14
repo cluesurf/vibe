@@ -17,7 +17,7 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 import { toneOverlap as overlap } from '@/code/operator/hopfield'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 type Tone = -1 | 0 | 1
@@ -183,7 +183,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'selves/freedom-choice',
   title: 'a choice is determined yet self-authored and irreducible',
   category: 'selves',

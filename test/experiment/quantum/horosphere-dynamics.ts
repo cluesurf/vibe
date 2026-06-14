@@ -19,7 +19,7 @@ import { bfsShells } from '@/code/measure/shells'
 import { graphWalkMsdExponent } from '@/code/dynamics/random-walk'
 import { conservingEdgeListSweep } from '@/code/dynamics/conserving-sweep'
 import { proximityGraph, centerNearestOrigin } from '@/code/substrate/proximity-graph'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // single-charge random walk on a graph, MSD (graph distance from start)^2 vs time, fit the exponent
@@ -103,7 +103,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'quantum/horosphere-dynamics',
   title: 'the field is massive on the emergent flat layer too',
   category: 'quantum',

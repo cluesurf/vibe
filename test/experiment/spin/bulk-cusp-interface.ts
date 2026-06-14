@@ -5,7 +5,7 @@
 // (B) DIRECTION projection, the 24 bulk directions (D4) project onto the cusp's 3D tangent space, we compute the
 // resulting arrangement and its symmetry. Run: npx tsx code/experiment/bulk-cusp-interface.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 
@@ -42,7 +42,7 @@ export function bulkCuspInterface(): void {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/bulk-cusp-interface',
   title: 'the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp',
   category: 'spin',

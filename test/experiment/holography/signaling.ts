@@ -11,7 +11,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrEccentricity, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingHopSweep } from '@/code/dynamics/conserving-sweep'
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // conserved hop diffusion of a signal (no arrow, no opposite charge, so the pulse just spreads)
@@ -78,7 +78,7 @@ export function signaling(input?: { n?: number }): {
   }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'holography/signaling',
   title: 'a signal crosses the whole universe through the bulk to a far self',
   category: 'holography',

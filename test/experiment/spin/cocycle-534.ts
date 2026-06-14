@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import {
   binaryIcosahedral,
@@ -21,7 +21,7 @@ import { commutatorSubgroup, contains, type GroupOps } from '@/code/algebra/grou
 
 type SplitElement = { rotation: string; sign: number }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/cocycle-534',
   title: 'the {5,3,4} spinor cover is genuine (nonsplit), the cocycle is nontrivial, a 2pi loop is minus one',
   category: 'spin',

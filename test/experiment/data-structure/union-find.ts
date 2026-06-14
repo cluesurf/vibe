@@ -1,4 +1,4 @@
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
@@ -8,7 +8,7 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 // length, which is the cell's BFS shell), confirming the mean and max are logarithmic. Control: a flat
 // union-find without path compression can build O(N) chains.
 
-export default defineExperiment({
+export default experiment({
   id: 'data-structure/union-find',
   title: 'SS15: union-find on the cell tree has logarithmic find depth from short bulk paths',
   category: 'data-structure',

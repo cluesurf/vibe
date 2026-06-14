@@ -7,7 +7,7 @@
 // test would be the adiabatic-exchange Berry-phase simulation, which is not done here.
 // Run: npx tsx code/experiment/p207-exchange-phase.ts
 
-import { defineExperiment } from '@/test/scaffold/suite'
+import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function exchangePhase(): { table: { H: number; spin: number; exchange: number; kind: string }[]; consistent: boolean } {
@@ -23,7 +23,7 @@ export function exchangePhase(): { table: { H: number; spin: number; exchange: n
   return { table: table.map((r) => ({ H: r.H, spin: r.spin, exchange: r.exchange, kind: r.kind })), consistent }
 }
 
-export default defineExperiment({
+export default experiment({
   id: 'spin/exchange-phase',
   title: 'an analytic consistency check that the assumed spin-statistics formulas agree, not an emergent result',
   category: 'spin',
