@@ -138,6 +138,47 @@ export function d4MeshWithRest(input: { side: number }): Mesh {
   }
 }
 
+// A finite Bethe tree (a rooted tree where every internal node has `coordination` children), a stand-in for the
+// HYPERBOLIC BULK, its shells grow EXPONENTIALLY with radius (coordination^r), the hallmark of negative curvature.
+// Used to test whether bulk curvature confines (it does not, exponential shell growth means a disturbance disperses
+// exponentially, the opposite of binding). Direction 0 is the parent, directions 1..coordination are the children.
+// Opposite is a placeholder (the tree is used for shell-growth, not a momentum-conserving lattice gas).
+export function betheMesh(input: { coordination: number; depth: number }): Mesh {
+  const { coordination, depth } = input
+  const parent: number[] = [-1]
+  const children: number[][] = [[]]
+  let frontier = [0]
+  for (let level = 0; level < depth; level++) {
+    const nextFrontier: number[] = []
+    for (const node of frontier) {
+      for (let k = 0; k < coordination; k++) {
+        const child = parent.length
+        parent.push(node)
+        children.push([])
+        children[node]!.push(child)
+        nextFrontier.push(child)
+      }
+    }
+    frontier = nextFrontier
+  }
+  const cellCount = parent.length
+  const degree = coordination + 1
+  return {
+    id: `bethe-${coordination}-${depth}`,
+    degree,
+    cellCount,
+    neighbour(cell, direction) {
+      if (direction === 0) { const p = parent[cell]!; return p < 0 ? cell : p }
+      const kids = children[cell]!
+      const child = kids[direction - 1]
+      return child === undefined ? cell : child
+    },
+    opposite(direction) {
+      return direction === 0 ? 1 : 0
+    },
+  }
+}
+
 // The 32 B4 root directions, the two-speed coin: the 24 long D4 roots plus the 8
 // short axis roots, computed once with their opposite (negated root) indices.
 const B4_ROOTS = rootsB4()

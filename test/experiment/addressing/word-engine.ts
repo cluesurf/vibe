@@ -74,7 +74,7 @@ export default defineExperiment({
   title: 'ShortLex normal forms give exact finite group orders and exact cell facet counts',
   category: 'addressing',
   substrates: 'any',
-  depth: 'L0',
+  depth: 'L1',
   paper: false,
   run() {
     const r = wordEngine()

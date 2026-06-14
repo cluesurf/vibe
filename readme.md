@@ -99,6 +99,27 @@ cosmology, and mind from the one rule, and to be clear at every step
 about what is solid, what is partial, and what is still open. The
 companion papers are snapshots of a _work very much in progress_.
 
+## Depth levels
+
+Every experiment self-grades by what it actually establishes, not by
+whether it prints PASSED. This is the `depth` column in
+[`test/catalog.csv`](test/catalog.csv), which is sorted so the strongest
+results come first.
+
+| level  | meaning                                                                                                                                                                     |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
+| **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                       |
+| **L1** | known math. Correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                              |
+| **L0** | circular. The answer is put in by hand, so it proves nothing on its own. Kept only as an honest consistency note, never as evidence.                                       |
+
+So L3 is the real prize, L1 and L2 are honest groundwork, and L0 is a
+marker of what is assumed rather than derived. Most results in a young
+program are L1 and L2, and that is fine as long as they are labeled as
+such. The full rubric and the rules the runner enforces (an L3 claim
+must carry a control, for instance) are in
+[`note/experimental-methodology.md`](note/experimental-methodology.md).
+
 ## Quick start
 
 ```

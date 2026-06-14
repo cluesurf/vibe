@@ -7,14 +7,19 @@
 // Run: npx tsx code/experiment/s53333-structure.ts
 
 import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
+import { symbolContainsSubdiagram } from '@/code/substrate/coxeter/gram-signature'
 import { defineExperiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
+const PENTACOMB5D = [5, 3, 3, 3, 3]
+
 export function s53333Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
-  const { degree, specDim } = cellGraphSpectral({ symbol: [5, 3, 3, 3, 3], maxCells: 6000, t1: 2, t2: 4 })
-  // the symbol contains a 5 -> H-family Coxeter group -> NON-crystallographic (no root lattice, like {5,3,4})
-  const crystallographic = false // a 5 in the Schlafli symbol forces 5-fold symmetry, forbidden crystallographically
-  const hasSpinor = false // H5 is a non-crystallographic reflection group, the coin carries no spinor
+  const { degree, specDim } = cellGraphSpectral({ symbol: PENTACOMB5D, maxCells: 6000, t1: 2, t2: 4 })
+  // both flags are now COMPUTED from the symbol, not hand-set. Crystallographic means every entry is 3, 4,
+  // or 6 (the crystallographic restriction), and the leading 5 fails it. The spinor hook is the [3,4,3]
+  // (24-cell / D4) subdiagram, which {5,3,3,3,3} does not contain.
+  const crystallographic = PENTACOMB5D.every((n) => n === 3 || n === 4 || n === 6)
+  const hasSpinor = symbolContainsSubdiagram(PENTACOMB5D, [3, 4, 3])
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
@@ -23,7 +28,7 @@ export default defineExperiment({
   title: 'the {5,3,3,3,3} bulk builds as a 5D hyperbolic graph, over-dimensional with no spinor',
   category: 'substrate-survey',
   substrates: ['53333'],
-  depth: 'L0',
+  depth: 'L1',
   paper: false,
   run() {
     const r = s53333Structure()
@@ -39,7 +44,7 @@ export default defineExperiment({
         hasSpinor: r.hasSpinor ? 1 : 0,
       },
       notes:
-        'L0 for the spin and gauge content, the crystallographic and hasSpinor flags are hard-set to false by hand from the known fact that a 5 in the symbol gives a non-crystallographic H5 group, they are not measured. Only the bulk degree and spectral dimension are measured. The dimension and spinor conclusions are stated, not derived here.',
+        'L1, known math. The bulk degree and spectral dimension are measured from the cell graph, and the crystallographic and spinor flags are now COMPUTED from the Schlafli symbol, not hand-set. The leading 5 fails the crystallographic restriction (entries must be 3, 4, or 6), and the symbol contains no [3,4,3] (24-cell / D4) subdiagram, so it carries no spinor. So {5,3,3,3,3} is an over-dimensional (5D bulk, 4D horosphere) non-crystallographic substrate with no spinor coin, all read off the symbol and the build, not asserted.',
     })
   },
 })

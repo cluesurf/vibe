@@ -84,7 +84,7 @@ export default defineExperiment({
   title: 'on-demand neighbor computation reproduces the exact dodecagrid graph with no stored adjacency',
   category: 'addressing',
   substrates: ['534'],
-  depth: 'L0',
+  depth: 'L1',
   paper: false,
   run() {
     const r = lazyNeighbors({ n: 20000 })
