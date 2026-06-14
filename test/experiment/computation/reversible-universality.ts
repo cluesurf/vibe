@@ -1,3 +1,8 @@
+// COMPARATIVE (cross-geometry, legacy). This is the {5,3,4} dodecagrid result. The CANONICAL universality claim now
+// lives on the final geometry in `computation/reversible-universality-3434` (the committed knit rule on the {3,4,3,4}
+// 24-cell). This {5,3,4} version is kept as a comparative result, Margenstern's theorem is geometry-specific, so it
+// is a real result ABOUT the dodecagrid, useful for showing universality transfers across hyperbolic geometries.
+//
 // P176: the {5,3,4} with our reversible rule is computationally universal. (P44, P141, P85, P126, P128, Margenstern.)
 //
 // Margenstern proved that cellular automata on the {5,3,4} dodecagrid are computationally universal (the
@@ -96,7 +101,7 @@ export function reversibleUniversality(): {
 
 export default experiment({
   id: 'computation/reversible-universality',
-  title: 'the {5,3,4} with the reversible rule is computationally universal',
+  title: 'COMPARATIVE ({5,3,4}): the reversible rule is universal on the dodecagrid (canonical claim is reversible-universality-3434)',
   category: 'computation',
   substrates: ['534'],
   depth: 'L2',
