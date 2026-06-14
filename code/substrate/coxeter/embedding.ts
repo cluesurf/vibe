@@ -13,7 +13,7 @@ import type { Embedding } from '@/code/tool/embedding'
 
 const gramMatrix = (symbol: number[]): number[][] => {
   const n = symbol.length + 1
-  const gram = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
+  const gram: number[][] = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)))
   for (let k = 0; k < symbol.length; k++) {
     const c = -Math.cos(Math.PI / symbol[k]!)
     gram[k]![k + 1] = c

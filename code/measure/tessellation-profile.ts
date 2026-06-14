@@ -43,6 +43,25 @@ const ballRatioOf = (shells: number[]): number => {
   return ball(r) / Math.max(1, ball(r - 1))
 }
 
+// The geometric cell coordination (the B-tree order / fan-out) of a honeycomb, the number of cells sharing a
+// facet with a cell. It equals |W(cell)| / |W(facet)|, the ratio of the orders of the finite Coxeter groups of
+// the cell polytope and its facet, both counted by terminating the chamber BFS. Finite for compact honeycombs
+// (a finite B-tree order), Infinity when the cell is itself a tiling (paracompact / noncompact).
+export function cellCoordination(symbol: number[]): number {
+  if (symbol.length < 2) {
+    return symbol[0] ?? 0
+  }
+  const cap = 50000
+  const cell = symbol.slice(0, symbol.length - 1)
+  const facet = symbol.slice(0, symbol.length - 2)
+  const cellOrder = buildCoxeterMatrixMesh(cell, cap).adjacency.length
+  if (cellOrder >= cap) {
+    return Infinity // the cell is a tiling, infinite coordination
+  }
+  const facetOrder = facet.length === 0 ? 2 : buildCoxeterMatrixMesh(facet, cap).adjacency.length
+  return Math.round(cellOrder / facetOrder)
+}
+
 export function tessellationDataProfile(input: { symbol: number[]; maxCells: number }): TessellationProfile {
   const mesh = buildCoxeterMatrixMesh(input.symbol, input.maxCells)
   const cells = mesh.adjacency.length
