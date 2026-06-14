@@ -1,0 +1,286 @@
+\section{The Spin Obstruction}
+
+The committed substrate of this theory is the mesh $\{3,4,3,4\}$, whose docks carry $24$ sites built on the
+$D_4$ root system. Those sites already hold a spinor. The honeycomb $\{5,3,4\}$ is a different object, and it is
+worth a section of its own precisely because it is the nearest neighbor that fails. It is the order-$4$
+dodecahedral honeycomb of three-dimensional hyperbolic space, and it sits one rung away from the committed mesh
+along the family of regular hyperbolic honeycombs. Studying it is comparison and selection, not the thesis. It
+shows why the committed mesh needs its spinor sites, and it shows what a substrate without one can still be
+made to do.
+
+The hardest fact about $\{5,3,4\}$ is short.
+
+\begin{result}[The bare obstruction]
+The bare knit on $\{5,3,4\}$ cannot make a fermion. The active sites of a dock on $\{5,3,4\}$ carry no spinor,
+and no bound state, sum, or subrepresentation of the bare tone field will ever carry one.
+\end{result}
+
+This is not an engineering difficulty. It is a theorem. This section states the obstruction exactly, confirms
+it by running the knit, and then shows that the \emph{geometry} of $\{5,3,4\}$ carries the spin structure even
+though the \emph{knit} does not. That gap is closed in four ways, three that change the knit and one that
+changes the substrate. The demonstrations of those routes, the experiments that show the fields actually move
+and the defects actually carry spin, are the subject of the section on matter on $\{5,3,4\}$. The selection
+argument this obstruction feeds, why spinor-carrying sites are rare across the whole family of honeycombs, is
+the tessellation survey and the dimension ladder.
+
+\begin{principle}
+A spinor is projective. The bare tone field is linear. You cannot build the first from the second.
+\end{principle}
+
+\subsection{The substrate}
+
+A short statement of the comparison substrate fixes the terms. Two words recur, so a plain definition of each
+helps. A \emph{spinor} is the mathematical object that describes a particle of half-integer spin. Its signature
+oddity is that it must be turned twice around, through $720$ degrees rather than $360$, before it returns to
+itself. A \emph{fermion} is a particle of matter, an electron or a quark, described by a spinor. The question of
+this section is whether the bare knit on $\{5,3,4\}$ can host such an object.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+property & value \\
+\midrule
+dimension & $3$ (hyperbolic, negatively curved) \\
+dock shape & dodecahedron \\
+rotational symmetry & icosahedral group $A_5$ \\
+active sites & $12$ of the $24$ \\
+the knit & reversible, charge-conserving lattice gas, collide then stream \\
+\bottomrule
+\end{tabular}
+\caption{The comparison substrate $\{5,3,4\}$.}
+\label{tab:534-substrate}
+\end{table}
+
+A dock holds $24$ sites, one tone each. The tone is ternary, a value in $\{-1, 0, +1\}$ read as pain, peace,
+pleasure. The knit streams those tones along the sites of a dock, then collides them by a fixed reversible
+charge-conserving table. On $\{5,3,4\}$ the knit moves the tone field along $12$ of the $24$ sites, the ones the
+icosahedral group $A_5$ acts on. Those $12$ active sites are the whole stage the bare tone field lives on, and
+the obstruction is a statement about what can transform on that stage.
+
+\subsection{The obstruction, stated exactly}
+
+The bare knit places the tone field on the $12$ active sites of each dock. The field is, at each dock, an
+occupation of those $12$ directions.
+
+Under the icosahedral group $A_5$ the $12$ sites \textbf{permute}. A permutation of basis vectors is a
+\textbf{linear} representation. Its action is to shuffle the $12$ slots into one another, and shuffling slots is
+the most basic linear thing a symmetry can do.
+
+A spinor is a \textbf{projective} representation. It lives in the nontrivial class of the Schur multiplier
+$\mathbb{Z}_2$. It is the representation that changes sign under a $2\pi$ rotation. The two cannot be bridged.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+object & representation class & sign under $2\pi$ \\
+\midrule
+the $12$-site occupation field & linear & $+1$ \\
+a spinor & projective ($\mathbb{Z}_2$) & $-1$ \\
+\bottomrule
+\end{tabular}
+\caption{The two representation classes that the obstruction separates.}
+\label{tab:534-rep-class}
+\end{table}
+
+\begin{theorem}[The spin obstruction]
+The $12$-site occupation field on $\{5,3,4\}$ is a linear representation of $A_5$. A spinor is a projective
+representation in the nontrivial class of the Schur multiplier $\mathbb{Z}_2$. No tensor product, bound state,
+sum, or subrepresentation of a linear representation is projective. Therefore the bare tone field carries no
+spinor mode.
+\end{theorem}
+
+The proof is one line of cohomology. The cocycle of a tensor product \textbf{adds}. A linear representation has
+cocycle \textbf{zero}. So every tensor product, every bound state, every sum, and every subrepresentation of the
+bare field has cocycle zero \textbf{forever}. There is no hidden corner of the bare field where a spinor could
+condense. The cocycle that a spinor needs is simply not in the algebra the bare field generates.
+
+\begin{principle}
+There is no emergent spinor mode hidden in the bare tone field. This is a theorem, not a difficulty.
+\end{principle}
+
+\subsection{The obstruction, confirmed dynamically}
+
+A theorem about representation classes can be checked against the running knit, and it was. The lattice-gas
+spinor experiment, at depth $L2$, rotates the $12$-site occupation field through a full $2\pi$ turn and reads
+off the holonomy, the sign the field returns with.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+field & holonomy after $2\pi$ & verdict \\
+\midrule
+the bare $12$-site occupation & $+1$ & a \textbf{vector}, not a spinor \\
+the spin bundle of the same geometry & $-1$ & a genuine spinor \\
+\bottomrule
+\end{tabular}
+\caption{The dynamical confirmation. The occupation field returns to $+1$, a vector. The spin bundle of the same
+geometry returns to $-1$, a spinor.}
+\label{tab:534-holonomy}
+\end{table}
+
+The occupation field returns to $+1$. It is a vector. The spin bundle of the \textbf{same} $\{5,3,4\}$ geometry
+returns to $-1$. So the spinor exists in the geometry but not in the field the bare knit lives on. That split is
+the whole problem. The cocycle the knit needs is sitting in the geometry next door, untouched.
+
+\subsection{The geometry carries the spin structure, at every scale}
+
+Although the bare knit has no spinor, $\{5,3,4\}$ itself does, in the ultraviolet and in the infrared, at short
+distance and at long. The frame bundle of the geometry realizes a genuine spinor, and four experiments, all at
+depth $L2$ except where noted, establish it from independent directions.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}p{0.30\textwidth}p{0.10\textwidth}p{0.50\textwidth}@{}}
+\toprule
+experiment & depth & what it shows \\
+\midrule
+the cocycle & $L2$ & the icosahedral cover $2I$ is nonsplit, the cocycle is real, the split control $A_5 \times \mathbb{Z}_2$ fails \\
+the spin connection & $L2$ & the Clifford lift of the $[5,3,4]$ Coxeter reflections gives every elementary edge loop $-1$ once around and $+1$ twice (short distance) \\
+the continuum holonomy & $L2$ & by Gauss-Bonnet, a loop enclosing hyperbolic area $2\pi$ flips a spinor and leaves a vector blind (long distance) \\
+spin and curvature & $L2$ & the genuine $2I$ spinor coexists with negative curvature (edge angle excess about $106$ degrees) \\
+the icosian double cover & $L1$ & the icosahedral loop holonomy is the spinor double cover $2I$ \\
+\bottomrule
+\end{tabular}
+\caption{The geometry of $\{5,3,4\}$ carries the spin structure at every scale.}
+\label{tab:534-geometry-spin}
+\end{table}
+
+The cover is \textbf{genuine}, not a relabeled linear representation. The icosahedral cover $2I$ is perfect, so
+its $-1$ is a commutator, and the split control $A_5 \times \mathbb{Z}_2$ cannot reproduce it. A relabeling could
+have faked a sign, but a perfect group's commutator cannot be unwound that way, and the control confirms it.
+
+The frame bundle realizes the spinor at \textbf{short} distance, where one elementary edge loop flips it, and at
+\textbf{long} distance, where a Gauss-Bonnet loop enclosing hyperbolic area $2\pi$ flips it. A vector stays blind
+in both cases. The spinor is not a short-distance artifact of the discretization, nor a long-distance artifact of
+the continuum. It is present at both ends.
+
+And the spinor sits on a \textbf{curved} bulk. This is the trade that flat $\{3,4,3,4\}$ cannot resolve from
+curvature. The committed mesh has the spinor directions but is flat. The honeycomb $\{5,3,4\}$ has the curvature
+but no field to carry the spinor. Each gift sits with the wrong partner.
+
+\begin{result}[Spin present, field missing]
+The spin structure of $\{5,3,4\}$ is present in the geometry, ultraviolet and infrared, on a curved bulk. The
+only thing missing is a field that lives in it.
+\end{result}
+
+\subsection{The four routes that close it}
+
+There are exactly four ways to put a field in that spin structure. Three change the knit. One changes the
+substrate.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}p{0.22\textwidth}p{0.13\textwidth}p{0.32\textwidth}p{0.22\textwidth}@{}}
+\toprule
+route & changes & mechanism & cost \\
+\midrule
+1. defect & nothing & a disclination borrows the geometry's $-1$ holonomy & heavy soliton, rides on the unsolved persistence problem \\
+2. spinor index and connection & the knit & stream a two-component spinor, transport it by an $\mathrm{SU}(2)$ connection with loop product $-1$ & adds a field \\
+3. staggered Kahler-Dirac & the knit & put the fermion on the form complex, run $d + \delta$, then stagger to one Dirac field & adds the form structure \\
+4. the $5$D $D_4$ pentacomb & the substrate & move to a honeycomb whose sites already carry the spinor & one extra dimension \\
+\bottomrule
+\end{tabular}
+\caption{The four routes from the bare obstruction to a spinor field.}
+\label{tab:534-four-routes}
+\end{table}
+
+\subsubsection{Route 1, the defect}
+
+No knit change. The spinor is a topological disclination that carries the geometry's $-1$ holonomy directly. The
+field does not carry the cocycle, the defect borrows it from the curved bulk. The cost is that the defect is a
+heavy soliton, and it depends on solving the persistence problem first, since a defect that does not survive is
+no use as matter.
+
+\subsubsection{Route 2, add the field}
+
+A knit change. Stream a two-component spinor and parallel-transport it by an $\mathrm{SU}(2)$ connection whose
+loop product is the verified $-1$. The propagating-spinor experiment confirms it. The field returns minus itself
+per $2\pi$ circuit and plus itself per two circuits, while the trivial-connection control returns plus. This is a
+genuine propagating spinor, a field that moves around a loop and comes back with the spinor sign.
+
+\subsubsection{Route 3, Kahler-Dirac}
+
+A knit change. The form Dirac operator $d + \delta$ squares to the Hodge Laplacian on any oriented complex, which
+the Kahler-Dirac experiment verifies. Stagger that operator to a single Dirac field. The forms are the spinor
+bundle in disguise, so the fermion is recovered without ever leaving the differential structure the mesh already
+carries.
+
+\subsubsection{Route 4, the pentacomb}
+
+No knit change. Move to the $5$D $D_4$ pentacomb $\{3,4,3,3,4\}$, whose $24$ sites are the $D_4$ roots. Those
+roots split as $8v + 8s + 8c$, the vector and its two spinors, and the $8s$ and $8c$ carry the spinor $-1$
+already. The bare directional knit, run on this substrate, has a spinor from the start.
+
+\begin{principle}
+Route $4$ is the only way to get a propagating spinor from the bare directional knit with no added field.
+\end{principle}
+
+The four routes are demonstrated in the section on matter on $\{5,3,4\}$, where the fields are shown to actually
+move and the defects to actually carry spin. The pentacomb closure is the subject of the pentacomb resolution.
+
+\subsection{Why the geometry is the right place to look}
+
+The two gifts $\{5,3,4\}$ has that flat $\{3,4,3,4\}$ lacks are exactly the levers for its two hard problems, the
+spin problem and the persistence problem.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}p{0.42\textwidth}p{0.50\textwidth}@{}}
+\toprule
+gift & consequence \\
+\midrule
+the spinor cover $2I$ is McKay-dual to $E_8$ & the natural home for rich matter and three generations \\
+negative curvature gives a genuine bulk and boundary & hence holography, hence persistence by code \\
+\bottomrule
+\end{tabular}
+\caption{The two structural gifts of $\{5,3,4\}$ and what each buys.}
+\label{tab:534-gifts}
+\end{table}
+
+The spin problem is solved by moving to the spinor-carrying sites of the $D_4$ pentacomb, one extra dimension.
+The persistence problem is solved by the holographic code on the boundary, treated in the section on holography.
+The two assets and the two solutions line up. What $\{5,3,4\}$ cannot do from its bare sites, it does from $E_8$
+and from the boundary.
+
+\subsection{The one deep residual}
+
+Most refinements are done. One question is genuinely open.
+
+\begin{principle}
+Can a single knit drawn from the eight atoms be \textbf{both} charge-conserving \textbf{and} a perfect tensor,
+and likewise generate the spin connection dynamically?
+\end{principle}
+
+The causal structure is \textbf{free}. A bare reversible knit derives the causal wedge, as the holography section
+shows. The perfect-tensor condition that the erasure code needs is the remaining constraint. That is the real
+frontier of the comparison substrate.
+
+\subsection{Index of verified results}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}p{0.74\textwidth}p{0.12\textwidth}@{}}
+\toprule
+claim & depth \\
+\midrule
+the bare knit gives no spinor mode (the obstruction, dynamical) & $L2$ \\
+the spinor cover $2I$ is genuine (nonsplit) & $L2$ \\
+the frame bundle carries spin, short distance & $L2$ \\
+the frame bundle carries spin, long distance (Gauss-Bonnet) & $L2$ \\
+spin and curvature coexist on $\{5,3,4\}$ & $L2$ \\
+a propagating spinor from streaming plus the connection (route $2$) & $L2$ \\
+the form Dirac operator squares to the Laplacian (route $3$) & $L2$ \\
+the icosahedral loop holonomy is the double cover $2I$ & $L1$ \\
+\bottomrule
+\end{tabular}
+\caption{The verified results behind the spin obstruction and its closures.}
+\label{tab:534-verified}
+\end{table}
+
+The obstruction is exact, the geometry's spin structure is genuine and present at every scale, and the gap
+between them is closed four ways. The comparison substrate fails to make a fermion from its bare sites, and the
+shape of that failure is precisely the argument for the committed mesh, whose sites carry the spinor from the
+start.

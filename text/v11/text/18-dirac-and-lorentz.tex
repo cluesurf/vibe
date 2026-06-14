@@ -1,0 +1,246 @@
+\section{Dirac and Lorentz}
+
+The discrete walk reproduces relativistic motion. The Dirac dispersion, a finite light cone, and rotational
+invariance all come out of the knit. They are not assumed. They are \emph{measured} off a run, read from the time
+series of the tones the same way a physicist reads a wave off an oscilloscope. Special relativity is not one of the
+eight atoms, and it is not added on top of them. It is what the knit looks like from far away.
+
+\begin{principle}[Relativity is emergent]
+Special relativity is not a base law. It is what the knit looks like from far away.
+\end{principle}
+
+Two plain definitions fix the targets before the derivations begin. The \emph{Dirac equation} is the law for an
+electron-like particle in the regime where both quantum mechanics and special relativity hold at once. Its
+\emph{dispersion} is the relation between a wave's energy and its wavelength, the curve $E(k)$ that says how fast a
+ripple of a given size carries energy. \emph{Lorentz invariance} is the central rule of special relativity. The
+laws look the same to every observer moving at a steady speed, and there is one finite top speed shared by all of
+them. A \emph{light cone} is the reach of that top speed, the set of places a signal sent from here can possibly
+arrive. The claim of this section is that each of these comes out of the knit on the mesh, measured rather than
+imposed.
+
+\subsection{The light cone is finite and exact}
+
+The knit is collide then stream. Each beat the tones in a dock interact by the fixed reversible table, and then
+each tone moves one dock along its site direction. The streaming half is a clean shift on the mesh. A tone that
+sits in a dock this beat sits in a neighbour dock the next beat, and never skips ahead.
+
+So a pulse spreads exactly one dock per beat. That is a finite, frame-independent top speed, the same in every
+direction and the same for every observer who counts beats and docks. Set it to one. Write $z = 1$ for the
+dynamical exponent, the exponent that ties a length scale to a time scale. A massless front obeys $x \sim t$, the
+hallmark of a wave with a fixed speed, not the $x \sim \sqrt{t}$ of diffusion.
+
+\begin{result}[The discrete light cone]
+The light cone is one dock per beat. For the massless case it is an exact permutation of docks, a shift on the
+mesh. There is no limit and no approximation, and continuity is never invoked.
+\end{result}
+
+This is the cleanest result in the section. The massless light cone is \emph{literally} the discrete stream. It is
+not the long-wavelength shadow of some continuous law that lives underneath. The streaming half of the knit is the
+light cone, exactly, at every scale down to the single dock.
+
+\subsection{The Dirac dispersion, measured}
+
+To read the dispersion off the substrate, run the simplest non-trivial walk that still carries the Dirac structure.
+Take a two-direction walk, a left-mover and a right-mover, each a tone streaming along its own site. Let the collide
+half of the knit mix them at a fixed rate. Track one dock's tone over many beats, then Fourier transform the time
+series. The peaks of that transform trace out the dispersion $E(k)$, energy against wavenumber, with nothing put in
+by hand beyond the knit itself.
+
+Two cases come out, depending on whether the collide half mixes the two movers at all.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+case & knit & measured dispersion & rest mass \\
+\midrule
+massless & pure stream & $E(k) = k$ exactly & $0$ \\
+massive & stream plus a site rotation by angle $m$ & $\cos E = \cos m \, \cos k$ & $E(0) = m$ \\
+\bottomrule
+\end{tabular}
+\caption{The measured dispersion of the two-direction walk. The massive case is the lattice Dirac dispersion.}
+\label{tab:dirac-dispersion}
+\end{table}
+
+The massive case is exactly the lattice Dirac dispersion. The mass is not a separate energy bolted on. It is the
+coarse-grained mixing rate between the two movers, the angle by which the collide half rotates the sites each beat.
+
+\begin{principle}[Mass is a mixing rate]
+Mass is how fast the left-mover and the right-mover trade places per beat.
+\end{principle}
+
+So the Dirac dispersion is not put in. It is the knit's own measured dispersion. The complex quantum amplitudes of
+the usual Dirac formalism are the emergent description of the real walk's oscillation modes, the bookkeeping that
+tracks how the two movers oscillate into each other. The base is the walk, and the amplitudes ride on top of it.
+
+This two-direction walk is the one-dimensional, two-component demonstrator, the cleanest reading available. The full
+twenty-four-site version is the bulk wave on the mesh, and its isotropy is established in the next subsections.
+
+\subsection{The full 3+1D Dirac operator}
+
+On the $\{3,4,3,4\}$ mesh the twenty-four sites of a dock split, under triality, into three octets, $8v + 8s + 8c$.
+The vector octet $8v$ is the force sector. The two spinor octets $8s$ and $8c$ are the two chiralities of matter,
+the left-handed and right-handed halves of an electron-like field. The Dirac operator acts on these two spinor
+sectors.
+
+The decisive structural fact is about the \emph{square} of the operator. At every momentum the squared Dirac
+operator is the relativistic scalar, $H^2 = p^2 + m^2$. The Hamiltonian itself is a matrix that mixes the two
+chiralities, but its square collapses to a single number per momentum, the relativistic energy relation with no
+matrix structure left.
+
+\begin{theorem}[The squared Dirac operator is the relativistic scalar]
+The Dirac operator built from the twenty-four site directions of a dock satisfies $H^2 = p^2 + m^2$ at every
+momentum. This is not assumed. It is what the sites' Clifford algebra delivers once the operator is assembled from
+the twenty-four directions, and it is the hinge from which the light cone, the magnetic moment, and the mass all
+hang.
+\end{theorem}
+
+That $H$ squares to a clean scalar is the emergent relativistic structure. It is a fact about how the twenty-four
+directions multiply, the Clifford algebra of the site set, and not a postulate. Two further consequences ride on
+this single fact, and each is separately measured. The magnetic moment of the electron-like field comes from the
+zero mode of this squared operator placed in a field, the spin gap that a spinless scalar in the same field does
+not have. The mass is the coupling between the $8s$ and $8c$ chiralities, read off this same squared operator as
+the part of $H$ that fails to commute with the chirality grading. Both are taken up in their own sections, the
+magnetic moment under the g-factor and the mass under mass and chirality.
+
+\begin{principle}[The hinge]
+$H^2 = p^2 + m^2$ is the hinge. The light cone, the g-factor, and the mass all hang on it.
+\end{principle}
+
+\subsection{Isotropy to order four}
+
+A lattice has preferred directions, its axes. Yet space, as we measure it, looks round, with no axis singled out.
+The twenty-four sites deliver that roundness far better than a cube does, and the reason is a counting fact about
+the site set.
+
+The wave dispersion on the mesh is a sum over the site directions. Writing $d$ for a site direction and $k$ for the
+wavevector,
+\[
+\omega^2(k) = \sum_{d} \bigl( 1 - \cos(k \cdot d) \bigr).
+\]
+Expanding the cosine to fourth order, the term that could spoil roundness is the fourth moment of the direction set,
+the sum of $d^4$ against the sum of $d^2 d^2$. For the $D_4$ sites these balance exactly. The sum of $d^4$ equals
+three times the sum of $d^2 d^2$, and both equal twelve. So the dispersion is isotropic to order four. The
+axis-versus-diagonal anisotropy, the difference between a wave running along an axis and one running along a
+diagonal, is exactly zero.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+lattice & directions & order-4 anisotropy & light cone shape \\
+\midrule
+cubic / hypercubic & $6$ or $8$ & about $8$ to $9$ percent & faceted, ratio $0.50$ \\
+$D_4$ sites & $24$ & zero & round, ratio $1.00$ \\
+\bottomrule
+\end{tabular}
+\caption{Order-four anisotropy of the wave dispersion. The twenty-four sites give an exactly round light cone where
+a cube gives a faceted cross.}
+\label{tab:isotropy}
+\end{table}
+
+This was measured both ways, analytically by the moment identity and on the GPU by simulation, and the two agree.
+The twenty-four-site light cone is round. The eight-direction cubic one is a faceted cross, with rays poking out
+along the diagonals.
+
+\subsection{Triality kills the cubic anisotropy}
+
+Why is the fourth moment isotropic at all? The answer is triality once more. Triality is the extra outer symmetry of
+the twenty-four-cell, the order-three permutation of the three octets, and it is tied to the exceptional group
+$F_4$. The point is an invariant count. $F_4$ has only one independent degree-four invariant, where the hypercubic
+group $B_4$ has two. With only one invariant there is no room for a quantity that distinguishes an axis from a
+diagonal, because that distinction would need a second independent degree-four invariant to live in.
+
+\begin{principle}[No room for a preferred axis]
+Triality leaves no room for a cubic anisotropy at order four. One invariant cannot encode a preferred axis.
+\end{principle}
+
+So the discrete $F_4$ symmetry of the sites restores the continuous rotational symmetry, the $\mathrm{SO}(8)$
+roundness, in the long-wavelength limit. Isotropy is emergent, and it is sharper here than on any cube. The discrete
+symmetry is not merely good enough, it is better. This is the emergent-symmetry result. Triality kills the
+degree-four anisotropy, and the site symmetry stays round all the way out to order six before any lattice artifact
+can appear.
+
+\subsection{Boosts and the cusp caveat}
+
+A boost is the change of frame that mixes space and growth, the relativistic tilt that trades position for time. With
+a finite invariant top speed, $z = 1$, and an isotropic light cone, the boost structure that the mesh supports in
+the infrared is the Lorentz one. The roundness of the light cone and the single top speed are exactly the two
+ingredients a boost needs.
+
+One honest subtlety remains. The bulk isotropy established above is near-perfect, the roundness of the full
+four-dimensional mesh. But physical matter does not ride on the full bulk. It rides on the cubic cusp, the
+$\{4,3,4\}$ slice that is physical space. That slice is anisotropic at order four, with a tiny residual that scales
+as the square of the energy in Planck units, $(E / E_{\mathrm{Planck}})^2$.
+
+\begin{result}[Bulk isotropy versus cusp isotropy]
+The cusp is anisotropic at order four, a tiny residual of size $(E / E_{\mathrm{Planck}})^2$. So matter-propagation
+isotropy is the cubic one, round in the infrared with a vanishing ultraviolet anisotropy. It is distinct from the
+bulk's near-perfect roundness.
+\end{result}
+
+This bulk-cusp split is the honest part of the result, and it is carried forward into the cosmology section, where
+the tiny cusp residual becomes a concrete prediction rather than a caveat.
+
+\subsection{Why masslessness needs opposite faces}
+
+There is a clean geometric precondition for an exactly massless mode, and it is worth stating because a generic
+lattice fails it. The dock must have opposite faces.
+
+On an odd-faced dock the instruction to go straight lands between two faces, with no facet pointing the way. That
+forces a small zigzag every beat, an irreducible scatter that mixes the movers whether they should mix or not. The
+lightest excitation then carries a floor mass set by that forced scatter, and nothing on such a dock is exactly
+massless.
+
+The twenty-four-cell is even-faced. Its twenty-four facets form twelve opposite pairs. A signal can go dead
+straight, from a facet to its antipode, with mixing rate exactly zero. So the $\{3,4,3,4\}$ mesh hosts the
+exactly-massless $E = k$ mode that a generic odd tiling could not support.
+
+\begin{principle}[Masslessness rests on antipodal facets]
+The masslessness rests on the dock's antipodal structure. The geometry is not cosmetic. An odd-faced dock would
+force a floor mass on every excitation.
+\end{principle}
+
+\subsection{One mechanism, three limits}
+
+The telegraph picture ties the whole section together with a single knob, the scatter rate $\lambda$, the rate at
+which the collide half mixes the two movers. A persistent walk that scatters at rate $\lambda$ is exactly the
+telegrapher's equation, which in one dimension is the Dirac equation. Turning the one knob sweeps through three
+distinct regimes.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+$\lambda$ & regime & scaling \\
+\midrule
+$0$ & massless wave, light cone & $z = 1$ \\
+finite & relativistic massive Dirac & $z = 1$, mass proportional to $\lambda$ \\
+infinite & diffusion & $z = 2$ \\
+\bottomrule
+\end{tabular}
+\caption{One mechanism, three limits. The scatter rate $\lambda$ interpolates from a massless wave through the
+massive Dirac walk to ordinary diffusion.}
+\label{tab:telegraph}
+\end{table}
+
+At zero scatter the walk is a pure wave on its light cone. At finite scatter it is the relativistic massive Dirac
+walk, with mass proportional to $\lambda$. At infinite scatter the persistence is washed out and the walk becomes
+ordinary diffusion, with $z = 2$. One mechanism, three limits, and the physical regime sits at finite $\lambda$
+where the Dirac walk lives.
+
+\subsection{Why it matters}
+
+This closes the bridge from the base to quantum mechanics. Relativistic quantum mechanics is an emergent limit of
+the discrete substrate, not a separate postulate sitting beside it. The massless light cone is exactly discrete,
+needing no continuity. Mass emerges as a mixing rate, the coarse-grained speed at which the two movers trade places.
+And space looks round, more so than on any cube, because triality forbids a degree-four anisotropy.
+
+\begin{principle}[The walk and the cone]
+The light cone is how fast the fire spreads. The Dirac walk is the rhythm of the song, dock to dock.
+\end{principle}
+
+The spinor that propagates along this walk is the one the sites carry, established under spin and fermions. The two
+consequences of the hinge, the magnetic moment and the mass, are taken up under the g-factor and under mass and
+chirality. The tiny cusp residual returns under cosmology and hierarchy, where it becomes a measurable signature
+rather than a footnote.

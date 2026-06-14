@@ -1,0 +1,195 @@
+\section{Electromagnetism}
+
+Electromagnetism is not a separate ingredient of the world. It is \emph{emergent}, read off the substrate the same way the other sectors are. The whole of it follows from one plain property of the law that moves tones across the mesh.
+
+That law is the \emph{knit}, the collide-then-stream step the mesh runs once per \emph{beat}. The knit conserves charge locally. Charge here is the signed sum of the tones, the \emph{lean} read as a number, since each tone is one of $\{-1, 0, +1\}$ and so carries a sign. Nothing in the collide step or the stream step can create or destroy that signed sum inside a \emph{dock}. So charge in equals charge out, dock by dock, beat by beat, exactly.
+
+That single fact forces a $\mathrm{U}(1)$ gauge symmetry on the mesh. With it come a discrete Gauss law, a Coulomb potential that falls as $1/r$, and the gauge-invariant observables that mark a real gauge field, the Wilson loop and the Aharonov-Bohm phase. None of these are added. They are consequences.
+
+\begin{principle}[The chain in one line]
+Local charge conservation \emph{is} a Gauss law. The Gauss law sources a $\mathrm{U}(1)$ gauge field. That field is electromagnetism.
+\end{principle}
+
+The gauge field is not a new object laid over the mesh either. It is the $8v$ sector of the \emph{sites}, the photon channel of the one \emph{tone}. The one-field picture and the photon-sector identity are owned by the section on Gauge and the Photon. This section is the measured-observables companion to it. It reports the lattice electromagnetism that the $8v$ sector produces, observable by observable, without re-deriving the sector.
+
+\subsection{The chain of results}
+
+The whole sector follows from one property of the knit. Each step is reported below with what was put in and what came out.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}clc@{}}
+\toprule
+step & claim & status \\
+\midrule
+1 & the knit conserves charge per dock per beat & exact, every substrate \\
+2 & local conservation is a discrete Gauss law & exact \\
+3 & the Gauss law sources an emergent $\mathrm{U}(1)$ field & measured \\
+4 & the static field is the Coulomb $1/r$ & measured \\
+5 & the gauge-invariant content is the field strength & measured \\
+6 & matrices give the non-abelian extension & measured \\
+\bottomrule
+\end{tabular}
+\caption{The chain from the knit to electromagnetism.}
+\label{tab:em-chain}
+\end{table}
+
+The first two steps are exact and hold on every substrate. The rest were measured by placing a gauge field on the mesh and reading off its invariants.
+
+\subsection{The $\mathrm{U}(1)$ Gauss law}
+
+The knit is collide then stream. Both steps move tones between sites without creating or destroying net charge. The collide step is a fixed, reversible, charge-conserving table acting inside a single dock. The stream step carries each tone one dock along its site. Neither can change the signed sum of the tones in a region except by moving tones across its boundary.
+
+So charge in equals charge out, per dock, every beat.
+
+\begin{principle}
+Charge in equals charge out, locally, exactly.
+\end{principle}
+
+That local balance is a \emph{discrete Gauss law}. The conserved current it defines is the source of the emergent $\mathrm{U}(1)$ field. Nothing was added to get it. It is a property the knit already has, on every substrate tested.
+
+\begin{theorem}[The exact discrete Gauss law]
+Because the knit conserves the signed tone sum inside every dock at every beat, the discrete divergence of the charge current vanishes at every dock. This local conservation is a discrete Gauss law. It holds exactly, not approximately, and it does not depend on the choice of geometry.
+\end{theorem}
+
+The Gauss law is the strongest result in this section. It is exact and base-level. It is not a model fit or a coarse-grained approximation. It is the local conservation the knit was built to have, restated in the language of a sourced field.
+
+\subsection{The emergent gauge field}
+
+The Gauss law guarantees a conserved current. A conserved current sources a gauge field. The open question is whether that field carries genuine gauge structure, a flux invariant under gauge transformations, or only a coordinate artifact that any relabeling could remove.
+
+The test puts a \emph{vortex gauge field} on the mesh. Link phases wind around a plaquette so the enclosed flux is some value $\Phi$. Then the gauge-invariant observables are read off.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+observable & input & result \\
+\midrule
+Wilson loop & a loop enclosing flux $\Phi$ & equals $\Phi$ \\
+gauge invariance & a gauge transform $A \to A + d\lambda$ & Wilson loop unchanged \\
+Aharonov-Bohm phase & a charge encircling the flux & exactly $\Phi$ \\
+loop independence & different loops, same enclosed flux & same phase \\
+non-enclosing loop & a loop around no flux & zero \\
+\bottomrule
+\end{tabular}
+\caption{The gauge-invariant observables of the emergent $\mathrm{U}(1)$ field. The Wilson loop is the sum of the link phases around the loop.}
+\label{tab:em-wilson}
+\end{table}
+
+Read together, these say the field's physical content is the gauge-invariant field strength, not the raw link phases. The raw phases can be shifted at will by a gauge transform. The loop integral cannot, because the shifts cancel around any closed path.
+
+\begin{result}[The Wilson loop sees flux, not gauge]
+The Wilson loop of the placed field equals the enclosed flux, is unchanged by any gauge transform, and depends only on the flux a loop encloses and not on the loop's shape or path. The physical content of the emergent field is therefore the gauge-invariant field strength.
+\end{result}
+
+The Aharonov-Bohm result is the sharp one. A charge can feel a flux it never touches, and the phase it picks up depends only on the enclosed flux, not on the path and not on the gauge. A loop around no flux picks up nothing. That nonlocal, gauge-invariant phase is the defining quantum signature of a real $\mathrm{U}(1)$ gauge field. It is what makes this electromagnetism and not a coordinate choice.
+
+\subsection{The Coulomb $1/r$}
+
+The static sector of the field is governed by the lattice Laplacian. On the flat coarse-grained limit, the Green's function of the flat three-dimensional Laplacian is the Coulomb potential.
+
+\begin{result}[The static field is Coulomb]
+The static field of a point charge is the flat three-dimensional Laplacian Green's function, the Coulomb $1/r$. The potential of a point charge falls as $1/r$ in the emergent three-dimensional space, which is the experimentally correct law.
+\end{result}
+
+This is obtained by the \emph{difference method}, the same construction used for the relativistic dispersion in the section on Dirac and Lorentz. The method that gives the relativistic dispersion also gives the static Coulomb tail. They are two faces of one emergent wave operator. The dynamical face is the light-cone dispersion of a propagating wave. The static face is the $1/r$ tail of a standing source. One operator, read at two limits.
+
+\subsection{The gauge field as the $8v$ sector}
+
+The $\mathrm{U}(1)$ field is not a separate object laid over the mesh. It is the $8v$ sector of the sites, the photon channel of the one tone. That identity is established in the section on Gauge and the Photon, where triality splits the $24$ directions of the $D_4$ root system into $8v$, the gauge field, together with $8s$ and $8c$, the two fermion chiralities, and where the abandoned $\mathbb{Z}_3$ second-field route is recorded. This section takes that identity as given and reads off its measured electromagnetic content.
+
+The masslessness of the photon follows the same way. A net-zero wave has no rest center, so it cannot sit at \emph{home}, the optional still center, so it always moves at one speed. That is a massless photon. The contrast between matter bound to a rest center and a photon wave with none is owned by the section on Matter and Radiation as One Tone.
+
+\subsection{The Lorentz force and lattice QED}
+
+Charge and field are coupled under one knit. The same step that streams a charge also streams the field tones it sits among, so the two are not independent systems but two readings of the same sites.
+
+Two consequences follow.
+
+\begin{itemize}
+\item A moving charge in a fermion sector, $8s$ or $8c$, \emph{sources} a radiating field in the photon sector, $8v$.
+\item A background field in the photon sector \emph{accelerates} the fermion at the Newton rate.
+\end{itemize}
+
+That deflection is the \emph{Lorentz force}, measured under the single coupled knit. The full dynamical co-emergence of the two sectors is owned by the section on Photon-Fermion Co-Emergence.
+
+The whole construction is lattice QED in the discrete sense. The charges, the field, the Gauss law, and the Wilson loop are all the same sites and the same knit, read at different scales.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+lattice object & electromagnetic role \\
+\midrule
+matter docks, the $8s$ and $8c$ tones & the charges \\
+sites between docks, the $8v$ link tones & the gauge field \\
+Wilson loop around a plaquette & the field strength \\
+per-dock charge balance & the Gauss law \\
+\bottomrule
+\end{tabular}
+\caption{Lattice QED as one mesh and one knit read at different scales.}
+\label{tab:em-qed}
+\end{table}
+
+Nothing here is a model bolted on after the fact. Each row is a different reading of the same substrate.
+
+\subsection{The non-abelian extension}
+
+The same Wilson-loop construction works with \emph{matrices} in place of phases. That promotes $\mathrm{U}(1)$ to a non-abelian gauge group. The loop observable becomes the trace of the ordered product of link matrices around the loop, and the ordered product itself, the holonomy, measures the curvature the loop encloses.
+
+It was verified with $\mathrm{SO}(3)$ link matrices, the prototype. The structure is identical for the grand-unified case treated in the section on the Standard Model.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+property & input & result \\
+\midrule
+Wilson loop, trace of the ordered product & $\mathrm{SO}(3)$ link matrices around a loop & gauge-invariant \\
+holonomy & the ordered product itself & non-trivial, a curvature \\
+commutation & two link matrices & do not commute, non-abelian \\
+\bottomrule
+\end{tabular}
+\caption{The non-abelian Wilson loop, verified with the $\mathrm{SO}(3)$ prototype.}
+\label{tab:em-nonabelian}
+\end{table}
+
+\begin{principle}
+A non-abelian gauge group is just the symmetry group of the collide step.
+\end{principle}
+
+Gauging a larger group reduces to the existence of a collide step symmetric under it. The substrate's knit supplies that symmetry, so the larger group is gauged for free. The grand-unified group is treated in the section on the Standard Model.
+
+\subsection{Depth and honesty}
+
+The results sit at distinct depth levels. Stated plainly.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+result & depth & note \\
+\midrule
+local Gauss law & exact, base-level & a property the knit already has, every substrate \\
+Wilson loop, Aharonov-Bohm, gauge invariance & measured & a gauge field was placed and the invariants read off \\
+Coulomb $1/r$ & measured & the difference method, the flat Laplacian Green's function \\
+non-abelian Wilson loop & measured & prototype with $\mathrm{SO}(3)$, identical structure for the GUT case \\
+Lorentz force, lattice QED dynamics & measured & one coupled knit \\
+\bottomrule
+\end{tabular}
+\caption{The depth levels of the electromagnetic results.}
+\label{tab:em-depth}
+\end{table}
+
+The honest edge is the same one as the rest of the gauge program. The $\mathrm{U}(1)$ kinematics, the Gauss law, the Wilson loop, and the Coulomb tail, are clean and measured. The coupling constant that sets the strength of the force is an input at this level, not yet derived. The structure of electromagnetism is emergent. The numerical strength is still put in. The coupling value is treated in its own section.
+
+\subsection{Why it matters}
+
+Electromagnetism falls out of one property of the knit. Local charge conservation is a Gauss law. The Gauss law sources a $\mathrm{U}(1)$ field. The static field is Coulomb $1/r$. The gauge-invariant content is the Wilson loop and the Aharonov-Bohm phase. The carrier is the $8v$ sector of the sites, a wave of the one tone.
+
+\begin{result}[The base-to-gauge layer is closed for $\mathrm{U}(1)$]
+The $\mathrm{U}(1)$ kinematics of electromagnetism, the Gauss law, the Wilson loop, the Aharonov-Bohm phase, and the Coulomb tail, are all derived or measured from the knit and the $8v$ sector, with no electromagnetic ingredient assumed. Electromagnetism is emergent, not assumed.
+\end{result}
+
+In the carrying image, the gauge field is a structure within the flow's harmony, the way the sites constrain each other across the mesh.

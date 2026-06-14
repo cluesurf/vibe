@@ -1,0 +1,238 @@
+\section{The Experimental Architecture}
+
+A theory of the world is only as good as the discipline that tells it what counts as a result. This section describes that discipline. It is the machinery that holds the program honest, and the contribution here is not the physics alone. It is the standard that decides which claims survive and which are quietly thrown out.
+
+The architecture has one job. It makes a scientific negative cheap and an overclaim expensive. Every claim is one experiment. Every experiment carries its own honest grade. The build fails on a code crash or a broken primitive, and it never fails on an honest negative.
+
+\begin{principle}[The first commitment]
+A wall of green checkmarks is worth less than three honest results with two failures. The easiest person to fool is yourself, so the program grades its own experiments as harshly as a stranger would.
+\end{principle}
+
+Before the rest, two reminders about the object under test. The universe of this theory is a \emph{vibe mesh}, a flow of eight atoms (mesh, dock, site, tone, lean, knit, wake, beat). The single quale is one \emph{tone} in $\{-1, 0, +1\}$, read as pain, peace, pleasure. A \emph{dock} is one cell of the $\{3,4,3,4\}$ honeycomb, and it carries exactly $24$ \emph{sites}, the $24$ directions out of the dock, with no rest slot and no twenty-fifth. The law of how the state changes each beat is the \emph{knit}, collide then stream. Every experiment below is a measurement made on this object, and every term it uses is one of these.
+
+\subsection{One claim, one experiment}
+
+The unit of the whole program is the experiment. There is exactly one per claim. Each is its own file, grouped by category, and the files live together in the repository's test tree, one file per claim.
+
+Each file calls a single registration function and returns a structured verdict. The registration carries a unique identifier, a one-sentence headline, its category, the substrates it runs on, its depth grade, and a \texttt{run} body. The \texttt{run} body measures one thing and returns a verdict whose status is \texttt{pass} or \texttt{fail}. The identifier is a category and a short name together, and it is unique across the program.
+
+The \texttt{run} body holds only the logic unique to its question. It wires together library calls, checks one thing, and returns a verdict. Everything reusable lives in the shared library, never inline in the experiment. The experiment imports the mesh builder, the knit, the collision table, the measures, and the controls. It never rebuilds them.
+
+\begin{principle}[The thinness test]
+The question to ask of any function in an experiment is whether it could have a sensible standalone name that another file might call. If yes, it belongs in the shared library, not the experiment. What remains in the file is the science, not the library.
+\end{principle}
+
+This is what keeps every experiment thin. A substrate builder, a collision table, a breadth-first search, a spectral solver, an algebra helper, each exists once in the shared library and is imported. A duplicated or hand-rolled copy inline is a method failure, the same kind as a loose tolerance, because copies drift out of sync and rot.
+
+\subsection{The structured verdict}
+
+A verdict is a fixed shape, not free prose. The runner reads it and the catalog records it, so it must be machine-legible and load-bearing.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+field & what it carries \\
+\midrule
+\texttt{status} & \texttt{pass}, \texttt{fail}, or \texttt{partial}, the outcome \\
+\texttt{claim} & one plain sentence of what was actually shown \\
+\texttt{metrics} & a flat record of numbers, the values that came out \\
+\texttt{control} & the null or comparison case that could have failed \\
+\texttt{notes} & an honest caveat, only when the result is not what it looks like \\
+\bottomrule
+\end{tabular}
+\caption{The fields of a structured verdict.}
+\label{tab:verdict}
+\end{table}
+
+The \texttt{claim} string is the load-bearing line. It must match what was measured, not what was hoped. An overclaim in the \texttt{claim} string is the failure mode the whole architecture exists to block.
+
+\begin{principle}[No overclaim]
+A \texttt{pass} at L1 means correct and established, not a discovery. The grade rides with the result so that a confirmation can never be read as a finding.
+\end{principle}
+
+The \texttt{metrics} are flat numbers so that the catalog and any downstream reader can compare across experiments without parsing prose. A measured dispersion, a coupling, a charge, a coefficient, each comes out as a number that another experiment can pick up.
+
+A \texttt{fail} is not a build break. A \texttt{fail} is a recorded scientific outcome. It states that the substrate or the knit did not produce the effect, and that statement is data. The negatives are kept and published, because the negatives are the integrity.
+
+\subsection{The depth grade rides with the verdict}
+
+Every experiment declares its own depth. The grades run L0 through L3, and the grade is stated with the result, never inferred later. This is the central standard of the program, the rubric that prevents an established fact from masquerading as a discovery.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+depth & what it establishes \\
+\midrule
+\texttt{L0} & circular, the answer was put in by hand, proves nothing \\
+\texttt{L1} & known math, confirms an established mathematical fact \\
+\texttt{L2} & known physics, reproduces a known construction on this substrate \\
+\texttt{L3} & emergent and novel, the knit produces the result as a measured consequence, with a control \\
+\bottomrule
+\end{tabular}
+\caption{The depth rubric. The grade states what a result actually establishes, not whether it prints \texttt{pass}.}
+\label{tab:depth}
+\end{table}
+
+The distinction between an algebra fact and its dynamical version makes the rubric concrete. That the $24$ sites of a dock form the $D_4$ root system, and that a $2\pi$ rotation gives a minus sign on them, is an L1 fact. It is established mathematics, true of the geometry whether or not anything moves. The L3 target is the dynamical version, a spinor that carries that minus sign under the knit, measured as a consequence of the collide-then-stream law with a control that could have shown nothing. An L1 result that prints \texttt{pass} is a confirmation. The full rubric and the control requirement are developed in the next section, The Depth Rubric.
+
+\subsection{The generated catalog}
+
+The registry is the source of truth. The catalog is generated from it, never hand-edited. A generator walks every registered experiment and writes a catalog table, so the catalog is a projection of the registry rather than a second record that could drift from it. Each row records the identifier, category, depth, paper flag, substrates, and title.
+
+As of this draft the catalog holds $457$ experiments. The file is sorted by depth, deepest first. The L3 rows lead, then L2, then L1, and the L0 quarantine sits at the bottom. A reader sees the genuine targets first and the circular notes last.
+
+\subsubsection{The depth distribution}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lrr@{}}
+\toprule
+depth & count & share \\
+\midrule
+L3 emergent and novel & 44 & about 10 percent \\
+L2 known physics & 284 & about 62 percent \\
+L1 known math & 114 & about 25 percent \\
+L0 circular & 15 & about 3 percent \\
+\bottomrule
+\end{tabular}
+\caption{The depth distribution of the 457 experiments.}
+\label{tab:distribution}
+\end{table}
+
+This shape is the honest one for a young program. Most of the corpus is L2, reproductions of known constructions on this substrate. A quarter is L1, established mathematics confirmed. The L3 tier is small, and that smallness is the point. A real emergent claim is rare and expensive, and a program that reported a hundred of them would be lying.
+
+The $15$ L0 rows are not hidden. They are kept, labeled circular, and sorted to the bottom so that the count stays visible.
+
+\begin{principle}[Quarantine, not deletion]
+A circular check is relabeled honestly as a consistency note and kept in the catalog at the bottom. A quarantined check never appears in a results list as evidence. The count is published so the reader can see exactly how much of the corpus proves nothing on its own.
+\end{principle}
+
+\subsubsection{The category list}
+
+The $457$ experiments span $18$ categories. The real distribution follows.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lrl@{}}
+\toprule
+category & count & what it probes \\
+\midrule
+selves & 115 & emergent bound agents, home, will, fill \\
+gauge & 39 & lattice gauge structure on the mesh \\
+relativity & 31 & the light cone, Lorentz behavior \\
+spin & 31 & spinor carrying on the $24$ $D_4$ sites \\
+substrate-survey & 30 & sweeps across the tessellation catalog \\
+data-structure & 28 & addressing and storage on the bulk \\
+cosmology & 27 & large-scale flow and growth \\
+foundations & 25 & the sites algebra and the directional knit \\
+geometry & 23 & dimension, distance, curvature measures \\
+quantum & 22 & quantum-walk and Bell-style probes \\
+gravity & 21 & clustering and curvature response \\
+holography & 17 & boundary versus bulk relations \\
+associative & 16 & recall, search latency, capacity \\
+renormalization & 14 & coarse-graining and layer flow \\
+computation & 10 & universality and computation \\
+addressing & 7 & bulk addressing schemes \\
+general & 1 & cross-cutting checks \\
+\bottomrule
+\end{tabular}
+\caption{The 18 categories of the experiment corpus.}
+\label{tab:categories}
+\end{table}
+
+The \texttt{selves} category is the largest by far. It is where the program tests whether a bound \emph{self}, a persistent self-maintaining knot woven across many docks over many beats, emerges from the eight atoms alone. It is also where most of the honest negatives live, because emergence of agency is the hardest claim the program makes and the one most prone to being faked.
+
+The \texttt{foundations} and \texttt{substrate-survey} categories carry the L1 mathematical floor and the cross-tessellation controls. They are what make the deeper claims mean something. A spinor result on $\{3,4,3,4\}$ is only meaningful because the survey confirms that the $12$ directions of $\{5,3,4\}$ carry no spinor at all.
+
+\subsection{Determinism}
+
+The base is discrete and deterministic. There is no fundamental randomness anywhere in the model, and that constraint extends all the way to the initial conditions of every test.
+
+\begin{definition}[Permitted initial conditions]
+An experiment seeds exactly one of two states. Either a \emph{vacuum}, which the create move makes dynamic on its own through the lean, or a \emph{fixed structured pattern}, the experiment's own hardcoded fill. It never seeds a pseudo-random fill and never uses a random schedule.
+\end{definition}
+
+\begin{principle}[Robustness without randomness]
+Robustness comes from varying the lattice size or the perturbation location, not from averaging over random seeds. A result that holds only when averaged over random draws is a statistical claim about an ensemble, not a property of the deterministic knit, and the experiment says so in its notes.
+\end{principle}
+
+The knit is a reversible permutation, so the arithmetic is integer, not floating point. Where a quantity should be exact, the experiment asserts equality, not tolerance. A loose epsilon hiding a bug is a failure of method, and a $10^{-2}$ tolerance where the value should be exact is treated as a defect.
+
+Reversibility is itself a tested invariant, not an assumption. Run the beat forward, then run the inverse beat, which un-streams then collides with the inverse collision, and the start is recovered exactly. The inverse beat is well defined because the collision is a bijection on a dock's $24$ sites and the stream is a permutation of docks.
+
+\subsection{The conformance battery}
+
+Below the experiments sits a separate layer. The shared-library primitives have their own unit tests, and these form a conformance battery. They are not physics claims, so they do not enter the registry or the catalog. They check the floor that the science stands on.
+
+The conformance battery verifies the tools themselves.
+
+\begin{itemize}
+\item the bitset and the poset behave correctly
+\item the Laplacian and the lattice fermions assemble right
+\item the causal-set samplers draw what they should
+\item the linear algebra solvers return correct spectra
+\end{itemize}
+
+\begin{principle}[Three layers of proof]
+The shared library ships science. The experiments prove the science. The conformance battery proves the tools themselves. A wrong assembler in the library would poison every experiment that imports it, so a conformance break is a real failure and it does fail the build.
+\end{principle}
+
+This is the one place where a failing test stops the build, and it is exactly the right place. A broken Dirac assembler is not an honest scientific negative. It is a broken instrument, and every reading taken with it is suspect until it is fixed.
+
+\subsection{The suite runner}
+
+The runner is the gate. It loads every registered experiment, runs the registry, then runs the conformance battery. It enforces a small set of rules that keep the grades honest.
+
+\begin{itemize}
+\item \textbf{One check, one experiment.} A file may register more than once. Registration is a side effect of import, so the loader picks up every call.
+\item \textbf{An L3 claim must carry a control.} The runner downgrades a controlless L3 to \texttt{partial}, and it hard-fails on any \texttt{partial}. A deep emergent claim with no null baseline is not a claim. If no control can be supplied, the result is L2.
+\item \textbf{State the honest negative.} Every experiment must be able to fail. An imposed ingredient read as emergence is forbidden. If a phenomenon needs an extra ingredient, that is a finding to report in the notes, not a knob to turn quietly.
+\end{itemize}
+
+The build-fail policy is the heart of the architecture.
+
+\begin{principle}[The build-fail inversion]
+The build fails on a code crash or a conformance failure. It never fails on an honest scientific negative. A \texttt{fail} verdict, an experiment reporting that the substrate did not produce the effect, passes the build. It is a recorded negative, published as integrity.
+\end{principle}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+cause & why it fails the build \\
+\midrule
+a code crash & the experiment is broken, not the science \\
+a conformance failure & a shared-library primitive is wrong, every dependent claim is suspect \\
+a controlless L3 downgraded to \texttt{partial} & a deep claim with no baseline is not allowed to stand \\
+\bottomrule
+\end{tabular}
+\caption{What fails the build.}
+\label{tab:fails}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+outcome & why it stands \\
+\midrule
+a \texttt{fail} verdict & the knit honestly did not produce the effect \\
+an L1 or L2 \texttt{pass} & a correct confirmation, labeled as such \\
+a published honest negative & the negatives are the integrity \\
+\bottomrule
+\end{tabular}
+\caption{What never fails the build.}
+\label{tab:passes}
+\end{table}
+
+This inversion is the whole design. A program that fails its build on a negative result puts itself under pressure to fake positives, because a red build is something to be made green by any means. This program does the opposite. A negative is cheap to report and an overclaim is structurally blocked. The incentive points toward honesty rather than against it.
+
+\begin{result}[The architecture in one line]
+The experimental architecture makes a scientific negative cheap and an overclaim expensive. Every claim is one graded experiment with a structured verdict and a control where the grade demands one, the catalog is generated and sorted deepest first, the base is deterministic down to its initial conditions, and the build breaks only on a crash or a broken tool, never on an honest negative.
+\end{result}
+
+\subsection{See also}
+
+The next section, The Depth Rubric, develops the L0 through L3 grades and the control requirement in full. The standing methodology note states the standard that this architecture enforces, the discipline of double-checking every boolean back to its source, hunting circularity and tautology in the program's own work as hard as in anyone else's, and reporting the result and its honest level on every experiment.

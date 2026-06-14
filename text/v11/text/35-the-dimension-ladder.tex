@@ -1,0 +1,215 @@
+\section{The Dimension Ladder}
+
+The previous section laid out the full catalog of regular hyperbolic honeycombs and separated the framework that ports to all of them from the few features that do not. This section is the selection layer that sits on top of that survey. It runs the whole enumerated family precisely to single out one substrate, the mesh of this paper, the $\{3,4,3,4\}$ honeycomb. The other tessellations are not detours here. They are the controls that make the choice forced.
+
+The selection argument has two teeth. The first is \emph{dimension}. Only a four-dimensional bulk hands over the three-dimensional physical space we actually observe. The second is the \emph{crystallographic spinor sites}. Within the four-dimensional family, only one substrate carries them. The two teeth bite together, and what they leave standing is a single tessellation.
+
+\begin{result}[The unique substrate]
+The mesh $\{3,4,3,4\}$ is four-dimensional, crystallographic, spinor-carrying, and curved. It is the only regular honeycomb that is all four at once. Every other tessellation fails at least one of the four, and each failure is a confirming control rather than a rival.
+\end{result}
+
+Two terms recur and deserve a plain statement up front. The \emph{bulk} is the full dimension of the honeycomb, the four-dimensional space the docks tile. A \emph{dock} is one geometric cell, a here-now, and each dock opens onto exactly $24$ \emph{sites}, the $24$ directions out of it. There is no rest slot and no twenty-fifth site. The \emph{cusp} is the flat boundary layer that the curved bulk grows toward, and it is always one dimension below the bulk. Physical space, the space matter lives in, is that cusp.
+
+\subsection{Physical space is bulk dimension minus one}
+
+The single most important fact of the ladder is short. The flat layer, the horosphere at the cusp, always sits \emph{one dimension below} the bulk. A two-dimensional bulk gives a one-dimensional cusp. A three-dimensional bulk gives a two-dimensional cusp. A four-dimensional bulk gives a three-dimensional cusp, and that is the observed physical space.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+substrate family & bulk & physical space (cusp) & verdict \\
+\midrule
+2D tilings ($\{7,3\}$, \ldots) & 2D & 1D & under \\
+3D honeycombs ($\{5,3,4\}$, \ldots) & 3D & 2D & under \\
+4D honeycomb ($\{3,4,3,4\}$) & 4D & 3D & exact \\
+5D honeycombs (the pentacombs) & 5D & 4D & over \\
+\bottomrule
+\end{tabular}
+\caption{The cusp is always one dimension below the bulk. Only the four-dimensional bulk lands on the observed three-dimensional space.}
+\label{tab:dimension-ladder}
+\end{table}
+
+Only the four-dimensional bulk lands on three. The two-dimensional and three-dimensional families \emph{undershoot}, giving a one-dimensional or two-dimensional physical space. The five-dimensional family \emph{overshoots}, giving four. This is the first tooth of the selection. Dimension alone narrows the catalog to the four-dimensional row.
+
+\subsection{What the wrong dimension costs}
+
+The undershoot and overshoot are not bookkeeping. The whole of the emergent physics tracks the rung of the ladder. The statistics that matter obeys and the gravity law it feels both change with the dimension of physical space.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+physical space & from bulk & statistics & gravity & solitons \\
+\midrule
+1D & 2D & none (no exchange) & linear (confining) & kinks \\
+2D & 3D & anyonic & logarithmic & 2D skyrmions \\
+\textbf{3D} & \textbf{4D} & \textbf{fermions} & \textbf{1/r} & \textbf{3D hopfions} \\
+4D & 5D & over-dimensional & $1/r^2$ & 4D instantons \\
+\bottomrule
+\end{tabular}
+\caption{Statistics, gravity, and solitons all track the rung of the ladder. Only the three-dimensional cusp gives fermions and an inverse-square gravity.}
+\label{tab:dimension-cost}
+\end{table}
+
+\begin{result}[The fermion-and-gravity rung]
+Only the three-dimensional physical space, the cusp of the four-dimensional bulk, gives the observed fermions and the inverse-square gravity. In one dimension there is no particle exchange at all. In two dimensions statistics are merely anyonic and gravity is logarithmic. In four dimensions gravity falls off as $1/r^2$ and matter is over-dimensional. The world we measure sits on exactly one rung.
+\end{result}
+
+\subsection{The dimension window}
+
+There are \emph{many} regular hyperbolic honeycombs, not just the compact ones. The window of admissible dimensions is set by two facts pressing at once, and seeing both at the same time is what makes the choice forced rather than picked.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+dimension & compact regular & paracompact (ideal element) & physical space \\
+\midrule
+$2$ ($H^2$) & infinitely many & infinitely many more (apeirogonal) & 1D \\
+$3$ ($H^3$) & $4$ (all carry a $5$) & $11$ more (the 3/4/6 family) & 2D \\
+$4$ ($H^4$) & $5$ (all carry a $5$) & several, incl.\ $\{3,4,3,4\}$ & 3D \\
+$5$ ($H^5$) & $0$ & a few (the last regulars) & 4D \\
+$\geq 6$ & $0$ & $0$ & --- \\
+\bottomrule
+\end{tabular}
+\caption{The window of regular hyperbolic honeycombs. Compact regulars exist only in dimensions $2$ through $4$ and each carries a $5$. The crystallographic ones are all paracompact.}
+\label{tab:dimension-window}
+\end{table}
+
+The window has two teeth, and they pull in opposite directions.
+
+The first tooth is \emph{compactness}. The compact regulars, the bounded honeycombs with no cusp, exist only in dimensions two through four, and \emph{every one of them carries a $5$}. They belong to the icosahedral, or $H$, family. A $5$ is non-crystallographic. It admits no root system, so no gauge group and no spinor sites can ride on it.
+
+The second tooth is \emph{crystallography}. The honeycombs whose sites are built from angles three and four alone, the ones that can carry a root system, are all \emph{paracompact}. The mesh $\{3,4,3,4\}$ is among them. Its ideal element is the flat $\{4,3,4\}$ cubic cusp, and that cusp is the three-dimensional physical space.
+
+So in dimensions two through four, demanding compactness forces a $5$, which kills the sites. The sites-bearing crystallographic substrate \emph{must be paracompact}. And the four-dimensional case is the only paracompact crystallographic dimension whose cusp is three-dimensional. The five-dimensional case overshoots to a four-dimensional cusp. Above five, nothing regular exists at all.
+
+\begin{principle}[The two teeth of the window]
+Compactness in dimensions two through four forces a $5$ and so forbids sites. A sites-bearing substrate must therefore be paracompact. Four dimensions is the unique paracompact crystallographic dimension whose cusp is the observed three-dimensional space.
+\end{principle}
+
+\subsection{An independent confirmation of three dimensions}
+
+There is a second, fully independent reason physical space comes out three-dimensional, and it agrees with the cusp argument from a different direction entirely.
+
+Stable bound orbits, the closed ones that neither precess away nor spiral in, exist \emph{only in three spatial dimensions}. Under an inverse-square law the apsidal angle is exactly $180$ degrees in three dimensions, which is what closes the orbit. In four dimensions and above the orbits spiral inward or fly off. This is the Ehrenfest and Bertrand result, and it is older than the substrate.
+
+The orbit argument does not constrain the \emph{bulk} dimension. It constrains the dimension where \emph{matter lives}. The natural reading of the two arguments together is a braneworld. A four-dimensional hyperbolic, Anti-de-Sitter-like bulk, with matter confined to a three-dimensional slice. That is exactly the $\{3,4,3,4\}$ cusp picture, arrived at twice.
+
+\begin{result}[Three dimensions, doubly forced]
+That physical space is three-dimensional follows two ways. From the cusp geometry, since the cusp is the bulk dimension minus one. And from orbit stability, since bound matter requires three dimensions. Two independent arguments, one answer.
+\end{result}
+
+This carries a falsifiable handle. A three-dimensional brane sitting in a four-dimensional bulk predicts short-range deviations from the inverse-square gravity law, deviations that experiment can look for.
+
+\subsection{Crystallographic means a gauge group is possible}
+
+The sites carry a root system, and therefore a gauge group, only if they are \emph{crystallographic}, built from the angles three, four, and six. The crystallographic restriction forbids the five-fold and seven-fold angles outright.
+
+The compact regulars in every dimension all carry a $5$. They are therefore non-crystallographic, with no root system, no gauge group, and no spinor sites. Compactness and a gauge group are simply at odds among the compact regulars. To get a gauge group, the substrate must give up compactness and accept a cusp.
+
+\subsection{Only the 24-cell, the $D_4$ sites, carries the spinor}
+
+Among crystallographic sites, only the $24$-cell, the $D_4$ root system, decomposes in a way that contains the two spinors. Under $\mathrm{SO}(8)$ its $24$ directions split as $8v + 8s + 8c$, the vector together with the two genuine half-integer-spin spinors, with triality permuting the three eights. The cell of $\{3,4,3,4\}$ \emph{is} the $24$-cell, so its sites are the $D_4$ root system, and the spinor is handed over for free.
+
+\begin{proposition}[The $D_4$ spinor sites]
+The $24$ sites of a dock in $\{3,4,3,4\}$ form the $D_4$ root system and decompose under $\mathrm{SO}(8)$ as $8v + 8s + 8c$. The summands $8s$ and $8c$ are half-integer-spin spinor representations. The mesh carries spin at the base, in the discrete sites, with nothing added.
+\end{proposition}
+
+The contrast with the best-studied control is a theorem, not a coincidence. The $12$ directions of $\{5,3,4\}$ \emph{cannot} carry a spinor.
+
+\begin{lemma}[The 12 directions are spin-zero]
+The $12$ faces of a $\{5,3,4\}$ dock carry a permutation character of the icosahedral rotation group. A permutation representation of a rotation group never contains a spinor, because spinors live only in the double cover, the binary icosahedral group of order $120$, not the order-$60$ rotation group. The $12$ directions are therefore provably spin-zero.
+\end{lemma}
+
+This matters because everything else in the model is a scalar by default. A single site holds one \emph{tone}, a ternary value in $\{-1, 0, +1\}$, read as pain, peace, and pleasure. That tone is unchanged by a full $2\pi$ rotation, so the substrate is Klein-Gordon-like, spin-zero, unless spin hides somewhere in the directional structure. The sites are the only place spin can live, and the $D_4$ decomposition $8s + 8c$ is the decisive place it does.
+
+\subsection{Spin is the sole discriminator}
+
+Run the identical battery on $\{5,3,4\}$ as a control and almost everything ports. The knit, the collide-then-stream law, conserves its charge on both honeycombs. Gliders form and move on both. The holographic $1/r^2$ correlator, the cosmology, the self-nesting tower of selves, all come out the same on either substrate. The framework is robust across the catalog.
+
+The one place where $\{3,4,3,4\}$ genuinely wins is spin. The $12$ directions of $\{5,3,4\}$ are icosahedral, decomposing as $1 + 3 + 3' + 5$ with no spinor anywhere in the list, so it cannot host fundamental fermions. Those $12$ directions are not a root system, so there is no $\mathrm{so}(8)$ or $\mathrm{so}(10)$ riding on them, hence no $\sin^2(\theta_W) = 3/8$ and no three generations from triality. And its two-dimensional cusp gives only logarithmic gravity and anyonic statistics.
+
+\begin{result}[Spin is the single discriminator]
+The control $\{5,3,4\}$ matches $\{3,4,3,4\}$ on the knit, on motion, on holography, on cosmology, and on the tower of selves. The spinor sites are not one advantage among many. They are the single discriminator that forces the four-dimensional $\{3,4,3,4\}$.
+\end{result}
+
+\subsection{Why you cannot just bolt spin on}
+
+One might try to \emph{put} spin onto $\{5,3,4\}$ by hand. The cost of doing so is exactly what shows why that is the wrong move. To force a spinor onto the $12$ directions you would have to add the binary icosahedral double cover with its central minus one, a two-component spinor on every dock as genuinely new state, and a sites operator together with a map from faces to gamma matrices. That face-to-gamma map is \emph{non-unique}. Different choices give inequivalent theories with no principle available to pick among them.
+
+Worse, a spinor is inherently a continuous complex $\mathrm{SU}(2)$ object. Imposing one either breaks the discrete-only commitment of the base or demands a clumsy discretization that must keep the double-cover minus one exact. By contrast $\{3,4,3,4\}$ hands over the spinor for free in the discrete $D_4$ sites, with nothing added.
+
+One honest caveat keeps the claim precise. The \emph{topological} route to spin, identifying a self with a hopfion and hence with a fermion, works on either honeycomb, since it rests only on $\pi_3(S^2) = \mathbb{Z}$ and not on the direction set. So the exact statement is that the \emph{sites spinor} requires $\{3,4,3,4\}$, not that any spin at all requires it.
+
+\subsection{The best of each dimension, side by side}
+
+Take the strongest representative of each dimension and run the same battery against all four at once.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+test & $\{7,3\}$ & $\{5,3,4\}$ & $\{3,4,3,4\}$ & $\{3,4,3,3,4\}$ \\
+\midrule
+bulk dimension & 2D & 3D & 4D & 5D \\
+physical space & 1D & 2D & \textbf{3D} & 4D \\
+crystallographic / spinor & no / no & no / no & yes / \textbf{yes} & yes / hook \\
+curvature & hyperbolic & hyperbolic & hyperbolic & hyperbolic \\
+framework (knit, EM, holography, cosmology) & yes & yes & yes & yes \\
+gravity / statistics & log / anyon & log / anyon & \textbf{1/r / fermion} & $1/r^2$ / 4D \\
+\bottomrule
+\end{tabular}
+\caption{The strongest honeycomb of each dimension under one battery. The framework ports to all four. Only $\{3,4,3,4\}$ scores on every physics-distinguishing axis at once.}
+\label{tab:best-of-each}
+\end{table}
+
+The framework ports to all four. Only $\{3,4,3,4\}$ scores on every physics-distinguishing axis at once, crystallographic and $D_4$ spinor and three-dimensional space and inverse-square gravity and fermions together. The other three each fall short in a specific, instructive way.
+
+$\{7,3\}$ is the canonical two-dimensional anchor, but it is one-dimensional in its cusp and non-crystallographic. $\{5,3,4\}$ is compact and the best-studied honeycomb, but it is non-crystallographic and two-dimensional in its cusp. The honest reading is best-\emph{studied}, not best-scoring. All four compact three-dimensional regulars carry a $5$, and the three-dimensional bulk is ruled out before the battery even runs, since an $H^3$ bulk hands over only a two-dimensional boundary. $\{3,4,3,3,4\}$ keeps the $D_4$ hook but overshoots to a four-dimensional physical space.
+
+\subsection{The decisive contrast, the flat twin}
+
+The cleanest control of all is the \emph{flat} $D_4$ honeycomb $\{3,4,3,3\}$, the Euclidean $24$-cell honeycomb. It has the same sites, the same crystallographic spinor structure, the same $D_4$ root system at every dock. The one thing it lacks is curvature. Its growth ratio is about $2.5$, polynomial, against the exponential growth of $\{3,4,3,4\}$.
+
+The flat twin has the spinor sites and a three-dimensional layer. But with no curvature there is no gravity, no holography, and no expansion. It is the one substrate that matches $\{3,4,3,4\}$ on sites and dimension and fails only on curvature.
+
+\begin{result}[Curvature is the last decisive ingredient]
+The flat $D_4$ honeycomb $\{3,4,3,3\}$ shares the spinor sites and the dimension of $\{3,4,3,4\}$ but is flat. It therefore has no gravity, no holography, and no expansion. Curvature is the single ingredient that separates the mesh from its flat twin.
+\end{result}
+
+\subsection{$\{3,4,3,4\}$ is the unique solution}
+
+Putting the teeth together, the substrate must satisfy four conditions at once.
+
+\begin{enumerate}
+\item \textbf{Four-dimensional}, so the cusp is the observed three-dimensional space.
+\item \textbf{Crystallographic}, so a root system and a gauge group are possible.
+\item With the \textbf{$D_4$ sites}, so the spinor is carried at the base.
+\item \textbf{Hyperbolic}, so gravity, holography, and expansion follow.
+\end{enumerate}
+
+\begin{theorem}[Uniqueness of the mesh]
+Only $\{3,4,3,4\}$ satisfies all four conditions. It is paracompact, and its cusp is the three-dimensional physical space. The genuinely compact four-dimensional regulars are non-crystallographic, since they carry a $5$, so they fail conditions two and three. The flat $D_4$ honeycomb satisfies one through three but fails condition four. No other tessellation in the catalog meets all four.
+\end{theorem}
+
+A heuristic rubric makes the ranking concrete. Score each tessellation by spinor (weight three), crystallographic (weight two), closeness to the right dimension (weight three), and curvature (weight one). The mesh $\{3,4,3,4\}$ tops it. The flat twin $\{3,4,3,3\}$ comes second, missing only curvature. Every other honeycomb loses either the sites or the dimension and scores zero on at least one factor. The mesh alone is non-zero on every factor at once.
+
+\subsection{Modeling three dimensions in lower dimensions, the honest aside}
+
+The lower-dimensional substrates are \emph{not} strictly impossible. Their missing features could in principle emerge at a higher layer. Saying so sharpens the selection rather than overturning it, so it is worth stating plainly.
+
+Three-dimensional physics can live on a lower-dimensional base in three senses, none of them forbidden. By \emph{computation}, since a one-dimensional cellular automaton is Turing-complete (Rule 110) and so can simulate three-dimensional physics, with the three dimensions living in the data rather than the geometry. By \emph{holography}, since a $(d{+}1)$-dimensional gravitational theory is exactly a $d$-dimensional boundary theory, with $\mathrm{AdS}_3/\mathrm{CFT}_2$ putting three-dimensional gravity in a two-dimensional theory and the extra dimension emerging. And by \emph{emergent dimension}, since tensor networks, the SYK model, and matrix models all grow effective dimensions from lower-dimensional bases.
+
+The reason any of this is possible is the holographic bound. Information scales with boundary area, not with volume, so three-dimensional physics fits on a lower-dimensional screen. The catch is that a naively \emph{local} lower-dimensional theory cannot do it, by the Bell and Weinberg-Witten results. The encoding must be non-local or must grow an emergent dimension. So a lower-dimensional substrate would need extra emergent machinery, a holographic extra dimension, a fermionization, an emergent gauge, to reach three-dimensional fermionic physics.
+
+\begin{principle}[Selection on economy]
+The mesh $\{3,4,3,4\}$ hands over three-dimensional space, spin, and gauge at the base, with no dimensional emergence required. The lower-dimensional substrates could reach the same physics, but only by paying an emergence cost. The selection is therefore on economy. The mesh is the substrate of least emergence, not the only conceivable one.
+\end{principle}
+
+This is the strong, falsifiable form of the argument. The other tessellations are not impossible. They simply need more emergent layers to do what the mesh does at the base.
+
+\subsection{Why it matters}
+
+The dimension alone narrows the substrate to the four-dimensional family. The crystallographic spinor sites then single out $\{3,4,3,4\}$ within it. What began as a choice, ``we chose $\{3,4,3,4\}$,'' becomes a result, the requirements are met by only $\{3,4,3,4\}$ across every dimension. The argument is exhaustive, with every other tessellation serving as a confirming control. The framework ports to all dimensions. The dimension and the sites are what select.

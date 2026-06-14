@@ -1,0 +1,94 @@
+\section{Generating a Tessellation from Its Symbol}
+
+The earlier sections named the family and gave the idea underneath it. The regular hyperbolic honeycombs are the menu the substrate is drawn from, and Coxeter's kaleidoscope is the machine that builds each one. A small set of mirrors reflects one wedge into a whole symmetric world. This section is the short bridge between the two. It states exactly how a tessellation is generated from its Schlafli symbol, the bare geometric idea, and then points onward to the specific climb the mesh takes.
+
+The point to carry through is that the whole of the mesh, the spatial atom of the theory, is fixed by a handful of small integers. Nothing in the space is placed by hand. The symbol fixes a chamber, the chamber's mirror images fill the space, and the space, its cells, and its directions are all forced. The mesh is the picture of a group.
+
+\begin{principle}[Reflection builds the space]
+A regular tessellation is what you get by reflecting one small chamber across its walls forever. The symbol fixes the chamber. The reflections do the rest.
+\end{principle}
+
+\subsection{One chamber, reflected without end}
+
+Every regular honeycomb starts from a single \textbf{fundamental chamber}. It is the smallest piece of the tiling, a simplex walled by flat mirrors. Each wall is a mirror, and each pair of walls meets at a fixed angle. For a four-dimensional honeycomb the chamber is a $4$-simplex with \textbf{five walls}, so there are five mirrors in play.
+
+The construction is one move repeated without end.
+
+\begin{itemize}
+\item Take the chamber.
+\item \textbf{Reflect} it across each of its mirror walls.
+\item Reflect each new copy across its own walls. Continue forever.
+\end{itemize}
+
+The copies fit together with no gaps and no overlaps. They tile the space exactly. The chamber you began with is the only original. Everything else is a mirror image of it, or an image of an image, and so on without limit. This is the kaleidoscope read as a recipe. A kaleidoscope takes one painted wedge and a few angled mirrors and shows a whole flower. Here the wedge is the chamber, the mirrors are its walls, and the flower is the entire infinite crystal.
+
+\begin{result}[Reflection is constructive, not decorative]
+Repeated reflection of a single chamber does not ornament a space that already exists. It \emph{builds} the space. The set of all chambers is the tessellation, and the tessellation is nothing more than that set.
+\end{result}
+
+This matters for the theory because the mesh is meant to have no arbitrary content. A substrate that is hand-drawn invites the question of why it was drawn that way. A substrate that is forced by a few integers does not.
+
+\subsection{The symbol is the whole input}
+
+The Schlafli symbol, written as a short list like $\{3,4,3,4\}$, is just the list of angles between neighbouring mirrors. Each entry is a small integer $p$, and the angle between that pair of mirrors is $\pi / p$. A larger integer means a shallower angle and a more spread-out arrangement. That is the entire input. There is nothing else to specify.
+
+That handful of integers fixes everything downstream, in a single short chain.
+
+\begin{principle}[From integers to a crystal]
+The numbers fix the mirror angles. The angles fix the chamber. The chamber's reflections generate the group. The group generates the honeycomb. The honeycomb fixes the large-scale geometry.
+\end{principle}
+
+So the path from a few integers to an entire infinite crystal is short and total. Change one integer and the same reflection idea generates a different regular world. The honeycombs $\{7,3\}$, $\{5,3,4\}$, and $\{3,4,3,4\}$ are not separate inventions that happen to look alike. They are different settings of one construction, the way three notes are three settings of one string. The substrate of this paper, $\{3,4,3,4\}$, is one setting among a small enumerated catalog, and the selection argument elsewhere in the paper is precisely the argument for which setting the mesh takes.
+
+\begin{definition}[The Schlafli symbol as mirror data]
+A Schlafli symbol $\{p_1, p_2, \dots\}$ is a list of integers, each $p_i \geq 2$, encoding the dihedral angle $\pi / p_i$ between consecutive mirror walls of the fundamental chamber. The symbol is the complete specification of a regular tessellation. Two tessellations with the same symbol are the same tessellation.
+\end{definition}
+
+\subsection{Two reflections, the basic motions}
+
+The large structure is built from products of just \textbf{two} reflections at a time. Reflect across one mirror, then across another, and the net effect is a single rigid motion. What that motion is depends only on how the two mirrors meet. There are exactly three ways two mirrors can meet, and so exactly three basic motions, summarized in Table~\ref{tab:two-reflections}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+how the mirrors meet & the product is & what it builds \\
+\midrule
+they cross at an angle & a rotation & a rosette around a face \\
+they share a perpendicular & a translation & a geodesic line, a tube \\
+they meet only at infinity & a parabolic motion & a flat layer \\
+\bottomrule
+\end{tabular}
+\caption{The three products of two reflections, by how the two mirrors meet.}
+\label{tab:two-reflections}
+\end{table}
+
+The third case is the decisive one for the substrate. A parabolic motion fixes a single point on the boundary at infinity and acts on the horospheres around that point exactly like a flat translation. A horosphere is the limiting shape of an ever-larger sphere whose center has run off to the boundary. In four-dimensional hyperbolic space those horospheres are \textbf{flat three-dimensional spaces}. That is the mechanism by which a four-dimensional crystal exposes ordinary flat three-dimensional space at its ideal corners. The parabolic case is how a curved bulk grows a flat skin. The specific climb that the mesh takes to $\{3,4,3,4\}$, and the parabolic cusp where the flat three-dimensional layer lives, are developed in the staircase section later in the paper.
+
+\begin{lemma}[The parabolic layer is flat]
+A product of two reflections whose mirrors meet only at the boundary at infinity is a parabolic motion. It acts on the horospheres about its fixed point as a flat translation, and in four-dimensional hyperbolic space those horospheres are flat three-dimensional spaces. The crystal therefore carries a flat three-dimensional Euclidean layer at its ideal corner.
+\end{lemma}
+
+\subsection{The cell must close into a finite shape}
+
+There is one condition for the construction to run cleanly. The \textbf{cell}, the repeating shape read off the symbol by dropping its last entry, must itself close into a finite polytope. Equivalently, the cell's own symmetry group must be finite.
+
+When the cell is finite, the chambers assemble neatly into one cell, and the cells assemble into the honeycomb. The whole thing nests and closes. When the cell is itself a flat or curved infinite tiling, it never closes, and the symbol names no honeycomb at all. The symbol $\{6,3,3\}$ is one that fails this way, because its cell $\{6,3\}$ is the infinite flat hexagonal tiling, which has no finite closing shape to repeat.
+
+For $\{3,4,3,4\}$ the cell is $\{3,4,3\}$, the $24$-cell, which is finite. Its symmetry is the exceptional reflection group of order $1152$ associated with $F_4$. That cell symmetry is what makes $\{3,4,3,4\}$ feel denser and more special than the dodecahedral cell of $\{5,3,4\}$, and it is the base symmetry that the later physics rides on. The $24$ directions out of a dock, the sites, are the $24$ vertices of this cell, so the finiteness of the cell is also what guarantees a dock has exactly $24$ sites and no more.
+
+\begin{proposition}[Finite cell, valid honeycomb]
+A Schlafli symbol names a regular honeycomb only if the cell obtained by dropping the last entry is a finite polytope, that is, only if the cell's symmetry group is finite. The symbol $\{3,4,3,4\}$ qualifies, its cell being the $24$-cell with symmetry $F_4$ of order $1152$. The symbol $\{6,3,3\}$ does not, its cell being an infinite flat tiling.
+\end{proposition}
+
+\subsection{The geometry is a group first}
+
+The point worth keeping is the order of things. You do not draw a lattice and then notice its symmetry afterward. The symmetry comes first, and the lattice is forced by it. Choose the mirrors and their angles, and the space, the cells, and the directions are all determined with no further choice.
+
+\begin{principle}[The picture is the group made visible]
+The tessellation is its reflection group drawn out. Choose the mirrors, and the space, the cells, and the directions are all fixed. Nothing in the crystal is independent of the angles you started from.
+\end{principle}
+
+That forced character is exactly what the theory wants from a substrate. Nothing is placed by hand, so nothing begs the question of why it was placed that way. Every dock, every site, every direction in the mesh is an image of the one chamber, generated by the one group. The full theory of these reflection groups, the three curvature regimes they fall into, and the root system and spin they carry are developed where the honeycomb family and the kaleidoscope are set out in full. The specific climb to $\{3,4,3,4\}$ and its $F_4$ cell is developed in the staircase section.
+
+The base stays \textbf{discrete and deterministic} at every step of this construction. The chamber is one fixed shape. The reflections are fixed moves. The cell is a finite polytope with a finite symmetry group. The smooth hyperbolic space, the continuous symmetries, and the flat cusp are the large-scale shadow of this discrete construction, never base ingredients. The mesh, the dock, and the site are settled here. The tone that each site carries, the knit that updates them each beat, the wake that grows the mesh at its frontier, and the arrow of time that emerges from the wake all enter later, once the space they live in has been built.
