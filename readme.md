@@ -165,7 +165,32 @@ which is why a curved mesh is the committed choice.
 - **test/experiment**: one `defineExperiment` per question, grouped by
   category (foundations, geometry, relativity, spin, gauge, gravity,
   cosmology, holography, quantum, renormalization, selves, computation,
-  addressing, substrate-survey), run by the suite runner in `test/`.
+  addressing, substrate-survey, data-structure), run by the suite runner
+  in `test/`.
+
+## Documentation
+
+All docs live in `note/`. The entry points:
+
+- **[The library guide](note/library/readme.md)** is how to USE the `code/`
+  library. It opens with a [features-at-a-glance](note/library/features.md)
+  page (what the library solves for in one scannable set of tables) and an
+  [overview](note/library/overview.md) of how it all fits together. Under
+  that are per-domain API guides (substrate, tone-and-rule, operator,
+  measure, dynamics, algebra, model, tool, computing-and-data-structures,
+  draw-and-render) and engine deep dives explaining how each engine works
+  inside (the Coxeter tessellation engine, the reversible rule, the
+  Kahler-Dirac fermion, the spinor coin, the spectral methods, the
+  causal-set sampler, the unitary evolution, the lattice gauge engine, the
+  coarse-graining and selves engine, and the associative memory engine).
+- **[Architecture](note/architecture.md)** is where code and tests live, and
+  how to add an experiment.
+- **[Experimental methodology](note/experimental-methodology.md)** is the
+  standard every experiment is held to, the depth rubric, the control
+  requirement, determinism, and the honest negatives.
+- **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
+  is how to write an experiment that runs against every regular hyperbolic
+  tessellation at once.
 
 ## License
 

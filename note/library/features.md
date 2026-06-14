@@ -138,6 +138,21 @@ Status key for the physics rows: **solid** is verified with a control that could
 | logic gates and register machines | a substrate computer | `operator/logic-gate`, `operator/register-machine` |
 | greedy geometric routing | addressing and navigation on the mesh | `addressing/`, `measure/navigation` |
 
+### Computing and data structures on hyperbolic space
+
+The bulk has a logarithmic diameter and grows exponentially per radius, so it is a natural substrate for log-depth structures and content search. Full catalog in `api/computing-and-data-structures.md`.
+
+| capability | what it does | where |
+| ---------- | ------------ | ----- |
+| content-addressable memory | ask by content, every cell matches in parallel, the O(log N) broadcast | `operator/associative-memory`, `associative-memory-engine.md` |
+| recall, capacity, latency | exact and noisy recall, capacity per radius, search latency | `measure/associative-recall` |
+| vector-symbolic memory | bind, bundle, unbind, capacity scales with dimension | `measure/associative-memory` |
+| logarithmic-depth structures | B-tree, DHT routing, skip list, union-find, Merkle proof, R-tree | `data-structure/btree-descent`, `dht-routing`, `merkle-proof`, ... |
+| addressing and indexing | unique log-length addresses, hashing, tries, total orders | `data-structure/addressing`, `hash-table`, `trie-prefix` |
+| radial structures | heaps, LSM levels, mipmaps by Busemann depth | `data-structure/radial-heap`, `lsm-levels`, `radial-mipmap` |
+| exponential capacity | Bloom filters and range scans on the growing boundary | `data-structure/boundary-sketch`, `range-scan`, `capacity` |
+| the data-structure profile of any tessellation | one module, every tessellation | `measure/tessellation-profile`, `data-structure/universal-profile` |
+
 ---
 
 ## Substrates you can build

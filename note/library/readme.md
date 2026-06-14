@@ -27,6 +27,7 @@ Build a mesh, optionally put a tone state on it, either run the local rule or bu
 | [api/dynamics](api/dynamics.md) | sampling, MCMC, lattice gauge, wave and walk evolution, renormalization | you want search, sampling, or time evolution |
 | [api/algebra](api/algebra.md) | the symmetry algebra (D4, F4, quaternions, Clifford, octonions, Jordan) and the linear algebra (eigensolvers, KPM, Bethe) | you need spinors, roots, or an eigensolver |
 | [api/tool](api/tool.md) | the substrate-agnostic primitives, the seeded rng, graphs, posets, bitsets | you need a building block |
+| [api/computing-and-data-structures](api/computing-and-data-structures.md) | content-addressable associative memory and classic data structures realized on the hyperbolic bulk | you want to compute, search, or store on the mesh |
 | [api/draw-and-render](api/draw-and-render.md) | the 2D drawing primitives, the render scripts, the WebGPU compute runners | you want a figure or a GPU run |
 
 ## Deep dives (how the engines work inside)
@@ -44,6 +45,7 @@ The `api/` guides say WHICH function to call. These deep dives explain HOW each 
 | [evolution-and-propagation](evolution-and-propagation.md) | the leapfrog unitary evolution and the return-probability test for extended versus localized |
 | [lattice-gauge-engine](lattice-gauge-engine.md) | gauge fields on links, the Wilson plaquette action, Metropolis sweeps, the coupled Schwinger evolution |
 | [coarse-graining-and-selves](coarse-graining-and-selves.md) | coarse-graining the micro rule into macro levels, causal emergence, Markov blankets, the level tower, the honest null result |
+| [associative-memory-engine](associative-memory-engine.md) | content-addressable memory on the mesh, Potter's parallel SITDAC search, the O(log N) broadcast, exponential capacity per radius |
 
 ## Start here
 
