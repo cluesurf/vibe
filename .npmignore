@@ -2,6 +2,7 @@
 .claude/
 make/
 out/
+tmp/
 *.aux
 *.bbl
 *.blg
