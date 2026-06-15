@@ -96,14 +96,17 @@ export interface UnitTrajectory {
   meanSelfSize: number
 }
 
-export function selfUnitTrajectory(input: {
+// the shared core, run a self and record its centroid each beat, with the binding strength given by a
+// cohesion schedule cohesionAt(beat). A constant schedule is the stationary self, a schedule that changes
+// partway is a self whose coarse dynamics drift (used to test surrogate drift detection, MS4).
+function runUnitTrajectory(input: {
   L: number
   beats: number
   seed: number
-  minSize?: number
+  minSize: number
+  cohesionAt: (beat: number) => number
 }): UnitTrajectory {
-  const { L, beats, seed } = input
-  const minSize = input.minSize ?? 3
+  const { L, beats, seed, minSize, cohesionAt } = input
   const graph = flatGraph(L)
   const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
@@ -114,7 +117,7 @@ export function selfUnitTrajectory(input: {
   let sizeCount = 0
   let lastCx = L / 2
   for (let t = 0; t < beats; t++) {
-    beat(tone, graph, moved, rng, 0.01, 0.22)
+    beat(tone, graph, moved, rng, 0.01, cohesionAt(t))
     const units = extractUnits({ tone, graph, positions, sign: 1, minSize })
     if (units.length > 0) {
       let largest = units[0]!
@@ -126,4 +129,32 @@ export function selfUnitTrajectory(input: {
     centroids.push(lastCx)
   }
   return { graph, L, centroids, meanSelfSize: sizeCount > 0 ? sizeSum / sizeCount : 0 }
+}
+
+export function selfUnitTrajectory(input: {
+  L: number
+  beats: number
+  seed: number
+  minSize?: number
+}): UnitTrajectory {
+  return runUnitTrajectory({ ...input, minSize: input.minSize ?? 3, cohesionAt: () => 0.22 })
+}
+
+// A self whose binding strength changes at changeAt, so its coarse dynamics drift into a new regime. With
+// cohesionEarly equal to cohesionLate this is the stationary self (the no-drift control).
+export function driftingSelfTrajectory(input: {
+  L: number
+  beats: number
+  seed: number
+  cohesionEarly: number
+  cohesionLate: number
+  changeAt: number
+  minSize?: number
+}): UnitTrajectory {
+  const { cohesionEarly, cohesionLate, changeAt } = input
+  return runUnitTrajectory({
+    ...input,
+    minSize: input.minSize ?? 3,
+    cohesionAt: (t) => (t < changeAt ? cohesionEarly : cohesionLate),
+  })
 }

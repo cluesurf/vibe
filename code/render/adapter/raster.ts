@@ -9,6 +9,7 @@
 
 import { encodePng } from '@/code/draw/png'
 import type { Scene, Vec } from '@/code/render/scene'
+import { geodesicPoints } from '@/code/render/geometry/isometry'
 
 export type Rgb = [number, number, number]
 
@@ -37,6 +38,9 @@ export type RasterOptions = {
   rotateY?: number
   // draw the faint circle at infinity
   drawBoundary?: boolean
+  // segments per edge, 1 draws a straight chord, higher draws the TRUE geodesic as a curved arc. A hyperbolic
+  // geodesic is a circular arc in the Poincare model, so curves are needed for a faithful tiling.
+  segments?: number
 }
 
 // render a Scene to a PNG buffer
@@ -44,7 +48,7 @@ export function renderSceneToPng(input: RasterOptions): Buffer {
   const {
     scene, size = DEFAULT_SIZE, margin = DEFAULT_MARGIN, lineWidth = DEFAULT_LINE_WIDTH,
     background = DEFAULT_BACKGROUND, near = DEFAULT_NEAR, far = DEFAULT_FAR,
-    rotateX = 0.45, rotateY = 0.6, drawBoundary = true,
+    rotateX = 0.45, rotateY = 0.6, drawBoundary = true, segments = 24,
   } = input
 
   const rgba = new Uint8Array(size * size * 4)
@@ -71,19 +75,26 @@ export function renderSceneToPng(input: RasterOptions): Buffer {
 
   if (drawBoundary) strokeCircle(rgba, size, half, half, scale, DEFAULT_BOUNDARY)
 
-  // build projected edges with a depth, then draw far-first so near struts land on top (3D occlusion feel)
+  // build projected edges (as geodesic polylines) with a depth, then draw far-first so near struts land on
+  // top (3D occlusion feel)
   const drawn = scene.edges.map((e) => {
-    const pa = project(e.a)
-    const pb = project(e.b)
-    const depth = (pa.z + pb.z) / 2
+    const samples = segments > 1 ? geodesicPoints(e.a, e.b, segments) : [e.a, e.b]
+    const pts = samples.map(project)
+    let depth = 0
+    for (const p of pts) depth += p.z
+    depth /= pts.length
     // shade by depth for 3D, by ball radius of the midpoint for 2D
     let t: number
     if (scene.dim >= 3) t = (depth + 1) / 2 // -1..1 -> 0..1, near (high z) -> 1
     else { const mr = midRadius(e.a, e.b); t = 1 - Math.min(1, mr) } // centre -> 1, boundary -> 0
-    return { pa, pb, depth, color: lerp(far, near, t) }
+    return { pts, depth, color: lerp(far, near, t) }
   })
   drawn.sort((p, q) => p.depth - q.depth)
-  for (const d of drawn) drawLine(rgba, size, d.pa.x, d.pa.y, d.pb.x, d.pb.y, d.color, lineWidth)
+  for (const d of drawn) {
+    for (let i = 0; i + 1 < d.pts.length; i++) {
+      drawLine(rgba, size, d.pts[i]!.x, d.pts[i]!.y, d.pts[i + 1]!.x, d.pts[i + 1]!.y, d.color, lineWidth)
+    }
+  }
 
   return encodePng(rgba, size, size)
 }
