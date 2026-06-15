@@ -45,6 +45,13 @@ export type RasterOptions = {
 
 // render a Scene to a PNG buffer
 export function renderSceneToPng(input: RasterOptions): Buffer {
+  const { rgba, size } = renderSceneToRgba(input)
+  return encodePng(rgba, size, size)
+}
+
+// render a Scene to a raw RGBA pixel buffer (size * size * 4), the shared core used by both the PNG encoder
+// and the animation encoders. Returns the pixels and the side length.
+export function renderSceneToRgba(input: RasterOptions): { rgba: Uint8Array; size: number } {
   const {
     scene, size = DEFAULT_SIZE, margin = DEFAULT_MARGIN, lineWidth = DEFAULT_LINE_WIDTH,
     background = DEFAULT_BACKGROUND, near = DEFAULT_NEAR, far = DEFAULT_FAR,
@@ -96,7 +103,7 @@ export function renderSceneToPng(input: RasterOptions): Buffer {
     }
   }
 
-  return encodePng(rgba, size, size)
+  return { rgba, size }
 }
 
 function midRadius(a: Vec, b: Vec): number {
