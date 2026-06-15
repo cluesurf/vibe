@@ -12,7 +12,7 @@ import { buildHoneycombScene } from '@/code/render/geometry/honeycomb'
 import { renderSceneToPng, type Rgb } from '@/code/render/adapter/raster'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const csvPath = join(here, '..', '..', '..', '..', '..', 'note', 'research', 'vibe', 'notes', 'theory-v0.7.0', 'paper', 'tessellations.csv')
+const csvPath = join(here, '..', '..', '..', '..', '..', 'note', 'research', 'vibe', 'notes', 'tessellations.csv')
 const outDir = join(here, '..', '..', '..', 'make', 'render', 'tessellations')
 
 // a quote-aware CSV splitter, the symbol field is quoted and contains a comma (e.g. "{5,3,4}")

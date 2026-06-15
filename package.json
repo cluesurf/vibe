@@ -29,6 +29,7 @@
     "@termsurf/kink": "^0.1.2",
     "chalk": "^5.6.2",
     "dayjs": "^1.11.8",
+    "gifenc": "^1.0.3",
     "lodash": "^4.17.21",
     "webgpu": "^0.4.0"
   }
