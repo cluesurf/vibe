@@ -6,7 +6,7 @@
 // the open boundary (the bath) does, so momentum diffusion is bath-driven, the same arrow-from-the-wake principle.
 // The functions assume the 4D d4Mesh coordinate layout, cell = x + side*y + side^2*z + side^3*w.
 
-import { Will, makeWill, cloneWill } from '@/code/tone/will'
+import { Will, makeWill, cloneWill, cellTone } from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
 import { Collision } from '@/code/rule/collision'
 import { beat } from '@/code/rule/lattice-gas'
@@ -102,6 +102,67 @@ export function shearAmplitudeSeries(input: {
   const degree = input.will.mesh.degree
   let will = cloneWill(input.will)
   const measure = (w: Will) => shearAmplitude({ will: w, directions, side, gradAxis, momAxis, wavelength })
+  const start = measure(will)
+  const series = [1]
+  for (let step = 0; step < beats; step++) {
+    will = beat(will, collision)
+    if (open) {
+      for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+        const coordinate = coordAlong(cell, gradAxis, side)
+        if (coordinate === 0 || coordinate === side - 1) {
+          const base = cell * degree
+          for (let direction = 0; direction < degree; direction++) will.data[base + direction] = 0
+        }
+      }
+    }
+    series.push(start === 0 ? 0 : measure(will) / start)
+  }
+  return series
+}
+
+// A deterministic CHARGE-density wave, the net cell charge following sin(k gradAxis). The committed pair-table's
+// create move is charge-neutral per cell, so the net-cell-charge field is clean of vacuum churn, the charge mode is
+// measurable directly. Used to test whether the conserved charge diffuses (it does not in the reversible bulk, it
+// recurs, the same bath-driven story as the momentum shear).
+export function chargeWaveSetup(input: { mesh: Mesh; side: number; gradAxis: number; wavelength: number; band?: number }): Will {
+  const { mesh, side, gradAxis, wavelength } = input
+  const band = input.band ?? 6
+  const degree = mesh.degree
+  const will = makeWill(mesh)
+  for (let cell = 0; cell < mesh.cellCount; cell++) {
+    const amplitude = Math.sin((2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength)
+    const base = cell * degree
+    if (amplitude > 0.33) for (let direction = 0; direction < band; direction++) will.data[base + direction] = 1
+    else if (amplitude < -0.33) for (let direction = 0; direction < band; direction++) will.data[base + direction] = -1
+  }
+  return will
+}
+
+// the Fourier amplitude of the charge-density wave, the net cell charge projected onto sin(k gradAxis).
+export function chargeWaveAmplitude(input: { will: Will; side: number; gradAxis: number; wavelength: number }): number {
+  const { will, side, gradAxis, wavelength } = input
+  let amplitude = 0
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    amplitude += cellTone(will, cell) * Math.sin((2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength)
+  }
+  return amplitude
+}
+
+// run the charge wave forward, return the amplitude series relative to the start. `open` absorbs the gradAxis
+// boundary slabs (the bath).
+export function chargeWaveSeries(input: {
+  will: Will
+  collision: Collision
+  beats: number
+  side: number
+  gradAxis: number
+  wavelength: number
+  open: boolean
+}): number[] {
+  const { collision, beats, side, gradAxis, wavelength, open } = input
+  const degree = input.will.mesh.degree
+  let will = cloneWill(input.will)
+  const measure = (w: Will) => chargeWaveAmplitude({ will: w, side, gradAxis, wavelength })
   const start = measure(will)
   const series = [1]
   for (let step = 0; step < beats; step++) {
