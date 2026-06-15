@@ -56,3 +56,58 @@ export function qcdRunningMassFactor(input: {
   const exponent = gamma0 / (2 * Math.abs(beta3))
   return (couplingAtReference / couplingHigh) ** exponent
 }
+
+// PREDICT the low-energy weak mixing angle sin^2(theta_W) at M_Z as an OUTPUT (the Georgi-Quinn-Weinberg
+// prediction). The inputs are the two measured couplings alpha_em^-1 and alpha_s^-1, the one-loop beta
+// coefficients [b1, b2, b3] (GUT-normalized U(1)), and the hypercharge GUT-normalization factor h (the standard
+// so(10)/su(5) value is 3/5, which is what makes the bare angle 3/8 at unification). Demanding that the three
+// couplings meet at ONE scale gives two equations (alpha_1 = alpha_2 and alpha_2 = alpha_3 there) in the two
+// unknowns sin^2 and the scale, which solve in closed form:
+//   k = (b1 - b2) / (b2 - b3),   sin^2 = (h*A + k*S) / (A * (k + h + 1)),   A = alpha_em^-1, S = alpha_s^-1.
+// sin^2 is NOT an input, so this is a genuine prediction. A wrong h (a hand-altered hypercharge) gives a wrong
+// angle, the discriminating control.
+export function predictWeinbergAngle(input: {
+  alphaEmInverse: number
+  alphaStrongInverse: number
+  beta: [number, number, number]
+  hyperchargeNorm?: number
+}): number {
+  const A = input.alphaEmInverse
+  const S = input.alphaStrongInverse
+  const h = input.hyperchargeNorm ?? 3 / 5
+  const [b1, b2, b3] = input.beta
+  const k = (b1 - b2) / (b2 - b3)
+  return (h * A + k * S) / (A * (k + h + 1))
+}
+
+// The grand-unification scale (in GeV) and the unified inverse coupling, from the measured M_Z couplings run up
+// at one loop until U(1) and SU(2) meet. Inputs are alpha_em^-1, alpha_s^-1, the measured sin^2, the beta
+// coefficients, and the reference scale M_Z. Returns the meeting scale and the common inverse coupling there.
+export function gutScaleAndCoupling(input: {
+  alphaEmInverse: number
+  alphaStrongInverse: number
+  sin2: number
+  beta: [number, number, number]
+  referenceScaleGeV?: number
+}): { gutScaleGeV: number; unifiedInverseCoupling: number } {
+  const { alphaEmInverse: A, sin2, beta } = input
+  const referenceScaleGeV = input.referenceScaleGeV ?? 91.19
+  const inverseTwo = sin2 * A // SU(2)
+  const inverseOne = (3 / 5) * (1 - sin2) * A // U(1), GUT-normalized
+  const t = couplingMeetingTime({ inverseAtZeroFirst: inverseOne, inverseAtZeroSecond: inverseTwo, betaFirst: beta[0], betaSecond: beta[1] })
+  const unifiedInverseCoupling = oneLoopInverseCoupling({ inverseAtZero: inverseOne, beta: beta[0], t })
+  return { gutScaleGeV: referenceScaleGeV * Math.exp(t), unifiedInverseCoupling }
+}
+
+// The proton lifetime in YEARS from dimension-six decay mediated by the X/Y leptoquark bosons at the GUT scale.
+// The standard estimate tau ~ M_X^4 / (alpha_GUT^2 * m_p^5), with M_X the GUT scale and m_p the proton mass, both
+// in GeV. The result is in natural units (GeV^-1) and is converted to years. This is an order-of-magnitude
+// prediction (the hadronic matrix element carries an O(1) factor), fixed once the GUT scale and coupling are set.
+export function protonLifetimeYears(input: { gutScaleGeV: number; unifiedInverseCoupling: number; protonMassGeV?: number }): number {
+  const mProton = input.protonMassGeV ?? 0.938
+  const alphaGut = 1 / input.unifiedInverseCoupling
+  const lifetimeInverseGeV = input.gutScaleGeV ** 4 / (alphaGut ** 2 * mProton ** 5)
+  const hbarGeVSeconds = 6.582119e-25 // GeV * s
+  const secondsPerYear = 3.15576e7
+  return (lifetimeInverseGeV * hbarGeVSeconds) / secondsPerYear
+}

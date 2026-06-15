@@ -74,6 +74,9 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     return out
   }
 
+  // each cell's center, the lattice points, recentered and oriented the same way as the edges
+  const centers: Vec[] = graph.coords.map((c) => orient(recenter(c)))
+
   // replicate the cell edges across every cell, deduplicated in ball space
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
@@ -90,7 +93,7 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     }
   }
 
-  return { dim: ballDim, symbol: symbol.slice(), edges, cellCount: cellMat.length }
+  return { dim: ballDim, symbol: symbol.slice(), edges, cellCount: cellMat.length, centers }
 }
 
 // is the cell (the symbol minus its last entry) a finite spherical polytope? finite cells are the case this
@@ -101,18 +104,12 @@ export function hasFiniteCell(symbol: number[]): boolean {
   return classifyGeometry(cell) === 'spherical'
 }
 
-// the rotation (as cos and sin) that brings the central cell upright
-function orientation(
-  baseVertices: Vec[],
-  timeAxis: number,
-  p: number,
-  orientUp: boolean,
-): { cos: number; sin: number } {
+// the rotation (as cos and sin) that brings the central cell upright, from its recentered ball vertices
+function orientation(ballVertices: Vec[], p: number, orientUp: boolean): { cos: number; sin: number } {
   if (!orientUp) return { cos: 1, sin: 0 }
   let bestR = -1
   let theta0 = 0
-  for (const v of baseVertices) {
-    const b = toPoincare(v, timeAxis)
+  for (const b of ballVertices) {
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const r = x * x + y * y

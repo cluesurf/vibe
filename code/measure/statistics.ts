@@ -93,6 +93,29 @@ export function relativeL2Error(a: ArrayLike<number>, b: ArrayLike<number>): num
   return den > 0 ? Math.sqrt(num / den) : 0
 }
 
+// The joint count table between TWO different label series at lag tau, counts[i][j] = number of times series
+// A is in state i at time t and series B is in state j at time t+tau. Unlike countMatrix (one series against
+// itself) this is the cross-joint of two series, the input to a mutual-information measurement of how much
+// one series tells about the future of another (the predictive-information measure).
+export function crossJointCounts(input: {
+  seriesA: number[]
+  seriesB: number[]
+  stateCount: number
+  lag: number
+}): number[][] {
+  const { seriesA, seriesB, stateCount, lag } = input
+  const counts: number[][] = Array.from({ length: stateCount }, () =>
+    new Array<number>(stateCount).fill(0),
+  )
+  const last = Math.min(seriesA.length, seriesB.length) - lag
+  for (let t = 0; t < last; t++) {
+    const i = seriesA[t]!
+    const j = seriesB[t + lag]!
+    if (i >= 0 && j >= 0 && i < stateCount && j < stateCount) counts[i]![j]!++
+  }
+  return counts
+}
+
 // Mutual information I(X; Y) in BITS from a joint COUNT table joint[x][y]. Normalizes the counts
 // to a probability, then sums p(x,y) log2( p(x,y) / (p(x) p(y)) ) over non-empty cells. Zero when
 // the variables are independent, used to quantify measurement dependence (the setting-versus-hidden

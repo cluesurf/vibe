@@ -13,6 +13,7 @@
 // are g*F_i for the precomputed face reflections F_i.
 
 import { mirrorFrame } from '@/code/substrate/coxeter/schlafli'
+import { coxeterCellFrame } from '@/code/substrate/coxeter/frame'
 import { largestComponentNodes, mostConnectedNode } from '@/code/tool/graph'
 import {
   Mat,
@@ -50,43 +51,8 @@ export interface CellGraph {
 export function buildCellGraph(input: { symbol: number[]; maxCells?: number }): CellGraph {
   const symbol = input.symbol
   const maxCells = input.maxCells ?? 20000
-  const { normals, metric, timeAxis } = mirrorFrame(symbol)
-  const dim = metric.length
-  const cellMirrors = symbol.length // generators that FIX the cell center
-
-  // generator reflection matrices
-  const R: Mat[] = normals.map((nrm) => reflectionMatrix(nrm, metric))
-
-  // enumerate the cell stabilizer H = <R[0..cellMirrors-1]> (a finite group), by BFS over matrices
-  const stab: Mat[] = [identity(dim)]
-  const stabSeen = new Set<string>([keyOf(stab[0]!.flat())])
-  for (let head = 0; head < stab.length; head++) {
-    for (let i = 0; i < cellMirrors; i++) {
-      const g = matMul(R[i]!, stab[head]!)
-      const k = keyOf(g.flat())
-      if (!stabSeen.has(k)) {
-        stabSeen.add(k)
-        stab.push(g)
-      }
-    }
-    if (stab.length > 100000) break // safety
-  }
-
-  // the facet (outer) generator's normal, and the facet normals = H-orbit of it
-  const outerNormal = normals[normals.length - 1]!
-  const faceNormals: Vec[] = []
-  const faceSeen = new Set<string>()
-  for (const h of stab) {
-    const fn = matVec(h, outerNormal)
-    const k = keyOf(fn)
-    if (!faceSeen.has(k)) {
-      faceSeen.add(k)
-      faceNormals.push(fn)
-    }
-  }
-  const F: Mat[] = faceNormals.map((fn) => reflectionMatrix(fn, metric))
-
-  const c0 = cellCenter(normals, metric, cellMirrors, timeAxis)
+  // the shared cell frame, the mirror frame, the face reflections (H-orbit of the outer generator), and c0
+  const { normals, metric, timeAxis, dim, faces: F, center: c0 } = coxeterCellFrame(symbol)
 
   // BFS the cell graph: each cell tracked by a group-element matrix g (center = g*c0), neighbors = g*F_i
   const cellMat: Mat[] = [identity(dim)]

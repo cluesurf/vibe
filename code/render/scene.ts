@@ -26,6 +26,9 @@ export type Scene = {
   edges: SceneEdge[]
   // how many cells were enumerated to build it
   cellCount: number
+  // each cell's center in the ball (same recentering and orientation as the edges), the lattice points. The
+  // central cell's center is the origin. Used to find the translation period for a seamless walking loop.
+  centers?: Vec[]
 }
 
 // the Euclidean norm of a ball point
