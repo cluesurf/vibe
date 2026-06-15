@@ -17,7 +17,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { b4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import type { Collision } from '@/code/rule/collision'
 
 export default experiment({
@@ -33,6 +33,7 @@ export default experiment({
     const mesh: Mesh = b4Mesh({ side })
     const degree = mesh.degree
     const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
 
     const longLines: Array<[number, number]> = []
@@ -81,11 +82,12 @@ export default experiment({
     }
 
     let will = setup()
+    let scratch: Will = { mesh, data: new Int8Array(will.data.length) }
     const start = slowCentroidX(will)
     let maxRms = start.rms
     let maxToward = start.cx // furthest the centroid gets toward the sparse (high x) side
     let final = start
-    for (let t = 0; t < beats; t++) { will = beat(will, coupledRotate); final = slowCentroidX(will); if (final.rms > maxRms) maxRms = final.rms; if (final.cx > maxToward) maxToward = final.cx }
+    for (let t = 0; t < beats; t++) { beatInto({ src: will, dst: scratch, table, collision: coupledRotate }); const swap = will; will = scratch; scratch = swap; final = slowCentroidX(will); if (final.rms > maxRms) maxRms = final.rms; if (final.cx > maxToward) maxToward = final.cx }
 
     // the honest negative, the mass DISPERSES (rms grows large) and does NOT coherently drift to the sparse side
     // (the final centroid is not held toward high x, it sloshes back). PASS demonstrates radiation pressure is

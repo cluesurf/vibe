@@ -21,7 +21,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { run, beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
 import { weightedGridRadiusOfGyration } from '@/code/measure/profile'
 
@@ -72,6 +72,7 @@ export default experiment({
     const collision = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })
     const spreadMax = uniformGyration(side)
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // the rule is reversible and conserving, the condition that makes it a periodic orbit, not an attractor.
     const reversibleOk = isReversible(packet(side), collision, beats, inverse)
@@ -79,17 +80,20 @@ export default experiment({
 
     // the base rule, its interaction confines the packet.
     let base = packet(side)
+    let baseScratch: Will = { mesh: base.mesh, data: new Int8Array(base.data.length) }
     const startRg = radiusOfGyration({ will: base, side })
     let baseMaxRg = startRg
     for (let t = 0; t < beats; t++) {
-      base = beat(base, collision)
+      beatInto({ src: base, dst: baseScratch, table, collision })
+      const swap = base
+      base = baseScratch
+      baseScratch = swap
       baseMaxRg = Math.max(baseMaxRg, radiusOfGyration({ will: base, side }))
     }
     const baseEndRg = radiusOfGyration({ will: base, side })
 
     // the control, streaming alone (no interaction) lets the same packet fly apart.
-    let free = packet(side)
-    for (let t = 0; t < beats; t++) free = beat(free, passThrough)
+    const free = run(packet(side), passThrough, beats)
     const freeEndRg = radiusOfGyration({ will: free, side })
 
     const confined = baseMaxRg < 0.35 * spreadMax

@@ -23,7 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { bindAndMove, headOnRotate, pairCollision, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 
 export default experiment({
   id: 'selves/no-restoring-pressure',
@@ -38,6 +38,7 @@ export default experiment({
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
     const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const coord = (c: number): [number, number, number, number] => [c % side, Math.floor(c / side) % side, Math.floor(c / (side * side)) % side, Math.floor(c / (side * side * side)) % side]
     const lines: Array<[number, number]> = []
@@ -67,10 +68,11 @@ export default experiment({
 
     const measure = (rule: Collision): { min: number; final: number } => {
       let w = diffuse()
+      let scratch: Will = { mesh, data: new Int8Array(w.data.length) }
       const r0 = netRms(w)
       let min = r0
       let final = r0
-      for (let t = 0; t < beats; t++) { w = beat(w, rule); const r = netRms(w); if (r < min) min = r; final = r }
+      for (let t = 0; t < beats; t++) { beatInto({ src: w, dst: scratch, table, collision: rule }); const swap = w; w = scratch; scratch = swap; const r = netRms(w); if (r < min) min = r; final = r }
       return { min, final }
     }
 

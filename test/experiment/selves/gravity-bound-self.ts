@@ -23,7 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { headOnRotate } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 import { bulkMass, relaxPotential, gravityMoves } from '@/code/dynamics/gravity-field'
 
@@ -53,14 +53,17 @@ export default experiment({
     const center = half + half * side + half * side * side + half * side * side * side
     const neighbour = (c: number, d: number): number => base.neighbour(c, d)
 
+    const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
     const restBody = (): Will => { const will = makeWill(coin); for (let c = 0; c < coin.cellCount; c++) { const [x, y, z, w] = coord(c); if ((x - half) ** 2 + (y - half) ** 2 + (z - half) ** 2 + (w - half) ** 2 <= 4) will.data[c * degree + rest] = 1 } return will }
+    const scratchOf = (will: Will): Will => ({ mesh: coin, data: new Int8Array(will.data.length) })
     const occupiedOf = (will: Will): Uint8Array => { const o = new Uint8Array(coin.cellCount); for (let c = 0; c < coin.cellCount; c++) o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0; return o }
     const extent = (will: Will): number => { let e = 0; for (let c = 0; c < coin.cellCount; c++) { let on = false; const b = c * degree; for (let d = 0; d < degree; d++) if (will.data[b + d] !== 0) { on = true; break } if (on) { const [x, y, z, w] = coord(c); const dd = Math.abs(x - half) + Math.abs(y - half) + Math.abs(z - half) + Math.abs(w - half); if (dd > e) e = dd } } return e }
 
     // one beat, stream and collide the moving charges (radiation), then gravity moves the rest masses, then the
     // bath. The potential is warm-started across beats (the body moves little).
-    const evolve = (will: Will, phi: Int32Array, warmSweeps: number, open: boolean): { will: Will; phi: Int32Array } => {
-      const next = beat(will, rule)
+    const evolve = (will: Will, scratch: Will, phi: Int32Array, warmSweeps: number, open: boolean): { will: Will; phi: Int32Array } => {
+      beatInto({ src: will, dst: scratch, table, collision: rule })
+      const next = scratch
       const occupied = occupiedOf(next)
       const source = bulkMass({ occupied, neighbour, cellCount: coin.cellCount, spatialDegree, minNeighbours: 3 })
       const newPhi = relaxPotential({ source, neighbour, cellCount: coin.cellCount, spatialDegree, sweeps: warmSweeps, strength, cap, warm: phi })
@@ -75,27 +78,27 @@ export default experiment({
     const initialPhi = (will: Will): Int32Array => relaxPotential({ source: bulkMass({ occupied: occupiedOf(will), neighbour, cellCount: coin.cellCount, spatialDegree, minNeighbours: 3 }), neighbour, cellCount: coin.cellCount, spatialDegree, sweeps: 30, strength, cap })
 
     // 1. identity, the body persists and does not collapse.
-    let body = restBody(); let phiB = initialPhi(body)
+    let body = restBody(); let phiB = initialPhi(body); let bodyScratch = scratchOf(body)
     const bodyExtent = extent(body)
     const startOcc = occupiedOf(body).reduce((a, b) => a + b, 0)
-    for (let t = 0; t < beats; t++) { const r = evolve(body, phiB, 4, false); body = r.will; phiB = r.phi }
+    for (let t = 0; t < beats; t++) { const r = evolve(body, bodyScratch, phiB, 4, false); bodyScratch = body; body = r.will; phiB = r.phi }
     const endExtent = extent(body)
     const endOcc = occupiedOf(body).reduce((a, b) => a + b, 0)
     const persists = endExtent === bodyExtent && endOcc === startOcc
 
     // 2. self-repair, a piece broken off three cells away returns (the field pulls it back).
     const farDisplaced = (): Will => { const w = cloneWill(restBody()); let nb = center; for (let k = 0; k < 3; k++) nb = base.neighbour(nb, 0); w.data[center * degree + rest] = 0; w.data[nb * degree + rest] = 1; return w }
-    let displaced = farDisplaced(); let phiD = initialPhi(displaced)
+    let displaced = farDisplaced(); let phiD = initialPhi(displaced); let displacedScratch = scratchOf(displaced)
     const displacedStart = extent(displaced)
-    for (let t = 0; t < beats; t++) { const r = evolve(displaced, phiD, 4, false); displaced = r.will; phiD = r.phi }
+    for (let t = 0; t < beats; t++) { const r = evolve(displaced, displacedScratch, phiD, 4, false); displacedScratch = displaced; displaced = r.will; phiD = r.phi }
     const displacedEnd = extent(displaced)
     const selfRepairs = displacedStart > bodyExtent && displacedEnd <= bodyExtent
 
     // 3. radiation, a moving disturbance sheds to the bath (open) and persists on the closed torus.
     const withDisturbance = (): Will => { const w = cloneWill(restBody()); for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1; return w }
     const radiation = (open: boolean): number => {
-      let clean = restBody(), pert = withDisturbance(); let phiC = initialPhi(clean), phiP = initialPhi(pert); let final = 0
-      for (let t = 0; t < beats; t++) { const a = evolve(clean, phiC, 4, open); clean = a.will; phiC = a.phi; const b = evolve(pert, phiP, 4, open); pert = b.will; phiP = b.phi; let d = 0; for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== pert.data[i]) d++; final = d }
+      let clean = restBody(), pert = withDisturbance(); let phiC = initialPhi(clean), phiP = initialPhi(pert); let cleanScratch = scratchOf(clean), pertScratch = scratchOf(pert); let final = 0
+      for (let t = 0; t < beats; t++) { const a = evolve(clean, cleanScratch, phiC, 4, open); cleanScratch = clean; clean = a.will; phiC = a.phi; const b = evolve(pert, pertScratch, phiP, 4, open); pertScratch = pert; pert = b.will; phiP = b.phi; let d = 0; for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== pert.data[i]) d++; final = d }
       return final
     }
     const openFinal = radiation(true)

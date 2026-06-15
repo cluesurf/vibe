@@ -21,7 +21,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { squareMesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { verdict } from '@/test/scaffold/verdict'
 
 function microHash(will: Will): string {
@@ -53,12 +53,17 @@ export default experiment({
     let will: Will = makeWill(mesh)
     for (let i = 0; i < will.data.length; i++) will.data[i] = (((i * 7 + (i % 5) + 1) % 3) - 1) as -1 | 0 | 1
 
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+    let scratch: Will = { mesh, data: new Int8Array(will.data.length) }
     const micro: string[] = []
     const coarse: string[] = []
     micro.push(microHash(will))
     coarse.push(chargeHash(will))
     for (let t = 0; t < beats; t++) {
-      will = beat(will, collision)
+      beatInto({ src: will, dst: scratch, table, collision })
+      const swap = will
+      will = scratch
+      scratch = swap
       micro.push(microHash(will))
       coarse.push(chargeHash(will))
     }

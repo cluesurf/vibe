@@ -18,7 +18,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { headOnRotate } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { bulkMass, relaxPotential, gravityMoves } from '@/code/dynamics/gravity-field'
 
 export default experiment({
@@ -38,6 +38,7 @@ export default experiment({
     const spatialDegree = 24
     const opposite = Array.from({ length: degree }, (_, d) => coin.opposite(d))
     const rule = headOnRotate({ opposite })
+    const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const coord = (c: number): [number, number, number, number] => [c % side, Math.floor(c / side) % side, Math.floor(c / (side * side)) % side, Math.floor(c / (side * side * side)) % side]
     const center = half + half * side + half * side * side + half * side * side * side
@@ -57,9 +58,13 @@ export default experiment({
       for (let k = 0; k < disp; k++) nb = base.neighbour(nb, 0)
       will.data[center * degree + rest] = 0
       will.data[nb * degree + rest] = 1
+      let scratch: Will = { mesh: coin, data: new Int8Array(will.data.length) }
       let phi = relaxPotential({ source: bulkMass({ occupied: occupiedOf(will), neighbour, cellCount: coin.cellCount, spatialDegree, minNeighbours: 3 }), neighbour, cellCount: coin.cellCount, spatialDegree, sweeps: 24, strength: cap, cap })
       for (let t = 0; t < beats; t++) {
-        will = beat(will, rule)
+        beatInto({ src: will, dst: scratch, table, collision: rule })
+        const swap = will
+        will = scratch
+        scratch = swap
         const occupied = occupiedOf(will)
         phi = relaxPotential({ source: bulkMass({ occupied, neighbour, cellCount: coin.cellCount, spatialDegree, minNeighbours: 3 }), neighbour, cellCount: coin.cellCount, spatialDegree, sweeps: 4, strength: cap, cap, warm: phi })
         for (const [from, to] of gravityMoves({ occupied, phi, neighbour, cellCount: coin.cellCount, spatialDegree, minNeighbours: 3 })) { will.data[from * degree + rest] = 0; will.data[to * degree + rest] = 1 }

@@ -23,7 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, cellTone, type Will } from '@/code/tone/will'
 import { leakyConfine, headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 
 export default experiment({
@@ -39,6 +39,7 @@ export default experiment({
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
     const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const center = half + half * side + half * side * side + half * side * side * side
     const dist = shellDistances(mesh, center)
@@ -61,9 +62,13 @@ export default experiment({
     // confinement, the net-charge extent of the body over the run.
     const extent = (rule: Collision): number => {
       let current = packet()
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
       let max = 0
       for (let t = 0; t < beats; t++) {
-        current = beat(current, rule)
+        beatInto({ src: current, dst: scratch, table, collision: rule })
+        const swap = current
+        current = scratch
+        scratch = swap
         for (let c = 0; c < mesh.cellCount; c++) if (cellTone(current, c) !== 0 && dist[c]! > max) max = dist[c]!
       }
       return max
@@ -74,10 +79,18 @@ export default experiment({
       let plain = packet()
       let pert = cloneWill(packet())
       pert.data[center * degree + 0] = (pert.data[center * degree + 0] === 1 ? -1 : 1) as -1 | 1
+      let plainScratch: Will = { mesh, data: new Int8Array(plain.data.length) }
+      let pertScratch: Will = { mesh, data: new Int8Array(pert.data.length) }
       let max = 0
       for (let t = 0; t < beats; t++) {
-        plain = beat(plain, rule)
-        pert = beat(pert, rule)
+        beatInto({ src: plain, dst: plainScratch, table, collision: rule })
+        const ps = plain
+        plain = plainScratch
+        plainScratch = ps
+        beatInto({ src: pert, dst: pertScratch, table, collision: rule })
+        const pe = pert
+        pert = pertScratch
+        pertScratch = pe
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
           let differs = false

@@ -23,7 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { cloneWill, gliderLine, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
@@ -43,6 +43,8 @@ export default experiment({
     const half = side / 2
     const center = half + half * side + half * side * side + half * side * side * side
     const dir = 0
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+    const scratchOf = (will: Will): Will => ({ mesh, data: new Int8Array(will.data.length) })
 
     const cleanGlider = (): Will => gliderLine({ mesh, start: center, direction: dir, length: 3 }).will
 
@@ -65,10 +67,13 @@ export default experiment({
     const trace = (open: boolean): { peak: number; final: number } => {
       let clean = cleanGlider()
       let hit = bodyHitGlider()
+      let cleanScratch = scratchOf(clean)
+      let hitScratch = scratchOf(hit)
       let peak = 0
       let final = 0
       for (let t = 0; t < beats; t++) {
-        clean = beat(clean, rule); hit = beat(hit, rule)
+        beatInto({ src: clean, dst: cleanScratch, table, collision: rule }); { const swap = clean; clean = cleanScratch; cleanScratch = swap }
+        beatInto({ src: hit, dst: hitScratch, table, collision: rule }); { const swap = hit; hit = hitScratch; hitScratch = swap }
         if (open) { absorbBoundary(clean); absorbBoundary(hit) }
         let diff = 0
         for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== hit.data[i]) diff++
@@ -88,8 +93,9 @@ export default experiment({
       return s
     }
     let hit = bodyHitGlider()
+    let hitScratch = scratchOf(hit)
     const startDir0 = dirCharge(hit, dir)
-    for (let t = 0; t < beats; t++) { hit = beat(hit, rule); absorbBoundary(hit) }
+    for (let t = 0; t < beats; t++) { beatInto({ src: hit, dst: hitScratch, table, collision: rule }); const swap = hit; hit = hitScratch; hitScratch = swap; absorbBoundary(hit) }
     const endDir0 = dirCharge(hit, dir)
 
     // the honest negative, on the closed torus the body NEVER heals (final difference stays at peak), so there is

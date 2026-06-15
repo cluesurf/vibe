@@ -22,7 +22,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, d4MeshWithRest, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { headOnRotate } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
@@ -68,26 +68,32 @@ export default experiment({
 
     const restBody = (): Will => { const will = makeWill(coin); for (let c = 0; c < coin.cellCount; c++) { const [x, y, z, w] = coord(c); if ((x - half) ** 2 + (y - half) ** 2 + (z - half) ** 2 + (w - half) ** 2 <= 4) will.data[c * degree + rest] = 1 } return will }
     const extent = (will: Will): { occ: number; ext: number } => { let occ = 0, ext = 0; for (let c = 0; c < coin.cellCount; c++) { const b = c * degree; let on = false; for (let d = 0; d < degree; d++) if (will.data[b + d] !== 0) { on = true; break } if (on) { occ++; const [x, y, z, w] = coord(c); const dd = Math.abs(x - half) + Math.abs(y - half) + Math.abs(z - half) + Math.abs(w - half); if (dd > ext) ext = dd } } return { occ, ext } }
-    const stepFull = (will: Will, open: boolean): Will => { const w = beat(will, rule); accrete(w); if (open) absorbBoundary(w); return w }
+    const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
+    // one full step, allocation-free, beat src into dst via the table then accrete and absorb in place. dst becomes
+    // the new state, the caller ping-pongs src and dst. Identical result to beat then accrete then absorb.
+    const stepFull = (src: Will, dst: Will, open: boolean): Will => { beatInto({ src, dst, table, collision: rule }); accrete(dst); if (open) absorbBoundary(dst); return dst }
+    const scratchOf = (will: Will): Will => ({ mesh: coin, data: new Int8Array(will.data.length) })
 
     // 1. identity, the body persists.
     let body = restBody()
+    let bodyScratch = scratchOf(body)
     const startBody = extent(body)
-    for (let t = 0; t < beats; t++) body = stepFull(body, false)
+    for (let t = 0; t < beats; t++) { const next = stepFull(body, bodyScratch, false); bodyScratch = body; body = next }
     const endBody = extent(body)
     const persists = endBody.occ === startBody.occ && endBody.ext === startBody.ext
 
     // 2. self-repair, a piece broken off far returns (its extent collapses back to the body extent).
     const farDisplaced = (): Will => { const w = cloneWill(restBody()); let nb = center; for (let k = 0; k < 4; k++) nb = base.neighbour(nb, 0); w.data[center * degree + rest] = 0; w.data[nb * degree + rest] = 1; return w }
     let displaced = farDisplaced()
+    let displacedScratch = scratchOf(displaced)
     const displacedStart = extent(displaced).ext
-    for (let t = 0; t < beats; t++) displaced = stepFull(displaced, false)
+    for (let t = 0; t < beats; t++) { const next = stepFull(displaced, displacedScratch, false); displacedScratch = displaced; displaced = next }
     const displacedEnd = extent(displaced).ext
     const selfRepairs = displacedStart > startBody.ext + 2 && displacedEnd <= startBody.ext + 1
 
     // 3. radiation, a moving disturbance sheds to the bath (open) and persists on the closed torus.
     const withDisturbance = (): Will => { const w = cloneWill(restBody()); for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1; return w }
-    const diff = (open: boolean): number => { let clean = restBody(), pert = withDisturbance(); let final = 0; for (let t = 0; t < beats; t++) { clean = stepFull(clean, open); pert = stepFull(pert, open); let d = 0; for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== pert.data[i]) d++; final = d } return final }
+    const diff = (open: boolean): number => { let clean = restBody(), pert = withDisturbance(); let cleanScratch = scratchOf(clean), pertScratch = scratchOf(pert); let final = 0; for (let t = 0; t < beats; t++) { const nc = stepFull(clean, cleanScratch, open); cleanScratch = clean; clean = nc; const np = stepFull(pert, pertScratch, open); pertScratch = pert; pert = np; let d = 0; for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== pert.data[i]) d++; final = d } return final }
     const openFinal = diff(true)
     const closedFinal = diff(false)
     const radiates = openFinal === 0 && closedFinal > 0

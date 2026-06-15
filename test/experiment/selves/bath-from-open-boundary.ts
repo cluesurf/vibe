@@ -24,7 +24,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
 // the total absolute charge, the amount of structure present. Conserved by the bulk, drained by the boundary.
@@ -74,12 +74,17 @@ export default experiment({
     }
     const startCharge = totalCharge(burst())
     const startCentral = centralCharge({ will: burst(), center, radius })
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // the torus run, no absorbing boundary.
     let torus = cloneWill(burst())
+    let torusScratch: Will = { mesh, data: new Int8Array(torus.data.length) }
     let torusCentralReturn = 0
     for (let t = 0; t < beats; t++) {
-      torus = beat(torus, rule)
+      beatInto({ src: torus, dst: torusScratch, table, collision: rule })
+      const swap = torus
+      torus = torusScratch
+      torusScratch = swap
       if (t >= beats / 2) {
         const c = centralCharge({ will: torus, center, radius })
         if (c > torusCentralReturn) torusCentralReturn = c
@@ -89,8 +94,12 @@ export default experiment({
 
     // the absorbing-boundary run, the bath drains the edge each beat.
     let open = cloneWill(burst())
+    let openScratch: Will = { mesh, data: new Int8Array(open.data.length) }
     for (let t = 0; t < beats; t++) {
-      open = beat(open, rule)
+      beatInto({ src: open, dst: openScratch, table, collision: rule })
+      const swap = open
+      open = openScratch
+      openScratch = swap
       absorbBoundary(open)
     }
     const openChargeFinal = totalCharge(open)

@@ -21,7 +21,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough } from '@/code/rule/collision'
-import { run, beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
 import { travelDistance } from '@/code/check/structure'
 
@@ -43,6 +43,7 @@ export default experiment({
     const half = side / 2
     const center = half + half * side + half * side * side + half * side * side * side
     const dist = shellDistances(mesh, center)
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // a symmetric block packet, +1 in all slots of cells within radius 2 of the centre (zero net momentum).
     const packet = (): Will => {
@@ -71,11 +72,15 @@ export default experiment({
     // trace the NET-charge extent (travelDistance) and centroid distance over the run.
     const trace = (init: Will, collision: ReturnType<typeof pairCollision>) => {
       let current = init
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
       let extentMax = 0
       let meanMin = Infinity
       let meanMax = 0
       for (let t = 0; t < beats; t++) {
-        current = beat(current, collision)
+        beatInto({ src: current, dst: scratch, table, collision })
+        const swap = current
+        current = scratch
+        scratch = swap
         const ext = travelDistance({ will: current, start: center })
         const mean = meanDistance(current)
         if (ext > extentMax) extentMax = ext
