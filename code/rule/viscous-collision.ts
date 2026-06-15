@@ -53,6 +53,34 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   return quads
 }
 
+// A configuration-CONTROLLED (Fredkin-style) version, the deterministic-chaos candidate. Each momentum-matched
+// swap fires only when a control slot is occupied, so the reshaping depends on the local configuration and is meant
+// to decorrelate (scatter) the momentum, the hypothesised route to genuine diffusion. The control slots are taken
+// from quads beyond `gateCount` and used READ-ONLY, so the collision is still a self-inverse involution conserving
+// mass and total momentum. Measured, this stays BALLISTIC (decay time scales as the wavelength, not its square),
+// so configuration control does not turn the reversible bulk diffusive, genuine viscous diffusion needs the bath.
+export function controlledViscousRotate(input: { directions: number[][]; gateCount?: number }): Collision {
+  const quads = buildViscousQuads(input.directions)
+  const gateCount = input.gateCount ?? 4
+  const gated = quads.slice(0, gateCount)
+  const controlPool = quads.slice(gateCount).flat()
+  if (controlPool.length === 0) return viscousRotate(input) // no control slots free, fall back
+  return (slots, base) => {
+    for (let i = 0; i < gated.length; i++) {
+      const control = controlPool[i % controlPool.length]!
+      if (slots[base + control] !== 1) continue
+      const quad = gated[i]!
+      const a = base + quad[0]!, b = base + quad[1]!, c = base + quad[2]!, d = base + quad[3]!
+      const pairOccupied = slots[a] === 1 && slots[b] === 1
+      const pairEmpty = slots[a] === 0 && slots[b] === 0
+      const partnerOccupied = slots[c] === 1 && slots[d] === 1
+      const partnerEmpty = slots[c] === 0 && slots[d] === 0
+      if (pairOccupied && partnerEmpty) { slots[a] = 0; slots[b] = 0; slots[c] = 1; slots[d] = 1 }
+      else if (partnerOccupied && pairEmpty) { slots[c] = 0; slots[d] = 0; slots[a] = 1; slots[b] = 1 }
+    }
+  }
+}
+
 // The viscous collision, a self-inverse involution that swaps occupancy between momentum-matched disjoint pairs.
 // Single-species (tone occupancy 1 versus 0), the form used by the shear gas. Conserves count and total momentum.
 export function viscousRotate(input: { directions: number[][] }): Collision {
