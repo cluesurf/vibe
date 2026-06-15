@@ -9,7 +9,19 @@
 import { Will, makeWill, cloneWill, cellTone } from '@/code/tone/will'
 import { Mesh } from '@/code/tool/mesh'
 import { Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
+
+// Absorb the gradient-axis boundary slabs (the bath) in place, used by the open-mesh runs.
+function absorbGradientBoundary(will: Will, side: number, gradAxis: number): void {
+  const degree = will.mesh.degree
+  for (let cell = 0; cell < will.mesh.cellCount; cell++) {
+    const coordinate = coordAlong(cell, gradAxis, side)
+    if (coordinate === 0 || coordinate === side - 1) {
+      const base = cell * degree
+      for (let direction = 0; direction < degree; direction++) will.data[base + direction] = 0
+    }
+  }
+}
 
 // the integer coordinate of a cell along one of the four d4 axes.
 export function coordAlong(cell: number, axis: number, side: number): number {
@@ -99,23 +111,18 @@ export function shearAmplitudeSeries(input: {
   open: boolean
 }): number[] {
   const { collision, beats, directions, side, gradAxis, momAxis, wavelength, open } = input
-  const degree = input.will.mesh.degree
-  let will = cloneWill(input.will)
+  // allocation-free double buffer, the in-place beat (same result as beat(), far fewer allocations)
+  const table = streamSourceTable(input.will.mesh)
+  let current = cloneWill(input.will)
+  let scratch = makeWill(input.will.mesh)
   const measure = (w: Will) => shearAmplitude({ will: w, directions, side, gradAxis, momAxis, wavelength })
-  const start = measure(will)
+  const start = measure(current)
   const series = [1]
   for (let step = 0; step < beats; step++) {
-    will = beat(will, collision)
-    if (open) {
-      for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-        const coordinate = coordAlong(cell, gradAxis, side)
-        if (coordinate === 0 || coordinate === side - 1) {
-          const base = cell * degree
-          for (let direction = 0; direction < degree; direction++) will.data[base + direction] = 0
-        }
-      }
-    }
-    series.push(start === 0 ? 0 : measure(will) / start)
+    beatInto({ src: current, dst: scratch, table, collision })
+    ;[current, scratch] = [scratch, current]
+    if (open) absorbGradientBoundary(current, side, gradAxis)
+    series.push(start === 0 ? 0 : measure(current) / start)
   }
   return series
 }
@@ -160,23 +167,18 @@ export function chargeWaveSeries(input: {
   open: boolean
 }): number[] {
   const { collision, beats, side, gradAxis, wavelength, open } = input
-  const degree = input.will.mesh.degree
-  let will = cloneWill(input.will)
+  // allocation-free double buffer, the in-place beat (same result as beat(), far fewer allocations)
+  const table = streamSourceTable(input.will.mesh)
+  let current = cloneWill(input.will)
+  let scratch = makeWill(input.will.mesh)
   const measure = (w: Will) => chargeWaveAmplitude({ will: w, side, gradAxis, wavelength })
-  const start = measure(will)
+  const start = measure(current)
   const series = [1]
   for (let step = 0; step < beats; step++) {
-    will = beat(will, collision)
-    if (open) {
-      for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-        const coordinate = coordAlong(cell, gradAxis, side)
-        if (coordinate === 0 || coordinate === side - 1) {
-          const base = cell * degree
-          for (let direction = 0; direction < degree; direction++) will.data[base + direction] = 0
-        }
-      }
-    }
-    series.push(start === 0 ? 0 : measure(will) / start)
+    beatInto({ src: current, dst: scratch, table, collision })
+    ;[current, scratch] = [scratch, current]
+    if (open) absorbGradientBoundary(current, side, gradAxis)
+    series.push(start === 0 ? 0 : measure(current) / start)
   }
   return series
 }
