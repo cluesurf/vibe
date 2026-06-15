@@ -43,14 +43,15 @@ export default experiment({
       claim:
         'the peace void self-creates a living universe at every lattice size with a near-constant living fraction, so genesis is generic and scale-independent, not a finite-size artifact, and total charge stays zero at every size',
       metrics: {
-        sizes: sizes.join(' '),
-        livingFractions: fractions.map((f) => f.toFixed(3)).join(' '),
-        spread: Number(spread.toFixed(3)),
+        smallestSize: sizes[0]!,
+        largestSize: sizes[sizes.length - 1]!,
         minFraction: Number(minF.toFixed(3)),
+        maxFraction: Number(maxF.toFixed(3)),
+        spread: Number(spread.toFixed(3)),
       },
       // CONTROL: the arrow-off void stays dead at every size, so the constant living fraction is the arrow, not the mesh.
-      control: { allControlsDead, allConserved },
-      notes: 'Piece E. Vary SIZE not seeds, per methodology.',
+      control: { allControlsDead: allControlsDead ? 1 : 0, allConserved: allConserved ? 1 : 0 },
+      notes: `Piece E. Vary SIZE not seeds. sizes [${sizes.join(' ')}], living fractions [${fractions.map((f) => f.toFixed(3)).join(' ')}].`,
     })
   },
 })

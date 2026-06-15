@@ -69,6 +69,18 @@ import { measureTessellation } from '@/code/measure/tessellation-battery'
 import { TESSELLATIONS } from '@/code/substrate/tessellation-catalog'
 import { diracGamma5, diracHamiltonian, cmCommutator, cmMaxAbs } from '@/code/algebra/group/clifford'
 import { buildCellGraph as buildCellGraphForConformance } from '@/code/substrate/coxeter/cell-direct'
+import {
+  toZeckendorf as margensternToZeckendorf,
+  fromZeckendorf as margensternFromZeckendorf,
+  sectorGeneration as margensternSectorGeneration,
+} from '@/code/substrate/margenstern/zeckendorf'
+import {
+  SplittingTree as MargensternSplittingTree,
+  childrenOf as margensternChildrenOf,
+  parentOf as margensternParentOf,
+  preferredSon as margensternPreferredSon,
+} from '@/code/substrate/margenstern/splitting-tree'
+import { buildMargensternGrid } from '@/code/substrate/margenstern/grid'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -552,6 +564,57 @@ export function runConformance(): { passed: number; failed: number } {
     check({ name: 'tessellation battery: {5,3,4} hyperbolic, no spinor coin', ok: dodeca.hyperbolic && !dodeca.spinorHook && dodeca.cells > 500 })
     check({ name: 'tessellation battery: {3,4,3,4} has the 24-cell spinor coin', ok: icositetra.hyperbolic && icositetra.spinorHook })
     check({ name: 'tessellation catalog has 45 entries, 42 buildable', ok: TESSELLATIONS.length === 45 && TESSELLATIONS.filter((t) => t.buildable).length === 42 })
+
+    // Margenstern exact addressing: Zeckendorf coordinates and the splitting tree for the pentagrid {5,4}
+    // (and, by the twin theorem, the heptagrid {7,3}). The exact integer alternative to float cell keys.
+    let zeckRoundTrips = true
+    let zeckNo11 = true
+    for (let n = 1; n <= 5000; n++) {
+      const z = margensternToZeckendorf(n)
+      if (margensternFromZeckendorf(z) !== n) zeckRoundTrips = false
+      if (z.includes('11')) zeckNo11 = false
+    }
+    check({ name: 'Margenstern: Zeckendorf round-trips 1..5000 with no "11"', ok: zeckRoundTrips && zeckNo11 })
+    const splitGen = [0, 1, 2, 3, 4, 5].map(margensternSectorGeneration).join(',')
+    check({ name: 'Margenstern: sector growth is 1,3,8,21,55,144 (phi^2 rate)', ok: splitGen === '1,3,8,21,55,144', detail: splitGen })
+    const splitTree = new MargensternSplittingTree()
+    splitTree.grow(5000)
+    let splitLegal = true
+    let splitPreferred = true
+    let splitParent = true
+    const splitCoords = new Set<number>()
+    for (let id = 0; id < splitTree.size; id++) {
+      const a = splitTree.address(id)
+      const co = splitTree.coordinate(id)
+      if (splitCoords.has(co)) splitLegal = false
+      splitCoords.add(co)
+      const kids = margensternChildrenOf(a)
+      if (kids.filter((k) => k === margensternPreferredSon(a)).length !== 1) splitPreferred = false
+      if (id !== splitTree.root) {
+        const p = margensternParentOf(a)
+        if (p === null || margensternChildrenOf(p).indexOf(a) < 0) splitParent = false
+      }
+    }
+    check({ name: 'Margenstern: 5000 tiles have distinct exact coordinates, parent inverts the rewrite', ok: splitLegal && splitParent, detail: `${splitCoords.size} cells` })
+    check({ name: 'Margenstern: every tile has a unique preferred son (+00 continuator)', ok: splitPreferred })
+
+    // Margenstern-addressed walkable grid, derived from the true geometry, works in any dimension. Each tile
+    // gets an exact integer coordinate and address-only routing, in 2D ({5,4},{7,3}), 3D ({5,3,4}), and 4D.
+    for (const gridSymbol of [[5, 4], [7, 3], [5, 3, 4], [4, 3, 3, 5]]) {
+      const grid = buildMargensternGrid({ symbol: gridSymbol, maxCells: 2000 })
+      const gridCoords = new Set<number>()
+      for (let c = 0; c < grid.size; c++) gridCoords.add(grid.coordinate(c))
+      const target = Math.min(900, grid.size - 1)
+      const gridPath = grid.route(grid.origin, target)
+      let gridRouteValid = gridPath[0] === grid.origin && gridPath[gridPath.length - 1] === target
+      for (let i = 0; i + 1 < gridPath.length; i++) {
+        let adjacent = false
+        for (let s = 0; s < grid.degree(gridPath[i]!); s++) if (grid.step(gridPath[i]!, s).cell === gridPath[i + 1]!) adjacent = true
+        if (!adjacent) gridRouteValid = false
+      }
+      const tag = gridSymbol.join(',')
+      check({ name: `Margenstern grid {${tag}} (${gridSymbol.length}D): exact distinct coordinates, address-only route valid along edges`, ok: gridCoords.size === grid.size && gridRouteValid, detail: `${grid.size} cells, route len ${gridPath.length}` })
+    }
   }
 
   return { passed, failed }

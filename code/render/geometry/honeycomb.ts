@@ -9,19 +9,10 @@ import type { Scene, SceneEdge } from '@/code/render/scene'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { classifyGeometry } from '@/code/substrate/coxeter/schlafli'
 import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
-import {
-  Vec,
-  matVec,
-  toPoincare,
-  reflectPoint,
-  hyperbolicDistance,
-  nullVector,
-  normalizeTimelike,
-  pointKey,
-} from '@/code/substrate/coxeter/minkowski'
+import { buildCellShape } from '@/code/render/geometry/cell-shape'
+import { Vec, matVec, toPoincare, pointKey } from '@/code/substrate/coxeter/minkowski'
 
 const DEFAULT_MAX_CELLS = 12000
-const MAX_VERTICES_PER_CELL = 500
 const BOUNDARY_CLIP = 0.9996
 
 export type HoneycombOptions = {
@@ -42,16 +33,15 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   const graph = buildCellGraph({ symbol, maxCells })
   const frame = graph.frame!
   const cellMat = graph.cellMat!
-  const { normals, metric, timeAxis } = frame
+  const { metric, timeAxis } = frame
   const dim = metric.length
   const ballDim = dim - 1 // 2 for a tiling (disk), 3 for a honeycomb (ball)
 
-  // the cell shape, in the same frame, the fundamental vertex is the meet of every mirror but the first, and
-  // the cell vertices are its orbit under the cell stabilizer (every mirror but the last)
-  const v0 = normalizeTimelike(nullVector(normals.slice(1), metric), metric, timeAxis)
-  const stabilizerNormals = normals.slice(0, dim - 1)
-  const baseVertices = orbitVertices(v0, stabilizerNormals, metric)
-  const baseEdges = polyhedronEdges(baseVertices, metric)
+  // the cell shape, in the same frame, the fundamental vertex's orbit under the cell stabilizer (shared with
+  // the walking camera via cell-shape.ts)
+  const shape = buildCellShape(symbol)
+  const baseVertices = shape.vertices
+  const baseEdges = shape.edges
 
   // recenter, translate the whole tiling so the central cell's center sits at the ball origin, so a tile face
   // is centered for every symbol. graph.coords[0] is the central cell center in the ball, and a Mobius
@@ -121,43 +111,6 @@ function orientation(ballVertices: Vec[], p: number, orientUp: boolean): { cos: 
   const half = p % 2 === 0 ? Math.PI / p : 0
   const angle = Math.PI / 2 - theta0 - half
   return { cos: Math.cos(angle), sin: Math.sin(angle) }
-}
-
-// the orbit of the fundamental vertex under the cell stabilizer (reflecting across the stabilizer mirrors)
-function orbitVertices(v0: Vec, stabilizerNormals: number[][], metric: number[]): Vec[] {
-  const vertices: Vec[] = [v0]
-  const visited = new Set<string>([pointKey(v0)])
-  const queue: Vec[] = [v0]
-  while (queue.length > 0 && vertices.length < MAX_VERTICES_PER_CELL) {
-    const v = queue.shift()!
-    for (const n of stabilizerNormals) {
-      const vr = reflectPoint(v, n, metric)
-      const k = pointKey(vr)
-      if (visited.has(k)) continue
-      visited.add(k)
-      vertices.push(vr)
-      queue.push(vr)
-    }
-  }
-  return vertices
-}
-
-// the edges of a cell, the vertex pairs at the minimum (edge) hyperbolic distance
-function polyhedronEdges(vertices: Vec[], metric: number[]): [number, number][] {
-  let minDist = Infinity
-  const cap = Math.min(vertices.length, 20)
-  for (let i = 0; i < cap; i++) for (let j = i + 1; j < cap; j++) {
-    const d = hyperbolicDistance(vertices[i]!, vertices[j]!, metric)
-    if (d > 0.01 && d < minDist) minDist = d
-  }
-  const edgeLength = minDist < Infinity ? minDist : 1
-  const tolerance = edgeLength * 1.2
-  const edges: [number, number][] = []
-  for (let i = 0; i < vertices.length; i++) for (let j = i + 1; j < vertices.length; j++) {
-    const d = hyperbolicDistance(vertices[i]!, vertices[j]!, metric)
-    if (d > 0.01 && d < tolerance) edges.push([i, j])
-  }
-  return edges
 }
 
 // the Euclidean norm of a ball point
