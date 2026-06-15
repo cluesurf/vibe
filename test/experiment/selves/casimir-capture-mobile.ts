@@ -18,7 +18,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { chargeDensityProfile } from '@/code/measure/profile'
 
 export default experiment({
@@ -37,6 +37,7 @@ export default experiment({
     const degree = mesh.degree
     const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
     const binOf = (cell: number): number => cell % side
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for both runs
 
     // run the movable-plate dynamics under a collision, return the gap over time.
     const runPlates = (collision: Collision): { gapStart: number; gapEnd: number; gapMin: number } => {
@@ -56,9 +57,13 @@ export default experiment({
         }
       }
       let current = makeWill(mesh)
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
       imposeWalls(current)
       for (let t = 0; t < beats; t++) {
-        current = beat(current, collision)
+        beatInto({ src: current, dst: scratch, table, collision })
+        const swap = current
+        current = scratch
+        scratch = swap
         imposeWalls(current)
         const prof = chargeDensityProfile({ will: current, binOf, bins: side })
         // net inward force = density just outside minus density just inside (toward the gap)

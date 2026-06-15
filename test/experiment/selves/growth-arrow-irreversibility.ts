@@ -25,7 +25,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
-import { beat, inverseBeat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable, inverseBeat } from '@/code/rule/lattice-gas'
 import { disagreementFraction } from '@/code/measure/agreement'
 import { profileGradient } from '@/code/measure/profile'
 
@@ -52,10 +52,15 @@ function loschmidtEcho(input: {
   beats: number
   open: boolean
   frontierX: number
+  table: Int32Array
 }): number {
   let current = cloneWill(input.init)
+  let scratch: Will = { mesh: current.mesh, data: new Int8Array(current.data.length) }
   for (let t = 0; t < input.beats; t++) {
-    current = beat(current, input.forward)
+    beatInto({ src: current, dst: scratch, table: input.table, collision: input.forward })
+    const swap = current
+    current = scratch
+    scratch = swap
     if (input.open) bornAtPeace(current, input.frontierX)
   }
   for (let t = 0; t < input.beats; t++) current = inverseBeat(current, input.inverse)
@@ -69,6 +74,7 @@ function occupancyProfile(input: {
   beats: number
   open: boolean
   frontierX: number
+  table: Int32Array
 }): number[] {
   const mesh = input.init.mesh
   const side = sideOf(mesh)
@@ -76,8 +82,12 @@ function occupancyProfile(input: {
   const profile = new Array<number>(side).fill(0)
   let samples = 0
   let current = cloneWill(input.init)
+  let scratch: Will = { mesh: current.mesh, data: new Int8Array(current.data.length) }
   for (let t = 0; t < input.beats; t++) {
-    current = beat(current, input.forward)
+    beatInto({ src: current, dst: scratch, table: input.table, collision: input.forward })
+    const swap = current
+    current = scratch
+    scratch = swap
     if (input.open) bornAtPeace(current, input.frontierX)
     if (t >= input.beats / 2) {
       for (let cell = 0; cell < mesh.cellCount; cell++) {
@@ -106,6 +116,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
     const forward: Collision = pairCollision({ opposite, forward: true })
     const inverse: Collision = pairCollision({ opposite, forward: false })
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // a deterministic structured fill (a fixed ternary function of the slot index, never random), the methodology
     // initial condition, with about a third peace so the create move has room to act.
@@ -114,12 +125,12 @@ export default experiment({
     const frontierX = 0
 
     // 1, the Loschmidt echo. Closed returns exactly, open does not.
-    const closedEcho = loschmidtEcho({ init, forward, inverse, beats: echoBeats, open: false, frontierX })
-    const openEcho = loschmidtEcho({ init, forward, inverse, beats: echoBeats, open: true, frontierX })
+    const closedEcho = loschmidtEcho({ init, forward, inverse, beats: echoBeats, open: false, frontierX, table })
+    const openEcho = loschmidtEcho({ init, forward, inverse, beats: echoBeats, open: true, frontierX, table })
 
     // 2, the steady-state occupancy gradient. Closed is flat, open holds a gradient.
-    const closedProfile = occupancyProfile({ init, forward, beats: profileBeats, open: false, frontierX })
-    const openProfile = occupancyProfile({ init, forward, beats: profileBeats, open: true, frontierX })
+    const closedProfile = occupancyProfile({ init, forward, beats: profileBeats, open: false, frontierX, table })
+    const openProfile = occupancyProfile({ init, forward, beats: profileBeats, open: true, frontierX, table })
     const closedGradient = profileGradient(closedProfile)
     const openGradient = profileGradient(openProfile)
 

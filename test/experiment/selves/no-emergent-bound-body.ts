@@ -23,7 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 
 export default experiment({
   id: 'selves/no-emergent-bound-body',
@@ -103,13 +103,19 @@ export default experiment({
       return { ext, confined: total > 0 ? inside / total : 0 }
     }
 
-    let will = vortex()
-    const l0 = circulation(will)
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+    let current = vortex()
+    let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+    const l0 = circulation(current)
     let maxExtent = 0
     let minConfined = 1
     let lateCirculationMax = 0
     for (let t = 1; t <= beats; t++) {
-      will = beat(will, rule)
+      beatInto({ src: current, dst: scratch, table, collision: rule })
+      const swap = current
+      current = scratch
+      scratch = swap
+      const will = current
       const { ext, confined } = confinedFraction(will)
       if (ext > maxExtent) maxExtent = ext
       if (confined < minConfined) minConfined = confined

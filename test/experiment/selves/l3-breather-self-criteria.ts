@@ -21,7 +21,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { blanketScreening } from '@/code/coarse/self-criteria'
 
 function breather(side: number): { mesh: Mesh; will: Will } {
@@ -69,18 +69,26 @@ function sumCharge(will: Will, cells: number[]): number {
 
 // flip one slot of a cell, the minimal perturbation, then evolve perturbed and clean copies under the same
 // deterministic rule, returning the maximum radius the difference set reaches.
-function perturbationRadius(input: { mesh: Mesh; base: Will; site: number; beats: number }): number {
-  const { mesh, base, site, beats } = input
+function perturbationRadius(input: { mesh: Mesh; base: Will; site: number; beats: number; table: Int32Array }): number {
+  const { mesh, base, site, beats, table } = input
   const dist = shellDistances(mesh, site)
   let clean: Will = { mesh, data: base.data.slice() }
   let dirty: Will = { mesh, data: base.data.slice() }
   dirty.data[site * mesh.degree] = (dirty.data[site * mesh.degree] === 1 ? -1 : 1) as -1 | 1
   const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
   const collision = pairCollision({ opposite, forward: true })
+  let cleanScratch: Will = { mesh, data: new Int8Array(clean.data.length) }
+  let dirtyScratch: Will = { mesh, data: new Int8Array(dirty.data.length) }
   let maxRadius = 0
   for (let t = 0; t < beats; t++) {
-    clean = beat(clean, collision)
-    dirty = beat(dirty, collision)
+    beatInto({ src: clean, dst: cleanScratch, table, collision })
+    const swapClean = clean
+    clean = cleanScratch
+    cleanScratch = swapClean
+    beatInto({ src: dirty, dst: dirtyScratch, table, collision })
+    const swapDirty = dirty
+    dirty = dirtyScratch
+    dirtyScratch = swapDirty
     for (let c = 0; c < mesh.cellCount; c++) {
       if (cellTone(clean, c) !== cellTone(dirty, c) && dist[c]! > maxRadius) maxRadius = dist[c]!
     }
@@ -101,6 +109,7 @@ export default experiment({
     const { mesh, will } = breather(side)
     const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
     const collision = pairCollision({ opposite, forward: true })
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const center = Math.floor(side / 2) * side + Math.floor(side / 2)
 
     // Markov blanket, charge series of interior, shell, exterior over a few periods of the breather.
@@ -109,8 +118,12 @@ export default experiment({
     const shell: number[] = []
     const exterior: number[] = []
     let w: Will = { mesh, data: will.data.slice() }
+    let wScratch: Will = { mesh, data: new Int8Array(w.data.length) }
     for (let t = 0; t < 60; t++) {
-      w = beat(w, collision)
+      beatInto({ src: w, dst: wScratch, table, collision })
+      const swap = w
+      w = wScratch
+      wScratch = swap
       interior.push(sumCharge(w, region.interior))
       shell.push(sumCharge(w, region.shell))
       exterior.push(sumCharge(w, region.exterior))
@@ -118,9 +131,9 @@ export default experiment({
     const blanket = blanketScreening({ interior, shell, exterior })
 
     // cognitive light cone, an interior perturbation versus a vacuum perturbation.
-    const interiorRadius = perturbationRadius({ mesh, base: will, site: center, beats })
+    const interiorRadius = perturbationRadius({ mesh, base: will, site: center, beats, table })
     const cornerCell = 0
-    const vacuumRadius = perturbationRadius({ mesh, base: will, site: cornerCell, beats })
+    const vacuumRadius = perturbationRadius({ mesh, base: will, site: cornerCell, beats, table })
 
     // the honest reading. The interior is statistically independent of the exterior (raw coupling near zero),
     // a Markov blanket in the limit, the interior is causally isolated. And both perturbations stay contained

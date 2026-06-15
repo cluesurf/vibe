@@ -23,7 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/code/tool/rng'
 
@@ -45,6 +45,7 @@ export default experiment({
     const half = side / 2
     const center = half + half * side + half * side * side + half * side * side * side
     const dist = shellDistances(mesh, center)
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     const packet = (): Will => {
       const will = makeWill(mesh)
@@ -60,9 +61,13 @@ export default experiment({
     // the slow-mode observable, the net-charge centroid distance from the centre, recorded each beat.
     const centroidSeries = (collision: Collision): number[] => {
       let current = packet()
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
       const series: number[] = []
       for (let t = 0; t < beats; t++) {
-        current = beat(current, collision)
+        beatInto({ src: current, dst: scratch, table, collision })
+        const swap = current
+        current = scratch
+        scratch = swap
         let weight = 0
         let weighted = 0
         for (let c = 0; c < mesh.cellCount; c++) {

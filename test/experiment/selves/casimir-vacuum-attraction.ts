@@ -24,7 +24,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, type Will } from '@/code/tone/will'
 import { pairCollision, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { chargeDensityProfile } from '@/code/measure/profile'
 
 export default experiment({
@@ -41,31 +41,40 @@ export default experiment({
     const degree = mesh.degree
     const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
     const rule: Collision = pairCollision({ opposite, forward: true })
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const binOf = (cell: number): number => cell % side
     const xA = 6
     const openXs = [19, 20, 21] // away from both walls, valid for d up to 10 (xB = 6 + d <= 16)
 
-    // fill the two wall slabs (x = xA, x = xB) with inert +1, the rigid plates.
-    const imposeWalls = (will: Will, xB: number, on: boolean): void => {
-      if (!on) return
-      for (let cell = 0; cell < mesh.cellCount; cell++) {
-        const x = cell % side
-        if (x === xA || x === xB) {
+    // run the create vacuum (re-imposing walls if on), time-average the x-density profile over the second half.
+    // Allocation-free, a double buffer ping-ponged through beatInto, and the wall cells are precomputed once so
+    // re-imposing the walls touches only the plate cells, not the whole mesh.
+    const averagedProfile = (xB: number, walls: boolean): number[] => {
+      const wallCells: number[] = []
+      if (walls) {
+        for (let cell = 0; cell < mesh.cellCount; cell++) {
+          const x = cell % side
+          if (x === xA || x === xB) wallCells.push(cell)
+        }
+      }
+      const setWalls = (will: Will): void => {
+        for (const cell of wallCells) {
           const base = cell * degree
           for (let d = 0; d < degree; d++) will.data[base + d] = 1
         }
       }
-    }
 
-    // run the create vacuum (re-imposing walls if on), time-average the x-density profile over the second half.
-    const averagedProfile = (xB: number, walls: boolean): number[] => {
       let current = makeWill(mesh) // a deterministic peace vacuum, the create move makes it dynamic
-      imposeWalls(current, xB, walls)
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      setWalls(current)
       const acc = new Array<number>(side).fill(0)
       let samples = 0
       for (let t = 0; t < beats; t++) {
-        current = beat(current, rule)
-        imposeWalls(current, xB, walls)
+        beatInto({ src: current, dst: scratch, table, collision: rule })
+        const swap = current
+        current = scratch
+        scratch = swap
+        setWalls(current)
         if (t >= beats / 2) {
           const prof = chargeDensityProfile({ will: current, binOf, bins: side })
           for (let x = 0; x < side; x++) acc[x]! += prof[x]!

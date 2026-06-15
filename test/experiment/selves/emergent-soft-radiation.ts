@@ -20,8 +20,9 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
+import { type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { coinLines, densityWaveAlongAxis, stripeContrast, firstMinimumTime } from '@/code/measure/sound-wave'
 
 export default experiment({
@@ -40,16 +41,21 @@ export default experiment({
     const rule: Collision = headOnRotate({ opposite })
     const lines = coinLines(opposite)
     const axisOf = (cell: number): number => cell % side
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     const wavelengths = [2, 4, 6, 12]
 
     // for each wavelength, evolve the density wave and read the half-period (time to first contrast minimum).
     const halfPeriod = (lambda: number): number => {
-      let will = densityWaveAlongAxis({ mesh, lambda, axisOf, highTarget: 9, lowTarget: 3, lines })
-      const trace: number[] = [stripeContrast({ will, lambda, axisOf, bins: side })]
+      let current: Will = densityWaveAlongAxis({ mesh, lambda, axisOf, highTarget: 9, lowTarget: 3, lines })
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      const trace: number[] = [stripeContrast({ will: current, lambda, axisOf, bins: side })]
       for (let t = 1; t <= beats; t++) {
-        will = beat(will, rule)
-        trace.push(stripeContrast({ will, lambda, axisOf, bins: side }))
+        beatInto({ src: current, dst: scratch, table, collision: rule })
+        const swap = current
+        current = scratch
+        scratch = swap
+        trace.push(stripeContrast({ will: current, lambda, axisOf, bins: side }))
       }
       return firstMinimumTime(trace)
     }

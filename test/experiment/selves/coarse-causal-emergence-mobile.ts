@@ -21,7 +21,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
 import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/code/coarse/self-trajectory'
 
@@ -34,9 +34,14 @@ function centroidSeries(input: { init: Will; collision: Collision; beats: number
   const mesh = current.mesh
   const degree = mesh.degree
   const side = Math.round(Math.pow(mesh.cellCount, 1 / 4))
+  const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+  let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
   const series: number[] = []
   for (let t = 0; t < input.beats; t++) {
-    current = beat(current, input.collision)
+    beatInto({ src: current, dst: scratch, table, collision: input.collision })
+    const swap = current
+    current = scratch
+    scratch = swap
     let sumX = 0
     let count = 0
     for (let cell = 0; cell < mesh.cellCount; cell++) {

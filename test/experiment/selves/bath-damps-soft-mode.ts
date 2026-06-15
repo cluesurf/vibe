@@ -18,7 +18,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 import { coinLines, densityWaveAlongAxis, stripeContrast } from '@/code/measure/sound-wave'
 
@@ -39,18 +39,23 @@ export default experiment({
     const rule: Collision = headOnRotate({ opposite })
     const lines = coinLines(opposite)
     const axisOf = (cell: number): number => cell % side
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // run the soft density wave, returning the initial amplitude, the peak amplitude in the late window (the
     // recurrence signal), and the final amplitude.
     const trace = (open: boolean): { c0: number; lateMax: number; final: number } => {
-      let will: Will = densityWaveAlongAxis({ mesh, lambda, axisOf, highTarget: 9, lowTarget: 3, lines })
-      const c0 = Math.abs(stripeContrast({ will, lambda, axisOf, bins: side }))
+      let current: Will = densityWaveAlongAxis({ mesh, lambda, axisOf, highTarget: 9, lowTarget: 3, lines })
+      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      const c0 = Math.abs(stripeContrast({ will: current, lambda, axisOf, bins: side }))
       let lateMax = 0
       let final = 0
       for (let t = 1; t <= beats; t++) {
-        will = beat(will, rule)
-        if (open) absorbBoundary(will)
-        const c = Math.abs(stripeContrast({ will, lambda, axisOf, bins: side }))
+        beatInto({ src: current, dst: scratch, table, collision: rule })
+        const swap = current
+        current = scratch
+        scratch = swap
+        if (open) absorbBoundary(current)
+        const c = Math.abs(stripeContrast({ will: current, lambda, axisOf, bins: side }))
         if (t > beats / 2 && c > lateMax) lateMax = c
         final = c
       }

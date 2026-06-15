@@ -24,7 +24,7 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
 import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
-import { beat } from '@/code/rule/lattice-gas'
+import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
@@ -40,6 +40,7 @@ export default experiment({
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
     const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const coord = (c: number): [number, number, number, number] => [c % side, Math.floor(c / side) % side, Math.floor(c / (side * side)) % side, Math.floor(c / (side * side * side)) % side]
     const lines: Array<[number, number]> = []
@@ -71,10 +72,13 @@ export default experiment({
 
     const measure = (rule: Collision): { rmsMax: number; openFinal: number; closedFinal: number } => {
       let bd = body(); let rmsMax = netRms(bd)
-      for (let i = 0; i < beats; i++) { bd = beat(bd, rule); const r = netRms(bd); if (r > rmsMax) rmsMax = r }
+      let bdScratch: Will = { mesh, data: new Int8Array(bd.data.length) }
+      for (let i = 0; i < beats; i++) { beatInto({ src: bd, dst: bdScratch, table, collision: rule }); const swap = bd; bd = bdScratch; bdScratch = swap; const r = netRms(bd); if (r > rmsMax) rmsMax = r }
       const trace = (open: boolean): number => {
         let clean = body(); let pert = hit(body()); let final = 0
-        for (let i = 0; i < beats; i++) { clean = beat(clean, rule); pert = beat(pert, rule); if (open) { absorbBoundary(clean); absorbBoundary(pert) } let d = 0; for (let k = 0; k < clean.data.length; k++) if (clean.data[k] !== pert.data[k]) d++; final = d }
+        let cleanScratch: Will = { mesh, data: new Int8Array(clean.data.length) }
+        let pertScratch: Will = { mesh, data: new Int8Array(pert.data.length) }
+        for (let i = 0; i < beats; i++) { beatInto({ src: clean, dst: cleanScratch, table, collision: rule }); const cs = clean; clean = cleanScratch; cleanScratch = cs; beatInto({ src: pert, dst: pertScratch, table, collision: rule }); const ps = pert; pert = pertScratch; pertScratch = ps; if (open) { absorbBoundary(clean); absorbBoundary(pert) } let d = 0; for (let k = 0; k < clean.data.length; k++) if (clean.data[k] !== pert.data[k]) d++; final = d }
         return final
       }
       return { rmsMax, openFinal: trace(true), closedFinal: trace(false) }
