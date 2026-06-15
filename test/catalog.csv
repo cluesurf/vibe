@@ -92,6 +92,7 @@ data-structure/skip-list-shortcut,data-structure,L2,true,73,"DS9: the bulk diame
 data-structure/tree-embedding,data-structure,L2,true,73,"DS6: a tree embeds in the hyperbolic disk at low distortion, the Euclidean plane cannot"
 data-structure/union-find,data-structure,L2,true,3434,"SS15: union-find on the cell tree has logarithmic find depth from short bulk paths"
 data-structure/universal-geometric-profile,data-structure,L2,true,all,"phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding"
+fluids/chaotic-collision-ballistic,fluids,L2,true,3434,"a configuration-controlled (chaotic) reversible collision is still ballistic, deterministic chaos does not give viscosity"
 fluids/charge-diffusion-bath,fluids,L2,true,3434,"the conserved charge wave recurs in the reversible bulk (not diffusive), real charge diffusion needs the bath"
 fluids/coin-richness-shear,fluids,L2,true,3434,"a shear dissipates on the rich 24-direction coin but barely on the impoverished cubic coin, coin richness makes the fluid"
 fluids/no-bulk-viscosity,fluids,L2,true,3434,"the committed collision has no finite bulk shear viscosity, the shear envelope does not decay (inviscid bulk)"
