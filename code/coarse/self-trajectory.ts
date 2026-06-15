@@ -82,3 +82,48 @@ export function positionBin(input: { tone: Int8Array; L: number; bins: number })
   const { tone, L, bins } = input
   return Math.min(bins - 1, Math.max(0, Math.floor((positiveCentroidX(tone, L) / L) * bins)))
 }
+
+// The trajectory of the SELF's own centroid x, tracking the largest plus-charge cluster each beat. Unlike the
+// global positive centroid (which the active vacuum's churn dominates), this follows the bound self, so it
+// drifts smoothly and is forward-predictable. Used by the surrogate-fidelity check (multiscale MS1). If the
+// self is momentarily undetected (no cluster at or above minSize) the last known position is held.
+export interface UnitTrajectory {
+  graph: Graph
+  L: number
+  // the self centroid x at each beat.
+  centroids: number[]
+  // the mean detected self size over the run, the level-0 compression factor.
+  meanSelfSize: number
+}
+
+export function selfUnitTrajectory(input: {
+  L: number
+  beats: number
+  seed: number
+  minSize?: number
+}): UnitTrajectory {
+  const { L, beats, seed } = input
+  const minSize = input.minSize ?? 3
+  const graph = flatGraph(L)
+  const rng = makeRng(seed)
+  const moved = new Uint8Array(graph.cellCount)
+  const { tone } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
+  const positions = (cell: number): readonly [number, number] => [cell % L, Math.floor(cell / L)]
+  const centroids: number[] = []
+  let sizeSum = 0
+  let sizeCount = 0
+  let lastCx = L / 2
+  for (let t = 0; t < beats; t++) {
+    beat(tone, graph, moved, rng, 0.01, 0.22)
+    const units = extractUnits({ tone, graph, positions, sign: 1, minSize })
+    if (units.length > 0) {
+      let largest = units[0]!
+      for (const u of units) if (u.size > largest.size) largest = u
+      lastCx = largest.cx
+      sizeSum += largest.size
+      sizeCount++
+    }
+    centroids.push(lastCx)
+  }
+  return { graph, L, centroids, meanSelfSize: sizeCount > 0 ? sizeSum / sizeCount : 0 }
+}
