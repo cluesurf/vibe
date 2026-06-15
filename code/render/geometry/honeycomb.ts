@@ -8,6 +8,7 @@
 import type { Scene, SceneEdge } from '@/code/render/scene'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { classifyGeometry } from '@/code/substrate/coxeter/schlafli'
+import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
 import {
   Vec,
   matVec,
@@ -52,10 +53,17 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   const baseVertices = orbitVertices(v0, stabilizerNormals, metric)
   const baseEdges = polyhedronEdges(baseVertices, metric)
 
-  // orientation, rotate the first two ball axes so the central cell sits upright, a vertex up for an odd-sided
-  // cell, a flat side up for an even-sided cell. The central cell is at the origin, so its outermost vertex
-  // angle fixes the rotation.
-  const { cos: orientCos, sin: orientSin } = orientation(baseVertices, timeAxis, symbol[0] ?? 3, orientUp)
+  // recenter, translate the whole tiling so the central cell's center sits at the ball origin, so a tile face
+  // is centered for every symbol. graph.coords[0] is the central cell center in the ball, and a Mobius
+  // translation by its negation brings it to the origin while keeping the tiling exact.
+  const centerBall = graph.coords[0] ?? baseVertices[0]!.map(() => 0)
+  const shift = negate(centerBall)
+  const recenter = (b: Vec): Vec => mobiusAdd(shift, b)
+
+  // orientation, rotate the first two ball axes so the recentered central cell sits upright, a vertex up for an
+  // odd-sided cell, a flat side up for an even-sided cell. Computed from the recentered central cell vertices.
+  const centralBallVerts = baseVertices.map((v) => recenter(toPoincare(matVec(cellMat[0]!, v), timeAxis)))
+  const { cos: orientCos, sin: orientSin } = orientation(centralBallVerts, symbol[0] ?? 3, orientUp)
   const orient = (b: Vec): Vec => {
     if (!orientUp) return b
     const x = b[0] ?? 0
@@ -70,7 +78,7 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
   for (const g of cellMat) {
-    const ballVerts = baseVertices.map((v) => orient(toPoincare(matVec(g, v), timeAxis)))
+    const ballVerts = baseVertices.map((v) => orient(recenter(toPoincare(matVec(g, v), timeAxis))))
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
