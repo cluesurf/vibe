@@ -29,11 +29,14 @@ export type HoneycombOptions = {
   symbol: number[]
   // how many cells to enumerate, more means denser detail toward the boundary
   maxCells?: number
+  // orient the central cell upright, a vertex pointing straight up for an odd-sided cell, or a flat side up
+  // for an even-sided cell. On by default, so every tiling reads the same way.
+  orientUp?: boolean
 }
 
 // build the tessellation Scene for a Schlafli symbol
 export function buildHoneycombScene(input: HoneycombOptions): Scene {
-  const { symbol, maxCells = DEFAULT_MAX_CELLS } = input
+  const { symbol, maxCells = DEFAULT_MAX_CELLS, orientUp = true } = input
   const { normals, metric, timeAxis } = mirrorFrame(symbol)
   const dim = normals.length // the rank (number of mirrors), = symbol.length + 1
   const ballDim = spatialAxes(dim, timeAxis).length // 2 for a tiling, 3 for a honeycomb
@@ -51,6 +54,40 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   // the cell center (the meet of the stabilizer mirrors), used to order cells by distance from the origin
   const cellCenter = hnormalize(nullVector(stabilizerNormals, metric), metric, timeAxis)
 
+  // orientation, rotate the first two ball axes so the central cell sits upright. For an odd-sided cell a
+  // vertex points straight up, for an even-sided cell a flat side is up (an edge midpoint at the top). The
+  // central cell is at the origin, so its outermost vertex angle fixes the rotation.
+  let orientCos = 1
+  let orientSin = 0
+  if (orientUp) {
+    const p = symbol[0] ?? 3
+    let bestR = -1
+    let theta0 = 0
+    for (const v of baseVertices) {
+      const b = toBall(v, timeAxis)
+      const x = b[0] ?? 0
+      const y = b[1] ?? 0
+      const r = x * x + y * y
+      if (r > bestR) {
+        bestR = r
+        theta0 = Math.atan2(y, x)
+      }
+    }
+    const half = p % 2 === 0 ? Math.PI / p : 0
+    const angle = Math.PI / 2 - theta0 - half
+    orientCos = Math.cos(angle)
+    orientSin = Math.sin(angle)
+  }
+  const orient = (b: number[]): number[] => {
+    if (!orientUp) return b
+    const x = b[0] ?? 0
+    const y = b[1] ?? 0
+    const out = b.slice()
+    out[0] = orientCos * x - orientSin * y
+    out[1] = orientSin * x + orientCos * y
+    return out
+  }
+
   const faceReflections = generateFaceReflections(stabilizerNormals, faceNormal, metric, dim)
   const cellTransforms = enumerateCells(faceReflections, cellCenter, timeAxis, dim, maxCells)
 
@@ -58,7 +95,7 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
   for (const transform of cellTransforms) {
-    const ballVerts = baseVertices.map((v) => toBall(applyMatrix(transform, v, dim), timeAxis))
+    const ballVerts = baseVertices.map((v) => orient(toBall(applyMatrix(transform, v, dim), timeAxis)))
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
@@ -198,17 +235,22 @@ function enumerateCells(faceReflections: number[][], cellCenter: number[], timeA
     return top
   }
 
+  // Dedup by the cell-center POSITION, not the matrix. A cell with a large symmetry group (an icosahedral or
+  // tesseractic vertex figure) is reached by many distinct matrices that place the SAME geometric cell, and
+  // keying on the matrix would spend the whole budget on those duplicates and reach only a few real cells.
+  // Two matrices that place the same cell map cellCenter to the same ball point, so that point is the cell id.
+  const cellKey = (m: number[]): string => vkey(toBall(applyMatrix(m, cellCenter, dim), timeAxis))
   const transforms: number[][] = []
   const visited = new Set<string>()
   const I = identityMatrix(dim)
-  visited.add(matrixKey(I))
+  visited.add(cellKey(I))
   push({ mat: I, r: radiusOf(I) })
   while (heap.length > 0 && transforms.length < maxCells) {
     const { mat } = pop()
     transforms.push(mat)
     for (const F of faceReflections) {
       const H = mulMatrix(F, mat, dim)
-      const k = matrixKey(H)
+      const k = cellKey(H)
       if (visited.has(k)) continue
       visited.add(k)
       push({ mat: H, r: radiusOf(H) })
