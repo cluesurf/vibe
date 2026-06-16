@@ -55,7 +55,7 @@ export default experiment({
       metrics: { cells: n, bulkExpR2: Number(bulk.expR2.toFixed(3)), bulkExpRate: Number(bulk.expRate.toFixed(3)), bulkPowR2: Number(bulk.powR2.toFixed(3)), cuspPowR2: Number(flat.powR2.toFixed(3)), cuspPowSlope: Number(flat.powSlope.toFixed(3)), cuspExpR2: Number(flat.expR2.toFixed(3)) },
       // CONTROL: the flat cusp Green function is power-law (Newtonian), so the exponential decay is the bulk's negative curvature, not an artifact of the finite Green-function solve.
       control: { cuspIsPowerLaw: cuspPowerLaw ? 1 : 0, cuspExponentialR2: Number(flat.expR2.toFixed(3)) },
-      notes: 'GR9 static potential resolved (exponential bulk, 1/r cusp). The reversible fully-nonlinear PROPAGATING curved-bulk gravity (the dynamical half of GR9) remains the open frontier.',
+      notes: 'Supports the gravity-paper-readiness thesis, the base bulk is screened (anti-confining, 2B), the Newtonian 1/r is a CUSP property, so gravity is the emergent CUSP metric, not a bulk force. This is the static potential law on the bulk vs cusp, consistent with the emergent-metric account.',
     })
   },
 })

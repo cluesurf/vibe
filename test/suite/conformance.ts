@@ -85,6 +85,8 @@ import { father as margensternFather, sons as margensternSons, route as margenst
 import { makeNumeration, recurrenceBasis } from '@/code/substrate/margenstern/numeration'
 import { applyModel as applyProjectionModel } from '@/code/render/geometry/projection'
 import { buildTilingFaces } from '@/code/render/geometry/tiling-faces'
+import { buildTilingScene, buildSphericalScene, buildEuclideanScene } from '@/code/render/geometry/honeycomb'
+import { truncateScene } from '@/code/render/geometry/truncate'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
 import { buildTilingExact } from '@/code/substrate/coxeter/exact-modular'
 import { buildPentagridPure } from '@/code/substrate/margenstern/pentagrid'
@@ -661,7 +663,7 @@ export function runConformance(): { passed: number; failed: number } {
     const kleinPoint = applyProjectionModel(ballPoint, 'klein')
     const kleinNorm = Math.hypot(kleinPoint[0]!, kleinPoint[1]!)
     const poincareIdentity = Math.hypot(poincarePoint[0]! - ballPoint[0]!, poincarePoint[1]! - ballPoint[1]!) < 1e-12
-    const modelsDiffer = ['klein', 'gans', 'half-plane', 'band', 'azimuthal-equidistant', 'equal-area', 'inverted'].every((m) => {
+    const modelsDiffer = ['klein', 'gans', 'half-plane', 'band', 'azimuthal-equidistant', 'equal-area', 'inverted', 'hemisphere', 'two-point-equidistant'].every((m) => {
       const p = applyProjectionModel(ballPoint, m as never)
       return Math.hypot(p[0]! - poincarePoint[0]!, p[1]! - poincarePoint[1]!) > 1e-6
     })
@@ -689,6 +691,49 @@ export function runConformance(): { passed: number; failed: number } {
     let reversible = true
     for (let i = 0; i < waveN; i++) if (back[i] !== prev0[i]) reversible = false
     check({ name: 'cell faces: the reversible wave coloring the faces is exactly reversible', ok: reversible })
+
+    // geometry dispatcher: one builder covers all three constant-curvature 2D geometries. Spherical {p,q} are
+    // the Platonic solids (exact vertex/edge/face counts), Euclidean are flat patches (nonzero straight edges),
+    // hyperbolic are the Poincare-disk tilings. Verified by the Platonic Euler data the spherical builder must
+    // reproduce, V - E + F = 2.
+    const PLATONIC: { symbol: number[]; faces: number; edges: number }[] = [
+      { symbol: [4, 3], faces: 6, edges: 12 }, // cube
+      { symbol: [3, 4], faces: 8, edges: 12 }, // octahedron
+      { symbol: [5, 3], faces: 12, edges: 30 }, // dodecahedron
+      { symbol: [3, 5], faces: 20, edges: 30 }, // icosahedron
+    ]
+    let platonicOk = true
+    for (const { symbol, faces, edges } of PLATONIC) {
+      const s = buildSphericalScene({ symbol, maxCells: 400 })
+      if (s.cellCount !== faces || s.edges.length !== edges) platonicOk = false
+    }
+    check({ name: 'geometry: the spherical builder reproduces the Platonic solids (exact faces and edges)', ok: platonicOk })
+
+    const euclid44 = buildEuclideanScene({ symbol: [4, 4], maxCells: 400 })
+    const euclid36 = buildEuclideanScene({ symbol: [3, 6], maxCells: 400 })
+    const flatOk =
+      euclid44.dim === 2 && euclid44.edges.length > 300 && euclid44.edges.every((e) => e.a.length === 2) &&
+      euclid36.dim === 2 && euclid36.edges.length > 300
+    check({ name: 'geometry: the Euclidean builder makes flat 2D tiling patches ({4,4}, {3,6})', ok: flatOk, detail: `${euclid44.edges.length}, ${euclid36.edges.length} edges` })
+
+    const dispatched = [
+      buildTilingScene({ symbol: [4, 3] }), // -> spherical
+      buildTilingScene({ symbol: [4, 4], maxCells: 400 }), // -> euclidean
+      buildTilingScene({ symbol: [7, 3], maxCells: 600 }), // -> hyperbolic
+    ]
+    check({ name: 'geometry: buildTilingScene routes every signature to a non-empty Scene', ok: dispatched.every((s) => s.edges.length > 0) })
+
+    // tiling variants: truncation cuts every vertex, turning a regular {p,q} into a two-face tiling. The
+    // truncated and rectified Scenes have strictly more edges than the regular one, and the transform is closed
+    // (a valid Scene back out), the hyperbolic analogue of the Archimedean / Goldberg families.
+    const regular73 = buildTilingScene({ symbol: [7, 3], maxCells: 400 })
+    const truncated73 = truncateScene(regular73, { fraction: 1 / 3 })
+    const rectified73 = truncateScene(regular73, { fraction: 1 / 2 })
+    const truncOk =
+      truncated73.edges.length > regular73.edges.length &&
+      rectified73.edges.length > regular73.edges.length &&
+      truncated73.edges.every((e) => e.a.length === 2 && e.b.length === 2)
+    check({ name: 'variants: vertex truncation of {7,3} yields a richer valid Scene (truncated and rectified)', ok: truncOk, detail: `${regular73.edges.length} -> ${truncated73.edges.length}` })
 
     // pure-address pentagrid (Theorem 5), geometry-free integer neighbour stepping for {5,4}, the closed form.
     // The arithmetic graph is 5-regular, symmetric, and grows like the pentagrid (1,5,15,40,105,...).

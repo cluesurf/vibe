@@ -39,7 +39,7 @@ struct Params {
   n0: vec4<f32>,
   n1: vec4<f32>,
   n2: vec4<f32>,
-  cam: vec4<f32>, // xy = Mobius pan (the disk point under the screen center), z = zoom, w unused
+  cam: vec4<f32>, // xy = Mobius pan (the disk point under the screen center), z = zoom, w = view rotation (rad)
   iterations: u32,
   edgeWidth: f32,
   pad0: f32,
@@ -94,7 +94,13 @@ fn distToMirror(q: vec3<f32>, n: vec3<f32>) -> f32 {
 fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   // map the pixel into the Poincare disk (centered square), scaled by zoom and panned by a Mobius shift
   let zoom = max(0.05, P.cam.z);
-  let d0 = (in.uv - vec2<f32>(0.5, 0.5)) * 2.1 / zoom;
+  var d0 = (in.uv - vec2<f32>(0.5, 0.5)) * 2.1 / zoom;
+
+  // view rotation (cam.w, radians), so the walker can turn and the heading stays up. Rotating the sample
+  // direction before the Mobius pan turns the whole disk about the camera point.
+  let ca = cos(P.cam.w);
+  let sa = sin(P.cam.w);
+  d0 = vec2<f32>(ca * d0.x - sa * d0.y, sa * d0.x + ca * d0.y);
 
   // outside the unit disk is the ideal boundary and beyond, draw it dark
   if (dot(d0, d0) >= 1.0) {
@@ -408,11 +414,25 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   let eg = min(asinh(abs(hdot4(qh, P.n0))), min(asinh(abs(hdot4(qh, P.n1))), asinh(abs(hdot4(qh, P.n2)))));
   let glow = smoothstep(0.055, 0.0, eg); // crisp wireframe lines along the dodecahedron edges
 
+  // TEXTURE the wall. Tint each dodecahedral face by which stabilizer mirror is nearest after folding (so the
+  // twelve faces read as distinct surfaces), and lay a checker tile over the face from the folded coordinate
+  // (the orbit trap qh.xyz), so the room has a tiled, solid look rather than a flat fill.
+  let dA = asinh(abs(hdot4(qh, P.n0)));
+  let dB = asinh(abs(hdot4(qh, P.n1)));
+  let dC = asinh(abs(hdot4(qh, P.n2)));
+  var faceTint = vec3<f32>(0.46, 0.40, 0.80); // nearest n0
+  if (dB <= dA && dB <= dC) { faceTint = vec3<f32>(0.40, 0.52, 0.82); } // nearest n1
+  if (dC <= dA && dC <= dB) { faceTint = vec3<f32>(0.56, 0.42, 0.74); } // nearest n2
+  // checker from the folded coordinate, the tile grid carried across the face
+  let tile = qh.xyz * 5.0;
+  let checker = step(0.5, fract(tile.x) ) * step(0.5, fract(tile.y)) + step(fract(tile.x), 0.5) * step(fract(tile.y), 0.5);
+  let grout = smoothstep(0.0, 0.06, abs(fract(tile.x) - 0.5)) * smoothstep(0.0, 0.06, abs(fract(tile.y) - 0.5));
+  let tex = mix(0.78, 1.0, checker) * mix(0.6, 1.0, grout);
+
   let lightDir = normalize(vec3<f32>(0.4, 0.8, 0.5));
   let lambert = max(0.22, dot(normal, lightDir));
   let fog = exp(-0.4 * t);
-  let base = vec3<f32>(0.5, 0.44, 0.82);
-  let wall = base * lambert * fog;
+  let wall = faceTint * tex * lambert * fog;
   let edge = vec3<f32>(0.95, 0.92, 1.0) * glow * fog;
   let col = wall + edge + vec3<f32>(0.025, 0.025, 0.05);
 

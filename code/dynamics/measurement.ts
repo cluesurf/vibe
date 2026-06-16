@@ -29,14 +29,15 @@ export function bornAtPeace(will: Will, frontierX: number): void {
 
 // The per-x-slab mean occupancy (|tone| averaged over the slots), the coarse macroscopic profile whose gradient
 // is the pointer (the classical record).
-export function slabOccupancy(will: Will): number[] {
+export function slabOccupancy(will: Will, axis = 0): number[] {
   const mesh = will.mesh
   const side = sideOf(mesh)
   const degree = mesh.degree
   const sum = new Array<number>(side).fill(0)
   const count = new Array<number>(side).fill(0)
+  const coord = (cell: number): number => (axis === 0 ? cell % side : Math.floor(cell / side) % side)
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const x = cell % side
+    const x = coord(cell)
     const base = cell * degree
     for (let d = 0; d < degree; d++) {
       sum[x]! += Math.abs(will.data[base + d]!)
@@ -54,7 +55,9 @@ export function pointerTrajectory(input: {
   beats: number
   open: boolean
   frontierX: number
+  axis?: number
 }): number[] {
+  const axis = input.axis ?? 0
   let current = cloneWill(input.init)
   let scratch: Will = { mesh: current.mesh, data: new Int8Array(current.data.length) }
   const trajectory: number[] = []
@@ -64,7 +67,7 @@ export function pointerTrajectory(input: {
     current = scratch
     scratch = swap
     if (input.open) bornAtPeace(current, input.frontierX)
-    trajectory.push(profileGradient(slabOccupancy(current)))
+    trajectory.push(profileGradient(slabOccupancy(current, axis)))
   }
   return trajectory
 }
