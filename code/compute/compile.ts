@@ -12,21 +12,27 @@ import { compileToRailway, type CompiledRailway } from '@/code/compute/ts-to-rai
 import { compileToBinary, type CompiledBinary } from '@/code/compute/ts-to-binary'
 import { runRailway } from '@/code/compute/railway'
 import { runBinary } from '@/code/compute/binary-machine'
+import { runTernary } from '@/code/compute/ternary-machine'
 
-export type Backend = 'binary' | 'unary'
+// the register representation. `binary` is the modern-CPU default; `ternary` is the vibe-theory-aligned base-3
+// machine (it reuses the binary program, since the compiled ops are representation-neutral, and only costs them
+// in trits). `unary` is the classic Minsky counter machine.
+export type Backend = 'binary' | 'unary' | 'ternary'
 
 export type CompiledMachine =
   | ({ backend: 'unary' } & CompiledRailway)
   | ({ backend: 'binary' } & CompiledBinary)
+  | ({ backend: 'ternary' } & CompiledBinary)
 
 export function compileMachine(source: string, options: { backend?: Backend } = {}): CompiledMachine {
   const backend = options.backend ?? 'binary'
   if (backend === 'unary') return { backend, ...compileToRailway(source) }
+  // binary and ternary share the (representation-neutral) compiled program
   return { backend, ...compileToBinary(source) }
 }
 
-// run a compiled machine on natural-number inputs, returning the result and a cost (unary instruction steps, or
-// binary bit-operations), so the two representations can be compared on the same program.
+// run a compiled machine on natural-number inputs, returning the result and a cost (unary instruction steps,
+// binary bit-operations, or ternary trit-operations), so the representations can be compared on one program.
 export function runMachine(compiled: CompiledMachine, inputs: number[]): { result: bigint; cost: number } {
   if (compiled.backend === 'unary') {
     const initial = new Array<number>(compiled.program.registers).fill(0)
@@ -36,6 +42,10 @@ export function runMachine(compiled: CompiledMachine, inputs: number[]): { resul
   }
   const initial = new Array<bigint>(compiled.program.registers).fill(0n)
   inputs.forEach((v, i) => (initial[i] = BigInt(v)))
+  if (compiled.backend === 'ternary') {
+    const { registers, totalTrits } = runTernary(compiled.program, initial)
+    return { result: registers[compiled.returnRegister]!, cost: totalTrits }
+  }
   const { registers, totalBits } = runBinary(compiled.program, initial)
   return { result: registers[compiled.returnRegister]!, cost: totalBits }
 }
