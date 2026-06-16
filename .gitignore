@@ -10,3 +10,8 @@ make/
 
 # throwaway dev runners (reusable scratch, never committed)
 tmp/
+
+# React Router 7 generated route types + install/build output (test/site sample app)
+.react-router/
+test/site/node_modules/
+test/site/build/

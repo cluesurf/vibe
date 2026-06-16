@@ -25,6 +25,8 @@ export type CompiledRailway = {
   registers: Map<string, number>
   returnRegister: number
   parameters: string[]
+  // opIndex[i] = the high-level source operation that instruction i implements (for operation-paced animation)
+  opIndex: number[]
 }
 
 export function compileToRailway(source: string, options: { capacity?: number } = {}): CompiledRailway {
@@ -42,7 +44,12 @@ export function compileToRailway(source: string, options: { capacity?: number } 
   const scratch = (): number => reg('$scratch')
 
   const code: RailInstruction[] = []
-  const emit = (ins: RailInstruction): number => (code.push(ins), code.length - 1)
+  // opIndex[i] = the high-level source operation (statement / macro) that instruction i implements. A consumer
+  // can group the unary instruction stream back into operations, so an animation can pace by operations (one
+  // per loop body statement) instead of by raw inc / dec steps.
+  const opIndex: number[] = []
+  let opCounter = 0
+  const emit = (ins: RailInstruction): number => (code.push(ins), opIndex.push(opCounter), code.length - 1)
   const here = (): number => code.length
 
   // dst += 1 ; fall through to the next instruction
@@ -91,6 +98,7 @@ export function compileToRailway(source: string, options: { capacity?: number } 
   }
 
   const compileStatement = (stmt: ts.Statement): void => {
+    opCounter++ // each statement is one high-level operation; nested while-body statements bump again
     if (ts.isVariableStatement(stmt)) {
       for (const decl of stmt.declarationList.declarations) {
         const name = (decl.name as ts.Identifier).text
@@ -171,5 +179,5 @@ export function compileToRailway(source: string, options: { capacity?: number } 
   const returnRegister = ret && ret.expression && ts.isIdentifier(ret.expression) ? reg(ret.expression.text) : 0
 
   const program: RailProgram = { registers: registers.size, capacity: options.capacity ?? 4096, code }
-  return { program, registers, returnRegister, parameters }
+  return { program, registers, returnRegister, parameters, opIndex }
 }
