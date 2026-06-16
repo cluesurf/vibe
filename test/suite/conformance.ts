@@ -92,6 +92,8 @@ import { buildTilingExact } from '@/code/substrate/coxeter/exact-modular'
 import { buildPentagridPure } from '@/code/substrate/margenstern/pentagrid'
 import { patternClass, patternClassCount } from '@/code/render/geometry/pattern'
 import { routeSwitch, runRailway, type RailSwitch, type RailInstruction } from '@/code/compute/railway'
+import { compileToRailway } from '@/code/compute/ts-to-railway'
+import { compileMachine, runMachine } from '@/code/compute/compile'
 import { PENTAGRID_RULES, buildPentagridRuleTable, pentagridNext } from '@/code/compute/margenstern-pentagrid'
 import { pentagrid3State } from '@/code/compute/margenstern-pentagrid-3state'
 import { pentagrid2State } from '@/code/compute/margenstern-pentagrid-2state'
@@ -802,6 +804,40 @@ export function runConformance(): { passed: number; failed: number } {
       if (out.registers[2] !== a * b) railwayUniversal = false
     }
     check({ name: 'railway register machine computes (universal): the locomotive multiplies on the rails', ok: railwayUniversal })
+
+    // the TypeScript -> railway compiler: a Fibonacci function written in TS lowers to register-machine IR that
+    // the railway runs, and computing fib(1..10) on the compiled machine gives the right sequence.
+    const fibCompiled = compileToRailway(`
+function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a; t += b; a = b; b = t } return a }
+`)
+    const fibValues: number[] = []
+    for (let m = 1; m <= 10; m++) {
+      const init = new Array<number>(fibCompiled.program.registers).fill(0)
+      init[0] = m
+      fibValues.push(runRailway(fibCompiled.program, init).registers[fibCompiled.returnRegister]!)
+    }
+    const fibOk = fibValues.join(',') === '1,1,2,3,5,8,13,21,34,55'
+    check({ name: 'TypeScript -> railway compiler: fib(1..10) computed by the compiled register machine', ok: fibOk, detail: fibValues.join(' ') })
+
+    // the BINARY backend (the modern-CPU representation) computes the same answers, and its per-term cost is
+    // CONSTANT (a fixed 64-bit word per op) where the unary backend's per-term cost grows with the value.
+    const FIB_SRC = `function fib(n){ let a=0; let b=1; let t=0; while(n!==0){ n--; t=a; t+=b; a=b; b=t } return a }`
+    const bin = compileMachine(FIB_SRC) // default backend is binary
+    const una = compileMachine(FIB_SRC, { backend: 'unary' })
+    const binVals: string[] = []
+    const binCost: number[] = []
+    const unaCost: number[] = []
+    for (let m = 1; m <= 10; m++) {
+      binVals.push(runMachine(bin, [m]).result.toString())
+      binCost.push(runMachine(bin, [m]).cost)
+      unaCost.push(runMachine(una, [m]).cost)
+    }
+    const binCorrect = binVals.join(',') === '1,1,2,3,5,8,13,21,34,55'
+    // binary per-term deltas are equal (flat); unary per-term deltas strictly increase (grow with the value)
+    const binDelta = binCost[9]! - binCost[8]!
+    const binFlat = binCost[8]! - binCost[7]! === binDelta && binCost[5]! - binCost[4]! === binDelta
+    const unaGrows = unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!
+    check({ name: 'binary backend: same answers, constant per-term cost (modern-CPU 64-bit), vs unary growing', ok: binCorrect && binFlat && unaGrows, detail: `binary +${binDelta}/term flat, unary grows` })
 
     // Margenstern's actual 5-state pentagrid universal CA, the 236-rule table transcribed from arXiv:1403.2373.
     // It compiles (rotation-invariant, no conflicts), uses exactly the 5 states, and fires its documented rules.

@@ -89,7 +89,19 @@ export interface RailProgram {
 // run the railway machine: a single locomotive flows from instruction to instruction, driving the register
 // gadgets, until it reaches HALT. Returns the final register values and the number of instruction steps the
 // locomotive took (its mileage). Deterministic, no randomness.
-export function runRailway(program: RailProgram, initial: number[]): { registers: number[]; steps: number } {
+// a snapshot of the machine after one executed instruction, for tracing / visualizing the computation
+export type RailStep = {
+  pc: number // the instruction just executed
+  op: 'inc' | 'dec'
+  reg: number // the register it touched
+  registers: number[] // every register's value AFTER the step
+}
+
+export function runRailway(
+  program: RailProgram,
+  initial: number[],
+  onStep?: (step: RailStep) => void,
+): { registers: number[]; steps: number } {
   const regs = Array.from({ length: program.registers }, (_, r) => {
     const reg = makeRegister(program.capacity)
     for (let i = 0; i < (initial[r] ?? 0); i++) railIncrement(reg)
@@ -102,6 +114,7 @@ export function runRailway(program: RailProgram, initial: number[]): { registers
     const ins = program.code[pc]
     if (!ins || ins.op === 'halt') break
     steps++
+    const at = pc
     if (ins.op === 'inc') {
       railIncrement(regs[ins.reg]!)
       pc = ins.next
@@ -109,6 +122,7 @@ export function runRailway(program: RailProgram, initial: number[]): { registers
       const ok = railDecrementOrZero(regs[ins.reg]!)
       pc = ok ? ins.next : ins.zero
     }
+    if (onStep) onStep({ pc: at, op: ins.op, reg: ins.reg, registers: regs.map(registerValue) })
   }
   return { registers: regs.map(registerValue), steps }
 }
