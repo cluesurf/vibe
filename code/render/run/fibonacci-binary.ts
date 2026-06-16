@@ -43,7 +43,7 @@ const SIZE = 760
 const MARGIN = 0.96
 const MAX_CELLS = 980
 const BITS_SHOWN = 18 // low bits per register (fib to 55 needs 6; headroom shows the 64-bit word is sparse)
-const FRAMES_PER_OP = 3 // equal frames per operation -> every Fibonacci number takes the same screen time
+const FRAMES_PER_OP = 2 // equal frames per operation (every step shown); 2 keeps it brisk between numbers
 
 function run(): void {
   const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'make', 'render', 'fibonacci')
@@ -115,7 +115,7 @@ function renderFrame(input: {
 }): Uint8Array {
   const { tiling, edges, wedges, names, registers, active, changed, mode, display, cellCount } = input
   const faces: SceneFace[] = []
-  const FAINT: [number, number, number] = [26, 26, 32] // zinc-ish empty bit (a 0)
+  const FAINT: [number, number, number] = [34, 34, 42] // faint zinc, so the whole tessellation stays visible
 
   for (let r = 0; r < names.length; r++) {
     const hue = REGISTER_HUE[names[r]!] ?? 'zinc'
@@ -142,7 +142,7 @@ function renderFrame(input: {
   faces.push({ polygon: tiling.polygons[0]!, color: [Math.round(opRgb[0] * 255), Math.round(opRgb[1] * 255), Math.round(opRgb[2] * 255)] })
 
   const scene: Scene = { dim: 2, symbol: [7, 3], edges, faces, cellCount }
-  const { rgba } = renderSceneToRgba({ scene, size: SIZE, segments: 18, lineWidth: 1.0, near: [16, 16, 22], far: [16, 16, 22], model: 'poincare', margin: MARGIN, superSample: 2 })
+  const { rgba } = renderSceneToRgba({ scene, size: SIZE, segments: 18, lineWidth: 1.0, near: [56, 56, 66], far: [56, 56, 66], model: 'poincare', margin: MARGIN, superSample: 2 })
   drawCentralNumber({ rgba, size: SIZE, margin: MARGIN, centralPolygon: tiling.polygons[0]!, text: String(display) })
   return rgba
 }
