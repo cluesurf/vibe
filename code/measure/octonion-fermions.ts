@@ -44,9 +44,13 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
       const ar = a.re[i]![k]!
       const ai = a.im[i]![k]!
       if (ar === 0 && ai === 0) continue
+      const reRow = re[i]!
+      const imRow = im[i]!
+      const bRe = b.re[k]!
+      const bIm = b.im[k]!
       for (let j = 0; j < 8; j++) {
-        re[i]![j] += ar * b.re[k]![j]! - ai * b.im[k]![j]!
-        im[i]![j] += ar * b.im[k]![j]! + ai * b.re[k]![j]!
+        reRow[j] = (reRow[j] ?? 0) + ar * bRe[j]! - ai * bIm[j]!
+        imRow[j] = (imRow[j] ?? 0) + ar * bIm[j]! + ai * bRe[j]!
       }
     }
   return complex(re, im)
@@ -56,11 +60,14 @@ function addMatrices(...matrices: ComplexMatrix[]): ComplexMatrix {
   const re = zero8()
   const im = zero8()
   for (const m of matrices)
-    for (let i = 0; i < 8; i++)
+    for (let i = 0; i < 8; i++) {
+      const reRow = re[i]!
+      const imRow = im[i]!
       for (let j = 0; j < 8; j++) {
-        re[i]![j] += m.re[i]![j]!
-        im[i]![j] += m.im[i]![j]!
+        reRow[j] = (reRow[j] ?? 0) + m.re[i]![j]!
+        imRow[j] = (imRow[j] ?? 0) + m.im[i]![j]!
       }
+    }
   return complex(re, im)
 }
 
