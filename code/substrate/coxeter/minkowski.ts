@@ -110,6 +110,72 @@ export function hyperbolicDistance(a: Vec, b: Vec, metric: number[]): number {
   return Math.acosh(Math.max(1, -innerJ(a, b, metric)))
 }
 
+// is this a hyperbolic (Lorentzian) frame? A spherical or Euclidean frame has an all-positive metric.
+export function isHyperbolicMetric(metric: number[]): boolean {
+  return metric.some((g) => g < 0)
+}
+
+// normalize a model point to the unit quadric of its geometry: the hyperboloid <x,x> = -1 for a hyperbolic
+// (Lorentzian) frame, or the unit sphere |x| = 1 for a spherical (positive-definite) frame. The same call
+// works in every signature, so the cell engine is geometry-general. The hyperbolic branch keeps the
+// hemisphere flip (a consistent timelike representative); the spherical branch must NOT flip, since the cells
+// genuinely cover the whole sphere and folding antipodes would collapse the orbit.
+export function normalizeModelPoint(x: Vec, metric: number[], timeAxis: number): Vec {
+  if (isHyperbolicMetric(metric)) return normalizeTimelike(x, metric, timeAxis)
+  const n = Math.sqrt(Math.max(1e-30, innerJ(x, x, metric)))
+  return x.map((v) => v / n)
+}
+
+// the geodesic distance between two model points, in whichever geometry the metric describes: the hyperbolic
+// distance acosh(-<a,b>) for a Lorentzian frame, the angular distance acos(<a,b>/(|a||b|)) on the sphere.
+export function geodesicDistance(a: Vec, b: Vec, metric: number[]): number {
+  if (isHyperbolicMetric(metric)) return hyperbolicDistance(a, b, metric)
+  const cos = innerJ(a, b, metric) / Math.sqrt(innerJ(a, a, metric) * innerJ(b, b, metric))
+  return Math.acos(Math.max(-1, Math.min(1, cos)))
+}
+
+// Stereographic projection of a unit-sphere point to the (m-1)-dimensional ball, from the antipode of `pole`
+// (a unit direction). The pole's own point maps to the origin and its antipode to infinity, so passing the
+// central cell's direction as the pole puts that cell at the centre of the disk, the spherical analogue of the
+// Poincare recentering. `basis` is an orthonormal basis of the hyperplane orthogonal to `pole`, the ball axes.
+export function stereographic(x: Vec, pole: Vec, basis: Vec[]): Vec {
+  let dotPole = 0
+  for (let a = 0; a < x.length; a++) dotPole += (x[a] ?? 0) * (pole[a] ?? 0)
+  const denom = 1 + dotPole
+  const scale = Math.abs(denom) < 1e-12 ? 1e12 : 1 / denom
+  return basis.map((u) => {
+    let d = 0
+    for (let a = 0; a < x.length; a++) d += (x[a] ?? 0) * (u[a] ?? 0)
+    return d * scale
+  })
+}
+
+// an orthonormal basis of the hyperplane orthogonal to a unit vector `pole`, by Gram-Schmidt over the standard
+// axes. Returns m-1 vectors in R^m, the ball axes for `stereographic`.
+export function orthogonalComplementBasis(pole: Vec): Vec[] {
+  const m = pole.length
+  const basis: Vec[] = []
+  for (let axis = 0; axis < m && basis.length < m - 1; axis++) {
+    const e: Vec = new Array<number>(m).fill(0)
+    e[axis] = 1
+    // remove the pole component and every chosen basis component
+    let dp = 0
+    for (let a = 0; a < m; a++) dp += e[a]! * (pole[a] ?? 0)
+    for (let a = 0; a < m; a++) e[a] = e[a]! - dp * (pole[a] ?? 0)
+    for (const u of basis) {
+      let du = 0
+      for (let a = 0; a < m; a++) du += e[a]! * u[a]!
+      for (let a = 0; a < m; a++) e[a] = e[a]! - du * u[a]!
+    }
+    let len = 0
+    for (let a = 0; a < m; a++) len += e[a]! * e[a]!
+    len = Math.sqrt(len)
+    if (len < 1e-9) continue
+    basis.push(e.map((v) => v / len))
+  }
+  return basis
+}
+
 // reflect a point across a J-unit normal
 export function reflectPoint(p: Vec, normal: Vec, metric: number[]): Vec {
   const nn = innerJ(normal, normal, metric)

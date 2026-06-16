@@ -37,6 +37,12 @@ export type RasterOptions = {
   // view rotation for a 3D scene, radians (ignored for a 2D tiling)
   rotateX?: number
   rotateY?: number
+  // view rotation for a 4D scene, radians, the two independent rotations that turn the 4th axis (w) into the
+  // visible 3-space (the x-w and z-w planes). A 4D honeycomb ({3,4,3,4}, {5,3,3,4}, ...) is first turned by
+  // these, then perspective-projected from 4D to 3D, then rendered by the 3D path. Ignored below 4D. Sweeping
+  // them animates a fly-through of the fourth dimension.
+  rotateXW?: number
+  rotateZW?: number
   // draw the faint circle at infinity
   drawBoundary?: boolean
   // segments per edge, 1 draws a straight chord, higher draws the TRUE geodesic as a curved arc. A hyperbolic
@@ -45,6 +51,9 @@ export type RasterOptions = {
   // the projection model for a 2D tiling, the same Scene rendered as a Poincare disk, a Klein disk, the upper
   // half-plane, a band, or the Gans plane (3D honeycombs always use the Poincare ball). Default poincare.
   model?: ProjectionModel
+  // supersampling factor for anti-aliasing. The scene is drawn at `size * superSample` and box-downsampled to
+  // `size`, so edges read smooth (retina quality) instead of jagged. 1 = off, 3 is a good default for stills.
+  superSample?: number
 }
 
 // render a Scene to a PNG buffer
@@ -56,22 +65,54 @@ export function renderSceneToPng(input: RasterOptions): Buffer {
 // render a Scene to a raw RGBA pixel buffer (size * size * 4), the shared core used by both the PNG encoder
 // and the animation encoders. Returns the pixels and the side length.
 export function renderSceneToRgba(input: RasterOptions): { rgba: Uint8Array; size: number } {
+  // supersample for anti-aliasing: draw the scene at a higher resolution (with proportionally thicker lines so
+  // the stroke weight is preserved) and box-downsample to the requested size. This removes the jagged stair-step
+  // on the geodesic arcs. Done as a wrapper so the drawing body below stays a single straightforward pass.
+  const superSample = Math.max(1, Math.round(input.superSample ?? 1))
+  if (superSample > 1) {
+    const outSize = input.size ?? DEFAULT_SIZE
+    const big = renderSceneToRgba({
+      ...input,
+      size: outSize * superSample,
+      lineWidth: (input.lineWidth ?? DEFAULT_LINE_WIDTH) * superSample,
+      superSample: 1,
+    })
+    return { rgba: downsample(big.rgba, big.size, outSize), size: outSize }
+  }
   const {
     scene, size = DEFAULT_SIZE, margin = DEFAULT_MARGIN, lineWidth = DEFAULT_LINE_WIDTH,
     background = DEFAULT_BACKGROUND, near = DEFAULT_NEAR, far = DEFAULT_FAR,
-    rotateX = 0.45, rotateY = 0.6, drawBoundary = true, segments = 24, model = 'poincare',
+    rotateX = 0.45, rotateY = 0.6, rotateXW = 0, rotateZW = 0, drawBoundary = true, segments = 24, model = 'poincare',
   } = input
 
   const rgba = new Uint8Array(size * size * 4)
   for (let i = 0; i < rgba.length; i += 4) { rgba[i] = background[0]; rgba[i + 1] = background[1]; rgba[i + 2] = background[2]; rgba[i + 3] = 255 }
   const half = size / 2
   const threeD = scene.dim >= 3
+  const fourD = scene.dim >= 4
 
   // map a ball point to PLANE coordinates plus a depth. A 2D point goes through the chosen projection model. A
-  // 3D point is rotated then orthographically projected, with z as depth (higher = nearer the camera).
+  // 4D point is first turned through the fourth axis and perspective-projected to 3-space. A 3D point is then
+  // rotated and orthographically projected, with z as depth (higher = nearer the camera).
   const toPlane = (v: Vec): { x: number; y: number; z: number } => {
     if (threeD) {
       let x = v[0] ?? 0, y = v[1] ?? 0, z = v[2] ?? 0
+      if (fourD) {
+        let w = v[3] ?? 0
+        // turn the 4th axis into view through the x-w and z-w planes
+        const cxw = Math.cos(rotateXW), sxw = Math.sin(rotateXW)
+        const x2 = cxw * x - sxw * w
+        w = sxw * x + cxw * w
+        x = x2
+        const czw = Math.cos(rotateZW), szw = Math.sin(rotateZW)
+        const z2 = czw * z - szw * w
+        w = szw * z + czw * w
+        z = z2
+        // perspective projection from 4D to 3D, w nearer the 4D eye (W_EYE) magnifies, like a 3D camera does
+        const W_EYE = 2.2
+        const k = W_EYE / (W_EYE - w)
+        x *= k; y *= k; z *= k
+      }
       const cy = Math.cos(rotateY), sy = Math.sin(rotateY)
       const x1 = cy * x + sy * z
       const z1 = -sy * x + cy * z
@@ -152,6 +193,32 @@ export function renderSceneToRgba(input: RasterOptions): { rgba: Uint8Array; siz
 }
 
 // fill a screen-space polygon by even-odd scanline. The boundary is already a fine arc-sampled polyline.
+// box-downsample a square RGBA image from srcSize to dstSize (srcSize must be a whole multiple), averaging each
+// block of (srcSize/dstSize)^2 source pixels into one destination pixel. This is the anti-aliasing resolve.
+function downsample(src: Uint8Array, srcSize: number, dstSize: number): Uint8Array {
+  const block = Math.round(srcSize / dstSize)
+  const out = new Uint8Array(dstSize * dstSize * 4)
+  const area = block * block
+  for (let y = 0; y < dstSize; y++) {
+    for (let x = 0; x < dstSize; x++) {
+      let r = 0, g = 0, b = 0, a = 0
+      for (let by = 0; by < block; by++) {
+        const sy = y * block + by
+        for (let bx = 0; bx < block; bx++) {
+          const so = (sy * srcSize + (x * block + bx)) * 4
+          r += src[so]!; g += src[so + 1]!; b += src[so + 2]!; a += src[so + 3]!
+        }
+      }
+      const o = (y * dstSize + x) * 4
+      out[o] = Math.round(r / area)
+      out[o + 1] = Math.round(g / area)
+      out[o + 2] = Math.round(b / area)
+      out[o + 3] = Math.round(a / area)
+    }
+  }
+  return out
+}
+
 function fillPolygon(rgba: Uint8Array, size: number, pts: { x: number; y: number }[], color: Rgb): void {
   if (pts.length < 3) return
   let minY = Infinity, maxY = -Infinity

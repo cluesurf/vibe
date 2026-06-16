@@ -15,7 +15,7 @@ const outDir = join(here, '..', '..', '..', 'make', 'render', 'models')
 
 const NEAR: Rgb = [150, 130, 255]
 const FAR: Rgb = [55, 50, 110]
-const MODELS: ProjectionModel[] = ['poincare', 'klein', 'gans', 'half-plane', 'band', 'azimuthal-equidistant', 'equal-area', 'inverted']
+const MODELS: ProjectionModel[] = ['poincare', 'klein', 'gans', 'half-plane', 'band', 'azimuthal-equidistant', 'equal-area', 'inverted', 'hemisphere', 'two-point-equidistant']
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
@@ -23,7 +23,7 @@ function run(): void {
   const symbol = symbolText.split('-').map(Number)
   const scene = buildHoneycombScene({ symbol, maxCells: 2000 })
   for (const model of MODELS) {
-    const png = renderSceneToPng({ scene, size: 1000, segments: 22, lineWidth: 1.4, near: NEAR, far: FAR, model })
+    const png = renderSceneToPng({ scene, size: 1000, segments: 96, lineWidth: 1.4, near: NEAR, far: FAR, model, superSample: 3 })
     writeFileSync(join(outDir, `${symbolText}-${model}.png`), png)
     console.log(`wrote ${symbolText}-${model}.png  (${scene.edges.length} edges)`)
   }

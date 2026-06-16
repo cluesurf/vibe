@@ -27,3 +27,28 @@ export function reversibleWaveStep(input: {
     next[i] = (((sum - previous[i]!) % modulus) + modulus) % modulus
   }
 }
+
+// One forward beat of a NONLINEAR reversible wave, next[i] = (sum_{j~i} current[j] - previous[i] +
+// selfCoupling*current[i]^2) mod q. The self-coupling is the gravitational nonlinearity, the field sources
+// itself (gravity gravitates). The extra term depends ONLY on `current`, so the leapfrog stays EXACTLY
+// reversible (swap previous and next and the same equation recovers the earlier slice), and the mod-q wrap keeps
+// it bounded (stable) however strong the coupling. With selfCoupling 0 this is the linear reversible wave.
+export function reversibleWaveStepNonlinear(input: {
+  neighbors: Neighbors
+  previous: Uint8Array
+  current: Uint8Array
+  next: Uint8Array
+  modulus: number
+  selfCoupling: number
+}): void {
+  const { neighbors, previous, current, next, modulus, selfCoupling } = input
+  const n = neighbors.length
+  for (let i = 0; i < n; i++) {
+    let sum = 0
+    const row = neighbors[i] ?? []
+    for (let k = 0; k < row.length; k++) sum += current[row[k]!]!
+    const c = current[i]!
+    const nl = selfCoupling * c * c
+    next[i] = ((((sum - previous[i]! + nl) % modulus) + modulus) % modulus)
+  }
+}

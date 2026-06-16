@@ -1,0 +1,102 @@
+/* The sample app's chrome. Accent colours are the vibe palette (Tailwind violet / emerald / blue) so the app
+   and the renders share one look. The canvas fills the viewport; the panel floats over it. */
+
+:root {
+  --zinc-950: #09090b;
+  --zinc-900: #18181b;
+  --zinc-800: #27272a;
+  --zinc-400: #a1a1aa;
+  --zinc-200: #e4e4e7;
+  --violet-400: #a78bfa;
+  --violet-500: #8b5cf6;
+  --emerald-400: #34d399;
+  --blue-400: #60a5fa;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  background: var(--zinc-950);
+  color: var(--zinc-200);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* home */
+.home {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+.home header h1 {
+  font-size: 3rem;
+  margin: 0 0 0.5rem;
+  color: var(--violet-400);
+  letter-spacing: -0.02em;
+}
+.home header p { color: var(--zinc-400); max-width: 38rem; line-height: 1.6; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin: 2.5rem 0;
+}
+.card {
+  display: block;
+  padding: 1.5rem;
+  border: 1px solid var(--zinc-800);
+  border-radius: 0.75rem;
+  background: var(--zinc-900);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.card:hover { transform: translateY(-2px); }
+.card h2 { margin: 0 0 0.5rem; font-size: 1.2rem; }
+.card p { margin: 0 0 1rem; color: var(--zinc-400); font-size: 0.9rem; line-height: 1.5; }
+.card .go { font-size: 0.85rem; opacity: 0.8; }
+.card-violet:hover { border-color: var(--violet-500); }
+.card-violet h2, .card-violet .go { color: var(--violet-400); }
+.card-blue:hover { border-color: var(--blue-400); }
+.card-blue h2, .card-blue .go { color: var(--blue-400); }
+.card-emerald:hover { border-color: var(--emerald-400); }
+.card-emerald h2, .card-emerald .go { color: var(--emerald-400); }
+
+.home footer p { color: var(--zinc-400); font-size: 0.85rem; line-height: 1.6; }
+.home code { color: var(--violet-400); }
+
+/* viewer */
+.viewer { position: fixed; inset: 0; }
+.viewer-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.panel {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 16rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--zinc-800);
+  border-radius: 0.75rem;
+  background: rgba(9, 9, 11, 0.78);
+  backdrop-filter: blur(8px);
+}
+.panel .back { color: var(--zinc-400); text-decoration: none; font-size: 0.8rem; }
+.panel .back:hover { color: var(--violet-400); }
+.panel h1 { margin: 0.5rem 0 1rem; font-size: 1.3rem; color: var(--violet-400); }
+.field { display: block; margin-bottom: 1rem; }
+.field span { display: block; font-size: 0.75rem; color: var(--zinc-400); margin-bottom: 0.35rem; }
+.field select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: var(--zinc-800);
+  color: var(--zinc-200);
+  border: 1px solid var(--zinc-800);
+  border-radius: 0.4rem;
+  font-family: inherit;
+}
+.legend .hint { font-size: 0.8rem; color: var(--zinc-400); line-height: 1.5; }
+.legend dl { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; margin: 0.75rem 0 0; font-size: 0.8rem; }
+.legend dt { color: var(--violet-400); }
+.legend dd { margin: 0; color: var(--zinc-400); }

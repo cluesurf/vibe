@@ -1,0 +1,6 @@
+# This makes test/site its OWN standalone pnpm root, so `pnpm install` here installs the app's React / Vite
+# dependencies into test/site/node_modules instead of attaching to the vibe package above (which has no React).
+# It is not a package workspace (no `packages:` list); like vibe's own file it only pre-approves the native build
+# scripts an install needs (esbuild, used by Vite).
+allowBuilds:
+  esbuild: true
