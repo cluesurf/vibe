@@ -63,3 +63,107 @@ export function returnProbability(input: {
   const normDrift = Math.abs(syncNormAt() / startNorm - 1)
   return { samples, timeAverage, normDrift }
 }
+
+// The bound-state shell decay, the mechanism behind the fermion mass hierarchy. A fermion is a bound (localized) mode
+// of a tight-binding operator with an attractive well. On a hyperbolic honeycomb where the cells at shell n grow like
+// growthRate^n, a bound mode's amplitude must decay fast enough for the total probability to converge (sum over shells
+// of growthRate^n |amplitude|^2 finite), which forces the amplitude to fall at least as growthRate^(-n/2). So the
+// SLOWEST (shallowest-well, marginal) bound state decays as growthRate^(-n/2) per shell, the pure geometric floor, and
+// deeper wells decay faster. The Yukawa coupling of a generation is the overlap of its mode with the Higgs, so it
+// falls as a power of growthRate per shell of separation, and the inter-generation mass ratios are powers of
+// growthRate. This computes the ground state of H = -A - wellDepth P_origin (A the adjacency) by power iteration on
+// the shifted operator M = sI - H, then returns the per-shell amplitude-decay exponent c, the amplitude ratio between
+// successive shells being growthRate^(-c).
+export function boundStateDecayExponent(input: {
+  neighbors: ReadonlyArray<ArrayLike<number>>
+  cellCount: number
+  wellDepth: number
+  growthRate: number
+  maxDegree: number
+  iterations?: number
+  origin?: number
+}): { decayExponent: number; perShellAmplitude: number[]; reliableShells: number } {
+  const { neighbors, cellCount, wellDepth, growthRate, maxDegree } = input
+  const origin = input.origin ?? 0
+  const iterations = input.iterations ?? 3000
+
+  // shells from the origin by breadth-first search
+  const shell = new Int32Array(cellCount).fill(-1)
+  shell[origin] = 0
+  let frontier = [origin]
+  while (frontier.length > 0) {
+    const next: number[] = []
+    for (const cell of frontier) {
+      const row = neighbors[cell]
+      if (!row) continue
+      for (let i = 0; i < row.length; i++) {
+        const nb = row[i]!
+        if (shell[nb] === -1) {
+          shell[nb] = shell[cell]! + 1
+          next.push(nb)
+        }
+      }
+    }
+    frontier = next
+  }
+  const maxShell = shell.reduce((m, s) => (s > m ? s : m), 0)
+  // the outermost two shells are truncated by the finite build, so they are not reliable
+  const reliableShells = maxShell - 2
+
+  // the most-bound state of H = -A - wellDepth P_origin, the dominant eigenvector of M = sI - H = sI + A + wellDepth
+  // P_origin. Start from the localized origin vector (deterministic, no random).
+  const s = maxDegree + wellDepth + 2
+  const psi = new Float64Array(cellCount)
+  psi[origin] = 1
+  const out = new Float64Array(cellCount)
+  for (let it = 0; it < iterations; it++) {
+    for (let i = 0; i < cellCount; i++) {
+      let acc = s * psi[i]!
+      const row = neighbors[i]
+      if (row) for (let k = 0; k < row.length; k++) acc += psi[row[k]!]!
+      if (i === origin) acc += wellDepth * psi[origin]!
+      out[i] = acc
+    }
+    let norm = 0
+    for (let i = 0; i < cellCount; i++) norm += out[i]! * out[i]!
+    norm = Math.sqrt(norm) || 1
+    for (let i = 0; i < cellCount; i++) psi[i] = out[i]! / norm
+  }
+
+  // the root-mean-square amplitude per shell
+  const perShellAmplitude: number[] = []
+  for (let sh = 0; sh <= Math.max(reliableShells, 0); sh++) {
+    let sum = 0
+    let count = 0
+    for (let i = 0; i < cellCount; i++) {
+      if (shell[i] === sh) {
+        sum += psi[i]! * psi[i]!
+        count++
+      }
+    }
+    perShellAmplitude.push(Math.sqrt(sum / Math.max(count, 1)))
+  }
+
+  // the decay exponent, a log-linear fit of amplitude versus shell over the reliable shells (from shell 1 outward,
+  // skipping the origin peak), slope = -c ln(growthRate)
+  let sx = 0
+  let sy = 0
+  let sxx = 0
+  let sxy = 0
+  let m = 0
+  for (let sh = 1; sh <= reliableShells; sh++) {
+    const amp = perShellAmplitude[sh]
+    if (amp && amp > 0) {
+      sx += sh
+      sy += Math.log(amp)
+      sxx += sh * sh
+      sxy += sh * Math.log(amp)
+      m++
+    }
+  }
+  const slope =
+    m > 1
+      ? (m * sxy - sx * sy) / (m * sxx - sx * sx)
+      : Math.log((perShellAmplitude[reliableShells] ?? 1) / (perShellAmplitude[Math.max(reliableShells - 1, 0)] ?? 1))
+  return { decayExponent: -slope / Math.log(growthRate), perShellAmplitude, reliableShells }
+}
