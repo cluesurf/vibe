@@ -39,6 +39,7 @@ struct Params {
   n0: vec4<f32>,
   n1: vec4<f32>,
   n2: vec4<f32>,
+  cam: vec4<f32>, // xy = Mobius pan (the disk point under the screen center), z = zoom, w unused
   iterations: u32,
   edgeWidth: f32,
   pad0: f32,
@@ -50,6 +51,15 @@ struct Params {
 // Minkowski inner product, signature (+, +, -)
 fn hdot(a: vec3<f32>, b: vec3<f32>) -> f32 {
   return a.x * b.x + a.y * b.y - a.z * b.z;
+}
+
+// Mobius (gyrovector) addition in the Poincare disk, the isometry that PANS the view
+fn mobiusAdd2(a: vec2<f32>, x: vec2<f32>) -> vec2<f32> {
+  let ax = dot(a, x);
+  let aa = dot(a, a);
+  let xx = dot(x, x);
+  let d = 1.0 + 2.0 * ax + aa * xx;
+  return ((1.0 + 2.0 * ax + xx) * a + (1.0 - aa) * x) / max(d, 1e-6);
 }
 
 // reflect p across the mirror with unit normal n only if p is on the wrong side. The chamber is
@@ -82,14 +92,16 @@ fn distToMirror(q: vec3<f32>, n: vec3<f32>) -> f32 {
 
 @fragment
 fn fs(in: VertexOut) -> @location(0) vec4<f32> {
-  // map the pixel into the Poincare disk: a centered square mapped to [-1.05, 1.05]
-  let d = (in.uv - vec2<f32>(0.5, 0.5)) * 2.1;
-  let r2 = dot(d, d);
+  // map the pixel into the Poincare disk (centered square), scaled by zoom and panned by a Mobius shift
+  let zoom = max(0.05, P.cam.z);
+  let d0 = (in.uv - vec2<f32>(0.5, 0.5)) * 2.1 / zoom;
 
   // outside the unit disk is the ideal boundary and beyond, draw it dark
-  if (r2 >= 1.0) {
+  if (dot(d0, d0) >= 1.0) {
     return vec4<f32>(0.04, 0.04, 0.05, 1.0);
   }
+  let d = mobiusAdd2(P.cam.xy, d0);
+  let r2 = dot(d, d);
 
   // inverse stereographic lift to the hyperboloid: (2x, 2y, 1 + r^2) / (1 - r^2)
   let denom = 1.0 - r2;
@@ -150,6 +162,7 @@ struct Params {
   n2: vec4<f32>,
   n3: vec4<f32>,
   eye: vec4<f32>,
+  cam: vec4<f32>, // a Mobius world-shift (the negated camera ball point), .xyz used. zero = static view.
   iterations: u32,
   edgeWidth: f32,
   detail: f32,
@@ -160,6 +173,16 @@ struct Params {
 
 fn hdot4(a: vec4<f32>, b: vec4<f32>) -> f32 {
   return a.x * b.x + a.y * b.y + a.z * b.z - a.w * b.w;
+}
+
+// Mobius (gyrovector) addition in the Poincare ball, the hyperbolic isometry that flies the camera through the
+// honeycomb. Translating the world by the negated camera point puts the camera at the origin.
+fn mobiusAdd(a: vec3<f32>, x: vec3<f32>) -> vec3<f32> {
+  let ax = dot(a, x);
+  let aa = dot(a, a);
+  let xx = dot(x, x);
+  let d = 1.0 + 2.0 * ax + aa * xx;
+  return ((1.0 + 2.0 * ax + xx) * a + (1.0 - aa) * x) / max(d, 1e-6);
 }
 
 // the chamber is the cone where every hdot4(p, n_i) <= 0, so reflect any wall the point crossed.
@@ -206,6 +229,14 @@ fn de(p: vec3<f32>) -> f32 {
   return max(r2 - 1.0 + 0.001, euclid);
 }
 
+// the distance estimate as seen from the flying camera. Outside the ball (the approach region) the ray is left
+// alone, since the Mobius shift is only an isometry inside the ball. Once inside, the sample is translated by
+// the Mobius world-shift, so the honeycomb flies past as the camera dives through it along a geodesic.
+fn deCam(p: vec3<f32>) -> f32 {
+  if (dot(p, p) >= 1.0) { return de(p); }
+  return de(mobiusAdd(P.cam.xyz, p));
+}
+
 @fragment
 fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   // a primary ray from the eye toward the ball center, with a small field of view
@@ -222,7 +253,7 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   let steps = u32(P.maxSteps);
   for (var i: u32 = 0u; i < steps; i = i + 1u) {
     pos = eye + dir * t;
-    let dist = de(pos);
+    let dist = deCam(pos);
     if (dist < P.detail) { hit = true; break; }
     t = t + dist;
     if (t > 6.0) { break; }
@@ -234,9 +265,9 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
 
   // a finite-difference normal for simple Lambert shading
   let h = 0.0005;
-  let nx = de(pos + vec3<f32>(h, 0.0, 0.0)) - de(pos - vec3<f32>(h, 0.0, 0.0));
-  let ny = de(pos + vec3<f32>(0.0, h, 0.0)) - de(pos - vec3<f32>(0.0, h, 0.0));
-  let nz = de(pos + vec3<f32>(0.0, 0.0, h)) - de(pos - vec3<f32>(0.0, 0.0, h));
+  let nx = deCam(pos + vec3<f32>(h, 0.0, 0.0)) - deCam(pos - vec3<f32>(h, 0.0, 0.0));
+  let ny = deCam(pos + vec3<f32>(0.0, h, 0.0)) - deCam(pos - vec3<f32>(0.0, h, 0.0));
+  let nz = deCam(pos + vec3<f32>(0.0, 0.0, h)) - deCam(pos - vec3<f32>(0.0, 0.0, h));
   let normal = normalize(vec3<f32>(nx, ny, nz));
 
   let lightDir = normalize(vec3<f32>(0.6, 0.8, 0.4));
@@ -244,6 +275,146 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   let depth = 1.0 - 0.12 * t;
   let base = vec3<f32>(0.62, 0.55, 0.95);
   let col = base * lambert * depth;
+
+  return vec4<f32>(col, 1.0);
+}
+`
+
+// ---------------------------------------------------------------------------------------------
+// 3D INTERIOR renderer. The camera sits INSIDE the honeycomb and the cells are drawn as a lattice
+// of SOLID BEAMS along the honeycomb edges (where two mirror walls meet), so you fly through the
+// dodecahedral corridors of {5,3,4} (the HyperRogue interior look) instead of seeing nested shells
+// from outside. Same fold + Mobius camera as FOLD_3D_WGSL, but the distance estimate is a tube
+// around the SECOND-nearest mirror (an edge), not a slab around the nearest mirror (a face).
+// ---------------------------------------------------------------------------------------------
+
+export const FOLD_3D_INTERIOR_WGSL = /* wgsl */ `
+struct VertexOut {
+  @builtin(position) pos: vec4<f32>,
+  @location(0) uv: vec2<f32>,
+};
+
+@vertex
+fn vs(@builtin(vertex_index) vi: u32) -> VertexOut {
+  var out: VertexOut;
+  let p = vec2<f32>(f32((vi << 1u) & 2u), f32(vi & 2u));
+  out.uv = p;
+  out.pos = vec4<f32>(p * 2.0 - 1.0, 0.0, 1.0);
+  return out;
+}
+
+struct Params {
+  n0: vec4<f32>,
+  n1: vec4<f32>,
+  n2: vec4<f32>,
+  n3: vec4<f32>,
+  eye: vec4<f32>,
+  cam: vec4<f32>,
+  iterations: u32,
+  edgeWidth: f32,
+  detail: f32,
+  maxSteps: f32,
+};
+
+@group(0) @binding(0) var<uniform> P: Params;
+
+fn hdot4(a: vec4<f32>, b: vec4<f32>) -> f32 {
+  return a.x * b.x + a.y * b.y + a.z * b.z - a.w * b.w;
+}
+
+fn mobiusAdd(a: vec3<f32>, x: vec3<f32>) -> vec3<f32> {
+  let ax = dot(a, x);
+  let aa = dot(a, a);
+  let xx = dot(x, x);
+  let d = 1.0 + 2.0 * ax + aa * xx;
+  return ((1.0 + 2.0 * ax + xx) * a + (1.0 - aa) * x) / max(d, 1e-6);
+}
+
+fn tryReflect4(p: ptr<function, vec4<f32>>, n: vec4<f32>) -> f32 {
+  let k = max(0.0, hdot4(*p, n));
+  *p = *p - 2.0 * k * n;
+  return k;
+}
+
+// fold by the CELL STABILIZER only (the first three mirrors, a finite group), mapping a point into one simplex
+// of the dodecahedral cell. The outer mirror n3 is then the cell's FACE (the wall to the next cell).
+fn foldCell(p: ptr<function, vec4<f32>>) {
+  for (var i: u32 = 0u; i < P.iterations; i = i + 1u) {
+    var k = 0.0;
+    k = k + tryReflect4(p, P.n0);
+    k = k + tryReflect4(p, P.n1);
+    k = k + tryReflect4(p, P.n2);
+    if (k == 0.0) { return; }
+  }
+}
+
+// distance estimate to the SOLID cell wall (the dodecahedron face, the n3 mirror plane). Inside the cell you
+// always face a wall, so you stand inside a closed dodecahedral room and see all twelve faces.
+fn de(p: vec3<f32>) -> f32 {
+  let r2 = dot(p, p);
+  if (r2 >= 1.0) { return sqrt(r2) - 1.0 + 0.0005; }
+  let denom = 1.0 - r2;
+  var q = vec4<f32>(2.0 * p / denom, (1.0 + r2) / denom);
+  foldCell(&q);
+  // hyperbolic distance from the point to the cell-face plane n3, the wall surface
+  let wall = asinh(abs(hdot4(q, P.n3)));
+  let euclid = wall * denom * 0.5 * 0.5;
+  return max(r2 - 1.0 + 0.001, euclid);
+}
+
+fn deCam(p: vec3<f32>) -> f32 {
+  if (dot(p, p) >= 1.0) { return de(p); }
+  return de(mobiusAdd(P.cam.xyz, p));
+}
+
+@fragment
+fn fs(in: VertexOut) -> @location(0) vec4<f32> {
+  let eye = P.eye.xyz;
+  let forward = normalize(-eye);
+  let right = normalize(cross(vec3<f32>(0.0, 1.0, 0.0), forward));
+  let up = cross(forward, right);
+  let ndc = (in.uv - vec2<f32>(0.5, 0.5)) * 2.0;
+  let dir = normalize(forward + 0.9 * (ndc.x * right + ndc.y * up));
+
+  var t = 0.0;
+  var hit = false;
+  var pos = eye;
+  let steps = u32(P.maxSteps);
+  for (var i: u32 = 0u; i < steps; i = i + 1u) {
+    pos = eye + dir * t;
+    let dist = deCam(pos);
+    if (dist < P.detail) { hit = true; break; }
+    t = t + dist;
+    if (t > 6.0) { break; }
+  }
+
+  if (!hit) {
+    return vec4<f32>(0.03, 0.03, 0.05, 1.0);
+  }
+
+  let h = 0.0004;
+  let nx = deCam(pos + vec3<f32>(h, 0.0, 0.0)) - deCam(pos - vec3<f32>(h, 0.0, 0.0));
+  let ny = deCam(pos + vec3<f32>(0.0, h, 0.0)) - deCam(pos - vec3<f32>(0.0, h, 0.0));
+  let nz = deCam(pos + vec3<f32>(0.0, 0.0, h)) - deCam(pos - vec3<f32>(0.0, 0.0, h));
+  let normal = normalize(vec3<f32>(nx, ny, nz));
+
+  // edge glow: fold the hit point by the cell stabilizer and measure how close it is to a dodecahedron EDGE
+  // (where the face mirror n3 meets one of the stabilizer mirrors), so the cell's wireframe lights up
+  let wpt = mobiusAdd(P.cam.xyz, pos);
+  let wr2 = dot(wpt, wpt);
+  let wdenom = 1.0 - wr2;
+  var qh = vec4<f32>(2.0 * wpt / wdenom, (1.0 + wr2) / wdenom);
+  foldCell(&qh);
+  let eg = min(asinh(abs(hdot4(qh, P.n0))), min(asinh(abs(hdot4(qh, P.n1))), asinh(abs(hdot4(qh, P.n2)))));
+  let glow = smoothstep(0.055, 0.0, eg); // crisp wireframe lines along the dodecahedron edges
+
+  let lightDir = normalize(vec3<f32>(0.4, 0.8, 0.5));
+  let lambert = max(0.22, dot(normal, lightDir));
+  let fog = exp(-0.4 * t);
+  let base = vec3<f32>(0.5, 0.44, 0.82);
+  let wall = base * lambert * fog;
+  let edge = vec3<f32>(0.95, 0.92, 1.0) * glow * fog;
+  let col = wall + edge + vec3<f32>(0.025, 0.025, 0.05);
 
   return vec4<f32>(col, 1.0);
 }

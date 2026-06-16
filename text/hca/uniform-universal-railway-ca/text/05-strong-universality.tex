@@ -1,0 +1,117 @@
+\section{Strong universality: registers that build themselves}
+\label{sec:strong}
+
+This is the central section. The motion and switch rules of Section~\ref{sec:automaton} already give a universal
+automaton on every tiling, but only weakly, because the unbounded registers of a register machine have to be
+supplied as an infinite, if ultimately periodic, initial track. We now remove that infinity. We add one rule,
+a track-building rule, under which a register starts as a single cell and constructs the digits it needs as the
+computation runs. The program is finite and the registers self-extend, so the whole machine starts from a
+finite configuration, which is strong universality.
+
+\subsection{The track-building rule}
+
+Empty space is not inert at the growing tip of a register. When the locomotive reaches the end of a register
+and must extend it, the head selects a fresh empty neighbour, turns it into track, and advances into it. The
+rule is Table~\ref{tab:build}. To choose the fresh cell with no global frame, the head takes the empty
+neighbour of greatest tree depth, the outward direction laid down with the seed, breaking ties by the cell's
+own index. On a tiling whose balls grow without bound a strictly deeper empty cell always exists, so the
+builder never traps itself.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lp{10.0cm}@{}}
+\toprule
+rule & action \\
+\midrule
+(B1) & a head on the end of a register, with no clear track ahead, turns its deepest empty neighbour into a
+track cell and advances the head into it \\
+(B2) & the new track cell links back to the head's cell and forward to its own next outward cell, so the
+register has grown by one digit \\
+\bottomrule
+\end{tabular}
+\caption{The track-building rule, the single addition that turns weak universality into strong universality.
+Outward is read from tree depth, which increases without bound, so the rule never traps.}
+\label{tab:build}
+\end{table}
+
+\begin{lemma}[The builder never traps]
+\label{lem:build}
+On an infinite regular tiling, a builder governed by (B1) and (B2) takes a strictly outward step at every step,
+so it constructs an unbounded track from a one-cell seed.
+\end{lemma}
+
+Every cell of an infinite regular tiling has a child of strictly greater tree depth, which is empty until the
+builder reaches it, so the deepest-empty-neighbour choice is always defined and strictly increases the depth.
+The track therefore grows by one cell at every step and never halts. \qed
+
+We verified this directly. From a one-cell seed the builder lays a strictly outward track on the octagrid, the
+dodecagrid, and the $\{3,4,3,4\}$ honeycomb, halting in a finite test patch only at the patch boundary and so
+never on the infinite tiling \cite{pollard2026vibe}.
+
+\subsection{The self-extending register}
+
+A register is a chain of flip-flop bits holding a number in binary, the lowest bit at the entry. The locomotive
+increments it by rippling, it flips the lowest bit, and on a carry flips the next, and so on. Table~\ref{tab:reg}
+gives the operation. The new ingredient is the last line, on overflow, when the carry runs past the top bit,
+the builder rule (B1) lays a new bit and the carry sets it. So the register that began with one bit grows a new
+bit exactly when it first needs one.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}llp{7.4cm}@{}}
+\toprule
+the locomotive meets a bit & whose value is & and \\
+\midrule
+flip-flop bit, active crossing & $0$ & sets it to $1$, no carry, returns (increment done) \\
+flip-flop bit, active crossing & $1$ & sets it to $0$, carries to the next bit \\
+end of register, carry out & --- & builds a new bit by (B1) and sets it to $1$ (the register grows) \\
+\bottomrule
+\end{tabular}
+\caption{The self-extending register. Increment ripples carries through the flip-flop bits, and on overflow the
+register builds itself a new bit. The bits' selection settings are the stored number.}
+\label{tab:reg}
+\end{table}
+
+\begin{lemma}[Self-extension]
+\label{lem:selfext}
+A register started as a single bit, incremented $k$ times, holds the value $k$ in $\lceil \log_2(k+1) \rceil$
+bits, all of which past the first it built itself.
+\end{lemma}
+
+Each increment adds one by the binary ripple of Table~\ref{tab:reg}, and a new bit is built precisely when the
+count first reaches a new power of two, by (B1). So after $k$ increments the bits hold $k$ and number
+$\lceil \log_2(k+1) \rceil$. \qed
+
+We verified this directly. A counter started from a one-bit seed counts $1$ through $100$ correctly, growing
+from one bit to seven by six self-builds \cite{pollard2026vibe}. The growth on demand is the same move a growing
+mesh makes when it adds a new ring at its open edge each step, memory is not laid out in advance, it is built as
+the process reaches for it.
+
+\subsection{The strong universality theorem}
+
+\begin{theorem}[Uniform strong universality]
+\label{thm:strong}
+There is one cellular automaton, defined by rules local in the cell-adjacency graph and independent of any
+tiling (Tables~\ref{tab:states} to~\ref{tab:reg}), such that for every regular hyperbolic tiling and every
+register machine there is a \textit{finite} initial configuration on that tiling whose evolution simulates the machine.
+\end{theorem}
+
+The initial configuration holds the finite track of the machine's fixed program, the switches that wire its
+instructions, and each register as a single seed bit. The locomotive runs the program by the railway reduction
+of Proposition~\ref{prop:railway}, using the motion and switch rules of Section~\ref{sec:automaton}. Whenever an
+increment overflows a register, the register extends itself by the build rule (B1), by Lemmas~\ref{lem:build}
+and~\ref{lem:selfext}, so the unbounded memory the machine needs is constructed from the finite seed rather than
+given. A register machine with two counters is universal \cite{minsky1967}, so the configuration is finite and
+the evolution is universal, which is strong universality. None of the rules referred to the tiling, so one
+automaton serves every regular tiling. \qed
+
+\subsection{Scope, stated honestly}
+
+The pieces of Theorem~\ref{thm:strong} are each verified by direct execution, the locomotive and the three
+switches on the actual tilings (Section~\ref{sec:verification}), a register computed end to end as a binary
+counter, the self-extending counter from a finite seed, and the never-trapping builder. The theorem composes
+them through the standard railway-to-register-machine reduction, the same way Margenstern's strongly universal
+dodecagrid automaton is established, by a construction together with checks of its parts
+\cite{margenstern2021dodeca5}. We do not exhibit a single monolithic run of a complete two-register program
+laid on one tiling from a finite seed, which is an engineering assembly of the verified parts rather than a new
+idea, and we mark it as such.

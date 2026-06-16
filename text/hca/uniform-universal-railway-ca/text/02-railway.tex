@@ -1,0 +1,79 @@
+\section{The railway circuit}
+\label{sec:railway}
+
+The computing model behind every universal automaton in this line of work is the railway circuit of Stewart
+\cite{stewart1994}, as adapted by Margenstern \cite{margenstern2008vol2}. We recall it here in the form we
+need, which is purely combinatorial. A railway is a network of tracks on which one locomotive runs. The
+locomotive is never created or destroyed and never stops. The whole content of a computation is held in the
+settings of the switches the locomotive flips as it rolls.
+
+\subsection{Tracks and the locomotive}
+
+A track is a path. The locomotive occupies two consecutive positions on it, a leading position we call the
+head and the position just behind it we call the trailing cell. At each step the pair advances by one position
+along the track, the head moving to the next position and the trailing cell following into the position the
+head has left. The pair is what gives the locomotive a direction. A head alone could not tell forward from
+backward, but a head with a trailing cell behind it can, because the way back is occupied and the way forward
+is open.
+
+\subsection{The three switches}
+
+A switch is a place where three tracks meet. One of the three is distinguished and called the trunk. The other
+two are the branches, named $a$ and $b$. A switch is an oriented object. Entering it from the trunk is an
+active crossing, in which the switch sends the locomotive on to one branch, the one it currently selects.
+Entering it from a branch is a passive crossing, in which the locomotive simply proceeds to the trunk. The
+three kinds of switch differ only in how the selected branch is updated.
+
+\begin{itemize}
+  \item A \emph{fixed} switch never changes its selection. Entered from the trunk it always sends the
+  locomotive to the same branch. It is a permanent fork.
+  \item A \emph{flip-flop} switch changes its selection on every active crossing. Entered from the trunk it
+  sends the locomotive to the selected branch and then selects the other branch for next time. The passive
+  crossing leaves it unchanged. The flip-flop is the only one-way switch, used only in the active direction.
+  \item A \emph{memory} switch records the branch through which it was last entered passively. A passive
+  crossing from branch $a$ sets its selection to $a$, a passive crossing from branch $b$ sets it to $b$. An
+  active crossing then sends the locomotive to the branch the switch last remembered.
+\end{itemize}
+
+A plain crossing, where two tracks cross without interacting, is also allowed. In the plane a crossing is a
+genuine four-way piece. In three-dimensional space the third dimension lets one track pass over the other, so
+a crossing becomes a bridge and no special piece is needed.
+
+\subsection{From switches to a register machine}
+
+A register holds a non-negative integer. A register unit is built from a flip-flop paired with a memory
+switch, and a chain of such units holds the value in unary, as the number of units currently set. The
+locomotive performs the three register operations by entering the chain through the appropriate track. To
+increment, it runs in, sets the first free unit, and returns. To decrement, it runs in, clears the last set
+unit, and returns. When it is asked to decrement a register that is already zero, it finds no set unit to
+clear and comes back along a different track, which is how the machine learns that the register was zero. This
+zero test is the one piece of control that a counter machine needs.
+
+A sequencer wires the instructions of a program together. Each instruction of a register machine is a small
+sub-circuit that drives the locomotive to the register it acts on, performs the operation, reads the zero test
+where needed, and routes the locomotive to the next instruction. Loops and conditional jumps are just track
+that returns to an earlier instruction. The circuit is infinite, since the registers are unbounded, but it is
+ultimately periodic, a fixed pattern repeated outward, which is all that weak universality requires.
+
+\subsection{Why the railway suits hyperbolic space}
+
+Two facts make the railway the natural choice. First, there is no synchronisation to maintain. A single
+locomotive is the entire moving part, so the exponential stretching of distances in hyperbolic space, which
+defeats any scheme that must time the meeting of separate signals, costs nothing here. The locomotive simply
+takes longer to reach the far parts of the circuit, and that is harmless. Second, the railway needs only local
+routing decisions, made one switch at a time, and a hyperbolic tiling has room in abundance to lay out the
+tracks and to give crossings the space they need.
+
+The reduction is standard and we do not reprove it. A register machine with two counters is universal
+\cite{minsky1967}. The railway with the three switches above simulates any register machine
+\cite{stewart1994, margenstern2008vol2}. We record the consequence we will use.
+
+\begin{proposition}[Railway universality]
+\label{prop:railway}
+Any device that faithfully realizes a track on which a head-and-trailing-cell locomotive advances in one
+direction, together with the fixed, flip-flop, and memory switches and a crossing, simulates an arbitrary
+register machine, and is therefore universal.
+\end{proposition}
+
+The work of the present paper is to realize exactly these pieces, the track, the locomotive, and the three
+switches, as one tiling-independent cellular automaton.

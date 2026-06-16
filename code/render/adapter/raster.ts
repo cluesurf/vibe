@@ -10,6 +10,7 @@
 import { encodePng } from '@/code/draw/png'
 import type { Scene, Vec } from '@/code/render/scene'
 import { geodesicPoints } from '@/code/render/geometry/isometry'
+import { applyModel, modelIsBounded, type ProjectionModel } from '@/code/render/geometry/projection'
 
 export type Rgb = [number, number, number]
 
@@ -41,6 +42,9 @@ export type RasterOptions = {
   // segments per edge, 1 draws a straight chord, higher draws the TRUE geodesic as a curved arc. A hyperbolic
   // geodesic is a circular arc in the Poincare model, so curves are needed for a faithful tiling.
   segments?: number
+  // the projection model for a 2D tiling, the same Scene rendered as a Poincare disk, a Klein disk, the upper
+  // half-plane, a band, or the Gans plane (3D honeycombs always use the Poincare ball). Default poincare.
+  model?: ProjectionModel
 }
 
 // render a Scene to a PNG buffer
@@ -55,55 +59,126 @@ export function renderSceneToRgba(input: RasterOptions): { rgba: Uint8Array; siz
   const {
     scene, size = DEFAULT_SIZE, margin = DEFAULT_MARGIN, lineWidth = DEFAULT_LINE_WIDTH,
     background = DEFAULT_BACKGROUND, near = DEFAULT_NEAR, far = DEFAULT_FAR,
-    rotateX = 0.45, rotateY = 0.6, drawBoundary = true, segments = 24,
+    rotateX = 0.45, rotateY = 0.6, drawBoundary = true, segments = 24, model = 'poincare',
   } = input
 
   const rgba = new Uint8Array(size * size * 4)
   for (let i = 0; i < rgba.length; i += 4) { rgba[i] = background[0]; rgba[i + 1] = background[1]; rgba[i + 2] = background[2]; rgba[i + 3] = 255 }
   const half = size / 2
-  const scale = half * margin
+  const threeD = scene.dim >= 3
 
-  // project a ball point to (screen x, screen y, depth). a 2D point projects straight, a 3D point is rotated
-  // then orthographically projected, with z as depth (higher = nearer the camera).
-  const project = (v: Vec): { x: number; y: number; z: number } => {
-    let x = v[0] ?? 0, y = v[1] ?? 0, z = v[2] ?? 0
-    if (scene.dim >= 3) {
-      // rotate around y, then x
+  // map a ball point to PLANE coordinates plus a depth. A 2D point goes through the chosen projection model. A
+  // 3D point is rotated then orthographically projected, with z as depth (higher = nearer the camera).
+  const toPlane = (v: Vec): { x: number; y: number; z: number } => {
+    if (threeD) {
+      let x = v[0] ?? 0, y = v[1] ?? 0, z = v[2] ?? 0
       const cy = Math.cos(rotateY), sy = Math.sin(rotateY)
       const x1 = cy * x + sy * z
       const z1 = -sy * x + cy * z
       const cx = Math.cos(rotateX), sx = Math.sin(rotateX)
-      const y1 = cx * y - sx * z1
-      const z2 = sx * y + cx * z1
-      x = x1; y = y1; z = z2
+      x = x1; y = cx * y - sx * z1; z = sx * y + cx * z1
+      return { x, y, z }
     }
-    return { x: half + scale * x, y: half - scale * y, z }
+    const p = applyModel(v, model)
+    return { x: p[0] ?? 0, y: p[1] ?? 0, z: 0 }
   }
 
-  if (drawBoundary) strokeCircle(rgba, size, half, half, scale, DEFAULT_BOUNDARY)
-
-  // build projected edges (as geodesic polylines) with a depth, then draw far-first so near struts land on
-  // top (3D occlusion feel)
+  // build the edges as plane-projected geodesic polylines (the geodesic is sampled in BALL space, where it is a
+  // true arc, then each sample is mapped through the model, so curves stay curved in every model)
   const drawn = scene.edges.map((e) => {
     const samples = segments > 1 ? geodesicPoints(e.a, e.b, segments) : [e.a, e.b]
-    const pts = samples.map(project)
+    const plane = samples.map(toPlane)
     let depth = 0
-    for (const p of pts) depth += p.z
-    depth /= pts.length
-    // shade by depth for 3D, by ball radius of the midpoint for 2D
+    for (const p of plane) depth += p.z
+    depth /= plane.length
     let t: number
-    if (scene.dim >= 3) t = (depth + 1) / 2 // -1..1 -> 0..1, near (high z) -> 1
+    if (threeD) t = (depth + 1) / 2 // -1..1 -> 0..1, near (high z) -> 1
     else { const mr = midRadius(e.a, e.b); t = 1 - Math.min(1, mr) } // centre -> 1, boundary -> 0
-    return { pts, depth, color: lerp(far, near, t) }
+    return { plane, depth, color: lerp(far, near, t) }
   })
+
+  // build the filled faces, each boundary edge sampled as a geodesic arc and projected through the model, so a
+  // cell is bounded by true arcs in every model. Depth is the mean z (for 3D back-to-front fill).
+  const faceSegments = Math.max(2, Math.floor(segments / 2))
+  const faces = (scene.faces ?? []).map((f) => {
+    const boundary: { x: number; y: number; z: number }[] = []
+    for (let i = 0; i < f.polygon.length; i++) {
+      const a = f.polygon[i]!
+      const b = f.polygon[(i + 1) % f.polygon.length]!
+      const samples = geodesicPoints(a, b, faceSegments)
+      for (let k = 0; k < samples.length - 1; k++) boundary.push(toPlane(samples[k]!))
+    }
+    let depth = 0
+    for (const p of boundary) depth += p.z
+    depth /= boundary.length || 1
+    return { boundary, depth, color: f.color }
+  })
+
+  // fit plane coordinates to the image. Disk models (and the 3D ball) use a fixed unit frame, so they stay
+  // centered and circular. Unbounded models (Gans, half-plane, band) fit to the content's bounding box.
+  const bounded = threeD || modelIsBounded(model)
+  let cx = 0, cy = 0, scale = half * margin
+  if (!bounded) {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+    const include = (x: number, y: number): void => {
+      if (x < minX) minX = x; if (x > maxX) maxX = x
+      if (y < minY) minY = y; if (y > maxY) maxY = y
+    }
+    for (const d of drawn) for (const p of d.plane) include(p.x, p.y)
+    for (const f of faces) for (const p of f.boundary) include(p.x, p.y)
+    cx = (minX + maxX) / 2; cy = (minY + maxY) / 2
+    const span = Math.max(maxX - minX, maxY - minY) || 1
+    scale = (size * margin) / span
+  }
+  const sx = (x: number): number => half + scale * (x - cx)
+  const sy = (y: number): number => half - scale * (y - cy)
+
+  // filled faces first (under the struts), back-to-front so near cells cover far ones in 3D
+  faces.sort((p, q) => p.depth - q.depth)
+  for (const f of faces) {
+    fillPolygon(rgba, size, f.boundary.map((p) => ({ x: sx(p.x), y: sy(p.y) })), f.color)
+  }
+
+  if (drawBoundary && (bounded || threeD)) strokeCircle(rgba, size, half, half, half * margin, DEFAULT_BOUNDARY)
+
   drawn.sort((p, q) => p.depth - q.depth)
   for (const d of drawn) {
-    for (let i = 0; i + 1 < d.pts.length; i++) {
-      drawLine(rgba, size, d.pts[i]!.x, d.pts[i]!.y, d.pts[i + 1]!.x, d.pts[i + 1]!.y, d.color, lineWidth)
+    for (let i = 0; i + 1 < d.plane.length; i++) {
+      drawLine(rgba, size, sx(d.plane[i]!.x), sy(d.plane[i]!.y), sx(d.plane[i + 1]!.x), sy(d.plane[i + 1]!.y), d.color, lineWidth)
     }
   }
 
   return { rgba, size }
+}
+
+// fill a screen-space polygon by even-odd scanline. The boundary is already a fine arc-sampled polyline.
+function fillPolygon(rgba: Uint8Array, size: number, pts: { x: number; y: number }[], color: Rgb): void {
+  if (pts.length < 3) return
+  let minY = Infinity, maxY = -Infinity
+  for (const p of pts) { if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y }
+  const y0 = Math.max(0, Math.ceil(minY))
+  const y1 = Math.min(size - 1, Math.floor(maxY))
+  for (let y = y0; y <= y1; y++) {
+    const xs: number[] = []
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i]!
+      const b = pts[(i + 1) % pts.length]!
+      const ay = a.y, by = b.y
+      if ((ay <= y && by > y) || (by <= y && ay > y)) {
+        xs.push(a.x + ((y - ay) / (by - ay)) * (b.x - a.x))
+      }
+    }
+    if (xs.length < 2) continue
+    xs.sort((p, q) => p - q)
+    for (let k = 0; k + 1 < xs.length; k += 2) {
+      const xa = Math.max(0, Math.ceil(xs[k]!))
+      const xb = Math.min(size - 1, Math.floor(xs[k + 1]!))
+      for (let x = xa; x <= xb; x++) {
+        const o = (y * size + x) * 4
+        rgba[o] = color[0]; rgba[o + 1] = color[1]; rgba[o + 2] = color[2]
+      }
+    }
+  }
 }
 
 function midRadius(a: Vec, b: Vec): number {

@@ -1,0 +1,73 @@
+\section{The combinatorial setting}
+\label{sec:setting}
+
+The earlier automata are stated tiling by tiling because they read geometry. A pentagrid rule speaks of five
+edge-neighbours and five vertex-neighbours in cyclic order, a heptagrid rule of seven side-neighbours, a
+dodecagrid rule of twelve faces. To state one automaton for all of them we drop down to the level on which the
+tilings agree, the cell-adjacency graph.
+
+\subsection{A tiling as a graph}
+
+Let $T$ be a regular tiling, of the hyperbolic plane or of hyperbolic space, with cells that meet face to
+face. Its cell-adjacency graph $G$ has one vertex for each cell of $T$ and one edge for each pair of cells that
+share a facet. Two cells are neighbours exactly when they share a facet. The degree of a vertex of $G$ is the
+number of facets of a cell, which is $p$ for the planar tiling $\{p,q\}$ and the facet count of the cell for a
+honeycomb \cite{coxeter1973}. We will say cell for a vertex of $G$ and neighbour for an adjacent vertex.
+
+The automaton of Section~\ref{sec:automaton} is defined entirely on $G$. Its rules read a cell, the states of
+the cells adjacent to it, and a fixed local labelling described below. They never refer to the angles, the
+lengths, the curvature, or the dimension of $T$. The same rules therefore apply to the pentagrid, the
+heptagrid, the octagrid, the dodecagrid, and every other regular tiling, because each of these is, at the
+level the rules see, just a graph with a labelling.
+
+\subsection{The structured initial configuration}
+
+A weakly universal automaton is allowed an infinite initial configuration, provided it is ultimately periodic,
+a finite pattern repeated outward in a regular way. The railway network is such a configuration. We now say
+which information it carries. Each cell is in one of three roles, fixed for all time by the initial
+configuration.
+
+\begin{itemize}
+  \item A cell may be \emph{empty}, not part of the circuit. Empty cells stay empty, and they form the
+  quiescent background.
+  \item A cell may be a \emph{track} cell. A track cell carries the identities of its two track-neighbours, the
+  two cells along the track through it. These two distinguished neighbours are the only ones the locomotive
+  uses when passing through the cell.
+  \item A cell may be a \emph{switch} cell. A switch cell carries the identities of three track-neighbours in
+  labelled roles, the trunk, the branch $a$, and the branch $b$, together with the kind of switch, fixed,
+  flip-flop, or memory.
+\end{itemize}
+
+This labelling is the oriented part of the construction. It is laid down once, in the initial configuration,
+and never changes. It is what lets a switch in any tiling know which of its neighbours is the trunk without
+appeal to a global frame. We discuss the status of this labelling, and how it differs from Margenstern's
+rotation invariance, in Section~\ref{sec:comparison}. On top of the fixed role and labelling, each cell carries
+a dynamic state that the automaton updates, the state that holds the moving locomotive and the switch settings,
+the subject of the next section.
+
+\subsection{Laying the circuit on a tiling}
+
+To run a given register machine on a given tiling, one embeds the machine's track network into the cell graph
+of the tiling, choosing which cells are track and which are switches and fixing their labels. A hyperbolic
+tiling has exponential room, so a track can be routed wherever it is needed and the parts of the circuit can
+be kept apart. Two pieces of track that must cross are handled by the crossing of Section~\ref{sec:railway}, in
+the plane by the four-way crossing piece and in three or more dimensions by routing one track around the other
+through the extra dimension.
+
+We stress that the embedding is part of the input, the program, and not part of the automaton. The automaton
+is the fixed rule of Section~\ref{sec:automaton}. Different computations are different initial configurations
+of the one automaton, exactly as different railway layouts run different programs on the one set of physical
+track parts.
+
+\subsection{The outward direction}
+\label{sec:outward}
+
+One piece of the construction needs a sense of outward, the track-building rule of Section~\ref{sec:strong}
+grows a register away from the centre, and tracks are most easily laid along branches that lead outward. This
+is supplied by the standard addressing of the tiling, the splitting method and its Fibonacci coordinates, which
+assigns every cell a tree depth and a path to the root and is established for the regular tilings
+\cite{margenstern2007vol1}. We use it only as a tool, the outward direction at a cell is the direction of
+increasing depth, and it is laid down with the initial configuration. We do not develop the addressing here.
+The exact, dimension-general form of it that the accompanying code uses, including an exact-integer arithmetic
+for the coordinates of every regular tiling, is a separate matter from universality and is reported elsewhere
+\cite{pollard2026vibe}.

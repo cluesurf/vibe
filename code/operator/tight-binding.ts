@@ -64,6 +64,42 @@ export function openChainPotentialApply(input: {
   return out
 }
 
+// Matrix-free apply of an OPEN-boundary hypercubic tight-binding Hamiltonian with an arbitrary
+// on-site potential, in `dimension` dimensions on a grid of `side` per axis (side^dimension
+// sites). (H phi)[r] = -t * sum_neighbours phi + V[r] phi[r], open ends on every axis. A central
+// attractive well (V < 0 near the centre) pulls down a discrete ladder of bound states whose
+// degeneracies follow the well's rotational symmetry (the shells). Matrix-free so power iteration
+// can find the bound spectrum on large grids without materializing the matrix.
+export function gridPotentialApply(input: {
+  phi: Float64Array
+  potential: Float64Array
+  side: number
+  dimension: number
+  hopping?: number
+}): Float64Array {
+  const { phi, potential, side, dimension } = input
+  const t = input.hopping ?? 1
+  const n = phi.length
+  const out = new Float64Array(n)
+  const strides: number[] = []
+  let stride = 1
+  for (let d = 0; d < dimension; d++) {
+    strides.push(stride)
+    stride *= side
+  }
+  for (let r = 0; r < n; r++) {
+    let v = potential[r]! * phi[r]!
+    let rest = r
+    for (let d = 0; d < dimension; d++) {
+      const coord = Math.floor(rest / strides[d]!) % side
+      if (coord > 0) v += -t * phi[r - strides[d]!]!
+      if (coord < side - 1) v += -t * phi[r + strides[d]!]!
+    }
+    out[r] = v
+  }
+  return out
+}
+
 // `dimension`-dimensional periodic hypercubic lattice of side `side` (so side^dimension sites),
 // hopping `t` (default 1) along each of the `dimension` axis directions. side^2 is the 2D torus,
 // side^3 the 3D torus used for the Bekenstein-Hawking area-law test.
@@ -95,6 +131,45 @@ export function torusHoppingHamiltonian(input: {
       const w = v - coord[d]! * strides[d]! + next * strides[d]!
       h.data[v * n + w] = t
       h.data[w * n + v] = t
+    }
+  }
+  return h
+}
+
+// 3D cubic lattice of side `side` (side^3 sites, index x + side*y + side^2*z) with hopping `-t` and a STAGGERED
+// mass: on-site potential (-1)^(x+y+z) * mass on the two parity sublattices. At half filling this is a band
+// insulator with a gap set by `mass`, so its ground state obeys the AREA law (the entanglement entropy of a region
+// scales as the boundary, not the bulk). With `periodic` true (and an even `side`, so the parity sublattice is
+// consistent under wrap) the lattice is a torus with no boundary, so every centered ball is interior, which is the
+// clean substrate the entropic-gravity experiment diagonalizes to measure the screen-bit scaling N(r).
+export function staggeredMassCubicHamiltonian(input: {
+  side: number
+  mass: number
+  hopping?: number
+  periodic?: boolean
+}): DenseMatrix {
+  const { side, mass } = input
+  const t = input.hopping ?? 1
+  const periodic = input.periodic ?? false
+  const n = side * side * side
+  const index = (x: number, y: number, z: number): number => x + side * y + side * side * z
+  const h = makeDense({ rows: n, cols: n })
+  const bond = (i: number, j: number): void => {
+    h.data[i * n + j] = -t
+    h.data[j * n + i] = -t
+  }
+  for (let x = 0; x < side; x++) {
+    for (let y = 0; y < side; y++) {
+      for (let z = 0; z < side; z++) {
+        const i = index(x, y, z)
+        h.data[i * n + i] = ((x + y + z) % 2 === 0 ? 1 : -1) * mass
+        if (x + 1 < side) bond(i, index(x + 1, y, z))
+        else if (periodic) bond(i, index(0, y, z))
+        if (y + 1 < side) bond(i, index(x, y + 1, z))
+        else if (periodic) bond(i, index(x, 0, z))
+        if (z + 1 < side) bond(i, index(x, y, z + 1))
+        else if (periodic) bond(i, index(x, y, 0))
+      }
     }
   }
   return h

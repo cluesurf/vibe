@@ -1,0 +1,38 @@
+\section{The weakly universal variant}
+\label{sec:weak}
+
+The strongly universal automaton of Section~\ref{sec:strong} contains a simpler one. Drop the track-building
+rule (B1) and (B2), keep only the motion and switch rules of Section~\ref{sec:automaton}, and supply the
+registers as infinite track. The result is weakly universal, and it is worth stating on its own, because it is
+the cleaner object when a finite seed is not needed and because it is the direct counterpart of Margenstern's
+constructions.
+
+\subsection{Its structure}
+
+The weak automaton has the dynamic alphabet of Table~\ref{tab:states}, empty, clear, head, trailing, and the
+switch selection bit, and exactly the rules of Tables~\ref{tab:motion} and~\ref{tab:switch}. There is no build
+rule, so empty space stays empty for all time and the circuit is whatever the initial configuration laid down.
+A register is an infinite chain of flip-flop bits, written out in advance as an ultimately-periodic pattern, the
+fixed program repeated outward to give unbounded memory. Nothing is ever constructed.
+
+\subsection{Its theorem}
+
+\begin{theorem}[Uniform weak universality]
+\label{thm:weak}
+The automaton with the rules of Tables~\ref{tab:motion} and~\ref{tab:switch} alone is weakly universal on every
+regular hyperbolic tiling. For each tiling and each register machine there is an infinite, ultimately-periodic
+initial configuration on that tiling whose evolution simulates the machine.
+\end{theorem}
+
+By Proposition~\ref{prop:assembly} the motion and switch rules realize the registers and the sequencer. The
+registers, given as infinite ultimately-periodic track, supply the unbounded memory, so the configuration is
+infinite but ultimately periodic and the universality is weak \cite{minsky1967}. As before, no rule mentions the
+tiling. \qed
+
+\subsection{Why keep both}
+
+The weak variant is smaller, four dynamic symbols and the switch bit, with no build rule, and it is the honest
+counterpart to compare against the rotation-invariant per-tiling automata, which are also weakly universal. The
+strong variant adds one rule, the builder, and in exchange starts from a finite seed. They share the same
+locomotive and the same three switches. One can read the weak automaton as the strong automaton restricted to
+configurations that never need to grow.
