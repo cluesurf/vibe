@@ -72,8 +72,11 @@ export function dynkinAutomorphismOrder(n: number): number {
   return count
 }
 
-// whether D_n has triality (an order-three Dynkin symmetry), true only for n = 4
+// whether D_n has triality (an order-three Dynkin symmetry), true only for n = 4. For n < 4 the D_n diagram is
+// degenerate (D2 = A1 x A1, D3 = A3), no triality.
 export function hasTriality(n: number): boolean {
+  if (n < 4) return false
   // S3 (order 6) contains an order-three element; Z2 (order 2) does not. D4 alone gives order 6.
-  return dynkinAutomorphismOrder(n) % 3 === 0 && dynkinAutomorphismOrder(n) >= 6
+  const order = dynkinAutomorphismOrder(n)
+  return order % 3 === 0 && order >= 6
 }
