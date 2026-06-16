@@ -73,7 +73,9 @@ function run(): void {
   const latchedAt: number[] = [] // the Fibonacci value showing in the centre at each step
   const boundaries: number[] = [] // trace indices where a new term completes (the n-- of each iteration)
   runRailway(compiled.program, initial, (step) => {
-    if (step.op === 'dec' && step.reg === nIndex) {
+    // latch the latest complete term at a loop decrement while n is still nonzero; skip the final exit (n == 0),
+    // which would otherwise latch b = the already-computed next term
+    if (step.op === 'dec' && step.reg === nIndex && step.registers[nIndex] !== 0) {
       latched = step.registers[bIndex]!
       boundaries.push(trace.length)
     }
@@ -110,7 +112,7 @@ function run(): void {
     start = i
   }
 
-  const framesPerOp = Math.max(2, Math.round(TARGET_FRAMES / segments.length))
+  const framesPerOp = FRAMES_PER_OP
   const frames: Uint8Array[] = []
   for (const seg of segments) {
     for (let f = 1; f <= framesPerOp; f++) {
@@ -141,7 +143,7 @@ function renderFrame(input: {
 }): Uint8Array {
   const { tiling, edges, wedges, names, registers, active, mode, display, cellCount } = input
   const faces: SceneFace[] = []
-  const FAINT: [number, number, number] = [26, 26, 32] // zinc-ish empty track
+  const FAINT: [number, number, number] = [34, 34, 42] // faint zinc, so the whole tessellation stays visible
 
   for (let r = 0; r < names.length; r++) {
     const hue = REGISTER_HUE[names[r]!] ?? 'zinc'
@@ -168,7 +170,7 @@ function renderFrame(input: {
   faces.push({ polygon: tiling.polygons[0]!, color: [Math.round(opRgb[0] * 255), Math.round(opRgb[1] * 255), Math.round(opRgb[2] * 255)] })
 
   const scene: Scene = { dim: 2, symbol: [7, 3], edges, faces, cellCount }
-  const { rgba } = renderSceneToRgba({ scene, size: SIZE, segments: 18, lineWidth: 1.0, near: [16, 16, 22], far: [16, 16, 22], model: 'poincare', margin: MARGIN, superSample: 2 })
+  const { rgba } = renderSceneToRgba({ scene, size: SIZE, segments: 18, lineWidth: 1.0, near: [56, 56, 66], far: [56, 56, 66], model: 'poincare', margin: MARGIN, superSample: 2 })
 
   // the running Fibonacci output, fitted inside the central heptagon
   drawCentralNumber({ rgba, size: SIZE, margin: MARGIN, centralPolygon: tiling.polygons[0]!, text: String(display) })
