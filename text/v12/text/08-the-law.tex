@@ -1,0 +1,56 @@
+\section{The Law} \label{sec:law}
+
+We have the stage, the cast, and the forces. We still need the rule that moves them, the local law on the substrate.
+We show that the rule is also forced, that it is the unique symmetric reversible update on the $\{3,4,3,4\}$ lattice,
+and that it is $CPT$ invariant.
+
+\subsection{The substrate}
+
+The geometry of Section~\ref{sec:spacetime} is the hyperbolic honeycomb whose cell is the 24-cell, the $D_4$ root
+polytope, written $\{3,4,3,4\}$ in the hyperbolic naming. It is a discrete, locally finite arena. Each cell has
+twenty-four neighbors, the twenty-four roots, the twenty-four directions a tone can move. The substrate grows shell by
+shell from a seed cell, and we count the shells directly. The growth is exponential, each shell larger than the last by
+an asymptotic factor we will need in Section~\ref{sec:hierarchy}. Margenstern's address calculus for hyperbolic
+tilings \cite{margenstern2007vol1, margenstern2008vol2} is what makes this substrate computable, giving each cell a
+finite name and each neighbor a finite rule, and we follow it.
+
+\subsection{The rule is forced}
+
+A local law moves tone between neighboring cells in discrete beats. We require three things of it, each a plain
+consequence of what has come before. It must be \emph{local}, acting only between a cell and its twenty-four neighbors,
+because there is nothing else for it to act on. It must be \emph{reversible}, because reversibility is the premise that
+forced the octonions in the first place, so the law that runs on the octonionic substrate cannot itself destroy
+information. And it must be \emph{symmetric}, invariant under the symmetry group of the cell, the group $B_4$ of the
+24-cell, because the law cannot prefer a direction the geometry does not.
+
+These three conditions, locality, reversibility, and full $B_4$ symmetry, turn out to pin the rule almost completely.
+The reversible local updates are the pairings of the twenty-four directions into exchanging channels, and requiring
+invariance under all of $B_4$ collapses the choices to a single orbit. We count this directly. The number of
+$B_4$-symmetric perfect pairings of the relevant configuration is computed to be the single value $10395 = 11!! $, the
+double factorial, and they form one orbit under the symmetry, so the symmetric reversible rule is unique up to the
+symmetry itself.
+
+\begin{result}[The law is forced]
+On the $\{3,4,3,4\}$ substrate, the requirements of locality, reversibility, and full $B_4$ symmetry single out a
+unique local update rule, the symmetric pairing of the twenty-four directions. It is the discrete analogue of a
+reversible, isotropic transport, and it is the only law the geometry permits.
+\end{result}
+
+\subsection{The law respects CPT}
+
+We then verify that this unique rule has the three discrete symmetries the world is known to respect together. Charge
+conjugation $C$ is the tone sign-flip $x \mapsto -x$ inherited from the ternary of Section~\ref{sec:firstdistinction},
+and the rule commutes with it because it treats $+1$ and $-1$ on the same footing. Parity $P$ is a reflection of the
+spatial directions, an element of $B_4$, and the rule is invariant by construction. Time reversal $T$ is the reversal
+of the update, the running of the reversible rule backward, which exists precisely because the rule is reversible. We
+check by direct simulation that applying $C$, $P$, and $T$ together returns the dynamics to itself.
+
+\begin{result}[CPT]
+The forced local law is invariant under the combined operation $CPT$, with $C$ the ternary charge conjugation, $P$ a
+$B_4$ reflection, and $T$ the reversal permitted by reversibility. The local dynamics has no built-in arrow. The arrow
+of the world is the global growth of the substrate from its seed, the integer order of Section~\ref{sec:arrow} made
+dynamical, consistent with a locally time-symmetric law.
+\end{result}
+
+So the law is not a further choice layered on top of the structure. It is the unique symmetric reversible motion the
+substrate allows, and it carries the $CPT$ invariance of real physics for the same reason it is reversible at all.
