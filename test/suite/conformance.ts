@@ -95,6 +95,7 @@ import { routeSwitch, runRailway, type RailSwitch, type RailInstruction } from '
 import { compileToRailway } from '@/code/compute/ts-to-railway'
 import { compileMachine, runMachine } from '@/code/compute/compile'
 import { fibOnRailway } from '@/code/compute/railway-adder'
+import { makeVibeComputer } from '@/code/compute/machine/shared'
 import { PENTAGRID_RULES, buildPentagridRuleTable, pentagridNext } from '@/code/compute/margenstern-pentagrid'
 import { pentagrid3State } from '@/code/compute/margenstern-pentagrid-3state'
 import { pentagrid2State } from '@/code/compute/margenstern-pentagrid-2state'
@@ -850,6 +851,17 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const railFib: string[] = []
     for (let m = 1; m <= 10; m++) railFib.push(String(fibOnRailway({ n: m, bits: 8 }).value))
     check({ name: 'literal railway-CA adder: the locomotive computes fib(1..10) by real carry ripples', ok: railFib.join(',') === '1,1,2,3,5,8,13,21,34,55', detail: railFib.join(' ') })
+
+    // the prototype hyperbolic computer in 2D / 3D / 4D: the dock degree matches the dimension (7 / 12 / 24), the
+    // ternary compute returns fib(10), the literal railway runs on the cell graph, and content recall works.
+    let protoOk = true
+    const degrees: string[] = []
+    for (const [sym, deg] of [[[7, 3], 7], [[5, 3, 4], 12], [[3, 4, 3, 4], 24]] as const) {
+      const r = makeVibeComputer({ symbol: sym as number[], maxCells: 500 }).report()
+      degrees.push(`${sym.join('')}:${r.degree}`)
+      if (r.degree !== deg || r.compute.result !== '55' || !r.railway.ran || !r.memory.found) protoOk = false
+    }
+    check({ name: 'prototype computer 2D/3D/4D: dock degree 7/12/24, ternary fib=55, railway runs, content recall', ok: protoOk, detail: degrees.join(' ') })
 
     // Margenstern's actual 5-state pentagrid universal CA, the 236-rule table transcribed from arXiv:1403.2373.
     // It compiles (rotation-invariant, no conflicts), uses exactly the 5 states, and fires its documented rules.
