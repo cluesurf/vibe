@@ -1,0 +1,39 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+The universal cellular automata of the hyperbolic plane and of hyperbolic space had been built one tiling at a
+time, each with its own rotation-invariant table. We have shown that a single cellular automaton, with rules
+local in the cell-adjacency graph and blind to the particular tiling, is weakly universal on every regular
+hyperbolic tiling at once. It runs the railway. A two-cell locomotive moves along tracks through fixed,
+flip-flop, and memory switches, and the shape of the locomotive itself supplies the sense of direction that the
+bare graph cannot, since the cell behind the head is occupied and only the cell ahead is clear. With a register
+machine assembled from these pieces the automaton computes, and it does so unchanged on the octagrid, a tiling
+that the earlier work never treated.
+
+The result trades one thing for another. The tiling-specific automata are rotation invariant and have been
+driven to very few states, but each tiling is a separate construction. The present automaton uses oriented
+switches, so it is not rotation invariant, but it is one construction for the whole family. The two answers are
+complementary, the first the smallest machine on a given tiling, the second a single machine on all tilings.
+
+\subsection{Open questions}
+
+Several questions remain.
+
+\begin{itemize}
+  \item Can the construction be made rotation invariant while staying tiling-uniform, removing the oriented
+  switch labels by some uniform local device that recovers the trunk and branches from the dynamic state alone?
+  This would unify the two lines completely.
+  \item The automaton is weakly universal, with an infinite ultimately-periodic initial configuration. Is there
+  a tiling-uniform construction that is strongly universal, starting from a finite seed, as the dodecagrid
+  automaton is on its own tiling \cite{margenstern2021dodeca5}? A track-building variant, in which the
+  locomotive lays new register track as it needs it, is the natural route.
+  \item The dynamic alphabet has three symbols and a switch bit. What is the smallest dynamic alphabet for a
+  tiling-uniform universal automaton, and is there a sharp lower bound?
+  \item The same rules apply to honeycombs of hyperbolic three-space and four-space. A four-way crossing is
+  needed only in the plane, since the higher dimensions give bridges. Does the uniform automaton extend cleanly
+  to a single statement across dimensions, the plane tilings and the honeycombs together?
+\end{itemize}
+
+These are left for later work. The present paper records the single fact that one automaton suffices for the
+whole family of regular hyperbolic tilings, where before there was a family of automata. The construction and
+its verification are available in the accompanying code \cite{pollard2026vibe}.

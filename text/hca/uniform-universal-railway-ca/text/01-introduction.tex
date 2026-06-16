@@ -1,0 +1,82 @@
+\section{Introduction}
+
+A cellular automaton is an infinite array of identical finite machines, the cells, each updating its state in
+step with all the others by one fixed local rule that reads only the cell and its neighbours. The question of
+universality asks whether such a fixed local rule, with a fixed finite set of states, can carry out any
+computation at all. In the Euclidean plane the question was settled long ago, most famously by the Game of
+Life, where gliders are launched, steered, and collided to build logic. The hyperbolic plane is a harder and
+richer arena. It admits infinitely many regular tilings rather than the three of the Euclidean plane, and its
+straight lines diverge, so the glider trick fails. Two gliders aimed at each other in hyperbolic space drift
+apart and never meet.
+
+Margenstern resolved the difficulty with a different idea, the railway \cite{stewart1994}. Instead of
+colliding moving patterns, one lays down a fixed network of tracks and lets a single locomotive run on it
+forever. The locomotive never collides with anything and never needs to be synchronised with a second
+locomotive. Where it passes through a switch it may change the switch, and the settings of all the switches,
+frozen in place, are the memory of the computation. A suitable network of tracks and switches reproduces a
+register machine, and a register machine with two counters is already universal \cite{minsky1967}. The
+railway therefore gives universality with nothing to choreograph, which is exactly what hyperbolic space
+rewards.
+
+On this foundation Margenstern, in part with collaborators, built a sequence of concrete automata
+\cite{margenstern2008vol2}. The pentagrid, the tiling $\{5,4\}$ by right-angled pentagons four to a vertex,
+received a rotation-invariant weakly universal automaton, with five states \cite{margenstern2014penta5},
+then three \cite{margenstern2015penta3}, then two \cite{margenstern2015penta2}. The ternary heptagrid
+$\{7,3\}$ received its own automaton \cite{margenstern2009hepta}. Hyperbolic three-dimensional space, tiled by
+right-angled dodecahedra in the dodecagrid $\{5,3,4\}$, received a five-state automaton
+\cite{margenstern2021dodeca5} and an outer totalistic one with four states \cite{margenstern2021dodeca4}. Each
+of these is a genuine achievement. Each is also a separate achievement. Every tiling was treated on its own,
+with its own neighbourhood, its own table of rules, and its own machine-checked verification, because the
+local picture, which neighbour is which and how a rotation permutes them, is different in each tiling and even
+differs from cell to cell within one tiling.
+
+\subsection{The gap}
+
+The state of the art is therefore a family of points, one universal automaton per tiling, obtained one at a
+time. The regular tilings of the hyperbolic plane are infinite in number, $\{p,q\}$ for every pair with
+$1/p + 1/q < 1/2$, and the buildable honeycombs of hyperbolic three-space and four-space add more. A natural
+question is whether the points can be replaced by a single object. Is there one cellular automaton, one fixed
+rule, that is universal on every regular tiling, rather than a different automaton for each?
+
+The obstruction the per-tiling work overcame is the absence of a global frame. A cell cannot name a fixed
+compass direction, and the number and arrangement of its neighbours change with the tiling. Margenstern met
+this with rotation invariance and with milestones, small decorations that mark the orientation of a track
+locally. The price of rotation invariance was paid anew in every tiling.
+
+\subsection{The contribution}
+
+We give one cellular automaton, defined by rules that are local in the cell-adjacency graph and never refer to
+a particular tiling, that is universal on every regular hyperbolic tiling at once, and we make it \textit{strongly}
+universal, so that a computation can be set up from a finite configuration rather than an infinite one. The
+automaton realizes the railway. Its moving part is a four-symbol alphabet, empty space, clear track, a head,
+and a trailing cell, together with a single bit carried by each switch. The locomotive advances correctly with
+no global frame for a simple reason made precise in Section~\ref{sec:automaton}. The cell immediately behind the
+head is the trailing cell of the locomotive, never clear track, so the only clear track cell adjacent to a head
+lies ahead of it, and that is the cell the head moves into. Direction is read off the local pattern, not off
+the plane.
+
+The step from weak to strong universality is the heart of the paper. A weakly universal automaton is allowed an
+infinite initial configuration, and the unbounded registers of a register machine are usually supplied that
+way, as an infinite ultimately-periodic track. We instead let the registers \textit{build themselves}. The locomotive,
+on overflowing a register, lays a new piece of track by a local construction rule and so adds a new digit. A
+register that began as a single cell grows without bound as the computation needs it, exactly as a growing mesh
+adds a new ring at its open edge each step. The program is finite, the registers self-extend, so the whole
+machine starts from a finite seed, which is strong universality. Section~\ref{sec:strong} gives this in full,
+with the complete state set and transition tables.
+
+The cost we pay for covering every tiling with one rule is that our switches are oriented. A switch cell
+carries, as part of the initial configuration, the labels of its trunk and its two branches. Because the labels
+are local data, not a global frame, the automaton stays tiling-independent, but it is not rotation invariant.
+We are explicit about this tradeoff in Section~\ref{sec:comparison}. Margenstern bought rotation invariance and
+small state counts at the price of solving each tiling separately. We buy one strongly universal construction
+for all tilings at the price of oriented switches.
+
+The plan of the paper is as follows. Section~\ref{sec:railway} recalls the railway and its three switches.
+Section~\ref{sec:setting} fixes the combinatorial setting, a tiling seen as its cell-adjacency graph.
+Section~\ref{sec:automaton} defines the automaton, gives the full state set and transition tables, and proves
+its motion and switching correct. Section~\ref{sec:strong} is the central section, the self-building registers
+and the strong universality theorem. Section~\ref{sec:universality} assembles the register machine.
+Section~\ref{sec:verification} reports the verification on the actual cell graphs of seven tilings.
+Section~\ref{sec:weak} describes the weaker variant. Section~\ref{sec:comparison} compares the construction with
+the tiling-specific automata. Section~\ref{sec:conclusion} concludes. Appendices~\ref{app:rules} and~\ref{app:tables} collect the complete transition table and worked traces. The construction and all of its checks live in the accompanying code
+\cite{pollard2026vibe}.

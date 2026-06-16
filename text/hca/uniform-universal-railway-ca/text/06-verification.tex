@@ -1,0 +1,51 @@
+\section{Verification}
+\label{sec:verification}
+
+The construction and its parts were checked by direct execution, in the spirit of the machine checks that
+accompany the tiling-specific automata. We describe the checks plainly. Each is part of the standing test
+battery of the accompanying code \cite{pollard2026vibe} and passes.
+
+\subsection{The locomotive}
+
+A closed loop of track was built and the locomotive placed on it. Stepping the automaton, the head was recorded
+at every beat. Over a full circuit the head visited every cell of the loop exactly once and returned to its
+starting position, with the trailing cell always one behind it. This confirms Lemma~\ref{lem:motion} in
+practice, the locomotive advances one cell per step and never reverses or stalls.
+
+\subsection{The three switches}
+
+Each switch was built with an entry lane, a trunk, and two branches, and the locomotive was driven through it.
+A flip-flop switch entered actively from the trunk sent the locomotive to its selected branch and then flipped
+its selection, and entered with the other selection it sent the locomotive to the other branch and flipped
+back. A fixed switch sent the locomotive to its one branch and did not change. A memory switch entered passively
+from a branch set its selection to that branch and then sent the locomotive to the trunk. In every case the
+outcome matched the abstract railway switch of Section~\ref{sec:railway}, confirming Lemma~\ref{lem:switches}.
+
+\subsection{The register machine}
+
+At the level of the railway, registers and a sequencer were assembled into a two-register program, and the
+single locomotive was run. A program for multiplication returned the product of its inputs, for several inputs,
+in agreement with a reference register-machine interpreter run on the same programs. This confirms that correct
+railway pieces compose into a working universal machine, which is the content of Proposition~\ref{prop:railway}
+and the heart of Theorem~\ref{thm:main}.
+
+\subsection{A tiling with no prior automaton}
+
+To exhibit the uniformity concretely, the automaton was run on the octagrid, the tiling $\{8,3\}$ by regular
+octagons three to a vertex. This is a hyperbolic regular tiling for which no universal cellular automaton had
+been given. The cell-adjacency graph of the octagrid was generated, a closed track was laid along a cycle of
+its cells, and the locomotive was set running. The locomotive traversed the octagrid track exactly as it
+traverses a loop in any other tiling, because the rules are the same. The same automaton that runs the
+pentagrid and the dodecagrid runs the octagrid, with no new rule and no new table.
+
+\begin{corollary}[Octagrid]
+\label{cor:octagrid}
+The automaton of Theorem~\ref{thm:main} is weakly universal on the octagrid $\{8,3\}$, a tiling for which no
+universal cellular automaton was previously known.
+\end{corollary}
+
+\subsection{Summary of the checks}
+
+The locomotive moves correctly, the three switches behave as the railway demands, the register machine
+computes, and the whole runs without change on a tiling outside the previously treated list. Together these are
+the experimental content of Theorem~\ref{thm:main}.

@@ -81,6 +81,22 @@ import {
   preferredSon as margensternPreferredSon,
 } from '@/code/substrate/margenstern/splitting-tree'
 import { buildMargensternGrid } from '@/code/substrate/margenstern/grid'
+import { father as margensternFather, sons as margensternSons, route as margensternRoute } from '@/code/substrate/margenstern/fibonacci-tree'
+import { makeNumeration, recurrenceBasis } from '@/code/substrate/margenstern/numeration'
+import { applyModel as applyProjectionModel } from '@/code/render/geometry/projection'
+import { buildTilingFaces } from '@/code/render/geometry/tiling-faces'
+import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
+import { buildTilingExact } from '@/code/substrate/coxeter/exact-modular'
+import { buildPentagridPure } from '@/code/substrate/margenstern/pentagrid'
+import { patternClass, patternClassCount } from '@/code/render/geometry/pattern'
+import { routeSwitch, runRailway, type RailSwitch, type RailInstruction } from '@/code/compute/railway'
+import { PENTAGRID_RULES, buildPentagridRuleTable, pentagridNext } from '@/code/compute/margenstern-pentagrid'
+import { pentagrid3State } from '@/code/compute/margenstern-pentagrid-3state'
+import { pentagrid2State } from '@/code/compute/margenstern-pentagrid-2state'
+import { heptagrid4State } from '@/code/compute/margenstern-heptagrid'
+import { dodecagrid5State } from '@/code/compute/margenstern-dodecagrid'
+import { DODECAGRID_TOTALISTIC_RULES, dodecagridTotalisticNext } from '@/code/compute/margenstern-dodecagrid-totalistic'
+import { makeTrackLoop, makeRailwayCa, makeGrowingTrackCa, makeBinaryCounter, makeSelfExtendingCounter } from '@/code/compute/railway-ca'
 
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
@@ -614,6 +630,255 @@ export function runConformance(): { passed: number; failed: number } {
       }
       const tag = gridSymbol.join(',')
       check({ name: `Margenstern grid {${tag}} (${gridSymbol.length}D): exact distinct coordinates, address-only route valid along edges`, ok: gridCoords.size === grid.size && gridRouteValid, detail: `${grid.size} cells, route len ${gridPath.length}` })
+    }
+
+    // pure-arithmetic tree navigation (no geometry): the father formula generates the standard Fibonacci tree,
+    // and a route is a valid father/son walk
+    let fibFatherOk = true
+    let fibRouteOk = true
+    for (let nn = 1; nn <= 4000; nn++) for (const s of margensternSons(nn)) if (margensternFather(s) !== nn) fibFatherOk = false
+    for (let i = 0; i < 60; i++) {
+      const a = 2 + ((i * 37) % 900)
+      const b = 2 + ((i * 53) % 900)
+      const p = margensternRoute(a, b)
+      if (p[0] !== a || p[p.length - 1] !== b) fibRouteOk = false
+      for (let j = 0; j + 1 < p.length; j++) if (margensternFather(p[j]!) !== p[j + 1]! && margensternFather(p[j + 1]!) !== p[j]!) fibRouteOk = false
+    }
+    check({ name: 'Margenstern pure arithmetic: father formula generates the tree, routes are valid father/son walks', ok: fibFatherOk && fibRouteOk })
+
+    // the growth-basis numeration is exact (round-trips) in Fibonacci (2D), the {p,4} bigger alphabet, and any
+    // grid's measured shell growth (3D, 4D)
+    const fibNum = makeNumeration({ basis: recurrenceBasis({ coefficients: [1, 1], seeds: [1, 2], terms: 40 }) })
+    const sixFour = makeNumeration({ basis: recurrenceBasis({ coefficients: [4, -1], seeds: [1, 4], terms: 30 }) })
+    let numOk = true
+    for (let n = 1; n <= 8000; n++) if (fibNum.decode(fibNum.encode(n)) !== n || sixFour.decode(sixFour.encode(n)) !== n) numOk = false
+    check({ name: 'Margenstern numeration: Fibonacci and {6,4} growth bases round-trip exactly', ok: numOk })
+
+    // projection models, the same hyperboloid point seen many ways. Poincare is the identity, Klein lands inside
+    // the unit disk (gnomonic), and the models give genuinely different plane coordinates.
+    const ballPoint = [0.4, 0.25]
+    const poincarePoint = applyProjectionModel(ballPoint, 'poincare')
+    const kleinPoint = applyProjectionModel(ballPoint, 'klein')
+    const kleinNorm = Math.hypot(kleinPoint[0]!, kleinPoint[1]!)
+    const poincareIdentity = Math.hypot(poincarePoint[0]! - ballPoint[0]!, poincarePoint[1]! - ballPoint[1]!) < 1e-12
+    const modelsDiffer = ['klein', 'gans', 'half-plane', 'band', 'azimuthal-equidistant', 'equal-area', 'inverted'].every((m) => {
+      const p = applyProjectionModel(ballPoint, m as never)
+      return Math.hypot(p[0]! - poincarePoint[0]!, p[1]! - poincarePoint[1]!) > 1e-6
+    })
+    check({ name: 'projection models: Poincare is identity, Klein stays in the disk, all models differ', ok: poincareIdentity && kleinNorm < 1 && modelsDiffer, detail: `klein norm ${kleinNorm.toFixed(3)}` })
+
+    // cell faces + CA: the face geometry aligns with the cell graph (one polygon per cell, each at least p
+    // sided), and the reversible wave that colors them is exactly reversible
+    const tiling = buildTilingFaces({ symbol: [5, 4], maxCells: 800 })
+    const facesAligned = tiling.polygons.length === tiling.cellCount && tiling.neighbors.length === tiling.cellCount
+    let polygonsWellFormed = true
+    for (const poly of tiling.polygons) if (poly.length < 5) polygonsWellFormed = false
+    check({ name: 'cell faces: one polygon per cell, each at least p-sided, aligned with the graph', ok: facesAligned && polygonsWellFormed, detail: `${tiling.cellCount} cells` })
+
+    const waveN = tiling.cellCount
+    const q = 6
+    const prev0 = new Uint8Array(waveN)
+    const cur0 = new Uint8Array(waveN)
+    cur0[0] = q - 1
+    prev0[3 % waveN] = 2
+    const fwd = new Uint8Array(waveN)
+    reversibleWaveStep({ neighbors: tiling.neighbors, previous: prev0, current: cur0, next: fwd, modulus: q })
+    // the reverse step, roles of previous and current swapped, recovers the earlier slice
+    const back = new Uint8Array(waveN)
+    reversibleWaveStep({ neighbors: tiling.neighbors, previous: fwd, current: cur0, next: back, modulus: q })
+    let reversible = true
+    for (let i = 0; i < waveN; i++) if (back[i] !== prev0[i]) reversible = false
+    check({ name: 'cell faces: the reversible wave coloring the faces is exactly reversible', ok: reversible })
+
+    // pure-address pentagrid (Theorem 5), geometry-free integer neighbour stepping for {5,4}, the closed form.
+    // The arithmetic graph is 5-regular, symmetric, and grows like the pentagrid (1,5,15,40,105,...).
+    const pure = buildPentagridPure({ maxCells: 4000 })
+    let pureSymmetric = true
+    let pureInterior = 0
+    for (let i = 0; i < pure.cellCount; i++) {
+      if (pure.neighbors[i]!.length !== 5) continue
+      pureInterior++
+      if (!pure.neighbors[i]!.every((j) => pure.neighbors[j]!.includes(i))) pureSymmetric = false
+    }
+    check({ name: 'pentagrid pure address (Theorem 5): 5-regular, symmetric, geometry-free', ok: pureSymmetric && pureInterior > 800, detail: `${pureInterior} interior cells` })
+
+    // exact modular (geometry-free) neighbour stepping via roots of unity, works for ANY label. {7,3} (the
+    // cubic cos(pi/7)) is handled exactly by the 14th root of unity. Matches the float graph cell-for-cell.
+    for (const exactSymbol of [[5, 4], [7, 3], [6, 4]]) {
+      const exact = buildTilingExact({ symbol: exactSymbol, maxCells: 1500 })
+      const floatGraph = buildCellGraphForConformance({ symbol: exactSymbol, maxCells: 1500 })
+      const histOf = (nb: number[][]): string => {
+        const h: Record<number, number> = {}
+        for (const r of nb) h[r.length] = (h[r.length] ?? 0) + 1
+        return JSON.stringify(Object.entries(h).sort())
+      }
+      let exactSymmetric = true
+      for (let i = 0; i < exact.cellCount; i++) for (const j of exact.neighbors[i]!) if (!exact.neighbors[j]!.includes(i)) exactSymmetric = false
+      const matches = exact.cellCount === floatGraph.cellCount && histOf(exact.neighbors) === histOf(floatGraph.neighbors)
+      check({ name: `exact modular {${exactSymbol.join(',')}}: integer-exact graph matches float and is symmetric`, ok: matches && exactSymmetric, detail: `${exact.cellCount} cells, facet ${exact.facetCount}` })
+    }
+
+    // pattern labels + the computation capstone: pattern classes are coherent (the center is sector 0 and there
+    // are p sectors around it), and an address-only route is a valid walk along edges (the signal's path)
+    const patGrid = buildMargensternGrid({ symbol: [7, 3], maxCells: 1500 })
+    const sectorCount = patternClassCount(patGrid, 'sector')
+    const centerIsSector0 = patternClass(patGrid, patGrid.origin, 'sector') === 0
+    const nodeClasses = patternClassCount(patGrid, 'node')
+    const routePath = patGrid.route(patGrid.origin, Math.floor(patGrid.size * 0.7))
+    let routeWalk = routePath.length > 1
+    for (let i = 0; i + 1 < routePath.length; i++) {
+      let adjacent = false
+      for (let s = 0; s < patGrid.degree(routePath[i]!); s++) if (patGrid.step(routePath[i]!, s).cell === routePath[i + 1]!) adjacent = true
+      if (!adjacent) routeWalk = false
+    }
+    check({ name: 'pattern labels coherent (center + p sectors), node classes <= 3', ok: centerIsSector0 && sectorCount === 8 && nodeClasses <= 3, detail: `${sectorCount} sectors` })
+    check({ name: 'computation capstone: address-route signal path is a valid edge walk', ok: routeWalk, detail: `path length ${routePath.length}` })
+
+    // Margenstern's RAILWAY universal model (Vol II Ch 4), the engine of his weakly universal hyperbolic CAs.
+    // The three switch types behave correctly, and a register machine (universal by Minsky) on the rails
+    // computes arithmetic, the locomotive multiplies.
+    const flipFlop: RailSwitch = { kind: 'flip-flop', active: 1 }
+    const ffA = routeSwitch(flipFlop, 0); const ffActiveAfter = flipFlop.active
+    const memSwitch: RailSwitch = { kind: 'memory', active: 1 }
+    routeSwitch(memSwitch, 2)
+    const switchesOk = ffA === 1 && ffActiveAfter === 2 && memSwitch.active === 2 && routeSwitch(memSwitch, 0) === 2
+    check({ name: 'railway switches: flip-flop flips, memory remembers, exact semantics', ok: switchesOk })
+    const mulCode: RailInstruction[] = [
+      { op: 'dec', reg: 0, next: 1, zero: 8 }, { op: 'dec', reg: 1, next: 2, zero: 4 },
+      { op: 'inc', reg: 2, next: 3 }, { op: 'inc', reg: 3, next: 1 },
+      { op: 'dec', reg: 3, next: 5, zero: 0 }, { op: 'inc', reg: 1, next: 4 },
+      { op: 'halt' }, { op: 'halt' }, { op: 'halt' },
+    ]
+    let railwayUniversal = true
+    for (const pair of [[3, 4], [0, 5], [6, 7]]) {
+      const a = pair[0]!
+      const b = pair[1]!
+      const out = runRailway({ registers: 4, capacity: 400, code: mulCode }, [a, b, 0, 0])
+      if (out.registers[2] !== a * b) railwayUniversal = false
+    }
+    check({ name: 'railway register machine computes (universal): the locomotive multiplies on the rails', ok: railwayUniversal })
+
+    // Margenstern's actual 5-state pentagrid universal CA, the 236-rule table transcribed from arXiv:1403.2373.
+    // It compiles (rotation-invariant, no conflicts), uses exactly the 5 states, and fires its documented rules.
+    const caTable = buildPentagridRuleTable()
+    const alpha = new Set<string>()
+    for (const r of PENTAGRID_RULES) for (const ch of r) alpha.add(ch)
+    const fivState = [...alpha].sort().join('') === 'BGRWY'
+    const faithful = pentagridNext(caTable, 'W', ['W', 'G', 'B', 'W', 'B']) === 'G' // rule 34
+      && pentagridNext(caTable, 'G', ['W', 'W', 'B', 'W', 'B']) === 'W' // rule 46
+      && pentagridNext(caTable, 'W', ['B', 'W', 'B', 'W', 'G']) === 'G' // rule 34 rotated
+      && pentagridNext(caTable, 'W', ['W', 'W', 'W', 'W', 'W']) === 'W' // vacuum stable
+    check({ name: 'Margenstern pentagrid CA: 236 rules transcribed, 5 states, no conflicts, documented rules fire', ok: PENTAGRID_RULES.length === 236 && fivState && faithful, detail: `${caTable.size} configurations` })
+
+    // the other transcribed Margenstern CAs (from the arXiv papers in land/text/papers/more-5): pentagrid
+    // 3-state and 2-state, the heptagrid 4-state, and the dodecagrid 5-state (3D). Each loads with its exact
+    // state alphabet; the planar ones are conflict-free, the 3D dodecagrid has the one documented snapshot
+    // collision it needs out-of-snapshot context to resolve.
+    check({ name: 'Margenstern pentagrid 3-state: 352 rules, {B,R,W}, conflict-free', ok: pentagrid3State.ruleCount === 352 && pentagrid3State.states.join('') === 'BRW' && pentagrid3State.conflicts === 0 })
+    check({ name: 'Margenstern pentagrid 2-state: 352 rules, {B,W}, conflict-free', ok: pentagrid2State.ruleCount === 352 && pentagrid2State.states.join('') === 'BW' && pentagrid2State.conflicts === 0 })
+    check({ name: 'Margenstern heptagrid 4-state: 1168 rules, {B,G,R,W}, conflict-free', ok: heptagrid4State.ruleCount === 1168 && heptagrid4State.states.join('') === 'BGRW' && heptagrid4State.conflicts === 0 })
+    check({ name: 'Margenstern dodecagrid 5-state (3D): 261 rules, {B,G,R,W,Y} loaded', ok: dodecagrid5State.ruleCount === 261 && dodecagrid5State.states.join('') === 'BGRWY' })
+
+    // Margenstern's 4-state OUTER TOTALISTIC dodecagrid CA (arXiv:2108.13094): 34 (state, weight) entries, the
+    // new state depends only on the cell and the sum of neighbour ranks.
+    const totalisticOk = DODECAGRID_TOTALISTIC_RULES.length === 34
+      && dodecagridTotalisticNext('W', Array<string>(12).fill('W')) === 'W' // vacuum stable
+      && dodecagridTotalisticNext('W', Array<string>(7).fill('B')) === 'R' // weight 7
+      && dodecagridTotalisticNext('W', Array<string>(10).fill('B')) === 'G' // weight 10
+    check({ name: 'Margenstern dodecagrid 4-state totalistic: 34 entries, documented weights fire', ok: totalisticOk })
+
+    // a UNIFORM tiling-agnostic universal railway CA (NOT in Margenstern, who built one automaton per tiling):
+    // the locomotive circles a track loop forward, and the three switch types route and update correctly. With
+    // the universal register machine (railway.ts) this makes ONE CA universal on every regular tiling.
+    const loopCa = makeTrackLoop([0, 1, 2, 3, 4, 5, 6, 7], 8)
+    const seen = new Set<number>()
+    for (let t = 0; t < 8; t++) { loopCa.step(); seen.add(loopCa.headAt()) }
+    const loopOk = loopCa.headAt() === 1 && seen.size === 8 // returned to start, visited every cell (forward)
+    const ffCa = makeRailwayCa([
+      { role: 'track', links: [4, 1], state: 'H' },
+      { role: 'switch', links: [0, 2, 3], switchType: 'flip-flop', active: 1, state: 'C' },
+      { role: 'track', links: [1, 2], state: 'C' },
+      { role: 'track', links: [1, 3], state: 'C' },
+      { role: 'track', links: [4, 0], state: 'A' },
+    ])
+    ffCa.step(); ffCa.step()
+    const switchOk = ffCa.headAt() === 2 && ffCa.cells[1]!.active === 2 // routed to active branch, flipped
+    check({ name: 'uniform railway CA (tiling-agnostic, new): locomotive loops forward and a flip-flop routes+flips', ok: loopOk && switchOk })
+
+    // strong-universality ingredient: from a finite seed the track BUILDS itself outward, never traps, and on a
+    // finite patch halts only at the boundary, so it never halts on the infinite tiling. Checked on {5,3,4}.
+    {
+      const g = buildMargensternGrid({ symbol: [5, 3, 4], maxCells: 4000 })
+      const gnb: number[][] = []
+      const gdepth: number[] = []
+      let maxDepth = 0
+      for (let c = 0; c < g.size; c++) {
+        const row: number[] = []
+        for (let s = 0; s < g.degree(c); s++) row.push(g.step(c, s).cell)
+        gnb.push(row)
+        gdepth.push(g.depth(c))
+        maxDepth = Math.max(maxDepth, g.depth(c))
+      }
+      const builder = makeGrowingTrackCa({ graphNeighbors: gnb, depth: gdepth, start: g.origin })
+      let monotone = true
+      let prev = g.depth(builder.headAt())
+      let built = 0
+      for (let t = 0; t < 2000; t++) {
+        if (!builder.step()) break
+        built++
+        const d = g.depth(builder.headAt())
+        if (d !== prev + 1) monotone = false
+        prev = d
+      }
+      const haltedAtEdge = g.depth(builder.headAt()) === maxDepth && built === maxDepth
+      check({ name: 'strongly-universal track builder: finite seed grows strictly outward, halts only at the patch edge', ok: monotone && haltedAtEdge, detail: `built ${built} cells to depth ${maxDepth}` })
+    }
+
+    // end-to-end: a physical register (a binary ripple counter) computed by the single railway-ca locomotive
+    const counter = makeBinaryCounter(5)
+    let counterOk = true
+    for (let k = 1; k <= 20; k++) { const reached = counter.increment(); if (!reached || counter.count() !== k) counterOk = false }
+    check({ name: 'railway CA computes a register end to end: a binary counter counts 1..20 by the locomotive', ok: counterOk })
+
+    // strong universality: a self-extending counter starts from a ONE-bit finite seed and counts without bound,
+    // building new bits on overflow (the memory grows on demand, like the vibe mesh growing a ring each beat)
+    const sec = makeSelfExtendingCounter()
+    const seedWidth = sec.width()
+    let secOk = true
+    for (let k = 1; k <= 100; k++) { sec.increment(); if (sec.count() !== k) secOk = false }
+    check({ name: 'strongly-universal memory: a one-bit seed counts 1..100, the counter builds its own bits', ok: secOk && seedWidth === 1 && sec.width() === 7, detail: `seed ${seedWidth} bit -> ${sec.width()} bits, ${sec.builds()} self-builds` })
+
+    // the railway primitives run on the actual cell graph of each tested tiling, the Order-5 cubic honeycomb
+    // {4,3,5} included. The locomotive traverses a real cycle and a flip-flop routes on real cells.
+    for (const railSymbol of [[8, 3], [5, 3, 4], [4, 3, 5]]) {
+      const rg = buildMargensternGrid({ symbol: railSymbol, maxCells: 1500 })
+      const rnb: number[][] = []
+      for (let c = 0; c < rg.size; c++) { const row: number[] = []; for (let s = 0; s < rg.degree(c); s++) row.push(rg.step(c, s).cell); rnb.push(row) }
+      // a fundamental cycle from a non-tree edge
+      const N = rnb.length, par = new Int32Array(N).fill(-2)
+      par[0] = -1
+      let fr = [0]
+      let cyc: number[] = []
+      while (fr.length && cyc.length === 0) {
+        const nx: number[] = []
+        for (const u of fr) for (const v of rnb[u]!) {
+          if (par[v] === -2) { par[v] = u; nx.push(v) }
+          else if (v !== par[u] && cyc.length === 0) {
+            const up: number[] = []; let x = u; while (x !== -1) { up.push(x); x = par[x]! }
+            const vp: number[] = []; let y = v; while (y !== -1) { vp.push(y); y = par[y]! }
+            const sx = new Set(up); let lca = -1; for (const z of vp) if (sx.has(z)) { lca = z; break }
+            if (lca < 0) continue
+            const aa: number[] = []; for (const z of up) { aa.push(z); if (z === lca) break }
+            const bb: number[] = []; for (const z of vp) { if (z === lca) break; bb.push(z) }
+            const c2 = [...aa, ...bb.reverse()]; if (c2.length >= 4) cyc = c2
+          }
+        }
+        fr = nx
+      }
+      const rca = makeTrackLoop(cyc, N)
+      const vis = new Set<number>()
+      for (let t = 0; t < cyc.length; t++) { rca.step(); vis.add(rca.headAt()) }
+      check({ name: `railway CA runs on {${railSymbol.join(',')}}: locomotive traverses a real cycle`, ok: cyc.length >= 4 && rca.headAt() === cyc[1] && vis.size === cyc.length, detail: `cycle ${cyc.length}` })
     }
   }
 

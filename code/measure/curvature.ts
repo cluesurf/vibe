@@ -84,6 +84,38 @@ export function meanCurvature(input: { substrate: Substrate }): number {
   return edges === 0 ? 0 : total / edges
 }
 
+export type CurvatureSign = 'positive' | 'flat' | 'negative'
+
+// Sectional curvature read off the growth of geodesic shells (the discrete Raychaudhuri focusing). The number of
+// cells at graph distance d from a root is the area of a geodesic sphere of radius d, the expansion of a geodesic
+// congruence. On a POSITIVE-curvature space (a sphere) the shells grow then SHRINK, geodesics reconverge, the
+// focusing an attractive mass produces. On a FLAT space the shells grow polynomially as d^(D-1), so the ratio of
+// successive shells falls toward one. On a NEGATIVE-curvature space the shells grow EXPONENTIALLY, the ratio stays
+// bounded above one, geodesics diverge, an anti-confining geometry. Classify from the shell sizes (the final shell
+// is dropped, it is truncated by the finite patch). A turnover (an interior shell smaller than its predecessor) is
+// positive. Otherwise a late successive-shell ratio above `negativeThreshold` is negative (still exponential), and
+// a late ratio below `flatThreshold` is flat (the ratio has decayed toward one).
+export function shellGrowthCurvature(input: {
+  shellCounts: ReadonlyArray<number>
+  negativeThreshold?: number
+  flatThreshold?: number
+}): { sign: CurvatureSign; lateRatio: number; minInteriorRatio: number } {
+  const negativeThreshold = input.negativeThreshold ?? 1.8
+  const flatThreshold = input.flatThreshold ?? 1.5
+  const shells = input.shellCounts.slice(0, Math.max(2, input.shellCounts.length - 1))
+  const ratios: number[] = []
+  for (let i = 2; i < shells.length; i++) {
+    if (shells[i - 1]! > 0) ratios.push(shells[i]! / shells[i - 1]!)
+  }
+  const minInteriorRatio = ratios.length ? Math.min(...ratios) : 1
+  const lateRatio = ratios.length ? ratios[ratios.length - 1]! : 1
+  let sign: CurvatureSign
+  if (minInteriorRatio < 0.97) sign = 'positive'
+  else if (lateRatio > negativeThreshold) sign = 'negative'
+  else sign = lateRatio < flatThreshold ? 'flat' : 'negative'
+  return { sign, lateRatio, minInteriorRatio }
+}
+
 // Gromov delta-hyperbolicity from the sampled four-point condition. For four points,
 // of the three sums of opposite-pair graph distances, the largest two differ by at
 // most 2 delta; the returned delta is the worst (largest) half-difference over the

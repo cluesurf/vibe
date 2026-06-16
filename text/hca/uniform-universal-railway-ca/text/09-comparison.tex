@@ -1,0 +1,57 @@
+\section{Comparison with the tiling-specific automata}
+\label{sec:comparison}
+
+It is worth setting this construction beside Margenstern's, since the two answer different questions.
+
+\subsection{A family of automata against one}
+
+The tiling-specific automata are a family, a separate object per tiling, each with its own table, summarized in
+Table~\ref{tab:compare}. Adding a tiling means designing a new automaton and checking a new table. The present
+construction is one automaton. Adding a tiling means nothing, since the rules already apply to its cell graph.
+The family covers the tilings it has reached, the single automaton covers every regular tiling, including the
+ones never individually reached, such as the octagrid.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllc@{}}
+\toprule
+construction & tiling & states & rotation invariant \\
+\midrule
+Margenstern, 5-state pentagrid \cite{margenstern2014penta5} & $\{5,4\}$ & 5 & yes \\
+Margenstern, 3-state pentagrid \cite{margenstern2015penta3} & $\{5,4\}$ & 3 & yes \\
+Margenstern, 2-state pentagrid \cite{margenstern2015penta2} & $\{5,4\}$ & 2 & yes \\
+Margenstern, heptagrid \cite{margenstern2009hepta} & $\{7,3\}$ & 4 & yes \\
+Margenstern, dodecagrid \cite{margenstern2021dodeca5} & $\{5,3,4\}$ & 5 & yes \\
+Margenstern, totalistic dodecagrid \cite{margenstern2021dodeca4} & $\{5,3,4\}$ & 4 & yes \\
+\midrule
+this paper (weak) & every regular tiling & 4 dynamic + switch bit & no \\
+this paper (strong) & every regular tiling & 4 dynamic + switch bit + build & no \\
+\bottomrule
+\end{tabular}
+\caption{The tiling-specific automata against the uniform one. Each of Margenstern's is rotation invariant and
+small but solves a single tiling. Ours is not rotation invariant, since its switches are oriented, but one
+construction covers the whole family, and the strong version starts from a finite seed.}
+\label{tab:compare}
+\end{table}
+
+\subsection{Rotation invariance against oriented switches}
+
+The deeper difference is how each recovers direction without a global frame. Margenstern's automata are rotation
+invariant, a rule holds under every rotation of the cell, and direction is carried in the states with the help
+of milestones. Rotation invariance is strong and elegant and is the reason those automata read as cellular
+automata in the strict sense, but the way a rotation permutes a cell's neighbours differs in each tiling, so it
+must be re-established for every tiling, which is much of why each needs its own table.
+
+The present automaton is not rotation invariant. Its switches are oriented, carrying labels for the trunk and
+the two branches in the initial configuration. Because the labels are local data, not a global frame, the
+automaton stays tiling-independent, but it is no longer rotation invariant. The track network is the program,
+and the labels are part of the program.
+
+\subsection{The locomotive's direction trick}
+
+One point of technique lets the dynamic alphabet stay small while remaining tiling-independent. On a bare graph
+nothing tells the head which way is forward. The two-cell locomotive supplies the answer at no cost, by
+Lemma~\ref{lem:direction} the cell behind the head is the trailing cell and the only clear track cell adjacent
+to the head is the one ahead. Forward is read off the local pattern, not the plane. This is the service
+Margenstern's milestones provide, achieved here by the shape of the locomotive, which is why no decoration of
+the track and no orientation of plain track cells is needed.

@@ -94,8 +94,8 @@ async function readTexture(input: {
 }
 
 function buildUniform2D(device: GPUDevice, mirrors: number[][]): GPUBuffer {
-  // Params: n0, n1, n2 (vec4 each, .xyz used), then iterations (u32), edgeWidth (f32), 2 pads. 64 bytes.
-  const data = new ArrayBuffer(64)
+  // Params: n0,n1,n2 (vec4), cam (vec4), iterations (u32), edgeWidth, 2 pads. 80 bytes.
+  const data = new ArrayBuffer(80)
   const f = new Float32Array(data)
   const u = new Uint32Array(data)
   for (let i = 0; i < 3; i++) {
@@ -104,16 +104,18 @@ function buildUniform2D(device: GPUDevice, mirrors: number[][]): GPUBuffer {
     f[i * 4 + 2] = mirrors[i]?.[2] ?? 0
     f[i * 4 + 3] = 0
   }
-  u[12] = ITERATIONS
-  f[13] = 0.012 // edgeWidth in hyperboloid-distance units
-  const buffer = device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
+  // cam = (panX, panY, zoom, unused), identity = no pan, zoom 1 (the static view)
+  f[12] = 0; f[13] = 0; f[14] = 1; f[15] = 0
+  u[16] = ITERATIONS
+  f[17] = 0.012 // edgeWidth in hyperboloid-distance units
+  const buffer = device.createBuffer({ size: 80, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
   device.queue.writeBuffer(buffer, 0, data)
   return buffer
 }
 
 function buildUniform3D(device: GPUDevice, mirrors: number[][]): GPUBuffer {
-  // Params: n0..n3 (vec4), eye (vec4), iterations (u32), edgeWidth, detail, maxSteps. 96 bytes.
-  const data = new ArrayBuffer(96)
+  // Params: n0..n3 (vec4), eye (vec4), cam (vec4), iterations (u32), edgeWidth, detail, maxSteps. 112 bytes.
+  const data = new ArrayBuffer(112)
   const f = new Float32Array(data)
   const u = new Uint32Array(data)
   for (let i = 0; i < 4; i++) {
@@ -122,16 +124,15 @@ function buildUniform3D(device: GPUDevice, mirrors: number[][]): GPUBuffer {
     f[i * 4 + 2] = mirrors[i]?.[2] ?? 0
     f[i * 4 + 3] = mirrors[i]?.[3] ?? 0
   }
-  // eye sits outside the unit ball looking at the center
-  f[16] = 0.0
-  f[17] = 0.0
-  f[18] = 2.4
-  f[19] = 0.0
-  u[20] = ITERATIONS
-  f[21] = 0.06 // edgeWidth (honeycomb walls, thick enough for the sphere tracer to catch)
-  f[22] = 0.0007 // detail (march hit threshold)
-  f[23] = 600.0 // maxSteps
-  const buffer = device.createBuffer({ size: 96, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
+  // eye sits outside the unit ball looking at the center (the static, from-outside view)
+  f[16] = 0.0; f[17] = 0.0; f[18] = 2.4; f[19] = 0.0
+  // cam = 0, no Mobius world-shift, the identity (static) camera
+  f[20] = 0.0; f[21] = 0.0; f[22] = 0.0; f[23] = 0.0
+  u[24] = ITERATIONS
+  f[25] = 0.06 // edgeWidth (honeycomb walls, thick enough for the sphere tracer to catch)
+  f[26] = 0.0007 // detail (march hit threshold)
+  f[27] = 600.0 // maxSteps
+  const buffer = device.createBuffer({ size: 112, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
   device.queue.writeBuffer(buffer, 0, data)
   return buffer
 }

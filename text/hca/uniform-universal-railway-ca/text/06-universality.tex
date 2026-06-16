@@ -1,0 +1,44 @@
+\section{The register machine}
+\label{sec:universality}
+
+Both the strong construction of Section~\ref{sec:strong} and the weak variant of Section~\ref{sec:weak}
+assemble the same register machine from the pieces of Section~\ref{sec:automaton}. We record the assembly and
+the reduction here.
+
+\subsection{Registers and operations}
+
+A register is a chain of flip-flop bits, holding a number in binary as in Table~\ref{tab:reg}. The locomotive
+reads and writes it by the three operations a counter machine needs. Increment ripples a carry through the
+bits. Decrement clears the lowest set bit and borrows downward. The zero test is read off the same run, a
+decrement that finds no set bit to clear returns by a separate track, and that return is how the machine learns
+the register held zero. Each operation is a path through tracks and the three switches, and by
+Lemmas~\ref{lem:direction} to~\ref{lem:switches} the locomotive follows it and leaves the bits in the right
+state.
+
+\subsection{The program}
+
+A register machine is a finite list of instructions, each an increment with a jump or a decrement that branches
+on the zero test. Each instruction is a small sub-circuit that drives the locomotive to its register, performs
+the operation, reads the zero test, and routes the locomotive on to the next instruction. Loops and jumps are
+track that returns. The program is a finite pattern of track and switches.
+
+We verified the assembly at the level of the railway. Registers and a sequencer wired into a two-register
+program, run by the single locomotive, compute, a multiplication program returns the product of its inputs for
+several inputs, in agreement with a reference register-machine interpreter \cite{pollard2026vibe}. We also ran a
+register physically as the cellular automaton itself, a binary counter driven by the single locomotive counts
+correctly (Section~\ref{sec:verification}).
+
+\subsection{The reduction}
+
+\begin{proposition}[Assembly]
+\label{prop:assembly}
+The motion and switch rules of Section~\ref{sec:automaton} realize, on any regular tiling, a register with
+correct increment, decrement, and zero test, and a sequencer that wires a finite program. With a register
+machine of two counters, which is universal \cite{minsky1967}, the locomotive computes any partial recursive
+function.
+\end{proposition}
+
+If the registers are supplied as infinite, ultimately-periodic track, the configuration is infinite and the
+universality is weak, which is the variant of Section~\ref{sec:weak}. If instead the registers self-extend by
+the build rule (B1), the configuration is finite and the universality is strong, which is
+Theorem~\ref{thm:strong}. The two differ only by whether the registers are given or grown.

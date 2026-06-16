@@ -1,0 +1,121 @@
+\section{The automaton: states and rules}
+\label{sec:automaton}
+
+We define the automaton on the cell graph $G$ with the roles and labels of Section~\ref{sec:setting}, give its
+complete state set and transition tables, and prove its motion and switches correct.
+
+\subsection{The state of a cell}
+
+A cell carries a static part, fixed by the initial configuration, and a dynamic part, updated each step. The
+static part is the role (empty, track, or switch), the track-link labels, and, for a switch, its kind. The
+dynamic part is one of four symbols and, for a switch, a one-bit selection. Table~\ref{tab:states} lists them.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}clp{8.2cm}@{}}
+\toprule
+symbol & name & meaning \\
+\midrule
+$\varnothing$ & empty & not part of the circuit, the quiescent background, stays empty \\
+$C$ & clear track & a track or switch cell with no part of the locomotive on it \\
+$H$ & head & the leading cell of the locomotive \\
+$A$ & trailing & the cell just behind the head, the locomotive's tail \\
+\midrule
+$1,2$ & selection & a switch's selected branch, $1$ for branch $a$, $2$ for branch $b$ (switch cells only) \\
+\bottomrule
+\end{tabular}
+\caption{The dynamic alphabet. Four cell symbols and, on a switch cell, one selection bit. The locomotive is
+one cell in state $H$ with an adjacent cell in state $A$.}
+\label{tab:states}
+\end{table}
+
+\subsection{The motion rules}
+
+All cells update at once. On plain track the locomotive is governed by three rules, shown in
+Table~\ref{tab:motion}. A head becomes the trailing cell, the trailing cell clears, and a clear track cell that
+the head points into becomes the new head.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}cllc@{}}
+\toprule
+rule & a cell in state & with & becomes \\
+\midrule
+(M1) & $H$ & always & $A$ \\
+(M2) & $C$ & the head points into it (the forward cell, Section~\ref{sec:switchrules}) & $H$ \\
+(M3) & $A$ & always & $C$ \\
+\bottomrule
+\end{tabular}
+\caption{The motion rules. Applied together each step, they advance the head-and-trailing pair forward by one
+cell, and never backward, by Lemma~\ref{lem:direction}.}
+\label{tab:motion}
+\end{table}
+
+\begin{lemma}[Direction]
+\label{lem:direction}
+On a stretch of plain track, where every track cell has exactly two track-neighbours, the only clear track cell
+adjacent to the head is the cell ahead of the locomotive.
+\end{lemma}
+
+Let the head sit on a cell $c$, with track-neighbours $f$ ahead and $b$ behind. The cell behind is the trailing
+cell, so $b$ is $A$, not $C$. The cell ahead, $f$, is $C$. So the unique $C$ track-neighbour of $c$ is $f$. \qed
+
+\begin{lemma}[Motion]
+\label{lem:motion}
+If at time $t$ the locomotive is head $c$, trailing $b$, with $f$ ahead, then at time $t+1$ it is head $f$,
+trailing $c$, and every other cell is unchanged.
+\end{lemma}
+
+By (M2) and Lemma~\ref{lem:direction}, $f$ becomes $H$. By (M1), $c$ becomes $A$. By (M3), $b$ becomes $C$. No
+other cell is adjacent to the head, so nothing else changes. \qed
+
+The argument uses only the graph and the roles, not the geometry, so the locomotive runs forward on any tiling.
+
+\subsection{The switch rules}
+\label{sec:switchrules}
+
+A switch cell $s$ has trunk $u$, branches $a$ and $b$, kind, and selection. When the head occupies $s$, the
+neighbour it came from holds the trailing cell $A$, so $s$ reads its entry side, and the forward cell and the
+new selection are given by Table~\ref{tab:switch}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lllll@{}}
+\toprule
+kind & entered from & selection & forward cell & new selection \\
+\midrule
+any & branch $a$ or $b$ (passive) & $\sigma$ & trunk $u$ & $\sigma$ (memory sets it, below) \\
+fixed & trunk (active) & $\sigma$ & $a$ if $\sigma{=}1$, else $b$ & $\sigma$ \\
+flip-flop & trunk (active) & $1$ & $a$ & $2$ \\
+flip-flop & trunk (active) & $2$ & $b$ & $1$ \\
+memory & trunk (active) & $\sigma$ & $a$ if $\sigma{=}1$, else $b$ & $\sigma$ \\
+\midrule
+memory & a clear switch sees the head on branch $a$ & --- & --- & $1$ \\
+memory & a clear switch sees the head on branch $b$ & --- & --- & $2$ \\
+\bottomrule
+\end{tabular}
+\caption{The switch transition. The entry side is read from which track-neighbour holds the trailing cell. A
+passive crossing goes to the trunk, an active crossing to the selected branch. The flip-flop flips on the
+active crossing, the memory switch records the branch of a passive crossing one step before the head reaches
+it.}
+\label{tab:switch}
+\end{table}
+
+\begin{lemma}[Switches]
+\label{lem:switches}
+With Table~\ref{tab:switch}, a fixed switch always sends an actively entered locomotive to the same branch, a
+flip-flop sends it to the selected branch and then selects the other, and a memory switch sends it to the
+branch last entered passively. Every passive crossing goes to the trunk.
+\end{lemma}
+
+Each line of the table is the corresponding clause, and the entry side is unambiguous because, by
+Lemma~\ref{lem:direction} applied at the switch with its three labelled track-neighbours, the trailing cell
+sits on exactly the neighbour the head came from. \qed
+
+\subsection{One fixed rule}
+
+The rules of Tables~\ref{tab:motion} and~\ref{tab:switch} mention no tiling. They read a cell's role, its
+dynamic symbol, the dynamic symbols of its neighbours, and a switch's labels and selection. The same rule runs
+on every cell graph. By Lemmas~\ref{lem:direction} to~\ref{lem:switches} it realizes a track, a one-directional
+locomotive, and the three switches, on any regular tiling. The one further rule, the track-building rule that
+makes the registers self-extend, is the subject of the next section.
