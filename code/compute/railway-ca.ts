@@ -134,6 +134,8 @@ export function makeGrowingTrackCa(input: { graphNeighbors: number[][]; depth: n
 export interface BinaryCounter {
   increment(): boolean // inject the locomotive and run one ripple, false if it did not reach the output
   count(): number // the value held in the flip-flop selection bits
+  clear(): void // reset every bit to 0 (the flip-flop selections to 1), a register reset
+  set(value: number): void // load a value into the flip-flop bits
   bits: number
 }
 
@@ -168,6 +170,53 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
       for (let i = 0; i < bits; i++) if ((cells[ff[i]!]!.active as number) === 2) v += 1 << i
       return v
     },
+    clear(): void {
+      for (let i = 0; i < bits; i++) cells[ff[i]!]!.active = 1
+    },
+    set(value: number): void {
+      for (let i = 0; i < bits; i++) cells[ff[i]!]!.active = (value >> i) & 1 ? 2 : 1
+    },
+  }
+}
+
+// the common interface of a railway register, so the literal adder and animations work over any base
+export interface RailRegister {
+  increment(): unknown
+  count(): number
+  clear(): void
+  set(value: number): void
+}
+
+// A UNARY railway register: the value is a length of track, increment lays/advances one cell (the locomotive
+// stepping one further along its rail). The simplest register, base 1.
+export function makeUnaryCounter(): RailRegister {
+  let value = 0
+  return {
+    increment(): void { value += 1 },
+    count(): number { return value },
+    clear(): void { value = 0 },
+    set(v: number): void { value = v },
+  }
+}
+
+// A TERNARY railway register: digits are TRITS (0, 1, 2) held in three-state switches, with a base-3 carry
+// ripple, the natural register for a vibe-theory computer (the base model is ternary tone). Increment ripples:
+// each trit at 2 rolls to 0 and carries, the first trit below 2 takes the increment.
+export function makeTernaryCounter(width: number): RailRegister {
+  const trits = new Array<number>(width).fill(0)
+  return {
+    increment(): void {
+      let i = 0
+      while (i < width && trits[i] === 2) { trits[i] = 0; i++ }
+      if (i < width) trits[i]! += 1
+    },
+    count(): number {
+      let v = 0, p = 1
+      for (let i = 0; i < width; i++) { v += trits[i]! * p; p *= 3 }
+      return v
+    },
+    clear(): void { trits.fill(0) },
+    set(v: number): void { let x = v; for (let i = 0; i < width; i++) { trits[i] = x % 3; x = Math.floor(x / 3) } },
   }
 }
 

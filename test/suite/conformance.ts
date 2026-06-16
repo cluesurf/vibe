@@ -94,6 +94,7 @@ import { patternClass, patternClassCount } from '@/code/render/geometry/pattern'
 import { routeSwitch, runRailway, type RailSwitch, type RailInstruction } from '@/code/compute/railway'
 import { compileToRailway } from '@/code/compute/ts-to-railway'
 import { compileMachine, runMachine } from '@/code/compute/compile'
+import { fibOnRailway } from '@/code/compute/railway-adder'
 import { PENTAGRID_RULES, buildPentagridRuleTable, pentagridNext } from '@/code/compute/margenstern-pentagrid'
 import { pentagrid3State } from '@/code/compute/margenstern-pentagrid-3state'
 import { pentagrid2State } from '@/code/compute/margenstern-pentagrid-2state'
@@ -838,6 +839,17 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const binFlat = binCost[8]! - binCost[7]! === binDelta && binCost[5]! - binCost[4]! === binDelta
     const unaGrows = unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!
     check({ name: 'binary backend: same answers, constant per-term cost (modern-CPU 64-bit), vs unary growing', ok: binCorrect && binFlat && unaGrows, detail: `binary +${binDelta}/term flat, unary grows` })
+
+    // the TERNARY backend (vibe-theory base-3) computes the same answers on the same program, costed in trits
+    const ter = compileMachine(FIB_SRC, { backend: 'ternary' })
+    const terVals: string[] = []
+    for (let m = 1; m <= 10; m++) terVals.push(runMachine(ter, [m]).result.toString())
+    check({ name: 'ternary backend: base-3 register machine computes fib(1..10) on the shared program', ok: terVals.join(',') === '1,1,2,3,5,8,13,21,34,55', detail: terVals.join(' ') })
+
+    // the LITERAL railway-CA adder: addition by the actual locomotive rippling carries through flip-flop switches
+    const railFib: string[] = []
+    for (let m = 1; m <= 10; m++) railFib.push(String(fibOnRailway({ n: m, bits: 8 }).value))
+    check({ name: 'literal railway-CA adder: the locomotive computes fib(1..10) by real carry ripples', ok: railFib.join(',') === '1,1,2,3,5,8,13,21,34,55', detail: railFib.join(' ') })
 
     // Margenstern's actual 5-state pentagrid universal CA, the 236-rule table transcribed from arXiv:1403.2373.
     // It compiles (rotation-invariant, no conflicts), uses exactly the 5 states, and fires its documented rules.

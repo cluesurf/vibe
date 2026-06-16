@@ -152,7 +152,7 @@ function renderFrame(input: {
     for (let p = 0; p < track.length; p++) {
       const cell = track[p]!
       if (p < value) {
-        const t = 0.3 + 0.55 * (p / Math.max(1, value))
+        const t = 0.45 + 0.2 * (p / Math.max(1, value)) // vivid (~500) hue, a touch deeper toward the tip
         const isTip = p === value - 1
         const isActive = r === active && isTip
         const rgb01 = isActive ? [0.96, 0.96, 0.99] as const : shade(hue, t)
