@@ -5,22 +5,25 @@
 // the fold cap. Deep / paracompact tilings need more, this is ample for {p,q} and {p,q,r}.
 export const FOLD_ITERATIONS = 200
 
-// the 2D camera, a Mobius pan (the disk point under the screen centre), a zoom, and a view rotation.
+// the 2D camera, a Mobius pan (the disk point under the screen centre), a zoom, and a view rotation. `aspect` is
+// the viewport width / height so a non-square canvas keeps the disk circular instead of stretching it to fill.
 export type Fold2DUniform = {
   pan: [number, number]
   zoom: number
   rotation: number
   edgeWidth: number
+  aspect: number
 }
 
 // the 3D camera, a Mobius world-shift (the negated camera ball point), an eye position (its negative is the
-// look direction), and the raymarch parameters.
+// look direction), and the raymarch parameters. `aspect` is the viewport width / height (1 = square).
 export type Fold3DUniform = {
   shift: [number, number, number]
   eye: [number, number, number]
   edgeWidth: number
   detail: number
   maxSteps: number
+  aspect: number
 }
 
 // pack the 2D Params: n0,n1,n2 (vec4), cam (vec4: panX, panY, zoom, rotation), iterations (u32), edgeWidth,
@@ -41,6 +44,7 @@ export function packFold2D(mirrors: number[][], cam: Fold2DUniform): ArrayBuffer
   f[15] = cam.rotation
   u[16] = FOLD_ITERATIONS
   f[17] = cam.edgeWidth
+  f[18] = cam.aspect // pad0 slot, the viewport aspect for the circular-disk correction
   return data
 }
 
@@ -56,7 +60,7 @@ export function packFold3D(mirrors: number[][], cam: Fold3DUniform): ArrayBuffer
     f[i * 4 + 2] = mirrors[i]?.[2] ?? 0
     f[i * 4 + 3] = mirrors[i]?.[3] ?? 0
   }
-  f[16] = cam.eye[0]; f[17] = cam.eye[1]; f[18] = cam.eye[2]; f[19] = 0
+  f[16] = cam.eye[0]; f[17] = cam.eye[1]; f[18] = cam.eye[2]; f[19] = cam.aspect // eye.w carries the aspect
   f[20] = cam.shift[0]; f[21] = cam.shift[1]; f[22] = cam.shift[2]; f[23] = 0
   u[24] = FOLD_ITERATIONS
   f[25] = cam.edgeWidth

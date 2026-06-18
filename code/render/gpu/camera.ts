@@ -13,7 +13,8 @@ import type { FoldMode } from '@/code/render/gpu/fold-scene'
 const MODE_PARAMS: Record<FoldMode, { eyeDist: number; edgeWidth: number; detail: number; maxSteps: number }> = {
   '2d': { eyeDist: 0, edgeWidth: 0.012, detail: 0, maxSteps: 0 },
   '3d': { eyeDist: 2.4, edgeWidth: 0.06, detail: 0.0012, maxSteps: 240 },
-  '3d-interior': { eyeDist: 0.06, edgeWidth: 0.16, detail: 0.0012, maxSteps: 320 },
+  // interior strut lattice: a thin tube radius and a deep march budget so the honeycomb recedes to the horizon
+  '3d-interior': { eyeDist: 0.05, edgeWidth: 0.016, detail: 0.0008, maxSteps: 560 },
 }
 
 export type Camera = {
@@ -91,7 +92,8 @@ export function makeCamera(mode: FoldMode): Camera {
       pos3 = [0, 0, 0]; yaw = 0; pitch = 0
     },
     uniform2D() {
-      return { pan: pos2, zoom, rotation: angle, edgeWidth: params.edgeWidth }
+      // aspect defaults to 1 (square); a windowed host overrides it with the live viewport ratio each frame
+      return { pan: pos2, zoom, rotation: angle, edgeWidth: params.edgeWidth, aspect: 1 }
     },
     uniform3D() {
       const f = forward3()
@@ -101,6 +103,7 @@ export function makeCamera(mode: FoldMode): Camera {
         edgeWidth: params.edgeWidth,
         detail: params.detail,
         maxSteps: params.maxSteps,
+        aspect: 1,
       }
     },
   }
