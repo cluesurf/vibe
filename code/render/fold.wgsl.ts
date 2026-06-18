@@ -42,7 +42,7 @@ struct Params {
   cam: vec4<f32>, // xy = Mobius pan (the disk point under the screen center), z = zoom, w = view rotation (rad)
   iterations: u32,
   edgeWidth: f32,
-  pad0: f32,
+  aspect: f32, // viewport width / height, so the disk stays circular on a non-square canvas
   pad1: f32,
 };
 
@@ -95,6 +95,8 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   // map the pixel into the Poincare disk (centered square), scaled by zoom and panned by a Mobius shift
   let zoom = max(0.05, P.cam.z);
   var d0 = (in.uv - vec2<f32>(0.5, 0.5)) * 2.1 / zoom;
+  // keep the disk circular on a wide/tall canvas by widening the longer axis in disk space
+  if (P.aspect >= 1.0) { d0.x = d0.x * P.aspect; } else { d0.y = d0.y / P.aspect; }
 
   // view rotation (cam.w, radians), so the walker can turn and the heading stays up. Rotating the sample
   // direction before the Mobius pan turns the whole disk about the camera point.
@@ -250,7 +252,8 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   let forward = normalize(-eye);
   let right = normalize(cross(vec3<f32>(0.0, 1.0, 0.0), forward));
   let up = cross(forward, right);
-  let ndc = (in.uv - vec2<f32>(0.5, 0.5)) * 2.0;
+  var ndc = (in.uv - vec2<f32>(0.5, 0.5)) * 2.0;
+  ndc.x = ndc.x * P.eye.w; // aspect, so the honeycomb keeps its proportions on a non-square canvas
   let dir = normalize(forward + 0.7 * (ndc.x * right + ndc.y * up));
 
   var t = 0.0;
@@ -287,11 +290,13 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
 `
 
 // ---------------------------------------------------------------------------------------------
-// 3D INTERIOR renderer. The camera sits INSIDE the honeycomb and the cells are drawn as a lattice
-// of SOLID BEAMS along the honeycomb edges (where two mirror walls meet), so you fly through the
-// dodecahedral corridors of {5,3,4} (the HyperRogue interior look) instead of seeing nested shells
-// from outside. Same fold + Mobius camera as FOLD_3D_WGSL, but the distance estimate is a tube
-// around the SECOND-nearest mirror (an edge), not a slab around the nearest mirror (a face).
+// 3D INTERIOR renderer, the HyperRogue look. The camera sits INSIDE the {5,3,4} honeycomb and the
+// 1-skeleton is drawn as a lattice of ROUNDED STRUTS along the cell edges. The cells are OPEN, so a
+// ray passes through them into the neighbours and you see the lattice recede infinitely, smaller and
+// denser toward the ideal boundary (the hyperbolic horizon). This uses the FULL reflection group
+// (all four mirrors) so the structure tiles all of space, and a strut is a tube around a RIDGE of the
+// fundamental simplex (where the two nearest mirror walls meet, i.e. the second-nearest mirror is
+// still close). Gray struts on a light ground, matching the classic dodecahedral-honeycomb render.
 // ---------------------------------------------------------------------------------------------
 
 export const FOLD_3D_INTERIOR_WGSL = /* wgsl */ `
@@ -314,10 +319,10 @@ struct Params {
   n1: vec4<f32>,
   n2: vec4<f32>,
   n3: vec4<f32>,
-  eye: vec4<f32>,
-  cam: vec4<f32>,
+  eye: vec4<f32>, // xyz = eye position, w = viewport aspect
+  cam: vec4<f32>, // xyz = Mobius world-shift (negated camera ball point)
   iterations: u32,
-  edgeWidth: f32,
+  edgeWidth: f32, // the strut tube radius, in hyperboloid-distance units
   detail: f32,
   maxSteps: f32,
 };
@@ -342,29 +347,45 @@ fn tryReflect4(p: ptr<function, vec4<f32>>, n: vec4<f32>) -> f32 {
   return k;
 }
 
-// fold by the CELL STABILIZER only (the first three mirrors, a finite group), mapping a point into one simplex
-// of the dodecahedral cell. The outer mirror n3 is then the cell's FACE (the wall to the next cell).
-fn foldCell(p: ptr<function, vec4<f32>>) {
+// fold by the FULL group (all four mirrors), mapping any point of H3 into the one fundamental simplex,
+// so the honeycomb tiles all of space and the lattice repeats correctly cell after cell.
+fn fold4(p: ptr<function, vec4<f32>>) {
   for (var i: u32 = 0u; i < P.iterations; i = i + 1u) {
     var k = 0.0;
     k = k + tryReflect4(p, P.n0);
     k = k + tryReflect4(p, P.n1);
     k = k + tryReflect4(p, P.n2);
+    k = k + tryReflect4(p, P.n3);
     if (k == 0.0) { return; }
   }
 }
 
-// distance estimate to the SOLID cell wall (the dodecahedron face, the n3 mirror plane). Inside the cell you
-// always face a wall, so you stand inside a closed dodecahedral room and see all twelve faces.
+// the hyperbolic distance from the folded point to the nearest RIDGE of the simplex (the edges of the
+// honeycomb): the two smallest mirror distances are both small only on a ridge, so the second-smallest
+// IS the distance to the nearest edge. A tube of radius edgeWidth around that ridge is a strut.
+fn strutDistance(q: vec4<f32>) -> f32 {
+  let d0 = asinh(abs(hdot4(q, P.n0)));
+  let d1 = asinh(abs(hdot4(q, P.n1)));
+  let d2 = asinh(abs(hdot4(q, P.n2)));
+  let d3 = asinh(abs(hdot4(q, P.n3)));
+  // the second-smallest of the four mirror distances IS the distance to the nearest ridge (you are near a ridge
+  // only when the two nearest walls are both close). Computed as the 2nd order statistic of {d0,d1,d2,d3}.
+  let lo01 = min(d0, d1);
+  let hi01 = max(d0, d1);
+  let lo23 = min(d2, d3);
+  let hi23 = max(d2, d3);
+  return min(max(lo01, lo23), min(hi01, hi23));
+}
+
 fn de(p: vec3<f32>) -> f32 {
   let r2 = dot(p, p);
   if (r2 >= 1.0) { return sqrt(r2) - 1.0 + 0.0005; }
   let denom = 1.0 - r2;
   var q = vec4<f32>(2.0 * p / denom, (1.0 + r2) / denom);
-  foldCell(&q);
-  // hyperbolic distance from the point to the cell-face plane n3, the wall surface
-  let wall = asinh(abs(hdot4(q, P.n3)));
-  let euclid = wall * denom * 0.5 * 0.5;
+  fold4(&q);
+  let ridge = strutDistance(q);
+  let tube = max(0.0, ridge - P.edgeWidth);
+  let euclid = tube * denom * 0.5 * 0.5; // hyperbolic-to-Euclidean step, fudged for the sphere tracer
   return max(r2 - 1.0 + 0.001, euclid);
 }
 
@@ -379,9 +400,11 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
   let forward = normalize(-eye);
   let right = normalize(cross(vec3<f32>(0.0, 1.0, 0.0), forward));
   let up = cross(forward, right);
-  let ndc = (in.uv - vec2<f32>(0.5, 0.5)) * 2.0;
-  let dir = normalize(forward + 0.9 * (ndc.x * right + ndc.y * up));
+  var ndc = (in.uv - vec2<f32>(0.5, 0.5)) * 2.0;
+  ndc.x = ndc.x * P.eye.w; // aspect, so struts keep their shape on a non-square canvas
+  let dir = normalize(forward + 0.85 * (ndc.x * right + ndc.y * up));
 
+  let ground = vec3<f32>(0.92, 0.93, 0.95); // the light haze the dense far lattice fades into
   var t = 0.0;
   var hit = false;
   var pos = eye;
@@ -391,51 +414,31 @@ fn fs(in: VertexOut) -> @location(0) vec4<f32> {
     let dist = deCam(pos);
     if (dist < P.detail) { hit = true; break; }
     t = t + dist;
-    if (t > 6.0) { break; }
+    if (t > 7.0) { break; }
   }
 
   if (!hit) {
-    return vec4<f32>(0.03, 0.03, 0.05, 1.0);
+    return vec4<f32>(ground, 1.0);
   }
 
+  // finite-difference normal for the rounded-tube shading
   let h = 0.0004;
   let nx = deCam(pos + vec3<f32>(h, 0.0, 0.0)) - deCam(pos - vec3<f32>(h, 0.0, 0.0));
   let ny = deCam(pos + vec3<f32>(0.0, h, 0.0)) - deCam(pos - vec3<f32>(0.0, h, 0.0));
   let nz = deCam(pos + vec3<f32>(0.0, 0.0, h)) - deCam(pos - vec3<f32>(0.0, 0.0, h));
   let normal = normalize(vec3<f32>(nx, ny, nz));
 
-  // edge glow: fold the hit point by the cell stabilizer and measure how close it is to a dodecahedron EDGE
-  // (where the face mirror n3 meets one of the stabilizer mirrors), so the cell's wireframe lights up
-  let wpt = mobiusAdd(P.cam.xyz, pos);
-  let wr2 = dot(wpt, wpt);
-  let wdenom = 1.0 - wr2;
-  var qh = vec4<f32>(2.0 * wpt / wdenom, (1.0 + wr2) / wdenom);
-  foldCell(&qh);
-  let eg = min(asinh(abs(hdot4(qh, P.n0))), min(asinh(abs(hdot4(qh, P.n1))), asinh(abs(hdot4(qh, P.n2)))));
-  let glow = smoothstep(0.055, 0.0, eg); // crisp wireframe lines along the dodecahedron edges
+  // a soft key light plus ambient, the gray strut material
+  let lightDir = normalize(vec3<f32>(0.35, 0.7, 0.5));
+  let lambert = max(0.0, dot(normal, lightDir));
+  let ambient = 0.55 + 0.22 * normal.y; // gentle sky/ground term so curved tubes read as round
+  let metal = vec3<f32>(0.5, 0.51, 0.54);
+  var col = metal * (ambient + 0.7 * lambert);
 
-  // TEXTURE the wall. Tint each dodecahedral face by which stabilizer mirror is nearest after folding (so the
-  // twelve faces read as distinct surfaces), and lay a checker tile over the face from the folded coordinate
-  // (the orbit trap qh.xyz), so the room has a tiled, solid look rather than a flat fill.
-  let dA = asinh(abs(hdot4(qh, P.n0)));
-  let dB = asinh(abs(hdot4(qh, P.n1)));
-  let dC = asinh(abs(hdot4(qh, P.n2)));
-  var faceTint = vec3<f32>(0.46, 0.40, 0.80); // nearest n0
-  if (dB <= dA && dB <= dC) { faceTint = vec3<f32>(0.40, 0.52, 0.82); } // nearest n1
-  if (dC <= dA && dC <= dB) { faceTint = vec3<f32>(0.56, 0.42, 0.74); } // nearest n2
-  // checker from the folded coordinate, the tile grid carried across the face
-  let tile = qh.xyz * 5.0;
-  let checker = step(0.5, fract(tile.x) ) * step(0.5, fract(tile.y)) + step(fract(tile.x), 0.5) * step(fract(tile.y), 0.5);
-  let grout = smoothstep(0.0, 0.06, abs(fract(tile.x) - 0.5)) * smoothstep(0.0, 0.06, abs(fract(tile.y) - 0.5));
-  let tex = mix(0.78, 1.0, checker) * mix(0.6, 1.0, grout);
-
-  let lightDir = normalize(vec3<f32>(0.4, 0.8, 0.5));
-  let lambert = max(0.22, dot(normal, lightDir));
-  let fog = exp(-0.4 * t);
-  let wall = faceTint * tex * lambert * fog;
-  let edge = vec3<f32>(0.95, 0.92, 1.0) * glow * fog;
-  let col = wall + edge + vec3<f32>(0.025, 0.025, 0.05);
-
+  // distance haze: far struts wash toward the light ground, which is what makes the lattice read as a
+  // receding hyperbolic horizon rather than a flat thicket. A slow rate keeps the deep lacework visible.
+  let haze = 1.0 - exp(-0.4 * t);
+  col = mix(col, ground, haze);
   return vec4<f32>(col, 1.0);
 }
 `

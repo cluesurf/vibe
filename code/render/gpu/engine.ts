@@ -60,8 +60,10 @@ export async function createVibeRenderer(input: {
     const dt = Math.min(0.05, (now - last) / 1000)
     last = now
     controls.tick(dt)
-    if (mode === '2d') scene.setCamera2D(camera.uniform2D())
-    else scene.setCamera3D(camera.uniform3D())
+    // the live viewport aspect so the disk stays circular and the honeycomb keeps its proportions on any canvas
+    const aspect = input.canvas.height > 0 ? input.canvas.width / input.canvas.height : 1
+    if (mode === '2d') scene.setCamera2D({ ...camera.uniform2D(), aspect })
+    else scene.setCamera3D({ ...camera.uniform3D(), aspect })
 
     const encoder = device.createCommandEncoder()
     const pass = encoder.beginRenderPass({
