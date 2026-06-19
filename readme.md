@@ -21,7 +21,7 @@
 
 ## Introduction
 
-[Vibe Theory](https://doi.org/10.5281/zenodo.20665953) treats reality as
+[Vibe Theory](https://doi.org/10.5281/zenodo.20694262) treats reality as
 one thing, a vast growing crystal of experience. The image above is its
 simplest face, the hyperbolic `{7,3}` tessellation, and it is meant
 literally. Each tile is a **vibe**, the smallest unit of experience.
@@ -69,13 +69,13 @@ becomes a concrete experiment that either works or does not.
 
 Everything is finite and deterministic, so every result is exactly
 reproducible. The base never relies on randomness. Real numbers appear
-only as measured outputs (coordinates, eigenvalues, dimensions), never as
-the base, in keeping with the discreteness principle. Each question is one
-experiment in `test/experiment/<category>/`, a single `defineExperiment`
-that returns a structured verdict (status, metrics, control, claim) graded
-by an honest depth level, from `L0` circular through `L1` known math and
-`L2` known physics to `L3` emergent and novel. The standard the
-experiments are held to is in
+only as measured outputs (coordinates, eigenvalues, dimensions), never
+as the base, in keeping with the discreteness principle. Each question
+is one experiment in `test/experiment/<category>/`, a single
+`defineExperiment` that returns a structured verdict (status, metrics,
+control, claim) graded by an honest depth level, from `L0` circular
+through `L1` known math and `L2` known physics to `L3` emergent and
+novel. The standard the experiments are held to is in
 [`note/experimental-methodology.md`](note/experimental-methodology.md),
 and the code and test layout is in
 [`note/architecture.md`](note/architecture.md).
@@ -100,7 +100,7 @@ results come first.
 | **L3** | emergent and novel. One base rule produces the result as a measured consequence, with a control, ideally a quantitative prediction that could be wrong. The genuine target. |
 | **L2** | known physics. Reproduces a known construction on the substrate (a Dirac quantum walk, lattice gauge theory, a ballistic light cone).                                       |
 | **L1** | known math. Correctly confirms an established mathematical fact (the 24-cell is the binary tetrahedral group, a 2pi rotation gives minus one).                              |
-| **L0** | circular. The answer is put in by hand, so it proves nothing on its own. Kept only as an honest consistency note, never as evidence.                                       |
+| **L0** | circular. The answer is put in by hand, so it proves nothing on its own. Kept only as an honest consistency note, never as evidence.                                        |
 
 So L3 is the real prize, L1 and L2 are honest groundwork, and L0 is a
 marker of what is assumed rather than derived. Most results in a young
@@ -118,11 +118,11 @@ pnpm test:full    # the above, then the extended check suite
 ```
 
 Every experiment lives in `test/experiment/<category>/<name>.ts` as one
-`defineExperiment`, and the suite runner (`test/run.ts`) imports them all
-and runs the registry. The shared library they import is in `code/`, and
-the named batteries (conformance, paper) are in `test/suite/`. The build
-fails only on a code crash or a conformance failure, never on an honest
-scientific negative.
+`defineExperiment`, and the suite runner (`test/run.ts`) imports them
+all and runs the registry. The shared library they import is in `code/`,
+and the named batteries (conformance, paper) are in `test/suite/`. The
+build fails only on a code crash or a conformance failure, never on an
+honest scientific negative.
 
 ## Defining the model
 
@@ -182,25 +182,27 @@ which is why a curved mesh is the committed choice.
 
 All docs live in `note/`. The entry points:
 
-- **[The library guide](note/library/readme.md)** is how to USE the `code/`
-  library. It opens with a [features-at-a-glance](note/library/features.md)
-  page (what the library solves for in one scannable set of tables) and an
-  [overview](note/library/overview.md) of how it all fits together. Under
-  that are per-domain API guides (substrate, tone-and-rule, operator,
-  measure, dynamics, algebra, model, tool, computing-and-data-structures,
-  draw-and-render) and engine deep dives explaining how each engine works
-  inside (the Coxeter tessellation engine, the reversible rule, the
-  Kahler-Dirac fermion, the spinor coin, the spectral methods, the
-  causal-set sampler, the unitary evolution, the lattice gauge engine, the
-  coarse-graining and selves engine, and the associative memory engine).
-- **[Architecture](note/architecture.md)** is where code and tests live, and
-  how to add an experiment.
-- **[Experimental methodology](note/experimental-methodology.md)** is the
-  standard every experiment is held to, the depth rubric, the control
-  requirement, determinism, and the honest negatives.
+- **[The library guide](note/library/readme.md)** is how to USE the
+  `code/` library. It opens with a
+  [features-at-a-glance](note/library/features.md) page (what the
+  library solves for in one scannable set of tables) and an
+  [overview](note/library/overview.md) of how it all fits together.
+  Under that are per-domain API guides (substrate, tone-and-rule,
+  operator, measure, dynamics, algebra, model, tool,
+  computing-and-data-structures, draw-and-render) and engine deep dives
+  explaining how each engine works inside (the Coxeter tessellation
+  engine, the reversible rule, the Kahler-Dirac fermion, the spinor
+  coin, the spectral methods, the causal-set sampler, the unitary
+  evolution, the lattice gauge engine, the coarse-graining and selves
+  engine, and the associative memory engine).
+- **[Architecture](note/architecture.md)** is where code and tests live,
+  and how to add an experiment.
+- **[Experimental methodology](note/experimental-methodology.md)** is
+  the standard every experiment is held to, the depth rubric, the
+  control requirement, determinism, and the honest negatives.
 - **[Cross-tessellation experiments](note/cross-tessellation-experiments.md)**
-  is how to write an experiment that runs against every regular hyperbolic
-  tessellation at once.
+  is how to write an experiment that runs against every regular
+  hyperbolic tessellation at once.
 
 ## License
 
