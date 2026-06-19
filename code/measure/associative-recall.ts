@@ -12,7 +12,7 @@ import {
   searchBest,
 } from '@/code/operator/associative-memory'
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = readonly (readonly number[])[]
 
 // Exact-recall rate, the fraction of stored cells whose own word, queried exactly, returns that one cell and
 // no other. A perfect content memory scores 1.0.
@@ -26,6 +26,7 @@ export function exactRecallRate(mem: AssociativeMemory): number {
     }
 
     total++
+
     const responders = searchExact({ mem, comparand: readWord(mem, c) })
 
     if (responders.length === 1 && responders[0] === c) {

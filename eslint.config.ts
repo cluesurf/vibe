@@ -29,6 +29,13 @@ export default [
         // between a `const` group and a `let` group (and vice versa)
         { blankLine: 'always', prev: 'const', next: 'let' },
         { blankLine: 'always', prev: 'let', next: 'const' },
+        // a declaration that follows ordinary (expression) statements
+        // starts a new group, so give it a blank line before it
+        {
+          blankLine: 'always',
+          prev: 'expression',
+          next: ['const', 'let'],
+        },
         // a multi-line declaration (e.g. a function-bodied const)
         // gets a blank line after it
         {
