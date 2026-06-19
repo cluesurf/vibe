@@ -42,6 +42,7 @@ const EDGE_COLOR: [number, number, number] = [18, 18, 26]
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   const symbolText = process.argv[2] ?? '7-3'
   const model = (process.argv[3] ?? 'poincare') as ProjectionModel
   const symbol = symbolText.split('-').map(Number)
@@ -115,6 +116,7 @@ function run(): void {
       next,
       modulus: MODULUS,
     })
+
     const spent = previous
     previous = current
     current = next.slice()

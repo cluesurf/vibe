@@ -30,6 +30,7 @@ export function latticeDiracEnergy1d(input: {
   h.data[1] = Math.sin(input.k)
   h.data[2] = Math.sin(input.k)
   h.data[3] = -input.m
+
   const eig = eigSymmetric({ matrix: h })
 
   return Math.max(eig.values[0] ?? 0, eig.values[1] ?? 0)

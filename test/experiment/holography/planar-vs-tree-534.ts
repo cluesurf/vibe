@@ -10,13 +10,14 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 // stays reachable than on the tree, hence the tree model is a conservative lower bound on the planar code.
 
 const reachableBoundary = (
-  neighbors: ReadonlyArray<ReadonlyArray<number>>,
+  neighbors: readonly (readonly number[])[],
   erased: boolean[],
   boundary: number[],
   centre: number,
 ): number => {
   const seen = new Uint8Array(neighbors.length)
   seen[centre] = 1
+
   let frontier = [centre]
 
   while (frontier.length) {
@@ -60,6 +61,7 @@ export default experiment({
     const depth = new Array(size).fill(-1)
     const parent = new Array(size).fill(-1)
     depth[0] = 0
+
     let frontier = [0]
 
     while (frontier.length) {

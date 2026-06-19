@@ -10,7 +10,7 @@ import { makeRng, sampleEmpiricalFrequencies } from '@/code/tool/rng'
 
 // Realise amplitude_k = sqrt(count_k): disjoint vibe sets of size round(c_k^2 * scale), at least one each.
 export function patchesFromAmplitudes(
-  amps: ReadonlyArray<number>,
+  amps: readonly number[],
   scale: number,
 ): { counts: number[]; total: number } {
   const counts = amps.map(c => Math.max(1, Math.round(c * c * scale)))
@@ -22,7 +22,7 @@ export function patchesFromAmplitudes(
 // Substrate fact (1): merge adjacent disjoint patches and check sqrt(n1+n2)^2 == sqrt(n1)^2 + sqrt(n2)^2.
 // Returns the worst residual over all adjacent pairs (zero on a true quadrature additivity).
 export function quadratureAdditivityResidual(
-  amps: ReadonlyArray<number>,
+  amps: readonly number[],
   scale: number,
 ): number {
   const { counts } = patchesFromAmplitudes(amps, scale)
@@ -70,7 +70,7 @@ export function exponentResidual(input: {
 // Fair sampling of the vibes: the empirical frequency of each outcome k over `draws` draws, which
 // converges to n_k / total = |c_k|^2.
 export function fairSampleFrequencies(input: {
-  amps: ReadonlyArray<number>
+  amps: readonly number[]
   scale: number
   draws: number
   seed: number

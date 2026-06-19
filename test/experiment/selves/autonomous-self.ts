@@ -56,6 +56,7 @@ function autonomousRepair(
 
   while (need > 0 && guard < N * 4) {
     guard++
+
     const e = Math.floor(rng.next() * N)
 
     if (tone[e] === 0 && sameSignNeighbors(tone, g, e, 1) < 2) {

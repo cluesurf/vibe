@@ -172,6 +172,7 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   const bfs = (src: number): Int32Array => {
     const d = new Int32Array(N).fill(-1)
     d[src] = 0
+
     let fr = [src]
 
     while (fr.length) {

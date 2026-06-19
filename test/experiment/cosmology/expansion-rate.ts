@@ -22,7 +22,7 @@ export default experiment({
     const ratioOf = (symbol: number[], cap: number) =>
       lastCompleteShellRatio(buildCoxeterMatrixMesh(symbol, cap).shells)
 
-    const symbols: Array<[string, number[]]> = [
+    const symbols: [string, number[]][] = [
       ['{7,3}', [7, 3]],
       ['{8,3}', [8, 3]],
       ['{5,4}', [5, 4]],

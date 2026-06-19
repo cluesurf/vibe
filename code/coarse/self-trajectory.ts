@@ -83,6 +83,7 @@ export function selfTrajectory(input: {
 
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, 0.22)
+
     const cx = positiveCentroidX(tone, L)
     centroids.push(cx)
     labels.push(toBin(cx))
@@ -175,6 +176,7 @@ function runUnitTrajectory(input: {
 
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, cohesionAt(t))
+
     const units = extractUnits({
       tone,
       graph,

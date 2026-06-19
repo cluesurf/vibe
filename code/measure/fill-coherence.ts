@@ -8,7 +8,7 @@
 // an order parameter for an integrated, non-frustrated structure.
 export function fillCoherence(
   tone: Int8Array,
-  edges: Array<[number, number]>,
+  edges: [number, number][],
   fill: Int8Array,
 ): number {
   let sat = 0
@@ -38,7 +38,7 @@ export function fillCoherence(
 // This makes fills LEARN the tone structure rather than staying fixed.
 export function adaptFills(
   tone: Int8Array,
-  edges: ReadonlyArray<readonly [number, number]>,
+  edges: readonly (readonly [number, number])[],
   fill: Int8Array,
 ): void {
   for (let i = 0; i < edges.length; i++) {
@@ -57,7 +57,7 @@ export function adaptFills(
 // the biggest coherent patch (a candidate higher self). `n` is the cell count.
 export function largestSharingPatch(
   tone: Int8Array,
-  edges: Array<[number, number]>,
+  edges: [number, number][],
   fill: Int8Array,
   n: number,
 ): number {

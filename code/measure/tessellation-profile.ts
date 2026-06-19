@@ -25,11 +25,12 @@ export interface TessellationProfile {
 }
 
 const bfsDepths = (
-  adjacency: ReadonlyArray<ReadonlyArray<number>>,
+  adjacency: readonly (readonly number[])[],
   root: number,
 ): number[] => {
   const depth = new Array(adjacency.length).fill(-1)
   depth[root] = 0
+
   let frontier = [root]
 
   while (frontier.length > 0) {

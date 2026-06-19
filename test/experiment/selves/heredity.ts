@@ -68,6 +68,7 @@ export function heredity(input?: { n?: number }): {
   {
     const seen = new Uint8Array(N)
     seen[far] = 1
+
     let fr = [far]
 
     while (fr.length > 0 && daughterCells.length < size) {

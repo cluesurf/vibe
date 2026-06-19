@@ -131,6 +131,7 @@ export function directionFieldEnergy2d(field: Vector3[][]): {
         up = field[x]![y + 1]!
 
       exchange += 1 - dot3(n, right) + (1 - dot3(n, up))
+
       const q = sphericalTriangleArea(n, right, up)
       skyrme += q * q
     }
@@ -196,6 +197,7 @@ export function directionFieldEnergy3d(field: Vector3[][][]): {
 
         exchange +=
           1 - dot3(n, rx) + (1 - dot3(n, ry)) + (1 - dot3(n, rz))
+
         const qxy = sphericalTriangleArea(n, rx, ry),
           qyz = sphericalTriangleArea(n, ry, rz),
           qzx = sphericalTriangleArea(n, rz, rx)

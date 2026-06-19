@@ -118,6 +118,7 @@ export function boostInvariance(input?: {
   }
 
   boostResidual = boostCount > 0 ? boostResidual / boostCount : 1
+
   const boostInvariantInWindow = boostResidual < 0.05
 
   const fullLorentz = masslessExact && boostInvariantInWindow // boosts + the rotations of P150

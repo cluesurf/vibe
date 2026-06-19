@@ -9,20 +9,20 @@ export interface Graph {
   readonly size: number
   readonly directed: boolean
   // neighbors[a] is the sorted list of neighbor ids of a
-  readonly neighbors: ReadonlyArray<Uint32Array>
+  readonly neighbors: readonly Uint32Array[]
   // optional edge weights aligned index for index with neighbors[a]
-  readonly weight?: ReadonlyArray<Float64Array>
+  readonly weight?: readonly Float64Array[]
   // optional Fibonacci / Margenstern address per node (tilings only)
-  readonly address?: ReadonlyArray<string>
+  readonly address?: readonly string[]
   readonly embedding?: Embedding
 }
 
 export function makeGraph(input: {
   size: number
   directed: boolean
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
-  weight?: ReadonlyArray<ReadonlyArray<number>>
-  address?: ReadonlyArray<string>
+  neighbors: readonly (readonly number[])[]
+  weight?: readonly (readonly number[])[]
+  address?: readonly string[]
   embedding?: Embedding
 }): Graph {
   const neighbors = input.neighbors.map(row =>
@@ -93,7 +93,7 @@ export function meanDegree(g: Graph): number {
 // Index of the most-connected node (highest degree), the deterministic centre the substrate
 // experiments root their balls, walks, and spectral probes at. Ties resolve to the lowest index.
 export function mostConnectedNode(
-  neighbors: ReadonlyArray<ArrayLike<number>>,
+  neighbors: readonly ArrayLike<number>[],
 ): number {
   let node = 0
   let best = -1
@@ -113,9 +113,7 @@ export function mostConnectedNode(
 // Compressed sparse row form of a neighbors list. The GPU uploads and many experiments built this inline,
 // offsets[i]..offsets[i+1] index into adj for node i's neighbors. Accepts a plain number[][] or the Graph's
 // Uint32Array rows.
-export function toCsr(
-  neighbors: ReadonlyArray<ReadonlyArray<number>>,
-): {
+export function toCsr(neighbors: readonly (readonly number[])[]): {
   offsets: Uint32Array
   adj: Uint32Array
 } {
@@ -175,7 +173,7 @@ export function neighborsOf(g: Graph): number[][] {
 // whole Graph): this just returns the member indices so the caller can carve its own
 // induced subgraph.
 export function largestComponentNodes(
-  neighbors: ReadonlyArray<ReadonlyArray<number>>,
+  neighbors: readonly (readonly number[])[],
 ): number[] {
   const n = neighbors.length
   const seen = new Int32Array(n).fill(-1)
@@ -227,6 +225,7 @@ export function csrDistances(input: {
   const { offsets, adj, size, source, allowed } = input
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
+
   let fr = [source]
 
   if (input.maxRadius !== undefined) {
@@ -236,6 +235,7 @@ export function csrDistances(input: {
 
     while (fr.length > 0 && r < maxR) {
       r++
+
       const next: number[] = []
 
       for (const u of fr) {
@@ -325,6 +325,7 @@ export function csrEccentricity(input: {
   const { offsets, adj, size, source } = input
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
+
   let fr = [source]
   let far = source
   let ecc = 0
@@ -401,6 +402,7 @@ export function csrFarthestNode(input: {
   const { offsets, adj, size, source } = input
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
+
   let fr = [source]
   let far = source
 
@@ -428,13 +430,14 @@ export function csrFarthestNode(input: {
 // Breadth-first hop distance from `source` over a neighbor list (number[][] or the Graph's
 // Uint32Array rows). Returns an Int32Array of distances (-1 for unreached).
 export function neighborDistances(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number> | Uint32Array>
+  neighbors: readonly (readonly number[] | Uint32Array)[]
   size: number
   source: number
 }): Int32Array {
   const { neighbors, size, source } = input
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
+
   let frontier = [source]
 
   while (frontier.length > 0) {
@@ -459,7 +462,7 @@ export function neighborDistances(input: {
 // of every reached node, so a geodesic path back to the source can be reconstructed by
 // walking parents. Unreached nodes keep dist = -1, parent = -1.
 export function neighborBfsTree(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number> | Uint32Array>
+  neighbors: readonly (readonly number[] | Uint32Array)[]
   size: number
   source: number
 }): { dist: Int32Array; parent: Int32Array } {
@@ -467,6 +470,7 @@ export function neighborBfsTree(input: {
   const dist = new Int32Array(size).fill(-1)
   const parent = new Int32Array(size).fill(-1)
   dist[source] = 0
+
   let frontier = [source]
 
   while (frontier.length > 0) {
@@ -491,8 +495,8 @@ export function neighborBfsTree(input: {
 // Whether two adjacency lists describe the same undirected graph: same node count and,
 // for every node, the same neighbor set (order-insensitive).
 export function adjacencyListsEqual(
-  a: ReadonlyArray<ReadonlyArray<number>>,
-  b: ReadonlyArray<ReadonlyArray<number>>,
+  a: readonly (readonly number[])[],
+  b: readonly (readonly number[])[],
 ): boolean {
   if (a.length !== b.length) {
     return false
@@ -513,9 +517,9 @@ export function adjacencyListsEqual(
 // Undirected edge list (each edge once, a < b). Useful for curvature and gauge.
 // Undirected edges of an adjacency list as [v, w] tuples with v < w (each edge once).
 export function edgesOf(
-  neighbors: ReadonlyArray<ArrayLike<number>>,
-): Array<[number, number]> {
-  const edges: Array<[number, number]> = []
+  neighbors: readonly ArrayLike<number>[],
+): [number, number][] {
+  const edges: [number, number][] = []
 
   for (let v = 0; v < neighbors.length; v++) {
     const row = neighbors[v]
@@ -609,8 +613,8 @@ export function greedyEdgeColoring(input: {
   return { eu: Int32Array.from(eu), ev: Int32Array.from(ev), byColor }
 }
 
-export function edgeList(g: Graph): Array<{ a: number; b: number }> {
-  const out: Array<{ a: number; b: number }> = []
+export function edgeList(g: Graph): { a: number; b: number }[] {
+  const out: { a: number; b: number }[] = []
 
   for (let a = 0; a < g.size; a++) {
     const row = g.neighbors[a] ?? new Uint32Array(0)
@@ -646,6 +650,7 @@ export function largestComponent(g: Graph): Graph {
 
   const reach = new Int32Array(g.size).fill(-1)
   reach[center] = 0
+
   let frontier = [center]
 
   const kept: number[] = [center]
@@ -668,6 +673,7 @@ export function largestComponent(g: Graph): Graph {
 
   const remap = new Map<number, number>()
   kept.forEach((old, i) => remap.set(old, i))
+
   const dim = g.embedding?.dimension ?? 2
   const oldCoords = g.embedding?.coords ?? new Float64Array(0)
   const coords = new Float64Array(kept.length * dim)

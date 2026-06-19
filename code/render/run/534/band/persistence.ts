@@ -168,6 +168,7 @@ function run(): void {
     }
 
     inSelf[start] = 1
+
     let fr = [start]
 
     while (selfCells.length < SELF_SIZE && fr.length) {
@@ -233,6 +234,7 @@ function run(): void {
 
     while (placed < count && guard < n * 6) {
       guard++
+
       const e = Math.floor(rng.next() * n)
 
       if (tone[e] === 0) {

@@ -38,6 +38,7 @@ const RIGHT_SPINE = new Set<number>()
 
   for (let i = 0; i < 90; i++) {
     RIGHT_SPINE.add(n)
+
     const s = sons(n)
     n = s[s.length - 1]!
   }

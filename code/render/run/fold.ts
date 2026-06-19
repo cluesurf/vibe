@@ -19,6 +19,7 @@ import {
 import { makeCamera } from '@/code/render/gpu/camera'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const SIZE = 1024 // image is SIZE x SIZE. SIZE * 4 is 256-aligned, so no row padding on readback.
@@ -81,6 +82,7 @@ async function run(): Promise<void> {
   )
 
   mkdirSync(outDir, { recursive: true })
+
   const outPath = join(outDir, `${key}.png`)
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))
   console.log(

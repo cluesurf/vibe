@@ -132,6 +132,7 @@ export function domainBlocks(
     }
 
     cl[s] = K
+
     let frontier = [s]
 
     while (frontier.length > 0) {
@@ -184,6 +185,7 @@ export function coherentFills(
         const fillVal: number = rng.next() < p ? 1 : -1
 
         ;(fills[v] as Int8Array)[k] = fillVal
+
         const kk = indexOf[w]?.get(v)
 
         if (kk !== undefined) {

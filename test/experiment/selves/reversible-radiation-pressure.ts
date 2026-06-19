@@ -40,8 +40,8 @@ export default experiment({
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
 
-    const longLines: Array<[number, number]> = []
-    const shortLines: Array<[number, number]> = []
+    const longLines: [number, number][] = []
+    const shortLines: [number, number][] = []
 
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
@@ -52,7 +52,7 @@ export default experiment({
     }
 
     // pair each short line with a long line (the slow-fast coupling), the rest long-long.
-    const pairs: Array<[[number, number], [number, number]]> = []
+    const pairs: [[number, number], [number, number]][] = []
 
     for (let i = 0; i < shortLines.length; i++) {
       pairs.push([shortLines[i]!, longLines[i]!])
@@ -182,6 +182,7 @@ export default experiment({
         table,
         collision: coupledRotate,
       })
+
       const swap = will
       will = scratch
       scratch = swap

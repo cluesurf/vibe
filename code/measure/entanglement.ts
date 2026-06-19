@@ -52,7 +52,7 @@ export function freeFermionCorrelationMatrix(input: {
 export function regionEntanglementEntropy(input: {
   c: Float64Array
   n: number
-  region: ReadonlyArray<number>
+  region: readonly number[]
 }): number {
   const m = input.region.length
   const sub = makeDense({ rows: m, cols: m })

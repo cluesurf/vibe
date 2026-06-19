@@ -80,6 +80,7 @@ function addBlock4(input: {
           let im = spRe * coIm + spIm * coRe
           re *= input.coef
           im *= input.coef
+
           const row = input.rowSite * 4 + si * 2 + ci
           const col = input.colSite * 4 + sj * 2 + cj
           input.m.re[row * n + col] =
@@ -109,8 +110,8 @@ function randomSu2(
 
 function gaugeWilsonDiracSu2(input: {
   length: number
-  links1: Array<[number, number, number, number]>
-  links2: Array<[number, number, number, number]>
+  links1: [number, number, number, number][]
+  links2: [number, number, number, number][]
 }): ComplexMatrix {
   const L = input.length
   const sites = L * L
@@ -194,8 +195,8 @@ export function chiralCondensateSignalSU2(input: {
   let totalEig = 0
 
   for (let c = 0; c < input.configs; c++) {
-    const links1: Array<[number, number, number, number]> = []
-    const links2: Array<[number, number, number, number]> = []
+    const links1: [number, number, number, number][] = []
+    const links2: [number, number, number, number][] = []
 
     for (let s = 0; s < sites; s++) {
       links1.push(randomSu2(input.disorder, input.rng))

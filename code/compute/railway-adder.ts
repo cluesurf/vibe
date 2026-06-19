@@ -46,6 +46,7 @@ export function fibOnRailway(input: { n: number; bits?: number }): {
   a.clear()
   b.set(1)
   t.clear()
+
   let increments = 0
 
   for (let iter = 0; iter < input.n; iter++) {

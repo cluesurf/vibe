@@ -116,6 +116,7 @@ export function toggle(state: State, i: number, j: number): void {
   const fi = i * state.stride + (j >>> 5)
   state.future.words[fi] =
     (state.future.words[fi] ?? 0) ^ (1 << (j & 31))
+
   const pi = j * state.stride + (i >>> 5)
   state.past.words[pi] = (state.past.words[pi] ?? 0) ^ (1 << (i & 31))
 }
@@ -302,6 +303,7 @@ export function sampleUniform(input: {
         accepts += 1
       } else {
         toggle(state, lo, hi)
+
         const candidateS = smearedAction(state, input.epsilon)
         const deltaS = candidateS - currentS
 
@@ -321,6 +323,7 @@ export function sampleUniform(input: {
       const h = height(state)
       const hr = n > 1 ? h / Math.sqrt(n) : 0
       hrSum += hr
+
       const act = useAction
         ? currentS
         : smearedAction(state, input.epsilon)

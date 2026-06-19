@@ -67,6 +67,7 @@ export function physicsOnRealSpace(): void {
   const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
   const rmap = new Map<number, number>()
   bandIdx.forEach((id, i) => rmap.set(id, i))
+
   const bnb: number[][] = bandIdx.map(() => [])
 
   for (let a = 0; a < bandIdx.length; a++) {
@@ -130,6 +131,7 @@ export default experiment({
     const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
     const rmap = new Map<number, number>()
     bandIdx.forEach((id, i) => rmap.set(id, i))
+
     const bnb: number[][] = bandIdx.map(() => [])
 
     for (let a = 0; a < bandIdx.length; a++) {

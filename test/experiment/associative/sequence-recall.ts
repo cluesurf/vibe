@@ -16,7 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // build a simple path of cells, each the next graph neighbor not yet used, a deterministic temporal track.
 function buildPath(
-  neighbors: ReadonlyArray<ReadonlyArray<number>>,
+  neighbors: readonly (readonly number[])[],
   start: number,
   length: number,
 ): number[] {

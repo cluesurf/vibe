@@ -27,6 +27,7 @@ const EDGE: [number, number, number] = [16, 16, 24]
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   const symbolText = process.argv[2] ?? '7-3'
   const model = (process.argv[3] ?? 'poincare') as ProjectionModel
   const symbol = symbolText.split('-').map(Number)

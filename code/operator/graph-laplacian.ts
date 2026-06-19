@@ -4,7 +4,7 @@
 // the weak-field and rotation-curve solves invert.
 
 export function graphLaplacian(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   x: Float64Array
   out: Float64Array
 }): void {
@@ -51,7 +51,7 @@ function subtractMean(x: Float64Array): void {
 // constant null vector projected out each step so the singular graph Laplacian solve is
 // well posed. Returns the zero-mean potential phi. The right side should be zero-mean.
 export function solveGraphPoisson(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   b: Float64Array
   maxIterationFactor?: number
   tolerance?: number
@@ -63,6 +63,7 @@ export function solveGraphPoisson(input: {
   const phi = new Float64Array(n)
   const residual = new Float64Array(b)
   subtractMean(residual)
+
   const direction = new Float64Array(residual)
   const temp = new Float64Array(n)
 
@@ -71,6 +72,7 @@ export function solveGraphPoisson(input: {
   for (let iter = 0; iter < maxIterationFactor * n; iter++) {
     graphLaplacian({ neighbors, x: direction, out: temp })
     subtractMean(temp)
+
     const alpha = rsOld / Math.max(dotProduct(direction, temp), 1e-300)
 
     for (let i = 0; i < n; i++) {
@@ -102,7 +104,7 @@ export function solveGraphPoisson(input: {
 // unit charge at `center` against a uniform neutralizing background, phi = L^{-1}(delta -
 // 1/n). The static-force sector of a mesh, a potential that decays with graph distance.
 export function graphLaplacianGreensFunction(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   center: number
   maxIterationFactor?: number
   tolerance?: number

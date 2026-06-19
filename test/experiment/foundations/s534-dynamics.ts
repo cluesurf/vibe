@@ -69,6 +69,7 @@ export function s534Dynamics(): {
 
   const dist = new Int32Array(N).fill(-1)
   dist[center] = 0
+
   let fr = [center]
   let radius = 0
 

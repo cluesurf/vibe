@@ -50,6 +50,7 @@ export function lorentzIsotropy(input?: {
   void c0
   void beats
   void runs
+
   const order = Array.from({ length: N }, (_, i) => i).sort(
     (a, b) => r2(a) - r2(b),
   )

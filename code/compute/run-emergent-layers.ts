@@ -10,6 +10,7 @@ import { makeRng } from '@/code/tool/rng'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 const WORKGROUP = 256
 const CELLS = 600_000
@@ -131,6 +132,7 @@ async function run(): Promise<void> {
 
       const id = nb++
       ballOf[s] = id
+
       let frontier = [s]
 
       for (let r = 0; r < R; r++) {
@@ -185,18 +187,21 @@ async function run(): Promise<void> {
   }
 
   device.queue.writeBuffer(toneBuf, 0, seed)
+
   const vBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(vBuf, 0, edgeV)
+
   const wBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(wBuf, 0, edgeW)
+
   const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: {
@@ -235,6 +240,7 @@ async function run(): Promise<void> {
         0,
         new Uint32Array([start, count, 0, 0]),
       )
+
       const enc = device.createCommandEncoder()
       const p = enc.beginComputePass()
       p.setPipeline(pipeline)
@@ -268,6 +274,7 @@ async function run(): Promise<void> {
     }
 
     await staging.mapAsync(GPUMapMode.READ)
+
     const t = new Uint32Array(staging.getMappedRange().slice(0))
     staging.unmap()
 

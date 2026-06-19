@@ -120,6 +120,7 @@ function checkAt(maxCells: number): Report {
     }
 
     totalComplete++
+
     const predicted = new Set<number>([
       a.parent[c]!,
       ...a.children[c]!,

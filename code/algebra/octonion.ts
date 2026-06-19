@@ -13,7 +13,7 @@ export const OCTONION_DIM = 8
 
 // The seven oriented Fano lines. Each triple (a, b, c) is a quaternionic cycle:
 // e_a e_b = e_c, e_b e_c = e_a, e_c e_a = e_b, and each reverse negates.
-const FANO_LINES: ReadonlyArray<readonly [number, number, number]> = [
+const FANO_LINES: readonly (readonly [number, number, number])[] = [
   [1, 2, 3],
   [1, 4, 5],
   [1, 7, 6],

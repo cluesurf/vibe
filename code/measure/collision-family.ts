@@ -115,6 +115,7 @@ export function linePairingFamily(): {
 
   for (const m of perfectMatchings(all)) {
     total++
+
     const mk = matchingKey(m)
 
     let invariant = true

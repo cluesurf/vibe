@@ -57,6 +57,7 @@ export function drivenSelf(input: {
 
     if (r >= selfRadius - 1 && r <= selfRadius) {
       inputCells.push(c)
+
       const angle = Math.atan2(yOf(c) - cy, xOf(c) - cx) + Math.PI
       inputSector.push(
         Math.min(

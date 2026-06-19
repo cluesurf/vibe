@@ -237,6 +237,7 @@ function run(): void {
       height: IMG,
       prefix: 'blur_',
     })
+
     // turn the dial: one more coarse-graining pass (display only, the base field stays discrete)
     const ns = new Float32Array(B)
 

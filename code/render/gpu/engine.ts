@@ -94,6 +94,7 @@ export async function createVibeRenderer(input: {
     const dt = Math.min(0.05, (now - last) / 1000)
     last = now
     controls.tick(dt)
+
     // the live viewport aspect so the disk stays circular and the honeycomb keeps its proportions on any canvas
     const aspect =
       input.canvas.height > 0

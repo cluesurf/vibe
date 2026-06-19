@@ -13,6 +13,7 @@ const bfsGeodesic = (
 ): number => {
   const distance = new Int32Array(neighbors.length).fill(-1)
   distance[from] = 0
+
   let frontier = [from]
 
   while (frontier.length) {
@@ -74,6 +75,7 @@ const bfsField = (
 ): Int32Array => {
   const distance = new Int32Array(neighbors.length).fill(-1)
   distance[source] = 0
+
   let frontier = [source]
 
   while (frontier.length) {
@@ -231,6 +233,7 @@ export function ryuTakayanagiScaling(input: {
 
   const depth = new Int32Array(n).fill(-1)
   depth[center] = 0
+
   let frontier = [center]
   let maxDepth = 0
 

@@ -7,7 +7,7 @@
 import { dot } from '@/code/algebra/vector'
 
 export function directionsAreCrystallographic(
-  directions: ReadonlyArray<number[]>,
+  directions: readonly number[][],
   tolerance: number = 1e-6,
 ): boolean {
   for (const a of directions) {

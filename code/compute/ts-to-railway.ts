@@ -194,6 +194,7 @@ export function compileToRailway(
       ;(code[restore] as { next: number }).next = restore + 1
       ;(code[dec] as { next: number; zero: number }).next = restore
       compileBlock(stmt.statement as ts.Block)
+
       // jump back to the loop head via a scratch dec/zero (scratch is 0, so both go to loop)
       const back = emit({
         op: 'dec',
@@ -254,6 +255,7 @@ export function compileToRailway(
       if (op === ts.SyntaxKind.EqualsToken) {
         if (ts.isNumericLiteral(expr.right)) {
           clear(dst)
+
           const n = Number(expr.right.text)
 
           for (let k = 0; k < n; k++) {

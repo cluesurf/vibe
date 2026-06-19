@@ -13,9 +13,7 @@ import { Configuration } from '@/code/tone/configuration'
 import { Rng } from '@/code/tool/rng'
 
 // Pick the highest-degree node as the seed of the candidate region.
-function highestDegreeNode(
-  adjacency: ReadonlyArray<Uint32Array>,
-): number {
+function highestDegreeNode(adjacency: readonly Uint32Array[]): number {
   let best = 0
   let bestDegree = -1
 
@@ -34,7 +32,7 @@ function highestDegreeNode(
 // Build the candidate region: a ball of radius 1 around the highest-degree node
 // (the node and its immediate neighbors). A natural Markov-blanket candidate.
 function candidateRegion(input: {
-  adjacency: ReadonlyArray<Uint32Array>
+  adjacency: readonly Uint32Array[]
 }): Set<number> {
   const seed = highestDegreeNode(input.adjacency)
   const region = new Set<number>([seed])
@@ -53,7 +51,7 @@ function candidateRegion(input: {
 // into independent parts, the integration proxy we want. Returns 0 for trivial
 // or disconnected regions.
 export function algebraicConnectivity(input: {
-  adjacency: ReadonlyArray<Uint32Array>
+  adjacency: readonly Uint32Array[]
   region: Set<number>
 }): number {
   const nodes = [...input.region].sort((a, b) => a - b)
@@ -125,6 +123,7 @@ export function algebraicConnectivity(input: {
     }
 
     mean /= n
+
     let norm = 0
 
     for (let i = 0; i < n; i++) {
@@ -157,6 +156,7 @@ export function algebraicConnectivity(input: {
 
     orthogonalize(y)
     x = y
+
     // Rayleigh quotient x^T L x gives the current eigenvalue estimate.
     const lxNew = applyLaplacian(x)
 
@@ -237,7 +237,7 @@ export function integrationCorrelates(input: {
 // two regions with identical wiring but different fills score differently, which the
 // purely structural measure cannot see.
 export function toneIntegration(input: {
-  adjacency: ReadonlyArray<Uint32Array>
+  adjacency: readonly Uint32Array[]
   region: number[]
   fillOf?: (a: number, b: number) => number
   rng: Rng
@@ -256,9 +256,10 @@ export function toneIntegration(input: {
   const fillOf = input.fillOf ?? ((): number => 1)
   const indexOf = new Map<number, number>()
   nodes.forEach((node, i) => indexOf.set(node, i))
-  const nb: Array<Array<{ j: number; f: number }>> = nodes.map(node => {
+
+  const nb: { j: number; f: number }[][] = nodes.map(node => {
     const row = input.adjacency[node] ?? new Uint32Array(0)
-    const out: Array<{ j: number; f: number }> = []
+    const out: { j: number; f: number }[] = []
 
     for (const w of row) {
       const j = indexOf.get(w)

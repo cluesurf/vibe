@@ -85,6 +85,7 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
   solved: boolean
 } {
   void input
+
   // 1. Emergent power laws from integration (not assumed).
   const radiationSlope = emergentSlope(1 / 3) // expect 1/2
   const matterSlope = emergentSlope(0) // expect 2/3

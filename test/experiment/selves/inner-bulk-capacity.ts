@@ -18,7 +18,7 @@ import {
 type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
 
 // a neighbors view of a CSR graph, one subarray per cell, for the shell traversal.
-function neighborsOf(graph: Graph): Array<ArrayLike<number>> {
+function neighborsOf(graph: Graph): ArrayLike<number>[] {
   return Array.from({ length: graph.cellCount }, (_, u) =>
     graph.adj.subarray(graph.offsets[u]!, graph.offsets[u + 1]!),
   )

@@ -72,6 +72,7 @@ function evolvePopulation(
     }))
 
     meanFitnessByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
+
     const survivors = scored.sort((a, b) => b.f - a.f).slice(0, P / 2)
     const next: number[] = []
 

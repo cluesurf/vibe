@@ -115,6 +115,7 @@ export default experiment({
   paper: false,
   run() {
     threedTessellations()
+
     const reference = measure([5, 3, 4])
     const ok = reference.ok && reference.degree === 12
 

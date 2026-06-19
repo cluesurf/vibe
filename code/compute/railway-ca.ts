@@ -46,6 +46,7 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
       if (c.state === 'H') {
         // the head becomes the tail; the forward cell (computed below for switches) takes the head
         next[i] = 'A'
+
         const forward = forwardOf(i)
 
         if (forward >= 0) {

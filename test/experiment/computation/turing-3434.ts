@@ -181,6 +181,7 @@ function makeMachine3434(
   interior.sort((x, y) =>
     a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1,
   )
+
   const { regions, ground } = carveRegisters({
     cells: interior,
     numRegisters,
@@ -217,6 +218,7 @@ function legRegisterMachine(a: Addressing): boolean {
     const m = makeMachine3434(a, 5, 60)
     m.set(R0, x)
     m.set(R1, y)
+
     const { conserved } = m.run(PROG_ADD)
     cases.push({
       name: 'add',
@@ -235,6 +237,7 @@ function legRegisterMachine(a: Addressing): boolean {
     const m = makeMachine3434(a, 5, 60)
     m.set(R0, x)
     m.set(R1, y)
+
     const { conserved } = m.run(PROG_MUL)
     cases.push({
       name: 'mul',
@@ -285,6 +288,7 @@ function legCuspLife(): boolean {
       planeCells.push({ id, x: c[0]!, y: c[1]! })
     }
   })
+
   // Conway's Life step (Moore neighbourhood) lives in code/operator/conway-life.
   const alive = new Set<string>()
   // a glider, placed well inside the plane

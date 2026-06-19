@@ -143,6 +143,7 @@ export default experiment({
 
       will.data[center * degree + rest] = 0
       will.data[nb * degree + rest] = 1
+
       let scratch: Will = {
         mesh: coin,
         data: new Int8Array(will.data.length),
@@ -166,9 +167,11 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         beatInto({ src: will, dst: scratch, table, collision: rule })
+
         const swap = will
         will = scratch
         scratch = swap
+
         const occupied = occupiedOf(will)
         phi = relaxPotential({
           source: bulkMass({

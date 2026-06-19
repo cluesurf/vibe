@@ -99,6 +99,7 @@ export function nestedSelves(input: { seed: number }): {
       }
 
       recs.push(cellBack / mem.length)
+
       const cellSet = new Set(mem)
 
       let bodySame = 0

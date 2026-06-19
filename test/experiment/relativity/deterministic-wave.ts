@@ -107,6 +107,7 @@ export function deterministicWave(input?: {
     let pb = p0.slice()
     let cb = c0.slice()
     cb[center] = (cb[center]! + 1) % 3 // the perturbation
+
     const times: number[] = []
     const spreads: number[] = []
 
@@ -148,6 +149,7 @@ export function deterministicWave(input?: {
     for (let run = 0; run < runs; run++) {
       const tone = new Int8Array(L)
       tone[center] = 1
+
       const r = makeRng({ seed: 200 + run })
 
       let pos = center

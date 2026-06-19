@@ -49,7 +49,7 @@ function agreeCount(
 // forming). temp is the chance of accepting an unfavorable hop. cohesive=false is the plain random walk.
 function beat(
   tone: Int8Array,
-  edges: Array<[number, number]>,
+  edges: [number, number][],
   neighbors: number[][],
   rng: Rng,
   arrowProb: number,
@@ -189,6 +189,7 @@ function measure(cohesive: boolean): {
   }
 
   bg /= n
+
   const imprintRetention = (after - bg) / (start - bg || 1)
 
   return { longLagCorr, imprintRetention, conserved: conservedRun }

@@ -58,7 +58,7 @@ export function adjacencyOf(input: {
 // over its neighbours. Used by distance and ball-growth measures.
 export function undirectedAdjacency(input: {
   substrate: Substrate
-}): ReadonlyArray<Uint32Array> {
+}): readonly Uint32Array[] {
   const s = input.substrate
   const out: number[][] = Array.from({ length: s.size }, () => [])
 

@@ -27,8 +27,8 @@ export function logLogSlope(xs: number[], ys: number[]): number {
 // poison the fit. Returns 0 when fewer than two usable points remain. This is the
 // exponent that separates ballistic (z=1) from diffusive (z=2) transport.
 export function powerLawExponent(input: {
-  times: ReadonlyArray<number>
-  spreads: ReadonlyArray<number>
+  times: readonly number[]
+  spreads: readonly number[]
 }): number {
   const { times, spreads } = input
 
@@ -97,8 +97,8 @@ export function fitForm(
 // of squared residuals, and the coefficient of determination r2. The general line fit behind log-log slopes,
 // area-versus-volume residual contrasts, and conformal central-charge fits.
 export function linearFit(input: {
-  xs: ReadonlyArray<number>
-  ys: ReadonlyArray<number>
+  xs: readonly number[]
+  ys: readonly number[]
 }): { slope: number; intercept: number; residual: number; r2: number } {
   const { xs, ys } = input
   const n = xs.length
@@ -134,7 +134,7 @@ export function linearFit(input: {
 // log(t) versus log(values[t]) and returns the slope, dropping non-positive samples (no log). The
 // mean-square-displacement exponent z (ballistic ~ 2, diffusive ~ 1) is read off this way.
 export function loglogExponentWindow(input: {
-  values: ReadonlyArray<number>
+  values: readonly number[]
   lo: number
   hi: number
 }): number {
@@ -168,8 +168,8 @@ export function loglogExponentWindow(input: {
 // means the data hug a single power law with no special or critical point, the
 // "is this a clean power law" measure.
 export function powerLawFit(input: {
-  xs: ReadonlyArray<number>
-  ys: ReadonlyArray<number>
+  xs: readonly number[]
+  ys: readonly number[]
 }): { exponent: number; maxDeviation: number } {
   const { xs, ys } = input
   const logX = xs.map(x => Math.log(x))

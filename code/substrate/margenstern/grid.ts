@@ -77,6 +77,7 @@ export function buildMargensternGrid(input: {
   const childrenOf: number[][] = Array.from({ length: count }, () => [])
   depthOf[root] = 0
   parentOf[root] = -1
+
   let frontier = [root]
 
   while (frontier.length > 0) {

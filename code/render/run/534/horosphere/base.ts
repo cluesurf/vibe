@@ -29,6 +29,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -90,6 +91,7 @@ async function run(): Promise<void> {
   })
 
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
+
   const makeState = (): GPUBuffer =>
     device.createBuffer({
       size: byteLength,
@@ -101,12 +103,14 @@ async function run(): Promise<void> {
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
+
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(offBuf, 0, offsets)
+
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
@@ -160,6 +164,7 @@ async function run(): Promise<void> {
   }
 
   await staging.mapAsync(GPUMapMode.READ)
+
   const tones = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
 
@@ -198,6 +203,7 @@ async function run(): Promise<void> {
 
   let e2raw = sub(seedVec(axis2), xi, dot(seedVec(axis2), xi))
   e2raw = sub(e2raw, e1, dot(e2raw, e1))
+
   const e2 = normalize(e2raw)
 
   type Cell = { u: number; v: number; tone: number }
@@ -295,6 +301,7 @@ async function run(): Promise<void> {
   )
 
   mkdirSync(outDir, { recursive: true })
+
   const outPath = join(outDir, 'horosphere.png')
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))
   console.log(`wrote ${outPath}`)

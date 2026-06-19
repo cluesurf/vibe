@@ -15,7 +15,7 @@ import { makeRng } from '@/code/coarse/self-trajectory'
 
 export interface SelfShape {
   // cell offsets (dx, dy) of the self's plus-charge cells relative to its centroid.
-  offsets: Array<readonly [number, number]>
+  offsets: (readonly [number, number])[]
   size: number
   L: number
 }
@@ -48,6 +48,7 @@ export function emergeSelfShape(input: {
 
   cx /= cluster.length
   cy /= cluster.length
+
   const offsets = cluster.map(
     c =>
       [
@@ -64,7 +65,7 @@ export function emergeSelfShape(input: {
 export function stampShape(input: {
   tone: Int8Array
   L: number
-  offsets: Array<readonly [number, number]>
+  offsets: (readonly [number, number])[]
   px: number
   py: number
   sign?: number
@@ -129,6 +130,7 @@ export function runTwoSelfAnnihilation(input: {
     py: cy,
     sign: rightSign,
   })
+
   const rng = makeRng(seed)
   const moved = new Uint8Array(L * L)
   const counts = [plusCount(tone)]
@@ -207,6 +209,7 @@ export function runTwoSelf(input: {
     px: Math.round(L / 2 + d / 2),
     py: cy,
   })
+
   const rng = makeRng(seed)
   const moved = new Uint8Array(L * L)
   const seps = [twoSelfSeparation({ tone, graph, L, minSize })]

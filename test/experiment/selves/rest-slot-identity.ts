@@ -102,6 +102,7 @@ export default experiment({
 
         if (on) {
           occ++
+
           const [x, y, z, w] = coord(c)
           const dd =
             Math.abs(x - half) +
@@ -123,6 +124,7 @@ export default experiment({
 
     const start = extent(body)
     body = run(body, rule, beats)
+
     const end = extent(body)
     const persists = end.occ === start.occ && end.ext === start.ext
 

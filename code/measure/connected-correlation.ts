@@ -24,6 +24,7 @@ export function connectedCorrelationByDistance(input: {
   }
 
   mean /= size
+
   const sums = new Float64Array(maxRadius + 1)
   const counts = new Float64Array(maxRadius + 1)
 

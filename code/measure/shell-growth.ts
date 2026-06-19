@@ -9,13 +9,14 @@
 
 // the cells-per-shell counts from a graph, by breadth-first search from a root (shell n = cells at graph distance n)
 export function shellCountsFromGraph(input: {
-  neighbors: ReadonlyArray<ArrayLike<number>>
+  neighbors: readonly ArrayLike<number>[]
   cellCount: number
   root?: number
 }): number[] {
   const root = input.root ?? 0
   const distance = new Array<number>(input.cellCount).fill(-1)
   distance[root] = 0
+
   let frontier = [root]
 
   while (frontier.length > 0) {

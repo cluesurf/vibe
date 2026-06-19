@@ -66,6 +66,7 @@ function intervalAbundance(input: { poset: Poset }): {
         }
 
         seen += 1
+
         const k = intervalSize(p, { a, b, past })
 
         if (k < BIN_COUNT) {
@@ -106,7 +107,7 @@ export function benincasaDowkerAction(input: {
   epsilon: number
   dimension: number
 }): Action {
-  const coefficients: ReadonlyArray<number> =
+  const coefficients: readonly number[] =
     input.dimension <= 2 ? [1, -2, 1] : [1, -9, 16, -8]
 
   return {
@@ -222,6 +223,7 @@ export function smearedBenincasaDowker(input: {
             }
 
             seen += 1
+
             const n = intervalSize(poset, { a, b, past })
             sum += kernel({ n, epsilon: input.epsilon })
           },

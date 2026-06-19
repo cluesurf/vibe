@@ -83,6 +83,7 @@ export function wangLandauHeight(input: {
 
   let curBin = binOf(height(state))
   seen[curBin] = true
+
   let curS = smearedAction(state, input.epsilon)
   let steps = 0
 
@@ -113,6 +114,7 @@ export function wangLandauHeight(input: {
 
       if (toggleKeepsValid(state, lo, hi, related)) {
         toggle(state, lo, hi)
+
         const newH = height(state)
 
         if (newH > input.maxHeight || newH < minHeight) {
@@ -138,6 +140,7 @@ export function wangLandauHeight(input: {
     }
 
     steps += 1
+
     // Pure 1/t Wang-Landau: the modification factor is 1/t throughout, large early
     // (builds the shape) and small late (refines it), which converges log g where
     // flat-then-halve stalls against the steep entropy barrier.
@@ -182,6 +185,7 @@ export function wangLandauHeight(input: {
 
   for (let b = 0; b < H; b++) {
     heights.push(b + minHeight)
+
     const ok = (seen[b] ?? false) && (actN[b] ?? 0) > 0
     visited.push(ok)
     outLogG.push(ok ? (logG[b] ?? 0) - maxLogG : -Infinity)
@@ -256,6 +260,7 @@ export function windowedWangLandau(input: {
     })
 
     allConverged = allConverged && wl.converged
+
     // Offset to align this window's log g with what is already placed, by averaging
     // the difference over overlap heights that both have measured.
     let offsetSum = 0
@@ -308,6 +313,7 @@ export function windowedWangLandau(input: {
 
   for (let gi = 0; gi < total; gi++) {
     heights.push(gi + minHeight)
+
     const ok = !Number.isNaN(globalLogG[gi] ?? NaN)
     visited.push(ok)
     outLogG.push(ok ? (globalLogG[gi] ?? 0) - maxLogG : -Infinity)

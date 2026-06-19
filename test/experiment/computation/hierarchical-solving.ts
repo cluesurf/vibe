@@ -62,6 +62,7 @@ function solveTime(n: number): {
   // BFS distances from the source, and the diameter (max reachable distance)
   const dist = new Int32Array(N).fill(-1)
   dist[source] = 0
+
   let fr = [source]
   let diameter = 0
 
@@ -90,6 +91,7 @@ function solveTime(n: number): {
   const s = base.slice()
   const s2 = base.slice()
   s2[source] = (s2[source]! === 0 ? 1 : 0) as -1 | 0 | 1 // the decision at the source
+
   const targetRadius = Math.floor(diameter * 0.8)
 
   for (let t = 1; t <= 60; t++) {
@@ -109,6 +111,7 @@ function solveTime(n: number): {
       beat: t,
       arrow,
     })
+
     let frontRadius = 0
 
     for (let i = 0; i < N; i++) {

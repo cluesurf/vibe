@@ -6,7 +6,7 @@
 // where a radial fit recovers the gravity falloff exponent.
 
 export function screenedGreensFunction(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   start: number
   mass2: number
   iterations: number
@@ -55,6 +55,7 @@ export function clampedLeakyDiffusion(input: {
 
   let p = new Float64Array(N)
   p[src] = 1
+
   let np = new Float64Array(N)
 
   for (let t = 0; t < iterations; t++) {

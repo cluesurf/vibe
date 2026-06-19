@@ -57,6 +57,7 @@ function run(): void {
   const n = g.cellCount
   const depth = new Array<number>(n).fill(-1)
   depth[0] = 0
+
   let frontier = [0]
 
   const shellCounts: number[] = [1]
@@ -120,6 +121,7 @@ function run(): void {
   const outDir = join(here, 'frames-nesting-zoom-534')
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
+
   const half = IMG / 2,
     baseScale = half * MARGIN
 

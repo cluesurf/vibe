@@ -11,6 +11,7 @@ import { WAVE_STEP_WGSL } from '@/code/compute/wave.wgsl'
 
 // install the WebGPU global constants (GPUBufferUsage, GPUMapMode, ...) and the navigator.gpu entry point
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -127,6 +128,7 @@ async function readBack(
   enc.copyBufferToBuffer(buffer, 0, staging, 0, byteLength)
   device.queue.submit([enc.finish()])
   await staging.mapAsync(GPUMapMode.READ)
+
   const copy = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
 
@@ -208,6 +210,7 @@ async function run(): Promise<void> {
   const bh = 2048
   const big = new Uint32Array(bw * bh)
   big[(bh >> 1) * bw + (bw >> 1)] = pack(1, 0) // a single pulse at the centre
+
   const bigField = makeField(device, big, bw, bh)
   const bigDispatch = Math.ceil(bigField.count / WORKGROUP)
   const benchBeats = 200
@@ -247,6 +250,7 @@ async function run(): Promise<void> {
   }
 
   await device.queue.onSubmittedWorkDone()
+
   const seconds = (performance.now() - start) / 1000
   const beatsPerSec = benchBeats / seconds
   const cellsPerSec = beatsPerSec * bigField.count

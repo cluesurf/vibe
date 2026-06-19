@@ -5,13 +5,13 @@
 // back-port, total charge is conserved exactly. Returns the streamed charge field, leaving the
 // input untouched.
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = readonly (readonly number[])[]
 
 // One beat of per-port streaming. next[j][back] += charge[i][k] for every port k of every cell i,
 // where back is the index of i in nb[j].
 export function streamDirectionalChargeStep(input: {
   neighbors: Neighbors
-  charge: ReadonlyArray<ReadonlyArray<number>>
+  charge: readonly (readonly number[])[]
 }): number[][] {
   const { neighbors, charge } = input
   const N = neighbors.length
@@ -36,10 +36,10 @@ export function streamDirectionalChargeStep(input: {
 // Run `steps` beats of per-port streaming from an initial charge field, returning the final field.
 export function streamDirectionalCharge(input: {
   neighbors: Neighbors
-  charge: ReadonlyArray<ReadonlyArray<number>>
+  charge: readonly (readonly number[])[]
   steps: number
 }): number[][] {
-  let charge: ReadonlyArray<ReadonlyArray<number>> = input.charge
+  let charge: readonly (readonly number[])[] = input.charge
 
   for (let step = 0; step < input.steps; step++) {
     charge = streamDirectionalChargeStep({
@@ -53,7 +53,7 @@ export function streamDirectionalCharge(input: {
 
 // The total charge summed over every cell and port.
 export function totalDirectionalCharge(
-  charge: ReadonlyArray<ReadonlyArray<number>>,
+  charge: readonly (readonly number[])[],
 ): number {
   return charge.reduce(
     (s, row) => s + row.reduce((a, b) => a + b, 0),

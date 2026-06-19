@@ -55,7 +55,7 @@ function pairKey(left: Tone, right: Tone): number {
 // A like-signed pair is inert, a charge hops past a peace, peace creates a
 // balanced pair, the pair flips, then annihilates back to peace. It conserves the
 // pair sum and permutes the nine states, so the rule is reversible.
-function buildPairForward(): Array<[Tone, Tone]> {
+function buildPairForward(): [Tone, Tone][] {
   const table = new Array<[Tone, Tone]>(9)
   table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
   table[pairKey(1, 1)] = [1, 1]
@@ -70,9 +70,7 @@ function buildPairForward(): Array<[Tone, Tone]> {
   return table
 }
 
-function invertPairTable(
-  forward: Array<[Tone, Tone]>,
-): Array<[Tone, Tone]> {
+function invertPairTable(forward: [Tone, Tone][]): [Tone, Tone][] {
   const inverse = new Array<[Tone, Tone]>(9)
 
   for (const left of TONES) {
@@ -85,13 +83,13 @@ function invertPairTable(
   return inverse
 }
 
-export const PAIR_FORWARD: Array<[Tone, Tone]> = buildPairForward()
-export const PAIR_INVERSE: Array<[Tone, Tone]> =
+export const PAIR_FORWARD: [Tone, Tone][] = buildPairForward()
+export const PAIR_INVERSE: [Tone, Tone][] =
   invertPairTable(PAIR_FORWARD)
 
 // the opposite-pair lines of a coin, each direction paired once with its opposite.
-function linesOf(opposite: number[]): Array<[number, number]> {
-  const lines: Array<[number, number]> = []
+function linesOf(opposite: number[]): [number, number][] {
+  const lines: [number, number][] = []
 
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
@@ -110,7 +108,7 @@ function linesOf(opposite: number[]): Array<[number, number]> {
 // for any per-line reversible table on a coin that closes under opposite (the D4
 // coin's twelve lines, the square coin's two, and so on).
 function tableCollision(
-  table: Array<[Tone, Tone]>,
+  table: [Tone, Tone][],
   opposite: number[],
 ): Collision {
   const lines = linesOf(opposite)
@@ -148,7 +146,7 @@ export function pairCollision(input: {
 // and binds (opposite charges can capture into a breather), staying reversible and
 // charge-conserving. It is not an involution (the create cycle is a 3-cycle), so it
 // has a paired inverse, like the pair table.
-function buildBindMoveForward(): Array<[Tone, Tone]> {
+function buildBindMoveForward(): [Tone, Tone][] {
   const table = new Array<[Tone, Tone]>(9)
   table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
   table[pairKey(1, 1)] = [1, 1]
@@ -163,9 +161,8 @@ function buildBindMoveForward(): Array<[Tone, Tone]> {
   return table
 }
 
-export const BIND_MOVE_FORWARD: Array<[Tone, Tone]> =
-  buildBindMoveForward()
-export const BIND_MOVE_INVERSE: Array<[Tone, Tone]> =
+export const BIND_MOVE_FORWARD: [Tone, Tone][] = buildBindMoveForward()
+export const BIND_MOVE_INVERSE: [Tone, Tone][] =
   invertPairTable(BIND_MOVE_FORWARD)
 
 // The bind-and-move collision. Pass forward: false for its paired inverse.
@@ -186,7 +183,7 @@ export function bindAndMove(input: {
 // disturbance), and there is NO create move, so the vacuum stays empty (no churn). So the matter is the tone
 // bound, the photon is the tone waving, in ONE field. It is a self-inverse involution (the reflects are 2-cycles,
 // the rest fixed), reversible and charge-conserving.
-function buildLeakyConfineForward(): Array<[Tone, Tone]> {
+function buildLeakyConfineForward(): [Tone, Tone][] {
   const table = new Array<[Tone, Tone]>(9)
   table[pairKey(-1, -1)] = [-1, -1] // like signs, inert
   table[pairKey(1, 1)] = [1, 1]
@@ -201,8 +198,7 @@ function buildLeakyConfineForward(): Array<[Tone, Tone]> {
   return table
 }
 
-export const LEAKY_CONFINE: Array<[Tone, Tone]> =
-  buildLeakyConfineForward()
+export const LEAKY_CONFINE: [Tone, Tone][] = buildLeakyConfineForward()
 
 // The leaky-confiner collision. A self-inverse involution, so the same table runs forward and backward.
 export function leakyConfine(input: { opposite: number[] }): Collision {
@@ -217,7 +213,7 @@ export function leakyConfine(input: { opposite: number[] }): Collision {
 // paired two at a time, and the move (one line full, its partner empty) is its own inverse, so the rule is a
 // reversible involution that conserves both charge and momentum.
 export function headOnRotate(input: { opposite: number[] }): Collision {
-  const lines: Array<[number, number]> = []
+  const lines: [number, number][] = []
 
   for (
     let direction = 0;
@@ -231,7 +227,7 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
     }
   }
 
-  const linePairs: Array<[[number, number], [number, number]]> = []
+  const linePairs: [[number, number], [number, number]][] = []
 
   for (let k = 0; k + 1 < lines.length; k += 2) {
     linePairs.push([lines[k]!, lines[k + 1]!])

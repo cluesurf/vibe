@@ -49,7 +49,7 @@ export function screenBitSeries(input: {
   c: Float64Array
   n: number
   side: number
-  radii: ReadonlyArray<number>
+  radii: readonly number[]
 }): { radii: number[]; volumes: number[]; bits: number[] } {
   const radii: number[] = []
   const volumes: number[] = []
@@ -69,8 +69,8 @@ export function screenBitSeries(input: {
 
 // The least-squares exponent alpha of a power law value proportional to radius^alpha, fit in log-log space.
 export function logLogExponent(
-  radii: ReadonlyArray<number>,
-  values: ReadonlyArray<number>,
+  radii: readonly number[],
+  values: readonly number[],
 ): number {
   const xs = radii.map(r => Math.log(r))
   const ys = values.map(v => Math.log(v))

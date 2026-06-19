@@ -50,6 +50,7 @@ export function solitonMatter(): {
     const f = blank()
     addSky(f, c - d / 2, c, R, 1)
     addSky(f, c + d / 2, c, R, 1)
+
     const E = Math.round(energy(f, kappa) * 10) / 10
     binding.push([d, E])
 
@@ -66,10 +67,12 @@ export function solitonMatter(): {
   // (2) mass vs charge (additive matter)
   const one = blank()
   addSky(one, c, c, R, 1)
+
   const m1 = energy(one, kappa)
   const two = blank()
   addSky(two, c - 16, c, R, 1)
   addSky(two, c + 16, c, R, 1)
+
   const massRatio = Math.round((energy(two, kappa) / m1) * 100) / 100
 
   return { binding, bound, massRatio }

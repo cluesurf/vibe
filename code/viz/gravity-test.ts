@@ -90,6 +90,7 @@ function bfsDistance(
 ): Int32Array {
   const dist = new Int32Array(n).fill(-1)
   dist[source] = 0
+
   let frontier = [source]
 
   while (frontier.length > 0) {
@@ -120,6 +121,7 @@ function makeLump(
   const inLump = new Uint8Array(n)
   const lump: number[] = []
   inLump[center] = 1
+
   let frontier = [center]
 
   while (frontier.length > 0 && lump.length < size) {

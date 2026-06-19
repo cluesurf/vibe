@@ -92,6 +92,7 @@ export function detailedBalanceViolation(input: {
 
   const violation = total > 0 ? asymmetry / total : 0
   meanCount = pairs > 0 ? meanCount / pairs : 1
+
   const floor = Math.sqrt(2 / Math.max(meanCount, 1))
 
   return { violation, floor }

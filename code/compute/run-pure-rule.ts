@@ -11,6 +11,7 @@ import { makeRng } from '@/code/tool/rng'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -181,18 +182,21 @@ async function run(): Promise<void> {
   })
 
   device.queue.writeBuffer(toneBuf, 0, seed)
+
   const vBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(vBuf, 0, edgeV)
+
   const wBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(wBuf, 0, edgeW)
+
   const module = device.createShaderModule({ code: PURE_RULE_WGSL })
   const pipeline = device.createComputePipeline({
     layout: 'auto',
@@ -224,6 +228,7 @@ async function run(): Promise<void> {
         0,
         new Uint32Array([start, count, 0, 0]),
       )
+
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
       pass.setPipeline(pipeline)
@@ -251,8 +256,10 @@ async function run(): Promise<void> {
   }
 
   await staging.mapAsync(GPUMapMode.READ)
+
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
+
   const cpu = seed.slice()
 
   for (let b = 0; b < CHECK_BEATS; b++) {
@@ -278,6 +285,7 @@ async function run(): Promise<void> {
   device.queue.writeBuffer(toneBuf, 0, seed)
   beatGpu()
   await device.queue.onSubmittedWorkDone()
+
   const t0 = performance.now()
 
   for (let b = 0; b < BENCH_BEATS; b++) {
@@ -285,6 +293,7 @@ async function run(): Promise<void> {
   }
 
   await device.queue.onSubmittedWorkDone()
+
   const secs = (performance.now() - t0) / 1000
   console.log(
     `benchmark: ${N.toLocaleString()} cells, ${BENCH_BEATS} beats in ${secs.toFixed(2)}s, ${(BENCH_BEATS / secs).toFixed(0)} beats/sec, ${((BENCH_BEATS * E) / secs / 1e9).toFixed(2)} billion edge-updates/sec`,
@@ -312,8 +321,10 @@ async function run(): Promise<void> {
   }
 
   await staging.mapAsync(GPUMapMode.READ)
+
   const fin = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
+
   const sign = new Int8Array(N)
 
   for (let i = 0; i < N; i++) {
@@ -362,6 +373,7 @@ async function run(): Promise<void> {
       }
 
       charged++
+
       const r = find(i)
       sz.set(r, (sz.get(r) ?? 0) + 1)
     }

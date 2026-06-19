@@ -40,6 +40,7 @@ export function wavefrontProfile(input: {
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
   re0[center] = 1
+
   const evolved = evolveByEigendecomposition({
     eig,
     n,

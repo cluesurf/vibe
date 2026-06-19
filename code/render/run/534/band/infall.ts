@@ -182,6 +182,7 @@ function run(): void {
 
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
+
   const startDist = meanSurroundDist()
   console.log(
     `band ${bandCells.length.toLocaleString()} cells, mass radius ${massR.toFixed(1)}, surround starts at mean distance ${startDist.toFixed(1)}`,

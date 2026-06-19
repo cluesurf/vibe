@@ -66,6 +66,7 @@ export function sliverTransport(input?: {
   for (let run = 0; run < runs; run++) {
     const tone = new Int8Array(N)
     tone[start] = 1
+
     const rng = makeRng({ seed: 1000 + run })
 
     let cur = start

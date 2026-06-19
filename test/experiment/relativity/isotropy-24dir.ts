@@ -50,6 +50,7 @@ export function isotropy24dir(): {
 
   void md4
   void mz4
+
   const z3 = anisotropy('Z3', 1.2),
     z4 = anisotropy('Z4', 1.2),
     d4 = anisotropy('D4', 1.2)

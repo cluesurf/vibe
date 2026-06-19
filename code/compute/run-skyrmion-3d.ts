@@ -9,6 +9,7 @@ import { create, globals } from 'webgpu'
 import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const L = 64 // cube side, N = L^3 sites of the 3D direction field
@@ -143,8 +144,10 @@ async function run(): Promise<void> {
       16,
       new Float32Array([dmi, FIELD, DT, 0]),
     )
+
     const bufs: [GPUBuffer, GPUBuffer] = [mk(), mk()]
     device.queue.writeBuffer(bufs[0], 0, seed)
+
     const layout = pipeline.getBindGroupLayout(0)
     const bind = (a: GPUBuffer, b: GPUBuffer): GPUBindGroup =>
       device.createBindGroup({
@@ -163,8 +166,10 @@ async function run(): Promise<void> {
       enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, bytes)
       device.queue.submit([enc.finish()])
       await staging.mapAsync(GPUMapMode.READ)
+
       const out = new Float32Array(staging.getMappedRange().slice(0))
       staging.unmap()
+
       let tot = 0
 
       for (let z = 4; z < L; z += 8) {

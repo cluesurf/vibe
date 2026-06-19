@@ -194,6 +194,7 @@ function run(): void {
   for (let f = 0; f < FRAMES; f++) {
     // a deterministic matching of edges, each cell acted on once, rotating start, no randomness
     matched.fill(0)
+
     const start = (f * 2654435761) % n
 
     for (let s = 0; s < n; s++) {

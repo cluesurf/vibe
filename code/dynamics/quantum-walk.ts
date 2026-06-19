@@ -18,6 +18,7 @@ export function coinedWalkMSD(input: {
   const imL = new Float64Array(2 * L)
   reL[C * 2 + 0] = Math.SQRT1_2 // start localized at center, symmetric coin
   reL[C * 2 + 1] = Math.SQRT1_2
+
   const ct = Math.cos(theta)
   const st = Math.sin(theta)
   const msd: number[] = []
@@ -320,6 +321,7 @@ export function diracQuantumWalk(input: {
 
     R = R3
     Lf = L3
+
     let chR = 0
     let chL = 0
     let nn = 0
@@ -420,6 +422,7 @@ export function singleParticleQuantumWalk(input: {
 
   for (let t = 0; t < steps; t++) {
     xs.push(centroid())
+
     // coin
     const nr = [new Float64Array(L), new Float64Array(L)]
     const ni = [new Float64Array(L), new Float64Array(L)]
@@ -547,6 +550,7 @@ export function twoParticleQuantumWalk(input: {
 
     comList.push(com)
     relList.push(rel)
+
     // coin on particle 1 (mix c1), then particle 2 (mix c2)
     const nr = new Float64Array(N)
     const ni = new Float64Array(N)

@@ -201,6 +201,7 @@ export function intentionAtScale(input?: { n?: number }): {
   const cohesionWithWill = sp0 / spread(tone) // >= ~1 means it did not blow apart
 
   tone = initSelf()
+
   const rng1b = makeRng({ seed: 3 })
 
   for (let t = 0; t < T; t++) {
@@ -217,6 +218,7 @@ export function intentionAtScale(input?: { n?: number }): {
   const peri = (i: number): boolean => selfSet[i] === 1 && hub[i] === 0
   const dtPeri0 = meanDT(initSelf(), peri)
   tone = initSelf()
+
   const rng2 = makeRng({ seed: 7 })
 
   for (let t = 0; t < T; t++) {
@@ -225,6 +227,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
   const peripheryDriftHubWill = dtPeri0 - meanDT(tone, peri)
   tone = initSelf()
+
   const rng2b = makeRng({ seed: 7 })
 
   for (let t = 0; t < T; t++) {
@@ -237,6 +240,7 @@ export function intentionAtScale(input?: { n?: number }): {
 
   // CHECK 3: persistence, intend, perturb (scatter charge), keep intending, does the drift resume?
   tone = initSelf()
+
   const rng3 = makeRng({ seed: 9 })
 
   for (let t = 0; t < T; t++) {
@@ -256,6 +260,7 @@ export function intentionAtScale(input?: { n?: number }): {
   for (const c of charges) {
     if (rng3.next() < 0.4) {
       tone[c] = 0
+
       const dest = self[Math.floor(rng3.next() * self.length)]!
       tone[dest] = 1
     }

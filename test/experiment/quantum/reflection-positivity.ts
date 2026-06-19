@@ -124,6 +124,7 @@ export function reflectionPositivity(input?: {
     }
 
     mean /= maxPos + 1
+
     // use the interior to avoid the sliver ends
     const lo = 8
     const hi = maxPos - 8

@@ -13,7 +13,7 @@ import { linearFit as _lfit } from '@/code/measure/regression'
 // Solve (D - A) phi = delta_center by Jacobi sweeps with a fixed degree (the Dirichlet
 // boundary, missing edges contribute zero). Returns the potential field.
 export function dirichletGreensFunction(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   center: number
   degree: number
   iterations?: number
@@ -42,7 +42,7 @@ export function dirichletGreensFunction(input: {
 // radii 1..rmax. Returns NaN when fewer than three radial bins carry signal. Rounded
 // to two decimals to match the convergence thresholds it feeds.
 export function greensFunctionExponent(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   coords: number[][]
   center: number
   degree: number
@@ -104,7 +104,7 @@ export function greensFunctionExponent(input: {
 // power law (Newton 1/r^(d-2)) wins, on a negatively-curved bulk the exponential (the curvature's spectral gap,
 // a screened short-range potential) wins. The fundamental measure for curved-bulk gravity.
 export function greensDecayClass(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   size: number
   center: number
   rlo: number

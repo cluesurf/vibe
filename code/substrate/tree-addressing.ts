@@ -42,6 +42,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   const children: number[][] = g.neighbors.map(() => [])
   parent[root] = root
   depth[root] = 0
+
   let frontier = [root]
 
   const levelSizes = [1]

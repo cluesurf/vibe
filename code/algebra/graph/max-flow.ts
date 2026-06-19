@@ -27,6 +27,7 @@ export class FlowNetwork {
     const forward = this.arcs.length
     this.arcs.push({ to, cap, flow: 0, twin: forward + 1 })
     this.out[from]!.push(forward)
+
     const backward = this.arcs.length
     this.arcs.push({
       to: from,
@@ -40,6 +41,7 @@ export class FlowNetwork {
   private buildLevels(source: number, sink: number): Int32Array | null {
     const level = new Int32Array(this.nodeCount).fill(-1)
     level[source] = 0
+
     let frontier = [source]
 
     while (frontier.length) {
@@ -139,9 +141,9 @@ export class FlowNetwork {
 // discrete Ryu-Takayanagi minimal surface, the fewest bulk threads that separate a boundary region from its
 // complement.
 export function undirectedMinCut(input: {
-  adjacency: ReadonlyArray<ReadonlyArray<number>>
-  sources: ReadonlyArray<number>
-  sinks: ReadonlyArray<number>
+  adjacency: readonly (readonly number[])[]
+  sources: readonly number[]
+  sinks: readonly number[]
 }): number {
   const n = input.adjacency.length
   const superSource = n

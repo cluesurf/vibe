@@ -18,10 +18,7 @@ import {
 } from '@/code/algebra/group/automorphism'
 
 // basis vector e_i in `dim` dimensions with the given nonzero entries.
-function basis(
-  dim: number,
-  ...entries: Array<[number, number]>
-): number[] {
+function basis(dim: number, ...entries: [number, number][]): number[] {
   const v = new Array<number>(dim).fill(0)
 
   for (const [index, value] of entries) {
@@ -65,7 +62,7 @@ export default experiment({
   depth: 'L1',
   paper: true,
   run() {
-    const systems: Array<{ label: string; simple: number[][] }> = [
+    const systems: { label: string; simple: number[][] }[] = [
       { label: 'A2', simple: aRoots(2) },
       { label: 'A3', simple: aRoots(3) },
       { label: 'A4', simple: aRoots(4) },

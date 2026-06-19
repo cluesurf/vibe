@@ -65,6 +65,7 @@ export function hawking(input: Record<string, never> = {}): {
   solved: boolean
 } {
   void input
+
   const samples = 60000
 
   // 1. Thermal spectrum: detailed balance at a = 1 gives T = 1/(2 pi). Check the ratio matches the

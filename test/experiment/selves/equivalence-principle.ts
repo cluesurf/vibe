@@ -198,6 +198,7 @@ export default experiment({
     const flatField = new Int32Array(cellCount)
     const flatBody = new Uint8Array(cellCount)
     flatBody[index(20, 10, 10, 10)] = 1
+
     let flatMoves = 0
 
     for (let b = 0; b < 8; b++) {

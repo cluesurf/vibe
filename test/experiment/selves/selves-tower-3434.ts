@@ -104,6 +104,7 @@ function formPersistence(
 
   for (let f = 0; f < opts.frames + opts.lag; f++) {
     opts.step(tone, offsets, adj, rng)
+
     const g = new Array<number>(numGroups).fill(0)
 
     for (let i = 0; i < tone.length; i++) {

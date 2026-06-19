@@ -76,7 +76,7 @@ export interface Su2Lattice {
   readonly dim: number
   readonly length: number // sites per axis
   readonly sites: number
-  readonly stride: ReadonlyArray<number>
+  readonly stride: readonly number[]
   // links[(site * dim + mu) * 4 + c]
   readonly links: Float64Array
 }

@@ -10,6 +10,11 @@ export default [
       // `if (x) doThing()` are never allowed without `{ }`.
       curly: ['error', 'all'],
 
+      // Prefer the array shorthand everywhere: `T[]` over `Array<T>`
+      // and `readonly T[]` over `ReadonlyArray<T>`. Nested types get
+      // parens, e.g. `readonly (readonly number[])[]`.
+      '@typescript-eslint/array-type': ['error', { default: 'array' }],
+
       // Blank line between class members (methods / fields), except
       // after a single-line member, so tight one-liners can group.
       'lines-between-class-members': [

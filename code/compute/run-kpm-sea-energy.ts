@@ -8,6 +8,7 @@ import { create, globals } from 'webgpu'
 import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const L = 32
@@ -50,6 +51,7 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
           nx = 2 * (a * cc + b * dd)
           ny = 2 * (b * cc - a * dd)
           nz = a * a + b * b - cc * cc - dd * dd
+
           const m = Math.hypot(nx, ny, nz) || 1
           nx /= m
           ny /= m
@@ -264,6 +266,7 @@ async function run(): Promise<void> {
       dotCur: GPUBuffer,
     ): void => {
       setUni(scA, scB, mom)
+
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
@@ -292,6 +295,7 @@ async function run(): Promise<void> {
     // mom0: dot(xi, t0=B[0]); mom1: t1=B[1]=(1/a)H B[0]; dot(xi,B[1])
     const dotOnly = (cur: GPUBuffer, mom: number): void => {
       setUni(0, 0, mom)
+
       const enc = device.createCommandEncoder()
 
       let pass = enc.beginComputePass()
@@ -309,6 +313,7 @@ async function run(): Promise<void> {
 
     dotOnly(B[0]!, 0)
     step(B[0]!, B[1]!, 1 / A, 0, B[0]!, 1, B[1]!) // t1 = (1/a) H t0 ; dot uses B[1]
+
     let i0 = 0,
       i1 = 1
 
@@ -323,6 +328,7 @@ async function run(): Promise<void> {
     enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
+
     const out = new Float64Array(
       new Float32Array(stage.getMappedRange().slice(0)),
     )
@@ -353,11 +359,13 @@ async function run(): Promise<void> {
     device.queue.writeBuffer(xi, 0, xd)
     device.queue.writeBuffer(nrt, 0, vacN)
     device.queue.writeBuffer(B[0]!, 0, xd)
+
     const muV = await computeMoments()
 
     for (let ri = 0; ri < Rs.length; ri++) {
       device.queue.writeBuffer(nrt, 0, texN[ri]!)
       device.queue.writeBuffer(B[0]!, 0, xd)
+
       const muH = await computeMoments()
 
       for (let n = 0; n < MCHEB; n++) {

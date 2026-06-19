@@ -68,6 +68,7 @@ export function background(
           nz = 1
         } else if (mode === 'texture') {
           phi[s] = M
+
           const X = dx / R,
             Y = dy / R,
             Z = dz / R,
@@ -82,6 +83,7 @@ export function background(
           nx = 2 * (a * cc + b * dd)
           ny = 2 * (b * cc - a * dd)
           nz = a * a + b * b - cc * cc - dd * dd
+
           const m = Math.hypot(nx, ny, nz) || 1
           nx /= m
           ny /= m

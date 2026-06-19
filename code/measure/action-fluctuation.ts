@@ -12,7 +12,7 @@ import { logLogSlope } from '@/code/measure/regression'
 
 export function actionFluctuationExponent(input: {
   action: Action
-  sizes: ReadonlyArray<number>
+  sizes: readonly number[]
   repeats: number
   dimension: number
   seedMultiplier?: number

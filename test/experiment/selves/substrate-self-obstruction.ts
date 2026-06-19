@@ -87,9 +87,11 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
+
         const swap = current
         current = scratch
         scratch = swap
+
         const ext = travelDistance({ will: current, start: center })
 
         if (ext > maxExtent) {
@@ -110,6 +112,7 @@ export default experiment({
       pert.data[center * degree + 0] = (
         pert.data[center * degree + 0] === 1 ? -1 : 1
       ) as -1 | 1
+
       let plainScratch: Will = {
         mesh,
         data: new Int8Array(plain.data.length),
@@ -124,10 +127,12 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         beatInto({ src: plain, dst: plainScratch, table, collision })
+
         const swapPlain = plain
         plain = plainScratch
         plainScratch = swapPlain
         beatInto({ src: pert, dst: pertScratch, table, collision })
+
         const swapPert = pert
         pert = pertScratch
         pertScratch = swapPert

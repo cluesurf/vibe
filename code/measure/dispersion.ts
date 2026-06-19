@@ -11,8 +11,8 @@ import { linearFit } from '@/code/measure/regression'
 // regressing omega^2 on k^2. The continuum relativistic relation has speedSquared = 1 (the light
 // speed) and massSquared = m^2 (the rest energy squared, the gap at k = 0).
 export function relativisticDispersionFit(input: {
-  wavenumbers: ReadonlyArray<number>
-  frequencies: ReadonlyArray<number>
+  wavenumbers: readonly number[]
+  frequencies: readonly number[]
 }): { speedSquared: number; massSquared: number } {
   const fit = linearFit({
     xs: input.wavenumbers.map(k => k * k),
@@ -49,6 +49,7 @@ export function dispersionAxisDiagonalAnisotropy(input: {
   const { directions, dimension, magnitude } = input
   const axis = new Array<number>(dimension).fill(0)
   axis[0] = magnitude
+
   const diagonal = new Array<number>(dimension).fill(
     magnitude / Math.sqrt(dimension),
   )

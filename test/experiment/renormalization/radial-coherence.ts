@@ -111,8 +111,10 @@ export function radialCoherence(input?: {
     }
 
     radialGroup.push(anc)
+
     const k = remap.size
     groupCounts.push(k)
+
     // null, random partition into k groups of the SAME sizes as the radial groups
     const sizes = new Int32Array(k)
 

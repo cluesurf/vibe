@@ -11,6 +11,7 @@ import { bfsShells } from '@/code/measure/shells'
 import { ASSOCIATIVE_WAVE_WGSL } from '@/code/compute/associative-wave.wgsl'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -47,6 +48,7 @@ async function gpuWave(input: {
   const adj = ro(adjU)
   const arrivalInit = new Int32Array(cellCount).fill(-1)
   arrivalInit[seed] = 0
+
   const arrival = device.createBuffer({
     size: cellCount * 4,
     usage:
@@ -56,6 +58,7 @@ async function gpuWave(input: {
   })
 
   device.queue.writeBuffer(arrival, 0, arrivalInit)
+
   const changed = device.createBuffer({
     size: 4,
     usage:
@@ -91,6 +94,7 @@ async function gpuWave(input: {
       new Uint32Array([cellCount, beat, 0, 0]),
     )
     device.queue.writeBuffer(changed, 0, new Uint32Array([0]))
+
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(pipeline)
@@ -100,6 +104,7 @@ async function gpuWave(input: {
     enc.copyBufferToBuffer(changed, 0, changedRead, 0, 4)
     device.queue.submit([enc.finish()])
     await changedRead.mapAsync(GPUMapMode.READ)
+
     const c = new Uint32Array(changedRead.getMappedRange())[0]!
     changedRead.unmap()
 
@@ -121,6 +126,7 @@ async function gpuWave(input: {
   enc2.copyBufferToBuffer(arrival, 0, arrivalRead, 0, cellCount * 4)
   device.queue.submit([enc2.finish()])
   await arrivalRead.mapAsync(GPUMapMode.READ)
+
   const out = new Int32Array(arrivalRead.getMappedRange().slice(0))
   arrivalRead.unmap()
 

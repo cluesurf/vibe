@@ -7,6 +7,7 @@ import { create, globals } from 'webgpu'
 import { WAVE_STEP_WGSL } from '@/code/compute/wave.wgsl'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -107,6 +108,7 @@ async function benchOne(
   }
 
   await device.queue.onSubmittedWorkDone()
+
   const seconds = (performance.now() - start) / 1000
   bufs[0]!.destroy()
   bufs[1]!.destroy()

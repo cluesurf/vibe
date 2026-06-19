@@ -56,6 +56,7 @@ function lightCone(
 
   let b = Int8Array.from(a)
   b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
+
   const step = (tone: Int8Array): Int8Array =>
     signedMajorityStep({ neighbors: g.neighbors, fills, tone })
 
@@ -66,6 +67,7 @@ function lightCone(
   for (let beat = 1; beat <= 6; beat++) {
     a = step(a)
     b = step(b)
+
     let maxDist = 0
 
     for (let v = 0; v < n; v++) {

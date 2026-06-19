@@ -8,7 +8,7 @@ import { Rng, makeRng, deriveSeed } from '@/code/tool/rng'
 export interface ScanSpec<P> {
   readonly form: 'scan'
   readonly name: string
-  readonly parameters: ReadonlyArray<P>
+  readonly parameters: readonly P[]
   readonly repeats: number
   run(input: { parameter: P; rng: Rng }): Record<string, number>
 }
@@ -22,7 +22,7 @@ export interface ScanPoint {
 export interface ScanResult {
   readonly form: 'scan-result'
   readonly name: string
-  readonly points: ReadonlyArray<ScanPoint>
+  readonly points: readonly ScanPoint[]
   readonly seed: number
 }
 

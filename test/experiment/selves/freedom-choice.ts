@@ -250,6 +250,7 @@ export function freedomChoice(input: { n: number; seed: number }): {
 
     beatSum += res.beats
     beatCount++
+
     // One-step prediction from the urge alone (the naive shortcut).
     let diff = 0
 

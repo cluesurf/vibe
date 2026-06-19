@@ -55,6 +55,7 @@ export default experiment({
       let pert: ClockRing = makeTwist({ size, states, turns: 1 })
       pert.curr[Math.floor(size / 2)] =
         (pert.curr[Math.floor(size / 2)]! + 1) % states
+
       const wp0 = clockWinding(pert.curr, states)
 
       for (let t = 0; t < steps; t++) {

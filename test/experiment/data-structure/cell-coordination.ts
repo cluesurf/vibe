@@ -8,7 +8,7 @@ import { cellCoordination } from '@/code/measure/tessellation-profile'
 // |W(cell)| / |W(facet)|. We verify it against the known coordinations of the compact tessellations and confirm
 // it is finite for compact honeycombs and infinite for the paracompact ones (whose cells are tilings).
 
-const EXPECTED: Array<{ symbol: number[]; coordination: number }> = [
+const EXPECTED: { symbol: number[]; coordination: number }[] = [
   { symbol: [7, 3], coordination: 7 }, // heptagon, 7 edges
   { symbol: [5, 4], coordination: 5 }, // pentagon, 5 edges
   { symbol: [8, 3], coordination: 8 },

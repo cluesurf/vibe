@@ -6,7 +6,7 @@
 
 import { bfsShells } from '@/code/measure/shells'
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = readonly (readonly number[])[]
 
 export interface AssociativeMemory {
   cellCount: number

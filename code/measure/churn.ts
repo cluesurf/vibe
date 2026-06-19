@@ -3,7 +3,7 @@
 // churn. A live wave keeps flipping tones, so churn grows with the run. The update is the same
 // reversible wave as code/dynamics/reversible-wave: next[i] = (sum_{j ~ i} cur[j] - prev[i]) mod q.
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = readonly (readonly number[])[]
 
 export function churnCount(input: {
   neighbors: Neighbors

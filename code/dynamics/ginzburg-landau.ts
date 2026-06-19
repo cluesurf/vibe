@@ -42,7 +42,7 @@ export function ringDefectPair(length: number): Complex2[] {
 
 // The discrete Dirichlet energy of a complex field on the ring, sum over edges of
 // the squared difference between neighbouring values.
-export function ringFieldEnergy(psi: ReadonlyArray<Complex2>): number {
+export function ringFieldEnergy(psi: readonly Complex2[]): number {
   const length = psi.length
 
   let e = 0
@@ -58,10 +58,7 @@ export function ringFieldEnergy(psi: ReadonlyArray<Complex2>): number {
 
 // One explicit Euler relaxation step in place, returning the next field. Each value
 // moves by dt * (laplacian + (1 - |psi|^2) * psi).
-function relaxStep(
-  cur: ReadonlyArray<Complex2>,
-  dt: number,
-): Complex2[] {
+function relaxStep(cur: readonly Complex2[], dt: number): Complex2[] {
   const length = cur.length
 
   return cur.map((z, i) => {
@@ -83,7 +80,7 @@ function relaxStep(
 // fires every sampleEvery steps (when set) with the current field, so the caller can
 // record a history (for example the winding at intervals) without exposing the loop.
 export function relaxRingField(input: {
-  field: ReadonlyArray<Complex2>
+  field: readonly Complex2[]
   steps: number
   dt: number
   sampleEvery?: number

@@ -46,7 +46,7 @@ const rotate = (v: Spin, k: Spin): Spin => {
 }
 
 // the four bonds with their interfacial DM vectors (Dhat = zhat cross rhat).
-const BONDS: Array<[number, number, Spin]> = [
+const BONDS: [number, number, Spin][] = [
   [1, 0, [0, 1, 0]],
   [-1, 0, [0, -1, 0]],
   [0, 1, [-1, 0, 0]],
@@ -78,6 +78,7 @@ function localField(
     h[0] += exchange * nb[0]
     h[1] += exchange * nb[1]
     h[2] += exchange * nb[2]
+
     const c = cross(nb, dh)
     h[0] -= dm * c[0]
     h[1] -= dm * c[1]

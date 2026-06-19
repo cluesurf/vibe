@@ -4,7 +4,7 @@
 // shell-growth on a typed Substrate stays in measure/dimension.ts (ballGrowth), this is its plain-neighbors
 // sibling, and both share the same BFS shape.
 
-type Neighbors = ReadonlyArray<ArrayLike<number>>
+type Neighbors = readonly ArrayLike<number>[]
 
 // BFS from a root, returning the geodesic depth of every node and the size of each
 // shell. maxRadius caps the traversal depth (the shell list then holds at most
@@ -26,6 +26,7 @@ export function bfsShells(input: {
   }
 
   depth[root] = 0
+
   let frontier = [root]
 
   const shellCounts: number[] = [1]
@@ -34,6 +35,7 @@ export function bfsShells(input: {
 
   while (frontier.length && r < maxRadius) {
     r++
+
     const next: number[] = []
 
     for (const u of frontier) {
@@ -90,7 +92,7 @@ export function branchingRatio(input: {
 // substrate this sits near a small constant; on a hyperbolic one it stays well above 1 (exponential).
 // Returns 0 when the window has fewer than two shells.
 export function midShellGrowthRatio(input: {
-  shellCounts: ReadonlyArray<number>
+  shellCounts: readonly number[]
   from?: number
   to?: number
 }): number {
@@ -116,7 +118,7 @@ export function midShellGrowthRatio(input: {
 // The geometric mean is the natural average of a multiplicative expansion rate: a static front gives 1,
 // a steadily expanding one gives a value above 1. Non-positive entries are skipped (no log).
 export function geometricGrowthRatio(
-  widths: ReadonlyArray<number>,
+  widths: readonly number[],
 ): number {
   let logSum = 0
   let count = 0

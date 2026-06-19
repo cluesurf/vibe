@@ -62,6 +62,7 @@ export function waveIsotropy(input?: {
   let prev = new Uint8Array(N)
   let cur = new Uint8Array(N)
   cur[0] = 1 // the perturbation
+
   const prev0 = prev.slice()
   const cur0 = cur.slice()
 

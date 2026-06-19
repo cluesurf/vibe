@@ -51,7 +51,7 @@ export function unruhDetectorResponse(input: {
 export function temperatureFromDetailedBalance(input: {
   kappa: number
   response: (energy: number) => number
-  energyFactors?: ReadonlyArray<number>
+  energyFactors?: readonly number[]
 }): number {
   const factors = input.energyFactors ?? [0.5, 1, 1.5]
 

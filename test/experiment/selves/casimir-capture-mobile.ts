@@ -84,10 +84,12 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
+
         const swap = current
         current = scratch
         scratch = swap
         imposeWalls(current)
+
         const prof = chargeDensityProfile({
           will: current,
           binOf,

@@ -11,7 +11,7 @@ const wrapAngle = (x: number): number =>
 // one dissipative relaxation step, theta_i += alpha (sin(theta_left - theta_i) + sin(theta_right - theta_i)). This
 // is gradient descent of the XY phase energy, it heals local perturbations and locks the winding. Returns a new array.
 export function phaseRelaxStep(
-  theta: ReadonlyArray<number>,
+  theta: readonly number[],
   alpha: number,
 ): number[] {
   const n = theta.length
@@ -55,9 +55,7 @@ export function phaseWaveStep(
 // the LOCAL structure of the field, the standard deviation of the nearest-neighbour phase gradient. High when a
 // localized perturbation is present, low when the field has relaxed to a smooth winding kink or to uniform. Used as
 // the over-time signal, monotone decay means a perturbation is healing (settling), oscillation means recurrence.
-export function gradientStructure(
-  theta: ReadonlyArray<number>,
-): number {
+export function gradientStructure(theta: readonly number[]): number {
   const n = theta.length
   const gradient = new Array<number>(n)
 

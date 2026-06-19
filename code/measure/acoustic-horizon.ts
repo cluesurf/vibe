@@ -46,6 +46,7 @@ export function rayFreezeSurfaceGravity(input: {
   for (let i = 0; i < maxSteps && r - horizon > 1e-7; i++) {
     r -= tanhHorizonSpeed({ radius: r, horizon, gradient }) * dt
     t += dt
+
     const gap = r - horizon
 
     if (gap < gapWindow && gap > 1e-6) {

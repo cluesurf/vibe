@@ -115,6 +115,7 @@ export function exportMaintenance(input?: {
 
   {
     inRegion[0] = 1
+
     let frontier = [0]
 
     while (frontier.length > 0 && region.length < regionSize) {
@@ -304,6 +305,7 @@ export function exportMaintenance(input?: {
   const free = new Int8Array(N)
   seed(maintained, makeRng({ seed: 5 }))
   seed(free, makeRng({ seed: 5 }))
+
   const moved = new Uint8Array(N)
   const rngA = makeRng({ seed: 11 })
   const rngB = makeRng({ seed: 11 })

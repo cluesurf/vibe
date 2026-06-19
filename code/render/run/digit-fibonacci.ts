@@ -115,6 +115,7 @@ export function renderDigitFibonacci(input: {
     steps.push(step)
     display.push(latched)
   })
+
   const finalTerm = Number(
     steps[steps.length - 1]!.registers[compiled.returnRegister]!,
   )
@@ -198,6 +199,7 @@ export function renderDigitFibonacci(input: {
     join(outDir, `${outName}-frame.png`),
     encodePng(frames[frames.length - 1]!, SIZE, SIZE),
   )
+
   const gif = encodeGif({
     frames,
     width: SIZE,

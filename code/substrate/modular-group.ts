@@ -63,6 +63,7 @@ export function modularGraph(maxNodes: number): Graph {
   }
 
   add(I)
+
   const neighbors: number[][] = [[]]
 
   let frontier = [0]

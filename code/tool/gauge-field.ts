@@ -20,7 +20,7 @@ export interface DirectedEdge {
 export interface GaugeField {
   readonly form: 'gauge-field'
   readonly group: GaugeGroup
-  readonly edges: ReadonlyArray<DirectedEdge>
+  readonly edges: readonly DirectedEdge[]
   // edgeIndex.get(`${from},${to}`) -> index into edges
   readonly edgeIndex: ReadonlyMap<string, number>
   readonly link: Int32Array // one group element per directed edge
@@ -87,5 +87,5 @@ export function linkPhase(
 export interface PlaquetteSet {
   readonly form: 'plaquettes'
   // each loop is an ordered list of vertices forming a cycle
-  readonly loops: ReadonlyArray<Uint32Array>
+  readonly loops: readonly Uint32Array[]
 }

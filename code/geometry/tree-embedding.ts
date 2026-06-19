@@ -177,7 +177,7 @@ export function embeddingDistortion(input: {
   hyperbolic: boolean
 }): number {
   const size = input.coords.length
-  const pairs: Array<{ embedded: number; tree: number }> = []
+  const pairs: { embedded: number; tree: number }[] = []
 
   for (let u = 0; u < size; u++) {
     for (let v = u + 1; v < size; v++) {

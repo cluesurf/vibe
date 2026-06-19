@@ -40,11 +40,13 @@ export function deterministicGrowth(
   solved: boolean
 } {
   void input
+
   const N = 2000
 
   // 1. Resumable: grow in many small chunks vs one big step.
   const oneShot = new GrowingPentagrid()
   oneShot.grow(N)
+
   const chunked = new GrowingPentagrid()
 
   for (let i = 0; i < N; ) {
@@ -62,8 +64,10 @@ export function deterministicGrowth(
   // every snapshot edge must still be present.
   const mesh = new GrowingPentagrid()
   mesh.grow(500)
+
   const snapshot = mesh.adjacency.slice(0, 500).map(row => [...row])
   mesh.grow(1500)
+
   let appendOnly = true
 
   for (let i = 0; i < 500; i++) {
@@ -90,6 +94,7 @@ export function deterministicGrowth(
   const staticCount = staticRings.reduce((a, b) => a + b, 0)
   const grownToMatch = new GrowingPentagrid()
   grownToMatch.grow(staticCount - 1) // root already present
+
   const grownRings = ringSizes(grownToMatch.adjacency)
   const matchesStaticRings =
     grownRings.length >= staticRings.length &&

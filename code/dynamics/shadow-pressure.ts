@@ -74,6 +74,7 @@ export function shadowPressureRun(input: {
     // steady deterministic sources, one tone per beat from each side
     right[0] = right[0]! + 1
     left[length - 1] = left[length - 1]! + 1
+
     // measure the integer momentum flux at the mass cell
     const flux = right[mass]! - left[mass]!
     hitsRight += right[mass]!

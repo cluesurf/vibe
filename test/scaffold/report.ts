@@ -36,7 +36,7 @@ function formatNumber(value: number): string {
 export function writeReport(input: {
   result: ScanResult
   outDir: string
-  parameterLabels?: ReadonlyArray<string>
+  parameterLabels?: readonly string[]
 }): { json: string; markdown: string } {
   mkdirSync(input.outDir, { recursive: true })
 

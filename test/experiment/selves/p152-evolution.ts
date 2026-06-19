@@ -87,6 +87,7 @@ function evolve(
   for (let g = 0; g < G; g++) {
     const scored = pop.map(o => ({ o, f: fitness(o, target) }))
     meanByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
+
     // selection, keep the fitter half (the arrow's value), or a random half (drift control)
     const survivors = select
       ? scored.sort((a, b) => b.f - a.f).slice(0, P / 2)
@@ -109,6 +110,7 @@ function evolve(
 
   const scored = pop.map(o => fitness(o, target))
   meanByGen.push(scored.reduce((a, b) => a + b, 0) / P)
+
   // heritability proxy, parent-child fitness covariance sign (positive = heritable)
   const heritability = heritCount > 0 ? heritSum / heritCount : 0
 

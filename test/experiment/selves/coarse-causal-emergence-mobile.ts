@@ -61,9 +61,11 @@ function centroidSeries(input: {
       table,
       collision: input.collision,
     })
+
     const swap = current
     current = scratch
     scratch = swap
+
     let sumX = 0
     let count = 0
 

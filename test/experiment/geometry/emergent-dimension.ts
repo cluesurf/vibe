@@ -40,6 +40,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
   solved: boolean
 } {
   void input
+
   const flatSpecs = [
     { target: 2, L: 81, rLo: 3, rHi: 34 },
     { target: 3, L: 31, rLo: 3, rHi: 13 },

@@ -244,6 +244,7 @@ export function routingWithBacktrack(input: {
     const visited = new Uint8Array(size)
     const stack: number[] = [source]
     visited[source] = 1
+
     let steps = 0
     let reached = false
 
@@ -293,6 +294,7 @@ export function routingWithBacktrack(input: {
 
     if (reached) {
       successes++
+
       const routeLength = stack.length - 1
 
       if (shortest > 0) {
@@ -320,6 +322,7 @@ function bfsHops(input: {
   const size = input.graph.size
   const distance = new Int32Array(size).fill(-1)
   distance[input.from] = 0
+
   let frontier: number[] = [input.from]
 
   while (frontier.length > 0) {

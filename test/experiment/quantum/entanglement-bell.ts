@@ -52,6 +52,7 @@ export function entanglementBell(): {
   const im = new Float64Array(4)
   re[1] = 1 // |01>
   applyExchange(re, im, Math.PI / 8) // produces (|01> - i|10>)/sqrt(2), maximally entangled
+
   const ent = analyze(re, im)
 
   // control, a genuine product state stays unentangled (apply nothing, or theta = 0)
@@ -59,6 +60,7 @@ export function entanglementBell(): {
   const im2 = new Float64Array(4)
   re2[1] = 1
   applyExchange(re2, im2, 0)
+
   const prod = analyze(re2, im2)
 
   const tsirelson = 2 * Math.SQRT2

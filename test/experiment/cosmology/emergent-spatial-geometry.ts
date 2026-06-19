@@ -79,6 +79,7 @@ export function sliceDimension(input: {
   // Build the spatial-neighbor graph on the slice (indices into `slice`).
   const local = new Map<number, number>()
   slice.forEach((g, i) => local.set(g, i))
+
   const neighbors: number[][] = slice.map(() => [])
 
   for (let i = 0; i < slice.length; i++) {

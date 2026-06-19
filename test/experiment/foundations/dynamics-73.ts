@@ -68,6 +68,7 @@ export function dynamics73(): {
     nxt = new Int8Array(N)
 
   cur[center] = 1
+
   const dist = csrDistances({
     offsets: off,
     adj,
@@ -92,6 +93,7 @@ export function dynamics73(): {
     prev = cur
     cur = nxt
     nxt = t
+
     let mr = 0
 
     for (let i = 0; i < N; i++) {

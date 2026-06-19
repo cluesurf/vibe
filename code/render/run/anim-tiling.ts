@@ -84,6 +84,7 @@ export function drawCentralNumber(input: {
 
   bx /= centralPolygon.length
   by /= centralPolygon.length
+
   let inradiusBall = Infinity
 
   for (let i = 0; i < centralPolygon.length; i++) {

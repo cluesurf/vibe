@@ -6,11 +6,11 @@
 // COLLIDE is a fixed cyclic permutation of the directions per cell, reversible (forward shifts one way,
 // backward the other). A beat is collide-then-stream, the inverse stream-then-collide-backward.
 
-type Adjacency = ReadonlyArray<ReadonlyArray<number>>
+type Adjacency = readonly (readonly number[])[]
 
 // One stream beat: occupation on direction d at cell hops to adjacency[cell][d] (or stays put at a boundary).
 export function streamCoxeterMeshGas(input: {
-  state: ReadonlyArray<ReadonlyArray<number>>
+  state: readonly (readonly number[])[]
   adjacency: Adjacency
   rank: number
 }): number[][] {
@@ -35,7 +35,7 @@ export function streamCoxeterMeshGas(input: {
 // One collide beat: a cyclic permutation of each cell's direction slots. forward shifts by minus one,
 // backward by plus one (the exact inverse).
 export function collideCoxeterMeshGas(input: {
-  state: ReadonlyArray<ReadonlyArray<number>>
+  state: readonly (readonly number[])[]
   rank: number
   forward: boolean
 }): number[][] {
@@ -51,7 +51,7 @@ export function collideCoxeterMeshGas(input: {
 
 // Total charge over all cells and direction slots.
 export function countCoxeterMeshGas(
-  state: ReadonlyArray<ReadonlyArray<number>>,
+  state: readonly (readonly number[])[],
 ): number {
   return state.reduce(
     (sum, slots) => sum + slots.reduce((s, v) => s + v, 0),

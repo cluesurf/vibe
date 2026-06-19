@@ -78,7 +78,7 @@ export default experiment({
 
     // bonds with their twist axes (interfacial form for the 2D reduced model; the 4D form uses the bond/quaternion
     // direction directly, with handedness from the group).
-    const bonds: Array<[number, number, Spin]> = [
+    const bonds: [number, number, Spin][] = [
       [1, 0, [0, 1, 0]],
       [-1, 0, [0, -1, 0]],
       [0, 1, [-1, 0, 0]],
@@ -166,6 +166,7 @@ export default experiment({
 
     for (let t = 0; t < precessSteps; t++) {
       spins = precessStep(spins, false)
+
       const q = skyrmionDegree(spins, L)
 
       if (q < minQ) {

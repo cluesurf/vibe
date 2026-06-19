@@ -6,12 +6,13 @@ import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
 // BFS hop distances from a source over an undirected adjacency.
 function bfsDistances(
-  adj: ReadonlyArray<Uint32Array>,
+  adj: readonly Uint32Array[],
   source: number,
   size: number,
 ): Int32Array {
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
+
   let frontier = [source]
 
   while (frontier.length > 0) {
@@ -34,7 +35,7 @@ function bfsDistances(
 
 // Count common neighbors of a and b given the adjacency.
 function triangleCount(input: {
-  adjacency: ReadonlyArray<Uint32Array>
+  adjacency: readonly Uint32Array[]
   a: number
   b: number
 }): number {
@@ -115,7 +116,7 @@ export type CurvatureSign = 'positive' | 'flat' | 'negative'
 // positive. Otherwise a late successive-shell ratio above `negativeThreshold` is negative (still exponential), and
 // a late ratio below `flatThreshold` is flat (the ratio has decayed toward one).
 export function shellGrowthCurvature(input: {
-  shellCounts: ReadonlyArray<number>
+  shellCounts: readonly number[]
   negativeThreshold?: number
   flatThreshold?: number
 }): {

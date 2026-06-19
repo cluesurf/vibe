@@ -21,7 +21,7 @@ function foldModPi(angle: number): number {
 }
 
 export function relaxDirector(input: {
-  phi: ReadonlyArray<number>
+  phi: readonly number[]
   steps: number
   dt: number
 }): number[] {

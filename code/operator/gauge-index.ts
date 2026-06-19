@@ -131,6 +131,7 @@ export function gaugeWilsonDirac(input: {
           phaseIm: u.im,
           coefficient: -0.5,
         })
+
         const uBack = linkPhase({
           mu: 1,
           n1: n1 - 1,
@@ -164,6 +165,7 @@ export function gaugeWilsonDirac(input: {
           phaseIm: u.im,
           coefficient: -0.5,
         })
+
         const uBack = linkPhase({
           mu: 2,
           n1,
@@ -255,6 +257,7 @@ export function overlapIndex(input: {
   }
 
   gamma5RowsInPlace(dw)
+
   const hermError = hermiticityError(dw)
 
   const eig = eigHermitian({ matrix: dw })

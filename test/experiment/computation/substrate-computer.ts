@@ -103,6 +103,7 @@ export function substrateComputer(input?: { n?: number }): {
   ): void => {
     const m = makeSubstrateComputer(n, 5)
     setup(m)
+
     const { conserved } = m.run(prog)
     cases.push({
       program: name,

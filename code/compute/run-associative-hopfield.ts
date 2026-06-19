@@ -14,6 +14,7 @@ import {
 } from '@/code/compute/hopfield.wgsl'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -128,6 +129,7 @@ async function gpuDenseRecall(input: {
   })
 
   device.queue.writeBuffer(params, 0, new Uint32Array([n, p, POWER, 0]))
+
   const patterns = ro(patternsFlat)
   const overlap = device.createBuffer({
     size: p * 4,
@@ -188,6 +190,7 @@ async function gpuDenseRecall(input: {
     pass.dispatchWorkgroups(Math.ceil(n / WORKGROUP))
     pass.end()
     device.queue.submit([enc.finish()])
+
     const tmp = stateA
     stateA = stateB
     stateB = tmp
@@ -202,6 +205,7 @@ async function gpuDenseRecall(input: {
   enc2.copyBufferToBuffer(stateA, 0, read, 0, n * 4)
   device.queue.submit([enc2.finish()])
   await read.mapAsync(GPUMapMode.READ)
+
   const out = new Int32Array(read.getMappedRange().slice(0))
   read.unmap()
 

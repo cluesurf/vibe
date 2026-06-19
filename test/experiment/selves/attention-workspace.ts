@@ -176,6 +176,7 @@ export function attentionWorkspace(input?: {
     const out: number[] = []
     const seen = new Uint8Array(N)
     seen[center] = 1
+
     let fr = [center]
 
     while (fr.length > 0 && out.length < 40) {

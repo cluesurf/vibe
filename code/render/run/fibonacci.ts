@@ -82,6 +82,7 @@ function run(): void {
   const bIndex = compiled.registers.get('b')!
   const initial = new Array<number>(compiled.program.registers).fill(0)
   initial[0] = N
+
   // ONE execution of the compiled machine. We trace every instruction and remember the loop-iteration
   // boundaries (each n--), where b holds the latest complete Fibonacci term. We do NOT rerun the function per
   // number, the centre value updates live as the single run reaches each term.
@@ -106,6 +107,7 @@ function run(): void {
     trace.push(step)
     latchedAt.push(latched)
   })
+
   const finalTerm =
     trace[trace.length - 1]!.registers[compiled.returnRegister]!
 
@@ -120,6 +122,7 @@ function run(): void {
 
   const edges = cellOutlines(tiling.polygons)
   void boundaries
+
   // FAITHFUL + EQUAL-PER-NUMBER pacing. The machine is unary, so a literal tick-by-tick view makes bigger numbers
   // take more frames. Instead we group the REAL instruction trace into the high-level operations it implements
   // (the compiled opIndex), each a real run of machine steps. Every loop iteration runs the same operations, so
@@ -223,6 +226,7 @@ function run(): void {
     join(outDir, 'fibonacci-7-3-poincare-frame.png'),
     encodePng(frames[frames.length - 1]!, SIZE, SIZE),
   )
+
   const gif = encodeGif({
     frames,
     width: SIZE,

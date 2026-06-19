@@ -80,6 +80,7 @@ function verticalStep(centers: Vec[] | undefined): {
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   const mode = process.argv[2] ?? 'walk'
   const symbolText = process.argv[3] ?? '7-3'
   const symbol = symbolText.split('-').map(Number)

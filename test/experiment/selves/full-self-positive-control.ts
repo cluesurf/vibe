@@ -93,7 +93,7 @@ export default experiment({
         cz = sz / total,
         cw = sw / total
 
-      const moves: Array<[number, number]> = []
+      const moves: [number, number][] = []
 
       for (let c = 0; c < coin.cellCount; c++) {
         if (q[c]! <= 0) {
@@ -180,6 +180,7 @@ export default experiment({
 
         if (on) {
           occ++
+
           const [x, y, z, w] = coord(c)
           const dd =
             Math.abs(x - half) +
@@ -288,9 +289,11 @@ export default experiment({
         const nc = stepFull(clean, cleanScratch, open)
         cleanScratch = clean
         clean = nc
+
         const np = stepFull(pert, pertScratch, open)
         pertScratch = pert
         pert = np
+
         let d = 0
 
         for (let i = 0; i < clean.data.length; i++) {

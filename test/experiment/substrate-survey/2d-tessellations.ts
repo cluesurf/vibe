@@ -83,6 +83,7 @@ export default experiment({
   paper: false,
   run() {
     twodTessellations()
+
     const reference = measure([7, 3])
     const crystallographic = measure([6, 4])
     const ok =

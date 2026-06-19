@@ -22,6 +22,7 @@ export function frontCoefficientOfVariation(input: {
   const N = neighbors.length
   const dist = new Int32Array(N).fill(-1)
   dist[start] = 0
+
   let fr = [start]
 
   for (let r = 0; r < radius; r++) {
@@ -189,7 +190,7 @@ export function nearestLinkHarmonicAnisotropy(input: {
 // count used.
 export function diffusionTensorAnisotropy(input: {
   coords: number[][]
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   cells: number[]
 }): { eigenvalues: number[]; anisotropy: number; count: number } {
   const { coords, neighbors, cells } = input

@@ -24,6 +24,7 @@ export interface Mesh {
 export function shellDistances(mesh: Mesh, source: number): Int32Array {
   const distance = new Int32Array(mesh.cellCount).fill(-1)
   distance[source] = 0
+
   let frontier = [source]
 
   while (frontier.length > 0) {

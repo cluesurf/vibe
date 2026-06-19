@@ -47,6 +47,7 @@ export function effectiveCouplings(
         Jself[cv] = (Jself[cv] ?? 0) + f
       } else {
         nbrSet[cv]?.add(cw)
+
         const key = `${cv},${cw}`
         crossMap.set(key, (crossMap.get(key) ?? 0) + f)
       }

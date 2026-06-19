@@ -211,6 +211,7 @@ export function buildCoxeterMesh(input: {
 
   const seenChamber = new Set<string>([round(toPoincare(g0, timeAxis))])
   registerCell(c0)
+
   let frontier: { g: number[]; cc: number[] }[] = [{ g: g0, cc: c0 }]
   let gen = 0
   let chamberCount = 1
@@ -221,6 +222,7 @@ export function buildCoxeterMesh(input: {
     chamberCount < maxChambers
   ) {
     gen++
+
     const next: { g: number[]; cc: number[] }[] = []
 
     for (const ch of frontier) {
@@ -233,6 +235,7 @@ export function buildCoxeterMesh(input: {
         }
 
         seenChamber.add(key)
+
         const cc = reflect(ch.cc, normals[i]!, metric)
         registerCell(cc)
         next.push({ g, cc })
@@ -289,6 +292,7 @@ export function buildCoxeterMesh(input: {
   // generation = face-adjacency BFS distance from the seed cell (cell 0)
   const generation = new Array<number>(n).fill(-1)
   generation[0] = 0
+
   let ring = [0]
 
   while (ring.length > 0) {

@@ -56,6 +56,7 @@ export function runMachine(
     )
 
     inputs.forEach((v, i) => (initial[i] = v))
+
     const { registers, steps } = runRailway(compiled.program, initial)
 
     return {

@@ -77,6 +77,7 @@ export function buildAddressing(input: {
   // BFS shells from the root
   const dist = new Array<number>(n).fill(-1)
   dist[root] = 0
+
   const queue = [root]
 
   for (let h = 0; h < queue.length; h++) {

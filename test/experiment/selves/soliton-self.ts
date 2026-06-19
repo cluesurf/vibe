@@ -154,6 +154,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       beatInto({ src: hit, dst: hitScratch, table, collision: rule })
+
       const swap = hit
       hit = hitScratch
       hitScratch = swap

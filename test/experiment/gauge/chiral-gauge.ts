@@ -33,6 +33,7 @@ export function chiralGauge(input: Record<string, never> = {}): {
   solved: boolean
 } {
   void input
+
   const byDimension = [1, 2, 3, 4].map(d => ({
     dimension: d,
     ...analyze(d),

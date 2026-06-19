@@ -173,6 +173,7 @@ function findCycle(neighbors: number[][]): number[] {
   const n = neighbors.length
   const parent = new Int32Array(n).fill(-2)
   parent[0] = -1
+
   const queue = [0]
 
   for (let head = 0; head < queue.length; head++) {

@@ -38,6 +38,7 @@ export function dimensionSelection(input: Record<string, never> = {}): {
   solved: boolean
 } {
   void input
+
   const byDimension = [2, 3, 4, 5].map(d => {
     const apsidal = 4 - d > 0 ? Math.PI / Math.sqrt(4 - d) : NaN // analytic apsidal angle pi/sqrt(3-(d-1))
     const o = integrateOrbit(d)

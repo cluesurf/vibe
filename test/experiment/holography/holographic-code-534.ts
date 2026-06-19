@@ -67,8 +67,10 @@ export default experiment({
     // (a single local error) destroys it, so the redundancy is what makes the self persist
     const nonRedundant = new Array(size).fill(0)
     nonRedundant[0] = logical
+
     const nonRedundantBeforeError = nonRedundant[0] === logical
     nonRedundant[0] = 1 - logical // a single local error on the one site
+
     const nonRedundantLostOnSingleError = nonRedundant[0] !== logical
 
     const ok =

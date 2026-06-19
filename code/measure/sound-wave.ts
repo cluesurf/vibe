@@ -12,8 +12,8 @@ import { chargeDensityProfile } from '@/code/measure/profile'
 
 // the opposite-pair lines of a coin (each direction paired with its opposite). Filling BOTH ends of a line places
 // a head-on pair, which carries zero net momentum and is collision-ready.
-export function coinLines(opposite: number[]): Array<[number, number]> {
-  const lines: Array<[number, number]> = []
+export function coinLines(opposite: number[]): [number, number][] {
+  const lines: [number, number][] = []
 
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
@@ -36,7 +36,7 @@ export function densityWaveAlongAxis(input: {
   axisOf: (cell: number) => number
   highTarget: number
   lowTarget: number
-  lines: Array<[number, number]>
+  lines: [number, number][]
 }): Will {
   const { mesh, lambda, axisOf, highTarget, lowTarget, lines } = input
   const will = makeWill(mesh)
@@ -94,7 +94,7 @@ export function stripeContrast(input: {
 
 // the time of the first minimum of a contrast trace, half the oscillation period of the wave. Used to read the
 // dispersion, half-period versus wavelength.
-export function firstMinimumTime(trace: ReadonlyArray<number>): number {
+export function firstMinimumTime(trace: readonly number[]): number {
   let timeOfMin = 0
   let valueOfMin = trace[0] ?? 0
 

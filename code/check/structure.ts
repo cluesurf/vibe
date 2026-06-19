@@ -47,6 +47,7 @@ export function componentCount(will: Will): number {
     }
 
     components++
+
     const stack = [start]
     seen.add(start)
 
@@ -120,6 +121,7 @@ export function maxOccupancy(
 
   for (let step = 0; step < beats; step++) {
     current = beat(current, collision)
+
     const count = occupiedCells(current)
 
     if (count > max) {

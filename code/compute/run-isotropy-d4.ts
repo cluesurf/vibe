@@ -7,6 +7,7 @@
 import { create, globals } from 'webgpu'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const L = 24
@@ -117,11 +118,13 @@ async function run(): Promise<void> {
       offBuf = mk(off.length)
 
     device.queue.writeBuffer(offBuf, 0, off)
+
     const seed = new Int32Array(N)
     seed[((C * L + C) * L + C) * L + C] = 1
     device.queue.writeBuffer(cur, 0, seed)
     device.queue.writeBuffer(reached, 0, new Int32Array(N))
     device.queue.writeBuffer(uni, 0, new Uint32Array([L, count, 0, 0]))
+
     const layout = pipeline.getBindGroupLayout(0)
 
     for (let t = 0; t < T; t++) {
@@ -144,6 +147,7 @@ async function run(): Promise<void> {
       pass.dispatchWorkgroups(Math.ceil(N / WG))
       pass.end()
       device.queue.submit([enc.finish()])
+
       const tmp = prev
       prev = cur
       cur = nxt
@@ -154,8 +158,10 @@ async function run(): Promise<void> {
     enc.copyBufferToBuffer(reached, 0, stage, 0, N * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
+
     const r = new Int32Array(stage.getMappedRange().slice(0))
     stage.unmap()
+
     // light-cone extent, max along an AXIS vs along the body-DIAGONAL (1,1,1,1)/2
     let axisExt = 0,
       diagExt = 0
@@ -196,6 +202,7 @@ async function run(): Promise<void> {
   console.log(
     `GPU 24-direction light-cone isotropy, 4D L=${L} (${N.toLocaleString()} cells), ${T} beats:`,
   )
+
   const r24 = await measure(
     offsets24(),
     '24-dir (the {3,4,3,4} bulk, +-e_i+-e_j)',

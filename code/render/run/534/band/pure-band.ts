@@ -210,6 +210,7 @@ function run(): void {
 
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
+
   let q = new Float32Array(n),
     q2 = new Float32Array(n)
 

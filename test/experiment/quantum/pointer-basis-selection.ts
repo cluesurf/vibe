@@ -42,6 +42,7 @@ export default experiment({
     const table = streamSourceTable(mesh)
     const init = makeWill(mesh)
     fillWillPattern(init)
+
     const frontierX = 0 // the bath couples along x
 
     const openX = tailMean(

@@ -5,7 +5,7 @@
 // gravity, the weak-field Poisson limit). Returns the relaxed potential field.
 
 export function latticePoissonJacobi(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   source: Float64Array
   interiorDegree: number
   iterations: number

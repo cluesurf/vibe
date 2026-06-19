@@ -281,6 +281,7 @@ function run(): void {
   )
 
   mkdirSync(outDir, { recursive: true })
+
   const outPath = join(outDir, 'jewel-mesh.png')
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))
   console.log(`wrote ${outPath}`)

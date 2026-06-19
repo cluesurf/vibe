@@ -61,6 +61,7 @@ export default experiment({
       }
 
       fieldA = phaseRelaxStep(fieldA, 0.2)
+
       const s = gradientStructure(fieldA)
 
       if (s > prevA + epsilon) {
@@ -112,6 +113,7 @@ export default experiment({
       }
 
       phaseWaveStep(fieldC, velocity, 0.2)
+
       const s = gradientStructure(fieldC)
 
       if (s > prevC + epsilon) {

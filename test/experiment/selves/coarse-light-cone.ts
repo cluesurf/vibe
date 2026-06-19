@@ -31,6 +31,7 @@ function perturbAndWatch(input: {
   const control = base.slice()
   const perturbed = base.slice()
   perturbed[site] = (perturbed[site] === 1 ? -1 : 1) as -1 | 1
+
   const movedA = new Uint8Array(graph.cellCount)
   const movedB = new Uint8Array(graph.cellCount)
 
@@ -42,6 +43,7 @@ function perturbAndWatch(input: {
     // identical rng streams, so the dynamics is the same except where the flip propagates.
     beat(control, graph, movedA, makeRng(seed + t), 0.01, 0.22)
     beat(perturbed, graph, movedB, makeRng(seed + t), 0.01, 0.22)
+
     let count = 0
     let maxR = 0
 

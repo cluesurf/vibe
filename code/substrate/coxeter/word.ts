@@ -216,6 +216,7 @@ export function buildWordMesh(input: {
 }): WordMesh {
   braidClassCache.clear()
   normalFormCache.clear()
+
   const symbol = input.symbol
   const maxLength = input.maxLength ?? 12
   const maxChambers = input.maxChambers ?? 20000
@@ -243,8 +244,9 @@ export function buildWordMesh(input: {
   }
 
   register([])
-  const edgesJ: Array<[number, number]> = [] // edges labeled by a cell generator (0..k-1)
-  const edgesOut: Array<[number, number]> = [] // edges labeled by the outward generator
+
+  const edgesJ: [number, number][] = [] // edges labeled by a cell generator (0..k-1)
+  const edgesOut: [number, number][] = [] // edges labeled by the outward generator
 
   let frontier = [0]
   let finite = true

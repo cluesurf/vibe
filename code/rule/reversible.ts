@@ -40,6 +40,7 @@ function updateParity(input: {
         neighborhood.push(getTone(input.source, { element: to }))
       },
     })
+
     const value = input.local({ self, neighborhood })
     setTone(input.target, { element, value })
   }

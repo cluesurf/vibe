@@ -59,6 +59,7 @@ function run(): void {
   // BFS shell depth from cell 0
   const depth = new Array<number>(n).fill(-1)
   depth[0] = 0
+
   let frontier = [0]
 
   const shellCounts: number[] = [1]

@@ -112,6 +112,7 @@ export function truncateScene(
     }
 
     seen.add(undirected)
+
     const a = cutAt.get(cutKey(ka, kb))
     const b = cutAt.get(cutKey(kb, ka))
 

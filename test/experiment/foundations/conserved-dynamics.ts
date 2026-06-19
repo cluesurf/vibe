@@ -27,7 +27,7 @@ type Rng = { next: () => number }
 // Every cell takes at most one move per beat. Every branch preserves the sum, so Q is conserved.
 function beat(
   tone: Int8Array,
-  edges: Array<[number, number]>,
+  edges: [number, number][],
   fillSign: number,
   rng: Rng,
   pump: Int32Array | null,

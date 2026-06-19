@@ -215,6 +215,7 @@ function run(): void {
   // opposites annihilate on contact, conserving throughout
   const grav = (): void => {
     moved.fill(0)
+
     const st = Math.floor(rng.next() * n)
 
     for (let s = 0; s < n; s++) {

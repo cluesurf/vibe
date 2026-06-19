@@ -115,6 +115,7 @@ export function perturbationConeRadii(input: {
   for (let step = 0; step < beats; step++) {
     baseState = beat(baseState, collision)
     perturbedState = beat(perturbedState, collision)
+
     let maximum = 0
 
     for (let cell = 0; cell < mesh.cellCount; cell++) {

@@ -19,7 +19,7 @@ export interface Triplet {
 export function sparseFromTriplets(input: {
   rows: number
   cols: number
-  triplets: ReadonlyArray<Triplet>
+  triplets: readonly Triplet[]
 }): SparseMatrix {
   const counts = new Uint32Array(input.rows)
 

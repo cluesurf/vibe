@@ -78,6 +78,7 @@ export function runBinary(
     }
 
     ops++
+
     let bits = WORD_BITS
     let reg = 0
     let kind: BinaryStep['kind'] = 'jz'

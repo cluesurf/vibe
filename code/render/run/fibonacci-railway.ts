@@ -71,6 +71,7 @@ function run(): void {
   )
 
   mkdirSync(outDir, { recursive: true })
+
   const tiling = buildTilingFaces({
     symbol: [7, 3],
     maxCells: MAX_CELLS,
@@ -94,6 +95,7 @@ function renderBase(
   a.clear()
   b.set(1)
   t.clear()
+
   const counters = [a, b, t]
   const snaps: Snap[] = []
 
@@ -174,6 +176,7 @@ function renderBase(
     join(outDir, `fibonacci-7-3-railway-${cfg.name}-frame.png`),
     encodePng(frames[frames.length - 1]!, SIZE, SIZE),
   )
+
   const gif = encodeGif({
     frames,
     width: SIZE,

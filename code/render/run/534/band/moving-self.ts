@@ -210,6 +210,7 @@ function run(): void {
   for (let f = 0; f < FRAMES; f++) {
     beat(tone, g, moved, rng, 0, COHESION)
     discreteArrow(tone, g, f, ARROW_PERIOD) // discrete arrow drive; the rule churns, the self leaks at its edge
+
     const centreU = startU + speedU * f // the will steers the self to the right
     maintainAt(centreU, cv) // refill it at the new position, so the FORM propagates while matter turns over
 

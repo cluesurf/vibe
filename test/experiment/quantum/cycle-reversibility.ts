@@ -83,6 +83,7 @@ export function cycleReversibility(input?: { n?: number }): {
 
   while (cycles.length < 800 && tries < 40000) {
     tries++
+
     const a = Math.floor(rngC.next() * N)
     const an = [...nbrSet[a]!]
 

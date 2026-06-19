@@ -122,6 +122,7 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
       augmented[pivot]!,
       augmented[column]!,
     ]
+
     const diagonal = augmented[column]![column]!
 
     for (let j = column; j <= size; j++) {

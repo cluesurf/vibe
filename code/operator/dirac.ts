@@ -21,8 +21,8 @@ import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 // is a placeholder empty map (vertices have no boundary).
 export interface CellComplex {
   readonly form: 'cell-complex'
-  readonly cellCount: ReadonlyArray<number>
-  readonly boundary: ReadonlyArray<SparseMatrix>
+  readonly cellCount: readonly number[]
+  readonly boundary: readonly SparseMatrix[]
 }
 
 // Build a cell complex from a substrate up to grade maxGrade.
@@ -40,7 +40,7 @@ export function cellComplexOf(input: {
   const vertexCount = adjacency.length
 
   // 1-cells: undirected edges a < b, with an index lookup.
-  const edges: Array<{ a: number; b: number }> = []
+  const edges: { a: number; b: number }[] = []
   const edgeIndex = new Map<string, number>()
 
   for (let a = 0; a < vertexCount; a++) {
@@ -57,7 +57,7 @@ export function cellComplexOf(input: {
   }
 
   // Fast neighbor membership test for clique finding.
-  const neighborSet: Array<Set<number>> = adjacency.map(
+  const neighborSet: Set<number>[] = adjacency.map(
     row => new Set(Array.from(row)),
   )
 
@@ -97,7 +97,7 @@ export function cellComplexOf(input: {
   if (input.maxGrade >= 2) {
     // 2-cells: triangles (3-cliques). For each edge a<b, scan common neighbors
     // c with c > b so each triangle a<b<c is found exactly once.
-    const triangles: Array<{ a: number; b: number; c: number }> = []
+    const triangles: { a: number; b: number; c: number }[] = []
 
     for (let e = 0; e < edges.length; e++) {
       const edge = edges[e]

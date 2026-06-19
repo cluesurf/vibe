@@ -57,6 +57,7 @@ export function dodecagridNavigation(input: { seed: number }): {
     } // not connected (or same), skip
 
     attempted += 1
+
     const hops = greedyRouteHops({ graph: g, source: s, target: t })
 
     if (hops > 0) {
