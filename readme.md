@@ -81,12 +81,17 @@ and the code and test layout is in
 [`note/architecture.md`](note/architecture.md).
 
 The base of the model is settled, the discrete substrate and its single
-local rule. What remains in progress is the derivation of physics from
-it. The goal is to find out whether this crystal model can actually
-reproduce our universe, by deriving space, matter, gravity, the quantum,
-cosmology, and mind from the one rule, and to be clear at every step
-about what is solid, what is partial, and what is still open. The
-companion papers are snapshots of that ongoing derivation.
+local rule. From it the architecture of physics is derived: the
+particles and their charges, the gauge group, the Higgs, the shape of
+the mass hierarchy, and the emergent laws of relativity, gravity, the
+quantum, holography, and cosmology. The absolute masses and couplings
+are free, exactly the parameters the Standard Model leaves free, each
+now identified with a specific geometric origin. One deep question is
+still open and flagged as such: whether the model forces exactly the
+three generations of matter we observe. The larger aim is to derive
+space, matter, gravity, the quantum, cosmology, and mind from the one
+rule, and to be clear at every step about what is solid, what is free,
+and what is still open. The companion papers are snapshots of that work.
 
 ## Depth levels
 
