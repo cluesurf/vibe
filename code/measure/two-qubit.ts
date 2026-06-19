@@ -35,6 +35,7 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
   const out: Cx[][] = Array.from({ length: 4 }, () =>
     Array.from({ length: 4 }, () => cx(0)),
   )
+
   for (let i = 0; i < 2; i++) {
     for (let j = 0; j < 2; j++) {
       for (let k = 0; k < 2; k++) {
@@ -56,9 +57,11 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
 // Expectation <psi| O |psi> of a 4x4 Hermitian operator O on the state (re, im), real part.
 function expect(O: Cx[][], re: Float64Array, im: Float64Array): number {
   let accRe = 0
+
   for (let m = 0; m < 4; m++) {
     let oRe = 0
     let oIm = 0
+
     for (let n = 0; n < 4; n++) {
       oRe += O[m]![n]!.re * re[n]! - O[m]![n]!.im * im[n]!
       oIm += O[m]![n]!.re * im[n]! + O[m]![n]!.im * re[n]!
@@ -83,6 +86,7 @@ export function twoQubitCorrelationMatrix(input: {
     [0, 0, 0],
     [0, 0, 0],
   ]
+
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       t[i]![j] = expect(
@@ -103,9 +107,11 @@ export function horodeckiMaxChsh(
   t: ReadonlyArray<ReadonlyArray<number>>,
 ): number {
   const m = makeDense({ rows: 3, cols: 3 })
+
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       let s = 0
+
       for (let k = 0; k < 3; k++) {
         s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
       }
@@ -136,10 +142,12 @@ export function twoQubitConcurrence(input: {
     re: a00.re * a11.re - a00.im * a11.im,
     im: a00.re * a11.im + a00.im * a11.re,
   }
+
   const p2 = {
     re: a01.re * a10.re - a01.im * a10.im,
     im: a01.re * a10.im + a01.im * a10.re,
   }
+
   const dRe = p1.re - p2.re
   const dIm = p1.im - p2.im
 

@@ -15,6 +15,7 @@ import { Rng } from '@/code/tool/rng'
 // Fisher-Yates permutation of [0, size) using the seeded rng.
 function randomOrder(input: { size: number; rng: Rng }): number[] {
   const order: number[] = []
+
   for (let i = 0; i < input.size; i++) {
     order.push(i)
   }

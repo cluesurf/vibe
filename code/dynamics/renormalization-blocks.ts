@@ -25,8 +25,10 @@ export function csrVoronoiBlocks(input: {
   const numSeeds = Math.max(1, Math.floor(size / targetSize))
   const isSeed = new Uint8Array(size)
   const seeds: number[] = []
+
   while (seeds.length < numSeeds) {
     const c = rng.nextInt({ max: size })
+
     if (!isSeed[c]) {
       isSeed[c] = 1
       seeds.push(c)
@@ -34,7 +36,9 @@ export function csrVoronoiBlocks(input: {
   }
 
   const blockOf = new Int32Array(size).fill(-1)
+
   let fr: number[] = []
+
   for (let s = 0; s < seeds.length; s++) {
     blockOf[seeds[s]!] = s
     fr.push(seeds[s]!)
@@ -42,9 +46,11 @@ export function csrVoronoiBlocks(input: {
 
   while (fr.length > 0) {
     const next: number[] = []
+
     for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
+
         if (blockOf[w] === -1) {
           blockOf[w] = blockOf[u]!
           next.push(w)
@@ -69,18 +75,23 @@ export function geometricBlocks(
   const n = g.size
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
   const seedSet = new Set<number>()
+
   while (seedSet.size < numSeeds) {
     seedSet.add(rng.nextInt({ max: n }))
   }
 
   const cl = new Int32Array(n).fill(-1)
+
   let frontier: number[] = []
+
   ;[...seedSet].forEach((sd, c) => {
     cl[sd] = c
     frontier.push(sd)
   })
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const v of frontier) {
       for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
         if (cl[w] === -1) {
@@ -94,6 +105,7 @@ export function geometricBlocks(
   }
 
   let nc = seedSet.size
+
   for (let v = 0; v < n; v++) {
     if (cl[v] === -1) {
       cl[v] = nc++
@@ -111,7 +123,9 @@ export function domainBlocks(
 ): { cl: Int32Array; K: number } {
   const n = g.size
   const cl = new Int32Array(n).fill(-1)
+
   let K = 0
+
   for (let s = 0; s < n; s++) {
     if (cl[s] !== -1) {
       continue
@@ -119,8 +133,10 @@ export function domainBlocks(
 
     cl[s] = K
     let frontier = [s]
+
     while (frontier.length > 0) {
       const next: number[] = []
+
       for (const v of frontier) {
         for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
           if (cl[w] === -1 && tone[w] === tone[v]) {
@@ -148,21 +164,28 @@ export function coherentFills(
 ): Int8Array[] {
   const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
+
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
 
     return m
   })
+
   const fills = g.neighbors.map(row => new Int8Array(row.length))
+
   for (let v = 0; v < g.size; v++) {
     const row = g.neighbors[v] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
+
       if (w > v) {
         const fillVal: number = rng.next() < p ? 1 : -1
+
         ;(fills[v] as Int8Array)[k] = fillVal
         const kk = indexOf[w]?.get(v)
+
         if (kk !== undefined) {
           ;(fills[w] as Int8Array)[kk] = fillVal
         }

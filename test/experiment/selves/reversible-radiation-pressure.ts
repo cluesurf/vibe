@@ -36,13 +36,16 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
 
     const longLines: Array<[number, number]> = []
     const shortLines: Array<[number, number]> = []
+
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
+
       if (d < o) {
         ;(d < 24 ? longLines : shortLines).push([d, o])
       }
@@ -50,6 +53,7 @@ export default experiment({
 
     // pair each short line with a long line (the slow-fast coupling), the rest long-long.
     const pairs: Array<[[number, number], [number, number]]> = []
+
     for (let i = 0; i < shortLines.length; i++) {
       pairs.push([shortLines[i]!, longLines[i]!])
     }
@@ -63,12 +67,15 @@ export default experiment({
       for (const [A, B] of pairs) {
         const a0 = slots[base + A[0]] ?? 0,
           a1 = slots[base + A[1]] ?? 0
+
         const b0 = slots[base + B[0]] ?? 0,
           b1 = slots[base + B[1]] ?? 0
+
         const aHeadOn = a0 === a1 && a0 !== 0
         const bHeadOn = b0 === b1 && b0 !== 0
         const aEmpty = a0 === 0 && a1 === 0
         const bEmpty = b0 === 0 && b1 === 0
+
         if (aHeadOn && bEmpty) {
           slots[base + B[0]] = a0 as Will['data'][number]
           slots[base + B[1]] = a0 as Will['data'][number]
@@ -85,16 +92,19 @@ export default experiment({
 
     const setup = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const x = c % side,
           y = Math.floor(c / side) % side,
           z = Math.floor(c / (side * side)) % side,
           w = Math.floor(c / (side * side * side)) % side
+
         const r2 =
           (x - half) ** 2 +
           (y - half) ** 2 +
           (z - half) ** 2 +
           (w - half) ** 2
+
         if (r2 <= 2) {
           for (const [s0, s1] of shortLines) {
             will.data[c * degree + s0] = 1
@@ -102,6 +112,7 @@ export default experiment({
           }
         } else {
           const density = x < half ? 9 : 2 // fast bath dense at low x, sparse (depleted) at high x
+
           for (let li = 0; li < longLines.length; li++) {
             if ((c * 31 + li * 17) % 12 < density) {
               const [l0, l1] = longLines[li]!
@@ -118,8 +129,10 @@ export default experiment({
     const slowCentroidX = (will: Will): { cx: number; rms: number } => {
       let total = 0,
         sx = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         let m = 0
+
         for (let d = 24; d < 32; d++) {
           m += Math.abs(will.data[c * degree + d]!)
         }
@@ -135,9 +148,12 @@ export default experiment({
       }
 
       const cx = sx / total
+
       let v = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         let m = 0
+
         for (let d = 24; d < 32; d++) {
           m += Math.abs(will.data[c * degree + d]!)
         }
@@ -152,10 +168,13 @@ export default experiment({
 
     let will = setup()
     let scratch: Will = { mesh, data: new Int8Array(will.data.length) }
+
     const start = slowCentroidX(will)
+
     let maxRms = start.rms
     let maxToward = start.cx // furthest the centroid gets toward the sparse (high x) side
     let final = start
+
     for (let t = 0; t < beats; t++) {
       beatInto({
         src: will,
@@ -167,6 +186,7 @@ export default experiment({
       will = scratch
       scratch = swap
       final = slowCentroidX(will)
+
       if (final.rms > maxRms) {
         maxRms = final.rms
       }

@@ -34,6 +34,7 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   const g = input.g
   const n = g.size
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     tone[i] = (input.rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   }
@@ -46,19 +47,25 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
     neighbors: g.neighbors,
     rng: input.rng,
   })
+
   const flipFractions: number[] = []
+
   for (let sweep = 0; sweep < input.sweeps; sweep++) {
     let flips = 0
+
     for (let s = 0; s < n; s++) {
       const v = input.rng.nextInt({ max: n })
       const nb = g.neighbors[v] ?? new Uint32Array(0)
       const fl = fills[v] ?? new Int8Array(0)
+
       let h = 0
+
       for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
       }
 
       const next: -1 | 0 | 1 = h > 0 ? 1 : h < 0 ? -1 : 0
+
       if (next !== tone[v]) {
         flips += 1
       }
@@ -70,6 +77,7 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   }
 
   let allTernary = true
+
   for (const t of tone) {
     if (t < -1 || t > 1) {
       allTernary = false
@@ -105,10 +113,13 @@ export function capstone(input: { count: number; seed: number }): {
     samples: 2000,
     rng: makeRng({ seed: input.seed + 1 }),
   })
+
   let center = 0
   let bestDeg = -1
+
   for (let i = 0; i < g.size; i++) {
     const d = (g.neighbors[i] ?? new Uint32Array(0)).length
+
     if (d > bestDeg) {
       bestDeg = d
       center = i
@@ -124,13 +135,16 @@ export function capstone(input: { count: number; seed: number }): {
     sweeps: 40,
     rng: makeRng({ seed: input.seed + 2 }),
   })
+
   const finalFlip = dyn.flipFractions[dyn.flipFractions.length - 1] ?? 1
   const firstFlip = dyn.flipFractions[0] ?? 1
   const dynamicsConverges = finalFlip < 0.5 * firstFlip
 
   // The emergent Hamiltonian, off the same mesh: the graph Laplacian spectrum.
   const spectrum = laplacianSpectrum({ substrate: g, count: 20 })
+
   let lapMin = Infinity
+
   for (const v of spectrum) {
     lapMin = Math.min(lapMin, v)
   }
@@ -138,6 +152,7 @@ export function capstone(input: { count: number; seed: number }): {
   // The arrow: as the mesh grows, relations only accumulate.
   let prevEdges = 0
   let arrowMonotone = true
+
   for (const c of [100, 200, 400]) {
     const gc = hyperbolicGraph({
       count: c,
@@ -145,7 +160,9 @@ export function capstone(input: { count: number; seed: number }): {
       connectThreshold: 3.0,
       rng: makeRng({ seed: input.seed + 7 }),
     })
+
     let edges = 0
+
     for (let i = 0; i < gc.size; i++) {
       edges += (gc.neighbors[i] ?? new Uint32Array(0)).length
     }

@@ -26,6 +26,7 @@ function pairingTerm(input: {
   const n = a - z
   const zEven = z % 2 === 0
   const nEven = n % 2 === 0
+
   if (zEven && nEven) {
     return PAIRING / Math.sqrt(a)
   }
@@ -73,6 +74,7 @@ export function bindingPerNucleonAtMass(input: {
     protonNumber: 0,
     bindingPerNucleon: Number.NEGATIVE_INFINITY,
   }
+
   for (let z = 1; z < input.massNumber; z++) {
     const bpa =
       nuclearBindingEnergy({
@@ -80,6 +82,7 @@ export function bindingPerNucleonAtMass(input: {
         protonNumber: z,
         includeCoulomb: input.includeCoulomb,
       }) / input.massNumber
+
     if (bpa > best.bindingPerNucleon) {
       best = { protonNumber: z, bindingPerNucleon: bpa }
     }
@@ -97,16 +100,19 @@ export function bindingCurvePeak(
   bindingPerNucleon: number
 } {
   const maxMass = input.maxMass ?? 250
+
   let best = {
     massNumber: 0,
     protonNumber: 0,
     bindingPerNucleon: Number.NEGATIVE_INFINITY,
   }
+
   for (let a = 2; a <= maxMass; a++) {
     const at = bindingPerNucleonAtMass({
       massNumber: a,
       includeCoulomb: input.includeCoulomb,
     })
+
     if (at.bindingPerNucleon > best.bindingPerNucleon) {
       best = {
         massNumber: a,

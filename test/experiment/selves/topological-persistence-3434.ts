@@ -19,14 +19,18 @@ function relax(
   dt: number,
 ): { re: number; im: number }[] {
   const L = psi.length
+
   let cur = psi.map(z => ({ ...z }))
+
   for (let t = 0; t < steps; t++) {
     const next = cur.map((z, i) => {
       const a = cur[(i + 1) % L]!,
         b = cur[(i + L - 1) % L]!
+
       // discrete Laplacian (diffusion) + a weak |psi|->1 restoring term (keeps the field from vanishing)
       const lapRe = a.re + b.re - 2 * z.re,
         lapIm = a.im + b.im - 2 * z.im
+
       const r2 = z.re * z.re + z.im * z.im,
         restore = 1 - r2
 
@@ -35,6 +39,7 @@ function relax(
         im: z.im + dt * (lapIm + restore * z.im),
       }
     })
+
     cur = next
   }
 
@@ -43,12 +48,16 @@ function relax(
 
 const phase = (z: { re: number; im: number }): number =>
   Math.atan2(z.im, z.re)
+
 const energy = (psi: { re: number; im: number }[]): number => {
   const L = psi.length
+
   let e = 0
+
   for (let i = 0; i < L; i++) {
     const a = psi[(i + 1) % L]!,
       z = psi[i]!
+
     e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2
   }
 
@@ -68,11 +77,14 @@ export function topologicalPersistence(): {
     re: Math.cos((2 * Math.PI * x) / L),
     im: Math.sin((2 * Math.PI * x) / L),
   }))
+
   const w0 = winding(kink.map(phase)),
     e0 = energy(kink)
+
   const kinkRelaxed = relax(kink, 4000, 0.1)
   const w1 = winding(kinkRelaxed.map(phase)),
     e1 = energy(kinkRelaxed)
+
   const windingConserved = w0 === 1 && w1 === 1
   const energyRelaxes = e1 < e0 - 1e-6
   const defectPersists = windingConserved // the winding is locked => the defect cannot decay
@@ -83,8 +95,10 @@ export function topologicalPersistence(): {
 
     return { re: 1 - 0.8 * g, im: 0.3 * g }
   })
+
   const wb0 = winding(bump.map(phase)),
     eb0 = energy(bump)
+
   const bumpRelaxed = relax(bump, 4000, 0.1)
   const eb1 = energy(bumpRelaxed)
   const trivialDecays = wb0 === 0 && eb1 < eb0 * 0.05 // relaxes to (near) uniform

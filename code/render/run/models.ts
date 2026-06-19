@@ -36,6 +36,7 @@ function run(): void {
   const symbolText = process.argv[2] ?? '7-3'
   const symbol = symbolText.split('-').map(Number)
   const scene = buildHoneycombScene({ symbol, maxCells: 2000 })
+
   for (const model of MODELS) {
     const png = renderSceneToPng({
       scene,
@@ -47,6 +48,7 @@ function run(): void {
       model,
       superSample: 3,
     })
+
     writeFileSync(join(outDir, `${symbolText}-${model}.png`), png)
     console.log(
       `wrote ${symbolText}-${model}.png  (${scene.edges.length} edges)`,

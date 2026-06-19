@@ -28,12 +28,14 @@ export default experiment({
       trials: 40000,
       seed: 7,
     })
+
     const random = chshShared({
       eta: 1,
       mode: 'random',
       trials: 40000,
       seed: 8,
     })
+
     const ok = aligned > 3.5 && random < 2
 
     return verdict({
@@ -59,12 +61,14 @@ experiment({
       trials: 40000,
       seed: 1,
     })
+
     const far = chshShared({
       eta: Math.exp(-4 / 2),
       mode: 'aligned',
       trials: 40000,
       seed: 2,
     })
+
     const ok = near > 3.5 && far < 2
 
     return verdict({

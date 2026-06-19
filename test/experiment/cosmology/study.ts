@@ -43,6 +43,7 @@ function runConfig(input: {
     rng: makeRng({ seed: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
   })
+
   const dimRun = sampleCausalSets({
     size: SIZE,
     action: input.action,
@@ -76,18 +77,21 @@ export default experiment({
         rng: makeRng({ seed: 1 }),
       }),
     }).heightRatio
+
     const random = runConfig({
       label: 'random',
       action: benincasaDowkerAction({ epsilon: 1, dimension: 2 }),
       beta: 0,
       seed: 10,
     })
+
     const smeared = runConfig({
       label: 'smeared',
       action: smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 }),
       beta: 2,
       seed: 14,
     })
+
     const ok =
       Math.abs(smeared.heightRatio - refHr) <=
       Math.abs(random.heightRatio - refHr) + 1e-9

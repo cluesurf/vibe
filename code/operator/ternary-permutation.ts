@@ -64,6 +64,7 @@ export function parityBlockBeat3D(input: {
   create: boolean
 }): void {
   const { tone, side, index, create } = input
+
   for (const [dx, dy, dz, axis] of [
     [1, 0, 0, 0],
     [0, 1, 0, 1],
@@ -74,6 +75,7 @@ export function parityBlockBeat3D(input: {
         for (let y = 0; y < side; y++) {
           for (let x = 0; x < side; x++) {
             const base = axis === 0 ? x : axis === 1 ? y : z
+
             if (base % 2 !== par) {
               continue
             }
@@ -85,6 +87,7 @@ export function parityBlockBeat3D(input: {
               tone[j]!,
               create,
             )
+
             tone[i] = na as -1 | 0 | 1
             tone[j] = nb as -1 | 0 | 1
           }

@@ -55,6 +55,7 @@ export function lorentzBoost(input: { seed: number }): {
     links: poset.links,
     band,
   })
+
   const sprinkleFlatness = flatness(sprinkleEtas, RANGE, BINS)
   const sprinkleStd = std(sprinkleEtas)
 
@@ -65,6 +66,7 @@ export function lorentzBoost(input: { seed: number }): {
     links: lat.links,
     band: null,
   })
+
   const latticeFlatness = flatness(latticeEtas, RANGE, BINS)
   const latticeStd = std(latticeEtas)
 
@@ -82,15 +84,18 @@ export function lorentzBoost(input: { seed: number }): {
     lo: boostedCentre - 0.25 * ch,
     hi: boostedCentre + 0.25 * ch,
   }
+
   const boostedEtas = linkRapidities({
     coords: boosted,
     links: poset.links,
     band: boostedBand,
   })
+
   // de-mean both so we compare shape, not the (expected) shift by xi
   const meanShift = boostedEtas.length
     ? boostedEtas.reduce((a, b) => a + b, 0) / boostedEtas.length
     : 0
+
   const boostedCentered = boostedEtas.map(e => e - meanShift)
   const boostedFlatness = flatness(boostedCentered, RANGE, BINS)
   const flatnessUnderBoost = Math.abs(
@@ -100,6 +105,7 @@ export function lorentzBoost(input: { seed: number }): {
   const sprinkleIsFlat = sprinkleFlatness > 0.9
   const latticeIsPeaked =
     latticeFlatness < 0.6 && sprinkleStd > 3 * latticeStd
+
   const boostCovariant = flatnessUnderBoost < 0.1
 
   return {

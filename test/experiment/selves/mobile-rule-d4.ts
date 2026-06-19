@@ -52,11 +52,13 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const mobile: Collision = headOnRotate({ opposite })
     const pinning: Collision = pairCollision({
       opposite,
       forward: true,
     })
+
     const center =
       5 + 5 * side + 5 * side * side + 5 * side * side * side
 
@@ -66,16 +68,19 @@ export default experiment({
       mobile,
       beats,
     )
+
     const chargeOk = conservesCharge(
       singleParticle(mesh, center),
       mobile,
       beats,
     )
+
     const mStart = momentum(singleParticle(mesh, center), ROOTS)
     const mMobile = momentum(
       run(singleParticle(mesh, center), mobile, beats),
       ROOTS,
     )
+
     const momentumMobileOk = sameVector(mStart, mMobile)
 
     // 3, the pair table does not conserve momentum, it reflects.
@@ -83,6 +88,7 @@ export default experiment({
       run(singleParticle(mesh, center), pinning, beats),
       ROOTS,
     )
+
     const momentumPinningOk = sameVector(mStart, mPinning)
 
     // 4, travel distance, ballistic versus pinned.
@@ -90,6 +96,7 @@ export default experiment({
       will: run(singleParticle(mesh, center), mobile, beats),
       start: center,
     })
+
     const travelPinning = travelDistance({
       will: run(singleParticle(mesh, center), pinning, beats),
       start: center,

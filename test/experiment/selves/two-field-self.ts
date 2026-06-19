@@ -92,6 +92,7 @@ export default experiment({
           fieldSpeed2,
         }),
       )
+
     const propagatingAfterKick = afterKick(1.0)
     const localAfterKick = afterKick(0.0)
 
@@ -100,6 +101,7 @@ export default experiment({
       propagatingSpread < 0.1 &&
       propagatingSettle < 0.1 &&
       propagatingAfterKick < 0.1
+
     const localIsNotSelf = localSettle > 0.3 || localAfterKick > 0.3
 
     const ok = propagatingIsSelf && localIsNotSelf

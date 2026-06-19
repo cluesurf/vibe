@@ -57,12 +57,14 @@ export default experiment({
       wrapWidth: false,
       wrapHeight: false,
     })
+
     const cylinder = zeroModeCount({
       width: 9,
       height: 9,
       wrapWidth: true,
       wrapHeight: false,
     })
+
     const torus = zeroModeCount({
       width: 9,
       height: 9,

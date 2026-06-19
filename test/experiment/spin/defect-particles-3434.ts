@@ -41,6 +41,7 @@ function relax(
 
 const fieldWithWinding = (L: number, w: number): Z[] =>
   ringFieldWithWinding(L, w)
+
 const defectPair = (L: number): Z[] => ringDefectPair(L)
 
 export function defectParticles(): {

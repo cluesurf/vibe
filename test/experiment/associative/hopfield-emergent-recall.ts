@@ -31,6 +31,7 @@ function corrupt(input: {
 }): Int8Array {
   const { pattern, fraction, rng } = input
   const out = Int8Array.from(pattern)
+
   for (let i = 0; i < out.length; i++) {
     if (rng.next() < fraction) {
       out[i] = -(out[i] ?? 0) as -1 | 1
@@ -49,7 +50,9 @@ function hopfieldRelax(input: {
 }): Int8Array {
   const { J, cue, beats } = input
   const zero = new Float64Array(cue.length)
+
   let state = Int8Array.from(cue)
+
   for (let t = 0; t < beats; t++) {
     state = hopfieldStep(J, state, zero, null)
   }
@@ -73,8 +76,11 @@ function bareRuleRecall(input: {
       mesh.opposite(d),
     ),
   })
+
   let will = makeWill(mesh)
+
   const slot = 0
+
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     will.data[c * mesh.degree + slot] = cue[c] ?? 0
   }
@@ -84,6 +90,7 @@ function bareRuleRecall(input: {
   }
 
   const out = new Int8Array(cue.length)
+
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     const v = will.data[c * mesh.degree + slot] ?? 0
     out[c] = v > 0 ? 1 : v < 0 ? -1 : (cue[c] ?? 0)
@@ -125,9 +132,11 @@ export function hopfieldEmergentRecall(input?: {
   // a lightly noised cue is already nearest its own prototype, so it cannot tell an
   // attractor apart from a rule that does nothing. The cleanup criterion is the real test.
   const clean = 0.99
+
   let hopHits = 0
   let bareHits = 0
   let total = 0
+
   for (let m = 0; m < patternCount; m++) {
     for (let k = 0; k < trials; k++) {
       const cueRng = makeRng({ seed: 100 + m * 17 + k })
@@ -136,8 +145,10 @@ export function hopfieldEmergentRecall(input?: {
         fraction,
         rng: cueRng,
       })
+
       const relaxed = hopfieldRelax({ J, cue, beats: 20 })
       const bare = bareRuleRecall({ cue, side, beats: 20 })
+
       if (toneOverlap(relaxed, patterns[m]!) >= clean) {
         hopHits++
       }

@@ -70,14 +70,17 @@ export function perceptionMatchingSweepCsr(input: {
   const { tone, offsets, adj, matched, start } = input
   const N = tone.length
   matched.fill(0)
+
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
+
     if (matched[v]) {
       continue
     }
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
+
       if (matched[w]) {
         continue
       }
@@ -109,10 +112,13 @@ export function perceptionMatchingSweep3d(input: {
     (((z % L) + L) % L) * L * L +
     (((y % L) + L) % L) * L +
     (((x % L) + L) % L)
+
   matched.fill(0)
   const s0 = Math.floor(rng.next() * N)
+
   for (let s = 0; s < N; s++) {
     const v = (s0 + s) % N
+
     if (matched[v]) {
       continue
     }
@@ -121,6 +127,7 @@ export function perceptionMatchingSweep3d(input: {
     const vy = ((v / L) | 0) % L
     const vz = (v / (L * L)) | 0
     const ord = [0, 1, 2, 3, 4, 5]
+
     for (let i = 5; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = ord[i]!
@@ -131,6 +138,7 @@ export function perceptionMatchingSweep3d(input: {
     for (const k of ord) {
       const d = PERCEPTION_GRID_DIRECTIONS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
+
       if (matched[w]) {
         continue
       }
@@ -172,6 +180,7 @@ export function perceptionEdgeColoringSweep(input: {
   const order = reverse
     ? [...byColor.keys()].reverse()
     : [...byColor.keys()]
+
   for (const c of order) {
     for (const e of byColor[c]!) {
       const u = eu[e]!
@@ -195,6 +204,7 @@ export function perceptionBlockBeat(input: {
   table: number[]
 }): void {
   const { tone, length, parity, table } = input
+
   for (let i = parity; i < length; i += 2) {
     const v = i
     const w = (i + 1) % length

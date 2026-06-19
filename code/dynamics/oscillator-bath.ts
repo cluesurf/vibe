@@ -32,6 +32,7 @@ export function oscillatorBathTrajectory(
 
   let r = input.start
   let vr = input.velocity ?? 0
+
   const u = new Array<number>(chain).fill(0)
   const w = new Array<number>(chain).fill(0)
   const trajectory: number[] = []
@@ -43,6 +44,7 @@ export function oscillatorBathTrajectory(
 
     const ar = -input.stiffness * r - couple * (r - u[0]!)
     const au = new Array<number>(chain).fill(0)
+
     for (let x = 0; x < chain; x++) {
       const left = x > 0 ? u[x - 1]! : 0
       const right = x < chain - 1 ? u[x + 1]! : 0
@@ -52,6 +54,7 @@ export function oscillatorBathTrajectory(
     au[0]! += couple * (r - u[0]!)
     vr += ar * dt
     r += vr * dt
+
     if (r > 1000) {
       r = 1000
       vr = 0
@@ -108,6 +111,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
   let r2 = input.start2
   let v1 = 0
   let v2 = 0
+
   // each body radiates into its OWN bath chain, so BOTH the centre-of-mass and the relative (internal) modes
   // radiate and damp. (A single shared chain leaves the relative mode dark to the bath, undamped.)
   const u1 = new Array<number>(chain).fill(0)
@@ -119,6 +123,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
 
   const stepChain = (u: number[], w: number[], drive: number): void => {
     const au = new Array<number>(chain).fill(0)
+
     for (let x = 0; x < chain; x++) {
       const left = x > 0 ? u[x - 1]! : 0
       const right = x < chain - 1 ? u[x + 1]! : 0
@@ -126,6 +131,7 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
     }
 
     au[0]! += drive
+
     for (let x = 0; x < chain; x++) {
       w[x]! += au[x]! * dt
       u[x]! += w[x]! * dt
@@ -151,10 +157,12 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
       -input.stiffness * r1 +
       input.mutual * (r2 - r1) -
       couple * (r1 - u1[0]!)
+
     const a2 =
       -input.stiffness * r2 +
       input.mutual * (r1 - r2) -
       couple * (r2 - u2[0]!)
+
     v1 += a1 * dt
     v2 += a2 * dt
     r1 += v1 * dt
@@ -175,9 +183,12 @@ export function lateAmplitude(
   lateFraction = 0.3,
 ): number {
   const from = Math.floor(trajectory.length * (1 - lateFraction))
+
   let max = 0
+
   for (let t = from; t < trajectory.length; t++) {
     const a = Math.abs(trajectory[t]!)
+
     if (a > max) {
       max = a
     }

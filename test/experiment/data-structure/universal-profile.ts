@@ -68,12 +68,15 @@ export default experiment({
     const profiles = TESSELLATIONS.map(symbol =>
       tessellationDataProfile({ symbol, maxCells }),
     )
+
     const allCapacityExponential = profiles.every(
       p => p.capacityExponential,
     )
+
     const allTreeDepthLogarithmic = profiles.every(
       p => p.treeDepthLogarithmic,
     )
+
     const dimensions = new Set(profiles.map(p => p.rank - 1))
     const minGrowth = Math.min(...profiles.map(p => p.growthRatio))
 
@@ -84,18 +87,22 @@ export default experiment({
       symbol: [4, 3, 4],
       maxCells: 500,
     }).growthRatio
+
     const flatLarge = tessellationDataProfile({
       symbol: [4, 3, 4],
       maxCells: 3000,
     }).growthRatio
+
     const hyperbolicSmall = tessellationDataProfile({
       symbol: [5, 3, 5],
       maxCells: 500,
     }).growthRatio
+
     const hyperbolicLarge = tessellationDataProfile({
       symbol: [5, 3, 5],
       maxCells: 3000,
     }).growthRatio
+
     const flatDecreasesTowardOne = flatLarge < flatSmall - 0.05
     const hyperbolicStaysBounded =
       Math.abs(hyperbolicLarge - hyperbolicSmall) < 0.15

@@ -14,10 +14,12 @@ export function derrickStabilizer(): {
   // (1) Derrick: E(lambda) = A*lambda^(d-2) [exchange] + B*lambda^(d-4) [Skyrme]
   const E = (l: number, d: number, A: number, B: number): number =>
     A * l ** (d - 2) + B * l ** (d - 4)
+
   for (const d of [2, 3]) {
     const exOnly = [0.25, 0.5, 1, 2, 4].map(
       l => Math.round(E(l, d, 1, 0) * 100) / 100,
     )
+
     const exSk = [0.25, 0.5, 1, 2, 4].map(
       l => Math.round(E(l, d, 1, 1) * 100) / 100,
     )
@@ -31,8 +33,10 @@ export function derrickStabilizer(): {
   // (2) soliton prerequisite: winding of a scalar (none) vs a direction field (yes)
   const N = 21,
     c = N >> 1
+
   const winding = (ang: (x: number, y: number) => number): number => {
     const loop: [number, number][] = []
+
     for (let x = 0; x < N; x++) {
       loop.push([x, 0])
     }
@@ -50,12 +54,14 @@ export function derrickStabilizer(): {
     }
 
     let tot = 0
+
     for (let i = 0; i < loop.length; i++) {
       let dd =
         ang(
           loop[(i + 1) % loop.length]![0],
           loop[(i + 1) % loop.length]![1],
         ) - ang(loop[i]![0], loop[i]![1])
+
       while (dd > Math.PI) {
         dd -= 2 * Math.PI
       }

@@ -36,6 +36,7 @@ export function buildCellShape(symbol: number[]): CellShape {
     metric,
     timeAxis,
   )
+
   const stabilizerNormals = normals.slice(0, dim - 1)
   const vertices = orbitVertices(v0, stabilizerNormals, metric)
   const edges = polyhedronEdges(vertices, metric)
@@ -52,11 +53,14 @@ function orbitVertices(
   const vertices: Vec[] = [v0]
   const visited = new Set<string>([pointKey(v0)])
   const queue: Vec[] = [v0]
+
   while (queue.length > 0 && vertices.length < MAX_VERTICES_PER_CELL) {
     const v = queue.shift()!
+
     for (const n of stabilizerNormals) {
       const vr = reflectPoint(v, n, metric)
       const k = pointKey(vr)
+
       if (visited.has(k)) {
         continue
       }
@@ -76,10 +80,13 @@ function polyhedronEdges(
   metric: number[],
 ): [number, number][] {
   let minDist = Infinity
+
   const cap = Math.min(vertices.length, 20)
+
   for (let i = 0; i < cap; i++) {
     for (let j = i + 1; j < cap; j++) {
       const d = geodesicDistance(vertices[i]!, vertices[j]!, metric)
+
       if (d > 0.01 && d < minDist) {
         minDist = d
       }
@@ -89,9 +96,11 @@ function polyhedronEdges(
   const edgeLength = minDist < Infinity ? minDist : 1
   const tolerance = edgeLength * 1.2
   const edges: [number, number][] = []
+
   for (let i = 0; i < vertices.length; i++) {
     for (let j = i + 1; j < vertices.length; j++) {
       const d = geodesicDistance(vertices[i]!, vertices[j]!, metric)
+
       if (d > 0.01 && d < tolerance) {
         edges.push([i, j])
       }

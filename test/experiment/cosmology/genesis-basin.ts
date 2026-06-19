@@ -27,8 +27,11 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
+
     let center = 0
+
     for (let i = 1; i < n; i++) {
       if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
@@ -50,9 +53,11 @@ export default experiment({
 
       return t
     })()
+
     const denseAlt = balanceToZero(
       (() => {
         const t = new Int8Array(n)
+
         for (let i = 0; i < n; i++) {
           t[i] = i % 2 === 0 ? 1 : -1
         }
@@ -60,9 +65,11 @@ export default experiment({
         return t
       })(),
     )
+
     const block = balanceToZero(
       (() => {
         const t = new Int8Array(n)
+
         for (let i = 0; i < n; i++) {
           if ((dist[i] ?? 9) <= 3) {
             t[i] = i % 2 === 0 ? 1 : -1
@@ -72,6 +79,7 @@ export default experiment({
         return t
       })(),
     )
+
     const ics: Array<[string, Int8Array]> = [
       ['void', theVoid],
       ['pair', pairSeed],
@@ -90,6 +98,7 @@ export default experiment({
         arrow,
         seed: 9,
       })
+
       const tail = r.trajectory.slice(-20)
 
       return tail.reduce((a, b) => a + b, 0) / tail.length / n

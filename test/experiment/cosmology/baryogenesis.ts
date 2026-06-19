@@ -31,10 +31,13 @@ function relicAsymmetry(input: {
   const K = input.washout
   const dt = 0.002
   const tMax = 30
+
   let nX = 1 // starts in equilibrium, nEq(0) = 1
   let eta = 0
+
   for (let t = 0; t < tMax; t += dt) {
     const nEq = Math.exp(-t)
+
     if (!input.outOfEquilibrium) {
       nX = nEq // forced equilibrium: no departure, hence no source
     }
@@ -42,6 +45,7 @@ function relicAsymmetry(input: {
     const departure = nX - nEq
     const source = input.bViolating ? input.epsilon * K * departure : 0
     const washout = K * nEq * eta
+
     if (input.outOfEquilibrium) {
       nX += dt * (-K * (nX - nEq))
     }
@@ -74,6 +78,7 @@ export function baryogenesis(input: { seed: number }): {
     bViolating: true,
     outOfEquilibrium: true,
   })
+
   // Remove C/CP violation.
   const noCP = relicAsymmetry({
     epsilon: 0,
@@ -81,6 +86,7 @@ export function baryogenesis(input: { seed: number }): {
     bViolating: true,
     outOfEquilibrium: true,
   })
+
   // Remove the departure from equilibrium (field clamped to equilibrium abundance).
   const equilibrium = relicAsymmetry({
     epsilon,
@@ -88,6 +94,7 @@ export function baryogenesis(input: { seed: number }): {
     bViolating: true,
     outOfEquilibrium: false,
   })
+
   // Remove baryon-number violation (no net-charge source).
   const noBViolation = relicAsymmetry({
     epsilon,
@@ -113,7 +120,9 @@ export function baryogenesis(input: { seed: number }): {
         outOfEquilibrium: true,
       }) / epsilon,
   )
+
   let peakIdx = 0
+
   for (let i = 1; i < effs.length; i++) {
     if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) {
       peakIdx = i

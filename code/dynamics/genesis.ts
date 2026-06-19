@@ -15,6 +15,7 @@ import { makeRng } from '@/code/tool/rng'
 // The number of charged (nonzero, non-peace) cells, the amount of "life" in a configuration.
 export function chargedCount(tone: Int8Array): number {
   let s = 0
+
   for (let i = 0; i < tone.length; i++) {
     if (tone[i] !== 0) {
       s++
@@ -47,6 +48,7 @@ export function chargeTrajectory(input: {
   const rng = makeRng({ seed })
   const qStart = totalCharge(tone)
   const trajectory: number[] = [chargedCount(tone)]
+
   for (let b = 0; b < beats; b++) {
     conservingEdgeListSweepPumped({
       tone,
@@ -118,6 +120,7 @@ export function wakeDrivenSweep(input: {
 }): void {
   const { tone, edges, moved, depth, beat, rate } = input
   moved.fill(0)
+
   for (const [v, w] of edges) {
     if (moved[v] || moved[w]) {
       continue
@@ -126,6 +129,7 @@ export function wakeDrivenSweep(input: {
     const a = tone[v]!
     const b = tone[w]!
     const key = v * 131071 + w
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -134,6 +138,7 @@ export function wakeDrivenSweep(input: {
     } else if ((a === 0) !== (b === 0)) {
       const charged = a === 0 ? w : v
       const empty = a === 0 ? v : w
+
       if (hashRand(key, beat, 1) < 0.5) {
         tone[empty] = tone[charged]!
         tone[charged] = 0
@@ -160,6 +165,7 @@ export function wakeDrivenSweep(input: {
 // growth-shell). This is the wake's own creation rate, a geometric property of the expanding mesh, not a knob.
 export function growthRate(depth: Int32Array): number {
   let maxD = 0
+
   for (let i = 0; i < depth.length; i++) {
     if (depth[i]! > maxD) {
       maxD = depth[i]!
@@ -167,6 +173,7 @@ export function growthRate(depth: Int32Array): number {
   }
 
   let frontier = 0
+
   for (let i = 0; i < depth.length; i++) {
     if (depth[i]! === maxD) {
       frontier++
@@ -198,6 +205,7 @@ export function wakeTrajectory(input: {
   const moved = new Uint8Array(tone.length)
   const qStart = totalCharge(tone)
   const trajectory: number[] = [chargedCount(tone)]
+
   for (let b = 0; b < beats; b++) {
     wakeDrivenSweep({ tone, edges, moved, depth, beat: b, rate })
     trajectory.push(chargedCount(tone))
@@ -235,6 +243,7 @@ export function firstDistinction(input: {
   const edges = edgesOf(neighbors)
   const moved = new Uint8Array(cells)
   const rng = makeRng({ seed })
+
   for (let b = 0; b < maxBeats; b++) {
     conservingEdgeListSweepPumped({
       tone,
@@ -244,9 +253,11 @@ export function firstDistinction(input: {
       arrow,
       pump: null,
     })
+
     if (chargedCount(tone) > 0) {
       let plus = 0
       let minus = 0
+
       for (let i = 0; i < cells; i++) {
         if (tone[i] === 1) {
           plus++
@@ -256,6 +267,7 @@ export function firstDistinction(input: {
       }
 
       let adjacent = false
+
       for (const [v, w] of edges) {
         if (tone[v]! * tone[w]! === -1) {
           adjacent = true
@@ -286,6 +298,7 @@ export function firstDistinction(input: {
 // peace. Used to put several different initial conditions on the same conserved footing (all Q = 0).
 export function balanceToZero(tone: Int8Array): Int8Array {
   let q = totalCharge(tone)
+
   for (let i = 0; i < tone.length && q !== 0; i++) {
     if (q > 0 && tone[i] === 1) {
       tone[i] = 0
@@ -318,8 +331,10 @@ export function differenceTrajectory(input: {
   const movedB = new Uint8Array(b.length)
   const rngA = makeRng({ seed })
   const rngB = makeRng({ seed })
+
   const diff = (): number => {
     let d = 0
+
     for (let i = 0; i < a.length; i++) {
       if (a[i] !== b[i]) {
         d++
@@ -330,6 +345,7 @@ export function differenceTrajectory(input: {
   }
 
   const difference: number[] = [diff()]
+
   for (let t = 0; t < beats; t++) {
     conservingEdgeListSweepPumped({
       tone: a,
@@ -381,7 +397,9 @@ export function growingMeshGenesis(input: {
   const settleBeats = input.settleBeats ?? 0
   const integerHop = input.integerHop ?? false
   const n = depth.length
+
   let maxDepth = 0
+
   for (let i = 0; i < n; i++) {
     if (depth[i]! > maxDepth) {
       maxDepth = depth[i]!
@@ -393,11 +411,14 @@ export function growingMeshGenesis(input: {
   const moved = new Uint8Array(n)
   const qStart = totalCharge(tone)
   const trajectory: number[] = [0]
+
   const step = (b: number, frontier: number): void => {
     moved.fill(0)
+
     for (const [v, w] of edges) {
       const dv = depth[v]!
       const dw = depth[w]!
+
       if (dv > b || dw > b) {
         continue
       } // not yet born
@@ -408,6 +429,7 @@ export function growingMeshGenesis(input: {
 
       const a = tone[v]!
       const c = tone[w]!
+
       if ((a === 1 && c === -1) || (a === -1 && c === 1)) {
         tone[v] = 0
         tone[w] = 0
@@ -432,6 +454,7 @@ export function growingMeshGenesis(input: {
         const doHop = integerHop
           ? ((v + w + b) & 1) === 0
           : hashRand(v * 131071 + w, b, 1) < 0.5
+
         if (doHop) {
           tone[empty] = tone[charged]!
           tone[charged] = 0
@@ -446,9 +469,11 @@ export function growingMeshGenesis(input: {
     step(b, b) // grow to shell b, create only at the moving frontier (shell b meets b-1)
     let born = 0,
       alive = 0
+
     for (let i = 0; i < n; i++) {
       if (depth[i]! <= b) {
         born++
+
         if (tone[i] !== 0) {
           alive++
         }
@@ -459,6 +484,7 @@ export function growingMeshGenesis(input: {
   }
 
   let bornEnd = 0
+
   for (let i = 0; i < n; i++) {
     if (depth[i]! <= maxDepth) {
       bornEnd++
@@ -525,8 +551,10 @@ export function gardenOfEdenFraction(input: {
   const total = 3 ** cells
   const image = new Set<number>()
   const tone = new Int8Array(cells)
+
   const code = (t: Int8Array): number => {
     let k = 0
+
     for (let i = cells - 1; i >= 0; i--) {
       k = k * 3 + (t[i]! + 1)
     }
@@ -536,6 +564,7 @@ export function gardenOfEdenFraction(input: {
 
   for (let s = 0; s < total; s++) {
     let x = s
+
     for (let i = 0; i < cells; i++) {
       tone[i] = (x % 3) - 1
       x = (x / 3) | 0
@@ -568,8 +597,10 @@ export function attractorSignature(input: {
 } {
   const { tone, neighbors } = input
   const n = tone.length
+
   let charged = 0
   let net = 0
+
   for (let i = 0; i < n; i++) {
     if (tone[i] !== 0) {
       charged++
@@ -580,10 +611,12 @@ export function attractorSignature(input: {
 
   let pairs = 0
   let same = 0
+
   for (let v = 0; v < n; v++) {
     for (const w of neighbors[v]!) {
       if (w > v && tone[v] !== 0 && tone[w] !== 0) {
         pairs++
+
         if (tone[v] === tone[w]) {
           same++
         }

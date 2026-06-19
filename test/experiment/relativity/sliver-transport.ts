@@ -45,10 +45,13 @@ export function sliverTransport(input?: {
 
   // start at a spine cell near the middle (position ~ length)
   const mid = length
+
   let start = 0
   let bestd = Infinity
+
   for (let i = 0; i < N; i++) {
     const d = Math.abs(s.position[i]! - mid)
+
     if (d < bestd) {
       bestd = d
       start = i
@@ -59,15 +62,20 @@ export function sliverTransport(input?: {
 
   // ensemble of single-charge random walks, accumulate MSD along the spine versus time
   const msd = new Float64Array(beats + 1)
+
   for (let run = 0; run < runs; run++) {
     const tone = new Int8Array(N)
     tone[start] = 1
     const rng = makeRng({ seed: 1000 + run })
+
     let cur = start
+
     for (let t = 0; t <= beats; t++) {
       msd[t]! += (s.position[cur]! - pos0) ** 2
+
       if (t < beats) {
         conservingHopSweep({ tone, eu, ev, moved, rng })
+
         // locate the (single) charge
         if (tone[cur] === 0) {
           for (let p = s.offsets[cur]!; p < s.offsets[cur + 1]!; p++) {
@@ -88,6 +96,7 @@ export function sliverTransport(input?: {
   // fit exponent: log MSD ~ alpha * log t, over t in [4, beats]
   const fitTimes: number[] = []
   const fitMsd: number[] = []
+
   for (let t = 4; t <= beats; t++) {
     fitTimes.push(t)
     fitMsd.push(msd[t]!)
@@ -97,6 +106,7 @@ export function sliverTransport(input?: {
     times: fitTimes,
     spreads: fitMsd,
   })
+
   const msdFull = msd[beats]!
   const msdHalf = msd[Math.floor(beats / 2)]!
   const diffusionConstant = msdFull / (2 * beats) // MSD = 2 D t for 1D diffusion

@@ -55,6 +55,7 @@ export function areaLaw(input?: { L?: number }): {
 } {
   const L = input?.L ?? 96
   const lengths: number[] = []
+
   for (let l = 6; l <= L / 2; l += 4) {
     lengths.push(l)
   }
@@ -65,8 +66,10 @@ export function areaLaw(input?: { L?: number }): {
   const lateMassive = massiveEntropies.slice(
     Math.floor(massiveEntropies.length / 2),
   )
+
   const massiveSpread =
     Math.max(...lateMassive) - Math.min(...lateMassive)
+
   const massiveSaturates = massiveSpread < 0.1 // flat tail = saturation = area law
 
   // (2) massless / critical field, S ~ (c/3) ln(L), extract the central charge
@@ -76,6 +79,7 @@ export function areaLaw(input?: { L?: number }): {
     xs: lengths.map(l => Math.log(l)),
     ys: masslessEntropies,
   })
+
   // the interval [0, len) starts at the chain's OPEN boundary, so there is a SINGLE entangling cut (at len),
   // giving S = (c/6) ln(len), hence c = 6 * slope (a bulk two-cut interval would be c/3)
   const centralCharge = slope * 6
@@ -89,6 +93,7 @@ export function areaLaw(input?: { L?: number }): {
     xs: lengths,
     ys: volumeEntropies,
   })
+
   const volumeLaw = volumeSlope > 0.5 // grows linearly with length
 
   const groundStateAreaLaw = massiveSaturates && masslessLog

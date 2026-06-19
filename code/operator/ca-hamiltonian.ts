@@ -29,7 +29,9 @@ export function hamiltonianMatrix(input: {
 
     // Collect the cycle in order: cycle[j+1] = perm[cycle[j]].
     const cycle: number[] = []
+
     let cursor = start
+
     while ((visited[cursor] ?? 0) === 0) {
       visited[cursor] = 1
       cycle.push(cursor)
@@ -37,14 +39,17 @@ export function hamiltonianMatrix(input: {
     }
 
     const L = cycle.length
+
     if (L === 1) {
       continue // fixed point: theta = 0, zero block
     }
 
     // Precompute the wrapped eigenphases.
     const theta = new Float64Array(L)
+
     for (let m = 0; m < L; m++) {
       let t = (2 * Math.PI * m) / L
+
       if (t > Math.PI) {
         t -= 2 * Math.PI
       }
@@ -55,10 +60,13 @@ export function hamiltonianMatrix(input: {
     // H[s_a][s_b] over the cycle.
     for (let a = 0; a < L; a++) {
       const sa = cycle[a] ?? 0
+
       for (let b = 0; b < L; b++) {
         const sb = cycle[b] ?? 0
+
         let re = 0
         let im = 0
+
         for (let m = 0; m < L; m++) {
           const angle = (2 * Math.PI * m * (a - b)) / L
           const th = theta[m] ?? 0
@@ -87,9 +95,11 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
   }
 
   const sorted = [...input.sites].sort((a, b) => a - b)
+
   // The smallest covering arc excludes the largest empty span between two
   // consecutive occupied sites: extent = cells - (largestStep - 1).
   let largestStep = 0
+
   for (let i = 0; i < sorted.length; i++) {
     const cur = sorted[i] ?? 0
     const next = sorted[(i + 1) % sorted.length] ?? 0
@@ -97,6 +107,7 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
       i + 1 < sorted.length
         ? next - cur
         : input.cells - cur + (sorted[0] ?? 0)
+
     if (step > largestStep) {
       largestStep = step
     }
@@ -122,19 +133,25 @@ export function pauliLocalityProfile(input: {
   const stringCount = 4 ** cells
 
   const weightByRange = new Float64Array(cells + 1) // index 0 = identity
+
   // Single-site Pauli action on input bit value v: returns {coeffRe, coeffIm}.
   // I -> 1; X -> 1; Y -> i*(-1)^v; Z -> (-1)^v. flip is handled by flipMask.
   for (let p = 0; p < stringCount; p++) {
     // Decode the per-site operators.
     let flipMask = 0
+
     const sites: number[] = []
+
     let rest = p
     let hasNonIdentity = false
+
     const ops = new Uint8Array(cells)
+
     for (let c = 0; c < cells; c++) {
       const op = rest & 3
       rest >>= 2
       ops[c] = op
+
       if (op !== 0) {
         hasNonIdentity = true
         sites.push(c)
@@ -148,18 +165,23 @@ export function pauliLocalityProfile(input: {
     // Tr(P H) = sum_s phase(u) * H[u][s], u = s XOR flipMask.
     let trRe = 0
     let trIm = 0
+
     for (let s = 0; s < n; s++) {
       const u = s ^ flipMask
+
       // phase(u) = product over sites of single-site coeff at input bit u_site.
       let phRe = 1
       let phIm = 0
+
       for (let c = 0; c < cells; c++) {
         const op = ops[c] ?? 0
+
         if (op === 0 || op === 1) {
           continue // I or X contribute coefficient 1
         }
 
         const bit = (u >> c) & 1
+
         if (op === 3) {
           // Z: (-1)^bit
           if (bit === 1) {
@@ -186,6 +208,7 @@ export function pauliLocalityProfile(input: {
     const cRe = trRe / n
     const cIm = trIm / n
     const weight = cRe * cRe + cIm * cIm
+
     if (!hasNonIdentity) {
       weightByRange[0] = (weightByRange[0] ?? 0) + weight
       continue
@@ -197,12 +220,15 @@ export function pauliLocalityProfile(input: {
 
   // Total interaction weight (excluding the identity / constant offset).
   let total = 0
+
   for (let r = 1; r <= cells; r++) {
     total += weightByRange[r] ?? 0
   }
 
   let lengthSum = 0
+
   const fractions = new Float64Array(cells + 1)
+
   for (let r = 1; r <= cells; r++) {
     const frac = total > 0 ? (weightByRange[r] ?? 0) / total : 0
     fractions[r] = frac

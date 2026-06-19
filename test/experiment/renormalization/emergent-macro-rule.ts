@@ -71,8 +71,11 @@ export function emergentMacroRule(input: {
       p,
       makeRng({ seed: input.seed + 10 }),
     )
+
     let base = new Int8Array(g.size)
+
     const r0 = makeRng({ seed: input.seed + 20 })
+
     for (let i = 0; i < g.size; i++) {
       base[i] = r0.nextInt({ max: 3 }) - 1
     }
@@ -105,6 +108,7 @@ export function emergentMacroRule(input: {
     p,
     ...measure(p),
   }))
+
   const ordered = measure(0.85)
   const frustrated = measure(0.5)
   const orderedRenorm = ordered.renorm

@@ -33,11 +33,13 @@ export function deSitterExpansion(input: {
     comovingWidth: 1.0,
     rng: makeRng({ seed: input.seed }),
   })
+
   const widths = causalSliceWidths({ poset })
   // Compare the first third of cosmic time to the last third (avoid the very ends).
   const a = Math.floor(widths.length / 3)
   const mean = (arr: number[]): number =>
     arr.length ? arr.reduce((p, q) => p + q, 0) / arr.length : 0
+
   const earlyWidth = mean(widths.slice(0, a))
   const lateWidth = mean(widths.slice(widths.length - a))
 

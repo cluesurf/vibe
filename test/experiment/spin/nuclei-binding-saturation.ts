@@ -40,6 +40,7 @@ function fermionBinding(
 ): number {
   const boxLength = wellWidth + 2 * PAD
   const potential = new Float64Array(boxLength)
+
   for (let r = PAD; r < PAD + wellWidth; r++) {
     potential[r] = -depth
   }
@@ -66,6 +67,7 @@ function singleParticleGround(): number {
   const wellWidth = Math.max(2, Math.round(1 / DENSITY))
   const boxLength = wellWidth + 2 * PAD
   const potential = new Float64Array(boxLength)
+
   for (let r = PAD; r < PAD + wellWidth; r++) {
     potential[r] = -V0
   }
@@ -98,12 +100,14 @@ export default experiment({
 
       return fermionBinding(count, wellWidth, V0) / count
     })
+
     // saturation, the per-constituent binding flattens, the slope over the last counts tends to zero
     const last = fermionBindingPerParticle.length - 1
     const fermionSlope =
       (fermionBindingPerParticle[last]! -
         fermionBindingPerParticle[last - 2]!) /
       (COUNTS[last]! - COUNTS[last - 2]!)
+
     const fermionSaturates = Math.abs(fermionSlope) < 0.01 // the binding per nucleon has levelled off
     const fermionPositive = fermionBindingPerParticle.every(b => b > 0) // a real (positive) binding
 
@@ -114,10 +118,12 @@ export default experiment({
     const bosonBindingPerParticle = COUNTS.map(
       count => singleBinding + (G * (count - 1)) / 2,
     )
+
     const bosonSlope =
       (bosonBindingPerParticle[last]! -
         bosonBindingPerParticle[last - 2]!) /
       (COUNTS[last]! - COUNTS[last - 2]!)
+
     const bosonCollapses = bosonSlope > 0.05 // the per-constituent binding keeps growing, a collapse
 
     // (3) CONTROL, NO BINDING (a loose aggregate), no well (depth 0), every orbital is a delocalized band state
@@ -127,6 +133,7 @@ export default experiment({
       count =>
         fermionBinding(count, Math.round(count / DENSITY), 0) / count,
     )
+
     const looseUnbound = loose.every(b => Math.abs(b) < 0.01) // no real binding, disperses
 
     const saturationValue = fermionBindingPerParticle[last]!

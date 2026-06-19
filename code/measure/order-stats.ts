@@ -16,6 +16,7 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
   const p = input.poset
   const n = p.size
   const d = new Int32Array(n).fill(1)
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < i; j++) {
       if (
@@ -29,6 +30,7 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
 
   const maxDepth = d.reduce((a, b) => Math.max(a, b), 0)
   const widths = new Array(maxDepth + 1).fill(0)
+
   for (let i = 0; i < n; i++) {
     widths[d[i] ?? 0] += 1
   }
@@ -41,19 +43,25 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
 // the Monte Carlo's a < b representation.
 export function posetHeight(input: { poset: Poset }): number {
   const p = input.poset
+
   if (p.size === 0) {
     return 0
   }
 
   const longest = new Int32Array(p.size).fill(1)
+
   let maxHeight = 1
+
   for (let v = 0; v < p.size; v++) {
     const lv = longest[v] ?? 1
     const row = p.links[v] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
+
       if (lv + 1 > (longest[w] ?? 1)) {
         longest[w] = lv + 1
+
         if (lv + 1 > maxHeight) {
           maxHeight = lv + 1
         }

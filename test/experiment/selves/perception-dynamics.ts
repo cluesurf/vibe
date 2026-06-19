@@ -25,6 +25,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const nonzero = (t: Int8Array): number => {
   let s = 0
+
   for (let i = 0; i < t.length; i++) {
     if (t[i] !== 0) {
       s++
@@ -60,12 +61,14 @@ export function perceptionDynamics(): {
     depth: 20,
     maxChambers: 60000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
   const moved = new Uint8Array(n)
 
   let center = 0
+
   for (let i = 1; i < n; i++) {
     if (neighbors[i]!.length > neighbors[center]!.length) {
       center = i
@@ -77,6 +80,7 @@ export function perceptionDynamics(): {
     size: n,
     source: center,
   })
+
   const r0 = 4
 
   // ARROW CREATES LIFE: from all-peace, the arrow makes charge appear and settle to a balance
@@ -84,7 +88,9 @@ export function perceptionDynamics(): {
   const qLife = sumTone(life)
   const rngL = makeRng({ seed: 9 })
   const lifeStart = nonzero(life)
+
   let balanceMid = 0
+
   for (let b = 0; b < 120; b++) {
     conservingEdgeListSweepPumped({
       tone: life,
@@ -94,6 +100,7 @@ export function perceptionDynamics(): {
       arrow: 0.1,
       pump: null,
     })
+
     if (b === 59) {
       balanceMid = nonzero(life)
     }
@@ -106,6 +113,7 @@ export function perceptionDynamics(): {
   // NO ARROW RELAXES TO PEACE: a balanced charged start, no creation, relaxes toward peace
   const death = new Int8Array(n)
   const rngD0 = makeRng({ seed: 14 })
+
   for (let i = 0; i < n; i++) {
     const r = rngD0.next()
     death[i] = r < 0.4 ? 1 : r < 0.8 ? -1 : 0 // balanced-ish, Q near 0
@@ -113,6 +121,7 @@ export function perceptionDynamics(): {
 
   // force exact balance so it can fully relax
   let q = sumTone(death)
+
   for (let i = 0; i < n && q !== 0; i++) {
     if (q > 0 && death[i] === 1) {
       death[i] = 0
@@ -126,6 +135,7 @@ export function perceptionDynamics(): {
   const qDeath = sumTone(death)
   const deathStart = nonzero(death)
   const rngD = makeRng({ seed: 14 })
+
   for (let b = 0; b < 300; b++) {
     conservingEdgeListSweepPumped({
       tone: death,
@@ -144,6 +154,7 @@ export function perceptionDynamics(): {
   const makePocket = (): Int8Array => {
     const t = new Int8Array(n)
     const inner: number[] = []
+
     for (let i = 0; i < n; i++) {
       if (dd(distC, i) <= r0) {
         inner.push(i)
@@ -163,6 +174,7 @@ export function perceptionDynamics(): {
 
   const absInR0 = (t: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       if (dd(distC, i) <= r0) {
         s += Math.abs(t[i]!)
@@ -174,6 +186,7 @@ export function perceptionDynamics(): {
 
   const netInR0 = (t: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       if (dd(distC, i) <= r0) {
         s += t[i]!
@@ -187,6 +200,7 @@ export function perceptionDynamics(): {
   const qDiff = sumTone(diff)
   const absChargeStart = absInR0(diff)
   const rngDi = makeRng({ seed: 5 })
+
   for (let b = 0; b < 80; b++) {
     conservingEdgeListSweepPumped({
       tone: diff,
@@ -205,6 +219,7 @@ export function perceptionDynamics(): {
   const pump = makePocket()
   const qPump = sumTone(pump)
   const rngPu = makeRng({ seed: 5 })
+
   for (let b = 0; b < 80; b++) {
     conservingEdgeListSweepPumped({
       tone: pump,
@@ -221,11 +236,13 @@ export function perceptionDynamics(): {
 
   const conserved =
     conservedLife && conservedDeath && conservedDiff && conservedPump
+
   const arrowCreatesLife = lifeStart === 0 && lifeEnd > 0.1 * n
   const noArrowRelaxesToPeace = deathEnd < 0.4 * deathStart
   const dynamicBalance =
     balanceMid > 0.1 * n &&
     Math.abs(balanceLate - balanceMid) < 0.25 * balanceMid
+
   const diffusesAndPumps =
     absDiffused < absChargeStart &&
     Math.abs(netPumped) > Math.abs(netDiffused) + 3

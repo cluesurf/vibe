@@ -18,10 +18,12 @@ export function s534Selves(): {
   const L = 41,
     c = (L - 1) / 2,
     R = 12
+
   const n = (x: number, y: number): number[] => {
     const dx = x - c,
       dy = y - c,
       r = Math.hypot(dx, dy)
+
     const f = Math.PI * Math.min(1, r / R)
     const s = Math.sin(f)
 
@@ -35,6 +37,7 @@ export function s534Selves(): {
     a[2]! * b[0]! - a[0]! * b[2]!,
     a[0]! * b[1]! - a[1]! * b[0]!,
   ]
+
   const tri = (p: number[], q: number[], r: number[]): number => {
     const num = dot(p, cross(q, r))
     const den = 1 + dot(p, q) + dot(q, r) + dot(r, p)
@@ -43,12 +46,14 @@ export function s534Selves(): {
   }
 
   let Q = 0
+
   for (let x = 0; x < L - 1; x++) {
     for (let y = 0; y < L - 1; y++) {
       const a = n(x, y),
         bb = n(x + 1, y),
         cc = n(x, y + 1),
         d = n(x + 1, y + 1)
+
       Q += tri(a, bb, d) + tri(a, d, cc)
     }
   }
@@ -56,6 +61,7 @@ export function s534Selves(): {
   Q = Q / (4 * Math.PI)
   const solitonsExist =
     Math.abs(Math.round(Q) - Q) < 0.1 && Math.abs(Math.round(Q)) >= 1
+
   const fermionic = false // 2D -> the spin-statistics link gives ANYONS, not fermions, and there is no fundamental spinor
   const anyonic = true
 

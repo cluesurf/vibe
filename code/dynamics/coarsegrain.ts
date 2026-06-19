@@ -11,6 +11,7 @@ export function decimate(input: {
   rng: Rng
 }): Poset {
   const survivors: number[] = []
+
   for (let a = 0; a < input.poset.size; a++) {
     if (input.rng.next() < input.keepProbability) {
       survivors.push(a)

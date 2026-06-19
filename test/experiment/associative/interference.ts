@@ -22,6 +22,7 @@ function overlappingWord(
   separation: number,
 ): Int8Array {
   const word = new Int8Array(wordBits)
+
   // shared background, every word agrees here, this is the overlap
   for (let k = 0; k < wordBits; k++) {
     word[k] = (k * 2) % 3
@@ -29,6 +30,7 @@ function overlappingWord(
 
   // distinguishing slots encode the index in base 3
   let v = index
+
   for (let k = 0; k < separation && k < wordBits; k++) {
     word[k] = v % 3
     v = Math.floor(v / 3)
@@ -50,6 +52,7 @@ function recallAtSeparation(input: {
     neighbors: input.neighbors,
     wordBits: input.wordBits,
   })
+
   for (let i = 0; i < input.count; i++) {
     storeWord(
       mem,
@@ -60,9 +63,11 @@ function recallAtSeparation(input: {
 
   let exactOk = 0
   let nearestOk = 0
+
   for (let i = 0; i < input.count; i++) {
     const cue = readWord(mem, i)
     const responders = searchExact({ mem, comparand: cue })
+
     if (responders.length === 1 && responders[0] === i) {
       exactOk++
     }
@@ -100,6 +105,7 @@ export function associativeInterference(input?: {
   const separations = [1, 2, 3, 5, 8]
   const exactBySep: number[] = []
   const nearestBySep: number[] = []
+
   for (const sep of separations) {
     const r = recallAtSeparation({
       neighbors: g.neighbors,
@@ -107,6 +113,7 @@ export function associativeInterference(input?: {
       count,
       separation: sep,
     })
+
     exactBySep.push(r.exactRecall)
     nearestBySep.push(r.nearestRecall)
   }

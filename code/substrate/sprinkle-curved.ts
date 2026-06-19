@@ -43,7 +43,9 @@ export function sprinkleCurved(input: {
       radius: reach,
       rng: input.rng,
     })
+
     coords[i * d] = t
+
     for (let axis = 0; axis < spaceDim; axis++) {
       coords[i * d + 1 + axis] = space[axis] ?? 0
     }
@@ -51,6 +53,7 @@ export function sprinkleCurved(input: {
 
   // Sort by time so a precedes b only if a is earlier.
   const order: number[] = []
+
   for (let i = 0; i < n; i++) {
     order.push(i)
   }
@@ -58,8 +61,10 @@ export function sprinkleCurved(input: {
   order.sort((x, y) => (coords[x * d] ?? 0) - (coords[y * d] ?? 0))
 
   const sorted = new Float64Array(n * d)
+
   for (let newIndex = 0; newIndex < n; newIndex++) {
     const oldIndex = order[newIndex] ?? 0
+
     for (let axis = 0; axis < d; axis++) {
       sorted[newIndex * d + axis] = coords[oldIndex * d + axis] ?? 0
     }
@@ -77,15 +82,18 @@ export function sprinkleCurved(input: {
   // coordinates: dt > 0 and dt^2 - |dx|^2 >= 0.
   const precedes = (pair: { a: number; b: number }): boolean => {
     const dt = (sorted[pair.b * d] ?? 0) - (sorted[pair.a * d] ?? 0)
+
     if (dt <= 0) {
       return false
     }
 
     let space2 = 0
+
     for (let axis = 1; axis < d; axis++) {
       const dx =
         (sorted[pair.b * d + axis] ?? 0) -
         (sorted[pair.a * d + axis] ?? 0)
+
       space2 += dx * dx
     }
 
@@ -103,11 +111,13 @@ function sampleBall(input: {
 }): Float64Array {
   const dim = input.dimension
   const out = new Float64Array(dim)
+
   if (dim <= 0 || input.radius <= 0) {
     return out
   }
 
   let norm2 = 0
+
   for (let i = 0; i < dim; i++) {
     const g = input.rng.nextGaussian()
     out[i] = g
@@ -115,12 +125,14 @@ function sampleBall(input: {
   }
 
   const norm = Math.sqrt(norm2)
+
   if (norm === 0) {
     return out
   }
 
   const radial = input.radius * Math.pow(input.rng.next(), 1 / dim)
   const scale = radial / norm
+
   for (let i = 0; i < dim; i++) {
     out[i] = (out[i] ?? 0) * scale
   }

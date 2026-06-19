@@ -24,6 +24,7 @@ export function comparison534(): {
     t1: 3,
     t2: 6,
   })
+
   const betheAlpha = betheCorrelatorExponent(12)
 
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }

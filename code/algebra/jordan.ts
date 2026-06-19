@@ -38,6 +38,7 @@ export function octonionMatrixZero(n: number): OctonionMatrix {
 
 export function octonionMatrixIdentity(n: number): OctonionMatrix {
   const m = octonionMatrixZero(n)
+
   for (let i = 0; i < n; i++) {
     m[i]![i] = octonionOne()
   }
@@ -69,9 +70,11 @@ export function octonionMatrixMultiply(
 ): OctonionMatrix {
   const n = a.length
   const out = octonionMatrixZero(n)
+
   for (let i = 0; i < n; i++) {
     for (let k = 0; k < n; k++) {
       let sum = octonionZero()
+
       for (let j = 0; j < n; j++) {
         sum = octonionAdd(sum, octonionMultiply(a[i]![j]!, b[j]![k]!))
       }
@@ -104,6 +107,7 @@ export function octonionMatrixConjugateTranspose(
 ): OctonionMatrix {
   const n = a.length
   const out = octonionMatrixZero(n)
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       out[j]![i] = octonionConjugate(a[i]![j]!)
@@ -115,6 +119,7 @@ export function octonionMatrixConjugateTranspose(
 
 export function octonionMatrixMaxAbs(a: OctonionMatrix): number {
   let worst = 0
+
   for (const row of a) {
     for (const entry of row) {
       for (const x of entry) {
@@ -158,6 +163,7 @@ export function isHermitian(
 // is real).
 export function octonionMatrixTrace(a: OctonionMatrix): number {
   let sum = 0
+
   for (let i = 0; i < a.length; i++) {
     sum += octonionRealPart(a[i]![i]!)
   }
@@ -203,8 +209,10 @@ export function deterministicHermitian(
   variant: number,
 ): OctonionMatrix {
   const m = octonionMatrixZero(n)
+
   for (let i = 0; i < n; i++) {
     m[i]![i] = octonionUnit(0).map(x => x * (i + 1))
+
     for (let j = i + 1; j < n; j++) {
       const unit = ((i + 2 * j + 3 * variant) % 7) + 1 // one of e1..e7
       m[i]![j] = octonionUnit(unit)
@@ -233,6 +241,7 @@ export function jordanIdentityResidual(
 // Small means H_n(O) behaves as a Jordan algebra on these elements, large means it does not.
 export function maxJordanIdentityResidual(n: number): number {
   let worst = 0
+
   for (let variant = 0; variant < 4; variant++) {
     const a = deterministicHermitian(n, variant)
     const b = deterministicHermitian(n, variant + 1)
@@ -250,6 +259,7 @@ export function permutations(n: number): number[][] {
   }
 
   const out: number[][] = []
+
   for (const sub of permutations(n - 1)) {
     for (let position = 0; position <= sub.length; position++) {
       out.push([
@@ -275,6 +285,7 @@ export function permutationConjugate(
 ): OctonionMatrix {
   const n = matrix.length
   const out = octonionMatrixZero(n)
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       out[perm[i]!]![perm[j]!] = matrix[i]![j]!
@@ -292,6 +303,7 @@ export function isJordanAutomorphism(
   tolerance = 1e-9,
 ): boolean {
   const n = perm.length
+
   for (let variant = 0; variant < 3; variant++) {
     const a = deterministicHermitian(n, variant)
     const b = deterministicHermitian(n, variant + 1)
@@ -300,6 +312,7 @@ export function isJordanAutomorphism(
       permutationConjugate(a, perm),
       permutationConjugate(b, perm),
     )
+
     if (!octonionMatrixEquals(left, right, tolerance)) {
       return false
     }

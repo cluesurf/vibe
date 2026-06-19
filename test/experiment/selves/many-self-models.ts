@@ -24,15 +24,18 @@ function fullBeat(
   rng: Rng,
 ): void {
   moved.fill(0)
+
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -41,6 +44,7 @@ function fullBeat(
     } else if ((a === 0) !== (b === 0)) {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
+
       if (rng.next() < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
@@ -68,8 +72,10 @@ function selfModelAt(
     source: center,
     maxRadius: 12,
   })
+
   const rSelf = 4
   const self: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (dist[i]! >= 0 && dist[i]! <= rSelf) {
       self.push(i)
@@ -78,6 +84,7 @@ function selfModelAt(
 
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
+
   for (const i of self) {
     if (dist[i]! >= rSelf - 1) {
       isInput[i] = 1
@@ -88,6 +95,7 @@ function selfModelAt(
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
+
   for (let j = 0; j < inputAll.length; j++) {
     const s = Math.floor((j * K) / inputAll.length)
     sectorOf[inputAll[j]!] = s
@@ -99,16 +107,20 @@ function selfModelAt(
     const seen = new Uint8Array(N)
     seen[start] = 1
     let fr = [start]
+
     while (fr.length > 0 && out.length < size) {
       const nf: number[] = []
+
       for (const u of fr) {
         if (isInput[u]) {
           continue
         }
 
         out.push(u)
+
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (!seen[w]) {
             seen[w] = 1
             nf.push(w)
@@ -127,8 +139,10 @@ function selfModelAt(
   const peripherals = sectorCells.map(sc =>
     ballOf(sc[Math.floor(sc.length / 2)]!, coreSize),
   )
+
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
+
     for (const i of cells) {
       s += tone[i]!
     }
@@ -143,6 +157,7 @@ function selfModelAt(
   const gSeries: number[] = []
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
+
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
       if (rng.next() < 0.06) {
@@ -155,19 +170,23 @@ function selfModelAt(
     }
 
     fullBeat(tone, eu, ev, moved, rng)
+
     for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     }
 
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
+
     for (let p = 0; p < peripherals.length; p++) {
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
     }
   }
 
   const hubCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
+
   let periCorr = 0
+
   for (let p = 0; p < peripherals.length; p++) {
     periCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   }
@@ -198,6 +217,7 @@ export function manySelfModels(input?: { n?: number }): {
 
   // pick several self-centers spread across the graph (the hub plus peripheral cells at various depths)
   let hub = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -214,7 +234,9 @@ export function manySelfModels(input?: { n?: number }): {
     source: hub,
     maxRadius: 12,
   })
+
   const centers = [hub]
+
   for (const target of [3, 4, 5]) {
     for (let i = 0; i < N; i++) {
       if (
@@ -237,9 +259,11 @@ export function manySelfModels(input?: { n?: number }): {
       isSelfModel: r.hubCorr > 0.4 && r.hubCorr > r.periCorr + 0.1,
     }
   })
+
   const countSelfModels = results.filter(r => r.isSelfModel).length
   const allFormSelfModels =
     countSelfModels === centers.length && centers.length >= 3
+
   const distinctCenters = new Set(centers).size === centers.length
   const solved = allFormSelfModels && distinctCenters
 

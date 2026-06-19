@@ -56,6 +56,7 @@ export default experiment({
       cohesion: 0.4,
       flipProbabilities: [0.03, 0.4],
     }
+
     const live = drivenSelf({ ...driver, withDynamics: true })
     const dead = drivenSelf({ ...driver, withDynamics: false })
 
@@ -63,10 +64,12 @@ export default experiment({
       live.interior,
       live.sectorSignals[0]!,
     )
+
     const fastAttention = attention(
       live.interior,
       live.sectorSignals[1]!,
     )
+
     const noDynamicsSlow = attention(
       dead.interior,
       dead.sectorSignals[0]!,

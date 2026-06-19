@@ -12,10 +12,14 @@ function frontRadius(will: Will, side: number): number {
   const degree = will.mesh.degree
   const area = side * side
   const centre = side >> 1
+
   let maximum = 0
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const base = cell * degree
+
     let occupied = false
+
     for (let direction = 0; direction < degree; direction++) {
       if ((will.data[base + direction] ?? 0) !== 0) {
         occupied = true
@@ -32,6 +36,7 @@ function frontRadius(will: Will, side: number): number {
     const z = Math.floor(cell / area)
     const radius =
       Math.abs(x - centre) + Math.abs(y - centre) + Math.abs(z - centre)
+
     if (radius > maximum) {
       maximum = radius
     }
@@ -52,12 +57,15 @@ export function lightConeRadii(input: {
   const centre = side >> 1
   const centreCell = (centre * side + centre) * side + centre
   const base = centreCell * mesh.degree
+
   for (let direction = 0; direction < mesh.degree; direction++) {
     will.data[base + direction] = 1
   }
 
   const radii: number[] = []
+
   let current = will
+
   for (let step = 0; step < input.beats; step++) {
     current = beat(current, passThrough)
     radii.push(frontRadius(current, side))
@@ -86,6 +94,7 @@ export function perturbationConeRadii(input: {
   const opposite = Array.from({ length: degree }, (_, direction) =>
     mesh.opposite(direction),
   )
+
   const collision = pairCollision({ opposite })
 
   // The deterministic vacuum, all slots zero.
@@ -93,20 +102,26 @@ export function perturbationConeRadii(input: {
   const perturbed = cloneWill(base)
   // Perturb the centre cell: set all its slots to +1, a clear local change.
   const centreBase = centre * degree
+
   for (let direction = 0; direction < degree; direction++) {
     perturbed.data[centreBase + direction] = 1
   }
 
   const radii: number[] = []
+
   let baseState = base
   let perturbedState = perturbed
+
   for (let step = 0; step < beats; step++) {
     baseState = beat(baseState, collision)
     perturbedState = beat(perturbedState, collision)
     let maximum = 0
+
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       const cellBase = cell * degree
+
       let differs = false
+
       for (let direction = 0; direction < degree; direction++) {
         if (
           baseState.data[cellBase + direction] !==

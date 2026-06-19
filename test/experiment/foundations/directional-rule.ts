@@ -34,6 +34,7 @@ export default experiment({
       momentumRotate2D,
       200,
     )
+
     const squareReverses = isReversible(
       squareWill,
       momentumRotate2D,
@@ -47,6 +48,7 @@ export default experiment({
     const opposite = Array.from({ length: d4.degree }, (_, direction) =>
       d4.opposite(direction),
     )
+
     const forward = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })
     const d4Conserves = conservesCharge(d4Will, forward, 60)

@@ -316,6 +316,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     size: 4,
     precedes: ({ a, b }) => a < b,
   })
+
   check({
     name: 'poset total order relation count is 6',
     ok: relationCount(p) === 6,
@@ -354,11 +355,13 @@ function allFinite(xs: ArrayLike<number>): boolean {
     samples: 400,
     rng,
   })
+
   const sprIso = lorentzIsotropy({
     substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
     samples: 400,
     rng,
   })
+
   check({
     name: 'lattice is more anisotropic than a sprinkling',
     ok: latIso.anisotropy > sprIso.anisotropy + 0.2,
@@ -381,6 +384,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     trials: 40000,
     rng,
   })
+
   check({
     name: 'CHSH classical bound at independence (|S| <= 2)',
     ok: Math.abs(r.s) <= 2.06,
@@ -395,6 +399,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     extent: 8,
     signature: 'riemannian',
   })
+
   const lap = laplacian({ substrate: g })
   const spec = laplacianSpectrum({ substrate: g, count: 3 })
   check({
@@ -415,6 +420,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     extent: 8,
     signature: 'riemannian',
   })
+
   const complex = cellComplexOf({ substrate: g, maxGrade: 2 })
   const spec = diracSpectrum({ complex, count: 8 })
   check({
@@ -429,6 +435,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const rng = makeRng({ seed: 6 })
   const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
   const cold = averagePlaquette({ lattice: lat })
+
   for (let s = 0; s < 100; s++) {
     metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
   }
@@ -448,10 +455,12 @@ function allFinite(xs: ArrayLike<number>): boolean {
     operator: ({ k1, k2 }) => naiveDirac2D({ k1, k2 }),
     gridSize: 12,
   })
+
   const overlap = scanBrillouin({
     operator: ({ k1, k2 }) => overlapDirac2D({ k1, k2, m0: 1, r: 1 }),
     gridSize: 12,
   })
+
   check({
     name: 'naive lattice fermion has 4 doublers (2D)',
     ok: naive.species === 4,
@@ -499,6 +508,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const cells = 6
   const n = 1 << cells
   const perm = new Int32Array(n)
+
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
@@ -507,6 +517,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     matrix: hamiltonianMatrix({ perm }),
     cells,
   })
+
   check({
     name: 'Hamiltonian locality measure: single-cell flip is range 1',
     ok: Math.abs(profile.localityLength - 1) < 1e-6,
@@ -524,6 +535,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     connectThreshold: 3.0,
     rng,
   })
+
   const iso = lorentzIsotropy({ substrate: graph, samples: 200, rng })
   check({
     name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
@@ -540,12 +552,16 @@ function allFinite(xs: ArrayLike<number>): boolean {
     blockSize: 2,
     gate: cnotGate,
   })
+
   const length = pauliLocalityProfile({
     matrix: h,
     cells: 6,
   }).localityLength
+
   const eig = eigHermitian({ matrix: h })
+
   let lo = Infinity
+
   for (let i = 0; i < eig.values.length; i++) {
     lo = Math.min(lo, eig.values[i] ?? 0)
   }
@@ -566,12 +582,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     trials: 40000,
     seed: 7,
   })
+
   const random = chshShared({
     eta: 1,
     mode: 'random',
     trials: 40000,
     seed: 8,
   })
+
   check({
     name: 'aligned shared past violates (S~4), generic shared past does not (S<2)',
     ok: aligned > 3.5 && random < 2,
@@ -589,17 +607,22 @@ function allFinite(xs: ArrayLike<number>): boolean {
     extent: cells,
     signature: 'riemannian',
   }) as Graph
+
   const m = makeDense({ rows: cells, cols: cells })
+
   for (let i = 0; i < cells; i++) {
     const row = ring.neighbors[i] ?? new Uint32Array(0)
     m.data[i * cells + i] = row.length
+
     for (let k = 0; k < row.length; k++) {
       m.data[i * cells + (row[k] ?? 0)] = -1
     }
   }
 
   const eig = eigSymmetric({ matrix: m })
+
   let lo = Infinity
+
   for (let i = 0; i < eig.values.length; i++) {
     lo = Math.min(lo, eig.values[i] ?? 0)
   }
@@ -621,12 +644,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     trials: 60000,
     seed: 11,
   })
+
   const misaligned = measureChshAndDependence({
     eta: 1,
     mode: 'misaligned',
     trials: 60000,
     seed: 12,
   })
+
   check({
     name: 'same measurement-dependence, different violation (alignment is the currency)',
     ok:
@@ -649,9 +674,11 @@ function allFinite(xs: ArrayLike<number>): boolean {
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
     rng: makeRng({ seed: 3 }),
   })
+
   const cold = result.samplesByBeta[3] ?? []
   const meanCold =
     cold.length > 0 ? cold.reduce((a, b) => a + b, 0) / cold.length : 0
+
   check({
     name: 'parallel tempering swaps and gives a manifold-like cold replica',
     ok:
@@ -676,6 +703,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
         orderStatistics({ poset }).heightRatio > 1 ? 1 : 0,
     ],
   })
+
   const fracCold = result.means[1]?.[0] ?? 0
   const fracHot = result.means[0]?.[0] ?? 0
   check({
@@ -696,6 +724,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     steps: 200000,
     rng: makeRng({ seed: 6 }),
   })
+
   check({
     name: 'uniform-measure sampler matches exact enumeration (N=6, ~72%)',
     ok: r.manifoldFraction > 0.65 && r.manifoldFraction < 0.79,
@@ -712,12 +741,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     configs: 4,
     rng: makeRng({ seed: 1 }),
   })
+
   const gauged = chiralCondensateSignal({
     length: 5,
     disorder: 0.6,
     configs: 6,
     rng: makeRng({ seed: 2 }),
   })
+
   check({
     name: 'chiral condensate: zero in free theory, nonzero with gauge field',
     ok:
@@ -736,12 +767,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     configs: 3,
     rng: makeRng({ seed: 1 }),
   })
+
   const gauged = chiralCondensateSignalSU2({
     length: 4,
     disorder: 0.4,
     configs: 5,
     rng: makeRng({ seed: 2 }),
   })
+
   check({
     name: 'SU(2) condensate: zero free, nonzero in a dynamical non-Abelian field',
     ok:
@@ -760,12 +793,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     trials: 40000,
     seed: 1,
   })
+
   const far = chshShared({
     eta: Math.exp(-4 / 2),
     mode: 'aligned',
     trials: 40000,
     seed: 2,
   })
+
   check({
     name: 'natural mesh: CHSH violation decays with separation',
     ok: near > 3.5 && far < 2,
@@ -782,6 +817,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     count: 96,
     rng: makeRng({ seed: 1 }),
   })
+
   const r = sampleUniform({
     size: 96,
     beta: 1,
@@ -791,6 +827,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     sampleEvery: 48,
     startFuture: sprinkle.future,
   })
+
   const dim = dimensionFromOrderingFraction(r.meanOrderingFraction)
   check({
     name: 'P6: stable 2D manifold phase has dimension near 2',
@@ -825,9 +862,11 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const qRatio =
     Math.sqrt(quantumMsd({ eig: eigA, n, center, t: 16 })) /
     Math.sqrt(quantumMsd({ eig: eigA, n, center, t: 4 }))
+
   const cRatio =
     Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 16 })) /
     Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 4 }))
+
   check({
     name: 'P17: quantum walk is ballistic, classical walk is diffusive',
     ok: qRatio > 3.5 && cRatio > 1.7 && cRatio < 2.4,
@@ -891,6 +930,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     coverThreshold: 1200,
     burnInFraction: 0.5,
   })
+
   const betaStar = crossingBeta(wl, 8)
   const f0 = manifoldFractionAt(wl, 0)
   const f1 = manifoldFractionAt(wl, 1)
@@ -966,6 +1006,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const increasing =
     (r.stds[0] ?? 0) < (r.stds[1] ?? 0) &&
     (r.stds[1] ?? 0) < (r.stds[2] ?? 0)
+
   check({
     name: 'P19 dark energy: the 4D action fluctuation scaling is measured',
     ok: increasing && r.actionExponent > 0.5 && r.actionExponent < 2,
@@ -1002,6 +1043,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const shrinks =
     (r.dispersion[r.dispersion.length - 1]?.omega2 ?? 9) <
     (r.dispersion[0]?.omega2 ?? 0)
+
   check({
     name: 'P21 graviton: two polarizations measured from the derived operator spectrum (2 physical + 3 gauge zeros), massless dispersion',
     ok: massless && gauge && r.allTwo && r.massiveDof === 5 && shrinks,
@@ -1068,11 +1110,13 @@ function allFinite(xs: ArrayLike<number>): boolean {
     seed: 1,
     trajectories: 250,
   })
+
   const clean = r.points.filter(p => p.tau <= 11)
   const grows =
     clean.length > 2 &&
     (clean[clean.length - 1]?.varRapidity ?? 0) >
       2 * (clean[0]?.varRapidity ?? 1)
+
   check({
     name: 'P26 swerves: momentum diffusion from discreteness (variance grows with proper time)',
     ok: r.slope > 0.01 && grows,
@@ -1124,6 +1168,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
     repeats: 20,
     epsilon: 0.3,
   })
+
   check({
     name: 'P29 dark energy: 4D smeared kernel tames the fluctuation (toward everpresent Lambda)',
     ok:
@@ -1182,6 +1227,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const increasing =
     (r.entropies[0] ?? 0) < (r.entropies[1] ?? 0) &&
     (r.entropies[1] ?? 0) < (r.entropies[2] ?? 0)
+
   check({
     name: 'P33 black holes: entropy scales with horizon area, not volume (Bekenstein-Hawking)',
     ok: r.areaBeatsVolume && increasing,
@@ -1301,11 +1347,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     'tiling {7,3}',
     'tiling {5,4}',
   ].every(k => r[k]?.lorentzSafe === true)
+
   const latticeUnsafe =
     r['flat lattice (control)']?.lorentzSafe === false
+
   const tilingsIsotropic =
     (r['tiling {7,3}']?.anisotropy ?? 1) < 0.1 &&
     (r['tiling {5,4}']?.anisotropy ?? 1) < 0.1
+
   check({
     name: 'P40 non-random substrates: hyperbolic tilings and sequences are Lorentz-safe, flat lattice is not',
     ok: hyperbolicSafe && latticeUnsafe && tilingsIsotropic,
@@ -1321,6 +1370,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
   const allSafe = all.every(
     e => e.lorentzSafe && e.anisotropy < 0.12 && e.reach,
   )
+
   check({
     name: 'P41 Margenstern tilings: all {p,4} and {p,3} tilings are Lorentz-safe',
     ok: all.length === 6 && allSafe,
@@ -1474,12 +1524,14 @@ function allFinite(xs: ArrayLike<number>): boolean {
     repeats: 6,
     seed: 1,
   })
+
   const three = continuumLimit({
     dimension: 3,
     sizes: [500, 1000, 2000, 4000],
     repeats: 6,
     seed: 1,
   })
+
   check({
     name: 'P52 continuum limit: accurate at all N (2D and 3D), and the 3D error genuinely shrinks with N',
     ok: two.agrees && three.agrees && three.converging,
@@ -1514,18 +1566,21 @@ function allFinite(xs: ArrayLike<number>): boolean {
     pairs: 200000,
     seed: 1,
   })
+
   const r2 = largeNHardening({
     dimension: 2,
     sizes: [2000, 30000],
     pairs: 300000,
     seed: 10,
   })
+
   const r3 = largeNHardening({
     dimension: 3,
     sizes: [2000, 30000],
     pairs: 300000,
     seed: 10,
   })
+
   check({
     name: 'P54 large-N hardening: sampled estimator matches exact and sharpens at large N',
     ok: Math.abs(samp - 2) < 0.1 && r2.errorShrinks && r3.errorShrinks,
@@ -1557,11 +1612,13 @@ function allFinite(xs: ArrayLike<number>): boolean {
     caps: [300, 700, 1500],
     seed: 2,
   })
+
   const hept = eternalLadder({
     base: [7, 3],
     caps: [200, 600, 1500],
     seed: 2,
   })
+
   check({
     name: 'P56 eternal ladder: grows without bound, stays Lorentz-safe, model always runs',
     ok:
@@ -2314,17 +2371,21 @@ function allFinite(xs: ArrayLike<number>): boolean {
 {
   const a = buildDodecagrid({ maxCells: 2000 })
   const b = buildDodecagridFast({ maxCells: 2000 })
+
   let identical =
     a.cellCount === b.cellCount &&
     a.facetCount === b.facetCount &&
     b.facetCount === 12
+
   for (let i = 0; i < a.cellCount && identical; i++) {
     const sa = new Set<number>()
+
     for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
       sa.add(a.adj[p]!)
     }
 
     const sb = new Set<number>()
+
     for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
       sb.add(b.adj[p]!)
     }
@@ -3613,6 +3674,7 @@ function allFinite(xs: ArrayLike<number>): boolean {
 }
 
 console.log(`\n${passed} passed, ${failed} failed`)
+
 if (failed > 0) {
   process.exit(1)
 }

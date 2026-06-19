@@ -21,11 +21,13 @@ export function s73Structure(): {
     t1: 3,
     t2: 6,
   })
+
   // the 7 directions = heptagon edge-normals at angles 2*pi*k/7, crystallographic (root system) check 2(a.b)/(b.b) in Z
   const dirs = Array.from({ length: 7 }, (_, k) => [
     Math.cos((2 * Math.PI * k) / 7),
     Math.sin((2 * Math.PI * k) / 7),
   ])
+
   const crystallographic = directionsAreCrystallographic(dirs)
   const hasSpinor = false // 7-fold dihedral D7 is a real reflection group, the 7-direction perm rep carries no spinor
 

@@ -32,6 +32,7 @@ export function randomValue(input: {
   u: number
 }): number {
   const a = input.alphabet
+
   switch (a.form) {
     case 'boolean':
       return input.u < 0.5 ? 0 : 1

@@ -42,6 +42,7 @@ export function recursion(input?: { n?: number }): {
 
   // two selves, far apart
   let center1 = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -57,6 +58,7 @@ export function recursion(input?: { n?: number }): {
     size: N,
     source: center1,
   })
+
   const d1 = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -64,6 +66,7 @@ export function recursion(input?: { n?: number }): {
     source: center1,
     maxRadius: 12,
   })
+
   const d2 = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -71,11 +74,13 @@ export function recursion(input?: { n?: number }): {
     source: center2,
     maxRadius: 12,
   })
+
   const r = 3
   const boundary1: number[] = []
   const hub1cells: number[] = []
   const boundary2: number[] = []
   const hub2cells: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (d1[i]! >= r - 1 && d1[i]! <= r) {
       boundary1.push(i)
@@ -97,12 +102,14 @@ export function recursion(input?: { n?: number }): {
   // world input on self 1, sectored
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
+
   for (let j = 0; j < boundary1.length; j++) {
     sectorOf[boundary1[j]!] = Math.floor((j * K) / boundary1.length)
   }
 
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
+
     for (const i of cells) {
       s += tone[i]!
     }
@@ -122,6 +129,7 @@ export function recursion(input?: { n?: number }): {
     const h1: number[] = []
     const h2: number[] = []
     const world: number[] = []
+
     for (let t = 0; t < T; t++) {
       for (let s = 0; s < K; s++) {
         if (rng.next() < 0.06) {
@@ -138,6 +146,7 @@ export function recursion(input?: { n?: number }): {
       const m1 = meanOver(tone, hub1cells)
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
       const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0) as -1 | 0 | 1
+
       for (const i of boundary2) {
         tone[i] = s2in
       }
@@ -165,6 +174,7 @@ export function recursion(input?: { n?: number }): {
       h1.push(meanOver(tone, hub1cells))
       h2.push(meanOver(tone, hub2cells))
       let wsum = 0
+
       for (let s = 0; s < K; s++) {
         wsum += sigs[s]!
       }
@@ -181,19 +191,23 @@ export function recursion(input?: { n?: number }): {
   const hub1ModelsWorld = Math.abs(
     pearson({ a: live.h1, b: live.world }),
   )
+
   const hub2ModelsHub1 = Math.abs(pearson({ a: live.h2, b: live.h1 }))
   const hub2ModelsWorld = Math.abs(
     pearson({ a: live.h2, b: live.world }),
   )
+
   const shuffledBaseline = Math.abs(
     pearson({ a: live.h2, b: live.h1.slice().reverse() }),
   )
+
   const noDynamics = Math.abs(pearson({ a: dead.h2, b: dead.h1 }))
 
   const realModel =
     hub2ModelsHub1 > 0.4 &&
     hub2ModelsHub1 > shuffledBaseline + 0.3 &&
     hub2ModelsHub1 > noDynamics + 0.3
+
   const modelsTheModel = hub2ModelsHub1 >= hub2ModelsWorld - 0.05 // tracks the model at least as well as the world
   const solved = realModel && modelsTheModel && hub1ModelsWorld > 0.4
 

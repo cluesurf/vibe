@@ -29,6 +29,7 @@ export function inflatonStep(input: {
   dt: number
 }): { phi: number; phidot: number } {
   const { potential, potentialSlope, dt } = input
+
   const deriv = (
     p: number,
     pd: number,
@@ -43,10 +44,12 @@ export function inflatonStep(input: {
     input.phi + 0.5 * dt * k1.dp,
     input.phidot + 0.5 * dt * k1.dpd,
   )
+
   const k3 = deriv(
     input.phi + 0.5 * dt * k2.dp,
     input.phidot + 0.5 * dt * k2.dpd,
   )
+
   const k4 = deriv(input.phi + dt * k3.dp, input.phidot + dt * k3.dpd)
 
   return {

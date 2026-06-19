@@ -26,7 +26,9 @@ export function quadratureAdditivityResidual(
   scale: number,
 ): number {
   const { counts } = patchesFromAmplitudes(amps, scale)
+
   let maxRes = 0
+
   for (let i = 0; i + 1 < counts.length; i++) {
     const n1 = counts[i] ?? 0
     const n2 = counts[i + 1] ?? 0
@@ -51,7 +53,9 @@ export function exponentResidual(input: {
 }): number {
   const rng = makeRng({ seed: input.seed })
   const trials = input.trials ?? 4000
+
   let maxRel = 0
+
   for (let i = 0; i < trials; i++) {
     const a1 = rng.next() + 0.05
     const a2 = rng.next() + 0.05

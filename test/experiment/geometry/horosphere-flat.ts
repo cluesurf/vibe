@@ -62,6 +62,7 @@ export function horosphereFlat(input?: { maxCells?: number }): {
   // dimension sits a little above 2, the decisive signal is polynomial vs the bulk's exponential
   const horoIsFlat =
     horoG.dim > 1.4 && horoG.dim < 3.5 && horoG.ratio < 2.6
+
   const bulkIsExponential = bulkG.ratio > 1.8 // shells multiply
   const flatterThanBulk = horoG.ratio < bulkG.ratio - 1.5 // far flatter than the exponential bulk
   const solved = horoIsFlat && bulkIsExponential && flatterThanBulk

@@ -35,6 +35,7 @@ export function compileMachine(
   options: { backend?: Backend } = {},
 ): CompiledMachine {
   const backend = options.backend ?? 'binary'
+
   if (backend === 'unary') {
     return { backend, ...compileToRailway(source) }
   }
@@ -53,6 +54,7 @@ export function runMachine(
     const initial = new Array<number>(compiled.program.registers).fill(
       0,
     )
+
     inputs.forEach((v, i) => (initial[i] = v))
     const { registers, steps } = runRailway(compiled.program, initial)
 
@@ -64,6 +66,7 @@ export function runMachine(
 
   const initial = new Array<bigint>(compiled.program.registers).fill(0n)
   inputs.forEach((v, i) => (initial[i] = BigInt(v)))
+
   if (compiled.backend === 'ternary') {
     const { registers, totalTrits } = runTernary(
       compiled.program,

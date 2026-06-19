@@ -34,10 +34,14 @@ export default experiment({
       symbol: [3, 4, 3, 4],
       maxShell: 5,
     })
+
     const ratios: number[] = []
+
     let cum = 0
+
     for (let D = 0; D < shells.length; D++) {
       cum += shells[D]!
+
       if (D >= 2) {
         ratios.push(D / (Math.log(cum) / Math.log(LAMBDA)))
       }
@@ -49,6 +53,7 @@ export default experiment({
       ratios[ratios.length - 1]! > ratios[0]! &&
       lastRatio > 0.9 &&
       lastRatio < 1.1
+
     // and the ratio is STABLE (the log law), not growing without bound
     const stable =
       Math.abs(

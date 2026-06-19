@@ -40,13 +40,17 @@ function matterForceExponent(): { exponent: number; binds: boolean } {
   const rs = [3, 5, 8, 12, 20]
   const accels = rs.map(r => k / (r * r))
   const exponent = logLogExponent(rs, accels)
+
   // a slow mass released at rest falls inward (binds): integrate r'' = -k/r^2 from rest
   let r = 12
   let v = 0
+
   const dt = 0.001
+
   for (let step = 0; step < 200000; step++) {
     v += -(k / (r * r)) * dt
     r += v * dt
+
     if (r < 1) {
       break
     }
@@ -71,6 +75,7 @@ export default experiment({
       mass: MASS,
       periodic: true,
     })
+
     const c = freeFermionCorrelationMatrix({ h, n })
     const series = screenBitSeries({ c, n, side: SIDE, radii: RADII })
     const areaExponent = logLogExponent(series.radii, series.bits)
@@ -89,12 +94,14 @@ export default experiment({
         strength: LENS_STRENGTH,
       }),
     )
+
     const fullMetric = Math.abs(
       refractiveDeflection({
         impactParameter: IMPACT,
         strength: 2 * LENS_STRENGTH,
       }),
     )
+
     const lightFactor = fullMetric / temporalOnly
 
     // the control, a zero potential gives no force and no deflection
@@ -108,6 +115,7 @@ export default experiment({
     const verlindeNewton = force.isNewtonian
     const matterInverseSquare =
       Math.abs(matter.exponent + 2) < 0.05 && matter.binds
+
     const lightFactorTwo = Math.abs(lightFactor - 2) < 0.1
     const controlIsZero = zeroDeflection < 1e-6
     const ok =

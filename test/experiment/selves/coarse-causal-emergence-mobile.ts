@@ -44,12 +44,16 @@ function centroidSeries(input: {
   beats: number
 }): number[] {
   let current = cloneWill(input.init)
+
   const mesh = current.mesh
   const degree = mesh.degree
   const side = Math.round(Math.pow(mesh.cellCount, 1 / 4))
   const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+
   let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+
   const series: number[] = []
+
   for (let t = 0; t < input.beats; t++) {
     beatInto({
       src: current,
@@ -62,9 +66,11 @@ function centroidSeries(input: {
     scratch = swap
     let sumX = 0
     let count = 0
+
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       const x = cell % side
       const base = cell * degree
+
       for (let d = 0; d < degree; d++) {
         if (current.data[base + d] !== 0) {
           sumX += x
@@ -96,6 +102,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const mobile: Collision = headOnRotate({ opposite })
     const pinning: Collision = pairCollision({
       opposite,
@@ -112,6 +119,7 @@ export default experiment({
       collision: mobile,
       beats,
     })
+
     const pinningSeries = centroidSeries({
       init,
       collision: pinning,
@@ -124,6 +132,7 @@ export default experiment({
       macroCount,
       rng: makeRng(7777),
     })
+
     const pinningEi = emergenceGain({
       series: pinningSeries,
       fine,

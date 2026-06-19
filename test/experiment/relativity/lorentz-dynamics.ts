@@ -32,14 +32,18 @@ export default experiment({
     const realizations = 10
 
     const accum = new Float64Array(annulus.bins)
+
     for (let r = 0; r < realizations; r++) {
       const mesh = randomGeometricMesh({
         count: 420,
         radius: 0.1,
         rng: makeRng({ seed: 10 + r }),
       })
+
       const profile = wavefrontProfile({ mesh, t, ...annulus })
+
       let total = 0
+
       for (let b = 0; b < annulus.bins; b++) {
         total += profile[b] ?? 0
       }

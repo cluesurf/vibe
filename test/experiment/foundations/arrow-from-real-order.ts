@@ -32,12 +32,15 @@ function realImaginaryAxes(level: number): {
   imaginary: number
 } {
   const dimension = 2 ** level
+
   let real = 0
   let imaginary = 0
+
   for (let i = 0; i < dimension; i++) {
     const e = new Array<number>(dimension).fill(0)
     e[i] = 1
     const square = cayleyMultiply(e, e)[0]!
+
     if (square > 0) {
       real++
     } else {

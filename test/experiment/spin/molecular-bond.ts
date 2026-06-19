@@ -50,9 +50,11 @@ export default experiment({
     const bond = hydrogenMolecularIonVariationalBond()
     const bondLengthMatches =
       Math.abs(bond.equilibriumSeparation - OBSERVED_BOND_LENGTH) < 0.1
+
     const dissociationRightMagnitude =
       bond.dissociationEnergyEv > 0.7 * OBSERVED_DISSOCIATION_EV &&
       bond.dissociationEnergyEv < 1.1 * OBSERVED_DISSOCIATION_EV
+
     const electronContracts =
       bond.effectiveCharge > 1 && bond.effectiveCharge < 1.5
 
@@ -60,10 +62,12 @@ export default experiment({
     const bondingAtEquilibrium = hydrogenMolecularIonBondingEnergy({
       separation: bond.equilibriumSeparation,
     })
+
     const isBound = bondingAtEquilibrium < DISSOCIATION_LIMIT
 
     // the control, the antibonding orbital is purely repulsive, no minimum below the dissociation limit
     let antibondingMin = Number.POSITIVE_INFINITY
+
     for (let r = 0.6; r < 8; r += 0.01) {
       antibondingMin = Math.min(
         antibondingMin,
@@ -76,6 +80,7 @@ export default experiment({
 
     // the control, removing the resonance integral destroys the bond (no minimum below the dissociation limit)
     let noResonanceMin = Number.POSITIVE_INFINITY
+
     for (let r = 0.6; r < 10; r += 0.01) {
       noResonanceMin = Math.min(
         noResonanceMin,

@@ -29,17 +29,22 @@ export function bulkDimension(): {
     t1: 2,
     t2: 6,
   })
+
   const d3 = spectralDimension({
     neighbors: g3.neighbors,
     start: cubicLatticeCenterBySide({ side: 40, dim: 3 }),
     t1: 2,
     t2: 6,
   })
+
   const g34 = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: 50000 })
+
   let c = 0,
     best = -1
+
   for (let i = 0; i < g34.cellCount; i++) {
     const d = g34.neighbors[i]!.length
+
     if (d > best) {
       best = d
       c = i
@@ -74,6 +79,7 @@ export default experiment({
     const r = bulkDimension()
     const calibrationOk =
       Math.abs(r.d4 - 4) < 0.6 && Math.abs(r.d3 - 3) < 0.6
+
     const bulkIs4D = Math.abs(r.bulk - 4) < 0.7
     const ok = calibrationOk && bulkIs4D
 

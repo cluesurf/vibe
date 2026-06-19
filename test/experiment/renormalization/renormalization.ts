@@ -35,12 +35,14 @@ function measureField(n: number, seed: number): FieldParams {
   const ARROW = 0.1
   const tone = new Int8Array(N)
   const rng = makeRng({ seed })
+
   for (let b = 0; b < 80; b++) {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: ARROW })
   }
 
   let nz = 0
   let sum = 0
+
   for (let i = 0; i < N; i++) {
     if (tone[i] !== 0) {
       nz++
@@ -51,8 +53,10 @@ function measureField(n: number, seed: number): FieldParams {
 
   const density = nz / N
   const mean = sum / N
+
   // nearest-neighbour connected correlation (the pair structure), robust over all edges
   let c1 = 0
+
   for (let k = 0; k < eu.length; k++) {
     c1 += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
   }
@@ -61,6 +65,7 @@ function measureField(n: number, seed: number): FieldParams {
 
   // causal lightcone via butterfly front
   let center = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -77,12 +82,14 @@ function measureField(n: number, seed: number): FieldParams {
     source: center,
     maxRadius: 12,
   })
+
   const base = tone.slice()
   const pert = tone.slice()
   pert[center] = base[center]! === 0 ? 1 : 0
   const T = 5
   const rb = makeRng({ seed: seed + 1 })
   const rp = makeRng({ seed: seed + 1 })
+
   for (let b = 0; b < T; b++) {
     conservingEdgeSweep({
       tone: base,
@@ -106,9 +113,11 @@ function measureField(n: number, seed: number): FieldParams {
   }
 
   let front = 0
+
   for (let i = 0; i < N; i++) {
     if (base[i] !== pert[i]) {
       const r = dcenter[i]!
+
       if (r > front) {
         front = r
       }
@@ -138,12 +147,14 @@ export function renormalization(input?: {
 
   const rel = (a: number, b: number): number =>
     Math.abs(a - b) / (Math.abs(a) + Math.abs(b) + 1e-9)
+
   const densityMatch = rel(small.density, large.density) < 0.1
   const c1Match = rel(small.c1, large.c1) < 0.2
   const coneMatch = Math.abs(small.coneSpeed - large.coneSpeed) <= 0.5
   const pairStructure = small.c1 < 0 && large.c1 < 0 // both show pair anti-correlation
   const sliceInvariant =
     densityMatch && c1Match && coneMatch && pairStructure
+
   const solved = sliceInvariant
 
   return {

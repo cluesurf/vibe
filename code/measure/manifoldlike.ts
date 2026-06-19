@@ -10,6 +10,7 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 // L). Computed by relaxing covering links in topological order.
 function posetHeight(input: { poset: Poset }): number {
   const p = input.poset
+
   if (p.size === 0) {
     return 0
   }
@@ -18,14 +19,18 @@ function posetHeight(input: { poset: Poset }): number {
   // until no value changes converges to the true longest chain regardless of
   // element index order (a Bellman-Ford-style fixpoint on a DAG).
   const best = new Int32Array(p.size)
+
   for (let pass = 0; pass < p.size; pass++) {
     let changed = false
+
     for (let x = 0; x < p.size; x++) {
       const row = p.links[x] ?? new Uint32Array(0)
       const baseValue = best[x] ?? 0
+
       for (let k = 0; k < row.length; k++) {
         const child = row[k] ?? 0
         const candidate = baseValue + 1
+
         if (candidate > (best[child] ?? 0)) {
           best[child] = candidate
           changed = true
@@ -39,6 +44,7 @@ function posetHeight(input: { poset: Poset }): number {
   }
 
   let max = 0
+
   for (let x = 0; x < p.size; x++) {
     if ((best[x] ?? 0) > max) {
       max = best[x] ?? 0
@@ -67,6 +73,7 @@ export function manifoldLikeness(input: { poset: Poset }): {
   const estimatedDimension = myrheimMeyerDimension({
     poset: input.poset,
   })
+
   const height = posetHeight({ poset: input.poset })
 
   // KR test: height stays around 2 (three layers) while N grows. Compare the
@@ -77,9 +84,11 @@ export function manifoldLikeness(input: { poset: Poset }): {
     n >= 8 && height <= 3 && height < 0.5 * logN
 
   let score = 0
+
   if (n >= 2 && estimatedDimension > 0) {
     // Dimension band: full credit inside [1,6], smooth falloff outside.
     let dimScore: number
+
     if (estimatedDimension >= 1 && estimatedDimension <= 6) {
       dimScore = 1
     } else if (estimatedDimension < 1) {
@@ -90,6 +99,7 @@ export function manifoldLikeness(input: { poset: Poset }): {
     }
 
     score = dimScore
+
     if (isKleitmanRothschild) {
       // A KR order is the canonical non-manifold; suppress the score hard.
       score *= 0.1

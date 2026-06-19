@@ -40,11 +40,13 @@ export function buildTilingFaces(input: {
 
   const polygons: Vec[][] = []
   const centers: Vec[] = graph.coords.map(c => recenter(c))
+
   for (let cell = 0; cell < graph.cellCount; cell++) {
     const center = centers[cell]!
     const verts = shape.vertices.map(v =>
       recenter(toPoincare(matVec(cellMat[cell]!, v), timeAxis)),
     )
+
     // order the vertices cyclically around the cell center so the polygon does not self-cross
     const ordered = verts
       .map(p => ({
@@ -56,6 +58,7 @@ export function buildTilingFaces(input: {
       }))
       .sort((a, b) => a.angle - b.angle)
       .map(x => x.p)
+
     polygons.push(ordered)
   }
 

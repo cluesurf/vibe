@@ -32,6 +32,7 @@ const ROOTS = rootsD4()
 
 const sameVector = (a: number[], b: number[]): boolean =>
   a.every((v, i) => v === b[i])
+
 const differs = (a: Will, b: Will): boolean =>
   a.data.some((v, i) => v !== b.data[i])
 
@@ -50,6 +51,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const mobile: Collision = headOnRotate({ opposite })
     const center =
       4 + 4 * side + 4 * side * side + 4 * side * side * side
@@ -70,8 +72,10 @@ export default experiment({
     const incomingEmptied =
       deflected.data[center * degree + dir] === 0 &&
       deflected.data[center * degree + opp] === 0
+
     const stillTwoCharges =
       deflected.data.reduce((s, v) => s + Math.abs(v), 0) === 2
+
     const deflectMomentumOk = sameVector(
       mBeforePair,
       momentum(deflected, ROOTS),
@@ -97,11 +101,13 @@ export default experiment({
       mobile,
       beats,
     )
+
     const crossedRun = run(
       { mesh, data: approach.data.slice() },
       passThrough,
       beats,
     )
+
     const interacted = differs(scattered, crossedRun)
     const runMomentumOk = sameVector(mStart, momentum(scattered, ROOTS))
     const chargeOk = charge(scattered) === charge(approach)

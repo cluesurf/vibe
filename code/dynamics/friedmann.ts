@@ -10,6 +10,7 @@ export type FluidComponent = { rho: number; w: number }
 
 function hubble(rhos: number[]): number {
   let tot = 0
+
   for (const r of rhos) {
     tot += r
   }
@@ -25,6 +26,7 @@ export function friedmannStep(input: {
   dt: number
 }): { a: number; rhos: number[] } {
   const { a, rhos, comps, dt } = input
+
   const deriv = (rs: number[]): { da: number; dr: number[] } => {
     const h = hubble(rs)
 
@@ -66,9 +68,11 @@ export function integrateFriedmann(input: {
   const a: number[] = []
   const rhoTot: number[] = []
   const pTot: number[] = []
+
   let av = input.a0
   let rhos = input.comps.map(c => c.rho)
   let time = input.t0
+
   while (time <= input.tMax) {
     let rt = 0
     let pt = 0
@@ -86,6 +90,7 @@ export function integrateFriedmann(input: {
       comps: input.comps,
       dt: input.dt,
     })
+
     av = next.a
     rhos = next.rhos
     time += input.dt

@@ -79,15 +79,20 @@ export function buildCellGraph(input: {
   const faceNeighbor: number[][] = [
     new Array<number>(F.length).fill(-1),
   ]
+
   let hit = false
+
   for (let head = 0; head < cellMat.length; head++) {
     const g = cellMat[head]!
+
     for (let fi = 0; fi < F.length; fi++) {
       const gp = matMul(g, F[fi]!)
       const center = matVec(gp, c0)
       const coord = toPoincare(center, timeAxis)
       const k = keyOf(coord)
+
       let id = cellKey.get(k)
+
       if (id === undefined) {
         if (cellMat.length >= maxCells) {
           hit = true
@@ -103,6 +108,7 @@ export function buildCellGraph(input: {
       }
 
       faceNeighbor[head]![fi] = id
+
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
@@ -115,6 +121,7 @@ export function buildCellGraph(input: {
   }
 
   let facetCount = 0
+
   for (const nb of neighbors) {
     facetCount = Math.max(facetCount, nb.length)
   }
@@ -148,12 +155,15 @@ export function buildEuclideanLattice(input: {
   const symbol = input.symbol
   const maxCells = input.maxCells ?? 20000
   const key = symbol.join(',')
+
   // pick the lattice and neighbour offsets for the named Euclidean honeycomb
   let dim: number
   let offsets: number[][]
   let onLattice: (p: number[]) => boolean = () => true
+
   const axes = (d: number): number[][] => {
     const o: number[][] = []
+
     for (let i = 0; i < d; i++) {
       for (const s of [1, -1]) {
         const v = new Array<number>(d).fill(0)
@@ -167,6 +177,7 @@ export function buildEuclideanLattice(input: {
 
   const dRoots = (d: number): number[][] => {
     const o: number[][] = []
+
     for (let i = 0; i < d; i++) {
       for (let j = i + 1; j < d; j++) {
         for (const si of [1, -1]) {
@@ -222,16 +233,21 @@ export function buildEuclideanLattice(input: {
   const idOf = new Map<string, number>([[kOf(start), 0]])
   const coords: number[][] = [start]
   const neighbors: number[][] = [[]]
+
   for (let head = 0; head < coords.length; head++) {
     const p = coords[head]!
+
     for (const o of offsets) {
       const q = p.map((x, i) => x + o[i]!)
+
       if (!onLattice(q)) {
         continue
       }
 
       const k = kOf(q)
+
       let id = idOf.get(k)
+
       if (id === undefined) {
         if (coords.length >= maxCells) {
           continue
@@ -251,6 +267,7 @@ export function buildEuclideanLattice(input: {
   }
 
   let facetCount = 0
+
   for (const nb of neighbors) {
     facetCount = Math.max(facetCount, nb.length)
   }
@@ -290,6 +307,7 @@ export function buildHorosphere(input: {
     symbol,
     maxCells: input.maxCells ?? 12000,
   })
+
   const coords = g.coords
   const n = g.cellCount
   const norm = (v: number[]): number =>
@@ -298,8 +316,10 @@ export function buildHorosphere(input: {
   // ideal point xi = direction of the farthest cell (closest to the boundary), projected to the sphere
   let far = 0
   let fr = -1
+
   for (let i = 0; i < n; i++) {
     const r = norm(coords[i]!)
+
     if (r > fr) {
       fr = r
       far = i
@@ -313,6 +333,7 @@ export function buildHorosphere(input: {
   // Busemann function b(x) = log( |x - xi|^2 / (1 - |x|^2) ), level sets are the horospheres tangent at xi
   const bus: number[] = coords.map(x => {
     let d2 = 0
+
     for (let k = 0; k < x.length; k++) {
       d2 += (x[k]! - xi[k]!) ** 2
     }
@@ -326,6 +347,7 @@ export function buildHorosphere(input: {
   const half = input.bandHalfWidth ?? 0.3
   const inBand: number[] = []
   const reindex = new Int32Array(n).fill(-1)
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(bus[i]! - level) < half) {
       reindex[i] = inBand.length
@@ -334,9 +356,11 @@ export function buildHorosphere(input: {
   }
 
   const neighbors: number[][] = inBand.map(() => [])
+
   for (let a = 0; a < inBand.length; a++) {
     for (const w of g.neighbors[inBand[a]!]!) {
       const b = reindex[w]!
+
       if (b >= 0) {
         neighbors[a]!.push(b)
       }
@@ -383,10 +407,12 @@ export function buildHorosphereBand(input: {
   const R: Mat[] = normals.map(nrm => reflectionMatrix(nrm, metric))
   const stab: Mat[] = [identity(dim)]
   const stabSeen = new Set<string>([keyOf(stab[0]!.flat())])
+
   for (let head = 0; head < stab.length; head++) {
     for (let i = 0; i < cellMirrors; i++) {
       const g = matMul(R[i]!, stab[head]!)
       const k = keyOf(g.flat())
+
       if (!stabSeen.has(k)) {
         stabSeen.add(k)
         stab.push(g)
@@ -401,9 +427,11 @@ export function buildHorosphereBand(input: {
   const outerNormal = normals[normals.length - 1]!
   const faceNormals: Vec[] = []
   const faceSeen = new Set<string>()
+
   for (const h of stab) {
     const fn = matVec(h, outerNormal)
     const k = keyOf(fn)
+
     if (!faceSeen.has(k)) {
       faceSeen.add(k)
       faceNormals.push(fn)
@@ -415,8 +443,10 @@ export function buildHorosphereBand(input: {
 
   const norm = (v: Vec): number =>
     Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
   // the ideal point, a deep walk along one facet direction, normalized to the boundary
   let gw = identity(dim)
+
   for (let i = 0; i < 40; i++) {
     gw = matMul(gw, F[0]!)
   }
@@ -424,8 +454,10 @@ export function buildHorosphereBand(input: {
   const xc = toPoincare(matVec(gw, c0), timeAxis)
   const xn = norm(xc) || 1
   const xi = xc.map(v => v / xn)
+
   const busOf = (coord: Vec): number => {
     let d2 = 0
+
     for (let k = 0; k < coord.length; k++) {
       d2 += (coord[k]! - xi[k]!) ** 2
     }
@@ -443,6 +475,7 @@ export function buildHorosphereBand(input: {
   const cellBus: number[] = [busOf(c0coord)]
   const cellKey = new Map<string, number>([[keyOf(c0coord), 0]])
   const neighbors: number[][] = [[]]
+
   let bandCount = Math.abs(cellBus[0]!) < half ? 1 : 0
 
   for (let head = 0; head < cellMat.length; head++) {
@@ -451,16 +484,20 @@ export function buildHorosphereBand(input: {
     } // pruned, outside the slab, do not expand
 
     const g = cellMat[head]!
+
     for (const f of F) {
       const gp = matMul(g, f)
       const coord = toPoincare(matVec(gp, c0), timeAxis)
       const b = busOf(coord)
+
       if (Math.abs(b) >= expandLimit) {
         continue
       } // drop cells outside the slab entirely
 
       const k = keyOf(coord)
+
       let id = cellKey.get(k)
+
       if (id === undefined) {
         id = cellMat.length
         cellKey.set(k, id)
@@ -468,6 +505,7 @@ export function buildHorosphereBand(input: {
         cellCoord.push(coord)
         cellBus.push(b)
         neighbors.push([])
+
         if (Math.abs(b) < half) {
           bandCount++
         }
@@ -509,6 +547,7 @@ export function bandInducedSubgraph(input: {
   const { band, halfWidth } = input
   const bandIdx: number[] = []
   const rmap = new Map<number, number>()
+
   for (let i = 0; i < band.cellCount; i++) {
     if (Math.abs(band.busemann[i]!) < halfWidth) {
       rmap.set(i, bandIdx.length)
@@ -517,9 +556,11 @@ export function bandInducedSubgraph(input: {
   }
 
   const neighbors: number[][] = bandIdx.map(() => [])
+
   for (let a = 0; a < bandIdx.length; a++) {
     for (const w of band.neighbors[bandIdx[a]!]!) {
       const b = rmap.get(w)
+
       if (b !== undefined) {
         neighbors[a]!.push(b)
       }
@@ -555,6 +596,7 @@ export function bandLargestComponentSubgraph(input: {
   const largestComponentPercent = Math.round(
     (lcc.length / bnb.length) * 100,
   )
+
   const lmap = new Map(lcc.map((v, i) => [v, i]))
   const neighbors: number[][] = lcc.map(
     v =>
@@ -562,6 +604,7 @@ export function bandLargestComponentSubgraph(input: {
         x => x !== undefined,
       ) as number[],
   )
+
   const coords = lcc.map(v => bcoords[v]!)
   // highest-degree cell, the walk start for the spectral-dimension probe
   const start = mostConnectedNode(neighbors)

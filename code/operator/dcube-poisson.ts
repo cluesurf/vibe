@@ -21,18 +21,23 @@ export function dCubePoissonGreens(input: {
   const N = d === 3 ? L * L * L : L * L
   const idx = (c: number[]): number =>
     d === 3 ? (c[2]! * L + c[1]!) * L + c[0]! : c[1]! * L + c[0]!
+
   const coord = (i: number): number[] =>
     d === 3
       ? [i % L, ((i / L) | 0) % L, (i / (L * L)) | 0]
       : [i % L, (i / L) | 0]
+
   const lap = (p: Float64Array, o: Float64Array): void => {
     for (let i = 0; i < N; i++) {
       const c = coord(i)
+
       let v = 2 * d * p[i]!
+
       for (let k = 0; k < d; k++) {
         for (const s of [-1, 1]) {
           const cc = c.slice()
           cc[k]! += s
+
           if (cc[k]! >= 0 && cc[k]! < L) {
             v -= p[idx(cc)]!
           }
@@ -45,6 +50,7 @@ export function dCubePoissonGreens(input: {
 
   const dot = (a: Float64Array, b: Float64Array): number => {
     let s = 0
+
     for (let i = 0; i < N; i++) {
       s += a[i]! * b[i]!
     }
@@ -59,21 +65,26 @@ export function dCubePoissonGreens(input: {
     r = b.slice(),
     p = b.slice(),
     Ap = new Float64Array(N)
+
   let rs = dot(r, r)
+
   for (let it = 0; it < iterations; it++) {
     lap(p, Ap)
     const al = rs / dot(p, Ap)
+
     for (let i = 0; i < N; i++) {
       x[i]! += al * p[i]!
       r[i]! -= al * Ap[i]!
     }
 
     const rs2 = dot(r, r)
+
     if (Math.sqrt(rs2) < tol) {
       break
     }
 
     const be = rs2 / rs
+
     for (let i = 0; i < N; i++) {
       p[i] = r[i]! + be * p[i]!
     }

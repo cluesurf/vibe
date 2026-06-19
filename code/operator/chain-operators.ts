@@ -11,8 +11,10 @@ export function chainOperators(n: number): {
 } {
   const adjacency = makeDense({ rows: n, cols: n })
   const laplacian = makeDense({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     let degree = 0
+
     if (i > 0) {
       adjacency.data[i * n + (i - 1)] = 1
       laplacian.data[i * n + (i - 1)] = -1

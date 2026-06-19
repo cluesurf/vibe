@@ -18,9 +18,11 @@ export function fillGatedSweep(input: {
 }): void {
   const { tone, edges, fill, rng } = input
   const moved = new Uint8Array(tone.length)
+
   for (let i = 0; i < edges.length; i++) {
     const v = edges[i]![0]
     const w = edges[i]![1]
+
     if (moved[v] || moved[w]) {
       continue
     }
@@ -28,6 +30,7 @@ export function fillGatedSweep(input: {
     const f = fill[i]!
     const tv = tone[v]!
     const tw = tone[w]!
+
     if (f === -1) {
       if (tv === 0 && tw === 0) {
         if (rng.next() < 0.5) {

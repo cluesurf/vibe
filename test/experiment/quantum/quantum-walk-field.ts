@@ -42,12 +42,14 @@ export function quantumWalkField(input?: { steps?: number }): {
     lo: 10,
     hi: steps,
   })
+
   const cw = classicalWalkMSD({ steps, runs: 4000 })
   const classicalExponent = loglogExponentWindow({
     values: cw,
     lo: 10,
     hi: steps,
   })
+
   const quantumBallistic = quantumExponent > 1.7 // var ~ t^2 => exponent ~ 2 (z=1)
   const classicalDiffusive =
     classicalExponent > 0.7 && classicalExponent < 1.3 // var ~ t (z=2)
@@ -58,12 +60,16 @@ export function quantumWalkField(input?: { steps?: number }): {
   // massless cone speed = d omega / dk at small k for theta=0
   const masslessConeSpeed =
     (coinedWalkDispersion({ theta: 0, k: 0.01 }) - 0) / 0.01
+
   const massGap = coinedWalkDispersion({ theta, k: 0 }) // omega(0) = theta = the mass
+
   // reflection positivity: the dispersion is REAL for all k (a positive spectral measure / Hermitian H)
   let dispersionReal = true
+
   for (let i = 0; i <= 100; i++) {
     const k = -Math.PI + (2 * Math.PI * i) / 100
     const w = coinedWalkDispersion({ theta, k })
+
     if (!isFinite(w) || w < -1e-9) {
       dispersionReal = false
     }

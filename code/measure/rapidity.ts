@@ -15,19 +15,23 @@ export function linkRapidities(input: {
 }): number[] {
   const { coords, links, band } = input
   const out: number[] = []
+
   for (let a = 0; a < links.length; a++) {
     const ta = coords[a * 2] ?? 0
     const xa = coords[a * 2 + 1] ?? 0
+
     for (const b of links[a] ?? []) {
       const tb = coords[b * 2] ?? 0
       const xb = coords[b * 2 + 1] ?? 0
       const dt = tb - ta
       const dx = xb - xa
+
       if (dt <= 1e-9) {
         continue
       }
 
       const v = dx / dt
+
       if (Math.abs(v) >= 1 - 1e-9) {
         continue
       } // null/spacelike, no finite rapidity
@@ -98,6 +102,7 @@ export function boostCoords(input: {
   const sh = Math.sinh(rapidity)
   const n = coords.length / 2
   const out = new Float64Array(coords.length)
+
   for (let i = 0; i < n; i++) {
     const t = coords[i * 2] ?? 0
     const x = coords[i * 2 + 1] ?? 0

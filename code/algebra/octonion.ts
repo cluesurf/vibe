@@ -28,6 +28,7 @@ const FANO_LINES: ReadonlyArray<readonly [number, number, number]> = [
 const PRODUCT_INDEX: number[][] = Array.from({ length: 8 }, () =>
   new Array<number>(8).fill(0),
 )
+
 const PRODUCT_SIGN: number[][] = Array.from({ length: 8 }, () =>
   new Array<number>(8).fill(0),
 )
@@ -104,16 +105,20 @@ export function octonionScale(a: Octonion, scalar: number): Octonion {
 // The octonion product, bilinear over the Fano-plane table.
 export function octonionMultiply(a: Octonion, b: Octonion): Octonion {
   const out = octonionZero()
+
   for (let i = 0; i < 8; i++) {
     const ai = a[i]!
+
     if (ai === 0) {
       continue
     }
 
     const indexRow = PRODUCT_INDEX[i]!
     const signRow = PRODUCT_SIGN[i]!
+
     for (let j = 0; j < 8; j++) {
       const bj = b[j]!
+
       if (bj === 0) {
         continue
       }

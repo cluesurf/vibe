@@ -40,6 +40,7 @@ export default experiment({
         body: true,
       }),
     )
+
     // the control, no body means no shadow and no net momentum at any distance
     const control = DISTANCES.map(dist =>
       selfContainedShadowD4({
@@ -58,8 +59,10 @@ export default experiment({
     const logM = momenta.map(m => Math.log(Math.abs(m) + 1e-9))
     const meanX = logD.reduce((a, b) => a + b, 0) / logD.length
     const meanY = logM.reduce((a, b) => a + b, 0) / logM.length
+
     let num = 0
     let den = 0
+
     for (let i = 0; i < logD.length; i++) {
       num += (logD[i]! - meanX) * (logM[i]! - meanY)
       den += (logD[i]! - meanX) ** 2

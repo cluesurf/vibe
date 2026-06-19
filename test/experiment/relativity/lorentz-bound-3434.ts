@@ -34,10 +34,12 @@ function anisotropyScaling(
       magnitude: q,
     }),
   )
+
   // guard zeros (D4 anisotropy can underflow to 0 at the smallest q); fit on the resolvable points
   const pts = qs
     .map((q, i) => [q, anis[i]!] as const)
     .filter(([, a]) => a > 1e-14)
+
   const exponent =
     pts.length >= 2
       ? logLogSlope(

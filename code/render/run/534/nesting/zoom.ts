@@ -30,9 +30,11 @@ function shellColor(
   const h = hue / 60,
     c = 1,
     x = c * (1 - Math.abs((h % 2) - 1))
+
   let r = 0,
     g = 0,
     b = 0
+
   if (h < 1) {
     ;[r, g, b] = [c, x, 0]
   } else if (h < 2) {
@@ -56,9 +58,12 @@ function run(): void {
   const depth = new Array<number>(n).fill(-1)
   depth[0] = 0
   let frontier = [0]
+
   const shellCounts: number[] = [1]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const v of g.neighbors[u]!) {
         if (depth[v]! < 0) {
@@ -76,6 +81,7 @@ function run(): void {
   }
 
   let maxClean = 0
+
   for (let i = 1; i < shellCounts.length; i++) {
     if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
       maxClean = i
@@ -94,6 +100,7 @@ function run(): void {
     r2: number
     col: [number, number, number]
   }[]
+
   for (let i = 0; i < n; i++) {
     if (depth[i]! < 0 || depth[i]! > maxClean) {
       continue
@@ -115,6 +122,7 @@ function run(): void {
   mkdirSync(outDir, { recursive: true })
   const half = IMG / 2,
     baseScale = half * MARGIN
+
   const drawDot = (
     rgba: Uint8Array,
     cx: number,
@@ -127,10 +135,12 @@ function run(): void {
       c0 = Math.max(0, Math.floor(cy - rad)),
       c1 = Math.min(IMG - 1, Math.ceil(cy + rad)),
       rr = rad * rad
+
     for (let py = c0; py <= c1; py++) {
       for (let px = r0; px <= r1; px++) {
         const dx = px - cx,
           dy = py - cy
+
         if (dx * dx + dy * dy <= rr) {
           const o = (py * IMG + px) * 4
           rgba[o] = col[0]
@@ -146,6 +156,7 @@ function run(): void {
     const zoom = Math.exp((f / (FRAMES - 1)) * Math.log(ZOOM_MAX)) // exponential zoom 1 -> ZOOM_MAX
     const scale = baseScale * zoom
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < rgba.length; i += 4) {
       rgba[i] = 10
       rgba[i + 1] = 10
@@ -156,6 +167,7 @@ function run(): void {
     for (const c of cells) {
       const px = half + scale * (c.x - TARGET[0]!),
         py = half - scale * (c.y - TARGET[1]!)
+
       if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20) {
         continue
       }
@@ -164,6 +176,7 @@ function run(): void {
         0.6,
         DOT_SCALE * (1 - c.r2) * Math.min(zoom, 6),
       )
+
       drawDot(rgba, px, py, rad, c.col)
     }
 
@@ -171,6 +184,7 @@ function run(): void {
       join(outDir, `zoom-${String(f).padStart(3, '0')}.png`),
       encodePng(rgba, IMG, IMG),
     )
+
     if (f % 20 === 0) {
       console.log(`  frame ${f}/${FRAMES} zoom ${zoom.toFixed(2)}x`)
     }

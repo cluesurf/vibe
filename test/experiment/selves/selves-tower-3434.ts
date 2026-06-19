@@ -43,6 +43,7 @@ function makeStep(
     const n = tone.length
     const used = new Uint8Array(n)
     const order = Array.from({ length: n }, (_, i) => i)
+
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
@@ -58,8 +59,10 @@ function makeStep(
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
       const off = Math.floor(rng.next() * deg)
+
       for (let s = 0; s < deg; s++) {
         const w = adj[start + ((off + s) % deg)]!
+
         if (used[w] || w === v) {
           continue
         }
@@ -90,6 +93,7 @@ function formPersistence(
   opts: { lag: number; frames: number; step: StepFn },
 ): number {
   let numGroups = 0
+
   for (const gi of groupOf) {
     if (gi + 1 > numGroups) {
       numGroups = gi + 1
@@ -97,9 +101,11 @@ function formPersistence(
   }
 
   const series: number[][] = []
+
   for (let f = 0; f < opts.frames + opts.lag; f++) {
     opts.step(tone, offsets, adj, rng)
     const g = new Array<number>(numGroups).fill(0)
+
     for (let i = 0; i < tone.length; i++) {
       g[groupOf[i]!] = g[groupOf[i]!]! + tone[i]!
     }
@@ -109,6 +115,7 @@ function formPersistence(
 
   let acc = 0
   let c = 0
+
   for (let t = 0; t + opts.lag < series.length; t++) {
     acc += pearson({
       a: series[t]!,
@@ -127,6 +134,7 @@ function shuffledGroups(
   rng: { next: () => number },
 ): number[] {
   const perm2 = groupOf.slice()
+
   for (let i = perm2.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = perm2[i]!
@@ -151,14 +159,17 @@ function cuspTower(): {
     symbol: [4, 3, 4],
     maxCells: L * L * L * 2,
   })
+
   const n = g.cellCount
   const { offsets, adj } = toCsr(g.neighbors)
+
   // block-of-size-b grouping from integer coords
   const groupAt = (b: number): number[] => {
     const idx = new Map<string, number>()
 
     return g.coords.map(c => {
       const k = `${Math.floor(c[0]! / b)},${Math.floor(c[1]! / b)},${Math.floor(c[2]! / b)}`
+
       if (!idx.has(k)) {
         idx.set(k, idx.size)
       }
@@ -169,6 +180,7 @@ function cuspTower(): {
 
   const rng = makeRng({ seed: 11 })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   }
@@ -181,6 +193,7 @@ function cuspTower(): {
   const real: number[] = []
   const diff: number[] = []
   const nul: number[] = []
+
   for (const b of blocks) {
     const grp = groupAt(b)
     real.push(
@@ -217,6 +230,7 @@ function cuspTower(): {
 
   const r = (x: number[]): number[] =>
     x.map(v => Math.round(v * 100) / 100)
+
   // a tower is only GENUINE if the perception rule beats the pure-diffusion control (else it is a generic
   // conserved-field slow mode, NOT selfhood). p208 found it does NOT beat diffusion.
   const beatsDiffusion =
@@ -243,6 +257,7 @@ function bulkTower(): {
   const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 20000 })
   const n = a.graph.cellCount
   const { offsets, adj } = toCsr(a.graph.neighbors)
+
   // coarse-grain by truncating the ADDRESS to depth d (climb inward up the Fibonacci tree). d large = fine,
   // d small = coarse. Cells shallower than d join their own singleton (kept distinct).
   const groupAtDepth = (d: number): number[] => {
@@ -250,6 +265,7 @@ function bulkTower(): {
 
     return a.address.map(addr => {
       const k = addr.slice(0, d).join('.') || 'root'
+
       if (!idx.has(k)) {
         idx.set(k, idx.size)
       }
@@ -260,6 +276,7 @@ function bulkTower(): {
 
   const rng = makeRng({ seed: 13 })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   }
@@ -272,6 +289,7 @@ function bulkTower(): {
   const real: number[] = []
   const diff: number[] = []
   const nul: number[] = []
+
   for (const d of depths) {
     const grp = groupAtDepth(d)
     real.push(
@@ -308,6 +326,7 @@ function bulkTower(): {
 
   const r = (x: number[]): number[] =>
     x.map(v => Math.round(v * 100) / 100)
+
   const beatsDiffusion =
     real[real.length - 1]! > diff[diff.length - 1]! + 0.1
 

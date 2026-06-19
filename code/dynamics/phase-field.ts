@@ -16,6 +16,7 @@ export function phaseRelaxStep(
 ): number[] {
   const n = theta.length
   const next = new Array<number>(n)
+
   for (let i = 0; i < n; i++) {
     const left = theta[(i - 1 + n) % n]!
     const right = theta[(i + 1) % n]!
@@ -38,6 +39,7 @@ export function phaseWaveStep(
 ): void {
   const n = theta.length
   const acceleration = new Array<number>(n)
+
   for (let i = 0; i < n; i++) {
     acceleration[i] =
       Math.sin(theta[(i + 1) % n]! - theta[i]!) +
@@ -58,6 +60,7 @@ export function gradientStructure(
 ): number {
   const n = theta.length
   const gradient = new Array<number>(n)
+
   for (let i = 0; i < n; i++) {
     gradient[i] = Math.sin(theta[(i + 1) % n]! - theta[i]!)
   }
@@ -79,10 +82,12 @@ export function windingKinkWithLump(input: {
   const { size, winding, lumpAmplitude } = input
   const width = input.lumpWidth ?? 5
   const field = new Array<number>(size)
+
   for (let i = 0; i < size; i++) {
     const kink = (2 * Math.PI * winding * i) / size
     const lump =
       lumpAmplitude * Math.exp(-(((i - size / 2) / width) ** 2))
+
     field[i] = wrapAngle(kink + lump)
   }
 

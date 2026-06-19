@@ -18,9 +18,11 @@ export default experiment({
   run() {
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 4000 })
     const cells = a.dist.length
+
     // the proof length for a cell is its depth (the parent chain to the root)
     let maxProof = 0
     let sumProof = 0
+
     for (let cell = 0; cell < cells; cell++) {
       maxProof = Math.max(maxProof, a.dist[cell]!)
       sumProof += a.dist[cell]!

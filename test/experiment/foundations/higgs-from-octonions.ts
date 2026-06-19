@@ -56,15 +56,18 @@ export default experiment({
         { length: 4 },
         (_, i) => ((i * 5 + offset) % 7) - 3,
       )
+
       const norm = Math.sqrt(normSquared(v))
 
       return v.map(x => x / norm)
     }
 
     let su2Closed = true
+
     for (let a = 0; a < 4; a++) {
       for (let b = 0; b < 4; b++) {
         const product = cayleyMultiply(make(a), make(b + 1))
+
         if (Math.abs(normSquared(product) - 1) > 1e-9) {
           su2Closed = false
         }
@@ -76,6 +79,7 @@ export default experiment({
       isospin: 0.5,
       isospinComponent: 0.5,
     })
+
     const tripletRho = custodialRho({ isospin: 1, isospinComponent: 1 })
     const doubletGivesOne = Math.abs(doubletRho - 1) < 1e-9
     const tripletExcluded = Math.abs(tripletRho - 1) > 0.1

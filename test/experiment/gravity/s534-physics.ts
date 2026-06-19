@@ -23,21 +23,25 @@ export function s534Physics(): {
     Math.round(
       betheBoundaryExponent({ coordination: 12, energy: 12 }) * 100,
     ) / 100
+
   // (2) cosmology + hierarchy, bulk shell growth ratio (exponential = expansion, radial tree = RG)
   const g = buildCellGraph({
     symbol: [5, 3, 4] as never,
     maxCells: 16000,
   })
+
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
   const { shellCounts: shell } = bfsShells({
     neighbors: nb,
     root: center,
   })
+
   const growthRatio =
     Math.round(
       branchingRatio({ shellCounts: shell, from: 3, to: 6 }) * 100,
     ) / 100
+
   // (3) icosahedral isotropy, the 12 directions, 4th-moment isotropy check sum d_i^4 = 3 sum d_i^2 d_j^2
   const icosaIsotropic =
     directionFourthMoments(icosahedronVertexDirections()).anisotropy <

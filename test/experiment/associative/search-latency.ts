@@ -33,18 +33,22 @@ export function associativeSearchLatency(input?: {
     symbol: [3, 4, 3, 4],
     maxCells: smallCells,
   })
+
   const gL = buildCellGraph({
     symbol: [3, 4, 3, 4],
     maxCells: largeCells,
   })
+
   const bulkRadiusSmall = coverageRadius({
     neighbors: gS.neighbors,
     seed: 0,
   })
+
   const bulkRadiusLarge = coverageRadius({
     neighbors: gL.neighbors,
     seed: 0,
   })
+
   const bulkDelta = bulkRadiusLarge - bulkRadiusSmall
 
   // cubic sides chosen so the cubes hold about the same cell counts (4x apart)
@@ -56,10 +60,12 @@ export function associativeSearchLatency(input?: {
     neighbors: latS.neighbors,
     seed: cubicLatticeCenterBySide({ side: sideS, dim: 3 }),
   })
+
   const cubicRadiusLarge = coverageRadius({
     neighbors: latL.neighbors,
     seed: cubicLatticeCenterBySide({ side: sideL, dim: 3 }),
   })
+
   const cubicDelta = cubicRadiusLarge - cubicRadiusSmall
 
   const solved = bulkDelta >= 0 && bulkDelta < cubicDelta

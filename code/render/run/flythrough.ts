@@ -28,11 +28,13 @@ async function run(): Promise<void> {
   const mode = process.argv[3] ?? 'inside' // 'inside' (textured corridors) or 'dive' (from outside)
   const inside = mode !== 'dive'
   const symbol = arg.split('-').map(Number)
+
   if (symbol.length < 3) {
     throw new Error('flythrough is for 3D honeycombs, e.g. 5-3-4')
   }
 
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU). The flythrough is written and runs where an adapter is present.',
@@ -49,6 +51,7 @@ async function run(): Promise<void> {
     symbol,
     mode: foldMode,
   })
+
   const camera = makeCamera(foldMode)
 
   // fly forward by one cell period over the loop (so it repeats seamlessly through the periodic honeycomb)
@@ -63,9 +66,11 @@ async function run(): Promise<void> {
     'render',
     'flythrough',
   )
+
   mkdirSync(outDir, { recursive: true })
 
   const frames: Uint8Array[] = []
+
   for (let frame = 0; frame < FRAMES; frame++) {
     // high-quality march settings for the offscreen still / GIF
     scene.setCamera3D({
@@ -75,6 +80,7 @@ async function run(): Promise<void> {
     })
     const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
     frames.push(rgba)
+
     if (frame === 0 || frame === Math.floor(FRAMES / 2)) {
       writeFileSync(
         join(outDir, `flythrough-${arg}-${mode}-frame${frame}.png`),
@@ -91,6 +97,7 @@ async function run(): Promise<void> {
     height: SIZE,
     delayMs: 60,
   })
+
   writeFileSync(join(outDir, `flythrough-${arg}-${mode}.gif`), gif)
   console.log(
     `flew through {${symbol.join(',')}} (${mode}), wrote flythrough-${arg}-${mode}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${FRAMES} frames  ${SIZE}x${SIZE}`,

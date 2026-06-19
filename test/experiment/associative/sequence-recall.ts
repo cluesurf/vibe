@@ -22,9 +22,12 @@ function buildPath(
 ): number[] {
   const path = [start]
   const used = new Set<number>([start])
+
   let current = start
+
   while (path.length < length) {
     let next = -1
+
     for (const nb of neighbors[current] ?? []) {
       if (!used.has(nb)) {
         next = nb
@@ -66,7 +69,9 @@ export function associativeSequenceRecall(input?: {
     neighbors: g.neighbors,
     wordBits,
   })
+
   const items: Int8Array[] = []
+
   for (let i = 0; i < path.length; i++) {
     const item = ternaryWord(1000 + i, wordBits)
     items.push(item)
@@ -77,17 +82,20 @@ export function associativeSequenceRecall(input?: {
   // neighbor on the path, and we recall its item by content match
   const cueFirst = searchBest({ mem, comparand: items[0]! }).cell
   const replay: number[] = [cueFirst]
+
   for (let i = 1; i < path.length; i++) {
     const nextCell = path[i]!
     const recalled = searchBest({
       mem,
       comparand: readWord(mem, nextCell),
     }).cell
+
     replay.push(recalled)
   }
 
   // count how many replayed cells match the laid-down path in order
   let correctInOrder = 0
+
   for (let i = 0; i < replay.length && i < path.length; i++) {
     if (replay[i] === path[i]) {
       correctInOrder++

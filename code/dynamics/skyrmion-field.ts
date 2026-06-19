@@ -15,8 +15,10 @@ const cross = (a: Spin, b: Spin): Spin => [
   a[2] * b[0] - a[0] * b[2],
   a[0] * b[1] - a[1] * b[0],
 ]
+
 const dot = (a: Spin, b: Spin): number =>
   a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
 const unit = (a: Spin): Spin => {
   const n = Math.hypot(a[0], a[1], a[2]) || 1
 
@@ -25,6 +27,7 @@ const unit = (a: Spin): Spin => {
 
 const rotate = (v: Spin, k: Spin): Spin => {
   const angle = Math.hypot(k[0], k[1], k[2])
+
   if (angle < 1e-12) {
     return v
   }
@@ -69,6 +72,7 @@ function localField(
 ): Spin {
   const { size, exchange, dm, field } = params
   const h: Spin = [0, 0, field]
+
   for (const [dx, dy, dh] of BONDS) {
     const nb = spins[at(size, x + dx, y + dy)]!
     h[0] += exchange * nb[0]
@@ -100,6 +104,7 @@ export function relaxSpins(input: {
 }): Spin[] {
   const { spins, params, rate } = input
   const out: Spin[] = new Array(params.size * params.size)
+
   for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
       const c = spins[at(params.size, x, y)]!
@@ -126,6 +131,7 @@ export function precessSpins(input: {
 }): Spin[] {
   const { spins, params, dt, open } = input
   const out: Spin[] = new Array(params.size * params.size)
+
   for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
       const h = localField(spins, params, x, y)
@@ -156,12 +162,14 @@ export function skyrmionDegree(spins: Spin[], size: number): number {
   }
 
   let q = 0
+
   for (let y = 0; y < size - 1; y++) {
     for (let x = 0; x < size - 1; x++) {
       const a = spins[at(size, x, y)]!,
         b = spins[at(size, x + 1, y)]!,
         c = spins[at(size, x + 1, y + 1)]!,
         d = spins[at(size, x, y + 1)]!
+
       q += solid(a, b, c) + solid(a, c, d)
     }
   }
@@ -173,10 +181,13 @@ export function skyrmionDegree(spins: Spin[], size: number): number {
 export function skyrmionRadius(spins: Spin[], size: number): number {
   let m = 0,
     sr = 0
+
   const c = size / 2
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const w = 1 - spins[at(size, x, y)]![2]
+
       if (w > 0.1) {
         m += w
         sr += w * Math.hypot(x - c, y - c)
@@ -195,12 +206,14 @@ export function makeSkyrmionField(input: {
   const { size, coreRadius } = input
   const spins: Spin[] = new Array(size * size)
   const c = size / 2
+
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const dx = x - c,
         dy = y - c,
         r = Math.hypot(dx, dy),
         phi = Math.atan2(dy, dx)
+
       const theta = r < coreRadius ? Math.PI * (1 - r / coreRadius) : 0
       spins[at(size, x, y)] = unit([
         Math.cos(phi) * Math.sin(theta),
@@ -222,6 +235,7 @@ export function snapToTrits(spins: Spin[]): Spin[] {
       Math.round(v[1]),
       Math.round(v[2]),
     ]
+
     if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
       return [0, 0, 1]
     }

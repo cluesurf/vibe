@@ -54,6 +54,7 @@ export function pentacombPropagation(): {
 
   const spinorPropagatesOnCurved =
     small.clean < 0.2 && large.clean < 0.2
+
   const disorderLocalizes =
     small.localized > 0.35 &&
     large.localized > 0.35 &&

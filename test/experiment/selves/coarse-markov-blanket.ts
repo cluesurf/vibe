@@ -24,6 +24,7 @@ import { makeRng } from '@/code/coarse/self-trajectory'
 
 function sumTone(tone: Int8Array, cells: number[]): number {
   let s = 0
+
   for (const c of cells) {
     s += tone[c]!
   }
@@ -60,11 +61,14 @@ export default experiment({
     const ctrlI: number[] = []
     const ctrlS: number[] = []
     const ctrlE: number[] = []
+
     for (let t = 0; t < beats; t++) {
       beat(tone, graph, moved, rng, 0.01, 0.22)
       const cluster = largestPositiveCluster(tone, graph)
+
       if (cluster.length >= 8) {
         const part = regionPartition({ cluster, graph })
+
         if (part.interior.length > 0 && part.exterior.length > 0) {
           selfI.push(sumTone(tone, part.interior))
           selfS.push(sumTone(tone, part.shell))
@@ -82,6 +86,7 @@ export default experiment({
       shell: selfS,
       exterior: selfE,
     })
+
     const control = blanketScreening({
       interior: ctrlI,
       shell: ctrlS,

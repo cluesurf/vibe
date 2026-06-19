@@ -46,6 +46,7 @@ export default experiment({
     // at dimension 16
     const octonionsAreDivision =
       hasNormComposition(3) && !hasZeroDivisor(3)
+
     const sedenionsFail = hasZeroDivisor(4) // dimension 16 has zero divisors
     const octonionsMaximal = octonionsAreDivision && sedenionsFail
 

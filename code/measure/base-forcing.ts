@@ -31,7 +31,9 @@ export function minimalQualifyingAlphabetSize(): number {
     [-1, 0, 1],
     [-2, -1, 0, 1, 2],
   ]
+
   let best = Infinity
+
   for (const a of candidates) {
     if (toneAlphabetQualifies(a)) {
       best = Math.min(best, a.length)
@@ -45,12 +47,14 @@ export function minimalQualifyingAlphabetSize(): number {
 function dynkinDn(n: number): number[][] {
   const adjacency: number[][] = Array.from({ length: n }, () => [])
   const edges: [number, number][] = []
+
   for (let i = 0; i < n - 3; i++) {
     edges.push([i, i + 1])
   }
 
   edges.push([n - 3, n - 2])
   edges.push([n - 3, n - 1])
+
   for (const [a, b] of edges) {
     adjacency[a]!.push(b)
     adjacency[b]!.push(a)
@@ -73,6 +77,7 @@ export function dynkinAutomorphismOrder(n: number): number {
 
     for (let i = 0; i < arr.length; i++) {
       const rest = [...arr.slice(0, i), ...arr.slice(i + 1)]
+
       for (const p of permutations(rest)) {
         yield [arr[i]!, ...p]
       }
@@ -80,10 +85,12 @@ export function dynkinAutomorphismOrder(n: number): number {
   }
 
   let count = 0
+
   for (const p of permutations(
     Array.from({ length: n }, (_, i) => i),
   )) {
     let ok = true
+
     for (let a = 0; a < n && ok; a++) {
       for (const b of adjacency[a]!) {
         if (!sets[p[a]!]!.has(p[b]!)) {

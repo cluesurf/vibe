@@ -20,9 +20,12 @@ export function lattice(input: {
   // Enumerate integer lattice points of [0..extent)^d in row-major order, then
   // build their coordinates. coordinate 0 is the time axis.
   const coordsInt: number[][] = []
+
   for (let index = 0; index < size; index++) {
     const point: number[] = []
+
     let rest = index
+
     for (let axis = 0; axis < d; axis++) {
       point.push(rest % extent)
       rest = Math.floor(rest / extent)
@@ -49,6 +52,7 @@ function latticeLorentzian(input: {
   // Sort element indices by time coordinate (axis 0) so a precedes b only when a
   // is no later than b.
   const order: number[] = []
+
   for (let i = 0; i < size; i++) {
     order.push(i)
   }
@@ -62,10 +66,12 @@ function latticeLorentzian(input: {
 
   const coords = new Float64Array(size * d)
   const sortedInt: number[][] = []
+
   for (let newIndex = 0; newIndex < size; newIndex++) {
     const oldIndex = order[newIndex] ?? 0
     const point = input.coordsInt[oldIndex] ?? []
     sortedInt.push(point)
+
     for (let axis = 0; axis < d; axis++) {
       coords[newIndex * d + axis] = point[axis] ?? 0
     }
@@ -87,11 +93,13 @@ function latticeLorentzian(input: {
     const pa = sortedInt[pair.a] ?? []
     const pb = sortedInt[pair.b] ?? []
     const dt = (pb[0] ?? 0) - (pa[0] ?? 0)
+
     if (dt <= 0) {
       return false
     }
 
     let l1 = 0
+
     for (let axis = 1; axis < d; axis++) {
       l1 += Math.abs((pb[axis] ?? 0) - (pa[axis] ?? 0))
     }
@@ -113,8 +121,10 @@ function latticeRiemannian(input: {
   const size = input.size
 
   const coords = new Float64Array(size * d)
+
   for (let i = 0; i < size; i++) {
     const point = input.coordsInt[i] ?? []
+
     for (let axis = 0; axis < d; axis++) {
       coords[i * d + axis] = point[axis] ?? 0
     }
@@ -122,18 +132,23 @@ function latticeRiemannian(input: {
 
   // Strides for converting a coordinate vector back to its row-major index.
   const stride: number[] = []
+
   let s = 1
+
   for (let axis = 0; axis < d; axis++) {
     stride.push(s)
     s *= extent
   }
 
   const neighbors: number[][] = []
+
   for (let i = 0; i < size; i++) {
     const point = input.coordsInt[i] ?? []
     const row: number[] = []
+
     for (let axis = 0; axis < d; axis++) {
       const c = point[axis] ?? 0
+
       if (c + 1 < extent) {
         row.push(i + (stride[axis] ?? 0))
       }

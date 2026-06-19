@@ -53,9 +53,11 @@ export function boostVelocityAddition(): {
 } {
   // (1) the massless lightcone omega = |k| is invariant under every boost
   let coneDev = 0
+
   for (let i = 1; i <= 50; i++) {
     const k = (i / 50) * (Math.PI - 0.05)
     const w = omega(k, 0) // = k for the massless mode on (0, pi)
+
     for (const phi of [-1.2, -0.6, 0.3, 0.9, 1.5]) {
       const b = boost(w, k, phi)
       // a lightlike vector stays lightlike, |w'| = |k'|
@@ -70,10 +72,12 @@ export function boostVelocityAddition(): {
 
   // (2) no group velocity exceeds the light speed c = 1, at any mass
   let maxV = 0
+
   for (const m of [0.0, 0.2, 0.5, 1.0]) {
     for (let i = 0; i <= 100; i++) {
       const k = -Math.PI + (2 * Math.PI * i) / 100
       const v = Math.abs(groupVelocity(k, m))
+
       if (isFinite(v)) {
         maxV = Math.max(maxV, v)
       }
@@ -85,9 +89,12 @@ export function boostVelocityAddition(): {
   // (3) velocities add relativistically. Take a massless right-mover (v = 1) and a slower massive packet,
   // boost by a rapidity u (frame velocity tanh(u)), and check the seen velocity matches (v + u)/(1 + u v).
   let velErr = 0
+
   const m = 0.4
+
   for (const k0 of [0.2, 0.4, 0.8]) {
     const v = groupVelocity(k0, m) // the packet's velocity in the rest frame of measurement
+
     for (const phi of [0.3, 0.7, 1.1]) {
       const u = Math.tanh(phi) // the boost's frame velocity
       const relativistic = addVelocities({ velocity: v, frame: u })
@@ -106,6 +113,7 @@ export function boostVelocityAddition(): {
 
   // (4) the IR dispersion is Lorentz-invariant, omega^2 - k^2 -> m^2 for small k, invariant under a boost
   let irDev = 0
+
   for (const k of [0.05, 0.1, 0.15]) {
     const w = omega(k, m)
     const inv = w * w - k * k

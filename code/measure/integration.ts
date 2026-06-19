@@ -18,8 +18,10 @@ function highestDegreeNode(
 ): number {
   let best = 0
   let bestDegree = -1
+
   for (let node = 0; node < adjacency.length; node++) {
     const degree = (adjacency[node] ?? new Uint32Array(0)).length
+
     if (degree > bestDegree) {
       bestDegree = degree
       best = node
@@ -37,6 +39,7 @@ function candidateRegion(input: {
   const seed = highestDegreeNode(input.adjacency)
   const region = new Set<number>([seed])
   const row = input.adjacency[seed] ?? new Uint32Array(0)
+
   for (let k = 0; k < row.length; k++) {
     region.add(row[k] ?? 0)
   }
@@ -55,6 +58,7 @@ export function algebraicConnectivity(input: {
 }): number {
   const nodes = [...input.region].sort((a, b) => a - b)
   const n = nodes.length
+
   if (n < 2) {
     return 0
   }
@@ -66,9 +70,11 @@ export function algebraicConnectivity(input: {
   const localAdjacency: number[][] = nodes.map(node => {
     const row = input.adjacency[node] ?? new Uint32Array(0)
     const local: number[] = []
+
     for (let k = 0; k < row.length; k++) {
       const neighbor = row[k] ?? 0
       const j = indexOf.get(neighbor)
+
       if (j !== undefined) {
         local.push(j)
       }
@@ -76,14 +82,18 @@ export function algebraicConnectivity(input: {
 
     return local
   })
+
   const degree = localAdjacency.map(row => row.length)
 
   // Apply L = D - A to a vector x.
   const applyLaplacian = (x: Float64Array): Float64Array => {
     const out = new Float64Array(n)
+
     for (let i = 0; i < n; i++) {
       let value = (degree[i] ?? 0) * (x[i] ?? 0)
+
       const row = localAdjacency[i] ?? []
+
       for (const j of row) {
         value -= x[j] ?? 0
       }
@@ -101,6 +111,7 @@ export function algebraicConnectivity(input: {
   const ones = 1 / Math.sqrt(n)
 
   let x = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     // Deterministic non-constant start, orthogonalised against the ones vector.
     x[i] = i % 2 === 0 ? 1 : -1
@@ -108,18 +119,21 @@ export function algebraicConnectivity(input: {
 
   const orthogonalize = (v: Float64Array): void => {
     let mean = 0
+
     for (let i = 0; i < n; i++) {
       mean += v[i] ?? 0
     }
 
     mean /= n
     let norm = 0
+
     for (let i = 0; i < n; i++) {
       v[i] = (v[i] ?? 0) - mean
       norm += (v[i] ?? 0) * (v[i] ?? 0)
     }
 
     norm = Math.sqrt(norm)
+
     if (norm > 0) {
       for (let i = 0; i < n; i++) {
         v[i] = (v[i] ?? 0) / norm
@@ -130,11 +144,13 @@ export function algebraicConnectivity(input: {
   orthogonalize(x)
 
   let estimate = 0
+
   for (let iteration = 0; iteration < 200; iteration++) {
     const lx = applyLaplacian(x)
     // y = (lambdaMax I - L) x, whose dominant eigenvector (after deflating the
     // constant mode) corresponds to the smallest nonzero Laplacian eigenvalue.
     const y = new Float64Array(n)
+
     for (let i = 0; i < n; i++) {
       y[i] = lambdaMax * (x[i] ?? 0) - (lx[i] ?? 0)
     }
@@ -143,7 +159,9 @@ export function algebraicConnectivity(input: {
     x = y
     // Rayleigh quotient x^T L x gives the current eigenvalue estimate.
     const lxNew = applyLaplacian(x)
+
     let rayleigh = 0
+
     for (let i = 0; i < n; i++) {
       rayleigh += (x[i] ?? 0) * (lxNew[i] ?? 0)
     }
@@ -161,6 +179,7 @@ export function integrationCorrelates(input: {
   configuration: Configuration
 }): { markovBlanketScore: number; integrationPhi: number } {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
+
   if (adjacency.length === 0) {
     return { markovBlanketScore: 0, integrationPhi: 0 }
   }
@@ -172,10 +191,13 @@ export function integrationCorrelates(input: {
   // and few boundary edges.
   let internalEdges = 0
   let boundaryEdges = 0
+
   for (const node of region) {
     const row = adjacency[node] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const neighbor = row[k] ?? 0
+
       if (region.has(neighbor)) {
         if (node < neighbor) {
           internalEdges++
@@ -224,6 +246,7 @@ export function toneIntegration(input: {
 }): number {
   const nodes = [...new Set(input.region)].sort((a, b) => a - b)
   const n = nodes.length
+
   if (n < 2) {
     return 0
   }
@@ -236,8 +259,10 @@ export function toneIntegration(input: {
   const nb: Array<Array<{ j: number; f: number }>> = nodes.map(node => {
     const row = input.adjacency[node] ?? new Uint32Array(0)
     const out: Array<{ j: number; f: number }> = []
+
     for (const w of row) {
       const j = indexOf.get(w)
+
       if (j !== undefined) {
         out.push({ j, f: fillOf(node, w) })
       }
@@ -245,9 +270,11 @@ export function toneIntegration(input: {
 
     return out
   })
+
   // one rule step for node i: next tone = sign(sum of fill * neighbour tone)
   const step = (tone: Int8Array, i: number): number => {
     let acc = 0
+
     for (const { j, f } of nb[i] ?? []) {
       acc += f * (tone[j] ?? 0)
     }
@@ -258,24 +285,29 @@ export function toneIntegration(input: {
   // cross-influence cost of one bipartition mask (part[i] in {0,1})
   const cutCost = (part: Uint8Array): number => {
     let total = 0
+
     for (let s = 0; s < samples; s++) {
       const tone = new Int8Array(n)
+
       for (let i = 0; i < n; i++) {
         tone[i] = input.rng.next() < 0.5 ? -1 : 1
       }
 
       const base = new Int8Array(n)
+
       for (let i = 0; i < n; i++) {
         base[i] = step(tone, i) as -1 | 0 | 1
       }
 
       const repl = new Int8Array(n)
+
       for (let i = 0; i < n; i++) {
         repl[i] = input.rng.next() < 0.5 ? -1 : 1
       }
 
       // B -> A: replace side-1 current tones, recompute side-0 next tones
       const tA = Int8Array.from(tone)
+
       for (let i = 0; i < n; i++) {
         if (part[i] === 1) {
           tA[i] = repl[i] ?? 0
@@ -284,9 +316,11 @@ export function toneIntegration(input: {
 
       let changedA = 0
       let sizeA = 0
+
       for (let i = 0; i < n; i++) {
         if (part[i] === 0) {
           sizeA++
+
           if (step(tA, i) !== base[i]) {
             changedA++
           }
@@ -295,6 +329,7 @@ export function toneIntegration(input: {
 
       // A -> B
       const tB = Int8Array.from(tone)
+
       for (let i = 0; i < n; i++) {
         if (part[i] === 0) {
           tB[i] = repl[i] ?? 0
@@ -303,9 +338,11 @@ export function toneIntegration(input: {
 
       let changedB = 0
       let sizeB = 0
+
       for (let i = 0; i < n; i++) {
         if (part[i] === 1) {
           sizeB++
+
           if (step(tB, i) !== base[i]) {
             changedB++
           }
@@ -325,12 +362,15 @@ export function toneIntegration(input: {
   // fixed to side 0 to avoid counting a partition and its complement twice). For a large region we
   // sample `bipartitions` random balanced cuts.
   const masks: Uint8Array[] = []
+
   if (n <= 14) {
     const k = Math.floor(n / 2)
     const chosen: number[] = []
+
     const recurse = (start: number): void => {
       if (chosen.length === k) {
         const part = new Uint8Array(n)
+
         for (const i of chosen) {
           part[i] = 1
         }
@@ -353,6 +393,7 @@ export function toneIntegration(input: {
   } else {
     for (let c = 0; c < cuts; c++) {
       const order = nodes.map((_, i) => i)
+
       for (let i = order.length - 1; i > 0; i--) {
         const k = input.rng.nextInt({ max: i + 1 })
         const tmp = order[i] ?? 0
@@ -361,6 +402,7 @@ export function toneIntegration(input: {
       }
 
       const part = new Uint8Array(n)
+
       for (let i = 0; i < n; i++) {
         part[order[i] ?? 0] = i < Math.floor(n / 2) ? 0 : 1
       }
@@ -370,6 +412,7 @@ export function toneIntegration(input: {
   }
 
   let phi = Infinity
+
   for (const part of masks) {
     phi = Math.min(phi, cutCost(part))
   }

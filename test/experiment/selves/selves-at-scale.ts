@@ -50,12 +50,14 @@ function domainSizes(
   n: number,
 ): number[] {
   const parent = new Int32Array(n)
+
   for (let i = 0; i < n; i++) {
     parent[i] = i
   }
 
   const find = (x: number): number => {
     let r = x
+
     while (parent[r] !== r) {
       r = parent[r]!
     }
@@ -76,6 +78,7 @@ function domainSizes(
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
+
       if (w > v && tone[w] === tone[v]) {
         parent[find(v)] = find(w)
       }
@@ -83,6 +86,7 @@ function domainSizes(
   }
 
   const size = new Map<number, number>()
+
   for (let i = 0; i < n; i++) {
     if (tone[i] === 0) {
       continue
@@ -118,6 +122,7 @@ export function selvesAtScale(input?: { n?: number }): {
   const q0 = sumTone(tone)
   const moved = new Uint8Array(N)
   const rng = makeRng({ seed: 9 })
+
   for (let b = 0; b < 100; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.06)
   }
@@ -125,6 +130,7 @@ export function selvesAtScale(input?: { n?: number }): {
   const conserved = sumTone(tone) === q0
 
   let nonzero = 0
+
   for (let i = 0; i < N; i++) {
     if (tone[i] !== 0) {
       nonzero++
@@ -139,6 +145,7 @@ export function selvesAtScale(input?: { n?: number }): {
   // random null: same tones, shuffled positions, then find domains
   const shuffled = tone.slice()
   const rng2 = makeRng({ seed: 17 })
+
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(rng2.next() * (i + 1))
     const t = shuffled[i]!
@@ -151,6 +158,7 @@ export function selvesAtScale(input?: { n?: number }): {
 
   const domainAdvantage =
     largestRandom > 0 ? largestDomain / largestRandom : largestDomain
+
   // a spread of medium-and-up patches is the hierarchy (the tower); absolute sizes scale with N, so the
   // robust evidence of real selves is the ADVANTAGE over the random null, not an absolute cell count.
   const hierarchy = patchesOver50 >= 3

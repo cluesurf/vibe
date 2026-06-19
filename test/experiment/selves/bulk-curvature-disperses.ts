@@ -28,8 +28,10 @@ function shellGrowthRatio(input: {
   const { mesh, source, lo, hi } = input
   const dist = shellDistances(mesh, source)
   const shell = new Map<number, number>()
+
   for (let c = 0; c < mesh.cellCount; c++) {
     const d = dist[c]!
+
     if (d >= 0) {
       shell.set(d, (shell.get(d) ?? 0) + 1)
     }
@@ -37,9 +39,11 @@ function shellGrowthRatio(input: {
 
   let logSum = 0
   let count = 0
+
   for (let r = lo; r < hi; r++) {
     const a = shell.get(r) ?? 0
     const b = shell.get(r + 1) ?? 0
+
     if (a > 0 && b > 0) {
       logSum += Math.log(b / a)
       count++
@@ -76,6 +80,7 @@ export default experiment({
       half * side +
       half * side * side +
       half * side * side * side
+
     const flatRatio = shellGrowthRatio({
       mesh: flat,
       source: center,

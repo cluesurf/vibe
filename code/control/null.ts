@@ -13,6 +13,7 @@ export function randomNull(will: Will, seed: number): Will {
   const shuffled = cloneWill(will)
   const data = shuffled.data
   const rng = makeRng({ seed })
+
   for (let index = data.length - 1; index > 0; index--) {
     const swap = rng.nextInt({ max: index + 1 })
     const held = data[index] ?? 0
@@ -38,6 +39,7 @@ export function shuffledToneField(input: {
 }): Int8Array {
   const { tone, rng } = input
   const out = tone.slice()
+
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const held = out[i]!

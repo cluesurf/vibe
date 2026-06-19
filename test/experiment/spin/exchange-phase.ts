@@ -28,6 +28,7 @@ export function exchangePhase(): {
       kind: exchange < 0 ? 'FERMION' : 'BOSON',
     }
   })
+
   // consistency: rotation sign == exchange sign for every H (spin-statistics)
   const consistent = table.every(r => r.rotation === r.exchange)
 

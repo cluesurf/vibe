@@ -25,6 +25,7 @@ const A = (Math.sqrt(3) + MASS) * 1.06
 function nrt3(k: number): Float32Array {
   const out = new Float32Array(3 * N),
     q = (2 * Math.PI * k) / L
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
@@ -43,6 +44,7 @@ function nrt3(k: number): Float32Array {
 function nrt3helix(k: number): Float32Array {
   const out = new Float32Array(3 * N),
     q = (2 * Math.PI * k) / L
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
@@ -60,6 +62,7 @@ function nrt3helix(k: number): Float32Array {
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
   c[0] = 2 / Math.PI
+
   for (let k = 1; 2 * k < M; k++) {
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
   }
@@ -70,6 +73,7 @@ function absCoeffs(M: number): Float64Array {
 function jackson(M: number): Float64Array {
   const g = new Float64Array(M),
     Np = M + 1
+
   for (let n = 0; n < M; n++) {
     g[n] =
       ((Np - n) * Math.cos((Math.PI * n) / Np) +
@@ -142,6 +146,7 @@ fn dotFinal(@builtin(local_invocation_id) lid:vec3<u32>){
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter')
 
@@ -158,6 +163,7 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const nPart = Math.ceil(FN / 256)
   const Bb = [mk(FN), mk(FN), mk(FN)],
     tmp = mk(FN),
@@ -165,23 +171,28 @@ async function run(): Promise<void> {
     nrt = mk(3 * N),
     partials = mk(nPart),
     moments = mk(MCHEB)
+
   const stage = device.createBuffer({
     size: MCHEB * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const uni = device.createBuffer({
     size: 32,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const pipe = (e: string): GPUComputePipeline =>
     device.createComputePipeline({
       layout: 'auto',
       compute: { module: mod, entryPoint: e },
     })
+
   const pMat = pipe('matvec'),
     pComb = pipe('combine'),
     pDP = pipe('dotPartial'),
     pDF = pipe('dotFinal')
+
   const bg = (
     pl: GPUComputePipeline,
     b1: GPUBuffer,
@@ -197,6 +208,7 @@ async function run(): Promise<void> {
         { binding: 3, resource: { buffer: b3 } },
       ],
     })
+
   const bgDF = (): GPUBindGroup =>
     device.createBindGroup({
       layout: pDF.getBindGroupLayout(0),
@@ -206,6 +218,7 @@ async function run(): Promise<void> {
         { binding: 3, resource: { buffer: moments } },
       ],
     })
+
   const setUni = (scA: number, scB: number, mom: number): void => {
     device.queue.writeBuffer(uni, 0, new Uint32Array([L, N]))
     device.queue.writeBuffer(
@@ -231,6 +244,7 @@ async function run(): Promise<void> {
     ): void => {
       setUni(scA, scB, mom)
       const enc = device.createCommandEncoder()
+
       let pass = enc.beginComputePass()
       pass.setPipeline(pMat)
       pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
@@ -257,6 +271,7 @@ async function run(): Promise<void> {
     const dotOnly = (cur: GPUBuffer, mom: number): void => {
       setUni(0, 0, mom)
       const enc = device.createCommandEncoder()
+
       let pass = enc.beginComputePass()
       pass.setPipeline(pDP)
       pass.setBindGroup(0, bg(pDP, xi, cur, partials))
@@ -274,6 +289,7 @@ async function run(): Promise<void> {
     step(Bb[0]!, Bb[1]!, 1 / A, 0, Bb[0]!, 1, Bb[1]!)
     let i0 = 0,
       i1 = 1
+
     for (let n = 2; n < MCHEB; n++) {
       const itn = 3 - i0 - i1
       step(Bb[i1]!, Bb[itn]!, 2 / A, 1, Bb[i0]!, n, Bb[itn]!)
@@ -288,6 +304,7 @@ async function run(): Promise<void> {
     const out = new Float64Array(
       new Float32Array(stage.getMappedRange().slice(0)),
     )
+
     stage.unmap()
 
     return out
@@ -295,17 +312,22 @@ async function run(): Promise<void> {
 
   const c = absCoeffs(MCHEB),
     g = jackson(MCHEB)
+
   const vacN = nrt3(0)
   const dblN = Ks.map(k => nrt3(k)),
     helN = Ks.map(k => nrt3helix(k))
+
   const dMuD = Ks.map(() => new Float64Array(MCHEB)),
     dMuH = Ks.map(() => new Float64Array(MCHEB))
+
   const rng = makeRng({ seed: 271 })
   console.log(
     `GPU Skyrme twist (double + helix control), L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, a=${A.toFixed(2)}`,
   )
+
   for (let r = 0; r < NRV; r++) {
     const xd = new Float32Array(FN)
+
     for (let i = 0; i < FN; i++) {
       xd[i] = rng.next() < 0.5 ? -1 : 1
     }
@@ -314,10 +336,12 @@ async function run(): Promise<void> {
     device.queue.writeBuffer(nrt, 0, vacN)
     device.queue.writeBuffer(Bb[0]!, 0, xd)
     const muV = await computeMoments()
+
     for (let ki = 0; ki < Ks.length; ki++) {
       device.queue.writeBuffer(nrt, 0, dblN[ki]!)
       device.queue.writeBuffer(Bb[0]!, 0, xd)
       const mD = await computeMoments()
+
       for (let n = 0; n < MCHEB; n++) {
         dMuD[ki]![n]! += (mD[n]! - muV[n]!) / NRV
       }
@@ -325,6 +349,7 @@ async function run(): Promise<void> {
       device.queue.writeBuffer(nrt, 0, helN[ki]!)
       device.queue.writeBuffer(Bb[0]!, 0, xd)
       const mH = await computeMoments()
+
       for (let n = 0; n < MCHEB; n++) {
         dMuH[ki]![n]! += (mH[n]! - muV[n]!) / NRV
       }
@@ -336,12 +361,14 @@ async function run(): Promise<void> {
   const energies = (dMu: Float64Array[]): { q: number; dE: number }[] =>
     Ks.map((k, ki) => {
       let s = 0
+
       for (let n = 0; n < MCHEB; n++) {
         s += g[n]! * c[n]! * dMu[ki]![n]!
       }
 
       return { q: (2 * Math.PI * k) / L, dE: -0.5 * A * s }
     })
+
   const fit = (
     pts: { q: number; dE: number }[],
   ): { A: number; B: number } => {
@@ -350,9 +377,11 @@ async function run(): Promise<void> {
       s8 = 0,
       t1 = 0,
       t2 = 0
+
     for (const p of pts) {
       const q2 = p.q * p.q,
         q4 = q2 * q2
+
       s4 += q4
       s6 += q4 * q2
       s8 += q4 * q4
@@ -370,9 +399,11 @@ async function run(): Promise<void> {
 
   const dbl = energies(dMuD),
     hel = energies(dMuH)
+
   console.log(
     '\nDelta E(q): double-twist (Skyrme) vs helix (control, no Skyrme):',
   )
+
   for (let i = 0; i < Ks.length; i++) {
     console.log(
       `  q=${dbl[i]!.q.toFixed(3)}: double ${dbl[i]!.dE.toFixed(1)}, helix ${hel[i]!.dE.toFixed(1)}`,
@@ -381,6 +412,7 @@ async function run(): Promise<void> {
 
   const fD = fit(dbl),
     fH = fit(hel)
+
   // the helix q^4 is the pure lattice-exchange artifact; scale it by the exchange ratio (A_double/A_helix) and subtract
   const ratio = fD.A / fH.A
   const skyrme = fD.B - ratio * fH.B

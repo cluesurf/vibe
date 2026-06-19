@@ -77,6 +77,7 @@ export function renderSceneToRgba(input: RasterOptions): {
   // the stroke weight is preserved) and box-downsample to the requested size. This removes the jagged stair-step
   // on the geodesic arcs. Done as a wrapper so the drawing body below stays a single straightforward pass.
   const superSample = Math.max(1, Math.round(input.superSample ?? 1))
+
   if (superSample > 1) {
     const outSize = input.size ?? DEFAULT_SIZE
     const big = renderSceneToRgba({
@@ -110,6 +111,7 @@ export function renderSceneToRgba(input: RasterOptions): {
   } = input
 
   const rgba = new Uint8Array(size * size * 4)
+
   for (let i = 0; i < rgba.length; i += 4) {
     rgba[i] = background[0]
     rgba[i + 1] = background[1]
@@ -129,16 +131,20 @@ export function renderSceneToRgba(input: RasterOptions): {
       let x = v[0] ?? 0,
         y = v[1] ?? 0,
         z = v[2] ?? 0
+
       if (fourD) {
         let w = v[3] ?? 0
+
         // turn the 4th axis into view through the x-w and z-w planes
         const cxw = Math.cos(rotateXW),
           sxw = Math.sin(rotateXW)
+
         const x2 = cxw * x - sxw * w
         w = sxw * x + cxw * w
         x = x2
         const czw = Math.cos(rotateZW),
           szw = Math.sin(rotateZW)
+
         const z2 = czw * z - szw * w
         w = szw * z + czw * w
         z = z2
@@ -152,10 +158,12 @@ export function renderSceneToRgba(input: RasterOptions): {
 
       const cy = Math.cos(rotateY),
         sy = Math.sin(rotateY)
+
       const x1 = cy * x + sy * z
       const z1 = -sy * x + cy * z
       const cx = Math.cos(rotateX),
         sx = Math.sin(rotateX)
+
       x = x1
       y = cx * y - sx * z1
       z = sx * y + cx * z1
@@ -173,14 +181,18 @@ export function renderSceneToRgba(input: RasterOptions): {
   const drawn = scene.edges.map(e => {
     const samples =
       segments > 1 ? geodesicPoints(e.a, e.b, segments) : [e.a, e.b]
+
     const plane = samples.map(toPlane)
+
     let depth = 0
+
     for (const p of plane) {
       depth += p.z
     }
 
     depth /= plane.length
     let t: number
+
     if (threeD) {
       t = (depth + 1) / 2
     } // -1..1 -> 0..1, near (high z) -> 1
@@ -197,16 +209,19 @@ export function renderSceneToRgba(input: RasterOptions): {
   const faceSegments = Math.max(2, Math.floor(segments / 2))
   const faces = (scene.faces ?? []).map(f => {
     const boundary: { x: number; y: number; z: number }[] = []
+
     for (let i = 0; i < f.polygon.length; i++) {
       const a = f.polygon[i]!
       const b = f.polygon[(i + 1) % f.polygon.length]!
       const samples = geodesicPoints(a, b, faceSegments)
+
       for (let k = 0; k < samples.length - 1; k++) {
         boundary.push(toPlane(samples[k]!))
       }
     }
 
     let depth = 0
+
     for (const p of boundary) {
       depth += p.z
     }
@@ -219,14 +234,17 @@ export function renderSceneToRgba(input: RasterOptions): {
   // fit plane coordinates to the image. Disk models (and the 3D ball) use a fixed unit frame, so they stay
   // centered and circular. Unbounded models (Gans, half-plane, band) fit to the content's bounding box.
   const bounded = threeD || modelIsBounded(model)
+
   let cx = 0,
     cy = 0,
     scale = half * margin
+
   if (!bounded) {
     let minX = Infinity,
       maxX = -Infinity,
       minY = Infinity,
       maxY = -Infinity
+
     const include = (x: number, y: number): void => {
       if (x < minX) {
         minX = x
@@ -268,6 +286,7 @@ export function renderSceneToRgba(input: RasterOptions): {
 
   // filled faces first (under the struts), back-to-front so near cells cover far ones in 3D
   faces.sort((p, q) => p.depth - q.depth)
+
   for (const f of faces) {
     fillPolygon(
       rgba,
@@ -289,6 +308,7 @@ export function renderSceneToRgba(input: RasterOptions): {
   }
 
   drawn.sort((p, q) => p.depth - q.depth)
+
   for (const d of drawn) {
     for (let i = 0; i + 1 < d.plane.length; i++) {
       drawLine(
@@ -318,14 +338,17 @@ function downsample(
   const block = Math.round(srcSize / dstSize)
   const out = new Uint8Array(dstSize * dstSize * 4)
   const area = block * block
+
   for (let y = 0; y < dstSize; y++) {
     for (let x = 0; x < dstSize; x++) {
       let r = 0,
         g = 0,
         b = 0,
         a = 0
+
       for (let by = 0; by < block; by++) {
         const sy = y * block + by
+
         for (let bx = 0; bx < block; bx++) {
           const so = (sy * srcSize + (x * block + bx)) * 4
           r += src[so]!
@@ -358,6 +381,7 @@ function fillPolygon(
 
   let minY = Infinity,
     maxY = -Infinity
+
   for (const p of pts) {
     if (p.y < minY) {
       minY = p.y
@@ -370,13 +394,16 @@ function fillPolygon(
 
   const y0 = Math.max(0, Math.ceil(minY))
   const y1 = Math.min(size - 1, Math.floor(maxY))
+
   for (let y = y0; y <= y1; y++) {
     const xs: number[] = []
+
     for (let i = 0; i < pts.length; i++) {
       const a = pts[i]!
       const b = pts[(i + 1) % pts.length]!
       const ay = a.y,
         by = b.y
+
       if ((ay <= y && by > y) || (by <= y && ay > y)) {
         xs.push(a.x + ((y - ay) / (by - ay)) * (b.x - a.x))
       }
@@ -387,9 +414,11 @@ function fillPolygon(
     }
 
     xs.sort((p, q) => p - q)
+
     for (let k = 0; k + 1 < xs.length; k += 2) {
       const xa = Math.max(0, Math.ceil(xs[k]!))
       const xb = Math.min(size - 1, Math.floor(xs[k + 1]!))
+
       for (let x = xa; x <= xb; x++) {
         const o = (y * size + x) * 4
         rgba[o] = color[0]
@@ -402,6 +431,7 @@ function fillPolygon(
 
 function midRadius(a: Vec, b: Vec): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     const m = (a[i]! + b[i]!) / 2
     s += m * m
@@ -433,14 +463,17 @@ function drawLine(
 ): void {
   const dx = x1 - x0,
     dy = y1 - y0
+
   const len = Math.hypot(dx, dy)
   const steps = Math.max(1, Math.ceil(len))
   const rad = Math.max(0.6, width / 2)
   const r0 = Math.floor(rad)
+
   for (let s = 0; s <= steps; s++) {
     const t = s / steps
     const cx = x0 + dx * t,
       cy = y0 + dy * t
+
     for (let oy = -r0; oy <= r0; oy++) {
       for (let ox = -r0; ox <= r0; ox++) {
         if (ox * ox + oy * oy > rad * rad) {
@@ -449,6 +482,7 @@ function drawLine(
 
         const px = Math.round(cx) + ox,
           py = Math.round(cy) + oy
+
         if (px < 0 || px >= size || py < 0 || py >= size) {
           continue
         }
@@ -472,10 +506,12 @@ function strokeCircle(
   color: Rgb,
 ): void {
   const steps = Math.ceil(2 * Math.PI * r)
+
   for (let i = 0; i < steps; i++) {
     const th = (i / steps) * 2 * Math.PI
     const px = Math.round(cx + r * Math.cos(th)),
       py = Math.round(cy + r * Math.sin(th))
+
     if (px < 0 || px >= size || py < 0 || py >= size) {
       continue
     }

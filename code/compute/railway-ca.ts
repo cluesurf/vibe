@@ -35,8 +35,10 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
   function step(): void {
     const next = cells.map(c => c.state)
     const nextActive = cells.map(c => c.active)
+
     for (let i = 0; i < cells.length; i++) {
       const c = cells[i]!
+
       if (c.role === 'empty') {
         continue
       }
@@ -45,6 +47,7 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
         // the head becomes the tail; the forward cell (computed below for switches) takes the head
         next[i] = 'A'
         const forward = forwardOf(i)
+
         if (forward >= 0) {
           next[forward] = 'H'
         }
@@ -65,6 +68,7 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
         if (c.role === 'switch' && c.switchType === 'memory') {
           const a = c.links[1]!,
             b = c.links[2]!
+
           if (cells[a]?.state === 'H') {
             nextActive[i] = 1
           } else if (cells[b]?.state === 'H') {
@@ -77,6 +81,7 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
     // the forward cell of a head: a plain track cell hands off to its clear link; a switch routes by entry side
     function forwardOf(i: number): number {
       const c = cells[i]!
+
       if (c.role === 'track') {
         // the forward neighbour is the linked cell that is NOT the tail behind us
         for (const n of c.links) {
@@ -91,6 +96,7 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
       // a switch: if the head came from the trunk, exit the active branch; if from a branch, exit the trunk
       const [trunk, a, b] = [c.links[0]!, c.links[1]!, c.links[2]!]
       const cameFromTrunk = cells[trunk]?.state === 'A'
+
       if (cameFromTrunk) {
         return c.active === 1 ? a : b
       }
@@ -136,6 +142,7 @@ export function makeGrowingTrackCa(input: {
 }): GrowingTrackCa {
   const { graphNeighbors, depth, start } = input
   const isTrack = new Set<number>([start])
+
   let head = start
 
   return {
@@ -145,14 +152,17 @@ export function makeGrowingTrackCa(input: {
       // moves to a strictly deeper cell and never traps itself, the way Margenstern's tracks follow the
       // branches of a Fibonacci tree. The depth field is the outward direction laid down with the seed.
       const here = depth[head] ?? 0
+
       let target = -1
       let bestDepth = here
+
       for (const n of graphNeighbors[head]!) {
         if (isTrack.has(n)) {
           continue
         }
 
         const d = depth[n] ?? 0
+
         if (
           d > bestDepth ||
           (d === bestDepth && d > here && (target < 0 || n < target))
@@ -192,6 +202,7 @@ export interface BinaryCounter {
 
 export function makeBinaryCounter(bits: number): BinaryCounter {
   const cells: RailwayCell[] = []
+
   const id = (): number => {
     cells.push({ role: 'empty', links: [], state: 'empty' })
 
@@ -204,6 +215,7 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
     ff: number[] = [],
     done: number[] = [],
     carry: number[] = []
+
   for (let i = 0; i < bits; i++) {
     tin.push(id())
     ff.push(id())
@@ -213,6 +225,7 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
 
   cells[output] = { role: 'track', links: [output, output], state: 'C' }
   cells[pre] = { role: 'track', links: [pre, tin[0]!], state: 'C' }
+
   for (let i = 0; i < bits; i++) {
     const prev = i === 0 ? pre : carry[i - 1]!
     cells[tin[i]!] = {
@@ -252,8 +265,10 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
 
       cells[pre]!.state = 'A'
       cells[tin[0]!]!.state = 'H'
+
       for (let t = 0; t < 40 * bits + 40; t++) {
         ca.step()
+
         if (ca.headAt() === output) {
           return true
         }
@@ -263,6 +278,7 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
     },
     count(): number {
       let v = 0
+
       for (let i = 0; i < bits; i++) {
         if ((cells[ff[i]!]!.active as number) === 2) {
           v += 1 << i
@@ -322,6 +338,7 @@ export function makeTernaryCounter(width: number): RailRegister {
   return {
     increment(): void {
       let i = 0
+
       while (i < width && trits[i] === 2) {
         trits[i] = 0
         i++
@@ -334,6 +351,7 @@ export function makeTernaryCounter(width: number): RailRegister {
     count(): number {
       let v = 0,
         p = 1
+
       for (let i = 0; i < width; i++) {
         v += trits[i]! * p
         p *= 3
@@ -346,6 +364,7 @@ export function makeTernaryCounter(width: number): RailRegister {
     },
     set(v: number): void {
       let x = v
+
       for (let i = 0; i < width; i++) {
         trits[i] = x % 3
         x = Math.floor(x / 3)
@@ -367,11 +386,13 @@ export interface SelfExtendingCounter {
 
 export function makeSelfExtendingCounter(): SelfExtendingCounter {
   const bits: (1 | 2)[] = [1] // the finite seed, one flip-flop bit at selection 1 (value 0)
+
   let builds = 0
 
   return {
     increment(): void {
       let i = 0
+
       // ripple, every set bit (selection 2) flips back to 0 and carries
       while (i < bits.length && bits[i] === 2) {
         bits[i] = 1
@@ -388,6 +409,7 @@ export function makeSelfExtendingCounter(): SelfExtendingCounter {
     },
     count(): number {
       let v = 0
+
       for (let i = 0; i < bits.length; i++) {
         if (bits[i] === 2) {
           v += 1 << i
@@ -411,7 +433,9 @@ export function makeTrackLoop(
     { length: totalCells },
     () => ({ role: 'empty', links: [], state: 'empty' as RailDyn }),
   )
+
   const k = ringIds.length
+
   for (let r = 0; r < k; r++) {
     const id = ringIds[r]!
     cells[id] = {

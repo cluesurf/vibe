@@ -25,6 +25,7 @@ export default experiment({
       dim: smallDimension,
       items,
     })
+
     const largeAccuracy = vsaRecallAccuracy({
       dim: largeDimension,
       items,

@@ -66,6 +66,7 @@ export function entanglementBell(): {
   const maximallyEntangled = ent.concurrence > 0.999
   const productIsClassical =
     prod.concurrence < 1e-6 && prod.chsh <= 2 + 1e-6
+
   const solved =
     bellViolated &&
     maximallyEntangled &&

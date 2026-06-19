@@ -82,12 +82,14 @@ export function renderDigitFibonacci(input: {
     'render',
     'fibonacci',
   )
+
   mkdirSync(outDir, { recursive: true })
 
   const tiling = buildTilingFaces({
     symbol: [7, 3],
     maxCells: MAX_CELLS,
   })
+
   const cellCount = tiling.cellCount
 
   const compiled = compileToBinary(FIB_SOURCE)
@@ -99,6 +101,7 @@ export function renderDigitFibonacci(input: {
 
   const steps: DigitStep[] = []
   const display: number[] = []
+
   let latched = 0
   runner(compiled.program, initial, step => {
     if (
@@ -115,6 +118,7 @@ export function renderDigitFibonacci(input: {
   const finalTerm = Number(
     steps[steps.length - 1]!.registers[compiled.returnRegister]!,
   )
+
   console.log(
     `${outName}: ${compiled.program.code.length} ops, executed ${steps.length} ${input.costLabel} computing fib(${n}) = ${finalTerm}`,
   )
@@ -124,11 +128,14 @@ export function renderDigitFibonacci(input: {
 
   const digit = (value: bigint, p: number): number =>
     Number((value / BigInt(base) ** BigInt(p)) % BigInt(base))
+
   const frames: Uint8Array[] = []
+
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i]!
     const prev = i === 0 ? initial : steps[i - 1]!.registers
     const changed = new Set<number>()
+
     for (let p = 0; p < digitsShown; p++) {
       if (
         digit(step.registers[step.reg]!, p) !==
@@ -142,6 +149,7 @@ export function renderDigitFibonacci(input: {
     const pv = prev[step.reg]!
     const mode: 'add' | 'sub' | 'idle' =
       av > pv ? 'add' : av < pv ? 'sub' : 'idle'
+
     for (let f = 0; f < FRAMES_PER_OP; f++) {
       const flash = f === 0 ? changed : new Set<number>()
       frames.push(
@@ -165,6 +173,7 @@ export function renderDigitFibonacci(input: {
   }
 
   const lastRegs = steps[steps.length - 1]!.registers
+
   for (let h = 0; h < 14; h++) {
     frames.push(
       renderFrame({
@@ -195,6 +204,7 @@ export function renderDigitFibonacci(input: {
     height: SIZE,
     delayMs: 70,
   })
+
   writeFileSync(join(outDir, `${outName}.gif`), gif)
   console.log(
     `wrote ${outName}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frames.length} frames  ${SIZE}x${SIZE}`,
@@ -231,6 +241,7 @@ function renderFrame(input: {
     digitsShown,
     digit,
   } = input
+
   const faces: SceneFace[] = []
   const FAINT: [number, number, number] = [34, 34, 42]
 
@@ -238,8 +249,10 @@ function renderFrame(input: {
     const hue = REGISTER_HUE[names[r]!] ?? 'zinc'
     const value = registers[r] ?? 0n
     const track = wedges[r]!
+
     for (let p = 0; p < track.length; p++) {
       const cell = track[p]!
+
       if (p < digitsShown) {
         const d = digit(value, p)
         const isFlash = r === active && changed.has(p)
@@ -249,6 +262,7 @@ function renderFrame(input: {
         const rgb01 = isFlash
           ? ([0.96, 0.96, 0.99] as const)
           : shade(hue, t)
+
         faces.push({
           polygon: tiling.polygons[cell]!,
           color: [
@@ -265,6 +279,7 @@ function renderFrame(input: {
 
   const opHue: Hue =
     mode === 'add' ? 'emerald' : mode === 'sub' ? 'violet' : 'zinc'
+
   const opRgb = shade(opHue, mode === 'idle' ? 0.4 : 0.6)
   faces.push({
     polygon: tiling.polygons[0]!,
@@ -282,6 +297,7 @@ function renderFrame(input: {
     faces,
     cellCount,
   }
+
   const { rgba } = renderSceneToRgba({
     scene,
     size: SIZE,
@@ -293,6 +309,7 @@ function renderFrame(input: {
     margin: MARGIN,
     superSample: 2,
   })
+
   drawCentralNumber({
     rgba,
     size: SIZE,

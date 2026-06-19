@@ -37,21 +37,28 @@ export function extractUnits(input: {
   const { offsets, adj, cellCount } = graph
   const seen = new Uint8Array(cellCount)
   const units: MacroUnit[] = []
+
   let id = 0
+
   for (let s = 0; s < cellCount; s++) {
     if (tone[s] !== sign || seen[s]) {
       continue
     }
 
     const members: number[] = []
+
     let frontier = [s]
     seen[s] = 1
+
     while (frontier.length) {
       const next: number[] = []
+
       for (const u of frontier) {
         members.push(u)
+
         for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
           const w = adj[p]!
+
           if (tone[w] === sign && !seen[w]) {
             seen[w] = 1
             next.push(w)
@@ -68,6 +75,7 @@ export function extractUnits(input: {
 
     let cx = 0
     let cy = 0
+
     for (const m of members) {
       const [x, y] = positions(m)
       cx += x
@@ -95,6 +103,7 @@ export function coarseLabels(input: {
   cellCount: number
 }): Int32Array {
   const labels = new Int32Array(input.cellCount).fill(-1)
+
   for (const unit of input.units) {
     for (const m of unit.members) {
       labels[m] = unit.id

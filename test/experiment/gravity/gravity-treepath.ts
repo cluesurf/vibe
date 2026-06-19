@@ -32,7 +32,9 @@ function measure(
   const boundary = [...Array(N).keys()].filter(
     i => depth[i]! >= maxDepth - 1,
   )
+
   const isB = new Uint8Array(N)
+
   for (const b of boundary) {
     isB[b] = 1
   }
@@ -46,7 +48,9 @@ function measure(
     source: src,
     nodeCount: N,
   })
+
   const pts: [number, number][] = []
+
   for (const b of boundary) {
     if (b === src || sdist[b]! <= 0) {
       continue
@@ -64,6 +68,7 @@ function measure(
       x[0] <= Math.round(maxs * 0.7) &&
       x[1] > 0,
   )
+
   const slope = logLogSlope(
     mid.map(x => x[0]),
     mid.map(x => x[1]),

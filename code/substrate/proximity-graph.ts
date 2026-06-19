@@ -19,11 +19,14 @@ export function proximityGraph(input: {
   const thresholdFactor = input.thresholdFactor ?? 1.7
   const n = coords.length
   const nnDist: number[] = []
+
   for (let i = 0; i < n; i++) {
     let mn = Infinity
+
     for (let j = 0; j < n; j++) {
       if (j !== i) {
         const d = distance(coords[i]!, coords[j]!)
+
         if (d < mn) {
           mn = d
         }
@@ -37,6 +40,7 @@ export function proximityGraph(input: {
   const median = sorted[Math.floor(n / 2)]!
   const threshold = thresholdFactor * median
   const neighbors: number[][] = coords.map(() => [])
+
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       if (distance(coords[i]!, coords[j]!) < threshold) {
@@ -54,8 +58,10 @@ export function proximityGraph(input: {
 export function centerNearestOrigin(coords: number[][]): number {
   let center = 0
   let best = Infinity
+
   for (let i = 0; i < coords.length; i++) {
     const r = coords[i]!.reduce((s, v) => s + v * v, 0)
+
     if (r < best) {
       best = r
       center = i

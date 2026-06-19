@@ -28,6 +28,7 @@ export default experiment({
     const d4Norm = d4.every(
       root => root.reduce((sum, value) => sum + value * value, 0) === 2,
     )
+
     const f4Count = rootsF4().length === 48
 
     const group = binaryTetrahedral()
@@ -39,6 +40,7 @@ export default experiment({
         ),
       ),
     )
+
     const q8 = quaternionGroup().length === 8
 
     const [vector, spinorA, spinorB] = trialityClasses()
@@ -46,6 +48,7 @@ export default experiment({
       vector.length === 8 &&
       spinorA.length === 8 &&
       spinorB.length === 8
+
     const all = [...vector, ...spinorA, ...spinorB]
     const disjoint = all.every(
       (element, index) =>

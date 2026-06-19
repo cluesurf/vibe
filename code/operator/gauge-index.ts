@@ -37,7 +37,9 @@ function linkPhase(input: {
   const L = input.length
   const n1 = modulo(input.n1, L)
   const n2 = modulo(input.n2, L)
+
   let phase = 0
+
   if (input.mu === 1) {
     phase = -input.flux * n2
   } else if (n2 === L - 1) {
@@ -58,7 +60,9 @@ export function totalFlux(input: {
 }): number {
   const L = input.length
   const F = (2 * Math.PI * input.charge) / (L * L)
+
   let total = 0
+
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const u1 = linkPhase({ mu: 1, n1, n2, flux: F, length: L })
@@ -69,6 +73,7 @@ export function totalFlux(input: {
         flux: F,
         length: L,
       })
+
       const u1y = linkPhase({
         mu: 1,
         n1,
@@ -76,6 +81,7 @@ export function totalFlux(input: {
         flux: F,
         length: L,
       })
+
       const u2 = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
       // plaquette = U1(x) U2(x+1) U1(x+2)* U2(x)*
       const a = cMul(u1, u2x)
@@ -132,6 +138,7 @@ export function gaugeWilsonDirac(input: {
           flux: F,
           length: L,
         })
+
         const xMinus = site(n1 - 1, n2, L)
         addComplexBlock({
           matrix: d,
@@ -164,6 +171,7 @@ export function gaugeWilsonDirac(input: {
           flux: F,
           length: L,
         })
+
         const xMinus = site(n1, n2 - 1, L)
         addComplexBlock({
           matrix: d,
@@ -184,6 +192,7 @@ export function gaugeWilsonDirac(input: {
 // Negate the spin-down rows (gamma5 acting from the left, gamma5 = diag(1, -1)).
 function gamma5RowsInPlace(m: ComplexMatrix): void {
   const n = m.rows
+
   for (let row = 0; row < n; row++) {
     if (row % 2 === 1) {
       for (let col = 0; col < n; col++) {
@@ -198,12 +207,15 @@ function gamma5RowsInPlace(m: ComplexMatrix): void {
 // H_W must be Hermitian for the eigensolver to be valid; this is the self-check.
 function hermiticityError(m: ComplexMatrix): number {
   const n = m.rows
+
   let worst = 0
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const dr = (m.re[i * n + j] ?? 0) - (m.re[j * n + i] ?? 0)
       const di = (m.im[i * n + j] ?? 0) + (m.im[j * n + i] ?? 0)
       const e = Math.hypot(dr, di)
+
       if (e > worst) {
         worst = e
       }
@@ -236,6 +248,7 @@ export function overlapIndex(input: {
   const n = 2 * L * L
 
   const dw = gaugeWilsonDirac({ length: L, charge: input.charge })
+
   // H_W = gamma5 (D_W - m0): subtract m0 from the diagonal, then apply gamma5.
   for (let i = 0; i < n; i++) {
     dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
@@ -245,7 +258,9 @@ export function overlapIndex(input: {
   const hermError = hermiticityError(dw)
 
   const eig = eigHermitian({ matrix: dw })
+
   let asymmetry = 0
+
   for (let i = 0; i < eig.values.length; i++) {
     const lambda = eig.values[i] ?? 0
     asymmetry += lambda > 0 ? 1 : lambda < 0 ? -1 : 0

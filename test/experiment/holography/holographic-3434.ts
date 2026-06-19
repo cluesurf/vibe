@@ -16,6 +16,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // flat 3D lattice: number of integer points at L1 (octahedral) distance n is 4n^2 + 2 for n >= 1, 1 for n = 0.
 function flatShells(maxShell: number): number[] {
   const s = [1]
+
   for (let n = 1; n <= maxShell; n++) {
     s.push(4 * n * n + 2)
   }
@@ -37,6 +38,7 @@ export default experiment({
       symbol: [3, 4, 3, 4],
       maxShell: 5,
     })
+
     const boundaryFraction = outermostShellFraction(shells) // -> (lambda - 1)/lambda ~ 0.945
     const lambda = lastCompleteShellRatio(shells) // the warp factor / holographic scale, ~ 18.28
     const lambdaPredicted = lambda / (lambda - 1) // 1/boundaryFraction should equal this

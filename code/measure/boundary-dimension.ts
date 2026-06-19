@@ -20,6 +20,7 @@ export function boundaryDimension(input: {
     symbol: input.symbol as never,
     maxCells: input.maxCells,
   })
+
   const N = g.cellCount
   const nb = g.neighbors
   const rad = g.coords.map(norm)
@@ -28,7 +29,9 @@ export function boundaryDimension(input: {
   const boundary = [...Array(N).keys()].filter(
     i => rad[i]! > fraction * rmax,
   )
+
   const isB = new Uint8Array(N)
+
   for (const b of boundary) {
     isB[b] = 1
   }
@@ -38,6 +41,7 @@ export function boundaryDimension(input: {
   // sub-adjacency restricted to the boundary shell, reindexed to [0, boundary.length)
   const bAdj: number[][] = boundary.map(b => {
     const out: number[] = []
+
     for (const w of nb[b]!) {
       if (isB[w]) {
         out.push(id.get(w)!)
@@ -46,6 +50,7 @@ export function boundaryDimension(input: {
 
     return out
   })
+
   const center = mostConnectedNode(bAdj)
   const boundaryDim =
     Math.round(

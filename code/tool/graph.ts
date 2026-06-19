@@ -28,6 +28,7 @@ export function makeGraph(input: {
   const neighbors = input.neighbors.map(row =>
     Uint32Array.from([...row].sort((x, y) => x - y)),
   )
+
   const weight = input.weight
     ? input.weight.map(row => Float64Array.from(row))
     : undefined
@@ -62,8 +63,10 @@ export function withScrambledEmbedding(g: Graph): Graph {
   const source = g.embedding.coords
   const coords = new Float64Array(source.length)
   const shift = Math.floor(size / 2)
+
   for (let node = 0; node < size; node++) {
     const from = (node + shift) % size
+
     for (let axis = 0; axis < dimension; axis++) {
       coords[node * dimension + axis] =
         source[from * dimension + axis] ?? 0
@@ -79,6 +82,7 @@ export function withScrambledEmbedding(g: Graph): Graph {
 // experiments use to hold connectivity fixed as the size grows.
 export function meanDegree(g: Graph): number {
   let total = 0
+
   for (let i = 0; i < g.size; i++) {
     total += (g.neighbors[i] ?? new Uint32Array(0)).length
   }
@@ -93,8 +97,10 @@ export function mostConnectedNode(
 ): number {
   let node = 0
   let best = -1
+
   for (let i = 0; i < neighbors.length; i++) {
     const d = neighbors[i]!.length
+
     if (d > best) {
       best = d
       node = i
@@ -115,14 +121,18 @@ export function toCsr(
 } {
   const n = neighbors.length
   const offsets = new Uint32Array(n + 1)
+
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + (neighbors[i]?.length ?? 0)
   }
 
   const adj = new Uint32Array(offsets[n]!)
+
   let p = 0
+
   for (let i = 0; i < n; i++) {
     const row = neighbors[i] ?? []
+
     for (let k = 0; k < row.length; k++) {
       adj[p++] = row[k]!
     }
@@ -140,9 +150,11 @@ export function edgesFromCsr(
 ): { eu: Int32Array; ev: Int32Array } {
   const eu: number[] = []
   const ev: number[] = []
+
   for (let v = 0; v < n; v++) {
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
+
       if (w > v) {
         eu.push(v)
         ev.push(w)
@@ -167,7 +179,9 @@ export function largestComponentNodes(
 ): number[] {
   const n = neighbors.length
   const seen = new Int32Array(n).fill(-1)
+
   let best: number[] = []
+
   for (let s = 0; s < n; s++) {
     if (seen[s]! >= 0) {
       continue
@@ -176,9 +190,11 @@ export function largestComponentNodes(
     const comp: number[] = []
     const q = [s]
     seen[s] = s
+
     for (let h = 0; h < q.length; h++) {
       const u = q[h]!
       comp.push(u)
+
       for (const w of neighbors[u]!) {
         if (seen[w]! < 0) {
           seen[w] = s
@@ -212,15 +228,20 @@ export function csrDistances(input: {
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
   let fr = [source]
+
   if (input.maxRadius !== undefined) {
     const maxR = input.maxRadius
+
     let r = 0
+
     while (fr.length > 0 && r < maxR) {
       r++
       const next: number[] = []
+
       for (const u of fr) {
         for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
           const w = adj[p]!
+
           if (dist[w] === -1 && (!allowed || allowed[w])) {
             dist[w] = r
             next.push(w)
@@ -236,9 +257,11 @@ export function csrDistances(input: {
 
   while (fr.length > 0) {
     const next: number[] = []
+
     for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
+
         if (dist[w] === -1 && (!allowed || allowed[w])) {
           dist[w] = dist[u]! + 1
           next.push(w)
@@ -265,14 +288,19 @@ export function csrBallNodes(input: {
   const { offsets, adj, size, source, limit } = input
   const ball: number[] = []
   const seen = new Uint8Array(size)
+
   let frontier = [source]
   seen[source] = 1
+
   while (frontier.length > 0 && ball.length < limit) {
     const next: number[] = []
+
     for (const u of frontier) {
       ball.push(u)
+
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
+
         if (!seen[w] && ball.length + next.length < limit) {
           seen[w] = 1
           next.push(w)
@@ -300,13 +328,17 @@ export function csrEccentricity(input: {
   let fr = [source]
   let far = source
   let ecc = 0
+
   while (fr.length > 0) {
     const next: number[] = []
+
     for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
+
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
+
           if (dist[w]! > ecc) {
             ecc = dist[w]!
             far = w
@@ -334,14 +366,18 @@ export function csrBfsOrder(input: {
   const { offsets, adj, size } = input
   const order = new Int32Array(size)
   const seen = new Uint8Array(size)
+
   let head = 0
   let tail = 0
   seen[0] = 1
   order[tail++] = 0
+
   while (head < tail) {
     const u = order[head++]!
+
     for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
       const w = adj[p]!
+
       if (!seen[w]) {
         seen[w] = 1
         order[tail++] = w
@@ -367,11 +403,14 @@ export function csrFarthestNode(input: {
   dist[source] = 0
   let fr = [source]
   let far = source
+
   while (fr.length > 0) {
     const next: number[] = []
+
     for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
+
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
           far = w
@@ -397,8 +436,10 @@ export function neighborDistances(input: {
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
   let frontier = [source]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
@@ -427,8 +468,10 @@ export function neighborBfsTree(input: {
   const parent = new Int32Array(size).fill(-1)
   dist[source] = 0
   let frontier = [source]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
@@ -458,6 +501,7 @@ export function adjacencyListsEqual(
   for (let i = 0; i < a.length; i++) {
     const x = [...(a[i] ?? [])].sort((p, q) => p - q)
     const y = [...(b[i] ?? [])].sort((p, q) => p - q)
+
     if (x.length !== y.length || x.some((v, k) => v !== y[k])) {
       return false
     }
@@ -472,14 +516,17 @@ export function edgesOf(
   neighbors: ReadonlyArray<ArrayLike<number>>,
 ): Array<[number, number]> {
   const edges: Array<[number, number]> = []
+
   for (let v = 0; v < neighbors.length; v++) {
     const row = neighbors[v]
+
     if (!row) {
       continue
     }
 
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
+
       if (w > v) {
         edges.push([v, w])
       }
@@ -503,9 +550,11 @@ export function greedyEdgeColoring(input: {
   const eu: number[] = []
   const ev: number[] = []
   const incident: number[][] = Array.from({ length: size }, () => [])
+
   for (let v = 0; v < size; v++) {
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adjacency[p]!
+
       if (w > v) {
         const e = eu.length
         eu.push(v)
@@ -517,8 +566,10 @@ export function greedyEdgeColoring(input: {
   }
 
   const color = new Int32Array(eu.length).fill(-1)
+
   for (let e = 0; e < eu.length; e++) {
     const used = new Set<number>()
+
     for (const f of incident[eu[e]!]!) {
       if (color[f]! >= 0) {
         used.add(color[f]!)
@@ -532,6 +583,7 @@ export function greedyEdgeColoring(input: {
     }
 
     let c = 0
+
     while (used.has(c)) {
       c++
     }
@@ -540,6 +592,7 @@ export function greedyEdgeColoring(input: {
   }
 
   let colorCount = 0
+
   for (let e = 0; e < eu.length; e++) {
     colorCount = Math.max(colorCount, color[e]! + 1)
   }
@@ -548,6 +601,7 @@ export function greedyEdgeColoring(input: {
     { length: colorCount },
     () => [],
   )
+
   for (let e = 0; e < eu.length; e++) {
     byColor[color[e]!]!.push(e)
   }
@@ -557,10 +611,13 @@ export function greedyEdgeColoring(input: {
 
 export function edgeList(g: Graph): Array<{ a: number; b: number }> {
   const out: Array<{ a: number; b: number }> = []
+
   for (let a = 0; a < g.size; a++) {
     const row = g.neighbors[a] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const b = row[k] ?? 0
+
       if (g.directed || a < b) {
         out.push({ a, b })
       }
@@ -577,8 +634,10 @@ export function edgeList(g: Graph): Array<{ a: number; b: number }> {
 export function largestComponent(g: Graph): Graph {
   let center = 0
   let best = -1
+
   for (let i = 0; i < g.size; i++) {
     const d = (g.neighbors[i] ?? new Uint32Array(0)).length
+
     if (d > best) {
       best = d
       center = i
@@ -588,9 +647,12 @@ export function largestComponent(g: Graph): Graph {
   const reach = new Int32Array(g.size).fill(-1)
   reach[center] = 0
   let frontier = [center]
+
   const kept: number[] = [center]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const v of frontier) {
       for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
         if (reach[w] === -1) {
@@ -618,6 +680,7 @@ export function largestComponent(g: Graph): Graph {
       .map(w => remap.get(w) ?? -1)
       .filter(x => x >= 0)
   })
+
   const embedding = g.embedding ? { ...g.embedding, coords } : undefined
 
   return makeGraph({

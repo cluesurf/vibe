@@ -49,6 +49,7 @@ export function wordEngine(): {
     { symbol: [4, 3], name: 'B3', expected: 48 },
     { symbol: [5, 3], name: 'H3', expected: 120 },
   ]
+
   const finiteOrders = finiteCases.map(c => {
     const w = buildWordMesh({
       symbol: c.symbol,
@@ -63,6 +64,7 @@ export function wordEngine(): {
       expected: c.expected,
     }
   })
+
   const finiteAllExact = finiteOrders.every(
     f => f.chambers === f.expected,
   )
@@ -83,6 +85,7 @@ export function wordEngine(): {
       maxChambers: 60000,
     },
   ]
+
   const cellFacets = facetCases.map(c => {
     const w = buildWordMesh({
       symbol: c.symbol,
@@ -97,6 +100,7 @@ export function wordEngine(): {
       cells: w.cellCount,
     }
   })
+
   const facetsAllExact = cellFacets.every(f => f.facet === f.expected)
 
   const hepta = buildWordMesh({
@@ -104,6 +108,7 @@ export function wordEngine(): {
     maxLength: 10,
     maxChambers: 8000,
   })
+
   const dodecaFacet =
     cellFacets.find(f => f.symbol === '{5,3,4}')?.facet ?? 0
 
@@ -135,6 +140,7 @@ export default experiment({
       r.finiteAllExact &&
       r.facetsAllExact &&
       r.dodecagridFacet === 12
+
     const h3 = r.finiteOrders.find(f => f.name === 'H3')
 
     return verdict({

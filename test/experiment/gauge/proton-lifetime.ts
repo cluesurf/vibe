@@ -46,6 +46,7 @@ export default experiment({
       gutScaleGeV: mssm.gutScaleGeV,
       unifiedInverseCoupling: mssm.unifiedInverseCoupling,
     })
+
     const tauSM = protonLifetimeYears({
       gutScaleGeV: sm.gutScaleGeV,
       unifiedInverseCoupling: sm.unifiedInverseCoupling,

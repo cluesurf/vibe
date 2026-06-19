@@ -58,6 +58,7 @@ export default experiment({
     const fifteen = STANDARD_MODEL_GENERATION.filter(
       f => f.name !== 'nuc',
     )
+
     const sixteenSinglets = singletCount(sixteen)
     const fifteenSinglets = singletCount(fifteen)
     const seesawSeedFromSixteen =
@@ -70,6 +71,7 @@ export default experiment({
       diracMassGeV,
       majoranaMassGeV,
     })
+
     const matchesObservedScale =
       neutrinoMassEv > 0.005 && neutrinoMassEv < 0.5
 
@@ -78,10 +80,12 @@ export default experiment({
       diracMassGeV,
       majoranaMassGeV: 1e15,
     })
+
     const heavyEnd = seesawMassEv({
       diracMassGeV,
       majoranaMassGeV: 1e13,
     })
+
     const scanCoversWindow = lightEnd < 0.05 && heavyEnd > 0.05
 
     // the suppression ratio, m_nu / m_D, tiny because of the huge Majorana scale

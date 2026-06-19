@@ -33,6 +33,7 @@ const SEED_DENSITY = 0.42 // dense net-positive start, plenty of material to coa
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -44,6 +45,7 @@ function run(): void {
     half: HALF,
     margin: MARGIN,
   })
+
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
@@ -55,8 +57,10 @@ function run(): void {
   // 2D positions, stereographic inversion from xi then onto an orthonormal basis of the plane perp to xi
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -64,6 +68,7 @@ function run(): void {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -71,7 +76,9 @@ function run(): void {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -88,6 +95,7 @@ function run(): void {
 
   type BandCell = { index: number; px: number; py: number }
   const raw: { index: number; u: number; v: number }[] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
@@ -111,8 +119,10 @@ function run(): void {
   const radii = raw
     .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
     .sort((a, b) => a - b)
+
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const pad = 20
   const halfPix = IMG / 2 - pad
   const band: BandCell[] = raw.map(c => ({
@@ -124,6 +134,7 @@ function run(): void {
   // dilute net-positive seed, the material that the cohesive rule condenses into selves
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     const r = rng.next()
     tone[i] = (
@@ -140,15 +151,18 @@ function run(): void {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
   let firstSelf = 0
+
   for (let f = 0; f < FRAMES; f++) {
     beat(tone, g, moved, rng, 0, COHESION)
     discreteArrow(tone, g, f, ARROW_PERIOD) // the discrete arrow, the drive
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = 10
       rgba[i * 4 + 1] = 10
@@ -158,15 +172,18 @@ function run(): void {
 
     for (const c of band) {
       const t = tone[c.index]!
+
       if (t === 0) {
         continue
       }
 
       const col = COLORS[t === 1 ? 1 : 2]!
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
@@ -184,6 +201,7 @@ function run(): void {
     // the emergence test, the largest self over time, it should grow as clusters condense
     if (f % 40 === 0 || f === FRAMES - 1) {
       const largest = largestPositiveCluster(tone, g).length
+
       if (f === 0) {
         firstSelf = largest
       }

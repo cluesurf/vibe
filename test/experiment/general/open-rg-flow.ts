@@ -30,6 +30,7 @@ export default experiment({
   run() {
     // (1) verify K' = (1/2) ln cosh(2K) against direct block-spin summation.
     let maxErr = 0
+
     for (let K = 0.05; K <= 2; K += 0.05) {
       const bySum = isingDecimationBySummation(K)
       const byFormula = isingDecimationFormula(K)
@@ -41,8 +42,10 @@ export default experiment({
     // (2) the beta function is monotone non-positive (the coupling shrinks under
     // coarse-graining), and vanishes at the Gaussian fixed point K = 0.
     let fixedPointOk = true
+
     for (const K of [0.1, 0.5, 1.0, 1.5, 2.0]) {
       const beta = isingBetaFunction(K)
+
       if (beta > 1e-9) {
         fixedPointOk = false
       }

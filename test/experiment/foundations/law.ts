@@ -39,6 +39,7 @@ function lengthOf(perm: Int32Array, cells: number): number {
 function singleFlipPerm(cells: number): Int32Array {
   const n = 1 << cells
   const perm = new Int32Array(n)
+
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
@@ -62,11 +63,15 @@ export default experiment({
       blockSize: 2,
       gate: cnotGate,
     })
+
     const eig = eigHermitian({ matrix: block })
+
     let blockMinEig = Infinity
     let blockMaxEig = -Infinity
+
     for (let i = 0; i < eig.values.length; i++) {
       const value = eig.values[i] ?? 0
+
       if (value < blockMinEig) {
         blockMinEig = value
       }

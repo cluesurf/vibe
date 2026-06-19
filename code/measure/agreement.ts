@@ -6,6 +6,7 @@
 // Fraction of entries that are exactly equal.
 export function agreementFraction(a: Int8Array, b: Int8Array): number {
   let same = 0
+
   for (let i = 0; i < a.length; i++) {
     if (a[i] === b[i]) {
       same++
@@ -34,6 +35,7 @@ export function targetFidelity(
 ): number {
   let dot = 0
   let norm = 0
+
   for (let i = 0; i < tone.length; i++) {
     dot += tone[i]! * target[i]!
     norm += target[i]! * target[i]!
@@ -50,11 +52,13 @@ export function clusterMajority(
   tone: Int8Array,
 ): Int8Array {
   const sum = new Float64Array(clusterCount)
+
   for (let v = 0; v < tone.length; v++) {
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
   }
 
   const out = new Int8Array(clusterCount)
+
   for (let c = 0; c < clusterCount; c++) {
     out[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
   }

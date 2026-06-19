@@ -46,6 +46,7 @@ export function crossDomainChain(): {
     size: 240,
     steps: 90,
   })
+
   const rung1 = { ...p1, commutes: p1.linearR2 > 0.99 && p1.massive }
 
   // RUNG 2, particle -> composite. The core (rigorous) claim, the CoM moves uniformly (momentum conserved)
@@ -58,6 +59,7 @@ export function crossDomainChain(): {
     steps: 22,
     contactPhase: 2.0,
   }) // interacting
+
   const pf = twoParticleQuantumWalk({
     mass: 0.5,
     momentum: Math.PI / 2,
@@ -65,6 +67,7 @@ export function crossDomainChain(): {
     steps: 22,
     contactPhase: 0,
   }) // free
+
   const piA = twoParticleQuantumWalk({
     mass: 0.5,
     momentum: Math.PI / 2,
@@ -72,6 +75,7 @@ export function crossDomainChain(): {
     steps: 22,
     contactPhase: -2.0,
   }) // other sign of the contact phase
+
   const comFree = pi.comR2 > 0.97 // CoM uniform = momentum conserved through the interaction
   const bestBoundGrowth = Math.min(pi.relGrowth, piA.relGrowth)
   const bound = bestBoundGrowth < pf.relGrowth - 0.2 // an attractive sign keeps the pair tighter than free

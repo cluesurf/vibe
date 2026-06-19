@@ -42,7 +42,9 @@ export function ternaryWord(
 ): Int8Array {
   const mixed = Math.imul(index, 2654435761) >>> 0
   const word = new Int8Array(wordBits)
+
   let p = 1
+
   for (let k = 0; k < wordBits; k++) {
     word[k] = Math.floor(mixed / p) % 3
     p *= 3
@@ -57,6 +59,7 @@ export function storeWord(
   word: ArrayLike<number>,
 ): void {
   const base = cell * mem.wordBits
+
   for (let k = 0; k < mem.wordBits; k++) {
     mem.words[base + k] = word[k]! as number
   }
@@ -81,6 +84,7 @@ export function comparedSlots(
   }
 
   let n = 0
+
   for (let k = 0; k < wordBits; k++) {
     if (mask[k]) {
       n++
@@ -103,7 +107,9 @@ export function matchScore(
   }
 
   const base = cell * mem.wordBits
+
   let s = 0
+
   for (let k = 0; k < mem.wordBits; k++) {
     if (mask && !mask[k]) {
       continue
@@ -127,6 +133,7 @@ export function search(input: {
 }): number[] {
   const { mem, comparand, mask, minScore } = input
   const out: number[] = []
+
   for (let c = 0; c < mem.cellCount; c++) {
     if (matchScore(mem, c, comparand, mask) >= minScore) {
       out.push(c)
@@ -156,10 +163,13 @@ export function searchBest(input: {
   mask?: ArrayLike<number>
 }): { cell: number; score: number } {
   const { mem, comparand, mask } = input
+
   let bestCell = -1
   let bestScore = -1
+
   for (let c = 0; c < mem.cellCount; c++) {
     const s = matchScore(mem, c, comparand, mask)
+
     if (s > bestScore) {
       bestScore = s
       bestCell = c
@@ -179,10 +189,13 @@ export function pickNearest(input: {
     neighbors: input.neighbors,
     root: input.seed,
   }).depth
+
   let best = -1
   let bestD = Infinity
+
   for (const r of input.responders) {
     const d = depth[r]!
+
     if (d >= 0 && d < bestD) {
       bestD = d
       best = r
@@ -209,17 +222,22 @@ export function broadcastWave(input: {
     neighbors: input.neighbors,
     root: input.seed,
   }).depth
+
   let first = Infinity
+
   for (const r of input.responders) {
     const d = depth[r]!
+
     if (d >= 0 && d < first) {
       first = d
     }
   }
 
   let coverage = 0
+
   for (let c = 0; c < depth.length; c++) {
     const d = depth[c]!
+
     if (d > coverage) {
       coverage = d
     }

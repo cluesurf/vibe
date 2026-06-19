@@ -92,6 +92,7 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
       signature: 'riemannian',
     }),
   }
+
   const out: Record<
     string,
     {
@@ -101,6 +102,7 @@ export function nonRandomSubstrates(input: { seed: number }): Record<
       lorentzSafe: boolean
     }
   > = {}
+
   for (const [name, s] of Object.entries(builders)) {
     const e = evaluate(s, input.seed + 1)
     out[name] = { ...e, lorentzSafe: e.anisotropy < 0.25 }
@@ -126,11 +128,14 @@ export default experiment({
       'tiling {7,3}',
       'tiling {5,4}',
     ].every(k => r[k]?.lorentzSafe === true)
+
     const latticeUnsafe =
       r['flat lattice (control)']?.lorentzSafe === false
+
     const tilingsIsotropic =
       (r['tiling {7,3}']?.anisotropy ?? 1) < 0.1 &&
       (r['tiling {5,4}']?.anisotropy ?? 1) < 0.1
+
     const ok = hyperbolicSafe && latticeUnsafe && tilingsIsotropic
 
     return verdict({

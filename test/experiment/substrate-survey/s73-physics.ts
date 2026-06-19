@@ -30,11 +30,13 @@ export function s73Physics(): {
     to: 7,
     safeDenominator: true,
   })
+
   // 7-fold 2D isotropy, 4th moment, sum d_x^4 = 3 sum d_x^2 d_y^2 (isotropic in 2D)
   const dirs = Array.from({ length: 7 }, (_, k) => [
     Math.cos((2 * Math.PI * k) / 7),
     Math.sin((2 * Math.PI * k) / 7),
   ])
+
   const sevenFoldIsotropic =
     directionFourthMoments(dirs).anisotropy < 1e-6
 

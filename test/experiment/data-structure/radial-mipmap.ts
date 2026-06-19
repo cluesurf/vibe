@@ -23,6 +23,7 @@ export default experiment({
       connectThreshold: 2.0,
       maxVertices: 1500,
     })
+
     const bins = 6
     const levels = busemannLevels(graph, bins)
     const half = Math.floor(bins / 2)

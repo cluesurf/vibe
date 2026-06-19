@@ -33,10 +33,12 @@ export default experiment({
       operator: ({ k1, k2 }) => naiveDirac2D({ k1, k2 }),
       gridSize,
     })
+
     const wilson = scanBrillouin({
       operator: ({ k1, k2 }) => wilsonDirac2D({ k1, k2, m: 0, r }),
       gridSize,
     })
+
     const overlap = scanBrillouin({
       operator: ({ k1, k2 }) => overlapDirac2D({ k1, k2, m0, r }),
       gridSize,

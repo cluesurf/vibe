@@ -38,6 +38,7 @@ export default experiment({
       alphaStrongInverse: ALPHA_STRONG_INVERSE,
       beta: BETA_MSSM,
     })
+
     const predictedSM = predictWeinbergAngle({
       alphaEmInverse: ALPHA_EM_INVERSE,
       alphaStrongInverse: ALPHA_STRONG_INVERSE,

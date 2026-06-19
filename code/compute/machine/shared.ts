@@ -78,6 +78,7 @@ export function makeVibeComputer(input: {
     symbol,
     maxCells: input.maxCells ?? 2000,
   })
+
   const neighbors = graph.neighbors
   const memory = makeAssociativeMemory({ neighbors, wordBits })
 
@@ -95,11 +96,14 @@ export function makeVibeComputer(input: {
 
     // compute plane (literal CA): a locomotive runs on a track loop laid in the actual cell graph
     const cycle = findCycle(neighbors)
+
     let railwayRan = false
     let head = -1
+
     if (cycle.length >= 4) {
       const ca = makeTrackLoop(cycle, graph.cellCount)
       const seen = new Set<number>()
+
       for (let t = 0; t < cycle.length; t++) {
         ca.step()
         seen.add(ca.headAt())
@@ -119,6 +123,7 @@ export function makeVibeComputer(input: {
       mem: memory,
       comparand: ternaryWord(queryCell, wordBits),
     })
+
     const found = responders.includes(queryCell)
     const wave = broadcastWave({
       neighbors,
@@ -169,8 +174,10 @@ function findCycle(neighbors: number[][]): number[] {
   const parent = new Int32Array(n).fill(-2)
   parent[0] = -1
   const queue = [0]
+
   for (let head = 0; head < queue.length; head++) {
     const u = queue[head]!
+
     for (const v of neighbors[u]!) {
       if (parent[v] === -2) {
         parent[v] = u
@@ -184,17 +191,21 @@ function findCycle(neighbors: number[][]): number[] {
 
       // non-tree edge u-v: build the cycle through the common ancestor
       const up: number[] = []
+
       for (let x: number = u; x !== -1; x = parent[x]!) {
         up.push(x)
       }
 
       const vp: number[] = []
+
       for (let x: number = v; x !== -1; x = parent[x]!) {
         vp.push(x)
       }
 
       const seen = new Set(up)
+
       let lca = -1
+
       for (const x of vp) {
         if (seen.has(x)) {
           lca = x
@@ -207,14 +218,17 @@ function findCycle(neighbors: number[][]): number[] {
       }
 
       const a: number[] = []
+
       for (const x of up) {
         a.push(x)
+
         if (x === lca) {
           break
         }
       }
 
       const b: number[] = []
+
       for (const x of vp) {
         if (x === lca) {
           break
@@ -224,6 +238,7 @@ function findCycle(neighbors: number[][]): number[] {
       }
 
       const cycle = [...a, ...b.reverse()]
+
       if (cycle.length >= 4) {
         return cycle
       }

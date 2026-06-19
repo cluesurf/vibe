@@ -8,6 +8,7 @@ import type { SceneEdge, Vec } from '@/code/render/scene'
 export function cellOutlines(polygons: Vec[][]): SceneEdge[] {
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
+
   for (const poly of polygons) {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
@@ -15,6 +16,7 @@ export function cellOutlines(polygons: Vec[][]): SceneEdge[] {
       const ka = a.map(x => Math.round(x * 1e4)).join(',')
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
+
       if (seen.has(key)) {
         continue
       }
@@ -37,6 +39,7 @@ export function layoutWedges(
     { length: count },
     () => [],
   )
+
   for (let cell = 1; cell < centers.length; cell++) {
     const x = centers[cell]![0] ?? 0
     const y = centers[cell]![1] ?? 0
@@ -45,6 +48,7 @@ export function layoutWedges(
       count - 1,
       Math.floor((angle / (2 * Math.PI)) * count),
     )
+
     wedges[w]!.push({ cell, radius: Math.hypot(x, y) })
   }
 
@@ -72,6 +76,7 @@ export function drawCentralNumber(input: {
 
   let bx = 0,
     by = 0
+
   for (const v of centralPolygon) {
     bx += v[0] ?? 0
     by += v[1] ?? 0
@@ -80,9 +85,11 @@ export function drawCentralNumber(input: {
   bx /= centralPolygon.length
   by /= centralPolygon.length
   let inradiusBall = Infinity
+
   for (let i = 0; i < centralPolygon.length; i++) {
     const a = centralPolygon[i]!,
       b = centralPolygon[(i + 1) % centralPolygon.length]!
+
     const mx = ((a[0] ?? 0) + (b[0] ?? 0)) / 2 - bx
     const my = ((a[1] ?? 0) + (b[1] ?? 0)) / 2 - by
     inradiusBall = Math.min(inradiusBall, Math.hypot(mx, my))
@@ -101,6 +108,7 @@ export function drawCentralNumber(input: {
         Math.min((inPx * 1.05) / 7, (inPx * 1.5) / (6 * len - 1)),
     ),
   )
+
   const shadow = Math.max(2, scale * 0.18)
   drawNumber(
     rgba,
@@ -142,13 +150,16 @@ function drawNumber(
   const totalW = text.length * glyphW + (text.length - 1) * gap
   const x0 = Math.round(centerX - totalW / 2)
   const y0 = Math.round(centerY - (7 * scale) / 2)
+
   for (let d = 0; d < text.length; d++) {
     const rows = FONT[text[d]!]
+
     if (!rows) {
       continue
     }
 
     const gx = x0 + d * (glyphW + gap)
+
     for (let ry = 0; ry < 7; ry++) {
       for (let rx = 0; rx < 5; rx++) {
         if (rows[ry]![rx] !== '1') {

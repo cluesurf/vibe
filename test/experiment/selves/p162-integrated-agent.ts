@@ -21,6 +21,7 @@ function makeWorld(L: number): {
   const blocked = new Uint8Array(L * L)
   const wallX = Math.floor(L / 2)
   const gapY = L - 3 // the only opening, near the top
+
   for (let y = 0; y < L; y++) {
     if (y !== gapY && y !== gapY - 1) {
       blocked[y * L + wallX] = 1
@@ -48,6 +49,7 @@ function neighbors(
   const x = p % L
   const y = Math.floor(p / L)
   const out: number[] = []
+
   if (x + 1 < L && !blocked[p + 1]) {
     out.push(p + 1)
   }
@@ -81,12 +83,15 @@ function lookahead(
   // whose reachable set gets closest to the goal
   let bestScore = dist(p, goal, L)
   let bestFirst = p
+
   const seen = new Set<number>([p])
+
   let frontier: { cell: number; first: number }[] = neighbors(
     p,
     L,
     blocked,
   ).map(c => ({ cell: c, first: c }))
+
   for (const f of frontier) {
     seen.add(f.cell)
   }
@@ -94,6 +99,7 @@ function lookahead(
   for (let d = 0; d < depth; d++) {
     for (const f of frontier) {
       const sc = dist(f.cell, goal, L)
+
       if (sc < bestScore) {
         bestScore = sc
         bestFirst = f.first
@@ -101,6 +107,7 @@ function lookahead(
     }
 
     const next: { cell: number; first: number }[] = []
+
     for (const f of frontier) {
       for (const c of neighbors(f.cell, L, blocked)) {
         if (!seen.has(c)) {
@@ -111,6 +118,7 @@ function lookahead(
     }
 
     frontier = next
+
     if (frontier.length === 0) {
       break
     }
@@ -126,17 +134,21 @@ function runAgent(
   maxSteps: number,
 ): { reached: boolean; finalDist: number; steps: number } {
   const { blocked, start, goal } = makeWorld(L)
+
   let p = start
   let stuck = 0
+
   for (let t = 0; t < maxSteps; t++) {
     if (p === goal) {
       return { reached: true, finalDist: 0, steps: t }
     }
 
     const move = lookahead(p, goal, L, blocked, depth)
+
     if (move === p || dist(move, goal, L) >= dist(p, goal, L)) {
       // no improving first move found at this depth (greedy is stuck at the wall)
       stuck++
+
       if (stuck > 3 && depth <= 1) {
         break
       }
@@ -172,6 +184,7 @@ export function integratedAgent(input?: { L?: number }): {
   const L = input?.L ?? 31
   const maxSteps = 6 * L
   const reactive = runAgent(L, 1, maxSteps) // depth-1 = greedy, gets stuck at the wall
+
   // find the smallest lookahead depth that reaches the goal (multi-step foresight)
   let depthNeeded = -1
   let planner = {
@@ -179,8 +192,10 @@ export function integratedAgent(input?: { L?: number }): {
     finalDist: dist(makeWorld(L).start, makeWorld(L).goal, L),
     steps: 0,
   }
+
   for (const depth of [2, 4, 8, 12, 18, 25]) {
     const r = runAgent(L, depth, maxSteps)
+
     if (r.reached) {
       depthNeeded = depth
       planner = r

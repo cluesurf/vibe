@@ -43,6 +43,7 @@ export default experiment({
       directions,
       gateCount: 4,
     }) // the chaotic / configuration-controlled candidate
+
     const beats = 30
 
     const decayTime = (wavelength: number): number => {
@@ -53,6 +54,7 @@ export default experiment({
         side,
         directions,
       }
+
       const will = shearSetup({ mesh, ...shear })
       const series = shearAmplitudeSeries({
         will,
@@ -61,6 +63,7 @@ export default experiment({
         open: false,
         ...shear,
       }).map(a => Math.abs(a))
+
       for (let t = 1; t < series.length; t++) {
         if (series[t]! < 1 / Math.E) {
           const prev = series[t - 1]!,
@@ -77,9 +80,11 @@ export default experiment({
     const logL: number[] = [],
       logTau: number[] = [],
       taus: number[] = []
+
     for (const wavelength of wavelengths) {
       const tau = decayTime(wavelength)
       taus.push(tau)
+
       if (!Number.isNaN(tau)) {
         logL.push(Math.log(wavelength))
         logTau.push(Math.log(tau))
@@ -88,10 +93,13 @@ export default experiment({
 
     const mean = (a: number[]) =>
       a.reduce((s, x) => s + x, 0) / a.length
+
     const mL = mean(logL),
       mT = mean(logTau)
+
     let num = 0,
       den = 0
+
     for (let i = 0; i < logL.length; i++) {
       num += (logL[i]! - mL) * (logTau[i]! - mT)
       den += (logL[i]! - mL) ** 2
@@ -101,6 +109,7 @@ export default experiment({
 
     // the controlled collision is a valid base-class rule (conserves mass and momentum, reversible)
     const probe = makeWill(mesh)
+
     for (let i = 0; i < probe.data.length; i++) {
       probe.data[i] = i % 3 === 0 ? 1 : 0
     }

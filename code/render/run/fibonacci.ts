@@ -66,12 +66,14 @@ function run(): void {
     'render',
     'fibonacci',
   )
+
   mkdirSync(outDir, { recursive: true })
 
   const tiling = buildTilingFaces({
     symbol: [7, 3],
     maxCells: MAX_CELLS,
   })
+
   const cellCount = tiling.cellCount
 
   // compile the TypeScript and trace the whole execution, one snapshot per instruction
@@ -84,7 +86,9 @@ function run(): void {
   // boundaries (each n--), where b holds the latest complete Fibonacci term. We do NOT rerun the function per
   // number, the centre value updates live as the single run reaches each term.
   const trace: RailStep[] = []
+
   let latched = 0
+
   const latchedAt: number[] = [] // the Fibonacci value showing in the centre at each step
   const boundaries: number[] = [] // trace indices where a new term completes (the n-- of each iteration)
   runRailway(compiled.program, initial, step => {
@@ -104,6 +108,7 @@ function run(): void {
   })
   const finalTerm =
     trace[trace.length - 1]!.registers[compiled.returnRegister]!
+
   console.log(
     `compiled ${compiled.program.code.length} instructions; executed ${trace.length} steps computing fib(${N}) = ${finalTerm}`,
   )
@@ -129,22 +134,29 @@ function run(): void {
     mode: 'add' | 'sub' | 'idle'
   }
   const segments: Segment[] = []
+
   let start = 0
+
   for (let i = 1; i <= trace.length; i++) {
     const boundary =
       i === trace.length ||
       opIndex[trace[i]!.pc] !== opIndex[trace[start]!.pc]
+
     if (!boundary) {
       continue
     }
 
     const pre =
       start === 0 ? initial.slice() : trace[start - 1]!.registers
+
     const post = trace[i - 1]!.registers
+
     let active = 0,
       delta = 0
+
     for (let r = 0; r < post.length; r++) {
       const d = post[r]! - pre[r]!
+
       if (Math.abs(d) > Math.abs(delta)) {
         delta = d
         active = r
@@ -163,6 +175,7 @@ function run(): void {
 
   const framesPerOp = FRAMES_PER_OP
   const frames: Uint8Array[] = []
+
   for (const seg of segments) {
     for (let f = 1; f <= framesPerOp; f++) {
       const registers = seg.post.map((post, r) =>
@@ -170,6 +183,7 @@ function run(): void {
           seg.pre[r]! + (post - seg.pre[r]!) * (f / framesPerOp),
         ),
       )
+
       frames.push(
         renderFrame({
           tiling,
@@ -188,6 +202,7 @@ function run(): void {
 
   // hold the final answer for a moment
   const lastRegs = trace[trace.length - 1]!.registers
+
   for (let h = 0; h < 14; h++) {
     frames.push(
       renderFrame({
@@ -214,6 +229,7 @@ function run(): void {
     height: SIZE,
     delayMs: 55,
   })
+
   writeFileSync(join(outDir, 'fibonacci-7-3-poincare.gif'), gif)
   console.log(
     `wrote fibonacci-7-3-poincare.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frames.length} frames  ${SIZE}x${SIZE}`,
@@ -242,6 +258,7 @@ function renderFrame(input: {
     display,
     cellCount,
   } = input
+
   const faces: SceneFace[] = []
   const FAINT: [number, number, number] = [34, 34, 42] // faint zinc, so the whole tessellation stays visible
 
@@ -249,8 +266,10 @@ function renderFrame(input: {
     const hue = REGISTER_HUE[names[r]!] ?? 'zinc'
     const value = registers[r] ?? 0
     const track = wedges[r]!
+
     for (let p = 0; p < track.length; p++) {
       const cell = track[p]!
+
       if (p < value) {
         const t = 0.45 + 0.2 * (p / Math.max(1, value)) // vivid (~500) hue, a touch deeper toward the tip
         const isTip = p === value - 1
@@ -258,6 +277,7 @@ function renderFrame(input: {
         const rgb01 = isActive
           ? ([0.96, 0.96, 0.99] as const)
           : shade(hue, t)
+
         faces.push({
           polygon: tiling.polygons[cell]!,
           color: [
@@ -276,6 +296,7 @@ function renderFrame(input: {
   // (a register growing), violet for a subtract (shrinking), a quiet zinc for a step that moves nothing
   const opHue: Hue =
     mode === 'add' ? 'emerald' : mode === 'sub' ? 'violet' : 'zinc'
+
   const opRgb = shade(opHue, mode === 'idle' ? 0.4 : 0.6)
   faces.push({
     polygon: tiling.polygons[0]!,
@@ -293,6 +314,7 @@ function renderFrame(input: {
     faces,
     cellCount,
   }
+
   const { rgba } = renderSceneToRgba({
     scene,
     size: SIZE,

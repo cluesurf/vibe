@@ -34,6 +34,7 @@ const spectralDim = (
   Math.round(
     spectralDimension({ neighbors: nb, start, t1, t2 }) * 100,
   ) / 100
+
 const gravityExp = (
   nb: number[][],
   coord: number[][],
@@ -50,8 +51,10 @@ const gravityExp = (
 
 export function cuspConvergence(): void {
   const H = 0.8 // de Sitter rate per beat (cosmology-and-anisotropy), L ~ e^(H t) -> t = ln(L)/H
+
   let sufficientL = 0
   let prevGe = NaN
+
   for (const L of [5, 7, 11, 17, 25, 35]) {
     const { nb, coord, center } = cubicBox(L)
     const sd = spectralDim(
@@ -60,19 +63,23 @@ export function cuspConvergence(): void {
       3,
       Math.min(14, Math.floor((L * L) / 6)),
     )
+
     const ge = gravityExp(
       nb,
       coord,
       center,
       Math.max(3, Math.floor(L / 2) - 1),
     )
+
     // continuum-like = spectral dim converged to 3 AND gravity exponent L-CONVERGED (no longer changing with L);
     // the absolute gravity value reflects small-r discreteness, the true asymptote is 1/r (p224). What matters
     // for "sufficient size" is L-INDEPENDENCE (local physics stops depending on the chunk size).
     const dimOk = Math.abs(sd - 3) < 0.1
     const gravConverged =
       Number.isFinite(prevGe) && Math.abs(ge - prevGe) < 0.1
+
     const ok = dimOk && gravConverged
+
     if (ok && sufficientL === 0) {
       sufficientL = L
     }
@@ -106,12 +113,14 @@ export default experiment({
       3,
       Math.min(14, Math.floor((5 * 5) / 6)),
     )
+
     const bigDim = spectralDim(
       big.nb,
       big.center,
       3,
       Math.min(14, Math.floor((35 * 35) / 6)),
     )
+
     const mid = cubicBox(25)
     const midDim = spectralDim(
       mid.nb,
@@ -119,23 +128,27 @@ export default experiment({
       3,
       Math.min(14, Math.floor((25 * 25) / 6)),
     )
+
     const midGrav = gravityExp(
       mid.nb,
       mid.coord,
       mid.center,
       Math.max(3, Math.floor(25 / 2) - 1),
     )
+
     const bigGrav = gravityExp(
       big.nb,
       big.coord,
       big.center,
       Math.max(3, Math.floor(35 / 2) - 1),
     )
+
     const dimConverged = Math.abs(bigDim - 3) < 0.1
     const gravLConverged =
       Number.isFinite(midGrav) &&
       Number.isFinite(bigGrav) &&
       Math.abs(bigGrav - midGrav) < 0.1
+
     const smallNotYet = Math.abs(smallDim - 3) > Math.abs(bigDim - 3)
     const ok = dimConverged && gravLConverged && smallNotYet
 

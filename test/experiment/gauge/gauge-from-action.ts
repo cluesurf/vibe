@@ -26,6 +26,7 @@ export function gaugeFromAction(input: { side: number }): {
   const dof = 3 * L * L * L
   const rng = makeRng({ seed: 7 })
   const base = new Float64Array(dof)
+
   for (let i = 0; i < dof; i++) {
     base[i] = rng.next() * 2 - 1
   }
@@ -33,6 +34,7 @@ export function gaugeFromAction(input: { side: number }): {
   const epsilons = [0.5, 0.2, 0.1, 0.05, 0.02]
   const ratios = epsilons.map(eps => {
     const theta = new Float64Array(dof)
+
     for (let i = 0; i < dof; i++) {
       theta[i] = eps * (base[i] ?? 0)
     }

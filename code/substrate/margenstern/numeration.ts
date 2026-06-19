@@ -24,6 +24,7 @@ export interface Numeration {
 // a numeration over an explicit increasing integer basis (must start at 1 and strictly increase)
 export function makeNumeration(input: { basis: number[] }): Numeration {
   const basis = [...input.basis].sort((a, b) => a - b)
+
   if (basis[0] !== 1) {
     throw new Error('numeration basis must start at 1')
   }
@@ -41,11 +42,13 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
 
     let remainder = value
     let top = basis.length - 1
+
     while (top >= 0 && basis[top]! > remainder) {
       top--
     }
 
     const digits: number[] = []
+
     for (let i = top; i >= 0; i--) {
       const digit = Math.floor(remainder / basis[i]!)
       digits.push(digit)
@@ -57,7 +60,9 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
 
   function decode(digits: number[]): number {
     let sum = 0
+
     const len = digits.length
+
     for (let i = 0; i < len; i++) {
       sum += digits[i]! * basis[len - 1 - i]!
     }
@@ -67,6 +72,7 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
 
   function maxDigit(limit: number): number {
     let m = 0
+
     for (let n = 1; n <= limit; n++) {
       for (const d of encode(n)) {
         if (d > m) {
@@ -91,8 +97,10 @@ export function recurrenceBasis(input: {
 }): number[] {
   const { coefficients, seeds, terms } = input
   const basis = seeds.slice(0, terms)
+
   while (basis.length < terms) {
     let next = 0
+
     for (let k = 0; k < coefficients.length; k++) {
       next += coefficients[k]! * basis[basis.length - 1 - k]!
     }
@@ -112,6 +120,7 @@ export function recurrenceBasis(input: {
 // per-shell counts (shell 0 = 1). Keeps only the strictly-increasing prefix, so it is a valid greedy basis.
 export function growthBasis(shellCounts: number[]): number[] {
   const basis: number[] = [1]
+
   for (const count of shellCounts) {
     if (count > basis[basis.length - 1]!) {
       basis.push(count)

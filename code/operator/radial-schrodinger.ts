@@ -21,10 +21,12 @@ export function radialSchrodingerLevels(input: {
   const { l, potential, mass, spacing, points, count } = input
   const h = makeDense({ rows: points, cols: points })
   const kinetic = 1 / (2 * mass * spacing * spacing)
+
   for (let i = 0; i < points; i++) {
     const r = (i + 1) * spacing
     h.data[i * points + i] =
       2 * kinetic + (l * (l + 1)) / (2 * mass * r * r) + potential(r)
+
     if (i + 1 < points) {
       h.data[i * points + (i + 1)] = -kinetic
       h.data[(i + 1) * points + i] = -kinetic

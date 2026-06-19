@@ -38,6 +38,7 @@ export function makeGaugeField(input: {
 }): GaugeField {
   const edges: DirectedEdge[] = []
   const edgeIndex = new Map<string, number>()
+
   for (const e of edgeList(input.graph)) {
     const idx = edges.length
     edges.push({ from: e.a, to: e.b })
@@ -66,6 +67,7 @@ export function linkPhase(
   const forward = field.edgeIndex.get(
     edgeKey({ from: input.from, to: input.to }),
   )
+
   if (forward !== undefined) {
     return (2 * Math.PI * (field.link[forward] ?? 0)) / q
   }
@@ -73,6 +75,7 @@ export function linkPhase(
   const reverse = field.edgeIndex.get(
     edgeKey({ from: input.to, to: input.from }),
   )
+
   if (reverse !== undefined) {
     return (-2 * Math.PI * (field.link[reverse] ?? 0)) / q
   }

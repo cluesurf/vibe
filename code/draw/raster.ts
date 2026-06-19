@@ -12,6 +12,7 @@ export function makeCanvas(input: {
 }): Uint8Array {
   const { width, height, background } = input
   const rgba = new Uint8Array(width * height * 4)
+
   for (let pixel = 0; pixel < width * height; pixel++) {
     const offset = pixel * 4
     rgba[offset] = background[0]
@@ -56,10 +57,12 @@ export function drawDisk(input: {
   const minY = Math.max(0, Math.floor(centerY - radius))
   const maxY = Math.min(height - 1, Math.ceil(centerY + radius))
   const radiusSquared = radius * radius
+
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
       const dx = x - centerX
       const dy = y - centerY
+
       if (dx * dx + dy * dy <= radiusSquared) {
         setPixel(rgba, width, x, y, color)
       }

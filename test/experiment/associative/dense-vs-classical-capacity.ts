@@ -35,8 +35,10 @@ function denseStep(input: {
   const overlaps = patterns.map(p => Math.max(0, toneOverlap(state, p)))
   const weights = overlaps.map(o => Math.pow(o, power))
   const next = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     let h = 0
+
     for (let m = 0; m < patterns.length; m++) {
       h += (weights[m] ?? 0) * (patterns[m]![i] ?? 0)
     }
@@ -54,7 +56,9 @@ function classicalRelax(input: {
   beats: number
 }): Int8Array {
   const zero = new Float64Array(input.cue.length)
+
   let s = Int8Array.from(input.cue)
+
   for (let t = 0; t < input.beats; t++) {
     s = hopfieldStep(input.J, s, zero, null)
   }
@@ -70,6 +74,7 @@ function denseRelax(input: {
   power: number
 }): Int8Array {
   let s = Int8Array.from(input.cue)
+
   for (let t = 0; t < input.beats; t++) {
     s = denseStep({
       patterns: input.patterns,
@@ -95,10 +100,13 @@ function recallRate(input: {
     size,
     makeRng({ seed: 1 }),
   )
+
   let hits = 0
+
   for (let m = 0; m < patternCount; m++) {
     const rng = makeRng({ seed: 200 + m })
     const cue = Int8Array.from(patterns[m]!)
+
     for (let i = 0; i < size; i++) {
       if (rng.next() < fraction) {
         cue[i] = -(cue[i] ?? 0) as -1 | 1
@@ -127,11 +135,13 @@ export function denseVsClassicalCapacity(input?: {
   const fraction = input?.fraction ?? 0.1
   const power = input?.power ?? 8
   const target = 0.9
+
   // Capacity, the largest P at which the relax still recalls at the target rate. Sweep P up.
   const capacityOf = (
     relax: (cue: Int8Array, patterns: Int8Array[]) => Int8Array,
   ): number => {
     let best = 0
+
     for (let P = 2; P <= size; P++) {
       const rate = recallRate({
         size,
@@ -139,6 +149,7 @@ export function denseVsClassicalCapacity(input?: {
         fraction,
         relax,
       })
+
       if (rate >= target) {
         best = P
       } else if (P > 4 && rate < target - 0.2) {
@@ -152,9 +163,11 @@ export function denseVsClassicalCapacity(input?: {
   const classicalCapacity = capacityOf((cue, patterns) =>
     classicalRelax({ J: hebbianFills(patterns, size), cue, beats: 8 }),
   )
+
   const denseCapacity = capacityOf((cue, patterns) =>
     denseRelax({ patterns, cue, beats: 8, power }),
   )
+
   // PASS, the dense (higher-order) energy holds strictly more patterns at the matched recall.
   const solved = denseCapacity > classicalCapacity
 

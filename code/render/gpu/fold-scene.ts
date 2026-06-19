@@ -49,11 +49,13 @@ export function createFoldScene(input: {
     fragment: { module, entryPoint: 'fs', targets: [{ format }] },
     primitive: { topology: 'triangle-list' },
   })
+
   const byteLength = mode === '2d' ? 80 : 112
   const uniform = device.createBuffer({
     size: byteLength,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [{ binding: 0, resource: { buffer: uniform } }],

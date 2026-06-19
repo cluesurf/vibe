@@ -50,6 +50,7 @@ function run(willpower: number, fieldStrength: number): number {
 
   // pursue it: cross the valley, spending willpower each step
   let w = willpower
+
   for (let step = 0; step < VALLEY; step++) {
     if (w >= COST_PER_STEP) {
       w -= COST_PER_STEP
@@ -84,11 +85,13 @@ export function willFork(): {
 
   // sweep willpower to find the threshold where the self flips from relapse to delayed gratification
   const willpowerSweep: { willpower: number; outcome: number }[] = []
+
   for (let wpw = 0; wpw <= 8; wpw++) {
     willpowerSweep.push({ willpower: wpw, outcome: run(wpw, 0) })
   }
 
   let willpowerThreshold = -1
+
   for (const s of willpowerSweep) {
     if (s.outcome === BIG) {
       willpowerThreshold = s.willpower

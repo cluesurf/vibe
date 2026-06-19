@@ -25,6 +25,7 @@ const SIZE = 1024 // image is SIZE x SIZE. SIZE * 4 is 256-aligned, so no row pa
 
 function parseSymbol(text: string): number[] {
   const nums = text.split('-').map(part => Number(part.trim()))
+
   if (nums.some(n => !Number.isInteger(n) || n < 2)) {
     throw new Error(
       `bad symbol "${text}", expected dash-separated integers like 7-3 or 5-3-4`,
@@ -42,6 +43,7 @@ async function run(): Promise<void> {
   const mode = threeD ? '3d' : '2d'
 
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS). The fold renderer will run where an adapter is present.',
@@ -54,6 +56,7 @@ async function run(): Promise<void> {
 
   const scene = createHeadlessFoldScene({ device, symbol, mode })
   const camera = makeCamera(mode)
+
   if (threeD) {
     // the static, from-outside view, with high-quality march settings for a still
     scene.setCamera3D({
@@ -76,6 +79,7 @@ async function run(): Promise<void> {
     'render',
     'fold',
   )
+
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, `${key}.png`)
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))

@@ -36,6 +36,7 @@ export function unifiedModel(input?: { n?: number }): {
   // ONE canonical run
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
+
   for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -44,6 +45,7 @@ export function unifiedModel(input?: { n?: number }): {
   }
 
   const q0 = sumQ(tone)
+
   for (let t = 0; t < 80; t++) {
     conservingEdgeSweep({
       tone: tone,
@@ -62,6 +64,7 @@ export function unifiedModel(input?: { n?: number }): {
   // (2b) dead without the arrow, a control run with arrow=0 relaxes toward peace
   const dead = new Int8Array(N)
   const rngD = makeRng({ seed: 7 })
+
   for (let i = 0; i < N; i++) {
     dead[i] = (
       rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
@@ -84,6 +87,7 @@ export function unifiedModel(input?: { n?: number }): {
   // (3) lightcone, a perturbation spreads at a bounded finite speed (same RNG copies, position-indexed not
   // needed here, use the front radius growth)
   let center = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -99,12 +103,14 @@ export function unifiedModel(input?: { n?: number }): {
     size: N,
     source: center,
   })
+
   const s = tone.slice()
   const s2 = tone.slice()
   s2[center] = (s2[center]! === 0 ? 1 : 0) as -1 | 0 | 1
   const ra = makeRng({ seed: 99 })
   const rb = makeRng({ seed: 99 })
   const T = 4
+
   for (let t = 0; t < T; t++) {
     conservingEdgeSweep({
       tone: s,
@@ -125,6 +131,7 @@ export function unifiedModel(input?: { n?: number }): {
   }
 
   let front = 0
+
   for (let i = 0; i < N; i++) {
     if (s[i] !== s2[i] && distC[i]! > front) {
       front = distC[i]!
@@ -139,6 +146,7 @@ export function unifiedModel(input?: { n?: number }): {
   const S9 = 9
   const C = new Float64Array(S9 * S9)
   const sample: number[] = []
+
   for (let k = 0; k < eu.length; k += 3) {
     sample.push(k)
   }
@@ -147,6 +155,7 @@ export function unifiedModel(input?: { n?: number }): {
     const pre = sample.map(
       k => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!),
     )
+
     conservingEdgeSweep({
       tone: tone,
       eu,
@@ -155,6 +164,7 @@ export function unifiedModel(input?: { n?: number }): {
       rng: rng,
       arrow: arrow,
     })
+
     for (let i = 0; i < sample.length; i++) {
       const k = sample[i]!
       C[pre[i]! * S9 + (st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))]! +=
@@ -164,6 +174,7 @@ export function unifiedModel(input?: { n?: number }): {
 
   let asym = 0
   let total = 0
+
   for (let a = 0; a < S9; a++) {
     for (let bb = a + 1; bb < S9; bb++) {
       asym += Math.abs(C[a * S9 + bb]! - C[bb * S9 + a]!)
@@ -175,8 +186,10 @@ export function unifiedModel(input?: { n?: number }): {
 
   // (5) coherence, neighbours are correlated (structure, not white noise), the seed of selves
   const mean = sumQ(tone) / N
+
   let cc = 0
   let cnt = 0
+
   for (let k = 0; k < eu.length; k++) {
     cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
     cnt++
@@ -192,6 +205,7 @@ export function unifiedModel(input?: { n?: number }): {
     lightcone &&
     reversible &&
     coherent
+
   const solved = allTogether
 
   return {

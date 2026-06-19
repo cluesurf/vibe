@@ -52,22 +52,26 @@ export default experiment({
     // 1, a single free glider, persistence and mobility under the momentum-conserving rule.
     const center =
       8 + 8 * side + 8 * side * side + 8 * side * side * side
+
     const g = gliderLine({
       mesh,
       start: center,
       direction: dir,
       length: gliderLength,
     })
+
     const mobile: Collision = headOnRotate({
       opposite: Array.from({ length: mesh.degree }, (_, d) =>
         mesh.opposite(d),
       ),
     })
+
     const gliderFinal = run(
       { mesh, data: g.will.data.slice() },
       mobile,
       beats,
     )
+
     const gliderCells = occupiedCells(gliderFinal)
     const gliderPersists = gliderCells === gliderLength // stayed exactly as tight as it began
     const gliderMoved = movedOff(g.cells, occupiedSet(gliderFinal))
@@ -79,9 +83,11 @@ export default experiment({
       direction: dir,
       length: gliderLength,
     })
+
     // the second glider sits a clear gap ahead along dir and travels the opposite way, so they approach, meet,
     // and (if they survive) part. The gap keeps the two clusters disjoint at the start (two components).
     let bStart = center
+
     for (let i = 0; i < gliderLength + 3; i++) {
       bStart = mesh.neighbour(bStart, dir)
     }
@@ -92,7 +98,9 @@ export default experiment({
       direction: opp,
       length: gliderLength,
     })
+
     const collide = makeWill(mesh)
+
     for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
     }
@@ -104,6 +112,7 @@ export default experiment({
       mobile,
       beats,
     )
+
     const collideComponents = componentCount(collideFinal)
     const collideCells = occupiedCells(collideFinal)
     // a bound composite is ONE persistent tight cluster, parting (pass-through or scatter) leaves two or more.
@@ -117,6 +126,7 @@ export default experiment({
       passThrough,
       beats,
     )
+
     const crossComponents = componentCount(crossFinal)
     const interacted = collideFinal.data.some(
       (v, i) => v !== crossFinal.data[i],

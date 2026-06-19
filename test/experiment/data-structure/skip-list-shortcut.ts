@@ -28,6 +28,7 @@ export default experiment({
     // the hyperbolic radius is logarithmic in the cells, and far below the flat polynomial radius
     const logarithmicRadius =
       hyperbolicRadius <= 4 * Math.log2(hyperbolicCells)
+
     const muchShorterThanFlat = hyperbolicRadius < flatRadius * 0.7
 
     const ok = logarithmicRadius && muchShorterThanFlat

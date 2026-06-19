@@ -29,8 +29,11 @@ export default experiment({
       depth: 30,
       maxChambers: 40000,
     })
+
     const n = mesh.cellCount
+
     let center = 0
+
     for (let i = 1; i < n; i++) {
       if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
@@ -48,6 +51,7 @@ export default experiment({
       depth,
       settleBeats: 20,
     })
+
     const traj = grow.trajectory
     const lifeEnd = traj[traj.length - 1]!
     const peak = Math.max(...traj)
@@ -59,6 +63,7 @@ export default experiment({
       arrow: 0,
       seed: 9,
     })
+
     const deadEnd = dead.trajectory[dead.trajectory.length - 1]!
 
     const grewLife = traj[0] === 0 && peak > 0.1 * grow.bornEnd

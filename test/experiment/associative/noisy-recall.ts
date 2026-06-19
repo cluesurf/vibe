@@ -33,11 +33,13 @@ export function associativeNoisyRecall(input?: {
     neighbors: g.neighbors,
     wordBits,
   })
+
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
   }
 
   const sample: number[] = []
+
   for (let c = 0; c < g.cellCount && sample.length < sampleSize; c++) {
     sample.push(c)
   }

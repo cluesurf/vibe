@@ -27,12 +27,16 @@ export function diracFromDiscrete(): {
   massiveOk: boolean
 } {
   const T = 512
+
   // (1) MASSLESS = exactly the discrete shift -> E(k) = k (the light cone), no continuity
   let masslessOk = true
+
   for (const kIdx of [8, 16, 32, 48]) {
     const k = (2 * Math.PI * kIdx) / LX,
       E = measureE(kIdx, 0, T)
+
     const ok = Math.abs(E - k) < 0.05
+
     if (!ok) {
       masslessOk = false
     }
@@ -40,13 +44,18 @@ export function diracFromDiscrete(): {
 
   // (2) MASSIVE (emergent mixing rate m) -> cos E = cos(m) cos(k), the Dirac relation
   const m = 0.6
+
   let massiveOk = true
+
   for (const kIdx of [8, 24, 48]) {
     const k = (2 * Math.PI * kIdx) / LX,
       E = measureE(kIdx, m, T)
+
     const lhs = Math.cos(E),
       rhs = Math.cos(m) * Math.cos(k)
+
     const ok = Math.abs(lhs - rhs) < 0.05
+
     if (!ok) {
       massiveOk = false
     }

@@ -6,6 +6,7 @@
 
 const wrap = (x: number): number => {
   let v = x
+
   while (v > Math.PI) {
     v -= 2 * Math.PI
   }
@@ -25,6 +26,7 @@ export function squareLoop(input: {
 }): Array<[number, number]> {
   const { radius: r, cx, cy } = input
   const points: Array<[number, number]> = []
+
   for (let x = cx - r; x < cx + r; x++) {
     points.push([x, cy - r])
   }
@@ -57,7 +59,9 @@ export function zNVortexHolonomy(input: {
   const { states: n, loop, fluxX, fluxY } = input
   const angle = (x: number, y: number): number =>
     Math.atan2(y - fluxY, x - fluxX)
+
   let sum = 0
+
   for (let i = 0; i < loop.length; i++) {
     const a = loop[i]!
     const b = loop[(i + 1) % loop.length]!

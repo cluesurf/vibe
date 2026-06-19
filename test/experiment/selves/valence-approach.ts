@@ -37,6 +37,7 @@ export default experiment({
       plusSide: 'right',
       withDynamics: true,
     })
+
     const driftToPlusLeft = valenceDrift({
       L,
       beats,
@@ -44,6 +45,7 @@ export default experiment({
       plusSide: 'left',
       withDynamics: true,
     })
+
     const deadRight = valenceDrift({
       L,
       beats,
@@ -51,6 +53,7 @@ export default experiment({
       plusSide: 'right',
       withDynamics: false,
     })
+
     const deadLeft = valenceDrift({
       L,
       beats,

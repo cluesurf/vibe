@@ -20,6 +20,7 @@ const gramMatrix = (symbol: number[]): number[][] => {
   const gram: number[][] = Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
   )
+
   for (let k = 0; k < symbol.length; k++) {
     const c = -Math.cos(Math.PI / symbol[k]!)
     gram[k]![k + 1] = c
@@ -44,6 +45,7 @@ export function coxeterPoincareGraph(
   // eigendecompose the Gram matrix, the most negative eigenvalue is the timelike axis
   const gram = gramMatrix(symbol)
   const data = new Float64Array(n * n)
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       data[i * n + j] = gram[i]![j]!
@@ -53,11 +55,13 @@ export function coxeterPoincareGraph(
   const eig = eigSymmetric({
     matrix: { form: 'dense', rows: n, cols: n, data } as DenseMatrix,
   })
+
   const values = Array.from(eig.values) // ascending
   const vectors = eig.vectors // vectors[i*n+j] = component i of eigenvector j
   const sqrtAbs = values.map(v => Math.sqrt(Math.abs(v)))
   const base = new Array(n).fill(0)
   const scale = 1 / Math.sqrt(-values[0]!)
+
   for (let i = 0; i < n; i++) {
     base[i] = vectors[i * n + 0]! * scale
   }
@@ -65,8 +69,10 @@ export function coxeterPoincareGraph(
   // map a root-basis point to Poincare ball coordinates
   const toPoincare = (p: number[]): number[] => {
     const z = new Array(n).fill(0)
+
     for (let k = 0; k < n; k++) {
       let q = 0
+
       for (let i = 0; i < n; i++) {
         q += vectors[i * n + k]! * p[i]!
       }
@@ -76,8 +82,10 @@ export function coxeterPoincareGraph(
 
     const time = Math.abs(z[0]!)
     const y = new Array(dim).fill(0)
+
     for (let k = 1; k < n; k++) {
       let value = z[k]! / (1 + time)
+
       if (!Number.isFinite(value)) {
         value = 0
       }
@@ -91,16 +99,21 @@ export function coxeterPoincareGraph(
   const identity = Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
   )
+
   const index = new Map<string, number>([[matrixKey(identity), 0]])
   const matrices: number[][][] = [identity]
   const coords: number[][] = [toPoincare(base)]
+
   let frontier = [0]
+
   while (index.size < maxCells && frontier.length > 0) {
     const next: number[] = []
+
     for (const cell of frontier) {
       for (let g = 0; g < degree; g++) {
         const m = multiply(matrices[cell]!, generators[g]!)
         const id = matrixKey(m)
+
         if (!index.has(id)) {
           index.set(id, matrices.length)
           matrices.push(m)
@@ -120,8 +133,10 @@ export function coxeterPoincareGraph(
   const size = matrices.length
   const neighbors: Uint32Array[] = matrices.map(m => {
     const ns = new Set<number>()
+
     for (let g = 0; g < degree; g++) {
       const id = index.get(matrixKey(multiply(m, generators[g]!)))
+
       if (id !== undefined) {
         ns.add(id)
       }
@@ -129,7 +144,9 @@ export function coxeterPoincareGraph(
 
     return Uint32Array.from([...ns].sort((a, b) => a - b))
   })
+
   const flat = new Float64Array(size * dim)
+
   for (let i = 0; i < size; i++) {
     for (let k = 0; k < dim; k++) {
       flat[i * dim + k] = coords[i]![k]!

@@ -65,6 +65,7 @@ export function nearCriticalRP(input?: {
     { length: maxPos + 1 },
     () => [],
   )
+
   for (let i = 0; i < N; i++) {
     posCells[s.position[i]!]!.push(i)
   }
@@ -78,6 +79,7 @@ export function nearCriticalRP(input?: {
   const measure = (arrow: number): { c: number[]; density: number } => {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 11 })
+
     for (let i = 0; i < N; i++) {
       tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
         | -1
@@ -91,14 +93,18 @@ export function nearCriticalRP(input?: {
 
     const T = 4000
     const sumMM = new Float64Array(maxR + 1)
+
     let cnt = 0
     let sumM = 0
     let mCnt = 0
     let nz = 0
+
     const mp = new Float64Array(maxPos + 1)
+
     for (let t = 0; t < T; t++) {
       for (let p = lo; p <= hi; p++) {
         let sm = 0
+
         for (const i of posCells[p]!) {
           sm += tone[i]!
         }
@@ -109,9 +115,11 @@ export function nearCriticalRP(input?: {
       for (let p = lo; p <= hi; p++) {
         sumM += mp[p]!
         mCnt++
+
         for (let r = 0; r <= maxR; r++) {
           if (p + r <= hi) {
             sumMM[r]! += mp[p]! * mp[p + r]!
+
             if (r === 0) {
               cnt++
             }
@@ -131,6 +139,7 @@ export function nearCriticalRP(input?: {
     const mean = sumM / mCnt
     const npairs = hi - lo + 1
     const c: number[] = []
+
     for (let r = 0; r <= maxR; r++) {
       // approximate pair count per time-step is (hi-lo+1-r); normalize consistently
       const pairsR = (hi - lo + 1 - r) * T
@@ -153,10 +162,14 @@ export function nearCriticalRP(input?: {
     directMinEig: number
     staggeredMinEig: number
   }[] = []
+
   const tol = 0.02 // noise-aware PSD tolerance (low-density near-critical data is noisy)
+
   for (const arrow of arrows) {
     const { c, density } = measure(arrow)
+
     let range = 0
+
     for (let r = 1; r <= maxR; r++) {
       if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
         range = r
@@ -182,6 +195,7 @@ export function nearCriticalRP(input?: {
   const extended = scan.filter(
     row => row.range >= 3 && row.density > 0.01,
   )
+
   const xiFirst = scan[0]!.correlationLength
   const xiLast = scan[scan.length - 1]!.correlationLength
   const xiGrows =
@@ -192,6 +206,7 @@ export function nearCriticalRP(input?: {
 
   let reflectionPositive = false
   let classicalMimic = false
+
   if (extended.length > 0) {
     // an extended particle exists, run the RP verdict on the most-extended row
     const row = extended.reduce((a, b) => (b.range > a.range ? b : a))

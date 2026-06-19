@@ -40,6 +40,7 @@ export function deterministicRP(input?: { ks?: number[] }): {
     oscillates: boolean
     bounded: boolean
   }[] = []
+
   for (const k of ks) {
     const m = waveModeFrequency({ wavenumber: k })
     modes.push({
@@ -60,6 +61,7 @@ export function deterministicRP(input?: { ks?: number[] }): {
           ys: fitModes.map(md => md.omega),
         })
       : { slope: 0, intercept: 0, r2: 0 }
+
   const dispersionSlope = fit.slope
   const dispersionIntercept = fit.intercept
   const dispersionR2 = fit.r2
@@ -69,6 +71,7 @@ export function deterministicRP(input?: { ks?: number[] }): {
     dispersionR2 > 0.9 &&
     dispersionSlope > 0.2 &&
     Math.abs(dispersionIntercept) < 0.15
+
   const reflectionPositive = allOscillate && linearMassless
   const solved = reflectionPositive
 

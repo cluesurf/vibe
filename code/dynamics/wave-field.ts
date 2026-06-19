@@ -26,6 +26,7 @@ export function makeWaveField(input: {
 }): WaveField {
   const { size, fill } = input
   const u = new Int32Array(size)
+
   for (let x = 0; x < size; x++) {
     u[x] = fill(x)
   }
@@ -44,20 +45,24 @@ export function stepWaveField(input: {
   const periodic = boundary.form === 'periodic'
   const leftVacuum = boundary.form === 'absorbing' ? boundary.left : 0
   const rightVacuum = boundary.form === 'absorbing' ? boundary.right : 0
+
   for (let x = 0; x < size; x++) {
     const left =
       x === 0 ? (periodic ? curr[size - 1]! : leftVacuum) : curr[x - 1]!
+
     const right =
       x === size - 1
         ? periodic
           ? curr[0]!
           : rightVacuum
         : curr[x + 1]!
+
     next[x] = left + right - prev[x]! + accel(curr[x]!)
   }
 
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 6
+
     for (let x = 0; x < margin; x++) {
       next[x] = leftVacuum
     }
@@ -85,6 +90,7 @@ export function doubleWellAccel(input: {
 
     const sign = Math.sign(value)
     const magnitude = Math.abs(value)
+
     if (magnitude === amplitude) {
       return 0
     }
@@ -99,8 +105,10 @@ export function doubleWellAccel(input: {
 
 export function fieldMaxAbs(u: Int32Array): number {
   let max = 0
+
   for (let x = 0; x < u.length; x++) {
     const a = Math.abs(u[x]!)
+
     if (a > max) {
       max = a
     }
@@ -112,6 +120,7 @@ export function fieldMaxAbs(u: Int32Array): number {
 // the number of sign changes between non-zero cells, the count of domain walls (a clean single kink is one).
 export function domainWallCount(u: Int32Array): number {
   let count = 0
+
   for (let x = 0; x < u.length - 1; x++) {
     if (
       u[x] !== 0 &&

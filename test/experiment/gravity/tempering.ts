@@ -31,6 +31,7 @@ export default experiment({
       epsilon: 0.9,
       dimension: 2,
     })
+
     const result = parallelTempering({
       size: SIZE,
       betas,
@@ -44,9 +45,11 @@ export default experiment({
     let peakBeta = 0
     let peakChi = -1
     let peakIndex = 0
+
     for (let r = 0; r < betas.length; r++) {
       const samples = result.samplesByBeta[r] ?? []
       const chi = variance(samples)
+
       if (chi > peakChi) {
         peakChi = chi
         peakBeta = betas[r] ?? 0
@@ -59,6 +62,7 @@ export default experiment({
     const low = peakSamples.filter(x => x < 0.8).length / denom
     const mid =
       peakSamples.filter(x => x >= 0.8 && x <= 1.3).length / denom
+
     const high = peakSamples.filter(x => x > 1.3).length / denom
     const bimodal = low > 0.15 && high > 0.15 && mid < low + high
 

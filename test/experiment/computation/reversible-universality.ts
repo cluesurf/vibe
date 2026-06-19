@@ -48,11 +48,14 @@ export function reversibleUniversality(): {
   // (2a) the rule is a bijection on the nine pair-states (reversibility, the key property)
   const tones = [-1, 0, 1]
   const images = new Set<string>()
+
   let bijection = true
+
   for (const a of tones) {
     for (const b of tones) {
       const [c, d] = ruleStep(a, b)
       const key = `${c},${d}`
+
       if (images.has(key)) {
         bijection = false
       }
@@ -65,12 +68,15 @@ export function reversibleUniversality(): {
 
   // (2b) the Toffoli gate is a bijection on the eight three-bit states (a reversible gate)
   const seen = new Set<string>()
+
   let tBij = true
+
   for (let x = 0; x < 2; x++) {
     for (let y = 0; y < 2; y++) {
       for (let z = 0; z < 2; z++) {
         const [a, b, c] = toffoli(x, y, z)
         const key = `${a}${b}${c}`
+
         if (seen.has(key)) {
           tBij = false
         }
@@ -84,9 +90,11 @@ export function reversibleUniversality(): {
 
   // (2c) Toffoli with the ancilla z = 1 computes NAND(x, y) on the third output, functional completeness
   let nandOk = true
+
   for (let x = 0; x < 2; x++) {
     for (let y = 0; y < 2; y++) {
       const out = toffoli(x, y, 1)[2] // 1 XOR (x AND y) = NOT(x AND y) = NAND
+
       if (out !== (x === 1 && y === 1 ? 0 : 1)) {
         nandOk = false
       }
@@ -109,6 +117,7 @@ export function reversibleUniversality(): {
     hasRouting &&
     hasGates &&
     hasMemory
+
   const solved = reversibleUniversal
 
   return {

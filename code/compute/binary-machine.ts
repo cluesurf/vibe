@@ -44,6 +44,7 @@ function bitLength(x: bigint): number {
 // the word width an operation ripples over: a constant machine word, widened only when a value needs more bits
 function wordWidth(...values: bigint[]): number {
   let bits = WORD_BITS
+
   for (const v of values) {
     bits = Math.max(bits, bitLength(v))
   }
@@ -62,12 +63,16 @@ export function runBinary(
     { length: program.registers },
     (_, r) => initial[r] ?? 0n,
   )
+
   let pc = 0
   let totalBits = 0
   let ops = 0
+
   const maxOps = 50_000_000
+
   while (ops < maxOps) {
     const ins = program.code[pc]
+
     if (!ins || ins.op === 'halt') {
       break
     }
@@ -76,6 +81,7 @@ export function runBinary(
     let bits = WORD_BITS
     let reg = 0
     let kind: BinaryStep['kind'] = 'jz'
+
     if (ins.op === 'set') {
       const value = BigInt(ins.value)
       regs[ins.reg] = value
@@ -112,6 +118,7 @@ export function runBinary(
     }
 
     totalBits += bits
+
     if (onStep) {
       onStep({ kind, reg, registers: regs.slice(), bits, width: bits })
     }

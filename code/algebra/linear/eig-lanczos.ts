@@ -8,6 +8,7 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
@@ -53,21 +54,26 @@ export function lowestEigenvalues(input: {
     n,
     input.steps ?? Math.max(2 * input.count + 20, 40),
   )
+
   const rand = input.rng ?? deterministicRand()
 
   const basis: Float64Array[] = []
+
   let v = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     v[i] = rand() - 0.5
   }
 
   let norm = Math.sqrt(dot(v, v))
+
   for (let i = 0; i < n; i++) {
     v[i] = (v[i] ?? 0) / (norm || 1)
   }
 
   const alpha = new Float64Array(m)
   const beta = new Float64Array(m)
+
   let prev = new Float64Array(n)
 
   for (let j = 0; j < m; j++) {
@@ -76,6 +82,7 @@ export function lowestEigenvalues(input: {
     const a = dot(w, v)
     alpha[j] = a
     axpy(w, { alpha: -a, x: v })
+
     if (j > 0) {
       axpy(w, { alpha: -(beta[j] ?? 0), x: prev })
     }
@@ -83,6 +90,7 @@ export function lowestEigenvalues(input: {
     // full reorthogonalisation against the stored basis (m is small)
     for (let k = 0; k < basis.length; k++) {
       const bk = basis[k]
+
       if (!bk) {
         continue
       }
@@ -92,6 +100,7 @@ export function lowestEigenvalues(input: {
     }
 
     const b = Math.sqrt(dot(w, w))
+
     if (j + 1 < m) {
       beta[j + 1] = b
     }
@@ -102,14 +111,17 @@ export function lowestEigenvalues(input: {
 
     prev = v
     v = new Float64Array(n)
+
     for (let i = 0; i < n; i++) {
       v[i] = (w[i] ?? 0) / b
     }
   }
 
   const t = makeDense({ rows: basis.length, cols: basis.length })
+
   for (let j = 0; j < basis.length; j++) {
     denseSet(t, { row: j, col: j, value: alpha[j] ?? 0 })
+
     if (j + 1 < basis.length) {
       const b = beta[j + 1] ?? 0
       denseSet(t, { row: j, col: j + 1, value: b })

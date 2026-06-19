@@ -57,6 +57,7 @@ export default experiment({
       neighbors: addressing.graph.neighbors,
       cellCount: addressing.graph.cellCount,
     })
+
     const lambda = growthRatioFromShellCounts(shellCounts).ratio
 
     // the neutrino masses from the splittings (m1 about 0), m2 = sqrt(solar), m3 = sqrt(atmospheric + solar)
@@ -72,10 +73,12 @@ export default experiment({
       ratio: TAU_OVER_MUON,
       growthRate: lambda,
     })
+
     const upSpacing = shellSeparationExponent({
       ratio: TOP_OVER_CHARM,
       growthRate: lambda,
     })
+
     const downSpacing = shellSeparationExponent({
       ratio: BOTTOM_OVER_STRANGE,
       growthRate: lambda,

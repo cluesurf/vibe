@@ -72,30 +72,38 @@ export function bdSignature(input: {
     Math.exp(
       -((t - t0) ** 2) / (2 * st * st) - (x - x0) ** 2 / (2 * sx * sx),
     )
+
   const phiSpace = (t: number, x: number): number =>
     Math.exp(
       -((t - t0) ** 2) / (2 * sx * sx) - (x - x0) ** 2 / (2 * st * st),
     )
+
   const expectedDiff =
     1 / (st * st) - 1 / (sx * sx) - (1 / (sx * sx) - 1 / (st * st))
+
   let acc = 0
   let acc2 = 0
   let m = 0
+
   for (let r = 0; r < input.realizations; r++) {
     const p = sprinkleMinkowski({
       dimension: 2,
       count: input.count,
       rng: makeRng({ seed: input.seed + r }),
     })
+
     const coords = p.embedding?.coords ?? new Float64Array(0)
     const rho = p.size / V
     const past = pastMatrix(p)
+
     let xi = 0
     let best = Infinity
+
     for (let i = 0; i < p.size; i++) {
       const d =
         ((coords[i * 2] ?? 0) - t0) ** 2 +
         ((coords[i * 2 + 1] ?? 0) - x0) ** 2
+
       if (d < best) {
         best = d
         xi = i
@@ -105,6 +113,7 @@ export function bdSignature(input: {
     const diff =
       bdApply(phiTime, coords, past, p, xi, rho, eps) -
       bdApply(phiSpace, coords, past, p, xi, rho, eps)
+
     acc += diff
     acc2 += diff * diff
     m += 1

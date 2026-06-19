@@ -20,6 +20,7 @@ export function sprinkleBox(input: {
   const area = input.tMax * 2 * input.xMax
   const n = Math.round(input.density * area)
   const pts: SprinkledPoint[] = []
+
   for (let i = 0; i < n; i++) {
     pts.push({
       t: input.rng.next() * input.tMax,

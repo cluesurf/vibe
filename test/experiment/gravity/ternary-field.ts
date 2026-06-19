@@ -38,17 +38,22 @@ function bindingTest(digits: number): {
     Math.floor(c / (SIDE * SIDE)) % SIDE,
     Math.floor(c / SIDE ** 3) % SIDE,
   ]
+
   const centre =
     half + half * SIDE + half * SIDE * SIDE + half * SIDE ** 3
+
   const centreCoord = coord(centre)
   const neighbour = (c: number, d: number): number =>
     mesh.neighbour(c, d)
+
   const distance = (c: number): number =>
     coord(c).reduce((s, v, i) => s + Math.abs(v - centreCoord[i]!), 0)
 
   const body = new Uint8Array(cellCount)
+
   for (let c = 0; c < cellCount; c++) {
     const p = coord(c)
+
     if (
       (p[0]! - half) ** 2 +
         (p[1]! - half) ** 2 +
@@ -76,8 +81,11 @@ function bindingTest(digits: number): {
     strength: 6,
     cap,
   })
+
   const ternary = isBalancedTernaryField(phi, digits)
+
   let wellRange = 0
+
   for (let c = 0; c < cellCount; c++) {
     if (phi[c]! < 0 && distance(c) > wellRange) {
       wellRange = distance(c)
@@ -86,6 +94,7 @@ function bindingTest(digits: number): {
 
   // a test mass displaced three cells, walking down the gradient to the body surface (distance two)
   let piece = centre
+
   for (let k = 0; k < 3; k++) {
     piece = neighbour(piece, 0)
   }
@@ -93,8 +102,10 @@ function bindingTest(digits: number): {
   for (let step = 0; step < 40; step++) {
     let best = -1
     let bestPhi = phi[piece]!
+
     for (let d = 0; d < SPATIAL_DEGREE; d++) {
       const target = neighbour(piece, d)
+
       if (phi[target]! < bestPhi && distance(target) >= 2) {
         bestPhi = phi[target]!
         best = target
@@ -106,6 +117,7 @@ function bindingTest(digits: number): {
     }
 
     piece = best
+
     if (distance(piece) <= 2) {
       break
     }

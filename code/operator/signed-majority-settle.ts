@@ -20,20 +20,26 @@ export function settleAsync(input: {
   const { graph, fills, init, sweeps, rng } = input
   const n = graph.size
   const t = Int8Array.from(init)
+
   let finalFlip = 1
+
   for (let sweep = 0; sweep < sweeps; sweep++) {
     let flips = 0
+
     for (let s = 0; s < n; s++) {
       const v = rng.nextInt({ max: n })
       const nb = graph.neighbors[v] ?? new Uint32Array(0)
       const fl = fills[v] ?? new Int8Array(0)
+
       let h = 0
+
       for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
       }
 
       const nt: -1 | 0 | 1 =
         h > 0 ? 1 : h < 0 ? -1 : ((t[v] ?? 0) as -1 | 0 | 1)
+
       if (nt !== t[v]) {
         flips++
       }

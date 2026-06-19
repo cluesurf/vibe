@@ -31,8 +31,10 @@ const bfsDepths = (
   const depth = new Array(adjacency.length).fill(-1)
   depth[root] = 0
   let frontier = [root]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const v of adjacency[u]!) {
         if (v >= 0 && depth[v] === -1) {
@@ -51,6 +53,7 @@ const bfsDepths = (
 const ballRatioOf = (shells: number[]): number => {
   const ball = (radius: number): number =>
     shells.slice(0, radius + 1).reduce((s, n) => s + n, 0)
+
   const r = Math.max(2, shells.length - 2)
 
   return ball(r) / Math.max(1, ball(r - 1))
@@ -69,6 +72,7 @@ export function cellCoordination(symbol: number[]): number {
   const cell = symbol.slice(0, symbol.length - 1)
   const facet = symbol.slice(0, symbol.length - 2)
   const cellOrder = buildCoxeterMatrixMesh(cell, cap).adjacency.length
+
   if (cellOrder >= cap) {
     return Infinity // the cell is a tiling, infinite coordination
   }

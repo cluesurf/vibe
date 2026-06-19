@@ -45,6 +45,7 @@ export function bornRule(input: { seed: number }): {
     p,
     residual: exponentResidual({ p, seed: input.seed + p }),
   }))
+
   const uniqueExponent = exponentResiduals.reduce(
     (best, e) => (e.residual < best.residual ? e : best),
     exponentResiduals[0] ?? { p: 2, residual: 0 },
@@ -56,7 +57,9 @@ export function bornRule(input: { seed: number }): {
     draws: 400000,
     seed: input.seed + 17,
   })
+
   let samplingError = 0
+
   for (let k = 0; k < born.length; k++) {
     samplingError = Math.max(
       samplingError,

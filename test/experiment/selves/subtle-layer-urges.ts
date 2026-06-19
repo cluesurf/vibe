@@ -39,6 +39,7 @@ function twoScale(input: {
     { length: n },
     () => new Map(),
   )
+
   const add = (u: number, v: number): void => {
     if (u !== v) {
       adj[u]?.set(v, 1)
@@ -49,6 +50,7 @@ function twoScale(input: {
   // dense surface
   for (let i = 0; i < fastCount; i++) {
     const u = slowCount + i
+
     for (let d = 0; d < fastDegree; d++) {
       add(u, slowCount + rng.nextInt({ max: fastCount }))
     }
@@ -57,6 +59,7 @@ function twoScale(input: {
   // surface-to-subtle coupling
   for (let i = 0; i < fastCount; i++) {
     const u = slowCount + i
+
     for (let c = 0; c < coupling; c++) {
       add(u, rng.nextInt({ max: slowCount }))
     }
@@ -85,6 +88,7 @@ function settleFast(
   rng: Rng,
 ): Int8Array {
   const t = new Int8Array(ts.n)
+
   for (let i = 0; i < ts.slowCount; i++) {
     t[i] = slowState[i] ?? 0
   }
@@ -98,7 +102,9 @@ function settleFast(
       const v = ts.slowCount + rng.nextInt({ max: ts.n - ts.slowCount })
       const nb = ts.neighbors[v] ?? []
       const fl = ts.fills[v] ?? new Int8Array(0)
+
       let h = 0
+
       for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
       }
@@ -112,6 +118,7 @@ function settleFast(
 
 function differ(a: Int8Array, b: Int8Array): number {
   let d = 0
+
   for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) {
       d++
@@ -141,16 +148,19 @@ export function subtleLayerUrges(input: { seed: number }): {
       coupling,
       rng: makeRng({ seed: seed + coupling }),
     })
+
     const dr = makeRng({ seed: seed + 100 })
     const deepA = Int8Array.from(
       { length: slowCount },
       () => dr.nextInt({ max: 3 }) - 1,
     )
+
     const deepB = Int8Array.from(deepA, x => -x as -1 | 0 | 1)
     const fastInit = Int8Array.from(
       { length: fastCount },
       () => dr.nextInt({ max: 3 }) - 1,
     )
+
     const fa = settleFast(
       ts,
       deepA,
@@ -158,6 +168,7 @@ export function subtleLayerUrges(input: { seed: number }): {
       40,
       makeRng({ seed: seed + 1 }),
     )
+
     const fb = settleFast(
       ts,
       deepB,
@@ -168,6 +179,7 @@ export function subtleLayerUrges(input: { seed: number }): {
 
     return { coupling, steering: differ(fa, fb) }
   })
+
   const steeringRises =
     (byCoupling[byCoupling.length - 1]?.steering ?? 0) >
       (byCoupling[0]?.steering ?? 1) + 0.2 &&
@@ -184,15 +196,18 @@ export function subtleLayerUrges(input: { seed: number }): {
     coupling: 9,
     rng: makeRng({ seed: seed + 4 }),
   })
+
   const dr = makeRng({ seed: seed + 200 })
   const deep = Int8Array.from(
     { length: slowCount },
     () => dr.nextInt({ max: 3 }) - 1,
   )
+
   const init = Int8Array.from(
     { length: fastCount },
     () => dr.nextInt({ max: 3 }) - 1,
   )
+
   const settled = settleFast(
     ts,
     deep,
@@ -200,10 +215,12 @@ export function subtleLayerUrges(input: { seed: number }): {
     40,
     makeRng({ seed: seed + 5 }),
   )
+
   const disordered = Int8Array.from(
     { length: fastCount },
     () => dr.nextInt({ max: 3 }) - 1,
   )
+
   const recovered = settleFast(
     ts,
     deep,
@@ -211,6 +228,7 @@ export function subtleLayerUrges(input: { seed: number }): {
     40,
     makeRng({ seed: seed + 6 }),
   )
+
   const reassertion = 1 - differ(settled, recovered) // how much the surface returns to its deep-shaped pattern
 
   return {

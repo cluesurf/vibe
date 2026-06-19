@@ -52,6 +52,7 @@ export default experiment({
       lightMass: M_DOWN,
       heavyMass: M_STRANGE,
     })
+
     const cabibboMatches = Math.abs(cabibbo - OBSERVED_VUS) < 0.03
 
     // (2) the quark mixing is hierarchical, the Wolfenstein powers lambda, lambda^2, lambda^3 reproduce the observed
@@ -60,9 +61,11 @@ export default experiment({
     const hierarchyOrdered =
       wolfenstein.vus > wolfenstein.vcb &&
       wolfenstein.vcb > wolfenstein.vub
+
     const vcbRightOrder =
       wolfenstein.vcb > OBSERVED_VCB / 3 &&
       wolfenstein.vcb < OBSERVED_VCB * 3
+
     const vubRightOrder =
       wolfenstein.vub > OBSERVED_VUB / 5 &&
       wolfenstein.vub < OBSERVED_VUB * 5
@@ -73,6 +76,7 @@ export default experiment({
       lightMass: 1,
       heavyMass: 2,
     }) // mild ratio -> large angle
+
     const leptonLargerThanQuark = leptonMild > 2 * cabibbo
     const leptonIsLarge = leptonMild > 0.4 // sin(theta) > 0.4, a large angle, the observed solar/atmospheric regime
 
@@ -82,6 +86,7 @@ export default experiment({
       lightMass: 1,
       heavyMass: 1,
     }) // sin(45 deg) = 0.707
+
     const anarchyTooLarge = anarchic > 3 * OBSERVED_VUS
 
     const ok =

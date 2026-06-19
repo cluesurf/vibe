@@ -35,6 +35,7 @@ export default experiment({
         intervalLength,
       }),
     )
+
     const gapless = LENGTHS.map(intervalLength =>
       coinedWalkIntervalEntropy({
         theta: GAPLESS_THETA,
@@ -47,8 +48,10 @@ export default experiment({
     const massiveTail = massive.slice(2) // lengths 8, 10, 12
     const massiveSaturates =
       Math.max(...massiveTail) - Math.min(...massiveTail) < 0.02
+
     const gaplessGrows =
       gapless[gapless.length - 1]! - gapless[0]! > 0.4
+
     const ok = massiveSaturates && gaplessGrows
 
     return verdict({

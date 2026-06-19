@@ -44,6 +44,7 @@ export default experiment({
       inverse: conjugate,
       key: quaternionKey,
     }
+
     const commutator2I = commutatorSubgroup(group, ops2I)
     const isPerfect = commutator2I.length === 120
     const minusOneIsCommutator = contains(commutator2I, minusOne, ops2I)
@@ -51,8 +52,10 @@ export default experiment({
     // (2) CONTROL: the SPLIT cover A5 x Z2. Represent A5 by one quaternion per rotation, multiply
     // rotations via the representatives, keep Z2 independent. Its commutator subgroup misses the centre.
     const representativeByRotation = new Map<string, Quaternion>()
+
     for (const element of group) {
       const id = rotationKey(element)
+
       if (!representativeByRotation.has(id)) {
         representativeByRotation.set(id, element)
       }
@@ -77,16 +80,19 @@ export default experiment({
       }),
       key: value => `${value.rotation}|${value.sign}`,
     }
+
     const splitGroup: SplitElement[] = rotations.flatMap(rotation => [
       { rotation, sign: 1 },
       { rotation, sign: -1 },
     ])
+
     const commutatorSplit = commutatorSubgroup(splitGroup, opsSplit)
     const identityRotation = rotationKey(quaternion(1, 0, 0, 0))
     const centralElement: SplitElement = {
       rotation: identityRotation,
       sign: -1,
     }
+
     const centralIsCommutatorSplit = contains(
       commutatorSplit,
       centralElement,
@@ -99,6 +105,7 @@ export default experiment({
     const pureSquared = multiply(pure, pure)
     const loopHolonomyMinusOne =
       quaternionKey(pureSquared) === quaternionKey(minusOne)
+
     const rotationOrderTwo =
       rotationKey(pureSquared) === identityRotation &&
       rotationKey(pure) !== identityRotation

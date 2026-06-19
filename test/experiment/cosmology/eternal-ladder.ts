@@ -34,6 +34,7 @@ function evaluate(g: Graph, seed: number): Epoch {
     samples: 2500,
     rng: makeRng({ seed }),
   })
+
   const m = runModel(g, seed + 1)
 
   return {
@@ -65,7 +66,9 @@ export function eternalLadder(input: {
 
     return evaluate(g, input.seed)
   })
+
   let growsMonotonically = true
+
   for (let i = 1; i < epochs.length; i++) {
     if ((epochs[i]?.cells ?? 0) <= (epochs[i - 1]?.cells ?? 0)) {
       growsMonotonically = false
@@ -93,11 +96,13 @@ export default experiment({
       caps: [300, 700, 1500],
       seed: 2,
     })
+
     const hept = eternalLadder({
       base: [7, 3],
       caps: [200, 600, 1500],
       seed: 2,
     })
+
     const ok =
       mod.growsMonotonically &&
       mod.alwaysLorentzSafe &&

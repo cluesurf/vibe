@@ -18,6 +18,7 @@ export function bellNonlocality(): {
 } {
   // (1) local deterministic hidden-variable CHSH, brute force all strategies a0,a1,b0,b1 in {+-1}
   let localMax = 0
+
   for (const a0 of [1, -1]) {
     for (const a1 of [1, -1]) {
       for (const b0 of [1, -1]) {
@@ -37,6 +38,7 @@ export function bellNonlocality(): {
     a1 = deg(90),
     b0 = deg(45),
     b1 = deg(-45)
+
   const quantumMax = E(a0, b0) + E(a0, b1) + E(a1, b0) - E(a1, b1)
   const gap = quantumMax > localMax + 0.1
 

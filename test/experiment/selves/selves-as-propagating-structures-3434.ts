@@ -50,10 +50,13 @@ function gliderSelf(): {
   const moore = [-1, 0, 1]
     .flatMap(dx => [-1, 0, 1].map(dy => [dx, dy]))
     .filter(([dx, dy]) => dx !== 0 || dy !== 0)
+
   const lifeStep = (state: Set<string>): Set<string> => {
     const count = new Map<string, number>()
+
     for (const k of state) {
       const [x, y] = k.split(',').map(Number)
+
       for (const [dx, dy] of moore) {
         const nk = `${x! + dx!},${y! + dy!}`
         count.set(nk, (count.get(nk) ?? 0) + 1)
@@ -61,6 +64,7 @@ function gliderSelf(): {
     }
 
     const next = new Set<string>()
+
     for (const [k, c] of count) {
       if (c === 3 || (c === 2 && state.has(k))) {
         next.add(k)
@@ -71,8 +75,10 @@ function gliderSelf(): {
   }
 
   let s = new Set<string>(['0,0', '1,0', '2,0', '2,1', '1,2'])
+
   const frames: Set<string>[] = [new Set(s)]
   const centroids: number[][] = [centroidOfCellSet(s)]
+
   for (let t = 0; t < 12; t++) {
     s = lifeStep(s)
     frames.push(new Set(s))
@@ -82,6 +88,7 @@ function gliderSelf(): {
   // identity = overlap of recentered pattern with the recentered pattern one PERIOD (4) later
   let id = 0
   let idc = 0
+
   for (let t = 0; t + 4 < frames.length; t++) {
     id += cellSetOverlap(
       recenterCellSet(frames[t]!),
@@ -91,17 +98,21 @@ function gliderSelf(): {
   }
 
   const identity = id / idc
+
   // turnover = average fraction of occupied cells that differ frame-to-frame (the matter flows)
   let tov = 0
   let tovc = 0
+
   for (let t = 0; t + 1 < frames.length; t++) {
     tov += 1 - cellSetOverlap(frames[t]!, frames[t + 1]!)
     tovc++
   }
 
   const turnover = tov / tovc
+
   // speed = mean centroid displacement per beat; rgGrowth = radius-of-gyration drift (should stay ~constant)
   let disp = 0
+
   for (let t = 0; t + 1 < centroids.length; t++) {
     disp += Math.hypot(
       centroids[t + 1]![0]! - centroids[t]![0]!,
@@ -113,6 +124,7 @@ function gliderSelf(): {
   const rgGrowth =
     radiusOfGyrationOfCellSet(frames[frames.length - 1]!) -
     radiusOfGyrationOfCellSet(frames[0]!)
+
   const isSelf =
     identity > 0.8 &&
     turnover > 0.3 &&
@@ -133,6 +145,7 @@ function vibeChurn(): {
     symbol: [4, 3, 4],
     maxCells: 30000,
   })
+
   const n = g.cellCount
   const { offsets, adj } = toCsr(g.neighbors)
   // a localized +1 blob near the centre in a sea of 0 (a "particle" seed)
@@ -140,12 +153,15 @@ function vibeChurn(): {
   const cx = g.coords
     .reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0])
     .map(v => v / n)
+
   const seed: number[] = []
+
   for (let i = 0; i < n; i++) {
     const d2 = g.coords[i]!.reduce(
       (s, v, k) => s + (v - cx[k]!) ** 2,
       0,
     )
+
     if (d2 < 4) {
       tone[i] = 1
       seed.push(i)
@@ -154,6 +170,7 @@ function vibeChurn(): {
 
   const occupied = (): Set<string> => {
     const s = new Set<string>()
+
     for (let i = 0; i < n; i++) {
       if (tone[i] === 1) {
         s.add(
@@ -168,9 +185,11 @@ function vibeChurn(): {
   const rng = makeRng({ seed: 3 })
   const frame0 = occupied()
   const rg0 = radiusOfGyrationOfCellSet(frame0)
+
   const step = (): void => {
     const used = new Uint8Array(n)
     const order = Array.from({ length: n }, (_, i) => i)
+
     for (let i = n - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
@@ -186,8 +205,10 @@ function vibeChurn(): {
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
       const o = Math.floor(rng.next() * deg)
+
       for (let sft = 0; sft < deg; sft++) {
         const w = adj[start + ((o + sft) % deg)]!
+
         if (used[w] || w === v) {
           continue
         }
@@ -212,6 +233,7 @@ function vibeChurn(): {
     recenterCellSet(frame0),
     recenterCellSet(frameT),
   )
+
   const rgGrowth = radiusOfGyrationOfCellSet(frameT) - rg0
   const isSelf = identity > 0.8 && Math.abs(rgGrowth) < 1
 

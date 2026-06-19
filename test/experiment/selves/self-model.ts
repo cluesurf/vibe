@@ -31,15 +31,18 @@ function fullBeat(
   rng: Rng,
 ): void {
   moved.fill(0)
+
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -48,6 +51,7 @@ function fullBeat(
     } else if ((a === 0) !== (b === 0)) {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
+
       if (rng.next() < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
@@ -70,6 +74,7 @@ function run(withDynamics: boolean): {
 
   // the self = a central patch; the hub = the most-connected cell
   let center = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -86,8 +91,10 @@ function run(withDynamics: boolean): {
     source: center,
     maxRadius: 12,
   })
+
   const rSelf = 5
   const self: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (dist[i]! >= 0 && dist[i]! <= rSelf) {
       self.push(i)
@@ -98,6 +105,7 @@ function run(withDynamics: boolean): {
   // AVERAGE of spatially-varied inputs. A localized region near one sector sees only that sector, only an
   // integrator that pools all sectors can represent the whole.
   const inputAll: number[] = []
+
   for (const i of self) {
     if (dist[i]! >= rSelf - 1) {
       inputAll.push(i)
@@ -107,6 +115,7 @@ function run(withDynamics: boolean): {
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
+
   for (let j = 0; j < inputAll.length; j++) {
     const s = Math.floor((j * K) / inputAll.length)
     sectorOf[inputAll[j]!] = s
@@ -114,6 +123,7 @@ function run(withDynamics: boolean): {
   }
 
   const isInput = new Uint8Array(N)
+
   for (const i of inputAll) {
     isInput[i] = 1
   }
@@ -123,16 +133,20 @@ function run(withDynamics: boolean): {
     const seen = new Uint8Array(N)
     seen[start] = 1
     let fr = [start]
+
     while (fr.length > 0 && out.length < size) {
       const nf: number[] = []
+
       for (const u of fr) {
         if (isInput[u]) {
           continue
         }
 
         out.push(u)
+
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (!seen[w]) {
             seen[w] = 1
             nf.push(w)
@@ -155,6 +169,7 @@ function run(withDynamics: boolean): {
 
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
+
     for (const i of cells) {
       s += tone[i]!
     }
@@ -169,6 +184,7 @@ function run(withDynamics: boolean): {
   const gSeries: number[] = [] // the global state = mean over the whole self
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
+
   for (let t = 0; t < T; t++) {
     for (let s = 0; s < K; s++) {
       if (rng.next() < 0.06) {
@@ -190,13 +206,16 @@ function run(withDynamics: boolean): {
 
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
+
     for (let p = 0; p < peripherals.length; p++) {
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
     }
   }
 
   const selfModelCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
+
   let randomCorr = 0
+
   for (let p = 0; p < peripherals.length; p++) {
     randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   }
@@ -225,6 +244,7 @@ export function selfModel(): {
   const mirrorsWhole =
     live.selfModelCorr > 0.5 &&
     live.selfModelCorr > live.shuffledCorr + 0.3
+
   const beatsRandom = live.selfModelCorr > live.randomCorr + 0.1
   const needsDynamics = live.selfModelCorr > dead.selfModelCorr + 0.3
   const emerges = mirrorsWhole && beatsRandom && needsDynamics

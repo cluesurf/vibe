@@ -26,6 +26,7 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
     const theVoid = new Int8Array(n) // all peace, the literal nothing, Q = 0
     const live = chargeTrajectory({
@@ -35,6 +36,7 @@ export default experiment({
       arrow: 0.1,
       seed: 9,
     })
+
     const dead = chargeTrajectory({
       neighbors: mesh.neighbors,
       initial: theVoid,
@@ -42,11 +44,13 @@ export default experiment({
       arrow: 0,
       seed: 9,
     })
+
     const g = genesisProfile({ trajectory: live.trajectory, cells: n })
     const deadEnd = dead.trajectory[dead.trajectory.length - 1]!
 
     const selfCreates =
       g.start === 0 && g.rose && g.alive && g.sustained
+
     const conservedAtZero = live.qStart === 0 && live.qEnd === 0
     const controlDead = deadEnd === 0
     const ok = selfCreates && conservedAtZero && controlDead

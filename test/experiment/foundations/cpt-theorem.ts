@@ -47,6 +47,7 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
@@ -57,6 +58,7 @@ export default experiment({
     const start = makeWill(mesh)
     const coordinate = (cell: number, axis: number): number =>
       Math.floor(cell / side ** axis) % side
+
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       for (let d = 0; d < mesh.degree; d++) {
         start.data[cell * mesh.degree + d] = (((coordinate(cell, 0) +
@@ -69,8 +71,10 @@ export default experiment({
 
     const forward = (w: Will): Will =>
       beat({ mesh, data: Int8Array.from(w.data) }, collision)
+
     const backward = (w: Will): Will =>
       inverseBeat({ mesh, data: Int8Array.from(w.data) }, collision)
+
     const same = (a: Will, b: Will): boolean => {
       for (let i = 0; i < a.data.length; i++) {
         if (a.data[i] !== b.data[i]) {
@@ -92,19 +96,23 @@ export default experiment({
       chargeConjugate(forward(start)),
       forward(chargeConjugate(start)),
     )
+
     // (2) P is a symmetry, P(forward(s)) = forward(P(s))
     const paritySymmetry = same(
       parity(forward(start)),
       forward(parity(start)),
     )
+
     // (3) T reverses, T(forward(T(s))) = backward(s)
     const timeReversal = same(
       timeReverse(forward(timeReverse(start))),
       backward(start),
     )
+
     // (4) the combined CPT, CPT(forward(s)) = backward(CPT(s))
     const cpt = (w: Will): Will =>
       chargeConjugate(parity(timeReverse(w)))
+
     const cptSymmetry = same(cpt(forward(start)), backward(cpt(start)))
     // (5) the control, CP WITHOUT T fails (no time reversal)
     const cpNoTime = (w: Will): Will => chargeConjugate(parity(w))

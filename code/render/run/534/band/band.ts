@@ -32,6 +32,7 @@ const ZOOM_FIT = 0.6
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -39,6 +40,7 @@ const COLORS = TONE_COLORS
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -53,6 +55,7 @@ async function run(): Promise<void> {
     half: HALF,
     margin: MARGIN,
   })
+
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
@@ -63,8 +66,10 @@ async function run(): Promise<void> {
   // 2D projection basis, the plane perpendicular to the ideal direction xi
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -72,6 +77,7 @@ async function run(): Promise<void> {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -79,7 +85,9 @@ async function run(): Promise<void> {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -99,6 +107,7 @@ async function run(): Promise<void> {
   // flatten the horosphere correctly by STEREOGRAPHIC INVERSION from the ideal point xi, w = (p - xi)/|p - xi|^2,
   // which maps the horosphere to a true Euclidean plane (an orthographic drop of xi folds it into a ring)
   const raw: { index: number; u: number; v: number }[] = []
+
   for (const i of extractBand({
     busemann: slab.busemann,
     level: 0,
@@ -122,8 +131,10 @@ async function run(): Promise<void> {
   const radii = raw
     .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
     .sort((a, b) => a - b)
+
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const pad = 20
   const halfPix = IMG / 2 - pad
   const band: BandCell[] = raw.map(c => ({
@@ -137,6 +148,7 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const rng = makeRng({ seed: 1357924680 })
   const nextR = (): number => rng.next()
+
   for (let i = 0; i < n; i++) {
     seed[i] = pack({
       current: Math.floor(nextR() * 3),
@@ -149,6 +161,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
     device.createBuffer({
@@ -158,23 +171,27 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(offBuf, 0, offsets)
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(adjBuf, 0, adj)
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
   const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -187,6 +204,7 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: adjBuf } },
       ],
     })
+
   const dispatch = Math.ceil(n / WORKGROUP)
   const staging = device.createBuffer({
     size: byteLength,
@@ -200,10 +218,12 @@ async function run(): Promise<void> {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
   let src = 0
+
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -219,6 +239,7 @@ async function run(): Promise<void> {
     staging.unmap()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = 10
       rgba[i * 4 + 1] = 10
@@ -237,15 +258,18 @@ async function run(): Promise<void> {
       }
 
       const tone = currentOf(tones[c.index]!)
+
       if (tone === 0) {
         continue
       }
 
       const col = COLORS[tone]!
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }

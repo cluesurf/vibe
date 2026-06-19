@@ -26,6 +26,7 @@ export default experiment({
       symbol: [3, 4, 3, 4],
       maxCells,
     })
+
     const stats = addressingStats(addressing)
     const cells = stats.cellCount
     const descentDepth = stats.maxAddressLength // physical steps from root to the deepest cell, the point query
@@ -34,6 +35,7 @@ export default experiment({
     // so no child pointers are stored
     const childrenArePhysicalNeighbours =
       addressing.children.length === cells
+
     // the descent is logarithmic in the cell count (a generous O(log N) bound)
     const logarithmicDescent = descentDepth <= Math.log2(cells)
     // and it crushes a flat linear scan of the same data

@@ -40,10 +40,12 @@ export function lazyNeighbors(input?: { n?: number }): {
   // (1) lazy build reproduces the stored graph exactly
   const lazy = buildDodecagridLazy({ maxCells: n })
   const stored = buildDodecagrid({ maxCells: n })
+
   let identical =
     lazy.cellCount === stored.cellCount &&
     lazy.offsets.length === stored.offsets.length &&
     lazy.adj.length === stored.adj.length
+
   if (identical) {
     for (let i = 0; i < lazy.offsets.length; i++) {
       if (lazy.offsets[i] !== stored.offsets[i]) {
@@ -67,11 +69,15 @@ export function lazyNeighbors(input?: { n?: number }): {
   const eng = makeLazyEngine()
   const rng = makeRng({ seed: 5 })
   const depth = 9
+
   let prev: LazyCell | null = null
   let cur = eng.origin
+
   for (let step = 0; step < depth; step++) {
     const ns = eng.neighbors(cur)
+
     let pick = ns[Math.floor(rng.next() * ns.length)]!
+
     // avoid immediately bouncing back, so the walk goes genuinely deep
     if (prev && eng.fingerprint(pick) === eng.fingerprint(prev)) {
       pick = ns[(ns.indexOf(pick) + 1) % ns.length]!
@@ -86,6 +92,7 @@ export function lazyNeighbors(input?: { n?: number }): {
   const cameFromIsNeighbor = deepNeighbors.some(
     nc => eng.fingerprint(nc) === prevFp,
   )
+
   const randomAccessNeighbors = new Set(
     deepNeighbors.map(nc => eng.fingerprint(nc)),
   ).size

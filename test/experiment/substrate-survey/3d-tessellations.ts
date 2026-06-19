@@ -95,8 +95,10 @@ export function threedTessellations(): void {
     const crystallographic = c.sym.every(
       n => n === 3 || n === 4 || n === 6,
     )
+
     const m = measure(c.sym, SURVEY_SCALE)
     const tag = c.compact ? 'COMPACT' : 'paracompact'
+
     if (!m.ok) {
       continue
     }

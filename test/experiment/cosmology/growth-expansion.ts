@@ -32,6 +32,7 @@ export function branchingExpansion(input: {
     horizon: 0.2,
     rng: makeRng({ seed: input.seed }),
   })
+
   const rate = geometricGrowthRatio(widthPerGen)
 
   return {

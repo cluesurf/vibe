@@ -14,9 +14,12 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
   const size = side ** dim
   const coords = new Float64Array(size * dim)
   const neighbors: number[][] = Array.from({ length: size }, () => [])
+
   const coordOf = (idx: number): number[] => {
     const c: number[] = []
+
     let x = idx
+
     for (let a = 0; a < dim; a++) {
       c.push(x % side)
       x = Math.floor(x / side)
@@ -27,6 +30,7 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
 
   for (let i = 0; i < size; i++) {
     const c = coordOf(i)
+
     for (let a = 0; a < dim; a++) {
       coords[i * dim + a] = c[a] ?? 0
     }
@@ -35,6 +39,7 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
       if ((c[a] ?? 0) + 1 < side) {
         let j = 0
         let place = 1
+
         for (let b = 0; b < dim; b++) {
           j += ((c[b] ?? 0) + (b === a ? 1 : 0)) * place
           place *= side
@@ -56,8 +61,10 @@ export function cubicLatticeCenter(input: {
 }): number {
   const { lattice, side } = input
   const mid = Math.floor(side / 2)
+
   let j = 0
   let place = 1
+
   for (let a = 0; a < lattice.dim; a++) {
     j += mid * place
     place *= side
@@ -74,8 +81,10 @@ export function cubicLatticeCenterBySide(input: {
 }): number {
   const { side, dim } = input
   const h = side >> 1
+
   let index = 0
   let place = 1
+
   for (let a = 0; a < dim; a++) {
     index += h * place
     place *= side
@@ -95,8 +104,10 @@ export function cubicBoxRows(input: { side: number; dim: number }): {
   const { side, dim } = input
   const lattice = cubicLattice(side, dim)
   const coords: number[][] = []
+
   for (let i = 0; i < lattice.size; i++) {
     const row: number[] = []
+
     for (let a = 0; a < dim; a++) {
       row.push(lattice.coords[i * dim + a]!)
     }
@@ -118,11 +129,14 @@ export function cubicLatticeDistance(input: {
   to: number
 }): number {
   const { lattice, from, to } = input
+
   let s = 0
+
   for (let a = 0; a < lattice.dim; a++) {
     const d =
       (lattice.coords[from * lattice.dim + a] ?? 0) -
       (lattice.coords[to * lattice.dim + a] ?? 0)
+
     s += d * d
   }
 

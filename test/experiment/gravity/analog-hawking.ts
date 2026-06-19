@@ -67,6 +67,7 @@ export function analogHawking(): {
     depth: 16,
     maxChambers: 40000,
   })
+
   const radii = mesh.coords.map(c => Math.hypot(c[0] ?? 0, c[1] ?? 0))
   const rMax = Math.max(...radii)
   const shells = new Set(radii.map(r => Math.round(r * 50) / 50)).size
@@ -85,6 +86,7 @@ export function analogHawking(): {
     kappa: kappaMetric,
     response: E => response(E, kappaMetric, 0.02),
   })
+
   const thermalMatches =
     Math.abs(detailedBalanceTemperature - hawkingTemperature) /
       hawkingTemperature <
@@ -98,6 +100,7 @@ export function analogHawking(): {
     gradient: 2 * gradient,
     rStart,
   })
+
   const temperatureScales =
     Math.abs(kappaRayHigh - 2 * gradient) / (2 * gradient) < 0.03 &&
     tHigh > 1.9 * tLow

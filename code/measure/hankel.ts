@@ -17,8 +17,10 @@ export function hankelMatrix(input: {
 }): number[][] {
   const { sequence, size } = input
   const h: number[][] = []
+
   for (let i = 0; i <= size; i++) {
     const row: number[] = []
+
     for (let j = 0; j <= size; j++) {
       row.push(sequence[i + j] ?? 0)
     }
@@ -36,6 +38,7 @@ export function symmetricEigenvalues(
 ): number[] {
   const n = matrix.length
   const dense = makeDense({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       dense.data[i * n + j] = matrix[i]![j] ?? 0
@@ -51,7 +54,9 @@ export function symmetricMinEigenvalue(
   matrix: ReadonlyArray<ReadonlyArray<number>>,
 ): number {
   const values = symmetricEigenvalues(matrix)
+
   let mn = Infinity
+
   for (const v of values) {
     mn = Math.min(mn, v)
   }

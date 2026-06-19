@@ -43,6 +43,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule: Collision = headOnRotate({ opposite })
     const lines = coinLines(opposite)
     const axisOf = (cell: number): number => cell % side
@@ -61,20 +62,25 @@ export default experiment({
         lowTarget: 3,
         lines,
       })
+
       let scratch: Will = {
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       const c0 = Math.abs(
         stripeContrast({ will: current, lambda, axisOf, bins: side }),
       )
+
       let lateMax = 0
       let final = 0
+
       for (let t = 1; t <= beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
         const swap = current
         current = scratch
         scratch = swap
+
         if (open) {
           absorbBoundary(current)
         }
@@ -82,6 +88,7 @@ export default experiment({
         const c = Math.abs(
           stripeContrast({ will: current, lambda, axisOf, bins: side }),
         )
+
         if (t > beats / 2 && c > lateMax) {
           lateMax = c
         }

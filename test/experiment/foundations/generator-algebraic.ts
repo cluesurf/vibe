@@ -56,6 +56,7 @@ export default experiment({
       inverse: conjugate,
       key: quaternionKey,
     } // unit quaternion inverse = conjugate
+
     const units = binaryTetrahedral()
     const group = closure(units, ops)
     const minusOne = quaternion(-1, 0, 0, 0)
@@ -98,13 +99,16 @@ experiment({
       [0, 0, 0, 1], // short
       [0.5, -0.5, -0.5, -0.5], // short
     ]
+
     const closed = reflectionClosure(simple)
     const longRoots = closed.filter(
       v => Math.abs(dotVec(v, v) - 2) < 1e-6,
     )
+
     const shortRoots = closed.filter(
       v => Math.abs(dotVec(v, v) - 1) < 1e-6,
     )
+
     const longIsDock = sameSet(longRoots, rootsD4())
     const matchesF4 = sameSet(closed, rootsF4())
     const ok =
@@ -144,12 +148,14 @@ experiment({
       vector.length === 8 &&
       spinorEven.length === 8 &&
       spinorOdd.length === 8
+
     const union = [...vector, ...spinorEven, ...spinorOdd]
     const disjoint = new Set(union.map(vectorKey)).size === 24 // the 24-cell (Hurwitz / unit-norm form)
     const trialityStep = vectorSetsEqual(
       applyTriality(vector),
       spinorEven,
     ) // 8v -> 8s under triality
+
     const ok = octets && disjoint && trialityStep
 
     return verdict({

@@ -37,6 +37,7 @@ export class RegisterMachine {
 
   charge(): number {
     let s = 0
+
     for (let i = 0; i < this.tone.length; i++) {
       s += this.tone[i]!
     }
@@ -46,6 +47,7 @@ export class RegisterMachine {
 
   read(r: number): number {
     let c = 0
+
     for (const i of this.regions[r]!) {
       if (this.tone[i] === 1) {
         c++
@@ -68,6 +70,7 @@ export class RegisterMachine {
   // INC, the arrow creates a balanced pair, +1 into register r, -1 into the ground.
   inc(r: number): void {
     let placedPlus = false
+
     for (const i of this.regions[r]!) {
       if (this.tone[i] === 0) {
         this.tone[i] = 1
@@ -118,9 +121,11 @@ export class RegisterMachine {
     let pc = 0
     let steps = 0
     let conserved = true
+
     while (pc < program.length && steps < maxSteps) {
       const instr = program[pc]!
       steps++
+
       if (instr.op === 'halt') {
         break
       } else if (instr.op === 'inc') {
@@ -200,9 +205,12 @@ export function carveRegisters(input: {
 }): { regions: number[][]; ground: number[] } {
   const { cells, numRegisters, perRegister } = input
   const regions: number[][] = []
+
   let cursor = 0
+
   for (let r = 0; r < numRegisters; r++) {
     const region: number[] = []
+
     for (
       let i = 0;
       i < perRegister && cursor < cells.length;

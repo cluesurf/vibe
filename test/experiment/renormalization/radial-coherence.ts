@@ -53,11 +53,14 @@ export function radialCoherence(input?: {
 
   // radial PARENT, the neighbour most inward (smallest Busemann), the tree toward the root
   const parent = new Int32Array(N)
+
   for (let i = 0; i < N; i++) {
     let best = i
     let bestB = bus[i]!
+
     for (let p = off[i]!; p < off[i + 1]!; p++) {
       const w = adj[p]!
+
       if (bus[w]! < bestB) {
         bestB = bus[w]!
         best = w
@@ -69,8 +72,10 @@ export function radialCoherence(input?: {
 
   const ancestor = (i: number, d: number): number => {
     let c = i
+
     for (let k = 0; k < d; k++) {
       const p = parent[c]!
+
       if (p === c) {
         break
       }
@@ -86,13 +91,17 @@ export function radialCoherence(input?: {
   const radialGroup: Int32Array[] = []
   const nullGroup: Int32Array[] = []
   const groupCounts: number[] = []
+
   for (const D of SCALES) {
     // radial, group by depth-D ancestor, compacted to 0..k-1
     const anc = new Int32Array(N)
     const remap = new Map<number, number>()
+
     for (let i = 0; i < N; i++) {
       const a = ancestor(i, D)
+
       let id = remap.get(a)
+
       if (id === undefined) {
         id = remap.size
         remap.set(a, id)
@@ -106,11 +115,13 @@ export function radialCoherence(input?: {
     groupCounts.push(k)
     // null, random partition into k groups of the SAME sizes as the radial groups
     const sizes = new Int32Array(k)
+
     for (let i = 0; i < N; i++) {
       sizes[anc[i]!] = sizes[anc[i]!]! + 1
     }
 
     const order = Array.from({ length: N }, (_, i) => i)
+
     for (let i = N - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const t = order[i]!
@@ -119,7 +130,9 @@ export function radialCoherence(input?: {
     }
 
     const ng = new Int32Array(N)
+
     let cursor = 0
+
     for (let gid = 0; gid < k; gid++) {
       for (let s = 0; s < sizes[gid]!; s++) {
         ng[order[cursor++]!] = gid
@@ -140,6 +153,7 @@ export function radialCoherence(input?: {
       matched,
       start: (f * 2654435761) % N,
     })
+
   for (let f = 0; f < WARMUP; f++) {
     step(f)
   }
@@ -147,10 +161,13 @@ export function radialCoherence(input?: {
   // coarse field = mean tone per group, recorded each measure beat for radial and null at every scale
   const coarse = (group: Int32Array, k: number): Float64Array =>
     coarseFieldByGroup({ field: tone, group, groupCount: k })
+
   const radialSeries: Float64Array[][] = SCALES.map(() => [])
   const nullSeries: Float64Array[][] = SCALES.map(() => [])
+
   for (let f = 0; f < MEASURE + LAG; f++) {
     step(WARMUP + f)
+
     for (let si = 0; si < SCALES.length; si++) {
       radialSeries[si]!.push(coarse(radialGroup[si]!, groupCounts[si]!))
       nullSeries[si]!.push(coarse(nullGroup[si]!, groupCounts[si]!))
@@ -161,6 +178,7 @@ export function radialCoherence(input?: {
   const radialPersistence = SCALES.map((_, si) =>
     lagAutocorrelation({ series: radialSeries[si]!, lag: LAG }),
   )
+
   const nullPersistence = SCALES.map((_, si) =>
     lagAutocorrelation({ series: nullSeries[si]!, lag: LAG }),
   )
@@ -168,8 +186,10 @@ export function radialCoherence(input?: {
   const last = SCALES.length - 1
   const radialBeatsNull =
     radialPersistence[last]! > nullPersistence[last]! + 0.1
+
   const coarseBeatsFine =
     radialPersistence[last]! > radialPersistence[0]! + 0.2
+
   const solved = radialBeatsNull && coarseBeatsFine
 
   return {

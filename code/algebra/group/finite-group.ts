@@ -14,8 +14,10 @@ export interface GroupOps<T> {
 export function closure<T>(generators: T[], ops: GroupOps<T>): T[] {
   const seen = new Map<string, T>()
   const queue: T[] = []
+
   const add = (value: T): void => {
     const id = ops.key(value)
+
     if (!seen.has(id)) {
       seen.set(id, value)
       queue.push(value)
@@ -41,6 +43,7 @@ export function commutatorSubgroup<T>(
   ops: GroupOps<T>,
 ): T[] {
   const commutators: T[] = []
+
   for (const a of elements) {
     for (const b of elements) {
       commutators.push(

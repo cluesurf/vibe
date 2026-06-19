@@ -61,6 +61,7 @@ export default experiment({
       neighbors: addressing.graph.neighbors,
       cellCount: addressing.graph.cellCount,
     })
+
     const growth = growthRatioFromShellCounts(shellCounts)
     const lambda = growth.ratio
     const firstShellIs24 = shellCounts[1] === 24 // the 24 directions
@@ -68,6 +69,7 @@ export default experiment({
 
     // the inter-generation exponents, log_lambda of each adjacent mass ratio
     const exponents: number[] = []
+
     for (const sector of SECTORS) {
       const ratioLow = sector.masses[1] / sector.masses[0]
       const ratioHigh = sector.masses[2] / sector.masses[1]
@@ -91,6 +93,7 @@ export default experiment({
     const nearUnitCount = exponents.filter(
       p => Math.abs(p - 1) < 0.1,
     ).length
+
     const cleanestAtOneShell = nearUnitCount >= 2
     const meanExponent =
       exponents.reduce((s, p) => s + p, 0) / exponents.length

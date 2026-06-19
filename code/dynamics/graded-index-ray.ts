@@ -19,11 +19,14 @@ export function traceGradedIndexRay(input: {
 }): { tangentX: number; tangentY: number; x: number; y: number } {
   const halfLength = input.halfLength ?? 40
   const step = input.step ?? 0.02
+
   let x = -halfLength
   let y = input.impact
   let tx = 1
   let ty = 0
+
   const steps = Math.floor((2 * halfLength) / step)
+
   for (let s = 0; s < steps && x < halfLength; s++) {
     const n = input.index(x, y)
     const [gx, gy] = input.indexGradient(x, y)
@@ -72,6 +75,7 @@ export function softenedMassIndexField(input: {
     index: (x, y) => 1 + mass / (Math.hypot(x, y) + soft),
     indexGradient: (x, y) => {
       const r = Math.hypot(x, y)
+
       if (r < 1e-9) {
         return [0, 0]
       }

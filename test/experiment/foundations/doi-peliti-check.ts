@@ -20,9 +20,11 @@ function buildT(c: number, s: number, h: number): number[][] {
   const T: number[][] = Array.from({ length: 9 }, () =>
     new Array<number>(9).fill(0),
   )
+
   for (let st = 0; st < 9; st++) {
     const a = toneOf(Math.floor(st / 3))
     const b = toneOf(st % 3)
+
     const set = (na: number, nb: number, p: number): void => {
       const ns = 3 * (na + 1) + (nb + 1)
       T[st]![ns]! += p
@@ -50,8 +52,10 @@ function buildT(c: number, s: number, h: number): number[][] {
 // stationary distribution by power iteration (pi T = pi)
 function stationary(T: number[][]): number[] {
   let pi = new Array<number>(9).fill(1 / 9)
+
   for (let it = 0; it < 5000; it++) {
     const next = new Array<number>(9).fill(0)
+
     for (let a = 0; a < 9; a++) {
       for (let b = 0; b < 9; b++) {
         next[b]! += pi[a]! * T[a]![b]!
@@ -59,6 +63,7 @@ function stationary(T: number[][]): number[] {
     }
 
     let sum = 0
+
     for (const v of next) {
       sum += v
     }
@@ -87,6 +92,7 @@ export function doiPelitiCheck(): {
 
   // (1) S^z conservation: off-diagonal transitions connect only equal-S^z states
   let conservesSz = true
+
   for (let a = 0; a < 9; a++) {
     for (let b = 0; b < 9; b++) {
       if (a !== b && T[a]![b]! > 0) {
@@ -99,12 +105,15 @@ export function doiPelitiCheck(): {
 
   // (2) unit exchange: every move changes (n_i, n_j) by (+1,-1) or (-1,+1)
   let unitExchange = true
+
   for (let a = 0; a < 9; a++) {
     for (let b = 0; b < 9; b++) {
       if (a !== b && T[a]![b]! > 0) {
         const dai =
           toneOf(Math.floor(b / 3)) - toneOf(Math.floor(a / 3))
+
         const dbi = toneOf(b % 3) - toneOf(a % 3)
+
         if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1))) {
           unitExchange = false
         }
@@ -114,8 +123,10 @@ export function doiPelitiCheck(): {
 
   // (3) detailed balance: pi_a T_ab = pi_b T_ba for all a,b
   const pi = stationary(T)
+
   let dbv = 0
   let scale = 0
+
   for (let a = 0; a < 9; a++) {
     for (let b = a + 1; b < 9; b++) {
       const fwd = pi[a]! * T[a]![b]!

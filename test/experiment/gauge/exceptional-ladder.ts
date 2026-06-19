@@ -55,12 +55,14 @@ export default experiment({
     const countsExact = rungs.every(
       rung => rung.roots.length === rung.want,
     )
+
     const allValid = rungs.every(rung => isRootSystem(rung.roots))
     const nested =
       subsetOf(d4, d5) &&
       subsetOf(d5, e6) &&
       subsetOf(e6, e7) &&
       subsetOf(e7, e8)
+
     // the rank grows by exactly one at each step, the unique new node
     const ranks = rungs.map(rung => rung.rank)
     const rankStepsOne = ranks.every(

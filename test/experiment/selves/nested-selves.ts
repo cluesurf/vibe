@@ -54,6 +54,7 @@ export function nestedSelves(input: { seed: number }): {
   }).state
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
+
   for (let v = 0; v < g.size; v++) {
     members[cellOf[v] ?? 0]?.push(v)
   }
@@ -65,13 +66,16 @@ export function nestedSelves(input: { seed: number }): {
   const byFraction = fractions.map(fraction => {
     const recs: number[] = []
     const integ: number[] = []
+
     for (let c = 0; c < numCells; c++) {
       const mem = members[c] ?? []
       const k = Math.max(1, Math.round(fraction * mem.length))
       const pr = makeRng({
         seed: input.seed + 1000 * c + Math.round(fraction * 100),
       })
+
       const perturbed = Int8Array.from(base)
+
       // flip the first k members (order is arbitrary and fixed, so reproducible)
       for (let i = 0; i < k; i++) {
         const v = mem[i] ?? 0
@@ -85,7 +89,9 @@ export function nestedSelves(input: { seed: number }): {
         sweeps: 50,
         rng: pr,
       }).state
+
       let cellBack = 0
+
       for (const v of mem) {
         if (settled[v] === base[v]) {
           cellBack++
@@ -94,14 +100,17 @@ export function nestedSelves(input: { seed: number }): {
 
       recs.push(cellBack / mem.length)
       const cellSet = new Set(mem)
+
       let bodySame = 0
       let bodyTot = 0
+
       for (let v = 0; v < g.size; v++) {
         if (cellSet.has(v)) {
           continue
         }
 
         bodyTot++
+
         if (settled[v] === base[v]) {
           bodySame++
         }
@@ -127,6 +136,7 @@ export function nestedSelves(input: { seed: number }): {
       cellRecovery: NaN,
       bodyIntegrity: NaN,
     }
+
   const smallWoundHeals = at(0.1).cellRecovery
   const wholeCellPersists = at(1.0).cellRecovery
   const bodyIntegrity =

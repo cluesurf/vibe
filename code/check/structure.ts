@@ -12,8 +12,10 @@ export function occupiedSet(will: Will): Set<number> {
   const mesh = will.mesh
   const degree = mesh.degree
   const set = new Set<number>()
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       if (will.data[base + direction] !== 0) {
         set.add(cell)
@@ -36,7 +38,9 @@ export function componentCount(will: Will): number {
   const mesh = will.mesh
   const occupied = occupiedSet(will)
   const seen = new Set<number>()
+
   let components = 0
+
   for (const start of occupied) {
     if (seen.has(start)) {
       continue
@@ -45,10 +49,13 @@ export function componentCount(will: Will): number {
     components++
     const stack = [start]
     seen.add(start)
+
     while (stack.length > 0) {
       const cell = stack.pop()!
+
       for (let direction = 0; direction < mesh.degree; direction++) {
         const next = mesh.neighbour(cell, direction)
+
         if (occupied.has(next) && !seen.has(next)) {
           seen.add(next)
           stack.push(next)
@@ -64,12 +71,15 @@ export function componentCount(will: Will): number {
 // within a factor of the true diameter). Small for a tight structure, large for a dispersed one.
 export function diameter(will: Will): number {
   const occupied = [...occupiedSet(will)]
+
   if (occupied.length <= 1) {
     return 0
   }
 
   const dist = shellDistances(will.mesh, occupied[0]!)
+
   let max = 0
+
   for (const cell of occupied) {
     if (dist[cell]! > max) {
       max = dist[cell]!
@@ -86,7 +96,9 @@ export function travelDistance(input: {
   start: number
 }): number {
   const dist = shellDistances(input.will.mesh, input.start)
+
   let max = 0
+
   for (let cell = 0; cell < input.will.mesh.cellCount; cell++) {
     if (cellTone(input.will, cell) !== 0 && dist[cell]! > max) {
       max = dist[cell]!
@@ -105,9 +117,11 @@ export function maxOccupancy(
 ): number {
   let current: Will = { mesh: will.mesh, data: will.data.slice() }
   let max = occupiedCells(current)
+
   for (let step = 0; step < beats; step++) {
     current = beat(current, collision)
     const count = occupiedCells(current)
+
     if (count > max) {
       max = count
     }
@@ -124,12 +138,16 @@ export function momentum(
 ): [number, number, number, number] {
   const m: [number, number, number, number] = [0, 0, 0, 0]
   const degree = will.mesh.degree
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       const tone = will.data[base + direction] ?? 0
+
       if (tone !== 0) {
         const root = roots[direction]!
+
         for (let axis = 0; axis < 4; axis++) {
           m[axis]! += tone * (root[axis] ?? 0)
         }

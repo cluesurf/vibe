@@ -36,14 +36,18 @@ export function rayFreezeSurfaceGravity(input: {
   const maxSteps = input.maxSteps ?? 400000
   const gapWindow = input.gapWindow ?? 0.15
   const tailSamples = input.tailSamples ?? 3000
+
   let r = start
   let t = 0
+
   const times: number[] = []
   const logGaps: number[] = []
+
   for (let i = 0; i < maxSteps && r - horizon > 1e-7; i++) {
     r -= tanhHorizonSpeed({ radius: r, horizon, gradient }) * dt
     t += dt
     const gap = r - horizon
+
     if (gap < gapWindow && gap > 1e-6) {
       times.push(t)
       logGaps.push(Math.log(gap))

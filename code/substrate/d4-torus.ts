@@ -14,6 +14,7 @@ export function buildD4Torus(M: number): {
   const roots = rootsD4()
   const cells: number[][] = []
   const index = new Map<string, number>()
+
   for (let a = 0; a < M; a++) {
     for (let b = 0; b < M; b++) {
       for (let c = 0; c < M; c++) {

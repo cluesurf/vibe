@@ -11,6 +11,7 @@ import { ScanResult } from '@/test/scaffold/runner'
 function metricKeysOf(result: ScanResult): string[] {
   const keys: string[] = []
   const seen = new Set<string>()
+
   for (const point of result.points) {
     for (const key of Object.keys(point.mean)) {
       if (!seen.has(key)) {
@@ -44,6 +45,7 @@ export function writeReport(input: {
     input.outDir,
     `${result.name}-${result.seed}.json`,
   )
+
   const markdownPath = join(
     input.outDir,
     `${result.name}-${result.seed}.md`,
@@ -74,7 +76,9 @@ export function writeReport(input: {
     const label =
       input.parameterLabels?.[point.parameterIndex] ??
       String(point.parameterIndex)
+
     const cells = [label]
+
     for (const key of metricKeys) {
       const mean = point.mean[key] ?? 0
       const std = point.std[key] ?? 0

@@ -18,6 +18,7 @@ export function buildRegularGraph(input: {
 } {
   const { n, degree, rng } = input
   const stubs = new Int32Array(n * degree)
+
   for (let i = 0; i < n; i++) {
     for (let d = 0; d < degree; d++) {
       stubs[i * degree + d] = i
@@ -34,11 +35,15 @@ export function buildRegularGraph(input: {
   const m = Math.floor(stubs.length / 2)
   const eu = new Int32Array(m)
   const ev = new Int32Array(m)
+
   let e = 0
+
   const deg2 = new Int32Array(n)
+
   for (let k = 0; k < m; k++) {
     const a = stubs[2 * k]!
     const b = stubs[2 * k + 1]!
+
     if (a === b) {
       continue
     }
@@ -53,12 +58,14 @@ export function buildRegularGraph(input: {
   const euT = eu.slice(0, e)
   const evT = ev.slice(0, e)
   const offsets = new Int32Array(n + 1)
+
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + deg2[i]!
   }
 
   const adj = new Int32Array(offsets[n]!)
   const cur = offsets.slice(0, n)
+
   for (let k = 0; k < e; k++) {
     const a = euT[k]!
     const b = evT[k]!

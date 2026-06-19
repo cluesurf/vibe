@@ -53,6 +53,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   const life = new Int8Array(n)
   const qL = sumTone(life)
   const rngL = makeRng({ seed: 3 })
+
   for (let b = 0; b < 40; b++) {
     perceptionEdgeBeat({
       tone: life,
@@ -69,6 +70,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   }
 
   const balanceMid = nonzero(life)
+
   for (let b = 0; b < 40; b++) {
     perceptionEdgeBeat({
       tone: life,
@@ -103,14 +105,17 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       source: 0,
       limit: 4000,
     })
+
     for (const i of blob) {
       t[i] = 1
     }
 
     const meanBlob = (arr: Int8Array): number =>
       blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
+
     const start = meanBlob(t)
     const rng2 = makeRng({ seed: 31 })
+
     for (let b = 0; b < 30; b++) {
       perceptionEdgeBeat({
         tone: t,
@@ -127,7 +132,9 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
     }
 
     const after = meanBlob(t)
+
     let bg = 0
+
     for (let i = 0; i < n; i++) {
       bg += t[i]!
     }
@@ -150,6 +157,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   const dynamicBalance =
     balanceMid > 0.1 * n &&
     Math.abs(balanceLate - balanceMid) < 0.25 * balanceMid
+
   const memoryImproved = coh.ret > rnd.ret + 0.1
   // FINDING: the generic dynamics (conserve, live, balance) scale and are substrate-agnostic, but memory
   // does NOT appear on a random expander (no local geometry, a blob is almost all boundary). So memory is

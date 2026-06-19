@@ -55,6 +55,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const dir = 0
     const half = side / 2
     const center =
@@ -80,6 +81,7 @@ export default experiment({
       beats,
       bindInverse,
     )
+
     const bindChargeOk = conservesCharge(start(), bind, beats)
 
     // mobility axis, a lone charge travels under headOnRotate, pins under pairCollision.
@@ -87,6 +89,7 @@ export default experiment({
       will: run(start(), mobile, beats),
       start: center,
     })
+
     const pairTravel = travelDistance({
       will: run(start(), pair, beats),
       start: center,

@@ -32,6 +32,7 @@ export default experiment({
     const length = 160,
       center = 80,
       beats = 2000
+
     const constant = shadowWellField1D({
       length,
       center,
@@ -49,6 +50,7 @@ export default experiment({
       mass: 8,
       beats,
     })
+
     const restConstant = confineInWell({
       field: constant,
       length,
@@ -62,6 +64,7 @@ export default experiment({
     // decaying finite-range well (range 16, force diluting with distance), a single-speed tone bound at SHORT range.
     const R = 16
     const decay = new Int32Array(length)
+
     for (let x = center + 3; x < length; x++) {
       const dist = x - center
       decay[x] = dist <= R ? -Math.ceil(R / dist) : 0
@@ -76,6 +79,7 @@ export default experiment({
       mass: 16,
       beats,
     })
+
     const ssEdgeHeavy = confineInWell({
       field: decay,
       length,

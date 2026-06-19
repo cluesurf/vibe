@@ -22,8 +22,10 @@ export interface AddressedTree {
 export function buildAddressedTree(g: Graph): AddressedTree {
   let root = 0
   let best = -1
+
   for (let i = 0; i < g.size; i++) {
     const d = (g.neighbors[i] ?? new Uint32Array(0)).length
+
     if (d > best) {
       best = d
       root = i
@@ -41,11 +43,15 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   parent[root] = root
   depth[root] = 0
   let frontier = [root]
+
   const levelSizes = [1]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const v of frontier) {
       const kids: number[] = []
+
       for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
         if (depth[w] === -1) {
           depth[w] = (depth[v] ?? 0) + 1
@@ -72,6 +78,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   const order = Array.from({ length: g.size }, (_, i) => i)
     .filter(i => depth[i] !== -1)
     .sort((a, b) => (depth[a] ?? 0) - (depth[b] ?? 0))
+
   for (const v of order) {
     if (v === root) {
       continue
@@ -95,7 +102,9 @@ export function routeByAddress(
 ): number[] {
   const as = tree.address[s] ?? []
   const at = tree.address[t] ?? []
+
   let common = 0
+
   while (
     common < as.length &&
     common < at.length &&
@@ -105,7 +114,9 @@ export function routeByAddress(
   }
 
   const up: number[] = []
+
   let cur = s
+
   while ((tree.depth[cur] ?? 0) > common) {
     up.push(cur)
     cur = tree.parent[cur] ?? tree.root
@@ -113,7 +124,9 @@ export function routeByAddress(
 
   const ancestor = cur
   const down: number[] = []
+
   let node = ancestor
+
   for (let i = common; i < at.length; i++) {
     node = (tree.children[node] ?? [])[at[i] ?? 0] ?? node
     down.push(node)

@@ -24,7 +24,9 @@ function settle(
   steps: number,
 ): Int8Array {
   const zero = new Float64Array(state.length)
+
   let t = state
+
   for (let i = 0; i < steps; i++) {
     t = step(J, t, zero, null)
   }
@@ -41,6 +43,7 @@ function perturb(
   const rng = makeRng({ seed })
   const k = Math.round(fraction * p.length)
   const idx = Array.from({ length: p.length }, (_, i) => i)
+
   for (let i = 0; i < k; i++) {
     const j = i + rng.nextInt({ max: p.length - i })
     const tmp = idx[i]!
@@ -62,7 +65,9 @@ function recoveryAt(
   const rng = makeRng({ seed })
   const patterns = storedPatterns(k, size, rng)
   const J = hebbianFills(patterns, size)
+
   let total = 0
+
   for (let p = 0; p < k; p++) {
     const self = patterns[p] ?? new Int8Array(size)
     const settled = settle(
@@ -74,6 +79,7 @@ function recoveryAt(
       ),
       40,
     )
+
     total += Math.abs(overlap(settled, self))
   }
 
@@ -97,7 +103,9 @@ export function selvesAsAttractors(input: { seed: number }): {
     fraction: f,
     recovery: recoveryAt(size, k, f, input.seed),
   }))
+
   let basinRadius = 0
+
   for (const b of byFraction) {
     if (b.recovery > 0.9) {
       basinRadius = b.fraction
@@ -117,8 +125,10 @@ export function selvesAsAttractors(input: { seed: number }): {
   // measured at two sizes to show it grows with size.
   const capacityByN = [120, 240].map(n => {
     let capacity = 0
+
     for (let kk = 2; kk <= Math.round(0.3 * n); kk += 2) {
       const rec = recoveryAt(n, kk, 0.1, input.seed + 7 + n)
+
       if (rec > 0.9) {
         capacity = kk
       } else {
@@ -128,6 +138,7 @@ export function selvesAsAttractors(input: { seed: number }): {
 
     return { n, capacity, ratio: capacity / n }
   })
+
   const capacityGrows =
     (capacityByN[1]?.capacity ?? 0) > (capacityByN[0]?.capacity ?? 0)
 

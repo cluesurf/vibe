@@ -16,10 +16,14 @@ export function toBalancedTernary(
   digits: number,
 ): number[] {
   const cap = balancedTernaryCap(digits)
+
   let v = value < -cap ? -cap : value > cap ? cap : value
+
   const out: number[] = []
+
   for (let i = 0; i < digits; i++) {
     let remainder = ((v % 3) + 3) % 3 // 0, 1, or 2
+
     if (remainder === 2) {
       remainder = -1
     } // balance: 2 becomes -1 with a carry
@@ -36,6 +40,7 @@ export function fromBalancedTernary(
   digits: ReadonlyArray<number>,
 ): number {
   let value = 0
+
   for (let i = digits.length - 1; i >= 0; i--) {
     value = value * 3 + digits[i]!
   }
@@ -50,8 +55,10 @@ export function isBalancedTernaryField(
   digits: number,
 ): boolean {
   const cap = balancedTernaryCap(digits)
+
   for (let i = 0; i < values.length; i++) {
     const v = values[i]!
+
     if (v < -cap || v > cap) {
       return false
     }

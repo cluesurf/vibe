@@ -55,10 +55,12 @@ export default experiment({
     const twice = directions.map(direction =>
       rotateZ180(rotateZ180(direction)),
     )
+
     const occupationReturnsAt2Pi = twice.every(
       (direction, index) =>
         directionKey(direction) === directionKey(directions[index]!),
     )
+
     const occupationIsSpinor = !occupationReturnsAt2Pi // a spinor would NOT return at 2pi
 
     // (3) the SPIN bundle DOES carry the minus one. The same 180 rotation lifts to the quaternion k (about z),
@@ -69,6 +71,7 @@ export default experiment({
       0,
       Math.sin(Math.PI / 2),
     ) // 180 degrees = the quaternion k
+
     const spinTwice = multiply(spinLift, spinLift) // a 2pi rotation
     const spinorFlipsAt2Pi =
       quaternionKey(spinTwice) ===

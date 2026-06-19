@@ -44,11 +44,13 @@ export function willpowerGrounded(): {
     depth: 20,
     maxChambers: 60000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
 
   let center = 0
+
   for (let i = 1; i < n; i++) {
     if (neighbors[i]!.length > neighbors[center]!.length) {
       center = i
@@ -65,14 +67,18 @@ export function willpowerGrounded(): {
   // distance shell would grab hundreds of cells). The self is a modest reserve, the core is the held
   // pleasure it must keep topped up.
   const order: number[] = []
+
   {
     const seen = new Uint8Array(n)
     seen[center] = 1
     let frontier = [center]
+
     while (frontier.length > 0 && order.length < n) {
       const next: number[] = []
+
       for (const u of frontier) {
         order.push(u)
+
         for (const w of neighbors[u]!) {
           if (!seen[w]) {
             seen[w] = 1
@@ -89,6 +95,7 @@ export function willpowerGrounded(): {
   const CORE_SIZE = 6
   const inSelf = new Uint8Array(n)
   const inCore = new Uint8Array(n)
+
   for (let k = 0; k < SELF_SIZE && k < order.length; k++) {
     inSelf[order[k]!] = 1
   }
@@ -98,6 +105,7 @@ export function willpowerGrounded(): {
   }
 
   let selfSize = 0
+
   for (let i = 0; i < n; i++) {
     if (inSelf[i]) {
       selfSize++
@@ -106,6 +114,7 @@ export function willpowerGrounded(): {
 
   const coreCharge = (t: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       if (inCore[i]) {
         s += t[i]!
@@ -117,6 +126,7 @@ export function willpowerGrounded(): {
 
   const reserve = (t: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       if (inSelf[i]) {
         s += t[i]!
@@ -129,6 +139,7 @@ export function willpowerGrounded(): {
   // initial state: the self is full of pleasure (its reserve), everything else is at peace
   function makeSelf(): Int8Array {
     const t = new Int8Array(n)
+
     for (let i = 0; i < n; i++) {
       if (inSelf[i]) {
         t[i] = 1
@@ -148,7 +159,9 @@ export function willpowerGrounded(): {
     const core0 = coreCharge(t)
     const rng = makeRng({ seed: 3 })
     const maxBeats = 200
+
     let beats = maxBeats
+
     for (let b = 1; b <= maxBeats; b++) {
       pumpedReserveSweep({
         tone: t,
@@ -159,6 +172,7 @@ export function willpowerGrounded(): {
         fieldLeak,
         pump,
       })
+
       if (coreCharge(t) < 0.5 * core0) {
         beats = b
         break
@@ -180,6 +194,7 @@ export function willpowerGrounded(): {
     weak.q0 === weak.qEnd &&
     strong.q0 === strong.qEnd &&
     noPump.q0 === noPump.qEnd
+
   const strongerFieldDrainsFaster = strong.beats < weak.beats
   const pumpingProlongs = weak.beats > noPump.beats
 

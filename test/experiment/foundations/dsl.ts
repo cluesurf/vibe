@@ -25,6 +25,7 @@ export function dslDemo(): {
     .build()
     .run(10)
     .read()
+
   // A converged non-trivial mix: both poles populated, not collapsed to all-zero.
   const toneMix =
     r.toneHistogram.minus > 0.1 * 1200 &&

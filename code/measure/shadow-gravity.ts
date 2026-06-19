@@ -10,6 +10,7 @@
 export function fibonacciSphereDirections(count: number): number[][] {
   const directions: number[][] = []
   const golden = Math.PI * (3 - Math.sqrt(5))
+
   for (let i = 0; i < count; i++) {
     const y = 1 - (2 * i + 1) / count
     const radius = Math.sqrt(Math.max(0, 1 - y * y))
@@ -34,10 +35,13 @@ export function isotropicShadowFraction(input: {
 }): number {
   const r = input.bodyDistance
   const a2 = input.bodyRadius * input.bodyRadius
+
   let blocked = 0
+
   for (const u of input.directions) {
     // projection of the body center (r,0,0) onto the ray direction u
     const projection = u[0]! * r
+
     if (projection <= 0) {
       continue
     }
@@ -46,6 +50,7 @@ export function isotropicShadowFraction(input: {
     const px = r - projection * u[0]!
     const py = -projection * u[1]!
     const pz = -projection * u[2]!
+
     if (px * px + py * py + pz * pz < a2) {
       blocked++
     }
@@ -66,17 +71,21 @@ export function directionalShadowFraction(input: {
   const steps = input.steps ?? 200
   const a2 = input.bodyRadius * input.bodyRadius
   const beam2 = input.beamRadius * input.beamRadius
+
   let blocked = 0
   let total = 0
+
   for (let iy = -steps; iy <= steps; iy++) {
     for (let iz = -steps; iz <= steps; iz++) {
       const y = (iy / steps) * input.beamRadius
       const z = (iz / steps) * input.beamRadius
+
       if (y * y + z * z > beam2) {
         continue
       }
 
       total++
+
       if (y * y + z * z < a2) {
         blocked++
       }
@@ -99,6 +108,7 @@ export function leSageDrag(input: {
   velocity: number
 }): number {
   let force = 0
+
   for (const d of input.directions) {
     const dx = d[0]!
     force += -(1 + input.velocity * dx) * dx
@@ -116,8 +126,10 @@ export function distanceExponent(
   const ys = values.map(v => Math.log(v))
   const meanX = xs.reduce((a, b) => a + b, 0) / xs.length
   const meanY = ys.reduce((a, b) => a + b, 0) / ys.length
+
   let cov = 0
   let varX = 0
+
   for (let i = 0; i < xs.length; i++) {
     cov += (xs[i]! - meanX) * (ys[i]! - meanY)
     varX += (xs[i]! - meanX) ** 2

@@ -39,15 +39,19 @@ function maintain(input: {
     beats: 60,
     density: 0.1,
   })
+
   const initial = Math.max(1, cluster.length)
   const sizes: number[] = []
+
   let prev = new Set(cluster)
   let turnoverSum = 0
   let survived = 0
+
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, cohesion)
     const c = largestPositiveCluster(tone, graph)
     sizes.push(c.length)
+
     if (c.length >= 0.5 * initial) {
       survived++
     }
@@ -81,6 +85,7 @@ export default experiment({
       cohesion: 0.22,
       seed: 246810,
     })
+
     const diffusive = maintain({
       L: 64,
       beats: 120,

@@ -13,6 +13,7 @@ export function conservingMaintainToTarget(
 ): number {
   const tooHigh: number[] = []
   const tooLow: number[] = []
+
   for (let i = 0; i < size; i++) {
     if (tone[i]! > target[i]!) {
       tooHigh.push(i)
@@ -22,7 +23,9 @@ export function conservingMaintainToTarget(
   }
 
   let ops = 0
+
   const m = Math.min(tooHigh.length, tooLow.length)
+
   for (let k = 0; k < m; k++) {
     const hi = tooHigh[k]!
     const lo = tooLow[k]!
@@ -34,6 +37,7 @@ export function conservingMaintainToTarget(
 
   const needPlus: number[] = []
   const needMinus: number[] = []
+
   for (let i = 0; i < size; i++) {
     if (tone[i]! !== 0) {
       continue
@@ -47,6 +51,7 @@ export function conservingMaintainToTarget(
   }
 
   const f = Math.min(needPlus.length, needMinus.length)
+
   for (let k = 0; k < f; k++) {
     tone[needPlus[k]!] = 1
     tone[needMinus[k]!] = -1

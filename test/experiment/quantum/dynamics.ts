@@ -31,12 +31,14 @@ export default experiment({
       trials: 80000,
       seed: 900,
     })
+
     const sFar = chshShared({
       eta: Math.exp(-8 / xi),
       mode: 'aligned',
       trials: 80000,
       seed: 908,
     })
+
     const nearViolates = sNear > 2
     const farDecays = sFar < sNear && sFar < 2.4
     const ok = nearViolates && farDecays

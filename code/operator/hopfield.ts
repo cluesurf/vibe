@@ -31,9 +31,11 @@ export function hebbianFills(
     { length: size },
     () => new Int8Array(size),
   )
+
   for (let i = 0; i < size; i++) {
     for (let j = i + 1; j < size; j++) {
       let s = 0
+
       for (const p of patterns) {
         s += (p[i] ?? 0) * (p[j] ?? 0)
       }
@@ -51,6 +53,7 @@ export function hebbianFills(
 // so a vector with itself over +/-1 patterns is 1.
 export function toneOverlap(a: Int8Array, b: Int8Array): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
@@ -68,6 +71,7 @@ export function mutatePattern(input: {
 }): Int8Array {
   const { pattern, rate, rng } = input
   const out = Int8Array.from(pattern)
+
   for (let i = 0; i < out.length; i++) {
     if (rng.next() < rate) {
       out[i] = (rng.next() < 0.5 ? -1 : 1) as -1 | 1
@@ -81,6 +85,7 @@ export function mutatePattern(input: {
 // signal), averaged pattern-by-pattern.
 export function bankOverlap(a: Int8Array[], b: Int8Array[]): number {
   let s = 0
+
   for (let m = 0; m < a.length; m++) {
     s += Math.abs(
       toneOverlap(a[m] ?? new Int8Array(0), b[m] ?? new Int8Array(0)),
@@ -100,6 +105,7 @@ export function nearestPattern(
   let bestOv = -2
   patterns.forEach((p, k) => {
     const o = Math.abs(toneOverlap(tone, p))
+
     if (o > bestOv) {
       bestOv = o
       best = k
@@ -119,6 +125,7 @@ export function hopfieldStep(
 ): Int8Array {
   const n = tone.length
   const next = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     if (clamp && clamp[i] !== 0) {
       next[i] = clamp[i] as -1 | 0 | 1
@@ -126,7 +133,9 @@ export function hopfieldStep(
     }
 
     const row = J[i] ?? new Int8Array(0)
+
     let h = bias[i] ?? 0
+
     for (let j = 0; j < n; j++) {
       h += (row[j] ?? 0) * (tone[j] ?? 0)
     }
@@ -155,29 +164,36 @@ export function runHopfieldPair(input: {
   const Jb = hebbianFills(pB, size)
   const ra = makeRng({ seed: input.seed })
   const rb = makeRng({ seed: input.seed + 1 })
+
   let a = Int8Array.from(
     { length: size },
     () => (ra.nextInt({ max: 3 }) - 1) as -1 | 0 | 1,
   )
+
   let b = Int8Array.from(
     { length: size },
     () => (rb.nextInt({ max: 3 }) - 1) as -1 | 0 | 1,
   )
+
   const zero = new Float64Array(size)
   const cueCount = Math.round(0.55 * size)
   const cueHold = 4
   const dwell = 30
   const overlaps: number[] = []
+
   for (let t = 0; t < modeSeq.length * dwell; t++) {
     const phase = t % dwell
     const m = modeSeq[Math.floor(t / dwell)] ?? 0
+
     let cueA: Int8Array | null = null
     let cueB: Int8Array | null = null
+
     if (phase < cueHold) {
       cueA = new Int8Array(size)
       cueB = new Int8Array(size)
       const qa = pA[m] ?? new Int8Array(size)
       const qb = pB[m] ?? new Int8Array(size)
+
       for (let i = 0; i < cueCount; i++) {
         cueA[i] = qa[i] as -1 | 0 | 1
         cueB[i] = qb[i] as -1 | 0 | 1
@@ -186,6 +202,7 @@ export function runHopfieldPair(input: {
 
     a = hopfieldStep(Ja, a, zero, cueA)
     b = hopfieldStep(Jb, b, zero, cueB)
+
     if (phase === dwell - 1) {
       overlaps.push(Math.abs(toneOverlap(a, b)))
     }

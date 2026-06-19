@@ -26,13 +26,16 @@ export function toZeckendorf(value: number): string {
   }
 
   const fib = fibUpTo(value)
+
   let top = fib.length - 1
+
   while (fib[top]! > value) {
     top--
   }
 
   let remainder = value
   let out = ''
+
   for (let i = top; i >= 0; i--) {
     if (fib[i]! <= remainder) {
       out += '1'
@@ -48,8 +51,10 @@ export function toZeckendorf(value: number): string {
 // the integer value of a Zeckendorf address (the inverse of toZeckendorf)
 export function fromZeckendorf(address: string): number {
   let sum = 0
+
   const len = address.length
   fibUpTo(0)
+
   while (FIB_CACHE.length < len) {
     const a = FIB_CACHE[FIB_CACHE.length - 1]!
     const b = FIB_CACHE[FIB_CACHE.length - 2]!
@@ -84,6 +89,7 @@ export function appendContinuator(address: string): string {
 export function sectorGeneration(n: number): number {
   let a = 1
   let b = 3
+
   if (n === 0) {
     return 1
   }

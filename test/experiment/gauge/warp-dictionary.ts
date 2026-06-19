@@ -48,6 +48,7 @@ export default experiment({
       symbol: [3, 4, 3, 4],
       maxCells: 60000,
     })
+
     const cellCount = graph.cellCount
     const neighbors = graph.neighbors
 
@@ -64,6 +65,7 @@ export default experiment({
       maxDegree: 24,
       iterations: 2200,
     })
+
     const overlapFloorExponent = marginal.decayExponent // measured marginal decay, about 0.5, VERIFIES the floor
     const overlapFloor = Math.sqrt(volumeGrowth) // the theoretical floor lambda^(1/2), from normalizability
 
@@ -71,12 +73,15 @@ export default experiment({
     const frame = coxeterCellFrame([3, 4, 3, 4])
     const center = (cell: number): number[] =>
       matVec(graph.cellMat![cell]!, frame.center)
+
     const rootCenter = center(0)
     const distance = new Int32Array(cellCount).fill(-1)
     distance[0] = 0
     let frontier = [0]
+
     while (frontier.length > 0) {
       const next: number[] = []
+
       for (const c of frontier) {
         for (const m of neighbors[c]!) {
           if (distance[m] === -1) {
@@ -92,6 +97,7 @@ export default experiment({
     const geodesicAtShell = (shell: number): number => {
       let sum = 0
       let count = 0
+
       for (let c = 0; c < cellCount; c++) {
         if (distance[c] === shell) {
           sum += hyperbolicDistance(rootCenter, center(c), frame.metric)
@@ -110,10 +116,12 @@ export default experiment({
     const floorIsHalfPower = Math.abs(overlapFloorExponent - 0.5) < 0.12
     const floorMatchesSqrtLambda =
       Math.abs(overlapFloor - sqrtLambda) < 0.6
+
     const threeDistinct =
       Math.abs(volumeGrowth - overlapFloor) > 5 &&
       Math.abs(overlapFloor - metricWarp) > 0.5 &&
       Math.abs(volumeGrowth - metricWarp) > 5
+
     const notNaiveHorospherical =
       Math.abs(metricWarp - Math.pow(volumeGrowth, 1 / 3)) > 0.3 // metric warp is NOT lambda^(1/3)
 

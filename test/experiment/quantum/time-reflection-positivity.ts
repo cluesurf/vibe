@@ -67,8 +67,10 @@ export function reflectionPositivity(input?: { n?: number }): {
     const seen = new Uint8Array(N)
     seen[seed] = 1
     let fr = [seed]
+
     while (fr.length > 0 && out.length < size) {
       const nf: number[] = []
+
       for (const u of fr) {
         if (claimed[u]) {
           continue
@@ -76,8 +78,10 @@ export function reflectionPositivity(input?: { n?: number }): {
 
         out.push(u)
         claimed[u] = 1
+
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (!seen[w]) {
             seen[w] = 1
             nf.push(w)
@@ -95,8 +99,10 @@ export function reflectionPositivity(input?: { n?: number }): {
   // a gradient observable would introduce. Slow enough to be a clean field mode, fast enough to decay.
   const claimed = new Uint8Array(N)
   const patchA = ball(Math.floor(N / 2), 30, claimed)
+
   const obs = (tone: Int8Array): number => {
     let a = 0
+
     for (const i of patchA) {
       a += tone[i]!
     }
@@ -107,6 +113,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   // reach the reversible steady state, then record a long trajectory of the observable
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
+
   for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -120,6 +127,7 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   const T = 8000
   const series = new Float64Array(T)
+
   for (let t = 0; t < T; t++) {
     series[t] = obs(tone)
     beat(tone, eu, ev, moved, rng, ARROW)
@@ -127,6 +135,7 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   const m = 6
   const maxTau = 2 * m
+
   // normalized-min-eigenvalue of the Hankel built from a sub-series at a given STRIDE. Stride 2 samples
   // every other beat, which removes the discrete-update "temporal doubler" (a negative eigenvalue from
   // the synchronous update becomes positive under squaring).
@@ -136,15 +145,18 @@ export function reflectionPositivity(input?: { n?: number }): {
     stride: number,
   ): number => {
     let mean = 0
+
     for (let t = start; t < start + len; t++) {
       mean += series[t]!
     }
 
     mean /= len
     const ac: number[] = []
+
     for (let tau = 0; tau <= maxTau; tau++) {
       let s = 0
       let c = 0
+
       for (let t = start; t + tau * stride < start + len; t++) {
         s += (series[t]! - mean) * (series[t + tau * stride]! - mean)
         c++
@@ -161,14 +173,17 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   // full-sample autocorrelation (for reporting)
   let mean = 0
+
   for (let t = 0; t < T; t++) {
     mean += series[t]!
   }
 
   mean /= T
   const autocorr: number[] = []
+
   for (let tau = 0; tau <= maxTau; tau++) {
     let s = 0
+
     for (let t = 0; t + tau < T; t++) {
       s += (series[t]! - mean) * (series[t + tau]! - mean)
     }
@@ -178,9 +193,11 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   const rawMinEig = hankelMinEig(0, T, 1) // shows the temporal doubler (discrete-update artifact)
   const evenMinEig = hankelMinEig(0, T, 2) // doubler removed: the genuine spectral-positivity test
+
   // period-2 amplitude (even lags minus odd lags) makes the doubler explicit
   let evenSum = 0
   let oddSum = 0
+
   for (let tau = 1; tau <= maxTau; tau++) {
     tau % 2 === 0
       ? (evenSum += autocorr[tau]!)
@@ -193,6 +210,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   const blocks = 8
   const blockLen = Math.floor(T / blocks)
   const blockEigs: number[] = []
+
   for (let b = 0; b < blocks; b++) {
     blockEigs.push(hankelMinEig(b * blockLen, blockLen, 2))
   }
@@ -201,12 +219,14 @@ export function reflectionPositivity(input?: { n?: number }): {
   const stdBlock = Math.sqrt(
     blockEigs.reduce((s, x) => s + (x - meanBlock) ** 2, 0) / blocks,
   )
+
   const noiseFloor = stdBlock / Math.sqrt(blocks)
 
   // RP holds (continuum-time) iff the doubler-removed Hankel is PSD within statistical noise
   const reflectionPositive = evenMinEig > -(3 * noiseFloor + 1e-4)
   const hasDoubler =
     rawMinEig < -3 * noiseFloor && doublerAmplitude > 2 * noiseFloor
+
   const solved = reflectionPositive
 
   return {

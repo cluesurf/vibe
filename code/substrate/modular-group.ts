@@ -13,6 +13,7 @@ export type IntegerMatrix = [number, number, number, number] // a, b, c, d
 // Normalize a PSL(2, Z) matrix (mod the overall sign) for deduplication.
 export function normalizeModularMatrix(m: IntegerMatrix): string {
   let [a, b, c, d] = m
+
   if (a < 0 || (a === 0 && b < 0) || (a === 0 && b === 0 && c < 0)) {
     a = -a
     b = -b
@@ -46,9 +47,12 @@ export function modularGraph(maxNodes: number): Graph {
   const I: IntegerMatrix = [1, 0, 0, 1]
   const index = new Map<string, number>()
   const mats: IntegerMatrix[] = []
+
   const add = (m: IntegerMatrix): number => {
     const k = normalizeModularMatrix(m)
+
     let i = index.get(k)
+
     if (i === undefined) {
       i = mats.length
       index.set(k, i)
@@ -60,19 +64,24 @@ export function modularGraph(maxNodes: number): Graph {
 
   add(I)
   const neighbors: number[][] = [[]]
+
   let frontier = [0]
+
   while (frontier.length > 0 && mats.length < maxNodes) {
     const next: number[] = []
+
     for (const gi of frontier) {
       if (mats.length >= maxNodes) {
         break
       }
 
       const g = mats[gi]!
+
       for (const gen of gens) {
         const h = multiplyIntegerMatrix(g, gen)
         const before = mats.length
         const hi = add(h)
+
         if (hi >= neighbors.length) {
           neighbors.push([])
         }
@@ -96,6 +105,7 @@ export function modularGraph(maxNodes: number): Graph {
   const z0im = 1.7
   const n = mats.length
   const coords = new Float64Array(n * 2)
+
   for (let i = 0; i < n; i++) {
     const [a, b, c, d] = mats[i]!
     // z = (a z0 + b)/(c z0 + d), complex.
@@ -121,6 +131,7 @@ export function modularGraph(maxNodes: number): Graph {
     dimension: 2,
     curvature: -1,
   }
+
   const embedding: Embedding = {
     form: 'embedding',
     dimension: 2,
@@ -148,8 +159,10 @@ export function rationalFromContinuedFraction(cf: number[]): {
   let mn = 1
   let md = 1
   let goRight = true
+
   for (let k = 0; k < cf.length; k++) {
     let steps = cf[k] ?? 0
+
     if (k === cf.length - 1) {
       steps -= 1
     }

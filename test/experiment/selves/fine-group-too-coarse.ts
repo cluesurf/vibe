@@ -48,12 +48,14 @@ export default experiment({
       dm: 0.6,
       field: 0.15,
     }
+
     const steps = 400
 
     let base: Spin[] = makeSkyrmionField({
       size: params.size,
       coreRadius: 5,
     })
+
     for (let t = 0; t < 2000; t++) {
       base = relaxSpins({ spins: base, params, rate: 0.08 })
     }
@@ -65,6 +67,7 @@ export default experiment({
       s.map(v => {
         const q = (c: number) => Math.round(c)
         const w: Spin = [q(v[0]), q(v[1]), q(v[2])]
+
         if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
           return [0, 0, 1]
         }
@@ -73,13 +76,16 @@ export default experiment({
 
         return [w[0] / n, w[1] / n, w[2] / n]
       })
+
     let st = base.map(v => [...v] as Spin)
     let tritMin = startQ,
       tritMax = startQ
+
     for (let t = 0; t < steps; t++) {
       st = precessSpins({ spins: st, params, dt: 0.008, open: false })
       st = snapTrit(st)
       const q = skyrmionDegree(st, params.size)
+
       if (q < tritMin) {
         tritMin = q
       }
@@ -97,9 +103,11 @@ export default experiment({
       let s = base.map(v => [...v] as Spin)
       let min = startQ,
         max = startQ
+
       for (let t = 0; t < steps; t++) {
         s = precessSpins({ spins: s, params, dt, open: false })
         const q = skyrmionDegree(s, params.size)
+
         if (q < min) {
           min = q
         }
@@ -114,6 +122,7 @@ export default experiment({
 
     const holds = (r: { min: number; max: number }) =>
       Math.abs(r.min + 1) < 0.15 && Math.abs(r.max + 1) < 0.15
+
     const deg10 = range(0.0436) // ~10 degrees/beat
     const deg36 = range(0.157) // ~36 degrees/beat, the 600-cell smallest step
     const deg60 = range(0.262) // ~60 degrees/beat, the 24-cell smallest step

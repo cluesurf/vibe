@@ -44,6 +44,7 @@ export default experiment({
         x: RS / r,
         iterations: 60,
       })
+
       const converged = trail[trail.length - 1]!
       const exact = 1 / (1 - RS / r)
       const linearFirstOrder = 1 + RS / r // the un-resummed (weak-field) spatial metric
@@ -56,9 +57,11 @@ export default experiment({
         residual: Math.abs(converged - exact),
       }
     })
+
     const bootstrapConverges = bootstrapResults.every(
       b => b.residual < 1e-6,
     )
+
     // the resummation matters, the converged metric differs from the linear first-order one (the nonlinear terms)
     const resummationMatters = bootstrapResults.some(
       b => Math.abs(b.converged - b.linearFirstOrder) > 0.1,
@@ -78,11 +81,13 @@ export default experiment({
       impactParameter: weakB,
       spatialMetric: 'full',
     })!
+
     const timeOnlyDeflection = staticMetricPhotonDeflection({
       schwarzschildRadius: RS,
       impactParameter: weakB,
       spatialMetric: 'flat',
     })!
+
     const fullProduct = (weakB * fullDeflection) / RS
     const timeOnlyProduct = (weakB * timeOnlyDeflection) / RS
     const spatialHalfRatio = fullDeflection / timeOnlyDeflection
@@ -91,6 +96,7 @@ export default experiment({
       Math.abs(fullProduct - 2) < 0.1 &&
       Math.abs(timeOnlyProduct - 1) < 0.1 &&
       Math.abs(spatialHalfRatio - 2) < 0.05
+
     const ok =
       bootstrapConverges &&
       resummationMatters &&

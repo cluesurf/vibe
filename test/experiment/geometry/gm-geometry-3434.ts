@@ -31,8 +31,10 @@ export function gmGeometry(): {
   const { dist } = latticeBall({ generators: roots, radius: 9 })
   // GM2/GM3: V(r) volume growth
   const Vr: number[] = []
+
   for (let r = 0; r <= 9; r++) {
     let c = 0
+
     for (const d of dist.values()) {
       if (d <= r) {
         c++
@@ -53,23 +55,28 @@ export function gmGeometry(): {
   const samples = [...dist.entries()]
     .filter(([, d]) => d >= 1 && d <= 6)
     .slice(0, 400)
+
   const graphDistances = samples.map(([, d]) => d)
   const euclideanDistances = samples.map(([k]) =>
     euc(k.split(',').map(Number)),
   )
+
   const corr = pearson({ a: graphDistances, b: euclideanDistances })
   const metricLinear = corr > 0.9 // D4 word metric is flat but anisotropic, strong linear correlation with Euclidean
 
   // GM1: Ollivier-Ricci of an edge (origin, root0), Sinkhorn W1 over the two 24-neighbour distributions
   const x = [0, 0, 0, 0],
     y = roots[0]!
+
   const nx = roots.map(r => add(x, r)),
     ny = roots.map(r => add(y, r))
+
   const C = nx.map(a =>
     ny.map(b =>
       latticeWordDistance({ a, b, generators: roots, cap: 6 }),
     ),
   )
+
   const w1 = sinkhornW1(C, 0.05, 400)
   const ricci = 1 - w1 / 1 // d(x,y) = 1
   const ricciFlat = Math.abs(ricci) < 0.12

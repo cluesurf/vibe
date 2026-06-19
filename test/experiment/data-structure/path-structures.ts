@@ -20,7 +20,9 @@ export default experiment({
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 3000 })
     // build a stack by descending to the first available child each step (push), recording the path
     const path: number[] = [a.root]
+
     let node = a.root
+
     while (a.children[node]!.length > 0) {
       node = a.children[node]![0]!
       path.push(node)
@@ -29,6 +31,7 @@ export default experiment({
     // every step is to a physical child (a neighbour), and the depth increases by one per push (LIFO height)
     let everyStepIsChild = true
     let depthIncrements = true
+
     for (let i = 1; i < path.length; i++) {
       if (a.parent[path[i]!] !== path[i - 1]!) {
         everyStepIsChild = false
@@ -41,6 +44,7 @@ export default experiment({
 
     // pop reverses exactly: the parent of each cell is the previous on the stack
     let popReverses = true
+
     for (let i = path.length - 1; i > 0; i--) {
       if (a.parent[path[i]!] !== path[i - 1]!) {
         popReverses = false

@@ -47,6 +47,7 @@ export default experiment({
       0,
       Math.sin(Math.PI),
     ) // equals minus one
+
     const rotated = multiply(rotation2pi, quaternion(1, 0, 0, 0))
     const spinorSign = Math.abs(rotated.w - -1) < 1e-9
 

@@ -39,6 +39,7 @@ export default experiment({
 
     // no same-shell (cousin) edges among complete cells (the 4D simplification).
     let cousins = 0
+
     for (let c = 0; c < n; c++) {
       if (!a.complete[c]) {
         continue
@@ -53,19 +54,23 @@ export default experiment({
 
     // addresses unique and decode round-trips over the enumerated interior.
     const seen = new Set<string>()
+
     let addressDup = 0
     let roundTripFail = 0
+
     for (let c = 0; c < n; c++) {
       if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
         continue
       }
 
       const key = a.address[c]!.join('.')
+
       if (seen.has(key)) {
         addressDup++
       }
 
       seen.add(key)
+
       if (decode(a, a.address[c]!) !== c) {
         roundTripFail++
       }
@@ -74,6 +79,7 @@ export default experiment({
     // the four neighbour families reconstruct the true neighbour set on complete cells.
     let exact = 0
     let totalComplete = 0
+
     for (let c = 0; c < n; c++) {
       if (!a.complete[c]) {
         continue
@@ -86,8 +92,11 @@ export default experiment({
         ...a.altParents[c]!,
         ...a.altChildren[c]!,
       ])
+
       const truth = a.graph.neighbors[c]!
+
       let same = predicted.size === truth.length
+
       if (same) {
         for (const v of truth) {
           if (!predicted.has(v)) {
@@ -106,6 +115,7 @@ export default experiment({
 
     const neighborFraction =
       totalComplete > 0 ? exact / totalComplete : 0
+
     const ok =
       cousins === 0 &&
       addressDup === 0 &&

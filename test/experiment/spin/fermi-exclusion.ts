@@ -30,6 +30,7 @@ function overlap(a: number[], b: number[]): number {
 // squared norm of the antisymmetric (fermion) two-particle state, 2(1 - p^2). Zero when the states coincide (Pauli).
 const antisymmetricNormSquared = (a: number[], b: number[]): number =>
   2 * (1 - overlap(a, b) ** 2)
+
 // squared norm of the symmetric (boson) two-particle state, 2(1 + p^2). Nonzero even when the states coincide.
 const symmetricNormSquared = (a: number[], b: number[]): number =>
   2 * (1 + overlap(a, b) ** 2)
@@ -54,11 +55,13 @@ export default experiment({
       fermionA,
       fermionA,
     )
+
     // two DISTINCT fermions coexist (nonzero antisymmetric amplitude)
     const fermionDistinctState = antisymmetricNormSquared(
       fermionA,
       fermionB,
     )
+
     // the boson control, two identical bosons pile up (nonzero symmetric amplitude)
     const bosonSameState = symmetricNormSquared(bosonA, bosonA)
 

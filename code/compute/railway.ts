@@ -33,6 +33,7 @@ export function routeSwitch(sw: RailSwitch, entryPort: number): number {
   if (entryPort === 0) {
     // trunk -> active branch
     const exit = sw.active
+
     if (sw.kind === 'flip-flop') {
       sw.active = sw.active === 1 ? 2 : 1
     } // the active passage flips it
@@ -62,6 +63,7 @@ export function makeRegister(capacity: number): RailRegister {
 
 export function registerValue(reg: RailRegister): number {
   let v = 0
+
   while (v < reg.cells.length && reg.cells[v] === 1) {
     v++
   }
@@ -72,6 +74,7 @@ export function registerValue(reg: RailRegister): number {
 // the locomotive rolls in, over the set cells, and sets the first free cell (increment)
 export function railIncrement(reg: RailRegister): void {
   let i = 0
+
   while (i < reg.cells.length && reg.cells[i] === 1) {
     i++
   }
@@ -85,6 +88,7 @@ export function railIncrement(reg: RailRegister): void {
 // could decrement, false if the register was already zero (the train comes back by the special zero track).
 export function railDecrementOrZero(reg: RailRegister): boolean {
   let i = 0
+
   while (i < reg.cells.length && reg.cells[i] === 1) {
     i++
   }
@@ -129,23 +133,29 @@ export function runRailway(
 ): { registers: number[]; steps: number } {
   const regs = Array.from({ length: program.registers }, (_, r) => {
     const reg = makeRegister(program.capacity)
+
     for (let i = 0; i < (initial[r] ?? 0); i++) {
       railIncrement(reg)
     }
 
     return reg
   })
+
   let pc = 0
   let steps = 0
+
   const maxSteps = 50_000_000 // a safety bound so a non-halting program does not spin forever
+
   while (steps < maxSteps) {
     const ins = program.code[pc]
+
     if (!ins || ins.op === 'halt') {
       break
     }
 
     steps++
     const at = pc
+
     if (ins.op === 'inc') {
       railIncrement(regs[ins.reg]!)
       pc = ins.next

@@ -30,11 +30,15 @@ export function sprinkleMinkowski(input: {
   // min(t, 1-t), or <= t for a half diamond). Uniform-in-time sampling would
   // distort the density and the recovered dimension.
   let accepted = 0
+
   while (accepted < n) {
     const t = input.rng.next()
     const reach = input.halfDiamond ? t : Math.min(t, 1 - t)
+
     let radius2 = 0
+
     const candidate = new Float64Array(spaceDim)
+
     for (let axis = 0; axis < spaceDim; axis++) {
       const x = input.rng.next() - 0.5
       candidate[axis] = x
@@ -46,6 +50,7 @@ export function sprinkleMinkowski(input: {
     }
 
     coords[accepted * d] = t
+
     for (let axis = 0; axis < spaceDim; axis++) {
       coords[accepted * d + 1 + axis] = candidate[axis] ?? 0
     }
@@ -55,6 +60,7 @@ export function sprinkleMinkowski(input: {
 
   // Sort element indices by time coordinate so a precedes b implies a is earlier.
   const order: number[] = []
+
   for (let i = 0; i < n; i++) {
     order.push(i)
   }
@@ -62,8 +68,10 @@ export function sprinkleMinkowski(input: {
   order.sort((x, y) => (coords[x * d] ?? 0) - (coords[y * d] ?? 0))
 
   const sorted = new Float64Array(n * d)
+
   for (let newIndex = 0; newIndex < n; newIndex++) {
     const oldIndex = order[newIndex] ?? 0
+
     for (let axis = 0; axis < d; axis++) {
       sorted[newIndex * d + axis] = coords[oldIndex * d + axis] ?? 0
     }
@@ -83,15 +91,18 @@ export function sprinkleMinkowski(input: {
   // a is no later than b, but we still require strict dt > 0.
   const precedes = (pair: { a: number; b: number }): boolean => {
     const dt = (sorted[pair.b * d] ?? 0) - (sorted[pair.a * d] ?? 0)
+
     if (dt <= 0) {
       return false
     }
 
     let space2 = 0
+
     for (let axis = 1; axis < d; axis++) {
       const dx =
         (sorted[pair.b * d + axis] ?? 0) -
         (sorted[pair.a * d + axis] ?? 0)
+
       space2 += dx * dx
     }
 
@@ -110,6 +121,7 @@ function sampleBall(input: {
 }): Float64Array {
   const dim = input.dimension
   const out = new Float64Array(dim)
+
   if (dim <= 0 || input.radius <= 0) {
     return out
   }
@@ -117,6 +129,7 @@ function sampleBall(input: {
   // Direction: normalized Gaussian vector. Magnitude: radius * u^(1/dim) for
   // uniform-by-volume radial density.
   let norm2 = 0
+
   for (let i = 0; i < dim; i++) {
     const g = input.rng.nextGaussian()
     out[i] = g
@@ -124,12 +137,14 @@ function sampleBall(input: {
   }
 
   const norm = Math.sqrt(norm2)
+
   if (norm === 0) {
     return out
   }
 
   const radial = input.radius * Math.pow(input.rng.next(), 1 / dim)
   const scale = radial / norm
+
   for (let i = 0; i < dim; i++) {
     out[i] = (out[i] ?? 0) * scale
   }

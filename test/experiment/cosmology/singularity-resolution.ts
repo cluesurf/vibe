@@ -50,16 +50,21 @@ export function minimumInterval(input: {
     xMax: 8,
     rng: makeRng({ seed: input.seed }),
   })
+
   const lengths: number[] = []
+
   for (let i = 0; i < pts.length; i++) {
     const p = pts[i]
+
     if (!p || p.t > 6 || Math.abs(p.x) > 6) {
       continue // keep away from the boundary
     }
 
     let best = Infinity
+
     for (let j = 0; j < pts.length; j++) {
       const q = pts[j]
+
       if (!q || q.t <= p.t) {
         continue
       }
@@ -67,6 +72,7 @@ export function minimumInterval(input: {
       const dt = q.t - p.t
       const dx = q.x - p.x
       const interval2 = dt * dt - dx * dx
+
       if (interval2 > 0) {
         best = Math.min(best, Math.sqrt(interval2))
       }

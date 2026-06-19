@@ -30,9 +30,11 @@ function shellColor(
   const h = hue / 60
   const c = 1
   const x = c * (1 - Math.abs((h % 2) - 1))
+
   let r = 0,
     g = 0,
     b = 0
+
   if (h < 1) {
     ;[r, g, b] = [c, x, 0]
   } else if (h < 2) {
@@ -58,9 +60,12 @@ function run(): void {
   const depth = new Array<number>(n).fill(-1)
   depth[0] = 0
   let frontier = [0]
+
   const shellCounts: number[] = [1]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const v of g.neighbors[u]!) {
         if (depth[v]! < 0) {
@@ -79,6 +84,7 @@ function run(): void {
 
   // clean (untruncated) shells: stop at the first shell whose ratio collapses
   let maxClean = 0
+
   for (let i = 1; i < shellCounts.length; i++) {
     if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
       maxClean = i
@@ -90,6 +96,7 @@ function run(): void {
   // project ALL clean cells orthographically onto the (x,y) plane (the Poincare-ball shadow), so the disk
   // fills, big inner-shell dots at the centre and exponentially many tiny outer-shell dots crowding the rim
   const slice: number[] = []
+
   for (let i = 0; i < n; i++) {
     if (depth[i]! < 0 || depth[i]! > maxClean) {
       continue
@@ -117,11 +124,13 @@ function run(): void {
       height: IMG,
       background: [12, 12, 16],
     })
+
     // boundary circle (sphere at infinity), dim grey ring
     for (let a = 0; a < 3600; a++) {
       const th = (a / 3600) * 2 * Math.PI
       const px = Math.round(half + scale * Math.cos(th)),
         py = Math.round(half + scale * Math.sin(th))
+
       if (px >= 0 && px < IMG && py >= 0 && py < IMG) {
         setPixel(rgba, IMG, px, py, [70, 70, 78])
       }
@@ -130,6 +139,7 @@ function run(): void {
     // draw cells up to shell f, deepest first so shallow shells sit on top
     for (let s = f; s >= 0; s--) {
       const col = shellColor(s, maxClean)
+
       for (const i of slice) {
         if (depth[i]! !== s) {
           continue
@@ -137,9 +147,11 @@ function run(): void {
 
         const x = g.coords[i]![0]!,
           y = g.coords[i]![1]!
+
         const r2 = norm(g.coords[i]!) ** 2
         const px = half + scale * x,
           py = half - scale * y
+
         const rad = Math.max(0.7, DOT_SCALE * (1 - r2))
         drawDisk({
           rgba,

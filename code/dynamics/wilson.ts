@@ -26,6 +26,7 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
 
   const has = (a: number, b: number): boolean => {
     const row = g.neighbors[a] ?? new Uint32Array(0)
+
     // neighbors are sorted; a linear scan is fine for small degrees.
     for (let k = 0; k < row.length; k++) {
       if ((row[k] ?? -1) === b) {
@@ -39,15 +40,19 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
   // Triangles: for each edge a < b, find common neighbours c > b.
   for (let a = 0; a < g.size; a++) {
     const rowA = g.neighbors[a] ?? new Uint32Array(0)
+
     for (let i = 0; i < rowA.length; i++) {
       const b = rowA[i] ?? 0
+
       if (b <= a) {
         continue
       }
 
       const rowB = g.neighbors[b] ?? new Uint32Array(0)
+
       for (let j = 0; j < rowB.length; j++) {
         const c = rowB[j] ?? 0
+
         if (c <= b) {
           continue
         }
@@ -64,22 +69,27 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
   if (loops.length <= TRIANGLE_BUDGET) {
     for (let a = 0; a < g.size; a++) {
       const rowA = g.neighbors[a] ?? new Uint32Array(0)
+
       for (let i = 0; i < rowA.length; i++) {
         const b = rowA[i] ?? 0
+
         if (b <= a) {
           continue
         }
 
         for (let j = 0; j < rowA.length; j++) {
           const d = rowA[j] ?? 0
+
           if (d <= a || d === b) {
             continue
           }
 
           // c must be adjacent to both b and d, and distinct from a.
           const rowB = g.neighbors[b] ?? new Uint32Array(0)
+
           for (let m = 0; m < rowB.length; m++) {
             const c = rowB[m] ?? 0
+
             if (c === a || c === d || c <= a) {
               continue
             }
@@ -97,6 +107,7 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
               .slice()
               .sort((x, y) => x - y)
               .join(',')
+
             if (seen.has(key)) {
               continue
             }
@@ -116,7 +127,9 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
 // it back to the start vertex.
 function loopPhase(field: GaugeField, loop: Uint32Array): number {
   let phase = 0
+
   const len = loop.length
+
   for (let k = 0; k < len; k++) {
     const from = loop[k] ?? 0
     const to = loop[(k + 1) % len] ?? 0
@@ -134,6 +147,7 @@ export function wilsonAction(input: {
   beta: number
 }): number {
   let total = 0
+
   for (const loop of input.plaquettes.loops) {
     total += input.beta * (1 - Math.cos(loopPhase(input.field, loop)))
   }
@@ -149,17 +163,21 @@ function buildEdgePlaquetteIndex(input: {
 }): Map<string, number[]> {
   const index = new Map<string, number[]>()
   const loops = input.plaquettes.loops
+
   for (let p = 0; p < loops.length; p++) {
     const loop = loops[p] ?? new Uint32Array(0)
     const len = loop.length
+
     for (let k = 0; k < len; k++) {
       const u = loop[k] ?? 0
       const v = loop[(k + 1) % len] ?? 0
+
       for (const key of [
         edgeKey({ from: u, to: v }),
         edgeKey({ from: v, to: u }),
       ]) {
         const list = index.get(key)
+
         if (list) {
           list.push(p)
         } else {
@@ -192,6 +210,7 @@ export function heatBathSweep(input: {
   // one edge. The beta factor is applied once in the acceptance test below.
   const localEnergy = (plaquetteIndices: number[]): number => {
     let total = 0
+
     for (const p of plaquetteIndices) {
       const loop = input.plaquettes.loops[p] ?? new Uint32Array(0)
       total += 1 - Math.cos(loopPhase(field, loop))
@@ -202,6 +221,7 @@ export function heatBathSweep(input: {
 
   for (let e = 0; e < field.link.length; e++) {
     const edge = field.edges[e]
+
     if (!edge) {
       continue
     }
@@ -209,6 +229,7 @@ export function heatBathSweep(input: {
     const touching =
       edgePlaquettes.get(edgeKey({ from: edge.from, to: edge.to })) ??
       []
+
     if (touching.length === 0) {
       continue
     }
@@ -224,6 +245,7 @@ export function heatBathSweep(input: {
     const deltaS = after - before
     const accept =
       deltaS <= 0 || input.rng.next() < Math.exp(-input.beta * deltaS)
+
     if (!accept) {
       field.link[e] = old
     }

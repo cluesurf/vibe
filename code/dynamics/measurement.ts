@@ -20,9 +20,11 @@ export function bornAtPeace(will: Will, frontierX: number): void {
   const mesh = will.mesh
   const side = sideOf(mesh)
   const degree = mesh.degree
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     if (cell % side === frontierX) {
       const base = cell * degree
+
       for (let d = 0; d < degree; d++) {
         will.data[base + d] = 0
       }
@@ -40,9 +42,11 @@ export function slabOccupancy(will: Will, axis = 0): number[] {
   const count = new Array<number>(side).fill(0)
   const coord = (cell: number): number =>
     axis === 0 ? cell % side : Math.floor(cell / side) % side
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const x = coord(cell)
     const base = cell * degree
+
     for (let d = 0; d < degree; d++) {
       sum[x]! += Math.abs(will.data[base + d]!)
       count[x]! += 1
@@ -63,12 +67,15 @@ export function pointerTrajectory(input: {
   axis?: number
 }): number[] {
   const axis = input.axis ?? 0
+
   let current = cloneWill(input.init)
   let scratch: Will = {
     mesh: current.mesh,
     data: new Int8Array(current.data.length),
   }
+
   const trajectory: number[] = []
+
   for (let t = 0; t < input.beats; t++) {
     beatInto({
       src: current,
@@ -79,6 +86,7 @@ export function pointerTrajectory(input: {
     const swap = current
     current = scratch
     scratch = swap
+
     if (input.open) {
       bornAtPeace(current, input.frontierX)
     }
@@ -106,6 +114,7 @@ export function loschmidtEcho(input: {
     mesh: current.mesh,
     data: new Int8Array(current.data.length),
   }
+
   for (let t = 0; t < input.beats; t++) {
     beatInto({
       src: current,
@@ -116,6 +125,7 @@ export function loschmidtEcho(input: {
     const swap = current
     current = scratch
     scratch = swap
+
     if (input.open) {
       bornAtPeace(current, input.frontierX)
     }
@@ -135,8 +145,10 @@ export function settlingTime(
   tol: number,
 ): number {
   const final = trajectory[trajectory.length - 1] ?? 0
+
   for (let t = 0; t < trajectory.length; t++) {
     let settled = true
+
     for (let s = t; s < trajectory.length; s++) {
       if (Math.abs(trajectory[s]! - final) > tol) {
         settled = false

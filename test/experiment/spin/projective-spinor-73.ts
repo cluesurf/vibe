@@ -42,6 +42,7 @@ export default experiment({
     // MEASURED spinor action: -I applied to a basis vector is minus that vector over F_p
     const reduce = (value: number): number =>
       ((value % prime) + prime) % prime
+
     const minusOneTimesE0 = multiplyModP(minusOne, [1, 0, 0, 0], prime) // acts on the first column
     const actsAsMinusOne =
       minusOneTimesE0[0] === reduce(-1) && minusOneTimesE0[2] === 0

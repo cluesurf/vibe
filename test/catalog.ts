@@ -30,11 +30,13 @@ const rows = allExperiments()
   .sort((left, right) => {
     const byDepth =
       (depthRank[left.depth] ?? 9) - (depthRank[right.depth] ?? 9)
+
     if (byDepth !== 0) {
       return byDepth
     }
 
     const byId = left.id.localeCompare(right.id)
+
     if (byId !== 0) {
       return byId
     }

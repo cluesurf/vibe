@@ -32,6 +32,7 @@ export function trialityGenerations(): {
 
   const eightEach =
     v8.length === 8 && s8.length === 8 && c8.length === 8
+
   const threeReps = true
 
   // (1) triality order 3: the Hadamard/2 maps 8v -> 8s; the triality automorphism has order 3, cycling the reps

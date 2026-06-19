@@ -16,15 +16,18 @@ function targetDistance(input: {
   target: number
 }): number {
   const e = input.graph.embedding
+
   if (!e) {
     return 0
   }
 
   const d = e.dimension
   const isDisc = e.manifold.form === 'hyperbolic'
+
   let sum2 = 0
   let nodeNorm2 = 0
   let targetNorm2 = 0
+
   for (let axis = 0; axis < d; axis++) {
     const a = e.coords[input.node * d + axis] ?? 0
     const b = e.coords[input.target * d + axis] ?? 0
@@ -39,6 +42,7 @@ function targetDistance(input: {
 
   // Poincare disc distance: arccosh(1 + 2|u-v|^2 / ((1-|u|^2)(1-|v|^2))).
   const denom = (1 - nodeNorm2) * (1 - targetNorm2)
+
   if (denom <= 0) {
     return Math.sqrt(sum2)
   }
@@ -60,15 +64,20 @@ export function greedyRouteHops(input: {
 }): number {
   const { graph, source, target } = input
   const maxHops = input.maxHops ?? 4 * graph.size
+
   let current = source
   let hops = 0
+
   while (current !== target && hops < maxHops) {
     const row = graph.neighbors[current] ?? new Uint32Array(0)
+
     let best = -1
     let bestDistance = targetDistance({ graph, node: current, target })
+
     for (let k = 0; k < row.length; k++) {
       const neighbor = row[k] ?? 0
       const distance = targetDistance({ graph, node: neighbor, target })
+
       if (distance < bestDistance) {
         bestDistance = distance
         best = neighbor
@@ -97,6 +106,7 @@ export function greedyRoutingSuccess(input: {
   countDisconnectedAsFailure?: boolean
 }): { successRate: number; meanStretch: number; trials: number } {
   const graph = input.graph
+
   if (!graph.embedding) {
     return { successRate: 0, meanStretch: 0, trials: 0 }
   }
@@ -110,7 +120,9 @@ export function greedyRoutingSuccess(input: {
 
   for (let t = 0; t < input.trials; t++) {
     const source = input.rng.nextInt({ max: size })
+
     let target = input.rng.nextInt({ max: size })
+
     if (target === source) {
       target = (target + 1) % size
     }
@@ -132,6 +144,7 @@ export function greedyRoutingSuccess(input: {
     let hops = 0
     let reached = false
     let stuck = false
+
     while (hops < maxHops) {
       if (current === target) {
         reached = true
@@ -139,12 +152,14 @@ export function greedyRoutingSuccess(input: {
       }
 
       const row = graph.neighbors[current] ?? new Uint32Array(0)
+
       let best = -1
       let bestDistance = targetDistance({
         graph,
         node: current,
         target,
       })
+
       for (let k = 0; k < row.length; k++) {
         const neighbor = row[k] ?? 0
         const distance = targetDistance({
@@ -152,6 +167,7 @@ export function greedyRoutingSuccess(input: {
           node: neighbor,
           target,
         })
+
         if (distance < bestDistance) {
           bestDistance = distance
           best = neighbor
@@ -169,6 +185,7 @@ export function greedyRoutingSuccess(input: {
     }
 
     counted++
+
     if (reached && !stuck) {
       successes++
       // Stretch against the straight-line hop estimate is approximated by hops
@@ -197,6 +214,7 @@ export function routingWithBacktrack(input: {
   maxSteps?: number
 }): { successRate: number; meanStretch: number; trials: number } {
   const graph = input.graph
+
   if (!graph.embedding) {
     return { successRate: 0, meanStretch: 0, trials: 0 }
   }
@@ -210,12 +228,15 @@ export function routingWithBacktrack(input: {
 
   for (let t = 0; t < input.trials; t++) {
     const source = input.rng.nextInt({ max: size })
+
     let target = input.rng.nextInt({ max: size })
+
     if (target === source) {
       target = (target + 1) % size
     }
 
     const shortest = bfsHops({ graph, from: source, to: target })
+
     if (shortest < 0) {
       continue
     }
@@ -228,16 +249,20 @@ export function routingWithBacktrack(input: {
 
     while (stack.length > 0 && steps < maxSteps) {
       const current = stack[stack.length - 1] ?? source
+
       if (current === target) {
         reached = true
         break
       }
 
       const row = graph.neighbors[current] ?? new Uint32Array(0)
+
       let best = -1
       let bestDistance = Infinity
+
       for (let k = 0; k < row.length; k++) {
         const neighbor = row[k] ?? 0
+
         if ((visited[neighbor] ?? 0) === 1) {
           continue
         }
@@ -247,6 +272,7 @@ export function routingWithBacktrack(input: {
           node: neighbor,
           target,
         })
+
         if (distance < bestDistance) {
           bestDistance = distance
           best = neighbor
@@ -264,9 +290,11 @@ export function routingWithBacktrack(input: {
     }
 
     counted++
+
     if (reached) {
       successes++
       const routeLength = stack.length - 1
+
       if (shortest > 0) {
         stretchSum += routeLength / shortest
       }
@@ -293,14 +321,19 @@ function bfsHops(input: {
   const distance = new Int32Array(size).fill(-1)
   distance[input.from] = 0
   let frontier: number[] = [input.from]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const node of frontier) {
       const row = input.graph.neighbors[node] ?? new Uint32Array(0)
+
       for (let k = 0; k < row.length; k++) {
         const neighbor = row[k] ?? 0
+
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = (distance[node] ?? 0) + 1
+
           if (neighbor === input.to) {
             return distance[neighbor] ?? -1
           }

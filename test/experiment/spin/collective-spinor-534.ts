@@ -32,11 +32,14 @@ export function collectiveSpinor(): {
   let oddFlipsEveryMode = true
   let evenPreservesEveryMode = true
   let modeIndependent = true
+
   for (const winding of WINDINGS) {
     const overlaps = MODES.map(mode =>
       collectiveModeOverlap({ winding, steps: 24, mode }),
     )
+
     const expected = winding % 2 === 1 ? -1 : 1
+
     for (const overlap of overlaps) {
       if (Math.abs(overlap - expected) > 1e-9) {
         if (winding % 2 === 1) {

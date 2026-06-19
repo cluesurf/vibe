@@ -5,6 +5,7 @@
 
 export function totalCharge(tone: Int8Array): number {
   let s = 0
+
   for (let i = 0; i < tone.length; i++) {
     s += tone[i]!
   }
@@ -14,6 +15,7 @@ export function totalCharge(tone: Int8Array): number {
 
 export function liveCount(tone: Int8Array): number {
   let c = 0
+
   for (let i = 0; i < tone.length; i++) {
     if (tone[i] !== 0) {
       c++

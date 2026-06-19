@@ -33,6 +33,7 @@ export function patternClass(
           : 2
     case 'ring':
       return grid.depth(cell)
+
     case 'characteristic': {
       const z = grid.zeckendorf(cell)
 
@@ -47,6 +48,7 @@ export function patternClassCount(
   scheme: PatternScheme,
 ): number {
   let max = 0
+
   for (let c = 0; c < grid.size; c++) {
     max = Math.max(max, patternClass(grid, c, scheme))
   }

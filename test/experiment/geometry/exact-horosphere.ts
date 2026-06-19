@@ -76,13 +76,16 @@ export function exactHorosphere(input?: {
   // triangular idealization, and both flat layers leak far less than the bulk. This is the curvature fact.
   const squareLeakMatchesTriangular =
     Math.abs(sd.leakPerBeat - td.leakPerBeat) < 0.1
+
   const bothFlatBeatBulkLeak =
     sd.leakPerBeat < bd.leakPerBeat * 0.85 &&
     td.leakPerBeat < bd.leakPerBeat * 0.85
+
   // passive long-run persistence additionally improves with COORDINATION (triangular degree 6 > square degree
   // 4), an honest secondary, non-geometric effect, a richer flat layer holds selves even better
   const passiveImprovesWithCoordination =
     td.passiveFidelity > sd.passiveFidelity + 0.1
+
   // the idealization is validated for the geometric claims it was used for
   const idealizationValidated =
     squareCompact && squareLeakMatchesTriangular && bothFlatBeatBulkLeak

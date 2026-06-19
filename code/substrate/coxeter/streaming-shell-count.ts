@@ -22,7 +22,9 @@ import {
 // a 64-bit FNV-1a hash of the position key (forced nonzero, since 0 marks an empty slot)
 function hashKey(s: string): bigint {
   let h = 1469598103934665603n
+
   const mask = 0xffffffffffffffffn
+
   for (let i = 0; i < s.length; i++) {
     h ^= BigInt(s.charCodeAt(i))
     h = (h * 1099511628211n) & mask
@@ -44,9 +46,12 @@ class HashedKeySet {
   // returns true if newly added, false if already present
   addIfNew(h: bigint): boolean {
     const value = BigInt.asIntN(64, h)
+
     let i = Number(h & BigInt(this.mask))
+
     for (;;) {
       const slot = this.slots[i]!
+
       if (slot === 0n) {
         this.slots[i] = value
         this.size++
@@ -73,6 +78,7 @@ export function streamingShellCounts(input: {
   const { timeAxis, dim, faces, center } = coxeterCellFrame(
     input.symbol,
   )
+
   const seen = new HashedKeySet(input.seenCapacityPow2 ?? 27)
   const positionKey = (g: Mat): string =>
     pointKey(toPoincare(matVec(g, center), timeAxis))
@@ -80,17 +86,22 @@ export function streamingShellCounts(input: {
   const root = identity(dim)
   seen.addIfNew(hashKey(positionKey(root)))
   let frontier: Mat[] = [root]
+
   const counts: number[] = [1]
 
   for (let shell = 1; shell <= input.maxShell; shell++) {
     const storeMatrices = shell < input.maxShell // the last shell is counted but not stored
     const next: Mat[] = []
+
     let count = 0
+
     for (const g of frontier) {
       for (let fi = 0; fi < faces.length; fi++) {
         const child = matMul(g, faces[fi]!)
+
         if (seen.addIfNew(hashKey(positionKey(child)))) {
           count++
+
           if (storeMatrices) {
             next.push(child)
           }
@@ -100,6 +111,7 @@ export function streamingShellCounts(input: {
 
     counts.push(count)
     frontier = next
+
     if (!storeMatrices) {
       break
     }

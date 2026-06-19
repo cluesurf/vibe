@@ -40,7 +40,9 @@ export function weakFieldLightDeflection(input: {
   const { mass: M, impact: b } = input
   const L = input.pathHalfLength ?? 4000 * b
   const dx = input.step ?? b / 200
+
   let integral = 0
+
   for (let x = -L; x <= L; x += dx) {
     integral += ((M * b) / (x * x + b * b) ** 1.5) * dx
   }

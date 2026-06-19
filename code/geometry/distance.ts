@@ -12,6 +12,7 @@
 
 function squaredNorm(point: number[]): number {
   let sum = 0
+
   for (let index = 0; index < point.length; index++) {
     const value = point[index] ?? 0
     sum += value * value
@@ -22,7 +23,9 @@ function squaredNorm(point: number[]): number {
 
 function squaredDistance(left: number[], right: number[]): number {
   let sum = 0
+
   const length = Math.max(left.length, right.length)
+
   for (let index = 0; index < length; index++) {
     const difference = (left[index] ?? 0) - (right[index] ?? 0)
     sum += difference * difference
@@ -71,6 +74,7 @@ export function poincareDistanceIndexed(
   let normA = 0
   let normB = 0
   let differenceSquared = 0
+
   for (let k = 0; k < dimension; k++) {
     const xa = coords[a * dimension + k] ?? 0
     const xb = coords[b * dimension + k] ?? 0

@@ -25,6 +25,7 @@ export function lorentzIsotropy(input: {
   rng: Rng
 }): { preferredFrame: boolean; anisotropy: number } {
   const embedding = input.substrate.embedding
+
   if (!embedding) {
     return { preferredFrame: false, anisotropy: 0 }
   }
@@ -33,6 +34,7 @@ export function lorentzIsotropy(input: {
   // Spatial axes: skip the time axis only for a Lorentzian embedding.
   const spatialStart = embedding.signature === 'lorentzian' ? 1 : 0
   const spatialCount = dim - spatialStart
+
   if (spatialCount < 2) {
     // One spatial axis cannot reveal a preferred direction.
     return { preferredFrame: false, anisotropy: 0 }
@@ -40,6 +42,7 @@ export function lorentzIsotropy(input: {
 
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const size = input.substrate.size
+
   if (size === 0) {
     return { preferredFrame: false, anisotropy: 0 }
   }
@@ -47,12 +50,15 @@ export function lorentzIsotropy(input: {
   // Running sums of cos(m theta) and sin(m theta) for each harmonic m.
   const cosSum = new Array<number>(HARMONICS.length).fill(0)
   const sinSum = new Array<number>(HARMONICS.length).fill(0)
+
   let used = 0
 
   const sampleCount = Math.min(input.samples, size)
+
   for (let s = 0; s < sampleCount; s++) {
     const node = input.rng.nextInt({ max: size })
     const row = adjacency[node] ?? new Uint32Array(0)
+
     if (row.length === 0) {
       continue
     }
@@ -60,13 +66,17 @@ export function lorentzIsotropy(input: {
     // Nearest link by spatial distance gives the strongest directional cue.
     let nearest = -1
     let nearestDistance = Infinity
+
     for (let k = 0; k < row.length; k++) {
       const neighbor = row[k] ?? 0
+
       let sumSquares = 0
+
       for (let axis = spatialStart; axis < dim; axis++) {
         const delta =
           coordOf(embedding, { element: neighbor, axis }) -
           coordOf(embedding, { element: node, axis })
+
         sumSquares += delta * delta
       }
 
@@ -84,14 +94,17 @@ export function lorentzIsotropy(input: {
     const ax0 =
       coordOf(embedding, { element: nearest, axis: spatialStart }) -
       coordOf(embedding, { element: node, axis: spatialStart })
+
     const ax1 =
       coordOf(embedding, { element: nearest, axis: spatialStart + 1 }) -
       coordOf(embedding, { element: node, axis: spatialStart + 1 })
+
     if (ax0 === 0 && ax1 === 0) {
       continue
     }
 
     const theta = Math.atan2(ax1, ax0)
+
     for (let h = 0; h < HARMONICS.length; h++) {
       const m = HARMONICS[h] ?? 1
       cosSum[h] = (cosSum[h] ?? 0) + Math.cos(m * theta)
@@ -107,10 +120,12 @@ export function lorentzIsotropy(input: {
 
   // Anisotropy is the strongest angular order parameter |<e^{i m theta}>|.
   let anisotropy = 0
+
   for (let h = 0; h < HARMONICS.length; h++) {
     const c = (cosSum[h] ?? 0) / used
     const si = (sinSum[h] ?? 0) / used
     const magnitude = Math.sqrt(c * c + si * si)
+
     if (magnitude > anisotropy) {
       anisotropy = magnitude
     }
@@ -161,6 +176,7 @@ function sprinklePoints(input: {
 
 function latticePoints(side: number): { x: number; y: number }[] {
   const pts: { x: number; y: number }[] = []
+
   for (let i = 0; i < side; i++) {
     for (let j = 0; j < side; j++) {
       pts.push({ x: i / side, y: j / side })
@@ -174,6 +190,7 @@ export function lorentzSafety(): { sprinkle: number; lattice: number } {
   const sprinkle = nearestLinkHarmonicAnisotropy({
     points: sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }),
   })
+
   const lattice = nearestLinkHarmonicAnisotropy({
     points: latticePoints(30),
   })

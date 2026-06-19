@@ -23,6 +23,7 @@ function multiply(a: number, b: number, n: number): number {
     numRegisters: 4,
     perRegister: per,
   })
+
   m.set(0, a)
   m.set(1, b)
   m.run(minskyMultiplyProgram())
@@ -45,12 +46,14 @@ export function meansComputation(input?: { n?: number }): {
     [6, 6],
     [7, 3],
   ]
+
   const cases = tests.map(([a, b]) => ({
     a,
     b,
     expected: a * b,
     got: multiply(a, b, n),
   }))
+
   const allCorrect = cases.every(c => c.got === c.expected)
   const universalAtToyScale = allCorrect
   const solved = universalAtToyScale

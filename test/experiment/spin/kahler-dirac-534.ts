@@ -38,9 +38,11 @@ export default experiment({
       [5, 10],
       [10, 11],
     ]
+
     // D squared must be BLOCK-DIAGONAL (the Hodge Laplacian, no grade mixing), the Dirac signature
     let blockDiagonal = true
     let offBlockMax = 0
+
     for (let row = 0; row < squared.length; row++) {
       for (let column = 0; column < squared.length; column++) {
         if (gradeOf(row, bounds) !== gradeOf(column, bounds)) {
@@ -48,6 +50,7 @@ export default experiment({
             offBlockMax,
             Math.abs(squared[row]![column]!),
           )
+
           if (Math.abs(squared[row]![column]!) > 1e-9) {
             blockDiagonal = false
           }

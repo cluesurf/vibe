@@ -59,17 +59,20 @@ export function coemergenceDynamical(): {
     backgroundField: 0,
     momentumStart: 0.9,
   })
+
   const radiateOff = coupledRun({
     coupling: 0,
     backgroundField: 0,
     momentumStart: 0.9,
   })
+
   // (B) field -> fermion: a charge at rest in a constant background field, measure its acceleration
   const pushOn = coupledRun({
     coupling: 0.8,
     backgroundField: 0.05,
     momentumStart: 0,
   })
+
   const pushOff = coupledRun({
     coupling: 0,
     backgroundField: 0.05,
@@ -78,9 +81,11 @@ export function coemergenceDynamical(): {
 
   const fermionSourcesField =
     radiateOn.fieldEnergy > 1e-6 && radiateOff.fieldEnergy < 1e-12
+
   const fieldAcceleratesFermion =
     Math.abs(pushOn.momentumDrift) > 1e-4 &&
     Math.abs(pushOff.momentumDrift) < 1e-9
+
   const decouplingKillsBoth =
     radiateOff.fieldEnergy < 1e-12 &&
     Math.abs(pushOff.momentumDrift) < 1e-9

@@ -26,6 +26,7 @@ const LOCAL_DRIFT_MIN = 0.1
 
 function localPlus(tone: Int8Array, cells: number[]): number {
   let n = 0
+
   for (const c of cells) {
     if (tone[c] === 1) {
       n++
@@ -51,14 +52,17 @@ export default experiment({
       beats: 60,
       density: 0.1,
     })
+
     const globalStart = totalCharge(tone)
     const localStart = localPlus(tone, cluster)
 
     // the conserving run, track the exact global charge (carried as a label) and the local cluster plus-count
     // (re-estimated each beat).
     const conserving = tone.slice()
+
     let globalDrift = 0
     let localDriftRelative = 0
+
     for (let i = 0; i < beats; i++) {
       beat(conserving, graph, moved, rng, 0.01, 0.22)
       globalDrift = Math.max(
@@ -76,9 +80,12 @@ export default experiment({
     // which breaks conservation.
     const leaking = tone.slice()
     const leakRng = makeRng(56789)
+
     let leakDrift = 0
+
     for (let i = 0; i < beats; i++) {
       beat(leaking, graph, moved, leakRng, 0.01, 0.22)
+
       for (let c = 0; c < leaking.length; c++) {
         if (leaking[c] === 1) {
           leaking[c] = 0

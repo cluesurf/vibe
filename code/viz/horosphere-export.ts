@@ -34,8 +34,10 @@ function beat(
   arrowProb: number,
 ): void {
   moved.fill(0)
+
   const agree = (i: number, q: number, except: number): number => {
     let count = 0
+
     for (const w of neighbors[i]!) {
       if (w !== except && tone[w] === q) {
         count++
@@ -48,12 +50,14 @@ function beat(
   for (const edge of edges) {
     const v = edge[0]!
     const w = edge[1]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -63,6 +67,7 @@ function beat(
       const charge = a === 0 ? w : v
       const empty = a === 0 ? v : w
       const q = tone[charge]!
+
       if (
         agree(empty, q, charge) >= agree(charge, q, empty) ||
         rng.next() < 0.02
@@ -119,8 +124,10 @@ export function exportHorosphere(input?: {
   // ideal point xi = direction of the farthest cell (closest to the boundary)
   let far = 0
   let farRadius = -1
+
   for (let i = 0; i < bulkCells; i++) {
     const r = norm(coords[i]!)
+
     if (r > farRadius) {
       farRadius = r
       far = i
@@ -134,6 +141,7 @@ export function exportHorosphere(input?: {
   // Busemann function, its level sets are the horospheres tangent at xi
   const busemann = coords.map(x => {
     let d2 = 0
+
     for (let k = 0; k < x.length; k++) {
       d2 += (x[k]! - xi[k]!) ** 2
     }
@@ -145,6 +153,7 @@ export function exportHorosphere(input?: {
 
   // the band of bulk cells lying on the horosphere through the origin (a thin flat slab)
   const band: number[] = []
+
   for (let i = 0; i < bulkCells; i++) {
     if (Math.abs(busemann[i]! - 0) < bandHalfWidth) {
       band.push(i)
@@ -155,11 +164,13 @@ export function exportHorosphere(input?: {
   const seed = Math.abs(xi[0]!) < 0.9 ? [1, 0, 0] : [0, 1, 0]
   const dotSeed =
     seed[0]! * xi[0]! + seed[1]! * xi[1]! + seed[2]! * xi[2]!
+
   let e1 = [
     seed[0]! - dotSeed * xi[0]!,
     seed[1]! - dotSeed * xi[1]!,
     seed[2]! - dotSeed * xi[2]!,
   ]
+
   const e1n = norm(e1)
   e1 = e1.map(v => v / e1n)
   // e2 = xi cross e1
@@ -178,14 +189,17 @@ export function exportHorosphere(input?: {
   // the slice's own adjacency, two band cells that are neighbours on the {5,3,4} crystal. This is the
   // honest connectivity of the flat sheet, used both to lay it out and to find the self-patches
   const reindex = new Int32Array(bulkCells).fill(-1)
+
   for (let a = 0; a < bandCount; a++) {
     reindex[band[a]!] = a
   }
 
   const bandNeighbors: number[][] = band.map(() => [])
+
   for (let a = 0; a < bandCount; a++) {
     for (const w of g.neighbors[band[a]!]!) {
       const b = reindex[w]!
+
       if (b >= 0) {
         bandNeighbors[a]!.push(b)
       }
@@ -193,6 +207,7 @@ export function exportHorosphere(input?: {
   }
 
   const layoutEdges: number[][] = []
+
   for (let a = 0; a < bandCount; a++) {
     for (const b of bandNeighbors[a]!) {
       if (b > a) {
@@ -212,11 +227,13 @@ export function exportHorosphere(input?: {
       1e-9,
       dx[0]! * dx[0]! + dx[1]! * dx[1]! + dx[2]! * dx[2]!,
     )
+
     const fp = [
       xi[0]! + (2 * dx[0]!) / d2,
       xi[1]! + (2 * dx[1]!) / d2,
       xi[2]! + (2 * dx[2]!) / d2,
     ]
+
     const along = fp[0]! * xi[0]! + fp[1]! * xi[1]! + fp[2]! * xi[2]!
     const flat = [
       fp[0]! - along * xi[0]!,
@@ -229,10 +246,12 @@ export function exportHorosphere(input?: {
       flat[0]! * e2[0]! + flat[1]! * e2[1]! + flat[2]! * e2[2]!,
     ]
   })
+
   // an even sunflower (Fibonacci) disk as the starting layout, so even disconnected cells begin spread out
   // (the raw projection crowds the centre, which made the relaxation collapse or ring). The relaxation then
   // pulls crystal-neighbours together to recover the local structure.
   const GOLDEN = Math.PI * (3 - Math.sqrt(5))
+
   for (let i = 0; i < bandCount; i++) {
     const r = Math.sqrt((i + 0.5) / bandCount)
     position[i] = [r * Math.cos(i * GOLDEN), r * Math.sin(i * GOLDEN)]
@@ -240,18 +259,22 @@ export function exportHorosphere(input?: {
 
   const idealLength = 1.6 / Math.sqrt(bandCount)
   const iterations = 200
+
   for (let iter = 0; iter < iterations; iter++) {
     const dispX = new Float64Array(bandCount)
     const dispY = new Float64Array(bandCount)
+
     // GLOBAL all-pairs repulsion, so the whole sheet spreads out evenly (local-only repulsion let the
     // centre collapse). The horosphere is intrinsically flat, this recovers that even spread from the real
     // crystal adjacency. It only positions the dots, it never touches the tones or which cells are selves.
     for (let i = 0; i < bandCount; i++) {
       const ix = position[i]![0]!
       const iy = position[i]![1]!
+
       for (let j = i + 1; j < bandCount; j++) {
         let dx = ix - position[j]![0]!
         let dy = iy - position[j]![1]!
+
         const dist2 = dx * dx + dy * dy + 1e-9
         const force = (2.2 * idealLength * idealLength) / dist2
         dx *= force
@@ -267,8 +290,10 @@ export function exportHorosphere(input?: {
     for (const edge of layoutEdges) {
       const a = edge[0]!
       const b = edge[1]!
+
       let dx = position[a]![0]! - position[b]![0]!
       let dy = position[a]![1]! - position[b]![1]!
+
       const dist = Math.hypot(dx, dy) + 1e-6
       const force = (0.9 * dist * dist) / idealLength
       dx = (dx / dist) * force
@@ -280,6 +305,7 @@ export function exportHorosphere(input?: {
     }
 
     const temperature = 0.04 * (1 - iter / iterations)
+
     for (let i = 0; i < bandCount; i++) {
       const length = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
       position[i]![0]! +=
@@ -291,6 +317,7 @@ export function exportHorosphere(input?: {
 
   // normalize the relaxed layout into [-1, 1]
   let maxAbs = 1e-6
+
   for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
   }
@@ -301,6 +328,7 @@ export function exportHorosphere(input?: {
   const tone = new Int8Array(bulkCells)
   const moved = new Uint8Array(bulkCells)
   const edges: number[][] = []
+
   for (let v = 0; v < bulkCells; v++) {
     for (const w of g.neighbors[v]!) {
       if (w > v) {
@@ -310,13 +338,16 @@ export function exportHorosphere(input?: {
   }
 
   const rng = makeRng({ seed: 9 })
+
   for (let b = 0; b < warmup; b++) {
     beat(tone, edges, g.neighbors, moved, rng, arrowProb)
   }
 
   const frames: number[][] = []
+
   for (let f = 0; f < frameCount; f++) {
     frames.push(band.map(i => tone[i]!))
+
     for (let s = 0; s < stride; s++) {
       beat(tone, edges, g.neighbors, moved, rng, arrowProb)
     }
@@ -327,6 +358,7 @@ export function exportHorosphere(input?: {
     Math.round(p[0]! * 1000) / 1000,
     Math.round(p[1]! * 1000) / 1000,
   ])
+
   const data = {
     note: 'real {5,3,4} cohesive perception rule (P106), horosphere slice, projected to flat 2D',
     bulkCells,
@@ -335,6 +367,7 @@ export function exportHorosphere(input?: {
     neighbors: bandNeighbors,
     frames,
   }
+
   mkdirSync(dirname(outputPath), { recursive: true })
   writeFileSync(outputPath, JSON.stringify(data))
 

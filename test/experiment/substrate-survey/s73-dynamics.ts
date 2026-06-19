@@ -21,21 +21,25 @@ export function s73Dynamics(): {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount,
     nb = g.neighbors
+
   const rng = makeRng({ seed: 9 })
   const rnd = (): number => rng.next()
   const charge0: number[][] = Array.from({ length: N }, (_, i) =>
     nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),
   )
+
   const t0 = totalDirectionalCharge(charge0)
   const charge = streamDirectionalCharge({
     neighbors: nb,
     charge: charge0,
     steps: 20,
   })
+
   const chargeConserved = t0 === totalDirectionalCharge(charge)
   const lightSpeed = 1
   // churn, mod-3 wave from random init
   const cur = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }

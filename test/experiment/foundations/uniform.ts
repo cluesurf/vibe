@@ -29,6 +29,7 @@ export default experiment({
       steps: 400000,
       rng: makeRng({ seed: 6 }),
     })
+
     const ok =
       Math.abs(r.manifoldFraction - 0.72) < 0.1 && r.acceptance > 0
 

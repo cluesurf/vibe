@@ -21,9 +21,11 @@ function spatialDistance(
   b: number,
 ): number {
   let s = 0
+
   for (let axis = 1; axis < d; axis++) {
     const delta =
       (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
+
     s += delta * delta
   }
 
@@ -45,10 +47,12 @@ export function sliceDimension(input: {
     count: input.count,
     rng: makeRng({ seed: input.seed }),
   })
+
   const coords = poset.embedding?.coords ?? new Float64Array(0)
 
   // Time coordinates, to pick a thin band near the median (a coexisting slice).
   const times: number[] = []
+
   for (let i = 0; i < poset.size; i++) {
     times.push(coords[i * d] ?? 0)
   }
@@ -57,6 +61,7 @@ export function sliceDimension(input: {
   const lo = sorted[Math.floor(sorted.length * 0.48)] ?? 0
   const hi = sorted[Math.floor(sorted.length * 0.52)] ?? 0
   const slice: number[] = []
+
   for (let i = 0; i < poset.size; i++) {
     if ((times[i] ?? 0) >= lo && (times[i] ?? 0) <= hi) {
       slice.push(i)
@@ -68,12 +73,14 @@ export function sliceDimension(input: {
   const spatialExtent = 2
   const spacing =
     spatialExtent / Math.pow(Math.max(1, slice.length), 1 / (d - 1))
+
   const radius = 1.3 * spacing
 
   // Build the spatial-neighbor graph on the slice (indices into `slice`).
   const local = new Map<number, number>()
   slice.forEach((g, i) => local.set(g, i))
   const neighbors: number[][] = slice.map(() => [])
+
   for (let i = 0; i < slice.length; i++) {
     for (let j = i + 1; j < slice.length; j++) {
       if (spatialDistance(coords, d, slice[i]!, slice[j]!) <= radius) {
@@ -84,6 +91,7 @@ export function sliceDimension(input: {
   }
 
   let degSum = 0
+
   for (const row of neighbors) {
     degSum += row.length
   }
@@ -92,6 +100,7 @@ export function sliceDimension(input: {
   const order = neighbors
     .map((row, i) => [i, row.length] as const)
     .sort((a, b) => b[1] - a[1])
+
   const centers = order.slice(0, 12).map(([i]) => i)
   const spatialDimension = ballGrowthDimension({
     neighbors,

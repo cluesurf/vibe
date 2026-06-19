@@ -22,7 +22,9 @@ const subtreeParity = (
   }
 
   let parity = 0
+
   const childSpan = branching ** (level - 1)
+
   for (let c = 0; c < branching; c++) {
     parity ^= subtreeParity(
       level - 1,
@@ -59,6 +61,7 @@ export default experiment({
       leaves,
       branching,
     )
+
     const recoverableFromWedge = rootFromFullBoundary === logical
 
     // the causal wedge of the root is the whole boundary, and a node at depth d reaches branching^(depth-d)

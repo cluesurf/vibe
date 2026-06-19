@@ -46,13 +46,16 @@ export default experiment({
 
     const idx = (x: number, y: number): number =>
       ((y + L) % L) * L + ((x + L) % L)
+
     const cross = (a: Spin, b: Spin): Spin => [
       a[1] * b[2] - a[2] * b[1],
       a[2] * b[0] - a[0] * b[2],
       a[0] * b[1] - a[1] * b[0],
     ]
+
     const dot = (a: Spin, b: Spin): number =>
       a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
     const unit = (a: Spin): Spin => {
       const n = Math.hypot(a[0], a[1], a[2]) || 1
 
@@ -81,9 +84,11 @@ export default experiment({
       [0, 1, [-1, 0, 0]],
       [0, -1, [1, 0, 0]],
     ]
+
     // twisted-exchange field: rotate each neighbour by theta about the bond axis, then align. No real coupling D.
     const field = (s: Spin[], x: number, y: number): Spin => {
       const h: Spin = [0, 0, B]
+
       for (const [dx, dy, ax] of bonds) {
         const r = rotateBy(s[idx(x + dx, y + dy)]!, ax, theta)
         h[0] += J * r[0]
@@ -105,6 +110,7 @@ export default experiment({
 
     const relaxStep = (s: Spin[], a: number): Spin[] => {
       const out: Spin[] = new Array(L * L)
+
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           const c = s[idx(x, y)]!
@@ -124,6 +130,7 @@ export default experiment({
 
     const precessStep = (s: Spin[], open: boolean): Spin[] => {
       const out: Spin[] = new Array(L * L)
+
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           const h = field(s, x, y)
@@ -145,6 +152,7 @@ export default experiment({
     }
 
     let spins = makeSkyrmionField({ size: L, coreRadius: 4 })
+
     for (let t = 0; t < relaxSteps; t++) {
       spins = relaxStep(spins, 0.08)
     }
@@ -155,9 +163,11 @@ export default experiment({
 
     let minQ = relaxedQ,
       maxQ = relaxedQ
+
     for (let t = 0; t < precessSteps; t++) {
       spins = precessStep(spins, false)
       const q = skyrmionDegree(spins, L)
+
       if (q < minQ) {
         minQ = q
       }
@@ -170,6 +180,7 @@ export default experiment({
     const precessedRadius = skyrmionRadius(spins, L)
 
     let pert = relaxed.map(v => [...v] as Spin)
+
     for (let y = 18; y < 21; y++) {
       for (let x = 26; x < 29; x++) {
         const n = Math.hypot(1, 0, 0.2)
@@ -187,10 +198,12 @@ export default experiment({
       Math.abs(relaxedQ + 1) < 0.1 &&
       relaxedRadius > 1.5 &&
       relaxedRadius < 8
+
     const stableUnderReversible =
       Math.abs(minQ + 1) < 0.1 &&
       Math.abs(maxQ + 1) < 0.1 &&
       Math.abs(precessedRadius - relaxedRadius) < 1.2
+
     const chargeRobust = Math.abs(perturbedQ + 1) < 0.1
     const ok = boundExists && stableUnderReversible && chargeRobust
 

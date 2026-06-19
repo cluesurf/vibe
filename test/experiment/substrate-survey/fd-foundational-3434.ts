@@ -38,6 +38,7 @@ export function fdFoundational(): {
       new Set(ns).size === D &&
       ns.every(n => n >= 0),
   )
+
   const closes = cells.every(p =>
     roots.every(
       r =>
@@ -60,6 +61,7 @@ export function fdFoundational(): {
   const collide = d4CollisionInvolution({ roots, opp })
   const step = (occ: number[]): number[] =>
     streamD4({ occupancy: collide(occ), neigh })
+
   const stepInv = (occ: number[]): number[] =>
     collide(streamD4Inverse({ occupancy: occ, neigh, opp }))
 
@@ -68,6 +70,7 @@ export function fdFoundational(): {
   const rnd = (): number => rng.next()
   const occ0 = new Array(N).fill(0).map(() => {
     let o = 0
+
     for (let d = 0; d < D; d++) {
       if (rnd() < 0.25) {
         o |= 1 << d
@@ -79,18 +82,24 @@ export function fdFoundational(): {
 
   // run forward T, check conservation each step
   const T = 40
+
   let occ = occ0.slice()
+
   const c0 = d4Count(occ),
     m0 = d4Momentum({ occupancy: occ, roots })
+
   let countConserved = true,
     momentumConserved = true
+
   for (let t = 0; t < T; t++) {
     occ = step(occ)
+
     if (d4Count(occ) !== c0) {
       countConserved = false
     }
 
     const m = d4Momentum({ occupancy: occ, roots })
+
     if (!m.every((x, q) => x === m0[q]!)) {
       momentumConserved = false
     }

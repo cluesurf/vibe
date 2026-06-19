@@ -68,6 +68,7 @@ export function unifiedWave(input?: {
   // (1) charge conservation + (2) reversibility on a random crystal state
   const rng = makeRng({ seed: 12345 })
   const tone = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -78,16 +79,19 @@ export function unifiedWave(input?: {
   const q0 = tone.reduce((s, x) => s + x, 0)
   const init = tone.slice()
   const T = 30
+
   for (let t = 0; t < T; t++) {
     beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
   }
 
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
+
   for (let t = 0; t < T; t++) {
     beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
   }
 
   let reversible = true
+
   for (let i = 0; i < N; i++) {
     if (tone[i] !== init[i]) {
       reversible = false
@@ -104,8 +108,11 @@ export function unifiedWave(input?: {
     adjacency: s.adj,
     size: sN,
   })
+
   const maxPos = s.spineLength - 1
+
   let center = 0
+
   for (let i = 0; i < sN; i++) {
     if (
       Math.abs(s.position[i]! - maxPos / 2) <
@@ -117,6 +124,7 @@ export function unifiedWave(input?: {
 
   const rng2 = makeRng({ seed: 999 })
   const baseS = new Int8Array(sN)
+
   for (let i = 0; i < sN; i++) {
     baseS[i] = (
       rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
@@ -128,8 +136,10 @@ export function unifiedWave(input?: {
   const pos0 = s.position[center]!
   const beatsB = 40
   const fronts: number[] = []
+
   for (let t = 0; t < beatsB; t++) {
     let front = 0
+
     for (let i = 0; i < sN; i++) {
       if (baseS[i] !== pertS[i]) {
         front = Math.max(front, Math.abs(s.position[i]! - pos0))
@@ -146,6 +156,7 @@ export function unifiedWave(input?: {
   const cap = maxPos / 2 - 3
   const fitT: number[] = []
   const fitFront: number[] = []
+
   for (let t = tlo; t < beatsB; t++) {
     if (fronts[t]! >= cap) {
       break
@@ -159,6 +170,7 @@ export function unifiedWave(input?: {
     fitT.length > 1
       ? linearFit({ xs: fitT, ys: fitFront })
       : { slope: 0, r2: 0 }
+
   const frontSpeed = fit.slope
   const frontLinearR2 = fit.r2
   const ballistic = frontSpeed > 0.1 && frontLinearR2 > 0.9 // constant speed = ballistic = z=1

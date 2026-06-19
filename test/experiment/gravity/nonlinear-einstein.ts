@@ -33,6 +33,7 @@ function emergentSlope(w: number): number {
     tMax: 50,
     dt: 0.001,
   })
+
   const i1 = Math.floor(traj.t.length * 0.5)
   const i2 = Math.floor(traj.t.length * 0.9)
   const lx = Math.log((traj.t[i2] ?? 1) / (traj.t[i1] ?? 1))
@@ -50,8 +51,11 @@ function accelerationResidual(dt: number): number {
     { rho: 0.3, w: 0 }, // matter
     { rho: 0.001, w: -1 }, // dark energy
   ]
+
   const traj = integrate({ comps, a0: 1, t0: 1, tMax: 20, dt })
+
   let maxRel = 0
+
   for (let i = 1; i + 1 < traj.a.length; i++) {
     const aPrev = traj.a[i - 1] ?? 0
     const aCur = traj.a[i] ?? 0
@@ -59,6 +63,7 @@ function accelerationResidual(dt: number): number {
     const addot = (aNext - 2 * aCur + aPrev) / (dt * dt) // numerical a''
     const lhs = addot / aCur
     const rhs = -0.5 * ((traj.rho[i] ?? 0) + 3 * (traj.p[i] ?? 0))
+
     if (Math.abs(rhs) > 1e-6) {
       maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / Math.abs(rhs))
     }
@@ -102,9 +107,11 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
     { rho: 0.3, w: 0 },
     { rho: 0.02, w: -1 },
   ]
+
   const traj = integrate({ comps, a0: 1, t0: 1, tMax: 60, dt: 0.002 })
   const qAt = (i: number): number =>
     decelerationParameter({ a: traj.a, index: i, dt: 0.002 })
+
   const decelerationEarly = qAt(5)
   const accelerationLate = qAt(traj.a.length - 3)
   const transitionHappens =

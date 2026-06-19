@@ -43,6 +43,7 @@ export function propagation(input: {
     connectThreshold: 3.0,
     rng,
   })
+
   const fills = symmetricEdgeFills({
     neighbors: g.neighbors,
     rng: makeRng({ seed: input.seed + 1 }),
@@ -54,6 +55,7 @@ export function propagation(input: {
 
   // Random initial state, then the perturbed copy flips the source.
   let toneA = new Int8Array(g.size)
+
   for (let i = 0; i < g.size; i++) {
     toneA[i] = rng.nextInt({ max: 3 }) - 1
   }
@@ -62,7 +64,9 @@ export function propagation(input: {
   toneB[source] = (((toneA[source] ?? 0) + 1 + 1) % 3) - 1 // guaranteed different ternary value
 
   const frontRadius: number[] = []
+
   let lightConeHolds = true
+
   for (let beat = 1; beat <= input.beats; beat++) {
     toneA = signedMajorityStep({
       neighbors: g.neighbors,
@@ -75,6 +79,7 @@ export function propagation(input: {
       tone: toneB,
     })
     let maxDist = 0
+
     for (let v = 0; v < g.size; v++) {
       if (toneA[v] !== toneB[v]) {
         maxDist = Math.max(maxDist, dist[v] ?? 0)
@@ -82,6 +87,7 @@ export function propagation(input: {
     }
 
     frontRadius.push(maxDist)
+
     // The light-cone bound: nothing can differ beyond graph-distance equal to the beat.
     if (maxDist > beat) {
       lightConeHolds = false

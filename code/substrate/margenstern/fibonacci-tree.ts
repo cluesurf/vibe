@@ -54,6 +54,7 @@ export function sons(node: number): number[] {
 export function depth(node: number): number {
   let d = 0
   let cur = node
+
   while (cur > 1) {
     cur = father(cur)
     d++
@@ -65,7 +66,9 @@ export function depth(node: number): number {
 // the path of node numbers from a node up to the root
 export function pathToRoot(node: number): number[] {
   const path: number[] = [node]
+
   let cur = node
+
   while (cur > 1) {
     cur = father(cur)
     path.push(cur)
@@ -84,6 +87,7 @@ export function route(from: number, to: number): number[] {
   up.forEach((node, index) => depthOnUp.set(node, index))
   // the common ancestor is the first node of `down` that also lies on `up`
   let ancestorIndexInDown = down.length - 1
+
   for (let i = 0; i < down.length; i++) {
     if (depthOnUp.has(down[i]!)) {
       ancestorIndexInDown = i

@@ -20,6 +20,7 @@ export function s53333Physics(): {
     symbol: [5, 3, 3, 3, 3] as never,
     maxCells: 6000,
   })
+
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
   const betheAlpha = betheCorrelatorExponent(nb[center]!.length)
@@ -31,6 +32,7 @@ export function s53333Physics(): {
     to: 4,
     safeDenominator: true,
   })
+
   // physical-space gravity exponent, the flat layer is 4D, so the Laplacian Green's function ~ 1/r^(d-2) = 1/r^2
   const spaceDim = 4,
     spaceGravityExp = spaceDim - 2

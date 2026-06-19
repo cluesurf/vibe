@@ -57,6 +57,7 @@ export default experiment({
       maxCoefficient,
       maxConstant,
     })
+
     // three deterministic control targets near 137 (not physical constants), the average hit count
     const controlTargets = [133.207, 141.592, 145.318]
     const controlHits = controlTargets.map(target =>
@@ -67,8 +68,10 @@ export default experiment({
         maxConstant,
       }),
     )
+
     const meanControlHits =
       controlHits.reduce((a, b) => a + b, 0) / controlHits.length
+
     // 137 is special only if it is hit by FAR more formulas than a random target, it is not
     const numerologyIsCoincidence =
       hitsAt137 > 0 &&
@@ -83,8 +86,10 @@ export default experiment({
     const weakAngleGeometric = weinbergAngleAtUnification()
     const weakAngleIsThreeEighths =
       Math.abs(weakAngleGeometric - 0.375) < 1e-9
+
     const gutNormalizationIsFiveThirds =
       Math.abs(GUT_NORMALIZATION - 5 / 3) < 1e-9
+
     const spinorContent = generationFermionCount()
     const matterContentGeometric = spinorContent === 16
     const ratiosGeometric =

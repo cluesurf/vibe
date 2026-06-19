@@ -25,8 +25,10 @@ function beat(
   arrow: number,
 ): void {
   moved.fill(0)
+
   const agree = (i: number, q: number, except: number): number => {
     let c = 0
+
     for (const w of neighbors[i]!) {
       if (w !== except && tone[w] === q) {
         c++
@@ -39,12 +41,14 @@ function beat(
   for (const e of edges) {
     const v = e[0]!
     const w = e[1]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -54,6 +58,7 @@ function beat(
       const charge = a === 0 ? w : v
       const empty = a === 0 ? v : w
       const q = tone[charge]!
+
       if (
         agree(empty, q, charge) >= agree(charge, q, empty) ||
         rng.next() < 0.02
@@ -86,8 +91,10 @@ function bfsDistance(
   const dist = new Int32Array(n).fill(-1)
   dist[source] = 0
   let frontier = [source]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
@@ -114,14 +121,17 @@ function makeLump(
   const lump: number[] = []
   inLump[center] = 1
   let frontier = [center]
+
   while (frontier.length > 0 && lump.length < size) {
     const next: number[] = []
+
     for (const u of frontier) {
       if (lump.length >= size) {
         break
       }
 
       lump.push(u)
+
       for (const w of neighbors[u]!) {
         if (!inLump[w]) {
           inLump[w] = 1
@@ -160,6 +170,7 @@ export function gravityTest(input?: {
   const n = g.cellCount
   const neighbors = g.neighbors
   const edges: number[][] = []
+
   for (let v = 0; v < n; v++) {
     for (const w of neighbors[v]!) {
       if (w > v) {
@@ -178,7 +189,9 @@ export function gravityTest(input?: {
     lumpB: number[],
   ): number => {
     const distA = new Int32Array(n).fill(-1)
+
     let frontier: number[] = []
+
     for (const i of lumpA) {
       if (tone[i] !== 0) {
         distA[i] = 0
@@ -191,12 +204,14 @@ export function gravityTest(input?: {
     }
 
     const chargedB = new Set(lumpB.filter(i => tone[i] !== 0))
+
     if (chargedB.size === 0) {
       return -1
     }
 
     while (frontier.length > 0) {
       const next: number[] = []
+
       for (const u of frontier) {
         if (chargedB.has(u)) {
           return distA[u]!
@@ -222,14 +237,18 @@ export function gravityTest(input?: {
     approached: boolean
     merged: boolean
   }[] = []
+
   for (const startGap of [3, 6, 10]) {
     // centre A at cell 0, centre B at a cell roughly `lumpRadius*2 + startGap` away so the lump SURFACES
     // start `startGap` apart
     let centerB = 0
     let bestDelta = Infinity
+
     const targetDist = startGap + 14 // lumps have radius ~7 at 250 cells, so centres this far gives the gap
+
     for (let i = 0; i < n; i++) {
       const d = Math.abs(distFrom0[i]! - targetDist)
+
       if (d < bestDelta) {
         bestDelta = d
         centerB = i
@@ -241,6 +260,7 @@ export function gravityTest(input?: {
 
     const tone = new Int8Array(n)
     const rng = makeRng({ seed: 7 })
+
     // matter, balanced charges so the lumps are neutral mass (not driven by net charge)
     for (const i of lumpA) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
@@ -252,6 +272,7 @@ export function gravityTest(input?: {
 
     const moved = new Uint8Array(n)
     const gaps: number[] = []
+
     for (let t = 0; t <= beats; t++) {
       if (t % 10 === 0) {
         const s = separation(tone, lumpA, lumpB)
@@ -296,6 +317,7 @@ export function main(): void {
     `  ${r.maxCells} cells, two lumps of ${r.lumpSize} cells (neutral matter)`,
   )
   console.log('')
+
   for (const tr of r.trials) {
     console.log(
       `  start gap ${tr.startGap}: separation over beats = [${tr.gaps.join(', ')}]  approached: ${tr.approached}  merged: ${tr.merged}`,
@@ -310,6 +332,7 @@ export function main(): void {
     `  only CONTACT interaction (merge when touching, ignore across a gap): ${r.onlyContactInteraction}`,
   )
   console.log('')
+
   if (r.gravityMissing) {
     console.log(
       '  => HOLE FOUND. The bare rule has contact forces (merge on touch, P110) but NO long-range',

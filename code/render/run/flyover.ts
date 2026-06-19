@@ -41,14 +41,17 @@ function verticalStep(centers: Vec[] | undefined): {
   period: number
 } {
   const fallback = { direction: [0, 1] as Vec, period: 1.2 }
+
   if (!centers || centers.length < 2) {
     return fallback
   }
 
   let best: Vec | null = null
   let bestScore = -Infinity
+
   for (const c of centers) {
     const r = Math.hypot(c[0] ?? 0, c[1] ?? 0)
+
     if (r < 1e-6) {
       continue
     }
@@ -56,6 +59,7 @@ function verticalStep(centers: Vec[] | undefined): {
     // prefer centers pointing up (+y), penalize horizontal and distant ones so we step one tile forward
     const upness = (c[1] ?? 0) / r
     const score = upness - r * 0.15
+
     if (score > bestScore) {
       bestScore = score
       best = c
@@ -85,9 +89,11 @@ function run(): void {
     symbol,
     maxCells: mode === 'walk' ? 7000 : 3500,
   })
+
   const step = verticalStep(base.centers)
 
   const frames: Uint8Array[] = []
+
   for (let f = 0; f < frameCount; f++) {
     const t = f / frameCount
     const transform =
@@ -103,6 +109,7 @@ function run(): void {
               direction: step.direction,
               distance: t * step.period,
             })
+
     const moved = transformScene(base, transform)
     const { rgba } = renderSceneToRgba({
       scene: moved,
@@ -112,7 +119,9 @@ function run(): void {
       near: NEAR,
       far: FAR,
     })
+
     frames.push(rgba)
+
     if (f === 0 || f === Math.floor(frameCount / 2)) {
       writeFileSync(
         join(outDir, `${mode}-${symbolText}-frame${f}.png`),
@@ -127,6 +136,7 @@ function run(): void {
     height: size,
     delayMs: 60,
   })
+
   writeFileSync(join(outDir, `${mode}-${symbolText}.gif`), gif)
   console.log(
     `wrote ${mode}-${symbolText}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}`,

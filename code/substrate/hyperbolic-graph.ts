@@ -24,12 +24,14 @@ function connectAndEmbed(input: {
   // cosh(d) = cosh(r1) cosh(r2) - sinh(r1) sinh(r2) cos(theta1 - theta2).
   const coshThreshold = Math.cosh(input.connectThreshold)
   const neighbors: number[][] = []
+
   for (let i = 0; i < n; i++) {
     neighbors.push([])
   }
 
   const coshR = new Float64Array(n)
   const sinhR = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     coshR[i] = Math.cosh(r[i] ?? 0)
     sinhR[i] = Math.sinh(r[i] ?? 0)
@@ -45,6 +47,7 @@ function connectAndEmbed(input: {
         sinhR[j] ?? 0,
         dTheta,
       )
+
       if (coshD < coshThreshold) {
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)
@@ -55,6 +58,7 @@ function connectAndEmbed(input: {
   // Poincare-disc embedding: x = tanh(r/2) cos(theta), y = tanh(r/2) sin(theta).
   const dimension = 2
   const coords = new Float64Array(n * dimension)
+
   for (let i = 0; i < n; i++) {
     const rho = Math.tanh((r[i] ?? 0) / 2)
     coords[i * dimension] = rho * Math.cos(theta[i] ?? 0)
@@ -66,6 +70,7 @@ function connectAndEmbed(input: {
     dimension: 2,
     curvature: -1,
   }
+
   const embedding: Embedding = {
     form: 'embedding',
     dimension,
@@ -93,6 +98,7 @@ export function hyperbolicGraph(input: {
   const coshRminus1 = Math.cosh(input.radius) - 1
   const r = new Float64Array(n)
   const theta = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     r[i] = radiusFromHeight(input.rng.next(), coshRminus1)
     theta[i] = input.rng.next() * 2 * Math.PI
@@ -111,6 +117,7 @@ function radicalInverse(i: number, base: number): number {
   let f = 1
   let r = 0
   let n = i
+
   while (n > 0) {
     f /= base
     r += f * (n % base)
@@ -133,6 +140,7 @@ export function hyperbolicHalton(input: {
   const coshRminus1 = Math.cosh(input.radius) - 1
   const r = new Float64Array(n)
   const theta = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     r[i] = radiusFromHeight(radicalInverse(i + 1, 2), coshRminus1)
     theta[i] = 2 * Math.PI * radicalInverse(i + 1, 3)
@@ -161,6 +169,7 @@ function reflectAcross(
   const b2 = 2 * p2.y
   const d2 = p2.x * p2.x + p2.y * p2.y + 1
   const det = a1 * b2 - a2 * b1
+
   if (Math.abs(det) < 1e-12) {
     // The geodesic is a diameter (a straight line through the origin). Reflect across
     // the line through the origin in the direction of p1.
@@ -205,6 +214,7 @@ export function hyperbolicTiling(input: {
   const coshRc = Math.cos(Math.PI / q) / Math.sin(Math.PI / p)
   const r0 = Math.tanh(Math.acosh(coshRc) / 2)
   const central: { x: number; y: number }[] = []
+
   for (let k = 0; k < p; k++) {
     const ang = (2 * Math.PI * k) / p
     central.push({ x: r0 * Math.cos(ang), y: r0 * Math.sin(ang) })
@@ -212,11 +222,14 @@ export function hyperbolicTiling(input: {
 
   const key = (x: number, y: number): string =>
     `${Math.round(x * 1e5)},${Math.round(y * 1e5)}`
+
   const vertexKeys = new Set<string>()
   const vx: number[] = []
   const vy: number[] = []
+
   const addVertex = (z: { x: number; y: number }): void => {
     const k = key(z.x, z.y)
+
     if (!vertexKeys.has(k)) {
       vertexKeys.add(k)
       vx.push(z.x)
@@ -227,9 +240,11 @@ export function hyperbolicTiling(input: {
   central.forEach(addVertex)
 
   const seenPoly = new Set<string>()
+
   const polyKey = (poly: { x: number; y: number }[]): string => {
     let cx = 0
     let cy = 0
+
     for (const z of poly) {
       cx += z.x
       cy += z.y
@@ -241,9 +256,12 @@ export function hyperbolicTiling(input: {
   seenPoly.add(polyKey(central))
 
   const cap = input.maxVertices ?? 4000
+
   let frontier: { x: number; y: number }[][] = [central]
+
   for (let d = 0; d < input.depth && vx.length < cap; d++) {
     const next: { x: number; y: number }[][] = []
+
     for (const poly of frontier) {
       if (vx.length >= cap) {
         break
@@ -254,6 +272,7 @@ export function hyperbolicTiling(input: {
         const b = poly[(i + 1) % poly.length]!
         const reflected = reflectAcross(a, b, poly)
         const pk = polyKey(reflected)
+
         if (!seenPoly.has(pk)) {
           seenPoly.add(pk)
           reflected.forEach(addVertex)
@@ -270,6 +289,7 @@ export function hyperbolicTiling(input: {
   const n = vx.length
   const r = new Float64Array(n)
   const theta = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     const mag = Math.min(0.999999, Math.hypot(vx[i] ?? 0, vy[i] ?? 0))
     r[i] = 2 * Math.atanh(mag)
@@ -298,6 +318,7 @@ export function hyperbolicSunflower(input: {
   const phiInv = (Math.sqrt(5) - 1) / 2
   const r = new Float64Array(n)
   const theta = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     const u = (i + 0.5) / n
     r[i] = radiusFromHeight(u, coshRminus1)

@@ -19,11 +19,15 @@ export function hierarchyBulkTree(): {
     symbol: [3, 4, 3, 4] as never,
     maxCells: 30000,
   })
+
   const N = g.cellCount
+
   let center = 0,
     best = -1
+
   for (let i = 0; i < N; i++) {
     const d = g.neighbors[i]!.length
+
     if (d > best) {
       best = d
       center = i
@@ -35,6 +39,7 @@ export function hierarchyBulkTree(): {
     neighbors: g.neighbors,
     root: center,
   }).shellCounts
+
   const mid = shell.slice(2, Math.min(7, shell.length))
   const branching =
     Math.round(
@@ -42,9 +47,11 @@ export function hierarchyBulkTree(): {
         (mid.length - 1)) *
         100,
     ) / 100
+
   // holographic relation, radial depth d to reach a shell of size S is ~ log_branching(S)
   const testShell = mid[mid.length - 1]!,
     depthForIt = shell.indexOf(testShell)
+
   const predictedDepth = Math.log(testShell) / Math.log(branching)
   const depthLogsBoundary = Math.abs(depthForIt - predictedDepth) < 2
 

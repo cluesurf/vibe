@@ -29,6 +29,7 @@ export function associativeTessellationSweep(input?: {
       measureTessellation({ schlafli: t.schlafli, maxCells })
         .associativeExactRecall,
   )
+
   const perfectCount = recalls.filter(r => r === 1).length
   const minRecall = recalls.reduce((m, r) => Math.min(m, r), 1)
 

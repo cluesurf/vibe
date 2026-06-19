@@ -50,6 +50,7 @@ export default experiment({
     const d4HasTriality = hasTriality(4)
     const higherDnNoTriality =
       !hasTriality(5) && !hasTriality(6) && !hasTriality(7)
+
     const fourDimensionsForced = d4HasTriality && higherDnNoTriality
 
     const ok =

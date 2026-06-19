@@ -41,12 +41,14 @@ export default experiment({
     const soundVc = landauCriticalVelocity({
       dispersion: k => SOUND_SPEED * k,
     })
+
     const bogoliubovVc = landauCriticalVelocity({
       dispersion: k =>
         Math.sqrt(
           SOUND_SPEED * SOUND_SPEED * k * k + ((k * k) / 2) ** 2,
         ),
     })
+
     const diffusiveVc = landauCriticalVelocity({
       dispersion: k => k * k,
     })
@@ -55,6 +57,7 @@ export default experiment({
     const circulations = [1, 2, 3].map(m =>
       vortexCirculation({ winding: m }),
     )
+
     const quantizedInTwoPi = circulations.map(c => c / (2 * Math.PI))
 
     // the sound mode has a finite critical velocity (a superfluid), the diffusive mode has zero (a normal fluid),
@@ -64,6 +67,7 @@ export default experiment({
     const circulationQuantized = quantizedInTwoPi.every(
       (q, i) => Math.abs(q - (i + 1)) < 1e-6,
     )
+
     const ok =
       soundIsSuperfluid && diffusiveIsNormal && circulationQuantized
 

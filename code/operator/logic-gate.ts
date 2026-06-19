@@ -14,6 +14,7 @@ export function ruleGate(
   bias: number,
 ): Bit {
   let h = bias
+
   for (let i = 0; i < inputs.length; i++) {
     h += (fills[i] ?? 0) * (inputs[i] ?? 1)
   }
@@ -66,7 +67,9 @@ export function functionFromTable(
   return (l: Bit, c: Bit, r: Bit): Bit => {
     const lit = (val: Bit, bit: number): Bit =>
       bit === 1 ? val : not(val)
+
     let acc: Bit = -1 // false
+
     for (let p = 0; p < 8; p++) {
       if (!table[p]) {
         continue

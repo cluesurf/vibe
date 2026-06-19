@@ -47,6 +47,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   ): { tone: Int8Array; finalRho: number } => {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed })
+
     for (let i = 0; i < N; i++) {
       tone[i] = (
         rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0
@@ -54,6 +55,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
     }
 
     let last = 0
+
     for (let t = 0; t < 160; t++) {
       socEdgeSweep({
         tone,
@@ -66,6 +68,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
         arrow: c0,
         uniform: false,
       })
+
       if (t >= 150) {
         last += density(tone) / 10
       }
@@ -88,6 +91,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const avalancheRun = (uniform: boolean): number[] => {
     const base = new Int8Array(N)
     const rng0 = makeRng({ seed: 5 })
+
     for (let i = 0; i < N; i++) {
       base[i] = (
         rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0
@@ -141,6 +145,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const avalancheScaleSpan = avalancheMax / Math.max(avalancheMedian, 1)
   const controlScaleSpan =
     ctrl[ctrl.length - 1]! / Math.max(median(ctrl), 1)
+
   // NOTE: the damage spreads BALLISTICALLY (the lightcone, P123), so a fixed-window perturbation reaches a
   // roughly fixed radius, the size span is narrow (not scale-free). This metric measures ballistic spread,
   // not terminating avalanches, so it does NOT resolve criticality, that needs a terminating-cascade

@@ -23,6 +23,7 @@ function gapAtSize(n: number): number {
     rng: makeRng({ seed: 10 + n }),
     sampleEvery: Math.max(1, Math.floor(n / 2)),
   })
+
   const warm = sampleUniform({
     size: n,
     beta: 2,

@@ -10,6 +10,7 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const MZ = 91.19,
   MGUT = 2e16
+
 const asMZ = 0.1184 // alpha_s(M_Z)
 
 // QCD running-mass factor m(MZ)/m(MGUT) = [alpha_s(MZ)/alpha_s(MGUT)]^(gamma0/(2 b0)), gamma0 = 8 (= 6 C_F),

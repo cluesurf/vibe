@@ -39,6 +39,7 @@ export default experiment({
       bins: fine,
       seed: 24680,
     })
+
     const micro = rowStochastic(
       countMatrix({
         trajectory: traj.labels,
@@ -46,6 +47,7 @@ export default experiment({
         lag: 1,
       }),
     )
+
     const eiMicro = effectiveInformation(micro)
 
     // structured map, merge each block of adjacent fine bins into one macro bin.
@@ -53,6 +55,7 @@ export default experiment({
     const spatialGroups = Array.from({ length: fine }, (_, i) =>
       Math.floor(i / block),
     )
+
     const eiSpatial = effectiveInformation(
       coarseGrainTpm({ tpm: micro, groups: spatialGroups }),
     )
@@ -63,6 +66,7 @@ export default experiment({
       { length: fine },
       (_, i) => i % macroCount,
     )
+
     for (let i = fine - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const tmp = randomGroups[i]!

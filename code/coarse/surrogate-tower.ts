@@ -47,7 +47,9 @@ export function surrogateTower(input: {
     trajectory: train,
     seed: shuffleSeed,
   })
+
   const out: TowerLevel[] = []
+
   for (let level = 0; level < levels; level++) {
     const lag = baseLag * 2 ** level
     const surrogate = fitMarkovSurrogate({
@@ -55,17 +57,20 @@ export function surrogateTower(input: {
       stateCount: bins,
       lag,
     })
+
     const shuffled = fitMarkovSurrogate({
       trajectory: shuffledTrain,
       stateCount: bins,
       lag,
     })
+
     const accuracy = forwardAccuracy({ tpm: surrogate, test, lag })
     const shuffledAccuracy = forwardAccuracy({
       tpm: shuffled,
       test,
       lag,
     })
+
     const surrogateCost = Math.ceil(span / lag) * bins * bins
     const baseCost = span * cellCount
     out.push({

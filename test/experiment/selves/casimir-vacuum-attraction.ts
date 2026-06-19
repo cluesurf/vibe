@@ -43,6 +43,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule: Collision = pairCollision({ opposite, forward: true })
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const binOf = (cell: number): number => cell % side
@@ -54,9 +55,11 @@ export default experiment({
     // re-imposing the walls touches only the plate cells, not the whole mesh.
     const averagedProfile = (xB: number, walls: boolean): number[] => {
       const wallCells: number[] = []
+
       if (walls) {
         for (let cell = 0; cell < mesh.cellCount; cell++) {
           const x = cell % side
+
           if (x === xA || x === xB) {
             wallCells.push(cell)
           }
@@ -66,6 +69,7 @@ export default experiment({
       const setWalls = (will: Will): void => {
         for (const cell of wallCells) {
           const base = cell * degree
+
           for (let d = 0; d < degree; d++) {
             will.data[base + d] = 1
           }
@@ -77,21 +81,26 @@ export default experiment({
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       setWalls(current)
       const acc = new Array<number>(side).fill(0)
+
       let samples = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
         const swap = current
         current = scratch
         scratch = swap
         setWalls(current)
+
         if (t >= beats / 2) {
           const prof = chargeDensityProfile({
             will: current,
             binOf,
             bins: side,
           })
+
           for (let x = 0; x < side; x++) {
             acc[x]! += prof[x]!
           }
@@ -105,8 +114,10 @@ export default experiment({
 
     const mean = (prof: number[], xs: number[]): number =>
       xs.reduce((a, x) => a + prof[x]!, 0) / xs.length
+
     const gapInterior = (d: number): number[] => {
       const xs: number[] = []
+
       for (let x = xA + 2; x <= xA + d - 2; x++) {
         xs.push(x)
       }
@@ -139,6 +150,7 @@ export default experiment({
     const fallsWithDistance =
       wallInduced[0]! > wallInduced[1]! &&
       wallInduced[1]! > wallInduced[2]!
+
     const wallControlClean = freeBaseline < 0.05
 
     const ok = allAttractive && fallsWithDistance && wallControlClean

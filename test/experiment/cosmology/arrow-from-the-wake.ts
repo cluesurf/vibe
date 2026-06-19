@@ -29,8 +29,11 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
+
     let center = 0
+
     for (let i = 1; i < n; i++) {
       if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
@@ -42,6 +45,7 @@ export default experiment({
       size: n,
       source: center,
     }) // the wake's radial structure
+
     const flat = new Int32Array(n) // CONTROL: no growth gradient, all the same depth
     const rate = growthRate(depth) // the per-beat creation rate READ OFF the growth geometry (the frontier fraction), not a knob
 
@@ -52,6 +56,7 @@ export default experiment({
       beats: 120,
       rate,
     })
+
     const dead = wakeTrajectory({
       neighbors: mesh.neighbors,
       depth: flat,
@@ -59,11 +64,13 @@ export default experiment({
       beats: 120,
       rate,
     })
+
     const g = genesisProfile({ trajectory: live.trajectory, cells: n })
     const deadEnd = dead.trajectory[dead.trajectory.length - 1]!
 
     const wakeCreatesLife =
       g.start === 0 && g.rose && g.alive && g.sustained
+
     const conservedAtZero = live.qStart === 0 && live.qEnd === 0
     const flatStaysDead = deadEnd === 0
     const ok = wakeCreatesLife && conservedAtZero && flatStaysDead

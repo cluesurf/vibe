@@ -28,11 +28,13 @@ export default experiment({
       seed: 1,
       trajectories: 250,
     })
+
     const clean = r.points.filter(p => p.tau <= 11)
     const grows =
       clean.length > 2 &&
       (clean[clean.length - 1]?.varRapidity ?? 0) >
         2 * (clean[0]?.varRapidity ?? 1)
+
     const ok = r.slope > 0.01 && grows
 
     return verdict({

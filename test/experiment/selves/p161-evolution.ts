@@ -18,6 +18,7 @@ type Rng = { next: () => number }
 // value gradient), in [-1, 1]
 function fitness(code: Int8Array, target: Int8Array): number {
   let agree = 0
+
   for (let i = 0; i < code.length; i++) {
     if (code[i] === target[i]) {
       agree++
@@ -29,6 +30,7 @@ function fitness(code: Int8Array, target: Int8Array): number {
 
 function randomCode(m: number, rng: Rng): Int8Array {
   const c = new Int8Array(m)
+
   for (let i = 0; i < m; i++) {
     c[i] = rng.next() < 0.5 ? 1 : -1
   }
@@ -39,6 +41,7 @@ function randomCode(m: number, rng: Rng): Int8Array {
 // reproduce: copy the parent with per-site mutation rate mu (heredity with variation, P120)
 function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
   const child = new Int8Array(parent.length)
+
   for (let i = 0; i < parent.length; i++) {
     child[i] = (rng.next() < mu ? -parent[i]! : parent[i]!) as -1 | 1
   }
@@ -57,13 +60,17 @@ function generation(
   const K = pop.length
   const fit = pop.map(c => fitness(c, target))
   const next: Int8Array[] = []
+
   for (let k = 0; k < K; k++) {
     let parent: Int8Array
+
     if (select) {
       // tournament of 3, the fittest reproduces (competition + selection)
       let best = Math.floor(rng.next() * K)
+
       for (let t = 0; t < 2; t++) {
         const c = Math.floor(rng.next() * K)
+
         if (fit[c]! > fit[best]!) {
           best = c
         }
@@ -113,7 +120,9 @@ export function evolution(input?: {
 
   // (1) with selection, fitness should rise
   let pop = initPop()
+
   const startFitness = meanFitness(pop, target)
+
   for (let g = 0; g < G; g++) {
     pop = generation(pop, target, mu, true, rng)
   }
@@ -122,6 +131,7 @@ export function evolution(input?: {
 
   // control, neutral drift (no selection), fitness should NOT rise
   let popD = initPop()
+
   for (let g = 0; g < G; g++) {
     popD = generation(popD, target, mu, false, rng)
   }
@@ -130,6 +140,7 @@ export function evolution(input?: {
 
   // (3) variation needed, selection with ZERO mutation stalls (no raw material)
   let popN = initPop()
+
   for (let g = 0; g < G; g++) {
     popN = generation(popN, target, 0, true, rng)
   }
@@ -138,8 +149,11 @@ export function evolution(input?: {
 
   // (2) open-ended adaptation, after converging, CHANGE the environment and see fitness re-rise
   const target2 = randomCode(m, rng)
+
   let popA = pop // the already-evolved population
+
   const fitOnNew = meanFitness(popA, target2) // fitness on the NEW target (should start low)
+
   for (let g = 0; g < G; g++) {
     popA = generation(popA, target2, mu, true, rng)
   }
@@ -149,6 +163,7 @@ export function evolution(input?: {
   const selectionWorks =
     selectedFitness > startFitness + 0.3 &&
     selectedFitness > driftFitness + 0.3
+
   const variationNeeded = noMutationFitness < selectedFitness - 0.1 // zero-mutation does worse (stalls on initial variance)
   const openEnded = adaptedFitness > fitOnNew + 0.3 // re-adapts to the new environment
   const solved = selectionWorks && openEnded

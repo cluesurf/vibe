@@ -23,9 +23,11 @@ export function phMagnetism(): {
 } {
   const L = 28,
     steps = 12
+
   const d0 = deflection(0, L, steps),
     dB = deflection(0.25, L, steps),
     dB2 = deflection(0.5, L, steps)
+
   const lorentzDeflects = Math.abs(dB) > 0.05 && Math.abs(d0) < 0.02
   const deflectionGrowsWithB = Math.abs(dB2) > Math.abs(dB)
 
@@ -38,9 +40,12 @@ export function phMagnetism(): {
     Bz = 0.3,
     dt = 0.05,
     N = 400
+
   let S = [1, 0, 0]
+
   for (let t = 0; t < N; t++) {
     const cross = [S[1]! * Bz, -S[0]! * Bz, 0]
+
     for (let k = 0; k < 3; k++) {
       S[k]! += ((gAssumed * q) / (2 * m)) * cross[k]! * dt
     }

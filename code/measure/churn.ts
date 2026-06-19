@@ -13,14 +13,19 @@ export function churnCount(input: {
 }): number {
   const { neighbors, steps, modulus } = input
   const N = neighbors.length
+
   let cur = Int8Array.from(input.initial)
   let prev = new Int8Array(N)
   let changes = 0
+
   for (let t = 0; t < steps; t++) {
     const nx = new Int8Array(N)
+
     for (let i = 0; i < N; i++) {
       let s = 0
+
       const row = neighbors[i] ?? []
+
       for (let k = 0; k < row.length; k++) {
         s += cur[row[k]!]!
       }
@@ -29,7 +34,9 @@ export function churnCount(input: {
         | 0
         | 1
         | 2
+
       nx[i] = v
+
       if (v !== cur[i]!) {
         changes++
       }

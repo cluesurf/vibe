@@ -21,10 +21,13 @@ export function computation73(): {
 } {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 15000 })
   const N = g.cellCount
+
   let center = 0,
     best = -1
+
   for (let i = 0; i < N; i++) {
     const d = g.neighbors[i]!.length
+
     if (d > best) {
       best = d
       center = i
@@ -37,17 +40,20 @@ export function computation73(): {
     neighbors: g.neighbors,
     root: center,
   })
+
   const mid = shell.slice(2, Math.min(8, shell.length))
   const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
   const growthRatio =
     Math.round(
       (ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100,
     ) / 100
+
   const phi2 = (3 + Math.sqrt(5)) / 2
   const fibonacciGrowth = Math.abs(growthRatio - phi2) < 0.6 // near the golden-ratio family
 
   // (b) junction capability: an interior cell must allow >=3 edge-disjoint outgoing tracks (for crossings/switches)
   let interior = center
+
   for (let i = 0; i < N; i++) {
     if (g.neighbors[i]!.length === 7) {
       interior = i

@@ -70,7 +70,9 @@ export function hawking(input: Record<string, never> = {}): {
   // 1. Thermal spectrum: detailed balance at a = 1 gives T = 1/(2 pi). Check the ratio matches the
   // thermal factor across several E (the residual is how far the emergent ratio is from exp(-2pi E)).
   const a = 1
+
   let thermalResidual = 0
+
   for (const E of [0.5, 1.0, 1.5, 2.0]) {
     const fp = unruhResponse({ E, a, eps: 0.01, samples })
     const fm = unruhResponse({ E: -E, a, eps: 0.01, samples })
@@ -93,21 +95,27 @@ export function hawking(input: Record<string, never> = {}): {
   const temps = masses.map(M =>
     temperatureFromResponse(1 / (4 * M), samples),
   )
+
   // fit log T vs log M
   const temperatureExponent = logLogSlope(masses, temps)
 
   // 3. Page curve from random-state entanglement.
   const totalQubits = 12
+
   let peak = 0
   let peakFraction = 0
+
   const curve: number[] = []
+
   for (let q = 1; q < totalQubits; q++) {
     const s =
       pageAverageEntropy({
         dimA: Math.pow(2, q),
         dimB: Math.pow(2, totalQubits - q),
       }) / Math.log(2)
+
     curve.push(s)
+
     if (s > peak) {
       peak = s
       peakFraction = q / totalQubits

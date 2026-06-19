@@ -43,9 +43,11 @@ export function coxeterTessellation(input: {
 }): Graph {
   const s = input.schlafli
   const cap = input.maxVertices ?? 2500
+
   if (s.length === 2) {
     const p = s[0] ?? 7
     const q = s[1] ?? 3
+
     if (1 / p + 1 / q >= 0.5) {
       throw new Error(
         `{${p},${q}} is not hyperbolic (need 1/p + 1/q < 1/2)`,

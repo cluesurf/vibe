@@ -33,9 +33,11 @@ export function isBoundaryCell(cell: number, side: number): boolean {
 export function absorbBoundary(will: Will): void {
   const side = sideOf(will)
   const degree = will.mesh.degree
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     if (isBoundaryCell(cell, side)) {
       const base = cell * degree
+
       for (let d = 0; d < degree; d++) {
         will.data[base + d] = 0
       }
@@ -48,9 +50,11 @@ export function absorbBoundary(will: Will): void {
 export function frontierToPeace(will: Will, frontierX: number): void {
   const side = sideOf(will)
   const degree = will.mesh.degree
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     if (cell % side === frontierX) {
       const base = cell * degree
+
       for (let d = 0; d < degree; d++) {
         will.data[base + d] = 0
       }

@@ -27,6 +27,7 @@ const recoverable = (
     branching: 5,
     threshold: 3,
   })
+
 const minimalKillSet = (level: number, offset: number): number[] =>
   perfectTensorMinimalKillSet({
     level,
@@ -34,6 +35,7 @@ const minimalKillSet = (level: number, offset: number): number[] =>
     branching: 5,
     threshold: 3,
   })
+
 const contiguousThreshold = (level: number): number =>
   perfectTensorContiguousThreshold({
     level,
@@ -69,6 +71,7 @@ export default experiment({
     const distance3 = distanceAt(3) // expect 27
     const distanceIsThreePowerDepth =
       distance1 === 3 && distance2 === 9 && distance3 === 27
+
     const distanceGrowsWithDepth =
       distance3 > distance2 && distance2 > distance1
 

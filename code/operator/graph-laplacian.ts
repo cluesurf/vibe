@@ -9,9 +9,12 @@ export function graphLaplacian(input: {
   out: Float64Array
 }): void {
   const { neighbors, x, out } = input
+
   for (let i = 0; i < x.length; i++) {
     const row = neighbors[i] ?? []
+
     let v = row.length * (x[i] ?? 0)
+
     for (const j of row) {
       v -= x[j] ?? 0
     }
@@ -22,6 +25,7 @@ export function graphLaplacian(input: {
 
 function dotProduct(a: Float64Array, b: Float64Array): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
@@ -31,11 +35,13 @@ function dotProduct(a: Float64Array, b: Float64Array): number {
 
 function subtractMean(x: Float64Array): void {
   let m = 0
+
   for (let i = 0; i < x.length; i++) {
     m += x[i] ?? 0
   }
 
   m /= x.length
+
   for (let i = 0; i < x.length; i++) {
     x[i] = (x[i] ?? 0) - m
   }
@@ -59,22 +65,27 @@ export function solveGraphPoisson(input: {
   subtractMean(residual)
   const direction = new Float64Array(residual)
   const temp = new Float64Array(n)
+
   let rsOld = dotProduct(residual, residual)
+
   for (let iter = 0; iter < maxIterationFactor * n; iter++) {
     graphLaplacian({ neighbors, x: direction, out: temp })
     subtractMean(temp)
     const alpha = rsOld / Math.max(dotProduct(direction, temp), 1e-300)
+
     for (let i = 0; i < n; i++) {
       phi[i] = (phi[i] ?? 0) + alpha * (direction[i] ?? 0)
       residual[i] = (residual[i] ?? 0) - alpha * (temp[i] ?? 0)
     }
 
     const rsNew = dotProduct(residual, residual)
+
     if (rsNew < tolerance) {
       break
     }
 
     const beta = rsNew / rsOld
+
     for (let i = 0; i < n; i++) {
       direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
     }

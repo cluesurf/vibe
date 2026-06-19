@@ -27,12 +27,17 @@ function sprinkleCoords(input: {
   const d = input.dimension
   const spaceDim = d - 1
   const coords = new Float64Array(input.count * d)
+
   let accepted = 0
+
   while (accepted < input.count) {
     const t = input.rng.next()
     const reach = Math.min(t, 1 - t)
+
     let radius2 = 0
+
     const cand = new Float64Array(spaceDim)
+
     for (let axis = 0; axis < spaceDim; axis++) {
       const x = input.rng.next() - 0.5
       cand[axis] = x
@@ -44,6 +49,7 @@ function sprinkleCoords(input: {
     }
 
     coords[accepted * d] = t
+
     for (let axis = 0; axis < spaceDim; axis++) {
       coords[accepted * d + 1 + axis] = cand[axis] ?? 0
     }
@@ -70,20 +76,28 @@ export function sampledDimension(input: {
     count: input.count,
     rng,
   })
+
   const n = input.count
+
   let related = 0
+
   for (let s = 0; s < input.pairs; s++) {
     const a = rng.nextInt({ max: n })
+
     let b = rng.nextInt({ max: n })
+
     if (b === a) {
       b = (b + 1) % n
     }
 
     const dt = (coords[a * d] ?? 0) - (coords[b * d] ?? 0)
+
     let dx2 = 0
+
     for (let axis = 1; axis < d; axis++) {
       const dx =
         (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
+
       dx2 += dx * dx
     }
 
@@ -113,6 +127,7 @@ export function largeNHardening(input: {
       seed: input.seed + i,
     }),
   )
+
   const errors = estimates.map(e => Math.abs(e - input.dimension))
   const errorShrinks =
     (errors[errors.length - 1] ?? 1) < (errors[0] ?? 0)
@@ -135,18 +150,21 @@ export default experiment({
       pairs: 200000,
       seed: 1,
     })
+
     const r2 = largeNHardening({
       dimension: 2,
       sizes: [2000, 30000],
       pairs: 300000,
       seed: 10,
     })
+
     const r3 = largeNHardening({
       dimension: 3,
       sizes: [2000, 30000],
       pairs: 300000,
       seed: 10,
     })
+
     const ok =
       Math.abs(samp - 2) < 0.1 && r2.errorShrinks && r3.errorShrinks
 

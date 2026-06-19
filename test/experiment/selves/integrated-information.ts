@@ -40,6 +40,7 @@ function tonePhi(
 
 function randomSubset(n: number, size: number, rng: Rng): number[] {
   const s = new Set<number>()
+
   while (s.size < size) {
     s.add(rng.nextInt({ max: n }))
   }
@@ -68,9 +69,11 @@ export function integratedInformation(input: { seed: number }): {
     interPerCell: 2,
     rng,
   })
+
   const adjacency = undirectedAdjacency({ substrate: g })
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
+
   for (let v = 0; v < g.size; v++) {
     members[cellOf[v] ?? 0]?.push(v)
   }
@@ -83,24 +86,30 @@ export function integratedInformation(input: { seed: number }): {
   const randomPhis = Array.from({ length: numCells }, () =>
     tonePhi(adjacency, randomSubset(g.size, cellSize, rr), pr),
   )
+
   const phiRandom =
     randomPhis.reduce((a, b) => a + b, 0) / randomPhis.length
 
   // (2) local maximum: swap some cell members for outsiders and confirm tone-integration drops.
   let higher = 0
   let trials = 0
+
   const sr = makeRng({ seed: input.seed + 9 })
   const pm = makeRng({ seed: input.seed + 11 })
+
   for (let c = 0; c < numCells; c++) {
     const mem = members[c] ?? []
+
     if (mem.length < cellSize) {
       continue
     }
 
     const cellSet = new Set(mem)
     const perturbed = mem.slice()
+
     for (let i = 0; i < 6; i++) {
       let out = sr.nextInt({ max: g.size })
+
       while (cellSet.has(out)) {
         out = sr.nextInt({ max: g.size })
       }
@@ -109,6 +118,7 @@ export function integratedInformation(input: { seed: number }): {
     }
 
     trials++
+
     if (
       tonePhi(adjacency, mem, pm) > tonePhi(adjacency, perturbed, pm)
     ) {
@@ -127,16 +137,19 @@ export function integratedInformation(input: { seed: number }): {
   const half = new Set(cell.slice(0, 6))
   const sameHalf = (a: number, b: number): boolean =>
     half.has(a) === half.has(b)
+
   const dr = makeRng({ seed: input.seed + 21 })
   const tonePhiFull = tonePhi(adjacency, cell, dr)
   const dr2 = makeRng({ seed: input.seed + 21 }) // same seed: only the fills differ
   const tonePhiFillsCut = tonePhi(adjacency, cell, dr2, (a, b) =>
     sameHalf(a, b) ? 1 : 0,
   )
+
   const structuralFull = algebraicConnectivity({
     adjacency,
     region: new Set(cell),
   })
+
   // the structural measure does not even take fills, so it is unchanged by construction
   const structuralPhiUnchanged = structuralFull > 0
   const readsDynamics = tonePhiFillsCut < 0.35 * tonePhiFull

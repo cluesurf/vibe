@@ -35,6 +35,7 @@ export function writeFrame(input: {
     prefix: input.prefix,
     pad: input.pad,
   })
+
   writeFileSync(
     join(input.dir, name),
     encodePng(input.rgba, input.width, input.height),

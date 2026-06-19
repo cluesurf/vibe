@@ -45,9 +45,12 @@ export function surveyTessellation(input: {
           symbol: input.symbol as never,
           maxCells: input.maxCells,
         })
+
     const N = g.cellCount,
       nb = g.neighbors
+
     const minCells = input.minCells ?? 50
+
     if (N < minCells) {
       return {
         ok: false,
@@ -61,8 +64,10 @@ export function surveyTessellation(input: {
 
     let center = 0,
       best = -1
+
     for (let i = 0; i < N; i++) {
       const d = nb[i]!.length
+
       if (d > best) {
         best = d
         center = i
@@ -77,6 +82,7 @@ export function surveyTessellation(input: {
       to: input.growthTo ?? 6,
       safeDenominator: input.safeDenominator,
     })
+
     const betheAlpha = betheCorrelatorExponent(degree)
     const specDim = input.withSpectralDimension
       ? Math.round(

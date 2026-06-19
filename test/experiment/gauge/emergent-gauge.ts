@@ -24,6 +24,7 @@ function graph(): {
     symbol: [3, 4, 3, 4] as never,
     maxCells: 8000,
   })
+
   const { offsets, adj } = toCsr(g.neighbors)
 
   return { N: g.cellCount, off: offsets, adj }
@@ -37,6 +38,7 @@ export function emergentGauge(): {
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
   }
@@ -46,6 +48,7 @@ export function emergentGauge(): {
   const flux = new Float64Array(N) // net charge that flowed INTO each cell this beat
   const used = new Uint8Array(N),
     order = [...Array(N).keys()]
+
   for (let i = N - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1))
     const tmp = order[i]!
@@ -60,6 +63,7 @@ export function emergentGauge(): {
 
     for (let q = off[u]!; q < off[u + 1]!; q++) {
       const w = adj[q]!
+
       if (used[w]) {
         continue
       }
@@ -76,22 +80,27 @@ export function emergentGauge(): {
   }
 
   let viol = 0
+
   for (let i = 0; i < N; i++) {
     viol += Math.abs(t[i]! - before[i]! - flux[i]!)
   }
 
   const chargeLocallyConserved = viol === 0
+
   // (2) internal (non-abelian) current under a GENERIC (non-symmetric) collision. Model a coin with a 2-valued
   // internal index whose generic collision is NOT internal-symmetric, and check its internal charge is NOT
   // locally conserved. (If a collision WERE so(10)-symmetric, the internal current WOULD be conserved -> gauged.)
   // generic collision on (charge, internal): conserves charge but scrambles internal -> internal not conserved.
   let internalViol = 0
+
   const A = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     A[i] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   } // internal index
 
   const usd = new Uint8Array(N)
+
   for (const u of order) {
     if (usd[u]) {
       continue
@@ -99,6 +108,7 @@ export function emergentGauge(): {
 
     for (let q = off[u]!; q < off[u + 1]!; q++) {
       const w = adj[q]!
+
       if (usd[w]) {
         continue
       }

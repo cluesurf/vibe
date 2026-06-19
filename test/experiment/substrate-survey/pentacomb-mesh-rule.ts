@@ -20,6 +20,7 @@ const RANK = 6 // {3,4,3,3,4} has 6 reflection generators
 
 const growthRatio = (shells: number[]): number => {
   const count = shells.length
+
   if (count < 4) {
     return 1
   }
@@ -52,8 +53,10 @@ export default experiment({
     // code/operator/coxeter-mesh-gas.
     const stream = (state: number[][]): number[][] =>
       streamCoxeterMeshGas({ state, adjacency, rank: RANK })
+
     const collide = (state: number[][], forward: boolean): number[][] =>
       collideCoxeterMeshGas({ state, rank: RANK, forward })
+
     // a deterministic initial charge pattern (no randomness): occupy direction (cell mod 6) at each cell
     let occupation: number[][] = Array.from(
       { length: cells },
@@ -62,14 +65,18 @@ export default experiment({
           d === cell % RANK ? 1 : 0,
         ),
     )
+
     const initial = occupation.map(slots => [...slots])
     const count = countCoxeterMeshGas
     const charge0 = count(occupation)
 
     const steps = 30
+
     let conservedThroughout = true
+
     for (let t = 0; t < steps; t++) {
       occupation = stream(collide(occupation, true))
+
       if (count(occupation) !== charge0) {
         conservedThroughout = false
       }
@@ -78,6 +85,7 @@ export default experiment({
     const moved = occupation.some((slots, cell) =>
       slots.some((value, d) => value !== initial[cell]![d]),
     ) // the rule did something
+
     for (let t = 0; t < steps; t++) {
       occupation = collide(stream(occupation), false)
     } // exact inverse, reversed order

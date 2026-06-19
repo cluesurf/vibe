@@ -32,6 +32,7 @@ function sharedBits(input: { lambda: number; mode: Mode }): {
   b: number
 } {
   const l = input.lambda
+
   if (input.mode === 'aligned') {
     return {
       a: Math.sin(2 * l) >= 0 ? 0 : 1,
@@ -65,8 +66,10 @@ export function measureChshAndDependence(input: {
     const sharedB = shared.b
     const ai =
       rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
+
     const bi =
       rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
+
     const a = 1
     const b = lambda >= Math.PI / 4 && lambda < Math.PI / 2 ? -1 : 1
     const cell = ai * 2 + bi
@@ -77,7 +80,9 @@ export function measureChshAndDependence(input: {
       BINS - 1,
       Math.floor((lambda / Math.PI) * BINS),
     )
+
     const arr = joint[ai] ?? joint[0]
+
     if (arr) {
       arr[bin] = (arr[bin] ?? 0) + 1
     }
@@ -85,6 +90,7 @@ export function measureChshAndDependence(input: {
 
   const e = (i: number): number =>
     (count[i] ?? 0) === 0 ? 0 : (sum[i] ?? 0) / (count[i] ?? 1)
+
   const s = e(0) - e(1) + e(2) + e(3)
 
   // Mutual information I(setting; lambda-bin) in bits, from the joint count histogram.
@@ -107,12 +113,14 @@ export default experiment({
       trials: 60000,
       seed: 11,
     })
+
     const misaligned = measureChshAndDependence({
       eta: 1,
       mode: 'misaligned',
       trials: 60000,
       seed: 12,
     })
+
     const ok =
       aligned.s > 3.5 &&
       misaligned.s < 1.5 &&

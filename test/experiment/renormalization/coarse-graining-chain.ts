@@ -31,6 +31,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const L = input?.L ?? 8192
   const rng = makeRng({ seed: 6 })
   const tone = new Int8Array(L)
+
   for (let i = 0; i < L; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -43,6 +44,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
 
   const q0 = (() => {
     let s = 0
+
     for (let i = 0; i < L; i++) {
       s += tone[i]!
     }
@@ -56,6 +58,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const chargePreservedAllLevels = levels.every(
     l => l.totalCharge === q0,
   )
+
   // fixed point, the compressibility at levels 2..5 (past the lattice artifact) is nearly constant
   const tail = levels.slice(2).map(l => l.compressibility)
   const tmean = tail.reduce((a, b) => a + b, 0) / tail.length

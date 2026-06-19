@@ -6,6 +6,7 @@
 // norm squared 2. rootsD4() is rootsDn(4).
 export function rootsDn(n: number): number[][] {
   const roots: number[][] = []
+
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       for (const si of [1, -1]) {
@@ -26,6 +27,7 @@ export function rootsDn(n: number): number[][] {
 // vectors of su(n).
 export function rootsAn(n: number): number[][] {
   const roots: number[][] = []
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       if (i !== j) {
@@ -63,6 +65,7 @@ export function isRootSystem(roots: number[][]): boolean {
   for (const a of roots) {
     for (const v of roots) {
       const w = reflectRoot(v, a)
+
       if (!roots.some(r => vecEqExact(r, w))) {
         return false
       }
@@ -85,6 +88,7 @@ export function standardModelEmbedsInRootSystem(
       } // 120 degrees -> A2 generator pair
 
       const ab = a.map((x, i) => x + b[i]!)
+
       if (!roots.some(r => vecEqExact(r, ab))) {
         continue
       } // a + b must be a root (A2 closes)
@@ -104,6 +108,7 @@ export function standardModelEmbedsInRootSystem(
 // 16 weights of the so(10) generation. The odd-parity set is the conjugate spinor.
 export function spinorWeightsDn(n: number): number[][] {
   const weights: number[][] = []
+
   const build = (acc: number[]): void => {
     if (acc.length === n) {
       if (acc.filter(x => x < 0).length % 2 === 0) {
@@ -126,6 +131,7 @@ export function spinorWeightsDn(n: number): number[][] {
 // the 24 directions of the cell, each of norm squared 2.
 export function rootsD4(): number[][] {
   const roots: number[][] = []
+
   for (let first = 0; first < 4; first++) {
     for (let second = first + 1; second < 4; second++) {
       for (const signFirst of [1, -1]) {
@@ -149,6 +155,7 @@ export function rootsD4(): number[][] {
 // internal parts). All roots are integer, so the lattice mesh stays exact.
 export function rootsB4(): number[][] {
   const roots: number[][] = rootsD4()
+
   for (let axis = 0; axis < 4; axis++) {
     for (const sign of [1, -1]) {
       const root = [0, 0, 0, 0]
@@ -168,6 +175,7 @@ export function rootsB4(): number[][] {
 export function icosahedronVertexDirections(): number[][] {
   const phi = (1 + Math.sqrt(5)) / 2
   const raw: number[][] = []
+
   for (const a of [1, -1]) {
     for (const b of [phi, -phi]) {
       raw.push([0, a, b], [a, b, 0], [b, 0, a])
@@ -183,6 +191,7 @@ export function icosahedronVertexDirections(): number[][] {
 // (+-1, 0, 0, 0) and the 16 of (+-1/2, +-1/2, +-1/2, +-1/2).
 export function rootsF4(): number[][] {
   const roots = rootsD4()
+
   for (let axis = 0; axis < 4; axis++) {
     for (const sign of [1, -1]) {
       const root = [0, 0, 0, 0]
@@ -218,6 +227,7 @@ export function e8SimpleRoots(): number[][] {
 
   const minus = (a: number[], b: number[]): number[] =>
     a.map((x, i) => x - b[i]!)
+
   const plus = (a: number[], b: number[]): number[] =>
     a.map((x, i) => x + b[i]!)
 
@@ -245,12 +255,14 @@ export function rootsE8(): number[][] {
 // ternary tones, the geometry is the tone.
 export function ternaryShells(n: number): Map<number, number[][]> {
   const shells = new Map<number, number[][]>()
+
   const recurse = (vector: number[]): void => {
     if (vector.length === n) {
       const normSquared = vector.reduce(
         (sum, value) => sum + value * value,
         0,
       )
+
       if (normSquared === 0) {
         return
       }
@@ -284,8 +296,10 @@ export function vectorKey(vector: number[]): string {
 // (the F4 diagram rebuilds the 24-cell and its dual).
 export function reflectionClosure(seed: number[][]): number[][] {
   const found = new Map<string, number[]>()
+
   const add = (vector: number[]): void => {
     const key = vectorKey(vector)
+
     if (!found.has(key)) {
       found.set(key, vector)
     }
@@ -296,12 +310,15 @@ export function reflectionClosure(seed: number[][]): number[][] {
   }
 
   let changed = true
+
   while (changed) {
     changed = false
     const current = [...found.values()]
+
     for (const a of current) {
       for (const v of current) {
         const reflected = reflectRoot(v, a)
+
         if (!found.has(vectorKey(reflected))) {
           add(reflected)
           changed = true
@@ -334,12 +351,14 @@ export function constructionAMinimalVectors(
   // (+-1, +-1, 0, ...) reducing to a weight-2 codeword, scanned over small integer vectors.
   const minimal: number[][] = []
   const inCode = new Set(codewords.map(c => c.join(',')))
+
   const recurse = (vector: number[]): void => {
     if (vector.length === n) {
       const normSquared = vector.reduce(
         (sum, value) => sum + value * value,
         0,
       )
+
       if (normSquared !== 2) {
         return
       }
@@ -347,6 +366,7 @@ export function constructionAMinimalVectors(
       const reduced = vector
         .map(value => ((value % 2) + 2) % 2)
         .join(',')
+
       if (inCode.has(reduced)) {
         minimal.push([...vector])
       }
@@ -367,6 +387,7 @@ export function constructionAMinimalVectors(
 // The even-weight binary code in dimension n: all 0/1 vectors with an even number of ones, the [n, n-1, 2] code.
 export function evenWeightCode(n: number): number[][] {
   const words: number[][] = []
+
   const recurse = (vector: number[]): void => {
     if (vector.length === n) {
       if (vector.reduce((sum, value) => sum + value, 0) % 2 === 0) {

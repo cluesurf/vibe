@@ -53,6 +53,7 @@ export default experiment({
       mass: MASS,
       periodic: true,
     })
+
     const c = freeFermionCorrelationMatrix({ h, n })
 
     // the screen bits N(r), the entanglement entropy of the gapped ground state inside a ball of radius r
@@ -66,6 +67,7 @@ export default experiment({
     const thermalBits = RADII.map(
       radius => ballRegion({ side: SIDE, radius }).length * Math.log(2),
     )
+
     const thermalExponent = logLogExponent(RADII, thermalBits)
     const thermalPerVolume = thermalBits.map(
       (bits, i) => bits / ground.volumes[i]!,
@@ -76,6 +78,7 @@ export default experiment({
       bitExponent: groundExponent,
       tolerance: 0.5,
     })
+
     const thermalForce = verlindeForceLaw({
       bitExponent: thermalExponent,
       tolerance: 0.5,
@@ -88,6 +91,7 @@ export default experiment({
     const thermalExtensive = !strictlyDecreasing(thermalPerVolume)
     const exponentsSeparated =
       groundExponent < 2.6 && thermalExponent > 2.9
+
     const newtonFromArea = groundForce.isNewtonian
     const wrongFromVolume = !thermalForce.isNewtonian
     const ok =

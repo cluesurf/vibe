@@ -16,7 +16,9 @@ export function connectedCorrelationByDistance(input: {
   rng: { next: () => number }
 }): number[] {
   const { tone, offsets, adj, size, maxRadius, samples, rng } = input
+
   let mean = 0
+
   for (let i = 0; i < size; i++) {
     mean += tone[i]!
   }
@@ -24,6 +26,7 @@ export function connectedCorrelationByDistance(input: {
   mean /= size
   const sums = new Float64Array(maxRadius + 1)
   const counts = new Float64Array(maxRadius + 1)
+
   for (let s = 0; s < samples; s++) {
     const src = Math.floor(rng.next() * size)
     const dist = csrDistances({
@@ -33,8 +36,10 @@ export function connectedCorrelationByDistance(input: {
       source: src,
       maxRadius,
     })
+
     for (let i = 0; i < size; i++) {
       const r = dist[i]!
+
       if (r >= 0 && r <= maxRadius) {
         sums[r]! += (tone[src]! - mean) * (tone[i]! - mean)
         counts[r]!++
@@ -43,6 +48,7 @@ export function connectedCorrelationByDistance(input: {
   }
 
   const c: number[] = []
+
   for (let r = 0; r <= maxRadius; r++) {
     c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
   }
@@ -64,10 +70,13 @@ export function timeAveragedRingCorrelation(input: {
 }): number[] {
   const { tone, length: L, maxR, beats, relax } = input
   const sumCC = new Float64Array(maxR + 1)
+
   let sumC = 0
+
   for (let t = 0; t < beats; t++) {
     for (let x = 0; x < L; x++) {
       sumC += tone[x]!
+
       for (let r = 0; r <= maxR; r++) {
         sumCC[r]! += tone[x]! * tone[(x + r) % L]!
       }
@@ -78,6 +87,7 @@ export function timeAveragedRingCorrelation(input: {
 
   const mean = sumC / (L * beats)
   const c: number[] = []
+
   for (let r = 0; r <= maxR; r++) {
     c.push(sumCC[r]! / (L * beats) - mean * mean)
   }
@@ -95,13 +105,16 @@ export function correlationLengthFromDecay(input: {
   rHi: number
 }): number {
   const { correlation, rLo, rHi } = input
+
   let sx = 0
   let sy = 0
   let sxx = 0
   let sxy = 0
   let m = 0
+
   for (let r = rLo; r <= rHi; r++) {
     const ac = Math.abs(correlation[r]!)
+
     if (ac <= 1e-9) {
       continue
     }

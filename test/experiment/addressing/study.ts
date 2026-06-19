@@ -45,11 +45,13 @@ function evaluate(input: {
     center: 0,
     maxRadius: 12,
   })
+
   const iso = lorentzIsotropy({
     substrate: input.substrate,
     samples: 400,
     rng,
   })
+
   const route = input.graph
     ? greedyRoutingSuccess({
         graph: input.graph,
@@ -84,11 +86,13 @@ export default experiment({
       connectThreshold: 1.6,
       rng: makeRng({ seed: 116 }),
     })
+
     const candidate = evaluate({
       name: 'hyperbolic t=1.6',
       substrate: hyperbolic,
       graph: hyperbolic,
     })
+
     const control = evaluate({
       name: 'lattice 3D (lorentz)',
       substrate: lattice({
@@ -97,6 +101,7 @@ export default experiment({
         signature: 'lorentzian',
       }),
     })
+
     const bothWorlds =
       candidate.reach &&
       candidate.anisotropy < 0.25 &&

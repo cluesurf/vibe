@@ -28,17 +28,20 @@ export function continuumLimit(input: {
 } {
   const estimates = input.sizes.map((nn, si) => {
     let sum = 0
+
     for (let r = 0; r < input.repeats; r++) {
       const poset = sprinkleMinkowski({
         dimension: input.dimension,
         count: nn,
         rng: makeRng({ seed: input.seed + si * 100 + r }),
       })
+
       sum += myrheimMeyerDimension({ poset })
     }
 
     return sum / input.repeats
   })
+
   const errors = estimates.map(e => Math.abs(e - input.dimension))
   const maxError = Math.max(...errors)
   // Agreement with the continuum value across all N (the estimate is already accurate,
@@ -48,6 +51,7 @@ export function continuumLimit(input: {
     input.sizes,
     errors.map(e => Math.max(1e-6, e)),
   )
+
   // "Converging" means the error is actually DECREASING with N (negative trend). Absolute
   // agreement (accurate at every N) is separate from convergence (error shrinking). We report both
   // so a flat or rising error is never printed under a convergence claim.
@@ -78,12 +82,14 @@ export default experiment({
       repeats: 3,
       seed: 1,
     })
+
     const three = continuumLimit({
       dimension: 3,
       sizes: [400, 800, 1600],
       repeats: 3,
       seed: 1,
     })
+
     const ok = two.agrees && three.agrees && three.converging
 
     return verdict({

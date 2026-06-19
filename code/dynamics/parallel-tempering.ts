@@ -28,13 +28,16 @@ function localMove(input: {
 }): void {
   const { replica, size, beta, action, rng } = input
   const a = rng.nextInt({ max: size })
+
   let b = rng.nextInt({ max: size })
+
   if (a === b) {
     b = (b + 1) % size
   }
 
   const lo = Math.min(a, b)
   const hi = Math.max(a, b)
+
   if (lo === hi) {
     return
   }
@@ -47,8 +50,10 @@ function localMove(input: {
     size,
     future: transitiveClosure({ size, relation: replica.relation }),
   })
+
   const candidateAction = action.value({ poset: candidatePoset })
   const deltaS = candidateAction - replica.action
+
   if (deltaS <= 0 || rng.next() < Math.exp(-beta * deltaS)) {
     replica.poset = candidatePoset
     replica.action = candidateAction
@@ -73,8 +78,10 @@ export function parallelTempering(input: {
   const R = input.betas.length
 
   const replicas: Replica[] = []
+
   for (let r = 0; r < R; r++) {
     const relation = makeBitMatrix({ rows: n, cols: n })
+
     if (input.start) {
       for (let i = 0; i < relation.words.length; i++) {
         relation.words[i] = input.start.future.words[i] ?? 0
@@ -85,6 +92,7 @@ export function parallelTempering(input: {
       size: n,
       future: transitiveClosure({ size: n, relation }),
     })
+
     replicas.push({
       relation,
       poset,
@@ -93,8 +101,10 @@ export function parallelTempering(input: {
   }
 
   const samplesByBeta: number[][] = input.betas.map(() => [])
+
   let swapAttempts = 0
   let swapAccepts = 0
+
   const burnIn = Math.floor(input.sweeps / 2)
 
   for (let sweep = 0; sweep < input.sweeps; sweep++) {
@@ -102,6 +112,7 @@ export function parallelTempering(input: {
     for (let r = 0; r < R; r++) {
       const replica = replicas[r]
       const beta = input.betas[r]
+
       if (!replica || beta === undefined) {
         continue
       }
@@ -119,11 +130,13 @@ export function parallelTempering(input: {
 
     // Swap adjacent replicas. Alternate the starting parity each sweep.
     const startPair = sweep % 2
+
     for (let r = startPair; r + 1 < R; r += 2) {
       const ra = replicas[r]
       const rb = replicas[r + 1]
       const ba = input.betas[r]
       const bb = input.betas[r + 1]
+
       if (!ra || !rb || ba === undefined || bb === undefined) {
         continue
       }
@@ -131,6 +144,7 @@ export function parallelTempering(input: {
       swapAttempts += 1
       // Accept with min(1, exp((beta_a - beta_b)(S_a - S_b))).
       const delta = (ba - bb) * (ra.action - rb.action)
+
       if (delta >= 0 || input.rng.next() < Math.exp(delta)) {
         replicas[r] = rb
         replicas[r + 1] = ra
@@ -142,6 +156,7 @@ export function parallelTempering(input: {
     if (sweep >= burnIn) {
       for (let r = 0; r < R; r++) {
         const replica = replicas[r]
+
         if (replica) {
           ;(samplesByBeta[r] ?? []).push(
             input.observe({ poset: replica.poset }),

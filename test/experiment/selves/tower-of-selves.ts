@@ -50,6 +50,7 @@ function hierarchicalMesh(input: {
     { length: n },
     () => new Map(),
   )
+
   const add = (u: number, v: number): void => {
     if (u !== v) {
       adj[u]?.set(v, 1)
@@ -59,13 +60,16 @@ function hierarchicalMesh(input: {
 
   const unitAtLevel = (v: number, level: number): number =>
     Math.floor(v / (cellSize * b ** level))
+
   // edges per vibe at each common-ancestor level, decaying with level
   const degreeAtLevel = [6, 2, 1, 1, 1, 1, 1, 1]
+
   for (let v = 0; v < n; v++) {
     for (let level = 0; level <= depth; level++) {
       const deg = degreeAtLevel[level] ?? 1
       const block = cellSize * b ** level
       const start = Math.floor(v / block) * block
+
       for (let d = 0; d < deg; d++) {
         add(v, start + rng.nextInt({ max: block }))
       }
@@ -115,6 +119,7 @@ export function towerOfSelves(input: { seed: number }): {
   // assign per top-down: precompute a tone for each unit at the top, then refine downward
   const topTone = 1
   const unitTone = new Map<string, number>()
+
   const toneOfUnit = (level: number, id: number): number => {
     if (level === depth) {
       return topTone
@@ -122,6 +127,7 @@ export function towerOfSelves(input: { seed: number }): {
 
     const key = `${level},${id}`
     const cached = unitTone.get(key)
+
     if (cached !== undefined) {
       return cached
     }
@@ -149,9 +155,11 @@ export function towerOfSelves(input: { seed: number }): {
 
   const names = ['cells', 'tissues', 'organs', 'systems', 'body']
   const rungs: Rung[] = []
+
   for (let level = 0; level <= depth; level++) {
     const K = countAtLevel(level)
     const cl = new Int32Array(g.size)
+
     for (let v = 0; v < g.size; v++) {
       cl[v] = unitAtLevel(v, level)
     }
@@ -159,12 +167,14 @@ export function towerOfSelves(input: { seed: number }): {
     // coherence: average internal alignment of each unit
     const sum = new Float64Array(K)
     const cnt = new Float64Array(K)
+
     for (let v = 0; v < g.size; v++) {
       sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
       cnt[cl[v] ?? 0] = (cnt[cl[v] ?? 0] ?? 0) + 1
     }
 
     let coh = 0
+
     for (let c = 0; c < K; c++) {
       coh += Math.abs(sum[c] ?? 0) / Math.max(1, cnt[c] ?? 1)
     }
@@ -172,6 +182,7 @@ export function towerOfSelves(input: { seed: number }): {
     coh /= K
     // rule agreement: is this level's aggregate a fixed point of the renormalized rule?
     let ruleAgreement = 1
+
     if (level < depth && K >= 3) {
       const eff = effectiveCouplings(g, fills, cl, K)
       const superTone = aggregate(cl, K, base)
@@ -191,10 +202,13 @@ export function towerOfSelves(input: { seed: number }): {
   }
 
   const descendsToOne = (rungs[rungs.length - 1]?.units ?? 0) === 1
+
   let cleanBranching = true
+
   for (let i = 1; i < rungs.length; i++) {
     const ratio =
       (rungs[i - 1]?.units ?? 1) / Math.max(1, rungs[i]?.units ?? 1)
+
     if (Math.abs(ratio - b) > 0.5) {
       cleanBranching = false
     }

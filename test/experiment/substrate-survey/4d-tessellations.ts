@@ -123,6 +123,7 @@ export function fourdTessellations(): void {
     const crystallographic = c.sym.every(
       n => n === 3 || n === 4 || n === 6,
     )
+
     const m = measure(c.sym, c.flat ?? false, SURVEY_SCALE)
     const built = m.ok
       ? `degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}`
@@ -144,6 +145,7 @@ export default experiment({
     const crystallographic = [3, 4, 3, 4].every(
       n => n === 3 || n === 4 || n === 6,
     )
+
     const ok = reference.ok && reference.degree > 0 && crystallographic
 
     return verdict({

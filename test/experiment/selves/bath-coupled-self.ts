@@ -78,11 +78,13 @@ export default experiment({
           kickVelocity: 1.0,
         }),
       )
+
     const bathAfterKick = kicked(true) // bath, should return to ~0 (corrected)
     const closedAfterKick = kicked(false) // closed, the kick persists (not corrected)
 
     const hasIdentity =
       bathSpread < 0.1 && bathSettlesToZero && closedSpread > 0.5
+
     const hasAgency = bathAfterKick < 0.1 && closedAfterKick > 0.3
 
     const ok = hasIdentity && hasAgency

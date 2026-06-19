@@ -47,11 +47,14 @@ export function runScan<P>(input: {
         base: input.baseSeed,
         index: parameterIndex * 1000 + repeat,
       })
+
       const rng = makeRng({ seed })
       const metrics = input.spec.run({ parameter, rng })
+
       for (const key of Object.keys(metrics)) {
         const value = metrics[key] ?? 0
         const list = samples.get(key)
+
         if (list) {
           list.push(value)
         } else {
@@ -62,15 +65,20 @@ export function runScan<P>(input: {
 
     const mean: Record<string, number> = {}
     const std: Record<string, number> = {}
+
     for (const [key, values] of samples) {
       const count = values.length
+
       let sum = 0
+
       for (let i = 0; i < count; i++) {
         sum += values[i] ?? 0
       }
 
       const m = count > 0 ? sum / count : 0
+
       let variance = 0
+
       for (let i = 0; i < count; i++) {
         const diff = (values[i] ?? 0) - m
         variance += diff * diff

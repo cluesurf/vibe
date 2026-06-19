@@ -52,6 +52,7 @@ export function tessellationSurvey(): {
   const spinorHookSymbols = measured
     .filter(x => x.m.spinorHook)
     .map(x => x.t.symbol)
+
   const expected = [
     '{4,3,4,3}',
     '{3,4,3,4}',
@@ -61,13 +62,16 @@ export function tessellationSurvey(): {
     '{3,4,3,3,3}',
     '{3,3,3,4,3}',
   ]
+
   const spinorHookIsTwentyFourCellFaceted =
     spinorHookSymbols.length === expected.length &&
     expected.every(s => spinorHookSymbols.includes(s))
+
   // and the spinor-hook set equals the crystallographic-AND-spinor set (the 24-cell directions are 3,4-fold)
   const crystallographicAndSpinor = measured
     .filter(x => x.m.crystallographic && x.m.spinorHook)
     .map(x => x.t.symbol)
+
   const spinorHookEqualsCrystallographicSpinor =
     crystallographicAndSpinor.length === spinorHookSymbols.length &&
     spinorHookSymbols.every(s => crystallographicAndSpinor.includes(s))
@@ -76,6 +80,7 @@ export function tessellationSurvey(): {
   const subset = TESSELLATIONS.filter(t =>
     PROPAGATION_SUBSET.includes(t.symbol),
   )
+
   const fermionPropagatesOnSubset = subset.every(
     t =>
       measureTessellation({

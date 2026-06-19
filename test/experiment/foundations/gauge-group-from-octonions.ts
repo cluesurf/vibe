@@ -30,12 +30,14 @@ import {
 // sphere). Tests several deterministic unit elements.
 function unitsAreClosed(level: number): boolean {
   const dimension = 2 ** level
+
   // a few deterministic unit elements (normalized integer vectors)
   const make = (offset: number): number[] => {
     const v = Array.from(
       { length: dimension },
       (_, i) => ((i * 5 + offset) % 7) - 3,
     )
+
     const norm = Math.sqrt(normSquared(v))
 
     return v.map(x => x / norm)
@@ -44,6 +46,7 @@ function unitsAreClosed(level: number): boolean {
   for (let a = 0; a < 4; a++) {
     for (let b = 0; b < 4; b++) {
       const product = cayleyMultiply(make(a), make(b + 1))
+
       if (Math.abs(normSquared(product) - 1) > 1e-9) {
         return false
       }
@@ -80,6 +83,7 @@ export default experiment({
     // the Standard-Model gauge group, the dimensions add to 12
     const gaugeGroupDimension =
       su3Dimension + su2Dimension + u1Dimension
+
     const isStandardModelGroup = gaugeGroupDimension === 12
 
     const ok =

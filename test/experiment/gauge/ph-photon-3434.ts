@@ -24,6 +24,7 @@ export function phPhoton(): {
 } {
   const Lx = 12,
     Ly = 12
+
   const wrap = (x: number, L: number): number => ((x % L) + L) % L
   // U(1) link phases on a periodic 2D plaquette lattice (the gauge field, the 8v sector)
   const rng = makeRng({ seed: 999 })
@@ -31,9 +32,11 @@ export function phPhoton(): {
   const Ax: number[][] = Array.from({ length: Lx }, () =>
     Array.from({ length: Ly }, () => rnd()),
   )
+
   const Ay: number[][] = Array.from({ length: Lx }, () =>
     Array.from({ length: Ly }, () => rnd()),
   )
+
   // plaquette (field strength) at (x,y): sum of oriented link phases around the unit square
   const plaq = (
     ax: number[][],
@@ -46,13 +49,17 @@ export function phPhoton(): {
   const g: number[][] = Array.from({ length: Lx }, () =>
     Array.from({ length: Ly }, () => rnd()),
   )
+
   const Ax2 = Ax.map((row, x) =>
     row.map((a, y) => a + g[x]![y]! - g[wrap(x + 1, Lx)]![y]!),
   )
+
   const Ay2 = Ay.map((row, x) =>
     row.map((a, y) => a + g[x]![y]! - g[x]![wrap(y + 1, Ly)]!),
   )
+
   let maxDP = 0
+
   for (let x = 0; x < Lx; x++) {
     for (let y = 0; y < Ly; y++) {
       maxDP = Math.max(
@@ -66,8 +73,10 @@ export function phPhoton(): {
 
   // PH4: discrete Stokes, flux through a 3x3 region = holonomy around its boundary loop
   const field: GridGauge = { Ax, Ay }
+
   const regionFlux = (): number => {
     let f = 0
+
     for (let x = 0; x < 3; x++) {
       for (let y = 0; y < 3; y++) {
         f += plaq(Ax, Ay, x, y)
@@ -79,6 +88,7 @@ export function phPhoton(): {
 
   const boundaryHolonomy = (): number =>
     gridWilsonLoop(field, { x0: 0, x1: 3, y0: 0, y1: 3 })
+
   const stokes = Math.abs(regionFlux() - boundaryHolonomy()) < 1e-9
 
   // PH1/PH3: the free photon dispersion is massless (gapless, linear). lattice: omega(k) = 2|sin(k/2)|

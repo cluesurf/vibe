@@ -10,6 +10,7 @@ type Rational = { num: Poly; den: Poly }
 
 function trim(p: Poly): Poly {
   let i = p.length - 1
+
   while (i > 0 && p[i] === 0n) {
     i--
   }
@@ -20,6 +21,7 @@ function trim(p: Poly): Poly {
 function add(a: Poly, b: Poly): Poly {
   const n = Math.max(a.length, b.length)
   const out = Array<bigint>(n).fill(0n)
+
   for (let i = 0; i < n; i++) {
     out[i] = (a[i] ?? 0n) + (b[i] ?? 0n)
   }
@@ -29,6 +31,7 @@ function add(a: Poly, b: Poly): Poly {
 
 function mul(a: Poly, b: Poly): Poly {
   const out = Array<bigint>(a.length + b.length - 1).fill(0n)
+
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < b.length; j++) {
       out[i + j] = out[i + j]! + a[i]! * b[j]!
@@ -64,6 +67,7 @@ function rationalAdd(a: Rational, b: Rational): Rational {
 
 function finiteGrowthFromExponents(exponents: number[]): Poly {
   let p: Poly = [1n]
+
   for (const e of exponents) {
     p = mul(p, qInteger(e + 1))
   }
@@ -73,7 +77,9 @@ function finiteGrowthFromExponents(exponents: number[]): Poly {
 
 function connectedComponents(mask: number, rank: number): number[][] {
   const out: number[][] = []
+
   let cur: number[] = []
+
   for (let i = 0; i < rank; i++) {
     if (mask & (1 << i)) {
       cur.push(i)
@@ -95,11 +101,13 @@ function componentExponents(
   labels: number[],
 ): number[] | null {
   const size = component.length
+
   if (size === 1) {
     return [1]
   }
 
   const edgeLabels = component.slice(0, -1).map(v => labels[v]!)
+
   if (size === 2) {
     const m = edgeLabels[0]!
 
@@ -108,6 +116,7 @@ function componentExponents(
 
   if (size === 3) {
     const key = edgeLabels.join(',')
+
     if (key === '3,3') {
       return [1, 2, 3]
     } // A3
@@ -125,6 +134,7 @@ function componentExponents(
 
   if (size === 4) {
     const key = edgeLabels.join(',')
+
     if (key === '3,3,3') {
       return [1, 2, 3, 4]
     } // A4
@@ -157,8 +167,10 @@ function finiteParabolicGrowth(
   }
 
   let growth: Poly = [1n]
+
   for (const component of connectedComponents(mask, rank)) {
     const exponents = componentExponents(component, labels)
+
     if (!exponents) {
       return null
     }
@@ -171,6 +183,7 @@ function finiteParabolicGrowth(
 
 function bitCount(x: number): number {
   let n = 0
+
   while (x) {
     n += x & 1
     x >>= 1
@@ -181,9 +194,12 @@ function bitCount(x: number): number {
 
 export function coxeterGrowthSeries(labels: number[]): Rational {
   const rank = labels.length + 1
+
   let sum: Rational = { num: [0n], den: [1n] }
+
   for (let mask = 0; mask < 1 << rank; mask++) {
     const finiteGrowth = finiteParabolicGrowth(mask, rank, labels)
+
     if (!finiteGrowth) {
       continue
     }
@@ -195,9 +211,12 @@ export function coxeterGrowthSeries(labels: number[]): Rational {
   // sum(t) = 1 / W(1/t), so W(t) = den(1/t) / num(1/t)
   const n = trim(sum.num)
   const d = trim(sum.den)
+
   let num = reversePoly(d)
   let den = reversePoly(n)
+
   const shiftAmount = n.length - d.length
+
   if (shiftAmount > 0) {
     num = shift(num, shiftAmount)
   }
@@ -219,13 +238,16 @@ export function expandSeries(
   count: number,
 ): bigint[] {
   const { num, den } = series
+
   if (den[0] === 0n) {
     throw new Error('Denominator has zero constant term')
   }
 
   const out: bigint[] = []
+
   for (let n = 0; n < count; n++) {
     let value = num[n] ?? 0n
+
     for (let i = 1; i < den.length && i <= n; i++) {
       value -= den[i]! * out[n - i]!
     }
@@ -256,6 +278,7 @@ export function polyToString(p: Poly): string {
     .map(({ c, i }) => {
       const coeff =
         c === 1n && i > 0 ? '' : c === -1n && i > 0 ? '-' : String(c)
+
       const term = i === 0 ? '' : i === 1 ? 't' : `t^${i}`
 
       return `${coeff}${term}`
@@ -282,6 +305,7 @@ export function main(): void {
     ['[5,4]', [5, 4]],
     ['[5,3,4]', [5, 3, 4]],
   ] as const
+
   for (const [name, labels] of examples) {
     const series = coxeterGrowthSeries([...labels])
     const seq = expandSeries(series, 20)

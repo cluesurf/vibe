@@ -36,6 +36,7 @@ function run(): void {
 
   // a modest cell count keeps the 4D projection legible, a denser patch turns into an unreadable hairball
   const scene = buildHoneycombScene({ symbol, maxCells: 400 })
+
   if (scene.dim < 4) {
     console.log(
       `${symbolText} is ${scene.dim}D, not a 4D honeycomb. Pick a four-entry symbol like 3-4-3-4.`,
@@ -45,6 +46,7 @@ function run(): void {
   }
 
   const frames: Uint8Array[] = []
+
   for (let i = 0; i < FRAMES; i++) {
     const turn = (2 * Math.PI * i) / FRAMES
     const { rgba } = renderSceneToRgba({
@@ -58,7 +60,9 @@ function run(): void {
       near: [150, 130, 255],
       far: [40, 36, 90],
     })
+
     frames.push(rgba)
+
     if (i % 8 === 0) {
       console.log(`frame ${i + 1}/${FRAMES}`)
     }
@@ -70,6 +74,7 @@ function run(): void {
     height: SIZE,
     delayMs: 60,
   })
+
   const file = join(outDir, `${symbol.join('-')}.gif`)
   writeFileSync(file, gif)
   console.log(

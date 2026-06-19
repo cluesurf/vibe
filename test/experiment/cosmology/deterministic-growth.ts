@@ -46,6 +46,7 @@ export function deterministicGrowth(
   const oneShot = new GrowingPentagrid()
   oneShot.grow(N)
   const chunked = new GrowingPentagrid()
+
   for (let i = 0; i < N; ) {
     const step = Math.min(37, N - i)
     chunked.grow(step)
@@ -64,8 +65,10 @@ export function deterministicGrowth(
   const snapshot = mesh.adjacency.slice(0, 500).map(row => [...row])
   mesh.grow(1500)
   let appendOnly = true
+
   for (let i = 0; i < 500; i++) {
     const now = new Set(mesh.adjacency[i] ?? [])
+
     for (const w of snapshot[i] ?? []) {
       if (!now.has(w)) {
         appendOnly = false
@@ -83,6 +86,7 @@ export function deterministicGrowth(
   const staticRings = ringSizes(
     staticTiling.neighbors.map(r => Array.from(r)),
   )
+
   const staticCount = staticRings.reduce((a, b) => a + b, 0)
   const grownToMatch = new GrowingPentagrid()
   grownToMatch.grow(staticCount - 1) // root already present
@@ -99,10 +103,12 @@ export function deterministicGrowth(
     from: 5,
     to: rings.length - 1,
   })
+
   const geometryEmerges = Math.abs(growthRatio - GOLDEN_GROWTH) < 0.05
 
   // Degree stays bounded, as a finite-cell crystal requires.
   let maxDegree = 0
+
   for (const row of oneShot.adjacency) {
     maxDegree = Math.max(maxDegree, row.length)
   }

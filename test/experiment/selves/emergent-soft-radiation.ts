@@ -46,6 +46,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule: Collision = headOnRotate({ opposite })
     const lines = coinLines(opposite)
     const axisOf = (cell: number): number => cell % side
@@ -63,13 +64,16 @@ export default experiment({
         lowTarget: 3,
         lines,
       })
+
       let scratch: Will = {
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       const trace: number[] = [
         stripeContrast({ will: current, lambda, axisOf, bins: side }),
       ]
+
       for (let t = 1; t <= beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
         const swap = current
@@ -91,6 +95,7 @@ export default experiment({
 
     // the half-period grows with wavelength (the mode is soft, lower frequency at longer wavelength).
     let monotonic = true
+
     for (let i = 1; i < periods.length; i++) {
       if (periods[i]! < periods[i - 1]!) {
         monotonic = false
@@ -99,7 +104,9 @@ export default experiment({
 
     // the speed is constant (a LINEAR, gapless dispersion omega = c k, the hallmark of sound), within a tight band.
     const meanSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length
+
     let maxSpeedDeviation = 0
+
     for (const s of speeds) {
       maxSpeedDeviation = Math.max(
         maxSpeedDeviation,

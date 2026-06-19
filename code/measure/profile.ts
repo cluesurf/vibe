@@ -19,10 +19,13 @@ export function chargeDensityProfile(input: {
   const degree = will.mesh.degree
   const sum = new Array<number>(bins).fill(0)
   const count = new Array<number>(bins).fill(0)
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const bin = binOf(cell)
     const base = cell * degree
+
     let q = 0
+
     for (let direction = 0; direction < degree; direction++) {
       q += Math.abs(will.data[base + direction]!)
     }
@@ -39,6 +42,7 @@ export function profileGradient(
   profile: ReadonlyArray<number>,
 ): number {
   const mean = profile.reduce((a, b) => a + b, 0) / profile.length
+
   if (mean === 0) {
     return 0
   }
@@ -66,16 +70,21 @@ export function radialFieldProfile(input: {
     minRadius,
     maxRadius,
   } = input
+
   const c0 = L / 2
   const bins = new Map<number, { sum: number; count: number }>()
+
   for (let i = 0; i < values.length; i++) {
     const c = coord(i)
+
     let r2 = 0
+
     for (let k = 0; k < d; k++) {
       r2 += (c[k]! - c0) ** 2
     }
 
     const r = Math.round(Math.sqrt(r2))
+
     if (r < minRadius || r > maxRadius) {
       continue
     }
@@ -100,9 +109,11 @@ export function weightedGridRadiusOfGyration(input: {
   weightOf: (cell: number) => number
 }): number {
   const { cellCount, side, weightOf } = input
+
   let total = 0
   let cx = 0
   let cy = 0
+
   for (let i = 0; i < cellCount; i++) {
     const w = weightOf(i)
     total += w
@@ -117,6 +128,7 @@ export function weightedGridRadiusOfGyration(input: {
   cx /= total
   cy /= total
   let m2 = 0
+
   for (let i = 0; i < cellCount; i++) {
     const w = weightOf(i)
     const dx = (i % side) - cx

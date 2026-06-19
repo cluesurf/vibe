@@ -32,6 +32,7 @@ export default experiment({
       bodyHiX: 6,
       testX: 9,
     }
+
     const withBody = selfContainedShadowD4({ ...base, body: true })
     const noBody = selfContainedShadowD4({ ...base, body: false })
 

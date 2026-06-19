@@ -46,12 +46,14 @@ function domainStats(
   n: number,
 ): { largest: number; countOver20: number; mean: number } {
   const parent = new Int32Array(n)
+
   for (let i = 0; i < n; i++) {
     parent[i] = i
   }
 
   const find = (x: number): number => {
     let r = x
+
     while (parent[r] !== r) {
       r = parent[r]!
     }
@@ -72,6 +74,7 @@ function domainStats(
 
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
+
       if (w > v && tone[w] === tone[v]) {
         parent[find(v)] = find(w)
       }
@@ -79,6 +82,7 @@ function domainStats(
   }
 
   const size = new Map<number, number>()
+
   for (let i = 0; i < n; i++) {
     if (tone[i] === 0) {
       continue
@@ -92,6 +96,7 @@ function domainStats(
   let countOver20 = 0
   let total = 0
   let num = 0
+
   for (const s of size.values()) {
     if (s > largest) {
       largest = s
@@ -146,7 +151,9 @@ export function selvesDynamics(input?: { n?: number }): {
     countOver20: number
     mean: number
   }[] = []
+
   let done = 0
+
   for (const s of snaps) {
     while (done < s) {
       beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.08)

@@ -24,6 +24,7 @@ export function measuredDispersion(): {
 } {
   // (1) rest energy: omega(0) should equal the mass m, MEASURED from the operator (not input)
   let restEnergyIsMass = true
+
   for (const m of [0.0, 0.2, 0.5, 0.8]) {
     if (Math.abs(measuredOmega(0, m) - m) > 1e-9) {
       restEnergyIsMass = false
@@ -32,9 +33,11 @@ export function measuredDispersion(): {
 
   // (2) Lorentz at long wavelength: omega^2 - k^2 -> m^2 as k -> 0 (measured)
   let lorentzAtLongWave = true
+
   for (const m of [0.2, 0.5]) {
     const k = 0.02,
       w = measuredOmega(k, m)
+
     if (Math.abs(w * w - k * k - m * m) > 1e-3) {
       lorentzAtLongWave = false
     }
@@ -44,6 +47,7 @@ export function measuredDispersion(): {
   const dk = 1e-4,
     gv = (m: number, k: number): number =>
       (measuredOmega(k + dk, m) - measuredOmega(k, m)) / dk
+
   const masslessGV = gv(0, 0.3) // group velocity at m=0, mid-band
   const lightSpeedMassless = Math.abs(masslessGV - 1) < 1e-3
 
@@ -74,8 +78,10 @@ export default experiment({
       r.lorentzAtLongWave &&
       r.lightSpeedMassless &&
       r.subluminalMassive
+
     const massless =
       (measuredOmega(0.3 + 1e-4, 0) - measuredOmega(0.3, 0)) / 1e-4
+
     const massive =
       (measuredOmega(0.3 + 1e-4, 0.5) - measuredOmega(0.3, 0.5)) / 1e-4
 

@@ -41,6 +41,7 @@ export function massStudy(input: { m: number }): {
 } {
   // Small-momentum window, where the lattice dispersion is closest to continuum.
   const ks: number[] = []
+
   for (let k = 0.02; k <= 0.32 + 1e-9; k += 0.03) {
     ks.push(k)
   }

@@ -43,6 +43,7 @@ export function dreamingAndWaking(input: { seed: number }): {
   const cuePattern = patterns[0] ?? new Int8Array(size)
   const clamp = new Int8Array(size)
   const cr = makeRng({ seed: input.seed + 1 })
+
   for (let i = 0; i < size; i++) {
     if (cr.next() < 0.4) {
       clamp[i] = cuePattern[i] as -1 | 0 | 1
@@ -53,11 +54,15 @@ export function dreamingAndWaking(input: { seed: number }): {
     { length: size },
     () => rng.nextInt({ max: 3 }) - 1,
   )
+
   const wakingVisited = new Set<number>()
+
   for (let t = 0; t < 200; t++) {
     waking = hopfieldStep(J, waking, zeroBias, clamp)
+
     if (t % 25 === 24) {
       const np = nearestPattern(waking, patterns)
+
       if (np.overlap > 0.5) {
         wakingVisited.add(np.index)
       }
@@ -74,30 +79,39 @@ export function dreamingAndWaking(input: { seed: number }): {
     { length: size },
     () => rng.nextInt({ max: 3 }) - 1,
   )
+
   const dwell = 30
   const cueHold = 4 // the internal cue fires briefly, then releases to free relaxation
   const cueCount = Math.round(0.6 * size)
   const dreamVisited = new Set<number>()
+
   let windows = 0
   let blends = 0
+
   const totalBeats = K * dwell * 2
+
   for (let t = 0; t < totalBeats; t++) {
     const phase = t % dwell
     const mode = Math.floor(t / dwell) % K // the internal rhythm cycling through memories
+
     let cue: Int8Array | null = null
+
     if (phase < cueHold) {
       const p = patterns[mode] ?? new Int8Array(size)
       cue = new Int8Array(size)
+
       for (let i = 0; i < cueCount; i++) {
         cue[i] = p[i] as -1 | 0 | 1
       }
     }
 
     dreaming = hopfieldStep(J, dreaming, zeroBias, cue) // brief internal cue, then free relaxation
+
     // sample at the window midpoint (transition, blends) and end (settled memory)
     if (phase === Math.floor(dwell / 2)) {
       const np = nearestPattern(dreaming, patterns)
       windows++
+
       if (np.overlap <= 0.6) {
         blends++
       }
@@ -105,6 +119,7 @@ export function dreamingAndWaking(input: { seed: number }): {
 
     if (phase === dwell - 1) {
       const np = nearestPattern(dreaming, patterns)
+
       if (np.overlap > 0.6) {
         dreamVisited.add(np.index)
       }

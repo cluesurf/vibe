@@ -20,27 +20,33 @@ export function symmetricEdgeFills(input: {
   const n = neighbors.length
   const indexOf = neighbors.map(row => {
     const m = new Map<number, number>()
+
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
 
     return m
   })
+
   const fills = neighbors.map(row => new Int8Array(row.length))
+
   for (let v = 0; v < n; v++) {
     const fv = fills[v]
     const row = neighbors[v] ?? []
+
     if (!fv) {
       continue
     }
 
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
+
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
         fv[k] = f
         const fw = fills[w]
         const kk = indexOf[w]?.get(v)
+
         if (fw && kk !== undefined) {
           fw[kk] = f
         }
@@ -64,10 +70,13 @@ export function signedMajorityStep(input: {
   const { neighbors, fills, tone, keepOnTie } = input
   const n = neighbors.length
   const next = new Int8Array(n)
+
   for (let v = 0; v < n; v++) {
     const nb = neighbors[v] ?? []
     const fl = fills[v] ?? new Int8Array(0)
+
     let h = 0
+
     for (let k = 0; k < nb.length; k++) {
       h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
     }
@@ -95,6 +104,7 @@ export function runAsynchronousSignedMajority(input: {
   const n = neighbors.length
   const rng = makeRng({ seed: input.seed })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
   }
@@ -103,6 +113,7 @@ export function runAsynchronousSignedMajority(input: {
     { length: n },
     () => new Map<number, number>(),
   )
+
   for (let a = 0; a < n; a++) {
     for (const b of neighbors[a]!) {
       if (b > a) {
@@ -114,16 +125,21 @@ export function runAsynchronousSignedMajority(input: {
   }
 
   let changedLast = n
+
   for (let beat = 0; beat < beats; beat++) {
     let changed = 0
+
     for (let s = 0; s < n; s++) {
       const v = rng.nextInt({ max: n })
+
       let h = 0
+
       for (const w of neighbors[v]!) {
         h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
       }
 
       const next = h > 0 ? 1 : h < 0 ? -1 : 0
+
       if (next !== tone[v]) {
         changed++
       }
@@ -137,8 +153,10 @@ export function runAsynchronousSignedMajority(input: {
   let minus = 0
   let zero = 0
   let plus = 0
+
   for (let i = 0; i < n; i++) {
     const t = tone[i] ?? 0
+
     if (t < 0) {
       minus++
     } else if (t === 0) {

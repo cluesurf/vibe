@@ -22,6 +22,7 @@ type Rng = { next: () => number }
 function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
   const t = new Int8Array(M)
   const half = Math.floor(M / 2)
+
   if (kind === 0) {
     for (let i = 0; i < M; i++) {
       t[i] = i < half ? 1 : -1
@@ -50,11 +51,13 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
 function construct(target: Int8Array, rng: Rng): number {
   const M = target.length
   const s = new Int8Array(M)
+
   for (let i = 0; i < M; i++) {
     s[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
   }
 
   let gap = 0
+
   for (let i = 0; i < M; i++) {
     if (s[i] !== target[i]) {
       gap++
@@ -62,9 +65,11 @@ function construct(target: Int8Array, rng: Rng): number {
   }
 
   let steps = 0
+
   while (gap > 0 && steps < 100 * M) {
     steps++
     const i = Math.floor(rng.next() * M)
+
     if (s[i] !== target[i]) {
       s[i] = target[i]!
       gap--
@@ -78,6 +83,7 @@ function construct(target: Int8Array, rng: Rng): number {
 function maintain(target: Int8Array, rng: Rng): number {
   const M = target.length
   const s = target.slice()
+
   for (let beat = 0; beat < 40; beat++) {
     // scramble, swap a few cells (the churn)
     for (let k = 0; k < M / 5; k++) {
@@ -95,6 +101,7 @@ function maintain(target: Int8Array, rng: Rng): number {
   }
 
   let m = 0
+
   for (let i = 0; i < M; i++) {
     if (s[i] === target[i]) {
       m++
@@ -127,6 +134,7 @@ export function arbitraryStructure(input?: { M?: number }): {
 
     return { kind, buildSteps, built, maintainFidelity }
   })
+
   const allBuilt = cases.every(c => c.built && c.buildSteps < 30 * M)
   const allMaintained = cases.every(c => c.maintainFidelity > 0.99)
   const solved = allBuilt && allMaintained

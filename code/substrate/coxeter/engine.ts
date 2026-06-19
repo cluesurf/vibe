@@ -21,6 +21,7 @@ import {
 
 function innerJ(x: number[], y: number[], metric: number[]): number {
   let s = 0
+
   for (let a = 0; a < x.length; a++) {
     s += (metric[a] ?? 1) * (x[a] ?? 0) * (y[a] ?? 0)
   }
@@ -40,14 +41,18 @@ function reflect(
 
 function determinant(a: number[][]): number {
   const n = a.length
+
   if (n === 0) {
     return 1
   }
 
   const m = a.map(row => row.slice())
+
   let det = 1
+
   for (let col = 0; col < n; col++) {
     let pivot = col
+
     for (let r = col + 1; r < n; r++) {
       if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) {
         pivot = r
@@ -66,8 +71,10 @@ function determinant(a: number[][]): number {
     }
 
     det *= m[col]![col]!
+
     for (let r = col + 1; r < n; r++) {
       const f = m[r]![col]! / m[col]![col]!
+
       for (let c = col; c < n; c++) {
         m[r]![c]! -= f * m[col]![c]!
       }
@@ -85,6 +92,7 @@ function normalizeTimelike(
   const norm = innerJ(x, x, metric)
   const scale = 1 / Math.sqrt(Math.abs(norm))
   const out = x.map(v => v * scale)
+
   if ((out[timeAxis] ?? 0) < 0) {
     for (let a = 0; a < out.length; a++) {
       out[a] = -(out[a] ?? 0)
@@ -105,11 +113,13 @@ function cellCenter(input: {
   const { normals, metric, cellMirrors, timeAxis } = input
   const m = metric.length
   const rows: number[][] = []
+
   for (let i = 0; i < cellMirrors; i++) {
     rows.push(normals[i]!.map((val, a) => (metric[a] ?? 1) * val))
   }
 
   const c: number[] = new Array<number>(m).fill(0)
+
   for (let j = 0; j < m; j++) {
     const sub = rows.map(row => row.filter((_, col) => col !== j))
     c[j] = (j % 2 === 0 ? 1 : -1) * determinant(sub)
@@ -121,6 +131,7 @@ function cellCenter(input: {
 function toPoincare(x: number[], timeAxis: number): number[] {
   const time = x[timeAxis] ?? 1
   const out: number[] = []
+
   for (let a = 0; a < x.length; a++) {
     if (a === timeAxis) {
       continue
@@ -161,6 +172,7 @@ export function buildCoxeterMesh(input: {
   const c0 = cellCenter({ normals, metric, cellMirrors, timeAxis })
   // a generic interior point, off every mirror, so distinct chambers get distinct images
   const offset = new Array<number>(m).fill(0)
+
   for (let i = 0; i < m; i++) {
     for (let a = 0; a < m; a++) {
       offset[a]! += (i + 1) * (normals[i]![a] ?? 0)
@@ -180,9 +192,11 @@ export function buildCoxeterMesh(input: {
   const cellId = new Map<string, number>()
   const cellCenters: number[][] = []
   const cellCoords: number[][] = []
+
   const registerCell = (cc: number[]): number => {
     const key = round(toPoincare(cc, timeAxis))
     const found = cellId.get(key)
+
     if (found !== undefined) {
       return found
     }
@@ -200,6 +214,7 @@ export function buildCoxeterMesh(input: {
   let frontier: { g: number[]; cc: number[] }[] = [{ g: g0, cc: c0 }]
   let gen = 0
   let chamberCount = 1
+
   while (
     frontier.length > 0 &&
     gen < depth &&
@@ -207,10 +222,12 @@ export function buildCoxeterMesh(input: {
   ) {
     gen++
     const next: { g: number[]; cc: number[] }[] = []
+
     for (const ch of frontier) {
       for (let i = 0; i < m; i++) {
         const g = reflect(ch.g, normals[i]!, metric)
         const key = round(toPoincare(g, timeAxis))
+
         if (seenChamber.has(key)) {
           continue
         }
@@ -220,6 +237,7 @@ export function buildCoxeterMesh(input: {
         registerCell(cc)
         next.push({ g, cc })
         chamberCount++
+
         if (chamberCount >= maxChambers) {
           break
         }
@@ -237,10 +255,13 @@ export function buildCoxeterMesh(input: {
   const n = cellCenters.length
   const cdist = (a: number, b: number): number =>
     -innerJ(cellCenters[a]!, cellCenters[b]!, metric)
+
   let minCosh = Infinity
+
   for (let a = 0; a < n; a++) {
     for (let b = a + 1; b < n; b++) {
       const c = cdist(a, b)
+
       if (c > 1.0000001 && c < minCosh) {
         minCosh = c
       }
@@ -249,6 +270,7 @@ export function buildCoxeterMesh(input: {
 
   const cut = minCosh * 1.02
   const neighbors: number[][] = Array.from({ length: n }, () => [])
+
   for (let a = 0; a < n; a++) {
     for (let b = a + 1; b < n; b++) {
       if (cdist(a, b) <= cut) {
@@ -259,6 +281,7 @@ export function buildCoxeterMesh(input: {
   }
 
   let facetCount = 0
+
   for (const nb of neighbors) {
     facetCount = Math.max(facetCount, nb.length)
   }
@@ -267,8 +290,10 @@ export function buildCoxeterMesh(input: {
   const generation = new Array<number>(n).fill(-1)
   generation[0] = 0
   let ring = [0]
+
   while (ring.length > 0) {
     const nx: number[] = []
+
     for (const v of ring) {
       for (const w of neighbors[v]!) {
         if (generation[w] === -1) {

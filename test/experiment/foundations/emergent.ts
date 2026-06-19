@@ -24,9 +24,11 @@ function ringDistance(i: number, j: number, n: number): number {
 function denseLaplacian(graph: Graph): ReturnType<typeof makeDense> {
   const n = graph.size
   const m = makeDense({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     const row = graph.neighbors[i] ?? new Uint32Array(0)
     m.data[i * n + i] = row.length
+
     for (let k = 0; k < row.length; k++) {
       const j = row[k] ?? 0
       m.data[i * n + j] = -1
@@ -43,11 +45,14 @@ function interactionRange(input: {
   n: number
 }): number {
   const { matrix, n } = input
+
   let maxRange = 0
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       if (i !== j && Math.abs(matrix.data[i * n + j] ?? 0) > 1e-12) {
         const d = ringDistance(i, j, n)
+
         if (d > maxRange) {
           maxRange = d
         }
@@ -73,11 +78,14 @@ export default experiment({
       extent: n,
       signature: 'riemannian',
     }) as Graph
+
     const laplacian = denseLaplacian(graph)
     const range = interactionRange({ matrix: laplacian, n })
     const eig = eigSymmetric({ matrix: laplacian })
+
     let minEig = Infinity
     let maxEig = -Infinity
+
     for (let i = 0; i < eig.values.length; i++) {
       const value = eig.values[i] ?? 0
       minEig = Math.min(minEig, value)

@@ -32,9 +32,11 @@ export function cycleReversibility(input?: { n?: number }): {
   const eu: number[] = []
   const ev: number[] = []
   const idx = new Map<number, number>()
+
   for (let v = 0; v < N; v++) {
     for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
       const w = g.adj[p]!
+
       if (w > v) {
         idx.set(v * N + w, eu.length)
         eu.push(v)
@@ -46,6 +48,7 @@ export function cycleReversibility(input?: { n?: number }): {
   const euA = Int32Array.from(eu)
   const evA = Int32Array.from(ev)
   const flow = new Float64Array(eu.length)
+
   const edgeBetween = (
     a: number,
     b: number,
@@ -53,6 +56,7 @@ export function cycleReversibility(input?: { n?: number }): {
     const lo = Math.min(a, b)
     const hi = Math.max(a, b)
     const k = idx.get(lo * N + hi)
+
     if (k === undefined) {
       return null
     }
@@ -66,6 +70,7 @@ export function cycleReversibility(input?: { n?: number }): {
     { length: N },
     () => new Set<number>(),
   )
+
   for (let v = 0; v < N; v++) {
     for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
       nbrSet[v]!.add(g.adj[p]!)
@@ -73,23 +78,28 @@ export function cycleReversibility(input?: { n?: number }): {
   }
 
   const rngC = makeRng({ seed: 2 })
+
   let tries = 0
+
   while (cycles.length < 800 && tries < 40000) {
     tries++
     const a = Math.floor(rngC.next() * N)
     const an = [...nbrSet[a]!]
+
     if (an.length < 2) {
       continue
     }
 
     const b = an[Math.floor(rngC.next() * an.length)]!
     const d = an[Math.floor(rngC.next() * an.length)]!
+
     if (b === d) {
       continue
     }
 
     // common neighbor c of b and d, c != a
     let c = -1
+
     for (const x of nbrSet[b]!) {
       if (x !== a && nbrSet[d]!.has(x)) {
         c = x
@@ -108,6 +118,7 @@ export function cycleReversibility(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const moved = new Uint8Array(N)
   const rng = makeRng({ seed: 3 })
+
   for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -118,18 +129,22 @@ export function cycleReversibility(input?: { n?: number }): {
   const arrow = 0.1
   const warmup = 40
   const beats = 400
+
   for (let t = 0; t < warmup + beats; t++) {
     const record = t >= warmup
     moved.fill(0)
+
     for (let k = 0; k < euA.length; k++) {
       const v = euA[k]!
       const w = evA[k]!
+
       if (moved[v] || moved[w]) {
         continue
       }
 
       const a = tone[v]!
       const b = tone[w]!
+
       if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
         tone[v] = 0
         tone[w] = 0
@@ -138,11 +153,13 @@ export function cycleReversibility(input?: { n?: number }): {
       } else if ((a === 0) !== (b === 0)) {
         const cc = a === 0 ? w : v // charged
         const e = a === 0 ? v : w // empty
+
         if (rng.next() < 0.5) {
           tone[e] = tone[cc]!
           tone[cc] = 0
           moved[v] = 1
           moved[w] = 1
+
           if (record) {
             flow[k]! += cc === v ? 1 : -1
           } // net flow from v to w is +1 if charge went v->w
@@ -167,11 +184,13 @@ export function cycleReversibility(input?: { n?: number }): {
   // circulation around each 4-cycle, and the statistical floor (from per-edge flow magnitudes)
   let sumAbsCirc = 0
   let cycleCount = 0
+
   for (const [a, b, c, d] of cycles) {
     const e1 = edgeBetween(a!, b!)
     const e2 = edgeBetween(b!, c!)
     const e3 = edgeBetween(c!, d!)
     const e4 = edgeBetween(d!, a!)
+
     if (!e1 || !e2 || !e3 || !e4) {
       continue
     }
@@ -181,15 +200,18 @@ export function cycleReversibility(input?: { n?: number }): {
       e2.sign * flow[e2.k]! +
       e3.sign * flow[e3.k]! +
       e4.sign * flow[e4.k]!
+
     sumAbsCirc += Math.abs(circ)
     cycleCount++
   }
 
   const meanAbsCirculation =
     cycleCount > 0 ? sumAbsCirc / cycleCount : 0
+
   // floor: a reversible process has zero-mean per-edge flow, so circulation is a sum of 4 zero-mean
   // noisy terms. estimate the floor from the typical per-edge |flow| (the noise scale of one edge).
   let sumAbsFlow = 0
+
   for (let k = 0; k < flow.length; k++) {
     sumAbsFlow += Math.abs(flow[k]!)
   }

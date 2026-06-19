@@ -7,6 +7,7 @@ export type Vec = number[]
 
 export function dot(a: Vec, b: Vec): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
@@ -40,6 +41,7 @@ export function normalize(v: Vec): Vec {
 // Minkowski inner product with a diagonal metric (entries +1 spacelike, -1 timelike)
 export function innerJ(a: Vec, b: Vec, metric: number[]): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (metric[i] ?? 1) * (a[i] ?? 0) * (b[i] ?? 0)
   }

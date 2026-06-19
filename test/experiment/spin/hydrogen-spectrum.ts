@@ -70,6 +70,7 @@ export default experiment({
     const rydbergHolds = impliedN.every(
       (n, i) => Math.abs(n - (i + 1)) < 0.05,
     )
+
     const groundStateRydberg = Math.abs(sSeries[0]! - -0.5) < 0.01
 
     // the accidental l-degeneracy, E(2s) = E(2p), and E(3s) = E(3p) = E(3d)

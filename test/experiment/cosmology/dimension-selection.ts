@@ -51,6 +51,7 @@ export function dimensionSelection(input: Record<string, never> = {}): {
       cleanWaves: d % 2 === 1, // Huygens: sharp, wake-free propagation only in odd spatial dimensions
     }
   })
+
   // The selected dimension(s): stable AND closed orbits (and, as a corroboration, clean waves).
   const selected = byDimension
     .filter(r => r.closed)

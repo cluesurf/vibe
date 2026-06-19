@@ -23,6 +23,7 @@ export function saveGraph(path: string, g: StoredGraph): void {
     ),
     Buffer.from(g.adj.buffer, g.adj.byteOffset, g.adj.byteLength),
   ])
+
   writeFileSync(path, buf)
 }
 
@@ -31,7 +32,9 @@ export function loadGraph(path: string): StoredGraph {
   const header = new Int32Array(buf.buffer, buf.byteOffset, 2)
   const cellCount = header[0]!
   const adjLen = header[1]!
+
   let off = 8
+
   const offsets = new Int32Array(cellCount + 1)
   offsets.set(
     new Int32Array(buf.buffer, buf.byteOffset + off, cellCount + 1),
@@ -49,6 +52,7 @@ export function saveState(path: string, tone: Int8Array): void {
     Buffer.from(header.buffer, header.byteOffset, header.byteLength),
     Buffer.from(tone.buffer, tone.byteOffset, tone.byteLength),
   ])
+
   writeFileSync(path, buf)
 }
 

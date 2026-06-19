@@ -42,10 +42,13 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
     longRange: boolean
     psd: boolean
   }[] = []
+
   for (const mass of masses) {
     const c = correlator(mass, maxR, 4000)
+
     // correlation range, where |C(r)| stays above 5% of C(0)
     let range = 0
+
     for (let r = 1; r <= maxR; r++) {
       if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
         range = r
@@ -74,6 +77,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
   const hankelConsistent = results.every(r => r.hankelMinEig > -0.02) // PSD within the lattice-UV floor
   const reflectionPositive =
     spectralWeightPositive && hankelConsistent && longRangeForSmallMass
+
   const solved = reflectionPositive
 
   return {

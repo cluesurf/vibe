@@ -41,7 +41,9 @@ function applySweep(input: {
   offsets: number
 }): number {
   let state = input.state
+
   const { cells, blockSize, gate } = input
+
   // offsets = 1 is a single disjoint-block layer (no propagation, block-local H).
   // offsets = blockSize covers every shift, so information propagates.
   for (let offset = 0; offset < input.offsets; offset++) {
@@ -52,16 +54,19 @@ function applySweep(input: {
     ) {
       // Extract the block value from positions (start + j) mod cells.
       let v = 0
+
       for (let j = 0; j < blockSize; j++) {
         const pos = (start + j) % cells
         v |= ((state >> pos) & 1) << j
       }
 
       const w = gate(v)
+
       // Write the gated block back.
       for (let j = 0; j < blockSize; j++) {
         const pos = (start + j) % cells
         const bit = (w >> j) & 1
+
         if (((state >> pos) & 1) !== bit) {
           state ^= 1 << pos
         }
@@ -88,19 +93,24 @@ export function commutingBlockHamiltonian(input: {
   const n = 1 << cells
   const h = makeComplexMatrix({ rows: n, cols: n })
   const half = Math.PI / 2
+
   for (let p = 0; p < cells; p += blockSize) {
     for (let c = 0; c < n; c++) {
       // Apply the gate to the block at p only.
       let v = 0
+
       for (let j = 0; j < blockSize; j++) {
         v |= ((c >> ((p + j) % cells)) & 1) << j
       }
 
       const w = gate(v)
+
       let target = c
+
       for (let j = 0; j < blockSize; j++) {
         const pos = (p + j) % cells
         const bit = (w >> j) & 1
+
         if (((target >> pos) & 1) !== bit) {
           target ^= 1 << pos
         }
@@ -127,6 +137,7 @@ export function blockCaPermutation(input: {
   const n = 1 << input.cells
   const perm = new Int32Array(n)
   const offsets = input.offsets ?? input.blockSize
+
   for (let s = 0; s < n; s++) {
     perm[s] = applySweep({
       state: s,

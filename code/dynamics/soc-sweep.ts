@@ -11,6 +11,7 @@ export function localActivity(
 ): number {
   let nz = 0
   let tot = 0
+
   for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
     if (tone[adj[p]!] !== 0) {
       nz++
@@ -51,17 +52,21 @@ export function socEdgeSweep(input: {
 }): void {
   const { tone, offsets, adj, eu, ev, moved, rng, arrow, uniform } =
     input
+
   const quietThreshold = input.quietThreshold ?? 0.12
   moved.fill(0)
+
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -70,6 +75,7 @@ export function socEdgeSweep(input: {
     } else if ((a === 0) !== (b === 0)) {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
+
       if (rng.next() < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
@@ -79,7 +85,9 @@ export function socEdgeSweep(input: {
     } else if (a === 0 && b === 0) {
       const quiet =
         localActivity(tone, offsets, adj, v, w) < quietThreshold
+
       const rate = uniform ? arrow * 0.5 : quiet ? arrow : 0
+
       if (rng.next() < rate) {
         if (rng.next() < 0.5) {
           tone[v] = 1

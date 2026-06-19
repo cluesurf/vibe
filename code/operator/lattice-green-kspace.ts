@@ -13,17 +13,22 @@ export function latticeGreenDifferenceX(input: {
 }): number {
   const M = input.gridPoints
   const dk = (2 * Math.PI) / M
+
   let s = 0
+
   for (let a = 0; a < M; a++) {
     const kx = -Math.PI + a * dk
     const ckx = Math.cos(kx)
     const drx = Math.cos(kx * input.r) - Math.cos(kx * input.r0)
+
     for (let b = 0; b < M; b++) {
       const cky = Math.cos(-Math.PI + b * dk)
+
       for (let c = 0; c < M; c++) {
         const kz = -Math.PI + c * dk
         const ckz = Math.cos(kz)
         const den = 3 - ckx - cky - ckz
+
         if (den < 1e-12) {
           continue
         } // k=0: the cosine-difference integrand goes to 0 here anyway

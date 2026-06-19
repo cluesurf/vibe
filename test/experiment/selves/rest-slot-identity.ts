@@ -47,6 +47,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       coin.opposite(d),
     )
+
     const rule = headOnRotate({ opposite })
     const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
     const half = side / 2
@@ -56,6 +57,7 @@ export default experiment({
       Math.floor(c / (side * side)) % side,
       Math.floor(c / (side * side * side)) % side,
     ]
+
     const center =
       half +
       half * side +
@@ -64,8 +66,10 @@ export default experiment({
 
     const restBody = (): Will => {
       const will = makeWill(coin)
+
       for (let c = 0; c < coin.cellCount; c++) {
         const [x, y, z, w] = coord(c)
+
         if (
           (x - half) ** 2 +
             (y - half) ** 2 +
@@ -83,9 +87,12 @@ export default experiment({
     const extent = (will: Will): { occ: number; ext: number } => {
       let occ = 0,
         ext = 0
+
       for (let c = 0; c < coin.cellCount; c++) {
         const b = c * degree
+
         let on = false
+
         for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
@@ -101,6 +108,7 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
+
           if (dd > ext) {
             ext = dd
           }
@@ -112,6 +120,7 @@ export default experiment({
 
     // 1. the rest body persists exactly (a bound identity).
     let body = restBody()
+
     const start = extent(body)
     body = run(body, rule, beats)
     const end = extent(body)
@@ -120,6 +129,7 @@ export default experiment({
     // 2. a moving disturbance radiates to the bath (open) while the rest body is untouched.
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
+
       for (let d = 0; d < 8; d++) {
         w.data[center * degree + d] = 1
       }
@@ -130,16 +140,20 @@ export default experiment({
     const diff = (open: boolean): { peak: number; final: number } => {
       let clean = restBody(),
         pert = withDisturbance()
+
       let peak = 0,
         final = 0
+
       let cleanScratch: Will = {
         mesh: coin,
         data: new Int8Array(clean.data.length),
       }
+
       let pertScratch: Will = {
         mesh: coin,
         data: new Int8Array(pert.data.length),
       }
+
       for (let t = 0; t < beats; t++) {
         beatInto({
           src: clean,
@@ -147,6 +161,7 @@ export default experiment({
           table,
           collision: rule,
         })
+
         {
           const s = clean
           clean = cleanScratch
@@ -159,6 +174,7 @@ export default experiment({
           table,
           collision: rule,
         })
+
         {
           const s = pert
           pert = pertScratch
@@ -171,6 +187,7 @@ export default experiment({
         }
 
         let d = 0
+
         for (let i = 0; i < clean.data.length; i++) {
           if (clean.data[i] !== pert.data[i]) {
             d++
@@ -207,13 +224,17 @@ export default experiment({
       mesh: coin,
       data: new Int8Array(dsp.data.length),
     }
+
     let cleanBodyScratch: Will = {
       mesh: coin,
       data: new Int8Array(cleanBody.data.length),
     }
+
     let displacedFinal = 0
+
     for (let t = 0; t < beats; t++) {
       beatInto({ src: dsp, dst: dspScratch, table, collision: rule })
+
       {
         const s = dsp
         dsp = dspScratch
@@ -226,6 +247,7 @@ export default experiment({
         table,
         collision: rule,
       })
+
       {
         const s = cleanBody
         cleanBody = cleanBodyScratch
@@ -233,6 +255,7 @@ export default experiment({
       }
 
       let d = 0
+
       for (let i = 0; i < dsp.data.length; i++) {
         if (dsp.data[i] !== cleanBody.data[i]) {
           d++

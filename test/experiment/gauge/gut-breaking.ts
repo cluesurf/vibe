@@ -24,19 +24,23 @@ export function gutBreaking(): {
 } {
   const D5 = d5(),
     A4 = a4()
+
   // (a) su(5)=A4 embeds in so(10)=D5 (the e_i-e_j roots are a subset of +-e_i+-e_j)
   const su5InSo10 =
     A4.every(r => D5.some(d => eq(d, r))) && A4.length === 20
+
   // (b) the SM embeds in su(5) (Georgi-Glashow)
   const smInSu5 = standardModelEmbedsInRootSystem(A4)
   // (c) the 16-spinor under su(5): split the (+-1/2)^5 even-minus weights by minus-count (the u(1) grade)
   const six: number[][] = []
+
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {
         for (const d of [0.5, -0.5]) {
           for (const e of [0.5, -0.5]) {
             const w = [a, b, c, d, e]
+
             if (w.filter(x => x < 0).length % 2 === 0) {
               six.push(w)
             }
@@ -47,6 +51,7 @@ export function gutBreaking(): {
   }
 
   const byMinus: Record<number, number> = {}
+
   for (const w of six) {
     const m = w.filter(x => x < 0).length
     byMinus[m] = (byMinus[m] ?? 0) + 1

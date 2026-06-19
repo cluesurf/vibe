@@ -59,6 +59,7 @@ export default experiment({
         ...cells,
       })
     })
+
     const torusDegeneracyIsNine = torusDegeneracies.every(d => d === 9)
     const sizeIndependent = new Set(torusDegeneracies).size === 1
     const torusDegeneracySmall = torusDegeneracies[0] ?? 0
@@ -72,10 +73,12 @@ export default experiment({
       toneStates: TONE_STATES,
       ...sphere,
     })
+
     const genusTwoDegeneracy = toricCodeGroundStateDegeneracy({
       toneStates: TONE_STATES,
       ...genusTwo,
     })
+
     const genusScaling =
       sphereDegeneracy === 1 && genusTwoDegeneracy === 81
 
@@ -87,6 +90,7 @@ export default experiment({
       magneticFlux: 1,
       toneStates: TONE_STATES,
     })
+
     const fractionalBraiding =
       Math.abs(braiding - (2 * Math.PI) / 3) < 1e-9
 
@@ -102,6 +106,7 @@ export default experiment({
       toneStates: 1,
       ...trivialTorus,
     })
+
     const trivialAnyons = anyonTypeCount(1)
     const trivialEntropy = topologicalEntanglementEntropy(1)
     const trivialIsTrivial =

@@ -24,6 +24,7 @@ export function sprinkleDeSitter(input: {
   const tau: number[] = []
   const x: number[] = []
   const eta: number[] = []
+
   for (let i = 0; i < n; i++) {
     // Inverse-CDF sample of tau with density proportional to a(tau) = e^{H tau}.
     const u = input.rng.next()
@@ -37,11 +38,13 @@ export function sprinkleDeSitter(input: {
   const order = Array.from({ length: n }, (_, i) => i).sort(
     (a, b) => (tau[a] ?? 0) - (tau[b] ?? 0),
   )
+
   const sTau = order.map(i => tau[i] ?? 0)
   const sX = order.map(i => x[i] ?? 0)
   const sEta = order.map(i => eta[i] ?? 0)
 
   const future = makeBitMatrix({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       // i precedes j (sTau[i] <= sTau[j]) iff inside the forward light cone.

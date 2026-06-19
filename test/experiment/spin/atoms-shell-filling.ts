@@ -30,6 +30,7 @@ const SPIN = 2 // the spinor doubling, each orbital holds two fermions (the two 
 function centralWell(): Float64Array {
   const center = (SIDE - 1) / 2
   const potential = new Float64Array(SIDE * SIDE)
+
   for (let i = 0; i < SIDE; i++) {
     for (let j = 0; j < SIDE; j++) {
       const r2 = (i - center) ** 2 + (j - center) ** 2
@@ -46,8 +47,10 @@ function groupShells(
   energies: number[],
 ): { energy: number; degeneracy: number }[] {
   const shells: { energy: number; degeneracy: number }[] = []
+
   for (const e of energies) {
     const last = shells[shells.length - 1]
+
     if (last && Math.abs(e - last.energy) < 0.4 * OMEGA) {
       last.degeneracy += 1
       last.energy =
@@ -86,11 +89,13 @@ export default experiment({
       shift: 2 * 2 * T + V0 + 1,
       seed: 1,
     })
+
     const energies = eigenpairs.map(e => e.energy).sort((a, b) => a - b)
 
     // (1) the DISCRETE LADDER and the SHELLS, the levels cluster into degenerate shells with a clean gap between
     const shells = groupShells(energies)
     const interShellGaps: number[] = []
+
     for (let s = 1; s < shells.length; s++) {
       interShellGaps.push(shells[s]!.energy - shells[s - 1]!.energy)
     }
@@ -98,6 +103,7 @@ export default experiment({
     const meanShellGap =
       interShellGaps.reduce((a, b) => a + b, 0) /
       Math.max(1, interShellGaps.length)
+
     // the shell degeneracies, expected 1, 2, 3, ... for a 2D central well
     const degeneracies = shells.map(s => s.degeneracy)
     const ladderDiscrete = shells.length >= 3 && meanShellGap > 0.1 // a resolved ladder of separated shells
@@ -108,7 +114,9 @@ export default experiment({
 
     // (2) the MAGIC NUMBERS, the cumulative closed-shell occupancies (each orbital holds SPIN fermions)
     const magicNumbers: number[] = []
+
     let cumulative = 0
+
     for (const s of shells) {
       cumulative += s.degeneracy * SPIN
       magicNumbers.push(cumulative)
@@ -121,6 +129,7 @@ export default experiment({
     const shellsTouchedByFermions = (n: number): number => {
       let remaining = n
       let touched = 0
+
       for (const s of shells) {
         if (remaining <= 0) {
           break

@@ -14,6 +14,7 @@ export function gravityFreeSpace(): {
 } {
   const M = 96,
     r0 = 2
+
   const rs = [3, 4, 5, 6, 8, 10, 12, 14]
   const dG = rs.map(
     r =>
@@ -22,14 +23,17 @@ export function gravityFreeSpace(): {
         number,
       ],
   )
+
   // fit dG = a*(1/r) + b  (so G ~ a/r + const, a should be 1/(4 pi) = 0.0796)
   const fit = linearFit({
     xs: dG.map(([r]) => 1 / r),
     ys: dG.map(([, g]) => g),
   })
+
   const a = fit.slope
   const coeffA = Math.round(a * 10000) / 10000,
     fitResidual = Math.sqrt(fit.residual / dG.length)
+
   const ok =
     Math.abs(a - 1 / (4 * Math.PI)) < 0.01 && fitResidual < 1e-3
 

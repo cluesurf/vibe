@@ -30,10 +30,13 @@ export default experiment({
   paper: true,
   run() {
     let allMatch = true
+
     const measured: Record<string, number> = {}
+
     for (const e of EXPECTED) {
       const c = cellCoordination(e.symbol)
       measured[`{${e.symbol.join(',')}}`] = c
+
       if (c !== e.coordination) {
         allMatch = false
       }

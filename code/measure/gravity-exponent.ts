@@ -28,11 +28,14 @@ export function gravityExponent(input: {
     mass2,
     iterations,
   })
+
   const dist = bfsShells({ neighbors, root: start }).depth
   const sums: number[] = []
   const cnts: number[] = []
+
   for (let i = 0; i < neighbors.length; i++) {
     const r = dist[i]!
+
     if (r < 0) {
       continue
     }
@@ -43,6 +46,7 @@ export function gravityExponent(input: {
 
   const xs: number[] = []
   const ys: number[] = []
+
   for (let r = rLo; r <= rHi; r++) {
     if (cnts[r]) {
       xs.push(Math.log(r))

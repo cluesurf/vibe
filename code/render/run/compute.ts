@@ -34,6 +34,7 @@ const SECTORS: [number, number, number][] = [
   [60, 52, 115],
   [48, 56, 110],
 ]
+
 const TRAIL: [number, number, number] = [150, 120, 230]
 const SIGNAL: [number, number, number] = [250, 245, 255]
 const EDGE: [number, number, number] = [16, 16, 24]
@@ -58,14 +59,17 @@ function run(): void {
   const edges = cellOutlines(faces.polygons)
   const frames: Uint8Array[] = []
   const totalFrames = path.length + 8 // a few trailing frames to hold the finished path
+
   for (let f = 0; f < totalFrames; f++) {
     const head = Math.min(f, path.length - 1)
     const onPath = new Map<number, number>() // cell -> brightness phase
+
     for (let k = 0; k <= head; k++) {
       onPath.set(path[k]!, k === head ? 2 : 1)
     }
 
     const sceneFaces: SceneFace[] = []
+
     for (let cell = 0; cell < faces.cellCount; cell++) {
       const phase = onPath.get(cell)
       const color =
@@ -76,6 +80,7 @@ function run(): void {
             : SECTORS[
                 patternClass(grid, cell, 'sector') % SECTORS.length
               ]!
+
       sceneFaces.push({ polygon: faces.polygons[cell]!, color })
     }
 
@@ -86,6 +91,7 @@ function run(): void {
       faces: sceneFaces,
       cellCount: faces.cellCount,
     }
+
     const { rgba } = renderSceneToRgba({
       scene,
       size,
@@ -95,7 +101,9 @@ function run(): void {
       far: EDGE,
       model,
     })
+
     frames.push(rgba)
+
     if (f === 0 || f === Math.floor(totalFrames / 2)) {
       writeFileSync(
         join(outDir, `compute-${symbolText}-${model}-frame${f}.png`),
@@ -110,6 +118,7 @@ function run(): void {
     height: size,
     delayMs: 90,
   })
+
   writeFileSync(join(outDir, `compute-${symbolText}-${model}.gif`), gif)
   console.log(
     `computed a route on {${symbol.join(',')}} (${sectors} sectors), path length ${path.length}, wrote compute-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${totalFrames} frames`,
@@ -119,6 +128,7 @@ function run(): void {
 function cellOutlines(polygons: number[][][]): SceneEdge[] {
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
+
   for (const poly of polygons) {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
@@ -126,6 +136,7 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       const ka = a.map(x => Math.round(x * 1e4)).join(',')
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
+
       if (seen.has(key)) {
         continue
       }

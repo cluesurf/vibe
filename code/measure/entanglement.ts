@@ -23,11 +23,14 @@ export function freeFermionCorrelationMatrix(input: {
   const order = Array.from({ length: n }, (_, k) => k).sort(
     (a, b) => (eig.values[a] ?? 0) - (eig.values[b] ?? 0),
   )
+
   const occupied = order.slice(0, Math.floor(n / 2))
   const c = new Float64Array(n * n)
+
   for (const k of occupied) {
     for (let i = 0; i < n; i++) {
       const vik = eig.vectors[i * n + k] ?? 0
+
       if (vik === 0) {
         continue
       }
@@ -53,6 +56,7 @@ export function regionEntanglementEntropy(input: {
 }): number {
   const m = input.region.length
   const sub = makeDense({ rows: m, cols: m })
+
   for (let a = 0; a < m; a++) {
     for (let b = 0; b < m; b++) {
       sub.data[a * m + b] =
@@ -63,7 +67,9 @@ export function regionEntanglementEntropy(input: {
   }
 
   const eig = eigSymmetric({ matrix: sub })
+
   let s = 0
+
   for (let i = 0; i < m; i++) {
     const z = Math.min(1 - 1e-12, Math.max(1e-12, eig.values[i] ?? 0))
     s -= z * Math.log(z) + (1 - z) * Math.log(1 - z)
@@ -83,6 +89,7 @@ export function pageAverageEntropy(input: {
 }): number {
   let m = input.dimA
   let n = input.dimB
+
   if (m > n) {
     const t = m
     m = n
@@ -90,6 +97,7 @@ export function pageAverageEntropy(input: {
   }
 
   let s = 0
+
   for (let k = n + 1; k <= m * n; k++) {
     s += 1 / k
   }

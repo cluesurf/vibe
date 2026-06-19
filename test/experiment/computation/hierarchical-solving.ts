@@ -37,6 +37,7 @@ function solveTime(n: number): {
   const arrow = 0.1
   const base = new Int8Array(N)
   const rng0 = makeRng({ seed: 5 })
+
   for (let i = 0; i < N; i++) {
     base[i] = (
       rng0.next() < 0.15 ? (rng0.next() < 0.5 ? 1 : -1) : 0
@@ -48,6 +49,7 @@ function solveTime(n: number): {
   }
 
   let source = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -62,13 +64,17 @@ function solveTime(n: number): {
   dist[source] = 0
   let fr = [source]
   let diameter = 0
+
   while (fr.length > 0) {
     const next: number[] = []
+
     for (const u of fr) {
       for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
         const w = g.adj[p]!
+
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
+
           if (dist[w]! > diameter) {
             diameter = dist[w]!
           }
@@ -85,6 +91,7 @@ function solveTime(n: number): {
   const s2 = base.slice()
   s2[source] = (s2[source]! === 0 ? 1 : 0) as -1 | 0 | 1 // the decision at the source
   const targetRadius = Math.floor(diameter * 0.8)
+
   for (let t = 1; t <= 60; t++) {
     conservingEdgeSweepHashed({
       tone: s,
@@ -103,6 +110,7 @@ function solveTime(n: number): {
       arrow,
     })
     let frontRadius = 0
+
     for (let i = 0; i < N; i++) {
       if (s[i] !== s2[i] && dist[i]! > frontRadius) {
         frontRadius = dist[i]!
@@ -131,6 +139,7 @@ export function hierarchicalSolving(): {
 
     return { N: r.N, t: r.t, diameter: r.diameter, logN: Math.log(r.N) }
   })
+
   const first = scan[0]!
   const last = scan[scan.length - 1]!
   const growthFactorN = last.N / first.N // how much the problem grew
@@ -144,6 +153,7 @@ export function hierarchicalSolving(): {
     growthFactorT < euclideanWouldBe &&
     growthFactorT < logRatio * 1.5 &&
     last.diameter <= 10
+
   const solved = logScaling
 
   return {

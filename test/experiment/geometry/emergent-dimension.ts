@@ -45,6 +45,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
     { target: 3, L: 31, rLo: 3, rHi: 13 },
     { target: 4, L: 21, rLo: 4, rHi: 10 },
   ]
+
   const flat = flatSpecs.map(spec => {
     const adj = torusGrid(spec.target, spec.L)
     const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
@@ -57,6 +58,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
     { name: 'Bethe lattice {.,3}', q: 3, depth: 16, rLo: 3, rHi: 14 },
     { name: 'Bethe lattice {.,4}', q: 4, depth: 11, rLo: 3, rHi: 9 },
   ]
+
   const curved = treeSpecs.map(spec => {
     const adj = betheTree(spec.q, spec.depth)
     const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
@@ -77,6 +79,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
   const flatUnbiased = flat.every(
     f => Math.abs(f.measured - f.target) < 0.2,
   )
+
   const curvedIsExponential = curved.every(
     c => c.exponentialR2 >= c.powerR2 && c.growthRatio > 1.8,
   )

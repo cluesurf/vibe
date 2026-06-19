@@ -42,6 +42,7 @@ export function selfEmergencePerception(): {
     depth: 20,
     maxChambers: 60000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
@@ -53,6 +54,7 @@ export function selfEmergencePerception(): {
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
+
   for (let b = 0; b < 80; b++) {
     conservingEdgeListSweep({
       tone: t,
@@ -68,7 +70,9 @@ export function selfEmergencePerception(): {
   const lags = [1, 5, 10, 20, 40]
   const autocorr: { lag: number; c: number }[] = []
   const work = base.slice()
+
   let done = 0
+
   for (const lag of lags) {
     while (done < lag) {
       conservingEdgeListSweep({
@@ -89,6 +93,7 @@ export function selfEmergencePerception(): {
 
   // IMPRINT MEMORY: imprint a pleasure blob, run, measure its survival above background
   let center = 0
+
   for (let i = 1; i < n; i++) {
     if (neighbors[i]!.length > neighbors[center]!.length) {
       center = i
@@ -100,8 +105,10 @@ export function selfEmergencePerception(): {
     size: n,
     source: center,
   })
+
   const imp = t.slice() // start from the balanced state
   const blob: number[] = []
+
   for (let i = 0; i < n; i++) {
     if (dd(distC, i) <= 3) {
       imp[i] = 1 // imprint pleasure
@@ -111,8 +118,10 @@ export function selfEmergencePerception(): {
 
   const meanBlob = (arr: Int8Array): number =>
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
+
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
+
   for (let b = 0; b < 40; b++) {
     conservingEdgeListSweep({
       tone: imp,
@@ -124,8 +133,10 @@ export function selfEmergencePerception(): {
   }
 
   const after = meanBlob(imp)
+
   // background mean tone for reference
   let bg = 0
+
   for (let i = 0; i < n; i++) {
     bg += imp[i]!
   }

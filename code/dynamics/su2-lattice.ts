@@ -89,14 +89,18 @@ export function makeSu2Lattice(input: {
 }): Su2Lattice {
   const dim = input.dim
   const L = input.length
+
   let sites = 1
+
   const stride: number[] = []
+
   for (let mu = 0; mu < dim; mu++) {
     stride.push(sites)
     sites *= L
   }
 
   const links = new Float64Array(sites * dim * 4)
+
   for (let s = 0; s < sites; s++) {
     for (let mu = 0; mu < dim; mu++) {
       const q = input.hot ? randomSu2({ rng: input.rng }) : IDENTITY
@@ -167,7 +171,9 @@ function staple(
 ): Quat {
   const mu = input.mu
   const x = input.site
+
   let a: Quat = [0, 0, 0, 0]
+
   for (let nu = 0; nu < lat.dim; nu++) {
     if (nu === mu) {
       continue
@@ -183,6 +189,7 @@ function staple(
       ),
       qdag(getLink(lat, { site: x, mu: nu })),
     )
+
     // backward staple: U_nu(x+mu-nu)^dag U_mu(x-nu)^dag U_nu(x-nu)
     const xMuMnu = stepMinus(lat, { site: xMu, mu: nu })
     const xMnu = stepMinus(lat, { site: x, mu: nu })
@@ -193,6 +200,7 @@ function staple(
       ),
       getLink(lat, { site: xMnu, mu: nu }),
     )
+
     a = qadd(a, qadd(forward, backward))
   }
 
@@ -208,8 +216,10 @@ export function metropolisSweep(input: {
   rng: Rng
 }): number {
   const lat = input.lattice
+
   let accepted = 0
   let proposed = 0
+
   for (let s = 0; s < lat.sites; s++) {
     for (let mu = 0; mu < lat.dim; mu++) {
       const u = getLink(lat, { site: s, mu })
@@ -220,6 +230,7 @@ export function metropolisSweep(input: {
       const dTr = halfTrace(qmul(uNew, a)) - halfTrace(qmul(u, a))
       const dS = -input.beta * dTr
       proposed += 1
+
       if (dS <= 0 || input.rng.next() < Math.exp(-dS)) {
         setLink(lat, { site: s, mu, q: uNew })
         accepted += 1
@@ -236,8 +247,10 @@ export function averagePlaquette(input: {
   lattice: Su2Lattice
 }): number {
   const lat = input.lattice
+
   let total = 0
   let count = 0
+
   for (let s = 0; s < lat.sites; s++) {
     for (let mu = 0; mu < lat.dim; mu++) {
       for (let nu = mu + 1; nu < lat.dim; nu++) {
@@ -253,6 +266,7 @@ export function averagePlaquette(input: {
             qdag(getLink(lat, { site: s, mu: nu })),
           ),
         )
+
         total += halfTrace(plaq)
         count += 1
       }
@@ -269,8 +283,10 @@ export function wilsonLoop(input: {
   t: number
 }): number {
   const lat = input.lattice
+
   let total = 0
   let count = 0
+
   for (let mu = 0; mu < lat.dim; mu++) {
     for (let nu = 0; nu < lat.dim; nu++) {
       if (nu === mu) {
@@ -280,6 +296,7 @@ export function wilsonLoop(input: {
       for (let s = 0; s < lat.sites; s++) {
         let u: Quat = IDENTITY
         let p = s
+
         for (let i = 0; i < input.r; i++) {
           u = qmul(u, getLink(lat, { site: p, mu }))
           p = stepPlus(lat, { site: p, mu })
@@ -319,12 +336,14 @@ export function creutzRatio(input: {
 }): number {
   const w = (r: number, t: number): number =>
     wilsonLoop({ lattice: input.lattice, r, t })
+
   const a = w(input.r, input.t)
   const b = w(input.r - 1, input.t - 1)
   const c = w(input.r - 1, input.t)
   const d = w(input.r, input.t - 1)
   const numerator = a * b
   const denominator = c * d
+
   if (numerator <= 0 || denominator <= 0) {
     return 0
   }

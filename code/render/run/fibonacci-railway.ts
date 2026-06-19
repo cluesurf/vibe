@@ -69,11 +69,13 @@ function run(): void {
     'render',
     'fibonacci',
   )
+
   mkdirSync(outDir, { recursive: true })
   const tiling = buildTilingFaces({
     symbol: [7, 3],
     maxCells: MAX_CELLS,
   })
+
   for (const cfg of CONFIGS) {
     renderBase(cfg, tiling, outDir)
   }
@@ -88,12 +90,15 @@ function renderBase(
   const a = cfg.make(),
     b = cfg.make(),
     t = cfg.make()
+
   a.clear()
   b.set(1)
   t.clear()
   const counters = [a, b, t]
   const snaps: Snap[] = []
+
   let latched = 0
+
   const snap = (active: number): void => {
     snaps.push({
       regs: counters.map(c => c.count()),
@@ -104,6 +109,7 @@ function renderBase(
 
   const addInto = (dstIdx: number, srcIdx: number): void => {
     const times = counters[srcIdx]!.count()
+
     for (let k = 0; k < times; k++) {
       counters[dstIdx]!.increment()
       snap(dstIdx)
@@ -111,6 +117,7 @@ function renderBase(
   }
 
   snap(0)
+
   for (let iter = 0; iter < N; iter++) {
     t.clear()
     addInto(2, 0)
@@ -130,6 +137,7 @@ function renderBase(
   const wedges = layoutWedges(tiling.centers, counters.length)
   const edges = cellOutlines(tiling.polygons)
   const frames: Uint8Array[] = []
+
   for (let i = 0; i < snaps.length; i++) {
     frames.push(
       renderFrame({
@@ -172,6 +180,7 @@ function renderBase(
     height: SIZE,
     delayMs: 40,
   })
+
   writeFileSync(
     join(outDir, `fibonacci-7-3-railway-${cfg.name}.gif`),
     gif,
@@ -201,9 +210,12 @@ function renderFrame(input: {
     const value = snap.regs[r] ?? 0
     const prevValue = prev.regs[r] ?? 0
     const track = wedges[r]!
+
     for (let p = 0; p < track.length; p++) {
       const cell = track[p]!
+
       let color: [number, number, number] = FAINT
+
       if (cfg.base === 1) {
         // unary: the value is a filled length
         if (p < value) {
@@ -211,6 +223,7 @@ function renderFrame(input: {
           const rgb01 = changed
             ? ([0.96, 0.96, 0.99] as const)
             : shade(hue, 0.5)
+
           color = [
             Math.round(rgb01[0] * 255),
             Math.round(rgb01[1] * 255),
@@ -224,6 +237,7 @@ function renderFrame(input: {
         const rgb01 = changed
           ? ([0.96, 0.96, 0.99] as const)
           : shade(hue, 0.8 - 0.3 * (d / (cfg.base - 1)))
+
         color = [
           Math.round(rgb01[0] * 255),
           Math.round(rgb01[1] * 255),
@@ -239,6 +253,7 @@ function renderFrame(input: {
     snap.active >= 0 ? 'emerald' : 'zinc',
     snap.active >= 0 ? 0.5 : 0.4,
   )
+
   faces.push({
     polygon: tiling.polygons[0]!,
     color: [
@@ -255,6 +270,7 @@ function renderFrame(input: {
     faces,
     cellCount,
   }
+
   const { rgba } = renderSceneToRgba({
     scene,
     size: SIZE,
@@ -266,6 +282,7 @@ function renderFrame(input: {
     margin: MARGIN,
     superSample: 2,
   })
+
   drawCentralNumber({
     rgba,
     size: SIZE,

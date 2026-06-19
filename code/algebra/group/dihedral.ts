@@ -20,6 +20,7 @@ interface DihedralClass {
 
 function oddDihedralClasses(n: number): DihedralClass[] {
   const classes: DihedralClass[] = [{ rep: 'e', size: 1, char: n }]
+
   for (let k = 1; k <= (n - 1) / 2; k++) {
     classes.push({ rep: `r${k}`, size: 2, char: 0, k })
   }
@@ -47,6 +48,7 @@ function irrepCharacterOdd(
   }
 
   const j = Number(name.slice(1)) // E1, E2, ...
+
   if (c.rep === 'e') {
     return 2
   }
@@ -69,16 +71,19 @@ export function dihedralFacePermutationDecomposition(n: number): {
   const classes = oddDihedralClasses(n)
   const order = 2 * n
   const irreps = ['triv', 'sign']
+
   for (let j = 1; j <= (n - 1) / 2; j++) {
     irreps.push(`E${j}`)
   }
 
   const multiplicities: Record<string, number> = {}
+
   for (const ir of irreps) {
     const inner = classes.reduce(
       (s, c) => s + c.size * c.char * irrepCharacterOdd(ir, c, n),
       0,
     )
+
     multiplicities[ir] = Math.round((inner / order) * 100) / 100
   }
 

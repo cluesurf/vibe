@@ -45,6 +45,7 @@ export default experiment({
       Number.isFinite(r.meanDimension) &&
       r.meanDimension > 1 &&
       r.meanDimension < 5
+
     const acceptanceHealthy = r.acceptance > 0.05 && r.acceptance < 0.95
     const sharplyTwoDimensional = Math.abs(r.meanDimension - 2) < 0.6
     const ok = finiteDimension && acceptanceHealthy

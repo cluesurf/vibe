@@ -33,10 +33,12 @@ export default experiment({
   paper: true,
   run() {
     const maxCells = 1000
+
     let allGreedyDeliver = true
     let allPyramid = true
     let allBeatScrambled = true
     let worstGreedy = 1
+
     for (const symbol of FAMILY) {
       const graph = coxeterPoincareGraph(symbol, maxCells)
       const greedy = greedyRoutingSuccess({
@@ -45,15 +47,18 @@ export default experiment({
         rng: makeRng({ seed: 1 }),
         maxHops: 200,
       })
+
       const scrambled = greedyRoutingSuccess({
         graph: withScrambledEmbedding(graph),
         trials: 150,
         rng: makeRng({ seed: 1 }),
         maxHops: 200,
       })
+
       const levels = busemannLevels(graph, 6)
       const inner = levels.slice(0, 3).reduce((s, n) => s + n, 0)
       const outer = levels.slice(3).reduce((s, n) => s + n, 0)
+
       if (greedy.successRate < 0.85) {
         allGreedyDeliver = false
       }

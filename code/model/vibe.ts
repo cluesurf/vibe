@@ -157,6 +157,7 @@ export class VibeWorld {
     const n = this.substrate.size
     const toneValues = cfg.tone === 'ternary' ? 3 : 2
     this.tone = new Int8Array(n)
+
     for (let i = 0; i < n; i++) {
       this.tone[i] =
         toneValues === 3
@@ -170,13 +171,17 @@ export class VibeWorld {
   // Run the update rule for the given number of beats (sweeps).
   run(beats: number): VibeWorld {
     const n = this.substrate.size
+
     for (let beat = 0; beat < beats; beat++) {
       const order = this.cfg.schedule === 'synchronous' ? null : true
+
       for (let s = 0; s < n; s++) {
         const v = order ? this.rng.nextInt({ max: n }) : s
         const nb = this.neighbors[v] ?? new Uint32Array(0)
         const fl = this.fills[v] ?? new Int8Array(0)
+
         let h = 0
+
         for (let k = 0; k < nb.length; k++) {
           h += (fl[k] ?? 0) * (this.tone[nb[k] ?? 0] ?? 0)
         }
@@ -203,7 +208,9 @@ export class VibeWorld {
     toneHistogram: { minus: number; zero: number; plus: number }
   } {
     const n = this.substrate.size
+
     let deg = 0
+
     for (let i = 0; i < n; i++) {
       deg += (this.neighbors[i] ?? new Uint32Array(0)).length
     }
@@ -213,11 +220,14 @@ export class VibeWorld {
       samples: 2000,
       rng: makeRng({ seed: this.cfg.seed + 11 }),
     })
+
     // Ball growth from the most-connected node (a central one).
     let center = 0
     let best = -1
+
     for (let i = 0; i < n; i++) {
       const d = (this.neighbors[i] ?? new Uint32Array(0)).length
+
       if (d > best) {
         best = d
         center = i
@@ -229,11 +239,14 @@ export class VibeWorld {
       center,
       maxRadius: 12,
     })
+
     const spectrum = laplacianSpectrum({
       substrate: this.substrate,
       count: 20,
     })
+
     let lapMin = Infinity
+
     for (const v of spectrum) {
       lapMin = Math.min(lapMin, v)
     }
@@ -241,6 +254,7 @@ export class VibeWorld {
     let minus = 0
     let zero = 0
     let plus = 0
+
     for (const t of this.tone) {
       if (t < 0) {
         minus += 1
@@ -257,6 +271,7 @@ export class VibeWorld {
       adjacency: this.neighbors,
       region: new Set(Array.from({ length: n }, (_, i) => i)),
     })
+
     // Recursion (P57 to P60): coarse-grain the settled mesh into coherent domains, the higher
     // vibes. We count those of meaningful size, the genuine wholes-within-the-whole.
     const higherVibes = countHigherVibes(this.neighbors, this.tone, 3)
@@ -283,7 +298,9 @@ function countHigherVibes(
 ): number {
   const n = neighbors.length
   const seen = new Uint8Array(n)
+
   let count = 0
+
   for (let s = 0; s < n; s++) {
     if (seen[s]) {
       continue
@@ -292,10 +309,13 @@ function countHigherVibes(
     let size = 0
     let frontier = [s]
     seen[s] = 1
+
     while (frontier.length > 0) {
       const next: number[] = []
+
       for (const v of frontier) {
         size += 1
+
         for (const w of neighbors[v] ?? new Uint32Array(0)) {
           if (!seen[w] && tone[w] === tone[v]) {
             seen[w] = 1
@@ -361,10 +381,12 @@ function buildFills(
 ): Int8Array[] {
   const n = neighbors.length
   const fills = neighbors.map(row => new Int8Array(row.length))
+
   if (cfg.fill === 'ternary-directed') {
     for (let v = 0; v < n; v++) {
       const fv = fills[v]
       const row = neighbors[v] ?? new Uint32Array(0)
+
       if (fv) {
         for (let k = 0; k < row.length; k++) {
           fv[k] = rng.nextInt({ max: 3 }) - 1
@@ -377,26 +399,31 @@ function buildFills(
 
   const indexOf = neighbors.map(row => {
     const m = new Map<number, number>()
+
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
 
     return m
   })
+
   for (let v = 0; v < n; v++) {
     const fv = fills[v]
     const row = neighbors[v] ?? new Uint32Array(0)
+
     if (!fv) {
       continue
     }
 
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
+
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
         fv[k] = f
         const fw = fills[w]
         const kk = indexOf[w]?.get(v)
+
         if (fw && kk !== undefined) {
           fw[kk] = f
         }

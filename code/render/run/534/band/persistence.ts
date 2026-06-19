@@ -30,6 +30,7 @@ const MODE: Mode =
     : process.argv[2] === 'autonomous'
       ? 'autonomous'
       : 'free'
+
 const REPAIR_THRESHOLD = 5 // a hole with at least this many same-sign neighbours is locally interior to a self
 const MAX_BAND = 80000
 const HALF = 0.5
@@ -46,6 +47,7 @@ const PMAX = 40 // persistence (consecutive beats) at which a charge is fully br
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -55,6 +57,7 @@ function run(): void {
     half: HALF,
     margin: MARGIN,
   })
+
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
@@ -66,8 +69,10 @@ function run(): void {
   // 2D positions, stereographic inversion from xi then onto an orthonormal basis of the plane perp to xi
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -75,6 +80,7 @@ function run(): void {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -82,7 +88,9 @@ function run(): void {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -105,6 +113,7 @@ function run(): void {
     v: number
   }
   const raw: BandCell[] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
@@ -128,10 +137,13 @@ function run(): void {
   const radii = raw
     .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
     .sort((a, b) => a - b)
+
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const pad = 20
   const halfPix = IMG / 2 - pad
+
   for (const c of raw) {
     c.px = Math.round(IMG / 2 + ((c.u - cu) / halfExtent) * halfPix)
     c.py = Math.round(IMG / 2 + ((c.v - cv) / halfExtent) * halfPix)
@@ -141,11 +153,14 @@ function run(): void {
   const bandSet = new Set(raw.map(c => c.index))
   const selfCells: number[] = []
   const inSelf = new Uint8Array(n)
+
   if (MODE === 'maintained') {
     let start = raw[0]!.index
     let best = Infinity
+
     for (const c of raw) {
       const d = (c.u - cu) ** 2 + (c.v - cv) ** 2
+
       if (d < best) {
         best = d
         start = c.index
@@ -154,16 +169,20 @@ function run(): void {
 
     inSelf[start] = 1
     let fr = [start]
+
     while (selfCells.length < SELF_SIZE && fr.length) {
       const nf: number[] = []
+
       for (const u of fr) {
         selfCells.push(u)
+
         if (selfCells.length >= SELF_SIZE) {
           break
         }
 
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (bandSet.has(w) && !inSelf[w]) {
             inSelf[w] = 1
             nf.push(w)
@@ -177,6 +196,7 @@ function run(): void {
 
   // ground for conserving maintenance, the off-screen margin cells (|busemann| >= half)
   const ground: number[] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       ground.push(i)
@@ -186,6 +206,7 @@ function run(): void {
   // seed, background churn everywhere, plus the self forced to +1 in maintained mode
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     const r = rng.next()
     tone[i] = (
@@ -209,9 +230,11 @@ function run(): void {
   const placeRandom = (sign: -1 | 1, count: number): void => {
     let placed = 0
     let guard = 0
+
     while (placed < count && guard < n * 6) {
       guard++
       const e = Math.floor(rng.next() * n)
+
       if (tone[e] === 0) {
         tone[e] = sign
         placed++
@@ -222,6 +245,7 @@ function run(): void {
   const autonomousRepair = (graph: Graph): void => {
     let owedMinus = 0
     let owedPlus = 0
+
     for (let c = 0; c < n; c++) {
       if (tone[c] !== 0) {
         continue
@@ -229,6 +253,7 @@ function run(): void {
 
       const plus = sameSignNeighbors(tone, graph, c, 1)
       const minus = sameSignNeighbors(tone, graph, c, -1)
+
       if (plus >= REPAIR_THRESHOLD && plus > minus + 2) {
         tone[c] = 1
         owedMinus++
@@ -245,22 +270,29 @@ function run(): void {
   // largest connected cluster of PERSISTENT cells (persistence >= 20), a genuinely durable self
   const persistentSelf = (): number => {
     const seen = new Uint8Array(n)
+
     let best = 0
+
     for (let s = 0; s < n; s++) {
       if (seen[s] || tone[s] === 0 || persist[s]! < 20) {
         continue
       }
 
       const sign = tone[s]!
+
       let size = 0
       let fr = [s]
       seen[s] = 1
+
       while (fr.length) {
         const nf: number[] = []
+
         for (const u of fr) {
           size++
+
           for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
             const w = g.adj[p]!
+
             if (!seen[w] && tone[w] === sign && persist[w]! >= 20) {
               seen[w] = 1
               nf.push(w)
@@ -282,6 +314,7 @@ function run(): void {
   // conserving maintenance, refill the self to +1, balance with -1 dumped into the ground
   const maintain = (): void => {
     let need = 0
+
     for (const c of selfCells) {
       if (tone[c] !== 1) {
         need += 1 - tone[c]!
@@ -308,12 +341,14 @@ function run(): void {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
   for (let f = 0; f < FRAMES; f++) {
     beat(tone, g, moved, rng, 0, COHESION)
     discreteArrow(tone, g, f, ARROW_PERIOD)
+
     if (MODE === 'maintained') {
       maintain()
     } else if (MODE === 'autonomous') {
@@ -333,6 +368,7 @@ function run(): void {
 
     // render, brightness by persistence, dim flicker, bright persistent self
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = 8
       rgba[i * 4 + 1] = 8
@@ -342,6 +378,7 @@ function run(): void {
 
     for (const c of raw) {
       const t = tone[c.index]!
+
       if (t === 0) {
         continue
       }
@@ -351,18 +388,22 @@ function run(): void {
         t === 1
           ? Math.round(40 + 90 * inten)
           : Math.round(120 + 135 * inten)
+
       const g8 =
         t === 1
           ? Math.round(60 + 160 * inten)
           : Math.round(40 + 90 * inten)
+
       const b8 =
         t === 1
           ? Math.round(110 + 145 * inten)
           : Math.round(70 + 90 * inten)
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
@@ -382,6 +423,7 @@ function run(): void {
       let selfSum = 0
       let bgSum = 0
       let bgCount = 0
+
       for (const c of raw) {
         if (inSelf[c.index]) {
           selfSum += persist[c.index]!
@@ -393,6 +435,7 @@ function run(): void {
 
       const selfAvg = selfCells.length ? selfSum / selfCells.length : 0
       const bgAvg = bgCount ? bgSum / bgCount : 0
+
       if (MODE === 'maintained') {
         console.log(
           `  beat ${f}, persistence self ${selfAvg.toFixed(1)} vs background ${bgAvg.toFixed(1)}`,
@@ -400,6 +443,7 @@ function run(): void {
       } else {
         // no seeded self, did a PERSISTENT self emerge anywhere from the local rule alone?
         let maxP = 0
+
         for (let i = 0; i < n; i++) {
           if (persist[i]! > maxP) {
             maxP = persist[i]!

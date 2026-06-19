@@ -26,11 +26,13 @@ async function gpuWave(input: {
   seed: number
 }): Promise<{ arrival: Int32Array; beats: number; ms: number }> {
   const { device, pipeline, cellCount, offsetsU, adjU, seed } = input
+
   const ro = (data: Uint32Array): GPUBuffer => {
     const b = device.createBuffer({
       size: data.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     })
+
     device.queue.writeBuffer(b, 0, data)
 
     return b
@@ -40,6 +42,7 @@ async function gpuWave(input: {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const offsets = ro(offsetsU)
   const adj = ro(adjU)
   const arrivalInit = new Int32Array(cellCount).fill(-1)
@@ -51,6 +54,7 @@ async function gpuWave(input: {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(arrival, 0, arrivalInit)
   const changed = device.createBuffer({
     size: 4,
@@ -59,6 +63,7 @@ async function gpuWave(input: {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   const changedRead = device.createBuffer({
     size: 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -76,7 +81,9 @@ async function gpuWave(input: {
   })
 
   const t0 = performance.now()
+
   let beats = 0
+
   for (let beat = 1; beat < cellCount; beat++) {
     device.queue.writeBuffer(
       params,
@@ -95,6 +102,7 @@ async function gpuWave(input: {
     await changedRead.mapAsync(GPUMapMode.READ)
     const c = new Uint32Array(changedRead.getMappedRange())[0]!
     changedRead.unmap()
+
     if (c === 0) {
       break
     }
@@ -108,6 +116,7 @@ async function gpuWave(input: {
     size: cellCount * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const enc2 = device.createCommandEncoder()
   enc2.copyBufferToBuffer(arrival, 0, arrivalRead, 0, cellCount * 4)
   device.queue.submit([enc2.finish()])
@@ -120,6 +129,7 @@ async function gpuWave(input: {
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU). The GPU wave is written and will run where an adapter is present.',
@@ -132,6 +142,7 @@ async function run(): Promise<void> {
   const module = device.createShaderModule({
     code: ASSOCIATIVE_WAVE_WGSL,
   })
+
   const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: { module, entryPoint: 'wave_kernel' },
@@ -142,6 +153,7 @@ async function run(): Promise<void> {
     symbol: [3, 4, 3, 4],
     maxCells: CHECK_CELLS,
   })
+
   const n = g.cellCount
   const csr = toCsr(g.neighbors)
   const w = await gpuWave({
@@ -152,9 +164,12 @@ async function run(): Promise<void> {
     adjU: csr.adj,
     seed: 0,
   })
+
   const cpuDepth = bfsShells({ neighbors: g.neighbors, root: 0 }).depth
+
   let mismatches = 0
   let gpuCoverage = 0
+
   for (let c = 0; c < n; c++) {
     if (w.arrival[c] !== cpuDepth[c]) {
       mismatches++
@@ -166,6 +181,7 @@ async function run(): Promise<void> {
   }
 
   let cpuCoverage = 0
+
   for (let c = 0; c < n; c++) {
     if (cpuDepth[c]! > cpuCoverage) {
       cpuCoverage = cpuDepth[c]!
@@ -182,6 +198,7 @@ async function run(): Promise<void> {
     symbol: [3, 4, 3, 4],
     maxCells: BENCH_CELLS,
   })
+
   const csrb = toCsr(gb.neighbors)
   const wb = await gpuWave({
     device,
@@ -191,6 +208,7 @@ async function run(): Promise<void> {
     adjU: csrb.adj,
     seed: 0,
   })
+
   console.log(
     `benchmark, ${gb.cellCount.toLocaleString()} cells covered by the GPU wave in ${wb.beats} beats, ${wb.ms.toFixed(2)} ms`,
   )

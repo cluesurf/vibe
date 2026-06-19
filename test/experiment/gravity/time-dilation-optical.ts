@@ -34,11 +34,13 @@ export default experiment({
     const timeOnly = IMPACT_PARAMETERS.map(impactParameter =>
       refractiveDeflection({ impactParameter, strength: STRENGTH }),
     )
+
     // the FULL metric, the temporal clock rate PLUS the spatial curvature (route 2A), index 1 + 2k/r, the light
     // sees twice the well, the famous Eddington factor two (4 G M / b, not the Newtonian 2 G M / b)
     const fullMetric = IMPACT_PARAMETERS.map(impactParameter =>
       refractiveDeflection({ impactParameter, strength: 2 * STRENGTH }),
     )
+
     const factorTwoRatios = fullMetric.map(
       (d, i) => Math.abs(d) / Math.abs(timeOnly[i]!),
     )
@@ -56,8 +58,10 @@ export default experiment({
 
     const allTowardMass =
       timeOnly.every(d => d < 0) && fullMetric.every(d => d < 0)
+
     const lensingConstant =
       Math.max(...lensingProducts) / Math.min(...lensingProducts) < 1.15
+
     // the full-metric deflection is twice the time-only deflection, the GR factor two
     const factorTwo = factorTwoRatios.every(r => Math.abs(r - 2) < 0.1)
     const uniformBendsNothing = Math.abs(uniformDeflection) < 1e-6

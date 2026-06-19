@@ -68,6 +68,7 @@ export function predictionsVsBounds(input: { seed: number }): {
         trajectories: 200,
       }).slope,
   )
+
   const swerveScalingExponent = logLogSlope(densities, slopes)
   const swerveVanishesWithDiscreteness = swerveScalingExponent < -0.5
 

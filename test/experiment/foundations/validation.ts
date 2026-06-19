@@ -61,16 +61,19 @@ export default experiment({
       extent: 12,
       signature: 'riemannian',
     })
+
     const rng = makeRng({ seed: 1 })
     const configuration = makeConfiguration({
       alphabet: { form: 'boolean' },
       size: substrate.size,
       rng,
     })
+
     const rule = reversibleEvenOdd({
       name: 'xor-parity',
       local: ({ self, neighborhood }) => {
         let parity = 0
+
         for (const t of neighborhood) {
           parity ^= t & 1
         }
@@ -78,6 +81,7 @@ export default experiment({
         return (self ^ parity) & 1
       },
     })
+
     const radius = ruleLocalityRange({
       rule,
       substrate,
@@ -85,6 +89,7 @@ export default experiment({
       sampleSize: 12,
       rng,
     })
+
     const ok = radius <= 2.5
 
     return verdict({

@@ -36,6 +36,7 @@ export function holography(): {
     depth: 24,
     maxChambers: 200000,
   })
+
   const n = mesh.cellCount
   const coord = mesh.coords
   const radius = coord.map(c => Math.hypot(c[0] ?? 0, c[1] ?? 0))
@@ -44,6 +45,7 @@ export function holography(): {
 
   // the boundary: the outer rim shell, ordered around the circle by angle
   const rim = [] as number[]
+
   for (let i = 0; i < n; i++) {
     if ((radius[i] ?? 0) > 0.93 * rMax) {
       rim.push(i)
@@ -56,14 +58,17 @@ export function holography(): {
   // rim anchors to wash out the discreteness, the clean entanglement-entropy law.
   const bins = new Map<number, { sum: number; count: number }>()
   const anchors = rim.filter((_, i) => i % 3 === 0)
+
   for (const a of anchors) {
     const { dist } = neighborBfsTree({
       neighbors: mesh.neighbors,
       size: n,
       source: a,
     })
+
     for (const r of rim) {
       let theta = Math.abs((angle[r] ?? 0) - (angle[a] ?? 0))
+
       if (theta > Math.PI) {
         theta = 2 * Math.PI - theta
       }
@@ -83,6 +88,7 @@ export function holography(): {
 
   const xs: number[] = []
   const ys: number[] = []
+
   for (const [k, v] of bins) {
     xs.push(k)
     ys.push(v.sum / v.count)
@@ -98,14 +104,17 @@ export function holography(): {
     size: n,
     source: anchor,
   })
+
   const ai = rim.indexOf(anchor)
   const opp = rim[(ai + Math.floor(rim.length / 2)) % rim.length]!
   const near =
     rim[(ai + Math.max(1, Math.floor(rim.length / 12))) % rim.length]!
+
   const boundaryArc = Math.min(
     Math.floor(rim.length / 2),
     rim.length - Math.floor(rim.length / 2),
   )
+
   const bulkHops = dist[opp] ?? 1
   const shortcutRatio = boundaryArc / bulkHops
   const isShortcut = shortcutRatio > 5
@@ -113,6 +122,7 @@ export function holography(): {
   const geodesicMinRadius = (target: number): number => {
     let node = target
     let minR = radius[target] ?? rMax
+
     while (node !== -1) {
       if ((radius[node] ?? rMax) < minR) {
         minR = radius[node] ?? rMax

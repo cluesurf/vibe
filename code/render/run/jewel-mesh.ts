@@ -20,12 +20,15 @@ const sub = (a: Vec3, b: Vec3): Vec3 => [
   a[1] - b[1],
   a[2] - b[2],
 ]
+
 const cross = (a: Vec3, b: Vec3): Vec3 => [
   a[1] * b[2] - a[2] * b[1],
   a[2] * b[0] - a[0] * b[2],
   a[0] * b[1] - a[1] * b[0],
 ]
+
 const norm3 = (v: Vec3): number => Math.hypot(v[0], v[1], v[2])
+
 const normalize = (v: Vec3): Vec3 => {
   const n = norm3(v) || 1
 
@@ -53,7 +56,9 @@ function subdivideFace(face: Vec3[]): Vec3[][] {
       (v[2] + face[(i + 1) % face.length]![2]) / 2,
     ]),
   )
+
   const out: Vec3[][] = []
+
   for (let i = 0; i < face.length; i++) {
     const prev = m[(i - 1 + face.length) % face.length]!
     out.push([face[i]!, m[i]!, c, prev])
@@ -87,6 +92,7 @@ function dodecahedronFaces(): Vec3[][] {
     [-phi, 0, inv],
     [-phi, 0, -inv],
   ]
+
   const verts = raw.map(v => normalize(v))
   const dirs: Vec3[] = [
     [0, 1, phi],
@@ -117,6 +123,7 @@ function dodecahedronFaces(): Vec3[][] {
             verts[a]![2] * u[2]),
       )
       .slice(0, 5)
+
     const ref = verts[idx[0]!]!
     const e1 = normalize(
       sub(ref, [
@@ -125,6 +132,7 @@ function dodecahedronFaces(): Vec3[][] {
         u[2] * (ref[0] * u[0] + ref[1] * u[1] + ref[2] * u[2]),
       ]),
     )
+
     const e2 = cross(u, e1)
     const ordered = idx.slice().sort((a, b) => {
       const va = verts[a]!
@@ -172,11 +180,14 @@ function line(
 ): void {
   let dx = Math.abs(x1 - x0)
   let dy = -Math.abs(y1 - y0)
+
   const sx = x0 < x1 ? 1 : -1
   const sy = y0 < y1 ? 1 : -1
+
   let err = dx + dy
   let x = x0
   let y = y0
+
   for (;;) {
     if (x >= 0 && x < IMG && y >= 0 && y < IMG) {
       const i = (y * IMG + x) * 4
@@ -190,6 +201,7 @@ function line(
     }
 
     const e2 = 2 * err
+
     if (e2 >= dy) {
       err += dy
       x += sx
@@ -204,6 +216,7 @@ function line(
 
 function run(): void {
   let faces = dodecahedronFaces()
+
   for (let d = 0; d < DEPTH; d++) {
     faces = faces.flatMap(subdivideFace)
   }
@@ -213,12 +226,14 @@ function run(): void {
   )
 
   const rgba = new Uint8Array(IMG * IMG * 4)
+
   for (let i = 0; i < IMG * IMG; i++) {
     rgba[i * 4 + 3] = 255
   }
 
   const cam = 5.5
   const scale = IMG * 1.55
+
   const project = (v: Vec3): [number, number, number] => {
     const r = rotate(v)
     const f = scale / (cam - r[2])
@@ -230,6 +245,7 @@ function run(): void {
     const r = face.map(rotate)
     // backface cull, only draw faces whose outward normal faces the camera (+z toward viewer)
     const n = cross(sub(r[1]!, r[0]!), sub(r[2]!, r[0]!))
+
     if (n[2] <= 0) {
       continue
     }
@@ -240,7 +256,9 @@ function run(): void {
       20,
       Math.min(255, Math.round(60 + (150 * (zc + 1)) / 2)),
     )
+
     const pts = face.map(project)
+
     for (let i = 0; i < pts.length; i++) {
       const a = pts[i]!
       const c = pts[(i + 1) % pts.length]!
@@ -261,6 +279,7 @@ function run(): void {
     '..',
     'make',
   )
+
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, 'jewel-mesh.png')
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))

@@ -23,6 +23,7 @@ export const momentumRotate2D: Collision = (slots, base) => {
   const west = slots[base + 1] ?? 0
   const north = slots[base + 2] ?? 0
   const south = slots[base + 3] ?? 0
+
   if (north === 0 && south === 0 && east === west && east !== 0) {
     slots[base] = 0
     slots[base + 1] = 0
@@ -73,6 +74,7 @@ function invertPairTable(
   forward: Array<[Tone, Tone]>,
 ): Array<[Tone, Tone]> {
   const inverse = new Array<[Tone, Tone]>(9)
+
   for (const left of TONES) {
     for (const right of TONES) {
       const out = forward[pairKey(left, right)]!
@@ -90,8 +92,10 @@ export const PAIR_INVERSE: Array<[Tone, Tone]> =
 // the opposite-pair lines of a coin, each direction paired once with its opposite.
 function linesOf(opposite: number[]): Array<[number, number]> {
   const lines: Array<[number, number]> = []
+
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
+
     if (direction < other) {
       lines.push([direction, other])
     }
@@ -214,18 +218,21 @@ export function leakyConfine(input: { opposite: number[] }): Collision {
 // reversible involution that conserves both charge and momentum.
 export function headOnRotate(input: { opposite: number[] }): Collision {
   const lines: Array<[number, number]> = []
+
   for (
     let direction = 0;
     direction < input.opposite.length;
     direction++
   ) {
     const other = input.opposite[direction]!
+
     if (direction < other) {
       lines.push([direction, other])
     }
   }
 
   const linePairs: Array<[[number, number], [number, number]]> = []
+
   for (let k = 0; k + 1 < lines.length; k += 2) {
     linePairs.push([lines[k]!, lines[k + 1]!])
   }
@@ -240,6 +247,7 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
       const jHeadOn = aj === bj && aj !== 0
       const iEmpty = ai === 0 && bi === 0
       const jEmpty = aj === 0 && bj === 0
+
       if (iHeadOn && jEmpty) {
         slots[base + lj[0]] = ai as Tone
         slots[base + lj[1]] = ai as Tone
@@ -269,6 +277,7 @@ export function stickyReflect(input: {
 
   return (slots, base, degree) => {
     let count = 0
+
     for (let direction = 0; direction < degree; direction++) {
       if (slots[base + direction] !== 0) {
         count++

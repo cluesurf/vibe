@@ -72,6 +72,7 @@ export function runSuite(
     const hasControl =
       result.control !== undefined &&
       Object.keys(result.control).length > 0
+
     if (experiment.depth === 'L3' && !hasControl) {
       return {
         id: experiment.id,

@@ -24,12 +24,14 @@ const zero8 = (): number[][] =>
 // the left-multiplication matrix of the octonion imaginary unit e_a, x -> e_a * x
 function leftMultiplication(a: number): number[][] {
   const m = zero8()
+
   for (let j = 0; j < 8; j++) {
     const basis = new Array<number>(8).fill(0)
     basis[j] = 1
     const unit = new Array<number>(8).fill(0)
     unit[a] = 1
     const product = cayleyMultiply(unit, basis)
+
     for (let i = 0; i < 8; i++) {
       m[i]![j] = product[i]!
     }
@@ -46,10 +48,12 @@ const complex = (re: number[][], im: number[][]): ComplexMatrix => ({
 function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
   const re = zero8()
   const im = zero8()
+
   for (let i = 0; i < 8; i++) {
     for (let k = 0; k < 8; k++) {
       const ar = a.re[i]![k]!
       const ai = a.im[i]![k]!
+
       if (ar === 0 && ai === 0) {
         continue
       }
@@ -58,6 +62,7 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
       const imRow = im[i]!
       const bRe = b.re[k]!
       const bIm = b.im[k]!
+
       for (let j = 0; j < 8; j++) {
         reRow[j] = (reRow[j] ?? 0) + ar * bRe[j]! - ai * bIm[j]!
         imRow[j] = (imRow[j] ?? 0) + ar * bIm[j]! + ai * bRe[j]!
@@ -71,10 +76,12 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
 function addMatrices(...matrices: ComplexMatrix[]): ComplexMatrix {
   const re = zero8()
   const im = zero8()
+
   for (const m of matrices) {
     for (let i = 0; i < 8; i++) {
       const reRow = re[i]!
       const imRow = im[i]!
+
       for (let j = 0; j < 8; j++) {
         reRow[j] = (reRow[j] ?? 0) + m.re[i]![j]!
         imRow[j] = (imRow[j] ?? 0) + m.im[i]![j]!
@@ -95,6 +102,7 @@ function scaleMatrix(a: ComplexMatrix, s: number): ComplexMatrix {
 function dagger(a: ComplexMatrix): ComplexMatrix {
   const re = zero8()
   const im = zero8()
+
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       re[i]![j] = a.re[j]![i]!
@@ -129,6 +137,7 @@ function isIdentityMatrix(a: ComplexMatrix): boolean {
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       const want = i === j ? 1 : 0
+
       if (
         Math.abs(a.re[i]![j]! - want) > 1e-9 ||
         Math.abs(a.im[i]![j]!) > 1e-9
@@ -148,6 +157,7 @@ const anticommutator = (
 
 const trace = (a: ComplexMatrix): number => {
   let t = 0
+
   for (let i = 0; i < 8; i++) {
     t += a.re[i]![i]!
   }
@@ -171,9 +181,11 @@ export function octonionFermionGeneration(): {
 
   // the left-multiplications form Cl(0,7), each squares to -I and they anticommute
   let leftMultsAreClifford = true
+
   for (let a = 1; a <= 7; a++) {
     const real = complex(left[a]!, zero8())
     const square = multiply(real, real)
+
     if (!isZeroMatrix(addMatrices(square, identity8))) {
       leftMultsAreClifford = false
     } // L^2 = -I
@@ -185,6 +197,7 @@ export function octonionFermionGeneration(): {
         complex(left[a]!, zero8()),
         complex(left[b]!, zero8()),
       )
+
       if (!isZeroMatrix(anti)) {
         leftMultsAreClifford = false
       }
@@ -198,9 +211,11 @@ export function octonionFermionGeneration(): {
 
   // the canonical anticommutation relations
   let ladderRelationsHold = true
+
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       const withDagger = anticommutator(ladder[i]!, dagger(ladder[j]!))
+
       if (i === j) {
         if (!isIdentityMatrix(withDagger)) {
           ladderRelationsHold = false
@@ -222,16 +237,20 @@ export function octonionFermionGeneration(): {
   // the spectrum is in {0,1,2,3}, checked by the minimal polynomial N(N-1)(N-2)(N-3) = 0
   const shift = (s: number): ComplexMatrix =>
     addMatrices(number, scaleMatrix(identity8, -s))
+
   const minimalPolynomial = multiply(
     multiply(multiply(number, shift(1)), shift(2)),
     shift(3),
   )
+
   const spectrumQuantized = isZeroMatrix(minimalPolynomial)
 
   // the multiplicity of eigenvalue k is the trace of the projector P_k = product over m != k of (N - m)/(k - m)
   const multiplicities: number[] = []
+
   for (let k = 0; k <= 3; k++) {
     let projector = identity8
+
     for (let m = 0; m <= 3; m++) {
       if (m !== k) {
         projector = multiply(

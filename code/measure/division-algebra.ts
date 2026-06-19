@@ -33,6 +33,7 @@ export function cayleyMultiply(x: number[], y: number[]): number[] {
   const low = cayleyMultiply(a, c).map(
     (v, i) => v - cayleyMultiply(cayleyConjugate(d), b)[i]!,
   )
+
   const high = cayleyMultiply(d, a).map(
     (v, i) => v + cayleyMultiply(b, cayleyConjugate(c))[i]!,
   )
@@ -55,6 +56,7 @@ function unit(dimension: number, index: number): number[] {
 // zero. Searched over sums of two basis units, which is where the sedenion zero divisors live.
 export function hasZeroDivisor(level: number): boolean {
   const dimension = 2 ** level
+
   for (let i = 1; i < dimension; i++) {
     for (let j = i + 1; j < dimension; j++) {
       for (let k = 1; k < dimension; k++) {
@@ -62,9 +64,11 @@ export function hasZeroDivisor(level: number): boolean {
           const x = unit(dimension, i).map(
             (v, m) => v + unit(dimension, j)[m]!,
           )
+
           const y = unit(dimension, k).map(
             (v, m) => v + unit(dimension, l)[m]!,
           )
+
           if (normSquared(cayleyMultiply(x, y)) === 0) {
             return true
           }
@@ -85,10 +89,12 @@ export function hasNormComposition(level: number): boolean {
       { length: dimension },
       (_, i) => ((i * 7 + offset) % 11) - 5,
     )
+
   // test several distinct pairs, including basis-unit sums where zero divisors appear
   for (let off = 0; off < 5; off++) {
     const x = sample(off)
     const y = sample(off + 3)
+
     if (
       normSquared(cayleyMultiply(x, y)) !==
       normSquared(x) * normSquared(y)
@@ -103,11 +109,13 @@ export function hasNormComposition(level: number): boolean {
       const x = unit(dimension, i).map(
         (v, m) => v + unit(dimension, j)[m]!,
       )
+
       for (let k = 1; k < dimension; k++) {
         for (let l = k + 1; l < Math.min(dimension, k + 12); l++) {
           const y = unit(dimension, k).map(
             (v, m) => v + unit(dimension, l)[m]!,
           )
+
           if (
             normSquared(cayleyMultiply(x, y)) !==
             normSquared(x) * normSquared(y)
@@ -128,6 +136,7 @@ export function octonionTrialityCyclic(): boolean {
   const u = (i: number): number[] => unit(8, i)
   const add = (a: number[], b: number[]): number[] =>
     a.map((v, i) => v + b[i]!)
+
   const x = add(u(1), u(4))
   const y = add(u(2), u(6))
   const z = add(u(3), u(5))
@@ -143,7 +152,9 @@ export function octonionTrialityCyclic(): boolean {
 // out of the 35 triples
 export function nonAssociativeTripleCount(): number {
   const u = (i: number): number[] => unit(8, i)
+
   let count = 0
+
   for (let i = 1; i < 8; i++) {
     for (let j = i + 1; j < 8; j++) {
       for (let k = j + 1; k < 8; k++) {
@@ -154,6 +165,7 @@ export function nonAssociativeTripleCount(): number {
           (v, m) =>
             v - cayleyMultiply(u(i), cayleyMultiply(u(j), u(k)))[m]!,
         )
+
         if (associator.some(v => v !== 0)) {
           count++
         }

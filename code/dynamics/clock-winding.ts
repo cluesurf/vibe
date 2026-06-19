@@ -21,9 +21,12 @@ export function clockWinding(
   states: number,
 ): number {
   const size = clock.length
+
   let sum = 0
+
   for (let x = 0; x < size; x++) {
     let diff = modn(clock[(x + 1) % size]! - clock[x]!, states)
+
     if (diff > states / 2) {
       diff -= states
     }
@@ -39,6 +42,7 @@ export function clockWinding(
 export function stepClockRing(ring: ClockRing): ClockRing {
   const { prev, curr, size, states } = ring
   const next = new Int32Array(size)
+
   for (let x = 0; x < size; x++) {
     next[x] = modn(
       curr[(x - 1 + size) % size]! + curr[(x + 1) % size]! - prev[x]!,
@@ -57,6 +61,7 @@ export function makeTwist(input: {
 }): ClockRing {
   const { size, states, turns } = input
   const clock = new Int32Array(size)
+
   for (let x = 0; x < size; x++) {
     clock[x] = modn(Math.round((states * turns * x) / size), states)
   }

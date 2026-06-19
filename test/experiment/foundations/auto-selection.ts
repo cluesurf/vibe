@@ -61,6 +61,7 @@ export function autoSelection(): {
   // For each finite three-valent cell, the minimal r making {p,3,r} compact hyperbolic.
   const minimalClosure = [3, 4, 5].map(p => {
     let minR: number | null = null
+
     for (let r = 3; r <= 8; r++) {
       if (isCompactHyperbolic([p, 3, r])) {
         minR = r
@@ -77,6 +78,7 @@ export function autoSelection(): {
 
   // All compact hyperbolic honeycombs with three-valent cells (q = 3), and the tightest (min r).
   const allQ3Compact: { symbol: string; r: number }[] = []
+
   for (let p = 3; p <= 6; p++) {
     for (let r = 3; r <= 8; r++) {
       if (isCompactHyperbolic([p, 3, r])) {
@@ -87,6 +89,7 @@ export function autoSelection(): {
 
   let tightestQ3: string | null = null
   let bestR = Infinity
+
   for (const c of allQ3Compact) {
     if (c.r < bestR) {
       bestR = c.r
@@ -100,12 +103,15 @@ export function autoSelection(): {
   const dodecaMin = minimalClosure.find(
     c => c.cell === '{5,3}',
   )?.minimalCompactR
+
   const cubeMin = minimalClosure.find(
     c => c.cell === '{4,3}',
   )?.minimalCompactR
+
   const tetraMin = minimalClosure.find(
     c => c.cell === '{3,3}',
   )?.minimalCompactR
+
   const fiveIsForced =
     dodecaMin === 4 && cubeMin === 5 && tetraMin === null
 

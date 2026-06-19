@@ -30,6 +30,7 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 // the total absolute charge, the amount of structure present. Conserved by the bulk, drained by the boundary.
 function totalCharge(will: Will): number {
   let sum = 0
+
   for (let i = 0; i < will.data.length; i++) {
     sum += Math.abs(will.data[i]!)
   }
@@ -45,10 +46,13 @@ function centralCharge(input: {
 }): number {
   const dist = shellDistances(input.will.mesh, input.center)
   const degree = input.will.mesh.degree
+
   let sum = 0
+
   for (let cell = 0; cell < input.will.mesh.cellCount; cell++) {
     if (dist[cell]! >= 0 && dist[cell]! <= input.radius) {
       const base = cell * degree
+
       for (let d = 0; d < degree; d++) {
         sum += Math.abs(input.will.data[base + d]!)
       }
@@ -75,6 +79,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule: Collision = headOnRotate({ opposite })
     const half = side / 2
     const center =
@@ -86,6 +91,7 @@ export default experiment({
     // a localized burst, eight charges at the centre cell flying out along the first eight directions.
     const burst = (): Will => {
       const will = makeWill(mesh)
+
       for (let d = 0; d < 8; d++) {
         will.data[center * degree + d] = 1
       }
@@ -99,6 +105,7 @@ export default experiment({
       center,
       radius,
     })
+
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // the torus run, no absorbing boundary.
@@ -107,7 +114,9 @@ export default experiment({
       mesh,
       data: new Int8Array(torus.data.length),
     }
+
     let torusCentralReturn = 0
+
     for (let t = 0; t < beats; t++) {
       beatInto({
         src: torus,
@@ -118,8 +127,10 @@ export default experiment({
       const swap = torus
       torus = torusScratch
       torusScratch = swap
+
       if (t >= beats / 2) {
         const c = centralCharge({ will: torus, center, radius })
+
         if (c > torusCentralReturn) {
           torusCentralReturn = c
         }
@@ -134,6 +145,7 @@ export default experiment({
       mesh,
       data: new Int8Array(open.data.length),
     }
+
     for (let t = 0; t < beats; t++) {
       beatInto({ src: open, dst: openScratch, table, collision: rule })
       const swap = open

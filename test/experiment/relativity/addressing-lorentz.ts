@@ -30,6 +30,7 @@ function evaluate(input: { name: string; substrate: Substrate }): {
     center: 0,
     maxRadius: 12,
   })
+
   const iso = lorentzIsotropy({
     substrate: input.substrate,
     samples: 400,
@@ -63,10 +64,12 @@ export default experiment({
         signature: 'lorentzian',
       }),
     })
+
     const sprinkleRow = evaluate({
       name: 'sprinkle minkowski',
       substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
     })
+
     const tilingRow = evaluate({
       name: 'tiling {5,4}',
       substrate: tilingPQ({ p: 5, q: 4, generations: 9 }),
@@ -76,6 +79,7 @@ export default experiment({
     const sprinkleNoFrame = !sprinkleRow.preferredFrame
     const sprinkleMoreIsotropic =
       sprinkleRow.anisotropy < latticeRow.anisotropy
+
     const tilingReaches = tilingRow.exponentialReach
     const ok =
       latticeSinglesFrame &&

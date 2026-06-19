@@ -13,8 +13,10 @@ function bfsDistances(
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
   let frontier = [source]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const v of frontier) {
       for (const w of adj[v] ?? new Uint32Array(0)) {
         if (dist[w] === -1) {
@@ -39,13 +41,16 @@ function triangleCount(input: {
   const rowA = input.adjacency[input.a] ?? new Uint32Array(0)
   const rowB = input.adjacency[input.b] ?? new Uint32Array(0)
   const setB = new Set<number>()
+
   for (let k = 0; k < rowB.length; k++) {
     setB.add(rowB[k] ?? -1)
   }
 
   let common = 0
+
   for (let k = 0; k < rowA.length; k++) {
     const node = rowA[k] ?? -1
+
     if (node !== input.b && setB.has(node)) {
       common++
     }
@@ -75,12 +80,16 @@ export function formanRicci(input: {
 // Returns 0 when there are no edges.
 export function meanCurvature(input: { substrate: Substrate }): number {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
+
   let total = 0
   let edges = 0
+
   for (let a = 0; a < adjacency.length; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const b = row[k] ?? 0
+
       if (a < b) {
         const degreeA = row.length
         const degreeB = (adjacency[b] ?? new Uint32Array(0)).length
@@ -120,7 +129,9 @@ export function shellGrowthCurvature(input: {
     0,
     Math.max(2, input.shellCounts.length - 1),
   )
+
   const ratios: number[] = []
+
   for (let i = 2; i < shells.length; i++) {
     if (shells[i - 1]! > 0) {
       ratios.push(shells[i]! / shells[i - 1]!)
@@ -129,7 +140,9 @@ export function shellGrowthCurvature(input: {
 
   const minInteriorRatio = ratios.length ? Math.min(...ratios) : 1
   const lateRatio = ratios.length ? ratios[ratios.length - 1]! : 1
+
   let sign: CurvatureSign
+
   if (minInteriorRatio < 0.97) {
     sign = 'positive'
   } else if (lateRatio > negativeThreshold) {
@@ -154,7 +167,9 @@ export function gromovDelta(input: {
   const { substrate, samples, rng } = input
   const adj = undirectedAdjacency({ substrate })
   const size = substrate.size
+
   let worst = 0
+
   for (let k = 0; k < samples; k++) {
     const pts = [
       rng.nextInt({ max: size }),
@@ -162,6 +177,7 @@ export function gromovDelta(input: {
       rng.nextInt({ max: size }),
       rng.nextInt({ max: size }),
     ]
+
     const d = pts.map(p => bfsDistances(adj, p, size))
     const dij = (a: number, b: number): number => d[a]?.[pts[b]!] ?? 0
     const s1 = dij(0, 1) + dij(2, 3)

@@ -35,6 +35,7 @@ export function rotateSpinorTimes(
   turns: number,
 ): Quaternion {
   let current = psi
+
   for (let step = 0; step < turns; step++) {
     current = rotateSpinor(g, current)
   }
@@ -49,6 +50,7 @@ export function rotateVectorTimes(
   turns: number,
 ): Quaternion {
   let current = v
+
   for (let step = 0; step < turns; step++) {
     current = rotateVector(g, current)
   }
@@ -74,6 +76,7 @@ export function rotationMatrixAxisAngle(input: {
     [k[2]!, 0, -k[0]!],
     [-k[1]!, k[0]!, 0],
   ]
+
   const outer = k.map(ki => k.map(kj => ki * kj))
 
   return [0, 1, 2].map(i =>

@@ -46,12 +46,14 @@ export function signaling(input?: { n?: number }): {
     size: N,
     source: 0,
   })
+
   const ecc = dist[far]!
   const logN = Math.log2(N)
   const diameterIsLogarithmic = ecc < 3 * logN // a few hops, not order N
 
   // a far self = a small ball around the farthest cell. measure charge arriving there
   const farBall: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (dist[i]! >= ecc - 1) {
       farBall.push(i)
@@ -62,7 +64,9 @@ export function signaling(input?: { n?: number }): {
 
   // SIGNAL: inject a + pulse at self A (node 0 and neighbors), diffuse, measure arrival at the far self
   const sig = new Int8Array(N)
+
   let injected = 0
+
   for (let i = 0; i < N && injected < 400; i++) {
     if (dist[i]! <= 4) {
       sig[i] = 1
@@ -71,6 +75,7 @@ export function signaling(input?: { n?: number }): {
   }
 
   const rng = makeRng({ seed: 3 })
+
   for (let b = 0; b < 4 * ecc; b++) {
     hopBeat(sig, eu, ev, moved, rng)
   }
@@ -80,6 +85,7 @@ export function signaling(input?: { n?: number }): {
   // CONTROL: no signal injected
   const ctrl = new Int8Array(N)
   const rng2 = makeRng({ seed: 3 })
+
   for (let b = 0; b < 4 * ecc; b++) {
     hopBeat(ctrl, eu, ev, moved, rng2)
   }

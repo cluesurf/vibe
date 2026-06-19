@@ -3,11 +3,13 @@
 // Arithmetic mean of a series (0 for an empty series).
 export function mean(series: ArrayLike<number>): number {
   const n = series.length
+
   if (n === 0) {
     return 0
   }
 
   let s = 0
+
   for (let i = 0; i < n; i++) {
     s += series[i]!
   }
@@ -18,12 +20,15 @@ export function mean(series: ArrayLike<number>): number {
 // Population variance (divide by n) of a series (0 for an empty series).
 export function populationVariance(series: ArrayLike<number>): number {
   const n = series.length
+
   if (n === 0) {
     return 0
   }
 
   const m = mean(series)
+
   let s = 0
+
   for (let i = 0; i < n; i++) {
     s += (series[i]! - m) ** 2
   }
@@ -48,8 +53,10 @@ export function pearson(input: {
   const { a, b } = input
   const epsilon = input.epsilon ?? 0
   const n = a.length
+
   let ma = 0
   let mb = 0
+
   for (let i = 0; i < n; i++) {
     ma += a[i]!
     mb += b[i]!
@@ -60,6 +67,7 @@ export function pearson(input: {
   let num = 0
   let va = 0
   let vb = 0
+
   for (let i = 0; i < n; i++) {
     const da = a[i]! - ma
     const db = b[i]! - mb
@@ -79,12 +87,14 @@ export function relativeStandardDeviation(
   series: ArrayLike<number>,
 ): number {
   const n = series.length
+
   if (n === 0) {
     return 0
   }
 
   let m = 0
   let scale = 1e-9
+
   for (let i = 0; i < n; i++) {
     m += series[i]!
     scale = Math.max(scale, Math.abs(series[i]!))
@@ -92,6 +102,7 @@ export function relativeStandardDeviation(
 
   m /= n
   let v = 0
+
   for (let i = 0; i < n; i++) {
     v += (series[i]! - m) ** 2
   }
@@ -109,8 +120,10 @@ export function relativeL2Error(
   b: ArrayLike<number>,
 ): number {
   const n = Math.min(a.length, b.length)
+
   let num = 0
   let den = 0
+
   for (let i = 0; i < n; i++) {
     num += (a[i]! - b[i]!) ** 2
     den += a[i]! * a[i]!
@@ -133,10 +146,13 @@ export function crossJointCounts(input: {
   const counts: number[][] = Array.from({ length: stateCount }, () =>
     new Array<number>(stateCount).fill(0),
   )
+
   const last = Math.min(seriesA.length, seriesB.length) - lag
+
   for (let t = 0; t < last; t++) {
     const i = seriesA[t]!
     const j = seriesB[t + lag]!
+
     if (i >= 0 && j >= 0 && i < stateCount && j < stateCount) {
       counts[i]![j]!++
     }
@@ -154,7 +170,9 @@ export function mutualInformationBits(
 ): number {
   const rows = joint.length
   const cols = joint[0]?.length ?? 0
+
   let total = 0
+
   for (let x = 0; x < rows; x++) {
     for (let y = 0; y < cols; y++) {
       total += joint[x]![y] ?? 0
@@ -167,6 +185,7 @@ export function mutualInformationBits(
 
   const px = new Array<number>(rows).fill(0)
   const py = new Array<number>(cols).fill(0)
+
   for (let x = 0; x < rows; x++) {
     for (let y = 0; y < cols; y++) {
       const p = (joint[x]![y] ?? 0) / total
@@ -176,11 +195,14 @@ export function mutualInformationBits(
   }
 
   let mi = 0
+
   for (let x = 0; x < rows; x++) {
     for (let y = 0; y < cols; y++) {
       const p = (joint[x]![y] ?? 0) / total
+
       if (p > 0) {
         const denom = (px[x] ?? 0) * (py[y] ?? 0)
+
         if (denom > 0) {
           mi += p * Math.log2(p / denom)
         }

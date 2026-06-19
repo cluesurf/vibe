@@ -28,16 +28,20 @@ export default experiment({
       mesh: d4Mesh({ side: 9 }),
       beats,
     })
+
     const coneB = perturbationConeRadii({
       mesh: d4Mesh({ side: 11 }),
       beats,
     })
+
     const ballisticA = coneA.every(
       (radius, step) => radius === step + 1,
     )
+
     const ballisticB = coneB.every(
       (radius, step) => radius === step + 1,
     )
+
     const causal = coneA.every((radius, step) => radius <= step + 1)
 
     // The diffusive contrast: a random walk would reach only ~sqrt(beats). The
@@ -54,6 +58,7 @@ export default experiment({
     const cubicBallistic = cubicCone.every(
       (radius, step) => radius === step + 1,
     )
+
     const d4 = d4Mesh({ side: 9 })
 
     const ok =

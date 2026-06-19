@@ -34,11 +34,13 @@ export function spSpinorField(): {
 } {
   const L = 201,
     steps = 60
+
   // SP3 massless: chirality conserved, each chirality streams at +/- c = 1
   const m0 = diracWalk(L, 0, steps, 'symmetric')
   const chiralityConservedMassless = m0.chirality.every(
     c => Math.abs(c - m0.chirality[0]!) < 1e-9,
   )
+
   const lightSpeedMassless =
     Math.abs(m0.centerR - steps) < 1 && Math.abs(m0.centerL + steps) < 1
 

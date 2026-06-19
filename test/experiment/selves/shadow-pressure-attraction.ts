@@ -35,6 +35,7 @@ export default experiment({
       beats: 4000,
       threshold: 8,
     }
+
     const shadow = shadowPressureRun({ ...base, body: true })
     const control = shadowPressureRun({ ...base, body: false })
 
@@ -42,6 +43,7 @@ export default experiment({
     const attracts = shadow.drift < -20 && shadow.netMomentum < 0
     const controlFlat =
       Math.abs(control.drift) <= 3 && control.netMomentum === 0
+
     const correctSign = shadow.drift < control.drift // shadow more toward the body than the control
     const ok = attracts && controlFlat && correctSign
 

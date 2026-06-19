@@ -20,9 +20,11 @@ export function laplacian(input: {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const n = adjacency.length
   const triplets: Triplet[] = []
+
   for (let a = 0; a < n; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
     triplets.push({ row: a, col: a, value: row.length })
+
     for (let k = 0; k < row.length; k++) {
       const b = row[k] ?? 0
       triplets.push({ row: a, col: b, value: -1 })
@@ -45,6 +47,7 @@ export function laplacianSpectrum(input: {
 
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
@@ -54,11 +57,13 @@ function dot(a: Float64Array, b: Float64Array): number {
 
 function subtractMean(x: Float64Array): void {
   let m = 0
+
   for (let i = 0; i < x.length; i++) {
     m += x[i] ?? 0
   }
 
   m /= x.length
+
   for (let i = 0; i < x.length; i++) {
     x[i] = (x[i] ?? 0) - m
   }
@@ -81,22 +86,27 @@ export function laplacianGreensFunction(input: {
   const phi = new Float64Array(n)
   const residual = Float64Array.from(b)
   const direction = Float64Array.from(b)
+
   let rsOld = dot(residual, residual)
+
   for (let iter = 0; iter < 4 * n; iter++) {
     const temp = sparseMatVec(L, { x: direction })
     subtractMean(temp)
     const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)
+
     for (let i = 0; i < n; i++) {
       phi[i] = (phi[i] ?? 0) + alpha * (direction[i] ?? 0)
       residual[i] = (residual[i] ?? 0) - alpha * (temp[i] ?? 0)
     }
 
     const rsNew = dot(residual, residual)
+
     if (rsNew < 1e-14) {
       break
     }
 
     const beta = rsNew / rsOld
+
     for (let i = 0; i < n; i++) {
       direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
     }

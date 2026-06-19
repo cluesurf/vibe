@@ -34,6 +34,7 @@ function trianglePhase(field: GaugeField, tri: Triangle): number {
 function buildEdgeTriangles(field: GaugeField): Triangle[][] {
   // Undirected adjacency as a set of neighbors per vertex.
   let maxVertex = 0
+
   for (const e of field.edges) {
     if (e.from > maxVertex) {
       maxVertex = e.from
@@ -45,6 +46,7 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
   }
 
   const neighbors: Set<number>[] = []
+
   for (let v = 0; v <= maxVertex; v++) {
     neighbors.push(new Set<number>())
   }
@@ -55,8 +57,10 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
   }
 
   const perEdge: Triangle[][] = field.edges.map(() => [])
+
   for (let i = 0; i < field.edges.length; i++) {
     const edge = field.edges[i]
+
     if (!edge) {
       continue
     }
@@ -65,6 +69,7 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
     const b = edge.to
     const na = neighbors[a]
     const nb = neighbors[b]
+
     if (!na || !nb) {
       continue
     }
@@ -103,12 +108,14 @@ export function gaugeRule(input: {
       // One sweep: try a +/-1 move on every link, accept by Metropolis.
       for (let i = 0; i < field.link.length; i++) {
         const triangles = edgeTriangles[i]
+
         if (!triangles || triangles.length === 0) {
           continue
         }
 
         // Local action before the move: sum over plaquettes through this link.
         let before = 0
+
         for (const tri of triangles) {
           before += 1 - Math.cos(trianglePhase(field, tri))
         }
@@ -121,11 +128,13 @@ export function gaugeRule(input: {
 
         // Local action after the move.
         let after = 0
+
         for (const tri of triangles) {
           after += 1 - Math.cos(trianglePhase(field, tri))
         }
 
         const deltaAction = after - before
+
         // Accept with min(1, exp(-beta * deltaS)); otherwise revert.
         if (
           deltaAction > 0 &&

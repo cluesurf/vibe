@@ -26,6 +26,7 @@ function realDot(
   dimension: number,
 ): number {
   let s = 0
+
   for (let i = 0; i < dimension; i++) {
     s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
   }
@@ -51,23 +52,28 @@ export function largestEigenvalueOfSquare(input: {
   const { apply, dimension, rand } = input
   const iterations = input.iterations ?? 40
   const v = newVector(dimension)
+
   for (let i = 0; i < dimension; i++) {
     v.re[i] = rand() - 0.5
   }
 
   let norm = Math.sqrt(realDot(v, v, dimension))
+
   for (let i = 0; i < dimension; i++) {
     v.re[i]! /= norm
   }
 
   const t = newVector(dimension)
   const w = newVector(dimension)
+
   let lambda = 0
+
   for (let it = 0; it < iterations; it++) {
     apply(v, t)
     apply(t, w)
     lambda = realDot(v, w, dimension)
     norm = Math.sqrt(realDot(w, w, dimension))
+
     for (let i = 0; i < dimension; i++) {
       v.re[i] = w.re[i]! / norm
       v.im[i] = w.im[i]! / norm
@@ -92,12 +98,15 @@ export function lowestAbsoluteEigenvalues(input: {
   const { apply, dimension, fold, steps, rand } = input
   const count = input.count ?? 8
   const basis: ComplexVector[] = []
+
   let v = newVector(dimension)
+
   for (let i = 0; i < dimension; i++) {
     v.re[i] = rand() - 0.5
   }
 
   let norm = Math.sqrt(realDot(v, v, dimension))
+
   for (let i = 0; i < dimension; i++) {
     v.re[i]! /= norm
   }
@@ -106,12 +115,15 @@ export function lowestAbsoluteEigenvalues(input: {
   const beta: number[] = []
   const t = newVector(dimension)
   const w = newVector(dimension)
+
   let vprev: ComplexVector | null = null
   let bprev = 0
+
   // the folded operator C*I - H^2
   const foldedApply = (x: ComplexVector, y: ComplexVector): void => {
     apply(x, t)
     apply(t, y)
+
     for (let i = 0; i < dimension; i++) {
       y.re[i] = fold * x.re[i]! - y.re[i]!
       y.im[i] = fold * x.im[i]! - y.im[i]!
@@ -121,6 +133,7 @@ export function lowestAbsoluteEigenvalues(input: {
   for (let j = 0; j < steps; j++) {
     basis.push({ re: v.re.slice(), im: v.im.slice() })
     foldedApply(v, w)
+
     if (vprev) {
       for (let i = 0; i < dimension; i++) {
         w.re[i]! -= bprev * vprev.re[i]!
@@ -130,6 +143,7 @@ export function lowestAbsoluteEigenvalues(input: {
 
     const aj = realDot(v, w, dimension)
     alpha.push(aj)
+
     for (let i = 0; i < dimension; i++) {
       w.re[i]! -= aj * v.re[i]!
       w.im[i]! -= aj * v.im[i]!
@@ -138,6 +152,7 @@ export function lowestAbsoluteEigenvalues(input: {
     // full reorthogonalization against the whole basis
     for (const u of basis) {
       const d = realDot(u, w, dimension)
+
       for (let i = 0; i < dimension; i++) {
         w.re[i]! -= d * u.re[i]!
         w.im[i]! -= d * u.im[i]!
@@ -145,6 +160,7 @@ export function lowestAbsoluteEigenvalues(input: {
     }
 
     const bj = Math.sqrt(realDot(w, w, dimension))
+
     if (bj < 1e-9 || j === steps - 1) {
       break
     }
@@ -153,6 +169,7 @@ export function lowestAbsoluteEigenvalues(input: {
     vprev = { re: v.re.slice(), im: v.im.slice() }
     bprev = bj
     v = newVector(dimension)
+
     for (let i = 0; i < dimension; i++) {
       v.re[i] = w.re[i]! / bj
       v.im[i] = w.im[i]! / bj
@@ -161,8 +178,10 @@ export function lowestAbsoluteEigenvalues(input: {
 
   const k = alpha.length
   const matrix = makeDense({ rows: k, cols: k })
+
   for (let i = 0; i < k; i++) {
     matrix.data[i * k + i] = alpha[i]!
+
     if (i + 1 < k) {
       matrix.data[i * k + (i + 1)] = beta[i]!
       matrix.data[(i + 1) * k + i] = beta[i]!

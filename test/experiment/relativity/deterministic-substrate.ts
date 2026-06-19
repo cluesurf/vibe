@@ -40,6 +40,7 @@ function evaluate(
     samples: 3000,
     rng: makeRng({ seed }),
   })
+
   const growth = ballGrowth({
     substrate: g,
     center: mostConnectedNode(g.neighbors),
@@ -70,6 +71,7 @@ export function deterministicSubstrate(input: {
     }),
     input.seed + 1,
   )
+
   const sunflower = evaluate(
     hyperbolicSunflower({
       count: input.count,
@@ -78,6 +80,7 @@ export function deterministicSubstrate(input: {
     }),
     input.seed + 1,
   )
+
   // The deterministic substrate is Lorentz-safe if its anisotropy is in the same low
   // band as the random one (within a small margin), and it still reaches exponentially.
   const deterministicIsSafe =

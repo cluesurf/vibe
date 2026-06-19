@@ -16,15 +16,19 @@ export function s73Selves(): {
   const L = 201,
     c = 100,
     w = 8
+
   const phi = (x: number): number => Math.tanh((x - c) / w)
   // topological charge = (phi(+inf) - phi(-inf)) / 2 (the winding of pi_0(vacuum manifold))
   const kinkCharge = Math.round((phi(L - 1) - phi(0)) / 2)
   const solitonsExist = Math.abs(kinkCharge) >= 1
+
   // also confirm the kink is localized (the gradient energy concentrates), a real soliton not a ramp
   let gradPeak = 0,
     gradAt = 0
+
   for (let x = 1; x < L; x++) {
     const d = Math.abs(phi(x) - phi(x - 1))
+
     if (d > gradPeak) {
       gradPeak = d
       gradAt = x

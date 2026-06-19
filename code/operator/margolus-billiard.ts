@@ -20,10 +20,12 @@ export function margolusStep(
   parity: number,
 ): void {
   const o = parity ? 1 : 0
+
   for (let by = 0; by < length; by += 2) {
     for (let bx = 0; bx < length; bx += 2) {
       const x0 = bx + o,
         y0 = by + o
+
       const a = g[at(length, x0, y0)]!
       const b = g[at(length, x0 + 1, y0)]!
       const c = g[at(length, x0, y0 + 1)]!
@@ -31,6 +33,7 @@ export function margolusStep(
       const cnt = a + b + c + d
       const diag2 =
         cnt === 2 && ((a === 1 && d === 1) || (b === 1 && c === 1))
+
       if (diag2) {
         continue
       } // collision/wall, fixed (reversible identity)

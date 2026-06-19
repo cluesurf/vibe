@@ -38,6 +38,7 @@ export default experiment({
     const d4Anisotropy = scales.map(scale =>
       anisotropyAtScale(scale, d4, probes),
     )
+
     const cubicAnisotropy = scales.map(scale =>
       anisotropyAtScale(scale, cubic, probes),
     )
@@ -46,6 +47,7 @@ export default experiment({
     const restoresInIR = d4Anisotropy.every(
       (value, index) => index === 0 || value < d4Anisotropy[index - 1]!,
     )
+
     const irAnisotropy = d4Anisotropy[d4Anisotropy.length - 1]!
     const uvAnisotropy = d4Anisotropy[0]!
     const irNearIsotropic = irAnisotropy < 0.02

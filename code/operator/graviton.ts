@@ -30,7 +30,9 @@ export function gravitonFromAction(input: { k: number[] }): {
   const eig = eigSymmetric({ matrix: einsteinMatrix(k) })
   const eigenvalues = Array.from(eig.values).sort((a, b) => a - b)
   const target = 0.5 * k2
+
   let gravitonModes = 0
+
   for (const v of eigenvalues) {
     if (Math.abs(v - target) < 1e-6 * (1 + k2)) {
       gravitonModes += 1
@@ -43,6 +45,7 @@ export function gravitonFromAction(input: { k: number[] }): {
     [0, 0, 0],
     [0, 0, 0],
   ]
+
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       hGauge[i]![j] =
@@ -51,8 +54,10 @@ export function gravitonFromAction(input: { k: number[] }): {
   }
 
   const g = einsteinOp(hGauge, k)
+
   let gn = 0
   let hn = 0
+
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       gn += (g[i]?.[j] ?? 0) ** 2

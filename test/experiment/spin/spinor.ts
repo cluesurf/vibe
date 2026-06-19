@@ -20,12 +20,14 @@ function study(): { smallestMagnitudes: number[]; nearZero: number } {
     extent: 10,
     signature: 'riemannian',
   })
+
   const complex = cellComplexOf({ substrate, maxGrade: 2 })
   const result = kahlerDiracZeroModes({
     complex,
     count: 16,
     threshold: 0.05,
   })
+
   const smallestMagnitudes = result.smallestMagnitudes.map(
     x => Math.round(x * 1000) / 1000,
   )

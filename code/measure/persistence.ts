@@ -10,8 +10,10 @@ export function lagAutocorrelation(input: {
   epsilon?: number
 }): number {
   const { series, lag, epsilon } = input
+
   let acc = 0
   let count = 0
+
   for (let t = 0; t + lag < series.length; t++) {
     acc += pearson({ a: series[t]!, b: series[t + lag]!, epsilon })
     count++

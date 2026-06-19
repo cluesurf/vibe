@@ -25,9 +25,11 @@ export function eternalBootstrap(): {
   const nbCache: number[][] = torusGrid(3, L).map(row =>
     Array.from(row),
   )
+
   // (1) the REVERSIBLE mod-3 wave from RANDOM init (no seed)
   const cur0 = new Int8Array(N),
     prev0 = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     cur0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
     prev0[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
@@ -35,6 +37,7 @@ export function eternalBootstrap(): {
 
   const netCharge = (a: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < N; i++) {
       s += signedTone(a[i]!)
     }
@@ -44,20 +47,26 @@ export function eternalBootstrap(): {
 
   let cur = cur0.slice(),
     prev = prev0.slice()
+
   const c0 = netCharge(cur)
   const activity: number[] = []
   const T = 300
+
   for (let t = 0; t < T; t++) {
     const nx = new Int8Array(N)
+
     let changed = 0
+
     for (let i = 0; i < N; i++) {
       let s = 0
+
       for (const j of nbCache[i]!) {
         s += cur[j]!
       }
 
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
       nx[i] = v
+
       if (v !== cur[i]!) {
         changed++
       }
@@ -70,17 +79,23 @@ export function eternalBootstrap(): {
 
   const earlyAct =
     activity.slice(10, 30).reduce((a, b) => a + b, 0) / 20
+
   const lateAct = activity.slice(T - 20).reduce((a, b) => a + b, 0) / 20
   const reversibleEternal =
     lateAct > 0.3 && Math.abs(lateAct - earlyAct) < 0.15 // activity persists, no decay
+
   const reversibleConserved = netCharge(cur) === c0 || true // (the mod-3 wave on a regular periodic graph keeps a clean invariant; charge tracked below)
+
   // (2) exact reversibility, run forward then backward, recover the start
   let fc = cur0.slice(),
     fp = prev0.slice()
+
   for (let t = 0; t < 50; t++) {
     const nx = new Int8Array(N)
+
     for (let i = 0; i < N; i++) {
       let s = 0
+
       for (const j of nbCache[i]!) {
         s += fc[j]!
       }
@@ -95,10 +110,13 @@ export function eternalBootstrap(): {
   // reverse, prev = (sum cur - next) mod 3, step backward
   let bc = fc.slice(),
     bp = fp.slice()
+
   for (let t = 0; t < 50; t++) {
     const pr = new Int8Array(N)
+
     for (let i = 0; i < N; i++) {
       let s = 0
+
       for (const j of nbCache[i]!) {
         s += bp[j]!
       }
@@ -111,6 +129,7 @@ export function eternalBootstrap(): {
   }
 
   let diff = 0
+
   for (let i = 0; i < N; i++) {
     if (bc[i] !== cur0[i]) {
       diff++
@@ -118,20 +137,26 @@ export function eternalBootstrap(): {
   }
 
   const reversibleExact = diff === 0
+
   // (3) the IRREVERSIBLE contrast, a majority / rounding rule, from random init -> decays to a fixed point
   let m = cur0.slice()
   let irrAct = 1
+
   for (let t = 0; t < 200; t++) {
     const nx = new Int8Array(N)
+
     let changed = 0
+
     for (let i = 0; i < N; i++) {
       let s = m[i]!
+
       for (const j of nbCache[i]!) {
         s += m[j]!
       }
 
       const v = (Math.round(s / 7) % 3) as 0 | 1 | 2
       nx[i] = v
+
       if (v !== m[i]!) {
         changed++
       }

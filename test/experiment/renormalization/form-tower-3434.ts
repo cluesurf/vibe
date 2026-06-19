@@ -25,8 +25,10 @@ export function formTower(): {
   const rng = makeRng({ seed: 12345 })
   const tone = new Int8Array(N),
     m = new Uint8Array(N)
+
   const step = (): void =>
     perceptionMatchingSweep3d({ tone, matched: m, length: L, rng })
+
   for (let f = 0; f < 60; f++) {
     step()
   }
@@ -35,16 +37,20 @@ export function formTower(): {
   const blockGroups = blocks.map(b =>
     cubicBlockGroups({ size: L, blockSize: b }),
   )
+
   const coarse = (t: Int8Array, bi: number): Float64Array =>
     coarseFieldByGroup({
       field: t,
       group: blockGroups[bi]!.group,
       groupCount: blockGroups[bi]!.groupCount,
     })
+
   const LAG = 10,
     M = 30
+
   const realS: Float64Array[][] = blocks.map(() => []),
     nulS: Float64Array[][] = blocks.map(() => [])
+
   for (let f = 0; f < M + LAG; f++) {
     step()
     const sh = shuffledToneField({ tone, rng })
@@ -59,8 +65,10 @@ export function formTower(): {
       lagAutocorrelation({ series: ser, lag: LAG, epsilon: 1e-9 }) *
         100,
     ) / 100
+
   const real = blocks.map((_, bi) => persist(realS[bi]!)),
     nul = blocks.map((_, bi) => persist(nulS[bi]!))
+
   const tower =
     real[real.length - 1]! > real[0]! + 0.15 &&
     real[real.length - 1]! > (nul[nul.length - 1]! ?? 0) + 0.2

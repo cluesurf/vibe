@@ -50,11 +50,13 @@ export default experiment({
       steps: STEPS,
       nonlinear: true,
     })
+
     const shellEnergySlope = spectrumSlope({
       spectrum: cascadeSpectrum,
       lo: INERTIAL_LO,
       hi: INERTIAL_HI,
     })
+
     // E(k) = |u_n|^2 / k_n, so the spectrum slope is the shell-energy slope minus one
     const energySpectrumSlope = shellEnergySlope - 1
 
@@ -66,6 +68,7 @@ export default experiment({
       steps: STEPS,
       nonlinear: false,
     })
+
     const linearSlope =
       spectrumSlope({
         spectrum: linearSpectrum,
@@ -77,8 +80,10 @@ export default experiment({
     const kolmogorov = -5 / 3
     const cascadeIsKolmogorov =
       Math.abs(energySpectrumSlope - kolmogorov) < 0.2
+
     const controlIsNotKolmogorov =
       Math.abs(linearSlope - kolmogorov) > 0.4
+
     const ok = cascadeIsKolmogorov && controlIsNotKolmogorov
 
     return verdict({

@@ -31,6 +31,7 @@ export function colorOf(address: string): TileColor {
 // a tile's children addresses, left to right, the preferred son first
 export function childrenOf(address: string): string[] {
   const kids = [address + '00', address + '01']
+
   if (colorOf(address) === 'white') {
     kids.push(address + '10')
   }
@@ -106,13 +107,16 @@ export class SplittingTree {
   // the children ids, materializing them on first access (the lazy, on-demand growth)
   children(id: number): number[] {
     const cached = this.childIds[id]
+
     if (cached) {
       return cached
     }
 
     const kids: number[] = []
+
     for (const childAddress of childrenOf(this.addresses[id]!)) {
       let childId = this.idByAddress.get(childAddress)
+
       if (childId === undefined) {
         childId = this.addresses.length
         this.idByAddress.set(childAddress, childId)
@@ -148,7 +152,9 @@ export class SplittingTree {
   // the path of tile ids from a node up to the sector root
   pathToRoot(id: number): number[] {
     const path: number[] = [id]
+
     let current = id
+
     while (this.parents[current]! >= 0) {
       current = this.parents[current]!
       path.push(current)

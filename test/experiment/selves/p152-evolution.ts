@@ -19,6 +19,7 @@ type Rng = { next: () => number }
 function randomBalanced(M: number, rng: Rng): Int8Array {
   const p = new Int8Array(M)
   const half = Math.floor(M / 2)
+
   for (let i = 0; i < M; i++) {
     p[i] = i < half ? 1 : -1
   }
@@ -37,6 +38,7 @@ function randomBalanced(M: number, rng: Rng): Int8Array {
 function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
   const child = parent.slice()
   const M = child.length
+
   for (let i = 0; i < M; i++) {
     if (rng.next() < mu) {
       // swap with a random other cell, keeps the pattern balanced (a conserving mutation)
@@ -52,6 +54,7 @@ function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
 
 const fitness = (org: Int8Array, target: Int8Array): number => {
   let m = 0
+
   for (let i = 0; i < org.length; i++) {
     if (org[i] === target[i]) {
       m++
@@ -71,13 +74,16 @@ function evolve(
   rng: Rng,
 ): { meanByGen: number[]; heritability: number } {
   let pop: Int8Array[] = []
+
   for (let i = 0; i < P; i++) {
     pop.push(randomBalanced(M, rng))
   }
 
   const meanByGen: number[] = []
+
   let heritSum = 0
   let heritCount = 0
+
   for (let g = 0; g < G; g++) {
     const scored = pop.map(o => ({ o, f: fitness(o, target) }))
     meanByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
@@ -85,8 +91,10 @@ function evolve(
     const survivors = select
       ? scored.sort((a, b) => b.f - a.f).slice(0, P / 2)
       : scored.slice(0, P / 2)
+
     // reproduce, each survivor makes 2 offspring (copy with mutation), measure parent-child fitness link
     const next: Int8Array[] = []
+
     for (const s of survivors) {
       for (let k = 0; k < 2; k++) {
         const child = reproduce(s.o, mu, rng)

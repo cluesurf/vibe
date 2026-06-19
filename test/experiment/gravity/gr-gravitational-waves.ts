@@ -35,6 +35,7 @@ function gravitonModes(): {
   // dispersion is omega^2 = |k|^2 (the lattice version omega^2 = sum 2(1-cos k_a) -> |k|^2 at small k).
   // Check the small-k dispersion is omega = |k| (z = 1, massless) and count TT polarizations for k=z-hat.
   let maxErr = 0
+
   for (let kx = 0.02; kx < 0.3; kx += 0.02) {
     const latt = Math.sqrt(2 * (1 - Math.cos(kx))) // 1D lattice dispersion
     maxErr = Math.max(maxErr, Math.abs(latt - kx) / kx)
@@ -47,7 +48,9 @@ function gravitonModes(): {
   // (h_xx + h_yy = 0) has exactly two free components: h_xx = -h_yy (the + mode) and h_xy (the x mode).
   // Count them by constructing the constraint nullspace.
   const k = [0, 0, 1]
+
   let free = 0
+
   // symmetric 3x3 has 6 comps; transverse removes 3 (h_xz,h_yz,h_zz tied via k), traceless removes 1
   // do it concretely: basis of symmetric tensors, apply transverse (k_j h_ij = 0) and traceless
   const symBasis = [
@@ -82,6 +85,7 @@ function gravitonModes(): {
       [0, 1, 0],
     ], // yz
   ]
+
   // a tensor is TT if k_j h_ij = 0 (transverse) and trace = 0. Enumerate which combinations survive.
   // transverse with k=z: h_iz = 0 for all i -> kills zz, xz, yz. traceless: h_xx + h_yy = 0 -> ties xx,yy.
   // remaining independent: {xx=-yy} and {xy} -> 2.
@@ -91,6 +95,7 @@ function gravitonModes(): {
 
     return transverse
   })
+
   // among survivors {xx, yy, xy}, traceless ties xx,yy -> 2 dof
   free = survives.length - 1 // 3 survivors, 1 trace constraint
 
@@ -166,6 +171,7 @@ function chirp(
     mass2: m2,
     separation: a0,
   })
+
   const { times, gwFrequencies: fgw, coalescenceTime: tc } = track
   // fit log f vs log(tc - t) over the late inspiral; slope should be -3/8
   const pts = times
@@ -178,6 +184,7 @@ function chirp(
       Math.floor(times.length * 0.3),
       Math.floor(times.length * 0.9),
     )
+
   const slope = linearFit({
     xs: pts.map(p => p.x),
     ys: pts.map(p => p.y),

@@ -52,6 +52,7 @@ export function selfEmergence(): {
     depth: 20,
     maxChambers: 60000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
@@ -60,6 +61,7 @@ export function selfEmergence(): {
   const rng0 = makeRng({ seed: 4 })
   const tone0 = new Int8Array(n)
   const fill0 = new Int8Array(edges.length)
+
   for (let i = 0; i < n; i++) {
     const r = rng0.next()
     tone0[i] = r < 0.4 ? 1 : r < 0.7 ? -1 : 0 // a net-positive charge so domains can persist
@@ -79,6 +81,7 @@ export function selfEmergence(): {
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
   const rngF = makeRng({ seed: 21 })
+
   for (let b = 0; b < BEATS; b++) {
     fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
   }
@@ -94,6 +97,7 @@ export function selfEmergence(): {
   const coherenceSixStart = coherence(tS, edges, fS)
   const patchSixStart = largestPatch(tS, edges, fS, n)
   const rngS = makeRng({ seed: 21 })
+
   for (let b = 0; b < BEATS; b++) {
     fillGatedSweep({ tone: tS, edges, fill: fS, rng: rngS })
     adaptFills(tS, edges, fS)
@@ -108,9 +112,11 @@ export function selfEmergence(): {
   const fiveSelfOrganizes =
     coherenceFiveEnd > coherenceFiveStart + 0.15 &&
     patchFiveEnd > patchFiveStart * 1.5
+
   const sixSelfOrganizes =
     coherenceSixEnd > coherenceSixStart + 0.15 &&
     patchSixEnd > patchSixStart * 1.5
+
   const needsAdaptiveFills = sixSelfOrganizes && !fiveSelfOrganizes
 
   // the experiment "succeeds" if it conserves charge and returns a clear verdict either way

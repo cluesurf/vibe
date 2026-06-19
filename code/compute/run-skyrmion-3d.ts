@@ -51,11 +51,13 @@ function sliceCharge(buf: Float32Array, z: number): number {
 
   const dot = (a: number[], b: number[]): number =>
     a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
+
   const cross = (a: number[], b: number[]): number[] => [
     a[1]! * b[2]! - a[2]! * b[1]!,
     a[2]! * b[0]! - a[0]! * b[2]!,
     a[0]! * b[1]! - a[1]! * b[0]!,
   ]
+
   const tri = (a: number[], b: number[], c: number[]): number => {
     const num = dot(a, cross(b, c))
     const den = 1 + dot(a, b) + dot(b, c) + dot(c, a)
@@ -64,12 +66,14 @@ function sliceCharge(buf: Float32Array, z: number): number {
   }
 
   let q = 0
+
   for (let x = 0; x < L - 1; x++) {
     for (let y = 0; y < L - 1; y++) {
       const a = at(x, y),
         b = at(x + 1, y),
         c = at(x + 1, y + 1),
         d = at(x, y + 1)
+
       q += tri(a, b, c) + tri(a, c, d)
     }
   }
@@ -79,6 +83,7 @@ function sliceCharge(buf: Float32Array, z: number): number {
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -93,10 +98,12 @@ async function run(): Promise<void> {
   const seed = new Float32Array(N * 4)
   const r = makeRng({ seed: 22222221 })
   const rnd = (): number => r.next()
+
   for (let i = 0; i < N; i++) {
     const u = 2 * rnd() - 1,
       ph = 2 * Math.PI * rnd(),
       s = Math.sqrt(1 - u * u)
+
     seed[i * 4] = s * Math.cos(ph)
     seed[i * 4 + 1] = s * Math.sin(ph)
     seed[i * 4 + 2] = u
@@ -107,10 +114,12 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const params = device.createBuffer({
     size: 32,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const mk = (): GPUBuffer =>
     device.createBuffer({
       size: bytes,
@@ -119,10 +128,12 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const staging = device.createBuffer({
     size: bytes,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const dispatch = Math.ceil(N / WG)
 
   const trial = async (dmi: number, label: string): Promise<void> => {
@@ -144,7 +155,9 @@ async function run(): Promise<void> {
           { binding: 2, resource: { buffer: b } },
         ],
       })
+
     let src = 0
+
     const readCharge = async (): Promise<number> => {
       const enc = device.createCommandEncoder()
       enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, bytes)
@@ -153,6 +166,7 @@ async function run(): Promise<void> {
       const out = new Float32Array(staging.getMappedRange().slice(0))
       staging.unmap()
       let tot = 0
+
       for (let z = 4; z < L; z += 8) {
         tot += Math.abs(sliceCharge(out, z))
       } // average |Q| over several slices
@@ -161,6 +175,7 @@ async function run(): Promise<void> {
     }
 
     const marks: number[] = []
+
     for (let s = 0; s < STEPS; s++) {
       if (s === 0 || s === 300 || s === 600 || s === STEPS - 1) {
         marks.push(Math.round((await readCharge()) * 10) / 10)

@@ -18,10 +18,12 @@ export function streamDirectionalChargeStep(input: {
   const next: number[][] = Array.from({ length: N }, (_, i) =>
     neighbors[i]!.map(() => 0),
   )
+
   for (let i = 0; i < N; i++) {
     for (let k = 0; k < neighbors[i]!.length; k++) {
       const j = neighbors[i]![k]!
       const back = neighbors[j]!.indexOf(i)
+
       if (back >= 0) {
         next[j]![back] = next[j]![back]! + charge[i]![k]!
       }
@@ -38,6 +40,7 @@ export function streamDirectionalCharge(input: {
   steps: number
 }): number[][] {
   let charge: ReadonlyArray<ReadonlyArray<number>> = input.charge
+
   for (let step = 0; step < input.steps; step++) {
     charge = streamDirectionalChargeStep({
       neighbors: input.neighbors,

@@ -44,14 +44,17 @@ export default experiment({
       Math.floor(c / (SIDE * SIDE)) % SIDE,
       Math.floor(c / SIDE ** 3) % SIDE,
     ]
+
     const neighbour = (c: number, d: number): number =>
       mesh.neighbour(c, d)
+
     const index = (
       x: number,
       y: number,
       z: number,
       w: number,
     ): number => x + SIDE * y + SIDE * SIDE * z + SIDE ** 3 * w
+
     const distance = (c: number): number =>
       coord(c).reduce((s, v) => s + Math.abs(v - half), 0)
 
@@ -60,8 +63,10 @@ export default experiment({
       radius: number,
     ): { mass: number; range: number } => {
       const body = new Uint8Array(cellCount)
+
       for (let c = 0; c < cellCount; c++) {
         const p = coord(c)
+
         if (
           (p[0]! - half) ** 2 +
             (p[1]! - half) ** 2 +
@@ -88,8 +93,10 @@ export default experiment({
         strength: 4,
         cap: 13,
       })
+
       let mass = 0
       let range = 0
+
       for (let c = 0; c < cellCount; c++) {
         if (body[c]) {
           mass++
@@ -109,6 +116,7 @@ export default experiment({
     // UNIVERSAL free fall, a uniform field phi = x, bodies of different mass (perpendicular to the field, so excluded
     // volume does not self-block) fall at the same rate
     const uniformField = new Int32Array(cellCount)
+
     for (let c = 0; c < cellCount; c++) {
       uniformField[c] = coord(c)[0]!
     }
@@ -121,6 +129,7 @@ export default experiment({
       const y0 = 10
       const z0 = 10
       const w0 = 10
+
       if (shape === 'point') {
         body[index(x0, y0, z0, w0)] = 1
       }
@@ -146,6 +155,7 @@ export default experiment({
       const centroidX = (): number => {
         let sum = 0
         let count = 0
+
         for (let c = 0; c < cellCount; c++) {
           if (body[c]) {
             sum += coord(c)[0]!
@@ -157,6 +167,7 @@ export default experiment({
       }
 
       let mass = 0
+
       for (let c = 0; c < cellCount; c++) {
         if (body[c]) {
           mass++
@@ -165,6 +176,7 @@ export default experiment({
 
       const start = centroidX()
       const beats = 8
+
       for (let b = 0; b < beats; b++) {
         freeFallStep({
           occupied: body,
@@ -187,6 +199,7 @@ export default experiment({
     const flatBody = new Uint8Array(cellCount)
     flatBody[index(20, 10, 10, 10)] = 1
     let flatMoves = 0
+
     for (let b = 0; b < 8; b++) {
       flatMoves += freeFallStep({
         occupied: flatBody,
@@ -202,9 +215,11 @@ export default experiment({
     const sourceScalesWithMass =
       largeSource.mass > smallSource.mass &&
       largeSource.range > smallSource.range
+
     const rates = [point.rate, plane.rate, block.rate]
     const universalFreeFall =
       Math.max(...rates) - Math.min(...rates) < 1e-9 && point.rate > 0.5
+
     const flatNoForce = flatMoves === 0
     const ok = sourceScalesWithMass && universalFreeFall && flatNoForce
 

@@ -26,6 +26,7 @@ export default experiment({
       epsilon: 0.9,
       dimension: 2,
     })
+
     const result = exactCausalSetAverages({
       size: 6,
       betas: [0],
@@ -35,6 +36,7 @@ export default experiment({
           orderStatistics({ poset }).heightRatio,
       ],
     })
+
     const mean = result.means[0]?.[0] ?? Number.NaN
     const ok = result.count > 0 && Number.isFinite(mean)
 

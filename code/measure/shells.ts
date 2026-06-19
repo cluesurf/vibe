@@ -20,21 +20,28 @@ export function bfsShells(input: {
   const root = input.root ?? 0
   const maxRadius = input.maxRadius ?? Infinity
   const depth = new Int32Array(n).fill(-1)
+
   if (n === 0) {
     return { depth, shellCounts: [] }
   }
 
   depth[root] = 0
   let frontier = [root]
+
   const shellCounts: number[] = [1]
+
   let r = 0
+
   while (frontier.length && r < maxRadius) {
     r++
     const next: number[] = []
+
     for (const u of frontier) {
       const row = neighbors[u] ?? []
+
       for (let k = 0; k < row.length; k++) {
         const v = row[k]!
+
         if (depth[v]! < 0) {
           depth[v] = depth[u]! + 1
           next.push(v)
@@ -62,10 +69,13 @@ export function branchingRatio(input: {
   const s = input.shellCounts
   const from = input.from ?? 2
   const to = input.to ?? s.length - 1
+
   let sum = 0
   let count = 0
+
   for (let i = Math.max(1, from); i < Math.min(to, s.length); i++) {
     const prev = s[i - 1]!
+
     if (prev > 0) {
       sum += s[i]! / prev
       count++
@@ -88,11 +98,13 @@ export function midShellGrowthRatio(input: {
   const from = input.from ?? 2
   const to = input.to ?? 8
   const mid = shellCounts.slice(from, Math.min(to, shellCounts.length))
+
   if (mid.length < 2) {
     return 0
   }
 
   let sum = 0
+
   for (let i = 1; i < mid.length; i++) {
     sum += mid[i]! / mid[i - 1]!
   }
@@ -108,9 +120,11 @@ export function geometricGrowthRatio(
 ): number {
   let logSum = 0
   let count = 0
+
   for (let g = 1; g < widths.length; g++) {
     const a = widths[g - 1] ?? 1
     const b = widths[g] ?? 1
+
     if (a > 0 && b > 0) {
       logSum += Math.log(b / a)
       count += 1
@@ -135,8 +149,10 @@ export function meanShellDistanceStep(input: {
   const maxShell = shellCount - 1
   const sums = new Float64Array(maxShell + 1)
   const counts = new Int32Array(maxShell + 1)
+
   for (let i = 0; i < count; i++) {
     const s = shell[i] ?? -1
+
     if (s > 0) {
       sums[s]! += distance(center, i)
       counts[s]! += 1
@@ -144,6 +160,7 @@ export function meanShellDistanceStep(input: {
   }
 
   const means: number[] = []
+
   for (let s = 1; s <= maxShell; s++) {
     if (counts[s]! > 0) {
       means.push(sums[s]! / counts[s]!)
@@ -151,6 +168,7 @@ export function meanShellDistanceStep(input: {
   }
 
   let stepSum = 0
+
   for (let i = 1; i < means.length; i++) {
     stepSum += means[i]! - means[i - 1]!
   }
@@ -168,15 +186,20 @@ export function geodesicBall(input: {
   const n = neighbors.length
   const seen = new Int8Array(n)
   const ball: number[] = []
+
   let frontier = [root]
   seen[root] = 1
   ball.push(root)
+
   for (let r = 0; r < radius && frontier.length; r++) {
     const next: number[] = []
+
     for (const u of frontier) {
       const row = neighbors[u] ?? []
+
       for (let k = 0; k < row.length; k++) {
         const v = row[k]!
+
         if (!seen[v]) {
           seen[v] = 1
           ball.push(v)

@@ -30,6 +30,7 @@ export default experiment({
   run() {
     // scan even dimensions, find where the vector dimension equals the half-spinor dimension
     const matches: number[] = []
+
     for (let n = 2; n <= 64; n += 2) {
       if (vectorDim(n) === halfSpinorDim(n)) {
         matches.push(n)
@@ -41,12 +42,14 @@ export default experiment({
     // at n = 8 the vector and BOTH half-spinors are 8-dimensional (triality): 8v + 8s + 8c = 24 (the 24-cell)
     const eightV = vectorDim(8),
       eightS = halfSpinorDim(8)
+
     const threeFacesEqual = eightV === 8 && eightS === 8
     const tripletSumsTo24 = eightV + eightS + eightS === 24 // the dual 24-cell, the three generations
 
     // control: a NON-self-dual dimension (n = 10, the so(10) GUT dimension) has vector != spinor (10 vs 16)
     const tenVector = vectorDim(10),
       tenSpinor = halfSpinorDim(10)
+
     const controlBreaks = tenVector !== tenSpinor
 
     const ok =

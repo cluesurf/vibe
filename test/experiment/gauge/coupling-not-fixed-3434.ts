@@ -50,12 +50,14 @@ export function couplingNotFixed(): {
     xs: COUPLINGS,
     ys: fields,
   })
+
   const n = COUPLINGS.length
   const isCleanPowerLaw =
     Math.abs(scalingExponent - 2) < 0.05 && maxDeviation < 0.02
 
   // strictly monotone, so there is no special coupling where the behaviour changes
   let isMonotone = true
+
   for (let i = 1; i < n; i++) {
     if (!(fields[i]! > fields[i - 1]!)) {
       isMonotone = false

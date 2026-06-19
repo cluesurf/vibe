@@ -183,6 +183,7 @@ import {
 export function runConformance(): { passed: number; failed: number } {
   let passed = 0
   let failed = 0
+
   const check = (input: {
     name: string
     ok: boolean
@@ -223,6 +224,7 @@ export function runConformance(): { passed: number; failed: number } {
       size: 4,
       precedes: ({ a, b }) => a < b,
     })
+
     check({
       name: 'poset total order relation count is 6',
       ok: relationCount(p) === 6,
@@ -261,11 +263,13 @@ export function runConformance(): { passed: number; failed: number } {
       samples: 400,
       rng,
     })
+
     const sprIso = lorentzIsotropy({
       substrate: sprinkleMinkowski({ dimension: 3, count: 1200, rng }),
       samples: 400,
       rng,
     })
+
     check({
       name: 'lattice is more anisotropic than a sprinkling',
       ok: latIso.anisotropy > sprIso.anisotropy + 0.2,
@@ -288,6 +292,7 @@ export function runConformance(): { passed: number; failed: number } {
       trials: 40000,
       rng,
     })
+
     check({
       name: 'CHSH classical bound at independence (|S| <= 2)',
       ok: Math.abs(r.s) <= 2.06,
@@ -302,6 +307,7 @@ export function runConformance(): { passed: number; failed: number } {
       extent: 8,
       signature: 'riemannian',
     })
+
     const lap = laplacian({ substrate: g })
     const spec = laplacianSpectrum({ substrate: g, count: 3 })
     check({
@@ -322,6 +328,7 @@ export function runConformance(): { passed: number; failed: number } {
       extent: 8,
       signature: 'riemannian',
     })
+
     const complex = cellComplexOf({ substrate: g, maxGrade: 2 })
     const spec = diracSpectrum({ complex, count: 8 })
     check({
@@ -336,6 +343,7 @@ export function runConformance(): { passed: number; failed: number } {
     const rng = makeRng({ seed: 6 })
     const lat = makeSu2Lattice({ dim: 3, length: 4, hot: false, rng })
     const cold = averagePlaquette({ lattice: lat })
+
     for (let s = 0; s < 100; s++) {
       metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
     }
@@ -355,10 +363,12 @@ export function runConformance(): { passed: number; failed: number } {
       operator: ({ k1, k2 }) => naiveDirac2D({ k1, k2 }),
       gridSize: 12,
     })
+
     const overlap = scanBrillouin({
       operator: ({ k1, k2 }) => overlapDirac2D({ k1, k2, m0: 1, r: 1 }),
       gridSize: 12,
     })
+
     check({
       name: 'naive lattice fermion has 4 doublers (2D)',
       ok: naive.species === 4,
@@ -406,6 +416,7 @@ export function runConformance(): { passed: number; failed: number } {
     const cells = 6
     const n = 1 << cells
     const perm = new Int32Array(n)
+
     for (let s = 0; s < n; s++) {
       perm[s] = s ^ 1
     }
@@ -414,6 +425,7 @@ export function runConformance(): { passed: number; failed: number } {
       matrix: hamiltonianMatrix({ perm }),
       cells,
     })
+
     check({
       name: 'Hamiltonian locality measure: single-cell flip is range 1',
       ok: Math.abs(profile.localityLength - 1) < 1e-6,
@@ -431,6 +443,7 @@ export function runConformance(): { passed: number; failed: number } {
       connectThreshold: 3.0,
       rng,
     })
+
     const iso = lorentzIsotropy({ substrate: graph, samples: 200, rng })
     check({
       name: 'expanding hyperbolic mesh stays Lorentz-safe (anisotropy < 0.25)',
@@ -447,12 +460,16 @@ export function runConformance(): { passed: number; failed: number } {
       blockSize: 2,
       gate: cnotGate,
     })
+
     const length = pauliLocalityProfile({
       matrix: h,
       cells: 6,
     }).localityLength
+
     const eig = eigHermitian({ matrix: h })
+
     let lo = Infinity
+
     for (let i = 0; i < eig.values.length; i++) {
       lo = Math.min(lo, eig.values[i] ?? 0)
     }
@@ -473,17 +490,22 @@ export function runConformance(): { passed: number; failed: number } {
       extent: cells,
       signature: 'riemannian',
     }) as Graph
+
     const m = makeDense({ rows: cells, cols: cells })
+
     for (let i = 0; i < cells; i++) {
       const row = ring.neighbors[i] ?? new Uint32Array(0)
       m.data[i * cells + i] = row.length
+
       for (let k = 0; k < row.length; k++) {
         m.data[i * cells + (row[k] ?? 0)] = -1
       }
     }
 
     const eig = eigSymmetric({ matrix: m })
+
     let lo = Infinity
+
     for (let i = 0; i < eig.values.length; i++) {
       lo = Math.min(lo, eig.values[i] ?? 0)
     }
@@ -507,11 +529,13 @@ export function runConformance(): { passed: number; failed: number } {
       observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
       rng: makeRng({ seed: 3 }),
     })
+
     const cold = result.samplesByBeta[3] ?? []
     const meanCold =
       cold.length > 0
         ? cold.reduce((a, b) => a + b, 0) / cold.length
         : 0
+
     check({
       name: 'parallel tempering swaps and gives a manifold-like cold replica',
       ok:
@@ -530,6 +554,7 @@ export function runConformance(): { passed: number; failed: number } {
       epsilon: 0.9,
       dimension: 2,
     })
+
     const result = exactCausalSetAverages({
       size: 5,
       betas: [0, 2],
@@ -539,6 +564,7 @@ export function runConformance(): { passed: number; failed: number } {
           orderStatistics({ poset }).heightRatio > 1 ? 1 : 0,
       ],
     })
+
     const fracCold = result.means[1]?.[0] ?? 0
     const fracHot = result.means[0]?.[0] ?? 0
     check({
@@ -559,6 +585,7 @@ export function runConformance(): { passed: number; failed: number } {
       steps: 200000,
       rng: makeRng({ seed: 6 }),
     })
+
     check({
       name: 'uniform-measure sampler matches exact enumeration (N=6, ~72%)',
       ok: r.manifoldFraction > 0.65 && r.manifoldFraction < 0.79,
@@ -575,12 +602,14 @@ export function runConformance(): { passed: number; failed: number } {
       configs: 4,
       rng: makeRng({ seed: 1 }),
     })
+
     const gauged = chiralCondensateSignal({
       length: 5,
       disorder: 0.6,
       configs: 6,
       rng: makeRng({ seed: 2 }),
     })
+
     check({
       name: 'chiral condensate: zero in free theory, nonzero with gauge field',
       ok:
@@ -599,12 +628,14 @@ export function runConformance(): { passed: number; failed: number } {
       configs: 3,
       rng: makeRng({ seed: 1 }),
     })
+
     const gauged = chiralCondensateSignalSU2({
       length: 4,
       disorder: 0.4,
       configs: 5,
       rng: makeRng({ seed: 2 }),
     })
+
     check({
       name: 'SU(2) condensate: zero free, nonzero in a dynamical non-Abelian field',
       ok:
@@ -619,17 +650,21 @@ export function runConformance(): { passed: number; failed: number } {
   {
     const a = buildDodecagrid({ maxCells: 2000 })
     const b = buildDodecagridFast({ maxCells: 2000 })
+
     let identical =
       a.cellCount === b.cellCount &&
       a.facetCount === b.facetCount &&
       b.facetCount === 12
+
     for (let i = 0; i < a.cellCount && identical; i++) {
       const sa = new Set<number>()
+
       for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
         sa.add(a.adj[p]!)
       }
 
       const sb = new Set<number>()
+
       for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
         sb.add(b.adj[p]!)
       }
@@ -675,6 +710,7 @@ export function runConformance(): { passed: number; failed: number } {
     const path = Array.from({ length: 6 }, (_, i) =>
       [i - 1, i + 1].filter(j => j >= 0 && j < 6),
     )
+
     const sh = bfsShells({ neighbors: path, root: 0 })
     check({
       name: 'bfsShells path graph',
@@ -728,6 +764,7 @@ export function runConformance(): { passed: number; failed: number } {
         octonionNormSquared(octonionMultiply(ox, oy)) -
           octonionNormSquared(ox) * octonionNormSquared(oy),
       ) < 1e-9
+
     check({
       name: 'octonion norm multiplicative',
       ok: normMultiplicative,
@@ -746,6 +783,7 @@ export function runConformance(): { passed: number; failed: number } {
       areJordanOrthogonal(frame[0]!, frame[1]!) &&
       areJordanOrthogonal(frame[0]!, frame[2]!) &&
       areJordanOrthogonal(frame[1]!, frame[2]!)
+
     check({ name: 'jordan rank-3 frame', ok: frameOk })
     check({
       name: 'jordan identity holds at n<=3',
@@ -785,9 +823,11 @@ export function runConformance(): { passed: number; failed: number } {
         mass: landauM,
       }),
     }).values
+
     const diracLowSquared = Math.min(
       ...Array.from(diracVals).map(x => x * x),
     )
+
     const scalarLowSquared = Math.min(
       ...Array.from(
         eigSymmetric({
@@ -799,6 +839,7 @@ export function runConformance(): { passed: number; failed: number } {
         }).values,
       ),
     )
+
     check({
       name: 'landau Dirac zero mode at m^2 (g=2)',
       ok: Math.abs(diracLowSquared - landauM * landauM) < 1e-3,
@@ -828,14 +869,17 @@ export function runConformance(): { passed: number; failed: number } {
       steps: 40,
       dt: 0.1,
     }
+
     const decoupled = runCoupledSchwinger({
       ...schwingerArgs,
       coupling: 0,
     })
+
     const coupled = runCoupledSchwinger({
       ...schwingerArgs,
       coupling: 0.5,
     })
+
     check({
       name: 'schwinger e=0 sources no field (decoupled)',
       ok: decoupled.fieldEnergy < 1e-12,
@@ -851,6 +895,7 @@ export function runConformance(): { passed: number; failed: number } {
       size: chainSize,
       apply: ({ x }: { x: Float64Array }) => {
         const y = new Float64Array(chainSize)
+
         for (let i = 0; i < chainSize; i++) {
           y[i] = (x[i - 1] ?? 0) + (x[i + 1] ?? 0)
         }
@@ -858,11 +903,13 @@ export function runConformance(): { passed: number; failed: number } {
         return y
       },
     }
+
     const diagonalOnly = {
       size: chainSize,
       apply: ({ x }: { x: Float64Array }) =>
         x.map(v => 2 * v) as Float64Array,
     }
+
     const spread = returnProbability({
       operator: hopping,
       source: 20,
@@ -870,6 +917,7 @@ export function runConformance(): { passed: number; failed: number } {
       dt: 0.1,
       sampleEvery: 10,
     })
+
     const trapped = returnProbability({
       operator: diagonalOnly,
       source: 20,
@@ -877,6 +925,7 @@ export function runConformance(): { passed: number; failed: number } {
       dt: 0.1,
       sampleEvery: 10,
     })
+
     check({
       name: 'return probability: hopping spreads (low return)',
       ok: spread.timeAverage < 0.5 && spread.normDrift < 0.05,
@@ -903,11 +952,13 @@ export function runConformance(): { passed: number; failed: number } {
       steps: 24,
       mode: 3,
     })
+
     const coll2 = collectiveModeOverlap({
       winding: 2,
       steps: 24,
       mode: 5,
     })
+
     check({
       name: 'collective spinor: odd disclination flips any mode (-1)',
       ok: Math.abs(coll1 + 1) < 1e-9 && Math.abs(coll2 - 1) < 1e-9,
@@ -918,10 +969,12 @@ export function runConformance(): { passed: number; failed: number } {
       symbol: [7, 3],
       maxCells: 2000,
     })
+
     const rt = ryuTakayanagiScaling({
       neighbors: rtTiling.neighbors,
       coords: rtTiling.coords,
     })
+
     check({
       name: 'Ryu-Takayanagi: {7,3} boundary geodesic is logarithmic',
       ok: rt.isLogarithmic && rt.logResidual < rt.linearResidual,
@@ -932,6 +985,7 @@ export function runConformance(): { passed: number; failed: number } {
     const pentaReturn = kahlerDiracReturn({
       neighbors: pentaMesh.adjacency,
     })
+
     check({
       name: 'fermion propagation: pentacomb spreads, disorder localizes',
       ok:
@@ -956,10 +1010,12 @@ export function runConformance(): { passed: number; failed: number } {
       schlafli: [5, 3, 4],
       maxCells: 1200,
     })
+
     const icositetra = measureTessellation({
       schlafli: [3, 4, 3, 4],
       maxCells: 1200,
     })
+
     check({
       name: 'tessellation battery: {5,3,4} hyperbolic, no spinor coin',
       ok: dodeca.hyperbolic && !dodeca.spinorHook && dodeca.cells > 500,
@@ -979,8 +1035,10 @@ export function runConformance(): { passed: number; failed: number } {
     // (and, by the twin theorem, the heptagrid {7,3}). The exact integer alternative to float cell keys.
     let zeckRoundTrips = true
     let zeckNo11 = true
+
     for (let n = 1; n <= 5000; n++) {
       const z = margensternToZeckendorf(n)
+
       if (margensternFromZeckendorf(z) !== n) {
         zeckRoundTrips = false
       }
@@ -997,6 +1055,7 @@ export function runConformance(): { passed: number; failed: number } {
     const splitGen = [0, 1, 2, 3, 4, 5]
       .map(margensternSectorGeneration)
       .join(',')
+
     check({
       name: 'Margenstern: sector growth is 1,3,8,21,55,144 (phi^2 rate)',
       ok: splitGen === '1,3,8,21,55,144',
@@ -1007,16 +1066,20 @@ export function runConformance(): { passed: number; failed: number } {
     let splitLegal = true
     let splitPreferred = true
     let splitParent = true
+
     const splitCoords = new Set<number>()
+
     for (let id = 0; id < splitTree.size; id++) {
       const a = splitTree.address(id)
       const co = splitTree.coordinate(id)
+
       if (splitCoords.has(co)) {
         splitLegal = false
       }
 
       splitCoords.add(co)
       const kids = margensternChildrenOf(a)
+
       if (
         kids.filter(k => k === margensternPreferredSon(a)).length !== 1
       ) {
@@ -1025,6 +1088,7 @@ export function runConformance(): { passed: number; failed: number } {
 
       if (id !== splitTree.root) {
         const p = margensternParentOf(a)
+
         if (p === null || margensternChildrenOf(p).indexOf(a) < 0) {
           splitParent = false
         }
@@ -1053,18 +1117,23 @@ export function runConformance(): { passed: number; failed: number } {
         symbol: gridSymbol,
         maxCells: 2000,
       })
+
       const gridCoords = new Set<number>()
+
       for (let c = 0; c < grid.size; c++) {
         gridCoords.add(grid.coordinate(c))
       }
 
       const target = Math.min(900, grid.size - 1)
       const gridPath = grid.route(grid.origin, target)
+
       let gridRouteValid =
         gridPath[0] === grid.origin &&
         gridPath[gridPath.length - 1] === target
+
       for (let i = 0; i + 1 < gridPath.length; i++) {
         let adjacent = false
+
         for (let s = 0; s < grid.degree(gridPath[i]!); s++) {
           if (grid.step(gridPath[i]!, s).cell === gridPath[i + 1]!) {
             adjacent = true
@@ -1088,6 +1157,7 @@ export function runConformance(): { passed: number; failed: number } {
     // and a route is a valid father/son walk
     let fibFatherOk = true
     let fibRouteOk = true
+
     for (let nn = 1; nn <= 4000; nn++) {
       for (const s of margensternSons(nn)) {
         if (margensternFather(s) !== nn) {
@@ -1100,6 +1170,7 @@ export function runConformance(): { passed: number; failed: number } {
       const a = 2 + ((i * 37) % 900)
       const b = 2 + ((i * 53) % 900)
       const p = margensternRoute(a, b)
+
       if (p[0] !== a || p[p.length - 1] !== b) {
         fibRouteOk = false
       }
@@ -1128,6 +1199,7 @@ export function runConformance(): { passed: number; failed: number } {
         terms: 40,
       }),
     })
+
     const sixFour = makeNumeration({
       basis: recurrenceBasis({
         coefficients: [4, -1],
@@ -1135,7 +1207,9 @@ export function runConformance(): { passed: number; failed: number } {
         terms: 30,
       }),
     })
+
     let numOk = true
+
     for (let n = 1; n <= 8000; n++) {
       if (
         fibNum.decode(fibNum.encode(n)) !== n ||
@@ -1161,6 +1235,7 @@ export function runConformance(): { passed: number; failed: number } {
         poincarePoint[0]! - ballPoint[0]!,
         poincarePoint[1]! - ballPoint[1]!,
       ) < 1e-12
+
     const modelsDiffer = [
       'klein',
       'gans',
@@ -1181,6 +1256,7 @@ export function runConformance(): { passed: number; failed: number } {
         ) > 1e-6
       )
     })
+
     check({
       name: 'projection models: Poincare is identity, Klein stays in the disk, all models differ',
       ok: poincareIdentity && kleinNorm < 1 && modelsDiffer,
@@ -1193,7 +1269,9 @@ export function runConformance(): { passed: number; failed: number } {
     const facesAligned =
       tiling.polygons.length === tiling.cellCount &&
       tiling.neighbors.length === tiling.cellCount
+
     let polygonsWellFormed = true
+
     for (const poly of tiling.polygons) {
       if (poly.length < 5) {
         polygonsWellFormed = false
@@ -1230,6 +1308,7 @@ export function runConformance(): { passed: number; failed: number } {
       modulus: q,
     })
     let reversible = true
+
     for (let i = 0; i < waveN; i++) {
       if (back[i] !== prev0[i]) {
         reversible = false
@@ -1255,9 +1334,12 @@ export function runConformance(): { passed: number; failed: number } {
       { symbol: [5, 3], faces: 12, edges: 30 }, // dodecahedron
       { symbol: [3, 5], faces: 20, edges: 30 }, // icosahedron
     ]
+
     let platonicOk = true
+
     for (const { symbol, faces, edges } of PLATONIC) {
       const s = buildSphericalScene({ symbol, maxCells: 400 })
+
       if (s.cellCount !== faces || s.edges.length !== edges) {
         platonicOk = false
       }
@@ -1272,16 +1354,19 @@ export function runConformance(): { passed: number; failed: number } {
       symbol: [4, 4],
       maxCells: 400,
     })
+
     const euclid36 = buildEuclideanScene({
       symbol: [3, 6],
       maxCells: 400,
     })
+
     const flatOk =
       euclid44.dim === 2 &&
       euclid44.edges.length > 300 &&
       euclid44.edges.every(e => e.a.length === 2) &&
       euclid36.dim === 2 &&
       euclid36.edges.length > 300
+
     check({
       name: 'geometry: the Euclidean builder makes flat 2D tiling patches ({4,4}, {3,6})',
       ok: flatOk,
@@ -1293,6 +1378,7 @@ export function runConformance(): { passed: number; failed: number } {
       buildTilingScene({ symbol: [4, 4], maxCells: 400 }), // -> euclidean
       buildTilingScene({ symbol: [7, 3], maxCells: 600 }), // -> hyperbolic
     ]
+
     check({
       name: 'geometry: buildTilingScene routes every signature to a non-empty Scene',
       ok: dispatched.every(s => s.edges.length > 0),
@@ -1305,12 +1391,14 @@ export function runConformance(): { passed: number; failed: number } {
       symbol: [7, 3],
       maxCells: 400,
     })
+
     const truncated73 = truncateScene(regular73, { fraction: 1 / 3 })
     const rectified73 = truncateScene(regular73, { fraction: 1 / 2 })
     const truncOk =
       truncated73.edges.length > regular73.edges.length &&
       rectified73.edges.length > regular73.edges.length &&
       truncated73.edges.every(e => e.a.length === 2 && e.b.length === 2)
+
     check({
       name: 'variants: vertex truncation of {7,3} yields a richer valid Scene (truncated and rectified)',
       ok: truncOk,
@@ -1320,14 +1408,17 @@ export function runConformance(): { passed: number; failed: number } {
     // pure-address pentagrid (Theorem 5), geometry-free integer neighbour stepping for {5,4}, the closed form.
     // The arithmetic graph is 5-regular, symmetric, and grows like the pentagrid (1,5,15,40,105,...).
     const pure = buildPentagridPure({ maxCells: 4000 })
+
     let pureSymmetric = true
     let pureInterior = 0
+
     for (let i = 0; i < pure.cellCount; i++) {
       if (pure.neighbors[i]!.length !== 5) {
         continue
       }
 
       pureInterior++
+
       if (
         !pure.neighbors[i]!.every(j => pure.neighbors[j]!.includes(i))
       ) {
@@ -1352,12 +1443,15 @@ export function runConformance(): { passed: number; failed: number } {
         symbol: exactSymbol,
         maxCells: 1500,
       })
+
       const floatGraph = buildCellGraphForConformance({
         symbol: exactSymbol,
         maxCells: 1500,
       })
+
       const histOf = (nb: number[][]): string => {
         const h: Record<number, number> = {}
+
         for (const r of nb) {
           h[r.length] = (h[r.length] ?? 0) + 1
         }
@@ -1366,6 +1460,7 @@ export function runConformance(): { passed: number; failed: number } {
       }
 
       let exactSymmetric = true
+
       for (let i = 0; i < exact.cellCount; i++) {
         for (const j of exact.neighbors[i]!) {
           if (!exact.neighbors[j]!.includes(i)) {
@@ -1377,6 +1472,7 @@ export function runConformance(): { passed: number; failed: number } {
       const matches =
         exact.cellCount === floatGraph.cellCount &&
         histOf(exact.neighbors) === histOf(floatGraph.neighbors)
+
       check({
         name: `exact modular {${exactSymbol.join(',')}}: integer-exact graph matches float and is symmetric`,
         ok: matches && exactSymmetric,
@@ -1390,17 +1486,22 @@ export function runConformance(): { passed: number; failed: number } {
       symbol: [7, 3],
       maxCells: 1500,
     })
+
     const sectorCount = patternClassCount(patGrid, 'sector')
     const centerIsSector0 =
       patternClass(patGrid, patGrid.origin, 'sector') === 0
+
     const nodeClasses = patternClassCount(patGrid, 'node')
     const routePath = patGrid.route(
       patGrid.origin,
       Math.floor(patGrid.size * 0.7),
     )
+
     let routeWalk = routePath.length > 1
+
     for (let i = 0; i + 1 < routePath.length; i++) {
       let adjacent = false
+
       for (let s = 0; s < patGrid.degree(routePath[i]!); s++) {
         if (patGrid.step(routePath[i]!, s).cell === routePath[i + 1]!) {
           adjacent = true
@@ -1436,6 +1537,7 @@ export function runConformance(): { passed: number; failed: number } {
       ffActiveAfter === 2 &&
       memSwitch.active === 2 &&
       routeSwitch(memSwitch, 0) === 2
+
     check({
       name: 'railway switches: flip-flop flips, memory remembers, exact semantics',
       ok: switchesOk,
@@ -1451,7 +1553,9 @@ export function runConformance(): { passed: number; failed: number } {
       { op: 'halt' },
       { op: 'halt' },
     ]
+
     let railwayUniversal = true
+
     for (const pair of [
       [3, 4],
       [0, 5],
@@ -1463,6 +1567,7 @@ export function runConformance(): { passed: number; failed: number } {
         { registers: 4, capacity: 400, code: mulCode },
         [a, b, 0, 0],
       )
+
       if (out.registers[2] !== a * b) {
         railwayUniversal = false
       }
@@ -1478,11 +1583,14 @@ export function runConformance(): { passed: number; failed: number } {
     const fibCompiled = compileToRailway(`
 function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a; t += b; a = b; b = t } return a }
 `)
+
     const fibValues: number[] = []
+
     for (let m = 1; m <= 10; m++) {
       const init = new Array<number>(
         fibCompiled.program.registers,
       ).fill(0)
+
       init[0] = m
       fibValues.push(
         runRailway(fibCompiled.program, init).registers[
@@ -1506,6 +1614,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const binVals: string[] = []
     const binCost: number[] = []
     const unaCost: number[] = []
+
     for (let m = 1; m <= 10; m++) {
       binVals.push(runMachine(bin, [m]).result.toString())
       binCost.push(runMachine(bin, [m]).cost)
@@ -1518,8 +1627,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     const binFlat =
       binCost[8]! - binCost[7]! === binDelta &&
       binCost[5]! - binCost[4]! === binDelta
+
     const unaGrows =
       unaCost[9]! - unaCost[8]! > unaCost[2]! - unaCost[1]!
+
     check({
       name: 'binary backend: same answers, constant per-term cost (modern-CPU 64-bit), vs unary growing',
       ok: binCorrect && binFlat && unaGrows,
@@ -1529,6 +1640,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the TERNARY backend (vibe-theory base-3) computes the same answers on the same program, costed in trits
     const ter = compileMachine(FIB_SRC, { backend: 'ternary' })
     const terVals: string[] = []
+
     for (let m = 1; m <= 10; m++) {
       terVals.push(runMachine(ter, [m]).result.toString())
     }
@@ -1541,6 +1653,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     // the LITERAL railway-CA adder: addition by the actual locomotive rippling carries through flip-flop switches
     const railFib: string[] = []
+
     for (let m = 1; m <= 10; m++) {
       railFib.push(String(fibOnRailway({ n: m, bits: 8 }).value))
     }
@@ -1554,7 +1667,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the prototype hyperbolic computer in 2D / 3D / 4D: the dock degree matches the dimension (7 / 12 / 24), the
     // ternary compute returns fib(10), the literal railway runs on the cell graph, and content recall works.
     let protoOk = true
+
     const degrees: string[] = []
+
     for (const [sym, deg] of [
       [[7, 3], 7],
       [[5, 3, 4], 12],
@@ -1564,7 +1679,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         symbol: sym as number[],
         maxCells: 500,
       }).report()
+
       degrees.push(`${sym.join('')}:${r.degree}`)
+
       if (
         r.degree !== deg ||
         r.compute.result !== '55' ||
@@ -1585,6 +1702,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // It compiles (rotation-invariant, no conflicts), uses exactly the 5 states, and fires its documented rules.
     const caTable = buildPentagridRuleTable()
     const alpha = new Set<string>()
+
     for (const r of PENTAGRID_RULES) {
       for (const ch of r) {
         alpha.add(ch)
@@ -1597,6 +1715,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       pentagridNext(caTable, 'G', ['W', 'W', 'B', 'W', 'B']) === 'W' && // rule 46
       pentagridNext(caTable, 'W', ['B', 'W', 'B', 'W', 'G']) === 'G' && // rule 34 rotated
       pentagridNext(caTable, 'W', ['W', 'W', 'W', 'W', 'W']) === 'W' // vacuum stable
+
     check({
       name: 'Margenstern pentagrid CA: 236 rules transcribed, 5 states, no conflicts, documented rules fire',
       ok: PENTAGRID_RULES.length === 236 && fivState && faithful,
@@ -1644,6 +1763,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       dodecagridTotalisticNext('W', Array<string>(7).fill('B')) ===
         'R' && // weight 7
       dodecagridTotalisticNext('W', Array<string>(10).fill('B')) === 'G' // weight 10
+
     check({
       name: 'Margenstern dodecagrid 4-state totalistic: 34 entries, documented weights fire',
       ok: totalisticOk,
@@ -1654,6 +1774,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the universal register machine (railway.ts) this makes ONE CA universal on every regular tiling.
     const loopCa = makeTrackLoop([0, 1, 2, 3, 4, 5, 6, 7], 8)
     const seen = new Set<number>()
+
     for (let t = 0; t < 8; t++) {
       loopCa.step()
       seen.add(loopCa.headAt())
@@ -1673,6 +1794,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       { role: 'track', links: [1, 3], state: 'C' },
       { role: 'track', links: [4, 0], state: 'A' },
     ])
+
     ffCa.step()
     ffCa.step()
     const switchOk = ffCa.headAt() === 2 && ffCa.cells[1]!.active === 2 // routed to active branch, flipped
@@ -1688,11 +1810,15 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         symbol: [5, 3, 4],
         maxCells: 4000,
       })
+
       const gnb: number[][] = []
       const gdepth: number[] = []
+
       let maxDepth = 0
+
       for (let c = 0; c < g.size; c++) {
         const row: number[] = []
+
         for (let s = 0; s < g.degree(c); s++) {
           row.push(g.step(c, s).cell)
         }
@@ -1707,9 +1833,11 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         depth: gdepth,
         start: g.origin,
       })
+
       let monotone = true
       let prev = g.depth(builder.headAt())
       let built = 0
+
       for (let t = 0; t < 2000; t++) {
         if (!builder.step()) {
           break
@@ -1717,6 +1845,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
         built++
         const d = g.depth(builder.headAt())
+
         if (d !== prev + 1) {
           monotone = false
         }
@@ -1726,6 +1855,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       const haltedAtEdge =
         g.depth(builder.headAt()) === maxDepth && built === maxDepth
+
       check({
         name: 'strongly-universal track builder: finite seed grows strictly outward, halts only at the patch edge',
         ok: monotone && haltedAtEdge,
@@ -1735,9 +1865,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     // end-to-end: a physical register (a binary ripple counter) computed by the single railway-ca locomotive
     const counter = makeBinaryCounter(5)
+
     let counterOk = true
+
     for (let k = 1; k <= 20; k++) {
       const reached = counter.increment()
+
       if (!reached || counter.count() !== k) {
         counterOk = false
       }
@@ -1752,9 +1885,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // building new bits on overflow (the memory grows on demand, like the vibe mesh growing a ring each beat)
     const sec = makeSelfExtendingCounter()
     const seedWidth = sec.width()
+
     let secOk = true
+
     for (let k = 1; k <= 100; k++) {
       sec.increment()
+
       if (sec.count() !== k) {
         secOk = false
       }
@@ -1777,9 +1913,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         symbol: railSymbol,
         maxCells: 1500,
       })
+
       const rnb: number[][] = []
+
       for (let c = 0; c < rg.size; c++) {
         const row: number[] = []
+
         for (let s = 0; s < rg.degree(c); s++) {
           row.push(rg.step(c, s).cell)
         }
@@ -1790,11 +1929,14 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       // a fundamental cycle from a non-tree edge
       const N = rnb.length,
         par = new Int32Array(N).fill(-2)
+
       par[0] = -1
       let fr = [0]
       let cyc: number[] = []
+
       while (fr.length && cyc.length === 0) {
         const nx: number[] = []
+
         for (const u of fr) {
           for (const v of rnb[u]!) {
             if (par[v] === -2) {
@@ -1802,21 +1944,27 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
               nx.push(v)
             } else if (v !== par[u] && cyc.length === 0) {
               const up: number[] = []
+
               let x = u
+
               while (x !== -1) {
                 up.push(x)
                 x = par[x]!
               }
 
               const vp: number[] = []
+
               let y = v
+
               while (y !== -1) {
                 vp.push(y)
                 y = par[y]!
               }
 
               const sx = new Set(up)
+
               let lca = -1
+
               for (const z of vp) {
                 if (sx.has(z)) {
                   lca = z
@@ -1829,14 +1977,17 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
               }
 
               const aa: number[] = []
+
               for (const z of up) {
                 aa.push(z)
+
                 if (z === lca) {
                   break
                 }
               }
 
               const bb: number[] = []
+
               for (const z of vp) {
                 if (z === lca) {
                   break
@@ -1846,6 +1997,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
               }
 
               const c2 = [...aa, ...bb.reverse()]
+
               if (c2.length >= 4) {
                 cyc = c2
               }
@@ -1858,6 +2010,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
       const rca = makeTrackLoop(cyc, N)
       const vis = new Set<number>()
+
       for (let t = 0; t < cyc.length; t++) {
         rca.step()
         vis.add(rca.headAt())

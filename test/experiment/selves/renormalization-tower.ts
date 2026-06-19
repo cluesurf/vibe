@@ -27,6 +27,7 @@ export default experiment({
       bins: 8,
       seed: 31415,
     })
+
     const compression = Math.max(2, traj.meanSelfSize)
     const topUnits = 1e7
     const levels = 4
@@ -36,10 +37,12 @@ export default experiment({
       compression,
       commutingError: 0,
     }))
+
     const effective = effectiveVibeCount({
       topUnits,
       levels: levelList,
     })
+
     const byHand = topUnits * Math.pow(compression, levels)
     const ok = Math.abs(effective - byHand) / byHand < 1e-9
 

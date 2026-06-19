@@ -33,11 +33,15 @@ export default experiment({
       [2, 2, 2, 2],
       [3, 1, 0, 0],
     ]
+
     const pointsAreEven = points.every(p => coordinateSum(p) % 2 === 0)
+
     let allNeighboursValid = true
+
     for (const p of points) {
       for (const r of roots) {
         const neighbour = p.map((x, i) => x + r[i]!)
+
         if (coordinateSum(neighbour) % 2 !== 0) {
           allNeighboursValid = false
         }

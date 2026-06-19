@@ -26,6 +26,7 @@ export function kpmSeaEnergy(): {
     M = 1.5,
     MCHEB = 120,
     NRV = 4
+
   const Rs = [2, 3, 4, 6, 9]
   // TEXTURE mode: constant mass magnitude, only the DIRECTION winds (a charge-1 hopfion). No volume term, so the
   // fermion energy is purely gradient = exchange*R + Skyrme/R. The vacuum is uniform-z (sea energy is
@@ -35,6 +36,7 @@ export function kpmSeaEnergy(): {
   const dim = vac.dim
   const c = absoluteValueCoefficients(MCHEB),
     g = jacksonKernel(MCHEB)
+
   const hedges = Rs.map(R => makeDirac(L, M, R, 'texture'))
   // spectral bound: max over vacuum and the SHARPEST texture (sharp textures have the largest spectrum)
   const a =
@@ -44,9 +46,11 @@ export function kpmSeaEnergy(): {
         spectralBound({ operator: hedges[0]!.applyH, dim }),
       ),
     ) * 1.2
+
   const dMu: Float64Array[] = Rs.map(() => new Float64Array(MCHEB)) // accumulated Delta moments per R
   const rng = makeRng({ seed: 12345 })
   const xi = newCx(dim)
+
   for (let r = 0; r < NRV; r++) {
     for (let i = 0; i < dim; i++) {
       xi.re[i] = rng.next() < 0.5 ? 1 : -1
@@ -60,6 +64,7 @@ export function kpmSeaEnergy(): {
       count: MCHEB,
       dim,
     })
+
     hedges.forEach((h, ri) => {
       const muH = chebyshevMoments({
         operator: h.applyH,
@@ -68,6 +73,7 @@ export function kpmSeaEnergy(): {
         count: MCHEB,
         dim,
       })
+
       for (let n = 0; n < MCHEB; n++) {
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
       }
@@ -77,6 +83,7 @@ export function kpmSeaEnergy(): {
   // Delta E_sea(R) = -(1/2) * a * sum_n g_n c_n Delta mu_n
   const deltaE: [number, number][] = Rs.map((R, ri) => {
     let dTrAbs = 0
+
     for (let n = 0; n < MCHEB; n++) {
       dTrAbs += g[n]! * c[n]! * dMu[ri]![n]!
     }
@@ -86,8 +93,10 @@ export function kpmSeaEnergy(): {
       number,
     ]
   })
+
   // a minimum at an INTERIOR R means Delta E ~ B*R + D/R with D>0 (Skyrme stabilizing)
   let minI = 0
+
   for (let i = 1; i < deltaE.length; i++) {
     if (deltaE[i]![1] < deltaE[minI]![1]) {
       minI = i

@@ -27,15 +27,18 @@ function fullBeat(
   rng: Rng,
 ): void {
   moved.fill(0)
+
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -44,6 +47,7 @@ function fullBeat(
     } else if ((a === 0) !== (b === 0)) {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
+
       if (rng.next() < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
@@ -70,7 +74,9 @@ export function attentionWorkspace(input?: {
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
+
   let center = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -87,8 +93,10 @@ export function attentionWorkspace(input?: {
     source: center,
     maxRadius: 12,
   })
+
   const rSelf = 5
   const self: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (dist[i]! >= 0 && dist[i]! <= rSelf) {
       self.push(i)
@@ -97,6 +105,7 @@ export function attentionWorkspace(input?: {
 
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
+
   for (const i of self) {
     if (dist[i]! >= rSelf - 1) {
       isInput[i] = 1
@@ -110,7 +119,9 @@ export function attentionWorkspace(input?: {
   ): { dist: Int32Array; label: Int32Array } => {
     const d = new Int32Array(N).fill(-1)
     const lab = new Int32Array(N).fill(-1)
+
     let fr: number[] = []
+
     for (let s = 0; s < srcs.length; s++) {
       d[srcs[s]!] = 0
       lab[srcs[s]!] = s
@@ -119,9 +130,11 @@ export function attentionWorkspace(input?: {
 
     while (fr.length > 0) {
       const next: number[] = []
+
       for (const u of fr) {
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (d[w] === -1) {
             d[w] = d[u]! + 1
             lab[w] = lab[u]!
@@ -138,10 +151,13 @@ export function attentionWorkspace(input?: {
 
   // two coherent input regions A and B (two farthest-point seeds), the rest of the boundary = background
   const seeds: number[] = [inputAll[0]!]
+
   {
     const { dist: d } = msBFS(seeds)
+
     let far = inputAll[0]!
     let fd = -1
+
     for (const i of inputAll) {
       if (d[i]! > fd) {
         fd = d[i]!
@@ -155,21 +171,26 @@ export function attentionWorkspace(input?: {
   const { label } = msBFS(seeds)
   const regionA = inputAll.filter(i => label[i] === 0)
   const regionB = inputAll.filter(i => label[i] === 1)
+
   const hubBall = (): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
     seen[center] = 1
     let fr = [center]
+
     while (fr.length > 0 && out.length < 40) {
       const nf: number[] = []
+
       for (const u of fr) {
         if (isInput[u]) {
           continue
         }
 
         out.push(u)
+
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (!seen[w]) {
             seen[w] = 1
             nf.push(w)
@@ -184,8 +205,10 @@ export function attentionWorkspace(input?: {
   }
 
   const hub = hubBall()
+
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
+
     for (const i of cells) {
       s += tone[i]!
     }
@@ -203,12 +226,15 @@ export function attentionWorkspace(input?: {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 9 })
     const T = input?.T ?? 300
+
     let sig = 1
+
     const hubS: number[] = []
     const sigS: number[] = []
     const noiseTargets = otherBoundary.concat(
       region === regionA ? regionB : regionA,
     )
+
     for (let t = 0; t < T; t++) {
       if (rng.next() < 0.06) {
         sig = -sig
@@ -225,6 +251,7 @@ export function attentionWorkspace(input?: {
       } // distractors
 
       fullBeat(tone, eu, ev, moved, rng)
+
       for (const i of region) {
         if (rng.next() < gain) {
           tone[i] = sig as -1 | 0 | 1

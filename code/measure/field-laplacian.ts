@@ -11,9 +11,11 @@ export function fieldLaplacianProfile(input: {
 }): { peakRadius: number; total: number } {
   const { field, radius } = input
   const h = input.step ?? 1
+
   let peakValue = -Infinity
   let peakRadius = Infinity
   let total = 0
+
   for (let i = -radius; i <= radius; i++) {
     for (let j = -radius; j <= radius; j++) {
       const lap =
@@ -22,8 +24,10 @@ export function fieldLaplacianProfile(input: {
         field(i, j + h) +
         field(i, j - h) -
         4 * field(i, j)
+
       const mag = Math.abs(lap)
       total += mag
+
       if (mag > peakValue) {
         peakValue = mag
         peakRadius = Math.hypot(i, j)

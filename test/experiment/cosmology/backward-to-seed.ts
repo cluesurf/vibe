@@ -24,8 +24,11 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
+
     let center = 0
+
     for (let i = 1; i < n; i++) {
       if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
@@ -37,7 +40,9 @@ export default experiment({
       size: n,
       source: center,
     })
+
     let maxDepth = 0
+
     for (let i = 0; i < n; i++) {
       if (depth[i]! > maxDepth) {
         maxDepth = depth[i]!
@@ -46,8 +51,10 @@ export default experiment({
 
     // peel: the number of cells surviving when we keep only depth <= d, for d from maxDepth down to 0
     const counts: number[] = []
+
     for (let d = maxDepth; d >= 0; d--) {
       let c = 0
+
       for (let i = 0; i < n; i++) {
         if (depth[i]! <= d) {
           c++
@@ -59,7 +66,9 @@ export default experiment({
 
     const seedSize = counts[counts.length - 1]! // cells at depth 0, the seed
     const peelSteps = counts.length // finite number of backward steps
+
     let monotonic = true
+
     for (let i = 1; i < counts.length; i++) {
       if (counts[i]! > counts[i - 1]!) {
         monotonic = false
@@ -69,8 +78,10 @@ export default experiment({
     const reachesUniqueSeed = seedSize === 1 // a single seed chamber
     const finitePast =
       peelSteps === maxDepth + 1 && peelSteps < Infinity // a finite geometric past
+
     const shrinksMonotonically =
       monotonic && counts[0]! > counts[counts.length - 1]!
+
     const ok = reachesUniqueSeed && finitePast && shrinksMonotonically
 
     return verdict({

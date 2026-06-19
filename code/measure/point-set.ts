@@ -14,8 +14,10 @@ const parseKey = (key: string): number[] => key.split(',').map(Number)
 // Centroid of a cell set, the mean of each coordinate. Works in any dimension.
 export function centroidOfCellSet(cells: Set<string>): number[] {
   const sums: number[] = []
+
   for (const key of cells) {
     const point = parseKey(key)
+
     for (let d = 0; d < point.length; d++) {
       sums[d] = (sums[d] ?? 0) + point[d]!
     }
@@ -31,6 +33,7 @@ export function centroidOfCellSet(cells: Set<string>): number[] {
 export function recenterCellSet(cells: Set<string>): Set<string> {
   const centroid = centroidOfCellSet(cells).map(c => Math.round(c))
   const out = new Set<string>()
+
   for (const key of cells) {
     const point = parseKey(key)
     out.add(point.map((v, d) => v - (centroid[d] ?? 0)).join(','))
@@ -43,6 +46,7 @@ export function recenterCellSet(cells: Set<string>): Set<string> {
 // means the same occupied cells (same FORM when the sets are recentered first).
 export function cellSetOverlap(a: Set<string>, b: Set<string>): number {
   let intersection = 0
+
   for (const key of a) {
     if (b.has(key)) {
       intersection++
@@ -56,10 +60,14 @@ export function cellSetOverlap(a: Set<string>, b: Set<string>): number {
 // centroid. A self stays compact, so this does not grow without bound over time.
 export function radiusOfGyrationOfCellSet(cells: Set<string>): number {
   const centroid = centroidOfCellSet(cells)
+
   let sum = 0
+
   for (const key of cells) {
     const point = parseKey(key)
+
     let d2 = 0
+
     for (let d = 0; d < point.length; d++) {
       d2 += (point[d]! - (centroid[d] ?? 0)) ** 2
     }
@@ -77,6 +85,7 @@ export function jaccardDistance(
   b: Set<number>,
 ): number {
   let intersection = 0
+
   for (const x of a) {
     if (b.has(x)) {
       intersection++

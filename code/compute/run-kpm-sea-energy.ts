@@ -23,11 +23,14 @@ const A = (Math.sqrt(3) + MASS) * 1.06 // spectral bound: |H| <= sqrt(3)+M (exac
 function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
   const out = new Float32Array(3 * N),
     C = L / 2
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
+
         let nx: number, ny: number, nz: number
+
         if (mode === 'uniformz') {
           nx = 0
           ny = 0
@@ -38,10 +41,12 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
             Z = (z - C + 0.5) / R,
             r2 = X * X + Y * Y + Z * Z,
             d0 = 1 + r2
+
           const a = (2 * X) / d0,
             b = (2 * Y) / d0,
             cc = (2 * Z) / d0,
             dd = (1 - r2) / d0
+
           nx = 2 * (a * cc + b * dd)
           ny = 2 * (b * cc - a * dd)
           nz = a * a + b * b - cc * cc - dd * dd
@@ -64,6 +69,7 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
   c[0] = 2 / Math.PI
+
   for (let k = 1; 2 * k < M; k++) {
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
   }
@@ -74,6 +80,7 @@ function absCoeffs(M: number): Float64Array {
 function jackson(M: number): Float64Array {
   const g = new Float64Array(M),
     Np = M + 1
+
   for (let n = 0; n < M; n++) {
     g[n] =
       ((Np - n) * Math.cos((Math.PI * n) / Np) +
@@ -158,6 +165,7 @@ fn dotFinal(@builtin(local_invocation_id) lid:vec3<u32>){
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter')
 
@@ -174,6 +182,7 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const nPart = Math.ceil(FN / 256)
   const B = [mk(FN), mk(FN), mk(FN)],
     tmp = mk(FN),
@@ -181,23 +190,28 @@ async function run(): Promise<void> {
     nrt = mk(3 * N),
     partials = mk(nPart),
     moments = mk(MCHEB)
+
   const stage = device.createBuffer({
     size: MCHEB * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const uni = device.createBuffer({
     size: 32,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const pipe = (e: string): GPUComputePipeline =>
     device.createComputePipeline({
       layout: 'auto',
       compute: { module: mod, entryPoint: e },
     })
+
   const pMat = pipe('matvec'),
     pComb = pipe('combine'),
     pDP = pipe('dotPartial'),
     pDF = pipe('dotFinal')
+
   const bg = (
     pl: GPUComputePipeline,
     b1: GPUBuffer,
@@ -213,6 +227,7 @@ async function run(): Promise<void> {
         { binding: 3, resource: { buffer: b3 } },
       ],
     })
+
   // dotFinal uses only bindings 0,1,3 (auto layout omits binding 2)
   const bgDF = (): GPUBindGroup =>
     device.createBindGroup({
@@ -223,6 +238,7 @@ async function run(): Promise<void> {
         { binding: 3, resource: { buffer: moments } },
       ],
     })
+
   const setUni = (scA: number, scB: number, mom: number): void => {
     device.queue.writeBuffer(uni, 0, new Uint32Array([L, N]))
     device.queue.writeBuffer(
@@ -249,6 +265,7 @@ async function run(): Promise<void> {
     ): void => {
       setUni(scA, scB, mom)
       const enc = device.createCommandEncoder()
+
       let pass = enc.beginComputePass()
       pass.setPipeline(pMat)
       pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
@@ -276,6 +293,7 @@ async function run(): Promise<void> {
     const dotOnly = (cur: GPUBuffer, mom: number): void => {
       setUni(0, 0, mom)
       const enc = device.createCommandEncoder()
+
       let pass = enc.beginComputePass()
       pass.setPipeline(pDP)
       pass.setBindGroup(0, bg(pDP, xi, cur, partials))
@@ -293,6 +311,7 @@ async function run(): Promise<void> {
     step(B[0]!, B[1]!, 1 / A, 0, B[0]!, 1, B[1]!) // t1 = (1/a) H t0 ; dot uses B[1]
     let i0 = 0,
       i1 = 1
+
     for (let n = 2; n < MCHEB; n++) {
       const itn = 3 - i0 - i1
       step(B[i1]!, B[itn]!, 2 / A, 1, B[i0]!, n, B[itn]!)
@@ -307,6 +326,7 @@ async function run(): Promise<void> {
     const out = new Float64Array(
       new Float32Array(stage.getMappedRange().slice(0)),
     )
+
     stage.unmap()
 
     return out
@@ -314,6 +334,7 @@ async function run(): Promise<void> {
 
   const c = absCoeffs(MCHEB),
     g = jackson(MCHEB)
+
   const vacN = nrt3('uniformz', 0)
   const texN = Rs.map(R => nrt3('texture', R))
   const dMu = Rs.map(() => new Float64Array(MCHEB))
@@ -321,8 +342,10 @@ async function run(): Promise<void> {
   console.log(
     `GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`,
   )
+
   for (let r = 0; r < NRV; r++) {
     const xd = new Float32Array(FN)
+
     for (let i = 0; i < FN; i++) {
       xd[i] = rng.next() < 0.5 ? -1 : 1
     }
@@ -331,10 +354,12 @@ async function run(): Promise<void> {
     device.queue.writeBuffer(nrt, 0, vacN)
     device.queue.writeBuffer(B[0]!, 0, xd)
     const muV = await computeMoments()
+
     for (let ri = 0; ri < Rs.length; ri++) {
       device.queue.writeBuffer(nrt, 0, texN[ri]!)
       device.queue.writeBuffer(B[0]!, 0, xd)
       const muH = await computeMoments()
+
       for (let n = 0; n < MCHEB; n++) {
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
       }
@@ -345,18 +370,22 @@ async function run(): Promise<void> {
 
   const deltaE = Rs.map((R, ri) => {
     let s = 0
+
     for (let n = 0; n < MCHEB; n++) {
       s += g[n]! * c[n]! * dMu[ri]![n]!
     }
 
     return [R, Math.round(-0.5 * A * s * 100) / 100] as [number, number]
   })
+
   console.log('\nDelta E_sea(R) (texture soliton, fermion sea):')
+
   for (const [R, dE] of deltaE) {
     console.log(`  R=${R}: ${dE}`)
   }
 
   let minI = 0
+
   for (let i = 1; i < deltaE.length; i++) {
     if (deltaE[i]![1] < deltaE[minI]![1]) {
       minI = i

@@ -57,8 +57,10 @@ function selfDynamics(
   beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, 0.22)
   const leakPerBeat =
     before > 0 ? 1 - countPlus(tl, cluster) / before : 1
+
   const t2 = tone.slice()
   const rng2 = makeRng({ seed: seed + 2 })
+
   for (let b = 0; b < 50; b++) {
     beat(t2, g, moved, rng2, 0, 0.22)
   }
@@ -124,12 +126,14 @@ export function horosphereSelf(input?: {
   const movedB = new Uint8Array(bigCells)
   const rngB = makeRng({ seed: 5 })
   const toneB = new Int8Array(bigCells)
+
   for (let i = 0; i < bigCells; i++) {
     const r = rngB.next()
     toneB[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0) as -1 | 0 | 1
   }
 
   const qb0 = totalCharge(toneB)
+
   for (let t = 0; t < 3; t++) {
     beat(toneB, big, movedB, rngB, 0.01, 0.22)
   }

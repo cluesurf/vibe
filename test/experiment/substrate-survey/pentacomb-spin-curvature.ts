@@ -34,6 +34,7 @@ const rotation2pi = quaternion(
   0,
   Math.sin(Math.PI),
 ) // equals minus one
+
 const carriesSpinor = (representative: Quaternion): boolean =>
   quaternionKey(multiply(rotation2pi, representative)) ===
   quaternionKey(negate(representative))
@@ -61,6 +62,7 @@ export default experiment({
       vector8.length === 8 &&
       spinor8s.length === 8 &&
       spinor8c.length === 8
+
     const spinor8sCarries = carriesSpinor(spinor8s[0]!)
     const spinor8cCarries = carriesSpinor(spinor8c[0]!)
     const spinorDirections =

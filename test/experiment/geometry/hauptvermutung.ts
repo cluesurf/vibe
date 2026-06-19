@@ -18,6 +18,7 @@ function study(): { mean: number; std: number; samples: number[] } {
   const count = 700
   const trials = 8
   const dims: number[] = []
+
   for (let i = 0; i < trials; i++) {
     const rng = makeRng({ seed: deriveSeed({ base: 42, index: i }) })
     const poset = sprinkleMinkowski({
@@ -25,6 +26,7 @@ function study(): { mean: number; std: number; samples: number[] } {
       count,
       rng,
     })
+
     dims.push(myrheimMeyerDimension({ poset }))
   }
 

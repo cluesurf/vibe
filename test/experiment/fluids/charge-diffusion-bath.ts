@@ -36,6 +36,7 @@ export default experiment({
     const side = 14
     const mesh = d4Mesh({ side })
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
@@ -51,6 +52,7 @@ export default experiment({
         gradAxis: 1,
         wavelength,
       })
+
       const series = chargeWaveSeries({
         will,
         collision,
@@ -73,6 +75,7 @@ export default experiment({
 
     // charge is conserved EXACTLY over the run, so the recurrence is genuine, not leakage
     let chargeExact = true
+
     {
       const will0 = chargeWaveSetup({
         mesh,
@@ -80,10 +83,14 @@ export default experiment({
         gradAxis: 1,
         wavelength: side,
       })
+
       const q0 = charge(will0)
+
       let w = cloneWill(will0)
+
       for (let t = 0; t < beats; t++) {
         w = beat(w, collision)
+
         if (charge(w) !== q0) {
           chargeExact = false
           break

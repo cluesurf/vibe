@@ -19,15 +19,19 @@ export function totalMomentum(
   const dimension = directions[0]?.length ?? 0
   const momentum = new Array<number>(dimension).fill(0)
   const data = will.data
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       const value = data[base + direction] ?? 0
+
       if (value === 0) {
         continue
       }
 
       const vector = directions[direction]!
+
       for (let axis = 0; axis < dimension; axis++) {
         momentum[axis]! += value * (vector[axis] ?? 0)
       }
@@ -45,7 +49,9 @@ export function conservesMomentum(
   directions: number[][],
 ): boolean {
   const before = totalMomentum(will, directions)
+
   let current = cloneWill(will)
+
   for (let step = 0; step < beats; step++) {
     current = beat(current, collision)
   }
@@ -62,7 +68,9 @@ export function conservesCharge(
   beats: number,
 ): boolean {
   const before = charge(will)
+
   let current = cloneWill(will)
+
   for (let step = 0; step < beats; step++) {
     current = beat(current, collision)
   }
@@ -81,12 +89,15 @@ export function isReversible(
   inverseCollision: Collision = collision,
 ): boolean {
   const start = cloneWill(will)
+
   let forward = cloneWill(will)
+
   for (let step = 0; step < beats; step++) {
     forward = beat(forward, collision)
   }
 
   let back = forward
+
   for (let step = 0; step < beats; step++) {
     back = inverseBeat(back, inverseCollision)
   }

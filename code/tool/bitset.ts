@@ -72,6 +72,7 @@ export function bitMatrixTransitiveClosure(
   n: number,
 ): BitMatrix {
   const f = makeBitMatrix({ rows: n, cols: n })
+
   for (let i = 0; i < n * f.stride; i++) {
     f.words[i] = asserted.words[i] ?? 0
   }
@@ -81,6 +82,7 @@ export function bitMatrixTransitiveClosure(
       if (getBit(f, { row: i, col: k })) {
         const ib = i * f.stride
         const kb = k * f.stride
+
         for (let w = 0; w < f.stride; w++) {
           f.words[ib + w] =
             (f.words[ib + w] ?? 0) | (f.words[kb + w] ?? 0)
@@ -96,7 +98,9 @@ export function bitMatrixTransitiveClosure(
 // topological labelling (a precedes b implies a < b).
 export function bitMatrixHeight(f: BitMatrix, n: number): number {
   const h = new Int32Array(n).fill(1)
+
   let best = 1
+
   for (let j = 0; j < n; j++) {
     for (let i = 0; i < j; i++) {
       if (getBit(f, { row: i, col: j })) {
@@ -122,7 +126,9 @@ export function popcountRow(
   input: { row: number },
 ): number {
   const base = input.row * m.stride
+
   let total = 0
+
   for (let w = 0; w < m.stride; w++) {
     total += popcount32(m.words[base + w] ?? 0)
   }
@@ -137,7 +143,9 @@ export function popcountAnd(
 ): number {
   const a = input.rowA * m.stride
   const b = input.rowB * m.stride
+
   let total = 0
+
   for (let w = 0; w < m.stride; w++) {
     total += popcount32((m.words[a + w] ?? 0) & (m.words[b + w] ?? 0))
   }
@@ -158,8 +166,10 @@ export function forEachSetBit(
   input: { row: number; visit: (col: number) => void },
 ): void {
   const base = input.row * m.stride
+
   for (let w = 0; w < m.stride; w++) {
     let bits = m.words[base + w] ?? 0
+
     while (bits !== 0) {
       const col = (w << 5) + trailingZeros(bits)
       input.visit(col)

@@ -91,12 +91,14 @@ function battery(s: Sub): Record<string, string> {
   const g = build(s)
   const N = g.cellCount,
     nb = g.neighbors
+
   const center = mostConnectedNode(nb)
   const degree = nb[center]!.length
   // crystallographic + spinor hook
   const crystallographic = s.sym.every(
     n => n === 3 || n === 4 || n === 6,
   )
+
   const spinorHook = degree === 24 || s.sym.join(',').includes('3,4,3') // 24-cell / D4 coin
   // rule, charge conservation under directional streaming
   const rng = makeRng({ seed: 9 })
@@ -104,15 +106,18 @@ function battery(s: Sub): Record<string, string> {
   const charge0: number[][] = Array.from({ length: N }, (_, i) =>
     nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),
   )
+
   const t0 = totalDirectionalCharge(charge0)
   const charge = streamDirectionalCharge({
     neighbors: nb,
     charge: charge0,
     steps: 8,
   })
+
   const conserved = t0 === totalDirectionalCharge(charge)
   // churn (mod-3 wave)
   const cur = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }
@@ -120,6 +125,7 @@ function battery(s: Sub): Record<string, string> {
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 15, modulus: 3 }) >
     N
+
   // holographic correlator (Bethe, universal), and physical-space gravity law by dimension
   const betheAlpha = betheCorrelatorExponent(degree)
   const gravity =
@@ -130,6 +136,7 @@ function battery(s: Sub): Record<string, string> {
         : s.space === 3
           ? '1/r'
           : `1/r^${s.space - 2}`
+
   // cosmology / hierarchy growth ratio
   const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
   const growth = shellGrowthRatio({

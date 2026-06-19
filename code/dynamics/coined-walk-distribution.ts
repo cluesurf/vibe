@@ -25,9 +25,11 @@ export function coinedWalkQuantumDistribution(input: {
   re[0]![off] = 1 / Math.SQRT2
   im[1]![off] = 1 / Math.SQRT2
   const h = 1 / Math.SQRT2
+
   for (let t = 0; t < T; t++) {
     const nr = [new Float64Array(W), new Float64Array(W)]
     const ni = [new Float64Array(W), new Float64Array(W)]
+
     for (let x = 1; x < W - 1; x++) {
       // Hadamard coin: (a,b) -> ((a+b)/sqrt2, (a-b)/sqrt2)
       const ar = re[0]![x]!
@@ -52,7 +54,9 @@ export function coinedWalkQuantumDistribution(input: {
   }
 
   const distribution = new Float64Array(W)
+
   let norm = 0
+
   for (let x = 0; x < W; x++) {
     distribution[x] =
       re[0]![x]! ** 2 +
@@ -74,8 +78,10 @@ export function coinedWalkClassicalDistribution(input: {
   const p = [new Float64Array(W), new Float64Array(W)]
   p[0]![off] = 0.5
   p[1]![off] = 0.5
+
   for (let t = 0; t < T; t++) {
     const np = [new Float64Array(W), new Float64Array(W)]
+
     for (let x = 1; x < W - 1; x++) {
       // incoherent coin: each component splits 50/50 (|Hadamard|^2)
       const a = p[0]![x]!
@@ -91,6 +97,7 @@ export function coinedWalkClassicalDistribution(input: {
   }
 
   const distribution = new Float64Array(W)
+
   for (let x = 0; x < W; x++) {
     distribution[x] = p[0]![x]! + p[1]![x]!
   }

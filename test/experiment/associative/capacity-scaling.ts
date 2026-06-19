@@ -28,6 +28,7 @@ export function associativeCapacityScaling(input?: {
     neighbors: g.neighbors,
     root: 0,
   }).shellCounts
+
   const bulkGrowthRatio = geometricGrowthRatio(bulkShells)
 
   const lat = cubicLattice(cubicSide, 3)
@@ -36,6 +37,7 @@ export function associativeCapacityScaling(input?: {
     neighbors: lat.neighbors,
     root: center,
   }).shellCounts
+
   const cubicGrowthRatio = geometricGrowthRatio(cubicShells)
 
   const solved =

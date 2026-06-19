@@ -31,10 +31,13 @@ function classify(g: {
   neighbors: number[][]
 }): ReturnType<typeof shellGrowthCurvature> {
   const n = g.neighbors.length
+
   let root = 0
   let best = -1
+
   for (let i = 0; i < n; i++) {
     const degree = g.neighbors[i]!.length
+
     if (degree > best) {
       best = degree
       root = i
@@ -61,12 +64,15 @@ export default experiment({
     const positive = classify(
       buildCellGraph({ symbol: [3, 3, 5] as never, maxCells: 3000 }),
     )
+
     const flat = classify(
       buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 3000 }),
     )
+
     const bulk534 = classify(
       buildCellGraph({ symbol: [5, 3, 4], maxCells: 3000 }),
     )
+
     const bulk73 = classify(
       buildCellGraph({ symbol: [7, 3], maxCells: 3000 }),
     )
@@ -77,6 +83,7 @@ export default experiment({
     const flatParallel = flat.sign === 'flat'
     const bulkDefocuses =
       bulk534.sign === 'negative' && bulk73.sign === 'negative'
+
     const ok = positiveFocuses && flatParallel && bulkDefocuses
 
     return verdict({

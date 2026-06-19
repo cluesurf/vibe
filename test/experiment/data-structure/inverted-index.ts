@@ -21,9 +21,12 @@ export default experiment({
     const terms = 2000
     // map each term to a boundary cell; at this load collisions are rare, so lookup is O(1)
     const slot = new Int32Array(boundaryCells).fill(-1)
+
     let collisions = 0
+
     for (let term = 0; term < terms; term++) {
       const cell = cellHash(term * 1009 + 7, boundaryCells)
+
       if (slot[cell] !== -1) {
         collisions += 1
       }

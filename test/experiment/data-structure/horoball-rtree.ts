@@ -22,17 +22,21 @@ export default experiment({
       connectThreshold: 2.0,
       maxVertices: 1500,
     })
+
     const bins = 8
     const levels = busemannLevels(graph, bins)
     // cumulative horoballs (Busemann sub-level sets) are strictly nested, each contains the inner one
     const cumulative: number[] = []
+
     let running = 0
+
     for (const n of levels) {
       running += n
       cumulative.push(running)
     }
 
     let strictlyNested = true
+
     for (let i = 1; i < cumulative.length; i++) {
       if (cumulative[i]! < cumulative[i - 1]!) {
         strictlyNested = false

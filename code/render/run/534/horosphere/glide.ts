@@ -34,13 +34,16 @@ const DOT = 4
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
+
 const BLUE: [number, number, number] = [60, 130, 255]
 const RED: [number, number, number] = [255, 60, 70]
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -55,6 +58,7 @@ async function run(): Promise<void> {
     half: HALF,
     margin: 0.6,
   })
+
   const n = slab.cellCount
   const xi = slab.idealPoint
   const dim = xi.length
@@ -62,6 +66,7 @@ async function run(): Promise<void> {
   // HOROCYCLIC flat coordinate: invert about the ideal point (un-crushes the crowding), then project
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -70,7 +75,9 @@ async function run(): Promise<void> {
 
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -78,7 +85,9 @@ async function run(): Promise<void> {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -92,8 +101,10 @@ async function run(): Promise<void> {
       dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1),
     ),
   )
+
   const U = new Float32Array(n),
     V = new Float32Array(n)
+
   for (let i = 0; i < n; i++) {
     const d = sub(slab.coords[i]!, xi, 1)
     const dd = dot(d, d) || 1e-9
@@ -108,16 +119,20 @@ async function run(): Promise<void> {
     level: 0,
     half: HALF,
   })
+
   const reindex = new Int32Array(n).fill(-1)
+
   for (let a = 0; a < bandList.length; a++) {
     reindex[bandList[a]!] = a
   }
 
   const B = bandList.length
   const bandNbr: number[][] = bandList.map(() => [])
+
   for (let a = 0; a < B; a++) {
     for (const w of slab.neighbors[bandList[a]!]!) {
       const b = reindex[w]!
+
       if (b >= 0) {
         bandNbr[a]!.push(b)
       }
@@ -132,13 +147,16 @@ async function run(): Promise<void> {
 
   const cu = med(bandList.map(i => U[i]!)),
     cv = med(bandList.map(i => V[i]!))
+
   const radii = bandList
     .map(i => Math.max(Math.abs(U[i]! - cu), Math.abs(V[i]! - cv)))
     .sort((p, q) => p - q)
+
   const ext = (radii[Math.floor(radii.length * 0.55)] ?? 1) || 1
   const halfPx = IMG / 2 - 16
   const px = new Int32Array(B),
     py = new Int32Array(B)
+
   for (let a = 0; a < B; a++) {
     const i = bandList[a]!
     px[a] = Math.round(IMG / 2 + ((U[i]! - cu) / ext) * halfPx)
@@ -155,7 +173,9 @@ async function run(): Promise<void> {
   const rng = makeRng({ seed: 99194853 })
   const nextR = (): number => rng.next()
   const seedRadius = ext * SEED_FRACTION
+
   let seeded = 0
+
   for (let i = 0; i < n; i++) {
     if (Math.hypot(U[i]! - cu, V[i]! - cv) < seedRadius) {
       seed[i] = pack({
@@ -173,6 +193,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
     device.createBuffer({
@@ -182,17 +203,20 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(offBuf, 0, offsets)
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(adjBuf, 0, adj)
   const pipeline = device.createComputePipeline({
     layout: 'auto',
@@ -201,6 +225,7 @@ async function run(): Promise<void> {
       entryPoint: 'main',
     },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -213,6 +238,7 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: adjBuf } },
       ],
     })
+
   const dispatch = Math.ceil(n / WORKGROUP)
   const staging = device.createBuffer({
     size: byteLength,
@@ -225,7 +251,9 @@ async function run(): Promise<void> {
   mkdirSync(outDir, { recursive: true })
 
   const reached = new Int32Array(B).fill(-1)
+
   let src = 0
+
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -242,9 +270,11 @@ async function run(): Promise<void> {
 
     // signed discrete tone on the band, then COARSE-GRAIN (display only) to reveal the emergent wave
     let sm = new Float32Array(B)
+
     for (let a = 0; a < B; a++) {
       const t = signedTone(currentOf(tones[bandList[a]!]!))
       sm[a] = t
+
       if (reached[a]! < 0 && t !== 0) {
         reached[a] = f
       }
@@ -252,9 +282,11 @@ async function run(): Promise<void> {
 
     for (let p = 0; p < SMOOTH_PASSES; p++) {
       const ns = new Float32Array(B)
+
       for (let a = 0; a < B; a++) {
         let s = sm[a]!,
           d = 1
+
         for (const b of bandNbr[a]!) {
           s += sm[b]!
           d++
@@ -267,8 +299,10 @@ async function run(): Promise<void> {
     }
 
     let mx = 1e-6
+
     for (let a = 0; a < B; a++) {
       const v = Math.abs(sm[a]!)
+
       if (v > mx) {
         mx = v
       }
@@ -277,6 +311,7 @@ async function run(): Promise<void> {
     const eps = 0.06 * mx
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < rgba.length; i += 4) {
       rgba[i] = 0
       rgba[i + 1] = 0
@@ -290,6 +325,7 @@ async function run(): Promise<void> {
       } // outside the causal cone, black
 
       const s = sm[a]!
+
       if (Math.abs(s) < eps) {
         continue
       } // peace, black
@@ -297,6 +333,7 @@ async function run(): Promise<void> {
       const col = s > 0 ? BLUE : RED
       const cx = px[a]!,
         cy = py[a]!
+
       for (let dy = -DOT; dy <= DOT; dy++) {
         for (let dx = -DOT; dx <= DOT; dx++) {
           if (dx * dx + dy * dy > DOT * DOT) {
@@ -305,6 +342,7 @@ async function run(): Promise<void> {
 
           const x = cx + dx,
             y = cy + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
@@ -325,6 +363,7 @@ async function run(): Promise<void> {
       height: IMG,
       prefix: 'glide_',
     })
+
     if (f % 25 === 0) {
       console.log(`  beat ${f}/${FRAMES}`)
     }

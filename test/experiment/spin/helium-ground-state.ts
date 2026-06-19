@@ -52,6 +52,7 @@ export default experiment({
     const variationalError =
       Math.abs(variational - OBSERVED_ENERGY) /
       Math.abs(OBSERVED_ENERGY)
+
     const variationalAccurate = variationalError < 0.03
     const isUpperBound = variational > OBSERVED_ENERGY // variational energy is above the true ground state
 
@@ -73,9 +74,11 @@ export default experiment({
       trialCharge: Z,
       withRepulsion: false,
     })
+
     const noRepulsionError =
       Math.abs(noRepulsion - OBSERVED_ENERGY) /
       Math.abs(OBSERVED_ENERGY)
+
     const controlTooDeep = noRepulsionError > 0.3
 
     const ok =

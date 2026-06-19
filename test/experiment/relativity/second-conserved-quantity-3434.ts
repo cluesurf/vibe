@@ -40,6 +40,7 @@ export default experiment({
     const mesh = d4Mesh({ side: 6 })
     const directions = rootsD4()
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
@@ -59,6 +60,7 @@ export default experiment({
       momentumRule,
       beats,
     )
+
     const momentumConservesMomentum = conservesMomentum(
       will,
       momentumRule,
@@ -73,6 +75,7 @@ export default experiment({
       pairForward,
       beats,
     )
+
     const pairConservesMomentum = conservesMomentum(
       will,
       pairForward,
@@ -89,16 +92,19 @@ export default experiment({
       tone: 1,
       length: 5,
     }).will
+
     const gliderMomentum = totalMomentum(glider, directions)
     const gliderMomentumNonzero = gliderMomentum.some(
       value => value !== 0,
     )
+
     const momentumRuleHoldsGlider = conservesMomentum(
       glider,
       momentumRule,
       beats,
       directions,
     )
+
     const pairRuleHoldsGlider = conservesMomentum(
       glider,
       pairForward,

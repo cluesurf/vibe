@@ -22,6 +22,7 @@ export function sequence(
 
   for (let n = spec.seed.length; n < count; n++) {
     let next = 0n
+
     for (let i = 0; i < spec.coeffs.length; i++) {
       next += spec.coeffs[i]! * out[n - 1 - i]!
     }
@@ -103,6 +104,7 @@ export function toStrings(seq: bigint[]): string[] {
 // a flat honeycomb tends toward 1. The capacity signature for the bulk-as-data experiments.
 export function lastCompleteShellRatio(shells: number[]): number {
   const count = shells.length
+
   if (count < 4) {
     return 1
   }
@@ -115,6 +117,7 @@ export function lastCompleteShellRatio(shells: number[]): number {
 // The boundary-dominance signature, the honest caveat that the bulk interior is nearly empty.
 export function outermostShellFraction(shells: number[]): number {
   const count = shells.length
+
   if (count < 3) {
     return 0
   }

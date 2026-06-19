@@ -55,6 +55,7 @@ export function secondConservationSearch(input?: { L?: number }): {
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 5 })
+
   for (let i = 0; i < L; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -71,10 +72,12 @@ export function secondConservationSearch(input?: { L?: number }): {
   const count: number[] = []
   const activity: number[] = []
   const staggered: number[] = []
+
   for (let t = 0; t < T; t++) {
     let q = 0
     let act = 0
     let stag = 0
+
     for (let x = 0; x < L; x++) {
       const s = tone[x]!
       q += s
@@ -111,6 +114,7 @@ export function secondConservationSearch(input?: { L?: number }): {
       isConserved: relStd(staggered) < 1e-3,
     },
   ]
+
   // non-trivial conservation laws (exclude the trivial count)
   const conservationLawCount = conserved.filter(
     c => c.isConserved && c.name !== 'count (trivial)',
@@ -118,10 +122,12 @@ export function secondConservationSearch(input?: { L?: number }): {
 
   // (B) scan for spontaneous (staggered / Neel) order, the carrier of a z=1 Goldstone
   const staggeredScan: { arrow: number; staggeredRange: number }[] = []
+
   for (const arrow of [0.4, 0.1, 0.02, 0.005]) {
     const tn = new Int8Array(L)
     const mv = new Uint8Array(L)
     const r2 = makeRng({ seed: 9 })
+
     for (let i = 0; i < L; i++) {
       tn[i] = (r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0) as
         | -1
@@ -136,6 +142,7 @@ export function secondConservationSearch(input?: { L?: number }): {
     const maxR = 12
     const sumCC = new Float64Array(maxR + 1)
     const TT = 2000
+
     for (let t = 0; t < TT; t++) {
       for (let x = 0; x < L; x++) {
         for (let r = 0; r <= maxR; r++) {
@@ -148,11 +155,14 @@ export function secondConservationSearch(input?: { L?: number }): {
 
     // STAGGERED correlation magnitude (-1)^r C(r), the Neel order parameter at long range
     const c0 = sumCC[0]! / (L * TT)
+
     let range = 0
+
     for (let r = 1; r <= maxR; r++) {
       const cstag = Math.abs(
         ((r % 2 === 0 ? 1 : -1) * sumCC[r]!) / (L * TT),
       )
+
       if (cstag > 0.05 * Math.abs(c0)) {
         range = r
       }
@@ -167,6 +177,7 @@ export function secondConservationSearch(input?: { L?: number }): {
 
   const onlyChargeConserved =
     conservationLawCount === 1 && conserved[0]!.isConserved
+
   const momentumEmergent = !onlyChargeConserved || spontaneousOrder // a 2nd law OR a Goldstone
   const solved = onlyChargeConserved && !spontaneousOrder // a clear NEGATIVE verdict, decisively determined
 

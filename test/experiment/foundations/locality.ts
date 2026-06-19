@@ -32,6 +32,7 @@ function controlLocality(cells: number): {
 } {
   const n = 1 << cells
   const perm = new Int32Array(n)
+
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
@@ -57,12 +58,14 @@ function localityOf(cells: number): {
     extent: cells,
     signature: 'riemannian',
   })
+
   const alphabet: Alphabet = { form: 'boolean' }
   const space = makeStateSpace({ cells, alphabet })
   const rule = reversibleEvenOdd({
     name: 'xor-parity',
     local: ({ self, neighborhood }) => {
       let parity = 0
+
       for (const t of neighborhood) {
         parity ^= t & 1
       }
@@ -70,6 +73,7 @@ function localityOf(cells: number): {
       return (self ^ parity) & 1
     },
   })
+
   const perm = permutationOfRule({ rule, substrate, space })
   const h = hamiltonianMatrix({ perm })
   const profile = pauliLocalityProfile({ matrix: h, cells })

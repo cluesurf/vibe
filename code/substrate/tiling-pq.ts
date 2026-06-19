@@ -55,16 +55,20 @@ export function tilingPQ(input: {
 
   // Breadth-first ring growth up to `generations` rings.
   let frontier = [0]
+
   for (let gen = 0; gen < input.generations; gen++) {
     const nextFrontier: number[] = []
+
     for (const parentId of frontier) {
       const parent = nodes[parentId]
+
       if (!parent) {
         continue
       }
 
       let childCount: number
       let childrenWhite: boolean[]
+
       if (gen === 0) {
         // The first ring out of the root: all white, q (or 5) of them.
         childCount = rootChildCount
@@ -104,12 +108,14 @@ export function tilingPQ(input: {
 
   // Tree adjacency: parent-child edges, undirected.
   const neighbors: number[][] = []
+
   for (let i = 0; i < size; i++) {
     neighbors.push([])
   }
 
   for (let i = 0; i < size; i++) {
     const node = nodes[i]
+
     if (node && node.parent !== null) {
       neighbors[i]?.push(node.parent)
       neighbors[node.parent]?.push(i)
@@ -119,6 +125,7 @@ export function tilingPQ(input: {
   // Zeckendorf address per node: number breadth-first from 1, write in
   // Zeckendorf form as a 0/1 string with no two adjacent ones.
   const address: string[] = []
+
   for (let i = 0; i < size; i++) {
     address.push(zeckendorf({ value: i + 1 }))
   }
@@ -131,12 +138,14 @@ export function tilingPQ(input: {
 // string has no two adjacent ones.
 function zeckendorf(input: { value: number }): string {
   let v = input.value
+
   if (v <= 0) {
     return '0'
   }
 
   // Fibonacci sequence 1, 2, 3, 5, 8, ... (Zeckendorf basis) up to v.
   const fib: number[] = [1, 2]
+
   while ((fib[fib.length - 1] ?? 0) <= v) {
     const a = fib[fib.length - 1] ?? 0
     const b = fib[fib.length - 2] ?? 0
@@ -146,9 +155,12 @@ function zeckendorf(input: { value: number }): string {
   // Largest basis element not exceeding v is at fib.length - 2 (the last pushed
   // one overshot). Greedily subtract.
   const bits: string[] = []
+
   let started = false
+
   for (let i = fib.length - 1; i >= 0; i--) {
     const f = fib[i] ?? 0
+
     if (f > v && !started) {
       continue
     }

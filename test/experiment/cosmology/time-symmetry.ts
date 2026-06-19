@@ -28,8 +28,11 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
+
     let center = 0
+
     for (let i = 1; i < n; i++) {
       if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
@@ -41,9 +44,11 @@ export default experiment({
       size: n,
       source: center,
     })
+
     const seedStruct = balanceToZero(
       (() => {
         const t = new Int8Array(n)
+
         for (let i = 0; i < n; i++) {
           if ((dist[i] ?? 9) <= 4) {
             t[i] = i % 2 === 0 ? 1 : -1

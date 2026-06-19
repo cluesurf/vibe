@@ -37,21 +37,27 @@ function heightReach(input: {
   const asserted = makeBitMatrix({ rows: n, cols: n })
   setBit(asserted, { row: 0, col: 1 }) // a tiny seed chain
   let f = closure(asserted, n)
+
   const heights = new Set<number>()
   heights.add(heightOf(f, n))
   // For the single-pair move we operate directly on the closure and require it to stay closed.
   let closureState = cluster ? f : closure(asserted, n)
+
   for (let s = 0; s < steps; s++) {
     const i = rng.nextInt({ max: n })
+
     let j = rng.nextInt({ max: n })
+
     if (i === j) {
       j = (j + 1) % n
     }
 
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
+
     if (cluster) {
       const had = getBit(asserted, { row: lo, col: hi })
+
       if (had) {
         clearBit(asserted, { row: lo, col: hi })
       } else {
@@ -60,6 +66,7 @@ function heightReach(input: {
 
       const nf = closure(asserted, n)
       const nh = heightOf(nf, n)
+
       if (nh >= minHeight && nh <= maxHeight) {
         f = nf
         heights.add(nh)
@@ -74,6 +81,7 @@ function heightReach(input: {
       // single-pair: toggle one closure bit, keep only if the result is still transitively closed
       const had = getBit(closureState, { row: lo, col: hi })
       const trial = makeBitMatrix({ rows: n, cols: n })
+
       for (let w = 0; w < n * trial.stride; w++) {
         trial.words[w] = closureState.words[w] ?? 0
       }
@@ -86,6 +94,7 @@ function heightReach(input: {
 
       const reclosed = closure(trial, n)
       const nh = heightOf(reclosed, n)
+
       if (
         bitsEqual(trial, reclosed, n) &&
         nh >= minHeight &&
@@ -124,6 +133,7 @@ export function largeNCrossing(input: { sizes: number[] }): {
       cluster: false,
       seed: n * 17 + 1,
     })
+
     const cl = heightReach({
       n,
       maxHeight,
@@ -139,12 +149,14 @@ export function largeNCrossing(input: { sizes: number[] }): {
       clusterReach: cl.rangeCovered,
     }
   })
+
   const clusterTraverses = results.every(r => r.clusterReach > 0.7)
   // The barrier bites at large N (P12 stalled at 48+), so the single-pair limitation is judged
   // there, and the cluster move must beat it decisively at every N.
   const singlePairStuck = results
     .filter(r => r.size >= 64)
     .every(r => r.singlePairReach < 0.35)
+
   const clusterBeatsSinglePair = results.every(
     r => r.clusterReach > 2 * r.singlePairReach,
   )

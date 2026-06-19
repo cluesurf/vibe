@@ -25,6 +25,7 @@ export function pumpedReserveSweep(input: {
   const far = input.farValue ?? 1e9
   const dd = (i: number): number => distC[i] ?? far
   const moved = new Uint8Array(tone.length)
+
   for (const [v, w] of edges) {
     if (moved[v] || moved[w]) {
       continue
@@ -32,8 +33,10 @@ export function pumpedReserveSweep(input: {
 
     const tv = tone[v]!
     const tw = tone[w]!
+
     let c = -1
     let e = -1
+
     if (tv === 0 && tw !== 0) {
       e = v
       c = w
@@ -46,7 +49,9 @@ export function pumpedReserveSweep(input: {
 
     const crossing = inSelf[v] !== inSelf[w]
     const interior = inSelf[v] === 1 && inSelf[w] === 1
+
     let swap = false
+
     if (pump && interior) {
       if (rng.next() < fieldLeak) {
         swap = rng.next() < 0.5

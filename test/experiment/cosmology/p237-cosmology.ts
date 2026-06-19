@@ -17,11 +17,15 @@ export function cosmology(): {
     symbol: [3, 4, 3, 4] as never,
     maxCells: 30000,
   })
+
   const N = g.cellCount
+
   let center = 0,
     best = -1
+
   for (let i = 0; i < N; i++) {
     const d = g.neighbors[i]!.length
+
     if (d > best) {
       best = d
       center = i
@@ -32,10 +36,12 @@ export function cosmology(): {
     neighbors: g.neighbors,
     root: center,
   })
+
   const growthRatio =
     Math.round(
       branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100,
     ) / 100
+
   const exponential = growthRatio > 1.5
 
   return { growthRatio, exponential }

@@ -49,7 +49,9 @@ export function squareLatticeCellCounts(input: {
   const l = input.side
   // base torus counts
   const vertices = l * l
+
   let edges = 2 * l * l
+
   const faces = l * l
   // adjust the edge count so the Euler characteristic is 2 - 2g (the genus enters through the topology, the torus is
   // genus 1, each extra handle lowers chi by 2)

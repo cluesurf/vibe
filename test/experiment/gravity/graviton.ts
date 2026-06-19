@@ -29,9 +29,11 @@ function spectrumCounts(k: number[]): {
   const r = gravitonFromAction({ k })
   const target = 0.5 * r.k2
   const tol = 1e-6 * (1 + r.k2)
+
   let physical = 0
   let gauge = 0
   let trace = 0
+
   for (const v of r.eigenvalues) {
     if (Math.abs(v - target) < tol) {
       physical += 1
@@ -58,6 +60,7 @@ export function gravitonStudy(): {
     [1, 1, 1],
     [2, 1, 3],
   ]
+
   const counts = directions.map(d => spectrumCounts(d))
 
   return {
@@ -89,6 +92,7 @@ export default experiment({
     const shrinks =
       (r.dispersion[r.dispersion.length - 1]?.omega2 ?? 9) <
       (r.dispersion[0]?.omega2 ?? 0)
+
     const ok =
       massless && gauge && r.allTwo && r.massiveDof === 5 && shrinks
 

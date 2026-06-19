@@ -37,9 +37,11 @@ export function criticalityScan(input?: { n?: number }): {
   // MEAN-FIELD exponents, expected because the hyperbolic graph is above the upper critical dimension.
   const arrows = [0.001, 0.002, 0.004, 0.008, 0.016, 0.032, 0.064]
   const scan: { arrow: number; density: number }[] = []
+
   for (const arrow of arrows) {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 3 })
+
     for (let i = 0; i < N; i++) {
       tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
         | -1
@@ -52,9 +54,12 @@ export function criticalityScan(input?: { n?: number }): {
     } // relax to steady state
 
     const samples = 100
+
     let mean = 0
+
     for (let s = 0; s < samples; s++) {
       let active = 0
+
       for (let i = 0; i < N; i++) {
         if (tone[i] !== 0) {
           active++
@@ -74,11 +79,13 @@ export function criticalityScan(input?: { n?: number }): {
     xs: scan.map(s => Math.log(s.arrow)),
     ys: scan.map(s => Math.log(s.density)),
   })
+
   const beta = fit.slope
   const betaR2 = fit.r2
   const meanField = beta > 0.35 && beta < 0.65 // mean-field directed percolation, beta = 1/2
   const vanishesAtZero =
     scan[0]!.density < scan[scan.length - 1]!.density * 0.5 // order parameter -> 0 as arrow -> 0
+
   const solved = meanField && vanishesAtZero && betaR2 > 0.9
 
   return { n: N, scan, beta, betaR2, meanField, vanishesAtZero, solved }

@@ -42,6 +42,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule: Collision = headOnRotate({ opposite })
     const half = side / 2
     const center =
@@ -49,6 +50,7 @@ export default experiment({
       half * side +
       half * side * side +
       half * side * side * side
+
     const dir = 0
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const scratchOf = (will: Will): Will => ({
@@ -64,6 +66,7 @@ export default experiment({
     // pull it back into the clean form. Free parallel streaming loses it forever.
     const bodyHitGlider = (): Will => {
       const will = cloneWill(cleanGlider())
+
       for (let c = 0; c < mesh.cellCount; c++) {
         if (will.data[c * degree + dir] !== 0) {
           const v = will.data[c * degree + dir]!
@@ -84,6 +87,7 @@ export default experiment({
       let hitScratch = scratchOf(hit)
       let peak = 0
       let final = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({
           src: clean,
@@ -91,6 +95,7 @@ export default experiment({
           table,
           collision: rule,
         })
+
         {
           const swap = clean
           clean = cleanScratch
@@ -98,6 +103,7 @@ export default experiment({
         }
 
         beatInto({ src: hit, dst: hitScratch, table, collision: rule })
+
         {
           const swap = hit
           hit = hitScratch
@@ -110,6 +116,7 @@ export default experiment({
         }
 
         let diff = 0
+
         for (let i = 0; i < clean.data.length; i++) {
           if (clean.data[i] !== hit.data[i]) {
             diff++
@@ -132,6 +139,7 @@ export default experiment({
     // the forward momentum (identity) of the hit body, start vs end on the open lattice.
     const dirCharge = (will: Will, d: number): number => {
       let s = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         s += Math.abs(will.data[c * degree + d]!)
       }
@@ -141,7 +149,9 @@ export default experiment({
 
     let hit = bodyHitGlider()
     let hitScratch = scratchOf(hit)
+
     const startDir0 = dirCharge(hit, dir)
+
     for (let t = 0; t < beats; t++) {
       beatInto({ src: hit, dst: hitScratch, table, collision: rule })
       const swap = hit

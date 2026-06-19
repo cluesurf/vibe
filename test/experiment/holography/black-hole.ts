@@ -30,10 +30,13 @@ export function blackHoleEntropy(input: { side: number }): {
     h: torusHoppingHamiltonian({ dimension: 3, side }),
     n,
   })
+
   const ells = [2, 3, 4]
   const entropies: number[] = []
+
   for (const l of ells) {
     const region: number[] = []
+
     for (let z = 0; z < l; z++) {
       for (let y = 0; y < l; y++) {
         for (let x = 0; x < l; x++) {
@@ -72,6 +75,7 @@ export default experiment({
     const increasing =
       (r.entropies[0] ?? 0) < (r.entropies[1] ?? 0) &&
       (r.entropies[1] ?? 0) < (r.entropies[2] ?? 0)
+
     const ok = r.areaBeatsVolume && increasing
 
     return verdict({

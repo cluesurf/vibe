@@ -30,6 +30,7 @@ export default experiment({
           rng: makeRng({ seed: 600 + Math.round(disorder * 100) }),
         }).nearZeroDensity,
     )
+
     const free = densities[0] ?? 0
     const maxSignal = Math.max(...densities)
     const ok = free < 0.005 && maxSignal > free

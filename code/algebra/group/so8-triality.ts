@@ -15,6 +15,7 @@ export function vectorRep8(): number[][] {
 // the 16 half-integer vectors (+-1/2)^4, before the chirality split.
 function halfInteger16(): number[][] {
   const half: number[][] = []
+
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {

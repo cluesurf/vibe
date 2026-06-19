@@ -45,6 +45,7 @@ export default experiment({
       impactParameter: weakB,
       schwarzschildRadius: RS,
     })!
+
     const weakProduct = (weakB * weakDeflection) / RS
 
     // strong-field lensing diverges (logarithmically) as the impact parameter approaches the photon sphere
@@ -53,10 +54,12 @@ export default experiment({
       impactParameter: shadowRadius * 1.0005,
       schwarzschildRadius: RS,
     })!
+
     const nearerPhotonSphere = schwarzschildPhotonDeflection({
       impactParameter: shadowRadius * 1.000005,
       schwarzschildRadius: RS,
     })!
+
     const midField = schwarzschildPhotonDeflection({
       impactParameter: 5 * RS,
       schwarzschildRadius: RS,
@@ -67,10 +70,12 @@ export default experiment({
       impactParameter: shadowRadius * 0.99,
       schwarzschildRadius: RS,
     })
+
     const deepInside = schwarzschildPhotonDeflection({
       impactParameter: 2 * RS,
       schwarzschildRadius: RS,
     })
+
     const measuredShadow = measuredShadowRadius({
       schwarzschildRadius: RS,
     })
@@ -84,9 +89,11 @@ export default experiment({
       nearPhotonSphere > 6 &&
       nearPhotonSphere > 5 * midField &&
       nearerPhotonSphere > nearPhotonSphere + 2
+
     const shadowCaptures = justInside === null && deepInside === null
     const shadowRadiusExact =
       Math.abs(measuredShadow - shadowRadius) < 0.01
+
     const ok =
       weakRecoversFactorTwo &&
       strongDiverges &&

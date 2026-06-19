@@ -23,12 +23,16 @@ export function graphDistance(input: {
 
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const node of frontier) {
       const row = adjacency[node] ?? new Uint32Array(0)
+
       for (let k = 0; k < row.length; k++) {
         const neighbor = row[k] ?? 0
+
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = (distance[node] ?? 0) + 1
+
           if (neighbor === input.to) {
             return distance[neighbor] ?? -1
           }
@@ -53,6 +57,7 @@ export function longestChain(input: {
   to: number
 }): number {
   const p = input.poset
+
   if (input.from === input.to) {
     return 0
   }
@@ -79,6 +84,7 @@ export function longestChain(input: {
   // b then future(a) strictly contains future(b)'s reachable set, so a has the
   // larger out-reach. Order descending by reach count puts predecessors first.
   const cone: number[] = []
+
   for (let x = 0; x < p.size; x++) {
     if (inCone(x)) {
       cone.push(x)
@@ -86,8 +92,10 @@ export function longestChain(input: {
   }
 
   const reach = new Int32Array(p.size)
+
   for (const x of cone) {
     let count = 0
+
     for (const y of cone) {
       if (x !== y && precedes(p, { a: x, b: y })) {
         count++
@@ -103,20 +111,25 @@ export function longestChain(input: {
   // links has L+1 elements. Relax covering links forward.
   const best = new Int32Array(p.size).fill(-1)
   best[input.from] = 0
+
   for (const x of cone) {
     const reachedFrom = best[x] ?? -1
+
     if (reachedFrom < 0) {
       continue
     }
 
     const row = p.links[x] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const child = row[k] ?? 0
+
       if (!inCone(child)) {
         continue
       }
 
       const candidate = reachedFrom + 1
+
       if (candidate > (best[child] ?? -1)) {
         best[child] = candidate
       }

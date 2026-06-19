@@ -35,9 +35,12 @@ export function emergeSelfShape(input: {
     beats: input.beats ?? 80,
     density: input.density ?? 0.1,
   })
+
   const cluster = largestPositiveCluster(tone, graph)
+
   let cx = 0
   let cy = 0
+
   for (const c of cluster) {
     cx += c % L
     cy += Math.floor(c / L)
@@ -68,9 +71,11 @@ export function stampShape(input: {
 }): void {
   const { tone, L, offsets, px, py } = input
   const sign = (input.sign ?? 1) as -1 | 1
+
   for (const [dx, dy] of offsets) {
     const x = px + dx
     const y = py + dy
+
     if (x >= 0 && x < L && y >= 0 && y < L) {
       tone[y * L + x] = sign
     }
@@ -82,6 +87,7 @@ export function stampShape(input: {
 // of how much two selves have annihilated.
 export function plusCount(tone: Int8Array): number {
   let n = 0
+
   for (let i = 0; i < tone.length; i++) {
     if (tone[i] === 1) {
       n++
@@ -126,6 +132,7 @@ export function runTwoSelfAnnihilation(input: {
   const rng = makeRng(seed)
   const moved = new Uint8Array(L * L)
   const counts = [plusCount(tone)]
+
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0, cohesion)
     counts.push(plusCount(tone))
@@ -146,6 +153,7 @@ export function twoSelfSeparation(input: {
   const clusters = positiveClusters(tone, graph)
     .filter(c => c.length >= minSize)
     .sort((a, b) => b.length - a.length)
+
   if (clusters.length < 2) {
     return 0
   }
@@ -153,6 +161,7 @@ export function twoSelfSeparation(input: {
   const centroid = (cells: number[]): readonly [number, number] => {
     let cx = 0
     let cy = 0
+
     for (const c of cells) {
       cx += c % L
       cy += Math.floor(c / L)
@@ -201,6 +210,7 @@ export function runTwoSelf(input: {
   const rng = makeRng(seed)
   const moved = new Uint8Array(L * L)
   const seps = [twoSelfSeparation({ tone, graph, L, minSize })]
+
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, arrow, cohesion)
     seps.push(twoSelfSeparation({ tone, graph, L, minSize }))

@@ -34,10 +34,12 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
     neighbors: lat.neighbors,
     center,
   })
+
   const rMin = 1.5
   const rMax = input.side / 2 - 1.5 // stay off the boundary
   const r: number[] = []
   const out: number[] = []
+
   for (let j = 0; j < n; j++) {
     if (j === center) {
       continue
@@ -48,6 +50,7 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
       from: center,
       to: j,
     })
+
     if (d < rMin || d > rMax) {
       continue
     }
@@ -71,6 +74,7 @@ export default experiment({
       lat: cubicLattice(21, 3),
       side: 21,
     })
+
     const inv = fitForm(three.r, three.phi, r => 1 / r)
     const invSq = fitForm(three.r, three.phi, r => 1 / (r * r))
     const logf = fitForm(three.r, three.phi, r => Math.log(r))

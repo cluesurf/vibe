@@ -32,8 +32,10 @@ export class GrowingPentagrid {
   // Add exactly `count` cells at the frontier.
   grow(count: number): void {
     let added = 0
+
     while (added < count) {
       const task = this.queue[this.head]
+
       if (task === undefined) {
         return // frontier exhausted (only happens if count exceeds an unstarted root)
       }

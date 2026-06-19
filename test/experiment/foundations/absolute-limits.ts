@@ -39,10 +39,13 @@ export function absoluteLimits(input?: { n?: number }): {
 
   // blocks for coarse-graining, each cell's block = itself rounded into a ball of radius 1 around seeds
   const block = new Int32Array(N).fill(-1)
+
   let nb = 0
+
   for (let i = 0; i < N; i++) {
     if (block[i] === -1) {
       block[i] = nb
+
       for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
         if (block[g.adj[p]!] === -1) {
           block[g.adj[p]!] = nb
@@ -55,11 +58,13 @@ export function absoluteLimits(input?: { n?: number }): {
 
   const coarseQ = (t: Int8Array): number => {
     const bc = new Float64Array(nb)
+
     for (let i = 0; i < N; i++) {
       bc[block[i]!]! += t[i]!
     }
 
     let s = 0
+
     for (let b = 0; b < nb; b++) {
       s += bc[b]!
     }
@@ -69,6 +74,7 @@ export function absoluteLimits(input?: { n?: number }): {
 
   // (A) charge, fine conservation, coarse equals fine, and minting fails
   const tone = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -77,9 +83,12 @@ export function absoluteLimits(input?: { n?: number }): {
   }
 
   const q0 = totalQ(tone)
+
   let coarseMatches = true
+
   for (let t = 0; t < 60; t++) {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+
     if (totalQ(tone) !== q0) {
       coarseMatches = false
     }
@@ -94,6 +103,7 @@ export function absoluteLimits(input?: { n?: number }): {
   // minting attempt, run ONLY the create move aggressively, Q must not rise (it creates balanced pairs)
   const mint = new Int8Array(N)
   const q0m = totalQ(mint)
+
   for (let t = 0; t < 40; t++) {
     conservingEdgeSweep({
       tone: mint,
@@ -116,7 +126,9 @@ export function absoluteLimits(input?: { n?: number }): {
     size: N,
     source: center,
   })
+
   const base = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -130,12 +142,14 @@ export function absoluteLimits(input?: { n?: number }): {
   const ra = makeRng({ seed: 31 })
   const rb = makeRng({ seed: 31 })
   const T = 5
+
   for (let t = 0; t < T; t++) {
     conservingEdgeSweep({ tone: s, eu, ev, moved, rng: ra, arrow })
     conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow })
   }
 
   let fineFront = 0
+
   for (let i = 0; i < N; i++) {
     if (s[i] !== s2[i] && distC[i]! > fineFront) {
       fineFront = distC[i]!
@@ -151,6 +165,7 @@ export function absoluteLimits(input?: { n?: number }): {
 
   const chargeAbsolute =
     fineQConserved && coarseEqualsFine && mintingFails
+
   const solved = chargeAbsolute && lightconeAbsolute
 
   return {

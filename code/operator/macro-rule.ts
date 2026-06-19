@@ -32,14 +32,17 @@ export function effectiveCouplings(
     { length: K },
     () => new Set<number>(),
   )
+
   for (let v = 0; v < g.size; v++) {
     const cv = cl[v] ?? 0
     const row = g.neighbors[v] ?? new Uint32Array(0)
     const fl = fills[v] ?? new Int8Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
       const cw = cl[w] ?? 0
       const f = fl[k] ?? 0
+
       if (cv === cw) {
         Jself[cv] = (Jself[cv] ?? 0) + f
       } else {
@@ -65,10 +68,13 @@ export function naiveMacroStep(
 ): Int8Array {
   const K = superTone.length
   const out = new Int8Array(K)
+
   for (let c = 0; c < K; c++) {
     let h = 0
+
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
+
     for (let k = 0; k < nb.length; k++) {
       h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
     }
@@ -86,10 +92,13 @@ export function renormMacroStep(
 ): Int8Array {
   const K = superTone.length
   const out = new Int8Array(K)
+
   for (let c = 0; c < K; c++) {
     let h = (eff.Jself[c] ?? 0) * (superTone[c] ?? 0)
+
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
+
     for (let k = 0; k < nb.length; k++) {
       h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
     }

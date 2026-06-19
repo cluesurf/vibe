@@ -43,6 +43,7 @@ export type Scene = {
 // the Euclidean norm of a ball point
 export function ballNorm(v: Vec): number {
   let s = 0
+
   for (const x of v) {
     s += x * x
   }

@@ -19,8 +19,10 @@ export function unruhDetectorResponse(input: {
   const { energy, kappa, eps } = input
   const prefactor = input.prefactor ?? 1
   const T = input.halfWindow / kappa
+
   let re = 0
   let im = 0
+
   for (let tau = -T; tau <= T; tau += input.step) {
     const a = (kappa * tau) / 2
     const b = -(kappa * eps) / 2
@@ -52,12 +54,15 @@ export function temperatureFromDetailedBalance(input: {
   energyFactors?: ReadonlyArray<number>
 }): number {
   const factors = input.energyFactors ?? [0.5, 1, 1.5]
+
   let sum = 0
   let count = 0
+
   for (const factor of factors) {
     const E = factor * input.kappa
     const fp = input.response(E)
     const fm = input.response(-E)
+
     if (fp !== 0 && fm !== 0 && fp / fm > 0) {
       sum += -E / Math.log(fp / fm)
       count++

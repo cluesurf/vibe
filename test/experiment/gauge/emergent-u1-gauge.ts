@@ -27,6 +27,7 @@ const wilsonLoop = (
   y0: number,
   y1: number,
 ): number => gridWilsonLoop(g, { x0, x1, y0, y1 })
+
 const gaugeTransform = (g: Gauge, lam: number[][]): Gauge =>
   gridGaugeTransform(g, lam, L)
 
@@ -40,15 +41,18 @@ export function emergentU1Gauge(): {
   const Phi = 0.7,
     fx = 12,
     fy = 12
+
   const g = vortexGaugeField({
     side: L,
     flux: Phi,
     centerX: fx,
     centerY: fy,
   })
+
   // (1) Wilson loop around the flux = Phi, and gauge-INVARIANT
   const w0 = wilsonLoop(g, 8, 16, 8, 16) // a loop enclosing the flux
   const lam = grid()
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       lam[x]![y] = rnd() * 2 - 1
@@ -59,11 +63,14 @@ export function emergentU1Gauge(): {
   const w1 = wilsonLoop(g2, 8, 16, 8, 16)
   const wilsonInvariant =
     Math.abs(w0 - w1) < 1e-9 && Math.abs(w0 - Phi) < 1e-9
+
   // (2) Aharonov-Bohm, holonomy around the flux is Phi regardless of which enclosing loop / gauge
   const wA = wilsonLoop(g, 6, 18, 6, 18),
     wB = wilsonLoop(g2, 10, 15, 10, 15)
+
   const aharonovBohm =
     Math.abs(wA - Phi) < 1e-9 && Math.abs(wB - Phi) < 1e-9
+
   // a loop NOT enclosing the flux -> 0
   const wNone = wilsonLoop(g, 2, 6, 2, 6)
 

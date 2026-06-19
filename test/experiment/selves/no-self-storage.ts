@@ -31,18 +31,23 @@ const sign = (h: number): -1 | 0 | 1 => (h > 0 ? 1 : h < 0 ? -1 : 0)
 function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
   const n = g.size
   const seeds = new Set<number>()
+
   while (seeds.size < Math.min(K, n)) {
     seeds.add(rng.nextInt({ max: n }))
   }
 
   const cl = new Int32Array(n).fill(-1)
+
   let frontier: number[] = []
+
   ;[...seeds].forEach((sd, c) => {
     cl[sd] = c
     frontier.push(sd)
   })
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const v of frontier) {
       for (const w of g.neighbors[v] ?? new Uint32Array(0)) {
         if (cl[w] === -1) {
@@ -56,6 +61,7 @@ function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
   }
 
   let nc = seeds.size
+
   for (let v = 0; v < n; v++) {
     if (cl[v] === -1) {
       cl[v] = nc++
@@ -76,16 +82,19 @@ function modelFidelity(
   const cl = clusterToK(g, K, rng)
   const blocks = (cl.reduce((m, c) => Math.max(m, c), 0) as number) + 1
   const sum = new Float64Array(blocks)
+
   for (let v = 0; v < g.size; v++) {
     sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
   }
 
   const summary = new Int8Array(blocks)
+
   for (let c = 0; c < blocks; c++) {
     summary[c] = sign(sum[c] ?? 0)
   }
 
   const recon = new Int8Array(g.size)
+
   for (let v = 0; v < g.size; v++) {
     recon[v] = summary[cl[v] ?? 0] ?? 0
   }
@@ -109,11 +118,14 @@ export function noSelfStorage(input: { count: number; seed: number }): {
     connectThreshold: 3.0,
     rng,
   })
+
   const fills = symmetricEdgeFills({
     neighbors: g.neighbors,
     rng: makeRng({ seed: input.seed + 1 }),
   })
+
   let base = new Int8Array(g.size)
+
   for (let i = 0; i < g.size; i++) {
     base[i] = rng.nextInt({ max: 3 }) - 1
   }
@@ -141,6 +153,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
 
     return { ratio, modelSize: K, fidelity }
   })
+
   // A lossless self-record (fidelity ~1) needs the full N nodes, i.e. it is the whole thing.
   const losslessNeedsWholeThing =
     (byRatio.find(b => b.ratio === 1.0)?.fidelity ?? 0) > 0.99 &&

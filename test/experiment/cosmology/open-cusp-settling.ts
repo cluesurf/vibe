@@ -35,6 +35,7 @@ export default experiment({
     const cur = new Int8Array(n)
     const prev = new Int8Array(n)
     const rng = makeRng({ seed: 7 })
+
     for (let i = 0; i < n; i++) {
       cur[i] = rng.nextInt({ max: 3 }) as 0 | 1 | 2
       prev[i] = rng.nextInt({ max: 3 }) as 0 | 1 | 2
@@ -45,9 +46,11 @@ export default experiment({
     const bandActivityRatio = (): number => {
       let bandAct = 0
       let totalAct = 0
+
       for (let i = 0; i < n; i++) {
         const a = cur[i] !== 0 ? 1 : 0
         totalAct += a
+
         if (inBand(i)) {
           bandAct += a
         }
@@ -58,10 +61,13 @@ export default experiment({
 
     const r0 = bandActivityRatio()
     const beats = 400
+
     for (let t = 0; t < beats; t++) {
       const next = new Int8Array(n)
+
       for (let i = 0; i < n; i++) {
         let s = 0
+
         for (let p = off[i]!; p < off[i + 1]!; p++) {
           s += cur[adj[p]!]!
         }

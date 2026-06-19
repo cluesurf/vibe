@@ -146,6 +146,7 @@ export function hermitianSign(h: Mat2): Mat2 {
   const diff = (a - d) / 2
   const offDiag2 = cAbs2(h.m01)
   const s = Math.sqrt(diff * diff + offDiag2)
+
   if (s < 1e-14) {
     const sgn = t > 0 ? 1 : t < 0 ? -1 : 0
 
@@ -226,6 +227,7 @@ export function overlapDirac2D(input: {
     m: 0,
     r: input.r,
   })
+
   const shifted = matAdd(dw, matScaleReal(IDENTITY2, -input.m0))
   const hW = matMul(GAMMA5, shifted)
   const v = hermitianSign(hW)
@@ -238,8 +240,10 @@ export function overlapDirac2D(input: {
 // the vertices of the unit hypercube scaled by pi.
 export function brillouinZoneCorners(dimension: number): number[][] {
   let out: number[][] = [[]]
+
   for (let axis = 0; axis < dimension; axis++) {
     const next: number[][] = []
+
     for (const corner of out) {
       next.push([...corner, 0])
       next.push([...corner, Math.PI])
@@ -262,19 +266,24 @@ export function latticeFermionDoublers(dimension: number): {
   wilsonSpecies: number
 } {
   const corners = brillouinZoneCorners(dimension)
+
   let netChirality = 0
   let wilsonSpecies = 0
+
   for (const corner of corners) {
     let chirality = 1
     let piCount = 0
+
     for (const k of corner) {
       chirality *= Math.cos(k) >= 0 ? 1 : -1
+
       if (Math.abs(k - Math.PI) < 1e-9) {
         piCount += 1
       }
     }
 
     netChirality += chirality
+
     if (piCount === 0) {
       wilsonSpecies += 1
     }
@@ -293,18 +302,22 @@ export function scanBrillouin(input: {
 }): { species: number; gwResidualMax: number } {
   const n = input.gridSize
   const tol = input.zeroTolerance ?? 1e-6
+
   let species = 0
   let gwResidualMax = 0
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const k1 = (2 * Math.PI * i) / n
       const k2 = (2 * Math.PI * j) / n
       const d = input.operator({ k1, k2 })
+
       if (minSingularValue(d) < tol) {
         species += 1
       }
 
       const residual = ginspargWilsonResidual(d)
+
       if (residual > gwResidualMax) {
         gwResidualMax = residual
       }

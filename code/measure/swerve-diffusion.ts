@@ -22,6 +22,7 @@ export function swerveDiffusion(input: {
   const tauMax = 18
   const sum = new Float64Array(bins)
   const count = new Int32Array(bins)
+
   for (let tr = 0; tr < input.trajectories; tr++) {
     const points = sprinkleBox({
       density: input.density,
@@ -29,14 +30,17 @@ export function swerveDiffusion(input: {
       xMax: 16,
       rng: makeRng({ seed: input.seed + tr * 97 }),
     })
+
     const trace = swerveWalk({
       points,
       steps: 40,
       tauLo: 0.6,
       tauHi: 2.2,
     })
+
     for (const sample of trace) {
       const b = Math.floor((sample.tau / tauMax) * bins)
+
       if (b >= 0 && b < bins) {
         sum[b] = (sum[b] ?? 0) + sample.rapidity * sample.rapidity
         count[b] = (count[b] ?? 0) + 1
@@ -45,6 +49,7 @@ export function swerveDiffusion(input: {
   }
 
   const points: { tau: number; varRapidity: number }[] = []
+
   for (let b = 0; b < bins; b++) {
     if ((count[b] ?? 0) > 20) {
       points.push({

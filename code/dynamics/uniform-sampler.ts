@@ -18,6 +18,7 @@ import { Rng } from '@/code/tool/rng'
 // The 2D smeared Benincasa-Dowker kernel (inlined to avoid Poset construction).
 function smearedKernel2D(n: number, eps: number): number {
   const oneMinus = 1 - eps
+
   if (oneMinus <= 0) {
     return n === 0 ? 1 : 0
   }
@@ -52,6 +53,7 @@ export function makeState(
 ): State {
   const future = makeBitMatrix({ rows: size, cols: size })
   const past = makeBitMatrix({ rows: size, cols: size })
+
   if (startFuture) {
     // Seed from a transitive future relation, building past as its transpose.
     for (let a = 0; a < size; a++) {
@@ -77,6 +79,7 @@ function rowSubset(
   for (let w = 0; w < stride; w++) {
     const a = words[aBase + w] ?? 0
     const b = words[bBase + w] ?? 0
+
     if ((a & ~b) !== 0) {
       return false
     }
@@ -127,6 +130,7 @@ export function toggleKeepsValid(
   related: boolean,
 ): boolean {
   const s = state.stride
+
   if (related) {
     return rowsDisjoint(
       state.future.words,
@@ -145,7 +149,9 @@ export function toggleKeepsValid(
 
 function relationCount(state: State): number {
   let total = 0
+
   const words = state.future.words
+
   for (let i = 0; i < words.length; i++) {
     total += popcount32(words[i] ?? 0)
   }
@@ -157,18 +163,25 @@ function relationCount(state: State): number {
 export function height(state: State): number {
   const n = state.size
   const longest = new Int32Array(n).fill(1)
+
   let max = n > 0 ? 1 : 0
+
   const s = state.stride
+
   for (let v = 0; v < n; v++) {
     const lv = longest[v] ?? 1
     const base = v * s
+
     for (let w = 0; w < s; w++) {
       let bits = state.future.words[base + w] ?? 0
+
       while (bits !== 0) {
         const bit = bits & -bits
         const idx = w * 32 + (31 - Math.clz32(bit))
+
         if (lv + 1 > (longest[idx] ?? 1)) {
           longest[idx] = lv + 1
+
           if (lv + 1 > max) {
             max = lv + 1
           }
@@ -186,17 +199,24 @@ export function height(state: State): number {
 export function smearedAction(state: State, eps: number): number {
   const n = state.size
   const s = state.stride
+
   let sum = 0
+
   for (let a = 0; a < n; a++) {
     const aBase = a * s
+
     for (let w = 0; w < s; w++) {
       let bits = state.future.words[aBase + w] ?? 0
+
       while (bits !== 0) {
         const bit = bits & -bits
         const b = w * 32 + (31 - Math.clz32(bit))
+
         // interval size = |future(a) intersect past(b)|
         let inter = 0
+
         const bBase = b * s
+
         for (let v = 0; v < s; v++) {
           inter += popcount32(
             (state.future.words[aBase + v] ?? 0) &
@@ -241,10 +261,12 @@ export function sampleUniform(input: {
   const n = input.size
   const pairsTotal = (n * (n - 1)) / 2
   const useAction = input.beta > 0
+
   let currentS = useAction ? smearedAction(state, input.epsilon) : 0
 
   const burnIn = Math.floor(input.steps / 2)
   const sampleEvery = input.sampleEvery ?? 1
+
   let manifoldHits = 0
   let hrSum = 0
   let ofSum = 0
@@ -258,18 +280,22 @@ export function sampleUniform(input: {
 
   for (let step = 0; step < input.steps; step++) {
     const i = input.rng.nextInt({ max: n })
+
     let j = input.rng.nextInt({ max: n })
+
     if (i === j) {
       j = (j + 1) % n
     }
 
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
+
     if (lo === hi) {
       continue
     }
 
     const related = isRelated(state, lo, hi)
+
     if (toggleKeepsValid(state, lo, hi, related)) {
       if (!useAction) {
         toggle(state, lo, hi)
@@ -278,6 +304,7 @@ export function sampleUniform(input: {
         toggle(state, lo, hi)
         const candidateS = smearedAction(state, input.epsilon)
         const deltaS = candidateS - currentS
+
         if (
           deltaS <= 0 ||
           input.rng.next() < Math.exp(-input.beta * deltaS)
@@ -297,6 +324,7 @@ export function sampleUniform(input: {
       const act = useAction
         ? currentS
         : smearedAction(state, input.epsilon)
+
       if (hr > 1) {
         manifoldHits += 1
         actManSum += act
