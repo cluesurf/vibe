@@ -11,13 +11,18 @@ import { busemannLevels } from '@/code/measure/radial'
 
 export default experiment({
   id: 'data-structure/radial-mipmap',
-  title: 'DS7: the radial Busemann levels form a multiresolution pyramid, fine levels hold geometrically more cells',
+  title:
+    'DS7: the radial Busemann levels form a multiresolution pyramid, fine levels hold geometrically more cells',
   category: 'data-structure',
   substrates: ['534'],
   depth: 'L2',
   paper: true,
   run() {
-    const graph = hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: 1500 })
+    const graph = hyperbolicDodecagrid({
+      depth: 4,
+      connectThreshold: 2.0,
+      maxVertices: 1500,
+    })
     const bins = 6
     const levels = busemannLevels(graph, bins)
     const half = Math.floor(bins / 2)
@@ -25,17 +30,27 @@ export default experiment({
     const outerCells = levels.slice(half).reduce((s, n) => s + n, 0)
 
     // the finer (outer) levels hold geometrically more cells than the coarser (inner) ones, the LOD pyramid
-    const pyramid = levels.length === bins && outerCells > innerCells * 2
+    const pyramid =
+      levels.length === bins && outerCells > innerCells * 2
 
     return verdict({
       status: pyramid ? 'pass' : 'fail',
       claim:
         'the radial Busemann level sets form a multiresolution pyramid, the finer outer horospheres hold geometrically more cells than the coarser inner ones, so the bulk stores data at exponentially many resolutions, a mipmap',
-      metrics: { bins, innerCells, outerCells, pyramid: pyramid ? 1 : 0 },
+      metrics: {
+        bins,
+        innerCells,
+        outerCells,
+        pyramid: pyramid ? 1 : 0,
+      },
       // CONTROL: a flat octree grows by a fixed factor per level (8 in 3D), here the level growth is the
       // hyperbolic curvature factor, so the pyramid is the geometry.
-      control: { outerToInnerRatio: outerCells / Math.max(1, innerCells), levelCount: levels.length },
-      notes: 'DS7 of experiments/16. The radial axis is the LOD here, the LSM level (SS5), the heap priority (SS4), and the skip-list shortcut (DS9).',
+      control: {
+        outerToInnerRatio: outerCells / Math.max(1, innerCells),
+        levelCount: levels.length,
+      },
+      notes:
+        'DS7 of experiments/16. The radial axis is the LOD here, the LSM level (SS5), the heap priority (SS4), and the skip-list shortcut (DS9).',
     })
   },
 })

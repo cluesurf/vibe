@@ -7,7 +7,13 @@
 // and the claims that use it are statistical, labeled L2. Robustness comes from varying the lattice size L,
 // not from averaging seeds. The seed only fixes one reproducible realization.
 
-import { flatGraph, emergeSelf, beat, type Graph, type Rng } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  emergeSelf,
+  beat,
+  type Graph,
+  type Rng,
+} from '@/code/model/self-kit'
 import { extractUnits, meanUnitSize } from '@/code/coarse/macro-unit'
 
 export function makeRng(seed: number): Rng {
@@ -60,11 +66,15 @@ export function selfTrajectory(input: {
   const graph = flatGraph(L)
   const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
-  const { tone } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
+  const { tone } = emergeSelf(graph, rng, moved, {
+    beats: 60,
+    density: 0.1,
+  })
   const labels: number[] = []
   const centroids: number[] = []
   const snapshots: Int8Array[] = []
-  const toBin = (x: number): number => Math.min(bins - 1, Math.max(0, Math.floor((x / L) * bins)))
+  const toBin = (x: number): number =>
+    Math.min(bins - 1, Math.max(0, Math.floor((x / L) * bins)))
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, 0.22)
     const cx = positiveCentroidX(tone, L)
@@ -72,15 +82,39 @@ export function selfTrajectory(input: {
     labels.push(toBin(cx))
     if (t % snapshotEvery === 0) snapshots.push(tone.slice())
   }
-  const positions = (cell: number): readonly [number, number] => [cell % L, Math.floor(cell / L)]
-  const units = extractUnits({ tone, graph, positions, sign: 1, minSize: 3 })
-  return { graph, L, bins, labels, centroids, snapshots, meanSelfSize: meanUnitSize(units) }
+  const positions = (cell: number): readonly [number, number] => [
+    cell % L,
+    Math.floor(cell / L),
+  ]
+  const units = extractUnits({
+    tone,
+    graph,
+    positions,
+    sign: 1,
+    minSize: 3,
+  })
+  return {
+    graph,
+    L,
+    bins,
+    labels,
+    centroids,
+    snapshots,
+    meanSelfSize: meanUnitSize(units),
+  }
 }
 
 // The position bin of a tone state, the coarse map used by the commuting-square test.
-export function positionBin(input: { tone: Int8Array; L: number; bins: number }): number {
+export function positionBin(input: {
+  tone: Int8Array
+  L: number
+  bins: number
+}): number {
   const { tone, L, bins } = input
-  return Math.min(bins - 1, Math.max(0, Math.floor((positiveCentroidX(tone, L) / L) * bins)))
+  return Math.min(
+    bins - 1,
+    Math.max(0, Math.floor((positiveCentroidX(tone, L) / L) * bins)),
+  )
 }
 
 // The trajectory of the SELF's own centroid x, tracking the largest plus-charge cluster each beat. Unlike the
@@ -110,15 +144,27 @@ function runUnitTrajectory(input: {
   const graph = flatGraph(L)
   const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
-  const { tone } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
-  const positions = (cell: number): readonly [number, number] => [cell % L, Math.floor(cell / L)]
+  const { tone } = emergeSelf(graph, rng, moved, {
+    beats: 60,
+    density: 0.1,
+  })
+  const positions = (cell: number): readonly [number, number] => [
+    cell % L,
+    Math.floor(cell / L),
+  ]
   const centroids: number[] = []
   let sizeSum = 0
   let sizeCount = 0
   let lastCx = L / 2
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, cohesionAt(t))
-    const units = extractUnits({ tone, graph, positions, sign: 1, minSize })
+    const units = extractUnits({
+      tone,
+      graph,
+      positions,
+      sign: 1,
+      minSize,
+    })
     if (units.length > 0) {
       let largest = units[0]!
       for (const u of units) if (u.size > largest.size) largest = u
@@ -128,7 +174,12 @@ function runUnitTrajectory(input: {
     }
     centroids.push(lastCx)
   }
-  return { graph, L, centroids, meanSelfSize: sizeCount > 0 ? sizeSum / sizeCount : 0 }
+  return {
+    graph,
+    L,
+    centroids,
+    meanSelfSize: sizeCount > 0 ? sizeSum / sizeCount : 0,
+  }
 }
 
 export function selfUnitTrajectory(input: {
@@ -137,7 +188,11 @@ export function selfUnitTrajectory(input: {
   seed: number
   minSize?: number
 }): UnitTrajectory {
-  return runUnitTrajectory({ ...input, minSize: input.minSize ?? 3, cohesionAt: () => 0.22 })
+  return runUnitTrajectory({
+    ...input,
+    minSize: input.minSize ?? 3,
+    cohesionAt: () => 0.22,
+  })
 }
 
 // A self whose binding strength changes at changeAt, so its coarse dynamics drift into a new regime. With
@@ -155,6 +210,6 @@ export function driftingSelfTrajectory(input: {
   return runUnitTrajectory({
     ...input,
     minSize: input.minSize ?? 3,
-    cohesionAt: (t) => (t < changeAt ? cohesionEarly : cohesionLate),
+    cohesionAt: t => (t < changeAt ? cohesionEarly : cohesionLate),
   })
 }

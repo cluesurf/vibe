@@ -37,17 +37,31 @@ export function clampedLeakyDiffusion(input: {
   leak: number
   iterations: number
 }): Float64Array {
-  const { offsets: off, adjacency: adj, nodeCount: N, source: src, leak, iterations } = input
-  let p = new Float64Array(N); p[src] = 1; let np = new Float64Array(N)
+  const {
+    offsets: off,
+    adjacency: adj,
+    nodeCount: N,
+    source: src,
+    leak,
+    iterations,
+  } = input
+  let p = new Float64Array(N)
+  p[src] = 1
+  let np = new Float64Array(N)
   for (let t = 0; t < iterations; t++) {
-    np.fill(0); np[src] = 1
+    np.fill(0)
+    np[src] = 1
     for (let i = 0; i < N; i++) {
-      const pi = p[i]!; if (!pi) continue
+      const pi = p[i]!
+      if (!pi) continue
       const d = off[i + 1]! - off[i]!
       const sh = ((1 - leak) * pi) / d
-      for (let q = off[i]!; q < off[i + 1]!; q++) np[adj[q]!] = np[adj[q]!]! + sh
+      for (let q = off[i]!; q < off[i + 1]!; q++)
+        np[adj[q]!] = np[adj[q]!]! + sh
     }
-    const tmp = p; p = np; np = tmp
+    const tmp = p
+    p = np
+    np = tmp
   }
   return p
 }

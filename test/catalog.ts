@@ -18,19 +18,24 @@ const header = 'id,category,depth,paper,substrates,title'
 // Sort the most important results first: by depth (L3 the emergent-and-novel results first, down to
 // L0 circular last), then by id, then by substrates.
 const depthRank: Record<string, number> = { L3: 0, L2: 1, L1: 2, L0: 3 }
-const substratesOf = (experiment: { substrates: 'any' | string[] }): string =>
-  experiment.substrates === 'any' ? 'any' : experiment.substrates.join('|')
+const substratesOf = (experiment: {
+  substrates: 'any' | string[]
+}): string =>
+  experiment.substrates === 'any'
+    ? 'any'
+    : experiment.substrates.join('|')
 
 const rows = allExperiments()
   .slice()
   .sort((left, right) => {
-    const byDepth = (depthRank[left.depth] ?? 9) - (depthRank[right.depth] ?? 9)
+    const byDepth =
+      (depthRank[left.depth] ?? 9) - (depthRank[right.depth] ?? 9)
     if (byDepth !== 0) return byDepth
     const byId = left.id.localeCompare(right.id)
     if (byId !== 0) return byId
     return substratesOf(left).localeCompare(substratesOf(right))
   })
-  .map((experiment) => {
+  .map(experiment => {
     const substrates = substratesOf(experiment)
     const title = experiment.title.replace(/"/g, '""')
     return `${experiment.id},${experiment.category},${experiment.depth},${experiment.paper},${substrates},"${title}"`

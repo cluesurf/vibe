@@ -13,9 +13,10 @@ export class GrowingPentagrid {
   adjacency: number[][] = [[]]
   // The frontier: cells whose children have not all been emitted yet, with a cursor into
   // their fixed child list. FIFO, so growth is breadth-first.
-  private queue: { id: number; children: boolean[]; cursor: number }[] = [
-    { id: 0, children: [true, true, true, true, true], cursor: 0 }, // root seeds 5 white children
-  ]
+  private queue: { id: number; children: boolean[]; cursor: number }[] =
+    [
+      { id: 0, children: [true, true, true, true, true], cursor: 0 }, // root seeds 5 white children
+    ]
   private head = 0
 
   // Children a cell spawns, by type: white -> (white, black, white), black -> (white, black).
@@ -46,7 +47,11 @@ export class GrowingPentagrid {
       this.white.push(childWhite)
       this.adjacency.push([task.id])
       this.adjacency[task.id]!.push(id)
-      this.queue.push({ id, children: this.childrenFor(childWhite), cursor: 0 })
+      this.queue.push({
+        id,
+        children: this.childrenFor(childWhite),
+        cursor: 0,
+      })
       added += 1
     }
   }

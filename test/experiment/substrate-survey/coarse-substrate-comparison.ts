@@ -10,10 +10,22 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, squareGraph, bulkGraph, ball, boundaryFraction, type Graph } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  squareGraph,
+  bulkGraph,
+  ball,
+  boundaryFraction,
+  type Graph,
+} from '@/code/model/self-kit'
 
 // grow a ball around a center until it reaches at least the target size, then its boundary fraction.
-function fractionAtSize(input: { graph: Graph; center: number; targetSize: number; maxRadius: number }): {
+function fractionAtSize(input: {
+  graph: Graph
+  center: number
+  targetSize: number
+  maxRadius: number
+}): {
   fraction: number
   size: number
 } {
@@ -23,12 +35,16 @@ function fractionAtSize(input: { graph: Graph; center: number; targetSize: numbe
     cells = ball(graph, center, r)
     if (cells.length >= targetSize) break
   }
-  return { fraction: boundaryFraction(cells, graph), size: cells.length }
+  return {
+    fraction: boundaryFraction(cells, graph),
+    size: cells.length,
+  }
 }
 
 export default experiment({
   id: 'substrate-survey/coarse-substrate-comparison',
-  title: 'flat and square horospheres support compact low-leak selves, the hyperbolic bulk does not',
+  title:
+    'flat and square horospheres support compact low-leak selves, the hyperbolic bulk does not',
   category: 'substrate-survey',
   substrates: ['flat-horosphere', 'square-horosphere', '534-bulk'],
   depth: 'L2',
@@ -36,12 +52,29 @@ export default experiment({
   run() {
     const target = 250
 
-    const flat = fractionAtSize({ graph: flatGraph(96), center: 48 * 96 + 48, targetSize: target, maxRadius: 40 })
-    const square = fractionAtSize({ graph: squareGraph(96), center: 48 * 96 + 48, targetSize: target, maxRadius: 40 })
-    const bulk = fractionAtSize({ graph: bulkGraph(8000), center: 0, targetSize: target, maxRadius: 12 })
+    const flat = fractionAtSize({
+      graph: flatGraph(96),
+      center: 48 * 96 + 48,
+      targetSize: target,
+      maxRadius: 40,
+    })
+    const square = fractionAtSize({
+      graph: squareGraph(96),
+      center: 48 * 96 + 48,
+      targetSize: target,
+      maxRadius: 40,
+    })
+    const bulk = fractionAtSize({
+      graph: bulkGraph(8000),
+      center: 0,
+      targetSize: target,
+      maxRadius: 12,
+    })
 
     // flat and square are compact (low boundary fraction), the bulk is leaky (near all boundary).
-    const ok = flat.fraction < bulk.fraction - 0.3 && square.fraction < bulk.fraction - 0.3
+    const ok =
+      flat.fraction < bulk.fraction - 0.3 &&
+      square.fraction < bulk.fraction - 0.3
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -55,7 +88,8 @@ export default experiment({
         bulkSize: bulk.size,
       },
       control: { bulkFraction: bulk.fraction },
-      notes: 'the isoperimetric contrast, flat boundary falls as 1 over sqrt(size), the hyperbolic bulk stays near all boundary, which is why selves are clean on the flat layer',
+      notes:
+        'the isoperimetric contrast, flat boundary falls as 1 over sqrt(size), the hyperbolic bulk stays near all boundary, which is why selves are clean on the flat layer',
     })
   },
 })

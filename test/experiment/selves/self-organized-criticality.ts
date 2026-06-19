@@ -13,7 +13,10 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { socEdgeSweep } from '@/code/dynamics/soc-sweep'
-import { avalancheSizes, toneDensity as density } from '@/code/measure/avalanche'
+import {
+  avalancheSizes,
+  toneDensity as density,
+} from '@/code/measure/avalanche'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -38,13 +41,29 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const c0 = 0.02 // SLOW drive (timescale separation), so the system hovers near the absorbing edge
 
   // (a) self-tuning: run from low and high initial density, both should converge to the same set-point
-  const runTo = (initRho: number, seed: number): { tone: Int8Array; finalRho: number } => {
+  const runTo = (
+    initRho: number,
+    seed: number,
+  ): { tone: Int8Array; finalRho: number } => {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed })
-    for (let i = 0; i < N; i++) tone[i] = (rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+    for (let i = 0; i < N; i++)
+      tone[i] = (
+        rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0
+      ) as -1 | 0 | 1
     let last = 0
     for (let t = 0; t < 160; t++) {
-      socEdgeSweep({ tone, offsets: g.offsets, adj: g.adj, eu, ev, moved, rng, arrow: c0, uniform: false })
+      socEdgeSweep({
+        tone,
+        offsets: g.offsets,
+        adj: g.adj,
+        eu,
+        ev,
+        moved,
+        rng,
+        arrow: c0,
+        uniform: false,
+      })
       if (t >= 150) last += density(tone) / 10
     }
     return { tone, finalRho: last }
@@ -54,14 +73,31 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const lowFinal = low.finalRho
   const highFinal = high.finalRho
   const setPoint = (lowFinal + highFinal) / 2
-  const selfTunes = Math.abs(lowFinal - highFinal) < 0.05 && setPoint > 0.03 && setPoint < 0.9
+  const selfTunes =
+    Math.abs(lowFinal - highFinal) < 0.05 &&
+    setPoint > 0.03 &&
+    setPoint < 0.9
 
   // (b) avalanches via damage spreading at the self-organized state, and a uniform-creation control
   const avalancheRun = (uniform: boolean): number[] => {
     const base = new Int8Array(N)
     const rng0 = makeRng({ seed: 5 })
-    for (let i = 0; i < N; i++) base[i] = (rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 120; t++) socEdgeSweep({ tone: base, offsets: g.offsets, adj: g.adj, eu, ev, moved, rng: rng0, arrow: c0, uniform }) // settle
+    for (let i = 0; i < N; i++)
+      base[i] = (
+        rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0
+      ) as -1 | 0 | 1
+    for (let t = 0; t < 120; t++)
+      socEdgeSweep({
+        tone: base,
+        offsets: g.offsets,
+        adj: g.adj,
+        eu,
+        ev,
+        moved,
+        rng: rng0,
+        arrow: c0,
+        uniform,
+      }) // settle
     // relax with creation OFF, so we measure the PURE perturbation cascade (the avalanche) through the
     // self-organized background, not creation noise
     return avalancheSizes({
@@ -70,8 +106,19 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
       trials: 120,
       perturbSeed: 9000,
       streamSeed: 333,
-      makeRng: (seed) => makeRng({ seed }),
-      relax: (state, rng) => socEdgeSweep({ tone: state, offsets: g.offsets, adj: g.adj, eu, ev, moved, rng, arrow: 0, uniform }),
+      makeRng: seed => makeRng({ seed }),
+      relax: (state, rng) =>
+        socEdgeSweep({
+          tone: state,
+          offsets: g.offsets,
+          adj: g.adj,
+          eu,
+          ev,
+          moved,
+          rng,
+          arrow: 0,
+          uniform,
+        }),
       mode: 'final',
     })
   }
@@ -81,23 +128,39 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
   const avalancheMedian = median(soc)
   const avalancheMax = soc[soc.length - 1]!
   const avalancheScaleSpan = avalancheMax / Math.max(avalancheMedian, 1)
-  const controlScaleSpan = ctrl[ctrl.length - 1]! / Math.max(median(ctrl), 1)
+  const controlScaleSpan =
+    ctrl[ctrl.length - 1]! / Math.max(median(ctrl), 1)
   // NOTE: the damage spreads BALLISTICALLY (the lightcone, P123), so a fixed-window perturbation reaches a
   // roughly fixed radius, the size span is narrow (not scale-free). This metric measures ballistic spread,
   // not terminating avalanches, so it does NOT resolve criticality, that needs a terminating-cascade
   // protocol the continuous hop dynamics resists. Criticality is therefore UNDETERMINED here.
-  const scaleFree = avalancheScaleSpan > 5 && avalancheScaleSpan > controlScaleSpan * 1.5
+  const scaleFree =
+    avalancheScaleSpan > 5 &&
+    avalancheScaleSpan > controlScaleSpan * 1.5
 
   // the ROBUST, demonstrated result is SELF-ORGANIZATION (homeostasis to a set-point with no external
   // tuning). Whether that set-point is precisely critical is left open by the ballistic confound.
   const solved = selfTunes
 
-  return { n: N, lowFinal, highFinal, setPoint, selfTunes, avalancheMedian, avalancheMax, avalancheScaleSpan, controlScaleSpan, scaleFree, solved }
+  return {
+    n: N,
+    lowFinal,
+    highFinal,
+    setPoint,
+    selfTunes,
+    avalancheMedian,
+    avalancheMax,
+    avalancheScaleSpan,
+    controlScaleSpan,
+    scaleFree,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/self-organized-criticality',
-  title: 'demand-driven creation self-tunes the activity to one interior set-point from any start',
+  title:
+    'demand-driven creation self-tunes the activity to one interior set-point from any start',
   category: 'selves',
   substrates: ['534'],
   depth: 'L2',
@@ -109,7 +172,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'demand-driven creation makes the activity self-tune to the same interior set-point from any starting density with no external knob',
-      metrics: { lowFinal: r.lowFinal, highFinal: r.highFinal, setPoint: r.setPoint },
+      metrics: {
+        lowFinal: r.lowFinal,
+        highFinal: r.highFinal,
+        setPoint: r.setPoint,
+      },
       notes:
         'whether the set-point is precisely critical is left open, the damage-spreading metric is confounded by ballistic propagation',
     })

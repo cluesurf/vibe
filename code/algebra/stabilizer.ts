@@ -80,7 +80,7 @@ export function logicalOperators(input: {
     for (let z = 0; z < dim; z++) {
       if (x === 0 && z === 0) continue
       const p: Pauli = { x, z }
-      if (!generators.every((s) => pauliCommute(p, s))) continue // not in the normalizer
+      if (!generators.every(s => pauliCommute(p, s))) continue // not in the normalizer
       if (span.has(x | (z << qubits))) continue // a trivial (stabilizer) logical
       logicals.push(p)
     }
@@ -91,7 +91,8 @@ export function logicalOperators(input: {
 // The code distance: the minimum weight over the logical operators. Infinity if there are none.
 export function codeDistance(logicals: ReadonlyArray<Pauli>): number {
   let distance = Infinity
-  for (const l of logicals) distance = Math.min(distance, pauliWeight(l))
+  for (const l of logicals)
+    distance = Math.min(distance, pauliWeight(l))
   return distance
 }
 
@@ -102,5 +103,5 @@ export function erasureCorrectable(input: {
   erased: number
 }): boolean {
   const { logicals, erased } = input
-  return !logicals.some((l) => (pauliSupport(l) & ~erased) === 0)
+  return !logicals.some(l => (pauliSupport(l) & ~erased) === 0)
 }

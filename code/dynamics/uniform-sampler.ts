@@ -7,7 +7,12 @@
 // samples the causal-set Gibbs ensemble. This is the sampler P2 / P6 needs to
 // reach the large-N entropic regime. See note/questions/p2-p6-optimal-path.md.
 
-import { makeBitMatrix, BitMatrix, getBit, setBit } from '@/code/tool/bitset'
+import {
+  makeBitMatrix,
+  BitMatrix,
+  getBit,
+  setBit,
+} from '@/code/tool/bitset'
 import { Rng } from '@/code/tool/rng'
 
 // The 2D smeared Benincasa-Dowker kernel (inlined to avoid Poset construction).
@@ -18,7 +23,9 @@ function smearedKernel2D(n: number, eps: number): number {
   }
   const base = Math.pow(oneMinus, n)
   const term =
-    1 - (2 * eps * n) / oneMinus + (eps * eps * n * (n - 1)) / (2 * oneMinus * oneMinus)
+    1 -
+    (2 * eps * n) / oneMinus +
+    (eps * eps * n * (n - 1)) / (2 * oneMinus * oneMinus)
   return base * term
 }
 
@@ -36,7 +43,10 @@ export interface State {
   past: BitMatrix // past.words[b*stride + w]: a's that precede b
 }
 
-export function makeState(size: number, startFuture?: BitMatrix): State {
+export function makeState(
+  size: number,
+  startFuture?: BitMatrix,
+): State {
   const future = makeBitMatrix({ rows: size, cols: size })
   const past = makeBitMatrix({ rows: size, cols: size })
   if (startFuture) {
@@ -54,7 +64,12 @@ export function makeState(size: number, startFuture?: BitMatrix): State {
 }
 
 // future[i] subset of future[j]? i.e. (future[i] & ~future[j]) == 0.
-function rowSubset(words: Uint32Array, aBase: number, bBase: number, stride: number): boolean {
+function rowSubset(
+  words: Uint32Array,
+  aBase: number,
+  bBase: number,
+  stride: number,
+): boolean {
   for (let w = 0; w < stride; w++) {
     const a = words[aBase + w] ?? 0
     const b = words[bBase + w] ?? 0
@@ -89,7 +104,8 @@ export function isRelated(state: State, i: number, j: number): boolean {
 // Toggle the single pair i precedes j in both future and past.
 export function toggle(state: State, i: number, j: number): void {
   const fi = i * state.stride + (j >>> 5)
-  state.future.words[fi] = (state.future.words[fi] ?? 0) ^ (1 << (j & 31))
+  state.future.words[fi] =
+    (state.future.words[fi] ?? 0) ^ (1 << (j & 31))
   const pi = j * state.stride + (i >>> 5)
   state.past.words[pi] = (state.past.words[pi] ?? 0) ^ (1 << (i & 31))
 }
@@ -97,10 +113,21 @@ export function toggle(state: State, i: number, j: number): void {
 // Adding i<j keeps transitivity iff past(i) subset past(j) and future(j) subset
 // future(i). Removing i<j keeps it iff no k with i<k<j (future(i) and past(j)
 // disjoint).
-export function toggleKeepsValid(state: State, i: number, j: number, related: boolean): boolean {
+export function toggleKeepsValid(
+  state: State,
+  i: number,
+  j: number,
+  related: boolean,
+): boolean {
   const s = state.stride
   if (related) {
-    return rowsDisjoint(state.future.words, i * s, state.past.words, j * s, s)
+    return rowsDisjoint(
+      state.future.words,
+      i * s,
+      state.past.words,
+      j * s,
+      s,
+    )
   }
   return (
     rowSubset(state.past.words, i * s, j * s, s) &&
@@ -160,7 +187,10 @@ export function smearedAction(state: State, eps: number): number {
         let inter = 0
         const bBase = b * s
         for (let v = 0; v < s; v++) {
-          inter += popcount32((state.future.words[aBase + v] ?? 0) & (state.past.words[bBase + v] ?? 0))
+          inter += popcount32(
+            (state.future.words[aBase + v] ?? 0) &
+              (state.past.words[bBase + v] ?? 0),
+          )
         }
         sum += smearedKernel2D(inter, eps)
         bits ^= bit
@@ -233,7 +263,10 @@ export function sampleUniform(input: {
         toggle(state, lo, hi)
         const candidateS = smearedAction(state, input.epsilon)
         const deltaS = candidateS - currentS
-        if (deltaS <= 0 || input.rng.next() < Math.exp(-input.beta * deltaS)) {
+        if (
+          deltaS <= 0 ||
+          input.rng.next() < Math.exp(-input.beta * deltaS)
+        ) {
           currentS = candidateS
           accepts += 1
         } else {
@@ -246,7 +279,9 @@ export function sampleUniform(input: {
       const h = height(state)
       const hr = n > 1 ? h / Math.sqrt(n) : 0
       hrSum += hr
-      const act = useAction ? currentS : smearedAction(state, input.epsilon)
+      const act = useAction
+        ? currentS
+        : smearedAction(state, input.epsilon)
       if (hr > 1) {
         manifoldHits += 1
         actManSum += act

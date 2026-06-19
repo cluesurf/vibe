@@ -9,8 +9,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, emergeSelf, beat, largestPositiveCluster, ball } from '@/code/model/self-kit'
-import { regionPartition, blanketScreening } from '@/code/coarse/self-criteria'
+import {
+  flatGraph,
+  emergeSelf,
+  beat,
+  largestPositiveCluster,
+  ball,
+} from '@/code/model/self-kit'
+import {
+  regionPartition,
+  blanketScreening,
+} from '@/code/coarse/self-criteria'
 import { makeRng } from '@/code/coarse/self-trajectory'
 
 function sumTone(tone: Int8Array, cells: number[]): number {
@@ -21,7 +30,8 @@ function sumTone(tone: Int8Array, cells: number[]): number {
 
 export default experiment({
   id: 'selves/coarse-markov-blanket',
-  title: 'an emergent self screens interior from exterior through its shell more cleanly than medium',
+  title:
+    'an emergent self screens interior from exterior through its shell more cleanly than medium',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -32,7 +42,10 @@ export default experiment({
     const graph = flatGraph(L)
     const rng = makeRng(8675309)
     const moved = new Uint8Array(graph.cellCount)
-    const { tone } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
+    const { tone } = emergeSelf(graph, rng, moved, {
+      beats: 60,
+      density: 0.1,
+    })
 
     // a fixed medium region near a corner, unlikely to coincide with the wandering self.
     const controlBall = ball(graph, 5 * L + 5, 4)
@@ -60,10 +73,19 @@ export default experiment({
       ctrlE.push(sumTone(tone, controlPart.exterior))
     }
 
-    const self = blanketScreening({ interior: selfI, shell: selfS, exterior: selfE })
-    const control = blanketScreening({ interior: ctrlI, shell: ctrlS, exterior: ctrlE })
+    const self = blanketScreening({
+      interior: selfI,
+      shell: selfS,
+      exterior: selfE,
+    })
+    const control = blanketScreening({
+      interior: ctrlI,
+      shell: ctrlS,
+      exterior: ctrlE,
+    })
 
-    const ok = self.reduction > control.reduction + 0.1 && self.reduction > 0.3
+    const ok =
+      self.reduction > control.reduction + 0.1 && self.reduction > 0.3
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -76,7 +98,8 @@ export default experiment({
         samples: selfI.length,
       },
       control: { controlReduction: control.reduction },
-      notes: 'partial-correlation screening proxy, self tracked each beat, control is a fixed medium ball',
+      notes:
+        'partial-correlation screening proxy, self tracked each beat, control is a fixed medium ball',
     })
   },
 })

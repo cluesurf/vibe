@@ -10,23 +10,46 @@ import { mostConnectedNode, toCsr } from '@/code/tool/graph'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function geometry73(): { specDim4: number; growth: number; interiorDegree: number } {
+export function geometry73(): {
+  specDim4: number
+  growth: number
+  interiorDegree: number
+} {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 20000 })
   const N = g.cellCount
   const { offsets: off } = toCsr(g.neighbors)
   // interior degree (the modal degree of cells with full neighbourhood)
   const degHist: Record<number, number> = {}
-  for (let i = 0; i < N; i++) { const d = off[i + 1]! - off[i]!; degHist[d] = (degHist[d] ?? 0) + 1 }
-  const interiorDegree = Number(Object.entries(degHist).sort((a, b) => (a[0] === '7' ? -1 : 0) - (b[0] === '7' ? -1 : 0))[0]?.[0]) || 7
+  for (let i = 0; i < N; i++) {
+    const d = off[i + 1]! - off[i]!
+    degHist[d] = (degHist[d] ?? 0) + 1
+  }
+  const interiorDegree =
+    Number(
+      Object.entries(degHist).sort(
+        (a, b) => (a[0] === '7' ? -1 : 0) - (b[0] === '7' ? -1 : 0),
+      )[0]?.[0],
+    ) || 7
 
   // pick the most-connected cell as center, BFS shells -> exponential growth ratio
   const center = mostConnectedNode(g.neighbors)
-  const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
+  const { shellCounts: shell } = bfsShells({
+    neighbors: g.neighbors,
+    root: center,
+  })
   const growth = midShellGrowthRatio({ shellCounts: shell })
 
   // spectral dimension via the lazy random-walk return probability (the central
   // difference at t = 4 is the endpoint slope between t = 2 and t = 6).
-  const specDim4 = Math.round(spectralDimension({ neighbors: g.neighbors, start: center, t1: 2, t2: 6 }) * 100) / 100
+  const specDim4 =
+    Math.round(
+      spectralDimension({
+        neighbors: g.neighbors,
+        start: center,
+        t1: 2,
+        t2: 6,
+      }) * 100,
+    ) / 100
 
   return { specDim4, growth, interiorDegree }
 }
@@ -36,7 +59,8 @@ export function geometry73(): { specDim4: number; growth: number; interiorDegree
 // have degree 7. These are known properties of the tiling, measured here, so L1.
 export default experiment({
   id: 'geometry/geometry-73',
-  title: 'the {7,3} heptagrid is 2D hyperbolic with exponential shell growth and degree 7',
+  title:
+    'the {7,3} heptagrid is 2D hyperbolic with exponential shell growth and degree 7',
   category: 'geometry',
   substrates: 'any',
   depth: 'L1',

@@ -24,18 +24,27 @@ export const STANDARD_MODEL_GENERATION: GenerationFermion[] = [
 ]
 
 // Total Weyl-fermion count of one generation (16 = 15 + 1 right-handed neutrino).
-export function generationFermionCount(generation: GenerationFermion[] = STANDARD_MODEL_GENERATION): number {
+export function generationFermionCount(
+  generation: GenerationFermion[] = STANDARD_MODEL_GENERATION,
+): number {
   return generation.reduce((s, f) => s + f.mult, 0)
 }
 
 // sin^2(theta_W) at the unification scale: sum mult T_3^2 / sum mult Q^2 (the GUT-normalized value 3/8).
-export function weinbergAngleAtUnification(generation: GenerationFermion[] = STANDARD_MODEL_GENERATION): number {
-  const sumT3sq = generation.reduce((s, f) => s + f.mult * f.t3 * f.t3, 0)
+export function weinbergAngleAtUnification(
+  generation: GenerationFermion[] = STANDARD_MODEL_GENERATION,
+): number {
+  const sumT3sq = generation.reduce(
+    (s, f) => s + f.mult * f.t3 * f.t3,
+    0,
+  )
   const sumQsq = generation.reduce((s, f) => s + f.mult * f.q * f.q, 0)
   return sumT3sq / sumQsq
 }
 
 // The GUT-normalized hypercharge trace Tr Y = sum mult (Q - T_3) over the 16, which vanishes.
-export function hyperchargeTrace(generation: GenerationFermion[] = STANDARD_MODEL_GENERATION): number {
+export function hyperchargeTrace(
+  generation: GenerationFermion[] = STANDARD_MODEL_GENERATION,
+): number {
   return generation.reduce((s, f) => s + f.mult * (f.q - f.t3), 0)
 }

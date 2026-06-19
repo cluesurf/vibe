@@ -30,19 +30,31 @@ function phaseAction(input: {
   phase: 'manifold' | 'layered'
   repeats: number
 }): number {
-  const action = smearedBenincasaDowker({ epsilon: input.epsilon, dimension: 2 })
+  const action = smearedBenincasaDowker({
+    epsilon: input.epsilon,
+    dimension: 2,
+  })
   let sum = 0
   for (let r = 0; r < input.repeats; r++) {
     const poset =
       input.phase === 'manifold'
-        ? sprinkleMinkowski({ dimension: 2, count: input.size, rng: makeRng({ seed: input.size * 31 + r }) })
+        ? sprinkleMinkowski({
+            dimension: 2,
+            count: input.size,
+            rng: makeRng({ seed: input.size * 31 + r }),
+          })
         : kleitmanRothschildOrder({ size: input.size })
     sum += action.value({ poset })
   }
   return sum / input.repeats
 }
 
-function crossingStudy(input: { size: number; epsilon: number; betas: number[]; steps: number }): {
+function crossingStudy(input: {
+  size: number
+  epsilon: number
+  betas: number[]
+  steps: number
+}): {
   size: number
   g: number
   sM: number
@@ -69,18 +81,41 @@ function crossingStudy(input: { size: number; epsilon: number; betas: number[]; 
 
   // Per-phase action from fresh configs (the leading-order, constant-per-phase
   // approximation). The manifold phase has the lower smeared action by design.
-  const sM = phaseAction({ size: n, epsilon: input.epsilon, phase: 'manifold', repeats: 40 })
-  const sL = phaseAction({ size: n, epsilon: input.epsilon, phase: 'layered', repeats: 40 })
+  const sM = phaseAction({
+    size: n,
+    epsilon: input.epsilon,
+    phase: 'manifold',
+    repeats: 40,
+  })
+  const sL = phaseAction({
+    size: n,
+    epsilon: input.epsilon,
+    phase: 'layered',
+    repeats: 40,
+  })
   const dS = sL - sM
 
   // Delta logZ(beta) = logZ_manifold - logZ_layered = -g + (S_L - S_M) * beta.
-  const deltaLogZ = input.betas.map((beta) => -g + dS * beta)
+  const deltaLogZ = input.betas.map(beta => -g + dS * beta)
   const betaStar = dS > 0 ? g / dS : null
-  const manifoldFractionEq = deltaLogZ.map((d) => 1 / (1 + Math.exp(-d)))
-  return { size: n, g, sM, sL, betas: input.betas, deltaLogZ, manifoldFractionEq, betaStar }
+  const manifoldFractionEq = deltaLogZ.map(d => 1 / (1 + Math.exp(-d)))
+  return {
+    size: n,
+    g,
+    sM,
+    sL,
+    betas: input.betas,
+    deltaLogZ,
+    manifoldFractionEq,
+    betaStar,
+  }
 }
 
-export function p12Crossing(input: { size: number }): { betaStar: number | null; g: number; dS: number } {
+export function p12Crossing(input: { size: number }): {
+  betaStar: number | null
+  g: number
+  dS: number
+} {
   const r = crossingStudy({
     size: input.size,
     epsilon: 0.9,
@@ -92,7 +127,8 @@ export function p12Crossing(input: { size: number }): { betaStar: number | null;
 
 export default experiment({
   id: 'cosmology/free-energy',
-  title: 'the manifold phase wins the sum over histories above a finite coupling',
+  title:
+    'the manifold phase wins the sum over histories above a finite coupling',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L2',

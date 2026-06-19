@@ -32,7 +32,10 @@ const wrap = (x: number): number => {
 // the circulation of the condensate velocity (the gradient of the phase theta = winding * polar angle) around a
 // loop enclosing a vortex of the given integer winding, which is 2 pi times the winding (the Onsager-Feynman
 // quantization). Summed over `points` segments of a circle.
-export function vortexCirculation(input: { winding: number; points?: number }): number {
+export function vortexCirculation(input: {
+  winding: number
+  points?: number
+}): number {
   const points = input.points ?? 400
   const m = input.winding
   let sum = 0

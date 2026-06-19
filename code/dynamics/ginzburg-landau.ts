@@ -13,7 +13,10 @@ export interface Complex2 {
 
 // A unit-modulus ring field of total winding w, the phase ramping uniformly around the ring.
 // The like-charge (nonzero total winding) configuration that cannot relax to vacuum.
-export function ringFieldWithWinding(length: number, winding: number): Complex2[] {
+export function ringFieldWithWinding(
+  length: number,
+  winding: number,
+): Complex2[] {
   return Array.from({ length }, (_, x) => ({
     re: Math.cos((2 * Math.PI * winding * x) / length),
     im: Math.sin((2 * Math.PI * winding * x) / length),
@@ -26,7 +29,12 @@ export function ringFieldWithWinding(length: number, winding: number): Complex2[
 export function ringDefectPair(length: number): Complex2[] {
   return Array.from({ length }, (_, x) => {
     const t = x / length
-    const th = 2 * Math.PI * (t < 0.5 ? Math.sin(Math.PI * 2 * t) : Math.sin(Math.PI * 2 * (1 - t)))
+    const th =
+      2 *
+      Math.PI *
+      (t < 0.5
+        ? Math.sin(Math.PI * 2 * t)
+        : Math.sin(Math.PI * 2 * (1 - t)))
     return { re: Math.cos(th), im: Math.sin(th) }
   })
 }
@@ -46,7 +54,10 @@ export function ringFieldEnergy(psi: ReadonlyArray<Complex2>): number {
 
 // One explicit Euler relaxation step in place, returning the next field. Each value
 // moves by dt * (laplacian + (1 - |psi|^2) * psi).
-function relaxStep(cur: ReadonlyArray<Complex2>, dt: number): Complex2[] {
+function relaxStep(
+  cur: ReadonlyArray<Complex2>,
+  dt: number,
+): Complex2[] {
   const length = cur.length
   return cur.map((z, i) => {
     const a = cur[(i + 1) % length]!
@@ -73,10 +84,11 @@ export function relaxRingField(input: {
   onSample?: (field: Complex2[], step: number) => void
 }): Complex2[] {
   const { field, steps, dt, sampleEvery, onSample } = input
-  let cur: Complex2[] = field.map((z) => ({ ...z }))
+  let cur: Complex2[] = field.map(z => ({ ...z }))
   for (let t = 0; t < steps; t++) {
     cur = relaxStep(cur, dt)
-    if (onSample && sampleEvery && t % sampleEvery === 0) onSample(cur, t)
+    if (onSample && sampleEvery && t % sampleEvery === 0)
+      onSample(cur, t)
   }
   return cur
 }

@@ -47,7 +47,8 @@ export function returnProbability(input: {
 
   // half-step kick to stagger the imaginary part. startNorm is measured AFTER (synchronized).
   const first = apply(real)
-  for (let i = 0; i < n; i++) imaginary[i] = imaginary[i]! - 0.5 * dt * first[i]!
+  for (let i = 0; i < n; i++)
+    imaginary[i] = imaginary[i]! - 0.5 * dt * first[i]!
   const startNorm = syncNormAt()
 
   const samples: number[] = []
@@ -55,11 +56,14 @@ export function returnProbability(input: {
     const dImag = apply(imaginary)
     for (let i = 0; i < n; i++) real[i] = real[i]! + dt * dImag[i]!
     const dReal = apply(real)
-    for (let i = 0; i < n; i++) imaginary[i] = imaginary[i]! - dt * dReal[i]!
+    for (let i = 0; i < n; i++)
+      imaginary[i] = imaginary[i]! - dt * dReal[i]!
     if (step % sampleEvery === 0) samples.push(returnAt())
   }
 
-  const timeAverage = samples.length ? samples.reduce((a, b) => a + b, 0) / samples.length : 1
+  const timeAverage = samples.length
+    ? samples.reduce((a, b) => a + b, 0) / samples.length
+    : 1
   const normDrift = Math.abs(syncNormAt() / startNorm - 1)
   return { samples, timeAverage, normDrift }
 }
@@ -82,8 +86,13 @@ export function boundStateDecayExponent(input: {
   maxDegree: number
   iterations?: number
   origin?: number
-}): { decayExponent: number; perShellAmplitude: number[]; reliableShells: number } {
-  const { neighbors, cellCount, wellDepth, growthRate, maxDegree } = input
+}): {
+  decayExponent: number
+  perShellAmplitude: number[]
+  reliableShells: number
+} {
+  const { neighbors, cellCount, wellDepth, growthRate, maxDegree } =
+    input
   const origin = input.origin ?? 0
   const iterations = input.iterations ?? 3000
 
@@ -164,6 +173,13 @@ export function boundStateDecayExponent(input: {
   const slope =
     m > 1
       ? (m * sxy - sx * sy) / (m * sxx - sx * sx)
-      : Math.log((perShellAmplitude[reliableShells] ?? 1) / (perShellAmplitude[Math.max(reliableShells - 1, 0)] ?? 1))
-  return { decayExponent: -slope / Math.log(growthRate), perShellAmplitude, reliableShells }
+      : Math.log(
+          (perShellAmplitude[reliableShells] ?? 1) /
+            (perShellAmplitude[Math.max(reliableShells - 1, 0)] ?? 1),
+        )
+  return {
+    decayExponent: -slope / Math.log(growthRate),
+    perShellAmplitude,
+    reliableShells,
+  }
 }

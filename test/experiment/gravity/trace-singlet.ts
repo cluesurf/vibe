@@ -12,11 +12,18 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { rootsD4, reflectRoot, vectorKey } from '@/code/algebra/group/root-system'
+import {
+  rootsD4,
+  reflectRoot,
+  vectorKey,
+} from '@/code/algebra/group/root-system'
 import { automorphismGroupOrder } from '@/code/algebra/group/automorphism'
 import { d4Mesh } from '@/code/tool/mesh'
 import { bulkMass, relaxPotential } from '@/code/dynamics/gravity-field'
-import { balancedTernaryCap, isBalancedTernaryField } from '@/code/tool/balanced-ternary'
+import {
+  balancedTernaryCap,
+  isBalancedTernaryField,
+} from '@/code/tool/balanced-ternary'
 
 const SIDE = 16
 const SPATIAL_DEGREE = 24
@@ -53,13 +60,17 @@ function orbitCount(roots: number[][]): number {
 // is a functional w (a weight per site) preserved by every reflection-permutation of the sites? a functional is
 // symmetry-invariant when w[i] == w[image of i] for every reflection. the uniform trace passes, a non-uniform one
 // fails.
-function functionalInvariant(roots: number[][], weight: (i: number) => number): boolean {
+function functionalInvariant(
+  roots: number[][],
+  weight: (i: number) => number,
+): boolean {
   const index = new Map<string, number>()
   roots.forEach((r, i) => index.set(vectorKey(r), i))
   for (let i = 0; i < roots.length; i++) {
     for (const a of roots) {
       const image = index.get(vectorKey(reflectRoot(roots[i]!, a)))
-      if (image !== undefined && weight(i) !== weight(image)) return false
+      if (image !== undefined && weight(i) !== weight(image))
+        return false
     }
   }
   return true
@@ -67,7 +78,10 @@ function functionalInvariant(roots: number[][], weight: (i: number) => number): 
 
 // gravity sourced by the trace (the cell's total occupation, the F4-invariant) binds a test mass displaced three
 // cells. reuses the ternary-field machinery with a three-trit potential.
-function traceSourcedBinding(): { finalDistance: number; ternary: boolean } {
+function traceSourcedBinding(): {
+  finalDistance: number
+  ternary: boolean
+} {
   const mesh = d4Mesh({ side: SIDE })
   const cellCount = mesh.cellCount
   const half = Math.floor(SIDE / 2)
@@ -77,20 +91,36 @@ function traceSourcedBinding(): { finalDistance: number; ternary: boolean } {
     Math.floor(c / (SIDE * SIDE)) % SIDE,
     Math.floor(c / SIDE ** 3) % SIDE,
   ]
-  const centre = half + half * SIDE + half * SIDE * SIDE + half * SIDE ** 3
+  const centre =
+    half + half * SIDE + half * SIDE * SIDE + half * SIDE ** 3
   const centreCoord = coord(centre)
-  const neighbour = (c: number, d: number): number => mesh.neighbour(c, d)
-  const distance = (c: number): number => coord(c).reduce((s, v, i) => s + Math.abs(v - centreCoord[i]!), 0)
+  const neighbour = (c: number, d: number): number =>
+    mesh.neighbour(c, d)
+  const distance = (c: number): number =>
+    coord(c).reduce((s, v, i) => s + Math.abs(v - centreCoord[i]!), 0)
 
   const body = new Uint8Array(cellCount)
   for (let c = 0; c < cellCount; c++) {
     const p = coord(c)
-    if ((p[0]! - half) ** 2 + (p[1]! - half) ** 2 + (p[2]! - half) ** 2 + (p[3]! - half) ** 2 <= 4) body[c] = 1
+    if (
+      (p[0]! - half) ** 2 +
+        (p[1]! - half) ** 2 +
+        (p[2]! - half) ** 2 +
+        (p[3]! - half) ** 2 <=
+      4
+    )
+      body[c] = 1
   }
   // the source is the TRACE, the F4-invariant total occupation per cell
   const cap = balancedTernaryCap(3)
   const phi = relaxPotential({
-    source: bulkMass({ occupied: body, neighbour, cellCount, spatialDegree: SPATIAL_DEGREE, minNeighbours: 3 }),
+    source: bulkMass({
+      occupied: body,
+      neighbour,
+      cellCount,
+      spatialDegree: SPATIAL_DEGREE,
+      minNeighbours: 3,
+    }),
     neighbour,
     cellCount,
     spatialDegree: SPATIAL_DEGREE,
@@ -120,7 +150,8 @@ function traceSourcedBinding(): { finalDistance: number; ternary: boolean } {
 
 export default experiment({
   id: 'gravity/trace-singlet',
-  title: 'gravity is the forced F4-invariant trace, the unique symmetric scalar the 24-cell already carries',
+  title:
+    'gravity is the forced F4-invariant trace, the unique symmetric scalar the 24-cell already carries',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -159,7 +190,10 @@ export default experiment({
         bindingFinalDistance: binding.finalDistance,
         threeTritCap: balancedTernaryCap(3),
       },
-      control: { skewFunctionalInvariant: skewInvariant ? 1 : 0, orbitCountIfPlural: orbits },
+      control: {
+        skewFunctionalInvariant: skewInvariant ? 1 : 0,
+        orbitCountIfPlural: orbits,
+      },
       notes:
         'vertex-transitivity (one orbit) is what forces the singlet to be unique, the measured orbit count could have been plural and was not. The invariant-functional dimension equals the orbit count, one. Gravity is then the F4-invariant trace read at three trits, no free added field, the same trace that sources the binding well in gravity/ternary-field. The skew functional is the control, a non-uniform weight is not symmetry-invariant, so it cannot be the gravity singlet.',
     })

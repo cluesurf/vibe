@@ -7,7 +7,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { countMatrix, transitionEigenvalues, spectralGap, quantileLabels } from '@/code/coarse/transition-matrix'
+import {
+  countMatrix,
+  transitionEigenvalues,
+  spectralGap,
+  quantileLabels,
+} from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 function shuffle(labels: number[], seed: number): number[] {
@@ -23,12 +28,17 @@ function shuffle(labels: number[], seed: number): number[] {
 }
 
 function lambda2(labels: number[], bins: number, lag: number): number {
-  return spectralGap(transitionEigenvalues(countMatrix({ trajectory: labels, stateCount: bins, lag }))).lambda2
+  return spectralGap(
+    transitionEigenvalues(
+      countMatrix({ trajectory: labels, stateCount: bins, lag }),
+    ),
+  ).lambda2
 }
 
 export default experiment({
   id: 'selves/coarse-size-robustness',
-  title: 'the self slow-mode survives across lattice sizes, and the shuffled control fails at every size',
+  title:
+    'the self slow-mode survives across lattice sizes, and the shuffled control fails at every size',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -41,7 +51,12 @@ export default experiment({
     let worstMargin = Infinity
     let worstShuffled = 0
     for (const L of sizes) {
-      const traj = selfTrajectory({ L, beats: 600, bins, seed: 1000 + L })
+      const traj = selfTrajectory({
+        L,
+        beats: 600,
+        bins,
+        seed: 1000 + L,
+      })
       const labels = quantileLabels({ series: traj.centroids, bins })
       const real = lambda2(labels, bins, lag)
       const shuffled = lambda2(shuffle(labels, 7 * L + 1), bins, lag)
@@ -58,7 +73,8 @@ export default experiment({
         'the second Markov eigenvalue of a real self exceeds its time-shuffled control by a clear margin at every lattice size tested',
       metrics,
       control: { worstShuffled },
-      notes: 'robustness over lattice size, the methodology discipline, not over random seeds',
+      notes:
+        'robustness over lattice size, the methodology discipline, not over random seeds',
     })
   },
 })

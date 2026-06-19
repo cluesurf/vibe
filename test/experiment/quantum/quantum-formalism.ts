@@ -40,7 +40,12 @@ export function quantumFormalism(input: { n: number }): {
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
   re0[0] = 1 // start localized, norm 1
-  const norms = [0, 2, 5, 9, 14].map((t) => norm(evolve({ eig, n, re0, im0, t }).re, evolve({ eig, n, re0, im0, t }).im))
+  const norms = [0, 2, 5, 9, 14].map(t =>
+    norm(
+      evolve({ eig, n, re0, im0, t }).re,
+      evolve({ eig, n, re0, im0, t }).im,
+    ),
+  )
 
   // 2. Interference: two sources at opposite sides, evolve each, compare the
   // probability of the sum to the sum of the probabilities at a target site.
@@ -60,7 +65,7 @@ export function quantumFormalism(input: { n: number }): {
   const classicalSum = pA + pB
 
   // 3. Born rule: total |psi|^2 stays at 1 (a conserved probability) within tolerance.
-  const bornConserved = norms.every((v) => Math.abs(v - 1) < 1e-6)
+  const bornConserved = norms.every(v => Math.abs(v - 1) < 1e-6)
 
   return {
     norms,
@@ -81,7 +86,9 @@ export default experiment({
   run() {
     const r = quantumFormalism({ n: 40 })
     const ok =
-      r.bornConserved && Math.abs(r.interferenceTerm) > 0.01 && r.quantumSum > r.classicalSum
+      r.bornConserved &&
+      Math.abs(r.interferenceTerm) > 0.01 &&
+      r.quantumSum > r.classicalSum
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

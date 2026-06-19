@@ -53,16 +53,23 @@ export function makeGaugeField(input: {
 }
 
 // The U(1) phase carried by traversing from -> to (sign flips on the reverse).
-export function linkPhase(field: GaugeField, input: { from: number; to: number }): number {
+export function linkPhase(
+  field: GaugeField,
+  input: { from: number; to: number },
+): number {
   if (field.group.form !== 'u1') {
     return 0
   }
   const q = field.group.q
-  const forward = field.edgeIndex.get(edgeKey({ from: input.from, to: input.to }))
+  const forward = field.edgeIndex.get(
+    edgeKey({ from: input.from, to: input.to }),
+  )
   if (forward !== undefined) {
     return (2 * Math.PI * (field.link[forward] ?? 0)) / q
   }
-  const reverse = field.edgeIndex.get(edgeKey({ from: input.to, to: input.from }))
+  const reverse = field.edgeIndex.get(
+    edgeKey({ from: input.to, to: input.from }),
+  )
   if (reverse !== undefined) {
     return (-2 * Math.PI * (field.link[reverse] ?? 0)) / q
   }

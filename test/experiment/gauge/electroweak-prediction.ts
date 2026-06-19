@@ -12,7 +12,11 @@ import {
   weinbergAngleAtUnification,
 } from '@/code/measure/standard-model-charges'
 
-export function electroweakPrediction(): { sin2: number; count: number; isThreeEighths: boolean } {
+export function electroweakPrediction(): {
+  sin2: number
+  count: number
+  isThreeEighths: boolean
+} {
   const count = generationFermionCount()
   const sin2 = weinbergAngleAtUnification()
   const isThreeEighths = Math.abs(sin2 - 3 / 8) < 1e-9
@@ -21,7 +25,8 @@ export function electroweakPrediction(): { sin2: number; count: number; isThreeE
 
 export default experiment({
   id: 'gauge/electroweak-prediction',
-  title: 'sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges',
+  title:
+    'sin squared of the weak mixing angle is 3/8 at unification from the so(10) charges',
   category: 'gauge',
   substrates: 'any',
   depth: 'L1',

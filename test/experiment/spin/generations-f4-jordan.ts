@@ -33,7 +33,8 @@ import {
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const vectorKey = (p: number[]): string => p.map((x) => Math.round(x * 1e4)).join(',')
+const vectorKey = (p: number[]): string =>
+  p.map(x => Math.round(x * 1e4)).join(',')
 
 export function generationsF4Jordan(): {
   longRootsAre3434: boolean
@@ -50,13 +51,16 @@ export function generationsF4Jordan(): {
   // the 24 {3,4,3,4} / D4 directions are exactly the LONG roots of F4 (norm squared 2).
   const d4 = rootsD4()
   const f4 = rootsF4()
-  const longRoots = f4.filter((r) => r.reduce((s, x) => s + x * x, 0) === 2)
+  const longRoots = f4.filter(
+    r => r.reduce((s, x) => s + x * x, 0) === 2,
+  )
   const d4Keys = new Set(d4.map(vectorKey))
   const longRootsAre3434 =
     longRoots.length === 24 &&
     new Set(longRoots.map(vectorKey)).size === 24 &&
-    longRoots.every((r) => d4Keys.has(vectorKey(r)))
-  const f4Has48Roots = f4.length === 48 && new Set(f4.map(vectorKey)).size === 48
+    longRoots.every(r => d4Keys.has(vectorKey(r)))
+  const f4Has48Roots =
+    f4.length === 48 && new Set(f4.map(vectorKey)).size === 48
 
   // F4 = Aut(J3(O)), the exceptional Jordan algebra. Its real dimension is computed, 27.
   const jordanDimension = hermitianOctonionDimension(3)
@@ -66,24 +70,34 @@ export function generationsF4Jordan(): {
   // each idempotent under the Jordan product, pairwise orthogonal, trace 1, summing to identity.
   const frame = diagonalJordanFrame(3)
   const allIdempotent = frame.every(isJordanIdempotent)
-  const allTraceOne = frame.every((e) => Math.abs(octonionMatrixTrace(e) - 1) < 1e-9)
+  const allTraceOne = frame.every(
+    e => Math.abs(octonionMatrixTrace(e) - 1) < 1e-9,
+  )
   const pairwiseOrthogonal =
     areJordanOrthogonal(frame[0]!, frame[1]!) &&
     areJordanOrthogonal(frame[0]!, frame[2]!) &&
     areJordanOrthogonal(frame[1]!, frame[2]!)
   const sumsToIdentity = octonionMatrixEquals(
-    octonionMatrixAdd(octonionMatrixAdd(frame[0]!, frame[1]!), frame[2]!),
+    octonionMatrixAdd(
+      octonionMatrixAdd(frame[0]!, frame[1]!),
+      frame[2]!,
+    ),
     octonionMatrixIdentity(3),
   )
   const frameSize = frame.length
   const frameIsRankThree =
-    frameSize === 3 && allIdempotent && allTraceOne && pairwiseOrthogonal && sumsToIdentity
+    frameSize === 3 &&
+    allIdempotent &&
+    allTraceOne &&
+    pairwiseOrthogonal &&
+    sumsToIdentity
 
   // WHY three: the Jordan identity holds for H_n(O) at n <= 3 and fails at n = 4 (the octonions
   // are non-associative). The n = 4 case is the discriminating control, it MUST fail.
   const jordanResidualAt3 = maxJordanIdentityResidual(3)
   const jordanResidualAt4 = maxJordanIdentityResidual(4)
-  const threeFoldForced = jordanResidualAt3 < 1e-9 && jordanResidualAt4 > 1e-3
+  const threeFoldForced =
+    jordanResidualAt3 < 1e-9 && jordanResidualAt4 > 1e-3
 
   // the three-slot to three-generation identification is Boyle's open conjecture, NOT established.
   const threeGenerationsEstablished = false
@@ -105,7 +119,7 @@ export function generationsF4Jordan(): {
 export default experiment({
   id: 'spin/generations-f4-jordan',
   title:
-    'the substrate F4 symmetry forces an exceptional rank-three Jordan structure, but three generations stays Boyle\'s open conjecture',
+    "the substrate F4 symmetry forces an exceptional rank-three Jordan structure, but three generations stays Boyle's open conjecture",
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -117,11 +131,15 @@ export default experiment({
     // Jordan identity holds at n <= 3 and fails at n = 4. The generation identification is the
     // only open link, so the verdict is partial, not pass.
     const structureOk =
-      r.longRootsAre3434 && r.f4Has48Roots && r.jordanDim27 && r.frameIsRankThree && r.threeFoldForced
+      r.longRootsAre3434 &&
+      r.f4Has48Roots &&
+      r.jordanDim27 &&
+      r.frameIsRankThree &&
+      r.threeFoldForced
     return verdict({
       status: structureOk ? 'partial' : 'fail',
       claim:
-        'the 24 directions of {3,4,3,4} are the long roots of F4 = Aut(J3(O)), the 27-dimensional exceptional Jordan algebra has a computed rank-three frame of primitive idempotents, and three is forced because the Jordan identity holds at n <= 3 and fails at n = 4, but identifying those three slots with three Standard Model generations is Boyle\'s open conjecture, not established',
+        "the 24 directions of {3,4,3,4} are the long roots of F4 = Aut(J3(O)), the 27-dimensional exceptional Jordan algebra has a computed rank-three frame of primitive idempotents, and three is forced because the Jordan identity holds at n <= 3 and fails at n = 4, but identifying those three slots with three Standard Model generations is Boyle's open conjecture, not established",
       metrics: {
         longRootsAre3434: r.longRootsAre3434 ? 1 : 0,
         f4Has48Roots: r.f4Has48Roots ? 1 : 0,
@@ -129,7 +147,9 @@ export default experiment({
         frameIsRankThree: r.frameIsRankThree ? 1 : 0,
         jordanResidualAt3: r.jordanResidualAt3,
         jordanResidualAt4: r.jordanResidualAt4,
-        threeGenerationsEstablished: r.threeGenerationsEstablished ? 1 : 0,
+        threeGenerationsEstablished: r.threeGenerationsEstablished
+          ? 1
+          : 0,
       },
       control: {
         // the n = 4 Hermitian octonion matrices are NOT a Jordan algebra, the identity fails by
@@ -138,7 +158,7 @@ export default experiment({
         jordanIsAlgebraAtFour: r.jordanResidualAt4 < 1e-9 ? 1 : 0,
       },
       notes:
-        'L1, known math (the F4 root system, F4 = Aut(J3(O)), and the Jordan-von Neumann-Wigner classification). The structural chain is now COMPUTED, not asserted: the substrate directions are the F4 long roots (reused from algebra/group/root-system), J3(O) is built from the octonions in algebra/octonion and algebra/jordan, its rank-three frame is verified, and three is forced because the Jordan identity holds at n <= 3 and fails at n = 4 (the control). The headline claim, three Jordan slots equal three SM generations, is honestly reported as UNPROVEN (Boyle\'s conjecture), so the status is partial. This is a genuine, controlled path, strictly stronger than the naive 8v/8s/8c triality reading which fails.',
+        "L1, known math (the F4 root system, F4 = Aut(J3(O)), and the Jordan-von Neumann-Wigner classification). The structural chain is now COMPUTED, not asserted: the substrate directions are the F4 long roots (reused from algebra/group/root-system), J3(O) is built from the octonions in algebra/octonion and algebra/jordan, its rank-three frame is verified, and three is forced because the Jordan identity holds at n <= 3 and fails at n = 4 (the control). The headline claim, three Jordan slots equal three SM generations, is honestly reported as UNPROVEN (Boyle's conjecture), so the status is partial. This is a genuine, controlled path, strictly stronger than the naive 8v/8s/8c triality reading which fails.",
     })
   },
 })

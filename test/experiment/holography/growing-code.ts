@@ -16,14 +16,26 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // hop transport with the core re-clamped as a persistent source (arrow off, single sign, so share is inert)
-function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+function hopBeat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
   conservingHopSweep({ tone, eu, ev, moved, rng })
 }
 
 export function growingCode(input?: { n?: number; beats?: number }): {
   n: number
   maxRadius: number
-  shells: { r: number; cells: number; marked: number; density: number; threshold: number }[]
+  shells: {
+    r: number
+    cells: number
+    marked: number
+    density: number
+    threshold: number
+  }[]
   thresholdRises: boolean
   complementaryRecovery: boolean
   densityDilutes: boolean
@@ -38,7 +50,12 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   const moved = new Uint8Array(N)
 
   // BFS shells from the center
-  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
+  const dist = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+  })
   let R = 0
   for (let i = 0; i < N; i++) if (dist[i]! > R) R = dist[i]!
   const core: number[] = []
@@ -63,7 +80,12 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   // recover the bit from a shell after erasing a fraction f (sign of the surviving cells), success over
   // many random erasures and BOTH bits. f*(r) = the largest f with success rate >= 0.85.
   const rngE = makeRng({ seed: 21 })
-  const recoverRate = (cells: number[], tone: Int8Array, bit: number, f: number): number => {
+  const recoverRate = (
+    cells: number[],
+    tone: Int8Array,
+    bit: number,
+    f: number,
+  ): number => {
     let ok = 0
     const trials = 40
     for (let t = 0; t < trials; t++) {
@@ -79,39 +101,73 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   const thresholdFor = (cells: number[]): number => {
     let best = 0
     for (const f of fGrid) {
-      const rate = (recoverRate(cells, tonePos, 1, f) + recoverRate(cells, toneNeg, -1, f)) / 2
+      const rate =
+        (recoverRate(cells, tonePos, 1, f) +
+          recoverRate(cells, toneNeg, -1, f)) /
+        2
       if (rate >= 0.85) best = f
     }
     return best
   }
 
-  const shells: { r: number; cells: number; marked: number; density: number; threshold: number }[] = []
+  const shells: {
+    r: number
+    cells: number
+    marked: number
+    density: number
+    threshold: number
+  }[] = []
   for (let r = 2; r <= R - 1; r++) {
     const cells = shellCells[r]!
     if (cells.length < 20) continue
     let nz = 0
     for (const c of cells) if (tonePos[c] !== 0) nz++
-    shells.push({ r, cells: cells.length, marked: nz, density: nz / cells.length, threshold: thresholdFor(cells) })
+    shells.push({
+      r,
+      cells: cells.length,
+      marked: nz,
+      density: nz / cells.length,
+      threshold: thresholdFor(cells),
+    })
   }
 
   // the threshold should be monotonically non-decreasing in radius, with the rim clearly above the core.
   // Near the ceiling the right gauge is the SURVIVAL fraction 1 - f*, which should keep shrinking.
   let monotonic = true
-  for (let i = 1; i < shells.length; i++) if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9) monotonic = false
+  for (let i = 1; i < shells.length; i++)
+    if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9)
+      monotonic = false
   const first = shells[0]
   const last = shells[shells.length - 1]
-  const thresholdRises = shells.length > 1 && monotonic && last!.threshold > first!.threshold + 0.02
-  const complementaryRecovery = shells.length > 0 && last!.threshold >= 0.5
-  const densityDilutes = shells.length > 1 && last!.density < first!.density * 0.5
-  const redundancyGrows = shells.length > 1 && last!.marked > first!.marked // absolute redundancy rises
-  const solved = thresholdRises && complementaryRecovery && redundancyGrows
+  const thresholdRises =
+    shells.length > 1 &&
+    monotonic &&
+    last!.threshold > first!.threshold + 0.02
+  const complementaryRecovery =
+    shells.length > 0 && last!.threshold >= 0.5
+  const densityDilutes =
+    shells.length > 1 && last!.density < first!.density * 0.5
+  const redundancyGrows =
+    shells.length > 1 && last!.marked > first!.marked // absolute redundancy rises
+  const solved =
+    thresholdRises && complementaryRecovery && redundancyGrows
 
-  return { n: N, maxRadius: R, shells, thresholdRises, complementaryRecovery, densityDilutes, redundancyGrows, solved }
+  return {
+    n: N,
+    maxRadius: R,
+    shells,
+    thresholdRises,
+    complementaryRecovery,
+    densityDilutes,
+    redundancyGrows,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'holography/growing-code',
-  title: 'the growing holographic code raises its erasure threshold with shell age',
+  title:
+    'the growing holographic code raises its erasure threshold with shell age',
   category: 'holography',
   substrates: ['534'],
   depth: 'L3',
@@ -119,7 +175,10 @@ export default experiment({
   run() {
     const r = growingCode({ n: 200000 })
     const ok =
-      r.solved && r.thresholdRises && r.redundancyGrows && r.complementaryRecovery
+      r.solved &&
+      r.thresholdRises &&
+      r.redundancyGrows &&
+      r.complementaryRecovery
     const first = r.shells[0]
     const last = r.shells[r.shells.length - 1]
     return verdict({

@@ -8,10 +8,16 @@
 // See note/deterministic-substrate.md. Run: npx tsx code/experiment/p39-deterministic-substrate.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { hyperbolicGraph, hyperbolicSunflower } from '@/code/substrate/hyperbolic-graph'
+import {
+  hyperbolicGraph,
+  hyperbolicSunflower,
+} from '@/code/substrate/hyperbolic-graph'
 import { Graph, meanDegree, mostConnectedNode } from '@/code/tool/graph'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { ballGrowth, meanUnsaturatedGrowthRatio } from '@/code/measure/dimension'
+import {
+  ballGrowth,
+  meanUnsaturatedGrowthRatio,
+} from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -24,34 +30,63 @@ function exponentialReach(growth: Uint32Array): boolean {
   return Number.isFinite(mean) && mean > 1.8
 }
 
-function evaluate(g: Graph, seed: number): { meanDegree: number; anisotropy: number; reach: boolean } {
-  const aniso = lorentzIsotropy({ substrate: g, samples: 3000, rng: makeRng({ seed }) })
-  const growth = ballGrowth({ substrate: g, center: mostConnectedNode(g.neighbors), maxRadius: 12 })
-  return { meanDegree: meanDegree(g), anisotropy: aniso.anisotropy, reach: exponentialReach(growth) }
+function evaluate(
+  g: Graph,
+  seed: number,
+): { meanDegree: number; anisotropy: number; reach: boolean } {
+  const aniso = lorentzIsotropy({
+    substrate: g,
+    samples: 3000,
+    rng: makeRng({ seed }),
+  })
+  const growth = ballGrowth({
+    substrate: g,
+    center: mostConnectedNode(g.neighbors),
+    maxRadius: 12,
+  })
+  return {
+    meanDegree: meanDegree(g),
+    anisotropy: aniso.anisotropy,
+    reach: exponentialReach(growth),
+  }
 }
 
-export function deterministicSubstrate(input: { count: number; seed: number }): {
+export function deterministicSubstrate(input: {
+  count: number
+  seed: number
+}): {
   random: { meanDegree: number; anisotropy: number; reach: boolean }
   sunflower: { meanDegree: number; anisotropy: number; reach: boolean }
   deterministicIsSafe: boolean
 } {
   const random = evaluate(
-    hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng: makeRng({ seed: input.seed }) }),
+    hyperbolicGraph({
+      count: input.count,
+      radius: 7,
+      connectThreshold: 3.0,
+      rng: makeRng({ seed: input.seed }),
+    }),
     input.seed + 1,
   )
   const sunflower = evaluate(
-    hyperbolicSunflower({ count: input.count, radius: 7, connectThreshold: 3.0 }),
+    hyperbolicSunflower({
+      count: input.count,
+      radius: 7,
+      connectThreshold: 3.0,
+    }),
     input.seed + 1,
   )
   // The deterministic substrate is Lorentz-safe if its anisotropy is in the same low
   // band as the random one (within a small margin), and it still reaches exponentially.
-  const deterministicIsSafe = sunflower.anisotropy <= random.anisotropy + 0.1 && sunflower.reach
+  const deterministicIsSafe =
+    sunflower.anisotropy <= random.anisotropy + 0.1 && sunflower.reach
   return { random, sunflower, deterministicIsSafe }
 }
 
 export default experiment({
   id: 'relativity/deterministic-substrate',
-  title: 'a deterministic sunflower substrate is as Lorentz-safe as the random sprinkle',
+  title:
+    'a deterministic sunflower substrate is as Lorentz-safe as the random sprinkle',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -59,7 +94,9 @@ export default experiment({
   run() {
     const r = deterministicSubstrate({ count: 1200, seed: 1 })
     const ok =
-      r.deterministicIsSafe && r.sunflower.anisotropy < 0.15 && r.sunflower.reach
+      r.deterministicIsSafe &&
+      r.sunflower.anisotropy < 0.15 &&
+      r.sunflower.reach
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

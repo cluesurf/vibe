@@ -28,7 +28,11 @@ function correlationMatrix(L: number, mass: number): Float64Array {
 }
 
 // entanglement entropy (nats) of the interval [0, len) from the eigenvalues of the restricted correlation matrix
-function intervalEntropy(C: Float64Array, L: number, len: number): number {
+function intervalEntropy(
+  C: Float64Array,
+  L: number,
+  len: number,
+): number {
   const region = Array.from({ length: len }, (_, i) => i)
   return regionEntanglementEntropy({ c: C, n: L, region })
 }
@@ -53,24 +57,34 @@ export function areaLaw(input?: { L?: number }): {
 
   // (1) massive field, the entropy should SATURATE (area law, boundary-only)
   const Cm = correlationMatrix(L, 0.7)
-  const massiveEntropies = lengths.map((l) => intervalEntropy(Cm, L, l))
-  const lateMassive = massiveEntropies.slice(Math.floor(massiveEntropies.length / 2))
-  const massiveSpread = Math.max(...lateMassive) - Math.min(...lateMassive)
+  const massiveEntropies = lengths.map(l => intervalEntropy(Cm, L, l))
+  const lateMassive = massiveEntropies.slice(
+    Math.floor(massiveEntropies.length / 2),
+  )
+  const massiveSpread =
+    Math.max(...lateMassive) - Math.min(...lateMassive)
   const massiveSaturates = massiveSpread < 0.1 // flat tail = saturation = area law
 
   // (2) massless / critical field, S ~ (c/3) ln(L), extract the central charge
   const C0 = correlationMatrix(L, 0)
-  const masslessEntropies = lengths.map((l) => intervalEntropy(C0, L, l))
-  const { slope, r2 } = linearFit({ xs: lengths.map((l) => Math.log(l)), ys: masslessEntropies })
+  const masslessEntropies = lengths.map(l => intervalEntropy(C0, L, l))
+  const { slope, r2 } = linearFit({
+    xs: lengths.map(l => Math.log(l)),
+    ys: masslessEntropies,
+  })
   // the interval [0, len) starts at the chain's OPEN boundary, so there is a SINGLE entangling cut (at len),
   // giving S = (c/6) ln(len), hence c = 6 * slope (a bulk two-cut interval would be c/3)
   const centralCharge = slope * 6
   const conformalR2 = r2
-  const masslessLog = conformalR2 > 0.95 && Math.abs(centralCharge - 1) < 0.4 // c about 1, a clean log
+  const masslessLog =
+    conformalR2 > 0.95 && Math.abs(centralCharge - 1) < 0.4 // c about 1, a clean log
 
   // (3) a maximally-mixed (infinite-temperature) state, C_A = I/2, S = len * ln 2 (volume law)
-  const volumeEntropies = lengths.map((l) => l * Math.log(2))
-  const { slope: volumeSlope } = linearFit({ xs: lengths, ys: volumeEntropies })
+  const volumeEntropies = lengths.map(l => l * Math.log(2))
+  const { slope: volumeSlope } = linearFit({
+    xs: lengths,
+    ys: volumeEntropies,
+  })
   const volumeLaw = volumeSlope > 0.5 // grows linearly with length
 
   const groundStateAreaLaw = massiveSaturates && masslessLog
@@ -93,20 +107,23 @@ export function areaLaw(input?: { L?: number }): {
 
 export default experiment({
   id: 'holography/area-law',
-  title: 'the emergent field ground state is area-law while a thermal state is volume-law',
+  title:
+    'the emergent field ground state is area-law while a thermal state is volume-law',
   category: 'holography',
   substrates: 'any',
   depth: 'L3',
   paper: true,
   run() {
     const r = areaLaw({ L: 96 })
-    const ok = r.solved && r.massiveSaturates && r.masslessLog && r.volumeLaw
+    const ok =
+      r.solved && r.massiveSaturates && r.masslessLog && r.volumeLaw
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'the Dirac ground-state entanglement saturates for a massive field and grows as a conformal log with central charge about one while a thermal state grows linearly',
       metrics: {
-        massiveSaturation: r.massiveEntropies[r.massiveEntropies.length - 1] ?? 0,
+        massiveSaturation:
+          r.massiveEntropies[r.massiveEntropies.length - 1] ?? 0,
         centralCharge: r.centralCharge,
         conformalR2: r.conformalR2,
         volumeSlope: r.volumeSlope,

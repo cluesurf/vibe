@@ -14,9 +14,19 @@ const MAX_CELLS = 6000
 const SIZE = 1200
 
 function run(): void {
-  const scene = buildHoneycombScene({ symbol: SYMBOL, maxCells: MAX_CELLS })
-  console.log(`{${SYMBOL.join(',')}} scene: dim ${scene.dim}, ${scene.cellCount} cells, ${scene.edges.length} edges`)
-  const png = renderSceneToPng({ scene, size: SIZE, rotateX: 0.45, rotateY: 0.6 })
+  const scene = buildHoneycombScene({
+    symbol: SYMBOL,
+    maxCells: MAX_CELLS,
+  })
+  console.log(
+    `{${SYMBOL.join(',')}} scene: dim ${scene.dim}, ${scene.cellCount} cells, ${scene.edges.length} edges`,
+  )
+  const png = renderSceneToPng({
+    scene,
+    size: SIZE,
+    rotateX: 0.45,
+    rotateY: 0.6,
+  })
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', '..', 'make', 'render')
   mkdirSync(outDir, { recursive: true })

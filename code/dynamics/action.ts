@@ -4,7 +4,12 @@
 // limit recovers the Ricci scalar curvature.
 // and Benincasa & Dowker, "The Scalar Curvature of a Causal Set" (2010).
 
-import { Poset, pastMatrix, relationCount, intervalSize } from '@/code/tool/poset'
+import {
+  Poset,
+  pastMatrix,
+  relationCount,
+  intervalSize,
+} from '@/code/tool/poset'
 import { forEachSetBit } from '@/code/tool/bitset'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
 
@@ -43,14 +48,15 @@ function intervalAbundance(input: { poset: Poset }): {
   // then rescale the histogram back up to the full count. A fixed stride keeps
   // the action a pure function of the poset (no hidden rng), so the whole chain
   // stays reproducible from one seed.
-  const stride = relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
+  const stride =
+    relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
   let index = 0
   let seen = 0
 
   for (let a = 0; a < p.size; a++) {
     forEachSetBit(p.future, {
       row: a,
-      visit: (b) => {
+      visit: b => {
         const take = index % stride === 0
         index += 1
         if (!take) {
@@ -120,7 +126,10 @@ export function benincasaDowkerAction(input: {
 // element and x. epsilon in (0,1) sets the nonlocality: the kernel spreads over
 // about 1/epsilon layers with geometric decay and alternating signs. At epsilon
 // near 1 only n = 0 (links) survives, recovering the sharp action.
-export function smearedKernel2D(input: { n: number; epsilon: number }): number {
+export function smearedKernel2D(input: {
+  n: number
+  epsilon: number
+}): number {
   const e = input.epsilon
   const n = input.n
   const oneMinus = 1 - e
@@ -140,7 +149,10 @@ export function smearedKernel2D(input: { n: number; epsilon: number }): number {
 // The 4D smeared kernel. The coefficients (1, -9, 16, -8) are the 4D Benincasa-Dowker
 // layer weights, smeared the same way as 2D: f4(n,e) = (1-e)^n sum_k c_k C(n,k)
 // (e/(1-e))^k, where C(n,k) is the binomial coefficient.
-function smearedKernel4D(input: { n: number; epsilon: number }): number {
+function smearedKernel4D(input: {
+  n: number
+  epsilon: number
+}): number {
   const e = input.epsilon
   const n = input.n
   const oneMinus = 1 - e
@@ -165,7 +177,8 @@ export function smearedBenincasaDowker(input: {
   if (input.dimension !== 2 && input.dimension !== 4) {
     return benincasaDowkerAction(input)
   }
-  const kernel = input.dimension === 4 ? smearedKernel4D : smearedKernel2D
+  const kernel =
+    input.dimension === 4 ? smearedKernel4D : smearedKernel2D
   return {
     form: 'action',
     name: `smeared-benincasa-dowker-${input.dimension}d-eps${input.epsilon}`,
@@ -173,14 +186,15 @@ export function smearedBenincasaDowker(input: {
     value: ({ poset }) => {
       const past = pastMatrix(poset)
       const relations = relationCount(poset)
-      const stride = relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
+      const stride =
+        relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
       let index = 0
       let seen = 0
       let sum = 0
       for (let a = 0; a < poset.size; a++) {
         forEachSetBit(poset.future, {
           row: a,
-          visit: (b) => {
+          visit: b => {
             const take = index % stride === 0
             index += 1
             if (!take) {
@@ -204,7 +218,9 @@ export function smearedBenincasaDowker(input: {
 // Myrheim-Meyer dimension from a target. Minimising it drives the ensemble to a
 // chosen dimension. The positive control that tests whether the Monte Carlo can
 // reach manifold-like orders when an action rewards them.
-export function dimensionTargetAction(input: { target: number }): Action {
+export function dimensionTargetAction(input: {
+  target: number
+}): Action {
   return {
     form: 'action',
     name: `dimension-target-${input.target}`,

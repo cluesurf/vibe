@@ -35,7 +35,8 @@ import {
 
 export default experiment({
   id: 'foundations/octonion-base-generator',
-  title: 'the base substrate ({3,4,3,4}/24-cell) and the three generations descend from the octonions (the unique maximal division algebra) by triality',
+  title:
+    'the base substrate ({3,4,3,4}/24-cell) and the three generations descend from the octonions (the unique maximal division algebra) by triality',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -43,13 +44,15 @@ export default experiment({
   run() {
     // (1) the octonions are the unique maximal normed division algebra, the tower holds through dimension 8 and fails
     // at dimension 16
-    const octonionsAreDivision = hasNormComposition(3) && !hasZeroDivisor(3)
+    const octonionsAreDivision =
+      hasNormComposition(3) && !hasZeroDivisor(3)
     const sedenionsFail = hasZeroDivisor(4) // dimension 16 has zero divisors
     const octonionsMaximal = octonionsAreDivision && sedenionsFail
 
     // (2) the octonions realize triality, non-associative and the cyclic trilinear form
     const nonAssociative = nonAssociativeTripleCount() // 28 of 35
-    const realizesTriality = octonionTrialityCyclic() && nonAssociative === 28
+    const realizesTriality =
+      octonionTrialityCyclic() && nonAssociative === 28
 
     // (3) triality gives D4 and the 24-cell, the D4 roots are the 24-cell vertices, and D4 is the unique triality
     // dimension
@@ -60,7 +63,12 @@ export default experiment({
     // (4) triality gives three generations, the three 8-dimensional representations 8v, 8s, 8c
     const threeGenerations = 3 // the three reps permuted by the triality S3
 
-    const ok = octonionsMaximal && realizesTriality && twentyFourCell && d4HasTriality && threeGenerations === 3
+    const ok =
+      octonionsMaximal &&
+      realizesTriality &&
+      twentyFourCell &&
+      d4HasTriality &&
+      threeGenerations === 3
 
     return verdict({
       status: ok ? 'pass' : 'fail',

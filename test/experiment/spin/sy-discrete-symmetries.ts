@@ -12,64 +12,167 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 const d4Roots = (): number[][] => rootsD4()
 const key = (p: number[]): string => p.join(',')
 
-export function syDiscreteSymmetries(): { parityClosed: boolean; reflectionClosed: boolean; timeReversal: boolean; parityCommutes: boolean; cptExact: boolean } {
+export function syDiscreteSymmetries(): {
+  parityClosed: boolean
+  reflectionClosed: boolean
+  timeReversal: boolean
+  parityCommutes: boolean
+  cptExact: boolean
+} {
   const roots = d4Roots()
   const set = new Set(roots.map(key))
 
   // (P) parity: the root set is closed under negation, and under each coordinate reflection
-  const parityClosed = roots.every((r) => set.has(key(r.map((x) => -x))))
+  const parityClosed = roots.every(r => set.has(key(r.map(x => -x))))
   let reflectionClosed = true
-  for (let ax = 0; ax < 4; ax++) reflectionClosed &&= roots.every((r) => set.has(key(r.map((x, i) => (i === ax ? -x : x)))))
+  for (let ax = 0; ax < 4; ax++)
+    reflectionClosed &&= roots.every(r =>
+      set.has(key(r.map((x, i) => (i === ax ? -x : x)))),
+    )
 
   // (T) time reversal: a unitary Dirac walk is exactly invertible. run forward then backward, recover the start.
-  const L = 81, steps = 30, mass = 0.4
+  const L = 81,
+    steps = 30,
+    mass = 0.4
   type C = [number, number]
   const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
-  const cmul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+  const cmul = (a: C, b: C): C => [
+    a[0] * b[0] - a[1] * b[1],
+    a[0] * b[1] + a[1] * b[0],
+  ]
   const wrap = (x: number): number => ((x % L) + L) % L
-  const c = Math.cos(mass), s = Math.sin(mass), I: C = [0, 1]
-  let R: C[] = new Array(L).fill([0, 0]), Lf: C[] = new Array(L).fill([0, 0])
-  R[40] = [0.6, 0]; Lf[40] = [0.8, 0]
-  const R0 = R.map((z) => [...z] as C), L0 = Lf.map((z) => [...z] as C)
+  const c = Math.cos(mass),
+    s = Math.sin(mass),
+    I: C = [0, 1]
+  let R: C[] = new Array(L).fill([0, 0]),
+    Lf: C[] = new Array(L).fill([0, 0])
+  R[40] = [0.6, 0]
+  Lf[40] = [0.8, 0]
+  const R0 = R.map(z => [...z] as C),
+    L0 = Lf.map(z => [...z] as C)
   const fwd = (): void => {
-    const R2: C[] = new Array(L), L2: C[] = new Array(L)
-    for (let x = 0; x < L; x++) { R2[x] = cadd([c * R[x]![0], c * R[x]![1]], cmul([-s, 0], cmul(I, Lf[x]!))); L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [c * Lf[x]![0], c * Lf[x]![1]]) }
-    const R3: C[] = new Array(L), L3: C[] = new Array(L)
-    for (let x = 0; x < L; x++) { R3[wrap(x + 1)] = R2[x]!; L3[wrap(x - 1)] = L2[x]! }
-    R = R3; Lf = L3
+    const R2: C[] = new Array(L),
+      L2: C[] = new Array(L)
+    for (let x = 0; x < L; x++) {
+      R2[x] = cadd(
+        [c * R[x]![0], c * R[x]![1]],
+        cmul([-s, 0], cmul(I, Lf[x]!)),
+      )
+      L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [
+        c * Lf[x]![0],
+        c * Lf[x]![1],
+      ])
+    }
+    const R3: C[] = new Array(L),
+      L3: C[] = new Array(L)
+    for (let x = 0; x < L; x++) {
+      R3[wrap(x + 1)] = R2[x]!
+      L3[wrap(x - 1)] = L2[x]!
+    }
+    R = R3
+    Lf = L3
   }
   const bwd = (): void => {
     // inverse: unshift then inverse coin (the coin is unitary, its inverse is +i s mixing)
-    const R2: C[] = new Array(L), L2: C[] = new Array(L)
-    for (let x = 0; x < L; x++) { R2[x] = R[wrap(x + 1)]!; L2[x] = Lf[wrap(x - 1)]! }
-    const R3: C[] = new Array(L), L3: C[] = new Array(L)
-    for (let x = 0; x < L; x++) { R3[x] = cadd([c * R2[x]![0], c * R2[x]![1]], cmul([s, 0], cmul(I, L2[x]!))); L3[x] = cadd(cmul([s, 0], cmul(I, R2[x]!)), [c * L2[x]![0], c * L2[x]![1]]) }
-    R = R3; Lf = L3
+    const R2: C[] = new Array(L),
+      L2: C[] = new Array(L)
+    for (let x = 0; x < L; x++) {
+      R2[x] = R[wrap(x + 1)]!
+      L2[x] = Lf[wrap(x - 1)]!
+    }
+    const R3: C[] = new Array(L),
+      L3: C[] = new Array(L)
+    for (let x = 0; x < L; x++) {
+      R3[x] = cadd(
+        [c * R2[x]![0], c * R2[x]![1]],
+        cmul([s, 0], cmul(I, L2[x]!)),
+      )
+      L3[x] = cadd(cmul([s, 0], cmul(I, R2[x]!)), [
+        c * L2[x]![0],
+        c * L2[x]![1],
+      ])
+    }
+    R = R3
+    Lf = L3
   }
   for (let t = 0; t < steps; t++) fwd()
   for (let t = 0; t < steps; t++) bwd()
   let err = 0
-  for (let x = 0; x < L; x++) { err = Math.max(err, Math.abs(R[x]![0] - R0[x]![0]), Math.abs(R[x]![1] - R0[x]![1]), Math.abs(Lf[x]![0] - L0[x]![0]), Math.abs(Lf[x]![1] - L0[x]![1])) }
+  for (let x = 0; x < L; x++) {
+    err = Math.max(
+      err,
+      Math.abs(R[x]![0] - R0[x]![0]),
+      Math.abs(R[x]![1] - R0[x]![1]),
+      Math.abs(Lf[x]![0] - L0[x]![0]),
+      Math.abs(Lf[x]![1] - L0[x]![1]),
+    )
+  }
   const timeReversal = err < 1e-12
 
   // (P on the field) the massless walk commutes with parity: x -> L-1-x and R <-> L gives the same dynamics
-  const massless = (): { applyParityThenStep: C[][]; stepThenApplyParity: C[][] } => {
-    let r: C[] = new Array(L).fill([0, 0]), l: C[] = new Array(L).fill([0, 0]); r[30] = [1, 0]
-    const step = (rr: C[], ll: C[]): [C[], C[]] => { const r3: C[] = new Array(L), l3: C[] = new Array(L); for (let x = 0; x < L; x++) { r3[wrap(x + 1)] = rr[x]!; l3[wrap(x - 1)] = ll[x]! } return [r3, l3] }
-    const parity = (rr: C[], ll: C[]): [C[], C[]] => { const r2: C[] = new Array(L), l2: C[] = new Array(L); for (let x = 0; x < L; x++) { r2[x] = ll[wrap(-x)]!; l2[x] = rr[wrap(-x)]! } return [r2, l2] } // x->-x and R<->L
-    const [pr, pl] = parity(r, l); const [a1, a2] = step(pr, pl)
-    const [sr, sl] = step(r, l); const [b1, b2] = parity(sr, sl)
-    return { applyParityThenStep: [a1, a2], stepThenApplyParity: [b1, b2] }
+  const massless = (): {
+    applyParityThenStep: C[][]
+    stepThenApplyParity: C[][]
+  } => {
+    let r: C[] = new Array(L).fill([0, 0]),
+      l: C[] = new Array(L).fill([0, 0])
+    r[30] = [1, 0]
+    const step = (rr: C[], ll: C[]): [C[], C[]] => {
+      const r3: C[] = new Array(L),
+        l3: C[] = new Array(L)
+      for (let x = 0; x < L; x++) {
+        r3[wrap(x + 1)] = rr[x]!
+        l3[wrap(x - 1)] = ll[x]!
+      }
+      return [r3, l3]
+    }
+    const parity = (rr: C[], ll: C[]): [C[], C[]] => {
+      const r2: C[] = new Array(L),
+        l2: C[] = new Array(L)
+      for (let x = 0; x < L; x++) {
+        r2[x] = ll[wrap(-x)]!
+        l2[x] = rr[wrap(-x)]!
+      }
+      return [r2, l2]
+    } // x->-x and R<->L
+    const [pr, pl] = parity(r, l)
+    const [a1, a2] = step(pr, pl)
+    const [sr, sl] = step(r, l)
+    const [b1, b2] = parity(sr, sl)
+    return {
+      applyParityThenStep: [a1, a2],
+      stepThenApplyParity: [b1, b2],
+    }
   }
   const { applyParityThenStep, stepThenApplyParity } = massless()
   let pcErr = 0
-  for (let x = 0; x < L; x++) for (let comp = 0; comp < 2; comp++) { pcErr = Math.max(pcErr, Math.abs(applyParityThenStep[0]![x]![comp]! - stepThenApplyParity[0]![x]![comp]!), Math.abs(applyParityThenStep[1]![x]![comp]! - stepThenApplyParity[1]![x]![comp]!)) }
+  for (let x = 0; x < L; x++)
+    for (let comp = 0; comp < 2; comp++) {
+      pcErr = Math.max(
+        pcErr,
+        Math.abs(
+          applyParityThenStep[0]![x]![comp]! -
+            stepThenApplyParity[0]![x]![comp]!,
+        ),
+        Math.abs(
+          applyParityThenStep[1]![x]![comp]! -
+            stepThenApplyParity[1]![x]![comp]!,
+        ),
+      )
+    }
   const parityCommutes = pcErr < 1e-12
 
   // CPT: C (charge sign flip) is a symmetry of the conserving rule, so C, P, T all exact => CPT exact
-  const cptExact = parityClosed && reflectionClosed && timeReversal && parityCommutes
+  const cptExact =
+    parityClosed && reflectionClosed && timeReversal && parityCommutes
 
-  return { parityClosed, reflectionClosed, timeReversal, parityCommutes, cptExact }
+  return {
+    parityClosed,
+    reflectionClosed,
+    timeReversal,
+    parityCommutes,
+    cptExact,
+  }
 }
 
 export default experiment({

@@ -21,7 +21,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'general/open-rg-flow',
-  title: 'block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point',
+  title:
+    'block-spin decimation reproduces the exact 1D Ising beta function and runs to its fixed point',
   category: 'renormalization',
   substrates: ['any'],
   depth: 'L2',

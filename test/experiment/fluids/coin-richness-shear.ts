@@ -16,23 +16,51 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, cubicMesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
-import { shearSetup, shearAmplitudeSeries } from '@/code/measure/hydrodynamics'
+import {
+  shearSetup,
+  shearAmplitudeSeries,
+} from '@/code/measure/hydrodynamics'
 
-const cubicDirections = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
+const cubicDirections = [
+  [1, 0, 0],
+  [-1, 0, 0],
+  [0, 1, 0],
+  [0, -1, 0],
+  [0, 0, 1],
+  [0, 0, -1],
+]
 
-function openDissipation(mesh: ReturnType<typeof d4Mesh>, directions: number[][], side: number, beats: number): number {
+function openDissipation(
+  mesh: ReturnType<typeof d4Mesh>,
+  directions: number[][],
+  side: number,
+  beats: number,
+): number {
   const opposite: number[] = []
   for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
   const collision = headOnRotate({ opposite })
-  const shear = { gradAxis: 1, momAxis: 0, wavelength: side, side, directions }
+  const shear = {
+    gradAxis: 1,
+    momAxis: 0,
+    wavelength: side,
+    side,
+    directions,
+  }
   const will = shearSetup({ mesh, ...shear })
-  const series = shearAmplitudeSeries({ will, collision, beats, open: true, ...shear })
+  const series = shearAmplitudeSeries({
+    will,
+    collision,
+    beats,
+    open: true,
+    ...shear,
+  })
   return series[series.length - 1]! // final amplitude relative to start, low = dissipated
 }
 
 export default experiment({
   id: 'fluids/coin-richness-shear',
-  title: 'a shear dissipates on the rich 24-direction coin but barely on the impoverished cubic coin, coin richness makes the fluid',
+  title:
+    'a shear dissipates on the rich 24-direction coin but barely on the impoverished cubic coin, coin richness makes the fluid',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -40,8 +68,18 @@ export default experiment({
   run() {
     const side = 12
     const beats = 24
-    const d4Final = openDissipation(d4Mesh({ side }), rootsD4(), side, beats)
-    const cubicFinal = openDissipation(cubicMesh({ side }), cubicDirections, side, beats)
+    const d4Final = openDissipation(
+      d4Mesh({ side }),
+      rootsD4(),
+      side,
+      beats,
+    )
+    const cubicFinal = openDissipation(
+      cubicMesh({ side }),
+      cubicDirections,
+      side,
+      beats,
+    )
 
     const d4Dissipates = d4Final < 0.8 // the rich coin makes a working viscous fluid
     const cubicBroken = cubicFinal > 0.9 // the impoverished coin barely dissipates
@@ -59,7 +97,9 @@ export default experiment({
         d4Directions: 24,
         cubicDirections: 6,
       },
-      control: { cubicFinalAmplitudeTimes1000: Math.round(cubicFinal * 1000) },
+      control: {
+        cubicFinalAmplitudeTimes1000: Math.round(cubicFinal * 1000),
+      },
       notes:
         'the cubic coin is the control (the HPP-style broken fluid). This is the coin-richness half of FD2. The full isotropy claim (D4 axis-versus-diagonal anisotropy shrinking with scale) is the open extension, a small residual anisotropy near 0.06 is measured on D4 at this size.',
     })

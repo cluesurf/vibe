@@ -16,7 +16,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
-import { shearSetup, shearAmplitudeSeries } from '@/code/measure/hydrodynamics'
+import {
+  shearSetup,
+  shearAmplitudeSeries,
+} from '@/code/measure/hydrodynamics'
 import { firstMinimumTime } from '@/code/measure/sound-wave'
 import { relativisticDispersionFit } from '@/code/measure/dispersion'
 
@@ -38,9 +41,21 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
   const frequencies: number[] = []
   const phaseSpeeds: number[] = []
   for (const wavelength of WAVELENGTHS) {
-    const cfg = { gradAxis: 0, momAxis: 0, wavelength, side: SIDE, directions }
+    const cfg = {
+      gradAxis: 0,
+      momAxis: 0,
+      wavelength,
+      side: SIDE,
+      directions,
+    }
     const will = shearSetup({ mesh, ...cfg })
-    const series = shearAmplitudeSeries({ will, collision, beats: BEATS, open: false, ...cfg })
+    const series = shearAmplitudeSeries({
+      will,
+      collision,
+      beats: BEATS,
+      open: false,
+      ...cfg,
+    })
     const halfPeriod = firstMinimumTime(series)
     const omega = halfPeriod > 0 ? Math.PI / halfPeriod : 0
     const k = (2 * Math.PI) / wavelength
@@ -59,7 +74,8 @@ function spread(values: number[]): number {
 
 export default experiment({
   id: 'relativity/propagating-mode-3434',
-  title: 'the momentum-conserving knit carries a propagating massless mode omega = c k, the charge-only rule does not',
+  title:
+    'the momentum-conserving knit carries a propagating massless mode omega = c k, the charge-only rule does not',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L3',
@@ -67,21 +83,29 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
 
     // the momentum-conserving rule, the propagating mode
     const momentum = dispersion(headOnRotate({ opposite }))
-    const fit = relativisticDispersionFit({ wavenumbers: momentum.wavenumbers, frequencies: momentum.frequencies })
+    const fit = relativisticDispersionFit({
+      wavenumbers: momentum.wavenumbers,
+      frequencies: momentum.frequencies,
+    })
     const momentumPhaseSpeedSpread = spread(momentum.phaseSpeeds)
 
     // the control, the committed charge-only pair table, no propagating mode (frequency pinned at the cutoff)
-    const charge = dispersion(pairCollision({ opposite, forward: true }))
+    const charge = dispersion(
+      pairCollision({ opposite, forward: true }),
+    )
     const chargePhaseSpeedSpread = spread(charge.phaseSpeeds)
 
     // a linear dispersion with c near 1 and no gap, a constant phase speed, and a control whose phase speed is
     // NOT constant (so it carries no propagating mode)
     const linearMassless =
-      fit.speedSquared > 0.85 && fit.speedSquared < 1.15 && Math.abs(fit.massSquared) < 0.05
+      fit.speedSquared > 0.85 &&
+      fit.speedSquared < 1.15 &&
+      Math.abs(fit.massSquared) < 0.05
     const constantSpeed = momentumPhaseSpeedSpread < 0.1
     const controlNotPropagating = chargePhaseSpeedSpread > 0.3
     const ok = linearMassless && constantSpeed && controlNotPropagating
@@ -93,7 +117,9 @@ export default experiment({
       metrics: {
         speedSquared: fit.speedSquared,
         massSquared: fit.massSquared,
-        phaseSpeedC: momentum.phaseSpeeds.reduce((a, b) => a + b, 0) / momentum.phaseSpeeds.length,
+        phaseSpeedC:
+          momentum.phaseSpeeds.reduce((a, b) => a + b, 0) /
+          momentum.phaseSpeeds.length,
         momentumPhaseSpeedSpread,
         chargePhaseSpeedSpread,
       },

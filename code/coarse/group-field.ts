@@ -13,7 +13,8 @@ export function coarseFieldByGroup(input: {
     sum[group[i]!]! += field[i]!
     count[group[i]!]!++
   }
-  for (let g = 0; g < groupCount; g++) sum[g] = count[g]! > 0 ? sum[g]! / count[g]! : 0
+  for (let g = 0; g < groupCount; g++)
+    sum[g] = count[g]! > 0 ? sum[g]! / count[g]! : 0
   return sum
 }
 
@@ -34,7 +35,10 @@ export function sumFieldByGroup(input: {
 // Build the group id per cell of a cubic-block coarse-graining on a periodic L^3 grid: cell (x,y,z)
 // (row-major index z*L*L + y*L + x) maps to block ((z/b)*(L/b) + (y/b))*(L/b) + (x/b). Returns the
 // per-cell block id and the block count (L/b)^3. The 3D analogue of a flat blocking partition.
-export function cubicBlockGroups(input: { size: number; blockSize: number }): {
+export function cubicBlockGroups(input: {
+  size: number
+  blockSize: number
+}): {
   group: Int32Array
   groupCount: number
 } {
@@ -46,7 +50,8 @@ export function cubicBlockGroups(input: { size: number; blockSize: number }): {
     const x = i % L
     const y = ((i / L) | 0) % L
     const z = (i / (L * L)) | 0
-    group[i] = ((((z / b) | 0) * side + ((y / b) | 0)) * side) + ((x / b) | 0)
+    group[i] =
+      (((z / b) | 0) * side + ((y / b) | 0)) * side + ((x / b) | 0)
   }
   return { group, groupCount: side * side * side }
 }

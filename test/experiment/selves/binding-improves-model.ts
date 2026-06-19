@@ -13,7 +13,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quantileLabels } from '@/code/coarse/transition-matrix'
 import { drivenSelf } from '@/code/coarse/driven-self'
-import { mutualInformationBits, crossJointCounts } from '@/code/measure/statistics'
+import {
+  mutualInformationBits,
+  crossJointCounts,
+} from '@/code/measure/statistics'
 
 const L = 64
 const beats = 4000
@@ -28,15 +31,26 @@ const MIN_RATIO = 1.15
 const MIN_DIFFERENCE = 0.01
 
 function predictiveInformation(cohesion: number): number {
-  const series = drivenSelf({ L, beats, seed: 777, withDynamics: true, sectors: 2, interiorRadius: 6, cohesion })
+  const series = drivenSelf({
+    L,
+    beats,
+    seed: 777,
+    withDynamics: true,
+    sectors: 2,
+    interiorRadius: 6,
+    cohesion,
+  })
   const a = quantileLabels({ series: series.interior, bins })
   const b = quantileLabels({ series: series.environment, bins })
-  return mutualInformationBits(crossJointCounts({ seriesA: a, seriesB: b, stateCount: bins, lag }))
+  return mutualInformationBits(
+    crossJointCounts({ seriesA: a, seriesB: b, stateCount: bins, lag }),
+  )
 }
 
 export default experiment({
   id: 'selves/binding-improves-model',
-  title: 'a bound self carries more predictive information about its environment than an unbound gas',
+  title:
+    'a bound self carries more predictive information about its environment than an unbound gas',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -46,7 +60,9 @@ export default experiment({
     const gasMI = predictiveInformation(0.0)
 
     const ok =
-      boundMI > MIN_BITS && boundMI > gasMI * MIN_RATIO && boundMI - gasMI > MIN_DIFFERENCE
+      boundMI > MIN_BITS &&
+      boundMI > gasMI * MIN_RATIO &&
+      boundMI - gasMI > MIN_DIFFERENCE
 
     return verdict({
       status: ok ? 'pass' : 'fail',

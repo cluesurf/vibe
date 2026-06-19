@@ -10,7 +10,11 @@ import { Will } from '@/code/tone/will'
 // The mean absolute charge per cell, binned by a cell-to-slab map, the activity (or density) profile across
 // slabs. `binOf` maps a cell to its slab index in [0, bins). Used to read a vacuum-density profile across the
 // lattice (e.g. by x-coordinate) and so to measure pressure imbalances between regions.
-export function chargeDensityProfile(input: { will: Will; binOf: (cell: number) => number; bins: number }): number[] {
+export function chargeDensityProfile(input: {
+  will: Will
+  binOf: (cell: number) => number
+  bins: number
+}): number[] {
   const { will, binOf, bins } = input
   const degree = will.mesh.degree
   const sum = new Array<number>(bins).fill(0)
@@ -19,7 +23,8 @@ export function chargeDensityProfile(input: { will: Will; binOf: (cell: number) 
     const bin = binOf(cell)
     const base = cell * degree
     let q = 0
-    for (let direction = 0; direction < degree; direction++) q += Math.abs(will.data[base + direction]!)
+    for (let direction = 0; direction < degree; direction++)
+      q += Math.abs(will.data[base + direction]!)
     sum[bin]! += q
     count[bin]!++
   }
@@ -27,7 +32,9 @@ export function chargeDensityProfile(input: { will: Will; binOf: (cell: number) 
 }
 
 // Gradient signature of a profile, its range over its mean. Flat is near zero.
-export function profileGradient(profile: ReadonlyArray<number>): number {
+export function profileGradient(
+  profile: ReadonlyArray<number>,
+): number {
   const mean = profile.reduce((a, b) => a + b, 0) / profile.length
   if (mean === 0) return 0
   return (Math.max(...profile) - Math.min(...profile)) / mean
@@ -45,7 +52,14 @@ export function radialFieldProfile(input: {
   minRadius: number
   maxRadius: number
 }): { r: number; g: number }[] {
-  const { values, coord, side: L, dimension: d, minRadius, maxRadius } = input
+  const {
+    values,
+    coord,
+    side: L,
+    dimension: d,
+    minRadius,
+    maxRadius,
+  } = input
   const c0 = L / 2
   const bins = new Map<number, { sum: number; count: number }>()
   for (let i = 0; i < values.length; i++) {

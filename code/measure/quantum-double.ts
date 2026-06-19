@@ -37,7 +37,10 @@ export function toricCodeGroundStateDegeneracy(input: {
 // a square-lattice cell complex of side L on a closed orientable surface of the given genus. The torus (genus 1) is
 // the periodic L-by-L square lattice (V = L^2, E = 2 L^2, F = L^2). A higher genus adds handles, each handle raising
 // the edge count by one relative to the face/vertex balance so that chi = 2 - 2g.
-export function squareLatticeCellCounts(input: { side: number; genus: number }): {
+export function squareLatticeCellCounts(input: {
+  side: number
+  genus: number
+}): {
   vertices: number
   edges: number
   faces: number
@@ -59,8 +62,15 @@ export function anyonTypeCount(toneStates: number): number {
 }
 
 // the mutual braiding phase (radians) of an electric charge e around a magnetic flux m in the Z_N quantum double
-export function mutualBraidingPhase(input: { electricCharge: number; magneticFlux: number; toneStates: number }): number {
-  return (2 * Math.PI * input.electricCharge * input.magneticFlux) / input.toneStates
+export function mutualBraidingPhase(input: {
+  electricCharge: number
+  magneticFlux: number
+  toneStates: number
+}): number {
+  return (
+    (2 * Math.PI * input.electricCharge * input.magneticFlux) /
+    input.toneStates
+  )
 }
 
 // the total quantum dimension D = sqrt(sum d_a^2) = N for the abelian Z_N (all anyons have quantum dimension one)
@@ -69,6 +79,8 @@ export function totalQuantumDimension(toneStates: number): number {
 }
 
 // the topological entanglement entropy gamma = log D = log N
-export function topologicalEntanglementEntropy(toneStates: number): number {
+export function topologicalEntanglementEntropy(
+  toneStates: number,
+): number {
   return Math.log(totalQuantumDimension(toneStates))
 }

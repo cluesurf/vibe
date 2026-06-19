@@ -23,12 +23,15 @@ export function radialSchrodingerLevels(input: {
   const kinetic = 1 / (2 * mass * spacing * spacing)
   for (let i = 0; i < points; i++) {
     const r = (i + 1) * spacing
-    h.data[i * points + i] = 2 * kinetic + (l * (l + 1)) / (2 * mass * r * r) + potential(r)
+    h.data[i * points + i] =
+      2 * kinetic + (l * (l + 1)) / (2 * mass * r * r) + potential(r)
     if (i + 1 < points) {
       h.data[i * points + (i + 1)] = -kinetic
       h.data[(i + 1) * points + i] = -kinetic
     }
   }
-  const values = [...eigSymmetric({ matrix: h }).values].sort((a, b) => a - b)
-  return values.filter((e) => e < 0).slice(0, count)
+  const values = [...eigSymmetric({ matrix: h }).values].sort(
+    (a, b) => a - b,
+  )
+  return values.filter(e => e < 0).slice(0, count)
 }

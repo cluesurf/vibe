@@ -21,17 +21,29 @@ import { verdict } from '@/test/scaffold/verdict'
 const analyze = latticeFermionDoublers
 
 export function chiralGauge(input: Record<string, never> = {}): {
-  byDimension: { dimension: number; naiveSpecies: number; netChirality: number; wilsonSpecies: number }[]
+  byDimension: {
+    dimension: number
+    naiveSpecies: number
+    netChirality: number
+    wilsonSpecies: number
+  }[]
   doublingShown: boolean
   chiralityCancels: boolean
   wilsonFixesVector: boolean
   solved: boolean
 } {
   void input
-  const byDimension = [1, 2, 3, 4].map((d) => ({ dimension: d, ...analyze(d) }))
-  const doublingShown = byDimension.every((r) => r.naiveSpecies === Math.pow(2, r.dimension))
-  const chiralityCancels = byDimension.every((r) => r.netChirality === 0)
-  const wilsonFixesVector = byDimension.every((r) => r.wilsonSpecies === 1)
+  const byDimension = [1, 2, 3, 4].map(d => ({
+    dimension: d,
+    ...analyze(d),
+  }))
+  const doublingShown = byDimension.every(
+    r => r.naiveSpecies === Math.pow(2, r.dimension),
+  )
+  const chiralityCancels = byDimension.every(r => r.netChirality === 0)
+  const wilsonFixesVector = byDimension.every(
+    r => r.wilsonSpecies === 1,
+  )
   return {
     byDimension,
     doublingShown,
@@ -54,8 +66,11 @@ export default experiment({
   run() {
     const r = chiralGauge()
     const ok =
-      r.solved && r.doublingShown && r.chiralityCancels && r.wilsonFixesVector
-    const d4 = r.byDimension.find((x) => x.dimension === 4)
+      r.solved &&
+      r.doublingShown &&
+      r.chiralityCancels &&
+      r.wilsonFixesVector
+    const d4 = r.byDimension.find(x => x.dimension === 4)
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

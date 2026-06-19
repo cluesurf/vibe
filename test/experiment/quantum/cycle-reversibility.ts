@@ -32,18 +32,22 @@ export function cycleReversibility(input?: { n?: number }): {
   const eu: number[] = []
   const ev: number[] = []
   const idx = new Map<number, number>()
-  for (let v = 0; v < N; v++) for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
-    const w = g.adj[p]!
-    if (w > v) {
-      idx.set(v * N + w, eu.length)
-      eu.push(v)
-      ev.push(w)
+  for (let v = 0; v < N; v++)
+    for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
+      const w = g.adj[p]!
+      if (w > v) {
+        idx.set(v * N + w, eu.length)
+        eu.push(v)
+        ev.push(w)
+      }
     }
-  }
   const euA = Int32Array.from(eu)
   const evA = Int32Array.from(ev)
   const flow = new Float64Array(eu.length)
-  const edgeBetween = (a: number, b: number): { k: number; sign: number } | null => {
+  const edgeBetween = (
+    a: number,
+    b: number,
+  ): { k: number; sign: number } | null => {
     const lo = Math.min(a, b)
     const hi = Math.max(a, b)
     const k = idx.get(lo * N + hi)
@@ -53,8 +57,13 @@ export function cycleReversibility(input?: { n?: number }): {
 
   // find closed 4-cycles a-b-c-d-a (four cells around a shared edge of the tiling)
   const cycles: number[][] = []
-  const nbrSet: Set<number>[] = Array.from({ length: N }, () => new Set<number>())
-  for (let v = 0; v < N; v++) for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) nbrSet[v]!.add(g.adj[p]!)
+  const nbrSet: Set<number>[] = Array.from(
+    { length: N },
+    () => new Set<number>(),
+  )
+  for (let v = 0; v < N; v++)
+    for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++)
+      nbrSet[v]!.add(g.adj[p]!)
   const rngC = makeRng({ seed: 2 })
   let tries = 0
   while (cycles.length < 800 && tries < 40000) {
@@ -67,10 +76,11 @@ export function cycleReversibility(input?: { n?: number }): {
     if (b === d) continue
     // common neighbor c of b and d, c != a
     let c = -1
-    for (const x of nbrSet[b]!) if (x !== a && nbrSet[d]!.has(x)) {
-      c = x
-      break
-    }
+    for (const x of nbrSet[b]!)
+      if (x !== a && nbrSet[d]!.has(x)) {
+        c = x
+        break
+      }
     if (c < 0) continue
     cycles.push([a, b, c, d])
   }
@@ -79,7 +89,11 @@ export function cycleReversibility(input?: { n?: number }): {
   const tone = new Int8Array(N)
   const moved = new Uint8Array(N)
   const rng = makeRng({ seed: 3 })
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const arrow = 0.1
   const warmup = 40
   const beats = 400
@@ -132,11 +146,16 @@ export function cycleReversibility(input?: { n?: number }): {
     const e3 = edgeBetween(c!, d!)
     const e4 = edgeBetween(d!, a!)
     if (!e1 || !e2 || !e3 || !e4) continue
-    const circ = e1.sign * flow[e1.k]! + e2.sign * flow[e2.k]! + e3.sign * flow[e3.k]! + e4.sign * flow[e4.k]!
+    const circ =
+      e1.sign * flow[e1.k]! +
+      e2.sign * flow[e2.k]! +
+      e3.sign * flow[e3.k]! +
+      e4.sign * flow[e4.k]!
     sumAbsCirc += Math.abs(circ)
     cycleCount++
   }
-  const meanAbsCirculation = cycleCount > 0 ? sumAbsCirc / cycleCount : 0
+  const meanAbsCirculation =
+    cycleCount > 0 ? sumAbsCirc / cycleCount : 0
   // floor: a reversible process has zero-mean per-edge flow, so circulation is a sum of 4 zero-mean
   // noisy terms. estimate the floor from the typical per-edge |flow| (the noise scale of one edge).
   let sumAbsFlow = 0
@@ -147,7 +166,15 @@ export function cycleReversibility(input?: { n?: number }): {
   const reversible = ratio < 1.3 // circulation is at the noise floor, no persistent current
   const solved = reversible
 
-  return { n: N, cycles: cycleCount, meanAbsCirculation, floor, ratio, reversible, solved }
+  return {
+    n: N,
+    cycles: cycleCount,
+    meanAbsCirculation,
+    floor,
+    ratio,
+    reversible,
+    solved,
+  }
 }
 
 export default experiment({
@@ -164,7 +191,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the net charge circulation around closed 4-cycles sits at the noise floor, so the dynamics is a genuine equilibrium process',
-      metrics: { meanAbsCirculation: r.meanAbsCirculation, floor: r.floor, ratio: r.ratio },
+      metrics: {
+        meanAbsCirculation: r.meanAbsCirculation,
+        floor: r.floor,
+        ratio: r.ratio,
+      },
     })
   },
 })

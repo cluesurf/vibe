@@ -20,7 +20,8 @@ function fibUpTo(n: number): number[] {
 
 // the Zeckendorf address of a positive integer, as a binary string most-significant-digit first, no "11"
 export function toZeckendorf(value: number): string {
-  if (!Number.isInteger(value) || value <= 0) throw new Error(`Zeckendorf needs a positive integer, got ${value}`)
+  if (!Number.isInteger(value) || value <= 0)
+    throw new Error(`Zeckendorf needs a positive integer, got ${value}`)
   const fib = fibUpTo(value)
   let top = fib.length - 1
   while (fib[top]! > value) top--
@@ -55,7 +56,11 @@ export function fromZeckendorf(address: string): number {
 
 // is this a legal Zeckendorf address (binary, no two adjacent 1s)?
 export function isZeckendorf(address: string): boolean {
-  return /^[01]+$/.test(address) && !address.includes('11') && (address.length === 1 || address[0] !== '0')
+  return (
+    /^[01]+$/.test(address) &&
+    !address.includes('11') &&
+    (address.length === 1 || address[0] !== '0')
+  )
 }
 
 // append "00", the continuator rewrite, the address of a node's preferred son is its own address plus "00"

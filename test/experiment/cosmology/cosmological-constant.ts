@@ -13,7 +13,11 @@ import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function actionFluctuation(input: { action: Action; sizes: number[]; repeats: number }): {
+function actionFluctuation(input: {
+  action: Action
+  sizes: number[]
+  repeats: number
+}): {
   sizes: number[]
   stds: number[]
   exponent: number

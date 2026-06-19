@@ -27,11 +27,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { bindingCurvePeak, bindingPerNucleonAtMass, nuclearBindingEnergy } from '@/code/measure/nuclear-binding'
+import {
+  bindingCurvePeak,
+  bindingPerNucleonAtMass,
+  nuclearBindingEnergy,
+} from '@/code/measure/nuclear-binding'
 
 export default experiment({
   id: 'spin/nuclear-binding-curve',
-  title: 'the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control',
+  title:
+    'the nuclear binding curve peaks at iron (about 8.8 MeV per nucleon) and declines for heavy nuclei, the no-Coulomb monotonic curve the control',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L3',
@@ -39,19 +44,29 @@ export default experiment({
   run() {
     // the iron peak, the mass number that maximizes the binding per nucleon
     const peak = bindingCurvePeak({})
-    const peakInIronRegion = peak.massNumber >= 50 && peak.massNumber <= 65
-    const peakHeightRight = peak.bindingPerNucleon > 8.5 && peak.bindingPerNucleon < 9.0
+    const peakInIronRegion =
+      peak.massNumber >= 50 && peak.massNumber <= 65
+    const peakHeightRight =
+      peak.bindingPerNucleon > 8.5 && peak.bindingPerNucleon < 9.0
 
     // the medium and heavy nuclei, near the observed values
-    const ironPerNucleon = nuclearBindingEnergy({ massNumber: 56, protonNumber: 26 }) / 56
-    const uraniumPerNucleon = nuclearBindingEnergy({ massNumber: 238, protonNumber: 92 }) / 238
+    const ironPerNucleon =
+      nuclearBindingEnergy({ massNumber: 56, protonNumber: 26 }) / 56
+    const uraniumPerNucleon =
+      nuclearBindingEnergy({ massNumber: 238, protonNumber: 92 }) / 238
     const ironMatches = Math.abs(ironPerNucleon - 8.79) < 0.2
     const uraniumMatches = Math.abs(uraniumPerNucleon - 7.57) < 0.2
 
     // the fusion-fission arrow, the curve rises to the peak (light side) and falls past it (heavy side)
-    const lightSide = bindingPerNucleonAtMass({ massNumber: 30 }).bindingPerNucleon
-    const heavySide = bindingPerNucleonAtMass({ massNumber: 200 }).bindingPerNucleon
-    const risesToThenFallsFromIron = lightSide < peak.bindingPerNucleon && heavySide < peak.bindingPerNucleon
+    const lightSide = bindingPerNucleonAtMass({
+      massNumber: 30,
+    }).bindingPerNucleon
+    const heavySide = bindingPerNucleonAtMass({
+      massNumber: 200,
+    }).bindingPerNucleon
+    const risesToThenFallsFromIron =
+      lightSide < peak.bindingPerNucleon &&
+      heavySide < peak.bindingPerNucleon
 
     // the control, no Coulomb gives a monotonic curve with the peak pushed to the heavy end (no iron peak)
     const peakNoCoulomb = bindingCurvePeak({ includeCoulomb: false })
@@ -72,7 +87,9 @@ export default experiment({
       metrics: {
         peakMassNumber: peak.massNumber,
         peakProtonNumber: peak.protonNumber,
-        peakBindingPerNucleon: Number(peak.bindingPerNucleon.toFixed(3)),
+        peakBindingPerNucleon: Number(
+          peak.bindingPerNucleon.toFixed(3),
+        ),
         ironPerNucleon: Number(ironPerNucleon.toFixed(3)),
         uraniumPerNucleon: Number(uraniumPerNucleon.toFixed(3)),
         lightSidePerNucleon: Number(lightSide.toFixed(3)),

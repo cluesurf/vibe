@@ -10,19 +10,31 @@
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { groupVelocity1d } from '@/code/measure/group-speed'
-import { addVelocities, boostEnergyMomentum } from '@/code/measure/rapidity'
+import {
+  addVelocities,
+  boostEnergyMomentum,
+} from '@/code/measure/rapidity'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the coined quantum-walk (Dirac) dispersion, cos(omega) = cos(m) cos(k), so omega(k) = arccos(cos(m) cos(k))
-const omega = (k: number, m: number): number => coinedWalkDispersion({ theta: m, k })
+const omega = (k: number, m: number): number =>
+  coinedWalkDispersion({ theta: m, k })
 // group velocity v = d omega / d k, by a centered finite difference
 function groupVelocity(k: number, m: number): number {
-  return groupVelocity1d({ omega: (kk) => omega(kk, m), k })
+  return groupVelocity1d({ omega: kk => omega(kk, m), k })
 }
 // a Lorentz boost of rapidity phi acting on a two-vector (omega, k)
-function boost(w: number, k: number, phi: number): { w: number; k: number } {
-  const b = boostEnergyMomentum({ omega: w, wavenumber: k, rapidity: phi })
+function boost(
+  w: number,
+  k: number,
+  phi: number,
+): { w: number; k: number } {
+  const b = boostEnergyMomentum({
+    omega: w,
+    wavenumber: k,
+    rapidity: phi,
+  })
   return { w: b.omega, k: b.wavenumber }
 }
 
@@ -44,7 +56,10 @@ export function boostVelocityAddition(): {
     for (const phi of [-1.2, -0.6, 0.3, 0.9, 1.5]) {
       const b = boost(w, k, phi)
       // a lightlike vector stays lightlike, |w'| = |k'|
-      coneDev = Math.max(coneDev, Math.abs(Math.abs(b.w) - Math.abs(b.k)))
+      coneDev = Math.max(
+        coneDev,
+        Math.abs(Math.abs(b.w) - Math.abs(b.k)),
+      )
     }
   }
   const lightconeFrameInvariant = coneDev < 1e-12
@@ -53,7 +68,7 @@ export function boostVelocityAddition(): {
   let maxV = 0
   for (const m of [0.0, 0.2, 0.5, 1.0]) {
     for (let i = 0; i <= 100; i++) {
-      const k = (-Math.PI) + (2 * Math.PI * i) / 100
+      const k = -Math.PI + (2 * Math.PI * i) / 100
       const v = Math.abs(groupVelocity(k, m))
       if (isFinite(v)) maxV = Math.max(maxV, v)
     }
@@ -90,7 +105,11 @@ export function boostVelocityAddition(): {
   }
   const irLorentzInvariant = irDev < 5e-3
 
-  const solved = lightconeFrameInvariant && noSuperluminal && relativisticAddition && irLorentzInvariant
+  const solved =
+    lightconeFrameInvariant &&
+    noSuperluminal &&
+    relativisticAddition &&
+    irLorentzInvariant
 
   return {
     masslessConeMaxDeviation: coneDev,
@@ -114,7 +133,10 @@ export default experiment({
   run() {
     const r = boostVelocityAddition()
     const ok =
-      r.solved && r.lightconeFrameInvariant && r.noSuperluminal && r.relativisticAddition
+      r.solved &&
+      r.lightconeFrameInvariant &&
+      r.noSuperluminal &&
+      r.relativisticAddition
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

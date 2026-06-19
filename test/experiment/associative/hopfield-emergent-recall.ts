@@ -24,20 +24,30 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // Flip a fraction of the sites of a pattern to make a noisy cue. Deterministic given
 // the rng, so the cue set is a fixed function of (seed, fraction).
-function corrupt(input: { pattern: Int8Array; fraction: number; rng: ReturnType<typeof makeRng> }): Int8Array {
+function corrupt(input: {
+  pattern: Int8Array
+  fraction: number
+  rng: ReturnType<typeof makeRng>
+}): Int8Array {
   const { pattern, fraction, rng } = input
   const out = Int8Array.from(pattern)
-  for (let i = 0; i < out.length; i++) if (rng.next() < fraction) out[i] = -(out[i] ?? 0) as -1 | 1
+  for (let i = 0; i < out.length; i++)
+    if (rng.next() < fraction) out[i] = -(out[i] ?? 0) as -1 | 1
   return out
 }
 
 // Relax a cue under the DISSIPATIVE Hopfield dynamics. Each beat sets every cell to the
 // sign of its local Hebbian field, energy descends, so the state falls into the attractor.
-function hopfieldRelax(input: { J: Int8Array[]; cue: Int8Array; beats: number }): Int8Array {
+function hopfieldRelax(input: {
+  J: Int8Array[]
+  cue: Int8Array
+  beats: number
+}): Int8Array {
   const { J, cue, beats } = input
   const zero = new Float64Array(cue.length)
   let state = Int8Array.from(cue)
-  for (let t = 0; t < beats; t++) state = hopfieldStep(J, state, zero, null)
+  for (let t = 0; t < beats; t++)
+    state = hopfieldStep(J, state, zero, null)
   return state
 }
 
@@ -45,13 +55,22 @@ function hopfieldRelax(input: { J: Int8Array[]; cue: Int8Array; beats: number })
 // load the cue as a single directional slot per cell on the D4 lattice gas, beat the
 // conserving pair rule, then read the cue back out from that slot. The rule streams and
 // permutes charge, it has no energy and no attractors, so it cannot clean the cue.
-function bareRuleRecall(input: { cue: Int8Array; side: number; beats: number }): Int8Array {
+function bareRuleRecall(input: {
+  cue: Int8Array
+  side: number
+  beats: number
+}): Int8Array {
   const { cue, side, beats } = input
   const mesh = d4Mesh({ side })
-  const collision = pairCollision({ opposite: Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d)) })
+  const collision = pairCollision({
+    opposite: Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    ),
+  })
   let will = makeWill(mesh)
   const slot = 0
-  for (let c = 0; c < cue.length && c < mesh.cellCount; c++) will.data[c * mesh.degree + slot] = cue[c] ?? 0
+  for (let c = 0; c < cue.length && c < mesh.cellCount; c++)
+    will.data[c * mesh.degree + slot] = cue[c] ?? 0
   for (let t = 0; t < beats; t++) will = beat(will, collision)
   const out = new Int8Array(cue.length)
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
@@ -61,7 +80,12 @@ function bareRuleRecall(input: { cue: Int8Array; side: number; beats: number }):
   return out
 }
 
-export function hopfieldEmergentRecall(input?: { maxCells?: number; patternCount?: number; fraction?: number; trials?: number }): {
+export function hopfieldEmergentRecall(input?: {
+  maxCells?: number
+  patternCount?: number
+  fraction?: number
+  trials?: number
+}): {
   size: number
   patternCount: number
   hopfieldRecall: number
@@ -95,7 +119,11 @@ export function hopfieldEmergentRecall(input?: { maxCells?: number; patternCount
   for (let m = 0; m < patternCount; m++) {
     for (let k = 0; k < trials; k++) {
       const cueRng = makeRng({ seed: 100 + m * 17 + k })
-      const cue = corrupt({ pattern: patterns[m]!, fraction, rng: cueRng })
+      const cue = corrupt({
+        pattern: patterns[m]!,
+        fraction,
+        rng: cueRng,
+      })
       const relaxed = hopfieldRelax({ J, cue, beats: 20 })
       const bare = bareRuleRecall({ cue, side, beats: 20 })
       if (toneOverlap(relaxed, patterns[m]!) >= clean) hopHits++
@@ -108,13 +136,24 @@ export function hopfieldEmergentRecall(input?: { maxCells?: number; patternCount
   // PASS, the emergent dissipative layer cleans the cue to the prototype at high rate AND
   // the bare reversible rule does NOT (it conserves charge, scrambles, never reaches the
   // fixed point). The honest negative is required, both halves must hold.
-  const solved = hopfieldRecall > 0.85 && bareRecall < 0.15 && hopfieldRecall > bareRecall + 0.4
-  return { size, patternCount, hopfieldRecall, bareRecall, chance, solved }
+  const solved =
+    hopfieldRecall > 0.85 &&
+    bareRecall < 0.15 &&
+    hopfieldRecall > bareRecall + 0.4
+  return {
+    size,
+    patternCount,
+    hopfieldRecall,
+    bareRecall,
+    chance,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'associative/hopfield-emergent-recall',
-  title: 'attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the honest negative',
+  title:
+    'attractor recall works on the dissipative Hopfield layer and fails on the bare reversible rule, the honest negative',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L3',

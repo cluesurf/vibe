@@ -27,7 +27,8 @@ const OBSERVED_Z = 91.188
 
 export default experiment({
   id: 'gauge/electroweak-boson-masses',
-  title: 'the W and Z masses, M_W/M_Z = cos(theta_W) near the observed value and the custodial rho = 1 from the Higgs doublet, a triplet the control',
+  title:
+    'the W and Z masses, M_W/M_Z = cos(theta_W) near the observed value and the custodial rho = 1 from the Higgs doublet, a triplet the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -39,7 +40,10 @@ export default experiment({
     const ratioMatches = Math.abs(predictedRatio - observedRatio) < 0.01
 
     // the custodial rho, one for the doublet, one half for the triplet (the control)
-    const doubletRho = custodialRho({ isospin: 0.5, isospinComponent: 0.5 })
+    const doubletRho = custodialRho({
+      isospin: 0.5,
+      isospinComponent: 0.5,
+    })
     const tripletRho = custodialRho({ isospin: 1, isospinComponent: 1 })
     const doubletGivesOne = Math.abs(doubletRho - 1) < 1e-9
     const tripletBreaksIt = Math.abs(tripletRho - 1) > 0.1

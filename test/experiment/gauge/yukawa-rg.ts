@@ -8,16 +8,26 @@ import { qcdRunningMassFactor } from '@/code/dynamics/renormalization-group'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const MZ = 91.19, MGUT = 2e16
+const MZ = 91.19,
+  MGUT = 2e16
 const asMZ = 0.1184 // alpha_s(M_Z)
 
 // QCD running-mass factor m(MZ)/m(MGUT) = [alpha_s(MZ)/alpha_s(MGUT)]^(gamma0/(2 b0)), gamma0 = 8 (= 6 C_F),
 // b0 = |b3|. (1-loop, the dominant, QCD-only, the electroweak pieces add ~10-15 percent.)
 function qcdMassFactor(b3: number): number {
-  return qcdRunningMassFactor({ couplingAtReference: asMZ, beta3: b3, referenceScale: MZ, highScale: MGUT })
+  return qcdRunningMassFactor({
+    couplingAtReference: asMZ,
+    beta3: b3,
+    referenceScale: MZ,
+    highScale: MGUT,
+  })
 }
 
-export function yukawaRG(): { bTauSM: number; bTauMSSM: number; detRatio: number } {
+export function yukawaRG(): {
+  bTauSM: number
+  bTauMSSM: number
+  detRatio: number
+} {
   // (1) b-tau, ratio at GUT is 1, at M_Z it is the QCD enhancement of m_b (the tau gets none). The one-loop
   // QCD-only running is the leading estimate, the higher-order corrections (two-loop QCD and the top-Yukawa, which
   // pulls m_b DOWN) reduce it from about 2.6 to the observed 2.35.
@@ -32,7 +42,8 @@ export function yukawaRG(): { bTauSM: number; bTauMSSM: number; detRatio: number
 
 export default experiment({
   id: 'gauge/yukawa-rg',
-  title: 'running b-tau unification down gives the observed mass ratio and determinant relation',
+  title:
+    'running b-tau unification down gives the observed mass ratio and determinant relation',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',

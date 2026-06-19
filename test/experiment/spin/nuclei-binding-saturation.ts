@@ -33,17 +33,28 @@ const G = 0.3 // the short-range two-body attraction strength (per co-located pa
 // escape threshold (the band bottom), counting only genuinely bound orbitals (a band state, at or above the
 // threshold, contributes nothing). This is the filled Fermi sea (each fermion in its own orbital, Pauli), so a
 // flat box (depth 0) binds nothing.
-function fermionBinding(count: number, wellWidth: number, depth: number): number {
+function fermionBinding(
+  count: number,
+  wellWidth: number,
+  depth: number,
+): number {
   const boxLength = wellWidth + 2 * PAD
   const potential = new Float64Array(boxLength)
   for (let r = PAD; r < PAD + wellWidth; r++) potential[r] = -depth
   const eigenpairs = lowestEigenpairs({
-    operator: { size: boxLength, apply: ({ x }) => openChainPotentialApply({ phi: x, potential, hopping: T }) },
+    operator: {
+      size: boxLength,
+      apply: ({ x }) =>
+        openChainPotentialApply({ phi: x, potential, hopping: T }),
+    },
     count,
     shift: 2 * T + depth + 1,
     seed: 1,
   })
-  return eigenpairs.reduce((sum, e) => sum + Math.max(0, BAND_BOTTOM - e.energy), 0)
+  return eigenpairs.reduce(
+    (sum, e) => sum + Math.max(0, BAND_BOTTOM - e.energy),
+    0,
+  )
 }
 
 // the single-particle bound ground energy in a minimal well (one isolated nucleon), the boson orbital
@@ -53,7 +64,11 @@ function singleParticleGround(): number {
   const potential = new Float64Array(boxLength)
   for (let r = PAD; r < PAD + wellWidth; r++) potential[r] = -V0
   return lowestEigenpairs({
-    operator: { size: boxLength, apply: ({ x }) => openChainPotentialApply({ phi: x, potential, hopping: T }) },
+    operator: {
+      size: boxLength,
+      apply: ({ x }) =>
+        openChainPotentialApply({ phi: x, potential, hopping: T }),
+    },
     count: 1,
     shift: 2 * T + V0 + 1,
     seed: 1,
@@ -62,7 +77,8 @@ function singleParticleGround(): number {
 
 export default experiment({
   id: 'spin/nuclei-binding-saturation',
-  title: 'several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead',
+  title:
+    'several bound fermions form a composite with a saturating binding energy (a nucleus), where bosons collapse instead',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L3',
@@ -70,50 +86,69 @@ export default experiment({
   run() {
     // (1) the FERMIONIC composite, exclusion forces a filled sea in a well that grows with N at fixed density.
     // the binding per constituent is the mean depth below the escape threshold of the N filled orbitals.
-    const fermionBindingPerParticle = COUNTS.map((count) => {
+    const fermionBindingPerParticle = COUNTS.map(count => {
       const wellWidth = Math.round(count / DENSITY)
       return fermionBinding(count, wellWidth, V0) / count
     })
     // saturation, the per-constituent binding flattens, the slope over the last counts tends to zero
     const last = fermionBindingPerParticle.length - 1
     const fermionSlope =
-      (fermionBindingPerParticle[last]! - fermionBindingPerParticle[last - 2]!) / (COUNTS[last]! - COUNTS[last - 2]!)
+      (fermionBindingPerParticle[last]! -
+        fermionBindingPerParticle[last - 2]!) /
+      (COUNTS[last]! - COUNTS[last - 2]!)
     const fermionSaturates = Math.abs(fermionSlope) < 0.01 // the binding per nucleon has levelled off
-    const fermionPositive = fermionBindingPerParticle.every((b) => b > 0) // a real (positive) binding
+    const fermionPositive = fermionBindingPerParticle.every(b => b > 0) // a real (positive) binding
 
     // (2) CONTROL, BOSONS, no exclusion, all N condense into the single lowest orbital (binding per particle =
     // its depth below threshold), and the same short-range attraction now acts on every co-located pair, adding
     // g*(N-1)/2 per boson, so the binding per constituent GROWS linearly with N. A collapse, not a saturating nucleus.
     const singleBinding = BAND_BOTTOM - singleParticleGround() // the one-particle bound depth
-    const bosonBindingPerParticle = COUNTS.map((count) => singleBinding + (G * (count - 1)) / 2)
+    const bosonBindingPerParticle = COUNTS.map(
+      count => singleBinding + (G * (count - 1)) / 2,
+    )
     const bosonSlope =
-      (bosonBindingPerParticle[last]! - bosonBindingPerParticle[last - 2]!) / (COUNTS[last]! - COUNTS[last - 2]!)
+      (bosonBindingPerParticle[last]! -
+        bosonBindingPerParticle[last - 2]!) /
+      (COUNTS[last]! - COUNTS[last - 2]!)
     const bosonCollapses = bosonSlope > 0.05 // the per-constituent binding keeps growing, a collapse
 
     // (3) CONTROL, NO BINDING (a loose aggregate), no well (depth 0), every orbital is a delocalized band state
     // at or above the escape threshold, so no orbital is bound, the binding per constituent is exactly 0, the
     // aggregate disperses.
-    const loose = COUNTS.map((count) => fermionBinding(count, Math.round(count / DENSITY), 0) / count)
-    const looseUnbound = loose.every((b) => Math.abs(b) < 0.01) // no real binding, disperses
+    const loose = COUNTS.map(
+      count =>
+        fermionBinding(count, Math.round(count / DENSITY), 0) / count,
+    )
+    const looseUnbound = loose.every(b => Math.abs(b) < 0.01) // no real binding, disperses
 
     const saturationValue = fermionBindingPerParticle[last]!
-    const ok = fermionSaturates && fermionPositive && bosonCollapses && looseUnbound
+    const ok =
+      fermionSaturates &&
+      fermionPositive &&
+      bosonCollapses &&
+      looseUnbound
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'several identical bound fermions form a localized composite (a nucleus) with a measured, positive binding energy whose value PER CONSTITUENT SATURATES to a constant as the count grows (nuclear saturation), a direct consequence of the Pauli exclusion of CM1 which caps the packing density and forces the well to grow rather than the fermions to pile up, where by contrast bosons (no exclusion) all condense into the lowest orbital and their binding per constituent grows without bound (a collapse), and switching off the binding leaves a loose, delocalized aggregate with no deficit that disperses',
       metrics: {
-        saturatedBindingPerParticleTimes1000: Math.round(saturationValue * 1000),
+        saturatedBindingPerParticleTimes1000: Math.round(
+          saturationValue * 1000,
+        ),
         fermionBindingSlopeTimes1000: Math.round(fermionSlope * 1000),
         bosonBindingSlopeTimes1000: Math.round(bosonSlope * 1000),
-        looseBindingPerParticleTimes1000: Math.round(Math.max(...loose.map(Math.abs)) * 1000),
+        looseBindingPerParticleTimes1000: Math.round(
+          Math.max(...loose.map(Math.abs)) * 1000,
+        ),
         fermionSaturates: fermionSaturates ? 1 : 0,
         bosonCollapses: bosonCollapses ? 1 : 0,
       },
       control: {
         bosonBindingSlopeTimes1000: Math.round(bosonSlope * 1000),
-        looseBindingPerParticleTimes1000: Math.round(Math.max(...loose.map(Math.abs)) * 1000),
+        looseBindingPerParticleTimes1000: Math.round(
+          Math.max(...loose.map(Math.abs)) * 1000,
+        ),
       },
       notes:
         'L3, a measured saturating binding energy with two controls (bosonic collapse, loose-aggregate dispersal). The composite is the filled Fermi sea of CM1 fermions in the short-range mean field, computed with the committed tight-binding eigensolver (the same well and solver as quantum/bound-composite). Saturation (the per-constituent binding flattening) is the Pauli-driven, fermionic signature, exactly the CM1 exclusion pressure, the bosonic control collapses instead. This is the first many-body composite of matter, the gate to atoms (CM3).',

@@ -28,11 +28,16 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
 import { makeWill, Will } from '@/code/tone/will'
 import { beat, inverseBeat } from '@/code/rule/lattice-gas'
-import { chargeConjugate, parityReflect, timeReverse } from '@/code/rule/symmetry'
+import {
+  chargeConjugate,
+  parityReflect,
+  timeReverse,
+} from '@/code/rule/symmetry'
 
 export default experiment({
   id: 'foundations/cpt-theorem',
-  title: 'the discrete CPT theorem, the reversible knit has C, P, T symmetries and the combined CPT is a symmetry of the dynamics, the no-T case the control',
+  title:
+    'the discrete CPT theorem, the reversible knit has C, P, T symmetries and the combined CPT is a symmetry of the dynamics, the no-T case the control',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -42,43 +47,72 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
     const collision = headOnRotate({ opposite })
 
     // a deterministic initial configuration (no random, a fixed coordinate pattern)
     const start = makeWill(mesh)
-    const coordinate = (cell: number, axis: number): number => Math.floor(cell / side ** axis) % side
+    const coordinate = (cell: number, axis: number): number =>
+      Math.floor(cell / side ** axis) % side
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       for (let d = 0; d < mesh.degree; d++) {
-        start.data[cell * mesh.degree + d] = (((coordinate(cell, 0) + coordinate(cell, 1) + d) % 3) - 1) as -1 | 0 | 1
+        start.data[cell * mesh.degree + d] = (((coordinate(cell, 0) +
+          coordinate(cell, 1) +
+          d) %
+          3) -
+          1) as -1 | 0 | 1
       }
     }
 
-    const forward = (w: Will): Will => beat({ mesh, data: Int8Array.from(w.data) }, collision)
-    const backward = (w: Will): Will => inverseBeat({ mesh, data: Int8Array.from(w.data) }, collision)
+    const forward = (w: Will): Will =>
+      beat({ mesh, data: Int8Array.from(w.data) }, collision)
+    const backward = (w: Will): Will =>
+      inverseBeat({ mesh, data: Int8Array.from(w.data) }, collision)
     const same = (a: Will, b: Will): boolean => {
-      for (let i = 0; i < a.data.length; i++) if (a.data[i] !== b.data[i]) return false
+      for (let i = 0; i < a.data.length; i++)
+        if (a.data[i] !== b.data[i]) return false
       return true
     }
-    const parity = (w: Will): Will => parityReflect({ will: w, directions, side, axis: 0 })
+    const parity = (w: Will): Will =>
+      parityReflect({ will: w, directions, side, axis: 0 })
 
     // (0) the knit is reversible
     const reversible = same(backward(forward(start)), start)
 
     // (1) C is a symmetry, C(forward(s)) = forward(C(s))
-    const chargeSymmetry = same(chargeConjugate(forward(start)), forward(chargeConjugate(start)))
+    const chargeSymmetry = same(
+      chargeConjugate(forward(start)),
+      forward(chargeConjugate(start)),
+    )
     // (2) P is a symmetry, P(forward(s)) = forward(P(s))
-    const paritySymmetry = same(parity(forward(start)), forward(parity(start)))
+    const paritySymmetry = same(
+      parity(forward(start)),
+      forward(parity(start)),
+    )
     // (3) T reverses, T(forward(T(s))) = backward(s)
-    const timeReversal = same(timeReverse(forward(timeReverse(start))), backward(start))
+    const timeReversal = same(
+      timeReverse(forward(timeReverse(start))),
+      backward(start),
+    )
     // (4) the combined CPT, CPT(forward(s)) = backward(CPT(s))
-    const cpt = (w: Will): Will => chargeConjugate(parity(timeReverse(w)))
+    const cpt = (w: Will): Will =>
+      chargeConjugate(parity(timeReverse(w)))
     const cptSymmetry = same(cpt(forward(start)), backward(cpt(start)))
     // (5) the control, CP WITHOUT T fails (no time reversal)
     const cpNoTime = (w: Will): Will => chargeConjugate(parity(w))
-    const controlFails = !same(cpNoTime(forward(start)), backward(cpNoTime(start)))
+    const controlFails = !same(
+      cpNoTime(forward(start)),
+      backward(cpNoTime(start)),
+    )
 
-    const ok = reversible && chargeSymmetry && paritySymmetry && timeReversal && cptSymmetry && controlFails
+    const ok =
+      reversible &&
+      chargeSymmetry &&
+      paritySymmetry &&
+      timeReversal &&
+      cptSymmetry &&
+      controlFails
 
     return verdict({
       status: ok ? 'pass' : 'fail',

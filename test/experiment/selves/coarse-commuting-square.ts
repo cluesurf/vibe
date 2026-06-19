@@ -8,14 +8,25 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
-import { commutingSquareError, mostProbableNext } from '@/code/coarse/validator'
+import {
+  countMatrix,
+  rowStochastic,
+} from '@/code/coarse/transition-matrix'
+import {
+  commutingSquareError,
+  mostProbableNext,
+} from '@/code/coarse/validator'
 import { beat } from '@/code/model/self-kit'
-import { selfTrajectory, positionBin, makeRng } from '@/code/coarse/self-trajectory'
+import {
+  selfTrajectory,
+  positionBin,
+  makeRng,
+} from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/coarse-commuting-square',
-  title: 'the learned effective rule commutes with one micro beat far better than a random rule',
+  title:
+    'the learned effective rule commutes with one micro beat far better than a random rule',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -23,13 +34,27 @@ export default experiment({
   run() {
     const bins = 8
     const L = 64
-    const traj = selfTrajectory({ L, beats: 800, bins, seed: 13579, snapshotEvery: 6 })
-    const tpm = rowStochastic(countMatrix({ trajectory: traj.labels, stateCount: bins, lag: 1 }))
+    const traj = selfTrajectory({
+      L,
+      beats: 800,
+      bins,
+      seed: 13579,
+      snapshotEvery: 6,
+    })
+    const tpm = rowStochastic(
+      countMatrix({
+        trajectory: traj.labels,
+        stateCount: bins,
+        lag: 1,
+      }),
+    )
     const learned = mostProbableNext(tpm)
 
     // a random effective rule on the same coarse map, the control.
     const rng = makeRng(4321)
-    const random = Array.from({ length: bins }, () => Math.floor(rng.next() * bins))
+    const random = Array.from({ length: bins }, () =>
+      Math.floor(rng.next() * bins),
+    )
 
     const stepRng = makeRng(2468)
     const graph = traj.graph
@@ -39,19 +64,20 @@ export default experiment({
       beat(copy, graph, moved, stepRng, 0.01, 0.22)
       return copy
     }
-    const coarseMap = (tone: Int8Array): number => positionBin({ tone, L, bins })
+    const coarseMap = (tone: Int8Array): number =>
+      positionBin({ tone, L, bins })
 
     const errorStructured = commutingSquareError({
       states: traj.snapshots,
       microStep,
       coarseMap,
-      macroStep: (bin) => learned[bin]!,
+      macroStep: bin => learned[bin]!,
     })
     const errorRandom = commutingSquareError({
       states: traj.snapshots,
       microStep,
       coarseMap,
-      macroStep: (bin) => random[bin]!,
+      macroStep: bin => random[bin]!,
     })
 
     const ok = errorStructured < errorRandom - 0.1
@@ -59,9 +85,15 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the learned most-probable-next effective rule commutes with a micro beat, with lower error than a random rule on the same coarse map',
-      metrics: { errorStructured, errorRandom, bins, snapshots: traj.snapshots.length },
+      metrics: {
+        errorStructured,
+        errorRandom,
+        bins,
+        snapshots: traj.snapshots.length,
+      },
       control: { errorRandom },
-      notes: 'statistical, one realization, L2 validity check of the effective rule, not a clean-level claim',
+      notes:
+        'statistical, one realization, L2 validity check of the effective rule, not a clean-level claim',
     })
   },
 })

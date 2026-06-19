@@ -6,12 +6,18 @@
 // honest claim is the SCALING, shown by the smaller radius increment under a 4x size increase.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenterBySide,
+} from '@/code/substrate/cubic-lattice'
 import { coverageRadius } from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativeSearchLatency(input?: { smallCells?: number; largeCells?: number }): {
+export function associativeSearchLatency(input?: {
+  smallCells?: number
+  largeCells?: number
+}): {
   bulkRadiusSmall: number
   bulkRadiusLarge: number
   bulkDelta: number
@@ -23,10 +29,22 @@ export function associativeSearchLatency(input?: { smallCells?: number; largeCel
   const smallCells = input?.smallCells ?? 750
   const largeCells = input?.largeCells ?? 3000
 
-  const gS = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: smallCells })
-  const gL = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: largeCells })
-  const bulkRadiusSmall = coverageRadius({ neighbors: gS.neighbors, seed: 0 })
-  const bulkRadiusLarge = coverageRadius({ neighbors: gL.neighbors, seed: 0 })
+  const gS = buildCellGraph({
+    symbol: [3, 4, 3, 4],
+    maxCells: smallCells,
+  })
+  const gL = buildCellGraph({
+    symbol: [3, 4, 3, 4],
+    maxCells: largeCells,
+  })
+  const bulkRadiusSmall = coverageRadius({
+    neighbors: gS.neighbors,
+    seed: 0,
+  })
+  const bulkRadiusLarge = coverageRadius({
+    neighbors: gL.neighbors,
+    seed: 0,
+  })
   const bulkDelta = bulkRadiusLarge - bulkRadiusSmall
 
   // cubic sides chosen so the cubes hold about the same cell counts (4x apart)
@@ -58,13 +76,17 @@ export function associativeSearchLatency(input?: { smallCells?: number; largeCel
 
 export default experiment({
   id: 'associative/search-latency',
-  title: 'bulk associative search latency scales logarithmically with size, sub-polynomially, versus N^(1/3) for a flat cubic memory',
+  title:
+    'bulk associative search latency scales logarithmically with size, sub-polynomially, versus N^(1/3) for a flat cubic memory',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
   run() {
-    const r = associativeSearchLatency({ smallCells: 750, largeCells: 3000 })
+    const r = associativeSearchLatency({
+      smallCells: 750,
+      largeCells: 3000,
+    })
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:
@@ -76,7 +98,11 @@ export default experiment({
         cubicDelta: r.cubicDelta,
       },
       // CONTROL: the flat cubic radius increment under the same 4x size increase
-      control: { cubicRadiusSmall: r.cubicRadiusSmall, cubicRadiusLarge: r.cubicRadiusLarge, cubicDelta: r.cubicDelta },
+      control: {
+        cubicRadiusSmall: r.cubicRadiusSmall,
+        cubicRadiusLarge: r.cubicRadiusLarge,
+        cubicDelta: r.cubicDelta,
+      },
     })
   },
 })

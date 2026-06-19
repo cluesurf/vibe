@@ -18,7 +18,10 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
   const d = new Int32Array(n).fill(1)
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < i; j++) {
-      if (getBit(p.future, { row: j, col: i }) && (d[j] ?? 0) + 1 > (d[i] ?? 0)) {
+      if (
+        getBit(p.future, { row: j, col: i }) &&
+        (d[j] ?? 0) + 1 > (d[i] ?? 0)
+      ) {
         d[i] = (d[j] ?? 0) + 1
       }
     }

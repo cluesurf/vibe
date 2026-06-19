@@ -33,16 +33,21 @@ export function sprinkleDeSitter(input: {
     eta.push((1 - Math.exp(-H * t)) / H)
   }
   // Sort by proper time so the labelling is topological (past before future).
-  const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => (tau[a] ?? 0) - (tau[b] ?? 0))
-  const sTau = order.map((i) => tau[i] ?? 0)
-  const sX = order.map((i) => x[i] ?? 0)
-  const sEta = order.map((i) => eta[i] ?? 0)
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (a, b) => (tau[a] ?? 0) - (tau[b] ?? 0),
+  )
+  const sTau = order.map(i => tau[i] ?? 0)
+  const sX = order.map(i => x[i] ?? 0)
+  const sEta = order.map(i => eta[i] ?? 0)
 
   const future = makeBitMatrix({ rows: n, cols: n })
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       // i precedes j (sTau[i] <= sTau[j]) iff inside the forward light cone.
-      if (Math.abs((sX[j] ?? 0) - (sX[i] ?? 0)) <= (sEta[j] ?? 0) - (sEta[i] ?? 0)) {
+      if (
+        Math.abs((sX[j] ?? 0) - (sX[i] ?? 0)) <=
+        (sEta[j] ?? 0) - (sEta[i] ?? 0)
+      ) {
         setBit(future, { row: i, col: j })
       }
     }

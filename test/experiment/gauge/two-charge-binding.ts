@@ -24,7 +24,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // integrate two charges under the 1D gauge force, launched apart, return the max and final separation.
-function evolve(input: { q1: number; q2: number; coupling: number }): { maxSeparation: number; finalSeparation: number } {
+function evolve(input: { q1: number; q2: number; coupling: number }): {
+  maxSeparation: number
+  finalSeparation: number
+} {
   const dt = 0.1
   const steps = 3000
   const fieldStrength = 0.5 // the constant 1D field per unit enclosed charge (Gauss law)
@@ -36,8 +39,14 @@ function evolve(input: { q1: number; q2: number; coupling: number }): { maxSepar
   let maxSeparation = x2 - x1
   for (let t = 0; t < steps; t++) {
     // 1D gauge force on each charge, q_i times the field from the OTHER charge (constant, points away from +).
-    const f1 = input.coupling * input.q1 * (input.q2 * Math.sign(x1 - x2) * fieldStrength)
-    const f2 = input.coupling * input.q2 * (input.q1 * Math.sign(x2 - x1) * fieldStrength)
+    const f1 =
+      input.coupling *
+      input.q1 *
+      (input.q2 * Math.sign(x1 - x2) * fieldStrength)
+    const f2 =
+      input.coupling *
+      input.q2 *
+      (input.q1 * Math.sign(x2 - x1) * fieldStrength)
     v1 += f1 * dt
     v2 += f2 * dt
     x1 += v1 * dt
@@ -52,7 +61,8 @@ function evolve(input: { q1: number; q2: number; coupling: number }): { maxSepar
 
 export default experiment({
   id: 'gauge/two-charge-binding',
-  title: 'the 1D gauge force confines two opposite charges (bound at any energy), zero coupling lets them escape',
+  title:
+    'the 1D gauge force confines two opposite charges (bound at any energy), zero coupling lets them escape',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -82,7 +92,10 @@ export default experiment({
         uncoupledEscapes: uncoupledEscapes ? 1 : 0,
         likeChargeSeparates: likeChargeSeparates ? 1 : 0,
       },
-      control: { noCouplingMaxSeparation: noCoupling.maxSeparation, likeChargeMaxSeparation: likeCharge.maxSeparation },
+      control: {
+        noCouplingMaxSeparation: noCoupling.maxSeparation,
+        likeChargeMaxSeparation: likeCharge.maxSeparation,
+      },
       notes:
         'field-mediated gauge attraction (L2, coupling is an input as in gauge/coupled-qed-3434). In 1D the gauge potential is linear, so opposite charges are CONFINED, bound at any launch energy, the strongest of the attraction routes. With a bath this would also settle (the inspiral-capture mechanism). So capture is reachable by the cheap vacuum Casimir (selves/casimir-vacuum-attraction) or by this stronger gauge attraction',
     })

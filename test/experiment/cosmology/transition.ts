@@ -11,7 +11,11 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { Poset } from '@/code/tool/poset'
-import { Action, smearedBenincasaDowker, benincasaDowkerAction } from '@/code/dynamics/action'
+import {
+  Action,
+  smearedBenincasaDowker,
+  benincasaDowkerAction,
+} from '@/code/dynamics/action'
 import { sampleCausalSets } from '@/code/dynamics/mcmc'
 import { orderStatistics } from '@/code/measure/order-stats'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
@@ -64,7 +68,10 @@ export default experiment({
       rng: makeRng({ seed: 1 }),
     })
     const layered = kleitmanRothschildOrder({ size: 72 })
-    const smeared = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
+    const smeared = smearedBenincasaDowker({
+      epsilon: 0.9,
+      dimension: 2,
+    })
     const fromManifold = equilibratedHeightRatio({
       action: smeared,
       beta: 2,

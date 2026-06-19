@@ -10,7 +10,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { triangulatedSurface } from '@/code/substrate/triangulated-surface'
-import { cellComplexOf, kahlerDiracZeroModes } from '@/code/operator/dirac'
+import {
+  cellComplexOf,
+  kahlerDiracZeroModes,
+} from '@/code/operator/dirac'
 
 function zeroModeCount(input: {
   width: number
@@ -31,14 +34,17 @@ function zeroModeCount(input: {
   })
   return {
     zeroModes: result.zeroModes,
-    smallest: result.smallestMagnitudes.slice(0, 6).map((x) => Math.round(x * 1000) / 1000),
+    smallest: result.smallestMagnitudes
+      .slice(0, 6)
+      .map(x => Math.round(x * 1000) / 1000),
     cells: complex.cellCount.join(','),
   }
 }
 
 export default experiment({
   id: 'spin/topology',
-  title: 'the Kahler-Dirac zero-mode count matches the Betti sum across disk, cylinder, and torus',
+  title:
+    'the Kahler-Dirac zero-mode count matches the Betti sum across disk, cylinder, and torus',
   category: 'spin',
   substrates: ['any'],
   depth: 'L2',

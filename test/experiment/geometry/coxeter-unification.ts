@@ -25,12 +25,34 @@ const SYMBOLS: { name: string; schlafli: number[] }[] = [
 
 export function coxeterUnification(input: { seed: number }): Record<
   string,
-  { dimension: number; size: number; degree: number; anisotropy: number; lorentzSafe: boolean }
+  {
+    dimension: number
+    size: number
+    degree: number
+    anisotropy: number
+    lorentzSafe: boolean
+  }
 > {
-  const out: Record<string, { dimension: number; size: number; degree: number; anisotropy: number; lorentzSafe: boolean }> = {}
+  const out: Record<
+    string,
+    {
+      dimension: number
+      size: number
+      degree: number
+      anisotropy: number
+      lorentzSafe: boolean
+    }
+  > = {}
   for (const sym of SYMBOLS) {
-    const g = coxeterTessellation({ schlafli: sym.schlafli, maxVertices: 2500 })
-    const aniso = lorentzIsotropy({ substrate: g, samples: 3000, rng: makeRng({ seed: input.seed }) })
+    const g = coxeterTessellation({
+      schlafli: sym.schlafli,
+      maxVertices: 2500,
+    })
+    const aniso = lorentzIsotropy({
+      substrate: g,
+      samples: 3000,
+      rng: makeRng({ seed: input.seed }),
+    })
     out[sym.name] = {
       dimension: sym.schlafli.length,
       size: g.size,
@@ -54,15 +76,15 @@ export default experiment({
     const all = Object.values(r)
     const ok =
       all.length === 5 &&
-      all.every((e) => e.lorentzSafe) &&
-      all.some((e) => e.dimension === 3)
+      all.every(e => e.lorentzSafe) &&
+      all.some(e => e.dimension === 3)
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'changing the Schlafli symbol of one generator yields five tessellations spanning 2D and 3D that are all Lorentz-safe',
       metrics: {
         tessellationCount: all.length,
-        maxAnisotropy: Math.max(...all.map((e) => e.anisotropy)),
+        maxAnisotropy: Math.max(...all.map(e => e.anisotropy)),
       },
     })
   },

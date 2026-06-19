@@ -32,7 +32,8 @@ export function freeFermionCorrelationMatrix(input: {
         continue
       }
       for (let j = 0; j < n; j++) {
-        c[i * n + j] = (c[i * n + j] ?? 0) + vik * (eig.vectors[j * n + k] ?? 0)
+        c[i * n + j] =
+          (c[i * n + j] ?? 0) + vik * (eig.vectors[j * n + k] ?? 0)
       }
     }
   }
@@ -53,7 +54,9 @@ export function regionEntanglementEntropy(input: {
   for (let a = 0; a < m; a++) {
     for (let b = 0; b < m; b++) {
       sub.data[a * m + b] =
-        input.c[(input.region[a] ?? 0) * input.n + (input.region[b] ?? 0)] ?? 0
+        input.c[
+          (input.region[a] ?? 0) * input.n + (input.region[b] ?? 0)
+        ] ?? 0
     }
   }
   const eig = eigSymmetric({ matrix: sub })
@@ -70,7 +73,10 @@ export function regionEntanglementEntropy(input: {
 // for m <= n (symmetric in m and n). For a black hole plus its radiation this rises while the
 // radiation is the smaller side and falls once it is larger, the turnover at the Page time. Returns
 // the entropy in nats.
-export function pageAverageEntropy(input: { dimA: number; dimB: number }): number {
+export function pageAverageEntropy(input: {
+  dimA: number
+  dimB: number
+}): number {
   let m = input.dimA
   let n = input.dimB
   if (m > n) {

@@ -75,7 +75,15 @@ export function perfectTensorContiguousThreshold(input: {
     for (let start = 0; start + size <= leaves; start++) {
       const erased = new Set<number>()
       for (let i = start; i < start + size; i++) erased.add(i)
-      if (!perfectTensorRecoverable({ level, offset: 0, erased, branching, threshold })) {
+      if (
+        !perfectTensorRecoverable({
+          level,
+          offset: 0,
+          erased,
+          branching,
+          threshold,
+        })
+      ) {
         allRecover = false
         break
       }

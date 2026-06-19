@@ -11,7 +11,8 @@ import { outermostShellFraction } from '@/code/substrate/coxeter/growth'
 
 export default experiment({
   id: 'data-structure/interior-empty',
-  title: 'DS13: the hyperbolic bulk is boundary-dominated, almost all cells lie in the outermost shell',
+  title:
+    'DS13: the hyperbolic bulk is boundary-dominated, almost all cells lie in the outermost shell',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -23,7 +24,9 @@ export default experiment({
     const flatFraction = outermostShellFraction(flat.shells)
 
     // the boundary dominates: the hyperbolic outermost-shell fraction is large and clearly exceeds the flat one
-    const boundaryDominates = hyperbolicFraction > 0.3 && hyperbolicFraction > flatFraction + 0.05
+    const boundaryDominates =
+      hyperbolicFraction > 0.3 &&
+      hyperbolicFraction > flatFraction + 0.05
 
     return verdict({
       status: boundaryDominates ? 'pass' : 'fail',

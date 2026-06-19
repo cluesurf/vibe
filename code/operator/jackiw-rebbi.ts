@@ -5,11 +5,18 @@
 // as a function of the soliton width R measures the fermion-induced gradient stiffness (the Skyrme
 // sign in this tractable 1D proxy).
 
-export function jackiwRebbiHamiltonian(input: { sites: number; mass: number; width: number }): number[][] {
+export function jackiwRebbiHamiltonian(input: {
+  sites: number
+  mass: number
+  width: number
+}): number[][] {
   const N = input.sites
   const n = 2 * N
-  const H: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0))
-  const m = (i: number): number => input.mass * Math.tanh((i - N / 2) / input.width)
+  const H: number[][] = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
+  const m = (i: number): number =>
+    input.mass * Math.tanh((i - N / 2) / input.width)
   for (let i = 0; i < N; i++) {
     H[2 * i]![2 * i] = m(i)
     H[2 * i + 1]![2 * i + 1] = -m(i)

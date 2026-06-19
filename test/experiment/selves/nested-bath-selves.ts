@@ -19,11 +19,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { twoBodyBathTrajectory, lateAmplitude } from '@/code/dynamics/oscillator-bath'
+import {
+  twoBodyBathTrajectory,
+  lateAmplitude,
+} from '@/code/dynamics/oscillator-bath'
 
 export default experiment({
   id: 'selves/nested-bath-selves',
-  title: 'two bath-coupled bodies bind into a higher composite self with its own identity and agency, selves nest',
+  title:
+    'two bath-coupled bodies bind into a higher composite self with its own identity and agency, selves nest',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -33,38 +37,72 @@ export default experiment({
     const stiffness = 0.6
     const mutual = 0.8
     // several initial conditions for the two bodies (different placements and orientations).
-    const inits: Array<[number, number]> = [[1, 1], [2, -1], [-1.5, 1.5], [-2, -2]]
+    const inits: Array<[number, number]> = [
+      [1, 1],
+      [2, -1],
+      [-1.5, 1.5],
+      [-2, -2],
+    ]
 
     // the joint final state of the composite, the late amplitudes of both bodies and of their separation.
-    const jointState = (absorbing: boolean, start1: number, start2: number): { body1: number; body2: number; relative: number } => {
-      const { body1, body2 } = twoBodyBathTrajectory({ absorbing, stiffness, mutual, start1, start2, steps })
+    const jointState = (
+      absorbing: boolean,
+      start1: number,
+      start2: number,
+    ): { body1: number; body2: number; relative: number } => {
+      const { body1, body2 } = twoBodyBathTrajectory({
+        absorbing,
+        stiffness,
+        mutual,
+        start1,
+        start2,
+        steps,
+      })
       const relative = body1.map((r1, i) => r1 - body2[i]!)
-      return { body1: lateAmplitude(body1), body2: lateAmplitude(body2), relative: lateAmplitude(relative) }
+      return {
+        body1: lateAmplitude(body1),
+        body2: lateAmplitude(body2),
+        relative: lateAmplitude(relative),
+      }
     }
 
     // COMPOSITE IDENTITY, do all initial conditions settle to the same joint ground state (spread ~ 0)?
     const finalsBath = inits.map(([a, b]) => jointState(true, a, b))
     const finalsClosed = inits.map(([a, b]) => jointState(false, a, b))
-    const spread = (finals: { body1: number; body2: number }[]): number => {
-      const amps = finals.map((f) => Math.max(f.body1, f.body2))
+    const spread = (
+      finals: { body1: number; body2: number }[],
+    ): number => {
+      const amps = finals.map(f => Math.max(f.body1, f.body2))
       return Math.max(...amps) - Math.min(...amps)
     }
     const bathIdentitySpread = spread(finalsBath)
     const closedIdentitySpread = spread(finalsClosed)
 
     // BINDING, does the separation settle (the pair is one bound object) under the bath?
-    const bathRelativeSettles = Math.max(...finalsBath.map((f) => f.relative)) < 0.1
-    const closedRelativeSettles = Math.max(...finalsClosed.map((f) => f.relative)) < 0.1
+    const bathRelativeSettles =
+      Math.max(...finalsBath.map(f => f.relative)) < 0.1
+    const closedRelativeSettles =
+      Math.max(...finalsClosed.map(f => f.relative)) < 0.1
 
     // COMPOSITE AGENCY, kick one sub-body, does the whole composite return to its joint ground state?
     const kickedComposite = (absorbing: boolean): number => {
-      const { body1, body2 } = twoBodyBathTrajectory({ absorbing, stiffness, mutual, start1: 0, start2: 0, steps, kickStep: Math.floor(steps / 2), kickVelocity: 1.0 })
+      const { body1, body2 } = twoBodyBathTrajectory({
+        absorbing,
+        stiffness,
+        mutual,
+        start1: 0,
+        start2: 0,
+        steps,
+        kickStep: Math.floor(steps / 2),
+        kickVelocity: 1.0,
+      })
       return Math.max(lateAmplitude(body1), lateAmplitude(body2))
     }
     const bathAfterKick = kickedComposite(true)
     const closedAfterKick = kickedComposite(false)
 
-    const compositeIdentity = bathIdentitySpread < 0.1 && closedIdentitySpread > 0.5
+    const compositeIdentity =
+      bathIdentitySpread < 0.1 && closedIdentitySpread > 0.5
     const bound = bathRelativeSettles && !closedRelativeSettles
     const compositeAgency = bathAfterKick < 0.1 && closedAfterKick > 0.3
 
@@ -76,8 +114,10 @@ export default experiment({
       metrics: {
         bathIdentitySpread,
         closedIdentitySpread,
-        bathRelativeFinal: Math.max(...finalsBath.map((f) => f.relative)),
-        closedRelativeFinal: Math.max(...finalsClosed.map((f) => f.relative)),
+        bathRelativeFinal: Math.max(...finalsBath.map(f => f.relative)),
+        closedRelativeFinal: Math.max(
+          ...finalsClosed.map(f => f.relative),
+        ),
         bathAfterKick,
         closedAfterKick,
         compositeIdentity: compositeIdentity ? 1 : 0,

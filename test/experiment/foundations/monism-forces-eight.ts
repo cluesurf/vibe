@@ -11,8 +11,12 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Spin(n), n even: vector dimension n, Weyl half-spinor dimension 2^(n/2 - 1).
-function vectorDim(n: number): number { return n }
-function halfSpinorDim(n: number): number { return 2 ** (n / 2 - 1) }
+function vectorDim(n: number): number {
+  return n
+}
+function halfSpinorDim(n: number): number {
+  return 2 ** (n / 2 - 1)
+}
 
 export default experiment({
   id: 'foundations/monism-forces-eight',
@@ -31,15 +35,21 @@ export default experiment({
     const uniqueAtEight = matches.length === 1 && matches[0] === 8
 
     // at n = 8 the vector and BOTH half-spinors are 8-dimensional (triality): 8v + 8s + 8c = 24 (the 24-cell)
-    const eightV = vectorDim(8), eightS = halfSpinorDim(8)
+    const eightV = vectorDim(8),
+      eightS = halfSpinorDim(8)
     const threeFacesEqual = eightV === 8 && eightS === 8
     const tripletSumsTo24 = eightV + eightS + eightS === 24 // the dual 24-cell, the three generations
 
     // control: a NON-self-dual dimension (n = 10, the so(10) GUT dimension) has vector != spinor (10 vs 16)
-    const tenVector = vectorDim(10), tenSpinor = halfSpinorDim(10)
+    const tenVector = vectorDim(10),
+      tenSpinor = halfSpinorDim(10)
     const controlBreaks = tenVector !== tenSpinor
 
-    const ok = uniqueAtEight && threeFacesEqual && tripletSumsTo24 && controlBreaks
+    const ok =
+      uniqueAtEight &&
+      threeFacesEqual &&
+      tripletSumsTo24 &&
+      controlBreaks
 
     return verdict({
       status: ok ? 'pass' : 'fail',

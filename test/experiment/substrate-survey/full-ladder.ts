@@ -19,7 +19,10 @@ import { runModel } from '@/code/compute/run-model'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function fullLadder(input: { base: 'modular' | number[]; seed: number }): {
+export function fullLadder(input: {
+  base: 'modular' | number[]
+  seed: number
+}): {
   name: string
   fromIntegers: boolean
   size: number
@@ -37,7 +40,11 @@ export function fullLadder(input: { base: 'modular' | number[]; seed: number }):
     g = coxeterTessellation({ schlafli: input.base, maxVertices: 1500 })
     name = `Coxeter crystal {${input.base.join(',')}}`
   }
-  const aniso = lorentzIsotropy({ substrate: g, samples: 3000, rng: makeRng({ seed: input.seed }) })
+  const aniso = lorentzIsotropy({
+    substrate: g,
+    samples: 3000,
+    rng: makeRng({ seed: input.seed }),
+  })
   const model = runModel(g, input.seed + 1)
   return {
     name,

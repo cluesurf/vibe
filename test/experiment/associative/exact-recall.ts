@@ -5,12 +5,22 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
-import { makeAssociativeMemory, ternaryWord, storeWord } from '@/code/operator/associative-memory'
-import { exactRecallRate, falsePositiveRate } from '@/code/measure/associative-recall'
+import {
+  makeAssociativeMemory,
+  ternaryWord,
+  storeWord,
+} from '@/code/operator/associative-memory'
+import {
+  exactRecallRate,
+  falsePositiveRate,
+} from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativeExactRecall(input?: { maxCells?: number; wordBits?: number }): {
+export function associativeExactRecall(input?: {
+  maxCells?: number
+  wordBits?: number
+}): {
   cellCount: number
   recall: number
   falsePositive: number
@@ -19,16 +29,30 @@ export function associativeExactRecall(input?: { maxCells?: number; wordBits?: n
   const maxCells = input?.maxCells ?? 1500
   const wordBits = input?.wordBits ?? 21
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
-  const mem = makeAssociativeMemory({ neighbors: g.neighbors, wordBits })
-  for (let c = 0; c < g.cellCount; c++) storeWord(mem, c, ternaryWord(c, wordBits))
+  const mem = makeAssociativeMemory({
+    neighbors: g.neighbors,
+    wordBits,
+  })
+  for (let c = 0; c < g.cellCount; c++)
+    storeWord(mem, c, ternaryWord(c, wordBits))
   const recall = exactRecallRate(mem)
-  const falsePositive = falsePositiveRate({ mem, trials: 2000, rng: makeRng({ seed: 1 }) })
-  return { cellCount: g.cellCount, recall, falsePositive, solved: recall === 1 && falsePositive < 0.01 }
+  const falsePositive = falsePositiveRate({
+    mem,
+    trials: 2000,
+    rng: makeRng({ seed: 1 }),
+  })
+  return {
+    cellCount: g.cellCount,
+    recall,
+    falsePositive,
+    solved: recall === 1 && falsePositive < 0.01,
+  }
 }
 
 export default experiment({
   id: 'associative/exact-recall',
-  title: 'a content-addressable memory on the {3,4,3,4} bulk recalls every stored word exactly with no false positives',
+  title:
+    'a content-addressable memory on the {3,4,3,4} bulk recalls every stored word exactly with no false positives',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L1',
@@ -39,7 +63,11 @@ export default experiment({
       status: r.solved ? 'pass' : 'fail',
       claim:
         'storing a distinct word on every bulk cell and querying by exact content returns the unique correct cell every time, with near-zero false positives on random queries',
-      metrics: { cellCount: r.cellCount, recall: r.recall, falsePositive: r.falsePositive },
+      metrics: {
+        cellCount: r.cellCount,
+        recall: r.recall,
+        falsePositive: r.falsePositive,
+      },
     })
   },
 })

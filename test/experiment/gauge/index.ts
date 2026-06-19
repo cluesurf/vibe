@@ -11,7 +11,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gauge/index-theorem',
-  title: 'the overlap fermion zero-mode count equals the gauge topological charge, the lattice index theorem',
+  title:
+    'the overlap fermion zero-mode count equals the gauge topological charge, the lattice index theorem',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -19,14 +20,15 @@ export default experiment({
   run() {
     const length = 6
     const charges = [0, 1, 2, -1]
-    const results = charges.map((charge) => {
+    const results = charges.map(charge => {
       const result = overlapIndex({ length, charge })
       const rounded = Math.round(result.index)
       const isInteger = Math.abs(result.index - rounded) < 0.05
-      const matches = isInteger && Math.abs(rounded) === Math.abs(charge)
+      const matches =
+        isInteger && Math.abs(rounded) === Math.abs(charge)
       return { charge, index: result.index, matches }
     })
-    const allMatch = results.every((row) => row.matches)
+    const allMatch = results.every(row => row.matches)
     return verdict({
       status: allMatch ? 'pass' : 'fail',
       claim:

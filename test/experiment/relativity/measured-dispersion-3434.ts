@@ -16,17 +16,32 @@ function measuredOmega(k: number, m: number): number {
   return coinedWalkDispersion({ theta: m, k }) // omega(k) read from the operator trace
 }
 
-export function measuredDispersion(): { restEnergyIsMass: boolean; lorentzAtLongWave: boolean; lightSpeedMassless: boolean; subluminalMassive: boolean } {
+export function measuredDispersion(): {
+  restEnergyIsMass: boolean
+  lorentzAtLongWave: boolean
+  lightSpeedMassless: boolean
+  subluminalMassive: boolean
+} {
   // (1) rest energy: omega(0) should equal the mass m, MEASURED from the operator (not input)
   let restEnergyIsMass = true
-  for (const m of [0.0, 0.2, 0.5, 0.8]) { if (Math.abs(measuredOmega(0, m) - m) > 1e-9) restEnergyIsMass = false }
+  for (const m of [0.0, 0.2, 0.5, 0.8]) {
+    if (Math.abs(measuredOmega(0, m) - m) > 1e-9)
+      restEnergyIsMass = false
+  }
 
   // (2) Lorentz at long wavelength: omega^2 - k^2 -> m^2 as k -> 0 (measured)
   let lorentzAtLongWave = true
-  for (const m of [0.2, 0.5]) { const k = 0.02, w = measuredOmega(k, m); if (Math.abs((w * w - k * k) - m * m) > 1e-3) lorentzAtLongWave = false }
+  for (const m of [0.2, 0.5]) {
+    const k = 0.02,
+      w = measuredOmega(k, m)
+    if (Math.abs(w * w - k * k - m * m) > 1e-3)
+      lorentzAtLongWave = false
+  }
 
   // (3) massless: group velocity d omega/dk -> 1 (light speed), measured by finite difference on the operator
-  const dk = 1e-4, gv = (m: number, k: number): number => (measuredOmega(k + dk, m) - measuredOmega(k, m)) / dk
+  const dk = 1e-4,
+    gv = (m: number, k: number): number =>
+      (measuredOmega(k + dk, m) - measuredOmega(k, m)) / dk
   const masslessGV = gv(0, 0.3) // group velocity at m=0, mid-band
   const lightSpeedMassless = Math.abs(masslessGV - 1) < 1e-3
 
@@ -34,12 +49,18 @@ export function measuredDispersion(): { restEnergyIsMass: boolean; lorentzAtLong
   const massiveGV = gv(0.5, 0.3)
   const subluminalMassive = massiveGV < 0.98 && massiveGV > 0
 
-  return { restEnergyIsMass, lorentzAtLongWave, lightSpeedMassless, subluminalMassive }
+  return {
+    restEnergyIsMass,
+    lorentzAtLongWave,
+    lightSpeedMassless,
+    subluminalMassive,
+  }
 }
 
 export default experiment({
   id: 'relativity/measured-dispersion-3434',
-  title: 'the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode',
+  title:
+    'the walk dispersion gives rest energy = mass, Lorentz at long wave, and a massless light-speed mode',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L1',
@@ -51,8 +72,10 @@ export default experiment({
       r.lorentzAtLongWave &&
       r.lightSpeedMassless &&
       r.subluminalMassive
-    const massless = (measuredOmega(0.3 + 1e-4, 0) - measuredOmega(0.3, 0)) / 1e-4
-    const massive = (measuredOmega(0.3 + 1e-4, 0.5) - measuredOmega(0.3, 0.5)) / 1e-4
+    const massless =
+      (measuredOmega(0.3 + 1e-4, 0) - measuredOmega(0.3, 0)) / 1e-4
+    const massive =
+      (measuredOmega(0.3 + 1e-4, 0.5) - measuredOmega(0.3, 0.5)) / 1e-4
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -11,7 +11,10 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicTiling } from '@/code/substrate/hyperbolic-graph'
-import { buildAddressedTree, routeByAddress } from '@/code/substrate/tree-addressing'
+import {
+  buildAddressedTree,
+  routeByAddress,
+} from '@/code/substrate/tree-addressing'
 import { graphDistance } from '@/code/measure/distance'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -20,7 +23,10 @@ import { verdict } from '@/test/scaffold/verdict'
 // order plus child-ordinal addresses) and the address-arithmetic router live in
 // code/substrate/tree-addressing.
 
-export function fibonacciNavigation(input: { pairs: number; seed: number }): {
+export function fibonacciNavigation(input: {
+  pairs: number
+  seed: number
+}): {
   cells: number
   treeDepth: number
   deliveryRate: number
@@ -28,11 +34,17 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
   meanStretch: number
   levelGrowthRatio: number
 } {
-  const g = hyperbolicTiling({ p: 7, q: 3, depth: 6, connectThreshold: 0.5, maxVertices: 2200 })
+  const g = hyperbolicTiling({
+    p: 7,
+    q: 3,
+    depth: 6,
+    connectThreshold: 0.5,
+    maxVertices: 2200,
+  })
   const tree = buildAddressedTree(g)
 
   // Adjacency sets for an honest validity check of each route.
-  const adj = g.neighbors.map((row) => new Set<number>(Array.from(row)))
+  const adj = g.neighbors.map(row => new Set<number>(Array.from(row)))
 
   const rng = makeRng({ seed: input.seed })
   let delivered = 0
@@ -79,7 +91,9 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
       ratios.push((tree.levelSizes[i] ?? 0) / prev)
     }
   }
-  const levelGrowthRatio = ratios.length ? ratios.reduce((a, b) => a + b, 0) / ratios.length : 0
+  const levelGrowthRatio = ratios.length
+    ? ratios.reduce((a, b) => a + b, 0) / ratios.length
+    : 0
 
   return {
     cells: g.size,
@@ -93,7 +107,8 @@ export function fibonacciNavigation(input: { pairs: number; seed: number }): {
 
 export default experiment({
   id: 'addressing/fibonacci-navigation',
-  title: 'address arithmetic routes every signal exactly and efficiently on the heptagrid',
+  title:
+    'address arithmetic routes every signal exactly and efficiently on the heptagrid',
   category: 'addressing',
   substrates: 'any',
   depth: 'L2',

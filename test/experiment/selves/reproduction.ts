@@ -14,14 +14,36 @@
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
-import { csrBallNodes, csrDistances, edgesFromCsr } from '@/code/tool/graph'
+import {
+  csrBallNodes,
+  csrDistances,
+  edgesFromCsr,
+} from '@/code/tool/graph'
 import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { countLargeSameSignComponents } from '@/code/model/self-kit'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: false, arrow: 0 })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void =>
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: false,
+    arrow: 0,
+  })
 
 export function reproduction(input?: { n?: number }): {
   n: number
@@ -40,19 +62,42 @@ export function reproduction(input?: { n?: number }): {
   const moved = new Uint8Array(N)
 
   // a solid self: a + ball. measure its radius to show it is almost all boundary (no clean bisection)
-  const self = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 6000 })
-  const distAll = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
+  const self = csrBallNodes({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+    limit: 6000,
+  })
+  const distAll = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+  })
   let ballRadius = 0
-  for (const i of self) if (distAll[i]! > ballRadius) ballRadius = distAll[i]!
+  for (const i of self)
+    if (distAll[i]! > ballRadius) ballRadius = distAll[i]!
   const tone = new Int8Array(N)
   for (const i of self) tone[i] = 1
   let q0 = 0
   for (let i = 0; i < N; i++) q0 += tone[i]!
 
-  const startComponents = countLargeSameSignComponents({ tone, g, minSize: 300, sign: 'positive' })
+  const startComponents = countLargeSameSignComponents({
+    tone,
+    g,
+    minSize: 300,
+    sign: 'positive',
+  })
   const rng = makeRng({ seed: 5 })
-  for (let b = 0; b < 30; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rng)
-  const endComponents = countLargeSameSignComponents({ tone, g, minSize: 300, sign: 'positive' })
+  for (let b = 0; b < 30; b++)
+    beat(tone, eu, ev, g.offsets, g.adj, moved, rng)
+  const endComponents = countLargeSameSignComponents({
+    tone,
+    g,
+    minSize: 300,
+    sign: 'positive',
+  })
   let q1 = 0
   for (let i = 0; i < N; i++) q1 += tone[i]!
   const conserved = q0 === q1
@@ -61,12 +106,22 @@ export function reproduction(input?: { n?: number }): {
   const fissionSuppressed = startComponents === 1 && endComponents === 1
   const solved = conserved && fissionSuppressed
 
-  return { n: N, ballRadius, ballCells: self.length, startComponents, endComponents, conserved, fissionSuppressed, solved }
+  return {
+    n: N,
+    ballRadius,
+    ballCells: self.length,
+    startComponents,
+    endComponents,
+    conserved,
+    fissionSuppressed,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/reproduction',
-  title: 'fission is suppressed on hyperbolic geometry, a self stays one',
+  title:
+    'fission is suppressed on hyperbolic geometry, a self stays one',
   category: 'selves',
   substrates: ['534'],
   depth: 'L2',

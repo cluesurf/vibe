@@ -29,7 +29,8 @@ export function refractiveDeflection(input: {
   let tx = 1
   let ty = 0
 
-  const index = (px: number, py: number): number => 1 + k / Math.sqrt(px * px + py * py + soft * soft)
+  const index = (px: number, py: number): number =>
+    1 + k / Math.sqrt(px * px + py * py + soft * soft)
   const gradient = (px: number, py: number): [number, number] => {
     const r2 = px * px + py * py + soft * soft
     const f = -k / (r2 * Math.sqrt(r2))

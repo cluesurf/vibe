@@ -30,7 +30,8 @@ import { hasZeroDivisor } from '@/code/measure/division-algebra'
 
 export default experiment({
   id: 'foundations/dynamics-forces-octonions',
-  title: 'the dynamics forces the octonions (reversibility caps dim at 8, fermions require dim 8, they meet at exactly 8), so the base is one root, the dynamics',
+  title:
+    'the dynamics forces the octonions (reversibility caps dim at 8, fermions require dim 8, they meet at exactly 8), so the base is one root, the dynamics',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -38,27 +39,36 @@ export default experiment({
   run() {
     // reversibility (a division algebra, no zero divisors) allows the dimensions 1, 2, 4, 8 and excludes 16
     const reversibleDims: number[] = []
-    for (let level = 0; level <= 4; level++) if (!hasZeroDivisor(level)) reversibleDims.push(2 ** level)
-    const reversibilityCapsAtEight = reversibleDims.includes(8) && !reversibleDims.includes(16)
+    for (let level = 0; level <= 4; level++)
+      if (!hasZeroDivisor(level)) reversibleDims.push(2 ** level)
+    const reversibilityCapsAtEight =
+      reversibleDims.includes(8) && !reversibleDims.includes(16)
 
     // fermions (spinor triality, so(d) = D4) require the dimension 8 (D4), lower dimensions have no triality
     const trialityDims: number[] = []
     for (const d of [1, 2, 4, 8, 16]) {
       const n = d / 2
-      if (Number.isInteger(n) && n >= 4 && hasTriality(n)) trialityDims.push(d)
+      if (Number.isInteger(n) && n >= 4 && hasTriality(n))
+        trialityDims.push(d)
     }
-    const fermionsRequireEight = trialityDims.length === 1 && trialityDims[0] === 8
+    const fermionsRequireEight =
+      trialityDims.length === 1 && trialityDims[0] === 8
 
     // the intersection is exactly {8}, the octonions, forced
-    const forced = reversibleDims.filter((d) => trialityDims.includes(d))
+    const forced = reversibleDims.filter(d => trialityDims.includes(d))
     const octonionsForced = forced.length === 1 && forced[0] === 8
 
     // the controls, the sedenions (16) break reversibility, the sub-octonions (1,2,4) lack triality
     const sedenionsBreakReversibility = hasZeroDivisor(4)
-    const subOctonionsLackTriality = !hasTriality(2) && [1, 2, 4].every((d) => !trialityDims.includes(d))
+    const subOctonionsLackTriality =
+      !hasTriality(2) && [1, 2, 4].every(d => !trialityDims.includes(d))
 
     const ok =
-      reversibilityCapsAtEight && fermionsRequireEight && octonionsForced && sedenionsBreakReversibility && subOctonionsLackTriality
+      reversibilityCapsAtEight &&
+      fermionsRequireEight &&
+      octonionsForced &&
+      sedenionsBreakReversibility &&
+      subOctonionsLackTriality
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -72,7 +82,9 @@ export default experiment({
         octonionsForced: octonionsForced ? 1 : 0,
       },
       control: {
-        sedenionsBreakReversibility: sedenionsBreakReversibility ? 1 : 0,
+        sedenionsBreakReversibility: sedenionsBreakReversibility
+          ? 1
+          : 0,
         subOctonionsLackTriality: subOctonionsLackTriality ? 1 : 0,
       },
       notes:

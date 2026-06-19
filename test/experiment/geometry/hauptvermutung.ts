@@ -6,7 +6,10 @@
 import { makeRng, deriveSeed } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { myrheimMeyerDimension } from '@/code/measure/dimension'
-import { mean as meanOf, standardDeviation } from '@/code/measure/statistics'
+import {
+  mean as meanOf,
+  standardDeviation,
+} from '@/code/measure/statistics'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -17,15 +20,24 @@ function study(): { mean: number; std: number; samples: number[] } {
   const dims: number[] = []
   for (let i = 0; i < trials; i++) {
     const rng = makeRng({ seed: deriveSeed({ base: 42, index: i }) })
-    const poset = sprinkleMinkowski({ dimension: targetDimension, count, rng })
+    const poset = sprinkleMinkowski({
+      dimension: targetDimension,
+      count,
+      rng,
+    })
     dims.push(myrheimMeyerDimension({ poset }))
   }
-  return { mean: meanOf(dims), std: standardDeviation(dims), samples: dims }
+  return {
+    mean: meanOf(dims),
+    std: standardDeviation(dims),
+    samples: dims,
+  }
 }
 
 export default experiment({
   id: 'geometry/hauptvermutung',
-  title: 'the recovered dimension is stable (near 3, low spread) across random sprinklings',
+  title:
+    'the recovered dimension is stable (near 3, low spread) across random sprinklings',
   category: 'geometry',
   substrates: 'any',
   depth: 'L2',

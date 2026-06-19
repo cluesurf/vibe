@@ -5,16 +5,37 @@
 // headless fly-through that wants the same motion model. See uniform.ts for the byte layout.
 
 import { mobiusAdd } from '@/code/render/geometry/isometry'
-import type { Fold2DUniform, Fold3DUniform } from '@/code/render/gpu/uniform'
+import type {
+  Fold2DUniform,
+  Fold3DUniform,
+} from '@/code/render/gpu/uniform'
 import type { FoldMode } from '@/code/render/gpu/fold-scene'
 
 // the look-and-feel constants per mode, the standoff of the eye and the raymarch budget. Interior keeps the eye
 // just inside a cell (a first-person room), exterior pulls it outside the ball (the nested-shell model view).
-const MODE_PARAMS: Record<FoldMode, { eyeDist: number; edgeWidth: number; detail: number; maxSteps: number }> = {
+const MODE_PARAMS: Record<
+  FoldMode,
+  {
+    eyeDist: number
+    edgeWidth: number
+    detail: number
+    maxSteps: number
+  }
+> = {
   '2d': { eyeDist: 0, edgeWidth: 0.012, detail: 0, maxSteps: 0 },
-  '3d': { eyeDist: 2.4, edgeWidth: 0.06, detail: 0.0012, maxSteps: 240 },
+  '3d': {
+    eyeDist: 2.4,
+    edgeWidth: 0.06,
+    detail: 0.0012,
+    maxSteps: 240,
+  },
   // interior strut lattice: a thin tube radius and a deep march budget so the honeycomb recedes to the horizon
-  '3d-interior': { eyeDist: 0.05, edgeWidth: 0.016, detail: 0.0008, maxSteps: 560 },
+  '3d-interior': {
+    eyeDist: 0.05,
+    edgeWidth: 0.016,
+    detail: 0.0008,
+    maxSteps: 560,
+  },
 }
 
 export type Camera = {
@@ -31,7 +52,7 @@ export type Camera = {
 }
 
 function scale(v: number[], s: number): number[] {
-  return v.map((x) => x * s)
+  return v.map(x => x * s)
 }
 
 export function makeCamera(mode: FoldMode): Camera {
@@ -74,7 +95,11 @@ export function makeCamera(mode: FoldMode): Camera {
     },
     moveUp(step) {
       if (mode === '2d') return
-      pos3 = mobiusAdd(pos3, scale([0, 1, 0], tanhHalf(step))) as [number, number, number]
+      pos3 = mobiusAdd(pos3, scale([0, 1, 0], tanhHalf(step))) as [
+        number,
+        number,
+        number,
+      ]
     },
     turn(delta) {
       if (mode === '2d') angle += delta
@@ -88,12 +113,22 @@ export function makeCamera(mode: FoldMode): Camera {
       zoom = Math.max(0.2, Math.min(40, zoom * factor))
     },
     reset() {
-      pos2 = [0, 0]; angle = 0; zoom = 1
-      pos3 = [0, 0, 0]; yaw = 0; pitch = 0
+      pos2 = [0, 0]
+      angle = 0
+      zoom = 1
+      pos3 = [0, 0, 0]
+      yaw = 0
+      pitch = 0
     },
     uniform2D() {
       // aspect defaults to 1 (square); a windowed host overrides it with the live viewport ratio each frame
-      return { pan: pos2, zoom, rotation: angle, edgeWidth: params.edgeWidth, aspect: 1 }
+      return {
+        pan: pos2,
+        zoom,
+        rotation: angle,
+        edgeWidth: params.edgeWidth,
+        aspect: 1,
+      }
     },
     uniform3D() {
       const f = forward3()

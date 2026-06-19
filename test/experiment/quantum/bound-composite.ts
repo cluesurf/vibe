@@ -18,12 +18,22 @@ import { openChainPotentialApply } from '@/code/operator/tight-binding'
 
 // lowest `k` eigenpairs of the relative-coordinate Hamiltonian, by shifted power iteration with
 // deflation. The shift cI must bound the spectrum from above so cI - H is positive.
-function lowestEigenpairs(V: Float64Array, t: number, k: number, seedBase: number): { energy: number; state: Float64Array }[] {
+function lowestEigenpairs(
+  V: Float64Array,
+  t: number,
+  k: number,
+  seedBase: number,
+): { energy: number; state: Float64Array }[] {
   const N = V.length
   let shift = 2 * t + 1
-  for (let r = 0; r < N; r++) shift = Math.max(shift, -V[r]! + 2 * t + 1)
+  for (let r = 0; r < N; r++)
+    shift = Math.max(shift, -V[r]! + 2 * t + 1)
   return lowestEigenpairsOf({
-    operator: { size: N, apply: ({ x }) => openChainPotentialApply({ phi: x, potential: V, hopping: t }) },
+    operator: {
+      size: N,
+      apply: ({ x }) =>
+        openChainPotentialApply({ phi: x, potential: V, hopping: t }),
+    },
     count: k,
     shift,
     seed: seedBase,
@@ -33,11 +43,15 @@ function lowestEigenpairs(V: Float64Array, t: number, k: number, seedBase: numbe
 function spread(state: Float64Array, center: number): number {
   // <|r - center|> under |phi|^2
   let s = 0
-  for (let r = 0; r < state.length; r++) s += Math.abs(r - center) * state[r]! * state[r]!
+  for (let r = 0; r < state.length; r++)
+    s += Math.abs(r - center) * state[r]! * state[r]!
   return s
 }
 
-export function boundComposite(input?: { N?: number; halfWidth?: number }): {
+export function boundComposite(input?: {
+  N?: number
+  halfWidth?: number
+}): {
   N: number
   bandBottom: number
   groundEnergy: number
@@ -59,7 +73,8 @@ export function boundComposite(input?: { N?: number; halfWidth?: number }): {
 
   const wellOf = (V0: number): Float64Array => {
     const V = new Float64Array(N)
-    for (let r = 0; r < N; r++) if (Math.abs(r - center) <= a) V[r] = -V0
+    for (let r = 0; r < N; r++)
+      if (Math.abs(r - center) <= a) V[r] = -V0
     return V
   }
 
@@ -68,7 +83,8 @@ export function boundComposite(input?: { N?: number; halfWidth?: number }): {
   const groundEnergy = moderate.energy
   const bindingEnergy = bandBottom - groundEnergy // > 0 if below the band (bound)
   const groundSpread = spread(moderate.state, center)
-  const trueBoundState = groundEnergy < bandBottom - 1e-4 && groundSpread < N / 6
+  const trueBoundState =
+    groundEnergy < bandBottom - 1e-4 && groundSpread < N / 6
 
   // control, no well, the lowest state is a delocalized band state (spread ~ box)
   const free = lowestEigenpairs(wellOf(0), t, 1, 1)[0]!
@@ -78,7 +94,7 @@ export function boundComposite(input?: { N?: number; halfWidth?: number }): {
   // a SHALLOW vs DEEP well, count discrete bound levels (E < band bottom) = the atom's internal levels
   const countBound = (V0: number): number => {
     const eigs = lowestEigenpairs(wellOf(V0), t, 4, 2)
-    return eigs.filter((e) => e.energy < bandBottom - 1e-4).length
+    return eigs.filter(e => e.energy < bandBottom - 1e-4).length
   }
   const boundLevelsShallow = countBound(0.6)
   const boundLevelsDeep = countBound(4.0)
@@ -103,14 +119,19 @@ export function boundComposite(input?: { N?: number; halfWidth?: number }): {
 
 export default experiment({
   id: 'quantum/bound-composite',
-  title: 'two attracting particles form a true bound state with discrete levels',
+  title:
+    'two attracting particles form a true bound state with discrete levels',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = boundComposite()
-    const ok = r.solved && r.trueBoundState && r.localized && r.discreteInternalLevels
+    const ok =
+      r.solved &&
+      r.trueBoundState &&
+      r.localized &&
+      r.discreteInternalLevels
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

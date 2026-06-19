@@ -18,7 +18,8 @@ import { conservesCharge, isReversible } from '@/code/check/invariant'
 // by construction.
 export default experiment({
   id: 'foundations/directional-rule',
-  title: 'the directional lattice-gas conserves charge and is exactly reversible',
+  title:
+    'the directional lattice-gas conserves charge and is exactly reversible',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L1',
@@ -28,8 +29,16 @@ export default experiment({
     const square = squareMesh({ side: 48 })
     const squareWill = makeWill(square)
     fillWillPattern(squareWill)
-    const squareConserves = conservesCharge(squareWill, momentumRotate2D, 200)
-    const squareReverses = isReversible(squareWill, momentumRotate2D, 200)
+    const squareConserves = conservesCharge(
+      squareWill,
+      momentumRotate2D,
+      200,
+    )
+    const squareReverses = isReversible(
+      squareWill,
+      momentumRotate2D,
+      200,
+    )
 
     // The committed coin: the 9-state directional rule on the 24-direction D4 mesh.
     const d4 = d4Mesh({ side: 6 })
@@ -45,8 +54,8 @@ export default experiment({
 
     // The 9-state pair table is a permutation and its inverse, so it is reversible.
     const tablePermutes =
-      new Set(PAIR_FORWARD.map((pair) => pair.join(','))).size === 9 &&
-      new Set(PAIR_INVERSE.map((pair) => pair.join(','))).size === 9
+      new Set(PAIR_FORWARD.map(pair => pair.join(','))).size === 9 &&
+      new Set(PAIR_INVERSE.map(pair => pair.join(','))).size === 9
 
     const ok =
       squareConserves &&
@@ -58,7 +67,12 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the stream-collide rule conserves total charge and runs backward exactly, on both the square reference and the 24-direction D4 coin',
-      metrics: { squareBeats: 200, d4Beats: 60, d4Directions: 24, pairStates: 9 },
+      metrics: {
+        squareBeats: 200,
+        d4Beats: 60,
+        d4Directions: 24,
+        pairStates: 9,
+      },
     })
   },
 })

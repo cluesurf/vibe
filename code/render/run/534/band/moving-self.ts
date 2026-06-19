@@ -30,49 +30,76 @@ const SELF_RADIUS = 0.18 // self size, as a fraction of the zoom half-extent
 const SPEED = 0.009 // how far the self's centre drifts per beat (the will's velocity), as a fraction
 const PMAX = 30
 
-const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
+const norm = (v: number[]): number =>
+  Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+const dot = (a: number[], b: number[]): number =>
+  a.reduce((s, x, i) => s + x * b[i]!, 0)
 
 function run(): void {
-  const slab = buildHorosphereBand({ maxBand: MAX_BAND, half: HALF, margin: MARGIN })
+  const slab = buildHorosphereBand({
+    maxBand: MAX_BAND,
+    half: HALF,
+    margin: MARGIN,
+  })
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
-  console.log(`moving self, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`)
+  console.log(
+    `moving self, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
+  )
 
-  const seedVec = (k: number): number[] => Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
-  const sub = (a: number[], b: number[], s: number): number[] => a.map((x, i) => x - s * b[i]!)
+  const seedVec = (k: number): number[] =>
+    Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+  const sub = (a: number[], b: number[], s: number): number[] =>
+    a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
-    return v.map((x) => x / m)
+    return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++) if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++)
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++) if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
-  const e2 = normalize(sub(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1, dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1)))
+  for (let k = 0; k < dim; k++)
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  const e2 = normalize(
+    sub(
+      sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
+      e1,
+      dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1),
+    ),
+  )
 
   // band cells with their 2D position (u, v) and pixel position
-  type Cell = { index: number; u: number; v: number; px: number; py: number }
+  type Cell = {
+    index: number
+    u: number
+    v: number
+    px: number
+    py: number
+  }
   const cells: Cell[] = []
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) continue
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
-    const w = diff.map((v) => v / d2)
+    const w = diff.map(v => v / d2)
     cells.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
     return s[Math.floor(s.length / 2)] ?? 0
   }
-  const cu = median(cells.map((c) => c.u))
-  const cv = median(cells.map((c) => c.v))
-  const radii = cells.map((c) => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv))).sort((a, b) => a - b)
-  const halfExtent = (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+  const cu = median(cells.map(c => c.u))
+  const cv = median(cells.map(c => c.v))
+  const radii = cells
+    .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
+    .sort((a, b) => a - b)
+  const halfExtent =
+    (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
   const pad = 20
   const halfPix = IMG / 2 - pad
   for (const c of cells) {
@@ -85,13 +112,16 @@ function run(): void {
 
   // ground for conserving maintenance, off-screen margin cells
   const ground: number[] = []
-  for (let i = 0; i < n; i++) if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
+  for (let i = 0; i < n; i++)
+    if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
 
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
   for (let i = 0; i < n; i++) {
     const r = rng.next()
-    tone[i] = (r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0) as -1 | 0 | 1
+    tone[i] = (
+      r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
+    ) as -1 | 0 | 1
   }
   const moved = new Uint8Array(n)
   const prev = tone.slice()
@@ -105,7 +135,10 @@ function run(): void {
   const maintainAt = (centreU: number, centreV: number): void => {
     let need = 0
     for (const c of cells) {
-      if ((c.u - centreU) ** 2 + (c.v - centreV) ** 2 <= selfR * selfR) {
+      if (
+        (c.u - centreU) ** 2 + (c.v - centreV) ** 2 <=
+        selfR * selfR
+      ) {
         if (tone[c.index] !== 1) {
           need += 1 - tone[c.index]!
           tone[c.index] = 1
@@ -121,7 +154,13 @@ function run(): void {
     }
   }
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'make', 'frames')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    'make',
+    'frames',
+  )
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -132,7 +171,8 @@ function run(): void {
     maintainAt(centreU, cv) // refill it at the new position, so the FORM propagates while matter turns over
 
     for (let i = 0; i < n; i++) {
-      if (tone[i] !== 0 && tone[i] === prev[i]) persist[i] = Math.min(persist[i]! + 1, PMAX)
+      if (tone[i] !== 0 && tone[i] === prev[i])
+        persist[i] = Math.min(persist[i]! + 1, PMAX)
       else persist[i] = 0
       prev[i] = tone[i]!
     }
@@ -148,9 +188,18 @@ function run(): void {
       const t = tone[c.index]!
       if (t === 0) continue
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
-      const r8 = t === 1 ? Math.round(40 + 90 * inten) : Math.round(120 + 135 * inten)
-      const g8 = t === 1 ? Math.round(70 + 170 * inten) : Math.round(40 + 90 * inten)
-      const b8 = t === 1 ? Math.round(120 + 135 * inten) : Math.round(70 + 90 * inten)
+      const r8 =
+        t === 1
+          ? Math.round(40 + 90 * inten)
+          : Math.round(120 + 135 * inten)
+      const g8 =
+        t === 1
+          ? Math.round(70 + 170 * inten)
+          : Math.round(40 + 90 * inten)
+      const b8 =
+        t === 1
+          ? Math.round(120 + 135 * inten)
+          : Math.round(70 + 90 * inten)
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
@@ -165,7 +214,9 @@ function run(): void {
     }
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
   }
-  console.log(`wrote ${FRAMES} frames, the self glides left to right, assemble with task/render-video.sh`)
+  console.log(
+    `wrote ${FRAMES} frames, the self glides left to right, assemble with task/render-video.sh`,
+  )
 }
 
 run()

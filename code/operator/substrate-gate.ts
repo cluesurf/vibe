@@ -31,12 +31,21 @@ export function addCell(c: SubstrateCircuit, clampValue?: Bit): number {
 }
 
 // Symmetric ternary edge.
-export function link(c: SubstrateCircuit, a: number, b: number, f: -1 | 1): void {
+export function link(
+  c: SubstrateCircuit,
+  a: number,
+  b: number,
+  f: -1 | 1,
+): void {
   c.fills.get(a)?.set(b, f)
   c.fills.get(b)?.set(a, f)
 }
 
-export function clampedBus(c: SubstrateCircuit, value: Bit, width: number): number[] {
+export function clampedBus(
+  c: SubstrateCircuit,
+  value: Bit,
+  width: number,
+): number[] {
   return Array.from({ length: width }, () => addCell(c, value))
 }
 
@@ -61,7 +70,11 @@ export function nandBus(
 }
 
 // NOT: g = sign(-sum(X)) = NOT(x). Margin |X|.
-export function notBus(c: SubstrateCircuit, X: number[], outWidth: number): number[] {
+export function notBus(
+  c: SubstrateCircuit,
+  X: number[],
+  outWidth: number,
+): number[] {
   const G = Array.from({ length: outWidth }, () => addCell(c))
   for (const g of G) {
     for (const x of X) link(c, g, x, -1)
@@ -80,7 +93,7 @@ export function settle(
   for (const [id, v] of c.clamp) {
     tone[id] = v
   }
-  const free = [...Array(c.size).keys()].filter((i) => !c.clamp.has(i))
+  const free = [...Array(c.size).keys()].filter(i => !c.clamp.has(i))
   const rng = makeRng({ seed: input.seed })
   const stepCell = (i: number): number => {
     let s = 0
@@ -113,7 +126,10 @@ export function settle(
 
 // Is the settled configuration a genuine fixed point of the rule (stable under ANY
 // update order)?
-export function isFixedPoint(c: SubstrateCircuit, tone: Int8Array): boolean {
+export function isFixedPoint(
+  c: SubstrateCircuit,
+  tone: Int8Array,
+): boolean {
   for (let i = 0; i < c.size; i++) {
     if (c.clamp.has(i)) {
       continue

@@ -16,7 +16,11 @@ export function saveGraph(path: string, g: StoredGraph): void {
   const header = Int32Array.from([g.cellCount, g.adj.length])
   const buf = Buffer.concat([
     Buffer.from(header.buffer, header.byteOffset, header.byteLength),
-    Buffer.from(g.offsets.buffer, g.offsets.byteOffset, g.offsets.byteLength),
+    Buffer.from(
+      g.offsets.buffer,
+      g.offsets.byteOffset,
+      g.offsets.byteLength,
+    ),
     Buffer.from(g.adj.buffer, g.adj.byteOffset, g.adj.byteLength),
   ])
   writeFileSync(path, buf)
@@ -29,7 +33,9 @@ export function loadGraph(path: string): StoredGraph {
   const adjLen = header[1]!
   let off = 8
   const offsets = new Int32Array(cellCount + 1)
-  offsets.set(new Int32Array(buf.buffer, buf.byteOffset + off, cellCount + 1))
+  offsets.set(
+    new Int32Array(buf.buffer, buf.byteOffset + off, cellCount + 1),
+  )
   off += (cellCount + 1) * 4
   const adj = new Int32Array(adjLen)
   adj.set(new Int32Array(buf.buffer, buf.byteOffset + off, adjLen))

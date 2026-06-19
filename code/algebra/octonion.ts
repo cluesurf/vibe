@@ -25,8 +25,12 @@ const FANO_LINES: ReadonlyArray<readonly [number, number, number]> = [
 
 // The multiplication table: PRODUCT_INDEX[i][j] is the basis index of e_i e_j, and
 // PRODUCT_SIGN[i][j] is its sign. Built once at module load from the Fano lines.
-const PRODUCT_INDEX: number[][] = Array.from({ length: 8 }, () => new Array<number>(8).fill(0))
-const PRODUCT_SIGN: number[][] = Array.from({ length: 8 }, () => new Array<number>(8).fill(0))
+const PRODUCT_INDEX: number[][] = Array.from({ length: 8 }, () =>
+  new Array<number>(8).fill(0),
+)
+const PRODUCT_SIGN: number[][] = Array.from({ length: 8 }, () =>
+  new Array<number>(8).fill(0),
+)
 
 const buildTable = (): void => {
   // e0 is the identity: e0 e_j = e_j, e_i e0 = e_i.
@@ -88,7 +92,7 @@ export function octonionSubtract(a: Octonion, b: Octonion): Octonion {
 }
 
 export function octonionScale(a: Octonion, scalar: number): Octonion {
-  return a.map((x) => x * scalar)
+  return a.map(x => x * scalar)
 }
 
 // The octonion product, bilinear over the Fano-plane table.
@@ -123,6 +127,10 @@ export function octonionNormSquared(a: Octonion): number {
   return a.reduce((sum, x) => sum + x * x, 0)
 }
 
-export function octonionEquals(a: Octonion, b: Octonion, tolerance = 1e-9): boolean {
+export function octonionEquals(
+  a: Octonion,
+  b: Octonion,
+  tolerance = 1e-9,
+): boolean {
   return a.every((x, i) => Math.abs(x - b[i]!) <= tolerance)
 }

@@ -13,23 +13,42 @@ import { directionFourthMoments } from '@/code/measure/isotropy'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s534Physics(): { betheAlpha: number; growthRatio: number; icosaIsotropic: boolean } {
+export function s534Physics(): {
+  betheAlpha: number
+  growthRatio: number
+  icosaIsotropic: boolean
+} {
   // (1) Bethe holographic correlator, z=12 -> clean 1/r^2 (ports)
-  const betheAlpha = Math.round(betheBoundaryExponent({ coordination: 12, energy: 12 }) * 100) / 100
+  const betheAlpha =
+    Math.round(
+      betheBoundaryExponent({ coordination: 12, energy: 12 }) * 100,
+    ) / 100
   // (2) cosmology + hierarchy, bulk shell growth ratio (exponential = expansion, radial tree = RG)
-  const g = buildCellGraph({ symbol: [5, 3, 4] as never, maxCells: 16000 })
+  const g = buildCellGraph({
+    symbol: [5, 3, 4] as never,
+    maxCells: 16000,
+  })
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
-  const { shellCounts: shell } = bfsShells({ neighbors: nb, root: center })
-  const growthRatio = Math.round(branchingRatio({ shellCounts: shell, from: 3, to: 6 }) * 100) / 100
+  const { shellCounts: shell } = bfsShells({
+    neighbors: nb,
+    root: center,
+  })
+  const growthRatio =
+    Math.round(
+      branchingRatio({ shellCounts: shell, from: 3, to: 6 }) * 100,
+    ) / 100
   // (3) icosahedral isotropy, the 12 directions, 4th-moment isotropy check sum d_i^4 = 3 sum d_i^2 d_j^2
-  const icosaIsotropic = directionFourthMoments(icosahedronVertexDirections()).anisotropy < 1e-6
+  const icosaIsotropic =
+    directionFourthMoments(icosahedronVertexDirections()).anisotropy <
+    1e-6
   return { betheAlpha, growthRatio, icosaIsotropic }
 }
 
 export default experiment({
   id: 'gravity/s534-physics',
-  title: 'the {5,3,4} suite, a Bethe 1/r squared correlator, exponential shell growth, and exact icosahedral 4th-moment isotropy',
+  title:
+    'the {5,3,4} suite, a Bethe 1/r squared correlator, exponential shell growth, and exact icosahedral 4th-moment isotropy',
   category: 'gravity',
   substrates: ['534'],
   depth: 'L1',

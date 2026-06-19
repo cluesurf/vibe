@@ -17,7 +17,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // meanDegree lives in code/tool/graph, the exponential-reach classifier in
 // code/measure/dimension.
-const reachExponential = (g: Graph): boolean => reachIsExponential({ substrate: g, maxRadius: 16 })
+const reachExponential = (g: Graph): boolean =>
+  reachIsExponential({ substrate: g, maxRadius: 16 })
 
 interface TilingSpec {
   name: string
@@ -38,12 +39,37 @@ const TILINGS: TilingSpec[] = [
 
 export function margensternTilings(input: { seed: number }): Record<
   string,
-  { size: number; degree: number; anisotropy: number; reach: boolean; lorentzSafe: boolean }
+  {
+    size: number
+    degree: number
+    anisotropy: number
+    reach: boolean
+    lorentzSafe: boolean
+  }
 > {
-  const out: Record<string, { size: number; degree: number; anisotropy: number; reach: boolean; lorentzSafe: boolean }> = {}
+  const out: Record<
+    string,
+    {
+      size: number
+      degree: number
+      anisotropy: number
+      reach: boolean
+      lorentzSafe: boolean
+    }
+  > = {}
   for (const t of TILINGS) {
-    const g = hyperbolicTiling({ p: t.p, q: t.q, depth: t.depth, connectThreshold: t.threshold, maxVertices: 2500 })
-    const aniso = lorentzIsotropy({ substrate: g, samples: 3000, rng: makeRng({ seed: input.seed }) })
+    const g = hyperbolicTiling({
+      p: t.p,
+      q: t.q,
+      depth: t.depth,
+      connectThreshold: t.threshold,
+      maxVertices: 2500,
+    })
+    const aniso = lorentzIsotropy({
+      substrate: g,
+      samples: 3000,
+      rng: makeRng({ seed: input.seed }),
+    })
     out[t.name] = {
       size: g.size,
       degree: meanDegree(g),
@@ -66,7 +92,9 @@ export default experiment({
   run() {
     const r = margensternTilings({ seed: 2 })
     const all = Object.values(r)
-    const allSafe = all.every((e) => e.lorentzSafe && e.anisotropy < 0.12 && e.reach)
+    const allSafe = all.every(
+      e => e.lorentzSafe && e.anisotropy < 0.12 && e.reach,
+    )
     const ok = all.length === 6 && allSafe
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -74,7 +102,7 @@ export default experiment({
         'both the {p,4} and {p,3} tiling families are Lorentz-safe across the board with small anisotropy and exponential reach',
       metrics: {
         tilingCount: all.length,
-        maxAnisotropy: Math.max(...all.map((e) => e.anisotropy)),
+        maxAnisotropy: Math.max(...all.map(e => e.anisotropy)),
       },
     })
   },

@@ -16,16 +16,17 @@ export function centroidOfCellSet(cells: Set<string>): number[] {
   const sums: number[] = []
   for (const key of cells) {
     const point = parseKey(key)
-    for (let d = 0; d < point.length; d++) sums[d] = (sums[d] ?? 0) + point[d]!
+    for (let d = 0; d < point.length; d++)
+      sums[d] = (sums[d] ?? 0) + point[d]!
   }
   const size = Math.max(1, cells.size)
-  return sums.map((s) => s / size)
+  return sums.map(s => s / size)
 }
 
 // Translate a cell set so its (rounded) centroid sits at the origin, giving the pattern
 // in a co-moving frame so two frames can be compared for the same FORM.
 export function recenterCellSet(cells: Set<string>): Set<string> {
-  const centroid = centroidOfCellSet(cells).map((c) => Math.round(c))
+  const centroid = centroidOfCellSet(cells).map(c => Math.round(c))
   const out = new Set<string>()
   for (const key of cells) {
     const point = parseKey(key)
@@ -50,7 +51,8 @@ export function radiusOfGyrationOfCellSet(cells: Set<string>): number {
   for (const key of cells) {
     const point = parseKey(key)
     let d2 = 0
-    for (let d = 0; d < point.length; d++) d2 += (point[d]! - (centroid[d] ?? 0)) ** 2
+    for (let d = 0; d < point.length; d++)
+      d2 += (point[d]! - (centroid[d] ?? 0)) ** 2
     sum += d2
   }
   return Math.sqrt(sum / Math.max(1, cells.size))
@@ -58,7 +60,10 @@ export function radiusOfGyrationOfCellSet(cells: Set<string>): number {
 
 // Jaccard distance of two integer cell-id sets, one minus intersection over union, in
 // [0,1]. The turnover of a self, the fraction of its membership that flowed through.
-export function jaccardDistance(a: Set<number>, b: Set<number>): number {
+export function jaccardDistance(
+  a: Set<number>,
+  b: Set<number>,
+): number {
   let intersection = 0
   for (const x of a) if (b.has(x)) intersection++
   const union = a.size + b.size - intersection

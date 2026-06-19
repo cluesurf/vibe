@@ -34,7 +34,8 @@ export function staggeredMassChainHamiltonian(input: {
   const { n, mass } = input
   const t = input.hopping ?? 1
   const h = makeDense({ rows: n, cols: n })
-  for (let i = 0; i < n; i++) h.data[i * n + i] = (i % 2 === 0 ? 1 : -1) * mass
+  for (let i = 0; i < n; i++)
+    h.data[i * n + i] = (i % 2 === 0 ? 1 : -1) * mass
   for (let i = 0; i < n - 1; i++) {
     h.data[i * n + (i + 1)] = -t
     h.data[(i + 1) * n + i] = -t
@@ -152,7 +153,8 @@ export function staggeredMassCubicHamiltonian(input: {
   const t = input.hopping ?? 1
   const periodic = input.periodic ?? false
   const n = side * side * side
-  const index = (x: number, y: number, z: number): number => x + side * y + side * side * z
+  const index = (x: number, y: number, z: number): number =>
+    x + side * y + side * side * z
   const h = makeDense({ rows: n, cols: n })
   const bond = (i: number, j: number): void => {
     h.data[i * n + j] = -t

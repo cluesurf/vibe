@@ -12,7 +12,12 @@ import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
 import { coordinateAxes } from '@/code/measure/probe-directions'
 
 // (1) persistent walk (the directional rule for one charge) vs random walk (scalar): displacement vs time
-function walk(mix: number, T: number, trials: number, seed: number): number {
+function walk(
+  mix: number,
+  T: number,
+  trials: number,
+  seed: number,
+): number {
   return persistentWalkMeanDisplacement({
     directions: coordinateAxes(3),
     mix,
@@ -22,7 +27,11 @@ function walk(mix: number, T: number, trials: number, seed: number): number {
   })
 }
 
-export function directionalRule(): { ballistic: number; diffusive: number; diracOk: boolean } {
+export function directionalRule(): {
+  ballistic: number
+  diffusive: number
+  diracOk: boolean
+} {
   const T = 64
   const ballistic = walk(0.0, T, 1, 1)
   const small = walk(0.05, T, 400, 7)
@@ -33,15 +42,22 @@ export function directionalRule(): { ballistic: number; diffusive: number; dirac
   let diracOk = true
   for (const m of [0.0, 0.2, 0.6]) {
     const E0 = coinedWalkDispersion({ theta: m, k: 0 })
-    const k = 0.1, Ek = coinedWalkDispersion({ theta: m, k }), rel = Math.sqrt(m * m + k * k)
-    if (Math.abs(E0 - m) > 1e-6 || Math.abs((Ek * Ek - k * k) - m * m) > 1e-2) diracOk = false
+    const k = 0.1,
+      Ek = coinedWalkDispersion({ theta: m, k }),
+      rel = Math.sqrt(m * m + k * k)
+    if (
+      Math.abs(E0 - m) > 1e-6 ||
+      Math.abs(Ek * Ek - k * k - m * m) > 1e-2
+    )
+      diracOk = false
   }
   return { ballistic, diffusive, diracOk }
 }
 
 export default experiment({
   id: 'spin/directional-rule',
-  title: 'a charge with a direction streams ballistically while a memoryless scalar diffuses',
+  title:
+    'a charge with a direction streams ballistically while a memoryless scalar diffuses',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

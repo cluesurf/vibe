@@ -41,7 +41,8 @@ export function socEdgeSweep(input: {
   uniform: boolean
   quietThreshold?: number
 }): void {
-  const { tone, offsets, adj, eu, ev, moved, rng, arrow, uniform } = input
+  const { tone, offsets, adj, eu, ev, moved, rng, arrow, uniform } =
+    input
   const quietThreshold = input.quietThreshold ?? 0.12
   moved.fill(0)
   for (let k = 0; k < eu.length; k++) {
@@ -65,7 +66,8 @@ export function socEdgeSweep(input: {
         moved[w] = 1
       }
     } else if (a === 0 && b === 0) {
-      const quiet = localActivity(tone, offsets, adj, v, w) < quietThreshold
+      const quiet =
+        localActivity(tone, offsets, adj, v, w) < quietThreshold
       const rate = uniform ? arrow * 0.5 : quiet ? arrow : 0
       if (rng.next() < rate) {
         if (rng.next() < 0.5) {

@@ -9,15 +9,29 @@ import { mostConnectedNode } from '@/code/tool/graph'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function horosphere3434(): { cells: number; meanDegree: number; specDim16: number } {
-  const slab = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 3000, half: 0.5, margin: 0.6 })
+export function horosphere3434(): {
+  cells: number
+  meanDegree: number
+  specDim16: number
+} {
+  const slab = buildHorosphereBand({
+    symbol: [3, 4, 3, 4] as never,
+    maxBand: 3000,
+    half: 0.5,
+    margin: 0.6,
+  })
   const n = slab.cellCount
   let sum = 0
   for (let i = 0; i < n; i++) sum += slab.neighbors[i]!.length
   const center = mostConnectedNode(slab.neighbors)
   // spectral dimension via the lazy-walk return probability, the central difference at
   // t = 16 is the endpoint slope between t = 14 and t = 18.
-  const specDim16 = spectralDimension({ neighbors: slab.neighbors, start: center, t1: 14, t2: 18 })
+  const specDim16 = spectralDimension({
+    neighbors: slab.neighbors,
+    start: center,
+    t1: 14,
+    t2: 18,
+  })
   const meanDegree = Math.round((sum / n) * 10) / 10
   return { cells: n, meanDegree, specDim16 }
 }
@@ -30,7 +44,8 @@ export function horosphere3434(): { cells: number; meanDegree: number; specDim16
 // of a known tessellation.
 export default experiment({
   id: 'geometry/horosphere-3434',
-  title: 'the generic {3,4,3,4} horosphere band is a thin slab (~2.5D), not clean flat 3D',
+  title:
+    'the generic {3,4,3,4} horosphere band is a thin slab (~2.5D), not clean flat 3D',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L1',

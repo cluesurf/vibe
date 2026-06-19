@@ -20,19 +20,28 @@ import { shadowPressureRun } from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/shadow-pressure-attraction',
-  title: 'a vacuum-excluding body attracts a test mass by discrete radiation-pressure shadow (correct sign, reversible bulk)',
+  title:
+    'a vacuum-excluding body attracts a test mass by discrete radiation-pressure shadow (correct sign, reversible bulk)',
   category: 'selves',
   substrates: ['lattice-gas'],
   depth: 'L2',
   paper: true,
   run() {
-    const base = { length: 200, massStart: 110, bodyLo: 10, bodyHi: 30, beats: 4000, threshold: 8 }
+    const base = {
+      length: 200,
+      massStart: 110,
+      bodyLo: 10,
+      bodyHi: 30,
+      beats: 4000,
+      threshold: 8,
+    }
     const shadow = shadowPressureRun({ ...base, body: true })
     const control = shadowPressureRun({ ...base, body: false })
 
     // attraction, the shadowed mass drifts strongly toward the body (negative), the control barely moves.
     const attracts = shadow.drift < -20 && shadow.netMomentum < 0
-    const controlFlat = Math.abs(control.drift) <= 3 && control.netMomentum === 0
+    const controlFlat =
+      Math.abs(control.drift) <= 3 && control.netMomentum === 0
     const correctSign = shadow.drift < control.drift // shadow more toward the body than the control
     const ok = attracts && controlFlat && correctSign
 
@@ -50,7 +59,10 @@ export default experiment({
         attracts: attracts ? 1 : 0,
         controlFlat: controlFlat ? 1 : 0,
       },
-      control: { controlDrift: control.drift, controlNetMomentum: control.netMomentum },
+      control: {
+        controlDrift: control.drift,
+        controlNetMomentum: control.netMomentum,
+      },
       notes:
         'the reversible discrete attraction mechanism. An absorbing (vacuum-excluding) body shadows the vacuum flux, the imbalance pushes a test mass toward the body (correct-sign attraction), all integer/discrete, reversible bulk with irreversibility only at the body/bath. Resolves the wrong-sign worry. The full D4 active-vacuum realization is the next build, this proves the mechanism',
     })

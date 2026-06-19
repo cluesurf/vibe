@@ -14,40 +14,63 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph, largestComponent, neighborDistances, mostConnectedNode } from '@/code/tool/graph'
-import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
+import {
+  Graph,
+  largestComponent,
+  neighborDistances,
+  mostConnectedNode,
+} from '@/code/tool/graph'
+import {
+  symmetricEdgeFills,
+  signedMajorityStep,
+} from '@/code/operator/signed-majority'
 import { pearson } from '@/code/measure/statistics'
-import { laplacianSpectrum, laplacianGreensFunction } from '@/code/operator/laplacian'
+import {
+  laplacianSpectrum,
+  laplacianGreensFunction,
+} from '@/code/operator/laplacian'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The radiation sector: a disturbance propagates with a finite light-cone under the
 // ternary rule. Two synchronous copies, one perturbed, in lockstep.
-function lightCone(g: Graph, seed: number): { holds: boolean; propagated: boolean } {
+function lightCone(
+  g: Graph,
+  seed: number,
+): { holds: boolean; propagated: boolean } {
   const n = g.size
   const rng = makeRng({ seed })
   const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng })
   const center = mostConnectedNode(g.neighbors)
-  const dist = neighborDistances({ neighbors: g.neighbors, size: g.size, source: center })
+  const dist = neighborDistances({
+    neighbors: g.neighbors,
+    size: g.size,
+    source: center,
+  })
   let a = new Int8Array(n)
   for (let i = 0; i < n; i++) a[i] = rng.nextInt({ max: 3 }) - 1
   let b = Int8Array.from(a)
   b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
-  const step = (tone: Int8Array): Int8Array => signedMajorityStep({ neighbors: g.neighbors, fills, tone })
+  const step = (tone: Int8Array): Int8Array =>
+    signedMajorityStep({ neighbors: g.neighbors, fills, tone })
   const radii: number[] = []
   let holds = true
   for (let beat = 1; beat <= 6; beat++) {
     a = step(a)
     b = step(b)
     let maxDist = 0
-    for (let v = 0; v < n; v++) if (a[v] !== b[v]) maxDist = Math.max(maxDist, dist[v] ?? 0)
+    for (let v = 0; v < n; v++)
+      if (a[v] !== b[v]) maxDist = Math.max(maxDist, dist[v] ?? 0)
     radii.push(maxDist)
     if (maxDist > beat) holds = false
   }
   return { holds, propagated: Math.max(...radii) >= 1 }
 }
 
-export function oneRuleAllSectors(input: { count: number; seed: number }): {
+export function oneRuleAllSectors(input: {
+  count: number
+  seed: number
+}): {
   meshSize: number
   matterBoundedBelow: boolean
   matterMin: number
@@ -56,7 +79,12 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
   radiationLightCone: boolean
   radiationPropagates: boolean
 } {
-  const raw = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng: makeRng({ seed: input.seed }) })
+  const raw = hyperbolicGraph({
+    count: input.count,
+    radius: 7,
+    connectThreshold: 3.0,
+    rng: makeRng({ seed: input.seed }),
+  })
   const g = largestComponent(raw)
 
   // Matter/energy sector: the emergent operator's spectrum.
@@ -67,7 +95,11 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
   // Force/static sector: the Green's function decays with graph distance.
   const center = mostConnectedNode(g.neighbors)
   const phi = laplacianGreensFunction({ substrate: g, center })
-  const dist = neighborDistances({ neighbors: g.neighbors, size: g.size, source: center })
+  const dist = neighborDistances({
+    neighbors: g.neighbors,
+    size: g.size,
+    source: center,
+  })
   const xs: number[] = []
   const ys: number[] = []
   for (let i = 0; i < g.size; i++) {
@@ -94,7 +126,8 @@ export function oneRuleAllSectors(input: { count: number; seed: number }): {
 
 export default experiment({
   id: 'foundations/one-rule-all-sectors',
-  title: 'matter, force, and radiation all appear from one operator on one mesh',
+  title:
+    'matter, force, and radiation all appear from one operator on one mesh',
   category: 'foundations',
   substrates: ['534'],
   depth: 'L2',
@@ -102,7 +135,10 @@ export default experiment({
   run() {
     const r = oneRuleAllSectors({ count: 1200, seed: 1 })
     const ok =
-      r.matterBoundedBelow && r.forceDecays && r.radiationLightCone && r.radiationPropagates
+      r.matterBoundedBelow &&
+      r.forceDecays &&
+      r.radiationLightCone &&
+      r.radiationPropagates
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

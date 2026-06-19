@@ -13,7 +13,11 @@ export interface Mesh {
 
 // A 2D random geometric graph: uniform points in the unit square, each pair
 // connected when their Euclidean separation is below `radius`.
-export function randomGeometricMesh(input: { count: number; radius: number; rng: Rng }): Mesh {
+export function randomGeometricMesh(input: {
+  count: number
+  radius: number
+  rng: Rng
+}): Mesh {
   const n = input.count
   const coords = new Float64Array(n * 2)
   for (let i = 0; i < n; i++) {

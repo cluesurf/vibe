@@ -20,8 +20,13 @@ export function fitnessVariancePartition(groups: number[][]): {
   for (const group of groups) {
     if (group.length === 0) continue
     const groupMean = group.reduce((a, b) => a + b, 0) / group.length
-    between += (group.length * (groupMean - grandMean) * (groupMean - grandMean)) / total
-    for (const f of group) within += ((f - groupMean) * (f - groupMean)) / total
+    between +=
+      (group.length *
+        (groupMean - grandMean) *
+        (groupMean - grandMean)) /
+      total
+    for (const f of group)
+      within += ((f - groupMean) * (f - groupMean)) / total
   }
   return { between, within, ratio: between / (within + 1e-9) }
 }

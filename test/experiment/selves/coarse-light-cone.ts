@@ -10,7 +10,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  emergeSelf,
+  beat,
+  largestPositiveCluster,
+} from '@/code/model/self-kit'
 import { distancesFrom } from '@/code/coarse/self-criteria'
 import { makeRng } from '@/code/coarse/self-trajectory'
 
@@ -52,7 +57,8 @@ function perturbAndWatch(input: {
 
 export default experiment({
   id: 'selves/coarse-light-cone',
-  title: 'a self contains and corrects an interior perturbation, the medium spreads it',
+  title:
+    'a self contains and corrects an interior perturbation, the medium spreads it',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -62,7 +68,10 @@ export default experiment({
     const graph = flatGraph(L)
     const rng = makeRng(192837)
     const moved = new Uint8Array(graph.cellCount)
-    const { tone } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
+    const { tone } = emergeSelf(graph, rng, moved, {
+      beats: 60,
+      density: 0.1,
+    })
     const cluster = largestPositiveCluster(tone, graph)
     const selfSite = cluster[Math.floor(cluster.length / 2)] ?? 0
 
@@ -77,20 +86,35 @@ export default experiment({
     }
 
     const watchBeats = 40
-    const self = perturbAndWatch({ graph, base: tone, site: selfSite, beats: watchBeats, seed: 5000 })
-    const medium = perturbAndWatch({ graph, base: tone, site: mediumSite, beats: watchBeats, seed: 5000 })
+    const self = perturbAndWatch({
+      graph,
+      base: tone,
+      site: selfSite,
+      beats: watchBeats,
+      seed: 5000,
+    })
+    const medium = perturbAndWatch({
+      graph,
+      base: tone,
+      site: mediumSite,
+      beats: watchBeats,
+      seed: 5000,
+    })
 
     // containment ratio, final difference over peak difference. Low would mean the perturbation was
     // corrected. High means it persisted and spread.
     const selfContainment = self.peak > 0 ? self.final / self.peak : 1
-    const mediumContainment = medium.peak > 0 ? medium.final / medium.peak : 1
+    const mediumContainment =
+      medium.peak > 0 ? medium.final / medium.peak : 1
 
     // the honest finding. The perturbation spreads across the lattice for BOTH the self and the medium, with
     // similar containment, so the self does not contain or correct it. The base cohesive rule is effectively
     // chaotic, a single flip diverges globally. There is no protective cognitive light cone here. The test
     // passes by correctly establishing this negative with a control, it is not a claim that selves correct.
     const ok =
-      selfContainment > 0.7 && mediumContainment > 0.7 && Math.abs(selfContainment - mediumContainment) < 0.15
+      selfContainment > 0.7 &&
+      mediumContainment > 0.7 &&
+      Math.abs(selfContainment - mediumContainment) < 0.15
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -5,14 +5,25 @@
 // Plan in note/research/vibe/notes/theory-v0.7.0/plans/associative-engine-architecture.md.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenterBySide,
+} from '@/code/substrate/cubic-lattice'
 import { bfsShells } from '@/code/measure/shells'
-import { makeAssociativeMemory, ternaryWord, storeWord, broadcastWave } from '@/code/operator/associative-memory'
+import {
+  makeAssociativeMemory,
+  ternaryWord,
+  storeWord,
+  broadcastWave,
+} from '@/code/operator/associative-memory'
 import { coverageRadius } from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativeSpreadingActivation(input?: { maxCells?: number; wordBits?: number }): {
+export function associativeSpreadingActivation(input?: {
+  maxCells?: number
+  wordBits?: number
+}): {
   cellCount: number
   bulkCoverage: number
   cubicCoverage: number
@@ -25,17 +36,28 @@ export function associativeSpreadingActivation(input?: { maxCells?: number; word
 
   // build the bulk, store a distinct word on every cell, seed the cue at the central cell
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
-  const mem = makeAssociativeMemory({ neighbors: g.neighbors, wordBits })
-  for (let c = 0; c < g.cellCount; c++) storeWord(mem, c, ternaryWord(c, wordBits))
+  const mem = makeAssociativeMemory({
+    neighbors: g.neighbors,
+    wordBits,
+  })
+  for (let c = 0; c < g.cellCount; c++)
+    storeWord(mem, c, ternaryWord(c, wordBits))
   const seed = 0
 
   // every occupied cell is a potential responder, the wave reaches the whole store
   const responders: number[] = []
   for (let c = 0; c < g.cellCount; c++) responders.push(c)
-  const wave = broadcastWave({ neighbors: g.neighbors, seed, responders })
+  const wave = broadcastWave({
+    neighbors: g.neighbors,
+    seed,
+    responders,
+  })
 
   // activation arrival per cell must equal graph distance from the seed
-  const distance = bfsShells({ neighbors: g.neighbors, root: seed }).depth
+  const distance = bfsShells({
+    neighbors: g.neighbors,
+    root: seed,
+  }).depth
   let arrivalMatchesDistance = true
   for (let c = 0; c < g.cellCount; c++) {
     if (wave.arrivalBeat[c] !== distance[c]) {
@@ -73,7 +95,8 @@ export function associativeSpreadingActivation(input?: { maxCells?: number; word
     seed: cubicLatticeCenterBySide({ side, dim: 3 }),
   })
 
-  const solved = arrivalMatchesDistance && monotone && bulkCoverage < cubicCoverage
+  const solved =
+    arrivalMatchesDistance && monotone && bulkCoverage < cubicCoverage
   return {
     cellCount: g.cellCount,
     bulkCoverage,
@@ -86,7 +109,8 @@ export function associativeSpreadingActivation(input?: { maxCells?: number; word
 
 export default experiment({
   id: 'associative/spreading-activation',
-  title: 'spreading activation through semantic memory IS the bulk query wave, made logarithmic by hyperbolic geometry',
+  title:
+    'spreading activation through semantic memory IS the bulk query wave, made logarithmic by hyperbolic geometry',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L3',
@@ -103,7 +127,10 @@ export default experiment({
         arrivalMatchesDistance: r.arrivalMatchesDistance ? 1 : 0,
         monotone: r.monotone ? 1 : 0,
       },
-      control: { cubicCoverage: r.cubicCoverage, cellCount: r.cellCount },
+      control: {
+        cubicCoverage: r.cubicCoverage,
+        cellCount: r.cellCount,
+      },
     })
   },
 })

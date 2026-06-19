@@ -20,14 +20,22 @@ import { verdict } from '@/test/scaffold/verdict'
 const st = (t: number): number => t + 1 // -1,0,1 -> 0,1,2
 
 // detailed-balance violation: asymmetry of local edge-state transition counts in steady state
-function dbViolation(arrow: number, g: { offsets: Int32Array; adj: Int32Array; cellCount: number }): { violation: number; floor: number; activity: number } {
+function dbViolation(
+  arrow: number,
+  g: { offsets: Int32Array; adj: Int32Array; cellCount: number },
+): { violation: number; floor: number; activity: number } {
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 3 })
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-  for (let t = 0; t < 60; t++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // reach steady state
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
+  for (let t = 0; t < 60; t++)
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // reach steady state
 
   // sample a fixed subset of edges, count (a,b) -> (a',b') transitions over many beats (9 states each)
   const sampleEdges: number[] = []
@@ -37,7 +45,9 @@ function dbViolation(arrow: number, g: { offsets: Int32Array; adj: Int32Array; c
   const S9 = 9
   const C = new Float64Array(S9 * S9)
   for (let b = 0; b < beats; b++) {
-    const pre = sampleEdges.map((k) => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))
+    const pre = sampleEdges.map(
+      k => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!),
+    )
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     for (let i = 0; i < sampleEdges.length; i++) {
       const k = sampleEdges[i]!
@@ -48,14 +58,22 @@ function dbViolation(arrow: number, g: { offsets: Int32Array; adj: Int32Array; c
     for (let i = 0; i < N; i++) if (tone[i] !== 0) active++
     activeSum += active / N
   }
-  const { violation, floor } = detailedBalanceViolation({ counts: C, states: S9 })
+  const { violation, floor } = detailedBalanceViolation({
+    counts: C,
+    states: S9,
+  })
   const activity = activeSum / beats
   return { violation, floor, activity }
 }
 
 export function reversiblePoint(input?: { n?: number }): {
   n: number
-  scan: { arrow: number; violation: number; floor: number; activity: number }[]
+  scan: {
+    arrow: number
+    violation: number
+    floor: number
+    activity: number
+  }[]
   maxRatio: number
   localDetailedBalance: boolean
   solved: boolean
@@ -63,7 +81,10 @@ export function reversiblePoint(input?: { n?: number }): {
   const n = input?.n ?? 20000
   const g = buildDodecagrid({ maxCells: n })
   const arrows = [0.0, 0.01, 0.03, 0.1, 0.3]
-  const scan = arrows.map((arrow) => ({ arrow, ...dbViolation(arrow, g) }))
+  const scan = arrows.map(arrow => ({
+    arrow,
+    ...dbViolation(arrow, g),
+  }))
 
   // LOCAL detailed balance holds if every arrow rate's violation is near or below its statistical floor.
   // Surprisingly this holds even with the arrow ON, the arrow creates BALANCED pairs, a reversible
@@ -72,13 +93,20 @@ export function reversiblePoint(input?: { n?: number }): {
   // for genuine quantization), and it refutes the "the arrow is irreversible" worry at the LOCAL level.
   let maxRatio = 0
   for (const s of scan) {
-    const ratio = s.activity > 0.05 ? s.violation / Math.max(s.floor, 1e-9) : 0 // skip the noisy near-empty case
+    const ratio =
+      s.activity > 0.05 ? s.violation / Math.max(s.floor, 1e-9) : 0 // skip the noisy near-empty case
     if (ratio > maxRatio) maxRatio = ratio
   }
   const localDetailedBalance = maxRatio < 1.6
   const solved = localDetailedBalance
 
-  return { n: g.cellCount, scan, maxRatio, localDetailedBalance, solved }
+  return {
+    n: g.cellCount,
+    scan,
+    maxRatio,
+    localDetailedBalance,
+    solved,
+  }
 }
 
 export default experiment({

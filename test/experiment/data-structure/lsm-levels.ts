@@ -12,7 +12,8 @@ import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
 
 export default experiment({
   id: 'data-structure/lsm-levels',
-  title: 'SS5: the radial shells are geometric LSM levels with a stable fan-out and logarithmic level count',
+  title:
+    'SS5: the radial shells are geometric LSM levels with a stable fan-out and logarithmic level count',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L2',
@@ -24,14 +25,17 @@ export default experiment({
 
     // levels grow monotonically (each radial level larger than the one inside it)
     let monotonic = true
-    for (let i = 1; i < complete.length; i++) if (complete[i]! < complete[i - 1]!) monotonic = false
+    for (let i = 1; i < complete.length; i++)
+      if (complete[i]! < complete[i - 1]!) monotonic = false
     // a stable geometric level fan-out (the level-size ratio), bounded above 1
     const levelFanout = lastCompleteShellRatio(mesh.shells)
     const flatFanout = lastCompleteShellRatio(flat.shells)
-    const geometricLevels = levelFanout > 1.3 && levelFanout > flatFanout
+    const geometricLevels =
+      levelFanout > 1.3 && levelFanout > flatFanout
     // the number of levels to hold the cells is logarithmic
     const levels = mesh.shells.length
-    const logarithmicLevels = levels <= 4 * Math.log2(mesh.adjacency.length)
+    const logarithmicLevels =
+      levels <= 4 * Math.log2(mesh.adjacency.length)
 
     const ok = monotonic && geometricLevels && logarithmicLevels
 
@@ -47,7 +51,10 @@ export default experiment({
       },
       // CONTROL: the flat honeycomb's shell ratio drifts lower (no stable geometric level structure), so the
       // LSM level fan-out is the hyperbolic growth.
-      control: { flatLevelFanout: flatFanout, geometricLevels: geometricLevels ? 1 : 0 },
+      control: {
+        flatLevelFanout: flatFanout,
+        geometricLevels: geometricLevels ? 1 : 0,
+      },
       notes:
         'SS5 of experiments/17. The radial axis is the level, scale, and priority direction, shared with the heap (SS4) and the skip-list shortcut (DS9).',
     })

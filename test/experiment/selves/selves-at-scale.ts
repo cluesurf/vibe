@@ -20,11 +20,35 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // cohesive perception rule, one beat (conserving)
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrowProb: number): void =>
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: arrowProb })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+  arrowProb: number,
+): void =>
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: true,
+    arrow: arrowProb,
+  })
 
 // connected components of same-sign nonzero cells (coherent domains), return sorted sizes (desc)
-function domainSizes(tone: Int8Array, offsets: Int32Array, adj: Int32Array, n: number): number[] {
+function domainSizes(
+  tone: Int8Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  n: number,
+): number[] {
   const parent = new Int32Array(n)
   for (let i = 0; i < n; i++) parent[i] = i
   const find = (x: number): number => {
@@ -76,7 +100,8 @@ export function selvesAtScale(input?: { n?: number }): {
   const q0 = sumTone(tone)
   const moved = new Uint8Array(N)
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < 100; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.06)
+  for (let b = 0; b < 100; b++)
+    beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.06)
   const conserved = sumTone(tone) === q0
 
   let nonzero = 0
@@ -84,8 +109,8 @@ export function selvesAtScale(input?: { n?: number }): {
 
   const sizes = domainSizes(tone, g.offsets, g.adj, N)
   const largestDomain = sizes[0] ?? 0
-  const patchesOver50 = sizes.filter((s) => s >= 50).length
-  const patchesOver200 = sizes.filter((s) => s >= 200).length
+  const patchesOver50 = sizes.filter(s => s >= 50).length
+  const patchesOver200 = sizes.filter(s => s >= 200).length
 
   // random null: same tones, shuffled positions, then find domains
   const shuffled = tone.slice()
@@ -99,11 +124,13 @@ export function selvesAtScale(input?: { n?: number }): {
   const randomSizes = domainSizes(shuffled, g.offsets, g.adj, N)
   const largestRandom = randomSizes[0] ?? 0
 
-  const domainAdvantage = largestRandom > 0 ? largestDomain / largestRandom : largestDomain
+  const domainAdvantage =
+    largestRandom > 0 ? largestDomain / largestRandom : largestDomain
   // a spread of medium-and-up patches is the hierarchy (the tower); absolute sizes scale with N, so the
   // robust evidence of real selves is the ADVANTAGE over the random null, not an absolute cell count.
   const hierarchy = patchesOver50 >= 3
-  const selvesEmerge = domainAdvantage > 3 && largestDomain >= 100 && hierarchy
+  const selvesEmerge =
+    domainAdvantage > 3 && largestDomain >= 100 && hierarchy
 
   const solved = conserved && selvesEmerge
 
@@ -124,7 +151,8 @@ export function selvesAtScale(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/selves-at-scale',
-  title: 'coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy',
+  title:
+    'coherent self-patches emerge on the exact {5,3,4}, far larger than random, with a size hierarchy',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',
@@ -132,7 +160,11 @@ export default experiment({
   run() {
     const r = selvesAtScale({ n: 60000 })
     const ok =
-      r.solved && r.conserved && r.selvesEmerge && r.domainAdvantage > 3 && r.hierarchy
+      r.solved &&
+      r.conserved &&
+      r.selvesEmerge &&
+      r.domainAdvantage > 3 &&
+      r.hierarchy
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

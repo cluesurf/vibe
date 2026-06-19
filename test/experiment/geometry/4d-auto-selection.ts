@@ -63,14 +63,19 @@ export function fourDAutoSelection(): {
   // (2) 4D, every ideal-with-finite-cells honeycomb, and the cubic-cusp subset
   const idealFourD: string[] = []
   const idealCubicCuspFourD: string[] = []
-  for (let p = 3; p <= 6; p++) for (let q = 3; q <= 6; q++) for (let r = 3; r <= 6; r++) for (let s = 3; s <= 6; s++) {
-    const sym = [p, q, r, s]
-    if (!isIdealFiniteCell(sym)) continue
-    idealFourD.push(`{${sym.join(',')}}`)
-    const vf = vertexFigure(sym)
-    if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) idealCubicCuspFourD.push(`{${sym.join(',')}}`) // cubic cusp {4,3,4}
-  }
-  const fourDUniqueCandidate = idealCubicCuspFourD.length === 1 ? idealCubicCuspFourD[0]! : null
+  for (let p = 3; p <= 6; p++)
+    for (let q = 3; q <= 6; q++)
+      for (let r = 3; r <= 6; r++)
+        for (let s = 3; s <= 6; s++) {
+          const sym = [p, q, r, s]
+          if (!isIdealFiniteCell(sym)) continue
+          idealFourD.push(`{${sym.join(',')}}`)
+          const vf = vertexFigure(sym)
+          if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4)
+            idealCubicCuspFourD.push(`{${sym.join(',')}}`) // cubic cusp {4,3,4}
+        }
+  const fourDUniqueCandidate =
+    idealCubicCuspFourD.length === 1 ? idealCubicCuspFourD[0]! : null
 
   // (3) the decisive test on the unique candidate {3,4,3,4}
   const cand = [3, 4, 3, 4]
@@ -82,10 +87,15 @@ export function fourDAutoSelection(): {
 
   // forced by the SAME principle requires the same ternary position (q=3 in the bulk) AND the same closure
   // regime (compact). {3,4,3,4} fails both, q=4 and ideal. So it is a unique CANDIDATE, not forced.
-  const fourDForcedBySamePrinciple = fourDBulkHasTernary && fourDIsCompact
+  const fourDForcedBySamePrinciple =
+    fourDBulkHasTernary && fourDIsCompact
 
-  const keepFiveThreeFour = threeDForced === '{5,3,4}' && !fourDForcedBySamePrinciple
-  const solved = threeDForced === '{5,3,4}' && fourDUniqueCandidate === '{3,4,3,4}' && !fourDForcedBySamePrinciple
+  const keepFiveThreeFour =
+    threeDForced === '{5,3,4}' && !fourDForcedBySamePrinciple
+  const solved =
+    threeDForced === '{5,3,4}' &&
+    fourDUniqueCandidate === '{3,4,3,4}' &&
+    !fourDForcedBySamePrinciple
 
   return {
     threeDForced,
@@ -106,7 +116,8 @@ export function fourDAutoSelection(): {
 
 export default experiment({
   id: 'geometry/4d-auto-selection',
-  title: '{5,3,4} stays forced in 3D, {3,4,3,4} is the unique ideal cubic-cusp H4 candidate but not forced',
+  title:
+    '{5,3,4} stays forced in 3D, {3,4,3,4} is the unique ideal cubic-cusp H4 candidate but not forced',
   category: 'geometry',
   substrates: ['534'],
   depth: 'L1',

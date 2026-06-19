@@ -15,7 +15,11 @@ import { powerLawExponent } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function sliverTransport(input?: { length?: number; beats?: number; runs?: number }): {
+export function sliverTransport(input?: {
+  length?: number
+  beats?: number
+  runs?: number
+}): {
   cellCount: number
   spineLength: number
   beats: number
@@ -84,7 +88,10 @@ export function sliverTransport(input?: { length?: number; beats?: number; runs?
     fitTimes.push(t)
     fitMsd.push(msd[t]!)
   }
-  const exponent = powerLawExponent({ times: fitTimes, spreads: fitMsd })
+  const exponent = powerLawExponent({
+    times: fitTimes,
+    spreads: fitMsd,
+  })
   const msdFull = msd[beats]!
   const msdHalf = msd[Math.floor(beats / 2)]!
   const diffusionConstant = msdFull / (2 * beats) // MSD = 2 D t for 1D diffusion
@@ -114,14 +121,16 @@ export function sliverTransport(input?: { length?: number; beats?: number; runs?
 
 export default experiment({
   id: 'relativity/sliver-transport',
-  title: 'a long geodesic tube shows ballistic transport with a finite escape speed',
+  title:
+    'a long geodesic tube shows ballistic transport with a finite escape speed',
   category: 'relativity',
   substrates: ['534'],
   depth: 'L2',
   paper: true,
   run() {
     const r = sliverTransport({ length: 70, beats: 40, runs: 400 })
-    const ok = r.solved && r.longSliver && r.isBallistic && !r.isDiffusive
+    const ok =
+      r.solved && r.longSliver && r.isBallistic && !r.isDiffusive
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

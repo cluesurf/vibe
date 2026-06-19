@@ -9,7 +9,11 @@ import { isRootSystem, rootsDn } from '@/code/algebra/group/root-system'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyRegular5DHas40: boolean } {
+export function d5CoinSearch(): {
+  cell24IsD4: boolean
+  d5RootCount: number
+  anyRegular5DHas40: boolean
+} {
   // 24-cell vertices = D4 roots: all +-e_i +-e_j (i<j) in 4D
   const R = rootsDn(4)
   const cell24IsD4 = isRootSystem(R) && R.length === 24
@@ -17,21 +21,29 @@ export function d5CoinSearch(): { cell24IsD4: boolean; d5RootCount: number; anyR
   const dRoots = (n: number): number => 2 * n * (n - 1)
   const d5RootCount = dRoots(5) // 40
   // 5D regular polytopes: 5-simplex (6 vertices), 5-cube (32), 5-orthoplex (10). NONE has 40.
-  const regular5D = [{ name: '5-simplex {3,3,3,3}', v: 6 }, { name: '5-cube {4,3,3,3}', v: 32 }, { name: '5-orthoplex {3,3,3,4}', v: 10 }]
-  const anyRegular5DHas40 = regular5D.some((p) => p.v === d5RootCount)
+  const regular5D = [
+    { name: '5-simplex {3,3,3,3}', v: 6 },
+    { name: '5-cube {4,3,3,3}', v: 32 },
+    { name: '5-orthoplex {3,3,3,4}', v: 10 },
+  ]
+  const anyRegular5DHas40 = regular5D.some(p => p.v === d5RootCount)
   return { cell24IsD4, d5RootCount, anyRegular5DHas40 }
 }
 
 export default experiment({
   id: 'gauge/d5-coin-search',
-  title: 'no regular honeycomb coin carries D5 = so(10), the geometry tops out at D4',
+  title:
+    'no regular honeycomb coin carries D5 = so(10), the geometry tops out at D4',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
   paper: true,
   run() {
     const r = d5CoinSearch()
-    const ok = r.cell24IsD4 && r.d5RootCount === 40 && r.anyRegular5DHas40 === false
+    const ok =
+      r.cell24IsD4 &&
+      r.d5RootCount === 40 &&
+      r.anyRegular5DHas40 === false
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

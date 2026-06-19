@@ -8,7 +8,10 @@ export interface DenseMatrix {
   readonly data: Float64Array // row major: data[r * cols + c]
 }
 
-export function makeDense(input: { rows: number; cols: number }): DenseMatrix {
+export function makeDense(input: {
+  rows: number
+  cols: number
+}): DenseMatrix {
   return {
     form: 'dense',
     rows: input.rows,
@@ -17,7 +20,10 @@ export function makeDense(input: { rows: number; cols: number }): DenseMatrix {
   }
 }
 
-export function denseGet(m: DenseMatrix, input: { row: number; col: number }): number {
+export function denseGet(
+  m: DenseMatrix,
+  input: { row: number; col: number },
+): number {
   return m.data[input.row * m.cols + input.col] ?? 0
 }
 
@@ -28,7 +34,10 @@ export function denseSet(
   m.data[input.row * m.cols + input.col] = input.value
 }
 
-export function denseMatVec(m: DenseMatrix, input: { x: Float64Array }): Float64Array {
+export function denseMatVec(
+  m: DenseMatrix,
+  input: { x: Float64Array },
+): Float64Array {
   const y = new Float64Array(m.rows)
   for (let r = 0; r < m.rows; r++) {
     let s = 0
@@ -43,7 +52,10 @@ export function denseMatVec(m: DenseMatrix, input: { x: Float64Array }): Float64
 
 // Plain square-matrix product over number[][]. The small dense multiply behind finite
 // matrix-group closures and invariant-theory counts.
-export function matrixProduct(a: number[][], b: number[][]): number[][] {
+export function matrixProduct(
+  a: number[][],
+  b: number[][],
+): number[][] {
   const n = a.length
   const inner = b.length
   const cols = b[0]?.length ?? 0
@@ -66,11 +78,12 @@ export function matrixProduct(a: number[][], b: number[][]): number[][] {
 // signature tests (leading principal minors) and other small linear-algebra checks.
 export function determinant(a: number[][]): number {
   const n = a.length
-  const m = a.map((row) => row.slice())
+  const m = a.map(row => row.slice())
   let det = 1
   for (let col = 0; col < n; col++) {
     let pivot = col
-    for (let r = col + 1; r < n; r++) if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
+    for (let r = col + 1; r < n; r++)
+      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
     if (Math.abs(m[pivot]![col]!) < 1e-15) return 0
     if (pivot !== col) {
       const tmp = m[pivot]!
@@ -89,14 +102,18 @@ export function determinant(a: number[][]): number {
 
 // Solve the dense linear system A x = b by Gauss-Jordan elimination with partial pivoting. A is a
 // square matrix as rows, b the right-hand side. Returns the solution vector x.
-export function solveLinearSystem(input: { matrix: number[][]; rightHandSide: number[] }): number[] {
+export function solveLinearSystem(input: {
+  matrix: number[][]
+  rightHandSide: number[]
+}): number[] {
   const A = input.matrix
   const b = input.rightHandSide
   const n = b.length
   const m = A.map((row, i) => [...row, b[i] ?? 0])
   for (let col = 0; col < n; col++) {
     let pivot = col
-    for (let r = col + 1; r < n; r++) if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
+    for (let r = col + 1; r < n; r++)
+      if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) pivot = r
     const tmp = m[col]!
     m[col] = m[pivot]!
     m[pivot] = tmp
@@ -108,7 +125,7 @@ export function solveLinearSystem(input: { matrix: number[][]; rightHandSide: nu
       for (let c = col; c <= n; c++) m[r]![c]! -= factor * m[col]![c]!
     }
   }
-  return m.map((row) => row[n]!)
+  return m.map(row => row[n]!)
 }
 
 export interface ComplexMatrix {

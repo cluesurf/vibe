@@ -13,23 +13,38 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function seaEnergy(N: number, m0: number, R: number): number {
-  return diracSeaEnergy({ hamiltonian: jackiwRebbiHamiltonian({ sites: N, mass: m0, width: R }) })
+  return diracSeaEnergy({
+    hamiltonian: jackiwRebbiHamiltonian({
+      sites: N,
+      mass: m0,
+      width: R,
+    }),
+  })
 }
 
-export function fermionInducedStabilizer(): { data: { R: number; sea: number }[]; risesAsSharpens: boolean } {
-  const N = 80, m0 = 1.0
+export function fermionInducedStabilizer(): {
+  data: { R: number; sea: number }[]
+  risesAsSharpens: boolean
+} {
+  const N = 80,
+    m0 = 1.0
   const Rs = [2, 3, 5, 8, 13]
-  const data = Rs.map((R) => ({ R, sea: Math.round(seaEnergy(N, m0, R) * 1000) / 1000 }))
+  const data = Rs.map(R => ({
+    R,
+    sea: Math.round(seaEnergy(N, m0, R) * 1000) / 1000,
+  }))
   // induced stiffness: does the (more negative) sea energy go UP (less negative) as the soliton sharpens (small R)?
   // a sharper soliton costing MORE fermion energy = positive induced gradient stiffness = stabilizing.
-  const sharp = data[0]!.sea, smooth = data[data.length - 1]!.sea
+  const sharp = data[0]!.sea,
+    smooth = data[data.length - 1]!.sea
   const risesAsSharpens = sharp > smooth // sea energy higher (less bound) for the sharp soliton
   return { data, risesAsSharpens }
 }
 
 export default experiment({
   id: 'gauge/actual-rule-soliton',
-  title: 'a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an honest open gate',
+  title:
+    'a 1D fermion sea does not settle the 3D Skyrme stabilizing sign, an honest open gate',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',

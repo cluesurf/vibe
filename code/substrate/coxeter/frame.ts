@@ -37,7 +37,9 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
   const dim = metric.length
   const cellMirrors = symbol.length // the generators that FIX the cell center
 
-  const reflections: Mat[] = normals.map((normal) => reflectionMatrix(normal, metric))
+  const reflections: Mat[] = normals.map(normal =>
+    reflectionMatrix(normal, metric),
+  )
 
   // the cell stabilizer H = <R[0..cellMirrors-1]>, a finite group, by BFS over its matrices
   const stab: Mat[] = [identity(dim)]
@@ -66,9 +68,19 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
       faceNormals.push(fn)
     }
   }
-  const faces: Mat[] = faceNormals.map((fn) => reflectionMatrix(fn, metric))
+  const faces: Mat[] = faceNormals.map(fn =>
+    reflectionMatrix(fn, metric),
+  )
 
   const center = cellCenter(normals, metric, cellMirrors, timeAxis)
 
-  return { symbol: symbol.slice(), dim, normals, metric, timeAxis, faces, center }
+  return {
+    symbol: symbol.slice(),
+    dim,
+    normals,
+    metric,
+    timeAxis,
+    faces,
+    center,
+  }
 }

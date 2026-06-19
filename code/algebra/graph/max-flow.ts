@@ -28,7 +28,12 @@ export class FlowNetwork {
     this.arcs.push({ to, cap, flow: 0, twin: forward + 1 })
     this.out[from]!.push(forward)
     const backward = this.arcs.length
-    this.arcs.push({ to: from, cap: reverseCap, flow: 0, twin: forward })
+    this.arcs.push({
+      to: from,
+      cap: reverseCap,
+      flow: 0,
+      twin: forward,
+    })
     this.out[to]!.push(backward)
   }
 
@@ -52,14 +57,26 @@ export class FlowNetwork {
     return level[sink] === -1 ? null : level
   }
 
-  private blockingFlow(node: number, sink: number, pushed: number, level: Int32Array, iter: Int32Array): number {
+  private blockingFlow(
+    node: number,
+    sink: number,
+    pushed: number,
+    level: Int32Array,
+    iter: Int32Array,
+  ): number {
     if (node === sink) return pushed
     for (; iter[node]! < this.out[node]!.length; iter[node]!++) {
       const arcIndex = this.out[node]![iter[node]!]!
       const arc = this.arcs[arcIndex]!
       const residual = arc.cap - arc.flow
       if (residual > 0 && level[arc.to] === level[node]! + 1) {
-        const sent = this.blockingFlow(arc.to, sink, Math.min(pushed, residual), level, iter)
+        const sent = this.blockingFlow(
+          arc.to,
+          sink,
+          Math.min(pushed, residual),
+          level,
+          iter,
+        )
         if (sent > 0) {
           arc.flow += sent
           this.arcs[arc.twin]!.flow -= sent
@@ -78,7 +95,13 @@ export class FlowNetwork {
       if (level === null) break
       const iter = new Int32Array(this.nodeCount)
       for (;;) {
-        const sent = this.blockingFlow(source, sink, Infinity, level, iter)
+        const sent = this.blockingFlow(
+          source,
+          sink,
+          Infinity,
+          level,
+          iter,
+        )
         if (sent === 0) break
         total += sent
       }

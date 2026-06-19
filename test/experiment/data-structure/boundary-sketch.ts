@@ -11,7 +11,8 @@ import { bloomFalsePositiveRate } from '@/code/measure/sketch'
 
 export default experiment({
   id: 'data-structure/boundary-sketch',
-  title: 'DS12: a Bloom filter on the exponential boundary has a false-positive rate that falls with radius',
+  title:
+    'DS12: a Bloom filter on the exponential boundary has a false-positive rate that falls with radius',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -26,11 +27,22 @@ export default experiment({
     const hashes = 4
     const queries = 2000
 
-    const smallRate = bloomFalsePositiveRate({ cells: smallBoundary, items, hashes, queries })
-    const largeRate = bloomFalsePositiveRate({ cells: largeBoundary, items, hashes, queries })
+    const smallRate = bloomFalsePositiveRate({
+      cells: smallBoundary,
+      items,
+      hashes,
+      queries,
+    })
+    const largeRate = bloomFalsePositiveRate({
+      cells: largeBoundary,
+      items,
+      hashes,
+      queries,
+    })
 
     // the larger (exponentially bigger) boundary yields a much lower false-positive rate
-    const falsePositiveFalls = largeBoundary > smallBoundary * 2 && largeRate < smallRate * 0.5
+    const falsePositiveFalls =
+      largeBoundary > smallBoundary * 2 && largeRate < smallRate * 0.5
 
     return verdict({
       status: falsePositiveFalls ? 'pass' : 'fail',
@@ -44,7 +56,10 @@ export default experiment({
       },
       // CONTROL: the inner (small) boundary is a flat-sized sketch with a high false-positive rate, so the gain
       // is the exponentially larger boundary, not the Bloom filter itself.
-      control: { boundaryGrewExponentially: largeBoundary > smallBoundary * 2 ? 1 : 0 },
+      control: {
+        boundaryGrewExponentially:
+          largeBoundary > smallBoundary * 2 ? 1 : 0,
+      },
       notes:
         'DS12 of experiments/16. The exponential boundary is also the home of the hash table (SS2) and the inverted index (SS13), the sketch capacity is the boundary size.',
     })

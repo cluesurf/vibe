@@ -1,7 +1,11 @@
 // A configuration assigns a tone value to every element (or every component of
 // every element, for the spinor alphabet). Stored densely in an Int32Array.
 
-import { Alphabet, slotsPerElement, randomValue } from '@/code/tone/alphabet'
+import {
+  Alphabet,
+  slotsPerElement,
+  randomValue,
+} from '@/code/tone/alphabet'
 import { Rng } from '@/code/tool/rng'
 
 export interface Configuration {
@@ -21,7 +25,10 @@ export function makeConfiguration(input: {
   const values = new Int32Array(input.size * slots)
   if (input.rng) {
     for (let i = 0; i < values.length; i++) {
-      values[i] = randomValue({ alphabet: input.alphabet, u: input.rng.next() })
+      values[i] = randomValue({
+        alphabet: input.alphabet,
+        u: input.rng.next(),
+      })
     }
   }
   return {

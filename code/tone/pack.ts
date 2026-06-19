@@ -3,7 +3,10 @@
 // inlined these, here is the one home, with the signed mapping and the canonical tone colours.
 
 // pack the current and previous ternary codes (each 0,1,2) into one integer
-export function pack(input: { current: number; previous: number }): number {
+export function pack(input: {
+  current: number
+  previous: number
+}): number {
   return (input.previous << 2) | input.current
 }
 

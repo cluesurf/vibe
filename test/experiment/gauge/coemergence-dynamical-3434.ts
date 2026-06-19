@@ -24,7 +24,11 @@ import { verdict } from '@/test/scaffold/verdict'
 // one coupled run on the shared Schwinger evolution. coupling e binds the sectors, backgroundField
 // applies a constant E0 to test the field -> fermion direction. Returns the field energy sourced
 // and the fermion momentum drift.
-function coupledRun(input: { coupling: number; backgroundField: number; momentumStart: number }): {
+function coupledRun(input: {
+  coupling: number
+  backgroundField: number
+  momentumStart: number
+}): {
   fieldEnergy: number
   momentumDrift: number
 } {
@@ -50,16 +54,36 @@ export function coemergenceDynamical(): {
   decouplingKillsBoth: boolean
 } {
   // (A) fermion -> field: a moving charge with no background field, measure the field it radiates
-  const radiateOn = coupledRun({ coupling: 0.8, backgroundField: 0, momentumStart: 0.9 })
-  const radiateOff = coupledRun({ coupling: 0, backgroundField: 0, momentumStart: 0.9 })
+  const radiateOn = coupledRun({
+    coupling: 0.8,
+    backgroundField: 0,
+    momentumStart: 0.9,
+  })
+  const radiateOff = coupledRun({
+    coupling: 0,
+    backgroundField: 0,
+    momentumStart: 0.9,
+  })
   // (B) field -> fermion: a charge at rest in a constant background field, measure its acceleration
-  const pushOn = coupledRun({ coupling: 0.8, backgroundField: 0.05, momentumStart: 0 })
-  const pushOff = coupledRun({ coupling: 0, backgroundField: 0.05, momentumStart: 0 })
+  const pushOn = coupledRun({
+    coupling: 0.8,
+    backgroundField: 0.05,
+    momentumStart: 0,
+  })
+  const pushOff = coupledRun({
+    coupling: 0,
+    backgroundField: 0.05,
+    momentumStart: 0,
+  })
 
-  const fermionSourcesField = radiateOn.fieldEnergy > 1e-6 && radiateOff.fieldEnergy < 1e-12
+  const fermionSourcesField =
+    radiateOn.fieldEnergy > 1e-6 && radiateOff.fieldEnergy < 1e-12
   const fieldAcceleratesFermion =
-    Math.abs(pushOn.momentumDrift) > 1e-4 && Math.abs(pushOff.momentumDrift) < 1e-9
-  const decouplingKillsBoth = radiateOff.fieldEnergy < 1e-12 && Math.abs(pushOff.momentumDrift) < 1e-9
+    Math.abs(pushOn.momentumDrift) > 1e-4 &&
+    Math.abs(pushOff.momentumDrift) < 1e-9
+  const decouplingKillsBoth =
+    radiateOff.fieldEnergy < 1e-12 &&
+    Math.abs(pushOff.momentumDrift) < 1e-9
 
   return {
     fieldSourcedWithCoupling: radiateOn.fieldEnergy,
@@ -74,14 +98,18 @@ export function coemergenceDynamical(): {
 
 export default experiment({
   id: 'gauge/coemergence-dynamical-3434',
-  title: 'one coupled rule binds the photon and fermion sectors both ways, and decoupling kills both together',
+  title:
+    'one coupled rule binds the photon and fermion sectors both ways, and decoupling kills both together',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: true,
   run() {
     const r = coemergenceDynamical()
-    const ok = r.fermionSourcesField && r.fieldAcceleratesFermion && r.decouplingKillsBoth
+    const ok =
+      r.fermionSourcesField &&
+      r.fieldAcceleratesFermion &&
+      r.decouplingKillsBoth
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

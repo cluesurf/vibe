@@ -7,7 +7,12 @@
 // has the same ball growth (1, 5, 15, 40, 105, 275, 720) as the geometry. See
 // note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
 
-import { father, continuator, nodeType, sons } from '@/code/substrate/margenstern/fibonacci-tree'
+import {
+  father,
+  continuator,
+  nodeType,
+  sons,
+} from '@/code/substrate/margenstern/fibonacci-tree'
 
 // a pentagrid tile, a quarter q in 0..3 and a node number n >= 1 in that quarter's Fibonacci tree
 export interface PentaTile {
@@ -22,9 +27,16 @@ const LEFT_SPINE = new Set<number>()
 const RIGHT_SPINE = new Set<number>()
 {
   let n = 1
-  for (let i = 0; i < 90; i++) { LEFT_SPINE.add(n); n = sons(n)[0]! }
+  for (let i = 0; i < 90; i++) {
+    LEFT_SPINE.add(n)
+    n = sons(n)[0]!
+  }
   n = 1
-  for (let i = 0; i < 90; i++) { RIGHT_SPINE.add(n); const s = sons(n); n = s[s.length - 1]! }
+  for (let i = 0; i < 90; i++) {
+    RIGHT_SPINE.add(n)
+    const s = sons(n)
+    n = s[s.length - 1]!
+  }
 }
 
 // the five neighbours of a tile, counterclockwise starting from the father (Theorem 5), pure integer arithmetic
@@ -34,26 +46,55 @@ export function pentagridNeighbors(tile: PentaTile): PentaTile[] {
   const qm = (q + 3) & 3
   if (n === 1) {
     // the root, its three sons plus the two adjacent quarter roots (the central ring around the vertex)
-    return [{ q: qp, n: 1 }, { q, n: 2 }, { q, n: 3 }, { q, n: 4 }, { q: qm, n: 1 }]
+    return [
+      { q: qp, n: 1 },
+      { q, n: 2 },
+      { q, n: 3 },
+      { q, n: 4 },
+      { q: qm, n: 1 },
+    ]
   }
   const f = father(n)
   const c = continuator(n)
   const t = nodeType(n)
   if (LEFT_SPINE.has(n)) {
     // the left lateral crosses into quarter q+1
-    return [{ q, n: f }, { q: qp, n: c - 1 }, { q, n: c }, { q, n: c + 1 }, { q, n: c + 2 }]
+    return [
+      { q, n: f },
+      { q: qp, n: c - 1 },
+      { q, n: c },
+      { q, n: c + 1 },
+      { q, n: c + 2 },
+    ]
   }
   if (RIGHT_SPINE.has(n)) {
     // the right lateral crosses into quarter q-1
-    return [{ q, n: f }, { q, n: c - 1 }, { q, n: c }, { q, n: c + 1 }, { q: qm, n: f + 1 }]
+    return [
+      { q, n: f },
+      { q, n: c - 1 },
+      { q, n: c },
+      { q, n: c + 1 },
+      { q: qm, n: f + 1 },
+    ]
   }
   // an interior tile, all five neighbours in quarter q (the left lateral is f-1 for a 2-node, c-1 for a 3-node)
-  return [{ q, n: f }, { q, n: t === 2 ? f - 1 : c - 1 }, { q, n: c }, { q, n: c + 1 }, { q, n: c + 2 }]
+  return [
+    { q, n: f },
+    { q, n: t === 2 ? f - 1 : c - 1 },
+    { q, n: c },
+    { q, n: c + 1 },
+    { q, n: c + 2 },
+  ]
 }
 
 // the four quarter roots, the seeds of the whole pentagrid
 export function pentagridRoots(): PentaTile[] {
-  return [{ q: 0, n: 1 }, { q: 1, n: 1 }, { q: 2, n: 1 }, { q: 3, n: 1 }]
+  return [
+    { q: 0, n: 1 },
+    { q: 1, n: 1 },
+    { q: 2, n: 1 },
+    { q: 3, n: 1 },
+  ]
 }
 
 // build the pentagrid cell graph purely from the address arithmetic, breadth-first to maxCells. Geometry-free,
@@ -75,7 +116,10 @@ export function buildPentagridPure(input: { maxCells: number }): {
       const k = key(nb)
       let id = idOf.get(k)
       if (id === undefined) {
-        if (tiles.length >= input.maxCells) { hit = true; continue }
+        if (tiles.length >= input.maxCells) {
+          hit = true
+          continue
+        }
         id = tiles.length
         idOf.set(k, id)
         tiles.push(nb)
@@ -89,6 +133,7 @@ export function buildPentagridPure(input: { maxCells: number }): {
     if (hit) break
   }
   let facetCount = 0
-  for (const row of neighbors) facetCount = Math.max(facetCount, row.length)
+  for (const row of neighbors)
+    facetCount = Math.max(facetCount, row.length)
   return { cellCount: tiles.length, neighbors, tiles, facetCount }
 }

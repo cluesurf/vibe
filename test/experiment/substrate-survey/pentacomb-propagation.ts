@@ -21,7 +21,12 @@ import { kahlerDiracReturn } from '@/code/measure/fermion-propagation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function measureSize(maxCells: number): { cells: number; clean: number; localized: number; normDrift: number } {
+function measureSize(maxCells: number): {
+  cells: number
+  clean: number
+  localized: number
+  normDrift: number
+} {
   const penta = buildCoxeterMatrixMesh([3, 4, 3, 3, 4], maxCells)
   const result = kahlerDiracReturn({ neighbors: penta.adjacency })
   return { cells: penta.adjacency.length, ...result }
@@ -46,7 +51,8 @@ export function pentacombPropagation(): {
   const flat = buildCoxeterMatrixMesh([3, 4, 3, 3], 3000)
   const curvedControl = kahlerDiracReturn({ neighbors: flat.adjacency })
 
-  const spinorPropagatesOnCurved = small.clean < 0.2 && large.clean < 0.2
+  const spinorPropagatesOnCurved =
+    small.clean < 0.2 && large.clean < 0.2
   const disorderLocalizes =
     small.localized > 0.35 &&
     large.localized > 0.35 &&
@@ -67,7 +73,8 @@ export function pentacombPropagation(): {
 
 export default experiment({
   id: 'substrate-survey/pentacomb-propagation',
-  title: 'a fermion propagates on the 5D D4 pentacomb, which has the spinor coin AND curvature, resolving the spin-versus-curvature trade',
+  title:
+    'a fermion propagates on the 5D D4 pentacomb, which has the spinor coin AND curvature, resolving the spin-versus-curvature trade',
   category: 'substrate-survey',
   substrates: ['53334'],
   depth: 'L2',
@@ -75,7 +82,8 @@ export default experiment({
   run() {
     const r = pentacombPropagation()
     const stable = r.normDrift < 0.05
-    const ok = r.spinorPropagatesOnCurved && r.disorderLocalizes && stable
+    const ok =
+      r.spinorPropagatesOnCurved && r.disorderLocalizes && stable
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

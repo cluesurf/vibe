@@ -29,7 +29,10 @@ import { cayleyMultiply } from '@/code/measure/division-algebra'
 
 // the count of real (square positive, ordered) and imaginary (square negative, unorderable) axes of the level-n
 // integer Cayley-Dickson ring (integer arithmetic throughout, the discrete number line)
-function integerAxes(level: number): { ordered: number; unordered: number } {
+function integerAxes(level: number): {
+  ordered: number
+  unordered: number
+} {
   const dimension = 2 ** level
   let ordered = 0
   let unordered = 0
@@ -44,7 +47,8 @@ function integerAxes(level: number): { ordered: number; unordered: number } {
 
 export default experiment({
   id: 'foundations/arrow-from-integer-order',
-  title: 'the arrow is the order of the INTEGERS (the discrete beat-count), the unique ordered discrete normed ring, the discrete geometry rings (i^2=-1) unordered',
+  title:
+    'the arrow is the order of the INTEGERS (the discrete beat-count), the unique ordered discrete normed ring, the discrete geometry rings (i^2=-1) unordered',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -55,15 +59,24 @@ export default experiment({
     const gaussian = integerAxes(1)
     const octonionIntegers = integerAxes(3)
     const integersAreOrdered = integers.unordered === 0
-    const geometryRingsUnordered = gaussian.unordered > 0 && octonionIntegers.unordered > 0
+    const geometryRingsUnordered =
+      gaussian.unordered > 0 && octonionIntegers.unordered > 0
 
     // every ring has exactly one integer (ordered) axis, the scalar foundation
-    const oneOrderedAxis = integers.ordered === 1 && gaussian.ordered === 1 && octonionIntegers.ordered === 1
+    const oneOrderedAxis =
+      integers.ordered === 1 &&
+      gaussian.ordered === 1 &&
+      octonionIntegers.ordered === 1
 
     // the octonion integers are one ordered + seven unordered (8 = 1 + 7), the one ordered axis is the arrow
-    const oneOrderedSevenUnordered = octonionIntegers.ordered === 1 && octonionIntegers.unordered === 7
+    const oneOrderedSevenUnordered =
+      octonionIntegers.ordered === 1 && octonionIntegers.unordered === 7
 
-    const ok = integersAreOrdered && geometryRingsUnordered && oneOrderedAxis && oneOrderedSevenUnordered
+    const ok =
+      integersAreOrdered &&
+      geometryRingsUnordered &&
+      oneOrderedAxis &&
+      oneOrderedSevenUnordered
 
     return verdict({
       status: ok ? 'pass' : 'fail',

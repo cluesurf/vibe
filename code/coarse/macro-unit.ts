@@ -3,7 +3,11 @@
 // the data structure that makes the renormalization recursion well-defined, each level treats the units
 // below as its cells.
 
-export type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
+export type Graph = {
+  cellCount: number
+  offsets: Int32Array
+  adj: Int32Array
+}
 
 export interface MacroUnit {
   id: number
@@ -76,9 +80,13 @@ export function extractUnits(input: {
 
 // Per-cell label array, mapping each cell to the id of the unit it belongs to, or -1 for unaffiliated cells.
 // This is the CoarseMap from cells to macro-units.
-export function coarseLabels(input: { units: MacroUnit[]; cellCount: number }): Int32Array {
+export function coarseLabels(input: {
+  units: MacroUnit[]
+  cellCount: number
+}): Int32Array {
   const labels = new Int32Array(input.cellCount).fill(-1)
-  for (const unit of input.units) for (const m of unit.members) labels[m] = unit.id
+  for (const unit of input.units)
+    for (const m of unit.members) labels[m] = unit.id
   return labels
 }
 

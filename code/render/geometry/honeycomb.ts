@@ -6,7 +6,10 @@
 // note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import type { Scene, SceneEdge } from '@/code/render/scene'
-import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildCellGraph,
+  buildEuclideanLattice,
+} from '@/code/substrate/coxeter/cell-direct'
 import { classifyGeometry } from '@/code/substrate/coxeter/schlafli'
 import { coxeterCellFrame } from '@/code/substrate/coxeter/frame'
 import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
@@ -40,7 +43,11 @@ export type HoneycombOptions = {
 
 // build the tessellation Scene for a Schlafli symbol
 export function buildHoneycombScene(input: HoneycombOptions): Scene {
-  const { symbol, maxCells = DEFAULT_MAX_CELLS, orientUp = true } = input
+  const {
+    symbol,
+    maxCells = DEFAULT_MAX_CELLS,
+    orientUp = true,
+  } = input
 
   // the base engine enumerates the cells (with their placing isometries) in the Coxeter frame
   const graph = buildCellGraph({ symbol, maxCells })
@@ -65,8 +72,14 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
 
   // orientation, rotate the first two ball axes so the recentered central cell sits upright, a vertex up for an
   // odd-sided cell, a flat side up for an even-sided cell. Computed from the recentered central cell vertices.
-  const centralBallVerts = baseVertices.map((v) => recenter(toPoincare(matVec(cellMat[0]!, v), timeAxis)))
-  const { cos: orientCos, sin: orientSin } = orientation(centralBallVerts, symbol[0] ?? 3, orientUp)
+  const centralBallVerts = baseVertices.map(v =>
+    recenter(toPoincare(matVec(cellMat[0]!, v), timeAxis)),
+  )
+  const { cos: orientCos, sin: orientSin } = orientation(
+    centralBallVerts,
+    symbol[0] ?? 3,
+    orientUp,
+  )
   const orient = (b: Vec): Vec => {
     if (!orientUp) return b
     const x = b[0] ?? 0
@@ -78,13 +91,15 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   }
 
   // each cell's center, the lattice points, recentered and oriented the same way as the edges
-  const centers: Vec[] = graph.coords.map((c) => orient(recenter(c)))
+  const centers: Vec[] = graph.coords.map(c => orient(recenter(c)))
 
   // replicate the cell edges across every cell, deduplicated in ball space
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
   for (const g of cellMat) {
-    const ballVerts = baseVertices.map((v) => orient(recenter(toPoincare(matVec(g, v), timeAxis))))
+    const ballVerts = baseVertices.map(v =>
+      orient(recenter(toPoincare(matVec(g, v), timeAxis))),
+    )
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
@@ -96,7 +111,13 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     }
   }
 
-  return { dim: ballDim, symbol: symbol.slice(), edges, cellCount: cellMat.length, centers }
+  return {
+    dim: ballDim,
+    symbol: symbol.slice(),
+    edges,
+    cellCount: cellMat.length,
+    centers,
+  }
 }
 
 // Build the Scene for a SPHERICAL symbol, a regular tiling of the sphere (a polyhedron, {p,q} with
@@ -106,14 +127,22 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
 // ball by stereographic projection from the antipode of the central cell, the spherical analogue of the
 // Poincare recentering. One engine, every signature.
 export function buildSphericalScene(input: HoneycombOptions): Scene {
-  const { symbol, maxCells = DEFAULT_MAX_CELLS, orientUp = true } = input
+  const {
+    symbol,
+    maxCells = DEFAULT_MAX_CELLS,
+    orientUp = true,
+  } = input
   const frame = coxeterCellFrame(symbol)
   const { normals, metric, timeAxis, faces, dim } = frame
   const ballDim = dim - 1
 
   // the central cell center, fixed by the cell mirrors (every generator but the last), as a unit model point
   const cellMirrors = dim - 1
-  const c0 = normalizeModelPoint(nullVector(normals.slice(0, cellMirrors), metric), metric, timeAxis)
+  const c0 = normalizeModelPoint(
+    nullVector(normals.slice(0, cellMirrors), metric),
+    metric,
+    timeAxis,
+  )
 
   // BFS the FINITE cell orbit, each cell its group matrix g (center = g * c0), neighbors = g * faces[i]
   const cellMat: Mat[] = [identity(dim)]
@@ -122,7 +151,11 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     const g = cellMat[head]!
     for (const f of faces) {
       const gp = matMul(g, f)
-      const center = normalizeModelPoint(matVec(gp, c0), metric, timeAxis)
+      const center = normalizeModelPoint(
+        matVec(gp, c0),
+        metric,
+        timeAxis,
+      )
       const k = pointKey(center)
       if (seenCell.has(k)) continue
       seenCell.add(k)
@@ -134,15 +167,25 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   // stereographic projection to the ball, with the central cell at the origin
   const basis = orthogonalComplementBasis(c0)
   const project = (modelPoint: Vec): Vec =>
-    stereographic(normalizeModelPoint(modelPoint, metric, timeAxis), c0, basis)
+    stereographic(
+      normalizeModelPoint(modelPoint, metric, timeAxis),
+      c0,
+      basis,
+    )
 
   const shape = buildCellShape(symbol)
   const baseVertices = shape.vertices
   const baseEdges = shape.edges
 
   // orient the central cell upright, the same convention as the hyperbolic builder
-  const centralBallVerts = baseVertices.map((v) => project(matVec(cellMat[0]!, v)))
-  const { cos: orientCos, sin: orientSin } = orientation(centralBallVerts, symbol[0] ?? 3, orientUp)
+  const centralBallVerts = baseVertices.map(v =>
+    project(matVec(cellMat[0]!, v)),
+  )
+  const { cos: orientCos, sin: orientSin } = orientation(
+    centralBallVerts,
+    symbol[0] ?? 3,
+    orientUp,
+  )
   const orient = (b: Vec): Vec => {
     if (!orientUp) return b
     const x = b[0] ?? 0
@@ -162,7 +205,9 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   const seen = new Set<string>()
   let maxR = 1e-9
   for (const g of cellMat) {
-    const ballVerts = baseVertices.map((v) => orient(project(matVec(g, v))))
+    const ballVerts = baseVertices.map(v =>
+      orient(project(matVec(g, v))),
+    )
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
@@ -176,21 +221,39 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   }
 
   const scale = 0.95 / maxR
-  const fit = (p: Vec): Vec => p.map((v) => v * scale)
-  const edges: SceneEdge[] = rawEdges.map((e) => ({ a: fit(e.a), b: fit(e.b) }))
+  const fit = (p: Vec): Vec => p.map(v => v * scale)
+  const edges: SceneEdge[] = rawEdges.map(e => ({
+    a: fit(e.a),
+    b: fit(e.b),
+  }))
   const centers: Vec[] = cellMat
-    .map((g) => orient(project(matVec(g, c0))))
-    .filter((c) => norm(c) <= INFINITY_GUARD)
+    .map(g => orient(project(matVec(g, c0))))
+    .filter(c => norm(c) <= INFINITY_GUARD)
     .map(fit)
 
-  return { dim: ballDim, symbol: symbol.slice(), edges, cellCount: cellMat.length, centers }
+  return {
+    dim: ballDim,
+    symbol: symbol.slice(),
+    edges,
+    cellCount: cellMat.length,
+    centers,
+  }
 }
 
 // the embedding basis for a 2D Euclidean regular tiling, the lattice vectors in the plane
 const EUCLIDEAN_BASIS_2D: Record<string, Vec[]> = {
-  '4,4': [[1, 0], [0, 1]], // square
-  '3,6': [[1, 0], [0.5, Math.sqrt(3) / 2]], // triangular
-  '6,3': [[1, 0], [0.5, Math.sqrt(3) / 2]], // hexagonal lattice (drawn as the triangular dual lattice)
+  '4,4': [
+    [1, 0],
+    [0, 1],
+  ], // square
+  '3,6': [
+    [1, 0],
+    [0.5, Math.sqrt(3) / 2],
+  ], // triangular
+  '6,3': [
+    [1, 0],
+    [0.5, Math.sqrt(3) / 2],
+  ], // hexagonal lattice (drawn as the triangular dual lattice)
 }
 
 // Build the Scene for a EUCLIDEAN (flat) symbol. The reflection group is affine (its model metric is
@@ -201,23 +264,33 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
   const { symbol, maxCells = 1200 } = input
   const lattice = buildEuclideanLattice({ symbol, maxCells })
   const key = symbol.join(',')
-  const basis = EUCLIDEAN_BASIS_2D[key] ?? [[1, 0], [0, 1]]
+  const basis = EUCLIDEAN_BASIS_2D[key] ?? [
+    [1, 0],
+    [0, 1],
+  ]
   const ballDim = basis.length
 
   // embed each lattice coord with the plane basis
-  const placed: Vec[] = lattice.coords.map((c) => {
+  const placed: Vec[] = lattice.coords.map(c => {
     const p: Vec = new Array<number>(ballDim).fill(0)
-    for (let a = 0; a < ballDim; a++) for (let i = 0; i < basis.length; i++) p[a] = (p[a] ?? 0) + (c[i] ?? 0) * (basis[i]![a] ?? 0)
+    for (let a = 0; a < ballDim; a++)
+      for (let i = 0; i < basis.length; i++)
+        p[a] = (p[a] ?? 0) + (c[i] ?? 0) * (basis[i]![a] ?? 0)
     return p
   })
 
   // center on the centroid and scale to fit the disk
   const centroid: Vec = new Array<number>(ballDim).fill(0)
-  for (const p of placed) for (let a = 0; a < ballDim; a++) centroid[a]! += p[a]! / placed.length
+  for (const p of placed)
+    for (let a = 0; a < ballDim; a++)
+      centroid[a]! += p[a]! / placed.length
   let maxR = 1e-9
-  for (const p of placed) maxR = Math.max(maxR, norm(p.map((v, a) => v - centroid[a]!)))
+  for (const p of placed)
+    maxR = Math.max(maxR, norm(p.map((v, a) => v - centroid[a]!)))
   const scale = 0.92 / maxR
-  const ball: Vec[] = placed.map((p) => p.map((v, a) => (v - centroid[a]!) * scale))
+  const ball: Vec[] = placed.map(p =>
+    p.map((v, a) => (v - centroid[a]!) * scale),
+  )
 
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
@@ -233,7 +306,13 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
     }
   }
 
-  return { dim: ballDim, symbol: symbol.slice(), edges, cellCount: ball.length, centers: ball }
+  return {
+    dim: ballDim,
+    symbol: symbol.slice(),
+    edges,
+    cellCount: ball.length,
+    centers: ball,
+  }
 }
 
 // Build the Scene for ANY regular symbol, dispatching on its geometry, hyperbolic (the Poincare ball),
@@ -255,7 +334,11 @@ export function hasFiniteCell(symbol: number[]): boolean {
 }
 
 // the rotation (as cos and sin) that brings the central cell upright, from its recentered ball vertices
-function orientation(ballVertices: Vec[], p: number, orientUp: boolean): { cos: number; sin: number } {
+function orientation(
+  ballVertices: Vec[],
+  p: number,
+  orientUp: boolean,
+): { cos: number; sin: number } {
   if (!orientUp) return { cos: 1, sin: 0 }
   let bestR = -1
   let theta0 = 0
@@ -281,7 +364,7 @@ function norm(v: number[]): number {
 }
 
 function pairKey(a: number[], b: number[]): string {
-  const ka = a.map((x) => Math.round(x * 1e4)).join(',')
-  const kb = b.map((x) => Math.round(x * 1e4)).join(',')
+  const ka = a.map(x => Math.round(x * 1e4)).join(',')
+  const kb = b.map(x => Math.round(x * 1e4)).join(',')
   return ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 }

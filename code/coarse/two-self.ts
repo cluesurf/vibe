@@ -3,7 +3,14 @@
 // separation between the two clusters over time is the interaction signal, an approach (attraction) when the
 // cohesion bridges the gap, no net change when they are out of range. Reuses the self-kit engine.
 
-import { flatGraph, emergeSelf, beat, largestPositiveCluster, positiveClusters, type Graph } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  emergeSelf,
+  beat,
+  largestPositiveCluster,
+  positiveClusters,
+  type Graph,
+} from '@/code/model/self-kit'
 import { makeRng } from '@/code/coarse/self-trajectory'
 
 export interface SelfShape {
@@ -14,12 +21,20 @@ export interface SelfShape {
 }
 
 // Emerge a self on an L-lattice and return its shape as integer offsets from its centroid.
-export function emergeSelfShape(input: { L: number; seed: number; beats?: number; density?: number }): SelfShape {
+export function emergeSelfShape(input: {
+  L: number
+  seed: number
+  beats?: number
+  density?: number
+}): SelfShape {
   const { L, seed } = input
   const graph = flatGraph(L)
   const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
-  const { tone } = emergeSelf(graph, rng, moved, { beats: input.beats ?? 80, density: input.density ?? 0.1 })
+  const { tone } = emergeSelf(graph, rng, moved, {
+    beats: input.beats ?? 80,
+    density: input.density ?? 0.1,
+  })
   const cluster = largestPositiveCluster(tone, graph)
   let cx = 0
   let cy = 0
@@ -30,7 +45,11 @@ export function emergeSelfShape(input: { L: number; seed: number; beats?: number
   cx /= cluster.length
   cy /= cluster.length
   const offsets = cluster.map(
-    (c) => [Math.round((c % L) - cx), Math.round(Math.floor(c / L) - cy)] as const,
+    c =>
+      [
+        Math.round((c % L) - cx),
+        Math.round(Math.floor(c / L) - cy),
+      ] as const,
   )
   return { offsets, size: cluster.length, L }
 }
@@ -79,8 +98,22 @@ export function runTwoSelfAnnihilation(input: {
   const graph = flatGraph(L)
   const tone = new Int8Array(L * L)
   const cy = Math.floor(L / 2)
-  stampShape({ tone, L, offsets: shape.offsets, px: Math.round(L / 2 - d / 2), py: cy, sign: 1 })
-  stampShape({ tone, L, offsets: shape.offsets, px: Math.round(L / 2 + d / 2), py: cy, sign: rightSign })
+  stampShape({
+    tone,
+    L,
+    offsets: shape.offsets,
+    px: Math.round(L / 2 - d / 2),
+    py: cy,
+    sign: 1,
+  })
+  stampShape({
+    tone,
+    L,
+    offsets: shape.offsets,
+    px: Math.round(L / 2 + d / 2),
+    py: cy,
+    sign: rightSign,
+  })
   const rng = makeRng(seed)
   const moved = new Uint8Array(L * L)
   const counts = [plusCount(tone)]
@@ -93,10 +126,15 @@ export function runTwoSelfAnnihilation(input: {
 
 // The separation between the two largest plus-charge clusters' centroids, or 0 if they have merged into one
 // cluster (at or above minSize). The interaction observable.
-export function twoSelfSeparation(input: { tone: Int8Array; graph: Graph; L: number; minSize: number }): number {
+export function twoSelfSeparation(input: {
+  tone: Int8Array
+  graph: Graph
+  L: number
+  minSize: number
+}): number {
   const { tone, graph, L, minSize } = input
   const clusters = positiveClusters(tone, graph)
-    .filter((c) => c.length >= minSize)
+    .filter(c => c.length >= minSize)
     .sort((a, b) => b.length - a.length)
   if (clusters.length < 2) return 0
   const centroid = (cells: number[]): readonly [number, number] => {
@@ -130,8 +168,20 @@ export function runTwoSelf(input: {
   const graph = flatGraph(L)
   const tone = new Int8Array(L * L)
   const cy = Math.floor(L / 2)
-  stampShape({ tone, L, offsets: shape.offsets, px: Math.round(L / 2 - d / 2), py: cy })
-  stampShape({ tone, L, offsets: shape.offsets, px: Math.round(L / 2 + d / 2), py: cy })
+  stampShape({
+    tone,
+    L,
+    offsets: shape.offsets,
+    px: Math.round(L / 2 - d / 2),
+    py: cy,
+  })
+  stampShape({
+    tone,
+    L,
+    offsets: shape.offsets,
+    px: Math.round(L / 2 + d / 2),
+    py: cy,
+  })
   const rng = makeRng(seed)
   const moved = new Uint8Array(L * L)
   const seps = [twoSelfSeparation({ tone, graph, L, minSize })]

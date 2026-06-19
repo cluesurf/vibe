@@ -10,7 +10,8 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
 export default experiment({
   id: 'data-structure/skip-list-shortcut',
-  title: 'DS9: the bulk diameter is logarithmic, every cell is a short path away (the skip-list shortcut)',
+  title:
+    'DS9: the bulk diameter is logarithmic, every cell is a short path away (the skip-list shortcut)',
   category: 'data-structure',
   substrates: ['73'],
   depth: 'L2',
@@ -25,7 +26,8 @@ export default experiment({
     const flatCells = flat.adjacency.length
 
     // the hyperbolic radius is logarithmic in the cells, and far below the flat polynomial radius
-    const logarithmicRadius = hyperbolicRadius <= 4 * Math.log2(hyperbolicCells)
+    const logarithmicRadius =
+      hyperbolicRadius <= 4 * Math.log2(hyperbolicCells)
     const muchShorterThanFlat = hyperbolicRadius < flatRadius * 0.7
 
     const ok = logarithmicRadius && muchShorterThanFlat
@@ -34,10 +36,16 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the hyperbolic bulk has a logarithmic radius, so any two cells are a short path apart through the bulk, the skip-list shortcut, while the flat tiling has a polynomial (square-root) radius',
-      metrics: { hyperbolicCells, hyperbolicRadius, logarithmicRadius: logarithmicRadius ? 1 : 0, muchShorterThanFlat: muchShorterThanFlat ? 1 : 0 },
+      metrics: {
+        hyperbolicCells,
+        hyperbolicRadius,
+        logarithmicRadius: logarithmicRadius ? 1 : 0,
+        muchShorterThanFlat: muchShorterThanFlat ? 1 : 0,
+      },
       // CONTROL: the flat {4,4} square tiling has radius growing as the square root of the cell count, far larger.
       control: { flatCells, flatRadius },
-      notes: 'DS9 of experiments/16 and SS9 of experiments/17. The radial shortcut is the same axis as the heap (SS4) and the LSM levels (SS5).',
+      notes:
+        'DS9 of experiments/16 and SS9 of experiments/17. The radial shortcut is the same axis as the heap (SS4) and the LSM levels (SS5).',
     })
   },
 })

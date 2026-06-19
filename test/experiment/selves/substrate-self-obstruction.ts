@@ -23,14 +23,19 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cloneWill, type Will } from '@/code/tone/will'
-import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
+import {
+  pairCollision,
+  headOnRotate,
+  type Collision,
+} from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
 import { travelDistance } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/substrate-self-obstruction',
-  title: 'on the committed coin confinement and radiation conflict, no rule gives a confined body that radiates to the bath',
+  title:
+    'on the committed coin confinement and radiation conflict, no rule gives a confined body that radiates to the bath',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -40,9 +45,15 @@ export default experiment({
     const beats = 18
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
     const dist = shellDistances(mesh, center)
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
@@ -60,7 +71,10 @@ export default experiment({
     // confinement, the extent (max shell distance of net charge from the centre) over the run, bounded means a body.
     const confinementExtent = (collision: Collision): number => {
       let current = packet()
-      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      let scratch: Will = {
+        mesh,
+        data: new Int8Array(current.data.length),
+      }
       let maxExtent = 0
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
@@ -80,9 +94,17 @@ export default experiment({
     const perturbationCone = (collision: Collision): number => {
       let plain = packet()
       let pert = cloneWill(packet())
-      pert.data[center * degree + 0] = (pert.data[center * degree + 0] === 1 ? -1 : 1) as -1 | 1
-      let plainScratch: Will = { mesh, data: new Int8Array(plain.data.length) }
-      let pertScratch: Will = { mesh, data: new Int8Array(pert.data.length) }
+      pert.data[center * degree + 0] = (
+        pert.data[center * degree + 0] === 1 ? -1 : 1
+      ) as -1 | 1
+      let plainScratch: Will = {
+        mesh,
+        data: new Int8Array(plain.data.length),
+      }
+      let pertScratch: Will = {
+        mesh,
+        data: new Int8Array(pert.data.length),
+      }
       let maxCone = 0
       for (let t = 0; t < beats; t++) {
         beatInto({ src: plain, dst: plainScratch, table, collision })
@@ -96,7 +118,11 @@ export default experiment({
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
           let differs = false
-          for (let d = 0; d < degree; d++) if (plain.data[base + d] !== pert.data[base + d]) { differs = true; break }
+          for (let d = 0; d < degree; d++)
+            if (plain.data[base + d] !== pert.data[base + d]) {
+              differs = true
+              break
+            }
           if (differs && dist[c]! > maxCone) maxCone = dist[c]!
         }
       }
@@ -114,8 +140,10 @@ export default experiment({
 
     // the tension, the pair table confines (small extent) and its body signal stays LOCAL (cone far short of the
     // boundary, dark to the bath), the momentum rotate's signal RADIATES to the boundary but it does not confine.
-    const pairConfinesNotRadiating = pairExtent <= 5 && pairCone < boundaryDistance
-    const mobileRadiatesNotConfining = mobileExtent >= 8 && mobileCone >= boundaryDistance
+    const pairConfinesNotRadiating =
+      pairExtent <= 5 && pairCone < boundaryDistance
+    const mobileRadiatesNotConfining =
+      mobileExtent >= 8 && mobileCone >= boundaryDistance
 
     const ok = pairConfinesNotRadiating && mobileRadiatesNotConfining
     return verdict({

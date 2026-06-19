@@ -18,7 +18,11 @@ export type TernaryField = {
 
 // a local update rule, maps a cell and its two neighbours (each in {0,1,2}) to a value in {0,1,2} before the
 // second-order subtraction. Constant domains are fixed points exactly when rule(u,u,u) = 2u mod 3.
-export type TernaryRule = (left: number, center: number, right: number) => number
+export type TernaryRule = (
+  left: number,
+  center: number,
+  right: number,
+) => number
 
 export type TernaryBoundary =
   | { form: 'periodic' }
@@ -26,7 +30,10 @@ export type TernaryBoundary =
 
 const mod3 = (value: number): number => ((value % 3) + 3) % 3
 
-export function makeTernaryField(input: { size: number; fill: (index: number) => number }): TernaryField {
+export function makeTernaryField(input: {
+  size: number
+  fill: (index: number) => number
+}): TernaryField {
   const { size, fill } = input
   const u = new Int8Array(size)
   for (let x = 0; x < size; x++) u[x] = mod3(fill(x)) as number
@@ -48,25 +55,37 @@ export function stepTernaryField(input: {
   const leftVacuum = boundary.form === 'absorbing' ? boundary.left : 0
   const rightVacuum = boundary.form === 'absorbing' ? boundary.right : 0
   for (let x = 0; x < size; x++) {
-    const left = x === 0 ? (periodic ? curr[size - 1]! : leftVacuum) : curr[x - 1]!
-    const right = x === size - 1 ? (periodic ? curr[0]! : rightVacuum) : curr[x + 1]!
+    const left =
+      x === 0 ? (periodic ? curr[size - 1]! : leftVacuum) : curr[x - 1]!
+    const right =
+      x === size - 1
+        ? periodic
+          ? curr[0]!
+          : rightVacuum
+        : curr[x + 1]!
     next[x] = mod3(rule(left, curr[x]!, right) - prev[x]!) as number
   }
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 4
     for (let x = 0; x < margin; x++) next[x] = leftVacuum as number
-    for (let x = size - margin; x < size; x++) next[x] = rightVacuum as number
+    for (let x = size - margin; x < size; x++)
+      next[x] = rightVacuum as number
   }
   return { prev: curr, curr: next, size }
 }
 
 // the additive (linear) rule, u(t+1) = (left + right - u(t-1)) mod 3. Reversible and propagating, but additive,
 // so a localized disturbance spreads into a self-similar order-1 pattern rather than a soft pulse.
-export const linearTernaryRule: TernaryRule = (left, _center, right) => mod3(left + right)
+export const linearTernaryRule: TernaryRule = (left, _center, right) =>
+  mod3(left + right)
 
 // the decoupled rule, u(t+1) = (2c - u(t-1)) mod 3. Each cell oscillates independently with period 3, no coupling,
 // so a disturbance is trapped in place and never radiates.
-export const decoupledTernaryRule: TernaryRule = (_left, center, _right) => mod3(2 * center)
+export const decoupledTernaryRule: TernaryRule = (
+  _left,
+  center,
+  _right,
+) => mod3(2 * center)
 
 // the number of domain walls (adjacent cells that differ). The count of walls is the topological charge of the
 // configuration, a single kink contributes one wall, and no local rule can create or destroy a lone wall in the
@@ -85,7 +104,11 @@ export function fieldDifference(a: Int8Array, b: Int8Array): number {
 }
 
 // how far from a center the perturbation has spread (its radius), 0 means it never left the center.
-export function spreadRadius(input: { clean: Int8Array; perturbed: Int8Array; center: number }): number {
+export function spreadRadius(input: {
+  clean: Int8Array
+  perturbed: Int8Array
+  center: number
+}): number {
   const { clean, perturbed, center } = input
   let low = clean.length
   let high = -1

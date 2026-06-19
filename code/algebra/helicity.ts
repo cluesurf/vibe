@@ -29,7 +29,8 @@ export function conjugateTensor(r: Matrix3, e: Matrix3): Matrix3 {
     for (let j = 0; j < 3; j++) {
       let sum = 0
       for (let a = 0; a < 3; a++) {
-        for (let b = 0; b < 3; b++) sum += r[i]![a]! * e[a]![b]! * r[j]![b]!
+        for (let b = 0; b < 3; b++)
+          sum += r[i]![a]! * e[a]![b]! * r[j]![b]!
       }
       out[i]![j] = sum
     }
@@ -40,7 +41,8 @@ export function conjugateTensor(r: Matrix3, e: Matrix3): Matrix3 {
 // the Frobenius inner product sum_ij a_ij b_ij
 export function tensorInner(a: Matrix3, b: Matrix3): number {
   let sum = 0
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) sum += a[i]![j]! * b[i]![j]!
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++) sum += a[i]![j]! * b[i]![j]!
   return sum
 }
 
@@ -68,6 +70,9 @@ export function plusSelfOverlap(theta: number): number {
 // for spin 2 is sin(2 theta), so it is one at 45 degrees (plus rotates into cross).
 export function plusToCrossOverlap(theta: number): number {
   const rotated = conjugateTensor(rotationZ(theta), PLUS_POLARIZATION)
-  const norm = Math.sqrt(tensorInner(PLUS_POLARIZATION, PLUS_POLARIZATION) * tensorInner(CROSS_POLARIZATION, CROSS_POLARIZATION))
+  const norm = Math.sqrt(
+    tensorInner(PLUS_POLARIZATION, PLUS_POLARIZATION) *
+      tensorInner(CROSS_POLARIZATION, CROSS_POLARIZATION),
+  )
   return tensorInner(CROSS_POLARIZATION, rotated) / norm
 }

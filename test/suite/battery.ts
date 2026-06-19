@@ -12,13 +12,13 @@ export function regression(): Experiment[] {
 
 // The results that carry a paper claim.
 export function paper(): Experiment[] {
-  return allExperiments().filter((experiment) => experiment.paper)
+  return allExperiments().filter(experiment => experiment.paper)
 }
 
 // The deepest emergent results, the L3 claims that carry a control. These are the
 // ones a reader should check first, the load-bearing claims of the framework.
 export function crownJewels(): Experiment[] {
   return allExperiments().filter(
-    (experiment) => experiment.depth === 'L3' && experiment.paper,
+    experiment => experiment.depth === 'L3' && experiment.paper,
   )
 }

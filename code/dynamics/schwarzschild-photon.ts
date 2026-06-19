@@ -9,7 +9,10 @@
 
 // the photon-orbit turning point, the smallest positive root u_max of f(u) = 1/b^2 - u^2 + r_s u^3 in (0, 1/r_s),
 // or null if there is none (the photon is captured, it reaches the horizon)
-function turningPoint(impactParameter: number, schwarzschildRadius: number): number | null {
+function turningPoint(
+  impactParameter: number,
+  schwarzschildRadius: number,
+): number | null {
   const b = impactParameter
   const rs = schwarzschildRadius
   const f = (u: number): number => 1 / (b * b) - u * u + rs * u * u * u
@@ -63,19 +66,29 @@ export function schwarzschildPhotonDeflection(input: {
 
 // the exact photon-sphere shadow radius, the critical impact parameter below which a photon is captured,
 // b_c = (3 sqrt 3 / 2) r_s
-export function photonSphereShadowRadius(schwarzschildRadius: number): number {
+export function photonSphereShadowRadius(
+  schwarzschildRadius: number,
+): number {
   return ((3 * Math.sqrt(3)) / 2) * schwarzschildRadius
 }
 
 // the measured capture threshold, the largest impact parameter (bisected) for which the photon is captured, which
 // equals the shadow radius. Confirms the shadow radius from the orbit dynamics rather than the closed form.
-export function measuredShadowRadius(input: { schwarzschildRadius: number }): number {
+export function measuredShadowRadius(input: {
+  schwarzschildRadius: number
+}): number {
   const rs = input.schwarzschildRadius
   let captured = 1.5 * rs
   let escapes = 4 * rs
   for (let k = 0; k < 50; k++) {
     const mid = (captured + escapes) / 2
-    if (schwarzschildPhotonDeflection({ impactParameter: mid, schwarzschildRadius: rs }) === null) captured = mid
+    if (
+      schwarzschildPhotonDeflection({
+        impactParameter: mid,
+        schwarzschildRadius: rs,
+      }) === null
+    )
+      captured = mid
     else escapes = mid
   }
   return (captured + escapes) / 2

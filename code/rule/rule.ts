@@ -20,7 +20,10 @@ export interface RuleStepOutput {
 export interface Rule {
   readonly form: 'rule'
   readonly name: string
-  readonly scheme: 'synchronous' | 'asynchronous' | 'reversible-even-odd'
+  readonly scheme:
+    | 'synchronous'
+    | 'asynchronous'
+    | 'reversible-even-odd'
   step(input: RuleStepInput): RuleStepOutput
 }
 

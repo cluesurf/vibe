@@ -22,51 +22,91 @@ const winding = (psi: C[]): number => phaseWinding(psi.map(cphase))
 const peak = (psi: C[]): number => Math.max(...psi.map(cabs))
 
 // evolve a complex field: linear Schrodinger (free, the bare-walk envelope) OR nonlinear sigma-model (|psi|->1)
-function evolve(psi0: C[], steps: number, nonlinear: boolean): { wHist: number[]; peakHist: number[] } {
-  const L = psi0.length, dt = 0.1
-  let cur = psi0.map((z) => [...z] as C)
-  const wHist: number[] = [], peakHist: number[] = []
+function evolve(
+  psi0: C[],
+  steps: number,
+  nonlinear: boolean,
+): { wHist: number[]; peakHist: number[] } {
+  const L = psi0.length,
+    dt = 0.1
+  let cur = psi0.map(z => [...z] as C)
+  const wHist: number[] = [],
+    peakHist: number[] = []
   for (let t = 0; t < steps; t++) {
     const next = cur.map((z, i) => {
-      const a = cur[(i + 1) % L]!, b = cur[(i + L - 1) % L]!
-      const lapRe = a[0] + b[0] - 2 * z[0], lapIm = a[1] + b[1] - 2 * z[1]
+      const a = cur[(i + 1) % L]!,
+        b = cur[(i + L - 1) % L]!
+      const lapRe = a[0] + b[0] - 2 * z[0],
+        lapIm = a[1] + b[1] - 2 * z[1]
       // linear: i dpsi/dt = -lap (Schrodinger). nonlinear: add an amplitude-restoring term (1-|psi|^2)psi (sigma-model)
-      const r2 = z[0] * z[0] + z[1] * z[1], rest = nonlinear ? (1 - r2) : 0
+      const r2 = z[0] * z[0] + z[1] * z[1],
+        rest = nonlinear ? 1 - r2 : 0
       // i dpsi = dt*( -lap ); => dpsi = dt*( i*lap ) ... use a stable split: diffuse the amplitude + restore
-      return [z[0] + dt * (lapRe + rest * z[0]), z[1] + dt * (lapIm + rest * z[1])] as C
+      return [
+        z[0] + dt * (lapRe + rest * z[0]),
+        z[1] + dt * (lapIm + rest * z[1]),
+      ] as C
     })
     cur = next
-    if (t % 200 === 0) { wHist.push(winding(cur)); peakHist.push(peak(cur)) }
+    if (t % 200 === 0) {
+      wHist.push(winding(cur))
+      peakHist.push(peak(cur))
+    }
   }
   return { wHist, peakHist }
 }
 
-export function bareRulePersistence(): { linearLosesWinding: boolean; linearDisperses: boolean; nonlinearKeepsWinding: boolean; nonlinearPersists: boolean; mechanismIdentified: boolean } {
+export function bareRulePersistence(): {
+  linearLosesWinding: boolean
+  linearDisperses: boolean
+  nonlinearKeepsWinding: boolean
+  nonlinearPersists: boolean
+  mechanismIdentified: boolean
+} {
   const L = 64
   // a winding-1 defect localized as a bump that the dynamics can collapse (amplitude varies, allowing slips)
-  const psi0: C[] = Array.from({ length: L }, (_, x) => { const amp = 0.3 + 0.7 * Math.exp(-((x - L / 2) ** 2) / 40); const ph = 2 * Math.PI * x / L; return [amp * Math.cos(ph), amp * Math.sin(ph)] })
-  const w0 = winding(psi0), p0 = peak(psi0)
+  const psi0: C[] = Array.from({ length: L }, (_, x) => {
+    const amp = 0.3 + 0.7 * Math.exp(-((x - L / 2) ** 2) / 40)
+    const ph = (2 * Math.PI * x) / L
+    return [amp * Math.cos(ph), amp * Math.sin(ph)]
+  })
+  const w0 = winding(psi0),
+    p0 = peak(psi0)
 
   // LINEAR (bare walk envelope): amplitude collapses, phase slips, winding not robustly conserved, disperses
   const lin = evolve(psi0, 4000, false)
   const linW = lin.wHist[lin.wHist.length - 1]!
-  const linearLosesWinding = linW !== w0 || lin.wHist.some((w) => w !== w0)
-  const linearDisperses = lin.peakHist[lin.peakHist.length - 1]! < p0 * 0.7
+  const linearLosesWinding =
+    linW !== w0 || lin.wHist.some(w => w !== w0)
+  const linearDisperses =
+    lin.peakHist[lin.peakHist.length - 1]! < p0 * 0.7
 
   // NONLINEAR (amplitude-preserving sigma-model): winding locked, defect persists
   const non = evolve(psi0, 4000, true)
   const nonW = non.wHist[non.wHist.length - 1]!
-  const nonlinearKeepsWinding = nonW === w0 && non.wHist.every((w) => w === w0)
-  const nonlinearPersists = non.peakHist[non.peakHist.length - 1]! > p0 * 0.7
+  const nonlinearKeepsWinding =
+    nonW === w0 && non.wHist.every(w => w === w0)
+  const nonlinearPersists =
+    non.peakHist[non.peakHist.length - 1]! > p0 * 0.7
 
-  const mechanismIdentified = (linearLosesWinding || linearDisperses) && nonlinearKeepsWinding && nonlinearPersists
+  const mechanismIdentified =
+    (linearLosesWinding || linearDisperses) &&
+    nonlinearKeepsWinding &&
+    nonlinearPersists
 
-  return { linearLosesWinding, linearDisperses, nonlinearKeepsWinding, nonlinearPersists, mechanismIdentified }
+  return {
+    linearLosesWinding,
+    linearDisperses,
+    nonlinearKeepsWinding,
+    nonlinearPersists,
+    mechanismIdentified,
+  }
 }
 
 export default experiment({
   id: 'selves/bare-rule-persistence-3434',
-  title: 'a linear field rule loses winding while an amplitude-preserving nonlinear rule locks it',
+  title:
+    'a linear field rule loses winding while an amplitude-preserving nonlinear rule locks it',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

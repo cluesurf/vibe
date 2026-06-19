@@ -13,7 +13,11 @@
 
 import { pearson } from '@/code/measure/statistics'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { csrDistances, csrFarthestNode, edgesFromCsr } from '@/code/tool/graph'
+import {
+  csrDistances,
+  csrFarthestNode,
+  edgesFromCsr,
+} from '@/code/tool/graph'
 import { conservingEdgeSweepSteered } from '@/code/dynamics/conserving-sweep'
 import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
@@ -38,10 +42,32 @@ export function recursion(input?: { n?: number }): {
 
   // two selves, far apart
   let center1 = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center1 + 1]! - g.offsets[center1]!) center1 = i
-  const center2 = csrFarthestNode({ offsets: g.offsets, adj: g.adj, size: N, source: center1 })
-  const d1 = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center1, maxRadius: 12 })
-  const d2 = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center2, maxRadius: 12 })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center1 + 1]! - g.offsets[center1]!
+    )
+      center1 = i
+  const center2 = csrFarthestNode({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center1,
+  })
+  const d1 = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center1,
+    maxRadius: 12,
+  })
+  const d2 = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center2,
+    maxRadius: 12,
+  })
   const r = 3
   const boundary1: number[] = []
   const hub1cells: number[] = []
@@ -56,7 +82,8 @@ export function recursion(input?: { n?: number }): {
   // world input on self 1, sectored
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
-  for (let j = 0; j < boundary1.length; j++) sectorOf[boundary1[j]!] = Math.floor((j * K) / boundary1.length)
+  for (let j = 0; j < boundary1.length; j++)
+    sectorOf[boundary1[j]!] = Math.floor((j * K) / boundary1.length)
 
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
@@ -64,7 +91,11 @@ export function recursion(input?: { n?: number }): {
     return cells.length > 0 ? s / cells.length : 0
   }
 
-  function run(withDynamics: boolean): { h1: number[]; h2: number[]; world: number[] } {
+  function run(withDynamics: boolean): {
+    h1: number[]
+    h2: number[]
+    world: number[]
+  } {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 9 })
     const T = 600
@@ -73,16 +104,28 @@ export function recursion(input?: { n?: number }): {
     const h2: number[] = []
     const world: number[] = []
     for (let t = 0; t < T; t++) {
-      for (let s = 0; s < K; s++) if (rng.next() < 0.06) sigs[s] = -sigs[s]!
+      for (let s = 0; s < K; s++)
+        if (rng.next() < 0.06) sigs[s] = -sigs[s]!
       // drive self 1 with the world
-      for (const i of boundary1) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      for (const i of boundary1)
+        tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
       // model1's current representation of the world
       const m1 = meanOver(tone, hub1cells)
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
       const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0) as -1 | 0 | 1
       for (const i of boundary2) tone[i] = s2in
-      if (withDynamics) conservingEdgeSweepSteered({ tone, eu, ev, moved, rng, distGoal: null, towardSign: 0 })
-      for (const i of boundary1) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      if (withDynamics)
+        conservingEdgeSweepSteered({
+          tone,
+          eu,
+          ev,
+          moved,
+          rng,
+          distGoal: null,
+          towardSign: 0,
+        })
+      for (const i of boundary1)
+        tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
       for (const i of boundary2) tone[i] = s2in
       h1.push(meanOver(tone, hub1cells))
       h2.push(meanOver(tone, hub2cells))
@@ -96,13 +139,22 @@ export function recursion(input?: { n?: number }): {
   const live = run(true)
   const dead = run(false)
 
-  const hub1ModelsWorld = Math.abs(pearson({ a: live.h1, b: live.world }))
+  const hub1ModelsWorld = Math.abs(
+    pearson({ a: live.h1, b: live.world }),
+  )
   const hub2ModelsHub1 = Math.abs(pearson({ a: live.h2, b: live.h1 }))
-  const hub2ModelsWorld = Math.abs(pearson({ a: live.h2, b: live.world }))
-  const shuffledBaseline = Math.abs(pearson({ a: live.h2, b: live.h1.slice().reverse() }))
+  const hub2ModelsWorld = Math.abs(
+    pearson({ a: live.h2, b: live.world }),
+  )
+  const shuffledBaseline = Math.abs(
+    pearson({ a: live.h2, b: live.h1.slice().reverse() }),
+  )
   const noDynamics = Math.abs(pearson({ a: dead.h2, b: dead.h1 }))
 
-  const realModel = hub2ModelsHub1 > 0.4 && hub2ModelsHub1 > shuffledBaseline + 0.3 && hub2ModelsHub1 > noDynamics + 0.3
+  const realModel =
+    hub2ModelsHub1 > 0.4 &&
+    hub2ModelsHub1 > shuffledBaseline + 0.3 &&
+    hub2ModelsHub1 > noDynamics + 0.3
   const modelsTheModel = hub2ModelsHub1 >= hub2ModelsWorld - 0.05 // tracks the model at least as well as the world
   const solved = realModel && modelsTheModel && hub1ModelsWorld > 0.4
 
@@ -121,7 +173,8 @@ export function recursion(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/p121-recursion',
-  title: 'hub2 represents hub1, the chain world to model1 to model2 of model1',
+  title:
+    'hub2 represents hub1, the chain world to model1 to model2 of model1',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',
@@ -129,13 +182,22 @@ export default experiment({
   run() {
     const r = recursion({ n: 60000 })
     const ok =
-      r.solved && r.realModel && r.modelsTheModel && r.hub1ModelsWorld > 0.4
+      r.solved &&
+      r.realModel &&
+      r.modelsTheModel &&
+      r.hub1ModelsWorld > 0.4
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'self two forms a hub that represents self one hub, a model of a model, tracking it above the raw world and far above a shuffle',
-      metrics: { hub1ModelsWorld: r.hub1ModelsWorld, hub2ModelsHub1: r.hub2ModelsHub1 },
-      control: { shuffledBaseline: r.shuffledBaseline, noDynamics: r.noDynamics },
+      metrics: {
+        hub1ModelsWorld: r.hub1ModelsWorld,
+        hub2ModelsHub1: r.hub2ModelsHub1,
+      },
+      control: {
+        shuffledBaseline: r.shuffledBaseline,
+        noDynamics: r.noDynamics,
+      },
     })
   },
 })

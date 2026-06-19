@@ -1,6 +1,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { completeTree, embedTree, embeddingDistortion } from '@/code/geometry/tree-embedding'
+import {
+  completeTree,
+  embedTree,
+  embeddingDistortion,
+} from '@/code/geometry/tree-embedding'
 
 // DS6 and SS11 (experiments/16 and 17). Tree and hierarchy embedding. A tree embeds in hyperbolic space with
 // distortion approaching 1, which the Euclidean plane cannot do, because hyperbolic circles have exponential
@@ -10,7 +14,8 @@ import { completeTree, embedTree, embeddingDistortion } from '@/code/geometry/tr
 
 export default experiment({
   id: 'data-structure/tree-embedding',
-  title: 'DS6: a tree embeds in the hyperbolic disk at low distortion, the Euclidean plane cannot',
+  title:
+    'DS6: a tree embeds in the hyperbolic disk at low distortion, the Euclidean plane cannot',
   category: 'data-structure',
   substrates: ['73'],
   depth: 'L2',
@@ -18,27 +23,56 @@ export default experiment({
   run() {
     const tree = completeTree({ branching: 3, depth: 4 })
     const edge = 4 // a hyperbolic edge length large enough that the children sit at full angular separation
-    const hyperbolic = embedTree({ parent: tree.parent, children: tree.children, edge, hyperbolic: true })
-    const euclidean = embedTree({ parent: tree.parent, children: tree.children, edge, hyperbolic: false })
-    const hyperbolicDistortion = embeddingDistortion({ coords: hyperbolic.coords, depth: hyperbolic.depth, parent: tree.parent, hyperbolic: true })
-    const euclideanRaw = embeddingDistortion({ coords: euclidean.coords, depth: euclidean.depth, parent: tree.parent, hyperbolic: false })
-    const euclideanDistortion = Number.isFinite(euclideanRaw) ? euclideanRaw : 1e18
+    const hyperbolic = embedTree({
+      parent: tree.parent,
+      children: tree.children,
+      edge,
+      hyperbolic: true,
+    })
+    const euclidean = embedTree({
+      parent: tree.parent,
+      children: tree.children,
+      edge,
+      hyperbolic: false,
+    })
+    const hyperbolicDistortion = embeddingDistortion({
+      coords: hyperbolic.coords,
+      depth: hyperbolic.depth,
+      parent: tree.parent,
+      hyperbolic: true,
+    })
+    const euclideanRaw = embeddingDistortion({
+      coords: euclidean.coords,
+      depth: euclidean.depth,
+      parent: tree.parent,
+      hyperbolic: false,
+    })
+    const euclideanDistortion = Number.isFinite(euclideanRaw)
+      ? euclideanRaw
+      : 1e18
 
     // the hyperbolic embedding has LOW distortion (near 1), the Euclidean one is unbounded (children crowd to
     // overlaps), so the tree embeds in the disk and not in the plane
     const hyperbolicLowDistortion = hyperbolicDistortion < 3
-    const euclideanUnbounded = euclideanDistortion > 100 * hyperbolicDistortion
+    const euclideanUnbounded =
+      euclideanDistortion > 100 * hyperbolicDistortion
     const ok = hyperbolicLowDistortion && euclideanUnbounded
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'a complete tree embeds in the Poincare disk with distortion near 1, while the same tree in the Euclidean plane has unbounded distortion (the children crowd to overlaps), because only hyperbolic space has the exponential angular room a tree needs',
-      metrics: { nodes: tree.size, hyperbolicDistortion, hyperbolicLowDistortion: hyperbolicLowDistortion ? 1 : 0, euclideanUnbounded: euclideanUnbounded ? 1 : 0 },
+      metrics: {
+        nodes: tree.size,
+        hyperbolicDistortion,
+        hyperbolicLowDistortion: hyperbolicLowDistortion ? 1 : 0,
+        euclideanUnbounded: euclideanUnbounded ? 1 : 0,
+      },
       // CONTROL: the Euclidean embedding of the identical tree has orders-of-magnitude higher distortion, so the
       // low distortion is the hyperbolic geometry, not the tree.
       control: { euclideanDistortion },
-      notes: 'DS6 of experiments/16 and SS11 of experiments/17. The bulk embeds the hierarchies and scale-free graphs that dominate real data.',
+      notes:
+        'DS6 of experiments/16 and SS11 of experiments/17. The bulk embeds the hierarchies and scale-free graphs that dominate real data.',
     })
   },
 })

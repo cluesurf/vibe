@@ -16,7 +16,11 @@ const HARTREE_IN_EV = 27.211
 
 // the two-electron 1s ground-state energy (Hartree) for a trial charge zeta around a nucleus of charge Z, with or
 // without the electron-electron repulsion term
-export function twoElectronEnergy(input: { nuclearCharge: number; trialCharge: number; withRepulsion?: boolean }): number {
+export function twoElectronEnergy(input: {
+  nuclearCharge: number
+  trialCharge: number
+  withRepulsion?: boolean
+}): number {
   const z = input.nuclearCharge
   const zeta = input.trialCharge
   const repulsion = input.withRepulsion === false ? 0 : (5 / 8) * zeta
@@ -30,12 +34,20 @@ export function optimalScreenedCharge(nuclearCharge: number): number {
 
 // the variational ground-state energy (Hartree), the energy at the optimal screened charge, a rigorous upper bound
 export function heliumVariationalEnergy(nuclearCharge: number): number {
-  return twoElectronEnergy({ nuclearCharge, trialCharge: optimalScreenedCharge(nuclearCharge) })
+  return twoElectronEnergy({
+    nuclearCharge,
+    trialCharge: optimalScreenedCharge(nuclearCharge),
+  })
 }
 
 // the first-order perturbative energy (Hartree), zeta = Z (no screening)
-export function heliumPerturbativeEnergy(nuclearCharge: number): number {
-  return twoElectronEnergy({ nuclearCharge, trialCharge: nuclearCharge })
+export function heliumPerturbativeEnergy(
+  nuclearCharge: number,
+): number {
+  return twoElectronEnergy({
+    nuclearCharge,
+    trialCharge: nuclearCharge,
+  })
 }
 
 export function hartreeToEv(hartree: number): number {

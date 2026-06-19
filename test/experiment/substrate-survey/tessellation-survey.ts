@@ -21,7 +21,14 @@ import { measureTessellation } from '@/code/measure/tessellation-battery'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const PROPAGATION_SUBSET = ['{7,3}', '{5,3,4}', '{3,5,3}', '{5,3,3,4}', '{3,4,3,4}', '{3,4,3,3,4}']
+const PROPAGATION_SUBSET = [
+  '{7,3}',
+  '{5,3,4}',
+  '{3,5,3}',
+  '{5,3,3,4}',
+  '{3,4,3,4}',
+  '{3,4,3,3,4}',
+]
 
 export function tessellationSurvey(): {
   buildableCount: number
@@ -31,26 +38,51 @@ export function tessellationSurvey(): {
   spinorHookEqualsCrystallographicSpinor: boolean
   fermionPropagatesOnSubset: boolean
 } {
-  const buildable = TESSELLATIONS.filter((t) => t.buildable)
-  const measured = buildable.map((t) => ({ t, m: measureTessellation({ schlafli: t.schlafli, maxCells: 1500 }) }))
+  const buildable = TESSELLATIONS.filter(t => t.buildable)
+  const measured = buildable.map(t => ({
+    t,
+    m: measureTessellation({ schlafli: t.schlafli, maxCells: 1500 }),
+  }))
 
-  const allBuildAndHyperbolic = measured.every((x) => x.m.cells > 500 && x.m.hyperbolic)
+  const allBuildAndHyperbolic = measured.every(
+    x => x.m.cells > 500 && x.m.hyperbolic,
+  )
 
   // the spinor hook appears in exactly the [3,4,3]-faceted (24-cell) tessellations
-  const spinorHookSymbols = measured.filter((x) => x.m.spinorHook).map((x) => x.t.symbol)
-  const expected = ['{4,3,4,3}', '{3,4,3,4}', '{4,3,3,4,3}', '{3,4,3,3,4}', '{3,3,4,3,3}', '{3,4,3,3,3}', '{3,3,3,4,3}']
+  const spinorHookSymbols = measured
+    .filter(x => x.m.spinorHook)
+    .map(x => x.t.symbol)
+  const expected = [
+    '{4,3,4,3}',
+    '{3,4,3,4}',
+    '{4,3,3,4,3}',
+    '{3,4,3,3,4}',
+    '{3,3,4,3,3}',
+    '{3,4,3,3,3}',
+    '{3,3,3,4,3}',
+  ]
   const spinorHookIsTwentyFourCellFaceted =
-    spinorHookSymbols.length === expected.length && expected.every((s) => spinorHookSymbols.includes(s))
+    spinorHookSymbols.length === expected.length &&
+    expected.every(s => spinorHookSymbols.includes(s))
   // and the spinor-hook set equals the crystallographic-AND-spinor set (the 24-cell directions are 3,4-fold)
-  const crystallographicAndSpinor = measured.filter((x) => x.m.crystallographic && x.m.spinorHook).map((x) => x.t.symbol)
+  const crystallographicAndSpinor = measured
+    .filter(x => x.m.crystallographic && x.m.spinorHook)
+    .map(x => x.t.symbol)
   const spinorHookEqualsCrystallographicSpinor =
     crystallographicAndSpinor.length === spinorHookSymbols.length &&
-    spinorHookSymbols.every((s) => crystallographicAndSpinor.includes(s))
+    spinorHookSymbols.every(s => crystallographicAndSpinor.includes(s))
 
   // a fermion propagates on every tessellation in the representative subset (one per dimension plus the coins)
-  const subset = TESSELLATIONS.filter((t) => PROPAGATION_SUBSET.includes(t.symbol))
+  const subset = TESSELLATIONS.filter(t =>
+    PROPAGATION_SUBSET.includes(t.symbol),
+  )
   const fermionPropagatesOnSubset = subset.every(
-    (t) => measureTessellation({ schlafli: t.schlafli, maxCells: 1500, withPropagation: true }).fermionPropagates === true,
+    t =>
+      measureTessellation({
+        schlafli: t.schlafli,
+        maxCells: 1500,
+        withPropagation: true,
+      }).fermionPropagates === true,
   )
 
   return {
@@ -65,7 +97,8 @@ export function tessellationSurvey(): {
 
 export default experiment({
   id: 'substrate-survey/tessellation-survey',
-  title: 'one battery across the whole regular hyperbolic catalog: matter propagates on every one, the spinor coin is exactly the 24-cell-faceted few',
+  title:
+    'one battery across the whole regular hyperbolic catalog: matter propagates on every one, the spinor coin is exactly the 24-cell-faceted few',
   category: 'substrate-survey',
   substrates: 'any',
   depth: 'L2',
@@ -85,8 +118,10 @@ export default experiment({
         buildableCount: r.buildableCount,
         allBuildAndHyperbolic: r.allBuildAndHyperbolic ? 1 : 0,
         spinorHookCount: r.spinorHookSymbols.length,
-        spinorHookIsTwentyFourCellFaceted: r.spinorHookIsTwentyFourCellFaceted ? 1 : 0,
-        spinorHookEqualsCrystallographicSpinor: r.spinorHookEqualsCrystallographicSpinor ? 1 : 0,
+        spinorHookIsTwentyFourCellFaceted:
+          r.spinorHookIsTwentyFourCellFaceted ? 1 : 0,
+        spinorHookEqualsCrystallographicSpinor:
+          r.spinorHookEqualsCrystallographicSpinor ? 1 : 0,
         fermionPropagatesOnSubset: r.fermionPropagatesOnSubset ? 1 : 0,
       },
       control: {

@@ -4,13 +4,23 @@
 // recall is high for well-separated words and degrades for overlapping ones.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeAssociativeMemory, storeWord, readWord, searchExact, searchBest } from '@/code/operator/associative-memory'
+import {
+  makeAssociativeMemory,
+  storeWord,
+  readWord,
+  searchExact,
+  searchBest,
+} from '@/code/operator/associative-memory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // a word that encodes its index in only the first `separation` slots, the rest a fixed shared background.
 // Smaller separation means the words are content-near (heavy overlap), larger means well separated.
-function overlappingWord(index: number, wordBits: number, separation: number): Int8Array {
+function overlappingWord(
+  index: number,
+  wordBits: number,
+  separation: number,
+): Int8Array {
   const word = new Int8Array(wordBits)
   // shared background, every word agrees here, this is the overlap
   for (let k = 0; k < wordBits; k++) word[k] = (k * 2) % 3
@@ -23,13 +33,25 @@ function overlappingWord(index: number, wordBits: number, separation: number): I
   return word
 }
 
-function recallAtSeparation(input: { neighbors: ReadonlyArray<ReadonlyArray<number>>; wordBits: number; count: number; separation: number }): {
+function recallAtSeparation(input: {
+  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  wordBits: number
+  count: number
+  separation: number
+}): {
   exactRecall: number
   nearestRecall: number
 } {
-  const mem = makeAssociativeMemory({ neighbors: input.neighbors, wordBits: input.wordBits })
+  const mem = makeAssociativeMemory({
+    neighbors: input.neighbors,
+    wordBits: input.wordBits,
+  })
   for (let i = 0; i < input.count; i++) {
-    storeWord(mem, i, overlappingWord(i, input.wordBits, input.separation))
+    storeWord(
+      mem,
+      i,
+      overlappingWord(i, input.wordBits, input.separation),
+    )
   }
   let exactOk = 0
   let nearestOk = 0
@@ -39,10 +61,17 @@ function recallAtSeparation(input: { neighbors: ReadonlyArray<ReadonlyArray<numb
     if (responders.length === 1 && responders[0] === i) exactOk++
     if (searchBest({ mem, comparand: cue }).cell === i) nearestOk++
   }
-  return { exactRecall: exactOk / input.count, nearestRecall: nearestOk / input.count }
+  return {
+    exactRecall: exactOk / input.count,
+    nearestRecall: nearestOk / input.count,
+  }
 }
 
-export function associativeInterference(input?: { maxCells?: number; wordBits?: number; count?: number }): {
+export function associativeInterference(input?: {
+  maxCells?: number
+  wordBits?: number
+  count?: number
+}): {
   count: number
   separations: number[]
   exactBySep: number[]
@@ -61,7 +90,12 @@ export function associativeInterference(input?: { maxCells?: number; wordBits?: 
   const exactBySep: number[] = []
   const nearestBySep: number[] = []
   for (const sep of separations) {
-    const r = recallAtSeparation({ neighbors: g.neighbors, wordBits, count, separation: sep })
+    const r = recallAtSeparation({
+      neighbors: g.neighbors,
+      wordBits,
+      count,
+      separation: sep,
+    })
     exactBySep.push(r.exactRecall)
     nearestBySep.push(r.nearestRecall)
   }
@@ -69,13 +103,25 @@ export function associativeInterference(input?: { maxCells?: number; wordBits?: 
   const lowSepRecall = exactBySep[0]!
   const highSepRecall = exactBySep[exactBySep.length - 1]!
   // well-separated words recall cleanly, heavily overlapping words suffer crosstalk
-  const solved = highSepRecall > 0.95 && lowSepRecall < 0.5 && highSepRecall > lowSepRecall
-  return { count, separations, exactBySep, nearestBySep, lowSepRecall, highSepRecall, solved }
+  const solved =
+    highSepRecall > 0.95 &&
+    lowSepRecall < 0.5 &&
+    highSepRecall > lowSepRecall
+  return {
+    count,
+    separations,
+    exactBySep,
+    nearestBySep,
+    lowSepRecall,
+    highSepRecall,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'associative/interference',
-  title: 'interference and forgetting as crosstalk, overlapping memories confuse recall while well-separated ones recall cleanly',
+  title:
+    'interference and forgetting as crosstalk, overlapping memories confuse recall while well-separated ones recall cleanly',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L2',
@@ -91,7 +137,8 @@ export default experiment({
         lowSepExactRecall: r.lowSepRecall,
         highSepExactRecall: r.highSepRecall,
         lowSepNearestRecall: r.nearestBySep[0]!,
-        highSepNearestRecall: r.nearestBySep[r.nearestBySep.length - 1]!,
+        highSepNearestRecall:
+          r.nearestBySep[r.nearestBySep.length - 1]!,
       },
     })
   },

@@ -13,10 +13,21 @@ export function cellGraphSpectral(input: {
   t1: number
   t2: number
 }): { cells: number; degree: number; specDim: number } {
-  const g = buildCellGraph({ symbol: input.symbol as never, maxCells: input.maxCells })
+  const g = buildCellGraph({
+    symbol: input.symbol as never,
+    maxCells: input.maxCells,
+  })
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
   const degree = nb[center]!.length
-  const specDim = Math.round(spectralDimension({ neighbors: nb, start: center, t1: input.t1, t2: input.t2 }) * 100) / 100
+  const specDim =
+    Math.round(
+      spectralDimension({
+        neighbors: nb,
+        start: center,
+        t1: input.t1,
+        t2: input.t2,
+      }) * 100,
+    ) / 100
   return { cells: g.cellCount, degree, specDim }
 }

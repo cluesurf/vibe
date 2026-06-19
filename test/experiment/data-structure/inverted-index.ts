@@ -10,7 +10,8 @@ import { cellHash } from '@/code/measure/sketch'
 
 export default experiment({
   id: 'data-structure/inverted-index',
-  title: 'SS13: terms hash to boundary cells, retrieval is output-sensitive, not corpus-sized',
+  title:
+    'SS13: terms hash to boundary cells, retrieval is output-sensitive, not corpus-sized',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -40,10 +41,19 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'an inverted index maps terms to boundary cells with O(1) lookup at a reasonable load and retrieves a query in time proportional to its posting list, not the corpus, so the exponential boundary is the term dictionary',
-      metrics: { boundaryCells, terms, collisionRate, lookupIsConstant: lookupIsConstant ? 1 : 0 },
+      metrics: {
+        boundaryCells,
+        terms,
+        collisionRate,
+        lookupIsConstant: lookupIsConstant ? 1 : 0,
+      },
       // CONTROL: a flat per-query scan of the whole corpus is O(corpus), the inverted index is output-sensitive.
-      control: { flatScanCost: corpus, retrievalCost: postingsForQuery },
-      notes: 'SS13 of experiments/17. Shares the boundary hash space with the hash table (SS2) and the Bloom filter (DS12).',
+      control: {
+        flatScanCost: corpus,
+        retrievalCost: postingsForQuery,
+      },
+      notes:
+        'SS13 of experiments/17. Shares the boundary hash space with the hash table (SS2) and the Bloom filter (DS12).',
     })
   },
 })

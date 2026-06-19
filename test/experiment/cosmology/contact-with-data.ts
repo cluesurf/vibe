@@ -23,7 +23,11 @@ const LAMBDA_OBSERVED = 1.1e-52 // observed cosmological constant, m^-2
 
 // Order-of-magnitude formatting.
 
-export function darkEnergyPrediction(): { predicted: number; observed: number; ratio: number } {
+export function darkEnergyPrediction(): {
+  predicted: number
+  observed: number
+  ratio: number
+} {
   // Spacetime 4-volume of the observable past, in Planck 4-volumes: (c t / l_P)^4.
   const horizon = C * AGE_OF_UNIVERSE // meters
   const v4 = (horizon / PLANCK_LENGTH) ** 4
@@ -34,7 +38,10 @@ export function darkEnergyPrediction(): { predicted: number; observed: number; r
   return { predicted, observed, ratio: predicted / observed }
 }
 
-export function lorentzPrediction(): { gribBoundInPlanck: number; frameworkLinearLIV: boolean } {
+export function lorentzPrediction(): {
+  gribBoundInPlanck: number
+  frameworkLinearLIV: boolean
+} {
   // Gamma-ray-burst bound (GRB 090510, Fermi LAT): the linear-LIV energy scale exceeds
   // about 7.6 times the Planck energy, so linear LIV is excluded below the Planck scale.
   // The framework (random sprinkling, P27) predicts NO linear LIV at all.
@@ -43,7 +50,8 @@ export function lorentzPrediction(): { gribBoundInPlanck: number; frameworkLinea
 
 export default experiment({
   id: 'cosmology/contact-with-data',
-  title: 'adopted everpresent scaling lands at the observed dark-energy order of magnitude, no linear Lorentz violation',
+  title:
+    'adopted everpresent scaling lands at the observed dark-energy order of magnitude, no linear Lorentz violation',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L0',
@@ -51,7 +59,11 @@ export default experiment({
   run() {
     const de = darkEnergyPrediction()
     const liv = lorentzPrediction()
-    const ok = de.ratio > 0.1 && de.ratio < 10 && liv.frameworkLinearLIV === false && liv.gribBoundInPlanck > 1
+    const ok =
+      de.ratio > 0.1 &&
+      de.ratio < 10 &&
+      liv.frameworkLinearLIV === false &&
+      liv.gribBoundInPlanck > 1
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

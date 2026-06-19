@@ -60,14 +60,17 @@ export function manifoldLikeness(input: { poset: Poset }): {
   isKleitmanRothschild: boolean
 } {
   const n = input.poset.size
-  const estimatedDimension = myrheimMeyerDimension({ poset: input.poset })
+  const estimatedDimension = myrheimMeyerDimension({
+    poset: input.poset,
+  })
   const height = posetHeight({ poset: input.poset })
 
   // KR test: height stays around 2 (three layers) while N grows. Compare the
   // height to log2(N): a manifold's longest chain grows with the linear size of
   // the sprinkling, so height >> a small constant; a KR order does not.
   const logN = n > 1 ? Math.log2(n) : 1
-  const isKleitmanRothschild = n >= 8 && height <= 3 && height < 0.5 * logN
+  const isKleitmanRothschild =
+    n >= 8 && height <= 3 && height < 0.5 * logN
 
   let score = 0
   if (n >= 2 && estimatedDimension > 0) {

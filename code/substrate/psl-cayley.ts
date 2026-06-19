@@ -26,10 +26,18 @@ export function projectiveMultiply(
 // The canonical PSL representative key of a matrix: choose between M and -M the one
 // whose first nonzero entry is <= p/2 (here <= 3 for p = 7), so M and -M collapse to
 // one element.
-export function projectiveCanonicalKey(M: ProjectiveMatrix, p: number): string {
+export function projectiveCanonicalKey(
+  M: ProjectiveMatrix,
+  p: number,
+): string {
   const mod = (x: number): number => ((x % p) + p) % p
-  const neg: ProjectiveMatrix = [mod(-M[0]), mod(-M[1]), mod(-M[2]), mod(-M[3])]
-  const lead = (m: ProjectiveMatrix): number => m.find((x) => x !== 0)!
+  const neg: ProjectiveMatrix = [
+    mod(-M[0]),
+    mod(-M[1]),
+    mod(-M[2]),
+    mod(-M[3]),
+  ]
+  const lead = (m: ProjectiveMatrix): number => m.find(x => x !== 0)!
   const chosen = lead(M) <= Math.floor(p / 2) ? M : neg
   return chosen.join(',')
 }
@@ -52,11 +60,18 @@ export function standardPslGenerators(p: number): ProjectiveMatrix[] {
 export function pslCayleyGraph(input: {
   p: number
   generators: ProjectiveMatrix[]
-}): { matrices: ProjectiveMatrix[]; adjacency: number[][]; keys: string[] } {
+}): {
+  matrices: ProjectiveMatrix[]
+  adjacency: number[][]
+  keys: string[]
+} {
   const { p, generators } = input
   const identity: ProjectiveMatrix = [1, 0, 0, 1]
-  const key = (M: ProjectiveMatrix): string => projectiveCanonicalKey(M, p)
-  const elems = new Map<string, ProjectiveMatrix>([[key(identity), identity]])
+  const key = (M: ProjectiveMatrix): string =>
+    projectiveCanonicalKey(M, p)
+  const elems = new Map<string, ProjectiveMatrix>([
+    [key(identity), identity],
+  ])
   const queue: ProjectiveMatrix[] = [identity]
   while (queue.length) {
     const g = queue.shift()!
@@ -71,10 +86,11 @@ export function pslCayleyGraph(input: {
   }
   const keys = [...elems.keys()]
   const id = new Map(keys.map((k, i) => [k, i]))
-  const matrices = keys.map((k) => elems.get(k)!)
-  const adjacency = matrices.map((M) => {
+  const matrices = keys.map(k => elems.get(k)!)
+  const adjacency = matrices.map(M => {
     const ns = new Set<number>()
-    for (const gen of generators) ns.add(id.get(key(projectiveMultiply(gen, M, p)))!)
+    for (const gen of generators)
+      ns.add(id.get(key(projectiveMultiply(gen, M, p)))!)
     return [...ns]
   })
   return { matrices, adjacency, keys }

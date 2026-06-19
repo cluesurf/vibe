@@ -18,9 +18,7 @@ const LANCZOS_COEFFICIENTS = [
 function lgamma(x: number): number {
   if (x < 0.5) {
     // Reflection formula for the left half-plane.
-    return (
-      Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x)
-    )
+    return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x)
   }
   const z = x - 1
   let a = LANCZOS_COEFFICIENTS[0] ?? 0
@@ -46,8 +44,7 @@ function tgamma(x: number): number {
 // points in a causal diamond are comparable with probability 1/2). f is monotone
 // decreasing in d, so bisection on f(d) = r is well posed.
 function myrheimMeyerFraction(d: number): number {
-  const logValue =
-    lgamma(d + 1) + lgamma(d / 2) - lgamma((3 * d) / 2)
+  const logValue = lgamma(d + 1) + lgamma(d / 2) - lgamma((3 * d) / 2)
   return 0.5 * Math.exp(logValue)
 }
 
@@ -87,7 +84,9 @@ export function myrheimMeyerDimension(input: { poset: Poset }): number {
     return 0
   }
   const totalPairs = (n * (n - 1)) / 2
-  return dimensionFromOrderingFraction(relationCount(input.poset) / totalPairs)
+  return dimensionFromOrderingFraction(
+    relationCount(input.poset) / totalPairs,
+  )
 }
 
 // Cumulative count of nodes within each radius 0..maxRadius, by BFS over the
@@ -240,7 +239,10 @@ export function reachIsExponential(input: {
       ratios.push(cur / prev)
     }
   }
-  return ratios.length > 0 && ratios.reduce((a, b) => a + b, 0) / ratios.length > threshold
+  return (
+    ratios.length > 0 &&
+    ratios.reduce((a, b) => a + b, 0) / ratios.length > threshold
+  )
 }
 
 // Heuristic: is ball growth exponential rather than polynomial? Look at the late
@@ -248,7 +250,9 @@ export function reachIsExponential(input: {
 // constant, positive log-slope; polynomial growth has a log-slope that decays
 // toward zero. We compare the average late slope against a small threshold and
 // check that the slope does not collapse the way r^d does at large r.
-export function growthIsExponential(input: { growth: Uint32Array }): boolean {
+export function growthIsExponential(input: {
+  growth: Uint32Array
+}): boolean {
   const g = input.growth
   const last = g[g.length - 1] ?? 0
   if (g.length < 4 || last < 8) {
@@ -295,7 +299,11 @@ export function meanUnsaturatedGrowthRatio(input: {
   for (let r = 1; r < g.length; r++) {
     const prev = g[r - 1] ?? 0
     const cur = g[r] ?? 0
-    if (prev >= minimumPrevious && prev < saturationFraction * final && cur > prev) {
+    if (
+      prev >= minimumPrevious &&
+      prev < saturationFraction * final &&
+      cur > prev
+    ) {
       ratios.push(cur / prev)
     }
   }
@@ -324,7 +332,11 @@ export function geometricUnsaturatedGrowthRatio(input: {
   for (let r = 0; r + 1 < growth.length; r++) {
     const cur = growth[r] ?? 0
     const next = growth[r + 1] ?? 0
-    if (cur > minimumPrevious && cur < saturationFraction * total && next > cur) {
+    if (
+      cur > minimumPrevious &&
+      cur < saturationFraction * total &&
+      next > cur
+    ) {
       logSum += Math.log(next / cur)
       count += 1
     }
@@ -383,7 +395,10 @@ export function spectralDimension(input: {
     p = np
     np = tmp
   }
-  return (-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) / (Math.log(t2) - Math.log(t1))
+  return (
+    (-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) /
+    (Math.log(t2) - Math.log(t1))
+  )
 }
 
 // Spatial dimension read INTRINSICALLY off shell counts (no coordinates). On a flat

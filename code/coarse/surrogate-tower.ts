@@ -5,7 +5,11 @@
 // A climbable tower keeps fidelity above chance for several levels while the cost falls geometrically. Reuses
 // the surrogate fit and validation layer.
 
-import { fitMarkovSurrogate, forwardAccuracy, timeShuffle } from '@/code/coarse/surrogate'
+import {
+  fitMarkovSurrogate,
+  forwardAccuracy,
+  timeShuffle,
+} from '@/code/coarse/surrogate'
 
 export interface TowerLevel {
   level: number
@@ -39,17 +43,40 @@ export function surrogateTower(input: {
   const cut = Math.floor(labels.length * trainFraction)
   const train = labels.slice(0, cut)
   const test = labels.slice(cut)
-  const shuffledTrain = timeShuffle({ trajectory: train, seed: shuffleSeed })
+  const shuffledTrain = timeShuffle({
+    trajectory: train,
+    seed: shuffleSeed,
+  })
   const out: TowerLevel[] = []
   for (let level = 0; level < levels; level++) {
     const lag = baseLag * 2 ** level
-    const surrogate = fitMarkovSurrogate({ trajectory: train, stateCount: bins, lag })
-    const shuffled = fitMarkovSurrogate({ trajectory: shuffledTrain, stateCount: bins, lag })
+    const surrogate = fitMarkovSurrogate({
+      trajectory: train,
+      stateCount: bins,
+      lag,
+    })
+    const shuffled = fitMarkovSurrogate({
+      trajectory: shuffledTrain,
+      stateCount: bins,
+      lag,
+    })
     const accuracy = forwardAccuracy({ tpm: surrogate, test, lag })
-    const shuffledAccuracy = forwardAccuracy({ tpm: shuffled, test, lag })
+    const shuffledAccuracy = forwardAccuracy({
+      tpm: shuffled,
+      test,
+      lag,
+    })
     const surrogateCost = Math.ceil(span / lag) * bins * bins
     const baseCost = span * cellCount
-    out.push({ level, lag, accuracy, shuffledAccuracy, surrogateCost, baseCost, speedup: baseCost / surrogateCost })
+    out.push({
+      level,
+      lag,
+      accuracy,
+      shuffledAccuracy,
+      surrogateCost,
+      baseCost,
+      speedup: baseCost / surrogateCost,
+    })
   }
   return out
 }
@@ -67,6 +94,10 @@ export function towerAccuracyAtLag(input: {
   const cut = Math.floor(labels.length * trainFraction)
   const train = labels.slice(0, cut)
   const test = labels.slice(cut)
-  const surrogate = fitMarkovSurrogate({ trajectory: train, stateCount: bins, lag })
+  const surrogate = fitMarkovSurrogate({
+    trajectory: train,
+    stateCount: bins,
+    lag,
+  })
   return forwardAccuracy({ tpm: surrogate, test, lag })
 }

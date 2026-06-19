@@ -17,14 +17,21 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p32-einstein-equations.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { einsteinOp, gravitonFromAction } from '@/code/operator/graviton'
+import {
+  einsteinOp,
+  gravitonFromAction,
+} from '@/code/operator/graviton'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Residual of the contracted Bianchi identity k_i G_ij[h], averaged over random
 // symmetric perturbations h. Zero means the Einstein tensor is transverse, which is
 // energy-momentum conservation built into the equation of motion.
-export function bianchiResidual(input: { k: number[]; samples: number; seed: number }): number {
+export function bianchiResidual(input: {
+  k: number[]
+  samples: number
+  seed: number
+}): number {
   const rng = makeRng({ seed: input.seed })
   let worst = 0
   for (let s = 0; s < input.samples; s++) {

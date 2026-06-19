@@ -18,12 +18,19 @@ export function bulkMass(input: {
   spatialDegree: number
   minNeighbours: number
 }): Int8Array {
-  const { occupied, neighbour, cellCount, spatialDegree, minNeighbours } = input
+  const {
+    occupied,
+    neighbour,
+    cellCount,
+    spatialDegree,
+    minNeighbours,
+  } = input
   const source = new Int8Array(cellCount)
   for (let c = 0; c < cellCount; c++) {
     if (!occupied[c]) continue
     let count = 0
-    for (let d = 0; d < spatialDegree; d++) count += occupied[neighbour(c, d)] ? 1 : 0
+    for (let d = 0; d < spatialDegree; d++)
+      count += occupied[neighbour(c, d)] ? 1 : 0
     if (count >= minNeighbours) source[c] = 1
   }
   return source
@@ -45,15 +52,29 @@ export function relaxPotential(input: {
   cap: number
   warm?: Int32Array
 }): Int32Array {
-  const { source, neighbour, cellCount, spatialDegree, sweeps, strength, cap, warm } = input
-  const clamp = (v: number): number => (v < -cap ? -cap : v > cap ? cap : v)
+  const {
+    source,
+    neighbour,
+    cellCount,
+    spatialDegree,
+    sweeps,
+    strength,
+    cap,
+    warm,
+  } = input
+  const clamp = (v: number): number =>
+    v < -cap ? -cap : v > cap ? cap : v
   let phi = warm ? warm : new Int32Array(cellCount)
   for (let s = 0; s < sweeps; s++) {
     const next = new Int32Array(cellCount)
     for (let c = 0; c < cellCount; c++) {
       let sum = 0
-      for (let d = 0; d < spatialDegree; d++) sum += phi[neighbour(c, d)]!
-      next[c] = clamp(Math.round(sum / spatialDegree) - strength * (source[c] ? 1 : 0))
+      for (let d = 0; d < spatialDegree; d++)
+        sum += phi[neighbour(c, d)]!
+      next[c] = clamp(
+        Math.round(sum / spatialDegree) -
+          strength * (source[c] ? 1 : 0),
+      )
     }
     phi = next
   }
@@ -72,21 +93,36 @@ export function gravityMoves(input: {
   spatialDegree: number
   minNeighbours: number
 }): Array<[number, number]> {
-  const { occupied, phi, neighbour, cellCount, spatialDegree, minNeighbours } = input
+  const {
+    occupied,
+    phi,
+    neighbour,
+    cellCount,
+    spatialDegree,
+    minNeighbours,
+  } = input
   const free = occupied.slice()
   const moves: Array<[number, number]> = []
   for (let c = 0; c < cellCount; c++) {
     if (!free[c]) continue
     let dense = 0
-    for (let d = 0; d < spatialDegree; d++) dense += free[neighbour(c, d)]!
+    for (let d = 0; d < spatialDegree; d++)
+      dense += free[neighbour(c, d)]!
     if (dense >= minNeighbours) continue
     let best = -1
     let bestPhi = phi[c]!
     for (let d = 0; d < spatialDegree; d++) {
       const t = neighbour(c, d)
-      if (!free[t] && phi[t]! < bestPhi) { bestPhi = phi[t]!; best = t }
+      if (!free[t] && phi[t]! < bestPhi) {
+        bestPhi = phi[t]!
+        best = t
+      }
     }
-    if (best >= 0) { moves.push([c, best]); free[c] = 0; free[best] = 1 }
+    if (best >= 0) {
+      moves.push([c, best])
+      free[c] = 0
+      free[best] = 1
+    }
   }
   return moves
 }
@@ -106,8 +142,17 @@ export function vacuumDensity(input: {
   cap: number
   warm?: Int32Array
 }): Int32Array {
-  const { occupied, neighbour, cellCount, spatialDegree, sweeps, cap, warm } = input
-  const clamp = (v: number): number => (v < -cap ? -cap : v > cap ? cap : v)
+  const {
+    occupied,
+    neighbour,
+    cellCount,
+    spatialDegree,
+    sweeps,
+    cap,
+    warm,
+  } = input
+  const clamp = (v: number): number =>
+    v < -cap ? -cap : v > cap ? cap : v
   let v = warm ? warm : new Int32Array(cellCount)
   for (let s = 0; s < sweeps; s++) {
     const next = new Int32Array(cellCount)
@@ -115,7 +160,9 @@ export function vacuumDensity(input: {
       let sum = 0
       for (let d = 0; d < spatialDegree; d++) sum += v[neighbour(c, d)]!
       // empty cells pump the vacuum up by one, mass cells push it down by cap (depletion).
-      next[c] = clamp(Math.round(sum / spatialDegree) + (occupied[c] ? -cap : 1))
+      next[c] = clamp(
+        Math.round(sum / spatialDegree) + (occupied[c] ? -cap : 1),
+      )
     }
     v = next
   }

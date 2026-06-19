@@ -9,7 +9,11 @@ import { relativeL2Error } from '@/code/measure/statistics'
 // Courant number, so the speed is scale-invariant.
 
 // One leapfrog step on a periodic ring, returning the next slice.
-export function leapfrogWaveStep(u: Float64Array, uPrev: Float64Array, r2: number): Float64Array {
+export function leapfrogWaveStep(
+  u: Float64Array,
+  uPrev: Float64Array,
+  r2: number,
+): Float64Array {
   const L = u.length
   const next = new Float64Array(L)
   for (let i = 0; i < L; i++) {
@@ -64,10 +68,20 @@ export function leapfrogWaveCommutingError(input: {
 }): number {
   const { u0, uPrev0, r2, blockSize: b, coarseSteps: K } = input
   // path A, evolve fine then coarse-grain
-  const fine = evolveLeapfrogWave({ u: u0, uPrev: uPrev0, r2, steps: b * K })
+  const fine = evolveLeapfrogWave({
+    u: u0,
+    uPrev: uPrev0,
+    r2,
+    steps: b * K,
+  })
   const A = blockAverage(fine, b)
   // path B, coarse-grain then evolve the coarse wave
-  const B = evolveLeapfrogWave({ u: blockAverage(u0, b), uPrev: blockAverage(uPrev0, b), r2, steps: K })
+  const B = evolveLeapfrogWave({
+    u: blockAverage(u0, b),
+    uPrev: blockAverage(uPrev0, b),
+    r2,
+    steps: K,
+  })
   return relativeL2Error(A, B)
 }
 
@@ -86,12 +100,18 @@ export function leapfrogWaveLevelSpeed(input: {
   const { u0, uPrev0, r2, blockSize: b, steps, threshold } = input
   const frontOf = (arr: Float64Array): number => {
     let f = 0
-    for (let i = 0; i < arr.length; i++) if (Math.abs(arr[i]!) > threshold) f = i
+    for (let i = 0; i < arr.length; i++)
+      if (Math.abs(arr[i]!) > threshold) f = i
     return f
   }
   const start = blockAverage(u0, b)
   const f0 = frontOf(start)
-  const end = evolveLeapfrogWave({ u: start, uPrev: blockAverage(uPrev0, b), r2, steps })
+  const end = evolveLeapfrogWave({
+    u: start,
+    uPrev: blockAverage(uPrev0, b),
+    r2,
+    steps,
+  })
   const f1 = frontOf(end)
   return (f1 - f0) / steps
 }

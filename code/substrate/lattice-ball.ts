@@ -15,7 +15,11 @@ export function latticeBall(input: {
   generators: number[][]
   radius: number
   origin?: number[]
-}): { dist: Map<string, number>; cells: number[][]; generators: number[][] } {
+}): {
+  dist: Map<string, number>
+  cells: number[][]
+  generators: number[][]
+} {
   const { generators, radius } = input
   const origin = input.origin ?? generators[0]!.map(() => 0)
   const dist = new Map<string, number>([[key(origin), 0]])

@@ -4,8 +4,8 @@
 // gives -1, and so on.
 
 export function logLogSlope(xs: number[], ys: number[]): number {
-  const lx = xs.map((x) => Math.log(x))
-  const ly = ys.map((y) => Math.log(y))
+  const lx = xs.map(x => Math.log(x))
+  const ly = ys.map(y => Math.log(y))
   const n = lx.length
   const mx = lx.reduce((a, b) => a + b, 0) / n
   const my = ly.reduce((a, b) => a + b, 0) / n
@@ -144,8 +144,8 @@ export function powerLawFit(input: {
   ys: ReadonlyArray<number>
 }): { exponent: number; maxDeviation: number } {
   const { xs, ys } = input
-  const logX = xs.map((x) => Math.log(x))
-  const logY = ys.map((y) => Math.log(y))
+  const logX = xs.map(x => Math.log(x))
+  const logY = ys.map(y => Math.log(y))
   const n = logX.length
   const meanX = logX.reduce((a, b) => a + b, 0) / n
   const meanY = logY.reduce((a, b) => a + b, 0) / n
@@ -159,7 +159,10 @@ export function powerLawFit(input: {
   let maxDeviation = 0
   for (let i = 0; i < n; i++) {
     const predicted = meanY + exponent * (logX[i]! - meanX)
-    maxDeviation = Math.max(maxDeviation, Math.abs(logY[i]! - predicted))
+    maxDeviation = Math.max(
+      maxDeviation,
+      Math.abs(logY[i]! - predicted),
+    )
   }
   return { exponent, maxDeviation }
 }
@@ -175,7 +178,8 @@ export function localForceLawExponent(input: {
 }): number {
   const { potential, r } = input
   const h = r * (input.derivativeFraction ?? 0.01)
-  const force = (rr: number): number => -(potential(rr + h) - potential(rr - h)) / (2 * h)
+  const force = (rr: number): number =>
+    -(potential(rr + h) - potential(rr - h)) / (2 * h)
   const f = input.exponentFraction ?? 0.05
   return (
     (Math.log(force(r * (1 + f))) - Math.log(force(r * (1 - f)))) /

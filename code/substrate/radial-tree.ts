@@ -28,7 +28,8 @@ export function boundaryByRadius(input: {
   const rmax = Math.max(...radii)
   const cut = fraction * rmax
   const out: number[] = []
-  for (let i = 0; i < radii.length; i++) if (radii[i]! > cut) out.push(i)
+  for (let i = 0; i < radii.length; i++)
+    if (radii[i]! > cut) out.push(i)
   return out
 }
 

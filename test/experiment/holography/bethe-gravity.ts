@@ -23,20 +23,28 @@ const boundaryExponent = (z: number, E: number): number =>
 const validateTree = (z: number, depth: number): number =>
   finiteTreeResolventRatio({ coordination: z, depth })
 
-export function betheGravity(): { alpha24: number; alpha12: number; massiveAlpha: number; validated: boolean } {
+export function betheGravity(): {
+  alpha24: number
+  alpha12: number
+  massiveAlpha: number
+  validated: boolean
+} {
   const alpha24 = Math.round(boundaryExponent(24, 24) * 1000) / 1000 // {3,4,3,4} bulk, z=24, Laplacian E=z
   const alpha12 = Math.round(boundaryExponent(12, 12) * 1000) / 1000 // {5,3,4} bulk, z=12
   // massive bulk field, E > z -> mu smaller -> alpha larger (screened / Yukawa-like)
-  const massiveAlpha = Math.round(boundaryExponent(24, 30) * 1000) / 1000
+  const massiveAlpha =
+    Math.round(boundaryExponent(24, 30) * 1000) / 1000
   // validate the recursion against a directly-solved finite tree
-  const measured = validateTree(12, 3), predicted = muFor(12, 12)
+  const measured = validateTree(12, 3),
+    predicted = muFor(12, 12)
   const validated = Math.abs(measured - predicted) < 0.05
   return { alpha24, alpha12, massiveAlpha, validated }
 }
 
 export default experiment({
   id: 'holography/bethe-gravity',
-  title: 'the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2',
+  title:
+    'the exact Bethe bulk-mediated boundary correlator is a clean universal 1/r^2',
   category: 'holography',
   substrates: 'any',
   depth: 'L1',

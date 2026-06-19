@@ -30,7 +30,11 @@ function decades(ratio: number): number {
 // Mean hyperbolic distance between consecutive BFS shells of the dodecagrid, the natural spacing a
 // mode would move through as it sits a few cells further out.
 function meanInterShellDistance(): number {
-  const g = hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: 1200 })
+  const g = hyperbolicDodecagrid({
+    depth: 4,
+    connectThreshold: 2.0,
+    maxVertices: 1200,
+  })
   const dim = g.embedding?.dimension ?? 3
   const coords = g.embedding?.coords ?? new Float64Array(0)
   // central node = smallest norm
@@ -44,9 +48,13 @@ function meanInterShellDistance(): number {
       center = i
     }
   }
-  const hyp = (a: number, b: number): number => poincareDistanceIndexed(coords, dim, a, b)
+  const hyp = (a: number, b: number): number =>
+    poincareDistanceIndexed(coords, dim, a, b)
   // BFS shells, then the mean hyperbolic step between consecutive shells
-  const { depth: shell, shellCounts } = bfsShells({ neighbors: neighborsOf(g), root: center })
+  const { depth: shell, shellCounts } = bfsShells({
+    neighbors: neighborsOf(g),
+    root: center,
+  })
   return meanShellDistanceStep({
     count: g.size,
     center,
@@ -75,28 +83,40 @@ export function massHierarchy(input: Record<string, never> = {}): {
   const spacing = interShellDistance // localization length xi = 1 (one curvature radius)
 
   // Exponential overlap (hyperbolic substrate): y_i = exp(-i * spacing).
-  const exponentialMasses = Array.from({ length: CHARGED_FERMIONS }, (_, i) => Math.exp(-i * spacing))
-  const expSpan = (exponentialMasses[0] ?? 1) / (exponentialMasses[CHARGED_FERMIONS - 1] ?? 1)
+  const exponentialMasses = Array.from(
+    { length: CHARGED_FERMIONS },
+    (_, i) => Math.exp(-i * spacing),
+  )
+  const expSpan =
+    (exponentialMasses[0] ?? 1) /
+    (exponentialMasses[CHARGED_FERMIONS - 1] ?? 1)
 
   // Power-law overlap (flat substrate): y_i = 1 / (1 + i * spacing)^2, same positions.
-  const powerMasses = Array.from({ length: CHARGED_FERMIONS }, (_, i) => 1 / (1 + i * spacing) ** 2)
-  const powerSpan = (powerMasses[0] ?? 1) / (powerMasses[CHARGED_FERMIONS - 1] ?? 1)
+  const powerMasses = Array.from(
+    { length: CHARGED_FERMIONS },
+    (_, i) => 1 / (1 + i * spacing) ** 2,
+  )
+  const powerSpan =
+    (powerMasses[0] ?? 1) / (powerMasses[CHARGED_FERMIONS - 1] ?? 1)
 
   const expSpanDecades = decades(expSpan)
   const observedSpanDecades = decades(OBSERVED_SPAN)
   // Honest comparison: the geometric prediction is the same order of magnitude as observed if it
   // lands within ~3 decades of it (it does not, and should not be claimed to, hit 5.5 exactly).
-  const sameOrderAsObserved = Math.abs(expSpanDecades - observedSpanDecades) < 3
+  const sameOrderAsObserved =
+    Math.abs(expSpanDecades - observedSpanDecades) < 3
   // The localization length that WOULD reproduce the observed span exactly (reported, not used):
   // xi = (n-1) * interShellDistance / ln(observed span).
   const localizationLengthForObserved =
-    ((CHARGED_FERMIONS - 1) * interShellDistance) / Math.log(OBSERVED_SPAN)
+    ((CHARGED_FERMIONS - 1) * interShellDistance) /
+    Math.log(OBSERVED_SPAN)
 
   // The genuine result is the MECHANISM, not the exact value: with a purely geometric spacing the
   // exponential law gives a multi-decade hierarchy (same order as observed) that beats the flat
   // power law from identical positions. The exponential's advantage grows without bound as steps or
   // localization tighten, while the power law saturates, so any clear positive margin is the signal.
-  const mechanismHolds = expSpanDecades >= 2.5 && expSpanDecades - decades(powerSpan) >= 1.0
+  const mechanismHolds =
+    expSpanDecades >= 2.5 && expSpanDecades - decades(powerSpan) >= 1.0
 
   return {
     spacing,

@@ -37,7 +37,8 @@ const HE_PLUS_ENERGY = -2
 
 export default experiment({
   id: 'spin/helium-ground-state',
-  title: 'helium ground-state energy from the screened two-electron variational treatment, within 2 percent of observed, the no-repulsion energy the control',
+  title:
+    'helium ground-state energy from the screened two-electron variational treatment, within 2 percent of observed, the no-repulsion energy the control',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L3',
@@ -48,13 +49,18 @@ export default experiment({
     // the variational energy at the optimal screened charge, a rigorous upper bound
     const screenedCharge = optimalScreenedCharge(Z)
     const variational = heliumVariationalEnergy(Z)
-    const variationalError = Math.abs(variational - OBSERVED_ENERGY) / Math.abs(OBSERVED_ENERGY)
+    const variationalError =
+      Math.abs(variational - OBSERVED_ENERGY) /
+      Math.abs(OBSERVED_ENERGY)
     const variationalAccurate = variationalError < 0.03
     const isUpperBound = variational > OBSERVED_ENERGY // variational energy is above the true ground state
 
     // the perturbative energy (no screening), in the right ballpark
     const perturbative = heliumPerturbativeEnergy(Z)
-    const perturbativeBallpark = Math.abs(perturbative - OBSERVED_ENERGY) / Math.abs(OBSERVED_ENERGY) < 0.08
+    const perturbativeBallpark =
+      Math.abs(perturbative - OBSERVED_ENERGY) /
+        Math.abs(OBSERVED_ENERGY) <
+      0.08
 
     // the first ionization energy, the difference from the hydrogenic He+
     const ionizationHartree = HE_PLUS_ENERGY - variational
@@ -62,12 +68,22 @@ export default experiment({
     const ionizationNear = ionizationEv > 20 && ionizationEv < 27
 
     // the control, no electron-electron repulsion, far too deep
-    const noRepulsion = twoElectronEnergy({ nuclearCharge: Z, trialCharge: Z, withRepulsion: false })
-    const noRepulsionError = Math.abs(noRepulsion - OBSERVED_ENERGY) / Math.abs(OBSERVED_ENERGY)
+    const noRepulsion = twoElectronEnergy({
+      nuclearCharge: Z,
+      trialCharge: Z,
+      withRepulsion: false,
+    })
+    const noRepulsionError =
+      Math.abs(noRepulsion - OBSERVED_ENERGY) /
+      Math.abs(OBSERVED_ENERGY)
     const controlTooDeep = noRepulsionError > 0.3
 
     const ok =
-      variationalAccurate && isUpperBound && perturbativeBallpark && ionizationNear && controlTooDeep
+      variationalAccurate &&
+      isUpperBound &&
+      perturbativeBallpark &&
+      ionizationNear &&
+      controlTooDeep
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -77,7 +93,9 @@ export default experiment({
         screenedCharge: Number(screenedCharge.toFixed(4)),
         variationalEnergy: Number(variational.toFixed(4)),
         observedEnergy: OBSERVED_ENERGY,
-        variationalErrorPercent: Number((variationalError * 100).toFixed(2)),
+        variationalErrorPercent: Number(
+          (variationalError * 100).toFixed(2),
+        ),
         perturbativeEnergy: Number(perturbative.toFixed(4)),
         ionizationEv: Number(ionizationEv.toFixed(2)),
         observedIonizationEv: OBSERVED_IONIZATION_EV,

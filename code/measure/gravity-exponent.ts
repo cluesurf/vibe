@@ -22,7 +22,12 @@ export function gravityExponent(input: {
   const iterations = input.iterations ?? 3000
   const rLo = input.rLo ?? 2
   const rHi = input.rHi ?? 6
-  const phi = screenedGreensFunction({ neighbors, start, mass2, iterations })
+  const phi = screenedGreensFunction({
+    neighbors,
+    start,
+    mass2,
+    iterations,
+  })
   const dist = bfsShells({ neighbors, root: start }).depth
   const sums: number[] = []
   const cnts: number[] = []

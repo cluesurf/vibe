@@ -9,7 +9,10 @@ import { tilingPQ } from '@/code/substrate/tiling-pq'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
+import {
+  ballGrowth,
+  growthIsExponential,
+} from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -43,7 +46,8 @@ function evaluate(input: { name: string; substrate: Substrate }): {
 
 export default experiment({
   id: 'relativity/addressing-lorentz',
-  title: 'a regular lattice singles out a frame, a Minkowski sprinkling does not',
+  title:
+    'a regular lattice singles out a frame, a Minkowski sprinkling does not',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -52,7 +56,11 @@ export default experiment({
     const rng = makeRng({ seed: 3 })
     const latticeRow = evaluate({
       name: 'lattice (lorentzian)',
-      substrate: lattice({ dimension: 3, extent: 9, signature: 'lorentzian' }),
+      substrate: lattice({
+        dimension: 3,
+        extent: 9,
+        signature: 'lorentzian',
+      }),
     })
     const sprinkleRow = evaluate({
       name: 'sprinkle minkowski',
@@ -65,7 +73,8 @@ export default experiment({
 
     const latticeSinglesFrame = latticeRow.preferredFrame
     const sprinkleNoFrame = !sprinkleRow.preferredFrame
-    const sprinkleMoreIsotropic = sprinkleRow.anisotropy < latticeRow.anisotropy
+    const sprinkleMoreIsotropic =
+      sprinkleRow.anisotropy < latticeRow.anisotropy
     const tilingReaches = tilingRow.exponentialReach
     const ok =
       latticeSinglesFrame &&

@@ -16,33 +16,90 @@ import {
   hyperbolicTiling,
 } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
-import { Substrate, substrateUndirectedMeanDegree } from '@/code/tool/substrate'
+import {
+  Substrate,
+  substrateUndirectedMeanDegree,
+} from '@/code/tool/substrate'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { reachIsExponential } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The exponential-reach classifier lives in code/measure/dimension.
-const reachExponential = (s: Substrate): boolean => reachIsExponential({ substrate: s, maxRadius: 14 })
+const reachExponential = (s: Substrate): boolean =>
+  reachIsExponential({ substrate: s, maxRadius: 14 })
 
-function evaluate(s: Substrate, seed: number): { degree: number; anisotropy: number; reach: boolean } {
-  const aniso = lorentzIsotropy({ substrate: s, samples: 3000, rng: makeRng({ seed }) })
-  return { degree: substrateUndirectedMeanDegree({ substrate: s }), anisotropy: aniso.anisotropy, reach: reachExponential(s) }
+function evaluate(
+  s: Substrate,
+  seed: number,
+): { degree: number; anisotropy: number; reach: boolean } {
+  const aniso = lorentzIsotropy({
+    substrate: s,
+    samples: 3000,
+    rng: makeRng({ seed }),
+  })
+  return {
+    degree: substrateUndirectedMeanDegree({ substrate: s }),
+    anisotropy: aniso.anisotropy,
+    reach: reachExponential(s),
+  }
 }
 
 export function nonRandomSubstrates(input: { seed: number }): Record<
   string,
-  { degree: number; anisotropy: number; reach: boolean; lorentzSafe: boolean }
+  {
+    degree: number
+    anisotropy: number
+    reach: boolean
+    lorentzSafe: boolean
+  }
 > {
   const builders: Record<string, Substrate> = {
-    'random sprinkle': hyperbolicGraph({ count: 1500, radius: 7, connectThreshold: 3.0, rng: makeRng({ seed: input.seed }) }),
-    'sunflower (golden angle)': hyperbolicSunflower({ count: 1500, radius: 7, connectThreshold: 3.0 }),
-    'halton (2,3) disc': hyperbolicHalton({ count: 1500, radius: 7, connectThreshold: 3.0 }),
-    'tiling {7,3}': hyperbolicTiling({ p: 7, q: 3, depth: 5, connectThreshold: 0.8, maxVertices: 2500 }),
-    'tiling {5,4}': hyperbolicTiling({ p: 5, q: 4, depth: 6, connectThreshold: 0.9, maxVertices: 2500 }),
-    'flat lattice (control)': lattice({ dimension: 2, extent: 40, signature: 'riemannian' }),
+    'random sprinkle': hyperbolicGraph({
+      count: 1500,
+      radius: 7,
+      connectThreshold: 3.0,
+      rng: makeRng({ seed: input.seed }),
+    }),
+    'sunflower (golden angle)': hyperbolicSunflower({
+      count: 1500,
+      radius: 7,
+      connectThreshold: 3.0,
+    }),
+    'halton (2,3) disc': hyperbolicHalton({
+      count: 1500,
+      radius: 7,
+      connectThreshold: 3.0,
+    }),
+    'tiling {7,3}': hyperbolicTiling({
+      p: 7,
+      q: 3,
+      depth: 5,
+      connectThreshold: 0.8,
+      maxVertices: 2500,
+    }),
+    'tiling {5,4}': hyperbolicTiling({
+      p: 5,
+      q: 4,
+      depth: 6,
+      connectThreshold: 0.9,
+      maxVertices: 2500,
+    }),
+    'flat lattice (control)': lattice({
+      dimension: 2,
+      extent: 40,
+      signature: 'riemannian',
+    }),
   }
-  const out: Record<string, { degree: number; anisotropy: number; reach: boolean; lorentzSafe: boolean }> = {}
+  const out: Record<
+    string,
+    {
+      degree: number
+      anisotropy: number
+      reach: boolean
+      lorentzSafe: boolean
+    }
+  > = {}
   for (const [name, s] of Object.entries(builders)) {
     const e = evaluate(s, input.seed + 1)
     out[name] = { ...e, lorentzSafe: e.anisotropy < 0.25 }
@@ -66,8 +123,9 @@ export default experiment({
       'halton (2,3) disc',
       'tiling {7,3}',
       'tiling {5,4}',
-    ].every((k) => r[k]?.lorentzSafe === true)
-    const latticeUnsafe = r['flat lattice (control)']?.lorentzSafe === false
+    ].every(k => r[k]?.lorentzSafe === true)
+    const latticeUnsafe =
+      r['flat lattice (control)']?.lorentzSafe === false
     const tilingsIsotropic =
       (r['tiling {7,3}']?.anisotropy ?? 1) < 0.1 &&
       (r['tiling {5,4}']?.anisotropy ?? 1) < 0.1
@@ -81,7 +139,8 @@ export default experiment({
         anisotropy54: r['tiling {5,4}']?.anisotropy ?? 0,
       },
       control: {
-        anisotropyFlatLattice: r['flat lattice (control)']?.anisotropy ?? 0,
+        anisotropyFlatLattice:
+          r['flat lattice (control)']?.anisotropy ?? 0,
       },
     })
   },

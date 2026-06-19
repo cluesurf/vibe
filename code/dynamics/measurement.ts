@@ -12,7 +12,8 @@ import { profileGradient } from '@/code/measure/profile'
 // the closed one stays coherent and recoverable (the Loschmidt echo recovers it exactly), no record. No special
 // collapse law is added, the record is deterministic relaxation plus loss of the fine phase to the wake.
 
-const sideOf = (mesh: Mesh): number => Math.round(Math.pow(mesh.cellCount, 1 / 4))
+const sideOf = (mesh: Mesh): number =>
+  Math.round(Math.pow(mesh.cellCount, 1 / 4))
 
 // Hold a frontier slab (cells at a fixed x-coordinate) at peace, the open bath the fine phase disperses into.
 export function bornAtPeace(will: Will, frontierX: number): void {
@@ -35,7 +36,8 @@ export function slabOccupancy(will: Will, axis = 0): number[] {
   const degree = mesh.degree
   const sum = new Array<number>(side).fill(0)
   const count = new Array<number>(side).fill(0)
-  const coord = (cell: number): number => (axis === 0 ? cell % side : Math.floor(cell / side) % side)
+  const coord = (cell: number): number =>
+    axis === 0 ? cell % side : Math.floor(cell / side) % side
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const x = coord(cell)
     const base = cell * degree
@@ -59,10 +61,18 @@ export function pointerTrajectory(input: {
 }): number[] {
   const axis = input.axis ?? 0
   let current = cloneWill(input.init)
-  let scratch: Will = { mesh: current.mesh, data: new Int8Array(current.data.length) }
+  let scratch: Will = {
+    mesh: current.mesh,
+    data: new Int8Array(current.data.length),
+  }
   const trajectory: number[] = []
   for (let t = 0; t < input.beats; t++) {
-    beatInto({ src: current, dst: scratch, table: input.table, collision: input.forward })
+    beatInto({
+      src: current,
+      dst: scratch,
+      table: input.table,
+      collision: input.forward,
+    })
     const swap = current
     current = scratch
     scratch = swap
@@ -85,26 +95,41 @@ export function loschmidtEcho(input: {
   frontierX: number
 }): number {
   let current = cloneWill(input.init)
-  let scratch: Will = { mesh: current.mesh, data: new Int8Array(current.data.length) }
+  let scratch: Will = {
+    mesh: current.mesh,
+    data: new Int8Array(current.data.length),
+  }
   for (let t = 0; t < input.beats; t++) {
-    beatInto({ src: current, dst: scratch, table: input.table, collision: input.forward })
+    beatInto({
+      src: current,
+      dst: scratch,
+      table: input.table,
+      collision: input.forward,
+    })
     const swap = current
     current = scratch
     scratch = swap
     if (input.open) bornAtPeace(current, input.frontierX)
   }
-  for (let t = 0; t < input.beats; t++) current = inverseBeat(current, input.inverse)
+  for (let t = 0; t < input.beats; t++)
+    current = inverseBeat(current, input.inverse)
   return disagreementFraction(current.data, input.init.data)
 }
 
 // The settling time, the first beat after which the pointer stays within `tol` of its final value (the record
 // has formed and held). Returns the trajectory length if it never settles.
-export function settlingTime(trajectory: number[], tol: number): number {
+export function settlingTime(
+  trajectory: number[],
+  tol: number,
+): number {
   const final = trajectory[trajectory.length - 1] ?? 0
   for (let t = 0; t < trajectory.length; t++) {
     let settled = true
     for (let s = t; s < trajectory.length; s++) {
-      if (Math.abs(trajectory[s]! - final) > tol) { settled = false; break }
+      if (Math.abs(trajectory[s]! - final) > tol) {
+        settled = false
+        break
+      }
     }
     if (settled) return t
   }
@@ -112,7 +137,10 @@ export function settlingTime(trajectory: number[], tol: number): number {
 }
 
 // The mean of the last `fraction` of a trajectory, the settled value.
-export function tailMean(trajectory: number[], fraction = 0.25): number {
+export function tailMean(
+  trajectory: number[],
+  fraction = 0.25,
+): number {
   const start = Math.floor(trajectory.length * (1 - fraction))
   const tail = trajectory.slice(start)
   return tail.reduce((a, b) => a + b, 0) / Math.max(1, tail.length)

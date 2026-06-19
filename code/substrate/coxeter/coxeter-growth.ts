@@ -32,7 +32,7 @@ function mul(a: Poly, b: Poly): Poly {
 }
 
 function scale(a: Poly, k: bigint): Poly {
-  return trim(a.map((x) => x * k))
+  return trim(a.map(x => x * k))
 }
 
 function reversePoly(p: Poly): Poly {
@@ -49,7 +49,10 @@ function qInteger(n: number): Poly {
 }
 
 function rationalAdd(a: Rational, b: Rational): Rational {
-  return { num: add(mul(a.num, b.den), mul(b.num, a.den)), den: mul(a.den, b.den) }
+  return {
+    num: add(mul(a.num, b.den), mul(b.num, a.den)),
+    den: mul(a.den, b.den),
+  }
 }
 
 function finiteGrowthFromExponents(exponents: number[]): Poly {
@@ -72,10 +75,13 @@ function connectedComponents(mask: number, rank: number): number[][] {
   return out
 }
 
-function componentExponents(component: number[], labels: number[]): number[] | null {
+function componentExponents(
+  component: number[],
+  labels: number[],
+): number[] | null {
   const size = component.length
   if (size === 1) return [1]
-  const edgeLabels = component.slice(0, -1).map((v) => labels[v]!)
+  const edgeLabels = component.slice(0, -1).map(v => labels[v]!)
   if (size === 2) {
     const m = edgeLabels[0]!
     return [1, m - 1] // I2(m)
@@ -98,7 +104,11 @@ function componentExponents(component: number[], labels: number[]): number[] | n
   return null
 }
 
-function finiteParabolicGrowth(mask: number, rank: number, labels: number[]): Poly | null {
+function finiteParabolicGrowth(
+  mask: number,
+  rank: number,
+  labels: number[],
+): Poly | null {
   if (mask === 0) return [1n]
   let growth: Poly = [1n]
   for (const component of connectedComponents(mask, rank)) {
@@ -142,14 +152,20 @@ export function coxeterGrowthSeries(labels: number[]): Rational {
   return { num: trim(num), den: trim(den) }
 }
 
-export function expandSeries(series: Rational, count: number): bigint[] {
+export function expandSeries(
+  series: Rational,
+  count: number,
+): bigint[] {
   const { num, den } = series
-  if (den[0] === 0n) throw new Error('Denominator has zero constant term')
+  if (den[0] === 0n)
+    throw new Error('Denominator has zero constant term')
   const out: bigint[] = []
   for (let n = 0; n < count; n++) {
     let value = num[n] ?? 0n
-    for (let i = 1; i < den.length && i <= n; i++) value -= den[i]! * out[n - i]!
-    if (value % den[0]! !== 0n) throw new Error('Non-integral coefficient encountered')
+    for (let i = 1; i < den.length && i <= n; i++)
+      value -= den[i]! * out[n - i]!
+    if (value % den[0]! !== 0n)
+      throw new Error('Non-integral coefficient encountered')
     out.push(value / den[0]!)
   }
   return out
@@ -157,16 +173,18 @@ export function expandSeries(series: Rational, count: number): bigint[] {
 
 export function recurrenceFromDenominator(den: Poly): bigint[] {
   // Q(t) = 1 + q1 t + ... + qd t^d  =>  a_n = -q1 a_{n-1} - ... - qd a_{n-d}
-  if (den[0] !== 1n) throw new Error('Expected denominator constant term 1')
-  return den.slice(1).map((x) => -x)
+  if (den[0] !== 1n)
+    throw new Error('Expected denominator constant term 1')
+  return den.slice(1).map(x => -x)
 }
 
 export function polyToString(p: Poly): string {
   return p
     .map((c, i) => ({ c, i }))
-    .filter((x) => x.c !== 0n)
+    .filter(x => x.c !== 0n)
     .map(({ c, i }) => {
-      const coeff = c === 1n && i > 0 ? '' : c === -1n && i > 0 ? '-' : String(c)
+      const coeff =
+        c === 1n && i > 0 ? '' : c === -1n && i > 0 ? '-' : String(c)
       const term = i === 0 ? '' : i === 1 ? 't' : `t^${i}`
       return `${coeff}${term}`
     })
@@ -197,12 +215,19 @@ export function main(): void {
     const seq = expandSeries(series, 20)
     const rec = recurrenceFromDenominator(series.den)
     console.log(`\n${name}`)
-    console.log(`W(t) = (${polyToString(series.num)}) / (${polyToString(series.den)})`)
-    console.log(`recurrence coefficients: ${rec.map(String).join(', ')}`)
+    console.log(
+      `W(t) = (${polyToString(series.num)}) / (${polyToString(series.den)})`,
+    )
+    console.log(
+      `recurrence coefficients: ${rec.map(String).join(', ')}`,
+    )
     console.log(seq.map(String).join(', '))
   }
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   main()
 }

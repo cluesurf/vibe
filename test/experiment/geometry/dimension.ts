@@ -30,14 +30,19 @@ import { verdict } from '@/test/scaffold/verdict'
 // deterministic base rule, and we say so.
 export default experiment({
   id: 'geometry/dimension',
-  title: 'the 2D smeared path integral stays on near-2-dimensional causal orders',
+  title:
+    'the 2D smeared path integral stays on near-2-dimensional causal orders',
   category: 'geometry',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
     const n = 128
-    const sprinkle = sprinkleMinkowski({ dimension: 2, count: n, rng: makeRng({ seed: 1 }) })
+    const sprinkle = sprinkleMinkowski({
+      dimension: 2,
+      count: n,
+      rng: makeRng({ seed: 1 }),
+    })
     const result = sampleUniform({
       size: n,
       beta: 1,
@@ -47,7 +52,9 @@ export default experiment({
       sampleEvery: Math.max(1, Math.floor(n / 2)),
       startFuture: sprinkle.future,
     })
-    const dimension = dimensionFromOrderingFraction(result.meanOrderingFraction)
+    const dimension = dimensionFromOrderingFraction(
+      result.meanOrderingFraction,
+    )
     const ok = Math.abs(dimension - 2) < 0.5
     return verdict({
       status: ok ? 'pass' : 'fail',

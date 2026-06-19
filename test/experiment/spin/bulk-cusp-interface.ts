@@ -18,33 +18,71 @@ function spinorBranching(): { fourToThree: string; ok: boolean } {
   // (2,1), only SU(2)_L acts, on the diagonal it is spin 1/2, Casimir 0.75.
   // (1,2), only SU(2)_R acts, on the diagonal it is spin 1/2, Casimir 0.75.
   const cas = (s: number): number => s * (s + 1)
-  const left = cas(0.5), right = cas(0.5) // both branch to spin 1/2
-  const ok = Math.abs(left - 0.75) < 1e-9 && Math.abs(right - 0.75) < 1e-9
-  return { fourToThree: '4 (4D Dirac) -> 2 + 2 (two 3D Pauli spinors), each spin 1/2 (Casimir 0.75)', ok }
+  const left = cas(0.5),
+    right = cas(0.5) // both branch to spin 1/2
+  const ok =
+    Math.abs(left - 0.75) < 1e-9 && Math.abs(right - 0.75) < 1e-9
+  return {
+    fourToThree:
+      '4 (4D Dirac) -> 2 + 2 (two 3D Pauli spinors), each spin 1/2 (Casimir 0.75)',
+    ok,
+  }
 }
 
 // (B) project the 24 D4 directions (+-e_i+-e_j) onto the 3D tangent space orthogonal to a radial (ideal)
 // direction, and count the distinct resulting directions and their symmetry.
-function directionProjection(radial: number[]): { distinct: number; lengths: number[] } {
+function directionProjection(radial: number[]): {
+  distinct: number
+  lengths: number[]
+} {
   const dirs = rootsD4()
-  const rn = Math.hypot(...radial); const rhat = radial.map((x) => x / rn)
-  const proj = dirs.map((d) => { const dot = d.reduce((s, x, i) => s + x * rhat[i]!, 0); return d.map((x, i) => x - dot * rhat[i]!) })
+  const rn = Math.hypot(...radial)
+  const rhat = radial.map(x => x / rn)
+  const proj = dirs.map(d => {
+    const dot = d.reduce((s, x, i) => s + x * rhat[i]!, 0)
+    return d.map((x, i) => x - dot * rhat[i]!)
+  })
   // cluster by direction (unit vector up to sign), collect lengths
-  const seen: number[][] = []; const lengths: number[] = []
-  for (const p of proj) { const n = Math.hypot(...p); if (n < 1e-9) continue; const u = p.map((x) => x / n); let found = false; for (const s of seen) { const dot = Math.abs(s.reduce((a, x, i) => a + x * u[i]!, 0)); if (dot > 0.999) { found = true; break } } if (!found) { seen.push(u); lengths.push(Math.round(n * 100) / 100) } }
-  return { distinct: seen.length, lengths: [...new Set(lengths)].sort((a, b) => a - b) }
+  const seen: number[][] = []
+  const lengths: number[] = []
+  for (const p of proj) {
+    const n = Math.hypot(...p)
+    if (n < 1e-9) continue
+    const u = p.map(x => x / n)
+    let found = false
+    for (const s of seen) {
+      const dot = Math.abs(s.reduce((a, x, i) => a + x * u[i]!, 0))
+      if (dot > 0.999) {
+        found = true
+        break
+      }
+    }
+    if (!found) {
+      seen.push(u)
+      lengths.push(Math.round(n * 100) / 100)
+    }
+  }
+  return {
+    distinct: seen.length,
+    lengths: [...new Set(lengths)].sort((a, b) => a - b),
+  }
 }
 
 export function bulkCuspInterface(): void {
   const a = spinorBranching()
-  for (const radial of [[1, 1, 1, 1], [1, 0, 0, 0], [1, 1, 0, 0]]) {
+  for (const radial of [
+    [1, 1, 1, 1],
+    [1, 0, 0, 0],
+    [1, 1, 0, 0],
+  ]) {
     const r = directionProjection(radial)
   }
 }
 
 export default experiment({
   id: 'spin/bulk-cusp-interface',
-  title: 'the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp',
+  title:
+    'the 4D bulk D4 spinor structure projects to 3D Pauli spinors on the cusp',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',

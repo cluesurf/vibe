@@ -9,8 +9,14 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Camera } from '@/code/render/camera'
-import { renderSceneToRgba, type Rgb } from '@/code/render/adapter/raster'
-import { transformScene, rotateAboutOrigin } from '@/code/render/geometry/isometry'
+import {
+  renderSceneToRgba,
+  type Rgb,
+} from '@/code/render/adapter/raster'
+import {
+  transformScene,
+  rotateAboutOrigin,
+} from '@/code/render/geometry/isometry'
 import { encodeGif } from '@/code/draw/gif'
 import { encodePng } from '@/code/draw/png'
 
@@ -30,26 +36,47 @@ function run(): void {
   const cam = new Camera({ symbol, windowNorm: twoD ? 0.92 : 0.82 })
 
   // rotate the view so the forward direction points straight up, so the motion reads as scrolling upward
-  const forward = (cam as unknown as { faceCenters: number[][]; forwardFace: number })
+  const forward = cam as unknown as {
+    faceCenters: number[][]
+    forwardFace: number
+  }
   const target = forward.faceCenters[forward.forwardFace]!
-  const upAngle = Math.PI / 2 - Math.atan2(target[1] ?? 0, target[0] ?? 0)
+  const upAngle =
+    Math.PI / 2 - Math.atan2(target[1] ?? 0, target[0] ?? 0)
   const upright = rotateAboutOrigin({ angle: upAngle })
 
   const frames: Uint8Array[] = []
   for (let f = 0; f < frameCount; f++) {
     const scene = transformScene(cam.scene(), upright)
-    const { rgba } = renderSceneToRgba({ scene, size, segments: 14, lineWidth: 1.3, near: NEAR, far: FAR })
+    const { rgba } = renderSceneToRgba({
+      scene,
+      size,
+      segments: 14,
+      lineWidth: 1.3,
+      near: NEAR,
+      far: FAR,
+    })
     frames.push(rgba)
     if (f === 0 || f === Math.floor(frameCount / 2)) {
-      writeFileSync(join(outDir, `walk-${symbolText}-frame${f}.png`), encodePng(rgba, size, size))
+      writeFileSync(
+        join(outDir, `walk-${symbolText}-frame${f}.png`),
+        encodePng(rgba, size, size),
+      )
     }
     // advance just under one full cell over the whole loop, so frame N wraps seamlessly onto frame 0
     cam.advance(1 / frameCount)
   }
 
-  const gif = encodeGif({ frames, width: size, height: size, delayMs: 60 })
+  const gif = encodeGif({
+    frames,
+    width: size,
+    height: size,
+    delayMs: 60,
+  })
   writeFileSync(join(outDir, `walk-${symbolText}.gif`), gif)
-  console.log(`wrote walk-${symbolText}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}  (window ${cam.activeCount} cells)`)
+  console.log(
+    `wrote walk-${symbolText}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}  (window ${cam.activeCount} cells)`,
+  )
 }
 
 run()

@@ -19,11 +19,15 @@ import { d4Mesh } from '@/code/tool/mesh'
 import { pairCollision } from '@/code/rule/collision'
 import { charge, cloneWill } from '@/code/tone/will'
 import { beat } from '@/code/rule/lattice-gas'
-import { chargeWaveSetup, chargeWaveSeries } from '@/code/measure/hydrodynamics'
+import {
+  chargeWaveSetup,
+  chargeWaveSeries,
+} from '@/code/measure/hydrodynamics'
 
 export default experiment({
   id: 'fluids/charge-diffusion-bath',
-  title: 'the conserved charge wave recurs in the reversible bulk (not diffusive), real charge diffusion needs the bath',
+  title:
+    'the conserved charge wave recurs in the reversible bulk (not diffusive), real charge diffusion needs the bath',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -32,15 +36,33 @@ export default experiment({
     const side = 14
     const mesh = d4Mesh({ side })
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
     const collision = pairCollision({ opposite, forward: true }) // the committed charge-conserving knit
     const beats = 56
 
     // the closed-bulk envelope, the maximum amplitude reached in the last quarter of the run (recurs => stays ~1)
     const closedEnvelope = (wavelength: number): number => {
-      const will = chargeWaveSetup({ mesh, side, gradAxis: 1, wavelength })
-      const series = chargeWaveSeries({ will, collision, beats, open: false, side, gradAxis: 1, wavelength })
-      return Math.max(...series.slice(Math.floor((3 * beats) / 4)).map((a) => Math.abs(a)))
+      const will = chargeWaveSetup({
+        mesh,
+        side,
+        gradAxis: 1,
+        wavelength,
+      })
+      const series = chargeWaveSeries({
+        will,
+        collision,
+        beats,
+        open: false,
+        side,
+        gradAxis: 1,
+        wavelength,
+      })
+      return Math.max(
+        ...series
+          .slice(Math.floor((3 * beats) / 4))
+          .map(a => Math.abs(a)),
+      )
     }
 
     const closedLong = closedEnvelope(side)
@@ -49,10 +71,21 @@ export default experiment({
     // charge is conserved EXACTLY over the run, so the recurrence is genuine, not leakage
     let chargeExact = true
     {
-      const will0 = chargeWaveSetup({ mesh, side, gradAxis: 1, wavelength: side })
+      const will0 = chargeWaveSetup({
+        mesh,
+        side,
+        gradAxis: 1,
+        wavelength: side,
+      })
       const q0 = charge(will0)
       let w = cloneWill(will0)
-      for (let t = 0; t < beats; t++) { w = beat(w, collision); if (charge(w) !== q0) { chargeExact = false; break } }
+      for (let t = 0; t < beats; t++) {
+        w = beat(w, collision)
+        if (charge(w) !== q0) {
+          chargeExact = false
+          break
+        }
+      }
     }
 
     // the charge wave recurs (non-decaying envelope at two wavelengths) => no bulk diffusion. A genuinely
@@ -71,7 +104,9 @@ export default experiment({
         beats,
         side,
       },
-      control: { closedEnvelopeLongTimes1000: Math.round(closedLong * 1000) },
+      control: {
+        closedEnvelopeLongTimes1000: Math.round(closedLong * 1000),
+      },
       notes:
         'a genuinely diffusive mode would show a decaying envelope, this one recurs (stays near 1). This corrects the apparent diffusivity of the charge mode, which in the stochastic gauge/dynamic-dispersion came from randomness (against the determinism rule), not the reversible bulk. The open-mesh charge run is not a clean contrast (the absorbing boundary reshapes the profile rather than cleanly damping the mode), so it is not used here. Real charge diffusion needs the bath, as shown cleanly for momentum in shear-dissipation-bath.',
     })

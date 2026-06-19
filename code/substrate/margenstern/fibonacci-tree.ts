@@ -11,7 +11,10 @@
 // 2-node has {c, c+1}), and the per-level node counts grow 1, 3, 8, 21, 55 (the golden ratio squared). See
 // note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and the splitting-method notes.
 
-import { toZeckendorf, fromZeckendorf } from '@/code/substrate/margenstern/zeckendorf'
+import {
+  toZeckendorf,
+  fromZeckendorf,
+} from '@/code/substrate/margenstern/zeckendorf'
 
 // the father of a node, by stripping the last two Fibonacci digits and adding back the high one (root -> 0)
 export function father(node: number): number {

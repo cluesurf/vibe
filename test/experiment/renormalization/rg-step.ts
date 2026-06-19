@@ -41,8 +41,17 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
   // block the crystal, build the block adjacency graph
   const seedRng = makeRng({ seed: 17 })
-  const { blockOf, numBlocks } = csrVoronoiBlocks({ offsets: g.offsets, adj: g.adj, size: N, targetSize: blockSize, rng: seedRng })
-  const nbrSet: Set<number>[] = Array.from({ length: numBlocks }, () => new Set<number>())
+  const { blockOf, numBlocks } = csrVoronoiBlocks({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    targetSize: blockSize,
+    rng: seedRng,
+  })
+  const nbrSet: Set<number>[] = Array.from(
+    { length: numBlocks },
+    () => new Set<number>(),
+  )
   for (let k = 0; k < eu.length; k++) {
     const a = blockOf[eu[k]!]!
     const b = blockOf[ev[k]!]!
@@ -51,12 +60,17 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       nbrSet[b]!.add(a)
     }
   }
-  const blockNbr: number[][] = nbrSet.map((s) => [...s])
+  const blockNbr: number[][] = nbrSet.map(s => [...s])
 
   // run the base dynamics, record block net charge each beat
   // BFS distance from a pole, to impose a radial NET-charge gradient that then RELAXES by diffusion
   // (diffusion is only visible while a gradient relaxes, an equilibrium state shows only noise)
-  const distP = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
+  const distP = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+  })
   let maxd = 0
   for (let i = 0; i < N; i++) if (distP[i]! > maxd) maxd = distP[i]!
   // Identify the CONSERVED-CHARGE sector's effective rule. We isolate transport (a dilute +1 charge gas
@@ -67,8 +81,15 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   const warmup = 0
   const R = 24
   const blockCharge = (tone: Int8Array): Float64Array =>
-    sumFieldByGroup({ field: tone, group: blockOf, groupCount: numBlocks })
-  const meanBC: Float64Array[] = Array.from({ length: numSamples + 1 }, () => new Float64Array(numBlocks))
+    sumFieldByGroup({
+      field: tone,
+      group: blockOf,
+      groupCount: numBlocks,
+    })
+  const meanBC: Float64Array[] = Array.from(
+    { length: numSamples + 1 },
+    () => new Float64Array(numBlocks),
+  )
   let alphaMin = Infinity
   let alphaMax = -Infinity
   let conserved = true
@@ -80,7 +101,8 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       tone[i] = (rng.next() < grad ? 1 : 0) as 0 | 1
     }
     const q0 = tone.reduce((s, x) => s + x, 0)
-    for (let t = 0; t < warmup; t++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
+    for (let t = 0; t < warmup; t++)
+      conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
     for (let s = 0; s <= numSamples; s++) {
       const bc = blockCharge(tone)
       for (let b = 0; b < numBlocks; b++) {
@@ -88,7 +110,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
         if (bc[b]! < alphaMin) alphaMin = bc[b]!
         if (bc[b]! > alphaMax) alphaMax = bc[b]!
       }
-      if (s < numSamples) for (let k = 0; k < tau; k++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
+      if (s < numSamples)
+        for (let k = 0; k < tau; k++)
+          conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
     }
     if (tone.reduce((s, x) => s + x, 0) !== q0) conserved = false
   }
@@ -135,10 +159,11 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   const varAt = (q: Float64Array): number => populationVariance(q)
   const var0 = varAt(meanBC[0]!)
   let mixingTime = numSamples
-  for (let s = 0; s < meanBC.length; s++) if (varAt(meanBC[s]!) < 0.5 * var0) {
-    mixingTime = s
-    break
-  }
+  for (let s = 0; s < meanBC.length; s++)
+    if (varAt(meanBC[s]!) < 0.5 * var0) {
+      mixingTime = s
+      break
+    }
   const varFinal = varAt(meanBC[meanBC.length - 1]!)
 
   const slowDiffusion = diffusionConstant > 0 && fitR2 > 0.5 // a slow Euclidean diffusion mode (rejected)
@@ -149,7 +174,8 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   // because the hyperbolic diameter is tiny and dense same-sign cores freeze, this motivates the long
   // thin SLIVER geometry (P123) where a transport law can actually be read off.
   const ballTooShortForTransport = !slowDiffusion
-  const solved = alphabetEnriched && conserved && ballTooShortForTransport
+  const solved =
+    alphabetEnriched && conserved && ballTooShortForTransport
 
   return {
     n: N,

@@ -30,12 +30,16 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { cayleyMultiply, normSquared } from '@/code/measure/division-algebra'
+import {
+  cayleyMultiply,
+  normSquared,
+} from '@/code/measure/division-algebra'
 import { custodialRho } from '@/code/measure/electroweak'
 
 export default experiment({
   id: 'foundations/higgs-from-octonions',
-  title: 'the Higgs is the quaternionic SU(2) doublet (the internal connection), forced by custodial rho=1, completing the Standard Model from the octonion seed',
+  title:
+    'the Higgs is the quaternionic SU(2) doublet (the internal connection), forced by custodial rho=1, completing the Standard Model from the octonion seed',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -48,9 +52,12 @@ export default experiment({
 
     // the unit quaternions (SU(2)) act on it (closed under multiplication)
     const make = (offset: number): number[] => {
-      const v = Array.from({ length: 4 }, (_, i) => (((i * 5 + offset) % 7) - 3))
+      const v = Array.from(
+        { length: 4 },
+        (_, i) => ((i * 5 + offset) % 7) - 3,
+      )
       const norm = Math.sqrt(normSquared(v))
-      return v.map((x) => x / norm)
+      return v.map(x => x / norm)
     }
     let su2Closed = true
     for (let a = 0; a < 4; a++)
@@ -60,12 +67,16 @@ export default experiment({
       }
 
     // the custodial rho, one for the doublet, one half for the triplet (the control that forces the doublet)
-    const doubletRho = custodialRho({ isospin: 0.5, isospinComponent: 0.5 })
+    const doubletRho = custodialRho({
+      isospin: 0.5,
+      isospinComponent: 0.5,
+    })
     const tripletRho = custodialRho({ isospin: 1, isospinComponent: 1 })
     const doubletGivesOne = Math.abs(doubletRho - 1) < 1e-9
     const tripletExcluded = Math.abs(tripletRho - 1) > 0.1
 
-    const ok = isDoublet && su2Closed && doubletGivesOne && tripletExcluded
+    const ok =
+      isDoublet && su2Closed && doubletGivesOne && tripletExcluded
 
     return verdict({
       status: ok ? 'pass' : 'fail',

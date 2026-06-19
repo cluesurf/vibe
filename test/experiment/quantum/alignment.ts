@@ -27,7 +27,10 @@ type Mode = 'aligned' | 'misaligned' | 'random'
 // outcome region [pi/4, pi/2) the outcomes use. misaligned: coarse split at pi/2,
 // about 1 bit of dependence but boundaries that miss the outcome structure.
 // random: a high-frequency feature, dependence below the measurement resolution.
-function sharedBits(input: { lambda: number; mode: Mode }): { a: number; b: number } {
+function sharedBits(input: { lambda: number; mode: Mode }): {
+  a: number
+  b: number
+} {
   const l = input.lambda
   if (input.mode === 'aligned') {
     return {
@@ -58,15 +61,20 @@ export function measureChshAndDependence(input: {
     const shared = sharedBits({ lambda, mode: input.mode })
     const sharedA = shared.a
     const sharedB = shared.b
-    const ai = rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
-    const bi = rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
+    const ai =
+      rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
+    const bi =
+      rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
     const a = 1
     const b = lambda >= Math.PI / 4 && lambda < Math.PI / 2 ? -1 : 1
     const cell = ai * 2 + bi
     sum[cell] = (sum[cell] ?? 0) + a * b
     count[cell] = (count[cell] ?? 0) + 1
 
-    const bin = Math.min(BINS - 1, Math.floor((lambda / Math.PI) * BINS))
+    const bin = Math.min(
+      BINS - 1,
+      Math.floor((lambda / Math.PI) * BINS),
+    )
     const arr = joint[ai] ?? joint[0]
     if (arr) {
       arr[bin] = (arr[bin] ?? 0) + 1
@@ -90,8 +98,18 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const aligned = measureChshAndDependence({ eta: 1, mode: 'aligned', trials: 60000, seed: 11 })
-    const misaligned = measureChshAndDependence({ eta: 1, mode: 'misaligned', trials: 60000, seed: 12 })
+    const aligned = measureChshAndDependence({
+      eta: 1,
+      mode: 'aligned',
+      trials: 60000,
+      seed: 11,
+    })
+    const misaligned = measureChshAndDependence({
+      eta: 1,
+      mode: 'misaligned',
+      trials: 60000,
+      seed: 12,
+    })
     const ok =
       aligned.s > 3.5 &&
       misaligned.s < 1.5 &&

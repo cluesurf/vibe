@@ -8,7 +8,10 @@
 export function cayleyConjugate(x: number[]): number[] {
   if (x.length === 1) return [x[0]!]
   const half = x.length / 2
-  return [...cayleyConjugate(x.slice(0, half)), ...x.slice(half).map((v) => -v)]
+  return [
+    ...cayleyConjugate(x.slice(0, half)),
+    ...x.slice(half).map(v => -v),
+  ]
 }
 
 // the product in the Cayley-Dickson construction, (a, b)(c, d) = (ac - conj(d) b, d a + b conj(c)). The dimension is
@@ -20,8 +23,12 @@ export function cayleyMultiply(x: number[], y: number[]): number[] {
   const b = x.slice(half)
   const c = y.slice(0, half)
   const d = y.slice(half)
-  const low = cayleyMultiply(a, c).map((v, i) => v - cayleyMultiply(cayleyConjugate(d), b)[i]!)
-  const high = cayleyMultiply(d, a).map((v, i) => v + cayleyMultiply(b, cayleyConjugate(c))[i]!)
+  const low = cayleyMultiply(a, c).map(
+    (v, i) => v - cayleyMultiply(cayleyConjugate(d), b)[i]!,
+  )
+  const high = cayleyMultiply(d, a).map(
+    (v, i) => v + cayleyMultiply(b, cayleyConjugate(c))[i]!,
+  )
   return [...low, ...high]
 }
 
@@ -43,8 +50,12 @@ export function hasZeroDivisor(level: number): boolean {
     for (let j = i + 1; j < dimension; j++)
       for (let k = 1; k < dimension; k++)
         for (let l = k + 1; l < dimension; l++) {
-          const x = unit(dimension, i).map((v, m) => v + unit(dimension, j)[m]!)
-          const y = unit(dimension, k).map((v, m) => v + unit(dimension, l)[m]!)
+          const x = unit(dimension, i).map(
+            (v, m) => v + unit(dimension, j)[m]!,
+          )
+          const y = unit(dimension, k).map(
+            (v, m) => v + unit(dimension, l)[m]!,
+          )
           if (normSquared(cayleyMultiply(x, y)) === 0) return true
         }
   return false
@@ -54,21 +65,37 @@ export function hasZeroDivisor(level: number): boolean {
 // necessary condition for a division algebra, equivalent to no zero divisors here)
 export function hasNormComposition(level: number): boolean {
   const dimension = 2 ** level
-  const sample = (offset: number): number[] => Array.from({ length: dimension }, (_, i) => (((i * 7 + offset) % 11) - 5))
+  const sample = (offset: number): number[] =>
+    Array.from(
+      { length: dimension },
+      (_, i) => ((i * 7 + offset) % 11) - 5,
+    )
   // test several distinct pairs, including basis-unit sums where zero divisors appear
   for (let off = 0; off < 5; off++) {
     const x = sample(off)
     const y = sample(off + 3)
-    if (normSquared(cayleyMultiply(x, y)) !== normSquared(x) * normSquared(y)) return false
+    if (
+      normSquared(cayleyMultiply(x, y)) !==
+      normSquared(x) * normSquared(y)
+    )
+      return false
   }
   // also test the basis-unit-sum pairs (the zero-divisor candidates)
   for (let i = 1; i < dimension; i++)
     for (let j = i + 1; j < Math.min(dimension, i + 12); j++) {
-      const x = unit(dimension, i).map((v, m) => v + unit(dimension, j)[m]!)
+      const x = unit(dimension, i).map(
+        (v, m) => v + unit(dimension, j)[m]!,
+      )
       for (let k = 1; k < dimension; k++)
         for (let l = k + 1; l < Math.min(dimension, k + 12); l++) {
-          const y = unit(dimension, k).map((v, m) => v + unit(dimension, l)[m]!)
-          if (normSquared(cayleyMultiply(x, y)) !== normSquared(x) * normSquared(y)) return false
+          const y = unit(dimension, k).map(
+            (v, m) => v + unit(dimension, l)[m]!,
+          )
+          if (
+            normSquared(cayleyMultiply(x, y)) !==
+            normSquared(x) * normSquared(y)
+          )
+            return false
         }
     }
   return true
@@ -78,7 +105,8 @@ export function hasNormComposition(level: number): boolean {
 // realization of the order-three Spin(8) triality), tested on a deterministic distinct triple
 export function octonionTrialityCyclic(): boolean {
   const u = (i: number): number[] => unit(8, i)
-  const add = (a: number[], b: number[]): number[] => a.map((v, i) => v + b[i]!)
+  const add = (a: number[], b: number[]): number[] =>
+    a.map((v, i) => v + b[i]!)
   const x = add(u(1), u(4))
   const y = add(u(2), u(6))
   const z = add(u(3), u(5))
@@ -97,10 +125,14 @@ export function nonAssociativeTripleCount(): number {
   for (let i = 1; i < 8; i++)
     for (let j = i + 1; j < 8; j++)
       for (let k = j + 1; k < 8; k++) {
-        const associator = cayleyMultiply(cayleyMultiply(u(i), u(j)), u(k)).map(
-          (v, m) => v - cayleyMultiply(u(i), cayleyMultiply(u(j), u(k)))[m]!,
+        const associator = cayleyMultiply(
+          cayleyMultiply(u(i), u(j)),
+          u(k),
+        ).map(
+          (v, m) =>
+            v - cayleyMultiply(u(i), cayleyMultiply(u(j), u(k)))[m]!,
         )
-        if (associator.some((v) => v !== 0)) count++
+        if (associator.some(v => v !== 0)) count++
       }
   return count
 }

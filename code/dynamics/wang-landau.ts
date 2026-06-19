@@ -27,7 +27,10 @@ import {
 // A transitive chain on the first k elements (0 < 1 < ... < k-1), as a future
 // relation, so a fresh state can start at height k (used to seed WL windows above
 // the antichain, where random additions reach the target height unreliably).
-function chainFuture(size: number, k: number): ReturnType<typeof makeBitMatrix> {
+function chainFuture(
+  size: number,
+  k: number,
+): ReturnType<typeof makeBitMatrix> {
   const future = makeBitMatrix({ rows: size, cols: size })
   for (let a = 0; a < k; a++) {
     for (let b = a + 1; b < k; b++) {
@@ -63,13 +66,17 @@ export function wangLandauHeight(input: {
   // Start from a chain of length minHeight so the walk begins in [minHeight,
   // maxHeight] (robust for high windows, where random additions reach a target
   // height unreliably).
-  const state = makeState(n, minHeight > 1 ? chainFuture(n, minHeight) : undefined)
+  const state = makeState(
+    n,
+    minHeight > 1 ? chainFuture(n, minHeight) : undefined,
+  )
   const logG = new Float64Array(H)
   const hist = new Float64Array(H)
   const seen = new Array<boolean>(H).fill(false)
   const actSum = new Float64Array(H)
   const actN = new Float64Array(H)
-  const binOf = (h: number): number => Math.min(H - 1, Math.max(0, h - minHeight))
+  const binOf = (h: number): number =>
+    Math.min(H - 1, Math.max(0, h - minHeight))
 
   let curBin = binOf(height(state))
   seen[curBin] = true
@@ -78,7 +85,9 @@ export function wangLandauHeight(input: {
   // Action is measured only in the converged tail (after this burn-in), where log g
   // has settled. Coverage of all heights before the tail is required to call it
   // converged.
-  const burnIn = Math.floor(input.maxSteps * (input.burnInFraction ?? 0.5))
+  const burnIn = Math.floor(
+    input.maxSteps * (input.burnInFraction ?? 0.5),
+  )
   let covered = false
 
   while (steps < input.maxSteps) {
@@ -99,7 +108,10 @@ export function wangLandauHeight(input: {
           toggle(state, lo, hi)
         } else {
           const newBin = binOf(newH)
-          if (Math.log(input.rng.next() + 1e-300) < (logG[curBin] ?? 0) - (logG[newBin] ?? 0)) {
+          if (
+            Math.log(input.rng.next() + 1e-300) <
+            (logG[curBin] ?? 0) - (logG[newBin] ?? 0)
+          ) {
             curBin = newBin
             seen[curBin] = true
             if (measuring) {
@@ -153,7 +165,14 @@ export function wangLandauHeight(input: {
     outLogG.push(ok ? (logG[b] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (actSum[b] ?? 0) / (actN[b] ?? 1) : NaN)
   }
-  return { size: n, heights, logG: outLogG, meanAction, visited, converged }
+  return {
+    size: n,
+    heights,
+    logG: outLogG,
+    meanAction,
+    visited,
+    converged,
+  }
 }
 
 // Windowed Wang-Landau: split [minHeight, maxHeight] into overlapping windows, run
@@ -253,17 +272,31 @@ export function windowedWangLandau(input: {
     outLogG.push(ok ? (globalLogG[gi] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (globalAct[gi] ?? NaN) : NaN)
   }
-  return { size: input.size, heights, logG: outLogG, meanAction, visited, converged: allConverged }
+  return {
+    size: input.size,
+    heights,
+    logG: outLogG,
+    meanAction,
+    visited,
+    converged: allConverged,
+  }
 }
 
-function logWeight(wl: WangLandauResult, beta: number, manifold: boolean): number {
+function logWeight(
+  wl: WangLandauResult,
+  beta: number,
+  manifold: boolean,
+): number {
   const sqrtN = Math.sqrt(wl.size)
   let max = -Infinity
   for (let b = 0; b < wl.logG.length; b++) {
     if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
       continue
     }
-    max = Math.max(max, (wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0))
+    max = Math.max(
+      max,
+      (wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0),
+    )
   }
   if (max === -Infinity) {
     return -Infinity
@@ -273,13 +306,18 @@ function logWeight(wl: WangLandauResult, beta: number, manifold: boolean): numbe
     if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
       continue
     }
-    sum += Math.exp((wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0) - max)
+    sum += Math.exp(
+      (wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0) - max,
+    )
   }
   return max + Math.log(sum)
 }
 
 // Equilibrium manifold fraction (height > sqrt(N)) at coupling beta.
-export function manifoldFractionAt(wl: WangLandauResult, beta: number): number {
+export function manifoldFractionAt(
+  wl: WangLandauResult,
+  beta: number,
+): number {
   const lm = logWeight(wl, beta, true)
   const ll = logWeight(wl, beta, false)
   if (lm === -Infinity) {
@@ -297,7 +335,10 @@ export function entropyGap(wl: WangLandauResult): number {
 }
 
 // The crossing beta-star where the manifold phase reaches half the weight.
-export function crossingBeta(wl: WangLandauResult, betaMax: number): number | null {
+export function crossingBeta(
+  wl: WangLandauResult,
+  betaMax: number,
+): number | null {
   const f = (b: number): number => manifoldFractionAt(wl, b) - 0.5
   if (f(0) >= 0) {
     return 0

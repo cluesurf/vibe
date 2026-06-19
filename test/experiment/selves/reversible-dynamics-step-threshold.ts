@@ -14,36 +14,61 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeSkyrmionField, relaxSpins, precessSpins, skyrmionDegree, type Spin, type SkyrmionParams } from '@/code/dynamics/skyrmion-field'
+import {
+  makeSkyrmionField,
+  relaxSpins,
+  precessSpins,
+  skyrmionDegree,
+  type Spin,
+  type SkyrmionParams,
+} from '@/code/dynamics/skyrmion-field'
 
 export default experiment({
   id: 'selves/reversible-dynamics-step-threshold',
-  title: 'reversible discrete dynamics conserves the Skyrmion charge at small steps, chaotic at large (coarse) steps',
+  title:
+    'reversible discrete dynamics conserves the Skyrmion charge at small steps, chaotic at large (coarse) steps',
   category: 'selves',
   substrates: ['spin-field'],
   depth: 'L2',
   paper: true,
   run() {
-    const params: SkyrmionParams = { size: 44, exchange: 1, dm: 0.6, field: 0.15 }
+    const params: SkyrmionParams = {
+      size: 44,
+      exchange: 1,
+      dm: 0.6,
+      field: 0.15,
+    }
     const steps = 500
 
     // relax to the DM-stabilized Skyrmion.
-    let base: Spin[] = makeSkyrmionField({ size: params.size, coreRadius: 5 })
-    for (let t = 0; t < 2000; t++) base = relaxSpins({ spins: base, params, rate: 0.08 })
+    let base: Spin[] = makeSkyrmionField({
+      size: params.size,
+      coreRadius: 5,
+    })
+    for (let t = 0; t < 2000; t++)
+      base = relaxSpins({ spins: base, params, rate: 0.08 })
     const startQ = skyrmionDegree(base, params.size)
 
     const chargeRange = (dt: number): { min: number; max: number } => {
       let s = base.map(v => [...v] as Spin)
-      let min = startQ, max = startQ
-      for (let t = 0; t < steps; t++) { s = precessSpins({ spins: s, params, dt, open: false }); const q = skyrmionDegree(s, params.size); if (q < min) min = q; if (q > max) max = q }
+      let min = startQ,
+        max = startQ
+      for (let t = 0; t < steps; t++) {
+        s = precessSpins({ spins: s, params, dt, open: false })
+        const q = skyrmionDegree(s, params.size)
+        if (q < min) min = q
+        if (q > max) max = q
+      }
       return { min, max }
     }
     const small = chargeRange(0.008) // small step, fine resolution
-    const large = chargeRange(0.06)  // large step, the coarse-rotation regime
+    const large = chargeRange(0.06) // large step, the coarse-rotation regime
 
     // small step conserves the charge (stays near minus one), large step does NOT (it blows up).
-    const smallConserves = Math.abs(small.min + 1) < 0.1 && Math.abs(small.max + 1) < 0.1
-    const largeChaotic = Math.abs(large.min + 1) > 1 || Math.abs(large.max + 1) > 1
+    const smallConserves =
+      Math.abs(small.min + 1) < 0.1 && Math.abs(small.max + 1) < 0.1
+    const largeChaotic =
+      Math.abs(large.min + 1) > 1 || Math.abs(large.max + 1) > 1
     const ok = smallConserves && largeChaotic
 
     return verdict({
@@ -60,7 +85,10 @@ export default experiment({
         largeChaotic: largeChaotic ? 1 : 0,
         steps,
       },
-      control: { smallStepMaxTimes100: Math.round(small.max * 100), largeStepMaxTimes100: Math.round(large.max * 100) },
+      control: {
+        smallStepMaxTimes100: Math.round(small.max * 100),
+        largeStepMaxTimes100: Math.round(large.max * 100),
+      },
       notes:
         'the dynamics-chip result. Reversible discrete dynamics holds the soliton charge at small steps (fine resolution) and is chaotic at large (coarse) steps. So a fully discrete stable reversible self needs a FINE direction group (small rotations, the 600-cell or finer) or coarse-graining, the coarse 24-cell rotations alone are too large-stepped. Consistent with the two-layer picture, the stable self is emergent (fine), not at the coarse base',
     })

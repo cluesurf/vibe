@@ -20,10 +20,18 @@ export interface Effective {
 
 // Effective couplings on a clustered graph. Jself(c) = sum of intra-cluster fills (cohesion),
 // Jcross(c,d) = real sum of cross-cluster fills (the renormalized coupling, magnitude kept).
-export function effectiveCouplings(g: Graph, fills: Int8Array[], cl: Int32Array, K: number): Effective {
+export function effectiveCouplings(
+  g: Graph,
+  fills: Int8Array[],
+  cl: Int32Array,
+  K: number,
+): Effective {
   const Jself = new Float64Array(K)
   const crossMap = new Map<string, number>()
-  const nbrSet: Set<number>[] = Array.from({ length: K }, () => new Set<number>())
+  const nbrSet: Set<number>[] = Array.from(
+    { length: K },
+    () => new Set<number>(),
+  )
   for (let v = 0; v < g.size; v++) {
     const cv = cl[v] ?? 0
     const row = g.neighbors[v] ?? new Uint32Array(0)
@@ -41,34 +49,44 @@ export function effectiveCouplings(g: Graph, fills: Int8Array[], cl: Int32Array,
       }
     }
   }
-  const nbr = nbrSet.map((s) => [...s])
-  const Jcross = nbr.map((row, c) => Float64Array.from(row, (d) => crossMap.get(`${c},${d}`) ?? 0))
+  const nbr = nbrSet.map(s => [...s])
+  const Jcross = nbr.map((row, c) =>
+    Float64Array.from(row, d => crossMap.get(`${c},${d}`) ?? 0),
+  )
   return { Jself, nbr, Jcross }
 }
 
 // The naive macro-rule (signed-majority on the SIGN of the cross-couplings, no self-coupling).
-export function naiveMacroStep(superTone: Int8Array, eff: Effective): Int8Array {
+export function naiveMacroStep(
+  superTone: Int8Array,
+  eff: Effective,
+): Int8Array {
   const K = superTone.length
   const out = new Int8Array(K)
   for (let c = 0; c < K; c++) {
     let h = 0
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
-    for (let k = 0; k < nb.length; k++) h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
+    for (let k = 0; k < nb.length; k++)
+      h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
     out[c] = sign(h)
   }
   return out
 }
 
 // The renormalized macro-rule (signed-majority with self-coupling and real-magnitude cross-couplings).
-export function renormMacroStep(superTone: Int8Array, eff: Effective): Int8Array {
+export function renormMacroStep(
+  superTone: Int8Array,
+  eff: Effective,
+): Int8Array {
   const K = superTone.length
   const out = new Int8Array(K)
   for (let c = 0; c < K; c++) {
     let h = (eff.Jself[c] ?? 0) * (superTone[c] ?? 0)
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
-    for (let k = 0; k < nb.length; k++) h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
+    for (let k = 0; k < nb.length; k++)
+      h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
     out[c] = sign(h)
   }
   return out

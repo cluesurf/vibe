@@ -21,7 +21,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { cayleyMultiply, normSquared } from '@/code/measure/division-algebra'
+import {
+  cayleyMultiply,
+  normSquared,
+} from '@/code/measure/division-algebra'
 
 // whether the unit-norm elements of the level-n algebra are closed under multiplication (form a group, the unit
 // sphere). Tests several deterministic unit elements.
@@ -29,9 +32,12 @@ function unitsAreClosed(level: number): boolean {
   const dimension = 2 ** level
   // a few deterministic unit elements (normalized integer vectors)
   const make = (offset: number): number[] => {
-    const v = Array.from({ length: dimension }, (_, i) => (((i * 5 + offset) % 7) - 3))
+    const v = Array.from(
+      { length: dimension },
+      (_, i) => ((i * 5 + offset) % 7) - 3,
+    )
     const norm = Math.sqrt(normSquared(v))
-    return v.map((x) => x / norm)
+    return v.map(x => x / norm)
   }
   for (let a = 0; a < 4; a++)
     for (let b = 0; b < 4; b++) {
@@ -43,7 +49,8 @@ function unitsAreClosed(level: number): boolean {
 
 export default experiment({
   id: 'foundations/gauge-group-from-octonions',
-  title: 'the Standard-Model gauge group SU(3)xSU(2)xU(1) (dims 8+3+1=12) descends from the division-algebra tower, C->U(1), H->SU(2), O->SU(3)',
+  title:
+    'the Standard-Model gauge group SU(3)xSU(2)xU(1) (dims 8+3+1=12) descends from the division-algebra tower, C->U(1), H->SU(2), O->SU(3)',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -65,10 +72,12 @@ export default experiment({
     const su3FromG2 = su3Dimension === 8
 
     // the Standard-Model gauge group, the dimensions add to 12
-    const gaugeGroupDimension = su3Dimension + su2Dimension + u1Dimension
+    const gaugeGroupDimension =
+      su3Dimension + su2Dimension + u1Dimension
     const isStandardModelGroup = gaugeGroupDimension === 12
 
-    const ok = u1Closed && su2Closed && su3FromG2 && isStandardModelGroup
+    const ok =
+      u1Closed && su2Closed && su3FromG2 && isStandardModelGroup
 
     return verdict({
       status: ok ? 'pass' : 'fail',

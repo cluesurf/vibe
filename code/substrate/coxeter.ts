@@ -26,27 +26,46 @@ export function coxeterMeshGraph(input: {
     depth: input.depth,
     maxChambers: input.maxChambers,
   })
-  return makeGraph({ size: mesh.cellCount, directed: false, neighbors: mesh.neighbors })
+  return makeGraph({
+    size: mesh.cellCount,
+    directed: false,
+    neighbors: mesh.neighbors,
+  })
 }
 
 // Generate the tessellation named by a Schlafli symbol. A two-symbol {p,q} is a 2D
 // tiling, the three-symbol {5,3,4} is the 3D dodecagrid. Sensible per-symbol generation
 // parameters are chosen so each comes out connected with exponential reach.
-export function coxeterTessellation(input: { schlafli: number[]; maxVertices?: number }): Graph {
+export function coxeterTessellation(input: {
+  schlafli: number[]
+  maxVertices?: number
+}): Graph {
   const s = input.schlafli
   const cap = input.maxVertices ?? 2500
   if (s.length === 2) {
     const p = s[0] ?? 7
     const q = s[1] ?? 3
     if (1 / p + 1 / q >= 0.5) {
-      throw new Error(`{${p},${q}} is not hyperbolic (need 1/p + 1/q < 1/2)`)
+      throw new Error(
+        `{${p},${q}} is not hyperbolic (need 1/p + 1/q < 1/2)`,
+      )
     }
     // Larger cells (small q) need a larger connection threshold to span a cell.
     const threshold = q <= 3 ? 0.8 : q === 4 ? 1.1 : 1.4
-    return hyperbolicTiling({ p, q, depth: 6, connectThreshold: threshold, maxVertices: cap })
+    return hyperbolicTiling({
+      p,
+      q,
+      depth: 6,
+      connectThreshold: threshold,
+      maxVertices: cap,
+    })
   }
   if (s.length === 3 && s[0] === 5 && s[1] === 3 && s[2] === 4) {
-    return hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: cap })
+    return hyperbolicDodecagrid({
+      depth: 4,
+      connectThreshold: 2.0,
+      maxVertices: cap,
+    })
   }
   throw new Error(`unsupported Schlafli symbol {${s.join(',')}}`)
 }

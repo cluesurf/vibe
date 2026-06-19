@@ -10,15 +10,19 @@ export function dot(a: number[], b: number[]): number {
 }
 
 // a - scale * b, the building block of the Gram-Schmidt the projections use.
-export function subtract(a: number[], b: number[], scale = 1): number[] {
+export function subtract(
+  a: number[],
+  b: number[],
+  scale = 1,
+): number[] {
   return a.map((x, i) => x - scale * (b[i] ?? 0))
 }
 
 export function scaled(v: number[], factor: number): number[] {
-  return v.map((x) => x * factor)
+  return v.map(x => x * factor)
 }
 
 export function normalize(v: number[]): number[] {
   const length = norm(v) || 1
-  return v.map((x) => x / length)
+  return v.map(x => x / length)
 }

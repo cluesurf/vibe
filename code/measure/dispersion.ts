@@ -15,8 +15,8 @@ export function relativisticDispersionFit(input: {
   frequencies: ReadonlyArray<number>
 }): { speedSquared: number; massSquared: number } {
   const fit = linearFit({
-    xs: input.wavenumbers.map((k) => k * k),
-    ys: input.frequencies.map((w) => w * w),
+    xs: input.wavenumbers.map(k => k * k),
+    ys: input.frequencies.map(w => w * w),
   })
   return { speedSquared: fit.slope, massSquared: fit.intercept }
 }
@@ -27,7 +27,10 @@ export function latticeDispersion(input: {
   wave: number[]
 }): number {
   const { directions, wave } = input
-  return directions.reduce((sum, d) => sum + (1 - Math.cos(dot(wave, d))), 0)
+  return directions.reduce(
+    (sum, d) => sum + (1 - Math.cos(dot(wave, d))),
+    0,
+  )
 }
 
 // Axis-versus-diagonal anisotropy of the lattice dispersion at fixed momentum
@@ -44,10 +47,18 @@ export function dispersionAxisDiagonalAnisotropy(input: {
   const { directions, dimension, magnitude } = input
   const axis = new Array<number>(dimension).fill(0)
   axis[0] = magnitude
-  const diagonal = new Array<number>(dimension).fill(magnitude / Math.sqrt(dimension))
-  const axisOmega = latticeDispersion({ directions, wave: axis }) / directions.length
-  const diagonalOmega = latticeDispersion({ directions, wave: diagonal }) / directions.length
-  return Math.abs(axisOmega - diagonalOmega) / ((axisOmega + diagonalOmega) / 2)
+  const diagonal = new Array<number>(dimension).fill(
+    magnitude / Math.sqrt(dimension),
+  )
+  const axisOmega =
+    latticeDispersion({ directions, wave: axis }) / directions.length
+  const diagonalOmega =
+    latticeDispersion({ directions, wave: diagonal }) /
+    directions.length
+  return (
+    Math.abs(axisOmega - diagonalOmega) /
+    ((axisOmega + diagonalOmega) / 2)
+  )
 }
 
 // The oscillation frequency omega(k) of a single Fourier mode of the second-order
@@ -74,13 +85,18 @@ export function waveModeFrequency(input: {
   for (let t = 0; t < maxBeats && zeros.length < 2; t++) {
     const next = factor * current - previous // q(t+1)
     maxAbs = Math.max(maxAbs, Math.abs(next))
-    if ((current >= 0) !== (next >= 0)) zeros.push(t + current / (current - next)) // interpolated zero in (t, t+1)
+    if (current >= 0 !== next >= 0)
+      zeros.push(t + current / (current - next)) // interpolated zero in (t, t+1)
     previous = current
     current = next
   }
   const spacing = zeros.length >= 2 ? zeros[1]! - zeros[0]! : 0
   const omega = spacing > 0 ? Math.PI / spacing : 0
-  return { omega, oscillates: zeros.length >= 2, bounded: maxAbs < boundedThreshold }
+  return {
+    omega,
+    oscillates: zeros.length >= 2,
+    bounded: maxAbs < boundedThreshold,
+  }
 }
 
 // Anisotropy of the lattice dispersion at a momentum scale: the relative spread
@@ -95,9 +111,18 @@ export function dispersionAnisotropyAtScale(input: {
 }): number {
   const { directions, probes, scale } = input
   const speeds = probes.map(
-    (probe) => Math.sqrt(latticeDispersion({ directions, wave: probe.map((v) => v * scale) })) / scale,
+    probe =>
+      Math.sqrt(
+        latticeDispersion({
+          directions,
+          wave: probe.map(v => v * scale),
+        }),
+      ) / scale,
   )
-  const mean = speeds.reduce((sum, value) => sum + value, 0) / speeds.length
-  const variance = speeds.reduce((sum, value) => sum + (value - mean) ** 2, 0) / speeds.length
+  const mean =
+    speeds.reduce((sum, value) => sum + value, 0) / speeds.length
+  const variance =
+    speeds.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+    speeds.length
   return Math.sqrt(variance) / mean
 }

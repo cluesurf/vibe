@@ -48,7 +48,8 @@ const SECTORS: { name: string; masses: [number, number, number] }[] = [
 
 export default experiment({
   id: 'gauge/mass-hierarchy-localization',
-  title: 'the fermion mass hierarchy scale from the {3,4,3,4} growth rate, inter-generation ratios are powers of lambda about 18.4, the flat lattice (no hierarchy) the control',
+  title:
+    'the fermion mass hierarchy scale from the {3,4,3,4} growth rate, inter-generation ratios are powers of lambda about 18.4, the flat lattice (no hierarchy) the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L3',
@@ -70,22 +71,39 @@ export default experiment({
     for (const sector of SECTORS) {
       const ratioLow = sector.masses[1] / sector.masses[0]
       const ratioHigh = sector.masses[2] / sector.masses[1]
-      exponents.push(shellSeparationExponent({ ratio: ratioLow, growthRate: lambda }))
-      exponents.push(shellSeparationExponent({ ratio: ratioHigh, growthRate: lambda }))
+      exponents.push(
+        shellSeparationExponent({
+          ratio: ratioLow,
+          growthRate: lambda,
+        }),
+      )
+      exponents.push(
+        shellSeparationExponent({
+          ratio: ratioHigh,
+          growthRate: lambda,
+        }),
+      )
     }
     // every exponent is a small order-one-to-two number (generations one to two shells apart)
-    const allExponentsSmall = exponents.every((p) => p > 0.8 && p < 2.5)
+    const allExponentsSmall = exponents.every(p => p > 0.8 && p < 2.5)
     // at least two are within ten percent of exactly one shell (the cleanest cases)
-    const nearUnitCount = exponents.filter((p) => Math.abs(p - 1) < 0.1).length
+    const nearUnitCount = exponents.filter(
+      p => Math.abs(p - 1) < 0.1,
+    ).length
     const cleanestAtOneShell = nearUnitCount >= 2
-    const meanExponent = exponents.reduce((s, p) => s + p, 0) / exponents.length
+    const meanExponent =
+      exponents.reduce((s, p) => s + p, 0) / exponents.length
 
     // the control, a flat 4D lattice, shell ratio near 1.3 (no large hierarchy from unit separation)
     const flatRatio = euclideanL1ShellRatio({ dimension: 4, shell: 12 })
     const flatHasNoHierarchy = flatRatio < 2 // far below the hyperbolic 18.4, unit shells nearly degenerate
 
     const ok =
-      firstShellIs24 && lambdaInRange && allExponentsSmall && cleanestAtOneShell && flatHasNoHierarchy
+      firstShellIs24 &&
+      lambdaInRange &&
+      allExponentsSmall &&
+      cleanestAtOneShell &&
+      flatHasNoHierarchy
 
     return verdict({
       status: ok ? 'pass' : 'fail',

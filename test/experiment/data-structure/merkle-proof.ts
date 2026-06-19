@@ -9,7 +9,8 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/merkle-proof',
-  title: 'DS11: a Merkle inclusion proof on the bulk tree is a logarithmic-length path to the root',
+  title:
+    'DS11: a Merkle inclusion proof on the bulk tree is a logarithmic-length path to the root',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -31,10 +32,19 @@ export default experiment({
       status: logarithmicProof ? 'pass' : 'fail',
       claim:
         'a Merkle inclusion proof on the bulk hash tree is the path of hashes from a cell to the root, of logarithmic length, so the bulk is a content-addressed store with short proofs',
-      metrics: { cells, maxProofLength: maxProof, meanProofLength: meanProof, logarithmicProof: logarithmicProof ? 1 : 0 },
+      metrics: {
+        cells,
+        maxProofLength: maxProof,
+        meanProofLength: meanProof,
+        logarithmicProof: logarithmicProof ? 1 : 0,
+      },
       // CONTROL: a flat list inclusion proof is O(N) hashes, the bulk tree is O(log N).
-      control: { flatListProofLength: cells, bulkProofLength: maxProof },
-      notes: 'DS11 of experiments/16 and SS6 of experiments/17. Same tree as the B-tree (SS1), here the path is the proof.',
+      control: {
+        flatListProofLength: cells,
+        bulkProofLength: maxProof,
+      },
+      notes:
+        'DS11 of experiments/16 and SS6 of experiments/17. Same tree as the B-tree (SS1), here the path is the proof.',
     })
   },
 })

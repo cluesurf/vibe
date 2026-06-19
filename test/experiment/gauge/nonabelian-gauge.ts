@@ -17,17 +17,29 @@ import {
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolean; nonAbelian: boolean } {
+export function nonabelianGauge(): {
+  gaugeInvariant: boolean
+  curvedFlux: boolean
+  nonAbelian: boolean
+} {
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next()
-  const rr = (): M3 => rot([rnd() - 0.5, rnd() - 0.5, rnd() - 0.5], rnd() * 2) // random SO(3) link
+  const rr = (): M3 =>
+    rot([rnd() - 0.5, rnd() - 0.5, rnd() - 0.5], rnd() * 2) // random SO(3) link
   // a plaquette, 4 link matrices (bottom, right, top, left). Holonomy H = U_b U_r U_t^T U_l^T (around the loop)
-  const Ub = rr(), Ur = rr(), Ut = rr(), Ul = rr()
-  const holo = (b: M3, r: M3, t: M3, l: M3): M3 => mul(mul(mul(b, r), T(t)), T(l))
+  const Ub = rr(),
+    Ur = rr(),
+    Ut = rr(),
+    Ul = rr()
+  const holo = (b: M3, r: M3, t: M3, l: M3): M3 =>
+    mul(mul(mul(b, r), T(t)), T(l))
   const H = holo(Ub, Ur, Ut, Ul)
   const W0 = tr(H) // the non-abelian Wilson loop
   // (1) gauge transform at the 4 corners: U_{x->y} -> g_x U g_y^T. corners (00,10,11,01)
-  const g00 = rr(), g10 = rr(), g11 = rr(), g01 = rr()
+  const g00 = rr(),
+    g10 = rr(),
+    g11 = rr(),
+    g01 = rr()
   const Ub2 = mul(mul(g00, Ub), T(g10)) // bottom 00->10
   const Ur2 = mul(mul(g10, Ur), T(g11)) // right 10->11
   const Ut2 = mul(mul(g01, Ut), T(g11)) // top 01->11
@@ -39,13 +51,16 @@ export function nonabelianGauge(): { gaugeInvariant: boolean; curvedFlux: boolea
   // (3) non-abelian, two different orderings of the SAME links give different holonomies (matrices do not commute)
   const Hrev = holo(Ur, Ub, Ul, Ut) // swapped order
   let nonAbelian = false
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) nonAbelian = true
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++)
+      if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) nonAbelian = true
   return { gaugeInvariant, curvedFlux, nonAbelian }
 }
 
 export default experiment({
   id: 'gauge/nonabelian-gauge',
-  title: 'a non-abelian SO(3) Wilson loop is gauge invariant, curved, and order-dependent',
+  title:
+    'a non-abelian SO(3) Wilson loop is gauge invariant, curved, and order-dependent',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

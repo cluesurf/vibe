@@ -42,17 +42,22 @@ export function couplingNotFixed(): {
   zeroCouplingKillsField: boolean
   couplingValueSelectedByRule: boolean
 } {
-  const fields = COUPLINGS.map((e) => radiatedField(e))
+  const fields = COUPLINGS.map(e => radiatedField(e))
 
   // the log-log slope across the whole scan: a single clean exponent means a pure power
   // law, and the max deviation says how tightly the scan hugs it
-  const { exponent: scalingExponent, maxDeviation } = powerLawFit({ xs: COUPLINGS, ys: fields })
+  const { exponent: scalingExponent, maxDeviation } = powerLawFit({
+    xs: COUPLINGS,
+    ys: fields,
+  })
   const n = COUPLINGS.length
-  const isCleanPowerLaw = Math.abs(scalingExponent - 2) < 0.05 && maxDeviation < 0.02
+  const isCleanPowerLaw =
+    Math.abs(scalingExponent - 2) < 0.05 && maxDeviation < 0.02
 
   // strictly monotone, so there is no special coupling where the behaviour changes
   let isMonotone = true
-  for (let i = 1; i < n; i++) if (!(fields[i]! > fields[i - 1]!)) isMonotone = false
+  for (let i = 1; i < n; i++)
+    if (!(fields[i]! > fields[i - 1]!)) isMonotone = false
 
   // the e = 0 control: with no coupling the fermion sources no field at all
   const fieldAtZeroCoupling = radiatedField(0)
@@ -73,7 +78,8 @@ export function couplingNotFixed(): {
 
 export default experiment({
   id: 'gauge/coupling-not-fixed-3434',
-  title: 'the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it',
+  title:
+    'the bare rule treats the gauge coupling as a free multiplicative constant and fixes no value for it',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
@@ -83,7 +89,8 @@ export default experiment({
     // we ESTABLISH the structural fact (the coupling is a free scale, a clean e^2 law, no special
     // value, vanishing only at e = 0). We do NOT establish a value for the coupling, which is the
     // open part, so the verdict is partial, an honest negative on deriving the coupling.
-    const structureEstablished = r.isCleanPowerLaw && r.isMonotone && r.zeroCouplingKillsField
+    const structureEstablished =
+      r.isCleanPowerLaw && r.isMonotone && r.zeroCouplingKillsField
     return verdict({
       status: structureEstablished ? 'partial' : 'fail',
       claim:
@@ -93,7 +100,9 @@ export default experiment({
         isCleanPowerLaw: r.isCleanPowerLaw ? 1 : 0,
         isMonotone: r.isMonotone ? 1 : 0,
         zeroCouplingKillsField: r.zeroCouplingKillsField ? 1 : 0,
-        couplingValueSelectedByRule: r.couplingValueSelectedByRule ? 1 : 0,
+        couplingValueSelectedByRule: r.couplingValueSelectedByRule
+          ? 1
+          : 0,
       },
       control: {
         // no coupling, no radiated field: the e = 0 baseline that the power law extrapolates to

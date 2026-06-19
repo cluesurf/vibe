@@ -18,16 +18,19 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   const dimension = directions[0]?.length ?? 0
   const momentumKey = (a: number, b: number): string => {
     const sum = new Array<number>(dimension)
-    for (let axis = 0; axis < dimension; axis++) sum[axis] = (directions[a]![axis] ?? 0) + (directions[b]![axis] ?? 0)
-    return sum.map((value) => Math.round(value)).join(',')
+    for (let axis = 0; axis < dimension; axis++)
+      sum[axis] =
+        (directions[a]![axis] ?? 0) + (directions[b]![axis] ?? 0)
+    return sum.map(value => Math.round(value)).join(',')
   }
   // group the unordered slot-pairs by their total momentum
   const groups = new Map<string, Array<[number, number]>>()
-  for (let a = 0; a < count; a++) for (let b = a + 1; b < count; b++) {
-    const key = momentumKey(a, b)
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push([a, b])
-  }
+  for (let a = 0; a < count; a++)
+    for (let b = a + 1; b < count; b++) {
+      const key = momentumKey(a, b)
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push([a, b])
+    }
   const zeroKey = new Array<number>(dimension).fill(0).join(',')
   // process nonzero-momentum groups first (they give viscosity), then the zero-momentum group
   const orderedKeys = [...groups.keys()].sort((left, right) => {
@@ -45,7 +48,10 @@ export function buildViscousQuads(directions: number[][]): number[][] {
       if (pending.length === 2) {
         const [p1, p2] = pending
         quads.push([p1![0], p1![1], p2![0], p2![1]])
-        used[p1![0]] = 1; used[p1![1]] = 1; used[p2![0]] = 1; used[p2![1]] = 1
+        used[p1![0]] = 1
+        used[p1![1]] = 1
+        used[p2![0]] = 1
+        used[p2![1]] = 1
         pending.length = 0
       }
     }
@@ -59,7 +65,10 @@ export function buildViscousQuads(directions: number[][]): number[][] {
 // from quads beyond `gateCount` and used READ-ONLY, so the collision is still a self-inverse involution conserving
 // mass and total momentum. Measured, this stays BALLISTIC (decay time scales as the wavelength, not its square),
 // so configuration control does not turn the reversible bulk diffusive, genuine viscous diffusion needs the bath.
-export function controlledViscousRotate(input: { directions: number[][]; gateCount?: number }): Collision {
+export function controlledViscousRotate(input: {
+  directions: number[][]
+  gateCount?: number
+}): Collision {
   const quads = buildViscousQuads(input.directions)
   const gateCount = input.gateCount ?? 4
   const gated = quads.slice(0, gateCount)
@@ -70,30 +79,56 @@ export function controlledViscousRotate(input: { directions: number[][]; gateCou
       const control = controlPool[i % controlPool.length]!
       if (slots[base + control] !== 1) continue
       const quad = gated[i]!
-      const a = base + quad[0]!, b = base + quad[1]!, c = base + quad[2]!, d = base + quad[3]!
+      const a = base + quad[0]!,
+        b = base + quad[1]!,
+        c = base + quad[2]!,
+        d = base + quad[3]!
       const pairOccupied = slots[a] === 1 && slots[b] === 1
       const pairEmpty = slots[a] === 0 && slots[b] === 0
       const partnerOccupied = slots[c] === 1 && slots[d] === 1
       const partnerEmpty = slots[c] === 0 && slots[d] === 0
-      if (pairOccupied && partnerEmpty) { slots[a] = 0; slots[b] = 0; slots[c] = 1; slots[d] = 1 }
-      else if (partnerOccupied && pairEmpty) { slots[c] = 0; slots[d] = 0; slots[a] = 1; slots[b] = 1 }
+      if (pairOccupied && partnerEmpty) {
+        slots[a] = 0
+        slots[b] = 0
+        slots[c] = 1
+        slots[d] = 1
+      } else if (partnerOccupied && pairEmpty) {
+        slots[c] = 0
+        slots[d] = 0
+        slots[a] = 1
+        slots[b] = 1
+      }
     }
   }
 }
 
 // The viscous collision, a self-inverse involution that swaps occupancy between momentum-matched disjoint pairs.
 // Single-species (tone occupancy 1 versus 0), the form used by the shear gas. Conserves count and total momentum.
-export function viscousRotate(input: { directions: number[][] }): Collision {
+export function viscousRotate(input: {
+  directions: number[][]
+}): Collision {
   const quads = buildViscousQuads(input.directions)
   return (slots, base) => {
     for (const quad of quads) {
-      const a = base + quad[0]!, b = base + quad[1]!, c = base + quad[2]!, d = base + quad[3]!
+      const a = base + quad[0]!,
+        b = base + quad[1]!,
+        c = base + quad[2]!,
+        d = base + quad[3]!
       const pairOccupied = slots[a] === 1 && slots[b] === 1
       const pairEmpty = slots[a] === 0 && slots[b] === 0
       const partnerOccupied = slots[c] === 1 && slots[d] === 1
       const partnerEmpty = slots[c] === 0 && slots[d] === 0
-      if (pairOccupied && partnerEmpty) { slots[a] = 0; slots[b] = 0; slots[c] = 1; slots[d] = 1 }
-      else if (partnerOccupied && pairEmpty) { slots[c] = 0; slots[d] = 0; slots[a] = 1; slots[b] = 1 }
+      if (pairOccupied && partnerEmpty) {
+        slots[a] = 0
+        slots[b] = 0
+        slots[c] = 1
+        slots[d] = 1
+      } else if (partnerOccupied && pairEmpty) {
+        slots[c] = 0
+        slots[d] = 0
+        slots[a] = 1
+        slots[b] = 1
+      }
     }
   }
 }

@@ -25,7 +25,10 @@ import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
 import { latticePoissonJacobi } from '@/code/operator/lattice-poisson-jacobi'
 import { weakFieldLightDeflection } from '@/code/measure/gravity-potential'
 import { fitForm } from '@/code/measure/regression'
-import { freeFermionCorrelationMatrix, regionEntanglementEntropy } from '@/code/measure/entanglement'
+import {
+  freeFermionCorrelationMatrix,
+  regionEntanglementEntropy,
+} from '@/code/measure/entanglement'
 import { staggeredMassChainHamiltonian } from '@/code/operator/tight-binding'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -33,14 +36,22 @@ import { verdict } from '@/test/scaffold/verdict'
 // MEASURED, the emergent field's ground-state entanglement saturates for a massive field (area law), while a
 // maximally-mixed thermal state grows with the volume. The contrast is the area-law-versus-volume-law line
 // that emergent gravity needs.
-function areaLawPrecondition(): { massiveSpread: number; volumeSlope: number; ok: boolean } {
+function areaLawPrecondition(): {
+  massiveSpread: number
+  volumeSlope: number
+  ok: boolean
+} {
   const n = 96
   const lengths: number[] = []
   for (let l = 6; l <= n / 2; l += 4) lengths.push(l)
   const h = staggeredMassChainHamiltonian({ n, mass: 0.7 })
   const c = freeFermionCorrelationMatrix({ h, n })
-  const entropies = lengths.map((len) =>
-    regionEntanglementEntropy({ c, n, region: Array.from({ length: len }, (_, i) => i) }),
+  const entropies = lengths.map(len =>
+    regionEntanglementEntropy({
+      c,
+      n,
+      region: Array.from({ length: len }, (_, i) => i),
+    }),
   )
   const late = entropies.slice(Math.floor(entropies.length / 2))
   const massiveSpread = Math.max(...late) - Math.min(...late) // flat tail = saturation = area law
@@ -52,22 +63,32 @@ function areaLawPrecondition(): { massiveSpread: number; volumeSlope: number; ok
 
 // THEOREM, the measured area-law form S = eta A forces the Einstein coefficient 2pi/eta = 8 pi G (Jacobson),
 // and the weak-field 00-limit then reduces to Poisson with 4 pi G. The value of G (eta) is not pinned here.
-function jacobsonCoefficient(): { einsteinCoeff: number; poissonCoeff: number; ok: boolean } {
+function jacobsonCoefficient(): {
+  einsteinCoeff: number
+  poissonCoeff: number
+  ok: boolean
+} {
   const G = 1
   const eta = 1 / (4 * G)
   const einsteinCoeff = (2 * Math.PI) / eta
   const poissonCoeff = einsteinCoeff / 2
   const ok =
-    Math.abs(einsteinCoeff - 8 * Math.PI * G) < 1e-12 && Math.abs(poissonCoeff - 4 * Math.PI * G) < 1e-12
+    Math.abs(einsteinCoeff - 8 * Math.PI * G) < 1e-12 &&
+    Math.abs(poissonCoeff - 4 * Math.PI * G) < 1e-12
   return { einsteinCoeff, poissonCoeff, ok }
 }
 
 // MEASURED, the weak-field potential of a point source on the cubic {4,3,4} cusp falls as 1/r (Newtonian),
 // better than 1/r^2, read off a Jacobi relaxation of the lattice Poisson equation.
 function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
-  const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 })
+  const g = buildEuclideanLattice({
+    symbol: [4, 3, 4],
+    maxCells: 30000,
+  })
   const n = g.cellCount
-  const cx = g.coords.reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0]).map((v) => v / n)
+  const cx = g.coords
+    .reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0])
+    .map(v => v / n)
   let src = 0
   let bd = Infinity
   for (let i = 0; i < n; i++) {
@@ -79,9 +100,16 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
   }
   const rho = new Float64Array(n)
   rho[src] = 1
-  const phi = latticePoissonJacobi({ neighbors: g.neighbors, source: rho, interiorDegree: 6, iterations: 2000 })
+  const phi = latticePoissonJacobi({
+    neighbors: g.neighbors,
+    source: rho,
+    interiorDegree: 6,
+    iterations: 2000,
+  })
   const norm = (c: number[]): number =>
-    Math.sqrt(c.reduce((s, v, k) => s + (v - g.coords[src]![k]!) ** 2, 0))
+    Math.sqrt(
+      c.reduce((s, v, k) => s + (v - g.coords[src]![k]!) ** 2, 0),
+    )
   const rs: number[] = []
   const phis: number[] = []
   for (let i = 0; i < n; i++) {
@@ -91,21 +119,27 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
       phis.push(phi[i]!)
     }
   }
-  const rFit = fitForm(rs, phis, (r) => 1 / r).r2
-  const r2Fit = fitForm(rs, phis, (r) => 1 / (r * r)).r2
+  const rFit = fitForm(rs, phis, r => 1 / r).r2
+  const r2Fit = fitForm(rs, phis, r => 1 / (r * r)).r2
   return { rFit, r2Fit, ok: rFit > 0.97 && rFit > r2Fit }
 }
 
 // CONSEQUENCE, the weak-field metric bends light by 4GM/b, twice the Newtonian 2GM/b (analytic).
-function lightBending(M: number, b: number): { ratio: number; ok: boolean } {
+function lightBending(
+  M: number,
+  b: number,
+): { ratio: number; ok: boolean } {
   const d = weakFieldLightDeflection({ mass: M, impact: b })
-  const ok = Math.abs(d.grAngle - (4 * M) / b) / ((4 * M) / b) < 0.01 && Math.abs(d.ratio - 2) < 0.01
+  const ok =
+    Math.abs(d.grAngle - (4 * M) / b) / ((4 * M) / b) < 0.01 &&
+    Math.abs(d.ratio - 2) < 0.01
   return { ratio: d.ratio, ok }
 }
 
 export default experiment({
   id: 'gravity/gr-einstein-equations',
-  title: 'the measured area law forces the Einstein equation as an equation of state, with a measured 1/r limit',
+  title:
+    'the measured area law forces the Einstein equation as an equation of state, with a measured 1/r limit',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',

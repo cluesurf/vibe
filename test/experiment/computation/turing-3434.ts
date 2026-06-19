@@ -22,20 +22,39 @@
 // (Leg 3) is computational universality. Run:
 //   npx tsx --no-warnings=ExperimentalWarning code/experiment/turing-3434.ts
 
-import { buildAddressing, regionTypes, type Addressing } from '@/code/substrate/coxeter/addressing-3434'
+import {
+  buildAddressing,
+  regionTypes,
+  type Addressing,
+} from '@/code/substrate/coxeter/addressing-3434'
 import { buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
-import { cellSetCentroid, cellSetEqual, lifeStep } from '@/code/operator/conway-life'
-import { type Bit, bitToNum as toNum, elementaryRuleStep, functionFromTable as fromTable, nand } from '@/code/operator/logic-gate'
-import { carveRegisters, minskyAddProgram, minskyMultiplyProgram, RegisterMachine } from '@/code/operator/register-machine'
+import {
+  cellSetCentroid,
+  cellSetEqual,
+  lifeStep,
+} from '@/code/operator/conway-life'
+import {
+  type Bit,
+  bitToNum as toNum,
+  elementaryRuleStep,
+  functionFromTable as fromTable,
+  nand,
+} from '@/code/operator/logic-gate'
+import {
+  carveRegisters,
+  minskyAddProgram,
+  minskyMultiplyProgram,
+  RegisterMachine,
+} from '@/code/operator/register-machine'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // ---------- Leg 1, Margenstern structural prerequisites on {3,4,3,4} ----------
 
 function legStructure(a: Addressing): boolean {
-
   // (a) the Fibonacci-tree analog: a spanning tree whose shells obey a linear recurrence, O(log n) addr.
-  const ratio = a.shellSizes[a.shellComplete]! / a.shellSizes[a.shellComplete - 1]!
+  const ratio =
+    a.shellSizes[a.shellComplete]! / a.shellSizes[a.shellComplete - 1]!
   const treeOK = a.shellSizes[1] === 24 && ratio > 1
 
   // (b) black/white sons -> the splitting-matrix region TYPES. Margenstern's pentagrid has 2 son colours
@@ -54,7 +73,11 @@ function legStructure(a: Addressing): boolean {
   // (d) railway junction capability: a track needs to branch (switch) and cross. An interior cell must
   //     offer >= 3 edge-disjoint directions. {3,4,3,4} interior cells have the full 24.
   let interiorDeg = 0
-  for (let c = 0; c < a.graph.cellCount; c++) if (a.complete[c]) { interiorDeg = a.graph.neighbors[c]!.length; break }
+  for (let c = 0; c < a.graph.cellCount; c++)
+    if (a.complete[c]) {
+      interiorDeg = a.graph.neighbors[c]!.length
+      break
+    }
   const junctionOK = interiorDeg >= 3
 
   const ok = treeOK && sonColours > 0 && preferredOK && junctionOK
@@ -67,9 +90,16 @@ function legStructure(a: Addressing): boolean {
 // fills is exactly NAND, which is functionally complete.
 
 function legTernary(): boolean {
-  const nandTable: Record<string, Bit> = { '1,1': -1, '1,-1': 1, '-1,1': 1, '-1,-1': 1 }
+  const nandTable: Record<string, Bit> = {
+    '1,1': -1,
+    '1,-1': 1,
+    '-1,1': 1,
+    '-1,-1': 1,
+  }
   let nandOK = true
-  for (const x of [-1, 1] as Bit[]) for (const y of [-1, 1] as Bit[]) if (nand(x, y) !== nandTable[`${x},${y}`]) nandOK = false
+  for (const x of [-1, 1] as Bit[])
+    for (const y of [-1, 1] as Bit[])
+      if (nand(x, y) !== nandTable[`${x},${y}`]) nandOK = false
 
   // Rule 110 from rule-NANDs, then evolve it as a CA on a line and confirm it advances.
   const rule110 = Array.from({ length: 8 }, (_, p) => (110 >> p) & 1)
@@ -83,13 +113,18 @@ function legTernary(): boolean {
   }
   // evolve Rule 110 (built from the rule's NANDs) against a reference Rule 110 for a few steps
   const W = 64
-  let line: Bit[] = Array.from({ length: W }, (_, i) => (i === W - 2 ? 1 : -1))
-  let ref = line.map((b) => toNum(b))
+  let line: Bit[] = Array.from({ length: W }, (_, i) =>
+    i === W - 2 ? 1 : -1,
+  )
+  let ref = line.map(b => toNum(b))
   let matches = true
   for (let step = 0; step < 40; step++) {
-    const next: Bit[] = line.map((_, i) => fn(line[(i - 1 + W) % W]!, line[i]!, line[(i + 1) % W]!))
+    const next: Bit[] = line.map((_, i) =>
+      fn(line[(i - 1 + W) % W]!, line[i]!, line[(i + 1) % W]!),
+    )
     const refNext = elementaryRuleStep({ line: ref, rule: 110 })
-    for (let i = 0; i < W; i++) if (toNum(next[i]!) !== refNext[i]) matches = false
+    for (let i = 0; i < W; i++)
+      if (toNum(next[i]!) !== refNext[i]) matches = false
     line = next
     ref = refNext
   }
@@ -102,13 +137,27 @@ function legTernary(): boolean {
 // lives in code/operator/register-machine. The {3,4,3,4}-specific wiring here is the
 // carving: registers are address-ordered blocks of COMPLETE cells (subtrees of the
 // Fibonacci tree), the ground is everything else.
-function makeMachine3434(a: Addressing, numRegisters: number, perReg: number): RegisterMachine {
+function makeMachine3434(
+  a: Addressing,
+  numRegisters: number,
+  perReg: number,
+): RegisterMachine {
   const n = a.graph.cellCount
   const interior: number[] = []
   for (let c = 0; c < n; c++) if (a.complete[c]) interior.push(c)
-  interior.sort((x, y) => (a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1))
-  const { regions, ground } = carveRegisters({ cells: interior, numRegisters, perRegister: perReg })
-  return new RegisterMachine({ tone: new Int8Array(n), regions, ground })
+  interior.sort((x, y) =>
+    a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1,
+  )
+  const { regions, ground } = carveRegisters({
+    cells: interior,
+    numRegisters,
+    perRegister: perReg,
+  })
+  return new RegisterMachine({
+    tone: new Int8Array(n),
+    regions,
+    ground,
+  })
 }
 
 const R0 = 0
@@ -118,20 +167,46 @@ const PROG_ADD = minskyAddProgram()
 const PROG_MUL = minskyMultiplyProgram()
 
 function legRegisterMachine(a: Addressing): boolean {
-  const cases: { name: string; inputs: number[]; expected: number; got: number; conserved: boolean }[] = []
-  for (const [x, y] of [[3, 4], [7, 2], [0, 5]] as [number, number][]) {
+  const cases: {
+    name: string
+    inputs: number[]
+    expected: number
+    got: number
+    conserved: boolean
+  }[] = []
+  for (const [x, y] of [
+    [3, 4],
+    [7, 2],
+    [0, 5],
+  ] as [number, number][]) {
     const m = makeMachine3434(a, 5, 60)
     m.set(R0, x)
     m.set(R1, y)
     const { conserved } = m.run(PROG_ADD)
-    cases.push({ name: 'add', inputs: [x, y], expected: x + y, got: m.read(R0), conserved })
+    cases.push({
+      name: 'add',
+      inputs: [x, y],
+      expected: x + y,
+      got: m.read(R0),
+      conserved,
+    })
   }
-  for (const [x, y] of [[3, 4], [5, 5], [2, 0]] as [number, number][]) {
+  for (const [x, y] of [
+    [3, 4],
+    [5, 5],
+    [2, 0],
+  ] as [number, number][]) {
     const m = makeMachine3434(a, 5, 60)
     m.set(R0, x)
     m.set(R1, y)
     const { conserved } = m.run(PROG_MUL)
-    cases.push({ name: 'mul', inputs: [x, y], expected: x * y, got: m.read(R2), conserved })
+    cases.push({
+      name: 'mul',
+      inputs: [x, y],
+      expected: x * y,
+      got: m.read(R2),
+      conserved,
+    })
   }
   let allCorrect = true
   let allConserved = true
@@ -151,7 +226,10 @@ function legRegisterMachine(a: Addressing): boolean {
 // 4, translating by (1,1)), matching a reference Life. A faithful glider => the cusp runs Life => strong
 // universality (Life is universal, not merely weakly).
 function legCuspLife(): boolean {
-  const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 }) // Z^3 cusp
+  const g = buildEuclideanLattice({
+    symbol: [4, 3, 4],
+    maxCells: 30000,
+  }) // Z^3 cusp
   // extract the z=0 plane and index cells by (x,y)
   const cellAt = new Map<string, number>()
   const planeCells: { id: number; x: number; y: number }[] = []
@@ -166,14 +244,20 @@ function legCuspLife(): boolean {
   // a glider, placed well inside the plane
   const cx = 10
   const cy = 10
-  const glider: [number, number][] = [[0, 0], [1, 0], [2, 0], [2, 1], [1, 2]]
+  const glider: [number, number][] = [
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [2, 1],
+    [1, 2],
+  ]
   for (const [dx, dy] of glider) alive.add(`${cx + dx},${cy + dy}`)
   const refAlive = new Set(alive)
   // run the cusp-graph version (only keep cells that EXIST on the cusp plane) AND a reference version
   let cusp = new Set(alive)
   let ref = new Set(refAlive)
   for (let step = 0; step < 4; step++) {
-    cusp = new Set([...lifeStep(cusp)].filter((k) => cellAt.has(k))) // confined to the actual cusp lattice
+    cusp = new Set([...lifeStep(cusp)].filter(k => cellAt.has(k))) // confined to the actual cusp lattice
     ref = lifeStep(ref)
   }
   const matchesRef = cellSetEqual(cusp, ref) // the cusp evolves IDENTICALLY to a reference Z^2 Life (the proof)
@@ -196,7 +280,8 @@ function legCuspLife(): boolean {
 // Each leg reproduces a known universal construction on this substrate, so L2.
 export default experiment({
   id: 'computation/turing-3434',
-  title: '{3,4,3,4} is computationally universal via railway structure, ternary NAND and Rule 110, a register machine, and cusp Life',
+  title:
+    '{3,4,3,4} is computationally universal via railway structure, ternary NAND and Rule 110, a register machine, and cusp Life',
   category: 'computation',
   substrates: ['3434'],
   depth: 'L2',

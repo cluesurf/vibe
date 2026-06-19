@@ -6,11 +6,21 @@
 // on it. One function, every tessellation, so the whole catalog is measured identically and comparably.
 
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
-import { gramSignature, symbolContainsSubdiagram } from '@/code/substrate/coxeter/gram-signature'
+import {
+  gramSignature,
+  symbolContainsSubdiagram,
+} from '@/code/substrate/coxeter/gram-signature'
 import { kahlerDiracReturn } from '@/code/measure/fermion-propagation'
 import { bfsShells, geometricGrowthRatio } from '@/code/measure/shells'
-import { makeAssociativeMemory, ternaryWord, storeWord } from '@/code/operator/associative-memory'
-import { exactRecallRate, coverageRadius } from '@/code/measure/associative-recall'
+import {
+  makeAssociativeMemory,
+  ternaryWord,
+  storeWord,
+} from '@/code/operator/associative-memory'
+import {
+  exactRecallRate,
+  coverageRadius,
+} from '@/code/measure/associative-recall'
 
 // The fixed word width every tessellation's associative memory uses, so the recall column is comparable
 // across the catalog. 21 ternary slots hold the full 32-bit decorrelating hash without collision.
@@ -58,21 +68,36 @@ export function measureTessellation(input: {
   const cells = mesh.adjacency.length
   const rank = schlafli.length + 1
   const shells = mesh.shells
-  const growthRatio = shells.length < 4 ? 1 : shells[shells.length - 2]! / shells[shells.length - 3]!
+  const growthRatio =
+    shells.length < 4
+      ? 1
+      : shells[shells.length - 2]! / shells[shells.length - 3]!
   const signature = gramSignature(schlafli)
   const hyperbolic = signature.negative === 1 && signature.zero === 0
-  const crystallographic = schlafli.every((n) => n === 3 || n === 4 || n === 6)
+  const crystallographic = schlafli.every(
+    n => n === 3 || n === 4 || n === 6,
+  )
   const spinorHook = symbolContainsSubdiagram(schlafli, [3, 4, 3])
 
   // The associative-memory column, the same on every tessellation. Store a distinct ternary word on every
   // cell, then measure: exact recall (the engine is tessellation-agnostic, this is 1.0 everywhere), the
   // shell-growth from cell 0 (capacity reachable per search radius), and the coverage radius (search latency).
-  const memory = makeAssociativeMemory({ neighbors: mesh.adjacency, wordBits: ASSOCIATIVE_WORD_BITS })
-  for (let cell = 0; cell < cells; cell++) storeWord(memory, cell, ternaryWord(cell, ASSOCIATIVE_WORD_BITS))
+  const memory = makeAssociativeMemory({
+    neighbors: mesh.adjacency,
+    wordBits: ASSOCIATIVE_WORD_BITS,
+  })
+  for (let cell = 0; cell < cells; cell++)
+    storeWord(memory, cell, ternaryWord(cell, ASSOCIATIVE_WORD_BITS))
   const associativeExactRecall = exactRecallRate(memory)
-  const associativeShells = bfsShells({ neighbors: mesh.adjacency, root: 0 }).shellCounts
+  const associativeShells = bfsShells({
+    neighbors: mesh.adjacency,
+    root: 0,
+  }).shellCounts
   const associativeGrowthRatio = geometricGrowthRatio(associativeShells)
-  const associativeCoverageRadius = coverageRadius({ neighbors: mesh.adjacency, seed: 0 })
+  const associativeCoverageRadius = coverageRadius({
+    neighbors: mesh.adjacency,
+    seed: 0,
+  })
 
   const measurement: TessellationMeasurement = {
     buildable: true,

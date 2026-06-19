@@ -15,16 +15,36 @@ import { verdict } from '@/test/scaffold/verdict'
 // protecting a bulk logical grows as 3^depth, so a self living deep in the bulk is protected against ANY
 // boundary erasure short of an exponentially large region. The control is the threshold, the distance is
 // finite (a constructed erasure of size 3^depth does destroy the self) and it GROWS with depth.
-const recoverable = (level: number, offset: number, erased: Set<number>): boolean =>
-  perfectTensorRecoverable({ level, offset, erased, branching: 5, threshold: 3 })
+const recoverable = (
+  level: number,
+  offset: number,
+  erased: Set<number>,
+): boolean =>
+  perfectTensorRecoverable({
+    level,
+    offset,
+    erased,
+    branching: 5,
+    threshold: 3,
+  })
 const minimalKillSet = (level: number, offset: number): number[] =>
-  perfectTensorMinimalKillSet({ level, offset, branching: 5, threshold: 3 })
+  perfectTensorMinimalKillSet({
+    level,
+    offset,
+    branching: 5,
+    threshold: 3,
+  })
 const contiguousThreshold = (level: number): number =>
-  perfectTensorContiguousThreshold({ level, branching: 5, threshold: 3 })
+  perfectTensorContiguousThreshold({
+    level,
+    branching: 5,
+    threshold: 3,
+  })
 
 export default experiment({
   id: 'holography/happy-tiling-534',
-  title: 'the HaPPY code tiled on the {5,3,4} bulk, the code distance protecting a bulk self grows as 3^depth',
+  title:
+    'the HaPPY code tiled on the {5,3,4} bulk, the code distance protecting a bulk self grows as 3^depth',
   category: 'holography',
   substrates: ['534'],
   depth: 'L2',
@@ -35,19 +55,29 @@ export default experiment({
     const distanceAt = (level: number): number => {
       const kill = minimalKillSet(level, 0)
       const killsRoot = !recoverable(level, 0, new Set(kill))
-      const oneFewerRecovers = recoverable(level, 0, new Set(kill.slice(1)))
+      const oneFewerRecovers = recoverable(
+        level,
+        0,
+        new Set(kill.slice(1)),
+      )
       return killsRoot && oneFewerRecovers ? kill.length : -1
     }
     const distance1 = distanceAt(1) // expect 3
     const distance2 = distanceAt(2) // expect 9
     const distance3 = distanceAt(3) // expect 27
-    const distanceIsThreePowerDepth = distance1 === 3 && distance2 === 9 && distance3 === 27
-    const distanceGrowsWithDepth = distance3 > distance2 && distance2 > distance1
+    const distanceIsThreePowerDepth =
+      distance1 === 3 && distance2 === 9 && distance3 === 27
+    const distanceGrowsWithDepth =
+      distance3 > distance2 && distance2 > distance1
 
     // (2) the bulk logical is RECOVERABLE from the boundary whenever the erasure is below the distance, here a
     // large boundary erasure (the minimal kill set minus one leaf, size 3^depth - 1) still recovers the self
     const deepKill = minimalKillSet(3, 0)
-    const bulkRecoveredBelowDistance = recoverable(3, 0, new Set(deepKill.slice(1)))
+    const bulkRecoveredBelowDistance = recoverable(
+      3,
+      0,
+      new Set(deepKill.slice(1)),
+    )
 
     // (3) the holographic wedge, the largest contiguous boundary erasure that always recovers the bulk GROWS
     // with depth (a deeper self sees more of the boundary protect it)
@@ -55,7 +85,11 @@ export default experiment({
     const wedge3 = contiguousThreshold(3)
     const wedgeGrowsWithDepth = wedge3 > wedge2
 
-    const ok = distanceIsThreePowerDepth && distanceGrowsWithDepth && bulkRecoveredBelowDistance && wedgeGrowsWithDepth
+    const ok =
+      distanceIsThreePowerDepth &&
+      distanceGrowsWithDepth &&
+      bulkRecoveredBelowDistance &&
+      wedgeGrowsWithDepth
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -72,7 +106,10 @@ export default experiment({
       // CONTROL: the distance is FINITE and GROWS with depth (3, 9, 27), so the protection is a genuine code
       // that deepens with the bulk, not trivial robustness, and the constructed kill set of size 3^depth does
       // destroy the self (the threshold).
-      control: { distanceGrowsWithDepth: distanceGrowsWithDepth ? 1 : 0, wedgeGrowsWithDepth: wedgeGrowsWithDepth ? 1 : 0 },
+      control: {
+        distanceGrowsWithDepth: distanceGrowsWithDepth ? 1 : 0,
+        wedgeGrowsWithDepth: wedgeGrowsWithDepth ? 1 : 0,
+      },
       notes:
         'Gap closed, the perfect tensors are wired onto the {5,3,4} bulk tree with the real [[5,1,3]] erasure rule (any 3 of 5 reconstruct), not a single tensor. The distance grows as 3^depth (the McKay tiling of perfect tensors), so a self deep in the hyperbolic bulk is exponentially protected, the holographic-error-correction route to persistence at scale. The bulk tree is the geodesic tree of the {5,3,4}/{5,4} tiling, a full planar tensor-network contraction is the remaining refinement.',
     })

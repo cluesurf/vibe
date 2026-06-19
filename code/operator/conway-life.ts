@@ -7,7 +7,7 @@
 
 // The eight Moore-neighbourhood offsets (the 3x3 block minus the centre).
 export const mooreOffsets: [number, number][] = [-1, 0, 1]
-  .flatMap((dx) => [-1, 0, 1].map((dy): [number, number] => [dx, dy]))
+  .flatMap(dx => [-1, 0, 1].map((dy): [number, number] => [dx, dy]))
   .filter(([dx, dy]) => dx !== 0 || dy !== 0)
 
 // One Life step over a set of live "x,y" cell keys.
@@ -21,14 +21,15 @@ export function lifeStep(state: Set<string>): Set<string> {
     }
   }
   const next = new Set<string>()
-  for (const [k, c] of count) if (c === 3 || (c === 2 && state.has(k))) next.add(k)
+  for (const [k, c] of count)
+    if (c === 3 || (c === 2 && state.has(k))) next.add(k)
   return next
 }
 
 // Whether two sets of "x,y" cell keys are identical (same size, same members). Used to
 // confirm a pattern evolves identically to a reference Life.
 export function cellSetEqual(a: Set<string>, b: Set<string>): boolean {
-  return a.size === b.size && [...a].every((k) => b.has(k))
+  return a.size === b.size && [...a].every(k => b.has(k))
 }
 
 // The centroid (mean x, mean y) of a set of "x,y" cell keys. Used to measure how far a

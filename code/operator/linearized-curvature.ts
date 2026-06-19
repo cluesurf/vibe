@@ -7,18 +7,35 @@
 type Tensor3 = number[][]
 
 // Linearized Christoffel symbol Gamma^l_ij = (1/2)( k_i h_lj + k_j h_li - k_l h_ij ).
-export function linearizedChristoffel(h: Tensor3, k: number[]): number[][][] {
+export function linearizedChristoffel(
+  h: Tensor3,
+  k: number[],
+): number[][][] {
   const G: number[][][] = [
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+    [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
   ]
   for (let l = 0; l < 3; l++) {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         G[l]![i]![j] =
           0.5 *
-          ((k[i] ?? 0) * (h[l]?.[j] ?? 0) + (k[j] ?? 0) * (h[l]?.[i] ?? 0) - (k[l] ?? 0) * (h[i]?.[j] ?? 0))
+          ((k[i] ?? 0) * (h[l]?.[j] ?? 0) +
+            (k[j] ?? 0) * (h[l]?.[i] ?? 0) -
+            (k[l] ?? 0) * (h[i]?.[j] ?? 0))
       }
     }
   }
@@ -29,11 +46,16 @@ export function linearizedChristoffel(h: Tensor3, k: number[]): number[][][] {
 // two derivatives carried by the momentum factors.
 export function linearizedRicci(h: Tensor3, k: number[]): Tensor3 {
   const G = linearizedChristoffel(h, k)
-  const R: Tensor3 = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+  const R: Tensor3 = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ]
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       let klG = 0
-      for (let l = 0; l < 3; l++) klG += (k[l] ?? 0) * (G[l]?.[i]?.[j] ?? 0)
+      for (let l = 0; l < 3; l++)
+        klG += (k[l] ?? 0) * (G[l]?.[i]?.[j] ?? 0)
       let trG = 0
       for (let l = 0; l < 3; l++) trG += G[l]?.[i]?.[l] ?? 0
       R[i]![j] = -(klG - (k[j] ?? 0) * trG)
@@ -43,11 +65,18 @@ export function linearizedRicci(h: Tensor3, k: number[]): Tensor3 {
 }
 
 // Linearized Einstein operator G_ij = R_ij - (1/2) delta_ij R, derived through the pipeline above.
-export function linearizedEinsteinTensor(h: Tensor3, k: number[]): Tensor3 {
+export function linearizedEinsteinTensor(
+  h: Tensor3,
+  k: number[],
+): Tensor3 {
   const R = linearizedRicci(h, k)
   let tr = 0
   for (let i = 0; i < 3; i++) tr += R[i]?.[i] ?? 0
-  const E: Tensor3 = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+  const E: Tensor3 = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ]
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       E[i]![j] = (R[i]?.[j] ?? 0) - (i === j ? 0.5 * tr : 0)

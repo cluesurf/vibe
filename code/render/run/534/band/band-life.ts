@@ -7,7 +7,12 @@
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
 import { TONE_COLORS } from '@/code/draw/color'
-import { toCSR, beat, largestPositiveCluster, discreteArrow } from '@/code/model/self-kit'
+import {
+  toCSR,
+  beat,
+  largestPositiveCluster,
+  discreteArrow,
+} from '@/code/model/self-kit'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
@@ -26,32 +31,50 @@ const ARROW_PERIOD = 40 // the discrete arrow (defining-the-arrow.md), one balan
 const COHESION = 0.3 // how strongly like charges bunch (the surface tension that makes selves)
 const SEED_DENSITY = 0.42 // dense net-positive start, plenty of material to coarsen into big selves
 
-const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
+const norm = (v: number[]): number =>
+  Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+const dot = (a: number[], b: number[]): number =>
+  a.reduce((s, x, i) => s + x * b[i]!, 0)
 
 const COLORS = TONE_COLORS
 
 function run(): void {
-  const slab = buildHorosphereBand({ maxBand: MAX_BAND, half: HALF, margin: MARGIN })
+  const slab = buildHorosphereBand({
+    maxBand: MAX_BAND,
+    half: HALF,
+    margin: MARGIN,
+  })
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
-  console.log(`horosphere slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}, running the cohesive rule`)
+  console.log(
+    `horosphere slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}, running the cohesive rule`,
+  )
 
   // 2D positions, stereographic inversion from xi then onto an orthonormal basis of the plane perp to xi
-  const seedVec = (k: number): number[] => Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
-  const sub = (a: number[], b: number[], s: number): number[] => a.map((x, i) => x - s * b[i]!)
+  const seedVec = (k: number): number[] =>
+    Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+  const sub = (a: number[], b: number[], s: number): number[] =>
+    a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
-    return v.map((x) => x / m)
+    return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++) if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++)
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++) if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
-  const e2 = normalize(sub(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1, dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1)))
+  for (let k = 0; k < dim; k++)
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  const e2 = normalize(
+    sub(
+      sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
+      e1,
+      dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1),
+    ),
+  )
 
   type BandCell = { index: number; px: number; py: number }
   const raw: { index: number; u: number; v: number }[] = []
@@ -60,20 +83,23 @@ function run(): void {
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
-    const w = diff.map((v) => v / d2)
+    const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2) })
   }
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
     return s[Math.floor(s.length / 2)] ?? 0
   }
-  const cu = median(raw.map((c) => c.u))
-  const cv = median(raw.map((c) => c.v))
-  const radii = raw.map((c) => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv))).sort((a, b) => a - b)
-  const halfExtent = (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+  const cu = median(raw.map(c => c.u))
+  const cv = median(raw.map(c => c.v))
+  const radii = raw
+    .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
+    .sort((a, b) => a - b)
+  const halfExtent =
+    (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
   const pad = 20
   const halfPix = IMG / 2 - pad
-  const band: BandCell[] = raw.map((c) => ({
+  const band: BandCell[] = raw.map(c => ({
     index: c.index,
     px: Math.round(IMG / 2 + ((c.u - cu) / halfExtent) * halfPix),
     py: Math.round(IMG / 2 + ((c.v - cv) / halfExtent) * halfPix),
@@ -84,11 +110,19 @@ function run(): void {
   const tone = new Int8Array(n)
   for (let i = 0; i < n; i++) {
     const r = rng.next()
-    tone[i] = (r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0) as -1 | 0 | 1
+    tone[i] = (
+      r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
+    ) as -1 | 0 | 1
   }
   const moved = new Uint8Array(n)
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'make', 'frames')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    'make',
+    'frames',
+  )
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -130,8 +164,12 @@ function run(): void {
     }
   }
   const finalSelf = largestPositiveCluster(tone, g).length
-  console.log(`emergence test, largest self grew from ${firstSelf} to ${finalSelf} cells, ${finalSelf > firstSelf * 3 ? 'SELVES EMERGED' : 'weak'}`)
-  console.log(`wrote ${FRAMES} frames, assemble with task/render-video.sh`)
+  console.log(
+    `emergence test, largest self grew from ${firstSelf} to ${finalSelf} cells, ${finalSelf > firstSelf * 3 ? 'SELVES EMERGED' : 'weak'}`,
+  )
+  console.log(
+    `wrote ${FRAMES} frames, assemble with task/render-video.sh`,
+  )
 }
 
 run()

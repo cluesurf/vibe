@@ -31,7 +31,8 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   }
   const coords = g.embedding?.coords ?? new Float64Array(0)
   const dim = g.embedding?.dimension ?? 2
-  const angleOf = (v: number): number => Math.atan2(coords[v * dim + 1] ?? 0, coords[v * dim] ?? 0)
+  const angleOf = (v: number): number =>
+    Math.atan2(coords[v * dim + 1] ?? 0, coords[v * dim] ?? 0)
 
   const parent = new Int32Array(g.size).fill(-1)
   const depth = new Int32Array(g.size).fill(-1)
@@ -65,7 +66,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
   // order so a parent's address is set before its children.
   const address: number[][] = g.neighbors.map(() => [])
   const order = Array.from({ length: g.size }, (_, i) => i)
-    .filter((i) => depth[i] !== -1)
+    .filter(i => depth[i] !== -1)
     .sort((a, b) => (depth[a] ?? 0) - (depth[b] ?? 0))
   for (const v of order) {
     if (v === root) {
@@ -81,11 +82,19 @@ export function buildAddressedTree(g: Graph): AddressedTree {
 // Route from s to t using addresses only: up to the common ancestor, then down by
 // the target's address suffix. Returns the walk along tree edges (which are graph
 // edges).
-export function routeByAddress(tree: AddressedTree, s: number, t: number): number[] {
+export function routeByAddress(
+  tree: AddressedTree,
+  s: number,
+  t: number,
+): number[] {
   const as = tree.address[s] ?? []
   const at = tree.address[t] ?? []
   let common = 0
-  while (common < as.length && common < at.length && as[common] === at[common]) {
+  while (
+    common < as.length &&
+    common < at.length &&
+    as[common] === at[common]
+  ) {
     common++
   }
   const up: number[] = []

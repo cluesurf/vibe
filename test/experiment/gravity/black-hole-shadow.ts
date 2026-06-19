@@ -32,7 +32,8 @@ const RS = 1
 
 export default experiment({
   id: 'gravity/black-hole-shadow',
-  title: 'the strong-field Schwarzschild geometry, the photon sphere, the divergent lensing, and the black-hole shadow, with the weak-field factor-two recovered',
+  title:
+    'the strong-field Schwarzschild geometry, the photon sphere, the divergent lensing, and the black-hole shadow, with the weak-field factor-two recovered',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -40,29 +41,57 @@ export default experiment({
   run() {
     // weak-field recovery, b times alpha over r_s approaches two (the 4 G M / b factor-of-two bending)
     const weakB = 100
-    const weakDeflection = schwarzschildPhotonDeflection({ impactParameter: weakB, schwarzschildRadius: RS })!
+    const weakDeflection = schwarzschildPhotonDeflection({
+      impactParameter: weakB,
+      schwarzschildRadius: RS,
+    })!
     const weakProduct = (weakB * weakDeflection) / RS
 
     // strong-field lensing diverges (logarithmically) as the impact parameter approaches the photon sphere
     const shadowRadius = photonSphereShadowRadius(RS)
-    const nearPhotonSphere = schwarzschildPhotonDeflection({ impactParameter: shadowRadius * 1.0005, schwarzschildRadius: RS })!
-    const nearerPhotonSphere = schwarzschildPhotonDeflection({ impactParameter: shadowRadius * 1.000005, schwarzschildRadius: RS })!
-    const midField = schwarzschildPhotonDeflection({ impactParameter: 5 * RS, schwarzschildRadius: RS })!
+    const nearPhotonSphere = schwarzschildPhotonDeflection({
+      impactParameter: shadowRadius * 1.0005,
+      schwarzschildRadius: RS,
+    })!
+    const nearerPhotonSphere = schwarzschildPhotonDeflection({
+      impactParameter: shadowRadius * 1.000005,
+      schwarzschildRadius: RS,
+    })!
+    const midField = schwarzschildPhotonDeflection({
+      impactParameter: 5 * RS,
+      schwarzschildRadius: RS,
+    })!
 
     // the shadow, capture below b_c, and the measured capture threshold matches the exact photon-sphere radius
-    const justInside = schwarzschildPhotonDeflection({ impactParameter: shadowRadius * 0.99, schwarzschildRadius: RS })
-    const deepInside = schwarzschildPhotonDeflection({ impactParameter: 2 * RS, schwarzschildRadius: RS })
-    const measuredShadow = measuredShadowRadius({ schwarzschildRadius: RS })
+    const justInside = schwarzschildPhotonDeflection({
+      impactParameter: shadowRadius * 0.99,
+      schwarzschildRadius: RS,
+    })
+    const deepInside = schwarzschildPhotonDeflection({
+      impactParameter: 2 * RS,
+      schwarzschildRadius: RS,
+    })
+    const measuredShadow = measuredShadowRadius({
+      schwarzschildRadius: RS,
+    })
 
     // the weak field recovers the factor two, the lensing diverges near the photon sphere, photons below b_c are
     // captured (the shadow), and the measured shadow radius matches (3 sqrt 3 / 2) r_s
     const weakRecoversFactorTwo = Math.abs(weakProduct - 2) < 0.1
     // the deflection is large near the photon sphere, far above mid-field, and grows still larger closer in (the
     // logarithmic strong-field divergence)
-    const strongDiverges = nearPhotonSphere > 6 && nearPhotonSphere > 5 * midField && nearerPhotonSphere > nearPhotonSphere + 2
+    const strongDiverges =
+      nearPhotonSphere > 6 &&
+      nearPhotonSphere > 5 * midField &&
+      nearerPhotonSphere > nearPhotonSphere + 2
     const shadowCaptures = justInside === null && deepInside === null
-    const shadowRadiusExact = Math.abs(measuredShadow - shadowRadius) < 0.01
-    const ok = weakRecoversFactorTwo && strongDiverges && shadowCaptures && shadowRadiusExact
+    const shadowRadiusExact =
+      Math.abs(measuredShadow - shadowRadius) < 0.01
+    const ok =
+      weakRecoversFactorTwo &&
+      strongDiverges &&
+      shadowCaptures &&
+      shadowRadiusExact
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -72,7 +101,9 @@ export default experiment({
         weakDeflectionProduct: Number(weakProduct.toFixed(4)),
         midFieldDeflection: Number(midField.toFixed(4)),
         nearPhotonSphereDeflection: Number(nearPhotonSphere.toFixed(4)),
-        nearerPhotonSphereDeflection: Number(nearerPhotonSphere.toFixed(4)),
+        nearerPhotonSphereDeflection: Number(
+          nearerPhotonSphere.toFixed(4),
+        ),
         exactShadowRadius: Number(shadowRadius.toFixed(4)),
         measuredShadowRadius: Number(measuredShadow.toFixed(4)),
         capturedJustInside: justInside === null ? 1 : 0,

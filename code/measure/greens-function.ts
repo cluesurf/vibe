@@ -54,14 +54,19 @@ export function greensFunctionExponent(input: {
   const sums: number[] = []
   const cnts: number[] = []
   for (let i = 0; i < neighbors.length; i++) {
-    const r = Math.round(Math.sqrt(coords[i]!.reduce((a, x, k) => a + (x - c[k]!) ** 2, 0)))
+    const r = Math.round(
+      Math.sqrt(
+        coords[i]!.reduce((a, x, k) => a + (x - c[k]!) ** 2, 0),
+      ),
+    )
     if (r < 1 || r > rmax) continue
     sums[r] = (sums[r] ?? 0) + phi[i]!
     cnts[r] = (cnts[r] ?? 0) + 1
   }
   const pts: [number, number][] = []
   for (let r = 1; r <= rmax; r++) {
-    if (cnts[r] && sums[r]! > 0) pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
+    if (cnts[r] && sums[r]! > 0)
+      pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
   }
   if (pts.length < 3) return NaN
   const n = pts.length
@@ -69,9 +74,10 @@ export function greensFunctionExponent(input: {
   const sy = pts.reduce((a, p) => a + p[1], 0)
   const sxx = pts.reduce((a, p) => a + p[0] * p[0], 0)
   const sxy = pts.reduce((a, p) => a + p[0] * p[1], 0)
-  return Math.round(-((n * sxy - sx * sy) / (n * sxx - sx * sx)) * 100) / 100
+  return (
+    Math.round(-((n * sxy - sx * sy) / (n * sxx - sx * sx)) * 100) / 100
+  )
 }
-
 
 // Classify how the discrete Laplacian Green function (the gravitational potential from a point source) decays on
 // a graph, between two radii. Returns the exponential-fit and power-law-fit R^2 and slopes. On a flat lattice the
@@ -83,19 +89,45 @@ export function greensDecayClass(input: {
   center: number
   rlo: number
   rhi: number
-}): { expR2: number; expRate: number; powR2: number; powSlope: number; exponential: boolean; points: number } {
+}): {
+  expR2: number
+  expRate: number
+  powR2: number
+  powSlope: number
+  exponential: boolean
+  points: number
+} {
   const G = _glgf({ neighbors: input.neighbors, center: input.center })
-  const dist = _ndist({ neighbors: input.neighbors, size: input.size, source: input.center })
+  const dist = _ndist({
+    neighbors: input.neighbors,
+    size: input.size,
+    source: input.center,
+  })
   const r: number[] = []
   const lr: number[] = []
   const lg: number[] = []
   for (let rr = input.rlo; rr <= input.rhi; rr++) {
     let s = 0
     let k = 0
-    for (let i = 0; i < input.size; i++) if (dist[i] === rr && G[i]! > 1e-12) { s += G[i]!; k++ }
-    if (k > 0) { r.push(rr); lr.push(Math.log(rr)); lg.push(Math.log(s / k)) }
+    for (let i = 0; i < input.size; i++)
+      if (dist[i] === rr && G[i]! > 1e-12) {
+        s += G[i]!
+        k++
+      }
+    if (k > 0) {
+      r.push(rr)
+      lr.push(Math.log(rr))
+      lg.push(Math.log(s / k))
+    }
   }
   const e = _lfit({ xs: r, ys: lg })
   const p = _lfit({ xs: lr, ys: lg })
-  return { expR2: e.r2, expRate: e.slope, powR2: p.r2, powSlope: p.slope, exponential: e.r2 > p.r2, points: r.length }
+  return {
+    expR2: e.r2,
+    expRate: e.slope,
+    powR2: p.r2,
+    powSlope: p.slope,
+    exponential: e.r2 > p.r2,
+    points: r.length,
+  }
 }

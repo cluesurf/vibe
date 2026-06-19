@@ -13,26 +13,65 @@
 // Rung 3 (composite -> agent) is P162 (a self of composites with goal-directed dynamics). Together these
 // climb the cross-domain tower. Run: npx tsx code/experiment/p168-cross-domain-chain.ts
 
-import { singleParticleQuantumWalk, twoParticleQuantumWalk } from '@/code/dynamics/quantum-walk'
+import {
+  singleParticleQuantumWalk,
+  twoParticleQuantumWalk,
+} from '@/code/dynamics/quantum-walk'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function crossDomainChain(): {
-  rung1: { speed: number; linearR2: number; massive: boolean; commutes: boolean }
-  rung2: { comSpeed: number; comR2: number; relGrowthInteracting: number; relGrowthFree: number; comFree: boolean; bound: boolean; commutes: boolean }
+  rung1: {
+    speed: number
+    linearR2: number
+    massive: boolean
+    commutes: boolean
+  }
+  rung2: {
+    comSpeed: number
+    comR2: number
+    relGrowthInteracting: number
+    relGrowthFree: number
+    comFree: boolean
+    bound: boolean
+    commutes: boolean
+  }
   rung3Note: string
   solved: boolean
 } {
   // RUNG 1, field -> particle
-  const p1 = singleParticleQuantumWalk({ mass: 0.5, momentum: Math.PI / 2, size: 240, steps: 90 })
+  const p1 = singleParticleQuantumWalk({
+    mass: 0.5,
+    momentum: Math.PI / 2,
+    size: 240,
+    steps: 90,
+  })
   const rung1 = { ...p1, commutes: p1.linearR2 > 0.99 && p1.massive }
 
   // RUNG 2, particle -> composite. The core (rigorous) claim, the CoM moves uniformly (momentum conserved)
   // despite the interaction, the composite's free-body law. Binding (relative coordinate stays tighter than
   // free) is the richer refinement, we test both signs of the contact phase and report the best.
-  const pi = twoParticleQuantumWalk({ mass: 0.5, momentum: Math.PI / 2, size: 60, steps: 22, contactPhase: 2.0 }) // interacting
-  const pf = twoParticleQuantumWalk({ mass: 0.5, momentum: Math.PI / 2, size: 60, steps: 22, contactPhase: 0 }) // free
-  const piA = twoParticleQuantumWalk({ mass: 0.5, momentum: Math.PI / 2, size: 60, steps: 22, contactPhase: -2.0 }) // other sign of the contact phase
+  const pi = twoParticleQuantumWalk({
+    mass: 0.5,
+    momentum: Math.PI / 2,
+    size: 60,
+    steps: 22,
+    contactPhase: 2.0,
+  }) // interacting
+  const pf = twoParticleQuantumWalk({
+    mass: 0.5,
+    momentum: Math.PI / 2,
+    size: 60,
+    steps: 22,
+    contactPhase: 0,
+  }) // free
+  const piA = twoParticleQuantumWalk({
+    mass: 0.5,
+    momentum: Math.PI / 2,
+    size: 60,
+    steps: 22,
+    contactPhase: -2.0,
+  }) // other sign of the contact phase
   const comFree = pi.comR2 > 0.97 // CoM uniform = momentum conserved through the interaction
   const bestBoundGrowth = Math.min(pi.relGrowth, piA.relGrowth)
   const bound = bestBoundGrowth < pf.relGrowth - 0.2 // an attractive sign keeps the pair tighter than free
@@ -50,7 +89,8 @@ export function crossDomainChain(): {
   return {
     rung1,
     rung2,
-    rung3Note: 'rung 3 (composite -> agent) is P162, a self of composites with goal-directed effective dynamics',
+    rung3Note:
+      'rung 3 (composite -> agent) is P162, a self of composites with goal-directed effective dynamics',
     solved,
   }
 }

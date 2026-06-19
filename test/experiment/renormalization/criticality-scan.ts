@@ -40,8 +40,13 @@ export function criticalityScan(input?: { n?: number }): {
   for (const arrow of arrows) {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 3 })
-    for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 200; t++) conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // relax to steady state
+    for (let i = 0; i < N; i++)
+      tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+        | -1
+        | 0
+        | 1
+    for (let t = 0; t < 200; t++)
+      conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // relax to steady state
     const samples = 100
     let mean = 0
     for (let s = 0; s < samples; s++) {
@@ -55,11 +60,15 @@ export function criticalityScan(input?: { n?: number }): {
   }
 
   // fit log(density) = beta * log(arrow) + const
-  const fit = linearFit({ xs: scan.map((s) => Math.log(s.arrow)), ys: scan.map((s) => Math.log(s.density)) })
+  const fit = linearFit({
+    xs: scan.map(s => Math.log(s.arrow)),
+    ys: scan.map(s => Math.log(s.density)),
+  })
   const beta = fit.slope
   const betaR2 = fit.r2
   const meanField = beta > 0.35 && beta < 0.65 // mean-field directed percolation, beta = 1/2
-  const vanishesAtZero = scan[0]!.density < scan[scan.length - 1]!.density * 0.5 // order parameter -> 0 as arrow -> 0
+  const vanishesAtZero =
+    scan[0]!.density < scan[scan.length - 1]!.density * 0.5 // order parameter -> 0 as arrow -> 0
   const solved = meanField && vanishesAtZero && betaR2 > 0.9
 
   return { n: N, scan, beta, betaR2, meanField, vanishesAtZero, solved }
@@ -75,7 +84,8 @@ export default experiment({
   paper: true,
   run() {
     const r = criticalityScan({ n: 20000 })
-    const ok = r.solved && r.meanField && r.vanishesAtZero && r.betaR2 > 0.9
+    const ok =
+      r.solved && r.meanField && r.vanishesAtZero && r.betaR2 > 0.9
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

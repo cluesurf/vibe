@@ -20,33 +20,56 @@
 //       See the-three-layers-and-the-self.md for the full justification.
 // Run: npx tsx code/experiment/p180-horosphere-self.ts
 
-import { bulkGraph, flatGraph, beat, emergeSelf, countPlus, totalCharge, boundaryFraction, ball, type Graph } from '@/code/model/self-kit'
+import {
+  bulkGraph,
+  flatGraph,
+  beat,
+  emergeSelf,
+  countPlus,
+  totalCharge,
+  boundaryFraction,
+  ball,
+  type Graph,
+} from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // boundary-to-volume of balls of growing radius around a central cell
-function ballScaling(g: Graph, center: number, radii: number[]): number[] {
-  return radii.map((r) => boundaryFraction(ball(g, center, r), g))
+function ballScaling(
+  g: Graph,
+  center: number,
+  radii: number[],
+): number[] {
+  return radii.map(r => boundaryFraction(ball(g, center, r), g))
 }
 
 // the emergent self's leak per beat and its passive (unmaintained) fidelity
-function selfDynamics(g: Graph, seed: number): { leakPerBeat: number; passiveFidelity: number } {
+function selfDynamics(
+  g: Graph,
+  seed: number,
+): { leakPerBeat: number; passiveFidelity: number } {
   const moved = new Uint8Array(g.cellCount)
   const rng = makeRng({ seed })
   const { tone, cluster } = emergeSelf(g, rng, moved)
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
   beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, 0.22)
-  const leakPerBeat = before > 0 ? 1 - countPlus(tl, cluster) / before : 1
+  const leakPerBeat =
+    before > 0 ? 1 - countPlus(tl, cluster) / before : 1
   const t2 = tone.slice()
   const rng2 = makeRng({ seed: seed + 2 })
   for (let b = 0; b < 50; b++) beat(t2, g, moved, rng2, 0, 0.22)
-  const passiveFidelity = cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
+  const passiveFidelity =
+    cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
   return { leakPerBeat, passiveFidelity }
 }
 
-export function horosphereSelf(input?: { bulkCells?: number; flatL?: number; bigL?: number }): {
+export function horosphereSelf(input?: {
+  bulkCells?: number
+  flatL?: number
+  bigL?: number
+}): {
   bulkCells: number
   radii: number[]
   bulkBallBV: number[]
@@ -80,7 +103,10 @@ export function horosphereSelf(input?: { bulkCells?: number; flatL?: number; big
   const last = radii.length - 1
   const flatFalls = flatBallBV[last]! < flatBallBV[0]! * 0.6 // flat boundary/volume drops with size
   const bulkStaysHigh = bulkBallBV[last]! > bulkBallBV[0]! * 0.8 // bulk stays all-boundary
-  const compactPossibleOnFlat = flatFalls && bulkStaysHigh && flatBallBV[last]! < bulkBallBV[last]! * 0.6
+  const compactPossibleOnFlat =
+    flatFalls &&
+    bulkStaysHigh &&
+    flatBallBV[last]! < bulkBallBV[last]! * 0.6
 
   // (2) dynamics, leak and passive fidelity (a smaller, affordable bulk for the dynamics)
   const bd = selfDynamics(bulkGraph(bulkCells), 11)
@@ -104,7 +130,12 @@ export function horosphereSelf(input?: { bulkCells?: number; flatL?: number; big
   const bigConserved = totalCharge(toneB) === qb0
   const scaleFactor = Math.round(bigCells / bulkCells)
 
-  const solved = compactPossibleOnFlat && flatLowerLeak && flatMorePassive && bigBuilt && bigConserved
+  const solved =
+    compactPossibleOnFlat &&
+    flatLowerLeak &&
+    flatMorePassive &&
+    bigBuilt &&
+    bigConserved
 
   return {
     bulkCells,
@@ -128,7 +159,8 @@ export function horosphereSelf(input?: { bulkCells?: number; flatL?: number; big
 
 export default experiment({
   id: 'selves/horosphere-self',
-  title: 'selves are compact-possible and far more persistent on the flat horosphere than in the bulk',
+  title:
+    'selves are compact-possible and far more persistent on the flat horosphere than in the bulk',
   category: 'selves',
   substrates: 'any',
   depth: 'L3',

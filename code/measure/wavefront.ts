@@ -37,7 +37,13 @@ export function wavefrontProfile(input: {
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
   re0[center] = 1
-  const evolved = evolveByEigendecomposition({ eig, n, re0, im0, t: input.t })
+  const evolved = evolveByEigendecomposition({
+    eig,
+    n,
+    re0,
+    im0,
+    t: input.t,
+  })
 
   const cx = mesh.coords[center * 2] ?? 0
   const cy = mesh.coords[center * 2 + 1] ?? 0
@@ -56,13 +62,17 @@ export function wavefrontProfile(input: {
     if (angle < 0) {
       angle += 2 * Math.PI
     }
-    const bin = Math.min(input.bins - 1, Math.floor((angle / (2 * Math.PI)) * input.bins))
+    const bin = Math.min(
+      input.bins - 1,
+      Math.floor((angle / (2 * Math.PI)) * input.bins),
+    )
     binSum[bin] = (binSum[bin] ?? 0) + (re * re + im * im)
     binCount[bin] = (binCount[bin] ?? 0) + 1
   }
   const profile = new Float64Array(input.bins)
   for (let b = 0; b < input.bins; b++) {
-    profile[b] = (binCount[b] ?? 0) > 0 ? (binSum[b] ?? 0) / (binCount[b] ?? 1) : 0
+    profile[b] =
+      (binCount[b] ?? 0) > 0 ? (binSum[b] ?? 0) / (binCount[b] ?? 1) : 0
   }
   return profile
 }

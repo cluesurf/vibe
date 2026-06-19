@@ -17,10 +17,34 @@ import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng, arrowProb: number): void =>
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: arrowProb })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+  arrowProb: number,
+): void =>
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: true,
+    arrow: arrowProb,
+  })
 
-function domainStats(tone: Int8Array, offsets: Int32Array, adj: Int32Array, n: number): { largest: number; countOver20: number; mean: number } {
+function domainStats(
+  tone: Int8Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  n: number,
+): { largest: number; countOver20: number; mean: number } {
   const parent = new Int32Array(n)
   for (let i = 0; i < n; i++) parent[i] = i
   const find = (x: number): number => {
@@ -61,7 +85,12 @@ function domainStats(tone: Int8Array, offsets: Int32Array, adj: Int32Array, n: n
 
 export function selvesDynamics(input?: { n?: number }): {
   n: number
-  trajectory: { beat: number; largest: number; countOver20: number; mean: number }[]
+  trajectory: {
+    beat: number
+    largest: number
+    countOver20: number
+    mean: number
+  }[]
   largestEarly: number
   largestLate: number
   countEarly: number
@@ -81,10 +110,16 @@ export function selvesDynamics(input?: { n?: number }): {
   const rng = makeRng({ seed: 9 })
 
   // warm up to a populated balance, then watch the patches evolve
-  for (let b = 0; b < 30; b++) beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.08)
+  for (let b = 0; b < 30; b++)
+    beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.08)
 
   const snaps = [0, 30, 90, 210]
-  const trajectory: { beat: number; largest: number; countOver20: number; mean: number }[] = []
+  const trajectory: {
+    beat: number
+    largest: number
+    countOver20: number
+    mean: number
+  }[] = []
   let done = 0
   for (const s of snaps) {
     while (done < s) {
@@ -92,7 +127,12 @@ export function selvesDynamics(input?: { n?: number }): {
       done++
     }
     const st = domainStats(tone, g.offsets, g.adj, N)
-    trajectory.push({ beat: 30 + s, largest: st.largest, countOver20: st.countOver20, mean: st.mean })
+    trajectory.push({
+      beat: 30 + s,
+      largest: st.largest,
+      countOver20: st.countOver20,
+      mean: st.mean,
+    })
   }
   const conserved = sumTone(tone) === q0
 
@@ -104,7 +144,7 @@ export function selvesDynamics(input?: { n?: number }): {
   // grow and merge upward), while a HIERARCHY of patches persists (new small selves keep being born by
   // the arrow), so the population is a dynamic steady state at many scales, not a single frozen blob.
   const largestGrows = largestLate > largestEarly * 1.3
-  const hierarchyPersists = trajectory.every((t) => t.countOver20 >= 5)
+  const hierarchyPersists = trajectory.every(t => t.countOver20 >= 5)
   const coarsens = largestGrows && hierarchyPersists
   const solved = conserved && largestGrows && hierarchyPersists
 
@@ -123,7 +163,8 @@ export function selvesDynamics(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/selves-dynamics',
-  title: 'the largest self grows while a hierarchy of patches persists on the exact {5,3,4}',
+  title:
+    'the largest self grows while a hierarchy of patches persists on the exact {5,3,4}',
   category: 'selves',
   substrates: ['534'],
   depth: 'L2',

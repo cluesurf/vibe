@@ -12,7 +12,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { e8SimpleRoots, reflectionClosure, isRootSystem, rootsDn } from '@/code/algebra/group/root-system'
+import {
+  e8SimpleRoots,
+  reflectionClosure,
+  isRootSystem,
+  rootsDn,
+} from '@/code/algebra/group/root-system'
 
 const rootKey = (root: number[]): string => root.join(',')
 
@@ -23,7 +28,8 @@ function subsetOf(small: number[][], big: number[][]): boolean {
 
 export default experiment({
   id: 'gauge/exceptional-ladder',
-  title: 'the 24-cell D4 sits at the bottom of the forced exceptional ladder D4 < D5 < E6 < E7 < E8',
+  title:
+    'the 24-cell D4 sits at the bottom of the forced exceptional ladder D4 < D5 < E6 < E7 < E8',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',
@@ -45,19 +51,33 @@ export default experiment({
       { name: 'D4', roots: d4, rank: 4, want: 24 },
     ]
 
-    const countsExact = rungs.every(rung => rung.roots.length === rung.want)
+    const countsExact = rungs.every(
+      rung => rung.roots.length === rung.want,
+    )
     const allValid = rungs.every(rung => isRootSystem(rung.roots))
-    const nested = subsetOf(d4, d5) && subsetOf(d5, e6) && subsetOf(e6, e7) && subsetOf(e7, e8)
+    const nested =
+      subsetOf(d4, d5) &&
+      subsetOf(d5, e6) &&
+      subsetOf(e6, e7) &&
+      subsetOf(e7, e8)
     // the rank grows by exactly one at each step, the unique new node
     const ranks = rungs.map(rung => rung.rank)
-    const rankStepsOne = ranks.every((r, i) => i === 0 || ranks[i - 1]! - r === 1)
+    const rankStepsOne = ranks.every(
+      (r, i) => i === 0 || ranks[i - 1]! - r === 1,
+    )
 
     // the control, the classical continuation from D5 climbs to D6 (60), distinct from the exceptional E6 (72)
     const classicalD6 = rootsDn(6).length
     const exceptionalE6 = e6.length
-    const branchHasContent = classicalD6 !== exceptionalE6 && exceptionalE6 > classicalD6
+    const branchHasContent =
+      classicalD6 !== exceptionalE6 && exceptionalE6 > classicalD6
 
-    const ok = countsExact && allValid && nested && rankStepsOne && branchHasContent
+    const ok =
+      countsExact &&
+      allValid &&
+      nested &&
+      rankStepsOne &&
+      branchHasContent
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -74,7 +94,10 @@ export default experiment({
         classicalD6Roots: classicalD6,
         exceptionalE6Roots: exceptionalE6,
       },
-      control: { classicalD6Roots: classicalD6, exceptionalE6Roots: exceptionalE6 },
+      control: {
+        classicalD6Roots: classicalD6,
+        exceptionalE6Roots: exceptionalE6,
+      },
       notes:
         'the ladder is built by the converse of climbing, dropping one end node at a time from the E8 simple roots, so each generator set is a subset of the next and the nesting is genuine, not assumed. The counts 240, 126, 72, 40, 24 are the exceptional and classical root-system sizes, a non-trivial prediction the measurement could have missed. The control shows the branch matters, the classical D6 has 60 roots while the exceptional E6 has 72, so the exceptional ladder is the content-bearing choice, the branch that carries the 16-spinor generation. This is the forced home for charged extensions named in the gravity geometry note.',
     })

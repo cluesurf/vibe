@@ -24,7 +24,13 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // How many distinct heights does a move type reach in a flat (accept-in-range) random walk?
-function heightReach(input: { n: number; maxHeight: number; steps: number; cluster: boolean; seed: number }): { distinct: number; rangeCovered: number } {
+function heightReach(input: {
+  n: number
+  maxHeight: number
+  steps: number
+  cluster: boolean
+  seed: number
+}): { distinct: number; rangeCovered: number } {
   const { n, maxHeight, steps, cluster } = input
   const rng: Rng = makeRng({ seed: input.seed })
   const minHeight = 2
@@ -58,12 +64,17 @@ function heightReach(input: { n: number; maxHeight: number; steps: number; clust
       // single-pair: toggle one closure bit, keep only if the result is still transitively closed
       const had = getBit(closureState, { row: lo, col: hi })
       const trial = makeBitMatrix({ rows: n, cols: n })
-      for (let w = 0; w < n * trial.stride; w++) trial.words[w] = closureState.words[w] ?? 0
+      for (let w = 0; w < n * trial.stride; w++)
+        trial.words[w] = closureState.words[w] ?? 0
       if (had) clearBit(trial, { row: lo, col: hi })
       else setBit(trial, { row: lo, col: hi })
       const reclosed = closure(trial, n)
       const nh = heightOf(reclosed, n)
-      if (bitsEqual(trial, reclosed, n) && nh >= minHeight && nh <= maxHeight) {
+      if (
+        bitsEqual(trial, reclosed, n) &&
+        nh >= minHeight &&
+        nh <= maxHeight
+      ) {
         // valid single-pair move (the toggle did not force any other relation)
         closureState = trial
         heights.add(nh)
@@ -75,28 +86,55 @@ function heightReach(input: { n: number; maxHeight: number; steps: number; clust
 }
 
 export function largeNCrossing(input: { sizes: number[] }): {
-  results: { size: number; maxHeight: number; singlePairReach: number; clusterReach: number }[]
+  results: {
+    size: number
+    maxHeight: number
+    singlePairReach: number
+    clusterReach: number
+  }[]
   clusterTraverses: boolean
   singlePairStuck: boolean
   solved: boolean
 } {
-  const results = input.sizes.map((n) => {
+  const results = input.sizes.map(n => {
     const maxHeight = Math.round(1.8 * Math.sqrt(n))
     const steps = 4000 + n * 60
-    const sp = heightReach({ n, maxHeight, steps, cluster: false, seed: n * 17 + 1 })
-    const cl = heightReach({ n, maxHeight, steps, cluster: true, seed: n * 17 + 2 })
-    return { size: n, maxHeight, singlePairReach: sp.rangeCovered, clusterReach: cl.rangeCovered }
+    const sp = heightReach({
+      n,
+      maxHeight,
+      steps,
+      cluster: false,
+      seed: n * 17 + 1,
+    })
+    const cl = heightReach({
+      n,
+      maxHeight,
+      steps,
+      cluster: true,
+      seed: n * 17 + 2,
+    })
+    return {
+      size: n,
+      maxHeight,
+      singlePairReach: sp.rangeCovered,
+      clusterReach: cl.rangeCovered,
+    }
   })
-  const clusterTraverses = results.every((r) => r.clusterReach > 0.7)
+  const clusterTraverses = results.every(r => r.clusterReach > 0.7)
   // The barrier bites at large N (P12 stalled at 48+), so the single-pair limitation is judged
   // there, and the cluster move must beat it decisively at every N.
-  const singlePairStuck = results.filter((r) => r.size >= 64).every((r) => r.singlePairReach < 0.35)
-  const clusterBeatsSinglePair = results.every((r) => r.clusterReach > 2 * r.singlePairReach)
+  const singlePairStuck = results
+    .filter(r => r.size >= 64)
+    .every(r => r.singlePairReach < 0.35)
+  const clusterBeatsSinglePair = results.every(
+    r => r.clusterReach > 2 * r.singlePairReach,
+  )
   return {
     results,
     clusterTraverses,
     singlePairStuck,
-    solved: clusterTraverses && singlePairStuck && clusterBeatsSinglePair,
+    solved:
+      clusterTraverses && singlePairStuck && clusterBeatsSinglePair,
   }
 }
 
@@ -116,11 +154,13 @@ export default experiment({
         'the height-changing cluster move sweeps the full height range where the single-pair move stays stuck',
       metrics: {
         clusterReachSmall: r.results[0]?.clusterReach ?? 0,
-        clusterReachLarge: r.results[r.results.length - 1]?.clusterReach ?? 0,
+        clusterReachLarge:
+          r.results[r.results.length - 1]?.clusterReach ?? 0,
       },
       control: {
         singlePairReachSmall: r.results[0]?.singlePairReach ?? 0,
-        singlePairReachLarge: r.results[r.results.length - 1]?.singlePairReach ?? 0,
+        singlePairReachLarge:
+          r.results[r.results.length - 1]?.singlePairReach ?? 0,
       },
     })
   },

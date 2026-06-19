@@ -5,7 +5,12 @@
 // variant of the CSG model.
 
 import { Rng } from '@/code/tool/rng'
-import { BitMatrix, makeBitMatrix, setBit, getBit } from '@/code/tool/bitset'
+import {
+  BitMatrix,
+  makeBitMatrix,
+  setBit,
+  getBit,
+} from '@/code/tool/bitset'
 import { Poset, makePosetFromFuture } from '@/code/tool/poset'
 
 export function growCsg(input: {

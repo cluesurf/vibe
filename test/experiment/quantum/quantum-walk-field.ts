@@ -12,7 +12,10 @@
 // classical walk's diffusive z=2, show a DIRAC dispersion with a tunable mass, and confirm reflection
 // positivity (the dispersion is real, a positive spectral measure). Run: npx tsx code/experiment/p151-quantum-walk-field.ts
 
-import { coinedWalkMSD, coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
+import {
+  coinedWalkMSD,
+  coinedWalkDispersion,
+} from '@/code/dynamics/quantum-walk'
 import { classicalWalkMSD } from '@/code/dynamics/random-walk'
 import { loglogExponentWindow } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
@@ -34,28 +37,42 @@ export function quantumWalkField(input?: { steps?: number }): {
   const L = 2 * steps + 5
   // MSD exponent: quantum walk (massless coin) should be ballistic (var ~ t^2), classical diffusive (~ t)
   const qw = coinedWalkMSD({ size: L, steps, theta: Math.PI / 4 }) // a standard mixing (Hadamard-like) coin, ballistic
-  const quantumExponent = loglogExponentWindow({ values: qw.msd, lo: 10, hi: steps })
+  const quantumExponent = loglogExponentWindow({
+    values: qw.msd,
+    lo: 10,
+    hi: steps,
+  })
   const cw = classicalWalkMSD({ steps, runs: 4000 })
-  const classicalExponent = loglogExponentWindow({ values: cw, lo: 10, hi: steps })
+  const classicalExponent = loglogExponentWindow({
+    values: cw,
+    lo: 10,
+    hi: steps,
+  })
   const quantumBallistic = quantumExponent > 1.7 // var ~ t^2 => exponent ~ 2 (z=1)
-  const classicalDiffusive = classicalExponent > 0.7 && classicalExponent < 1.3 // var ~ t (z=2)
+  const classicalDiffusive =
+    classicalExponent > 0.7 && classicalExponent < 1.3 // var ~ t (z=2)
 
   // Dirac dispersion of the coined walk: omega(k) = arccos(cos(theta) cos(k)). massless (theta=0): omega=|k|
   // (a pure lightcone, speed 1). massive (theta>0): a gap at k=0, a relativistic omega^2 ~ c^2 k^2 + m^2.
   const theta = 0.3 // a mass
   // massless cone speed = d omega / dk at small k for theta=0
-  const masslessConeSpeed = (coinedWalkDispersion({ theta: 0, k: 0.01 }) - 0) / 0.01
+  const masslessConeSpeed =
+    (coinedWalkDispersion({ theta: 0, k: 0.01 }) - 0) / 0.01
   const massGap = coinedWalkDispersion({ theta, k: 0 }) // omega(0) = theta = the mass
   // reflection positivity: the dispersion is REAL for all k (a positive spectral measure / Hermitian H)
   let dispersionReal = true
   for (let i = 0; i <= 100; i++) {
-    const k = (-Math.PI) + (2 * Math.PI * i) / 100
+    const k = -Math.PI + (2 * Math.PI * i) / 100
     const w = coinedWalkDispersion({ theta, k })
     if (!isFinite(w) || w < -1e-9) dispersionReal = false
   }
   const reflectionPositive = dispersionReal // a Hermitian Hamiltonian gives a reflection-positive Euclidean theory
 
-  const solved = quantumBallistic && classicalDiffusive && reflectionPositive && massGap > 0
+  const solved =
+    quantumBallistic &&
+    classicalDiffusive &&
+    reflectionPositive &&
+    massGap > 0
 
   return {
     steps,
@@ -73,14 +90,19 @@ export function quantumWalkField(input?: { steps?: number }): {
 
 export default experiment({
   id: 'quantum/quantum-walk-field',
-  title: 'the unitary completion is relativistic and reflection-positive',
+  title:
+    'the unitary completion is relativistic and reflection-positive',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = quantumWalkField({ steps: 120 })
-    const ok = r.solved && r.quantumBallistic && r.classicalDiffusive && r.reflectionPositive
+    const ok =
+      r.solved &&
+      r.quantumBallistic &&
+      r.classicalDiffusive &&
+      r.reflectionPositive
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

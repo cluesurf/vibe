@@ -13,7 +13,8 @@ import { chiralCondensateSignal } from '@/code/operator/overlap-condensate'
 
 export default experiment({
   id: 'gauge/schwinger',
-  title: 'the Schwinger chiral condensate signal is near zero free and grows with gauge disorder',
+  title:
+    'the Schwinger chiral condensate signal is near zero free and grows with gauge disorder',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -21,7 +22,7 @@ export default experiment({
   run() {
     const disorders = [0, 0.25, 0.5, 0.75, 1.0]
     const densities = disorders.map(
-      (disorder) =>
+      disorder =>
         chiralCondensateSignal({
           length: 5,
           disorder,

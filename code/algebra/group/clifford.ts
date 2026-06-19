@@ -4,7 +4,13 @@
 // {3,4,3,4} coin already carries through its quaternions (the binary tetrahedral group 2T).
 // Complex 2x2 and 4x4 matrices over the shared complex type.
 
-import { type Complex, complex, cAdd, cMul, cScale } from '@/code/algebra/linear/complex'
+import {
+  type Complex,
+  complex,
+  cAdd,
+  cMul,
+  cScale,
+} from '@/code/algebra/linear/complex'
 
 export type ComplexMatrix = Complex[][]
 
@@ -12,16 +18,22 @@ const c = (re: number, im: number): Complex => complex({ re, im })
 const ZERO = c(0, 0)
 
 export function cmZero(rows: number, columns: number): ComplexMatrix {
-  return Array.from({ length: rows }, () => Array.from({ length: columns }, () => ZERO))
+  return Array.from({ length: rows }, () =>
+    Array.from({ length: columns }, () => ZERO),
+  )
 }
 
 export function cmIdentity(size: number): ComplexMatrix {
   const matrix = cmZero(size, size)
-  for (let index = 0; index < size; index++) matrix[index]![index] = c(1, 0)
+  for (let index = 0; index < size; index++)
+    matrix[index]![index] = c(1, 0)
   return matrix
 }
 
-export function cmMultiply(left: ComplexMatrix, right: ComplexMatrix): ComplexMatrix {
+export function cmMultiply(
+  left: ComplexMatrix,
+  right: ComplexMatrix,
+): ComplexMatrix {
   const rows = left.length
   const inner = right.length
   const columns = right[0]!.length
@@ -29,34 +41,64 @@ export function cmMultiply(left: ComplexMatrix, right: ComplexMatrix): ComplexMa
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       let sum = ZERO
-      for (let index = 0; index < inner; index++) sum = cAdd(sum, cMul(left[row]![index]!, right[index]![column]!))
+      for (let index = 0; index < inner; index++)
+        sum = cAdd(
+          sum,
+          cMul(left[row]![index]!, right[index]![column]!),
+        )
       out[row]![column] = sum
     }
   }
   return out
 }
 
-export function cmAdd(left: ComplexMatrix, right: ComplexMatrix): ComplexMatrix {
-  return left.map((row, rowIndex) => row.map((value, columnIndex) => cAdd(value, right[rowIndex]![columnIndex]!)))
+export function cmAdd(
+  left: ComplexMatrix,
+  right: ComplexMatrix,
+): ComplexMatrix {
+  return left.map((row, rowIndex) =>
+    row.map((value, columnIndex) =>
+      cAdd(value, right[rowIndex]![columnIndex]!),
+    ),
+  )
 }
 
-export function cmScale(matrix: ComplexMatrix, scalar: number): ComplexMatrix {
-  return matrix.map((row) => row.map((value) => cScale(value, scalar)))
+export function cmScale(
+  matrix: ComplexMatrix,
+  scalar: number,
+): ComplexMatrix {
+  return matrix.map(row => row.map(value => cScale(value, scalar)))
 }
 
-export function cmCommutator(left: ComplexMatrix, right: ComplexMatrix): ComplexMatrix {
-  return cmAdd(cmMultiply(left, right), cmScale(cmMultiply(right, left), -1))
+export function cmCommutator(
+  left: ComplexMatrix,
+  right: ComplexMatrix,
+): ComplexMatrix {
+  return cmAdd(
+    cmMultiply(left, right),
+    cmScale(cmMultiply(right, left), -1),
+  )
 }
 
-export function cmAntiCommutator(left: ComplexMatrix, right: ComplexMatrix): ComplexMatrix {
+export function cmAntiCommutator(
+  left: ComplexMatrix,
+  right: ComplexMatrix,
+): ComplexMatrix {
   return cmAdd(cmMultiply(left, right), cmMultiply(right, left))
 }
 
-export function cmIsScalar(matrix: ComplexMatrix, scalar: Complex, tolerance = 1e-9): boolean {
+export function cmIsScalar(
+  matrix: ComplexMatrix,
+  scalar: Complex,
+  tolerance = 1e-9,
+): boolean {
   return matrix.every((row, rowIndex) =>
     row.every((value, columnIndex) => {
       const target = rowIndex === columnIndex ? scalar : ZERO
-      return Math.abs(value.re - target.re) < tolerance && Math.abs(value.im - target.im) < tolerance
+      return (
+        Math.abs(value.re - target.re) < tolerance &&
+        Math.abs(value.im - target.im) < tolerance
+      )
     }),
   )
 }
@@ -65,15 +107,32 @@ export function cmIsScalar(matrix: ComplexMatrix, scalar: Complex, tolerance = 1
 // quaternion units up to a factor of i, the algebra the 24-direction coin carries).
 export function pauli(): ComplexMatrix[] {
   return [
-    [[c(1, 0), ZERO], [ZERO, c(1, 0)]],
-    [[ZERO, c(1, 0)], [c(1, 0), ZERO]],
-    [[ZERO, c(0, -1)], [c(0, 1), ZERO]],
-    [[c(1, 0), ZERO], [ZERO, c(-1, 0)]],
+    [
+      [c(1, 0), ZERO],
+      [ZERO, c(1, 0)],
+    ],
+    [
+      [ZERO, c(1, 0)],
+      [c(1, 0), ZERO],
+    ],
+    [
+      [ZERO, c(0, -1)],
+      [c(0, 1), ZERO],
+    ],
+    [
+      [c(1, 0), ZERO],
+      [ZERO, c(-1, 0)],
+    ],
   ]
 }
 
 // assemble a 4x4 from four 2x2 blocks [[a, b], [c, d]]
-const block = (a: ComplexMatrix, b: ComplexMatrix, cc: ComplexMatrix, d: ComplexMatrix): ComplexMatrix => [
+const block = (
+  a: ComplexMatrix,
+  b: ComplexMatrix,
+  cc: ComplexMatrix,
+  d: ComplexMatrix,
+): ComplexMatrix => [
   [a[0]![0]!, a[0]![1]!, b[0]![0]!, b[0]![1]!],
   [a[1]![0]!, a[1]![1]!, b[1]![0]!, b[1]![1]!],
   [cc[0]![0]!, cc[0]![1]!, d[0]![0]!, d[0]![1]!],
@@ -85,7 +144,8 @@ const block = (a: ComplexMatrix, b: ComplexMatrix, cc: ComplexMatrix, d: Complex
 export function diracGamma(): ComplexMatrix[] {
   const [identity, sigma1, sigma2, sigma3] = pauli()
   const zero2 = cmZero(2, 2)
-  const minus = (matrix: ComplexMatrix): ComplexMatrix => cmScale(matrix, -1)
+  const minus = (matrix: ComplexMatrix): ComplexMatrix =>
+    cmScale(matrix, -1)
   return [
     block(identity!, zero2, zero2, minus(identity!)), // gamma0
     block(zero2, sigma1!, minus(sigma1!), zero2), // gamma1
@@ -99,7 +159,12 @@ export const minkowski = [1, -1, -1, -1]
 
 // The Dirac Hamiltonian H(p) = alpha . p + beta m, in the Dirac basis H = [[m, sigma.p], [sigma.p, -m]].
 // It squares to (m^2 + |p|^2) times the identity, so its eigenvalues are plus or minus the relativistic energy.
-export function diracHamiltonian(input: { px: number; py: number; pz: number; mass: number }): ComplexMatrix {
+export function diracHamiltonian(input: {
+  px: number
+  py: number
+  pz: number
+  mass: number
+}): ComplexMatrix {
   const [identity, sigma1, sigma2, sigma3] = pauli()
   const sigmaDotP = cmAdd(
     cmAdd(cmScale(sigma1!, input.px), cmScale(sigma2!, input.py)),
@@ -125,15 +190,19 @@ export function spinGeneratorZ(): ComplexMatrix {
 // term couples the two chiralities, [H, gamma5] proportional to the mass.
 export function diracGamma5(): ComplexMatrix {
   const [gamma0, gamma1, gamma2, gamma3] = diracGamma()
-  const product = cmMultiply(cmMultiply(cmMultiply(gamma0!, gamma1!), gamma2!), gamma3!)
+  const product = cmMultiply(
+    cmMultiply(cmMultiply(gamma0!, gamma1!), gamma2!),
+    gamma3!,
+  )
   // multiply by i: i (re + i im) = -im + i re
-  return product.map((row) => row.map((z) => c(-z.im, z.re)))
+  return product.map(row => row.map(z => c(-z.im, z.re)))
 }
 
 // The largest entry magnitude of a complex matrix, a simple operator norm for the Clifford layer.
 export function cmMaxAbs(matrix: ComplexMatrix): number {
   let worst = 0
-  for (const row of matrix) for (const z of row) worst = Math.max(worst, Math.hypot(z.re, z.im))
+  for (const row of matrix)
+    for (const z of row) worst = Math.max(worst, Math.hypot(z.re, z.im))
   return worst
 }
 
@@ -142,9 +211,16 @@ export function cmMaxAbs(matrix: ComplexMatrix): number {
 // left multiplication it rotates a spinor (period 4pi, so angle = 2pi gives -I),
 // and by conjugation R v R^{-1} it rotates a vector (period 2pi). `size` is the
 // matrix dimension (4 for the Dirac gammas).
-export function cliffordRotor(input: { angle: number; bivector: ComplexMatrix; size: number }): ComplexMatrix {
+export function cliffordRotor(input: {
+  angle: number
+  bivector: ComplexMatrix
+  size: number
+}): ComplexMatrix {
   const { angle, bivector, size } = input
-  return cmAdd(cmScale(cmIdentity(size), Math.cos(angle / 2)), cmScale(bivector, Math.sin(angle / 2)))
+  return cmAdd(
+    cmScale(cmIdentity(size), Math.cos(angle / 2)),
+    cmScale(bivector, Math.sin(angle / 2)),
+  )
 }
 
 // The Coxeter edge rotor n_i n_j for a relation of order m, built from two unit spacelike
@@ -155,7 +231,10 @@ export function coxeterEdgeRotor(m: number): ComplexMatrix {
   const gamma = diracGamma()
   const angle = (Math.PI * (m - 1)) / m
   const normalI = gamma[1]!
-  const normalJ = cmAdd(cmScale(gamma[1]!, Math.cos(angle)), cmScale(gamma[2]!, Math.sin(angle)))
+  const normalJ = cmAdd(
+    cmScale(gamma[1]!, Math.cos(angle)),
+    cmScale(gamma[2]!, Math.sin(angle)),
+  )
   return cmMultiply(normalI, normalJ)
 }
 
@@ -168,9 +247,13 @@ export function cmScalarTrace(matrix: ComplexMatrix): number {
 }
 
 // A complex matrix raised to a non-negative integer power by repeated multiply.
-export function cmPower(matrix: ComplexMatrix, exponent: number): ComplexMatrix {
+export function cmPower(
+  matrix: ComplexMatrix,
+  exponent: number,
+): ComplexMatrix {
   let result = cmIdentity(matrix.length)
-  for (let step = 0; step < exponent; step++) result = cmMultiply(result, matrix)
+  for (let step = 0; step < exponent; step++)
+    result = cmMultiply(result, matrix)
   return result
 }
 
@@ -178,16 +261,25 @@ export function cmPower(matrix: ComplexMatrix, exponent: number): ComplexMatrix 
 // so it is a scalar witness that a commutator (a non-abelian self-interaction) is nonvanishing.
 export function cmFrobeniusNorm(matrix: ComplexMatrix): number {
   let sum = 0
-  for (const row of matrix) for (const value of row) sum += value.re * value.re + value.im * value.im
+  for (const row of matrix)
+    for (const value of row)
+      sum += value.re * value.re + value.im * value.im
   return Math.sqrt(sum)
 }
 
 // Entrywise equality of two complex matrices within a tolerance.
-export function cmEquals(left: ComplexMatrix, right: ComplexMatrix, tolerance = 1e-9): boolean {
+export function cmEquals(
+  left: ComplexMatrix,
+  right: ComplexMatrix,
+  tolerance = 1e-9,
+): boolean {
   return left.every((row, rowIndex) =>
     row.every((value, columnIndex) => {
       const target = right[rowIndex]![columnIndex]!
-      return Math.abs(value.re - target.re) < tolerance && Math.abs(value.im - target.im) < tolerance
+      return (
+        Math.abs(value.re - target.re) < tolerance &&
+        Math.abs(value.im - target.im) < tolerance
+      )
     }),
   )
 }

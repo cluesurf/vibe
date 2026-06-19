@@ -35,7 +35,10 @@ function frontRadius(will: Will, side: number): number {
 
 // The front radius after each of `beats` beats. On the free cusp this is the
 // sequence 1, 2, 3, ... (one cell per beat).
-export function lightConeRadii(input: { side: number; beats: number }): number[] {
+export function lightConeRadii(input: {
+  side: number
+  beats: number
+}): number[] {
   const side = input.side
   const mesh = cubicMesh({ side })
   const will = makeWill(mesh)
@@ -96,7 +99,10 @@ export function perturbationConeRadii(input: {
       const cellBase = cell * degree
       let differs = false
       for (let direction = 0; direction < degree; direction++) {
-        if (baseState.data[cellBase + direction] !== perturbedState.data[cellBase + direction]) {
+        if (
+          baseState.data[cellBase + direction] !==
+          perturbedState.data[cellBase + direction]
+        ) {
           differs = true
           break
         }

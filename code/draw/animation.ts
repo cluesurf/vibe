@@ -29,6 +29,13 @@ export function writeFrame(input: {
   prefix?: string
   pad?: number
 }): void {
-  const name = frameName({ index: input.index, prefix: input.prefix, pad: input.pad })
-  writeFileSync(join(input.dir, name), encodePng(input.rgba, input.width, input.height))
+  const name = frameName({
+    index: input.index,
+    prefix: input.prefix,
+    pad: input.pad,
+  })
+  writeFileSync(
+    join(input.dir, name),
+    encodePng(input.rgba, input.width, input.height),
+  )
 }

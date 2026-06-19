@@ -7,18 +7,29 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { boundaryDimension } from '@/code/measure/boundary-dimension'
 
-export function holography(): { fiveBoundaryDim: number; fourBoundaryDim: number; confounded: boolean } {
+export function holography(): {
+  fiveBoundaryDim: number
+  fourBoundaryDim: number
+  confounded: boolean
+} {
   const a = boundaryDimension({ symbol: [5, 3, 4], maxCells: 40000 })
   const b = boundaryDimension({ symbol: [3, 4, 3, 4], maxCells: 40000 })
   // a finite hyperbolic patch is ~99% boundary, so the "shell" is the whole bulk (and the 4D shell sub-graph
   // fragments), the readings (2->3.07, 3->0.45) are wrong -> the method is CONFOUNDED, same as the gravity measure.
-  const confounded = Math.abs(a.boundaryDim - 2) > 0.7 || Math.abs(b.boundaryDim - 3) > 0.7
-  return { fiveBoundaryDim: a.boundaryDim, fourBoundaryDim: b.boundaryDim, confounded }
+  const confounded =
+    Math.abs(a.boundaryDim - 2) > 0.7 ||
+    Math.abs(b.boundaryDim - 3) > 0.7
+  return {
+    fiveBoundaryDim: a.boundaryDim,
+    fourBoundaryDim: b.boundaryDim,
+    confounded,
+  }
 }
 
 export default experiment({
   id: 'holography/p212-holography',
-  title: 'finite-patch shell extraction cannot read a clean holographic screen dimension',
+  title:
+    'finite-patch shell extraction cannot read a clean holographic screen dimension',
   category: 'holography',
   substrates: ['534', '3434'],
   depth: 'L1',

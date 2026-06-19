@@ -15,24 +15,40 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 
 export default experiment({
   id: 'data-structure/greedy-routing',
-  title: 'DS4: greedy routing delivers on the hyperbolic metric and degrades on the Euclidean control',
+  title:
+    'DS4: greedy routing delivers on the hyperbolic metric and degrades on the Euclidean control',
   category: 'data-structure',
   substrates: ['534'],
   depth: 'L2',
   paper: true,
   run() {
-    const graph = hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: 1500 })
+    const graph = hyperbolicDodecagrid({
+      depth: 4,
+      connectThreshold: 2.0,
+      maxVertices: 1500,
+    })
     const trials = 300
     const maxHops = 200
 
     // greedy routing on the geometric Poincare-ball embedding
-    const geometric = greedyRoutingSuccess({ graph, trials, rng: makeRng({ seed: 1 }), maxHops })
+    const geometric = greedyRoutingSuccess({
+      graph,
+      trials,
+      rng: makeRng({ seed: 1 }),
+      maxHops,
+    })
     // CONTROL: the SAME graph with the coordinates scrambled, same pairs (same seed)
-    const scrambled = greedyRoutingSuccess({ graph: withScrambledEmbedding(graph), trials, rng: makeRng({ seed: 1 }), maxHops })
+    const scrambled = greedyRoutingSuccess({
+      graph: withScrambledEmbedding(graph),
+      trials,
+      rng: makeRng({ seed: 1 }),
+      maxHops,
+    })
 
     // greedy delivers reliably on the geometric embedding and clearly beats the scrambled control
     const geometricDelivers = geometric.successRate > 0.9
-    const beatsScrambled = geometric.successRate > scrambled.successRate + 0.2
+    const beatsScrambled =
+      geometric.successRate > scrambled.successRate + 0.2
 
     const ok = geometricDelivers && beatsScrambled
 
@@ -48,7 +64,10 @@ export default experiment({
       },
       // CONTROL: scrambling the coordinates on the identical graph collapses greedy delivery, so the success
       // is the geometric embedding (the address encoding position), not the topology alone.
-      control: { scrambledSuccessRate: scrambled.successRate, scrambledMeanStretch: scrambled.meanStretch },
+      control: {
+        scrambledSuccessRate: scrambled.successRate,
+        scrambledMeanStretch: scrambled.meanStretch,
+      },
       notes:
         'DS4 of experiments/16-data-structures-in-the-bulk. Extends addressing/dodecagrid-navigation with the Euclidean control that isolates the geometry. Greedy routing with O(1) state is the basis of hyperbolic network embeddings (Boguna et al.).',
     })

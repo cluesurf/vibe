@@ -47,5 +47,8 @@ export function rayFreezeSurfaceGravity(input: {
     }
   }
   const tailStart = Math.max(0, times.length - tailSamples)
-  return -linearFit({ xs: times.slice(tailStart), ys: logGaps.slice(tailStart) }).slope
+  return -linearFit({
+    xs: times.slice(tailStart),
+    ys: logGaps.slice(tailStart),
+  }).slope
 }

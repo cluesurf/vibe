@@ -34,13 +34,17 @@ export function exactCausalSetAverages(input: {
   const B = input.betas.length
   const O = input.observers.length
   const z = new Array<number>(B).fill(0)
-  const weighted: number[][] = Array.from({ length: B }, () => new Array<number>(O).fill(0))
+  const weighted: number[][] = Array.from({ length: B }, () =>
+    new Array<number>(O).fill(0),
+  )
   let count = 0
 
   for (let mask = 0; mask < total; mask++) {
     // Decode the relation: present[p] = whether pair p is related.
     // Build a quick lookup rel[i][j].
-    const rel: boolean[][] = Array.from({ length: n }, () => new Array<boolean>(n).fill(false))
+    const rel: boolean[][] = Array.from({ length: n }, () =>
+      new Array<boolean>(n).fill(false),
+    )
     for (let p = 0; p < P; p++) {
       if ((mask >> p) & 1) {
         const pair = pairs[p]
@@ -80,7 +84,7 @@ export function exactCausalSetAverages(input: {
     }
     const poset = makePosetFromFuture({ size: n, future })
     const s = input.action.value({ poset })
-    const obs = input.observers.map((f) => f({ poset }))
+    const obs = input.observers.map(f => f({ poset }))
 
     for (let b = 0; b < B; b++) {
       const w = Math.exp(-(input.betas[b] ?? 0) * s)
@@ -94,7 +98,7 @@ export function exactCausalSetAverages(input: {
 
   const means: number[][] = Array.from({ length: B }, (_unused, b) => {
     const zb = z[b] ?? 0
-    return (weighted[b] ?? []).map((x) => (zb > 0 ? x / zb : 0))
+    return (weighted[b] ?? []).map(x => (zb > 0 ? x / zb : 0))
   })
   return { count, z, means }
 }

@@ -18,11 +18,21 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { hankelMatrix, symmetricMinEigenvalue } from '@/code/measure/hankel'
+import {
+  hankelMatrix,
+  symmetricMinEigenvalue,
+} from '@/code/measure/hankel'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
+function beat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void {
   conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 }
 
@@ -48,7 +58,11 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   // a local field observable that DECORRELATES fast (so G(tau) decays cleanly, not a slow conserved mode):
   // a GRADIENT, mean tone over patch A minus mean over an adjacent patch B. A-B is not conserved.
-  const ball = (seed: number, size: number, claimed: Uint8Array): number[] => {
+  const ball = (
+    seed: number,
+    size: number,
+    claimed: Uint8Array,
+  ): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
     seen[seed] = 1
@@ -84,7 +98,11 @@ export function reflectionPositivity(input?: { n?: number }): {
   // reach the reversible steady state, then record a long trajectory of the observable
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   for (let t = 0; t < 60; t++) beat(tone, eu, ev, moved, rng, ARROW)
   const T = 8000
   const series = new Float64Array(T)
@@ -98,7 +116,11 @@ export function reflectionPositivity(input?: { n?: number }): {
   // normalized-min-eigenvalue of the Hankel built from a sub-series at a given STRIDE. Stride 2 samples
   // every other beat, which removes the discrete-update "temporal doubler" (a negative eigenvalue from
   // the synchronous update becomes positive under squaring).
-  const hankelMinEig = (start: number, len: number, stride: number): number => {
+  const hankelMinEig = (
+    start: number,
+    len: number,
+    stride: number,
+  ): number => {
     let mean = 0
     for (let t = start; t < start + len; t++) mean += series[t]!
     mean /= len
@@ -112,7 +134,10 @@ export function reflectionPositivity(input?: { n?: number }): {
       }
       ac.push(s / c)
     }
-    return symmetricMinEigenvalue(hankelMatrix({ sequence: ac, size: m })) / ac[0]!
+    return (
+      symmetricMinEigenvalue(hankelMatrix({ sequence: ac, size: m })) /
+      ac[0]!
+    )
   }
 
   // full-sample autocorrelation (for reporting)
@@ -122,7 +147,8 @@ export function reflectionPositivity(input?: { n?: number }): {
   const autocorr: number[] = []
   for (let tau = 0; tau <= maxTau; tau++) {
     let s = 0
-    for (let t = 0; t + tau < T; t++) s += (series[t]! - mean) * (series[t + tau]! - mean)
+    for (let t = 0; t + tau < T; t++)
+      s += (series[t]! - mean) * (series[t + tau]! - mean)
     autocorr.push(s / (T - tau))
   }
   const rawMinEig = hankelMinEig(0, T, 1) // shows the temporal doubler (discrete-update artifact)
@@ -130,21 +156,28 @@ export function reflectionPositivity(input?: { n?: number }): {
   // period-2 amplitude (even lags minus odd lags) makes the doubler explicit
   let evenSum = 0
   let oddSum = 0
-  for (let tau = 1; tau <= maxTau; tau++) (tau % 2 === 0 ? (evenSum += autocorr[tau]!) : (oddSum += autocorr[tau]!))
+  for (let tau = 1; tau <= maxTau; tau++)
+    tau % 2 === 0
+      ? (evenSum += autocorr[tau]!)
+      : (oddSum += autocorr[tau]!)
   const doublerAmplitude = (evenSum - oddSum) / autocorr[0]!
 
   // block-bootstrap noise floor for the doubler-removed (stride-2) eigenvalue
   const blocks = 8
   const blockLen = Math.floor(T / blocks)
   const blockEigs: number[] = []
-  for (let b = 0; b < blocks; b++) blockEigs.push(hankelMinEig(b * blockLen, blockLen, 2))
+  for (let b = 0; b < blocks; b++)
+    blockEigs.push(hankelMinEig(b * blockLen, blockLen, 2))
   const meanBlock = blockEigs.reduce((s, x) => s + x, 0) / blocks
-  const stdBlock = Math.sqrt(blockEigs.reduce((s, x) => s + (x - meanBlock) ** 2, 0) / blocks)
+  const stdBlock = Math.sqrt(
+    blockEigs.reduce((s, x) => s + (x - meanBlock) ** 2, 0) / blocks,
+  )
   const noiseFloor = stdBlock / Math.sqrt(blocks)
 
   // RP holds (continuum-time) iff the doubler-removed Hankel is PSD within statistical noise
   const reflectionPositive = evenMinEig > -(3 * noiseFloor + 1e-4)
-  const hasDoubler = rawMinEig < -3 * noiseFloor && doublerAmplitude > 2 * noiseFloor
+  const hasDoubler =
+    rawMinEig < -3 * noiseFloor && doublerAmplitude > 2 * noiseFloor
   const solved = reflectionPositive
 
   return {

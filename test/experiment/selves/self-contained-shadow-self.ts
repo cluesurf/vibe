@@ -18,13 +18,20 @@ import { selfContainedShadowD4 } from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/self-contained-shadow-self',
-  title: 'a self-contained body binds itself by the shadow of its OWN active vacuum on the 24-direction D4 coin',
+  title:
+    'a self-contained body binds itself by the shadow of its OWN active vacuum on the 24-direction D4 coin',
   category: 'selves',
   substrates: ['d4'],
   depth: 'L2',
   paper: true,
   run() {
-    const base = { side: 14, beats: 56, bodyLoX: 3, bodyHiX: 6, testX: 9 }
+    const base = {
+      side: 14,
+      beats: 56,
+      bodyLoX: 3,
+      bodyHiX: 6,
+      testX: 9,
+    }
     const withBody = selfContainedShadowD4({ ...base, body: true })
     const noBody = selfContainedShadowD4({ ...base, body: false })
 
@@ -45,7 +52,9 @@ export default experiment({
         side: base.side,
         directions: 24,
       },
-      control: { netXmomentumNoBodyTimes1000: Math.round(noBody * 1000) },
+      control: {
+        netXmomentumNoBodyTimes1000: Math.round(noBody * 1000),
+      },
       notes:
         'the final integration, P2 closed end-to-end. A self-contained body in its OWN self-generated active vacuum (the create move) casts a shadow whose radiation pressure points toward the body (the binding restoring force), measured in the true D4 root vectors, no external injection, control exactly zero. The create move makes zero-momentum pairs so it cannot wash out the imbalance, only the body absorption sets the net momentum. Reversible bulk, irreversibility only at the body and bath. Fully discrete on the 24-cell coin',
     })

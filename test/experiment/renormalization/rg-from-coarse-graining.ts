@@ -13,10 +13,17 @@ import { verdict } from '@/test/scaffold/verdict'
 // 1D Ising decimation RG, integrate out every other spin, the coupling renormalizes as K' = (1/2) ln cosh(2K).
 // This is a coupling FLOWING purely from coarse-graining, the simplest exact RG, with a real beta function.
 
-export function rgFromCoarseGraining(): { flows: boolean; betaSign: number } {
+export function rgFromCoarseGraining(): {
+  flows: boolean
+  betaSign: number
+} {
   for (const K0 of [2.0, 1.0, 0.5]) {
-    let K = K0; const traj: number[] = [K]
-    for (let step = 0; step < 6; step++) { K = isingDecimationFormula(K); traj.push(Math.round(K * 1000) / 1000) }
+    let K = K0
+    const traj: number[] = [K]
+    for (let step = 0; step < 6; step++) {
+      K = isingDecimationFormula(K)
+      traj.push(Math.round(K * 1000) / 1000)
+    }
   }
   // the beta function, beta(K) = K' - K per coarse-graining step (the change of the coupling with scale)
   const betaAt = (K: number): number => isingDecimationFormula(K) - K
@@ -27,7 +34,8 @@ export function rgFromCoarseGraining(): { flows: boolean; betaSign: number } {
 
 export default experiment({
   id: 'renormalization/rg-from-coarse-graining',
-  title: 'the 1D decimation RG shows a coupling flows with a beta function under coarse-graining',
+  title:
+    'the 1D decimation RG shows a coupling flows with a beta function under coarse-graining',
   category: 'renormalization',
   substrates: 'any',
   depth: 'L1',

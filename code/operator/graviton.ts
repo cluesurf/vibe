@@ -12,8 +12,10 @@ import { linearizedEinsteinTensor } from '@/code/operator/linearized-curvature'
 // The derived linearized Einstein operator, the graviton operator built via the geometric pipeline.
 export const einsteinOp = linearizedEinsteinTensor
 
-function einsteinMatrix(k: number[]): ReturnType<typeof operatorToVoigtMatrix> {
-  return operatorToVoigtMatrix((h) => einsteinOp(h, k))
+function einsteinMatrix(
+  k: number[],
+): ReturnType<typeof operatorToVoigtMatrix> {
+  return operatorToVoigtMatrix(h => einsteinOp(h, k))
 }
 
 export function gravitonFromAction(input: { k: number[] }): {
@@ -29,11 +31,18 @@ export function gravitonFromAction(input: { k: number[] }): {
   const eigenvalues = Array.from(eig.values).sort((a, b) => a - b)
   const target = 0.5 * k2
   let gravitonModes = 0
-  for (const v of eigenvalues) if (Math.abs(v - target) < 1e-6 * (1 + k2)) gravitonModes += 1
+  for (const v of eigenvalues)
+    if (Math.abs(v - target) < 1e-6 * (1 + k2)) gravitonModes += 1
   const xi = [0.7, -0.3, 0.5]
-  const hGauge: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+  const hGauge: number[][] = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ]
   for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) hGauge[i]![j] = (k[i] ?? 0) * (xi[j] ?? 0) + (k[j] ?? 0) * (xi[i] ?? 0)
+    for (let j = 0; j < 3; j++)
+      hGauge[i]![j] =
+        (k[i] ?? 0) * (xi[j] ?? 0) + (k[j] ?? 0) * (xi[i] ?? 0)
   }
   const g = einsteinOp(hGauge, k)
   let gn = 0
@@ -44,5 +53,11 @@ export function gravitonFromAction(input: { k: number[] }): {
       hn += (hGauge[i]?.[j] ?? 0) ** 2
     }
   }
-  return { k2, eigenvalues, gravitonModes, gravitonEigenvalue: target, diffeoResidual: hn > 0 ? Math.sqrt(gn / hn) : 0 }
+  return {
+    k2,
+    eigenvalues,
+    gravitonModes,
+    gravitonEigenvalue: target,
+    diffeoResidual: hn > 0 ? Math.sqrt(gn / hn) : 0,
+  }
 }

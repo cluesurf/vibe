@@ -7,7 +7,10 @@
 // 24 directions give emergent rotational symmetry the cubic lacks. Run: npx tsx code/experiment/p233-isotropy-24dir.ts
 
 import { rootsD4 } from '@/code/algebra/group/root-system'
-import { latticeDispersion, dispersionAxisDiagonalAnisotropy } from '@/code/measure/dispersion'
+import {
+  latticeDispersion,
+  dispersionAxisDiagonalAnisotropy,
+} from '@/code/measure/dispersion'
 import { directionFourthMoments } from '@/code/measure/isotropy'
 import { coordinateAxes } from '@/code/measure/probe-directions'
 import { experiment } from '@/test/scaffold/suite'
@@ -17,27 +20,41 @@ function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
   if (kind === 'D4') return rootsD4()
   return kind === 'Z3' ? coordinateAxes(3) : coordinateAxes(4)
 }
-const omega2 = (R: number[][], k: number[]): number => latticeDispersion({ directions: R, wave: k })
+const omega2 = (R: number[][], k: number[]): number =>
+  latticeDispersion({ directions: R, wave: k })
 
 // anisotropy: relative difference of omega^2 between an axis direction and a body-diagonal at the same |k|
 function anisotropy(kind: 'Z3' | 'Z4' | 'D4', q: number): number {
   const dim = kind === 'Z3' ? 3 : 4
-  return dispersionAxisDiagonalAnisotropy({ directions: neighbors(kind), dimension: dim, magnitude: q })
+  return dispersionAxisDiagonalAnisotropy({
+    directions: neighbors(kind),
+    dimension: dim,
+    magnitude: q,
+  })
 }
 
-export function isotropy24dir(): { z3: number; z4: number; d4: number; d4Best: boolean } {
+export function isotropy24dir(): {
+  z3: number
+  z4: number
+  d4: number
+  d4Best: boolean
+} {
   // 4th-moment isotropy check (the order-4 anisotropy): sum d_i^4 vs 3 sum d_i^2 d_j^2
-  const md4 = directionFourthMoments(neighbors('D4')), mz4 = directionFourthMoments(neighbors('Z4'))
+  const md4 = directionFourthMoments(neighbors('D4')),
+    mz4 = directionFourthMoments(neighbors('Z4'))
   void md4
   void mz4
-  const z3 = anisotropy('Z3', 1.2), z4 = anisotropy('Z4', 1.2), d4 = anisotropy('D4', 1.2)
+  const z3 = anisotropy('Z3', 1.2),
+    z4 = anisotropy('Z4', 1.2),
+    d4 = anisotropy('D4', 1.2)
   const d4Best = d4 < z4 / 5 && d4 < z3 / 5
   return { z3, z4, d4, d4Best }
 }
 
 export default experiment({
   id: 'relativity/isotropy-24dir',
-  title: 'the 24 D4 directions give a wave dispersion isotropic to order four, the cubic does not',
+  title:
+    'the 24 D4 directions give a wave dispersion isotropic to order four, the cubic does not',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',

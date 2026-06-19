@@ -21,7 +21,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { staggeredMassCubicHamiltonian } from '@/code/operator/tight-binding'
 import { freeFermionCorrelationMatrix } from '@/code/measure/entanglement'
-import { screenBitSeries, logLogExponent, verlindeForceLaw } from '@/code/measure/entropic-gravity'
+import {
+  screenBitSeries,
+  logLogExponent,
+  verlindeForceLaw,
+} from '@/code/measure/entropic-gravity'
 import { refractiveDeflection } from '@/code/dynamics/optical-ray'
 
 const SIDE = 8
@@ -34,7 +38,7 @@ const IMPACT = 20
 function matterForceExponent(): { exponent: number; binds: boolean } {
   const k = 1
   const rs = [3, 5, 8, 12, 20]
-  const accels = rs.map((r) => k / (r * r))
+  const accels = rs.map(r => k / (r * r))
   const exponent = logLogExponent(rs, accels)
   // a slow mass released at rest falls inward (binds): integrate r'' = -k/r^2 from rest
   let r = 12
@@ -50,7 +54,8 @@ function matterForceExponent(): { exponent: number; binds: boolean } {
 
 export default experiment({
   id: 'gravity/emergent-metric',
-  title: 'gravity is one emergent metric, the area-law potential gives the matter inverse-square law and the light factor-two bending, no new field',
+  title:
+    'gravity is one emergent metric, the area-law potential gives the matter inverse-square law and the light factor-two bending, no new field',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -58,31 +63,56 @@ export default experiment({
   run() {
     // 1. the source, the area-law screen bits and the Verlinde force and potential exponents
     const n = SIDE * SIDE * SIDE
-    const h = staggeredMassCubicHamiltonian({ side: SIDE, mass: MASS, periodic: true })
+    const h = staggeredMassCubicHamiltonian({
+      side: SIDE,
+      mass: MASS,
+      periodic: true,
+    })
     const c = freeFermionCorrelationMatrix({ h, n })
     const series = screenBitSeries({ c, n, side: SIDE, radii: RADII })
     const areaExponent = logLogExponent(series.radii, series.bits)
-    const force = verlindeForceLaw({ bitExponent: areaExponent, tolerance: 0.5 })
+    const force = verlindeForceLaw({
+      bitExponent: areaExponent,
+      tolerance: 0.5,
+    })
 
     // 2. the matter sector, the 1/r potential's force is inverse-square and binds a slow mass
     const matter = matterForceExponent()
 
     // 3. the light sector, the full metric bends a ray by twice the temporal-only deflection, the factor of two
-    const temporalOnly = Math.abs(refractiveDeflection({ impactParameter: IMPACT, strength: LENS_STRENGTH }))
-    const fullMetric = Math.abs(refractiveDeflection({ impactParameter: IMPACT, strength: 2 * LENS_STRENGTH }))
+    const temporalOnly = Math.abs(
+      refractiveDeflection({
+        impactParameter: IMPACT,
+        strength: LENS_STRENGTH,
+      }),
+    )
+    const fullMetric = Math.abs(
+      refractiveDeflection({
+        impactParameter: IMPACT,
+        strength: 2 * LENS_STRENGTH,
+      }),
+    )
     const lightFactor = fullMetric / temporalOnly
 
     // the control, a zero potential gives no force and no deflection
-    const zeroDeflection = Math.abs(refractiveDeflection({ impactParameter: IMPACT, strength: 0 }))
+    const zeroDeflection = Math.abs(
+      refractiveDeflection({ impactParameter: IMPACT, strength: 0 }),
+    )
 
     // the chain is consistent, the area law is sub-volume (alpha near two), the Verlinde force is inverse-square,
     // the matter force is inverse-square and binds, and the light bends by the GR factor of two
     const areaLaw = areaExponent > 1.6 && areaExponent < 2.6
     const verlindeNewton = force.isNewtonian
-    const matterInverseSquare = Math.abs(matter.exponent + 2) < 0.05 && matter.binds
+    const matterInverseSquare =
+      Math.abs(matter.exponent + 2) < 0.05 && matter.binds
     const lightFactorTwo = Math.abs(lightFactor - 2) < 0.1
     const controlIsZero = zeroDeflection < 1e-6
-    const ok = areaLaw && verlindeNewton && matterInverseSquare && lightFactorTwo && controlIsZero
+    const ok =
+      areaLaw &&
+      verlindeNewton &&
+      matterInverseSquare &&
+      lightFactorTwo &&
+      controlIsZero
 
     return verdict({
       status: ok ? 'pass' : 'fail',

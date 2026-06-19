@@ -10,7 +10,10 @@ import { broadcastWave } from '@/code/operator/associative-memory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativePriming(input?: { maxCells?: number; primeRadius?: number }): {
+export function associativePriming(input?: {
+  maxCells?: number
+  primeRadius?: number
+}): {
   cellCount: number
   target: number
   unprimedBeats: number
@@ -21,7 +24,10 @@ export function associativePriming(input?: { maxCells?: number; primeRadius?: nu
   const primeRadius = input?.primeRadius ?? 2
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
   const seed = 0
-  const distFromSeed = bfsShells({ neighbors: g.neighbors, root: seed }).depth
+  const distFromSeed = bfsShells({
+    neighbors: g.neighbors,
+    root: seed,
+  }).depth
 
   // pick a target deep in the store (a far cell), deterministic, the most distant cell
   let target = seed
@@ -34,23 +40,45 @@ export function associativePriming(input?: { maxCells?: number; primeRadius?: nu
   }
 
   // unprimed, the query wave must travel the full distance from the seed to the target
-  const unprimed = broadcastWave({ neighbors: g.neighbors, seed, responders: [target] })
+  const unprimed = broadcastWave({
+    neighbors: g.neighbors,
+    seed,
+    responders: [target],
+  })
   const unprimedBeats = unprimed.firstResponderBeat
 
   // priming, a prior wave pre-activates a region AROUND the target (a ball of primeRadius). The later query
   // is satisfied as soon as its wave reaches any pre-activated cell, so the effective latency is the distance
   // from the seed to the nearest primed cell.
-  const primedRegion = geodesicBall({ neighbors: g.neighbors, root: target, radius: primeRadius })
-  const primed = broadcastWave({ neighbors: g.neighbors, seed, responders: primedRegion })
+  const primedRegion = geodesicBall({
+    neighbors: g.neighbors,
+    root: target,
+    radius: primeRadius,
+  })
+  const primed = broadcastWave({
+    neighbors: g.neighbors,
+    seed,
+    responders: primedRegion,
+  })
   const primedBeats = primed.firstResponderBeat
 
-  const solved = primedBeats >= 0 && unprimedBeats >= 0 && primedBeats < unprimedBeats
-  return { cellCount: g.cellCount, target, unprimedBeats, primedBeats, solved }
+  const solved =
+    primedBeats >= 0 &&
+    unprimedBeats >= 0 &&
+    primedBeats < unprimedBeats
+  return {
+    cellCount: g.cellCount,
+    target,
+    unprimedBeats,
+    primedBeats,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'associative/priming',
-  title: 'priming as residual activation, a pre-activated region resolves a related query in fewer beats',
+  title:
+    'priming as residual activation, a pre-activated region resolves a related query in fewer beats',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L2',

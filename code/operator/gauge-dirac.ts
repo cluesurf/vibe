@@ -8,7 +8,11 @@
 
 import { CellComplex } from '@/code/operator/dirac'
 import { GaugeField, linkPhase } from '@/code/tool/gauge-field'
-import { SparseMatrix, Triplet, sparseFromTriplets } from '@/code/algebra/linear/sparse'
+import {
+  SparseMatrix,
+  Triplet,
+  sparseFromTriplets,
+} from '@/code/algebra/linear/sparse'
 
 export function covariantKahlerDirac(input: {
   complex: CellComplex
@@ -30,8 +34,12 @@ export function covariantKahlerDirac(input: {
   // boundary[1] map: each edge column has a +1 at its head vertex and a -1 at
   // its tail vertex. We invert it into a per-edge {tail, head} table.
   const boundary1 = input.complex.boundary[1]
-  const edgeTail: number[] = new Array<number>(cellCount[1] ?? 0).fill(-1)
-  const edgeHead: number[] = new Array<number>(cellCount[1] ?? 0).fill(-1)
+  const edgeTail: number[] = new Array<number>(cellCount[1] ?? 0).fill(
+    -1,
+  )
+  const edgeHead: number[] = new Array<number>(cellCount[1] ?? 0).fill(
+    -1,
+  )
   if (boundary1) {
     for (let r = 0; r < boundary1.rows; r++) {
       const start = boundary1.rowPtr[r] ?? 0
@@ -69,13 +77,24 @@ export function covariantKahlerDirac(input: {
           const tail = edgeTail[c] ?? -1
           const head = edgeHead[c] ?? -1
           if (tail >= 0 && head >= 0) {
-            const phase = linkPhase(input.field, { from: tail, to: head })
+            const phase = linkPhase(input.field, {
+              from: tail,
+              to: head,
+            })
             value *= Math.cos(input.charge * phase)
           }
         }
         // delta block (high grade -> low grade) and its transpose (d block).
-        triplets.push({ row: lowOffset + r, col: highOffset + c, value })
-        triplets.push({ row: highOffset + c, col: lowOffset + r, value })
+        triplets.push({
+          row: lowOffset + r,
+          col: highOffset + c,
+          value,
+        })
+        triplets.push({
+          row: highOffset + c,
+          col: lowOffset + r,
+          value,
+        })
       }
     }
   }

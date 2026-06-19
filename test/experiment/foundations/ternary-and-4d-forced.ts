@@ -31,7 +31,8 @@ import {
 
 export default experiment({
   id: 'foundations/ternary-and-4d-forced',
-  title: 'the ternary tone (minimal with a vacuum and charge conjugation) and the four dimensions (the unique triality D4) are forced',
+  title:
+    'the ternary tone (minimal with a vacuum and charge conjugation) and the four dimensions (the unique triality D4) are forced',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -47,11 +48,16 @@ export default experiment({
     // four dimensions is the unique one with triality (the D4 Dynkin order-three symmetry)
     const d4Order = dynkinAutomorphismOrder(4)
     const d4HasTriality = hasTriality(4)
-    const higherDnNoTriality = !hasTriality(5) && !hasTriality(6) && !hasTriality(7)
+    const higherDnNoTriality =
+      !hasTriality(5) && !hasTriality(6) && !hasTriality(7)
     const fourDimensionsForced = d4HasTriality && higherDnNoTriality
 
     const ok =
-      ternaryQualifies && binaryFails && signsFail && ternaryIsMinimal && fourDimensionsForced
+      ternaryQualifies &&
+      binaryFails &&
+      signsFail &&
+      ternaryIsMinimal &&
+      fourDimensionsForced
 
     return verdict({
       status: ok ? 'pass' : 'fail',

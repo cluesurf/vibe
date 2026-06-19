@@ -10,7 +10,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMargensternGrid } from '@/code/substrate/margenstern/grid'
 import { buildTilingFaces } from '@/code/render/geometry/tiling-faces'
-import { patternClass, patternClassCount } from '@/code/render/geometry/pattern'
+import {
+  patternClass,
+  patternClassCount,
+} from '@/code/render/geometry/pattern'
 import { renderSceneToRgba } from '@/code/render/adapter/raster'
 import { encodeGif } from '@/code/draw/gif'
 import { encodePng } from '@/code/draw/png'
@@ -22,7 +25,14 @@ const outDir = join(here, '..', '..', '..', 'make', 'render', 'compute')
 
 // a soft sector palette for the backdrop (dim) and a bright signal/trail
 const SECTORS: [number, number, number][] = [
-  [40, 36, 70], [70, 50, 110], [50, 60, 120], [80, 55, 120], [55, 48, 100], [70, 64, 130], [60, 52, 115], [48, 56, 110],
+  [40, 36, 70],
+  [70, 50, 110],
+  [50, 60, 120],
+  [80, 55, 120],
+  [55, 48, 100],
+  [70, 64, 130],
+  [60, 52, 115],
+  [48, 56, 110],
 ]
 const TRAIL: [number, number, number] = [150, 120, 230]
 const SIGNAL: [number, number, number] = [250, 245, 255]
@@ -51,25 +61,57 @@ function run(): void {
   for (let f = 0; f < totalFrames; f++) {
     const head = Math.min(f, path.length - 1)
     const onPath = new Map<number, number>() // cell -> brightness phase
-    for (let k = 0; k <= head; k++) onPath.set(path[k]!, k === head ? 2 : 1)
+    for (let k = 0; k <= head; k++)
+      onPath.set(path[k]!, k === head ? 2 : 1)
 
     const sceneFaces: SceneFace[] = []
     for (let cell = 0; cell < faces.cellCount; cell++) {
       const phase = onPath.get(cell)
-      const color = phase === 2 ? SIGNAL : phase === 1 ? TRAIL : SECTORS[patternClass(grid, cell, 'sector') % SECTORS.length]!
+      const color =
+        phase === 2
+          ? SIGNAL
+          : phase === 1
+            ? TRAIL
+            : SECTORS[
+                patternClass(grid, cell, 'sector') % SECTORS.length
+              ]!
       sceneFaces.push({ polygon: faces.polygons[cell]!, color })
     }
-    const scene: Scene = { dim: 2, symbol: symbol.slice(), edges, faces: sceneFaces, cellCount: faces.cellCount }
-    const { rgba } = renderSceneToRgba({ scene, size, segments: 16, lineWidth: 1.0, near: EDGE, far: EDGE, model })
+    const scene: Scene = {
+      dim: 2,
+      symbol: symbol.slice(),
+      edges,
+      faces: sceneFaces,
+      cellCount: faces.cellCount,
+    }
+    const { rgba } = renderSceneToRgba({
+      scene,
+      size,
+      segments: 16,
+      lineWidth: 1.0,
+      near: EDGE,
+      far: EDGE,
+      model,
+    })
     frames.push(rgba)
     if (f === 0 || f === Math.floor(totalFrames / 2)) {
-      writeFileSync(join(outDir, `compute-${symbolText}-${model}-frame${f}.png`), encodePng(rgba, size, size))
+      writeFileSync(
+        join(outDir, `compute-${symbolText}-${model}-frame${f}.png`),
+        encodePng(rgba, size, size),
+      )
     }
   }
 
-  const gif = encodeGif({ frames, width: size, height: size, delayMs: 90 })
+  const gif = encodeGif({
+    frames,
+    width: size,
+    height: size,
+    delayMs: 90,
+  })
   writeFileSync(join(outDir, `compute-${symbolText}-${model}.gif`), gif)
-  console.log(`computed a route on {${symbol.join(',')}} (${sectors} sectors), path length ${path.length}, wrote compute-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${totalFrames} frames`)
+  console.log(
+    `computed a route on {${symbol.join(',')}} (${sectors} sectors), path length ${path.length}, wrote compute-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${totalFrames} frames`,
+  )
 }
 
 function cellOutlines(polygons: number[][][]): SceneEdge[] {
@@ -79,8 +121,8 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
       const b = poly[(i + 1) % poly.length]!
-      const ka = a.map((x) => Math.round(x * 1e4)).join(',')
-      const kb = b.map((x) => Math.round(x * 1e4)).join(',')
+      const ka = a.map(x => Math.round(x * 1e4)).join(',')
+      const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
       if (seen.has(key)) continue
       seen.add(key)

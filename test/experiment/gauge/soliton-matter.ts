@@ -14,30 +14,61 @@ import { verdict } from '@/test/scaffold/verdict'
 type V = [number, number, number]
 const N = 80
 const blank = (): V[][] => blankDirectionField2d(N)
-const addSky = (f: V[][], cx: number, cy: number, R: number, ch: number): void =>
-  placeSkyrmion2d({ field: f, centerX: cx, centerY: cy, radius: R, charge: ch })
-const energy = (f: V[][], kappa: number): number => directionFieldDerrickEnergy2d(f, kappa)
+const addSky = (
+  f: V[][],
+  cx: number,
+  cy: number,
+  R: number,
+  ch: number,
+): void =>
+  placeSkyrmion2d({
+    field: f,
+    centerX: cx,
+    centerY: cy,
+    radius: R,
+    charge: ch,
+  })
+const energy = (f: V[][], kappa: number): number =>
+  directionFieldDerrickEnergy2d(f, kappa)
 
-export function solitonMatter(): { binding: [number, number][]; bound: boolean; massRatio: number } {
-  const kappa = 2, R = 7, c = N / 2
+export function solitonMatter(): {
+  binding: [number, number][]
+  bound: boolean
+  massRatio: number
+} {
+  const kappa = 2,
+    R = 7,
+    c = N / 2
   // (1) interaction energy vs separation (two charge-+1 solitons)
   const binding: [number, number][] = []
   let eInf = 0
   for (const d of [6, 9, 12, 16, 22, 30]) {
-    const f = blank(); addSky(f, c - d / 2, c, R, 1); addSky(f, c + d / 2, c, R, 1)
-    const E = Math.round(energy(f, kappa) * 10) / 10; binding.push([d, E]); if (d === 30) eInf = E
+    const f = blank()
+    addSky(f, c - d / 2, c, R, 1)
+    addSky(f, c + d / 2, c, R, 1)
+    const E = Math.round(energy(f, kappa) * 10) / 10
+    binding.push([d, E])
+    if (d === 30) eInf = E
   }
-  const minE = Math.min(...binding.map((b) => b[1])); const bound = binding[binding.length - 1]![1] - minE > 1 && binding.find((b) => b[1] === minE)![0] < 30
+  const minE = Math.min(...binding.map(b => b[1]))
+  const bound =
+    binding[binding.length - 1]![1] - minE > 1 &&
+    binding.find(b => b[1] === minE)![0] < 30
   // (2) mass vs charge (additive matter)
-  const one = blank(); addSky(one, c, c, R, 1); const m1 = energy(one, kappa)
-  const two = blank(); addSky(two, c - 16, c, R, 1); addSky(two, c + 16, c, R, 1)
+  const one = blank()
+  addSky(one, c, c, R, 1)
+  const m1 = energy(one, kappa)
+  const two = blank()
+  addSky(two, c - 16, c, R, 1)
+  addSky(two, c + 16, c, R, 1)
   const massRatio = Math.round((energy(two, kappa) / m1) * 100) / 100
   return { binding, bound, massRatio }
 }
 
 export default experiment({
   id: 'gauge/soliton-matter',
-  title: 'two solitons bind at a finite separation and the rest mass is additive in topological charge',
+  title:
+    'two solitons bind at a finite separation and the rest mass is additive in topological charge',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',

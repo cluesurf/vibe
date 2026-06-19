@@ -9,11 +9,18 @@
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p23-gauge-from-action.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { gridPlaquettes, gridWilsonAction as wilsonAction, gridMaxwellAction as maxwellAction } from '@/code/dynamics/wilson-grid'
+import {
+  gridPlaquettes,
+  gridWilsonAction as wilsonAction,
+  gridMaxwellAction as maxwellAction,
+} from '@/code/dynamics/wilson-grid'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function gaugeFromAction(input: { side: number }): { epsilons: number[]; ratios: number[] } {
+export function gaugeFromAction(input: { side: number }): {
+  epsilons: number[]
+  ratios: number[]
+} {
   const L = input.side
   const plaqs = gridPlaquettes(L)
   const dof = 3 * L * L * L
@@ -23,7 +30,7 @@ export function gaugeFromAction(input: { side: number }): { epsilons: number[]; 
     base[i] = rng.next() * 2 - 1
   }
   const epsilons = [0.5, 0.2, 0.1, 0.05, 0.02]
-  const ratios = epsilons.map((eps) => {
+  const ratios = epsilons.map(eps => {
     const theta = new Float64Array(dof)
     for (let i = 0; i < dof; i++) {
       theta[i] = eps * (base[i] ?? 0)

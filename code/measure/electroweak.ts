@@ -7,7 +7,10 @@
 // doublet.
 
 // the custodial rho parameter for a Higgs of weak isospin T with the vacuum in its T_3 component
-export function custodialRho(input: { isospin: number; isospinComponent: number }): number {
+export function custodialRho(input: {
+  isospin: number
+  isospinComponent: number
+}): number {
   const t = input.isospin
   const t3 = input.isospinComponent
   return (t * (t + 1) - t3 * t3) / (2 * t3 * t3)

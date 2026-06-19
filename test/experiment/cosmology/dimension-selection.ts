@@ -16,17 +16,29 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Integrate a planar orbit in d spatial dimensions, reporting stability and perihelion precession.
-function integrateOrbit(d: number): { stable: boolean; closed: boolean; precessionPerOrbit: number; orbits: number } {
+function integrateOrbit(d: number): {
+  stable: boolean
+  closed: boolean
+  precessionPerOrbit: number
+  orbits: number
+} {
   return integrateCentralForceOrbit({ dimension: d })
 }
 
 export function dimensionSelection(input: Record<string, never> = {}): {
-  byDimension: { dimension: number; apsidalAngleDeg: number; stable: boolean; closed: boolean; precessionPerOrbit: number; cleanWaves: boolean }[]
+  byDimension: {
+    dimension: number
+    apsidalAngleDeg: number
+    stable: boolean
+    closed: boolean
+    precessionPerOrbit: number
+    cleanWaves: boolean
+  }[]
   selected: number[]
   solved: boolean
 } {
   void input
-  const byDimension = [2, 3, 4, 5].map((d) => {
+  const byDimension = [2, 3, 4, 5].map(d => {
     const apsidal = 4 - d > 0 ? Math.PI / Math.sqrt(4 - d) : NaN // analytic apsidal angle pi/sqrt(3-(d-1))
     const o = integrateOrbit(d)
     return {
@@ -39,7 +51,9 @@ export function dimensionSelection(input: Record<string, never> = {}): {
     }
   })
   // The selected dimension(s): stable AND closed orbits (and, as a corroboration, clean waves).
-  const selected = byDimension.filter((r) => r.closed).map((r) => r.dimension)
+  const selected = byDimension
+    .filter(r => r.closed)
+    .map(r => r.dimension)
   return {
     byDimension,
     selected,
@@ -50,19 +64,24 @@ export function dimensionSelection(input: Record<string, never> = {}): {
 
 export default experiment({
   id: 'cosmology/dimension-selection',
-  title: 'only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
+  title:
+    'only d=3 gives stable closed orbits (d=2 precesses, d>=4 unstable)',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L3',
   paper: true,
   run() {
     const r = dimensionSelection()
-    const d3 = r.byDimension.find((x) => x.dimension === 3)
-    const d2 = r.byDimension.find((x) => x.dimension === 2)
-    const d4 = r.byDimension.find((x) => x.dimension === 4)
+    const d3 = r.byDimension.find(x => x.dimension === 3)
+    const d2 = r.byDimension.find(x => x.dimension === 2)
+    const d4 = r.byDimension.find(x => x.dimension === 4)
     const ok =
-      r.solved && r.selected.length === 1 && r.selected[0] === 3 &&
-      (d3?.closed ?? false) && !(d2?.closed ?? true) && !(d4?.stable ?? true)
+      r.solved &&
+      r.selected.length === 1 &&
+      r.selected[0] === 3 &&
+      (d3?.closed ?? false) &&
+      !(d2?.closed ?? true) &&
+      !(d4?.stable ?? true)
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

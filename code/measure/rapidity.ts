@@ -53,15 +53,23 @@ export function boostEnergyMomentum(input: {
 
 // Relativistic velocity addition: a particle of velocity v seen from a frame moving at u has
 // velocity (v + u) / (1 + u v), which never exceeds the light speed c = 1.
-export function addVelocities(input: { velocity: number; frame: number }): number {
+export function addVelocities(input: {
+  velocity: number
+  frame: number
+}): number {
   const { velocity, frame } = input
   return (velocity + frame) / (1 + frame * velocity)
 }
 
 // Relativistic on-shell energy E = sqrt(m^2 + p^2) (c = 1), the continuum dispersion whose invariant
 // E^2 - p^2 = m^2 is preserved under boosts.
-export function relativisticEnergy(input: { mass: number; momentum: number }): number {
-  return Math.sqrt(input.mass * input.mass + input.momentum * input.momentum)
+export function relativisticEnergy(input: {
+  mass: number
+  momentum: number
+}): number {
+  return Math.sqrt(
+    input.mass * input.mass + input.momentum * input.momentum,
+  )
 }
 
 // Active Lorentz boost of 1+1 coordinates by rapidity xi:
@@ -69,7 +77,10 @@ export function relativisticEnergy(input: { mass: number; momentum: number }): n
 //   x' = sinh(xi) * t + cosh(xi) * x.
 // Coordinates are laid out (t, x) per element with stride 2. The causal order
 // (hence the link set) is unchanged.
-export function boostCoords(input: { coords: Float64Array; rapidity: number }): Float64Array {
+export function boostCoords(input: {
+  coords: Float64Array
+  rapidity: number
+}): Float64Array {
   const { coords, rapidity } = input
   const ch = Math.cosh(rapidity)
   const sh = Math.sinh(rapidity)

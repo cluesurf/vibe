@@ -20,14 +20,21 @@ export type WaveBoundary =
   | { form: 'periodic' }
   | { form: 'absorbing'; left: number; right: number; margin?: number }
 
-export function makeWaveField(input: { size: number; fill: (index: number) => number }): WaveField {
+export function makeWaveField(input: {
+  size: number
+  fill: (index: number) => number
+}): WaveField {
   const { size, fill } = input
   const u = new Int32Array(size)
   for (let x = 0; x < size; x++) u[x] = fill(x)
   return { prev: u.slice(), curr: u.slice(), size }
 }
 
-export function stepWaveField(input: { field: WaveField; accel: Acceleration; boundary: WaveBoundary }): WaveField {
+export function stepWaveField(input: {
+  field: WaveField
+  accel: Acceleration
+  boundary: WaveBoundary
+}): WaveField {
   const { field, accel, boundary } = input
   const { size, curr, prev } = field
   const next = new Int32Array(size)
@@ -35,8 +42,14 @@ export function stepWaveField(input: { field: WaveField; accel: Acceleration; bo
   const leftVacuum = boundary.form === 'absorbing' ? boundary.left : 0
   const rightVacuum = boundary.form === 'absorbing' ? boundary.right : 0
   for (let x = 0; x < size; x++) {
-    const left = x === 0 ? (periodic ? curr[size - 1]! : leftVacuum) : curr[x - 1]!
-    const right = x === size - 1 ? (periodic ? curr[0]! : rightVacuum) : curr[x + 1]!
+    const left =
+      x === 0 ? (periodic ? curr[size - 1]! : leftVacuum) : curr[x - 1]!
+    const right =
+      x === size - 1
+        ? periodic
+          ? curr[0]!
+          : rightVacuum
+        : curr[x + 1]!
     next[x] = left + right - prev[x]! + accel(curr[x]!)
   }
   if (boundary.form === 'absorbing') {
@@ -49,7 +62,10 @@ export function stepWaveField(input: { field: WaveField; accel: Acceleration; bo
 
 // a double-well acceleration with minima (vacua) at +-amplitude and a barrier at zero. `saturating` caps the force
 // at +-1 (bounded), otherwise the pull-back beyond a vacuum is linear (unbounded).
-export function doubleWellAccel(input: { amplitude: number; saturating: boolean }): Acceleration {
+export function doubleWellAccel(input: {
+  amplitude: number
+  saturating: boolean
+}): Acceleration {
   const { amplitude, saturating } = input
   return (value: number): number => {
     if (value === 0) return 0
@@ -63,7 +79,10 @@ export function doubleWellAccel(input: { amplitude: number; saturating: boolean 
 
 export function fieldMaxAbs(u: Int32Array): number {
   let max = 0
-  for (let x = 0; x < u.length; x++) { const a = Math.abs(u[x]!); if (a > max) max = a }
+  for (let x = 0; x < u.length; x++) {
+    const a = Math.abs(u[x]!)
+    if (a > max) max = a
+  }
   return max
 }
 
@@ -71,7 +90,12 @@ export function fieldMaxAbs(u: Int32Array): number {
 export function domainWallCount(u: Int32Array): number {
   let count = 0
   for (let x = 0; x < u.length - 1; x++) {
-    if (u[x] !== 0 && u[x + 1] !== 0 && Math.sign(u[x]!) !== Math.sign(u[x + 1]!)) count++
+    if (
+      u[x] !== 0 &&
+      u[x + 1] !== 0 &&
+      Math.sign(u[x]!) !== Math.sign(u[x + 1]!)
+    )
+      count++
   }
   return count
 }

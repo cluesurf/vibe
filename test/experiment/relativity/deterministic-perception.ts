@@ -24,11 +24,19 @@ import {
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function blockBeat(tone: Int8Array, L: number, parity: number, table: number[]): void {
+function blockBeat(
+  tone: Int8Array,
+  L: number,
+  parity: number,
+  table: number[],
+): void {
   perceptionBlockBeat({ tone, length: L, parity, table })
 }
 
-export function deterministicPerception(input?: { L?: number; beats?: number }): {
+export function deterministicPerception(input?: {
+  L?: number
+  beats?: number
+}): {
   L: number
   chargeConserved: boolean
   reversible: boolean
@@ -42,7 +50,11 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
 
   // (1) charge conservation over a run
   const tone = new Int8Array(L)
-  for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.4 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < L; i++)
+    tone[i] = (rng.next() < 0.4 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const q0 = totalCharge(tone)
   for (let t = 0; t < 200; t++) blockBeat(tone, L, t % 2, FWD)
   const chargeConserved = totalCharge(tone) === q0
@@ -50,28 +62,41 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
   // (2) reversibility: forward T beats then backward T beats recovers the initial state exactly
   const init = new Int8Array(L)
   const r2 = makeRng({ seed: 3 })
-  for (let i = 0; i < L; i++) init[i] = (r2.next() < 0.4 ? (r2.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < L; i++)
+    init[i] = (r2.next() < 0.4 ? (r2.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const work = init.slice()
   const T = 80
   for (let t = 0; t < T; t++) blockBeat(work, L, t % 2, FWD)
   // reverse: undo each beat in reverse order with the inverse permutation and the same partition parity
   for (let t = T - 1; t >= 0; t--) blockBeat(work, L, t % 2, INV)
   let reversible = true
-  for (let i = 0; i < L; i++) if (work[i] !== init[i]) {
-    reversible = false
-    break
-  }
+  for (let i = 0; i < L; i++)
+    if (work[i] !== init[i]) {
+      reversible = false
+      break
+    }
 
   // (3) transport: a localized perturbation spreads BALLISTICALLY (RMS width ~ t), the butterfly method
   // isolates the perturbation from the deterministic vacuum oscillation
   const center = Math.floor(L / 2)
   const r3 = makeRng({ seed: 11 })
   const base = new Int8Array(L)
-  for (let i = 0; i < L; i++) base[i] = (r3.next() < 0.4 ? (r3.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < L; i++)
+    base[i] = (r3.next() < 0.4 ? (r3.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const a = base.slice()
   const b = base.slice()
-  b[center] = ((b[center]! + 1) % 3 === 0 ? -1 : (b[center]! + 1)) as -1 | 0 | 1 // perturb one cell
-  if (b[center] === base[center]) b[center] = (base[center]! === 1 ? 0 : 1) as -1 | 0 | 1
+  b[center] = ((b[center]! + 1) % 3 === 0 ? -1 : b[center]! + 1) as
+    | -1
+    | 0
+    | 1 // perturb one cell
+  if (b[center] === base[center])
+    b[center] = (base[center]! === 1 ? 0 : 1) as -1 | 0 | 1
   const times: number[] = []
   const spreads: number[] = []
   for (let t = 1; t <= beats; t++) {
@@ -87,19 +112,28 @@ export function deterministicPerception(input?: { L?: number; beats?: number }):
 
   const solved = chargeConserved && reversible && isBallistic
 
-  return { L, chargeConserved, reversible, spreadExponent, isBallistic, solved }
+  return {
+    L,
+    chargeConserved,
+    reversible,
+    spreadExponent,
+    isBallistic,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'relativity/deterministic-perception',
-  title: 'the perception rule as a reversible block CA is charge-conserving and ballistic',
+  title:
+    'the perception rule as a reversible block CA is charge-conserving and ballistic',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = deterministicPerception({ L: 2000 })
-    const ok = r.solved && r.chargeConserved && r.reversible && r.isBallistic
+    const ok =
+      r.solved && r.chargeConserved && r.reversible && r.isBallistic
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

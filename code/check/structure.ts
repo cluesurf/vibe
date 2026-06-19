@@ -68,18 +68,26 @@ export function diameter(will: Will): number {
 
 // the distance the charge has reached from a start cell, the max graph distance over all nonzero cells. The
 // signature of ballistic travel (it grows with the beat count) versus pinning (it stays near zero).
-export function travelDistance(input: { will: Will; start: number }): number {
+export function travelDistance(input: {
+  will: Will
+  start: number
+}): number {
   const dist = shellDistances(input.will.mesh, input.start)
   let max = 0
   for (let cell = 0; cell < input.will.mesh.cellCount; cell++) {
-    if (cellTone(input.will, cell) !== 0 && dist[cell]! > max) max = dist[cell]!
+    if (cellTone(input.will, cell) !== 0 && dist[cell]! > max)
+      max = dist[cell]!
   }
   return max
 }
 
 // the maximum occupied-cell count reached over a run, phase-independent (the create cycle breathes globally, so
 // a single snapshot is phase-dependent, but the max over the trajectory robustly flags an active vacuum).
-export function maxOccupancy(will: Will, collision: Collision, beats: number): number {
+export function maxOccupancy(
+  will: Will,
+  collision: Collision,
+  beats: number,
+): number {
   let current: Will = { mesh: will.mesh, data: will.data.slice() }
   let max = occupiedCells(current)
   for (let step = 0; step < beats; step++) {
@@ -92,7 +100,10 @@ export function maxOccupancy(will: Will, collision: Collision, beats: number): n
 
 // the total momentum of a will, the vector sum of tone times direction-root over every slot. `roots` is the
 // coin's root list (rootsD4, rootsB4), so the same measure works on any coin.
-export function momentum(will: Will, roots: number[][]): [number, number, number, number] {
+export function momentum(
+  will: Will,
+  roots: number[][],
+): [number, number, number, number] {
   const m: [number, number, number, number] = [0, 0, 0, 0]
   const degree = will.mesh.degree
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
@@ -101,7 +112,8 @@ export function momentum(will: Will, roots: number[][]): [number, number, number
       const tone = will.data[base + direction] ?? 0
       if (tone !== 0) {
         const root = roots[direction]!
-        for (let axis = 0; axis < 4; axis++) m[axis]! += tone * (root[axis] ?? 0)
+        for (let axis = 0; axis < 4; axis++)
+          m[axis]! += tone * (root[axis] ?? 0)
       }
     }
   }

@@ -23,35 +23,49 @@ const IMPACT_PARAMETERS = [16, 20, 24, 28]
 
 export default experiment({
   id: 'gravity/time-dilation-optical',
-  title: 'gravity as time dilation, the clock-rate well bends light (the temporal half), the full metric gives the GR factor-two deflection, no new field',
+  title:
+    'gravity as time dilation, the clock-rate well bends light (the temporal half), the full metric gives the GR factor-two deflection, no new field',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     // the clock-rate (TEMPORAL, g_00) part alone, the deflection toward the mass for each impact parameter
-    const timeOnly = IMPACT_PARAMETERS.map((impactParameter) =>
+    const timeOnly = IMPACT_PARAMETERS.map(impactParameter =>
       refractiveDeflection({ impactParameter, strength: STRENGTH }),
     )
     // the FULL metric, the temporal clock rate PLUS the spatial curvature (route 2A), index 1 + 2k/r, the light
     // sees twice the well, the famous Eddington factor two (4 G M / b, not the Newtonian 2 G M / b)
-    const fullMetric = IMPACT_PARAMETERS.map((impactParameter) =>
+    const fullMetric = IMPACT_PARAMETERS.map(impactParameter =>
       refractiveDeflection({ impactParameter, strength: 2 * STRENGTH }),
     )
-    const factorTwoRatios = fullMetric.map((d, i) => Math.abs(d) / Math.abs(timeOnly[i]!))
+    const factorTwoRatios = fullMetric.map(
+      (d, i) => Math.abs(d) / Math.abs(timeOnly[i]!),
+    )
 
     // the 1/b lensing law, impact parameter times deflection magnitude is constant (the time-only part near 2k)
-    const lensingProducts = timeOnly.map((d, i) => IMPACT_PARAMETERS[i]! * Math.abs(d))
+    const lensingProducts = timeOnly.map(
+      (d, i) => IMPACT_PARAMETERS[i]! * Math.abs(d),
+    )
 
     // a uniform rate field (no gradient) deflects nothing, the control
-    const uniformDeflection = refractiveDeflection({ impactParameter: 12, strength: 0 })
+    const uniformDeflection = refractiveDeflection({
+      impactParameter: 12,
+      strength: 0,
+    })
 
-    const allTowardMass = timeOnly.every((d) => d < 0) && fullMetric.every((d) => d < 0)
-    const lensingConstant = Math.max(...lensingProducts) / Math.min(...lensingProducts) < 1.15
+    const allTowardMass =
+      timeOnly.every(d => d < 0) && fullMetric.every(d => d < 0)
+    const lensingConstant =
+      Math.max(...lensingProducts) / Math.min(...lensingProducts) < 1.15
     // the full-metric deflection is twice the time-only deflection, the GR factor two
-    const factorTwo = factorTwoRatios.every((r) => Math.abs(r - 2) < 0.1)
+    const factorTwo = factorTwoRatios.every(r => Math.abs(r - 2) < 0.1)
     const uniformBendsNothing = Math.abs(uniformDeflection) < 1e-6
-    const ok = allTowardMass && lensingConstant && factorTwo && uniformBendsNothing
+    const ok =
+      allTowardMass &&
+      lensingConstant &&
+      factorTwo &&
+      uniformBendsNothing
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -62,8 +76,12 @@ export default experiment({
         fullMetricNearest: Number(fullMetric[0]!.toFixed(4)),
         factorTwoMin: Number(Math.min(...factorTwoRatios).toFixed(3)),
         factorTwoMax: Number(Math.max(...factorTwoRatios).toFixed(3)),
-        lensingProductMin: Number(Math.min(...lensingProducts).toFixed(3)),
-        lensingProductMax: Number(Math.max(...lensingProducts).toFixed(3)),
+        lensingProductMin: Number(
+          Math.min(...lensingProducts).toFixed(3),
+        ),
+        lensingProductMax: Number(
+          Math.max(...lensingProducts).toFixed(3),
+        ),
         allTowardMass: allTowardMass ? 1 : 0,
         uniformDeflection: Number(uniformDeflection.toFixed(6)),
       },

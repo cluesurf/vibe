@@ -27,7 +27,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'addressing/addressing-3434',
-  title: 'the {3,4,3,4} cells carry unique O(log n) tree addresses with no cousin edges and exact neighbour reconstruction',
+  title:
+    'the {3,4,3,4} cells carry unique O(log n) tree addresses with no cousin edges and exact neighbour reconstruction',
   category: 'addressing',
   substrates: ['3434'],
   depth: 'L1',
@@ -40,7 +41,8 @@ export default experiment({
     let cousins = 0
     for (let c = 0; c < n; c++) {
       if (!a.complete[c]) continue
-      for (const v of a.graph.neighbors[c]!) if (a.dist[v] === a.dist[c]) cousins++
+      for (const v of a.graph.neighbors[c]!)
+        if (a.dist[v] === a.dist[c]) cousins++
     }
 
     // addresses unique and decode round-trips over the enumerated interior.
@@ -69,14 +71,16 @@ export default experiment({
       ])
       const truth = a.graph.neighbors[c]!
       let same = predicted.size === truth.length
-      if (same) for (const v of truth) if (!predicted.has(v)) same = false
+      if (same)
+        for (const v of truth) if (!predicted.has(v)) same = false
       if (same) exact++
     }
 
     // the confluence transducer is a deterministic finite-state function at window K=2.
     const auto2 = buildConfluenceAutomaton(a, 2)
 
-    const neighborFraction = totalComplete > 0 ? exact / totalComplete : 0
+    const neighborFraction =
+      totalComplete > 0 ? exact / totalComplete : 0
     const ok =
       cousins === 0 &&
       addressDup === 0 &&

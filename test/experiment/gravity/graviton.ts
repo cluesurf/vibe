@@ -21,7 +21,11 @@ function minDispersion(side: number): number {
 }
 
 // Classify the spectrum of the DERIVED graviton operator at momentum k.
-function spectrumCounts(k: number[]): { physical: number; gauge: number; trace: number } {
+function spectrumCounts(k: number[]): {
+  physical: number
+  gauge: number
+  trace: number
+} {
   const r = gravitonFromAction({ k })
   const target = 0.5 * r.k2
   const tol = 1e-6 * (1 + r.k2)
@@ -49,33 +53,38 @@ export function gravitonStudy(): {
     [1, 1, 1],
     [2, 1, 3],
   ]
-  const counts = directions.map((d) => spectrumCounts(d))
+  const counts = directions.map(d => spectrumCounts(d))
   return {
-    masslessPolarizations: counts.map((c) => c.physical),
-    gaugeModes: counts.map((c) => c.gauge),
+    masslessPolarizations: counts.map(c => c.physical),
+    gaugeModes: counts.map(c => c.gauge),
     // A massive spin-2 has no gauge freedom, so it keeps the full traceless symmetric tensor: in 3
     // spatial dimensions that is 6 - 1 = 5 components (the vDVZ count).
     massiveDof: 5,
-    dispersion: [4, 6, 8].map((side) => ({ side, omega2: minDispersion(side) })),
-    allTwo: counts.every((c) => c.physical === 2 && c.gauge === 3),
+    dispersion: [4, 6, 8].map(side => ({
+      side,
+      omega2: minDispersion(side),
+    })),
+    allTwo: counts.every(c => c.physical === 2 && c.gauge === 3),
   }
 }
 
 export default experiment({
   id: 'gravity/graviton',
-  title: 'two graviton polarizations measured from the derived operator spectrum',
+  title:
+    'two graviton polarizations measured from the derived operator spectrum',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = gravitonStudy()
-    const massless = r.masslessPolarizations.every((p) => p === 2)
-    const gauge = r.gaugeModes.every((g) => g === 3)
+    const massless = r.masslessPolarizations.every(p => p === 2)
+    const gauge = r.gaugeModes.every(g => g === 3)
     const shrinks =
       (r.dispersion[r.dispersion.length - 1]?.omega2 ?? 9) <
       (r.dispersion[0]?.omega2 ?? 0)
-    const ok = massless && gauge && r.allTwo && r.massiveDof === 5 && shrinks
+    const ok =
+      massless && gauge && r.allTwo && r.massiveDof === 5 && shrinks
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

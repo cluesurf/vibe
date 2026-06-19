@@ -14,15 +14,19 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 // Control: scrambling the coordinates collapses greedy delivery.
 
 const FAMILY: number[][] = [
-  [7, 3], [5, 4], // 2D
-  [5, 3, 4], [3, 5, 3], // 3D
-  [3, 4, 3, 4], [5, 3, 3, 5], // 4D
+  [7, 3],
+  [5, 4], // 2D
+  [5, 3, 4],
+  [3, 5, 3], // 3D
+  [3, 4, 3, 4],
+  [5, 3, 3, 5], // 4D
   [3, 4, 3, 3, 4], // 5D
 ]
 
 export default experiment({
   id: 'data-structure/universal-geometric-profile',
-  title: 'phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding',
+  title:
+    'phase 2: greedy routing and the Busemann mipmap run on every tessellation via the Coxeter embedding',
   category: 'data-structure',
   substrates: ['all'],
   depth: 'L2',
@@ -35,14 +39,25 @@ export default experiment({
     let worstGreedy = 1
     for (const symbol of FAMILY) {
       const graph = coxeterPoincareGraph(symbol, maxCells)
-      const greedy = greedyRoutingSuccess({ graph, trials: 150, rng: makeRng({ seed: 1 }), maxHops: 200 })
-      const scrambled = greedyRoutingSuccess({ graph: withScrambledEmbedding(graph), trials: 150, rng: makeRng({ seed: 1 }), maxHops: 200 })
+      const greedy = greedyRoutingSuccess({
+        graph,
+        trials: 150,
+        rng: makeRng({ seed: 1 }),
+        maxHops: 200,
+      })
+      const scrambled = greedyRoutingSuccess({
+        graph: withScrambledEmbedding(graph),
+        trials: 150,
+        rng: makeRng({ seed: 1 }),
+        maxHops: 200,
+      })
       const levels = busemannLevels(graph, 6)
       const inner = levels.slice(0, 3).reduce((s, n) => s + n, 0)
       const outer = levels.slice(3).reduce((s, n) => s + n, 0)
       if (greedy.successRate < 0.85) allGreedyDeliver = false
       if (!(outer > inner)) allPyramid = false
-      if (!(greedy.successRate > scrambled.successRate + 0.2)) allBeatScrambled = false
+      if (!(greedy.successRate > scrambled.successRate + 0.2))
+        allBeatScrambled = false
       worstGreedy = Math.min(worstGreedy, greedy.successRate)
     }
 

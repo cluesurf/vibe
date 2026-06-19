@@ -82,7 +82,11 @@ export function parallelTempering(input: {
       size: n,
       future: transitiveClosure({ size: n, relation }),
     })
-    replicas.push({ relation, poset, action: input.action.value({ poset }) })
+    replicas.push({
+      relation,
+      poset,
+      action: input.action.value({ poset }),
+    })
   }
 
   const samplesByBeta: number[][] = input.betas.map(() => [])
@@ -99,7 +103,13 @@ export function parallelTempering(input: {
         continue
       }
       for (let m = 0; m < input.movesPerSweep; m++) {
-        localMove({ replica, size: n, beta, action: input.action, rng: input.rng })
+        localMove({
+          replica,
+          size: n,
+          beta,
+          action: input.action,
+          rng: input.rng,
+        })
       }
     }
     // Swap adjacent replicas. Alternate the starting parity each sweep.
@@ -126,7 +136,9 @@ export function parallelTempering(input: {
       for (let r = 0; r < R; r++) {
         const replica = replicas[r]
         if (replica) {
-          ;(samplesByBeta[r] ?? []).push(input.observe({ poset: replica.poset }))
+          ;(samplesByBeta[r] ?? []).push(
+            input.observe({ poset: replica.poset }),
+          )
         }
       }
     }

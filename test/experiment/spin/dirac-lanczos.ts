@@ -24,40 +24,70 @@ type ApplyH = ReturnType<typeof makeDirac>['applyH']
 // largest eigenvalue of H^2 by power iteration (for the fold constant)
 function lambdaMaxH2(applyH: ApplyH): number {
   const rng = makeRng({ seed: 1 })
-  return largestEigenvalueOfSquare({ apply: applyH, dimension: DIM, rand: () => rng.next() })
+  return largestEigenvalueOfSquare({
+    apply: applyH,
+    dimension: DIM,
+    rand: () => rng.next(),
+  })
 }
 
 // Lanczos on (C*I - H^2) for its LARGEST eigenvalues (= smallest of H^2 = near-zero |lambda| of H)
-function lowestAbsEig(applyH: ApplyH, Cfold: number, m: number): number[] {
+function lowestAbsEig(
+  applyH: ApplyH,
+  Cfold: number,
+  m: number,
+): number[] {
   const rng = makeRng({ seed: 7 })
-  return lowestAbsoluteEigenvalues({ apply: applyH, dimension: DIM, fold: Cfold, steps: m, count: 8, rand: () => rng.next() })
+  return lowestAbsoluteEigenvalues({
+    apply: applyH,
+    dimension: DIM,
+    fold: Cfold,
+    steps: m,
+    count: 8,
+    rand: () => rng.next(),
+  })
 }
 
-export function diracLanczos(): { zeroModesHedgehog: number; zeroModesFree: number; gapVsSize: [number, number][] } {
+export function diracLanczos(): {
+  zeroModesHedgehog: number
+  zeroModesFree: number
+  gapVsSize: [number, number][]
+} {
   const M = 1.5
-  const run = (R: number): number[] => { const aH = makeDirac(L, M, R, 'bag').applyH; const Cf = lambdaMaxH2(aH) * 1.05; return lowestAbsEig(aH, Cf, 90) }
+  const run = (R: number): number[] => {
+    const aH = makeDirac(L, M, R, 'bag').applyH
+    const Cf = lambdaMaxH2(aH) * 1.05
+    return lowestAbsEig(aH, Cf, 90)
+  }
   // uniform mass reference (R=0 -> uniform M, no winding core), few near-zero modes
-  const aU = makeDirac(L, M, 0.001, 'bag').applyH; const Cu = lambdaMaxH2(aU) * 1.05
+  const aU = makeDirac(L, M, 0.001, 'bag').applyH
+  const Cu = lambdaMaxH2(aU) * 1.05
   const freeSpec = lowestAbsEig(aU, Cu, 90)
-  const zeroModesFree = freeSpec.filter((e) => e < 0.08).length
+  const zeroModesFree = freeSpec.filter(e => e < 0.08).length
   const hedge = run(4)
-  const zeroModesHedgehog = hedge.filter((e) => e < 0.08).length
+  const zeroModesHedgehog = hedge.filter(e => e < 0.08).length
   // bound-state gap vs soliton size
   const gapVsSize: [number, number][] = []
-  for (const R of [2, 4, 6]) { const sp = run(R); const gap = sp.find((e) => e > 0.08) ?? sp[sp.length - 1]!; gapVsSize.push([R, Math.round(gap * 1000) / 1000]) }
+  for (const R of [2, 4, 6]) {
+    const sp = run(R)
+    const gap = sp.find(e => e > 0.08) ?? sp[sp.length - 1]!
+    gapVsSize.push([R, Math.round(gap * 1000) / 1000])
+  }
   return { zeroModesHedgehog, zeroModesFree, gapVsSize }
 }
 
 export default experiment({
   id: 'spin/dirac-lanczos',
-  title: 'a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks',
+  title:
+    'a 3D hedgehog binds near-zero Dirac modes that the uniform vacuum lacks',
   category: 'spin',
   substrates: ['any'],
   depth: 'L2',
   paper: true,
   run() {
     const r = diracLanczos()
-    const ok = r.zeroModesHedgehog > r.zeroModesFree && r.zeroModesFree === 0
+    const ok =
+      r.zeroModesHedgehog > r.zeroModesFree && r.zeroModesFree === 0
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

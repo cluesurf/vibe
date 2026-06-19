@@ -62,7 +62,8 @@ export function falsePositiveRate(input: {
   let hits = 0
   for (let t = 0; t < trials; t++) {
     const q = new Int8Array(mem.wordBits)
-    for (let k = 0; k < mem.wordBits; k++) q[k] = rng.nextInt({ max: 3 })
+    for (let k = 0; k < mem.wordBits; k++)
+      q[k] = rng.nextInt({ max: 3 })
     if (searchExact({ mem, comparand: q }).length > 0) hits++
   }
   return trials > 0 ? hits / trials : 0
@@ -70,18 +71,31 @@ export function falsePositiveRate(input: {
 
 // The coverage radius, the largest graph distance from the seed (the beats a query wave needs to reach the
 // whole built region). On a hyperbolic graph this is O(log N), on a flat lattice O(N^(1/d)).
-export function coverageRadius(input: { neighbors: Neighbors; seed: number }): number {
-  const depth = bfsShells({ neighbors: input.neighbors, root: input.seed }).depth
+export function coverageRadius(input: {
+  neighbors: Neighbors
+  seed: number
+}): number {
+  const depth = bfsShells({
+    neighbors: input.neighbors,
+    root: input.seed,
+  }).depth
   let r = 0
-  for (let c = 0; c < depth.length; c++) if (depth[c]! > r) r = depth[c]!
+  for (let c = 0; c < depth.length; c++)
+    if (depth[c]! > r) r = depth[c]!
   return r
 }
 
 // The capacity curve, the cumulative number of cells (storable words) within each radius of the seed. The
 // associative capacity reachable within a given search latency. Hyperbolic gives exponential growth, flat
 // polynomial.
-export function radiusCapacity(input: { neighbors: Neighbors; seed: number }): number[] {
-  const { shellCounts } = bfsShells({ neighbors: input.neighbors, root: input.seed })
+export function radiusCapacity(input: {
+  neighbors: Neighbors
+  seed: number
+}): number[] {
+  const { shellCounts } = bfsShells({
+    neighbors: input.neighbors,
+    root: input.seed,
+  })
   const cumulative: number[] = []
   let total = 0
   for (const s of shellCounts) {
@@ -93,7 +107,8 @@ export function radiusCapacity(input: { neighbors: Neighbors; seed: number }): n
 
 function occupiedCells(mem: AssociativeMemory): number[] {
   const out: number[] = []
-  for (let c = 0; c < mem.cellCount; c++) if (mem.occupied[c]) out.push(c)
+  for (let c = 0; c < mem.cellCount; c++)
+    if (mem.occupied[c]) out.push(c)
   return out
 }
 

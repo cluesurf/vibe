@@ -10,18 +10,28 @@ import { cellGraphSpectral } from '@/code/measure/cell-graph-spectral'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function comparison534(): { specDim: number; degree: number; betheAlpha: number } {
+export function comparison534(): {
+  specDim: number
+  degree: number
+  betheAlpha: number
+} {
   // {5,3,4} bulk spectral dimension via the lazy-walk return probability (the central
   // difference here is the endpoint slope between t = 3 and t = 6), and the Bethe-lattice
   // boundary correlator exponent, both in code/measure.
-  const bulk = cellGraphSpectral({ symbol: [5, 3, 4], maxCells: 20000, t1: 3, t2: 6 })
+  const bulk = cellGraphSpectral({
+    symbol: [5, 3, 4],
+    maxCells: 20000,
+    t1: 3,
+    t2: 6,
+  })
   const betheAlpha = betheCorrelatorExponent(12)
   return { specDim: bulk.specDim, degree: bulk.degree, betheAlpha }
 }
 
 export default experiment({
   id: 'substrate-survey/534-comparison',
-  title: 'the framework ports to {5,3,4} (3D bulk, clean 1/r^2 correlator), the control isolating what needs {3,4,3,4}',
+  title:
+    'the framework ports to {5,3,4} (3D bulk, clean 1/r^2 correlator), the control isolating what needs {3,4,3,4}',
   category: 'substrate-survey',
   substrates: ['534'],
   depth: 'L1',

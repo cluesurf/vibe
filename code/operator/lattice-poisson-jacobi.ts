@@ -15,7 +15,8 @@ export function latticePoissonJacobi(input: {
   const coefficient = input.sourceCoefficient ?? 4 * Math.PI
   const n = neighbors.length
   let phi = new Float64Array(n)
-  const isBoundary = (i: number): boolean => (neighbors[i]?.length ?? 0) < interiorDegree
+  const isBoundary = (i: number): boolean =>
+    (neighbors[i]?.length ?? 0) < interiorDegree
   for (let it = 0; it < iterations; it++) {
     const next = new Float64Array(n)
     for (let i = 0; i < n; i++) {

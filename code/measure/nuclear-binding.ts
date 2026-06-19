@@ -17,7 +17,10 @@ const COULOMB = 0.711
 const ASYMMETRY = 23.7
 const PAIRING = 11.18
 
-function pairingTerm(input: { massNumber: number; protonNumber: number }): number {
+function pairingTerm(input: {
+  massNumber: number
+  protonNumber: number
+}): number {
   const a = input.massNumber
   const z = input.protonNumber
   const n = a - z
@@ -37,7 +40,10 @@ export function nuclearBindingEnergy(input: {
 }): number {
   const a = input.massNumber
   const z = input.protonNumber
-  const coulomb = input.includeCoulomb === false ? 0 : (COULOMB * z * (z - 1)) / Math.cbrt(a)
+  const coulomb =
+    input.includeCoulomb === false
+      ? 0
+      : (COULOMB * z * (z - 1)) / Math.cbrt(a)
   return (
     VOLUME * a -
     SURFACE * Math.pow(a, 2 / 3) -
@@ -49,30 +55,55 @@ export function nuclearBindingEnergy(input: {
 
 // the binding energy per nucleon B/A (MeV) for the most-bound (valley-of-stability) isobar at a given A, the Z that
 // maximizes B/A
-export function bindingPerNucleonAtMass(input: { massNumber: number; includeCoulomb?: boolean }): {
+export function bindingPerNucleonAtMass(input: {
+  massNumber: number
+  includeCoulomb?: boolean
+}): {
   protonNumber: number
   bindingPerNucleon: number
 } {
-  let best = { protonNumber: 0, bindingPerNucleon: Number.NEGATIVE_INFINITY }
+  let best = {
+    protonNumber: 0,
+    bindingPerNucleon: Number.NEGATIVE_INFINITY,
+  }
   for (let z = 1; z < input.massNumber; z++) {
-    const bpa = nuclearBindingEnergy({ massNumber: input.massNumber, protonNumber: z, includeCoulomb: input.includeCoulomb }) / input.massNumber
-    if (bpa > best.bindingPerNucleon) best = { protonNumber: z, bindingPerNucleon: bpa }
+    const bpa =
+      nuclearBindingEnergy({
+        massNumber: input.massNumber,
+        protonNumber: z,
+        includeCoulomb: input.includeCoulomb,
+      }) / input.massNumber
+    if (bpa > best.bindingPerNucleon)
+      best = { protonNumber: z, bindingPerNucleon: bpa }
   }
   return best
 }
 
 // the peak of the binding curve, the mass number A that maximizes B/A along the valley of stability (the iron peak)
-export function bindingCurvePeak(input: { maxMass?: number; includeCoulomb?: boolean } = {}): {
+export function bindingCurvePeak(
+  input: { maxMass?: number; includeCoulomb?: boolean } = {},
+): {
   massNumber: number
   protonNumber: number
   bindingPerNucleon: number
 } {
   const maxMass = input.maxMass ?? 250
-  let best = { massNumber: 0, protonNumber: 0, bindingPerNucleon: Number.NEGATIVE_INFINITY }
+  let best = {
+    massNumber: 0,
+    protonNumber: 0,
+    bindingPerNucleon: Number.NEGATIVE_INFINITY,
+  }
   for (let a = 2; a <= maxMass; a++) {
-    const at = bindingPerNucleonAtMass({ massNumber: a, includeCoulomb: input.includeCoulomb })
+    const at = bindingPerNucleonAtMass({
+      massNumber: a,
+      includeCoulomb: input.includeCoulomb,
+    })
     if (at.bindingPerNucleon > best.bindingPerNucleon) {
-      best = { massNumber: a, protonNumber: at.protonNumber, bindingPerNucleon: at.bindingPerNucleon }
+      best = {
+        massNumber: a,
+        protonNumber: at.protonNumber,
+        bindingPerNucleon: at.bindingPerNucleon,
+      }
     }
   }
   return best

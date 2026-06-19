@@ -22,7 +22,8 @@ const EXPECTED: Array<{ symbol: number[]; coordination: number }> = [
 
 export default experiment({
   id: 'data-structure/cell-coordination',
-  title: 'phase 3: the exact B-tree order (cell coordination) of every tessellation, computed from its symbol',
+  title:
+    'phase 3: the exact B-tree order (cell coordination) of every tessellation, computed from its symbol',
   category: 'data-structure',
   substrates: ['all'],
   depth: 'L1',
@@ -36,7 +37,9 @@ export default experiment({
       if (c !== e.coordination) allMatch = false
     }
     // the paracompact pentacomb has an infinite cell, so infinite coordination (a tiling, not a finite polytope)
-    const pentacombInfinite = !Number.isFinite(cellCoordination([3, 4, 3, 3, 4]))
+    const pentacombInfinite = !Number.isFinite(
+      cellCoordination([3, 4, 3, 3, 4]),
+    )
 
     const ok = allMatch && pentacombInfinite
 
@@ -53,7 +56,10 @@ export default experiment({
       },
       // CONTROL: the chamber-graph degree is just the rank (3 to 6), the cell coordination is the true
       // geometric fan-out, so the exact B-tree order needs the cell, not the chamber, count.
-      control: { chamberDegree534: 4, cellCoordination534: measured['{5,3,4}']! },
+      control: {
+        chamberDegree534: 4,
+        cellCoordination534: measured['{5,3,4}']!,
+      },
       notes:
         'Phase 3 of plans/data-structures-on-all-tessellations, DONE. The cell coordination is the exact B-tree order, so the B-tree depth on a tessellation is log of the cell count to the base of its coordination. Compact honeycombs give a finite order, paracompact ones an infinite (tiling) cell.',
     })

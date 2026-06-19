@@ -46,37 +46,60 @@ export function sp1SpinDoubleCover(): {
   // (A) the 24 units form a GROUP under quaternion multiplication (closure), order 24 = 2T
   const set = new Set(U.map(qkey))
   let closed = true
-  for (const a of U) for (const b of U) if (!set.has(qkey(qmul(a, b)))) closed = false
+  for (const a of U)
+    for (const b of U) if (!set.has(qkey(qmul(a, b)))) closed = false
   const isGroup = closed && U.length === 24
 
   // (B) conjugation q -> (v -> q v q^-1) is the DOUBLE COVER: 24 quaternions -> 12 rotations, 2-to-1
   const rotKey = (q: Q): string => rotationKey(toQ(q), 0)
   const rots = new Set(U.map(rotKey))
   const rotationOrder = rots.size
-  const doubleCover = rotationOrder === 12 && rotKey([1, 0, 0, 0]) === rotKey([-1, 0, 0, 0])
+  const doubleCover =
+    rotationOrder === 12 &&
+    rotKey([1, 0, 0, 0]) === rotKey([-1, 0, 0, 0])
 
   // (C) THE GATE: a 2*pi rotation gives a spinor a MINUS sign, a vector NO sign. 4*pi restores the spinor.
   // rotation quaternion about z by angle theta: q = (cos(theta/2), 0, 0, sin(theta/2))
-  const rotQ = (theta: number): Q => [Math.cos(theta / 2), 0, 0, Math.sin(theta / 2)]
+  const rotQ = (theta: number): Q => [
+    Math.cos(theta / 2),
+    0,
+    0,
+    Math.sin(theta / 2),
+  ]
   // spinor action = LEFT multiply, overlap with the reference spinor (1,0,0,0) is the w-component = cos(theta/2)
-  const spinorOverlap = (theta: number): number => qmul(rotQ(theta), [1, 0, 0, 0])[0]
+  const spinorOverlap = (theta: number): number =>
+    qmul(rotQ(theta), [1, 0, 0, 0])[0]
   // vector action = CONJUGATION, overlap of an in-plane vector (1,0,0) with its image = cos(theta)
   const vectorOverlap = (theta: number): number => {
-    const q = rotQ(theta), v: Q = [0, 1, 0, 0], r = qmul(qmul(q, v), qconj(q))
+    const q = rotQ(theta),
+      v: Q = [0, 1, 0, 0],
+      r = qmul(qmul(q, v), qconj(q))
     return r[1] // x-component, = cos(theta)
   }
-  const TWO_PI = 2 * Math.PI, FOUR_PI = 4 * Math.PI
-  const s2 = spinorOverlap(TWO_PI), s4 = spinorOverlap(FOUR_PI), v2 = vectorOverlap(TWO_PI)
+  const TWO_PI = 2 * Math.PI,
+    FOUR_PI = 4 * Math.PI
+  const s2 = spinorOverlap(TWO_PI),
+    s4 = spinorOverlap(FOUR_PI),
+    v2 = vectorOverlap(TWO_PI)
   const spinorMinusAt2pi = Math.abs(s2 - -1) < 1e-9
   const spinorPlusAt4pi = Math.abs(s4 - 1) < 1e-9
   const vectorPlusAt2pi = Math.abs(v2 - 1) < 1e-9
 
-  return { groupOrder: U.length, isGroup, rotationOrder, doubleCover, spinorMinusAt2pi, spinorPlusAt4pi, vectorPlusAt2pi }
+  return {
+    groupOrder: U.length,
+    isGroup,
+    rotationOrder,
+    doubleCover,
+    spinorMinusAt2pi,
+    spinorPlusAt4pi,
+    vectorPlusAt2pi,
+  }
 }
 
 export default experiment({
   id: 'spin/sp1-spin-double-cover',
-  title: 'the 24 directions of {3,4,3,4} are the binary tetrahedral group, the spin-1/2 double cover',
+  title:
+    'the 24 directions of {3,4,3,4} are the binary tetrahedral group, the spin-1/2 double cover',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',

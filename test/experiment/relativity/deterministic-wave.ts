@@ -22,7 +22,10 @@ import { ringEdges, ringNeighbors } from '@/code/substrate/ring'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function deterministicWave(input?: { L?: number; beats?: number }): {
+export function deterministicWave(input?: {
+  L?: number
+  beats?: number
+}): {
   L: number
   reversible: boolean
   detSpreadExponent: number
@@ -37,8 +40,18 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
   const rng0 = makeRng({ seed: 7 })
   const neighbors = ringNeighbors(L)
   const ring = ringEdges(L)
-  const step = (prev: Uint8Array, cur: Uint8Array, next: Uint8Array): void =>
-    reversibleWaveStep({ neighbors, previous: prev, current: cur, next, modulus: 3 })
+  const step = (
+    prev: Uint8Array,
+    cur: Uint8Array,
+    next: Uint8Array,
+  ): void =>
+    reversibleWaveStep({
+      neighbors,
+      previous: prev,
+      current: cur,
+      next,
+      modulus: 3,
+    })
 
   // (1) reversibility: run forward, then step backward, recover the initial pair exactly
   const prev0 = new Uint8Array(L)
@@ -63,10 +76,11 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     prev = back
   }
   let reversible = true
-  for (let x = 0; x < L; x++) if (prev[x] !== prev0[x] || cur[x] !== cur0[x]) {
-    reversible = false
-    break
-  }
+  for (let x = 0; x < L; x++)
+    if (prev[x] !== prev0[x] || cur[x] !== cur0[x]) {
+      reversible = false
+      break
+    }
 
   // (2) ballistic spread: a localized perturbation, RMS width of the difference vs time
   const center = Math.floor(L / 2)
@@ -82,7 +96,7 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     let ca = c0.slice()
     let pb = p0.slice()
     let cb = c0.slice()
-    cb[center] = ((cb[center]! + 1) % 3) // the perturbation
+    cb[center] = (cb[center]! + 1) % 3 // the perturbation
     const times: number[] = []
     const spreads: number[] = []
     for (let t = 1; t <= beats; t++) {
@@ -96,13 +110,18 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
       cb = nb
       if (t % 5 === 0) {
         times.push(t)
-        spreads.push(differenceRmsWidthRing({ a: ca, b: cb, length: L, center }))
+        spreads.push(
+          differenceRmsWidthRing({ a: ca, b: cb, length: L, center }),
+        )
       }
     }
     return { times, spreads }
   }
   const det = measureDet()
-  const detSpreadExponent = powerLawExponent({ times: det.times, spreads: det.spreads })
+  const detSpreadExponent = powerLawExponent({
+    times: det.times,
+    spreads: det.spreads,
+  })
 
   // stochastic comparison: a localized charge, RMS displacement (the diffusive z=2 charge mode)
   const measureStoch = (): { times: number[]; spreads: number[] } => {
@@ -117,12 +136,24 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
       const r = makeRng({ seed: 200 + run })
       let pos = center
       for (let t = 1; t <= beats; t++) {
-        conservingEdgeSweep({ tone, eu: ring.eu, ev: ring.ev, moved, rng: r, arrow: 0 })
-        if (tone[pos] === 0) for (let d = -1; d <= 1; d += 2) if (tone[(pos + d + L) % L] === 1) {
-          pos = (pos + d + L) % L
-          break
-        }
-        const dd = Math.min(Math.abs(pos - center), L - Math.abs(pos - center))
+        conservingEdgeSweep({
+          tone,
+          eu: ring.eu,
+          ev: ring.ev,
+          moved,
+          rng: r,
+          arrow: 0,
+        })
+        if (tone[pos] === 0)
+          for (let d = -1; d <= 1; d += 2)
+            if (tone[(pos + d + L) % L] === 1) {
+              pos = (pos + d + L) % L
+              break
+            }
+        const dd = Math.min(
+          Math.abs(pos - center),
+          L - Math.abs(pos - center),
+        )
         sumD2[t]! += dd * dd
       }
     }
@@ -133,13 +164,17 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
     return { times, spreads }
   }
   const stoch = measureStoch()
-  const stochSpreadExponent = powerLawExponent({ times: stoch.times, spreads: stoch.spreads })
+  const stochSpreadExponent = powerLawExponent({
+    times: stoch.times,
+    spreads: stoch.spreads,
+  })
 
   const detIsBallistic = detSpreadExponent > 0.8
   // the clean diffusive (z=2) result for the stochastic rule is P137's dispersion measurement, this crude
   // single-charge measure is biased super-diffusive by the synchronous edge-update order, so it is
   // informational only, not part of the verdict
-  const stochIsDiffusive = stochSpreadExponent < detSpreadExponent - 0.05 // at least clearly less ballistic
+  const stochIsDiffusive =
+    stochSpreadExponent < detSpreadExponent - 0.05 // at least clearly less ballistic
   const momentumFromDeterminism = reversible && detIsBallistic
   const solved = momentumFromDeterminism
 
@@ -157,7 +192,8 @@ export function deterministicWave(input?: { L?: number; beats?: number }): {
 
 export default experiment({
   id: 'relativity/deterministic-wave',
-  title: 'a deterministic reversible rule propagates ballistically so momentum emerges',
+  title:
+    'a deterministic reversible rule propagates ballistically so momentum emerges',
   category: 'relativity',
   substrates: 'any',
   depth: 'L3',
@@ -165,7 +201,10 @@ export default experiment({
   run() {
     const r = deterministicWave({ L: 2000 })
     const ok =
-      r.solved && r.reversible && r.detIsBallistic && r.momentumFromDeterminism
+      r.solved &&
+      r.reversible &&
+      r.detIsBallistic &&
+      r.momentumFromDeterminism
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -9,7 +9,9 @@ import { renderDigitFibonacci } from '@/code/render/run/digit-fibonacci'
 
 renderDigitFibonacci({
   base: 3,
-  runner: (program, initial, onStep) => { runTernary(program, initial, onStep) },
+  runner: (program, initial, onStep) => {
+    runTernary(program, initial, onStep)
+  },
   outName: 'fibonacci-7-3-ternary',
   digitsShown: 12, // fib to 55 = 2001 in base 3 (4 trits); headroom shows the word is sparse
   costLabel: 'trit-ops',

@@ -22,18 +22,36 @@ const E_GRB_GEV = 10
 const E_PLANCK_GEV = 1.22e19
 
 // the relative anisotropy of the discrete dispersion, axis vs body-diagonal, at decreasing |k|.
-function anisotropyScaling(directions: number[][], dimension: number): { exponent: number; small: number } {
+function anisotropyScaling(
+  directions: number[][],
+  dimension: number,
+): { exponent: number; small: number } {
   const qs = [0.4, 0.2, 0.1, 0.05]
-  const anis = qs.map((q) => dispersionAxisDiagonalAnisotropy({ directions, dimension, magnitude: q }))
+  const anis = qs.map(q =>
+    dispersionAxisDiagonalAnisotropy({
+      directions,
+      dimension,
+      magnitude: q,
+    }),
+  )
   // guard zeros (D4 anisotropy can underflow to 0 at the smallest q); fit on the resolvable points
-  const pts = qs.map((q, i) => [q, anis[i]!] as const).filter(([, a]) => a > 1e-14)
-  const exponent = pts.length >= 2 ? logLogSlope(pts.map((p) => p[0]), pts.map((p) => p[1])) : 6
+  const pts = qs
+    .map((q, i) => [q, anis[i]!] as const)
+    .filter(([, a]) => a > 1e-14)
+  const exponent =
+    pts.length >= 2
+      ? logLogSlope(
+          pts.map(p => p[0]),
+          pts.map(p => p[1]),
+        )
+      : 6
   return { exponent, small: anis[anis.length - 1]! }
 }
 
 export default experiment({
   id: 'relativity/lorentz-bound-3434',
-  title: 'the deterministic {3,4,3,4} substrate passes the GRB Lorentz bound by D4 symmetry (xi1 = 0, anisotropy order >= 4), with no random sprinkling',
+  title:
+    'the deterministic {3,4,3,4} substrate passes the GRB Lorentz bound by D4 symmetry (xi1 = 0, anisotropy order >= 4), with no random sprinkling',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L3',
@@ -69,7 +87,9 @@ export default experiment({
         d4AnisotropyAtSmallK: d4.small,
         residualAtGRB,
         xi1Bound: XI1_BOUND,
-        boundMarginOrders: Math.round(Math.log10(XI1_BOUND / Math.max(residualAtGRB, 1e-300))),
+        boundMarginOrders: Math.round(
+          Math.log10(XI1_BOUND / Math.max(residualAtGRB, 1e-300)),
+        ),
       },
       control: {
         cubicAnisotropyExponent: Number(cubicExponent.toFixed(3)),

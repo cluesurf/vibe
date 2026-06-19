@@ -26,7 +26,9 @@ function ringSizes(adjacency: number[][]): number[] {
 
 const GOLDEN_GROWTH = (3 + Math.sqrt(5)) / 2 // the pentagrid ball-growth constant, phi^2 ~ 2.618
 
-export function deterministicGrowth(input: Record<string, never> = {}): {
+export function deterministicGrowth(
+  input: Record<string, never> = {},
+): {
   resumableMatchesOneShot: boolean
   appendOnly: boolean
   matchesStaticRings: boolean
@@ -49,14 +51,16 @@ export function deterministicGrowth(input: Record<string, never> = {}): {
     chunked.grow(step)
     i += step
   }
-  const resumableMatchesOneShot = chunked.size() === oneShot.size() && adjacencyListsEqual(chunked.adjacency, oneShot.adjacency)
+  const resumableMatchesOneShot =
+    chunked.size() === oneShot.size() &&
+    adjacencyListsEqual(chunked.adjacency, oneShot.adjacency)
 
   // 2. Append-only: grow some, snapshot every edge, grow more, confirm no edge was removed or
   // changed. Growth only ever ADDS (a frontier cell may still gain children), never edits, so
   // every snapshot edge must still be present.
   const mesh = new GrowingPentagrid()
   mesh.grow(500)
-  const snapshot = mesh.adjacency.slice(0, 500).map((row) => [...row])
+  const snapshot = mesh.adjacency.slice(0, 500).map(row => [...row])
   mesh.grow(1500)
   let appendOnly = true
   for (let i = 0; i < 500; i++) {
@@ -72,23 +76,31 @@ export function deterministicGrowth(input: Record<string, never> = {}): {
 
   // 3. Faithful: the grown mesh matches the static tiling, ring for ring.
   const staticTiling = tilingPQ({ p: 5, q: 4, generations: 6 })
-  const staticRings = ringSizes(staticTiling.neighbors.map((r) => Array.from(r)))
+  const staticRings = ringSizes(
+    staticTiling.neighbors.map(r => Array.from(r)),
+  )
   const staticCount = staticRings.reduce((a, b) => a + b, 0)
   const grownToMatch = new GrowingPentagrid()
   grownToMatch.grow(staticCount - 1) // root already present
   const grownRings = ringSizes(grownToMatch.adjacency)
   const matchesStaticRings =
-    grownRings.length >= staticRings.length && staticRings.every((s, i) => s === grownRings[i])
+    grownRings.length >= staticRings.length &&
+    staticRings.every((s, i) => s === grownRings[i])
 
   // 4. Geometry emerges: the ball-growth ratio converges to the golden-ratio law. The final ring
   // of a mesh grown to an arbitrary size is incomplete, so we exclude it (use complete rings only).
   const rings = ringSizes(oneShot.adjacency)
-  const growthRatio = branchingRatio({ shellCounts: rings, from: 5, to: rings.length - 1 })
+  const growthRatio = branchingRatio({
+    shellCounts: rings,
+    from: 5,
+    to: rings.length - 1,
+  })
   const geometryEmerges = Math.abs(growthRatio - GOLDEN_GROWTH) < 0.05
 
   // Degree stays bounded, as a finite-cell crystal requires.
   let maxDegree = 0
-  for (const row of oneShot.adjacency) maxDegree = Math.max(maxDegree, row.length)
+  for (const row of oneShot.adjacency)
+    maxDegree = Math.max(maxDegree, row.length)
   const degreeBounded = maxDegree <= 6
 
   return {
@@ -100,13 +112,19 @@ export function deterministicGrowth(input: Record<string, never> = {}): {
     geometryEmerges,
     maxDegree,
     degreeBounded,
-    solved: resumableMatchesOneShot && appendOnly && matchesStaticRings && geometryEmerges && degreeBounded,
+    solved:
+      resumableMatchesOneShot &&
+      appendOnly &&
+      matchesStaticRings &&
+      geometryEmerges &&
+      degreeBounded,
   }
 }
 
 export default experiment({
   id: 'cosmology/deterministic-growth',
-  title: 'resumable, append-only, faithful, geometry emerges (golden ratio)',
+  title:
+    'resumable, append-only, faithful, geometry emerges (golden ratio)',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L2',
@@ -114,7 +132,11 @@ export default experiment({
   run() {
     const r = deterministicGrowth()
     const ok =
-      r.solved && r.resumableMatchesOneShot && r.appendOnly && r.matchesStaticRings && r.geometryEmerges
+      r.solved &&
+      r.resumableMatchesOneShot &&
+      r.appendOnly &&
+      r.matchesStaticRings &&
+      r.geometryEmerges
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

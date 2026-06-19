@@ -4,7 +4,11 @@
 // light cone is anisotropic (faceted)? (C) the expansion law, how the spatial slice grows with radial level.
 // Run: npx tsx code/experiment/emergent-space-test.ts
 
-import { buildHorosphereBand, buildEuclideanLattice, bandLargestComponentSubgraph } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildHorosphereBand,
+  buildEuclideanLattice,
+  bandLargestComponentSubgraph,
+} from '@/code/substrate/coxeter/cell-direct'
 import { spectralDimension } from '@/code/measure/dimension'
 import { frontCoefficientOfVariation } from '@/code/measure/isotropy'
 import { experiment } from '@/test/scaffold/suite'
@@ -13,27 +17,62 @@ import { verdict } from '@/test/scaffold/verdict'
 // The geometry measures, the band largest-component extraction (bandLargestComponentSubgraph), the
 // spectral dimension by lazy-walk return probability (spectralDimension), and the light-cone front
 // isotropy (frontCoefficientOfVariation), all live in code/.
-const spectralDim = (nb: number[][], start: number, t1: number, t2: number): number =>
-  spectralDimension({ neighbors: nb, start, t1, t2 })
-const frontCV = (nb: number[][], coords: number[][], start: number, R: number): number =>
-  frontCoefficientOfVariation({ neighbors: nb, coords, start, radius: R })
+const spectralDim = (
+  nb: number[][],
+  start: number,
+  t1: number,
+  t2: number,
+): number => spectralDimension({ neighbors: nb, start, t1, t2 })
+const frontCV = (
+  nb: number[][],
+  coords: number[][],
+  start: number,
+  R: number,
+): number =>
+  frontCoefficientOfVariation({
+    neighbors: nb,
+    coords,
+    start,
+    radius: R,
+  })
 
 export function emergentSpaceTest(): void {
   // (A) the horosphere band, coherent largest component
-  const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
-  const slice = bandLargestComponentSubgraph({ band: h, halfWidth: 1.0 })
+  const h = buildHorosphereBand({
+    symbol: [3, 4, 3, 4] as never,
+    maxBand: 9000,
+    half: 1.0,
+    margin: 0.8,
+  })
+  const slice = bandLargestComponentSubgraph({
+    band: h,
+    halfWidth: 1.0,
+  })
   const lccFrac = slice.largestComponentPercent
-  const bandDim = Math.round(spectralDim(slice.neighbors, slice.start, 3, 12) * 100) / 100
+  const bandDim =
+    Math.round(spectralDim(slice.neighbors, slice.start, 3, 12) * 100) /
+    100
   const bandCV = frontCV(slice.neighbors, slice.coords, slice.start, 6)
   // (B) isotropy vs the clean cubic {4,3,4}
-  const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 9000 })
-  let cc = 0; for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
-  const cubeDim = Math.round(spectralDim(cube.neighbors, cc, 3, 12) * 100) / 100
+  const cube = buildEuclideanLattice({
+    symbol: [4, 3, 4] as never,
+    maxCells: 9000,
+  })
+  let cc = 0
+  for (let i = 0; i < cube.cellCount; i++)
+    if (cube.coords[i]!.every(x => x === 0)) cc = i
+  const cubeDim =
+    Math.round(spectralDim(cube.neighbors, cc, 3, 12) * 100) / 100
   const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
   // (C) expansion law, band-slice size vs radial (Busemann) level
   const levels: Record<number, number> = {}
-  for (let i = 0; i < h.cellCount; i++) { const L = Math.round(h.busemann[i]!); levels[L] = (levels[L] ?? 0) + 1 }
-  const ks = Object.keys(levels).map(Number).sort((a, b) => a - b)
+  for (let i = 0; i < h.cellCount; i++) {
+    const L = Math.round(h.busemann[i]!)
+    levels[L] = (levels[L] ?? 0) + 1
+  }
+  const ks = Object.keys(levels)
+    .map(Number)
+    .sort((a, b) => a - b)
   const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1
 }
 
@@ -45,21 +84,42 @@ export function emergentSpaceTest(): void {
 // rounder. These are geometric measurements on known tessellations, so L2.
 export default experiment({
   id: 'geometry/emergent-space-test',
-  title: 'the {3,4,3,4} horosphere band is a coherent 3D space with a rounder light cone than the cubic crystal',
+  title:
+    'the {3,4,3,4} horosphere band is a coherent 3D space with a rounder light cone than the cubic crystal',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L2',
   paper: true,
   run() {
-    const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
-    const slice = bandLargestComponentSubgraph({ band: h, halfWidth: 1.0 })
+    const h = buildHorosphereBand({
+      symbol: [3, 4, 3, 4] as never,
+      maxBand: 9000,
+      half: 1.0,
+      margin: 0.8,
+    })
+    const slice = bandLargestComponentSubgraph({
+      band: h,
+      halfWidth: 1.0,
+    })
     const lccFrac = slice.largestComponentPercent
-    const bandDim = Math.round(spectralDim(slice.neighbors, slice.start, 3, 12) * 100) / 100
-    const bandCV = frontCV(slice.neighbors, slice.coords, slice.start, 6)
+    const bandDim =
+      Math.round(
+        spectralDim(slice.neighbors, slice.start, 3, 12) * 100,
+      ) / 100
+    const bandCV = frontCV(
+      slice.neighbors,
+      slice.coords,
+      slice.start,
+      6,
+    )
 
-    const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 9000 })
+    const cube = buildEuclideanLattice({
+      symbol: [4, 3, 4] as never,
+      maxCells: 9000,
+    })
     let cc = 0
-    for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
+    for (let i = 0; i < cube.cellCount; i++)
+      if (cube.coords[i]!.every(x => x === 0)) cc = i
     const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
 
     const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1

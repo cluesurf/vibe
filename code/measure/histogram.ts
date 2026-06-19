@@ -18,7 +18,10 @@ export function histogramFlatness(input: {
   let kept = 0
   for (const e of samples) {
     if (e < -range || e > range) continue
-    const k = Math.min(bins - 1, Math.floor(((e + range) / (2 * range)) * bins))
+    const k = Math.min(
+      bins - 1,
+      Math.floor(((e + range) / (2 * range)) * bins),
+    )
     h[k] = (h[k] ?? 0) + 1
     kept += 1
   }

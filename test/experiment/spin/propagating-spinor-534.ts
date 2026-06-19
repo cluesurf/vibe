@@ -1,6 +1,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { type Complex, complex, cMul, cAbs2 } from '@/code/algebra/linear/complex'
+import {
+  type Complex,
+  complex,
+  cMul,
+  cAbs2,
+} from '@/code/algebra/linear/complex'
 
 // Closing the gap, a PROPAGATING SPINOR on the curved {5,3,4} bulk. The bare lattice-gas occupation field
 // streams (propagates) but is linear, no spinor (spin/lattice-gas-spinor-534). The geometry carries the spin
@@ -18,18 +23,29 @@ type Spinor = [Complex, Complex]
 // exp(-i pi sigma_z) = minus the identity, the verified {5,3,4} 2pi-loop holonomy
 const connectionLink = (loopLength: number): [Complex, Complex] => {
   const angle = Math.PI / loopLength
-  return [complex({ re: Math.cos(angle), im: -Math.sin(angle) }), complex({ re: Math.cos(angle), im: Math.sin(angle) })]
+  return [
+    complex({ re: Math.cos(angle), im: -Math.sin(angle) }),
+    complex({ re: Math.cos(angle), im: Math.sin(angle) }),
+  ]
 }
 
-const transport = (spinor: Spinor, link: [Complex, Complex]): Spinor => [cMul(link[0], spinor[0]), cMul(link[1], spinor[1])]
+const transport = (
+  spinor: Spinor,
+  link: [Complex, Complex],
+): Spinor => [cMul(link[0], spinor[0]), cMul(link[1], spinor[1])]
 
 const zero = (): Complex => complex({ re: 0, im: 0 })
 const closeTo = (spinor: Spinor, target: Spinor): boolean =>
-  spinor.every((component, index) => Math.abs(component.re - target[index]!.re) < 1e-9 && Math.abs(component.im - target[index]!.im) < 1e-9)
+  spinor.every(
+    (component, index) =>
+      Math.abs(component.re - target[index]!.re) < 1e-9 &&
+      Math.abs(component.im - target[index]!.im) < 1e-9,
+  )
 
 export default experiment({
   id: 'spin/propagating-spinor-534',
-  title: 'a propagating spinor on curved {5,3,4}, streaming coupled to the spin connection returns minus itself per 2pi loop',
+  title:
+    'a propagating spinor on curved {5,3,4}, streaming coupled to the spin connection returns minus itself per 2pi loop',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
@@ -37,23 +53,38 @@ export default experiment({
   run() {
     const loop = 12 // a loop of 12 cells around the {5,3,4} structure
     const link = connectionLink(loop)
-    const trivialLink: [Complex, Complex] = [complex({ re: 1, im: 0 }), complex({ re: 1, im: 0 })]
+    const trivialLink: [Complex, Complex] = [
+      complex({ re: 1, im: 0 }),
+      complex({ re: 1, im: 0 }),
+    ]
 
     // a localized spinor excitation, the streaming field on the ring of cells, seeded at cell 0
     const seed: Spinor = [complex({ re: 1, im: 0 }), zero()]
-    const makeField = (): Spinor[] => Array.from({ length: loop }, (_, index) => (index === 0 ? ([complex({ re: 1, im: 0 }), zero()] as Spinor) : ([zero(), zero()] as Spinor)))
+    const makeField = (): Spinor[] =>
+      Array.from({ length: loop }, (_, index) =>
+        index === 0
+          ? ([complex({ re: 1, im: 0 }), zero()] as Spinor)
+          : ([zero(), zero()] as Spinor),
+      )
 
     // one covariant streaming step: the field at cell n comes from cell n-1, parallel-transported by the link
-    const step = (field: Spinor[], theLink: [Complex, Complex]): Spinor[] =>
-      field.map((_, index) => transport(field[(index - 1 + loop) % loop]!, theLink))
+    const step = (
+      field: Spinor[],
+      theLink: [Complex, Complex],
+    ): Spinor[] =>
+      field.map((_, index) =>
+        transport(field[(index - 1 + loop) % loop]!, theLink),
+      )
 
     // (A) the COUPLED field, stream with the spin connection
     let field = makeField()
     const half = Math.floor(loop / 2)
     // after half a loop, the packet should have moved to the opposite cell and left cell 0
     for (let t = 0; t < half; t++) field = step(field, link)
-    const amplitudeAt = (cell: Spinor): number => cAbs2(cell[0]) + cAbs2(cell[1])
-    const propagated = amplitudeAt(field[half]!) > 0.5 && amplitudeAt(field[0]!) < 1e-9
+    const amplitudeAt = (cell: Spinor): number =>
+      cAbs2(cell[0]) + cAbs2(cell[1])
+    const propagated =
+      amplitudeAt(field[half]!) > 0.5 && amplitudeAt(field[0]!) < 1e-9
     for (let t = half; t < loop; t++) field = step(field, link) // finish the loop, back to cell 0
     const afterOneLoop = field[0]! // back at the start after going around
     const minusSeed: Spinor = [complex({ re: -1, im: 0 }), zero()]
@@ -68,7 +99,11 @@ export default experiment({
     const trivialAfterOneLoop = control[0]!
     const trivialReturnsPlus = closeTo(trivialAfterOneLoop, seed)
 
-    const ok = propagated && spinorFlipAfterOneLoop && spinorReturnAfterTwoLoops && trivialReturnsPlus
+    const ok =
+      propagated &&
+      spinorFlipAfterOneLoop &&
+      spinorReturnAfterTwoLoops &&
+      trivialReturnsPlus
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -82,7 +117,9 @@ export default experiment({
       // CONTROL: with the trivial connection the streaming field returns to PLUS itself (no spinor), so the
       // minus one is supplied by the {5,3,4} spin connection (the curvature), not by the streaming. The
       // coupling of the two is what makes a propagating spinor.
-      control: { trivialConnectionReturnsPlus: trivialReturnsPlus ? 1 : 0 },
+      control: {
+        trivialConnectionReturnsPlus: trivialReturnsPlus ? 1 : 0,
+      },
       notes:
         'Closes the residual gap of spin/lattice-gas-spinor-534. The streaming gives propagation, the spin connection (verified in spin/spin-connection-534 and spin/continuum-holonomy-534) gives the spinor minus one, the coupling gives a propagating spinor on the curved {5,3,4} bulk. The connection link is the staggered Kahler-Dirac coupling, an SU(2) transport whose loop product is the verified minus-one holonomy. OPEN refinement, deriving these link variables from the bare conserving rule (rather than the geometry) is the deepest residual question.',
     })

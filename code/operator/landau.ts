@@ -10,16 +10,28 @@
 // Dirac operator sigma_x pi_x + sigma_y pi_y + sigma_z m squares to (pi^2 + m^2) - qB sigma_z,
 // whose sigma_z (spin) term is the magnetic moment that the diagonalization reads back out.
 
-import { makeComplexMatrix, makeDense, type ComplexMatrix, type DenseMatrix } from '@/code/algebra/linear/dense'
+import {
+  makeComplexMatrix,
+  makeDense,
+  type ComplexMatrix,
+  type DenseMatrix,
+} from '@/code/algebra/linear/dense'
 
 // The ladder momenta on a truncated oscillator basis of `levels` states. Returned as flat
 // real arrays: pi_x is real symmetric, pi_y is purely imaginary (so we carry its imaginary
 // part). Entry [row m, col n], using <m|a|n> = sqrt(n) [m = n-1] and <m|a-dagger|n> =
 // sqrt(n+1) [m = n+1].
-function ladderMomenta(levels: number, fieldStrength: number): { pixRe: number[][]; piyIm: number[][] } {
+function ladderMomenta(
+  levels: number,
+  fieldStrength: number,
+): { pixRe: number[][]; piyIm: number[][] } {
   const scale = Math.sqrt(fieldStrength / 2)
-  const pixRe = Array.from({ length: levels }, () => new Array<number>(levels).fill(0))
-  const piyIm = Array.from({ length: levels }, () => new Array<number>(levels).fill(0))
+  const pixRe = Array.from({ length: levels }, () =>
+    new Array<number>(levels).fill(0),
+  )
+  const piyIm = Array.from({ length: levels }, () =>
+    new Array<number>(levels).fill(0),
+  )
   for (let m = 0; m < levels; m++) {
     for (let n = 0; n < levels; n++) {
       const lower = m === n - 1 ? Math.sqrt(n) : 0 // <m|a|n>
@@ -44,7 +56,8 @@ export function diracLandauHamiltonian(input: {
   const { pixRe, piyIm } = ladderMomenta(levels, fieldStrength)
   const dimension = 2 * levels
   const h = makeComplexMatrix({ rows: dimension, cols: dimension })
-  const at = (spin: number, level: number): number => spin * levels + level
+  const at = (spin: number, level: number): number =>
+    spin * levels + level
   for (let mLevel = 0; mLevel < levels; mLevel++) {
     for (let nLevel = 0; nLevel < levels; nLevel++) {
       // sigma_x couples spin 0 <-> 1 with pi_x (real)
@@ -86,7 +99,8 @@ export function scalarLandauSquared(input: {
       // pi_x is real, pi_y is purely imaginary, so piy[i][k] piy[k][j] = (i a)(i b) = -a b.
       let sum = 0
       for (let k = 0; k < levels; k++) {
-        sum += pixRe[i]![k]! * pixRe[k]![j]! - piyIm[i]![k]! * piyIm[k]![j]!
+        sum +=
+          pixRe[i]![k]! * pixRe[k]![j]! - piyIm[i]![k]! * piyIm[k]![j]!
       }
       if (i === j) sum += mass * mass
       out.data[i * levels + j] = sum

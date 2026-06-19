@@ -20,25 +20,46 @@ import { verdict } from '@/test/scaffold/verdict'
 const L = 24
 // link gauge field A, Ax[x][y] = phase on the link (x,y)->(x+1,y), Ay similarly for (x,y)->(x,y+1)
 const grid = (): number[][] => makeGridGrid(L)
-const wilsonLoop = (g: Gauge, x0: number, x1: number, y0: number, y1: number): number =>
-  gridWilsonLoop(g, { x0, x1, y0, y1 })
-const gaugeTransform = (g: Gauge, lam: number[][]): Gauge => gridGaugeTransform(g, lam, L)
+const wilsonLoop = (
+  g: Gauge,
+  x0: number,
+  x1: number,
+  y0: number,
+  y1: number,
+): number => gridWilsonLoop(g, { x0, x1, y0, y1 })
+const gaugeTransform = (g: Gauge, lam: number[][]): Gauge =>
+  gridGaugeTransform(g, lam, L)
 
-export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boolean } {
+export function emergentU1Gauge(): {
+  wilsonInvariant: boolean
+  aharonovBohm: boolean
+} {
   const rng = makeRng({ seed: 13 })
   const rnd = (): number => rng.next()
   // VORTEX gauge field, A winds around the plaquette (fx,fy) so its curl = Phi there and 0 elsewhere
-  const Phi = 0.7, fx = 12, fy = 12
-  const g = vortexGaugeField({ side: L, flux: Phi, centerX: fx, centerY: fy })
+  const Phi = 0.7,
+    fx = 12,
+    fy = 12
+  const g = vortexGaugeField({
+    side: L,
+    flux: Phi,
+    centerX: fx,
+    centerY: fy,
+  })
   // (1) Wilson loop around the flux = Phi, and gauge-INVARIANT
   const w0 = wilsonLoop(g, 8, 16, 8, 16) // a loop enclosing the flux
-  const lam = grid(); for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) lam[x]![y] = rnd() * 2 - 1 // random gauge
+  const lam = grid()
+  for (let x = 0; x < L; x++)
+    for (let y = 0; y < L; y++) lam[x]![y] = rnd() * 2 - 1 // random gauge
   const g2 = gaugeTransform(g, lam)
   const w1 = wilsonLoop(g2, 8, 16, 8, 16)
-  const wilsonInvariant = Math.abs(w0 - w1) < 1e-9 && Math.abs(w0 - Phi) < 1e-9
+  const wilsonInvariant =
+    Math.abs(w0 - w1) < 1e-9 && Math.abs(w0 - Phi) < 1e-9
   // (2) Aharonov-Bohm, holonomy around the flux is Phi regardless of which enclosing loop / gauge
-  const wA = wilsonLoop(g, 6, 18, 6, 18), wB = wilsonLoop(g2, 10, 15, 10, 15)
-  const aharonovBohm = Math.abs(wA - Phi) < 1e-9 && Math.abs(wB - Phi) < 1e-9
+  const wA = wilsonLoop(g, 6, 18, 6, 18),
+    wB = wilsonLoop(g2, 10, 15, 10, 15)
+  const aharonovBohm =
+    Math.abs(wA - Phi) < 1e-9 && Math.abs(wB - Phi) < 1e-9
   // a loop NOT enclosing the flux -> 0
   const wNone = wilsonLoop(g, 2, 6, 2, 6)
   return { wilsonInvariant, aharonovBohm }
@@ -46,7 +67,8 @@ export function emergentU1Gauge(): { wilsonInvariant: boolean; aharonovBohm: boo
 
 export default experiment({
   id: 'gauge/emergent-u1-gauge',
-  title: 'a U(1) Wilson loop equals the enclosed flux and is gauge invariant, the Aharonov-Bohm phase',
+  title:
+    'a U(1) Wilson loop equals the enclosed flux and is gauge invariant, the Aharonov-Bohm phase',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',

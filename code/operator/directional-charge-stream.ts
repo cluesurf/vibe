@@ -15,12 +15,15 @@ export function streamDirectionalChargeStep(input: {
 }): number[][] {
   const { neighbors, charge } = input
   const N = neighbors.length
-  const next: number[][] = Array.from({ length: N }, (_, i) => neighbors[i]!.map(() => 0))
-  for (let i = 0; i < N; i++) for (let k = 0; k < neighbors[i]!.length; k++) {
-    const j = neighbors[i]![k]!
-    const back = neighbors[j]!.indexOf(i)
-    if (back >= 0) next[j]![back] = next[j]![back]! + charge[i]![k]!
-  }
+  const next: number[][] = Array.from({ length: N }, (_, i) =>
+    neighbors[i]!.map(() => 0),
+  )
+  for (let i = 0; i < N; i++)
+    for (let k = 0; k < neighbors[i]!.length; k++) {
+      const j = neighbors[i]![k]!
+      const back = neighbors[j]!.indexOf(i)
+      if (back >= 0) next[j]![back] = next[j]![back]! + charge[i]![k]!
+    }
   return next
 }
 
@@ -32,12 +35,20 @@ export function streamDirectionalCharge(input: {
 }): number[][] {
   let charge: ReadonlyArray<ReadonlyArray<number>> = input.charge
   for (let step = 0; step < input.steps; step++) {
-    charge = streamDirectionalChargeStep({ neighbors: input.neighbors, charge })
+    charge = streamDirectionalChargeStep({
+      neighbors: input.neighbors,
+      charge,
+    })
   }
   return charge as number[][]
 }
 
 // The total charge summed over every cell and port.
-export function totalDirectionalCharge(charge: ReadonlyArray<ReadonlyArray<number>>): number {
-  return charge.reduce((s, row) => s + row.reduce((a, b) => a + b, 0), 0)
+export function totalDirectionalCharge(
+  charge: ReadonlyArray<ReadonlyArray<number>>,
+): number {
+  return charge.reduce(
+    (s, row) => s + row.reduce((a, b) => a + b, 0),
+    0,
+  )
 }

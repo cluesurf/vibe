@@ -16,27 +16,47 @@ function deflection(B: number, L: number, steps: number): number {
   return peierlsWavepacketDrift({ field: B, length: L, steps })
 }
 
-export function phMagnetism(): { lorentzDeflects: boolean; deflectionGrowsWithB: boolean; spinPrecesses: boolean } {
-  const L = 28, steps = 12
-  const d0 = deflection(0, L, steps), dB = deflection(0.25, L, steps), dB2 = deflection(0.5, L, steps)
+export function phMagnetism(): {
+  lorentzDeflects: boolean
+  deflectionGrowsWithB: boolean
+  spinPrecesses: boolean
+} {
+  const L = 28,
+    steps = 12
+  const d0 = deflection(0, L, steps),
+    dB = deflection(0.25, L, steps),
+    dB2 = deflection(0.5, L, steps)
   const lorentzDeflects = Math.abs(dB) > 0.05 && Math.abs(d0) < 0.02
   const deflectionGrowsWithB = Math.abs(dB2) > Math.abs(dB)
 
   // PH6 (ASSUMED, NOT a test): IF g = 2 (set by hand), the Larmor equation dS/dt = (g/2m) S x B precesses the
   // spin. This only DEMONSTRATES precession given the assumption, it does NOT derive g. Honest L0. To make it
   // a real test, g must be measured from the Dirac coupling, not input.
-  const gAssumed = 2, q = 1, m = 1, Bz = 0.3, dt = 0.05, N = 400
+  const gAssumed = 2,
+    q = 1,
+    m = 1,
+    Bz = 0.3,
+    dt = 0.05,
+    N = 400
   let S = [1, 0, 0]
-  for (let t = 0; t < N; t++) { const cross = [S[1]! * Bz, -S[0]! * Bz, 0]; for (let k = 0; k < 3; k++) S[k]! += (gAssumed * q / (2 * m)) * cross[k]! * dt; const n = Math.hypot(...S); S = S.map((x) => x / n) }
+  for (let t = 0; t < N; t++) {
+    const cross = [S[1]! * Bz, -S[0]! * Bz, 0]
+    for (let k = 0; k < 3; k++)
+      S[k]! += ((gAssumed * q) / (2 * m)) * cross[k]! * dt
+    const n = Math.hypot(...S)
+    S = S.map(x => x / n)
+  }
   const finalAngle = Math.atan2(S[1]!, S[0]!)
-  const spinPrecesses = Math.abs(S[2]!) < 1e-6 && Math.abs(finalAngle) > 0.1
+  const spinPrecesses =
+    Math.abs(S[2]!) < 1e-6 && Math.abs(finalAngle) > 0.1
 
   return { lorentzDeflects, deflectionGrowsWithB, spinPrecesses }
 }
 
 export default experiment({
   id: 'gauge/ph-magnetism-3434',
-  title: 'a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control',
+  title:
+    'a charged wavepacket deflects in a magnetic field, the lattice Lorentz force, with a B = 0 control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

@@ -20,7 +20,13 @@ const correlator = (m: number, maxR: number, modes: number): number[] =>
 
 export function deterministicSpatialRP(input?: { masses?: number[] }): {
   masses: number[]
-  results: { mass: number; range: number; hankelMinEig: number; longRange: boolean; psd: boolean }[]
+  results: {
+    mass: number
+    range: number
+    hankelMinEig: number
+    longRange: boolean
+    psd: boolean
+  }[]
   longRangeForSmallMass: boolean
   reflectionPositive: boolean
   contrastWithStochastic: string
@@ -29,15 +35,28 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
   const masses = input?.masses ?? [0.5, 0.2, 0.05]
   const mHankel = 5
   const maxR = 2 * mHankel
-  const results: { mass: number; range: number; hankelMinEig: number; longRange: boolean; psd: boolean }[] = []
+  const results: {
+    mass: number
+    range: number
+    hankelMinEig: number
+    longRange: boolean
+    psd: boolean
+  }[] = []
   for (const mass of masses) {
     const c = correlator(mass, maxR, 4000)
     // correlation range, where |C(r)| stays above 5% of C(0)
     let range = 0
-    for (let r = 1; r <= maxR; r++) if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
+    for (let r = 1; r <= maxR; r++)
+      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
     // Hankel matrix H[i][j] = C(i+j), PSD test
     const minEig = hankelMinEigenvalue({ sequence: c, size: mHankel })
-    results.push({ mass, range, hankelMinEig: minEig, longRange: range >= 4, psd: minEig > -1e-6 })
+    results.push({
+      mass,
+      range,
+      hankelMinEig: minEig,
+      longRange: range >= 4,
+      psd: minEig > -1e-6,
+    })
   }
   const smallest = results[results.length - 1]!
   const longRangeForSmallMass = smallest.longRange
@@ -47,8 +66,9 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
   // eigenvalues (about 1% of C(0)) are the lattice (UV) cutoff, the same UV violation seen for boosts
   // (P154), not a real IR violation.
   const spectralWeightPositive = true // 1/(2 omega) > 0 for all modes, the manifest Kallen-Lehmann condition
-  const hankelConsistent = results.every((r) => r.hankelMinEig > -0.02) // PSD within the lattice-UV floor
-  const reflectionPositive = spectralWeightPositive && hankelConsistent && longRangeForSmallMass
+  const hankelConsistent = results.every(r => r.hankelMinEig > -0.02) // PSD within the lattice-UV floor
+  const reflectionPositive =
+    spectralWeightPositive && hankelConsistent && longRangeForSmallMass
   const solved = reflectionPositive
 
   return {
@@ -56,21 +76,24 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
     results,
     longRangeForSmallMass,
     reflectionPositive,
-    contrastWithStochastic: 'stochastic rule (P133/P134): contact-dominated, range ~1, RP inconclusive',
+    contrastWithStochastic:
+      'stochastic rule (P133/P134): contact-dominated, range ~1, RP inconclusive',
     solved,
   }
 }
 
 export default experiment({
   id: 'quantum/deterministic-spatial-rp',
-  title: 'the deterministic field is long-range and reflection-positive',
+  title:
+    'the deterministic field is long-range and reflection-positive',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = deterministicSpatialRP({ masses: [0.5, 0.2, 0.05] })
-    const ok = r.solved && r.longRangeForSmallMass && r.reflectionPositive
+    const ok =
+      r.solved && r.longRangeForSmallMass && r.reflectionPositive
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

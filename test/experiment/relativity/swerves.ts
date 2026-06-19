@@ -16,14 +16,19 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/swerves',
-  title: 'momentum diffusion from discreteness, variance grows with proper time',
+  title:
+    'momentum diffusion from discreteness, variance grows with proper time',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
-    const r = swerveDiffusion({ density: 1.2, seed: 1, trajectories: 250 })
-    const clean = r.points.filter((p) => p.tau <= 11)
+    const r = swerveDiffusion({
+      density: 1.2,
+      seed: 1,
+      trajectories: 250,
+    })
+    const clean = r.points.filter(p => p.tau <= 11)
     const grows =
       clean.length > 2 &&
       (clean[clean.length - 1]?.varRapidity ?? 0) >

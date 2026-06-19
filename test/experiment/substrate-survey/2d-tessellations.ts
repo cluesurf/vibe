@@ -11,33 +11,70 @@ import { verdict } from '@/test/scaffold/verdict'
 type Cand = { sym: number[]; note: string }
 const TILINGS: Cand[] = [
   { sym: [7, 3], note: 'REFERENCE (heptagonal, done)' },
-  { sym: [5, 4], note: 'pentagons 4/vertex, organic symmetry, CA / network geometry' },
-  { sym: [8, 3], note: 'octagons 3/vertex, foundational in hyperbolic surface theory' },
-  { sym: [4, 5], note: 'squares 5/vertex, easiest grid analogue, pathfinding / CA' },
-  { sym: [3, 7], note: 'triangles 7/vertex, maximal local branching, FEM / computation' },
-  { sym: [6, 4], note: 'hexagons 4/vertex, extends Euclidean hex, simulations / networks' },
-  { sym: [5, 5], note: 'pentagons 5/vertex, highly curved and dense, exotic geometries' },
-  { sym: [4, 6], note: 'squares 6/vertex, strong curvature, simple cells, HC experiments' },
+  {
+    sym: [5, 4],
+    note: 'pentagons 4/vertex, organic symmetry, CA / network geometry',
+  },
+  {
+    sym: [8, 3],
+    note: 'octagons 3/vertex, foundational in hyperbolic surface theory',
+  },
+  {
+    sym: [4, 5],
+    note: 'squares 5/vertex, easiest grid analogue, pathfinding / CA',
+  },
+  {
+    sym: [3, 7],
+    note: 'triangles 7/vertex, maximal local branching, FEM / computation',
+  },
+  {
+    sym: [6, 4],
+    note: 'hexagons 4/vertex, extends Euclidean hex, simulations / networks',
+  },
+  {
+    sym: [5, 5],
+    note: 'pentagons 5/vertex, highly curved and dense, exotic geometries',
+  },
+  {
+    sym: [4, 6],
+    note: 'squares 6/vertex, strong curvature, simple cells, HC experiments',
+  },
 ]
 
 const SCALE = 20000
 
-function measure(sym: number[]): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
-  return surveyTessellation({ symbol: sym, maxCells: SCALE, growthFrom: 2, growthTo: 7 })
+function measure(sym: number[]): {
+  ok: boolean
+  cells: number
+  degree: number
+  growth: number
+  betheAlpha: number
+} {
+  return surveyTessellation({
+    symbol: sym,
+    maxCells: SCALE,
+    growthFrom: 2,
+    growthTo: 7,
+  })
 }
 
 export function twodTessellations(): void {
   for (const c of TILINGS) {
-    const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
+    const crystallographic = c.sym.every(
+      n => n === 3 || n === 4 || n === 6,
+    )
     const compact = 1 / c.sym[0]! + 1 / c.sym[1]! < 0.5 // hyperbolic 2D tilings are compact
     const m = measure(c.sym)
-    if (!m.ok) { continue }
+    if (!m.ok) {
+      continue
+    }
   }
 }
 
 export default experiment({
   id: 'substrate-survey/2d-tessellations',
-  title: 'a sweep of 2D hyperbolic regular tilings, all give 1D physical space, the most degenerate',
+  title:
+    'a sweep of 2D hyperbolic regular tilings, all give 1D physical space, the most degenerate',
   category: 'substrate-survey',
   substrates: 'any',
   depth: 'L1',
@@ -50,7 +87,7 @@ export default experiment({
       reference.ok &&
       reference.degree === 7 &&
       crystallographic.ok &&
-      [6, 4].every((n) => n === 3 || n === 4 || n === 6)
+      [6, 4].every(n => n === 3 || n === 4 || n === 6)
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

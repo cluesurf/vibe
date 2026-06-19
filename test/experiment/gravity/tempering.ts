@@ -19,14 +19,18 @@ const SIZE = 48
 
 export default experiment({
   id: 'gravity/tempering',
-  title: 'parallel tempering finds a susceptibility peak and order-parameter coexistence in the causal-set action',
+  title:
+    'parallel tempering finds a susceptibility peak and order-parameter coexistence in the causal-set action',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
     const betas = [0.1, 0.2, 0.35, 0.55, 0.8, 1.1, 1.5, 2.0]
-    const action = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
+    const action = smearedBenincasaDowker({
+      epsilon: 0.9,
+      dimension: 2,
+    })
     const result = parallelTempering({
       size: SIZE,
       betas,
@@ -51,10 +55,10 @@ export default experiment({
     }
     const peakSamples = result.samplesByBeta[peakIndex] ?? []
     const denom = Math.max(1, peakSamples.length)
-    const low = peakSamples.filter((x) => x < 0.8).length / denom
+    const low = peakSamples.filter(x => x < 0.8).length / denom
     const mid =
-      peakSamples.filter((x) => x >= 0.8 && x <= 1.3).length / denom
-    const high = peakSamples.filter((x) => x > 1.3).length / denom
+      peakSamples.filter(x => x >= 0.8 && x <= 1.3).length / denom
+    const high = peakSamples.filter(x => x > 1.3).length / denom
     const bimodal = low > 0.15 && high > 0.15 && mid < low + high
 
     return verdict({

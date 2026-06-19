@@ -36,7 +36,8 @@ function beat(
   moved.fill(0)
   const agree = (i: number, q: number, except: number): number => {
     let count = 0
-    for (const w of neighbors[i]!) if (w !== except && tone[w] === q) count++
+    for (const w of neighbors[i]!)
+      if (w !== except && tone[w] === q) count++
     return count
   }
   for (const edge of edges) {
@@ -54,7 +55,10 @@ function beat(
       const charge = a === 0 ? w : v
       const empty = a === 0 ? v : w
       const q = tone[charge]!
-      if (agree(empty, q, charge) >= agree(charge, q, empty) || rng.next() < 0.02) {
+      if (
+        agree(empty, q, charge) >= agree(charge, q, empty) ||
+        rng.next() < 0.02
+      ) {
         tone[empty] = q
         tone[charge] = 0
         moved[v] = 1
@@ -100,7 +104,8 @@ export function exportHorosphere(input?: {
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells })
   const bulkCells = g.cellCount
   const coords = g.coords
-  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+  const norm = (v: number[]): number =>
+    Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 
   // ideal point xi = direction of the farthest cell (closest to the boundary)
   let far = 0
@@ -114,10 +119,10 @@ export function exportHorosphere(input?: {
   }
   const fc = coords[far]!
   const fn = norm(fc)
-  const xi = fc.map((v) => v / fn)
+  const xi = fc.map(v => v / fn)
 
   // Busemann function, its level sets are the horospheres tangent at xi
-  const busemann = coords.map((x) => {
+  const busemann = coords.map(x => {
     let d2 = 0
     for (let k = 0; k < x.length; k++) d2 += (x[k]! - xi[k]!) ** 2
     const r2 = x.reduce((s, v) => s + v * v, 0)
@@ -132,10 +137,15 @@ export function exportHorosphere(input?: {
 
   // a 2D orthonormal frame perpendicular to xi, to flatten the slab onto the plane it is tangent to
   const seed = Math.abs(xi[0]!) < 0.9 ? [1, 0, 0] : [0, 1, 0]
-  const dotSeed = seed[0]! * xi[0]! + seed[1]! * xi[1]! + seed[2]! * xi[2]!
-  let e1 = [seed[0]! - dotSeed * xi[0]!, seed[1]! - dotSeed * xi[1]!, seed[2]! - dotSeed * xi[2]!]
+  const dotSeed =
+    seed[0]! * xi[0]! + seed[1]! * xi[1]! + seed[2]! * xi[2]!
+  let e1 = [
+    seed[0]! - dotSeed * xi[0]!,
+    seed[1]! - dotSeed * xi[1]!,
+    seed[2]! - dotSeed * xi[2]!,
+  ]
   const e1n = norm(e1)
-  e1 = e1.map((v) => v / e1n)
+  e1 = e1.map(v => v / e1n)
   // e2 = xi cross e1
   const e2 = [
     xi[1]! * e1[2]! - xi[2]! * e1[1]!,
@@ -161,20 +171,36 @@ export function exportHorosphere(input?: {
     }
   }
   const layoutEdges: number[][] = []
-  for (let a = 0; a < bandCount; a++) for (const b of bandNeighbors[a]!) if (b > a) layoutEdges.push([a, b])
+  for (let a = 0; a < bandCount; a++)
+    for (const b of bandNeighbors[a]!)
+      if (b > a) layoutEdges.push([a, b])
 
   // initial positions from the horospherical projection (an inversion centred at the ideal point), then a
   // force-directed relaxation that realizes the horosphere's INTRINSIC flatness, neighbours pull together
   // and everything repels, so the sheet spreads EVENLY instead of crowding at the projection centre (which
   // both the tangent and the raw inversion do, because the extrinsic embedding does not see the flatness)
-  const position = band.map((i) => {
+  const position = band.map(i => {
     const c = coords[i]!
     const dx = [c[0]! - xi[0]!, c[1]! - xi[1]!, c[2]! - xi[2]!]
-    const d2 = Math.max(1e-9, dx[0]! * dx[0]! + dx[1]! * dx[1]! + dx[2]! * dx[2]!)
-    const fp = [xi[0]! + (2 * dx[0]!) / d2, xi[1]! + (2 * dx[1]!) / d2, xi[2]! + (2 * dx[2]!) / d2]
+    const d2 = Math.max(
+      1e-9,
+      dx[0]! * dx[0]! + dx[1]! * dx[1]! + dx[2]! * dx[2]!,
+    )
+    const fp = [
+      xi[0]! + (2 * dx[0]!) / d2,
+      xi[1]! + (2 * dx[1]!) / d2,
+      xi[2]! + (2 * dx[2]!) / d2,
+    ]
     const along = fp[0]! * xi[0]! + fp[1]! * xi[1]! + fp[2]! * xi[2]!
-    const flat = [fp[0]! - along * xi[0]!, fp[1]! - along * xi[1]!, fp[2]! - along * xi[2]!]
-    return [flat[0]! * e1[0]! + flat[1]! * e1[1]! + flat[2]! * e1[2]!, flat[0]! * e2[0]! + flat[1]! * e2[1]! + flat[2]! * e2[2]!]
+    const flat = [
+      fp[0]! - along * xi[0]!,
+      fp[1]! - along * xi[1]!,
+      fp[2]! - along * xi[2]!,
+    ]
+    return [
+      flat[0]! * e1[0]! + flat[1]! * e1[1]! + flat[2]! * e1[2]!,
+      flat[0]! * e2[0]! + flat[1]! * e2[1]! + flat[2]! * e2[2]!,
+    ]
   })
   // an even sunflower (Fibonacci) disk as the starting layout, so even disconnected cells begin spread out
   // (the raw projection crowds the centre, which made the relaxation collapse or ring). The relaxation then
@@ -226,31 +252,40 @@ export function exportHorosphere(input?: {
     const temperature = 0.04 * (1 - iter / iterations)
     for (let i = 0; i < bandCount; i++) {
       const length = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
-      position[i]![0]! += (dispX[i]! / length) * Math.min(length, temperature)
-      position[i]![1]! += (dispY[i]! / length) * Math.min(length, temperature)
+      position[i]![0]! +=
+        (dispX[i]! / length) * Math.min(length, temperature)
+      position[i]![1]! +=
+        (dispY[i]! / length) * Math.min(length, temperature)
     }
   }
   // normalize the relaxed layout into [-1, 1]
   let maxAbs = 1e-6
-  for (const p of position) maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
-  const cells2d = position.map((p) => [p[0]! / maxAbs, p[1]! / maxAbs])
+  for (const p of position)
+    maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
+  const cells2d = position.map(p => [p[0]! / maxAbs, p[1]! / maxAbs])
 
   // run the cohesive rule on the FULL bulk and record the band cells' tones each frame
   const tone = new Int8Array(bulkCells)
   const moved = new Uint8Array(bulkCells)
   const edges: number[][] = []
-  for (let v = 0; v < bulkCells; v++) for (const w of g.neighbors[v]!) if (w > v) edges.push([v, w])
+  for (let v = 0; v < bulkCells; v++)
+    for (const w of g.neighbors[v]!) if (w > v) edges.push([v, w])
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < warmup; b++) beat(tone, edges, g.neighbors, moved, rng, arrowProb)
+  for (let b = 0; b < warmup; b++)
+    beat(tone, edges, g.neighbors, moved, rng, arrowProb)
 
   const frames: number[][] = []
   for (let f = 0; f < frameCount; f++) {
-    frames.push(band.map((i) => tone[i]!))
-    for (let s = 0; s < stride; s++) beat(tone, edges, g.neighbors, moved, rng, arrowProb)
+    frames.push(band.map(i => tone[i]!))
+    for (let s = 0; s < stride; s++)
+      beat(tone, edges, g.neighbors, moved, rng, arrowProb)
   }
 
   // round the coordinates to keep the file small
-  const cellsOut = cells2d.map((p) => [Math.round(p[0]! * 1000) / 1000, Math.round(p[1]! * 1000) / 1000])
+  const cellsOut = cells2d.map(p => [
+    Math.round(p[0]! * 1000) / 1000,
+    Math.round(p[1]! * 1000) / 1000,
+  ])
   const data = {
     note: 'real {5,3,4} cohesive perception rule (P106), horosphere slice, projected to flat 2D',
     bulkCells,
@@ -262,7 +297,12 @@ export function exportHorosphere(input?: {
   mkdirSync(dirname(outputPath), { recursive: true })
   writeFileSync(outputPath, JSON.stringify(data))
 
-  return { bulkCells, bandCells: bandCount, frames: frameCount, outputPath }
+  return {
+    bulkCells,
+    bandCells: bandCount,
+    frames: frameCount,
+    outputPath,
+  }
 }
 
 const result = exportHorosphere()

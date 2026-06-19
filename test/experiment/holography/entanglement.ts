@@ -21,7 +21,10 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // 1D: slope of S versus ln(block length), expected near c/3 = 1/3 for c = 1.
 export function logLawSlope1D(input: { n: number }): number {
-  const c = freeFermionCorrelationMatrix({ h: ringHoppingHamiltonian({ n: input.n }), n: input.n })
+  const c = freeFermionCorrelationMatrix({
+    h: ringHoppingHamiltonian({ n: input.n }),
+    n: input.n,
+  })
   const lengths = [4, 6, 8, 12, 16, 20, 24]
   const lnL: number[] = []
   const s: number[] = []
@@ -35,9 +38,15 @@ export function logLawSlope1D(input: { n: number }): number {
 
 // 2D: entropy of an l x l block versus l. An area law is linear in l (the boundary),
 // not in l^2 (the volume). Returns the boundary slope and whether area beats volume.
-export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaBeatsVolume: boolean } {
+export function areaLaw2D(input: { side: number }): {
+  boundaryFit: number
+  areaBeatsVolume: boolean
+} {
   const n = input.side * input.side
-  const c = freeFermionCorrelationMatrix({ h: torusHoppingHamiltonian({ dimension: 2, side: input.side }), n })
+  const c = freeFermionCorrelationMatrix({
+    h: torusHoppingHamiltonian({ dimension: 2, side: input.side }),
+    n,
+  })
   const ells = [2, 3, 4, 5]
   const ellArr: number[] = []
   const ell2Arr: number[] = []
@@ -62,7 +71,8 @@ export function areaLaw2D(input: { side: number }): { boundaryFit: number; areaB
 
 export default experiment({
   id: 'holography/entanglement',
-  title: 'free-fermion entanglement follows a 1D conformal log law and a 2D area law',
+  title:
+    'free-fermion entanglement follows a 1D conformal log law and a 2D area law',
   category: 'holography',
   substrates: 'any',
   depth: 'L2',
@@ -70,7 +80,11 @@ export default experiment({
   run() {
     const slope1D = logLawSlope1D({ n: 120 })
     const two = areaLaw2D({ side: 12 })
-    const ok = slope1D > 0.25 && slope1D < 0.42 && two.areaBeatsVolume && two.boundaryFit > 0
+    const ok =
+      slope1D > 0.25 &&
+      slope1D < 0.42 &&
+      two.areaBeatsVolume &&
+      two.boundaryFit > 0
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

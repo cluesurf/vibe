@@ -39,7 +39,14 @@ export function sparseFromTriplets(input: {
     value[pos] = t.value
     cursor[t.row] = pos + 1
   }
-  return { form: 'sparse', rows: input.rows, cols: input.cols, rowPtr, colIdx, value }
+  return {
+    form: 'sparse',
+    rows: input.rows,
+    cols: input.cols,
+    rowPtr,
+    colIdx,
+    value,
+  }
 }
 
 export function sparseMatVec(
@@ -75,15 +82,21 @@ const AUBRY_ANDRE_GOLDEN = 0.6180339887498949
 // the diagonal: V_i = strength * cos(2 pi golden i). At strength 0 it is the bare operator; a large
 // strength drives Anderson-like localization with no randomness. The localization control behind the
 // propagation tests.
-export function sparseWithAubryAndrePotential(m: SparseMatrix, strength: number): LinearOperator {
+export function sparseWithAubryAndrePotential(
+  m: SparseMatrix,
+  strength: number,
+): LinearOperator {
   if (strength === 0) return operatorFromSparse(m)
   const potential = new Float64Array(m.rows)
-  for (let i = 0; i < m.rows; i++) potential[i] = strength * Math.cos(2 * Math.PI * AUBRY_ANDRE_GOLDEN * i)
+  for (let i = 0; i < m.rows; i++)
+    potential[i] =
+      strength * Math.cos(2 * Math.PI * AUBRY_ANDRE_GOLDEN * i)
   return {
     size: m.rows,
     apply: ({ x }) => {
       const y = sparseMatVec(m, { x })
-      for (let i = 0; i < m.rows; i++) y[i] = y[i]! + potential[i]! * x[i]!
+      for (let i = 0; i < m.rows; i++)
+        y[i] = y[i]! + potential[i]! * x[i]!
       return y
     },
   }

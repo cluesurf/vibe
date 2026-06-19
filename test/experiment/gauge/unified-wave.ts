@@ -10,7 +10,10 @@
 // symmetrically) and the deterministic reversible wave's isotropy was measured directly in P150 and P124.
 // Run: npx tsx code/experiment/p156-unified-wave.ts
 
-import { buildDodecagrid, buildSliver } from '@/code/substrate/coxeter/cell-scale'
+import {
+  buildDodecagrid,
+  buildSliver,
+} from '@/code/substrate/coxeter/cell-scale'
 import { makeRng } from '@/code/tool/rng'
 import { greedyEdgeColoring } from '@/code/tool/graph'
 import {
@@ -27,11 +30,21 @@ import { verdict } from '@/test/scaffold/verdict'
 //   hop:   (+1,0)<->(0,+1) is 7<->5,   (-1,0)<->(0,-1) is 1<->3
 //   cycle: (0,0)->(+1,-1)->(-1,+1)->(0,0) is 4->6->2->4 ;  fixed: (-1,-1)=0, (+1,+1)=8
 
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, byColor: number[][], table: number[], reverse: boolean): void {
+function beat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  byColor: number[][],
+  table: number[],
+  reverse: boolean,
+): void {
   perceptionEdgeColoringSweep({ tone, eu, ev, byColor, table, reverse })
 }
 
-export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
+export function unifiedWave(input?: {
+  n?: number
+  sliverLength?: number
+}): {
   n: number
   colors: number
   chargeConserved: boolean
@@ -46,35 +59,58 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   const n = input?.n ?? 30000
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
-  const ec = greedyEdgeColoring({ offsets: g.offsets, adjacency: g.adj, size: N })
+  const ec = greedyEdgeColoring({
+    offsets: g.offsets,
+    adjacency: g.adj,
+    size: N,
+  })
 
   // (1) charge conservation + (2) reversibility on a random crystal state
   const rng = makeRng({ seed: 12345 })
   const tone = new Int8Array(N)
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const q0 = tone.reduce((s, x) => s + x, 0)
   const init = tone.slice()
   const T = 30
-  for (let t = 0; t < T; t++) beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
+  for (let t = 0; t < T; t++)
+    beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
-  for (let t = 0; t < T; t++) beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
+  for (let t = 0; t < T; t++)
+    beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
   let reversible = true
-  for (let i = 0; i < N; i++) if (tone[i] !== init[i]) {
-    reversible = false
-    break
-  }
+  for (let i = 0; i < N; i++)
+    if (tone[i] !== init[i]) {
+      reversible = false
+      break
+    }
 
   // (3) ballistic, on a long SLIVER (the ball's diameter is too tiny, it saturates in one beat). The
   // causal (difference) front along the spine should grow at a CONSTANT speed (linear in beats = z=1).
   const s = buildSliver({ length: input?.sliverLength ?? 60, width: 1 })
   const sN = s.cellCount
-  const sec = greedyEdgeColoring({ offsets: s.offsets, adjacency: s.adj, size: sN })
+  const sec = greedyEdgeColoring({
+    offsets: s.offsets,
+    adjacency: s.adj,
+    size: sN,
+  })
   const maxPos = s.spineLength - 1
   let center = 0
-  for (let i = 0; i < sN; i++) if (Math.abs(s.position[i]! - maxPos / 2) < Math.abs(s.position[center]! - maxPos / 2)) center = i
+  for (let i = 0; i < sN; i++)
+    if (
+      Math.abs(s.position[i]! - maxPos / 2) <
+      Math.abs(s.position[center]! - maxPos / 2)
+    )
+      center = i
   const rng2 = makeRng({ seed: 999 })
   const baseS = new Int8Array(sN)
-  for (let i = 0; i < sN; i++) baseS[i] = (rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < sN; i++)
+    baseS[i] = (
+      rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
+    ) as -1 | 0 | 1
   const pertS = baseS.slice()
   pertS[center] = (baseS[center]! === 0 ? 1 : 0) as -1 | 0 | 1
   const pos0 = s.position[center]!
@@ -82,7 +118,9 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   const fronts: number[] = []
   for (let t = 0; t < beatsB; t++) {
     let front = 0
-    for (let i = 0; i < sN; i++) if (baseS[i] !== pertS[i]) front = Math.max(front, Math.abs(s.position[i]! - pos0))
+    for (let i = 0; i < sN; i++)
+      if (baseS[i] !== pertS[i])
+        front = Math.max(front, Math.abs(s.position[i]! - pos0))
     fronts.push(front)
     beat(baseS, sec.eu, sec.ev, sec.byColor, FWD, false)
     beat(pertS, sec.eu, sec.ev, sec.byColor, FWD, false)
@@ -97,7 +135,10 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
     fitT.push(t)
     fitFront.push(fronts[t]!)
   }
-  const fit = fitT.length > 1 ? linearFit({ xs: fitT, ys: fitFront }) : { slope: 0, r2: 0 }
+  const fit =
+    fitT.length > 1
+      ? linearFit({ xs: fitT, ys: fitFront })
+      : { slope: 0, r2: 0 }
   const frontSpeed = fit.slope
   const frontLinearR2 = fit.r2
   const ballistic = frontSpeed > 0.1 && frontLinearR2 > 0.9 // constant speed = ballistic = z=1
@@ -108,7 +149,18 @@ export function unifiedWave(input?: { n?: number; sliverLength?: number }): {
   const isotropic = directionSymmetric
 
   const solved = chargeConserved && reversible && ballistic && isotropic
-  return { n: N, colors: ec.byColor.length, chargeConserved, reversible, frontSpeed, frontLinearR2, ballistic, directionSymmetric, isotropic, solved }
+  return {
+    n: N,
+    colors: ec.byColor.length,
+    chargeConserved,
+    reversible,
+    frontSpeed,
+    frontLinearR2,
+    ballistic,
+    directionSymmetric,
+    isotropic,
+    solved,
+  }
 }
 
 export default experiment({
@@ -122,7 +174,11 @@ export default experiment({
   run() {
     const r = unifiedWave({ n: 30000 })
     const ok =
-      r.solved && r.chargeConserved && r.reversible && r.ballistic && r.isotropic
+      r.solved &&
+      r.chargeConserved &&
+      r.reversible &&
+      r.ballistic &&
+      r.isotropic
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

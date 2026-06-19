@@ -29,15 +29,30 @@ const SPACING = 0.1
 const POINTS = 520
 
 function coulombLevels(l: number, count: number): number[] {
-  return radialSchrodingerLevels({ l, potential: (r) => -CHARGE / r, mass: MASS, spacing: SPACING, points: POINTS, count })
+  return radialSchrodingerLevels({
+    l,
+    potential: r => -CHARGE / r,
+    mass: MASS,
+    spacing: SPACING,
+    points: POINTS,
+    count,
+  })
 }
 function softenedLevels(l: number, count: number): number[] {
-  return radialSchrodingerLevels({ l, potential: (r) => -CHARGE / Math.sqrt(r * r + 1), mass: MASS, spacing: SPACING, points: POINTS, count })
+  return radialSchrodingerLevels({
+    l,
+    potential: r => -CHARGE / Math.sqrt(r * r + 1),
+    mass: MASS,
+    spacing: SPACING,
+    points: POINTS,
+    count,
+  })
 }
 
 export default experiment({
   id: 'spin/hydrogen-spectrum',
-  title: 'the hydrogen atom, the Rydberg series E_n proportional to -1/n^2 and the accidental l-degeneracy, lifted by a non-Coulomb control',
+  title:
+    'the hydrogen atom, the Rydberg series E_n proportional to -1/n^2 and the accidental l-degeneracy, lifted by a non-Coulomb control',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -49,16 +64,21 @@ export default experiment({
     const dSeries = coulombLevels(2, 2) // 3d, 4d
 
     // the implied principal quantum number from each s-level, E = -1/(2 n^2) so n = 1/sqrt(-2 E)
-    const impliedN = sSeries.map((e) => 1 / Math.sqrt(-2 * e))
+    const impliedN = sSeries.map(e => 1 / Math.sqrt(-2 * e))
     // the Rydberg law holds if the implied n are the integers 1, 2, 3, 4
-    const rydbergHolds = impliedN.every((n, i) => Math.abs(n - (i + 1)) < 0.05)
+    const rydbergHolds = impliedN.every(
+      (n, i) => Math.abs(n - (i + 1)) < 0.05,
+    )
     const groundStateRydberg = Math.abs(sSeries[0]! - -0.5) < 0.01
 
     // the accidental l-degeneracy, E(2s) = E(2p), and E(3s) = E(3p) = E(3d)
     const degeneracy2 = Math.abs(sSeries[1]! - pSeries[0]!)
     const degeneracy3sp = Math.abs(sSeries[2]! - pSeries[1]!)
     const degeneracy3pd = Math.abs(pSeries[1]! - dSeries[0]!)
-    const lDegeneracyHolds = degeneracy2 < 0.001 && degeneracy3sp < 0.001 && degeneracy3pd < 0.002
+    const lDegeneracyHolds =
+      degeneracy2 < 0.001 &&
+      degeneracy3sp < 0.001 &&
+      degeneracy3pd < 0.002
 
     // the control, a softened (non-Coulomb) potential lifts the degeneracy, the s and p energies split
     const softS = softenedLevels(0, 2)
@@ -66,7 +86,11 @@ export default experiment({
     const softSplit = Math.abs(softS[1]! - softP[0]!)
     const controlLiftsDegeneracy = softSplit > 0.005
 
-    const ok = rydbergHolds && groundStateRydberg && lDegeneracyHolds && controlLiftsDegeneracy
+    const ok =
+      rydbergHolds &&
+      groundStateRydberg &&
+      lDegeneracyHolds &&
+      controlLiftsDegeneracy
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -81,7 +105,9 @@ export default experiment({
         energy2s: Number(sSeries[1]!.toFixed(5)),
         energy3s: Number(sSeries[2]!.toFixed(5)),
         degeneracy2sp: Number(degeneracy2.toFixed(6)),
-        degeneracy3spd: Number(Math.max(degeneracy3sp, degeneracy3pd).toFixed(6)),
+        degeneracy3spd: Number(
+          Math.max(degeneracy3sp, degeneracy3pd).toFixed(6),
+        ),
         controlSplit: Number(softSplit.toFixed(5)),
       },
       control: {

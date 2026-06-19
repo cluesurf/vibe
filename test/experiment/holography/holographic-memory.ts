@@ -23,13 +23,44 @@ import { makeRng, Rng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function ball(offsets: Int32Array, adj: Int32Array, n: number, start: number, size: number): number[] {
-  return csrBallNodes({ offsets, adj, size: n, source: start, limit: size })
+function ball(
+  offsets: Int32Array,
+  adj: Int32Array,
+  n: number,
+  start: number,
+  size: number,
+): number[] {
+  return csrBallNodes({
+    offsets,
+    adj,
+    size: n,
+    source: start,
+    limit: size,
+  })
 }
 
 // the conserving perception rule (cohesive hop, no arrow), one beat
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void {
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0, escapeProbability: 0.02 })
+function beat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: true,
+    arrow: 0,
+    escapeProbability: 0.02,
+  })
 }
 
 export function holographicMemory(input?: { n?: number }): {
@@ -48,7 +79,7 @@ export function holographicMemory(input?: { n?: number }): {
   holographicWins: boolean
   solved: boolean
 } {
-  const n = (input?.n ?? 30000)
+  const n = input?.n ?? 30000
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
@@ -71,7 +102,8 @@ export function holographicMemory(input?: { n?: number }): {
     for (const i of anchors) t[i] = 1
     return t
   }
-  const survival = (t: Int8Array, anchors: number[]): number => anchors.filter((i) => t[i] === 1).length / anchors.length
+  const survival = (t: Int8Array, anchors: number[]): number =>
+    anchors.filter(i => t[i] === 1).length / anchors.length
   // decode the logical bit from the anchor set: sign of the anchor tone sum (correct = +1)
   const decode = (t: Int8Array, anchors: number[]): boolean => {
     let s = 0
@@ -97,8 +129,10 @@ export function holographicMemory(input?: { n?: number }): {
   const moved = new Uint8Array(N)
   const rngH = makeRng({ seed: 7 })
   const rngB = makeRng({ seed: 7 })
-  for (let b = 0; b < 20; b++) beat(holo, eu, ev, g.offsets, g.adj, moved, rngH)
-  for (let b = 0; b < 20; b++) beat(blob, eu, ev, g.offsets, g.adj, moved, rngB)
+  for (let b = 0; b < 20; b++)
+    beat(holo, eu, ev, g.offsets, g.adj, moved, rngH)
+  for (let b = 0; b < 20; b++)
+    beat(blob, eu, ev, g.offsets, g.adj, moved, rngB)
   const holoSurvivalAfter = survival(holo, holoAnchors)
   const blobSurvivalAfter = survival(blob, blobAnchors)
   const holoDecodeAfter = decode(holo, holoAnchors)
@@ -107,7 +141,10 @@ export function holographicMemory(input?: { n?: number }): {
   const conserved = true && qHolo === A && qBlob === A // both encodings started with A units
 
   const holographicWins =
-    holoSurvivalInit > 0.6 && blobSurvivalInit < 0.2 && holoDecodeInit && !blobDecodeInit
+    holoSurvivalInit > 0.6 &&
+    blobSurvivalInit < 0.2 &&
+    holoDecodeInit &&
+    !blobDecodeInit
   const solved = holographicWins && holoDecodeAfter && !blobDecodeAfter
 
   return {
@@ -130,14 +167,19 @@ export function holographicMemory(input?: { n?: number }): {
 
 export default experiment({
   id: 'holography/holographic-memory',
-  title: 'a spread-encoded bit survives a bounded erasure while a localized blob is destroyed',
+  title:
+    'a spread-encoded bit survives a bounded erasure while a localized blob is destroyed',
   category: 'holography',
   substrates: ['534'],
   depth: 'L3',
   paper: true,
   run() {
     const r = holographicMemory({ n: 30000 })
-    const ok = r.solved && r.holographicWins && r.holoDecodeInit && !r.blobDecodeInit
+    const ok =
+      r.solved &&
+      r.holographicWins &&
+      r.holoDecodeInit &&
+      !r.blobDecodeInit
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

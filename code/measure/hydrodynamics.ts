@@ -12,29 +12,45 @@ import { Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 
 // Absorb the gradient-axis boundary slabs (the bath) in place, used by the open-mesh runs.
-function absorbGradientBoundary(will: Will, side: number, gradAxis: number): void {
+function absorbGradientBoundary(
+  will: Will,
+  side: number,
+  gradAxis: number,
+): void {
   const degree = will.mesh.degree
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const coordinate = coordAlong(cell, gradAxis, side)
     if (coordinate === 0 || coordinate === side - 1) {
       const base = cell * degree
-      for (let direction = 0; direction < degree; direction++) will.data[base + direction] = 0
+      for (let direction = 0; direction < degree; direction++)
+        will.data[base + direction] = 0
     }
   }
 }
 
 // the integer coordinate of a cell along one of the four d4 axes.
-export function coordAlong(cell: number, axis: number, side: number): number {
+export function coordAlong(
+  cell: number,
+  axis: number,
+  side: number,
+): number {
   return Math.floor(cell / side ** axis) % side
 }
 
 // the net momentum of one cell along momAxis, the sum over its slots of tone times the slot direction's component.
-export function cellMomentum(will: Will, cell: number, directions: number[][], momAxis: number): number {
+export function cellMomentum(
+  will: Will,
+  cell: number,
+  directions: number[][],
+  momAxis: number,
+): number {
   const degree = will.mesh.degree
   const base = cell * degree
   let momentum = 0
   for (let direction = 0; direction < degree; direction++) {
-    momentum += (will.data[base + direction] ?? 0) * (directions[direction]![momAxis] ?? 0)
+    momentum +=
+      (will.data[base + direction] ?? 0) *
+      (directions[direction]![momAxis] ?? 0)
   }
   return momentum
 }
@@ -50,14 +66,18 @@ export function shearSetup(input: {
   momAxis: number
   wavelength: number
 }): Will {
-  const { mesh, directions, side, gradAxis, momAxis, wavelength } = input
+  const { mesh, directions, side, gradAxis, momAxis, wavelength } =
+    input
   const degree = mesh.degree
   const will = makeWill(mesh)
   const data = will.data
   const opposite: number[] = []
-  for (let direction = 0; direction < degree; direction++) opposite.push(mesh.opposite(direction))
+  for (let direction = 0; direction < degree; direction++)
+    opposite.push(mesh.opposite(direction))
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const amplitude = Math.sin((2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength)
+    const amplitude = Math.sin(
+      (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
+    )
     const base = cell * degree
     let noMomentumLine = 0
     for (let direction = 0; direction < degree; direction++) {
@@ -67,12 +87,24 @@ export function shearSetup(input: {
       if (component !== 0) {
         const positiveSlot = component > 0 ? direction : other
         const negativeSlot = component > 0 ? other : direction
-        if (amplitude > 0.33) { data[base + positiveSlot] = 1; data[base + negativeSlot] = 0 } // net +momAxis flow
-        else if (amplitude < -0.33) { data[base + negativeSlot] = 1; data[base + positiveSlot] = 0 } // net -momAxis flow
-        else { data[base + direction] = 1; data[base + other] = 1 } // a thermal (zero-momentum) pair
+        if (amplitude > 0.33) {
+          data[base + positiveSlot] = 1
+          data[base + negativeSlot] = 0
+        } // net +momAxis flow
+        else if (amplitude < -0.33) {
+          data[base + negativeSlot] = 1
+          data[base + positiveSlot] = 0
+        } // net -momAxis flow
+        else {
+          data[base + direction] = 1
+          data[base + other] = 1
+        } // a thermal (zero-momentum) pair
       } else {
         // half the no-momentum lines are thermal pairs, half stay empty as rotation targets (deterministic)
-        if (noMomentumLine % 2 === 0) { data[base + direction] = 1; data[base + other] = 1 }
+        if (noMomentumLine % 2 === 0) {
+          data[base + direction] = 1
+          data[base + other] = 1
+        }
         noMomentumLine++
       }
     }
@@ -89,10 +121,15 @@ export function shearAmplitude(input: {
   momAxis: number
   wavelength: number
 }): number {
-  const { will, directions, side, gradAxis, momAxis, wavelength } = input
+  const { will, directions, side, gradAxis, momAxis, wavelength } =
+    input
   let amplitude = 0
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-    amplitude += cellMomentum(will, cell, directions, momAxis) * Math.sin((2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength)
+    amplitude +=
+      cellMomentum(will, cell, directions, momAxis) *
+      Math.sin(
+        (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
+      )
   }
   return amplitude
 }
@@ -110,12 +147,29 @@ export function shearAmplitudeSeries(input: {
   wavelength: number
   open: boolean
 }): number[] {
-  const { collision, beats, directions, side, gradAxis, momAxis, wavelength, open } = input
+  const {
+    collision,
+    beats,
+    directions,
+    side,
+    gradAxis,
+    momAxis,
+    wavelength,
+    open,
+  } = input
   // allocation-free double buffer, the in-place beat (same result as beat(), far fewer allocations)
   const table = streamSourceTable(input.will.mesh)
   let current = cloneWill(input.will)
   let scratch = makeWill(input.will.mesh)
-  const measure = (w: Will) => shearAmplitude({ will: w, directions, side, gradAxis, momAxis, wavelength })
+  const measure = (w: Will) =>
+    shearAmplitude({
+      will: w,
+      directions,
+      side,
+      gradAxis,
+      momAxis,
+      wavelength,
+    })
   const start = measure(current)
   const series = [1]
   for (let step = 0; step < beats; step++) {
@@ -131,26 +185,47 @@ export function shearAmplitudeSeries(input: {
 // create move is charge-neutral per cell, so the net-cell-charge field is clean of vacuum churn, the charge mode is
 // measurable directly. Used to test whether the conserved charge diffuses (it does not in the reversible bulk, it
 // recurs, the same bath-driven story as the momentum shear).
-export function chargeWaveSetup(input: { mesh: Mesh; side: number; gradAxis: number; wavelength: number; band?: number }): Will {
+export function chargeWaveSetup(input: {
+  mesh: Mesh
+  side: number
+  gradAxis: number
+  wavelength: number
+  band?: number
+}): Will {
   const { mesh, side, gradAxis, wavelength } = input
   const band = input.band ?? 6
   const degree = mesh.degree
   const will = makeWill(mesh)
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const amplitude = Math.sin((2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength)
+    const amplitude = Math.sin(
+      (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
+    )
     const base = cell * degree
-    if (amplitude > 0.33) for (let direction = 0; direction < band; direction++) will.data[base + direction] = 1
-    else if (amplitude < -0.33) for (let direction = 0; direction < band; direction++) will.data[base + direction] = -1
+    if (amplitude > 0.33)
+      for (let direction = 0; direction < band; direction++)
+        will.data[base + direction] = 1
+    else if (amplitude < -0.33)
+      for (let direction = 0; direction < band; direction++)
+        will.data[base + direction] = -1
   }
   return will
 }
 
 // the Fourier amplitude of the charge-density wave, the net cell charge projected onto sin(k gradAxis).
-export function chargeWaveAmplitude(input: { will: Will; side: number; gradAxis: number; wavelength: number }): number {
+export function chargeWaveAmplitude(input: {
+  will: Will
+  side: number
+  gradAxis: number
+  wavelength: number
+}): number {
   const { will, side, gradAxis, wavelength } = input
   let amplitude = 0
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
-    amplitude += cellTone(will, cell) * Math.sin((2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength)
+    amplitude +=
+      cellTone(will, cell) *
+      Math.sin(
+        (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
+      )
   }
   return amplitude
 }
@@ -171,7 +246,8 @@ export function chargeWaveSeries(input: {
   const table = streamSourceTable(input.will.mesh)
   let current = cloneWill(input.will)
   let scratch = makeWill(input.will.mesh)
-  const measure = (w: Will) => chargeWaveAmplitude({ will: w, side, gradAxis, wavelength })
+  const measure = (w: Will) =>
+    chargeWaveAmplitude({ will: w, side, gradAxis, wavelength })
   const start = measure(current)
   const series = [1]
   for (let step = 0; step < beats; step++) {

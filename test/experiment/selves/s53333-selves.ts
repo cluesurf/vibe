@@ -7,18 +7,23 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s53333Selves(): { solitonsExist: boolean; instantonCharge: number; overDimensional: boolean } {
+export function s53333Selves(): {
+  solitonsExist: boolean
+  instantonCharge: number
+  overDimensional: boolean
+} {
   // 4D instanton topological charge, pi_3(S^3) = Z. A BPST-like profile on a 4D radial grid, winding = 1.
   // We verify the winding of the map S^3 -> S^3 for a hedgehog in 4D (the degree of the boundary 3-sphere map).
   // Discretize the radial profile, charge = (1/2pi^2) * integral of the winding density, here = 1 by construction.
   const samples = 200
   let charge = 0
   for (let i = 0; i < samples; i++) {
-    const r = (i + 0.5) / samples * 6 // radius
+    const r = ((i + 0.5) / samples) * 6 // radius
     const f = Math.PI * (1 - 1 / (1 + r * r)) // chiral angle 0 -> pi (the instanton profile)
-    const fNext = Math.PI * (1 - 1 / (1 + ((i + 1.5) / samples * 6) ** 2))
+    const fNext =
+      Math.PI * (1 - 1 / (1 + (((i + 1.5) / samples) * 6) ** 2))
     const df = fNext - f
-    charge += (2 / Math.PI) * (Math.sin(f) ** 2) * df // d/df of (f - sin f cos f)/pi integrated = winding density
+    charge += (2 / Math.PI) * Math.sin(f) ** 2 * df // d/df of (f - sin f cos f)/pi integrated = winding density
   }
   const instantonCharge = Math.round(charge)
   const solitonsExist = Math.abs(instantonCharge) >= 1
@@ -28,14 +33,16 @@ export function s53333Selves(): { solitonsExist: boolean; instantonCharge: numbe
 
 export default experiment({
   id: 'selves/s53333-selves',
-  title: 'topological solitons exist on the 4D horosphere but are over-dimensional',
+  title:
+    'topological solitons exist on the 4D horosphere but are over-dimensional',
   category: 'selves',
   substrates: ['53333'],
   depth: 'L1',
   paper: false,
   run() {
     const r = s53333Selves()
-    const ok = r.solitonsExist && r.instantonCharge === 1 && r.overDimensional
+    const ok =
+      r.solitonsExist && r.instantonCharge === 1 && r.overDimensional
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -10,26 +10,57 @@
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicDodecagrid } from '@/code/substrate/hyperbolic-honeycomb'
 import { lattice } from '@/code/substrate/lattice'
-import { Substrate, substrateUndirectedMeanDegree } from '@/code/tool/substrate'
+import {
+  Substrate,
+  substrateUndirectedMeanDegree,
+} from '@/code/tool/substrate'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { reachIsExponential } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const meanDegree = (s: Substrate): number => substrateUndirectedMeanDegree({ substrate: s })
+const meanDegree = (s: Substrate): number =>
+  substrateUndirectedMeanDegree({ substrate: s })
 
 // The exponential-reach classifier lives in code/measure/dimension.
-const reachExponential = (s: Substrate): boolean => reachIsExponential({ substrate: s, maxRadius: 18 })
+const reachExponential = (s: Substrate): boolean =>
+  reachIsExponential({ substrate: s, maxRadius: 18 })
 
 export function dodecagrid(input: { seed: number }): {
-  honeycomb: { size: number; degree: number; anisotropy: number; reach: boolean; lorentzSafe: boolean }
-  flatLattice: { degree: number; anisotropy: number; lorentzSafe: boolean }
+  honeycomb: {
+    size: number
+    degree: number
+    anisotropy: number
+    reach: boolean
+    lorentzSafe: boolean
+  }
+  flatLattice: {
+    degree: number
+    anisotropy: number
+    lorentzSafe: boolean
+  }
 } {
-  const g = hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: 3000 })
-  const ga = lorentzIsotropy({ substrate: g, samples: 3000, rng: makeRng({ seed: input.seed }) })
+  const g = hyperbolicDodecagrid({
+    depth: 4,
+    connectThreshold: 2.0,
+    maxVertices: 3000,
+  })
+  const ga = lorentzIsotropy({
+    substrate: g,
+    samples: 3000,
+    rng: makeRng({ seed: input.seed }),
+  })
 
-  const L = lattice({ dimension: 3, extent: 14, signature: 'riemannian' })
-  const la = lorentzIsotropy({ substrate: L, samples: 3000, rng: makeRng({ seed: input.seed }) })
+  const L = lattice({
+    dimension: 3,
+    extent: 14,
+    signature: 'riemannian',
+  })
+  const la = lorentzIsotropy({
+    substrate: L,
+    samples: 3000,
+    rng: makeRng({ seed: input.seed }),
+  })
 
   return {
     honeycomb: {
@@ -49,7 +80,8 @@ export function dodecagrid(input: { seed: number }): {
 
 export default experiment({
   id: 'geometry/dodecagrid',
-  title: 'the 3D hyperbolic honeycomb {5,3,4} is Lorentz-safe, a flat cubic lattice is not',
+  title:
+    'the 3D hyperbolic honeycomb {5,3,4} is Lorentz-safe, a flat cubic lattice is not',
   category: 'geometry',
   substrates: ['534'],
   depth: 'L2',

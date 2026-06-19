@@ -17,8 +17,14 @@ export function kahlerDiracReturn(input: {
   dt?: number
 }): { clean: number; localized: number; normDrift: number } {
   const { neighbors } = input
-  const graph = makeGraph({ size: neighbors.length, directed: false, neighbors })
-  const dirac = kahlerDirac({ complex: cellComplexOf({ substrate: graph, maxGrade: 1 }) })
+  const graph = makeGraph({
+    size: neighbors.length,
+    directed: false,
+    neighbors,
+  })
+  const dirac = kahlerDirac({
+    complex: cellComplexOf({ substrate: graph, maxGrade: 1 }),
+  })
 
   let source = 0
   let best = -1
@@ -30,10 +36,21 @@ export function kahlerDiracReturn(input: {
   }
 
   // dt well below 2 / ||H|| so the leapfrog stays near-unitary; total time steps * dt is the physical window
-  const evolve = { source, steps: input.steps ?? 570, dt: input.dt ?? 0.02, sampleEvery: 30 }
-  const clean = returnProbability({ operator: sparseWithAubryAndrePotential(dirac, 0), ...evolve })
+  const evolve = {
+    source,
+    steps: input.steps ?? 570,
+    dt: input.dt ?? 0.02,
+    sampleEvery: 30,
+  }
+  const clean = returnProbability({
+    operator: sparseWithAubryAndrePotential(dirac, 0),
+    ...evolve,
+  })
   const localized = returnProbability({
-    operator: sparseWithAubryAndrePotential(dirac, input.disorderStrength ?? 8),
+    operator: sparseWithAubryAndrePotential(
+      dirac,
+      input.disorderStrength ?? 8,
+    ),
     ...evolve,
   })
   return {

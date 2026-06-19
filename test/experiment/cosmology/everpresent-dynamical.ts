@@ -21,12 +21,16 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // Measure the RMS of the implied Lambda fluctuation, delta-Lambda = (N - V) / V, from GENUINE Poisson
 // draws of the element count N at expected 4-volume V (in Planck units, N = V at unit density).
-export function everpresentDynamical(input: { volumes: number[]; repeats: number; seed: number }): {
+export function everpresentDynamical(input: {
+  volumes: number[]
+  repeats: number
+  seed: number
+}): {
   rms: number[]
   exponent: number
 } {
   const rng = makeRng({ seed: input.seed })
-  const rms = input.volumes.map((v) => {
+  const rms = input.volumes.map(v => {
     let sumSq = 0
     for (let r = 0; r < input.repeats; r++) {
       const n = poissonSample({ lambda: v, rng }) // the genuine causal-set element count, Poisson(V)
@@ -48,7 +52,11 @@ export function everpresent(input: { seed: number }): {
 } {
   // Knuth-safe volumes (e^-V representable): genuine Poisson draws give the -1/2 scaling.
   const volumes = [50, 100, 200, 400]
-  const { exponent } = everpresentDynamical({ volumes, repeats: 40000, seed: input.seed })
+  const { exponent } = everpresentDynamical({
+    volumes,
+    repeats: 40000,
+    seed: input.seed,
+  })
   const matchesEverpresent = Math.abs(exponent + 0.5) < 0.05
 
   // The dark-energy VALUE is the everpresent prediction at the observed 4-volume (adopted, Sorkin).
@@ -57,7 +65,8 @@ export function everpresent(input: { seed: number }): {
   const Vobs = (cT / lP) ** 4
   const darkEnergyOrderOfMagnitude = Math.log10(1 / Math.sqrt(Vobs)) // ~ -122 in Planck units
   const observedOrderOfMagnitude = Math.log10(1.1e-52 * lP * lP) // observed Lambda in Planck units
-  const sameOrderAsObserved = Math.abs(darkEnergyOrderOfMagnitude - observedOrderOfMagnitude) < 3
+  const sameOrderAsObserved =
+    Math.abs(darkEnergyOrderOfMagnitude - observedOrderOfMagnitude) < 3
 
   return {
     exponent,
@@ -74,7 +83,8 @@ export function everpresent(input: { seed: number }): {
 
 export default experiment({
   id: 'cosmology/everpresent-dynamical',
-  title: 'genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude',
+  title:
+    'genuine Poisson statistics give V^-0.5, adopted scaling matches the observed order of magnitude',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L2',

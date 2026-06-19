@@ -27,8 +27,26 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // the rule alone: share + cohesive hop, NO external maintenance, NO arrow (to isolate healing)
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0 })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void =>
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: true,
+    arrow: 0,
+  })
 
 export function selfMaintenance(input?: { n?: number }): {
   n: number
@@ -46,8 +64,20 @@ export function selfMaintenance(input?: { n?: number }): {
   const moved = new Uint8Array(N)
   const beats = 30
 
-  const self = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 3000 }) // the self: a + region
-  const chunk = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: 800 }) // an inner chunk to erase
+  const self = csrBallNodes({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+    limit: 3000,
+  }) // the self: a + region
+  const chunk = csrBallNodes({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+    limit: 800,
+  }) // an inner chunk to erase
   const chunkSet = new Set(chunk)
   const plusInChunk = (t: Int8Array): number => {
     let c = 0
@@ -59,7 +89,8 @@ export function selfMaintenance(input?: { n?: number }): {
   const base = new Int8Array(N)
   for (const i of self) base[i] = 1
   const r1 = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++) beat(base, eu, ev, g.offsets, g.adj, moved, r1)
+  for (let b = 0; b < beats; b++)
+    beat(base, eu, ev, g.offsets, g.adj, moved, r1)
   const baselineFrac = plusInChunk(base)
 
   // WITH surround: erase the inner chunk (holes), run the rule ALONE, the surround heals it
@@ -67,19 +98,24 @@ export function selfMaintenance(input?: { n?: number }): {
   for (const i of self) dmg[i] = 1
   for (const i of chunkSet) dmg[i] = 0
   const r2 = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++) beat(dmg, eu, ev, g.offsets, g.adj, moved, r2)
+  for (let b = 0; b < beats; b++)
+    beat(dmg, eu, ev, g.offsets, g.adj, moved, r2)
   const withSurroundFrac = plusInChunk(dmg)
-  const withSurroundRecovery = baselineFrac > 0 ? withSurroundFrac / baselineFrac : 0
+  const withSurroundRecovery =
+    baselineFrac > 0 ? withSurroundFrac / baselineFrac : 0
 
   // WITHOUT surround: the self is ONLY the chunk, erase it, nothing to heal from
   const ctrl = new Int8Array(N)
   for (const i of chunkSet) ctrl[i] = 1
   for (const i of chunkSet) ctrl[i] = 0 // erase the whole self
   const r3 = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++) beat(ctrl, eu, ev, g.offsets, g.adj, moved, r3)
-  const withoutSurroundRecovery = plusInChunk(ctrl) / (baselineFrac > 0 ? baselineFrac : 1)
+  for (let b = 0; b < beats; b++)
+    beat(ctrl, eu, ev, g.offsets, g.adj, moved, r3)
+  const withoutSurroundRecovery =
+    plusInChunk(ctrl) / (baselineFrac > 0 ? baselineFrac : 1)
 
-  const emergentSelfHeals = withSurroundRecovery > 0.5 && withoutSurroundRecovery < 0.2
+  const emergentSelfHeals =
+    withSurroundRecovery > 0.5 && withoutSurroundRecovery < 0.2
   const solved = emergentSelfHeals
 
   return {
@@ -95,7 +131,8 @@ export function selfMaintenance(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/self-maintenance',
-  title: 'a self heals its own damage by the rule alone, control with no surround does not',
+  title:
+    'a self heals its own damage by the rule alone, control with no surround does not',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',

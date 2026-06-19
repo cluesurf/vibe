@@ -21,7 +21,10 @@ export function sprinkleBox(input: {
   const n = Math.round(input.density * area)
   const pts: SprinkledPoint[] = []
   for (let i = 0; i < n; i++) {
-    pts.push({ t: input.rng.next() * input.tMax, x: (input.rng.next() * 2 - 1) * input.xMax })
+    pts.push({
+      t: input.rng.next() * input.tMax,
+      x: (input.rng.next() * 2 - 1) * input.xMax,
+    })
   }
   pts.sort((a, b) => a.t - b.t)
   return pts

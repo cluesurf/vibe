@@ -8,7 +8,9 @@
 
 import { Poset, makePosetFromRelation } from '@/code/tool/poset'
 
-export function kleitmanRothschildOrder(input: { size: number }): Poset {
+export function kleitmanRothschildOrder(input: {
+  size: number
+}): Poset {
   const n = input.size
   const bottom = Math.floor(n / 4)
   const top = Math.floor(n / 4)

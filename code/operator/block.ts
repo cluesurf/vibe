@@ -33,8 +33,10 @@ export function addComplexBlock(input: {
       const im = pr * bi + pi * br
       const row = input.rowSite * 2 + s
       const col = input.colSite * 2 + t
-      input.matrix.re[row * n + col] = (input.matrix.re[row * n + col] ?? 0) + re
-      input.matrix.im[row * n + col] = (input.matrix.im[row * n + col] ?? 0) + im
+      input.matrix.re[row * n + col] =
+        (input.matrix.re[row * n + col] ?? 0) + re
+      input.matrix.im[row * n + col] =
+        (input.matrix.im[row * n + col] ?? 0) + im
     }
   }
 }

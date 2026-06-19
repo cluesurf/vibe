@@ -117,19 +117,38 @@ export function lorentzIsotropy(input: {
 
 // Lattice scalar dispersion omega(k) = sqrt(sum 4 sin^2(k_i/2)), the square-lattice
 // nearest-neighbour dispersion. The continuum is omega = |k| (speed 1, isotropic).
-const SQUARE_DIRECTIONS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+const SQUARE_DIRECTIONS = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+]
 function omega(kx: number, ky: number): number {
-  return Math.sqrt(latticeDispersion({ directions: SQUARE_DIRECTIONS, wave: [kx, ky] }))
+  return Math.sqrt(
+    latticeDispersion({
+      directions: SQUARE_DIRECTIONS,
+      wave: [kx, ky],
+    }),
+  )
 }
 
 // Group-speed anisotropy at a fixed momentum magnitude: (max - min) / mean over
 // directions. Zero is perfectly Lorentz-safe, large is strong LIV.
-export function latticeAnisotropy(kMag: number): { meanSpeed: number; anisotropy: number } {
+export function latticeAnisotropy(kMag: number): {
+  meanSpeed: number
+  anisotropy: number
+} {
   return groupSpeedAnisotropy({ omega, kMag, samples: 24 })
 }
 
-function sprinklePoints(input: { count: number; rng: Rng }): { x: number; y: number }[] {
-  return Array.from({ length: input.count }, () => ({ x: input.rng.next(), y: input.rng.next() }))
+function sprinklePoints(input: {
+  count: number
+  rng: Rng
+}): { x: number; y: number }[] {
+  return Array.from({ length: input.count }, () => ({
+    x: input.rng.next(),
+    y: input.rng.next(),
+  }))
 }
 function latticePoints(side: number): { x: number; y: number }[] {
   const pts: { x: number; y: number }[] = []
@@ -142,7 +161,11 @@ function latticePoints(side: number): { x: number; y: number }[] {
 }
 
 export function lorentzSafety(): { sprinkle: number; lattice: number } {
-  const sprinkle = nearestLinkHarmonicAnisotropy({ points: sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }) })
-  const lattice = nearestLinkHarmonicAnisotropy({ points: latticePoints(30) })
+  const sprinkle = nearestLinkHarmonicAnisotropy({
+    points: sprinklePoints({ count: 900, rng: makeRng({ seed: 1 }) }),
+  })
+  const lattice = nearestLinkHarmonicAnisotropy({
+    points: latticePoints(30),
+  })
   return { sprinkle, lattice }
 }

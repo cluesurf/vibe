@@ -9,7 +9,10 @@
 
 import { TESSELLATIONS } from '@/code/substrate/tessellation-catalog'
 import { measureTessellation } from '@/code/measure/tessellation-battery'
-import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenterBySide,
+} from '@/code/substrate/cubic-lattice'
 import { bfsShells, geometricGrowthRatio } from '@/code/measure/shells'
 import { coverageRadius } from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
@@ -29,7 +32,10 @@ interface Rung {
   coverageRadius: number
 }
 
-export function associativeCapacityVsCurvature(input?: { maxCells?: number; cubicSide?: number }): {
+export function associativeCapacityVsCurvature(input?: {
+  maxCells?: number
+  cubicSide?: number
+}): {
   rungs: Rung[]
   cubicGrowthRatio: number
   cubicCoverageRadius: number
@@ -41,8 +47,8 @@ export function associativeCapacityVsCurvature(input?: { maxCells?: number; cubi
   const maxCells = input?.maxCells ?? LADDER_MAX_CELLS
   const cubicSide = input?.cubicSide ?? CUBIC_SIDE
 
-  const rungs: Rung[] = LADDER.map((symbol) => {
-    const t = TESSELLATIONS.find((x) => x.symbol === symbol)!
+  const rungs: Rung[] = LADDER.map(symbol => {
+    const t = TESSELLATIONS.find(x => x.symbol === symbol)!
     const m = measureTessellation({ schlafli: t.schlafli, maxCells })
     return {
       symbol,
@@ -55,20 +61,28 @@ export function associativeCapacityVsCurvature(input?: { maxCells?: number; cubi
   // the flat 3D cubic control, the least curved substrate (polynomial growth, longest latency)
   const lattice = cubicLattice(cubicSide, 3)
   const center = cubicLatticeCenterBySide({ side: cubicSide, dim: 3 })
-  const cubicShells = bfsShells({ neighbors: lattice.neighbors, root: center }).shellCounts
+  const cubicShells = bfsShells({
+    neighbors: lattice.neighbors,
+    root: center,
+  }).shellCounts
   const cubicGrowthRatio = geometricGrowthRatio(cubicShells)
-  const cubicCoverageRadius = coverageRadius({ neighbors: lattice.neighbors, seed: center })
+  const cubicCoverageRadius = coverageRadius({
+    neighbors: lattice.neighbors,
+    seed: center,
+  })
 
   const least = rungs[0]!
   const most = rungs[rungs.length - 1]!
 
   // capacity per radius rises with curvature, latency per coverage falls with curvature
-  const growthRisesWithCurvature = most.associativeGrowthRatio > least.associativeGrowthRatio
-  const coverageFallsWithCurvature = most.coverageRadius < least.coverageRadius
+  const growthRisesWithCurvature =
+    most.associativeGrowthRatio > least.associativeGrowthRatio
+  const coverageFallsWithCurvature =
+    most.coverageRadius < least.coverageRadius
   // the flat control sits below every tessellation, lowest growth and largest radius
   const flatIsLowestGrowthLargestRadius =
-    rungs.every((r) => r.associativeGrowthRatio > cubicGrowthRatio) &&
-    rungs.every((r) => r.coverageRadius < cubicCoverageRadius)
+    rungs.every(r => r.associativeGrowthRatio > cubicGrowthRatio) &&
+    rungs.every(r => r.coverageRadius < cubicCoverageRadius)
 
   return {
     rungs,
@@ -77,19 +91,26 @@ export function associativeCapacityVsCurvature(input?: { maxCells?: number; cubi
     growthRisesWithCurvature,
     coverageFallsWithCurvature,
     flatIsLowestGrowthLargestRadius,
-    solved: growthRisesWithCurvature && coverageFallsWithCurvature && flatIsLowestGrowthLargestRadius,
+    solved:
+      growthRisesWithCurvature &&
+      coverageFallsWithCurvature &&
+      flatIsLowestGrowthLargestRadius,
   }
 }
 
 export default experiment({
   id: 'associative/capacity-vs-curvature',
-  title: 'associative capacity rises and search latency falls with curvature across the tessellation catalog, the flat cubic lattice being the worst on both',
+  title:
+    'associative capacity rises and search latency falls with curvature across the tessellation catalog, the flat cubic lattice being the worst on both',
   category: 'associative',
   substrates: 'any',
   depth: 'L3',
   paper: true,
   run() {
-    const r = associativeCapacityVsCurvature({ maxCells: LADDER_MAX_CELLS, cubicSide: CUBIC_SIDE })
+    const r = associativeCapacityVsCurvature({
+      maxCells: LADDER_MAX_CELLS,
+      cubicSide: CUBIC_SIDE,
+    })
     const least = r.rungs[0]!
     const most = r.rungs[r.rungs.length - 1]!
     return verdict({
@@ -102,12 +123,15 @@ export default experiment({
         leastCurvedCoverageRadius: least.coverageRadius,
         mostCurvedCoverageRadius: most.coverageRadius,
         growthRisesWithCurvature: r.growthRisesWithCurvature ? 1 : 0,
-        coverageFallsWithCurvature: r.coverageFallsWithCurvature ? 1 : 0,
+        coverageFallsWithCurvature: r.coverageFallsWithCurvature
+          ? 1
+          : 0,
       },
       control: {
         cubicGrowthRatio: r.cubicGrowthRatio,
         cubicCoverageRadius: r.cubicCoverageRadius,
-        flatIsLowestGrowthLargestRadius: r.flatIsLowestGrowthLargestRadius ? 1 : 0,
+        flatIsLowestGrowthLargestRadius:
+          r.flatIsLowestGrowthLargestRadius ? 1 : 0,
       },
       notes:
         'L3, a deep cross-tessellation claim with the flat cubic lattice as the null control. The ladder is a representative handful of buildable tessellations ordered by catalog curvature ({5,3,4} least, {5,3,3,5} most), not the full catalog, the full sweep with the associative columns per tessellation is the battery CSV. The associative growth ratio and coverage radius come from the one reusable battery column (code/measure/tessellation-battery), so the ladder and the CSV agree. Build is kept small (maxCells 1200, cubic side 13) for suite cost.',

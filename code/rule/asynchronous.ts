@@ -53,7 +53,7 @@ export function asynchronousRule(input: {
         const neighborhood: number[] = []
         adjacency.forEachOut({
           node: element,
-          visit: (to) => {
+          visit: to => {
             neighborhood.push(getTone(next, { element: to }))
           },
         })

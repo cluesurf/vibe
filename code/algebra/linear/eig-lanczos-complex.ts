@@ -15,16 +15,27 @@ export interface ComplexVector {
   im: Float64Array
 }
 
-export type HermitianApply = (input: ComplexVector, output: ComplexVector) => void
+export type HermitianApply = (
+  input: ComplexVector,
+  output: ComplexVector,
+) => void
 
-function realDot(a: ComplexVector, b: ComplexVector, dimension: number): number {
+function realDot(
+  a: ComplexVector,
+  b: ComplexVector,
+  dimension: number,
+): number {
   let s = 0
-  for (let i = 0; i < dimension; i++) s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
+  for (let i = 0; i < dimension; i++)
+    s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
   return s
 }
 
 function newVector(dimension: number): ComplexVector {
-  return { re: new Float64Array(dimension), im: new Float64Array(dimension) }
+  return {
+    re: new Float64Array(dimension),
+    im: new Float64Array(dimension),
+  }
 }
 
 // Largest eigenvalue of H^2 by power iteration, the constant used to fold the
@@ -94,10 +105,11 @@ export function lowestAbsoluteEigenvalues(input: {
   for (let j = 0; j < steps; j++) {
     basis.push({ re: v.re.slice(), im: v.im.slice() })
     foldedApply(v, w)
-    if (vprev) for (let i = 0; i < dimension; i++) {
-      w.re[i]! -= bprev * vprev.re[i]!
-      w.im[i]! -= bprev * vprev.im[i]!
-    }
+    if (vprev)
+      for (let i = 0; i < dimension; i++) {
+        w.re[i]! -= bprev * vprev.re[i]!
+        w.im[i]! -= bprev * vprev.im[i]!
+      }
     const aj = realDot(v, w, dimension)
     alpha.push(aj)
     for (let i = 0; i < dimension; i++) {
@@ -132,7 +144,12 @@ export function lowestAbsoluteEigenvalues(input: {
       matrix.data[(i + 1) * k + i] = beta[i]!
     }
   }
-  const theta = Array.from(eigSymmetric({ matrix }).values).sort((a, b) => b - a) // largest of (C - H^2) first
+  const theta = Array.from(eigSymmetric({ matrix }).values).sort(
+    (a, b) => b - a,
+  ) // largest of (C - H^2) first
   // map back: H^2 eigenvalue = C - theta; |lambda| = sqrt(max(0, C - theta)); smallest first
-  return theta.slice(0, count).map((th) => Math.sqrt(Math.max(0, fold - th))).sort((a, b) => a - b)
+  return theta
+    .slice(0, count)
+    .map(th => Math.sqrt(Math.max(0, fold - th)))
+    .sort((a, b) => a - b)
 }

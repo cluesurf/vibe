@@ -27,7 +27,10 @@ import { cayleyMultiply } from '@/code/measure/division-algebra'
 
 // the count of real (square positive, ordered) and imaginary (square negative, unorderable) axes of the level-n
 // Cayley-Dickson algebra
-function realImaginaryAxes(level: number): { real: number; imaginary: number } {
+function realImaginaryAxes(level: number): {
+  real: number
+  imaginary: number
+} {
   const dimension = 2 ** level
   let real = 0
   let imaginary = 0
@@ -43,7 +46,8 @@ function realImaginaryAxes(level: number): { real: number; imaginary: number } {
 
 export default experiment({
   id: 'foundations/arrow-from-real-order',
-  title: 'the arrow is the order of the reals (the unique ordered division algebra), time = the 1 real axis (ordered), space = the 7 imaginary axes (unordered)',
+  title:
+    'the arrow is the order of the reals (the unique ordered division algebra), time = the 1 real axis (ordered), space = the 7 imaginary axes (unordered)',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -54,15 +58,22 @@ export default experiment({
     const complexes = realImaginaryAxes(1)
     const octonions = realImaginaryAxes(3)
     const realsAreOrdered = reals.imaginary === 0
-    const higherAreUnordered = complexes.imaginary > 0 && octonions.imaginary > 0
+    const higherAreUnordered =
+      complexes.imaginary > 0 && octonions.imaginary > 0
 
     // every algebra has exactly one real axis (the scalars, the ordered foundation)
-    const oneRealAxis = reals.real === 1 && complexes.real === 1 && octonions.real === 1
+    const oneRealAxis =
+      reals.real === 1 && complexes.real === 1 && octonions.real === 1
 
     // the octonion is 1 real (time, the arrow) + 7 imaginary (space, no arrow)
-    const octonionOnePlusSeven = octonions.real === 1 && octonions.imaginary === 7
+    const octonionOnePlusSeven =
+      octonions.real === 1 && octonions.imaginary === 7
 
-    const ok = realsAreOrdered && higherAreUnordered && oneRealAxis && octonionOnePlusSeven
+    const ok =
+      realsAreOrdered &&
+      higherAreUnordered &&
+      oneRealAxis &&
+      octonionOnePlusSeven
 
     return verdict({
       status: ok ? 'pass' : 'fail',

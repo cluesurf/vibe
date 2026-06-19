@@ -6,7 +6,10 @@
 // genuine coupling of the chiral fermion (P4) to the gauge field (P8).
 // See note/questions/frontier-spec.md.
 
-import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  ComplexMatrix,
+  makeComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { modulo } from '@/code/tool/integer'
 import { cMul, cConj } from '@/code/algebra/linear/complex'
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
@@ -48,15 +51,30 @@ function site(n1: number, n2: number, L: number): number {
 }
 
 // Total gauge flux (sum of plaquette phases). Self-check: equals 2 pi Q.
-export function totalFlux(input: { length: number; charge: number }): number {
+export function totalFlux(input: {
+  length: number
+  charge: number
+}): number {
   const L = input.length
   const F = (2 * Math.PI * input.charge) / (L * L)
   let total = 0
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const u1 = linkPhase({ mu: 1, n1, n2, flux: F, length: L })
-      const u2x = linkPhase({ mu: 2, n1: n1 + 1, n2, flux: F, length: L })
-      const u1y = linkPhase({ mu: 1, n1, n2: n2 + 1, flux: F, length: L })
+      const u2x = linkPhase({
+        mu: 2,
+        n1: n1 + 1,
+        n2,
+        flux: F,
+        length: L,
+      })
+      const u1y = linkPhase({
+        mu: 1,
+        n1,
+        n2: n2 + 1,
+        flux: F,
+        length: L,
+      })
       const u2 = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
       // plaquette = U1(x) U2(x+1) U1(x+2)* U2(x)*
       const a = cMul(u1, u2x)
@@ -82,25 +100,77 @@ export function gaugeWilsonDirac(input: {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
       // diagonal mass term: M0 = r * dim = 2.
-      addComplexBlock({ matrix: d, rowSite: x, colSite: x, block: I2, phaseRe: 1, phaseIm: 0, coefficient: 2 })
+      addComplexBlock({
+        matrix: d,
+        rowSite: x,
+        colSite: x,
+        block: I2,
+        phaseRe: 1,
+        phaseIm: 0,
+        coefficient: 2,
+      })
 
       // mu = 1 (x direction)
       {
         const u = linkPhase({ mu: 1, n1, n2, flux: F, length: L })
         const xPlus = site(n1 + 1, n2, L)
-        addComplexBlock({ matrix: d, rowSite: x, colSite: xPlus, block: P1_MINUS, phaseRe: u.re, phaseIm: u.im, coefficient: -0.5 })
-        const uBack = linkPhase({ mu: 1, n1: n1 - 1, n2, flux: F, length: L })
+        addComplexBlock({
+          matrix: d,
+          rowSite: x,
+          colSite: xPlus,
+          block: P1_MINUS,
+          phaseRe: u.re,
+          phaseIm: u.im,
+          coefficient: -0.5,
+        })
+        const uBack = linkPhase({
+          mu: 1,
+          n1: n1 - 1,
+          n2,
+          flux: F,
+          length: L,
+        })
         const xMinus = site(n1 - 1, n2, L)
-        addComplexBlock({ matrix: d, rowSite: x, colSite: xMinus, block: P1_PLUS, phaseRe: uBack.re, phaseIm: -uBack.im, coefficient: -0.5 })
+        addComplexBlock({
+          matrix: d,
+          rowSite: x,
+          colSite: xMinus,
+          block: P1_PLUS,
+          phaseRe: uBack.re,
+          phaseIm: -uBack.im,
+          coefficient: -0.5,
+        })
       }
       // mu = 2 (y direction)
       {
         const u = linkPhase({ mu: 2, n1, n2, flux: F, length: L })
         const xPlus = site(n1, n2 + 1, L)
-        addComplexBlock({ matrix: d, rowSite: x, colSite: xPlus, block: P2_MINUS, phaseRe: u.re, phaseIm: u.im, coefficient: -0.5 })
-        const uBack = linkPhase({ mu: 2, n1, n2: n2 - 1, flux: F, length: L })
+        addComplexBlock({
+          matrix: d,
+          rowSite: x,
+          colSite: xPlus,
+          block: P2_MINUS,
+          phaseRe: u.re,
+          phaseIm: u.im,
+          coefficient: -0.5,
+        })
+        const uBack = linkPhase({
+          mu: 2,
+          n1,
+          n2: n2 - 1,
+          flux: F,
+          length: L,
+        })
         const xMinus = site(n1, n2 - 1, L)
-        addComplexBlock({ matrix: d, rowSite: x, colSite: xMinus, block: P2_PLUS, phaseRe: uBack.re, phaseIm: -uBack.im, coefficient: -0.5 })
+        addComplexBlock({
+          matrix: d,
+          rowSite: x,
+          colSite: xMinus,
+          block: P2_PLUS,
+          phaseRe: uBack.re,
+          phaseIm: -uBack.im,
+          coefficient: -0.5,
+        })
       }
     }
   }
@@ -150,7 +220,12 @@ export function overlapIndex(input: {
   length: number
   charge: number
   m0?: number
-}): { index: number; flux: number; charge: number; hermiticityError: number } {
+}): {
+  index: number
+  flux: number
+  charge: number
+  hermiticityError: number
+} {
   const L = input.length
   const m0 = input.m0 ?? 1
   const n = 2 * L * L

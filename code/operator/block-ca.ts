@@ -6,7 +6,10 @@
 // has a more local Hamiltonian than the linear XOR-parity rule. See
 // note/questions/roadmap.md and note/experiment/results/p1-locality.md.
 
-import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  ComplexMatrix,
+  makeComplexMatrix,
+} from '@/code/algebra/linear/dense'
 
 // A reversible gate on a block of `blockSize` cells, given as a permutation of the
 // 2^blockSize block values.
@@ -40,7 +43,11 @@ function applySweep(input: {
   // offsets = 1 is a single disjoint-block layer (no propagation, block-local H).
   // offsets = blockSize covers every shift, so information propagates.
   for (let offset = 0; offset < input.offsets; offset++) {
-    for (let start = offset; start < offset + cells; start += blockSize) {
+    for (
+      let start = offset;
+      start < offset + cells;
+      start += blockSize
+    ) {
       // Extract the block value from positions (start + j) mod cells.
       let v = 0
       for (let j = 0; j < blockSize; j++) {

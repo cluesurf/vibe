@@ -10,7 +10,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/genesis-genericity',
-  title: 'genesis is generic, the peace void self-creates a living universe at every lattice size, not a finite-size fluke',
+  title:
+    'genesis is generic, the peace void self-creates a living universe at every lattice size, not a finite-size fluke',
   category: 'cosmology',
   substrates: ['534'],
   depth: 'L2',
@@ -22,21 +23,39 @@ export default experiment({
     let allConserved = true
     let allControlsDead = true
     for (const maxChambers of caps) {
-      const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 24, maxChambers })
+      const mesh = buildCoxeterMesh({
+        symbol: [5, 3, 4],
+        depth: 24,
+        maxChambers,
+      })
       const n = mesh.cellCount
       sizes.push(n)
-      const live = chargeTrajectory({ neighbors: mesh.neighbors, initial: new Int8Array(n), beats: 120, arrow: 0.1, seed: 9 })
-      const dead = chargeTrajectory({ neighbors: mesh.neighbors, initial: new Int8Array(n), beats: 120, arrow: 0, seed: 9 })
+      const live = chargeTrajectory({
+        neighbors: mesh.neighbors,
+        initial: new Int8Array(n),
+        beats: 120,
+        arrow: 0.1,
+        seed: 9,
+      })
+      const dead = chargeTrajectory({
+        neighbors: mesh.neighbors,
+        initial: new Int8Array(n),
+        beats: 120,
+        arrow: 0,
+        seed: 9,
+      })
       fractions.push(live.trajectory[live.trajectory.length - 1]! / n)
       if (live.qEnd !== 0) allConserved = false
-      if (dead.trajectory[dead.trajectory.length - 1]! !== 0) allControlsDead = false
+      if (dead.trajectory[dead.trajectory.length - 1]! !== 0)
+        allControlsDead = false
     }
     const minF = Math.min(...fractions)
     const maxF = Math.max(...fractions)
     const spread = maxF - minF
     const aliveEverywhere = minF > 0.1 // a living universe at every size
     const stable = spread < 0.1 // the living fraction barely moves with size (generic, not a finite-size effect)
-    const ok = aliveEverywhere && stable && allConserved && allControlsDead
+    const ok =
+      aliveEverywhere && stable && allConserved && allControlsDead
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -50,8 +69,11 @@ export default experiment({
         spread: Number(spread.toFixed(3)),
       },
       // CONTROL: the arrow-off void stays dead at every size, so the constant living fraction is the arrow, not the mesh.
-      control: { allControlsDead: allControlsDead ? 1 : 0, allConserved: allConserved ? 1 : 0 },
-      notes: `Piece E. Vary SIZE not seeds. sizes [${sizes.join(' ')}], living fractions [${fractions.map((f) => f.toFixed(3)).join(' ')}].`,
+      control: {
+        allControlsDead: allControlsDead ? 1 : 0,
+        allConserved: allConserved ? 1 : 0,
+      },
+      notes: `Piece E. Vary SIZE not seeds. sizes [${sizes.join(' ')}], living fractions [${fractions.map(f => f.toFixed(3)).join(' ')}].`,
     })
   },
 })

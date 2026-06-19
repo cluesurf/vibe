@@ -15,10 +15,10 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 // tone, the empty slot 0, so the state is the ternary tone on a directed coin, the same primitive as the base.
 
 export interface ShadowPressureResult {
-  drift: number        // net displacement of the test mass (negative = toward the body = attraction)
-  netMomentum: number  // running sum of integer momentum flux at the mass after warmup (negative = toward body)
-  hitsRight: number    // total +x tones counted at the mass (the shadowed side when a body is present)
-  hitsLeft: number     // total -x tones counted at the mass (the open side)
+  drift: number // net displacement of the test mass (negative = toward the body = attraction)
+  netMomentum: number // running sum of integer momentum flux at the mass after warmup (negative = toward body)
+  hitsRight: number // total +x tones counted at the mass (the shadowed side when a body is present)
+  hitsLeft: number // total -x tones counted at the mass (the open side)
 }
 
 // Simulate the discrete shadow pressure. Right-movers (+1 tones) are sourced at x=0 (behind the body), left-movers
@@ -34,9 +34,10 @@ export function shadowPressureRun(input: {
   threshold: number
   body: boolean
 }): ShadowPressureResult {
-  const { length, massStart, bodyLo, bodyHi, beats, threshold, body } = input
+  const { length, massStart, bodyLo, bodyHi, beats, threshold, body } =
+    input
   let right = new Int32Array(length) // +1 tones (moving +x)
-  let left = new Int32Array(length)  // -1 tones (moving -x)
+  let left = new Int32Array(length) // -1 tones (moving -x)
   let mass = massStart
   let momentum = 0
   let netMomentum = 0
@@ -47,13 +48,19 @@ export function shadowPressureRun(input: {
     const nextRight = new Int32Array(length)
     const nextLeft = new Int32Array(length)
     for (let x = 0; x < length; x++) {
-      if (right[x]! && x + 1 < length) nextRight[x + 1] = nextRight[x + 1]! + right[x]!
-      if (left[x]! && x - 1 >= 0) nextLeft[x - 1] = nextLeft[x - 1]! + left[x]!
+      if (right[x]! && x + 1 < length)
+        nextRight[x + 1] = nextRight[x + 1]! + right[x]!
+      if (left[x]! && x - 1 >= 0)
+        nextLeft[x - 1] = nextLeft[x - 1]! + left[x]!
     }
     right = nextRight
     left = nextLeft
     // the body excludes the vacuum (absorbs), the only irreversibility, the shadow
-    if (body) for (let x = bodyLo; x < bodyHi; x++) { right[x] = 0; left[x] = 0 }
+    if (body)
+      for (let x = bodyLo; x < bodyHi; x++) {
+        right[x] = 0
+        left[x] = 0
+      }
     // steady deterministic sources, one tone per beat from each side
     right[0] = right[0]! + 1
     left[length - 1] = left[length - 1]! + 1
@@ -64,8 +71,13 @@ export function shadowPressureRun(input: {
     if (t > beats / 2) netMomentum += flux
     // the heavy mass recoils one cell on an integer momentum threshold (discrete recoil)
     momentum += flux
-    if (momentum >= threshold && mass < length - 2) { mass += 1; momentum = 0 }
-    else if (momentum <= -threshold && mass > bodyHi + 1) { mass -= 1; momentum = 0 }
+    if (momentum >= threshold && mass < length - 2) {
+      mass += 1
+      momentum = 0
+    } else if (momentum <= -threshold && mass > bodyHi + 1) {
+      mass -= 1
+      momentum = 0
+    }
   }
   return { drift: mass - massStart, netMomentum, hitsRight, hitsLeft }
 }
@@ -91,22 +103,37 @@ export function shadowPressureD4(input: {
   const cellCount = mesh.cellCount
   const degree = 24
   const xOf = (c: number): number => c % side
-  const isBody = (c: number): boolean => body && xOf(c) >= bodyLoX && xOf(c) < bodyHiX
+  const isBody = (c: number): boolean =>
+    body && xOf(c) >= bodyLoX && xOf(c) < bodyHiX
   let data = new Int8Array(cellCount * degree)
-  for (let c = 0; c < cellCount; c++) { if (isBody(c)) continue; for (let d = 0; d < degree; d++) data[c * degree + d] = 1 }
+  for (let c = 0; c < cellCount; c++) {
+    if (isBody(c)) continue
+    for (let d = 0; d < degree; d++) data[c * degree + d] = 1
+  }
   for (let t = 0; t < beats; t++) {
     const out = new Int8Array(cellCount * degree)
-    for (let c = 0; c < cellCount; c++) for (let d = 0; d < degree; d++) { const src = mesh.neighbour(c, mesh.opposite(d)); out[c * degree + d] = data[src * degree + d]! }
+    for (let c = 0; c < cellCount; c++)
+      for (let d = 0; d < degree; d++) {
+        const src = mesh.neighbour(c, mesh.opposite(d))
+        out[c * degree + d] = data[src * degree + d]!
+      }
     data = out
-    for (let c = 0; c < cellCount; c++) if (isBody(c)) for (let d = 0; d < degree; d++) data[c * degree + d] = 0 // vacuum exclusion (the only irreversibility)
-    for (let c = 0; c < cellCount; c++) { const x = xOf(c); if ((x === 0 || x === side - 1) && !isBody(c)) for (let d = 0; d < degree; d++) data[c * degree + d] = 1 } // steady source layers
+    for (let c = 0; c < cellCount; c++)
+      if (isBody(c))
+        for (let d = 0; d < degree; d++) data[c * degree + d] = 0 // vacuum exclusion (the only irreversibility)
+    for (let c = 0; c < cellCount; c++) {
+      const x = xOf(c)
+      if ((x === 0 || x === side - 1) && !isBody(c))
+        for (let d = 0; d < degree; d++) data[c * degree + d] = 1
+    } // steady source layers
   }
   let netX = 0
   let count = 0
   for (let c = 0; c < cellCount; c++) {
     if (xOf(c) !== testX) continue
     let mx = 0
-    for (let d = 0; d < degree; d++) mx += data[c * degree + d]! * (roots[d]![0] ?? 0)
+    for (let d = 0; d < degree; d++)
+      mx += data[c * degree + d]! * (roots[d]![0] ?? 0)
     netX += mx
     count++
   }
@@ -136,7 +163,8 @@ export function selfContainedShadowD4(input: {
   const cellCount = mesh.cellCount
   const degree = 24
   const xOf = (c: number): number => c % side
-  const isBody = (c: number): boolean => body && xOf(c) >= bodyLoX && xOf(c) < bodyHiX
+  const isBody = (c: number): boolean =>
+    body && xOf(c) >= bodyLoX && xOf(c) < bodyHiX
   let occ = new Uint8Array(cellCount * degree)
   for (let t = 0; t < beats; t++) {
     // self-generated active vacuum, the create move brings out a zero-momentum pair on every empty line
@@ -144,24 +172,47 @@ export function selfContainedShadowD4(input: {
       if (isBody(c)) continue
       for (let d = 0; d < degree; d++) {
         const o = mesh.opposite(d)
-        if (d < o && occ[c * degree + d] === 0 && occ[c * degree + o] === 0) { occ[c * degree + d] = 1; occ[c * degree + o] = 1 }
+        if (
+          d < o &&
+          occ[c * degree + d] === 0 &&
+          occ[c * degree + o] === 0
+        ) {
+          occ[c * degree + d] = 1
+          occ[c * degree + o] = 1
+        }
       }
     }
     // stream, the reversible bijection
     const next = new Uint8Array(cellCount * degree)
-    for (let c = 0; c < cellCount; c++) for (let d = 0; d < degree; d++) { const src = mesh.neighbour(c, mesh.opposite(d)); next[c * degree + d] = occ[src * degree + d]! }
+    for (let c = 0; c < cellCount; c++)
+      for (let d = 0; d < degree; d++) {
+        const src = mesh.neighbour(c, mesh.opposite(d))
+        next[c * degree + d] = occ[src * degree + d]!
+      }
     occ = next
     // annihilate head-on pairs (a tone met its opposite), the active-vacuum's annihilate half
-    for (let c = 0; c < cellCount; c++) for (let d = 0; d < degree; d++) { const o = mesh.opposite(d); if (d < o && occ[c * degree + d] && occ[c * degree + o]) { occ[c * degree + d] = 0; occ[c * degree + o] = 0 } }
+    for (let c = 0; c < cellCount; c++)
+      for (let d = 0; d < degree; d++) {
+        const o = mesh.opposite(d)
+        if (d < o && occ[c * degree + d] && occ[c * degree + o]) {
+          occ[c * degree + d] = 0
+          occ[c * degree + o] = 0
+        }
+      }
     // the body excludes the vacuum, the open boundary absorbs (the bath), the only irreversibility
-    for (let c = 0; c < cellCount; c++) { const x = xOf(c); if (isBody(c) || x === 0 || x === side - 1) for (let d = 0; d < degree; d++) occ[c * degree + d] = 0 }
+    for (let c = 0; c < cellCount; c++) {
+      const x = xOf(c)
+      if (isBody(c) || x === 0 || x === side - 1)
+        for (let d = 0; d < degree; d++) occ[c * degree + d] = 0
+    }
   }
   let netX = 0
   let count = 0
   for (let c = 0; c < cellCount; c++) {
     if (xOf(c) !== testX) continue
     let mx = 0
-    for (let d = 0; d < degree; d++) mx += occ[c * degree + d]! * (roots[d]![0] ?? 0)
+    for (let d = 0; d < degree; d++)
+      mx += occ[c * degree + d]! * (roots[d]![0] ?? 0)
     netX += mx
     count++
   }
@@ -171,17 +222,33 @@ export function selfContainedShadowD4(input: {
 // The 1D shadow well field, the net inward momentum a centered absorbing body casts. Returns nm[x] = (right-movers
 // minus left-movers) at each cell, negative on the body's right side (inward), positive on its left. Used to test
 // whether the well confines a moving body without a rest slot.
-export function shadowWellField1D(input: { length: number; center: number; bodyHalfWidth: number; beats: number }): Int32Array {
+export function shadowWellField1D(input: {
+  length: number
+  center: number
+  bodyHalfWidth: number
+  beats: number
+}): Int32Array {
   const { length, center, bodyHalfWidth, beats } = input
   let right = new Int32Array(length)
   let left = new Int32Array(length)
-  const bodyLo = center - bodyHalfWidth, bodyHi = center + bodyHalfWidth + 1
+  const bodyLo = center - bodyHalfWidth,
+    bodyHi = center + bodyHalfWidth + 1
   for (let t = 0; t < beats; t++) {
-    const r2 = new Int32Array(length), l2 = new Int32Array(length)
-    for (let x = 0; x < length; x++) { if (right[x]! && x + 1 < length) r2[x + 1] = r2[x + 1]! + right[x]!; if (left[x]! && x - 1 >= 0) l2[x - 1] = l2[x - 1]! + left[x]! }
-    right = r2; left = l2
-    for (let x = bodyLo; x < bodyHi; x++) { right[x] = 0; left[x] = 0 }
-    right[0] = right[0]! + 1; left[length - 1] = left[length - 1]! + 1
+    const r2 = new Int32Array(length),
+      l2 = new Int32Array(length)
+    for (let x = 0; x < length; x++) {
+      if (right[x]! && x + 1 < length)
+        r2[x + 1] = r2[x + 1]! + right[x]!
+      if (left[x]! && x - 1 >= 0) l2[x - 1] = l2[x - 1]! + left[x]!
+    }
+    right = r2
+    left = l2
+    for (let x = bodyLo; x < bodyHi; x++) {
+      right[x] = 0
+      left[x] = 0
+    }
+    right[0] = right[0]! + 1
+    left[length - 1] = left[length - 1]! + 1
   }
   const nm = new Int32Array(length)
   for (let x = 0; x < length; x++) nm[x] = right[x]! - left[x]!
@@ -201,18 +268,43 @@ export function confineInWell(input: {
   mass: number
   beats: number
 }): { maxExcursion: number; escaped: boolean } {
-  const { field, length, center, startOffset, singleSpeed, mass, beats } = input
+  const {
+    field,
+    length,
+    center,
+    startOffset,
+    singleSpeed,
+    mass,
+    beats,
+  } = input
   let p = center + startOffset
   let v = 1
   let m = 0
   let maxExc = startOffset
   for (let t = 0; t < beats; t++) {
     m += field[p] ?? 0
-    if (singleSpeed) { if (m <= -mass) { v = -1; m = 0 } else if (m >= mass) { v = 1; m = 0 } p += v }
-    else { if (m <= -mass) { p -= 1; m = 0 } else if (m >= mass) { p += 1; m = 0 } }
+    if (singleSpeed) {
+      if (m <= -mass) {
+        v = -1
+        m = 0
+      } else if (m >= mass) {
+        v = 1
+        m = 0
+      }
+      p += v
+    } else {
+      if (m <= -mass) {
+        p -= 1
+        m = 0
+      } else if (m >= mass) {
+        p += 1
+        m = 0
+      }
+    }
     const exc = p - center
     if (exc > maxExc) maxExc = exc
-    if (p <= center + 2 || p >= length - 2) return { maxExcursion: maxExc, escaped: p >= length - 2 }
+    if (p <= center + 2 || p >= length - 2)
+      return { maxExcursion: maxExc, escaped: p >= length - 2 }
   }
   return { maxExcursion: maxExc, escaped: false }
 }

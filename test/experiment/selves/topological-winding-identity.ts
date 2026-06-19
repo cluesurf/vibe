@@ -14,11 +14,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeTwist, stepClockRing, clockWinding, type ClockRing } from '@/code/dynamics/clock-winding'
+import {
+  makeTwist,
+  stepClockRing,
+  clockWinding,
+  type ClockRing,
+} from '@/code/dynamics/clock-winding'
 
 export default experiment({
   id: 'selves/topological-winding-identity',
-  title: 'the self identity is a topological winding, reversibly protected at the 24-cell resolution but not at coarse ternary',
+  title:
+    'the self identity is a topological winding, reversibly protected at the 24-cell resolution but not at coarse ternary',
   category: 'selves',
   substrates: ['clock-ring'],
   depth: 'L2',
@@ -28,14 +34,20 @@ export default experiment({
     const steps = 200
 
     // for a given resolution n, does the winding survive (a) evolution and (b) a local perturbation?
-    const protection = (states: number): { conserved: boolean; perturbRobust: boolean } => {
+    const protection = (
+      states: number,
+    ): { conserved: boolean; perturbRobust: boolean } => {
       let ring: ClockRing = makeTwist({ size, states, turns: 1 })
       const w0 = clockWinding(ring.curr, states)
       let conserved = true
-      for (let t = 0; t < steps; t++) { ring = stepClockRing(ring); if (clockWinding(ring.curr, states) !== w0) conserved = false }
+      for (let t = 0; t < steps; t++) {
+        ring = stepClockRing(ring)
+        if (clockWinding(ring.curr, states) !== w0) conserved = false
+      }
       // a perturbation, flip one cell up by one clock step, then evolve and see if the winding survives.
       let pert: ClockRing = makeTwist({ size, states, turns: 1 })
-      pert.curr[Math.floor(size / 2)] = (pert.curr[Math.floor(size / 2)]! + 1) % states
+      pert.curr[Math.floor(size / 2)] =
+        (pert.curr[Math.floor(size / 2)]! + 1) % states
       const wp0 = clockWinding(pert.curr, states)
       for (let t = 0; t < steps; t++) pert = stepClockRing(pert)
       const perturbRobust = clockWinding(pert.curr, states) === wp0
@@ -48,7 +60,9 @@ export default experiment({
     // ternary is too coarse (the winding slips, not protected), the 24-cell resolution fully protects it (conserved
     // and perturbation-robust). PASS demonstrates that the topological identity is reversibly protected exactly at
     // the 24-cell resolution, not at coarse ternary.
-    const ternaryUnprotected = !(ternary.conserved && ternary.perturbRobust)
+    const ternaryUnprotected = !(
+      ternary.conserved && ternary.perturbRobust
+    )
     const coin24Protected = coin24.conserved && coin24.perturbRobust
     const ok = ternaryUnprotected && coin24Protected
 
@@ -65,7 +79,10 @@ export default experiment({
         coin24Protected: coin24Protected ? 1 : 0,
         steps,
       },
-      control: { ternaryConserved: ternary.conserved ? 1 : 0, coin24Conserved: coin24.conserved ? 1 : 0 },
+      control: {
+        ternaryConserved: ternary.conserved ? 1 : 0,
+        coin24Conserved: coin24.conserved ? 1 : 0,
+      },
       notes:
         'topology clarified and a reversible IDENTITY found. The identity is a winding (a twist of the feeling-direction field), reversibly conserved, protected at the 24-cell resolution (24 states) but not at coarse ternary (it slips). Coarse-graining many ternary tones gives the ~24-state direction the protection needs, so the topological identity lives at the emergent scale the 24-cell sets. This is the reversible identity the rest slot gave non-topologically, now topological and tied to the 24-cell',
     })

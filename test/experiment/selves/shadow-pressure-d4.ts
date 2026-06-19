@@ -16,13 +16,20 @@ import { shadowPressureD4 } from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/shadow-pressure-d4',
-  title: 'shadow-pressure attraction on the real 24-direction D4 coin (net momentum points toward a vacuum-excluding body)',
+  title:
+    'shadow-pressure attraction on the real 24-direction D4 coin (net momentum points toward a vacuum-excluding body)',
   category: 'selves',
   substrates: ['d4'],
   depth: 'L2',
   paper: true,
   run() {
-    const base = { side: 12, beats: 36, bodyLoX: 2, bodyHiX: 5, testX: 8 }
+    const base = {
+      side: 12,
+      beats: 36,
+      bodyLoX: 2,
+      bodyHiX: 5,
+      testX: 8,
+    }
     const withBody = shadowPressureD4({ ...base, body: true })
     const noBody = shadowPressureD4({ ...base, body: false })
 
@@ -43,7 +50,9 @@ export default experiment({
         side: base.side,
         directions: 24,
       },
-      control: { netXmomentumNoBodyTimes1000: Math.round(noBody * 1000) },
+      control: {
+        netXmomentumNoBodyTimes1000: Math.round(noBody * 1000),
+      },
       notes:
         'the geometry-native reversible discrete attraction. On the 24-direction D4 coin, a vacuum-excluding body shadows the directional flux and the net momentum behind it points toward the body (attraction), measured in the true D4 root vectors, with the no-body control exactly zero. Fully discrete, reversible streaming, irreversibility only at the body/bath. Closes the geometry-native realization of shadow-pressure binding (P2)',
     })

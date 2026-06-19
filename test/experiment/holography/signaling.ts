@@ -15,7 +15,13 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // conserved hop diffusion of a signal (no arrow, no opposite charge, so the pulse just spreads)
-function hopBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+function hopBeat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
   conservingHopSweep({ tone, eu, ev, moved, rng })
 }
 
@@ -34,7 +40,12 @@ export function signaling(input?: { n?: number }): {
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
-  const { dist, far } = csrEccentricity({ offsets: g.offsets, adj: g.adj, size: N, source: 0 })
+  const { dist, far } = csrEccentricity({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+  })
   const ecc = dist[far]!
   const logN = Math.log2(N)
   const diameterIsLogarithmic = ecc < 3 * logN // a few hops, not order N
@@ -47,19 +58,20 @@ export function signaling(input?: { n?: number }): {
   // SIGNAL: inject a + pulse at self A (node 0 and neighbors), diffuse, measure arrival at the far self
   const sig = new Int8Array(N)
   let injected = 0
-  for (let i = 0; i < N && injected < 400; i++) if (dist[i]! <= 4) {
-    sig[i] = 1
-    injected++
-  }
+  for (let i = 0; i < N && injected < 400; i++)
+    if (dist[i]! <= 4) {
+      sig[i] = 1
+      injected++
+    }
   const rng = makeRng({ seed: 3 })
   for (let b = 0; b < 4 * ecc; b++) hopBeat(sig, eu, ev, moved, rng)
-  const signalAtFar = farBall.filter((i) => sig[i] === 1).length
+  const signalAtFar = farBall.filter(i => sig[i] === 1).length
 
   // CONTROL: no signal injected
   const ctrl = new Int8Array(N)
   const rng2 = makeRng({ seed: 3 })
   for (let b = 0; b < 4 * ecc; b++) hopBeat(ctrl, eu, ev, moved, rng2)
-  const controlAtFar = farBall.filter((i) => ctrl[i] === 1).length
+  const controlAtFar = farBall.filter(i => ctrl[i] === 1).length
 
   const signalReachesFar = signalAtFar > 0 && controlAtFar === 0
   const fieldBeneath = diameterIsLogarithmic && signalReachesFar
@@ -80,14 +92,19 @@ export function signaling(input?: { n?: number }): {
 
 export default experiment({
   id: 'holography/signaling',
-  title: 'a signal crosses the whole universe through the bulk to a far self',
+  title:
+    'a signal crosses the whole universe through the bulk to a far self',
   category: 'holography',
   substrates: ['534'],
   depth: 'L3',
   paper: true,
   run() {
     const r = signaling({ n: 60000 })
-    const ok = r.solved && r.fieldBeneath && r.diameterIsLogarithmic && r.signalReachesFar
+    const ok =
+      r.solved &&
+      r.fieldBeneath &&
+      r.diameterIsLogarithmic &&
+      r.signalReachesFar
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

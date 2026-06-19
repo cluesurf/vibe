@@ -15,7 +15,12 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function deterministicRP(input?: { ks?: number[] }): {
-  modes: { k: number; omega: number; oscillates: boolean; bounded: boolean }[]
+  modes: {
+    k: number
+    omega: number
+    oscillates: boolean
+    bounded: boolean
+  }[]
   allOscillate: boolean
   dispersionSlope: number
   dispersionIntercept: number
@@ -29,24 +34,41 @@ export function deterministicRP(input?: { ks?: number[] }): {
   // confirm it is REAL (bounded oscillation, not growth) and LINEAR through the origin (omega = c|k|, a
   // massless relativistic particle), which is the positive-norm spectrum reflection positivity asks for.
   const ks = input?.ks ?? [0.157, 0.314, 0.471, 0.628, 0.785, 1.047]
-  const modes: { k: number; omega: number; oscillates: boolean; bounded: boolean }[] = []
+  const modes: {
+    k: number
+    omega: number
+    oscillates: boolean
+    bounded: boolean
+  }[] = []
   for (const k of ks) {
     const m = waveModeFrequency({ wavenumber: k })
-    modes.push({ k, omega: m.omega, oscillates: m.oscillates, bounded: m.bounded })
+    modes.push({
+      k,
+      omega: m.omega,
+      oscillates: m.oscillates,
+      bounded: m.bounded,
+    })
   }
 
-  const allOscillate = modes.every((md) => md.oscillates && md.bounded)
+  const allOscillate = modes.every(md => md.oscillates && md.bounded)
   // fit omega(k) = slope*k + intercept over the oscillating modes
-  const fitModes = modes.filter((md) => md.oscillates && md.omega > 0)
-  const fit = fitModes.length > 1
-    ? linearFit({ xs: fitModes.map((md) => md.k), ys: fitModes.map((md) => md.omega) })
-    : { slope: 0, intercept: 0, r2: 0 }
+  const fitModes = modes.filter(md => md.oscillates && md.omega > 0)
+  const fit =
+    fitModes.length > 1
+      ? linearFit({
+          xs: fitModes.map(md => md.k),
+          ys: fitModes.map(md => md.omega),
+        })
+      : { slope: 0, intercept: 0, r2: 0 }
   const dispersionSlope = fit.slope
   const dispersionIntercept = fit.intercept
   const dispersionR2 = fit.r2
 
   // a LINEAR dispersion through the origin (omega ~ c|k|) with a positive slope = a massless particle
-  const linearMassless = dispersionR2 > 0.9 && dispersionSlope > 0.2 && Math.abs(dispersionIntercept) < 0.15
+  const linearMassless =
+    dispersionR2 > 0.9 &&
+    dispersionSlope > 0.2 &&
+    Math.abs(dispersionIntercept) < 0.15
   const reflectionPositive = allOscillate && linearMassless
   const solved = reflectionPositive
 
@@ -64,7 +86,8 @@ export function deterministicRP(input?: { ks?: number[] }): {
 
 export default experiment({
   id: 'relativity/deterministic-rp',
-  title: 'the wave dispersion is real linear and massless so spatial reflection positivity is positive',
+  title:
+    'the wave dispersion is real linear and massless so spatial reflection positivity is positive',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -72,7 +95,10 @@ export default experiment({
   run() {
     const r = deterministicRP()
     const ok =
-      r.solved && r.reflectionPositive && r.allOscillate && r.linearMassless
+      r.solved &&
+      r.reflectionPositive &&
+      r.allOscillate &&
+      r.linearMassless
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

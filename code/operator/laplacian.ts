@@ -14,7 +14,9 @@ import { lowestEigenvalues } from '@/code/algebra/linear/eig-lanczos'
 
 // Build L = D - A. Diagonal entry is the degree of the node, each undirected
 // edge contributes a -1 off-diagonal in both directions.
-export function laplacian(input: { substrate: Substrate }): SparseMatrix {
+export function laplacian(input: {
+  substrate: Substrate
+}): SparseMatrix {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const n = adjacency.length
   const triplets: Triplet[] = []

@@ -18,11 +18,17 @@ export function cell24Vertices(): Quaternion[] {
 // in the quaternions (omega^3 = 1).
 export const omega: Quaternion = { w: -0.5, x: 0.5, y: 0.5, z: 0.5 }
 
-export function trialityClasses(): [Quaternion[], Quaternion[], Quaternion[]] {
+export function trialityClasses(): [
+  Quaternion[],
+  Quaternion[],
+  Quaternion[],
+] {
   const base = quaternionGroup()
   const omegaSquared = multiply(omega, omega)
   const classVector = base
-  const classSpinorA = base.map((element) => multiply(omega, element))
-  const classSpinorB = base.map((element) => multiply(omegaSquared, element))
+  const classSpinorA = base.map(element => multiply(omega, element))
+  const classSpinorB = base.map(element =>
+    multiply(omegaSquared, element),
+  )
   return [classVector, classSpinorA, classSpinorB]
 }

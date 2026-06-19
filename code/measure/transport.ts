@@ -5,10 +5,14 @@
 // and the iteration count caps the work. The transport engine behind Ollivier-Ricci curvature,
 // where C holds the graph distances between the neighbor clouds of two endpoints.
 
-export function sinkhornW1(C: number[][], eps: number, iters: number): number {
+export function sinkhornW1(
+  C: number[][],
+  eps: number,
+  iters: number,
+): number {
   const n = C.length
   const m = C[0]!.length
-  const K = C.map((row) => row.map((c) => Math.exp(-c / eps)))
+  const K = C.map(row => row.map(c => Math.exp(-c / eps)))
   const u = new Array(n).fill(1)
   const v = new Array(m).fill(1)
   for (let it = 0; it < iters; it++) {
@@ -24,6 +28,8 @@ export function sinkhornW1(C: number[][], eps: number, iters: number): number {
     }
   }
   let w = 0
-  for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) w += u[i]! * K[i]![j]! * v[j]! * C[i]![j]!
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < m; j++)
+      w += u[i]! * K[i]![j]! * v[j]! * C[i]![j]!
   return w
 }

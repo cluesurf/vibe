@@ -6,13 +6,19 @@
 // experiment that calls these.
 
 // Kepler angular frequency of a circular binary of total mass M at separation a: omega^2 = M / a^3.
-export function keplerFrequency(input: { totalMass: number; separation: number }): number {
+export function keplerFrequency(input: {
+  totalMass: number
+  separation: number
+}): number {
   return Math.sqrt(input.totalMass / input.separation ** 3)
 }
 
 // Chirp mass M_c = (m1 m2)^(3/5) / (m1 + m2)^(1/5), the single mass combination that sets the
 // inspiral waveform's amplitude and phase evolution.
-export function chirpMass(input: { mass1: number; mass2: number }): number {
+export function chirpMass(input: {
+  mass1: number
+  mass2: number
+}): number {
   const { mass1, mass2 } = input
   return Math.pow(mass1 * mass2, 3 / 5) / Math.pow(mass1 + mass2, 1 / 5)
 }
@@ -53,7 +59,9 @@ export function quadrupoleRadiatedPower(input: {
   separation: number
 }): number {
   const { mass1, mass2, separation: a } = input
-  return (32 / 5) * (mass1 ** 2 * mass2 ** 2 * (mass1 + mass2)) / a ** 5
+  return (
+    ((32 / 5) * (mass1 ** 2 * mass2 ** 2 * (mass1 + mass2))) / a ** 5
+  )
 }
 
 // Peters (1964) inspiral: integrate da/dt = -(64/5) m1 m2 (m1+m2) / a^3 from a0 to `floor`, recording
@@ -65,7 +73,11 @@ export function petersInspiralTrack(input: {
   floor?: number
   step?: number
   maxTime?: number
-}): { times: number[]; gwFrequencies: number[]; coalescenceTime: number } {
+}): {
+  times: number[]
+  gwFrequencies: number[]
+  coalescenceTime: number
+} {
   const { mass1, mass2 } = input
   const floor = input.floor ?? 0.05
   const dt = input.step ?? 1e-3
@@ -76,7 +88,7 @@ export function petersInspiralTrack(input: {
   const times: number[] = []
   const gwFrequencies: number[] = []
   while (a > floor && t < maxTime) {
-    const dadt = -(64 / 5) * (mass1 * mass2 * Mtot) / a ** 3
+    const dadt = (-(64 / 5) * (mass1 * mass2 * Mtot)) / a ** 3
     a += dadt * dt
     t += dt
     if (a <= 0) break

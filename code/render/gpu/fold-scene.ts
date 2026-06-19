@@ -5,8 +5,17 @@
 // browser. The camera uniform is written through uniform.ts, the single byte-layout source of truth.
 
 import { canonicalMirrors } from '@/code/render/mirrors'
-import { FOLD_2D_WGSL, FOLD_3D_WGSL, FOLD_3D_INTERIOR_WGSL } from '@/code/render/fold.wgsl'
-import { packFold2D, packFold3D, type Fold2DUniform, type Fold3DUniform } from '@/code/render/gpu/uniform'
+import {
+  FOLD_2D_WGSL,
+  FOLD_3D_WGSL,
+  FOLD_3D_INTERIOR_WGSL,
+} from '@/code/render/fold.wgsl'
+import {
+  packFold2D,
+  packFold3D,
+  type Fold2DUniform,
+  type Fold3DUniform,
+} from '@/code/render/gpu/uniform'
 
 export type FoldMode = '2d' | '3d' | '3d-interior'
 

@@ -20,7 +20,11 @@ type Pt = [number, number]
 
 // a triangle whose sides are quadratic Beziers bowing outward (bulge > 0), straight (bulge = 0), or inward
 // (bulge < 0) by `bulge` pixels relative to the centroid. Returns an SVG path string.
-function curvedTriangle(center: Pt, size: number, bulge: number): string {
+function curvedTriangle(
+  center: Pt,
+  size: number,
+  bulge: number,
+): string {
   const verts = triVerts(center, size)
   const centroid: Pt = [
     (verts[0][0] + verts[1][0] + verts[2][0]) / 3,
@@ -37,7 +41,10 @@ function curvedTriangle(center: Pt, size: number, bulge: number): string {
     const ox = mid[0] - centroid[0]
     const oy = mid[1] - centroid[1]
     const len = Math.hypot(ox, oy) || 1
-    const ctrl: Pt = [mid[0] + (ox / len) * bulge, mid[1] + (oy / len) * bulge]
+    const ctrl: Pt = [
+      mid[0] + (ox / len) * bulge,
+      mid[1] + (oy / len) * bulge,
+    ]
     d += `Q ${ctrl[0].toFixed(1)} ${ctrl[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)} `
   }
   return d + 'Z'
@@ -54,7 +61,10 @@ function triVerts(center: Pt, size: number): [Pt, Pt, Pt] {
 
 function vertexDots(center: Pt, size: number): string {
   return triVerts(center, size)
-    .map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${ZINC[900]}"/>`)
+    .map(
+      ([x, y]) =>
+        `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${ZINC[900]}"/>`,
+    )
     .join('')
 }
 

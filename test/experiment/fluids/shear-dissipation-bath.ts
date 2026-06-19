@@ -16,11 +16,15 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
-import { shearSetup, shearAmplitudeSeries } from '@/code/measure/hydrodynamics'
+import {
+  shearSetup,
+  shearAmplitudeSeries,
+} from '@/code/measure/hydrodynamics'
 
 export default experiment({
   id: 'fluids/shear-dissipation-bath',
-  title: 'a shear recurs on the reversible bulk but dissipates on the open mesh, so viscosity is bath-driven',
+  title:
+    'a shear recurs on the reversible bulk but dissipates on the open mesh, so viscosity is bath-driven',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -30,14 +34,33 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
     const collision = headOnRotate({ opposite }) // the momentum-conserving collision
     const beats = 24
-    const shear = { gradAxis: 1, momAxis: 0, wavelength: side, side, directions }
+    const shear = {
+      gradAxis: 1,
+      momAxis: 0,
+      wavelength: side,
+      side,
+      directions,
+    }
 
     const will = shearSetup({ mesh, ...shear })
-    const closed = shearAmplitudeSeries({ will, collision, beats, open: false, ...shear })
-    const open = shearAmplitudeSeries({ will, collision, beats, open: true, ...shear })
+    const closed = shearAmplitudeSeries({
+      will,
+      collision,
+      beats,
+      open: false,
+      ...shear,
+    })
+    const open = shearAmplitudeSeries({
+      will,
+      collision,
+      beats,
+      open: true,
+      ...shear,
+    })
 
     // the closed bulk recurs, the tail returns near the initial amplitude (no net dissipation)
     const closedTailMax = Math.max(...closed.slice(8))
@@ -59,7 +82,9 @@ export default experiment({
         beats,
         side,
       },
-      control: { closedTailMaxTimes1000: Math.round(closedTailMax * 1000) },
+      control: {
+        closedTailMaxTimes1000: Math.round(closedTailMax * 1000),
+      },
       notes:
         'the closed torus is the control, it recurs (no dissipation). The open mesh is the bath, it dissipates. This is the fluid face of the arrow-from-the-wake, viscosity needs the open boundary. The measured viscosity coefficient (a clean exp(-nu k^2 t) fit) is the named open extension, it needs a larger system and the coarse-grained hydrodynamic limit, the full FD1.',
     })

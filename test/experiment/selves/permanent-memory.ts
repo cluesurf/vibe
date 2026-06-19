@@ -22,8 +22,26 @@ import { cohesiveEdgeSweep } from '@/code/dynamics/cohesive-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0 })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void =>
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: true,
+    arrow: 0,
+  })
 
 export function permanentMemory(input?: { n?: number }): {
   n: number
@@ -65,7 +83,8 @@ export function permanentMemory(input?: { n?: number }): {
   const a = target.slice()
   const qa = sumTone(a)
   const rngA = makeRng({ seed: 4 })
-  for (let b = 0; b < beats; b++) beat(a, eu, ev, g.offsets, g.adj, moved, rngA)
+  for (let b = 0; b < beats; b++)
+    beat(a, eu, ev, g.offsets, g.adj, moved, rngA)
   const unmaintainedFidelity = targetFidelity(a, target)
   const conservedA = sumTone(a) === qa
 
@@ -76,7 +95,8 @@ export function permanentMemory(input?: { n?: number }): {
   let maintenanceSwaps = 0
   for (let b = 0; b < beats; b++) {
     beat(bm, eu, ev, g.offsets, g.adj, moved, rngB)
-    if ((b + 1) % 10 === 0) maintenanceSwaps += conservingMaintainToTarget(bm, target, N)
+    if ((b + 1) % 10 === 0)
+      maintenanceSwaps += conservingMaintainToTarget(bm, target, N)
   }
   const maintainedFidelity = targetFidelity(bm, target)
   const conservedB = sumTone(bm) === qb
@@ -101,7 +121,8 @@ export function permanentMemory(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/permanent-memory',
-  title: 'maintained codeword stays at full fidelity where unmaintained erodes, conserving, at a cost',
+  title:
+    'maintained codeword stays at full fidelity where unmaintained erodes, conserving, at a cost',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',
@@ -109,7 +130,10 @@ export default experiment({
   run() {
     const r = permanentMemory({ n: 30000 })
     const ok =
-      r.solved && r.conserved && r.permanentWithMaintenance && r.decaysWithout
+      r.solved &&
+      r.conserved &&
+      r.permanentWithMaintenance &&
+      r.decaysWithout
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

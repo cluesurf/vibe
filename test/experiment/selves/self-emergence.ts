@@ -22,7 +22,11 @@ import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { makeRng } from '@/code/tool/rng'
 import { edgesOf } from '@/code/tool/graph'
 import { totalCharge as sumTone } from '@/code/model/self-kit'
-import { adaptFills, fillCoherence as coherence, largestSharingPatch as largestPatch } from '@/code/measure/fill-coherence'
+import {
+  adaptFills,
+  fillCoherence as coherence,
+  largestSharingPatch as largestPatch,
+} from '@/code/measure/fill-coherence'
 import { fillGatedSweep } from '@/code/dynamics/fill-gated-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -43,7 +47,11 @@ export function selfEmergence(): {
   needsAdaptiveFills: boolean
   solved: boolean
 } {
-  const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 60000 })
+  const mesh = buildCoxeterMesh({
+    symbol: [5, 3, 4],
+    depth: 20,
+    maxChambers: 60000,
+  })
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
@@ -70,7 +78,8 @@ export function selfEmergence(): {
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
   const rngF = makeRng({ seed: 21 })
-  for (let b = 0; b < BEATS; b++) fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
+  for (let b = 0; b < BEATS; b++)
+    fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
   const coherenceFiveEnd = coherence(tF, edges, fF)
   const patchFiveEnd = largestPatch(tF, edges, fF, n)
   const conservedFive = sumTone(tF) === qF0
@@ -92,8 +101,12 @@ export function selfEmergence(): {
 
   const conserved = conservedFive && conservedSix
   // self-organization = coherence climbs meaningfully and the largest patch grows
-  const fiveSelfOrganizes = coherenceFiveEnd > coherenceFiveStart + 0.15 && patchFiveEnd > patchFiveStart * 1.5
-  const sixSelfOrganizes = coherenceSixEnd > coherenceSixStart + 0.15 && patchSixEnd > patchSixStart * 1.5
+  const fiveSelfOrganizes =
+    coherenceFiveEnd > coherenceFiveStart + 0.15 &&
+    patchFiveEnd > patchFiveStart * 1.5
+  const sixSelfOrganizes =
+    coherenceSixEnd > coherenceSixStart + 0.15 &&
+    patchSixEnd > patchSixStart * 1.5
   const needsAdaptiveFills = sixSelfOrganizes && !fiveSelfOrganizes
 
   // the experiment "succeeds" if it conserves charge and returns a clear verdict either way

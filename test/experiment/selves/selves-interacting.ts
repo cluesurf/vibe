@@ -27,10 +27,32 @@ const absCharge = (t: Int8Array): number => {
   return s
 }
 
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, offsets: Int32Array, adj: Int32Array, moved: Uint8Array, rng: Rng): void =>
-  cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow: 0 })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void =>
+  cohesiveEdgeSweep({
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    annihilate: true,
+    arrow: 0,
+  })
 
-export function selvesInteracting(input?: { n?: number; beats?: number; regionSize?: number }): {
+export function selvesInteracting(input?: {
+  n?: number
+  beats?: number
+  regionSize?: number
+}): {
   n: number
   oppositeLoss: number
   sameLoss: number
@@ -49,31 +71,52 @@ export function selvesInteracting(input?: { n?: number; beats?: number; regionSi
   const beats = input?.beats ?? 30
 
   // two adjacent selves = one region split into two halves (the seam is the contact interface)
-  const region = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: N, source: 0, limit: input?.regionSize ?? 6000 })
+  const region = csrBallNodes({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: 0,
+    limit: input?.regionSize ?? 6000,
+  })
   const half = Math.floor(region.length / 2)
 
   // OPPOSITE: first half +, second half - (a + self touching a - self)
   const opp = new Int8Array(N)
-  for (let k = 0; k < region.length; k++) opp[region[k]!] = k < half ? 1 : -1
+  for (let k = 0; k < region.length; k++)
+    opp[region[k]!] = k < half ? 1 : -1
   const oppStart = absCharge(opp)
   const rngO = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++) beat(opp, eu, ev, g.offsets, g.adj, moved, rngO)
+  for (let b = 0; b < beats; b++)
+    beat(opp, eu, ev, g.offsets, g.adj, moved, rngO)
   const oppositeLoss = (oppStart - absCharge(opp)) / oppStart
-  const oppositeComponents = countLargeSameSignComponents({ tone: opp, g, minSize: 100, cells: region })
+  const oppositeComponents = countLargeSameSignComponents({
+    tone: opp,
+    g,
+    minSize: 100,
+    cells: region,
+  })
 
   // SAME: both halves + (a + self touching a + self)
   const same = new Int8Array(N)
   for (const i of region) same[i] = 1
   const sameStart = absCharge(same)
   const rngS = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++) beat(same, eu, ev, g.offsets, g.adj, moved, rngS)
+  for (let b = 0; b < beats; b++)
+    beat(same, eu, ev, g.offsets, g.adj, moved, rngS)
   const sameLoss = (sameStart - absCharge(same)) / sameStart
-  const sameComponents = countLargeSameSignComponents({ tone: same, g, minSize: 100, cells: region })
+  const sameComponents = countLargeSameSignComponents({
+    tone: same,
+    g,
+    minSize: 100,
+    cells: region,
+  })
 
-  const oppositeAnnihilates = oppositeLoss > 0.1 && oppositeLoss > 5 * Math.max(sameLoss, 0.001)
+  const oppositeAnnihilates =
+    oppositeLoss > 0.1 && oppositeLoss > 5 * Math.max(sameLoss, 0.001)
   const sameMerges = sameComponents === 1 // one large merged self
   const oppositeSplits = oppositeComponents >= 2 // a + self and a - self, split by the annihilated seam
-  const selvesInteract = oppositeAnnihilates && sameMerges && oppositeSplits
+  const selvesInteract =
+    oppositeAnnihilates && sameMerges && oppositeSplits
   const solved = selvesInteract
 
   return {
@@ -91,7 +134,8 @@ export function selvesInteracting(input?: { n?: number; beats?: number; regionSi
 
 export default experiment({
   id: 'selves/selves-interacting',
-  title: 'opposite selves annihilate at contact, same selves merge into one',
+  title:
+    'opposite selves annihilate at contact, same selves merge into one',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',
@@ -99,7 +143,10 @@ export default experiment({
   run() {
     const r = selvesInteracting({ n: 60000 })
     const ok =
-      r.solved && r.selvesInteract && r.oppositeAnnihilates && r.sameMerges
+      r.solved &&
+      r.selvesInteract &&
+      r.oppositeAnnihilates &&
+      r.sameMerges
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -108,7 +155,10 @@ export default experiment({
         oppositeLoss: r.oppositeLoss,
         oppositeComponents: r.oppositeComponents,
       },
-      control: { sameLoss: r.sameLoss, sameComponents: r.sameComponents },
+      control: {
+        sameLoss: r.sameLoss,
+        sameComponents: r.sameComponents,
+      },
     })
   },
 })

@@ -13,15 +13,24 @@
 // by point reflections alone, no matrices. Distinct chambers that land on the same cell center
 // are the cell's stabilizer, so the cell centers dedupe to the cells.
 
-import { mirrorFrame, classifyGeometry, type Geometry } from '@/code/substrate/coxeter/schlafli'
+import {
+  mirrorFrame,
+  classifyGeometry,
+  type Geometry,
+} from '@/code/substrate/coxeter/schlafli'
 
 function innerJ(x: number[], y: number[], metric: number[]): number {
   let s = 0
-  for (let a = 0; a < x.length; a++) s += (metric[a] ?? 1) * (x[a] ?? 0) * (y[a] ?? 0)
+  for (let a = 0; a < x.length; a++)
+    s += (metric[a] ?? 1) * (x[a] ?? 0) * (y[a] ?? 0)
   return s
 }
 
-function reflect(x: number[], normal: number[], metric: number[]): number[] {
+function reflect(
+  x: number[],
+  normal: number[],
+  metric: number[],
+): number[] {
   const d = 2 * innerJ(x, normal, metric)
   return x.map((xa, a) => xa - d * (normal[a] ?? 0))
 }
@@ -29,7 +38,7 @@ function reflect(x: number[], normal: number[], metric: number[]): number[] {
 function determinant(a: number[][]): number {
   const n = a.length
   if (n === 0) return 1
-  const m = a.map((row) => row.slice())
+  const m = a.map(row => row.slice())
   let det = 1
   for (let col = 0; col < n; col++) {
     let pivot = col
@@ -52,11 +61,16 @@ function determinant(a: number[][]): number {
   return det
 }
 
-function normalizeTimelike(x: number[], metric: number[], timeAxis: number): number[] {
+function normalizeTimelike(
+  x: number[],
+  metric: number[],
+  timeAxis: number,
+): number[] {
   const norm = innerJ(x, x, metric)
   const scale = 1 / Math.sqrt(Math.abs(norm))
-  const out = x.map((v) => v * scale)
-  if ((out[timeAxis] ?? 0) < 0) for (let a = 0; a < out.length; a++) out[a] = -(out[a] ?? 0)
+  const out = x.map(v => v * scale)
+  if ((out[timeAxis] ?? 0) < 0)
+    for (let a = 0; a < out.length; a++) out[a] = -(out[a] ?? 0)
   return out
 }
 
@@ -76,7 +90,7 @@ function cellCenter(input: {
   }
   const c: number[] = new Array<number>(m).fill(0)
   for (let j = 0; j < m; j++) {
-    const sub = rows.map((row) => row.filter((_, col) => col !== j))
+    const sub = rows.map(row => row.filter((_, col) => col !== j))
     c[j] = (j % 2 === 0 ? 1 : -1) * determinant(sub)
   }
   return normalizeTimelike(c, metric, timeAxis)
@@ -121,14 +135,17 @@ export function buildCoxeterMesh(input: {
   const c0 = cellCenter({ normals, metric, cellMirrors, timeAxis })
   // a generic interior point, off every mirror, so distinct chambers get distinct images
   const offset = new Array<number>(m).fill(0)
-  for (let i = 0; i < m; i++) for (let a = 0; a < m; a++) offset[a]! += (i + 1) * (normals[i]![a] ?? 0)
+  for (let i = 0; i < m; i++)
+    for (let a = 0; a < m; a++)
+      offset[a]! += (i + 1) * (normals[i]![a] ?? 0)
   const g0 = normalizeTimelike(
     c0.map((v, a) => v + 0.13 * (offset[a] ?? 0)),
     metric,
     timeAxis,
   )
 
-  const round = (p: number[]): string => p.map((v) => Math.round(v * 1e6) / 1e6).join(',')
+  const round = (p: number[]): string =>
+    p.map(v => Math.round(v * 1e6) / 1e6).join(',')
 
   // BFS over chambers. Each chamber carries (generic point, cell center). Dedup by generic.
   const cellId = new Map<string, number>()
@@ -150,7 +167,11 @@ export function buildCoxeterMesh(input: {
   let frontier: { g: number[]; cc: number[] }[] = [{ g: g0, cc: c0 }]
   let gen = 0
   let chamberCount = 1
-  while (frontier.length > 0 && gen < depth && chamberCount < maxChambers) {
+  while (
+    frontier.length > 0 &&
+    gen < depth &&
+    chamberCount < maxChambers
+  ) {
     gen++
     const next: { g: number[]; cc: number[] }[] = []
     for (const ch of frontier) {
@@ -172,7 +193,8 @@ export function buildCoxeterMesh(input: {
 
   // Full facet-adjacency by minimal cell-to-cell distance. cosh(distance) = -<x,y>_J.
   const n = cellCenters.length
-  const cdist = (a: number, b: number): number => -innerJ(cellCenters[a]!, cellCenters[b]!, metric)
+  const cdist = (a: number, b: number): number =>
+    -innerJ(cellCenters[a]!, cellCenters[b]!, metric)
   let minCosh = Infinity
   for (let a = 0; a < n; a++) {
     for (let b = a + 1; b < n; b++) {
@@ -192,7 +214,8 @@ export function buildCoxeterMesh(input: {
   }
 
   let facetCount = 0
-  for (const nb of neighbors) facetCount = Math.max(facetCount, nb.length)
+  for (const nb of neighbors)
+    facetCount = Math.max(facetCount, nb.length)
 
   // generation = face-adjacency BFS distance from the seed cell (cell 0)
   const generation = new Array<number>(n).fill(-1)

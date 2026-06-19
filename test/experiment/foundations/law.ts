@@ -10,8 +10,14 @@
 
 import { lattice } from '@/code/substrate/lattice'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
-import { makeStateSpace, permutationOfRule } from '@/code/operator/evolution'
-import { hamiltonianMatrix, pauliLocalityProfile } from '@/code/operator/ca-hamiltonian'
+import {
+  makeStateSpace,
+  permutationOfRule,
+} from '@/code/operator/evolution'
+import {
+  hamiltonianMatrix,
+  pauliLocalityProfile,
+} from '@/code/operator/ca-hamiltonian'
 import {
   blockCaPermutation,
   cnotGate,
@@ -24,8 +30,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function lengthOf(perm: Int32Array, cells: number): number {
-  return pauliLocalityProfile({ matrix: hamiltonianMatrix({ perm }), cells })
-    .localityLength
+  return pauliLocalityProfile({
+    matrix: hamiltonianMatrix({ perm }),
+    cells,
+  }).localityLength
 }
 
 function singleFlipPerm(cells: number): Int32Array {
@@ -39,7 +47,8 @@ function singleFlipPerm(cells: number): Int32Array {
 
 export default experiment({
   id: 'foundations/law',
-  title: 'scanning reversible rules for a local bounded-below Hamiltonian',
+  title:
+    'scanning reversible rules for a local bounded-below Hamiltonian',
   category: 'foundations',
   substrates: 'any',
   depth: 'L2',
@@ -47,7 +56,11 @@ export default experiment({
   run() {
     const flipLenSmall = lengthOf(singleFlipPerm(6), 6)
     const flipLenLarge = lengthOf(singleFlipPerm(8), 8)
-    const block = commutingBlockHamiltonian({ cells: 8, blockSize: 2, gate: cnotGate })
+    const block = commutingBlockHamiltonian({
+      cells: 8,
+      blockSize: 2,
+      gate: cnotGate,
+    })
     const eig = eigHermitian({ matrix: block })
     let blockMinEig = Infinity
     let blockMaxEig = -Infinity

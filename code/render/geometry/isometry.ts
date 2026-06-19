@@ -21,11 +21,11 @@ function norm(a: Vec): number {
 }
 
 function scale(a: Vec, k: number): Vec {
-  return a.map((x) => x * k)
+  return a.map(x => x * k)
 }
 
 export function negate(a: Vec): Vec {
-  return a.map((x) => -x)
+  return a.map(x => -x)
 }
 
 // Mobius (gyrovector) addition a (+) x, the Poincare-ball isometry that moves the origin to a. Maps the ball
@@ -38,7 +38,8 @@ export function mobiusAdd(a: Vec, x: Vec): Vec {
   const ca = (1 + 2 * ax + xx) / (denom || 1e-12)
   const cx = (1 - aa) / (denom || 1e-12)
   const out: Vec = []
-  for (let i = 0; i < x.length; i++) out.push(ca * (a[i] ?? 0) + cx * (x[i] ?? 0))
+  for (let i = 0; i < x.length; i++)
+    out.push(ca * (a[i] ?? 0) + cx * (x[i] ?? 0))
   return out
 }
 
@@ -66,7 +67,11 @@ export function pointAt(u: Vec, d: number): Vec {
 
 // sample the geodesic from a to b at segments + 1 points (the true curved path in the model). Used both to
 // draw curved struts and to interpolate motion.
-export function geodesicPoints(a: Vec, b: Vec, segments: number): Vec[] {
+export function geodesicPoints(
+  a: Vec,
+  b: Vec,
+  segments: number,
+): Vec[] {
   const d = mobiusAdd(negate(a), b)
   const out: Vec[] = []
   for (let k = 0; k <= segments; k++) {
@@ -79,7 +84,10 @@ export function geodesicPoints(a: Vec, b: Vec, segments: number): Vec[] {
 // `direction`. Returns a point transform that brings that-far-along the line to the centre. Growing the
 // distance over frames flies forward, and as distance grows large it becomes the infinite zoom into the ideal
 // point (the Escher dive).
-export function glide(input: { direction: Vec; distance: number }): (p: Vec) => Vec {
+export function glide(input: {
+  direction: Vec
+  distance: number
+}): (p: Vec) => Vec {
   const a = pointAt(input.direction, input.distance)
   const back = negate(a)
   return (p: Vec) => mobiusAdd(back, p)
@@ -87,7 +95,11 @@ export function glide(input: { direction: Vec; distance: number }): (p: Vec) => 
 
 // a rotation of the disk about the origin by `angle`, in the plane of axes i and j (default the first two,
 // the visible plane of a 2D tiling). Leaves other coordinates untouched.
-export function rotateAboutOrigin(input: { angle: number; i?: number; j?: number }): (p: Vec) => Vec {
+export function rotateAboutOrigin(input: {
+  angle: number
+  i?: number
+  j?: number
+}): (p: Vec) => Vec {
   const { angle, i = 0, j = 1 } = input
   const c = Math.cos(angle)
   const s = Math.sin(angle)
@@ -103,7 +115,18 @@ export function rotateAboutOrigin(input: { angle: number; i?: number; j?: number
 
 // apply a point transform to every edge endpoint, returning a new Scene. The animation primitive, one
 // transformed Scene per frame.
-export function transformScene(scene: Scene, fn: (p: Vec) => Vec): Scene {
-  const edges: SceneEdge[] = scene.edges.map((e) => ({ a: fn(e.a), b: fn(e.b) }))
-  return { dim: scene.dim, symbol: scene.symbol, edges, cellCount: scene.cellCount }
+export function transformScene(
+  scene: Scene,
+  fn: (p: Vec) => Vec,
+): Scene {
+  const edges: SceneEdge[] = scene.edges.map(e => ({
+    a: fn(e.a),
+    b: fn(e.b),
+  }))
+  return {
+    dim: scene.dim,
+    symbol: scene.symbol,
+    edges,
+    cellCount: scene.cellCount,
+  }
 }

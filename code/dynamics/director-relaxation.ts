@@ -13,7 +13,11 @@ function foldModPi(angle: number): number {
   return d
 }
 
-export function relaxDirector(input: { phi: ReadonlyArray<number>; steps: number; dt: number }): number[] {
+export function relaxDirector(input: {
+  phi: ReadonlyArray<number>
+  steps: number
+  dt: number
+}): number[] {
   const { phi, steps, dt } = input
   const length = phi.length
   let current = phi.slice()

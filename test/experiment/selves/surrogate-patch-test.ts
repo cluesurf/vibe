@@ -10,7 +10,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quantileLabels } from '@/code/coarse/transition-matrix'
 import { driftingSelfTrajectory } from '@/code/coarse/self-trajectory'
-import { fitMarkovSurrogate, forwardAccuracy } from '@/code/coarse/surrogate'
+import {
+  fitMarkovSurrogate,
+  forwardAccuracy,
+} from '@/code/coarse/surrogate'
 
 const bins = 6
 const lag = 10
@@ -25,7 +28,11 @@ const DRIFT_MIN = 0.15
 
 // fit a surrogate on the self's early regime, then report its forward accuracy early (in regime) and late
 // (after the cohesion changes to cohesionLate at changeAt). The accuracy drop is the drift signal.
-function patchDrift(cohesionLate: number): { early: number; late: number; drift: number } {
+function patchDrift(cohesionLate: number): {
+  early: number
+  late: number
+  drift: number
+} {
   const traj = driftingSelfTrajectory({
     L: 64,
     beats,
@@ -35,15 +42,28 @@ function patchDrift(cohesionLate: number): { early: number; late: number; drift:
     changeAt,
   })
   const labels = quantileLabels({ series: traj.centroids, bins })
-  const surrogate = fitMarkovSurrogate({ trajectory: labels.slice(200, changeAt - 100), stateCount: bins, lag })
-  const early = forwardAccuracy({ tpm: surrogate, test: labels.slice(300, changeAt - 100), lag })
-  const late = forwardAccuracy({ tpm: surrogate, test: labels.slice(changeAt + 200, beats - 100), lag })
+  const surrogate = fitMarkovSurrogate({
+    trajectory: labels.slice(200, changeAt - 100),
+    stateCount: bins,
+    lag,
+  })
+  const early = forwardAccuracy({
+    tpm: surrogate,
+    test: labels.slice(300, changeAt - 100),
+    lag,
+  })
+  const late = forwardAccuracy({
+    tpm: surrogate,
+    test: labels.slice(changeAt + 200, beats - 100),
+    lag,
+  })
   return { early, late, drift: early - late }
 }
 
 export default experiment({
   id: 'selves/surrogate-patch-test',
-  title: 'a patch test detects surrogate drift after a regime change, the stationary self gives no false alarm',
+  title:
+    'a patch test detects surrogate drift after a regime change, the stationary self gives no false alarm',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -54,7 +74,8 @@ export default experiment({
     // the stationary self, the no-drift control (same binding throughout).
     const stationary = patchDrift(0.22)
 
-    const ok = changed.drift > DRIFT_MIN && stationary.drift < STATIONARY_MAX
+    const ok =
+      changed.drift > DRIFT_MIN && stationary.drift < STATIONARY_MAX
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -7,4 +7,8 @@ export const PEACE: [number, number, number] = [10, 10, 11]
 export const PLEASURE: [number, number, number] = [59, 130, 246]
 export const PAIN: [number, number, number] = [248, 90, 114]
 
-export const TONE_COLORS: [number, number, number][] = [PEACE, PLEASURE, PAIN]
+export const TONE_COLORS: [number, number, number][] = [
+  PEACE,
+  PLEASURE,
+  PAIN,
+]

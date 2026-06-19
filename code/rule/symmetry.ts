@@ -17,7 +17,8 @@ import { Will } from '@/code/tone/will'
 // charge conjugation, negate every tone
 export function chargeConjugate(will: Will): Will {
   const data = new Int8Array(will.data.length)
-  for (let i = 0; i < data.length; i++) data[i] = -(will.data[i] ?? 0) as -1 | 0 | 1
+  for (let i = 0; i < data.length; i++)
+    data[i] = -(will.data[i] ?? 0) as -1 | 0 | 1
   return { mesh: will.mesh, data }
 }
 
@@ -30,7 +31,8 @@ export function timeReverse(will: Will): Will {
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const base = cell * degree
     for (let direction = 0; direction < degree; direction++) {
-      data[base + mesh.opposite(direction)] = will.data[base + direction] ?? 0
+      data[base + mesh.opposite(direction)] =
+        will.data[base + direction] ?? 0
     }
   }
   return { mesh, data }
@@ -39,23 +41,32 @@ export function timeReverse(will: Will): Will {
 // parity, reflect one spatial axis. The cell coordinate along the axis is reflected (modulo the side, on the d4 torus)
 // and each direction's component along that axis is negated, so a direction maps to its mirror. Assumes the d4Mesh
 // coordinate layout cell = x + side*y + side^2*z + side^3*w.
-export function parityReflect(input: { will: Will; directions: number[][]; side: number; axis: number }): Will {
+export function parityReflect(input: {
+  will: Will
+  directions: number[][]
+  side: number
+  axis: number
+}): Will {
   const { will, directions, side, axis } = input
   const mesh = will.mesh
   const degree = mesh.degree
   const key = (v: number[]): string => v.join(',')
   const directionIndex = new Map(directions.map((v, i) => [key(v), i]))
   // the direction permutation under the reflection of the chosen axis
-  const reflectedDirection = directions.map((v) => {
+  const reflectedDirection = directions.map(v => {
     const w = [...v]
     w[axis] = -w[axis]!
     return directionIndex.get(key(w))!
   })
-  const coordinate = (cell: number, ax: number): number => Math.floor(cell / side ** ax) % side
+  const coordinate = (cell: number, ax: number): number =>
+    Math.floor(cell / side ** ax) % side
   const reflectedCell = (cell: number): number => {
     let result = 0
     for (let ax = 0; ax < 4; ax++) {
-      const c = ax === axis ? (side - coordinate(cell, ax)) % side : coordinate(cell, ax)
+      const c =
+        ax === axis
+          ? (side - coordinate(cell, ax)) % side
+          : coordinate(cell, ax)
       result += c * side ** ax
     }
     return result
@@ -63,13 +74,22 @@ export function parityReflect(input: { will: Will; directions: number[][]; side:
   const data = new Int8Array(will.data.length)
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     for (let direction = 0; direction < degree; direction++) {
-      data[reflectedCell(cell) * degree + reflectedDirection[direction]!] = will.data[cell * degree + direction] ?? 0
+      data[
+        reflectedCell(cell) * degree + reflectedDirection[direction]!
+      ] = will.data[cell * degree + direction] ?? 0
     }
   }
   return { mesh, data }
 }
 
 // the combined CPT operation, charge conjugation then parity then time reversal
-export function chargeParityTime(input: { will: Will; directions: number[][]; side: number; axis: number }): Will {
-  return chargeConjugate(parityReflect({ ...input, will: timeReverse(input.will) }))
+export function chargeParityTime(input: {
+  will: Will
+  directions: number[][]
+  side: number
+  axis: number
+}): Will {
+  return chargeConjugate(
+    parityReflect({ ...input, will: timeReverse(input.will) }),
+  )
 }

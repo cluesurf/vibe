@@ -21,7 +21,8 @@ const SPLAT = 3
 const DECAY = 0.93 // trail fade per beat (long comet tails so motion reads clearly)
 
 const N = L * L * L
-const idx = (x: number, y: number, z: number): number => (z * L + y) * L + x
+const idx = (x: number, y: number, z: number): number =>
+  (z * L + y) * L + x
 const dx = [1, -1, 0, 0, 0, 0]
 const dy = [0, 0, 1, -1, 0, 0]
 const dz = [0, 0, 0, 0, 1, -1]
@@ -70,7 +71,11 @@ function run(): void {
   const siny = Math.sin(AY)
   const half = (L - 1) / 2
   const scale = (IMG * 0.6) / L
-  const project = (x: number, y: number, z: number): [number, number, number] => {
+  const project = (
+    x: number,
+    y: number,
+    z: number,
+  ): [number, number, number] => {
     const ox = x - half
     const oy = y - half
     const oz = z - half
@@ -84,37 +89,72 @@ function run(): void {
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
   const z2arr = new Float32Array(N)
-  for (let z = 0; z < L; z++) for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) {
-    const [px, py, pz] = project(x, y, z)
-    const i = idx(x, y, z)
-    PX[i] = Math.round(px)
-    PY[i] = Math.round(py)
-    z2arr[i] = pz
-    DEPTH[i] = 0.5 + 0.5 * (pz / L + 0.5)
-  }
-  const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => z2arr[a]! - z2arr[b]!)
+  for (let z = 0; z < L; z++)
+    for (let y = 0; y < L; y++)
+      for (let x = 0; x < L; x++) {
+        const [px, py, pz] = project(x, y, z)
+        const i = idx(x, y, z)
+        PX[i] = Math.round(px)
+        PY[i] = Math.round(py)
+        z2arr[i] = pz
+        DEPTH[i] = 0.5 + 0.5 * (pz / L + 0.5)
+      }
+  const order = Array.from({ length: N }, (_, i) => i).sort(
+    (a, b) => z2arr[a]! - z2arr[b]!,
+  )
 
   // wireframe cube edges (the 8 corners, 12 edges), projected
   const corners: [number, number][] = []
-  for (let cz = 0; cz < 2; cz++) for (let cy = 0; cy < 2; cy++) for (let cx = 0; cx < 2; cx++) {
-    const [px, py] = project(cx * (L - 1), cy * (L - 1), cz * (L - 1))
-    corners.push([Math.round(px), Math.round(py)])
-  }
-  const edges: [number, number][] = [[0, 1], [2, 3], [4, 5], [6, 7], [0, 2], [1, 3], [4, 6], [5, 7], [0, 4], [1, 5], [2, 6], [3, 7]]
+  for (let cz = 0; cz < 2; cz++)
+    for (let cy = 0; cy < 2; cy++)
+      for (let cx = 0; cx < 2; cx++) {
+        const [px, py] = project(
+          cx * (L - 1),
+          cy * (L - 1),
+          cz * (L - 1),
+        )
+        corners.push([Math.round(px), Math.round(py)])
+      }
+  const edges: [number, number][] = [
+    [0, 1],
+    [2, 3],
+    [4, 5],
+    [6, 7],
+    [0, 2],
+    [1, 3],
+    [4, 6],
+    [5, 7],
+    [0, 4],
+    [1, 5],
+    [2, 6],
+    [3, 7],
+  ]
 
   // seed several gliders at low x, spread across y and z, so they all glide +x across the cube (and wrap)
   const tone = new Int8Array(N)
   const seeds: [number, number, number, number][] = [
-    [8, 25, 30, 1], [8, 55, 40, -1], [8, 40, 68, 1], [8, 72, 70, -1], [8, 30, 78, 1], [8, 65, 22, -1],
+    [8, 25, 30, 1],
+    [8, 55, 40, -1],
+    [8, 40, 68, 1],
+    [8, 72, 70, -1],
+    [8, 30, 78, 1],
+    [8, 65, 22, -1],
   ]
   for (const [x, y, z, s] of seeds) tone[idx(x, y, z)] = s as -1 | 1
-  for (let k = 0; k < 6; k++) tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1 // a 7-cell cluster glider
+  for (let k = 0; k < 6; k++)
+    tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1 // a 7-cell cluster glider
   tone[idx(8, 45, 45)] = 1
 
   const trail = new Float32Array(N)
   const tsign = new Int8Array(N)
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'make', 'frames')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    'make',
+    'frames',
+  )
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -138,7 +178,12 @@ function run(): void {
     accG.fill(0)
     accB.fill(0)
     // faint wireframe first (so charges draw over it)
-    const drawLine = (x0: number, y0: number, x1: number, y1: number): void => {
+    const drawLine = (
+      x0: number,
+      y0: number,
+      x1: number,
+      y1: number,
+    ): void => {
       const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1
       for (let s = 0; s <= steps; s++) {
         const ix = Math.round(x0 + ((x1 - x0) * s) / steps)
@@ -150,7 +195,13 @@ function run(): void {
         accB[pix] = 34
       }
     }
-    for (const [a, b] of edges) drawLine(corners[a]![0], corners[a]![1], corners[b]![0], corners[b]![1])
+    for (const [a, b] of edges)
+      drawLine(
+        corners[a]![0],
+        corners[a]![1],
+        corners[b]![0],
+        corners[b]![1],
+      )
 
     // composite trails + heads back-to-front
     for (let k = 0; k < N; k++) {
@@ -186,7 +237,9 @@ function run(): void {
 
     step(tone, f)
   }
-  console.log(`wrote ${FRAMES} frames of 3D gliders in the {3,4,3,4} cusp, assemble with task/render-video.sh`)
+  console.log(
+    `wrote ${FRAMES} frames of 3D gliders in the {3,4,3,4} cusp, assemble with task/render-video.sh`,
+  )
 }
 
 run()

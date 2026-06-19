@@ -43,10 +43,21 @@ export function bornInterference(input?: { steps?: number }): {
   // measure FRINGES on the populated parity (the walk fills only every-other site at even T). Quantum
   // interference shows as many oscillatory local maxima (fringes) and deep interior dips (near-nodes),
   // the classical walk is a single smooth hump.
-  const q = fringeStatistics({ distribution: quantum.distribution, offset: quantum.offset, width: quantum.width })
-  const c = fringeStatistics({ distribution: classical.distribution, offset: classical.offset, width: classical.width })
+  const q = fringeStatistics({
+    distribution: quantum.distribution,
+    offset: quantum.offset,
+    width: quantum.width,
+  })
+  const c = fringeStatistics({
+    distribution: classical.distribution,
+    offset: classical.offset,
+    width: classical.width,
+  })
 
-  const interferes = q.maxima >= 5 && q.maxima > c.maxima + 3 && q.contrast > c.contrast * 1.5
+  const interferes =
+    q.maxima >= 5 &&
+    q.maxima > c.maxima + 3 &&
+    q.contrast > c.contrast * 1.5
   const unitary = normDeviation < 1e-9
   const bornRule = unitary // P = |psi|^2 by construction, and it sums to 1, so it is a genuine probability
   const solved = interferes && unitary && bornRule
@@ -68,7 +79,8 @@ export function bornInterference(input?: { steps?: number }): {
 
 export default experiment({
   id: 'quantum/born-interference',
-  title: 'the unitary rule interferes and gives a genuine Born probability',
+  title:
+    'the unitary rule interferes and gives a genuine Born probability',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',

@@ -33,33 +33,48 @@ export function disclinationSpin(): {
   for (const winding of WINDINGS) {
     const h = disclinationHolonomy({ winding, steps: 24 })
     const expectMinusOne = winding % 2 === 1
-    const spinorMatches = expectMinusOne ? h.spinorIsMinusOne : h.spinorIsPlusOne
+    const spinorMatches = expectMinusOne
+      ? h.spinorIsMinusOne
+      : h.spinorIsPlusOne
     if (!spinorMatches) spinorParityCorrect = false
     if (!h.vectorReturnsToSelf) vectorAlwaysReturns = false
   }
 
   // the headline: a single (odd, half) disclination flips the spinor while the vector is unmoved
   const odd = disclinationHolonomy({ winding: 1, steps: 24 })
-  const oddDisclinationFlipsSpinor = odd.spinorIsMinusOne && odd.vectorReturnsToSelf
+  const oddDisclinationFlipsSpinor =
+    odd.spinorIsMinusOne && odd.vectorReturnsToSelf
 
   // topological: the holonomy is independent of the loop discretization
   let topological = true
   for (const winding of WINDINGS) {
-    const base = disclinationHolonomy({ winding, steps: STEP_COUNTS[0]! })
+    const base = disclinationHolonomy({
+      winding,
+      steps: STEP_COUNTS[0]!,
+    })
     for (const steps of STEP_COUNTS) {
       const h = disclinationHolonomy({ winding, steps })
-      if (h.spinorIsMinusOne !== base.spinorIsMinusOne || h.spinorIsPlusOne !== base.spinorIsPlusOne) {
+      if (
+        h.spinorIsMinusOne !== base.spinorIsMinusOne ||
+        h.spinorIsPlusOne !== base.spinorIsPlusOne
+      ) {
         topological = false
       }
     }
   }
 
-  return { spinorParityCorrect, oddDisclinationFlipsSpinor, vectorAlwaysReturns, topological }
+  return {
+    spinorParityCorrect,
+    oddDisclinationFlipsSpinor,
+    vectorAlwaysReturns,
+    topological,
+  }
 }
 
 export default experiment({
   id: 'spin/disclination-spin-534',
-  title: 'a half-winding disclination in the {5,3,4} director field gives the spinor a minus sign while the vector is blind, spin from topology',
+  title:
+    'a half-winding disclination in the {5,3,4} director field gives the spinor a minus sign while the vector is blind, spin from topology',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
@@ -67,14 +82,19 @@ export default experiment({
   run() {
     const r = disclinationSpin()
     const ok =
-      r.spinorParityCorrect && r.oddDisclinationFlipsSpinor && r.vectorAlwaysReturns && r.topological
+      r.spinorParityCorrect &&
+      r.oddDisclinationFlipsSpinor &&
+      r.vectorAlwaysReturns &&
+      r.topological
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'parallel-transporting a probe around a winding-w disclination in the director field gives the spinor the double-cover holonomy (-1)^w, so an odd (half) disclination flips the spinor sign, while the vector holonomy is always +1 (the defect is invisible to vectors), and the result is purely topological, independent of the loop discretization, so {5,3,4} hosts spin-half through a tone defect with no spinor on its coin',
       metrics: {
         spinorParityCorrect: r.spinorParityCorrect ? 1 : 0,
-        oddDisclinationFlipsSpinor: r.oddDisclinationFlipsSpinor ? 1 : 0,
+        oddDisclinationFlipsSpinor: r.oddDisclinationFlipsSpinor
+          ? 1
+          : 0,
         vectorAlwaysReturns: r.vectorAlwaysReturns ? 1 : 0,
         topological: r.topological ? 1 : 0,
       },

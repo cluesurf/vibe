@@ -10,7 +10,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quantileLabels } from '@/code/coarse/transition-matrix'
 import { drivenSelf } from '@/code/coarse/driven-self'
-import { mutualInformationBits, crossJointCounts } from '@/code/measure/statistics'
+import {
+  mutualInformationBits,
+  crossJointCounts,
+} from '@/code/measure/statistics'
 
 const L = 64
 const beats = 4000
@@ -24,24 +27,49 @@ const FAST_MAX = 0.05
 function attention(interior: number[], signal: number[]): number {
   const a = quantileLabels({ series: interior, bins })
   const b = quantileLabels({ series: signal, bins })
-  return mutualInformationBits(crossJointCounts({ seriesA: a, seriesB: b, stateCount: bins, lag: 0 }))
+  return mutualInformationBits(
+    crossJointCounts({
+      seriesA: a,
+      seriesB: b,
+      stateCount: bins,
+      lag: 0,
+    }),
+  )
 }
 
 export default experiment({
   id: 'selves/structural-attention',
-  title: 'a self attends to its slow meaningful input far above an equal-size fast-noise input',
+  title:
+    'a self attends to its slow meaningful input far above an equal-size fast-noise input',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
   paper: false,
   run() {
-    const driver = { L, beats, seed: 777, sectors: 2, interiorRadius: 6, cohesion: 0.4, flipProbabilities: [0.03, 0.4] }
+    const driver = {
+      L,
+      beats,
+      seed: 777,
+      sectors: 2,
+      interiorRadius: 6,
+      cohesion: 0.4,
+      flipProbabilities: [0.03, 0.4],
+    }
     const live = drivenSelf({ ...driver, withDynamics: true })
     const dead = drivenSelf({ ...driver, withDynamics: false })
 
-    const slowAttention = attention(live.interior, live.sectorSignals[0]!)
-    const fastAttention = attention(live.interior, live.sectorSignals[1]!)
-    const noDynamicsSlow = attention(dead.interior, dead.sectorSignals[0]!)
+    const slowAttention = attention(
+      live.interior,
+      live.sectorSignals[0]!,
+    )
+    const fastAttention = attention(
+      live.interior,
+      live.sectorSignals[1]!,
+    )
+    const noDynamicsSlow = attention(
+      dead.interior,
+      dead.sectorSignals[0]!,
+    )
 
     const ok =
       slowAttention > SLOW_MIN &&

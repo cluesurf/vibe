@@ -10,7 +10,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quantileLabels } from '@/code/coarse/transition-matrix'
 import { selfUnitTrajectory } from '@/code/coarse/self-trajectory'
-import { surrogateTower, towerAccuracyAtLag } from '@/code/coarse/surrogate-tower'
+import {
+  surrogateTower,
+  towerAccuracyAtLag,
+} from '@/code/coarse/surrogate-tower'
 
 const bins = 6
 const baseLag = 2
@@ -25,7 +28,8 @@ const ABOVE_CHANCE_MIN = 0.03
 
 export default experiment({
   id: 'selves/surrogate-speedup',
-  title: 'the surrogate tower speedup grows geometrically at bounded fidelity, over-compression collapses it',
+  title:
+    'the surrogate tower speedup grows geometrically at bounded fidelity, over-compression collapses it',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -51,7 +55,11 @@ export default experiment({
     // the over-compression control, a lag two doublings beyond the top of the tower, where the fidelity should
     // collapse toward chance (the cost cannot be cut without limit).
     const overCompressedLag = baseLag * 2 ** (levels + 1)
-    const overCompressedAccuracy = towerAccuracyAtLag({ labels, bins, lag: overCompressedLag })
+    const overCompressedAccuracy = towerAccuracyAtLag({
+      labels,
+      bins,
+      lag: overCompressedLag,
+    })
 
     const ok =
       speedupRatio > GEOMETRIC_FRACTION * geometricTarget &&

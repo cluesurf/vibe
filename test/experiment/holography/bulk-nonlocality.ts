@@ -30,11 +30,18 @@ export function bulkNonlocality(input?: { n?: number }): {
   const N = g.cellCount
   const nbr = (i: number): number[] => {
     const out: number[] = []
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) out.push(g.adj[p]!)
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+      out.push(g.adj[p]!)
     return out
   }
   const bfs = (src: number, allowed?: Uint8Array): Int32Array =>
-    csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: src, allowed })
+    csrDistances({
+      offsets: g.offsets,
+      adj: g.adj,
+      size: N,
+      source: src,
+      allowed,
+    })
 
   // radial layers from a root, the shell at radius R is a "physical surface" (a horosphere-like sphere)
   const radial = bfs(0)
@@ -46,16 +53,19 @@ export function bulkNonlocality(input?: { n?: number }): {
   for (let v = 0; v < N; v++) {
     const rv = radial[v]!
     if (rv < 0) continue
-    for (const w of nbr(v)) if (w > v && radial[w]! === rv) internalEdges[rv]!++
+    for (const w of nbr(v))
+      if (w > v && radial[w]! === rv) internalEdges[rv]!++
   }
   let shellRadius = 1
-  for (let r = 1; r <= maxR; r++) if (internalEdges[r]! > internalEdges[shellRadius]!) shellRadius = r
+  for (let r = 1; r <= maxR; r++)
+    if (internalEdges[r]! > internalEdges[shellRadius]!) shellRadius = r
   const onShell = new Uint8Array(N)
   const shellCells: number[] = []
-  for (let i = 0; i < N; i++) if (radial[i]! === shellRadius) {
-    onShell[i] = 1
-    shellCells.push(i)
-  }
+  for (let i = 0; i < N; i++)
+    if (radial[i]! === shellRadius) {
+      onShell[i] = 1
+      shellCells.push(i)
+    }
 
   // for several source cells, find the BULK-farthest surface cell (the physically distant target), and
   // compare its through-bulk distance to its within-surface distance
@@ -66,7 +76,8 @@ export function bulkNonlocality(input?: { n?: number }): {
   let unreachableTotal = 0
   const samples = Math.min(12, shellCells.length)
   for (let s = 0; s < samples; s++) {
-    const src = shellCells[Math.floor((s * shellCells.length) / samples)]!
+    const src =
+      shellCells[Math.floor((s * shellCells.length) / samples)]!
     const dBulk = bfs(src) // through the whole bulk
     const dSurf = bfs(src, onShell) // restricted to the physical surface
     // the bulk-farthest surface cell = a physically distant target
@@ -86,22 +97,38 @@ export function bulkNonlocality(input?: { n?: number }): {
 
   const meanBulkDistance = pairs > 0 ? bulkSum / pairs : 0
   const reachablePairs = pairs - unreachable
-  const meanSurfaceDistance = reachablePairs > 0 ? surfSum / reachablePairs : Infinity
-  const unreachableFraction = unreachableTotal > 0 ? unreachable / unreachableTotal : 0
+  const meanSurfaceDistance =
+    reachablePairs > 0 ? surfSum / reachablePairs : Infinity
+  const unreachableFraction =
+    unreachableTotal > 0 ? unreachable / unreachableTotal : 0
   // ratio = how much longer the physical-surface path is than the bulk path (infinite if the surface is
   // disconnected, so the bulk is the ONLY channel)
-  const ratio = reachablePairs > 0 && meanBulkDistance > 0 ? meanSurfaceDistance / meanBulkDistance : Infinity
+  const ratio =
+    reachablePairs > 0 && meanBulkDistance > 0
+      ? meanSurfaceDistance / meanBulkDistance
+      : Infinity
   // a non-local channel exists if the surface path is much longer than the bulk path, or the surface is
   // largely disconnected (so the bulk is the only channel)
   const nonLocalChannel = ratio > 2.5 || unreachableFraction > 0.5
   const solved = nonLocalChannel
 
-  return { n: N, shellRadius, shellSize: shellCells.length, meanBulkDistance, meanSurfaceDistance, unreachableFraction, ratio, nonLocalChannel, solved }
+  return {
+    n: N,
+    shellRadius,
+    shellSize: shellCells.length,
+    meanBulkDistance,
+    meanSurfaceDistance,
+    unreachableFraction,
+    ratio,
+    nonLocalChannel,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'holography/bulk-nonlocality',
-  title: 'distant surface points are joined by a short hidden path through the bulk',
+  title:
+    'distant surface points are joined by a short hidden path through the bulk',
   category: 'holography',
   substrates: ['534'],
   depth: 'L3',

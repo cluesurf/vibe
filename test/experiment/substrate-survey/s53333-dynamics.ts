@@ -4,28 +4,51 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
-import { streamDirectionalCharge, totalDirectionalCharge } from '@/code/operator/directional-charge-stream'
+import {
+  streamDirectionalCharge,
+  totalDirectionalCharge,
+} from '@/code/operator/directional-charge-stream'
 import { churnCount } from '@/code/measure/churn'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s53333Dynamics(): { chargeConserved: boolean; lightSpeed: number; churns: boolean } {
-  const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
-  const N = g.cellCount, nb = g.neighbors
-  const rng = makeRng({ seed: 9 }); const rnd = (): number => rng.next()
-  const charge0: number[][] = Array.from({ length: N }, (_, i) => nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)))
+export function s53333Dynamics(): {
+  chargeConserved: boolean
+  lightSpeed: number
+  churns: boolean
+} {
+  const g = buildCellGraph({
+    symbol: [5, 3, 3, 3, 3] as never,
+    maxCells: 6000,
+  })
+  const N = g.cellCount,
+    nb = g.neighbors
+  const rng = makeRng({ seed: 9 })
+  const rnd = (): number => rng.next()
+  const charge0: number[][] = Array.from({ length: N }, (_, i) =>
+    nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),
+  )
   const t0 = totalDirectionalCharge(charge0)
-  const charge = streamDirectionalCharge({ neighbors: nb, charge: charge0, steps: 12 })
+  const charge = streamDirectionalCharge({
+    neighbors: nb,
+    charge: charge0,
+    steps: 12,
+  })
   const chargeConserved = t0 === totalDirectionalCharge(charge)
   const lightSpeed = 1
-  const cur = new Int8Array(N); for (let i = 0; i < N; i++) cur[i] = (Math.floor(rnd() * 3)) as 0 | 1 | 2
-  const churns = churnCount({ neighbors: nb, initial: cur, steps: 20, modulus: 3 }) > N
+  const cur = new Int8Array(N)
+  for (let i = 0; i < N; i++)
+    cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+  const churns =
+    churnCount({ neighbors: nb, initial: cur, steps: 20, modulus: 3 }) >
+    N
   return { chargeConserved, lightSpeed, churns }
 }
 
 export default experiment({
   id: 'substrate-survey/s53333-dynamics',
-  title: 'the directional rule ports to the 5D {5,3,3,3,3} bulk, conserving charge and churning',
+  title:
+    'the directional rule ports to the 5D {5,3,3,3,3} bulk, conserving charge and churning',
   category: 'substrate-survey',
   substrates: ['53333'],
   depth: 'L1',

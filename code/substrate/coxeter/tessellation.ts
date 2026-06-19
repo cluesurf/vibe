@@ -11,11 +11,23 @@
 // its first entry. The cell must be spherical (finite) for the orbit engine. The vertex figure being
 // spherical means COMPACT (finite vertices), Euclidean means PARACOMPACT (ideal vertices, a cusp).
 
-import { classifyGeometry, type Geometry } from '@/code/substrate/coxeter/schlafli'
-import { buildCellGraph, buildEuclideanLattice, type CellGraph } from '@/code/substrate/coxeter/cell-direct'
+import {
+  classifyGeometry,
+  type Geometry,
+} from '@/code/substrate/coxeter/schlafli'
+import {
+  buildCellGraph,
+  buildEuclideanLattice,
+  type CellGraph,
+} from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
 
-export type Compactness = 'compact' | 'paracompact' | 'hyperideal' | 'finite-polytope' | 'unknown'
+export type Compactness =
+  | 'compact'
+  | 'paracompact'
+  | 'hyperideal'
+  | 'finite-polytope'
+  | 'unknown'
 export type Builder = 'orbit' | 'euclidean-lattice' | 'none'
 
 export interface TessellationDescriptor {
@@ -33,20 +45,37 @@ export interface TessellationDescriptor {
 }
 
 // Classify a symbol fully, with no build. Pure and cheap.
-export function describeTessellation(symbol: number[]): TessellationDescriptor {
-  if (symbol.length < 1 || symbol.some((p) => !Number.isInteger(p) || p < 2)) {
+export function describeTessellation(
+  symbol: number[],
+): TessellationDescriptor {
+  if (
+    symbol.length < 1 ||
+    symbol.some(p => !Number.isInteger(p) || p < 2)
+  ) {
     return {
-      symbol, spaceDimension: symbol.length, geometry: 'higher', cell: [], cellGeometry: 'higher',
-      vertexFigure: [], vertexFigureGeometry: 'higher', compactness: 'unknown', buildable: false,
-      builder: 'none', note: 'invalid Schlafli symbol (entries must be integers >= 2)',
+      symbol,
+      spaceDimension: symbol.length,
+      geometry: 'higher',
+      cell: [],
+      cellGeometry: 'higher',
+      vertexFigure: [],
+      vertexFigureGeometry: 'higher',
+      compactness: 'unknown',
+      buildable: false,
+      builder: 'none',
+      note: 'invalid Schlafli symbol (entries must be integers >= 2)',
     }
   }
   const geometry = classifyGeometry(symbol)
   const cell = symbol.slice(0, -1) // the polytope filling each cell
   const vertexFigure = symbol.slice(1) // the arrangement around each vertex
   // a length-1 symbol {p} is a polygon, its "cell" is an edge (finite) and its vertex figure is a vertex
-  const cellGeometry: Geometry = cell.length === 0 ? 'spherical' : classifyGeometry(cell)
-  const vertexFigureGeometry: Geometry = vertexFigure.length === 0 ? 'spherical' : classifyGeometry(vertexFigure)
+  const cellGeometry: Geometry =
+    cell.length === 0 ? 'spherical' : classifyGeometry(cell)
+  const vertexFigureGeometry: Geometry =
+    vertexFigure.length === 0
+      ? 'spherical'
+      : classifyGeometry(vertexFigure)
 
   // compactness from BOTH the cell and the vertex figure. Compact means both are finite (spherical), so all
   // cells and all vertices are ordinary points. Paracompact means at least one is Euclidean (an ideal cell
@@ -54,11 +83,18 @@ export function describeTessellation(symbol: number[]): TessellationDescriptor {
   // cells beyond infinity). A spherical symbol is a finite polytope, not a tessellation.
   let compactness: Compactness
   const finite = (x: Geometry): boolean => x === 'spherical'
-  const idealOk = (x: Geometry): boolean => x === 'spherical' || x === 'euclidean'
+  const idealOk = (x: Geometry): boolean =>
+    x === 'spherical' || x === 'euclidean'
   if (geometry === 'spherical') compactness = 'finite-polytope'
-  else if (finite(cellGeometry) && finite(vertexFigureGeometry)) compactness = 'compact'
-  else if (idealOk(cellGeometry) && idealOk(vertexFigureGeometry)) compactness = 'paracompact'
-  else if (cellGeometry === 'hyperbolic' || vertexFigureGeometry === 'hyperbolic') compactness = 'hyperideal'
+  else if (finite(cellGeometry) && finite(vertexFigureGeometry))
+    compactness = 'compact'
+  else if (idealOk(cellGeometry) && idealOk(vertexFigureGeometry))
+    compactness = 'paracompact'
+  else if (
+    cellGeometry === 'hyperbolic' ||
+    vertexFigureGeometry === 'hyperbolic'
+  )
+    compactness = 'hyperideal'
   else compactness = 'unknown'
 
   // builder selection
@@ -66,25 +102,42 @@ export function describeTessellation(symbol: number[]): TessellationDescriptor {
   let buildable: boolean
   let note: string
   if (geometry === 'hyperbolic' && cellGeometry === 'spherical') {
-    builder = 'orbit'; buildable = true
+    builder = 'orbit'
+    buildable = true
     note = `hyperbolic ${symbol.length}D honeycomb, ${compactness}, exact reflection-orbit engine applies`
   } else if (geometry === 'euclidean') {
-    builder = 'euclidean-lattice'; buildable = true
+    builder = 'euclidean-lattice'
+    buildable = true
     note = `euclidean ${symbol.length}D honeycomb, built as a flat lattice (if the regular family is supported)`
   } else if (geometry === 'spherical') {
-    builder = 'none'; buildable = false
+    builder = 'none'
+    buildable = false
     note = `spherical, this is a FINITE ${symbol.length + 1}D polytope, not a tessellation of ${symbol.length}D space`
-  } else if (geometry === 'hyperbolic' && cellGeometry !== 'spherical') {
-    builder = 'none'; buildable = false
+  } else if (
+    geometry === 'hyperbolic' &&
+    cellGeometry !== 'spherical'
+  ) {
+    builder = 'none'
+    buildable = false
     note = `hyperbolic honeycomb whose CELL {${cell.join(',')}} is ${cellGeometry} (not finite), the orbit engine cannot build it (the cell-stabilizer is infinite)`
   } else {
-    builder = 'none'; buildable = false
+    builder = 'none'
+    buildable = false
     note = `geometry ${geometry}, no applicable builder`
   }
 
   return {
-    symbol, spaceDimension: symbol.length, geometry, cell, cellGeometry, vertexFigure,
-    vertexFigureGeometry, compactness, buildable, builder, note,
+    symbol,
+    spaceDimension: symbol.length,
+    geometry,
+    cell,
+    cellGeometry,
+    vertexFigure,
+    vertexFigureGeometry,
+    compactness,
+    buildable,
+    builder,
+    note,
   }
 }
 
@@ -95,14 +148,23 @@ export interface BuiltTessellation {
 
 // Build the tessellation generically, routing to the correct engine. Never silently degenerates, an
 // unbuildable symbol returns graph null with the reason in descriptor.note.
-export function buildTessellation(input: { symbol: number[]; maxCells?: number }): BuiltTessellation {
+export function buildTessellation(input: {
+  symbol: number[]
+  maxCells?: number
+}): BuiltTessellation {
   const descriptor = describeTessellation(input.symbol)
   const maxCells = input.maxCells ?? 20000
   if (descriptor.builder === 'orbit') {
-    return { descriptor, graph: buildCellGraph({ symbol: input.symbol, maxCells }) }
+    return {
+      descriptor,
+      graph: buildCellGraph({ symbol: input.symbol, maxCells }),
+    }
   }
   if (descriptor.builder === 'euclidean-lattice') {
-    return { descriptor, graph: buildEuclideanLattice({ symbol: input.symbol, maxCells }) }
+    return {
+      descriptor,
+      graph: buildEuclideanLattice({ symbol: input.symbol, maxCells }),
+    }
   }
   return { descriptor, graph: null }
 }
@@ -117,12 +179,16 @@ export function inspectTessellation(graph: CellGraph): {
 } {
   // the full (interior) facet degree is the MAX neighbour count, boundary cells have fewer
   let facetDegree = 0
-  for (const nb of graph.neighbors) if (nb.length > facetDegree) facetDegree = nb.length
+  for (const nb of graph.neighbors)
+    if (nb.length > facetDegree) facetDegree = nb.length
   let matching = 0
-  for (const nb of graph.neighbors) if (nb.length === facetDegree) matching++
+  for (const nb of graph.neighbors)
+    if (nb.length === facetDegree) matching++
   const uniformInterior = matching >= 1 // a regular honeycomb has at least the seed at full degree
 
   const { shellCounts } = bfsShells({ neighbors: graph.neighbors })
-  const growthRatios = shellCounts.slice(1).map((c, i) => c / shellCounts[i]!)
+  const growthRatios = shellCounts
+    .slice(1)
+    .map((c, i) => c / shellCounts[i]!)
   return { facetDegree, uniformInterior, shellCounts, growthRatios }
 }

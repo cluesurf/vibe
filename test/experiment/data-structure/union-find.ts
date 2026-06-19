@@ -10,7 +10,8 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/union-find',
-  title: 'SS15: union-find on the cell tree has logarithmic find depth from short bulk paths',
+  title:
+    'SS15: union-find on the cell tree has logarithmic find depth from short bulk paths',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L2',
@@ -26,7 +27,10 @@ export default experiment({
     for (let cell = 0; cell < cells; cell++) {
       let node = cell
       let steps = 0
-      while (a.parent[node] !== -1 && steps <= cells) { node = a.parent[node]!; steps += 1 }
+      while (a.parent[node] !== -1 && steps <= cells) {
+        node = a.parent[node]!
+        steps += 1
+      }
       if (node !== a.root) allReachRoot = false
       if (steps !== a.dist[cell]) depthMatchesDist = false
       sumDepth += steps
@@ -41,10 +45,16 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'union-find on the cell tree resolves every find by a parent chain to the root whose length is the cell shell, and the hyperbolic short paths keep that depth logarithmic, so find is cheap with no path compression',
-      metrics: { cells, meanFindDepth, maxFindDepth: maxDepth, logarithmic: logarithmic ? 1 : 0 },
+      metrics: {
+        cells,
+        meanFindDepth,
+        maxFindDepth: maxDepth,
+        logarithmic: logarithmic ? 1 : 0,
+      },
       // CONTROL: a flat union-find without compression can degenerate to O(N) chains, the bulk geometry cannot.
       control: { flatWorstCaseDepth: cells, bulkMaxDepth: maxDepth },
-      notes: 'SS15 of experiments/17. Same parent tree as the heap (SS4) and Merkle proof (DS11), here read as find chains.',
+      notes:
+        'SS15 of experiments/17. Same parent tree as the heap (SS4) and Merkle proof (DS11), here read as find chains.',
     })
   },
 })

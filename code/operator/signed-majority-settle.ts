@@ -31,7 +31,8 @@ export function settleAsync(input: {
       for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
       }
-      const nt: -1 | 0 | 1 = h > 0 ? 1 : h < 0 ? -1 : ((t[v] ?? 0) as -1 | 0 | 1)
+      const nt: -1 | 0 | 1 =
+        h > 0 ? 1 : h < 0 ? -1 : ((t[v] ?? 0) as -1 | 0 | 1)
       if (nt !== t[v]) {
         flips++
       }

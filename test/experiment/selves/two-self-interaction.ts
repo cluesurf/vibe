@@ -11,7 +11,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { emergeSelfShape, runTwoSelfAnnihilation } from '@/code/coarse/two-self'
+import {
+  emergeSelfShape,
+  runTwoSelfAnnihilation,
+} from '@/code/coarse/two-self'
 
 // contact annihilation must clear this, the range and same-charge controls must stay below it. The measured
 // contact value is near 0.4 and both controls are exactly 0, so the bounds sit clear of the knife edge.
@@ -20,7 +23,8 @@ const CONTROL_MAX = 0.05
 
 export default experiment({
   id: 'selves/two-self-interaction',
-  title: 'two opposite-charge selves annihilate at contact but not at range, same-charge selves never do',
+  title:
+    'two opposite-charge selves annihilate at contact but not at range, same-charge selves never do',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -30,8 +34,18 @@ export default experiment({
     const beats = 90
     const cohesion = 0.22
 
-    const annihilatedFraction = (d: number, rightSign: number): number => {
-      const counts = runTwoSelfAnnihilation({ shape, d, rightSign, cohesion, beats, seed: 4242 })
+    const annihilatedFraction = (
+      d: number,
+      rightSign: number,
+    ): number => {
+      const counts = runTwoSelfAnnihilation({
+        shape,
+        d,
+        rightSign,
+        cohesion,
+        beats,
+        seed: 4242,
+      })
       const start = counts[0]!
       return start > 0 ? 1 - counts[counts.length - 1]! / start : 0
     }

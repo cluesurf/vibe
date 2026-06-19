@@ -11,7 +11,8 @@ import { lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
 
 export default experiment({
   id: 'data-structure/capacity',
-  title: 'DS1: the 4D hyperbolic bulk holds exponentially more cells per radius than the flat honeycomb',
+  title:
+    'DS1: the 4D hyperbolic bulk holds exponentially more cells per radius than the flat honeycomb',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -23,7 +24,8 @@ export default experiment({
     const flatRatio = lastCompleteShellRatio(flat.shells)
 
     // exponential capacity, the hyperbolic growth ratio is bounded above 1 and clearly beats the flat one
-    const exponentialCapacity = hyperbolicRatio > 1.5 && hyperbolicRatio > flatRatio + 0.2
+    const exponentialCapacity =
+      hyperbolicRatio > 1.5 && hyperbolicRatio > flatRatio + 0.2
 
     return verdict({
       status: exponentialCapacity ? 'pass' : 'fail',
@@ -36,7 +38,10 @@ export default experiment({
       },
       // CONTROL: the flat {3,4,3,3} mesh grows with a lower ratio (polynomial), so the hyperbolic capacity is
       // genuine negative curvature, not an artifact of the generation.
-      control: { flatGrowthRatio: flatRatio, hyperbolicAboveFlat: exponentialCapacity ? 1 : 0 },
+      control: {
+        flatGrowthRatio: flatRatio,
+        hyperbolicAboveFlat: exponentialCapacity ? 1 : 0,
+      },
       notes:
         'DS1 of experiments/16-data-structures-in-the-bulk. Capacity exponential in radius is the lever behind logarithmic addressing (DS2), short DHT routes (DS5), and high associative-memory capacity (DS10). The flat control confirms the growth is curvature.',
     })

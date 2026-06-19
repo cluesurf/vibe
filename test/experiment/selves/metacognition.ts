@@ -18,7 +18,13 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
 
-function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+function fullBeat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
   moved.fill(0)
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
@@ -93,17 +99,30 @@ export function metacognition(input?: { n?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   let center = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center + 1]! - g.offsets[center]!
+    )
+      center = i
+  const dist = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+    maxRadius: 12,
+  })
   const rSelf = 5
   const self: number[] = []
-  for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
-  for (const i of self) if (dist[i]! >= rSelf - 1) {
-    isInput[i] = 1
-    inputAll.push(i)
-  }
+  for (const i of self)
+    if (dist[i]! >= rSelf - 1) {
+      isInput[i] = 1
+      inputAll.push(i)
+    }
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
@@ -135,7 +154,9 @@ export function metacognition(input?: { n?: number }): {
     return out
   }
   const core = ballOf(center, 40)
-  const peripherals = sectorCells.map((sc) => ballOf(sc[Math.floor(sc.length / 2)]!, 40))
+  const peripherals = sectorCells.map(sc =>
+    ballOf(sc[Math.floor(sc.length / 2)]!, 40),
+  )
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
     for (const i of cells) s += tone[i]!
@@ -149,19 +170,24 @@ export function metacognition(input?: { n?: number }): {
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
   for (let t = 0; t < T; t++) {
-    for (let s = 0; s < K; s++) if (rng.next() < 0.06) sigs[s] = -sigs[s]!
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    for (let s = 0; s < K; s++)
+      if (rng.next() < 0.06) sigs[s] = -sigs[s]!
+    for (const i of inputAll)
+      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     fullBeat(tone, eu, ev, moved, rng)
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    for (const i of inputAll)
+      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
-    for (let p = 0; p < peripherals.length; p++) periSeries[p]!.push(meanOver(tone, peripherals[p]!))
+    for (let p = 0; p < peripherals.length; p++)
+      periSeries[p]!.push(meanOver(tone, peripherals[p]!))
   }
 
   // predictive power: does the hub at t predict the self's GLOBAL state at t+1
   const hubPredict = Math.abs(corrLag(coreSeries, gSeries, 1))
   let peripheralPredict = 0
-  for (let p = 0; p < peripherals.length; p++) peripheralPredict += Math.abs(corrLag(periSeries[p]!, gSeries, 1))
+  for (let p = 0; p < peripherals.length; p++)
+    peripheralPredict += Math.abs(corrLag(periSeries[p]!, gSeries, 1))
   peripheralPredict /= peripherals.length
   const hubMirror = Math.abs(corrLag(coreSeries, gSeries, 0))
   // peak lag of hub vs global
@@ -179,12 +205,22 @@ export function metacognition(input?: { n?: number }): {
   const beatsLocal = hubPredict > peripheralPredict + 0.15
   const solved = predictsFuture && beatsLocal
 
-  return { n: N, hubPredict, peripheralPredict, peakLag, hubMirror, predictsFuture, beatsLocal, solved }
+  return {
+    n: N,
+    hubPredict,
+    peripheralPredict,
+    peakLag,
+    hubMirror,
+    predictsFuture,
+    beatsLocal,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/metacognition',
-  title: 'the self-model predicts the self next state, beating local regions',
+  title:
+    'the self-model predicts the self next state, beating local regions',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',

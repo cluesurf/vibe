@@ -19,7 +19,8 @@ const gradeOf = (index: number, bounds: number[][]): number =>
 
 export default experiment({
   id: 'spin/kahler-dirac-534',
-  title: 'Kahler-Dirac fermions on {5,3,4} forms, D = d + delta squares to the Laplacian',
+  title:
+    'Kahler-Dirac fermions on {5,3,4} forms, D = d + delta squares to the Laplacian',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
@@ -43,13 +44,19 @@ export default experiment({
     for (let row = 0; row < squared.length; row++) {
       for (let column = 0; column < squared.length; column++) {
         if (gradeOf(row, bounds) !== gradeOf(column, bounds)) {
-          offBlockMax = Math.max(offBlockMax, Math.abs(squared[row]![column]!))
-          if (Math.abs(squared[row]![column]!) > 1e-9) blockDiagonal = false
+          offBlockMax = Math.max(
+            offBlockMax,
+            Math.abs(squared[row]![column]!),
+          )
+          if (Math.abs(squared[row]![column]!) > 1e-9)
+            blockDiagonal = false
         }
       }
     }
     // and the operator is genuinely nonzero (a real Dirac operator, not the zero map)
-    const nonTrivial = operator.some((row) => row.some((value) => Math.abs(value) > 1e-9))
+    const nonTrivial = operator.some(row =>
+      row.some(value => Math.abs(value) > 1e-9),
+    )
 
     const ok = dSquaredZero && blockDiagonal && nonTrivial
 

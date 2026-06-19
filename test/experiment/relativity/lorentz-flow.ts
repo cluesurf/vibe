@@ -22,7 +22,10 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
 
-export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
+export function lorentzFlow(input?: {
+  maxCells?: number
+  runs?: number
+}): {
   cellCount: number
   steps: number[]
   a2: number[]
@@ -37,7 +40,11 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
   const runs = input?.runs ?? 6000
   const g = buildCellGraph({ symbol: [5, 3, 4], maxCells })
   const N = g.cellCount
-  const origin = innermostCell(Array.from({ length: N }, (_, i) => dot(g.coords[i]!, g.coords[i]!)))
+  const origin = innermostCell(
+    Array.from({ length: N }, (_, i) =>
+      dot(g.coords[i]!, g.coords[i]!),
+    ),
+  )
   const c0 = g.coords[origin]!
 
   // a fixed set of probe axes (unit vectors): coordinate axes plus random directions
@@ -67,8 +74,17 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
     for (let run = 0; run < runs; run++) {
       // single charge random walk from the origin cell for k steps
       const rng = makeRng({ seed: 7000 + run * 17 + k })
-      const cur = randomWalkEndpoint({ neighbors: g.neighbors, start: origin, steps: k, rng })
-      const d = [g.coords[cur]![0]! - c0[0]!, g.coords[cur]![1]! - c0[1]!, g.coords[cur]![2]! - c0[2]!]
+      const cur = randomWalkEndpoint({
+        neighbors: g.neighbors,
+        start: origin,
+        steps: k,
+        rng,
+      })
+      const d = [
+        g.coords[cur]![0]! - c0[0]!,
+        g.coords[cur]![1]! - c0[1]!,
+        g.coords[cur]![2]! - c0[2]!,
+      ]
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
       if (len < 1e-9) continue
       dirs.push([d[0]! / len, d[1]! / len, d[2]! / len])
@@ -85,12 +101,23 @@ export function lorentzFlow(input?: { maxCells?: number; runs?: number }): {
   const rank2AtFloor = Math.max(...a2) < 0.12
   const solved = a4Shrinks && a6Shrinks && rank2AtFloor
 
-  return { cellCount: N, steps, a2, a4, a6, a4Shrinks, a6Shrinks, rank2AtFloor, solved }
+  return {
+    cellCount: N,
+    steps,
+    a2,
+    a4,
+    a6,
+    a4Shrinks,
+    a6Shrinks,
+    rank2AtFloor,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'relativity/lorentz-flow',
-  title: 'higher-order angular anisotropy washes out under coarse-graining',
+  title:
+    'higher-order angular anisotropy washes out under coarse-graining',
   category: 'relativity',
   substrates: ['534'],
   depth: 'L2',

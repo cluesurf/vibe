@@ -23,11 +23,17 @@ type Lat = CubicLattice
 // The static potential phi = L^{-1} (source) is the graph Laplacian Green's function
 // of a unit charge at the center against a uniform neutral background. This is the
 // Poisson equation on the mesh, the weak-field limit. We then bin it by distance.
-export function potentialProfile(input: { lat: Lat; side: number }): { r: number[]; phi: number[] } {
+export function potentialProfile(input: { lat: Lat; side: number }): {
+  r: number[]
+  phi: number[]
+} {
   const lat = input.lat
   const n = lat.size
   const center = cubicLatticeCenter({ lattice: lat, side: input.side })
-  const phi = graphLaplacianGreensFunction({ neighbors: lat.neighbors, center })
+  const phi = graphLaplacianGreensFunction({
+    neighbors: lat.neighbors,
+    center,
+  })
   const rMin = 1.5
   const rMax = input.side / 2 - 1.5 // stay off the boundary
   const r: number[] = []
@@ -36,7 +42,11 @@ export function potentialProfile(input: { lat: Lat; side: number }): { r: number
     if (j === center) {
       continue
     }
-    const d = cubicLatticeDistance({ lattice: lat, from: center, to: j })
+    const d = cubicLatticeDistance({
+      lattice: lat,
+      from: center,
+      to: j,
+    })
     if (d < rMin || d > rMax) {
       continue
     }
@@ -54,10 +64,13 @@ export default experiment({
   depth: 'L1',
   paper: false,
   run() {
-    const three = potentialProfile({ lat: cubicLattice(21, 3), side: 21 })
-    const inv = fitForm(three.r, three.phi, (r) => 1 / r)
-    const invSq = fitForm(three.r, three.phi, (r) => 1 / (r * r))
-    const logf = fitForm(three.r, three.phi, (r) => Math.log(r))
+    const three = potentialProfile({
+      lat: cubicLattice(21, 3),
+      side: 21,
+    })
+    const inv = fitForm(three.r, three.phi, r => 1 / r)
+    const invSq = fitForm(three.r, three.phi, r => 1 / (r * r))
+    const logf = fitForm(three.r, three.phi, r => Math.log(r))
     const ok = inv.r2 > invSq.r2 && inv.r2 > logf.r2 && inv.r2 > 0.95
     return verdict({
       status: ok ? 'pass' : 'fail',

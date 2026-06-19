@@ -14,7 +14,11 @@ export function fibonacciSphereDirections(count: number): number[][] {
     const y = 1 - (2 * i + 1) / count
     const radius = Math.sqrt(Math.max(0, 1 - y * y))
     const theta = golden * i
-    directions.push([Math.cos(theta) * radius, y, Math.sin(theta) * radius])
+    directions.push([
+      Math.cos(theta) * radius,
+      y,
+      Math.sin(theta) * radius,
+    ])
   }
   return directions
 }
@@ -90,9 +94,12 @@ export function leSageDrag(input: {
 }
 
 // The power-law exponent of a quantity against distance, fit in log-log space.
-export function distanceExponent(distances: ReadonlyArray<number>, values: ReadonlyArray<number>): number {
-  const xs = distances.map((d) => Math.log(d))
-  const ys = values.map((v) => Math.log(v))
+export function distanceExponent(
+  distances: ReadonlyArray<number>,
+  values: ReadonlyArray<number>,
+): number {
+  const xs = distances.map(d => Math.log(d))
+  const ys = values.map(v => Math.log(v))
   const meanX = xs.reduce((a, b) => a + b, 0) / xs.length
   const meanY = ys.reduce((a, b) => a + b, 0) / ys.length
   let cov = 0

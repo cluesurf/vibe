@@ -10,12 +10,20 @@ import { quaternion, multiply } from '@/code/algebra/group/quaternion'
 // 2pi = -1. The uplift of dimension and the uplift of spin are the SAME step: the emergent
 // dimension is the third gamma.
 
-const energySquared = (kx: number, ky: number, kz: number, withChain: boolean): number =>
-  Math.sin(kx) ** 2 + Math.sin(ky) ** 2 + (withChain ? Math.sin(kz) ** 2 : 0)
+const energySquared = (
+  kx: number,
+  ky: number,
+  kz: number,
+  withChain: boolean,
+): number =>
+  Math.sin(kx) ** 2 +
+  Math.sin(ky) ** 2 +
+  (withChain ? Math.sin(kz) ** 2 : 0)
 
 export default experiment({
   id: 'geometry/three-d-spinor-from-73',
-  title: '3D space and a 3D spinor from 2D {7,3}, the deconstructed dimension is the third gamma',
+  title:
+    '3D space and a 3D spinor from 2D {7,3}, the deconstructed dimension is the third gamma',
   category: 'geometry',
   substrates: ['73'],
   depth: 'L2',
@@ -33,16 +41,23 @@ export default experiment({
     const relativistic3D = Math.abs(measured - expected) < 1e-4
 
     // (3) the spinor: a 2pi rotation gives minus one, the SU(2) double cover via the quaternion
-    const rotation2pi = quaternion(Math.cos(Math.PI), 0, 0, Math.sin(Math.PI)) // equals minus one
+    const rotation2pi = quaternion(
+      Math.cos(Math.PI),
+      0,
+      0,
+      Math.sin(Math.PI),
+    ) // equals minus one
     const rotated = multiply(rotation2pi, quaternion(1, 0, 0, 0))
     const spinorSign = Math.abs(rotated.w - -1) < 1e-9
 
     // CONTROL: WITHOUT the chain the energy is 2D, independent of k_z
     const controlFlat = energySquared(0.3, 0.4, 0.0, false)
     const controlLifted = energySquared(0.3, 0.4, 0.6, false)
-    const twoDimWithoutChain = Math.abs(controlLifted - controlFlat) < 1e-12
+    const twoDimWithoutChain =
+      Math.abs(controlLifted - controlFlat) < 1e-12
 
-    const ok = dependsOnKz && relativistic3D && spinorSign && twoDimWithoutChain
+    const ok =
+      dependsOnKz && relativistic3D && spinorSign && twoDimWithoutChain
 
     return verdict({
       status: ok ? 'pass' : 'fail',

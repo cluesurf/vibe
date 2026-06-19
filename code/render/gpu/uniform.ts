@@ -28,7 +28,10 @@ export type Fold3DUniform = {
 
 // pack the 2D Params: n0,n1,n2 (vec4), cam (vec4: panX, panY, zoom, rotation), iterations (u32), edgeWidth,
 // 2 pads. 80 bytes.
-export function packFold2D(mirrors: number[][], cam: Fold2DUniform): ArrayBuffer {
+export function packFold2D(
+  mirrors: number[][],
+  cam: Fold2DUniform,
+): ArrayBuffer {
   const data = new ArrayBuffer(80)
   const f = new Float32Array(data)
   const u = new Uint32Array(data)
@@ -50,7 +53,10 @@ export function packFold2D(mirrors: number[][], cam: Fold2DUniform): ArrayBuffer
 
 // pack the 3D Params: n0..n3 (vec4), eye (vec4), cam (vec4), iterations (u32), edgeWidth, detail, maxSteps.
 // 112 bytes. Shared by the exterior honeycomb shader and the solid-room interior shader.
-export function packFold3D(mirrors: number[][], cam: Fold3DUniform): ArrayBuffer {
+export function packFold3D(
+  mirrors: number[][],
+  cam: Fold3DUniform,
+): ArrayBuffer {
   const data = new ArrayBuffer(112)
   const f = new Float32Array(data)
   const u = new Uint32Array(data)
@@ -60,8 +66,14 @@ export function packFold3D(mirrors: number[][], cam: Fold3DUniform): ArrayBuffer
     f[i * 4 + 2] = mirrors[i]?.[2] ?? 0
     f[i * 4 + 3] = mirrors[i]?.[3] ?? 0
   }
-  f[16] = cam.eye[0]; f[17] = cam.eye[1]; f[18] = cam.eye[2]; f[19] = cam.aspect // eye.w carries the aspect
-  f[20] = cam.shift[0]; f[21] = cam.shift[1]; f[22] = cam.shift[2]; f[23] = 0
+  f[16] = cam.eye[0]
+  f[17] = cam.eye[1]
+  f[18] = cam.eye[2]
+  f[19] = cam.aspect // eye.w carries the aspect
+  f[20] = cam.shift[0]
+  f[21] = cam.shift[1]
+  f[22] = cam.shift[2]
+  f[23] = 0
   u[24] = FOLD_ITERATIONS
   f[25] = cam.edgeWidth
   f[26] = cam.detail

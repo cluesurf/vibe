@@ -38,11 +38,12 @@ export function densityWaveAlongAxis(input: {
   const degree = mesh.degree
   const lineCount = lines.length
   for (let cell = 0; cell < mesh.cellCount; cell++) {
-    const high = (axisOf(cell) % lambda) < lambda / 2
+    const high = axisOf(cell) % lambda < lambda / 2
     const target = high ? highTarget : lowTarget
     const base = cell * degree
     for (let line = 0; line < lineCount; line++) {
-      const hash = (((cell * 73 + line * 149) % lineCount) + lineCount) % lineCount
+      const hash =
+        (((cell * 73 + line * 149) % lineCount) + lineCount) % lineCount
       if (hash < target) {
         const [a, z] = lines[line]!
         will.data[base + a] = 1
@@ -68,8 +69,13 @@ export function stripeContrast(input: {
   let highCount = 0
   let lowCount = 0
   for (let x = 0; x < bins; x++) {
-    if ((x % lambda) < lambda / 2) { high += profile[x]!; highCount++ }
-    else { low += profile[x]!; lowCount++ }
+    if (x % lambda < lambda / 2) {
+      high += profile[x]!
+      highCount++
+    } else {
+      low += profile[x]!
+      lowCount++
+    }
   }
   return high / highCount - low / lowCount
 }
@@ -80,8 +86,10 @@ export function firstMinimumTime(trace: ReadonlyArray<number>): number {
   let timeOfMin = 0
   let valueOfMin = trace[0] ?? 0
   for (let t = 1; t < trace.length; t++) {
-    if (trace[t]! < valueOfMin) { valueOfMin = trace[t]!; timeOfMin = t }
-    else if (trace[t]! > valueOfMin && timeOfMin > 0) break
+    if (trace[t]! < valueOfMin) {
+      valueOfMin = trace[t]!
+      timeOfMin = t
+    } else if (trace[t]! > valueOfMin && timeOfMin > 0) break
   }
   return timeOfMin
 }

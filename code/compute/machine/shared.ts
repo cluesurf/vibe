@@ -10,7 +10,11 @@
 // The per-dimension configs (2d/, 3d/, 4d/) just pick the tiling. This is the finite isolated chip, not the cosmos.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { compileMachine, runMachine, type Backend } from '@/code/compute/compile'
+import {
+  compileMachine,
+  runMachine,
+  type Backend,
+} from '@/code/compute/compile'
 import {
   makeAssociativeMemory,
   ternaryWord,
@@ -27,7 +31,12 @@ export type VibeComputerReport = {
   dimension: number
   cellCount: number
   degree: number // the cell's direction count (the dock's sites in the 4D case)
-  compute: { program: string; result: string; cost: number; backend: Backend }
+  compute: {
+    program: string
+    result: string
+    cost: number
+    backend: Backend
+  }
   railway: { ran: boolean; cycleLength: number; head: number }
   memory: {
     wordBits: number
@@ -47,21 +56,36 @@ export type VibeComputer = {
   degree: number
   neighbors: number[][]
   memory: AssociativeMemory
-  compute(source: string, inputs: number[], backend?: Backend): { result: bigint; cost: number }
+  compute(
+    source: string,
+    inputs: number[],
+    backend?: Backend,
+  ): { result: bigint; cost: number }
   report(): VibeComputerReport
 }
 
 const DEMO_FIB = `function fib(n){ let a=0; let b=1; let t=0; while(n!==0){ n--; t=a; t+=b; a=b; b=t } return a }`
 
-export function makeVibeComputer(input: { symbol: number[]; maxCells?: number; wordBits?: number }): VibeComputer {
+export function makeVibeComputer(input: {
+  symbol: number[]
+  maxCells?: number
+  wordBits?: number
+}): VibeComputer {
   const symbol = input.symbol
   const dimension = symbol.length
   const wordBits = input.wordBits ?? 21
-  const graph = buildCellGraph({ symbol, maxCells: input.maxCells ?? 2000 })
+  const graph = buildCellGraph({
+    symbol,
+    maxCells: input.maxCells ?? 2000,
+  })
   const neighbors = graph.neighbors
   const memory = makeAssociativeMemory({ neighbors, wordBits })
 
-  const compute = (source: string, inputs: number[], backend: Backend = 'ternary') => {
+  const compute = (
+    source: string,
+    inputs: number[],
+    backend: Backend = 'ternary',
+  ) => {
     return runMachine(compileMachine(source, { backend }), inputs)
   }
 
@@ -76,24 +100,40 @@ export function makeVibeComputer(input: { symbol: number[]; maxCells?: number; w
     if (cycle.length >= 4) {
       const ca = makeTrackLoop(cycle, graph.cellCount)
       const seen = new Set<number>()
-      for (let t = 0; t < cycle.length; t++) { ca.step(); seen.add(ca.headAt()) }
+      for (let t = 0; t < cycle.length; t++) {
+        ca.step()
+        seen.add(ca.headAt())
+      }
       head = ca.headAt()
       railwayRan = seen.size === cycle.length // the locomotive visited every track cell of the loop
     }
 
     // data plane: store one distinct ternary word per cell, then recall one by content
-    for (let c = 0; c < memory.cellCount; c++) storeWord(memory, c, ternaryWord(c, wordBits))
+    for (let c = 0; c < memory.cellCount; c++)
+      storeWord(memory, c, ternaryWord(c, wordBits))
     const queryCell = Math.min(42, memory.cellCount - 1)
-    const responders = searchExact({ mem: memory, comparand: ternaryWord(queryCell, wordBits) })
+    const responders = searchExact({
+      mem: memory,
+      comparand: ternaryWord(queryCell, wordBits),
+    })
     const found = responders.includes(queryCell)
-    const wave = broadcastWave({ neighbors, seed: 0, responders: [queryCell] })
+    const wave = broadcastWave({
+      neighbors,
+      seed: 0,
+      responders: [queryCell],
+    })
 
     return {
       symbol,
       dimension,
       cellCount: graph.cellCount,
       degree: graph.facetCount,
-      compute: { program: 'fib(10)', result: fib.result.toString(), cost: fib.cost, backend: 'ternary' },
+      compute: {
+        program: 'fib(10)',
+        result: fib.result.toString(),
+        cost: fib.cost,
+        backend: 'ternary',
+      },
       railway: { ran: railwayRan, cycleLength: cycle.length, head },
       memory: {
         wordBits,
@@ -129,17 +169,35 @@ function findCycle(neighbors: number[][]): number[] {
   for (let head = 0; head < queue.length; head++) {
     const u = queue[head]!
     for (const v of neighbors[u]!) {
-      if (parent[v] === -2) { parent[v] = u; queue.push(v); continue }
+      if (parent[v] === -2) {
+        parent[v] = u
+        queue.push(v)
+        continue
+      }
       if (v === parent[u] || v === u) continue
       // non-tree edge u-v: build the cycle through the common ancestor
-      const up: number[] = []; for (let x: number = u; x !== -1; x = parent[x]!) up.push(x)
-      const vp: number[] = []; for (let x: number = v; x !== -1; x = parent[x]!) vp.push(x)
+      const up: number[] = []
+      for (let x: number = u; x !== -1; x = parent[x]!) up.push(x)
+      const vp: number[] = []
+      for (let x: number = v; x !== -1; x = parent[x]!) vp.push(x)
       const seen = new Set(up)
       let lca = -1
-      for (const x of vp) if (seen.has(x)) { lca = x; break }
+      for (const x of vp)
+        if (seen.has(x)) {
+          lca = x
+          break
+        }
       if (lca < 0) continue
-      const a: number[] = []; for (const x of up) { a.push(x); if (x === lca) break }
-      const b: number[] = []; for (const x of vp) { if (x === lca) break; b.push(x) }
+      const a: number[] = []
+      for (const x of up) {
+        a.push(x)
+        if (x === lca) break
+      }
+      const b: number[] = []
+      for (const x of vp) {
+        if (x === lca) break
+        b.push(x)
+      }
       const cycle = [...a, ...b.reverse()]
       if (cycle.length >= 4) return cycle
     }

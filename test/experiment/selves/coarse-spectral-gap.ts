@@ -10,7 +10,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { countMatrix, transitionEigenvalues, spectralGap, quantileLabels } from '@/code/coarse/transition-matrix'
+import {
+  countMatrix,
+  transitionEigenvalues,
+  spectralGap,
+  quantileLabels,
+} from '@/code/coarse/transition-matrix'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 function shuffled(labels: number[], seed: number): number[] {
@@ -27,7 +32,8 @@ function shuffled(labels: number[], seed: number): number[] {
 
 export default experiment({
   id: 'selves/coarse-spectral-gap',
-  title: 'the Markov model of a real self has a slow mode the time-shuffled control lacks',
+  title:
+    'the Markov model of a real self has a slow mode the time-shuffled control lacks',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -35,16 +41,31 @@ export default experiment({
   run() {
     const bins = 8
     const lag = 5
-    const traj = selfTrajectory({ L: 64, beats: 600, bins, seed: 12345 })
+    const traj = selfTrajectory({
+      L: 64,
+      beats: 600,
+      bins,
+      seed: 12345,
+    })
 
     // bin the continuous centroid by quantiles so every bin is populated, no spurious empty-state modes.
     const labels = quantileLabels({ series: traj.centroids, bins })
 
-    const real = countMatrix({ trajectory: labels, stateCount: bins, lag })
+    const real = countMatrix({
+      trajectory: labels,
+      stateCount: bins,
+      lag,
+    })
     const lambdaReal = spectralGap(transitionEigenvalues(real)).lambda2
 
-    const control = countMatrix({ trajectory: shuffled(labels, 999), stateCount: bins, lag })
-    const lambdaShuffled = spectralGap(transitionEigenvalues(control)).lambda2
+    const control = countMatrix({
+      trajectory: shuffled(labels, 999),
+      stateCount: bins,
+      lag,
+    })
+    const lambdaShuffled = spectralGap(
+      transitionEigenvalues(control),
+    ).lambda2
 
     const ok = lambdaReal > lambdaShuffled + 0.15
     return verdict({

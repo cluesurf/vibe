@@ -12,7 +12,11 @@
 // ternary vertices, and the 5 (the golden dodecahedron) is forced, not chosen.
 // Run: npx tsx code/experiment/p86-auto-selection.ts
 
-import { classifyGeometry, edgeRegime, dihedralAngleDegrees } from '@/code/substrate/coxeter/schlafli'
+import {
+  classifyGeometry,
+  edgeRegime,
+  dihedralAngleDegrees,
+} from '@/code/substrate/coxeter/schlafli'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -21,12 +25,19 @@ function isCompactHyperbolic(symbol: number[]): boolean {
   if (classifyGeometry(symbol) !== 'hyperbolic') return false
   const cell = symbol.slice(0, -1)
   const vertexFigure = symbol.slice(1)
-  return classifyGeometry(cell) === 'spherical' && classifyGeometry(vertexFigure) === 'spherical'
+  return (
+    classifyGeometry(cell) === 'spherical' &&
+    classifyGeometry(vertexFigure) === 'spherical'
+  )
 }
 
 export function autoSelection(): {
   ternaryCells: { cell: string; finite: boolean; dihedral: number }[]
-  minimalClosure: { cell: string; minimalCompactR: number | null; symbol: string | null }[]
+  minimalClosure: {
+    cell: string
+    minimalCompactR: number | null
+    symbol: string | null
+  }[]
   allQ3Compact: { symbol: string; r: number }[]
   tightestQ3: string | null
   forcedSymbol: string | null
@@ -34,14 +45,14 @@ export function autoSelection(): {
   solved: boolean
 } {
   // The three-valent finite cells {p,3}: tetra, cube, dodeca (p = 3,4,5). p >= 6 is not finite.
-  const ternaryCells = [3, 4, 5, 6].map((p) => ({
+  const ternaryCells = [3, 4, 5, 6].map(p => ({
     cell: `{${p},3}`,
     finite: classifyGeometry([p, 3]) === 'spherical',
     dihedral: Math.round(dihedralAngleDegrees({ p, q: 3 }) * 10) / 10,
   }))
 
   // For each finite three-valent cell, the minimal r making {p,3,r} compact hyperbolic.
-  const minimalClosure = [3, 4, 5].map((p) => {
+  const minimalClosure = [3, 4, 5].map(p => {
     let minR: number | null = null
     for (let r = 3; r <= 8; r++) {
       if (isCompactHyperbolic([p, 3, r])) {
@@ -60,7 +71,8 @@ export function autoSelection(): {
   const allQ3Compact: { symbol: string; r: number }[] = []
   for (let p = 3; p <= 6; p++) {
     for (let r = 3; r <= 8; r++) {
-      if (isCompactHyperbolic([p, 3, r])) allQ3Compact.push({ symbol: `{${p},3,${r}}`, r })
+      if (isCompactHyperbolic([p, 3, r]))
+        allQ3Compact.push({ symbol: `{${p},3,${r}}`, r })
     }
   }
   let tightestQ3: string | null = null
@@ -75,10 +87,17 @@ export function autoSelection(): {
   const forcedSymbol = tightestQ3
   // the 5 is forced: every q=3 compact honeycomb whose cell is the largest-angle finite cell
   // (the dodecahedron, p=5) is the one reaching eternal growth at the minimal closure
-  const dodecaMin = minimalClosure.find((c) => c.cell === '{5,3}')?.minimalCompactR
-  const cubeMin = minimalClosure.find((c) => c.cell === '{4,3}')?.minimalCompactR
-  const tetraMin = minimalClosure.find((c) => c.cell === '{3,3}')?.minimalCompactR
-  const fiveIsForced = dodecaMin === 4 && cubeMin === 5 && tetraMin === null
+  const dodecaMin = minimalClosure.find(
+    c => c.cell === '{5,3}',
+  )?.minimalCompactR
+  const cubeMin = minimalClosure.find(
+    c => c.cell === '{4,3}',
+  )?.minimalCompactR
+  const tetraMin = minimalClosure.find(
+    c => c.cell === '{3,3}',
+  )?.minimalCompactR
+  const fiveIsForced =
+    dodecaMin === 4 && cubeMin === 5 && tetraMin === null
 
   const solved = forcedSymbol === '{5,3,4}' && fiveIsForced
 
@@ -102,7 +121,8 @@ export default experiment({
   paper: true,
   run() {
     const r = autoSelection()
-    const ok = r.solved && r.forcedSymbol === '{5,3,4}' && r.fiveIsForced
+    const ok =
+      r.solved && r.forcedSymbol === '{5,3,4}' && r.fiveIsForced
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

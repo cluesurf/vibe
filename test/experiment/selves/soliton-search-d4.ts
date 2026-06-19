@@ -18,15 +18,25 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, gliderLine } from '@/code/tone/will'
-import { passThrough, headOnRotate, type Collision } from '@/code/rule/collision'
+import {
+  passThrough,
+  headOnRotate,
+  type Collision,
+} from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
-import { occupiedCells, occupiedSet, componentCount } from '@/code/check/structure'
+import {
+  occupiedCells,
+  occupiedSet,
+  componentCount,
+} from '@/code/check/structure'
 
-const movedOff = (start: number[], after: Set<number>): boolean => start.every((c) => !after.has(c))
+const movedOff = (start: number[], after: Set<number>): boolean =>
+  start.every(c => !after.has(c))
 
 export default experiment({
   id: 'selves/soliton-search-d4',
-  title: 'free gliders are solitons (persist and move), but head-on collisions disperse rather than bind',
+  title:
+    'free gliders are solitons (persist and move), but head-on collisions disperse rather than bind',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -40,41 +50,83 @@ export default experiment({
     const beats = 8
 
     // 1, a single free glider, persistence and mobility under the momentum-conserving rule.
-    const center = 8 + 8 * side + 8 * side * side + 8 * side * side * side
-    const g = gliderLine({ mesh, start: center, direction: dir, length: gliderLength })
-    const mobile: Collision = headOnRotate({ opposite: Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d)) })
-    const gliderFinal = run({ mesh, data: g.will.data.slice() }, mobile, beats)
+    const center =
+      8 + 8 * side + 8 * side * side + 8 * side * side * side
+    const g = gliderLine({
+      mesh,
+      start: center,
+      direction: dir,
+      length: gliderLength,
+    })
+    const mobile: Collision = headOnRotate({
+      opposite: Array.from({ length: mesh.degree }, (_, d) =>
+        mesh.opposite(d),
+      ),
+    })
+    const gliderFinal = run(
+      { mesh, data: g.will.data.slice() },
+      mobile,
+      beats,
+    )
     const gliderCells = occupiedCells(gliderFinal)
     const gliderPersists = gliderCells === gliderLength // stayed exactly as tight as it began
     const gliderMoved = movedOff(g.cells, occupiedSet(gliderFinal))
 
     // 2, two gliders launched head-on with a clean gap between them, do they bind into one cluster or part?
-    const a = gliderLine({ mesh, start: center, direction: dir, length: gliderLength })
+    const a = gliderLine({
+      mesh,
+      start: center,
+      direction: dir,
+      length: gliderLength,
+    })
     // the second glider sits a clear gap ahead along dir and travels the opposite way, so they approach, meet,
     // and (if they survive) part. The gap keeps the two clusters disjoint at the start (two components).
     let bStart = center
-    for (let i = 0; i < gliderLength + 3; i++) bStart = mesh.neighbour(bStart, dir)
-    const b = gliderLine({ mesh, start: bStart, direction: opp, length: gliderLength })
+    for (let i = 0; i < gliderLength + 3; i++)
+      bStart = mesh.neighbour(bStart, dir)
+    const b = gliderLine({
+      mesh,
+      start: bStart,
+      direction: opp,
+      length: gliderLength,
+    })
     const collide = makeWill(mesh)
-    for (let i = 0; i < collide.data.length; i++) collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
+    for (let i = 0; i < collide.data.length; i++)
+      collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
     const startComponents = componentCount(collide) // two disjoint gliders
 
-    const collideFinal = run({ mesh, data: collide.data.slice() }, mobile, beats)
+    const collideFinal = run(
+      { mesh, data: collide.data.slice() },
+      mobile,
+      beats,
+    )
     const collideComponents = componentCount(collideFinal)
     const collideCells = occupiedCells(collideFinal)
     // a bound composite is ONE persistent tight cluster, parting (pass-through or scatter) leaves two or more.
-    const bound = collideComponents === 1 && collideCells <= gliderLength * 2
+    const bound =
+      collideComponents === 1 && collideCells <= gliderLength * 2
 
     // 3, the control, streaming only, gliders pass straight through. Compare to detect that the collision rule
     // actually interacted (a different final state from free crossing).
-    const crossFinal = run({ mesh, data: collide.data.slice() }, passThrough, beats)
+    const crossFinal = run(
+      { mesh, data: collide.data.slice() },
+      passThrough,
+      beats,
+    )
     const crossComponents = componentCount(crossFinal)
-    const interacted = collideFinal.data.some((v, i) => v !== crossFinal.data[i])
+    const interacted = collideFinal.data.some(
+      (v, i) => v !== crossFinal.data[i],
+    )
 
     // the honest verdict, free gliders are solitons (persist and move), the collision INTERACTS (differs from
     // free crossing) but does NOT bind into one lasting composite, the structures part again. The pass records
     // this characterization, solitons yes, binding no.
-    const ok = gliderPersists && gliderMoved && interacted && !bound && collideComponents >= 2
+    const ok =
+      gliderPersists &&
+      gliderMoved &&
+      interacted &&
+      !bound &&
+      collideComponents >= 2
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -92,7 +144,10 @@ export default experiment({
         crossingComponentsAfter: crossComponents,
         beats,
       },
-      control: { crossingComponentsAfter: crossComponents, interactedVsCrossing: interacted ? 1 : 0 },
+      control: {
+        crossingComponentsAfter: crossComponents,
+        interactedVsCrossing: interacted ? 1 : 0,
+      },
       notes:
         'solitons exist (free gliders persist and move), the head-on collision interacts but parts into separate clusters rather than binding into one composite, there is no attraction to hold a composite together. The missing basin-forming ingredient is exactly a binding mechanism, the leading candidate being growth and the arrow (Option F), which supplies a real arrow (selves/growth-arrow-irreversibility) and so a way for structure to be retained rather than dispersed',
     })

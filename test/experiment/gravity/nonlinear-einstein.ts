@@ -26,7 +26,13 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // Emergent power-law slope d(log a)/d(log t) over the middle of a single-component run.
 function emergentSlope(w: number): number {
-  const traj = integrate({ comps: [{ rho: 1, w }], a0: 1, t0: 1, tMax: 50, dt: 0.001 })
+  const traj = integrate({
+    comps: [{ rho: 1, w }],
+    a0: 1,
+    t0: 1,
+    tMax: 50,
+    dt: 0.001,
+  })
   const i1 = Math.floor(traj.t.length * 0.5)
   const i2 = Math.floor(traj.t.length * 0.9)
   const lx = Math.log((traj.t[i2] ?? 1) / (traj.t[i1] ?? 1))
@@ -52,7 +58,8 @@ function accelerationResidual(dt: number): number {
     const addot = (aNext - 2 * aCur + aPrev) / (dt * dt) // numerical a''
     const lhs = addot / aCur
     const rhs = -0.5 * ((traj.rho[i] ?? 0) + 3 * (traj.p[i] ?? 0))
-    if (Math.abs(rhs) > 1e-6) maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / Math.abs(rhs))
+    if (Math.abs(rhs) > 1e-6)
+      maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / Math.abs(rhs))
   }
   return maxRel
 }
@@ -73,14 +80,18 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
   // 1. Emergent power laws from integration (not assumed).
   const radiationSlope = emergentSlope(1 / 3) // expect 1/2
   const matterSlope = emergentSlope(0) // expect 2/3
-  const powerLawsEmergent = Math.abs(radiationSlope - 0.5) < 0.02 && Math.abs(matterSlope - 2 / 3) < 0.02
+  const powerLawsEmergent =
+    Math.abs(radiationSlope - 0.5) < 0.02 &&
+    Math.abs(matterSlope - 2 / 3) < 0.02
 
   // 2/3. Acceleration equation holds along the integrated trajectory, with integration-error scaling.
   const accelResidualCoarse = accelerationResidual(0.02)
   const accelResidualFine = accelerationResidual(0.005)
   // Genuine integration: the residual SHRINKS as dt shrinks (a plug-in would sit at machine epsilon
   // regardless). Central differences are second order, so a 4x smaller dt should cut it markedly.
-  const convergesAsIntegration = accelResidualFine < 0.5 * accelResidualCoarse && accelResidualFine < 1e-2
+  const convergesAsIntegration =
+    accelResidualFine < 0.5 * accelResidualCoarse &&
+    accelResidualFine < 1e-2
 
   // Multi-component history: measure the deceleration parameter q = -a'' a / a'^2 early vs late.
   const comps: Comp[] = [
@@ -89,10 +100,12 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
     { rho: 0.02, w: -1 },
   ]
   const traj = integrate({ comps, a0: 1, t0: 1, tMax: 60, dt: 0.002 })
-  const qAt = (i: number): number => decelerationParameter({ a: traj.a, index: i, dt: 0.002 })
+  const qAt = (i: number): number =>
+    decelerationParameter({ a: traj.a, index: i, dt: 0.002 })
   const decelerationEarly = qAt(5)
   const accelerationLate = qAt(traj.a.length - 3)
-  const transitionHappens = decelerationEarly > 0 && accelerationLate < 0
+  const transitionHappens =
+    decelerationEarly > 0 && accelerationLate < 0
 
   return {
     radiationSlope,
@@ -104,13 +117,15 @@ export function nonlinearEinstein(input: Record<string, never> = {}): {
     decelerationEarly,
     accelerationLate,
     transitionHappens,
-    solved: powerLawsEmergent && convergesAsIntegration && transitionHappens,
+    solved:
+      powerLawsEmergent && convergesAsIntegration && transitionHappens,
   }
 }
 
 export default experiment({
   id: 'gravity/nonlinear-einstein',
-  title: 'a(t) integrated forward, power laws emerge, deceleration to acceleration transition',
+  title:
+    'a(t) integrated forward, power laws emerge, deceleration to acceleration transition',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',

@@ -21,14 +21,24 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cloneWill, cellTone, type Will } from '@/code/tone/will'
-import { leakyConfine, headOnRotate, type Collision } from '@/code/rule/collision'
+import {
+  makeWill,
+  cloneWill,
+  cellTone,
+  type Will,
+} from '@/code/tone/will'
+import {
+  leakyConfine,
+  headOnRotate,
+  type Collision,
+} from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 
 export default experiment({
   id: 'selves/leaky-confiner',
-  title: 'the leaky confiner holds a body but seals its radiation (the perturbation never reaches the bath)',
+  title:
+    'the leaky confiner holds a body but seals its radiation (the perturbation never reaches the bath)',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -38,10 +48,16 @@ export default experiment({
     const beats = 40
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
     const dist = shellDistances(mesh, center)
     const boundary = side / 2
 
@@ -62,14 +78,19 @@ export default experiment({
     // confinement, the net-charge extent of the body over the run.
     const extent = (rule: Collision): number => {
       let current = packet()
-      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      let scratch: Will = {
+        mesh,
+        data: new Int8Array(current.data.length),
+      }
       let max = 0
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
         const swap = current
         current = scratch
         scratch = swap
-        for (let c = 0; c < mesh.cellCount; c++) if (cellTone(current, c) !== 0 && dist[c]! > max) max = dist[c]!
+        for (let c = 0; c < mesh.cellCount; c++)
+          if (cellTone(current, c) !== 0 && dist[c]! > max)
+            max = dist[c]!
       }
       return max
     }
@@ -78,23 +99,45 @@ export default experiment({
     const cone = (rule: Collision): number => {
       let plain = packet()
       let pert = cloneWill(packet())
-      pert.data[center * degree + 0] = (pert.data[center * degree + 0] === 1 ? -1 : 1) as -1 | 1
-      let plainScratch: Will = { mesh, data: new Int8Array(plain.data.length) }
-      let pertScratch: Will = { mesh, data: new Int8Array(pert.data.length) }
+      pert.data[center * degree + 0] = (
+        pert.data[center * degree + 0] === 1 ? -1 : 1
+      ) as -1 | 1
+      let plainScratch: Will = {
+        mesh,
+        data: new Int8Array(plain.data.length),
+      }
+      let pertScratch: Will = {
+        mesh,
+        data: new Int8Array(pert.data.length),
+      }
       let max = 0
       for (let t = 0; t < beats; t++) {
-        beatInto({ src: plain, dst: plainScratch, table, collision: rule })
+        beatInto({
+          src: plain,
+          dst: plainScratch,
+          table,
+          collision: rule,
+        })
         const ps = plain
         plain = plainScratch
         plainScratch = ps
-        beatInto({ src: pert, dst: pertScratch, table, collision: rule })
+        beatInto({
+          src: pert,
+          dst: pertScratch,
+          table,
+          collision: rule,
+        })
         const pe = pert
         pert = pertScratch
         pertScratch = pe
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
           let differs = false
-          for (let d = 0; d < degree; d++) if (plain.data[base + d] !== pert.data[base + d]) { differs = true; break }
+          for (let d = 0; d < degree; d++)
+            if (plain.data[base + d] !== pert.data[base + d]) {
+              differs = true
+              break
+            }
           if (differs && dist[c]! > max) max = dist[c]!
         }
       }

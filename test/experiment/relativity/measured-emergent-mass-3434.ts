@@ -51,7 +51,12 @@ export function measuredEmergentMass(): {
   const dispersionMassAt = (coupling: number): number => {
     // measured at a fixed nonzero momentum
     const p = [1, 1, 1]
-    const h = diracHamiltonian({ px: p[0]!, py: p[1]!, pz: p[2]!, mass: coupling })
+    const h = diracHamiltonian({
+      px: p[0]!,
+      py: p[1]!,
+      pz: p[2]!,
+      mass: coupling,
+    })
     const hSquared = cmMultiply(h, h)
     const pSquared = p[0]! ** 2 + p[1]! ** 2 + p[2]! ** 2
     return Math.sqrt(Math.max(0, hSquared[0]![0]!.re - pSquared))
@@ -60,10 +65,20 @@ export function measuredEmergentMass(): {
   for (const coupling of COUPLINGS) {
     // (1) the relativistic dispersion at every momentum: H^2 must be the scalar (p^2 + m^2) I
     for (const p of MOMENTA) {
-      const h = diracHamiltonian({ px: p[0]!, py: p[1]!, pz: p[2]!, mass: coupling })
+      const h = diracHamiltonian({
+        px: p[0]!,
+        py: p[1]!,
+        pz: p[2]!,
+        mass: coupling,
+      })
       const hSquared = cmMultiply(h, h)
       const pSquared = p[0]! ** 2 + p[1]! ** 2 + p[2]! ** 2
-      if (!cmIsScalar(hSquared, complex({ re: pSquared + coupling * coupling, im: 0 }))) {
+      if (
+        !cmIsScalar(
+          hSquared,
+          complex({ re: pSquared + coupling * coupling, im: 0 }),
+        )
+      ) {
         relativisticEverywhere = false
       }
     }
@@ -71,19 +86,25 @@ export function measuredEmergentMass(): {
     const massDispersion = dispersionMassAt(coupling)
     const h = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: coupling })
     const massChirality = cmMaxAbs(cmCommutator(h, gamma5)) / 2
-    maxMassDisagreement = Math.max(maxMassDisagreement, Math.abs(massDispersion - massChirality))
-    if (Math.abs(massDispersion - massChirality) > 1e-9) twoMassesAgree = false
+    maxMassDisagreement = Math.max(
+      maxMassDisagreement,
+      Math.abs(massDispersion - massChirality),
+    )
+    if (Math.abs(massDispersion - massChirality) > 1e-9)
+      twoMassesAgree = false
   }
 
   // (3) the dispersion mass scales with the coupling (it IS the coupling, measured), monotone increasing
   const masses = COUPLINGS.map(dispersionMassAt)
   let massScalesWithCoupling = true
-  for (let i = 1; i < masses.length; i++) if (!(masses[i]! > masses[i - 1]!)) massScalesWithCoupling = false
+  for (let i = 1; i < masses.length; i++)
+    if (!(masses[i]! > masses[i - 1]!)) massScalesWithCoupling = false
 
   // (4) the Weyl limit, control: at zero coupling the fermion is massless and the chiralities decouple
   const weylH = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0 })
   const weylLimitMassless =
-    dispersionMassAt(0) < 1e-12 && cmMaxAbs(cmCommutator(weylH, gamma5)) < 1e-12
+    dispersionMassAt(0) < 1e-12 &&
+    cmMaxAbs(cmCommutator(weylH, gamma5)) < 1e-12
 
   return {
     relativisticEverywhere,
@@ -96,7 +117,8 @@ export function measuredEmergentMass(): {
 
 export default experiment({
   id: 'relativity/measured-emergent-mass-3434',
-  title: 'the fermion mass is the 8s-8c chirality coupling, measured two agreeing ways, vanishing into a massless Weyl fermion when off',
+  title:
+    'the fermion mass is the 8s-8c chirality coupling, measured two agreeing ways, vanishing into a massless Weyl fermion when off',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -104,7 +126,10 @@ export default experiment({
   run() {
     const r = measuredEmergentMass()
     const ok =
-      r.relativisticEverywhere && r.twoMassesAgree && r.massScalesWithCoupling && r.weylLimitMassless
+      r.relativisticEverywhere &&
+      r.twoMassesAgree &&
+      r.massScalesWithCoupling &&
+      r.weylLimitMassless
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

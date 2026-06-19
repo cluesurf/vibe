@@ -14,7 +14,10 @@
 // tens of microns, so a bulk's extra dimension must be smaller than that, or the substrate is 3D.
 // Run: npx tsx code/experiment/p90-braneworld.ts
 
-import { branePotential, newtonianPotential3D } from '@/code/measure/gravity-potential'
+import {
+  branePotential,
+  newtonianPotential3D,
+} from '@/code/measure/gravity-potential'
 import { localForceLawExponent } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -30,7 +33,10 @@ function potential3D(r: number): number {
 }
 
 // The local force-law exponent d ln(force) / d ln(r), force = -dG/dr.
-function forceExponent(potential: (r: number) => number, r: number): number {
+function forceExponent(
+  potential: (r: number) => number,
+  r: number,
+): number {
   return localForceLawExponent({ potential, r })
 }
 
@@ -50,14 +56,27 @@ export function braneworld(): {
   const rLong = 20 * L
 
   // bare 3D substrate: inverse-square at every scale
-  const substrateShortExponent = forceExponent((r) => potential3D(r), rShort)
-  const substrateLongExponent = forceExponent((r) => potential3D(r), rLong)
+  const substrateShortExponent = forceExponent(
+    r => potential3D(r),
+    rShort,
+  )
+  const substrateLongExponent = forceExponent(
+    r => potential3D(r),
+    rLong,
+  )
   const substrateFlat =
-    Math.abs(substrateShortExponent + 2) < 0.05 && Math.abs(substrateLongExponent + 2) < 0.05
+    Math.abs(substrateShortExponent + 2) < 0.05 &&
+    Math.abs(substrateLongExponent + 2) < 0.05
 
   // 4D bulk with a compact extra dimension: 4D short, 3D long
-  const braneShortExponent = forceExponent((r) => potentialBrane(r, L), rShort)
-  const braneLongExponent = forceExponent((r) => potentialBrane(r, L), rLong)
+  const braneShortExponent = forceExponent(
+    r => potentialBrane(r, L),
+    rShort,
+  )
+  const braneLongExponent = forceExponent(
+    r => potentialBrane(r, L),
+    rLong,
+  )
   const braneShowsCrossover =
     braneShortExponent < -2.7 && Math.abs(braneLongExponent + 2) < 0.05
 
@@ -65,7 +84,7 @@ export function braneworld(): {
   let crossover = L
   for (let lr = -2; lr <= 2; lr += 0.01) {
     const r = Math.pow(10, lr) * L
-    if (forceExponent((rr) => potentialBrane(rr, L), r) > -2.5) {
+    if (forceExponent(rr => potentialBrane(rr, L), r) > -2.5) {
       crossover = r
       break
     }
@@ -73,7 +92,9 @@ export function braneworld(): {
   const crossoverScaleOverL = crossover / L
 
   // the test: at short range the brane deviates from inverse-square, the 3D substrate does not
-  const distinguishable = Math.abs(braneShortExponent + 2) > 0.3 && Math.abs(substrateShortExponent + 2) < 0.05
+  const distinguishable =
+    Math.abs(braneShortExponent + 2) > 0.3 &&
+    Math.abs(substrateShortExponent + 2) < 0.05
 
   const solved =
     substrateFlat &&
@@ -97,7 +118,8 @@ export function braneworld(): {
 
 export default experiment({
   id: 'gravity/braneworld',
-  title: '3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range',
+  title:
+    '3D substrate inverse-square at all scales, 4D bulk deviates to -3 at short range',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',

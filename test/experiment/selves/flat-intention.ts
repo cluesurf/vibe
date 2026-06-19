@@ -27,7 +27,9 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
   const L = input?.L ?? 120
   const beats = input?.beats ?? 60
 
-  const run = (bias: number): { drift: number; spread: number; c0: number } => {
+  const run = (
+    bias: number,
+  ): { drift: number; spread: number; c0: number } => {
     const tone = new Int8Array(L * L)
     const moved = new Uint8Array(L * L)
     const rng = makeRng({ seed: 5 })
@@ -35,31 +37,38 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
     const cx = Math.floor(L * 0.3)
     const cy = Math.floor(L / 2)
     const r = 12
-    for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) tone[y * L + x] = 1
+    for (let y = 0; y < L; y++)
+      for (let x = 0; x < L; x++)
+        if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) tone[y * L + x] = 1
     const centroidX = (): number => {
       let sx = 0
       let c = 0
-      for (let yy = 0; yy < L; yy++) for (let xx = 0; xx < L; xx++) if (tone[yy * L + xx] !== 0) {
-        sx += xx
-        c++
-      }
+      for (let yy = 0; yy < L; yy++)
+        for (let xx = 0; xx < L; xx++)
+          if (tone[yy * L + xx] !== 0) {
+            sx += xx
+            c++
+          }
       return c > 0 ? sx / c : 0
     }
     const spreadOf = (): number => {
       let sx = 0
       let sxx = 0
       let c = 0
-      for (let yy = 0; yy < L; yy++) for (let xx = 0; xx < L; xx++) if (tone[yy * L + xx] !== 0) {
-        sx += xx
-        sxx += xx * xx
-        c++
-      }
+      for (let yy = 0; yy < L; yy++)
+        for (let xx = 0; xx < L; xx++)
+          if (tone[yy * L + xx] !== 0) {
+            sx += xx
+            sxx += xx * xx
+            c++
+          }
       const m = sx / c
       return Math.sqrt(sxx / c - m * m)
     }
     const c0 = centroidX()
     const sp0 = spreadOf()
-    for (let t = 0; t < beats; t++) flatWilledDriftSweep({ tone, length: L, moved, rng, bias })
+    for (let t = 0; t < beats; t++)
+      flatWilledDriftSweep({ tone, length: L, moved, rng, bias })
     return { drift: centroidX() - c0, spread: spreadOf() / sp0, c0 }
   }
 
@@ -82,7 +91,8 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
     willEffect,
     cohesion,
     directedIntentionWorks,
-    beatsHyperbolicContrast: 'P145 hyperbolic: net drift ~0, will-effect 0.41, top-down 0.04 (frustrated)',
+    beatsHyperbolicContrast:
+      'P145 hyperbolic: net drift ~0, will-effect 0.41, top-down 0.04 (frustrated)',
     solved,
   }
 }

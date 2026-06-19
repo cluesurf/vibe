@@ -88,7 +88,9 @@ export function midShellGrowthRatio(input: {
 // The geometric-mean growth ratio of a width (or shell-size) series across steps, exp(mean log(b/a)).
 // The geometric mean is the natural average of a multiplicative expansion rate: a static front gives 1,
 // a steadily expanding one gives a value above 1. Non-positive entries are skipped (no log).
-export function geometricGrowthRatio(widths: ReadonlyArray<number>): number {
+export function geometricGrowthRatio(
+  widths: ReadonlyArray<number>,
+): number {
   let logSum = 0
   let count = 0
   for (let g = 1; g < widths.length; g++) {
@@ -125,9 +127,11 @@ export function meanShellDistanceStep(input: {
     }
   }
   const means: number[] = []
-  for (let s = 1; s <= maxShell; s++) if (counts[s]! > 0) means.push(sums[s]! / counts[s]!)
+  for (let s = 1; s <= maxShell; s++)
+    if (counts[s]! > 0) means.push(sums[s]! / counts[s]!)
   let stepSum = 0
-  for (let i = 1; i < means.length; i++) stepSum += means[i]! - means[i - 1]!
+  for (let i = 1; i < means.length; i++)
+    stepSum += means[i]! - means[i - 1]!
   return means.length > 1 ? stepSum / (means.length - 1) : 0
 }
 

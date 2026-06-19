@@ -13,7 +13,10 @@
 
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { branchingRatio } from '@/code/measure/shells'
-import { freeFermionCorrelationMatrix, regionEntanglementEntropy } from '@/code/measure/entanglement'
+import {
+  freeFermionCorrelationMatrix,
+  regionEntanglementEntropy,
+} from '@/code/measure/entanglement'
 import { staggeredMassChainHamiltonian } from '@/code/operator/tight-binding'
 import {
   deSitterHorizon,
@@ -28,19 +31,31 @@ import { verdict } from '@/test/scaffold/verdict'
 // MEASURED, the emergent field's ground-state entanglement saturates for a massive field (its entropy is set
 // by the boundary, the area law), the basis for an area-set black-hole entropy, while a thermal state is
 // volume-set.
-function areaLawPrecondition(): { massiveSpread: number; volumeRate: number; ok: boolean } {
+function areaLawPrecondition(): {
+  massiveSpread: number
+  volumeRate: number
+  ok: boolean
+} {
   const n = 96
   const lengths: number[] = []
   for (let l = 6; l <= n / 2; l += 4) lengths.push(l)
   const h = staggeredMassChainHamiltonian({ n, mass: 0.7 })
   const c = freeFermionCorrelationMatrix({ h, n })
-  const entropies = lengths.map((len) =>
-    regionEntanglementEntropy({ c, n, region: Array.from({ length: len }, (_, i) => i) }),
+  const entropies = lengths.map(len =>
+    regionEntanglementEntropy({
+      c,
+      n,
+      region: Array.from({ length: len }, (_, i) => i),
+    }),
   )
   const late = entropies.slice(Math.floor(entropies.length / 2))
   const massiveSpread = Math.max(...late) - Math.min(...late)
   const volumeRate = Math.log(2)
-  return { massiveSpread, volumeRate, ok: massiveSpread < 0.1 && volumeRate > 0.5 }
+  return {
+    massiveSpread,
+    volumeRate,
+    ok: massiveSpread < 0.1 && volumeRate > 0.5,
+  }
 }
 
 function firstLaw(): { maxRelError: number; ok: boolean } {
@@ -49,7 +64,10 @@ function firstLaw(): { maxRelError: number; ok: boolean } {
     const dM = 1e-6
     const dS = bhEntropy(M + dM) - bhEntropy(M - dM)
     const predicted = hawkingTemp(M) * dS
-    maxRelError = Math.max(maxRelError, Math.abs(predicted - 2 * dM) / (2 * dM))
+    maxRelError = Math.max(
+      maxRelError,
+      Math.abs(predicted - 2 * dM) / (2 * dM),
+    )
   }
   return { maxRelError, ok: maxRelError < 1e-4 }
 }
@@ -57,7 +75,10 @@ function firstLaw(): { maxRelError: number; ok: boolean } {
 function smarr(): { maxRelError: number; ok: boolean } {
   let maxRelError = 0
   for (let M = 1; M <= 20; M += 0.5) {
-    maxRelError = Math.max(maxRelError, Math.abs(M - 2 * hawkingTemp(M) * bhEntropy(M)) / M)
+    maxRelError = Math.max(
+      maxRelError,
+      Math.abs(M - 2 * hawkingTemp(M) * bhEntropy(M)) / M,
+    )
   }
   return { maxRelError, ok: maxRelError < 1e-9 }
 }
@@ -66,7 +87,10 @@ function bekensteinSaturation(): { maxRelError: number; ok: boolean } {
   let maxRelError = 0
   for (let M = 1; M <= 20; M += 0.5) {
     const bound = 2 * Math.PI * horizonRadius(M) * M
-    maxRelError = Math.max(maxRelError, Math.abs(bhEntropy(M) - bound) / bound)
+    maxRelError = Math.max(
+      maxRelError,
+      Math.abs(bhEntropy(M) - bound) / bound,
+    )
   }
   return { maxRelError, ok: maxRelError < 1e-9 }
 }
@@ -79,14 +103,19 @@ function heatCapacityNegative(): boolean {
 }
 
 function evaporationExponent(): { exponent: number; ok: boolean } {
-  const lifetimeOf = (M0: number): number => schwarzschildEvaporationLifetime({ mass: M0 })
+  const lifetimeOf = (M0: number): number =>
+    schwarzschildEvaporationLifetime({ mass: M0 })
   const exponent = Math.log(lifetimeOf(4) / lifetimeOf(2)) / Math.log(2)
   return { exponent, ok: Math.abs(exponent - 3) < 0.1 }
 }
 
 function deSitterFromSubstrate(): { H: number; Lambda: number } {
   const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 600 })
-  const R = branchingRatio({ shellCounts: a.shellSizes, from: 3, to: 7 })
+  const R = branchingRatio({
+    shellCounts: a.shellSizes,
+    from: 3,
+    to: 7,
+  })
   const H = Math.log(R) / 3
   const horizon = deSitterHorizon(H)
   return { H, Lambda: horizon.cosmologicalConstant }
@@ -94,7 +123,8 @@ function deSitterFromSubstrate(): { H: number; Lambda: number } {
 
 export default experiment({
   id: 'gravity/gr-black-hole-thermo',
-  title: 'on the measured area-law entropy, the horizon first law, Smarr, Bekenstein, and M cubed evaporation follow',
+  title:
+    'on the measured area-law entropy, the horizon first law, Smarr, Bekenstein, and M cubed evaporation follow',
   category: 'gravity',
   substrates: 'any',
   depth: 'L1',
@@ -107,7 +137,13 @@ export default experiment({
     const negativeHeatCapacity = heatCapacityNegative()
     const ev = evaporationExponent()
     const ds = deSitterFromSubstrate()
-    const ok = area.ok && fl.ok && sm.ok && bek.ok && negativeHeatCapacity && ev.ok
+    const ok =
+      area.ok &&
+      fl.ok &&
+      sm.ok &&
+      bek.ok &&
+      negativeHeatCapacity &&
+      ev.ok
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

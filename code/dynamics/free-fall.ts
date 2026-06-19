@@ -23,7 +23,11 @@ export function freeFallStep(input: {
     let bestPhi = phi[c]!
     for (let d = 0; d < spatialDegree; d++) {
       const target = neighbour(c, d)
-      if (!snapshot[target] && !taken[target] && phi[target]! < bestPhi) {
+      if (
+        !snapshot[target] &&
+        !taken[target] &&
+        phi[target]! < bestPhi
+      ) {
         bestPhi = phi[target]!
         best = target
       }

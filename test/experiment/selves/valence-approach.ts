@@ -23,23 +23,50 @@ const CONTROL_MAX = 4
 
 export default experiment({
   id: 'selves/valence-approach',
-  title: 'a self drifts toward a +tone region and away from a -tone region, and not without the dynamics',
+  title:
+    'a self drifts toward a +tone region and away from a -tone region, and not without the dynamics',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
   paper: false,
   run() {
-    const driftToPlusRight = valenceDrift({ L, beats, seed, plusSide: 'right', withDynamics: true })
-    const driftToPlusLeft = valenceDrift({ L, beats, seed, plusSide: 'left', withDynamics: true })
-    const deadRight = valenceDrift({ L, beats, seed, plusSide: 'right', withDynamics: false })
-    const deadLeft = valenceDrift({ L, beats, seed, plusSide: 'left', withDynamics: false })
+    const driftToPlusRight = valenceDrift({
+      L,
+      beats,
+      seed,
+      plusSide: 'right',
+      withDynamics: true,
+    })
+    const driftToPlusLeft = valenceDrift({
+      L,
+      beats,
+      seed,
+      plusSide: 'left',
+      withDynamics: true,
+    })
+    const deadRight = valenceDrift({
+      L,
+      beats,
+      seed,
+      plusSide: 'right',
+      withDynamics: false,
+    })
+    const deadLeft = valenceDrift({
+      L,
+      beats,
+      seed,
+      plusSide: 'left',
+      withDynamics: false,
+    })
 
     // the self goes toward whichever side the plus tone is on, so the right-minus-left differential is large
     // and positive, while it cancels any baseline drift.
     const valenceDifferential = driftToPlusRight - driftToPlusLeft
     const noDynamicsDifferential = deadRight - deadLeft
 
-    const ok = valenceDifferential > STEER_MIN && noDynamicsDifferential < CONTROL_MAX
+    const ok =
+      valenceDifferential > STEER_MIN &&
+      noDynamicsDifferential < CONTROL_MAX
 
     return verdict({
       status: ok ? 'pass' : 'fail',

@@ -6,7 +6,11 @@
 // tiling the minimal path hugs the boundary and grows LINEARLY with the interval (a volume law). The
 // log-versus-linear scaling is the holographic signature.
 
-const bfsGeodesic = (neighbors: number[][], from: number, to: number): number => {
+const bfsGeodesic = (
+  neighbors: number[][],
+  from: number,
+  to: number,
+): number => {
   const distance = new Int32Array(neighbors.length).fill(-1)
   distance[from] = 0
   let frontier = [from]
@@ -27,7 +31,10 @@ const bfsGeodesic = (neighbors: number[][], from: number, to: number): number =>
 }
 
 // least-squares slope and residual of y against x
-const fit = (x: number[], y: number[]): { slope: number; residual: number } => {
+const fit = (
+  x: number[],
+  y: number[],
+): { slope: number; residual: number } => {
   const n = x.length
   const meanX = x.reduce((a, b) => a + b, 0) / n
   const meanY = y.reduce((a, b) => a + b, 0) / n
@@ -39,12 +46,17 @@ const fit = (x: number[], y: number[]): { slope: number; residual: number } => {
   }
   const slope = cov / varX
   let residual = 0
-  for (let i = 0; i < n; i++) residual += (y[i]! - (meanY + slope * (x[i]! - meanX))) ** 2
+  for (let i = 0; i < n; i++)
+    residual += (y[i]! - (meanY + slope * (x[i]! - meanX))) ** 2
   return { slope, residual }
 }
 
 // BFS distance from a source over the full graph, or restricted to an allowed node set.
-const bfsField = (neighbors: number[][], source: number, allowed?: Set<number>): Int32Array => {
+const bfsField = (
+  neighbors: number[][],
+  source: number,
+  allowed?: Set<number>,
+): Int32Array => {
   const distance = new Int32Array(neighbors.length).fill(-1)
   distance[source] = 0
   let frontier = [source]
@@ -52,7 +64,10 @@ const bfsField = (neighbors: number[][], source: number, allowed?: Set<number>):
     const next: number[] = []
     for (const node of frontier) {
       for (const neighbor of neighbors[node]!) {
-        if (distance[neighbor] === -1 && (!allowed || allowed.has(neighbor))) {
+        if (
+          distance[neighbor] === -1 &&
+          (!allowed || allowed.has(neighbor))
+        ) {
           distance[neighbor] = distance[node]! + 1
           next.push(neighbor)
         }
@@ -74,11 +89,17 @@ export function bulkShortcutScaling(input: {
   neighbors: number[][]
   coords: number[][]
   bandWidth?: number
-}): { slope: number; logResidual: number; linearResidual: number; isLogarithmic: boolean } {
+}): {
+  slope: number
+  logResidual: number
+  linearResidual: number
+  isLogarithmic: boolean
+} {
   const { neighbors, coords } = input
   const bandWidth = input.bandWidth ?? 2
   const n = neighbors.length
-  const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+  const norm = (v: number[]): number =>
+    Math.sqrt(v.reduce((s, x) => s + x * x, 0))
 
   // center = closest to the origin, radial depth, the boundary band = the outer `bandWidth` shells (the cusp)
   let center = 0
@@ -92,8 +113,11 @@ export function bulkShortcutScaling(input: {
   }
   const depth = bfsField(neighbors, center)
   let maxDepth = 0
-  for (let i = 0; i < n; i++) if (depth[i]! > maxDepth) maxDepth = depth[i]!
-  const band = new Set([...Array(n).keys()].filter((i) => depth[i]! > maxDepth - bandWidth))
+  for (let i = 0; i < n; i++)
+    if (depth[i]! > maxDepth) maxDepth = depth[i]!
+  const band = new Set(
+    [...Array(n).keys()].filter(i => depth[i]! > maxDepth - bandWidth),
+  )
 
   const anchor = [...band][0]!
   const within = bfsField(neighbors, anchor, band) // within the boundary band
@@ -120,13 +144,17 @@ export function bulkShortcutScaling(input: {
   }
   // exclude the saturated plateau (S near the graph diameter), keep the strictly informative regime
   const maxS = Math.max(...ss)
-  const unsaturated = ss.map((s) => s < 0.9 * maxS)
+  const unsaturated = ss.map(s => s < 0.9 * maxS)
   ls = ls.filter((_, i) => unsaturated[i])
   ss = ss.filter((_, i) => unsaturated[i])
 
-  const logFit = fit(ls.map((l) => Math.log(l)), ss)
+  const logFit = fit(
+    ls.map(l => Math.log(l)),
+    ss,
+  )
   const linearFit = fit(ls, ss)
-  const slope = (ss[ss.length - 1]! - ss[0]!) / (ls[ls.length - 1]! - ls[0]!)
+  const slope =
+    (ss[ss.length - 1]! - ss[0]!) / (ls[ls.length - 1]! - ls[0]!)
   return {
     slope,
     logResidual: logFit.residual,
@@ -178,28 +206,43 @@ export function ryuTakayanagiScaling(input: {
   }
   const center2D = coords[center]!
   const boundary = [...Array(n).keys()]
-    .filter((i) => depth[i]! >= maxDepth - 1)
+    .filter(i => depth[i]! >= maxDepth - 1)
     .sort(
       (i, j) =>
-        Math.atan2(coords[i]![1]! - center2D[1]!, coords[i]![0]! - center2D[0]!) -
-        Math.atan2(coords[j]![1]! - center2D[1]!, coords[j]![0]! - center2D[0]!),
+        Math.atan2(
+          coords[i]![1]! - center2D[1]!,
+          coords[i]![0]! - center2D[0]!,
+        ) -
+        Math.atan2(
+          coords[j]![1]! - center2D[1]!,
+          coords[j]![0]! - center2D[0]!,
+        ),
     )
   const boundaryCount = boundary.length
 
-  const arcs = (input.arcs ?? [2, 4, 8, 16, 32]).filter((arc) => arc < boundaryCount / 2)
+  const arcs = (input.arcs ?? [2, 4, 8, 16, 32]).filter(
+    arc => arc < boundaryCount / 2,
+  )
   // average the geodesic over several start points around the boundary, for robustness
-  const geodesics = arcs.map((arc) => {
+  const geodesics = arcs.map(arc => {
     let sum = 0
     let count = 0
     const stride = Math.max(1, Math.floor(boundaryCount / 8))
     for (let start = 0; start < boundaryCount; start += stride) {
-      sum += bfsGeodesic(neighbors, boundary[start]!, boundary[(start + arc) % boundaryCount]!)
+      sum += bfsGeodesic(
+        neighbors,
+        boundary[start]!,
+        boundary[(start + arc) % boundaryCount]!,
+      )
       count++
     }
     return sum / count
   })
 
-  const logFit = fit(arcs.map((arc) => Math.log(arc)), geodesics)
+  const logFit = fit(
+    arcs.map(arc => Math.log(arc)),
+    geodesics,
+  )
   const linearFit = fit(arcs, geodesics)
   return {
     arcs,

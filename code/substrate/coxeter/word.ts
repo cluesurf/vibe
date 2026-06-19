@@ -12,7 +12,9 @@ export type Word = number[]
 // entries, and 2 (perpendicular) for non-adjacent mirrors.
 export function coxeterMatrix(symbol: number[]): number[][] {
   const m = symbol.length + 1
-  const M: number[][] = Array.from({ length: m }, () => new Array<number>(m).fill(2))
+  const M: number[][] = Array.from({ length: m }, () =>
+    new Array<number>(m).fill(2),
+  )
   for (let i = 0; i < m; i++) M[i]![i] = 1
   for (let i = 0; i < symbol.length; i++) {
     M[i]![i + 1] = symbol[i] ?? 2
@@ -197,7 +199,8 @@ export function buildWordMesh(input: {
 
   const chamberCount = words.length
   const ballGrowth: number[] = []
-  for (const w of words) ballGrowth[w.length] = (ballGrowth[w.length] ?? 0) + 1
+  for (const w of words)
+    ballGrowth[w.length] = (ballGrowth[w.length] ?? 0) + 1
 
   // Cells: union-find, merging chambers joined by a cell-stabilizer (J) edge.
   const parent = Array.from({ length: chamberCount }, (_, i) => i)
@@ -225,7 +228,10 @@ export function buildWordMesh(input: {
   const cellCount = cellOf.size
 
   // Cell facet-adjacency: an outward edge between chambers in different cells joins those cells.
-  const cellNeighbors: Set<number>[] = Array.from({ length: cellCount }, () => new Set<number>())
+  const cellNeighbors: Set<number>[] = Array.from(
+    { length: cellCount },
+    () => new Set<number>(),
+  )
   for (const [a, b] of edgesOut) {
     const ca = cellOf.get(find(a))!
     const cb = cellOf.get(find(b))!
@@ -235,16 +241,19 @@ export function buildWordMesh(input: {
     }
   }
   let cellFacetCount = 0
-  for (const s of cellNeighbors) cellFacetCount = Math.max(cellFacetCount, s.size)
+  for (const s of cellNeighbors)
+    cellFacetCount = Math.max(cellFacetCount, s.size)
 
   return {
     form: 'coxeter-word-mesh',
     symbol,
     finite,
     chamberCount,
-    ballGrowth: ballGrowth.map((x) => x ?? 0),
+    ballGrowth: ballGrowth.map(x => x ?? 0),
     cellCount,
     cellFacetCount,
-    sampleAddresses: words.slice(0, 12).map((w) => (w.length === 0 ? 'e' : w.join(''))),
+    sampleAddresses: words
+      .slice(0, 12)
+      .map(w => (w.length === 0 ? 'e' : w.join(''))),
   }
 }

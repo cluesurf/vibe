@@ -20,13 +20,17 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { landauCriticalVelocity, vortexCirculation } from '@/code/measure/superfluid'
+import {
+  landauCriticalVelocity,
+  vortexCirculation,
+} from '@/code/measure/superfluid'
 
 const SOUND_SPEED = 1
 
 export default experiment({
   id: 'fluids/superfluid-signatures',
-  title: 'the substrate is a superfluid, a finite Landau critical velocity (sound) and quantized circulation, vs the zero-critical-velocity normal fluid',
+  title:
+    'the substrate is a superfluid, a finite Landau critical velocity (sound) and quantized circulation, vs the zero-critical-velocity normal fluid',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -34,20 +38,34 @@ export default experiment({
   run() {
     // the Landau critical velocity for the measured sound dispersion (omega = c k), a Bogoliubov dispersion, and a
     // diffusive (normal) dispersion (omega = k squared)
-    const soundVc = landauCriticalVelocity({ dispersion: (k) => SOUND_SPEED * k })
-    const bogoliubovVc = landauCriticalVelocity({ dispersion: (k) => Math.sqrt(SOUND_SPEED * SOUND_SPEED * k * k + (k * k / 2) ** 2) })
-    const diffusiveVc = landauCriticalVelocity({ dispersion: (k) => k * k })
+    const soundVc = landauCriticalVelocity({
+      dispersion: k => SOUND_SPEED * k,
+    })
+    const bogoliubovVc = landauCriticalVelocity({
+      dispersion: k =>
+        Math.sqrt(
+          SOUND_SPEED * SOUND_SPEED * k * k + ((k * k) / 2) ** 2,
+        ),
+    })
+    const diffusiveVc = landauCriticalVelocity({
+      dispersion: k => k * k,
+    })
 
     // the quantized circulation of vortices of winding one, two, three (the Onsager-Feynman quantization)
-    const circulations = [1, 2, 3].map((m) => vortexCirculation({ winding: m }))
-    const quantizedInTwoPi = circulations.map((c) => c / (2 * Math.PI))
+    const circulations = [1, 2, 3].map(m =>
+      vortexCirculation({ winding: m }),
+    )
+    const quantizedInTwoPi = circulations.map(c => c / (2 * Math.PI))
 
     // the sound mode has a finite critical velocity (a superfluid), the diffusive mode has zero (a normal fluid),
     // and the circulation is quantized in integer 2 pi units
     const soundIsSuperfluid = soundVc > 0.5 && bogoliubovVc > 0.5
     const diffusiveIsNormal = diffusiveVc < 0.01
-    const circulationQuantized = quantizedInTwoPi.every((q, i) => Math.abs(q - (i + 1)) < 1e-6)
-    const ok = soundIsSuperfluid && diffusiveIsNormal && circulationQuantized
+    const circulationQuantized = quantizedInTwoPi.every(
+      (q, i) => Math.abs(q - (i + 1)) < 1e-6,
+    )
+    const ok =
+      soundIsSuperfluid && diffusiveIsNormal && circulationQuantized
 
     return verdict({
       status: ok ? 'pass' : 'fail',

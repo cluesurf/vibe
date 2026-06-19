@@ -12,7 +12,10 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { quantileLabels } from '@/code/coarse/transition-matrix'
 import { drivenSelf } from '@/code/coarse/driven-self'
-import { mutualInformationBits, crossJointCounts } from '@/code/measure/statistics'
+import {
+  mutualInformationBits,
+  crossJointCounts,
+} from '@/code/measure/statistics'
 import { timeShuffle } from '@/code/coarse/surrogate'
 
 const L = 64
@@ -25,42 +28,79 @@ const lag = 1
 // measured value is near 0.1 bits and both controls are near zero, so the bounds sit clear of the knife edge.
 const MIN_BITS = 0.04
 
-function predictiveInformation(interior: number[], environment: number[]): number {
+function predictiveInformation(
+  interior: number[],
+  environment: number[],
+): number {
   const a = quantileLabels({ series: interior, bins })
   const b = quantileLabels({ series: environment, bins })
-  return mutualInformationBits(crossJointCounts({ seriesA: a, seriesB: b, stateCount: bins, lag }))
+  return mutualInformationBits(
+    crossJointCounts({ seriesA: a, seriesB: b, stateCount: bins, lag }),
+  )
 }
 
 export default experiment({
   id: 'selves/world-model',
-  title: 'a self interior carries predictive information about its future environment, the controls do not',
+  title:
+    'a self interior carries predictive information about its future environment, the controls do not',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
   paper: false,
   run() {
-    const live = drivenSelf({ L, beats, seed: 777, withDynamics: true, sectors: 2, interiorRadius: 6, cohesion: 0.4 })
-    const dead = drivenSelf({ L, beats, seed: 777, withDynamics: false, sectors: 2, interiorRadius: 6, cohesion: 0.4 })
+    const live = drivenSelf({
+      L,
+      beats,
+      seed: 777,
+      withDynamics: true,
+      sectors: 2,
+      interiorRadius: 6,
+      cohesion: 0.4,
+    })
+    const dead = drivenSelf({
+      L,
+      beats,
+      seed: 777,
+      withDynamics: false,
+      sectors: 2,
+      interiorRadius: 6,
+      cohesion: 0.4,
+    })
 
-    const selfMI = predictiveInformation(live.interior, live.environment)
+    const selfMI = predictiveInformation(
+      live.interior,
+      live.environment,
+    )
 
     // control one, the time-shuffled environment, destroys the temporal structure the model reads.
-    const shuffledEnvironment = quantileLabels({ series: live.environment, bins })
+    const shuffledEnvironment = quantileLabels({
+      series: live.environment,
+      bins,
+    })
     const shuffledMI = mutualInformationBits(
       crossJointCounts({
         seriesA: quantileLabels({ series: live.interior, bins }),
-        seriesB: timeShuffle({ trajectory: shuffledEnvironment, seed: 99 }),
+        seriesB: timeShuffle({
+          trajectory: shuffledEnvironment,
+          seed: 99,
+        }),
         stateCount: bins,
         lag,
       }),
     )
 
     // control two, the same self with the dynamics off, so the interior never integrates the drive.
-    const noDynamicsMI = predictiveInformation(dead.interior, dead.environment)
+    const noDynamicsMI = predictiveInformation(
+      dead.interior,
+      dead.environment,
+    )
 
     const gainOverShuffled = selfMI - shuffledMI
     const gainOverNoDynamics = selfMI - noDynamicsMI
-    const ok = selfMI > MIN_BITS && gainOverShuffled > MIN_BITS && gainOverNoDynamics > MIN_BITS
+    const ok =
+      selfMI > MIN_BITS &&
+      gainOverShuffled > MIN_BITS &&
+      gainOverNoDynamics > MIN_BITS
 
     return verdict({
       status: ok ? 'pass' : 'fail',

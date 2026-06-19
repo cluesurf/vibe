@@ -5,7 +5,11 @@ import { Rng } from '@/code/tool/rng'
 import { Substrate, undirectedAdjacency } from '@/code/tool/substrate'
 
 // BFS hop distances from a source over an undirected adjacency.
-function bfsDistances(adj: ReadonlyArray<Uint32Array>, source: number, size: number): Int32Array {
+function bfsDistances(
+  adj: ReadonlyArray<Uint32Array>,
+  source: number,
+  size: number,
+): Int32Array {
   const dist = new Int32Array(size).fill(-1)
   dist[source] = 0
   let frontier = [source]
@@ -99,10 +103,17 @@ export function shellGrowthCurvature(input: {
   shellCounts: ReadonlyArray<number>
   negativeThreshold?: number
   flatThreshold?: number
-}): { sign: CurvatureSign; lateRatio: number; minInteriorRatio: number } {
+}): {
+  sign: CurvatureSign
+  lateRatio: number
+  minInteriorRatio: number
+} {
   const negativeThreshold = input.negativeThreshold ?? 1.8
   const flatThreshold = input.flatThreshold ?? 1.5
-  const shells = input.shellCounts.slice(0, Math.max(2, input.shellCounts.length - 1))
+  const shells = input.shellCounts.slice(
+    0,
+    Math.max(2, input.shellCounts.length - 1),
+  )
   const ratios: number[] = []
   for (let i = 2; i < shells.length; i++) {
     if (shells[i - 1]! > 0) ratios.push(shells[i]! / shells[i - 1]!)
@@ -137,7 +148,7 @@ export function gromovDelta(input: {
       rng.nextInt({ max: size }),
       rng.nextInt({ max: size }),
     ]
-    const d = pts.map((p) => bfsDistances(adj, p, size))
+    const d = pts.map(p => bfsDistances(adj, p, size))
     const dij = (a: number, b: number): number => d[a]?.[pts[b]!] ?? 0
     const s1 = dij(0, 1) + dij(2, 3)
     const s2 = dij(0, 2) + dij(1, 3)

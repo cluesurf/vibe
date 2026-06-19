@@ -26,7 +26,8 @@ const RIGHT_OF = 71
 
 export default experiment({
   id: 'selves/active-persistence',
-  title: 'a self relocates to whichever side a refuge is on and survives a lethal threat, dying with none',
+  title:
+    'a self relocates to whichever side a refuge is on and survives a lethal threat, dying with none',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -38,7 +39,9 @@ export default experiment({
 
     // it survives with a refuge on either side, dies with none, and it goes to the refuge's side (the directed
     // seeking, not a fixed drift), so the self acts to persist.
-    const survives = left.survivingSize > SURVIVE_MIN && right.survivingSize > SURVIVE_MIN
+    const survives =
+      left.survivingSize > SURVIVE_MIN &&
+      right.survivingSize > SURVIVE_MIN
     const diesWithoutRefuge = none.survivingSize < DEAD_MAX
     const seeksRefuge = left.finalX < LEFT_OF && right.finalX > RIGHT_OF
     const ok = survives && diesWithoutRefuge && seeksRefuge

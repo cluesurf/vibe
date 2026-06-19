@@ -37,25 +37,36 @@ export function bornRule(input: { seed: number }): {
 } {
   const amps = [0.2, 0.5, 0.7, 0.46] // amplitudes, NOT pre-squared
   const norm2 = amps.reduce((s, c) => s + c * c, 0)
-  const born = amps.map((c) => (c * c) / norm2) // the answer we must reproduce
+  const born = amps.map(c => (c * c) / norm2) // the answer we must reproduce
   const scale = 100000
 
   const quadratureResidual = quadratureAdditivityResidual(amps, scale)
-  const exponentResiduals = [1, 2, 3].map((p) => ({ p, residual: exponentResidual({ p, seed: input.seed + p }) }))
+  const exponentResiduals = [1, 2, 3].map(p => ({
+    p,
+    residual: exponentResidual({ p, seed: input.seed + p }),
+  }))
   const uniqueExponent = exponentResiduals.reduce(
     (best, e) => (e.residual < best.residual ? e : best),
     exponentResiduals[0] ?? { p: 2, residual: 0 },
   ).p
 
-  const sampled = fairSampleFrequencies({ amps, scale, draws: 400000, seed: input.seed + 17 })
+  const sampled = fairSampleFrequencies({
+    amps,
+    scale,
+    draws: 400000,
+    seed: input.seed + 17,
+  })
   let samplingError = 0
   for (let k = 0; k < born.length; k++) {
-    samplingError = Math.max(samplingError, Math.abs((sampled[k] ?? 0) - (born[k] ?? 0)))
+    samplingError = Math.max(
+      samplingError,
+      Math.abs((sampled[k] ?? 0) - (born[k] ?? 0)),
+    )
   }
 
-  const p1 = exponentResiduals.find((e) => e.p === 1)?.residual ?? 0
-  const p2 = exponentResiduals.find((e) => e.p === 2)?.residual ?? 1
-  const p3 = exponentResiduals.find((e) => e.p === 3)?.residual ?? 0
+  const p1 = exponentResiduals.find(e => e.p === 1)?.residual ?? 0
+  const p2 = exponentResiduals.find(e => e.p === 2)?.residual ?? 1
+  const p3 = exponentResiduals.find(e => e.p === 3)?.residual ?? 0
   return {
     born,
     sampled,
@@ -65,7 +76,12 @@ export function bornRule(input: { seed: number }): {
     uniqueExponent,
     // Solved: quadrature additivity holds, the functional equation selects p=2 alone
     // (p=1 and p=3 fail by a wide margin), and fair sampling reproduces |c|^2.
-    solved: quadratureResidual < 1e-6 && p2 < 1e-9 && p1 > 0.05 && p3 > 0.05 && samplingError < 0.01,
+    solved:
+      quadratureResidual < 1e-6 &&
+      p2 < 1e-9 &&
+      p1 > 0.05 &&
+      p3 > 0.05 &&
+      samplingError < 0.01,
   }
 }
 

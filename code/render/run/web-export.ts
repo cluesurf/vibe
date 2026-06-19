@@ -12,7 +12,11 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { mirrorFrame } from '@/code/substrate/coxeter/schlafli'
-import { FOLD_2D_WGSL, FOLD_3D_WGSL, FOLD_3D_INTERIOR_WGSL } from '@/code/render/fold.wgsl'
+import {
+  FOLD_2D_WGSL,
+  FOLD_3D_WGSL,
+  FOLD_3D_INTERIOR_WGSL,
+} from '@/code/render/fold.wgsl'
 
 const TWO_D = ['7-3', '5-4', '8-3', '6-4', '4-5', '5-5', '7-4', '3-7']
 const THREE_D = ['5-3-4', '4-3-5', '3-5-3']
@@ -22,9 +26,11 @@ function canonicalMirrors(symbol: number[]): number[][] {
   const frame = mirrorFrame(symbol)
   const dim = frame.metric.length
   const order: number[] = []
-  for (let a = 0; a < dim; a++) if ((frame.metric[a] ?? 1) > 0) order.push(a)
-  for (let a = 0; a < dim; a++) if ((frame.metric[a] ?? 1) < 0) order.push(a)
-  return frame.normals.map((row) => order.map((a) => row[a] ?? 0))
+  for (let a = 0; a < dim; a++)
+    if ((frame.metric[a] ?? 1) > 0) order.push(a)
+  for (let a = 0; a < dim; a++)
+    if ((frame.metric[a] ?? 1) < 0) order.push(a)
+  return frame.normals.map(row => order.map(a => row[a] ?? 0))
 }
 
 function run(): void {
@@ -37,16 +43,34 @@ function run(): void {
     }
   }
 
-  const html = page({ mirrors, twoD: TWO_D.filter((s) => mirrors[s]), threeD: THREE_D.filter((s) => mirrors[s]) })
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'make', 'render', 'web')
+  const html = page({
+    mirrors,
+    twoD: TWO_D.filter(s => mirrors[s]),
+    threeD: THREE_D.filter(s => mirrors[s]),
+  })
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    '..',
+    'make',
+    'render',
+    'web',
+  )
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, 'index.html')
   writeFileSync(outPath, html)
   console.log(`wrote the interactive WebGPU explorer to ${outPath}`)
-  console.log(`open it in a WebGPU browser (Chrome/Edge). 2D: drag to pan, wheel to zoom, number keys to switch tiling. 3D: drag to orbit, wheel to dive, I = interior.`)
+  console.log(
+    `open it in a WebGPU browser (Chrome/Edge). 2D: drag to pan, wheel to zoom, number keys to switch tiling. 3D: drag to orbit, wheel to dive, I = interior.`,
+  )
 }
 
-function page(input: { mirrors: Record<string, number[][]>; twoD: string[]; threeD: string[] }): string {
+function page(input: {
+  mirrors: Record<string, number[][]>
+  twoD: string[]
+  threeD: string[]
+}): string {
   const data = JSON.stringify(input)
   return `<!doctype html>
 <html lang="en">

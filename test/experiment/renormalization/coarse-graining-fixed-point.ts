@@ -26,31 +26,56 @@ export function isingRG(input: { seed: number }): {
   flowsToFixedPoint: boolean
 } {
   const Ks = [2.0, 1.0, 0.5, 0.25]
-  const steps = Ks.map((K) => {
-    const measured = measuredBlockSpinCoupling({ length: 20000, coupling: K, samples: 40, seed: input.seed })
+  const steps = Ks.map(K => {
+    const measured = measuredBlockSpinCoupling({
+      length: 20000,
+      coupling: K,
+      samples: 40,
+      seed: input.seed,
+    })
     const exact = Math.atanh(Math.tanh(K) ** 2)
     return { K, kPrimeMeasured: measured, kPrimeExact: exact }
   })
-  const matchesRecursion = steps.every((s) => Math.abs(s.kPrimeMeasured - s.kPrimeExact) < 0.02 && s.kPrimeMeasured < s.K)
+  const matchesRecursion = steps.every(
+    s =>
+      Math.abs(s.kPrimeMeasured - s.kPrimeExact) < 0.02 &&
+      s.kPrimeMeasured < s.K,
+  )
   // iterate the flow from a strong coupling toward the fixed point
   let K = 1.5
   const flow = [K]
   for (let i = 0; i < 6; i++) {
-    K = measuredBlockSpinCoupling({ length: 20000, coupling: K, samples: 40, seed: input.seed + 1 + i })
+    K = measuredBlockSpinCoupling({
+      length: 20000,
+      coupling: K,
+      samples: 40,
+      seed: input.seed + 1 + i,
+    })
     flow.push(K)
   }
-  const flowsToFixedPoint = Math.abs(flow[flow.length - 1] ?? 1) < 0.1 && (flow[flow.length - 1] ?? 1) < (flow[0] ?? 0)
+  const flowsToFixedPoint =
+    Math.abs(flow[flow.length - 1] ?? 1) < 0.1 &&
+    (flow[flow.length - 1] ?? 1) < (flow[0] ?? 0)
   return { steps, flow, matchesRecursion, flowsToFixedPoint }
 }
 
 // Secondary (kept, honestly labeled): the causal-set dimension is invariant under decimation.
-export function coarseGrainingFixedPoint(input: { dimension: number; count: number; levels: number; seed: number }): {
+export function coarseGrainingFixedPoint(input: {
+  dimension: number
+  count: number
+  levels: number
+  seed: number
+}): {
   dims: number[]
   sizes: number[]
   dimensionInvariant: boolean
 } {
   const rng = makeRng({ seed: input.seed })
-  let poset = sprinkleMinkowski({ dimension: input.dimension, count: input.count, rng })
+  let poset = sprinkleMinkowski({
+    dimension: input.dimension,
+    count: input.count,
+    rng,
+  })
   const dims: number[] = []
   const sizes: number[] = []
   dims.push(myrheimMeyerDimension({ poset }))
@@ -61,7 +86,7 @@ export function coarseGrainingFixedPoint(input: { dimension: number; count: numb
     sizes.push(poset.size)
   }
   const d0 = dims[0] ?? 0
-  const dimensionInvariant = dims.every((d) => Math.abs(d - d0) < 0.3)
+  const dimensionInvariant = dims.every(d => Math.abs(d - d0) < 0.3)
   return { dims, sizes, dimensionInvariant }
 }
 
@@ -72,12 +97,20 @@ export function renormalization(input: { seed: number }): {
   solved: boolean
 } {
   const rg = isingRG({ seed: input.seed })
-  const cg = coarseGrainingFixedPoint({ dimension: 2, count: 3000, levels: 4, seed: input.seed })
+  const cg = coarseGrainingFixedPoint({
+    dimension: 2,
+    count: 3000,
+    levels: 4,
+    seed: input.seed,
+  })
   return {
     matchesRecursion: rg.matchesRecursion,
     flowsToFixedPoint: rg.flowsToFixedPoint,
     dimensionInvariant: cg.dimensionInvariant,
-    solved: rg.matchesRecursion && rg.flowsToFixedPoint && cg.dimensionInvariant,
+    solved:
+      rg.matchesRecursion &&
+      rg.flowsToFixedPoint &&
+      cg.dimensionInvariant,
   }
 }
 
@@ -93,7 +126,10 @@ export default experiment({
     const r = renormalization({ seed: 1 })
     const rg = isingRG({ seed: 1 })
     const ok =
-      r.solved && r.matchesRecursion && r.flowsToFixedPoint && r.dimensionInvariant
+      r.solved &&
+      r.matchesRecursion &&
+      r.flowsToFixedPoint &&
+      r.dimensionInvariant
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

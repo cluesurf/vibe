@@ -18,7 +18,12 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // avalanche sizes at a given background creation rate: seed a flip, track damage peak (terminating cascade)
-function avalanches(c0: number, g: { offsets: Int32Array; adj: Int32Array; cellCount: number }, eu: Int32Array, ev: Int32Array): { sizes: number[]; bg: number } {
+function avalanches(
+  c0: number,
+  g: { offsets: Int32Array; adj: Int32Array; cellCount: number },
+  eu: Int32Array,
+  ev: Int32Array,
+): { sizes: number[]; bg: number } {
   const N = g.cellCount
   const moved = new Uint8Array(N)
   const { sizes, background } = settledAvalancheSizes({
@@ -29,8 +34,16 @@ function avalanches(c0: number, g: { offsets: Int32Array; adj: Int32Array; cellC
     settleSeed: 5,
     perturbSeed: 7000,
     streamSeed: 222,
-    makeRng: (seed) => makeRng({ seed }),
-    relax: (state, rng) => conservingEdgeSweep({ tone: state, eu, ev, moved, rng, arrow: c0 }),
+    makeRng: seed => makeRng({ seed }),
+    relax: (state, rng) =>
+      conservingEdgeSweep({
+        tone: state,
+        eu,
+        ev,
+        moved,
+        rng,
+        arrow: c0,
+      }),
     mode: 'peak',
   })
   return { sizes, bg: background }
@@ -38,7 +51,13 @@ function avalanches(c0: number, g: { offsets: Int32Array; adj: Int32Array; cellC
 
 export function avalancheCriticality(input?: { n?: number }): {
   n: number
-  scan: { c0: number; bg: number; median: number; max: number; span: number }[]
+  scan: {
+    c0: number
+    bg: number
+    median: number
+    max: number
+    span: number
+  }[]
   bestSpan: number
   scaleFree: boolean
   ballisticNotCritical: boolean
@@ -50,7 +69,13 @@ export function avalancheCriticality(input?: { n?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
 
   const rates = [0.001, 0.003, 0.008, 0.02, 0.05]
-  const scan: { c0: number; bg: number; median: number; max: number; span: number }[] = []
+  const scan: {
+    c0: number
+    bg: number
+    median: number
+    max: number
+    span: number
+  }[] = []
   for (const c0 of rates) {
     const { sizes, bg } = avalanches(c0, g, eu, ev)
     const median = sizes[Math.floor(sizes.length / 2)]!
@@ -68,7 +93,14 @@ export function avalancheCriticality(input?: { n?: number }): {
   const ballisticNotCritical = bestSpan < 2 // uniformly fixed-size (ballistic), no scale-free avalanches
   const solved = ballisticNotCritical
 
-  return { n: N, scan, bestSpan, scaleFree, ballisticNotCritical, solved }
+  return {
+    n: N,
+    scan,
+    bestSpan,
+    scaleFree,
+    ballisticNotCritical,
+    solved,
+  }
 }
 
 export default experiment({

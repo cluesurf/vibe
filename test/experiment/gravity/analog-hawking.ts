@@ -16,12 +16,19 @@
 
 import { buildCoxeterMesh } from '@/code/substrate/coxeter/engine'
 import { rayFreezeSurfaceGravity } from '@/code/measure/acoustic-horizon'
-import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
+import {
+  unruhDetectorResponse,
+  temperatureFromDetailedBalance,
+} from '@/code/measure/unruh'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Dynamical ingoing null ray surface gravity on the tanh horizon profile.
-function rayKappa(input: { rHorizon: number; gradient: number; rStart: number }): number {
+function rayKappa(input: {
+  rHorizon: number
+  gradient: number
+  rStart: number
+}): number {
   return rayFreezeSurfaceGravity({
     horizon: input.rHorizon,
     gradient: input.gradient,
@@ -55,10 +62,14 @@ export function analogHawking(): {
   solved: boolean
 } {
   // The real crystal: the {7,3} heptagrid, used for the radial structure the horizon lives on.
-  const mesh = buildCoxeterMesh({ symbol: [7, 3], depth: 16, maxChambers: 40000 })
-  const radii = mesh.coords.map((c) => Math.hypot(c[0] ?? 0, c[1] ?? 0))
+  const mesh = buildCoxeterMesh({
+    symbol: [7, 3],
+    depth: 16,
+    maxChambers: 40000,
+  })
+  const radii = mesh.coords.map(c => Math.hypot(c[0] ?? 0, c[1] ?? 0))
   const rMax = Math.max(...radii)
-  const shells = new Set(radii.map((r) => Math.round(r * 50) / 50)).size
+  const shells = new Set(radii.map(r => Math.round(r * 50) / 50)).size
   // place the horizon at a real interior radius (cells exist inside and outside it)
   const rHorizon = 0.35 * rMax
   const rStart = 0.95 * rMax
@@ -66,22 +77,30 @@ export function analogHawking(): {
   const gradient = 1.5 // the fill gradient at the horizon
   const kappaMetric = gradient // c'(rHorizon) = gradient (tanh slope at 0)
   const kappaRay = rayKappa({ rHorizon, gradient, rStart })
-  const redshiftMatches = Math.abs(kappaMetric - kappaRay) / kappaMetric < 0.03
+  const redshiftMatches =
+    Math.abs(kappaMetric - kappaRay) / kappaMetric < 0.03
 
   const hawkingTemperature = kappaMetric / (2 * Math.PI)
   const detailedBalanceTemperature = temperatureFromDetailedBalance({
     kappa: kappaMetric,
-    response: (E) => response(E, kappaMetric, 0.02),
+    response: E => response(E, kappaMetric, 0.02),
   })
   const thermalMatches =
-    Math.abs(detailedBalanceTemperature - hawkingTemperature) / hawkingTemperature < 0.08
+    Math.abs(detailedBalanceTemperature - hawkingTemperature) /
+      hawkingTemperature <
+    0.08
 
   // T_H scales linearly with kappa (double the fill gradient, double the temperature)
   const tLow = kappaMetric / (2 * Math.PI)
-  const tHigh = 2 * gradient / (2 * Math.PI)
-  const kappaRayHigh = rayKappa({ rHorizon, gradient: 2 * gradient, rStart })
+  const tHigh = (2 * gradient) / (2 * Math.PI)
+  const kappaRayHigh = rayKappa({
+    rHorizon,
+    gradient: 2 * gradient,
+    rStart,
+  })
   const temperatureScales =
-    Math.abs(kappaRayHigh - 2 * gradient) / (2 * gradient) < 0.03 && tHigh > 1.9 * tLow
+    Math.abs(kappaRayHigh - 2 * gradient) / (2 * gradient) < 0.03 &&
+    tHigh > 1.9 * tLow
 
   const solved = redshiftMatches && thermalMatches && temperatureScales
 
@@ -102,7 +121,8 @@ export function analogHawking(): {
 
 export default experiment({
   id: 'gravity/analog-hawking',
-  title: 'ray redshift gives surface gravity, detector thermal at T_H = kappa/2pi',
+  title:
+    'ray redshift gives surface gravity, detector thermal at T_H = kappa/2pi',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',

@@ -12,9 +12,23 @@ function dot3(a: Vector3, b: Vector3): number {
 }
 
 function cross3(a: Vector3, b: Vector3): Vector3 {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ]
 }
 
-export function sphericalTriangleArea(a: Vector3, b: Vector3, c: Vector3): number {
-  return 2 * Math.atan2(dot3(a, cross3(b, c)), 1 + dot3(a, b) + dot3(b, c) + dot3(c, a))
+export function sphericalTriangleArea(
+  a: Vector3,
+  b: Vector3,
+  c: Vector3,
+): number {
+  return (
+    2 *
+    Math.atan2(
+      dot3(a, cross3(b, c)),
+      1 + dot3(a, b) + dot3(b, c) + dot3(c, a),
+    )
+  )
 }

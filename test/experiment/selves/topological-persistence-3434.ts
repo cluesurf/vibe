@@ -13,51 +13,93 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // local relaxation of a complex field psi = r e^{i theta} (a lattice Ginzburg-Landau / heat flow that keeps |psi|>0)
-function relax(psi: { re: number; im: number }[], steps: number, dt: number): { re: number; im: number }[] {
+function relax(
+  psi: { re: number; im: number }[],
+  steps: number,
+  dt: number,
+): { re: number; im: number }[] {
   const L = psi.length
-  let cur = psi.map((z) => ({ ...z }))
+  let cur = psi.map(z => ({ ...z }))
   for (let t = 0; t < steps; t++) {
     const next = cur.map((z, i) => {
-      const a = cur[(i + 1) % L]!, b = cur[(i + L - 1) % L]!
+      const a = cur[(i + 1) % L]!,
+        b = cur[(i + L - 1) % L]!
       // discrete Laplacian (diffusion) + a weak |psi|->1 restoring term (keeps the field from vanishing)
-      const lapRe = a.re + b.re - 2 * z.re, lapIm = a.im + b.im - 2 * z.im
-      const r2 = z.re * z.re + z.im * z.im, restore = (1 - r2)
-      return { re: z.re + dt * (lapRe + restore * z.re), im: z.im + dt * (lapIm + restore * z.im) }
+      const lapRe = a.re + b.re - 2 * z.re,
+        lapIm = a.im + b.im - 2 * z.im
+      const r2 = z.re * z.re + z.im * z.im,
+        restore = 1 - r2
+      return {
+        re: z.re + dt * (lapRe + restore * z.re),
+        im: z.im + dt * (lapIm + restore * z.im),
+      }
     })
     cur = next
   }
   return cur
 }
 
-const phase = (z: { re: number; im: number }): number => Math.atan2(z.im, z.re)
-const energy = (psi: { re: number; im: number }[]): number => { const L = psi.length; let e = 0; for (let i = 0; i < L; i++) { const a = psi[(i + 1) % L]!, z = psi[i]!; e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2 } return e }
+const phase = (z: { re: number; im: number }): number =>
+  Math.atan2(z.im, z.re)
+const energy = (psi: { re: number; im: number }[]): number => {
+  const L = psi.length
+  let e = 0
+  for (let i = 0; i < L; i++) {
+    const a = psi[(i + 1) % L]!,
+      z = psi[i]!
+    e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2
+  }
+  return e
+}
 
-export function topologicalPersistence(): { windingConserved: boolean; energyRelaxes: boolean; defectPersists: boolean; trivialDecays: boolean; discriminates: boolean } {
+export function topologicalPersistence(): {
+  windingConserved: boolean
+  energyRelaxes: boolean
+  defectPersists: boolean
+  trivialDecays: boolean
+  discriminates: boolean
+} {
   const L = 64
   // w = 1 kink: psi = e^{i * 2pi x / L} (winds once around the ring)
-  const kink = Array.from({ length: L }, (_, x) => ({ re: Math.cos(2 * Math.PI * x / L), im: Math.sin(2 * Math.PI * x / L) }))
-  const w0 = winding(kink.map(phase)), e0 = energy(kink)
+  const kink = Array.from({ length: L }, (_, x) => ({
+    re: Math.cos((2 * Math.PI * x) / L),
+    im: Math.sin((2 * Math.PI * x) / L),
+  }))
+  const w0 = winding(kink.map(phase)),
+    e0 = energy(kink)
   const kinkRelaxed = relax(kink, 4000, 0.1)
-  const w1 = winding(kinkRelaxed.map(phase)), e1 = energy(kinkRelaxed)
+  const w1 = winding(kinkRelaxed.map(phase)),
+    e1 = energy(kinkRelaxed)
   const windingConserved = w0 === 1 && w1 === 1
   const energyRelaxes = e1 < e0 - 1e-6
   const defectPersists = windingConserved // the winding is locked => the defect cannot decay
 
   // CONTROL: w = 0 bump (a local perturbation, no winding) relaxes all the way to uniform
-  const bump = Array.from({ length: L }, (_, x) => { const g = Math.exp(-((x - L / 2) ** 2) / 50); return { re: 1 - 0.8 * g, im: 0.3 * g } })
-  const wb0 = winding(bump.map(phase)), eb0 = energy(bump)
+  const bump = Array.from({ length: L }, (_, x) => {
+    const g = Math.exp(-((x - L / 2) ** 2) / 50)
+    return { re: 1 - 0.8 * g, im: 0.3 * g }
+  })
+  const wb0 = winding(bump.map(phase)),
+    eb0 = energy(bump)
   const bumpRelaxed = relax(bump, 4000, 0.1)
   const eb1 = energy(bumpRelaxed)
   const trivialDecays = wb0 === 0 && eb1 < eb0 * 0.05 // relaxes to (near) uniform
 
   const discriminates = defectPersists && trivialDecays
 
-  return { windingConserved, energyRelaxes, defectPersists, trivialDecays, discriminates }
+  return {
+    windingConserved,
+    energyRelaxes,
+    defectPersists,
+    trivialDecays,
+    discriminates,
+  }
 }
 
 export default experiment({
   id: 'selves/topological-persistence-3434',
-  title: 'a winding-1 defect persists under relaxation while a winding-0 bump decays',
+  title:
+    'a winding-1 defect persists under relaxation while a winding-0 bump decays',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

@@ -24,20 +24,29 @@ import { verdict } from '@/test/scaffold/verdict'
 import { STANDARD_MODEL_GENERATION } from '@/code/measure/standard-model-charges'
 
 // the light neutrino mass (eV) from the seesaw, m_nu = m_D^2 / M_R, masses in GeV, converted to eV
-function seesawMassEv(input: { diracMassGeV: number; majoranaMassGeV: number }): number {
-  const massGeV = (input.diracMassGeV * input.diracMassGeV) / input.majoranaMassGeV
+function seesawMassEv(input: {
+  diracMassGeV: number
+  majoranaMassGeV: number
+}): number {
+  const massGeV =
+    (input.diracMassGeV * input.diracMassGeV) / input.majoranaMassGeV
   return massGeV * 1e9
 }
 
 // the number of Standard-Model singlets (electric charge zero AND weak isospin zero) in a generation, the seesaw
 // seeds. The so(10) 16 has one (the right-handed neutrino), the su(5) 15 has none.
-function singletCount(generation: typeof STANDARD_MODEL_GENERATION): number {
-  return generation.filter((f) => f.q === 0 && f.t3 === 0).reduce((s, f) => s + f.mult, 0)
+function singletCount(
+  generation: typeof STANDARD_MODEL_GENERATION,
+): number {
+  return generation
+    .filter(f => f.q === 0 && f.t3 === 0)
+    .reduce((s, f) => s + f.mult, 0)
 }
 
 export default experiment({
   id: 'gauge/neutrino-seesaw',
-  title: 'the neutrino seesaw, the so(10) 16-spinor right-handed neutrino gives the observed 0.05 eV scale, the su(5) 15 (no singlet) the control',
+  title:
+    'the neutrino seesaw, the so(10) 16-spinor right-handed neutrino gives the observed 0.05 eV scale, the su(5) 15 (no singlet) the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -45,26 +54,43 @@ export default experiment({
   run() {
     // the 16-spinor has one Standard-Model singlet (the right-handed neutrino), the 15 has none
     const sixteen = STANDARD_MODEL_GENERATION
-    const fifteen = STANDARD_MODEL_GENERATION.filter((f) => f.name !== 'nuc')
+    const fifteen = STANDARD_MODEL_GENERATION.filter(
+      f => f.name !== 'nuc',
+    )
     const sixteenSinglets = singletCount(sixteen)
     const fifteenSinglets = singletCount(fifteen)
-    const seesawSeedFromSixteen = sixteenSinglets === 1 && fifteenSinglets === 0
+    const seesawSeedFromSixteen =
+      sixteenSinglets === 1 && fifteenSinglets === 0
 
     // the seesaw mass with electroweak Dirac mass and an intermediate Majorana scale, near the observed 0.05 eV
     const diracMassGeV = 100 // electroweak, of order the heavy up-type masses
     const majoranaMassGeV = 2e14 // the intermediate B-L breaking scale below the GUT scale
-    const neutrinoMassEv = seesawMassEv({ diracMassGeV, majoranaMassGeV })
-    const matchesObservedScale = neutrinoMassEv > 0.005 && neutrinoMassEv < 0.5
+    const neutrinoMassEv = seesawMassEv({
+      diracMassGeV,
+      majoranaMassGeV,
+    })
+    const matchesObservedScale =
+      neutrinoMassEv > 0.005 && neutrinoMassEv < 0.5
 
     // a scan of M_R covers the observed window (the neutrino-mass scale is a natural output of the seesaw)
-    const lightEnd = seesawMassEv({ diracMassGeV, majoranaMassGeV: 1e15 })
-    const heavyEnd = seesawMassEv({ diracMassGeV, majoranaMassGeV: 1e13 })
+    const lightEnd = seesawMassEv({
+      diracMassGeV,
+      majoranaMassGeV: 1e15,
+    })
+    const heavyEnd = seesawMassEv({
+      diracMassGeV,
+      majoranaMassGeV: 1e13,
+    })
     const scanCoversWindow = lightEnd < 0.05 && heavyEnd > 0.05
 
     // the suppression ratio, m_nu / m_D, tiny because of the huge Majorana scale
     const suppression = (neutrinoMassEv * 1e-9) / diracMassGeV
 
-    const ok = seesawSeedFromSixteen && matchesObservedScale && scanCoversWindow && suppression < 1e-9
+    const ok =
+      seesawSeedFromSixteen &&
+      matchesObservedScale &&
+      scanCoversWindow &&
+      suppression < 1e-9
 
     return verdict({
       status: ok ? 'pass' : 'fail',

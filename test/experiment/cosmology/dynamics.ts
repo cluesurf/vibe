@@ -14,7 +14,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'cosmology/dynamics',
-  title: 'a causal-set action raises manifold-likeness as the coupling rises',
+  title:
+    'a causal-set action raises manifold-likeness as the coupling rises',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L1',

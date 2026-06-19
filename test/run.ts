@@ -25,10 +25,13 @@ process.on('SIGINT', () => {
     process.exit(130)
   }
   interrupted = true
-  console.error('\ninterrupted, stopping after the current experiment (press Ctrl+C again to force quit)')
+  console.error(
+    '\ninterrupted, stopping after the current experiment (press Ctrl+C again to force quit)',
+  )
 })
 
-const yieldToLoop = (): Promise<void> => new Promise((resolve) => setImmediate(resolve))
+const yieldToLoop = (): Promise<void> =>
+  new Promise(resolve => setImmediate(resolve))
 
 async function main(): Promise<void> {
   // The conformance battery first: the library primitives the experiments stand on.
@@ -59,19 +62,27 @@ async function main(): Promise<void> {
       result = experiment.run(context)
     } catch (error) {
       crash++
-      console.log(`  CRASH    ${experiment.id}  ${(error as Error).message}`)
+      console.log(
+        `  CRASH    ${experiment.id}  ${(error as Error).message}`,
+      )
       continue
     } finally {
       const ms = Date.now() - started
       timings.push({ id: experiment.id, ms })
-      if (ms >= SLOW_MILLISECONDS) console.log(`  [slow ${(ms / 1000).toFixed(1)}s] ${experiment.id}`)
+      if (ms >= SLOW_MILLISECONDS)
+        console.log(
+          `  [slow ${(ms / 1000).toFixed(1)}s] ${experiment.id}`,
+        )
     }
 
     // The integrity rule: a deep (L3) claim without a control is downgraded to partial.
     const hasControl =
-      result.control !== undefined && Object.keys(result.control).length > 0
+      result.control !== undefined &&
+      Object.keys(result.control).length > 0
     const status =
-      experiment.depth === 'L3' && !hasControl ? 'partial' : result.status
+      experiment.depth === 'L3' && !hasControl
+        ? 'partial'
+        : result.status
     if (status === 'pass') {
       pass++
     } else if (status === 'fail') {
@@ -93,9 +104,12 @@ async function main(): Promise<void> {
 
   // the ten slowest experiments, to guide performance work
   const slowest = [...timings].sort((a, b) => b.ms - a.ms).slice(0, 10)
-  const totalSeconds = (timings.reduce((sum, t) => sum + t.ms, 0) / 1000).toFixed(1)
+  const totalSeconds = (
+    timings.reduce((sum, t) => sum + t.ms, 0) / 1000
+  ).toFixed(1)
   console.log(`\ntotal experiment time ${totalSeconds}s, slowest ten:`)
-  for (const t of slowest) console.log(`  ${(t.ms / 1000).toFixed(1)}s  ${t.id}`)
+  for (const t of slowest)
+    console.log(`  ${(t.ms / 1000).toFixed(1)}s  ${t.id}`)
 
   if (crash > 0 || conformance.failed > 0) {
     console.error(

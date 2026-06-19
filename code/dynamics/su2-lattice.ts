@@ -106,7 +106,10 @@ export function makeSu2Lattice(input: {
   return { form: 'su2-lattice', dim, length: L, sites, stride, links }
 }
 
-function stepPlus(lat: Su2Lattice, input: { site: number; mu: number }): number {
+function stepPlus(
+  lat: Su2Lattice,
+  input: { site: number; mu: number },
+): number {
   const st = lat.stride[input.mu] ?? 1
   const c = Math.floor(input.site / st) % lat.length
   return c === lat.length - 1
@@ -114,13 +117,19 @@ function stepPlus(lat: Su2Lattice, input: { site: number; mu: number }): number 
     : input.site + st
 }
 
-function stepMinus(lat: Su2Lattice, input: { site: number; mu: number }): number {
+function stepMinus(
+  lat: Su2Lattice,
+  input: { site: number; mu: number },
+): number {
   const st = lat.stride[input.mu] ?? 1
   const c = Math.floor(input.site / st) % lat.length
   return c === 0 ? input.site + (lat.length - 1) * st : input.site - st
 }
 
-function getLink(lat: Su2Lattice, input: { site: number; mu: number }): Quat {
+function getLink(
+  lat: Su2Lattice,
+  input: { site: number; mu: number },
+): Quat {
   const o = (input.site * lat.dim + input.mu) * 4
   return [
     lat.links[o] ?? 0,
@@ -144,7 +153,10 @@ function setLink(
 // Sum of the staples around link (site, mu): the product of the other three
 // links of each plaquette containing it (forward and backward in each other
 // direction). The plaquette-sum action of the link is (1/2) Tr(U_mu(site) * A).
-function staple(lat: Su2Lattice, input: { site: number; mu: number }): Quat {
+function staple(
+  lat: Su2Lattice,
+  input: { site: number; mu: number },
+): Quat {
   const mu = input.mu
   const x = input.site
   let a: Quat = [0, 0, 0, 0]
@@ -156,7 +168,10 @@ function staple(lat: Su2Lattice, input: { site: number; mu: number }): Quat {
     const xNu = stepPlus(lat, { site: x, mu: nu })
     // forward staple: U_nu(x+mu) U_mu(x+nu)^dag U_nu(x)^dag
     const forward = qmul(
-      qmul(getLink(lat, { site: xMu, mu: nu }), qdag(getLink(lat, { site: xNu, mu }))),
+      qmul(
+        getLink(lat, { site: xMu, mu: nu }),
+        qdag(getLink(lat, { site: xNu, mu })),
+      ),
       qdag(getLink(lat, { site: x, mu: nu })),
     )
     // backward staple: U_nu(x+mu-nu)^dag U_mu(x-nu)^dag U_nu(x-nu)
@@ -206,7 +221,9 @@ export function metropolisSweep(input: {
 
 // Average plaquette (1/2)Tr U_plaq over the whole lattice. Near 0 in the
 // disordered (strong-coupling) phase, near 1 in the ordered (weak-coupling) one.
-export function averagePlaquette(input: { lattice: Su2Lattice }): number {
+export function averagePlaquette(input: {
+  lattice: Su2Lattice
+}): number {
   const lat = input.lattice
   let total = 0
   let count = 0
@@ -216,7 +233,10 @@ export function averagePlaquette(input: { lattice: Su2Lattice }): number {
         const xMu = stepPlus(lat, { site: s, mu })
         const xNu = stepPlus(lat, { site: s, mu: nu })
         const plaq = qmul(
-          qmul(getLink(lat, { site: s, mu }), getLink(lat, { site: xMu, mu: nu })),
+          qmul(
+            getLink(lat, { site: s, mu }),
+            getLink(lat, { site: xMu, mu: nu }),
+          ),
           qmul(
             qdag(getLink(lat, { site: xNu, mu })),
             qdag(getLink(lat, { site: s, mu: nu })),

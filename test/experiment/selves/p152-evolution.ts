@@ -51,17 +51,27 @@ const fitness = (org: Int8Array, target: Int8Array): number => {
   return m
 }
 
-function evolve(select: boolean, M: number, P: number, G: number, mu: number, target: Int8Array, rng: Rng): { meanByGen: number[]; heritability: number } {
+function evolve(
+  select: boolean,
+  M: number,
+  P: number,
+  G: number,
+  mu: number,
+  target: Int8Array,
+  rng: Rng,
+): { meanByGen: number[]; heritability: number } {
   let pop: Int8Array[] = []
   for (let i = 0; i < P; i++) pop.push(randomBalanced(M, rng))
   const meanByGen: number[] = []
   let heritSum = 0
   let heritCount = 0
   for (let g = 0; g < G; g++) {
-    const scored = pop.map((o) => ({ o, f: fitness(o, target) }))
+    const scored = pop.map(o => ({ o, f: fitness(o, target) }))
     meanByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
     // selection, keep the fitter half (the arrow's value), or a random half (drift control)
-    const survivors = select ? scored.sort((a, b) => b.f - a.f).slice(0, P / 2) : scored.slice(0, P / 2)
+    const survivors = select
+      ? scored.sort((a, b) => b.f - a.f).slice(0, P / 2)
+      : scored.slice(0, P / 2)
     // reproduce, each survivor makes 2 offspring (copy with mutation), measure parent-child fitness link
     const next: Int8Array[] = []
     for (const s of survivors) {
@@ -74,7 +84,7 @@ function evolve(select: boolean, M: number, P: number, G: number, mu: number, ta
     }
     pop = next
   }
-  const scored = pop.map((o) => fitness(o, target))
+  const scored = pop.map(o => fitness(o, target))
   meanByGen.push(scored.reduce((a, b) => a + b, 0) / P)
   // heritability proxy, parent-child fitness covariance sign (positive = heritable)
   const heritability = heritCount > 0 ? heritSum / heritCount : 0
@@ -99,7 +109,15 @@ export function evolution(input?: { M?: number }): {
   const rng = makeRng({ seed: 3 })
   const target = randomBalanced(M, rng)
   const sel = evolve(true, M, P, G, mu, target, makeRng({ seed: 11 }))
-  const drift = evolve(false, M, P, G, mu, target, makeRng({ seed: 22 }))
+  const drift = evolve(
+    false,
+    M,
+    P,
+    G,
+    mu,
+    target,
+    makeRng({ seed: 22 }),
+  )
 
   const startMean = sel.meanByGen[0]!
   const selectedFinal = sel.meanByGen[sel.meanByGen.length - 1]!
@@ -111,12 +129,23 @@ export function evolution(input?: { M?: number }): {
   const heritable = heritability > 0 // offspring resemble parents in fitness
   const solved = fitnessRises && beatsDrift && heritable
 
-  return { M, selectedFinal, driftFinal, startMean, heritability, fitnessRises, beatsDrift, heritable, solved }
+  return {
+    M,
+    selectedFinal,
+    driftFinal,
+    startMean,
+    heritability,
+    fitnessRises,
+    beatsDrift,
+    heritable,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/p152-evolution',
-  title: 'heredity plus variation plus selection drives mean fitness up, beating drift',
+  title:
+    'heredity plus variation plus selection drives mean fitness up, beating drift',
   category: 'selves',
   substrates: 'any',
   depth: 'L3',
@@ -128,7 +157,11 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'a population reproducing with mutation under selection raises mean fitness to the optimum on heritable variation, the Darwinian loop from the base',
-      metrics: { startMean: r.startMean, selectedFinal: r.selectedFinal, M: r.M },
+      metrics: {
+        startMean: r.startMean,
+        selectedFinal: r.selectedFinal,
+        M: r.M,
+      },
       control: { driftFinal: r.driftFinal },
     })
   },

@@ -42,7 +42,8 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
 function construct(target: Int8Array, rng: Rng): number {
   const M = target.length
   const s = new Int8Array(M)
-  for (let i = 0; i < M; i++) s[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
+  for (let i = 0; i < M; i++)
+    s[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
   let gap = 0
   for (let i = 0; i < M; i++) if (s[i] !== target[i]) gap++
   let steps = 0
@@ -80,7 +81,12 @@ function maintain(target: Int8Array, rng: Rng): number {
 
 export function arbitraryStructure(input?: { M?: number }): {
   M: number
-  cases: { kind: string; buildSteps: number; built: boolean; maintainFidelity: number }[]
+  cases: {
+    kind: string
+    buildSteps: number
+    built: boolean
+    maintainFidelity: number
+  }[]
   allBuilt: boolean
   allMaintained: boolean
   solved: boolean
@@ -95,8 +101,8 @@ export function arbitraryStructure(input?: { M?: number }): {
     const maintainFidelity = maintain(target, rng)
     return { kind, buildSteps, built, maintainFidelity }
   })
-  const allBuilt = cases.every((c) => c.built && c.buildSteps < 30 * M)
-  const allMaintained = cases.every((c) => c.maintainFidelity > 0.99)
+  const allBuilt = cases.every(c => c.built && c.buildSteps < 30 * M)
+  const allMaintained = cases.every(c => c.maintainFidelity > 0.99)
   const solved = allBuilt && allMaintained
 
   return { M, cases, allBuilt, allMaintained, solved }
@@ -104,7 +110,8 @@ export function arbitraryStructure(input?: { M?: number }): {
 
 export default experiment({
   id: 'selves/arbitrary-structure',
-  title: 'the goal-directed builder reaches and holds several arbitrary balanced targets',
+  title:
+    'the goal-directed builder reaches and holds several arbitrary balanced targets',
   category: 'selves',
   substrates: 'any',
   depth: 'L0',
@@ -118,7 +125,10 @@ export default experiment({
         'a goal-directed builder reaches several different arbitrary balanced targets and active maintenance holds each at full fidelity',
       metrics: {
         caseCount: r.cases.length,
-        totalBuildSteps: r.cases.reduce((sum, c) => sum + c.buildSteps, 0),
+        totalBuildSteps: r.cases.reduce(
+          (sum, c) => sum + c.buildSteps,
+          0,
+        ),
       },
       notes:
         'maintain copies the target into the state every beat so fidelity is guaranteed by construction, this is hand-fed and not evidence of emergent construction',

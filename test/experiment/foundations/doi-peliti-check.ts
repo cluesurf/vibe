@@ -12,11 +12,14 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // tone t in {-1,0,1} -> index t+1 in {0,1,2}; state = 3*ai + bi (the ordered pair)
 const toneOf = (i: number): number => i - 1
-const sz = (state: number): number => toneOf(Math.floor(state / 3)) + toneOf(state % 3)
+const sz = (state: number): number =>
+  toneOf(Math.floor(state / 3)) + toneOf(state % 3)
 
 // the rule's single-edge transition matrix (isolated edge, one update)
 function buildT(c: number, s: number, h: number): number[][] {
-  const T: number[][] = Array.from({ length: 9 }, () => new Array<number>(9).fill(0))
+  const T: number[][] = Array.from({ length: 9 }, () =>
+    new Array<number>(9).fill(0),
+  )
   for (let st = 0; st < 9; st++) {
     const a = toneOf(Math.floor(st / 3))
     const b = toneOf(st % 3)
@@ -47,7 +50,8 @@ function stationary(T: number[][]): number[] {
   let pi = new Array<number>(9).fill(1 / 9)
   for (let it = 0; it < 5000; it++) {
     const next = new Array<number>(9).fill(0)
-    for (let a = 0; a < 9; a++) for (let b = 0; b < 9; b++) next[b]! += pi[a]! * T[a]![b]!
+    for (let a = 0; a < 9; a++)
+      for (let b = 0; b < 9; b++) next[b]! += pi[a]! * T[a]![b]!
     let sum = 0
     for (const v of next) sum += v
     for (let i = 0; i < 9; i++) next[i]! /= sum
@@ -70,46 +74,61 @@ export function doiPelitiCheck(): {
 
   // (1) S^z conservation: off-diagonal transitions connect only equal-S^z states
   let conservesSz = true
-  for (let a = 0; a < 9; a++) for (let b = 0; b < 9; b++) if (a !== b && T[a]![b]! > 0) {
-    if (sz(a) !== sz(b)) conservesSz = false
-  }
+  for (let a = 0; a < 9; a++)
+    for (let b = 0; b < 9; b++)
+      if (a !== b && T[a]![b]! > 0) {
+        if (sz(a) !== sz(b)) conservesSz = false
+      }
 
   // (2) unit exchange: every move changes (n_i, n_j) by (+1,-1) or (-1,+1)
   let unitExchange = true
-  for (let a = 0; a < 9; a++) for (let b = 0; b < 9; b++) if (a !== b && T[a]![b]! > 0) {
-    const dai = toneOf(Math.floor(b / 3)) - toneOf(Math.floor(a / 3))
-    const dbi = toneOf(b % 3) - toneOf(a % 3)
-    if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1))) unitExchange = false
-  }
+  for (let a = 0; a < 9; a++)
+    for (let b = 0; b < 9; b++)
+      if (a !== b && T[a]![b]! > 0) {
+        const dai =
+          toneOf(Math.floor(b / 3)) - toneOf(Math.floor(a / 3))
+        const dbi = toneOf(b % 3) - toneOf(a % 3)
+        if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1)))
+          unitExchange = false
+      }
 
   // (3) detailed balance: pi_a T_ab = pi_b T_ba for all a,b
   const pi = stationary(T)
   let dbv = 0
   let scale = 0
-  for (let a = 0; a < 9; a++) for (let b = a + 1; b < 9; b++) {
-    const fwd = pi[a]! * T[a]![b]!
-    const rev = pi[b]! * T[b]![a]!
-    dbv += Math.abs(fwd - rev)
-    scale += fwd + rev
-  }
+  for (let a = 0; a < 9; a++)
+    for (let b = a + 1; b < 9; b++) {
+      const fwd = pi[a]! * T[a]![b]!
+      const rev = pi[b]! * T[b]![a]!
+      dbv += Math.abs(fwd - rev)
+      scale += fwd + rev
+    }
   const detailedBalanceViolation = scale > 0 ? dbv / scale : 0
   const detailedBalance = detailedBalanceViolation < 1e-6
 
   const solved = conservesSz && unitExchange && detailedBalance
 
-  return { conservesSz, unitExchange, detailedBalanceViolation, detailedBalance, solved }
+  return {
+    conservesSz,
+    unitExchange,
+    detailedBalanceViolation,
+    detailedBalance,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'foundations/doi-peliti-check',
-  title: 'the rule is a spin-1 charge-conserving reversible exchange model',
+  title:
+    'the rule is a spin-1 charge-conserving reversible exchange model',
   category: 'foundations',
   substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {
     const r = doiPelitiCheck()
-    const ok = r.solved && r.conservesSz && r.unitExchange && r.detailedBalance
+    const ok =
+      r.solved && r.conservesSz && r.unitExchange && r.detailedBalance
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

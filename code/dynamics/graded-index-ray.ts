@@ -57,7 +57,10 @@ export function rayDeflection(input: {
 //   n(x, y) = 1 + mass / (r + soft),   r = hypot(x, y),
 // the standard effective-metric / weak-lensing index built from a softened Newtonian potential. The
 // softening keeps the well finite at the centre. Higher near the mass, so rays bend toward it.
-export function softenedMassIndexField(input: { mass: number; soft?: number }): {
+export function softenedMassIndexField(input: {
+  mass: number
+  soft?: number
+}): {
   index: (x: number, y: number) => number
   indexGradient: (x: number, y: number) => Vector2
 } {

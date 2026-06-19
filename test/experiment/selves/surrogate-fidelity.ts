@@ -29,7 +29,8 @@ const MARGIN = 0.2
 
 export default experiment({
   id: 'selves/surrogate-fidelity',
-  title: 'a learned surrogate of a self forward-predicts its held-out coarse future, the controls do not',
+  title:
+    'a learned surrogate of a self forward-predicts its held-out coarse future, the controls do not',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -48,17 +49,33 @@ export default experiment({
     const train = labels.slice(0, cut)
     const test = labels.slice(cut)
 
-    const surrogate = fitMarkovSurrogate({ trajectory: train, stateCount: bins, lag })
-    const marginal = marginalDistribution({ trajectory: train, stateCount: bins, lag })
+    const surrogate = fitMarkovSurrogate({
+      trajectory: train,
+      stateCount: bins,
+      lag,
+    })
+    const marginal = marginalDistribution({
+      trajectory: train,
+      stateCount: bins,
+      lag,
+    })
     const shuffled = fitMarkovSurrogate({
       trajectory: timeShuffle({ trajectory: train, seed: 321 }),
       stateCount: bins,
       lag,
     })
 
-    const llSurrogate = predictiveLogLikelihood({ tpm: surrogate, test, lag })
+    const llSurrogate = predictiveLogLikelihood({
+      tpm: surrogate,
+      test,
+      lag,
+    })
     const llMarginal = marginalLogLikelihood({ marginal, test, lag })
-    const llShuffled = predictiveLogLikelihood({ tpm: shuffled, test, lag })
+    const llShuffled = predictiveLogLikelihood({
+      tpm: shuffled,
+      test,
+      lag,
+    })
     const accSurrogate = forwardAccuracy({ tpm: surrogate, test, lag })
 
     // the surrogate beats the memoryless baseline on data it never saw (it learned real state-dependent

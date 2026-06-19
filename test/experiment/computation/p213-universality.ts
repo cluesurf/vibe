@@ -11,24 +11,47 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // The Margolus billiard-ball block CA (margolusStep) lives in code/operator/margolus-billiard.
 const L = 40
-const at = (x: number, y: number): number => ((y % L) + L) % L * L + (((x % L) + L) % L)
-const step = (g: Uint8Array, parity: number): void => margolusStep(L, g, parity)
+const at = (x: number, y: number): number =>
+  (((y % L) + L) % L) * L + (((x % L) + L) % L)
+const step = (g: Uint8Array, parity: number): void =>
+  margolusStep(L, g, parity)
 
-export function universality(): { ballistic: boolean; reversible: boolean; displacement: number } {
+export function universality(): {
+  ballistic: boolean
+  reversible: boolean
+  displacement: number
+} {
   // (1) a lone ball flies ballistically (a wire)
-  const g = new Uint8Array(L * L); g[at(8, 8)] = 1
+  const g = new Uint8Array(L * L)
+  g[at(8, 8)] = 1
   const start: [number, number] = [8, 8]
   for (let t = 0; t < 16; t++) step(g, t % 2)
-  let bx = -1, by = -1; for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) if (g[at(x, y)]) { bx = x; by = y }
-  const displacement = Math.round(Math.hypot(bx - start[0], by - start[1]) * 10) / 10
+  let bx = -1,
+    by = -1
+  for (let y = 0; y < L; y++)
+    for (let x = 0; x < L; x++)
+      if (g[at(x, y)]) {
+        bx = x
+        by = y
+      }
+  const displacement =
+    Math.round(Math.hypot(bx - start[0], by - start[1]) * 10) / 10
   const ballistic = displacement > 6 // moved a clear distance in 16 steps (a propagating signal)
   // (2) exact reversibility: random field, forward T then backward T = identity
-  const rng = makeRng({ seed: 17 }); const rnd = (): number => rng.next()
-  const h = new Uint8Array(L * L); for (let i = 0; i < L * L; i++) h[i] = rnd() < 0.25 ? 1 : 0
-  const orig = h.slice(); const T = 20
+  const rng = makeRng({ seed: 17 })
+  const rnd = (): number => rng.next()
+  const h = new Uint8Array(L * L)
+  for (let i = 0; i < L * L; i++) h[i] = rnd() < 0.25 ? 1 : 0
+  const orig = h.slice()
+  const T = 20
   for (let t = 0; t < T; t++) step(h, t % 2)
   for (let t = T - 1; t >= 0; t--) step(h, t % 2) // inverse = same block rotation in reverse parity order
-  let reversible = true; for (let i = 0; i < L * L; i++) if (h[i] !== orig[i]) { reversible = false; break }
+  let reversible = true
+  for (let i = 0; i < L * L; i++)
+    if (h[i] !== orig[i]) {
+      reversible = false
+      break
+    }
   return { ballistic, reversible, displacement }
 }
 
@@ -41,7 +64,8 @@ export function universality(): { ballistic: boolean; reversible: boolean; displ
 // holds for any field.
 export default experiment({
   id: 'computation/p213-universality',
-  title: 'the flat {4,3,4} cusp runs the reversible Margolus billiard-ball CA (ballistic wire plus exact reversibility)',
+  title:
+    'the flat {4,3,4} cusp runs the reversible Margolus billiard-ball CA (ballistic wire plus exact reversibility)',
   category: 'computation',
   substrates: ['3434'],
   depth: 'L2',

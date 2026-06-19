@@ -18,9 +18,17 @@ export function dslDemo(): {
 } {
   const world = vibe().size(1200).seed(1).build().run(40)
   const r = world.read()
-  const lattice = vibe().mesh('lattice').size(900).seed(1).build().run(10).read()
+  const lattice = vibe()
+    .mesh('lattice')
+    .size(900)
+    .seed(1)
+    .build()
+    .run(10)
+    .read()
   // A converged non-trivial mix: both poles populated, not collapsed to all-zero.
-  const toneMix = r.toneHistogram.minus > 0.1 * 1200 && r.toneHistogram.plus > 0.1 * 1200
+  const toneMix =
+    r.toneHistogram.minus > 0.1 * 1200 &&
+    r.toneHistogram.plus > 0.1 * 1200
   return {
     committedAnisotropy: r.lorentzAnisotropy,
     committedReach: r.exponentialReach,

@@ -31,16 +31,21 @@ export function holography(): {
   depthIsScale: boolean
   solved: boolean
 } {
-  const mesh = buildCoxeterMesh({ symbol: [7, 3], depth: 24, maxChambers: 200000 })
+  const mesh = buildCoxeterMesh({
+    symbol: [7, 3],
+    depth: 24,
+    maxChambers: 200000,
+  })
   const n = mesh.cellCount
   const coord = mesh.coords
-  const radius = coord.map((c) => Math.hypot(c[0] ?? 0, c[1] ?? 0))
-  const angle = coord.map((c) => Math.atan2(c[1] ?? 0, c[0] ?? 0))
+  const radius = coord.map(c => Math.hypot(c[0] ?? 0, c[1] ?? 0))
+  const angle = coord.map(c => Math.atan2(c[1] ?? 0, c[0] ?? 0))
   const rMax = Math.max(...radius)
 
   // the boundary: the outer rim shell, ordered around the circle by angle
   const rim = [] as number[]
-  for (let i = 0; i < n; i++) if ((radius[i] ?? 0) > 0.93 * rMax) rim.push(i)
+  for (let i = 0; i < n; i++)
+    if ((radius[i] ?? 0) > 0.93 * rMax) rim.push(i)
   rim.sort((a, b) => (angle[a] ?? 0) - (angle[b] ?? 0))
 
   // 1. Ryu-Takayanagi: bulk geodesic length vs log(sin(theta/2)), binned and averaged over many
@@ -48,7 +53,11 @@ export function holography(): {
   const bins = new Map<number, { sum: number; count: number }>()
   const anchors = rim.filter((_, i) => i % 3 === 0)
   for (const a of anchors) {
-    const { dist } = neighborBfsTree({ neighbors: mesh.neighbors, size: n, source: a })
+    const { dist } = neighborBfsTree({
+      neighbors: mesh.neighbors,
+      size: n,
+      source: a,
+    })
     for (const r of rim) {
       let theta = Math.abs((angle[r] ?? 0) - (angle[a] ?? 0))
       if (theta > Math.PI) theta = 2 * Math.PI - theta
@@ -72,10 +81,15 @@ export function holography(): {
 
   // 2. and 3. shortcut and depth: from one anchor, to a nearby rim cell and to the antipodal one.
   const anchor = rim[Math.floor(rim.length / 2)]!
-  const { dist, parent } = neighborBfsTree({ neighbors: mesh.neighbors, size: n, source: anchor })
+  const { dist, parent } = neighborBfsTree({
+    neighbors: mesh.neighbors,
+    size: n,
+    source: anchor,
+  })
   const ai = rim.indexOf(anchor)
   const opp = rim[(ai + Math.floor(rim.length / 2)) % rim.length]!
-  const near = rim[(ai + Math.max(1, Math.floor(rim.length / 12))) % rim.length]!
+  const near =
+    rim[(ai + Math.max(1, Math.floor(rim.length / 12))) % rim.length]!
   const boundaryArc = Math.min(
     Math.floor(rim.length / 2),
     rim.length - Math.floor(rim.length / 2),
@@ -117,14 +131,16 @@ export function holography(): {
 
 export default experiment({
   id: 'holography/p91-holography',
-  title: 'Ryu-Takayanagi log law, geodesic shortcut, and depth-as-scale on the {7,3} crystal',
+  title:
+    'Ryu-Takayanagi log law, geodesic shortcut, and depth-as-scale on the {7,3} crystal',
   category: 'holography',
   substrates: ['534'],
   depth: 'L3',
   paper: true,
   run() {
     const r = holography()
-    const ok = r.solved && r.rtLogLawHolds && r.isShortcut && r.depthIsScale
+    const ok =
+      r.solved && r.rtLogLawHolds && r.isShortcut && r.depthIsScale
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

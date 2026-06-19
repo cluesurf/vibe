@@ -13,7 +13,8 @@ const ballSize = (shells: number[], radius: number): number =>
 
 export default experiment({
   id: 'data-structure/range-scan',
-  title: 'DS14: a range scan in the hyperbolic bulk visits exponentially many cells (the caveat)',
+  title:
+    'DS14: a range scan in the hyperbolic bulk visits exponentially many cells (the caveat)',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -26,11 +27,15 @@ export default experiment({
     const hyperbolicBall = ballSize(hyperbolic.shells, radius)
     const flatBall = ballSize(flat.shells, radius)
     // the per-radius growth of the scan cost, exponential in the bulk, toward 1 (polynomial) when flat
-    const hyperbolicBallRatio = ballSize(hyperbolic.shells, radius) / ballSize(hyperbolic.shells, radius - 1)
-    const flatBallRatio = ballSize(flat.shells, radius) / ballSize(flat.shells, radius - 1)
+    const hyperbolicBallRatio =
+      ballSize(hyperbolic.shells, radius) /
+      ballSize(hyperbolic.shells, radius - 1)
+    const flatBallRatio =
+      ballSize(flat.shells, radius) / ballSize(flat.shells, radius - 1)
 
     // the hyperbolic range-scan cost grows exponentially and exceeds the flat one at the same radius
-    const exponentialScanCost = hyperbolicBallRatio > 1.3 && hyperbolicBall > flatBall
+    const exponentialScanCost =
+      hyperbolicBallRatio > 1.3 && hyperbolicBall > flatBall
 
     return verdict({
       status: exponentialScanCost ? 'pass' : 'fail',

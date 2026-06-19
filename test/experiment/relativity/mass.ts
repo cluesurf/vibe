@@ -22,18 +22,28 @@ function diracEnergy(input: { k: number; m: number }): number {
 
 // Least squares fit omega^2 = a * k^2 + b. The relativistic dispersion has a = 1
 // (the speed of light) and b = m^2 (the rest energy squared).
-function fitDispersion(ks: number[], omegas: number[]): { a: number; b: number } {
-  const fit = relativisticDispersionFit({ wavenumbers: ks, frequencies: omegas })
+function fitDispersion(
+  ks: number[],
+  omegas: number[],
+): { a: number; b: number } {
+  const fit = relativisticDispersionFit({
+    wavenumbers: ks,
+    frequencies: omegas,
+  })
   return { a: fit.speedSquared, b: fit.massSquared }
 }
 
-export function massStudy(input: { m: number }): { gap: number; a: number; b: number } {
+export function massStudy(input: { m: number }): {
+  gap: number
+  a: number
+  b: number
+} {
   // Small-momentum window, where the lattice dispersion is closest to continuum.
   const ks: number[] = []
   for (let k = 0.02; k <= 0.32 + 1e-9; k += 0.03) {
     ks.push(k)
   }
-  const omegas = ks.map((k) => diracEnergy({ k, m: input.m }))
+  const omegas = ks.map(k => diracEnergy({ k, m: input.m }))
   const gap = diracEnergy({ k: 0, m: input.m })
   const fit = fitDispersion(ks, omegas)
   return { gap, a: fit.a, b: fit.b }

@@ -11,43 +11,102 @@ import { verdict } from '@/test/scaffold/verdict'
 type Cand = { sym: number[]; compact: boolean; note: string }
 const HONEYCOMBS: Cand[] = [
   // 4 compact regulars (the prime substrates)
-  { sym: [5, 3, 4], compact: true, note: 'order-4 dodecahedral (the committed substrate, done)' },
-  { sym: [4, 3, 5], compact: true, note: 'order-5 cubic, cubes / icosahedron' },
+  {
+    sym: [5, 3, 4],
+    compact: true,
+    note: 'order-4 dodecahedral (the committed substrate, done)',
+  },
+  {
+    sym: [4, 3, 5],
+    compact: true,
+    note: 'order-5 cubic, cubes / icosahedron',
+  },
   { sym: [3, 5, 3], compact: true, note: 'icosahedral, self-dual' },
-  { sym: [5, 3, 5], compact: true, note: 'order-5 dodecahedral, self-dual' },
+  {
+    sym: [5, 3, 5],
+    compact: true,
+    note: 'order-5 dodecahedral, self-dual',
+  },
   // 11 paracompact regulars (ideal Euclidean elements)
-  { sym: [3, 3, 6], compact: false, note: 'paracompact, tetrahedra / triangular-tiling vertex fig' },
-  { sym: [6, 3, 3], compact: false, note: 'paracompact, hexagonal-tiling cells' },
+  {
+    sym: [3, 3, 6],
+    compact: false,
+    note: 'paracompact, tetrahedra / triangular-tiling vertex fig',
+  },
+  {
+    sym: [6, 3, 3],
+    compact: false,
+    note: 'paracompact, hexagonal-tiling cells',
+  },
   { sym: [3, 4, 4], compact: false, note: 'paracompact' },
-  { sym: [4, 4, 3], compact: false, note: 'paracompact, square-tiling cells' },
+  {
+    sym: [4, 4, 3],
+    compact: false,
+    note: 'paracompact, square-tiling cells',
+  },
   { sym: [3, 6, 3], compact: false, note: 'paracompact, self-dual' },
   { sym: [4, 3, 6], compact: false, note: 'paracompact' },
   { sym: [6, 3, 4], compact: false, note: 'paracompact' },
-  { sym: [5, 3, 6], compact: false, note: 'paracompact (has a 5, non-crystallographic)' },
-  { sym: [6, 3, 5], compact: false, note: 'paracompact (has a 5, non-crystallographic)' },
-  { sym: [4, 4, 4], compact: false, note: 'paracompact, square-tiling cells and vertex fig' },
-  { sym: [6, 3, 6], compact: false, note: 'paracompact, self-dual, hexagonal' },
+  {
+    sym: [5, 3, 6],
+    compact: false,
+    note: 'paracompact (has a 5, non-crystallographic)',
+  },
+  {
+    sym: [6, 3, 5],
+    compact: false,
+    note: 'paracompact (has a 5, non-crystallographic)',
+  },
+  {
+    sym: [4, 4, 4],
+    compact: false,
+    note: 'paracompact, square-tiling cells and vertex fig',
+  },
+  {
+    sym: [6, 3, 6],
+    compact: false,
+    note: 'paracompact, self-dual, hexagonal',
+  },
 ]
 
 const SCALE = 20000
 const SURVEY_SCALE = 1200
 
-function measure(sym: number[], scale: number = SCALE): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
-  return surveyTessellation({ symbol: sym, maxCells: scale, growthFrom: 2, growthTo: 6 })
+function measure(
+  sym: number[],
+  scale: number = SCALE,
+): {
+  ok: boolean
+  cells: number
+  degree: number
+  growth: number
+  betheAlpha: number
+} {
+  return surveyTessellation({
+    symbol: sym,
+    maxCells: scale,
+    growthFrom: 2,
+    growthTo: 6,
+  })
 }
 
 export function threedTessellations(): void {
   for (const c of HONEYCOMBS) {
-    const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
+    const crystallographic = c.sym.every(
+      n => n === 3 || n === 4 || n === 6,
+    )
     const m = measure(c.sym, SURVEY_SCALE)
     const tag = c.compact ? 'COMPACT' : 'paracompact'
-    if (!m.ok) { continue }
+    if (!m.ok) {
+      continue
+    }
   }
 }
 
 export default experiment({
   id: 'substrate-survey/3d-tessellations',
-  title: 'a sweep of 3D hyperbolic honeycombs, compact ones are non-crystallographic, crystallographic ones are paracompact',
+  title:
+    'a sweep of 3D hyperbolic honeycombs, compact ones are non-crystallographic, crystallographic ones are paracompact',
   category: 'substrate-survey',
   substrates: 'any',
   depth: 'L1',

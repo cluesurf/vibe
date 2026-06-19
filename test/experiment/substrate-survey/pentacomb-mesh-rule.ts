@@ -1,7 +1,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
-import { streamCoxeterMeshGas, collideCoxeterMeshGas, countCoxeterMeshGas } from '@/code/operator/coxeter-mesh-gas'
+import {
+  streamCoxeterMeshGas,
+  collideCoxeterMeshGas,
+  countCoxeterMeshGas,
+} from '@/code/operator/coxeter-mesh-gas'
 
 // The 5D pentacomb as a working MESH with the directional rule running on the ACTUAL generated cell graph, the
 // dynamical side of substrate-survey/pentacomb-spin-curvature. We generate the pentacomb {3,4,3,3,4} cell
@@ -22,7 +26,8 @@ const growthRatio = (shells: number[]): number => {
 
 export default experiment({
   id: 'substrate-survey/pentacomb-mesh-rule',
-  title: 'the 5D pentacomb is a curved mesh that runs the reversible conserving rule on its real generated geometry',
+  title:
+    'the 5D pentacomb is a curved mesh that runs the reversible conserving rule on its real generated geometry',
   category: 'substrate-survey',
   substrates: ['53334'],
   depth: 'L2',
@@ -42,28 +47,46 @@ export default experiment({
     // directions per cell) makes the dynamics non-trivial while staying reversible and conserving.
     // the reversible charge-conserving lattice-gas rule on the generated mesh adjacency lives in
     // code/operator/coxeter-mesh-gas.
-    const stream = (state: number[][]): number[][] => streamCoxeterMeshGas({ state, adjacency, rank: RANK })
-    const collide = (state: number[][], forward: boolean): number[][] => collideCoxeterMeshGas({ state, rank: RANK, forward })
+    const stream = (state: number[][]): number[][] =>
+      streamCoxeterMeshGas({ state, adjacency, rank: RANK })
+    const collide = (state: number[][], forward: boolean): number[][] =>
+      collideCoxeterMeshGas({ state, rank: RANK, forward })
     // a deterministic initial charge pattern (no randomness): occupy direction (cell mod 6) at each cell
-    let occupation: number[][] = Array.from({ length: cells }, (_, cell) => Array.from({ length: RANK }, (_, d) => (d === cell % RANK ? 1 : 0)))
-    const initial = occupation.map((slots) => [...slots])
+    let occupation: number[][] = Array.from(
+      { length: cells },
+      (_, cell) =>
+        Array.from({ length: RANK }, (_, d) =>
+          d === cell % RANK ? 1 : 0,
+        ),
+    )
+    const initial = occupation.map(slots => [...slots])
     const count = countCoxeterMeshGas
     const charge0 = count(occupation)
 
     const steps = 30
     let conservedThroughout = true
-    for (let t = 0; t < steps; t++) { occupation = stream(collide(occupation, true)); if (count(occupation) !== charge0) conservedThroughout = false }
-    const moved = occupation.some((slots, cell) => slots.some((value, d) => value !== initial[cell]![d])) // the rule did something
-    for (let t = 0; t < steps; t++) occupation = collide(stream(occupation), false) // exact inverse, reversed order
-    const reversible = occupation.every((slots, cell) => slots.every((value, d) => value === initial[cell]![d]))
+    for (let t = 0; t < steps; t++) {
+      occupation = stream(collide(occupation, true))
+      if (count(occupation) !== charge0) conservedThroughout = false
+    }
+    const moved = occupation.some((slots, cell) =>
+      slots.some((value, d) => value !== initial[cell]![d]),
+    ) // the rule did something
+    for (let t = 0; t < steps; t++)
+      occupation = collide(stream(occupation), false) // exact inverse, reversed order
+    const reversible = occupation.every((slots, cell) =>
+      slots.every((value, d) => value === initial[cell]![d]),
+    )
 
-    const ranOnRealMesh = cells > 1000 && conservedThroughout && reversible && moved
+    const ranOnRealMesh =
+      cells > 1000 && conservedThroughout && reversible && moved
 
     // CONTROL: a EUCLIDEAN Coxeter mesh ({3,4,3,3}) grows more slowly (lower ratio), so the pentacomb's faster
     // growth is genuine negative curvature
     const euclid = buildCoxeterMatrixMesh([3, 4, 3, 3], 3000)
     const euclidRatio = growthRatio(euclid.shells)
-    const growsFasterThanFlat = pentaRatio > 1.5 && pentaRatio > euclidRatio + 0.2
+    const growsFasterThanFlat =
+      pentaRatio > 1.5 && pentaRatio > euclidRatio + 0.2
 
     const ok = growsFasterThanFlat && ranOnRealMesh
 
@@ -79,7 +102,10 @@ export default experiment({
         dynamicsNonTrivial: moved ? 1 : 0,
       },
       // CONTROL: the Euclidean {3,4,3,3} mesh grows more slowly, so the pentacomb's faster growth is curvature.
-      control: { euclideanGrowthRatio: euclidRatio, pentacombAboveEuclidean: growsFasterThanFlat ? 1 : 0 },
+      control: {
+        euclideanGrowthRatio: euclidRatio,
+        pentacombAboveEuclidean: growsFasterThanFlat ? 1 : 0,
+      },
       notes:
         'Gap closed, the rule now runs on the ACTUAL generated pentacomb mesh adjacency (thousands of cells), not an abstract patch. Streaming is an exact involution per generator (reflective at the boundary), so charge is conserved and the run reverses exactly, and the cyclic collision makes the dynamics non-trivial. With the spinor directions (the companion experiment) this completes spin plus curvature plus a working rule on real geometry.',
     })

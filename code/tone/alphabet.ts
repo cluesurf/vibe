@@ -27,7 +27,10 @@ export function valueCount(a: Alphabet): number {
 }
 
 // A random slot value for the given alphabet.
-export function randomValue(input: { alphabet: Alphabet; u: number }): number {
+export function randomValue(input: {
+  alphabet: Alphabet
+  u: number
+}): number {
   const a = input.alphabet
   switch (a.form) {
     case 'boolean':

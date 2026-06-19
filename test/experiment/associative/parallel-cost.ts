@@ -5,13 +5,20 @@
 // communication radius barely moves, the cubic communication radius grows a lot.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenterBySide,
+} from '@/code/substrate/cubic-lattice'
 import { numericSearchSteps } from '@/code/operator/numeric-search'
 import { coverageRadius } from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativeParallelCost(input?: { smallCells?: number; largeCells?: number; wordBits?: number }): {
+export function associativeParallelCost(input?: {
+  smallCells?: number
+  largeCells?: number
+  wordBits?: number
+}): {
   searchStepsSmall: number
   searchStepsLarge: number
   searchConstant: boolean
@@ -26,15 +33,31 @@ export function associativeParallelCost(input?: { smallCells?: number; largeCell
   const wordBits = input?.wordBits ?? 21
 
   // the content search cost is one pass per word trit, independent of the cell count
-  const searchStepsSmall = numericSearchSteps(3 ** Math.min(wordBits, 19))
-  const searchStepsLarge = numericSearchSteps(3 ** Math.min(wordBits, 19))
+  const searchStepsSmall = numericSearchSteps(
+    3 ** Math.min(wordBits, 19),
+  )
+  const searchStepsLarge = numericSearchSteps(
+    3 ** Math.min(wordBits, 19),
+  )
   const searchConstant = searchStepsSmall === searchStepsLarge
 
   // the communication cost is the coverage radius
-  const gS = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: smallCells })
-  const gL = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: largeCells })
-  const bulkRadiusSmall = coverageRadius({ neighbors: gS.neighbors, seed: 0 })
-  const bulkRadiusLarge = coverageRadius({ neighbors: gL.neighbors, seed: 0 })
+  const gS = buildCellGraph({
+    symbol: [3, 4, 3, 4],
+    maxCells: smallCells,
+  })
+  const gL = buildCellGraph({
+    symbol: [3, 4, 3, 4],
+    maxCells: largeCells,
+  })
+  const bulkRadiusSmall = coverageRadius({
+    neighbors: gS.neighbors,
+    seed: 0,
+  })
+  const bulkRadiusLarge = coverageRadius({
+    neighbors: gL.neighbors,
+    seed: 0,
+  })
   const bulkRadiusDelta = bulkRadiusLarge - bulkRadiusSmall
 
   const sideS = Math.round(smallCells ** (1 / 3))
@@ -49,7 +72,10 @@ export function associativeParallelCost(input?: { smallCells?: number; largeCell
   })
   const cubicRadiusDelta = cubicRadiusLarge - cubicRadiusSmall
 
-  const solved = searchConstant && bulkRadiusDelta <= 2 && bulkRadiusDelta < cubicRadiusDelta
+  const solved =
+    searchConstant &&
+    bulkRadiusDelta <= 2 &&
+    bulkRadiusDelta < cubicRadiusDelta
   return {
     searchStepsSmall,
     searchStepsLarge,
@@ -64,13 +90,17 @@ export function associativeParallelCost(input?: { smallCells?: number; largeCell
 
 export default experiment({
   id: 'associative/parallel-cost',
-  title: 'on the bulk the associative search cost is constant in size and the communication radius grows logarithmically, versus polynomially on a flat cubic memory',
+  title:
+    'on the bulk the associative search cost is constant in size and the communication radius grows logarithmically, versus polynomially on a flat cubic memory',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L3',
   paper: true,
   run() {
-    const r = associativeParallelCost({ smallCells: 2000, largeCells: 16000 })
+    const r = associativeParallelCost({
+      smallCells: 2000,
+      largeCells: 16000,
+    })
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

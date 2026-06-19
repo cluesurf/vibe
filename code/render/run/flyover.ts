@@ -14,8 +14,16 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildHoneycombScene } from '@/code/render/geometry/honeycomb'
-import { renderSceneToRgba, type Rgb } from '@/code/render/adapter/raster'
-import { transformScene, glide, rotateAboutOrigin, originDistance } from '@/code/render/geometry/isometry'
+import {
+  renderSceneToRgba,
+  type Rgb,
+} from '@/code/render/adapter/raster'
+import {
+  transformScene,
+  glide,
+  rotateAboutOrigin,
+  originDistance,
+} from '@/code/render/geometry/isometry'
 import { encodeGif } from '@/code/draw/gif'
 import { encodePng } from '@/code/draw/png'
 import type { Vec } from '@/code/render/scene'
@@ -28,7 +36,10 @@ const FAR: Rgb = [55, 50, 110]
 
 // the forward corridor for a seamless walking loop, the cell center nearest to straight up. Gliding by exactly
 // its distance along its direction lands the next tile on the center, so frame N matches frame 0, no seam.
-function verticalStep(centers: Vec[] | undefined): { direction: Vec; period: number } {
+function verticalStep(centers: Vec[] | undefined): {
+  direction: Vec
+  period: number
+} {
   const fallback = { direction: [0, 1] as Vec, period: 1.2 }
   if (!centers || centers.length < 2) return fallback
   let best: Vec | null = null
@@ -46,7 +57,10 @@ function verticalStep(centers: Vec[] | undefined): { direction: Vec; period: num
   }
   if (!best) return fallback
   const r = Math.hypot(best[0] ?? 0, best[1] ?? 0)
-  return { direction: [best[0]! / r, best[1]! / r], period: originDistance(best) }
+  return {
+    direction: [best[0]! / r, best[1]! / r],
+    period: originDistance(best),
+  }
 }
 
 function run(): void {
@@ -56,7 +70,10 @@ function run(): void {
   const symbol = symbolText.split('-').map(Number)
   const size = 600
   const frameCount = 48
-  const base = buildHoneycombScene({ symbol, maxCells: mode === 'walk' ? 7000 : 3500 })
+  const base = buildHoneycombScene({
+    symbol,
+    maxCells: mode === 'walk' ? 7000 : 3500,
+  })
   const step = verticalStep(base.centers)
 
   const frames: Uint8Array[] = []
@@ -66,20 +83,43 @@ function run(): void {
       mode === 'spin'
         ? rotateAboutOrigin({ angle: t * 2 * Math.PI })
         : mode === 'zoom'
-          ? glide({ direction: [Math.cos(0.35), Math.sin(0.35)], distance: t * 5 })
+          ? glide({
+              direction: [Math.cos(0.35), Math.sin(0.35)],
+              distance: t * 5,
+            })
           : // walk, move forward one lattice period over the loop so it repeats with no seam
-            glide({ direction: step.direction, distance: t * step.period })
+            glide({
+              direction: step.direction,
+              distance: t * step.period,
+            })
     const moved = transformScene(base, transform)
-    const { rgba } = renderSceneToRgba({ scene: moved, size, segments: 14, lineWidth: 1.3, near: NEAR, far: FAR })
+    const { rgba } = renderSceneToRgba({
+      scene: moved,
+      size,
+      segments: 14,
+      lineWidth: 1.3,
+      near: NEAR,
+      far: FAR,
+    })
     frames.push(rgba)
     if (f === 0 || f === Math.floor(frameCount / 2)) {
-      writeFileSync(join(outDir, `${mode}-${symbolText}-frame${f}.png`), encodePng(rgba, size, size))
+      writeFileSync(
+        join(outDir, `${mode}-${symbolText}-frame${f}.png`),
+        encodePng(rgba, size, size),
+      )
     }
   }
 
-  const gif = encodeGif({ frames, width: size, height: size, delayMs: 60 })
+  const gif = encodeGif({
+    frames,
+    width: size,
+    height: size,
+    delayMs: 60,
+  })
   writeFileSync(join(outDir, `${mode}-${symbolText}.gif`), gif)
-  console.log(`wrote ${mode}-${symbolText}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}`)
+  console.log(
+    `wrote ${mode}-${symbolText}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}`,
+  )
 }
 
 run()

@@ -7,34 +7,70 @@
 // Run: npx tsx code/experiment/p249-ph-photon-3434.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { GridGauge, plaquetteFlux, gridWilsonLoop } from '@/code/tool/grid-gauge'
+import {
+  GridGauge,
+  plaquetteFlux,
+  gridWilsonLoop,
+} from '@/code/tool/grid-gauge'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless: boolean; linearAtLongWave: boolean; transversePolarizations: boolean } {
-  const Lx = 12, Ly = 12
+export function phPhoton(): {
+  gaugeInvariant: boolean
+  stokes: boolean
+  massless: boolean
+  linearAtLongWave: boolean
+  transversePolarizations: boolean
+} {
+  const Lx = 12,
+    Ly = 12
   const wrap = (x: number, L: number): number => ((x % L) + L) % L
   // U(1) link phases on a periodic 2D plaquette lattice (the gauge field, the 8v sector)
   const rng = makeRng({ seed: 999 })
   const rnd = (): number => rng.next() * 2 * Math.PI
-  const Ax: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
-  const Ay: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
+  const Ax: number[][] = Array.from({ length: Lx }, () =>
+    Array.from({ length: Ly }, () => rnd()),
+  )
+  const Ay: number[][] = Array.from({ length: Lx }, () =>
+    Array.from({ length: Ly }, () => rnd()),
+  )
   // plaquette (field strength) at (x,y): sum of oriented link phases around the unit square
-  const plaq = (ax: number[][], ay: number[][], x: number, y: number): number =>
-    plaquetteFlux({ Ax: ax, Ay: ay }, { x, y, side: Lx })
+  const plaq = (
+    ax: number[][],
+    ay: number[][],
+    x: number,
+    y: number,
+  ): number => plaquetteFlux({ Ax: ax, Ay: ay }, { x, y, side: Lx })
 
   // PH2: gauge transform A -> A + grad(g), check every plaquette unchanged
-  const g: number[][] = Array.from({ length: Lx }, () => Array.from({ length: Ly }, () => rnd()))
-  const Ax2 = Ax.map((row, x) => row.map((a, y) => a + g[x]![y]! - g[wrap(x + 1, Lx)]![y]!))
-  const Ay2 = Ay.map((row, x) => row.map((a, y) => a + g[x]![y]! - g[x]![wrap(y + 1, Ly)]!))
+  const g: number[][] = Array.from({ length: Lx }, () =>
+    Array.from({ length: Ly }, () => rnd()),
+  )
+  const Ax2 = Ax.map((row, x) =>
+    row.map((a, y) => a + g[x]![y]! - g[wrap(x + 1, Lx)]![y]!),
+  )
+  const Ay2 = Ay.map((row, x) =>
+    row.map((a, y) => a + g[x]![y]! - g[x]![wrap(y + 1, Ly)]!),
+  )
   let maxDP = 0
-  for (let x = 0; x < Lx; x++) for (let y = 0; y < Ly; y++) maxDP = Math.max(maxDP, Math.abs(plaq(Ax, Ay, x, y) - plaq(Ax2, Ay2, x, y)))
+  for (let x = 0; x < Lx; x++)
+    for (let y = 0; y < Ly; y++)
+      maxDP = Math.max(
+        maxDP,
+        Math.abs(plaq(Ax, Ay, x, y) - plaq(Ax2, Ay2, x, y)),
+      )
   const gaugeInvariant = maxDP < 1e-9
 
   // PH4: discrete Stokes, flux through a 3x3 region = holonomy around its boundary loop
   const field: GridGauge = { Ax, Ay }
-  const regionFlux = (): number => { let f = 0; for (let x = 0; x < 3; x++) for (let y = 0; y < 3; y++) f += plaq(Ax, Ay, x, y); return f }
-  const boundaryHolonomy = (): number => gridWilsonLoop(field, { x0: 0, x1: 3, y0: 0, y1: 3 })
+  const regionFlux = (): number => {
+    let f = 0
+    for (let x = 0; x < 3; x++)
+      for (let y = 0; y < 3; y++) f += plaq(Ax, Ay, x, y)
+    return f
+  }
+  const boundaryHolonomy = (): number =>
+    gridWilsonLoop(field, { x0: 0, x1: 3, y0: 0, y1: 3 })
   const stokes = Math.abs(regionFlux() - boundaryHolonomy()) < 1e-9
 
   // PH1/PH3: the free photon dispersion is massless (gapless, linear). lattice: omega(k) = 2|sin(k/2)|
@@ -47,14 +83,22 @@ export function phPhoton(): { gaugeInvariant: boolean; stokes: boolean; massless
   // a massive field for contrast would have omega(0) = m > 0 (a gap)
   const massiveGap = Math.hypot(0.3, 1e-4) // sqrt(m^2 + k^2), m = 0.3
   // transverse polarizations in 4D = D - 2 = 2 (the photon has 2 physical polarizations, the longitudinal is pure gauge)
-  const D = 4, transversePolarizations = D - 2 === 2
+  const D = 4,
+    transversePolarizations = D - 2 === 2
 
-  return { gaugeInvariant, stokes, massless, linearAtLongWave, transversePolarizations }
+  return {
+    gaugeInvariant,
+    stokes,
+    massless,
+    linearAtLongWave,
+    transversePolarizations,
+  }
 }
 
 export default experiment({
   id: 'gauge/ph-photon-3434',
-  title: 'the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion',
+  title:
+    'the 8v sector is a gauge-invariant massless photon with a linear gapless dispersion',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',

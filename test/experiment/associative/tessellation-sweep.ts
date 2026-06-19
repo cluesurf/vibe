@@ -14,16 +14,22 @@ import { verdict } from '@/test/scaffold/verdict'
 // Small per-substrate build, the associative measure is cheap so the whole catalog runs in the suite.
 const SWEEP_MAX_CELLS = 1200
 
-export function associativeTessellationSweep(input?: { maxCells?: number }): {
+export function associativeTessellationSweep(input?: {
+  maxCells?: number
+}): {
   buildableCount: number
   perfectCount: number
   minRecall: number
   allPerfect: boolean
 } {
   const maxCells = input?.maxCells ?? SWEEP_MAX_CELLS
-  const buildable = TESSELLATIONS.filter((t) => t.buildable)
-  const recalls = buildable.map((t) => measureTessellation({ schlafli: t.schlafli, maxCells }).associativeExactRecall)
-  const perfectCount = recalls.filter((r) => r === 1).length
+  const buildable = TESSELLATIONS.filter(t => t.buildable)
+  const recalls = buildable.map(
+    t =>
+      measureTessellation({ schlafli: t.schlafli, maxCells })
+        .associativeExactRecall,
+  )
+  const perfectCount = recalls.filter(r => r === 1).length
   const minRecall = recalls.reduce((m, r) => Math.min(m, r), 1)
   return {
     buildableCount: buildable.length,
@@ -35,13 +41,16 @@ export function associativeTessellationSweep(input?: { maxCells?: number }): {
 
 export default experiment({
   id: 'associative/tessellation-sweep',
-  title: 'the content-addressable memory recalls every stored word exactly on every buildable regular hyperbolic tessellation',
+  title:
+    'the content-addressable memory recalls every stored word exactly on every buildable regular hyperbolic tessellation',
   category: 'associative',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
-    const r = associativeTessellationSweep({ maxCells: SWEEP_MAX_CELLS })
+    const r = associativeTessellationSweep({
+      maxCells: SWEEP_MAX_CELLS,
+    })
     return verdict({
       status: r.allPerfect ? 'pass' : 'fail',
       claim:

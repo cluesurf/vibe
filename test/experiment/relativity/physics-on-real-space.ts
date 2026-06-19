@@ -5,9 +5,15 @@
 // bulk coin, NOT on the flat slice, so they are unaffected, this experiment targets the flat-layer ones.
 // Run: npx tsx code/experiment/physics-on-real-space.ts
 
-import { buildEuclideanLattice, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildEuclideanLattice,
+  buildHorosphereBand,
+} from '@/code/substrate/coxeter/cell-direct'
 import { extractBand } from '@/code/substrate/horosphere'
-import { largestComponentNodes, mostConnectedNode } from '@/code/tool/graph'
+import {
+  largestComponentNodes,
+  mostConnectedNode,
+} from '@/code/tool/graph'
 import { spectralDimension } from '@/code/measure/dimension'
 import { gravityExponent as gravityExponentMeasure } from '@/code/measure/gravity-exponent'
 import { experiment } from '@/test/scaffold/suite'
@@ -18,7 +24,12 @@ const round2 = (x: number): number => Math.round(x * 100) / 100
 function largestComponent(nb: number[][]): number[] {
   return largestComponentNodes(nb)
 }
-function spectralDim(nb: number[][], start: number, t1: number, t2: number): number {
+function spectralDim(
+  nb: number[][],
+  start: number,
+  t1: number,
+  t2: number,
+): number {
   return round2(spectralDimension({ neighbors: nb, start, t1, t2 }))
 }
 // gravity, screened Laplacian Green's function (D - A + m^2) phi = delta, fit phi ~ r^-alpha over mid distances
@@ -28,28 +39,50 @@ function gravityExponent(nb: number[][], start: number): number {
 
 export function physicsOnRealSpace(): void {
   // Space A, the clean {4,3,4} cubic cusp (the physical space)
-  const cube = buildEuclideanLattice({ symbol: [4, 3, 4] as never, maxCells: 12000 })
-  let cc = 0; for (let i = 0; i < cube.cellCount; i++) if (cube.coords[i]!.every((x) => x === 0)) cc = i
+  const cube = buildEuclideanLattice({
+    symbol: [4, 3, 4] as never,
+    maxCells: 12000,
+  })
+  let cc = 0
+  for (let i = 0; i < cube.cellCount; i++)
+    if (cube.coords[i]!.every(x => x === 0)) cc = i
   const cubeDim = spectralDim(cube.neighbors, cc, 3, 12)
   const cubeGrav = gravityExponent(cube.neighbors, cc)
   // Space B, a generic aperiodic horosphere slice
-  const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 9000, half: 1.0, margin: 0.8 })
+  const h = buildHorosphereBand({
+    symbol: [3, 4, 3, 4] as never,
+    maxBand: 9000,
+    half: 1.0,
+    margin: 0.8,
+  })
   const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
-  const rmap = new Map<number, number>(); bandIdx.forEach((id, i) => rmap.set(id, i))
+  const rmap = new Map<number, number>()
+  bandIdx.forEach((id, i) => rmap.set(id, i))
   const bnb: number[][] = bandIdx.map(() => [])
-  for (let a = 0; a < bandIdx.length; a++) for (const w of h.neighbors[bandIdx[a]!]!) { const b = rmap.get(w); if (b !== undefined) bnb[a]!.push(b) }
+  for (let a = 0; a < bandIdx.length; a++)
+    for (const w of h.neighbors[bandIdx[a]!]!) {
+      const b = rmap.get(w)
+      if (b !== undefined) bnb[a]!.push(b)
+    }
   const lcc = largestComponent(bnb)
   const lmap = new Map(lcc.map((v, i) => [v, i]))
-  const lnb: number[][] = lcc.map((v) => bnb[v]!.map((w) => lmap.get(w)).filter((x) => x !== undefined) as number[])
+  const lnb: number[][] = lcc.map(
+    v =>
+      bnb[v]!.map(w => lmap.get(w)).filter(
+        x => x !== undefined,
+      ) as number[],
+  )
   const lc0 = mostConnectedNode(lnb)
   const bandDim = spectralDim(lnb, lc0, 3, 12)
   const bandGrav = gravityExponent(lnb, lc0)
-  const cuspHolds = Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
+  const cuspHolds =
+    Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
 }
 
 export default experiment({
   id: 'relativity/physics-on-real-space',
-  title: 'the flat-layer physics holds on the {4,3,4} cubic cusp and degrades on a generic slice',
+  title:
+    'the flat-layer physics holds on the {4,3,4} cubic cusp and degrades on a generic slice',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -61,7 +94,7 @@ export default experiment({
     })
     let cubeCenter = 0
     for (let i = 0; i < cube.cellCount; i++) {
-      if (cube.coords[i]!.every((x) => x === 0)) {
+      if (cube.coords[i]!.every(x => x === 0)) {
         cubeCenter = i
       }
     }
@@ -89,8 +122,10 @@ export default experiment({
     const lcc = largestComponent(bnb)
     const lmap = new Map(lcc.map((v, i) => [v, i]))
     const lnb: number[][] = lcc.map(
-      (v) =>
-        bnb[v]!.map((w) => lmap.get(w)).filter((x) => x !== undefined) as number[],
+      v =>
+        bnb[v]!.map(w => lmap.get(w)).filter(
+          x => x !== undefined,
+        ) as number[],
     )
     const bandCenter = mostConnectedNode(lnb)
     const bandDim = spectralDim(lnb, bandCenter, 3, 12)

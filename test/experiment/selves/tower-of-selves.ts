@@ -18,8 +18,14 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { makeGraph, Graph } from '@/code/tool/graph'
 import { settleAsync } from '@/code/operator/signed-majority-settle'
-import { clusterMajority as aggregate, agreementFraction as agreement } from '@/code/measure/agreement'
-import { effectiveCouplings, renormMacroStep } from '@/code/operator/macro-rule'
+import {
+  clusterMajority as aggregate,
+  agreementFraction as agreement,
+} from '@/code/measure/agreement'
+import {
+  effectiveCouplings,
+  renormMacroStep,
+} from '@/code/operator/macro-rule'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -27,7 +33,12 @@ import { verdict } from '@/test/scaffold/verdict'
 // cell. The unit of vibe v at level L is floor(v / (cellSize * b^L)). Two vibes are joined
 // with a density that falls off the higher their first common level, so cohesion is strong
 // inside a cell, weaker across a block, weaker still across an organ. All fills are +1.
-function hierarchicalMesh(input: { branching: number; depth: number; cellSize: number; rng: Rng }): {
+function hierarchicalMesh(input: {
+  branching: number
+  depth: number
+  cellSize: number
+  rng: Rng
+}): {
   g: Graph
   fills: Int8Array[]
   unitAtLevel: (v: number, level: number) => number
@@ -35,14 +46,18 @@ function hierarchicalMesh(input: { branching: number; depth: number; cellSize: n
 } {
   const { branching: b, depth, cellSize, rng } = input
   const n = cellSize * b ** depth
-  const adj: Map<number, number>[] = Array.from({ length: n }, () => new Map())
+  const adj: Map<number, number>[] = Array.from(
+    { length: n },
+    () => new Map(),
+  )
   const add = (u: number, v: number): void => {
     if (u !== v) {
       adj[u]?.set(v, 1)
       adj[v]?.set(u, 1)
     }
   }
-  const unitAtLevel = (v: number, level: number): number => Math.floor(v / (cellSize * b ** level))
+  const unitAtLevel = (v: number, level: number): number =>
+    Math.floor(v / (cellSize * b ** level))
   // edges per vibe at each common-ancestor level, decaying with level
   const degreeAtLevel = [6, 2, 1, 1, 1, 1, 1, 1]
   for (let v = 0; v < n; v++) {
@@ -50,13 +65,15 @@ function hierarchicalMesh(input: { branching: number; depth: number; cellSize: n
       const deg = degreeAtLevel[level] ?? 1
       const block = cellSize * b ** level
       const start = Math.floor(v / block) * block
-      for (let d = 0; d < deg; d++) add(v, start + rng.nextInt({ max: block }))
+      for (let d = 0; d < deg; d++)
+        add(v, start + rng.nextInt({ max: block }))
     }
   }
-  const neighbors = adj.map((m) => [...m.keys()])
-  const fills = adj.map((m) => Int8Array.from(m.values()))
+  const neighbors = adj.map(m => [...m.keys()])
+  const fills = adj.map(m => Int8Array.from(m.values()))
   const g = makeGraph({ size: n, directed: false, neighbors })
-  const countAtLevel = (level: number): number => Math.max(1, Math.round(n / (cellSize * b ** level)))
+  const countAtLevel = (level: number): number =>
+    Math.max(1, Math.round(n / (cellSize * b ** level)))
   return { g, fills, unitAtLevel, countAtLevel }
 }
 
@@ -80,7 +97,12 @@ export function towerOfSelves(input: { seed: number }): {
   const depth = 4
   const cellSize = 12
   const rng = makeRng({ seed: input.seed })
-  const { g, fills, unitAtLevel, countAtLevel } = hierarchicalMesh({ branching: b, depth, cellSize, rng })
+  const { g, fills, unitAtLevel, countAtLevel } = hierarchicalMesh({
+    branching: b,
+    depth,
+    cellSize,
+    rng,
+  })
 
   // A hierarchically structured self: tones assigned top-down, each level mostly following
   // its parent with a small chance to differ, so there is real structure at every scale.
@@ -100,10 +122,17 @@ export function towerOfSelves(input: { seed: number }): {
     unitTone.set(key, t)
     return t
   }
-  for (let v = 0; v < g.size; v++) tone[v] = toneOfUnit(0, unitAtLevel(v, 0)) as -1 | 0 | 1
+  for (let v = 0; v < g.size; v++)
+    tone[v] = toneOfUnit(0, unitAtLevel(v, 0)) as -1 | 0 | 1
 
   // Settle so the assignment is a genuine (metastable) self of the rule.
-  const base = settleAsync({ graph: g, fills, init: tone, sweeps: 60, rng: makeRng({ seed: input.seed + 2 }) }).state
+  const base = settleAsync({
+    graph: g,
+    fills,
+    init: tone,
+    sweeps: 60,
+    rng: makeRng({ seed: input.seed + 2 }),
+  }).state
 
   const names = ['cells', 'tissues', 'organs', 'systems', 'body']
   const rungs: Rung[] = []
@@ -119,25 +148,38 @@ export function towerOfSelves(input: { seed: number }): {
       cnt[cl[v] ?? 0] = (cnt[cl[v] ?? 0] ?? 0) + 1
     }
     let coh = 0
-    for (let c = 0; c < K; c++) coh += Math.abs(sum[c] ?? 0) / Math.max(1, cnt[c] ?? 1)
+    for (let c = 0; c < K; c++)
+      coh += Math.abs(sum[c] ?? 0) / Math.max(1, cnt[c] ?? 1)
     coh /= K
     // rule agreement: is this level's aggregate a fixed point of the renormalized rule?
     let ruleAgreement = 1
     if (level < depth && K >= 3) {
       const eff = effectiveCouplings(g, fills, cl, K)
       const superTone = aggregate(cl, K, base)
-      ruleAgreement = agreement(superTone, renormMacroStep(superTone, eff))
+      ruleAgreement = agreement(
+        superTone,
+        renormMacroStep(superTone, eff),
+      )
     }
-    rungs.push({ level, name: names[level] ?? `level ${level}`, units: K, coherence: coh, ruleAgreement })
+    rungs.push({
+      level,
+      name: names[level] ?? `level ${level}`,
+      units: K,
+      coherence: coh,
+      ruleAgreement,
+    })
   }
 
   const descendsToOne = (rungs[rungs.length - 1]?.units ?? 0) === 1
   let cleanBranching = true
   for (let i = 1; i < rungs.length; i++) {
-    const ratio = (rungs[i - 1]?.units ?? 1) / Math.max(1, rungs[i]?.units ?? 1)
+    const ratio =
+      (rungs[i - 1]?.units ?? 1) / Math.max(1, rungs[i]?.units ?? 1)
     if (Math.abs(ratio - b) > 0.5) cleanBranching = false
   }
-  const ruleHoldsEveryLevel = rungs.filter((r) => r.units >= 3 && r.level < depth).every((r) => r.ruleAgreement > 0.85)
+  const ruleHoldsEveryLevel = rungs
+    .filter(r => r.units >= 3 && r.level < depth)
+    .every(r => r.ruleAgreement > 0.85)
 
   return {
     baseVibes: g.size,
@@ -154,14 +196,19 @@ export function towerOfSelves(input: { seed: number }): {
 
 export default experiment({
   id: 'selves/tower-of-selves',
-  title: 'clean multi-level hierarchy to one top, rule holds every level',
+  title:
+    'clean multi-level hierarchy to one top, rule holds every level',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
     const r = towerOfSelves({ seed: 1 })
-    const ok = r.solved && r.descendsToOne && r.cleanBranching && r.ruleHoldsEveryLevel
+    const ok =
+      r.solved &&
+      r.descendsToOne &&
+      r.cleanBranching &&
+      r.ruleHoldsEveryLevel
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

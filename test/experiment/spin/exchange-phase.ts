@@ -10,22 +10,40 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function exchangePhase(): { table: { H: number; spin: number; exchange: number; kind: string }[]; consistent: boolean } {
+export function exchangePhase(): {
+  table: { H: number; spin: number; exchange: number; kind: string }[]
+  consistent: boolean
+} {
   const Hs = [0, 1, 2, 3]
-  const table = Hs.map((H) => {
+  const table = Hs.map(H => {
     const spin = H / 2
     const exchange = Math.cos(Math.PI * H) // e^(i pi H) is +1 (even) or -1 (odd)
     const rotation = Math.cos(2 * Math.PI * spin) // 2-pi rotation sign for spin s = cos(2 pi s)
-    return { H, spin, exchange: Math.round(exchange), rotation: Math.round(rotation), kind: exchange < 0 ? 'FERMION' : 'BOSON' }
+    return {
+      H,
+      spin,
+      exchange: Math.round(exchange),
+      rotation: Math.round(rotation),
+      kind: exchange < 0 ? 'FERMION' : 'BOSON',
+    }
   })
   // consistency: rotation sign == exchange sign for every H (spin-statistics)
-  const consistent = table.every((r) => r.rotation === r.exchange)
-  return { table: table.map((r) => ({ H: r.H, spin: r.spin, exchange: r.exchange, kind: r.kind })), consistent }
+  const consistent = table.every(r => r.rotation === r.exchange)
+  return {
+    table: table.map(r => ({
+      H: r.H,
+      spin: r.spin,
+      exchange: r.exchange,
+      kind: r.kind,
+    })),
+    consistent,
+  }
 }
 
 export default experiment({
   id: 'spin/exchange-phase',
-  title: 'an analytic consistency check that the assumed spin-statistics formulas agree, not an emergent result',
+  title:
+    'an analytic consistency check that the assumed spin-statistics formulas agree, not an emergent result',
   category: 'spin',
   substrates: ['any'],
   depth: 'L0',

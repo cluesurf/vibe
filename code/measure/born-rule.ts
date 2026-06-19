@@ -9,15 +9,21 @@
 import { makeRng, sampleEmpiricalFrequencies } from '@/code/tool/rng'
 
 // Realise amplitude_k = sqrt(count_k): disjoint vibe sets of size round(c_k^2 * scale), at least one each.
-export function patchesFromAmplitudes(amps: ReadonlyArray<number>, scale: number): { counts: number[]; total: number } {
-  const counts = amps.map((c) => Math.max(1, Math.round(c * c * scale)))
+export function patchesFromAmplitudes(
+  amps: ReadonlyArray<number>,
+  scale: number,
+): { counts: number[]; total: number } {
+  const counts = amps.map(c => Math.max(1, Math.round(c * c * scale)))
   const total = counts.reduce((a, b) => a + b, 0)
   return { counts, total }
 }
 
 // Substrate fact (1): merge adjacent disjoint patches and check sqrt(n1+n2)^2 == sqrt(n1)^2 + sqrt(n2)^2.
 // Returns the worst residual over all adjacent pairs (zero on a true quadrature additivity).
-export function quadratureAdditivityResidual(amps: ReadonlyArray<number>, scale: number): number {
+export function quadratureAdditivityResidual(
+  amps: ReadonlyArray<number>,
+  scale: number,
+): number {
   const { counts } = patchesFromAmplitudes(amps, scale)
   let maxRes = 0
   for (let i = 0; i + 1 < counts.length; i++) {
@@ -26,14 +32,21 @@ export function quadratureAdditivityResidual(amps: ReadonlyArray<number>, scale:
     const a1 = Math.sqrt(n1)
     const a2 = Math.sqrt(n2)
     const merged = Math.sqrt(n1 + n2)
-    maxRes = Math.max(maxRes, Math.abs(merged * merged - (a1 * a1 + a2 * a2)))
+    maxRes = Math.max(
+      maxRes,
+      Math.abs(merged * merged - (a1 * a1 + a2 * a2)),
+    )
   }
   return maxRes
 }
 
 // The functional-equation residual that selects the exponent. For random amplitude pairs, the worst
 // relative gap between (a1^2 + a2^2)^(p/2) and a1^p + a2^p. Zero only at p = 2.
-export function exponentResidual(input: { p: number; seed: number; trials?: number }): number {
+export function exponentResidual(input: {
+  p: number
+  seed: number
+  trials?: number
+}): number {
   const rng = makeRng({ seed: input.seed })
   const trials = input.trials ?? 4000
   let maxRel = 0
@@ -49,7 +62,16 @@ export function exponentResidual(input: { p: number; seed: number; trials?: numb
 
 // Fair sampling of the vibes: the empirical frequency of each outcome k over `draws` draws, which
 // converges to n_k / total = |c_k|^2.
-export function fairSampleFrequencies(input: { amps: ReadonlyArray<number>; scale: number; draws: number; seed: number }): number[] {
+export function fairSampleFrequencies(input: {
+  amps: ReadonlyArray<number>
+  scale: number
+  draws: number
+  seed: number
+}): number[] {
   const { counts } = patchesFromAmplitudes(input.amps, input.scale)
-  return sampleEmpiricalFrequencies({ counts, draws: input.draws, rng: makeRng({ seed: input.seed }) })
+  return sampleEmpiricalFrequencies({
+    counts,
+    draws: input.draws,
+    rng: makeRng({ seed: input.seed }),
+  })
 }

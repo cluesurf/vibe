@@ -49,13 +49,18 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/validation',
-  title: 'the reversible even-odd rule is local with a bounded interaction radius',
+  title:
+    'the reversible even-odd rule is local with a bounded interaction radius',
   category: 'foundations',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
-    const substrate = lattice({ dimension: 1, extent: 12, signature: 'riemannian' })
+    const substrate = lattice({
+      dimension: 1,
+      extent: 12,
+      signature: 'riemannian',
+    })
     const rng = makeRng({ seed: 1 })
     const configuration = makeConfiguration({
       alphabet: { form: 'boolean' },

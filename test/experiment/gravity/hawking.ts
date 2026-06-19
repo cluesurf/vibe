@@ -18,14 +18,22 @@
 //      Computed from the entropy formula, it is a genuine turnover, not a drawn triangle.
 // Run: npx tsx code/experiment/p71-hawking.ts
 
-import { unruhDetectorResponse, temperatureFromDetailedBalance } from '@/code/measure/unruh'
+import {
+  unruhDetectorResponse,
+  temperatureFromDetailedBalance,
+} from '@/code/measure/unruh'
 import { pageAverageEntropy } from '@/code/measure/entanglement'
 import { logLogSlope } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The Unruh detector response F(E): the magnitude of the transform of the worldline field correlator.
-function unruhResponse(input: { E: number; a: number; eps: number; samples: number }): number {
+function unruhResponse(input: {
+  E: number
+  a: number
+  eps: number
+  samples: number
+}): number {
   const f = unruhDetectorResponse({
     energy: input.E,
     kappa: input.a,
@@ -41,7 +49,7 @@ function unruhResponse(input: { E: number; a: number; eps: number; samples: numb
 function temperatureFromResponse(a: number, samples: number): number {
   return temperatureFromDetailedBalance({
     kappa: a,
-    response: (E) => unruhResponse({ E, a, eps: 0.01 / a, samples }),
+    response: E => unruhResponse({ E, a, eps: 0.01 / a, samples }),
   })
 }
 
@@ -67,15 +75,22 @@ export function hawking(input: Record<string, never> = {}): {
     const fm = unruhResponse({ E: -E, a, eps: 0.01, samples })
     const ratio = fp / fm
     const expected = Math.exp((-2 * Math.PI * E) / a)
-    thermalResidual = Math.max(thermalResidual, Math.abs(ratio - expected) / expected)
+    thermalResidual = Math.max(
+      thermalResidual,
+      Math.abs(ratio - expected) / expected,
+    )
   }
   const fittedTemperature = temperatureFromResponse(a, samples)
   const expectedTemperature = a / (2 * Math.PI)
-  const spectrumThermal = thermalResidual < 0.05 && Math.abs(fittedTemperature - expectedTemperature) < 0.02
+  const spectrumThermal =
+    thermalResidual < 0.05 &&
+    Math.abs(fittedTemperature - expectedTemperature) < 0.02
 
   // 2. T ~ 1/M: Schwarzschild surface gravity kappa = 1/(4M), and the derived T = kappa/(2 pi).
   const masses = [1, 2, 4]
-  const temps = masses.map((M) => temperatureFromResponse(1 / (4 * M), samples))
+  const temps = masses.map(M =>
+    temperatureFromResponse(1 / (4 * M), samples),
+  )
   // fit log T vs log M
   const temperatureExponent = logLogSlope(masses, temps)
 
@@ -85,14 +100,19 @@ export function hawking(input: Record<string, never> = {}): {
   let peakFraction = 0
   const curve: number[] = []
   for (let q = 1; q < totalQubits; q++) {
-    const s = pageAverageEntropy({ dimA: Math.pow(2, q), dimB: Math.pow(2, totalQubits - q) }) / Math.log(2)
+    const s =
+      pageAverageEntropy({
+        dimA: Math.pow(2, q),
+        dimB: Math.pow(2, totalQubits - q),
+      }) / Math.log(2)
     curve.push(s)
     if (s > peak) {
       peak = s
       peakFraction = q / totalQubits
     }
   }
-  const pageCurveTurnsOver = (curve[0] ?? 0) < peak && (curve[curve.length - 1] ?? 0) < peak
+  const pageCurveTurnsOver =
+    (curve[0] ?? 0) < peak && (curve[curve.length - 1] ?? 0) < peak
 
   return {
     fittedTemperature,
@@ -102,13 +122,17 @@ export function hawking(input: Record<string, never> = {}): {
     temperatureExponent,
     pageCurveTurnsOver,
     pagePeakFraction: peakFraction,
-    solved: spectrumThermal && Math.abs(temperatureExponent + 1) < 0.05 && pageCurveTurnsOver,
+    solved:
+      spectrumThermal &&
+      Math.abs(temperatureExponent + 1) < 0.05 &&
+      pageCurveTurnsOver,
   }
 }
 
 export default experiment({
   id: 'gravity/hawking',
-  title: 'thermal spectrum derived from the Unruh response, T = kappa/2pi, Page curve turns over',
+  title:
+    'thermal spectrum derived from the Unruh response, T = kappa/2pi, Page curve turns over',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',

@@ -42,13 +42,19 @@ export function discreteGraviton(input: { seed: number }): {
   const rng = makeRng({ seed: input.seed })
 
   // 1. Gauge invariance: h = d_mu xi_nu + d_nu xi_mu for a smooth random xi. G[h] should vanish.
-  const xi: Float64Array[] = Array.from({ length: Math.pow(L, D) }, () => new Float64Array(D))
+  const xi: Float64Array[] = Array.from(
+    { length: Math.pow(L, D) },
+    () => new Float64Array(D),
+  )
   // smooth xi: a few low-frequency modes
   for (let site = 0; site < xi.length; site++) {
     const c = coordsOf(site, L)
     for (let mu = 0; mu < D; mu++) {
       let v = 0
-      for (let k = 1; k <= 2; k++) v += (rng.next() - 0.5) * Math.cos((2 * Math.PI * k * (c[mu] ?? 0)) / L)
+      for (let k = 1; k <= 2; k++)
+        v +=
+          (rng.next() - 0.5) *
+          Math.cos((2 * Math.PI * k * (c[mu] ?? 0)) / L)
       xi[site]![mu] = v
     }
   }
@@ -60,9 +66,12 @@ export function discreteGraviton(input: { seed: number }): {
       const m = siteIndex(shift(coords, alpha, -1, L), L)
       return ((xi[p]![mu] ?? 0) - (xi[m]![mu] ?? 0)) / 2
     }
-    for (let mu = 0; mu < D; mu++) for (let nu = 0; nu < D; nu++) hGauge.data[site]![mu * D + nu] = dxi(mu, nu) + dxi(nu, mu)
+    for (let mu = 0; mu < D; mu++)
+      for (let nu = 0; nu < D; nu++)
+        hGauge.data[site]![mu * D + nu] = dxi(mu, nu) + dxi(nu, mu)
   }
-  const gaugeResidual = maxAbs(linearizedEinstein(hGauge)) / Math.max(1e-12, maxAbs(hGauge))
+  const gaugeResidual =
+    maxAbs(linearizedEinstein(hGauge)) / Math.max(1e-12, maxAbs(hGauge))
 
   // 2. Mass term: a constant (uniform) perturbation. A mass term would give G != 0 for it; a
   // massless operator gives exactly 0 (it is all derivatives).
@@ -101,9 +110,12 @@ export function discreteGraviton(input: { seed: number }): {
     eigenOverK2.push(best / latticeK2)
   }
   // massless: eigenvalue proportional to k^2 with the SAME constant across k (so eigen/k^2 is flat)
-  const mean = eigenOverK2.reduce((a, b) => a + b, 0) / eigenOverK2.length
-  const spread = Math.max(...eigenOverK2.map((x) => Math.abs(x - mean)))
-  const dispersionMassless = massTermResidual < 1e-9 && spread / Math.max(1e-9, Math.abs(mean)) < 0.05
+  const mean =
+    eigenOverK2.reduce((a, b) => a + b, 0) / eigenOverK2.length
+  const spread = Math.max(...eigenOverK2.map(x => Math.abs(x - mean)))
+  const dispersionMassless =
+    massTermResidual < 1e-9 &&
+    spread / Math.max(1e-9, Math.abs(mean)) < 0.05
 
   // 4. Polarizations: MEASURED from the operator's momentum-space spectrum (not asserted).
   const pol = gravitonPolarizationsFromSpectrum({ side: L, mode: 2 })
@@ -117,12 +129,17 @@ export function discreteGraviton(input: { seed: number }): {
     polarizations,
     polarizationGaugeModes: pol.gauge,
     polarizationSpectrum: pol.eigenvalues,
-    solved: gaugeResidual < 1e-9 && massTermResidual < 1e-9 && dispersionMassless && polarizations === 2,
+    solved:
+      gaugeResidual < 1e-9 &&
+      massTermResidual < 1e-9 &&
+      dispersionMassless &&
+      polarizations === 2,
   }
 }
 export default experiment({
   id: 'gravity/discrete-graviton',
-  title: 'discrete graviton is gauge-invariant, massless, two polarizations verified as eigenmodes',
+  title:
+    'discrete graviton is gauge-invariant, massless, two polarizations verified as eigenmodes',
   category: 'gravity',
   substrates: 'any',
   depth: 'L2',

@@ -47,18 +47,27 @@ function sliceCharge(buf: Float32Array, z: number): number {
     const i = (z * L + y) * L + x
     return [buf[i * 4]!, buf[i * 4 + 1]!, buf[i * 4 + 2]!]
   }
-  const dot = (a: number[], b: number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
-  const cross = (a: number[], b: number[]): number[] => [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!]
+  const dot = (a: number[], b: number[]): number =>
+    a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!
+  const cross = (a: number[], b: number[]): number[] => [
+    a[1]! * b[2]! - a[2]! * b[1]!,
+    a[2]! * b[0]! - a[0]! * b[2]!,
+    a[0]! * b[1]! - a[1]! * b[0]!,
+  ]
   const tri = (a: number[], b: number[], c: number[]): number => {
     const num = dot(a, cross(b, c))
     const den = 1 + dot(a, b) + dot(b, c) + dot(c, a)
     return 2 * Math.atan2(num, den)
   }
   let q = 0
-  for (let x = 0; x < L - 1; x++) for (let y = 0; y < L - 1; y++) {
-    const a = at(x, y), b = at(x + 1, y), c = at(x + 1, y + 1), d = at(x, y + 1)
-    q += tri(a, b, c) + tri(a, c, d)
-  }
+  for (let x = 0; x < L - 1; x++)
+    for (let y = 0; y < L - 1; y++) {
+      const a = at(x, y),
+        b = at(x + 1, y),
+        c = at(x + 1, y + 1),
+        d = at(x, y + 1)
+      q += tri(a, b, c) + tri(a, c, d)
+    }
   return q / (4 * Math.PI)
 }
 
@@ -77,25 +86,56 @@ async function run(): Promise<void> {
   const r = makeRng({ seed: 22222221 })
   const rnd = (): number => r.next()
   for (let i = 0; i < N; i++) {
-    const u = 2 * rnd() - 1, ph = 2 * Math.PI * rnd(), s = Math.sqrt(1 - u * u)
-    seed[i * 4] = s * Math.cos(ph); seed[i * 4 + 1] = s * Math.sin(ph); seed[i * 4 + 2] = u
+    const u = 2 * rnd() - 1,
+      ph = 2 * Math.PI * rnd(),
+      s = Math.sqrt(1 - u * u)
+    seed[i * 4] = s * Math.cos(ph)
+    seed[i * 4 + 1] = s * Math.sin(ph)
+    seed[i * 4 + 2] = u
   }
 
   const module = device.createShaderModule({ code: WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'main' } })
-  const params = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
-  const mk = (): GPUBuffer => device.createBuffer({ size: bytes, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
-  const staging = device.createBuffer({ size: bytes, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'main' },
+  })
+  const params = device.createBuffer({
+    size: 32,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+  const mk = (): GPUBuffer =>
+    device.createBuffer({
+      size: bytes,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
+  const staging = device.createBuffer({
+    size: bytes,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
   const dispatch = Math.ceil(N / WG)
 
   const trial = async (dmi: number, label: string): Promise<void> => {
     device.queue.writeBuffer(params, 0, new Uint32Array([L, 0, 0, 0]))
-    device.queue.writeBuffer(params, 16, new Float32Array([dmi, FIELD, DT, 0]))
+    device.queue.writeBuffer(
+      params,
+      16,
+      new Float32Array([dmi, FIELD, DT, 0]),
+    )
     const bufs: [GPUBuffer, GPUBuffer] = [mk(), mk()]
     device.queue.writeBuffer(bufs[0], 0, seed)
     const layout = pipeline.getBindGroupLayout(0)
-    const bind = (a: GPUBuffer, b: GPUBuffer): GPUBindGroup => device.createBindGroup({ layout, entries: [
-      { binding: 0, resource: { buffer: params } }, { binding: 1, resource: { buffer: a } }, { binding: 2, resource: { buffer: b } }] })
+    const bind = (a: GPUBuffer, b: GPUBuffer): GPUBindGroup =>
+      device.createBindGroup({
+        layout,
+        entries: [
+          { binding: 0, resource: { buffer: params } },
+          { binding: 1, resource: { buffer: a } },
+          { binding: 2, resource: { buffer: b } },
+        ],
+      })
     let src = 0
     const readCharge = async (): Promise<number> => {
       const enc = device.createCommandEncoder()
@@ -105,12 +145,14 @@ async function run(): Promise<void> {
       const out = new Float32Array(staging.getMappedRange().slice(0))
       staging.unmap()
       let tot = 0
-      for (let z = 4; z < L; z += 8) tot += Math.abs(sliceCharge(out, z)) // average |Q| over several slices
+      for (let z = 4; z < L; z += 8)
+        tot += Math.abs(sliceCharge(out, z)) // average |Q| over several slices
       return tot / Math.floor((L - 4) / 8)
     }
     const marks: number[] = []
     for (let s = 0; s < STEPS; s++) {
-      if (s === 0 || s === 300 || s === 600 || s === STEPS - 1) marks.push(Math.round((await readCharge()) * 10) / 10)
+      if (s === 0 || s === 300 || s === 600 || s === STEPS - 1)
+        marks.push(Math.round((await readCharge()) * 10) / 10)
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
       pass.setPipeline(pipeline)
@@ -120,14 +162,24 @@ async function run(): Promise<void> {
       device.queue.submit([enc.finish()])
       src = 1 - src
     }
-    console.log(`  ${label}: mean |skyrmion charge| per slice at steps 0,300,600,${STEPS - 1} = ${marks.join(', ')}`)
+    console.log(
+      `  ${label}: mean |skyrmion charge| per slice at steps 0,300,600,${STEPS - 1} = ${marks.join(', ')}`,
+    )
   }
 
-  console.log(`3D direction field on the GPU, ${N.toLocaleString()} sites (${L}^3), from a RANDOM start:`)
+  console.log(
+    `3D direction field on the GPU, ${N.toLocaleString()} sites (${L}^3), from a RANDOM start:`,
+  )
   await trial(0.0, 'NO stabilizer (exchange + field only)   ')
   await trial(0.5, 'WITH chiral stabilizer (exchange+DMI+field)')
-  console.log('  => if WITH-stabilizer holds non-zero charge while NO-stabilizer decays to 0, topological')
-  console.log('     selves FORM and PERSIST spontaneously in 3D once the rule supplies the stabilizer.')
+  console.log(
+    '  => if WITH-stabilizer holds non-zero charge while NO-stabilizer decays to 0, topological',
+  )
+  console.log(
+    '     selves FORM and PERSIST spontaneously in 3D once the rule supplies the stabilizer.',
+  )
 }
 
-run().catch((e) => console.error(e instanceof Error ? e.message : String(e)))
+run().catch(e =>
+  console.error(e instanceof Error ? e.message : String(e)),
+)

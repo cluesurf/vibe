@@ -122,7 +122,13 @@ export function runRailway(
       const ok = railDecrementOrZero(regs[ins.reg]!)
       pc = ok ? ins.next : ins.zero
     }
-    if (onStep) onStep({ pc: at, op: ins.op, reg: ins.reg, registers: regs.map(registerValue) })
+    if (onStep)
+      onStep({
+        pc: at,
+        op: ins.op,
+        reg: ins.reg,
+        registers: regs.map(registerValue),
+      })
   }
   return { registers: regs.map(registerValue), steps }
 }

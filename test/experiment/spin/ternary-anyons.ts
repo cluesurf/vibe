@@ -21,18 +21,27 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { zNVortexHolonomy, squareLoop } from '@/code/measure/anyon-braiding'
+import {
+  zNVortexHolonomy,
+  squareLoop,
+} from '@/code/measure/anyon-braiding'
 
 const FLUX_X = 20
 const FLUX_Y = 20
 
 function braiding(states: number, radius: number): number {
-  return zNVortexHolonomy({ states, loop: squareLoop({ radius, cx: FLUX_X, cy: FLUX_Y }), fluxX: FLUX_X, fluxY: FLUX_Y })
+  return zNVortexHolonomy({
+    states,
+    loop: squareLoop({ radius, cx: FLUX_X, cy: FLUX_Y }),
+    fluxX: FLUX_X,
+    fluxY: FLUX_Y,
+  })
 }
 
 export default experiment({
   id: 'spin/ternary-anyons',
-  title: 'the ternary tone (Z_3) hosts anyons, a fractional 2pi/3 braiding phase, topological and enclosure-gated, vs the binary boson and fermion',
+  title:
+    'the ternary tone (Z_3) hosts anyons, a fractional 2pi/3 braiding phase, topological and enclosure-gated, vs the binary boson and fermion',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -44,7 +53,7 @@ export default experiment({
     const boson = braiding(1, 5)
 
     // topological path-independence, loops of different sizes give the same ternary phase
-    const ternaryAtRadii = [3, 5, 8].map((r) => braiding(3, r))
+    const ternaryAtRadii = [3, 5, 8].map(r => braiding(3, r))
     const pathIndependent =
       Math.max(...ternaryAtRadii) - Math.min(...ternaryAtRadii) < 1e-6
 
@@ -64,7 +73,12 @@ export default experiment({
     const bosonIsZero = Math.abs(boson) < 1e-6
     const fermionIsPi = Math.abs(Math.abs(fermion) - Math.PI) < 1e-6
     const controlIsZero = Math.abs(notEnclosing) < 1e-6
-    const ok = fractional && pathIndependent && bosonIsZero && fermionIsPi && controlIsZero
+    const ok =
+      fractional &&
+      pathIndependent &&
+      bosonIsZero &&
+      fermionIsPi &&
+      controlIsZero
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -75,7 +89,11 @@ export default experiment({
         twoPiOverThree: Number(((2 * Math.PI) / 3).toFixed(5)),
         fermionBraiding: Number(fermion.toFixed(5)),
         bosonBraiding: Number(boson.toFixed(5)),
-        pathIndependentSpread: Number((Math.max(...ternaryAtRadii) - Math.min(...ternaryAtRadii)).toExponential(2)),
+        pathIndependentSpread: Number(
+          (
+            Math.max(...ternaryAtRadii) - Math.min(...ternaryAtRadii)
+          ).toExponential(2),
+        ),
         notEnclosing: Number(notEnclosing.toFixed(5)),
       },
       control: {

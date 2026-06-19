@@ -36,7 +36,10 @@ function denseLaplacian(graph: Graph): ReturnType<typeof makeDense> {
 
 // Interaction range: the largest graph distance over nonzero off-diagonal
 // entries. For the Laplacian this is 1 by construction, at any size.
-function interactionRange(input: { matrix: ReturnType<typeof makeDense>; n: number }): number {
+function interactionRange(input: {
+  matrix: ReturnType<typeof makeDense>
+  n: number
+}): number {
   const { matrix, n } = input
   let maxRange = 0
   for (let i = 0; i < n; i++) {
@@ -54,7 +57,8 @@ function interactionRange(input: { matrix: ReturnType<typeof makeDense>; n: numb
 
 export default experiment({
   id: 'foundations/emergent',
-  title: 'the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once',
+  title:
+    'the emergent-mesh Hamiltonian (graph Laplacian) is local and bounded below at once',
   category: 'foundations',
   substrates: 'any',
   depth: 'L2',

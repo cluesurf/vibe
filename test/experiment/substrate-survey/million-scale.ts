@@ -53,36 +53,89 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   const life = new Int8Array(n)
   const qL = sumTone(life)
   const rngL = makeRng({ seed: 3 })
-  for (let b = 0; b < 40; b++) perceptionEdgeBeat({ tone: life, eu: g.eu, ev: g.ev, offsets: g.offsets, adj: g.adj, moved, rng: rngL, arrow: ARROW, cohesive: false, temperature: TEMP })
+  for (let b = 0; b < 40; b++)
+    perceptionEdgeBeat({
+      tone: life,
+      eu: g.eu,
+      ev: g.ev,
+      offsets: g.offsets,
+      adj: g.adj,
+      moved,
+      rng: rngL,
+      arrow: ARROW,
+      cohesive: false,
+      temperature: TEMP,
+    })
   const balanceMid = nonzero(life)
-  for (let b = 0; b < 40; b++) perceptionEdgeBeat({ tone: life, eu: g.eu, ev: g.ev, offsets: g.offsets, adj: g.adj, moved, rng: rngL, arrow: ARROW, cohesive: false, temperature: TEMP })
+  for (let b = 0; b < 40; b++)
+    perceptionEdgeBeat({
+      tone: life,
+      eu: g.eu,
+      ev: g.ev,
+      offsets: g.offsets,
+      adj: g.adj,
+      moved,
+      rng: rngL,
+      arrow: ARROW,
+      cohesive: false,
+      temperature: TEMP,
+    })
   const lifeEnd = nonzero(life)
   const balanceLate = lifeEnd
   const conservedLife = sumTone(life) === qL
 
   // imprint memory: random vs cohesive, a + blob (a contiguous BFS region) surviving above background
-  function imprintRetention(cohesive: boolean): { ret: number; conserved: boolean } {
+  function imprintRetention(cohesive: boolean): {
+    ret: number
+    conserved: boolean
+  } {
     const t = life.slice() // start from the balanced state
     const q0 = sumTone(t)
     // blob = a BFS ball around node 0
-    const blob = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: n, source: 0, limit: 4000 })
+    const blob = csrBallNodes({
+      offsets: g.offsets,
+      adj: g.adj,
+      size: n,
+      source: 0,
+      limit: 4000,
+    })
     for (const i of blob) t[i] = 1
-    const meanBlob = (arr: Int8Array): number => blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
+    const meanBlob = (arr: Int8Array): number =>
+      blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
     const start = meanBlob(t)
     const rng2 = makeRng({ seed: 31 })
-    for (let b = 0; b < 30; b++) perceptionEdgeBeat({ tone: t, eu: g.eu, ev: g.ev, offsets: g.offsets, adj: g.adj, moved, rng: rng2, arrow: ARROW, cohesive, temperature: TEMP })
+    for (let b = 0; b < 30; b++)
+      perceptionEdgeBeat({
+        tone: t,
+        eu: g.eu,
+        ev: g.ev,
+        offsets: g.offsets,
+        adj: g.adj,
+        moved,
+        rng: rng2,
+        arrow: ARROW,
+        cohesive,
+        temperature: TEMP,
+      })
     const after = meanBlob(t)
     let bg = 0
     for (let i = 0; i < n; i++) bg += t[i]!
     bg /= n
-    return { ret: (after - bg) / (start - bg || 1), conserved: sumTone(t) === q0 + blob.reduce((s, i) => s + (1 - life[i]!), 0) }
+    return {
+      ret: (after - bg) / (start - bg || 1),
+      conserved:
+        sumTone(t) ===
+        q0 + blob.reduce((s, i) => s + (1 - life[i]!), 0),
+    }
   }
   const rnd = imprintRetention(false)
   const coh = imprintRetention(true)
 
   const conserved = conservedLife
   const arrowCreatesLife = lifeEnd > 0.1 * n
-  const dynamicBalance = balanceMid > 0.1 * n && Math.abs(balanceLate - balanceMid) < 0.25 * balanceMid
+  const dynamicBalance =
+    balanceMid > 0.1 * n &&
+    Math.abs(balanceLate - balanceMid) < 0.25 * balanceMid
   const memoryImproved = coh.ret > rnd.ret + 0.1
   // FINDING: the generic dynamics (conserve, live, balance) scale and are substrate-agnostic, but memory
   // does NOT appear on a random expander (no local geometry, a blob is almost all boundary). So memory is
@@ -119,7 +172,8 @@ export default experiment({
   paper: true,
   run() {
     const r = millionScale({ n: 150000 })
-    const ok = r.solved && r.conserved && r.arrowCreatesLife && r.dynamicBalance
+    const ok =
+      r.solved && r.conserved && r.arrowCreatesLife && r.dynamicBalance
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

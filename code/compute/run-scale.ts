@@ -13,12 +13,17 @@ const WORKGROUP = 256
 const SIZES = [1024, 2048, 4096, 8192, 16384] // 1M, 4M, 16.8M, 67M, 268M cells
 const BENCH_BEATS = 120
 
-async function benchOne(device: GPUDevice, size: number): Promise<{ cells: number; beatsPerSec: number; ok: boolean }> {
+async function benchOne(
+  device: GPUDevice,
+  size: number,
+): Promise<{ cells: number; beatsPerSec: number; ok: boolean }> {
   const count = size * size
   const byteLength = count * 4
   // WebGPU validation errors are async, so guard proactively against the device's storage-buffer limit
   if (byteLength > Number(device.limits.maxStorageBufferBindingSize)) {
-    throw new Error(`buffer ${(byteLength / 1e6).toFixed(0)}MB over device limit ${(Number(device.limits.maxStorageBufferBindingSize) / 1e6).toFixed(0)}MB`)
+    throw new Error(
+      `buffer ${(byteLength / 1e6).toFixed(0)}MB over device limit ${(Number(device.limits.maxStorageBufferBindingSize) / 1e6).toFixed(0)}MB`,
+    )
   }
   // 2D dispatch so the workgroup count per dimension stays under 65535
   const groups = Math.ceil(count / WORKGROUP)
@@ -26,17 +31,37 @@ async function benchOne(device: GPUDevice, size: number): Promise<{ cells: numbe
   const gy = Math.ceil(groups / gx)
   const strideX = gx * WORKGROUP
 
-  const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
-  device.queue.writeBuffer(params, 0, new Uint32Array([size, size, count, strideX]))
+  const params = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(
+    params,
+    0,
+    new Uint32Array([size, size, count, strideX]),
+  )
 
   const make = (): GPUBuffer =>
-    device.createBuffer({ size: byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
+    device.createBuffer({
+      size: byteLength,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
   const bufs: [GPUBuffer, GPUBuffer] = [make(), make()]
   // a single central pulse (cheap to seed at huge sizes, no big CPU array upload beyond zeros)
-  device.queue.writeBuffer(bufs[0], ((count >> 1) + (size >> 1)) * 4, new Uint32Array([1]))
+  device.queue.writeBuffer(
+    bufs[0],
+    ((count >> 1) + (size >> 1)) * 4,
+    new Uint32Array([1]),
+  )
 
   const module = device.createShaderModule({ code: WAVE_STEP_WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'main' } })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'main' },
+  })
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -87,18 +112,24 @@ async function run(): Promise<void> {
   }
   const device = await adapter.requestDevice()
   console.log('flat field GPU scale sweep')
-  console.log(`  ${'grid'.padEnd(12)} ${'cells'.padEnd(14)} ${'beats/sec'.padEnd(12)} cell-updates/sec`)
+  console.log(
+    `  ${'grid'.padEnd(12)} ${'cells'.padEnd(14)} ${'beats/sec'.padEnd(12)} cell-updates/sec`,
+  )
   for (const size of SIZES) {
     try {
       const r = await benchOne(device, size)
       const cps = r.beatsPerSec * r.cells
-      console.log(`  ${`${size}x${size}`.padEnd(12)} ${r.cells.toLocaleString().padEnd(14)} ${r.beatsPerSec.toFixed(0).padEnd(12)} ${(cps / 1e9).toFixed(1)} billion`)
+      console.log(
+        `  ${`${size}x${size}`.padEnd(12)} ${r.cells.toLocaleString().padEnd(14)} ${r.beatsPerSec.toFixed(0).padEnd(12)} ${(cps / 1e9).toFixed(1)} billion`,
+      )
     } catch (e) {
-      console.log(`  ${`${size}x${size}`.padEnd(12)} skipped (${e instanceof Error ? e.message : String(e)})`)
+      console.log(
+        `  ${`${size}x${size}`.padEnd(12)} skipped (${e instanceof Error ? e.message : String(e)})`,
+      )
     }
   }
 }
 
-run().catch((e) => {
+run().catch(e => {
   console.error(e instanceof Error ? e.message : String(e))
 })

@@ -10,28 +10,50 @@ import { radialFieldProfile } from '@/code/measure/profile'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const solvePoisson = (L: number, d: number): ReturnType<typeof dCubePoissonGreens> =>
+const solvePoisson = (
+  L: number,
+  d: number,
+): ReturnType<typeof dCubePoissonGreens> =>
   dCubePoissonGreens({ side: L, dimension: d })
 const radial = (
   sol: { x: Float64Array; coord: (i: number) => number[] },
   L: number,
   d: number,
 ): { r: number; g: number }[] =>
-  radialFieldProfile({ values: sol.x, coord: sol.coord, side: L, dimension: d, minRadius: 2, maxRadius: L * 0.35 })
+  radialFieldProfile({
+    values: sol.x,
+    coord: sol.coord,
+    side: L,
+    dimension: d,
+    minRadius: 2,
+    maxRadius: L * 0.35,
+  })
 
-export function gravityBoundary(): { exp3D: number; slope2DvsLog: number } {
+export function gravityBoundary(): {
+  exp3D: number
+  slope2DvsLog: number
+} {
   // 3D cusp ({4,3,4}): Newton 1/r  -> g(r)*r ~ const, i.e. log g vs log r slope ~ -1
-  const s3 = solvePoisson(32, 3), p3 = radial(s3, 32, 3).filter((p) => p.g > 0)
-  const exp3D = logLogSlope(p3.map((p) => p.r), p3.map((p) => p.g))
+  const s3 = solvePoisson(32, 3),
+    p3 = radial(s3, 32, 3).filter(p => p.g > 0)
+  const exp3D = logLogSlope(
+    p3.map(p => p.r),
+    p3.map(p => p.g),
+  )
   // 2D horosphere: Newton ~ -log r -> g(r) linear in log r (negative slope)
-  const s2 = solvePoisson(140, 2), p2 = radial(s2, 140, 2)
-  const slope2DvsLog = linearFit({ xs: p2.map((p) => Math.log(p.r)), ys: p2.map((p) => p.g) }).slope
+  const s2 = solvePoisson(140, 2),
+    p2 = radial(s2, 140, 2)
+  const slope2DvsLog = linearFit({
+    xs: p2.map(p => Math.log(p.r)),
+    ys: p2.map(p => p.g),
+  }).slope
   return { exp3D, slope2DvsLog }
 }
 
 export default experiment({
   id: 'gravity/gravity-boundary',
-  title: 'the discrete Poisson Green function on the flat 3D cusp falls as 1/r and on the 2D horosphere as log r',
+  title:
+    'the discrete Poisson Green function on the flat 3D cusp falls as 1/r and on the 2D horosphere as log r',
   category: 'gravity',
   substrates: 'any',
   depth: 'L1',

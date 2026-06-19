@@ -27,7 +27,12 @@ function runConfig(input: {
   action: Action
   beta: number
   seed: number
-}): { label: string; heightRatio: number; mmDimension: number; acceptance: number } {
+}): {
+  label: string
+  heightRatio: number
+  mmDimension: number
+  acceptance: number
+} {
   // Two chains with the same seed (so the same trajectory) let us read two
   // observables without threading them through one return value.
   const heightRun = sampleCausalSets({
@@ -64,7 +69,11 @@ export default experiment({
   paper: false,
   run() {
     const refHr = orderStatistics({
-      poset: sprinkleMinkowski({ dimension: 2, count: 48, rng: makeRng({ seed: 1 }) }),
+      poset: sprinkleMinkowski({
+        dimension: 2,
+        count: 48,
+        rng: makeRng({ seed: 1 }),
+      }),
     }).heightRatio
     const random = runConfig({
       label: 'random',

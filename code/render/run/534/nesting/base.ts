@@ -20,14 +20,19 @@ const MARGIN = 0.94
 const DOT_SCALE = 30 // pixels per unit conformal size at the centre
 
 // a depth -> colour palette, warm at the centre, cool toward the boundary (rainbow by shell)
-function shellColor(depth: number, maxDepth: number): [number, number, number] {
+function shellColor(
+  depth: number,
+  maxDepth: number,
+): [number, number, number] {
   const t = maxDepth > 0 ? depth / maxDepth : 0
   const hue = 12 + 280 * t // red-orange centre -> blue-violet rim
   // simple HSV->RGB at full saturation, value 1
   const h = hue / 60
   const c = 1
   const x = c * (1 - Math.abs((h % 2) - 1))
-  let r = 0, g = 0, b = 0
+  let r = 0,
+    g = 0,
+    b = 0
   if (h < 1) [r, g, b] = [c, x, 0]
   else if (h < 2) [r, g, b] = [x, c, 0]
   else if (h < 3) [r, g, b] = [0, c, x]
@@ -48,7 +53,12 @@ function run(): void {
   const shellCounts: number[] = [1]
   while (frontier.length) {
     const next: number[] = []
-    for (const u of frontier) for (const v of g.neighbors[u]!) if (depth[v]! < 0) { depth[v] = depth[u]! + 1; next.push(v) }
+    for (const u of frontier)
+      for (const v of g.neighbors[u]!)
+        if (depth[v]! < 0) {
+          depth[v] = depth[u]! + 1
+          next.push(v)
+        }
     if (next.length) shellCounts.push(next.length)
     frontier = next
   }
@@ -66,7 +76,9 @@ function run(): void {
     if (depth[i]! < 0 || depth[i]! > maxClean) continue
     slice.push(i)
   }
-  console.log(`cells ${n}, clean shells 0..${maxClean} (counts ${shellCounts.slice(0, maxClean + 1).join(',')}), drawn cells ${slice.length}`)
+  console.log(
+    `cells ${n}, clean shells 0..${maxClean} (counts ${shellCounts.slice(0, maxClean + 1).join(',')}), drawn cells ${slice.length}`,
+  )
 
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, 'frames-nesting-534')
@@ -78,29 +90,55 @@ function run(): void {
 
   // one cumulative frame per shell: frame f shows shells 0..f
   for (let f = 0; f <= maxClean; f++) {
-    const rgba = makeCanvas({ width: IMG, height: IMG, background: [12, 12, 16] })
+    const rgba = makeCanvas({
+      width: IMG,
+      height: IMG,
+      background: [12, 12, 16],
+    })
     // boundary circle (sphere at infinity), dim grey ring
     for (let a = 0; a < 3600; a++) {
       const th = (a / 3600) * 2 * Math.PI
-      const px = Math.round(half + scale * Math.cos(th)), py = Math.round(half + scale * Math.sin(th))
-      if (px >= 0 && px < IMG && py >= 0 && py < IMG) setPixel(rgba, IMG, px, py, [70, 70, 78])
+      const px = Math.round(half + scale * Math.cos(th)),
+        py = Math.round(half + scale * Math.sin(th))
+      if (px >= 0 && px < IMG && py >= 0 && py < IMG)
+        setPixel(rgba, IMG, px, py, [70, 70, 78])
     }
     // draw cells up to shell f, deepest first so shallow shells sit on top
     for (let s = f; s >= 0; s--) {
       const col = shellColor(s, maxClean)
       for (const i of slice) {
         if (depth[i]! !== s) continue
-        const x = g.coords[i]![0]!, y = g.coords[i]![1]!
+        const x = g.coords[i]![0]!,
+          y = g.coords[i]![1]!
         const r2 = norm(g.coords[i]!) ** 2
-        const px = half + scale * x, py = half - scale * y
+        const px = half + scale * x,
+          py = half - scale * y
         const rad = Math.max(0.7, DOT_SCALE * (1 - r2))
-        drawDisk({ rgba, width: IMG, height: IMG, centerX: px, centerY: py, radius: rad, color: col })
+        drawDisk({
+          rgba,
+          width: IMG,
+          height: IMG,
+          centerX: px,
+          centerY: py,
+          radius: rad,
+          color: col,
+        })
       }
     }
-    writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG, prefix: 'nesting-', pad: 3 })
+    writeFrame({
+      dir: outDir,
+      index: f,
+      rgba,
+      width: IMG,
+      height: IMG,
+      prefix: 'nesting-',
+      pad: 3,
+    })
   }
   console.log(`wrote ${maxClean + 1} frames to ${outDir}`)
-  console.log(`ffmpeg -framerate 2 -i ${join(outDir, 'nesting-%03d.png')} -vf "scale=${IMG}:${IMG}" -pix_fmt yuv420p ${join(here, 'nesting-534.mp4')}`)
+  console.log(
+    `ffmpeg -framerate 2 -i ${join(outDir, 'nesting-%03d.png')} -vf "scale=${IMG}:${IMG}" -pix_fmt yuv420p ${join(here, 'nesting-534.mp4')}`,
+  )
 }
 
 run()

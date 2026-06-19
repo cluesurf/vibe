@@ -30,7 +30,11 @@ function prefixRelations(poset: Poset, k: number): number {
   return count
 }
 
-export function csgCosmology(input: { size: number; p: number; seed: number }): {
+export function csgCosmology(input: {
+  size: number
+  p: number
+  seed: number
+}): {
   relationGrowth: { k: number; relations: number }[]
   arrowMonotone: boolean
   height: number
@@ -47,11 +51,23 @@ export function csgCosmology(input: { size: number; p: number; seed: number }): 
   const n = input.size
 
   // Arrow of time: relations among the first k elements, monotonically increasing.
-  const ks = [Math.floor(n / 8), Math.floor(n / 4), Math.floor(n / 2), Math.floor((3 * n) / 4), n]
-  const relationGrowth = ks.map((k) => ({ k, relations: prefixRelations(poset, k) }))
+  const ks = [
+    Math.floor(n / 8),
+    Math.floor(n / 4),
+    Math.floor(n / 2),
+    Math.floor((3 * n) / 4),
+    n,
+  ]
+  const relationGrowth = ks.map(k => ({
+    k,
+    relations: prefixRelations(poset, k),
+  }))
   let arrowMonotone = true
   for (let i = 1; i < relationGrowth.length; i++) {
-    if ((relationGrowth[i]?.relations ?? 0) < (relationGrowth[i - 1]?.relations ?? 0)) {
+    if (
+      (relationGrowth[i]?.relations ?? 0) <
+      (relationGrowth[i - 1]?.relations ?? 0)
+    ) {
       arrowMonotone = false
     }
   }
@@ -60,7 +76,8 @@ export function csgCosmology(input: { size: number; p: number; seed: number }): 
   // time, the age of the universe).
   const widths = causalSliceWidths({ poset })
   const half = Math.floor(widths.length / 2)
-  const mean = (arr: number[]): number => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0)
+  const mean = (arr: number[]): number =>
+    arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0
   const earlyWidth = mean(widths.slice(0, half))
   const lateWidth = mean(widths.slice(half))
 
@@ -89,7 +106,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'classical sequential growth accumulates relations monotonically and recovers a finite dimension',
-      metrics: { arrowMonotone: r.arrowMonotone ? 1 : 0, dimension: r.dimension },
+      metrics: {
+        arrowMonotone: r.arrowMonotone ? 1 : 0,
+        dimension: r.dimension,
+      },
     })
   },
 })

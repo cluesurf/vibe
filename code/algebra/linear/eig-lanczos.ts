@@ -14,7 +14,10 @@ function dot(a: Float64Array, b: Float64Array): number {
   return s
 }
 
-function axpy(y: Float64Array, input: { alpha: number; x: Float64Array }): void {
+function axpy(
+  y: Float64Array,
+  input: { alpha: number; x: Float64Array },
+): void {
   for (let i = 0; i < y.length; i++) {
     y[i] = (y[i] ?? 0) + input.alpha * (input.x[i] ?? 0)
   }
@@ -43,7 +46,10 @@ export function lowestEigenvalues(input: {
   rng?: () => number
 }): Float64Array {
   const n = input.operator.size
-  const m = Math.min(n, input.steps ?? Math.max(2 * input.count + 20, 40))
+  const m = Math.min(
+    n,
+    input.steps ?? Math.max(2 * input.count + 20, 40),
+  )
   const rand = input.rng ?? deterministicRand()
 
   const basis: Float64Array[] = []

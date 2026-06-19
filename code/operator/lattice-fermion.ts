@@ -5,7 +5,14 @@
 // Nielsen-Ninomiya: one species and exact lattice chiral symmetry.
 // See note/questions/p4-chirality-spec.md.
 
-import { Complex, cAdd, cMul, cScale, cConj, cAbs2 } from '@/code/algebra/linear/complex'
+import {
+  Complex,
+  cAdd,
+  cMul,
+  cScale,
+  cConj,
+  cAbs2,
+} from '@/code/algebra/linear/complex'
 import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
@@ -14,7 +21,10 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 // +/- sqrt(m^2 + sin^2 k). The gap at k = 0 is m (the rest energy) and the small-k
 // dispersion is omega^2 = k^2 + m^2 (relativistic). Computed from the matrix
 // eigenvalues rather than the closed form.
-export function latticeDiracEnergy1d(input: { k: number; m: number }): number {
+export function latticeDiracEnergy1d(input: {
+  k: number
+  m: number
+}): number {
   const h = makeDense({ rows: 2, cols: 2 })
   h.data[0] = input.m
   h.data[1] = Math.sin(input.k)
@@ -45,7 +55,12 @@ export function mat2(input: {
   return input
 }
 
-export const PAULI_X: Mat2 = { m00: ZERO, m01: ONE, m10: ONE, m11: ZERO }
+export const PAULI_X: Mat2 = {
+  m00: ZERO,
+  m01: ONE,
+  m10: ONE,
+  m11: ZERO,
+}
 export const PAULI_Y: Mat2 = {
   m00: ZERO,
   m01: { re: 0, im: -1 },
@@ -58,7 +73,12 @@ export const PAULI_Z: Mat2 = {
   m10: ZERO,
   m11: { re: -1, im: 0 },
 }
-export const IDENTITY2: Mat2 = { m00: ONE, m01: ZERO, m10: ZERO, m11: ONE }
+export const IDENTITY2: Mat2 = {
+  m00: ONE,
+  m01: ZERO,
+  m10: ZERO,
+  m11: ONE,
+}
 // 2D gamma matrices: gamma1 = sigma_x, gamma2 = sigma_y, gamma5 = sigma_z.
 export const GAMMA5: Mat2 = PAULI_Z
 
@@ -108,7 +128,9 @@ export function matDagger(a: Mat2): Mat2 {
 }
 
 export function matFrobenius(a: Mat2): number {
-  return Math.sqrt(cAbs2(a.m00) + cAbs2(a.m01) + cAbs2(a.m10) + cAbs2(a.m11))
+  return Math.sqrt(
+    cAbs2(a.m00) + cAbs2(a.m01) + cAbs2(a.m10) + cAbs2(a.m11),
+  )
 }
 
 // The matrix sign of a 2x2 Hermitian matrix, in closed form. Write H = t I + N
@@ -132,7 +154,10 @@ export function hermitianSign(h: Mat2): Mat2 {
   const alpha = (sPlus + sMinus) / 2
   const beta = (sPlus - sMinus) / 2
   const traceless = matAdd(h, matScaleReal(IDENTITY2, -t))
-  return matAdd(matScaleReal(IDENTITY2, alpha), matScaleReal(traceless, beta / s))
+  return matAdd(
+    matScaleReal(IDENTITY2, alpha),
+    matScaleReal(traceless, beta / s),
+  )
 }
 
 // Smallest singular value of D: sqrt of the smallest eigenvalue of D^dagger D.
@@ -187,7 +212,12 @@ export function overlapDirac2D(input: {
   m0: number
   r: number
 }): Mat2 {
-  const dw = wilsonDirac2D({ k1: input.k1, k2: input.k2, m: 0, r: input.r })
+  const dw = wilsonDirac2D({
+    k1: input.k1,
+    k2: input.k2,
+    m: 0,
+    r: input.r,
+  })
   const shifted = matAdd(dw, matScaleReal(IDENTITY2, -input.m0))
   const hW = matMul(GAMMA5, shifted)
   const v = hermitianSign(hW)
