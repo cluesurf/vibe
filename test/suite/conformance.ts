@@ -1690,7 +1690,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       [[3, 4, 3, 4], 24],
     ] as const) {
       const r = makeVibeComputer({
-        symbol: sym as number[],
+        symbol: [...sym],
         maxCells: 500,
       }).report()
 

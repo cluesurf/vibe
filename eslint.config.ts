@@ -1,7 +1,11 @@
+import type { Linter } from 'eslint'
+
 import LINT from '@cluesurf/wash/lint'
 
-// Extend the shared wash config with a few readability rules.
-export default [
+// Extend the shared wash config with a few readability rules. The
+// explicit `Linter.Config[]` annotation keeps the exported type
+// nameable, otherwise TS2742 leaks an internal typescript-eslint path.
+const config: Linter.Config[] = [
   ...LINT,
   {
     rules: {
@@ -61,3 +65,5 @@ export default [
     },
   },
 ]
+
+export default config
