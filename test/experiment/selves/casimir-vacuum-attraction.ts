@@ -57,13 +57,17 @@ export default experiment({
       if (walls) {
         for (let cell = 0; cell < mesh.cellCount; cell++) {
           const x = cell % side
-          if (x === xA || x === xB) wallCells.push(cell)
+          if (x === xA || x === xB) {
+            wallCells.push(cell)
+          }
         }
       }
       const setWalls = (will: Will): void => {
         for (const cell of wallCells) {
           const base = cell * degree
-          for (let d = 0; d < degree; d++) will.data[base + d] = 1
+          for (let d = 0; d < degree; d++) {
+            will.data[base + d] = 1
+          }
         }
       }
 
@@ -87,7 +91,9 @@ export default experiment({
             binOf,
             bins: side,
           })
-          for (let x = 0; x < side; x++) acc[x]! += prof[x]!
+          for (let x = 0; x < side; x++) {
+            acc[x]! += prof[x]!
+          }
           samples++
         }
       }
@@ -98,7 +104,9 @@ export default experiment({
       xs.reduce((a, x) => a + prof[x]!, 0) / xs.length
     const gapInterior = (d: number): number[] => {
       const xs: number[] = []
-      for (let x = xA + 2; x <= xA + d - 2; x++) xs.push(x)
+      for (let x = xA + 2; x <= xA + d - 2; x++) {
+        xs.push(x)
+      }
       return xs
     }
 

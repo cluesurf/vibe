@@ -66,8 +66,9 @@ export function gliderLine(input: {
 export function charge(will: Will): number {
   let sum = 0
   const data = will.data
-  for (let index = 0; index < data.length; index++)
+  for (let index = 0; index < data.length; index++) {
     sum += data[index] ?? 0
+  }
   return sum
 }
 

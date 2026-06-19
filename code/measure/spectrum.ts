@@ -14,8 +14,9 @@ export function distinctLevels(
   const sorted = [...values].sort((a, b) => a - b)
   const out: number[] = []
   for (const v of sorted) {
-    if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance)
+    if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance) {
       out.push(v)
+    }
   }
   return out
 }

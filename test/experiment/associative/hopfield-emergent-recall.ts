@@ -31,8 +31,11 @@ function corrupt(input: {
 }): Int8Array {
   const { pattern, fraction, rng } = input
   const out = Int8Array.from(pattern)
-  for (let i = 0; i < out.length; i++)
-    if (rng.next() < fraction) out[i] = -(out[i] ?? 0) as -1 | 1
+  for (let i = 0; i < out.length; i++) {
+    if (rng.next() < fraction) {
+      out[i] = -(out[i] ?? 0) as -1 | 1
+    }
+  }
   return out
 }
 
@@ -46,8 +49,9 @@ function hopfieldRelax(input: {
   const { J, cue, beats } = input
   const zero = new Float64Array(cue.length)
   let state = Int8Array.from(cue)
-  for (let t = 0; t < beats; t++)
+  for (let t = 0; t < beats; t++) {
     state = hopfieldStep(J, state, zero, null)
+  }
   return state
 }
 
@@ -69,9 +73,12 @@ function bareRuleRecall(input: {
   })
   let will = makeWill(mesh)
   const slot = 0
-  for (let c = 0; c < cue.length && c < mesh.cellCount; c++)
+  for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     will.data[c * mesh.degree + slot] = cue[c] ?? 0
-  for (let t = 0; t < beats; t++) will = beat(will, collision)
+  }
+  for (let t = 0; t < beats; t++) {
+    will = beat(will, collision)
+  }
   const out = new Int8Array(cue.length)
   for (let c = 0; c < cue.length && c < mesh.cellCount; c++) {
     const v = will.data[c * mesh.degree + slot] ?? 0
@@ -126,8 +133,12 @@ export function hopfieldEmergentRecall(input?: {
       })
       const relaxed = hopfieldRelax({ J, cue, beats: 20 })
       const bare = bareRuleRecall({ cue, side, beats: 20 })
-      if (toneOverlap(relaxed, patterns[m]!) >= clean) hopHits++
-      if (toneOverlap(bare, patterns[m]!) >= clean) bareHits++
+      if (toneOverlap(relaxed, patterns[m]!) >= clean) {
+        hopHits++
+      }
+      if (toneOverlap(bare, patterns[m]!) >= clean) {
+        bareHits++
+      }
       total++
     }
   }

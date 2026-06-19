@@ -25,15 +25,19 @@ export function universality(): {
   const g = new Uint8Array(L * L)
   g[at(8, 8)] = 1
   const start: [number, number] = [8, 8]
-  for (let t = 0; t < 16; t++) step(g, t % 2)
+  for (let t = 0; t < 16; t++) {
+    step(g, t % 2)
+  }
   let bx = -1,
     by = -1
-  for (let y = 0; y < L; y++)
-    for (let x = 0; x < L; x++)
+  for (let y = 0; y < L; y++) {
+    for (let x = 0; x < L; x++) {
       if (g[at(x, y)]) {
         bx = x
         by = y
       }
+    }
+  }
   const displacement =
     Math.round(Math.hypot(bx - start[0], by - start[1]) * 10) / 10
   const ballistic = displacement > 6 // moved a clear distance in 16 steps (a propagating signal)
@@ -41,17 +45,24 @@ export function universality(): {
   const rng = makeRng({ seed: 17 })
   const rnd = (): number => rng.next()
   const h = new Uint8Array(L * L)
-  for (let i = 0; i < L * L; i++) h[i] = rnd() < 0.25 ? 1 : 0
+  for (let i = 0; i < L * L; i++) {
+    h[i] = rnd() < 0.25 ? 1 : 0
+  }
   const orig = h.slice()
   const T = 20
-  for (let t = 0; t < T; t++) step(h, t % 2)
-  for (let t = T - 1; t >= 0; t--) step(h, t % 2) // inverse = same block rotation in reverse parity order
+  for (let t = 0; t < T; t++) {
+    step(h, t % 2)
+  }
+  for (let t = T - 1; t >= 0; t--) {
+    step(h, t % 2)
+  } // inverse = same block rotation in reverse parity order
   let reversible = true
-  for (let i = 0; i < L * L; i++)
+  for (let i = 0; i < L * L; i++) {
     if (h[i] !== orig[i]) {
       reversible = false
       break
     }
+  }
   return { ballistic, reversible, displacement }
 }
 

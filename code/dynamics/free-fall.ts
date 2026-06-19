@@ -18,7 +18,9 @@ export function freeFallStep(input: {
   const taken = new Uint8Array(cellCount)
   let moved = 0
   for (let c = 0; c < cellCount; c++) {
-    if (!snapshot[c]) continue
+    if (!snapshot[c]) {
+      continue
+    }
     let best = -1
     let bestPhi = phi[c]!
     for (let d = 0; d < spatialDegree; d++) {

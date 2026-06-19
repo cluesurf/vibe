@@ -30,21 +30,33 @@ export function patternSurvivalTime(input: {
   for (let c = 0; c < graph.cellCount; c++) {
     const dx = (c % L) - centre
     const dy = Math.floor(c / L) - centre
-    if (dx * dx + dy * dy <= radius * radius) disk.push(c)
+    if (dx * dx + dy * dy <= radius * radius) {
+      disk.push(c)
+    }
   }
   const stamp = (): void => {
-    for (const c of disk) tone[c] = 1
+    for (const c of disk) {
+      tone[c] = 1
+    }
   }
   stamp()
   const majority = (): number => {
     let plus = 0
-    for (const c of disk) if (tone[c] === 1) plus++
+    for (const c of disk) {
+      if (tone[c] === 1) {
+        plus++
+      }
+    }
     return disk.length > 0 ? plus / disk.length : 0
   }
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, arrow, 0)
-    if (maintainEvery > 0 && t % maintainEvery === 0) stamp()
-    if (majority() < 0.5) return t
+    if (maintainEvery > 0 && t % maintainEvery === 0) {
+      stamp()
+    }
+    if (majority() < 0.5) {
+      return t
+    }
   }
   return beats
 }

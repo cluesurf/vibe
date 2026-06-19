@@ -19,7 +19,9 @@ type Rng = { next: () => number }
 // spans give a smooth fitness gradient (crossing more barriers needs progressively more horizon).
 function makeBarriers(B: number, base: number, step: number): number[] {
   const reqs: number[] = []
-  for (let k = 0; k < B; k++) reqs.push(base + k * step) // the horizon needed to cross barrier k
+  for (let k = 0; k < B; k++) {
+    reqs.push(base + k * step)
+  } // the horizon needed to cross barrier k
   return reqs
 }
 
@@ -28,9 +30,12 @@ function makeBarriers(B: number, base: number, step: number): number[] {
 function agentReach(reqs: number[], horizon: number): number {
   let crossed = 0
   for (const req of reqs) {
-    if (horizon >= req)
-      crossed++ // the horizon spans this barrier, the re-planning loop crosses it
-    else break // stuck at the first barrier the horizon cannot span
+    if (horizon >= req) {
+      crossed++
+    } // the horizon spans this barrier, the re-planning loop crosses it
+    else {
+      break
+    } // stuck at the first barrier the horizon cannot span
   }
   return crossed / reqs.length
 }
@@ -48,7 +53,9 @@ function evolvePopulation(
   const P = 60
   const G = 60
   let pop: number[] = []
-  for (let i = 0; i < P; i++) pop.push(1 + Math.floor(rng.next() * 4)) // random small initial horizons
+  for (let i = 0; i < P; i++) {
+    pop.push(1 + Math.floor(rng.next() * 4))
+  } // random small initial horizons
   const meanFitnessByGen: number[] = []
   for (let g = 0; g < G; g++) {
     const scored = pop.map(h => ({

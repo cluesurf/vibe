@@ -85,7 +85,9 @@ export default experiment({
         length: 3,
       })
       let bStart = center
-      for (let i = 0; i < 6; i++) bStart = mesh.neighbour(bStart, dir)
+      for (let i = 0; i < 6; i++) {
+        bStart = mesh.neighbour(bStart, dir)
+      }
       const b = gliderLine({
         mesh,
         start: bStart,
@@ -93,8 +95,9 @@ export default experiment({
         length: 3,
       })
       const will = makeWill(mesh)
-      for (let i = 0; i < will.data.length; i++)
+      for (let i = 0; i < will.data.length; i++) {
         will.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
+      }
       return will
     }
 

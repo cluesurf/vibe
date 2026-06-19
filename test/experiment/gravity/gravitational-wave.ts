@@ -34,8 +34,9 @@ const MODULUS = 251
 // a ring graph (each node neighbours its two ring-neighbours), the 1D line a wave propagates along
 function ringNeighbors(size: number): number[][] {
   const neighbors: number[][] = []
-  for (let i = 0; i < size; i++)
+  for (let i = 0; i < size; i++) {
     neighbors.push([(i + 1) % size, (i + size - 1) % size])
+  }
   return neighbors
 }
 
@@ -69,7 +70,9 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
           Math.abs(i - center),
           RING - Math.abs(i - center),
         )
-        if (d > front) front = d
+        if (d > front) {
+          front = d
+        }
       }
     }
   }
@@ -91,9 +94,11 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
     revCur = next
   }
   let reversible = true
-  for (let i = 0; i < RING; i++)
-    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i])
+  for (let i = 0; i < RING; i++) {
+    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) {
       reversible = false
+    }
+  }
 
   return { frontSpeed, reversible }
 }

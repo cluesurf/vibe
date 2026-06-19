@@ -8,8 +8,12 @@
 // Fold an angle difference into (-pi/2, pi/2], the nematic (mod-pi) range.
 function foldModPi(angle: number): number {
   let d = angle
-  while (d > Math.PI / 2) d -= Math.PI
-  while (d < -Math.PI / 2) d += Math.PI
+  while (d > Math.PI / 2) {
+    d -= Math.PI
+  }
+  while (d < -Math.PI / 2) {
+    d += Math.PI
+  }
   return d
 }
 

@@ -53,8 +53,11 @@ export function bitMatricesEqual(
   b: BitMatrix,
   n: number,
 ): boolean {
-  for (let i = 0; i < n * a.stride; i++)
-    if ((a.words[i] ?? 0) !== (b.words[i] ?? 0)) return false
+  for (let i = 0; i < n * a.stride; i++) {
+    if ((a.words[i] ?? 0) !== (b.words[i] ?? 0)) {
+      return false
+    }
+  }
   return true
 }
 
@@ -66,16 +69,18 @@ export function bitMatrixTransitiveClosure(
   n: number,
 ): BitMatrix {
   const f = makeBitMatrix({ rows: n, cols: n })
-  for (let i = 0; i < n * f.stride; i++)
+  for (let i = 0; i < n * f.stride; i++) {
     f.words[i] = asserted.words[i] ?? 0
+  }
   for (let k = 0; k < n; k++) {
     for (let i = 0; i < n; i++) {
       if (getBit(f, { row: i, col: k })) {
         const ib = i * f.stride
         const kb = k * f.stride
-        for (let w = 0; w < f.stride; w++)
+        for (let w = 0; w < f.stride; w++) {
           f.words[ib + w] =
             (f.words[ib + w] ?? 0) | (f.words[kb + w] ?? 0)
+        }
       }
     }
   }
@@ -88,9 +93,11 @@ export function bitMatrixHeight(f: BitMatrix, n: number): number {
   const h = new Int32Array(n).fill(1)
   let best = 1
   for (let j = 0; j < n; j++) {
-    for (let i = 0; i < j; i++)
-      if (getBit(f, { row: i, col: j }))
+    for (let i = 0; i < j; i++) {
+      if (getBit(f, { row: i, col: j })) {
         h[j] = Math.max(h[j] ?? 1, (h[i] ?? 1) + 1)
+      }
+    }
     best = Math.max(best, h[j] ?? 1)
   }
   return best

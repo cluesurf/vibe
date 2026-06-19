@@ -39,8 +39,11 @@ export default experiment({
   run() {
     // reversibility (a division algebra, no zero divisors) allows the dimensions 1, 2, 4, 8 and excludes 16
     const reversibleDims: number[] = []
-    for (let level = 0; level <= 4; level++)
-      if (!hasZeroDivisor(level)) reversibleDims.push(2 ** level)
+    for (let level = 0; level <= 4; level++) {
+      if (!hasZeroDivisor(level)) {
+        reversibleDims.push(2 ** level)
+      }
+    }
     const reversibilityCapsAtEight =
       reversibleDims.includes(8) && !reversibleDims.includes(16)
 
@@ -48,8 +51,9 @@ export default experiment({
     const trialityDims: number[] = []
     for (const d of [1, 2, 4, 8, 16]) {
       const n = d / 2
-      if (Number.isInteger(n) && n >= 4 && hasTriality(n))
+      if (Number.isInteger(n) && n >= 4 && hasTriality(n)) {
         trialityDims.push(d)
+      }
     }
     const fermionsRequireEight =
       trialityDims.length === 1 && trialityDims[0] === 8

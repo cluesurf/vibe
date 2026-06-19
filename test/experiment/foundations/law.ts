@@ -66,8 +66,12 @@ export default experiment({
     let blockMaxEig = -Infinity
     for (let i = 0; i < eig.values.length; i++) {
       const value = eig.values[i] ?? 0
-      if (value < blockMinEig) blockMinEig = value
-      if (value > blockMaxEig) blockMaxEig = value
+      if (value < blockMinEig) {
+        blockMinEig = value
+      }
+      if (value > blockMaxEig) {
+        blockMaxEig = value
+      }
     }
     const ok =
       flipLenSmall <= 1.5 &&

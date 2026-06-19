@@ -87,8 +87,9 @@ export function relaxRingField(input: {
   let cur: Complex2[] = field.map(z => ({ ...z }))
   for (let t = 0; t < steps; t++) {
     cur = relaxStep(cur, dt)
-    if (onSample && sampleEvery && t % sampleEvery === 0)
+    if (onSample && sampleEvery && t % sampleEvery === 0) {
       onSample(cur, t)
+    }
   }
   return cur
 }

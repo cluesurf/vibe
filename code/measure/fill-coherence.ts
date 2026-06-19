@@ -41,8 +41,11 @@ export function adaptFills(
   for (let i = 0; i < edges.length; i++) {
     const tv = tone[edges[i]![0]]!
     const tw = tone[edges[i]![1]]!
-    if (tv !== 0 && tw !== 0) fill[i] = tv === tw ? 1 : -1
-    else fill[i] = 0
+    if (tv !== 0 && tw !== 0) {
+      fill[i] = tv === tw ? 1 : -1
+    } else {
+      fill[i] = 0
+    }
   }
 }
 

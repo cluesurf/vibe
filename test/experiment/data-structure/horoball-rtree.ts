@@ -32,8 +32,11 @@ export default experiment({
       cumulative.push(running)
     }
     let strictlyNested = true
-    for (let i = 1; i < cumulative.length; i++)
-      if (cumulative[i]! < cumulative[i - 1]!) strictlyNested = false
+    for (let i = 1; i < cumulative.length; i++) {
+      if (cumulative[i]! < cumulative[i - 1]!) {
+        strictlyNested = false
+      }
+    }
     const total = cumulative[cumulative.length - 1]!
     // the number of bounding levels is logarithmic in the cells
     const logarithmicLevels = bins <= 4 * Math.log2(total)

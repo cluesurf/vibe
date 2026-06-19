@@ -100,12 +100,16 @@ export function octonionMultiply(a: Octonion, b: Octonion): Octonion {
   const out = octonionZero()
   for (let i = 0; i < 8; i++) {
     const ai = a[i]!
-    if (ai === 0) continue
+    if (ai === 0) {
+      continue
+    }
     const indexRow = PRODUCT_INDEX[i]!
     const signRow = PRODUCT_SIGN[i]!
     for (let j = 0; j < 8; j++) {
       const bj = b[j]!
-      if (bj === 0) continue
+      if (bj === 0) {
+        continue
+      }
       out[indexRow[j]!]! += signRow[j]! * ai * bj
     }
   }

@@ -39,14 +39,18 @@ export function directionIntention(): {
   const rng = makeRng({ seed: 7 })
   const scan = Ks.map(K => {
     const target = new Int8Array(K)
-    for (let i = 0; i < K; i++)
+    for (let i = 0; i < K; i++) {
       target[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
+    }
     const goalSteps = solveGoalDirected({ target, rng })
     // average undirected success over a few trials
     let solvedCount = 0
     const trials = 3
-    for (let t = 0; t < trials; t++)
-      if (solveUndirected({ target, rng, budget }).solved) solvedCount++
+    for (let t = 0; t < trials; t++) {
+      if (solveUndirected({ target, rng, budget }).solved) {
+        solvedCount++
+      }
+    }
     return {
       K,
       goalSteps,

@@ -60,7 +60,7 @@ function sliceCharge(buf: Float32Array, z: number): number {
     return 2 * Math.atan2(num, den)
   }
   let q = 0
-  for (let x = 0; x < L - 1; x++)
+  for (let x = 0; x < L - 1; x++) {
     for (let y = 0; y < L - 1; y++) {
       const a = at(x, y),
         b = at(x + 1, y),
@@ -68,6 +68,7 @@ function sliceCharge(buf: Float32Array, z: number): number {
         d = at(x, y + 1)
       q += tri(a, b, c) + tri(a, c, d)
     }
+  }
   return q / (4 * Math.PI)
 }
 
@@ -145,14 +146,16 @@ async function run(): Promise<void> {
       const out = new Float32Array(staging.getMappedRange().slice(0))
       staging.unmap()
       let tot = 0
-      for (let z = 4; z < L; z += 8)
-        tot += Math.abs(sliceCharge(out, z)) // average |Q| over several slices
+      for (let z = 4; z < L; z += 8) {
+        tot += Math.abs(sliceCharge(out, z))
+      } // average |Q| over several slices
       return tot / Math.floor((L - 4) / 8)
     }
     const marks: number[] = []
     for (let s = 0; s < STEPS; s++) {
-      if (s === 0 || s === 300 || s === 600 || s === STEPS - 1)
+      if (s === 0 || s === 300 || s === 600 || s === STEPS - 1) {
         marks.push(Math.round((await readCharge()) * 10) / 10)
+      }
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
       pass.setPipeline(pipeline)

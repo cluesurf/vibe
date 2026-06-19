@@ -24,7 +24,9 @@ import { makeRng } from '@/code/coarse/self-trajectory'
 
 function sumTone(tone: Int8Array, cells: number[]): number {
   let s = 0
-  for (const c of cells) s += tone[c]!
+  for (const c of cells) {
+    s += tone[c]!
+  }
   return s
 }
 

@@ -15,10 +15,16 @@ export function solveGoalDirected(input: {
   const { target, rng } = input
   const K = target.length
   const s = new Int8Array(K)
-  for (let i = 0; i < K; i++) s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
+  for (let i = 0; i < K; i++) {
+    s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
+  }
   let steps = 0
   let gap = 0
-  for (let i = 0; i < K; i++) if (s[i] !== target[i]) gap++
+  for (let i = 0; i < K; i++) {
+    if (s[i] !== target[i]) {
+      gap++
+    }
+  }
   const guard = 1000 * K
   while (gap > 0 && steps < guard) {
     steps++
@@ -40,18 +46,29 @@ export function solveUndirected(input: {
   const { target, rng, budget } = input
   const K = target.length
   const s = new Int8Array(K)
-  for (let i = 0; i < K; i++) s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
+  for (let i = 0; i < K; i++) {
+    s[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
+  }
   let gap = 0
-  for (let i = 0; i < K; i++) if (s[i] !== target[i]) gap++
+  for (let i = 0; i < K; i++) {
+    if (s[i] !== target[i]) {
+      gap++
+    }
+  }
   for (let steps = 1; steps <= budget; steps++) {
     const i = Math.floor(rng.next() * K)
     const v = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
     if (s[i] !== v) {
-      if (s[i] === target[i]) gap++
-      else if (v === target[i]) gap--
+      if (s[i] === target[i]) {
+        gap++
+      } else if (v === target[i]) {
+        gap--
+      }
       s[i] = v
     }
-    if (gap === 0) return { solved: true, steps }
+    if (gap === 0) {
+      return { solved: true, steps }
+    }
   }
   return { solved: false, steps: budget }
 }

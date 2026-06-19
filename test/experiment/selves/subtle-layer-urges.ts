@@ -48,18 +48,21 @@ function twoScale(input: {
   // dense surface
   for (let i = 0; i < fastCount; i++) {
     const u = slowCount + i
-    for (let d = 0; d < fastDegree; d++)
+    for (let d = 0; d < fastDegree; d++) {
       add(u, slowCount + rng.nextInt({ max: fastCount }))
+    }
   }
   // surface-to-subtle coupling
   for (let i = 0; i < fastCount; i++) {
     const u = slowCount + i
-    for (let c = 0; c < coupling; c++)
+    for (let c = 0; c < coupling; c++) {
       add(u, rng.nextInt({ max: slowCount }))
+    }
   }
   // sparse subtle layer
-  for (let i = 0; i < slowCount; i++)
+  for (let i = 0; i < slowCount; i++) {
     add(i, rng.nextInt({ max: slowCount }))
+  }
   return {
     n,
     slowCount,
@@ -78,17 +81,21 @@ function settleFast(
   rng: Rng,
 ): Int8Array {
   const t = new Int8Array(ts.n)
-  for (let i = 0; i < ts.slowCount; i++) t[i] = slowState[i] ?? 0
-  for (let i = ts.slowCount; i < ts.n; i++)
+  for (let i = 0; i < ts.slowCount; i++) {
+    t[i] = slowState[i] ?? 0
+  }
+  for (let i = ts.slowCount; i < ts.n; i++) {
     t[i] = fastInit[i - ts.slowCount] ?? 0
+  }
   for (let sweep = 0; sweep < sweeps; sweep++) {
     for (let s = 0; s < ts.n - ts.slowCount; s++) {
       const v = ts.slowCount + rng.nextInt({ max: ts.n - ts.slowCount })
       const nb = ts.neighbors[v] ?? []
       const fl = ts.fills[v] ?? new Int8Array(0)
       let h = 0
-      for (let k = 0; k < nb.length; k++)
+      for (let k = 0; k < nb.length; k++) {
         h += (fl[k] ?? 0) * (t[nb[k] ?? 0] ?? 0)
+      }
       t[v] = h > 0 ? 1 : h < 0 ? -1 : (t[v] ?? 0)
     }
   }
@@ -97,7 +104,11 @@ function settleFast(
 
 function differ(a: Int8Array, b: Int8Array): number {
   let d = 0
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) d++
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      d++
+    }
+  }
   return d / Math.max(1, a.length)
 }
 

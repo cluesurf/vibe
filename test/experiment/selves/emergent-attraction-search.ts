@@ -31,7 +31,9 @@ function maxDifference(a: Will, b: Will): number {
   let max = 0
   for (let i = 0; i < a.data.length; i++) {
     const d = Math.abs(a.data[i]! - b.data[i]!)
-    if (d > max) max = d
+    if (d > max) {
+      max = d
+    }
   }
   return max
 }
@@ -39,8 +41,9 @@ function maxDifference(a: Will, b: Will): number {
 // the overlay of two wills, slot-wise sum (valid while they never co-occupy a slot).
 function overlay(a: Will, b: Will): Will {
   const data = new Int8Array(a.data.length)
-  for (let i = 0; i < data.length; i++)
+  for (let i = 0; i < data.length; i++) {
     data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+  }
   return { mesh: a.mesh, data }
 }
 
@@ -86,8 +89,9 @@ export default experiment({
       const a = loneParticle(mesh, cellA, dir)
       const b = loneParticle(mesh, cellB, dir)
       const joint = makeWill(mesh)
-      for (let i = 0; i < joint.data.length; i++)
+      for (let i = 0; i < joint.data.length; i++) {
         joint.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+      }
       const jointFinal = run(joint, rule, beats)
       const overlayFinal = overlay(
         run({ mesh, data: a.data.slice() }, rule, beats),
@@ -107,8 +111,9 @@ export default experiment({
     const a = loneParticle(mesh, cellA, dir)
     const b = loneParticle(mesh, cellB, opp)
     const collide = makeWill(mesh)
-    for (let i = 0; i < collide.data.length; i++)
+    for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+    }
     const collideFinal = run(collide, rule, beats)
     const collideOverlay = overlay(
       run({ mesh, data: a.data.slice() }, rule, beats),

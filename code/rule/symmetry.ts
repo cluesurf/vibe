@@ -17,8 +17,9 @@ import { Will } from '@/code/tone/will'
 // charge conjugation, negate every tone
 export function chargeConjugate(will: Will): Will {
   const data = new Int8Array(will.data.length)
-  for (let i = 0; i < data.length; i++)
+  for (let i = 0; i < data.length; i++) {
     data[i] = -(will.data[i] ?? 0) as -1 | 0 | 1
+  }
   return { mesh: will.mesh, data }
 }
 

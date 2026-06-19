@@ -37,7 +37,9 @@ export function coinedWalkMSD(input: {
       norm += p
     }
     msd.push(m / norm)
-    if (t === steps) break
+    if (t === steps) {
+      break
+    }
     // coin: rotation by theta mixing the two coin components
     // shift: left-component to x-1, right-component to x+1
     re2.fill(0)
@@ -158,7 +160,9 @@ export function measuredCoinedWalkFrequency(input: {
   const k = (2 * Math.PI * wavenumberIndex) / size
   const right = new Float64Array(size)
   const left = new Float64Array(size)
-  for (let x = 0; x < size; x++) right[x] = Math.cos(k * x)
+  for (let x = 0; x < size; x++) {
+    right[x] = Math.cos(k * x)
+  }
   const series = new Float64Array(beats)
   const rightNext = new Float64Array(size)
   const leftNext = new Float64Array(size)
@@ -424,7 +428,7 @@ export function twoParticleQuantumWalk(input: {
   const c1s = Math.floor(L * 0.3)
   const c2s = Math.floor(L * 0.4) // start close together, well inside the lattice (no boundary wrap)
   let norm = 0
-  for (let x1 = 0; x1 < L; x1++)
+  for (let x1 = 0; x1 < L; x1++) {
     for (let x2 = 0; x2 < L; x2++) {
       const g = Math.exp(
         -(((x1 - c1s) / w) ** 2) - ((x2 - c2s) / w) ** 2,
@@ -435,6 +439,7 @@ export function twoParticleQuantumWalk(input: {
       im[i] = g * Math.sin(ph)
       norm += g * g
     }
+  }
   const s = 1 / Math.sqrt(norm)
   for (let i = 0; i < N; i++) {
     re[i]! *= s
@@ -445,24 +450,26 @@ export function twoParticleQuantumWalk(input: {
   for (let t = 0; t < steps; t++) {
     let com = 0
     let rel = 0
-    for (let x1 = 0; x1 < L; x1++)
+    for (let x1 = 0; x1 < L; x1++) {
       for (let x2 = 0; x2 < L; x2++) {
         let p = 0
-        for (let c1 = 0; c1 < 2; c1++)
+        for (let c1 = 0; c1 < 2; c1++) {
           for (let c2 = 0; c2 < 2; c2++) {
             const i = idx(x1, x2, c1, c2)
             p += re[i]! ** 2 + im[i]! ** 2
           }
+        }
         com += ((x1 + x2) / 2) * p
         rel += Math.abs(x1 - x2) * p
       }
+    }
     comList.push(com)
     relList.push(rel)
     // coin on particle 1 (mix c1), then particle 2 (mix c2)
     const nr = new Float64Array(N)
     const ni = new Float64Array(N)
-    for (let x1 = 0; x1 < L; x1++)
-      for (let x2 = 0; x2 < L; x2++)
+    for (let x1 = 0; x1 < L; x1++) {
+      for (let x2 = 0; x2 < L; x2++) {
         for (let c2 = 0; c2 < 2; c2++) {
           const i0 = idx(x1, x2, 0, c2)
           const i1 = idx(x1, x2, 1, c2)
@@ -475,10 +482,12 @@ export function twoParticleQuantumWalk(input: {
           nr[i1] = a1r
           ni[i1] = a1i
         }
+      }
+    }
     const mr = new Float64Array(N)
     const mi = new Float64Array(N)
-    for (let x1 = 0; x1 < L; x1++)
-      for (let x2 = 0; x2 < L; x2++)
+    for (let x1 = 0; x1 < L; x1++) {
+      for (let x2 = 0; x2 < L; x2++) {
         for (let c1 = 0; c1 < 2; c1++) {
           const i0 = idx(x1, x2, c1, 0)
           const i1 = idx(x1, x2, c1, 1)
@@ -491,12 +500,14 @@ export function twoParticleQuantumWalk(input: {
           mr[i1] = a1r
           mi[i1] = a1i
         }
+      }
+    }
     // shift both particles, then contact phase when x1==x2
     re = new Float64Array(N)
     im = new Float64Array(N)
-    for (let x1 = 0; x1 < L; x1++)
-      for (let x2 = 0; x2 < L; x2++)
-        for (let c1 = 0; c1 < 2; c1++)
+    for (let x1 = 0; x1 < L; x1++) {
+      for (let x2 = 0; x2 < L; x2++) {
+        for (let c1 = 0; c1 < 2; c1++) {
           for (let c2 = 0; c2 < 2; c2++) {
             const i = idx(x1, x2, c1, c2)
             const nx1 = (x1 + (c1 === 1 ? 1 : -1) + L) % L
@@ -515,6 +526,9 @@ export function twoParticleQuantumWalk(input: {
             re[j]! += vr
             im[j]! += vi
           }
+        }
+      }
+    }
   }
   // CoM linear fit + relative-coordinate growth (bound vs free)
   const ts: number[] = []

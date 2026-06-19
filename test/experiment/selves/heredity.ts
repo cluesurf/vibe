@@ -35,12 +35,14 @@ export function heredity(input?: { n?: number }): {
 
   // parent region (around the hub) and a fresh daughter region (far away), same size, disjoint
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const far = csrFarthestNode({
     offsets: g.offsets,
     adj: g.adj,
@@ -65,7 +67,9 @@ export function heredity(input?: { n?: number }): {
     while (fr.length > 0 && daughterCells.length < size) {
       const nf: number[] = []
       for (const u of fr) {
-        if (!parentSet.has(u)) daughterCells.push(u)
+        if (!parentSet.has(u)) {
+          daughterCells.push(u)
+        }
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
           if (!seen[w]) {
@@ -83,8 +87,9 @@ export function heredity(input?: { n?: number }): {
   const rng = makeRng({ seed: 4 })
   const parentPat = new Int8Array(m)
   const half = Math.floor(m / 2)
-  for (let i = 0; i < m; i++)
+  for (let i = 0; i < m; i++) {
     parentPat[i] = i < half ? 1 : i < 2 * half ? -1 : 0
+  }
   // shuffle to make it a real pattern, staying exactly balanced
   for (let i = m - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
@@ -102,13 +107,18 @@ export function heredity(input?: { n?: number }): {
     let charge = 0
     for (let i = 0; i < m; i++) {
       let v = parentPat[i]!
-      if (r.next() < mu) v = -v as -1 | 1 // mutation
+      if (r.next() < mu) {
+        v = -v as -1 | 1
+      } // mutation
       daughterPat[i] = v
       charge += v // daughter region was empty (0), so this is the charge created by copying
     }
     let agree = 0
-    for (let i = 0; i < m; i++)
-      if (daughterPat[i] === parentPat[i]) agree++
+    for (let i = 0; i < m; i++) {
+      if (daughterPat[i] === parentPat[i]) {
+        agree++
+      }
+    }
     const resemblance = (2 * agree) / m - 1 // +1 identical, 0 random, -1 anti
     return { resemblance, charge: Math.abs(charge) }
   }

@@ -26,17 +26,22 @@ export async function createVibeRenderer(input: {
   mode: FoldMode
 }): Promise<VibeRenderer> {
   const gpu = (navigator as unknown as { gpu?: GPU }).gpu
-  if (!gpu) throw new Error('WebGPU is not available in this browser')
+  if (!gpu) {
+    throw new Error('WebGPU is not available in this browser')
+  }
   const adapter = await gpu.requestAdapter()
-  if (!adapter)
+  if (!adapter) {
     throw new Error(
       'no WebGPU adapter (the GPU may be blocked or unavailable)',
     )
+  }
   const device = await adapter.requestDevice()
   const context = input.canvas.getContext(
     'webgpu',
   ) as GPUCanvasContext | null
-  if (!context) throw new Error('could not get a webgpu canvas context')
+  if (!context) {
+    throw new Error('could not get a webgpu canvas context')
+  }
   const format = gpu.getPreferredCanvasFormat()
   context.configure({ device, format, alphaMode: 'opaque' })
 
@@ -73,7 +78,9 @@ export async function createVibeRenderer(input: {
   let frame = 0
 
   const renderLoop = (now: number): void => {
-    if (!running) return
+    if (!running) {
+      return
+    }
     const dt = Math.min(0.05, (now - last) / 1000)
     last = now
     controls.tick(dt)
@@ -82,9 +89,11 @@ export async function createVibeRenderer(input: {
       input.canvas.height > 0
         ? input.canvas.width / input.canvas.height
         : 1
-    if (mode === '2d')
+    if (mode === '2d') {
       scene.setCamera2D({ ...camera.uniform2D(), aspect })
-    else scene.setCamera3D({ ...camera.uniform3D(), aspect })
+    } else {
+      scene.setCamera3D({ ...camera.uniform3D(), aspect })
+    }
 
     const encoder = device.createCommandEncoder()
     const pass = encoder.beginRenderPass({

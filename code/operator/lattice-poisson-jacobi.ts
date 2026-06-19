@@ -26,7 +26,9 @@ export function latticePoissonJacobi(input: {
       }
       const row = neighbors[i] ?? []
       let s = 0
-      for (const j of row) s += phi[j] ?? 0
+      for (const j of row) {
+        s += phi[j] ?? 0
+      }
       next[i] = (s + coefficient * (source[i] ?? 0)) / row.length
     }
     phi = next

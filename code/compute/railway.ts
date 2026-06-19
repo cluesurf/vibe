@@ -26,15 +26,21 @@ export interface RailSwitch {
 // route the locomotive through a switch: given the port it entered by, return the port it leaves by, mutating
 // the switch state per its kind. crossing is a 4-port straight-through (0<->2, 1<->3).
 export function routeSwitch(sw: RailSwitch, entryPort: number): number {
-  if (sw.kind === 'crossing') return (entryPort + 2) % 4
+  if (sw.kind === 'crossing') {
+    return (entryPort + 2) % 4
+  }
   if (entryPort === 0) {
     // trunk -> active branch
     const exit = sw.active
-    if (sw.kind === 'flip-flop') sw.active = sw.active === 1 ? 2 : 1 // the active passage flips it
+    if (sw.kind === 'flip-flop') {
+      sw.active = sw.active === 1 ? 2 : 1
+    } // the active passage flips it
     return exit
   }
   // a branch -> trunk
-  if (sw.kind === 'memory') sw.active = entryPort as 1 | 2 // remember which branch we came from
+  if (sw.kind === 'memory') {
+    sw.active = entryPort as 1 | 2
+  } // remember which branch we came from
   return 0
 }
 
@@ -52,23 +58,33 @@ export function makeRegister(capacity: number): RailRegister {
 
 export function registerValue(reg: RailRegister): number {
   let v = 0
-  while (v < reg.cells.length && reg.cells[v] === 1) v++
+  while (v < reg.cells.length && reg.cells[v] === 1) {
+    v++
+  }
   return v
 }
 
 // the locomotive rolls in, over the set cells, and sets the first free cell (increment)
 export function railIncrement(reg: RailRegister): void {
   let i = 0
-  while (i < reg.cells.length && reg.cells[i] === 1) i++
-  if (i < reg.cells.length) reg.cells[i] = 1
+  while (i < reg.cells.length && reg.cells[i] === 1) {
+    i++
+  }
+  if (i < reg.cells.length) {
+    reg.cells[i] = 1
+  }
 }
 
 // the locomotive rolls in, over the set cells, and clears the last set cell (decrement). Returns true if it
 // could decrement, false if the register was already zero (the train comes back by the special zero track).
 export function railDecrementOrZero(reg: RailRegister): boolean {
   let i = 0
-  while (i < reg.cells.length && reg.cells[i] === 1) i++
-  if (i === 0) return false // already zero
+  while (i < reg.cells.length && reg.cells[i] === 1) {
+    i++
+  }
+  if (i === 0) {
+    return false
+  } // already zero
   reg.cells[i - 1] = 0
   return true
 }
@@ -104,7 +120,9 @@ export function runRailway(
 ): { registers: number[]; steps: number } {
   const regs = Array.from({ length: program.registers }, (_, r) => {
     const reg = makeRegister(program.capacity)
-    for (let i = 0; i < (initial[r] ?? 0); i++) railIncrement(reg)
+    for (let i = 0; i < (initial[r] ?? 0); i++) {
+      railIncrement(reg)
+    }
     return reg
   })
   let pc = 0
@@ -112,7 +130,9 @@ export function runRailway(
   const maxSteps = 50_000_000 // a safety bound so a non-halting program does not spin forever
   while (steps < maxSteps) {
     const ins = program.code[pc]
-    if (!ins || ins.op === 'halt') break
+    if (!ins || ins.op === 'halt') {
+      break
+    }
     steps++
     const at = pc
     if (ins.op === 'inc') {
@@ -122,13 +142,14 @@ export function runRailway(
       const ok = railDecrementOrZero(regs[ins.reg]!)
       pc = ok ? ins.next : ins.zero
     }
-    if (onStep)
+    if (onStep) {
       onStep({
         pc: at,
         op: ins.op,
         reg: ins.reg,
         registers: regs.map(registerValue),
       })
+    }
   }
   return { registers: regs.map(registerValue), steps }
 }

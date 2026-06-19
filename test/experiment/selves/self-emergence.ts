@@ -78,8 +78,9 @@ export function selfEmergence(): {
   const coherenceFiveStart = coherence(tF, edges, fF)
   const patchFiveStart = largestPatch(tF, edges, fF, n)
   const rngF = makeRng({ seed: 21 })
-  for (let b = 0; b < BEATS; b++)
+  for (let b = 0; b < BEATS; b++) {
     fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
+  }
   const coherenceFiveEnd = coherence(tF, edges, fF)
   const patchFiveEnd = largestPatch(tF, edges, fF, n)
   const conservedFive = sumTone(tF) === qF0

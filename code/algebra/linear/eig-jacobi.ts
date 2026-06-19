@@ -13,14 +13,18 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
     let p = 0
     let q = 1
     let max = 0
-    for (let i = 0; i < 3; i++)
-      for (let j = i + 1; j < 3; j++)
+    for (let i = 0; i < 3; i++) {
+      for (let j = i + 1; j < 3; j++) {
         if (Math.abs(a[i]![j]!) > max) {
           max = Math.abs(a[i]![j]!)
           p = i
           q = j
         }
-    if (max < 1e-14) break
+      }
+    }
+    if (max < 1e-14) {
+      break
+    }
     const app = a[p]![p]!
     const aqq = a[q]![q]!
     const apq = a[p]![q]!
@@ -56,13 +60,20 @@ export function jacobiEigenvalues(
   const a = matrix.map(r => r.slice())
   for (let sweep = 0; sweep < sweeps; sweep++) {
     let off = 0
-    for (let p = 0; p < n; p++)
-      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
-    if (off < tolerance) break
-    for (let p = 0; p < n; p++)
+    for (let p = 0; p < n; p++) {
+      for (let q = p + 1; q < n; q++) {
+        off += a[p]![q]! * a[p]![q]!
+      }
+    }
+    if (off < tolerance) {
+      break
+    }
+    for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
-        if (Math.abs(apq) < 1e-12) continue
+        if (Math.abs(apq) < 1e-12) {
+          continue
+        }
         const phi = 0.5 * Math.atan2(2 * apq, a[q]![q]! - a[p]![p]!)
         const c = Math.cos(phi)
         const s = Math.sin(phi)
@@ -79,6 +90,7 @@ export function jacobiEigenvalues(
           a[q]![k] = s * pk + c * qk
         }
       }
+    }
   }
   return Array.from({ length: n }, (_, i) => a[i]![i]!).sort(
     (x, y) => x - y,

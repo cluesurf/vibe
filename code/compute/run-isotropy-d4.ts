@@ -35,25 +35,29 @@ fn step(@builtin(global_invocation_id) gid:vec3<u32>){
 function offsets24(): Int32Array {
   const o: number[] = []
   const ax = [0, 1, 2, 3]
-  for (let a = 0; a < 4; a++)
-    for (let b = a + 1; b < 4; b++)
-      for (const sa of [1, -1])
+  for (let a = 0; a < 4; a++) {
+    for (let b = a + 1; b < 4; b++) {
+      for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
           v[ax[a]!] = sa
           v[ax[b]!] = sb
           o.push(v[0]!, v[1]!, v[2]!, v[3]!)
         }
+      }
+    }
+  }
   return new Int32Array(o) // 24 * 4
 }
 function offsets8(): Int32Array {
   const o: number[] = []
-  for (let a = 0; a < 4; a++)
+  for (let a = 0; a < 4; a++) {
     for (const s of [1, -1]) {
       const v = [0, 0, 0, 0]
       v[a] = s
       o.push(v[0]!, v[1]!, v[2]!, v[3]!)
     }
+  }
   return new Int32Array(o) // 8 * 4
 }
 
@@ -138,7 +142,9 @@ async function run(): Promise<void> {
     let axisExt = 0,
       diagExt = 0
     for (let i = 0; i < N; i++) {
-      if (r[i] === 0) continue
+      if (r[i] === 0) {
+        continue
+      }
       const x = i % L,
         y = Math.floor(i / L) % L,
         z = Math.floor(i / (L * L)) % L,

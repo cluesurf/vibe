@@ -34,8 +34,9 @@ export function staggeredMassChainHamiltonian(input: {
   const { n, mass } = input
   const t = input.hopping ?? 1
   const h = makeDense({ rows: n, cols: n })
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     h.data[i * n + i] = (i % 2 === 0 ? 1 : -1) * mass
+  }
   for (let i = 0; i < n - 1; i++) {
     h.data[i * n + (i + 1)] = -t
     h.data[(i + 1) * n + i] = -t
@@ -58,8 +59,12 @@ export function openChainPotentialApply(input: {
   const out = new Float64Array(n)
   for (let r = 0; r < n; r++) {
     let v = potential[r]! * phi[r]!
-    if (r > 0) v += -t * phi[r - 1]!
-    if (r < n - 1) v += -t * phi[r + 1]!
+    if (r > 0) {
+      v += -t * phi[r - 1]!
+    }
+    if (r < n - 1) {
+      v += -t * phi[r + 1]!
+    }
     out[r] = v
   }
   return out
@@ -93,8 +98,12 @@ export function gridPotentialApply(input: {
     let rest = r
     for (let d = 0; d < dimension; d++) {
       const coord = Math.floor(rest / strides[d]!) % side
-      if (coord > 0) v += -t * phi[r - strides[d]!]!
-      if (coord < side - 1) v += -t * phi[r + strides[d]!]!
+      if (coord > 0) {
+        v += -t * phi[r - strides[d]!]!
+      }
+      if (coord < side - 1) {
+        v += -t * phi[r + strides[d]!]!
+      }
     }
     out[r] = v
   }
@@ -112,7 +121,9 @@ export function torusHoppingHamiltonian(input: {
   const { dimension, side } = input
   const t = input.hopping ?? 1
   let n = 1
-  for (let d = 0; d < dimension; d++) n *= side
+  for (let d = 0; d < dimension; d++) {
+    n *= side
+  }
   const h = makeDense({ rows: n, cols: n })
   const strides: number[] = []
   let stride = 1
@@ -165,12 +176,21 @@ export function staggeredMassCubicHamiltonian(input: {
       for (let z = 0; z < side; z++) {
         const i = index(x, y, z)
         h.data[i * n + i] = ((x + y + z) % 2 === 0 ? 1 : -1) * mass
-        if (x + 1 < side) bond(i, index(x + 1, y, z))
-        else if (periodic) bond(i, index(0, y, z))
-        if (y + 1 < side) bond(i, index(x, y + 1, z))
-        else if (periodic) bond(i, index(x, 0, z))
-        if (z + 1 < side) bond(i, index(x, y, z + 1))
-        else if (periodic) bond(i, index(x, y, 0))
+        if (x + 1 < side) {
+          bond(i, index(x + 1, y, z))
+        } else if (periodic) {
+          bond(i, index(0, y, z))
+        }
+        if (y + 1 < side) {
+          bond(i, index(x, y + 1, z))
+        } else if (periodic) {
+          bond(i, index(x, 0, z))
+        }
+        if (z + 1 < side) {
+          bond(i, index(x, y, z + 1))
+        } else if (periodic) {
+          bond(i, index(x, y, 0))
+        }
       }
     }
   }

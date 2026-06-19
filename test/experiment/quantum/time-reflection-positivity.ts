@@ -70,7 +70,9 @@ export function reflectionPositivity(input?: { n?: number }): {
     while (fr.length > 0 && out.length < size) {
       const nf: number[] = []
       for (const u of fr) {
-        if (claimed[u]) continue
+        if (claimed[u]) {
+          continue
+        }
         out.push(u)
         claimed[u] = 1
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
@@ -91,19 +93,24 @@ export function reflectionPositivity(input?: { n?: number }): {
   const patchA = ball(Math.floor(N / 2), 30, claimed)
   const obs = (tone: Int8Array): number => {
     let a = 0
-    for (const i of patchA) a += tone[i]!
+    for (const i of patchA) {
+      a += tone[i]!
+    }
     return a / patchA.length
   }
 
   // reach the reversible steady state, then record a long trajectory of the observable
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
       | 0
       | 1
-  for (let t = 0; t < 60; t++) beat(tone, eu, ev, moved, rng, ARROW)
+  }
+  for (let t = 0; t < 60; t++) {
+    beat(tone, eu, ev, moved, rng, ARROW)
+  }
   const T = 8000
   const series = new Float64Array(T)
   for (let t = 0; t < T; t++) {
@@ -122,7 +129,9 @@ export function reflectionPositivity(input?: { n?: number }): {
     stride: number,
   ): number => {
     let mean = 0
-    for (let t = start; t < start + len; t++) mean += series[t]!
+    for (let t = start; t < start + len; t++) {
+      mean += series[t]!
+    }
     mean /= len
     const ac: number[] = []
     for (let tau = 0; tau <= maxTau; tau++) {
@@ -142,13 +151,16 @@ export function reflectionPositivity(input?: { n?: number }): {
 
   // full-sample autocorrelation (for reporting)
   let mean = 0
-  for (let t = 0; t < T; t++) mean += series[t]!
+  for (let t = 0; t < T; t++) {
+    mean += series[t]!
+  }
   mean /= T
   const autocorr: number[] = []
   for (let tau = 0; tau <= maxTau; tau++) {
     let s = 0
-    for (let t = 0; t + tau < T; t++)
+    for (let t = 0; t + tau < T; t++) {
       s += (series[t]! - mean) * (series[t + tau]! - mean)
+    }
     autocorr.push(s / (T - tau))
   }
   const rawMinEig = hankelMinEig(0, T, 1) // shows the temporal doubler (discrete-update artifact)
@@ -156,18 +168,20 @@ export function reflectionPositivity(input?: { n?: number }): {
   // period-2 amplitude (even lags minus odd lags) makes the doubler explicit
   let evenSum = 0
   let oddSum = 0
-  for (let tau = 1; tau <= maxTau; tau++)
+  for (let tau = 1; tau <= maxTau; tau++) {
     tau % 2 === 0
       ? (evenSum += autocorr[tau]!)
       : (oddSum += autocorr[tau]!)
+  }
   const doublerAmplitude = (evenSum - oddSum) / autocorr[0]!
 
   // block-bootstrap noise floor for the doubler-removed (stride-2) eigenvalue
   const blocks = 8
   const blockLen = Math.floor(T / blocks)
   const blockEigs: number[] = []
-  for (let b = 0; b < blocks; b++)
+  for (let b = 0; b < blocks; b++) {
     blockEigs.push(hankelMinEig(b * blockLen, blockLen, 2))
+  }
   const meanBlock = blockEigs.reduce((s, x) => s + x, 0) / blocks
   const stdBlock = Math.sqrt(
     blockEigs.reduce((s, x) => s + (x - meanBlock) ** 2, 0) / blocks,

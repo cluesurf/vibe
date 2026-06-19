@@ -35,7 +35,11 @@ function agreeCount(
   except: number,
 ): number {
   let c = 0
-  for (const w of neighbors[i]!) if (w !== except && tone[w] === q) c++
+  for (const w of neighbors[i]!) {
+    if (w !== except && tone[w] === q) {
+      c++
+    }
+  }
   return c
 }
 
@@ -52,7 +56,9 @@ function beat(
 ): void {
   const moved = new Uint8Array(tone.length)
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -114,20 +120,25 @@ function measure(cohesive: boolean): {
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < 100; b++)
+  for (let b = 0; b < 100; b++) {
     beat(t, edges, neighbors, rng, ARROW, cohesive, TEMP)
+  }
 
   const base = t.slice()
   const work = base.slice()
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
+  }
   const longLagCorr = pearson({ a: base, b: work })
   const conservedRun = sumTone(t) === q0
 
   // imprint a pleasure blob, run, measure survival above background
   let center = 0
-  for (let i = 1; i < n; i++)
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  for (let i = 1; i < n; i++) {
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
+  }
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -135,20 +146,24 @@ function measure(cohesive: boolean): {
   })
   const imp = t.slice()
   const blob: number[] = []
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     if (dd(distC, i) <= 3) {
       imp[i] = 1
       blob.push(i)
     }
+  }
   const meanBlob = (arr: Int8Array): number =>
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)
+  }
   const after = meanBlob(imp)
   let bg = 0
-  for (let i = 0; i < n; i++) bg += imp[i]!
+  for (let i = 0; i < n; i++) {
+    bg += imp[i]!
+  }
   bg /= n
   const imprintRetention = (after - bg) / (start - bg || 1)
 

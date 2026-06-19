@@ -85,8 +85,9 @@ export function waveModeFrequency(input: {
   for (let t = 0; t < maxBeats && zeros.length < 2; t++) {
     const next = factor * current - previous // q(t+1)
     maxAbs = Math.max(maxAbs, Math.abs(next))
-    if (current >= 0 !== next >= 0)
-      zeros.push(t + current / (current - next)) // interpolated zero in (t, t+1)
+    if (current >= 0 !== next >= 0) {
+      zeros.push(t + current / (current - next))
+    } // interpolated zero in (t, t+1)
     previous = current
     current = next
   }

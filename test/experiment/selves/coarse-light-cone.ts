@@ -45,11 +45,17 @@ function perturbAndWatch(input: {
     for (let i = 0; i < control.length; i++) {
       if (control[i] !== perturbed[i]) {
         count++
-        if (dist[i]! > maxR) maxR = dist[i]!
+        if (dist[i]! > maxR) {
+          maxR = dist[i]!
+        }
       }
     }
-    if (count > peak) peak = count
-    if (maxR > radius) radius = maxR
+    if (count > peak) {
+      peak = count
+    }
+    if (maxR > radius) {
+      radius = maxR
+    }
     final = count
   }
   return { peak, final, radius }

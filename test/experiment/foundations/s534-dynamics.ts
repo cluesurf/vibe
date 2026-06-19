@@ -33,12 +33,15 @@ export function s534Dynamics(): {
     const next: number[][] = Array.from({ length: N }, (_, i) =>
       nb[i]!.map(() => 0),
     )
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       for (let k = 0; k < nb[i]!.length; k++) {
         const j = nb[i]![k]!
         const back = nb[j]!.indexOf(i)
-        if (back >= 0) next[j]![back] = next[j]![back]! + charge[i]![k]!
-      } // stream to neighbor (placed on its returning slot)
+        if (back >= 0) {
+          next[j]![back] = next[j]![back]! + charge[i]![k]!
+        }
+      }
+    } // stream to neighbor (placed on its returning slot)
     charge = next
   }
   const t1 = total(charge)
@@ -46,42 +49,52 @@ export function s534Dynamics(): {
   // (2) light cone, a single seed spreads one BFS shell per beat -> speed z=1
   let center = 0,
     best = -1
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (nb[i]!.length > best) {
       best = nb[i]!.length
       center = i
     }
+  }
   const dist = new Int32Array(N).fill(-1)
   dist[center] = 0
   let fr = [center]
   let radius = 0
   while (fr.length && radius < 6) {
     const nf: number[] = []
-    for (const u of fr)
-      for (const w of nb[u]!)
+    for (const u of fr) {
+      for (const w of nb[u]!) {
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
           nf.push(w)
         }
+      }
+    }
     fr = nf
-    if (nf.length) radius++
+    if (nf.length) {
+      radius++
+    }
   }
   const lightSpeed = 1 // one shell per beat, by construction of the local rule (finite, z=1)
   // (3) churn, mod-3 wave from random init does not freeze
   let cur = new Int8Array(N),
     prev = new Int8Array(N)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+  }
   const { offsets: off, adj } = toCsr(nb)
   let changes = 0
   for (let t = 0; t < 30; t++) {
     const nx = new Int8Array(N)
     for (let i = 0; i < N; i++) {
       let s = 0
-      for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!
+      for (let q = off[i]!; q < off[i + 1]!; q++) {
+        s += cur[adj[q]!]!
+      }
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
       nx[i] = v
-      if (v !== cur[i]!) changes++
+      if (v !== cur[i]!) {
+        changes++
+      }
     }
     prev = cur
     cur = nx

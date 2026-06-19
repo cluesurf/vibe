@@ -60,8 +60,9 @@ export function spinorHolonomy(input: {
   const { winding, steps } = input
   const stepRotor = spinorZRotor((2 * Math.PI * winding) / steps)
   let holonomy = cmIdentity(2)
-  for (let k = 0; k < steps; k++)
+  for (let k = 0; k < steps; k++) {
     holonomy = cmMultiply(holonomy, stepRotor)
+  }
   return holonomy
 }
 

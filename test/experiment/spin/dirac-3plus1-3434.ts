@@ -36,8 +36,9 @@ export default experiment({
       for (let nu = 0; nu < 4; nu++) {
         const anti = cmAntiCommutator(gamma[mu]!, gamma[nu]!)
         const target = mu === nu ? 2 * minkowski[mu]! : 0
-        if (!cmIsScalar(anti, complex({ re: target, im: 0 })))
+        if (!cmIsScalar(anti, complex({ re: target, im: 0 }))) {
           cliffordHolds = false
+        }
       }
     }
 

@@ -29,17 +29,21 @@ function dbViolation(
   const moved = new Uint8Array(N)
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 3 })
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
       | 0
       | 1
-  for (let t = 0; t < 60; t++)
-    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // reach steady state
+  }
+  for (let t = 0; t < 60; t++) {
+    conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+  } // reach steady state
 
   // sample a fixed subset of edges, count (a,b) -> (a',b') transitions over many beats (9 states each)
   const sampleEdges: number[] = []
-  for (let k = 0; k < eu.length; k += 3) sampleEdges.push(k)
+  for (let k = 0; k < eu.length; k += 3) {
+    sampleEdges.push(k)
+  }
   const beats = 120
   let activeSum = 0
   const S9 = 9
@@ -55,7 +59,11 @@ function dbViolation(
       C[pre[i]! * S9 + post]! += 1
     }
     let active = 0
-    for (let i = 0; i < N; i++) if (tone[i] !== 0) active++
+    for (let i = 0; i < N; i++) {
+      if (tone[i] !== 0) {
+        active++
+      }
+    }
     activeSum += active / N
   }
   const { violation, floor } = detailedBalanceViolation({
@@ -95,7 +103,9 @@ export function reversiblePoint(input?: { n?: number }): {
   for (const s of scan) {
     const ratio =
       s.activity > 0.05 ? s.violation / Math.max(s.floor, 1e-9) : 0 // skip the noisy near-empty case
-    if (ratio > maxRatio) maxRatio = ratio
+    if (ratio > maxRatio) {
+      maxRatio = ratio
+    }
   }
   const localDetailedBalance = maxRatio < 1.6
   const solved = localDetailedBalance

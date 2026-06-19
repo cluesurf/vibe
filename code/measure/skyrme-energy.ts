@@ -33,8 +33,8 @@ export function hedgehogTexture3d(input: {
       Array.from({ length: M }, () => [0, 0, 1] as Vector3),
     ),
   )
-  for (let x = 0; x < M; x++)
-    for (let y = 0; y < M; y++)
+  for (let x = 0; x < M; x++) {
+    for (let y = 0; y < M; y++) {
       for (let z = 0; z < M; z++) {
         const dx = x - c,
           dy = y - c,
@@ -49,6 +49,8 @@ export function hedgehogTexture3d(input: {
           Math.cos(prof) + 0.6 * Math.sin(prof) * rhat[2],
         ])
       }
+    }
+  }
   return field
 }
 
@@ -79,10 +81,12 @@ export function placeSkyrmion2d(input: {
     charge: ch,
   } = input
   const N = field.length
-  for (let x = 0; x < N; x++)
+  for (let x = 0; x < N; x++) {
     for (let y = 0; y < N; y++) {
       const r = Math.hypot(x - cx, y - cy)
-      if (r > 2.2 * R) continue
+      if (r > 2.2 * R) {
+        continue
+      }
       const phi = Math.atan2(y - cy, x - cx) * ch,
         fr = Math.PI * Math.max(0, 1 - r / R)
       const nv = normalize3([
@@ -90,8 +94,11 @@ export function placeSkyrmion2d(input: {
         Math.sin(fr) * Math.sin(phi),
         Math.cos(fr),
       ])
-      if (1 - field[x]![y]![2] < 1 - nv[2]) field[x]![y] = nv
+      if (1 - field[x]![y]![2] < 1 - nv[2]) {
+        field[x]![y] = nv
+      }
     }
+  }
 }
 
 // Exchange and Skyrme energy of a 2D direction field f[x][y]. Exchange sums (1 - n.n') over the
@@ -104,7 +111,7 @@ export function directionFieldEnergy2d(field: Vector3[][]): {
   const ny = field[0]?.length ?? 0
   let exchange = 0
   let skyrme = 0
-  for (let x = 0; x < nx - 1; x++)
+  for (let x = 0; x < nx - 1; x++) {
     for (let y = 0; y < ny - 1; y++) {
       const n = field[x]![y]!,
         right = field[x + 1]![y]!,
@@ -113,6 +120,7 @@ export function directionFieldEnergy2d(field: Vector3[][]): {
       const q = sphericalTriangleArea(n, right, up)
       skyrme += q * q
     }
+  }
   return { exchange, skyrme }
 }
 
@@ -131,7 +139,7 @@ export function skyrmionCharge2d(field: Vector3[][]): number {
   const nx = field.length
   const ny = field[0]?.length ?? 0
   let q = 0
-  for (let x = 0; x < nx - 1; x++)
+  for (let x = 0; x < nx - 1; x++) {
     for (let y = 0; y < ny - 1; y++) {
       const a = field[x]![y]!,
         b = field[x + 1]![y]!,
@@ -140,6 +148,7 @@ export function skyrmionCharge2d(field: Vector3[][]): number {
       q +=
         sphericalTriangleArea(a, b, c) + sphericalTriangleArea(a, c, d)
     }
+  }
   return Math.round(q / (4 * Math.PI))
 }
 
@@ -155,8 +164,8 @@ export function directionFieldEnergy3d(field: Vector3[][][]): {
   const nz = field[0]?.[0]?.length ?? 0
   let exchange = 0
   let skyrme = 0
-  for (let x = 0; x < nx - 1; x++)
-    for (let y = 0; y < ny - 1; y++)
+  for (let x = 0; x < nx - 1; x++) {
+    for (let y = 0; y < ny - 1; y++) {
       for (let z = 0; z < nz - 1; z++) {
         const n = field[x]![y]![z]!,
           rx = field[x + 1]![y]![z]!,
@@ -169,5 +178,7 @@ export function directionFieldEnergy3d(field: Vector3[][][]): {
           qzx = sphericalTriangleArea(n, rz, rx)
         skyrme += qxy * qxy + qyz * qyz + qzx * qzx
       }
+    }
+  }
   return { exchange, skyrme }
 }

@@ -73,15 +73,17 @@ export function emergentMacroRule(input: {
     )
     let base = new Int8Array(g.size)
     const r0 = makeRng({ seed: input.seed + 20 })
-    for (let i = 0; i < g.size; i++)
+    for (let i = 0; i < g.size; i++) {
       base[i] = r0.nextInt({ max: 3 }) - 1
-    for (let b = 0; b < 200; b++)
+    }
+    for (let b = 0; b < 200; b++) {
       base = signedMajorityStep({
         neighbors: g.neighbors,
         fills,
         tone: base,
         keepOnTie: true,
       })
+    }
     const eff = effectiveCouplings(g, fills, cl, K)
     const superTone = clusterMajority(cl, K, base)
     return {

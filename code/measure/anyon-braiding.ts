@@ -6,8 +6,12 @@
 
 const wrap = (x: number): number => {
   let v = x
-  while (v > Math.PI) v -= 2 * Math.PI
-  while (v <= -Math.PI) v += 2 * Math.PI
+  while (v > Math.PI) {
+    v -= 2 * Math.PI
+  }
+  while (v <= -Math.PI) {
+    v += 2 * Math.PI
+  }
   return v
 }
 
@@ -19,10 +23,18 @@ export function squareLoop(input: {
 }): Array<[number, number]> {
   const { radius: r, cx, cy } = input
   const points: Array<[number, number]> = []
-  for (let x = cx - r; x < cx + r; x++) points.push([x, cy - r])
-  for (let y = cy - r; y < cy + r; y++) points.push([cx + r, y])
-  for (let x = cx + r; x > cx - r; x--) points.push([x, cy + r])
-  for (let y = cy + r; y > cy - r; y--) points.push([cx - r, y])
+  for (let x = cx - r; x < cx + r; x++) {
+    points.push([x, cy - r])
+  }
+  for (let y = cy - r; y < cy + r; y++) {
+    points.push([cx + r, y])
+  }
+  for (let x = cx + r; x > cx - r; x--) {
+    points.push([x, cy + r])
+  }
+  for (let y = cy + r; y > cy - r; y--) {
+    points.push([cx - r, y])
+  }
   return points
 }
 

@@ -53,8 +53,9 @@ export default experiment({
     const representativeByRotation = new Map<string, Quaternion>()
     for (const element of group) {
       const id = rotationKey(element)
-      if (!representativeByRotation.has(id))
+      if (!representativeByRotation.has(id)) {
         representativeByRotation.set(id, element)
+      }
     }
     const rotations = [...representativeByRotation.keys()] // 60 rotations = A5
     const opsSplit: GroupOps<SplitElement> = {

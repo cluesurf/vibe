@@ -20,10 +20,14 @@ export function exactRecallRate(mem: AssociativeMemory): number {
   let ok = 0
   let total = 0
   for (let c = 0; c < mem.cellCount; c++) {
-    if (!mem.occupied[c]) continue
+    if (!mem.occupied[c]) {
+      continue
+    }
     total++
     const responders = searchExact({ mem, comparand: readWord(mem, c) })
-    if (responders.length === 1 && responders[0] === c) ok++
+    if (responders.length === 1 && responders[0] === c) {
+      ok++
+    }
   }
   return total > 0 ? ok / total : 0
 }
@@ -46,7 +50,9 @@ export function nearestRecallRate(input: {
       const k = rng.nextInt({ max: mem.wordBits })
       q[k] = (q[k]! + 1 + rng.nextInt({ max: 2 })) % 3
     }
-    if (searchBest({ mem, comparand: q }).cell === c) ok++
+    if (searchBest({ mem, comparand: q }).cell === c) {
+      ok++
+    }
   }
   return cells.length > 0 ? ok / cells.length : 0
 }
@@ -62,9 +68,12 @@ export function falsePositiveRate(input: {
   let hits = 0
   for (let t = 0; t < trials; t++) {
     const q = new Int8Array(mem.wordBits)
-    for (let k = 0; k < mem.wordBits; k++)
+    for (let k = 0; k < mem.wordBits; k++) {
       q[k] = rng.nextInt({ max: 3 })
-    if (searchExact({ mem, comparand: q }).length > 0) hits++
+    }
+    if (searchExact({ mem, comparand: q }).length > 0) {
+      hits++
+    }
   }
   return trials > 0 ? hits / trials : 0
 }
@@ -80,8 +89,11 @@ export function coverageRadius(input: {
     root: input.seed,
   }).depth
   let r = 0
-  for (let c = 0; c < depth.length; c++)
-    if (depth[c]! > r) r = depth[c]!
+  for (let c = 0; c < depth.length; c++) {
+    if (depth[c]! > r) {
+      r = depth[c]!
+    }
+  }
   return r
 }
 
@@ -107,8 +119,11 @@ export function radiusCapacity(input: {
 
 function occupiedCells(mem: AssociativeMemory): number[] {
   const out: number[] = []
-  for (let c = 0; c < mem.cellCount; c++)
-    if (mem.occupied[c]) out.push(c)
+  for (let c = 0; c < mem.cellCount; c++) {
+    if (mem.occupied[c]) {
+      out.push(c)
+    }
+  }
   return out
 }
 

@@ -33,7 +33,11 @@ export function gmGeometry(): {
   const Vr: number[] = []
   for (let r = 0; r <= 9; r++) {
     let c = 0
-    for (const d of dist.values()) if (d <= r) c++
+    for (const d of dist.values()) {
+      if (d <= r) {
+        c++
+      }
+    }
     Vr.push(c)
   }
   // fit log V ~ dim * log r over r = 3..9

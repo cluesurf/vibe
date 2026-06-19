@@ -20,7 +20,9 @@ const bfsGeodesic = (
       for (const neighbor of neighbors[node]!) {
         if (distance[neighbor] === -1) {
           distance[neighbor] = distance[node]! + 1
-          if (neighbor === to) return distance[neighbor]!
+          if (neighbor === to) {
+            return distance[neighbor]!
+          }
           next.push(neighbor)
         }
       }
@@ -46,8 +48,9 @@ const fit = (
   }
   const slope = cov / varX
   let residual = 0
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     residual += (y[i]! - (meanY + slope * (x[i]! - meanX))) ** 2
+  }
   return { slope, residual }
 }
 
@@ -113,8 +116,11 @@ export function bulkShortcutScaling(input: {
   }
   const depth = bfsField(neighbors, center)
   let maxDepth = 0
-  for (let i = 0; i < n; i++)
-    if (depth[i]! > maxDepth) maxDepth = depth[i]!
+  for (let i = 0; i < n; i++) {
+    if (depth[i]! > maxDepth) {
+      maxDepth = depth[i]!
+    }
+  }
   const band = new Set(
     [...Array(n).keys()].filter(i => depth[i]! > maxDepth - bandWidth),
   )
@@ -129,7 +135,9 @@ export function bulkShortcutScaling(input: {
     const l = within[cell]!
     const s = through[cell]!
     if (l > 0 && s >= 0) {
-      if (!byL.has(l)) byL.set(l, [])
+      if (!byL.has(l)) {
+        byL.set(l, [])
+      }
       byL.get(l)!.push(s)
     }
   }

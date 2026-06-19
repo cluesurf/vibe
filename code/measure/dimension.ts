@@ -187,7 +187,9 @@ export function boxCountingDimension(input: {
   boxSizes?: ReadonlyArray<number>
 }): number {
   const { cells, sideLength: L } = input
-  if (cells.length < 4) return 0
+  if (cells.length < 4) {
+    return 0
+  }
   const sizes = input.boxSizes ?? [2, 4, 8, 16, 32]
   const inverseBoxSizes: number[] = []
   const boxCounts: number[] = []
@@ -307,7 +309,9 @@ export function meanUnsaturatedGrowthRatio(input: {
       ratios.push(cur / prev)
     }
   }
-  if (ratios.length === 0) return NaN
+  if (ratios.length === 0) {
+    return NaN
+  }
   return ratios.reduce((a, b) => a + b, 0) / ratios.length
 }
 
@@ -352,7 +356,9 @@ export function geometricUnsaturatedGrowthRatio(input: {
 // the branching is too small (degree <= 2) for the formula. Rounded to two decimals.
 export function betheCorrelatorExponent(degree: number): number {
   const b = degree - 1
-  if (b <= 1) return 0
+  if (b <= 1) {
+    return 0
+  }
   const mu = (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b)
   return Math.round(((2 * Math.log(1 / mu)) / Math.log(b)) * 100) / 100
 }
@@ -380,7 +386,9 @@ export function spectralDimension(input: {
     np.fill(0)
     for (let i = 0; i < N; i++) {
       const pi = p[i]!
-      if (!pi) continue
+      if (!pi) {
+        continue
+      }
       const row = neighbors[i] ?? []
       const d = row.length
       if (d === 0) {
@@ -389,7 +397,9 @@ export function spectralDimension(input: {
       }
       np[i] = np[i]! + 0.5 * pi
       const sh = (0.5 * pi) / d
-      for (const j of row) np[j] = np[j]! + sh
+      for (const j of row) {
+        np[j] = np[j]! + sh
+      }
     }
     const tmp = p
     p = np

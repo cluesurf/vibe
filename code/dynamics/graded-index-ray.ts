@@ -70,7 +70,9 @@ export function softenedMassIndexField(input: {
     index: (x, y) => 1 + mass / (Math.hypot(x, y) + soft),
     indexGradient: (x, y) => {
       const r = Math.hypot(x, y)
-      if (r < 1e-9) return [0, 0]
+      if (r < 1e-9) {
+        return [0, 0]
+      }
       const g = -mass / ((r + soft) * (r + soft))
       return [g * (x / r), g * (y / r)]
     },

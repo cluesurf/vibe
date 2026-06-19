@@ -133,7 +133,9 @@ function run(): void {
     const boundary =
       i === trace.length ||
       opIndex[trace[i]!.pc] !== opIndex[trace[start]!.pc]
-    if (!boundary) continue
+    if (!boundary) {
+      continue
+    }
     const pre =
       start === 0 ? initial.slice() : trace[start - 1]!.registers
     const post = trace[i - 1]!.registers
@@ -182,7 +184,7 @@ function run(): void {
   }
   // hold the final answer for a moment
   const lastRegs = trace[trace.length - 1]!.registers
-  for (let h = 0; h < 14; h++)
+  for (let h = 0; h < 14; h++) {
     frames.push(
       renderFrame({
         tiling,
@@ -196,6 +198,7 @@ function run(): void {
         cellCount,
       }),
     )
+  }
 
   writeFileSync(
     join(outDir, 'fibonacci-7-3-poincare-frame.png'),

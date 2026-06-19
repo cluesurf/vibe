@@ -63,7 +63,9 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! >= 0 && dist[c]! <= 2) {
           const base = c * degree
-          for (let d = 0; d < degree; d++) will.data[base + d] = 1
+          for (let d = 0; d < degree; d++) {
+            will.data[base + d] = 1
+          }
         }
       }
       return will

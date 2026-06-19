@@ -58,11 +58,12 @@ export function willSteering(input?: { n?: number }): {
   const meanDistTo = (t: Int8Array, d: Int32Array): number => {
     let s = 0
     let c = 0
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       if (t[i] === 1) {
         s += dd(d, i)
         c++
       }
+    }
     return c > 0 ? s / c : 0
   }
   const selfA = csrBallNodes({
@@ -74,13 +75,15 @@ export function willSteering(input?: { n?: number }): {
   })
   const mk = (): Int8Array => {
     const t = new Int8Array(N)
-    for (const i of selfA) t[i] = 1
+    for (const i of selfA) {
+      t[i] = 1
+    }
     return t
   }
   const beats = 12 * dd(dist, far)
   const willM = mk()
   const r1 = makeRng({ seed: 3 })
-  for (let b = 0; b < beats; b++)
+  for (let b = 0; b < beats; b++) {
     conservingEdgeSweepSteered({
       tone: willM,
       eu,
@@ -90,10 +93,11 @@ export function willSteering(input?: { n?: number }): {
       distGoal: distTarget,
       towardSign: -1,
     })
+  }
   const mergeWithWill = meanDistTo(willM, distTarget) // lower = moved toward the target
   const noWillM = mk()
   const r2 = makeRng({ seed: 3 })
-  for (let b = 0; b < beats; b++)
+  for (let b = 0; b < beats; b++) {
     conservingEdgeSweepSteered({
       tone: noWillM,
       eu,
@@ -103,6 +107,7 @@ export function willSteering(input?: { n?: number }): {
       distGoal: null,
       towardSign: 0,
     })
+  }
   const mergeNoWill = meanDistTo(noWillM, distTarget)
   const mergeWorks = mergeWithWill < mergeNoWill - 1 // the will moved the self meaningfully toward the target
 
@@ -124,19 +129,24 @@ export function willSteering(input?: { n?: number }): {
   }).dist
   const mkSplit = (): Int8Array => {
     const t = new Int8Array(N)
-    for (let k = 0; k < region.length; k++)
+    for (let k = 0; k < region.length; k++) {
       t[region[k]!] = k < half ? 1 : -1
+    }
     return t
   }
   const plus = (t: Int8Array): number => {
     let c = 0
-    for (let i = 0; i < N; i++) if (t[i] === 1) c++
+    for (let i = 0; i < N; i++) {
+      if (t[i] === 1) {
+        c++
+      }
+    }
     return c
   }
   void plus
   const willA = mkSplit()
   const r3 = makeRng({ seed: 3 })
-  for (let b = 0; b < 50; b++)
+  for (let b = 0; b < 50; b++) {
     conservingEdgeSweepSteered({
       tone: willA,
       eu,
@@ -145,11 +155,12 @@ export function willSteering(input?: { n?: number }): {
       rng: r3,
       distGoal: distMinus,
       towardSign: 1,
-    }) // pump + away from the - side
+    })
+  } // pump + away from the - side
   const avoidWithWill = meanDistTo(willA, distMinus) // higher = the + fled away from the - threat
   const noWillA = mkSplit()
   const r4 = makeRng({ seed: 3 })
-  for (let b = 0; b < 50; b++)
+  for (let b = 0; b < 50; b++) {
     conservingEdgeSweepSteered({
       tone: noWillA,
       eu,
@@ -159,6 +170,7 @@ export function willSteering(input?: { n?: number }): {
       distGoal: null,
       towardSign: 0,
     })
+  }
   const avoidNoWill = meanDistTo(noWillA, distMinus)
   // the will moves the self about a hop away, near the geometric ceiling (the diameter is tiny, so a hop
   // is a large fraction of the whole universe, the steering is directional, not large in raw hops)

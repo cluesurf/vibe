@@ -44,7 +44,9 @@ function evolve(
       | 1
   }
   const moved = new Uint8Array(N)
-  for (let t = 0; t < beats; t++) beat(tone, g, moved, rng, 0.01, 0.22)
+  for (let t = 0; t < beats; t++) {
+    beat(tone, g, moved, rng, 0.01, 0.22)
+  }
   return tone
 }
 
@@ -70,17 +72,23 @@ export function rarityMeasures(input?: { L?: number }): {
   const tone = evolve(g, L, 0.12, 70, 1)
   const clusters = positiveClusters(tone, g)
   let totalCharge = 0
-  for (const c of clusters) totalCharge += c.length
+  for (const c of clusters) {
+    totalCharge += c.length
+  }
   let phiTailMass = 0
   let lowPhiMass = 0
   const matterCells: number[] = []
   const aliveCells: number[] = []
   for (const c of clusters) {
-    for (const u of c) matterCells.push(u)
+    for (const u of c) {
+      matterCells.push(u)
+    }
     const phi = clusterIntegration(c, g)
     if (phi >= phiAlive && c.length >= 6) {
       phiTailMass += c.length
-      for (const u of c) aliveCells.push(u)
+      for (const u of c) {
+        aliveCells.push(u)
+      }
     } else if (phi < 0.3) {
       lowPhiMass += c.length
     }
@@ -110,16 +118,20 @@ export function rarityMeasures(input?: { L?: number }): {
     let condensed = 0
     for (const c of cs) {
       charge += c.length
-      if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive)
+      if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive) {
         condensed += c.length
+      }
     }
     condensedByDensity.push(charge > 0 ? condensed / charge : 0)
   }
   // threshold = the largest density at which condensation is still negligible (< 2 percent)
   let thresholdDensity = densities[densities.length - 1]!
   for (let i = 0; i < densities.length; i++) {
-    if (condensedByDensity[i]! < 0.02) thresholdDensity = densities[i]!
-    else break
+    if (condensedByDensity[i]! < 0.02) {
+      thresholdDensity = densities[i]!
+    } else {
+      break
+    }
   }
   const maxCondensed = Math.max(...condensedByDensity)
   // a threshold, condensation is OFF (negligible) at low density and turns ON (rises clearly) above it.

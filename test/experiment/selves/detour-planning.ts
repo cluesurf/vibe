@@ -31,22 +31,27 @@ function makeLandscape(L: number): {
   const goal = L
   const V = new Array<number>(L + 1).fill(0)
   for (let p = 0; p <= L; p++) {
-    if (p <= localPeak)
-      V[p] = 0.6 * (p / localPeak) // rise to local peak 0.6
-    else if (p <= valley)
-      V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak)) // dip to 0.2
-    else V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley)) // rise to global peak 1.0 at the goal
+    if (p <= localPeak) {
+      V[p] = 0.6 * (p / localPeak)
+    } // rise to local peak 0.6
+    else if (p <= valley) {
+      V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak))
+    } // dip to 0.2
+    else {
+      V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
+    } // rise to global peak 1.0 at the goal
   }
   const start = Math.floor(L * 0.1)
   // the lookahead must see from the local peak to where the value RECOVERS above the local peak (past the
   // valley), that crossing distance is what the planner's horizon must span
   const localPeakV = V[localPeak]!
   let recover = goal
-  for (let p = valley; p <= goal; p++)
+  for (let p = valley; p <= goal; p++) {
     if (V[p]! > localPeakV) {
       recover = p
       break
     }
+  }
   const barrierWidth = recover - localPeak
   return { V, start, goal, localPeak, barrierWidth }
 }
@@ -65,8 +70,12 @@ function runAgent(
       let best = -Infinity
       for (let k = 1; k <= K; k++) {
         const q = pos + dir * k
-        if (q < 0 || q > L) break
-        if (V[q]! > best) best = V[q]!
+        if (q < 0 || q > L) {
+          break
+        }
+        if (V[q]! > best) {
+          best = V[q]!
+        }
       }
       return best
     }
@@ -74,7 +83,9 @@ function runAgent(
     const down = horizonBest(-1)
     const here = V[pos]!
     // move toward the better horizon, only if it beats staying (otherwise stuck at a local optimum)
-    if (up <= here && down <= here) break // stuck, no reachable improvement within the horizon
+    if (up <= here && down <= here) {
+      break
+    } // stuck, no reachable improvement within the horizon
     pos += up >= down ? 1 : -1
   }
   return { finalPos: pos, finalV: V[pos]!, steps: 0 }
@@ -107,7 +118,9 @@ export function detourPlanning(input?: { L?: number }): {
     const r = runAgent(V, start, K)
     const reached = r.finalPos >= goal - 1
     scan.push({ K, reachedGoal: reached })
-    if (reached && thresholdK < 0) thresholdK = K
+    if (reached && thresholdK < 0) {
+      thresholdK = K
+    }
   }
   const plannerK = Math.max(thresholdK, barrierWidth + 2)
   const planner = runAgent(V, start, plannerK)

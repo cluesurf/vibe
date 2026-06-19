@@ -25,45 +25,51 @@ const A = (Math.sqrt(3) + MASS) * 1.06
 function nrt3(k: number): Float32Array {
   const out = new Float32Array(3 * N),
     q = (2 * Math.PI * k) / L
-  for (let x = 0; x < L; x++)
-    for (let y = 0; y < L; y++)
+  for (let x = 0; x < L; x++) {
+    for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
         out[s * 3] = Math.sin(q * x)
         out[s * 3 + 1] = -Math.cos(q * x) * Math.sin(q * y)
         out[s * 3 + 2] = Math.cos(q * x) * Math.cos(q * y)
       }
+    }
+  }
   return out
 }
 // single helix (ONE twist axis -> ZERO Skyrme density; its q^4 is the pure lattice-exchange artifact)
 function nrt3helix(k: number): Float32Array {
   const out = new Float32Array(3 * N),
     q = (2 * Math.PI * k) / L
-  for (let x = 0; x < L; x++)
-    for (let y = 0; y < L; y++)
+  for (let x = 0; x < L; x++) {
+    for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
         out[s * 3] = Math.sin(q * x)
         out[s * 3 + 1] = 0
         out[s * 3 + 2] = Math.cos(q * x)
       }
+    }
+  }
   return out
 }
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
   c[0] = 2 / Math.PI
-  for (let k = 1; 2 * k < M; k++)
+  for (let k = 1; 2 * k < M; k++) {
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
+  }
   return c
 }
 function jackson(M: number): Float64Array {
   const g = new Float64Array(M),
     Np = M + 1
-  for (let n = 0; n < M; n++)
+  for (let n = 0; n < M; n++) {
     g[n] =
       ((Np - n) * Math.cos((Math.PI * n) / Np) +
         Math.sin((Math.PI * n) / Np) / Math.tan(Math.PI / Np)) /
       Np
+  }
   return g
 }
 
@@ -297,20 +303,24 @@ async function run(): Promise<void> {
       device.queue.writeBuffer(nrt, 0, dblN[ki]!)
       device.queue.writeBuffer(Bb[0]!, 0, xd)
       const mD = await computeMoments()
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMuD[ki]![n]! += (mD[n]! - muV[n]!) / NRV
+      }
       device.queue.writeBuffer(nrt, 0, helN[ki]!)
       device.queue.writeBuffer(Bb[0]!, 0, xd)
       const mH = await computeMoments()
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMuH[ki]![n]! += (mH[n]! - muV[n]!) / NRV
+      }
     }
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
   }
   const energies = (dMu: Float64Array[]): { q: number; dE: number }[] =>
     Ks.map((k, ki) => {
       let s = 0
-      for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ki]![n]!
+      for (let n = 0; n < MCHEB; n++) {
+        s += g[n]! * c[n]! * dMu[ki]![n]!
+      }
       return { q: (2 * Math.PI * k) / L, dE: -0.5 * A * s }
     })
   const fit = (
@@ -341,10 +351,11 @@ async function run(): Promise<void> {
   console.log(
     '\nDelta E(q): double-twist (Skyrme) vs helix (control, no Skyrme):',
   )
-  for (let i = 0; i < Ks.length; i++)
+  for (let i = 0; i < Ks.length; i++) {
     console.log(
       `  q=${dbl[i]!.q.toFixed(3)}: double ${dbl[i]!.dE.toFixed(1)}, helix ${hel[i]!.dE.toFixed(1)}`,
     )
+  }
   const fD = fit(dbl),
     fH = fit(hel)
   // the helix q^4 is the pure lattice-exchange artifact; scale it by the exchange ratio (A_double/A_helix) and subtract

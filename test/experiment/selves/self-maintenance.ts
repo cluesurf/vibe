@@ -81,36 +81,53 @@ export function selfMaintenance(input?: { n?: number }): {
   const chunkSet = new Set(chunk)
   const plusInChunk = (t: Int8Array): number => {
     let c = 0
-    for (const i of chunkSet) if (t[i] === 1) c++
+    for (const i of chunkSet) {
+      if (t[i] === 1) {
+        c++
+      }
+    }
     return c / chunkSet.size
   }
 
   // baseline: undamaged self, run the rule (it erodes a bit naturally)
   const base = new Int8Array(N)
-  for (const i of self) base[i] = 1
+  for (const i of self) {
+    base[i] = 1
+  }
   const r1 = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++)
+  for (let b = 0; b < beats; b++) {
     beat(base, eu, ev, g.offsets, g.adj, moved, r1)
+  }
   const baselineFrac = plusInChunk(base)
 
   // WITH surround: erase the inner chunk (holes), run the rule ALONE, the surround heals it
   const dmg = new Int8Array(N)
-  for (const i of self) dmg[i] = 1
-  for (const i of chunkSet) dmg[i] = 0
+  for (const i of self) {
+    dmg[i] = 1
+  }
+  for (const i of chunkSet) {
+    dmg[i] = 0
+  }
   const r2 = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++)
+  for (let b = 0; b < beats; b++) {
     beat(dmg, eu, ev, g.offsets, g.adj, moved, r2)
+  }
   const withSurroundFrac = plusInChunk(dmg)
   const withSurroundRecovery =
     baselineFrac > 0 ? withSurroundFrac / baselineFrac : 0
 
   // WITHOUT surround: the self is ONLY the chunk, erase it, nothing to heal from
   const ctrl = new Int8Array(N)
-  for (const i of chunkSet) ctrl[i] = 1
-  for (const i of chunkSet) ctrl[i] = 0 // erase the whole self
+  for (const i of chunkSet) {
+    ctrl[i] = 1
+  }
+  for (const i of chunkSet) {
+    ctrl[i] = 0
+  } // erase the whole self
   const r3 = makeRng({ seed: 5 })
-  for (let b = 0; b < beats; b++)
+  for (let b = 0; b < beats; b++) {
     beat(ctrl, eu, ev, g.offsets, g.adj, moved, r3)
+  }
   const withoutSurroundRecovery =
     plusInChunk(ctrl) / (baselineFrac > 0 ? baselineFrac : 1)
 

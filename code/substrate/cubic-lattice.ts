@@ -90,7 +90,9 @@ export function cubicBoxRows(input: { side: number; dim: number }): {
   const coords: number[][] = []
   for (let i = 0; i < lattice.size; i++) {
     const row: number[] = []
-    for (let a = 0; a < dim; a++) row.push(lattice.coords[i * dim + a]!)
+    for (let a = 0; a < dim; a++) {
+      row.push(lattice.coords[i * dim + a]!)
+    }
     coords.push(row)
   }
   return {

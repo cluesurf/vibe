@@ -42,7 +42,9 @@ export default experiment({
     let fixedPointOk = true
     for (const K of [0.1, 0.5, 1.0, 1.5, 2.0]) {
       const beta = isingBetaFunction(K)
-      if (beta > 1e-9) fixedPointOk = false
+      if (beta > 1e-9) {
+        fixedPointOk = false
+      }
     }
     const betaSmall = Math.abs(isingBetaFunction(1e-4))
     const fixedPointAtZero = betaSmall < 1e-3

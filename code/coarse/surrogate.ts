@@ -40,7 +40,9 @@ export function marginalDistribution(input: {
   const counts = new Array<number>(stateCount).fill(alpha)
   for (let t = 0; t + lag < trajectory.length; t++) {
     const j = trajectory[t + lag]!
-    if (j >= 0) counts[j]!++
+    if (j >= 0) {
+      counts[j]!++
+    }
   }
   const sum = counts.reduce((a, b) => a + b, 0)
   return counts.map(c => c / sum)
@@ -113,7 +115,9 @@ export function forwardAccuracy(input: {
           best = k
         }
       }
-      if (best === j) hits++
+      if (best === j) {
+        hits++
+      }
       n++
     }
   }

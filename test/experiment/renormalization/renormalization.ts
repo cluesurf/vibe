@@ -35,31 +35,37 @@ function measureField(n: number, seed: number): FieldParams {
   const ARROW = 0.1
   const tone = new Int8Array(N)
   const rng = makeRng({ seed })
-  for (let b = 0; b < 80; b++)
+  for (let b = 0; b < 80; b++) {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: ARROW })
+  }
 
   let nz = 0
   let sum = 0
   for (let i = 0; i < N; i++) {
-    if (tone[i] !== 0) nz++
+    if (tone[i] !== 0) {
+      nz++
+    }
     sum += tone[i]!
   }
   const density = nz / N
   const mean = sum / N
   // nearest-neighbour connected correlation (the pair structure), robust over all edges
   let c1 = 0
-  for (let k = 0; k < eu.length; k++)
+  for (let k = 0; k < eu.length; k++) {
     c1 += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
+  }
   c1 /= eu.length
 
   // causal lightcone via butterfly front
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const dcenter = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -73,7 +79,7 @@ function measureField(n: number, seed: number): FieldParams {
   const T = 5
   const rb = makeRng({ seed: seed + 1 })
   const rp = makeRng({ seed: seed + 1 })
-  for (let b = 0; b < T; b++)
+  for (let b = 0; b < T; b++) {
     conservingEdgeSweep({
       tone: base,
       eu,
@@ -82,7 +88,8 @@ function measureField(n: number, seed: number): FieldParams {
       rng: rb,
       arrow: ARROW,
     })
-  for (let b = 0; b < T; b++)
+  }
+  for (let b = 0; b < T; b++) {
     conservingEdgeSweep({
       tone: pert,
       eu,
@@ -91,12 +98,16 @@ function measureField(n: number, seed: number): FieldParams {
       rng: rp,
       arrow: ARROW,
     })
+  }
   let front = 0
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (base[i] !== pert[i]) {
       const r = dcenter[i]!
-      if (r > front) front = r
+      if (r > front) {
+        front = r
+      }
     }
+  }
   const coneSpeed = front / T
 
   return { n: N, density, c1, coneSpeed }

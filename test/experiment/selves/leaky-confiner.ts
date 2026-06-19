@@ -66,7 +66,9 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! <= 2) {
           const base = c * degree
-          for (let d = 0; d < degree; d++) will.data[base + d] = 1
+          for (let d = 0; d < degree; d++) {
+            will.data[base + d] = 1
+          }
         }
       }
       return will
@@ -88,9 +90,11 @@ export default experiment({
         const swap = current
         current = scratch
         scratch = swap
-        for (let c = 0; c < mesh.cellCount; c++)
-          if (cellTone(current, c) !== 0 && dist[c]! > max)
+        for (let c = 0; c < mesh.cellCount; c++) {
+          if (cellTone(current, c) !== 0 && dist[c]! > max) {
             max = dist[c]!
+          }
+        }
       }
       return max
     }
@@ -133,12 +137,15 @@ export default experiment({
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
           let differs = false
-          for (let d = 0; d < degree; d++)
+          for (let d = 0; d < degree; d++) {
             if (plain.data[base + d] !== pert.data[base + d]) {
               differs = true
               break
             }
-          if (differs && dist[c]! > max) max = dist[c]!
+          }
+          if (differs && dist[c]! > max) {
+            max = dist[c]!
+          }
         }
       }
       return max

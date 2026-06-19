@@ -51,10 +51,16 @@ function evolve(input: { q1: number; q2: number; coupling: number }): {
     v2 += f2 * dt
     x1 += v1 * dt
     x2 += v2 * dt
-    if (x1 < -domain) x1 = -domain
-    if (x2 > domain) x2 = domain
+    if (x1 < -domain) {
+      x1 = -domain
+    }
+    if (x2 > domain) {
+      x2 = domain
+    }
     const sep = Math.abs(x2 - x1)
-    if (sep > maxSeparation) maxSeparation = sep
+    if (sep > maxSeparation) {
+      maxSeparation = sep
+    }
   }
   return { maxSeparation, finalSeparation: Math.abs(x2 - x1) }
 }

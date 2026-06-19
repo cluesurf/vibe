@@ -22,7 +22,9 @@ export function horosphere3434(): {
   })
   const n = slab.cellCount
   let sum = 0
-  for (let i = 0; i < n; i++) sum += slab.neighbors[i]!.length
+  for (let i = 0; i < n; i++) {
+    sum += slab.neighbors[i]!.length
+  }
   const center = mostConnectedNode(slab.neighbors)
   // spectral dimension via the lazy-walk return probability, the central difference at
   // t = 16 is the endpoint slope between t = 14 and t = 18.

@@ -51,10 +51,11 @@ export function discreteGraviton(input: { seed: number }): {
     const c = coordsOf(site, L)
     for (let mu = 0; mu < D; mu++) {
       let v = 0
-      for (let k = 1; k <= 2; k++)
+      for (let k = 1; k <= 2; k++) {
         v +=
           (rng.next() - 0.5) *
           Math.cos((2 * Math.PI * k * (c[mu] ?? 0)) / L)
+      }
       xi[site]![mu] = v
     }
   }
@@ -66,9 +67,11 @@ export function discreteGraviton(input: { seed: number }): {
       const m = siteIndex(shift(coords, alpha, -1, L), L)
       return ((xi[p]![mu] ?? 0) - (xi[m]![mu] ?? 0)) / 2
     }
-    for (let mu = 0; mu < D; mu++)
-      for (let nu = 0; nu < D; nu++)
+    for (let mu = 0; mu < D; mu++) {
+      for (let nu = 0; nu < D; nu++) {
         hGauge.data[site]![mu * D + nu] = dxi(mu, nu) + dxi(nu, mu)
+      }
+    }
   }
   const gaugeResidual =
     maxAbs(linearizedEinstein(hGauge)) / Math.max(1e-12, maxAbs(hGauge))

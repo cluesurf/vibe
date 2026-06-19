@@ -34,7 +34,9 @@ function fullBeat(
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -67,12 +69,14 @@ function run(withDynamics: boolean): {
 
   // the self = a central patch; the hub = the most-connected cell
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const dist = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -82,14 +86,21 @@ function run(withDynamics: boolean): {
   })
   const rSelf = 5
   const self: number[] = []
-  for (let i = 0; i < N; i++)
-    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++) {
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) {
+      self.push(i)
+    }
+  }
 
   // input boundary divided into K SECTORS, each driven by its OWN signal, so the global state is the
   // AVERAGE of spatially-varied inputs. A localized region near one sector sees only that sector, only an
   // integrator that pools all sectors can represent the whole.
   const inputAll: number[] = []
-  for (const i of self) if (dist[i]! >= rSelf - 1) inputAll.push(i)
+  for (const i of self) {
+    if (dist[i]! >= rSelf - 1) {
+      inputAll.push(i)
+    }
+  }
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
@@ -99,7 +110,9 @@ function run(withDynamics: boolean): {
     sectorCells[s]!.push(inputAll[j]!)
   }
   const isInput = new Uint8Array(N)
-  for (const i of inputAll) isInput[i] = 1
+  for (const i of inputAll) {
+    isInput[i] = 1
+  }
 
   const ballOf = (start: number, size: number): number[] => {
     const out: number[] = []
@@ -109,7 +122,9 @@ function run(withDynamics: boolean): {
     while (fr.length > 0 && out.length < size) {
       const nf: number[] = []
       for (const u of fr) {
-        if (isInput[u]) continue
+        if (isInput[u]) {
+          continue
+        }
         out.push(u)
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -132,7 +147,9 @@ function run(withDynamics: boolean): {
 
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
-    for (const i of cells) s += tone[i]!
+    for (const i of cells) {
+      s += tone[i]!
+    }
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -144,23 +161,32 @@ function run(withDynamics: boolean): {
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
   for (let t = 0; t < T; t++) {
-    for (let s = 0; s < K; s++)
-      if (rng.next() < 0.06) sigs[s] = -sigs[s]!
-    for (const i of inputAll)
+    for (let s = 0; s < K; s++) {
+      if (rng.next() < 0.06) {
+        sigs[s] = -sigs[s]!
+      }
+    }
+    for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
-    if (withDynamics) fullBeat(tone, eu, ev, moved, rng)
-    for (const i of inputAll)
+    }
+    if (withDynamics) {
+      fullBeat(tone, eu, ev, moved, rng)
+    }
+    for (const i of inputAll) {
       tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    }
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
-    for (let p = 0; p < peripherals.length; p++)
+    for (let p = 0; p < peripherals.length; p++) {
       periSeries[p]!.push(meanOver(tone, peripherals[p]!))
+    }
   }
 
   const selfModelCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
   let randomCorr = 0
-  for (let p = 0; p < peripherals.length; p++)
+  for (let p = 0; p < peripherals.length; p++) {
     randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
+  }
   randomCorr /= peripherals.length
   const shuffledCorr = Math.abs(
     pearson({ a: coreSeries, b: gSeries.slice().reverse() }),

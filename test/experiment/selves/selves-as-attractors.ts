@@ -25,7 +25,9 @@ function settle(
 ): Int8Array {
   const zero = new Float64Array(state.length)
   let t = state
-  for (let i = 0; i < steps; i++) t = step(J, t, zero, null)
+  for (let i = 0; i < steps; i++) {
+    t = step(J, t, zero, null)
+  }
   return t
 }
 
@@ -93,8 +95,11 @@ export function selvesAsAttractors(input: { seed: number }): {
     recovery: recoveryAt(size, k, f, input.seed),
   }))
   let basinRadius = 0
-  for (const b of byFraction)
-    if (b.recovery > 0.9) basinRadius = b.fraction
+  for (const b of byFraction) {
+    if (b.recovery > 0.9) {
+      basinRadius = b.fraction
+    }
+  }
 
   // Identity over time: settle to a self, run many more beats, confirm it stays itself.
   const rng = makeRng({ seed: input.seed + 1 })
@@ -111,8 +116,11 @@ export function selvesAsAttractors(input: { seed: number }): {
     let capacity = 0
     for (let kk = 2; kk <= Math.round(0.3 * n); kk += 2) {
       const rec = recoveryAt(n, kk, 0.1, input.seed + 7 + n)
-      if (rec > 0.9) capacity = kk
-      else break
+      if (rec > 0.9) {
+        capacity = kk
+      } else {
+        break
+      }
     }
     return { n, capacity, ratio: capacity / n }
   })

@@ -74,9 +74,13 @@ export function buildCoxeterMatrixMesh(
           next.push(index.get(id)!)
         }
       }
-      if (index.size >= maxCells) break
+      if (index.size >= maxCells) {
+        break
+      }
     }
-    if (next.length > 0) shells.push(next.length)
+    if (next.length > 0) {
+      shells.push(next.length)
+    }
     frontier = next
   }
   // resolve the adjacency now that all cells are known

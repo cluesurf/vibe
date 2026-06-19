@@ -93,7 +93,9 @@ async function gpuWave(input: {
     await changedRead.mapAsync(GPUMapMode.READ)
     const c = new Uint32Array(changedRead.getMappedRange())[0]!
     changedRead.unmap()
-    if (c === 0) break
+    if (c === 0) {
+      break
+    }
     beats = beat
   }
   const ms = performance.now() - t0
@@ -147,12 +149,19 @@ async function run(): Promise<void> {
   let mismatches = 0
   let gpuCoverage = 0
   for (let c = 0; c < n; c++) {
-    if (w.arrival[c] !== cpuDepth[c]) mismatches++
-    if (w.arrival[c]! > gpuCoverage) gpuCoverage = w.arrival[c]!
+    if (w.arrival[c] !== cpuDepth[c]) {
+      mismatches++
+    }
+    if (w.arrival[c]! > gpuCoverage) {
+      gpuCoverage = w.arrival[c]!
+    }
   }
   let cpuCoverage = 0
-  for (let c = 0; c < n; c++)
-    if (cpuDepth[c]! > cpuCoverage) cpuCoverage = cpuDepth[c]!
+  for (let c = 0; c < n; c++) {
+    if (cpuDepth[c]! > cpuCoverage) {
+      cpuCoverage = cpuDepth[c]!
+    }
+  }
 
   console.log(`{3,4,3,4} bulk, ${n} cells`)
   console.log(

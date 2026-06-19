@@ -9,15 +9,18 @@
 // the 24 directions +-e_a+-e_b of the {3,4,3,4} D4 coin
 function directions(): number[][] {
   const dirs: number[][] = []
-  for (let a = 0; a < 4; a++)
-    for (let b = a + 1; b < 4; b++)
-      for (const sa of [1, -1])
+  for (let a = 0; a < 4; a++) {
+    for (let b = a + 1; b < 4; b++) {
+      for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
           v[a] = sa
           v[b] = sb
           dirs.push(v)
         }
+      }
+    }
+  }
   return dirs
 }
 
@@ -33,7 +36,9 @@ function* perfectMatchings(remaining: number[]): Generator<number[][]> {
   for (let k = 1; k < remaining.length; k++) {
     const b = remaining[k]!
     const rest = remaining.filter((_, i) => i !== 0 && i !== k)
-    for (const tail of perfectMatchings(rest)) yield [[a, b], ...tail]
+    for (const tail of perfectMatchings(rest)) {
+      yield [[a, b], ...tail]
+    }
   }
 }
 
@@ -58,7 +63,9 @@ export function linePairingFamily(): {
   const lines: number[] = []
   for (let i = 0; i < 24; i++) {
     const c = Math.min(i, negOf[i]!)
-    if (!lines.includes(c)) lines.push(c)
+    if (!lines.includes(c)) {
+      lines.push(c)
+    }
   }
   const lineIndex = new Map(lines.map((c, k) => [c, k]))
   const lineOfDir = (i: number): number =>
@@ -70,7 +77,9 @@ export function linePairingFamily(): {
     for (let L = 0; L < 12; L++) {
       const v = dirs[lines[L]!]!
       const w = [0, 0, 0, 0]
-      for (let c = 0; c < 4; c++) w[perm[c]!] = sign[perm[c]!]! * v[c]!
+      for (let c = 0; c < 4; c++) {
+        w[perm[c]!] = sign[perm[c]!]! * v[c]!
+      }
       lp[L] = lineOfDir(idx.get(key(w))!)
     }
     return lp
@@ -97,7 +106,9 @@ export function linePairingFamily(): {
         break
       }
     }
-    if (invariant) symmetric++
+    if (invariant) {
+      symmetric++
+    }
   }
   return { totalPairings: total, symmetricPairings: symmetric }
 }

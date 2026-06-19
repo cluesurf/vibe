@@ -12,7 +12,11 @@ import {
 
 const lexCompare = (a: number[], b: number[]): number => {
   const n = Math.min(a.length, b.length)
-  for (let i = 0; i < n; i++) if (a[i] !== b[i]) return a[i]! - b[i]!
+  for (let i = 0; i < n; i++) {
+    if (a[i] !== b[i]) {
+      return a[i]! - b[i]!
+    }
+  }
   return a.length - b.length
 }
 
@@ -38,14 +42,16 @@ export default experiment({
 
     // a total order: the sorted sequence is strictly increasing (no two equal addresses), so it is a valid sort
     let strictlyOrdered = true
-    for (let i = 1; i < order.length; i++)
+    for (let i = 1; i < order.length; i++) {
       if (
         lexCompare(
           addressing.address[order[i - 1]!]!,
           addressing.address[order[i]!]!,
         ) >= 0
-      )
+      ) {
         strictlyOrdered = false
+      }
+    }
     const totalOrder = stats.allUnique && strictlyOrdered
 
     return verdict({

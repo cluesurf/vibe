@@ -48,11 +48,12 @@ export function computation73(): {
 
   // (b) junction capability: an interior cell must allow >=3 edge-disjoint outgoing tracks (for crossings/switches)
   let interior = center
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (g.neighbors[i]!.length === 7) {
       interior = i
       break
     }
+  }
   const outDeg = g.neighbors[interior]!.length
   const junctionCapable = outDeg >= 3
   return { fibonacciGrowth, junctionCapable, growthRatio }

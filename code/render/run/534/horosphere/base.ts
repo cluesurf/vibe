@@ -71,11 +71,12 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const rng = makeRng({ seed: 2468013579 })
   const nextR = (): number => rng.next()
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     seed[i] = pack({
       current: Math.floor(nextR() * 3),
       previous: Math.floor(nextR() * 3),
     })
+  }
 
   const byteLength = n * 4
   const params = device.createBuffer({
@@ -158,12 +159,18 @@ async function run(): Promise<void> {
   }
   // choose an axis least aligned with xi to start, then Gram-Schmidt twice
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   let e2raw = sub(seedVec(axis2), xi, dot(seedVec(axis2), xi))
   e2raw = sub(e2raw, e1, dot(e2raw, e1))
   const e2 = normalize(e2raw)
@@ -216,16 +223,22 @@ async function run(): Promise<void> {
   }
   const COLORS = TONE_COLORS
   for (const c of band) {
-    if (c.tone === 0) continue // peace is black, draw only the charges
+    if (c.tone === 0) {
+      continue
+    } // peace is black, draw only the charges
     const cx = pad + ((c.u - minU) / span) * (IMG - 2 * pad)
     const cy = pad + ((c.v - minV) / span) * (IMG - 2 * pad)
     const col = COLORS[c.tone]!
     for (let dy = -RADIUS; dy <= RADIUS; dy++) {
       for (let dx = -RADIUS; dx <= RADIUS; dx++) {
-        if (dx * dx + dy * dy > RADIUS * RADIUS) continue
+        if (dx * dx + dy * dy > RADIUS * RADIUS) {
+          continue
+        }
         const px = Math.round(cx + dx)
         const py = Math.round(cy + dy)
-        if (px < 0 || px >= IMG || py < 0 || py >= IMG) continue
+        if (px < 0 || px >= IMG || py < 0 || py >= IMG) {
+          continue
+        }
         const idx = (py * IMG + px) * 4
         rgba[idx] = col[0]
         rgba[idx + 1] = col[1]

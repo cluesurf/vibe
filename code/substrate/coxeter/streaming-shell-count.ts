@@ -50,7 +50,9 @@ class HashedKeySet {
         this.size++
         return true
       }
-      if (slot === value) return false
+      if (slot === value) {
+        return false
+      }
       i = (i + 1) & this.mask
     }
   }
@@ -84,13 +86,17 @@ export function streamingShellCounts(input: {
         const child = matMul(g, faces[fi]!)
         if (seen.addIfNew(hashKey(positionKey(child)))) {
           count++
-          if (storeMatrices) next.push(child)
+          if (storeMatrices) {
+            next.push(child)
+          }
         }
       }
     }
     counts.push(count)
     frontier = next
-    if (!storeMatrices) break
+    if (!storeMatrices) {
+      break
+    }
   }
   return counts
 }

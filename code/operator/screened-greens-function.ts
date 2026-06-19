@@ -18,7 +18,9 @@ export function screenedGreensFunction(input: {
     for (let i = 0; i < n; i++) {
       const row = neighbors[i] ?? []
       let s = i === start ? 1 : 0
-      for (const j of row) s += phi[j]!
+      for (const j of row) {
+        s += phi[j]!
+      }
       phi[i] = s / (row.length + mass2)
     }
   }
@@ -53,11 +55,14 @@ export function clampedLeakyDiffusion(input: {
     np[src] = 1
     for (let i = 0; i < N; i++) {
       const pi = p[i]!
-      if (!pi) continue
+      if (!pi) {
+        continue
+      }
       const d = off[i + 1]! - off[i]!
       const sh = ((1 - leak) * pi) / d
-      for (let q = off[i]!; q < off[i + 1]!; q++)
+      for (let q = off[i]!; q < off[i + 1]!; q++) {
         np[adj[q]!] = np[adj[q]!]! + sh
+      }
     }
     const tmp = p
     p = np

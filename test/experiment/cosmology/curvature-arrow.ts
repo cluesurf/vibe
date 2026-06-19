@@ -35,9 +35,11 @@ export default experiment({
       const orbitGrows = large.cellCount > small.cellCount * 1.5 // does giving the orbit more room grow it (infinite) or not (closes)
       const n = large.cellCount
       let c = 0
-      for (let i = 1; i < n; i++)
-        if (large.neighbors[i]!.length > large.neighbors[c]!.length)
+      for (let i = 1; i < n; i++) {
+        if (large.neighbors[i]!.length > large.neighbors[c]!.length) {
           c = i
+        }
+      }
       const depth = neighborDistances({
         neighbors: large.neighbors,
         size: n,

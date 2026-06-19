@@ -2314,18 +2314,23 @@ function allFinite(xs: ArrayLike<number>): boolean {
     b.facetCount === 12
   for (let i = 0; i < a.cellCount && identical; i++) {
     const sa = new Set<number>()
-    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++)
+    for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
       sa.add(a.adj[p]!)
+    }
     const sb = new Set<number>()
-    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++)
+    for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
       sb.add(b.adj[p]!)
-    if (sa.size !== sb.size) identical = false
-    else
-      for (const x of sa)
+    }
+    if (sa.size !== sb.size) {
+      identical = false
+    } else {
+      for (const x of sa) {
         if (!sb.has(x)) {
           identical = false
           break
         }
+      }
+    }
   }
   check({
     name: 'fast engine (flat typed dedup): identical exact adjacency to the simple engine, facet 12 (scales ~10x further, to tens of millions)',

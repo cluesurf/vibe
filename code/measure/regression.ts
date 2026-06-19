@@ -34,7 +34,9 @@ export function powerLawExponent(input: {
   let sxy = 0
   let m = 0
   for (let i = 0; i < times.length; i++) {
-    if ((spreads[i] ?? 0) <= 0) continue
+    if ((spreads[i] ?? 0) <= 0) {
+      continue
+    }
     const x = Math.log(times[i]!)
     const y = Math.log(spreads[i]!)
     sx += x
@@ -123,7 +125,9 @@ export function loglogExponentWindow(input: {
   let sxy = 0
   let m = 0
   for (let t = lo; t <= hi; t++) {
-    if ((values[t] ?? 0) <= 0) continue
+    if ((values[t] ?? 0) <= 0) {
+      continue
+    }
     const x = Math.log(t)
     const y = Math.log(values[t]!)
     sx += x

@@ -21,25 +21,34 @@ export function directionalFrontDistances(input: {
   const dim = coords[0]?.length ?? 0
   const frontDist = new Array<number>(directions.length).fill(0)
   for (let i = 0; i < coords.length; i++) {
-    if (i === center) continue
-    if (!input.activated(i)) continue
+    if (i === center) {
+      continue
+    }
+    if (!input.activated(i)) {
+      continue
+    }
     const c = coords[i]!
     const n = norm(c)
-    if (n < 1e-9) continue
+    if (n < 1e-9) {
+      continue
+    }
     // nearest probe direction by angle
     let best = 0
     let bestDot = -Infinity
     for (let m = 0; m < directions.length; m++) {
       let dot = 0
-      for (let k = 0; k < dim; k++)
+      for (let k = 0; k < dim; k++) {
         dot += (c[k]! / n) * directions[m]![k]!
+      }
       if (dot > bestDot) {
         bestDot = dot
         best = m
       }
     }
     const d = poincareDistance(coords[center]!, c)
-    if (d > frontDist[best]!) frontDist[best] = d
+    if (d > frontDist[best]!) {
+      frontDist[best] = d
+    }
   }
   return frontDist
 }
@@ -75,12 +84,18 @@ export function rangeAnisotropy(speeds: number[]): {
 } {
   const meanSpeed =
     speeds.reduce((s, x) => s + x, 0) / Math.max(1, speeds.length)
-  if (speeds.length < 2) return { meanSpeed, anisotropy: 1 }
+  if (speeds.length < 2) {
+    return { meanSpeed, anisotropy: 1 }
+  }
   let mn = Infinity
   let mx = -Infinity
   for (const v of speeds) {
-    if (v < mn) mn = v
-    if (v > mx) mx = v
+    if (v < mn) {
+      mn = v
+    }
+    if (v > mx) {
+      mx = v
+    }
   }
   return { meanSpeed, anisotropy: (mx - mn) / meanSpeed }
 }

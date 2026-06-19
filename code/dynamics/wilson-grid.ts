@@ -52,7 +52,9 @@ function plaquetteCurl(
   plaq: PlaquetteLink[],
 ): number {
   let f = 0
-  for (const { link, sign } of plaq) f += sign * (theta[link] ?? 0)
+  for (const { link, sign } of plaq) {
+    f += sign * (theta[link] ?? 0)
+  }
   return f
 }
 
@@ -62,8 +64,9 @@ export function gridWilsonAction(
   plaqs: PlaquetteLink[][],
 ): number {
   let s = 0
-  for (const plaq of plaqs)
+  for (const plaq of plaqs) {
     s += 1 - Math.cos(plaquetteCurl(theta, plaq))
+  }
   return s
 }
 

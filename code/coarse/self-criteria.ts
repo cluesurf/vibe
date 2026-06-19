@@ -12,7 +12,9 @@ export type Graph = {
 // Pearson correlation of two equal-length series.
 export function correlation(x: number[], y: number[]): number {
   const n = Math.min(x.length, y.length)
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
   let mx = 0
   let my = 0
   for (let i = 0; i < n; i++) {
@@ -85,8 +87,11 @@ export function regionPartition(input: {
         exteriorSet.add(w)
       }
     }
-    if (allIn) interior.push(c)
-    else shell.push(c)
+    if (allIn) {
+      interior.push(c)
+    } else {
+      shell.push(c)
+    }
   }
   return { interior, shell, exterior: [...exteriorSet] }
 }

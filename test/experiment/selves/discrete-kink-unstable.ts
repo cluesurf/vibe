@@ -50,7 +50,7 @@ export default experiment({
       amplitude,
       saturating: true,
     })
-    for (let t = 0; t < steps; t++)
+    for (let t = 0; t < steps; t++) {
       bounded = stepWaveField({
         field: bounded,
         accel: boundedAccel,
@@ -60,6 +60,7 @@ export default experiment({
           right: amplitude,
         },
       })
+    }
     const boundedWalls = domainWallCount(bounded.curr)
     const boundedMaxAbs = fieldMaxAbs(bounded.curr)
 
@@ -76,7 +77,7 @@ export default experiment({
       amplitude,
       saturating: false,
     })
-    for (let t = 0; t < steps; t++)
+    for (let t = 0; t < steps; t++) {
       unbounded = stepWaveField({
         field: unbounded,
         accel: unboundedAccel,
@@ -86,6 +87,7 @@ export default experiment({
           right: amplitude,
         },
       })
+    }
     const unboundedMaxAbs = fieldMaxAbs(unbounded.curr)
 
     // the honest negative, the bounded scheme shatters (far more than one wall) and the unbounded scheme blows up

@@ -40,18 +40,24 @@ export function criticalityScan(input?: { n?: number }): {
   for (const arrow of arrows) {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 3 })
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
         | -1
         | 0
         | 1
-    for (let t = 0; t < 200; t++)
-      conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow }) // relax to steady state
+    }
+    for (let t = 0; t < 200; t++) {
+      conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+    } // relax to steady state
     const samples = 100
     let mean = 0
     for (let s = 0; s < samples; s++) {
       let active = 0
-      for (let i = 0; i < N; i++) if (tone[i] !== 0) active++
+      for (let i = 0; i < N; i++) {
+        if (tone[i] !== 0) {
+          active++
+        }
+      }
       mean += active / N
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     }

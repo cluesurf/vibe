@@ -17,7 +17,9 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function neighbors(kind: 'Z3' | 'Z4' | 'D4'): number[][] {
-  if (kind === 'D4') return rootsD4()
+  if (kind === 'D4') {
+    return rootsD4()
+  }
   return kind === 'Z3' ? coordinateAxes(3) : coordinateAxes(4)
 }
 const omega2 = (R: number[][], k: number[]): number =>

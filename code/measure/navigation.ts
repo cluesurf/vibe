@@ -70,7 +70,9 @@ export function greedyRouteHops(input: {
         best = neighbor
       }
     }
-    if (best === -1) return -1 // stuck at a local minimum, greedy failed
+    if (best === -1) {
+      return -1
+    } // stuck at a local minimum, greedy failed
     current = best
     hops += 1
   }

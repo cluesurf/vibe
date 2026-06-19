@@ -107,7 +107,9 @@ export function buildMargensternGrid(input: {
     .filter(i => depthOf[i]! >= 0)
     .sort((a, b) => depthOf[a]! - depthOf[b]!)
   for (const cell of byDepth) {
-    if (cell === root) continue
+    if (cell === root) {
+      continue
+    }
     const p = parentOf[cell]!
     address[cell] = [...address[p]!, childrenOf[p]!.indexOf(cell)]
   }
@@ -147,7 +149,9 @@ export function buildMargensternGrid(input: {
 
   function colorOf(cell: number): TileColor {
     const k = childrenOf[cell]!.length
-    if (!twoD) return 'other'
+    if (!twoD) {
+      return 'other'
+    }
     return k >= 3 ? 'white' : 'black'
   }
 
@@ -160,8 +164,9 @@ export function buildMargensternGrid(input: {
       common < af.length &&
       common < at.length &&
       af[common] === at[common]
-    )
+    ) {
       common++
+    }
     const up: number[] = []
     let cur = from
     while (depthOf[cur]! > common) {
@@ -220,7 +225,9 @@ function childOrder(
   for (let i = 0; i < a.length; i++) {
     const da = Math.round((a[i]! - (here[i] ?? 0)) * 1e6)
     const db = Math.round((b[i]! - (here[i] ?? 0)) * 1e6)
-    if (da !== db) return da - db
+    if (da !== db) {
+      return da - db
+    }
   }
   return 0
 }
@@ -228,6 +235,10 @@ function childOrder(
 // compare two child-ordinal addresses lexicographically (shorter first, then by ordinals)
 function compareAddress(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length)
-  for (let i = 0; i < len; i++) if (a[i] !== b[i]) return a[i]! - b[i]!
+  for (let i = 0; i < len; i++) {
+    if (a[i] !== b[i]) {
+      return a[i]! - b[i]!
+    }
+  }
   return a.length - b.length
 }

@@ -31,9 +31,11 @@ export default experiment({
     })
     const n = mesh.cellCount
     let center = 0
-    for (let i = 1; i < n; i++)
-      if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length)
+    for (let i = 1; i < n; i++) {
+      if (mesh.neighbors[i]!.length > mesh.neighbors[center]!.length) {
         center = i
+      }
+    }
     const depth = neighborDistances({
       neighbors: mesh.neighbors,
       size: n,

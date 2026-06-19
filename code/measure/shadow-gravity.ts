@@ -37,12 +37,16 @@ export function isotropicShadowFraction(input: {
   for (const u of input.directions) {
     // projection of the body center (r,0,0) onto the ray direction u
     const projection = u[0]! * r
-    if (projection <= 0) continue
+    if (projection <= 0) {
+      continue
+    }
     // squared perpendicular distance from the body center to the ray
     const px = r - projection * u[0]!
     const py = -projection * u[1]!
     const pz = -projection * u[2]!
-    if (px * px + py * py + pz * pz < a2) blocked++
+    if (px * px + py * py + pz * pz < a2) {
+      blocked++
+    }
   }
   return blocked / input.directions.length
 }
@@ -65,9 +69,13 @@ export function directionalShadowFraction(input: {
     for (let iz = -steps; iz <= steps; iz++) {
       const y = (iy / steps) * input.beamRadius
       const z = (iz / steps) * input.beamRadius
-      if (y * y + z * z > beam2) continue
+      if (y * y + z * z > beam2) {
+        continue
+      }
       total++
-      if (y * y + z * z < a2) blocked++
+      if (y * y + z * z < a2) {
+        blocked++
+      }
     }
   }
   return total === 0 ? 0 : blocked / total

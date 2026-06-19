@@ -90,7 +90,9 @@ function linesOf(opposite: number[]): Array<[number, number]> {
   const lines: Array<[number, number]> = []
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
-    if (direction < other) lines.push([direction, other])
+    if (direction < other) {
+      lines.push([direction, other])
+    }
   }
   return lines
 }
@@ -212,11 +214,14 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
     direction++
   ) {
     const other = input.opposite[direction]!
-    if (direction < other) lines.push([direction, other])
+    if (direction < other) {
+      lines.push([direction, other])
+    }
   }
   const linePairs: Array<[[number, number], [number, number]]> = []
-  for (let k = 0; k + 1 < lines.length; k += 2)
+  for (let k = 0; k + 1 < lines.length; k += 2) {
     linePairs.push([lines[k]!, lines[k + 1]!])
+  }
   return (slots, base) => {
     for (const [li, lj] of linePairs) {
       const ai = slots[base + li[0]] ?? 0
@@ -255,9 +260,14 @@ export function stickyReflect(input: {
   const lines = linesOf(input.opposite)
   return (slots, base, degree) => {
     let count = 0
-    for (let direction = 0; direction < degree; direction++)
-      if (slots[base + direction] !== 0) count++
-    if (count < 2) return
+    for (let direction = 0; direction < degree; direction++) {
+      if (slots[base + direction] !== 0) {
+        count++
+      }
+    }
+    if (count < 2) {
+      return
+    }
     for (const [left, right] of lines) {
       const temporary = slots[base + left]!
       slots[base + left] = slots[base + right]!

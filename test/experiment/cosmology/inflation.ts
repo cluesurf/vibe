@@ -54,7 +54,9 @@ export function inflate(input: { phi0: number; m?: number }): {
       efoldsAtExit = lnA
       exited = true
     }
-    if (exited) minAccelAfterExit = Math.min(minAccelAfterExit, accel)
+    if (exited) {
+      minAccelAfterExit = Math.min(minAccelAfterExit, accel)
+    }
     // RK4 step on (phi, phid); lnA by H dt.
     const next = inflatonStep({
       phi,
@@ -66,7 +68,9 @@ export function inflate(input: { phi0: number; m?: number }): {
     phi = next.phi
     phid = next.phidot
     lnA += H * dt
-    if (exited && Math.abs(phi) < 0.1 && Math.abs(phid) < 0.1) break
+    if (exited && Math.abs(phi) < 0.1 && Math.abs(phid) < 0.1) {
+      break
+    }
   }
 
   const efoldsAnalytic = (input.phi0 * input.phi0) / 4

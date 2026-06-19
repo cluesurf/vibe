@@ -73,15 +73,17 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        )
+        ) {
           will.data[c * degree + rest] = 1
+        }
       }
       return will
     }
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
-      for (let c = 0; c < coin.cellCount; c++)
+      for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
+      }
       return o
     }
     const extent = (will: Will): number => {
@@ -89,11 +91,12 @@ export default experiment({
       for (let c = 0; c < coin.cellCount; c++) {
         let on = false
         const b = c * degree
-        for (let d = 0; d < degree; d++)
+        for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
             break
           }
+        }
         if (on) {
           const [x, y, z, w] = coord(c)
           const dd =
@@ -101,7 +104,9 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
-          if (dd > e) e = dd
+          if (dd > e) {
+            e = dd
+          }
         }
       }
       return e
@@ -113,7 +118,9 @@ export default experiment({
     const repairFinalExtent = (cap: number, disp: number): number => {
       let will = cloneWill(restBody())
       let nb = center
-      for (let k = 0; k < disp; k++) nb = base.neighbour(nb, 0)
+      for (let k = 0; k < disp; k++) {
+        nb = base.neighbour(nb, 0)
+      }
       will.data[center * degree + rest] = 0
       will.data[nb * degree + rest] = 1
       let scratch: Will = {

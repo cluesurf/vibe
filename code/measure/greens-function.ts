@@ -25,7 +25,9 @@ export function dirichletGreensFunction(input: {
   for (let it = 0; it < iterations; it++) {
     for (let i = 0; i < n; i++) {
       let s = i === center ? 1 : 0
-      for (const j of neighbors[i]!) s += phi[j]!
+      for (const j of neighbors[i]!) {
+        s += phi[j]!
+      }
       phi[i] = s / degree
     }
   }
@@ -59,16 +61,21 @@ export function greensFunctionExponent(input: {
         coords[i]!.reduce((a, x, k) => a + (x - c[k]!) ** 2, 0),
       ),
     )
-    if (r < 1 || r > rmax) continue
+    if (r < 1 || r > rmax) {
+      continue
+    }
     sums[r] = (sums[r] ?? 0) + phi[i]!
     cnts[r] = (cnts[r] ?? 0) + 1
   }
   const pts: [number, number][] = []
   for (let r = 1; r <= rmax; r++) {
-    if (cnts[r] && sums[r]! > 0)
+    if (cnts[r] && sums[r]! > 0) {
       pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
+    }
   }
-  if (pts.length < 3) return NaN
+  if (pts.length < 3) {
+    return NaN
+  }
   const n = pts.length
   const sx = pts.reduce((a, p) => a + p[0], 0)
   const sy = pts.reduce((a, p) => a + p[1], 0)
@@ -109,11 +116,12 @@ export function greensDecayClass(input: {
   for (let rr = input.rlo; rr <= input.rhi; rr++) {
     let s = 0
     let k = 0
-    for (let i = 0; i < input.size; i++)
+    for (let i = 0; i < input.size; i++) {
       if (dist[i] === rr && G[i]! > 1e-12) {
         s += G[i]!
         k++
       }
+    }
     if (k > 0) {
       r.push(rr)
       lr.push(Math.log(rr))

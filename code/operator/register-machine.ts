@@ -37,51 +37,67 @@ export class RegisterMachine {
 
   charge(): number {
     let s = 0
-    for (let i = 0; i < this.tone.length; i++) s += this.tone[i]!
+    for (let i = 0; i < this.tone.length; i++) {
+      s += this.tone[i]!
+    }
     return s
   }
 
   read(r: number): number {
     let c = 0
-    for (const i of this.regions[r]!) if (this.tone[i] === 1) c++
+    for (const i of this.regions[r]!) {
+      if (this.tone[i] === 1) {
+        c++
+      }
+    }
     return c
   }
 
   set(r: number, value: number): void {
-    for (const i of this.regions[r]!) this.tone[i] = 0
-    for (let k = 0; k < value; k++) this.inc(r)
+    for (const i of this.regions[r]!) {
+      this.tone[i] = 0
+    }
+    for (let k = 0; k < value; k++) {
+      this.inc(r)
+    }
   }
 
   // INC, the arrow creates a balanced pair, +1 into register r, -1 into the ground.
   inc(r: number): void {
     let placedPlus = false
-    for (const i of this.regions[r]!)
+    for (const i of this.regions[r]!) {
       if (this.tone[i] === 0) {
         this.tone[i] = 1
         placedPlus = true
         break
       }
-    if (!placedPlus) throw new Error('register overflow')
-    for (const i of this.ground)
+    }
+    if (!placedPlus) {
+      throw new Error('register overflow')
+    }
+    for (const i of this.ground) {
       if (this.tone[i] === 0) {
         this.tone[i] = -1
         return
       }
+    }
     throw new Error('ground overflow')
   }
 
   // DEC, annihilation, a +1 in r meets a -1 in the ground, both return to peace.
   dec(r: number): void {
-    for (const i of this.regions[r]!)
+    for (const i of this.regions[r]!) {
       if (this.tone[i] === 1) {
         this.tone[i] = 0
         break
       }
-    for (const i of this.ground)
+    }
+    for (const i of this.ground) {
       if (this.tone[i] === -1) {
         this.tone[i] = 0
         return
       }
+    }
   }
 
   // Run a stored program, reporting how many steps ran and whether the total charge
@@ -96,18 +112,24 @@ export class RegisterMachine {
     while (pc < program.length && steps < maxSteps) {
       const instr = program[pc]!
       steps++
-      if (instr.op === 'halt') break
-      else if (instr.op === 'inc') {
+      if (instr.op === 'halt') {
+        break
+      } else if (instr.op === 'inc') {
         this.inc(instr.r)
         pc++
       } else if (instr.op === 'decjz') {
-        if (this.read(instr.r) === 0) pc = instr.addr
-        else {
+        if (this.read(instr.r) === 0) {
+          pc = instr.addr
+        } else {
           this.dec(instr.r)
           pc++
         }
-      } else if (instr.op === 'jmp') pc = instr.addr
-      if (this.charge() !== this.charge0) conserved = false
+      } else if (instr.op === 'jmp') {
+        pc = instr.addr
+      }
+      if (this.charge() !== this.charge0) {
+        conserved = false
+      }
     }
     return { steps, conserved }
   }
@@ -172,8 +194,9 @@ export function carveRegisters(input: {
       let i = 0;
       i < perRegister && cursor < cells.length;
       i++, cursor++
-    )
+    ) {
       region.push(cells[cursor]!)
+    }
     regions.push(region)
   }
   const ground = cells.slice(cursor)

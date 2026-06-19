@@ -49,8 +49,11 @@ export function willpowerGrounded(): {
   const edges = edgesOf(neighbors)
 
   let center = 0
-  for (let i = 1; i < n; i++)
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  for (let i = 1; i < n; i++) {
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
+  }
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -69,11 +72,12 @@ export function willpowerGrounded(): {
       const next: number[] = []
       for (const u of frontier) {
         order.push(u)
-        for (const w of neighbors[u]!)
+        for (const w of neighbors[u]!) {
           if (!seen[w]) {
             seen[w] = 1
             next.push(w)
           }
+        }
       }
       frontier = next
     }
@@ -82,28 +86,46 @@ export function willpowerGrounded(): {
   const CORE_SIZE = 6
   const inSelf = new Uint8Array(n)
   const inCore = new Uint8Array(n)
-  for (let k = 0; k < SELF_SIZE && k < order.length; k++)
+  for (let k = 0; k < SELF_SIZE && k < order.length; k++) {
     inSelf[order[k]!] = 1
-  for (let k = 0; k < CORE_SIZE && k < order.length; k++)
+  }
+  for (let k = 0; k < CORE_SIZE && k < order.length; k++) {
     inCore[order[k]!] = 1
+  }
   let selfSize = 0
-  for (let i = 0; i < n; i++) if (inSelf[i]) selfSize++
+  for (let i = 0; i < n; i++) {
+    if (inSelf[i]) {
+      selfSize++
+    }
+  }
 
   const coreCharge = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++) if (inCore[i]) s += t[i]!
+    for (let i = 0; i < n; i++) {
+      if (inCore[i]) {
+        s += t[i]!
+      }
+    }
     return s
   }
   const reserve = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++) if (inSelf[i]) s += t[i]!
+    for (let i = 0; i < n; i++) {
+      if (inSelf[i]) {
+        s += t[i]!
+      }
+    }
     return s
   }
 
   // initial state: the self is full of pleasure (its reserve), everything else is at peace
   function makeSelf(): Int8Array {
     const t = new Int8Array(n)
-    for (let i = 0; i < n; i++) if (inSelf[i]) t[i] = 1
+    for (let i = 0; i < n; i++) {
+      if (inSelf[i]) {
+        t[i] = 1
+      }
+    }
     return t
   }
 

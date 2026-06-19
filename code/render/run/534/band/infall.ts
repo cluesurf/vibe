@@ -56,12 +56,18 @@ function run(): void {
     return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -73,7 +79,9 @@ function run(): void {
   const bandCells: number[] = []
   const uv: [number, number][] = []
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -102,8 +110,9 @@ function run(): void {
   for (let j = 0; j < bandCells.length; j++) {
     const i = bandCells[j]!,
       r = fdistOf(j)
-    if (r <= massR) tone[i] = 1
-    else if (r <= surroundR && rng.next() < SURROUND_DENSITY) {
+    if (r <= massR) {
+      tone[i] = 1
+    } else if (r <= surroundR && rng.next() < SURROUND_DENSITY) {
       tone[i] = 1
       isSurround[i] = 1
     }
@@ -126,11 +135,12 @@ function run(): void {
   const meanSurroundDist = (): number => {
     let s = 0,
       c = 0
-    for (const [i, j] of surroundIdx)
+    for (const [i, j] of surroundIdx) {
       if (tone[i] === 1) {
         s += fdistOf(j)
         c++
       }
+    }
     return c ? s / c : 0
   }
 
@@ -160,25 +170,31 @@ function run(): void {
     }
     for (let j = 0; j < bandCells.length; j++) {
       const t = tone[bandCells[j]!]!
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
       const col = COLORS[t === 1 ? 1 : 2]!
       const [cx, cy] = pix[j]!
-      for (let dy = -RADIUS; dy <= RADIUS; dy++)
+      for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = cx + dx,
             y = cy + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
         }
+      }
     }
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
-    if (f % 40 === 0 || f === FRAMES - 1)
+    if (f % 40 === 0 || f === FRAMES - 1) {
       console.log(
         `  frame ${f}, surround mean distance to mass ${meanSurroundDist().toFixed(1)}`,
       )
+    }
   }
   const endDist = meanSurroundDist()
   const verdict =

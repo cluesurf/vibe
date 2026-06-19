@@ -33,7 +33,9 @@ export function diracFromDiscrete(): {
     const k = (2 * Math.PI * kIdx) / LX,
       E = measureE(kIdx, 0, T)
     const ok = Math.abs(E - k) < 0.05
-    if (!ok) masslessOk = false
+    if (!ok) {
+      masslessOk = false
+    }
   }
   // (2) MASSIVE (emergent mixing rate m) -> cos E = cos(m) cos(k), the Dirac relation
   const m = 0.6
@@ -44,7 +46,9 @@ export function diracFromDiscrete(): {
     const lhs = Math.cos(E),
       rhs = Math.cos(m) * Math.cos(k)
     const ok = Math.abs(lhs - rhs) < 0.05
-    if (!ok) massiveOk = false
+    if (!ok) {
+      massiveOk = false
+    }
   }
   const E0 = measureE(2, m, T)
   return { masslessOk, massiveOk }

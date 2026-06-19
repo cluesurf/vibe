@@ -34,7 +34,9 @@ function beat(
   for (const edge of edges) {
     const v = edge[0]!
     const w = edge[1]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -92,8 +94,13 @@ export function exportMaintenance(input?: {
   const N = g.cellCount
   const neighbors = g.neighbors
   const edges: number[][] = []
-  for (let v = 0; v < N; v++)
-    for (const w of neighbors[v]!) if (w > v) edges.push([v, w])
+  for (let v = 0; v < N; v++) {
+    for (const w of neighbors[v]!) {
+      if (w > v) {
+        edges.push([v, w])
+      }
+    }
+  }
 
   // the self REGION, a BFS ball from the centre cell (a placed probe, exactly as P171 does)
   const inRegion = new Uint8Array(N)
@@ -104,24 +111,30 @@ export function exportMaintenance(input?: {
     while (frontier.length > 0 && region.length < regionSize) {
       const next: number[] = []
       for (const u of frontier) {
-        if (region.length >= regionSize) break
+        if (region.length >= regionSize) {
+          break
+        }
         region.push(u)
-        for (const w of neighbors[u]!)
+        for (const w of neighbors[u]!) {
           if (!inRegion[w]) {
             inRegion[w] = 1
             next.push(w)
           }
+        }
       }
       frontier = next
     }
   }
   inRegion.fill(0)
-  for (const i of region) inRegion[i] = 1
+  for (const i of region) {
+    inRegion[i] = 1
+  }
 
   // the BALANCED identity pattern over the region (equal +/-, shuffled), net charge zero
   const target = new Int8Array(N)
-  for (let k = 0; k < region.length; k++)
+  for (let k = 0; k < region.length; k++) {
     target[region[k]!] = (k % 2 === 0 ? 1 : -1) as -1 | 1
+  }
   const shuffleRng = makeRng({ seed: 4 })
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(shuffleRng.next() * (i + 1))
@@ -134,31 +147,44 @@ export function exportMaintenance(input?: {
 
   // the LOCAL view, the region plus a few BFS shells around it (the self and its immediate surround)
   const inView = new Uint8Array(N)
-  for (const i of region) inView[i] = 1
+  for (const i of region) {
+    inView[i] = 1
+  }
   let shell = region.slice()
   for (let layer = 0; layer < surroundLayers; layer++) {
     const next: number[] = []
-    for (const u of shell)
-      for (const w of neighbors[u]!)
+    for (const u of shell) {
+      for (const w of neighbors[u]!) {
         if (!inView[w]) {
           inView[w] = 1
           next.push(w)
         }
+      }
+    }
     shell = next
   }
   const view: number[] = []
-  for (let i = 0; i < N; i++) if (inView[i]) view.push(i)
+  for (let i = 0; i < N; i++) {
+    if (inView[i]) {
+      view.push(i)
+    }
+  }
   const viewIndex = new Int32Array(N).fill(-1)
-  for (let a = 0; a < view.length; a++) viewIndex[view[a]!] = a
+  for (let a = 0; a < view.length; a++) {
+    viewIndex[view[a]!] = a
+  }
 
   // lay the view cells out flat, force-directed on their crystal adjacency (the same honest layout the
   // horosphere view uses, it only positions dots, it never touches the tones)
   const viewEdges: number[][] = []
-  for (let a = 0; a < view.length; a++)
+  for (let a = 0; a < view.length; a++) {
     for (const w of neighbors[view[a]!]!) {
       const b = viewIndex[w]!
-      if (b > a) viewEdges.push([a, b])
+      if (b > a) {
+        viewEdges.push([a, b])
+      }
     }
+  }
   const GOLDEN = Math.PI * (3 - Math.sqrt(5))
   const position = view.map((_, i) => {
     const r = Math.sqrt((i + 0.5) / view.length)
@@ -207,8 +233,9 @@ export function exportMaintenance(input?: {
     }
   }
   let maxAbs = 1e-6
-  for (const p of position)
+  for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
+  }
   const cells2d = position.map(p => [
     Math.round((p[0]! / maxAbs) * 1000) / 1000,
     Math.round((p[1]! / maxAbs) * 1000) / 1000,
@@ -217,10 +244,14 @@ export function exportMaintenance(input?: {
   // seed the two copies identically, region = identity, medium = sparse charges
   const seed = (tone: Int8Array, r: Rng): void => {
     tone.fill(0)
-    for (const i of region) tone[i] = target[i]!
-    for (let i = 0; i < N; i++)
-      if (!inRegion[i] && r.next() < mediumDensity)
+    for (const i of region) {
+      tone[i] = target[i]!
+    }
+    for (let i = 0; i < N; i++) {
+      if (!inRegion[i] && r.next() < mediumDensity) {
         tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
+      }
+    }
   }
   const maintained = new Int8Array(N)
   const free = new Int8Array(N)
@@ -237,7 +268,9 @@ export function exportMaintenance(input?: {
     framesUnmaintained.push(view.map(i => free[i]!))
     for (let s = 0; s < stride; s++) {
       beat(maintained, edges, moved, rngA, arrow)
-      for (const i of region) maintained[i] = target[i]! // self-maintenance, restore the identity (P171)
+      for (const i of region) {
+        maintained[i] = target[i]!
+      } // self-maintenance, restore the identity (P171)
       beat(free, edges, moved, rngB, arrow)
     }
   }

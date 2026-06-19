@@ -25,10 +25,11 @@ export function syDiscreteSymmetries(): {
   // (P) parity: the root set is closed under negation, and under each coordinate reflection
   const parityClosed = roots.every(r => set.has(key(r.map(x => -x))))
   let reflectionClosed = true
-  for (let ax = 0; ax < 4; ax++)
+  for (let ax = 0; ax < 4; ax++) {
     reflectionClosed &&= roots.every(r =>
       set.has(key(r.map((x, i) => (i === ax ? -x : x)))),
     )
+  }
 
   // (T) time reversal: a unitary Dirac walk is exactly invertible. run forward then backward, recover the start.
   const L = 81,
@@ -95,8 +96,12 @@ export function syDiscreteSymmetries(): {
     R = R3
     Lf = L3
   }
-  for (let t = 0; t < steps; t++) fwd()
-  for (let t = 0; t < steps; t++) bwd()
+  for (let t = 0; t < steps; t++) {
+    fwd()
+  }
+  for (let t = 0; t < steps; t++) {
+    bwd()
+  }
   let err = 0
   for (let x = 0; x < L; x++) {
     err = Math.max(
@@ -146,7 +151,7 @@ export function syDiscreteSymmetries(): {
   }
   const { applyParityThenStep, stepThenApplyParity } = massless()
   let pcErr = 0
-  for (let x = 0; x < L; x++)
+  for (let x = 0; x < L; x++) {
     for (let comp = 0; comp < 2; comp++) {
       pcErr = Math.max(
         pcErr,
@@ -160,6 +165,7 @@ export function syDiscreteSymmetries(): {
         ),
       )
     }
+  }
   const parityCommutes = pcErr < 1e-12
 
   // CPT: C (charge sign flip) is a symmetry of the conserving rule, so C, P, T all exact => CPT exact

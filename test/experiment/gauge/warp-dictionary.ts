@@ -77,22 +77,25 @@ export default experiment({
     let frontier = [0]
     while (frontier.length > 0) {
       const next: number[] = []
-      for (const c of frontier)
-        for (const m of neighbors[c]!)
+      for (const c of frontier) {
+        for (const m of neighbors[c]!) {
           if (distance[m] === -1) {
             distance[m] = distance[c]! + 1
             next.push(m)
           }
+        }
+      }
       frontier = next
     }
     const geodesicAtShell = (shell: number): number => {
       let sum = 0
       let count = 0
-      for (let c = 0; c < cellCount; c++)
+      for (let c = 0; c < cellCount; c++) {
         if (distance[c] === shell) {
           sum += hyperbolicDistance(rootCenter, center(c), frame.metric)
           count++
         }
+      }
       return count > 0 ? sum / count : 0
     }
     const geodesicPerShell = geodesicAtShell(3) - geodesicAtShell(2) // incremental geodesic length per shell

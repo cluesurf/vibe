@@ -68,10 +68,12 @@ function buildSvg(): string {
   )
 
   // 12 inner ticks (lighter, smaller), then 12 outer ticks (dark, larger), on top
-  for (let i = 0; i < COUNT; i++)
+  for (let i = 0; i < COUNT; i++) {
     parts.push(tick(R_IN, angleDeg(i), 30, 11, ZINC[400]))
-  for (let i = 0; i < COUNT; i++)
+  }
+  for (let i = 0; i < COUNT; i++) {
     parts.push(tick(R_OUT, angleDeg(i), 46, 15, ZINC[800]))
+  }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">
   ${parts.join('\n  ')}

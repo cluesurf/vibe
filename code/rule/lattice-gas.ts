@@ -65,7 +65,9 @@ const streamTableCache = new WeakMap<Mesh, Int32Array>()
 
 export function streamSourceTable(mesh: Mesh): Int32Array {
   const cached = streamTableCache.get(mesh)
-  if (cached) return cached
+  if (cached) {
+    return cached
+  }
   const degree = mesh.degree
   const table = new Int32Array(mesh.cellCount * degree)
   for (let cell = 0; cell < mesh.cellCount; cell++) {
@@ -94,7 +96,9 @@ export function beatInto(input: {
   collide(src, collision)
   const sd = src.data
   const dd = dst.data
-  for (let i = 0; i < table.length; i++) dd[i] = sd[table[i]!] ?? 0
+  for (let i = 0; i < table.length; i++) {
+    dd[i] = sd[table[i]!] ?? 0
+  }
 }
 
 // one inverse beat, un-stream then collide, since the collision is an involution.
@@ -112,7 +116,9 @@ export function run(
   collision: Collision,
   beats: number,
 ): Will {
-  if (beats <= 0) return will
+  if (beats <= 0) {
+    return will
+  }
   const table = streamSourceTable(will.mesh)
   let a: Will = { mesh: will.mesh, data: Int8Array.from(will.data) }
   let b: Will = {

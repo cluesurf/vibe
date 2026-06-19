@@ -112,7 +112,9 @@ export function buildPentagridPure(input: { maxCells: number }): {
   let hit = false
   for (let head = 0; head < tiles.length; head++) {
     for (const nb of pentagridNeighbors(tiles[head]!)) {
-      if (nb.n < 1) continue
+      if (nb.n < 1) {
+        continue
+      }
       const k = key(nb)
       let id = idOf.get(k)
       if (id === undefined) {
@@ -130,10 +132,13 @@ export function buildPentagridPure(input: { maxCells: number }): {
         neighbors[id]!.push(head)
       }
     }
-    if (hit) break
+    if (hit) {
+      break
+    }
   }
   let facetCount = 0
-  for (const row of neighbors)
+  for (const row of neighbors) {
     facetCount = Math.max(facetCount, row.length)
+  }
   return { cellCount: tiles.length, neighbors, tiles, facetCount }
 }

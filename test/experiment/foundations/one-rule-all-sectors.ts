@@ -48,7 +48,9 @@ function lightCone(
     source: center,
   })
   let a = new Int8Array(n)
-  for (let i = 0; i < n; i++) a[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < n; i++) {
+    a[i] = rng.nextInt({ max: 3 }) - 1
+  }
   let b = Int8Array.from(a)
   b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
   const step = (tone: Int8Array): Int8Array =>
@@ -59,10 +61,15 @@ function lightCone(
     a = step(a)
     b = step(b)
     let maxDist = 0
-    for (let v = 0; v < n; v++)
-      if (a[v] !== b[v]) maxDist = Math.max(maxDist, dist[v] ?? 0)
+    for (let v = 0; v < n; v++) {
+      if (a[v] !== b[v]) {
+        maxDist = Math.max(maxDist, dist[v] ?? 0)
+      }
+    }
     radii.push(maxDist)
-    if (maxDist > beat) holds = false
+    if (maxDist > beat) {
+      holds = false
+    }
   }
   return { holds, propagated: Math.max(...radii) >= 1 }
 }
@@ -90,7 +97,9 @@ export function oneRuleAllSectors(input: {
   // Matter/energy sector: the emergent operator's spectrum.
   const spectrum = laplacianSpectrum({ substrate: g, count: 16 })
   let min = Infinity
-  for (const v of spectrum) min = Math.min(min, v)
+  for (const v of spectrum) {
+    min = Math.min(min, v)
+  }
 
   // Force/static sector: the Green's function decays with graph distance.
   const center = mostConnectedNode(g.neighbors)

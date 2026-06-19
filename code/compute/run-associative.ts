@@ -132,8 +132,9 @@ async function run(): Promise<void> {
     neighbors: g.neighbors,
     wordBits: WORD_BITS,
   })
-  for (let c = 0; c < n; c++)
+  for (let c = 0; c < n; c++) {
     storeWord(mem, c, ternaryWord(c, WORD_BITS))
+  }
   const wordsU = Uint32Array.from(mem.words)
   const maskU = new Uint32Array(WORD_BITS).fill(1)
 
@@ -153,8 +154,11 @@ async function run(): Promise<void> {
     maskU,
   })
   const gpuExactCells: number[] = []
-  for (let c = 0; c < n; c++)
-    if (gpuExact.responders[c] === 1) gpuExactCells.push(c)
+  for (let c = 0; c < n; c++) {
+    if (gpuExact.responders[c] === 1) {
+      gpuExactCells.push(c)
+    }
+  }
   const exactMatch =
     cpuExact.length === gpuExactCells.length &&
     cpuExact.every((c, i) => c === gpuExactCells[i])
@@ -173,8 +177,11 @@ async function run(): Promise<void> {
     maskU,
   })
   const gpuPartialCells: number[] = []
-  for (let c = 0; c < n; c++)
-    if (gpuPartial.responders[c] === 1) gpuPartialCells.push(c)
+  for (let c = 0; c < n; c++) {
+    if (gpuPartial.responders[c] === 1) {
+      gpuPartialCells.push(c)
+    }
+  }
   const partialMatch =
     cpuPartial.length === gpuPartialCells.length &&
     cpuPartial.every((c, i) => c === gpuPartialCells[i])
@@ -197,8 +204,9 @@ async function run(): Promise<void> {
     neighbors: gb.neighbors,
     wordBits: WORD_BITS,
   })
-  for (let c = 0; c < nb; c++)
+  for (let c = 0; c < nb; c++) {
     storeWord(memb, c, ternaryWord(c, WORD_BITS))
+  }
   const wordsUb = Uint32Array.from(memb.words)
   const comparandUb = Uint32Array.from(
     readWord(memb, Math.floor(nb / 2)),

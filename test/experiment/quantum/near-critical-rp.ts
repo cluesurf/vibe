@@ -65,7 +65,9 @@ export function nearCriticalRP(input?: {
     { length: maxPos + 1 },
     () => [],
   )
-  for (let i = 0; i < N; i++) posCells[s.position[i]!]!.push(i)
+  for (let i = 0; i < N; i++) {
+    posCells[s.position[i]!]!.push(i)
+  }
   const lo = 10
   const hi = maxPos - 10
   const m = 4
@@ -75,12 +77,15 @@ export function nearCriticalRP(input?: {
   const measure = (arrow: number): { c: number[]; density: number } => {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 11 })
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
         | -1
         | 0
         | 1
-    for (let t = 0; t < 120; t++) beat(tone, eu, ev, moved, rng, arrow)
+    }
+    for (let t = 0; t < 120; t++) {
+      beat(tone, eu, ev, moved, rng, arrow)
+    }
     const T = 4000
     const sumMM = new Float64Array(maxR + 1)
     let cnt = 0
@@ -91,19 +96,28 @@ export function nearCriticalRP(input?: {
     for (let t = 0; t < T; t++) {
       for (let p = lo; p <= hi; p++) {
         let sm = 0
-        for (const i of posCells[p]!) sm += tone[i]!
+        for (const i of posCells[p]!) {
+          sm += tone[i]!
+        }
         mp[p] = posCells[p]!.length > 0 ? sm / posCells[p]!.length : 0
       }
       for (let p = lo; p <= hi; p++) {
         sumM += mp[p]!
         mCnt++
-        for (let r = 0; r <= maxR; r++)
+        for (let r = 0; r <= maxR; r++) {
           if (p + r <= hi) {
             sumMM[r]! += mp[p]! * mp[p + r]!
-            if (r === 0) cnt++
+            if (r === 0) {
+              cnt++
+            }
           }
+        }
       }
-      for (let i = 0; i < N; i++) if (tone[i] !== 0) nz++
+      for (let i = 0; i < N; i++) {
+        if (tone[i] !== 0) {
+          nz++
+        }
+      }
       beat(tone, eu, ev, moved, rng, arrow)
     }
     const mean = sumM / mCnt
@@ -133,8 +147,11 @@ export function nearCriticalRP(input?: {
   for (const arrow of arrows) {
     const { c, density } = measure(arrow)
     let range = 0
-    for (let r = 1; r <= maxR; r++)
-      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) range = r
+    for (let r = 1; r <= maxR; r++) {
+      if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
+        range = r
+      }
+    }
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
     scan.push({
       arrow,

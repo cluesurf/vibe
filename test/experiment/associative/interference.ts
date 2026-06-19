@@ -23,7 +23,9 @@ function overlappingWord(
 ): Int8Array {
   const word = new Int8Array(wordBits)
   // shared background, every word agrees here, this is the overlap
-  for (let k = 0; k < wordBits; k++) word[k] = (k * 2) % 3
+  for (let k = 0; k < wordBits; k++) {
+    word[k] = (k * 2) % 3
+  }
   // distinguishing slots encode the index in base 3
   let v = index
   for (let k = 0; k < separation && k < wordBits; k++) {
@@ -58,8 +60,12 @@ function recallAtSeparation(input: {
   for (let i = 0; i < input.count; i++) {
     const cue = readWord(mem, i)
     const responders = searchExact({ mem, comparand: cue })
-    if (responders.length === 1 && responders[0] === i) exactOk++
-    if (searchBest({ mem, comparand: cue }).cell === i) nearestOk++
+    if (responders.length === 1 && responders[0] === i) {
+      exactOk++
+    }
+    if (searchBest({ mem, comparand: cue }).cell === i) {
+      nearestOk++
+    }
   }
   return {
     exactRecall: exactOk / input.count,

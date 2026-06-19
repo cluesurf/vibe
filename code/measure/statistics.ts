@@ -3,19 +3,27 @@
 // Arithmetic mean of a series (0 for an empty series).
 export function mean(series: ArrayLike<number>): number {
   const n = series.length
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
   let s = 0
-  for (let i = 0; i < n; i++) s += series[i]!
+  for (let i = 0; i < n; i++) {
+    s += series[i]!
+  }
   return s / n
 }
 
 // Population variance (divide by n) of a series (0 for an empty series).
 export function populationVariance(series: ArrayLike<number>): number {
   const n = series.length
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
   const m = mean(series)
   let s = 0
-  for (let i = 0; i < n; i++) s += (series[i]! - m) ** 2
+  for (let i = 0; i < n; i++) {
+    s += (series[i]! - m) ** 2
+  }
   return s / n
 }
 
@@ -65,7 +73,9 @@ export function relativeStandardDeviation(
   series: ArrayLike<number>,
 ): number {
   const n = series.length
-  if (n === 0) return 0
+  if (n === 0) {
+    return 0
+  }
   let m = 0
   let scale = 1e-9
   for (let i = 0; i < n; i++) {
@@ -116,8 +126,9 @@ export function crossJointCounts(input: {
   for (let t = 0; t < last; t++) {
     const i = seriesA[t]!
     const j = seriesB[t + lag]!
-    if (i >= 0 && j >= 0 && i < stateCount && j < stateCount)
+    if (i >= 0 && j >= 0 && i < stateCount && j < stateCount) {
       counts[i]![j]!++
+    }
   }
   return counts
 }
@@ -133,9 +144,13 @@ export function mutualInformationBits(
   const cols = joint[0]?.length ?? 0
   let total = 0
   for (let x = 0; x < rows; x++) {
-    for (let y = 0; y < cols; y++) total += joint[x]![y] ?? 0
+    for (let y = 0; y < cols; y++) {
+      total += joint[x]![y] ?? 0
+    }
   }
-  if (total <= 0) return 0
+  if (total <= 0) {
+    return 0
+  }
   const px = new Array<number>(rows).fill(0)
   const py = new Array<number>(cols).fill(0)
   for (let x = 0; x < rows; x++) {
@@ -151,7 +166,9 @@ export function mutualInformationBits(
       const p = (joint[x]![y] ?? 0) / total
       if (p > 0) {
         const denom = (px[x] ?? 0) * (py[y] ?? 0)
-        if (denom > 0) mi += p * Math.log2(p / denom)
+        if (denom > 0) {
+          mi += p * Math.log2(p / denom)
+        }
       }
     }
   }

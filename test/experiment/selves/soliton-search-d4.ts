@@ -82,8 +82,9 @@ export default experiment({
     // the second glider sits a clear gap ahead along dir and travels the opposite way, so they approach, meet,
     // and (if they survive) part. The gap keeps the two clusters disjoint at the start (two components).
     let bStart = center
-    for (let i = 0; i < gliderLength + 3; i++)
+    for (let i = 0; i < gliderLength + 3; i++) {
       bStart = mesh.neighbour(bStart, dir)
+    }
     const b = gliderLine({
       mesh,
       start: bStart,
@@ -91,8 +92,9 @@ export default experiment({
       length: gliderLength,
     })
     const collide = makeWill(mesh)
-    for (let i = 0; i < collide.data.length; i++)
+    for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
+    }
     const startComponents = componentCount(collide) // two disjoint gliders
 
     const collideFinal = run(

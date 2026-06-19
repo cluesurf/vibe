@@ -18,9 +18,11 @@ function dot(a: number[], b: number[]): number {
 export function maxPairwiseCosine(directions: number[][]): number {
   const units = directions.map(unit)
   let maximum = -1
-  for (let i = 0; i < units.length; i++)
-    for (let j = i + 1; j < units.length; j++)
+  for (let i = 0; i < units.length; i++) {
+    for (let j = i + 1; j < units.length; j++) {
       maximum = Math.max(maximum, dot(units[i]!, units[j]!))
+    }
+  }
   return maximum
 }
 
@@ -45,8 +47,11 @@ export function canExtendKissing(
   const units = directions.map(unit)
   return candidates.some(candidate => {
     const candidateUnit = unit(candidate)
-    if (units.some(existing => dot(existing, candidateUnit) > 1 - 1e-9))
-      return false // already present
+    if (
+      units.some(existing => dot(existing, candidateUnit) > 1 - 1e-9)
+    ) {
+      return false
+    } // already present
     return units.every(
       existing => dot(existing, candidateUnit) <= threshold + 1e-9,
     )
@@ -63,12 +68,14 @@ export function coordinationAtMinAngle(
   const histogram: Record<number, number> = {}
   for (let i = 0; i < units.length; i++) {
     let neighbors = 0
-    for (let j = 0; j < units.length; j++)
+    for (let j = 0; j < units.length; j++) {
       if (
         i !== j &&
         Math.abs(dot(units[i]!, units[j]!) - maximum) < 0.02
-      )
+      ) {
         neighbors++
+      }
+    }
     histogram[neighbors] = (histogram[neighbors] ?? 0) + 1
   }
   return histogram
@@ -90,7 +97,9 @@ export function deterministicSpiral(
       if (axis < dimension - 1) {
         coordinates.push(factor * Math.sin(angle))
         factor *= Math.cos(angle)
-      } else coordinates.push(factor)
+      } else {
+        coordinates.push(factor)
+      }
     }
     points.push(unit(coordinates))
   }
@@ -123,8 +132,8 @@ export function relaxRiesz(
     const forces: number[][] = points.map(() =>
       new Array<number>(dimension).fill(0),
     )
-    for (let i = 0; i < count; i++)
-      for (let j = 0; j < count; j++)
+    for (let i = 0; i < count; i++) {
+      for (let j = 0; j < count; j++) {
         if (i !== j) {
           const difference = points[i]!.map(
             (value, axis) => value - points[j]![axis]!,
@@ -134,9 +143,12 @@ export function relaxRiesz(
             0,
           )
           const scale = power / Math.pow(distanceSquared, power / 2 + 1)
-          for (let axis = 0; axis < dimension; axis++)
+          for (let axis = 0; axis < dimension; axis++) {
             forces[i]![axis]! += scale * difference[axis]!
+          }
         }
+      }
+    }
     points = points.map((point, index) =>
       unit(
         point.map(

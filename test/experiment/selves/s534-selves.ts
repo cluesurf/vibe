@@ -39,7 +39,7 @@ export function s534Selves(): {
     return 2 * Math.atan2(num, den)
   }
   let Q = 0
-  for (let x = 0; x < L - 1; x++)
+  for (let x = 0; x < L - 1; x++) {
     for (let y = 0; y < L - 1; y++) {
       const a = n(x, y),
         bb = n(x + 1, y),
@@ -47,6 +47,7 @@ export function s534Selves(): {
         d = n(x + 1, y + 1)
       Q += tri(a, bb, d) + tri(a, d, cc)
     }
+  }
   Q = Q / (4 * Math.PI)
   const solitonsExist =
     Math.abs(Math.round(Q) - Q) < 0.1 && Math.abs(Math.round(Q)) >= 1

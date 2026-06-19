@@ -30,8 +30,9 @@ export function bulkNonlocality(input?: { n?: number }): {
   const N = g.cellCount
   const nbr = (i: number): number[] => {
     const out: number[] = []
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
+    }
     return out
   }
   const bfs = (src: number, allowed?: Uint8Array): Int32Array =>
@@ -46,26 +47,39 @@ export function bulkNonlocality(input?: { n?: number }): {
   // radial layers from a root, the shell at radius R is a "physical surface" (a horosphere-like sphere)
   const radial = bfs(0)
   let maxR = 0
-  for (let i = 0; i < N; i++) if (radial[i]! > maxR) maxR = radial[i]!
+  for (let i = 0; i < N; i++) {
+    if (radial[i]! > maxR) {
+      maxR = radial[i]!
+    }
+  }
   // count internal edges per shell, and pick the shell with the MOST internal edges (a real connected
   // surface, not the all-leaf outer frontier)
   const internalEdges = new Array<number>(maxR + 1).fill(0)
   for (let v = 0; v < N; v++) {
     const rv = radial[v]!
-    if (rv < 0) continue
-    for (const w of nbr(v))
-      if (w > v && radial[w]! === rv) internalEdges[rv]!++
+    if (rv < 0) {
+      continue
+    }
+    for (const w of nbr(v)) {
+      if (w > v && radial[w]! === rv) {
+        internalEdges[rv]!++
+      }
+    }
   }
   let shellRadius = 1
-  for (let r = 1; r <= maxR; r++)
-    if (internalEdges[r]! > internalEdges[shellRadius]!) shellRadius = r
+  for (let r = 1; r <= maxR; r++) {
+    if (internalEdges[r]! > internalEdges[shellRadius]!) {
+      shellRadius = r
+    }
+  }
   const onShell = new Uint8Array(N)
   const shellCells: number[] = []
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (radial[i]! === shellRadius) {
       onShell[i] = 1
       shellCells.push(i)
     }
+  }
 
   // for several source cells, find the BULK-farthest surface cell (the physically distant target), and
   // compare its through-bulk distance to its within-surface distance
@@ -83,16 +97,25 @@ export function bulkNonlocality(input?: { n?: number }): {
     // the bulk-farthest surface cell = a physically distant target
     let far = src
     for (const c of shellCells) {
-      if (c === src) continue
-      if (dBulk[c]! > dBulk[far]!) far = c
+      if (c === src) {
+        continue
+      }
+      if (dBulk[c]! > dBulk[far]!) {
+        far = c
+      }
     }
-    if (far === src) continue
+    if (far === src) {
+      continue
+    }
     bulkSum += dBulk[far]!
     pairs++
     // its within-surface distance (or unreachable)
     unreachableTotal++
-    if (dSurf[far]! === -1) unreachable++
-    else surfSum += dSurf[far]!
+    if (dSurf[far]! === -1) {
+      unreachable++
+    } else {
+      surfSum += dSurf[far]!
+    }
   }
 
   const meanBulkDistance = pairs > 0 ? bulkSum / pairs : 0

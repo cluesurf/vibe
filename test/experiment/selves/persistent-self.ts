@@ -58,31 +58,36 @@ export function persistentSelf(input?: { n?: number }): {
       const nf: number[] = []
       for (const u of fr) {
         region.push(u)
-        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++)
+        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           if (!inRegion[g.adj[p]!]) {
             inRegion[g.adj[p]!] = 1
             nf.push(g.adj[p]!)
           }
+        }
       }
       fr = nf
     }
   }
   // make inRegion match region EXACTLY (the BFS marked some enqueued-but-unadded frontier cells)
   inRegion.fill(0)
-  for (const i of region) inRegion[i] = 1
+  for (const i of region) {
+    inRegion[i] = 1
+  }
   // boundary cells of the region (have a neighbor outside)
   const boundary: number[] = []
   for (const i of region) {
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       if (!inRegion[g.adj[p]!]) {
         boundary.push(i)
         break
       }
+    }
   }
   // the identity pattern, a balanced +/- structure over the region
   const target = new Int8Array(N)
-  for (let idx = 0; idx < region.length; idx++)
+  for (let idx = 0; idx < region.length; idx++) {
     target[region[idx]!] = (idx % 2 === 0 ? 1 : -1) as -1 | 1
+  }
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const a = region[i]!
@@ -102,36 +107,50 @@ export function persistentSelf(input?: { n?: number }): {
   }
 
   const seedMedium = (tone: Int8Array, r: Rng): void => {
-    for (let i = 0; i < N; i++)
-      if (!inRegion[i] && r.next() < 0.25)
+    for (let i = 0; i < N; i++) {
+      if (!inRegion[i] && r.next() < 0.25) {
         tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
+      }
+    }
   }
 
   // (A) the SELF, structured identity + active self-maintenance (refill the region toward its pattern each
   // beat, a conserving operation, the will, P107/P109)
   const self = new Int8Array(N)
-  for (const i of region) self[i] = target[i]!
+  for (const i of region) {
+    self[i] = target[i]!
+  }
   seedMedium(self, makeRng({ seed: 5 }))
   const rngA = makeRng({ seed: 11 })
   const T = 80
   for (let t = 0; t < T; t++) {
     beat(self, eu, ev, moved, rngA, arrow)
-    for (const i of region) self[i] = target[i]! // self-maintenance, restore the identity
+    for (const i of region) {
+      self[i] = target[i]!
+    } // self-maintenance, restore the identity
   }
   const selfIdentityEnd = identity(self)
 
   // (B) the SAME structured region with NO maintenance, it dissolves into churn (P159)
   const un = new Int8Array(N)
-  for (const i of region) un[i] = target[i]!
+  for (const i of region) {
+    un[i] = target[i]!
+  }
   seedMedium(un, makeRng({ seed: 5 }))
   const rngB = makeRng({ seed: 11 })
-  for (let t = 0; t < T; t++) beat(un, eu, ev, moved, rngB, arrow)
+  for (let t = 0; t < T; t++) {
+    beat(un, eu, ev, moved, rngB, arrow)
+  }
   const unmaintainedIdentityEnd = identity(un)
 
   // integration of the maintained self, internal cells track the identity far above the boundary's coupling
   // to the outside (it is bound to itself, not leaking into the surround)
   let internalMatch = 0
-  for (const i of region) if (self[i] === target[i]) internalMatch++
+  for (const i of region) {
+    if (self[i] === target[i]) {
+      internalMatch++
+    }
+  }
   const selfIntegration = internalMatch / region.length
   // boundedness, the boundary stays a contrast, region-boundary cells match the identity while their
   // outside neighbors do not
@@ -139,7 +158,9 @@ export function persistentSelf(input?: { n?: number }): {
   let boundaryTotal = 0
   for (const i of boundary) {
     boundaryTotal++
-    if (self[i] === target[i]) boundaryHeld++
+    if (self[i] === target[i]) {
+      boundaryHeld++
+    }
   }
   const selfBoundedness =
     boundaryTotal > 0 ? boundaryHeld / boundaryTotal : 0

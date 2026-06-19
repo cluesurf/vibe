@@ -97,8 +97,9 @@ export default experiment({
 
     // the controlled collision is a valid base-class rule (conserves mass and momentum, reversible)
     const probe = makeWill(mesh)
-    for (let i = 0; i < probe.data.length; i++)
+    for (let i = 0; i < probe.data.length; i++) {
       probe.data[i] = i % 3 === 0 ? 1 : 0
+    }
     const validRule =
       conservesCharge(probe, collision, 15) &&
       conservesMomentum(probe, collision, 15, directions) &&

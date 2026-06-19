@@ -10,10 +10,13 @@ export function directionsAreCrystallographic(
   directions: ReadonlyArray<number[]>,
   tolerance: number = 1e-6,
 ): boolean {
-  for (const a of directions)
+  for (const a of directions) {
     for (const b of directions) {
       const r = (2 * dot(a, b)) / dot(b, b)
-      if (Math.abs(r - Math.round(r)) > tolerance) return false
+      if (Math.abs(r - Math.round(r)) > tolerance) {
+        return false
+      }
     }
+  }
   return true
 }

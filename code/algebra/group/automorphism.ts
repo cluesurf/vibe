@@ -34,9 +34,11 @@ function composeColumns(
   for (let k = 0; k < dimension; k++) {
     const middle = before[k]!
     const image = new Array<number>(dimension).fill(0)
-    for (let j = 0; j < dimension; j++)
-      for (let i = 0; i < dimension; i++)
+    for (let j = 0; j < dimension; j++) {
+      for (let i = 0; i < dimension; i++) {
         image[i]! += after[j]![i]! * middle[j]!
+      }
+    }
     result.push(image)
   }
   return result
@@ -69,7 +71,7 @@ export function weylGroupOrder(roots: number[][]): number {
   let frontier = [identity]
   while (frontier.length) {
     const next: number[][][] = []
-    for (const element of frontier)
+    for (const element of frontier) {
       for (const generator of generators) {
         const product = composeColumns(generator, element, dimension)
         const key = matrixKey(product)
@@ -78,6 +80,7 @@ export function weylGroupOrder(roots: number[][]): number {
           next.push(product)
         }
       }
+    }
     frontier = next
   }
   return seen.size
@@ -89,25 +92,30 @@ function solveSymmetric(gram: number[][], rhs: number[]): number[] {
   const augmented = gram.map((row, index) => [...row, rhs[index]!])
   for (let column = 0; column < size; column++) {
     let pivot = column
-    for (let row = column + 1; row < size; row++)
+    for (let row = column + 1; row < size; row++) {
       if (
         Math.abs(augmented[row]![column]!) >
         Math.abs(augmented[pivot]![column]!)
-      )
+      ) {
         pivot = row
+      }
+    }
     ;[augmented[column], augmented[pivot]] = [
       augmented[pivot]!,
       augmented[column]!,
     ]
     const diagonal = augmented[column]![column]!
-    for (let j = column; j <= size; j++)
+    for (let j = column; j <= size; j++) {
       augmented[column]![j]! /= diagonal
-    for (let row = 0; row < size; row++)
+    }
+    for (let row = 0; row < size; row++) {
       if (row !== column) {
         const factor = augmented[row]![column]!
-        for (let j = column; j <= size; j++)
+        for (let j = column; j <= size; j++) {
           augmented[row]![j]! -= factor * augmented[column]![j]!
+        }
       }
+    }
   }
   return augmented.map(row => row[size]!)
 }
@@ -120,10 +128,14 @@ export function automorphismGroupOrder(roots: number[][]): number {
   // a maximal linearly independent subset is the basis, found by Gram-determinant growth.
   const basis: number[][] = []
   for (const root of roots) {
-    if (basis.length === dimension) break
+    if (basis.length === dimension) {
+      break
+    }
     const test = [...basis, root]
     const gram = test.map(u => test.map(v => dotVec(u, v)))
-    if (Math.abs(determinant(gram)) > 1e-9) basis.push(root)
+    if (Math.abs(determinant(gram)) > 1e-9) {
+      basis.push(root)
+    }
   }
   const rank = basis.length
   const gram = basis.map(u => basis.map(v => dotVec(u, v)))
@@ -139,10 +151,14 @@ export function automorphismGroupOrder(roots: number[][]): number {
     if (depth === rank) {
       for (const coordinate of coordinates) {
         const image = new Array<number>(dimension).fill(0)
-        for (let i = 0; i < rank; i++)
-          for (let axis = 0; axis < dimension; axis++)
+        for (let i = 0; i < rank; i++) {
+          for (let axis = 0; axis < dimension; axis++) {
             image[axis]! += coordinate[i]! * picked[i]![axis]!
-        if (!rootKeys.has(vectorKey(image))) return
+          }
+        }
+        if (!rootKeys.has(vectorKey(image))) {
+          return
+        }
       }
       count++
       return
@@ -151,13 +167,17 @@ export function automorphismGroupOrder(roots: number[][]): number {
       let matches =
         Math.abs(dotVec(candidate, candidate) - gram[depth]![depth]!) <
         1e-6
-      for (let i = 0; i < depth && matches; i++)
+      for (let i = 0; i < depth && matches; i++) {
         if (
           Math.abs(dotVec(candidate, picked[i]!) - gram[depth]![i]!) >
           1e-6
-        )
+        ) {
           matches = false
-      if (matches) choose(depth + 1, [...picked, candidate])
+        }
+      }
+      if (matches) {
+        choose(depth + 1, [...picked, candidate])
+      }
     }
   }
   choose(0, [])
@@ -178,19 +198,22 @@ export function diagramAutomorphismOrder(cartan: number[][]): number {
   let count = 0
   const permute = (remaining: number[], chosen: number[]): void => {
     if (chosen.length === size) {
-      for (let i = 0; i < size; i++)
+      for (let i = 0; i < size; i++) {
         for (let j = 0; j < size; j++) {
-          if (cartan[chosen[i]!]![chosen[j]!]! !== cartan[i]![j]!)
+          if (cartan[chosen[i]!]![chosen[j]!]! !== cartan[i]![j]!) {
             return
+          }
         }
+      }
       count++
       return
     }
-    for (let k = 0; k < remaining.length; k++)
+    for (let k = 0; k < remaining.length; k++) {
       permute(
         remaining.filter((_, index) => index !== k),
         [...chosen, remaining[k]!],
       )
+    }
   }
   permute(indices, [])
   return count
@@ -202,13 +225,17 @@ function determinant(matrix: number[][]): number {
   let result = 1
   for (let column = 0; column < size; column++) {
     let pivot = column
-    for (let row = column + 1; row < size; row++)
+    for (let row = column + 1; row < size; row++) {
       if (
         Math.abs(working[row]![column]!) >
         Math.abs(working[pivot]![column]!)
-      )
+      ) {
         pivot = row
-    if (Math.abs(working[pivot]![column]!) < 1e-12) return 0
+      }
+    }
+    if (Math.abs(working[pivot]![column]!) < 1e-12) {
+      return 0
+    }
     if (pivot !== column) {
       ;[working[column], working[pivot]] = [
         working[pivot]!,
@@ -219,8 +246,9 @@ function determinant(matrix: number[][]): number {
     result *= working[column]![column]!
     for (let row = column + 1; row < size; row++) {
       const factor = working[row]![column]! / working[column]![column]!
-      for (let j = column; j < size; j++)
+      for (let j = column; j < size; j++) {
         working[row]![j]! -= factor * working[column]![j]!
+      }
     }
   }
   return result

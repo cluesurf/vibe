@@ -47,7 +47,9 @@ function directionProjection(radial: number[]): {
   const lengths: number[] = []
   for (const p of proj) {
     const n = Math.hypot(...p)
-    if (n < 1e-9) continue
+    if (n < 1e-9) {
+      continue
+    }
     const u = p.map(x => x / n)
     let found = false
     for (const s of seen) {

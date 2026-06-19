@@ -26,7 +26,11 @@ const LOCAL_DRIFT_MIN = 0.1
 
 function localPlus(tone: Int8Array, cells: number[]): number {
   let n = 0
-  for (const c of cells) if (tone[c] === 1) n++
+  for (const c of cells) {
+    if (tone[c] === 1) {
+      n++
+    }
+  }
   return n
 }
 

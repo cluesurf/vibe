@@ -17,13 +17,17 @@ export function selfNesting73(): {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 16000 })
   const N = g.cellCount
   const off = new Int32Array(N + 1)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     off[i + 1] = off[i]! + g.neighbors[i]!.length
+  }
   const adj = new Int32Array(off[N]!)
   {
     let p = 0
-    for (let i = 0; i < N; i++)
-      for (const w of g.neighbors[i]!) adj[p++] = w
+    for (let i = 0; i < N; i++) {
+      for (const w of g.neighbors[i]!) {
+        adj[p++] = w
+      }
+    }
   }
   let center = 0,
     best = -1
@@ -41,7 +45,7 @@ export function selfNesting73(): {
   let fr = [center]
   while (fr.length) {
     const nf: number[] = []
-    for (const u of fr)
+    for (const u of fr) {
       for (let q = off[u]!; q < off[u + 1]!; q++) {
         const w = adj[q]!
         if (dist[w] === -1) {
@@ -50,6 +54,7 @@ export function selfNesting73(): {
           nf.push(w)
         }
       }
+    }
     fr = nf
   }
   // run the mod-3 wave from a seeded patch, then measure radial-cone coherence at several cone depths
@@ -58,31 +63,42 @@ export function selfNesting73(): {
     nxt = new Int8Array(N)
   const rng = makeRng({ seed: 9 })
   const rnd = (): number => rng.next()
-  for (let i = 0; i < N; i++)
-    if (dist[i]! < 4) cur[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+  for (let i = 0; i < N; i++) {
+    if (dist[i]! < 4) {
+      cur[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+    }
+  }
   const series: Int8Array[] = []
   for (let b = 0; b < 40; b++) {
     for (let i = 0; i < N; i++) {
       let s = 0
-      for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!
+      for (let q = off[i]!; q < off[i + 1]!; q++) {
+        s += cur[adj[q]!]!
+      }
       nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
     const t = prev
     prev = cur
     cur = nxt
     nxt = t
-    if (b >= 10) series.push(cur.slice())
+    if (b >= 10) {
+      series.push(cur.slice())
+    }
   }
   // coarse-grain by ancestor at depth k (radial cone), net charge per cone; lag autocorrelation
   const ancestorAt = (i: number, depth: number): number => {
     let u = i
-    while (dist[u]! > depth) u = par[u]!
+    while (dist[u]! > depth) {
+      u = par[u]!
+    }
     return u
   }
   const coarse = (t: Int8Array, depth: number): Map<number, number> => {
     const m = new Map<number, number>()
     for (let i = 0; i < N; i++) {
-      if (t[i] === 0) continue
+      if (t[i] === 0) {
+        continue
+      }
       const a = ancestorAt(i, depth)
       m.set(a, (m.get(a) ?? 0) + t[i]!)
     }

@@ -39,14 +39,18 @@ function stepPerception(t: Int8Array): void {
   const m = new Uint8Array(L * L * L),
     order = shuf([...Array(L * L * L).keys()])
   for (const v of order) {
-    if (m[v]) continue
+    if (m[v]) {
+      continue
+    }
     const vx = v % L,
       vy = ((v / L) | 0) % L,
       vz = (v / (L * L)) | 0
     for (const k of shuf([0, 1, 2, 3, 4, 5])) {
       const d = DIRS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
-      if (m[w]) continue
+      if (m[w]) {
+        continue
+      }
       const [na, nb] = perm(t[v]!, t[w]!)
       t[v] = na as -1 | 0 | 1
       t[w] = nb as -1 | 0 | 1
@@ -61,14 +65,18 @@ function stepDiffusion(t: Int8Array): void {
   const m = new Uint8Array(L * L * L),
     order = shuf([...Array(L * L * L).keys()])
   for (const v of order) {
-    if (m[v]) continue
+    if (m[v]) {
+      continue
+    }
     const vx = v % L,
       vy = ((v / L) | 0) % L,
       vz = (v / (L * L)) | 0
     for (const k of shuf([0, 1, 2, 3, 4, 5])) {
       const d = DIRS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
-      if (m[w]) continue
+      if (m[w]) {
+        continue
+      }
       const a = t[v]!
       t[v] = t[w]!
       t[w] = a as -1 | 0 | 1
@@ -97,9 +105,12 @@ function towerOf(step: (t: Int8Array) => void): {
   domains: number
 } {
   const t = new Int8Array(L * L * L)
-  for (let i = 0; i < L * L * L; i++)
+  for (let i = 0; i < L * L * L; i++) {
     t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
-  for (let f = 0; f < 40; f++) step(t)
+  }
+  for (let f = 0; f < 40; f++) {
+    step(t)
+  }
   const blocks = [2, 4, 8],
     LAG = 8,
     M = 24
@@ -126,8 +137,11 @@ function towerOf(step: (t: Int8Array) => void): {
   let pos = 0,
     neg = 0
   for (let i = 0; i < cg.length; i++) {
-    if (cg[i]! > 1) pos++
-    else if (cg[i]! < -1) neg++
+    if (cg[i]! > 1) {
+      pos++
+    } else if (cg[i]! < -1) {
+      neg++
+    }
   }
   const domains = pos + neg
   return { persist, domains }

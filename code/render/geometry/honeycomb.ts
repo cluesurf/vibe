@@ -81,7 +81,9 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     orientUp,
   )
   const orient = (b: Vec): Vec => {
-    if (!orientUp) return b
+    if (!orientUp) {
+      return b
+    }
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const out = b.slice()
@@ -103,9 +105,13 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
-      if (norm(a) > BOUNDARY_CLIP || norm(b) > BOUNDARY_CLIP) continue
+      if (norm(a) > BOUNDARY_CLIP || norm(b) > BOUNDARY_CLIP) {
+        continue
+      }
       const key = pairKey(a, b)
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
       seen.add(key)
       edges.push({ a, b })
     }
@@ -157,9 +163,13 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
         timeAxis,
       )
       const k = pointKey(center)
-      if (seenCell.has(k)) continue
+      if (seenCell.has(k)) {
+        continue
+      }
       seenCell.add(k)
-      if (cellMat.length >= maxCells) break
+      if (cellMat.length >= maxCells) {
+        break
+      }
       cellMat.push(gp)
     }
   }
@@ -187,7 +197,9 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     orientUp,
   )
   const orient = (b: Vec): Vec => {
-    if (!orientUp) return b
+    if (!orientUp) {
+      return b
+    }
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const out = b.slice()
@@ -211,9 +223,13 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
-      if (norm(a) > INFINITY_GUARD || norm(b) > INFINITY_GUARD) continue
+      if (norm(a) > INFINITY_GUARD || norm(b) > INFINITY_GUARD) {
+        continue
+      }
       const key = pairKey(a, b)
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
       seen.add(key)
       rawEdges.push({ a, b })
       maxR = Math.max(maxR, norm(a), norm(b))
@@ -273,20 +289,25 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
   // embed each lattice coord with the plane basis
   const placed: Vec[] = lattice.coords.map(c => {
     const p: Vec = new Array<number>(ballDim).fill(0)
-    for (let a = 0; a < ballDim; a++)
-      for (let i = 0; i < basis.length; i++)
+    for (let a = 0; a < ballDim; a++) {
+      for (let i = 0; i < basis.length; i++) {
         p[a] = (p[a] ?? 0) + (c[i] ?? 0) * (basis[i]![a] ?? 0)
+      }
+    }
     return p
   })
 
   // center on the centroid and scale to fit the disk
   const centroid: Vec = new Array<number>(ballDim).fill(0)
-  for (const p of placed)
-    for (let a = 0; a < ballDim; a++)
+  for (const p of placed) {
+    for (let a = 0; a < ballDim; a++) {
       centroid[a]! += p[a]! / placed.length
+    }
+  }
   let maxR = 1e-9
-  for (const p of placed)
+  for (const p of placed) {
     maxR = Math.max(maxR, norm(p.map((v, a) => v - centroid[a]!)))
+  }
   const scale = 0.92 / maxR
   const ball: Vec[] = placed.map(p =>
     p.map((v, a) => (v - centroid[a]!) * scale),
@@ -296,11 +317,15 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
   const seen = new Set<string>()
   for (let i = 0; i < lattice.neighbors.length; i++) {
     for (const j of lattice.neighbors[i]!) {
-      if (j <= i) continue
+      if (j <= i) {
+        continue
+      }
       const a = ball[i]!
       const b = ball[j]!
       const k = pairKey(a, b)
-      if (seen.has(k)) continue
+      if (seen.has(k)) {
+        continue
+      }
       seen.add(k)
       edges.push({ a, b })
     }
@@ -320,8 +345,12 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
 // whole classical family, the three constant-curvature 2D geometries and their honeycombs.
 export function buildTilingScene(input: HoneycombOptions): Scene {
   const geometry = classifyGeometry(input.symbol)
-  if (geometry === 'spherical') return buildSphericalScene(input)
-  if (geometry === 'euclidean') return buildEuclideanScene(input)
+  if (geometry === 'spherical') {
+    return buildSphericalScene(input)
+  }
+  if (geometry === 'euclidean') {
+    return buildEuclideanScene(input)
+  }
   return buildHoneycombScene(input)
 }
 
@@ -329,7 +358,9 @@ export function buildTilingScene(input: HoneycombOptions): Scene {
 // generator handles. for a 2D tiling the cell is a single polygon, always finite.
 export function hasFiniteCell(symbol: number[]): boolean {
   const cell = symbol.slice(0, -1)
-  if (cell.length <= 1) return true
+  if (cell.length <= 1) {
+    return true
+  }
   return classifyGeometry(cell) === 'spherical'
 }
 
@@ -339,7 +370,9 @@ function orientation(
   p: number,
   orientUp: boolean,
 ): { cos: number; sin: number } {
-  if (!orientUp) return { cos: 1, sin: 0 }
+  if (!orientUp) {
+    return { cos: 1, sin: 0 }
+  }
   let bestR = -1
   let theta0 = 0
   for (const b of ballVertices) {
@@ -359,7 +392,9 @@ function orientation(
 // the Euclidean norm of a ball point
 function norm(v: number[]): number {
   let s = 0
-  for (const x of v) s += x * x
+  for (const x of v) {
+    s += x * x
+  }
   return Math.sqrt(s)
 }
 

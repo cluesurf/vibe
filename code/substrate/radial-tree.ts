@@ -28,8 +28,11 @@ export function boundaryByRadius(input: {
   const rmax = Math.max(...radii)
   const cut = fraction * rmax
   const out: number[] = []
-  for (let i = 0; i < radii.length; i++)
-    if (radii[i]! > cut) out.push(i)
+  for (let i = 0; i < radii.length; i++) {
+    if (radii[i]! > cut) {
+      out.push(i)
+    }
+  }
   return out
 }
 
@@ -101,8 +104,12 @@ export function radialBfsTree(input: {
   const lcaDepth = (a: number, b: number): number => {
     let x = a
     let y = b
-    while (depth[x]! > depth[y]!) x = parent[x]!
-    while (depth[y]! > depth[x]!) y = parent[y]!
+    while (depth[x]! > depth[y]!) {
+      x = parent[x]!
+    }
+    while (depth[y]! > depth[x]!) {
+      y = parent[y]!
+    }
     while (x !== y) {
       x = parent[x]!
       y = parent[y]!

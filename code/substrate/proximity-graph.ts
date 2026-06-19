@@ -24,7 +24,9 @@ export function proximityGraph(input: {
     for (let j = 0; j < n; j++) {
       if (j !== i) {
         const d = distance(coords[i]!, coords[j]!)
-        if (d < mn) mn = d
+        if (d < mn) {
+          mn = d
+        }
       }
     }
     nnDist.push(mn)

@@ -50,12 +50,18 @@ function run(): void {
     return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -66,7 +72,9 @@ function run(): void {
   const bandCells: number[] = [],
     uv: [number, number][] = []
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -94,12 +102,14 @@ function run(): void {
   // edge-colour the band (greedy, each colour a matching), sort edges by colour
   const eu: number[] = [],
     ev: number[] = []
-  for (let i = 0; i < n; i++)
-    for (const w of nb[i]!)
+  for (let i = 0; i < n; i++) {
+    for (const w of nb[i]!) {
       if (w > i) {
         eu.push(i)
         ev.push(w)
       }
+    }
+  }
   const E = eu.length
   const mask = new Uint32Array(n)
   const color = new Int32Array(E)
@@ -107,16 +117,24 @@ function run(): void {
   for (let i = 0; i < E; i++) {
     const used = mask[eu[i]!]! | mask[ev[i]!]!
     let c = 0
-    while (used & (1 << c)) c++
+    while (used & (1 << c)) {
+      c++
+    }
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
-    if (c > maxC) maxC = c
+    if (c > maxC) {
+      maxC = c
+    }
   }
   const C = maxC + 1
   const off = new Array(C + 1).fill(0)
-  for (let i = 0; i < E; i++) off[color[i]! + 1]++
-  for (let c = 0; c < C; c++) off[c + 1] += off[c]!
+  for (let i = 0; i < E; i++) {
+    off[color[i]! + 1]++
+  }
+  for (let c = 0; c < C; c++) {
+    off[c + 1] += off[c]!
+  }
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E),
     cur = off.slice()
@@ -136,7 +154,7 @@ function run(): void {
   }
 
   const pureBeat = (): void => {
-    for (let c = 0; c < C; c++)
+    for (let c = 0; c < C; c++) {
       for (let e = off[c]!; e < off[c + 1]!; e++) {
         const v = edgeV[e]!,
           w = edgeW[e]!
@@ -144,6 +162,7 @@ function run(): void {
         tone[v] = (o / 3) | 0
         tone[w] = o % 3
       }
+    }
   }
 
   const outDir = join(
@@ -163,8 +182,9 @@ function run(): void {
 
   for (let f = 0; f < FRAMES; f++) {
     pureBeat()
-    for (let i = 0; i < n; i++)
+    for (let i = 0; i < n; i++) {
       q[i] = tone[i] === 1 ? 1 : tone[i] === 2 ? -1 : 0
+    }
     for (let it = 0; it < SMOOTH; it++) {
       for (let i = 0; i < n; i++) {
         let s = q[i]!,
@@ -183,7 +203,9 @@ function run(): void {
     let maxAbs = 1e-6
     for (let j = 0; j < bandCells.length; j++) {
       const v = Math.abs(q[bandCells[j]!]!)
-      if (v > maxAbs) maxAbs = v
+      if (v > maxAbs) {
+        maxAbs = v
+      }
     }
     const rgba = new Uint8Array(IMG * IMG * 4)
     for (let i = 0; i < IMG * IMG; i++) {
@@ -195,25 +217,32 @@ function run(): void {
     for (let j = 0; j < bandCells.length; j++) {
       const d = q[bandCells[j]!]! / maxAbs
       const a = Math.min(1, Math.abs(d))
-      if (a < 0.05) continue
+      if (a < 0.05) {
+        continue
+      }
       const col: [number, number, number] =
         d > 0
           ? [59 * a + 8, 130 * a + 8, 246 * a + 10]
           : [248 * a + 8, 90 * a + 8, 114 * a + 10]
       const [cx, cy] = pix[j]!
-      for (let dy = -RADIUS; dy <= RADIUS; dy++)
+      for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = cx + dx,
             y = cy + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
         }
+      }
     }
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
-    if (f % 50 === 0) console.log(`  frame ${f}`)
+    if (f % 50 === 0) {
+      console.log(`  frame ${f}`)
+    }
   }
   console.log(
     `wrote ${FRAMES} frames to make/frames, assemble with task/render-video.sh`,

@@ -32,14 +32,18 @@ export default experiment({
     const dense = balanceToZero(
       (() => {
         const t = new Int8Array(n)
-        for (let i = 0; i < n; i++) t[i] = i % 2 === 0 ? 1 : -1
+        for (let i = 0; i < n; i++) {
+          t[i] = i % 2 === 0 ? 1 : -1
+        }
         return t
       })(),
     )
     const sparse = balanceToZero(
       (() => {
         const t = new Int8Array(n)
-        for (let i = 0; i < n; i += 9) t[i] = (i / 9) % 2 === 0 ? 1 : -1
+        for (let i = 0; i < n; i += 9) {
+          t[i] = (i / 9) % 2 === 0 ? 1 : -1
+        }
         return t
       })(),
     )

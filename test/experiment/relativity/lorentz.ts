@@ -29,7 +29,9 @@ export function lorentz(): {
         rapidity: eta,
       })
       const inv = b.omega * b.omega - b.wavenumber * b.wavenumber
-      if (Math.abs(inv - m * m) > 0.02) invariantSmallK = false
+      if (Math.abs(inv - m * m) > 0.02) {
+        invariantSmallK = false
+      }
     }
   }
   // (2) group velocity v = dE/dk, subluminal, -> 1 as m -> 0
@@ -42,9 +44,13 @@ export function lorentz(): {
         k,
         step: 0.005,
       })
-      if (v > vmax) vmax = v
+      if (v > vmax) {
+        vmax = v
+      }
     }
-    if (mm === 0) maxGroupVelocity = vmax
+    if (mm === 0) {
+      maxGroupVelocity = vmax
+    }
   }
   const masslessIsLightspeed = Math.abs(maxGroupVelocity - 1) < 0.05
   return { invariantSmallK, masslessIsLightspeed, maxGroupVelocity }

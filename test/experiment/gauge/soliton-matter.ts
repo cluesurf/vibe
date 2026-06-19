@@ -48,7 +48,9 @@ export function solitonMatter(): {
     addSky(f, c + d / 2, c, R, 1)
     const E = Math.round(energy(f, kappa) * 10) / 10
     binding.push([d, E])
-    if (d === 30) eInf = E
+    if (d === 30) {
+      eInf = E
+    }
   }
   const minE = Math.min(...binding.map(b => b[1]))
   const bound =

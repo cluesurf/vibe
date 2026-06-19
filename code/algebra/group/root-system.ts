@@ -6,15 +6,18 @@
 // norm squared 2. rootsD4() is rootsDn(4).
 export function rootsDn(n: number): number[][] {
   const roots: number[][] = []
-  for (let i = 0; i < n; i++)
-    for (let j = i + 1; j < n; j++)
-      for (const si of [1, -1])
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      for (const si of [1, -1]) {
         for (const sj of [1, -1]) {
           const v = new Array<number>(n).fill(0)
           v[i] = si
           v[j] = sj
           roots.push(v)
         }
+      }
+    }
+  }
   return roots
 }
 
@@ -22,14 +25,16 @@ export function rootsDn(n: number): number[][] {
 // vectors of su(n).
 export function rootsAn(n: number): number[][] {
   const roots: number[][] = []
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
       if (i !== j) {
         const v = new Array<number>(n).fill(0)
         v[i] = 1
         v[j] = -1
         roots.push(v)
       }
+    }
+  }
   return roots
 }
 
@@ -52,11 +57,14 @@ export function reflectRoot(v: number[], a: number[]): number[] {
 // A set of vectors is a root system if it is closed under reflection in each of
 // its own roots (using exact equality to test membership).
 export function isRootSystem(roots: number[][]): boolean {
-  for (const a of roots)
+  for (const a of roots) {
     for (const v of roots) {
       const w = reflectRoot(v, a)
-      if (!roots.some(r => vecEqExact(r, w))) return false
+      if (!roots.some(r => vecEqExact(r, w))) {
+        return false
+      }
     }
+  }
   return true
 }
 
@@ -66,15 +74,21 @@ export function isRootSystem(roots: number[][]): boolean {
 export function standardModelEmbedsInRootSystem(
   roots: number[][],
 ): boolean {
-  for (const a of roots)
+  for (const a of roots) {
     for (const b of roots) {
-      if (dotVec(a, b) !== -1) continue // 120 degrees -> A2 generator pair
+      if (dotVec(a, b) !== -1) {
+        continue
+      } // 120 degrees -> A2 generator pair
       const ab = a.map((x, i) => x + b[i]!)
-      if (!roots.some(r => vecEqExact(r, ab))) continue // a + b must be a root (A2 closes)
+      if (!roots.some(r => vecEqExact(r, ab))) {
+        continue
+      } // a + b must be a root (A2 closes)
       // an A1 orthogonal to the whole A2 (orthogonal to a and b, hence to a + b)
-      if (roots.some(c => dotVec(c, a) === 0 && dotVec(c, b) === 0))
+      if (roots.some(c => dotVec(c, a) === 0 && dotVec(c, b) === 0)) {
         return true
+      }
     }
+  }
   return false
 }
 
@@ -85,7 +99,9 @@ export function spinorWeightsDn(n: number): number[][] {
   const weights: number[][] = []
   const build = (acc: number[]): void => {
     if (acc.length === n) {
-      if (acc.filter(x => x < 0).length % 2 === 0) weights.push(acc)
+      if (acc.filter(x => x < 0).length % 2 === 0) {
+        weights.push(acc)
+      }
       return
     }
     build([...acc, 0.5])
@@ -139,9 +155,11 @@ export function rootsB4(): number[][] {
 export function icosahedronVertexDirections(): number[][] {
   const phi = (1 + Math.sqrt(5)) / 2
   const raw: number[][] = []
-  for (const a of [1, -1])
-    for (const b of [phi, -phi])
+  for (const a of [1, -1]) {
+    for (const b of [phi, -phi]) {
       raw.push([0, a, b], [a, b, 0], [b, 0, a])
+    }
+  }
   const norm = Math.hypot(...raw[0]!)
   return raw.map(vector => vector.map(value => value / norm))
 }
@@ -213,12 +231,18 @@ export function ternaryShells(n: number): Map<number, number[][]> {
         (sum, value) => sum + value * value,
         0,
       )
-      if (normSquared === 0) return
-      if (!shells.has(normSquared)) shells.set(normSquared, [])
+      if (normSquared === 0) {
+        return
+      }
+      if (!shells.has(normSquared)) {
+        shells.set(normSquared, [])
+      }
       shells.get(normSquared)!.push([...vector])
       return
     }
-    for (const value of [-1, 0, 1]) recurse([...vector, value])
+    for (const value of [-1, 0, 1]) {
+      recurse([...vector, value])
+    }
   }
   recurse([])
   return shells
@@ -236,14 +260,18 @@ export function reflectionClosure(seed: number[][]): number[][] {
   const found = new Map<string, number[]>()
   const add = (vector: number[]): void => {
     const key = vectorKey(vector)
-    if (!found.has(key)) found.set(key, vector)
+    if (!found.has(key)) {
+      found.set(key, vector)
+    }
   }
-  for (const root of seed) add(root)
+  for (const root of seed) {
+    add(root)
+  }
   let changed = true
   while (changed) {
     changed = false
     const current = [...found.values()]
-    for (const a of current)
+    for (const a of current) {
       for (const v of current) {
         const reflected = reflectRoot(v, a)
         if (!found.has(vectorKey(reflected))) {
@@ -251,6 +279,7 @@ export function reflectionClosure(seed: number[][]): number[][] {
           changed = true
         }
       }
+    }
   }
   return [...found.values()]
 }
@@ -282,14 +311,20 @@ export function constructionAMinimalVectors(
         (sum, value) => sum + value * value,
         0,
       )
-      if (normSquared !== 2) return
+      if (normSquared !== 2) {
+        return
+      }
       const reduced = vector
         .map(value => ((value % 2) + 2) % 2)
         .join(',')
-      if (inCode.has(reduced)) minimal.push([...vector])
+      if (inCode.has(reduced)) {
+        minimal.push([...vector])
+      }
       return
     }
-    for (const value of [-1, 0, 1]) recurse([...vector, value])
+    for (const value of [-1, 0, 1]) {
+      recurse([...vector, value])
+    }
   }
   recurse([])
   return minimal
@@ -300,11 +335,14 @@ export function evenWeightCode(n: number): number[][] {
   const words: number[][] = []
   const recurse = (vector: number[]): void => {
     if (vector.length === n) {
-      if (vector.reduce((sum, value) => sum + value, 0) % 2 === 0)
+      if (vector.reduce((sum, value) => sum + value, 0) % 2 === 0) {
         words.push([...vector])
+      }
       return
     }
-    for (const bit of [0, 1]) recurse([...vector, bit])
+    for (const bit of [0, 1]) {
+      recurse([...vector, bit])
+    }
   }
   recurse([])
   return words

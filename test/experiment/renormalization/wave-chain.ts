@@ -33,8 +33,9 @@ export function waveChain(input?: { L?: number; r?: number }): {
   // a smooth (low-k) initial packet, a wide Gaussian (mostly long-wavelength, so it survives coarsening)
   const width = 24
   const u0 = new Float64Array(L)
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     u0[i] = Math.exp(-(((i - L / 2) / width) ** 2))
+  }
   const uPrev0 = u0.slice() // start at rest (uPrev = u), the packet then splits into two movers
 
   const fineSteps = 120

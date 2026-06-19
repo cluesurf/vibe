@@ -72,7 +72,11 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     source: 0,
   })
   let maxd = 0
-  for (let i = 0; i < N; i++) if (distP[i]! > maxd) maxd = distP[i]!
+  for (let i = 0; i < N; i++) {
+    if (distP[i]! > maxd) {
+      maxd = distP[i]!
+    }
+  }
   // Identify the CONSERVED-CHARGE sector's effective rule. We isolate transport (a dilute +1 charge gas
   // relaxing a radial gradient, hops only, no creation), and ENSEMBLE-AVERAGE over many realizations so
   // the deterministic hydrodynamic limit emerges from the stochastic noise.
@@ -101,20 +105,29 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       tone[i] = (rng.next() < grad ? 1 : 0) as 0 | 1
     }
     const q0 = tone.reduce((s, x) => s + x, 0)
-    for (let t = 0; t < warmup; t++)
+    for (let t = 0; t < warmup; t++) {
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
+    }
     for (let s = 0; s <= numSamples; s++) {
       const bc = blockCharge(tone)
       for (let b = 0; b < numBlocks; b++) {
         meanBC[s]![b]! += bc[b]! / R
-        if (bc[b]! < alphaMin) alphaMin = bc[b]!
-        if (bc[b]! > alphaMax) alphaMax = bc[b]!
+        if (bc[b]! < alphaMin) {
+          alphaMin = bc[b]!
+        }
+        if (bc[b]! > alphaMax) {
+          alphaMax = bc[b]!
+        }
       }
-      if (s < numSamples)
-        for (let k = 0; k < tau; k++)
+      if (s < numSamples) {
+        for (let k = 0; k < tau; k++) {
           conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
+        }
+      }
     }
-    if (tone.reduce((s, x) => s + x, 0) !== q0) conserved = false
+    if (tone.reduce((s, x) => s + x, 0) !== q0) {
+      conserved = false
+    }
   }
   const alphabetRange = alphaMax - alphaMin
 
@@ -126,7 +139,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     const qn = meanBC[t + 1]!
     for (let b = 0; b < numBlocks; b++) {
       let lap = 0
-      for (const w of blockNbr[b]!) lap += q[w]! - q[b]!
+      for (const w of blockNbr[b]!) {
+        lap += q[w]! - q[b]!
+      }
       samplesX.push(lap)
       samplesY.push(qn[b]! - q[b]!)
     }
@@ -145,7 +160,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   let ssRes = 0
   let ssTot = 0
   let meanY = 0
-  for (let i = split; i < m; i++) meanY += samplesY[i]!
+  for (let i = split; i < m; i++) {
+    meanY += samplesY[i]!
+  }
   meanY /= m - split
   for (let i = split; i < m; i++) {
     const pred = diffusionConstant * samplesX[i]!
@@ -159,11 +176,12 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   const varAt = (q: Float64Array): number => populationVariance(q)
   const var0 = varAt(meanBC[0]!)
   let mixingTime = numSamples
-  for (let s = 0; s < meanBC.length; s++)
+  for (let s = 0; s < meanBC.length; s++) {
     if (varAt(meanBC[s]!) < 0.5 * var0) {
       mixingTime = s
       break
     }
+  }
   const varFinal = varAt(meanBC[meanBC.length - 1]!)
 
   const slowDiffusion = diffusionConstant > 0 && fitR2 > 0.5 // a slow Euclidean diffusion mode (rejected)

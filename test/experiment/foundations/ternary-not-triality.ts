@@ -27,11 +27,15 @@ import { verdict } from '@/test/scaffold/verdict'
 function ternaryToneSymmetryOrder(): number {
   const tone = [-1, 0, 1]
   const permutations = (a: number[]): number[][] => {
-    if (a.length <= 1) return [a]
+    if (a.length <= 1) {
+      return [a]
+    }
     const out: number[][] = []
     for (let i = 0; i < a.length; i++) {
       const rest = [...a.slice(0, i), ...a.slice(i + 1)]
-      for (const p of permutations(rest)) out.push([a[i]!, ...p])
+      for (const p of permutations(rest)) {
+        out.push([a[i]!, ...p])
+      }
     }
     return out
   }
@@ -42,7 +46,9 @@ function ternaryToneSymmetryOrder(): number {
     const commutesWithConjugation = tone.every(
       v => map.get(-v) === -map.get(v)!,
     )
-    if (fixesVacuum && commutesWithConjugation) count++
+    if (fixesVacuum && commutesWithConjugation) {
+      count++
+    }
   }
   return count
 }

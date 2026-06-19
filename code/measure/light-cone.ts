@@ -22,13 +22,17 @@ function frontRadius(will: Will, side: number): number {
         break
       }
     }
-    if (!occupied) continue
+    if (!occupied) {
+      continue
+    }
     const x = cell % side
     const y = Math.floor(cell / side) % side
     const z = Math.floor(cell / area)
     const radius =
       Math.abs(x - centre) + Math.abs(y - centre) + Math.abs(z - centre)
-    if (radius > maximum) maximum = radius
+    if (radius > maximum) {
+      maximum = radius
+    }
   }
   return maximum
 }

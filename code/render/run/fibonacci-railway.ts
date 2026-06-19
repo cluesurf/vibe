@@ -74,7 +74,9 @@ function run(): void {
     symbol: [7, 3],
     maxCells: MAX_CELLS,
   })
-  for (const cfg of CONFIGS) renderBase(cfg, tiling, outDir)
+  for (const cfg of CONFIGS) {
+    renderBase(cfg, tiling, outDir)
+  }
 }
 
 function renderBase(
@@ -125,7 +127,7 @@ function renderBase(
   const wedges = layoutWedges(tiling.centers, counters.length)
   const edges = cellOutlines(tiling.polygons)
   const frames: Uint8Array[] = []
-  for (let i = 0; i < snaps.length; i++)
+  for (let i = 0; i < snaps.length; i++) {
     frames.push(
       renderFrame({
         tiling,
@@ -137,7 +139,8 @@ function renderBase(
         cfg,
       }),
     )
-  for (let h = 0; h < 16; h++)
+  }
+  for (let h = 0; h < 16; h++) {
     frames.push(
       renderFrame({
         tiling,
@@ -153,6 +156,7 @@ function renderBase(
         cfg,
       }),
     )
+  }
 
   writeFileSync(
     join(outDir, `fibonacci-7-3-railway-${cfg.name}-frame.png`),

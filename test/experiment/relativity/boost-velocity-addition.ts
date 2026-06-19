@@ -70,7 +70,9 @@ export function boostVelocityAddition(): {
     for (let i = 0; i <= 100; i++) {
       const k = -Math.PI + (2 * Math.PI * i) / 100
       const v = Math.abs(groupVelocity(k, m))
-      if (isFinite(v)) maxV = Math.max(maxV, v)
+      if (isFinite(v)) {
+        maxV = Math.max(maxV, v)
+      }
     }
   }
   const noSuperluminal = maxV <= 1 + 1e-6

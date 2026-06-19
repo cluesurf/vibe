@@ -48,8 +48,9 @@ export function directionalRule(): {
     if (
       Math.abs(E0 - m) > 1e-6 ||
       Math.abs(Ek * Ek - k * k - m * m) > 1e-2
-    )
+    ) {
       diracOk = false
+    }
   }
   return { ballistic, diffusive, diracOk }
 }

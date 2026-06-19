@@ -132,8 +132,12 @@ export function universality(): {
       const B = clampedBus(c, b, 7)
       const O = nandBus(c, A, B, 3)
       const tone = settle(c, { seed: 1 })
-      if (busValue(tone, O) !== nand(a, b)) substrateNandCorrect = false
-      if (!isFixedPoint(c, tone)) substrateFixedPoint = false
+      if (busValue(tone, O) !== nand(a, b)) {
+        substrateNandCorrect = false
+      }
+      if (!isFixedPoint(c, tone)) {
+        substrateFixedPoint = false
+      }
     }
   }
 
@@ -152,9 +156,12 @@ export function universality(): {
       const andInner = nandBus(c, orOut, nandOut, 5) // NAND(OR, NAND)
       const xorOut = notBus(c, andInner, 3) // AND(OR, NAND) = XOR
       const tone = settle(c, { seed: 1 })
-      if (busValue(tone, xorOut) !== xor(a, b))
+      if (busValue(tone, xorOut) !== xor(a, b)) {
         substrateXorCorrect = false
-      if (!isFixedPoint(c, tone)) substrateFixedPoint = false
+      }
+      if (!isFixedPoint(c, tone)) {
+        substrateFixedPoint = false
+      }
     }
   }
 

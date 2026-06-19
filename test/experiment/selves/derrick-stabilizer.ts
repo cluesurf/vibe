@@ -32,10 +32,18 @@ export function derrickStabilizer(): {
     c = N >> 1
   const winding = (ang: (x: number, y: number) => number): number => {
     const loop: [number, number][] = []
-    for (let x = 0; x < N; x++) loop.push([x, 0])
-    for (let y = 1; y < N; y++) loop.push([N - 1, y])
-    for (let x = N - 2; x >= 0; x--) loop.push([x, N - 1])
-    for (let y = N - 2; y > 0; y--) loop.push([0, y])
+    for (let x = 0; x < N; x++) {
+      loop.push([x, 0])
+    }
+    for (let y = 1; y < N; y++) {
+      loop.push([N - 1, y])
+    }
+    for (let x = N - 2; x >= 0; x--) {
+      loop.push([x, N - 1])
+    }
+    for (let y = N - 2; y > 0; y--) {
+      loop.push([0, y])
+    }
     let tot = 0
     for (let i = 0; i < loop.length; i++) {
       let dd =
@@ -43,8 +51,12 @@ export function derrickStabilizer(): {
           loop[(i + 1) % loop.length]![0],
           loop[(i + 1) % loop.length]![1],
         ) - ang(loop[i]![0], loop[i]![1])
-      while (dd > Math.PI) dd -= 2 * Math.PI
-      while (dd < -Math.PI) dd += 2 * Math.PI
+      while (dd > Math.PI) {
+        dd -= 2 * Math.PI
+      }
+      while (dd < -Math.PI) {
+        dd += 2 * Math.PI
+      }
       tot += dd
     }
     return Math.round(tot / (2 * Math.PI))

@@ -38,8 +38,11 @@ function realImaginaryAxes(level: number): {
     const e = new Array<number>(dimension).fill(0)
     e[i] = 1
     const square = cayleyMultiply(e, e)[0]!
-    if (square > 0) real++
-    else imaginary++
+    if (square > 0) {
+      real++
+    } else {
+      imaginary++
+    }
   }
   return { real, imaginary }
 }

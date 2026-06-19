@@ -52,7 +52,9 @@ function coarseGrain(
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
   // Random distinct seeds.
   const seedSet = new Set<number>()
-  while (seedSet.size < numSeeds) seedSet.add(rng.nextInt({ max: n }))
+  while (seedSet.size < numSeeds) {
+    seedSet.add(rng.nextInt({ max: n }))
+  }
   const seeds = [...seedSet]
   const cluster = new Int32Array(n).fill(-1)
   let frontier: number[] = []
@@ -74,17 +76,22 @@ function coarseGrain(
   }
   // Any unreached node becomes its own cluster.
   let nextC = seeds.length
-  for (let v = 0; v < n; v++)
-    if (cluster[v] === -1) cluster[v] = nextC++
+  for (let v = 0; v < n; v++) {
+    if (cluster[v] === -1) {
+      cluster[v] = nextC++
+    }
+  }
   const K = nextC
 
   // Super-tone (cluster majority) and super-coords (centroid).
   const sum = new Float64Array(K)
-  for (let v = 0; v < n; v++)
+  for (let v = 0; v < n; v++) {
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
+  }
   const superTone = new Int8Array(K)
-  for (let c = 0; c < K; c++)
+  for (let c = 0; c < K; c++) {
     superTone[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
+  }
   const dim = g.embedding?.dimension ?? 2
   const oldCoords = g.embedding?.coords ?? new Float64Array(0)
   const coordSum = new Float64Array(K * dim)
@@ -92,15 +99,18 @@ function coarseGrain(
   for (let v = 0; v < n; v++) {
     const c = cluster[v] ?? 0
     count[c] = (count[c] ?? 0) + 1
-    for (let a = 0; a < dim; a++)
+    for (let a = 0; a < dim; a++) {
       coordSum[c * dim + a] =
         (coordSum[c * dim + a] ?? 0) + (oldCoords[v * dim + a] ?? 0)
+    }
   }
   const coords = new Float64Array(K * dim)
-  for (let c = 0; c < K; c++)
-    for (let a = 0; a < dim; a++)
+  for (let c = 0; c < K; c++) {
+    for (let a = 0; a < dim; a++) {
       coords[c * dim + a] =
         (coordSum[c * dim + a] ?? 0) / Math.max(1, count[c] ?? 1)
+    }
+  }
 
   // Super-edges and super-fills: accumulate cross-cluster fills.
   const edgeFill = new Map<string, number>()
@@ -178,7 +188,9 @@ export function recursion(input: { count: number; seed: number }): {
     rng: makeRng({ seed: input.seed + 1 }),
   })
   const init = new Int8Array(g.size)
-  for (let i = 0; i < g.size; i++) init[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < g.size; i++) {
+    init[i] = rng.nextInt({ max: 3 }) - 1
+  }
 
   // The only dynamics is the micro-rule on micro-tones. Converge it (asynchronously, so it
   // reaches a genuine fixed point) to a stable self.
@@ -204,8 +216,11 @@ export function recursion(input: { count: number; seed: number }): {
   // Self-similar structure: the aggregate view is the SAME kind of object, ternary and
   // Lorentz-safe (no new storage, just a coarse view of the base).
   let superTernary = true
-  for (const t of cg.superTone)
-    if (t < -1 || t > 1) superTernary = false
+  for (const t of cg.superTone) {
+    if (t < -1 || t > 1) {
+      superTernary = false
+    }
+  }
   const aniso = lorentzIsotropy({
     substrate: cg.superG,
     samples: 2000,
@@ -233,7 +248,9 @@ export function recursion(input: { count: number; seed: number }): {
   // degree to which the higher-level law emerges from the micro-dynamics, with no separate
   // stored layer. It is expected to be partial, the deep open question.
   const r0 = new Int8Array(g.size)
-  for (let i = 0; i < g.size; i++) r0[i] = rng.nextInt({ max: 3 }) - 1
+  for (let i = 0; i < g.size; i++) {
+    r0[i] = rng.nextInt({ max: 3 }) - 1
+  }
   const aggR0 = clusterMajority(cg.cluster, cg.K, r0)
   const aggMicro = clusterMajority(
     cg.cluster,
@@ -256,8 +273,11 @@ export function recursion(input: { count: number; seed: number }): {
     makeRng({ seed: input.seed + 4 }),
   )
   let towerTernary = true
-  for (const t of cg2.superTone)
-    if (t < -1 || t > 1) towerTernary = false
+  for (const t of cg2.superTone) {
+    if (t < -1 || t > 1) {
+      towerTernary = false
+    }
+  }
 
   return {
     baseCells: g.size,

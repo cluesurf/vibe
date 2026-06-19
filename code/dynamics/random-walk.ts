@@ -24,7 +24,9 @@ export function classicalWalkMSD(input: {
       x += rng.next() < 0.5 ? 1 : -1
     }
   }
-  for (let t = 0; t <= steps; t++) msd[t]! /= runs
+  for (let t = 0; t <= steps; t++) {
+    msd[t]! /= runs
+  }
   return Array.from(msd)
 }
 
@@ -50,18 +52,24 @@ export function graphWalkMsdExponent(input: {
       msd[t]! += dd * dd
       if (t < beats) {
         const nb = neighbors[cur] ?? []
-        if (nb.length > 0) cur = nb[Math.floor(rng.next() * nb.length)]!
+        if (nb.length > 0) {
+          cur = nb[Math.floor(rng.next() * nb.length)]!
+        }
       }
     }
   }
-  for (let t = 0; t <= beats; t++) msd[t]! /= runs
+  for (let t = 0; t <= beats; t++) {
+    msd[t]! /= runs
+  }
   let sx = 0
   let sy = 0
   let sxx = 0
   let sxy = 0
   let m = 0
   for (let t = 2; t <= beats; t++) {
-    if (msd[t]! <= 0) continue
+    if (msd[t]! <= 0) {
+      continue
+    }
     const x = Math.log(t)
     const y = Math.log(msd[t]!)
     sx += x
@@ -83,7 +91,9 @@ export function randomWalkEndpoint(input: {
   let cur = input.start
   for (let t = 0; t < input.steps; t++) {
     const nbrs = input.neighbors[cur] ?? []
-    if (nbrs.length === 0) break
+    if (nbrs.length === 0) {
+      break
+    }
     cur = nbrs[Math.floor(input.rng.next() * nbrs.length)]!
   }
   return cur
@@ -100,7 +110,9 @@ export function randomWalkPath(input: {
   let cur = input.start
   for (let t = 0; t < input.steps; t++) {
     const nbrs = input.neighbors[cur] ?? []
-    if (nbrs.length === 0) break
+    if (nbrs.length === 0) {
+      break
+    }
     cur = nbrs[Math.floor(input.rng.next() * nbrs.length)]!
     path.push(cur)
   }
@@ -129,13 +141,18 @@ export function persistentWalkMeanDisplacement(input: {
     const position = new Array<number>(dimension).fill(0)
     let d = Math.floor(rng.next() * directionCount)
     for (let s = 0; s < steps; s++) {
-      if (rng.next() < mix) d = Math.floor(rng.next() * directionCount)
+      if (rng.next() < mix) {
+        d = Math.floor(rng.next() * directionCount)
+      }
       const step = directions[d]!
-      for (let a = 0; a < dimension; a++) position[a]! += step[a]!
+      for (let a = 0; a < dimension; a++) {
+        position[a]! += step[a]!
+      }
     }
     let sumSquares = 0
-    for (let a = 0; a < dimension; a++)
+    for (let a = 0; a < dimension; a++) {
       sumSquares += position[a]! * position[a]!
+    }
     total += Math.sqrt(sumSquares)
   }
   return total / runs

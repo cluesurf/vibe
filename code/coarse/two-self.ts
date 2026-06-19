@@ -69,7 +69,9 @@ export function stampShape(input: {
   for (const [dx, dy] of offsets) {
     const x = px + dx
     const y = py + dy
-    if (x >= 0 && x < L && y >= 0 && y < L) tone[y * L + x] = sign
+    if (x >= 0 && x < L && y >= 0 && y < L) {
+      tone[y * L + x] = sign
+    }
   }
 }
 
@@ -78,7 +80,11 @@ export function stampShape(input: {
 // of how much two selves have annihilated.
 export function plusCount(tone: Int8Array): number {
   let n = 0
-  for (let i = 0; i < tone.length; i++) if (tone[i] === 1) n++
+  for (let i = 0; i < tone.length; i++) {
+    if (tone[i] === 1) {
+      n++
+    }
+  }
   return n
 }
 
@@ -136,7 +142,9 @@ export function twoSelfSeparation(input: {
   const clusters = positiveClusters(tone, graph)
     .filter(c => c.length >= minSize)
     .sort((a, b) => b.length - a.length)
-  if (clusters.length < 2) return 0
+  if (clusters.length < 2) {
+    return 0
+  }
   const centroid = (cells: number[]): readonly [number, number] => {
     let cx = 0
     let cy = 0

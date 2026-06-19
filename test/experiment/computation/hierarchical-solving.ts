@@ -37,19 +37,23 @@ function solveTime(n: number): {
   const arrow = 0.1
   const base = new Int8Array(N)
   const rng0 = makeRng({ seed: 5 })
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     base[i] = (
       rng0.next() < 0.15 ? (rng0.next() < 0.5 ? 1 : -1) : 0
     ) as -1 | 0 | 1
-  for (let t = 0; t < 30; t++)
+  }
+  for (let t = 0; t < 30; t++) {
     conservingEdgeSweep({ tone: base, eu, ev, moved, rng: rng0, arrow })
+  }
   let source = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[source + 1]! - g.offsets[source]!
-    )
+    ) {
       source = i
+    }
+  }
 
   // BFS distances from the source, and the diameter (max reachable distance)
   const dist = new Int32Array(N).fill(-1)
@@ -58,15 +62,18 @@ function solveTime(n: number): {
   let diameter = 0
   while (fr.length > 0) {
     const next: number[] = []
-    for (const u of fr)
+    for (const u of fr) {
       for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
         const w = g.adj[p]!
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
-          if (dist[w]! > diameter) diameter = dist[w]!
+          if (dist[w]! > diameter) {
+            diameter = dist[w]!
+          }
           next.push(w)
         }
       }
+    }
     fr = next
   }
 
@@ -92,10 +99,14 @@ function solveTime(n: number): {
       arrow,
     })
     let frontRadius = 0
-    for (let i = 0; i < N; i++)
-      if (s[i] !== s2[i] && dist[i]! > frontRadius)
+    for (let i = 0; i < N; i++) {
+      if (s[i] !== s2[i] && dist[i]! > frontRadius) {
         frontRadius = dist[i]!
-    if (frontRadius >= targetRadius) return { N, t, diameter }
+      }
+    }
+    if (frontRadius >= targetRadius) {
+      return { N, t, diameter }
+    }
   }
   return { N, t: 60, diameter }
 }

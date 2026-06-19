@@ -59,8 +59,9 @@ export function generationFamilySymmetry(): {
 
   // (3) it has order 3: three applications return to the start
   let cycled = frame[0]!
-  for (let k = 0; k < 3; k++)
+  for (let k = 0; k < 3; k++) {
     cycled = permutationConjugate(cycled, cyclic)
+  }
   const cyclicHasOrderThree = octonionMatrixEquals(cycled, frame[0]!)
 
   // (4) THE HONEST GAP: the three slots are degenerate, the algebra distinguishes none of them.

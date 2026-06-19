@@ -98,7 +98,7 @@ export default experiment({
     }
     const relaxStep = (s: Spin[], a: number): Spin[] => {
       const out: Spin[] = new Array(L * L)
-      for (let y = 0; y < L; y++)
+      for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           const c = s[idx(x, y)]!
           const h = field(s, x, y)
@@ -108,12 +108,13 @@ export default experiment({
             c[2] + a * h[2],
           ])
         }
+      }
       pinEdge(out)
       return out
     }
     const precessStep = (s: Spin[], open: boolean): Spin[] => {
       const out: Spin[] = new Array(L * L)
-      for (let y = 0; y < L; y++)
+      for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           const h = field(s, x, y)
           out[idx(x, y)] = unit(
@@ -124,12 +125,17 @@ export default experiment({
             ),
           )
         }
-      if (open) pinEdge(out)
+      }
+      if (open) {
+        pinEdge(out)
+      }
       return out
     }
 
     let spins = makeSkyrmionField({ size: L, coreRadius: 4 })
-    for (let t = 0; t < relaxSteps; t++) spins = relaxStep(spins, 0.08)
+    for (let t = 0; t < relaxSteps; t++) {
+      spins = relaxStep(spins, 0.08)
+    }
     const relaxedQ = skyrmionDegree(spins, L)
     const relaxedRadius = skyrmionRadius(spins, L)
     const relaxed = spins.map(v => [...v] as Spin)
@@ -139,19 +145,25 @@ export default experiment({
     for (let t = 0; t < precessSteps; t++) {
       spins = precessStep(spins, false)
       const q = skyrmionDegree(spins, L)
-      if (q < minQ) minQ = q
-      if (q > maxQ) maxQ = q
+      if (q < minQ) {
+        minQ = q
+      }
+      if (q > maxQ) {
+        maxQ = q
+      }
     }
     const precessedRadius = skyrmionRadius(spins, L)
 
     let pert = relaxed.map(v => [...v] as Spin)
-    for (let y = 18; y < 21; y++)
+    for (let y = 18; y < 21; y++) {
       for (let x = 26; x < 29; x++) {
         const n = Math.hypot(1, 0, 0.2)
         pert[idx(x, y)] = [1 / n, 0, 0.2 / n]
       }
-    for (let t = 0; t < precessSteps; t++)
+    }
+    for (let t = 0; t < precessSteps; t++) {
       pert = precessStep(pert, false)
+    }
     const perturbedQ = skyrmionDegree(pert, L)
 
     const boundExists =

@@ -25,7 +25,9 @@ const beat = (
 
 const totalQ = (t: Int8Array): number => {
   let s = 0
-  for (let i = 0; i < t.length; i++) s += t[i]!
+  for (let i = 0; i < t.length; i++) {
+    s += t[i]!
+  }
   return s
 }
 
@@ -59,19 +61,21 @@ export function memoryVsConservation(input?: { n?: number }): {
       const nf: number[] = []
       for (const u of fr) {
         region.push(u)
-        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++)
+        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           if (!seen[g.adj[p]!]) {
             seen[g.adj[p]!] = 1
             nf.push(g.adj[p]!)
           }
+        }
       }
       fr = nf
     }
   }
   const rng = makeRng({ seed: 4 })
   const target = new Int8Array(N) // 0 outside the region
-  for (let i = 0; i < region.length; i++)
+  for (let i = 0; i < region.length; i++) {
     target[region[i]!] = (i % 2 === 0 ? 1 : -1) as -1 | 1
+  }
   // shuffle within the region to make a real pattern, staying balanced
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
@@ -93,32 +97,43 @@ export function memoryVsConservation(input?: { n?: number }): {
 
   // UNMAINTAINED, imprint then let the conserving dynamics run
   const tone = new Int8Array(N)
-  for (const i of region) tone[i] = target[i]!
+  for (const i of region) {
+    tone[i] = target[i]!
+  }
   // a light active background outside, so the medium churns (conserving)
-  for (let i = 0; i < N; i++)
-    if (target[i] === 0 && rng.next() < 0.2)
+  for (let i = 0; i < N; i++) {
+    if (target[i] === 0 && rng.next() < 0.2) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
+    }
+  }
   const qStart = totalQ(tone)
   const corrStart = corr(tone)
-  for (let t = 0; t < 80; t++) beat(tone, eu, ev, moved, rng, arrow)
+  for (let t = 0; t < 80; t++) {
+    beat(tone, eu, ev, moved, rng, arrow)
+  }
   const qEndUnmaintained = totalQ(tone)
   const corrEndUnmaintained = corr(tone)
 
   // MAINTAINED, same, but re-write the region to the target each beat (the work), count the cost
   const tone2 = new Int8Array(N)
-  for (const i of region) tone2[i] = target[i]!
-  for (let i = 0; i < N; i++)
-    if (target[i] === 0 && rng.next() < 0.2)
+  for (const i of region) {
+    tone2[i] = target[i]!
+  }
+  for (let i = 0; i < N; i++) {
+    if (target[i] === 0 && rng.next() < 0.2) {
       tone2[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
+    }
+  }
   let rewrites = 0
   const rng2 = makeRng({ seed: 9 })
   for (let t = 0; t < 80; t++) {
     beat(tone2, eu, ev, moved, rng2, arrow)
-    for (const i of region)
+    for (const i of region) {
       if (tone2[i] !== target[i]) {
         tone2[i] = target[i]! // maintenance, restore the codeword (conserving if done via balanced creation)
         rewrites++
       }
+    }
   }
   const corrEndMaintained = corr(tone2)
   const maintenanceCostPerBeat = rewrites / 80

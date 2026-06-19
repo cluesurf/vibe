@@ -18,12 +18,14 @@ function matmul3(a: Matrix3, b: Matrix3): Matrix3 {
     [0, 0, 0],
     [0, 0, 0],
   ]
-  for (let i = 0; i < 3; i++)
-    for (let j = 0; j < 3; j++)
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
       c[i]![j] =
         a[i]![0]! * b[0]![j]! +
         a[i]![1]! * b[1]![j]! +
         a[i]![2]! * b[2]![j]!
+    }
+  }
   return c
 }
 const apply3 = (a: Matrix3, v: number[]): number[] =>
@@ -76,7 +78,7 @@ export function icosahedralFacePermutationDecomposition(): {
   ]
   const group: Matrix3[] = [identity3()]
   const seen = new Set([key3(identity3())])
-  for (let i = 0; i < group.length; i++)
+  for (let i = 0; i < group.length; i++) {
     for (const g of generators) {
       const m = matmul3(g, group[i]!)
       const k = key3(m)
@@ -85,10 +87,13 @@ export function icosahedralFacePermutationDecomposition(): {
         group.push(m)
       }
     }
+  }
   const elementOrder = (m: Matrix3): number => {
     let p = m
     for (let o = 1; o <= 10; o++) {
-      if (close3(p, identity3())) return o
+      if (close3(p, identity3())) {
+        return o
+      }
       p = matmul3(m, p)
     }
     return -1

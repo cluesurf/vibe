@@ -20,16 +20,22 @@ const reachableBoundary = (
   let frontier = [centre]
   while (frontier.length) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const v of neighbors[u]!)
+    for (const u of frontier) {
+      for (const v of neighbors[u]!) {
         if (!erased[v] && seen[v] === 0) {
           seen[v] = 1
           next.push(v)
         }
+      }
+    }
     frontier = next
   }
   let reached = 0
-  for (const b of boundary) if (seen[b] === 1) reached += 1
+  for (const b of boundary) {
+    if (seen[b] === 1) {
+      reached += 1
+    }
+  }
   return reached
 }
 
@@ -51,22 +57,25 @@ export default experiment({
     let frontier = [0]
     while (frontier.length) {
       const next: number[] = []
-      for (const u of frontier)
-        for (const v of planar[u]!)
+      for (const u of frontier) {
+        for (const v of planar[u]!) {
           if (depth[v] === -1) {
             depth[v] = depth[u]! + 1
             parent[v] = u
             next.push(v)
           }
+        }
+      }
       frontier = next
     }
     const maxDepth = depth.reduce((m, d) => Math.max(m, d), 0)
     const tree: number[][] = Array.from({ length: size }, () => [])
-    for (let v = 0; v < size; v++)
+    for (let v = 0; v < size; v++) {
       if (parent[v] !== -1) {
         tree[v]!.push(parent[v]!)
         tree[parent[v]!]!.push(v)
       }
+    }
     const boundary = [...Array(size).keys()].filter(
       c => depth[c]! === maxDepth - 1,
     )
@@ -75,11 +84,12 @@ export default experiment({
     const cutDepth = Math.floor(maxDepth / 2)
     const erased = new Array(size).fill(false)
     let cut = 0
-    for (let c = 0; c < size; c++)
+    for (let c = 0; c < size; c++) {
       if (depth[c] === cutDepth && c % 2 === 0) {
         erased[c] = true
         cut += 1
       }
+    }
 
     const planarReach = reachableBoundary(planar, erased, boundary, 0)
     const treeReach = reachableBoundary(tree, erased, boundary, 0)

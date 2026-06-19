@@ -111,8 +111,11 @@ export function baryogenesis(input: { seed: number }): {
       }) / epsilon,
   )
   let peakIdx = 0
-  for (let i = 1; i < effs.length; i++)
-    if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) peakIdx = i
+  for (let i = 1; i < effs.length; i++) {
+    if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) {
+      peakIdx = i
+    }
+  }
   const freezeOutPeakK = Ks[peakIdx] ?? 0
   const freezeOutNonMonotonic = peakIdx > 0 && peakIdx < Ks.length - 1
 

@@ -42,12 +42,14 @@ export function recursion(input?: { n?: number }): {
 
   // two selves, far apart
   let center1 = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center1 + 1]! - g.offsets[center1]!
-    )
+    ) {
       center1 = i
+    }
+  }
   const center2 = csrFarthestNode({
     offsets: g.offsets,
     adj: g.adj,
@@ -74,20 +76,31 @@ export function recursion(input?: { n?: number }): {
   const boundary2: number[] = []
   const hub2cells: number[] = []
   for (let i = 0; i < N; i++) {
-    if (d1[i]! >= r - 1 && d1[i]! <= r) boundary1.push(i)
-    if (d1[i]! >= 0 && d1[i]! <= 1) hub1cells.push(i)
-    if (d2[i]! >= r - 1 && d2[i]! <= r && d1[i]! > r) boundary2.push(i)
-    if (d2[i]! >= 0 && d2[i]! <= 1 && d1[i]! > r) hub2cells.push(i)
+    if (d1[i]! >= r - 1 && d1[i]! <= r) {
+      boundary1.push(i)
+    }
+    if (d1[i]! >= 0 && d1[i]! <= 1) {
+      hub1cells.push(i)
+    }
+    if (d2[i]! >= r - 1 && d2[i]! <= r && d1[i]! > r) {
+      boundary2.push(i)
+    }
+    if (d2[i]! >= 0 && d2[i]! <= 1 && d1[i]! > r) {
+      hub2cells.push(i)
+    }
   }
   // world input on self 1, sectored
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
-  for (let j = 0; j < boundary1.length; j++)
+  for (let j = 0; j < boundary1.length; j++) {
     sectorOf[boundary1[j]!] = Math.floor((j * K) / boundary1.length)
+  }
 
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
-    for (const i of cells) s += tone[i]!
+    for (const i of cells) {
+      s += tone[i]!
+    }
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -104,17 +117,23 @@ export function recursion(input?: { n?: number }): {
     const h2: number[] = []
     const world: number[] = []
     for (let t = 0; t < T; t++) {
-      for (let s = 0; s < K; s++)
-        if (rng.next() < 0.06) sigs[s] = -sigs[s]!
+      for (let s = 0; s < K; s++) {
+        if (rng.next() < 0.06) {
+          sigs[s] = -sigs[s]!
+        }
+      }
       // drive self 1 with the world
-      for (const i of boundary1)
+      for (const i of boundary1) {
         tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+      }
       // model1's current representation of the world
       const m1 = meanOver(tone, hub1cells)
       // WIRE hub1 -> self 2's input (broadcast the sign of model1 onto self 2's boundary)
       const s2in = (m1 > 0.05 ? 1 : m1 < -0.05 ? -1 : 0) as -1 | 0 | 1
-      for (const i of boundary2) tone[i] = s2in
-      if (withDynamics)
+      for (const i of boundary2) {
+        tone[i] = s2in
+      }
+      if (withDynamics) {
         conservingEdgeSweepSteered({
           tone,
           eu,
@@ -124,13 +143,19 @@ export function recursion(input?: { n?: number }): {
           distGoal: null,
           towardSign: 0,
         })
-      for (const i of boundary1)
+      }
+      for (const i of boundary1) {
         tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
-      for (const i of boundary2) tone[i] = s2in
+      }
+      for (const i of boundary2) {
+        tone[i] = s2in
+      }
       h1.push(meanOver(tone, hub1cells))
       h2.push(meanOver(tone, hub2cells))
       let wsum = 0
-      for (let s = 0; s < K; s++) wsum += sigs[s]!
+      for (let s = 0; s < K; s++) {
+        wsum += sigs[s]!
+      }
       world.push(wsum / K)
     }
     return { h1, h2, world }

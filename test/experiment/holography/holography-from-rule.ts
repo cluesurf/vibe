@@ -17,16 +17,19 @@ const subtreeParity = (
   leaves: number[],
   branching: number,
 ): number => {
-  if (level === 0) return leaves[offset]!
+  if (level === 0) {
+    return leaves[offset]!
+  }
   let parity = 0
   const childSpan = branching ** (level - 1)
-  for (let c = 0; c < branching; c++)
+  for (let c = 0; c < branching; c++) {
     parity ^= subtreeParity(
       level - 1,
       offset + c * childSpan,
       leaves,
       branching,
     )
+  }
   return parity
 }
 

@@ -30,8 +30,9 @@ function microHash(will: Will): string {
 
 function chargeHash(will: Will): string {
   const parts: number[] = []
-  for (let c = 0; c < will.mesh.cellCount; c++)
+  for (let c = 0; c < will.mesh.cellCount; c++) {
     parts.push(cellTone(will, c))
+  }
   return parts.join(',')
 }
 
@@ -55,8 +56,9 @@ export default experiment({
     // a fixed, deterministic, asymmetric structured fill (not random). The asymmetry breaks the lattice
     // symmetry so the reversible orbit is long and visits many states, a robust sample for the statistics.
     let will: Will = makeWill(mesh)
-    for (let i = 0; i < will.data.length; i++)
+    for (let i = 0; i < will.data.length; i++) {
       will.data[i] = (((i * 7 + (i % 5) + 1) % 3) - 1) as -1 | 0 | 1
+    }
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     let scratch: Will = { mesh, data: new Int8Array(will.data.length) }
@@ -78,26 +80,34 @@ export default experiment({
     const predecessors = new Map<string, Set<string>>()
     for (let t = 0; t + 1 < micro.length; t++) {
       microNext.set(micro[t]!, micro[t + 1]!)
-      if (!predecessors.has(micro[t + 1]!))
+      if (!predecessors.has(micro[t + 1]!)) {
         predecessors.set(micro[t + 1]!, new Set())
+      }
       predecessors.get(micro[t + 1]!)!.add(micro[t]!)
     }
     let microInjectiveViolations = 0
-    for (const preds of predecessors.values())
-      if (preds.size > 1) microInjectiveViolations++
+    for (const preds of predecessors.values()) {
+      if (preds.size > 1) {
+        microInjectiveViolations++
+      }
+    }
     const microStates = new Set(micro).size
 
     // the coarse successor map. Information loss shows as a charge field with more than one distinct
     // successor (the coarse dynamics is no longer deterministic), and as compression (many micro per coarse).
     const coarseNext = new Map<string, Set<string>>()
     for (let t = 0; t + 1 < coarse.length; t++) {
-      if (!coarseNext.has(coarse[t]!))
+      if (!coarseNext.has(coarse[t]!)) {
         coarseNext.set(coarse[t]!, new Set())
+      }
       coarseNext.get(coarse[t]!)!.add(coarse[t + 1]!)
     }
     let coarseNondeterministicStates = 0
-    for (const nexts of coarseNext.values())
-      if (nexts.size > 1) coarseNondeterministicStates++
+    for (const nexts of coarseNext.values()) {
+      if (nexts.size > 1) {
+        coarseNondeterministicStates++
+      }
+    }
     const coarseStates = new Set(coarse).size
     const compression =
       coarseStates > 0 ? microStates / coarseStates : 1

@@ -25,8 +25,9 @@ export function measuredDispersion(): {
   // (1) rest energy: omega(0) should equal the mass m, MEASURED from the operator (not input)
   let restEnergyIsMass = true
   for (const m of [0.0, 0.2, 0.5, 0.8]) {
-    if (Math.abs(measuredOmega(0, m) - m) > 1e-9)
+    if (Math.abs(measuredOmega(0, m) - m) > 1e-9) {
       restEnergyIsMass = false
+    }
   }
 
   // (2) Lorentz at long wavelength: omega^2 - k^2 -> m^2 as k -> 0 (measured)
@@ -34,8 +35,9 @@ export function measuredDispersion(): {
   for (const m of [0.2, 0.5]) {
     const k = 0.02,
       w = measuredOmega(k, m)
-    if (Math.abs(w * w - k * k - m * m) > 1e-3)
+    if (Math.abs(w * w - k * k - m * m) > 1e-3) {
       lorentzAtLongWave = false
+    }
   }
 
   // (3) massless: group velocity d omega/dk -> 1 (light speed), measured by finite difference on the operator

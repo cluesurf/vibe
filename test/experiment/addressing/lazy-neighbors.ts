@@ -45,18 +45,20 @@ export function lazyNeighbors(input?: { n?: number }): {
     lazy.offsets.length === stored.offsets.length &&
     lazy.adj.length === stored.adj.length
   if (identical) {
-    for (let i = 0; i < lazy.offsets.length; i++)
+    for (let i = 0; i < lazy.offsets.length; i++) {
       if (lazy.offsets[i] !== stored.offsets[i]) {
         identical = false
         break
       }
+    }
   }
   if (identical) {
-    for (let i = 0; i < lazy.adj.length; i++)
+    for (let i = 0; i < lazy.adj.length; i++) {
       if (lazy.adj[i] !== stored.adj[i]) {
         identical = false
         break
       }
+    }
   }
 
   // (2) RANDOM ACCESS, walk to a deep cell via a random sequence of face steps, then compute its neighbors
@@ -70,8 +72,9 @@ export function lazyNeighbors(input?: { n?: number }): {
     const ns = eng.neighbors(cur)
     let pick = ns[Math.floor(rng.next() * ns.length)]!
     // avoid immediately bouncing back, so the walk goes genuinely deep
-    if (prev && eng.fingerprint(pick) === eng.fingerprint(prev))
+    if (prev && eng.fingerprint(pick) === eng.fingerprint(prev)) {
       pick = ns[(ns.indexOf(pick) + 1) % ns.length]!
+    }
     prev = cur
     cur = pick
   }

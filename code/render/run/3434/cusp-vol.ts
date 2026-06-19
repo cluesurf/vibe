@@ -48,25 +48,43 @@ async function run(): Promise<void> {
     (y < L - 1 ? 1 : 0) +
     (z > 0 ? 1 : 0) +
     (z < L - 1 ? 1 : 0)
-  for (let z = 0; z < L; z++)
-    for (let y = 0; y < L; y++)
-      for (let x = 0; x < L; x++)
+  for (let z = 0; z < L; z++) {
+    for (let y = 0; y < L; y++) {
+      for (let x = 0; x < L; x++) {
         offsets[idx(x, y, z) + 1] = deg(x, y, z)
-  for (let i = 0; i < N; i++)
+      }
+    }
+  }
+  for (let i = 0; i < N; i++) {
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
+  }
   const adj = new Int32Array(offsets[N]!)
   {
     let p = 0
-    for (let z = 0; z < L; z++)
-      for (let y = 0; y < L; y++)
+    for (let z = 0; z < L; z++) {
+      for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
-          if (x > 0) adj[p++] = idx(x - 1, y, z)
-          if (x < L - 1) adj[p++] = idx(x + 1, y, z)
-          if (y > 0) adj[p++] = idx(x, y - 1, z)
-          if (y < L - 1) adj[p++] = idx(x, y + 1, z)
-          if (z > 0) adj[p++] = idx(x, y, z - 1)
-          if (z < L - 1) adj[p++] = idx(x, y, z + 1)
+          if (x > 0) {
+            adj[p++] = idx(x - 1, y, z)
+          }
+          if (x < L - 1) {
+            adj[p++] = idx(x + 1, y, z)
+          }
+          if (y > 0) {
+            adj[p++] = idx(x, y - 1, z)
+          }
+          if (y < L - 1) {
+            adj[p++] = idx(x, y + 1, z)
+          }
+          if (z > 0) {
+            adj[p++] = idx(x, y, z - 1)
+          }
+          if (z < L - 1) {
+            adj[p++] = idx(x, y, z + 1)
+          }
         }
+      }
+    }
   }
   console.log(
     `{3,4,3,4} cusp = {4,3,4} cubic, ${N.toLocaleString()} cells (${L}^3), volume render`,
@@ -78,15 +96,19 @@ async function run(): Promise<void> {
   const rr = makeRng({ seed: 12345 })
   const rnd = (): number => rr.next()
   const B = 6
-  for (let z = -B; z <= B; z++)
-    for (let y = -B; y <= B; y++)
+  for (let z = -B; z <= B; z++) {
+    for (let y = -B; y <= B; y++) {
       for (let x = -B; x <= B; x++) {
-        if (x * x + y * y + z * z > B * B) continue
+        if (x * x + y * y + z * z > B * B) {
+          continue
+        }
         seed[idx(c + x, c + y, c + z)] = pack({
           current: Math.floor(rnd() * 3),
           previous: Math.floor(rnd() * 3),
         })
       }
+    }
+  }
 
   const byteLength = N * 4
   const params = device.createBuffer({
@@ -149,8 +171,8 @@ async function run(): Promise<void> {
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
   const z2arr = new Float32Array(N)
-  for (let z = 0; z < L; z++)
-    for (let y = 0; y < L; y++)
+  for (let z = 0; z < L; z++) {
+    for (let y = 0; y < L; y++) {
       for (let x = 0; x < L; x++) {
         const ox = x - half
         const oy = y - half
@@ -165,6 +187,8 @@ async function run(): Promise<void> {
         z2arr[i] = z2
         DEPTH[i] = 0.5 + 0.5 * (z2 / L + 0.5)
       }
+    }
+  }
   // back-to-front order (smallest rotated-z first, so nearer cells composite on top)
   const order = Array.from({ length: N }, (_, i) => i).sort(
     (a, b) => z2arr[a]! - z2arr[b]!,
@@ -205,7 +229,9 @@ async function run(): Promise<void> {
     for (let k = 0; k < N; k++) {
       const cell = order[k]!
       const t = currentOf(field[cell]!)
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
       const col = t === 1 ? BLUE : RED
       const d = DEPTH[cell]!
       const cxp = PX[cell]!
@@ -214,7 +240,9 @@ async function run(): Promise<void> {
         for (let dx = -SPLAT; dx <= SPLAT; dx++) {
           const ix = cxp + dx
           const iy = cyp + dy
-          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
+          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
+            continue
+          }
           const pix = iy * IMG + ix
           accR[pix] = accR[pix]! * (1 - ALPHA) + col[0] * d * ALPHA
           accG[pix] = accG[pix]! * (1 - ALPHA) + col[1] * d * ALPHA

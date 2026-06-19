@@ -47,8 +47,9 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++)
+    for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
+    }
     const collision = headOnRotate({ opposite })
 
     // a deterministic initial configuration (no random, a fixed coordinate pattern)
@@ -70,8 +71,11 @@ export default experiment({
     const backward = (w: Will): Will =>
       inverseBeat({ mesh, data: Int8Array.from(w.data) }, collision)
     const same = (a: Will, b: Will): boolean => {
-      for (let i = 0; i < a.data.length; i++)
-        if (a.data[i] !== b.data[i]) return false
+      for (let i = 0; i < a.data.length; i++) {
+        if (a.data[i] !== b.data[i]) {
+          return false
+        }
+      }
       return true
     }
     const parity = (w: Will): Will =>

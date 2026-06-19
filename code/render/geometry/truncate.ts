@@ -86,7 +86,9 @@ export function truncateScene(
     for (let i = 0; i < cuts.length; i++) {
       const a = cuts[i]!
       const b = cuts[(i + 1) % cuts.length]!
-      if (cuts.length === 2 && i === 1) break // a degree-2 vertex makes a single segment, not a digon
+      if (cuts.length === 2 && i === 1) {
+        break
+      } // a degree-2 vertex makes a single segment, not a digon
       edges.push({ a, b })
     }
   }
@@ -97,11 +99,15 @@ export function truncateScene(
     const ka = vertexKey(edge.a)
     const kb = vertexKey(edge.b)
     const undirected = ka < kb ? `${ka}~${kb}` : `${kb}~${ka}`
-    if (seen.has(undirected)) continue
+    if (seen.has(undirected)) {
+      continue
+    }
     seen.add(undirected)
     const a = cutAt.get(cutKey(ka, kb))
     const b = cutAt.get(cutKey(kb, ka))
-    if (a && b) edges.push({ a, b })
+    if (a && b) {
+      edges.push({ a, b })
+    }
   }
 
   return {

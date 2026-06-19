@@ -50,11 +50,12 @@ export function coemergenceStructural(): {
         out.push(a)
         return
       }
-      for (let i = 0; i < rest.length; i++)
+      for (let i = 0; i < rest.length; i++) {
         go(
           [...a, rest[i]!],
           rest.filter((_, j) => j !== i),
         )
+      }
     }
     go([], [0, 1, 2, 3])
     return out
@@ -63,8 +64,9 @@ export function coemergenceStructural(): {
     const out: number[][] = []
     for (let m = 0; m < 16; m++) {
       const f = [0, 1, 2, 3].map(b => (m >> b) & 1)
-      if (f.reduce((a, b) => a + b, 0) % 2 === 0)
+      if (f.reduce((a, b) => a + b, 0) % 2 === 0) {
         out.push(f.map(x => (x ? -1 : 1)))
+      }
     }
     return out
   }
@@ -75,7 +77,7 @@ export function coemergenceStructural(): {
 
   // check: every rotation (perm . signflip) maps each sector into itself
   let rotationsPreserveSectors = true
-  for (const p of perms())
+  for (const p of perms()) {
     for (const sgn of evenSignFlips()) {
       for (const [sec, set] of [
         ['v', v8],
@@ -84,10 +86,13 @@ export function coemergenceStructural(): {
       ] as const) {
         for (const v of set) {
           const w = applySign(sgn, applyPerm(p, v))
-          if (inWhich(w) !== sec) rotationsPreserveSectors = false
+          if (inWhich(w) !== sec) {
+            rotationsPreserveSectors = false
+          }
         }
       }
     }
+  }
 
   // triality (Hadamard/2) MIXES the sectors: 8v -> 8s
   const trialityMixes = applyTriality(v8).every(v => inWhich(v) === 's')

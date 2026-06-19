@@ -38,7 +38,9 @@ export function octonionMatrixZero(n: number): OctonionMatrix {
 
 export function octonionMatrixIdentity(n: number): OctonionMatrix {
   const m = octonionMatrixZero(n)
-  for (let i = 0; i < n; i++) m[i]![i] = octonionOne()
+  for (let i = 0; i < n; i++) {
+    m[i]![i] = octonionOne()
+  }
   return m
 }
 
@@ -99,17 +101,23 @@ export function octonionMatrixConjugateTranspose(
 ): OctonionMatrix {
   const n = a.length
   const out = octonionMatrixZero(n)
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
       out[j]![i] = octonionConjugate(a[i]![j]!)
+    }
+  }
   return out
 }
 
 export function octonionMatrixMaxAbs(a: OctonionMatrix): number {
   let worst = 0
-  for (const row of a)
-    for (const entry of row)
-      for (const x of entry) worst = Math.max(worst, Math.abs(x))
+  for (const row of a) {
+    for (const entry of row) {
+      for (const x of entry) {
+        worst = Math.max(worst, Math.abs(x))
+      }
+    }
+  }
   return worst
 }
 
@@ -145,7 +153,9 @@ export function isHermitian(
 // is real).
 export function octonionMatrixTrace(a: OctonionMatrix): number {
   let sum = 0
-  for (let i = 0; i < a.length; i++) sum += octonionRealPart(a[i]![i]!)
+  for (let i = 0; i < a.length; i++) {
+    sum += octonionRealPart(a[i]![i]!)
+  }
   return sum
 }
 
@@ -225,7 +235,9 @@ export function maxJordanIdentityResidual(n: number): number {
 // Every permutation of {0, 1, ..., n-1} as an index array, the symmetric group S_n. n is
 // expected to be small (this is used for the 3 Jordan slots, S_3).
 export function permutations(n: number): number[][] {
-  if (n <= 1) return [Array.from({ length: n }, (_, i) => i)]
+  if (n <= 1) {
+    return [Array.from({ length: n }, (_, i) => i)]
+  }
   const out: number[][] = []
   for (const sub of permutations(n - 1)) {
     for (let position = 0; position <= sub.length; position++) {
@@ -251,9 +263,11 @@ export function permutationConjugate(
 ): OctonionMatrix {
   const n = matrix.length
   const out = octonionMatrixZero(n)
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
       out[perm[i]!]![perm[j]!] = matrix[i]![j]!
+    }
+  }
   return out
 }
 
@@ -273,7 +287,9 @@ export function isJordanAutomorphism(
       permutationConjugate(a, perm),
       permutationConjugate(b, perm),
     )
-    if (!octonionMatrixEquals(left, right, tolerance)) return false
+    if (!octonionMatrixEquals(left, right, tolerance)) {
+      return false
+    }
   }
   return true
 }

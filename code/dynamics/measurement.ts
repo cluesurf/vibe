@@ -23,7 +23,9 @@ export function bornAtPeace(will: Will, frontierX: number): void {
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     if (cell % side === frontierX) {
       const base = cell * degree
-      for (let d = 0; d < degree; d++) will.data[base + d] = 0
+      for (let d = 0; d < degree; d++) {
+        will.data[base + d] = 0
+      }
     }
   }
 }
@@ -76,7 +78,9 @@ export function pointerTrajectory(input: {
     const swap = current
     current = scratch
     scratch = swap
-    if (input.open) bornAtPeace(current, input.frontierX)
+    if (input.open) {
+      bornAtPeace(current, input.frontierX)
+    }
     trajectory.push(profileGradient(slabOccupancy(current, axis)))
   }
   return trajectory
@@ -109,10 +113,13 @@ export function loschmidtEcho(input: {
     const swap = current
     current = scratch
     scratch = swap
-    if (input.open) bornAtPeace(current, input.frontierX)
+    if (input.open) {
+      bornAtPeace(current, input.frontierX)
+    }
   }
-  for (let t = 0; t < input.beats; t++)
+  for (let t = 0; t < input.beats; t++) {
     current = inverseBeat(current, input.inverse)
+  }
   return disagreementFraction(current.data, input.init.data)
 }
 
@@ -131,7 +138,9 @@ export function settlingTime(
         break
       }
     }
-    if (settled) return t
+    if (settled) {
+      return t
+    }
   }
   return trajectory.length
 }

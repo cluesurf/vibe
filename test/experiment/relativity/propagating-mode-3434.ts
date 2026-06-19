@@ -68,7 +68,9 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
 
 function spread(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
-  if (mean === 0) return Infinity
+  if (mean === 0) {
+    return Infinity
+  }
   return (Math.max(...values) - Math.min(...values)) / mean
 }
 
@@ -83,8 +85,9 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++)
+    for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
+    }
 
     // the momentum-conserving rule, the propagating mode
     const momentum = dispersion(headOnRotate({ opposite }))

@@ -18,7 +18,9 @@ import {
 
 // the father of a node, by stripping the last two Fibonacci digits and adding back the high one (root -> 0)
 export function father(node: number): number {
-  if (node <= 1) return 0
+  if (node <= 1) {
+    return 0
+  }
   const z = toZeckendorf(node)
   const stripped = z.length <= 2 ? '' : z.slice(0, -2)
   const m = stripped === '' ? 0 : fromZeckendorf(stripped)

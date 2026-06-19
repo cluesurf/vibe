@@ -37,7 +37,9 @@ function openDissipation(
   beats: number,
 ): number {
   const opposite: number[] = []
-  for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+  for (let d = 0; d < mesh.degree; d++) {
+    opposite.push(mesh.opposite(d))
+  }
   const collision = headOnRotate({ opposite })
   const shear = {
     gradAxis: 1,

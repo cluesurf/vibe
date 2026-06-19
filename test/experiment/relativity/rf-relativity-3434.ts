@@ -40,8 +40,12 @@ export function rfRelativity(): {
       const p = [0, 0, 0, 0]
       let d = Math.floor(rnd() * 24)
       for (let t = 0; t < T; t++) {
-        if (rnd() < mix) d = Math.floor(rnd() * 24)
-        for (let q = 0; q < 4; q++) p[q]! += roots[d]![q]!
+        if (rnd() < mix) {
+          d = Math.floor(rnd() * 24)
+        }
+        for (let q = 0; q < 4; q++) {
+          p[q]! += roots[d]![q]!
+        }
       }
       tot += Math.hypot(...p)
     }
@@ -64,9 +68,13 @@ export function rfRelativity(): {
     [0, 0, -1, 0],
   ] // a 3D-like cubic set in 4D
   const cube8: number[][] = []
-  for (const a of [1, -1])
-    for (const b of [1, -1])
-      for (const c of [1, -1]) cube8.push([a, b, c, 0])
+  for (const a of [1, -1]) {
+    for (const b of [1, -1]) {
+      for (const c of [1, -1]) {
+        cube8.push([a, b, c, 0])
+      }
+    }
+  }
   const aniso24 = anisotropy(roots, 7),
     aniso6 = anisotropy(cubic6, 7),
     aniso8 = anisotropy(cube8, 7)
@@ -77,7 +85,9 @@ export function rfRelativity(): {
   for (const m of [0.0, 0.2, 0.6]) {
     const k = 0.1,
       Ek = Math.acos(Math.cos(m) * Math.cos(k))
-    if (Math.abs(Ek * Ek - k * k - m * m) > 1e-2) diracOk = false
+    if (Math.abs(Ek * Ek - k * k - m * m) > 1e-2) {
+      diracOk = false
+    }
   }
 
   // RF6: arrow of time, coarse entropy rises from a low-entropy start, micro reversible
@@ -102,9 +112,13 @@ export function rfRelativity(): {
     return H
   }
   const H0 = coarseEntropy()
-  for (let t = 0; t < 30; t++)
-    for (const pt of parts)
-      for (let q = 0; q < 4; q++) pt.p[q]! += roots[pt.d]![q]!
+  for (let t = 0; t < 30; t++) {
+    for (const pt of parts) {
+      for (let q = 0; q < 4; q++) {
+        pt.p[q]! += roots[pt.d]![q]!
+      }
+    }
+  }
   const H1 = coarseEntropy()
   const arrowRises = H1 > H0 + 0.5
 

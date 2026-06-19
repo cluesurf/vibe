@@ -115,7 +115,9 @@ export function embedTree(input: {
   // the angle (in this node's local frame) pointing back to the parent, undefined for the root.
   const place = (node: number, parentDir: number | undefined): void => {
     const kids = input.children[node]!
-    if (kids.length === 0) return
+    if (kids.length === 0) {
+      return
+    }
     const here = coords[node]!
     const n = kids.length
     // the root spreads its children over the full circle, an interior node over the cone away from its parent
@@ -171,7 +173,9 @@ export function embeddingDistortion(input: {
   for (const p of pairs) {
     const scaled = p.embedded / scale
     const ratio = Math.max(scaled / p.tree, p.tree / scaled)
-    if (ratio > worst) worst = ratio
+    if (ratio > worst) {
+      worst = ratio
+    }
   }
   return worst
 }

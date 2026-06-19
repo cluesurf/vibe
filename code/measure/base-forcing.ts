@@ -31,8 +31,11 @@ export function minimalQualifyingAlphabetSize(): number {
     [-2, -1, 0, 1, 2],
   ]
   let best = Infinity
-  for (const a of candidates)
-    if (toneAlphabetQualifies(a)) best = Math.min(best, a.length)
+  for (const a of candidates) {
+    if (toneAlphabetQualifies(a)) {
+      best = Math.min(best, a.length)
+    }
+  }
   return best
 }
 
@@ -40,7 +43,9 @@ export function minimalQualifyingAlphabetSize(): number {
 function dynkinDn(n: number): number[][] {
   const adjacency: number[][] = Array.from({ length: n }, () => [])
   const edges: [number, number][] = []
-  for (let i = 0; i < n - 3; i++) edges.push([i, i + 1])
+  for (let i = 0; i < n - 3; i++) {
+    edges.push([i, i + 1])
+  }
   edges.push([n - 3, n - 2])
   edges.push([n - 3, n - 1])
   for (const [a, b] of edges) {
@@ -61,7 +66,9 @@ export function dynkinAutomorphismOrder(n: number): number {
     }
     for (let i = 0; i < arr.length; i++) {
       const rest = [...arr.slice(0, i), ...arr.slice(i + 1)]
-      for (const p of permutations(rest)) yield [arr[i]!, ...p]
+      for (const p of permutations(rest)) {
+        yield [arr[i]!, ...p]
+      }
     }
   }
   let count = 0
@@ -69,13 +76,17 @@ export function dynkinAutomorphismOrder(n: number): number {
     Array.from({ length: n }, (_, i) => i),
   )) {
     let ok = true
-    for (let a = 0; a < n && ok; a++)
-      for (const b of adjacency[a]!)
+    for (let a = 0; a < n && ok; a++) {
+      for (const b of adjacency[a]!) {
         if (!sets[p[a]!]!.has(p[b]!)) {
           ok = false
           break
         }
-    if (ok) count++
+      }
+    }
+    if (ok) {
+      count++
+    }
   }
   return count
 }
@@ -83,7 +94,9 @@ export function dynkinAutomorphismOrder(n: number): number {
 // whether D_n has triality (an order-three Dynkin symmetry), true only for n = 4. For n < 4 the D_n diagram is
 // degenerate (D2 = A1 x A1, D3 = A3), no triality.
 export function hasTriality(n: number): boolean {
-  if (n < 4) return false
+  if (n < 4) {
+    return false
+  }
   // S3 (order 6) contains an order-three element; Z2 (order 2) does not. D4 alone gives order 6.
   const order = dynkinAutomorphismOrder(n)
   return order % 3 === 0 && order >= 6

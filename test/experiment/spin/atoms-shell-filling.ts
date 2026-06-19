@@ -89,8 +89,9 @@ export default experiment({
     // (1) the DISCRETE LADDER and the SHELLS, the levels cluster into degenerate shells with a clean gap between
     const shells = groupShells(energies)
     const interShellGaps: number[] = []
-    for (let s = 1; s < shells.length; s++)
+    for (let s = 1; s < shells.length; s++) {
       interShellGaps.push(shells[s]!.energy - shells[s - 1]!.energy)
+    }
     const meanShellGap =
       interShellGaps.reduce((a, b) => a + b, 0) /
       Math.max(1, interShellGaps.length)
@@ -117,7 +118,9 @@ export default experiment({
       let remaining = n
       let touched = 0
       for (const s of shells) {
-        if (remaining <= 0) break
+        if (remaining <= 0) {
+          break
+        }
         touched += 1
         remaining -= s.degeneracy * SPIN
       }

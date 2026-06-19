@@ -65,13 +65,19 @@ export function quantumField(input?: { n?: number }): {
   const vac = new Int8Array(N)
   const q0 = sumTone(vac)
   const rng = makeRng({ seed: 7 })
-  for (let b = 0; b < 80; b++) beat(vac, eu, ev, moved, rng, ARROW)
+  for (let b = 0; b < 80; b++) {
+    beat(vac, eu, ev, moved, rng, ARROW)
+  }
   const d1 = nonzero(vac)
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
   const before = vac.slice()
   beat(vac, eu, ev, moved, rng, ARROW)
   let changed = 0
-  for (let i = 0; i < N; i++) if (vac[i] !== before[i]) changed++
+  for (let i = 0; i < N; i++) {
+    if (vac[i] !== before[i]) {
+      changed++
+    }
+  }
   const vacuumDensity = d1 / N
   const fluctuates = changed > 0.01 * N
   const conserved = sumTone(vac) === q0
@@ -108,12 +114,14 @@ export function quantumField(input?: { n?: number }): {
 
   // causal lightcone: perturb the center, run both copies with the same noise, measure the front radius
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const dcenter = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -129,14 +137,21 @@ export function quantumField(input?: { n?: number }): {
   const T = 5
   const rb = makeRng({ seed: 99 })
   const rp = makeRng({ seed: 99 })
-  for (let b = 0; b < T; b++) beat(base, eu, ev, moved, rb, ARROW)
-  for (let b = 0; b < T; b++) beat(pert, eu, ev, moved, rp, ARROW)
+  for (let b = 0; b < T; b++) {
+    beat(base, eu, ev, moved, rb, ARROW)
+  }
+  for (let b = 0; b < T; b++) {
+    beat(pert, eu, ev, moved, rp, ARROW)
+  }
   let front = 0
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (base[i] !== pert[i]) {
       const r = dcenter[i]!
-      if (r >= 0 && r > front) front = r
+      if (r >= 0 && r > front) {
+        front = r
+      }
     }
+  }
   const coneSpeed = front / T
   const hasLightcone = coneSpeed > 0 && coneSpeed <= 1.5 // bounded propagation (about one hop per beat)
 

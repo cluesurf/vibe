@@ -8,7 +8,11 @@
 
 export function toneDensity(t: Int8Array): number {
   let nz = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) nz++
+  for (let i = 0; i < t.length; i++) {
+    if (t[i] !== 0) {
+      nz++
+    }
+  }
   return nz / t.length
 }
 
@@ -44,7 +48,9 @@ export function settledAvalancheSizes<
   } = input
   const base = new Int8Array(size)
   const settleRng = makeRng(settleSeed)
-  for (let t = 0; t < settleSteps; t++) relax(base, settleRng)
+  for (let t = 0; t < settleSteps; t++) {
+    relax(base, settleRng)
+  }
   const background = toneDensity(base)
   const sizes = avalancheSizes({
     base,
@@ -96,13 +102,25 @@ export function avalancheSizes<
       relax(s, ra)
       relax(s2, rb)
       let diff = 0
-      for (let i = 0; i < N; i++) if (s[i] !== s2[i]) diff++
-      if (diff > peak) peak = diff
-      if (mode === 'peak' && diff === 0) break
+      for (let i = 0; i < N; i++) {
+        if (s[i] !== s2[i]) {
+          diff++
+        }
+      }
+      if (diff > peak) {
+        peak = diff
+      }
+      if (mode === 'peak' && diff === 0) {
+        break
+      }
     }
     if (mode === 'final') {
       let diff = 0
-      for (let i = 0; i < N; i++) if (s[i] !== s2[i]) diff++
+      for (let i = 0; i < N; i++) {
+        if (s[i] !== s2[i]) {
+          diff++
+        }
+      }
       sizes.push(diff)
     } else {
       sizes.push(peak)

@@ -51,9 +51,13 @@ export function nonabelianGauge(): {
   // (3) non-abelian, two different orderings of the SAME links give different holonomies (matrices do not commute)
   const Hrev = holo(Ur, Ub, Ul, Ut) // swapped order
   let nonAbelian = false
-  for (let i = 0; i < 3; i++)
-    for (let j = 0; j < 3; j++)
-      if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) nonAbelian = true
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (Math.abs(H[i]![j]! - Hrev[i]![j]!) > 1e-6) {
+        nonAbelian = true
+      }
+    }
+  }
   return { gaugeInvariant, curvedFlux, nonAbelian }
 }
 

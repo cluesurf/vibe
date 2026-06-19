@@ -43,8 +43,9 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++)
+    for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
+    }
     const viscous = viscousRotate({ directions })
     const committed = headOnRotate({ opposite })
     const beats = 30
@@ -111,8 +112,9 @@ export default experiment({
 
     // the richer collision is a valid base-class rule
     const probe = makeWill(mesh)
-    for (let i = 0; i < probe.data.length; i++)
+    for (let i = 0; i < probe.data.length; i++) {
       probe.data[i] = i % 2 === 0 ? 1 : 0
+    }
     const validRule =
       conservesCharge(probe, viscous, 20) &&
       conservesMomentum(probe, viscous, 20, directions) &&

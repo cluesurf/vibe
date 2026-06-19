@@ -68,25 +68,29 @@ export function unifiedWave(input?: {
   // (1) charge conservation + (2) reversibility on a random crystal state
   const rng = makeRng({ seed: 12345 })
   const tone = new Int8Array(N)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
       | 0
       | 1
+  }
   const q0 = tone.reduce((s, x) => s + x, 0)
   const init = tone.slice()
   const T = 30
-  for (let t = 0; t < T; t++)
+  for (let t = 0; t < T; t++) {
     beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
+  }
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
-  for (let t = 0; t < T; t++)
+  for (let t = 0; t < T; t++) {
     beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
+  }
   let reversible = true
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (tone[i] !== init[i]) {
       reversible = false
       break
     }
+  }
 
   // (3) ballistic, on a long SLIVER (the ball's diameter is too tiny, it saturates in one beat). The
   // causal (difference) front along the spine should grow at a CONSTANT speed (linear in beats = z=1).
@@ -99,18 +103,21 @@ export function unifiedWave(input?: {
   })
   const maxPos = s.spineLength - 1
   let center = 0
-  for (let i = 0; i < sN; i++)
+  for (let i = 0; i < sN; i++) {
     if (
       Math.abs(s.position[i]! - maxPos / 2) <
       Math.abs(s.position[center]! - maxPos / 2)
-    )
+    ) {
       center = i
+    }
+  }
   const rng2 = makeRng({ seed: 999 })
   const baseS = new Int8Array(sN)
-  for (let i = 0; i < sN; i++)
+  for (let i = 0; i < sN; i++) {
     baseS[i] = (
       rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
     ) as -1 | 0 | 1
+  }
   const pertS = baseS.slice()
   pertS[center] = (baseS[center]! === 0 ? 1 : 0) as -1 | 0 | 1
   const pos0 = s.position[center]!
@@ -118,9 +125,11 @@ export function unifiedWave(input?: {
   const fronts: number[] = []
   for (let t = 0; t < beatsB; t++) {
     let front = 0
-    for (let i = 0; i < sN; i++)
-      if (baseS[i] !== pertS[i])
+    for (let i = 0; i < sN; i++) {
+      if (baseS[i] !== pertS[i]) {
         front = Math.max(front, Math.abs(s.position[i]! - pos0))
+      }
+    }
     fronts.push(front)
     beat(baseS, sec.eu, sec.ev, sec.byColor, FWD, false)
     beat(pertS, sec.eu, sec.ev, sec.byColor, FWD, false)
@@ -131,7 +140,9 @@ export function unifiedWave(input?: {
   const fitT: number[] = []
   const fitFront: number[] = []
   for (let t = tlo; t < beatsB; t++) {
-    if (fronts[t]! >= cap) break
+    if (fronts[t]! >= cap) {
+      break
+    }
     fitT.push(t)
     fitFront.push(fronts[t]!)
   }

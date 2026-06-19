@@ -36,8 +36,9 @@ export default experiment({
     const side = 14
     const mesh = d4Mesh({ side })
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++)
+    for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
+    }
     const collision = pairCollision({ opposite, forward: true }) // the committed charge-conserving knit
     const beats = 56
 

@@ -81,8 +81,9 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        )
+        ) {
           will.data[c * degree + rest] = 1
+        }
       }
       return will
     }
@@ -92,8 +93,9 @@ export default experiment({
     })
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
-      for (let c = 0; c < coin.cellCount; c++)
+      for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
+      }
       return o
     }
     const extent = (will: Will): number => {
@@ -101,11 +103,12 @@ export default experiment({
       for (let c = 0; c < coin.cellCount; c++) {
         let on = false
         const b = c * degree
-        for (let d = 0; d < degree; d++)
+        for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
             break
           }
+        }
         if (on) {
           const [x, y, z, w] = coord(c)
           const dd =
@@ -113,7 +116,9 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
-          if (dd > e) e = dd
+          if (dd > e) {
+            e = dd
+          }
         }
       }
       return e
@@ -160,7 +165,9 @@ export default experiment({
         next.data[from * degree + rest] = 0
         next.data[to * degree + rest] = 1
       }
-      if (open) absorbBoundary(next)
+      if (open) {
+        absorbBoundary(next)
+      }
       return { will: next, phi: newPhi }
     }
     const initialPhi = (will: Will): Int32Array =>
@@ -200,7 +207,9 @@ export default experiment({
     const farDisplaced = (): Will => {
       const w = cloneWill(restBody())
       let nb = center
-      for (let k = 0; k < 3; k++) nb = base.neighbour(nb, 0)
+      for (let k = 0; k < 3; k++) {
+        nb = base.neighbour(nb, 0)
+      }
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
       return w
@@ -222,7 +231,9 @@ export default experiment({
     // 3. radiation, a moving disturbance sheds to the bath (open) and persists on the closed torus.
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
-      for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1
+      for (let d = 0; d < 8; d++) {
+        w.data[center * degree + d] = 1
+      }
       return w
     }
     const radiation = (open: boolean): number => {
@@ -243,8 +254,11 @@ export default experiment({
         pert = b.will
         phiP = b.phi
         let d = 0
-        for (let i = 0; i < clean.data.length; i++)
-          if (clean.data[i] !== pert.data[i]) d++
+        for (let i = 0; i < clean.data.length; i++) {
+          if (clean.data[i] !== pert.data[i]) {
+            d++
+          }
+        }
         final = d
       }
       return final

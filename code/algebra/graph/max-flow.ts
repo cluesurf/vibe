@@ -64,7 +64,9 @@ export class FlowNetwork {
     level: Int32Array,
     iter: Int32Array,
   ): number {
-    if (node === sink) return pushed
+    if (node === sink) {
+      return pushed
+    }
     for (; iter[node]! < this.out[node]!.length; iter[node]!++) {
       const arcIndex = this.out[node]![iter[node]!]!
       const arc = this.arcs[arcIndex]!
@@ -92,7 +94,9 @@ export class FlowNetwork {
     let total = 0
     for (;;) {
       const level = this.buildLevels(source, sink)
-      if (level === null) break
+      if (level === null) {
+        break
+      }
       const iter = new Int32Array(this.nodeCount)
       for (;;) {
         const sent = this.blockingFlow(
@@ -102,7 +106,9 @@ export class FlowNetwork {
           level,
           iter,
         )
-        if (sent === 0) break
+        if (sent === 0) {
+          break
+        }
         total += sent
       }
     }
@@ -127,10 +133,16 @@ export function undirectedMinCut(input: {
   const big = n + 5 // larger than any possible cut of unit edges, so the super-arcs are never the bottleneck
   for (let u = 0; u < n; u++) {
     for (const v of input.adjacency[u]!) {
-      if (u < v) network.addArc(u, v, 1, 1)
+      if (u < v) {
+        network.addArc(u, v, 1, 1)
+      }
     }
   }
-  for (const s of input.sources) network.addArc(superSource, s, big, 0)
-  for (const t of input.sinks) network.addArc(t, superSink, big, 0)
+  for (const s of input.sources) {
+    network.addArc(superSource, s, big, 0)
+  }
+  for (const t of input.sinks) {
+    network.addArc(t, superSink, big, 0)
+  }
   return network.maxFlow(superSource, superSink)
 }

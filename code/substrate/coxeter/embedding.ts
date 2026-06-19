@@ -43,8 +43,11 @@ export function coxeterPoincareGraph(
   // eigendecompose the Gram matrix, the most negative eigenvalue is the timelike axis
   const gram = gramMatrix(symbol)
   const data = new Float64Array(n * n)
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++) data[i * n + j] = gram[i]![j]!
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      data[i * n + j] = gram[i]![j]!
+    }
+  }
   const eig = eigSymmetric({
     matrix: { form: 'dense', rows: n, cols: n, data } as DenseMatrix,
   })
@@ -53,21 +56,27 @@ export function coxeterPoincareGraph(
   const sqrtAbs = values.map(v => Math.sqrt(Math.abs(v)))
   const base = new Array(n).fill(0)
   const scale = 1 / Math.sqrt(-values[0]!)
-  for (let i = 0; i < n; i++) base[i] = vectors[i * n + 0]! * scale
+  for (let i = 0; i < n; i++) {
+    base[i] = vectors[i * n + 0]! * scale
+  }
 
   // map a root-basis point to Poincare ball coordinates
   const toPoincare = (p: number[]): number[] => {
     const z = new Array(n).fill(0)
     for (let k = 0; k < n; k++) {
       let q = 0
-      for (let i = 0; i < n; i++) q += vectors[i * n + k]! * p[i]!
+      for (let i = 0; i < n; i++) {
+        q += vectors[i * n + k]! * p[i]!
+      }
       z[k] = sqrtAbs[k]! * q
     }
     const time = Math.abs(z[0]!)
     const y = new Array(dim).fill(0)
     for (let k = 1; k < n; k++) {
       let value = z[k]! / (1 + time)
-      if (!Number.isFinite(value)) value = 0
+      if (!Number.isFinite(value)) {
+        value = 0
+      }
       y[k - 1] = Math.max(-0.999999, Math.min(0.999999, value))
     }
     return y
@@ -93,7 +102,9 @@ export function coxeterPoincareGraph(
           next.push(index.get(id)!)
         }
       }
-      if (index.size >= maxCells) break
+      if (index.size >= maxCells) {
+        break
+      }
     }
     frontier = next
   }
@@ -103,13 +114,18 @@ export function coxeterPoincareGraph(
     const ns = new Set<number>()
     for (let g = 0; g < degree; g++) {
       const id = index.get(matrixKey(multiply(m, generators[g]!)))
-      if (id !== undefined) ns.add(id)
+      if (id !== undefined) {
+        ns.add(id)
+      }
     }
     return Uint32Array.from([...ns].sort((a, b) => a - b))
   })
   const flat = new Float64Array(size * dim)
-  for (let i = 0; i < size; i++)
-    for (let k = 0; k < dim; k++) flat[i * dim + k] = coords[i]![k]!
+  for (let i = 0; i < size; i++) {
+    for (let k = 0; k < dim; k++) {
+      flat[i * dim + k] = coords[i]![k]!
+    }
+  }
   const embedding: Embedding = {
     form: 'embedding',
     dimension: dim,

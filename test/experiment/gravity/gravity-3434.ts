@@ -26,7 +26,9 @@ function measure(
   const rad = g.coords.map(norm)
   const boundary = boundaryByRadius({ radii: rad, fraction: 0.9 })
   const isB = new Uint8Array(N)
-  for (const b of boundary) isB[b] = 1
+  for (const b of boundary) {
+    isB[b] = 1
+  }
   const src = boundary[0]!
   const p = clampedLeakyDiffusion({
     offsets: off,
@@ -45,7 +47,9 @@ function measure(
   })
   const pts: [number, number][] = []
   for (const b of boundary) {
-    if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) continue
+    if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) {
+      continue
+    }
     pts.push([dist[b]!, p[b]!])
   }
   const maxd = Math.max(...pts.map(x => x[0]))

@@ -36,10 +36,18 @@ export function gridWilsonLoop(
 ): number {
   const { x0, x1, y0, y1 } = input
   let s = 0
-  for (let x = x0; x < x1; x++) s += g.Ax[x]![y0]!
-  for (let y = y0; y < y1; y++) s += g.Ay[x1]![y]!
-  for (let x = x1 - 1; x >= x0; x--) s -= g.Ax[x]![y1]!
-  for (let y = y1 - 1; y >= y0; y--) s -= g.Ay[x0]![y]!
+  for (let x = x0; x < x1; x++) {
+    s += g.Ax[x]![y0]!
+  }
+  for (let y = y0; y < y1; y++) {
+    s += g.Ay[x1]![y]!
+  }
+  for (let x = x1 - 1; x >= x0; x--) {
+    s -= g.Ax[x]![y1]!
+  }
+  for (let y = y1 - 1; y >= y0; y--) {
+    s -= g.Ay[x0]![y]!
+  }
   return s
 }
 
@@ -62,13 +70,14 @@ export function vortexGaugeField(input: {
     d - 2 * Math.PI * Math.round(d / (2 * Math.PI))
   const theta = (px: number, py: number): number =>
     Math.atan2(py - (fy + 0.5), px - (fx + 0.5))
-  for (let x = 0; x < L; x++)
+  for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       Ax[x]![y] =
         (Phi / (2 * Math.PI)) * wrap(theta(x + 1, y) - theta(x, y))
       Ay[x]![y] =
         (Phi / (2 * Math.PI)) * wrap(theta(x, y + 1) - theta(x, y))
     }
+  }
   return { Ax, Ay }
 }
 

@@ -45,12 +45,18 @@ function run(): void {
     return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = nz(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = nz(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -61,7 +67,9 @@ function run(): void {
   const bandCells: number[] = [],
     uv: [number, number][] = []
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -88,12 +96,14 @@ function run(): void {
 
   const eu: number[] = [],
     ev: number[] = []
-  for (let i = 0; i < n; i++)
-    for (const w of nb[i]!)
+  for (let i = 0; i < n; i++) {
+    for (const w of nb[i]!) {
       if (w > i) {
         eu.push(i)
         ev.push(w)
       }
+    }
+  }
   const E = eu.length
   const mask = new Uint32Array(n)
   const color = new Int32Array(E)
@@ -101,16 +111,24 @@ function run(): void {
   for (let i = 0; i < E; i++) {
     const used = mask[eu[i]!]! | mask[ev[i]!]!
     let c = 0
-    while (used & (1 << c)) c++
+    while (used & (1 << c)) {
+      c++
+    }
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
-    if (c > maxC) maxC = c
+    if (c > maxC) {
+      maxC = c
+    }
   }
   const Cn = maxC + 1
   const off = new Array(Cn + 1).fill(0)
-  for (let i = 0; i < E; i++) off[color[i]! + 1]++
-  for (let c = 0; c < Cn; c++) off[c + 1] += off[c]!
+  for (let i = 0; i < E; i++) {
+    off[color[i]! + 1]++
+  }
+  for (let c = 0; c < Cn; c++) {
+    off[c + 1] += off[c]!
+  }
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E),
     cur = off.slice()
@@ -142,10 +160,12 @@ function run(): void {
     }
   }
   A[ctr] = ((A[ctr]! + 1) % 3) as 0 | 1 | 2
-  for (const w of nb[ctr]!) A[w] = ((A[w]! + 1) % 3) as 0 | 1 | 2
+  for (const w of nb[ctr]!) {
+    A[w] = ((A[w]! + 1) % 3) as 0 | 1 | 2
+  }
 
   const beat = (t: Uint8Array): void => {
-    for (let c = 0; c < Cn; c++)
+    for (let c = 0; c < Cn; c++) {
       for (let e = off[c]!; e < off[c + 1]!; e++) {
         const v = edgeV[e]!,
           w = edgeW[e]!
@@ -153,6 +173,7 @@ function run(): void {
         t[v] = (o / 3) | 0
         t[w] = o % 3
       }
+    }
   }
 
   const outDir = join(
@@ -180,25 +201,31 @@ function run(): void {
     let diff = 0
     for (let j = 0; j < bandCells.length; j++) {
       const i = bandCells[j]!
-      if (A[i] === B[i]) continue
+      if (A[i] === B[i]) {
+        continue
+      }
       diff++
       const [cx, cy] = pix[j]!
       const col: [number, number, number] =
         A[i]! > B[i]! ? [120, 230, 255] : [255, 200, 120]
-      for (let dy = -RADIUS; dy <= RADIUS; dy++)
+      for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = cx + dx,
             y = cy + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]
           rgba[idx + 2] = col[2]
         }
+      }
     }
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
-    if (f % 30 === 0)
+    if (f % 30 === 0) {
       console.log(`  frame ${f}, cone ${diff.toLocaleString()} cells`)
+    }
   }
   console.log('wrote frames, assemble with ffmpeg')
 }
