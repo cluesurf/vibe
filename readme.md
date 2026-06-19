@@ -54,9 +54,10 @@ and `{3,4,3,4}` is the one that is at once crystallographic,
 spinor-carrying, and three-dimensional where physics lives.
 
 The base of the model is settled, the discrete substrate and its single
-local rule. From it the architecture of physics is derived: the
-particles and their charges, the gauge group, the Higgs, the shape of
-the mass hierarchy, and the emergent laws of relativity, gravity, the
+local rule. From it
+[the architecture of physics is derived](https://doi.org/10.5281/zenodo.20717526):
+the particles and their charges, the gauge group, the Higgs, the shape
+of the mass hierarchy, and the emergent laws of relativity, gravity, the
 quantum, holography, and cosmology. The absolute masses and couplings
 are free, exactly the parameters the Standard Model leaves free, each
 now identified with a specific geometric origin. One deep question is
