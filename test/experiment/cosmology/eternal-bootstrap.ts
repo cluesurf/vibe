@@ -34,7 +34,9 @@ export function eternalBootstrap(): {
   }
   const netCharge = (a: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < N; i++) s += signedTone(a[i]!)
+    for (let i = 0; i < N; i++) {
+      s += signedTone(a[i]!)
+    }
     return s
   }
   let cur = cur0.slice(),
@@ -47,10 +49,14 @@ export function eternalBootstrap(): {
     let changed = 0
     for (let i = 0; i < N; i++) {
       let s = 0
-      for (const j of nbCache[i]!) s += cur[j]!
+      for (const j of nbCache[i]!) {
+        s += cur[j]!
+      }
       const v = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
       nx[i] = v
-      if (v !== cur[i]!) changed++
+      if (v !== cur[i]!) {
+        changed++
+      }
     }
     activity.push(changed / N)
     prev = cur
@@ -69,7 +75,9 @@ export function eternalBootstrap(): {
     const nx = new Int8Array(N)
     for (let i = 0; i < N; i++) {
       let s = 0
-      for (const j of nbCache[i]!) s += fc[j]!
+      for (const j of nbCache[i]!) {
+        s += fc[j]!
+      }
       nx[i] = ((((s - fp[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
     fp = fc
@@ -82,14 +90,20 @@ export function eternalBootstrap(): {
     const pr = new Int8Array(N)
     for (let i = 0; i < N; i++) {
       let s = 0
-      for (const j of nbCache[i]!) s += bp[j]!
+      for (const j of nbCache[i]!) {
+        s += bp[j]!
+      }
       pr[i] = ((((s - bc[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
     bc = bp
     bp = pr
   }
   let diff = 0
-  for (let i = 0; i < N; i++) if (bc[i] !== cur0[i]) diff++
+  for (let i = 0; i < N; i++) {
+    if (bc[i] !== cur0[i]) {
+      diff++
+    }
+  }
   const reversibleExact = diff === 0
   // (3) the IRREVERSIBLE contrast, a majority / rounding rule, from random init -> decays to a fixed point
   let m = cur0.slice()
@@ -99,10 +113,14 @@ export function eternalBootstrap(): {
     let changed = 0
     for (let i = 0; i < N; i++) {
       let s = m[i]!
-      for (const j of nbCache[i]!) s += m[j]!
+      for (const j of nbCache[i]!) {
+        s += m[j]!
+      }
       const v = (Math.round(s / 7) % 3) as 0 | 1 | 2
       nx[i] = v
-      if (v !== m[i]!) changed++
+      if (v !== m[i]!) {
+        changed++
+      }
     }
     irrAct = changed / N
     m = nx

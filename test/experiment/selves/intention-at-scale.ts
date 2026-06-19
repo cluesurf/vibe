@@ -34,12 +34,14 @@ export function intentionAtScale(input?: { n?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const distC = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -48,7 +50,11 @@ export function intentionAtScale(input?: { n?: number }): {
   })
   // target = a far cell (the goal direction); dT = distance to the target
   let target = 0
-  for (let i = 1; i < N; i++) if (distC[i]! > distC[target]!) target = i
+  for (let i = 1; i < N; i++) {
+    if (distC[i]! > distC[target]!) {
+      target = i
+    }
+  }
   const dT = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -57,11 +63,21 @@ export function intentionAtScale(input?: { n?: number }): {
   })
   const rSelf = 4
   const self: number[] = []
-  for (let i = 0; i < N; i++) if (distC[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++) {
+    if (distC[i]! <= rSelf) {
+      self.push(i)
+    }
+  }
   const selfSet = new Uint8Array(N)
-  for (const i of self) selfSet[i] = 1
+  for (const i of self) {
+    selfSet[i] = 1
+  }
   const hub = new Uint8Array(N)
-  for (const i of self) if (distC[i]! <= 1) hub[i] = 1
+  for (const i of self) {
+    if (distC[i]! <= 1) {
+      hub[i] = 1
+    }
+  }
 
   // willed beat: charges hop, BIASED toward the target (lower dT), but only for charges in the will region
   const beat = (
@@ -74,13 +90,17 @@ export function intentionAtScale(input?: { n?: number }): {
     for (let k = 0; k < eu.length; k++) {
       const v = eu[k]!
       const w = ev[k]!
-      if (moved[v] || moved[w]) continue
+      if (moved[v] || moved[w]) {
+        continue
+      }
       const a = tone[v]!
       const b = tone[w]!
       if ((a === 0) !== (b === 0)) {
         const c = a === 0 ? w : v // charged
         const e = a === 0 ? v : w // empty
-        if (!selfSet[e] && !selfSet[c]) continue
+        if (!selfSet[e] && !selfSet[c]) {
+          continue
+        }
         let prob = 0.5
         if (willRegion[c]) {
           const toward = dT[e]! < dT[c]! ? 1 : dT[e]! > dT[c]! ? -1 : 0
@@ -102,11 +122,12 @@ export function intentionAtScale(input?: { n?: number }): {
   ): number => {
     let s = 0
     let c = 0
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       if (tone[i] !== 0 && region(i)) {
         s += dT[i]!
         c++
       }
+    }
     return c > 0 ? s / c : 0
   }
   // spatial spread of the charge (cohesion = small spread, the self stays one blob)
@@ -114,18 +135,21 @@ export function intentionAtScale(input?: { n?: number }): {
     let s = 0
     let s2 = 0
     let c = 0
-    for (let i = 0; i < N; i++)
+    for (let i = 0; i < N; i++) {
       if (tone[i] !== 0) {
         s += distC[i]!
         s2 += distC[i]! * distC[i]!
         c++
       }
+    }
     const m = s / c
     return Math.sqrt(s2 / c - m * m)
   }
   const initSelf = (): Int8Array => {
     const tone = new Int8Array(N)
-    for (const i of self) tone[i] = 1
+    for (const i of self) {
+      tone[i] = 1
+    }
     return tone
   }
   const T = 50
@@ -136,13 +160,17 @@ export function intentionAtScale(input?: { n?: number }): {
   const dt0 = meanDT(tone, () => true)
   const sp0 = spread(tone)
   const rng1 = makeRng({ seed: 3 })
-  for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng1)
+  for (let t = 0; t < T; t++) {
+    beat(tone, allWill, 0.45, rng1)
+  }
   const driftWithWill = dt0 - meanDT(tone, () => true) // positive = moved toward target
   const cohesionWithWill = sp0 / spread(tone) // >= ~1 means it did not blow apart
 
   tone = initSelf()
   const rng1b = makeRng({ seed: 3 })
-  for (let t = 0; t < T; t++) beat(tone, allWill, 0, rng1b) // no will (unbiased)
+  for (let t = 0; t < T; t++) {
+    beat(tone, allWill, 0, rng1b)
+  } // no will (unbiased)
   const driftNoWill = dt0 - meanDT(tone, () => true)
   // the RELATIVE effect of the will (with minus without) is the intention signal, the absolute drift is
   // dominated by dispersal on the hyperbolic scaffold (no clean directions, exponential expansion)
@@ -154,11 +182,15 @@ export function intentionAtScale(input?: { n?: number }): {
   const dtPeri0 = meanDT(initSelf(), peri)
   tone = initSelf()
   const rng2 = makeRng({ seed: 7 })
-  for (let t = 0; t < T; t++) beat(tone, hub, 0.45, rng2)
+  for (let t = 0; t < T; t++) {
+    beat(tone, hub, 0.45, rng2)
+  }
   const peripheryDriftHubWill = dtPeri0 - meanDT(tone, peri)
   tone = initSelf()
   const rng2b = makeRng({ seed: 7 })
-  for (let t = 0; t < T; t++) beat(tone, hub, 0, rng2b)
+  for (let t = 0; t < T; t++) {
+    beat(tone, hub, 0, rng2b)
+  }
   const peripheryDriftNoWill = dtPeri0 - meanDT(tone, peri)
   const topDownEffect = peripheryDriftHubWill - peripheryDriftNoWill
   const topDown = topDownEffect > 0.2
@@ -166,19 +198,28 @@ export function intentionAtScale(input?: { n?: number }): {
   // CHECK 3: persistence, intend, perturb (scatter charge), keep intending, does the drift resume?
   tone = initSelf()
   const rng3 = makeRng({ seed: 9 })
-  for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng3)
+  for (let t = 0; t < T; t++) {
+    beat(tone, allWill, 0.45, rng3)
+  }
   const dtBefore = meanDT(tone, () => true)
   // perturb: randomly relocate ~40% of the charge to random self cells (a shock to the intention)
   const charges: number[] = []
-  for (let i = 0; i < N; i++) if (tone[i] !== 0) charges.push(i)
-  for (const c of charges)
+  for (let i = 0; i < N; i++) {
+    if (tone[i] !== 0) {
+      charges.push(i)
+    }
+  }
+  for (const c of charges) {
     if (rng3.next() < 0.4) {
       tone[c] = 0
       const dest = self[Math.floor(rng3.next() * self.length)]!
       tone[dest] = 1
     }
+  }
   const dtPerturbed = meanDT(tone, () => true)
-  for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng3)
+  for (let t = 0; t < T; t++) {
+    beat(tone, allWill, 0.45, rng3)
+  }
   const dtRecovered = meanDT(tone, () => true)
   const driftAfterPerturb = dtPerturbed - dtRecovered // resumes moving toward target
   const persists = driftAfterPerturb > 0.3

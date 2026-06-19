@@ -31,15 +31,22 @@ export default experiment({
     const n = mesh.cellCount
     const neighbors = mesh.neighbors
     let center = 0
-    for (let i = 1; i < n; i++)
-      if (neighbors[i]!.length > neighbors[center]!.length) center = i
+    for (let i = 1; i < n; i++) {
+      if (neighbors[i]!.length > neighbors[center]!.length) {
+        center = i
+      }
+    }
     const dist = neighborDistances({
       neighbors,
       size: n,
       source: center,
     })
     let maxD = 0
-    for (let i = 0; i < n; i++) if (dist[i]! > maxD) maxD = dist[i]!
+    for (let i = 0; i < n; i++) {
+      if (dist[i]! > maxD) {
+        maxD = dist[i]!
+      }
+    }
     const q = 251 // a prime modulus
 
     // a localized perturbation on the vacuum (all zero), the gravitational pulse at the center
@@ -74,8 +81,11 @@ export default experiment({
         ;[prev, cur, next] = [cur, next, prev]
       }
       let front = 0
-      for (let i = 0; i < n; i++)
-        if (cur[i] !== 0 && dist[i]! > front) front = dist[i]!
+      for (let i = 0; i < n; i++) {
+        if (cur[i] !== 0 && dist[i]! > front) {
+          front = dist[i]!
+        }
+      }
       return front / probe // disturbed-front distance per beat
     }
 
@@ -101,7 +111,11 @@ export default experiment({
       }
       // bcur should be u_0, bprev should be u_1
       let diff = 0
-      for (let i = 0; i < n; i++) if (bcur[i] !== start0[i]) diff++
+      for (let i = 0; i < n; i++) {
+        if (bcur[i] !== start0[i]) {
+          diff++
+        }
+      }
       return diff / n
     }
 
@@ -114,7 +128,11 @@ export default experiment({
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
         let active = 0
-        for (let i = 0; i < n; i++) if (cur[i] !== 0) active++
+        for (let i = 0; i < n; i++) {
+          if (cur[i] !== 0) {
+            active++
+          }
+        }
         maxActive = Math.max(maxActive, active)
       }
       return maxActive <= n // bounded (cannot exceed the lattice, mod-q keeps the values finite, no blow-up)
@@ -128,7 +146,9 @@ export default experiment({
       const fwd = (a: Uint8Array, b: Uint8Array) => {
         for (let i = 0; i < n; i++) {
           let s = 0
-          for (const j of neighbors[i]!) s += a[j]!
+          for (const j of neighbors[i]!) {
+            s += a[j]!
+          }
           b[i] = ((s % q) + q) % q
         }
       }
@@ -141,7 +161,11 @@ export default experiment({
         ;[cur, next] = [next, cur]
       } // "reverse" by re-running, cannot undo
       let diff = 0
-      for (let i = 0; i < n; i++) if (cur[i] !== start[i]) diff++
+      for (let i = 0; i < n; i++) {
+        if (cur[i] !== start[i]) {
+          diff++
+        }
+      }
       return diff / n
     }
 

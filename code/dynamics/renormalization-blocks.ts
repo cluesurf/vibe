@@ -40,7 +40,7 @@ export function csrVoronoiBlocks(input: {
   }
   while (fr.length > 0) {
     const next: number[] = []
-    for (const u of fr)
+    for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
         if (blockOf[w] === -1) {
@@ -48,6 +48,7 @@ export function csrVoronoiBlocks(input: {
           next.push(w)
         }
       }
+    }
     fr = next
   }
   return { blockOf, numBlocks: numSeeds }
@@ -64,7 +65,9 @@ export function geometricBlocks(
   const n = g.size
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
   const seedSet = new Set<number>()
-  while (seedSet.size < numSeeds) seedSet.add(rng.nextInt({ max: n }))
+  while (seedSet.size < numSeeds) {
+    seedSet.add(rng.nextInt({ max: n }))
+  }
   const cl = new Int32Array(n).fill(-1)
   let frontier: number[] = []
   ;[...seedSet].forEach((sd, c) => {
@@ -84,7 +87,11 @@ export function geometricBlocks(
     frontier = next
   }
   let nc = seedSet.size
-  for (let v = 0; v < n; v++) if (cl[v] === -1) cl[v] = nc++
+  for (let v = 0; v < n; v++) {
+    if (cl[v] === -1) {
+      cl[v] = nc++
+    }
+  }
   return { cl, K: nc }
 }
 
@@ -98,7 +105,9 @@ export function domainBlocks(
   const cl = new Int32Array(n).fill(-1)
   let K = 0
   for (let s = 0; s < n; s++) {
-    if (cl[s] !== -1) continue
+    if (cl[s] !== -1) {
+      continue
+    }
     cl[s] = K
     let frontier = [s]
     while (frontier.length > 0) {
@@ -127,7 +136,9 @@ export function coherentFills(
 ): Int8Array[] {
   const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
-    for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
+    for (let k = 0; k < row.length; k++) {
+      m.set(row[k] ?? -1, k)
+    }
     return m
   })
   const fills = g.neighbors.map(row => new Int8Array(row.length))
@@ -139,7 +150,9 @@ export function coherentFills(
         const fillVal: number = rng.next() < p ? 1 : -1
         ;(fills[v] as Int8Array)[k] = fillVal
         const kk = indexOf[w]?.get(v)
-        if (kk !== undefined) (fills[w] as Int8Array)[kk] = fillVal
+        if (kk !== undefined) {
+          ;(fills[w] as Int8Array)[kk] = fillVal
+        }
       }
     }
   }

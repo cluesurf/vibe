@@ -20,15 +20,18 @@ const WG = 64
 // the 24 directions +-e_i+-e_j, and the permutation under swapping axes 1<->2 (a 24-cell symmetry involution)
 function dirs(): { vecs: number[][]; swap: number[] } {
   const vecs: number[][] = []
-  for (let a = 0; a < 4; a++)
-    for (let b = a + 1; b < 4; b++)
-      for (const sa of [1, -1])
+  for (let a = 0; a < 4; a++) {
+    for (let b = a + 1; b < 4; b++) {
+      for (const sa of [1, -1]) {
         for (const sb of [1, -1]) {
           const v = [0, 0, 0, 0]
           v[a] = sa
           v[b] = sb
           vecs.push(v)
         }
+      }
+    }
+  }
   const key = (v: number[]): string => v.join(',')
   const idx = new Map(vecs.map((v, i) => [key(v), i]))
   const swap = vecs.map(
@@ -144,12 +147,15 @@ async function run(): Promise<void> {
     stage.unmap()
     let charge = 0
     const mom = [0, 0, 0, 0]
-    for (let c = 0; c < N; c++)
+    for (let c = 0; c < N; c++) {
       for (let k = 0; k < DIRN; k++) {
         const v = d[c * DIRN + k]!
         charge += v
-        for (let j = 0; j < 4; j++) mom[j]! += v * vecs[k]![j]!
+        for (let j = 0; j < 4; j++) {
+          mom[j]! += v * vecs[k]![j]!
+        }
       }
+    }
     return { charge, mom }
   }
   const s0 = await readSums(a)

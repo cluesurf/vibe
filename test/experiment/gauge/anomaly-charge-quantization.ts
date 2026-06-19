@@ -96,11 +96,12 @@ export function anomalyChargeQuantization(
   // is the charge of the (conjugate) field, so its electric charge reads off directly.
   const electricCharges: { name: string; charge: number }[] = []
   for (const f of FIELDS) {
-    for (const t of f.t3)
+    for (const t of f.t3) {
       electricCharges.push({
         name: f.name,
         charge: t + (Y[f.name] ?? 0),
       })
+    }
   }
   // Quantized means every charge is an integer multiple of 1/3.
   const chargesQuantized = electricCharges.every(

@@ -57,20 +57,34 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     source: 0,
   })
   let R = 0
-  for (let i = 0; i < N; i++) if (dist[i]! > R) R = dist[i]!
+  for (let i = 0; i < N; i++) {
+    if (dist[i]! > R) {
+      R = dist[i]!
+    }
+  }
   const core: number[] = []
-  for (let i = 0; i < N; i++) if (dist[i]! <= 1) core.push(i)
+  for (let i = 0; i < N; i++) {
+    if (dist[i]! <= 1) {
+      core.push(i)
+    }
+  }
   const shellCells: number[][] = Array.from({ length: R + 1 }, () => [])
-  for (let i = 0; i < N; i++) shellCells[dist[i]!]!.push(i)
+  for (let i = 0; i < N; i++) {
+    shellCells[dist[i]!]!.push(i)
+  }
 
   // run the encoder for both logical values, clamping the core as a persistent source
   const encode = (bit: 1 | -1): Int8Array => {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 5 })
     for (let t = 0; t < beats; t++) {
-      for (const i of core) tone[i] = bit
+      for (const i of core) {
+        tone[i] = bit
+      }
       hopBeat(tone, eu, ev, moved, rng)
-      for (const i of core) tone[i] = bit
+      for (const i of core) {
+        tone[i] = bit
+      }
     }
     return tone
   }
@@ -90,8 +104,14 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     const trials = 40
     for (let t = 0; t < trials; t++) {
       let sum = 0
-      for (const c of cells) if (rngE.next() >= f) sum += tone[c]!
-      if (Math.sign(sum) === bit) ok++
+      for (const c of cells) {
+        if (rngE.next() >= f) {
+          sum += tone[c]!
+        }
+      }
+      if (Math.sign(sum) === bit) {
+        ok++
+      }
     }
     return ok / trials
   }
@@ -105,7 +125,9 @@ export function growingCode(input?: { n?: number; beats?: number }): {
         (recoverRate(cells, tonePos, 1, f) +
           recoverRate(cells, toneNeg, -1, f)) /
         2
-      if (rate >= 0.85) best = f
+      if (rate >= 0.85) {
+        best = f
+      }
     }
     return best
   }
@@ -119,9 +141,15 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   }[] = []
   for (let r = 2; r <= R - 1; r++) {
     const cells = shellCells[r]!
-    if (cells.length < 20) continue
+    if (cells.length < 20) {
+      continue
+    }
     let nz = 0
-    for (const c of cells) if (tonePos[c] !== 0) nz++
+    for (const c of cells) {
+      if (tonePos[c] !== 0) {
+        nz++
+      }
+    }
     shells.push({
       r,
       cells: cells.length,
@@ -134,9 +162,11 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   // the threshold should be monotonically non-decreasing in radius, with the rim clearly above the core.
   // Near the ceiling the right gauge is the SURVIVAL fraction 1 - f*, which should keep shrinking.
   let monotonic = true
-  for (let i = 1; i < shells.length; i++)
-    if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9)
+  for (let i = 1; i < shells.length; i++) {
+    if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9) {
       monotonic = false
+    }
+  }
   const first = shells[0]
   const last = shells[shells.length - 1]
   const thresholdRises =

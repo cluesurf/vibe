@@ -142,8 +142,9 @@ async function run(): Promise<void> {
   // a deterministic pseudo-random field in both tone slots, so the second-order rule has history
   const r = makeRng({ seed: 123456789 })
   const nextR = (): number => r.next()
-  for (let i = 0; i < seed.length; i++)
+  for (let i = 0; i < seed.length; i++) {
     seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  }
 
   const field = makeField(device, seed, sw, sh)
   const dispatch = Math.ceil(field.count / WORKGROUP)
@@ -168,10 +169,15 @@ async function run(): Promise<void> {
   )
 
   let cpu = seed.slice()
-  for (let b = 0; b < beats; b++) cpu = cpuStep(cpu, sw, sh)
+  for (let b = 0; b < beats; b++) {
+    cpu = cpuStep(cpu, sw, sh)
+  }
   let mismatches = 0
-  for (let i = 0; i < cpu.length; i++)
-    if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) mismatches++
+  for (let i = 0; i < cpu.length; i++) {
+    if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
+      mismatches++
+    }
+  }
   const selfCheckOk = mismatches === 0
   console.log(
     `self-check ${sw}x${sh}, ${beats} beats: GPU vs CPU mismatches ${mismatches} -> ${selfCheckOk ? 'IDENTICAL' : 'FAIL'}`,

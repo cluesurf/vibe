@@ -84,7 +84,9 @@ export function vertexRing(
   for (let i = 0; i < 64; i++) {
     current = wstepRotate(source, current, 1)
     ring.push(current.cell)
-    if (current.cell === startCell && current.spin === startSpin) break
+    if (current.cell === startCell && current.spin === startSpin) {
+      break
+    }
   }
   return ring
 }

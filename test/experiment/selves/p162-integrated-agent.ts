@@ -21,8 +21,11 @@ function makeWorld(L: number): {
   const blocked = new Uint8Array(L * L)
   const wallX = Math.floor(L / 2)
   const gapY = L - 3 // the only opening, near the top
-  for (let y = 0; y < L; y++)
-    if (y !== gapY && y !== gapY - 1) blocked[y * L + wallX] = 1
+  for (let y = 0; y < L; y++) {
+    if (y !== gapY && y !== gapY - 1) {
+      blocked[y * L + wallX] = 1
+    }
+  }
   const start = Math.floor(L / 2) * L + 2 // left side, middle height
   const goal = Math.floor(L / 2) * L + (L - 3) // right side, middle height
   return { blocked, start, goal }
@@ -43,10 +46,18 @@ function neighbors(
   const x = p % L
   const y = Math.floor(p / L)
   const out: number[] = []
-  if (x + 1 < L && !blocked[p + 1]) out.push(p + 1)
-  if (x - 1 >= 0 && !blocked[p - 1]) out.push(p - 1)
-  if (y + 1 < L && !blocked[p + L]) out.push(p + L)
-  if (y - 1 >= 0 && !blocked[p - L]) out.push(p - L)
+  if (x + 1 < L && !blocked[p + 1]) {
+    out.push(p + 1)
+  }
+  if (x - 1 >= 0 && !blocked[p - 1]) {
+    out.push(p - 1)
+  }
+  if (y + 1 < L && !blocked[p + L]) {
+    out.push(p + L)
+  }
+  if (y - 1 >= 0 && !blocked[p - L]) {
+    out.push(p - L)
+  }
   return out
 }
 
@@ -70,7 +81,9 @@ function lookahead(
     L,
     blocked,
   ).map(c => ({ cell: c, first: c }))
-  for (const f of frontier) seen.add(f.cell)
+  for (const f of frontier) {
+    seen.add(f.cell)
+  }
   for (let d = 0; d < depth; d++) {
     for (const f of frontier) {
       const sc = dist(f.cell, goal, L)
@@ -80,14 +93,18 @@ function lookahead(
       }
     }
     const next: { cell: number; first: number }[] = []
-    for (const f of frontier)
-      for (const c of neighbors(f.cell, L, blocked))
+    for (const f of frontier) {
+      for (const c of neighbors(f.cell, L, blocked)) {
         if (!seen.has(c)) {
           seen.add(c)
           next.push({ cell: c, first: f.first })
         }
+      }
+    }
     frontier = next
-    if (frontier.length === 0) break
+    if (frontier.length === 0) {
+      break
+    }
   }
   return bestFirst
 }
@@ -102,13 +119,19 @@ function runAgent(
   let p = start
   let stuck = 0
   for (let t = 0; t < maxSteps; t++) {
-    if (p === goal) return { reached: true, finalDist: 0, steps: t }
+    if (p === goal) {
+      return { reached: true, finalDist: 0, steps: t }
+    }
     const move = lookahead(p, goal, L, blocked, depth)
     if (move === p || dist(move, goal, L) >= dist(p, goal, L)) {
       // no improving first move found at this depth (greedy is stuck at the wall)
       stuck++
-      if (stuck > 3 && depth <= 1) break
-      if (move === p) break
+      if (stuck > 3 && depth <= 1) {
+        break
+      }
+      if (move === p) {
+        break
+      }
     } else {
       stuck = 0
     }

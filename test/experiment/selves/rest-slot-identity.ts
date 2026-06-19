@@ -72,8 +72,9 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        )
+        ) {
           will.data[c * degree + rest] = 1
+        }
       }
       return will
     }
@@ -83,11 +84,12 @@ export default experiment({
       for (let c = 0; c < coin.cellCount; c++) {
         const b = c * degree
         let on = false
-        for (let d = 0; d < degree; d++)
+        for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
             break
           }
+        }
         if (on) {
           occ++
           const [x, y, z, w] = coord(c)
@@ -96,7 +98,9 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
-          if (dd > ext) ext = dd
+          if (dd > ext) {
+            ext = dd
+          }
         }
       }
       return { occ, ext }
@@ -112,7 +116,9 @@ export default experiment({
     // 2. a moving disturbance radiates to the bath (open) while the rest body is untouched.
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
-      for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1
+      for (let d = 0; d < 8; d++) {
+        w.data[center * degree + d] = 1
+      }
       return w
     }
     const diff = (open: boolean): { peak: number; final: number } => {
@@ -156,9 +162,14 @@ export default experiment({
           absorbBoundary(pert)
         }
         let d = 0
-        for (let i = 0; i < clean.data.length; i++)
-          if (clean.data[i] !== pert.data[i]) d++
-        if (d > peak) peak = d
+        for (let i = 0; i < clean.data.length; i++) {
+          if (clean.data[i] !== pert.data[i]) {
+            d++
+          }
+        }
+        if (d > peak) {
+          peak = d
+        }
         final = d
       }
       return { peak, final }
@@ -205,8 +216,11 @@ export default experiment({
         cleanBodyScratch = s
       }
       let d = 0
-      for (let i = 0; i < dsp.data.length; i++)
-        if (dsp.data[i] !== cleanBody.data[i]) d++
+      for (let i = 0; i < dsp.data.length; i++) {
+        if (dsp.data[i] !== cleanBody.data[i]) {
+          d++
+        }
+      }
       displacedFinal = d
     }
     const noSelfRepair = displacedFinal > 0

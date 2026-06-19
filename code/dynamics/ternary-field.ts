@@ -36,7 +36,9 @@ export function makeTernaryField(input: {
 }): TernaryField {
   const { size, fill } = input
   const u = new Int8Array(size)
-  for (let x = 0; x < size; x++) u[x] = mod3(fill(x)) as number
+  for (let x = 0; x < size; x++) {
+    u[x] = mod3(fill(x)) as number
+  }
   // at rest, prev equals curr (zero initial velocity).
   return { prev: u.slice(), curr: u.slice(), size }
 }
@@ -67,9 +69,12 @@ export function stepTernaryField(input: {
   }
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 4
-    for (let x = 0; x < margin; x++) next[x] = leftVacuum as number
-    for (let x = size - margin; x < size; x++)
+    for (let x = 0; x < margin; x++) {
+      next[x] = leftVacuum as number
+    }
+    for (let x = size - margin; x < size; x++) {
       next[x] = rightVacuum as number
+    }
   }
   return { prev: curr, curr: next, size }
 }
@@ -92,14 +97,22 @@ export const decoupledTernaryRule: TernaryRule = (
 // interior without an antiwall, this is the kink's exact base-level identity.
 export function wallCount(u: Int8Array): number {
   let count = 0
-  for (let x = 0; x < u.length - 1; x++) if (u[x] !== u[x + 1]) count++
+  for (let x = 0; x < u.length - 1; x++) {
+    if (u[x] !== u[x + 1]) {
+      count++
+    }
+  }
   return count
 }
 
 // the count of cells that differ between two fields, the size of a perturbation.
 export function fieldDifference(a: Int8Array, b: Int8Array): number {
   let count = 0
-  for (let x = 0; x < a.length; x++) if (a[x] !== b[x]) count++
+  for (let x = 0; x < a.length; x++) {
+    if (a[x] !== b[x]) {
+      count++
+    }
+  }
   return count
 }
 
@@ -114,10 +127,16 @@ export function spreadRadius(input: {
   let high = -1
   for (let x = 0; x < clean.length; x++) {
     if (clean[x] !== perturbed[x]) {
-      if (x < low) low = x
-      if (x > high) high = x
+      if (x < low) {
+        low = x
+      }
+      if (x > high) {
+        high = x
+      }
     }
   }
-  if (high < 0) return 0
+  if (high < 0) {
+    return 0
+  }
   return Math.max(center - low, high - center)
 }

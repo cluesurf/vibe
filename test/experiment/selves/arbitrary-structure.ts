@@ -23,11 +23,17 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
   const t = new Int8Array(M)
   const half = Math.floor(M / 2)
   if (kind === 0) {
-    for (let i = 0; i < M; i++) t[i] = i < half ? 1 : -1 // blocks
+    for (let i = 0; i < M; i++) {
+      t[i] = i < half ? 1 : -1
+    } // blocks
   } else if (kind === 1) {
-    for (let i = 0; i < M; i++) t[i] = i % 2 === 0 ? 1 : -1 // stripes
+    for (let i = 0; i < M; i++) {
+      t[i] = i % 2 === 0 ? 1 : -1
+    } // stripes
   } else {
-    for (let i = 0; i < M; i++) t[i] = i < half ? 1 : -1
+    for (let i = 0; i < M; i++) {
+      t[i] = i < half ? 1 : -1
+    }
     for (let i = M - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const a = t[i]!
@@ -42,10 +48,15 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
 function construct(target: Int8Array, rng: Rng): number {
   const M = target.length
   const s = new Int8Array(M)
-  for (let i = 0; i < M; i++)
+  for (let i = 0; i < M; i++) {
     s[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
+  }
   let gap = 0
-  for (let i = 0; i < M; i++) if (s[i] !== target[i]) gap++
+  for (let i = 0; i < M; i++) {
+    if (s[i] !== target[i]) {
+      gap++
+    }
+  }
   let steps = 0
   while (gap > 0 && steps < 100 * M) {
     steps++
@@ -72,10 +83,16 @@ function maintain(target: Int8Array, rng: Rng): number {
       s[b] = t
     }
     // maintain, restore to target (the will)
-    for (let i = 0; i < M; i++) s[i] = target[i]!
+    for (let i = 0; i < M; i++) {
+      s[i] = target[i]!
+    }
   }
   let m = 0
-  for (let i = 0; i < M; i++) if (s[i] === target[i]) m++
+  for (let i = 0; i < M; i++) {
+    if (s[i] === target[i]) {
+      m++
+    }
+  }
   return m / M
 }
 

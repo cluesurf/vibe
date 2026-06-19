@@ -23,7 +23,9 @@ export function closedFormHitCount(input: {
       for (let c = -k; c <= k; c++) {
         const base = a * p3 + b * p2 + c * pi
         for (let d = -m; d <= m; d++) {
-          if (Math.abs(base + d - target) < epsilon) hits++
+          if (Math.abs(base + d - target) < epsilon) {
+            hits++
+          }
         }
       }
     }

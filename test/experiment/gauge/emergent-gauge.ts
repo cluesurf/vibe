@@ -36,8 +36,9 @@ export function emergentGauge(): {
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     t[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
+  }
   // (1) U(1) Gauss law: run one beat tracking per-pair charge flux; verify each cell's d(rho) = net inflow EXACTLY
   const before = t.slice()
   const flux = new Float64Array(N) // net charge that flowed INTO each cell this beat
@@ -50,10 +51,14 @@ export function emergentGauge(): {
     order[j] = tmp
   }
   for (const u of order) {
-    if (used[u]) continue
+    if (used[u]) {
+      continue
+    }
     for (let q = off[u]!; q < off[u + 1]!; q++) {
       const w = adj[q]!
-      if (used[w]) continue
+      if (used[w]) {
+        continue
+      }
       const [na, nb] = perm(t[u]!, t[w]!)
       flux[u]! += na - t[u]!
       flux[w]! += nb - t[w]! // charge change of each from this pair op
@@ -65,8 +70,9 @@ export function emergentGauge(): {
     }
   }
   let viol = 0
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     viol += Math.abs(t[i]! - before[i]! - flux[i]!)
+  }
   const chargeLocallyConserved = viol === 0
   // (2) internal (non-abelian) current under a GENERIC (non-symmetric) collision. Model a coin with a 2-valued
   // internal index whose generic collision is NOT internal-symmetric, and check its internal charge is NOT
@@ -74,13 +80,19 @@ export function emergentGauge(): {
   // generic collision on (charge, internal): conserves charge but scrambles internal -> internal not conserved.
   let internalViol = 0
   const A = new Int8Array(N)
-  for (let i = 0; i < N; i++) A[i] = (rnd() < 0.5 ? 1 : -1) as -1 | 1 // internal index
+  for (let i = 0; i < N; i++) {
+    A[i] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
+  } // internal index
   const usd = new Uint8Array(N)
   for (const u of order) {
-    if (usd[u]) continue
+    if (usd[u]) {
+      continue
+    }
     for (let q = off[u]!; q < off[u + 1]!; q++) {
       const w = adj[q]!
-      if (usd[w]) continue
+      if (usd[w]) {
+        continue
+      }
       const sum = A[u]! + A[w]!
       A[u] = (sum >= 0 ? 1 : -1) as -1 | 1
       A[w] = (sum > 0 ? 1 : -1) as -1 | 1

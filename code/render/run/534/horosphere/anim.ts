@@ -72,12 +72,18 @@ async function run(): Promise<void> {
     return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -127,11 +133,12 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const rng = makeRng({ seed: 1357924680 })
   const nextR = (): number => rng.next()
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     seed[i] = pack({
       current: Math.floor(nextR() * 3),
       previous: Math.floor(nextR() * 3),
     })
+  }
 
   const byteLength = n * 4
   const params = device.createBuffer({
@@ -219,14 +226,20 @@ async function run(): Promise<void> {
     }
     for (const c of band) {
       const tone = currentOf(tones[c.index]!)
-      if (tone === 0) continue // peace is black, the background, draw only the charges
+      if (tone === 0) {
+        continue
+      } // peace is black, the background, draw only the charges
       const col = COLORS[tone]!
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
-          if (dx * dx + dy * dy > RADIUS * RADIUS) continue
+          if (dx * dx + dy * dy > RADIUS * RADIUS) {
+            continue
+          }
           const x = c.px + dx
           const y = c.py + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const idx = (y * IMG + x) * 4
           rgba[idx] = col[0]
           rgba[idx + 1] = col[1]

@@ -31,14 +31,20 @@ export function gutBreaking(): {
   const smInSu5 = standardModelEmbedsInRootSystem(A4)
   // (c) the 16-spinor under su(5): split the (+-1/2)^5 even-minus weights by minus-count (the u(1) grade)
   const six: number[][] = []
-  for (const a of [0.5, -0.5])
-    for (const b of [0.5, -0.5])
-      for (const c of [0.5, -0.5])
-        for (const d of [0.5, -0.5])
+  for (const a of [0.5, -0.5]) {
+    for (const b of [0.5, -0.5]) {
+      for (const c of [0.5, -0.5]) {
+        for (const d of [0.5, -0.5]) {
           for (const e of [0.5, -0.5]) {
             const w = [a, b, c, d, e]
-            if (w.filter(x => x < 0).length % 2 === 0) six.push(w)
+            if (w.filter(x => x < 0).length % 2 === 0) {
+              six.push(w)
+            }
           }
+        }
+      }
+    }
+  }
   const byMinus: Record<number, number> = {}
   for (const w of six) {
     const m = w.filter(x => x < 0).length

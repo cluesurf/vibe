@@ -26,8 +26,9 @@ function lowestEigenpairs(
 ): { energy: number; state: Float64Array }[] {
   const N = V.length
   let shift = 2 * t + 1
-  for (let r = 0; r < N; r++)
+  for (let r = 0; r < N; r++) {
     shift = Math.max(shift, -V[r]! + 2 * t + 1)
+  }
   return lowestEigenpairsOf({
     operator: {
       size: N,
@@ -43,8 +44,9 @@ function lowestEigenpairs(
 function spread(state: Float64Array, center: number): number {
   // <|r - center|> under |phi|^2
   let s = 0
-  for (let r = 0; r < state.length; r++)
+  for (let r = 0; r < state.length; r++) {
     s += Math.abs(r - center) * state[r]! * state[r]!
+  }
   return s
 }
 
@@ -73,8 +75,11 @@ export function boundComposite(input?: {
 
   const wellOf = (V0: number): Float64Array => {
     const V = new Float64Array(N)
-    for (let r = 0; r < N; r++)
-      if (Math.abs(r - center) <= a) V[r] = -V0
+    for (let r = 0; r < N; r++) {
+      if (Math.abs(r - center) <= a) {
+        V[r] = -V0
+      }
+    }
     return V
   }
 

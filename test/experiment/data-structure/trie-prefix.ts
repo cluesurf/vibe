@@ -12,9 +12,14 @@ const isPrefixPlusOne = (
   parent: number[],
   child: number[],
 ): boolean => {
-  if (child.length !== parent.length + 1) return false
-  for (let i = 0; i < parent.length; i++)
-    if (parent[i] !== child[i]) return false
+  if (child.length !== parent.length + 1) {
+    return false
+  }
+  for (let i = 0; i < parent.length; i++) {
+    if (parent[i] !== child[i]) {
+      return false
+    }
+  }
   return true
 }
 
@@ -33,10 +38,13 @@ export default experiment({
     let checked = 0
     for (let cell = 0; cell < cells; cell++) {
       const parent = a.parent[cell]!
-      if (parent === -1) continue
+      if (parent === -1) {
+        continue
+      }
       checked += 1
-      if (!isPrefixPlusOne(a.address[parent]!, a.address[cell]!))
+      if (!isPrefixPlusOne(a.address[parent]!, a.address[cell]!)) {
         prefixConsistent = false
+      }
     }
 
     return verdict({

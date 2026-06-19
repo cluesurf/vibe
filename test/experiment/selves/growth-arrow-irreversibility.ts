@@ -49,7 +49,9 @@ function bornAtPeace(will: Will, frontierX: number): void {
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     if (cell % side === frontierX) {
       const base = cell * degree
-      for (let d = 0; d < degree; d++) will.data[base + d] = 0
+      for (let d = 0; d < degree; d++) {
+        will.data[base + d] = 0
+      }
     }
   }
 }
@@ -79,10 +81,13 @@ function loschmidtEcho(input: {
     const swap = current
     current = scratch
     scratch = swap
-    if (input.open) bornAtPeace(current, input.frontierX)
+    if (input.open) {
+      bornAtPeace(current, input.frontierX)
+    }
   }
-  for (let t = 0; t < input.beats; t++)
+  for (let t = 0; t < input.beats; t++) {
     current = inverseBeat(current, input.inverse)
+  }
   return disagreementFraction(current.data, input.init.data)
 }
 
@@ -115,13 +120,18 @@ function occupancyProfile(input: {
     const swap = current
     current = scratch
     scratch = swap
-    if (input.open) bornAtPeace(current, input.frontierX)
+    if (input.open) {
+      bornAtPeace(current, input.frontierX)
+    }
     if (t >= input.beats / 2) {
       for (let cell = 0; cell < mesh.cellCount; cell++) {
         const x = cell % side
         const base = cell * degree
-        for (let d = 0; d < degree; d++)
-          if (current.data[base + d] !== 0) profile[x]!++
+        for (let d = 0; d < degree; d++) {
+          if (current.data[base + d] !== 0) {
+            profile[x]!++
+          }
+        }
       }
       samples++
     }

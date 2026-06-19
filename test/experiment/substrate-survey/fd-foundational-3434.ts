@@ -68,7 +68,11 @@ export function fdFoundational(): {
   const rnd = (): number => rng.next()
   const occ0 = new Array(N).fill(0).map(() => {
     let o = 0
-    for (let d = 0; d < D; d++) if (rnd() < 0.25) o |= 1 << d
+    for (let d = 0; d < D; d++) {
+      if (rnd() < 0.25) {
+        o |= 1 << d
+      }
+    }
     return o
   })
 
@@ -81,13 +85,19 @@ export function fdFoundational(): {
     momentumConserved = true
   for (let t = 0; t < T; t++) {
     occ = step(occ)
-    if (d4Count(occ) !== c0) countConserved = false
+    if (d4Count(occ) !== c0) {
+      countConserved = false
+    }
     const m = d4Momentum({ occupancy: occ, roots })
-    if (!m.every((x, q) => x === m0[q]!)) momentumConserved = false
+    if (!m.every((x, q) => x === m0[q]!)) {
+      momentumConserved = false
+    }
   }
 
   // FD3: run inverse T, must recover occ0 EXACTLY
-  for (let t = 0; t < T; t++) occ = stepInv(occ)
+  for (let t = 0; t < T; t++) {
+    occ = stepInv(occ)
+  }
   const reversible = occ.every((o, c) => o === occ0[c]!)
 
   return {

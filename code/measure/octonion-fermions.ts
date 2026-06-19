@@ -30,7 +30,9 @@ function leftMultiplication(a: number): number[][] {
     const unit = new Array<number>(8).fill(0)
     unit[a] = 1
     const product = cayleyMultiply(unit, basis)
-    for (let i = 0; i < 8; i++) m[i]![j] = product[i]!
+    for (let i = 0; i < 8; i++) {
+      m[i]![j] = product[i]!
+    }
   }
   return m
 }
@@ -43,11 +45,13 @@ const complex = (re: number[][], im: number[][]): ComplexMatrix => ({
 function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
   const re = zero8()
   const im = zero8()
-  for (let i = 0; i < 8; i++)
+  for (let i = 0; i < 8; i++) {
     for (let k = 0; k < 8; k++) {
       const ar = a.re[i]![k]!
       const ai = a.im[i]![k]!
-      if (ar === 0 && ai === 0) continue
+      if (ar === 0 && ai === 0) {
+        continue
+      }
       const reRow = re[i]!
       const imRow = im[i]!
       const bRe = b.re[k]!
@@ -57,13 +61,14 @@ function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
         imRow[j] = (imRow[j] ?? 0) + ar * bIm[j]! + ai * bRe[j]!
       }
     }
+  }
   return complex(re, im)
 }
 
 function addMatrices(...matrices: ComplexMatrix[]): ComplexMatrix {
   const re = zero8()
   const im = zero8()
-  for (const m of matrices)
+  for (const m of matrices) {
     for (let i = 0; i < 8; i++) {
       const reRow = re[i]!
       const imRow = im[i]!
@@ -72,6 +77,7 @@ function addMatrices(...matrices: ComplexMatrix[]): ComplexMatrix {
         imRow[j] = (imRow[j] ?? 0) + m.im[i]![j]!
       }
     }
+  }
   return complex(re, im)
 }
 
@@ -85,11 +91,12 @@ function scaleMatrix(a: ComplexMatrix, s: number): ComplexMatrix {
 function dagger(a: ComplexMatrix): ComplexMatrix {
   const re = zero8()
   const im = zero8()
-  for (let i = 0; i < 8; i++)
+  for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       re[i]![j] = a.re[j]![i]!
       im[i]![j] = -a.im[j]![i]!
     }
+  }
   return complex(re, im)
 }
 
@@ -99,26 +106,31 @@ const identity8: ComplexMatrix = complex(
 )
 
 function isZeroMatrix(a: ComplexMatrix): boolean {
-  for (let i = 0; i < 8; i++)
-    for (let j = 0; j < 8; j++)
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
       if (
         Math.abs(a.re[i]![j]!) > 1e-9 ||
         Math.abs(a.im[i]![j]!) > 1e-9
-      )
+      ) {
         return false
+      }
+    }
+  }
   return true
 }
 
 function isIdentityMatrix(a: ComplexMatrix): boolean {
-  for (let i = 0; i < 8; i++)
+  for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       const want = i === j ? 1 : 0
       if (
         Math.abs(a.re[i]![j]! - want) > 1e-9 ||
         Math.abs(a.im[i]![j]!) > 1e-9
-      )
+      ) {
         return false
+      }
     }
+  }
   return true
 }
 
@@ -129,7 +141,9 @@ const anticommutator = (
 
 const trace = (a: ComplexMatrix): number => {
   let t = 0
-  for (let i = 0; i < 8; i++) t += a.re[i]![i]!
+  for (let i = 0; i < 8; i++) {
+    t += a.re[i]![i]!
+  }
   return t
 }
 
@@ -152,17 +166,21 @@ export function octonionFermionGeneration(): {
   for (let a = 1; a <= 7; a++) {
     const real = complex(left[a]!, zero8())
     const square = multiply(real, real)
-    if (!isZeroMatrix(addMatrices(square, identity8)))
-      leftMultsAreClifford = false // L^2 = -I
+    if (!isZeroMatrix(addMatrices(square, identity8))) {
+      leftMultsAreClifford = false
+    } // L^2 = -I
   }
-  for (let a = 1; a <= 7 && leftMultsAreClifford; a++)
+  for (let a = 1; a <= 7 && leftMultsAreClifford; a++) {
     for (let b = a + 1; b <= 7; b++) {
       const anti = anticommutator(
         complex(left[a]!, zero8()),
         complex(left[b]!, zero8()),
       )
-      if (!isZeroMatrix(anti)) leftMultsAreClifford = false
+      if (!isZeroMatrix(anti)) {
+        leftMultsAreClifford = false
+      }
     }
+  }
 
   // three fermionic ladder operators, a_k = (1/2)(L_{2k-1} + i L_{2k})
   const ladder = [1, 2, 3].map(k =>
@@ -171,15 +189,21 @@ export function octonionFermionGeneration(): {
 
   // the canonical anticommutation relations
   let ladderRelationsHold = true
-  for (let i = 0; i < 3; i++)
+  for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       const withDagger = anticommutator(ladder[i]!, dagger(ladder[j]!))
       if (i === j) {
-        if (!isIdentityMatrix(withDagger)) ladderRelationsHold = false
-      } else if (!isZeroMatrix(withDagger)) ladderRelationsHold = false
-      if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!)))
+        if (!isIdentityMatrix(withDagger)) {
+          ladderRelationsHold = false
+        }
+      } else if (!isZeroMatrix(withDagger)) {
         ladderRelationsHold = false
+      }
+      if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!))) {
+        ladderRelationsHold = false
+      }
     }
+  }
 
   // the number operator N = sum a_k-dagger a_k, the charge Q = N/3
   const number = addMatrices(...ladder.map(a => multiply(dagger(a), a)))
@@ -198,12 +222,14 @@ export function octonionFermionGeneration(): {
   const multiplicities: number[] = []
   for (let k = 0; k <= 3; k++) {
     let projector = identity8
-    for (let m = 0; m <= 3; m++)
-      if (m !== k)
+    for (let m = 0; m <= 3; m++) {
+      if (m !== k) {
         projector = multiply(
           projector,
           scaleMatrix(shift(m), 1 / (k - m)),
         )
+      }
+    }
     multiplicities.push(Math.round(trace(projector)))
   }
   // the electric charges, Q = k/3 for the occupied-mode count k

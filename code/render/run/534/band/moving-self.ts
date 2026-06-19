@@ -58,12 +58,18 @@ function run(): void {
     return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -82,7 +88,9 @@ function run(): void {
   }
   const cells: Cell[] = []
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -108,12 +116,17 @@ function run(): void {
   }
   // index cells by their own index for the maintenance step
   const cellByIndex = new Map<number, Cell>()
-  for (const c of cells) cellByIndex.set(c.index, c)
+  for (const c of cells) {
+    cellByIndex.set(c.index, c)
+  }
 
   // ground for conserving maintenance, off-screen margin cells
   const ground: number[] = []
-  for (let i = 0; i < n; i++)
-    if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
+  for (let i = 0; i < n; i++) {
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      ground.push(i)
+    }
+  }
 
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
@@ -146,7 +159,9 @@ function run(): void {
       }
     }
     for (const gc of ground) {
-      if (need <= 0) break
+      if (need <= 0) {
+        break
+      }
       if (tone[gc] === 0) {
         tone[gc] = -1
         need--
@@ -171,9 +186,11 @@ function run(): void {
     maintainAt(centreU, cv) // refill it at the new position, so the FORM propagates while matter turns over
 
     for (let i = 0; i < n; i++) {
-      if (tone[i] !== 0 && tone[i] === prev[i])
+      if (tone[i] !== 0 && tone[i] === prev[i]) {
         persist[i] = Math.min(persist[i]! + 1, PMAX)
-      else persist[i] = 0
+      } else {
+        persist[i] = 0
+      }
       prev[i] = tone[i]!
     }
 
@@ -186,7 +203,9 @@ function run(): void {
     }
     for (const c of cells) {
       const t = tone[c.index]!
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
       const r8 =
         t === 1
@@ -204,7 +223,9 @@ function run(): void {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const idx = (y * IMG + x) * 4
           rgba[idx] = r8
           rgba[idx + 1] = g8

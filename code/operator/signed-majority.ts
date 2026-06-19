@@ -90,8 +90,9 @@ export function runAsynchronousSignedMajority(input: {
   const n = neighbors.length
   const rng = makeRng({ seed: input.seed })
   const tone = new Int8Array(n)
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
+  }
   const fill: Map<number, number>[] = Array.from(
     { length: n },
     () => new Map<number, number>(),
@@ -111,10 +112,13 @@ export function runAsynchronousSignedMajority(input: {
     for (let s = 0; s < n; s++) {
       const v = rng.nextInt({ max: n })
       let h = 0
-      for (const w of neighbors[v]!)
+      for (const w of neighbors[v]!) {
         h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
+      }
       const next = h > 0 ? 1 : h < 0 ? -1 : 0
-      if (next !== tone[v]) changed++
+      if (next !== tone[v]) {
+        changed++
+      }
       tone[v] = next as number
     }
     changedLast = changed
@@ -124,9 +128,13 @@ export function runAsynchronousSignedMajority(input: {
   let plus = 0
   for (let i = 0; i < n; i++) {
     const t = tone[i] ?? 0
-    if (t < 0) minus++
-    else if (t === 0) zero++
-    else plus++
+    if (t < 0) {
+      minus++
+    } else if (t === 0) {
+      zero++
+    } else {
+      plus++
+    }
   }
   return {
     settledFraction: 1 - changedLast / n,

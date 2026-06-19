@@ -26,7 +26,9 @@ export function makeWaveField(input: {
 }): WaveField {
   const { size, fill } = input
   const u = new Int32Array(size)
-  for (let x = 0; x < size; x++) u[x] = fill(x)
+  for (let x = 0; x < size; x++) {
+    u[x] = fill(x)
+  }
   return { prev: u.slice(), curr: u.slice(), size }
 }
 
@@ -54,8 +56,12 @@ export function stepWaveField(input: {
   }
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 6
-    for (let x = 0; x < margin; x++) next[x] = leftVacuum
-    for (let x = size - margin; x < size; x++) next[x] = rightVacuum
+    for (let x = 0; x < margin; x++) {
+      next[x] = leftVacuum
+    }
+    for (let x = size - margin; x < size; x++) {
+      next[x] = rightVacuum
+    }
   }
   return { prev: curr, curr: next, size }
 }
@@ -68,11 +74,17 @@ export function doubleWellAccel(input: {
 }): Acceleration {
   const { amplitude, saturating } = input
   return (value: number): number => {
-    if (value === 0) return 0
+    if (value === 0) {
+      return 0
+    }
     const sign = Math.sign(value)
     const magnitude = Math.abs(value)
-    if (magnitude === amplitude) return 0
-    if (magnitude < amplitude) return sign // push out toward the vacuum
+    if (magnitude === amplitude) {
+      return 0
+    }
+    if (magnitude < amplitude) {
+      return sign
+    } // push out toward the vacuum
     return saturating ? -sign : -sign * (magnitude - amplitude) // pull back beyond the vacuum
   }
 }
@@ -81,7 +93,9 @@ export function fieldMaxAbs(u: Int32Array): number {
   let max = 0
   for (let x = 0; x < u.length; x++) {
     const a = Math.abs(u[x]!)
-    if (a > max) max = a
+    if (a > max) {
+      max = a
+    }
   }
   return max
 }
@@ -94,8 +108,9 @@ export function domainWallCount(u: Int32Array): number {
       u[x] !== 0 &&
       u[x + 1] !== 0 &&
       Math.sign(u[x]!) !== Math.sign(u[x + 1]!)
-    )
+    ) {
       count++
+    }
   }
   return count
 }

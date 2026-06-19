@@ -90,15 +90,19 @@ export function measuredEmergentMass(): {
       maxMassDisagreement,
       Math.abs(massDispersion - massChirality),
     )
-    if (Math.abs(massDispersion - massChirality) > 1e-9)
+    if (Math.abs(massDispersion - massChirality) > 1e-9) {
       twoMassesAgree = false
+    }
   }
 
   // (3) the dispersion mass scales with the coupling (it IS the coupling, measured), monotone increasing
   const masses = COUPLINGS.map(dispersionMassAt)
   let massScalesWithCoupling = true
-  for (let i = 1; i < masses.length; i++)
-    if (!(masses[i]! > masses[i - 1]!)) massScalesWithCoupling = false
+  for (let i = 1; i < masses.length; i++) {
+    if (!(masses[i]! > masses[i - 1]!)) {
+      massScalesWithCoupling = false
+    }
+  }
 
   // (4) the Weyl limit, control: at zero coupling the fermion is massless and the chiralities decouple
   const weylH = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: 0 })

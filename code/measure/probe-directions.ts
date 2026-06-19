@@ -33,8 +33,9 @@ export function probeDirections(input: {
   const directions: number[][] = []
   for (let index = 1; index <= count; index++) {
     const raw: number[] = []
-    for (let axis = 0; axis < dimension; axis++)
+    for (let axis = 0; axis < dimension; axis++) {
       raw.push(((index * (alpha[axis] ?? 0.5)) % 1) - 0.5)
+    }
     const norm = Math.hypot(...raw)
     directions.push(raw.map(value => value / norm))
   }

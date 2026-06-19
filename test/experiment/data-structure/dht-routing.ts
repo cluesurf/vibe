@@ -12,7 +12,9 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 const commonPrefixLength = (a: number[], b: number[]): number => {
   const n = Math.min(a.length, b.length)
   let k = 0
-  while (k < n && a[k] === b[k]) k += 1
+  while (k < n && a[k] === b[k]) {
+    k += 1
+  }
   return k
 }
 
@@ -44,7 +46,9 @@ export default experiment({
         lca +
         (a.address[target]!.length - lca)
       sumHops += hops
-      if (hops > maxHops) maxHops = hops
+      if (hops > maxHops) {
+        maxHops = hops
+      }
     }
     const meanHops = sumHops / pairs
     const logarithmicHops = maxHops <= 8 * Math.log2(cells)

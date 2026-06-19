@@ -67,15 +67,17 @@ export function kpmSeaEnergy(): {
         count: MCHEB,
         dim,
       })
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
+      }
     })
   }
   // Delta E_sea(R) = -(1/2) * a * sum_n g_n c_n Delta mu_n
   const deltaE: [number, number][] = Rs.map((R, ri) => {
     let dTrAbs = 0
-    for (let n = 0; n < MCHEB; n++)
+    for (let n = 0; n < MCHEB; n++) {
       dTrAbs += g[n]! * c[n]! * dMu[ri]![n]!
+    }
     return [R, Math.round(-0.5 * a * dTrAbs * 100) / 100] as [
       number,
       number,
@@ -83,8 +85,11 @@ export function kpmSeaEnergy(): {
   })
   // a minimum at an INTERIOR R means Delta E ~ B*R + D/R with D>0 (Skyrme stabilizing)
   let minI = 0
-  for (let i = 1; i < deltaE.length; i++)
-    if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
+  for (let i = 1; i < deltaE.length; i++) {
+    if (deltaE[i]![1] < deltaE[minI]![1]) {
+      minI = i
+    }
+  }
   const hasMinimum = minI > 0 && minI < deltaE.length - 1
   return { deltaE, hasMinimum }
 }

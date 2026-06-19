@@ -21,10 +21,13 @@ export function closure<T>(generators: T[], ops: GroupOps<T>): T[] {
       queue.push(value)
     }
   }
-  for (const generator of generators) add(generator)
+  for (const generator of generators) {
+    add(generator)
+  }
   for (let index = 0; index < queue.length; index++) {
-    for (const generator of generators)
+    for (const generator of generators) {
       add(ops.multiply(queue[index]!, generator))
+    }
   }
   return [...seen.values()]
 }

@@ -30,7 +30,9 @@ export function blockAverage(u: Float64Array, b: number): Float64Array {
   const out = new Float64Array(M)
   for (let I = 0; I < M; I++) {
     let s = 0
-    for (let j = 0; j < b; j++) s += u[I * b + j]!
+    for (let j = 0; j < b; j++) {
+      s += u[I * b + j]!
+    }
     out[I] = s / b
   }
   return out
@@ -100,8 +102,11 @@ export function leapfrogWaveLevelSpeed(input: {
   const { u0, uPrev0, r2, blockSize: b, steps, threshold } = input
   const frontOf = (arr: Float64Array): number => {
     let f = 0
-    for (let i = 0; i < arr.length; i++)
-      if (Math.abs(arr[i]!) > threshold) f = i
+    for (let i = 0; i < arr.length; i++) {
+      if (Math.abs(arr[i]!) > threshold) {
+        f = i
+      }
+    }
     return f
   }
   const start = blockAverage(u0, b)

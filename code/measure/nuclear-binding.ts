@@ -26,8 +26,12 @@ function pairingTerm(input: {
   const n = a - z
   const zEven = z % 2 === 0
   const nEven = n % 2 === 0
-  if (zEven && nEven) return PAIRING / Math.sqrt(a)
-  if (!zEven && !nEven) return -PAIRING / Math.sqrt(a)
+  if (zEven && nEven) {
+    return PAIRING / Math.sqrt(a)
+  }
+  if (!zEven && !nEven) {
+    return -PAIRING / Math.sqrt(a)
+  }
   return 0
 }
 
@@ -73,8 +77,9 @@ export function bindingPerNucleonAtMass(input: {
         protonNumber: z,
         includeCoulomb: input.includeCoulomb,
       }) / input.massNumber
-    if (bpa > best.bindingPerNucleon)
+    if (bpa > best.bindingPerNucleon) {
       best = { protonNumber: z, bindingPerNucleon: bpa }
+    }
   }
   return best
 }

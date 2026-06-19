@@ -65,7 +65,9 @@ export default experiment({
         const [x, y] = xy(c)
         const dx = x - cx
         const dy = y - cy
-        if (dx * dx + dy * dy > radius * radius) continue
+        if (dx * dx + dy * dy > radius * radius) {
+          continue
+        }
         const tx = -dy
         const ty = dx
         let best = 0
@@ -115,16 +117,23 @@ export default experiment({
         const dy = y - cy
         const b = c * degree
         let on = false
-        for (let d = 0; d < degree; d++)
+        for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
             break
           }
-        if (!on) continue
+        }
+        if (!on) {
+          continue
+        }
         const r = Math.sqrt(dx * dx + dy * dy)
-        if (r > ext) ext = r
+        if (r > ext) {
+          ext = r
+        }
         total++
-        if (r <= 2 * radius) inside++
+        if (r <= 2 * radius) {
+          inside++
+        }
       }
       return { ext, confined: total > 0 ? inside / total : 0 }
     }
@@ -146,11 +155,16 @@ export default experiment({
       scratch = swap
       const will = current
       const { ext, confined } = confinedFraction(will)
-      if (ext > maxExtent) maxExtent = ext
-      if (confined < minConfined) minConfined = confined
+      if (ext > maxExtent) {
+        maxExtent = ext
+      }
+      if (confined < minConfined) {
+        minConfined = confined
+      }
       const ratio = Math.abs(circulation(will) / l0)
-      if (t > beats / 2 && ratio > lateCirculationMax)
+      if (t > beats / 2 && ratio > lateCirculationMax) {
         lateCirculationMax = ratio
+      }
     }
 
     // the honest negative, the vortex DISPERSES (extent reaches the boundary, confined fraction drops to zero) and

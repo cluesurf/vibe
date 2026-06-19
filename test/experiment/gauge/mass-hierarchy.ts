@@ -42,7 +42,9 @@ function meanInterShellDistance(): number {
   let bestNorm = Infinity
   for (let i = 0; i < g.size; i++) {
     let nn = 0
-    for (let k = 0; k < dim; k++) nn += (coords[i * dim + k] ?? 0) ** 2
+    for (let k = 0; k < dim; k++) {
+      nn += (coords[i * dim + k] ?? 0) ** 2
+    }
     if (nn < bestNorm) {
       bestNorm = nn
       center = i

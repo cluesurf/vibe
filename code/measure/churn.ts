@@ -21,13 +21,17 @@ export function churnCount(input: {
     for (let i = 0; i < N; i++) {
       let s = 0
       const row = neighbors[i] ?? []
-      for (let k = 0; k < row.length; k++) s += cur[row[k]!]!
+      for (let k = 0; k < row.length; k++) {
+        s += cur[row[k]!]!
+      }
       const v = ((((s - prev[i]!) % modulus) + modulus) % modulus) as
         | 0
         | 1
         | 2
       nx[i] = v
-      if (v !== cur[i]!) changes++
+      if (v !== cur[i]!) {
+        changes++
+      }
     }
     prev = cur
     cur = nx

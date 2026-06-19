@@ -18,24 +18,32 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   const dimension = directions[0]?.length ?? 0
   const momentumKey = (a: number, b: number): string => {
     const sum = new Array<number>(dimension)
-    for (let axis = 0; axis < dimension; axis++)
+    for (let axis = 0; axis < dimension; axis++) {
       sum[axis] =
         (directions[a]![axis] ?? 0) + (directions[b]![axis] ?? 0)
+    }
     return sum.map(value => Math.round(value)).join(',')
   }
   // group the unordered slot-pairs by their total momentum
   const groups = new Map<string, Array<[number, number]>>()
-  for (let a = 0; a < count; a++)
+  for (let a = 0; a < count; a++) {
     for (let b = a + 1; b < count; b++) {
       const key = momentumKey(a, b)
-      if (!groups.has(key)) groups.set(key, [])
+      if (!groups.has(key)) {
+        groups.set(key, [])
+      }
       groups.get(key)!.push([a, b])
     }
+  }
   const zeroKey = new Array<number>(dimension).fill(0).join(',')
   // process nonzero-momentum groups first (they give viscosity), then the zero-momentum group
   const orderedKeys = [...groups.keys()].sort((left, right) => {
-    if (left === zeroKey) return 1
-    if (right === zeroKey) return -1
+    if (left === zeroKey) {
+      return 1
+    }
+    if (right === zeroKey) {
+      return -1
+    }
     return 0
   })
   const quads: number[][] = []
@@ -43,7 +51,9 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   for (const key of orderedKeys) {
     const pending: Array<[number, number]> = []
     for (const [a, b] of groups.get(key)!) {
-      if (used[a] || used[b]) continue
+      if (used[a] || used[b]) {
+        continue
+      }
       pending.push([a, b])
       if (pending.length === 2) {
         const [p1, p2] = pending
@@ -73,11 +83,15 @@ export function controlledViscousRotate(input: {
   const gateCount = input.gateCount ?? 4
   const gated = quads.slice(0, gateCount)
   const controlPool = quads.slice(gateCount).flat()
-  if (controlPool.length === 0) return viscousRotate(input) // no control slots free, fall back
+  if (controlPool.length === 0) {
+    return viscousRotate(input)
+  } // no control slots free, fall back
   return (slots, base) => {
     for (let i = 0; i < gated.length; i++) {
       const control = controlPool[i % controlPool.length]!
-      if (slots[base + control] !== 1) continue
+      if (slots[base + control] !== 1) {
+        continue
+      }
       const quad = gated[i]!
       const a = base + quad[0]!,
         b = base + quad[1]!,

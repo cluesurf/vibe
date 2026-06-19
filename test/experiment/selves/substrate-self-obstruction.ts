@@ -62,7 +62,9 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! <= 2) {
           const base = c * degree
-          for (let d = 0; d < degree; d++) will.data[base + d] = 1
+          for (let d = 0; d < degree; d++) {
+            will.data[base + d] = 1
+          }
         }
       }
       return will
@@ -82,7 +84,9 @@ export default experiment({
         current = scratch
         scratch = swap
         const ext = travelDistance({ will: current, start: center })
-        if (ext > maxExtent) maxExtent = ext
+        if (ext > maxExtent) {
+          maxExtent = ext
+        }
       }
       return maxExtent
     }
@@ -118,12 +122,15 @@ export default experiment({
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
           let differs = false
-          for (let d = 0; d < degree; d++)
+          for (let d = 0; d < degree; d++) {
             if (plain.data[base + d] !== pert.data[base + d]) {
               differs = true
               break
             }
-          if (differs && dist[c]! > maxCone) maxCone = dist[c]!
+          }
+          if (differs && dist[c]! > maxCone) {
+            maxCone = dist[c]!
+          }
         }
       }
       return maxCone

@@ -60,8 +60,11 @@ function gliderSelf(): {
       }
     }
     const next = new Set<string>()
-    for (const [k, c] of count)
-      if (c === 3 || (c === 2 && state.has(k))) next.add(k)
+    for (const [k, c] of count) {
+      if (c === 3 || (c === 2 && state.has(k))) {
+        next.add(k)
+      }
+    }
     return next
   }
   let s = new Set<string>(['0,0', '1,0', '2,0', '2,1', '1,2'])
@@ -93,11 +96,12 @@ function gliderSelf(): {
   const turnover = tov / tovc
   // speed = mean centroid displacement per beat; rgGrowth = radius-of-gyration drift (should stay ~constant)
   let disp = 0
-  for (let t = 0; t + 1 < centroids.length; t++)
+  for (let t = 0; t + 1 < centroids.length; t++) {
     disp += Math.hypot(
       centroids[t + 1]![0]! - centroids[t]![0]!,
       centroids[t + 1]![1]! - centroids[t]![1]!,
     )
+  }
   const speed = disp / (centroids.length - 1)
   const rgGrowth =
     radiusOfGyrationOfCellSet(frames[frames.length - 1]!) -
@@ -141,11 +145,13 @@ function vibeChurn(): {
   }
   const occupied = (): Set<string> => {
     const s = new Set<string>()
-    for (let i = 0; i < n; i++)
-      if (tone[i] === 1)
+    for (let i = 0; i < n; i++) {
+      if (tone[i] === 1) {
         s.add(
           `${g.coords[i]![0]},${g.coords[i]![1]},${g.coords[i]![2]}`,
         )
+      }
+    }
     return s
   }
   const rng = makeRng({ seed: 3 })
@@ -161,13 +167,17 @@ function vibeChurn(): {
       order[j] = t
     }
     for (const v of order) {
-      if (used[v]) continue
+      if (used[v]) {
+        continue
+      }
       const start = offsets[v]!
       const deg = offsets[v + 1]! - start
       const o = Math.floor(rng.next() * deg)
       for (let sft = 0; sft < deg; sft++) {
         const w = adj[start + ((o + sft) % deg)]!
-        if (used[w] || w === v) continue
+        if (used[w] || w === v) {
+          continue
+        }
         const [na, nb] = perm(tone[v]!, tone[w]!)
         tone[v] = na as -1 | 0 | 1
         tone[w] = nb as -1 | 0 | 1
@@ -177,7 +187,9 @@ function vibeChurn(): {
       }
     }
   }
-  for (let t = 0; t < 30; t++) step()
+  for (let t = 0; t < 30; t++) {
+    step()
+  }
   const frameT = occupied()
   // identity = overlap of recentered 3D patterns (does the seed keep its shape?), rgGrowth = does it disperse?
   const identity = cellSetOverlap(

@@ -85,7 +85,9 @@ export function sampleEmpiricalFrequencies(input: {
   for (let d = 0; d < draws; d++) {
     const u = rng.nextInt({ max: total })
     let k = 0
-    while (k < cumulative.length && u >= (cumulative[k] ?? 0)) k++
+    while (k < cumulative.length && u >= (cumulative[k] ?? 0)) {
+      k++
+    }
     hits[k] = (hits[k] ?? 0) + 1
   }
   return hits.map(h => h / draws)

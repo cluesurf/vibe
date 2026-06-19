@@ -31,17 +31,20 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const L = input?.L ?? 8192
   const rng = makeRng({ seed: 6 })
   const tone = new Int8Array(L)
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
       | 0
       | 1
+  }
   // balance to a fixed total so coarse charge has a clean reference
   evolveConservingRing({ tone, beats: 200, arrow: 0.12, rng })
 
   const q0 = (() => {
     let s = 0
-    for (let i = 0; i < L; i++) s += tone[i]!
+    for (let i = 0; i < L; i++) {
+      s += tone[i]!
+    }
     return s
   })()
 

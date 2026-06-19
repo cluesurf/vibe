@@ -44,7 +44,7 @@ async function run(): Promise<void> {
   const N = g.cellCount
   const eu: number[] = [],
     ev: number[] = []
-  for (let v = 0; v < N; v++)
+  for (let v = 0; v < N; v++) {
     for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
       const w = g.adj[p]!
       if (w > v) {
@@ -52,6 +52,7 @@ async function run(): Promise<void> {
         ev.push(w)
       }
     }
+  }
   const E = eu.length
   const mask = new Uint32Array(N)
   const color = new Int32Array(E)
@@ -59,16 +60,24 @@ async function run(): Promise<void> {
   for (let i = 0; i < E; i++) {
     const used = mask[eu[i]!]! | mask[ev[i]!]!
     let c = 0
-    while (used & (1 << c)) c++
+    while (used & (1 << c)) {
+      c++
+    }
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
-    if (c > maxColor) maxColor = c
+    if (c > maxColor) {
+      maxColor = c
+    }
   }
   const C = maxColor + 1
   const colorOffsets = new Array(C + 1).fill(0)
-  for (let i = 0; i < E; i++) colorOffsets[color[i]! + 1]++
-  for (let c = 0; c < C; c++) colorOffsets[c + 1] += colorOffsets[c]!
+  for (let i = 0; i < E; i++) {
+    colorOffsets[color[i]! + 1]++
+  }
+  for (let c = 0; c < C; c++) {
+    colorOffsets[c + 1] += colorOffsets[c]!
+  }
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
   const cur = colorOffsets.slice()
@@ -86,17 +95,21 @@ async function run(): Promise<void> {
     const ballOf = new Int32Array(N).fill(-1)
     let nb = 0
     if (R === 0) {
-      for (let i = 0; i < N; i++) ballOf[i] = i
+      for (let i = 0; i < N; i++) {
+        ballOf[i] = i
+      }
       return { ballOf, count: N }
     }
     for (let s = 0; s < N; s++) {
-      if (ballOf[s]! >= 0) continue
+      if (ballOf[s]! >= 0) {
+        continue
+      }
       const id = nb++
       ballOf[s] = id
       let frontier = [s]
       for (let r = 0; r < R; r++) {
         const nx: number[] = []
-        for (const u of frontier)
+        for (const u of frontier) {
           for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
             const w = g.adj[p]!
             if (ballOf[w]! < 0) {
@@ -104,6 +117,7 @@ async function run(): Promise<void> {
               nx.push(w)
             }
           }
+        }
         frontier = nx
       }
     }
@@ -171,7 +185,9 @@ async function run(): Promise<void> {
     for (let c = 0; c < C; c++) {
       const start = colorOffsets[c]!,
         count = colorOffsets[c + 1]! - start
-      if (!count) continue
+      if (!count) {
+        continue
+      }
       device.queue.writeBuffer(
         params,
         0,
@@ -187,7 +203,9 @@ async function run(): Promise<void> {
     }
   }
 
-  for (let b = 0; b < WARMUP; b++) beatGpu()
+  for (let b = 0; b < WARMUP; b++) {
+    beatGpu()
+  }
   await device.queue.onSubmittedWorkDone()
 
   // snapshots: coarse charge per scale per snapshot
@@ -195,7 +213,9 @@ async function run(): Promise<void> {
     Array.from({ length: M }, () => new Float64Array(p.count)),
   )
   for (let s = 0; s < M; s++) {
-    for (let b = 0; b < K; b++) beatGpu()
+    for (let b = 0; b < K; b++) {
+      beatGpu()
+    }
     {
       const enc = device.createCommandEncoder()
       enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
@@ -231,16 +251,20 @@ async function run(): Promise<void> {
     const n = partitions[sc]!.count
     const c0 = (): number => {
       let s = 0
-      for (let st = 0; st < M; st++)
-        for (let i = 0; i < n; i++) s += ser[st]![i]! * ser[st]![i]!
+      for (let st = 0; st < M; st++) {
+        for (let i = 0; i < n; i++) {
+          s += ser[st]![i]! * ser[st]![i]!
+        }
+      }
       return s
     }
     const ctau = (tau: number): number => {
       let s = 0,
         cnt = 0
       for (let st = 0; st + tau < M; st++) {
-        for (let i = 0; i < n; i++)
+        for (let i = 0; i < n; i++) {
           s += ser[st]![i]! * ser[st + tau]![i]!
+        }
         cnt++
       }
       return s

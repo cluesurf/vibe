@@ -36,8 +36,9 @@ export function s73Dynamics(): {
   const lightSpeed = 1
   // churn, mod-3 wave from random init
   const cur = new Int8Array(N)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+  }
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 30, modulus: 3 }) >
     N

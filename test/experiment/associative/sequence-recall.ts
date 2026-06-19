@@ -31,7 +31,9 @@ function buildPath(
         break
       }
     }
-    if (next < 0) break
+    if (next < 0) {
+      break
+    }
     used.add(next)
     path.push(next)
     current = next
@@ -84,8 +86,11 @@ export function associativeSequenceRecall(input?: {
   // count how many replayed cells match the laid-down path in order
   let correctInOrder = 0
   for (let i = 0; i < replay.length && i < path.length; i++) {
-    if (replay[i] === path[i]) correctInOrder++
-    else break
+    if (replay[i] === path[i]) {
+      correctInOrder++
+    } else {
+      break
+    }
   }
 
   const solved = path.length >= 5 && correctInOrder === path.length

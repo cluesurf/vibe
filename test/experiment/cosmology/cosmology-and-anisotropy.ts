@@ -22,11 +22,12 @@ function expansionLaw(): { ratio: number; H: number } {
     nb = g.neighbors
   let center = 0,
     best = -1
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (nb[i]!.length > best) {
       best = nb[i]!.length
       center = i
     }
+  }
   const { shellCounts: shell } = bfsShells({
     neighbors: nb,
     root: center,

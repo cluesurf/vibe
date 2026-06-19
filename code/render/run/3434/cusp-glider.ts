@@ -33,7 +33,9 @@ function step(tone: Int8Array, f: number): void {
   const start = (f * 2654435761) % N
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
-    if (m[v] || tone[v] === 0) continue
+    if (m[v] || tone[v] === 0) {
+      continue
+    }
     const vx = v % L
     const vy = ((v / L) | 0) % L
     const vz = (v / (L * L)) | 0
@@ -42,7 +44,9 @@ function step(tone: Int8Array, f: number): void {
       const wy = (vy + dy[k]! + L) % L
       const wz = (vz + dz[k]! + L) % L
       const w = idx(wx, wy, wz)
-      if (m[w]) continue
+      if (m[w]) {
+        continue
+      }
       const a = tone[v]!
       const b = tone[w]!
       if (a === -b && a !== 0) {
@@ -89,8 +93,8 @@ function run(): void {
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
   const z2arr = new Float32Array(N)
-  for (let z = 0; z < L; z++)
-    for (let y = 0; y < L; y++)
+  for (let z = 0; z < L; z++) {
+    for (let y = 0; y < L; y++) {
       for (let x = 0; x < L; x++) {
         const [px, py, pz] = project(x, y, z)
         const i = idx(x, y, z)
@@ -99,14 +103,16 @@ function run(): void {
         z2arr[i] = pz
         DEPTH[i] = 0.5 + 0.5 * (pz / L + 0.5)
       }
+    }
+  }
   const order = Array.from({ length: N }, (_, i) => i).sort(
     (a, b) => z2arr[a]! - z2arr[b]!,
   )
 
   // wireframe cube edges (the 8 corners, 12 edges), projected
   const corners: [number, number][] = []
-  for (let cz = 0; cz < 2; cz++)
-    for (let cy = 0; cy < 2; cy++)
+  for (let cz = 0; cz < 2; cz++) {
+    for (let cy = 0; cy < 2; cy++) {
       for (let cx = 0; cx < 2; cx++) {
         const [px, py] = project(
           cx * (L - 1),
@@ -115,6 +121,8 @@ function run(): void {
         )
         corners.push([Math.round(px), Math.round(py)])
       }
+    }
+  }
   const edges: [number, number][] = [
     [0, 1],
     [2, 3],
@@ -140,9 +148,12 @@ function run(): void {
     [8, 30, 78, 1],
     [8, 65, 22, -1],
   ]
-  for (const [x, y, z, s] of seeds) tone[idx(x, y, z)] = s as -1 | 1
-  for (let k = 0; k < 6; k++)
-    tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1 // a 7-cell cluster glider
+  for (const [x, y, z, s] of seeds) {
+    tone[idx(x, y, z)] = s as -1 | 1
+  }
+  for (let k = 0; k < 6; k++) {
+    tone[idx(8 + dx[k]!, 45 + dy[k]!, 45 + dz[k]!)] = 1
+  } // a 7-cell cluster glider
   tone[idx(8, 45, 45)] = 1
 
   const trail = new Float32Array(N)
@@ -188,26 +199,31 @@ function run(): void {
       for (let s = 0; s <= steps; s++) {
         const ix = Math.round(x0 + ((x1 - x0) * s) / steps)
         const iy = Math.round(y0 + ((y1 - y0) * s) / steps)
-        if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
+        if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
+          continue
+        }
         const pix = iy * IMG + ix
         accR[pix] = 26
         accG[pix] = 28
         accB[pix] = 34
       }
     }
-    for (const [a, b] of edges)
+    for (const [a, b] of edges) {
       drawLine(
         corners[a]![0],
         corners[a]![1],
         corners[b]![0],
         corners[b]![1],
       )
+    }
 
     // composite trails + heads back-to-front
     for (let k = 0; k < N; k++) {
       const cell = order[k]!
       const tr = trail[cell]!
-      if (tr < 0.03) continue
+      if (tr < 0.03) {
+        continue
+      }
       const col = tsign[cell] === 1 ? BLUE : RED
       const d = DEPTH[cell]!
       const a = Math.min(0.95, ALPHA * tr)
@@ -218,7 +234,9 @@ function run(): void {
         for (let ddx = -rad; ddx <= rad; ddx++) {
           const ix = cxp + ddx
           const iy = cyp + ddy
-          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) continue
+          if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
+            continue
+          }
           const pix = iy * IMG + ix
           accR[pix] = accR[pix]! * (1 - a) + col[0] * d * a
           accG[pix] = accG[pix]! * (1 - a) + col[1] * d * a

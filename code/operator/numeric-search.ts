@@ -14,7 +14,9 @@ export function maxIndex(input: {
   let index = -1
   let value = -Infinity
   for (let c = 0; c < field.length; c++) {
-    if (active && !active[c]) continue
+    if (active && !active[c]) {
+      continue
+    }
     if (field[c]! > value) {
       value = field[c]!
       index = c
@@ -32,7 +34,9 @@ export function minIndex(input: {
   let index = -1
   let value = Infinity
   for (let c = 0; c < field.length; c++) {
-    if (active && !active[c]) continue
+    if (active && !active[c]) {
+      continue
+    }
     if (field[c]! < value) {
       value = field[c]!
       index = c
@@ -51,7 +55,9 @@ export function nextHigherIndex(input: {
   let index = -1
   let value = Infinity
   for (let c = 0; c < field.length; c++) {
-    if (active && !active[c]) continue
+    if (active && !active[c]) {
+      continue
+    }
     const v = field[c]!
     if (v > target && v < value) {
       value = v
@@ -71,7 +77,9 @@ export function nextLowerIndex(input: {
   let index = -1
   let value = -Infinity
   for (let c = 0; c < field.length; c++) {
-    if (active && !active[c]) continue
+    if (active && !active[c]) {
+      continue
+    }
     const v = field[c]!
     if (v < target && v > value) {
       value = v

@@ -54,8 +54,9 @@ export default experiment({
       size: params.size,
       coreRadius: 5,
     })
-    for (let t = 0; t < 2000; t++)
+    for (let t = 0; t < 2000; t++) {
       base = relaxSpins({ spins: base, params, rate: 0.08 })
+    }
     const startQ = skyrmionDegree(base, params.size)
 
     // FACT 1: re-snap the STATE to 3 trits each beat, at a small step. Does the charge hold?
@@ -63,7 +64,9 @@ export default experiment({
       s.map(v => {
         const q = (c: number) => Math.round(c)
         const w: Spin = [q(v[0]), q(v[1]), q(v[2])]
-        if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
+        if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
+          return [0, 0, 1]
+        }
         const n = Math.hypot(w[0], w[1], w[2]) || 1
         return [w[0] / n, w[1] / n, w[2] / n]
       })
@@ -74,8 +77,12 @@ export default experiment({
       st = precessSpins({ spins: st, params, dt: 0.008, open: false })
       st = snapTrit(st)
       const q = skyrmionDegree(st, params.size)
-      if (q < tritMin) tritMin = q
-      if (q > tritMax) tritMax = q
+      if (q < tritMin) {
+        tritMin = q
+      }
+      if (q > tritMax) {
+        tritMax = q
+      }
     }
     const tritStateHolds =
       Math.abs(tritMin + 1) < 0.15 && Math.abs(tritMax + 1) < 0.15
@@ -88,8 +95,12 @@ export default experiment({
       for (let t = 0; t < steps; t++) {
         s = precessSpins({ spins: s, params, dt, open: false })
         const q = skyrmionDegree(s, params.size)
-        if (q < min) min = q
-        if (q > max) max = q
+        if (q < min) {
+          min = q
+        }
+        if (q > max) {
+          max = q
+        }
       }
       return { min, max }
     }

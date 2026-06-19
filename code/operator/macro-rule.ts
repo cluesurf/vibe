@@ -67,8 +67,9 @@ export function naiveMacroStep(
     let h = 0
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
-    for (let k = 0; k < nb.length; k++)
+    for (let k = 0; k < nb.length; k++) {
       h += sign(jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
+    }
     out[c] = sign(h)
   }
   return out
@@ -85,8 +86,9 @@ export function renormMacroStep(
     let h = (eff.Jself[c] ?? 0) * (superTone[c] ?? 0)
     const nb = eff.nbr[c] ?? []
     const jc = eff.Jcross[c] ?? new Float64Array(0)
-    for (let k = 0; k < nb.length; k++)
+    for (let k = 0; k < nb.length; k++) {
       h += (jc[k] ?? 0) * (superTone[nb[k] ?? 0] ?? 0)
+    }
     out[c] = sign(h)
   }
   return out

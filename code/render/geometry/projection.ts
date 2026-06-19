@@ -26,10 +26,14 @@ export type ProjectionModel =
 // lift a Poincare-ball point to the hyperboloid (the master model), x[0] timelike, x[1..] spacelike
 export function liftToHyperboloid(ball: Vec): Vec {
   let r2 = 0
-  for (const c of ball) r2 += c * c
+  for (const c of ball) {
+    r2 += c * c
+  }
   const denom = 1 - r2 || 1e-12
   const x: Vec = [(1 + r2) / denom]
-  for (const c of ball) x.push((2 * c) / denom)
+  for (const c of ball) {
+    x.push((2 * c) / denom)
+  }
   return x
 }
 
@@ -38,7 +42,9 @@ export function liftToHyperboloid(ball: Vec): Vec {
 // structure of the disk) and fall back to poincare in higher dimensions.
 export function applyModel(ball: Vec, model: ProjectionModel): Vec {
   let r2 = 0
-  for (const c of ball) r2 += c * c
+  for (const c of ball) {
+    r2 += c * c
+  }
   switch (model) {
     case 'poincare':
       return ball.slice()
@@ -57,7 +63,9 @@ export function applyModel(ball: Vec, model: ProjectionModel): Vec {
     case 'azimuthal-equidistant': {
       // plot at radius = the true hyperbolic distance d = 2 atanh(r), direction preserved
       const r = Math.sqrt(r2)
-      if (r < 1e-9) return ball.slice()
+      if (r < 1e-9) {
+        return ball.slice()
+      }
       const d = 2 * Math.atanh(Math.min(0.999999, r))
       const s = d / r
       return ball.map(c => c * s)
@@ -69,7 +77,9 @@ export function applyModel(ball: Vec, model: ProjectionModel): Vec {
     }
     case 'inverted': {
       // turn the disk inside out, p -> p / |p|^2, so the boundary collapses to the center
-      if (r2 < 1e-9) return ball.map(() => 0)
+      if (r2 < 1e-9) {
+        return ball.map(() => 0)
+      }
       return ball.map(c => c / r2)
     }
     case 'hemisphere':

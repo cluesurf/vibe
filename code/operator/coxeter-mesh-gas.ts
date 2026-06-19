@@ -19,12 +19,13 @@ export function streamCoxeterMeshGas(input: {
   const out = Array.from({ length: cells }, () =>
     new Array(rank).fill(0),
   )
-  for (let cell = 0; cell < cells; cell++)
+  for (let cell = 0; cell < cells; cell++) {
     for (let d = 0; d < rank; d++) {
       const target =
         adjacency[cell]![d]! === -1 ? cell : adjacency[cell]![d]!
       out[target]![d] = state[cell]![d]!
     }
+  }
   return out
 }
 

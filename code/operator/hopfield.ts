@@ -65,9 +65,11 @@ export function mutatePattern(input: {
 }): Int8Array {
   const { pattern, rate, rng } = input
   const out = Int8Array.from(pattern)
-  for (let i = 0; i < out.length; i++)
-    if (rng.next() < rate)
+  for (let i = 0; i < out.length; i++) {
+    if (rng.next() < rate) {
       out[i] = (rng.next() < 0.5 ? -1 : 1) as -1 | 1
+    }
+  }
   return out
 }
 
@@ -75,10 +77,11 @@ export function mutatePattern(input: {
 // signal), averaged pattern-by-pattern.
 export function bankOverlap(a: Int8Array[], b: Int8Array[]): number {
   let s = 0
-  for (let m = 0; m < a.length; m++)
+  for (let m = 0; m < a.length; m++) {
     s += Math.abs(
       toneOverlap(a[m] ?? new Int8Array(0), b[m] ?? new Int8Array(0)),
     )
+  }
   return s / Math.max(1, a.length)
 }
 
@@ -173,7 +176,9 @@ export function runHopfieldPair(input: {
     }
     a = hopfieldStep(Ja, a, zero, cueA)
     b = hopfieldStep(Jb, b, zero, cueB)
-    if (phase === dwell - 1) overlaps.push(Math.abs(toneOverlap(a, b)))
+    if (phase === dwell - 1) {
+      overlaps.push(Math.abs(toneOverlap(a, b)))
+    }
   }
   return (
     overlaps.reduce((x, y) => x + y, 0) / Math.max(1, overlaps.length)

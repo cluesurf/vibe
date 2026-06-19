@@ -25,8 +25,11 @@ export default experiment({
 
     // levels grow monotonically (each radial level larger than the one inside it)
     let monotonic = true
-    for (let i = 1; i < complete.length; i++)
-      if (complete[i]! < complete[i - 1]!) monotonic = false
+    for (let i = 1; i < complete.length; i++) {
+      if (complete[i]! < complete[i - 1]!) {
+        monotonic = false
+      }
+    }
     // a stable geometric level fan-out (the level-size ratio), bounded above 1
     const levelFanout = lastCompleteShellRatio(mesh.shells)
     const flatFanout = lastCompleteShellRatio(flat.shells)

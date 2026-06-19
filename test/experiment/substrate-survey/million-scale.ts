@@ -53,7 +53,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
   const life = new Int8Array(n)
   const qL = sumTone(life)
   const rngL = makeRng({ seed: 3 })
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     perceptionEdgeBeat({
       tone: life,
       eu: g.eu,
@@ -66,8 +66,9 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       cohesive: false,
       temperature: TEMP,
     })
+  }
   const balanceMid = nonzero(life)
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     perceptionEdgeBeat({
       tone: life,
       eu: g.eu,
@@ -80,6 +81,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       cohesive: false,
       temperature: TEMP,
     })
+  }
   const lifeEnd = nonzero(life)
   const balanceLate = lifeEnd
   const conservedLife = sumTone(life) === qL
@@ -99,12 +101,14 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       source: 0,
       limit: 4000,
     })
-    for (const i of blob) t[i] = 1
+    for (const i of blob) {
+      t[i] = 1
+    }
     const meanBlob = (arr: Int8Array): number =>
       blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
     const start = meanBlob(t)
     const rng2 = makeRng({ seed: 31 })
-    for (let b = 0; b < 30; b++)
+    for (let b = 0; b < 30; b++) {
       perceptionEdgeBeat({
         tone: t,
         eu: g.eu,
@@ -117,9 +121,12 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
         cohesive,
         temperature: TEMP,
       })
+    }
     const after = meanBlob(t)
     let bg = 0
-    for (let i = 0; i < n; i++) bg += t[i]!
+    for (let i = 0; i < n; i++) {
+      bg += t[i]!
+    }
     bg /= n
     return {
       ret: (after - bg) / (start - bg || 1),

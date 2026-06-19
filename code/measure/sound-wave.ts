@@ -16,7 +16,9 @@ export function coinLines(opposite: number[]): Array<[number, number]> {
   const lines: Array<[number, number]> = []
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
-    if (direction < other) lines.push([direction, other])
+    if (direction < other) {
+      lines.push([direction, other])
+    }
   }
   return lines
 }
@@ -89,7 +91,9 @@ export function firstMinimumTime(trace: ReadonlyArray<number>): number {
     if (trace[t]! < valueOfMin) {
       valueOfMin = trace[t]!
       timeOfMin = t
-    } else if (trace[t]! > valueOfMin && timeOfMin > 0) break
+    } else if (trace[t]! > valueOfMin && timeOfMin > 0) {
+      break
+    }
   }
   return timeOfMin
 }

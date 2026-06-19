@@ -45,11 +45,12 @@ export default experiment({
     const idx = (x: number, y: number): number =>
       ((y + L) % L) * L + ((x + L) % L)
     const field: Spin[] = makeSkyrmionField({ size: L, coreRadius: 6 })
-    for (let y = 20; y < 24; y++)
+    for (let y = 20; y < 24; y++) {
       for (let x = 28; x < 32; x++) {
         const n = Math.hypot(1, 0, 0.3)
         field[idx(x, y)] = [1 / n, 0, 0.3 / n]
       }
+    }
     const perturbedDegree = skyrmionDegree(snapToTrits(field), L)
 
     const chargeAtAllSizes =

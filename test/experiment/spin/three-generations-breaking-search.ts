@@ -31,8 +31,9 @@ import { octonionReal, type Octonion } from '@/code/algebra/octonion'
 // mass_i = trace(e_i o M) = M_ii, this diagonal IS the generation mass spectrum, which makes its freedom explicit.
 function diagonalVacuum(diagonal: number[]): Octonion[][] {
   const matrix = octonionMatrixZero(diagonal.length)
-  for (let i = 0; i < diagonal.length; i++)
+  for (let i = 0; i < diagonal.length; i++) {
     matrix[i]![i] = octonionReal(diagonal[i]!)
+  }
   return matrix
 }
 
@@ -50,10 +51,13 @@ export default experiment({
     const threeIdempotents =
       frame.length === 3 && frame.every(e => isJordanIdempotent(e))
     let pairwiseOrthogonal = true
-    for (let i = 0; i < 3; i++)
-      for (let j = i + 1; j < 3; j++)
-        if (!areJordanOrthogonal(frame[i]!, frame[j]!))
+    for (let i = 0; i < 3; i++) {
+      for (let j = i + 1; j < 3; j++) {
+        if (!areJordanOrthogonal(frame[i]!, frame[j]!)) {
           pairwiseOrthogonal = false
+        }
+      }
+    }
     const cyclicIsAutomorphism = isJordanAutomorphism([1, 2, 0]) // the order-three family symmetry
 
     // the masses a vacuum M induces on the three slots

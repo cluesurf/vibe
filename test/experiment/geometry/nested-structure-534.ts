@@ -42,8 +42,11 @@ export function nestedStructure534(maxCells = 120000): {
   const cleanShells: number[] = [shellCounts[0]!]
   for (let i = 1; i < shellCounts.length; i++) {
     const ratio = shellCounts[i]! / shellCounts[i - 1]!
-    if (ratio > 2) cleanShells.push(shellCounts[i]!)
-    else break // truncated boundary shell, stop
+    if (ratio > 2) {
+      cleanShells.push(shellCounts[i]!)
+    } else {
+      break
+    } // truncated boundary shell, stop
   }
 
   const ratios = cleanShells.slice(1).map((c, i) => c / cleanShells[i]!)
@@ -70,8 +73,11 @@ export function nestedStructure534(maxCells = 120000): {
   const meanRadius = sumR.map((s, i) => (cntR[i]! ? s / cntR[i]! : 0))
   // boundary accumulation: radius increases monotonically and the deepest clean shell is near 1
   let monotone = true
-  for (let i = 1; i < meanRadius.length; i++)
-    if (meanRadius[i]! < meanRadius[i - 1]! - 1e-9) monotone = false
+  for (let i = 1; i < meanRadius.length; i++) {
+    if (meanRadius[i]! < meanRadius[i - 1]! - 1e-9) {
+      monotone = false
+    }
+  }
   const boundaryAccumulation =
     monotone && meanRadius[meanRadius.length - 1]! > 0.95
 

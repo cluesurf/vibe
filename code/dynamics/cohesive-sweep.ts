@@ -13,7 +13,9 @@ export function agreeCount(
   let c = 0
   for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
     const w = adj[p]!
-    if (w !== except && tone[w] === q) c++
+    if (w !== except && tone[w] === q) {
+      c++
+    }
   }
   return c
 }
@@ -45,7 +47,9 @@ export function cohesiveEdgeSweep(input: {
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if (

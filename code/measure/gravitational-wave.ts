@@ -91,7 +91,9 @@ export function petersInspiralTrack(input: {
     const dadt = (-(64 / 5) * (mass1 * mass2 * Mtot)) / a ** 3
     a += dadt * dt
     t += dt
-    if (a <= 0) break
+    if (a <= 0) {
+      break
+    }
     const omega = keplerFrequency({ totalMass: Mtot, separation: a })
     times.push(t)
     gwFrequencies.push((2 * omega) / (2 * Math.PI))

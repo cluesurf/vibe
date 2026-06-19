@@ -105,8 +105,9 @@ export function renderDigitFibonacci(input: {
       step.kind === 'jz' &&
       step.reg === nIndex &&
       step.registers[nIndex] !== 0n
-    )
+    ) {
       latched = Number(step.registers[bIndex]!)
+    }
     steps.push(step)
     display.push(latched)
   })
@@ -127,12 +128,14 @@ export function renderDigitFibonacci(input: {
     const step = steps[i]!
     const prev = i === 0 ? initial : steps[i - 1]!.registers
     const changed = new Set<number>()
-    for (let p = 0; p < digitsShown; p++)
+    for (let p = 0; p < digitsShown; p++) {
       if (
         digit(step.registers[step.reg]!, p) !==
         digit(prev[step.reg]!, p)
-      )
+      ) {
         changed.add(p)
+      }
+    }
     const av = step.registers[step.reg]!
     const pv = prev[step.reg]!
     const mode: 'add' | 'sub' | 'idle' =
@@ -159,7 +162,7 @@ export function renderDigitFibonacci(input: {
     }
   }
   const lastRegs = steps[steps.length - 1]!.registers
-  for (let h = 0; h < 14; h++)
+  for (let h = 0; h < 14; h++) {
     frames.push(
       renderFrame({
         tiling,
@@ -177,6 +180,7 @@ export function renderDigitFibonacci(input: {
         digit,
       }),
     )
+  }
 
   writeFileSync(
     join(outDir, `${outName}-frame.png`),

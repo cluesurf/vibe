@@ -24,8 +24,12 @@ export function landauCriticalVelocity(input: {
 
 const wrap = (x: number): number => {
   let v = x
-  while (v > Math.PI) v -= 2 * Math.PI
-  while (v <= -Math.PI) v += 2 * Math.PI
+  while (v > Math.PI) {
+    v -= 2 * Math.PI
+  }
+  while (v <= -Math.PI) {
+    v += 2 * Math.PI
+  }
   return v
 }
 

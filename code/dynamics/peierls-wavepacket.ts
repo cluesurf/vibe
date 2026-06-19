@@ -33,17 +33,18 @@ export function peierlsWavepacketDrift(input: {
   const y0 = L / 2
   let psi: C[] = new Array(L * L).fill([0, 0])
   let nrm = 0
-  for (let x = 0; x < L; x++)
+  for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const g = Math.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * w * w))
       const ph = phase(kx * x)
       psi[idx(x, y)] = cscale(ph, g)
       nrm += g * g
     }
+  }
   psi = psi.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   for (let t = 0; t < steps; t++) {
     const next: C[] = psi.map(z => [...z] as C)
-    for (let x = 0; x < L; x++)
+    for (let x = 0; x < L; x++) {
       for (let y = 0; y < L; y++) {
         const i = idx(x, y)
         // x-hops (no phase), y-hops with Peierls phase e^{i B x} (Landau gauge)
@@ -55,17 +56,21 @@ export function peierlsWavepacketDrift(input: {
         hop(idx(x, wrap(y + 1)), phase(B * x))
         hop(idx(x, wrap(y - 1)), phase(-B * x))
       }
+    }
     let n2 = 0
-    for (const z of next) n2 += cabs2(z)
+    for (const z of next) {
+      n2 += cabs2(z)
+    }
     psi = next.map(z => cscale(z, 1 / Math.sqrt(n2)))
   }
   let ybar = 0,
     wsum = 0
-  for (let x = 0; x < L; x++)
+  for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const p = cabs2(psi[idx(x, y)]!)
       ybar += (y - y0) * p
       wsum += p
     }
+  }
   return ybar / wsum // transverse drift
 }

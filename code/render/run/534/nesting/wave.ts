@@ -47,12 +47,14 @@ async function run(): Promise<void> {
   let frontier = [0]
   while (frontier.length) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const v of g.neighbors[u]!)
+    for (const u of frontier) {
+      for (const v of g.neighbors[u]!) {
         if (depth[v]! < 0) {
           depth[v] = depth[u]! + 1
           next.push(v)
         }
+      }
+    }
     frontier = next
   }
 
@@ -92,12 +94,14 @@ async function run(): Promise<void> {
   const rng = makeRng({ seed: 2246822519 })
   const nextR = (): number => rng.next()
   for (let i = 0; i < n; i++) {
-    if (depth[i]! >= 0 && depth[i]! <= SEED_DEPTH)
+    if (depth[i]! >= 0 && depth[i]! <= SEED_DEPTH) {
       seed[i] = pack({
         current: 1 + Math.floor(nextR() * 2),
         previous: 1 + Math.floor(nextR() * 2),
       })
-    else seed[i] = pack({ current: 0, previous: 0 })
+    } else {
+      seed[i] = pack({ current: 0, previous: 0 })
+    }
   }
 
   const byteLength = n * 4
@@ -166,7 +170,7 @@ async function run(): Promise<void> {
     const c0 = Math.max(0, Math.floor(cy - rad)),
       c1 = Math.min(IMG - 1, Math.ceil(cy + rad))
     const rr = rad * rad
-    for (let py = c0; py <= c1; py++)
+    for (let py = c0; py <= c1; py++) {
       for (let px = r0; px <= r1; px++) {
         const dx = px - cx,
           dy = py - cy
@@ -178,6 +182,7 @@ async function run(): Promise<void> {
           rgba[o + 3] = 255
         }
       }
+    }
   }
 
   let src = 0
@@ -216,14 +221,18 @@ async function run(): Promise<void> {
     }
     for (const d of dots) {
       const tone = currentOf(tones[d.index]!)
-      if (tone === 0) continue // peace is black (the background), draw only the charges
+      if (tone === 0) {
+        continue
+      } // peace is black (the background), draw only the charges
       drawDot(rgba, d.px, d.py, d.rad, toneColor(tone))
     }
     writeFileSync(
       join(outDir, `wave-${String(f).padStart(3, '0')}.png`),
       encodePng(rgba, IMG, IMG),
     )
-    if (f % 20 === 0) console.log(`  beat ${f}/${FRAMES}`)
+    if (f % 20 === 0) {
+      console.log(`  beat ${f}/${FRAMES}`)
+    }
   }
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(

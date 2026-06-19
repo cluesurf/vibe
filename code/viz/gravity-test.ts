@@ -27,14 +27,19 @@ function beat(
   moved.fill(0)
   const agree = (i: number, q: number, except: number): number => {
     let c = 0
-    for (const w of neighbors[i]!)
-      if (w !== except && tone[w] === q) c++
+    for (const w of neighbors[i]!) {
+      if (w !== except && tone[w] === q) {
+        c++
+      }
+    }
     return c
   }
   for (const e of edges) {
     const v = e[0]!
     const w = e[1]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -79,12 +84,14 @@ function bfsDistance(
   let frontier = [source]
   while (frontier.length > 0) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const w of neighbors[u]!)
+    for (const u of frontier) {
+      for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
           next.push(w)
         }
+      }
+    }
     frontier = next
   }
   return dist
@@ -104,13 +111,16 @@ function makeLump(
   while (frontier.length > 0 && lump.length < size) {
     const next: number[] = []
     for (const u of frontier) {
-      if (lump.length >= size) break
+      if (lump.length >= size) {
+        break
+      }
       lump.push(u)
-      for (const w of neighbors[u]!)
+      for (const w of neighbors[u]!) {
         if (!inLump[w]) {
           inLump[w] = 1
           next.push(w)
         }
+      }
     }
     frontier = next
   }
@@ -141,8 +151,13 @@ export function gravityTest(input?: {
   const n = g.cellCount
   const neighbors = g.neighbors
   const edges: number[][] = []
-  for (let v = 0; v < n; v++)
-    for (const w of neighbors[v]!) if (w > v) edges.push([v, w])
+  for (let v = 0; v < n; v++) {
+    for (const w of neighbors[v]!) {
+      if (w > v) {
+        edges.push([v, w])
+      }
+    }
+  }
 
   const distFrom0 = bfsDistance(neighbors, 0, n)
 
@@ -155,23 +170,31 @@ export function gravityTest(input?: {
   ): number => {
     const distA = new Int32Array(n).fill(-1)
     let frontier: number[] = []
-    for (const i of lumpA)
+    for (const i of lumpA) {
       if (tone[i] !== 0) {
         distA[i] = 0
         frontier.push(i)
       }
-    if (frontier.length === 0) return -1
+    }
+    if (frontier.length === 0) {
+      return -1
+    }
     const chargedB = new Set(lumpB.filter(i => tone[i] !== 0))
-    if (chargedB.size === 0) return -1
+    if (chargedB.size === 0) {
+      return -1
+    }
     while (frontier.length > 0) {
       const next: number[] = []
       for (const u of frontier) {
-        if (chargedB.has(u)) return distA[u]!
-        for (const w of neighbors[u]!)
+        if (chargedB.has(u)) {
+          return distA[u]!
+        }
+        for (const w of neighbors[u]!) {
           if (distA[w] === -1) {
             distA[w] = distA[u]! + 1
             next.push(w)
           }
+        }
       }
       frontier = next
     }
@@ -203,10 +226,12 @@ export function gravityTest(input?: {
     const tone = new Int8Array(n)
     const rng = makeRng({ seed: 7 })
     // matter, balanced charges so the lumps are neutral mass (not driven by net charge)
-    for (const i of lumpA)
+    for (const i of lumpA) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
-    for (const i of lumpB)
+    }
+    for (const i of lumpB) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
+    }
 
     const moved = new Uint8Array(n)
     const gaps: number[] = []

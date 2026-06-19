@@ -65,7 +65,9 @@ function run(): void {
     const faces: SceneFace[] = []
     for (let cell = 0; cell < n; cell++) {
       const tone = current[cell]!
-      if (tone === 0) continue // leave rest cells as background, so the wavefront reads clearly
+      if (tone === 0) {
+        continue
+      } // leave rest cells as background, so the wavefront reads clearly
       faces.push({
         polygon: tiling.polygons[cell]!,
         color: PALETTE[tone]!,
@@ -134,7 +136,9 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       const ka = a.map(x => Math.round(x * 1e4)).join(',')
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
       seen.add(key)
       edges.push({ a, b })
     }

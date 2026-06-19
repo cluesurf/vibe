@@ -46,10 +46,14 @@ function domainStats(
   n: number,
 ): { largest: number; countOver20: number; mean: number } {
   const parent = new Int32Array(n)
-  for (let i = 0; i < n; i++) parent[i] = i
+  for (let i = 0; i < n; i++) {
+    parent[i] = i
+  }
   const find = (x: number): number => {
     let r = x
-    while (parent[r] !== r) r = parent[r]!
+    while (parent[r] !== r) {
+      r = parent[r]!
+    }
     while (parent[x] !== r) {
       const nx = parent[x]!
       parent[x] = r
@@ -58,15 +62,21 @@ function domainStats(
     return r
   }
   for (let v = 0; v < n; v++) {
-    if (tone[v] === 0) continue
+    if (tone[v] === 0) {
+      continue
+    }
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
-      if (w > v && tone[w] === tone[v]) parent[find(v)] = find(w)
+      if (w > v && tone[w] === tone[v]) {
+        parent[find(v)] = find(w)
+      }
     }
   }
   const size = new Map<number, number>()
   for (let i = 0; i < n; i++) {
-    if (tone[i] === 0) continue
+    if (tone[i] === 0) {
+      continue
+    }
     const r = find(i)
     size.set(r, (size.get(r) ?? 0) + 1)
   }
@@ -75,8 +85,12 @@ function domainStats(
   let total = 0
   let num = 0
   for (const s of size.values()) {
-    if (s > largest) largest = s
-    if (s >= 20) countOver20++
+    if (s > largest) {
+      largest = s
+    }
+    if (s >= 20) {
+      countOver20++
+    }
     total += s
     num++
   }
@@ -110,8 +124,9 @@ export function selvesDynamics(input?: { n?: number }): {
   const rng = makeRng({ seed: 9 })
 
   // warm up to a populated balance, then watch the patches evolve
-  for (let b = 0; b < 30; b++)
+  for (let b = 0; b < 30; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.08)
+  }
 
   const snaps = [0, 30, 90, 210]
   const trajectory: {

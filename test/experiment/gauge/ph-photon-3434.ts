@@ -53,20 +53,25 @@ export function phPhoton(): {
     row.map((a, y) => a + g[x]![y]! - g[x]![wrap(y + 1, Ly)]!),
   )
   let maxDP = 0
-  for (let x = 0; x < Lx; x++)
-    for (let y = 0; y < Ly; y++)
+  for (let x = 0; x < Lx; x++) {
+    for (let y = 0; y < Ly; y++) {
       maxDP = Math.max(
         maxDP,
         Math.abs(plaq(Ax, Ay, x, y) - plaq(Ax2, Ay2, x, y)),
       )
+    }
+  }
   const gaugeInvariant = maxDP < 1e-9
 
   // PH4: discrete Stokes, flux through a 3x3 region = holonomy around its boundary loop
   const field: GridGauge = { Ax, Ay }
   const regionFlux = (): number => {
     let f = 0
-    for (let x = 0; x < 3; x++)
-      for (let y = 0; y < 3; y++) f += plaq(Ax, Ay, x, y)
+    for (let x = 0; x < 3; x++) {
+      for (let y = 0; y < 3; y++) {
+        f += plaq(Ax, Ay, x, y)
+      }
+    }
     return f
   }
   const boundaryHolonomy = (): number =>

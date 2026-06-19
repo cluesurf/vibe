@@ -35,10 +35,15 @@ export function unifiedEmergence(): {
     }),
   )
   const half: Q[] = []
-  for (const a of [0.5, -0.5])
-    for (const b of [0.5, -0.5])
-      for (const c of [0.5, -0.5])
-        for (const d of [0.5, -0.5]) half.push([a, b, c, d])
+  for (const a of [0.5, -0.5]) {
+    for (const b of [0.5, -0.5]) {
+      for (const c of [0.5, -0.5]) {
+        for (const d of [0.5, -0.5]) {
+          half.push([a, b, c, d])
+        }
+      }
+    }
+  }
   const s8 = half.filter(
     q =>
       [q[1], q[2], q[3]].concat(q[0]).filter(x => x < 0).length % 2 ===

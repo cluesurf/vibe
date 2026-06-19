@@ -25,7 +25,11 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const nonzero = (t: Int8Array): number => {
   let s = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) s++
+  for (let i = 0; i < t.length; i++) {
+    if (t[i] !== 0) {
+      s++
+    }
+  }
   return s
 }
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
@@ -60,8 +64,11 @@ export function perceptionDynamics(): {
   const moved = new Uint8Array(n)
 
   let center = 0
-  for (let i = 1; i < n; i++)
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  for (let i = 1; i < n; i++) {
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
+  }
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -84,7 +91,9 @@ export function perceptionDynamics(): {
       arrow: 0.1,
       pump: null,
     })
-    if (b === 59) balanceMid = nonzero(life)
+    if (b === 59) {
+      balanceMid = nonzero(life)
+    }
   }
   const lifeEnd = nonzero(life)
   const balanceLate = lifeEnd
@@ -111,7 +120,7 @@ export function perceptionDynamics(): {
   const qDeath = sumTone(death)
   const deathStart = nonzero(death)
   const rngD = makeRng({ seed: 14 })
-  for (let b = 0; b < 300; b++)
+  for (let b = 0; b < 300; b++) {
     conservingEdgeListSweepPumped({
       tone: death,
       edges,
@@ -120,6 +129,7 @@ export function perceptionDynamics(): {
       arrow: 0,
       pump: null,
     })
+  }
   const deathEnd = nonzero(death)
   const conservedDeath = sumTone(death) === qDeath
 
@@ -127,28 +137,42 @@ export function perceptionDynamics(): {
   const makePocket = (): Int8Array => {
     const t = new Int8Array(n)
     const inner: number[] = []
-    for (let i = 0; i < n; i++) if (dd(distC, i) <= r0) inner.push(i)
-    for (let k = 0; k < inner.length; k++)
+    for (let i = 0; i < n; i++) {
+      if (dd(distC, i) <= r0) {
+        inner.push(i)
+      }
+    }
+    for (let k = 0; k < inner.length; k++) {
       t[inner[k]!] = k % 2 === 0 ? 1 : -1
-    if (inner.length % 2 === 1) t[inner[inner.length - 1]!] = 0
+    }
+    if (inner.length % 2 === 1) {
+      t[inner[inner.length - 1]!] = 0
+    }
     return t
   }
   const absInR0 = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++)
-      if (dd(distC, i) <= r0) s += Math.abs(t[i]!)
+    for (let i = 0; i < n; i++) {
+      if (dd(distC, i) <= r0) {
+        s += Math.abs(t[i]!)
+      }
+    }
     return s
   }
   const netInR0 = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++) if (dd(distC, i) <= r0) s += t[i]!
+    for (let i = 0; i < n; i++) {
+      if (dd(distC, i) <= r0) {
+        s += t[i]!
+      }
+    }
     return s
   }
   const diff = makePocket()
   const qDiff = sumTone(diff)
   const absChargeStart = absInR0(diff)
   const rngDi = makeRng({ seed: 5 })
-  for (let b = 0; b < 80; b++)
+  for (let b = 0; b < 80; b++) {
     conservingEdgeListSweepPumped({
       tone: diff,
       edges,
@@ -157,6 +181,7 @@ export function perceptionDynamics(): {
       arrow: 0,
       pump: null,
     })
+  }
   const absDiffused = absInR0(diff)
   const netDiffused = netInR0(diff)
   const conservedDiff = sumTone(diff) === qDiff
@@ -164,7 +189,7 @@ export function perceptionDynamics(): {
   const pump = makePocket()
   const qPump = sumTone(pump)
   const rngPu = makeRng({ seed: 5 })
-  for (let b = 0; b < 80; b++)
+  for (let b = 0; b < 80; b++) {
     conservingEdgeListSweepPumped({
       tone: pump,
       edges,
@@ -173,6 +198,7 @@ export function perceptionDynamics(): {
       arrow: 0,
       pump: distC,
     })
+  }
   const netPumped = netInR0(pump)
   const conservedPump = sumTone(pump) === qPump
 

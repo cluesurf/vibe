@@ -30,7 +30,9 @@ function fullBeat(
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -68,12 +70,14 @@ export function attentionWorkspace(input?: {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const dist = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -83,15 +87,19 @@ export function attentionWorkspace(input?: {
   })
   const rSelf = 5
   const self: number[] = []
-  for (let i = 0; i < N; i++)
-    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++) {
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) {
+      self.push(i)
+    }
+  }
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
-  for (const i of self)
+  for (const i of self) {
     if (dist[i]! >= rSelf - 1) {
       isInput[i] = 1
       inputAll.push(i)
     }
+  }
   // K spatially-coherent sectors: farthest-point seeds among the boundary, then nearest-seed (Voronoi)
   const msBFS = (
     srcs: number[],
@@ -106,7 +114,7 @@ export function attentionWorkspace(input?: {
     }
     while (fr.length > 0) {
       const next: number[] = []
-      for (const u of fr)
+      for (const u of fr) {
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
           if (d[w] === -1) {
@@ -115,6 +123,7 @@ export function attentionWorkspace(input?: {
             next.push(w)
           }
         }
+      }
       fr = next
     }
     return { dist: d, label: lab }
@@ -125,11 +134,12 @@ export function attentionWorkspace(input?: {
     const { dist: d } = msBFS(seeds)
     let far = inputAll[0]!
     let fd = -1
-    for (const i of inputAll)
+    for (const i of inputAll) {
       if (d[i]! > fd) {
         fd = d[i]!
         far = i
       }
+    }
     seeds.push(far)
   }
   const { label } = msBFS(seeds)
@@ -143,7 +153,9 @@ export function attentionWorkspace(input?: {
     while (fr.length > 0 && out.length < 40) {
       const nf: number[] = []
       for (const u of fr) {
-        if (isInput[u]) continue
+        if (isInput[u]) {
+          continue
+        }
         out.push(u)
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -160,7 +172,9 @@ export function attentionWorkspace(input?: {
   const hub = hubBall()
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
-    for (const i of cells) s += tone[i]!
+    for (const i of cells) {
+      s += tone[i]!
+    }
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -180,16 +194,26 @@ export function attentionWorkspace(input?: {
       region === regionA ? regionB : regionA,
     )
     for (let t = 0; t < T; t++) {
-      if (rng.next() < 0.06) sig = -sig
-      for (const i of region)
-        if (rng.next() < gain) tone[i] = sig as -1 | 0 | 1 // gain = attention
-      for (const i of noiseTargets)
-        tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1 // distractors
-      fullBeat(tone, eu, ev, moved, rng)
-      for (const i of region)
-        if (rng.next() < gain) tone[i] = sig as -1 | 0 | 1
-      for (const i of noiseTargets)
+      if (rng.next() < 0.06) {
+        sig = -sig
+      }
+      for (const i of region) {
+        if (rng.next() < gain) {
+          tone[i] = sig as -1 | 0 | 1
+        }
+      } // gain = attention
+      for (const i of noiseTargets) {
         tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
+      } // distractors
+      fullBeat(tone, eu, ev, moved, rng)
+      for (const i of region) {
+        if (rng.next() < gain) {
+          tone[i] = sig as -1 | 0 | 1
+        }
+      }
+      for (const i of noiseTargets) {
+        tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
+      }
       hubS.push(meanOver(tone, hub))
       sigS.push(sig)
     }

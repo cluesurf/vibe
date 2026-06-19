@@ -71,7 +71,9 @@ export function deterministicGrowth(
         break
       }
     }
-    if (!appendOnly) break
+    if (!appendOnly) {
+      break
+    }
   }
 
   // 3. Faithful: the grown mesh matches the static tiling, ring for ring.
@@ -99,8 +101,9 @@ export function deterministicGrowth(
 
   // Degree stays bounded, as a finite-cell crystal requires.
   let maxDegree = 0
-  for (const row of oneShot.adjacency)
+  for (const row of oneShot.adjacency) {
     maxDegree = Math.max(maxDegree, row.length)
+  }
   const degreeBounded = maxDegree <= 6
 
   return {

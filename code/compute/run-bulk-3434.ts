@@ -32,8 +32,9 @@ function cpuStep(
     const cur = currentOf(state[i]!)
     const prev = (state[i]! >> 2) & 3
     let s = 0
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++)
+    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
       s += currentOf(state[adj[p]!]!)
+    }
     out[i] = pack((s + 27 - prev) % 3, cur)
   }
   return out
@@ -54,13 +55,17 @@ async function run(): Promise<void> {
   })
   const n = g.cellCount
   const offsets = new Int32Array(n + 1)
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
+  }
   const adj = new Int32Array(offsets[n]!)
   {
     let p = 0
-    for (let i = 0; i < n; i++)
-      for (const w of g.neighbors[i]!) adj[p++] = w
+    for (let i = 0; i < n; i++) {
+      for (const w of g.neighbors[i]!) {
+        adj[p++] = w
+      }
+    }
   }
   const offsetsU = new Uint32Array(offsets)
   const adjU = new Uint32Array(adj)
@@ -73,8 +78,9 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const r = makeRng({ seed: 987654321 })
   const nextR = (): number => r.next()
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  }
 
   const byteLength = n * 4
   const params = device.createBuffer({
@@ -161,10 +167,15 @@ async function run(): Promise<void> {
   staging.unmap()
 
   let cpu = seed.slice()
-  for (let b = 0; b < CHECK_BEATS; b++) cpu = cpuStep(cpu, offsets, adj)
+  for (let b = 0; b < CHECK_BEATS; b++) {
+    cpu = cpuStep(cpu, offsets, adj)
+  }
   let mismatches = 0
-  for (let i = 0; i < n; i++)
-    if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) mismatches++
+  for (let i = 0; i < n; i++) {
+    if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
+      mismatches++
+    }
+  }
   const ok = mismatches === 0
   console.log(
     `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mismatches} -> ${ok ? 'IDENTICAL' : 'FAIL'}`,

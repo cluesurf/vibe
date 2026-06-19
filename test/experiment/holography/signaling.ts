@@ -52,25 +52,34 @@ export function signaling(input?: { n?: number }): {
 
   // a far self = a small ball around the farthest cell. measure charge arriving there
   const farBall: number[] = []
-  for (let i = 0; i < N; i++) if (dist[i]! >= ecc - 1) farBall.push(i)
+  for (let i = 0; i < N; i++) {
+    if (dist[i]! >= ecc - 1) {
+      farBall.push(i)
+    }
+  }
   const moved = new Uint8Array(N)
 
   // SIGNAL: inject a + pulse at self A (node 0 and neighbors), diffuse, measure arrival at the far self
   const sig = new Int8Array(N)
   let injected = 0
-  for (let i = 0; i < N && injected < 400; i++)
+  for (let i = 0; i < N && injected < 400; i++) {
     if (dist[i]! <= 4) {
       sig[i] = 1
       injected++
     }
+  }
   const rng = makeRng({ seed: 3 })
-  for (let b = 0; b < 4 * ecc; b++) hopBeat(sig, eu, ev, moved, rng)
+  for (let b = 0; b < 4 * ecc; b++) {
+    hopBeat(sig, eu, ev, moved, rng)
+  }
   const signalAtFar = farBall.filter(i => sig[i] === 1).length
 
   // CONTROL: no signal injected
   const ctrl = new Int8Array(N)
   const rng2 = makeRng({ seed: 3 })
-  for (let b = 0; b < 4 * ecc; b++) hopBeat(ctrl, eu, ev, moved, rng2)
+  for (let b = 0; b < 4 * ecc; b++) {
+    hopBeat(ctrl, eu, ev, moved, rng2)
+  }
   const controlAtFar = farBall.filter(i => ctrl[i] === 1).length
 
   const signalReachesFar = signalAtFar > 0 && controlAtFar === 0

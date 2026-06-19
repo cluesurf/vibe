@@ -40,13 +40,16 @@ export function associativeSpreadingActivation(input?: {
     neighbors: g.neighbors,
     wordBits,
   })
-  for (let c = 0; c < g.cellCount; c++)
+  for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
+  }
   const seed = 0
 
   // every occupied cell is a potential responder, the wave reaches the whole store
   const responders: number[] = []
-  for (let c = 0; c < g.cellCount; c++) responders.push(c)
+  for (let c = 0; c < g.cellCount; c++) {
+    responders.push(c)
+  }
   const wave = broadcastWave({
     neighbors: g.neighbors,
     seed,
@@ -71,7 +74,9 @@ export function associativeSpreadingActivation(input?: {
   const counts: number[] = []
   for (let c = 0; c < g.cellCount; c++) {
     const d = distance[c]!
-    if (d < 0) continue
+    if (d < 0) {
+      continue
+    }
     sums[d] = (sums[d] ?? 0) + wave.arrivalBeat[c]!
     counts[d] = (counts[d] ?? 0) + 1
   }
@@ -80,7 +85,9 @@ export function associativeSpreadingActivation(input?: {
   for (let d = 0; d < sums.length; d++) {
     if (counts[d]) {
       const mean = sums[d]! / counts[d]!
-      if (mean <= prev) monotone = false
+      if (mean <= prev) {
+        monotone = false
+      }
       prev = mean
     }
   }

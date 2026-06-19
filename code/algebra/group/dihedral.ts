@@ -36,11 +36,19 @@ function irrepCharacterOdd(
   c: DihedralClass,
   n: number,
 ): number {
-  if (name === 'triv') return 1
-  if (name === 'sign') return c.rep === 'reflection' ? -1 : 1
+  if (name === 'triv') {
+    return 1
+  }
+  if (name === 'sign') {
+    return c.rep === 'reflection' ? -1 : 1
+  }
   const j = Number(name.slice(1)) // E1, E2, ...
-  if (c.rep === 'e') return 2
-  if (c.rep === 'reflection') return 0
+  if (c.rep === 'e') {
+    return 2
+  }
+  if (c.rep === 'reflection') {
+    return 0
+  }
   return 2 * Math.cos((2 * Math.PI * j * (c.k ?? 0)) / n)
 }
 
@@ -55,7 +63,9 @@ export function dihedralFacePermutationDecomposition(n: number): {
   const classes = oddDihedralClasses(n)
   const order = 2 * n
   const irreps = ['triv', 'sign']
-  for (let j = 1; j <= (n - 1) / 2; j++) irreps.push(`E${j}`)
+  for (let j = 1; j <= (n - 1) / 2; j++) {
+    irreps.push(`E${j}`)
+  }
   const multiplicities: Record<string, number> = {}
   for (const ir of irreps) {
     const inner = classes.reduce(

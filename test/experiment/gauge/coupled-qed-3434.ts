@@ -53,7 +53,9 @@ export function coupledQED(): {
     Lf[x] = [0, 0]
   }
   let nrm = 0
-  for (let x = 0; x < L; x++) nrm += cabs2(R[x]!) + cabs2(Lf[x]!)
+  for (let x = 0; x < L; x++) {
+    nrm += cabs2(R[x]!) + cabs2(Lf[x]!)
+  }
   R = R.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   Lf = Lf.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   const rho = (): number[] =>
@@ -90,13 +92,19 @@ export function coupledQED(): {
     R = R3
     Lf = L3
     // gauge field back-reacts: dE/dt = -j (Ampere), dtheta/dt = E (the field equation)
-    for (let x = 0; x < L; x++) E[x]! -= 0.1 * j[x]!
-    for (let x = 0; x < L; x++) theta[x]! += 0.1 * E[x]!
+    for (let x = 0; x < L; x++) {
+      E[x]! -= 0.1 * j[x]!
+    }
+    for (let x = 0; x < L; x++) {
+      theta[x]! += 0.1 * E[x]!
+    }
   }
 
   // (1) charge conservation under the coupled evolution
   const Q0 = rho().reduce((a, b) => a + b, 0)
-  for (let t = 0; t < 60; t++) step()
+  for (let t = 0; t < 60; t++) {
+    step()
+  }
   const Q1 = rho().reduce((a, b) => a + b, 0)
   const chargeConserved = Math.abs(Q1 - Q0) < 1e-9
 
@@ -106,13 +114,16 @@ export function coupledQED(): {
     (_, x) => (x === 40 ? 1 : 0) - 1 / L,
   ) // a charge at 40, neutralizing background
   const Eg = new Array(L).fill(0)
-  for (let x = 1; x < L; x++) Eg[x] = Eg[x - 1]! + rhoStatic[x]!
+  for (let x = 1; x < L; x++) {
+    Eg[x] = Eg[x - 1]! + rhoStatic[x]!
+  }
   let gaussErr = 0
-  for (let x = 1; x < L; x++)
+  for (let x = 1; x < L; x++) {
     gaussErr = Math.max(
       gaussErr,
       Math.abs(Eg[x]! - Eg[x - 1]! - rhoStatic[x]!),
     )
+  }
   const gaussLaw = gaussErr < 1e-9
 
   // (3) gauge invariance: hopping term psi*_n e^{i theta_n} psi_{n+1} invariant under psi_n -> e^{i a_n} psi_n, theta_n -> theta_n + a_n - a_{n+1}
@@ -121,7 +132,7 @@ export function coupledQED(): {
   const a = Array.from({ length: L }, () => rnd())
   const hop = (psi: C[], th: number[]): C => {
     let h: C = [0, 0]
-    for (let x = 0; x < L; x++)
+    for (let x = 0; x < L; x++) {
       h = cadd(
         h,
         cmul(
@@ -129,6 +140,7 @@ export function coupledQED(): {
           psi[wrap(x + 1)]!,
         ),
       )
+    }
     return h
   }
   const before = hop(R, theta)

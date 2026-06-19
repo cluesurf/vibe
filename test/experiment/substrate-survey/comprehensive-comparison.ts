@@ -113,8 +113,9 @@ function battery(s: Sub): Record<string, string> {
   const conserved = t0 === totalDirectionalCharge(charge)
   // churn (mod-3 wave)
   const cur = new Int8Array(N)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
+  }
   const churns =
     churnCount({ neighbors: nb, initial: cur, steps: 15, modulus: 3 }) >
     N

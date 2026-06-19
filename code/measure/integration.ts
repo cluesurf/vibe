@@ -302,8 +302,12 @@ export function toneIntegration(input: {
     const recurse = (start: number): void => {
       if (chosen.length === k) {
         const part = new Uint8Array(n)
-        for (const i of chosen) part[i] = 1
-        if (part[0] === 0) masks.push(part)
+        for (const i of chosen) {
+          part[i] = 1
+        }
+        if (part[0] === 0) {
+          masks.push(part)
+        }
         return
       }
       for (let i = start; i < n; i++) {

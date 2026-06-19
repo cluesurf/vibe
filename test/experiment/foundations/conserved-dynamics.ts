@@ -34,7 +34,9 @@ function beat(
 ): void {
   const moved = new Uint8Array(tone.length)
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const tv = tone[v]!
     const tw = tone[w]!
     if (fillSign === -1) {
@@ -121,8 +123,11 @@ export function conservedDynamics(): {
 
   // center = the most-connected (deepest interior) cell
   let center = 0
-  for (let i = 1; i < n; i++)
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  for (let i = 1; i < n; i++) {
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
+  }
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -135,24 +140,38 @@ export function conservedDynamics(): {
     const t = new Int8Array(n)
     const rng = makeRng({ seed })
     const inner: number[] = []
-    for (let i = 0; i < n; i++) if (dist(distC, i) <= r0) inner.push(i)
+    for (let i = 0; i < n; i++) {
+      if (dist(distC, i) <= r0) {
+        inner.push(i)
+      }
+    }
     // alternate +1 / -1 over the inner cells, balanced
-    for (let k = 0; k < inner.length; k++)
+    for (let k = 0; k < inner.length; k++) {
       t[inner[k]!] = k % 2 === 0 ? 1 : -1
-    if (inner.length % 2 === 1) t[inner[inner.length - 1]!] = 0 // keep Q = 0
+    }
+    if (inner.length % 2 === 1) {
+      t[inner[inner.length - 1]!] = 0
+    } // keep Q = 0
     void rng
     return t
   }
 
   const absInR0 = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++)
-      if (dist(distC, i) <= r0) s += Math.abs(t[i]!)
+    for (let i = 0; i < n; i++) {
+      if (dist(distC, i) <= r0) {
+        s += Math.abs(t[i]!)
+      }
+    }
     return s
   }
   const netInR0 = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++) if (dist(distC, i) <= r0) s += t[i]!
+    for (let i = 0; i < n; i++) {
+      if (dist(distC, i) <= r0) {
+        s += t[i]!
+      }
+    }
     return s
   }
 
@@ -161,7 +180,9 @@ export function conservedDynamics(): {
   const q0diff = sumTone(diff)
   const absChargeStart = absInR0(diff)
   const rngD = makeRng({ seed: 11 })
-  for (let b = 0; b < 80; b++) beat(diff, edges, 1, rngD, null)
+  for (let b = 0; b < 80; b++) {
+    beat(diff, edges, 1, rngD, null)
+  }
   const absChargeDiffused = absInR0(diff)
   const netCenterDiffused = netInR0(diff)
   const conservedDiffusion = sumTone(diff) === q0diff
@@ -170,7 +191,9 @@ export function conservedDynamics(): {
   const pump = makePocket(1)
   const q0pump = sumTone(pump)
   const rngP = makeRng({ seed: 11 })
-  for (let b = 0; b < 80; b++) beat(pump, edges, 1, rngP, distC)
+  for (let b = 0; b < 80; b++) {
+    beat(pump, edges, 1, rngP, distC)
+  }
   const netCenterPumped = netInR0(pump)
   const conservedPump = sumTone(pump) === q0pump
 
@@ -178,14 +201,25 @@ export function conservedDynamics(): {
   const pair = new Int8Array(n) // all 0
   const q0pair = sumTone(pair)
   const rngC = makeRng({ seed: 7 })
-  for (let b = 0; b < 40; b++) beat(pair, edges, -1, rngC, null)
+  for (let b = 0; b < 40; b++) {
+    beat(pair, edges, -1, rngC, null)
+  }
   let pairsCreated = 0
-  for (let i = 0; i < n; i++) if (pair[i] !== 0) pairsCreated++
+  for (let i = 0; i < n; i++) {
+    if (pair[i] !== 0) {
+      pairsCreated++
+    }
+  }
   const qAfterCreate = sumTone(pair)
-  for (let b = 0; b < 120; b++) beat(pair, edges, 1, rngC, null)
+  for (let b = 0; b < 120; b++) {
+    beat(pair, edges, 1, rngC, null)
+  }
   let pairsAfterAnnihilation = 0
-  for (let i = 0; i < n; i++)
-    if (pair[i] !== 0) pairsAfterAnnihilation++
+  for (let i = 0; i < n; i++) {
+    if (pair[i] !== 0) {
+      pairsAfterAnnihilation++
+    }
+  }
   const conservedPairs =
     qAfterCreate === q0pair && sumTone(pair) === q0pair
 

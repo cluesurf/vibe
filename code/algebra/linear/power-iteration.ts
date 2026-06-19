@@ -10,13 +10,17 @@ import { makeRng } from '@/code/tool/rng'
 
 function dot(a: Float64Array, b: Float64Array): number {
   let s = 0
-  for (let i = 0; i < a.length; i++) s += a[i]! * b[i]!
+  for (let i = 0; i < a.length; i++) {
+    s += a[i]! * b[i]!
+  }
   return s
 }
 
 function normalize(a: Float64Array): void {
   const n = Math.sqrt(dot(a, a))
-  for (let i = 0; i < a.length; i++) a[i]! /= n || 1
+  for (let i = 0; i < a.length; i++) {
+    a[i]! /= n || 1
+  }
 }
 
 export interface Eigenpair {
@@ -41,15 +45,21 @@ export function lowestEigenpairs(input: {
   for (let j = 0; j < count; j++) {
     let phi = new Float64Array(n)
     const rng = makeRng({ seed: input.seed + j * 7919 })
-    for (let r = 0; r < n; r++) phi[r] = rng.next() - 0.5
+    for (let r = 0; r < n; r++) {
+      phi[r] = rng.next() - 0.5
+    }
     normalize(phi)
     for (let iter = 0; iter < iterations; iter++) {
       const hPhi = operator.apply({ x: phi })
       const next = new Float64Array(n)
-      for (let r = 0; r < n; r++) next[r] = shift * phi[r]! - hPhi[r]!
+      for (let r = 0; r < n; r++) {
+        next[r] = shift * phi[r]! - hPhi[r]!
+      }
       for (const f of found) {
         const proj = dot(next, f.state)
-        for (let r = 0; r < n; r++) next[r]! -= proj * f.state[r]!
+        for (let r = 0; r < n; r++) {
+          next[r]! -= proj * f.state[r]!
+        }
       }
       normalize(next)
       phi = next

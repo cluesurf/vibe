@@ -15,12 +15,16 @@ export function commutingSquareError<State>(input: {
   macroStep: (macro: number) => number
 }): number {
   const { states, microStep, coarseMap, macroStep } = input
-  if (states.length === 0) return 1
+  if (states.length === 0) {
+    return 1
+  }
   let disagree = 0
   for (const s of states) {
     const evolveThenCoarse = coarseMap(microStep(s))
     const coarseThenEvolve = macroStep(coarseMap(s))
-    if (evolveThenCoarse !== coarseThenEvolve) disagree++
+    if (evolveThenCoarse !== coarseThenEvolve) {
+      disagree++
+    }
   }
   return disagree / states.length
 }
@@ -32,11 +36,12 @@ export function mostProbableNext(tpm: number[][]): number[] {
   return tpm.map(row => {
     let best = 0
     let bestValue = -1
-    for (let j = 0; j < row.length; j++)
+    for (let j = 0; j < row.length; j++) {
       if (row[j]! > bestValue) {
         bestValue = row[j]!
         best = j
       }
+    }
     return best
   })
 }

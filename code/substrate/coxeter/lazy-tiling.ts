@@ -45,7 +45,9 @@ export function makeLazyTiling(input: {
     const center = toPoincare(matVec(matrix, c0), timeAxis)
     const key = pointKey(center)
     const existing = idOf.get(key)
-    if (existing !== undefined) return existing
+    if (existing !== undefined) {
+      return existing
+    }
     const id = records.length
     idOf.set(key, id)
     records.push({ matrix, center, spin: null })
@@ -65,20 +67,27 @@ export function makeLazyTiling(input: {
   // materialize a cell's ordered neighbor list (its edges), creating neighbor cells as needed
   function expand(cell: number): number[] {
     const record = records[cell]!
-    if (record.spin) return record.spin
+    if (record.spin) {
+      return record.spin
+    }
     const neighbors: { id: number; angle: number }[] = []
     for (let i = 0; i < faces.length; i++) {
       const neighborMatrix = matMul(record.matrix, faces[i]!)
       const id = intern(neighborMatrix)
-      if (id === cell) continue // a face that folds back onto the cell itself (degenerate), skip
+      if (id === cell) {
+        continue
+      } // a face that folds back onto the cell itself (degenerate), skip
       const angle = twoD
         ? angleFrom(record.center, records[id]!.center)
         : i
-      if (!neighbors.some(n => n.id === id))
+      if (!neighbors.some(n => n.id === id)) {
         neighbors.push({ id, angle })
+      }
     }
     // 2D, order the edges counterclockwise so spin is the cyclic edge index. 3D, keep the face-index order.
-    if (twoD) neighbors.sort((a, b) => a.angle - b.angle)
+    if (twoD) {
+      neighbors.sort((a, b) => a.angle - b.angle)
+    }
     const spin = neighbors.map(n => n.id)
     record.spin = spin
     return spin

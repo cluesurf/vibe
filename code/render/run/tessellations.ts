@@ -65,7 +65,9 @@ function parseSymbol(text: string): number[] | null {
     .trim()
     .split(',')
     .map(p => Number(p.trim()))
-  if (nums.some(n => !Number.isInteger(n) || n <= 0)) return null
+  if (nums.some(n => !Number.isInteger(n) || n <= 0)) {
+    return null
+  }
   return nums
 }
 
@@ -90,14 +92,17 @@ function run(): void {
     const symbol = parseSymbol(display)
     if (!symbol) {
       skipped++
-      if (!want.length)
+      if (!want.length) {
         console.log(
           `${display}  skip (non-integer symbol, not buildable)`,
         )
+      }
       continue
     }
     const key = symbol.join('-')
-    if (want.length && !want.includes(key)) continue
+    if (want.length && !want.includes(key)) {
+      continue
+    }
     const twoD = dimension === 2
     const maxCells = twoD ? 2800 : dimension === 3 ? 600 : 350
     try {

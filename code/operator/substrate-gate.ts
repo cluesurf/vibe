@@ -62,9 +62,15 @@ export function nandBus(
   const bias = clampedBus(c, 1, biasWidth)
   const O = Array.from({ length: outWidth }, () => addCell(c))
   for (const o of O) {
-    for (const a of A) link(c, o, a, -1)
-    for (const b of B) link(c, o, b, -1)
-    for (const z of bias) link(c, o, z, 1)
+    for (const a of A) {
+      link(c, o, a, -1)
+    }
+    for (const b of B) {
+      link(c, o, b, -1)
+    }
+    for (const z of bias) {
+      link(c, o, z, 1)
+    }
   }
   return O
 }
@@ -77,7 +83,9 @@ export function notBus(
 ): number[] {
   const G = Array.from({ length: outWidth }, () => addCell(c))
   for (const g of G) {
-    for (const x of X) link(c, g, x, -1)
+    for (const x of X) {
+      link(c, g, x, -1)
+    }
   }
   return G
 }

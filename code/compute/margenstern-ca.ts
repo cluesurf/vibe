@@ -23,8 +23,9 @@ export function cyclicRotations(
 ): (ring: string) => string[] {
   return (ring: string): string[] => {
     const out: string[] = []
-    for (let r = 0; r < count; r++)
+    for (let r = 0; r < count; r++) {
       out.push(ring.slice(r) + ring.slice(0, r))
+    }
     return out
   }
 }
@@ -38,10 +39,11 @@ export function doubleRingRotations(
     const a = rings.slice(0, count)
     const b = rings.slice(count, count * 2)
     const out: string[] = []
-    for (let r = 0; r < count; r++)
+    for (let r = 0; r < count; r++) {
       out.push(
         a.slice(r) + a.slice(0, r) + (b.slice(r) + b.slice(0, r)),
       )
+    }
     return out
   }
 }
@@ -70,21 +72,25 @@ export function compileMargensternCa(input: {
   const states = new Set<string>()
   let conflicts = 0
   for (const rule of rules) {
-    if (rule.length !== neighbourLen + 2)
+    if (rule.length !== neighbourLen + 2) {
       throw new Error(
         `${name}: rule "${rule}" is not ${neighbourLen + 2} long`,
       )
+    }
     const current = rule[0]!
     const neighbours = rule.slice(1, 1 + neighbourLen)
     const next = rule[1 + neighbourLen]!
-    for (const ch of rule) states.add(ch)
+    for (const ch of rule) {
+      states.add(ch)
+    }
     const key = current + neighbours
     const existing = table.get(key)
     if (existing !== undefined && existing !== next) {
-      if (onConflict === 'throw')
+      if (onConflict === 'throw') {
         throw new Error(
           `${name}: rule conflict at ${key}: ${existing} vs ${next} (rule ${rule})`,
         )
+      }
       conflicts++
       continue // keep the first occurrence
     }
@@ -105,7 +111,9 @@ export function compileMargensternCa(input: {
       // try the rotations of the cell's neighbourhood (rotation invariance), match the first stored rule
       for (const rotated of rotate(padded)) {
         const hit = table.get(current + rotated)
-        if (hit !== undefined) return hit
+        if (hit !== undefined) {
+          return hit
+        }
       }
       return current
     },

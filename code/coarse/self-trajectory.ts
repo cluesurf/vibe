@@ -80,7 +80,9 @@ export function selfTrajectory(input: {
     const cx = positiveCentroidX(tone, L)
     centroids.push(cx)
     labels.push(toBin(cx))
-    if (t % snapshotEvery === 0) snapshots.push(tone.slice())
+    if (t % snapshotEvery === 0) {
+      snapshots.push(tone.slice())
+    }
   }
   const positions = (cell: number): readonly [number, number] => [
     cell % L,
@@ -167,7 +169,11 @@ function runUnitTrajectory(input: {
     })
     if (units.length > 0) {
       let largest = units[0]!
-      for (const u of units) if (u.size > largest.size) largest = u
+      for (const u of units) {
+        if (u.size > largest.size) {
+          largest = u
+        }
+      }
       lastCx = largest.cx
       sizeSum += largest.size
       sizeCount++

@@ -44,8 +44,11 @@ export function physicsOnRealSpace(): void {
     maxCells: 12000,
   })
   let cc = 0
-  for (let i = 0; i < cube.cellCount; i++)
-    if (cube.coords[i]!.every(x => x === 0)) cc = i
+  for (let i = 0; i < cube.cellCount; i++) {
+    if (cube.coords[i]!.every(x => x === 0)) {
+      cc = i
+    }
+  }
   const cubeDim = spectralDim(cube.neighbors, cc, 3, 12)
   const cubeGrav = gravityExponent(cube.neighbors, cc)
   // Space B, a generic aperiodic horosphere slice
@@ -59,11 +62,14 @@ export function physicsOnRealSpace(): void {
   const rmap = new Map<number, number>()
   bandIdx.forEach((id, i) => rmap.set(id, i))
   const bnb: number[][] = bandIdx.map(() => [])
-  for (let a = 0; a < bandIdx.length; a++)
+  for (let a = 0; a < bandIdx.length; a++) {
     for (const w of h.neighbors[bandIdx[a]!]!) {
       const b = rmap.get(w)
-      if (b !== undefined) bnb[a]!.push(b)
+      if (b !== undefined) {
+        bnb[a]!.push(b)
+      }
     }
+  }
   const lcc = largestComponent(bnb)
   const lmap = new Map(lcc.map((v, i) => [v, i]))
   const lnb: number[][] = lcc.map(

@@ -35,7 +35,9 @@ export function hashTableProbeStats(input: {
       position = (position + 1) % input.cells
       probe += 1
     }
-    if (probe > 1) collisions += 1
+    if (probe > 1) {
+      collisions += 1
+    }
     slot[position] = key
     totalProbe += probe
   }

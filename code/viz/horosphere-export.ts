@@ -36,14 +36,19 @@ function beat(
   moved.fill(0)
   const agree = (i: number, q: number, except: number): number => {
     let count = 0
-    for (const w of neighbors[i]!)
-      if (w !== except && tone[w] === q) count++
+    for (const w of neighbors[i]!) {
+      if (w !== except && tone[w] === q) {
+        count++
+      }
+    }
     return count
   }
   for (const edge of edges) {
     const v = edge[0]!
     const w = edge[1]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -124,7 +129,9 @@ export function exportHorosphere(input?: {
   // Busemann function, its level sets are the horospheres tangent at xi
   const busemann = coords.map(x => {
     let d2 = 0
-    for (let k = 0; k < x.length; k++) d2 += (x[k]! - xi[k]!) ** 2
+    for (let k = 0; k < x.length; k++) {
+      d2 += (x[k]! - xi[k]!) ** 2
+    }
     const r2 = x.reduce((s, v) => s + v * v, 0)
     return Math.log(d2 / Math.max(1e-12, 1 - r2))
   })
@@ -132,7 +139,9 @@ export function exportHorosphere(input?: {
   // the band of bulk cells lying on the horosphere through the origin (a thin flat slab)
   const band: number[] = []
   for (let i = 0; i < bulkCells; i++) {
-    if (Math.abs(busemann[i]! - 0) < bandHalfWidth) band.push(i)
+    if (Math.abs(busemann[i]! - 0) < bandHalfWidth) {
+      band.push(i)
+    }
   }
 
   // a 2D orthonormal frame perpendicular to xi, to flatten the slab onto the plane it is tangent to
@@ -162,18 +171,26 @@ export function exportHorosphere(input?: {
   // the slice's own adjacency, two band cells that are neighbours on the {5,3,4} crystal. This is the
   // honest connectivity of the flat sheet, used both to lay it out and to find the self-patches
   const reindex = new Int32Array(bulkCells).fill(-1)
-  for (let a = 0; a < bandCount; a++) reindex[band[a]!] = a
+  for (let a = 0; a < bandCount; a++) {
+    reindex[band[a]!] = a
+  }
   const bandNeighbors: number[][] = band.map(() => [])
   for (let a = 0; a < bandCount; a++) {
     for (const w of g.neighbors[band[a]!]!) {
       const b = reindex[w]!
-      if (b >= 0) bandNeighbors[a]!.push(b)
+      if (b >= 0) {
+        bandNeighbors[a]!.push(b)
+      }
     }
   }
   const layoutEdges: number[][] = []
-  for (let a = 0; a < bandCount; a++)
-    for (const b of bandNeighbors[a]!)
-      if (b > a) layoutEdges.push([a, b])
+  for (let a = 0; a < bandCount; a++) {
+    for (const b of bandNeighbors[a]!) {
+      if (b > a) {
+        layoutEdges.push([a, b])
+      }
+    }
+  }
 
   // initial positions from the horospherical projection (an inversion centred at the ideal point), then a
   // force-directed relaxation that realizes the horosphere's INTRINSIC flatness, neighbours pull together
@@ -260,25 +277,33 @@ export function exportHorosphere(input?: {
   }
   // normalize the relaxed layout into [-1, 1]
   let maxAbs = 1e-6
-  for (const p of position)
+  for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
+  }
   const cells2d = position.map(p => [p[0]! / maxAbs, p[1]! / maxAbs])
 
   // run the cohesive rule on the FULL bulk and record the band cells' tones each frame
   const tone = new Int8Array(bulkCells)
   const moved = new Uint8Array(bulkCells)
   const edges: number[][] = []
-  for (let v = 0; v < bulkCells; v++)
-    for (const w of g.neighbors[v]!) if (w > v) edges.push([v, w])
+  for (let v = 0; v < bulkCells; v++) {
+    for (const w of g.neighbors[v]!) {
+      if (w > v) {
+        edges.push([v, w])
+      }
+    }
+  }
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < warmup; b++)
+  for (let b = 0; b < warmup; b++) {
     beat(tone, edges, g.neighbors, moved, rng, arrowProb)
+  }
 
   const frames: number[][] = []
   for (let f = 0; f < frameCount; f++) {
     frames.push(band.map(i => tone[i]!))
-    for (let s = 0; s < stride; s++)
+    for (let s = 0; s < stride; s++) {
       beat(tone, edges, g.neighbors, moved, rng, arrowProb)
+    }
   }
 
   // round the coordinates to keep the file small

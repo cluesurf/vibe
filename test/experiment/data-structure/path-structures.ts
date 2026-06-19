@@ -29,14 +29,20 @@ export default experiment({
     let everyStepIsChild = true
     let depthIncrements = true
     for (let i = 1; i < path.length; i++) {
-      if (a.parent[path[i]!] !== path[i - 1]!) everyStepIsChild = false
-      if (a.dist[path[i]!] !== a.dist[path[i - 1]!]! + 1)
+      if (a.parent[path[i]!] !== path[i - 1]!) {
+        everyStepIsChild = false
+      }
+      if (a.dist[path[i]!] !== a.dist[path[i - 1]!]! + 1) {
         depthIncrements = false
+      }
     }
     // pop reverses exactly: the parent of each cell is the previous on the stack
     let popReverses = true
-    for (let i = path.length - 1; i > 0; i--)
-      if (a.parent[path[i]!] !== path[i - 1]!) popReverses = false
+    for (let i = path.length - 1; i > 0; i--) {
+      if (a.parent[path[i]!] !== path[i - 1]!) {
+        popReverses = false
+      }
+    }
 
     const ok =
       path.length > 1 &&

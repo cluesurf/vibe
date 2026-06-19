@@ -16,8 +16,9 @@ export function centroidOfCellSet(cells: Set<string>): number[] {
   const sums: number[] = []
   for (const key of cells) {
     const point = parseKey(key)
-    for (let d = 0; d < point.length; d++)
+    for (let d = 0; d < point.length; d++) {
       sums[d] = (sums[d] ?? 0) + point[d]!
+    }
   }
   const size = Math.max(1, cells.size)
   return sums.map(s => s / size)
@@ -39,7 +40,11 @@ export function recenterCellSet(cells: Set<string>): Set<string> {
 // means the same occupied cells (same FORM when the sets are recentered first).
 export function cellSetOverlap(a: Set<string>, b: Set<string>): number {
   let intersection = 0
-  for (const key of a) if (b.has(key)) intersection++
+  for (const key of a) {
+    if (b.has(key)) {
+      intersection++
+    }
+  }
   return intersection / Math.max(1, Math.max(a.size, b.size))
 }
 
@@ -51,8 +56,9 @@ export function radiusOfGyrationOfCellSet(cells: Set<string>): number {
   for (const key of cells) {
     const point = parseKey(key)
     let d2 = 0
-    for (let d = 0; d < point.length; d++)
+    for (let d = 0; d < point.length; d++) {
       d2 += (point[d]! - (centroid[d] ?? 0)) ** 2
+    }
     sum += d2
   }
   return Math.sqrt(sum / Math.max(1, cells.size))
@@ -65,7 +71,11 @@ export function jaccardDistance(
   b: Set<number>,
 ): number {
   let intersection = 0
-  for (const x of a) if (b.has(x)) intersection++
+  for (const x of a) {
+    if (b.has(x)) {
+      intersection++
+    }
+  }
   const union = a.size + b.size - intersection
   return union > 0 ? 1 - intersection / union : 0
 }

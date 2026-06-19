@@ -86,17 +86,21 @@ export function sparseWithAubryAndrePotential(
   m: SparseMatrix,
   strength: number,
 ): LinearOperator {
-  if (strength === 0) return operatorFromSparse(m)
+  if (strength === 0) {
+    return operatorFromSparse(m)
+  }
   const potential = new Float64Array(m.rows)
-  for (let i = 0; i < m.rows; i++)
+  for (let i = 0; i < m.rows; i++) {
     potential[i] =
       strength * Math.cos(2 * Math.PI * AUBRY_ANDRE_GOLDEN * i)
+  }
   return {
     size: m.rows,
     apply: ({ x }) => {
       const y = sparseMatVec(m, { x })
-      for (let i = 0; i < m.rows; i++)
+      for (let i = 0; i < m.rows; i++) {
         y[i] = y[i]! + potential[i]! * x[i]!
+      }
       return y
     },
   }

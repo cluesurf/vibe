@@ -25,19 +25,23 @@ export function frontCoefficientOfVariation(input: {
   let fr = [start]
   for (let r = 0; r < radius; r++) {
     const nf: number[] = []
-    for (const u of fr)
-      for (const w of neighbors[u]!)
+    for (const u of fr) {
+      for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
           dist[w] = r + 1
           nf.push(w)
         }
+      }
+    }
     fr = nf
   }
   const c = coords[start]!
   const radii = fr.map(i =>
     Math.sqrt(coords[i]!.reduce((s, x, k) => s + (x - c[k]!) ** 2, 0)),
   )
-  if (radii.length < 4) return -1
+  if (radii.length < 4) {
+    return -1
+  }
   const mean = radii.reduce((a, b) => a + b, 0) / radii.length
   const sd = Math.sqrt(
     radii.reduce((a, r) => a + (r - mean) ** 2, 0) / radii.length,
@@ -53,10 +57,14 @@ export function angularAnisotropy(input: {
   order: number
 }): number {
   const { directions, axes, order } = input
-  if (directions.length === 0) return 0
+  if (directions.length === 0) {
+    return 0
+  }
   const vals = axes.map(u => {
     let s = 0
-    for (const n of directions) s += Math.pow(dot(n, u), order)
+    for (const n of directions) {
+      s += Math.pow(dot(n, u), order)
+    }
     return s / directions.length
   })
   const mn = Math.min(...vals)
@@ -119,7 +127,9 @@ export function nearestLinkHarmonicAnisotropy(input: {
     let best = -1
     let bestD = Infinity
     for (let j = 0; j < points.length; j++) {
-      if (i === j) continue
+      if (i === j) {
+        continue
+      }
       const dx = (points[j]?.x ?? 0) - (points[i]?.x ?? 0)
       const dy = (points[j]?.y ?? 0) - (points[i]?.y ?? 0)
       const d = dx * dx + dy * dy
@@ -169,15 +179,22 @@ export function diffusionTensorAnisotropy(input: {
         coords[w]![2]! - cc[2]!,
       ]
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
-      if (len < 1e-9) continue
-      for (let i = 0; i < 3; i++)
-        for (let j = 0; j < 3; j++)
+      if (len < 1e-9) {
+        continue
+      }
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
           cov[i]![j]! += (d[i]! / len) * (d[j]! / len)
+        }
+      }
       count++
     }
   }
-  for (let i = 0; i < 3; i++)
-    for (let j = 0; j < 3; j++) cov[i]![j]! /= count
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      cov[i]![j]! /= count
+    }
+  }
   const eig = jacobiEigenvalues3(cov).sort((a, b) => a - b)
   const meanEig = (eig[0]! + eig[1]! + eig[2]!) / 3
   const anisotropy = meanEig > 0 ? (eig[2]! - eig[0]!) / meanEig : 1
@@ -212,8 +229,12 @@ export function supportFunctionAnisotropy(input: {
     let best = -Infinity
     for (const d of directions) {
       let s = 0
-      for (let i = 0; i < dimension; i++) s += d[i]! * u[i]!
-      if (s > best) best = s
+      for (let i = 0; i < dimension; i++) {
+        s += d[i]! * u[i]!
+      }
+      if (s > best) {
+        best = s
+      }
     }
     supports.push(best / norm)
   }

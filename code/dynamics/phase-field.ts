@@ -56,8 +56,9 @@ export function gradientStructure(
 ): number {
   const n = theta.length
   const gradient = new Array<number>(n)
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     gradient[i] = Math.sin(theta[(i + 1) % n]! - theta[i]!)
+  }
   const mean = gradient.reduce((sum, value) => sum + value, 0) / n
   return Math.sqrt(
     gradient.reduce((sum, value) => sum + (value - mean) ** 2, 0) / n,

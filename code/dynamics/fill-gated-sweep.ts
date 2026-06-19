@@ -21,7 +21,9 @@ export function fillGatedSweep(input: {
   for (let i = 0; i < edges.length; i++) {
     const v = edges[i]![0]
     const w = edges[i]![1]
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const f = fill[i]!
     const tv = tone[v]!
     const tw = tone[w]!

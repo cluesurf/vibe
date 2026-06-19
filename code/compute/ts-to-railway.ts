@@ -43,20 +43,25 @@ export function compileToRailway(
     true,
   )
   const fn = file.statements.find(ts.isFunctionDeclaration)
-  if (!fn || !fn.body)
+  if (!fn || !fn.body) {
     throw new Error(
       'expected a single function declaration with a body',
     )
+  }
 
   const registers = new Map<string, number>()
   const reg = (name: string): number => {
-    if (!registers.has(name)) registers.set(name, registers.size)
+    if (!registers.has(name)) {
+      registers.set(name, registers.size)
+    }
     return registers.get(name)!
   }
   const parameters = fn.parameters.map(
     p => (p.name as ts.Identifier).text,
   )
-  for (const p of parameters) reg(p) // parameters are registers 0..k-1
+  for (const p of parameters) {
+    reg(p)
+  } // parameters are registers 0..k-1
   const scratch = (): number => reg('$scratch')
 
   const code: RailInstruction[] = []
@@ -115,7 +120,9 @@ export function compileToRailway(
   }
 
   const compileBlock = (block: ts.Block): void => {
-    for (const stmt of block.statements) compileStatement(stmt)
+    for (const stmt of block.statements) {
+      compileStatement(stmt)
+    }
   }
 
   const compileStatement = (stmt: ts.Statement): void => {
@@ -127,7 +134,9 @@ export function compileToRailway(
         clear(r)
         if (decl.initializer && ts.isNumericLiteral(decl.initializer)) {
           const n = Number(decl.initializer.text)
-          for (let k = 0; k < n; k++) inc(r)
+          for (let k = 0; k < n; k++) {
+            inc(r)
+          }
         }
       }
       return
@@ -172,7 +181,9 @@ export function compileToRailway(
       void back
       return
     }
-    if (ts.isReturnStatement(stmt)) return // the return register is recorded separately
+    if (ts.isReturnStatement(stmt)) {
+      return
+    } // the return register is recorded separately
     throw new Error(
       `unsupported statement: ${ts.SyntaxKind[stmt.kind]}`,
     )
@@ -181,10 +192,13 @@ export function compileToRailway(
   const compileExpression = (expr: ts.Expression): void => {
     if (ts.isPostfixUnaryExpression(expr)) {
       const r = reg((expr.operand as ts.Identifier).text)
-      if (expr.operator === ts.SyntaxKind.PlusPlusToken) inc(r)
-      else if (expr.operator === ts.SyntaxKind.MinusMinusToken)
+      if (expr.operator === ts.SyntaxKind.PlusPlusToken) {
+        inc(r)
+      } else if (expr.operator === ts.SyntaxKind.MinusMinusToken) {
         decOrStay(r)
-      else throw new Error('unsupported unary')
+      } else {
+        throw new Error('unsupported unary')
+      }
       return
     }
     if (ts.isBinaryExpression(expr)) {
@@ -198,7 +212,9 @@ export function compileToRailway(
         if (ts.isNumericLiteral(expr.right)) {
           clear(dst)
           const n = Number(expr.right.text)
-          for (let k = 0; k < n; k++) inc(dst)
+          for (let k = 0; k < n; k++) {
+            inc(dst)
+          }
         } else if (ts.isIdentifier(expr.right)) {
           copy(dst, reg(expr.right.text))
         } else {

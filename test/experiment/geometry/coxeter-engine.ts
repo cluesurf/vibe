@@ -87,8 +87,9 @@ export function coxeterEngine(): {
     maxChambers: 20000,
   })
   const perGen = new Map<number, number>()
-  for (const g of dodeca.generation)
+  for (const g of dodeca.generation) {
     perGen.set(g, (perGen.get(g) ?? 0) + 1)
+  }
   const gens = [...perGen.keys()]
     .filter(g => g >= 0)
     .sort((a, b) => a - b)

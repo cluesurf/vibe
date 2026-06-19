@@ -90,17 +90,21 @@ export default experiment({
 
     // the half-period grows with wavelength (the mode is soft, lower frequency at longer wavelength).
     let monotonic = true
-    for (let i = 1; i < periods.length; i++)
-      if (periods[i]! < periods[i - 1]!) monotonic = false
+    for (let i = 1; i < periods.length; i++) {
+      if (periods[i]! < periods[i - 1]!) {
+        monotonic = false
+      }
+    }
 
     // the speed is constant (a LINEAR, gapless dispersion omega = c k, the hallmark of sound), within a tight band.
     const meanSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length
     let maxSpeedDeviation = 0
-    for (const s of speeds)
+    for (const s of speeds) {
       maxSpeedDeviation = Math.max(
         maxSpeedDeviation,
         Math.abs(s - meanSpeed),
       )
+    }
     const linearGapless =
       meanSpeed > 0 && maxSpeedDeviation <= meanSpeed * 0.2
 

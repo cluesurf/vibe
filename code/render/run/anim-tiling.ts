@@ -15,7 +15,9 @@ export function cellOutlines(polygons: Vec[][]): SceneEdge[] {
       const ka = a.map(x => Math.round(x * 1e4)).join(',')
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
-      if (seen.has(key)) continue
+      if (seen.has(key)) {
+        continue
+      }
       seen.add(key)
       edges.push({ a, b })
     }
@@ -137,11 +139,15 @@ function drawNumber(
   const y0 = Math.round(centerY - (7 * scale) / 2)
   for (let d = 0; d < text.length; d++) {
     const rows = FONT[text[d]!]
-    if (!rows) continue
+    if (!rows) {
+      continue
+    }
     const gx = x0 + d * (glyphW + gap)
     for (let ry = 0; ry < 7; ry++) {
       for (let rx = 0; rx < 5; rx++) {
-        if (rows[ry]![rx] !== '1') continue
+        if (rows[ry]![rx] !== '1') {
+          continue
+        }
         fillRect(
           rgba,
           size,
@@ -166,9 +172,13 @@ function fillRect(
   color: [number, number, number],
 ): void {
   for (let yy = y; yy < y + h; yy++) {
-    if (yy < 0 || yy >= size) continue
+    if (yy < 0 || yy >= size) {
+      continue
+    }
     for (let xx = x; xx < x + w; xx++) {
-      if (xx < 0 || xx >= size) continue
+      if (xx < 0 || xx >= size) {
+        continue
+      }
       const o = (yy * size + xx) * 4
       rgba[o] = color[0]
       rgba[o + 1] = color[1]

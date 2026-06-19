@@ -73,11 +73,12 @@ function legStructure(a: Addressing): boolean {
   // (d) railway junction capability: a track needs to branch (switch) and cross. An interior cell must
   //     offer >= 3 edge-disjoint directions. {3,4,3,4} interior cells have the full 24.
   let interiorDeg = 0
-  for (let c = 0; c < a.graph.cellCount; c++)
+  for (let c = 0; c < a.graph.cellCount; c++) {
     if (a.complete[c]) {
       interiorDeg = a.graph.neighbors[c]!.length
       break
     }
+  }
   const junctionOK = interiorDeg >= 3
 
   const ok = treeOK && sonColours > 0 && preferredOK && junctionOK
@@ -97,9 +98,13 @@ function legTernary(): boolean {
     '-1,-1': 1,
   }
   let nandOK = true
-  for (const x of [-1, 1] as Bit[])
-    for (const y of [-1, 1] as Bit[])
-      if (nand(x, y) !== nandTable[`${x},${y}`]) nandOK = false
+  for (const x of [-1, 1] as Bit[]) {
+    for (const y of [-1, 1] as Bit[]) {
+      if (nand(x, y) !== nandTable[`${x},${y}`]) {
+        nandOK = false
+      }
+    }
+  }
 
   // Rule 110 from rule-NANDs, then evolve it as a CA on a line and confirm it advances.
   const rule110 = Array.from({ length: 8 }, (_, p) => (110 >> p) & 1)
@@ -109,7 +114,9 @@ function legTernary(): boolean {
     const l: Bit = ((p >> 2) & 1) === 1 ? 1 : -1
     const c: Bit = ((p >> 1) & 1) === 1 ? 1 : -1
     const r: Bit = (p & 1) === 1 ? 1 : -1
-    if (toNum(fn(l, c, r)) !== rule110[p]) exprOK = false
+    if (toNum(fn(l, c, r)) !== rule110[p]) {
+      exprOK = false
+    }
   }
   // evolve Rule 110 (built from the rule's NANDs) against a reference Rule 110 for a few steps
   const W = 64
@@ -123,8 +130,11 @@ function legTernary(): boolean {
       fn(line[(i - 1 + W) % W]!, line[i]!, line[(i + 1) % W]!),
     )
     const refNext = elementaryRuleStep({ line: ref, rule: 110 })
-    for (let i = 0; i < W; i++)
-      if (toNum(next[i]!) !== refNext[i]) matches = false
+    for (let i = 0; i < W; i++) {
+      if (toNum(next[i]!) !== refNext[i]) {
+        matches = false
+      }
+    }
     line = next
     ref = refNext
   }
@@ -144,7 +154,11 @@ function makeMachine3434(
 ): RegisterMachine {
   const n = a.graph.cellCount
   const interior: number[] = []
-  for (let c = 0; c < n; c++) if (a.complete[c]) interior.push(c)
+  for (let c = 0; c < n; c++) {
+    if (a.complete[c]) {
+      interior.push(c)
+    }
+  }
   interior.sort((x, y) =>
     a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1,
   )
@@ -212,8 +226,12 @@ function legRegisterMachine(a: Addressing): boolean {
   let allConserved = true
   for (const c of cases) {
     const ok = c.got === c.expected
-    if (!ok) allCorrect = false
-    if (!c.conserved) allConserved = false
+    if (!ok) {
+      allCorrect = false
+    }
+    if (!c.conserved) {
+      allConserved = false
+    }
   }
   return allCorrect && allConserved
 }
@@ -251,7 +269,9 @@ function legCuspLife(): boolean {
     [2, 1],
     [1, 2],
   ]
-  for (const [dx, dy] of glider) alive.add(`${cx + dx},${cy + dy}`)
+  for (const [dx, dy] of glider) {
+    alive.add(`${cx + dx},${cy + dy}`)
+  }
   const refAlive = new Set(alive)
   // run the cusp-graph version (only keep cells that EXIST on the cusp plane) AND a reference version
   let cusp = new Set(alive)

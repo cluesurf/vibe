@@ -16,7 +16,9 @@ import { verdict } from '@/test/scaffold/verdict'
 // flat 3D lattice: number of integer points at L1 (octahedral) distance n is 4n^2 + 2 for n >= 1, 1 for n = 0.
 function flatShells(maxShell: number): number[] {
   const s = [1]
-  for (let n = 1; n <= maxShell; n++) s.push(4 * n * n + 2)
+  for (let n = 1; n <= maxShell; n++) {
+    s.push(4 * n * n + 2)
+  }
   return s
 }
 

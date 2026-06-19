@@ -23,7 +23,9 @@ const unit = (a: Spin): Spin => {
 }
 const rotate = (v: Spin, k: Spin): Spin => {
   const angle = Math.hypot(k[0], k[1], k[2])
-  if (angle < 1e-12) return v
+  if (angle < 1e-12) {
+    return v
+  }
   const u: Spin = [k[0] / angle, k[1] / angle, k[2] / angle]
   const c = Math.cos(angle),
     s = Math.sin(angle),
@@ -91,7 +93,7 @@ export function relaxSpins(input: {
 }): Spin[] {
   const { spins, params, rate } = input
   const out: Spin[] = new Array(params.size * params.size)
-  for (let y = 0; y < params.size; y++)
+  for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
       const c = spins[at(params.size, x, y)]!
       const h = localField(spins, params, x, y)
@@ -101,6 +103,7 @@ export function relaxSpins(input: {
         c[2] + rate * h[2],
       ])
     }
+  }
   pinEdge(out, params.size)
   return out
 }
@@ -113,7 +116,7 @@ export function precessSpins(input: {
 }): Spin[] {
   const { spins, params, dt, open } = input
   const out: Spin[] = new Array(params.size * params.size)
-  for (let y = 0; y < params.size; y++)
+  for (let y = 0; y < params.size; y++) {
     for (let x = 0; x < params.size; x++) {
       const h = localField(spins, params, x, y)
       out[at(params.size, x, y)] = unit(
@@ -124,7 +127,10 @@ export function precessSpins(input: {
         ]),
       )
     }
-  if (open) pinEdge(out, params.size) // the bath, edge spins held at the vacuum so spin-waves leave
+  }
+  if (open) {
+    pinEdge(out, params.size)
+  } // the bath, edge spins held at the vacuum so spin-waves leave
   return out
 }
 
@@ -136,7 +142,7 @@ export function skyrmionDegree(spins: Spin[], size: number): number {
     return 2 * Math.atan2(num, den)
   }
   let q = 0
-  for (let y = 0; y < size - 1; y++)
+  for (let y = 0; y < size - 1; y++) {
     for (let x = 0; x < size - 1; x++) {
       const a = spins[at(size, x, y)]!,
         b = spins[at(size, x + 1, y)]!,
@@ -144,6 +150,7 @@ export function skyrmionDegree(spins: Spin[], size: number): number {
         d = spins[at(size, x, y + 1)]!
       q += solid(a, b, c) + solid(a, c, d)
     }
+  }
   return q / (4 * Math.PI)
 }
 // the soliton radius (the spread of the down-tilted region), to check it holds a fixed size.
@@ -151,7 +158,7 @@ export function skyrmionRadius(spins: Spin[], size: number): number {
   let m = 0,
     sr = 0
   const c = size / 2
-  for (let y = 0; y < size; y++)
+  for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const w = 1 - spins[at(size, x, y)]![2]
       if (w > 0.1) {
@@ -159,6 +166,7 @@ export function skyrmionRadius(spins: Spin[], size: number): number {
         sr += w * Math.hypot(x - c, y - c)
       }
     }
+  }
   return m > 0 ? sr / m : 0
 }
 // a Neel Skyrmion initial condition (radial in-plane component, up background), degree minus one.
@@ -169,7 +177,7 @@ export function makeSkyrmionField(input: {
   const { size, coreRadius } = input
   const spins: Spin[] = new Array(size * size)
   const c = size / 2
-  for (let y = 0; y < size; y++)
+  for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const dx = x - c,
         dy = y - c,
@@ -182,6 +190,7 @@ export function makeSkyrmionField(input: {
         Math.cos(theta),
       ])
     }
+  }
   return spins
 }
 
@@ -194,7 +203,9 @@ export function snapToTrits(spins: Spin[]): Spin[] {
       Math.round(v[1]),
       Math.round(v[2]),
     ]
-    if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
+    if (w[0] === 0 && w[1] === 0 && w[2] === 0) {
+      return [0, 0, 1]
+    }
     const n = Math.hypot(w[0], w[1], w[2]) || 1
     return [w[0] / n, w[1] / n, w[2] / n]
   })

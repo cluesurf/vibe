@@ -23,7 +23,9 @@ function basis(
   ...entries: Array<[number, number]>
 ): number[] {
   const v = new Array<number>(dim).fill(0)
-  for (const [index, value] of entries) v[index] = value
+  for (const [index, value] of entries) {
+    v[index] = value
+  }
   return v
 }
 const chain = (dim: number, count: number) =>

@@ -109,15 +109,17 @@ export function binaryIcosahedral(): Quaternion[] {
   const positions = [0, 1, 2, 3]
   for (const order of evenPermutations(positions)) {
     const base = [0, 0, 0, 0]
-    for (let index = 0; index < 4; index++)
+    for (let index = 0; index < 4; index++) {
       base[order[index]!] = magnitudes[index]!
+    }
     const zeroSlot = order[3]!
     const nonzero = positions.filter(position => position !== zeroSlot)
     for (let signMask = 0; signMask < 8; signMask++) {
       const components = [...base]
       for (let bit = 0; bit < 3; bit++) {
-        if ((signMask >> bit) & 1)
+        if ((signMask >> bit) & 1) {
           components[nonzero[bit]!] = -components[nonzero[bit]!]!
+        }
       }
       units.push(
         quaternion(
@@ -137,7 +139,9 @@ export function evenPermutations(items: number[]): number[][] {
   const result: number[][] = []
   const recurse = (current: number[], rest: number[]): void => {
     if (rest.length === 0) {
-      if (permutationParity(current) === 0) result.push(current)
+      if (permutationParity(current) === 0) {
+        result.push(current)
+      }
       return
     }
     for (let index = 0; index < rest.length; index++) {
@@ -155,7 +159,9 @@ function permutationParity(permutation: number[]): number {
   let inversions = 0
   for (let left = 0; left < permutation.length; left++) {
     for (let right = left + 1; right < permutation.length; right++) {
-      if (permutation[left]! > permutation[right]!) inversions++
+      if (permutation[left]! > permutation[right]!) {
+        inversions++
+      }
     }
   }
   return inversions % 2

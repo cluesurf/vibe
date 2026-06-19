@@ -50,11 +50,18 @@ function stationary(T: number[][]): number[] {
   let pi = new Array<number>(9).fill(1 / 9)
   for (let it = 0; it < 5000; it++) {
     const next = new Array<number>(9).fill(0)
-    for (let a = 0; a < 9; a++)
-      for (let b = 0; b < 9; b++) next[b]! += pi[a]! * T[a]![b]!
+    for (let a = 0; a < 9; a++) {
+      for (let b = 0; b < 9; b++) {
+        next[b]! += pi[a]! * T[a]![b]!
+      }
+    }
     let sum = 0
-    for (const v of next) sum += v
-    for (let i = 0; i < 9; i++) next[i]! /= sum
+    for (const v of next) {
+      sum += v
+    }
+    for (let i = 0; i < 9; i++) {
+      next[i]! /= sum
+    }
     pi = next
   }
   return pi
@@ -74,35 +81,43 @@ export function doiPelitiCheck(): {
 
   // (1) S^z conservation: off-diagonal transitions connect only equal-S^z states
   let conservesSz = true
-  for (let a = 0; a < 9; a++)
-    for (let b = 0; b < 9; b++)
+  for (let a = 0; a < 9; a++) {
+    for (let b = 0; b < 9; b++) {
       if (a !== b && T[a]![b]! > 0) {
-        if (sz(a) !== sz(b)) conservesSz = false
+        if (sz(a) !== sz(b)) {
+          conservesSz = false
+        }
       }
+    }
+  }
 
   // (2) unit exchange: every move changes (n_i, n_j) by (+1,-1) or (-1,+1)
   let unitExchange = true
-  for (let a = 0; a < 9; a++)
-    for (let b = 0; b < 9; b++)
+  for (let a = 0; a < 9; a++) {
+    for (let b = 0; b < 9; b++) {
       if (a !== b && T[a]![b]! > 0) {
         const dai =
           toneOf(Math.floor(b / 3)) - toneOf(Math.floor(a / 3))
         const dbi = toneOf(b % 3) - toneOf(a % 3)
-        if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1)))
+        if (!((dai === 1 && dbi === -1) || (dai === -1 && dbi === 1))) {
           unitExchange = false
+        }
       }
+    }
+  }
 
   // (3) detailed balance: pi_a T_ab = pi_b T_ba for all a,b
   const pi = stationary(T)
   let dbv = 0
   let scale = 0
-  for (let a = 0; a < 9; a++)
+  for (let a = 0; a < 9; a++) {
     for (let b = a + 1; b < 9; b++) {
       const fwd = pi[a]! * T[a]![b]!
       const rev = pi[b]! * T[b]![a]!
       dbv += Math.abs(fwd - rev)
       scale += fwd + rev
     }
+  }
   const detailedBalanceViolation = scale > 0 ? dbv / scale : 0
   const detailedBalance = detailedBalanceViolation < 1e-6
 

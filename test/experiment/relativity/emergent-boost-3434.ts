@@ -38,25 +38,33 @@ export function emergentBoost(): {
 } {
   // (1) E^2 - p^2 = m^2 preserved under boosts (the Lorentz invariant)
   let invariantPreserved = true
-  for (const m of [0.2, 0.5])
-    for (const p of [0.0, 0.3, 0.7])
+  for (const m of [0.2, 0.5]) {
+    for (const p of [0.0, 0.3, 0.7]) {
       for (const phi of [-0.8, -0.3, 0.5, 1.0]) {
         const E = Eof(m, p),
           [E2, p2] = boost(E, p, phi)
-        if (Math.abs(E2 * E2 - p2 * p2 - m * m) > 1e-9)
+        if (Math.abs(E2 * E2 - p2 * p2 - m * m) > 1e-9) {
           invariantPreserved = false
+        }
       }
+    }
+  }
 
   // (2) relativistic velocity addition u' = (u+v)/(1+uv), NOT Galilean u+v
   let velocitiesAddRelativistically = true,
     galileanWrong = false
-  for (const u of [0.3, 0.6, 0.9])
+  for (const u of [0.3, 0.6, 0.9]) {
     for (const v of [0.4, 0.8]) {
       const rel = addVelocities({ velocity: u, frame: v }) // relativistic sum, always < 1
       const gal = u + v
-      if (rel >= 1 || rel <= 0) velocitiesAddRelativistically = false
-      if (gal > 1) galileanWrong = true // Galilean would exceed c, relativistic never does
+      if (rel >= 1 || rel <= 0) {
+        velocitiesAddRelativistically = false
+      }
+      if (gal > 1) {
+        galileanWrong = true
+      } // Galilean would exceed c, relativistic never does
     }
+  }
   // verify a concrete case: 0.9 + 0.9 = 0.994... (< c), not 1.8
   const example = (0.9 + 0.9) / (1 + 0.81)
 

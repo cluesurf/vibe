@@ -22,7 +22,9 @@ export interface TensorField {
 
 export function gravitonSiteIndex(coords: number[], L: number): number {
   let idx = 0
-  for (let a = D - 1; a >= 0; a--) idx = idx * L + (coords[a] ?? 0)
+  for (let a = D - 1; a >= 0; a--) {
+    idx = idx * L + (coords[a] ?? 0)
+  }
   return idx
 }
 
@@ -57,8 +59,11 @@ export function makeTensorField(L: number): TensorField {
 
 export function tensorFieldMaxAbs(f: TensorField): number {
   let m = 0
-  for (const row of f.data)
-    for (const v of row) m = Math.max(m, Math.abs(v))
+  for (const row of f.data) {
+    for (const v of row) {
+      m = Math.max(m, Math.abs(v))
+    }
+  }
   return m
 }
 
@@ -119,8 +124,9 @@ export function linearizedEinstein(h: TensorField): TensorField {
     const coords = gravitonCoordsOf(site, L)
     const traceAt = (s: number): number => {
       let t = 0
-      for (let a = 0; a < D; a++)
+      for (let a = 0; a < D; a++) {
         t += (ETA[a] ?? 1) * (h.data[s]![a * D + a] ?? 0)
+      }
       return t
     }
     const d2trace = (alpha: number, beta: number): number => {
@@ -158,14 +164,16 @@ export function linearizedEinstein(h: TensorField): TensorField {
     let divdiv = 0
     for (let a = 0; a < D; a++) {
       boxTrace += (ETA[a] ?? 1) * d2trace(a, a)
-      for (let b = 0; b < D; b++)
+      for (let b = 0; b < D; b++) {
         divdiv += (ETA[a] ?? 1) * (ETA[b] ?? 1) * d2(coords, a, b, a, b)
+      }
     }
     for (let mu = 0; mu < D; mu++) {
       for (let nu = mu; nu < D; nu++) {
         let boxH = 0
-        for (let a = 0; a < D; a++)
+        for (let a = 0; a < D; a++) {
           boxH += (ETA[a] ?? 1) * d2(coords, a, a, mu, nu)
+        }
         let divMu = 0
         let divNu = 0
         for (let a = 0; a < D; a++) {
@@ -265,8 +273,9 @@ export function gravitonPolarizationsFromSpectrum(input: {
   for (let comp = 0; comp < GRAVITON_PAIRS.length; comp++) {
     const g = linearizedEinstein(gravitonBasisField(L, comp, kz))
     const col = gravitonProjectOntoMode(g, kz)
-    for (let r = 0; r < GRAVITON_PAIRS.length; r++)
+    for (let r = 0; r < GRAVITON_PAIRS.length; r++) {
       M.data[r * GRAVITON_PAIRS.length + comp] = col[r] ?? 0
+    }
   }
   // symmetrize (the EH operator is self-adjoint; tiny asymmetry is lattice roundoff)
   for (let i = 0; i < GRAVITON_PAIRS.length; i++) {
@@ -284,28 +293,38 @@ export function gravitonPolarizationsFromSpectrum(input: {
   const scale = Math.max(...eigenvalues.map(v => Math.abs(v)), 1e-12)
   const tol = 1e-6 * scale
   let gauge = 0
-  for (const v of eigenvalues) if (Math.abs(v) < tol) gauge += 1
+  for (const v of eigenvalues) {
+    if (Math.abs(v) < tol) {
+      gauge += 1
+    }
+  }
 
   const apply = (v: number[]): number[] => {
     const out = new Array<number>(GRAVITON_PAIRS.length).fill(0)
     for (let r = 0; r < GRAVITON_PAIRS.length; r++) {
       let s = 0
-      for (let c = 0; c < GRAVITON_PAIRS.length; c++)
+      for (let c = 0; c < GRAVITON_PAIRS.length; c++) {
         s += (M.data[r * GRAVITON_PAIRS.length + c] ?? 0) * (v[c] ?? 0)
+      }
       out[r] = s
     }
     return out
   }
   const isPropagatingEigenvector = (v: number[]): boolean => {
     const norm = Math.sqrt(v.reduce((a, b) => a + b * b, 0))
-    if (norm < 1e-12) return false
+    if (norm < 1e-12) {
+      return false
+    }
     const Mv = apply(v)
     let vMv = 0
-    for (let i = 0; i < v.length; i++) vMv += (v[i] ?? 0) * (Mv[i] ?? 0)
+    for (let i = 0; i < v.length; i++) {
+      vMv += (v[i] ?? 0) * (Mv[i] ?? 0)
+    }
     const lambda = vMv / (norm * norm)
     let res = 0
-    for (let i = 0; i < v.length; i++)
+    for (let i = 0; i < v.length; i++) {
       res += ((Mv[i] ?? 0) - lambda * (v[i] ?? 0)) ** 2
+    }
     return lambda > tol && Math.sqrt(res) < 1e-6 * scale
   }
   // TT modes for k along z (axis 3): h_xx = -h_yy (index 1, 2), and h_xy (index 7).
@@ -315,8 +334,11 @@ export function gravitonPolarizationsFromSpectrum(input: {
   const ttCross = new Array<number>(GRAVITON_PAIRS.length).fill(0)
   ttCross[7] = 1
   let physical = 0
-  for (const mode of [ttPlus, ttCross])
-    if (isPropagatingEigenvector(mode)) physical += 1
+  for (const mode of [ttPlus, ttCross]) {
+    if (isPropagatingEigenvector(mode)) {
+      physical += 1
+    }
+  }
 
   return { physical, gauge, eigenvalues }
 }

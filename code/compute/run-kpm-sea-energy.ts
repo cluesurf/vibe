@@ -23,8 +23,8 @@ const A = (Math.sqrt(3) + MASS) * 1.06 // spectral bound: |H| <= sqrt(3)+M (exac
 function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
   const out = new Float32Array(3 * N),
     C = L / 2
-  for (let x = 0; x < L; x++)
-    for (let y = 0; y < L; y++)
+  for (let x = 0; x < L; x++) {
+    for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = (z * L + y) * L + x
         let nx: number, ny: number, nz: number
@@ -54,23 +54,27 @@ function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
         out[s * 3 + 1] = ny
         out[s * 3 + 2] = nz
       }
+    }
+  }
   return out
 }
 function absCoeffs(M: number): Float64Array {
   const c = new Float64Array(M)
   c[0] = 2 / Math.PI
-  for (let k = 1; 2 * k < M; k++)
+  for (let k = 1; 2 * k < M; k++) {
     c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
+  }
   return c
 }
 function jackson(M: number): Float64Array {
   const g = new Float64Array(M),
     Np = M + 1
-  for (let n = 0; n < M; n++)
+  for (let n = 0; n < M; n++) {
     g[n] =
       ((Np - n) * Math.cos((Math.PI * n) / Np) +
         Math.sin((Math.PI * n) / Np) / Math.tan(Math.PI / Np)) /
       Np
+  }
   return g
 }
 
@@ -317,21 +321,29 @@ async function run(): Promise<void> {
       device.queue.writeBuffer(nrt, 0, texN[ri]!)
       device.queue.writeBuffer(B[0]!, 0, xd)
       const muH = await computeMoments()
-      for (let n = 0; n < MCHEB; n++)
+      for (let n = 0; n < MCHEB; n++) {
         dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
+      }
     }
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
   }
   const deltaE = Rs.map((R, ri) => {
     let s = 0
-    for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ri]![n]!
+    for (let n = 0; n < MCHEB; n++) {
+      s += g[n]! * c[n]! * dMu[ri]![n]!
+    }
     return [R, Math.round(-0.5 * A * s * 100) / 100] as [number, number]
   })
   console.log('\nDelta E_sea(R) (texture soliton, fermion sea):')
-  for (const [R, dE] of deltaE) console.log(`  R=${R}: ${dE}`)
+  for (const [R, dE] of deltaE) {
+    console.log(`  R=${R}: ${dE}`)
+  }
   let minI = 0
-  for (let i = 1; i < deltaE.length; i++)
-    if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
+  for (let i = 1; i < deltaE.length; i++) {
+    if (deltaE[i]![1] < deltaE[minI]![1]) {
+      minI = i
+    }
+  }
   const hasMin = minI > 0 && minI < deltaE.length - 1
   console.log(`  minimum at R=${deltaE[minI]![0]} (interior=${hasMin})`)
   console.log(

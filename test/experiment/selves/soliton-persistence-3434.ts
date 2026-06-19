@@ -18,8 +18,9 @@ function bbsStep(s: number[]): number[] {
   const out = new Array(s.length).fill(0)
   let carrier = 0
   for (let i = 0; i < s.length; i++) {
-    if (s[i] === 1)
-      carrier++ // pick up a ball
+    if (s[i] === 1) {
+      carrier++
+    } // pick up a ball
     else if (carrier > 0) {
       out[i] = 1
       carrier--
@@ -32,13 +33,18 @@ function solitonSizes(s: number[]): number[] {
   const sizes: number[] = []
   let run = 0
   for (const b of s) {
-    if (b === 1) run++
-    else {
-      if (run > 0) sizes.push(run)
+    if (b === 1) {
+      run++
+    } else {
+      if (run > 0) {
+        sizes.push(run)
+      }
       run = 0
     }
   }
-  if (run > 0) sizes.push(run)
+  if (run > 0) {
+    sizes.push(run)
+  }
   return sizes.sort((a, b) => b - a)
 }
 const ballCount = (s: number[]): number => s.reduce((a, b) => a + b, 0)
@@ -86,14 +92,18 @@ export function solitonPersistence(): {
       start = 0
     s.forEach((b, i) => {
       if (b === 1) {
-        if (run === 0) start = i
+        if (run === 0) {
+          start = i
+        }
         run++
       } else if (run > 0) {
         out.push({ size: run, pos: start + (run - 1) / 2 })
         run = 0
       }
     })
-    if (run > 0) out.push({ size: run, pos: start + (run - 1) / 2 })
+    if (run > 0) {
+      out.push({ size: run, pos: start + (run - 1) / 2 })
+    }
     return out
   }
   let s2 = new Array(L).fill(0)
@@ -103,7 +113,9 @@ export function solitonPersistence(): {
   const startRuns = runs(s2)
   const big0 = startRuns.find(r => r.size === 3)!,
     small0 = startRuns.find(r => r.size === 1)!
-  for (let t = 0; t < 50; t++) s2 = bbsStep(s2)
+  for (let t = 0; t < 50; t++) {
+    s2 = bbsStep(s2)
+  }
   const after = solitonSizes(s2)
   const endRuns = runs(s2)
   const big1 = endRuns.find(r => r.size === 3),

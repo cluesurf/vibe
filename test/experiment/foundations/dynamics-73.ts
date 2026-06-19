@@ -20,13 +20,17 @@ function graph(): {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount
   const off = new Int32Array(N + 1)
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     off[i + 1] = off[i]! + g.neighbors[i]!.length
+  }
   const adj = new Int32Array(off[N]!)
   {
     let p = 0
-    for (let i = 0; i < N; i++)
-      for (const w of g.neighbors[i]!) adj[p++] = w
+    for (let i = 0; i < N; i++) {
+      for (const w of g.neighbors[i]!) {
+        adj[p++] = w
+      }
+    }
   }
   let center = 0,
     best = -1
@@ -64,7 +68,9 @@ export function dynamics73(): {
   for (let b = 0; b < 10; b++) {
     for (let i = 0; i < N; i++) {
       let s = 0
-      for (let q = off[i]!; q < off[i + 1]!; q++) s += cur[adj[q]!]!
+      for (let q = off[i]!; q < off[i + 1]!; q++) {
+        s += cur[adj[q]!]!
+      }
       nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
     const t = prev
@@ -72,8 +78,11 @@ export function dynamics73(): {
     cur = nxt
     nxt = t
     let mr = 0
-    for (let i = 0; i < N; i++)
-      if (cur[i] !== 0 && dist[i]! > mr && dist[i]! < 1e8) mr = dist[i]!
+    for (let i = 0; i < N; i++) {
+      if (cur[i] !== 0 && dist[i]! > mr && dist[i]! < 1e8) {
+        mr = dist[i]!
+      }
+    }
     maxReached = Math.max(maxReached, mr <= b + 1 ? mr : b + 1)
   }
   const frontSpeed = Math.round((maxReached / 9) * 100) / 100
@@ -82,8 +91,9 @@ export function dynamics73(): {
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
-  for (let k = 0; k < 100; k++)
+  for (let k = 0; k < 100; k++) {
     t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
+  }
   const sumBefore = sumOf(t)
   for (let b = 0; b < 50; b++) {
     const used = new Uint8Array(N)
@@ -95,10 +105,14 @@ export function dynamics73(): {
       order[j] = tmp
     }
     for (const u of order) {
-      if (used[u]) continue
+      if (used[u]) {
+        continue
+      }
       for (let q = off[u]!; q < off[u + 1]!; q++) {
         const w = adj[q]!
-        if (used[w]) continue
+        if (used[w]) {
+          continue
+        }
         const [na, nb] = perm(t[u]!, t[w]!)
         t[u] = na as -1 | 0 | 1
         t[w] = nb as -1 | 0 | 1
@@ -110,7 +124,11 @@ export function dynamics73(): {
   }
   const conserves = sumOf(t) === sumBefore // the perception rule permutes charges, net charge is exact
   let ch = 0
-  for (let i = 0; i < N; i++) if (t[i] !== 0) ch++
+  for (let i = 0; i < N; i++) {
+    if (t[i] !== 0) {
+      ch++
+    }
+  }
   const churnPct = Math.round((100 * ch) / N)
   return { conserves, frontSpeed, churnPct }
 }

@@ -26,7 +26,9 @@ export function pumpedReserveSweep(input: {
   const dd = (i: number): number => distC[i] ?? far
   const moved = new Uint8Array(tone.length)
   for (const [v, w] of edges) {
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const tv = tone[v]!
     const tw = tone[w]!
     let c = -1

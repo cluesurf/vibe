@@ -67,12 +67,18 @@ async function run(): Promise<void> {
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -97,14 +103,19 @@ async function run(): Promise<void> {
     half: HALF,
   })
   const reindex = new Int32Array(n).fill(-1)
-  for (let a = 0; a < bandList.length; a++) reindex[bandList[a]!] = a
+  for (let a = 0; a < bandList.length; a++) {
+    reindex[bandList[a]!] = a
+  }
   const B = bandList.length
   const bandNbr: number[][] = bandList.map(() => [])
-  for (let a = 0; a < B; a++)
+  for (let a = 0; a < B; a++) {
     for (const w of slab.neighbors[bandList[a]!]!) {
       const b = reindex[w]!
-      if (b >= 0) bandNbr[a]!.push(b)
+      if (b >= 0) {
+        bandNbr[a]!.push(b)
+      }
     }
+  }
   const med = (xs: number[]): number => {
     const s = [...xs].sort((p, q) => p - q)
     return s[Math.floor(s.length / 2)] ?? 0
@@ -134,7 +145,7 @@ async function run(): Promise<void> {
   const nextR = (): number => rng.next()
   const seedRadius = ext * SEED_FRACTION
   let seeded = 0
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     if (Math.hypot(U[i]! - cu, V[i]! - cv) < seedRadius) {
       seed[i] = pack({
         current: 1 + Math.floor(nextR() * 2),
@@ -142,6 +153,7 @@ async function run(): Promise<void> {
       })
       seeded++
     }
+  }
   console.log(`seeded ${seeded} cells in the central charge column`)
 
   const byteLength = n * 4
@@ -221,7 +233,9 @@ async function run(): Promise<void> {
     for (let a = 0; a < B; a++) {
       const t = signedTone(currentOf(tones[bandList[a]!]!))
       sm[a] = t
-      if (reached[a]! < 0 && t !== 0) reached[a] = f
+      if (reached[a]! < 0 && t !== 0) {
+        reached[a] = f
+      }
     }
     for (let p = 0; p < SMOOTH_PASSES; p++) {
       const ns = new Float32Array(B)
@@ -239,7 +253,9 @@ async function run(): Promise<void> {
     let mx = 1e-6
     for (let a = 0; a < B; a++) {
       const v = Math.abs(sm[a]!)
-      if (v > mx) mx = v
+      if (v > mx) {
+        mx = v
+      }
     }
     const eps = 0.06 * mx
 
@@ -251,23 +267,32 @@ async function run(): Promise<void> {
       rgba[i + 3] = 255
     }
     for (let a = 0; a < B; a++) {
-      if (reached[a]! < 0) continue // outside the causal cone, black
+      if (reached[a]! < 0) {
+        continue
+      } // outside the causal cone, black
       const s = sm[a]!
-      if (Math.abs(s) < eps) continue // peace, black
+      if (Math.abs(s) < eps) {
+        continue
+      } // peace, black
       const col = s > 0 ? BLUE : RED
       const cx = px[a]!,
         cy = py[a]!
-      for (let dy = -DOT; dy <= DOT; dy++)
+      for (let dy = -DOT; dy <= DOT; dy++) {
         for (let dx = -DOT; dx <= DOT; dx++) {
-          if (dx * dx + dy * dy > DOT * DOT) continue
+          if (dx * dx + dy * dy > DOT * DOT) {
+            continue
+          }
           const x = cx + dx,
             y = cy + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const o = (y * IMG + x) * 4
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
           rgba[o + 2] = col[2]
         }
+      }
     }
     writeFrame({
       dir: outDir,
@@ -277,7 +302,9 @@ async function run(): Promise<void> {
       height: IMG,
       prefix: 'glide_',
     })
-    if (f % 25 === 0) console.log(`  beat ${f}/${FRAMES}`)
+    if (f % 25 === 0) {
+      console.log(`  beat ${f}/${FRAMES}`)
+    }
   }
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(

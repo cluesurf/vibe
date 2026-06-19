@@ -90,8 +90,12 @@ export default experiment({
       let mass = 0
       let range = 0
       for (let c = 0; c < cellCount; c++) {
-        if (body[c]) mass++
-        if (phi[c]! < 0 && distance(c) > range) range = distance(c)
+        if (body[c]) {
+          mass++
+        }
+        if (phi[c]! < 0 && distance(c) > range) {
+          range = distance(c)
+        }
       }
       return { mass, range }
     }
@@ -101,7 +105,9 @@ export default experiment({
     // UNIVERSAL free fall, a uniform field phi = x, bodies of different mass (perpendicular to the field, so excluded
     // volume does not self-block) fall at the same rate
     const uniformField = new Int32Array(cellCount)
-    for (let c = 0; c < cellCount; c++) uniformField[c] = coord(c)[0]!
+    for (let c = 0; c < cellCount; c++) {
+      uniformField[c] = coord(c)[0]!
+    }
 
     const fallRate = (
       shape: 'point' | 'plane' | 'block',
@@ -111,31 +117,45 @@ export default experiment({
       const y0 = 10
       const z0 = 10
       const w0 = 10
-      if (shape === 'point') body[index(x0, y0, z0, w0)] = 1
-      if (shape === 'plane')
-        for (let dy = 0; dy < 3; dy++)
-          for (let dz = 0; dz < 3; dz++)
+      if (shape === 'point') {
+        body[index(x0, y0, z0, w0)] = 1
+      }
+      if (shape === 'plane') {
+        for (let dy = 0; dy < 3; dy++) {
+          for (let dz = 0; dz < 3; dz++) {
             body[index(x0, y0 + dy, z0 + dz, w0)] = 1
-      if (shape === 'block')
-        for (let dy = 0; dy < 3; dy++)
-          for (let dz = 0; dz < 3; dz++)
-            for (let dw = 0; dw < 2; dw++)
+          }
+        }
+      }
+      if (shape === 'block') {
+        for (let dy = 0; dy < 3; dy++) {
+          for (let dz = 0; dz < 3; dz++) {
+            for (let dw = 0; dw < 2; dw++) {
               body[index(x0, y0 + dy, z0 + dz, w0 + dw)] = 1
+            }
+          }
+        }
+      }
       const centroidX = (): number => {
         let sum = 0
         let count = 0
-        for (let c = 0; c < cellCount; c++)
+        for (let c = 0; c < cellCount; c++) {
           if (body[c]) {
             sum += coord(c)[0]!
             count++
           }
+        }
         return count ? sum / count : 0
       }
       let mass = 0
-      for (let c = 0; c < cellCount; c++) if (body[c]) mass++
+      for (let c = 0; c < cellCount; c++) {
+        if (body[c]) {
+          mass++
+        }
+      }
       const start = centroidX()
       const beats = 8
-      for (let b = 0; b < beats; b++)
+      for (let b = 0; b < beats; b++) {
         freeFallStep({
           occupied: body,
           phi: uniformField,
@@ -143,6 +163,7 @@ export default experiment({
           cellCount,
           spatialDegree: DEGREE,
         })
+      }
       return { mass, rate: (start - centroidX()) / beats }
     }
     const point = fallRate('point')
@@ -154,7 +175,7 @@ export default experiment({
     const flatBody = new Uint8Array(cellCount)
     flatBody[index(20, 10, 10, 10)] = 1
     let flatMoves = 0
-    for (let b = 0; b < 8; b++)
+    for (let b = 0; b < 8; b++) {
       flatMoves += freeFallStep({
         occupied: flatBody,
         phi: flatField,
@@ -162,6 +183,7 @@ export default experiment({
         cellCount,
         spatialDegree: DEGREE,
       })
+    }
 
     // the source range grows with mass, the fall rate is mass-independent (the three masses fall at the same rate),
     // and the flat field produces no fall

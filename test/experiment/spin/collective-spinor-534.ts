@@ -39,14 +39,19 @@ export function collectiveSpinor(): {
     const expected = winding % 2 === 1 ? -1 : 1
     for (const overlap of overlaps) {
       if (Math.abs(overlap - expected) > 1e-9) {
-        if (winding % 2 === 1) oddFlipsEveryMode = false
-        else evenPreservesEveryMode = false
+        if (winding % 2 === 1) {
+          oddFlipsEveryMode = false
+        } else {
+          evenPreservesEveryMode = false
+        }
       }
     }
     // every mode gives the same overlap (within rounding): the sign is mode-independent
-    for (const overlap of overlaps)
-      if (Math.abs(overlap - overlaps[0]!) > 1e-9)
+    for (const overlap of overlaps) {
+      if (Math.abs(overlap - overlaps[0]!) > 1e-9) {
         modeIndependent = false
+      }
+    }
   }
   return { oddFlipsEveryMode, evenPreservesEveryMode, modeIndependent }
 }

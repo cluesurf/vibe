@@ -620,18 +620,23 @@ export function runConformance(): { passed: number; failed: number } {
       b.facetCount === 12
     for (let i = 0; i < a.cellCount && identical; i++) {
       const sa = new Set<number>()
-      for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++)
+      for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
         sa.add(a.adj[p]!)
+      }
       const sb = new Set<number>()
-      for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++)
+      for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
         sb.add(b.adj[p]!)
-      if (sa.size !== sb.size) identical = false
-      else
-        for (const x of sa)
+      }
+      if (sa.size !== sb.size) {
+        identical = false
+      } else {
+        for (const x of sa) {
           if (!sb.has(x)) {
             identical = false
             break
           }
+        }
+      }
     }
     check({
       name: 'fast engine (flat typed dedup): identical exact adjacency to the simple engine, facet 12 (scales ~10x further, to tens of millions)',
@@ -838,8 +843,9 @@ export function runConformance(): { passed: number; failed: number } {
       size: chainSize,
       apply: ({ x }: { x: Float64Array }) => {
         const y = new Float64Array(chainSize)
-        for (let i = 0; i < chainSize; i++)
+        for (let i = 0; i < chainSize; i++) {
           y[i] = (x[i - 1] ?? 0) + (x[i + 1] ?? 0)
+        }
         return y
       },
     }
@@ -966,8 +972,12 @@ export function runConformance(): { passed: number; failed: number } {
     let zeckNo11 = true
     for (let n = 1; n <= 5000; n++) {
       const z = margensternToZeckendorf(n)
-      if (margensternFromZeckendorf(z) !== n) zeckRoundTrips = false
-      if (z.includes('11')) zeckNo11 = false
+      if (margensternFromZeckendorf(z) !== n) {
+        zeckRoundTrips = false
+      }
+      if (z.includes('11')) {
+        zeckNo11 = false
+      }
     }
     check({
       name: 'Margenstern: Zeckendorf round-trips 1..5000 with no "11"',
@@ -990,17 +1000,21 @@ export function runConformance(): { passed: number; failed: number } {
     for (let id = 0; id < splitTree.size; id++) {
       const a = splitTree.address(id)
       const co = splitTree.coordinate(id)
-      if (splitCoords.has(co)) splitLegal = false
+      if (splitCoords.has(co)) {
+        splitLegal = false
+      }
       splitCoords.add(co)
       const kids = margensternChildrenOf(a)
       if (
         kids.filter(k => k === margensternPreferredSon(a)).length !== 1
-      )
+      ) {
         splitPreferred = false
+      }
       if (id !== splitTree.root) {
         const p = margensternParentOf(a)
-        if (p === null || margensternChildrenOf(p).indexOf(a) < 0)
+        if (p === null || margensternChildrenOf(p).indexOf(a) < 0) {
           splitParent = false
+        }
       }
     }
     check({
@@ -1026,8 +1040,9 @@ export function runConformance(): { passed: number; failed: number } {
         maxCells: 2000,
       })
       const gridCoords = new Set<number>()
-      for (let c = 0; c < grid.size; c++)
+      for (let c = 0; c < grid.size; c++) {
         gridCoords.add(grid.coordinate(c))
+      }
       const target = Math.min(900, grid.size - 1)
       const gridPath = grid.route(grid.origin, target)
       let gridRouteValid =
@@ -1035,10 +1050,14 @@ export function runConformance(): { passed: number; failed: number } {
         gridPath[gridPath.length - 1] === target
       for (let i = 0; i + 1 < gridPath.length; i++) {
         let adjacent = false
-        for (let s = 0; s < grid.degree(gridPath[i]!); s++)
-          if (grid.step(gridPath[i]!, s).cell === gridPath[i + 1]!)
+        for (let s = 0; s < grid.degree(gridPath[i]!); s++) {
+          if (grid.step(gridPath[i]!, s).cell === gridPath[i + 1]!) {
             adjacent = true
-        if (!adjacent) gridRouteValid = false
+          }
+        }
+        if (!adjacent) {
+          gridRouteValid = false
+        }
       }
       const tag = gridSymbol.join(',')
       check({
@@ -1052,20 +1071,28 @@ export function runConformance(): { passed: number; failed: number } {
     // and a route is a valid father/son walk
     let fibFatherOk = true
     let fibRouteOk = true
-    for (let nn = 1; nn <= 4000; nn++)
-      for (const s of margensternSons(nn))
-        if (margensternFather(s) !== nn) fibFatherOk = false
+    for (let nn = 1; nn <= 4000; nn++) {
+      for (const s of margensternSons(nn)) {
+        if (margensternFather(s) !== nn) {
+          fibFatherOk = false
+        }
+      }
+    }
     for (let i = 0; i < 60; i++) {
       const a = 2 + ((i * 37) % 900)
       const b = 2 + ((i * 53) % 900)
       const p = margensternRoute(a, b)
-      if (p[0] !== a || p[p.length - 1] !== b) fibRouteOk = false
-      for (let j = 0; j + 1 < p.length; j++)
+      if (p[0] !== a || p[p.length - 1] !== b) {
+        fibRouteOk = false
+      }
+      for (let j = 0; j + 1 < p.length; j++) {
         if (
           margensternFather(p[j]!) !== p[j + 1]! &&
           margensternFather(p[j + 1]!) !== p[j]!
-        )
+        ) {
           fibRouteOk = false
+        }
+      }
     }
     check({
       name: 'Margenstern pure arithmetic: father formula generates the tree, routes are valid father/son walks',
@@ -1089,12 +1116,14 @@ export function runConformance(): { passed: number; failed: number } {
       }),
     })
     let numOk = true
-    for (let n = 1; n <= 8000; n++)
+    for (let n = 1; n <= 8000; n++) {
       if (
         fibNum.decode(fibNum.encode(n)) !== n ||
         sixFour.decode(sixFour.encode(n)) !== n
-      )
+      ) {
         numOk = false
+      }
+    }
     check({
       name: 'Margenstern numeration: Fibonacci and {6,4} growth bases round-trip exactly',
       ok: numOk,
@@ -1143,8 +1172,11 @@ export function runConformance(): { passed: number; failed: number } {
       tiling.polygons.length === tiling.cellCount &&
       tiling.neighbors.length === tiling.cellCount
     let polygonsWellFormed = true
-    for (const poly of tiling.polygons)
-      if (poly.length < 5) polygonsWellFormed = false
+    for (const poly of tiling.polygons) {
+      if (poly.length < 5) {
+        polygonsWellFormed = false
+      }
+    }
     check({
       name: 'cell faces: one polygon per cell, each at least p-sided, aligned with the graph',
       ok: facesAligned && polygonsWellFormed,
@@ -1175,8 +1207,11 @@ export function runConformance(): { passed: number; failed: number } {
       modulus: q,
     })
     let reversible = true
-    for (let i = 0; i < waveN; i++)
-      if (back[i] !== prev0[i]) reversible = false
+    for (let i = 0; i < waveN; i++) {
+      if (back[i] !== prev0[i]) {
+        reversible = false
+      }
+    }
     check({
       name: 'cell faces: the reversible wave coloring the faces is exactly reversible',
       ok: reversible,
@@ -1199,8 +1234,9 @@ export function runConformance(): { passed: number; failed: number } {
     let platonicOk = true
     for (const { symbol, faces, edges } of PLATONIC) {
       const s = buildSphericalScene({ symbol, maxCells: 400 })
-      if (s.cellCount !== faces || s.edges.length !== edges)
+      if (s.cellCount !== faces || s.edges.length !== edges) {
         platonicOk = false
+      }
     }
     check({
       name: 'geometry: the spherical builder reproduces the Platonic solids (exact faces and edges)',
@@ -1262,12 +1298,15 @@ export function runConformance(): { passed: number; failed: number } {
     let pureSymmetric = true
     let pureInterior = 0
     for (let i = 0; i < pure.cellCount; i++) {
-      if (pure.neighbors[i]!.length !== 5) continue
+      if (pure.neighbors[i]!.length !== 5) {
+        continue
+      }
       pureInterior++
       if (
         !pure.neighbors[i]!.every(j => pure.neighbors[j]!.includes(i))
-      )
+      ) {
         pureSymmetric = false
+      }
     }
     check({
       name: 'pentagrid pure address (Theorem 5): 5-regular, symmetric, geometry-free',
@@ -1292,13 +1331,19 @@ export function runConformance(): { passed: number; failed: number } {
       })
       const histOf = (nb: number[][]): string => {
         const h: Record<number, number> = {}
-        for (const r of nb) h[r.length] = (h[r.length] ?? 0) + 1
+        for (const r of nb) {
+          h[r.length] = (h[r.length] ?? 0) + 1
+        }
         return JSON.stringify(Object.entries(h).sort())
       }
       let exactSymmetric = true
-      for (let i = 0; i < exact.cellCount; i++)
-        for (const j of exact.neighbors[i]!)
-          if (!exact.neighbors[j]!.includes(i)) exactSymmetric = false
+      for (let i = 0; i < exact.cellCount; i++) {
+        for (const j of exact.neighbors[i]!) {
+          if (!exact.neighbors[j]!.includes(i)) {
+            exactSymmetric = false
+          }
+        }
+      }
       const matches =
         exact.cellCount === floatGraph.cellCount &&
         histOf(exact.neighbors) === histOf(floatGraph.neighbors)
@@ -1326,10 +1371,14 @@ export function runConformance(): { passed: number; failed: number } {
     let routeWalk = routePath.length > 1
     for (let i = 0; i + 1 < routePath.length; i++) {
       let adjacent = false
-      for (let s = 0; s < patGrid.degree(routePath[i]!); s++)
-        if (patGrid.step(routePath[i]!, s).cell === routePath[i + 1]!)
+      for (let s = 0; s < patGrid.degree(routePath[i]!); s++) {
+        if (patGrid.step(routePath[i]!, s).cell === routePath[i + 1]!) {
           adjacent = true
-      if (!adjacent) routeWalk = false
+        }
+      }
+      if (!adjacent) {
+        routeWalk = false
+      }
     }
     check({
       name: 'pattern labels coherent (center + p sectors), node classes <= 3',
@@ -1382,7 +1431,9 @@ export function runConformance(): { passed: number; failed: number } {
         { registers: 4, capacity: 400, code: mulCode },
         [a, b, 0, 0],
       )
-      if (out.registers[2] !== a * b) railwayUniversal = false
+      if (out.registers[2] !== a * b) {
+        railwayUniversal = false
+      }
     }
     check({
       name: 'railway register machine computes (universal): the locomotive multiplies on the rails',
@@ -1443,8 +1494,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // the TERNARY backend (vibe-theory base-3) computes the same answers on the same program, costed in trits
     const ter = compileMachine(FIB_SRC, { backend: 'ternary' })
     const terVals: string[] = []
-    for (let m = 1; m <= 10; m++)
+    for (let m = 1; m <= 10; m++) {
       terVals.push(runMachine(ter, [m]).result.toString())
+    }
     check({
       name: 'ternary backend: base-3 register machine computes fib(1..10) on the shared program',
       ok: terVals.join(',') === '1,1,2,3,5,8,13,21,34,55',
@@ -1453,8 +1505,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     // the LITERAL railway-CA adder: addition by the actual locomotive rippling carries through flip-flop switches
     const railFib: string[] = []
-    for (let m = 1; m <= 10; m++)
+    for (let m = 1; m <= 10; m++) {
       railFib.push(String(fibOnRailway({ n: m, bits: 8 }).value))
+    }
     check({
       name: 'literal railway-CA adder: the locomotive computes fib(1..10) by real carry ripples',
       ok: railFib.join(',') === '1,1,2,3,5,8,13,21,34,55',
@@ -1480,8 +1533,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         r.compute.result !== '55' ||
         !r.railway.ran ||
         !r.memory.found
-      )
+      ) {
         protoOk = false
+      }
     }
     check({
       name: 'prototype computer 2D/3D/4D: dock degree 7/12/24, ternary fib=55, railway runs, content recall',
@@ -1493,7 +1547,11 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     // It compiles (rotation-invariant, no conflicts), uses exactly the 5 states, and fires its documented rules.
     const caTable = buildPentagridRuleTable()
     const alpha = new Set<string>()
-    for (const r of PENTAGRID_RULES) for (const ch of r) alpha.add(ch)
+    for (const r of PENTAGRID_RULES) {
+      for (const ch of r) {
+        alpha.add(ch)
+      }
+    }
     const fivState = [...alpha].sort().join('') === 'BGRWY'
     const faithful =
       pentagridNext(caTable, 'W', ['W', 'G', 'B', 'W', 'B']) === 'G' && // rule 34
@@ -1595,8 +1653,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       let maxDepth = 0
       for (let c = 0; c < g.size; c++) {
         const row: number[] = []
-        for (let s = 0; s < g.degree(c); s++)
+        for (let s = 0; s < g.degree(c); s++) {
           row.push(g.step(c, s).cell)
+        }
         gnb.push(row)
         gdepth.push(g.depth(c))
         maxDepth = Math.max(maxDepth, g.depth(c))
@@ -1610,10 +1669,14 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       let prev = g.depth(builder.headAt())
       let built = 0
       for (let t = 0; t < 2000; t++) {
-        if (!builder.step()) break
+        if (!builder.step()) {
+          break
+        }
         built++
         const d = g.depth(builder.headAt())
-        if (d !== prev + 1) monotone = false
+        if (d !== prev + 1) {
+          monotone = false
+        }
         prev = d
       }
       const haltedAtEdge =
@@ -1630,7 +1693,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     let counterOk = true
     for (let k = 1; k <= 20; k++) {
       const reached = counter.increment()
-      if (!reached || counter.count() !== k) counterOk = false
+      if (!reached || counter.count() !== k) {
+        counterOk = false
+      }
     }
     check({
       name: 'railway CA computes a register end to end: a binary counter counts 1..20 by the locomotive',
@@ -1644,7 +1709,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     let secOk = true
     for (let k = 1; k <= 100; k++) {
       sec.increment()
-      if (sec.count() !== k) secOk = false
+      if (sec.count() !== k) {
+        secOk = false
+      }
     }
     check({
       name: 'strongly-universal memory: a one-bit seed counts 1..100, the counter builds its own bits',
@@ -1666,8 +1733,9 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       const rnb: number[][] = []
       for (let c = 0; c < rg.size; c++) {
         const row: number[] = []
-        for (let s = 0; s < rg.degree(c); s++)
+        for (let s = 0; s < rg.degree(c); s++) {
           row.push(rg.step(c, s).cell)
+        }
         rnb.push(row)
       }
       // a fundamental cycle from a non-tree edge
@@ -1678,7 +1746,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       let cyc: number[] = []
       while (fr.length && cyc.length === 0) {
         const nx: number[] = []
-        for (const u of fr)
+        for (const u of fr) {
           for (const v of rnb[u]!) {
             if (par[v] === -2) {
               par[v] = u
@@ -1698,26 +1766,36 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
               }
               const sx = new Set(up)
               let lca = -1
-              for (const z of vp)
+              for (const z of vp) {
                 if (sx.has(z)) {
                   lca = z
                   break
                 }
-              if (lca < 0) continue
+              }
+              if (lca < 0) {
+                continue
+              }
               const aa: number[] = []
               for (const z of up) {
                 aa.push(z)
-                if (z === lca) break
+                if (z === lca) {
+                  break
+                }
               }
               const bb: number[] = []
               for (const z of vp) {
-                if (z === lca) break
+                if (z === lca) {
+                  break
+                }
                 bb.push(z)
               }
               const c2 = [...aa, ...bb.reverse()]
-              if (c2.length >= 4) cyc = c2
+              if (c2.length >= 4) {
+                cyc = c2
+              }
             }
           }
+        }
         fr = nx
       }
       const rca = makeTrackLoop(cyc, N)

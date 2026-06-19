@@ -39,10 +39,13 @@ export default experiment({
   run() {
     // (1) the four stabilizers pairwise commute, a valid code
     let stabilizersCommute = true
-    for (let a = 0; a < 4; a++)
-      for (let b = a + 1; b < 4; b++)
-        if (!pauliCommute(stabilizers[a]!, stabilizers[b]!))
+    for (let a = 0; a < 4; a++) {
+      for (let b = a + 1; b < 4; b++) {
+        if (!pauliCommute(stabilizers[a]!, stabilizers[b]!)) {
           stabilizersCommute = false
+        }
+      }
+    }
 
     // (2) the logical operators are the Paulis that commute with every stabilizer but are NOT in the
     // stabilizer group. The code distance is the minimum weight of a logical, it should be 3.
@@ -59,8 +62,11 @@ export default experiment({
     // An erasure set E is correctable iff no logical operator is supported entirely within E.
     const subsets = (size: number): number[] => {
       const out: number[] = []
-      for (let mask = 0; mask < 32; mask++)
-        if (popcount(mask) === size) out.push(mask)
+      for (let mask = 0; mask < 32; mask++) {
+        if (popcount(mask) === size) {
+          out.push(mask)
+        }
+      }
       return out
     }
     const correctable = (erased: number): boolean =>

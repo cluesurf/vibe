@@ -40,9 +40,14 @@ export default experiment({
     // no same-shell (cousin) edges among complete cells (the 4D simplification).
     let cousins = 0
     for (let c = 0; c < n; c++) {
-      if (!a.complete[c]) continue
-      for (const v of a.graph.neighbors[c]!)
-        if (a.dist[v] === a.dist[c]) cousins++
+      if (!a.complete[c]) {
+        continue
+      }
+      for (const v of a.graph.neighbors[c]!) {
+        if (a.dist[v] === a.dist[c]) {
+          cousins++
+        }
+      }
     }
 
     // addresses unique and decode round-trips over the enumerated interior.
@@ -50,18 +55,26 @@ export default experiment({
     let addressDup = 0
     let roundTripFail = 0
     for (let c = 0; c < n; c++) {
-      if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) continue
+      if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
+        continue
+      }
       const key = a.address[c]!.join('.')
-      if (seen.has(key)) addressDup++
+      if (seen.has(key)) {
+        addressDup++
+      }
       seen.add(key)
-      if (decode(a, a.address[c]!) !== c) roundTripFail++
+      if (decode(a, a.address[c]!) !== c) {
+        roundTripFail++
+      }
     }
 
     // the four neighbour families reconstruct the true neighbour set on complete cells.
     let exact = 0
     let totalComplete = 0
     for (let c = 0; c < n; c++) {
-      if (!a.complete[c]) continue
+      if (!a.complete[c]) {
+        continue
+      }
       totalComplete++
       const predicted = new Set<number>([
         a.parent[c]!,
@@ -71,9 +84,16 @@ export default experiment({
       ])
       const truth = a.graph.neighbors[c]!
       let same = predicted.size === truth.length
-      if (same)
-        for (const v of truth) if (!predicted.has(v)) same = false
-      if (same) exact++
+      if (same) {
+        for (const v of truth) {
+          if (!predicted.has(v)) {
+            same = false
+          }
+        }
+      }
+      if (same) {
+        exact++
+      }
     }
 
     // the confluence transducer is a deterministic finite-state function at window K=2.

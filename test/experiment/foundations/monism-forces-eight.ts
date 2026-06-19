@@ -30,7 +30,9 @@ export default experiment({
     // scan even dimensions, find where the vector dimension equals the half-spinor dimension
     const matches: number[] = []
     for (let n = 2; n <= 64; n += 2) {
-      if (vectorDim(n) === halfSpinorDim(n)) matches.push(n)
+      if (vectorDim(n) === halfSpinorDim(n)) {
+        matches.push(n)
+      }
     }
     const uniqueAtEight = matches.length === 1 && matches[0] === 8
 

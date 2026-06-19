@@ -78,23 +78,33 @@ export function drivenSelf(input: {
   )
   const meanOver = (cells: number[]): number => {
     let s = 0
-    for (const c of cells) s += tone[c]!
+    for (const c of cells) {
+      s += tone[c]!
+    }
     return cells.length > 0 ? s / cells.length : 0
   }
 
   for (let t = 0; t < beats; t++) {
-    for (let s = 0; s < sectorCount; s++)
-      if (rng.next() < flipOf(s)) signals[s] = -signals[s]!
-    for (let j = 0; j < inputCells.length; j++)
+    for (let s = 0; s < sectorCount; s++) {
+      if (rng.next() < flipOf(s)) {
+        signals[s] = -signals[s]!
+      }
+    }
+    for (let j = 0; j < inputCells.length; j++) {
       tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
-    if (withDynamics) beat(tone, graph, moved, rng, 0, cohesion)
+    }
+    if (withDynamics) {
+      beat(tone, graph, moved, rng, 0, cohesion)
+    }
     // re-clamp the input boundary as a steady source, so the interior reads the environment, not a leak.
-    for (let j = 0; j < inputCells.length; j++)
+    for (let j = 0; j < inputCells.length; j++) {
       tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
+    }
     interior.push(meanOver(interiorCells))
     environment.push(signals.reduce((a, b) => a + b, 0) / sectorCount)
-    for (let s = 0; s < sectorCount; s++)
+    for (let s = 0; s < sectorCount; s++) {
       sectorSignals[s]!.push(signals[s]!)
+    }
   }
   return { interior, environment, sectorSignals }
 }

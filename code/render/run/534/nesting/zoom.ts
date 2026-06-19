@@ -33,12 +33,19 @@ function shellColor(
   let r = 0,
     g = 0,
     b = 0
-  if (h < 1) [r, g, b] = [c, x, 0]
-  else if (h < 2) [r, g, b] = [x, c, 0]
-  else if (h < 3) [r, g, b] = [0, c, x]
-  else if (h < 4) [r, g, b] = [0, x, c]
-  else if (h < 5) [r, g, b] = [x, 0, c]
-  else [r, g, b] = [c, 0, x]
+  if (h < 1) {
+    ;[r, g, b] = [c, x, 0]
+  } else if (h < 2) {
+    ;[r, g, b] = [x, c, 0]
+  } else if (h < 3) {
+    ;[r, g, b] = [0, c, x]
+  } else if (h < 4) {
+    ;[r, g, b] = [0, x, c]
+  } else if (h < 5) {
+    ;[r, g, b] = [x, 0, c]
+  } else {
+    ;[r, g, b] = [c, 0, x]
+  }
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
 }
 
@@ -51,19 +58,26 @@ function run(): void {
   const shellCounts: number[] = [1]
   while (frontier.length) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const v of g.neighbors[u]!)
+    for (const u of frontier) {
+      for (const v of g.neighbors[u]!) {
         if (depth[v]! < 0) {
           depth[v] = depth[u]! + 1
           next.push(v)
         }
-    if (next.length) shellCounts.push(next.length)
+      }
+    }
+    if (next.length) {
+      shellCounts.push(next.length)
+    }
     frontier = next
   }
   let maxClean = 0
   for (let i = 1; i < shellCounts.length; i++) {
-    if (shellCounts[i]! / shellCounts[i - 1]! > 2) maxClean = i
-    else break
+    if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
+      maxClean = i
+    } else {
+      break
+    }
   }
   console.log(
     `cells ${n}, clean shells 0..${maxClean} (${shellCounts.slice(0, maxClean + 1).join(',')})`,
@@ -76,7 +90,9 @@ function run(): void {
     col: [number, number, number]
   }[]
   for (let i = 0; i < n; i++) {
-    if (depth[i]! < 0 || depth[i]! > maxClean) continue
+    if (depth[i]! < 0 || depth[i]! > maxClean) {
+      continue
+    }
     cells.push({
       x: g.coords[i]![0]!,
       y: g.coords[i]![1]!,
@@ -104,7 +120,7 @@ function run(): void {
       c0 = Math.max(0, Math.floor(cy - rad)),
       c1 = Math.min(IMG - 1, Math.ceil(cy + rad)),
       rr = rad * rad
-    for (let py = c0; py <= c1; py++)
+    for (let py = c0; py <= c1; py++) {
       for (let px = r0; px <= r1; px++) {
         const dx = px - cx,
           dy = py - cy
@@ -116,6 +132,7 @@ function run(): void {
           rgba[o + 3] = 255
         }
       }
+    }
   }
   for (let f = 0; f < FRAMES; f++) {
     const zoom = Math.exp((f / (FRAMES - 1)) * Math.log(ZOOM_MAX)) // exponential zoom 1 -> ZOOM_MAX
@@ -130,8 +147,9 @@ function run(): void {
     for (const c of cells) {
       const px = half + scale * (c.x - TARGET[0]!),
         py = half - scale * (c.y - TARGET[1]!)
-      if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20)
+      if (px < -20 || px > IMG + 20 || py < -20 || py > IMG + 20) {
         continue
+      }
       const rad = Math.max(
         0.6,
         DOT_SCALE * (1 - c.r2) * Math.min(zoom, 6),
@@ -142,8 +160,9 @@ function run(): void {
       join(outDir, `zoom-${String(f).padStart(3, '0')}.png`),
       encodePng(rgba, IMG, IMG),
     )
-    if (f % 20 === 0)
+    if (f % 20 === 0) {
       console.log(`  frame ${f}/${FRAMES} zoom ${zoom.toFixed(2)}x`)
+    }
   }
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(

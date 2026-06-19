@@ -49,8 +49,11 @@ export function emergentU1Gauge(): {
   // (1) Wilson loop around the flux = Phi, and gauge-INVARIANT
   const w0 = wilsonLoop(g, 8, 16, 8, 16) // a loop enclosing the flux
   const lam = grid()
-  for (let x = 0; x < L; x++)
-    for (let y = 0; y < L; y++) lam[x]![y] = rnd() * 2 - 1 // random gauge
+  for (let x = 0; x < L; x++) {
+    for (let y = 0; y < L; y++) {
+      lam[x]![y] = rnd() * 2 - 1
+    }
+  } // random gauge
   const g2 = gaugeTransform(g, lam)
   const w1 = wilsonLoop(g2, 8, 16, 8, 16)
   const wilsonInvariant =

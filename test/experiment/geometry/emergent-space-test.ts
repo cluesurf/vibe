@@ -59,8 +59,11 @@ export function emergentSpaceTest(): void {
     maxCells: 9000,
   })
   let cc = 0
-  for (let i = 0; i < cube.cellCount; i++)
-    if (cube.coords[i]!.every(x => x === 0)) cc = i
+  for (let i = 0; i < cube.cellCount; i++) {
+    if (cube.coords[i]!.every(x => x === 0)) {
+      cc = i
+    }
+  }
   const cubeDim =
     Math.round(spectralDim(cube.neighbors, cc, 3, 12) * 100) / 100
   const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
@@ -118,8 +121,11 @@ export default experiment({
       maxCells: 9000,
     })
     let cc = 0
-    for (let i = 0; i < cube.cellCount; i++)
-      if (cube.coords[i]!.every(x => x === 0)) cc = i
+    for (let i = 0; i < cube.cellCount; i++) {
+      if (cube.coords[i]!.every(x => x === 0)) {
+        cc = i
+      }
+    }
     const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
 
     const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1

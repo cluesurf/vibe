@@ -20,7 +20,9 @@ const RANK = 6 // {3,4,3,3,4} has 6 reflection generators
 
 const growthRatio = (shells: number[]): number => {
   const count = shells.length
-  if (count < 4) return 1
+  if (count < 4) {
+    return 1
+  }
   return shells[count - 2]! / shells[count - 3]!
 }
 
@@ -67,13 +69,16 @@ export default experiment({
     let conservedThroughout = true
     for (let t = 0; t < steps; t++) {
       occupation = stream(collide(occupation, true))
-      if (count(occupation) !== charge0) conservedThroughout = false
+      if (count(occupation) !== charge0) {
+        conservedThroughout = false
+      }
     }
     const moved = occupation.some((slots, cell) =>
       slots.some((value, d) => value !== initial[cell]![d]),
     ) // the rule did something
-    for (let t = 0; t < steps; t++)
-      occupation = collide(stream(occupation), false) // exact inverse, reversed order
+    for (let t = 0; t < steps; t++) {
+      occupation = collide(stream(occupation), false)
+    } // exact inverse, reversed order
     const reversible = occupation.every((slots, cell) =>
       slots.every((value, d) => value === initial[cell]![d]),
     )

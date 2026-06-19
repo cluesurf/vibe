@@ -106,9 +106,14 @@ export default experiment({
           absorbBoundary(hit)
         }
         let diff = 0
-        for (let i = 0; i < clean.data.length; i++)
-          if (clean.data[i] !== hit.data[i]) diff++
-        if (diff > peak) peak = diff
+        for (let i = 0; i < clean.data.length; i++) {
+          if (clean.data[i] !== hit.data[i]) {
+            diff++
+          }
+        }
+        if (diff > peak) {
+          peak = diff
+        }
         final = diff
       }
       return { peak, final }
@@ -120,8 +125,9 @@ export default experiment({
     // the forward momentum (identity) of the hit body, start vs end on the open lattice.
     const dirCharge = (will: Will, d: number): number => {
       let s = 0
-      for (let c = 0; c < mesh.cellCount; c++)
+      for (let c = 0; c < mesh.cellCount; c++) {
         s += Math.abs(will.data[c * degree + d]!)
+      }
       return s
     }
     let hit = bodyHitGlider()

@@ -12,11 +12,15 @@ export function localActivity(
   let nz = 0
   let tot = 0
   for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
-    if (tone[adj[p]!] !== 0) nz++
+    if (tone[adj[p]!] !== 0) {
+      nz++
+    }
     tot++
   }
   for (let p = offsets[w]!; p < offsets[w + 1]!; p++) {
-    if (tone[adj[p]!] !== 0) nz++
+    if (tone[adj[p]!] !== 0) {
+      nz++
+    }
     tot++
   }
   return tot > 0 ? nz / tot : 0
@@ -48,7 +52,9 @@ export function socEdgeSweep(input: {
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
-    if (moved[v] || moved[w]) continue
+    if (moved[v] || moved[w]) {
+      continue
+    }
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {

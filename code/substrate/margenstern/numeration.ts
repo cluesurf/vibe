@@ -24,18 +24,24 @@ export interface Numeration {
 // a numeration over an explicit increasing integer basis (must start at 1 and strictly increase)
 export function makeNumeration(input: { basis: number[] }): Numeration {
   const basis = [...input.basis].sort((a, b) => a - b)
-  if (basis[0] !== 1)
+  if (basis[0] !== 1) {
     throw new Error('numeration basis must start at 1')
+  }
 
   function encode(value: number): number[] {
-    if (!Number.isInteger(value) || value < 0)
+    if (!Number.isInteger(value) || value < 0) {
       throw new Error(
         `numeration needs a non-negative integer, got ${value}`,
       )
-    if (value === 0) return [0]
+    }
+    if (value === 0) {
+      return [0]
+    }
     let remainder = value
     let top = basis.length - 1
-    while (top >= 0 && basis[top]! > remainder) top--
+    while (top >= 0 && basis[top]! > remainder) {
+      top--
+    }
     const digits: number[] = []
     for (let i = top; i >= 0; i--) {
       const digit = Math.floor(remainder / basis[i]!)
@@ -48,15 +54,21 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
   function decode(digits: number[]): number {
     let sum = 0
     const len = digits.length
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       sum += digits[i]! * basis[len - 1 - i]!
+    }
     return sum
   }
 
   function maxDigit(limit: number): number {
     let m = 0
-    for (let n = 1; n <= limit; n++)
-      for (const d of encode(n)) if (d > m) m = d
+    for (let n = 1; n <= limit; n++) {
+      for (const d of encode(n)) {
+        if (d > m) {
+          m = d
+        }
+      }
+    }
     return m
   }
 
@@ -75,9 +87,12 @@ export function recurrenceBasis(input: {
   const basis = seeds.slice(0, terms)
   while (basis.length < terms) {
     let next = 0
-    for (let k = 0; k < coefficients.length; k++)
+    for (let k = 0; k < coefficients.length; k++) {
       next += coefficients[k]! * basis[basis.length - 1 - k]!
-    if (next <= basis[basis.length - 1]!) break // basis must strictly increase to be a valid numeration
+    }
+    if (next <= basis[basis.length - 1]!) {
+      break
+    } // basis must strictly increase to be a valid numeration
     basis.push(next)
   }
   return basis
@@ -89,7 +104,9 @@ export function recurrenceBasis(input: {
 export function growthBasis(shellCounts: number[]): number[] {
   const basis: number[] = [1]
   for (const count of shellCounts) {
-    if (count > basis[basis.length - 1]!) basis.push(count)
+    if (count > basis[basis.length - 1]!) {
+      basis.push(count)
+    }
   }
   return basis
 }

@@ -109,13 +109,16 @@ export function toCsr(
 } {
   const n = neighbors.length
   const offsets = new Uint32Array(n + 1)
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + (neighbors[i]?.length ?? 0)
+  }
   const adj = new Uint32Array(offsets[n]!)
   let p = 0
   for (let i = 0; i < n; i++) {
     const row = neighbors[i] ?? []
-    for (let k = 0; k < row.length; k++) adj[p++] = row[k]!
+    for (let k = 0; k < row.length; k++) {
+      adj[p++] = row[k]!
+    }
   }
   return { offsets, adj }
 }
@@ -129,7 +132,7 @@ export function edgesFromCsr(
 ): { eu: Int32Array; ev: Int32Array } {
   const eu: number[] = []
   const ev: number[] = []
-  for (let v = 0; v < n; v++)
+  for (let v = 0; v < n; v++) {
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
       if (w > v) {
@@ -137,6 +140,7 @@ export function edgesFromCsr(
         ev.push(w)
       }
     }
+  }
   return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
 }
 
@@ -156,20 +160,25 @@ export function largestComponentNodes(
   const seen = new Int32Array(n).fill(-1)
   let best: number[] = []
   for (let s = 0; s < n; s++) {
-    if (seen[s]! >= 0) continue
+    if (seen[s]! >= 0) {
+      continue
+    }
     const comp: number[] = []
     const q = [s]
     seen[s] = s
     for (let h = 0; h < q.length; h++) {
       const u = q[h]!
       comp.push(u)
-      for (const w of neighbors[u]!)
+      for (const w of neighbors[u]!) {
         if (seen[w]! < 0) {
           seen[w] = s
           q.push(w)
         }
+      }
     }
-    if (comp.length > best.length) best = comp
+    if (comp.length > best.length) {
+      best = comp
+    }
   }
   return best
 }
@@ -197,7 +206,7 @@ export function csrDistances(input: {
     while (fr.length > 0 && r < maxR) {
       r++
       const next: number[] = []
-      for (const u of fr)
+      for (const u of fr) {
         for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
           const w = adj[p]!
           if (dist[w] === -1 && (!allowed || allowed[w])) {
@@ -205,13 +214,14 @@ export function csrDistances(input: {
             next.push(w)
           }
         }
+      }
       fr = next
     }
     return dist
   }
   while (fr.length > 0) {
     const next: number[] = []
-    for (const u of fr)
+    for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
         if (dist[w] === -1 && (!allowed || allowed[w])) {
@@ -219,6 +229,7 @@ export function csrDistances(input: {
           next.push(w)
         }
       }
+    }
     fr = next
   }
   return dist
@@ -272,7 +283,7 @@ export function csrEccentricity(input: {
   let ecc = 0
   while (fr.length > 0) {
     const next: number[] = []
-    for (const u of fr)
+    for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
         if (dist[w] === -1) {
@@ -284,6 +295,7 @@ export function csrEccentricity(input: {
           next.push(w)
         }
       }
+    }
     fr = next
   }
   return { dist, far }
@@ -334,7 +346,7 @@ export function csrFarthestNode(input: {
   let far = source
   while (fr.length > 0) {
     const next: number[] = []
-    for (const u of fr)
+    for (const u of fr) {
       for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
         const w = adj[p]!
         if (dist[w] === -1) {
@@ -343,6 +355,7 @@ export function csrFarthestNode(input: {
           next.push(w)
         }
       }
+    }
     fr = next
   }
   return far
@@ -361,12 +374,14 @@ export function neighborDistances(input: {
   let frontier = [source]
   while (frontier.length > 0) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const w of neighbors[u]!)
+    for (const u of frontier) {
+      for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
           dist[w] = (dist[u] ?? 0) + 1
           next.push(w)
         }
+      }
+    }
     frontier = next
   }
   return dist
@@ -387,13 +402,15 @@ export function neighborBfsTree(input: {
   let frontier = [source]
   while (frontier.length > 0) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const w of neighbors[u]!)
+    for (const u of frontier) {
+      for (const w of neighbors[u]!) {
         if (dist[w] === -1) {
           dist[w] = (dist[u] ?? 0) + 1
           parent[w] = u
           next.push(w)
         }
+      }
+    }
     frontier = next
   }
   return { dist, parent }
@@ -405,12 +422,15 @@ export function adjacencyListsEqual(
   a: ReadonlyArray<ReadonlyArray<number>>,
   b: ReadonlyArray<ReadonlyArray<number>>,
 ): boolean {
-  if (a.length !== b.length) return false
+  if (a.length !== b.length) {
+    return false
+  }
   for (let i = 0; i < a.length; i++) {
     const x = [...(a[i] ?? [])].sort((p, q) => p - q)
     const y = [...(b[i] ?? [])].sort((p, q) => p - q)
-    if (x.length !== y.length || x.some((v, k) => v !== y[k]))
+    if (x.length !== y.length || x.some((v, k) => v !== y[k])) {
       return false
+    }
   }
   return true
 }
@@ -450,7 +470,7 @@ export function greedyEdgeColoring(input: {
   const eu: number[] = []
   const ev: number[] = []
   const incident: number[][] = Array.from({ length: size }, () => [])
-  for (let v = 0; v < size; v++)
+  for (let v = 0; v < size; v++) {
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adjacency[p]!
       if (w > v) {
@@ -461,25 +481,37 @@ export function greedyEdgeColoring(input: {
         incident[w]!.push(e)
       }
     }
+  }
   const color = new Int32Array(eu.length).fill(-1)
   for (let e = 0; e < eu.length; e++) {
     const used = new Set<number>()
-    for (const f of incident[eu[e]!]!)
-      if (color[f]! >= 0) used.add(color[f]!)
-    for (const f of incident[ev[e]!]!)
-      if (color[f]! >= 0) used.add(color[f]!)
+    for (const f of incident[eu[e]!]!) {
+      if (color[f]! >= 0) {
+        used.add(color[f]!)
+      }
+    }
+    for (const f of incident[ev[e]!]!) {
+      if (color[f]! >= 0) {
+        used.add(color[f]!)
+      }
+    }
     let c = 0
-    while (used.has(c)) c++
+    while (used.has(c)) {
+      c++
+    }
     color[e] = c
   }
   let colorCount = 0
-  for (let e = 0; e < eu.length; e++)
+  for (let e = 0; e < eu.length; e++) {
     colorCount = Math.max(colorCount, color[e]! + 1)
+  }
   const byColor: number[][] = Array.from(
     { length: colorCount },
     () => [],
   )
-  for (let e = 0; e < eu.length; e++) byColor[color[e]!]!.push(e)
+  for (let e = 0; e < eu.length; e++) {
+    byColor[color[e]!]!.push(e)
+  }
   return { eu: Int32Array.from(eu), ev: Int32Array.from(ev), byColor }
 }
 
@@ -534,8 +566,9 @@ export function largestComponent(g: Graph): Graph {
   const oldCoords = g.embedding?.coords ?? new Float64Array(0)
   const coords = new Float64Array(kept.length * dim)
   const neighbors: number[][] = kept.map((old, i) => {
-    for (let a = 0; a < dim; a++)
+    for (let a = 0; a < dim; a++) {
       coords[i * dim + a] = oldCoords[old * dim + a] ?? 0
+    }
     return Array.from(g.neighbors[old] ?? new Uint32Array(0))
       .map(w => remap.get(w) ?? -1)
       .filter(x => x >= 0)

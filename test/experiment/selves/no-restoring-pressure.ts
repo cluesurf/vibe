@@ -57,7 +57,9 @@ export default experiment({
     const lines: Array<[number, number]> = []
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
-      if (d < o) lines.push([d, o])
+      if (d < o) {
+        lines.push([d, o])
+      }
     }
 
     // a diffuse, extended, zero-momentum net-+ cloud, radius 6, low density (both ends of two lines per cell).
@@ -92,7 +94,9 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         let n = 0
         const b = c * degree
-        for (let d = 0; d < degree; d++) n += will.data[b + d]!
+        for (let d = 0; d < degree; d++) {
+          n += will.data[b + d]!
+        }
         q[c] = n
         if (n > 0) {
           const [x, y, z, w] = coord(c)
@@ -103,7 +107,9 @@ export default experiment({
           sw += n * w
         }
       }
-      if (total === 0) return 0
+      if (total === 0) {
+        return 0
+      }
       const mx = sx / total,
         my = sy / total,
         mz = sz / total,
@@ -138,7 +144,9 @@ export default experiment({
         w = scratch
         scratch = swap
         const r = netRms(w)
-        if (r < min) min = r
+        if (r < min) {
+          min = r
+        }
         final = r
       }
       return { min, final }

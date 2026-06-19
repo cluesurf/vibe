@@ -35,9 +35,9 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
   const out: Cx[][] = Array.from({ length: 4 }, () =>
     Array.from({ length: 4 }, () => cx(0)),
   )
-  for (let i = 0; i < 2; i++)
-    for (let j = 0; j < 2; j++)
-      for (let k = 0; k < 2; k++)
+  for (let i = 0; i < 2; i++) {
+    for (let j = 0; j < 2; j++) {
+      for (let k = 0; k < 2; k++) {
         for (let l = 0; l < 2; l++) {
           const x = a[i]![j]!
           const y = b[k]![l]!
@@ -46,6 +46,9 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
             x.re * y.im + x.im * y.re,
           )
         }
+      }
+    }
+  }
   return out
 }
 
@@ -77,7 +80,7 @@ export function twoQubitCorrelationMatrix(input: {
     [0, 0, 0],
     [0, 0, 0],
   ]
-  for (let i = 0; i < 3; i++)
+  for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       t[i]![j] = expect(
         kron(PAULI[axes[i]!]!, PAULI[axes[j]!]!),
@@ -85,6 +88,7 @@ export function twoQubitCorrelationMatrix(input: {
         im,
       )
     }
+  }
   return t
 }
 
@@ -95,12 +99,15 @@ export function horodeckiMaxChsh(
   t: ReadonlyArray<ReadonlyArray<number>>,
 ): number {
   const m = makeDense({ rows: 3, cols: 3 })
-  for (let i = 0; i < 3; i++)
+  for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       let s = 0
-      for (let k = 0; k < 3; k++) s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
+      for (let k = 0; k < 3; k++) {
+        s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
+      }
       m.data[i * 3 + j] = s
     }
+  }
   const eig = eigSymmetric({ matrix: m }) // ascending
   const s1 = eig.values[2] ?? 0
   const s2 = eig.values[1] ?? 0

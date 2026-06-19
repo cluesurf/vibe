@@ -51,21 +51,25 @@ export function dynamicDispersion(input?: {
   const ks = ns.map(n => (2 * Math.PI * n) / L)
   const cosTab = ks.map(k => new Float64Array(L))
   const sinTab = ks.map(k => new Float64Array(L))
-  for (let m = 0; m < ks.length; m++)
+  for (let m = 0; m < ks.length; m++) {
     for (let x = 0; x < L; x++) {
       cosTab[m]![x] = Math.cos(ks[m]! * x)
       sinTab[m]![x] = Math.sin(ks[m]! * x)
     }
+  }
 
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 19 })
-  for (let i = 0; i < L; i++)
+  for (let i = 0; i < L; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
       | 0
       | 1
-  for (let t = 0; t < 400; t++) beat(tone, L, moved, rng, arrow)
+  }
+  for (let t = 0; t < 400; t++) {
+    beat(tone, L, moved, rng, arrow)
+  }
 
   // record the real and imaginary Fourier amplitudes of the charge for each mode over a trajectory
   const T = 9000
@@ -115,7 +119,7 @@ export function dynamicDispersion(input?: {
     const norm = c.map(v => v / c0)
     // relaxation time, where the normalized correlation first drops below 1/e
     let relaxTime = maxTau
-    for (let tau = 1; tau <= maxTau; tau++)
+    for (let tau = 1; tau <= maxTau; tau++) {
       if (norm[tau]! < Math.exp(-1)) {
         // linear interpolation between tau-1 and tau
         const a0 = norm[tau - 1]!
@@ -123,10 +127,14 @@ export function dynamicDispersion(input?: {
         relaxTime = tau - 1 + (a0 - Math.exp(-1)) / (a0 - a1)
         break
       }
+    }
     // propagating if the correlation goes clearly negative (oscillation) before decaying
     let propagating = false
-    for (let tau = 1; tau <= maxTau; tau++)
-      if (norm[tau]! < -0.15) propagating = true
+    for (let tau = 1; tau <= maxTau; tau++) {
+      if (norm[tau]! < -0.15) {
+        propagating = true
+      }
+    }
     modes.push({
       n: ns[m]!,
       k: ks[m]!,

@@ -35,8 +35,9 @@ export function compileMachine(
   options: { backend?: Backend } = {},
 ): CompiledMachine {
   const backend = options.backend ?? 'binary'
-  if (backend === 'unary')
+  if (backend === 'unary') {
     return { backend, ...compileToRailway(source) }
+  }
   // binary and ternary share the (representation-neutral) compiled program
   return { backend, ...compileToBinary(source) }
 }

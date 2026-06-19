@@ -45,9 +45,12 @@ export default experiment({
         seed: 9,
       })
       fractions.push(live.trajectory[live.trajectory.length - 1]! / n)
-      if (live.qEnd !== 0) allConserved = false
-      if (dead.trajectory[dead.trajectory.length - 1]! !== 0)
+      if (live.qEnd !== 0) {
+        allConserved = false
+      }
+      if (dead.trajectory[dead.trajectory.length - 1]! !== 0) {
         allControlsDead = false
+      }
     }
     const minF = Math.min(...fractions)
     const maxF = Math.max(...fractions)

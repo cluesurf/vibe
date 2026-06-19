@@ -76,11 +76,12 @@ export function deterministicWave(input?: {
     prev = back
   }
   let reversible = true
-  for (let x = 0; x < L; x++)
+  for (let x = 0; x < L; x++) {
     if (prev[x] !== prev0[x] || cur[x] !== cur0[x]) {
       reversible = false
       break
     }
+  }
 
   // (2) ballistic spread: a localized perturbation, RMS width of the difference vs time
   const center = Math.floor(L / 2)
@@ -144,12 +145,14 @@ export function deterministicWave(input?: {
           rng: r,
           arrow: 0,
         })
-        if (tone[pos] === 0)
-          for (let d = -1; d <= 1; d += 2)
+        if (tone[pos] === 0) {
+          for (let d = -1; d <= 1; d += 2) {
             if (tone[(pos + d + L) % L] === 1) {
               pos = (pos + d + L) % L
               break
             }
+          }
+        }
         const dd = Math.min(
           Math.abs(pos - center),
           L - Math.abs(pos - center),

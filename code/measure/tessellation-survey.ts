@@ -48,7 +48,7 @@ export function surveyTessellation(input: {
     const N = g.cellCount,
       nb = g.neighbors
     const minCells = input.minCells ?? 50
-    if (N < minCells)
+    if (N < minCells) {
       return {
         ok: false,
         cells: N,
@@ -57,6 +57,7 @@ export function surveyTessellation(input: {
         betheAlpha: 0,
         specDim: 0,
       }
+    }
     let center = 0,
       best = -1
     for (let i = 0; i < N; i++) {

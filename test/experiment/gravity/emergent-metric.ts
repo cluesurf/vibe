@@ -47,7 +47,9 @@ function matterForceExponent(): { exponent: number; binds: boolean } {
   for (let step = 0; step < 200000; step++) {
     v += -(k / (r * r)) * dt
     r += v * dt
-    if (r < 1) break
+    if (r < 1) {
+      break
+    }
   }
   return { exponent, binds: r < 12 }
 }

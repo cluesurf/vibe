@@ -22,8 +22,9 @@ function absorbGradientBoundary(
     const coordinate = coordAlong(cell, gradAxis, side)
     if (coordinate === 0 || coordinate === side - 1) {
       const base = cell * degree
-      for (let direction = 0; direction < degree; direction++)
+      for (let direction = 0; direction < degree; direction++) {
         will.data[base + direction] = 0
+      }
     }
   }
 }
@@ -72,8 +73,9 @@ export function shearSetup(input: {
   const will = makeWill(mesh)
   const data = will.data
   const opposite: number[] = []
-  for (let direction = 0; direction < degree; direction++)
+  for (let direction = 0; direction < degree; direction++) {
     opposite.push(mesh.opposite(direction))
+  }
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const amplitude = Math.sin(
       (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
@@ -82,7 +84,9 @@ export function shearSetup(input: {
     let noMomentumLine = 0
     for (let direction = 0; direction < degree; direction++) {
       const other = opposite[direction]!
-      if (direction >= other) continue
+      if (direction >= other) {
+        continue
+      }
       const component = directions[direction]![momAxis] ?? 0 // momAxis component of this line (other has the negative)
       if (component !== 0) {
         const positiveSlot = component > 0 ? direction : other
@@ -175,7 +179,9 @@ export function shearAmplitudeSeries(input: {
   for (let step = 0; step < beats; step++) {
     beatInto({ src: current, dst: scratch, table, collision })
     ;[current, scratch] = [scratch, current]
-    if (open) absorbGradientBoundary(current, side, gradAxis)
+    if (open) {
+      absorbGradientBoundary(current, side, gradAxis)
+    }
     series.push(start === 0 ? 0 : measure(current) / start)
   }
   return series
@@ -201,12 +207,15 @@ export function chargeWaveSetup(input: {
       (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
     )
     const base = cell * degree
-    if (amplitude > 0.33)
-      for (let direction = 0; direction < band; direction++)
+    if (amplitude > 0.33) {
+      for (let direction = 0; direction < band; direction++) {
         will.data[base + direction] = 1
-    else if (amplitude < -0.33)
-      for (let direction = 0; direction < band; direction++)
+      }
+    } else if (amplitude < -0.33) {
+      for (let direction = 0; direction < band; direction++) {
         will.data[base + direction] = -1
+      }
+    }
   }
   return will
 }
@@ -253,7 +262,9 @@ export function chargeWaveSeries(input: {
   for (let step = 0; step < beats; step++) {
     beatInto({ src: current, dst: scratch, table, collision })
     ;[current, scratch] = [scratch, current]
-    if (open) absorbGradientBoundary(current, side, gradAxis)
+    if (open) {
+      absorbGradientBoundary(current, side, gradAxis)
+    }
     series.push(start === 0 ? 0 : measure(current) / start)
   }
   return series

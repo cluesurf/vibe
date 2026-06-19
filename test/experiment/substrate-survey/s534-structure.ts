@@ -25,9 +25,11 @@ export function s534Structure(): {
   })
   // the 12 directions = icosahedron vertices, check the CRYSTALLOGRAPHIC (root-system) condition 2(a.b)/(b.b) in Z
   const verts: number[][] = []
-  for (const a of [1, -1])
-    for (const b of [phi, -phi])
+  for (const a of [1, -1]) {
+    for (const b of [phi, -phi]) {
       verts.push([0, a, b], [a, b, 0], [b, 0, a])
+    }
+  }
   const crystallographic = directionsAreCrystallographic(verts)
   const hasSpinor = false // a permutation rep of the icosahedral rotation group A5 = 1+3+3'+5, all integer spin (p190)
   return { degree, specDim, crystallographic, hasSpinor }

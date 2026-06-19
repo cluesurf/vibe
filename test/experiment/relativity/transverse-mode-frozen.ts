@@ -74,8 +74,9 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++)
+    for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
+    }
     const collision = headOnRotate({ opposite })
 
     // the longitudinal (spin-0 sound) mode, the positive control, it propagates

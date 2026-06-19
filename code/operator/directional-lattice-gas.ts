@@ -76,7 +76,7 @@ export function stream(
     N: new Int8Array(n),
     S: new Int8Array(n),
   }
-  for (let x = 0; x < length; x++)
+  for (let x = 0; x < length; x++) {
     for (let y = 0; y < length; y++) {
       o.E[latticeIndex(length, x, y)] =
         s.E[latticeIndex(length, x - 1, y)]!
@@ -87,6 +87,7 @@ export function stream(
       o.S[latticeIndex(length, x, y)] =
         s.S[latticeIndex(length, x, y + 1)]!
     }
+  }
   return o
 }
 
@@ -102,7 +103,7 @@ export function streamInverse(
     N: new Int8Array(n),
     S: new Int8Array(n),
   }
-  for (let x = 0; x < length; x++)
+  for (let x = 0; x < length; x++) {
     for (let y = 0; y < length; y++) {
       o.E[latticeIndex(length, x, y)] =
         s.E[latticeIndex(length, x + 1, y)]!
@@ -113,14 +114,16 @@ export function streamInverse(
       o.S[latticeIndex(length, x, y)] =
         s.S[latticeIndex(length, x, y - 1)]!
     }
+  }
   return o
 }
 
 // Total signed charge (a conserved scalar).
 export const latticeCharge = (s: LatticeGasState): number => {
   let c = 0
-  for (let i = 0; i < s.E.length; i++)
+  for (let i = 0; i < s.E.length; i++) {
     c += s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
+  }
   return c
 }
 
@@ -140,7 +143,8 @@ export const latticeMomentum = (
 // Per-cell total charge density.
 export function latticeDensity(s: LatticeGasState): Float64Array {
   const d = new Float64Array(s.E.length)
-  for (let i = 0; i < s.E.length; i++)
+  for (let i = 0; i < s.E.length; i++) {
     d[i] = s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
+  }
   return d
 }

@@ -58,7 +58,9 @@ export default experiment({
     const lines: Array<[number, number]> = []
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
-      if (d < o) lines.push([d, o])
+      if (d < o) {
+        lines.push([d, o])
+      }
     }
     const center =
       half +
@@ -110,7 +112,9 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         let n = 0
         const b = c * degree
-        for (let d = 0; d < degree; d++) n += will.data[b + d]!
+        for (let d = 0; d < degree; d++) {
+          n += will.data[b + d]!
+        }
         q[c] = n
         if (n > 0) {
           const [x, y, z, w] = coord(c)
@@ -121,7 +125,9 @@ export default experiment({
           sw += n * w
         }
       }
-      if (total === 0) return 0
+      if (total === 0) {
+        return 0
+      }
       const mx = sx / total,
         my = sy / total,
         mz = sz / total,
@@ -157,7 +163,9 @@ export default experiment({
         bd = bdScratch
         bdScratch = swap
         const r = netRms(bd)
-        if (r > rmsMax) rmsMax = r
+        if (r > rmsMax) {
+          rmsMax = r
+        }
       }
       const trace = (open: boolean): number => {
         let clean = body()
@@ -195,8 +203,11 @@ export default experiment({
             absorbBoundary(pert)
           }
           let d = 0
-          for (let k = 0; k < clean.data.length; k++)
-            if (clean.data[k] !== pert.data[k]) d++
+          for (let k = 0; k < clean.data.length; k++) {
+            if (clean.data[k] !== pert.data[k]) {
+              d++
+            }
+          }
           final = d
         }
         return final

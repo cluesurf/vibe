@@ -45,8 +45,9 @@ export default experiment({
       size: params.size,
       coreRadius: 5,
     })
-    for (let t = 0; t < 2000; t++)
+    for (let t = 0; t < 2000; t++) {
       base = relaxSpins({ spins: base, params, rate: 0.08 })
+    }
     const startQ = skyrmionDegree(base, params.size)
 
     const chargeRange = (dt: number): { min: number; max: number } => {
@@ -56,8 +57,12 @@ export default experiment({
       for (let t = 0; t < steps; t++) {
         s = precessSpins({ spins: s, params, dt, open: false })
         const q = skyrmionDegree(s, params.size)
-        if (q < min) min = q
-        if (q > max) max = q
+        if (q < min) {
+          min = q
+        }
+        if (q > max) {
+          max = q
+        }
       }
       return { min, max }
     }

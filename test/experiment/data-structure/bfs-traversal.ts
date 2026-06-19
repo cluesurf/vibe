@@ -20,7 +20,9 @@ export default experiment({
     const cells = a.dist.length
     const maxDepth = a.dist.reduce((m, d) => Math.max(m, d), 0)
     const histogram = new Array(maxDepth + 1).fill(0)
-    for (const d of a.dist) histogram[d] += 1
+    for (const d of a.dist) {
+      histogram[d] += 1
+    }
 
     const everyCellVisitedOnce =
       a.dist.every(d => d >= 0) &&
@@ -28,8 +30,11 @@ export default experiment({
     // within the fully enumerated shells, the BFS frontier equals the generation shell
     const reliable = Math.min(a.shellComplete, maxDepth)
     let frontierEqualsShell = true
-    for (let d = 0; d <= reliable; d++)
-      if (histogram[d] !== a.shellSizes[d]) frontierEqualsShell = false
+    for (let d = 0; d <= reliable; d++) {
+      if (histogram[d] !== a.shellSizes[d]) {
+        frontierEqualsShell = false
+      }
+    }
 
     const ok = everyCellVisitedOnce && frontierEqualsShell
 

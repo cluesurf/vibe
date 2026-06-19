@@ -70,12 +70,13 @@ export function discreteRuleEndToEnd(): {
     collide(r)
   }
   let diff = 0
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     diff +=
       Math.abs(r.E[i]! - init.E[i]!) +
       Math.abs(r.W[i]! - init.W[i]!) +
       Math.abs(r.N[i]! - init.N[i]!) +
       Math.abs(r.S[i]! - init.S[i]!)
+  }
   const reversible = diff === 0
   // (4) emergent smooth continuum: seed a localized density blob, evolve, coarse-grain, check it spreads SMOOTHLY
   const blob: State = {
@@ -85,13 +86,14 @@ export function discreteRuleEndToEnd(): {
     S: new Int8Array(N),
   }
   const c = L >> 1
-  for (let x = c - 6; x <= c + 6; x++)
+  for (let x = c - 6; x <= c + 6; x++) {
     for (let y = c - 6; y <= c + 6; y++) {
       blob.E[idx(x, y)] = 1
       blob.W[idx(x, y)] = 1
       blob.N[idx(x, y)] = 1
       blob.S[idx(x, y)] = 1
     }
+  }
   let b = clone(blob)
   for (let t = 0; t < 120; t++) {
     collide(b)
@@ -109,14 +111,17 @@ export function discreteRuleEndToEnd(): {
   }
   let tv = 0,
     cnt = 0
-  for (let bx = 0; bx < nb - 1; bx++)
+  for (let bx = 0; bx < nb - 1; bx++) {
     for (let by = 0; by < nb; by++) {
       tv += Math.abs(cg[by * nb + bx]! - cg[by * nb + bx + 1]!)
       cnt++
     }
+  }
   const meanAbs = (() => {
     let s2 = 0
-    for (let i = 0; i < cg.length; i++) s2 += Math.abs(cg[i]!)
+    for (let i = 0; i < cg.length; i++) {
+      s2 += Math.abs(cg[i]!)
+    }
     return s2 / cg.length
   })()
   const roughness = tv / cnt / (meanAbs + 1e-9)

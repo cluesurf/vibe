@@ -56,7 +56,9 @@ function orbitVertices(
     for (const n of stabilizerNormals) {
       const vr = reflectPoint(v, n, metric)
       const k = pointKey(vr)
-      if (visited.has(k)) continue
+      if (visited.has(k)) {
+        continue
+      }
       visited.add(k)
       vertices.push(vr)
       queue.push(vr)
@@ -72,18 +74,24 @@ function polyhedronEdges(
 ): [number, number][] {
   let minDist = Infinity
   const cap = Math.min(vertices.length, 20)
-  for (let i = 0; i < cap; i++)
+  for (let i = 0; i < cap; i++) {
     for (let j = i + 1; j < cap; j++) {
       const d = geodesicDistance(vertices[i]!, vertices[j]!, metric)
-      if (d > 0.01 && d < minDist) minDist = d
+      if (d > 0.01 && d < minDist) {
+        minDist = d
+      }
     }
+  }
   const edgeLength = minDist < Infinity ? minDist : 1
   const tolerance = edgeLength * 1.2
   const edges: [number, number][] = []
-  for (let i = 0; i < vertices.length; i++)
+  for (let i = 0; i < vertices.length; i++) {
     for (let j = i + 1; j < vertices.length; j++) {
       const d = geodesicDistance(vertices[i]!, vertices[j]!, metric)
-      if (d > 0.01 && d < tolerance) edges.push([i, j])
+      if (d > 0.01 && d < tolerance) {
+        edges.push([i, j])
+      }
     }
+  }
   return edges
 }

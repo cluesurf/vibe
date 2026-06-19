@@ -27,14 +27,17 @@ function isRich(
   let nz = 0
   let sum = 0
   for (let i = 0; i < N; i++) {
-    if (tone[i] !== 0) nz++
+    if (tone[i] !== 0) {
+      nz++
+    }
     sum += tone[i]!
   }
   const density = nz / N
   const mean = sum / N
   let cc = 0
-  for (let k = 0; k < eu.length; k++)
+  for (let k = 0; k < eu.length; k++) {
     cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
+  }
   const nnCorr = cc / eu.length
   const alive = density > 0.02 && density < 0.7
   const coherent = Math.abs(nnCorr) > 0.004
@@ -71,15 +74,16 @@ export function designSignature(input?: { n?: number }): {
     rich: boolean
     density: number
   }[] = []
-  for (const arrow of arrows)
+  for (const arrow of arrows) {
     for (const share of shares) {
       const tone = new Int8Array(N)
       const rng = makeRng({ seed: 7 })
-      for (let i = 0; i < N; i++)
+      for (let i = 0; i < N; i++) {
         tone[i] = (
           rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
         ) as -1 | 0 | 1
-      for (let t = 0; t < 60; t++)
+      }
+      for (let t = 0; t < 60; t++) {
         conservingEdgeSweepTunable({
           tone,
           eu,
@@ -90,9 +94,11 @@ export function designSignature(input?: { n?: number }): {
           share,
           hop: 0.5,
         })
+      }
       const r = isRich(tone, eu, ev)
       grid.push({ arrow, share, rich: r.rich, density: r.density })
     }
+  }
 
   const richCount = grid.filter(c => c.rich).length
   const richFraction = richCount / grid.length

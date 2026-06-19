@@ -88,8 +88,12 @@ export function integrateCentralForceOrbit(input: {
     // unwrap cumulative angle
     const theta = Math.atan2(y, x)
     let dtheta = theta - prevTheta
-    if (dtheta > Math.PI) dtheta -= 2 * Math.PI
-    if (dtheta < -Math.PI) dtheta += 2 * Math.PI
+    if (dtheta > Math.PI) {
+      dtheta -= 2 * Math.PI
+    }
+    if (dtheta < -Math.PI) {
+      dtheta += 2 * Math.PI
+    }
     cumAngle += dtheta
     prevTheta = theta
     // periapsis: local minimum of r
@@ -105,10 +109,11 @@ export function integrateCentralForceOrbit(input: {
   }
   // precession per orbit from consecutive periapsis angles
   const advances: number[] = []
-  for (let i = 1; i < periapsisAngles.length; i++)
+  for (let i = 1; i < periapsisAngles.length; i++) {
     advances.push(
       (periapsisAngles[i] ?? 0) - (periapsisAngles[i - 1] ?? 0),
     )
+  }
   const meanAdvance = advances.length
     ? advances.reduce((a, b) => a + b, 0) / advances.length
     : NaN

@@ -31,7 +31,9 @@ export function colorOf(address: string): TileColor {
 // a tile's children addresses, left to right, the preferred son first
 export function childrenOf(address: string): string[] {
   const kids = [address + '00', address + '01']
-  if (colorOf(address) === 'white') kids.push(address + '10')
+  if (colorOf(address) === 'white') {
+    kids.push(address + '10')
+  }
   return kids
 }
 
@@ -42,7 +44,9 @@ export function preferredSon(address: string): string {
 
 // the parent address, the tile's address with its last two digits stripped, or null at a sector root
 export function parentOf(address: string): string | null {
-  if (address.length <= 2) return null
+  if (address.length <= 2) {
+    return null
+  }
   return address.slice(0, -2)
 }
 
@@ -61,10 +65,11 @@ export class SplittingTree {
   private readonly childIds: (number[] | null)[] = []
 
   constructor(rootAddress: string = SECTOR_ROOT) {
-    if (!isZeckendorf(rootAddress))
+    if (!isZeckendorf(rootAddress)) {
       throw new Error(
         `root must be a legal Zeckendorf address, got ${rootAddress}`,
       )
+    }
     this.addresses.push(rootAddress)
     this.parents.push(-1)
     this.childIds.push(null)
@@ -98,7 +103,9 @@ export class SplittingTree {
   // the children ids, materializing them on first access (the lazy, on-demand growth)
   children(id: number): number[] {
     const cached = this.childIds[id]
-    if (cached) return cached
+    if (cached) {
+      return cached
+    }
     const kids: number[] = []
     for (const childAddress of childrenOf(this.addresses[id]!)) {
       let childId = this.idByAddress.get(childAddress)

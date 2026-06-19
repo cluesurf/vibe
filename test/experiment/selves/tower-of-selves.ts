@@ -65,8 +65,9 @@ function hierarchicalMesh(input: {
       const deg = degreeAtLevel[level] ?? 1
       const block = cellSize * b ** level
       const start = Math.floor(v / block) * block
-      for (let d = 0; d < deg; d++)
+      for (let d = 0; d < deg; d++) {
         add(v, start + rng.nextInt({ max: block }))
+      }
     }
   }
   const neighbors = adj.map(m => [...m.keys()])
@@ -112,18 +113,23 @@ export function towerOfSelves(input: { seed: number }): {
   const topTone = 1
   const unitTone = new Map<string, number>()
   const toneOfUnit = (level: number, id: number): number => {
-    if (level === depth) return topTone
+    if (level === depth) {
+      return topTone
+    }
     const key = `${level},${id}`
     const cached = unitTone.get(key)
-    if (cached !== undefined) return cached
+    if (cached !== undefined) {
+      return cached
+    }
     const parent = toneOfUnit(level + 1, Math.floor(id / b))
     const flip = ir.next() < 0.18 + 0.04 * level
     const t = flip ? -parent : parent
     unitTone.set(key, t)
     return t
   }
-  for (let v = 0; v < g.size; v++)
+  for (let v = 0; v < g.size; v++) {
     tone[v] = toneOfUnit(0, unitAtLevel(v, 0)) as -1 | 0 | 1
+  }
 
   // Settle so the assignment is a genuine (metastable) self of the rule.
   const base = settleAsync({
@@ -139,7 +145,9 @@ export function towerOfSelves(input: { seed: number }): {
   for (let level = 0; level <= depth; level++) {
     const K = countAtLevel(level)
     const cl = new Int32Array(g.size)
-    for (let v = 0; v < g.size; v++) cl[v] = unitAtLevel(v, level)
+    for (let v = 0; v < g.size; v++) {
+      cl[v] = unitAtLevel(v, level)
+    }
     // coherence: average internal alignment of each unit
     const sum = new Float64Array(K)
     const cnt = new Float64Array(K)
@@ -148,8 +156,9 @@ export function towerOfSelves(input: { seed: number }): {
       cnt[cl[v] ?? 0] = (cnt[cl[v] ?? 0] ?? 0) + 1
     }
     let coh = 0
-    for (let c = 0; c < K; c++)
+    for (let c = 0; c < K; c++) {
       coh += Math.abs(sum[c] ?? 0) / Math.max(1, cnt[c] ?? 1)
+    }
     coh /= K
     // rule agreement: is this level's aggregate a fixed point of the renormalized rule?
     let ruleAgreement = 1
@@ -175,7 +184,9 @@ export function towerOfSelves(input: { seed: number }): {
   for (let i = 1; i < rungs.length; i++) {
     const ratio =
       (rungs[i - 1]?.units ?? 1) / Math.max(1, rungs[i]?.units ?? 1)
-    if (Math.abs(ratio - b) > 0.5) cleanBranching = false
+    if (Math.abs(ratio - b) > 0.5) {
+      cleanBranching = false
+    }
   }
   const ruleHoldsEveryLevel = rungs
     .filter(r => r.units >= 3 && r.level < depth)

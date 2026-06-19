@@ -45,8 +45,8 @@ export function background(
     rt = new Float64Array(N * 8)
   const site = (x: number, y: number, z: number): number =>
     (z * L + y) * L + x
-  for (let x = 0; x < L; x++)
-    for (let y = 0; y < L; y++)
+  for (let x = 0; x < L; x++) {
+    for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
         const s = site(x, y, z),
           dx = x - C + 0.5,
@@ -93,6 +93,8 @@ export function background(
         rt[b + 6] = -nz
         rt[b + 7] = 0
       }
+    }
+  }
   return { phi, rt }
 }
 
@@ -112,8 +114,8 @@ export function makeDirac(
   const applyH = (v: Cx, o: Cx): void => {
     o.re.fill(0)
     o.im.fill(0)
-    for (let x = 0; x < L; x++)
-      for (let y = 0; y < L; y++)
+    for (let x = 0; x < L; x++) {
+      for (let y = 0; y < L; y++) {
         for (let z = 0; z < L; z++) {
           const s = site(x, y, z),
             base = s * 8
@@ -174,6 +176,8 @@ export function makeDirac(
               g * (m10r * p0i + m10i * p0r + m11r * p1i + m11i * p1r)
           }
         }
+      }
+    }
   }
   return { dim: DIM, applyH }
 }

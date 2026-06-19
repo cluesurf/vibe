@@ -63,7 +63,9 @@ export function permanentMemory(input?: { n?: number }): {
   // adjacencies that the share move annihilates, so without maintenance it collapses toward peace
   const target = new Int8Array(N)
   const rngT = makeRng({ seed: 2 })
-  for (let i = 0; i < N; i++) target[i] = rngT.next() < 0.5 ? 1 : -1
+  for (let i = 0; i < N; i++) {
+    target[i] = rngT.next() < 0.5 ? 1 : -1
+  }
   // balance to Q = 0
   let q = sumTone(target)
   for (let i = 0; i < N && q !== 0; i++) {
@@ -83,8 +85,9 @@ export function permanentMemory(input?: { n?: number }): {
   const a = target.slice()
   const qa = sumTone(a)
   const rngA = makeRng({ seed: 4 })
-  for (let b = 0; b < beats; b++)
+  for (let b = 0; b < beats; b++) {
     beat(a, eu, ev, g.offsets, g.adj, moved, rngA)
+  }
   const unmaintainedFidelity = targetFidelity(a, target)
   const conservedA = sumTone(a) === qa
 
@@ -95,8 +98,9 @@ export function permanentMemory(input?: { n?: number }): {
   let maintenanceSwaps = 0
   for (let b = 0; b < beats; b++) {
     beat(bm, eu, ev, g.offsets, g.adj, moved, rngB)
-    if ((b + 1) % 10 === 0)
+    if ((b + 1) % 10 === 0) {
       maintenanceSwaps += conservingMaintainToTarget(bm, target, N)
+    }
   }
   const maintainedFidelity = targetFidelity(bm, target)
   const conservedB = sumTone(bm) === qb

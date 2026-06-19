@@ -78,17 +78,25 @@ export default experiment({
           sw += n * w
         }
       }
-      if (total === 0) return
+      if (total === 0) {
+        return
+      }
       const cx = sx / total,
         cy = sy / total,
         cz = sz / total,
         cw = sw / total
       const moves: Array<[number, number]> = []
       for (let c = 0; c < coin.cellCount; c++) {
-        if (q[c]! <= 0) continue
+        if (q[c]! <= 0) {
+          continue
+        }
         let nearby = 0
-        for (let d = 0; d < 24; d++) nearby += q[base.neighbour(c, d)]!
-        if (nearby >= 3) continue // bulk stays, no collapse
+        for (let d = 0; d < 24; d++) {
+          nearby += q[base.neighbour(c, d)]!
+        }
+        if (nearby >= 3) {
+          continue
+        } // bulk stays, no collapse
         let bestNb = -1,
           bestDist = Infinity
         for (let d = 0; d < 24; d++) {
@@ -104,14 +112,17 @@ export default experiment({
             bestNb = nb
           }
         }
-        if (bestNb >= 0) moves.push([c, bestNb])
+        if (bestNb >= 0) {
+          moves.push([c, bestNb])
+        }
       }
-      for (const [from, to] of moves)
+      for (const [from, to] of moves) {
         if (will.data[from * degree + rest]! > 0) {
           will.data[from * degree + rest] = 0
           will.data[to * degree + rest] =
             will.data[to * degree + rest]! + 1
         }
+      }
     }
 
     const restBody = (): Will => {
@@ -124,8 +135,9 @@ export default experiment({
             (z - half) ** 2 +
             (w - half) ** 2 <=
           4
-        )
+        ) {
           will.data[c * degree + rest] = 1
+        }
       }
       return will
     }
@@ -135,11 +147,12 @@ export default experiment({
       for (let c = 0; c < coin.cellCount; c++) {
         const b = c * degree
         let on = false
-        for (let d = 0; d < degree; d++)
+        for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
             break
           }
+        }
         if (on) {
           occ++
           const [x, y, z, w] = coord(c)
@@ -148,7 +161,9 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
-          if (dd > ext) ext = dd
+          if (dd > ext) {
+            ext = dd
+          }
         }
       }
       return { occ, ext }
@@ -159,7 +174,9 @@ export default experiment({
     const stepFull = (src: Will, dst: Will, open: boolean): Will => {
       beatInto({ src, dst, table, collision: rule })
       accrete(dst)
-      if (open) absorbBoundary(dst)
+      if (open) {
+        absorbBoundary(dst)
+      }
       return dst
     }
     const scratchOf = (will: Will): Will => ({
@@ -184,7 +201,9 @@ export default experiment({
     const farDisplaced = (): Will => {
       const w = cloneWill(restBody())
       let nb = center
-      for (let k = 0; k < 4; k++) nb = base.neighbour(nb, 0)
+      for (let k = 0; k < 4; k++) {
+        nb = base.neighbour(nb, 0)
+      }
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
       return w
@@ -205,7 +224,9 @@ export default experiment({
     // 3. radiation, a moving disturbance sheds to the bath (open) and persists on the closed torus.
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
-      for (let d = 0; d < 8; d++) w.data[center * degree + d] = 1
+      for (let d = 0; d < 8; d++) {
+        w.data[center * degree + d] = 1
+      }
       return w
     }
     const diff = (open: boolean): number => {
@@ -222,8 +243,11 @@ export default experiment({
         pertScratch = pert
         pert = np
         let d = 0
-        for (let i = 0; i < clean.data.length; i++)
-          if (clean.data[i] !== pert.data[i]) d++
+        for (let i = 0; i < clean.data.length; i++) {
+          if (clean.data[i] !== pert.data[i]) {
+            d++
+          }
+        }
         final = d
       }
       return final

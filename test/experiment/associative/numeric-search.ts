@@ -32,13 +32,19 @@ export function associativeNumericSearch(input?: {
   const rng = makeRng({ seed: 1 })
   const range = 1 << 16
   const field = new Int32Array(n)
-  for (let c = 0; c < n; c++) field[c] = rng.nextInt({ max: range })
+  for (let c = 0; c < n; c++) {
+    field[c] = rng.nextInt({ max: range })
+  }
 
   let trueMax = -Infinity
   let trueMin = Infinity
   for (let c = 0; c < n; c++) {
-    if (field[c]! > trueMax) trueMax = field[c]!
-    if (field[c]! < trueMin) trueMin = field[c]!
+    if (field[c]! > trueMax) {
+      trueMax = field[c]!
+    }
+    if (field[c]! < trueMin) {
+      trueMin = field[c]!
+    }
   }
   const mx = maxIndex({ field })
   const mn = minIndex({ field })
@@ -53,8 +59,12 @@ export function associativeNumericSearch(input?: {
   let refLower = -Infinity
   for (let c = 0; c < n; c++) {
     const v = field[c]!
-    if (v > target && v < refHigher) refHigher = v
-    if (v < target && v > refLower) refLower = v
+    if (v > target && v < refHigher) {
+      refHigher = v
+    }
+    if (v < target && v > refLower) {
+      refLower = v
+    }
   }
   const nextHigherOk = nh.index >= 0 && nh.value === refHigher
   const nextLowerOk = nl.index >= 0 && nl.value === refLower

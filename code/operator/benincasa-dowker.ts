@@ -26,10 +26,14 @@ export function benincasaDowkerDalembertian(input: {
   const xx = coords[index * 2 + 1] ?? 0
   let s = 0
   for (let y = 0; y < poset.size; y++) {
-    if (y === index) continue
+    if (y === index) {
+      continue
+    }
     const dt = tx - (coords[y * 2] ?? 0)
     const dx = xx - (coords[y * 2 + 1] ?? 0)
-    if (dt <= 0 || dt * dt - dx * dx < 0) continue
+    if (dt <= 0 || dt * dt - dx * dx < 0) {
+      continue
+    }
     const n = intervalSize(poset, { a: y, b: index, past })
     s +=
       smearedKernel2D({ n, epsilon }) *

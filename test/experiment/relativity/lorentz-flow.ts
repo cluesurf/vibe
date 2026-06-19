@@ -86,7 +86,9 @@ export function lorentzFlow(input?: {
         g.coords[cur]![2]! - c0[2]!,
       ]
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
-      if (len < 1e-9) continue
+      if (len < 1e-9) {
+        continue
+      }
       dirs.push([d[0]! / len, d[1]! / len, d[2]! / len])
     }
     a2.push(angularAnisotropy({ directions: dirs, axes, order: 2 }))

@@ -24,7 +24,9 @@ export function controlsBattery(): {
   const lossy = (x: number): number => x & (x >> 1)
   const injective = (f: (x: number) => number): boolean => {
     const seen = new Set<number>()
-    for (let x = 0; x < N; x++) seen.add(f(x))
+    for (let x = 0; x < N; x++) {
+      seen.add(f(x))
+    }
     return seen.size === N
   }
   const realReversible = injective(rotate),
@@ -34,22 +36,25 @@ export function controlsBattery(): {
   // ---- C2 flatness: D4 polynomial vs Bethe tree (degree 3) exponential ----
   function d4Shells(R: number): number[] {
     const roots: number[][] = []
-    for (let i = 0; i < 4; i++)
-      for (let j = i + 1; j < 4; j++)
-        for (const si of [1, -1])
+    for (let i = 0; i < 4; i++) {
+      for (let j = i + 1; j < 4; j++) {
+        for (const si of [1, -1]) {
           for (const sj of [1, -1]) {
             const v = [0, 0, 0, 0]
             v[i] = si
             v[j] = sj
             roots.push(v)
           }
+        }
+      }
+    }
     const key = (p: number[]): string => p.join(',')
     const dist = new Map([['0,0,0,0', 0]])
     let frontier = [[0, 0, 0, 0]]
     const shells = [1]
     for (let r = 1; r <= R; r++) {
       const next: number[][] = []
-      for (const p of frontier)
+      for (const p of frontier) {
         for (const root of roots) {
           const q = p.map((x, k) => x + root[k]!)
           const kk = key(q)
@@ -58,6 +63,7 @@ export function controlsBattery(): {
             next.push(q)
           }
         }
+      }
       shells.push(next.length)
       frontier = next
     }
@@ -129,18 +135,22 @@ export function controlsBattery(): {
     ay[x]![y]!
   const massTerm = (ax: number[][], ay: number[][]): number => {
     let s = 0
-    for (let x = 0; x < Lg; x++)
-      for (let y = 0; y < Lg; y++)
+    for (let x = 0; x < Lg; x++) {
+      for (let y = 0; y < Lg; y++) {
         s += ax[x]![y]! ** 2 + ay[x]![y]! ** 2
+      }
+    }
     return s
   } // m^2 A^2 (Proca)
   let plaqChange = 0
-  for (let x = 0; x < Lg; x++)
-    for (let y = 0; y < Lg; y++)
+  for (let x = 0; x < Lg; x++) {
+    for (let y = 0; y < Lg; y++) {
       plaqChange = Math.max(
         plaqChange,
         Math.abs(plaq(Ax, Ay, x, y) - plaq(Ax2, Ay2, x, y)),
       )
+    }
+  }
   const massChange = Math.abs(massTerm(Ax, Ay) - massTerm(Ax2, Ay2))
   const c5 = plaqChange < 1e-9 && massChange > 0.1
 

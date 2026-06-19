@@ -39,8 +39,11 @@ function integerAxes(level: number): {
   for (let i = 0; i < dimension; i++) {
     const e = new Array<number>(dimension).fill(0)
     e[i] = 1
-    if (cayleyMultiply(e, e)[0]! > 0) ordered++
-    else unordered++
+    if (cayleyMultiply(e, e)[0]! > 0) {
+      ordered++
+    } else {
+      unordered++
+    }
   }
   return { ordered, unordered }
 }

@@ -33,12 +33,19 @@ function shellColor(
   let r = 0,
     g = 0,
     b = 0
-  if (h < 1) [r, g, b] = [c, x, 0]
-  else if (h < 2) [r, g, b] = [x, c, 0]
-  else if (h < 3) [r, g, b] = [0, c, x]
-  else if (h < 4) [r, g, b] = [0, x, c]
-  else if (h < 5) [r, g, b] = [x, 0, c]
-  else [r, g, b] = [c, 0, x]
+  if (h < 1) {
+    ;[r, g, b] = [c, x, 0]
+  } else if (h < 2) {
+    ;[r, g, b] = [x, c, 0]
+  } else if (h < 3) {
+    ;[r, g, b] = [0, c, x]
+  } else if (h < 4) {
+    ;[r, g, b] = [0, x, c]
+  } else if (h < 5) {
+    ;[r, g, b] = [x, 0, c]
+  } else {
+    ;[r, g, b] = [c, 0, x]
+  }
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
 }
 
@@ -53,27 +60,36 @@ function run(): void {
   const shellCounts: number[] = [1]
   while (frontier.length) {
     const next: number[] = []
-    for (const u of frontier)
-      for (const v of g.neighbors[u]!)
+    for (const u of frontier) {
+      for (const v of g.neighbors[u]!) {
         if (depth[v]! < 0) {
           depth[v] = depth[u]! + 1
           next.push(v)
         }
-    if (next.length) shellCounts.push(next.length)
+      }
+    }
+    if (next.length) {
+      shellCounts.push(next.length)
+    }
     frontier = next
   }
   // clean (untruncated) shells: stop at the first shell whose ratio collapses
   let maxClean = 0
   for (let i = 1; i < shellCounts.length; i++) {
-    if (shellCounts[i]! / shellCounts[i - 1]! > 2) maxClean = i
-    else break
+    if (shellCounts[i]! / shellCounts[i - 1]! > 2) {
+      maxClean = i
+    } else {
+      break
+    }
   }
 
   // project ALL clean cells orthographically onto the (x,y) plane (the Poincare-ball shadow), so the disk
   // fills, big inner-shell dots at the centre and exponentially many tiny outer-shell dots crowding the rim
   const slice: number[] = []
   for (let i = 0; i < n; i++) {
-    if (depth[i]! < 0 || depth[i]! > maxClean) continue
+    if (depth[i]! < 0 || depth[i]! > maxClean) {
+      continue
+    }
     slice.push(i)
   }
   console.log(
@@ -100,14 +116,17 @@ function run(): void {
       const th = (a / 3600) * 2 * Math.PI
       const px = Math.round(half + scale * Math.cos(th)),
         py = Math.round(half + scale * Math.sin(th))
-      if (px >= 0 && px < IMG && py >= 0 && py < IMG)
+      if (px >= 0 && px < IMG && py >= 0 && py < IMG) {
         setPixel(rgba, IMG, px, py, [70, 70, 78])
+      }
     }
     // draw cells up to shell f, deepest first so shallow shells sit on top
     for (let s = f; s >= 0; s--) {
       const col = shellColor(s, maxClean)
       for (const i of slice) {
-        if (depth[i]! !== s) continue
+        if (depth[i]! !== s) {
+          continue
+        }
         const x = g.coords[i]![0]!,
           y = g.coords[i]![1]!
         const r2 = norm(g.coords[i]!) ** 2

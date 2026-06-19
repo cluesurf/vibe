@@ -79,11 +79,12 @@ export function waveIsotropy(input?: {
     pr = back
   }
   let reversible = true
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     if (pr[i] !== prev0[i] || cu[i] !== cur0[i]) {
       reversible = false
       break
     }
+  }
 
   // the wave SPEED in each of the 12 face-directions = the farthest activated cell in that direction's
   // angular sector, in hyperbolic distance, per beat. Isotropy = low spread of the speed across directions.

@@ -72,7 +72,9 @@ export function cuspConvergence(): void {
     const gravConverged =
       Number.isFinite(prevGe) && Math.abs(ge - prevGe) < 0.1
     const ok = dimOk && gravConverged
-    if (ok && sufficientL === 0) sufficientL = L
+    if (ok && sufficientL === 0) {
+      sufficientL = L
+    }
     prevGe = ge
   }
   const tLocal = Math.round((Math.log(sufficientL || 35) / H) * 10) / 10

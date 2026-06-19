@@ -39,8 +39,9 @@ function cpuDenseRecall(
     for (let mu = 0; mu < p; mu++) {
       let s = 0
       const base = mu * n
-      for (let i = 0; i < n; i++)
+      for (let i = 0; i < n; i++) {
         s += patternsFlat[base + i]! * state[i]!
+      }
       overlap[mu] = s
     }
     const next = new Int32Array(n)
@@ -49,7 +50,9 @@ function cpuDenseRecall(
       for (let mu = 0; mu < p; mu++) {
         let w = 1
         const o = overlap[mu]!
-        for (let e = 1; e < power; e++) w = Math.fround(w * o)
+        for (let e = 1; e < power; e++) {
+          w = Math.fround(w * o)
+        }
         field = Math.fround(
           field + Math.fround(patternsFlat[mu * n + i]! * w),
         )
@@ -63,7 +66,11 @@ function cpuDenseRecall(
 
 function agreement(a: Int32Array, b: Int32Array): number {
   let same = 0
-  for (let i = 0; i < a.length; i++) if (a[i] === b[i]) same++
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === b[i]) {
+      same++
+    }
+  }
   return same / a.length
 }
 
@@ -179,8 +186,11 @@ function buildPatterns(
 ): { flat: Int32Array; list: Int8Array[] } {
   const list = storedPatterns(p, n, makeRng({ seed }))
   const flat = new Int32Array(n * p)
-  for (let mu = 0; mu < p; mu++)
-    for (let i = 0; i < n; i++) flat[mu * n + i] = list[mu]![i]!
+  for (let mu = 0; mu < p; mu++) {
+    for (let i = 0; i < n; i++) {
+      flat[mu * n + i] = list[mu]![i]!
+    }
+  }
   return { flat, list }
 }
 

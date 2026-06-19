@@ -55,7 +55,9 @@ export function fourDAutoSelection(): {
         }
       }
     }
-    if (threeDForced) break
+    if (threeDForced) {
+      break
+    }
   }
   const threeDIsCompact = threeDForced !== null && isCompact([5, 3, 4])
   const threeDTernaryQ = 3 // q = 3 in {5,3,4}, the ternary three-valent signature in the substrate
@@ -63,17 +65,23 @@ export function fourDAutoSelection(): {
   // (2) 4D, every ideal-with-finite-cells honeycomb, and the cubic-cusp subset
   const idealFourD: string[] = []
   const idealCubicCuspFourD: string[] = []
-  for (let p = 3; p <= 6; p++)
-    for (let q = 3; q <= 6; q++)
-      for (let r = 3; r <= 6; r++)
+  for (let p = 3; p <= 6; p++) {
+    for (let q = 3; q <= 6; q++) {
+      for (let r = 3; r <= 6; r++) {
         for (let s = 3; s <= 6; s++) {
           const sym = [p, q, r, s]
-          if (!isIdealFiniteCell(sym)) continue
+          if (!isIdealFiniteCell(sym)) {
+            continue
+          }
           idealFourD.push(`{${sym.join(',')}}`)
           const vf = vertexFigure(sym)
-          if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4)
-            idealCubicCuspFourD.push(`{${sym.join(',')}}`) // cubic cusp {4,3,4}
+          if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) {
+            idealCubicCuspFourD.push(`{${sym.join(',')}}`)
+          } // cubic cusp {4,3,4}
         }
+      }
+    }
+  }
   const fourDUniqueCandidate =
     idealCubicCuspFourD.length === 1 ? idealCubicCuspFourD[0]! : null
 

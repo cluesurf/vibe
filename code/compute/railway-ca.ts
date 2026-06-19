@@ -37,12 +37,16 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
     const nextActive = cells.map(c => c.active)
     for (let i = 0; i < cells.length; i++) {
       const c = cells[i]!
-      if (c.role === 'empty') continue
+      if (c.role === 'empty') {
+        continue
+      }
       if (c.state === 'H') {
         // the head becomes the tail; the forward cell (computed below for switches) takes the head
         next[i] = 'A'
         const forward = forwardOf(i)
-        if (forward >= 0) next[forward] = 'H'
+        if (forward >= 0) {
+          next[forward] = 'H'
+        }
         // a flip-flop flips its setting ONLY on an active crossing (entered from the trunk), a passive crossing
         // from a branch leaves it unchanged, as a one-way switch should
         if (
@@ -59,8 +63,11 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
         if (c.role === 'switch' && c.switchType === 'memory') {
           const a = c.links[1]!,
             b = c.links[2]!
-          if (cells[a]?.state === 'H') nextActive[i] = 1
-          else if (cells[b]?.state === 'H') nextActive[i] = 2
+          if (cells[a]?.state === 'H') {
+            nextActive[i] = 1
+          } else if (cells[b]?.state === 'H') {
+            nextActive[i] = 2
+          }
         }
       }
     }
@@ -69,13 +76,19 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
       const c = cells[i]!
       if (c.role === 'track') {
         // the forward neighbour is the linked cell that is NOT the tail behind us
-        for (const n of c.links) if (cells[n]?.state !== 'A') return n
+        for (const n of c.links) {
+          if (cells[n]?.state !== 'A') {
+            return n
+          }
+        }
         return -1
       }
       // a switch: if the head came from the trunk, exit the active branch; if from a branch, exit the trunk
       const [trunk, a, b] = [c.links[0]!, c.links[1]!, c.links[2]!]
       const cameFromTrunk = cells[trunk]?.state === 'A'
-      if (cameFromTrunk) return c.active === 1 ? a : b
+      if (cameFromTrunk) {
+        return c.active === 1 ? a : b
+      }
       return trunk
     }
     for (let i = 0; i < cells.length; i++) {
@@ -84,8 +97,11 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
     }
   }
   function headAt(): number {
-    for (let i = 0; i < cells.length; i++)
-      if (cells[i]!.state === 'H') return i
+    for (let i = 0; i < cells.length; i++) {
+      if (cells[i]!.state === 'H') {
+        return i
+      }
+    }
     return -1
   }
   return { cells, step, headAt }
@@ -121,7 +137,9 @@ export function makeGrowingTrackCa(input: {
       let target = -1
       let bestDepth = here
       for (const n of graphNeighbors[head]!) {
-        if (isTrack.has(n)) continue
+        if (isTrack.has(n)) {
+          continue
+        }
         const d = depth[n] ?? 0
         if (
           d > bestDepth ||
@@ -133,7 +151,9 @@ export function makeGrowingTrackCa(input: {
       }
       // only ever step STRICTLY outward. On an infinite tiling every cell has a deeper child, so the builder
       // never halts. In a finite patch it halts exactly at the boundary (no deeper cell exists there).
-      if (target < 0) return false
+      if (target < 0) {
+        return false
+      }
       isTrack.add(target)
       head = target
       return true
@@ -204,28 +224,39 @@ export function makeBinaryCounter(bits: number): BinaryCounter {
   return {
     bits,
     increment(): boolean {
-      for (const cell of cells)
-        if (cell.role !== 'empty') cell.state = 'C'
+      for (const cell of cells) {
+        if (cell.role !== 'empty') {
+          cell.state = 'C'
+        }
+      }
       cells[pre]!.state = 'A'
       cells[tin[0]!]!.state = 'H'
       for (let t = 0; t < 40 * bits + 40; t++) {
         ca.step()
-        if (ca.headAt() === output) return true
+        if (ca.headAt() === output) {
+          return true
+        }
       }
       return false
     },
     count(): number {
       let v = 0
-      for (let i = 0; i < bits; i++)
-        if ((cells[ff[i]!]!.active as number) === 2) v += 1 << i
+      for (let i = 0; i < bits; i++) {
+        if ((cells[ff[i]!]!.active as number) === 2) {
+          v += 1 << i
+        }
+      }
       return v
     },
     clear(): void {
-      for (let i = 0; i < bits; i++) cells[ff[i]!]!.active = 1
+      for (let i = 0; i < bits; i++) {
+        cells[ff[i]!]!.active = 1
+      }
     },
     set(value: number): void {
-      for (let i = 0; i < bits; i++)
+      for (let i = 0; i < bits; i++) {
         cells[ff[i]!]!.active = (value >> i) & 1 ? 2 : 1
+      }
     },
   }
 }
@@ -270,7 +301,9 @@ export function makeTernaryCounter(width: number): RailRegister {
         trits[i] = 0
         i++
       }
-      if (i < width) trits[i]! += 1
+      if (i < width) {
+        trits[i]! += 1
+      }
     },
     count(): number {
       let v = 0,
@@ -316,8 +349,9 @@ export function makeSelfExtendingCounter(): SelfExtendingCounter {
         bits[i] = 1
         i++
       }
-      if (i < bits.length)
-        bits[i] = 2 // the first clear bit takes the increment, no carry out
+      if (i < bits.length) {
+        bits[i] = 2
+      } // the first clear bit takes the increment, no carry out
       else {
         bits.push(2)
         builds++
@@ -325,8 +359,11 @@ export function makeSelfExtendingCounter(): SelfExtendingCounter {
     },
     count(): number {
       let v = 0
-      for (let i = 0; i < bits.length; i++)
-        if (bits[i] === 2) v += 1 << i
+      for (let i = 0; i < bits.length; i++) {
+        if (bits[i] === 2) {
+          v += 1 << i
+        }
+      }
       return v
     },
     width: (): number => bits.length,

@@ -48,9 +48,14 @@ function checkAt(maxCells: number): Report {
   // cousins among complete cells (must be 0)
   let cousins = 0
   for (let c = 0; c < n; c++) {
-    if (!a.complete[c]) continue
-    for (const v of a.graph.neighbors[c]!)
-      if (a.dist[v] === a.dist[c]) cousins++
+    if (!a.complete[c]) {
+      continue
+    }
+    for (const v of a.graph.neighbors[c]!) {
+      if (a.dist[v] === a.dist[c]) {
+        cousins++
+      }
+    }
   }
 
   // confluence automaton at the ADAPTIVE window K = deepest_full_shell - 1. The confluence LCA branch
@@ -62,11 +67,15 @@ function checkAt(maxCells: number): Report {
   let recovered = 0
   let totalEdges = 0
   for (let c = 0; c < n; c++) {
-    if (!a.complete[c]) continue
+    if (!a.complete[c]) {
+      continue
+    }
     const predicted = new Set(predictAltParents(a, c, auto))
     for (const ap of a.altParents[c]!) {
       totalEdges++
-      if (predicted.has(ap)) recovered++
+      if (predicted.has(ap)) {
+        recovered++
+      }
     }
   }
 
@@ -75,18 +84,26 @@ function checkAt(maxCells: number): Report {
   let addressDup = 0
   let roundTripFail = 0
   for (let c = 0; c < n; c++) {
-    if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) continue
+    if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
+      continue
+    }
     const key = a.address[c]!.join('.')
-    if (seen.has(key)) addressDup++
+    if (seen.has(key)) {
+      addressDup++
+    }
     seen.add(key)
-    if (decode(a, a.address[c]!) !== c) roundTripFail++
+    if (decode(a, a.address[c]!) !== c) {
+      roundTripFail++
+    }
   }
 
   // neighbour reconstruction on complete cells
   let exact = 0
   let totalComplete = 0
   for (let c = 0; c < n; c++) {
-    if (!a.complete[c]) continue
+    if (!a.complete[c]) {
+      continue
+    }
     totalComplete++
     const predicted = new Set<number>([
       a.parent[c]!,
@@ -96,8 +113,16 @@ function checkAt(maxCells: number): Report {
     ])
     const truth = a.graph.neighbors[c]!
     let ok = predicted.size === truth.length
-    if (ok) for (const v of truth) if (!predicted.has(v)) ok = false
-    if (ok) exact++
+    if (ok) {
+      for (const v of truth) {
+        if (!predicted.has(v)) {
+          ok = false
+        }
+      }
+    }
+    if (ok) {
+      exact++
+    }
   }
 
   const deepestFullShell = a.shellComplete

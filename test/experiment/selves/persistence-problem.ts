@@ -53,10 +53,14 @@ export default experiment({
     let risesA = 0
     let prevA = structA0
     for (let t = 0; t < beats; t++) {
-      if (phaseWinding(fieldA) !== 1) windingAlwaysOneA = false
+      if (phaseWinding(fieldA) !== 1) {
+        windingAlwaysOneA = false
+      }
       fieldA = phaseRelaxStep(fieldA, 0.2)
       const s = gradientStructure(fieldA)
-      if (s > prevA + epsilon) risesA++ // a rise means it did not monotonically heal
+      if (s > prevA + epsilon) {
+        risesA++
+      } // a rise means it did not monotonically heal
       prevA = s
     }
     const finalStructA = gradientStructure(fieldA) / structA0
@@ -70,7 +74,9 @@ export default experiment({
     })
     let windingZeroB = true
     for (let t = 0; t < beats; t++) {
-      if (phaseWinding(fieldB) !== 0) windingZeroB = false
+      if (phaseWinding(fieldB) !== 0) {
+        windingZeroB = false
+      }
       fieldB = phaseRelaxStep(fieldB, 0.2)
     }
     const bHasNoIdentity = windingZeroB // no conserved topological charge to keep
@@ -87,10 +93,14 @@ export default experiment({
     let risesC = 0
     let prevC = structC0
     for (let t = 0; t < beats; t++) {
-      if (phaseWinding(fieldC) !== 1) windingAlwaysOneC = false
+      if (phaseWinding(fieldC) !== 1) {
+        windingAlwaysOneC = false
+      }
       phaseWaveStep(fieldC, velocity, 0.2)
       const s = gradientStructure(fieldC)
-      if (s > prevC + epsilon) risesC++
+      if (s > prevC + epsilon) {
+        risesC++
+      }
       prevC = s
     }
     const cRecursNotSettles = windingAlwaysOneC && risesC >= 2 // identity survives turnover, but structure oscillates (recurs)

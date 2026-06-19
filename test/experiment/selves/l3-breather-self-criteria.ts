@@ -31,7 +31,9 @@ function breather(side: number): { mesh: Mesh; will: Will } {
   for (let y = c - 3; y <= c + 3; y++) {
     for (let x = c - 3; x <= c + 3; x++) {
       const base = (y * side + x) * mesh.degree
-      for (let d = 0; d < mesh.degree; d++) will.data[base + d] = 1
+      for (let d = 0; d < mesh.degree; d++) {
+        will.data[base + d] = 1
+      }
     }
   }
   return { mesh, will }
@@ -58,9 +60,13 @@ function boxRegions(
     for (let x = 0; x < side; x++) {
       const r = Math.max(Math.abs(x - cx), Math.abs(y - cy))
       const cell = y * side + x
-      if (r <= inner) interior.push(cell)
-      else if (r <= outer) shell.push(cell)
-      else if (r <= outer + 1) exterior.push(cell)
+      if (r <= inner) {
+        interior.push(cell)
+      } else if (r <= outer) {
+        shell.push(cell)
+      } else if (r <= outer + 1) {
+        exterior.push(cell)
+      }
     }
   }
   return { interior, shell, exterior }
@@ -68,7 +74,9 @@ function boxRegions(
 
 function sumCharge(will: Will, cells: number[]): number {
   let s = 0
-  for (const c of cells) s += cellTone(will, c)
+  for (const c of cells) {
+    s += cellTone(will, c)
+  }
   return s
 }
 
@@ -114,8 +122,9 @@ function perturbationRadius(input: {
       if (
         cellTone(clean, c) !== cellTone(dirty, c) &&
         dist[c]! > maxRadius
-      )
+      ) {
         maxRadius = dist[c]!
+      }
     }
   }
   return maxRadius

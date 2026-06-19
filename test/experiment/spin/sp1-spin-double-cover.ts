@@ -46,8 +46,13 @@ export function sp1SpinDoubleCover(): {
   // (A) the 24 units form a GROUP under quaternion multiplication (closure), order 24 = 2T
   const set = new Set(U.map(qkey))
   let closed = true
-  for (const a of U)
-    for (const b of U) if (!set.has(qkey(qmul(a, b)))) closed = false
+  for (const a of U) {
+    for (const b of U) {
+      if (!set.has(qkey(qmul(a, b)))) {
+        closed = false
+      }
+    }
+  }
   const isGroup = closed && U.length === 24
 
   // (B) conjugation q -> (v -> q v q^-1) is the DOUBLE COVER: 24 quaternions -> 12 rotations, 2-to-1

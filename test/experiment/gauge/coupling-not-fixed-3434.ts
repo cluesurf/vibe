@@ -56,8 +56,11 @@ export function couplingNotFixed(): {
 
   // strictly monotone, so there is no special coupling where the behaviour changes
   let isMonotone = true
-  for (let i = 1; i < n; i++)
-    if (!(fields[i]! > fields[i - 1]!)) isMonotone = false
+  for (let i = 1; i < n; i++) {
+    if (!(fields[i]! > fields[i - 1]!)) {
+      isMonotone = false
+    }
+  }
 
   // the e = 0 control: with no coupling the fermion sources no field at all
   const fieldAtZeroCoupling = radiatedField(0)

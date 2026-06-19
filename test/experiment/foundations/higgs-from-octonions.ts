@@ -60,11 +60,14 @@ export default experiment({
       return v.map(x => x / norm)
     }
     let su2Closed = true
-    for (let a = 0; a < 4; a++)
+    for (let a = 0; a < 4; a++) {
       for (let b = 0; b < 4; b++) {
         const product = cayleyMultiply(make(a), make(b + 1))
-        if (Math.abs(normSquared(product) - 1) > 1e-9) su2Closed = false
+        if (Math.abs(normSquared(product) - 1) > 1e-9) {
+          su2Closed = false
+        }
       }
+    }
 
     // the custodial rho, one for the doublet, one half for the triplet (the control that forces the doublet)
     const doubletRho = custodialRho({

@@ -18,18 +18,24 @@ export function sinkhornW1(
   for (let it = 0; it < iters; it++) {
     for (let i = 0; i < n; i++) {
       let s = 0
-      for (let j = 0; j < m; j++) s += K[i]![j]! * v[j]!
+      for (let j = 0; j < m; j++) {
+        s += K[i]![j]! * v[j]!
+      }
       u[i] = 1 / n / (s || 1e-300)
     }
     for (let j = 0; j < m; j++) {
       let s = 0
-      for (let i = 0; i < n; i++) s += K[i]![j]! * u[i]!
+      for (let i = 0; i < n; i++) {
+        s += K[i]![j]! * u[i]!
+      }
       v[j] = 1 / m / (s || 1e-300)
     }
   }
   let w = 0
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < m; j++)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < m; j++) {
       w += u[i]! * K[i]![j]! * v[j]! * C[i]![j]!
+    }
+  }
   return w
 }

@@ -104,12 +104,14 @@ export function synchronicity(input: { seed: number }): {
   )
   // And it falls monotonically as the two diverge from the common root.
   let monotoneDecreasing = true
-  for (let i = 1; i < sweep.length; i++)
+  for (let i = 1; i < sweep.length; i++) {
     if (
       (sweep[i]?.correlation ?? 0) >
       (sweep[i - 1]?.correlation ?? 1) + 0.02
-    )
+    ) {
       monotoneDecreasing = false
+    }
+  }
 
   return {
     sharedCorrelation,

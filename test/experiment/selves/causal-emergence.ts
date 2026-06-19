@@ -23,15 +23,20 @@ import { verdict } from '@/test/scaffold/verdict'
 function effectiveInformation(tpm: number[][]): number {
   const n = tpm.length
   const avg = new Array<number>(n).fill(0)
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++) avg[j]! += tpm[i]![j]! / n
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      avg[j]! += tpm[i]![j]! / n
+    }
+  }
   let ei = 0
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const p = tpm[i]![j]!
-      if (p > 1e-12 && avg[j]! > 1e-12)
+      if (p > 1e-12 && avg[j]! > 1e-12) {
         ei += (p * Math.log2(p / avg[j]!)) / n
+      }
     }
+  }
   return ei
 }
 
@@ -44,10 +49,16 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
   const P: number[][] = Array.from({ length: N }, () =>
     new Array<number>(N).fill(0),
   )
-  for (let i = 0; i < K; i++) P[i]![sink] = 1 // every leaf -> sink (degenerate)
-  for (let j = 0; j < K; j++) P[sink]![j] = 1 / K // sink -> uniform over leaves
+  for (let i = 0; i < K; i++) {
+    P[i]![sink] = 1
+  } // every leaf -> sink (degenerate)
+  for (let j = 0; j < K; j++) {
+    P[sink]![j] = 1 / K
+  } // sink -> uniform over leaves
   const groups = new Array<number>(N)
-  for (let i = 0; i < K; i++) groups[i] = 0 // the leaves are one macro-state (the self)
+  for (let i = 0; i < K; i++) {
+    groups[i] = 0
+  } // the leaves are one macro-state (the self)
   groups[sink] = 1 // the sink is the other macro-state
   return { P, groups }
 }
@@ -56,15 +67,22 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
 function coarseGrain(P: number[][], groups: number[]): number[][] {
   const M = Math.max(...groups) + 1
   const size = new Array<number>(M).fill(0)
-  for (const g of groups) size[g]!++
+  for (const g of groups) {
+    size[g]!++
+  }
   const Q: number[][] = Array.from({ length: M }, () =>
     new Array<number>(M).fill(0),
   )
-  for (let i = 0; i < P.length; i++)
-    for (let j = 0; j < P.length; j++)
+  for (let i = 0; i < P.length; i++) {
+    for (let j = 0; j < P.length; j++) {
       Q[groups[i]!]![groups[j]!]! += P[i]![j]!
-  for (let a = 0; a < M; a++)
-    for (let b = 0; b < M; b++) Q[a]![b]! /= size[a]! // average over the group's micro-states
+    }
+  }
+  for (let a = 0; a < M; a++) {
+    for (let b = 0; b < M; b++) {
+      Q[a]![b]! /= size[a]!
+    }
+  } // average over the group's micro-states
   return Q
 }
 

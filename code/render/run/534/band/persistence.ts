@@ -73,12 +73,18 @@ function run(): void {
     return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++)
-    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++) {
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
+      axis = k
+    }
+  }
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++)
-    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++) {
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
+      axis2 = k
+    }
+  }
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -96,7 +102,9 @@ function run(): void {
   }
   const raw: BandCell[] = []
   for (let i = 0; i < n; i++) {
-    if (Math.abs(slab.busemann[i]!) >= HALF) continue
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      continue
+    }
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
@@ -141,7 +149,9 @@ function run(): void {
       const nf: number[] = []
       for (const u of fr) {
         selfCells.push(u)
-        if (selfCells.length >= SELF_SIZE) break
+        if (selfCells.length >= SELF_SIZE) {
+          break
+        }
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
           if (bandSet.has(w) && !inSelf[w]) {
@@ -155,8 +165,11 @@ function run(): void {
   }
   // ground for conserving maintenance, the off-screen margin cells (|busemann| >= half)
   const ground: number[] = []
-  for (let i = 0; i < n; i++)
-    if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
+  for (let i = 0; i < n; i++) {
+    if (Math.abs(slab.busemann[i]!) >= HALF) {
+      ground.push(i)
+    }
+  }
 
   // seed, background churn everywhere, plus the self forced to +1 in maintained mode
   const rng = makeRng({ seed: 7 })
@@ -167,7 +180,9 @@ function run(): void {
       r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
     ) as -1 | 0 | 1
   }
-  for (const c of selfCells) tone[c] = 1
+  for (const c of selfCells) {
+    tone[c] = 1
+  }
 
   const moved = new Uint8Array(n)
   const prev = tone.slice()
@@ -194,7 +209,9 @@ function run(): void {
     let owedMinus = 0
     let owedPlus = 0
     for (let c = 0; c < n; c++) {
-      if (tone[c] !== 0) continue
+      if (tone[c] !== 0) {
+        continue
+      }
       const plus = sameSignNeighbors(tone, graph, c, 1)
       const minus = sameSignNeighbors(tone, graph, c, -1)
       if (plus >= REPAIR_THRESHOLD && plus > minus + 2) {
@@ -214,7 +231,9 @@ function run(): void {
     const seen = new Uint8Array(n)
     let best = 0
     for (let s = 0; s < n; s++) {
-      if (seen[s] || tone[s] === 0 || persist[s]! < 20) continue
+      if (seen[s] || tone[s] === 0 || persist[s]! < 20) {
+        continue
+      }
       const sign = tone[s]!
       let size = 0
       let fr = [s]
@@ -233,7 +252,9 @@ function run(): void {
         }
         fr = nf
       }
-      if (size > best) best = size
+      if (size > best) {
+        best = size
+      }
     }
     return best
   }
@@ -248,7 +269,9 @@ function run(): void {
       }
     }
     for (const gc of ground) {
-      if (need <= 0) break
+      if (need <= 0) {
+        break
+      }
       if (tone[gc] === 0) {
         tone[gc] = -1
         need--
@@ -269,14 +292,19 @@ function run(): void {
   for (let f = 0; f < FRAMES; f++) {
     beat(tone, g, moved, rng, 0, COHESION)
     discreteArrow(tone, g, f, ARROW_PERIOD)
-    if (MODE === 'maintained') maintain()
-    else if (MODE === 'autonomous') autonomousRepair(g)
+    if (MODE === 'maintained') {
+      maintain()
+    } else if (MODE === 'autonomous') {
+      autonomousRepair(g)
+    }
 
     // update persistence, consecutive beats a cell has held the same nonzero charge
     for (let i = 0; i < n; i++) {
-      if (tone[i] !== 0 && tone[i] === prev[i])
+      if (tone[i] !== 0 && tone[i] === prev[i]) {
         persist[i] = Math.min(persist[i]! + 1, PMAX)
-      else persist[i] = 0
+      } else {
+        persist[i] = 0
+      }
       prev[i] = tone[i]!
     }
 
@@ -290,7 +318,9 @@ function run(): void {
     }
     for (const c of raw) {
       const t = tone[c.index]!
-      if (t === 0) continue
+      if (t === 0) {
+        continue
+      }
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
       const r8 =
         t === 1
@@ -308,7 +338,9 @@ function run(): void {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
-          if (x < 0 || x >= IMG || y < 0 || y >= IMG) continue
+          if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
+            continue
+          }
           const idx = (y * IMG + x) * 4
           rgba[idx] = r8
           rgba[idx + 1] = g8
@@ -324,8 +356,9 @@ function run(): void {
       let bgSum = 0
       let bgCount = 0
       for (const c of raw) {
-        if (inSelf[c.index]) selfSum += persist[c.index]!
-        else {
+        if (inSelf[c.index]) {
+          selfSum += persist[c.index]!
+        } else {
           bgSum += persist[c.index]!
           bgCount++
         }
@@ -339,8 +372,11 @@ function run(): void {
       } else {
         // no seeded self, did a PERSISTENT self emerge anywhere from the local rule alone?
         let maxP = 0
-        for (let i = 0; i < n; i++)
-          if (persist[i]! > maxP) maxP = persist[i]!
+        for (let i = 0; i < n; i++) {
+          if (persist[i]! > maxP) {
+            maxP = persist[i]!
+          }
+        }
         console.log(
           `  beat ${f}, largest persistent self ${persistentSelf()} cells, max persistence ${maxP}, avg ${bgAvg.toFixed(1)}`,
         )

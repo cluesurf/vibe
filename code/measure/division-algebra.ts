@@ -6,7 +6,9 @@
 
 // the conjugate in the Cayley-Dickson construction, conj(a, b) = (conj(a), -b)
 export function cayleyConjugate(x: number[]): number[] {
-  if (x.length === 1) return [x[0]!]
+  if (x.length === 1) {
+    return [x[0]!]
+  }
   const half = x.length / 2
   return [
     ...cayleyConjugate(x.slice(0, half)),
@@ -17,7 +19,9 @@ export function cayleyConjugate(x: number[]): number[] {
 // the product in the Cayley-Dickson construction, (a, b)(c, d) = (ac - conj(d) b, d a + b conj(c)). The dimension is
 // the (power-of-two) length of the inputs.
 export function cayleyMultiply(x: number[], y: number[]): number[] {
-  if (x.length === 1) return [x[0]! * y[0]!]
+  if (x.length === 1) {
+    return [x[0]! * y[0]!]
+  }
   const half = x.length / 2
   const a = x.slice(0, half)
   const b = x.slice(half)
@@ -46,9 +50,9 @@ function unit(dimension: number, index: number): number[] {
 // zero. Searched over sums of two basis units, which is where the sedenion zero divisors live.
 export function hasZeroDivisor(level: number): boolean {
   const dimension = 2 ** level
-  for (let i = 1; i < dimension; i++)
-    for (let j = i + 1; j < dimension; j++)
-      for (let k = 1; k < dimension; k++)
+  for (let i = 1; i < dimension; i++) {
+    for (let j = i + 1; j < dimension; j++) {
+      for (let k = 1; k < dimension; k++) {
         for (let l = k + 1; l < dimension; l++) {
           const x = unit(dimension, i).map(
             (v, m) => v + unit(dimension, j)[m]!,
@@ -56,8 +60,13 @@ export function hasZeroDivisor(level: number): boolean {
           const y = unit(dimension, k).map(
             (v, m) => v + unit(dimension, l)[m]!,
           )
-          if (normSquared(cayleyMultiply(x, y)) === 0) return true
+          if (normSquared(cayleyMultiply(x, y)) === 0) {
+            return true
+          }
         }
+      }
+    }
+  }
   return false
 }
 
@@ -77,16 +86,17 @@ export function hasNormComposition(level: number): boolean {
     if (
       normSquared(cayleyMultiply(x, y)) !==
       normSquared(x) * normSquared(y)
-    )
+    ) {
       return false
+    }
   }
   // also test the basis-unit-sum pairs (the zero-divisor candidates)
-  for (let i = 1; i < dimension; i++)
+  for (let i = 1; i < dimension; i++) {
     for (let j = i + 1; j < Math.min(dimension, i + 12); j++) {
       const x = unit(dimension, i).map(
         (v, m) => v + unit(dimension, j)[m]!,
       )
-      for (let k = 1; k < dimension; k++)
+      for (let k = 1; k < dimension; k++) {
         for (let l = k + 1; l < Math.min(dimension, k + 12); l++) {
           const y = unit(dimension, k).map(
             (v, m) => v + unit(dimension, l)[m]!,
@@ -94,10 +104,13 @@ export function hasNormComposition(level: number): boolean {
           if (
             normSquared(cayleyMultiply(x, y)) !==
             normSquared(x) * normSquared(y)
-          )
+          ) {
             return false
+          }
         }
+      }
     }
+  }
   return true
 }
 
@@ -122,8 +135,8 @@ export function octonionTrialityCyclic(): boolean {
 export function nonAssociativeTripleCount(): number {
   const u = (i: number): number[] => unit(8, i)
   let count = 0
-  for (let i = 1; i < 8; i++)
-    for (let j = i + 1; j < 8; j++)
+  for (let i = 1; i < 8; i++) {
+    for (let j = i + 1; j < 8; j++) {
       for (let k = j + 1; k < 8; k++) {
         const associator = cayleyMultiply(
           cayleyMultiply(u(i), u(j)),
@@ -132,7 +145,11 @@ export function nonAssociativeTripleCount(): number {
           (v, m) =>
             v - cayleyMultiply(u(i), cayleyMultiply(u(j), u(k)))[m]!,
         )
-        if (associator.some(v => v !== 0)) count++
+        if (associator.some(v => v !== 0)) {
+          count++
+        }
       }
+    }
+  }
   return count
 }

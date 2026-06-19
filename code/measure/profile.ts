@@ -23,8 +23,9 @@ export function chargeDensityProfile(input: {
     const bin = binOf(cell)
     const base = cell * degree
     let q = 0
-    for (let direction = 0; direction < degree; direction++)
+    for (let direction = 0; direction < degree; direction++) {
       q += Math.abs(will.data[base + direction]!)
+    }
     sum[bin]! += q
     count[bin]!++
   }
@@ -36,7 +37,9 @@ export function profileGradient(
   profile: ReadonlyArray<number>,
 ): number {
   const mean = profile.reduce((a, b) => a + b, 0) / profile.length
-  if (mean === 0) return 0
+  if (mean === 0) {
+    return 0
+  }
   return (Math.max(...profile) - Math.min(...profile)) / mean
 }
 
@@ -65,9 +68,13 @@ export function radialFieldProfile(input: {
   for (let i = 0; i < values.length; i++) {
     const c = coord(i)
     let r2 = 0
-    for (let k = 0; k < d; k++) r2 += (c[k]! - c0) ** 2
+    for (let k = 0; k < d; k++) {
+      r2 += (c[k]! - c0) ** 2
+    }
     const r = Math.round(Math.sqrt(r2))
-    if (r < minRadius || r > maxRadius) continue
+    if (r < minRadius || r > maxRadius) {
+      continue
+    }
     const bin = bins.get(r) ?? { sum: 0, count: 0 }
     bin.sum += values[i]!
     bin.count++
@@ -96,7 +103,9 @@ export function weightedGridRadiusOfGyration(input: {
     cx += w * (i % side)
     cy += w * Math.floor(i / side)
   }
-  if (total <= 0) return 0
+  if (total <= 0) {
+    return 0
+  }
   cx /= total
   cy /= total
   let m2 = 0

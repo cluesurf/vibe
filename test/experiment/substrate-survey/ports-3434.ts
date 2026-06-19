@@ -34,27 +34,34 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
   for (let b = 0; b <= 24; b++) {
     if ([6, 12, 24].includes(b)) {
       let r = 0
-      for (let z = 0; z < L; z++)
-        for (let y = 0; y < L; y++)
-          for (let x = 0; x < L; x++)
-            if (cur[at(x, y, z)] !== 0)
+      for (let z = 0; z < L; z++) {
+        for (let y = 0; y < L; y++) {
+          for (let x = 0; x < L; x++) {
+            if (cur[at(x, y, z)] !== 0) {
               r = Math.max(
                 r,
                 Math.abs(x - c),
                 Math.abs(y - c),
                 Math.abs(z - c),
               )
+            }
+          }
+        }
+      }
       radii.push([b, r])
     }
-    for (let z = 0; z < L; z++)
-      for (let y = 0; y < L; y++)
+    for (let z = 0; z < L; z++) {
+      for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           let s = 0
-          for (const d of D)
+          for (const d of D) {
             s += cur[at(x + d[0]!, y + d[1]!, z + d[2]!)]!
+          }
           nxt[at(x, y, z)] = ((((s - prev[at(x, y, z)]!) % 3) + 3) %
             3) as 0 | 1 | 2
         }
+      }
+    }
     const t = prev
     prev = cur
     cur = nxt
@@ -78,33 +85,47 @@ export function ports(): {
   const rng = makeRng({ seed: 3 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(L * L * L)
-  for (let k = 0; k < 200; k++)
+  for (let k = 0; k < 200; k++) {
     t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
-  for (let b = 0; b < 40; b++) beat(t, true)
+  }
+  for (let b = 0; b < 40; b++) {
+    beat(t, true)
+  }
   let ch = 0
-  for (let i = 0; i < t.length; i++) if (t[i] !== 0) ch++
+  for (let i = 0; i < t.length; i++) {
+    if (t[i] !== 0) {
+      ch++
+    }
+  }
   const churnPct = Math.round((100 * ch) / t.length)
 
   // two opposite selves annihilate
   const t2 = new Int8Array(L * L * L)
   const c = L >> 1
-  for (let dx = -2; dx <= 2; dx++)
-    for (let dy = -2; dy <= 2; dy++)
+  for (let dx = -2; dx <= 2; dx++) {
+    for (let dy = -2; dy <= 2; dy++) {
       for (let dz = -2; dz <= 2; dz++) {
         t2[at(c - 8 + dx, c + dy, c + dz)] = 1
         t2[at(c + 8 + dx, c + dy, c + dz)] = -1
       }
+    }
+  }
   const count = (): [number, number] => {
     let p = 0,
       m = 0
     for (let i = 0; i < t2.length; i++) {
-      if (t2[i] === 1) p++
-      else if (t2[i] === -1) m++
+      if (t2[i] === 1) {
+        p++
+      } else if (t2[i] === -1) {
+        m++
+      }
     }
     return [p, m]
   }
   const start = count()
-  for (let b = 0; b < 40; b++) beat(t2, false)
+  for (let b = 0; b < 40; b++) {
+    beat(t2, false)
+  }
   const end = count()
   const annihilates = end[0] < start[0]
   return { lightconeOk: lc.ok, churnPct, annihilates }

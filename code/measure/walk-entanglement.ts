@@ -83,13 +83,17 @@ function correlation(
     const k = (2 * Math.PI * n) / momentumCount
     const p = lowerBandProjector(theta, k)
     const phase: Cx = [Math.cos(k * d), Math.sin(k * d)]
-    for (let a = 0; a < 2; a++)
-      for (let b = 0; b < 2; b++)
+    for (let a = 0; a < 2; a++) {
+      for (let b = 0; b < 2; b++) {
         out[a]![b] = cAdd(out[a]![b]!, cMul(p[a]![b]!, phase))
+      }
+    }
   }
-  for (let a = 0; a < 2; a++)
-    for (let b = 0; b < 2; b++)
+  for (let a = 0; a < 2; a++) {
+    for (let b = 0; b < 2; b++) {
       out[a]![b] = cScale(out[a]![b]!, 1 / momentumCount)
+    }
+  }
   return out
 }
 

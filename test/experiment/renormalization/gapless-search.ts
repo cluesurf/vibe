@@ -56,12 +56,13 @@ export function gaplessSearch(input?: {
     const tone = new Int8Array(L)
     const moved = new Uint8Array(L)
     const rng = makeRng({ seed: 17 })
-    for (let i = 0; i < L; i++)
+    for (let i = 0; i < L; i++) {
       tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
         | -1
         | 0
         | 1
-    for (let t = 0; t < 400; t++)
+    }
+    for (let t = 0; t < 400; t++) {
       conservingRingSweepTunable({
         tone,
         length: L,
@@ -71,6 +72,7 @@ export function gaplessSearch(input?: {
         share,
         hop: 0.5,
       })
+    }
     const T = 2500
     let nz = 0
     const c = timeAveragedRingCorrelation({
@@ -79,7 +81,11 @@ export function gaplessSearch(input?: {
       maxR,
       beats: T,
       relax: () => {
-        for (let x = 0; x < L; x++) if (tone[x] !== 0) nz++
+        for (let x = 0; x < L; x++) {
+          if (tone[x] !== 0) {
+            nz++
+          }
+        }
         conservingRingSweepTunable({
           tone,
           length: L,
@@ -94,8 +100,11 @@ export function gaplessSearch(input?: {
     // use the larger of direct and staggered range (the particle may be at the band edge)
     const rangeOf = (cc: number[]): number => {
       let rng2 = 0
-      for (let r = 1; r <= maxR; r++)
-        if (Math.abs(cc[r]!) > 0.05 * Math.abs(cc[0]!)) rng2 = r
+      for (let r = 1; r <= maxR; r++) {
+        if (Math.abs(cc[r]!) > 0.05 * Math.abs(cc[0]!)) {
+          rng2 = r
+        }
+      }
       return rng2
     }
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
@@ -114,11 +123,12 @@ export function gaplessSearch(input?: {
     range: number
     correlationLength: number
   }[] = []
-  for (const arrow of arrows)
+  for (const arrow of arrows) {
     for (const share of shares) {
       const { range, xi, density } = measure(arrow, share)
       grid.push({ arrow, share, density, range, correlationLength: xi })
     }
+  }
   const best = grid.reduce((a, b) => (b.range > a.range ? b : a))
   const maxRange = best.range
   const gaplessFound = maxRange >= 5 // a genuinely long-range regime (vs the massive range ~1)

@@ -40,7 +40,9 @@ function tonePhi(
 
 function randomSubset(n: number, size: number, rng: Rng): number[] {
   const s = new Set<number>()
-  while (s.size < size) s.add(rng.nextInt({ max: n }))
+  while (s.size < size) {
+    s.add(rng.nextInt({ max: n }))
+  }
   return [...s]
 }
 
@@ -68,7 +70,9 @@ export function integratedInformation(input: { seed: number }): {
   const adjacency = undirectedAdjacency({ substrate: g })
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
-  for (let v = 0; v < g.size; v++) members[cellOf[v] ?? 0]?.push(v)
+  for (let v = 0; v < g.size; v++) {
+    members[cellOf[v] ?? 0]?.push(v)
+  }
 
   // (1) tone-integration of genuine selves (cells) versus random same-size bags.
   const pr = makeRng({ seed: input.seed + 3 })
@@ -88,17 +92,24 @@ export function integratedInformation(input: { seed: number }): {
   const pm = makeRng({ seed: input.seed + 11 })
   for (let c = 0; c < numCells; c++) {
     const mem = members[c] ?? []
-    if (mem.length < cellSize) continue
+    if (mem.length < cellSize) {
+      continue
+    }
     const cellSet = new Set(mem)
     const perturbed = mem.slice()
     for (let i = 0; i < 6; i++) {
       let out = sr.nextInt({ max: g.size })
-      while (cellSet.has(out)) out = sr.nextInt({ max: g.size })
+      while (cellSet.has(out)) {
+        out = sr.nextInt({ max: g.size })
+      }
       perturbed[i] = out
     }
     trials++
-    if (tonePhi(adjacency, mem, pm) > tonePhi(adjacency, perturbed, pm))
+    if (
+      tonePhi(adjacency, mem, pm) > tonePhi(adjacency, perturbed, pm)
+    ) {
       higher++
+    }
   }
   const localMaxFraction = higher / Math.max(1, trials)
 

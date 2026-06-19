@@ -11,7 +11,9 @@ export function quantileLabels(input: {
   bins: number
 }): number[] {
   const { series, bins } = input
-  if (series.length === 0) return []
+  if (series.length === 0) {
+    return []
+  }
   const sorted = [...series].sort((a, b) => a - b)
   const thresholds = Array.from(
     { length: bins - 1 },
@@ -21,7 +23,9 @@ export function quantileLabels(input: {
   )
   return series.map(x => {
     let b = 0
-    while (b < bins - 1 && x > thresholds[b]!) b++
+    while (b < bins - 1 && x > thresholds[b]!) {
+      b++
+    }
     return b
   })
 }
@@ -40,7 +44,9 @@ export function countMatrix(input: {
   for (let t = 0; t + lag < trajectory.length; t++) {
     const i = trajectory[t]!
     const j = trajectory[t + lag]!
-    if (i >= 0 && j >= 0) counts[i]![j]!++
+    if (i >= 0 && j >= 0) {
+      counts[i]![j]!++
+    }
   }
   return counts
 }
@@ -99,13 +105,20 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
   const a = matrix.map(row => row.slice())
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
-    for (let p = 0; p < n; p++)
-      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
-    if (off < 1e-18) break
+    for (let p = 0; p < n; p++) {
+      for (let q = p + 1; q < n; q++) {
+        off += a[p]![q]! * a[p]![q]!
+      }
+    }
+    if (off < 1e-18) {
+      break
+    }
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
-        if (Math.abs(apq) < 1e-15) continue
+        if (Math.abs(apq) < 1e-15) {
+          continue
+        }
         const app = a[p]![p]!
         const aqq = a[q]![q]!
         const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
@@ -138,14 +151,16 @@ export function transitionEigenvalues(counts: number[][]): number[] {
   const sym: number[][] = Array.from({ length: n }, () =>
     new Array<number>(n).fill(0),
   )
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++)
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
       sym[i]![j] = 0.5 * (counts[i]![j]! + counts[j]![i]!)
+    }
+  }
   const degree = sym.map(row => row.reduce((a, b) => a + b, 0))
   const s: number[][] = Array.from({ length: n }, () =>
     new Array<number>(n).fill(0),
   )
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const di = degree[i]!
       const dj = degree[j]!
@@ -153,6 +168,7 @@ export function transitionEigenvalues(counts: number[][]): number[] {
       // mode at 1. Spurious 1-eigenvalues from empty bins would otherwise mask the real spectral gap.
       s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : 0
     }
+  }
   return symmetricEigenvalues(s)
 }
 
@@ -179,7 +195,8 @@ export function impliedTimescale(input: {
   lag: number
 }): number {
   const { eigenvalue, lag } = input
-  if (eigenvalue <= 0 || eigenvalue >= 1)
+  if (eigenvalue <= 0 || eigenvalue >= 1) {
     return eigenvalue >= 1 ? Infinity : 0
+  }
   return -lag / Math.log(eigenvalue)
 }

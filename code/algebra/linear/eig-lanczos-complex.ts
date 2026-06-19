@@ -26,8 +26,9 @@ function realDot(
   dimension: number,
 ): number {
   let s = 0
-  for (let i = 0; i < dimension; i++)
+  for (let i = 0; i < dimension; i++) {
     s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
+  }
   return s
 }
 
@@ -49,9 +50,13 @@ export function largestEigenvalueOfSquare(input: {
   const { apply, dimension, rand } = input
   const iterations = input.iterations ?? 40
   const v = newVector(dimension)
-  for (let i = 0; i < dimension; i++) v.re[i] = rand() - 0.5
+  for (let i = 0; i < dimension; i++) {
+    v.re[i] = rand() - 0.5
+  }
   let norm = Math.sqrt(realDot(v, v, dimension))
-  for (let i = 0; i < dimension; i++) v.re[i]! /= norm
+  for (let i = 0; i < dimension; i++) {
+    v.re[i]! /= norm
+  }
   const t = newVector(dimension)
   const w = newVector(dimension)
   let lambda = 0
@@ -84,9 +89,13 @@ export function lowestAbsoluteEigenvalues(input: {
   const count = input.count ?? 8
   const basis: ComplexVector[] = []
   let v = newVector(dimension)
-  for (let i = 0; i < dimension; i++) v.re[i] = rand() - 0.5
+  for (let i = 0; i < dimension; i++) {
+    v.re[i] = rand() - 0.5
+  }
   let norm = Math.sqrt(realDot(v, v, dimension))
-  for (let i = 0; i < dimension; i++) v.re[i]! /= norm
+  for (let i = 0; i < dimension; i++) {
+    v.re[i]! /= norm
+  }
   const alpha: number[] = []
   const beta: number[] = []
   const t = newVector(dimension)
@@ -105,11 +114,12 @@ export function lowestAbsoluteEigenvalues(input: {
   for (let j = 0; j < steps; j++) {
     basis.push({ re: v.re.slice(), im: v.im.slice() })
     foldedApply(v, w)
-    if (vprev)
+    if (vprev) {
       for (let i = 0; i < dimension; i++) {
         w.re[i]! -= bprev * vprev.re[i]!
         w.im[i]! -= bprev * vprev.im[i]!
       }
+    }
     const aj = realDot(v, w, dimension)
     alpha.push(aj)
     for (let i = 0; i < dimension; i++) {
@@ -125,7 +135,9 @@ export function lowestAbsoluteEigenvalues(input: {
       }
     }
     const bj = Math.sqrt(realDot(w, w, dimension))
-    if (bj < 1e-9 || j === steps - 1) break
+    if (bj < 1e-9 || j === steps - 1) {
+      break
+    }
     beta.push(bj)
     vprev = { re: v.re.slice(), im: v.im.slice() }
     bprev = bj

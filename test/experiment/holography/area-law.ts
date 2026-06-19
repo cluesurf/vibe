@@ -53,7 +53,9 @@ export function areaLaw(input?: { L?: number }): {
 } {
   const L = input?.L ?? 96
   const lengths: number[] = []
-  for (let l = 6; l <= L / 2; l += 4) lengths.push(l)
+  for (let l = 6; l <= L / 2; l += 4) {
+    lengths.push(l)
+  }
 
   // (1) massive field, the entropy should SATURATE (area law, boundary-only)
   const Cm = correlationMatrix(L, 0.7)

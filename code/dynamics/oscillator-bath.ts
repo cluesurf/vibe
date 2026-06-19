@@ -37,8 +37,9 @@ export function oscillatorBathTrajectory(
   const trajectory: number[] = []
 
   for (let t = 0; t < input.steps; t++) {
-    if (input.kickStep !== undefined && t === input.kickStep)
+    if (input.kickStep !== undefined && t === input.kickStep) {
       vr += input.kickVelocity ?? 0
+    }
     const ar = -input.stiffness * r - couple * (r - u[0]!)
     const au = new Array<number>(chain).fill(0)
     for (let x = 0; x < chain; x++) {
@@ -133,8 +134,9 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
   }
 
   for (let t = 0; t < input.steps; t++) {
-    if (input.kickStep !== undefined && t === input.kickStep)
+    if (input.kickStep !== undefined && t === input.kickStep) {
       v1 += input.kickVelocity ?? 0
+    }
     // each body, its own well, mutual attraction toward the other, and coupling to its own bath.
     const a1 =
       -input.stiffness * r1 +
@@ -166,7 +168,9 @@ export function lateAmplitude(
   let max = 0
   for (let t = from; t < trajectory.length; t++) {
     const a = Math.abs(trajectory[t]!)
-    if (a > max) max = a
+    if (a > max) {
+      max = a
+    }
   }
   return max
 }

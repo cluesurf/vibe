@@ -53,7 +53,7 @@ export function selfEmergencePerception(): {
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < 80; b++)
+  for (let b = 0; b < 80; b++) {
     conservingEdgeListSweep({
       tone: t,
       edges,
@@ -61,6 +61,7 @@ export function selfEmergencePerception(): {
       rng,
       arrow: ARROW,
     })
+  }
 
   // PERSISTENCE: autocorrelation of the tone field at increasing lags
   const base = t.slice()
@@ -86,8 +87,11 @@ export function selfEmergencePerception(): {
 
   // IMPRINT MEMORY: imprint a pleasure blob, run, measure its survival above background
   let center = 0
-  for (let i = 1; i < n; i++)
-    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  for (let i = 1; i < n; i++) {
+    if (neighbors[i]!.length > neighbors[center]!.length) {
+      center = i
+    }
+  }
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -95,16 +99,17 @@ export function selfEmergencePerception(): {
   })
   const imp = t.slice() // start from the balanced state
   const blob: number[] = []
-  for (let i = 0; i < n; i++)
+  for (let i = 0; i < n; i++) {
     if (dd(distC, i) <= 3) {
       imp[i] = 1 // imprint pleasure
       blob.push(i)
     }
+  }
   const meanBlob = (arr: Int8Array): number =>
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 40; b++)
+  for (let b = 0; b < 40; b++) {
     conservingEdgeListSweep({
       tone: imp,
       edges,
@@ -112,10 +117,13 @@ export function selfEmergencePerception(): {
       rng: rng2,
       arrow: ARROW,
     })
+  }
   const after = meanBlob(imp)
   // background mean tone for reference
   let bg = 0
-  for (let i = 0; i < n; i++) bg += imp[i]!
+  for (let i = 0; i < n; i++) {
+    bg += imp[i]!
+  }
   bg /= n
   const imprintRetention = (after - bg) / (start - bg || 1)
   const conservedImp = true // imprint changes Q deliberately, dynamics after conserve it

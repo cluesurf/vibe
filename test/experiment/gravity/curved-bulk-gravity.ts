@@ -31,16 +31,22 @@ export default experiment({
     })
     const n = hyp.cellCount
     let center = 0
-    for (let i = 1; i < n; i++)
-      if (hyp.neighbors[i]!.length > hyp.neighbors[center]!.length)
+    for (let i = 1; i < n; i++) {
+      if (hyp.neighbors[i]!.length > hyp.neighbors[center]!.length) {
         center = i
+      }
+    }
     const dist = neighborDistances({
       neighbors: hyp.neighbors,
       size: n,
       source: center,
     })
     let maxD = 0
-    for (let i = 0; i < n; i++) if (dist[i]! > maxD) maxD = dist[i]!
+    for (let i = 0; i < n; i++) {
+      if (dist[i]! > maxD) {
+        maxD = dist[i]!
+      }
+    }
     const bulk = greensDecayClass({
       neighbors: hyp.neighbors,
       size: n,
@@ -62,18 +68,21 @@ export default experiment({
       [0, 0, 1],
       [0, 0, -1],
     ]
-    for (let x = 0; x < L; x++)
-      for (let y = 0; y < L; y++)
+    for (let x = 0; x < L; x++) {
+      for (let y = 0; y < L; y++) {
         for (let z = 0; z < L; z++) {
           const i = idx(x, y, z)
           for (const [dx, dy, dz] of steps) {
             const a = x + dx!,
               b = y + dy!,
               c = z + dz!
-            if (a >= 0 && a < L && b >= 0 && b < L && c >= 0 && c < L)
+            if (a >= 0 && a < L && b >= 0 && b < L && c >= 0 && c < L) {
               flatN[i]!.push(idx(a, b, c))
+            }
           }
         }
+      }
+    }
     const flat = greensDecayClass({
       neighbors: flatN,
       size: N,

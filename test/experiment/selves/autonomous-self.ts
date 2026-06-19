@@ -34,7 +34,9 @@ function autonomousRepair(
   let work = 0
   let netAdded = 0
   for (let c = 0; c < N; c++) {
-    if (tone[c] === 1) continue
+    if (tone[c] === 1) {
+      continue
+    }
     const plus = sameSignNeighbors(tone, g, c, 1)
     const minus = sameSignNeighbors(tone, g, c, -1)
     if (plus >= threshold && plus > minus) {
@@ -85,7 +87,9 @@ export function autonomousSelf(input?: { n?: number }): {
     let work = 0
     const beats = 60
     for (let b = 0; b < beats; b++) {
-      if (maintaining) work += autonomousRepair(t2, g, rng2, 4)
+      if (maintaining) {
+        work += autonomousRepair(t2, g, rng2, 4)
+      }
       beat(t2, g, moved, rng2, 0, 0.22)
     }
     return {

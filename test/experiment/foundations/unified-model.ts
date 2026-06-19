@@ -36,13 +36,14 @@ export function unifiedModel(input?: { n?: number }): {
   // ONE canonical run
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
       | 0
       | 1
+  }
   const q0 = sumQ(tone)
-  for (let t = 0; t < 80; t++)
+  for (let t = 0; t < 80; t++) {
     conservingEdgeSweep({
       tone: tone,
       eu,
@@ -51,6 +52,7 @@ export function unifiedModel(input?: { n?: number }): {
       rng: rng,
       arrow: arrow,
     })
+  }
 
   // (1) conservation, Q unchanged across the whole run
   const conserved = sumQ(tone) === q0
@@ -59,11 +61,12 @@ export function unifiedModel(input?: { n?: number }): {
   // (2b) dead without the arrow, a control run with arrow=0 relaxes toward peace
   const dead = new Int8Array(N)
   const rngD = makeRng({ seed: 7 })
-  for (let i = 0; i < N; i++)
+  for (let i = 0; i < N; i++) {
     dead[i] = (
       rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
     ) as -1 | 0 | 1
-  for (let t = 0; t < 80; t++)
+  }
+  for (let t = 0; t < 80; t++) {
     conservingEdgeSweep({
       tone: dead,
       eu,
@@ -72,17 +75,20 @@ export function unifiedModel(input?: { n?: number }): {
       rng: rngD,
       arrow: 0,
     })
+  }
   const deadWithoutArrow = density(dead) < density(tone) * 0.5
 
   // (3) lightcone, a perturbation spreads at a bounded finite speed (same RNG copies, position-indexed not
   // needed here, use the front radius growth)
   let center = 0
-  for (let i = 1; i < N; i++)
+  for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
       g.offsets[center + 1]! - g.offsets[center]!
-    )
+    ) {
       center = i
+    }
+  }
   const distC = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -114,8 +120,11 @@ export function unifiedModel(input?: { n?: number }): {
     })
   }
   let front = 0
-  for (let i = 0; i < N; i++)
-    if (s[i] !== s2[i] && distC[i]! > front) front = distC[i]!
+  for (let i = 0; i < N; i++) {
+    if (s[i] !== s2[i] && distC[i]! > front) {
+      front = distC[i]!
+    }
+  }
   const speed = front / T
   const lightcone = speed > 0 && speed < 4 // a finite, bounded propagation speed
 
@@ -124,7 +133,9 @@ export function unifiedModel(input?: { n?: number }): {
   const S9 = 9
   const C = new Float64Array(S9 * S9)
   const sample: number[] = []
-  for (let k = 0; k < eu.length; k += 3) sample.push(k)
+  for (let k = 0; k < eu.length; k += 3) {
+    sample.push(k)
+  }
   for (let b = 0; b < 60; b++) {
     const pre = sample.map(
       k => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!),
@@ -145,11 +156,12 @@ export function unifiedModel(input?: { n?: number }): {
   }
   let asym = 0
   let total = 0
-  for (let a = 0; a < S9; a++)
+  for (let a = 0; a < S9; a++) {
     for (let bb = a + 1; bb < S9; bb++) {
       asym += Math.abs(C[a * S9 + bb]! - C[bb * S9 + a]!)
       total += C[a * S9 + bb]! + C[bb * S9 + a]!
     }
+  }
   const reversible = total > 0 && asym / total < 0.15
 
   // (5) coherence, neighbours are correlated (structure, not white noise), the seed of selves

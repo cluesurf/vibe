@@ -85,17 +85,20 @@ export function describeTessellation(
   const finite = (x: Geometry): boolean => x === 'spherical'
   const idealOk = (x: Geometry): boolean =>
     x === 'spherical' || x === 'euclidean'
-  if (geometry === 'spherical') compactness = 'finite-polytope'
-  else if (finite(cellGeometry) && finite(vertexFigureGeometry))
+  if (geometry === 'spherical') {
+    compactness = 'finite-polytope'
+  } else if (finite(cellGeometry) && finite(vertexFigureGeometry)) {
     compactness = 'compact'
-  else if (idealOk(cellGeometry) && idealOk(vertexFigureGeometry))
+  } else if (idealOk(cellGeometry) && idealOk(vertexFigureGeometry)) {
     compactness = 'paracompact'
-  else if (
+  } else if (
     cellGeometry === 'hyperbolic' ||
     vertexFigureGeometry === 'hyperbolic'
-  )
+  ) {
     compactness = 'hyperideal'
-  else compactness = 'unknown'
+  } else {
+    compactness = 'unknown'
+  }
 
   // builder selection
   let builder: Builder
@@ -179,11 +182,17 @@ export function inspectTessellation(graph: CellGraph): {
 } {
   // the full (interior) facet degree is the MAX neighbour count, boundary cells have fewer
   let facetDegree = 0
-  for (const nb of graph.neighbors)
-    if (nb.length > facetDegree) facetDegree = nb.length
+  for (const nb of graph.neighbors) {
+    if (nb.length > facetDegree) {
+      facetDegree = nb.length
+    }
+  }
   let matching = 0
-  for (const nb of graph.neighbors)
-    if (nb.length === facetDegree) matching++
+  for (const nb of graph.neighbors) {
+    if (nb.length === facetDegree) {
+      matching++
+    }
+  }
   const uniformInterior = matching >= 1 // a regular honeycomb has at least the seed at full degree
 
   const { shellCounts } = bfsShells({ neighbors: graph.neighbors })
