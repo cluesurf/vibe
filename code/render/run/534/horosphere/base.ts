@@ -41,11 +41,13 @@ const RADIUS = 2 // dot radius per horosphere cell, in pixels
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -73,6 +75,7 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const rng = makeRng({ seed: 2468013579 })
   const nextR = (): number => rng.next()
+
   for (let i = 0; i < n; i++) {
     seed[i] = pack({
       current: Math.floor(nextR() * 3),
@@ -85,6 +88,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
     device.createBuffer({
@@ -94,17 +98,20 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(offBuf, 0, offsets)
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(adjBuf, 0, adj)
 
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
@@ -112,6 +119,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -124,8 +132,11 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: adjBuf } },
       ],
     })
+
   const dispatch = Math.ceil(n / WORKGROUP)
+
   let src = 0
+
   for (let b = 0; b < BEATS; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -141,6 +152,7 @@ async function run(): Promise<void> {
     size: byteLength,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   {
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
@@ -155,8 +167,10 @@ async function run(): Promise<void> {
   // an orthonormal basis e1, e2 of the plane perpendicular to the ideal direction xi
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v)
 
@@ -165,6 +179,7 @@ async function run(): Promise<void> {
 
   // choose an axis least aligned with xi to start, then Gram-Schmidt twice
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -172,7 +187,9 @@ async function run(): Promise<void> {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -185,6 +202,7 @@ async function run(): Promise<void> {
 
   type Cell = { u: number; v: number; tone: number }
   const band: Cell[] = []
+
   for (const i of extractBand({
     busemann: heights,
     level: LEVEL,
@@ -203,6 +221,7 @@ async function run(): Promise<void> {
   console.log(
     `horosphere band, ${band.length.toLocaleString()} cells extracted from the evolved bulk`,
   )
+
   if (band.length === 0) {
     console.log('no cells in the band, widen HALF')
 
@@ -214,6 +233,7 @@ async function run(): Promise<void> {
   let maxU = -Infinity
   let minV = Infinity
   let maxV = -Infinity
+
   for (const c of band) {
     minU = Math.min(minU, c.u)
     maxU = Math.max(maxU, c.u)
@@ -226,6 +246,7 @@ async function run(): Promise<void> {
   const spanV = maxV - minV || 1
   const span = Math.max(spanU, spanV)
   const rgba = new Uint8Array(IMG * IMG * 4)
+
   for (let i = 0; i < IMG * IMG; i++) {
     rgba[i * 4] = 10
     rgba[i * 4 + 1] = 10
@@ -234,6 +255,7 @@ async function run(): Promise<void> {
   }
 
   const COLORS = TONE_COLORS
+
   for (const c of band) {
     if (c.tone === 0) {
       continue
@@ -242,6 +264,7 @@ async function run(): Promise<void> {
     const cx = pad + ((c.u - minU) / span) * (IMG - 2 * pad)
     const cy = pad + ((c.v - minV) / span) * (IMG - 2 * pad)
     const col = COLORS[c.tone]!
+
     for (let dy = -RADIUS; dy <= RADIUS; dy++) {
       for (let dx = -RADIUS; dx <= RADIUS; dx++) {
         if (dx * dx + dy * dy > RADIUS * RADIUS) {
@@ -250,6 +273,7 @@ async function run(): Promise<void> {
 
         const px = Math.round(cx + dx)
         const py = Math.round(cy + dy)
+
         if (px < 0 || px >= IMG || py < 0 || py >= IMG) {
           continue
         }
@@ -269,6 +293,7 @@ async function run(): Promise<void> {
     '..',
     'make',
   )
+
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, 'horosphere.png')
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))

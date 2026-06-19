@@ -13,13 +13,16 @@ export function fitnessVariancePartition(groups: number[][]): {
 } {
   const all = groups.flat()
   const total = all.length
+
   if (total === 0) {
     return { between: 0, within: 0, ratio: 0 }
   }
 
   const grandMean = all.reduce((a, b) => a + b, 0) / total
+
   let between = 0
   let within = 0
+
   for (const group of groups) {
     if (group.length === 0) {
       continue
@@ -31,6 +34,7 @@ export function fitnessVariancePartition(groups: number[][]): {
         (groupMean - grandMean) *
         (groupMean - grandMean)) /
       total
+
     for (const f of group) {
       within += ((f - groupMean) * (f - groupMean)) / total
     }

@@ -27,12 +27,14 @@ export function attachControls(input: {
 }): Controls {
   const { canvas, camera } = input
   const held = new Set<string>()
+
   let dragging = false
   let lastX = 0
   let lastY = 0
 
   const onKeyDown = (e: KeyboardEvent): void => {
     held.add(e.key.length === 1 ? e.key.toLowerCase() : e.key)
+
     if (NAV_KEYS.has(e.key) || NAV_KEYS.has(e.key.toLowerCase())) {
       e.preventDefault()
     }
@@ -64,6 +66,7 @@ export function attachControls(input: {
 
   const onPointerUp = (e: PointerEvent): void => {
     dragging = false
+
     if (canvas.hasPointerCapture(e.pointerId)) {
       canvas.releasePointerCapture(e.pointerId)
     }
@@ -71,6 +74,7 @@ export function attachControls(input: {
 
   const onWheel = (e: WheelEvent): void => {
     e.preventDefault()
+
     if (camera.mode === '2d') {
       camera.zoomBy(Math.exp(-e.deltaY * WHEEL_ZOOM))
     } else {
@@ -95,6 +99,7 @@ export function attachControls(input: {
       const turn = axis(['a', 'ArrowLeft'], ['d', 'ArrowRight'])
       const strafe = axis(['e'], ['q'])
       const lift = axis([' '], ['Shift'])
+
       if (forward) {
         camera.moveForward(forward * MOVE_SPEED * dt)
       }

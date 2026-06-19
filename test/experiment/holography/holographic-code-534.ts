@@ -39,6 +39,7 @@ export default experiment({
     const recoveredAt30 =
       recoverByMajority(corruptConnectedRegion(size, 0.3, logical)) ===
       logical
+
     const recoveredAt49 =
       recoverByMajority(corruptConnectedRegion(size, 0.49, logical)) ===
       logical

@@ -66,6 +66,7 @@ export function associativeCapacityVsCurvature(input?: {
     neighbors: lattice.neighbors,
     root: center,
   }).shellCounts
+
   const cubicGrowthRatio = geometricGrowthRatio(cubicShells)
   const cubicCoverageRadius = coverageRadius({
     neighbors: lattice.neighbors,
@@ -78,8 +79,10 @@ export function associativeCapacityVsCurvature(input?: {
   // capacity per radius rises with curvature, latency per coverage falls with curvature
   const growthRisesWithCurvature =
     most.associativeGrowthRatio > least.associativeGrowthRatio
+
   const coverageFallsWithCurvature =
     most.coverageRadius < least.coverageRadius
+
   // the flat control sits below every tessellation, lowest growth and largest radius
   const flatIsLowestGrowthLargestRadius =
     rungs.every(r => r.associativeGrowthRatio > cubicGrowthRatio) &&
@@ -112,6 +115,7 @@ export default experiment({
       maxCells: LADDER_MAX_CELLS,
       cubicSide: CUBIC_SIDE,
     })
+
     const least = r.rungs[0]!
     const most = r.rungs[r.rungs.length - 1]!
 

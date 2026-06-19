@@ -43,6 +43,7 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
@@ -63,6 +64,7 @@ export default experiment({
         side,
         directions,
       }
+
       const will = shearSetup({ mesh, ...shear })
       const series = shearAmplitudeSeries({
         will,
@@ -71,6 +73,7 @@ export default experiment({
         open: false,
         ...shear,
       }).map(a => Math.abs(a))
+
       for (let t = 1; t < series.length; t++) {
         if (series[t]! < 1 / Math.E) {
           const prev = series[t - 1]!,
@@ -87,10 +90,13 @@ export default experiment({
     const wavelengths = [20, 10, 5]
     const logL: number[] = [],
       logTau: number[] = []
+
     const taus: number[] = []
+
     for (const wavelength of wavelengths) {
       const tau = decayTime(viscous, wavelength)
       taus.push(tau)
+
       if (!Number.isNaN(tau)) {
         logL.push(Math.log(wavelength))
         logTau.push(Math.log(tau))
@@ -100,10 +106,13 @@ export default experiment({
     // least-squares slope of log(tau) vs log(lambda), the transport exponent (1 ballistic, 2 diffusive)
     const mean = (a: number[]) =>
       a.reduce((s, x) => s + x, 0) / a.length
+
     const mL = mean(logL),
       mT = mean(logTau)
+
     let num = 0,
       den = 0
+
     for (let i = 0; i < logL.length; i++) {
       num += (logL[i]! - mL) * (logTau[i]! - mT)
       den += (logL[i]! - mL) ** 2
@@ -117,6 +126,7 @@ export default experiment({
 
     // the richer collision is a valid base-class rule
     const probe = makeWill(mesh)
+
     for (let i = 0; i < probe.data.length; i++) {
       probe.data[i] = i % 2 === 0 ? 1 : 0
     }

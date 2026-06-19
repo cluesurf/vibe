@@ -21,6 +21,7 @@ export default experiment({
       cells,
       keys: Math.floor(cells * 0.5),
     })
+
     const heavyLoad = hashTableProbeStats({
       cells,
       keys: Math.floor(cells * 0.95),

@@ -38,6 +38,7 @@ export function makeRng(input: { seed: number }): Rng {
       let u = 0
       let v = 0
       let s = 0
+
       do {
         u = next() * 2 - 1
         v = next() * 2 - 1
@@ -60,8 +61,10 @@ export function poissonSample(input: {
   rng: Rng
 }): number {
   const L = Math.exp(-input.lambda)
+
   let k = 0
   let p = 1
+
   do {
     k++
     p *= input.rng.next()
@@ -81,7 +84,9 @@ export function sampleEmpiricalFrequencies(input: {
 }): number[] {
   const { counts, draws, rng } = input
   const cumulative: number[] = []
+
   let acc = 0
+
   for (const c of counts) {
     acc += c
     cumulative.push(acc)
@@ -89,9 +94,12 @@ export function sampleEmpiricalFrequencies(input: {
 
   const total = acc
   const hits = new Array<number>(counts.length).fill(0)
+
   for (let d = 0; d < draws; d++) {
     const u = rng.nextInt({ max: total })
+
     let k = 0
+
     while (k < cumulative.length && u >= (cumulative[k] ?? 0)) {
       k++
     }

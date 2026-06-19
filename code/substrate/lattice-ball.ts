@@ -24,13 +24,17 @@ export function latticeBall(input: {
   const origin = input.origin ?? generators[0]!.map(() => 0)
   const dist = new Map<string, number>([[key(origin), 0]])
   const cells: number[][] = [origin]
+
   let frontier = [origin]
+
   for (let r = 1; r <= radius; r++) {
     const next: number[][] = []
+
     for (const p of frontier) {
       for (const g of generators) {
         const q = add(p, g)
         const k = key(q)
+
         if (!dist.has(k)) {
           dist.set(k, r)
           cells.push(q)
@@ -54,18 +58,23 @@ export function latticeWordDistance(input: {
   cap: number
 }): number {
   const { a, b, generators, cap } = input
+
   if (key(a) === key(b)) {
     return 0
   }
 
   const seen = new Set([key(a)])
+
   let frontier = [a]
+
   for (let r = 1; r <= cap; r++) {
     const next: number[][] = []
+
     for (const p of frontier) {
       for (const g of generators) {
         const q = add(p, g)
         const k = key(q)
+
         if (k === key(b)) {
           return r
         }

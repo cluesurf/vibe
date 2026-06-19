@@ -35,11 +35,13 @@ export function dimensionWindow(input: {
     count: number
     examples: string[]
   }[] = []
+
   for (let n = 2; n <= input.maxDimension; n++) {
     const found = enumerateCompactHoneycombs({
       dimension: n,
       maxEntry: input.maxP,
     })
+
     byDimension.push({
       dimension: n,
       count: found.length,
@@ -50,6 +52,7 @@ export function dimensionWindow(input: {
   const compactWindow = byDimension
     .filter(d => d.count > 0)
     .map(d => d.dimension)
+
   const firstEmpty = byDimension.find(d => d.count === 0)
 
   return {
@@ -71,6 +74,7 @@ export default experiment({
     const r = dimensionWindow({ maxP: 8, maxDimension: 6 })
     const count = (n: number): number =>
       r.byDimension.find(d => d.dimension === n)?.count ?? -1
+
     const ok =
       count(3) === 4 &&
       count(4) === 5 &&

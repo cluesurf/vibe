@@ -9,6 +9,7 @@ export function coarseFieldByGroup(input: {
   const { field, group, groupCount } = input
   const sum = new Float64Array(groupCount)
   const count = new Float64Array(groupCount)
+
   for (let i = 0; i < field.length; i++) {
     sum[group[i]!]! += field[i]!
     count[group[i]!]!++
@@ -31,6 +32,7 @@ export function sumFieldByGroup(input: {
 }): Float64Array {
   const { field, group, groupCount } = input
   const sum = new Float64Array(groupCount)
+
   for (let i = 0; i < field.length; i++) {
     sum[group[i]!]! += field[i]!
   }
@@ -52,6 +54,7 @@ export function cubicBlockGroups(input: {
   const N = L * L * L
   const side = L / b
   const group = new Int32Array(N)
+
   for (let i = 0; i < N; i++) {
     const x = i % L
     const y = ((i / L) | 0) % L

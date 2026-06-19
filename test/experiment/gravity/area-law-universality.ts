@@ -41,6 +41,7 @@ function spectralGap(mass: number): number {
     mass,
     periodic: true,
   })
+
   const values = [...eigSymmetric({ matrix: h }).values].sort(
     (a, b) => a - b,
   )
@@ -56,6 +57,7 @@ function areaExponent(mass: number): number {
     mass,
     periodic: true,
   })
+
   const c = freeFermionCorrelationMatrix({ h, n })
   const series = screenBitSeries({
     c,
@@ -94,9 +96,11 @@ export default experiment({
     // (twice the mass, the ratio constant near two), and the massless control is gapless
     const universalExponent =
       exponents.every(e => e > 1.7 && e < 2.1) && exponentSpread < 0.15
+
     const diracGap =
       gapRatios.every(r => Math.abs(r - 2) < 0.05) &&
       gapRatioSpread < 0.05
+
     const masslessIsGapless = masslessGap < 1e-6
     const ok = universalExponent && diracGap && masslessIsGapless
 

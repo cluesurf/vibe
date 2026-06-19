@@ -51,6 +51,7 @@ export function dynamicDispersion(input?: {
   const ks = ns.map(n => (2 * Math.PI * n) / L)
   const cosTab = ks.map(k => new Float64Array(L))
   const sinTab = ks.map(k => new Float64Array(L))
+
   for (let m = 0; m < ks.length; m++) {
     for (let x = 0; x < L; x++) {
       cosTab[m]![x] = Math.cos(ks[m]! * x)
@@ -61,6 +62,7 @@ export function dynamicDispersion(input?: {
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 19 })
+
   for (let i = 0; i < L; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -76,14 +78,18 @@ export function dynamicDispersion(input?: {
   const T = 9000
   const qRe: Float64Array[] = ks.map(() => new Float64Array(T))
   const qIm: Float64Array[] = ks.map(() => new Float64Array(T))
+
   for (let t = 0; t < T; t++) {
     for (let m = 0; m < ks.length; m++) {
       let re = 0
       let im = 0
+
       const ct = cosTab[m]!
       const st = sinTab[m]!
+
       for (let x = 0; x < L; x++) {
         const s = tone[x]!
+
         if (s !== 0) {
           re += s * ct[x]!
           im -= s * st[x]!
@@ -105,13 +111,16 @@ export function dynamicDispersion(input?: {
     relaxTime: number
     propagating: boolean
   }[] = []
+
   for (let m = 0; m < ks.length; m++) {
     const re = qRe[m]!
     const im = qIm[m]!
     const c: number[] = []
+
     for (let tau = 0; tau <= maxTau; tau++) {
       let s = 0
       let cnt = 0
+
       for (let t = 0; t + tau < T; t++) {
         s += re[t]! * re[t + tau]! + im[t]! * im[t + tau]!
         cnt++
@@ -122,8 +131,10 @@ export function dynamicDispersion(input?: {
 
     const c0 = c[0]!
     const norm = c.map(v => v / c0)
+
     // relaxation time, where the normalized correlation first drops below 1/e
     let relaxTime = maxTau
+
     for (let tau = 1; tau <= maxTau; tau++) {
       if (norm[tau]! < Math.exp(-1)) {
         // linear interpolation between tau-1 and tau
@@ -136,6 +147,7 @@ export function dynamicDispersion(input?: {
 
     // propagating if the correlation goes clearly negative (oscillation) before decaying
     let propagating = false
+
     for (let tau = 1; tau <= maxTau; tau++) {
       if (norm[tau]! < -0.15) {
         propagating = true
@@ -159,6 +171,7 @@ export function dynamicDispersion(input?: {
       isFinite(md.relaxRate) &&
       md.relaxTime <= maxTau * 0.8,
   )
+
   const dynamicExponent =
     relaxed.length > 1
       ? logLogSlope(
@@ -170,10 +183,12 @@ export function dynamicDispersion(input?: {
   // the k=0 mode is exactly conserved, so the mode is gapless by construction. Check Gamma falls toward 0
   const gapless =
     modes[0]!.relaxRate < modes[modes.length - 1]!.relaxRate // smallest k relaxes slowest
+
   const diffusive =
     dynamicExponent > 1.6 &&
     dynamicExponent < 2.4 &&
     !modes.some(md => md.propagating)
+
   const relativistic = dynamicExponent > 0.7 && dynamicExponent < 1.3
   const solved = gapless && (diffusive || relativistic)
 

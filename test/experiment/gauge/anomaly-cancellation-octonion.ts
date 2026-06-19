@@ -28,6 +28,7 @@ const GENERATION: Field[] = [
   { name: 'L', color: 1, weak: 2, Y: -1 / 2, su3index: 0 }, // lepton doublet
   { name: 'ec', color: 1, weak: 1, Y: 1, su3index: 0 }, // positron
 ]
+
 const mult = (f: Field) => f.color * f.weak
 
 // the six anomaly coefficients, all must vanish.
@@ -90,6 +91,7 @@ export default experiment({
       Y: 0.5,
       su3index: 0,
     }
+
     const aExotic = anomalies([...GENERATION, exotic])
     const controlBreaks =
       Math.abs(aExotic.u1cubic!) > 1e-9 ||

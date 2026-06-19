@@ -53,8 +53,10 @@ const POLYTOPES: Polytope[] = [
 
 const isSelfDual = (symbol: number[]): boolean =>
   symbol.every((v, i) => v === symbol[symbol.length - 1 - i])
+
 const isCrystallographic = (symbol: number[]): boolean =>
   symbol.every(v => v !== 5)
+
 const hasTriality = (directional: number[][] | null): boolean =>
   directional !== null && outerAutomorphismOrder(directional) === 6
 
@@ -73,6 +75,7 @@ export default experiment({
         isCrystallographic(p.symbol) &&
         hasTriality(p.directional),
     )
+
     const uniquePass =
       passes.length === 1 && passes[0]!.name === '24-cell'
 
@@ -80,6 +83,7 @@ export default experiment({
     const fiveCell = POLYTOPES[0]!
     const fiveCellSelfDualCrystallographic =
       isSelfDual(fiveCell.symbol) && isCrystallographic(fiveCell.symbol)
+
     const fiveCellNoTriality = !hasTriality(fiveCell.directional)
     const controlIsolatesSpinor =
       fiveCellSelfDualCrystallographic && fiveCellNoTriality

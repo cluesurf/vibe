@@ -62,7 +62,9 @@ export function universality(): {
     '-1,1': 1,
     '-1,-1': 1,
   }
+
   let nandCorrect = true
+
   for (const a of BITS) {
     for (const b of BITS) {
       if (nand(a, b) !== nandTable[`${a},${b}`]) {
@@ -73,11 +75,13 @@ export function universality(): {
 
   // 2. Full adder computes a + b + cin correctly for all eight inputs.
   let adderCorrect = true
+
   for (const a of BITS) {
     for (const b of BITS) {
       for (const cin of BITS) {
         const { sum, carry } = fullAdder(a, b, cin)
         const expected = toNum(a) + toNum(b) + toNum(cin)
+
         if (toNum(sum) + 2 * toNum(carry) !== expected) {
           adderCorrect = false
         }
@@ -88,11 +92,14 @@ export function universality(): {
   // 3. Rule 110 (output bit p is bit p of the number 110) built from rule-NANDs.
   const rule110 = Array.from({ length: 8 }, (_, p) => (110 >> p) & 1)
   const rule110Fn = functionFromTable(rule110)
+
   let rule110Expressible = true
+
   for (let p = 0; p < 8; p++) {
     const l: Bit = ((p >> 2) & 1) === 1 ? 1 : -1
     const c: Bit = ((p >> 1) & 1) === 1 ? 1 : -1
     const r: Bit = (p & 1) === 1 ? 1 : -1
+
     if (toNum(rule110Fn(l, c, r)) !== rule110[p]) {
       rule110Expressible = false
     }
@@ -101,10 +108,13 @@ export function universality(): {
   // Run the substrate-built Rule 110 on a line for a few steps, from a single seed cell,
   // and confirm it actually evolves (the universal CA running on the rule's gates).
   const width = 40
+
   let line: Bit[] = Array.from({ length: width }, (_, i) =>
     i === width - 2 ? 1 : -1,
   )
+
   const snapshots: string[] = []
+
   for (let step = 0; step < 12; step++) {
     snapshots.push(line.map(b => (b === 1 ? '#' : '.')).join(''))
     const next: Bit[] = line.map((_, i) => {
@@ -114,6 +124,7 @@ export function universality(): {
 
       return rule110Fn(l, c, rr)
     })
+
     line = next
   }
 
@@ -134,6 +145,7 @@ export function universality(): {
       const B = clampedBus(c, b, 7)
       const O = nandBus(c, A, B, 3)
       const tone = settle(c, { seed: 1 })
+
       if (busValue(tone, O) !== nand(a, b)) {
         substrateNandCorrect = false
       }
@@ -159,6 +171,7 @@ export function universality(): {
       const andInner = nandBus(c, orOut, nandOut, 5) // NAND(OR, NAND)
       const xorOut = notBus(c, andInner, 3) // AND(OR, NAND) = XOR
       const tone = settle(c, { seed: 1 })
+
       if (busValue(tone, xorOut) !== xor(a, b)) {
         substrateXorCorrect = false
       }

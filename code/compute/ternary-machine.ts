@@ -32,6 +32,7 @@ function tritLength(x: bigint): number {
 
 function tritWidth(...values: bigint[]): number {
   let trits = TERNARY_TRITS
+
   for (const v of values) {
     trits = Math.max(trits, tritLength(v))
   }
@@ -50,12 +51,16 @@ export function runTernary(
     { length: program.registers },
     (_, r) => initial[r] ?? 0n,
   )
+
   let pc = 0
   let totalTrits = 0
   let ops = 0
+
   const maxOps = 50_000_000
+
   while (ops < maxOps) {
     const ins = program.code[pc]
+
     if (!ins || ins.op === 'halt') {
       break
     }
@@ -64,6 +69,7 @@ export function runTernary(
     let trits = TERNARY_TRITS
     let reg = 0
     let kind: TernaryStep['kind'] = 'jz'
+
     if (ins.op === 'set') {
       const value = BigInt(ins.value)
       regs[ins.reg] = value
@@ -99,6 +105,7 @@ export function runTernary(
     }
 
     totalTrits += trits
+
     if (onStep) {
       onStep({
         kind,

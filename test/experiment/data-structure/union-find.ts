@@ -19,14 +19,17 @@ export default experiment({
   run() {
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 4000 })
     const cells = a.parent.length
+
     // follow parent to the root from each cell, count the chain length, and confirm it equals the BFS shell
     let allReachRoot = true
     let depthMatchesDist = true
     let sumDepth = 0
     let maxDepth = 0
+
     for (let cell = 0; cell < cells; cell++) {
       let node = cell
       let steps = 0
+
       while (a.parent[node] !== -1 && steps <= cells) {
         node = a.parent[node]!
         steps += 1
@@ -41,6 +44,7 @@ export default experiment({
       }
 
       sumDepth += steps
+
       if (steps > maxDepth) {
         maxDepth = steps
       }

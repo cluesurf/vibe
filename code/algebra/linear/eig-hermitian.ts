@@ -23,6 +23,7 @@ export function eigHermitian(input: {
 }): HermitianEigen {
   const n = input.matrix.rows
   const m = makeDense({ rows: 2 * n, cols: 2 * n })
+
   const set = (r: number, c: number, x: number): void => {
     m.data[r * 2 * n + c] = x
   }
@@ -43,10 +44,12 @@ export function eigHermitian(input: {
   const vectorsRe = new Float64Array(n * n)
   const vectorsIm = new Float64Array(n * n)
   const twoN = 2 * n
+
   for (let i = 0; i < n; i++) {
     // Take one column of each degenerate pair (columns 2i, 2i+1 share eigenvalue).
     const col = 2 * i
     values[i] = eig.values[col] ?? 0
+
     for (let a = 0; a < n; a++) {
       // component a of complex eigenvector = top half + i * bottom half.
       vectorsRe[a * n + i] = eig.vectors[a * twoN + col] ?? 0
@@ -64,9 +67,11 @@ export function hermitianMatrixSign(input: {
   const n = input.matrix.rows
   const eig = eigHermitian({ matrix: input.matrix })
   const out = makeComplexMatrix({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     const lambda = eig.values[i] ?? 0
     const s = lambda > 0 ? 1 : lambda < 0 ? -1 : 0
+
     if (s === 0) {
       continue
     }
@@ -74,6 +79,7 @@ export function hermitianMatrixSign(input: {
     for (let a = 0; a < n; a++) {
       const va = eig.vectorsRe[a * n + i] ?? 0
       const vaIm = eig.vectorsIm[a * n + i] ?? 0
+
       for (let b = 0; b < n; b++) {
         const vb = eig.vectorsRe[b * n + i] ?? 0
         const vbIm = eig.vectorsIm[b * n + i] ?? 0
@@ -95,7 +101,9 @@ export function countNearZeroEigenvalues(input: {
   tolerance: number
 }): number {
   const eig = eigHermitian({ matrix: input.matrix })
+
   let count = 0
+
   for (let i = 0; i < eig.values.length; i++) {
     if (Math.abs(eig.values[i] ?? 0) < input.tolerance) {
       count += 1

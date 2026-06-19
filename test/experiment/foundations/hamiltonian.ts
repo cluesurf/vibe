@@ -25,6 +25,7 @@ function study(): {
     extent: cells,
     signature: 'riemannian',
   })
+
   const alphabet: Alphabet = { form: 'boolean' }
   const space = makeStateSpace({ cells, alphabet })
 
@@ -33,6 +34,7 @@ function study(): {
     name: 'xor-parity',
     local: ({ self, neighborhood }) => {
       let parity = 0
+
       for (const t of neighborhood) {
         parity ^= t & 1
       }

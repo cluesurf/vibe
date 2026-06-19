@@ -29,8 +29,10 @@ import { componentCount } from '@/code/check/structure'
 // the largest slot-wise difference between two wills, zero iff they are identical.
 function maxDifference(a: Will, b: Will): number {
   let max = 0
+
   for (let i = 0; i < a.data.length; i++) {
     const d = Math.abs(a.data[i]! - b.data[i]!)
+
     if (d > max) {
       max = d
     }
@@ -42,6 +44,7 @@ function maxDifference(a: Will, b: Will): number {
 // the overlay of two wills, slot-wise sum (valid while they never co-occupy a slot).
 function overlay(a: Will, b: Will): Will {
   const data = new Int8Array(a.data.length)
+
   for (let i = 0; i < data.length; i++) {
     data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
   }
@@ -81,6 +84,7 @@ export default experiment({
         mesh.opposite(d),
       ),
     })
+
     const half = side / 2
     const dir = 0 // the root [1, 1, 0, 0], streaming adds (1,1,0,0) per beat
     const opp = mesh.opposite(dir)
@@ -92,6 +96,7 @@ export default experiment({
       const a = loneParticle(mesh, cellA, dir)
       const b = loneParticle(mesh, cellB, dir)
       const joint = makeWill(mesh)
+
       for (let i = 0; i < joint.data.length; i++) {
         joint.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
       }
@@ -116,6 +121,7 @@ export default experiment({
     const a = loneParticle(mesh, cellA, dir)
     const b = loneParticle(mesh, cellB, opp)
     const collide = makeWill(mesh)
+
     for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
     }
@@ -125,8 +131,10 @@ export default experiment({
       run({ mesh, data: a.data.slice() }, rule, beats),
       run({ mesh, data: b.data.slice() }, rule, beats),
     )
+
     const contactBreaksSuperposition =
       maxDifference(collideFinal, collideOverlay) > 0
+
     const contactScattersNotBinds = componentCount(collideFinal) >= 2
 
     // the honest negative, no force at a distance (exact superposition at every separation), only contact, and

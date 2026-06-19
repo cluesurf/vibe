@@ -37,6 +37,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
     const cx = Math.floor(L * 0.3)
     const cy = Math.floor(L / 2)
     const r = 12
+
     for (let y = 0; y < L; y++) {
       for (let x = 0; x < L; x++) {
         if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) {
@@ -48,6 +49,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
     const centroidX = (): number => {
       let sx = 0
       let c = 0
+
       for (let yy = 0; yy < L; yy++) {
         for (let xx = 0; xx < L; xx++) {
           if (tone[yy * L + xx] !== 0) {
@@ -64,6 +66,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
       let sx = 0
       let sxx = 0
       let c = 0
+
       for (let yy = 0; yy < L; yy++) {
         for (let xx = 0; xx < L; xx++) {
           if (tone[yy * L + xx] !== 0) {
@@ -81,6 +84,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
 
     const c0 = centroidX()
     const sp0 = spreadOf()
+
     for (let t = 0; t < beats; t++) {
       flatWilledDriftSweep({ tone, length: L, moved, rng, bias })
     }

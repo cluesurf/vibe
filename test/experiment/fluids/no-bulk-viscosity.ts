@@ -33,6 +33,7 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
@@ -49,6 +50,7 @@ export default experiment({
         side,
         directions,
       }
+
       const will = shearSetup({ mesh, ...shear })
       const series = shearAmplitudeSeries({
         will,
@@ -74,6 +76,7 @@ export default experiment({
         side,
         directions,
       }
+
       const will = shearSetup({ mesh, ...shear })
       const series = shearAmplitudeSeries({
         will,

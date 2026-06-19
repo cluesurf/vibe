@@ -26,12 +26,14 @@ export type ProjectionModel =
 // lift a Poincare-ball point to the hyperboloid (the master model), x[0] timelike, x[1..] spacelike
 export function liftToHyperboloid(ball: Vec): Vec {
   let r2 = 0
+
   for (const c of ball) {
     r2 += c * c
   }
 
   const denom = 1 - r2 || 1e-12
   const x: Vec = [(1 + r2) / denom]
+
   for (const c of ball) {
     x.push((2 * c) / denom)
   }
@@ -44,6 +46,7 @@ export function liftToHyperboloid(ball: Vec): Vec {
 // structure of the disk) and fall back to poincare in higher dimensions.
 export function applyModel(ball: Vec, model: ProjectionModel): Vec {
   let r2 = 0
+
   for (const c of ball) {
     r2 += c * c
   }
@@ -51,6 +54,7 @@ export function applyModel(ball: Vec, model: ProjectionModel): Vec {
   switch (model) {
     case 'poincare':
       return ball.slice()
+
     case 'klein': {
       const s = 2 / (1 + r2) // x_i / x_0 on the hyperboloid = gnomonic projection from the origin
 
@@ -67,9 +71,11 @@ export function applyModel(ball: Vec, model: ProjectionModel): Vec {
       return ball.length === 2 ? halfPlane(ball) : ball.slice()
     case 'band':
       return ball.length === 2 ? band(ball) : ball.slice()
+
     case 'azimuthal-equidistant': {
       // plot at radius = the true hyperbolic distance d = 2 atanh(r), direction preserved
       const r = Math.sqrt(r2)
+
       if (r < 1e-9) {
         return ball.slice()
       }
@@ -152,6 +158,7 @@ function ballHyperbolicDistance(a: Vec, b: Vec): number {
     ay = a[1] ?? 0,
     bx = b[0] ?? 0,
     by = b[1] ?? 0
+
   const num = 2 * ((ax - bx) ** 2 + (ay - by) ** 2)
   const den =
     (1 - (ax * ax + ay * ay)) * (1 - (bx * bx + by * by)) || 1e-12

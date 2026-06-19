@@ -46,14 +46,17 @@ export default experiment({
     const peak = bindingCurvePeak({})
     const peakInIronRegion =
       peak.massNumber >= 50 && peak.massNumber <= 65
+
     const peakHeightRight =
       peak.bindingPerNucleon > 8.5 && peak.bindingPerNucleon < 9.0
 
     // the medium and heavy nuclei, near the observed values
     const ironPerNucleon =
       nuclearBindingEnergy({ massNumber: 56, protonNumber: 26 }) / 56
+
     const uraniumPerNucleon =
       nuclearBindingEnergy({ massNumber: 238, protonNumber: 92 }) / 238
+
     const ironMatches = Math.abs(ironPerNucleon - 8.79) < 0.2
     const uraniumMatches = Math.abs(uraniumPerNucleon - 7.57) < 0.2
 
@@ -61,9 +64,11 @@ export default experiment({
     const lightSide = bindingPerNucleonAtMass({
       massNumber: 30,
     }).bindingPerNucleon
+
     const heavySide = bindingPerNucleonAtMass({
       massNumber: 200,
     }).bindingPerNucleon
+
     const risesToThenFallsFromIron =
       lightSide < peak.bindingPerNucleon &&
       heavySide < peak.bindingPerNucleon

@@ -31,6 +31,7 @@ export default experiment({
     const relations = [5, 3, 4]
     const onceMinusOne: number[] = []
     const twicePlusOne: number[] = []
+
     for (const m of relations) {
       const rotor = coxeterEdgeRotor(m)
       const once = cmPower(rotor, m) // around the edge once, a 2pi rotation
@@ -42,6 +43,7 @@ export default experiment({
     const allLoopsSpinorMinusOne = onceMinusOne.every(
       value => value === 1,
     )
+
     const allLoopsReturnAtTwice = twicePlusOne.every(
       value => value === 1,
     )

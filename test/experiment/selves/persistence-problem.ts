@@ -48,10 +48,13 @@ export default experiment({
       winding: 1,
       lumpAmplitude: 1.2,
     })
+
     const structA0 = gradientStructure(fieldA)
+
     let windingAlwaysOneA = true
     let risesA = 0
     let prevA = structA0
+
     for (let t = 0; t < beats; t++) {
       if (phaseWinding(fieldA) !== 1) {
         windingAlwaysOneA = false
@@ -59,6 +62,7 @@ export default experiment({
 
       fieldA = phaseRelaxStep(fieldA, 0.2)
       const s = gradientStructure(fieldA)
+
       if (s > prevA + epsilon) {
         risesA++
       } // a rise means it did not monotonically heal
@@ -75,7 +79,9 @@ export default experiment({
       winding: 0,
       lumpAmplitude: 1.2,
     })
+
     let windingZeroB = true
+
     for (let t = 0; t < beats; t++) {
       if (phaseWinding(fieldB) !== 0) {
         windingZeroB = false
@@ -92,11 +98,14 @@ export default experiment({
       winding: 1,
       lumpAmplitude: 1.2,
     })
+
     const velocity = new Array<number>(size).fill(0)
     const structC0 = gradientStructure(fieldC)
+
     let windingAlwaysOneC = true
     let risesC = 0
     let prevC = structC0
+
     for (let t = 0; t < beats; t++) {
       if (phaseWinding(fieldC) !== 1) {
         windingAlwaysOneC = false
@@ -104,6 +113,7 @@ export default experiment({
 
       phaseWaveStep(fieldC, velocity, 0.2)
       const s = gradientStructure(fieldC)
+
       if (s > prevC + epsilon) {
         risesC++
       }

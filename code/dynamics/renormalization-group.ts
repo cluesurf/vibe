@@ -64,6 +64,7 @@ export function qcdRunningMassFactor(input: {
 }): number {
   const { couplingAtReference, beta3, referenceScale, highScale } =
     input
+
   const gamma0 = input.anomalousDimension ?? 8
   const couplingHigh = oneLoopStrongCoupling({
     couplingAtReference,
@@ -71,6 +72,7 @@ export function qcdRunningMassFactor(input: {
     scale: highScale,
     referenceScale,
   })
+
   const exponent = gamma0 / (2 * Math.abs(beta3))
 
   return (couplingAtReference / couplingHigh) ** exponent
@@ -120,6 +122,7 @@ export function gutScaleAndCoupling(input: {
     betaFirst: beta[0],
     betaSecond: beta[1],
   })
+
   const unifiedInverseCoupling = oneLoopInverseCoupling({
     inverseAtZero: inverseOne,
     beta: beta[0],
@@ -145,6 +148,7 @@ export function protonLifetimeYears(input: {
   const alphaGut = 1 / input.unifiedInverseCoupling
   const lifetimeInverseGeV =
     input.gutScaleGeV ** 4 / (alphaGut ** 2 * mProton ** 5)
+
   const hbarGeVSeconds = 6.582119e-25 // GeV * s
   const secondsPerYear = 3.15576e7
 

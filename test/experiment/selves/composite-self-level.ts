@@ -49,20 +49,24 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const half = side / 2
     const center =
       half +
       half * side +
       half * side * side +
       half * side * side * side
+
     const dist = shellDistances(mesh, center)
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     const packet = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! >= 0 && dist[c]! <= 2) {
           const base = c * degree
+
           for (let d = 0; d < degree; d++) {
             will.data[base + d] = 1
           }
@@ -79,7 +83,9 @@ export default experiment({
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       const series: number[] = []
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
         const swap = current
@@ -87,8 +93,10 @@ export default experiment({
         scratch = swap
         let weight = 0
         let weighted = 0
+
         for (let c = 0; c < mesh.cellCount; c++) {
           const q = Math.abs(cellTone(current, c))
+
           if (q !== 0) {
             weight += q
             weighted += q * dist[c]!
@@ -110,6 +118,7 @@ export default experiment({
       macroCount,
       rng: makeRng({ seed: 4242 }),
     })
+
     const dispersing = emergenceGain({
       series: centroidSeries(passThrough),
       fine,

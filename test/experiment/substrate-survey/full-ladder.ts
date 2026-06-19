@@ -33,6 +33,7 @@ export function fullLadder(input: {
 } {
   let g: Graph
   let name: string
+
   if (input.base === 'modular') {
     g = modularGraph(1800)
     name = 'modular group PSL(2,Z)'
@@ -46,6 +47,7 @@ export function fullLadder(input: {
     samples: 3000,
     rng: makeRng({ seed: input.seed }),
   })
+
   const model = runModel(g, input.seed + 1)
 
   return {

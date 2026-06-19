@@ -44,10 +44,12 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
   // the cell stabilizer H = <R[0..cellMirrors-1]>, a finite group, by BFS over its matrices
   const stab: Mat[] = [identity(dim)]
   const stabSeen = new Set<string>([pointKey(stab[0]!.flat())])
+
   for (let head = 0; head < stab.length; head++) {
     for (let i = 0; i < cellMirrors; i++) {
       const g = matMul(reflections[i]!, stab[head]!)
       const k = pointKey(g.flat())
+
       if (!stabSeen.has(k)) {
         stabSeen.add(k)
         stab.push(g)
@@ -63,9 +65,11 @@ export function coxeterCellFrame(symbol: number[]): CoxeterCellFrame {
   const outerNormal = normals[normals.length - 1]!
   const faceNormals: Vec[] = []
   const faceSeen = new Set<string>()
+
   for (const h of stab) {
     const fn = matVec(h, outerNormal)
     const k = pointKey(fn)
+
     if (!faceSeen.has(k)) {
       faceSeen.add(k)
       faceNormals.push(fn)

@@ -21,12 +21,14 @@ export default experiment({
     const deadAtZero: number[] = []
     const aliveAtTiny: number[] = []
     const sizes: number[] = []
+
     for (const maxChambers of caps) {
       const mesh = buildCoxeterMesh({
         symbol: [5, 3, 4],
         depth: 24,
         maxChambers,
       })
+
       const n = mesh.cellCount
       sizes.push(n)
       const z = chargeTrajectory({
@@ -36,6 +38,7 @@ export default experiment({
         arrow: 0,
         seed: 9,
       })
+
       const t = chargeTrajectory({
         neighbors: mesh.neighbors,
         initial: new Int8Array(n),
@@ -43,6 +46,7 @@ export default experiment({
         arrow: 0.005,
         seed: 9,
       })
+
       deadAtZero.push(z.trajectory[z.trajectory.length - 1]!)
       aliveAtTiny.push(t.trajectory[t.trajectory.length - 1]! / n)
     }

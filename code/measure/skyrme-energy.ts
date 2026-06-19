@@ -34,6 +34,7 @@ export function hedgehogTexture3d(input: {
       Array.from({ length: M }, () => [0, 0, 1] as Vector3),
     ),
   )
+
   for (let x = 0; x < M; x++) {
     for (let y = 0; y < M; y++) {
       for (let z = 0; z < M; z++) {
@@ -41,9 +42,11 @@ export function hedgehogTexture3d(input: {
           dy = y - c,
           dz = z - c,
           rho = Math.hypot(dx, dy, dz)
+
         const prof = Math.PI * Math.max(0, 1 - rho / R)
         const rhat: Vector3 =
           rho > 1e-6 ? [dx / rho, dy / rho, dz / rho] : [0, 0, 1]
+
         field[x]![y]![z] = normalize3([
           Math.sin(prof) * rhat[0],
           Math.sin(prof) * rhat[1],
@@ -82,21 +85,26 @@ export function placeSkyrmion2d(input: {
     radius: R,
     charge: ch,
   } = input
+
   const N = field.length
+
   for (let x = 0; x < N; x++) {
     for (let y = 0; y < N; y++) {
       const r = Math.hypot(x - cx, y - cy)
+
       if (r > 2.2 * R) {
         continue
       }
 
       const phi = Math.atan2(y - cy, x - cx) * ch,
         fr = Math.PI * Math.max(0, 1 - r / R)
+
       const nv = normalize3([
         Math.sin(fr) * Math.cos(phi),
         Math.sin(fr) * Math.sin(phi),
         Math.cos(fr),
       ])
+
       if (1 - field[x]![y]![2] < 1 - nv[2]) {
         field[x]![y] = nv
       }
@@ -112,13 +120,16 @@ export function directionFieldEnergy2d(field: Vector3[][]): {
 } {
   const nx = field.length
   const ny = field[0]?.length ?? 0
+
   let exchange = 0
   let skyrme = 0
+
   for (let x = 0; x < nx - 1; x++) {
     for (let y = 0; y < ny - 1; y++) {
       const n = field[x]![y]!,
         right = field[x + 1]![y]!,
         up = field[x]![y + 1]!
+
       exchange += 1 - dot3(n, right) + (1 - dot3(n, up))
       const q = sphericalTriangleArea(n, right, up)
       skyrme += q * q
@@ -143,13 +154,16 @@ export function directionFieldDerrickEnergy2d(
 export function skyrmionCharge2d(field: Vector3[][]): number {
   const nx = field.length
   const ny = field[0]?.length ?? 0
+
   let q = 0
+
   for (let x = 0; x < nx - 1; x++) {
     for (let y = 0; y < ny - 1; y++) {
       const a = field[x]![y]!,
         b = field[x + 1]![y]!,
         c = field[x + 1]![y + 1]!,
         d = field[x]![y + 1]!
+
       q +=
         sphericalTriangleArea(a, b, c) + sphericalTriangleArea(a, c, d)
     }
@@ -168,8 +182,10 @@ export function directionFieldEnergy3d(field: Vector3[][][]): {
   const nx = field.length
   const ny = field[0]?.length ?? 0
   const nz = field[0]?.[0]?.length ?? 0
+
   let exchange = 0
   let skyrme = 0
+
   for (let x = 0; x < nx - 1; x++) {
     for (let y = 0; y < ny - 1; y++) {
       for (let z = 0; z < nz - 1; z++) {
@@ -177,11 +193,13 @@ export function directionFieldEnergy3d(field: Vector3[][][]): {
           rx = field[x + 1]![y]![z]!,
           ry = field[x]![y + 1]![z]!,
           rz = field[x]![y]![z + 1]!
+
         exchange +=
           1 - dot3(n, rx) + (1 - dot3(n, ry)) + (1 - dot3(n, rz))
         const qxy = sphericalTriangleArea(n, rx, ry),
           qyz = sphericalTriangleArea(n, ry, rz),
           qzx = sphericalTriangleArea(n, rz, rx)
+
         skyrme += qxy * qxy + qyz * qyz + qzx * qzx
       }
     }

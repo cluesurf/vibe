@@ -20,6 +20,7 @@ export function directionalFrontDistances(input: {
   const { coords, directions, center } = input
   const dim = coords[0]?.length ?? 0
   const frontDist = new Array<number>(directions.length).fill(0)
+
   for (let i = 0; i < coords.length; i++) {
     if (i === center) {
       continue
@@ -31,6 +32,7 @@ export function directionalFrontDistances(input: {
 
     const c = coords[i]!
     const n = norm(c)
+
     if (n < 1e-9) {
       continue
     }
@@ -38,8 +40,10 @@ export function directionalFrontDistances(input: {
     // nearest probe direction by angle
     let best = 0
     let bestDot = -Infinity
+
     for (let m = 0; m < directions.length; m++) {
       let dot = 0
+
       for (let k = 0; k < dim; k++) {
         dot += (c[k]! / n) * directions[m]![k]!
       }
@@ -51,6 +55,7 @@ export function directionalFrontDistances(input: {
     }
 
     const d = poincareDistance(coords[center]!, c)
+
     if (d > frontDist[best]!) {
       frontDist[best] = d
     }
@@ -72,8 +77,10 @@ export function differenceRmsWidthRing(input: {
   center: number
 }): number {
   const { a, b, length: L, center } = input
+
   let weight = 0
   let sumSquared = 0
+
   for (let x = 0; x < L; x++) {
     if (a[x] !== b[x]) {
       const d = Math.min(Math.abs(x - center), L - Math.abs(x - center))
@@ -91,12 +98,14 @@ export function rangeAnisotropy(speeds: number[]): {
 } {
   const meanSpeed =
     speeds.reduce((s, x) => s + x, 0) / Math.max(1, speeds.length)
+
   if (speeds.length < 2) {
     return { meanSpeed, anisotropy: 1 }
   }
 
   let mn = Infinity
   let mx = -Infinity
+
   for (const v of speeds) {
     if (v < mn) {
       mn = v

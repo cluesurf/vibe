@@ -38,10 +38,14 @@ export default experiment({
       states: number,
     ): { conserved: boolean; perturbRobust: boolean } => {
       let ring: ClockRing = makeTwist({ size, states, turns: 1 })
+
       const w0 = clockWinding(ring.curr, states)
+
       let conserved = true
+
       for (let t = 0; t < steps; t++) {
         ring = stepClockRing(ring)
+
         if (clockWinding(ring.curr, states) !== w0) {
           conserved = false
         }
@@ -52,6 +56,7 @@ export default experiment({
       pert.curr[Math.floor(size / 2)] =
         (pert.curr[Math.floor(size / 2)]! + 1) % states
       const wp0 = clockWinding(pert.curr, states)
+
       for (let t = 0; t < steps; t++) {
         pert = stepClockRing(pert)
       }
@@ -70,6 +75,7 @@ export default experiment({
     const ternaryUnprotected = !(
       ternary.conserved && ternary.perturbRobust
     )
+
     const coin24Protected = coin24.conserved && coin24.perturbRobust
     const ok = ternaryUnprotected && coin24Protected
 

@@ -40,6 +40,7 @@ const compact = (
   buildable: e.schlafli.length > 0,
   ...e,
 })
+
 const para = (
   e: Omit<
     Tessellation,
@@ -51,6 +52,7 @@ const para = (
   buildable: e.schlafli.length > 0,
   ...e,
 })
+
 const noncompact = (
   e: Omit<
     Tessellation,

@@ -16,6 +16,7 @@ export function leapfrogWaveStep(
 ): Float64Array {
   const L = u.length
   const next = new Float64Array(L)
+
   for (let i = 0; i < L; i++) {
     const left = u[(i - 1 + L) % L]!
     const right = u[(i + 1) % L]!
@@ -29,8 +30,10 @@ export function leapfrogWaveStep(
 export function blockAverage(u: Float64Array, b: number): Float64Array {
   const M = Math.floor(u.length / b)
   const out = new Float64Array(M)
+
   for (let I = 0; I < M; I++) {
     let s = 0
+
     for (let j = 0; j < b; j++) {
       s += u[I * b + j]!
     }
@@ -50,8 +53,10 @@ export function evolveLeapfrogWave(input: {
   steps: number
 }): Float64Array {
   const { r2, steps } = input
+
   let u = input.u.slice()
   let uPrev = input.uPrev.slice()
+
   for (let t = 0; t < steps; t++) {
     const next = leapfrogWaveStep(u, uPrev, r2)
     uPrev = u
@@ -80,6 +85,7 @@ export function leapfrogWaveCommutingError(input: {
     r2,
     steps: b * K,
   })
+
   const A = blockAverage(fine, b)
   // path B, coarse-grain then evolve the coarse wave
   const B = evolveLeapfrogWave({
@@ -105,8 +111,10 @@ export function leapfrogWaveLevelSpeed(input: {
   threshold: number
 }): number {
   const { u0, uPrev0, r2, blockSize: b, steps, threshold } = input
+
   const frontOf = (arr: Float64Array): number => {
     let f = 0
+
     for (let i = 0; i < arr.length; i++) {
       if (Math.abs(arr[i]!) > threshold) {
         f = i
@@ -124,6 +132,7 @@ export function leapfrogWaveLevelSpeed(input: {
     r2,
     steps,
   })
+
   const f1 = frontOf(end)
 
   return (f1 - f0) / steps

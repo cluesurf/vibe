@@ -24,9 +24,11 @@ export function wavefrontProfile(input: {
 
   // Graph Laplacian L = D - A as a dense symmetric matrix.
   const laplacian = makeDense({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     const row = mesh.neighbors[i] ?? []
     laplacian.data[i * n + i] = row.length
+
     for (const j of row) {
       laplacian.data[i * n + j] = -1
     }
@@ -50,17 +52,21 @@ export function wavefrontProfile(input: {
   const cy = mesh.coords[center * 2 + 1] ?? 0
   const binSum = new Float64Array(input.bins)
   const binCount = new Int32Array(input.bins)
+
   for (let j = 0; j < n; j++) {
     const dx = (mesh.coords[j * 2] ?? 0) - cx
     const dy = (mesh.coords[j * 2 + 1] ?? 0) - cy
     const dist = Math.hypot(dx, dy)
+
     if (dist < input.rInner || dist > input.rOuter) {
       continue
     }
 
     const re = evolved.re[j] ?? 0
     const im = evolved.im[j] ?? 0
+
     let angle = Math.atan2(dy, dx)
+
     if (angle < 0) {
       angle += 2 * Math.PI
     }
@@ -69,11 +75,13 @@ export function wavefrontProfile(input: {
       input.bins - 1,
       Math.floor((angle / (2 * Math.PI)) * input.bins),
     )
+
     binSum[bin] = (binSum[bin] ?? 0) + (re * re + im * im)
     binCount[bin] = (binCount[bin] ?? 0) + 1
   }
 
   const profile = new Float64Array(input.bins)
+
   for (let b = 0; b < input.bins; b++) {
     profile[b] =
       (binCount[b] ?? 0) > 0 ? (binSum[b] ?? 0) / (binCount[b] ?? 1) : 0

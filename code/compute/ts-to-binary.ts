@@ -24,7 +24,9 @@ export function compileToBinary(source: string): CompiledBinary {
     ts.ScriptTarget.Latest,
     true,
   )
+
   const fn = file.statements.find(ts.isFunctionDeclaration)
+
   if (!fn || !fn.body) {
     throw new Error(
       'expected a single function declaration with a body',
@@ -32,6 +34,7 @@ export function compileToBinary(source: string): CompiledBinary {
   }
 
   const registers = new Map<string, number>()
+
   const reg = (name: string): number => {
     if (!registers.has(name)) {
       registers.set(name, registers.size)
@@ -43,6 +46,7 @@ export function compileToBinary(source: string): CompiledBinary {
   const parameters = fn.parameters.map(
     p => (p.name as ts.Identifier).text,
   )
+
   for (const p of parameters) {
     reg(p)
   }
@@ -55,10 +59,13 @@ export function compileToBinary(source: string): CompiledBinary {
     code.push(ins),
     code.length - 1
   )
+
   const here = (): number => code.length
+
   const seq = (i: number): void => {
     // point this instruction at the next one in sequence
     const ins = code[i]!
+
     if ('next' in ins) {
       ;(ins as { next: number }).next = i + 1
     }
@@ -66,10 +73,13 @@ export function compileToBinary(source: string): CompiledBinary {
 
   const setConst = (r: number, value: number): void =>
     seq(emit({ op: 'set', reg: r, value, next: 0 }))
+
   const copy = (dst: number, src: number): void =>
     seq(emit({ op: 'copy', dst, src, next: 0 }))
+
   const add = (dst: number, src: number): void =>
     seq(emit({ op: 'add', dst, src, next: 0 }))
+
   const sub1 = (r: number): void =>
     seq(emit({ op: 'sub1', reg: r, next: 0 }))
 
@@ -101,6 +111,7 @@ export function compileToBinary(source: string): CompiledBinary {
 
     if (ts.isWhileStatement(stmt)) {
       const cond = stmt.expression
+
       if (
         !ts.isBinaryExpression(cond) ||
         cond.operatorToken.kind !==
@@ -112,6 +123,7 @@ export function compileToBinary(source: string): CompiledBinary {
       const g = reg((cond.left as ts.Identifier).text)
       const loop = here()
       const jz = emit({ op: 'jz', reg: g, zero: 0, next: 0 })
+
       ;(code[jz] as { next: number }).next = jz + 1 // body
       compileBlock(stmt.statement as ts.Block)
       emit({ op: 'jz', reg: jump(), zero: loop, next: loop }) // unconditional back-jump (both branches -> loop)
@@ -132,6 +144,7 @@ export function compileToBinary(source: string): CompiledBinary {
   const compileExpression = (expr: ts.Expression): void => {
     if (ts.isPostfixUnaryExpression(expr)) {
       const r = reg((expr.operand as ts.Identifier).text)
+
       if (expr.operator === ts.SyntaxKind.MinusMinusToken) {
         sub1(r)
       } else if (expr.operator === ts.SyntaxKind.PlusPlusToken) {
@@ -147,6 +160,7 @@ export function compileToBinary(source: string): CompiledBinary {
     if (ts.isBinaryExpression(expr)) {
       const dst = reg((expr.left as ts.Identifier).text)
       const op = expr.operatorToken.kind
+
       if (op === ts.SyntaxKind.PlusEqualsToken) {
         add(dst, reg((expr.right as ts.Identifier).text))
 

@@ -15,8 +15,10 @@ export function stream(will: Will): Will {
   const degree = mesh.degree
   const input = will.data
   const output = new Int8Array(input.length)
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, mesh.opposite(direction))
       output[base + direction] = input[source * degree + direction] ?? 0
@@ -32,8 +34,10 @@ export function streamInverse(will: Will): Will {
   const degree = mesh.degree
   const input = will.data
   const output = new Int8Array(input.length)
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, direction)
       output[base + direction] = input[source * degree + direction] ?? 0
@@ -46,6 +50,7 @@ export function streamInverse(will: Will): Will {
 // COLLIDE: apply the local collision at every cell at once, in place.
 export function collide(will: Will, collision: Collision): void {
   const degree = will.mesh.degree
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     collision(will.data, cell * degree, degree)
   }
@@ -68,14 +73,17 @@ const streamTableCache = new WeakMap<Mesh, Int32Array>()
 
 export function streamSourceTable(mesh: Mesh): Int32Array {
   const cached = streamTableCache.get(mesh)
+
   if (cached) {
     return cached
   }
 
   const degree = mesh.degree
   const table = new Int32Array(mesh.cellCount * degree)
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       const source = mesh.neighbour(cell, mesh.opposite(direction))
       table[base + direction] = source * degree + direction
@@ -102,6 +110,7 @@ export function beatInto(input: {
   collide(src, collision)
   const sd = src.data
   const dd = dst.data
+
   for (let i = 0; i < table.length; i++) {
     dd[i] = sd[table[i]!] ?? 0
   }
@@ -128,11 +137,13 @@ export function run(
   }
 
   const table = streamSourceTable(will.mesh)
+
   let a: Will = { mesh: will.mesh, data: Int8Array.from(will.data) }
   let b: Will = {
     mesh: will.mesh,
     data: new Int8Array(will.data.length),
   }
+
   for (let step = 0; step < beats; step++) {
     beatInto({ src: a, dst: b, table, collision })
     const swap = a

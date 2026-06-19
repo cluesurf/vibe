@@ -20,8 +20,11 @@ export function horosphere3434(): {
     half: 0.5,
     margin: 0.6,
   })
+
   const n = slab.cellCount
+
   let sum = 0
+
   for (let i = 0; i < n; i++) {
     sum += slab.neighbors[i]!.length
   }
@@ -35,6 +38,7 @@ export function horosphere3434(): {
     t1: 14,
     t2: 18,
   })
+
   const meanDegree = Math.round((sum / n) * 10) / 10
 
   return { cells: n, meanDegree, specDim16 }

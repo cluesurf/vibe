@@ -31,7 +31,9 @@ export function modularBase(input: { seed: number }): {
   goldenError: number
 } {
   const g = modularGraph(2500)
+
   let deg = 0
+
   for (let i = 0; i < g.size; i++) {
     deg += (g.neighbors[i] ?? new Uint32Array(0)).length
   }
@@ -50,9 +52,12 @@ export function modularBase(input: { seed: number }): {
     { cf: [1, 2], num: 3, den: 2 }, // 3/2 = [1;2]
     { cf: [2, 3], num: 7, den: 3 }, // 7/3 = [2;3]
   ]
+
   let addressingExact = true
+
   for (const c of cases) {
     const r = rationalFromContinuedFraction(c.cf)
+
     if (r.num !== c.num || r.den !== c.den) {
       addressingExact = false
     }

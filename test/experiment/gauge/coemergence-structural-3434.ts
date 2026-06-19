@@ -32,11 +32,14 @@ export function coemergenceStructural(): {
     v8.length === 8 &&
     s8.length === 8 &&
     c8.length === 8
+
   const setOf = (S: number[][]): Set<string> =>
     new Set(S.map(v => v.map(x => Math.round(x * 1e4)).join(',')))
+
   const V = setOf(v8),
     S = setOf(s8),
     Cc = setOf(c8)
+
   const inWhich = (v: number[]): string => {
     const k = v.map(x => Math.round(x * 1e4)).join(',')
 
@@ -46,6 +49,7 @@ export function coemergenceStructural(): {
   // ROTATION subgroup generators: all 24 coordinate permutations + all even sign changes (det +1)
   const perms = (): number[][] => {
     const out: number[][] = []
+
     const go = (a: number[], rest: number[]): void => {
       if (!rest.length) {
         out.push(a)
@@ -68,8 +72,10 @@ export function coemergenceStructural(): {
 
   const evenSignFlips = (): number[][] => {
     const out: number[][] = []
+
     for (let m = 0; m < 16; m++) {
       const f = [0, 1, 2, 3].map(b => (m >> b) & 1)
+
       if (f.reduce((a, b) => a + b, 0) % 2 === 0) {
         out.push(f.map(x => (x ? -1 : 1)))
       }
@@ -80,11 +86,13 @@ export function coemergenceStructural(): {
 
   const applyPerm = (p: number[], v: number[]): number[] =>
     p.map(pi => v[pi]!)
+
   const applySign = (sgn: number[], v: number[]): number[] =>
     v.map((x, i) => x * sgn[i]!)
 
   // check: every rotation (perm . signflip) maps each sector into itself
   let rotationsPreserveSectors = true
+
   for (const p of perms()) {
     for (const sgn of evenSignFlips()) {
       for (const [sec, set] of [
@@ -94,6 +102,7 @@ export function coemergenceStructural(): {
       ] as const) {
         for (const v of set) {
           const w = applySign(sgn, applyPerm(p, v))
+
           if (inWhich(w) !== sec) {
             rotationsPreserveSectors = false
           }

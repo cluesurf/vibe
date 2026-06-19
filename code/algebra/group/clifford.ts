@@ -25,6 +25,7 @@ export function cmZero(rows: number, columns: number): ComplexMatrix {
 
 export function cmIdentity(size: number): ComplexMatrix {
   const matrix = cmZero(size, size)
+
   for (let index = 0; index < size; index++) {
     matrix[index]![index] = c(1, 0)
   }
@@ -40,9 +41,11 @@ export function cmMultiply(
   const inner = right.length
   const columns = right[0]!.length
   const out = cmZero(rows, columns)
+
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
       let sum = ZERO
+
       for (let index = 0; index < inner; index++) {
         sum = cAdd(
           sum,
@@ -177,6 +180,7 @@ export function diracHamiltonian(input: {
     cmAdd(cmScale(sigma1!, input.px), cmScale(sigma2!, input.py)),
     cmScale(sigma3!, input.pz),
   )
+
   const massBlock = cmScale(identity!, input.mass)
 
   return block(massBlock, sigmaDotP, sigmaDotP, cmScale(massBlock, -1))
@@ -211,6 +215,7 @@ export function diracGamma5(): ComplexMatrix {
 // The largest entry magnitude of a complex matrix, a simple operator norm for the Clifford layer.
 export function cmMaxAbs(matrix: ComplexMatrix): number {
   let worst = 0
+
   for (const row of matrix) {
     for (const z of row) {
       worst = Math.max(worst, Math.hypot(z.re, z.im))
@@ -258,6 +263,7 @@ export function coxeterEdgeRotor(m: number): ComplexMatrix {
 // Clifford-algebra element (the cos(angle/2) part of a rotor).
 export function cmScalarTrace(matrix: ComplexMatrix): number {
   let s = 0
+
   for (let i = 0; i < matrix.length; i++) {
     s += matrix[i]![i]!.re
   }
@@ -271,6 +277,7 @@ export function cmPower(
   exponent: number,
 ): ComplexMatrix {
   let result = cmIdentity(matrix.length)
+
   for (let step = 0; step < exponent; step++) {
     result = cmMultiply(result, matrix)
   }
@@ -282,6 +289,7 @@ export function cmPower(
 // so it is a scalar witness that a commutator (a non-abelian self-interaction) is nonvanishing.
 export function cmFrobeniusNorm(matrix: ComplexMatrix): number {
   let sum = 0
+
   for (const row of matrix) {
     for (const value of row) {
       sum += value.re * value.re + value.im * value.im

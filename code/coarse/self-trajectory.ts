@@ -33,6 +33,7 @@ export function makeRng(seed: number): Rng {
 function positiveCentroidX(tone: Int8Array, L: number): number {
   let sum = 0
   let count = 0
+
   for (let i = 0; i < tone.length; i++) {
     if (tone[i] === 1) {
       sum += i % L
@@ -73,16 +74,19 @@ export function selfTrajectory(input: {
     beats: 60,
     density: 0.1,
   })
+
   const labels: number[] = []
   const centroids: number[] = []
   const snapshots: Int8Array[] = []
   const toBin = (x: number): number =>
     Math.min(bins - 1, Math.max(0, Math.floor((x / L) * bins)))
+
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, 0.22)
     const cx = positiveCentroidX(tone, L)
     centroids.push(cx)
     labels.push(toBin(cx))
+
     if (t % snapshotEvery === 0) {
       snapshots.push(tone.slice())
     }
@@ -92,6 +96,7 @@ export function selfTrajectory(input: {
     cell % L,
     Math.floor(cell / L),
   ]
+
   const units = extractUnits({
     tone,
     graph,
@@ -156,14 +161,18 @@ function runUnitTrajectory(input: {
     beats: 60,
     density: 0.1,
   })
+
   const positions = (cell: number): readonly [number, number] => [
     cell % L,
     Math.floor(cell / L),
   ]
+
   const centroids: number[] = []
+
   let sizeSum = 0
   let sizeCount = 0
   let lastCx = L / 2
+
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, cohesionAt(t))
     const units = extractUnits({
@@ -173,8 +182,10 @@ function runUnitTrajectory(input: {
       sign: 1,
       minSize,
     })
+
     if (units.length > 0) {
       let largest = units[0]!
+
       for (const u of units) {
         if (u.size > largest.size) {
           largest = u

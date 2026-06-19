@@ -46,6 +46,7 @@ export function groupSpeedAnisotropy(input: {
   const { omega, kMag } = input
   const samples = input.samples ?? 24
   const speeds: number[] = []
+
   for (let a = 0; a < samples; a++) {
     const theta = (a / samples) * (Math.PI / 2)
     speeds.push(

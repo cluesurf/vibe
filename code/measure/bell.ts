@@ -33,6 +33,7 @@ function chooseSetting(input: {
   rng: Rng
 }): number {
   const [first, second] = input.options
+
   if (input.rng.next() < input.settingCorrelation) {
     // Bias the setting using lambda. The two wings key on DIFFERENT functions of
     // lambda (sin for A, cos for B), so all four setting pairs remain reachable.
@@ -75,6 +76,7 @@ export function chsh(input: {
     input.angles.a,
     input.angles.aPrime,
   ]
+
   const bOptions: [number, number] = [
     input.angles.b,
     input.angles.bPrime,
@@ -93,6 +95,7 @@ export function chsh(input: {
       side: 'a',
       rng: input.rng,
     })
+
     const angleB = chooseSetting({
       options: bOptions,
       lambda,
@@ -100,12 +103,14 @@ export function chsh(input: {
       side: 'b',
       rng: input.rng,
     })
+
     const product =
       outcomeA({ angle: angleA, lambda }) *
       outcomeB({ angle: angleB, lambda })
 
     const isA = angleA === input.angles.a
     const isB = angleB === input.angles.b
+
     if (isA && isB) {
       sum.ab += product
       count.ab++
@@ -123,6 +128,7 @@ export function chsh(input: {
 
   const average = (s: number, c: number): number =>
     c === 0 ? 0 : s / c
+
   const ab = average(sum.ab, count.ab)
   const abPrime = average(sum.abPrime, count.abPrime)
   const aPrimeB = average(sum.aPrimeB, count.aPrimeB)
@@ -155,6 +161,7 @@ export function chshShared(input: {
   const rng = makeRng({ seed: input.seed })
   const sum = [0, 0, 0, 0] // cells (ai*2+bi)
   const count = [0, 0, 0, 0]
+
   for (let t = 0; t < input.trials; t++) {
     const lambda = rng.next() * Math.PI
     // The setting bit determined by the common cause (the hidden state).
@@ -164,17 +171,21 @@ export function chshShared(input: {
           ? 0
           : 1
         : randomBit(lambda, 1)
+
     const sharedB =
       input.mode === 'aligned'
         ? Math.cos(2 * lambda) >= 0
           ? 0
           : 1
         : randomBit(lambda, 2)
+
     // With probability eta the setting comes from the shared past, else local.
     const ai =
       rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
+
     const bi =
       rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
+
     // The superdeterministic outcomes: A always +1, B set by the lambda region.
     const a = 1
     const b = lambda >= Math.PI / 4 && lambda < Math.PI / 2 ? -1 : 1

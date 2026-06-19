@@ -4,6 +4,7 @@
 // Ring neighbour lists: site x neighbours (x-1, x+1) mod L.
 export function ringNeighbors(length: number): number[][] {
   const neighbors: number[][] = []
+
   for (let x = 0; x < length; x++) {
     neighbors.push([(x - 1 + length) % length, (x + 1) % length])
   }
@@ -18,6 +19,7 @@ export function ringEdges(length: number): {
 } {
   const eu = new Int32Array(length)
   const ev = new Int32Array(length)
+
   for (let i = 0; i < length; i++) {
     eu[i] = i
     ev[i] = (i + 1) % length

@@ -44,11 +44,13 @@ async function gpuResponders(input: {
     comparandU,
     maskU,
   } = input
+
   const storage = (data: Uint32Array, extra = 0): GPUBuffer => {
     const b = device.createBuffer({
       size: data.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | extra,
     })
+
     device.queue.writeBuffer(b, 0, data)
 
     return b
@@ -58,6 +60,7 @@ async function gpuResponders(input: {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(
     params,
     0,
@@ -74,6 +77,7 @@ async function gpuResponders(input: {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   const readback = device.createBuffer({
     size: cellCount * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -110,6 +114,7 @@ async function gpuResponders(input: {
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU). The GPU associative match is written and will run where an adapter is present.',
@@ -122,6 +127,7 @@ async function run(): Promise<void> {
   const module = device.createShaderModule({
     code: ASSOCIATIVE_MATCH_WGSL,
   })
+
   const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: { module, entryPoint: 'match_kernel' },
@@ -132,11 +138,13 @@ async function run(): Promise<void> {
     symbol: [3, 4, 3, 4],
     maxCells: CHECK_CELLS,
   })
+
   const n = g.cellCount
   const mem = makeAssociativeMemory({
     neighbors: g.neighbors,
     wordBits: WORD_BITS,
   })
+
   for (let c = 0; c < n; c++) {
     storeWord(mem, c, ternaryWord(c, WORD_BITS))
   }
@@ -159,7 +167,9 @@ async function run(): Promise<void> {
     comparandU,
     maskU,
   })
+
   const gpuExactCells: number[] = []
+
   for (let c = 0; c < n; c++) {
     if (gpuExact.responders[c] === 1) {
       gpuExactCells.push(c)
@@ -183,7 +193,9 @@ async function run(): Promise<void> {
     comparandU,
     maskU,
   })
+
   const gpuPartialCells: number[] = []
+
   for (let c = 0; c < n; c++) {
     if (gpuPartial.responders[c] === 1) {
       gpuPartialCells.push(c)
@@ -207,11 +219,13 @@ async function run(): Promise<void> {
     symbol: [3, 4, 3, 4],
     maxCells: BENCH_CELLS,
   })
+
   const nb = gb.cellCount
   const memb = makeAssociativeMemory({
     neighbors: gb.neighbors,
     wordBits: WORD_BITS,
   })
+
   for (let c = 0; c < nb; c++) {
     storeWord(memb, c, ternaryWord(c, WORD_BITS))
   }
@@ -220,6 +234,7 @@ async function run(): Promise<void> {
   const comparandUb = Uint32Array.from(
     readWord(memb, Math.floor(nb / 2)),
   )
+
   const bench = await gpuResponders({
     device,
     pipeline,
@@ -230,6 +245,7 @@ async function run(): Promise<void> {
     comparandU: comparandUb,
     maskU,
   })
+
   console.log(
     `benchmark, ${nb.toLocaleString()} cells searched on the GPU in ${bench.ms.toFixed(2)} ms (one parallel dispatch)`,
   )

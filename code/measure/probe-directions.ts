@@ -6,6 +6,7 @@
 // coarse "cubic" direction set. For dimension 4 this is the 8 hyper-cubic axes.
 export function coordinateAxes(dimension: number): number[][] {
   const axes: number[][] = []
+
   for (let index = 0; index < dimension; index++) {
     for (const sign of [1, -1]) {
       const axis = new Array<number>(dimension).fill(0)
@@ -31,9 +32,12 @@ export function probeDirections(input: {
     0.7548776662466927, 0.5698402909980532, 0.4301597090019468,
     0.3247179572447458,
   ]
+
   const directions: number[][] = []
+
   for (let index = 1; index <= count; index++) {
     const raw: number[] = []
+
     for (let axis = 0; axis < dimension; axis++) {
       raw.push(((index * (alpha[axis] ?? 0.5)) % 1) - 0.5)
     }

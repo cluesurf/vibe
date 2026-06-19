@@ -62,6 +62,7 @@ export function coxeterEngine(): {
     { symbol: [4, 3, 5], expected: 6, depth: 18, maxChambers: 20000 },
     { symbol: [3, 5, 3], expected: 20, depth: 18, maxChambers: 20000 },
   ]
+
   const facetCounts = cases.map(c => {
     const mesh = buildCoxeterMesh({
       symbol: c.symbol,
@@ -77,6 +78,7 @@ export function coxeterEngine(): {
       expected: c.expected,
     }
   })
+
   const allFacetsCorrect = facetCounts.every(
     f => f.facetCount === f.expected,
   )
@@ -87,7 +89,9 @@ export function coxeterEngine(): {
     depth: 18,
     maxChambers: 20000,
   })
+
   const perGen = new Map<number, number>()
+
   for (const g of dodeca.generation) {
     perGen.set(g, (perGen.get(g) ?? 0) + 1)
   }
@@ -95,13 +99,16 @@ export function coxeterEngine(): {
   const gens = [...perGen.keys()]
     .filter(g => g >= 0)
     .sort((a, b) => a - b)
+
   let cum = 0
+
   const dodecagridGenerations = gens.map(g => {
     const newCells = perGen.get(g) ?? 0
     cum += newCells
 
     return { generation: g, newCells, total: cum }
   })
+
   // explodes: each early generation grows by more than the last (super-linear)
   const dodecagridExplodes =
     dodecagridGenerations.length >= 4 &&

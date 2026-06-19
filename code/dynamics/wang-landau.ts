@@ -32,6 +32,7 @@ function chainFuture(
   k: number,
 ): ReturnType<typeof makeBitMatrix> {
   const future = makeBitMatrix({ rows: size, cols: size })
+
   for (let a = 0; a < k; a++) {
     for (let b = a + 1; b < k; b++) {
       setBit(future, { row: a, col: b })
@@ -71,6 +72,7 @@ export function wangLandauHeight(input: {
     n,
     minHeight > 1 ? chainFuture(n, minHeight) : undefined,
   )
+
   const logG = new Float64Array(H)
   const hist = new Float64Array(H)
   const seen = new Array<boolean>(H).fill(false)
@@ -83,17 +85,21 @@ export function wangLandauHeight(input: {
   seen[curBin] = true
   let curS = smearedAction(state, input.epsilon)
   let steps = 0
+
   // Action is measured only in the converged tail (after this burn-in), where log g
   // has settled. Coverage of all heights before the tail is required to call it
   // converged.
   const burnIn = Math.floor(
     input.maxSteps * (input.burnInFraction ?? 0.5),
   )
+
   let covered = false
 
   while (steps < input.maxSteps) {
     const i = input.rng.nextInt({ max: n })
+
     let j = input.rng.nextInt({ max: n })
+
     if (i === j) {
       j = (j + 1) % n
     }
@@ -101,21 +107,26 @@ export function wangLandauHeight(input: {
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
     const measuring = steps >= burnIn
+
     if (lo !== hi) {
       const related = isRelated(state, lo, hi)
+
       if (toggleKeepsValid(state, lo, hi, related)) {
         toggle(state, lo, hi)
         const newH = height(state)
+
         if (newH > input.maxHeight || newH < minHeight) {
           toggle(state, lo, hi)
         } else {
           const newBin = binOf(newH)
+
           if (
             Math.log(input.rng.next() + 1e-300) <
             (logG[curBin] ?? 0) - (logG[newBin] ?? 0)
           ) {
             curBin = newBin
             seen[curBin] = true
+
             if (measuring) {
               curS = smearedAction(state, input.epsilon)
             }
@@ -133,12 +144,14 @@ export function wangLandauHeight(input: {
     const lnf = 1 / steps
     logG[curBin] = (logG[curBin] ?? 0) + lnf
     hist[curBin] = (hist[curBin] ?? 0) + 1
+
     if (measuring) {
       actSum[curBin] = (actSum[curBin] ?? 0) + curS
       actN[curBin] = (actN[curBin] ?? 0) + 1
     } else if (!covered) {
       let allSeen = true
       let minHits = Infinity
+
       for (let b = 0; b < H; b++) {
         if (!seen[b]) {
           allSeen = false
@@ -155,6 +168,7 @@ export function wangLandauHeight(input: {
   const converged = covered
 
   let maxLogG = -Infinity
+
   for (let b = 0; b < H; b++) {
     if (seen[b] && (actN[b] ?? 0) > 0) {
       maxLogG = Math.max(maxLogG, logG[b] ?? 0)
@@ -165,6 +179,7 @@ export function wangLandauHeight(input: {
   const outLogG: number[] = []
   const meanAction: number[] = []
   const visited: boolean[] = []
+
   for (let b = 0; b < H; b++) {
     heights.push(b + minHeight)
     const ok = (seen[b] ?? false) && (actN[b] ?? 0) > 0
@@ -202,10 +217,13 @@ export function windowedWangLandau(input: {
 }): WangLandauResult {
   const minHeight = input.minHeight ?? 2
   const windows: { lo: number; hi: number }[] = []
+
   let lo = minHeight
+
   while (lo < input.maxHeight) {
     const hi = Math.min(input.maxHeight, lo + input.windowSize - 1)
     windows.push({ lo, hi })
+
     if (hi >= input.maxHeight) {
       break
     }
@@ -216,10 +234,12 @@ export function windowedWangLandau(input: {
   const total = input.maxHeight - minHeight + 1
   const globalLogG = new Float64Array(total).fill(NaN)
   const globalAct = new Float64Array(total).fill(NaN)
+
   let allConverged = true
 
   for (let wIdx = 0; wIdx < windows.length; wIdx++) {
     const win = windows[wIdx]
+
     if (!win) {
       continue
     }
@@ -234,11 +254,13 @@ export function windowedWangLandau(input: {
       coverThreshold: input.coverThreshold,
       burnInFraction: input.burnInFraction,
     })
+
     allConverged = allConverged && wl.converged
     // Offset to align this window's log g with what is already placed, by averaging
     // the difference over overlap heights that both have measured.
     let offsetSum = 0
     let offsetN = 0
+
     for (let b = 0; b < wl.heights.length; b++) {
       if (!wl.visited[b]) {
         continue
@@ -246,6 +268,7 @@ export function windowedWangLandau(input: {
 
       const h = wl.heights[b] ?? 0
       const gi = h - minHeight
+
       if (wIdx > 0 && !Number.isNaN(globalLogG[gi] ?? NaN)) {
         offsetSum += (globalLogG[gi] ?? 0) - (wl.logG[b] ?? 0)
         offsetN += 1
@@ -253,6 +276,7 @@ export function windowedWangLandau(input: {
     }
 
     const offset = offsetN > 0 ? offsetSum / offsetN : 0
+
     for (let b = 0; b < wl.heights.length; b++) {
       if (!wl.visited[b]) {
         continue
@@ -260,6 +284,7 @@ export function windowedWangLandau(input: {
 
       const h = wl.heights[b] ?? 0
       const gi = h - minHeight
+
       // First window to reach a height defines it (later windows only realign).
       if (Number.isNaN(globalLogG[gi] ?? NaN)) {
         globalLogG[gi] = (wl.logG[b] ?? 0) + offset
@@ -269,6 +294,7 @@ export function windowedWangLandau(input: {
   }
 
   let maxLogG = -Infinity
+
   for (let gi = 0; gi < total; gi++) {
     if (!Number.isNaN(globalLogG[gi] ?? NaN)) {
       maxLogG = Math.max(maxLogG, globalLogG[gi] ?? -Infinity)
@@ -279,6 +305,7 @@ export function windowedWangLandau(input: {
   const outLogG: number[] = []
   const meanAction: number[] = []
   const visited: boolean[] = []
+
   for (let gi = 0; gi < total; gi++) {
     heights.push(gi + minHeight)
     const ok = !Number.isNaN(globalLogG[gi] ?? NaN)
@@ -303,7 +330,9 @@ function logWeight(
   manifold: boolean,
 ): number {
   const sqrtN = Math.sqrt(wl.size)
+
   let max = -Infinity
+
   for (let b = 0; b < wl.logG.length; b++) {
     if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
       continue
@@ -320,6 +349,7 @@ function logWeight(
   }
 
   let sum = 0
+
   for (let b = 0; b < wl.logG.length; b++) {
     if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
       continue
@@ -340,6 +370,7 @@ export function manifoldFractionAt(
 ): number {
   const lm = logWeight(wl, beta, true)
   const ll = logWeight(wl, beta, false)
+
   if (lm === -Infinity) {
     return 0
   }
@@ -362,6 +393,7 @@ export function crossingBeta(
   betaMax: number,
 ): number | null {
   const f = (b: number): number => manifoldFractionAt(wl, b) - 0.5
+
   if (f(0) >= 0) {
     return 0
   }
@@ -372,8 +404,10 @@ export function crossingBeta(
 
   let lo = 0
   let hi = betaMax
+
   for (let it = 0; it < 60; it++) {
     const mid = 0.5 * (lo + hi)
+
     if (f(mid) < 0) {
       lo = mid
     } else {

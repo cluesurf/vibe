@@ -19,6 +19,7 @@ type Rng = { next: () => number }
 // spans give a smooth fitness gradient (crossing more barriers needs progressively more horizon).
 function makeBarriers(B: number, base: number, step: number): number[] {
   const reqs: number[] = []
+
   for (let k = 0; k < B; k++) {
     reqs.push(base + k * step)
   } // the horizon needed to cross barrier k
@@ -30,6 +31,7 @@ function makeBarriers(B: number, base: number, step: number): number[] {
 // the fraction of the barrier sequence crossed (goal-progress)
 function agentReach(reqs: number[], horizon: number): number {
   let crossed = 0
+
   for (const req of reqs) {
     if (horizon >= req) {
       crossed++
@@ -54,23 +56,29 @@ function evolvePopulation(
 } {
   const P = 60
   const G = 60
+
   let pop: number[] = []
+
   for (let i = 0; i < P; i++) {
     pop.push(1 + Math.floor(rng.next() * 4))
   } // random small initial horizons
 
   const meanFitnessByGen: number[] = []
+
   for (let g = 0; g < G; g++) {
     const scored = pop.map(h => ({
       h,
       f: agentReach(reqs, h) - cost * h,
     }))
+
     meanFitnessByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
     const survivors = scored.sort((a, b) => b.f - a.f).slice(0, P / 2)
     const next: number[] = []
+
     for (const s of survivors) {
       for (let k = 0; k < 2; k++) {
         const step = 1 + Math.floor(rng.next() * 3) // mutate by 1, 2, or 3 (enough to climb the barrier gaps)
+
         let h = s.h + (rng.next() < 0.5 ? -step : step)
         h = Math.max(1, Math.min(60, h))
         next.push(h)
@@ -108,11 +116,14 @@ export function evolvingEcology(): {
   const startFitness = hard.meanFitnessByGen[0]!
   const endFitness =
     hard.meanFitnessByGen[hard.meanFitnessByGen.length - 1]!
+
   const fitnessRises = endFitness > startFitness + 0.1
   const adaptsToDifficulty =
     hard.finalMeanHorizon > easy.finalMeanHorizon + 2 // harder task evolves bigger foresight
+
   const bothSolve =
     easy.finalMeanReach > 0.85 && hard.finalMeanReach > 0.85 // most of each population solves
+
   const solved = fitnessRises && adaptsToDifficulty && bothSolve
 
   return {

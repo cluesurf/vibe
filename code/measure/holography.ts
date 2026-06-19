@@ -14,12 +14,15 @@ const bfsGeodesic = (
   const distance = new Int32Array(neighbors.length).fill(-1)
   distance[from] = 0
   let frontier = [from]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const node of frontier) {
       for (const neighbor of neighbors[node]!) {
         if (distance[neighbor] === -1) {
           distance[neighbor] = distance[node]! + 1
+
           if (neighbor === to) {
             return distance[neighbor]!
           }
@@ -43,15 +46,19 @@ const fit = (
   const n = x.length
   const meanX = x.reduce((a, b) => a + b, 0) / n
   const meanY = y.reduce((a, b) => a + b, 0) / n
+
   let cov = 0
   let varX = 0
+
   for (let i = 0; i < n; i++) {
     cov += (x[i]! - meanX) * (y[i]! - meanY)
     varX += (x[i]! - meanX) ** 2
   }
 
   const slope = cov / varX
+
   let residual = 0
+
   for (let i = 0; i < n; i++) {
     residual += (y[i]! - (meanY + slope * (x[i]! - meanX))) ** 2
   }
@@ -68,8 +75,10 @@ const bfsField = (
   const distance = new Int32Array(neighbors.length).fill(-1)
   distance[source] = 0
   let frontier = [source]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const node of frontier) {
       for (const neighbor of neighbors[node]!) {
         if (
@@ -114,8 +123,10 @@ export function bulkShortcutScaling(input: {
   // center = closest to the origin, radial depth, the boundary band = the outer `bandWidth` shells (the cusp)
   let center = 0
   let nearest = Infinity
+
   for (let i = 0; i < n; i++) {
     const radius = norm(coords[i]!)
+
     if (radius < nearest) {
       nearest = radius
       center = i
@@ -123,7 +134,9 @@ export function bulkShortcutScaling(input: {
   }
 
   const depth = bfsField(neighbors, center)
+
   let maxDepth = 0
+
   for (let i = 0; i < n; i++) {
     if (depth[i]! > maxDepth) {
       maxDepth = depth[i]!
@@ -140,9 +153,11 @@ export function bulkShortcutScaling(input: {
 
   // mean through-bulk distance S at each within-boundary distance L
   const byL = new Map<number, number[]>()
+
   for (const cell of band) {
     const l = within[cell]!
     const s = through[cell]!
+
     if (l > 0 && s >= 0) {
       if (!byL.has(l)) {
         byL.set(l, [])
@@ -154,8 +169,10 @@ export function bulkShortcutScaling(input: {
 
   let ls: number[] = []
   let ss: number[] = []
+
   for (const l of [...byL.keys()].sort((a, b) => a - b)) {
     const arr = byL.get(l)!
+
     if (arr.length >= 3) {
       ls.push(l)
       ss.push(arr.reduce((a, b) => a + b, 0) / arr.length)
@@ -172,6 +189,7 @@ export function bulkShortcutScaling(input: {
     ls.map(l => Math.log(l)),
     ss,
   )
+
   const linearFit = fit(ls, ss)
   const slope =
     (ss[ss.length - 1]! - ss[0]!) / (ls[ls.length - 1]! - ls[0]!)
@@ -201,8 +219,10 @@ export function ryuTakayanagiScaling(input: {
   // the center is the cell closest to the origin, the boundary is the outer two shells
   let center = 0
   let nearest = Infinity
+
   for (let i = 0; i < n; i++) {
     const radius = Math.hypot(...coords[i]!)
+
     if (radius < nearest) {
       nearest = radius
       center = i
@@ -213,8 +233,10 @@ export function ryuTakayanagiScaling(input: {
   depth[center] = 0
   let frontier = [center]
   let maxDepth = 0
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const node of frontier) {
       for (const neighbor of neighbors[node]!) {
         if (depth[neighbor] === -1) {
@@ -242,16 +264,20 @@ export function ryuTakayanagiScaling(input: {
           coords[j]![0]! - center2D[0]!,
         ),
     )
+
   const boundaryCount = boundary.length
 
   const arcs = (input.arcs ?? [2, 4, 8, 16, 32]).filter(
     arc => arc < boundaryCount / 2,
   )
+
   // average the geodesic over several start points around the boundary, for robustness
   const geodesics = arcs.map(arc => {
     let sum = 0
     let count = 0
+
     const stride = Math.max(1, Math.floor(boundaryCount / 8))
+
     for (let start = 0; start < boundaryCount; start += stride) {
       sum += bfsGeodesic(
         neighbors,
@@ -268,6 +294,7 @@ export function ryuTakayanagiScaling(input: {
     arcs.map(arc => Math.log(arc)),
     geodesics,
   )
+
   const linearFit = fit(arcs, geodesics)
 
   return {

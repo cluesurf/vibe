@@ -48,6 +48,7 @@ export default experiment({
       ...(shells.get(2) ?? []),
       ...(shells.get(3) ?? []),
     ]
+
     const cannotExtend = !canExtendKissing(dock, candidates, 60)
     const ok =
       dock.length === 24 && kissing && minAngle === 60 && cannotExtend
@@ -86,10 +87,12 @@ experiment({
       powerEnd: 4,
       stepSize: 0.01,
     })
+
     const relaxedMinAngle = cosToDeg(maxPairwiseCosine(relaxed))
     const coordination = coordinationAtMinAngle(relaxed)
     const eightRegular =
       Object.keys(coordination).length === 1 && coordination[8] === 24
+
     const reachedDock = relaxedMinAngle >= 60 && eightRegular
 
     return verdict({
@@ -124,6 +127,7 @@ experiment({
       centers,
       maxRadius: 8,
     })
+
     const degree = bulkDegree(graph)
     const reproducesDock =
       Math.abs(dimension - 4) < 0.3 && degree === 24

@@ -36,9 +36,11 @@ export function associativeParallelCost(input?: {
   const searchStepsSmall = numericSearchSteps(
     3 ** Math.min(wordBits, 19),
   )
+
   const searchStepsLarge = numericSearchSteps(
     3 ** Math.min(wordBits, 19),
   )
+
   const searchConstant = searchStepsSmall === searchStepsLarge
 
   // the communication cost is the coverage radius
@@ -46,18 +48,22 @@ export function associativeParallelCost(input?: {
     symbol: [3, 4, 3, 4],
     maxCells: smallCells,
   })
+
   const gL = buildCellGraph({
     symbol: [3, 4, 3, 4],
     maxCells: largeCells,
   })
+
   const bulkRadiusSmall = coverageRadius({
     neighbors: gS.neighbors,
     seed: 0,
   })
+
   const bulkRadiusLarge = coverageRadius({
     neighbors: gL.neighbors,
     seed: 0,
   })
+
   const bulkRadiusDelta = bulkRadiusLarge - bulkRadiusSmall
 
   const sideS = Math.round(smallCells ** (1 / 3))
@@ -66,10 +72,12 @@ export function associativeParallelCost(input?: {
     neighbors: cubicLattice(sideS, 3).neighbors,
     seed: cubicLatticeCenterBySide({ side: sideS, dim: 3 }),
   })
+
   const cubicRadiusLarge = coverageRadius({
     neighbors: cubicLattice(sideL, 3).neighbors,
     seed: cubicLatticeCenterBySide({ side: sideL, dim: 3 }),
   })
+
   const cubicRadiusDelta = cubicRadiusLarge - cubicRadiusSmall
 
   const solved =

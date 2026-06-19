@@ -30,6 +30,7 @@ function microHash(will: Will): string {
 
 function chargeHash(will: Will): string {
   const parts: number[] = []
+
   for (let c = 0; c < will.mesh.cellCount; c++) {
     parts.push(cellTone(will, c))
   }
@@ -52,21 +53,26 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const collision = pairCollision({ opposite, forward: true })
 
     // a fixed, deterministic, asymmetric structured fill (not random). The asymmetry breaks the lattice
     // symmetry so the reversible orbit is long and visits many states, a robust sample for the statistics.
     let will: Will = makeWill(mesh)
+
     for (let i = 0; i < will.data.length; i++) {
       will.data[i] = (((i * 7 + (i % 5) + 1) % 3) - 1) as -1 | 0 | 1
     }
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+
     let scratch: Will = { mesh, data: new Int8Array(will.data.length) }
+
     const micro: string[] = []
     const coarse: string[] = []
     micro.push(microHash(will))
     coarse.push(chargeHash(will))
+
     for (let t = 0; t < beats; t++) {
       beatInto({ src: will, dst: scratch, table, collision })
       const swap = will
@@ -79,8 +85,10 @@ export default experiment({
     // the micro successor map, and its injectivity (a permutation has one predecessor per state).
     const microNext = new Map<string, string>()
     const predecessors = new Map<string, Set<string>>()
+
     for (let t = 0; t + 1 < micro.length; t++) {
       microNext.set(micro[t]!, micro[t + 1]!)
+
       if (!predecessors.has(micro[t + 1]!)) {
         predecessors.set(micro[t + 1]!, new Set())
       }
@@ -89,6 +97,7 @@ export default experiment({
     }
 
     let microInjectiveViolations = 0
+
     for (const preds of predecessors.values()) {
       if (preds.size > 1) {
         microInjectiveViolations++
@@ -100,6 +109,7 @@ export default experiment({
     // the coarse successor map. Information loss shows as a charge field with more than one distinct
     // successor (the coarse dynamics is no longer deterministic), and as compression (many micro per coarse).
     const coarseNext = new Map<string, Set<string>>()
+
     for (let t = 0; t + 1 < coarse.length; t++) {
       if (!coarseNext.has(coarse[t]!)) {
         coarseNext.set(coarse[t]!, new Set())
@@ -109,6 +119,7 @@ export default experiment({
     }
 
     let coarseNondeterministicStates = 0
+
     for (const nexts of coarseNext.values()) {
       if (nexts.size > 1) {
         coarseNondeterministicStates++
@@ -122,6 +133,7 @@ export default experiment({
     const baseIsPermutation = microInjectiveViolations === 0
     const coarseGrainingLosesInfo =
       compression > 1 && coarseNondeterministicStates > 0
+
     const ok = baseIsPermutation && coarseGrainingLosesInfo
 
     return verdict({

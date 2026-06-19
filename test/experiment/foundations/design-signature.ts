@@ -24,8 +24,10 @@ function isRich(
   ev: Int32Array,
 ): { rich: boolean; density: number; nnCorr: number } {
   const N = tone.length
+
   let nz = 0
   let sum = 0
+
   for (let i = 0; i < N; i++) {
     if (tone[i] !== 0) {
       nz++
@@ -36,7 +38,9 @@ function isRich(
 
   const density = nz / N
   const mean = sum / N
+
   let cc = 0
+
   for (let k = 0; k < eu.length; k++) {
     cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
   }
@@ -78,10 +82,12 @@ export function designSignature(input?: { n?: number }): {
     rich: boolean
     density: number
   }[] = []
+
   for (const arrow of arrows) {
     for (const share of shares) {
       const tone = new Int8Array(N)
       const rng = makeRng({ seed: 7 })
+
       for (let i = 0; i < N; i++) {
         tone[i] = (
           rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
@@ -113,6 +119,7 @@ export function designSignature(input?: { n?: number }): {
   const positiveArrowRich = grid.filter(
     c => c.arrow > 0 && c.rich,
   ).length
+
   const positiveArrowTotal = grid.filter(c => c.arrow > 0).length
   const deadOnlyAtZeroArrow =
     zeroArrowRich === 0 && positiveArrowRich > positiveArrowTotal * 0.6
@@ -125,9 +132,11 @@ export function designSignature(input?: { n?: number }): {
   // self-organization. Here the region is broad, the structure is forced, and the point self-organizes.
   const fineTuningSignature =
     richFraction < 0.15 && !geometryForced && !selfOrganizes
+
   const designerDispensable =
     (richFraction > 0.5 || geometryForced || selfOrganizes) &&
     deadOnlyAtZeroArrow
+
   const solved = !fineTuningSignature && designerDispensable
 
   return {

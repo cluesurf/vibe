@@ -55,6 +55,7 @@ const TOTALISTIC = new Map<string, string>(
 // the weight of a neighbourhood, the sum of the ranks of the neighbour states (the outer-totalistic input)
 export function dodecagridWeight(neighbours: string[]): number {
   let w = 0
+
   for (const n of neighbours) {
     w += RANK[n] ?? 0
   }

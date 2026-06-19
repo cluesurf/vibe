@@ -11,8 +11,10 @@ export function maxIndex(input: {
   active?: ArrayLike<number>
 }): { index: number; value: number } {
   const { field, active } = input
+
   let index = -1
   let value = -Infinity
+
   for (let c = 0; c < field.length; c++) {
     if (active && !active[c]) {
       continue
@@ -33,8 +35,10 @@ export function minIndex(input: {
   active?: ArrayLike<number>
 }): { index: number; value: number } {
   const { field, active } = input
+
   let index = -1
   let value = Infinity
+
   for (let c = 0; c < field.length; c++) {
     if (active && !active[c]) {
       continue
@@ -56,14 +60,17 @@ export function nextHigherIndex(input: {
   active?: ArrayLike<number>
 }): { index: number; value: number } {
   const { field, target, active } = input
+
   let index = -1
   let value = Infinity
+
   for (let c = 0; c < field.length; c++) {
     if (active && !active[c]) {
       continue
     }
 
     const v = field[c]!
+
     if (v > target && v < value) {
       value = v
       index = c
@@ -80,14 +87,17 @@ export function nextLowerIndex(input: {
   active?: ArrayLike<number>
 }): { index: number; value: number } {
   const { field, target, active } = input
+
   let index = -1
   let value = -Infinity
+
   for (let c = 0; c < field.length; c++) {
     if (active && !active[c]) {
       continue
     }
 
     const v = field[c]!
+
     if (v < target && v > value) {
       value = v
       index = c

@@ -19,6 +19,7 @@ async function benchOne(
 ): Promise<{ cells: number; beatsPerSec: number; ok: boolean }> {
   const count = size * size
   const byteLength = count * 4
+
   // WebGPU validation errors are async, so guard proactively against the device's storage-buffer limit
   if (byteLength > Number(device.limits.maxStorageBufferBindingSize)) {
     throw new Error(
@@ -36,6 +37,7 @@ async function benchOne(
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(
     params,
     0,
@@ -50,6 +52,7 @@ async function benchOne(
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [make(), make()]
   // a single central pulse (cheap to seed at huge sizes, no big CPU array upload beyond zeros)
   device.queue.writeBuffer(
@@ -63,6 +66,7 @@ async function benchOne(
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -88,7 +92,9 @@ async function benchOne(
   await device.queue.onSubmittedWorkDone()
 
   const start = performance.now()
+
   let src = 0
+
   for (let b = 0; b < BENCH_BEATS; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -110,6 +116,7 @@ async function benchOne(
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -121,6 +128,7 @@ async function run(): Promise<void> {
   console.log(
     `  ${'grid'.padEnd(12)} ${'cells'.padEnd(14)} ${'beats/sec'.padEnd(12)} cell-updates/sec`,
   )
+
   for (const size of SIZES) {
     try {
       const r = await benchOne(device, size)

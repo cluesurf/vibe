@@ -47,6 +47,7 @@ export default experiment({
       root: 0,
       maxRadius: 6,
     }).shellCounts
+
     const bulkGrowthRatio = midShellGrowthRatio({
       shellCounts: bulkShells,
       from: 2,
@@ -61,6 +62,7 @@ export default experiment({
       root: center,
       maxRadius: 55,
     }).shellCounts
+
     const cuspGrowthRatio = branchingRatio({
       shellCounts: cuspShells,
       from: 40,

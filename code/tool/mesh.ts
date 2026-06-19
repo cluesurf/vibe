@@ -25,12 +25,16 @@ export function shellDistances(mesh: Mesh, source: number): Int32Array {
   const distance = new Int32Array(mesh.cellCount).fill(-1)
   distance[source] = 0
   let frontier = [source]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const cell of frontier) {
       const here = distance[cell]!
+
       for (let direction = 0; direction < mesh.degree; direction++) {
         const neighbour = mesh.neighbour(cell, direction)
+
         if (distance[neighbour] === -1) {
           distance[neighbour] = here + 1
           next.push(neighbour)
@@ -60,6 +64,7 @@ export function squareMesh(input: { side: number }): Mesh {
     neighbour(cell, direction) {
       const x = cell % side
       const y = (cell - x) / side
+
       switch (direction) {
         case 0:
           return at(x + 1, y)
@@ -158,9 +163,12 @@ export function betheMesh(input: {
   const { coordination, depth } = input
   const parent: number[] = [-1]
   const children: number[][] = [[]]
+
   let frontier = [0]
+
   for (let level = 0; level < depth; level++) {
     const nextFrontier: number[] = []
+
     for (const node of frontier) {
       for (let k = 0; k < coordination; k++) {
         const child = parent.length
@@ -252,6 +260,7 @@ export function cubicMesh(input: { side: number }): Mesh {
   const wrap = (value: number): number => modulo(value, side)
   const at = (x: number, y: number, z: number): number =>
     wrap(z) * area + wrap(y) * side + wrap(x)
+
   const opposites = [1, 0, 3, 2, 5, 4]
 
   return {
@@ -262,6 +271,7 @@ export function cubicMesh(input: { side: number }): Mesh {
       const x = cell % side
       const y = Math.floor(cell / side) % side
       const z = Math.floor(cell / area)
+
       switch (direction) {
         case 0:
           return at(x + 1, y, z)

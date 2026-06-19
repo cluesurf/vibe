@@ -18,10 +18,13 @@ export default experiment({
   run() {
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 4000 })
     const cells = a.parent.length
+
     let heapOrdered = true
     let maxDepth = 0
+
     for (let cell = 0; cell < cells; cell++) {
       const parent = a.parent[cell]!
+
       if (parent !== -1 && !(a.dist[parent]! < a.dist[cell]!)) {
         heapOrdered = false
       }

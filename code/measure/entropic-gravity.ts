@@ -25,12 +25,14 @@ export function ballRegion(input: {
   const { side, radius } = input
   const center = (side - 1) / 2
   const region: number[] = []
+
   for (let x = 0; x < side; x++) {
     for (let y = 0; y < side; y++) {
       for (let z = 0; z < side; z++) {
         const dx = x - center
         const dy = y - center
         const dz = z - center
+
         if (dx * dx + dy * dy + dz * dz <= radius * radius) {
           region.push(x + side * y + side * side * z)
         }
@@ -52,6 +54,7 @@ export function screenBitSeries(input: {
   const radii: number[] = []
   const volumes: number[] = []
   const bits: number[] = []
+
   for (const radius of input.radii) {
     const region = ballRegion({ side: input.side, radius })
     radii.push(radius)
@@ -73,8 +76,10 @@ export function logLogExponent(
   const ys = values.map(v => Math.log(v))
   const meanX = xs.reduce((a, b) => a + b, 0) / xs.length
   const meanY = ys.reduce((a, b) => a + b, 0) / ys.length
+
   let numerator = 0
   let denominator = 0
+
   for (let i = 0; i < xs.length; i++) {
     numerator += (xs[i]! - meanX) * (ys[i]! - meanY)
     denominator += (xs[i]! - meanX) ** 2

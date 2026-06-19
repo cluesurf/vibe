@@ -38,6 +38,7 @@ export function projectiveCanonicalKey(
     mod(-M[2]),
     mod(-M[3]),
   ]
+
   const lead = (m: ProjectiveMatrix): number => m.find(x => x !== 0)!
   const chosen = lead(M) <= Math.floor(p / 2) ? M : neg
 
@@ -72,15 +73,20 @@ export function pslCayleyGraph(input: {
   const identity: ProjectiveMatrix = [1, 0, 0, 1]
   const key = (M: ProjectiveMatrix): string =>
     projectiveCanonicalKey(M, p)
+
   const elems = new Map<string, ProjectiveMatrix>([
     [key(identity), identity],
   ])
+
   const queue: ProjectiveMatrix[] = [identity]
+
   while (queue.length) {
     const g = queue.shift()!
+
     for (const gen of generators) {
       const h = projectiveMultiply(gen, g, p)
       const k = key(h)
+
       if (!elems.has(k)) {
         elems.set(k, h)
         queue.push(h)
@@ -93,6 +99,7 @@ export function pslCayleyGraph(input: {
   const matrices = keys.map(k => elems.get(k)!)
   const adjacency = matrices.map(M => {
     const ns = new Set<number>()
+
     for (const gen of generators) {
       ns.add(id.get(key(projectiveMultiply(gen, M, p)))!)
     }

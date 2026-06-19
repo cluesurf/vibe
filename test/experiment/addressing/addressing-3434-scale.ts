@@ -47,6 +47,7 @@ function checkAt(maxCells: number): Report {
 
   // cousins among complete cells (must be 0)
   let cousins = 0
+
   for (let c = 0; c < n; c++) {
     if (!a.complete[c]) {
       continue
@@ -65,16 +66,20 @@ function checkAt(maxCells: number): Report {
   // At this window the map is deterministic and reconstructs every partner from the address alone.
   const window = Math.max(2, a.shellComplete - 1)
   const auto = buildConfluenceAutomaton(a, window)
+
   let recovered = 0
   let totalEdges = 0
+
   for (let c = 0; c < n; c++) {
     if (!a.complete[c]) {
       continue
     }
 
     const predicted = new Set(predictAltParents(a, c, auto))
+
     for (const ap of a.altParents[c]!) {
       totalEdges++
+
       if (predicted.has(ap)) {
         recovered++
       }
@@ -83,19 +88,23 @@ function checkAt(maxCells: number): Report {
 
   // address uniqueness + decode round-trip over enumerated cells
   const seen = new Set<string>()
+
   let addressDup = 0
   let roundTripFail = 0
+
   for (let c = 0; c < n; c++) {
     if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
       continue
     }
 
     const key = a.address[c]!.join('.')
+
     if (seen.has(key)) {
       addressDup++
     }
 
     seen.add(key)
+
     if (decode(a, a.address[c]!) !== c) {
       roundTripFail++
     }
@@ -104,6 +113,7 @@ function checkAt(maxCells: number): Report {
   // neighbour reconstruction on complete cells
   let exact = 0
   let totalComplete = 0
+
   for (let c = 0; c < n; c++) {
     if (!a.complete[c]) {
       continue
@@ -116,8 +126,11 @@ function checkAt(maxCells: number): Report {
       ...a.altParents[c]!,
       ...a.altChildren[c]!,
     ])
+
     const truth = a.graph.neighbors[c]!
+
     let ok = predicted.size === truth.length
+
     if (ok) {
       for (const v of truth) {
         if (!predicted.has(v)) {
@@ -170,6 +183,7 @@ export default experiment({
       r.addressDup === 0 &&
       r.roundTripFail === 0 &&
       r.k2Deterministic
+
     const ok = clean(small) && clean(large) && large.cells > small.cells
 
     return verdict({

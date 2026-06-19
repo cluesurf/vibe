@@ -23,6 +23,7 @@ export function makeConfiguration(input: {
 }): Configuration {
   const slots = slotsPerElement(input.alphabet)
   const values = new Int32Array(input.size * slots)
+
   if (input.rng) {
     for (let i = 0; i < values.length; i++) {
       values[i] = randomValue({

@@ -29,6 +29,7 @@ function study(input: { beta: number; seed: number }): {
 
   // Thermalise.
   let acceptance = 0
+
   for (let sweep = 0; sweep < 200; sweep++) {
     acceptance = metropolisSweep({
       lattice,
@@ -45,7 +46,9 @@ function study(input: { beta: number; seed: number }): {
   let w21 = 0
   let w12 = 0
   let w22 = 0
+
   const measurements = 120
+
   for (let m = 0; m < measurements; m++) {
     for (let s = 0; s < 3; s++) {
       metropolisSweep({ lattice, beta: input.beta, eps, rng })
@@ -90,10 +93,12 @@ export default experiment({
     const rows = betas.map((beta, index) =>
       study({ beta, seed: 50 + index }),
     )
+
     const tensions = rows.map(row => row.stringTension)
     const allPositive = tensions.every(tension => tension > 0)
     const decreasing =
       (tensions[0] ?? 0) > (tensions[tensions.length - 1] ?? 0)
+
     const ok = allPositive && decreasing
 
     return verdict({

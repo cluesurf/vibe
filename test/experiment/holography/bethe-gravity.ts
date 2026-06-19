@@ -18,8 +18,10 @@ import {
 // in code/algebra/linear/bethe-resolvent.
 const muFor = (z: number, E: number): number =>
   betheCavityDecay({ coordination: z, energy: E })
+
 const boundaryExponent = (z: number, E: number): number =>
   betheBoundaryExponent({ coordination: z, energy: E })
+
 const validateTree = (z: number, depth: number): number =>
   finiteTreeResolventRatio({ coordination: z, depth })
 
@@ -34,9 +36,11 @@ export function betheGravity(): {
   // massive bulk field, E > z -> mu smaller -> alpha larger (screened / Yukawa-like)
   const massiveAlpha =
     Math.round(boundaryExponent(24, 30) * 1000) / 1000
+
   // validate the recursion against a directly-solved finite tree
   const measured = validateTree(12, 3),
     predicted = muFor(12, 12)
+
   const validated = Math.abs(measured - predicted) < 0.05
 
   return { alpha24, alpha12, massiveAlpha, validated }

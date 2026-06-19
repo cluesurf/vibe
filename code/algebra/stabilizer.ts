@@ -13,6 +13,7 @@ export interface Pauli {
 export function popcount(value: number): number {
   let v = value
   let n = 0
+
   while (v) {
     n += v & 1
     v >>>= 1
@@ -52,9 +53,11 @@ export function stabilizerGroup(input: {
   const { generators, qubits } = input
   const g = generators.length
   const span = new Set<number>()
+
   for (let bits = 0; bits < 1 << g; bits++) {
     let x = 0
     let z = 0
+
     for (let k = 0; k < g; k++) {
       if (bits & (1 << k)) {
         x ^= generators[k]!.x
@@ -79,6 +82,7 @@ export function logicalOperators(input: {
   const { generators, span, qubits } = input
   const dim = 1 << qubits
   const logicals: Pauli[] = []
+
   for (let x = 0; x < dim; x++) {
     for (let z = 0; z < dim; z++) {
       if (x === 0 && z === 0) {
@@ -86,6 +90,7 @@ export function logicalOperators(input: {
       }
 
       const p: Pauli = { x, z }
+
       if (!generators.every(s => pauliCommute(p, s))) {
         continue
       } // not in the normalizer
@@ -104,6 +109,7 @@ export function logicalOperators(input: {
 // The code distance: the minimum weight over the logical operators. Infinity if there are none.
 export function codeDistance(logicals: ReadonlyArray<Pauli>): number {
   let distance = Infinity
+
   for (const l of logicals) {
     distance = Math.min(distance, pauliWeight(l))
   }

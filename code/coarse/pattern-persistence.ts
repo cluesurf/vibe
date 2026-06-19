@@ -27,9 +27,11 @@ export function patternSurvivalTime(input: {
   const tone = new Int8Array(graph.cellCount)
   const centre = Math.floor(L / 2)
   const disk: number[] = []
+
   for (let c = 0; c < graph.cellCount; c++) {
     const dx = (c % L) - centre
     const dy = Math.floor(c / L) - centre
+
     if (dx * dx + dy * dy <= radius * radius) {
       disk.push(c)
     }
@@ -42,8 +44,10 @@ export function patternSurvivalTime(input: {
   }
 
   stamp()
+
   const majority = (): number => {
     let plus = 0
+
     for (const c of disk) {
       if (tone[c] === 1) {
         plus++
@@ -55,6 +59,7 @@ export function patternSurvivalTime(input: {
 
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, arrow, 0)
+
     if (maintainEvery > 0 && t % maintainEvery === 0) {
       stamp()
     }

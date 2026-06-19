@@ -41,6 +41,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const forward = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })
     const half = side / 2
@@ -49,15 +50,18 @@ export default experiment({
       half * side +
       half * side * side +
       half * side * side * side
+
     const dist = shellDistances(mesh, center)
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // a symmetric block packet, +1 in all slots of cells within radius 2 of the centre (zero net momentum).
     const packet = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! >= 0 && dist[c]! <= 2) {
           const base = c * degree
+
           for (let d = 0; d < degree; d++) {
             will.data[base + d] = 1
           }
@@ -72,8 +76,10 @@ export default experiment({
     const meanDistance = (will: Will): number => {
       let weight = 0
       let weighted = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const q = Math.abs(cellTone(will, c))
+
         if (q !== 0) {
           weight += q
           weighted += q * dist[c]!
@@ -93,9 +99,11 @@ export default experiment({
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       let extentMax = 0
       let meanMin = Infinity
       let meanMax = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
         const swap = current
@@ -103,6 +111,7 @@ export default experiment({
         scratch = swap
         const ext = travelDistance({ will: current, start: center })
         const mean = meanDistance(current)
+
         if (ext > extentMax) {
           extentMax = ext
         }
@@ -127,6 +136,7 @@ export default experiment({
     // a packet launched with net momentum, +1 only in direction 0, to test a MOVING breather.
     const launched = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! >= 0 && dist[c]! <= 2) {
           will.data[c * degree + 0] = 1
@@ -146,8 +156,10 @@ export default experiment({
     // centroid WOBBLES, but it does not translate, a pinned breather, no moving breather.
     const launchedCompact =
       launchedTrace.extentMax <= breather.extentMax + 2
+
     const launchedWobbles =
       launchedTrace.meanMax - launchedTrace.meanMin >= 0.5
+
     const pinnedNotMoving = launchedCompact && launchedWobbles
 
     const ok =

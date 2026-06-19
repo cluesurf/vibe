@@ -17,11 +17,14 @@ export function closedFormHitCount(input: {
   const pi = Math.PI
   const p3 = pi * pi * pi
   const p2 = pi * pi
+
   let hits = 0
+
   for (let a = -k; a <= k; a++) {
     for (let b = -k; b <= k; b++) {
       for (let c = -k; c <= k; c++) {
         const base = a * p3 + b * p2 + c * pi
+
         for (let d = -m; d <= m; d++) {
           if (Math.abs(base + d - target) < epsilon) {
             hits++

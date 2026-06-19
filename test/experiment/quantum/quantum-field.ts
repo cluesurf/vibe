@@ -65,6 +65,7 @@ export function quantumField(input?: { n?: number }): {
   const vac = new Int8Array(N)
   const q0 = sumTone(vac)
   const rng = makeRng({ seed: 7 })
+
   for (let b = 0; b < 80; b++) {
     beat(vac, eu, ev, moved, rng, ARROW)
   }
@@ -74,6 +75,7 @@ export function quantumField(input?: { n?: number }): {
   const before = vac.slice()
   beat(vac, eu, ev, moved, rng, ARROW)
   let changed = 0
+
   for (let i = 0; i < N; i++) {
     if (vac[i] !== before[i]) {
       changed++
@@ -95,10 +97,12 @@ export function quantumField(input?: { n?: number }): {
     samples: 250,
     rng: makeRng({ seed: 11 }),
   })
+
   const correlation: { r: number; c: number }[] = c.map((cv, r) => ({
     r,
     c: cv,
   }))
+
   const pairAntiCorrelation = correlation[1]!.c // nearest-neighbour correlation (pair structure)
 
   // correlation length from |C(r)| ~ exp(-r/xi), fit log|C| vs r over r=1..4
@@ -107,15 +111,18 @@ export function quantumField(input?: { n?: number }): {
     rLo: 1,
     rHi: 4,
   })
+
   const effectiveMass =
     correlationLength > 0 && isFinite(correlationLength)
       ? 1 / correlationLength
       : 0
+
   const decays =
     Math.abs(correlation[4]!.c) < Math.abs(correlation[1]!.c) * 0.5
 
   // causal lightcone: perturb the center, run both copies with the same noise, measure the front radius
   let center = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -132,6 +139,7 @@ export function quantumField(input?: { n?: number }): {
     source: center,
     maxRadius: 12,
   })
+
   const base = vac.slice()
   const pert = vac.slice()
   pert[center] =
@@ -140,6 +148,7 @@ export function quantumField(input?: { n?: number }): {
   const T = 5
   const rb = makeRng({ seed: 99 })
   const rp = makeRng({ seed: 99 })
+
   for (let b = 0; b < T; b++) {
     beat(base, eu, ev, moved, rb, ARROW)
   }
@@ -149,9 +158,11 @@ export function quantumField(input?: { n?: number }): {
   }
 
   let front = 0
+
   for (let i = 0; i < N; i++) {
     if (base[i] !== pert[i]) {
       const r = dcenter[i]!
+
       if (r >= 0 && r > front) {
         front = r
       }
@@ -168,6 +179,7 @@ export function quantumField(input?: { n?: number }): {
     isFinite(correlationLength) &&
     hasLightcone &&
     conserved
+
   const solved = fieldLike
 
   return {

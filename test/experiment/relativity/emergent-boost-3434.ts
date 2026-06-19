@@ -18,6 +18,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // continuum (IR) dispersion E = sqrt(m^2 + p^2); a boost of rapidity phi
 const Eof = (m: number, p: number): number =>
   relativisticEnergy({ mass: m, momentum: p })
+
 const boost = (E: number, p: number, phi: number): [number, number] => {
   const b = boostEnergyMomentum({
     omega: E,
@@ -40,11 +41,13 @@ export function emergentBoost(): {
 } {
   // (1) E^2 - p^2 = m^2 preserved under boosts (the Lorentz invariant)
   let invariantPreserved = true
+
   for (const m of [0.2, 0.5]) {
     for (const p of [0.0, 0.3, 0.7]) {
       for (const phi of [-0.8, -0.3, 0.5, 1.0]) {
         const E = Eof(m, p),
           [E2, p2] = boost(E, p, phi)
+
         if (Math.abs(E2 * E2 - p2 * p2 - m * m) > 1e-9) {
           invariantPreserved = false
         }
@@ -55,10 +58,12 @@ export function emergentBoost(): {
   // (2) relativistic velocity addition u' = (u+v)/(1+uv), NOT Galilean u+v
   let velocitiesAddRelativistically = true,
     galileanWrong = false
+
   for (const u of [0.3, 0.6, 0.9]) {
     for (const v of [0.4, 0.8]) {
       const rel = addVelocities({ velocity: u, frame: v }) // relativistic sum, always < 1
       const gal = u + v
+
       if (rel >= 1 || rel <= 0) {
         velocitiesAddRelativistically = false
       }
@@ -78,9 +83,11 @@ export function emergentBoost(): {
   const kIR = 0.05,
     EIR = ElatticeFromK(m, kIR),
     invIR = EIR * EIR - kIR * kIR
+
   const kUV = 1.5,
     EUV = ElatticeFromK(m, kUV),
     invUV = EUV * EUV - kUV * kUV
+
   const emergentInIR = Math.abs(invIR - m * m) < 1e-2
   const latticeBreaksUV = Math.abs(invUV - m * m) > 0.1
 
@@ -108,6 +115,7 @@ export default experiment({
       r.velocitiesAddRelativistically &&
       r.emergentInIR &&
       r.latticeBreaksUV
+
     const m = 0.4
     const invariantIR = ElatticeFromK(m, 0.05) ** 2 - 0.05 ** 2
     const invariantUV = ElatticeFromK(m, 1.5) ** 2 - 1.5 ** 2

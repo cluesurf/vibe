@@ -16,9 +16,12 @@ export function classicalWalkMSD(input: {
 }): number[] {
   const { steps, runs } = input
   const msd = new Float64Array(steps + 1)
+
   for (let r = 0; r < runs; r++) {
     const rng = makeRng({ seed: r + 1 })
+
     let x = 0
+
     for (let t = 0; t <= steps; t++) {
       msd[t]! += x * x
       x += rng.next() < 0.5 ? 1 : -1
@@ -46,14 +49,19 @@ export function graphWalkMsdExponent(input: {
   const { neighbors, start, beats, runs } = input
   const dist = bfsShells({ neighbors, root: start }).depth
   const msd = new Float64Array(beats + 1)
+
   for (let run = 0; run < runs; run++) {
     const rng = makeRng({ seed: 100 + run })
+
     let cur = start
+
     for (let t = 0; t <= beats; t++) {
       const dd = dist[cur]!
       msd[t]! += dd * dd
+
       if (t < beats) {
         const nb = neighbors[cur] ?? []
+
         if (nb.length > 0) {
           cur = nb[Math.floor(rng.next() * nb.length)]!
         }
@@ -70,6 +78,7 @@ export function graphWalkMsdExponent(input: {
   let sxx = 0
   let sxy = 0
   let m = 0
+
   for (let t = 2; t <= beats; t++) {
     if (msd[t]! <= 0) {
       continue
@@ -95,8 +104,10 @@ export function randomWalkEndpoint(input: {
   rng: Rng
 }): number {
   let cur = input.start
+
   for (let t = 0; t < input.steps; t++) {
     const nbrs = input.neighbors[cur] ?? []
+
     if (nbrs.length === 0) {
       break
     }
@@ -115,9 +126,12 @@ export function randomWalkPath(input: {
   rng: Rng
 }): number[] {
   const path = [input.start]
+
   let cur = input.start
+
   for (let t = 0; t < input.steps; t++) {
     const nbrs = input.neighbors[cur] ?? []
+
     if (nbrs.length === 0) {
       break
     }
@@ -146,22 +160,28 @@ export function persistentWalkMeanDisplacement(input: {
   const { directions, mix, steps, runs, rng } = input
   const dimension = directions[0]?.length ?? 0
   const directionCount = directions.length
+
   let total = 0
+
   for (let run = 0; run < runs; run++) {
     const position = new Array<number>(dimension).fill(0)
+
     let d = Math.floor(rng.next() * directionCount)
+
     for (let s = 0; s < steps; s++) {
       if (rng.next() < mix) {
         d = Math.floor(rng.next() * directionCount)
       }
 
       const step = directions[d]!
+
       for (let a = 0; a < dimension; a++) {
         position[a]! += step[a]!
       }
     }
 
     let sumSquares = 0
+
     for (let a = 0; a < dimension; a++) {
       sumSquares += position[a]! * position[a]!
     }

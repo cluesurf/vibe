@@ -35,6 +35,7 @@ const MOMENTA = [
   [1, 1, 1],
   [2, 0, 1],
 ]
+
 const COUPLINGS = [0, 0.4, 0.8, 1.2]
 
 export function measuredEmergentMass(): {
@@ -45,9 +46,11 @@ export function measuredEmergentMass(): {
   maxMassDisagreement: number
 } {
   const gamma5 = diracGamma5()
+
   let relativisticEverywhere = true
   let twoMassesAgree = true
   let maxMassDisagreement = 0
+
   const dispersionMassAt = (coupling: number): number => {
     // measured at a fixed nonzero momentum
     const p = [1, 1, 1]
@@ -57,6 +60,7 @@ export function measuredEmergentMass(): {
       pz: p[2]!,
       mass: coupling,
     })
+
     const hSquared = cmMultiply(h, h)
     const pSquared = p[0]! ** 2 + p[1]! ** 2 + p[2]! ** 2
 
@@ -72,8 +76,10 @@ export function measuredEmergentMass(): {
         pz: p[2]!,
         mass: coupling,
       })
+
       const hSquared = cmMultiply(h, h)
       const pSquared = p[0]! ** 2 + p[1]! ** 2 + p[2]! ** 2
+
       if (
         !cmIsScalar(
           hSquared,
@@ -92,6 +98,7 @@ export function measuredEmergentMass(): {
       maxMassDisagreement,
       Math.abs(massDispersion - massChirality),
     )
+
     if (Math.abs(massDispersion - massChirality) > 1e-9) {
       twoMassesAgree = false
     }
@@ -99,7 +106,9 @@ export function measuredEmergentMass(): {
 
   // (3) the dispersion mass scales with the coupling (it IS the coupling, measured), monotone increasing
   const masses = COUPLINGS.map(dispersionMassAt)
+
   let massScalesWithCoupling = true
+
   for (let i = 1; i < masses.length; i++) {
     if (!(masses[i]! > masses[i - 1]!)) {
       massScalesWithCoupling = false

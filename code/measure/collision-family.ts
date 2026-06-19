@@ -9,6 +9,7 @@
 // the 24 directions +-e_a+-e_b of the {3,4,3,4} D4 coin
 function directions(): number[][] {
   const dirs: number[][] = []
+
   for (let a = 0; a < 4; a++) {
     for (let b = a + 1; b < 4; b++) {
       for (const sa of [1, -1]) {
@@ -36,9 +37,11 @@ function* perfectMatchings(remaining: number[]): Generator<number[][]> {
   }
 
   const a = remaining[0]!
+
   for (let k = 1; k < remaining.length; k++) {
     const b = remaining[k]!
     const rest = remaining.filter((_, i) => i !== 0 && i !== k)
+
     for (const tail of perfectMatchings(rest)) {
       yield [[a, b], ...tail]
     }
@@ -64,8 +67,10 @@ export function linePairingFamily(): {
   const negOf = dirs.map(v => idx.get(key(v.map(x => -x)))!)
   // the 12 lines (opposite-direction pairs), canonical id = min(i, neg)
   const lines: number[] = []
+
   for (let i = 0; i < 24; i++) {
     const c = Math.min(i, negOf[i]!)
+
     if (!lines.includes(c)) {
       lines.push(c)
     }
@@ -78,9 +83,11 @@ export function linePairingFamily(): {
   // the B4 generators (coordinate transpositions and a sign flip) acting as permutations of the 12 lines
   function lineAction(perm: number[], sign: number[]): number[] {
     const lp = new Array<number>(12)
+
     for (let L = 0; L < 12; L++) {
       const v = dirs[lines[L]!]!
       const w = [0, 0, 0, 0]
+
       for (let c = 0; c < 4; c++) {
         w[perm[c]!] = sign[perm[c]!]! * v[c]!
       }
@@ -97,16 +104,21 @@ export function linePairingFamily(): {
     lineAction([0, 1, 3, 2], [1, 1, 1, 1]),
     lineAction([0, 1, 2, 3], [-1, 1, 1, 1]),
   ]
+
   const applyPermutation = (m: number[][], p: number[]): number[][] =>
     m.map(([a, b]) => [p[a!]!, p[b!]!])
 
   let total = 0
   let symmetric = 0
+
   const all = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
   for (const m of perfectMatchings(all)) {
     total++
     const mk = matchingKey(m)
+
     let invariant = true
+
     for (const g of generators) {
       if (matchingKey(applyPermutation(m, g)) !== mk) {
         invariant = false

@@ -32,6 +32,7 @@ const ARROW_PERIOD = 33 // the DISCRETE arrow (defining-the-arrow.md), one balan
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -41,17 +42,21 @@ function run(): void {
     half: HALF,
     margin: MARGIN,
   })
+
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const off = new Int32Array(n + 1)
+
   for (let i = 0; i < n; i++) {
     off[i + 1] = off[i]! + slab.neighbors[i]!.length
   }
 
   const adj = new Int32Array(off[n]!)
+
   {
     let p = 0
+
     for (let i = 0; i < n; i++) {
       for (const w of slab.neighbors[i]!) {
         adj[p++] = w
@@ -66,8 +71,10 @@ function run(): void {
   // 2D positions, stereographic inversion from xi onto the plane perp to xi, zoomed on the core
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -75,6 +82,7 @@ function run(): void {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -82,7 +90,9 @@ function run(): void {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -99,6 +109,7 @@ function run(): void {
 
   type BandCell = { index: number; px: number; py: number }
   const raw: { index: number; u: number; v: number }[] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
@@ -122,8 +133,10 @@ function run(): void {
   const radii = raw
     .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
     .sort((a, b) => a - b)
+
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const pad = 20
   const halfPix = IMG / 2 - pad
   const band: BandCell[] = raw.map(c => ({
@@ -134,6 +147,7 @@ function run(): void {
 
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     const r = rng.next()
     tone[i] = (r < SEED_DENSITY ? 1 : r < 2 * SEED_DENSITY ? -1 : 0) as
@@ -144,12 +158,14 @@ function run(): void {
 
   const q0 = (() => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       s += tone[i]!
     }
 
     return s
   })()
+
   const moved = new Uint8Array(n)
   // SIGN-AWARE gravity, separate mass fields for the two charges, so like attracts like and the two signs
   // condense into separate bodies (blue +1 bodies, red -1 bodies) instead of all falling into the same well
@@ -157,14 +173,17 @@ function run(): void {
   const d1M = new Float32Array(n)
   const densP = new Float32Array(n)
   const densM = new Float32Array(n)
+
   const diffuse = (
     isPlus: boolean,
     d1: Float32Array,
     out: Float32Array,
   ): void => {
     const sign = isPlus ? 1 : -1
+
     for (let i = 0; i < n; i++) {
       let s = tone[i] === sign ? 1 : 0
+
       for (let p = off[i]!; p < off[i + 1]!; p++) {
         s += tone[adj[p]!] === sign ? 1 : 0
       }
@@ -174,6 +193,7 @@ function run(): void {
 
     for (let i = 0; i < n; i++) {
       let s = d1[i]! * (1 - SCREEN)
+
       for (let p = off[i]!; p < off[i + 1]!; p++) {
         s += SCREEN * d1[adj[p]!]!
       }
@@ -196,17 +216,22 @@ function run(): void {
   const grav = (): void => {
     moved.fill(0)
     const st = Math.floor(rng.next() * n)
+
     for (let s = 0; s < n; s++) {
       const v = (st + s) % n
+
       if (moved[v] || tone[v] === 0) {
         continue
       }
 
       const dens = tone[v] === 1 ? densP : densM // pull toward SAME-sign mass, like attracts like
+
       let bestJ = -1
       let bestD = dens[v]!
+
       for (let p = off[v]!; p < off[v + 1]!; p++) {
         const w = adj[p]!
+
         if (moved[w]) {
           continue
         }
@@ -240,6 +265,7 @@ function run(): void {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -249,6 +275,7 @@ function run(): void {
     grav()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = 8
       rgba[i * 4 + 1] = 8
@@ -258,6 +285,7 @@ function run(): void {
 
     for (const c of band) {
       const t = tone[c.index]!
+
       if (t === 0) {
         continue
       }
@@ -268,18 +296,22 @@ function run(): void {
         t === 1
           ? Math.round(40 + 90 * inten)
           : Math.round(120 + 135 * inten)
+
       const g8 =
         t === 1
           ? Math.round(70 + 170 * inten)
           : Math.round(40 + 90 * inten)
+
       const b8 =
         t === 1
           ? Math.round(120 + 135 * inten)
           : Math.round(70 + 90 * inten)
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
@@ -298,8 +330,10 @@ function run(): void {
       let maxD = 0
       let charged = 0
       let q = 0
+
       for (let i = 0; i < n; i++) {
         const d = Math.max(densP[i]!, densM[i]!)
+
         if (d > maxD) {
           maxD = d
         }

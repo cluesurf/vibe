@@ -26,14 +26,17 @@ import { verdict } from '@/test/scaffold/verdict'
 // respected (the ternary tone, fixing the vacuum and commuting with charge conjugation)
 function ternaryToneSymmetryOrder(): number {
   const tone = [-1, 0, 1]
+
   const permutations = (a: number[]): number[][] => {
     if (a.length <= 1) {
       return [a]
     }
 
     const out: number[][] = []
+
     for (let i = 0; i < a.length; i++) {
       const rest = [...a.slice(0, i), ...a.slice(i + 1)]
+
       for (const p of permutations(rest)) {
         out.push([a[i]!, ...p])
       }
@@ -43,12 +46,14 @@ function ternaryToneSymmetryOrder(): number {
   }
 
   let count = 0
+
   for (const p of permutations(tone)) {
     const map = new Map(tone.map((v, i) => [v, p[i]!]))
     const fixesVacuum = map.get(0) === 0
     const commutesWithConjugation = tone.every(
       v => map.get(-v) === -map.get(v)!,
     )
+
     if (fixesVacuum && commutesWithConjugation) {
       count++
     }

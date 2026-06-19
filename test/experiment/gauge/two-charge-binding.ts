@@ -32,25 +32,30 @@ function evolve(input: { q1: number; q2: number; coupling: number }): {
   const steps = 3000
   const fieldStrength = 0.5 // the constant 1D field per unit enclosed charge (Gauss law)
   const domain = 400 // a far wall, an escaped pair runs to here
+
   let x1 = -3
   let x2 = 3
   let v1 = -1.5 // launched APART
   let v2 = 1.5
   let maxSeparation = x2 - x1
+
   for (let t = 0; t < steps; t++) {
     // 1D gauge force on each charge, q_i times the field from the OTHER charge (constant, points away from +).
     const f1 =
       input.coupling *
       input.q1 *
       (input.q2 * Math.sign(x1 - x2) * fieldStrength)
+
     const f2 =
       input.coupling *
       input.q2 *
       (input.q1 * Math.sign(x2 - x1) * fieldStrength)
+
     v1 += f1 * dt
     v2 += f2 * dt
     x1 += v1 * dt
     x2 += v2 * dt
+
     if (x1 < -domain) {
       x1 = -domain
     }
@@ -60,6 +65,7 @@ function evolve(input: { q1: number; q2: number; coupling: number }): {
     }
 
     const sep = Math.abs(x2 - x1)
+
     if (sep > maxSeparation) {
       maxSeparation = sep
     }

@@ -25,12 +25,14 @@ export function s53333Structure(): {
     t1: 2,
     t2: 4,
   })
+
   // both flags are now COMPUTED from the symbol, not hand-set. Crystallographic means every entry is 3, 4,
   // or 6 (the crystallographic restriction), and the leading 5 fails it. The spinor hook is the [3,4,3]
   // (24-cell / D4) subdiagram, which {5,3,3,3,3} does not contain.
   const crystallographic = PENTACOMB5D.every(
     n => n === 3 || n === 4 || n === 6,
   )
+
   const hasSpinor = symbolContainsSubdiagram(PENTACOMB5D, [3, 4, 3])
 
   return { degree, specDim, crystallographic, hasSpinor }

@@ -47,6 +47,7 @@ const PROG_ADD: Instr[] = [
   { op: 'jmp', addr: 0 },
   { op: 'halt' },
 ]
+
 // MONUS, R0 = max(0, R0 - R1) (truncated subtraction, uses a decision each step)
 const PROG_MONUS: Instr[] = [
   { op: 'decjz', r: R1, addr: 3 },
@@ -54,6 +55,7 @@ const PROG_MONUS: Instr[] = [
   { op: 'jmp', addr: 0 },
   { op: 'halt' },
 ]
+
 // MULTIPLY, R2 = R0 * R1, using R3 as the restore temp
 const PROG_MUL: Instr[] = [
   { op: 'decjz', r: R0, addr: 8 }, // 0, for each unit of R0

@@ -10,6 +10,7 @@ import { toCsr } from '@/code/tool/graph'
 export function innermostCell(radii: ReadonlyArray<number>): number {
   let node = 0
   let best = Infinity
+
   for (let i = 0; i < radii.length; i++) {
     if (radii[i]! < best) {
       best = radii[i]!
@@ -29,6 +30,7 @@ export function boundaryByRadius(input: {
   const rmax = Math.max(...radii)
   const cut = fraction * rmax
   const out: number[] = []
+
   for (let i = 0; i < radii.length; i++) {
     if (radii[i]! > cut) {
       out.push(i)
@@ -51,11 +53,14 @@ export function surfaceDistances(input: {
   const dist = new Int32Array(nodeCount).fill(-1)
   dist[source] = 0
   let frontier = [source]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (let q = offsets[u]!; q < offsets[u + 1]!; q++) {
         const w = adjacency[q]!
+
         if (isBoundary[w] && dist[w] === -1) {
           dist[w] = dist[u]! + 1
           next.push(w)
@@ -90,11 +95,14 @@ export function radialBfsTree(input: {
   const parent = new Int32Array(n).fill(-1)
   depth[root] = 0
   let frontier = [root]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (let q = off[u]!; q < off[u + 1]!; q++) {
         const w = adj[q]!
+
         if (depth[w] === -1) {
           depth[w] = depth[u]! + 1
           parent[w] = u
@@ -107,9 +115,11 @@ export function radialBfsTree(input: {
   }
 
   const maxDepth = Math.max(...depth)
+
   const lcaDepth = (a: number, b: number): number => {
     let x = a
     let y = b
+
     while (depth[x]! > depth[y]!) {
       x = parent[x]!
     }

@@ -26,6 +26,7 @@ export function primordialSpectrum(input: { seed: number }): {
   const N = 200000
   const rng = makeRng({ seed: input.seed })
   const points: number[][] = []
+
   for (let i = 0; i < N; i++) {
     points.push([rng.next(), rng.next(), rng.next()])
   }
@@ -35,11 +36,13 @@ export function primordialSpectrum(input: { seed: number }): {
     binsPerAxis: b,
     ...densityContrast({ points, binsPerAxis: b }),
   }))
+
   // delta should scale as (mean count)^{-1/2}: fit log delta against log mean.
   const fit = linearFit({
     xs: byScale.map(s => Math.log(s.meanCount)),
     ys: byScale.map(s => Math.log(s.delta)),
   })
+
   const scaleFreeSeed =
     Math.abs(fit.slope + 0.5) < 0.05 && fit.r2 > 0.99
 

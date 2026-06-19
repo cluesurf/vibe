@@ -13,6 +13,7 @@ export function distinctLevels(
 ): number[] {
   const sorted = [...values].sort((a, b) => a - b)
   const out: number[] = []
+
   for (const v of sorted) {
     if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance) {
       out.push(v)
@@ -32,6 +33,7 @@ export function zeroModeCensus(
   let zero = 0
   let nonzero = 0
   let minNonzero = Infinity
+
   for (const v of values) {
     if (v < tolerance) {
       zero += 1

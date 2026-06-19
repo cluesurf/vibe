@@ -21,6 +21,7 @@ import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 function shuffled(labels: number[], seed: number): number[] {
   const rng = makeRng(seed)
   const out = labels.slice()
+
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = out[i]!
@@ -57,6 +58,7 @@ export default experiment({
       stateCount: bins,
       lag,
     })
+
     const lambdaReal = spectralGap(transitionEigenvalues(real)).lambda2
 
     const control = countMatrix({
@@ -64,6 +66,7 @@ export default experiment({
       stateCount: bins,
       lag,
     })
+
     const lambdaShuffled = spectralGap(
       transitionEigenvalues(control),
     ).lambda2

@@ -22,11 +22,13 @@ function study(): {
     connectThreshold: 1.4,
     rng,
   })
+
   const configuration = makeConfiguration({
     alphabet: { form: 'ternary' },
     size: substrate.size,
     rng,
   })
+
   const c = integrationCorrelates({ substrate, configuration })
 
   return c

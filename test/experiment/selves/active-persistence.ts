@@ -42,6 +42,7 @@ export default experiment({
     const survives =
       left.survivingSize > SURVIVE_MIN &&
       right.survivingSize > SURVIVE_MIN
+
     const diesWithoutRefuge = none.survivingSize < DEAD_MAX
     const seeksRefuge = left.finalX < LEFT_OF && right.finalX > RIGHT_OF
     const ok = survives && diesWithoutRefuge && seeksRefuge

@@ -55,6 +55,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const dir = 0
     const opp = mesh.opposite(dir)
     const half = side / 2
@@ -84,7 +85,9 @@ export default experiment({
         direction: dir,
         length: 3,
       })
+
       let bStart = center
+
       for (let i = 0; i < 6; i++) {
         bStart = mesh.neighbour(bStart, dir)
       }
@@ -95,7 +98,9 @@ export default experiment({
         direction: opp,
         length: 3,
       })
+
       const will = makeWill(mesh)
+
       for (let i = 0; i < will.data.length; i++) {
         will.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
       }
@@ -107,6 +112,7 @@ export default experiment({
     const stickyCapture = componentCount(
       run(twoGliders(), sticky, beats),
     )
+
     const elasticCapture = componentCount(
       run(twoGliders(), elastic, beats),
     )

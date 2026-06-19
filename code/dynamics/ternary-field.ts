@@ -36,6 +36,7 @@ export function makeTernaryField(input: {
 }): TernaryField {
   const { size, fill } = input
   const u = new Int8Array(size)
+
   for (let x = 0; x < size; x++) {
     u[x] = mod3(fill(x)) as number
   }
@@ -57,20 +58,24 @@ export function stepTernaryField(input: {
   const periodic = boundary.form === 'periodic'
   const leftVacuum = boundary.form === 'absorbing' ? boundary.left : 0
   const rightVacuum = boundary.form === 'absorbing' ? boundary.right : 0
+
   for (let x = 0; x < size; x++) {
     const left =
       x === 0 ? (periodic ? curr[size - 1]! : leftVacuum) : curr[x - 1]!
+
     const right =
       x === size - 1
         ? periodic
           ? curr[0]!
           : rightVacuum
         : curr[x + 1]!
+
     next[x] = mod3(rule(left, curr[x]!, right) - prev[x]!) as number
   }
 
   if (boundary.form === 'absorbing') {
     const margin = boundary.margin ?? 4
+
     for (let x = 0; x < margin; x++) {
       next[x] = leftVacuum as number
     }
@@ -101,6 +106,7 @@ export const decoupledTernaryRule: TernaryRule = (
 // interior without an antiwall, this is the kink's exact base-level identity.
 export function wallCount(u: Int8Array): number {
   let count = 0
+
   for (let x = 0; x < u.length - 1; x++) {
     if (u[x] !== u[x + 1]) {
       count++
@@ -113,6 +119,7 @@ export function wallCount(u: Int8Array): number {
 // the count of cells that differ between two fields, the size of a perturbation.
 export function fieldDifference(a: Int8Array, b: Int8Array): number {
   let count = 0
+
   for (let x = 0; x < a.length; x++) {
     if (a[x] !== b[x]) {
       count++
@@ -129,8 +136,10 @@ export function spreadRadius(input: {
   center: number
 }): number {
   const { clean, perturbed, center } = input
+
   let low = clean.length
   let high = -1
+
   for (let x = 0; x < clean.length; x++) {
     if (clean[x] !== perturbed[x]) {
       if (x < low) {

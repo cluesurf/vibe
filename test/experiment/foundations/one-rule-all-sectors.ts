@@ -47,7 +47,9 @@ function lightCone(
     size: g.size,
     source: center,
   })
+
   let a = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     a[i] = rng.nextInt({ max: 3 }) - 1
   }
@@ -56,12 +58,16 @@ function lightCone(
   b[center] = ((((a[center] ?? 0) + 1 + 1) % 3) - 1) as -1 | 0 | 1
   const step = (tone: Int8Array): Int8Array =>
     signedMajorityStep({ neighbors: g.neighbors, fills, tone })
+
   const radii: number[] = []
+
   let holds = true
+
   for (let beat = 1; beat <= 6; beat++) {
     a = step(a)
     b = step(b)
     let maxDist = 0
+
     for (let v = 0; v < n; v++) {
       if (a[v] !== b[v]) {
         maxDist = Math.max(maxDist, dist[v] ?? 0)
@@ -69,6 +75,7 @@ function lightCone(
     }
 
     radii.push(maxDist)
+
     if (maxDist > beat) {
       holds = false
     }
@@ -95,11 +102,14 @@ export function oneRuleAllSectors(input: {
     connectThreshold: 3.0,
     rng: makeRng({ seed: input.seed }),
   })
+
   const g = largestComponent(raw)
 
   // Matter/energy sector: the emergent operator's spectrum.
   const spectrum = laplacianSpectrum({ substrate: g, count: 16 })
+
   let min = Infinity
+
   for (const v of spectrum) {
     min = Math.min(min, v)
   }
@@ -112,8 +122,10 @@ export function oneRuleAllSectors(input: {
     size: g.size,
     source: center,
   })
+
   const xs: number[] = []
   const ys: number[] = []
+
   for (let i = 0; i < g.size; i++) {
     if (i !== center && (dist[i] ?? 0) > 0) {
       xs.push(dist[i] ?? 0)

@@ -55,6 +55,7 @@ function legStructure(a: Addressing): boolean {
   // (a) the Fibonacci-tree analog: a spanning tree whose shells obey a linear recurrence, O(log n) addr.
   const ratio =
     a.shellSizes[a.shellComplete]! / a.shellSizes[a.shellComplete - 1]!
+
   const treeOK = a.shellSizes[1] === 24 && ratio > 1
 
   // (b) black/white sons -> the splitting-matrix region TYPES. Margenstern's pentagrid has 2 son colours
@@ -73,6 +74,7 @@ function legStructure(a: Addressing): boolean {
   // (d) railway junction capability: a track needs to branch (switch) and cross. An interior cell must
   //     offer >= 3 edge-disjoint directions. {3,4,3,4} interior cells have the full 24.
   let interiorDeg = 0
+
   for (let c = 0; c < a.graph.cellCount; c++) {
     if (a.complete[c]) {
       interiorDeg = a.graph.neighbors[c]!.length
@@ -99,7 +101,9 @@ function legTernary(): boolean {
     '-1,1': 1,
     '-1,-1': 1,
   }
+
   let nandOK = true
+
   for (const x of [-1, 1] as Bit[]) {
     for (const y of [-1, 1] as Bit[]) {
       if (nand(x, y) !== nandTable[`${x},${y}`]) {
@@ -111,11 +115,14 @@ function legTernary(): boolean {
   // Rule 110 from rule-NANDs, then evolve it as a CA on a line and confirm it advances.
   const rule110 = Array.from({ length: 8 }, (_, p) => (110 >> p) & 1)
   const fn = fromTable(rule110)
+
   let exprOK = true
+
   for (let p = 0; p < 8; p++) {
     const l: Bit = ((p >> 2) & 1) === 1 ? 1 : -1
     const c: Bit = ((p >> 1) & 1) === 1 ? 1 : -1
     const r: Bit = (p & 1) === 1 ? 1 : -1
+
     if (toNum(fn(l, c, r)) !== rule110[p]) {
       exprOK = false
     }
@@ -123,16 +130,21 @@ function legTernary(): boolean {
 
   // evolve Rule 110 (built from the rule's NANDs) against a reference Rule 110 for a few steps
   const W = 64
+
   let line: Bit[] = Array.from({ length: W }, (_, i) =>
     i === W - 2 ? 1 : -1,
   )
+
   let ref = line.map(b => toNum(b))
   let matches = true
+
   for (let step = 0; step < 40; step++) {
     const next: Bit[] = line.map((_, i) =>
       fn(line[(i - 1 + W) % W]!, line[i]!, line[(i + 1) % W]!),
     )
+
     const refNext = elementaryRuleStep({ line: ref, rule: 110 })
+
     for (let i = 0; i < W; i++) {
       if (toNum(next[i]!) !== refNext[i]) {
         matches = false
@@ -159,6 +171,7 @@ function makeMachine3434(
 ): RegisterMachine {
   const n = a.graph.cellCount
   const interior: number[] = []
+
   for (let c = 0; c < n; c++) {
     if (a.complete[c]) {
       interior.push(c)
@@ -195,6 +208,7 @@ function legRegisterMachine(a: Addressing): boolean {
     got: number
     conserved: boolean
   }[] = []
+
   for (const [x, y] of [
     [3, 4],
     [7, 2],
@@ -233,8 +247,10 @@ function legRegisterMachine(a: Addressing): boolean {
 
   let allCorrect = true
   let allConserved = true
+
   for (const c of cases) {
     const ok = c.got === c.expected
+
     if (!ok) {
       allCorrect = false
     }
@@ -259,6 +275,7 @@ function legCuspLife(): boolean {
     symbol: [4, 3, 4],
     maxCells: 30000,
   }) // Z^3 cusp
+
   // extract the z=0 plane and index cells by (x,y)
   const cellAt = new Map<string, number>()
   const planeCells: { id: number; x: number; y: number }[] = []
@@ -280,14 +297,17 @@ function legCuspLife(): boolean {
     [2, 1],
     [1, 2],
   ]
+
   for (const [dx, dy] of glider) {
     alive.add(`${cx + dx},${cy + dy}`)
   }
 
   const refAlive = new Set(alive)
+
   // run the cusp-graph version (only keep cells that EXIST on the cusp plane) AND a reference version
   let cusp = new Set(alive)
   let ref = new Set(refAlive)
+
   for (let step = 0; step < 4; step++) {
     cusp = new Set([...lifeStep(cusp)].filter(k => cellAt.has(k))) // confined to the actual cusp lattice
     ref = lifeStep(ref)

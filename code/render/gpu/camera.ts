@@ -75,6 +75,7 @@ export function makeCamera(mode: FoldMode): Camera {
     mode,
     moveForward(step) {
       const t = tanhHalf(step)
+
       if (mode === '2d') {
         const dir = [-Math.sin(angle), Math.cos(angle)]
         pos2 = mobiusAdd(pos2, scale(dir, t)) as [number, number]
@@ -85,6 +86,7 @@ export function makeCamera(mode: FoldMode): Camera {
     },
     moveRight(step) {
       const t = tanhHalf(step)
+
       if (mode === '2d') {
         const dir = [Math.cos(angle), Math.sin(angle)]
         pos2 = mobiusAdd(pos2, scale(dir, t)) as [number, number]

@@ -16,8 +16,10 @@ import { Collision } from '@/code/rule/collision'
 export function buildViscousQuads(directions: number[][]): number[][] {
   const count = directions.length
   const dimension = directions[0]?.length ?? 0
+
   const momentumKey = (a: number, b: number): string => {
     const sum = new Array<number>(dimension)
+
     for (let axis = 0; axis < dimension; axis++) {
       sum[axis] =
         (directions[a]![axis] ?? 0) + (directions[b]![axis] ?? 0)
@@ -28,9 +30,11 @@ export function buildViscousQuads(directions: number[][]): number[][] {
 
   // group the unordered slot-pairs by their total momentum
   const groups = new Map<string, Array<[number, number]>>()
+
   for (let a = 0; a < count; a++) {
     for (let b = a + 1; b < count; b++) {
       const key = momentumKey(a, b)
+
       if (!groups.has(key)) {
         groups.set(key, [])
       }
@@ -52,16 +56,20 @@ export function buildViscousQuads(directions: number[][]): number[][] {
 
     return 0
   })
+
   const quads: number[][] = []
   const used = new Uint8Array(count)
+
   for (const key of orderedKeys) {
     const pending: Array<[number, number]> = []
+
     for (const [a, b] of groups.get(key)!) {
       if (used[a] || used[b]) {
         continue
       }
 
       pending.push([a, b])
+
       if (pending.length === 2) {
         const [p1, p2] = pending
         quads.push([p1![0], p1![1], p2![0], p2![1]])
@@ -91,6 +99,7 @@ export function controlledViscousRotate(input: {
   const gateCount = input.gateCount ?? 4
   const gated = quads.slice(0, gateCount)
   const controlPool = quads.slice(gateCount).flat()
+
   if (controlPool.length === 0) {
     return viscousRotate(input)
   } // no control slots free, fall back
@@ -98,6 +107,7 @@ export function controlledViscousRotate(input: {
   return (slots, base) => {
     for (let i = 0; i < gated.length; i++) {
       const control = controlPool[i % controlPool.length]!
+
       if (slots[base + control] !== 1) {
         continue
       }
@@ -107,10 +117,12 @@ export function controlledViscousRotate(input: {
         b = base + quad[1]!,
         c = base + quad[2]!,
         d = base + quad[3]!
+
       const pairOccupied = slots[a] === 1 && slots[b] === 1
       const pairEmpty = slots[a] === 0 && slots[b] === 0
       const partnerOccupied = slots[c] === 1 && slots[d] === 1
       const partnerEmpty = slots[c] === 0 && slots[d] === 0
+
       if (pairOccupied && partnerEmpty) {
         slots[a] = 0
         slots[b] = 0
@@ -139,10 +151,12 @@ export function viscousRotate(input: {
         b = base + quad[1]!,
         c = base + quad[2]!,
         d = base + quad[3]!
+
       const pairOccupied = slots[a] === 1 && slots[b] === 1
       const pairEmpty = slots[a] === 0 && slots[b] === 0
       const partnerOccupied = slots[c] === 1 && slots[d] === 1
       const partnerEmpty = slots[c] === 0 && slots[d] === 0
+
       if (pairOccupied && partnerEmpty) {
         slots[a] = 0
         slots[b] = 0

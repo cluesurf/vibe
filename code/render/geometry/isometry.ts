@@ -12,6 +12,7 @@ import type { Scene, SceneEdge, Vec } from '@/code/render/scene'
 
 function dot(a: Vec, b: Vec): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
@@ -41,6 +42,7 @@ export function mobiusAdd(a: Vec, x: Vec): Vec {
   const ca = (1 + 2 * ax + xx) / (denom || 1e-12)
   const cx = (1 - aa) / (denom || 1e-12)
   const out: Vec = []
+
   for (let i = 0; i < x.length; i++) {
     out.push(ca * (a[i] ?? 0) + cx * (x[i] ?? 0))
   }
@@ -52,6 +54,7 @@ export function mobiusAdd(a: Vec, x: Vec): Vec {
 // origin toward v (in hyperbolic arc length). s = 0 gives the origin, s = 1 gives v.
 export function gyroScale(v: Vec, s: number): Vec {
   const r = norm(v)
+
   if (r < 1e-12) {
     return v.map(() => 0)
   }
@@ -84,6 +87,7 @@ export function geodesicPoints(
 ): Vec[] {
   const d = mobiusAdd(negate(a), b)
   const out: Vec[] = []
+
   for (let k = 0; k <= segments; k++) {
     out.push(mobiusAdd(a, gyroScale(d, k / segments)))
   }

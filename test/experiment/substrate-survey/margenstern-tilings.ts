@@ -57,6 +57,7 @@ export function margensternTilings(input: { seed: number }): Record<
       lorentzSafe: boolean
     }
   > = {}
+
   for (const t of TILINGS) {
     const g = hyperbolicTiling({
       p: t.p,
@@ -65,11 +66,13 @@ export function margensternTilings(input: { seed: number }): Record<
       connectThreshold: t.threshold,
       maxVertices: 2500,
     })
+
     const aniso = lorentzIsotropy({
       substrate: g,
       samples: 3000,
       rng: makeRng({ seed: input.seed }),
     })
+
     out[t.name] = {
       size: g.size,
       degree: meanDegree(g),
@@ -96,6 +99,7 @@ export default experiment({
     const allSafe = all.every(
       e => e.lorentzSafe && e.anisotropy < 0.12 && e.reach,
     )
+
     const ok = all.length === 6 && allSafe
 
     return verdict({

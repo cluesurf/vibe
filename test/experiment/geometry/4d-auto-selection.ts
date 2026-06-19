@@ -45,6 +45,7 @@ export function fourDAutoSelection(): {
 } {
   // (1) 3D, ternary q = 3, the finite three-valent cells {p,3} (p = 3,4,5), minimal r for COMPACT closure
   let threeDForced: string | null = null
+
   for (let p = 3; p <= 5; p++) {
     for (let r = 3; r <= 8; r++) {
       if (isCompact([p, 3, r])) {
@@ -67,17 +68,20 @@ export function fourDAutoSelection(): {
   // (2) 4D, every ideal-with-finite-cells honeycomb, and the cubic-cusp subset
   const idealFourD: string[] = []
   const idealCubicCuspFourD: string[] = []
+
   for (let p = 3; p <= 6; p++) {
     for (let q = 3; q <= 6; q++) {
       for (let r = 3; r <= 6; r++) {
         for (let s = 3; s <= 6; s++) {
           const sym = [p, q, r, s]
+
           if (!isIdealFiniteCell(sym)) {
             continue
           }
 
           idealFourD.push(`{${sym.join(',')}}`)
           const vf = vertexFigure(sym)
+
           if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) {
             idealCubicCuspFourD.push(`{${sym.join(',')}}`)
           } // cubic cusp {4,3,4}
@@ -104,6 +108,7 @@ export function fourDAutoSelection(): {
 
   const keepFiveThreeFour =
     threeDForced === '{5,3,4}' && !fourDForcedBySamePrinciple
+
   const solved =
     threeDForced === '{5,3,4}' &&
     fourDUniqueCandidate === '{3,4,3,4}' &&

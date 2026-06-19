@@ -29,6 +29,7 @@ export default experiment({
 
       return { charge, index: result.index, matches }
     })
+
     const allMatch = results.every(row => row.matches)
 
     return verdict({

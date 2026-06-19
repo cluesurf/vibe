@@ -64,6 +64,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
     maxCells,
     bandHalfWidth: 0.4,
   })
+
   const hg = proximityGraph({ coords: horo.coords })
 
   // pick a central horosphere cell (nearest origin) as the walk start
@@ -76,6 +77,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
 
   // static correlation on the horosphere lattice: run the field, measure C(r) by graph distance
   const edges: [number, number][] = []
+
   for (let v = 0; v < hg.length; v++) {
     for (const w of hg[v]!) {
       if (w > v) {
@@ -89,6 +91,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   const tone = new Int8Array(hg.length)
   const moved = new Uint8Array(hg.length)
   const rng = makeRng({ seed: 3 })
+
   for (let i = 0; i < hg.length; i++) {
     tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -103,8 +106,10 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   const sumP = new Float64Array(maxR + 1)
   const cntP = new Float64Array(maxR + 1)
   const T = 3000
+
   let mean = 0
   let mc = 0
+
   for (let t = 0; t < T; t++) {
     for (let i = 0; i < hg.length; i++) {
       mean += tone[i]!
@@ -114,6 +119,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
     // correlation by graph distance from the center
     for (let i = 0; i < hg.length; i++) {
       const r = dCenter[i]!
+
       if (r >= 0 && r <= maxR) {
         sumP[r]! += tone[center]! * tone[i]!
         cntP[r]!++
@@ -125,11 +131,13 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
 
   const m2 = (mean / mc) ** 2
   const c: number[] = []
+
   for (let r = 0; r <= maxR; r++) {
     c.push(cntP[r]! > 0 ? sumP[r]! / cntP[r]! - m2 : 0)
   }
 
   let correlationRange = 0
+
   for (let r = 1; r <= maxR; r++) {
     if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
       correlationRange = r

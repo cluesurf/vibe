@@ -34,11 +34,15 @@ export function rfRelativity(): {
   const T = 80
   const rng = makeRng({ seed: 1 })
   const rnd = (): number => rng.next()
+
   const walk = (mix: number, trials: number): number => {
     let tot = 0
+
     for (let tr = 0; tr < trials; tr++) {
       const p = [0, 0, 0, 0]
+
       let d = Math.floor(rnd() * 24)
+
       for (let t = 0; t < T; t++) {
         if (rnd() < mix) {
           d = Math.floor(rnd() * 24)
@@ -57,6 +61,7 @@ export function rfRelativity(): {
 
   const ballisticDisp = walk(0, 1),
     diffusive = walk(1, 400)
+
   const expectedBallistic = T * Math.hypot(...roots[0]!) // T * sqrt(2)
   const ballistic =
     Math.abs(ballisticDisp - expectedBallistic) < 1e-6 &&
@@ -71,7 +76,9 @@ export function rfRelativity(): {
     [0, 0, 1, 0],
     [0, 0, -1, 0],
   ] // a 3D-like cubic set in 4D
+
   const cube8: number[][] = []
+
   for (const a of [1, -1]) {
     for (const b of [1, -1]) {
       for (const c of [1, -1]) {
@@ -83,13 +90,16 @@ export function rfRelativity(): {
   const aniso24 = anisotropy(roots, 7),
     aniso6 = anisotropy(cubic6, 7),
     aniso8 = anisotropy(cube8, 7)
+
   const isotropyImproves = aniso24 < aniso6 && aniso24 < 0.2
 
   // RF4: Dirac dispersion cos E = cos(m) cos(k), E^2 - k^2 = m^2 at long wavelength
   let diracOk = true
+
   for (const m of [0.0, 0.2, 0.6]) {
     const k = 0.1,
       Ek = Math.acos(Math.cos(m) * Math.cos(k))
+
     if (Math.abs(Ek * Ek - k * k - m * m) > 1e-2) {
       diracOk = false
     }
@@ -103,14 +113,17 @@ export function rfRelativity(): {
   const parts = new Array(NP)
     .fill(0)
     .map((_, i) => ({ p: [0, 0, 0, 0] as number[], d: i % 24 }))
+
   const coarseEntropy = (): number => {
     const bins = new Map<string, number>()
+
     for (const pt of parts) {
       const k = `${Math.floor(wrap(pt.p[0]!) / 2)},${Math.floor(wrap(pt.p[1]!) / 2)},${Math.floor(wrap(pt.p[2]!) / 2)},${Math.floor(wrap(pt.p[3]!) / 2)}`
       bins.set(k, (bins.get(k) ?? 0) + 1)
     }
 
     let H = 0
+
     for (const c of bins.values()) {
       const p = c / NP
       H -= p * Math.log(p)
@@ -120,6 +133,7 @@ export function rfRelativity(): {
   }
 
   const H0 = coarseEntropy()
+
   for (let t = 0; t < 30; t++) {
     for (const pt of parts) {
       for (let q = 0; q < 4; q++) {

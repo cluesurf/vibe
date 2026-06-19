@@ -22,12 +22,14 @@ export function kahlerDiracReturn(input: {
     directed: false,
     neighbors,
   })
+
   const dirac = kahlerDirac({
     complex: cellComplexOf({ substrate: graph, maxGrade: 1 }),
   })
 
   let source = 0
   let best = -1
+
   for (let i = 0; i < neighbors.length; i++) {
     if (neighbors[i]!.length > best) {
       best = neighbors[i]!.length
@@ -42,10 +44,12 @@ export function kahlerDiracReturn(input: {
     dt: input.dt ?? 0.02,
     sampleEvery: 30,
   }
+
   const clean = returnProbability({
     operator: sparseWithAubryAndrePotential(dirac, 0),
     ...evolve,
   })
+
   const localized = returnProbability({
     operator: sparseWithAubryAndrePotential(
       dirac,

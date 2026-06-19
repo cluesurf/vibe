@@ -46,6 +46,7 @@ export function willSteering(input?: { n?: number }): {
     size: N,
     source: 0,
   })
+
   const distTarget = csrEccentricity({
     offsets: g.offsets,
     adj: g.adj,
@@ -58,6 +59,7 @@ export function willSteering(input?: { n?: number }): {
   const meanDistTo = (t: Int8Array, d: Int32Array): number => {
     let s = 0
     let c = 0
+
     for (let i = 0; i < N; i++) {
       if (t[i] === 1) {
         s += dd(d, i)
@@ -75,8 +77,10 @@ export function willSteering(input?: { n?: number }): {
     source: 0,
     limit: 2000,
   })
+
   const mk = (): Int8Array => {
     const t = new Int8Array(N)
+
     for (const i of selfA) {
       t[i] = 1
     }
@@ -87,6 +91,7 @@ export function willSteering(input?: { n?: number }): {
   const beats = 12 * dd(dist, far)
   const willM = mk()
   const r1 = makeRng({ seed: 3 })
+
   for (let b = 0; b < beats; b++) {
     conservingEdgeSweepSteered({
       tone: willM,
@@ -102,6 +107,7 @@ export function willSteering(input?: { n?: number }): {
   const mergeWithWill = meanDistTo(willM, distTarget) // lower = moved toward the target
   const noWillM = mk()
   const r2 = makeRng({ seed: 3 })
+
   for (let b = 0; b < beats; b++) {
     conservingEdgeSweepSteered({
       tone: noWillM,
@@ -125,6 +131,7 @@ export function willSteering(input?: { n?: number }): {
     source: 0,
     limit: 4000,
   })
+
   const half = Math.floor(region.length / 2)
   const minusCenter = region[region.length - 1]! // a cell on the - side
   const distMinus = csrEccentricity({
@@ -133,8 +140,10 @@ export function willSteering(input?: { n?: number }): {
     size: N,
     source: minusCenter,
   }).dist
+
   const mkSplit = (): Int8Array => {
     const t = new Int8Array(N)
+
     for (let k = 0; k < region.length; k++) {
       t[region[k]!] = k < half ? 1 : -1
     }
@@ -144,6 +153,7 @@ export function willSteering(input?: { n?: number }): {
 
   const plus = (t: Int8Array): number => {
     let c = 0
+
     for (let i = 0; i < N; i++) {
       if (t[i] === 1) {
         c++
@@ -156,6 +166,7 @@ export function willSteering(input?: { n?: number }): {
   void plus
   const willA = mkSplit()
   const r3 = makeRng({ seed: 3 })
+
   for (let b = 0; b < 50; b++) {
     conservingEdgeSweepSteered({
       tone: willA,
@@ -171,6 +182,7 @@ export function willSteering(input?: { n?: number }): {
   const avoidWithWill = meanDistTo(willA, distMinus) // higher = the + fled away from the - threat
   const noWillA = mkSplit()
   const r4 = makeRng({ seed: 3 })
+
   for (let b = 0; b < 50; b++) {
     conservingEdgeSweepSteered({
       tone: noWillA,

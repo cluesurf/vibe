@@ -42,10 +42,13 @@ function equilibratedHeightRatio(input: {
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
     start: input.start,
   })
+
   const trace = run.trace
   const half = Math.floor(trace.length / 2)
+
   let sum = 0
   let count = 0
+
   for (let i = half; i < trace.length; i++) {
     sum += trace[i] ?? 0
     count += 1
@@ -68,23 +71,27 @@ export default experiment({
       count: 72,
       rng: makeRng({ seed: 1 }),
     })
+
     const layered = kleitmanRothschildOrder({ size: 72 })
     const smeared = smearedBenincasaDowker({
       epsilon: 0.9,
       dimension: 2,
     })
+
     const fromManifold = equilibratedHeightRatio({
       action: smeared,
       beta: 2,
       start: sprinkle,
       seed: 120,
     })
+
     const fromLayered = equilibratedHeightRatio({
       action: smeared,
       beta: 2,
       start: layered,
       seed: 220,
     })
+
     const gap = Math.abs(fromManifold - fromLayered)
     const sharp = equilibratedHeightRatio({
       action: benincasaDowkerAction({ epsilon: 1, dimension: 2 }),
@@ -92,6 +99,7 @@ export default experiment({
       start: sprinkle,
       seed: 900,
     })
+
     const ok = gap > 0.1 && sharp < fromManifold + 1e-9
 
     return verdict({

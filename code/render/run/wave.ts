@@ -26,8 +26,10 @@ const BEATS = 320 // enough for the central pulse to grow a wide interference li
 // a minimal PNG encoder (no dependencies), RGBA, 8-bit, using Node's zlib for the IDAT stream
 const CRC_TABLE = (() => {
   const t = new Uint32Array(256)
+
   for (let n = 0; n < 256; n++) {
     let c = n
+
     for (let k = 0; k < 8; k++) {
       c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
     }
@@ -40,6 +42,7 @@ const CRC_TABLE = (() => {
 
 function crc32(buf: Buffer): number {
   let c = 0xffffffff
+
   for (let i = 0; i < buf.length; i++) {
     c = CRC_TABLE[(c ^ buf[i]!) & 0xff]! ^ (c >>> 8)
   }
@@ -70,6 +73,7 @@ function encodePng(
   ihdr[9] = 6 // colour type 6, RGBA
   const stride = width * 4
   const raw = Buffer.alloc(height * (stride + 1))
+
   for (let y = 0; y < height; y++) {
     raw[y * (stride + 1)] = 0 // filter type 0 (none) per scanline
     Buffer.from(rgba.buffer, rgba.byteOffset + y * stride, stride).copy(
@@ -90,6 +94,7 @@ function encodePng(
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS)',
@@ -108,6 +113,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(
     params,
     0,
@@ -129,6 +135,7 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeBuf(), makeBuf()]
   device.queue.writeBuffer(bufs[0], 0, seed)
 
@@ -138,6 +145,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module: stepModule, entryPoint: 'main' },
   })
+
   const stepLayout = stepPipeline.getBindGroupLayout(0)
   const stepBind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -150,7 +158,9 @@ async function run(): Promise<void> {
     })
 
   const dispatch = Math.ceil(count / WORKGROUP)
+
   let src = 0
+
   for (let b = 0; b < BEATS; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -166,6 +176,7 @@ async function run(): Promise<void> {
   const renderModule = device.createShaderModule({
     code: WAVE_RENDER_WGSL,
   })
+
   const renderPipeline = device.createRenderPipeline({
     layout: 'auto',
     vertex: { module: renderModule, entryPoint: 'vs' },
@@ -176,11 +187,13 @@ async function run(): Promise<void> {
     },
     primitive: { topology: 'triangle-list' },
   })
+
   const target = device.createTexture({
     size: { width: SIZE, height: SIZE },
     format: 'rgba8unorm',
     usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
   })
+
   const renderBind = device.createBindGroup({
     layout: renderPipeline.getBindGroupLayout(0),
     entries: [
@@ -200,6 +213,7 @@ async function run(): Promise<void> {
       },
     ],
   })
+
   renderPass.setPipeline(renderPipeline)
   renderPass.setBindGroup(0, renderBind)
   renderPass.draw(3)
@@ -211,6 +225,7 @@ async function run(): Promise<void> {
     size: bytesPerRow * SIZE,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   renderEnc.copyTextureToBuffer(
     { texture: target },
     { buffer: pixelBuffer, bytesPerRow, rowsPerImage: SIZE },
@@ -227,6 +242,7 @@ async function run(): Promise<void> {
     '..',
     'make',
   )
+
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, 'field.png')
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))

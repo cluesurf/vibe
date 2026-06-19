@@ -28,6 +28,7 @@ const addSky = (
     radius: R,
     charge: ch,
   })
+
 const energy = (f: V[][], kappa: number): number =>
   directionFieldDerrickEnergy2d(f, kappa)
 
@@ -39,15 +40,19 @@ export function solitonMatter(): {
   const kappa = 2,
     R = 7,
     c = N / 2
+
   // (1) interaction energy vs separation (two charge-+1 solitons)
   const binding: [number, number][] = []
+
   let eInf = 0
+
   for (const d of [6, 9, 12, 16, 22, 30]) {
     const f = blank()
     addSky(f, c - d / 2, c, R, 1)
     addSky(f, c + d / 2, c, R, 1)
     const E = Math.round(energy(f, kappa) * 10) / 10
     binding.push([d, E])
+
     if (d === 30) {
       eInf = E
     }
@@ -57,6 +62,7 @@ export function solitonMatter(): {
   const bound =
     binding[binding.length - 1]![1] - minE > 1 &&
     binding.find(b => b[1] === minE)![0] < 30
+
   // (2) mass vs charge (additive matter)
   const one = blank()
   addSky(one, c, c, R, 1)

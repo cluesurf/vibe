@@ -20,6 +20,7 @@ function dodecahedron(): { verts: V3[]; faces: number[][] } {
   const phi = (1 + Math.sqrt(5)) / 2
   const ip = 1 / phi
   const verts: V3[] = []
+
   for (const sx of [-1, 1]) {
     for (const sy of [-1, 1]) {
       for (const sz of [-1, 1]) {
@@ -37,6 +38,7 @@ function dodecahedron(): { verts: V3[]; faces: number[][] } {
   }
 
   const dirs: V3[] = []
+
   for (const a of [-1, 1]) {
     for (const b of [-phi, phi]) {
       dirs.push({ x: 0, y: a, z: b })
@@ -72,12 +74,14 @@ function faceSphere(p: V3[]): { c: V3; r2: number } | null {
     (m[0]![2] ?? 0) *
       ((m[1]![0] ?? 0) * (m[2]![1] ?? 0) -
         (m[1]![1] ?? 0) * (m[2]![0] ?? 0))
+
   if (Math.abs(det) < 1e-12) {
     return null
   }
 
   const solve = (col: number): number => {
     const mm = m.map(row => [...row])
+
     for (let i = 0; i < 3; i++) {
       mm[i]![col] = b[i] ?? 0
     }
@@ -137,6 +141,7 @@ function cellAt(
     y: v.y * s,
     z: v.z * s,
   }))
+
   const spheres = base.faces.map(f =>
     faceSphere([verts[f[0]!]!, verts[f[1]!]!, verts[f[2]!]!]),
   )
@@ -149,11 +154,13 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
   // Two faces sharing an edge (sharing two vertices).
   let fa = 0
   let fb = 1
+
   outer: for (let i = 0; i < base.faces.length; i++) {
     for (let j = i + 1; j < base.faces.length; j++) {
       const shared = base.faces[i]!.filter(v =>
         base.faces[j]!.includes(v),
       )
+
       if (shared.length === 2) {
         fa = i
         fb = j
@@ -166,6 +173,7 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
     const cell = cellAt(r0, base)
     const s1 = cell.spheres[fa]
     const s2 = cell.spheres[fb]
+
     if (!s1 || !s2) {
       return Math.PI
     }
@@ -176,8 +184,10 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
   // Dihedral increases with r0. Binary search for 90 degrees (four cells per edge).
   let lo = 0.05
   let hi = 0.95
+
   for (let it = 0; it < 60; it++) {
     const mid = (lo + hi) / 2
+
     if (dihedralAt(mid) < Math.PI / 2) {
       lo = mid
     } else {
@@ -199,12 +209,15 @@ export function hyperbolicDodecagrid(input: {
 
   const key = (v: V3): string =>
     `${Math.round(v.x * 1e4)},${Math.round(v.y * 1e4)},${Math.round(v.z * 1e4)}`
+
   const vkeys = new Set<string>()
   const vx: number[] = []
   const vy: number[] = []
   const vz: number[] = []
+
   const addV = (v: V3): void => {
     const k = key(v)
+
     if (!vkeys.has(k)) {
       vkeys.add(k)
       vx.push(v.x)
@@ -219,6 +232,7 @@ export function hyperbolicDodecagrid(input: {
     let cx = 0
     let cy = 0
     let cz = 0
+
     for (const v of verts) {
       cx += v.x
       cy += v.y
@@ -236,8 +250,10 @@ export function hyperbolicDodecagrid(input: {
   const cap = input.maxVertices ?? 4000
 
   let frontier: V3[][] = [central.verts]
+
   for (let d = 0; d < input.depth && vx.length < cap; d++) {
     const next: V3[][] = []
+
     for (const cellVerts of frontier) {
       if (vx.length >= cap) {
         break
@@ -250,12 +266,14 @@ export function hyperbolicDodecagrid(input: {
           cellVerts[face[1]!]!,
           cellVerts[face[2]!]!,
         ])
+
         if (!sph) {
           continue
         }
 
         const reflected = cellVerts.map(v => invert(v, sph.c, sph.r2))
         const ck = cellKey(reflected)
+
         if (!seen.has(ck)) {
           seen.add(ck)
           reflected.forEach(addV)
@@ -271,6 +289,7 @@ export function hyperbolicDodecagrid(input: {
   const n = vx.length
   const dimension = 3
   const coords = new Float64Array(n * dimension)
+
   for (let i = 0; i < n; i++) {
     coords[i * dimension] = vx[i] ?? 0
     coords[i * dimension + 1] = vy[i] ?? 0
@@ -282,6 +301,7 @@ export function hyperbolicDodecagrid(input: {
   const neighbors: number[][] = Array.from({ length: n }, () => [])
   const coshThreshold = Math.cosh(input.connectThreshold)
   const oneMinus = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     oneMinus[i] = Math.max(
       1e-9,
@@ -299,6 +319,7 @@ export function hyperbolicDodecagrid(input: {
         oneMinus[i] ?? 1,
         oneMinus[j] ?? 1,
       )
+
       if (coshd <= coshThreshold) {
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)
@@ -311,6 +332,7 @@ export function hyperbolicDodecagrid(input: {
     dimension: 3,
     curvature: -1,
   }
+
   const embedding: Embedding = {
     form: 'embedding',
     dimension,

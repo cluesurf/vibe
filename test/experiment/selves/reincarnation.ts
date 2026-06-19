@@ -28,7 +28,9 @@ function settle(
   steps: number,
 ): Int8Array {
   const zero = new Float64Array(state.length)
+
   let t = state
+
   for (let i = 0; i < steps; i++) {
     t = hopfieldStep(J, t, zero, null)
   }
@@ -51,9 +53,12 @@ export function reincarnation(input: { seed: number }): {
   // 1. Persistence through total turnover. Hold the self, then overwrite tones a fraction at a
   // time (new material), healing after each batch, until every tone has been replaced.
   let state = Int8Array.from(P)
+
   const seen = new Set<number>()
   const tr = makeRng({ seed: input.seed + 1 })
+
   let rounds = 0
+
   while (seen.size < size && rounds < 1000) {
     for (let k = 0; k < Math.round(0.2 * size); k++) {
       const v = tr.nextInt({ max: size })
@@ -74,8 +79,10 @@ export function reincarnation(input: { seed: number }): {
     { length: size },
     () => (tr.nextInt({ max: 3 }) - 1) as -1 | 0 | 1,
   )
+
   const dissolvedOverlap = Math.abs(overlap(blank, P))
   const seedFraction = 0.35
+
   for (let i = 0; i < Math.round(seedFraction * size); i++) {
     blank[i] = P[i] as -1 | 0 | 1
   }

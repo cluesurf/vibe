@@ -65,6 +65,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const half = side / 2
     const center =
       half +
@@ -76,9 +77,11 @@ export default experiment({
     const longDirs = ROOTS.map((r, i) => [r, i] as const).filter(
       ([r]) => r.filter(v => v !== 0).length === 2,
     )
+
     const shortDirs = ROOTS.map((r, i) => [r, i] as const).filter(
       ([r]) => r.filter(v => v !== 0).length === 1,
     )
+
     const longCount = longDirs.length
     const shortCount = shortDirs.length
     const L = longDirs[0]![1]
@@ -95,12 +98,14 @@ export default experiment({
 
     const lone = (dir: number): Will =>
       loneParticle(mesh, center, dir, 1)
+
     const neigh = (
       cell: number,
       dir: number,
       steps: number,
     ): number => {
       let c = cell
+
       for (let i = 0; i < steps; i++) {
         c = mesh.neighbour(c, dir)
       }
@@ -113,10 +118,12 @@ export default experiment({
       will: run(lone(L), mobile, beats),
       start: center,
     })
+
     const shortTravel = travelDistance({
       will: run(lone(S), mobile, beats),
       start: center,
     })
+
     const longPinned = travelDistance({
       will: run(lone(L), pair, beats),
       start: center,
@@ -130,12 +137,14 @@ export default experiment({
       mStart,
       momentum(run(lone(L), mobile, beats), ROOTS),
     )
+
     const bindReversible = isReversible(
       lone(L),
       bind,
       beats,
       bindInverse,
     )
+
     const bindChargeOk = conservesCharge(lone(L), bind, beats)
 
     // 3, a co-moving pair is a moving bound state, one tight component that travels.

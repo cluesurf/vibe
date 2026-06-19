@@ -18,6 +18,7 @@ const qmul = (a: Q, b: Q): Q => [
   a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1],
   a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0],
 ]
+
 const qconj = (a: Q): Q => [a[0], -a[1], -a[2], -a[3]]
 
 export function unifiedEmergence(): {
@@ -35,7 +36,9 @@ export function unifiedEmergence(): {
       return q as unknown as Q
     }),
   )
+
   const half: Q[] = []
+
   for (const a of [0.5, -0.5]) {
     for (const b of [0.5, -0.5]) {
       for (const c of [0.5, -0.5]) {
@@ -51,11 +54,13 @@ export function unifiedEmergence(): {
       [q[1], q[2], q[3]].concat(q[0]).filter(x => x < 0).length % 2 ===
       0,
   )
+
   const c8 = half.filter(
     q =>
       [q[1], q[2], q[3]].concat(q[0]).filter(x => x < 0).length % 2 ===
       1,
   )
+
   const partitions =
     v8.length === 8 &&
     s8.length === 8 &&
@@ -64,6 +69,7 @@ export function unifiedEmergence(): {
 
   // a 2*pi rotation about z as a quaternion: q = (cos(pi), 0, 0, sin(pi)) = (-1, 0, 0, 0)
   const rot2pi: Q = [Math.cos(Math.PI), 0, 0, Math.sin(Math.PI)]
+
   // 8v transforms as a VECTOR (conjugation q v q^-1): the -1 cancels, vector returns to +1 (BOSON)
   const vectorSign = (v: Q): number => {
     const r = qmul(qmul(rot2pi, v), qconj(rot2pi))

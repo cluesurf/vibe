@@ -54,11 +54,13 @@ export default experiment({
       stateCount: bins,
       lag,
     })
+
     const marginal = marginalDistribution({
       trajectory: train,
       stateCount: bins,
       lag,
     })
+
     const shuffled = fitMarkovSurrogate({
       trajectory: timeShuffle({ trajectory: train, seed: 321 }),
       stateCount: bins,
@@ -70,12 +72,14 @@ export default experiment({
       test,
       lag,
     })
+
     const llMarginal = marginalLogLikelihood({ marginal, test, lag })
     const llShuffled = predictiveLogLikelihood({
       tpm: shuffled,
       test,
       lag,
     })
+
     const accSurrogate = forwardAccuracy({ tpm: surrogate, test, lag })
 
     // the surrogate beats the memoryless baseline on data it never saw (it learned real state-dependent

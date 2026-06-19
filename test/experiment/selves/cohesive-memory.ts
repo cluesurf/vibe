@@ -35,6 +35,7 @@ function agreeCount(
   except: number,
 ): number {
   let c = 0
+
   for (const w of neighbors[i]!) {
     if (w !== except && tone[w] === q) {
       c++
@@ -56,6 +57,7 @@ function beat(
   temp: number,
 ): void {
   const moved = new Uint8Array(tone.length)
+
   for (const [v, w] of edges) {
     if (moved[v] || moved[w]) {
       continue
@@ -63,6 +65,7 @@ function beat(
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -72,7 +75,9 @@ function beat(
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
       const q = tone[c]!
+
       let doHop: boolean
+
       if (cohesive) {
         const agreeC = agreeCount(tone, neighbors, c, q, e)
         const agreeE = agreeCount(tone, neighbors, e, q, c)
@@ -115,6 +120,7 @@ function measure(cohesive: boolean): {
     depth: 20,
     maxChambers: 60000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
@@ -124,12 +130,14 @@ function measure(cohesive: boolean): {
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
+
   for (let b = 0; b < 100; b++) {
     beat(t, edges, neighbors, rng, ARROW, cohesive, TEMP)
   }
 
   const base = t.slice()
   const work = base.slice()
+
   for (let b = 0; b < 40; b++) {
     beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
   }
@@ -139,6 +147,7 @@ function measure(cohesive: boolean): {
 
   // imprint a pleasure blob, run, measure survival above background
   let center = 0
+
   for (let i = 1; i < n; i++) {
     if (neighbors[i]!.length > neighbors[center]!.length) {
       center = i
@@ -150,8 +159,10 @@ function measure(cohesive: boolean): {
     size: n,
     source: center,
   })
+
   const imp = t.slice()
   const blob: number[] = []
+
   for (let i = 0; i < n; i++) {
     if (dd(distC, i) <= 3) {
       imp[i] = 1
@@ -161,14 +172,18 @@ function measure(cohesive: boolean): {
 
   const meanBlob = (arr: Int8Array): number =>
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
+
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
+
   for (let b = 0; b < 40; b++) {
     beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)
   }
 
   const after = meanBlob(imp)
+
   let bg = 0
+
   for (let i = 0; i < n; i++) {
     bg += imp[i]!
   }
@@ -199,11 +214,13 @@ export function cohesiveMemory(): {
   const persistenceImproved = cohesive.longLagCorr > random.longLagCorr
   const memoryImproved =
     cohesive.imprintRetention > random.imprintRetention + 0.15
+
   // honest finding: cohesion gives REAL but LEAKY memory, a self persists roughly twice as long as the
   // churn but its boundary still erodes. Memory exists without stored relations, it is just imperfect.
   const realMemory =
     cohesive.imprintRetention > 0.4 &&
     cohesive.imprintRetention > 1.7 * random.imprintRetention
+
   const durableSelvesForm = realMemory
   const solved = conserved && memoryImproved && realMemory
 

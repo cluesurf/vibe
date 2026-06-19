@@ -30,12 +30,14 @@ export function disclinationSpin(): {
   // at the canonical discretization, the spinor holonomy must equal (-1)^winding
   let spinorParityCorrect = true
   let vectorAlwaysReturns = true
+
   for (const winding of WINDINGS) {
     const h = disclinationHolonomy({ winding, steps: 24 })
     const expectMinusOne = winding % 2 === 1
     const spinorMatches = expectMinusOne
       ? h.spinorIsMinusOne
       : h.spinorIsPlusOne
+
     if (!spinorMatches) {
       spinorParityCorrect = false
     }
@@ -52,13 +54,16 @@ export function disclinationSpin(): {
 
   // topological: the holonomy is independent of the loop discretization
   let topological = true
+
   for (const winding of WINDINGS) {
     const base = disclinationHolonomy({
       winding,
       steps: STEP_COUNTS[0]!,
     })
+
     for (const steps of STEP_COUNTS) {
       const h = disclinationHolonomy({ winding, steps })
+
       if (
         h.spinorIsMinusOne !== base.spinorIsMinusOne ||
         h.spinorIsPlusOne !== base.spinorIsPlusOne

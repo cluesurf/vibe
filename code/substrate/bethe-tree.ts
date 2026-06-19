@@ -6,12 +6,16 @@
 
 export function betheTree(q: number, depth: number): Uint32Array[] {
   const adj: number[][] = [[]]
+
   let frontier = [0]
   let curDepth = 0
+
   while (curDepth < depth) {
     const next: number[] = []
+
     for (const parent of frontier) {
       const children = curDepth === 0 ? q : q - 1
+
       for (let c = 0; c < children; c++) {
         const id = adj.length
         adj.push([parent])

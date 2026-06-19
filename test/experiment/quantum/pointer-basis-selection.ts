@@ -33,10 +33,12 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const forward: Collision = pairCollision({
       opposite,
       forward: true,
     })
+
     const table = streamSourceTable(mesh)
     const init = makeWill(mesh)
     fillWillPattern(init)
@@ -53,6 +55,7 @@ export default experiment({
         axis: 0,
       }),
     )
+
     const openY = tailMean(
       pointerTrajectory({
         init,
@@ -64,6 +67,7 @@ export default experiment({
         axis: 1,
       }),
     )
+
     const closedX = tailMean(
       pointerTrajectory({
         init,
@@ -75,6 +79,7 @@ export default experiment({
         axis: 0,
       }),
     )
+
     const closedY = tailMean(
       pointerTrajectory({
         init,
@@ -91,6 +96,7 @@ export default experiment({
     const noRecordOrthogonal = openY < 0.5 * openX // not along the orthogonal axis, the basis is selected
     const closedNoRecord =
       closedX < 0.5 * openX && closedY < 0.5 * openX // closed forms no record in either, no selection
+
     const ok =
       recordAlongCoupling && noRecordOrthogonal && closedNoRecord
 

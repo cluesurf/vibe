@@ -67,6 +67,7 @@ export default experiment({
     const off = fitnessVariancePartition(
       withoutTransition({ groups, members, seed: 11 }),
     )
+
     const on = fitnessVariancePartition(
       withTransition({ groups, members, seed: 11 }),
     )

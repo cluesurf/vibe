@@ -23,6 +23,7 @@ export default experiment({
       connectThreshold: 2.0,
       maxVertices: 1500,
     })
+
     const levels = busemannLevels(graph, 6)
     const innermost = levels[0]!
     const outermost = levels[levels.length - 1]!

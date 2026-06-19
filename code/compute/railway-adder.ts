@@ -18,6 +18,7 @@ export function addInto(
   src: BinaryCounter,
 ): number {
   const times = src.count()
+
   for (let k = 0; k < times; k++) {
     dst.increment()
   }
@@ -46,6 +47,7 @@ export function fibOnRailway(input: { n: number; bits?: number }): {
   b.set(1)
   t.clear()
   let increments = 0
+
   for (let iter = 0; iter < input.n; iter++) {
     t.clear()
     increments += addInto(t, a)

@@ -72,6 +72,7 @@ export function equals(
 // The 8 Lipschitz unit quaternions, the quaternion group Q8: +-1, +-i, +-j, +-k.
 export function quaternionGroup(): Quaternion[] {
   const units: Quaternion[] = []
+
   for (const sign of [1, -1]) {
     units.push(quaternion(sign, 0, 0, 0))
     units.push(quaternion(0, sign, 0, 0))
@@ -86,6 +87,7 @@ export function quaternionGroup(): Quaternion[] {
 // vertices of the 24-cell: the 8 of Q8 plus the 16 of (+-1 +-i +-j +-k)/2.
 export function binaryTetrahedral(): Quaternion[] {
   const units = quaternionGroup()
+
   for (const signW of [0.5, -0.5]) {
     for (const signX of [0.5, -0.5]) {
       for (const signY of [0.5, -0.5]) {
@@ -109,16 +111,20 @@ export function binaryIcosahedral(): Quaternion[] {
   const phi = (1 + Math.sqrt(5)) / 2
   const magnitudes = [phi / 2, 0.5, 1 / (2 * phi), 0]
   const positions = [0, 1, 2, 3]
+
   for (const order of evenPermutations(positions)) {
     const base = [0, 0, 0, 0]
+
     for (let index = 0; index < 4; index++) {
       base[order[index]!] = magnitudes[index]!
     }
 
     const zeroSlot = order[3]!
     const nonzero = positions.filter(position => position !== zeroSlot)
+
     for (let signMask = 0; signMask < 8; signMask++) {
       const components = [...base]
+
       for (let bit = 0; bit < 3; bit++) {
         if ((signMask >> bit) & 1) {
           components[nonzero[bit]!] = -components[nonzero[bit]!]!
@@ -142,6 +148,7 @@ export function binaryIcosahedral(): Quaternion[] {
 // The even permutations of a list (the alternating group action), used to build the icosians.
 export function evenPermutations(items: number[]): number[][] {
   const result: number[][] = []
+
   const recurse = (current: number[], rest: number[]): void => {
     if (rest.length === 0) {
       if (permutationParity(current) === 0) {
@@ -166,6 +173,7 @@ export function evenPermutations(items: number[]): number[][] {
 
 function permutationParity(permutation: number[]): number {
   let inversions = 0
+
   for (let left = 0; left < permutation.length; left++) {
     for (let right = left + 1; right < permutation.length; right++) {
       if (permutation[left]! > permutation[right]!) {

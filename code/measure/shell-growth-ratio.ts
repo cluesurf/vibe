@@ -14,6 +14,7 @@ export function shellGrowthRatio(input: {
     input.from,
     Math.min(input.to, input.shellCounts.length),
   )
+
   if (mid.length <= 1 && !input.safeDenominator) {
     return 0
   }

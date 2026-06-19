@@ -40,11 +40,13 @@ export function directionalRule(): {
 
   // (2) Dirac dispersion cos E = cos(theta) cos(k)
   let diracOk = true
+
   for (const m of [0.0, 0.2, 0.6]) {
     const E0 = coinedWalkDispersion({ theta: m, k: 0 })
     const k = 0.1,
       Ek = coinedWalkDispersion({ theta: m, k }),
       rel = Math.sqrt(m * m + k * k)
+
     if (
       Math.abs(E0 - m) > 1e-6 ||
       Math.abs(Ek * Ek - k * k - m * m) > 1e-2

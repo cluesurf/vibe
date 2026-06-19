@@ -20,6 +20,7 @@ function spinorBranching(): { fourToThree: string; ok: boolean } {
   const cas = (s: number): number => s * (s + 1)
   const left = cas(0.5),
     right = cas(0.5) // both branch to spin 1/2
+
   const ok =
     Math.abs(left - 0.75) < 1e-9 && Math.abs(right - 0.75) < 1e-9
 
@@ -44,19 +45,25 @@ function directionProjection(radial: number[]): {
 
     return d.map((x, i) => x - dot * rhat[i]!)
   })
+
   // cluster by direction (unit vector up to sign), collect lengths
   const seen: number[][] = []
   const lengths: number[] = []
+
   for (const p of proj) {
     const n = Math.hypot(...p)
+
     if (n < 1e-9) {
       continue
     }
 
     const u = p.map(x => x / n)
+
     let found = false
+
     for (const s of seen) {
       const dot = Math.abs(s.reduce((a, x, i) => a + x * u[i]!, 0))
+
       if (dot > 0.999) {
         found = true
         break
@@ -77,6 +84,7 @@ function directionProjection(radial: number[]): {
 
 export function bulkCuspInterface(): void {
   const a = spinorBranching()
+
   for (const radial of [
     [1, 1, 1, 1],
     [1, 0, 0, 0],

@@ -40,6 +40,7 @@ export function associativeSpreadingActivation(input?: {
     neighbors: g.neighbors,
     wordBits,
   })
+
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
   }
@@ -48,6 +49,7 @@ export function associativeSpreadingActivation(input?: {
 
   // every occupied cell is a potential responder, the wave reaches the whole store
   const responders: number[] = []
+
   for (let c = 0; c < g.cellCount; c++) {
     responders.push(c)
   }
@@ -63,7 +65,9 @@ export function associativeSpreadingActivation(input?: {
     neighbors: g.neighbors,
     root: seed,
   }).depth
+
   let arrivalMatchesDistance = true
+
   for (let c = 0; c < g.cellCount; c++) {
     if (wave.arrivalBeat[c] !== distance[c]) {
       arrivalMatchesDistance = false
@@ -74,8 +78,10 @@ export function associativeSpreadingActivation(input?: {
   // arrival time increases monotonically with distance, the mean arrival per shell is strictly increasing
   const sums: number[] = []
   const counts: number[] = []
+
   for (let c = 0; c < g.cellCount; c++) {
     const d = distance[c]!
+
     if (d < 0) {
       continue
     }
@@ -86,9 +92,11 @@ export function associativeSpreadingActivation(input?: {
 
   let monotone = true
   let prev = -1
+
   for (let d = 0; d < sums.length; d++) {
     if (counts[d]) {
       const mean = sums[d]! / counts[d]!
+
       if (mean <= prev) {
         monotone = false
       }

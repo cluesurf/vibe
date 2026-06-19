@@ -49,6 +49,7 @@ for (const symbol of symbols) {
       segments: 96,
       superSample: 3,
     })
+
     const file = join(outDir, `${tag}-${name}.png`)
     writeFileSync(file, png)
     console.log(

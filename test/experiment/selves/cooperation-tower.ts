@@ -42,6 +42,7 @@ function partition(
   const n = neighbors.length
   const assigned = new Int8Array(n)
   const groups: number[][] = []
+
   for (let seed = 0; seed < n; seed++) {
     if (assigned[seed]) {
       continue
@@ -49,14 +50,17 @@ function partition(
 
     const group: number[] = []
     const queue = [seed]
+
     while (queue.length > 0 && group.length < targetSize) {
       const u = queue.shift()!
+
       if (assigned[u]) {
         continue
       }
 
       assigned[u] = 1
       group.push(u)
+
       for (const w of neighbors[u]!) {
         if (!assigned[w]) {
           queue.push(w)
@@ -97,19 +101,23 @@ export function cooperationTower(): {
     depth: 22,
     maxChambers: 120000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const rng = makeRng({ seed: 5 })
 
   // initial charges, mean zero so the total is zero (conserved target)
   const charge0 = new Array<number>(n)
+
   let s = 0
+
   for (let i = 0; i < n; i++) {
     charge0[i] = rng.next() * 2 - 1
     s += charge0[i]!
   }
 
   const meanc = s / n
+
   for (let i = 0; i < n; i++) {
     charge0[i]! -= meanc
   }
@@ -128,8 +136,11 @@ export function cooperationTower(): {
     wasted: number
   } {
     const c = charge0.slice()
+
     let wasted = 0
+
     const W = 0.01
+
     for (let beat = 0; beat < 40; beat++) {
       for (let i = 0; i < n; i++) {
         for (const j of neighbors[i]!) {
@@ -159,7 +170,9 @@ export function cooperationTower(): {
   // TRADE: selves with complementary value-landscapes swap, positive-sum in VALUE, charge conserved.
   function trade(): { charges: number[]; valueGain: number } {
     const c = charge0.slice()
+
     let valueGain = 0
+
     for (let i = 0; i < n; i++) {
       for (const j of neighbors[i]!) {
         if (j <= i) {
@@ -186,9 +199,12 @@ export function cooperationTower(): {
   } {
     const c = charge0.slice()
     const groups = partition(neighbors, targetSize)
+
     let order = 0
+
     for (const g of groups) {
       const m = g.reduce((a, k) => a + c[k]!, 0) / g.length
+
       for (const k of g) {
         c[k]! = m
       } // share in balance, no grabbing within
@@ -212,7 +228,9 @@ export function cooperationTower(): {
     groupSize: g,
     order: integrate(g).order,
   }))
+
   let towerGrows = true
+
   for (let k = 1; k < towerOrderByLevel.length; k++) {
     if (
       (towerOrderByLevel[k]?.order ?? 0) <=

@@ -18,8 +18,10 @@ const reachableBoundary = (
   const seen = new Uint8Array(neighbors.length)
   seen[centre] = 1
   let frontier = [centre]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (const v of neighbors[u]!) {
         if (!erased[v] && seen[v] === 0) {
@@ -33,6 +35,7 @@ const reachableBoundary = (
   }
 
   let reached = 0
+
   for (const b of boundary) {
     if (seen[b] === 1) {
       reached += 1
@@ -58,8 +61,10 @@ export default experiment({
     const parent = new Array(size).fill(-1)
     depth[0] = 0
     let frontier = [0]
+
     while (frontier.length) {
       const next: number[] = []
+
       for (const u of frontier) {
         for (const v of planar[u]!) {
           if (depth[v] === -1) {
@@ -75,6 +80,7 @@ export default experiment({
 
     const maxDepth = depth.reduce((m, d) => Math.max(m, d), 0)
     const tree: number[][] = Array.from({ length: size }, () => [])
+
     for (let v = 0; v < size; v++) {
       if (parent[v] !== -1) {
         tree[v]!.push(parent[v]!)
@@ -89,7 +95,9 @@ export default experiment({
     // erase every other cell of a mid-depth annulus (a partial cut)
     const cutDepth = Math.floor(maxDepth / 2)
     const erased = new Array(size).fill(false)
+
     let cut = 0
+
     for (let c = 0; c < size; c++) {
       if (depth[c] === cutDepth && c % 2 === 0) {
         erased[c] = true

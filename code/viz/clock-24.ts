@@ -24,6 +24,7 @@ const COUNT = 12
 
 // position i sits at i * 30 degrees clockwise from the top (12 o'clock)
 const angleDeg = (i: number): number => i * (360 / COUNT) - 90
+
 const onCircle = (r: number, deg: number): [number, number] => {
   const a = (deg * Math.PI) / 180
 
@@ -87,6 +88,7 @@ function buildSvg(): string {
 function main(): void {
   const out =
     '/Users/lancepollard/base/crew/cluesurf/deck/vibe/make/24-clock.svg'
+
   mkdirSync(dirname(out), { recursive: true })
   writeFileSync(out, buildSvg())
   console.log(`wrote ${out}`)

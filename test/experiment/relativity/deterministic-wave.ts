@@ -56,6 +56,7 @@ export function deterministicWave(input?: {
   // (1) reversibility: run forward, then step backward, recover the initial pair exactly
   const prev0 = new Uint8Array(L)
   const cur0 = new Uint8Array(L)
+
   for (let x = 0; x < L; x++) {
     prev0[x] = Math.floor(rng0.next() * 3)
     cur0[x] = Math.floor(rng0.next() * 3)
@@ -63,6 +64,7 @@ export function deterministicWave(input?: {
 
   let prev = prev0.slice()
   let cur = cur0.slice()
+
   for (let t = 0; t < 50; t++) {
     const next = new Uint8Array(L)
     step(prev, cur, next)
@@ -79,6 +81,7 @@ export function deterministicWave(input?: {
   }
 
   let reversible = true
+
   for (let x = 0; x < L; x++) {
     if (prev[x] !== prev0[x] || cur[x] !== cur0[x]) {
       reversible = false
@@ -88,10 +91,12 @@ export function deterministicWave(input?: {
 
   // (2) ballistic spread: a localized perturbation, RMS width of the difference vs time
   const center = Math.floor(L / 2)
+
   const measureDet = (): { times: number[]; spreads: number[] } => {
     const r = makeRng({ seed: 11 })
     const p0 = new Uint8Array(L)
     const c0 = new Uint8Array(L)
+
     for (let x = 0; x < L; x++) {
       p0[x] = Math.floor(r.next() * 3)
       c0[x] = Math.floor(r.next() * 3)
@@ -104,6 +109,7 @@ export function deterministicWave(input?: {
     cb[center] = (cb[center]! + 1) % 3 // the perturbation
     const times: number[] = []
     const spreads: number[] = []
+
     for (let t = 1; t <= beats; t++) {
       const na = new Uint8Array(L)
       const nb = new Uint8Array(L)
@@ -113,6 +119,7 @@ export function deterministicWave(input?: {
       ca = na
       pb = cb
       cb = nb
+
       if (t % 5 === 0) {
         times.push(t)
         spreads.push(
@@ -137,11 +144,14 @@ export function deterministicWave(input?: {
     const spreads: number[] = []
     const runs = 400
     const sumD2 = new Float64Array(beats + 1)
+
     for (let run = 0; run < runs; run++) {
       const tone = new Int8Array(L)
       tone[center] = 1
       const r = makeRng({ seed: 200 + run })
+
       let pos = center
+
       for (let t = 1; t <= beats; t++) {
         conservingEdgeSweep({
           tone,
@@ -151,6 +161,7 @@ export function deterministicWave(input?: {
           rng: r,
           arrow: 0,
         })
+
         if (tone[pos] === 0) {
           for (let d = -1; d <= 1; d += 2) {
             if (tone[(pos + d + L) % L] === 1) {
@@ -164,6 +175,7 @@ export function deterministicWave(input?: {
           Math.abs(pos - center),
           L - Math.abs(pos - center),
         )
+
         sumD2[t]! += dd * dd
       }
     }
@@ -188,6 +200,7 @@ export function deterministicWave(input?: {
   // informational only, not part of the verdict
   const stochIsDiffusive =
     stochSpreadExponent < detSpreadExponent - 0.05 // at least clearly less ballistic
+
   const momentumFromDeterminism = reversible && detIsBallistic
   const solved = momentumFromDeterminism
 

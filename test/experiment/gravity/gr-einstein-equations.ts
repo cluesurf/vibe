@@ -43,6 +43,7 @@ function areaLawPrecondition(): {
 } {
   const n = 96
   const lengths: number[] = []
+
   for (let l = 6; l <= n / 2; l += 4) {
     lengths.push(l)
   }
@@ -56,6 +57,7 @@ function areaLawPrecondition(): {
       region: Array.from({ length: len }, (_, i) => i),
     }),
   )
+
   const late = entropies.slice(Math.floor(entropies.length / 2))
   const massiveSpread = Math.max(...late) - Math.min(...late) // flat tail = saturation = area law
   // the maximally-mixed state has correlation matrix I/2, so its interval entropy is len * ln 2 (volume law)
@@ -90,14 +92,18 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
     symbol: [4, 3, 4],
     maxCells: 30000,
   })
+
   const n = g.cellCount
   const cx = g.coords
     .reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0])
     .map(v => v / n)
+
   let src = 0
   let bd = Infinity
+
   for (let i = 0; i < n; i++) {
     const d = g.coords[i]!.reduce((s, v, k) => s + (v - cx[k]!) ** 2, 0)
+
     if (d < bd) {
       bd = d
       src = i
@@ -112,14 +118,18 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
     interiorDegree: 6,
     iterations: 2000,
   })
+
   const norm = (c: number[]): number =>
     Math.sqrt(
       c.reduce((s, v, k) => s + (v - g.coords[src]![k]!) ** 2, 0),
     )
+
   const rs: number[] = []
   const phis: number[] = []
+
   for (let i = 0; i < n; i++) {
     const r = norm(g.coords[i]!)
+
     if (r >= 2 && r <= 9 && phi[i]! > 1e-9) {
       rs.push(r)
       phis.push(phi[i]!)

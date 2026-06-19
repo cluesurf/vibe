@@ -36,15 +36,19 @@ export default experiment({
   run() {
     const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 3000 })
     const cells = a.address.length
+
     let prefixConsistent = true
     let checked = 0
+
     for (let cell = 0; cell < cells; cell++) {
       const parent = a.parent[cell]!
+
       if (parent === -1) {
         continue
       }
 
       checked += 1
+
       if (!isPrefixPlusOne(a.address[parent]!, a.address[cell]!)) {
         prefixConsistent = false
       }

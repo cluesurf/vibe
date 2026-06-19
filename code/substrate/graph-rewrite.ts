@@ -23,6 +23,7 @@ export function gridRefinementRewrite(
     { length: nodeCount },
     () => [],
   )
+
   const link = (a: number, b: number): void => {
     neighbors[a]!.push(b)
     neighbors[b]!.push(a)
@@ -49,6 +50,7 @@ export function degreeHistogram(
   graph: RewriteGraph,
 ): Record<number, number> {
   const histogram: Record<number, number> = {}
+
   for (const list of graph.neighbors) {
     const degree = list.length
     histogram[degree] = (histogram[degree] ?? 0) + 1
@@ -60,8 +62,10 @@ export function degreeHistogram(
 // The most common (bulk) degree of a graph, the mode of the degree histogram, ignoring boundary nodes.
 export function bulkDegree(graph: RewriteGraph): number {
   const histogram = degreeHistogram(graph)
+
   let best = 0
   let bestCount = -1
+
   for (const [degree, count] of Object.entries(histogram)) {
     if (count > bestCount) {
       bestCount = count

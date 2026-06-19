@@ -10,16 +10,20 @@ const cAdd = (a: Complex, b: Complex): Complex => [
   a[0] + b[0],
   a[1] + b[1],
 ]
+
 const cSub = (a: Complex, b: Complex): Complex => [
   a[0] - b[0],
   a[1] - b[1],
 ]
+
 const cMul = (a: Complex, b: Complex): Complex => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
 ]
+
 const cConj = (a: Complex): Complex => [a[0], -a[1]]
 const cAbs = (a: Complex): number => Math.hypot(a[0], a[1])
+
 const cDiv = (a: Complex, b: Complex): Complex => {
   const d = b[0] * b[0] + b[1] * b[1]
   const n = cMul(a, cConj(b))
@@ -35,6 +39,7 @@ const cFromPolar = (radius: number, angle: number): Complex => [
 // the Mobius map sending the point a to the origin (an isometry of the disk)
 const mobiusToOrigin = (a: Complex, z: Complex): Complex =>
   cDiv(cSub(z, a), cSub([1, 0], cMul(cConj(a), z)))
+
 // the inverse, sending the origin to a
 const mobiusFromOrigin = (a: Complex, z: Complex): Complex =>
   cDiv(cAdd(z, a), cAdd([1, 0], cMul(cConj(a), z)))
@@ -57,9 +62,12 @@ export function completeTree(input: {
 } {
   const parent: number[] = [-1]
   const children: number[][] = [[]]
+
   let frontier = [0]
+
   for (let level = 0; level < input.depth; level++) {
     const next: number[] = []
+
     for (const node of frontier) {
       for (let c = 0; c < input.branching; c++) {
         const id = parent.length
@@ -86,6 +94,7 @@ export function treeDistance(
   let a = u
   let b = v
   let steps = 0
+
   while (depth[a]! > depth[b]!) {
     a = parent[a]!
     steps += 1
@@ -118,10 +127,12 @@ export function embedTree(input: {
   const depth: number[] = new Array(size).fill(0)
   const radius = Math.tanh(input.edge / 2) // Poincare radius of a point at hyperbolic distance `edge` from 0
   coords[0] = [0, 0]
+
   // place children of each node, spreading them evenly in the cone facing away from the parent. parentDir is
   // the angle (in this node's local frame) pointing back to the parent, undefined for the root.
   const place = (node: number, parentDir: number | undefined): void => {
     const kids = input.children[node]!
+
     if (kids.length === 0) {
       return
     }
@@ -134,6 +145,7 @@ export function embedTree(input: {
       parentDir === undefined
         ? (2 * Math.PI * (n - 1)) / n
         : (2 * Math.PI * n) / (n + 1)
+
     kids.forEach((kid, index) => {
       const angle =
         n === 1
@@ -141,6 +153,7 @@ export function embedTree(input: {
           : baseAngle +
             (cone * (index - (n - 1) / 2)) /
               Math.max(1, n - (parentDir === undefined ? 0 : 1))
+
       const local = cFromPolar(radius, angle)
       coords[kid] = input.hyperbolic
         ? mobiusFromOrigin(here, local)
@@ -165,12 +178,14 @@ export function embeddingDistortion(input: {
 }): number {
   const size = input.coords.length
   const pairs: Array<{ embedded: number; tree: number }> = []
+
   for (let u = 0; u < size; u++) {
     for (let v = u + 1; v < size; v++) {
       const tree = treeDistance(input.parent, input.depth, u, v)
       const embedded = input.hyperbolic
         ? hyperbolicDistance(input.coords[u]!, input.coords[v]!)
         : cAbs(cSub(input.coords[u]!, input.coords[v]!))
+
       pairs.push({ embedded, tree })
     }
   }
@@ -179,11 +194,15 @@ export function embeddingDistortion(input: {
   const ratios = pairs
     .map(p => p.embedded / p.tree)
     .sort((a, b) => a - b)
+
   const scale = ratios[Math.floor(ratios.length / 2)]!
+
   let worst = 1
+
   for (const p of pairs) {
     const scaled = p.embedded / scale
     const ratio = Math.max(scaled / p.tree, p.tree / scaled)
+
     if (ratio > worst) {
       worst = ratio
     }

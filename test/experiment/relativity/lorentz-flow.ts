@@ -45,6 +45,7 @@ export function lorentzFlow(input?: {
       dot(g.coords[i]!, g.coords[i]!),
     ),
   )
+
   const c0 = g.coords[origin]!
 
   // a fixed set of probe axes (unit vectors): coordinate axes plus random directions
@@ -54,10 +55,12 @@ export function lorentzFlow(input?: {
     [0, 1, 0],
     [0, 0, 1],
   ]
+
   for (let a = 0; a < 40; a++) {
     let x = axRng.next() * 2 - 1
     let y = axRng.next() * 2 - 1
     let z = axRng.next() * 2 - 1
+
     const len = Math.hypot(x, y, z) || 1
     x /= len
     y /= len
@@ -69,8 +72,10 @@ export function lorentzFlow(input?: {
   const a2: number[] = []
   const a4: number[] = []
   const a6: number[] = []
+
   for (const k of steps) {
     const dirs: number[][] = []
+
     for (let run = 0; run < runs; run++) {
       // single charge random walk from the origin cell for k steps
       const rng = makeRng({ seed: 7000 + run * 17 + k })
@@ -80,12 +85,15 @@ export function lorentzFlow(input?: {
         steps: k,
         rng,
       })
+
       const d = [
         g.coords[cur]![0]! - c0[0]!,
         g.coords[cur]![1]! - c0[1]!,
         g.coords[cur]![2]! - c0[2]!,
       ]
+
       const len = Math.hypot(d[0]!, d[1]!, d[2]!)
+
       if (len < 1e-9) {
         continue
       }

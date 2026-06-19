@@ -20,6 +20,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
   let cur = new Int8Array(L * L * L),
     prev = new Int8Array(L * L * L),
     nxt = new Int8Array(L * L * L)
+
   const c = L >> 1
   cur[at(c, c, c)] = 1
   const D = [
@@ -30,10 +31,13 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
     [0, 0, 1],
     [0, 0, -1],
   ]
+
   const radii: [number, number][] = []
+
   for (let b = 0; b <= 24; b++) {
     if ([6, 12, 24].includes(b)) {
       let r = 0
+
       for (let z = 0; z < L; z++) {
         for (let y = 0; y < L; y++) {
           for (let x = 0; x < L; x++) {
@@ -56,6 +60,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
           let s = 0
+
           for (const d of D) {
             s += cur[at(x + d[0]!, y + d[1]!, z + d[2]!)]!
           }
@@ -91,6 +96,7 @@ export function ports(): {
   const rng = makeRng({ seed: 3 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(L * L * L)
+
   for (let k = 0; k < 200; k++) {
     t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   }
@@ -100,6 +106,7 @@ export function ports(): {
   }
 
   let ch = 0
+
   for (let i = 0; i < t.length; i++) {
     if (t[i] !== 0) {
       ch++
@@ -111,6 +118,7 @@ export function ports(): {
   // two opposite selves annihilate
   const t2 = new Int8Array(L * L * L)
   const c = L >> 1
+
   for (let dx = -2; dx <= 2; dx++) {
     for (let dy = -2; dy <= 2; dy++) {
       for (let dz = -2; dz <= 2; dz++) {
@@ -123,6 +131,7 @@ export function ports(): {
   const count = (): [number, number] => {
     let p = 0,
       m = 0
+
     for (let i = 0; i < t2.length; i++) {
       if (t2[i] === 1) {
         p++
@@ -135,6 +144,7 @@ export function ports(): {
   }
 
   const start = count()
+
   for (let b = 0; b < 40; b++) {
     beat(t2, false)
   }

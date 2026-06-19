@@ -14,10 +14,13 @@ export function screenedGreensFunction(input: {
   const { neighbors, start, mass2, iterations } = input
   const n = neighbors.length
   const phi = new Float64Array(n)
+
   for (let it = 0; it < iterations; it++) {
     for (let i = 0; i < n; i++) {
       const row = neighbors[i] ?? []
+
       let s = i === start ? 1 : 0
+
       for (const j of row) {
         s += phi[j]!
       }
@@ -49,20 +52,25 @@ export function clampedLeakyDiffusion(input: {
     leak,
     iterations,
   } = input
+
   let p = new Float64Array(N)
   p[src] = 1
   let np = new Float64Array(N)
+
   for (let t = 0; t < iterations; t++) {
     np.fill(0)
     np[src] = 1
+
     for (let i = 0; i < N; i++) {
       const pi = p[i]!
+
       if (!pi) {
         continue
       }
 
       const d = off[i + 1]! - off[i]!
       const sh = ((1 - leak) * pi) / d
+
       for (let q = off[i]!; q < off[i + 1]!; q++) {
         np[adj[q]!] = np[adj[q]!]! + sh
       }

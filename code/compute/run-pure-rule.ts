@@ -49,6 +49,7 @@ function cpuBeat(
     for (let e = colorOffsets[c]!; e < colorOffsets[c + 1]!; e++) {
       const v = edgeV[e]!,
         w = edgeW[e]!
+
       const out = PERM[tone[v]! * 3 + tone[w]!]!
       tone[v] = Math.floor(out / 3)
       tone[w] = out % 3
@@ -58,6 +59,7 @@ function cpuBeat(
 
 const charge = (t: Uint32Array): number => {
   let s = 0
+
   for (let i = 0; i < t.length; i++) {
     s += t[i] === 1 ? 1 : t[i] === 2 ? -1 : 0
   }
@@ -67,6 +69,7 @@ const charge = (t: Uint32Array): number => {
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter (needs a GPU)')
 
@@ -80,9 +83,11 @@ async function run(): Promise<void> {
   // undirected edge list (v < w)
   const eu: number[] = [],
     ev: number[] = []
+
   for (let v = 0; v < N; v++) {
     for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
       const w = g.adj[p]!
+
       if (w > v) {
         eu.push(v)
         ev.push(w)
@@ -98,10 +103,14 @@ async function run(): Promise<void> {
   // greedy edge-colouring (each colour a matching, no vertex repeats a colour)
   const mask = new Uint32Array(N)
   const color = new Int32Array(E)
+
   let maxColor = 0
+
   for (let i = 0; i < E; i++) {
     const used = mask[eu[i]!]! | mask[ev[i]!]!
+
     let c = 0
+
     while (used & (1 << c)) {
       c++
     }
@@ -109,6 +118,7 @@ async function run(): Promise<void> {
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
+
     if (c > maxColor) {
       maxColor = c
     }
@@ -117,18 +127,22 @@ async function run(): Promise<void> {
   const C = maxColor + 1
   // sort edges by colour, build offsets
   const counts = new Array(C).fill(0)
+
   for (let i = 0; i < E; i++) {
     counts[color[i]!]++
   }
 
   const colorOffsets = new Array(C + 1).fill(0)
+
   for (let c = 0; c < C; c++) {
     colorOffsets[c + 1] = colorOffsets[c]! + counts[c]!
   }
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
+
   const cursor = colorOffsets.slice()
+
   for (let i = 0; i < E; i++) {
     const c = color[i]!
     const at = cursor[c]!++
@@ -144,6 +158,7 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(N)
   const r = makeRng({ seed: 987654321 })
   const nextR = (): number => r.next()
+
   for (let i = 0; i < N; i++) {
     const x = nextR()
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
@@ -156,6 +171,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const toneBuf = device.createBuffer({
     size: N * 4,
     usage:
@@ -163,22 +179,26 @@ async function run(): Promise<void> {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(toneBuf, 0, seed)
   const vBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(vBuf, 0, edgeV)
   const wBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(wBuf, 0, edgeW)
   const module = device.createShaderModule({ code: PURE_RULE_WGSL })
   const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = device.createBindGroup({
     layout,
@@ -194,6 +214,7 @@ async function run(): Promise<void> {
     for (let c = 0; c < C; c++) {
       const start = colorOffsets[c]!,
         count = colorOffsets[c + 1]! - start
+
       if (count === 0) {
         continue
       }
@@ -222,6 +243,7 @@ async function run(): Promise<void> {
     size: N * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   {
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
@@ -232,11 +254,13 @@ async function run(): Promise<void> {
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
   const cpu = seed.slice()
+
   for (let b = 0; b < CHECK_BEATS; b++) {
     cpuBeat(cpu, edgeV, edgeW, colorOffsets)
   }
 
   let mism = 0
+
   for (let i = 0; i < N; i++) {
     if (cpu[i] !== gpuOut[i]) {
       mism++
@@ -255,6 +279,7 @@ async function run(): Promise<void> {
   beatGpu()
   await device.queue.onSubmittedWorkDone()
   const t0 = performance.now()
+
   for (let b = 0; b < BENCH_BEATS; b++) {
     beatGpu()
   }
@@ -273,11 +298,13 @@ async function run(): Promise<void> {
   // (4) descriptive structure scan, run to steady churn, then read the same-sign cluster sizes at L0 and at
   // one coarse level (BFS-tree ancestor). NOT physics, just the shape of the pattern the five things make.
   device.queue.writeBuffer(toneBuf, 0, seed)
+
   for (let b = 0; b < 3000; b++) {
     beatGpu()
   }
 
   await device.queue.onSubmittedWorkDone()
+
   {
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
@@ -288,6 +315,7 @@ async function run(): Promise<void> {
   const fin = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
   const sign = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     sign[i] = fin[i] === 1 ? 1 : fin[i] === 2 ? -1 : 0
   }
@@ -296,6 +324,7 @@ async function run(): Promise<void> {
     s: Int8Array,
   ): { largest: number; charged: number } => {
     const par = new Int32Array(N)
+
     for (let i = 0; i < N; i++) {
       par[i] = i
     }
@@ -316,6 +345,7 @@ async function run(): Promise<void> {
 
       for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
         const w = g.adj[p]!
+
         if (w > v && s[w] === s[v]) {
           par[find(v)] = find(w)
         }
@@ -323,7 +353,9 @@ async function run(): Promise<void> {
     }
 
     const sz = new Map<number, number>()
+
     let charged = 0
+
     for (let i = 0; i < N; i++) {
       if (s[i] === 0) {
         continue
@@ -335,6 +367,7 @@ async function run(): Promise<void> {
     }
 
     let m = 0
+
     for (const v of sz.values()) {
       m = Math.max(m, v)
     }

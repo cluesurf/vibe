@@ -54,7 +54,9 @@ export function gliderLine(input: {
   const tone = input.tone ?? 1
   const will = makeWill(mesh)
   const cells: number[] = []
+
   let cell = start
+
   for (let index = 0; index < length; index++) {
     will.data[cell * mesh.degree + direction] = tone
     cells.push(cell)
@@ -67,7 +69,9 @@ export function gliderLine(input: {
 // the total tone over the whole mesh, the conserved charge.
 export function charge(will: Will): number {
   let sum = 0
+
   const data = will.data
+
   for (let index = 0; index < data.length; index++) {
     sum += data[index] ?? 0
   }
@@ -79,7 +83,9 @@ export function charge(will: Will): number {
 export function cellTone(will: Will, cell: number): number {
   const degree = will.mesh.degree
   const base = cell * degree
+
   let sum = 0
+
   for (let direction = 0; direction < degree; direction++) {
     sum += will.data[base + direction] ?? 0
   }

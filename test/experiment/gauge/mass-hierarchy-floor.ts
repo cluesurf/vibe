@@ -48,6 +48,7 @@ const INTER_GENERATION: { name: string; ratio: number }[] = [
     ratio: Math.sqrt(2.5e-3 + 7.5e-5) / Math.sqrt(7.5e-5),
   },
 ]
+
 // the intra-generation splittings (same shell, different sector), NOT bounded by the floor (the control)
 const INTRA_GENERATION: { name: string; ratio: number }[] = [
   { name: 'down/up gen1 (d/u)', ratio: 4.67 / 2.16 },
@@ -71,6 +72,7 @@ export default experiment({
         cellCount: addressing.graph.cellCount,
       }),
     ).ratio
+
     const floor = Math.sqrt(lambda) // the minimum inter-generation mass ratio, parameter-free
 
     // every inter-generation ratio exceeds the floor
@@ -79,6 +81,7 @@ export default experiment({
     const sorted = [...INTER_GENERATION].sort(
       (a, b) => a.ratio - b.ratio,
     )
+
     const closest = sorted[0]!
     const neutrinoIsClosest = closest.name.startsWith('neutrino')
     const closestRatioToFloor = closest.ratio / floor

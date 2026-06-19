@@ -20,6 +20,7 @@ import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 function shuffle(labels: number[], seed: number): number[] {
   const rng = makeRng(seed)
   const out = labels.slice()
+
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = out[i]!
@@ -48,6 +49,7 @@ function timescales(
 
 function coefficientOfVariation(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
+
   if (mean === 0) {
     return Infinity
   }
@@ -79,6 +81,7 @@ export default experiment({
       bins,
       seed: 56789,
     })
+
     const labels = quantileLabels({ series: traj.centroids, bins })
 
     const real = timescales(labels, bins, lags)
@@ -98,6 +101,7 @@ export default experiment({
           }),
         ),
       ).lambda2
+
     const lambdaReal = eigOf(labels)
     const lambdaShuffled = eigOf(shuffle(labels, 321))
 

@@ -53,6 +53,7 @@ export function ruleLocalityRange(input: {
   rng: Rng
 }): number {
   const size = input.substrate.size
+
   if (size === 0) {
     return 0
   }
@@ -62,6 +63,7 @@ export function ruleLocalityRange(input: {
 
   const radii: number[] = []
   const sampleCount = Math.min(input.sampleSize, size)
+
   for (let s = 0; s < sampleCount; s++) {
     const center = input.rng.nextInt({ max: size })
 
@@ -78,6 +80,7 @@ export function ruleLocalityRange(input: {
 
     // Perturb the center: flip every slot to a different value.
     const perturbed = cloneConfiguration(input.configuration)
+
     for (let slot = 0; slot < slots; slot++) {
       const current = getTone(perturbed, { element: center, slot })
       const shifted = distinct > 1 ? (current + 1) % distinct : current
@@ -93,8 +96,10 @@ export function ruleLocalityRange(input: {
 
     // Find the farthest node whose next tone differs between the two runs.
     let maxRadius = 0
+
     for (let node = 0; node < size; node++) {
       let changed = false
+
       for (let slot = 0; slot < slots; slot++) {
         if (
           getTone(baselineNext, { element: node, slot }) !==
@@ -114,6 +119,7 @@ export function ruleLocalityRange(input: {
         from: center,
         to: node,
       })
+
       if (distance > maxRadius) {
         maxRadius = distance
       }

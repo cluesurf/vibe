@@ -26,9 +26,12 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
+
     const lateFrac = (seedPairs: number) => {
       const t = new Int8Array(n)
+
       for (let k = 0; k < seedPairs; k++) {
         t[2 * k] = 1
         t[2 * k + 1] = -1
@@ -41,6 +44,7 @@ export default experiment({
         arrow: 0.1,
         seed: 9,
       })
+
       const tail = r.trajectory.slice(-20)
 
       return tail.reduce((a, b) => a + b, 0) / tail.length / n
@@ -59,12 +63,14 @@ export default experiment({
       (i + 7) % 8,
       (i + 1) % 8,
     ])
+
     const goe = gardenOfEdenFraction({
       neighbors: ring,
       cells: 8,
       arrow: 0.1,
       seed: 9,
     })
+
     const nonInjective = goe.goeFraction > 0.1 && goe.injectivity < 0.9 // many states have no predecessor
 
     const ok = seedIrrelevant && nonInjective

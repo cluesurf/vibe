@@ -24,10 +24,12 @@ export default experiment({
       [3, 4, 3, 3, 4],
       [3, 4, 3, 3, 3],
     ]
+
     let allGeometric = true
     let allBeatScrambled = true
     let allFiveDimensional = true
     let worst = 1
+
     for (const symbol of symbols) {
       const graph = coxeterPoincareGraph(symbol, 1000)
       const greedy = greedyRoutingSuccess({
@@ -36,12 +38,14 @@ export default experiment({
         rng: makeRng({ seed: 1 }),
         maxHops: 200,
       })
+
       const scrambled = greedyRoutingSuccess({
         graph: withScrambledEmbedding(graph),
         trials: 150,
         rng: makeRng({ seed: 1 }),
         maxHops: 200,
       })
+
       if (graph.embedding!.dimension !== 5) {
         allFiveDimensional = false
       }

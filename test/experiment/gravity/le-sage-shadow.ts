@@ -45,6 +45,7 @@ export default experiment({
         bodyRadius: BODY_RADIUS,
       }),
     )
+
     const isotropicExponent = distanceExponent(DISTANCES, isotropic)
 
     // the directional-beam shadow (the bare flux), a fixed cross section, distance-independent (the control)
@@ -54,6 +55,7 @@ export default experiment({
         beamRadius: BEAM_RADIUS,
       }),
     )
+
     const directionalExponent = distanceExponent(DISTANCES, directional)
 
     // the irreducible Le Sage drag, a body MOVING through the isotropic flux feels a net backward force, measured
@@ -63,6 +65,7 @@ export default experiment({
     const drags = velocities.map(velocity =>
       leSageDrag({ directions, velocity }),
     )
+
     const dragCoefficients = drags.map((d, i) => d / velocities[i]!)
     const dragIsFirstOrder =
       drags.every(d => d < 0) &&

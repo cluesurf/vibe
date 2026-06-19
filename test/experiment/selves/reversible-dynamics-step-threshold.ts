@@ -38,6 +38,7 @@ export default experiment({
       dm: 0.6,
       field: 0.15,
     }
+
     const steps = 500
 
     // relax to the DM-stabilized Skyrmion.
@@ -45,6 +46,7 @@ export default experiment({
       size: params.size,
       coreRadius: 5,
     })
+
     for (let t = 0; t < 2000; t++) {
       base = relaxSpins({ spins: base, params, rate: 0.08 })
     }
@@ -55,9 +57,11 @@ export default experiment({
       let s = base.map(v => [...v] as Spin)
       let min = startQ,
         max = startQ
+
       for (let t = 0; t < steps; t++) {
         s = precessSpins({ spins: s, params, dt, open: false })
         const q = skyrmionDegree(s, params.size)
+
         if (q < min) {
           min = q
         }
@@ -76,8 +80,10 @@ export default experiment({
     // small step conserves the charge (stays near minus one), large step does NOT (it blows up).
     const smallConserves =
       Math.abs(small.min + 1) < 0.1 && Math.abs(small.max + 1) < 0.1
+
     const largeChaotic =
       Math.abs(large.min + 1) > 1 || Math.abs(large.max + 1) > 1
+
     const ok = smallConserves && largeChaotic
 
     return verdict({

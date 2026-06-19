@@ -8,6 +8,7 @@
 // Fold an angle difference into (-pi/2, pi/2], the nematic (mod-pi) range.
 function foldModPi(angle: number): number {
   let d = angle
+
   while (d > Math.PI / 2) {
     d -= Math.PI
   }
@@ -26,7 +27,9 @@ export function relaxDirector(input: {
 }): number[] {
   const { phi, steps, dt } = input
   const length = phi.length
+
   let current = phi.slice()
+
   for (let t = 0; t < steps; t++) {
     const next = current.map((p, i) => {
       const right = foldModPi(current[(i + 1) % length]! - p)
@@ -34,6 +37,7 @@ export function relaxDirector(input: {
 
       return p + dt * (right + left) // diffuse toward neighbours (mod pi)
     })
+
     current = next
   }
 

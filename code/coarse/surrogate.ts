@@ -40,8 +40,10 @@ export function marginalDistribution(input: {
   const { trajectory, stateCount, lag } = input
   const alpha = input.alpha ?? 1e-3
   const counts = new Array<number>(stateCount).fill(alpha)
+
   for (let t = 0; t + lag < trajectory.length; t++) {
     const j = trajectory[t + lag]!
+
     if (j >= 0) {
       counts[j]!++
     }
@@ -61,11 +63,14 @@ export function predictiveLogLikelihood(input: {
   lag: number
 }): number {
   const { tpm, test, lag } = input
+
   let total = 0
   let n = 0
+
   for (let t = 0; t + lag < test.length; t++) {
     const i = test[t]!
     const j = test[t + lag]!
+
     if (i >= 0 && j >= 0) {
       const p = tpm[i]?.[j] ?? 0
       total += Math.log(p > 0 ? p : Number.MIN_VALUE)
@@ -84,10 +89,13 @@ export function marginalLogLikelihood(input: {
   lag: number
 }): number {
   const { marginal, test, lag } = input
+
   let total = 0
   let n = 0
+
   for (let t = 0; t + lag < test.length; t++) {
     const j = test[t + lag]!
+
     if (j >= 0) {
       const p = marginal[j] ?? 0
       total += Math.log(p > 0 ? p : Number.MIN_VALUE)
@@ -106,15 +114,20 @@ export function forwardAccuracy(input: {
   lag: number
 }): number {
   const { tpm, test, lag } = input
+
   let hits = 0
   let n = 0
+
   for (let t = 0; t + lag < test.length; t++) {
     const i = test[t]!
     const j = test[t + lag]!
+
     if (i >= 0 && j >= 0) {
       const row = tpm[i] ?? []
+
       let best = 0
       let bestP = -1
+
       for (let k = 0; k < row.length; k++) {
         if (row[k]! > bestP) {
           bestP = row[k]!
@@ -140,7 +153,9 @@ export function timeShuffle(input: {
   seed: number
 }): number[] {
   const { trajectory, seed } = input
+
   let s = seed >>> 0
+
   const next = (): number => {
     s = (Math.imul(s, 1664525) + 1013904223) >>> 0
 
@@ -148,6 +163,7 @@ export function timeShuffle(input: {
   }
 
   const out = trajectory.slice()
+
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(next() * (i + 1))
     const tmp = out[i]!

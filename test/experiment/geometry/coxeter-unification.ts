@@ -43,16 +43,19 @@ export function coxeterUnification(input: { seed: number }): Record<
       lorentzSafe: boolean
     }
   > = {}
+
   for (const sym of SYMBOLS) {
     const g = coxeterTessellation({
       schlafli: sym.schlafli,
       maxVertices: 2500,
     })
+
     const aniso = lorentzIsotropy({
       substrate: g,
       samples: 3000,
       rng: makeRng({ seed: input.seed }),
     })
+
     out[sym.name] = {
       dimension: sym.schlafli.length,
       size: g.size,

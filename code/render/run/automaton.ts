@@ -36,6 +36,7 @@ const PALETTE: [number, number, number][] = [
   [210, 170, 250],
   [245, 225, 255],
 ]
+
 const MODULUS = PALETTE.length
 const EDGE_COLOR: [number, number, number] = [18, 18, 26]
 
@@ -56,15 +57,19 @@ function run(): void {
   // outward symmetrically. State is a tone in 0..MODULUS-1 per cell.
   let previous = new Uint8Array(n)
   let current = new Uint8Array(n)
+
   const next = new Uint8Array(n)
   current[0] = MODULUS - 1
   previous[0] = MODULUS - 1
 
   const frames: Uint8Array[] = []
+
   for (let f = 0; f < frameCount; f++) {
     const faces: SceneFace[] = []
+
     for (let cell = 0; cell < n; cell++) {
       const tone = current[cell]!
+
       if (tone === 0) {
         continue
       } // leave rest cells as background, so the wavefront reads clearly
@@ -82,6 +87,7 @@ function run(): void {
       faces,
       cellCount: n,
     }
+
     const { rgba } = renderSceneToRgba({
       scene,
       size,
@@ -91,7 +97,9 @@ function run(): void {
       far: EDGE_COLOR,
       model,
     })
+
     frames.push(rgba)
+
     if (f === 0 || f === Math.floor(frameCount / 2)) {
       writeFileSync(
         join(outDir, `automaton-${symbolText}-${model}-frame${f}.png`),
@@ -119,6 +127,7 @@ function run(): void {
     height: size,
     delayMs: 70,
   })
+
   writeFileSync(
     join(outDir, `automaton-${symbolText}-${model}.gif`),
     gif,
@@ -132,6 +141,7 @@ function run(): void {
 function cellOutlines(polygons: number[][][]): SceneEdge[] {
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
+
   for (const poly of polygons) {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
@@ -139,6 +149,7 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       const ka = a.map(x => Math.round(x * 1e4)).join(',')
       const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
+
       if (seen.has(key)) {
         continue
       }

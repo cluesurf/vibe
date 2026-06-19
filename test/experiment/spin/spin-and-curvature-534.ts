@@ -45,6 +45,7 @@ export default experiment({
     // {5,3,4}: 4 dodecahedra per edge, the dodecahedron dihedral is arccos(-1/sqrt5)
     const dodecahedronDihedral =
       (Math.acos(-1 / Math.sqrt(5)) * 180) / Math.PI // about 116.565 degrees
+
     const angleSum534 = 4 * dodecahedronDihedral
     const excess534 = angleSum534 - fullTurn // positive means hyperbolic
     const hyperbolic534 = excess534 > 1

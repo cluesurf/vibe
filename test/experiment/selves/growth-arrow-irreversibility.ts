@@ -46,9 +46,11 @@ function bornAtPeace(will: Will, frontierX: number): void {
   const mesh = will.mesh
   const side = sideOf(mesh)
   const degree = mesh.degree
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     if (cell % side === frontierX) {
       const base = cell * degree
+
       for (let d = 0; d < degree; d++) {
         will.data[base + d] = 0
       }
@@ -71,6 +73,7 @@ function loschmidtEcho(input: {
     mesh: current.mesh,
     data: new Int8Array(current.data.length),
   }
+
   for (let t = 0; t < input.beats; t++) {
     beatInto({
       src: current,
@@ -81,6 +84,7 @@ function loschmidtEcho(input: {
     const swap = current
     current = scratch
     scratch = swap
+
     if (input.open) {
       bornAtPeace(current, input.frontierX)
     }
@@ -106,12 +110,14 @@ function occupancyProfile(input: {
   const side = sideOf(mesh)
   const degree = mesh.degree
   const profile = new Array<number>(side).fill(0)
+
   let samples = 0
   let current = cloneWill(input.init)
   let scratch: Will = {
     mesh: current.mesh,
     data: new Int8Array(current.data.length),
   }
+
   for (let t = 0; t < input.beats; t++) {
     beatInto({
       src: current,
@@ -122,6 +128,7 @@ function occupancyProfile(input: {
     const swap = current
     current = scratch
     scratch = swap
+
     if (input.open) {
       bornAtPeace(current, input.frontierX)
     }
@@ -130,6 +137,7 @@ function occupancyProfile(input: {
       for (let cell = 0; cell < mesh.cellCount; cell++) {
         const x = cell % side
         const base = cell * degree
+
         for (let d = 0; d < degree; d++) {
           if (current.data[base + d] !== 0) {
             profile[x]!++
@@ -160,14 +168,17 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const forward: Collision = pairCollision({
       opposite,
       forward: true,
     })
+
     const inverse: Collision = pairCollision({
       opposite,
       forward: false,
     })
+
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // a deterministic structured fill (a fixed ternary function of the slot index, never random), the methodology
@@ -186,6 +197,7 @@ export default experiment({
       frontierX,
       table,
     })
+
     const openEcho = loschmidtEcho({
       init,
       forward,
@@ -205,6 +217,7 @@ export default experiment({
       frontierX,
       table,
     })
+
     const openProfile = occupancyProfile({
       init,
       forward,
@@ -213,6 +226,7 @@ export default experiment({
       frontierX,
       table,
     })
+
     const closedGradient = profileGradient(closedProfile)
     const openGradient = profileGradient(openProfile)
 

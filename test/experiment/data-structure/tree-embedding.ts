@@ -29,24 +29,28 @@ export default experiment({
       edge,
       hyperbolic: true,
     })
+
     const euclidean = embedTree({
       parent: tree.parent,
       children: tree.children,
       edge,
       hyperbolic: false,
     })
+
     const hyperbolicDistortion = embeddingDistortion({
       coords: hyperbolic.coords,
       depth: hyperbolic.depth,
       parent: tree.parent,
       hyperbolic: true,
     })
+
     const euclideanRaw = embeddingDistortion({
       coords: euclidean.coords,
       depth: euclidean.depth,
       parent: tree.parent,
       hyperbolic: false,
     })
+
     const euclideanDistortion = Number.isFinite(euclideanRaw)
       ? euclideanRaw
       : 1e18
@@ -56,6 +60,7 @@ export default experiment({
     const hyperbolicLowDistortion = hyperbolicDistortion < 3
     const euclideanUnbounded =
       euclideanDistortion > 100 * hyperbolicDistortion
+
     const ok = hyperbolicLowDistortion && euclideanUnbounded
 
     return verdict({

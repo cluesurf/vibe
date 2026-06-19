@@ -27,14 +27,17 @@ export function skyrmeSign(): {
 
     return { R, ex: exchange, sk: skyrme }
   })
+
   // fit log E vs log R for the exponents
   const fit = (key: 'ex' | 'sk'): number =>
     logLogSlope(
       data.map(d => d.R),
       data.map(d => d[key]),
     )
+
   const exExp = Math.round(fit('ex') * 100) / 100,
     skExp = Math.round(fit('sk') * 100) / 100
+
   // E(R) = a R^exExp + kappa b R^skExp. With exExp>0 and skExp<0, kappa>0 gives a minimum, kappa<=0 does not.
   const stableForPositiveKappa = exExp > 0.3 && skExp < -0.3
 

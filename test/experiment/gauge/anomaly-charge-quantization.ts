@@ -59,11 +59,13 @@ export function anomalyChargeQuantization(
     [3, 0, 0, 1, 0],
     [6, 3, 3, 2, 1],
   ]
+
   const b = [-YH, YH, YH, 0, 0]
   const [YQ, Yu, Yd, YL, Ye] = solveLinearSystem({
     matrix: A,
     rightHandSide: b,
   })
+
   const Y: Record<string, number> = {
     Q: YQ ?? 0,
     uc: Yu ?? 0,
@@ -84,17 +86,20 @@ export function anomalyChargeQuantization(
     (s, f) => s + f.weak * (Y[f.name] ?? 0),
     0,
   )
+
   //   U(1)^3 : sum over all of (mult) * Y^3
   const cubicAnomaly = FIELDS.reduce(
     (s, f) => s + mult(f) * (Y[f.name] ?? 0) ** 3,
     0,
   )
+
   const unusedAnomaliesCancel =
     Math.abs(colorAnomaly) < 1e-9 && Math.abs(cubicAnomaly) < 1e-9
 
   // Electric charges Q_em = T3 + Y, per weak component. For the antiquarks/positron the listed Y
   // is the charge of the (conjugate) field, so its electric charge reads off directly.
   const electricCharges: { name: string; charge: number }[] = []
+
   for (const f of FIELDS) {
     for (const t of f.t3) {
       electricCharges.push({
@@ -108,6 +113,7 @@ export function anomalyChargeQuantization(
   const chargesQuantized = electricCharges.every(
     c => Math.abs(c.charge * 3 - Math.round(c.charge * 3)) < 1e-9,
   )
+
   // A proton is uud (the conjugates of uc, uc, dc give up, up, down quark charges), an electron is
   // the conjugate of ec. Atom neutral means proton charge + electron charge = 0.
   const upCharge = -((Y['uc'] ?? 0) + 0) // charge of the up quark = -(charge of uc)

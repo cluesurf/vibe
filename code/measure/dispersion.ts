@@ -52,8 +52,10 @@ export function dispersionAxisDiagonalAnisotropy(input: {
   const diagonal = new Array<number>(dimension).fill(
     magnitude / Math.sqrt(dimension),
   )
+
   const axisOmega =
     latticeDispersion({ directions, wave: axis }) / directions.length
+
   const diagonalOmega =
     latticeDispersion({ directions, wave: diagonal }) /
     directions.length
@@ -81,13 +83,18 @@ export function waveModeFrequency(input: {
   const maxBeats = input.maxBeats ?? 1500
   const boundedThreshold = input.boundedThreshold ?? 10
   const factor = 2 * Math.cos(k)
+
   let previous = 0 // q(t-1), starting q(-1)
   let current = 1 // q(t), starting q(0)
+
   const zeros: number[] = []
+
   let maxAbs = 1
+
   for (let t = 0; t < maxBeats && zeros.length < 2; t++) {
     const next = factor * current - previous // q(t+1)
     maxAbs = Math.max(maxAbs, Math.abs(next))
+
     if (current >= 0 !== next >= 0) {
       zeros.push(t + current / (current - next))
     } // interpolated zero in (t, t+1)
@@ -126,8 +133,10 @@ export function dispersionAnisotropyAtScale(input: {
         }),
       ) / scale,
   )
+
   const mean =
     speeds.reduce((sum, value) => sum + value, 0) / speeds.length
+
   const variance =
     speeds.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
     speeds.length

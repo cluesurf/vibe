@@ -56,6 +56,7 @@ export function gaplessSearch(input?: {
     const tone = new Int8Array(L)
     const moved = new Uint8Array(L)
     const rng = makeRng({ seed: 17 })
+
     for (let i = 0; i < L; i++) {
       tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
         | -1
@@ -76,7 +77,9 @@ export function gaplessSearch(input?: {
     }
 
     const T = 2500
+
     let nz = 0
+
     const c = timeAveragedRingCorrelation({
       tone,
       length: L,
@@ -100,9 +103,11 @@ export function gaplessSearch(input?: {
         })
       },
     })
+
     // use the larger of direct and staggered range (the particle may be at the band edge)
     const rangeOf = (cc: number[]): number => {
       let rng2 = 0
+
       for (let r = 1; r <= maxR; r++) {
         if (Math.abs(cc[r]!) > 0.05 * Math.abs(cc[0]!)) {
           rng2 = r
@@ -117,6 +122,7 @@ export function gaplessSearch(input?: {
     // correlation length from the slower-decaying of direct / staggered |C(r)| over r=1..8
     const xiOf = (cc: number[]): number =>
       correlationLengthFromDecay({ correlation: cc, rLo: 1, rHi: 8 })
+
     const xi = Math.max(xiOf(c), xiOf(cStag))
 
     return { range, xi: isFinite(xi) ? xi : 99, density: nz / (L * T) }
@@ -129,6 +135,7 @@ export function gaplessSearch(input?: {
     range: number
     correlationLength: number
   }[] = []
+
   for (const arrow of arrows) {
     for (const share of shares) {
       const { range, xi, density } = measure(arrow, share)

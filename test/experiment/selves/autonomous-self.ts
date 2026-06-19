@@ -31,8 +31,10 @@ function autonomousRepair(
   threshold: number,
 ): number {
   const N = tone.length
+
   let work = 0
   let netAdded = 0
+
   for (let c = 0; c < N; c++) {
     if (tone[c] === 1) {
       continue
@@ -40,6 +42,7 @@ function autonomousRepair(
 
     const plus = sameSignNeighbors(tone, g, c, 1)
     const minus = sameSignNeighbors(tone, g, c, -1)
+
     if (plus >= threshold && plus > minus) {
       netAdded += 1 - tone[c]!
       tone[c] = 1
@@ -50,9 +53,11 @@ function autonomousRepair(
   // dump the exact balancing -1 into quiet empty cells (few +neighbors), a conserving local creation
   let need = netAdded
   let guard = 0
+
   while (need > 0 && guard < N * 4) {
     guard++
     const e = Math.floor(rng.next() * N)
+
     if (tone[e] === 0 && sameSignNeighbors(tone, g, e, 1) < 2) {
       tone[e] = -1
       need--
@@ -87,8 +92,11 @@ export function autonomousSelf(input?: { n?: number }): {
     const t2 = tone.slice()
     const q0 = totalCharge(t2)
     const rng2 = makeRng({ seed: 41 })
+
     let work = 0
+
     const beats = 60
+
     for (let b = 0; b < beats; b++) {
       if (maintaining) {
         work += autonomousRepair(t2, g, rng2, 4)
@@ -111,6 +119,7 @@ export function autonomousSelf(input?: { n?: number }): {
   const maintenanceHoldsSelf =
     maintainedFidelity > 0.6 &&
     maintainedFidelity > unmaintainedFidelity + 0.3
+
   const usesOnlyLocalInfo = true // autonomousRepair reads only per-cell neighborhoods, never the self list
   const conserved = maintained.q === 0
   const solved = maintenanceHoldsSelf && conserved && usesOnlyLocalInfo

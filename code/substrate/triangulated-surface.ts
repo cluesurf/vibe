@@ -19,6 +19,7 @@ export function triangulatedSurface(input: {
   const idx = (i: number, j: number): number => j * W + i
 
   const neighbors: number[][] = Array.from({ length: size }, () => [])
+
   const addEdge = (a: number, b: number): void => {
     if (a !== b) {
       neighbors[a]?.push(b)
@@ -29,6 +30,7 @@ export function triangulatedSurface(input: {
   for (let j = 0; j < H; j++) {
     for (let i = 0; i < W; i++) {
       const a = idx(i, j)
+
       // right neighbor
       if (i + 1 < W) {
         addEdge(a, idx(i + 1, j))
@@ -46,6 +48,7 @@ export function triangulatedSurface(input: {
       // diagonal up-right, the shared edge that splits the square into triangles
       const ni = i + 1 < W ? i + 1 : input.wrapWidth ? 0 : -1
       const nj = j + 1 < H ? j + 1 : input.wrapHeight ? 0 : -1
+
       if (ni >= 0 && nj >= 0) {
         addEdge(a, idx(ni, nj))
       }

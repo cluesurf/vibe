@@ -70,6 +70,7 @@ export default experiment({
       Math.abs(ternary - (2 * Math.PI) / 3) < 1e-6 &&
       Math.abs(ternary) > 0.1 &&
       Math.abs(Math.abs(ternary) - Math.PI) > 0.1
+
     const bosonIsZero = Math.abs(boson) < 1e-6
     const fermionIsPi = Math.abs(Math.abs(fermion) - Math.PI) < 1e-6
     const controlIsZero = Math.abs(notEnclosing) < 1e-6

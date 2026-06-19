@@ -52,6 +52,7 @@ export function buildMargensternGrid(input: {
     symbol,
     maxCells: input.maxCells ?? 4000,
   })
+
   const count = graph.cellCount
   const ballDim = graph.coords[0]?.length ?? 2
   const twoD = ballDim === 2
@@ -59,8 +60,10 @@ export function buildMargensternGrid(input: {
   // the central cell (the most connected) is the root, the natural center of the splitting
   let root = 0
   let bestDegree = -1
+
   for (let i = 0; i < count; i++) {
     const d = graph.neighbors[i]!.length
+
     if (d > bestDegree) {
       bestDegree = d
       root = i
@@ -75,10 +78,13 @@ export function buildMargensternGrid(input: {
   depthOf[root] = 0
   parentOf[root] = -1
   let frontier = [root]
+
   while (frontier.length > 0) {
     const next: number[] = []
+
     for (const v of frontier) {
       const kids: number[] = []
+
       for (const w of graph.neighbors[v]!) {
         if (depthOf[w] === -1) {
           depthOf[w] = depthOf[v]! + 1
@@ -108,6 +114,7 @@ export function buildMargensternGrid(input: {
   const byDepth = Array.from({ length: count }, (_, i) => i)
     .filter(i => depthOf[i]! >= 0)
     .sort((a, b) => depthOf[a]! - depthOf[b]!)
+
   for (const cell of byDepth) {
     if (cell === root) {
       continue
@@ -126,10 +133,12 @@ export function buildMargensternGrid(input: {
         depthOf[a]! - depthOf[b]! ||
         compareAddress(address[a]!, address[b]!),
     )
+
   order.forEach((cell, index) => (rank[cell] = index + 1))
 
   // each cell's neighbors in a stable order so the cellwalker has a consistent spin and reciprocal
   const spinNeighbors: number[][] = []
+
   for (let cell = 0; cell < count; cell++) {
     const ordered = graph.neighbors[cell]!.slice().sort((a, b) =>
       childOrder(
@@ -139,6 +148,7 @@ export function buildMargensternGrid(input: {
         twoD,
       ),
     )
+
     spinNeighbors.push(ordered)
   }
 
@@ -153,6 +163,7 @@ export function buildMargensternGrid(input: {
 
   function colorOf(cell: number): TileColor {
     const k = childrenOf[cell]!.length
+
     if (!twoD) {
       return 'other'
     }
@@ -164,7 +175,9 @@ export function buildMargensternGrid(input: {
   function route(from: number, to: number): number[] {
     const af = address[from]!
     const at = address[to]!
+
     let common = 0
+
     while (
       common < af.length &&
       common < at.length &&
@@ -174,7 +187,9 @@ export function buildMargensternGrid(input: {
     }
 
     const up: number[] = []
+
     let cur = from
+
     while (depthOf[cur]! > common) {
       up.push(cur)
       cur = parentOf[cur]!
@@ -182,7 +197,9 @@ export function buildMargensternGrid(input: {
 
     const ancestor = cur
     const down: number[] = []
+
     let node = ancestor
+
     for (let i = common; i < at.length; i++) {
       node = childrenOf[node]![at[i]!] ?? node
       down.push(node)
@@ -224,6 +241,7 @@ function childOrder(
       (a[1] ?? 0) - (here[1] ?? 0),
       (a[0] ?? 0) - (here[0] ?? 0),
     )
+
     const ab = Math.atan2(
       (b[1] ?? 0) - (here[1] ?? 0),
       (b[0] ?? 0) - (here[0] ?? 0),
@@ -235,6 +253,7 @@ function childOrder(
   for (let i = 0; i < a.length; i++) {
     const da = Math.round((a[i]! - (here[i] ?? 0)) * 1e6)
     const db = Math.round((b[i]! - (here[i] ?? 0)) * 1e6)
+
     if (da !== db) {
       return da - db
     }
@@ -246,6 +265,7 @@ function childOrder(
 // compare two child-ordinal addresses lexicographically (shorter first, then by ordinals)
 function compareAddress(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length)
+
   for (let i = 0; i < len; i++) {
     if (a[i] !== b[i]) {
       return a[i]! - b[i]!

@@ -49,6 +49,7 @@ export default experiment({
     const increasing =
       (r.stds[0] ?? 0) < (r.stds[1] ?? 0) &&
       (r.stds[1] ?? 0) < (r.stds[2] ?? 0)
+
     const ok =
       increasing && r.actionExponent > 0.5 && r.actionExponent < 2
 

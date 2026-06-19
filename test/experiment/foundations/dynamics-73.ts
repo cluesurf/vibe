@@ -20,13 +20,16 @@ function graph(): {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 12000 })
   const N = g.cellCount
   const off = new Int32Array(N + 1)
+
   for (let i = 0; i < N; i++) {
     off[i + 1] = off[i]! + g.neighbors[i]!.length
   }
 
   const adj = new Int32Array(off[N]!)
+
   {
     let p = 0
+
     for (let i = 0; i < N; i++) {
       for (const w of g.neighbors[i]!) {
         adj[p++] = w
@@ -36,8 +39,10 @@ function graph(): {
 
   let center = 0,
     best = -1
+
   for (let i = 0; i < N; i++) {
     const d = off[i + 1]! - off[i]!
+
     if (d > best) {
       best = d
       center = i
@@ -53,6 +58,7 @@ export function dynamics73(): {
   churnPct: number
 } {
   const { N, off, adj, center } = graph()
+
   // (1) mod-3 wave front speed (lightcone). NOTE: the wave's mod-3 net-charge is conserved only on
   // degree-=0-mod-3 REGULAR graphs (the cubic is degree 6); {7,3} is degree 7 + irregular boundary, so the
   // wave's invariant is graph-dependent. Charge conservation is tested below with the perception rule, which
@@ -60,6 +66,7 @@ export function dynamics73(): {
   let cur = new Int8Array(N),
     prev = new Int8Array(N),
     nxt = new Int8Array(N)
+
   cur[center] = 1
   const dist = csrDistances({
     offsets: off,
@@ -67,10 +74,13 @@ export function dynamics73(): {
     size: N,
     source: center,
   })
+
   let maxReached = 0
+
   for (let b = 0; b < 10; b++) {
     for (let i = 0; i < N; i++) {
       let s = 0
+
       for (let q = off[i]!; q < off[i + 1]!; q++) {
         s += cur[adj[q]!]!
       }
@@ -83,6 +93,7 @@ export function dynamics73(): {
     cur = nxt
     nxt = t
     let mr = 0
+
     for (let i = 0; i < N; i++) {
       if (cur[i] !== 0 && dist[i]! > mr && dist[i]! < 1e8) {
         mr = dist[i]!
@@ -98,14 +109,17 @@ export function dynamics73(): {
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next()
   const t = new Int8Array(N)
+
   for (let k = 0; k < 100; k++) {
     t[Math.floor(rnd() * N)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   }
 
   const sumBefore = sumOf(t)
+
   for (let b = 0; b < 50; b++) {
     const used = new Uint8Array(N)
     const order = [...Array(N).keys()]
+
     for (let i = N - 1; i > 0; i--) {
       const j = Math.floor(rnd() * (i + 1))
       const tmp = order[i]!
@@ -120,6 +134,7 @@ export function dynamics73(): {
 
       for (let q = off[u]!; q < off[u + 1]!; q++) {
         const w = adj[q]!
+
         if (used[w]) {
           continue
         }
@@ -135,7 +150,9 @@ export function dynamics73(): {
   }
 
   const conserves = sumOf(t) === sumBefore // the perception rule permutes charges, net charge is exact
+
   let ch = 0
+
   for (let i = 0; i < N; i++) {
     if (t[i] !== 0) {
       ch++

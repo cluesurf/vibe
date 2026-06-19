@@ -22,6 +22,7 @@ export default experiment({
       depth: 14,
       maxChambers: 4000,
     })
+
     const n = mesh.cellCount
     // a tiny arrow so the first creation is a single isolated event, not many at once
     const first = firstDistinction({
@@ -31,6 +32,7 @@ export default experiment({
       seed: 9,
       maxBeats: 5000,
     })
+
     const control = firstDistinction({
       neighbors: mesh.neighbors,
       cells: n,

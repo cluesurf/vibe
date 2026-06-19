@@ -32,10 +32,12 @@ export default experiment({
 
     // (1) the Clifford algebra: {gamma_mu, gamma_nu} = 2 eta_mu_nu, measured from the matrices
     let cliffordHolds = true
+
     for (let mu = 0; mu < 4; mu++) {
       for (let nu = 0; nu < 4; nu++) {
         const anti = cmAntiCommutator(gamma[mu]!, gamma[nu]!)
         const target = mu === nu ? 2 * minkowski[mu]! : 0
+
         if (!cmIsScalar(anti, complex({ re: target, im: 0 }))) {
           cliffordHolds = false
         }
@@ -69,6 +71,7 @@ export default experiment({
       diracHamiltonian({ px, py, pz, mass: 0 }),
       diracHamiltonian({ px, py, pz, mass: 0 }),
     )
+
     const masslessEnergySquared = px * px + py * py + pz * pz
     const masslessLightSpeed = cmIsScalar(
       massless,

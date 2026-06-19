@@ -35,6 +35,7 @@ export default experiment({
         complex({ re: -2 * value.im, im: 2 * value.re }),
       ),
     ) // 2 i sigma3
+
     const closes = commutator12.every((row, rowIndex) =>
       row.every((value, columnIndex) => {
         const target = expected[rowIndex]![columnIndex]!
@@ -45,6 +46,7 @@ export default experiment({
         )
       }),
     )
+
     const structureConstant = frobenius(commutator12) // nonzero for a non-abelian algebra
 
     // (2) two gauge potentials in different colour directions self-interact, [A_mu, A_nu] is nonzero
@@ -52,10 +54,12 @@ export default experiment({
       cmScale(sigma1!, 0.6),
       cmScale(sigma3!, 0.4),
     ) // a colour direction
+
     const potentialNu = cmScale(sigma2!, 0.9) // a different colour direction
     const selfInteraction = frobenius(
       cmCommutator(potentialMu, potentialNu),
     )
+
     const selfInteracts = selfInteraction > 0.1
 
     // CONTROL: a U(1) potential is a scalar (proportional to the identity), it commutes, no self-interaction

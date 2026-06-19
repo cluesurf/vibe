@@ -30,6 +30,7 @@ export default experiment({
       b: Math.PI / 4,
       bPrime: -Math.PI / 4,
     }
+
     const spec: ScanSpec<number> = {
       form: 'scan',
       name: 'bell',
@@ -50,6 +51,7 @@ export default experiment({
         return { s: r.s }
       },
     }
+
     const result = runScan({ spec, baseSeed: 5 })
     const independent = result.points.find(p => p.parameterIndex === 0)
     const correlated = result.points.find(p => p.parameterIndex === 1)

@@ -17,6 +17,7 @@ const MZ = 91.19 // GeV
 const aEMinv = 127.95,
   sin2 = 0.2312,
   asInv = 1 / 0.1184
+
 const a2inv0 = aEMinv * sin2 // SU(2)
 const a1inv0 = (3 / 5) * aEMinv * (1 - sin2) // U(1)_Y -> GUT-normalized
 const a3inv0 = asInv // SU(3)
@@ -33,16 +34,19 @@ function runAndCheck(b: number[]): { logMu12: number; a3gap: number } {
     betaFirst: b[0]!,
     betaSecond: b[1]!,
   })
+
   const a12 = oneLoopInverseCoupling({
     inverseAtZero: a1inv0,
     beta: b[0]!,
     t: t12,
   }) // common value of alpha_1^-1 = alpha_2^-1 there
+
   const a3 = oneLoopInverseCoupling({
     inverseAtZero: a3inv0,
     beta: b[2]!,
     t: t12,
   })
+
   const gap = Math.round((a3 - a12) * 100) / 100 // mismatch, 0 = perfect three-way unification
   const logMu12 =
     Math.round((Math.log10(MZ) + t12 / Math.log(10)) * 10) / 10 // log10(mu) in GeV

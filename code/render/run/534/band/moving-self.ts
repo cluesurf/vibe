@@ -32,6 +32,7 @@ const PMAX = 30
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
@@ -41,6 +42,7 @@ function run(): void {
     half: HALF,
     margin: MARGIN,
   })
+
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
@@ -51,8 +53,10 @@ function run(): void {
 
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -60,6 +64,7 @@ function run(): void {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -67,7 +72,9 @@ function run(): void {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -91,6 +98,7 @@ function run(): void {
     py: number
   }
   const cells: Cell[] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
@@ -114,10 +122,13 @@ function run(): void {
   const radii = cells
     .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
     .sort((a, b) => a - b)
+
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const pad = 20
   const halfPix = IMG / 2 - pad
+
   for (const c of cells) {
     c.px = Math.round(IMG / 2 + ((c.u - cu) / halfExtent) * halfPix)
     c.py = Math.round(IMG / 2 + ((c.v - cv) / halfExtent) * halfPix)
@@ -125,12 +136,14 @@ function run(): void {
 
   // index cells by their own index for the maintenance step
   const cellByIndex = new Map<number, Cell>()
+
   for (const c of cells) {
     cellByIndex.set(c.index, c)
   }
 
   // ground for conserving maintenance, off-screen margin cells
   const ground: number[] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       ground.push(i)
@@ -139,6 +152,7 @@ function run(): void {
 
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
+
   for (let i = 0; i < n; i++) {
     const r = rng.next()
     tone[i] = (
@@ -157,6 +171,7 @@ function run(): void {
   // conserving maintenance, refill the cells within selfR of the moving centre to +1, balanced -1 to ground
   const maintainAt = (centreU: number, centreV: number): void => {
     let need = 0
+
     for (const c of cells) {
       if (
         (c.u - centreU) ** 2 + (c.v - centreV) ** 2 <=
@@ -188,6 +203,7 @@ function run(): void {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -208,6 +224,7 @@ function run(): void {
     }
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = 8
       rgba[i * 4 + 1] = 8
@@ -217,6 +234,7 @@ function run(): void {
 
     for (const c of cells) {
       const t = tone[c.index]!
+
       if (t === 0) {
         continue
       }
@@ -226,18 +244,22 @@ function run(): void {
         t === 1
           ? Math.round(40 + 90 * inten)
           : Math.round(120 + 135 * inten)
+
       const g8 =
         t === 1
           ? Math.round(70 + 170 * inten)
           : Math.round(40 + 90 * inten)
+
       const b8 =
         t === 1
           ? Math.round(120 + 135 * inten)
           : Math.round(70 + 90 * inten)
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
           const y = c.py + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }

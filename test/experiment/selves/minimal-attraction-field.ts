@@ -42,6 +42,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       coin.opposite(d),
     )
+
     const rule = headOnRotate({ opposite })
     const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
     const half = side / 2
@@ -51,18 +52,22 @@ export default experiment({
       Math.floor(c / (side * side)) % side,
       Math.floor(c / (side * side * side)) % side,
     ]
+
     const center =
       half +
       half * side +
       half * side * side +
       half * side * side * side
+
     const neighbour = (c: number, d: number): number =>
       base.neighbour(c, d)
 
     const restBody = (): Will => {
       const will = makeWill(coin)
+
       for (let c = 0; c < coin.cellCount; c++) {
         const [x, y, z, w] = coord(c)
+
         if (
           (x - half) ** 2 +
             (y - half) ** 2 +
@@ -79,6 +84,7 @@ export default experiment({
 
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
+
       for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
       }
@@ -88,9 +94,12 @@ export default experiment({
 
     const extent = (will: Will): number => {
       let e = 0
+
       for (let c = 0; c < coin.cellCount; c++) {
         let on = false
+
         const b = c * degree
+
         for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
@@ -105,6 +114,7 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
+
           if (dd > e) {
             e = dd
           }
@@ -118,7 +128,9 @@ export default experiment({
 
     const displaced = (disp: number): Will => {
       const w = cloneWill(restBody())
+
       let nb = center
+
       for (let k = 0; k < disp; k++) {
         nb = base.neighbour(nb, 0)
       }
@@ -137,6 +149,7 @@ export default experiment({
         mesh: coin,
         data: new Int8Array(will.data.length),
       }
+
       let phi = relaxPotential({
         source: bulkMass({
           occupied: occupiedOf(will),
@@ -152,6 +165,7 @@ export default experiment({
         strength: cap,
         cap,
       })
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: will, dst: scratch, table, collision: rule })
         const swap = will
@@ -174,6 +188,7 @@ export default experiment({
           cap,
           warm: phi,
         })
+
         for (const [from, to] of gravityMoves({
           occupied,
           phi,

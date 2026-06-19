@@ -48,6 +48,7 @@ export function darkEnergySmeared4D(input: {
     sizes: input.sizes,
     repeats: input.repeats,
   })
+
   const smeared = fluctuationExponent({
     action: smearedBenincasaDowker({
       epsilon: input.epsilon,
@@ -79,6 +80,7 @@ export default experiment({
       repeats: 20,
       epsilon: 0.3,
     })
+
     const ok =
       r.smearedExponent < r.sharpExponent &&
       Number.isFinite(r.smearedExponent)

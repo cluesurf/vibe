@@ -37,6 +37,7 @@ export function lorentzIsotropy(input?: {
   // small, so the cloud lives where the model is nearly Euclidean and the covariance shape is faithful.
   const r2 = (i: number): number =>
     g.coords[i]!.reduce((s, x) => s + x * x, 0)
+
   const radii2 = Array.from({ length: N }, (_, i) => r2(i))
   const center = innermostCell(radii2)
   const c0 = g.coords[center]!
@@ -52,12 +53,14 @@ export function lorentzIsotropy(input?: {
   const order = Array.from({ length: N }, (_, i) => i).sort(
     (a, b) => r2(a) - r2(b),
   )
+
   const sampleCells = order.slice(0, 200) // the 200 cells nearest the origin
   const tensor = diffusionTensorAnisotropy({
     coords: g.coords,
     neighbors: g.neighbors,
     cells: sampleCells,
   })
+
   const eig = tensor.eigenvalues
   const anisotropy = tensor.anisotropy
   const isotropic = anisotropy < 0.15

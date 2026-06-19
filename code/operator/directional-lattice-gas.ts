@@ -46,11 +46,13 @@ export const latticeIndex = (
 // COLLIDE: reversible involution. (qE,qW,qN,qS)=(s,s,0,0) <-> (0,0,s,s) for s=+-1.
 export function collide(s: LatticeGasState): void {
   const n = s.E.length
+
   for (let i = 0; i < n; i++) {
     const e = s.E[i]!,
       w = s.W[i]!,
       north = s.N[i]!,
       south = s.S[i]!
+
     if (north === 0 && south === 0 && e === w && e !== 0) {
       s.E[i] = 0
       s.W[i] = 0
@@ -77,6 +79,7 @@ export function stream(
     N: new Int8Array(n),
     S: new Int8Array(n),
   }
+
   for (let x = 0; x < length; x++) {
     for (let y = 0; y < length; y++) {
       o.E[latticeIndex(length, x, y)] =
@@ -105,6 +108,7 @@ export function streamInverse(
     N: new Int8Array(n),
     S: new Int8Array(n),
   }
+
   for (let x = 0; x < length; x++) {
     for (let y = 0; y < length; y++) {
       o.E[latticeIndex(length, x, y)] =
@@ -124,6 +128,7 @@ export function streamInverse(
 // Total signed charge (a conserved scalar).
 export const latticeCharge = (s: LatticeGasState): number => {
   let c = 0
+
   for (let i = 0; i < s.E.length; i++) {
     c += s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
   }
@@ -137,6 +142,7 @@ export const latticeMomentum = (
 ): [number, number] => {
   let px = 0,
     py = 0
+
   for (let i = 0; i < s.E.length; i++) {
     px += s.E[i]! - s.W[i]!
     py += s.N[i]! - s.S[i]!
@@ -148,6 +154,7 @@ export const latticeMomentum = (
 // Per-cell total charge density.
 export function latticeDensity(s: LatticeGasState): Float64Array {
   const d = new Float64Array(s.E.length)
+
   for (let i = 0; i < s.E.length; i++) {
     d[i] = s.E[i]! + s.W[i]! + s.N[i]! + s.S[i]!
   }

@@ -28,9 +28,11 @@ function breather(side: number): { mesh: Mesh; will: Will } {
   const mesh = squareMesh({ side })
   const will = makeWill(mesh)
   const c = Math.floor(side / 2)
+
   for (let y = c - 3; y <= c + 3; y++) {
     for (let x = c - 3; x <= c + 3; x++) {
       const base = (y * side + x) * mesh.degree
+
       for (let d = 0; d < mesh.degree; d++) {
         will.data[base + d] = 1
       }
@@ -57,10 +59,12 @@ function boxRegions(
   const interior: number[] = []
   const shell: number[] = []
   const exterior: number[] = []
+
   for (let y = 0; y < side; y++) {
     for (let x = 0; x < side; x++) {
       const r = Math.max(Math.abs(x - cx), Math.abs(y - cy))
       const cell = y * side + x
+
       if (r <= inner) {
         interior.push(cell)
       } else if (r <= outer) {
@@ -76,6 +80,7 @@ function boxRegions(
 
 function sumCharge(will: Will, cells: number[]): number {
   let s = 0
+
   for (const c of cells) {
     s += cellTone(will, c)
   }
@@ -94,6 +99,7 @@ function perturbationRadius(input: {
 }): number {
   const { mesh, base, site, beats, table } = input
   const dist = shellDistances(mesh, site)
+
   let clean: Will = { mesh, data: base.data.slice() }
   let dirty: Will = { mesh, data: base.data.slice() }
   dirty.data[site * mesh.degree] = (
@@ -102,16 +108,21 @@ function perturbationRadius(input: {
   const opposite = Array.from({ length: mesh.degree }, (_, d) =>
     mesh.opposite(d),
   )
+
   const collision = pairCollision({ opposite, forward: true })
+
   let cleanScratch: Will = {
     mesh,
     data: new Int8Array(clean.data.length),
   }
+
   let dirtyScratch: Will = {
     mesh,
     data: new Int8Array(dirty.data.length),
   }
+
   let maxRadius = 0
+
   for (let t = 0; t < beats; t++) {
     beatInto({ src: clean, dst: cleanScratch, table, collision })
     const swapClean = clean
@@ -121,6 +132,7 @@ function perturbationRadius(input: {
     const swapDirty = dirty
     dirty = dirtyScratch
     dirtyScratch = swapDirty
+
     for (let c = 0; c < mesh.cellCount; c++) {
       if (
         cellTone(clean, c) !== cellTone(dirty, c) &&
@@ -149,6 +161,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const collision = pairCollision({ opposite, forward: true })
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const center = Math.floor(side / 2) * side + Math.floor(side / 2)
@@ -158,8 +171,10 @@ export default experiment({
     const interior: number[] = []
     const shell: number[] = []
     const exterior: number[] = []
+
     let w: Will = { mesh, data: will.data.slice() }
     let wScratch: Will = { mesh, data: new Int8Array(w.data.length) }
+
     for (let t = 0; t < 60; t++) {
       beatInto({ src: w, dst: wScratch, table, collision })
       const swap = w
@@ -180,6 +195,7 @@ export default experiment({
       beats,
       table,
     })
+
     const cornerCell = 0
     const vacuumRadius = perturbationRadius({
       mesh,
@@ -198,6 +214,7 @@ export default experiment({
     const interiorIsolated = blanket.raw < 0.1
     const containmentNotStructureSpecific =
       Math.abs(interiorRadius - vacuumRadius) <= 2
+
     const ok = interiorIsolated && containmentNotStructureSpecific
 
     return verdict({

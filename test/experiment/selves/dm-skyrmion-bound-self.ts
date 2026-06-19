@@ -44,6 +44,7 @@ export default experiment({
       dm: 0.6,
       field: 0.15,
     }
+
     const dt = 0.008
     const relaxSteps = 2000
     const precessSteps = 800
@@ -51,6 +52,7 @@ export default experiment({
 
     // 1, relax to the metastable bound Skyrmion (the bound soliton exists, fixed size).
     let spins: Spin[] = makeSkyrmionField({ size, coreRadius: 5 })
+
     for (let t = 0; t < relaxSteps; t++) {
       spins = relaxSpins({ spins, params, rate: 0.08 })
     }
@@ -62,9 +64,11 @@ export default experiment({
     // 2, reversible precession keeps Q conserved and the radius steady (stable bound soliton under reversible dynamics).
     let minQ = relaxedQ,
       maxQ = relaxedQ
+
     for (let t = 0; t < precessSteps; t++) {
       spins = precessSpins({ spins, params, dt, open: false })
       const q = skyrmionDegree(spins, size)
+
       if (q < minQ) {
         minQ = q
       }
@@ -80,6 +84,7 @@ export default experiment({
     const perturbed: Spin[] = relaxed.map(s => [...s] as Spin)
     const at = (x: number, y: number): number =>
       ((y + size) % size) * size + ((x + size) % size)
+
     for (let y = 15; y < 19; y++) {
       for (let x = 27; x < 31; x++) {
         const n = Math.hypot(1, 0, 0.2)
@@ -88,6 +93,7 @@ export default experiment({
     }
 
     let pert = perturbed
+
     for (let t = 0; t < precessSteps; t++) {
       pert = precessSpins({ spins: pert, params, dt, open: false })
     }
@@ -101,10 +107,12 @@ export default experiment({
       Math.abs(relaxedQ + 1) < 0.1 &&
       relaxedRadius > 2 &&
       relaxedRadius < 8
+
     const stableUnderReversible =
       Math.abs(minQ + 1) < 0.1 &&
       Math.abs(maxQ + 1) < 0.1 &&
       Math.abs(precessedRadius - relaxedRadius) < 1
+
     const chargeRobust = Math.abs(perturbedQ + 1) < 0.1
     const ok = boundExists && stableUnderReversible && chargeRobust
 

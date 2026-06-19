@@ -14,8 +14,10 @@ import { chargeDensityProfile } from '@/code/measure/profile'
 // a head-on pair, which carries zero net momentum and is collision-ready.
 export function coinLines(opposite: number[]): Array<[number, number]> {
   const lines: Array<[number, number]> = []
+
   for (let direction = 0; direction < opposite.length; direction++) {
     const other = opposite[direction]!
+
     if (direction < other) {
       lines.push([direction, other])
     }
@@ -40,13 +42,16 @@ export function densityWaveAlongAxis(input: {
   const will = makeWill(mesh)
   const degree = mesh.degree
   const lineCount = lines.length
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const high = axisOf(cell) % lambda < lambda / 2
     const target = high ? highTarget : lowTarget
     const base = cell * degree
+
     for (let line = 0; line < lineCount; line++) {
       const hash =
         (((cell * 73 + line * 149) % lineCount) + lineCount) % lineCount
+
       if (hash < target) {
         const [a, z] = lines[line]!
         will.data[base + a] = 1
@@ -68,10 +73,12 @@ export function stripeContrast(input: {
 }): number {
   const { will, lambda, axisOf, bins } = input
   const profile = chargeDensityProfile({ will, binOf: axisOf, bins })
+
   let high = 0
   let low = 0
   let highCount = 0
   let lowCount = 0
+
   for (let x = 0; x < bins; x++) {
     if (x % lambda < lambda / 2) {
       high += profile[x]!
@@ -90,6 +97,7 @@ export function stripeContrast(input: {
 export function firstMinimumTime(trace: ReadonlyArray<number>): number {
   let timeOfMin = 0
   let valueOfMin = trace[0] ?? 0
+
   for (let t = 1; t < trace.length; t++) {
     if (trace[t]! < valueOfMin) {
       valueOfMin = trace[t]!

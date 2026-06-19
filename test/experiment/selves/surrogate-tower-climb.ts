@@ -45,6 +45,7 @@ export default experiment({
 
     let minGap = Infinity
     let minAccuracy = Infinity
+
     for (const lvl of tower) {
       minGap = Math.min(minGap, lvl.accuracy - lvl.shuffledAccuracy)
       minAccuracy = Math.min(minAccuracy, lvl.accuracy)

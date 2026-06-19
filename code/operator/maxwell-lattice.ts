@@ -17,8 +17,10 @@ export function maxwellLatticeSpectrum(input: {
   const dof = 3 * sites
   const siteIndex = (x: number, y: number, z: number): number =>
     ((x + L) % L) + L * (((y + L) % L) + L * ((z + L) % L))
+
   const link = (x: number, y: number, z: number, d: number): number =>
     d + 3 * siteIndex(x, y, z)
+
   const step = (
     x: number,
     y: number,
@@ -28,6 +30,7 @@ export function maxwellLatticeSpectrum(input: {
     d === 0 ? [x + 1, y, z] : d === 1 ? [x, y + 1, z] : [x, y, z + 1]
 
   const H = makeDense({ rows: dof, cols: dof })
+
   // For each plaquette F = A[a] + A[b] - A[c] - A[d], add (grad F)(grad F)^T.
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
@@ -45,7 +48,9 @@ export function maxwellLatticeSpectrum(input: {
             link(x2, y2, z2, d1),
             link(x, y, z, d2),
           ]
+
           const signs = [1, 1, -1, -1]
+
           for (let a = 0; a < 4; a++) {
             for (let b = 0; b < 4; b++) {
               const ia = links[a] ?? 0

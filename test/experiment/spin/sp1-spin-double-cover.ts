@@ -45,7 +45,9 @@ export function sp1SpinDoubleCover(): {
 
   // (A) the 24 units form a GROUP under quaternion multiplication (closure), order 24 = 2T
   const set = new Set(U.map(qkey))
+
   let closed = true
+
   for (const a of U) {
     for (const b of U) {
       if (!set.has(qkey(qmul(a, b)))) {
@@ -72,9 +74,11 @@ export function sp1SpinDoubleCover(): {
     0,
     Math.sin(theta / 2),
   ]
+
   // spinor action = LEFT multiply, overlap with the reference spinor (1,0,0,0) is the w-component = cos(theta/2)
   const spinorOverlap = (theta: number): number =>
     qmul(rotQ(theta), [1, 0, 0, 0])[0]
+
   // vector action = CONJUGATION, overlap of an in-plane vector (1,0,0) with its image = cos(theta)
   const vectorOverlap = (theta: number): number => {
     const q = rotQ(theta),
@@ -86,9 +90,11 @@ export function sp1SpinDoubleCover(): {
 
   const TWO_PI = 2 * Math.PI,
     FOUR_PI = 4 * Math.PI
+
   const s2 = spinorOverlap(TWO_PI),
     s4 = spinorOverlap(FOUR_PI),
     v2 = vectorOverlap(TWO_PI)
+
   const spinorMinusAt2pi = Math.abs(s2 - -1) < 1e-9
   const spinorPlusAt4pi = Math.abs(s4 - 1) < 1e-9
   const vectorPlusAt2pi = Math.abs(v2 - 1) < 1e-9

@@ -56,7 +56,9 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     size: N,
     source: 0,
   })
+
   let R = 0
+
   for (let i = 0; i < N; i++) {
     if (dist[i]! > R) {
       R = dist[i]!
@@ -64,6 +66,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   }
 
   const core: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (dist[i]! <= 1) {
       core.push(i)
@@ -71,6 +74,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   }
 
   const shellCells: number[][] = Array.from({ length: R + 1 }, () => [])
+
   for (let i = 0; i < N; i++) {
     shellCells[dist[i]!]!.push(i)
   }
@@ -79,12 +83,14 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   const encode = (bit: 1 | -1): Int8Array => {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 5 })
+
     for (let t = 0; t < beats; t++) {
       for (const i of core) {
         tone[i] = bit
       }
 
       hopBeat(tone, eu, ev, moved, rng)
+
       for (const i of core) {
         tone[i] = bit
       }
@@ -99,6 +105,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   // recover the bit from a shell after erasing a fraction f (sign of the surviving cells), success over
   // many random erasures and BOTH bits. f*(r) = the largest f with success rate >= 0.85.
   const rngE = makeRng({ seed: 21 })
+
   const recoverRate = (
     cells: number[],
     tone: Int8Array,
@@ -106,9 +113,12 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     f: number,
   ): number => {
     let ok = 0
+
     const trials = 40
+
     for (let t = 0; t < trials; t++) {
       let sum = 0
+
       for (const c of cells) {
         if (rngE.next() >= f) {
           sum += tone[c]!
@@ -126,13 +136,16 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   // scan to EXTREME erasure, the absolute redundancy (count of marked cells) grows with radius even as
   // density dilutes, so the threshold should keep rising into the >95% regime
   const fGrid = [0.5, 0.8, 0.9, 0.95, 0.98, 0.99, 0.995, 0.998, 0.999]
+
   const thresholdFor = (cells: number[]): number => {
     let best = 0
+
     for (const f of fGrid) {
       const rate =
         (recoverRate(cells, tonePos, 1, f) +
           recoverRate(cells, toneNeg, -1, f)) /
         2
+
       if (rate >= 0.85) {
         best = f
       }
@@ -148,13 +161,16 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     density: number
     threshold: number
   }[] = []
+
   for (let r = 2; r <= R - 1; r++) {
     const cells = shellCells[r]!
+
     if (cells.length < 20) {
       continue
     }
 
     let nz = 0
+
     for (const c of cells) {
       if (tonePos[c] !== 0) {
         nz++
@@ -173,6 +189,7 @@ export function growingCode(input?: { n?: number; beats?: number }): {
   // the threshold should be monotonically non-decreasing in radius, with the rim clearly above the core.
   // Near the ceiling the right gauge is the SURVIVAL fraction 1 - f*, which should keep shrinking.
   let monotonic = true
+
   for (let i = 1; i < shells.length; i++) {
     if (shells[i]!.threshold < shells[i - 1]!.threshold - 1e-9) {
       monotonic = false
@@ -185,12 +202,16 @@ export function growingCode(input?: { n?: number; beats?: number }): {
     shells.length > 1 &&
     monotonic &&
     last!.threshold > first!.threshold + 0.02
+
   const complementaryRecovery =
     shells.length > 0 && last!.threshold >= 0.5
+
   const densityDilutes =
     shells.length > 1 && last!.density < first!.density * 0.5
+
   const redundancyGrows =
     shells.length > 1 && last!.marked > first!.marked // absolute redundancy rises
+
   const solved =
     thresholdRises && complementaryRecovery && redundancyGrows
 
@@ -221,6 +242,7 @@ export default experiment({
       r.thresholdRises &&
       r.redundancyGrows &&
       r.complementaryRecovery
+
     const first = r.shells[0]
     const last = r.shells[r.shells.length - 1]
 

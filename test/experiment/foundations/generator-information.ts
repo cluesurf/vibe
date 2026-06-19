@@ -38,6 +38,7 @@ export default experiment({
       three: shells.get(3)?.length ?? 0, // 32-cell
       four: shells.get(4)?.length ?? 0, // tesseract
     }
+
     const normTwoShell = shells.get(2) ?? []
     const isDock = sameSet(normTwoShell, rootsD4())
     const fullSymmetry = automorphismGroupOrder(rootsD4()) // F4, order 1152

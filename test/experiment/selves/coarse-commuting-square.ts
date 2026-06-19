@@ -41,6 +41,7 @@ export default experiment({
       seed: 13579,
       snapshotEvery: 6,
     })
+
     const tpm = rowStochastic(
       countMatrix({
         trajectory: traj.labels,
@@ -48,6 +49,7 @@ export default experiment({
         lag: 1,
       }),
     )
+
     const learned = mostProbableNext(tpm)
 
     // a random effective rule on the same coarse map, the control.
@@ -59,6 +61,7 @@ export default experiment({
     const stepRng = makeRng(2468)
     const graph = traj.graph
     const moved = new Uint8Array(graph.cellCount)
+
     const microStep = (tone: Int8Array): Int8Array => {
       const copy = tone.slice()
       beat(copy, graph, moved, stepRng, 0.01, 0.22)
@@ -75,6 +78,7 @@ export default experiment({
       coarseMap,
       macroStep: bin => learned[bin]!,
     })
+
     const errorRandom = commutingSquareError({
       states: traj.snapshots,
       microStep,

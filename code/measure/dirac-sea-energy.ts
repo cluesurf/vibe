@@ -10,6 +10,7 @@ export function seaEnergyFromEigenvalues(
   eigenvalues: number[],
 ): number {
   let sum = 0
+
   for (const value of eigenvalues) {
     if (value < 0) {
       sum += value

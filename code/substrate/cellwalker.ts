@@ -80,12 +80,16 @@ export function vertexRing(
   walker: CellWalker,
 ): number[] {
   const ring: number[] = []
+
   let current = walker
+
   const startCell = walker.cell
   const startSpin = walker.spin
+
   for (let i = 0; i < 64; i++) {
     current = wstepRotate(source, current, 1)
     ring.push(current.cell)
+
     if (current.cell === startCell && current.spin === startSpin) {
       break
     }

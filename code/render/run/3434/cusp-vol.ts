@@ -30,6 +30,7 @@ const SPLAT = 1 // each projected cell paints a small square so sparse shells st
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -50,6 +51,7 @@ async function run(): Promise<void> {
     (y < L - 1 ? 1 : 0) +
     (z > 0 ? 1 : 0) +
     (z < L - 1 ? 1 : 0)
+
   for (let z = 0; z < L; z++) {
     for (let y = 0; y < L; y++) {
       for (let x = 0; x < L; x++) {
@@ -63,8 +65,10 @@ async function run(): Promise<void> {
   }
 
   const adj = new Int32Array(offsets[N]!)
+
   {
     let p = 0
+
     for (let z = 0; z < L; z++) {
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
@@ -106,6 +110,7 @@ async function run(): Promise<void> {
   const rr = makeRng({ seed: 12345 })
   const rnd = (): number => rr.next()
   const B = 6
+
   for (let z = -B; z <= B; z++) {
     for (let y = -B; y <= B; y++) {
       for (let x = -B; x <= B; x++) {
@@ -126,6 +131,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([N, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
     device.createBuffer({
@@ -135,17 +141,20 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(offBuf, 0, new Uint32Array(offsets))
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(adjBuf, 0, new Uint32Array(adj))
 
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
@@ -153,6 +162,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -165,6 +175,7 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: adjBuf } },
       ],
     })
+
   const dispatch = Math.ceil(N / WORKGROUP)
   const staging = device.createBuffer({
     size: byteLength,
@@ -182,6 +193,7 @@ async function run(): Promise<void> {
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
   const z2arr = new Float32Array(N)
+
   for (let z = 0; z < L; z++) {
     for (let y = 0; y < L; y++) {
       for (let x = 0; x < L; x++) {
@@ -213,10 +225,12 @@ async function run(): Promise<void> {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
   let src = 0
+
   const accR = new Float32Array(IMG * IMG)
   const accG = new Float32Array(IMG * IMG)
   const accB = new Float32Array(IMG * IMG)
@@ -239,9 +253,11 @@ async function run(): Promise<void> {
     // house palette, +1 blue, -1 red, 0 black. BACK-TO-FRONT alpha compositing, blends (never sums to white)
     const BLUE: [number, number, number] = PLEASURE
     const RED: [number, number, number] = PAIN
+
     for (let k = 0; k < N; k++) {
       const cell = order[k]!
       const t = currentOf(field[cell]!)
+
       if (t === 0) {
         continue
       }
@@ -250,10 +266,12 @@ async function run(): Promise<void> {
       const d = DEPTH[cell]!
       const cxp = PX[cell]!
       const cyp = PY[cell]!
+
       for (let dy = -SPLAT; dy <= SPLAT; dy++) {
         for (let dx = -SPLAT; dx <= SPLAT; dx++) {
           const ix = cxp + dx
           const iy = cyp + dy
+
           if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
             continue
           }
@@ -267,6 +285,7 @@ async function run(): Promise<void> {
     }
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = Math.min(255, 8 + accR[i]!)
       rgba[i * 4 + 1] = Math.min(255, 8 + accG[i]!)

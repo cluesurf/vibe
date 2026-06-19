@@ -21,12 +21,14 @@ function multiBarrier(
   const amp = 0.25
   const width = L / (B * 4)
   const dips: number[] = []
+
   for (let k = 1; k <= B; k++) {
     dips.push((k * L) / (B + 1))
   }
 
   for (let p = 0; p <= L; p++) {
     let v = p / L // overall rising trend, global max at the goal (p=L)
+
     for (const d of dips) {
       v -= amp * Math.exp(-(((p - d) / width) ** 2))
     }
@@ -40,10 +42,13 @@ function multiBarrier(
 // the bare greedy rule, climb uphill one step until stuck at a local optimum
 function greedyRollout(V: number[], from: number): number {
   const L = V.length - 1
+
   let pos = from
+
   for (let s = 0; s < 4 * L; s++) {
     const up = pos < L ? V[pos + 1]! : -Infinity
     const down = pos > 0 ? V[pos - 1]! : -Infinity
+
     if (up <= V[pos]! && down <= V[pos]!) {
       break
     }
@@ -60,10 +65,13 @@ function greedyRollout(V: number[], from: number): number {
 // re-planning. Returns the next stall position (or the same if no push within the horizon helps).
 function planStep(V: number[], stall: number, horizon: number): number {
   const L = V.length - 1
+
   let bestEnd = stall
   let bestValue = V[stall]!
+
   for (let k = 1; k <= horizon && stall + k <= L; k++) {
     const after = greedyRollout(V, stall + k) // forward model = run my own rule from the push endpoint
+
     if (V[after]! > bestValue + 1e-9) {
       bestValue = V[after]!
       bestEnd = after
@@ -95,15 +103,18 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
   const reactivePos = greedyRollout(V, start)
   // one-shot, greedy then a single bounded plan, then greedy, then STOP (no re-plan)
   const oneShotPos = greedyRollout(V, planStep(V, reactivePos, horizon))
+
   // integrated, the closed loop, re-plan at every stall until the goal or no progress
   let pos = greedyRollout(V, start)
   let replans = 0
+
   for (let iter = 0; iter < 2 * B + 4; iter++) {
     if (pos >= goal - 1) {
       break
     }
 
     const planned = planStep(V, pos, horizon)
+
     if (planned <= pos) {
       break
     } // no push within the horizon helps, genuinely stuck

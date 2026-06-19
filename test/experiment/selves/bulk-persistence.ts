@@ -38,6 +38,7 @@ export default experiment({
       beats,
       seed,
     })
+
     const maintained = patternSurvivalTime({
       L,
       radius: 6,

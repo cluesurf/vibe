@@ -18,6 +18,7 @@ function run(): void {
     symbol: SYMBOL,
     maxCells: MAX_CELLS,
   })
+
   console.log(
     `{${SYMBOL.join(',')}} scene: dim ${scene.dim}, ${scene.cellCount} cells, ${scene.edges.length} edges`,
   )
@@ -27,6 +28,7 @@ function run(): void {
     rotateX: 0.45,
     rotateY: 0.6,
   })
+
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', '..', 'make', 'render')
   mkdirSync(outDir, { recursive: true })

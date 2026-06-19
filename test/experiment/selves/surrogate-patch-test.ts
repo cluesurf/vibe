@@ -41,17 +41,20 @@ function patchDrift(cohesionLate: number): {
     cohesionLate,
     changeAt,
   })
+
   const labels = quantileLabels({ series: traj.centroids, bins })
   const surrogate = fitMarkovSurrogate({
     trajectory: labels.slice(200, changeAt - 100),
     stateCount: bins,
     lag,
   })
+
   const early = forwardAccuracy({
     tpm: surrogate,
     test: labels.slice(300, changeAt - 100),
     lag,
   })
+
   const late = forwardAccuracy({
     tpm: surrogate,
     test: labels.slice(changeAt + 200, beats - 100),

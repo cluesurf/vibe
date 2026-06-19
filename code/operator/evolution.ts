@@ -29,7 +29,9 @@ export function makeStateSpace(input: {
   alphabet: Alphabet
 }): StateSpace {
   const base = valueCount(input.alphabet)
+
   let dimension = 1
+
   for (let i = 0; i < input.cells; i++) {
     dimension *= base
   }
@@ -76,6 +78,7 @@ export function permutationOfRule(input: {
   for (let state = 0; state < space.dimension; state++) {
     // Decode state into the configuration.
     let rest = state
+
     for (let cell = 0; cell < cells; cell++) {
       const digit = rest % base
       rest = Math.floor(rest / base)
@@ -89,12 +92,15 @@ export function permutationOfRule(input: {
       beat: 0,
       rng,
     })
+
     // Encode the result.
     let next = 0
     let place = 1
+
     for (let cell = 0; cell < cells; cell++) {
       const digit =
         getTone(out.configuration, { element: cell }) + offset
+
       next += digit * place
       place *= base
     }
@@ -126,9 +132,12 @@ export function hamiltonianFromPermutation(input: {
 
   // Verify bijection: every target hit exactly once and within range.
   const seen = new Uint8Array(n)
+
   let isPermutation = true
+
   for (let i = 0; i < n; i++) {
     const target = perm[i] ?? -1
+
     if (target < 0 || target >= n || (seen[target] ?? 0) === 1) {
       isPermutation = false
       break
@@ -148,6 +157,7 @@ export function hamiltonianFromPermutation(input: {
   // Decompose into cycles, accumulating eigen-phases per cycle length.
   const visited = new Uint8Array(n)
   const energies: number[] = []
+
   for (let start = 0; start < n; start++) {
     if ((visited[start] ?? 0) === 1) {
       continue
@@ -155,6 +165,7 @@ export function hamiltonianFromPermutation(input: {
 
     let length = 0
     let cursor = start
+
     while ((visited[cursor] ?? 0) === 0) {
       visited[cursor] = 1
       cursor = perm[cursor] ?? cursor

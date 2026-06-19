@@ -24,6 +24,7 @@ const ALPHA: [number, number, number, number][][] = [
     [3, 1, -1, 0],
   ],
 ]
+
 const BETA = [1, 1, -1, -1]
 
 // background modes:
@@ -33,6 +34,7 @@ const BETA = [1, 1, -1, -1]
 //  'uniformz': phi = M constant, nhat = (0,0,1) everywhere (the texture vacuum; sea energy is direction-independent)
 // (rhat.tau) = [[nz, nx-i ny],[nx+i ny, -nz]].
 export type BgMode = 'bag' | 'texture' | 'uniformz'
+
 export function background(
   L: number,
   M: number,
@@ -41,10 +43,13 @@ export function background(
 ): { phi: Float64Array; rt: Float64Array } {
   const N = L * L * L,
     C = L / 2
+
   const phi = new Float64Array(N),
     rt = new Float64Array(N * 8)
+
   const site = (x: number, y: number, z: number): number =>
     (z * L + y) * L + x
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       for (let z = 0; z < L; z++) {
@@ -53,7 +58,9 @@ export function background(
           dy = y - C + 0.5,
           dz = z - C + 0.5,
           r = Math.hypot(dx, dy, dz)
+
         let nx: number, ny: number, nz: number
+
         if (mode === 'uniformz') {
           phi[s] = M
           nx = 0
@@ -66,10 +73,12 @@ export function background(
             Z = dz / R,
             r2 = X * X + Y * Y + Z * Z,
             dd0 = 1 + r2
+
           const a = (2 * X) / dd0,
             b = (2 * Y) / dd0,
             cc = (2 * Z) / dd0,
             dd = (1 - r2) / dd0
+
           nx = 2 * (a * cc + b * dd)
           ny = 2 * (b * cc - a * dd)
           nz = a * a + b * b - cc * cc - dd * dd
@@ -108,36 +117,46 @@ export function makeDirac(
 ): { dim: number; applyH: (v: Cx, o: Cx) => void } {
   const N = L * L * L,
     DIM = 8 * N
+
   const { phi, rt } = background(L, M, R, mode)
   const site = (x: number, y: number, z: number): number =>
     (z * L + y) * L + x
+
   const inBox = (x: number, y: number, z: number): boolean =>
     x >= 0 && x < L && y >= 0 && y < L && z >= 0 && z < L
+
   const applyH = (v: Cx, o: Cx): void => {
     o.re.fill(0)
     o.im.fill(0)
+
     for (let x = 0; x < L; x++) {
       for (let y = 0; y < L; y++) {
         for (let z = 0; z < L; z++) {
           const s = site(x, y, z),
             base = s * 8
+
           for (let axis = 0; axis < 3; axis++) {
             const dp = [
               axis === 0 ? 1 : 0,
               axis === 1 ? 1 : 0,
               axis === 2 ? 1 : 0,
             ]
+
             const sp = inBox(x + dp[0]!, y + dp[1]!, z + dp[2]!)
               ? site(x + dp[0]!, y + dp[1]!, z + dp[2]!)
               : -1
+
             const sm = inBox(x - dp[0]!, y - dp[1]!, z - dp[2]!)
               ? site(x - dp[0]!, y - dp[1]!, z - dp[2]!)
               : -1
+
             for (const [d, dpr, ar, ai] of ALPHA[axis]!) {
               const cr = ai * 0.5,
                 ci = -ar * 0.5
+
               for (let t = 0; t < 2; t++) {
                 const oi = base + d * 2 + t
+
                 if (sp >= 0) {
                   const j = sp * 8 + dpr * 2 + t
                   o.re[oi]! += cr * v.re[j]! - ci * v.im[j]!
@@ -162,14 +181,17 @@ export function makeDirac(
             m10i = rt[base + 5]!,
             m11r = rt[base + 6]!,
             m11i = rt[base + 7]!
+
           for (let d = 0; d < 4; d++) {
             const g = ph * BETA[d]!,
               i0 = base + d * 2,
               i1 = base + d * 2 + 1
+
             const p0r = v.re[i0]!,
               p0i = v.im[i0]!,
               p1r = v.re[i1]!,
               p1i = v.im[i1]!
+
             o.re[i0]! +=
               g * (m00r * p0r - m00i * p0i + m01r * p1r - m01i * p1i)
             o.im[i0]! +=

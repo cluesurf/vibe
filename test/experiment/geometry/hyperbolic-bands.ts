@@ -23,10 +23,12 @@ export function hyperbolicBands(): {
     p: 7,
     generators: standardPslGenerators(7),
   })
+
   const N = adjacency.length
   const A: number[][] = Array.from({ length: N }, () =>
     new Array<number>(N).fill(0),
   )
+
   for (let i = 0; i < N; i++) {
     for (const j of adjacency[i]!) {
       A[i]![j] = 1
@@ -37,9 +39,12 @@ export function hyperbolicBands(): {
   const ev = jacobiEigenvalues(A)
   // group into degenerate multiplets
   const mults: number[] = []
+
   let i = 0
+
   while (i < N) {
     let j = i + 1
+
     while (j < N && Math.abs(ev[j]! - ev[i]!) < 1e-3) {
       j++
     }

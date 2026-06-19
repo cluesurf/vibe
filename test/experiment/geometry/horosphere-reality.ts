@@ -23,11 +23,13 @@ export function horosphereReality(): {
     half: 0.5,
     margin: 0.7,
   })
+
   // induced adjacency ON the band only (cells whose Busemann value is within half)
   const { neighbors: bnb } = bandInducedSubgraph({
     band: h,
     halfWidth: 0.5,
   })
+
   const B = bnb.length
   // (1) flatness, intrinsic growth of the band graph (BFS from a central band cell) should be POLYNOMIAL
   const c0 = mostConnectedNode(bnb)
@@ -35,6 +37,7 @@ export function horosphereReality(): {
   const flatGrowth = midShellGrowthRatio({ shellCounts: shell })
   // (2) periodicity, degree histogram of the band cells (clean cubic {4,3,4} -> mostly degree 6; aperiodic -> spread)
   const degreeHistogram: Record<number, number> = {}
+
   for (let a = 0; a < B; a++) {
     const d = bnb[a]!.length
     degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1

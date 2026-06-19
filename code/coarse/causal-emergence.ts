@@ -13,11 +13,13 @@ import {
 // KL divergence of that state's output distribution from the mean output distribution.
 export function effectiveInformation(tpm: number[][]): number {
   const n = tpm.length
+
   if (n === 0) {
     return 0
   }
 
   const mean = new Array<number>(n).fill(0)
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       mean[j]! += tpm[i]![j]! / n
@@ -25,9 +27,11 @@ export function effectiveInformation(tpm: number[][]): number {
   }
 
   let ei = 0
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const p = tpm[i]![j]!
+
       if (p > 1e-12 && mean[j]! > 1e-12) {
         ei += (p * Math.log2(p / mean[j]!)) / n
       }
@@ -46,6 +50,7 @@ export function coarseGrainTpm(input: {
   const { tpm, groups } = input
   const macroCount = Math.max(...groups) + 1
   const size = new Array<number>(macroCount).fill(0)
+
   for (const g of groups) {
     size[g]!++
   }
@@ -53,8 +58,10 @@ export function coarseGrainTpm(input: {
   const macro: number[][] = Array.from({ length: macroCount }, () =>
     new Array<number>(macroCount).fill(0),
   )
+
   for (let i = 0; i < tpm.length; i++) {
     const gi = groups[i]!
+
     for (let j = 0; j < tpm.length; j++) {
       macro[gi]![groups[j]!]! += tpm[i]![j]! / size[gi]!
     }
@@ -84,15 +91,18 @@ export function emergenceGain(input: {
     series: input.series,
     bins: input.fine,
   })
+
   const micro = rowStochastic(
     countMatrix({ trajectory: labels, stateCount: input.fine, lag: 1 }),
   )
+
   const eiMicro = effectiveInformation(micro)
 
   const block = input.fine / input.macroCount
   const spatialGroups = Array.from({ length: input.fine }, (_, i) =>
     Math.floor(i / block),
   )
+
   const eiSpatial = effectiveInformation(
     coarseGrainTpm({ tpm: micro, groups: spatialGroups }),
   )
@@ -101,6 +111,7 @@ export function emergenceGain(input: {
     { length: input.fine },
     (_, i) => i % input.macroCount,
   )
+
   for (let i = input.fine - 1; i > 0; i--) {
     const j = Math.floor(input.rng.next() * (i + 1))
     const tmp = randomGroups[i]!

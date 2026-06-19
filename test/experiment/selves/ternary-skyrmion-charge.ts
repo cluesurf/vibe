@@ -36,6 +36,7 @@ export default experiment({
         snapToTrits(makeSkyrmionField({ size: L, coreRadius })),
         L,
       )
+
     const r2 = degreeAt(2)
     const r4 = degreeAt(4)
     const r6 = degreeAt(6)
@@ -44,7 +45,9 @@ export default experiment({
     // a perturbation, tilt a patch, snap to trits, the charge must survive.
     const idx = (x: number, y: number): number =>
       ((y + L) % L) * L + ((x + L) % L)
+
     const field: Spin[] = makeSkyrmionField({ size: L, coreRadius: 6 })
+
     for (let y = 20; y < 24; y++) {
       for (let x = 28; x < 32; x++) {
         const n = Math.hypot(1, 0, 0.3)
@@ -59,8 +62,10 @@ export default experiment({
       Math.abs(r4 + 1) < 0.05 &&
       Math.abs(r6 + 1) < 0.05 &&
       Math.abs(r10 + 1) < 0.05
+
     const chargeRobustToPerturbation =
       Math.abs(perturbedDegree + 1) < 0.05
+
     const ok = chargeAtAllSizes && chargeRobustToPerturbation
 
     return verdict({

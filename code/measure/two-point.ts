@@ -15,16 +15,19 @@ export function diracEqualTimeCorrelator(input: {
 }): number[] {
   const { mass, maxR, modes } = input
   const c = new Float64Array(maxR + 1)
+
   for (let n = 1; n < modes; n++) {
     const k = (Math.PI * n) / modes
     const omega = Math.acos(
       Math.max(-1, Math.min(1, Math.cos(k) * Math.cos(mass))),
     )
+
     if (omega < 1e-9) {
       continue
     }
 
     const w = 1 / (2 * omega) // the positive spectral weight (Kallen-Lehmann)
+
     for (let r = 0; r <= maxR; r++) {
       c[r]! += (w * Math.cos(k * r)) / modes
     }

@@ -36,14 +36,17 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const forward: Collision = pairCollision({
       opposite,
       forward: true,
     })
+
     const inverse: Collision = pairCollision({
       opposite,
       forward: false,
     })
+
     const table = streamSourceTable(mesh)
     const init = makeWill(mesh)
     fillWillPattern(init) // a deterministic coherent body, never random
@@ -57,6 +60,7 @@ export default experiment({
       open: true,
       frontierX,
     })
+
     const closedTraj = pointerTrajectory({
       init,
       forward,
@@ -65,12 +69,14 @@ export default experiment({
       open: false,
       frontierX,
     })
+
     const openRecord = tailMean(openTraj) // the settled pointer (the record)
     const closedRecord = tailMean(closedTraj)
     const openSettle = settlingTime(
       openTraj,
       0.1 * Math.max(openRecord, 1e-6),
     )
+
     const openEcho = loschmidtEcho({
       init,
       forward,
@@ -80,6 +86,7 @@ export default experiment({
       open: true,
       frontierX,
     })
+
     const closedEcho = loschmidtEcho({
       init,
       forward,
@@ -92,6 +99,7 @@ export default experiment({
 
     const recordForms =
       openRecord > closedRecord + 0.1 && openRecord > 0.1 // the open pointer settles to a definite gradient
+
     const settles = openSettle < beats // it reaches and holds a fixed value, a measured settling time
     const irreversible = openEcho > 0.01 // the record cannot be un-formed (the fine phase is gone)
     const coherentClosed = closedEcho < 1e-12 // the closed system is fully recoverable, no record

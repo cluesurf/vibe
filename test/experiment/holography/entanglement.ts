@@ -25,9 +25,11 @@ export function logLawSlope1D(input: { n: number }): number {
     h: ringHoppingHamiltonian({ n: input.n }),
     n: input.n,
   })
+
   const lengths = [4, 6, 8, 12, 16, 20, 24]
   const lnL: number[] = []
   const s: number[] = []
+
   for (const L of lengths) {
     const region = Array.from({ length: L }, (_, i) => i)
     lnL.push(Math.log(L))
@@ -48,12 +50,15 @@ export function areaLaw2D(input: { side: number }): {
     h: torusHoppingHamiltonian({ dimension: 2, side: input.side }),
     n,
   })
+
   const ells = [2, 3, 4, 5]
   const ellArr: number[] = []
   const ell2Arr: number[] = []
   const s: number[] = []
+
   for (const l of ells) {
     const region: number[] = []
+
     for (let y = 0; y < l; y++) {
       for (let x = 0; x < l; x++) {
         region.push(y * input.side + x)

@@ -45,6 +45,7 @@ export default experiment({
       sizes: [64, 128, 256, 512],
       repeats: 30,
     })
+
     const exponent = smeared.exponent
     const deltaLambdaExp = exponent - 1
     const ok = Math.abs(exponent - 0.5) < 0.25

@@ -26,6 +26,7 @@ export function d5CoinSearch(): {
     { name: '5-cube {4,3,3,3}', v: 32 },
     { name: '5-orthoplex {3,3,3,4}', v: 10 },
   ]
+
   const anyRegular5DHas40 = regular5D.some(p => p.v === d5RootCount)
 
   return { cell24IsD4, d5RootCount, anyRegular5DHas40 }

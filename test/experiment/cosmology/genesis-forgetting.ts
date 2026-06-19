@@ -28,10 +28,12 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
     const dense = balanceToZero(
       (() => {
         const t = new Int8Array(n)
+
         for (let i = 0; i < n; i++) {
           t[i] = i % 2 === 0 ? 1 : -1
         }
@@ -39,9 +41,11 @@ export default experiment({
         return t
       })(),
     )
+
     const sparse = balanceToZero(
       (() => {
         const t = new Int8Array(n)
+
         for (let i = 0; i < n; i += 9) {
           t[i] = (i / 9) % 2 === 0 ? 1 : -1
         }
@@ -57,6 +61,7 @@ export default experiment({
       arrow: 0.1,
       seed: 9,
     })
+
     const B = chargeTrajectory({
       neighbors: mesh.neighbors,
       initial: sparse,
@@ -64,8 +69,10 @@ export default experiment({
       arrow: 0.1,
       seed: 9,
     })
+
     const fracDiff = (i: number) =>
       Math.abs(A.trajectory[i]! - B.trajectory[i]!) / n
+
     const startFracDiff = fracDiff(0)
     const endFracDiff = fracDiff(A.trajectory.length - 1)
     // microscopic difference (secondary): the residual is the attractor manifold spread, not start-memory
@@ -77,6 +84,7 @@ export default experiment({
       arrow: 0.1,
       seed: 9,
     })
+
     const same = differenceTrajectory({
       neighbors: mesh.neighbors,
       initialA: dense,

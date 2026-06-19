@@ -58,6 +58,7 @@ export default experiment({
         start2,
         steps,
       })
+
       const relative = body1.map((r1, i) => r1 - body2[i]!)
 
       return {
@@ -70,6 +71,7 @@ export default experiment({
     // COMPOSITE IDENTITY, do all initial conditions settle to the same joint ground state (spread ~ 0)?
     const finalsBath = inits.map(([a, b]) => jointState(true, a, b))
     const finalsClosed = inits.map(([a, b]) => jointState(false, a, b))
+
     const spread = (
       finals: { body1: number; body2: number }[],
     ): number => {
@@ -84,6 +86,7 @@ export default experiment({
     // BINDING, does the separation settle (the pair is one bound object) under the bath?
     const bathRelativeSettles =
       Math.max(...finalsBath.map(f => f.relative)) < 0.1
+
     const closedRelativeSettles =
       Math.max(...finalsClosed.map(f => f.relative)) < 0.1
 
@@ -108,6 +111,7 @@ export default experiment({
 
     const compositeIdentity =
       bathIdentitySpread < 0.1 && closedIdentitySpread > 0.5
+
     const bound = bathRelativeSettles && !closedRelativeSettles
     const compositeAgency = bathAfterKick < 0.1 && closedAfterKick > 0.3
 

@@ -20,6 +20,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // In sequential growth the first k elements are exactly the order at growth-time k.
 function prefixRelations(poset: Poset, k: number): number {
   let count = 0
+
   for (let i = 0; i < k; i++) {
     for (let j = i + 1; j < k; j++) {
       if (getBit(poset.future, { row: i, col: j })) {
@@ -49,6 +50,7 @@ export function csgCosmology(input: {
     couplings: Float64Array.from([input.p]),
     rng: makeRng({ seed: input.seed }),
   })
+
   const n = input.size
 
   // Arrow of time: relations among the first k elements, monotonically increasing.
@@ -59,11 +61,14 @@ export function csgCosmology(input: {
     Math.floor((3 * n) / 4),
     n,
   ]
+
   const relationGrowth = ks.map(k => ({
     k,
     relations: prefixRelations(poset, k),
   }))
+
   let arrowMonotone = true
+
   for (let i = 1; i < relationGrowth.length; i++) {
     if (
       (relationGrowth[i]?.relations ?? 0) <
@@ -79,6 +84,7 @@ export function csgCosmology(input: {
   const half = Math.floor(widths.length / 2)
   const mean = (arr: number[]): number =>
     arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0
+
   const earlyWidth = mean(widths.slice(0, half))
   const lateWidth = mean(widths.slice(half))
 

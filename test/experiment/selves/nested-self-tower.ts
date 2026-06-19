@@ -35,6 +35,7 @@ export default experiment({
       bins: fine,
       seed: 24680,
     })
+
     const micro = rowStochastic(
       countMatrix({
         trajectory: traj.labels,
@@ -42,6 +43,7 @@ export default experiment({
         lag: 1,
       }),
     )
+
     const eiMicro = effectiveInformation(micro)
 
     // STRUCTURED tower, fine 36 -> meso 12 -> macro 4, each level merging adjacent (dynamics-respecting) blocks
@@ -49,17 +51,21 @@ export default experiment({
       tpm: micro,
       groups: Array.from({ length: fine }, (_, i) => Math.floor(i / 3)),
     })
+
     const eiMeso = effectiveInformation(meso)
     const macro = coarseGrainTpm({
       tpm: meso,
       groups: Array.from({ length: 12 }, (_, i) => Math.floor(i / 3)),
     })
+
     const eiMacro = effectiveInformation(macro)
 
     // RANDOM tower of the same sizes, the control (a loose aggregate, no respect for the dynamics)
     const rng = makeRng(7777)
+
     const shuffle = (n: number, m: number): number[] => {
       const g = Array.from({ length: n }, (_, i) => i % m)
+
       for (let i = n - 1; i > 0; i--) {
         const j = Math.floor(rng.next() * (i + 1))
         const t = g[i]!
@@ -74,11 +80,13 @@ export default experiment({
       tpm: micro,
       groups: shuffle(fine, 12),
     })
+
     const eiMesoR = effectiveInformation(mesoR)
     const macroR = coarseGrainTpm({
       tpm: mesoR,
       groups: shuffle(12, 4),
     })
+
     const eiMacroR = effectiveInformation(macroR)
 
     const gapLevel1 = eiMeso - eiMesoR

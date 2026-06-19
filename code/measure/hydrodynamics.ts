@@ -18,10 +18,13 @@ function absorbGradientBoundary(
   gradAxis: number,
 ): void {
   const degree = will.mesh.degree
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     const coordinate = coordAlong(cell, gradAxis, side)
+
     if (coordinate === 0 || coordinate === side - 1) {
       const base = cell * degree
+
       for (let direction = 0; direction < degree; direction++) {
         will.data[base + direction] = 0
       }
@@ -47,7 +50,9 @@ export function cellMomentum(
 ): number {
   const degree = will.mesh.degree
   const base = cell * degree
+
   let momentum = 0
+
   for (let direction = 0; direction < degree; direction++) {
     momentum +=
       (will.data[base + direction] ?? 0) *
@@ -70,10 +75,12 @@ export function shearSetup(input: {
 }): Will {
   const { mesh, directions, side, gradAxis, momAxis, wavelength } =
     input
+
   const degree = mesh.degree
   const will = makeWill(mesh)
   const data = will.data
   const opposite: number[] = []
+
   for (let direction = 0; direction < degree; direction++) {
     opposite.push(mesh.opposite(direction))
   }
@@ -82,18 +89,24 @@ export function shearSetup(input: {
     const amplitude = Math.sin(
       (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
     )
+
     const base = cell * degree
+
     let noMomentumLine = 0
+
     for (let direction = 0; direction < degree; direction++) {
       const other = opposite[direction]!
+
       if (direction >= other) {
         continue
       }
 
       const component = directions[direction]![momAxis] ?? 0 // momAxis component of this line (other has the negative)
+
       if (component !== 0) {
         const positiveSlot = component > 0 ? direction : other
         const negativeSlot = component > 0 ? other : direction
+
         if (amplitude > 0.33) {
           data[base + positiveSlot] = 1
           data[base + negativeSlot] = 0
@@ -132,7 +145,9 @@ export function shearAmplitude(input: {
 }): number {
   const { will, directions, side, gradAxis, momAxis, wavelength } =
     input
+
   let amplitude = 0
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     amplitude +=
       cellMomentum(will, cell, directions, momAxis) *
@@ -167,10 +182,13 @@ export function shearAmplitudeSeries(input: {
     wavelength,
     open,
   } = input
+
   // allocation-free double buffer, the in-place beat (same result as beat(), far fewer allocations)
   const table = streamSourceTable(input.will.mesh)
+
   let current = cloneWill(input.will)
   let scratch = makeWill(input.will.mesh)
+
   const measure = (w: Will) =>
     shearAmplitude({
       will: w,
@@ -180,11 +198,14 @@ export function shearAmplitudeSeries(input: {
       momAxis,
       wavelength,
     })
+
   const start = measure(current)
   const series = [1]
+
   for (let step = 0; step < beats; step++) {
     beatInto({ src: current, dst: scratch, table, collision })
     ;[current, scratch] = [scratch, current]
+
     if (open) {
       absorbGradientBoundary(current, side, gradAxis)
     }
@@ -210,11 +231,14 @@ export function chargeWaveSetup(input: {
   const band = input.band ?? 6
   const degree = mesh.degree
   const will = makeWill(mesh)
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const amplitude = Math.sin(
       (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
     )
+
     const base = cell * degree
+
     if (amplitude > 0.33) {
       for (let direction = 0; direction < band; direction++) {
         will.data[base + direction] = 1
@@ -237,7 +261,9 @@ export function chargeWaveAmplitude(input: {
   wavelength: number
 }): number {
   const { will, side, gradAxis, wavelength } = input
+
   let amplitude = 0
+
   for (let cell = 0; cell < will.mesh.cellCount; cell++) {
     amplitude +=
       cellTone(will, cell) *
@@ -263,15 +289,20 @@ export function chargeWaveSeries(input: {
   const { collision, beats, side, gradAxis, wavelength, open } = input
   // allocation-free double buffer, the in-place beat (same result as beat(), far fewer allocations)
   const table = streamSourceTable(input.will.mesh)
+
   let current = cloneWill(input.will)
   let scratch = makeWill(input.will.mesh)
+
   const measure = (w: Will) =>
     chargeWaveAmplitude({ will: w, side, gradAxis, wavelength })
+
   const start = measure(current)
   const series = [1]
+
   for (let step = 0; step < beats; step++) {
     beatInto({ src: current, dst: scratch, table, collision })
     ;[current, scratch] = [scratch, current]
+
     if (open) {
       absorbGradientBoundary(current, side, gradAxis)
     }

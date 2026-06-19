@@ -50,6 +50,7 @@ function intervalAbundance(input: { poset: Poset }): {
   // stays reproducible from one seed.
   const stride =
     relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
+
   let index = 0
   let seen = 0
 
@@ -59,12 +60,14 @@ function intervalAbundance(input: { poset: Poset }): {
       visit: b => {
         const take = index % stride === 0
         index += 1
+
         if (!take) {
           return
         }
 
         seen += 1
         const k = intervalSize(p, { a, b, past })
+
         if (k < BIN_COUNT) {
           bins[k] = (bins[k] ?? 0) + 1
         }
@@ -76,6 +79,7 @@ function intervalAbundance(input: { poset: Poset }): {
   // an unbiased estimate of the all-pairs value.
   if (seen > 0 && seen < relations) {
     const scale = relations / seen
+
     for (let k = 0; k < BIN_COUNT; k++) {
       bins[k] = (bins[k] ?? 0) * scale
     }
@@ -111,7 +115,9 @@ export function benincasaDowkerAction(input: {
     epsilon: input.epsilon,
     value: ({ poset }) => {
       const { bins, relations } = intervalAbundance({ poset })
+
       let combination = relations
+
       for (let k = 0; k < coefficients.length; k++) {
         combination -= (coefficients[k] ?? 0) * (bins[k] ?? 0)
       }
@@ -136,6 +142,7 @@ export function smearedKernel2D(input: {
   const e = input.epsilon
   const n = input.n
   const oneMinus = 1 - e
+
   if (oneMinus <= 0) {
     return n === 0 ? 1 : 0
   }
@@ -161,6 +168,7 @@ function smearedKernel4D(input: {
   const e = input.epsilon
   const n = input.n
   const oneMinus = 1 - e
+
   if (oneMinus <= 0) {
     return n === 0 ? 1 : 0
   }
@@ -197,15 +205,18 @@ export function smearedBenincasaDowker(input: {
       const relations = relationCount(poset)
       const stride =
         relations > PAIR_CAP ? Math.ceil(relations / PAIR_CAP) : 1
+
       let index = 0
       let seen = 0
       let sum = 0
+
       for (let a = 0; a < poset.size; a++) {
         forEachSetBit(poset.future, {
           row: a,
           visit: b => {
             const take = index % stride === 0
             index += 1
+
             if (!take) {
               return
             }

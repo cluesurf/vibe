@@ -48,12 +48,14 @@ function measureSize(maxCells: number): {
     directed: false,
     neighbors: bulk.neighbors,
   })
+
   const dirac = kahlerDirac({
     complex: cellComplexOf({ substrate: graph, maxGrade: 1 }),
   })
 
   let source = 0
   let bestDegree = -1
+
   for (let i = 0; i < bulk.cellCount; i++) {
     if (bulk.neighbors[i]!.length > bestDegree) {
       bestDegree = bulk.neighbors[i]!.length
@@ -68,6 +70,7 @@ function measureSize(maxCells: number): {
     operator: diracOperator(dirac, 0),
     ...evolve,
   })
+
   const localized = returnProbability({
     operator: diracOperator(dirac, 8),
     ...evolve,

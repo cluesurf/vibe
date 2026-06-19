@@ -27,11 +27,14 @@ export function hashTableProbeStats(input: {
   keys: number
 }): { collisionRate: number; meanProbe: number } {
   const slot = new Int32Array(input.cells).fill(-1)
+
   let collisions = 0
   let totalProbe = 0
+
   for (let key = 0; key < input.keys; key++) {
     let position = cellHash(key, input.cells)
     let probe = 1
+
     while (slot[position] !== -1 && probe <= input.cells) {
       position = (position + 1) % input.cells
       probe += 1
@@ -58,6 +61,7 @@ export function bloomFalsePositiveRate(input: {
   queries: number
 }): number {
   const bits = new Uint8Array(input.cells)
+
   for (let key = 0; key < input.items; key++) {
     for (let salt = 0; salt < input.hashes; salt++) {
       bits[mix(key, salt, input.cells)] = 1
@@ -65,9 +69,12 @@ export function bloomFalsePositiveRate(input: {
   }
 
   let falsePositives = 0
+
   for (let query = 0; query < input.queries; query++) {
     const key = input.items + query // a key never inserted
+
     let allSet = true
+
     for (let salt = 0; salt < input.hashes; salt++) {
       if (bits[mix(key, salt, input.cells)] === 0) {
         allSet = false

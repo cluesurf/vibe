@@ -36,7 +36,9 @@ export function gridWilsonLoop(
   input: { x0: number; x1: number; y0: number; y1: number },
 ): number {
   const { x0, x1, y0, y1 } = input
+
   let s = 0
+
   for (let x = x0; x < x1; x++) {
     s += g.Ax[x]![y0]!
   }
@@ -73,8 +75,10 @@ export function vortexGaugeField(input: {
   const Ay = makeGridGrid(L)
   const wrap = (d: number): number =>
     d - 2 * Math.PI * Math.round(d / (2 * Math.PI))
+
   const theta = (px: number, py: number): number =>
     Math.atan2(py - (fy + 0.5), px - (fx + 0.5))
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       Ax[x]![y] =
@@ -94,6 +98,7 @@ export function gridGaugeTransform(
 ): GridGauge {
   const Ax = makeGridGrid(side)
   const Ay = makeGridGrid(side)
+
   for (let x = 0; x < side; x++) {
     for (let y = 0; y < side; y++) {
       Ax[x]![y] =

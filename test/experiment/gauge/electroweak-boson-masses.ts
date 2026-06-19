@@ -44,6 +44,7 @@ export default experiment({
       isospin: 0.5,
       isospinComponent: 0.5,
     })
+
     const tripletRho = custodialRho({ isospin: 1, isospinComponent: 1 })
     const doubletGivesOne = Math.abs(doubletRho - 1) < 1e-9
     const tripletBreaksIt = Math.abs(tripletRho - 1) > 0.1

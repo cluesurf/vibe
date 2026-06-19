@@ -36,8 +36,10 @@ function trace(
 ): { minAmplitude: number; finalAmplitude: number } {
   const mesh = d4Mesh({ side: SIDE })
   const directions = rootsD4()
+
   let minAmplitude = Infinity
   let finalAmplitude = 0
+
   for (const wavelength of WAVELENGTHS) {
     const cfg = {
       gradAxis,
@@ -46,6 +48,7 @@ function trace(
       side: SIDE,
       directions,
     }
+
     const will = shearSetup({ mesh, ...cfg })
     const series = shearAmplitudeSeries({
       will,
@@ -54,6 +57,7 @@ function trace(
       open: false,
       ...cfg,
     })
+
     minAmplitude = Math.min(minAmplitude, ...series)
     finalAmplitude = Math.max(
       finalAmplitude,
@@ -75,6 +79,7 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }

@@ -23,6 +23,7 @@ const spectralDim = (
   t1: number,
   t2: number,
 ): number => spectralDimension({ neighbors: nb, start, t1, t2 })
+
 const frontCV = (
   nb: number[][],
   coords: number[][],
@@ -44,21 +45,26 @@ export function emergentSpaceTest(): void {
     half: 1.0,
     margin: 0.8,
   })
+
   const slice = bandLargestComponentSubgraph({
     band: h,
     halfWidth: 1.0,
   })
+
   const lccFrac = slice.largestComponentPercent
   const bandDim =
     Math.round(spectralDim(slice.neighbors, slice.start, 3, 12) * 100) /
     100
+
   const bandCV = frontCV(slice.neighbors, slice.coords, slice.start, 6)
   // (B) isotropy vs the clean cubic {4,3,4}
   const cube = buildEuclideanLattice({
     symbol: [4, 3, 4] as never,
     maxCells: 9000,
   })
+
   let cc = 0
+
   for (let i = 0; i < cube.cellCount; i++) {
     if (cube.coords[i]!.every(x => x === 0)) {
       cc = i
@@ -67,9 +73,11 @@ export function emergentSpaceTest(): void {
 
   const cubeDim =
     Math.round(spectralDim(cube.neighbors, cc, 3, 12) * 100) / 100
+
   const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
   // (C) expansion law, band-slice size vs radial (Busemann) level
   const levels: Record<number, number> = {}
+
   for (let i = 0; i < h.cellCount; i++) {
     const L = Math.round(h.busemann[i]!)
     levels[L] = (levels[L] ?? 0) + 1
@@ -78,6 +86,7 @@ export function emergentSpaceTest(): void {
   const ks = Object.keys(levels)
     .map(Number)
     .sort((a, b) => a - b)
+
   const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1
 }
 
@@ -102,15 +111,18 @@ export default experiment({
       half: 1.0,
       margin: 0.8,
     })
+
     const slice = bandLargestComponentSubgraph({
       band: h,
       halfWidth: 1.0,
     })
+
     const lccFrac = slice.largestComponentPercent
     const bandDim =
       Math.round(
         spectralDim(slice.neighbors, slice.start, 3, 12) * 100,
       ) / 100
+
     const bandCV = frontCV(
       slice.neighbors,
       slice.coords,
@@ -122,7 +134,9 @@ export default experiment({
       symbol: [4, 3, 4] as never,
       maxCells: 9000,
     })
+
     let cc = 0
+
     for (let i = 0; i < cube.cellCount; i++) {
       if (cube.coords[i]!.every(x => x === 0)) {
         cc = i

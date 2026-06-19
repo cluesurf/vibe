@@ -59,16 +59,22 @@ export function buildCoxeterMatrixMesh(
   const identity: number[][] = Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
   )
+
   const index = new Map<string, number>([[matrixKey(identity), 0]])
   const matrices: number[][][] = [identity]
+
   let frontier = [0]
+
   const shells = [1]
+
   while (index.size < maxCells && frontier.length > 0) {
     const next: number[] = []
+
     for (const cell of frontier) {
       for (let g = 0; g < degree; g++) {
         const neighbour = multiply(matrices[cell]!, generators[g]!)
         const id = matrixKey(neighbour)
+
         if (!index.has(id)) {
           index.set(id, matrices.length)
           matrices.push(neighbour)

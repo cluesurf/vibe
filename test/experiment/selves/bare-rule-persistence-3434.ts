@@ -29,15 +29,20 @@ function evolve(
 ): { wHist: number[]; peakHist: number[] } {
   const L = psi0.length,
     dt = 0.1
+
   let cur = psi0.map(z => [...z] as C)
+
   const wHist: number[] = [],
     peakHist: number[] = []
+
   for (let t = 0; t < steps; t++) {
     const next = cur.map((z, i) => {
       const a = cur[(i + 1) % L]!,
         b = cur[(i + L - 1) % L]!
+
       const lapRe = a[0] + b[0] - 2 * z[0],
         lapIm = a[1] + b[1] - 2 * z[1]
+
       // linear: i dpsi/dt = -lap (Schrodinger). nonlinear: add an amplitude-restoring term (1-|psi|^2)psi (sigma-model)
       const r2 = z[0] * z[0] + z[1] * z[1],
         rest = nonlinear ? 1 - r2 : 0
@@ -48,7 +53,9 @@ function evolve(
         z[1] + dt * (lapIm + rest * z[1]),
       ] as C
     })
+
     cur = next
+
     if (t % 200 === 0) {
       wHist.push(winding(cur))
       peakHist.push(peak(cur))
@@ -73,6 +80,7 @@ export function bareRulePersistence(): {
 
     return [amp * Math.cos(ph), amp * Math.sin(ph)]
   })
+
   const w0 = winding(psi0),
     p0 = peak(psi0)
 
@@ -81,6 +89,7 @@ export function bareRulePersistence(): {
   const linW = lin.wHist[lin.wHist.length - 1]!
   const linearLosesWinding =
     linW !== w0 || lin.wHist.some(w => w !== w0)
+
   const linearDisperses =
     lin.peakHist[lin.peakHist.length - 1]! < p0 * 0.7
 
@@ -89,6 +98,7 @@ export function bareRulePersistence(): {
   const nonW = non.wHist[non.wHist.length - 1]!
   const nonlinearKeepsWinding =
     nonW === w0 && non.wHist.every(w => w === w0)
+
   const nonlinearPersists =
     non.peakHist[non.peakHist.length - 1]! > p0 * 0.7
 

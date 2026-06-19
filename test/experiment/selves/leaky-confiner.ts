@@ -51,6 +51,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const center =
@@ -58,14 +59,17 @@ export default experiment({
       half * side +
       half * side * side +
       half * side * side * side
+
     const dist = shellDistances(mesh, center)
     const boundary = side / 2
 
     const packet = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! <= 2) {
           const base = c * degree
+
           for (let d = 0; d < degree; d++) {
             will.data[base + d] = 1
           }
@@ -85,12 +89,15 @@ export default experiment({
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       let max = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
         const swap = current
         current = scratch
         scratch = swap
+
         for (let c = 0; c < mesh.cellCount; c++) {
           if (cellTone(current, c) !== 0 && dist[c]! > max) {
             max = dist[c]!
@@ -112,11 +119,14 @@ export default experiment({
         mesh,
         data: new Int8Array(plain.data.length),
       }
+
       let pertScratch: Will = {
         mesh,
         data: new Int8Array(pert.data.length),
       }
+
       let max = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({
           src: plain,
@@ -136,9 +146,12 @@ export default experiment({
         const pe = pert
         pert = pertScratch
         pertScratch = pe
+
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
+
           let differs = false
+
           for (let d = 0; d < degree; d++) {
             if (plain.data[base + d] !== pert.data[base + d]) {
               differs = true

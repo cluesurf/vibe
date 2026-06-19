@@ -23,15 +23,19 @@ function selfCentroidX(
   margin: number,
 ): number {
   const masked = tone.slice()
+
   for (let c = 0; c < masked.length; c++) {
     const x = c % L
+
     if (x < margin || x >= L - margin) {
       masked[c] = 0
     }
   }
 
   const cells = largestPositiveCluster(masked, graph)
+
   let s = 0
+
   for (const c of cells) {
     s += c % L
   }
@@ -61,10 +65,13 @@ export function valenceDrift(input: {
     beats: 60,
     density: 0.1,
   })
+
   const startX = selfCentroidX(tone, graph, L, margin)
+
   for (let t = 0; t < beats; t++) {
     for (let c = 0; c < graph.cellCount; c++) {
       const x = c % L
+
       if (x >= L - margin) {
         tone[c] = (plusSide === 'right' ? 1 : -1) as -1 | 1
       } else if (x < margin) {

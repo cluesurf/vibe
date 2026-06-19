@@ -46,6 +46,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const coord = (c: number): [number, number, number, number] => [
@@ -54,9 +55,12 @@ export default experiment({
       Math.floor(c / (side * side)) % side,
       Math.floor(c / (side * side * side)) % side,
     ]
+
     const lines: Array<[number, number]> = []
+
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
+
       if (d < o) {
         lines.push([d, o])
       }
@@ -65,8 +69,10 @@ export default experiment({
     // a diffuse, extended, zero-momentum net-+ cloud, radius 6, low density (both ends of two lines per cell).
     const diffuse = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const [x, y, z, w] = coord(c)
+
         if (
           (x - half) ** 2 +
             (y - half) ** 2 +
@@ -75,6 +81,7 @@ export default experiment({
           36
         ) {
           const b = c * degree
+
           for (let i = 0; i < 2; i++) {
             const [a, zz] = lines[i]!
             will.data[b + a] = 1
@@ -92,15 +99,20 @@ export default experiment({
         sy = 0,
         sz = 0,
         sw = 0
+
       const q: number[] = []
+
       for (let c = 0; c < mesh.cellCount; c++) {
         let n = 0
+
         const b = c * degree
+
         for (let d = 0; d < degree; d++) {
           n += will.data[b + d]!
         }
 
         q[c] = n
+
         if (n > 0) {
           const [x, y, z, w] = coord(c)
           total += n
@@ -119,9 +131,12 @@ export default experiment({
         my = sy / total,
         mz = sz / total,
         mw = sw / total
+
       let v = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const n = q[c]!
+
         if (n > 0) {
           const [x, y, z, w] = coord(c)
           v +=
@@ -141,15 +156,19 @@ export default experiment({
     ): { min: number; final: number } => {
       let w = diffuse()
       let scratch: Will = { mesh, data: new Int8Array(w.data.length) }
+
       const r0 = netRms(w)
+
       let min = r0
       let final = r0
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: w, dst: scratch, table, collision: rule })
         const swap = w
         w = scratch
         scratch = swap
         const r = netRms(w)
+
         if (r < min) {
           min = r
         }
@@ -171,6 +190,7 @@ export default experiment({
       momentum.min >= rms0 * 0.9 &&
       arrow.min >= rms0 * 0.9 &&
       bindMove.min >= rms0 * 0.9
+
     // the nuance, the active vacuum (bindAndMove) resists dispersal more than the bare momentum rule, a weak
     // sub-critical attraction, but it never contracts.
     const arrowResistsDispersal = bindMove.final < momentum.final

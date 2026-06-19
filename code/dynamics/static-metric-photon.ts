@@ -15,7 +15,9 @@ export function spatialMetricBootstrap(input: {
   iterations: number
 }): number[] {
   const trail: number[] = []
+
   let b = 1
+
   for (let n = 0; n < input.iterations; n++) {
     b = 1 + input.x * b
     trail.push(b)
@@ -38,21 +40,27 @@ export function staticMetricPhotonDeflection(input: {
   const aOf = (u: number): number => 1 - rs * u
   const bOf = (u: number): number =>
     input.spatialMetric === 'full' ? 1 / (1 - rs * u) : 1
+
   const f = (u: number): number => 1 / (aOf(u) * b * b) - u * u
 
   // the turning point, the first positive root of f in (0, 1/r_s)
   let uMax: number | null = null
   let previous = f(1e-6)
   let uPrevious = 1e-6
+
   const steps = 200000
+
   for (let i = 1; i <= steps; i++) {
     const u = (i / steps) * (0.999 / rs)
     const value = f(u)
+
     if (previous > 0 && value <= 0) {
       let lo = uPrevious
       let hi = u
+
       for (let k = 0; k < 60; k++) {
         const mid = (lo + hi) / 2
+
         if (f(mid) > 0) {
           lo = mid
         } else {
@@ -74,11 +82,14 @@ export function staticMetricPhotonDeflection(input: {
 
   const w = Math.sqrt(uMax)
   const samples = 20000
+
   let integral = 0
+
   for (let i = 0; i < samples; i++) {
     const wi = ((i + 0.5) / samples) * w
     const u = uMax - wi * wi
     const value = f(u)
+
     if (value <= 0) {
       continue
     }

@@ -17,6 +17,7 @@ import { Will } from '@/code/tone/will'
 // charge conjugation, negate every tone
 export function chargeConjugate(will: Will): Will {
   const data = new Int8Array(will.data.length)
+
   for (let i = 0; i < data.length; i++) {
     data[i] = -(will.data[i] ?? 0) as -1 | 0 | 1
   }
@@ -30,8 +31,10 @@ export function timeReverse(will: Will): Will {
   const mesh = will.mesh
   const degree = mesh.degree
   const data = new Int8Array(will.data.length)
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const base = cell * degree
+
     for (let direction = 0; direction < degree; direction++) {
       data[base + mesh.opposite(direction)] =
         will.data[base + direction] ?? 0
@@ -62,15 +65,19 @@ export function parityReflect(input: {
 
     return directionIndex.get(key(w))!
   })
+
   const coordinate = (cell: number, ax: number): number =>
     Math.floor(cell / side ** ax) % side
+
   const reflectedCell = (cell: number): number => {
     let result = 0
+
     for (let ax = 0; ax < 4; ax++) {
       const c =
         ax === axis
           ? (side - coordinate(cell, ax)) % side
           : coordinate(cell, ax)
+
       result += c * side ** ax
     }
 
@@ -78,6 +85,7 @@ export function parityReflect(input: {
   }
 
   const data = new Int8Array(will.data.length)
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     for (let direction = 0; direction < degree; direction++) {
       data[

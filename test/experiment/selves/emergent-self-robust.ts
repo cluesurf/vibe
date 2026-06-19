@@ -61,6 +61,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   // (1) STRUCTURE EMERGES. Net-positive, low density start, the -1 annihilate the matching +1, the surviving
   // +1 (about 7 percent, below percolation) is concentrated by cohesion into a self. Arrow kept low.
   const tone = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     const r = rng.next()
     tone[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0) as -1 | 0 | 1
@@ -73,6 +74,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const cluster = largestPositiveCluster(tone, g)
   const emergentCluster = cluster.length
   const shuf = tone.slice()
+
   for (let i = N - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = shuf[i]!
@@ -85,12 +87,14 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
   // the self's pattern is "these core cells hold +1". the ground pool absorbs the balancing -1 charges.
   const inCore = new Uint8Array(N)
+
   for (const c of cluster) {
     inCore[c] = 1
   }
 
   // a large ground pool (all non-core cells) absorbs the balancing -1 charges without saturating
   const groundPool: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (!inCore[i]) {
       groundPool.push(i)
@@ -103,8 +107,10 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const maintain = (t2: Int8Array): number => {
     let work = 0
     let netAdded = 0
+
     for (const c of cluster) {
       const cur = t2[c]!
+
       if (cur !== 1) {
         netAdded += 1 - cur // +1 for a hole, +2 for a wrong -1
         t2[c] = 1
@@ -114,6 +120,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
     // dump the exact balancing -1 into the ground (a balanced creation, conserving)
     let need = netAdded
+
     for (const gc of groundPool) {
       if (need <= 0) {
         break
@@ -136,8 +143,11 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const t2 = tone.slice()
     const q0 = totalCharge(t2)
     const rng2 = makeRng({ seed: 41 })
+
     let workTotal = 0
+
     const beats = 60
+
     for (let t = 0; t < beats; t++) {
       if (maintaining) {
         workTotal += maintain(t2)
@@ -163,6 +173,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const maintenanceHoldsSelf =
     maintainedFidelity > 0.6 &&
     maintainedFidelity > unmaintainedFidelity + 0.3
+
   const maintainedConserved = maintained.q === 0 // the balanced maintenance keeps Q exactly fixed
 
   // (3) the unmaintained lifetime, cohesion keeps the self localized longer than pure diffusion (P102), but
@@ -171,6 +182,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const t3 = tone.slice()
     const start = countPlus(t3, cluster)
     const rng3 = makeRng({ seed: 31 })
+
     for (let t = 0; t < 60; t++) {
       beat(t3, g, moved, rng3, 0, cohesion)
     }
@@ -182,6 +194,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const diffusiveLocalization = localize(0)
   const persistsLongerThanDiffusion =
     cohesiveLocalization > diffusiveLocalization + 0.05
+
   const finiteLifetime = unmaintainedFidelity < 0.85 // the unmaintained self really does decay
 
   const solved =

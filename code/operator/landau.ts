@@ -29,9 +29,11 @@ function ladderMomenta(
   const pixRe = Array.from({ length: levels }, () =>
     new Array<number>(levels).fill(0),
   )
+
   const piyIm = Array.from({ length: levels }, () =>
     new Array<number>(levels).fill(0),
   )
+
   for (let m = 0; m < levels; m++) {
     for (let n = 0; n < levels; n++) {
       const lower = m === n - 1 ? Math.sqrt(n) : 0 // <m|a|n>
@@ -59,10 +61,12 @@ export function diracLandauHamiltonian(input: {
   const h = makeComplexMatrix({ rows: dimension, cols: dimension })
   const at = (spin: number, level: number): number =>
     spin * levels + level
+
   for (let mLevel = 0; mLevel < levels; mLevel++) {
     for (let nLevel = 0; nLevel < levels; nLevel++) {
       // sigma_x couples spin 0 <-> 1 with pi_x (real)
       const px = pixRe[mLevel]![nLevel]!
+
       if (px !== 0) {
         h.re[at(0, mLevel) * dimension + at(1, nLevel)]! += px
         h.re[at(1, mLevel) * dimension + at(0, nLevel)]! += px
@@ -71,6 +75,7 @@ export function diracLandauHamiltonian(input: {
       // sigma_y couples spin 0 <-> 1 with pi_y. sigma_y[0][1] = -i, sigma_y[1][0] = +i, and
       // pi_y is purely imaginary, so (-i)(i*piyIm) = +piyIm is real on the (0,1) block.
       const py = piyIm[mLevel]![nLevel]!
+
       if (py !== 0) {
         h.re[at(0, mLevel) * dimension + at(1, nLevel)]! += py // (-i) * (i py) = py
         h.re[at(1, mLevel) * dimension + at(0, nLevel)]! += -py // (+i) * (i py) = -py
@@ -97,11 +102,13 @@ export function scalarLandauSquared(input: {
   const { levels, fieldStrength, mass } = input
   const { pixRe, piyIm } = ladderMomenta(levels, fieldStrength)
   const out = makeDense({ rows: levels, cols: levels })
+
   for (let i = 0; i < levels; i++) {
     for (let j = 0; j < levels; j++) {
       // (pi_x^2 + pi_y^2)[i][j] = sum_k pix[i][k] pix[k][j] + piy[i][k] piy[k][j].
       // pi_x is real, pi_y is purely imaginary, so piy[i][k] piy[k][j] = (i a)(i b) = -a b.
       let sum = 0
+
       for (let k = 0; k < levels; k++) {
         sum +=
           pixRe[i]![k]! * pixRe[k]![j]! - piyIm[i]![k]! * piyIm[k]![j]!

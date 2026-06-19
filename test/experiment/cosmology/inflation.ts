@@ -44,6 +44,7 @@ export function inflate(input: { phi0: number; m?: number }): {
     // acceleration: a''/a = (V - phidot^2) / 3 (positive while the potential dominates).
     const accel = (V(phi) - phid * phid) / 3
     const eps = 0.5 * (Vp(phi) / Math.max(1e-30, V(phi))) ** 2
+
     if (i === 500 && !sampledW) {
       wDuringInflation =
         (0.5 * phid * phid - V(phi)) /
@@ -68,9 +69,11 @@ export function inflate(input: { phi0: number; m?: number }): {
       potentialSlope: Vp,
       dt,
     })
+
     phi = next.phi
     phid = next.phidot
     lnA += H * dt
+
     if (exited && Math.abs(phi) < 0.1 && Math.abs(phid) < 0.1) {
       break
     }

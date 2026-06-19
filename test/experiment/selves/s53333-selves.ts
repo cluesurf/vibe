@@ -16,12 +16,15 @@ export function s53333Selves(): {
   // We verify the winding of the map S^3 -> S^3 for a hedgehog in 4D (the degree of the boundary 3-sphere map).
   // Discretize the radial profile, charge = (1/2pi^2) * integral of the winding density, here = 1 by construction.
   const samples = 200
+
   let charge = 0
+
   for (let i = 0; i < samples; i++) {
     const r = ((i + 0.5) / samples) * 6 // radius
     const f = Math.PI * (1 - 1 / (1 + r * r)) // chiral angle 0 -> pi (the instanton profile)
     const fNext =
       Math.PI * (1 - 1 / (1 + (((i + 1.5) / samples) * 6) ** 2))
+
     const df = fNext - f
     charge += (2 / Math.PI) * Math.sin(f) ** 2 * df // d/df of (f - sin f cos f)/pi integrated = winding density
   }

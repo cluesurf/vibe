@@ -26,6 +26,7 @@ export function transitiveClosure(input: {
   const n = input.size
   const closed = makeBitMatrix({ rows: n, cols: n })
   const stride = closed.stride
+
   // Copy the raw relation into the working matrix.
   for (let i = 0; i < closed.words.length; i++) {
     closed.words[i] = input.relation.words[i] ?? 0
@@ -34,12 +35,14 @@ export function transitiveClosure(input: {
   // Warshall: for each intermediate k, if a -> k then a inherits k's row.
   for (let k = 0; k < n; k++) {
     const kBase = k * stride
+
     for (let a = 0; a < n; a++) {
       if (!getBit(closed, { row: a, col: k })) {
         continue
       }
 
       const aBase = a * stride
+
       for (let w = 0; w < stride; w++) {
         closed.words[aBase + w] =
           (closed.words[aBase + w] ?? 0) |
@@ -73,6 +76,7 @@ export function sampleCausalSets(input: {
   // a < b. We keep the raw relation so a toggle is a single bit flip; the closure
   // is rebuilt for evaluation and on accept.
   const relation = makeBitMatrix({ rows: n, cols: n })
+
   if (input.start) {
     // Seed the relation from the warm-start order's (already transitive) future.
     for (let i = 0; i < relation.words.length; i++) {
@@ -85,9 +89,11 @@ export function sampleCausalSets(input: {
     size: n,
     future: transitiveClosure({ size: n, relation }),
   })
+
   let currentAction = input.action.value({ poset })
 
   const traceValues: number[] = []
+
   let observeCounter = 0
   let accepted = 0
   let proposed = 0
@@ -95,13 +101,16 @@ export function sampleCausalSets(input: {
   for (let step = 0; step < input.steps; step++) {
     // Propose a move: pick a < b uniformly and toggle the raw relation bit.
     const a = input.rng.nextInt({ max: n })
+
     let b = input.rng.nextInt({ max: n })
+
     if (a === b) {
       b = (b + 1) % n
     }
 
     const lo = Math.min(a, b)
     const hi = Math.max(a, b)
+
     if (lo === hi) {
       continue
     }
@@ -116,9 +125,11 @@ export function sampleCausalSets(input: {
       size: n,
       future: transitiveClosure({ size: n, relation }),
     })
+
     const candidateAction = input.action.value({
       poset: candidatePoset,
     })
+
     const deltaS = candidateAction - currentAction
 
     // Metropolis acceptance with the Euclidean weight e^{-beta*S}.
@@ -135,6 +146,7 @@ export function sampleCausalSets(input: {
     }
 
     observeCounter += 1
+
     if (observeCounter >= OBSERVE_EVERY) {
       observeCounter = 0
       traceValues.push(input.observe({ poset }))
@@ -142,7 +154,9 @@ export function sampleCausalSets(input: {
   }
 
   const trace = Float64Array.from(traceValues)
+
   let sum = 0
+
   for (let t = 0; t < trace.length; t++) {
     sum += trace[t] ?? 0
   }

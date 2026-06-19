@@ -33,10 +33,12 @@ export default experiment({
       symbol: [5, 3, 4],
       maxCells: 4000,
     })
+
     const bulk3434 = buildCellGraph({
       symbol: [3, 4, 3, 4] as never,
       maxCells: 8000,
     })
+
     const flat = buildEuclideanLattice({
       symbol: [4, 3, 4],
       maxCells: 4000,
@@ -47,11 +49,13 @@ export default experiment({
       coords: bulk534.coords,
       bandWidth: 2,
     })
+
     const rt3434 = bulkShortcutScaling({
       neighbors: bulk3434.neighbors,
       coords: bulk3434.coords,
       bandWidth: 2,
     })
+
     const rtFlat = bulkShortcutScaling({
       neighbors: flat.neighbors,
       coords: flat.coords,

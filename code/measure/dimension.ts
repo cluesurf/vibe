@@ -22,8 +22,11 @@ function lgamma(x: number): number {
   }
 
   const z = x - 1
+
   let a = LANCZOS_COEFFICIENTS[0] ?? 0
+
   const t = z + LANCZOS_G + 0.5
+
   for (let i = 1; i < LANCZOS_COEFFICIENTS.length; i++) {
     a += (LANCZOS_COEFFICIENTS[i] ?? 0) / (z + i)
   }
@@ -60,6 +63,7 @@ export function dimensionFromOrderingFraction(r: number): number {
 
   let lo = 0.5
   let hi = 12
+
   // f is decreasing: f(lo) is the largest value, f(hi) the smallest. If r lies
   // outside the bracket, clamp to the nearest endpoint.
   if (r >= myrheimMeyerFraction(lo)) {
@@ -73,6 +77,7 @@ export function dimensionFromOrderingFraction(r: number): number {
   for (let iteration = 0; iteration < 80; iteration++) {
     const mid = 0.5 * (lo + hi)
     const fMid = myrheimMeyerFraction(mid)
+
     if (fMid > r) {
       // mid dimension too small (fraction too high), move right.
       lo = mid
@@ -87,6 +92,7 @@ export function dimensionFromOrderingFraction(r: number): number {
 // Estimate the effective dimension of a causal set from its ordering fraction.
 export function myrheimMeyerDimension(input: { poset: Poset }): number {
   const n = input.poset.size
+
   if (n < 2) {
     return 0
   }
@@ -117,10 +123,13 @@ export function ballGrowth(input: {
 
   for (let radius = 1; radius <= input.maxRadius; radius++) {
     const next: number[] = []
+
     for (const node of frontier) {
       const row = adjacency[node] ?? new Uint32Array(0)
+
       for (let k = 0; k < row.length; k++) {
         const neighbor = row[k] ?? 0
+
         if ((distance[neighbor] ?? -1) === -1) {
           distance[neighbor] = radius
           reached++
@@ -131,6 +140,7 @@ export function ballGrowth(input: {
 
     growth[radius] = reached
     frontier = next
+
     if (next.length === 0) {
       // No more reachable nodes: every larger ball is the same size.
       for (let r = radius + 1; r <= input.maxRadius; r++) {
@@ -155,14 +165,18 @@ export function ballGrowthDimension(input: {
 }): number {
   const { neighbors, centers, maxRadius } = input
   const slopes: number[] = []
+
   for (const c of centers) {
     const dist = new Map<number, number>()
     dist.set(c, 0)
     let frontier = [c]
+
     const counts = new Array(maxRadius + 1).fill(0)
     counts[0] = 1
+
     for (let r = 1; r <= maxRadius; r++) {
       const nextFrontier: number[] = []
+
       for (const v of frontier) {
         for (const w of neighbors[v] ?? []) {
           if (!dist.has(w)) {
@@ -178,6 +192,7 @@ export function ballGrowthDimension(input: {
 
     const xs: number[] = []
     const ys: number[] = []
+
     for (let r = 1; r <= maxRadius; r++) {
       if (counts[r] > counts[r - 1]) {
         xs.push(r)
@@ -203,6 +218,7 @@ export function boxCountingDimension(input: {
   boxSizes?: ReadonlyArray<number>
 }): number {
   const { cells, sideLength: L } = input
+
   if (cells.length < 4) {
     return 0
   }
@@ -210,9 +226,11 @@ export function boxCountingDimension(input: {
   const sizes = input.boxSizes ?? [2, 4, 8, 16, 32]
   const inverseBoxSizes: number[] = []
   const boxCounts: number[] = []
+
   for (const b of sizes) {
     const boxes = new Set<number>()
     const K = Math.ceil(L / b)
+
     for (const i of cells) {
       const x = i % L
       const y = Math.floor(i / L)
@@ -241,10 +259,13 @@ export function reachIsExponential(input: {
   const maxRadius = input.maxRadius ?? 16
   const threshold = input.threshold ?? 1.8
   const adjacency = undirectedAdjacency({ substrate })
+
   let center = 0
   let best = -1
+
   for (let i = 0; i < substrate.size; i++) {
     const d = (adjacency[i] ?? new Uint32Array(0)).length
+
     if (d > best) {
       best = d
       center = i
@@ -254,9 +275,11 @@ export function reachIsExponential(input: {
   const growth = ballGrowth({ substrate, center, maxRadius })
   const final = growth[growth.length - 1] ?? 1
   const ratios: number[] = []
+
   for (let r = 1; r < growth.length; r++) {
     const prev = growth[r - 1] ?? 0
     const cur = growth[r] ?? 0
+
     if (prev >= 2 && prev < 0.5 * final && cur > prev) {
       ratios.push(cur / prev)
     }
@@ -278,6 +301,7 @@ export function growthIsExponential(input: {
 }): boolean {
   const g = input.growth
   const last = g[g.length - 1] ?? 0
+
   if (g.length < 4 || last < 8) {
     return false
   }
@@ -286,9 +310,11 @@ export function growthIsExponential(input: {
   // the final size). Saturation from a finite substrate would otherwise drive
   // every late ratio toward 1 and hide exponential growth.
   const ratios: number[] = []
+
   for (let r = 1; r < g.length; r++) {
     const prev = g[r - 1] ?? 0
     const cur = g[r] ?? 0
+
     if (prev >= 4 && cur > prev && cur < 0.6 * last) {
       ratios.push(cur / prev)
     }
@@ -323,9 +349,11 @@ export function meanUnsaturatedGrowthRatio(input: {
   const saturationFraction = input.saturationFraction ?? 0.5
   const final = g[g.length - 1] ?? 1
   const ratios: number[] = []
+
   for (let r = 1; r < g.length; r++) {
     const prev = g[r - 1] ?? 0
     const cur = g[r] ?? 0
+
     if (
       prev >= minimumPrevious &&
       prev < saturationFraction * final &&
@@ -358,11 +386,14 @@ export function geometricUnsaturatedGrowthRatio(input: {
   const { growth, total } = input
   const minimumPrevious = input.minimumPrevious ?? 1
   const saturationFraction = input.saturationFraction ?? 0.6
+
   let logSum = 0
   let count = 0
+
   for (let r = 0; r + 1 < growth.length; r++) {
     const cur = growth[r] ?? 0
     const next = growth[r + 1] ?? 0
+
     if (
       cur > minimumPrevious &&
       cur < saturationFraction * total &&
@@ -384,6 +415,7 @@ export function geometricUnsaturatedGrowthRatio(input: {
 // the branching is too small (degree <= 2) for the formula. Rounded to two decimals.
 export function betheCorrelatorExponent(degree: number): number {
   const b = degree - 1
+
   if (b <= 1) {
     return 0
   }
@@ -407,21 +439,27 @@ export function spectralDimension(input: {
 }): number {
   const { neighbors, start, t1, t2 } = input
   const N = neighbors.length
+
   let p = new Float64Array(N)
   p[start] = 1
   let np = new Float64Array(N)
+
   const P: number[] = []
+
   for (let t = 0; t <= t2; t++) {
     P.push(p[start]!)
     np.fill(0)
+
     for (let i = 0; i < N; i++) {
       const pi = p[i]!
+
       if (!pi) {
         continue
       }
 
       const row = neighbors[i] ?? []
       const d = row.length
+
       if (d === 0) {
         np[i] = np[i]! + pi
         continue
@@ -429,6 +467,7 @@ export function spectralDimension(input: {
 
       np[i] = np[i]! + 0.5 * pi
       const sh = (0.5 * pi) / d
+
       for (const j of row) {
         np[j] = np[j]! + sh
       }
@@ -457,6 +496,7 @@ export function shellDimension(input: {
 }): { dimension: number; r2: number } {
   const xs: number[] = []
   const ys: number[] = []
+
   for (let r = input.rLo; r <= input.rHi; r++) {
     xs.push(Math.log(r))
     ys.push(Math.log(input.shell[r] ?? 1))
@@ -477,6 +517,7 @@ export function shellPowerR2(input: {
 }): number {
   const xs: number[] = []
   const ys: number[] = []
+
   for (let r = input.rLo; r <= input.rHi; r++) {
     xs.push(Math.log(r))
     ys.push(Math.log(input.shell[r] ?? 1))
@@ -495,7 +536,9 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
   ratio: number
 } {
   const cum: number[] = []
+
   let s = 0
+
   for (const x of sizes) {
     s += x
     cum.push(s)
@@ -506,6 +549,7 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
   let sxx = 0
   let sxy = 0
   let m = 0
+
   for (let r = 1; r < cum.length; r++) {
     const x = Math.log(r + 1)
     const y = Math.log(cum[r]!)
@@ -517,8 +561,10 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
   }
 
   const dim = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
+
   let rs = 0
   let rc = 0
+
   for (let r = 2; r < sizes.length; r++) {
     if (sizes[r - 1]! > 0) {
       rs += sizes[r]! / sizes[r - 1]!
@@ -540,6 +586,7 @@ export function shellExponentialFit(input: {
 }): { growthRatio: number; r2: number } {
   const xs: number[] = []
   const ys: number[] = []
+
   for (let r = input.rLo; r <= input.rHi; r++) {
     xs.push(r)
     ys.push(Math.log(input.shell[r] ?? 1))

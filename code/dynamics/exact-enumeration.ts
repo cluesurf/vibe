@@ -23,6 +23,7 @@ export function exactCausalSetAverages(input: {
   const n = input.size
   // The ordered list of upper-triangular pairs and a bit index for each.
   const pairs: Array<[number, number]> = []
+
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       pairs.push([i, j])
@@ -38,6 +39,7 @@ export function exactCausalSetAverages(input: {
   const weighted: number[][] = Array.from({ length: B }, () =>
     new Array<number>(O).fill(0),
   )
+
   let count = 0
 
   for (let mask = 0; mask < total; mask++) {
@@ -46,9 +48,11 @@ export function exactCausalSetAverages(input: {
     const rel: boolean[][] = Array.from({ length: n }, () =>
       new Array<boolean>(n).fill(false),
     )
+
     for (let p = 0; p < P; p++) {
       if ((mask >> p) & 1) {
         const pair = pairs[p]
+
         if (pair) {
           rel[pair[0]]![pair[1]] = true
         }
@@ -57,6 +61,7 @@ export function exactCausalSetAverages(input: {
 
     // Transitivity check over increasing triples.
     let transitive = true
+
     for (let i = 0; i < n && transitive; i++) {
       for (let j = i + 1; j < n && transitive; j++) {
         if (!rel[i]![j]) {
@@ -80,6 +85,7 @@ export function exactCausalSetAverages(input: {
 
     // Build the poset and evaluate the action and observers.
     const future = makeBitMatrix({ rows: n, cols: n })
+
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
         if (rel[i]![j]) {
@@ -96,6 +102,7 @@ export function exactCausalSetAverages(input: {
       const w = Math.exp(-(input.betas[b] ?? 0) * s)
       z[b] = (z[b] ?? 0) + w
       const row = weighted[b]!
+
       for (let o = 0; o < O; o++) {
         row[o] = (row[o] ?? 0) + (obs[o] ?? 0) * w
       }

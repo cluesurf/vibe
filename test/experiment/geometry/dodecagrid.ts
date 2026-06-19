@@ -45,6 +45,7 @@ export function dodecagrid(input: { seed: number }): {
     connectThreshold: 2.0,
     maxVertices: 3000,
   })
+
   const ga = lorentzIsotropy({
     substrate: g,
     samples: 3000,
@@ -56,6 +57,7 @@ export function dodecagrid(input: { seed: number }): {
     extent: 14,
     signature: 'riemannian',
   })
+
   const la = lorentzIsotropy({
     substrate: L,
     samples: 3000,

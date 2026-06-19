@@ -12,6 +12,7 @@ type C = { re: number; im: number }
 const c = (re: number, im = 0): C => ({ re, im })
 const cmul = (a: C, b: C): C =>
   c(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re)
+
 const cadd = (a: C, b: C): C => c(a.re + b.re, a.im + b.im)
 const cabs2 = (a: C): number => a.re * a.re + a.im * a.im
 
@@ -24,10 +25,13 @@ function pmns(
 ): C[][] {
   const s12 = Math.sin(th12),
     c12 = Math.cos(th12)
+
   const s23 = Math.sin(th23),
     c23 = Math.cos(th23)
+
   const s13 = Math.sin(th13),
     c13 = Math.cos(th13)
+
   const e = c(Math.cos(delta), -Math.sin(delta)) // e^{-i delta}
   const eP = c(Math.cos(delta), Math.sin(delta))
 
@@ -100,11 +104,13 @@ export default experiment({
       (12 * Math.PI) / 180,
       1.0,
     )
+
     const anarchicCol2 = [
       cabs2(anarchic[0]![1]!),
       cabs2(anarchic[1]![1]!),
       cabs2(anarchic[2]![1]!),
     ]
+
     const anarchicNoColumn = !anarchicCol2.every(
       x => Math.abs(x - 1 / 3) < 1e-9,
     )

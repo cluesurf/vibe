@@ -41,6 +41,7 @@ export function exactScale(input?: { n?: number }): {
     symbol: [5, 3, 4],
     maxCells: 600,
   })
+
   const matchesFloat =
     small.cellCount === smallFloat.cellCount &&
     small.facetCount === smallFloat.facetCount &&
@@ -57,11 +58,14 @@ export function exactScale(input?: { n?: number }): {
     offsets: g.offsets,
     adj: g.adj,
   }
+
   saveGraph(path, stored)
   const loaded = loadGraph(path)
+
   let roundTripsOnDisk =
     loaded.cellCount === g.cellCount &&
     loaded.adj.length === g.adj.length
+
   for (
     let i = 0;
     i < g.adj.length && roundTripsOnDisk;
@@ -78,6 +82,7 @@ export function exactScale(input?: { n?: number }): {
     loaded.adj,
     loaded.cellCount,
   )
+
   const blobSize = Math.min(2000, Math.floor(loaded.cellCount / 8))
   const cohesiveRetention = imprintRetention({
     graph: loaded,
@@ -86,6 +91,7 @@ export function exactScale(input?: { n?: number }): {
     cohesive: true,
     blobSize,
   })
+
   const randomRetention = imprintRetention({
     graph: loaded,
     eu,
@@ -93,6 +99,7 @@ export function exactScale(input?: { n?: number }): {
     cohesive: false,
     blobSize,
   })
+
   const memoryOnRealGeometry =
     cohesiveRetention > 0.4 &&
     cohesiveRetention > randomRetention + 0.15

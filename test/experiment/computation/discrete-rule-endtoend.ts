@@ -44,6 +44,7 @@ export function discreteRuleEndToEnd(): {
     N: new Int8Array(N),
     S: new Int8Array(N),
   }
+
   for (let i = 0; i < N; i++) {
     init.E[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
     init.W[i] = (Math.floor(rnd() * 3) - 1) as -1 | 0 | 1
@@ -53,9 +54,12 @@ export function discreteRuleEndToEnd(): {
 
   const c0 = charge(init),
     [px0, py0] = momentum(init)
+
   // forward T steps (collide then stream)
   let s = clone(init)
+
   const T = 200
+
   for (let t = 0; t < T; t++) {
     collide(s)
     s = stream(s)
@@ -63,16 +67,20 @@ export function discreteRuleEndToEnd(): {
 
   const c1 = charge(s),
     [px1, py1] = momentum(s)
+
   const chargeOk = c1 === c0,
     momentumOk = px1 === px0 && py1 === py0
+
   // inverse T steps (un-stream then collide; collide is its own inverse) -> recover init
   let r = clone(s)
+
   for (let t = 0; t < T; t++) {
     r = streamInverse(r)
     collide(r)
   }
 
   let diff = 0
+
   for (let i = 0; i < N; i++) {
     diff +=
       Math.abs(r.E[i]! - init.E[i]!) +
@@ -89,7 +97,9 @@ export function discreteRuleEndToEnd(): {
     N: new Int8Array(N),
     S: new Int8Array(N),
   }
+
   const c = L >> 1
+
   for (let x = c - 6; x <= c + 6; x++) {
     for (let y = c - 6; y <= c + 6; y++) {
       blob.E[idx(x, y)] = 1
@@ -100,6 +110,7 @@ export function discreteRuleEndToEnd(): {
   }
 
   let b = clone(blob)
+
   for (let t = 0; t < 120; t++) {
     collide(b)
     b = stream(b)
@@ -109,15 +120,19 @@ export function discreteRuleEndToEnd(): {
   const d = density(b)
   const B = 4,
     nb = L / B
+
   const cg = new Float64Array(nb * nb)
+
   for (let i = 0; i < N; i++) {
     const x = i % L,
       y = (i / L) | 0
+
     cg[((y / B) | 0) * nb + ((x / B) | 0)]! += d[i]!
   }
 
   let tv = 0,
     cnt = 0
+
   for (let bx = 0; bx < nb - 1; bx++) {
     for (let by = 0; by < nb; by++) {
       tv += Math.abs(cg[by * nb + bx]! - cg[by * nb + bx + 1]!)
@@ -127,12 +142,14 @@ export function discreteRuleEndToEnd(): {
 
   const meanAbs = (() => {
     let s2 = 0
+
     for (let i = 0; i < cg.length; i++) {
       s2 += Math.abs(cg[i]!)
     }
 
     return s2 / cg.length
   })()
+
   const roughness = tv / cnt / (meanAbs + 1e-9)
   const smooth = roughness < 1.0 // coarse field varies slowly relative to its magnitude (a smooth continuum)
 

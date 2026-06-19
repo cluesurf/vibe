@@ -19,15 +19,19 @@ const I4: M = [
   [0, 0, 1, 0],
   [0, 0, 0, 1],
 ]
+
 const mul = matrixProduct
 const key = (A: M): string =>
   A.flat()
     .map(x => Math.round(x * 1000))
     .join(',')
+
 const trace = (A: M): number =>
   A[0]![0]! + A[1]![1]! + A[2]![2]! + A[3]![3]!
+
 const closure = (gens: M[]): M[] =>
   groupClosure(gens, { multiply: mul, inverse: m => m, key })
+
 // dim of degree-d invariant polynomials = (1/|G|) sum_g h_d(eigenvalues of g), h from power sums via Newton
 const invDim = (G: M[], d: 2 | 4): number =>
   invariantPolynomialDimension({
@@ -46,18 +50,21 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
     [0, 1, 0, 0],
     [0, 0, 1, 0],
   ] // (1234) permutation
+
   const swap: M = [
     [0, 1, 0, 0],
     [1, 0, 0, 0],
     [0, 0, 1, 0],
     [0, 0, 0, 1],
   ] // (12)
+
   const flip: M = [
     [-1, 0, 0, 0],
     [0, 1, 0, 0],
     [0, 0, 1, 0],
     [0, 0, 0, 1],
   ] // sign flip on x1
+
   const B4 = closure([cyc, swap, flip])
   // triality generator: Hadamard/2 (maps 8v -> 8s, mixing the three 16-cells), order 2, extends B4 -> F4
   const H: M = [
@@ -66,6 +73,7 @@ export function emergentSymmetry(): { b4Inv4: number; f4Inv4: number } {
     [1, 1, -1, -1],
     [1, -1, -1, 1],
   ].map(r => r.map(x => x / 2))
+
   const F4 = closure([cyc, swap, flip, H])
   const b4Inv2 = invDim(B4, 2),
     b4Inv4 = invDim(B4, 4),

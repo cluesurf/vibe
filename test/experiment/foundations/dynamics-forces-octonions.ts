@@ -39,6 +39,7 @@ export default experiment({
   run() {
     // reversibility (a division algebra, no zero divisors) allows the dimensions 1, 2, 4, 8 and excludes 16
     const reversibleDims: number[] = []
+
     for (let level = 0; level <= 4; level++) {
       if (!hasZeroDivisor(level)) {
         reversibleDims.push(2 ** level)
@@ -50,8 +51,10 @@ export default experiment({
 
     // fermions (spinor triality, so(d) = D4) require the dimension 8 (D4), lower dimensions have no triality
     const trialityDims: number[] = []
+
     for (const d of [1, 2, 4, 8, 16]) {
       const n = d / 2
+
       if (Number.isInteger(n) && n >= 4 && hasTriality(n)) {
         trialityDims.push(d)
       }

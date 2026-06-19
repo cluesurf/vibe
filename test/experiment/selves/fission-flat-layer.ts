@@ -20,19 +20,24 @@ function components(
 ): number[] {
   const comp = new Int32Array(n).fill(-1)
   const sizes: number[] = []
+
   for (let s = 0; s < n; s++) {
     if (on[s] !== 1 || comp[s] !== -1) {
       continue
     }
 
     const id = sizes.length
+
     let size = 0
     let fr = [s]
     comp[s] = id
+
     while (fr.length > 0) {
       const nf: number[] = []
+
       for (const u of fr) {
         size++
+
         for (const w of neighbors(u)) {
           if (on[w] === 1 && comp[w] === -1) {
             comp[w] = id
@@ -56,10 +61,12 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
   const H = 44
   const N = W * H
   const idx = (x: number, y: number): number => y * W + x
+
   const nbr = (i: number): number[] => {
     const x = i % W
     const y = Math.floor(i / W)
     const out: number[] = []
+
     if (x > 0) {
       out.push(i - 1)
     }
@@ -84,11 +91,13 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
   const c1x = 22
   const c2x = 68
   const cy = 22
+
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const inDisk1 = (x - c1x) ** 2 + (y - cy) ** 2 <= r * r
       const inDisk2 = (x - c2x) ** 2 + (y - cy) ** 2 <= r * r
       const inNeck = x >= c1x && x <= c2x && Math.abs(y - cy) <= 1 // a thin neck (width 3)
+
       if (inDisk1 || inDisk2 || inNeck) {
         on[idx(x, y)] = 1
       }
@@ -98,13 +107,17 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
   // erode (peel one boundary layer per beat), the thin neck pinches before the fat lobes vanish
   let lobes = 1
   let bothSubstantial = false
+
   for (let beat = 0; beat < r; beat++) {
     const toClear: number[] = []
+
     for (let i = 0; i < N; i++) {
       if (on[i] === 1) {
         let empty = 0
+
         const x = i % W
         const y = Math.floor(i / W)
+
         if (x === 0 || x === W - 1 || y === 0 || y === H - 1) {
           empty++
         }
@@ -126,9 +139,11 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
     }
 
     const sizes = components(on, nbr, N)
+
     if (sizes.length >= 2) {
       lobes = sizes.length
       bothSubstantial = sizes[0]! > 20 && sizes[1]! > 20 // two substantial selves remain
+
       if (bothSubstantial) {
         break
       }
@@ -142,8 +157,10 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
 function hyperbolicFission(): { bothSubstantial: boolean } {
   const g = buildDodecagrid({ maxCells: 8000 })
   const N = g.cellCount
+
   const nbr = (i: number): number[] => {
     const out: number[] = []
+
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
     }
@@ -156,8 +173,10 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
     const d = new Int32Array(N).fill(-1)
     d[src] = 0
     let fr = [src]
+
     while (fr.length) {
       const nf: number[] = []
+
       for (const u of fr) {
         for (const w of nbr(u)) {
           if (d[w] === -1) {
@@ -174,7 +193,9 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   }
 
   const d0 = bfs(0)
+
   let far = 0
+
   for (let i = 0; i < N; i++) {
     if (d0[i]! > d0[far]!) {
       far = i
@@ -184,6 +205,7 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   const on = new Uint8Array(N)
   const dA = bfs(0)
   const dB = bfs(far)
+
   for (let i = 0; i < N; i++) {
     if (dA[i]! <= 2 || dB[i]! <= 2) {
       on[i] = 1
@@ -192,6 +214,7 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
 
   // bridge, cells on a shortest path (where dA + dB is minimal)
   let best = Infinity
+
   for (let i = 0; i < N; i++) {
     best = Math.min(best, dA[i]! + dB[i]!)
   }
@@ -203,8 +226,10 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   }
 
   let bothSubstantial = false
+
   for (let beat = 0; beat < 4; beat++) {
     const toClear: number[] = []
+
     for (let i = 0; i < N; i++) {
       if (on[i] === 1) {
         for (const w of nbr(i)) {
@@ -221,6 +246,7 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
     }
 
     const sizes = components(on, nbr, N)
+
     if (sizes.length >= 2 && sizes[0]! > 20 && sizes[1]! > 20) {
       bothSubstantial = true
     }

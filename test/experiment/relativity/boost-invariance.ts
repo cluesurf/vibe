@@ -40,12 +40,14 @@ export function boostInvariance(input?: {
   const masses = input?.masses ?? [0, 0.2, 0.5]
   const boosts = input?.boosts ?? [0.3, 0.6, 0.9]
   const ks: number[] = []
+
   for (let i = 1; i <= 200; i++) {
     ks.push((Math.PI * i) / 200)
   } // k in (0, pi]
 
   // (1) massless: omega = |k| exactly (an exact lightcone, boost-invariant for all k)
   let masslessMaxDeviation = 0
+
   for (const k of ks) {
     masslessMaxDeviation = Math.max(
       masslessMaxDeviation,
@@ -57,16 +59,20 @@ export function boostInvariance(input?: {
 
   // (2) massive: the Lorentz invariant omega^2 - k^2 ~ m^2 holds out to some k (the IR window)
   const tol = 0.02 // relative tolerance on the invariant
+
   let massiveWindow = Math.PI
+
   for (const m of masses) {
     if (m === 0) {
       continue
     }
 
     let window = 0
+
     for (const k of ks) {
       const w = omegaOf(k, m)
       const inv = w * w - k * k
+
       if (Math.abs(inv - m * m) < tol * (m * m + 0.05)) {
         window = k
       } else {
@@ -81,11 +87,14 @@ export function boostInvariance(input?: {
   // boost it and check the boosted point still lies on the dispersion (omega'(k') matches).
   let boostResidual = 0
   let boostCount = 0
+
   for (const m of masses) {
     for (const v of boosts) {
       const gamma = 1 / Math.sqrt(1 - v * v)
+
       for (const k of ks) {
         const w = omegaOf(k, m)
+
         if (m > 0 && k > massiveWindow) {
           continue
         } // only test inside the relativistic window
@@ -96,6 +105,7 @@ export function boostInvariance(input?: {
 
         const wB = gamma * (w - v * k)
         const kB = gamma * (k - v * w)
+
         if (wB <= 0 || Math.abs(kB) > Math.PI) {
           continue
         }

@@ -40,6 +40,7 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
   const wavenumbers: number[] = []
   const frequencies: number[] = []
   const phaseSpeeds: number[] = []
+
   for (const wavelength of WAVELENGTHS) {
     const cfg = {
       gradAxis: 0,
@@ -48,6 +49,7 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
       side: SIDE,
       directions,
     }
+
     const will = shearSetup({ mesh, ...cfg })
     const series = shearAmplitudeSeries({
       will,
@@ -56,6 +58,7 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
       open: false,
       ...cfg,
     })
+
     const halfPeriod = firstMinimumTime(series)
     const omega = halfPeriod > 0 ? Math.PI / halfPeriod : 0
     const k = (2 * Math.PI) / wavelength
@@ -69,6 +72,7 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
 
 function spread(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
+
   if (mean === 0) {
     return Infinity
   }
@@ -87,6 +91,7 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite: number[] = []
+
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
@@ -97,12 +102,14 @@ export default experiment({
       wavenumbers: momentum.wavenumbers,
       frequencies: momentum.frequencies,
     })
+
     const momentumPhaseSpeedSpread = spread(momentum.phaseSpeeds)
 
     // the control, the committed charge-only pair table, no propagating mode (frequency pinned at the cutoff)
     const charge = dispersion(
       pairCollision({ opposite, forward: true }),
     )
+
     const chargePhaseSpeedSpread = spread(charge.phaseSpeeds)
 
     // a linear dispersion with c near 1 and no gap, a constant phase speed, and a control whose phase speed is
@@ -111,6 +118,7 @@ export default experiment({
       fit.speedSquared > 0.85 &&
       fit.speedSquared < 1.15 &&
       Math.abs(fit.massSquared) < 0.05
+
     const constantSpeed = momentumPhaseSpeedSpread < 0.1
     const controlNotPropagating = chargePhaseSpeedSpread > 0.3
     const ok = linearMassless && constantSpeed && controlNotPropagating

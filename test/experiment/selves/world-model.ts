@@ -58,6 +58,7 @@ export default experiment({
       interiorRadius: 6,
       cohesion: 0.4,
     })
+
     const dead = drivenSelf({
       L,
       beats,
@@ -78,6 +79,7 @@ export default experiment({
       series: live.environment,
       bins,
     })
+
     const shuffledMI = mutualInformationBits(
       crossJointCounts({
         seriesA: quantileLabels({ series: live.interior, bins }),

@@ -9,10 +9,12 @@ import { DenseMatrix } from '@/code/algebra/linear/dense'
 // eigenvectors). Returns the three diagonal values after rotation, unsorted.
 export function jacobiEigenvalues3(matrix: number[][]): number[] {
   const a = matrix.map(r => r.slice())
+
   for (let sweep = 0; sweep < 60; sweep++) {
     let p = 0
     let q = 1
     let max = 0
+
     for (let i = 0; i < 3; i++) {
       for (let j = i + 1; j < 3; j++) {
         if (Math.abs(a[i]![j]!) > max) {
@@ -33,6 +35,7 @@ export function jacobiEigenvalues3(matrix: number[][]): number[] {
     const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
     const c = Math.cos(phi)
     const s = Math.sin(phi)
+
     for (let k = 0; k < 3; k++) {
       const akp = a[k]![p]!
       const akq = a[k]![q]!
@@ -62,8 +65,10 @@ export function jacobiEigenvalues(
 ): number[] {
   const n = matrix.length
   const a = matrix.map(r => r.slice())
+
   for (let sweep = 0; sweep < sweeps; sweep++) {
     let off = 0
+
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         off += a[p]![q]! * a[p]![q]!
@@ -77,6 +82,7 @@ export function jacobiEigenvalues(
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
+
         if (Math.abs(apq) < 1e-12) {
           continue
         }
@@ -84,6 +90,7 @@ export function jacobiEigenvalues(
         const phi = 0.5 * Math.atan2(2 * apq, a[q]![q]! - a[p]![p]!)
         const c = Math.cos(phi)
         const s = Math.sin(phi)
+
         for (let k = 0; k < n; k++) {
           const kp = a[k]![p]!
           const kq = a[k]![q]!
@@ -118,18 +125,22 @@ export function eigSymmetric(input: {
   const n = input.matrix.rows
   const a = Float64Array.from(input.matrix.data)
   const v = new Float64Array(n * n)
+
   for (let i = 0; i < n; i++) {
     v[i * n + i] = 1
   }
 
   const at = (r: number, c: number): number => a[r * n + c] ?? 0
+
   const setA = (r: number, c: number, x: number): void => {
     a[r * n + c] = x
   }
 
   const maxSweeps = 100
+
   for (let sweep = 0; sweep < maxSweeps; sweep++) {
     let off = 0
+
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         off += at(p, q) * at(p, q)
@@ -143,6 +154,7 @@ export function eigSymmetric(input: {
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = at(p, q)
+
         if (Math.abs(apq) < 1e-300) {
           continue
         }
@@ -152,6 +164,7 @@ export function eigSymmetric(input: {
         const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
         const c = Math.cos(phi)
         const s = Math.sin(phi)
+
         for (let k = 0; k < n; k++) {
           const akp = at(k, p)
           const akq = at(k, q)
@@ -177,6 +190,7 @@ export function eigSymmetric(input: {
   }
 
   const pairs: Array<{ value: number; col: number }> = []
+
   for (let i = 0; i < n; i++) {
     pairs.push({ value: at(i, i), col: i })
   }
@@ -185,13 +199,16 @@ export function eigSymmetric(input: {
 
   const values = new Float64Array(n)
   const vectors = new Float64Array(n * n)
+
   for (let j = 0; j < n; j++) {
     const pair = pairs[j]
+
     if (!pair) {
       continue
     }
 
     values[j] = pair.value
+
     for (let i = 0; i < n; i++) {
       vectors[i * n + j] = v[i * n + pair.col] ?? 0
     }

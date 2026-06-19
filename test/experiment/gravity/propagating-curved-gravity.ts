@@ -28,9 +28,12 @@ export default experiment({
       depth: 20,
       maxChambers: 40000,
     })
+
     const n = mesh.cellCount
     const neighbors = mesh.neighbors
+
     let center = 0
+
     for (let i = 1; i < n; i++) {
       if (neighbors[i]!.length > neighbors[center]!.length) {
         center = i
@@ -42,7 +45,9 @@ export default experiment({
       size: n,
       source: center,
     })
+
     let maxD = 0
+
     for (let i = 0; i < n; i++) {
       if (dist[i]! > maxD) {
         maxD = dist[i]!
@@ -79,13 +84,16 @@ export default experiment({
     const frontSpeed = (coupling: number): number => {
       let { prev, cur } = seed()
       let next = new Uint8Array(n)
+
       const probe = Math.min(maxD - 1, 5)
+
       for (let b = 1; b <= probe; b++) {
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
       }
 
       let front = 0
+
       for (let i = 0; i < n; i++) {
         if (cur[i] !== 0 && dist[i]! > front) {
           front = dist[i]!
@@ -98,11 +106,15 @@ export default experiment({
     // REVERSIBILITY: forward T then backward T (swap roles) recovers the start exactly
     const echo = (coupling: number): number => {
       let { prev, cur } = seed()
+
       const start0 = prev.slice()
       const start1 = cur.slice()
       const T = 40
+
       let next = new Uint8Array(n)
+
       const u: Uint8Array[] = [prev.slice(), cur.slice()]
+
       for (let b = 0; b < T; b++) {
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
@@ -112,6 +124,7 @@ export default experiment({
       let bprev = cur.slice() // u_T
       let bcur = prev.slice() // u_{T-1}
       let bnext = new Uint8Array(n)
+
       for (let b = 0; b < T; b++) {
         step(bprev, bcur, bnext, coupling)
         ;[bprev, bcur, bnext] = [bcur, bnext, bprev]
@@ -119,6 +132,7 @@ export default experiment({
 
       // bcur should be u_0, bprev should be u_1
       let diff = 0
+
       for (let i = 0; i < n; i++) {
         if (bcur[i] !== start0[i]) {
           diff++
@@ -133,10 +147,12 @@ export default experiment({
       let { prev, cur } = seed()
       let next = new Uint8Array(n)
       let maxActive = 0
+
       for (let b = 0; b < 300; b++) {
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
         let active = 0
+
         for (let i = 0; i < n; i++) {
           if (cur[i] !== 0) {
             active++
@@ -153,10 +169,13 @@ export default experiment({
     const irreversibleEcho = (): number => {
       let { cur } = seed()
       let next = new Uint8Array(n)
+
       const start = cur.slice()
+
       const fwd = (a: Uint8Array, b: Uint8Array) => {
         for (let i = 0; i < n; i++) {
           let s = 0
+
           for (const j of neighbors[i]!) {
             s += a[j]!
           }
@@ -176,6 +195,7 @@ export default experiment({
       } // "reverse" by re-running, cannot undo
 
       let diff = 0
+
       for (let i = 0; i < n; i++) {
         if (cur[i] !== start[i]) {
           diff++

@@ -35,13 +35,17 @@ function meanInterShellDistance(): number {
     connectThreshold: 2.0,
     maxVertices: 1200,
   })
+
   const dim = g.embedding?.dimension ?? 3
   const coords = g.embedding?.coords ?? new Float64Array(0)
+
   // central node = smallest norm
   let center = 0
   let bestNorm = Infinity
+
   for (let i = 0; i < g.size; i++) {
     let nn = 0
+
     for (let k = 0; k < dim; k++) {
       nn += (coords[i * dim + k] ?? 0) ** 2
     }
@@ -54,6 +58,7 @@ function meanInterShellDistance(): number {
 
   const hyp = (a: number, b: number): number =>
     poincareDistanceIndexed(coords, dim, a, b)
+
   // BFS shells, then the mean hyperbolic step between consecutive shells
   const { depth: shell, shellCounts } = bfsShells({
     neighbors: neighborsOf(g),
@@ -92,6 +97,7 @@ export function massHierarchy(input: Record<string, never> = {}): {
     { length: CHARGED_FERMIONS },
     (_, i) => Math.exp(-i * spacing),
   )
+
   const expSpan =
     (exponentialMasses[0] ?? 1) /
     (exponentialMasses[CHARGED_FERMIONS - 1] ?? 1)
@@ -101,6 +107,7 @@ export function massHierarchy(input: Record<string, never> = {}): {
     { length: CHARGED_FERMIONS },
     (_, i) => 1 / (1 + i * spacing) ** 2,
   )
+
   const powerSpan =
     (powerMasses[0] ?? 1) / (powerMasses[CHARGED_FERMIONS - 1] ?? 1)
 
@@ -110,6 +117,7 @@ export function massHierarchy(input: Record<string, never> = {}): {
   // lands within ~3 decades of it (it does not, and should not be claimed to, hit 5.5 exactly).
   const sameOrderAsObserved =
     Math.abs(expSpanDecades - observedSpanDecades) < 3
+
   // The localization length that WOULD reproduce the observed span exactly (reported, not used):
   // xi = (n-1) * interShellDistance / ln(observed span).
   const localizationLengthForObserved =

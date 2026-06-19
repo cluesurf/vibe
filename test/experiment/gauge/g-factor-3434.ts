@@ -41,6 +41,7 @@ function measureG(input: {
   const diracLevels = distinctLevels(
     Array.from(dirac.values).map(x => x * x),
   )
+
   const scalar = eigSymmetric({ matrix: scalarLandauSquared(input) })
   const scalarLevels = distinctLevels(Array.from(scalar.values))
 
@@ -50,6 +51,7 @@ function measureG(input: {
 
   // how well the low Dirac ladder matches the relativistic E^2 = m^2 + 2 q B n
   let ladderResidual = 0
+
   for (let n = 0; n < 4; n++) {
     const predicted = mass * mass + 2 * fieldStrength * n
     ladderResidual = Math.max(
@@ -84,8 +86,10 @@ export function gFactor(): {
   const massSquaredA = 0.5 * 0.5
   const diracHasZeroMode =
     Math.abs(a.diracLowestSquared - massSquaredA) < 1e-3
+
   const scalarHasNoZeroMode =
     Math.abs(a.scalarLowestSquared - (massSquaredA + 0.2)) < 1e-3
+
   const ladderRelativistic =
     a.ladderResidual < 1e-3 && b.ladderResidual < 1e-3
 
@@ -114,6 +118,7 @@ export default experiment({
       Math.abs(r.gAtFieldA - 2) < 0.05 &&
       Math.abs(r.gAtFieldB - 2) < 0.05 &&
       Math.abs(r.gAtHeavierMass - 2) < 0.05
+
     const ok =
       gIsTwo &&
       r.diracHasZeroMode &&

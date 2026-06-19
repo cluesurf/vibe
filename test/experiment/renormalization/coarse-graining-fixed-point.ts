@@ -33,18 +33,23 @@ export function isingRG(input: { seed: number }): {
       samples: 40,
       seed: input.seed,
     })
+
     const exact = Math.atanh(Math.tanh(K) ** 2)
 
     return { K, kPrimeMeasured: measured, kPrimeExact: exact }
   })
+
   const matchesRecursion = steps.every(
     s =>
       Math.abs(s.kPrimeMeasured - s.kPrimeExact) < 0.02 &&
       s.kPrimeMeasured < s.K,
   )
+
   // iterate the flow from a strong coupling toward the fixed point
   let K = 1.5
+
   const flow = [K]
+
   for (let i = 0; i < 6; i++) {
     K = measuredBlockSpinCoupling({
       length: 20000,
@@ -74,15 +79,18 @@ export function coarseGrainingFixedPoint(input: {
   dimensionInvariant: boolean
 } {
   const rng = makeRng({ seed: input.seed })
+
   let poset = sprinkleMinkowski({
     dimension: input.dimension,
     count: input.count,
     rng,
   })
+
   const dims: number[] = []
   const sizes: number[] = []
   dims.push(myrheimMeyerDimension({ poset }))
   sizes.push(poset.size)
+
   for (let l = 0; l < input.levels; l++) {
     poset = decimate({ poset, keepProbability: 0.5, rng })
     dims.push(myrheimMeyerDimension({ poset }))

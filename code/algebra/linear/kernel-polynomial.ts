@@ -19,6 +19,7 @@ export interface HermitianOperator {
 export function absoluteValueCoefficients(count: number): number[] {
   const coefficients = new Array<number>(count).fill(0)
   coefficients[0] = 2 / Math.PI
+
   for (let k = 1; 2 * k < count; k++) {
     coefficients[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
   }
@@ -31,6 +32,7 @@ export function absoluteValueCoefficients(count: number): number[] {
 export function jacksonKernel(count: number): number[] {
   const kernel = new Array<number>(count).fill(0)
   const np = count + 1
+
   for (let n = 0; n < count; n++) {
     kernel[n] =
       ((np - n) * Math.cos((Math.PI * n) / np) +
@@ -52,9 +54,11 @@ export function chebyshevMoments(input: {
 }): Float64Array {
   const { operator, scale, probe, count, dim } = input
   const mu = new Float64Array(count)
+
   let t0: Cx = { re: probe.re.slice(), im: probe.im.slice() }
   let t1 = newCx(dim)
   operator(t0, t1)
+
   for (let i = 0; i < dim; i++) {
     t1.re[i]! /= scale
     t1.im[i]! /= scale
@@ -63,9 +67,12 @@ export function chebyshevMoments(input: {
   mu[0] = dotR(probe, t0, dim)
   mu[1] = dotR(probe, t1, dim)
   let tn = newCx(dim)
+
   const product = newCx(dim)
+
   for (let n = 2; n < count; n++) {
     operator(t1, product)
+
     for (let i = 0; i < dim; i++) {
       tn.re[i] = (2 * product.re[i]!) / scale - t0.re[i]!
       tn.im[i] = (2 * product.im[i]!) / scale - t0.im[i]!
@@ -90,23 +97,28 @@ export function spectralBound(input: {
   const { operator, dim } = input
   const v = newCx(dim)
   const rng = makeRng({ seed: 1 })
+
   for (let i = 0; i < dim; i++) {
     v.re[i] = rng.next() - 0.5
   }
 
   let norm = Math.sqrt(dotR(v, v, dim))
+
   for (let i = 0; i < dim; i++) {
     v.re[i]! /= norm
   }
 
   const applied = newCx(dim)
   const twice = newCx(dim)
+
   let lambda = 0
+
   for (let iteration = 0; iteration < 50; iteration++) {
     operator(v, applied)
     operator(applied, twice)
     lambda = dotR(v, twice, dim)
     norm = Math.sqrt(dotR(twice, twice, dim))
+
     for (let i = 0; i < dim; i++) {
       v.re[i] = twice.re[i]! / norm
       v.im[i] = twice.im[i]! / norm

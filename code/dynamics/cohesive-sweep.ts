@@ -11,8 +11,10 @@ export function agreeCount(
   except: number,
 ): number {
   let c = 0
+
   for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
     const w = adj[p]!
+
     if (w !== except && tone[w] === q) {
       c++
     }
@@ -43,17 +45,21 @@ export function cohesiveEdgeSweep(input: {
 }): void {
   const { tone, eu, ev, offsets, adj, moved, rng, annihilate, arrow } =
     input
+
   const escapeProbability = input.escapeProbability ?? 0.02
   moved.fill(0)
+
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
     const w = ev[k]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if (
       annihilate &&
       ((a === 1 && b === -1) || (a === -1 && b === 1))
@@ -66,6 +72,7 @@ export function cohesiveEdgeSweep(input: {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
       const q = tone[c]!
+
       if (
         agreeCount(tone, offsets, adj, e, q, c) >=
           agreeCount(tone, offsets, adj, c, q, e) ||

@@ -28,15 +28,18 @@ export function fermionInducedStabilizer(): {
 } {
   const N = 80,
     m0 = 1.0
+
   const Rs = [2, 3, 5, 8, 13]
   const data = Rs.map(R => ({
     R,
     sea: Math.round(seaEnergy(N, m0, R) * 1000) / 1000,
   }))
+
   // induced stiffness: does the (more negative) sea energy go UP (less negative) as the soliton sharpens (small R)?
   // a sharper soliton costing MORE fermion energy = positive induced gradient stiffness = stabilizing.
   const sharp = data[0]!.sea,
     smooth = data[data.length - 1]!.sea
+
   const risesAsSharpens = sharp > smooth // sea energy higher (less bound) for the sharp soliton
 
   return { data, risesAsSharpens }

@@ -29,7 +29,9 @@ const RADII = [2, 3, 4]
 // the boundary-cell count of a centered ball (cells in the ball with a neighbour outside it), the discrete area
 function ballSurface(radius: number): number {
   const inBall = new Set(ballRegion({ side: SIDE, radius }))
+
   let count = 0
+
   for (const cell of inBall) {
     const x = cell % SIDE
     const y = Math.floor(cell / SIDE) % SIDE
@@ -42,6 +44,7 @@ function ballSurface(radius: number): number {
       [0, 0, 1],
       [0, 0, -1],
     ]
+
     for (const step of steps) {
       const nx = x + step[0]!
       const ny = y + step[1]!
@@ -53,6 +56,7 @@ function ballSurface(radius: number): number {
         ny >= SIDE ||
         nz < 0 ||
         nz >= SIDE
+
       if (outside || !inBall.has(nx + SIDE * ny + SIDE * SIDE * nz)) {
         count++
         break
@@ -78,6 +82,7 @@ export default experiment({
       mass: MASS,
       periodic: true,
     })
+
     const c = freeFermionCorrelationMatrix({ h, n })
     const series = screenBitSeries({ c, n, side: SIDE, radii: RADII })
 
@@ -86,6 +91,7 @@ export default experiment({
     const areaDensity = series.bits.map(
       (bits, i) => bits / surfaces[i]!,
     )
+
     // the volume-law thermal density (S = volume * ln 2 per boundary cell), should grow with the region
     const thermalDensity = RADII.map(
       (radius, i) =>
@@ -101,9 +107,11 @@ export default experiment({
       Math.max(...areaDensity) / Math.min(...areaDensity) < 1.5 &&
       areaDensity[areaDensity.length - 1]! <= areaDensity[0]! &&
       areaDensity.every(d => d > 0.1 && d < 1)
+
     const thermalGrows =
       thermalDensity[thermalDensity.length - 1]! >
       thermalDensity[0]! * 1.2
+
     const gIsDefinite = impliedG > 0.3 && impliedG < 3
     const ok = areaBounded && thermalGrows && gIsDefinite
 

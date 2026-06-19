@@ -36,6 +36,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no GPU')
 
@@ -47,9 +48,11 @@ async function run(): Promise<void> {
   const N = g.cellCount
   const eu: number[] = [],
     ev: number[] = []
+
   for (let v = 0; v < N; v++) {
     for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
       const w = g.adj[p]!
+
       if (w > v) {
         eu.push(v)
         ev.push(w)
@@ -60,10 +63,14 @@ async function run(): Promise<void> {
   const E = eu.length
   const mask = new Uint32Array(N)
   const color = new Int32Array(E)
+
   let maxColor = 0
+
   for (let i = 0; i < E; i++) {
     const used = mask[eu[i]!]! | mask[ev[i]!]!
+
     let c = 0
+
     while (used & (1 << c)) {
       c++
     }
@@ -71,6 +78,7 @@ async function run(): Promise<void> {
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
+
     if (c > maxColor) {
       maxColor = c
     }
@@ -78,6 +86,7 @@ async function run(): Promise<void> {
 
   const C = maxColor + 1
   const colorOffsets = new Array(C + 1).fill(0)
+
   for (let i = 0; i < E; i++) {
     colorOffsets[color[i]! + 1]++
   }
@@ -88,7 +97,9 @@ async function run(): Promise<void> {
 
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
+
   const cur = colorOffsets.slice()
+
   for (let i = 0; i < E; i++) {
     const at = cur[color[i]!]!++
     edgeV[at] = eu[i]!
@@ -102,7 +113,9 @@ async function run(): Promise<void> {
   // BFS-ball partitions at each scale (radius R). ballOf[scale][cell] = super-cell index.
   const partitions = SCALES.map(R => {
     const ballOf = new Int32Array(N).fill(-1)
+
     let nb = 0
+
     if (R === 0) {
       for (let i = 0; i < N; i++) {
         ballOf[i] = i
@@ -119,11 +132,14 @@ async function run(): Promise<void> {
       const id = nb++
       ballOf[s] = id
       let frontier = [s]
+
       for (let r = 0; r < R; r++) {
         const nx: number[] = []
+
         for (const u of frontier) {
           for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
             const w = g.adj[p]!
+
             if (ballOf[w]! < 0) {
               ballOf[w] = id
               nx.push(w)
@@ -137,6 +153,7 @@ async function run(): Promise<void> {
 
     return { ballOf, count: nb }
   })
+
   console.log(
     'scale (radius) -> super-cells:',
     SCALES.map(
@@ -149,6 +166,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const toneBuf = device.createBuffer({
     size: N * 4,
     usage:
@@ -156,9 +174,11 @@ async function run(): Promise<void> {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   const seed = new Uint32Array(N)
   const r = makeRng({ seed: 987654321 })
   const nx = () => r.next()
+
   for (let i = 0; i < N; i++) {
     const x = nx()
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
@@ -169,11 +189,13 @@ async function run(): Promise<void> {
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(vBuf, 0, edgeV)
   const wBuf = device.createBuffer({
     size: E * 4,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(wBuf, 0, edgeW)
   const pipeline = device.createComputePipeline({
     layout: 'auto',
@@ -182,6 +204,7 @@ async function run(): Promise<void> {
       entryPoint: 'main',
     },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = device.createBindGroup({
     layout,
@@ -192,14 +215,17 @@ async function run(): Promise<void> {
       { binding: 3, resource: { buffer: wBuf } },
     ],
   })
+
   const staging = device.createBuffer({
     size: N * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const beatGpu = () => {
     for (let c = 0; c < C; c++) {
       const start = colorOffsets[c]!,
         count = colorOffsets[c + 1]! - start
+
       if (!count) {
         continue
       }
@@ -229,6 +255,7 @@ async function run(): Promise<void> {
   const series = partitions.map(p =>
     Array.from({ length: M }, () => new Float64Array(p.count)),
   )
+
   for (let s = 0; s < M; s++) {
     for (let b = 0; b < K; b++) {
       beatGpu()
@@ -243,11 +270,14 @@ async function run(): Promise<void> {
     await staging.mapAsync(GPUMapMode.READ)
     const t = new Uint32Array(staging.getMappedRange().slice(0))
     staging.unmap()
+
     for (let sc = 0; sc < SCALES.length; sc++) {
       const ballOf = partitions[sc]!.ballOf
       const arr = series[sc]![s]!
+
       for (let i = 0; i < N; i++) {
         const q = t[i] === 1 ? 1 : t[i] === 2 ? -1 : 0
+
         if (q) {
           const bi = ballOf[i]!
           arr[bi] = arr[bi]! + q
@@ -265,11 +295,14 @@ async function run(): Promise<void> {
       K +
       ' beats]',
   )
+
   for (let sc = 0; sc < SCALES.length; sc++) {
     const ser = series[sc]!
     const n = partitions[sc]!.count
+
     const c0 = (): number => {
       let s = 0
+
       for (let st = 0; st < M; st++) {
         for (let i = 0; i < n; i++) {
           s += ser[st]![i]! * ser[st]![i]!
@@ -282,6 +315,7 @@ async function run(): Promise<void> {
     const ctau = (tau: number): number => {
       let s = 0,
         cnt = 0
+
       for (let st = 0; st + tau < M; st++) {
         for (let i = 0; i < n; i++) {
           s += ser[st]![i]! * ser[st + tau]![i]!
@@ -296,6 +330,7 @@ async function run(): Promise<void> {
     const base = c0() / M
     const c = (tau: number) =>
       ctau(tau) / Math.max(1, M - tau) / Math.max(1e-9, base)
+
     console.log(
       `   R${SCALES[sc]}   |   ${c(1).toFixed(2)}    | ${c(2).toFixed(2)} | ${c(4).toFixed(2)} | ${c(8).toFixed(2)}`,
     )

@@ -20,6 +20,7 @@ export function randomGeometricMesh(input: {
 }): Mesh {
   const n = input.count
   const coords = new Float64Array(n * 2)
+
   for (let i = 0; i < n; i++) {
     coords[i * 2] = input.rng.next()
     coords[i * 2 + 1] = input.rng.next()
@@ -27,10 +28,12 @@ export function randomGeometricMesh(input: {
 
   const neighbors: number[][] = Array.from({ length: n }, () => [])
   const r2 = input.radius * input.radius
+
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       const dx = (coords[i * 2] ?? 0) - (coords[j * 2] ?? 0)
       const dy = (coords[i * 2 + 1] ?? 0) - (coords[j * 2 + 1] ?? 0)
+
       if (dx * dx + dy * dy < r2) {
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)
@@ -49,11 +52,13 @@ export function squareLatticeMesh(input: { side: number }): Mesh {
   const coords = new Float64Array(n * 2)
   const neighbors: number[][] = Array.from({ length: n }, () => [])
   const idx = (i: number, j: number): number => j * side + i
+
   for (let j = 0; j < side; j++) {
     for (let i = 0; i < side; i++) {
       const v = idx(i, j)
       coords[v * 2] = i / (side - 1)
       coords[v * 2 + 1] = j / (side - 1)
+
       if (i + 1 < side) {
         neighbors[v]?.push(idx(i + 1, j))
         neighbors[idx(i + 1, j)]?.push(v)
@@ -73,10 +78,12 @@ export function squareLatticeMesh(input: { side: number }): Mesh {
 export function centerNode(mesh: Mesh): number {
   let best = 0
   let bestD = Infinity
+
   for (let i = 0; i < mesh.size; i++) {
     const dx = (mesh.coords[i * 2] ?? 0) - 0.5
     const dy = (mesh.coords[i * 2 + 1] ?? 0) - 0.5
     const d = dx * dx + dy * dy
+
     if (d < bestD) {
       bestD = d
       best = i

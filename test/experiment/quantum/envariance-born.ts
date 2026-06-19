@@ -15,6 +15,7 @@ type C = { re: number; im: number }
 const c = (re: number, im = 0): C => ({ re, im })
 const ceq = (a: C, b: C) =>
   Math.abs(a.re - b.re) < 1e-12 && Math.abs(a.im - b.im) < 1e-12
+
 const cabs2 = (a: C) => a.re * a.re + a.im * a.im
 
 // A bipartite state on (system x env), each d-dimensional, as a d x d complex amplitude matrix M[s][e]:
@@ -34,6 +35,7 @@ function productState(sysAmps: number[], envAmps: number[]): C[][] {
 // swap two labels i,j on the system index (rows) or env index (cols)
 function swapRows(M: C[][], i: number, j: number): C[][] {
   const N = M.map(r => [...r])
+
   ;[N[i], N[j]] = [N[j]!, N[i]!]
 
   return N
@@ -42,6 +44,7 @@ function swapRows(M: C[][], i: number, j: number): C[][] {
 function swapCols(M: C[][], i: number, j: number): C[][] {
   return M.map(r => {
     const x = [...r]
+
     ;[x[i], x[j]] = [x[j]!, x[i]!]
 
     return x
@@ -89,12 +92,15 @@ export default experiment({
       1 / Math.sqrt(3),
       1 / Math.sqrt(3),
     ])
+
     const fgEnvariant =
       isEnvariant(fineGrained, 0, 1) && isEnvariant(fineGrained, 1, 2)
+
     // coarse-graining back: outcome 0 = sub-branches {0,1} (p = 2/3), outcome 1 = sub-branch {2} (p = 1/3)
     const fgProbs = systemProbs(fineGrained)
     const p0 = fgProbs[0]! + fgProbs[1]!,
       p1 = fgProbs[2]!
+
     const bornDerived =
       Math.abs(p0 - 2 / 3) < 1e-12 && Math.abs(p1 - 1 / 3) < 1e-12 // = |a0|^2, |a1|^2 of the original 2:1 state
 
@@ -103,6 +109,7 @@ export default experiment({
       [Math.sqrt(2 / 3), Math.sqrt(1 / 3)],
       [1, 0],
     )
+
     const productEnvariant = isEnvariant(product, 0, 1)
     const controlBreaks = !productEnvariant
 

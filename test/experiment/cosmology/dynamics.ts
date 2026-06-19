@@ -30,6 +30,7 @@ export default experiment({
       rng: makeRng({ seed: 1 }),
       observe: ({ poset }) => manifoldLikeness({ poset }).score,
     })
+
     const beta2 = sampleCausalSets({
       size: 40,
       action,
@@ -38,6 +39,7 @@ export default experiment({
       rng: makeRng({ seed: 1 }),
       observe: ({ poset }) => manifoldLikeness({ poset }).score,
     })
+
     const m0 = beta0.meanObservable
     const m2 = beta2.meanObservable
     const ok = m2 >= m0

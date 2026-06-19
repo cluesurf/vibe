@@ -56,6 +56,7 @@ export function diracLanczos(): {
   gapVsSize: [number, number][]
 } {
   const M = 1.5
+
   const run = (R: number): number[] => {
     const aH = makeDirac(L, M, R, 'bag').applyH
     const Cf = lambdaMaxH2(aH) * 1.05
@@ -72,6 +73,7 @@ export function diracLanczos(): {
   const zeroModesHedgehog = hedge.filter(e => e < 0.08).length
   // bound-state gap vs soliton size
   const gapVsSize: [number, number][] = []
+
   for (const R of [2, 4, 6]) {
     const sp = run(R)
     const gap = sp.find(e => e > 0.08) ?? sp[sp.length - 1]!

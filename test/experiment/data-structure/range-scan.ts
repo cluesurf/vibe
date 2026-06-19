@@ -30,6 +30,7 @@ export default experiment({
     const hyperbolicBallRatio =
       ballSize(hyperbolic.shells, radius) /
       ballSize(hyperbolic.shells, radius - 1)
+
     const flatBallRatio =
       ballSize(flat.shells, radius) / ballSize(flat.shells, radius - 1)
 

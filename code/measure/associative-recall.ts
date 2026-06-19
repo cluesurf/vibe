@@ -19,6 +19,7 @@ type Neighbors = ReadonlyArray<ReadonlyArray<number>>
 export function exactRecallRate(mem: AssociativeMemory): number {
   let ok = 0
   let total = 0
+
   for (let c = 0; c < mem.cellCount; c++) {
     if (!mem.occupied[c]) {
       continue
@@ -26,6 +27,7 @@ export function exactRecallRate(mem: AssociativeMemory): number {
 
     total++
     const responders = searchExact({ mem, comparand: readWord(mem, c) })
+
     if (responders.length === 1 && responders[0] === c) {
       ok++
     }
@@ -45,9 +47,12 @@ export function nearestRecallRate(input: {
   const { mem, corruptionFraction, rng } = input
   const cells = input.sample ?? occupiedCells(mem)
   const flips = Math.round(corruptionFraction * mem.wordBits)
+
   let ok = 0
+
   for (const c of cells) {
     const q = readWord(mem, c)
+
     for (let i = 0; i < flips; i++) {
       const k = rng.nextInt({ max: mem.wordBits })
       q[k] = (q[k]! + 1 + rng.nextInt({ max: 2 })) % 3
@@ -69,9 +74,12 @@ export function falsePositiveRate(input: {
   rng: Rng
 }): number {
   const { mem, trials, rng } = input
+
   let hits = 0
+
   for (let t = 0; t < trials; t++) {
     const q = new Int8Array(mem.wordBits)
+
     for (let k = 0; k < mem.wordBits; k++) {
       q[k] = rng.nextInt({ max: 3 })
     }
@@ -94,7 +102,9 @@ export function coverageRadius(input: {
     neighbors: input.neighbors,
     root: input.seed,
   }).depth
+
   let r = 0
+
   for (let c = 0; c < depth.length; c++) {
     if (depth[c]! > r) {
       r = depth[c]!
@@ -115,8 +125,11 @@ export function radiusCapacity(input: {
     neighbors: input.neighbors,
     root: input.seed,
   })
+
   const cumulative: number[] = []
+
   let total = 0
+
   for (const s of shellCounts) {
     total += s
     cumulative.push(total)
@@ -127,6 +140,7 @@ export function radiusCapacity(input: {
 
 function occupiedCells(mem: AssociativeMemory): number[] {
   const out: number[] = []
+
   for (let c = 0; c < mem.cellCount; c++) {
     if (mem.occupied[c]) {
       out.push(c)

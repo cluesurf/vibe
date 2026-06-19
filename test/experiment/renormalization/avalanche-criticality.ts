@@ -77,6 +77,7 @@ export function avalancheCriticality(input?: { n?: number }): {
     max: number
     span: number
   }[] = []
+
   for (const c0 of rates) {
     const { sizes, bg } = avalanches(c0, g, eu, ev)
     const median = sizes[Math.floor(sizes.length / 2)]!
@@ -86,6 +87,7 @@ export function avalancheCriticality(input?: { n?: number }): {
   }
 
   let bestSpan = 0
+
   for (const s of scan) {
     if (s.span > bestSpan) {
       bestSpan = s.span

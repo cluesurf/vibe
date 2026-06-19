@@ -64,6 +64,7 @@ export function waveIsotropy(input?: {
   cur[0] = 1 // the perturbation
   const prev0 = prev.slice()
   const cur0 = cur.slice()
+
   for (let t = 0; t < beats; t++) {
     const next = new Uint8Array(N)
     stepWave(prev, cur, next)
@@ -74,6 +75,7 @@ export function waveIsotropy(input?: {
   // reversibility check (the same symmetric step run backward recovers the start)
   let pr = prev.slice()
   let cu = cur.slice()
+
   for (let t = 0; t < beats; t++) {
     const back = new Uint8Array(N)
     stepWave(cu, pr, back)
@@ -82,6 +84,7 @@ export function waveIsotropy(input?: {
   }
 
   let reversible = true
+
   for (let i = 0; i < N; i++) {
     if (pr[i] !== prev0[i] || cu[i] !== cur0[i]) {
       reversible = false
@@ -97,6 +100,7 @@ export function waveIsotropy(input?: {
     center: 0,
     activated: i => cur[i] !== 0,
   })
+
   const frontSpeeds = frontDist.filter(d => d > 0).map(d => d / beats)
   const { meanSpeed, anisotropy } = rangeAnisotropy(frontSpeeds)
 

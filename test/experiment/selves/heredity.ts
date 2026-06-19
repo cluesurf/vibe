@@ -35,6 +35,7 @@ export function heredity(input?: { n?: number }): {
 
   // parent region (around the hub) and a fresh daughter region (far away), same size, disjoint
   let center = 0
+
   for (let i = 1; i < N; i++) {
     if (
       g.offsets[i + 1]! - g.offsets[i]! >
@@ -50,6 +51,7 @@ export function heredity(input?: { n?: number }): {
     size: N,
     source: center,
   })
+
   const size = 1500
   const parentCells = csrBallNodes({
     offsets: g.offsets,
@@ -58,15 +60,19 @@ export function heredity(input?: { n?: number }): {
     source: center,
     limit: size,
   })
+
   const parentSet = new Set(parentCells)
   // daughter from a far seed, avoiding parent cells
   const daughterCells: number[] = []
+
   {
     const seen = new Uint8Array(N)
     seen[far] = 1
     let fr = [far]
+
     while (fr.length > 0 && daughterCells.length < size) {
       const nf: number[] = []
+
       for (const u of fr) {
         if (!parentSet.has(u)) {
           daughterCells.push(u)
@@ -74,6 +80,7 @@ export function heredity(input?: { n?: number }): {
 
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
+
           if (!seen[w]) {
             seen[w] = 1
             nf.push(w)
@@ -91,6 +98,7 @@ export function heredity(input?: { n?: number }): {
   const rng = makeRng({ seed: 4 })
   const parentPat = new Int8Array(m)
   const half = Math.floor(m / 2)
+
   for (let i = 0; i < m; i++) {
     parentPat[i] = i < half ? 1 : i < 2 * half ? -1 : 0
   }
@@ -109,9 +117,12 @@ export function heredity(input?: { n?: number }): {
   ): { resemblance: number; charge: number } => {
     const r = makeRng({ seed: 99 })
     const daughterPat = new Int8Array(m)
+
     let charge = 0
+
     for (let i = 0; i < m; i++) {
       let v = parentPat[i]!
+
       if (r.next() < mu) {
         v = -v as -1 | 1
       } // mutation
@@ -121,6 +132,7 @@ export function heredity(input?: { n?: number }): {
     }
 
     let agree = 0
+
     for (let i = 0; i < m; i++) {
       if (daughterPat[i] === parentPat[i]) {
         agree++
@@ -139,9 +151,11 @@ export function heredity(input?: { n?: number }): {
   const resemblanceMu0 = c0.resemblance
   const resemblanceMu2 = c2.resemblance
   const resemblanceMu5 = c5.resemblance
+
   // structure written into the empty daughter (every copied cell is creation), and the NET charge of it
   let structureWritten = 0
   let net = 0
+
   for (let i = 0; i < m; i++) {
     structureWritten += Math.abs(parentPat[i]!)
     net += parentPat[i]!
@@ -153,10 +167,12 @@ export function heredity(input?: { n?: number }): {
   const heritableVariation =
     resemblanceMu2 < resemblanceMu0 - 0.1 &&
     Math.abs(resemblanceMu5) < 0.2
+
   // the daughter pattern is balanced (information), so writing it has NET charge zero, it is CONSERVING
   // creation, exactly what the arrow does (balanced pair creation). So the base supports reproduction.
   const conservingCreation =
     structureWritten > 0 && netChargeCreated === 0
+
   const solved =
     heredityWorks && heritableVariation && conservingCreation
 

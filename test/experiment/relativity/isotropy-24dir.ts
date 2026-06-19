@@ -47,11 +47,13 @@ export function isotropy24dir(): {
   // 4th-moment isotropy check (the order-4 anisotropy): sum d_i^4 vs 3 sum d_i^2 d_j^2
   const md4 = directionFourthMoments(neighbors('D4')),
     mz4 = directionFourthMoments(neighbors('Z4'))
+
   void md4
   void mz4
   const z3 = anisotropy('Z3', 1.2),
     z4 = anisotropy('Z4', 1.2),
     d4 = anisotropy('D4', 1.2)
+
   const d4Best = d4 < z4 / 5 && d4 < z3 / 5
 
   return { z3, z4, d4, d4Best }

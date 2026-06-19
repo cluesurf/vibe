@@ -75,11 +75,13 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   const centralBallVerts = baseVertices.map(v =>
     recenter(toPoincare(matVec(cellMat[0]!, v), timeAxis)),
   )
+
   const { cos: orientCos, sin: orientSin } = orientation(
     centralBallVerts,
     symbol[0] ?? 3,
     orientUp,
   )
+
   const orient = (b: Vec): Vec => {
     if (!orientUp) {
       return b
@@ -100,18 +102,22 @@ export function buildHoneycombScene(input: HoneycombOptions): Scene {
   // replicate the cell edges across every cell, deduplicated in ball space
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
+
   for (const g of cellMat) {
     const ballVerts = baseVertices.map(v =>
       orient(recenter(toPoincare(matVec(g, v), timeAxis))),
     )
+
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
+
       if (norm(a) > BOUNDARY_CLIP || norm(b) > BOUNDARY_CLIP) {
         continue
       }
 
       const key = pairKey(a, b)
+
       if (seen.has(key)) {
         continue
       }
@@ -142,6 +148,7 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     maxCells = DEFAULT_MAX_CELLS,
     orientUp = true,
   } = input
+
   const frame = coxeterCellFrame(symbol)
   const { normals, metric, timeAxis, faces, dim } = frame
   const ballDim = dim - 1
@@ -157,8 +164,10 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   // BFS the FINITE cell orbit, each cell its group matrix g (center = g * c0), neighbors = g * faces[i]
   const cellMat: Mat[] = [identity(dim)]
   const seenCell = new Set<string>([pointKey(c0)])
+
   for (let head = 0; head < cellMat.length; head++) {
     const g = cellMat[head]!
+
     for (const f of faces) {
       const gp = matMul(g, f)
       const center = normalizeModelPoint(
@@ -166,12 +175,15 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
         metric,
         timeAxis,
       )
+
       const k = pointKey(center)
+
       if (seenCell.has(k)) {
         continue
       }
 
       seenCell.add(k)
+
       if (cellMat.length >= maxCells) {
         break
       }
@@ -197,11 +209,13 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   const centralBallVerts = baseVertices.map(v =>
     project(matVec(cellMat[0]!, v)),
   )
+
   const { cos: orientCos, sin: orientSin } = orientation(
     centralBallVerts,
     symbol[0] ?? 3,
     orientUp,
   )
+
   const orient = (b: Vec): Vec => {
     if (!orientUp) {
       return b
@@ -223,19 +237,24 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
   const INFINITY_GUARD = 1e4
   const rawEdges: SceneEdge[] = []
   const seen = new Set<string>()
+
   let maxR = 1e-9
+
   for (const g of cellMat) {
     const ballVerts = baseVertices.map(v =>
       orient(project(matVec(g, v))),
     )
+
     for (const [i, j] of baseEdges) {
       const a = ballVerts[i]!
       const b = ballVerts[j]!
+
       if (norm(a) > INFINITY_GUARD || norm(b) > INFINITY_GUARD) {
         continue
       }
 
       const key = pairKey(a, b)
+
       if (seen.has(key)) {
         continue
       }
@@ -252,6 +271,7 @@ export function buildSphericalScene(input: HoneycombOptions): Scene {
     a: fit(e.a),
     b: fit(e.b),
   }))
+
   const centers: Vec[] = cellMat
     .map(g => orient(project(matVec(g, c0))))
     .filter(c => norm(c) <= INFINITY_GUARD)
@@ -294,11 +314,13 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
     [1, 0],
     [0, 1],
   ]
+
   const ballDim = basis.length
 
   // embed each lattice coord with the plane basis
   const placed: Vec[] = lattice.coords.map(c => {
     const p: Vec = new Array<number>(ballDim).fill(0)
+
     for (let a = 0; a < ballDim; a++) {
       for (let i = 0; i < basis.length; i++) {
         p[a] = (p[a] ?? 0) + (c[i] ?? 0) * (basis[i]![a] ?? 0)
@@ -310,6 +332,7 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
 
   // center on the centroid and scale to fit the disk
   const centroid: Vec = new Array<number>(ballDim).fill(0)
+
   for (const p of placed) {
     for (let a = 0; a < ballDim; a++) {
       centroid[a]! += p[a]! / placed.length
@@ -317,6 +340,7 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
   }
 
   let maxR = 1e-9
+
   for (const p of placed) {
     maxR = Math.max(maxR, norm(p.map((v, a) => v - centroid[a]!)))
   }
@@ -328,6 +352,7 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
 
   const edges: SceneEdge[] = []
   const seen = new Set<string>()
+
   for (let i = 0; i < lattice.neighbors.length; i++) {
     for (const j of lattice.neighbors[i]!) {
       if (j <= i) {
@@ -337,6 +362,7 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
       const a = ball[i]!
       const b = ball[j]!
       const k = pairKey(a, b)
+
       if (seen.has(k)) {
         continue
       }
@@ -360,6 +386,7 @@ export function buildEuclideanScene(input: HoneycombOptions): Scene {
 // whole classical family, the three constant-curvature 2D geometries and their honeycombs.
 export function buildTilingScene(input: HoneycombOptions): Scene {
   const geometry = classifyGeometry(input.symbol)
+
   if (geometry === 'spherical') {
     return buildSphericalScene(input)
   }
@@ -375,6 +402,7 @@ export function buildTilingScene(input: HoneycombOptions): Scene {
 // generator handles. for a 2D tiling the cell is a single polygon, always finite.
 export function hasFiniteCell(symbol: number[]): boolean {
   const cell = symbol.slice(0, -1)
+
   if (cell.length <= 1) {
     return true
   }
@@ -394,10 +422,12 @@ function orientation(
 
   let bestR = -1
   let theta0 = 0
+
   for (const b of ballVertices) {
     const x = b[0] ?? 0
     const y = b[1] ?? 0
     const r = x * x + y * y
+
     if (r > bestR) {
       bestR = r
       theta0 = Math.atan2(y, x)
@@ -413,6 +443,7 @@ function orientation(
 // the Euclidean norm of a ball point
 function norm(v: number[]): number {
   let s = 0
+
   for (const x of v) {
     s += x * x
   }

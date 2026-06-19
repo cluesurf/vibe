@@ -33,6 +33,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
   // a smooth (low-k) initial packet, a wide Gaussian (mostly long-wavelength, so it survives coarsening)
   const width = 24
   const u0 = new Float64Array(L)
+
   for (let i = 0; i < L; i++) {
     u0[i] = Math.exp(-(((i - L / 2) / width) ** 2))
   }
@@ -43,6 +44,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
   // the COMMUTING SQUARE at each rung b, evolve fine b*K steps then block-average vs block-average then
   // evolve the coarse wave K steps (coarse spacing b, coarse time-step b, same Courant r so speed matches)
   const rungErrors: { b: number; error: number }[] = []
+
   for (const b of [2, 4]) {
     const K = Math.floor(fineSteps / b)
     rungErrors.push({
@@ -65,6 +67,7 @@ export function waveChain(input?: { L?: number; r?: number }): {
 
   // wave speed at each level (peak displacement per step, in fine-cell units), should be invariant ~ r
   const speeds: { level: number; speed: number }[] = []
+
   for (const b of [1, 2, 4]) {
     speeds.push({
       level: b,

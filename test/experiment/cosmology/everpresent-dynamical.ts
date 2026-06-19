@@ -32,6 +32,7 @@ export function everpresentDynamical(input: {
   const rng = makeRng({ seed: input.seed })
   const rms = input.volumes.map(v => {
     let sumSq = 0
+
     for (let r = 0; r < input.repeats; r++) {
       const n = poissonSample({ lambda: v, rng }) // the genuine causal-set element count, Poisson(V)
       const lambda = (n - v) / v
@@ -59,6 +60,7 @@ export function everpresent(input: { seed: number }): {
     repeats: 40000,
     seed: input.seed,
   })
+
   const matchesEverpresent = Math.abs(exponent + 0.5) < 0.05
 
   // The dark-energy VALUE is the everpresent prediction at the observed 4-volume (adopted, Sorkin).

@@ -88,6 +88,7 @@ export function holographicMemory(input?: { n?: number }): {
   // HOLOGRAPHIC encoding: anchors spread uniformly across the whole graph
   const holoAnchors: number[] = []
   const stride = Math.floor(N / A)
+
   for (let k = 0; k < A; k++) {
     holoAnchors.push((k * stride) % N)
   }
@@ -98,12 +99,14 @@ export function holographicMemory(input?: { n?: number }): {
   // the erasure: a bounded region (a ball) positioned at node 0, which is where the blob lives
   const erasedSet = ball(g.offsets, g.adj, N, 0, 4000)
   const erased = new Uint8Array(N)
+
   for (const i of erasedSet) {
     erased[i] = 1
   }
 
   function makeState(anchors: number[]): Int8Array {
     const t = new Int8Array(N)
+
     for (const i of anchors) {
       t[i] = 1
     }
@@ -113,9 +116,11 @@ export function holographicMemory(input?: { n?: number }): {
 
   const survival = (t: Int8Array, anchors: number[]): number =>
     anchors.filter(i => t[i] === 1).length / anchors.length
+
   // decode the logical bit from the anchor set: sign of the anchor tone sum (correct = +1)
   const decode = (t: Int8Array, anchors: number[]): boolean => {
     let s = 0
+
     for (const i of anchors) {
       s += t[i]!
     }
@@ -128,6 +133,7 @@ export function holographicMemory(input?: { n?: number }): {
   const blob = makeState(blobAnchors)
   const qHolo = sumTone(holo)
   const qBlob = sumTone(blob)
+
   for (const i of erasedSet) {
     holo[i] = 0
     blob[i] = 0
@@ -142,6 +148,7 @@ export function holographicMemory(input?: { n?: number }): {
   const moved = new Uint8Array(N)
   const rngH = makeRng({ seed: 7 })
   const rngB = makeRng({ seed: 7 })
+
   for (let b = 0; b < 20; b++) {
     beat(holo, eu, ev, g.offsets, g.adj, moved, rngH)
   }
@@ -162,6 +169,7 @@ export function holographicMemory(input?: { n?: number }): {
     blobSurvivalInit < 0.2 &&
     holoDecodeInit &&
     !blobDecodeInit
+
   const solved = holographicWins && holoDecodeAfter && !blobDecodeAfter
 
   return {

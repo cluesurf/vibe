@@ -34,11 +34,15 @@ function cpuDenseRecall(
   iters: number,
 ): Int32Array {
   let state = Int32Array.from(cue)
+
   for (let it = 0; it < iters; it++) {
     const overlap = new Int32Array(p)
+
     for (let mu = 0; mu < p; mu++) {
       let s = 0
+
       const base = mu * n
+
       for (let i = 0; i < n; i++) {
         s += patternsFlat[base + i]! * state[i]!
       }
@@ -47,11 +51,15 @@ function cpuDenseRecall(
     }
 
     const next = new Int32Array(n)
+
     for (let i = 0; i < n; i++) {
       let field = 0
+
       for (let mu = 0; mu < p; mu++) {
         let w = 1
+
         const o = overlap[mu]!
+
         for (let e = 1; e < power; e++) {
           w = Math.fround(w * o)
         }
@@ -72,6 +80,7 @@ function cpuDenseRecall(
 
 function agreement(a: Int32Array, b: Int32Array): number {
   let same = 0
+
   for (let i = 0; i < a.length; i++) {
     if (a[i] === b[i]) {
       same++
@@ -101,11 +110,13 @@ async function gpuDenseRecall(input: {
     cue,
     iters,
   } = input
+
   const ro = (data: Int32Array | Uint32Array): GPUBuffer => {
     const b = device.createBuffer({
       size: data.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     })
+
     device.queue.writeBuffer(b, 0, data)
 
     return b
@@ -115,6 +126,7 @@ async function gpuDenseRecall(input: {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([n, p, POWER, 0]))
   const patterns = ro(patternsFlat)
   const overlap = device.createBuffer({
@@ -124,6 +136,7 @@ async function gpuDenseRecall(input: {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   let stateA = device.createBuffer({
     size: n * 4,
     usage:
@@ -131,6 +144,7 @@ async function gpuDenseRecall(input: {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   let stateB = device.createBuffer({
     size: n * 4,
     usage:
@@ -138,9 +152,11 @@ async function gpuDenseRecall(input: {
       GPUBufferUsage.COPY_SRC |
       GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(stateA, 0, cue)
 
   const t0 = performance.now()
+
   for (let it = 0; it < iters; it++) {
     const ovBind = device.createBindGroup({
       layout: overlapPipe.getBindGroupLayout(0),
@@ -151,6 +167,7 @@ async function gpuDenseRecall(input: {
         { binding: 3, resource: { buffer: overlap } },
       ],
     })
+
     const upBind = device.createBindGroup({
       layout: updatePipe.getBindGroupLayout(0),
       entries: [
@@ -160,6 +177,7 @@ async function gpuDenseRecall(input: {
         { binding: 3, resource: { buffer: stateB } },
       ],
     })
+
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(overlapPipe)
@@ -179,6 +197,7 @@ async function gpuDenseRecall(input: {
     size: n * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const enc2 = device.createCommandEncoder()
   enc2.copyBufferToBuffer(stateA, 0, read, 0, n * 4)
   device.queue.submit([enc2.finish()])
@@ -196,6 +215,7 @@ function buildPatterns(
 ): { flat: Int32Array; list: Int8Array[] } {
   const list = storedPatterns(p, n, makeRng({ seed }))
   const flat = new Int32Array(n * p)
+
   for (let mu = 0; mu < p; mu++) {
     for (let i = 0; i < n; i++) {
       flat[mu * n + i] = list[mu]![i]!
@@ -212,6 +232,7 @@ function corrupt(
 ): Int32Array {
   const cue = Int32Array.from(pattern)
   const flips = Math.round(fraction * pattern.length)
+
   for (let k = 0; k < flips; k++) {
     const i = rng.nextInt({ max: pattern.length })
     cue[i] = -cue[i]!
@@ -222,6 +243,7 @@ function corrupt(
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU). The GPU dense Hopfield is written and will run where an adapter is present.',
@@ -240,6 +262,7 @@ async function run(): Promise<void> {
       entryPoint: 'overlap_kernel',
     },
   })
+
   const updatePipe = device.createComputePipeline({
     layout: 'auto',
     compute: {
@@ -293,6 +316,7 @@ async function run(): Promise<void> {
     0.2,
     makeRng({ seed: 4 }),
   )
+
   const bench = await gpuDenseRecall({
     device,
     overlapPipe,
@@ -303,15 +327,18 @@ async function run(): Promise<void> {
     cue: cueB,
     iters: ITERS,
   })
+
   const benchRecall = toneOverlap(
     Int8Array.from(bench.state),
     big.list[Math.floor(pb / 2)]!,
   )
+
   console.log(
     `benchmark, ${nb} neurons, ${pb} patterns, ${ITERS} GPU steps in ${bench.ms.toFixed(2)} ms, recall ${benchRecall.toFixed(3)}`,
   )
 
   const ok = gpuRecall >= 0.99 && cpuRecall >= 0.99 && agree >= 0.98
+
   if (!ok) {
     console.error(
       'FAIL, the GPU dense Hopfield did not recall the prototype or did not agree with the CPU reference',

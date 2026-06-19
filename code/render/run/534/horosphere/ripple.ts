@@ -36,11 +36,13 @@ const SEED_FRACTION = 0.1 // seed cells within this fraction of the band spread,
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -59,8 +61,10 @@ async function run(): Promise<void> {
   // orthonormal basis of the horosphere plane (perpendicular to the ideal direction xi)
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -68,6 +72,7 @@ async function run(): Promise<void> {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -75,7 +80,9 @@ async function run(): Promise<void> {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -92,6 +99,7 @@ async function run(): Promise<void> {
 
   // extract the flat horosphere band once: cell index + (u,v) in the flat plane
   const raw: { index: number; u: number; v: number }[] = []
+
   for (const i of extractBand({
     busemann: heights,
     level: LEVEL,
@@ -110,13 +118,17 @@ async function run(): Promise<void> {
 
   const cu = median(raw.map(c => c.u)),
     cv = median(raw.map(c => c.v))
+
   const radii = raw
     .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
     .sort((a, b) => a - b)
+
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const pad = 20,
     half = IMG / 2 - pad
+
   const band = raw.map(c => ({
     index: c.index,
     u: c.u,
@@ -124,6 +136,7 @@ async function run(): Promise<void> {
     px: Math.round(IMG / 2 + ((c.u - cu) / halfExtent) * half),
     py: Math.round(IMG / 2 + ((c.v - cv) / halfExtent) * half),
   }))
+
   console.log(
     `bulk ${n.toLocaleString()} cells, flat horosphere band ${band.length.toLocaleString()} cells`,
   )
@@ -139,12 +152,15 @@ async function run(): Promise<void> {
   const rng = makeRng({ seed: 99194853 })
   const nextR = (): number => rng.next()
   const seedRadius = halfExtent * SEED_FRACTION
+
   let seeded = 0
+
   for (let i = 0; i < n; i++) {
     const x = coords[i]!
     const proj = sub(x, xi, dot(x, xi))
     const u = dot(proj, e1),
       v = dot(proj, e2)
+
     if (Math.hypot(u - cu, v - cv) < seedRadius) {
       seed[i] = pack({
         current: 1 + Math.floor(nextR() * 2),
@@ -163,6 +179,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
     device.createBuffer({
@@ -172,23 +189,27 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(offBuf, 0, offsets)
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(adjBuf, 0, adj)
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
   const pipeline = device.createComputePipeline({
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -201,6 +222,7 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: adjBuf } },
       ],
     })
+
   const dispatch = Math.ceil(n / WORKGROUP)
   const staging = device.createBuffer({
     size: byteLength,
@@ -213,6 +235,7 @@ async function run(): Promise<void> {
   mkdirSync(outDir, { recursive: true })
 
   let src = 0
+
   for (let f = 0; f < FRAMES; f++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -228,6 +251,7 @@ async function run(): Promise<void> {
     staging.unmap()
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < rgba.length; i += 4) {
       rgba[i] = 6
       rgba[i + 1] = 6
@@ -237,11 +261,13 @@ async function run(): Promise<void> {
 
     for (const c of band) {
       const tone = currentOf(tones[c.index]!)
+
       if (tone === 0) {
         continue
       }
 
       const col = toneColor(tone)
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           if (dx * dx + dy * dy > RADIUS * RADIUS) {
@@ -250,6 +276,7 @@ async function run(): Promise<void> {
 
           const x = c.px + dx,
             y = c.py + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
@@ -270,6 +297,7 @@ async function run(): Promise<void> {
       height: IMG,
       prefix: 'ripple_',
     })
+
     if (f % 25 === 0) {
       console.log(`  beat ${f}/${FRAMES}`)
     }

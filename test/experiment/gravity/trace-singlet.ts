@@ -34,6 +34,7 @@ function orbitCount(roots: number[][]): number {
   const index = new Map<string, number>()
   roots.forEach((r, i) => index.set(vectorKey(r), i))
   const parent = roots.map((_, i) => i)
+
   const find = (a: number): number => {
     while (parent[a] !== a) {
       parent[a] = parent[parent[a]!]!
@@ -46,6 +47,7 @@ function orbitCount(roots: number[][]): number {
   const union = (a: number, b: number): void => {
     const ra = find(a)
     const rb = find(b)
+
     if (ra !== rb) {
       parent[ra] = rb
     }
@@ -54,6 +56,7 @@ function orbitCount(roots: number[][]): number {
   for (let i = 0; i < roots.length; i++) {
     for (const a of roots) {
       const image = index.get(vectorKey(reflectRoot(roots[i]!, a)))
+
       if (image !== undefined) {
         union(i, image)
       }
@@ -61,6 +64,7 @@ function orbitCount(roots: number[][]): number {
   }
 
   const seen = new Set<number>()
+
   for (let i = 0; i < roots.length; i++) {
     seen.add(find(i))
   }
@@ -77,9 +81,11 @@ function functionalInvariant(
 ): boolean {
   const index = new Map<string, number>()
   roots.forEach((r, i) => index.set(vectorKey(r), i))
+
   for (let i = 0; i < roots.length; i++) {
     for (const a of roots) {
       const image = index.get(vectorKey(reflectRoot(roots[i]!, a)))
+
       if (image !== undefined && weight(i) !== weight(image)) {
         return false
       }
@@ -104,17 +110,22 @@ function traceSourcedBinding(): {
     Math.floor(c / (SIDE * SIDE)) % SIDE,
     Math.floor(c / SIDE ** 3) % SIDE,
   ]
+
   const centre =
     half + half * SIDE + half * SIDE * SIDE + half * SIDE ** 3
+
   const centreCoord = coord(centre)
   const neighbour = (c: number, d: number): number =>
     mesh.neighbour(c, d)
+
   const distance = (c: number): number =>
     coord(c).reduce((s, v, i) => s + Math.abs(v - centreCoord[i]!), 0)
 
   const body = new Uint8Array(cellCount)
+
   for (let c = 0; c < cellCount; c++) {
     const p = coord(c)
+
     if (
       (p[0]! - half) ** 2 +
         (p[1]! - half) ** 2 +
@@ -143,8 +154,11 @@ function traceSourcedBinding(): {
     strength: 6,
     cap,
   })
+
   const ternary = isBalancedTernaryField(phi, 3)
+
   let piece = centre
+
   for (let k = 0; k < 3; k++) {
     piece = neighbour(piece, 0)
   }
@@ -152,8 +166,10 @@ function traceSourcedBinding(): {
   for (let step = 0; step < 40; step++) {
     let best = -1
     let bestPhi = phi[piece]!
+
     for (let d = 0; d < SPATIAL_DEGREE; d++) {
       const target = neighbour(piece, d)
+
       if (phi[target]! < bestPhi && distance(target) >= 2) {
         bestPhi = phi[target]!
         best = target
@@ -165,6 +181,7 @@ function traceSourcedBinding(): {
     }
 
     piece = best
+
     if (distance(piece) <= 2) {
       break
     }

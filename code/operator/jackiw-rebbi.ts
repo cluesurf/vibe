@@ -15,11 +15,14 @@ export function jackiwRebbiHamiltonian(input: {
   const H: number[][] = Array.from({ length: n }, () =>
     new Array<number>(n).fill(0),
   )
+
   const m = (i: number): number =>
     input.mass * Math.tanh((i - N / 2) / input.width)
+
   for (let i = 0; i < N; i++) {
     H[2 * i]![2 * i] = m(i)
     H[2 * i + 1]![2 * i + 1] = -m(i)
+
     if (i + 1 < N) {
       // -D on (u, v), +D on (v, u); the central difference D[i][i+1] = +1/2
       H[2 * i]![2 * (i + 1) + 1] = -0.5

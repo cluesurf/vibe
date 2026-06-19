@@ -69,13 +69,16 @@ export function reproduction(input?: { n?: number }): {
     source: 0,
     limit: 6000,
   })
+
   const distAll = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
     size: N,
     source: 0,
   })
+
   let ballRadius = 0
+
   for (const i of self) {
     if (distAll[i]! > ballRadius) {
       ballRadius = distAll[i]!
@@ -83,11 +86,13 @@ export function reproduction(input?: { n?: number }): {
   }
 
   const tone = new Int8Array(N)
+
   for (const i of self) {
     tone[i] = 1
   }
 
   let q0 = 0
+
   for (let i = 0; i < N; i++) {
     q0 += tone[i]!
   }
@@ -98,7 +103,9 @@ export function reproduction(input?: { n?: number }): {
     minSize: 300,
     sign: 'positive',
   })
+
   const rng = makeRng({ seed: 5 })
+
   for (let b = 0; b < 30; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng)
   }
@@ -109,7 +116,9 @@ export function reproduction(input?: { n?: number }): {
     minSize: 300,
     sign: 'positive',
   })
+
   let q1 = 0
+
   for (let i = 0; i < N; i++) {
     q1 += tone[i]!
   }

@@ -39,6 +39,7 @@ async function main(): Promise<void> {
   const conformance = runConformance()
 
   const context = { seed: 1 }
+
   let pass = 0
   let fail = 0
   let partial = 0
@@ -59,7 +60,9 @@ async function main(): Promise<void> {
     await yieldToLoop()
 
     const started = Date.now()
+
     let result
+
     try {
       result = experiment.run(context)
     } catch (error) {
@@ -71,6 +74,7 @@ async function main(): Promise<void> {
     } finally {
       const ms = Date.now() - started
       timings.push({ id: experiment.id, ms })
+
       if (ms >= SLOW_MILLISECONDS) {
         console.log(
           `  [slow ${(ms / 1000).toFixed(1)}s] ${experiment.id}`,
@@ -82,10 +86,12 @@ async function main(): Promise<void> {
     const hasControl =
       result.control !== undefined &&
       Object.keys(result.control).length > 0
+
     const status =
       experiment.depth === 'L3' && !hasControl
         ? 'partial'
         : result.status
+
     if (status === 'pass') {
       pass++
     } else if (status === 'fail') {
@@ -110,7 +116,9 @@ async function main(): Promise<void> {
   const totalSeconds = (
     timings.reduce((sum, t) => sum + t.ms, 0) / 1000
   ).toFixed(1)
+
   console.log(`\ntotal experiment time ${totalSeconds}s, slowest ten:`)
+
   for (const t of slowest) {
     console.log(`  ${(t.ms / 1000).toFixed(1)}s  ${t.id}`)
   }

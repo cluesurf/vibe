@@ -57,6 +57,7 @@ export function synchronicity(input: { seed: number }): {
         rng: makeRng({ seed: input.seed + 100 + i }),
       }),
     )
+
     const pB = root.map((p, i) =>
       mutatePattern({
         pattern: p,
@@ -86,11 +87,13 @@ export function synchronicity(input: { seed: number }): {
     size,
     makeRng({ seed: input.seed + 300 }),
   )
+
   const uB = storedPatterns(
     K,
     size,
     makeRng({ seed: input.seed + 400 }),
   )
+
   const unrelatedCorrelation = runPair({
     size,
     pA: uA,
@@ -103,8 +106,10 @@ export function synchronicity(input: { seed: number }): {
   const tracksAncestry = sweep.every(
     s => Math.abs(s.correlation - s.ancestry) < 0.1,
   )
+
   // And it falls monotonically as the two diverge from the common root.
   let monotoneDecreasing = true
+
   for (let i = 1; i < sweep.length; i++) {
     if (
       (sweep[i]?.correlation ?? 0) >

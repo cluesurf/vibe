@@ -22,6 +22,7 @@ export function addComplexBlock(input: {
   coefficient: number
 }): void {
   const n = input.matrix.rows
+
   for (let s = 0; s < 2; s++) {
     for (let t = 0; t < 2; t++) {
       const k = s * 2 + t

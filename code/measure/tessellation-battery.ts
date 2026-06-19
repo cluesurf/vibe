@@ -48,6 +48,7 @@ export function measureTessellation(input: {
   withPropagation?: boolean
 }): TessellationMeasurement {
   const { schlafli } = input
+
   if (schlafli.length === 0) {
     // star (fractional) or apeirogonal (infinity) regulars, cataloged but not buildable by the integer engine
     return {
@@ -72,11 +73,13 @@ export function measureTessellation(input: {
     shells.length < 4
       ? 1
       : shells[shells.length - 2]! / shells[shells.length - 3]!
+
   const signature = gramSignature(schlafli)
   const hyperbolic = signature.negative === 1 && signature.zero === 0
   const crystallographic = schlafli.every(
     n => n === 3 || n === 4 || n === 6,
   )
+
   const spinorHook = symbolContainsSubdiagram(schlafli, [3, 4, 3])
 
   // The associative-memory column, the same on every tessellation. Store a distinct ternary word on every
@@ -86,6 +89,7 @@ export function measureTessellation(input: {
     neighbors: mesh.adjacency,
     wordBits: ASSOCIATIVE_WORD_BITS,
   })
+
   for (let cell = 0; cell < cells; cell++) {
     storeWord(memory, cell, ternaryWord(cell, ASSOCIATIVE_WORD_BITS))
   }
@@ -95,6 +99,7 @@ export function measureTessellation(input: {
     neighbors: mesh.adjacency,
     root: 0,
   }).shellCounts
+
   const associativeGrowthRatio = geometricGrowthRatio(associativeShells)
   const associativeCoverageRadius = coverageRadius({
     neighbors: mesh.adjacency,

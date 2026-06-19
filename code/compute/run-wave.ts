@@ -18,6 +18,7 @@ const WORKGROUP = 256
 // pack a tone pair into the u32 the shader expects, current in the low 2 bits, previous in bits 2..3
 const pack = (current: number, previous: number): number =>
   (previous << 2) | current
+
 const currentOf = (packed: number): number => packed & 3
 
 // the CPU reference, one beat of the exact same rule, so the GPU output can be validated against it
@@ -27,6 +28,7 @@ function cpuStep(
   height: number,
 ): Uint32Array {
   const out = new Uint32Array(state.length)
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x
@@ -41,6 +43,7 @@ function cpuStep(
         currentOf(state[y * width + xr]!) +
         currentOf(state[yu * width + x]!) +
         currentOf(state[yd * width + x]!)
+
       const nx = (s + 9 - prev) % 3
       out[i] = pack(nx, cur)
     }
@@ -63,6 +66,7 @@ function makeField(
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(
     params,
     0,
@@ -77,6 +81,7 @@ function makeField(
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufA = make()
   const bufB = make()
   device.queue.writeBuffer(bufA, 0, init)
@@ -86,6 +91,7 @@ function makeField(
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
 
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
@@ -116,6 +122,7 @@ async function readBack(
     size: byteLength,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const enc = device.createCommandEncoder()
   enc.copyBufferToBuffer(buffer, 0, staging, 0, byteLength)
   device.queue.submit([enc.finish()])
@@ -128,6 +135,7 @@ async function readBack(
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log(
       'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS)',
@@ -146,13 +154,16 @@ async function run(): Promise<void> {
   // a deterministic pseudo-random field in both tone slots, so the second-order rule has history
   const r = makeRng({ seed: 123456789 })
   const nextR = (): number => r.next()
+
   for (let i = 0; i < seed.length; i++) {
     seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
   }
 
   const field = makeField(device, seed, sw, sh)
   const dispatch = Math.ceil(field.count / WORKGROUP)
+
   let src = 0
+
   for (let b = 0; b < beats; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
@@ -174,11 +185,13 @@ async function run(): Promise<void> {
   )
 
   let cpu = seed.slice()
+
   for (let b = 0; b < beats; b++) {
     cpu = cpuStep(cpu, sw, sh)
   }
 
   let mismatches = 0
+
   for (let i = 0; i < cpu.length; i++) {
     if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
       mismatches++
@@ -198,6 +211,7 @@ async function run(): Promise<void> {
   const bigField = makeField(device, big, bw, bh)
   const bigDispatch = Math.ceil(bigField.count / WORKGROUP)
   const benchBeats = 200
+
   // warm up
   {
     const enc = device.createCommandEncoder()
@@ -215,7 +229,9 @@ async function run(): Promise<void> {
   await device.queue.onSubmittedWorkDone()
 
   const start = performance.now()
+
   let bsrc = 0
+
   for (let b = 0; b < benchBeats; b++) {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()

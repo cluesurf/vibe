@@ -27,6 +27,7 @@ export default experiment({
       connectThreshold: 2.0,
       maxVertices: 1500,
     })
+
     const trials = 300
     const maxHops = 200
 
@@ -37,6 +38,7 @@ export default experiment({
       rng: makeRng({ seed: 1 }),
       maxHops,
     })
+
     // CONTROL: the SAME graph with the coordinates scrambled, same pairs (same seed)
     const scrambled = greedyRoutingSuccess({
       graph: withScrambledEmbedding(graph),

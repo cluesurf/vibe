@@ -35,6 +35,7 @@ fn step(@builtin(global_invocation_id) gid:vec3<u32>){
 function offsets24(): Int32Array {
   const o: number[] = []
   const ax = [0, 1, 2, 3]
+
   for (let a = 0; a < 4; a++) {
     for (let b = a + 1; b < 4; b++) {
       for (const sa of [1, -1]) {
@@ -53,6 +54,7 @@ function offsets24(): Int32Array {
 
 function offsets8(): Int32Array {
   const o: number[] = []
+
   for (let a = 0; a < 4; a++) {
     for (const s of [1, -1]) {
       const v = [0, 0, 0, 0]
@@ -66,6 +68,7 @@ function offsets8(): Int32Array {
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter')
 
@@ -78,6 +81,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'step' },
   })
+
   const mk = (n: number): GPUBuffer =>
     device.createBuffer({
       size: n * 4,
@@ -86,14 +90,17 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const uni = device.createBuffer({
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   const stage = device.createBuffer({
     size: N * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   const C = L >> 1
 
   const measure = async (
@@ -101,11 +108,14 @@ async function run(): Promise<void> {
     label: string,
   ): Promise<number> => {
     const count = off.length / 4
+
     let prev = mk(N),
       cur = mk(N),
       nxt = mk(N)
+
     const reached = mk(N),
       offBuf = mk(off.length)
+
     device.queue.writeBuffer(offBuf, 0, off)
     const seed = new Int32Array(N)
     seed[((C * L + C) * L + C) * L + C] = 1
@@ -113,6 +123,7 @@ async function run(): Promise<void> {
     device.queue.writeBuffer(reached, 0, new Int32Array(N))
     device.queue.writeBuffer(uni, 0, new Uint32Array([L, count, 0, 0]))
     const layout = pipeline.getBindGroupLayout(0)
+
     for (let t = 0; t < T; t++) {
       const bg = device.createBindGroup({
         layout,
@@ -125,6 +136,7 @@ async function run(): Promise<void> {
           { binding: 5, resource: { buffer: reached } },
         ],
       })
+
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
       pass.setPipeline(pipeline)
@@ -147,6 +159,7 @@ async function run(): Promise<void> {
     // light-cone extent, max along an AXIS vs along the body-DIAGONAL (1,1,1,1)/2
     let axisExt = 0,
       diagExt = 0
+
     for (let i = 0; i < N; i++) {
       if (r[i] === 0) {
         continue
@@ -156,10 +169,12 @@ async function run(): Promise<void> {
         y = Math.floor(i / L) % L,
         z = Math.floor(i / (L * L)) % L,
         w = Math.floor(i / (L * L * L))
+
       const dx = x - C,
         dy = y - C,
         dz = z - C,
         dw = w - C
+
       axisExt = Math.max(
         axisExt,
         Math.abs(dx),
@@ -185,10 +200,12 @@ async function run(): Promise<void> {
     offsets24(),
     '24-dir (the {3,4,3,4} bulk, +-e_i+-e_j)',
   )
+
   const r8 = await measure(
     offsets8(),
     ' 8-dir (hypercubic, +-e_i)        ',
   )
+
   console.log(
     `  => the 24-direction light cone is ${Math.abs(r24 - 1) < Math.abs(r8 - 1) ? 'MORE ISOTROPIC' : 'not more isotropic'} than the 8-direction`,
   )

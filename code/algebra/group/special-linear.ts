@@ -12,6 +12,7 @@ const reduce = (value: number, prime: number): number =>
 // Every 2x2 matrix over the field F_p with determinant 1. |SL(2,p)| = p (p^2 - 1).
 export function specialLinear(prime: number): MatrixModP[] {
   const group: MatrixModP[] = []
+
   for (let a = 0; a < prime; a++) {
     for (let b = 0; b < prime; b++) {
       for (let c = 0; c < prime; c++) {
@@ -65,6 +66,7 @@ export function equalsModP(
 // The centre of SL(2,p): the scalar matrices lambda I with lambda^2 = 1, that is {I, -I}.
 export function centre(prime: number): MatrixModP[] {
   const result: MatrixModP[] = []
+
   for (let lambda = 0; lambda < prime; lambda++) {
     if (reduce(lambda * lambda, prime) === 1) {
       result.push([lambda, 0, 0, lambda])

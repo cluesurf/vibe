@@ -31,6 +31,7 @@ export function perceptionEdgeBeat(input: {
     cohesive,
     temperature,
   } = input
+
   if (cohesive) {
     cohesiveEdgeSweep({
       tone,

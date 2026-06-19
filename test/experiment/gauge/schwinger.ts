@@ -30,6 +30,7 @@ export default experiment({
           rng: makeRng({ seed: 500 + Math.round(disorder * 100) }),
         }).nearZeroDensity,
     )
+
     const free = densities[0] ?? 0
     const strong = densities[densities.length - 1] ?? 0
     const ok = free < 0.02 && strong > free

@@ -11,6 +11,7 @@ const cmul = (a: C, b: C): C => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
 ]
+
 const cscale = (a: C, s: number): C => [a[0] * s, a[1] * s]
 const cabs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
 const phase = (t: number): C => [Math.cos(t), Math.sin(t)]
@@ -31,8 +32,10 @@ export function peierlsWavepacketDrift(input: {
   const wrap = (a: number): number => ((a % L) + L) % L
   const x0 = L / 2
   const y0 = L / 2
+
   let psi: C[] = new Array(L * L).fill([0, 0])
   let nrm = 0
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const g = Math.exp(-((x - x0) ** 2 + (y - y0) ** 2) / (2 * w * w))
@@ -43,11 +46,14 @@ export function peierlsWavepacketDrift(input: {
   }
 
   psi = psi.map(z => cscale(z, 1 / Math.sqrt(nrm)))
+
   for (let t = 0; t < steps; t++) {
     const next: C[] = psi.map(z => [...z] as C)
+
     for (let x = 0; x < L; x++) {
       for (let y = 0; y < L; y++) {
         const i = idx(x, y)
+
         // x-hops (no phase), y-hops with Peierls phase e^{i B x} (Landau gauge)
         const hop = (j: number, ph: C): void => {
           next[i] = cadd(next[i]!, cscale(cmul(psi[j]!, ph), tau))
@@ -61,6 +67,7 @@ export function peierlsWavepacketDrift(input: {
     }
 
     let n2 = 0
+
     for (const z of next) {
       n2 += cabs2(z)
     }
@@ -70,6 +77,7 @@ export function peierlsWavepacketDrift(input: {
 
   let ybar = 0,
     wsum = 0
+
   for (let x = 0; x < L; x++) {
     for (let y = 0; y < L; y++) {
       const p = cabs2(psi[idx(x, y)]!)

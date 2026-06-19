@@ -18,6 +18,7 @@ import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 function shuffle(labels: number[], seed: number): number[] {
   const rng = makeRng(seed)
   const out = labels.slice()
+
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const tmp = out[i]!
@@ -49,8 +50,10 @@ export default experiment({
     const lag = 5
     const sizes = [48, 64, 96]
     const metrics: Record<string, number> = { bins, lag }
+
     let worstMargin = Infinity
     let worstShuffled = 0
+
     for (const L of sizes) {
       const traj = selfTrajectory({
         L,
@@ -58,6 +61,7 @@ export default experiment({
         bins,
         seed: 1000 + L,
       })
+
       const labels = quantileLabels({ series: traj.centroids, bins })
       const real = lambda2(labels, bins, lag)
       const shuffled = lambda2(shuffle(labels, 7 * L + 1), bins, lag)

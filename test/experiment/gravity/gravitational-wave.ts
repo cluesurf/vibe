@@ -34,6 +34,7 @@ const MODULUS = 251
 // a ring graph (each node neighbours its two ring-neighbours), the 1D line a wave propagates along
 function ringNeighbors(size: number): number[][] {
   const neighbors: number[][] = []
+
   for (let i = 0; i < size; i++) {
     neighbors.push([(i + 1) % size, (i + size - 1) % size])
   }
@@ -46,6 +47,7 @@ function ringNeighbors(size: number): number[][] {
 function propagate(): { frontSpeed: number; reversible: boolean } {
   const neighbors = ringNeighbors(RING)
   const center = RING / 2
+
   let previous = new Uint8Array(RING)
   let current = new Uint8Array(RING)
   current[center] = 1
@@ -53,6 +55,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   const seedCur = current.slice()
 
   let front = 0
+
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
     reversibleWaveStep({
@@ -64,6 +67,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
     })
     previous = current
     current = next
+
     // the front, the farthest-from-center node that is nonzero
     for (let i = 0; i < RING; i++) {
       if (current[i] !== 0) {
@@ -71,6 +75,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
           Math.abs(i - center),
           RING - Math.abs(i - center),
         )
+
         if (d > front) {
           front = d
         }
@@ -83,6 +88,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   // reverse, the leapfrog run backward (swap previous and current) recovers the earlier slice
   let revPrev = current.slice()
   let revCur = previous.slice()
+
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
     reversibleWaveStep({
@@ -97,6 +103,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   }
 
   let reversible = true
+
   for (let i = 0; i < RING; i++) {
     if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) {
       reversible = false
@@ -133,6 +140,7 @@ export default experiment({
       Math.abs(selfAt180 - 1) < 1e-9 &&
       Math.abs(selfAt90 + 1) < 1e-9 &&
       Math.abs(plusToCrossAt45 - 1) < 1e-9
+
     const vectorIsSpinOne = Math.abs(vectorAt180 + 1) < 1e-9
     const massless = Math.abs(wave.frontSpeed - 1) < 1e-9
     const reversible = wave.reversible

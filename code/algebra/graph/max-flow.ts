@@ -41,11 +41,14 @@ export class FlowNetwork {
     const level = new Int32Array(this.nodeCount).fill(-1)
     level[source] = 0
     let frontier = [source]
+
     while (frontier.length) {
       const next: number[] = []
+
       for (const node of frontier) {
         for (const arcIndex of this.out[node]!) {
           const arc = this.arcs[arcIndex]!
+
           if (arc.cap - arc.flow > 0 && level[arc.to] === -1) {
             level[arc.to] = level[node]! + 1
             next.push(arc.to)
@@ -74,6 +77,7 @@ export class FlowNetwork {
       const arcIndex = this.out[node]![iter[node]!]!
       const arc = this.arcs[arcIndex]!
       const residual = arc.cap - arc.flow
+
       if (residual > 0 && level[arc.to] === level[node]! + 1) {
         const sent = this.blockingFlow(
           arc.to,
@@ -82,6 +86,7 @@ export class FlowNetwork {
           level,
           iter,
         )
+
         if (sent > 0) {
           arc.flow += sent
           this.arcs[arc.twin]!.flow -= sent
@@ -97,13 +102,16 @@ export class FlowNetwork {
   // the maximum flow from source to sink (equals the min-cut capacity by the max-flow min-cut theorem).
   maxFlow(source: number, sink: number): number {
     let total = 0
+
     for (;;) {
       const level = this.buildLevels(source, sink)
+
       if (level === null) {
         break
       }
 
       const iter = new Int32Array(this.nodeCount)
+
       for (;;) {
         const sent = this.blockingFlow(
           source,
@@ -112,6 +120,7 @@ export class FlowNetwork {
           level,
           iter,
         )
+
         if (sent === 0) {
           break
         }
@@ -139,6 +148,7 @@ export function undirectedMinCut(input: {
   const superSink = n + 1
   const network = new FlowNetwork(n + 2)
   const big = n + 5 // larger than any possible cut of unit edges, so the super-arcs are never the bottleneck
+
   for (let u = 0; u < n; u++) {
     for (const v of input.adjacency[u]!) {
       if (u < v) {

@@ -12,12 +12,14 @@ export type Graph = {
 // Pearson correlation of two equal-length series.
 export function correlation(x: number[], y: number[]): number {
   const n = Math.min(x.length, y.length)
+
   if (n === 0) {
     return 0
   }
 
   let mx = 0
   let my = 0
+
   for (let i = 0; i < n; i++) {
     mx += x[i]!
     my += y[i]!
@@ -28,6 +30,7 @@ export function correlation(x: number[], y: number[]): number {
   let sxy = 0
   let sxx = 0
   let syy = 0
+
   for (let i = 0; i < n; i++) {
     const dx = x[i]! - mx
     const dy = y[i]! - my
@@ -68,6 +71,7 @@ export function blanketScreening(input: {
   const screened = Math.abs(
     partialCorrelation(input.interior, input.exterior, input.shell),
   )
+
   const reduction = raw > 1e-6 ? (raw - screened) / raw : 0
 
   return { raw, screened, reduction }
@@ -84,10 +88,13 @@ export function regionPartition(input: {
   const interior: number[] = []
   const shell: number[] = []
   const exteriorSet = new Set<number>()
+
   for (const c of cluster) {
     let allIn = true
+
     for (let p = graph.offsets[c]!; p < graph.offsets[c + 1]!; p++) {
       const w = graph.adj[p]!
+
       if (!inSet.has(w)) {
         allIn = false
         exteriorSet.add(w)
@@ -113,11 +120,14 @@ export function distancesFrom(input: {
   const dist = new Int32Array(graph.cellCount).fill(-1)
   dist[source] = 0
   let frontier = [source]
+
   while (frontier.length) {
     const next: number[] = []
+
     for (const u of frontier) {
       for (let p = graph.offsets[u]!; p < graph.offsets[u + 1]!; p++) {
         const w = graph.adj[p]!
+
         if (dist[w] === -1) {
           dist[w] = dist[u]! + 1
           next.push(w)

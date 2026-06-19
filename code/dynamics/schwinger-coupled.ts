@@ -42,8 +42,10 @@ function meanMomentum(
   wrap: (x: number) => number,
 ): number {
   const sites = R.length
+
   let current = 0
   let norm = 0
+
   for (let x = 0; x < sites; x++) {
     const next = wrap(x + 1)
     current +=
@@ -68,6 +70,7 @@ export function runCoupledSchwinger(
     steps,
     dt,
   } = input
+
   const wrap = (x: number): number => ((x % sites) + sites) % sites
   const cosM = Math.cos(mass)
   const sinM = Math.sin(mass)
@@ -77,15 +80,18 @@ export function runCoupledSchwinger(
   const Lf: Complex[][] = []
   const x0 = sites / 2
   const width = sites / 16
+
   for (let f = 0; f < flavors; f++) {
     let r: Complex[] = new Array(sites).fill(ZERO)
     let lf: Complex[] = new Array(sites).fill(ZERO)
+
     for (let x = 0; x < sites; x++) {
       const envelope = Math.exp(-((x - x0) ** 2) / (2 * width * width))
       r[x] = cScale(cFromPhase({ phase: momentumStart * x }), envelope)
     }
 
     let norm = 0
+
     for (let x = 0; x < sites; x++) {
       norm += cAbs2(r[x]!) + cAbs2(lf[x]!)
     }
@@ -102,12 +108,14 @@ export function runCoupledSchwinger(
 
   const step = (): void => {
     const current = new Array(sites).fill(0)
+
     for (let f = 0; f < flavors; f++) {
       const r = R[f]!
       const lf = Lf[f]!
       // (1) the fermion mass coin, mixing the two chiralities
       const r2: Complex[] = new Array(sites)
       const l2: Complex[] = new Array(sites)
+
       for (let x = 0; x < sites; x++) {
         r2[x] = cAdd(
           cScale(r[x]!, cosM),
@@ -127,6 +135,7 @@ export function runCoupledSchwinger(
       // (3) gauge-covariant shift: R hops +1 with e^{i e theta}, L hops -1 with e^{-i e theta}
       const r3: Complex[] = new Array(sites).fill(ZERO)
       const l3: Complex[] = new Array(sites).fill(ZERO)
+
       for (let x = 0; x < sites; x++) {
         r3[wrap(x + 1)] = cMul(
           r2[x]!,
@@ -154,6 +163,7 @@ export function runCoupledSchwinger(
 
   const momentumBefore = meanMomentum(R[0]!, Lf[0]!, wrap)
   const backgroundEnergy = backgroundField * backgroundField * sites
+
   for (let t = 0; t < steps; t++) {
     step()
   }

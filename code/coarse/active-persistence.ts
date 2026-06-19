@@ -39,9 +39,11 @@ export function activePersistence(input: {
 
   // a plus self disk at the centre
   const centre = Math.floor(L / 2)
+
   for (let c = 0; c < graph.cellCount; c++) {
     const dx = (c % L) - centre
     const dy = Math.floor(c / L) - centre
+
     if (dx * dx + dy * dy <= 36) {
       tone[c] = 1
     }
@@ -49,6 +51,7 @@ export function activePersistence(input: {
 
   const refugeX =
     refuge === 'left' ? 0 : refuge === 'right' ? L - refugeWidth : -1
+
   const inRefuge = (c: number): boolean =>
     refuge !== 'none' &&
     c % L >= refugeX &&
@@ -65,6 +68,7 @@ export function activePersistence(input: {
 
     // the pervasive deterministic decay, erase every decayPeriod-th plus cell outside the refuge source
     let k = 0
+
     for (let c = 0; c < graph.cellCount; c++) {
       if (tone[c] === 1 && !inRefuge(c)) {
         if (k % decayPeriod === 0) {
@@ -79,6 +83,7 @@ export function activePersistence(input: {
   }
 
   const masked = tone.slice()
+
   for (let c = 0; c < masked.length; c++) {
     if (inRefuge(c)) {
       masked[c] = 0
@@ -86,7 +91,9 @@ export function activePersistence(input: {
   }
 
   const cells = largestPositiveCluster(masked, graph)
+
   let sx = 0
+
   for (const c of cells) {
     sx += c % L
   }

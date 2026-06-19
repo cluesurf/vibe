@@ -47,6 +47,7 @@ export function makePosetFromFuture(input: {
       row: a,
       visit: c => {
         const cb = c * stride
+
         for (let w = 0; w < stride; w++) {
           acc[w] = (acc[w] ?? 0) | (f.words[cb + w] ?? 0)
         }
@@ -54,8 +55,10 @@ export function makePosetFromFuture(input: {
     })
     const base = a * stride
     const row: number[] = []
+
     for (let w = 0; w < stride; w++) {
       let bits = ((f.words[base + w] ?? 0) & ~(acc[w] ?? 0)) >>> 0
+
       while (bits !== 0) {
         row.push((w << 5) + trailingZeros(bits))
         bits = (bits & (bits - 1)) >>> 0
@@ -82,6 +85,7 @@ export function makePosetFromRelation(input: {
   embedding?: Embedding
 }): Poset {
   const future = makeBitMatrix({ rows: input.size, cols: input.size })
+
   for (let a = 0; a < input.size; a++) {
     for (let b = a + 1; b < input.size; b++) {
       if (input.precedes({ a, b })) {
@@ -107,6 +111,7 @@ export function precedes(
 // Total number of related (ordered) pairs.
 export function relationCount(p: Poset): number {
   let total = 0
+
   for (let a = 0; a < p.size; a++) {
     total += popcountRow(p.future, { row: a })
   }
@@ -134,9 +139,12 @@ function popcountAndRows(
 ): number {
   const a = input.rowA * m.stride
   const b = input.rowB * n.stride
+
   let total = 0
+
   for (let w = 0; w < m.stride; w++) {
     const x = (m.words[a + w] ?? 0) & (n.words[b + w] ?? 0)
+
     let v = x - ((x >>> 1) & 0x55555555)
     v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
     total += (((v + (v >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24
@@ -148,6 +156,7 @@ function popcountAndRows(
 // The past matrix is the transpose of future: past bit a set in row b iff a precedes b.
 export function pastMatrix(p: Poset): BitMatrix {
   const past = makeBitMatrix({ rows: p.size, cols: p.size })
+
   for (let a = 0; a < p.size; a++) {
     forEachSetBit(p.future, {
       row: a,
@@ -166,10 +175,12 @@ export function subPoset(
   const els = input.elements
   const k = els.length
   const future = makeBitMatrix({ rows: k, cols: k })
+
   for (let i = 0; i < k; i++) {
     for (let j = 0; j < k; j++) {
       const a = els[i] ?? 0
       const b = els[j] ?? 0
+
       if (i !== j && precedes(p, { a, b })) {
         setBit(future, { row: i, col: j })
       }

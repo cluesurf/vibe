@@ -9,12 +9,14 @@ import { type Vec } from '@/code/algebra/vector'
 
 export function graphBusemann(graph: Graph): number[] {
   const e = graph.embedding
+
   if (!e) {
     return new Array(graph.size).fill(0)
   }
 
   const d = e.dimension
   const coords: Vec[] = []
+
   for (let i = 0; i < graph.size; i++) {
     coords.push(Array.from(e.coords.subarray(i * d, (i + 1) * d)))
   }
@@ -27,6 +29,7 @@ export function graphBusemann(graph: Graph): number[] {
 // bin the cells into `bins` radial levels by their Busemann value (inner to outer), the populations per level
 export function busemannLevels(graph: Graph, bins: number): number[] {
   const values = graphBusemann(graph).filter(Number.isFinite)
+
   if (values.length === 0) {
     return []
   }
@@ -34,11 +37,13 @@ export function busemannLevels(graph: Graph, bins: number): number[] {
   const min = Math.min(...values)
   const max = Math.max(...values)
   const histogram = new Array(bins).fill(0)
+
   for (const v of values) {
     const k = Math.min(
       bins - 1,
       Math.floor(((v - min) / (max - min + 1e-9)) * bins),
     )
+
     histogram[k] += 1
   }
 

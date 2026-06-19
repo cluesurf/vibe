@@ -26,6 +26,7 @@ function makeLandscape(L: number): {
   const valley = Math.floor(L * 0.5)
   const goal = L
   const V = new Array<number>(L + 1).fill(0)
+
   for (let p = 0; p <= L; p++) {
     if (p <= localPeak) {
       V[p] = 0.6 * (p / localPeak)
@@ -42,10 +43,13 @@ function makeLandscape(L: number): {
 // THE GREEDY RULE (the base gap-closing dynamics): follow the arrow uphill one step until stuck.
 function greedyRollout(V: number[], from: number): number {
   const L = V.length - 1
+
   let pos = from
+
   for (let s = 0; s < 4 * L; s++) {
     const up = pos < L ? V[pos + 1]! : -Infinity
     const down = pos > 0 ? V[pos - 1]! : -Infinity
+
     if (up <= V[pos]! && down <= V[pos]!) {
       break
     } // stuck at a local optimum
@@ -79,14 +83,17 @@ export function planningNoAdditions(input?: { L?: number }): {
   // against the gradient, the system rolls out its OWN greedy dynamics from the push endpoint (the forward
   // model), and the ARROW scores the outcome. Commit to the best push, then let the rule finish.
   const stall = greedyPos
+
   let bestK = 0
   let bestValue = V[stall]!
+
   for (let k = 1; stall + k <= L; k++) {
     // the will pushes +k against the local gradient (a sustained deviation, P113), then the system's OWN
     // greedy rule takes over (the forward model = self-simulation), and the arrow values the result
     const endOfPush = stall + k
     const after = greedyRollout(V, endOfPush)
     const score = V[after]!
+
     if (score > bestValue + 1e-9) {
       bestValue = score
       bestK = k

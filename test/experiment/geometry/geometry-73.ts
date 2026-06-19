@@ -20,6 +20,7 @@ export function geometry73(): {
   const { offsets: off } = toCsr(g.neighbors)
   // interior degree (the modal degree of cells with full neighbourhood)
   const degHist: Record<number, number> = {}
+
   for (let i = 0; i < N; i++) {
     const d = off[i + 1]! - off[i]!
     degHist[d] = (degHist[d] ?? 0) + 1
@@ -38,6 +39,7 @@ export function geometry73(): {
     neighbors: g.neighbors,
     root: center,
   })
+
   const growth = midShellGrowthRatio({ shellCounts: shell })
 
   // spectral dimension via the lazy random-walk return probability (the central

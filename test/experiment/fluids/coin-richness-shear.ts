@@ -37,6 +37,7 @@ function openDissipation(
   beats: number,
 ): number {
   const opposite: number[] = []
+
   for (let d = 0; d < mesh.degree; d++) {
     opposite.push(mesh.opposite(d))
   }
@@ -49,6 +50,7 @@ function openDissipation(
     side,
     directions,
   }
+
   const will = shearSetup({ mesh, ...shear })
   const series = shearAmplitudeSeries({
     will,
@@ -78,6 +80,7 @@ export default experiment({
       side,
       beats,
     )
+
     const cubicFinal = openDissipation(
       cubicMesh({ side }),
       cubicDirections,

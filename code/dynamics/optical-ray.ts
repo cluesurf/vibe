@@ -31,6 +31,7 @@ export function refractiveDeflection(input: {
 
   const index = (px: number, py: number): number =>
     1 + k / Math.sqrt(px * px + py * py + soft * soft)
+
   const gradient = (px: number, py: number): [number, number] => {
     const r2 = px * px + py * py + soft * soft
     const f = -k / (r2 * Math.sqrt(r2))
@@ -39,6 +40,7 @@ export function refractiveDeflection(input: {
   }
 
   const maxSteps = Math.ceil((2 * halfWidth) / ds) + 10
+
   for (let s = 0; s < maxSteps; s++) {
     const n = index(x, y)
     const [gx, gy] = gradient(x, y)
@@ -50,6 +52,7 @@ export function refractiveDeflection(input: {
     ty /= norm
     x += tx * ds
     y += ty * ds
+
     if (x > halfWidth) {
       break
     }

@@ -33,11 +33,13 @@ export function gaugeFromCoinTone(): {
       return v
     }),
   )
+
   const extraIsVxTone = extra.every(r => {
     const proj = [r[0]!, r[1]!, r[2]!, r[3]!, 0]
 
     return vectors8.some(v => eq(v, proj)) && Math.abs(r[4]!) === 1
   })
+
   const d5IsRootSystem = isRootSystem(d5) && d5.length === 40
   const smInD5 = standardModelEmbedsInRootSystem(d5)
   // SO(10) generation 16 = spinor weights (+-1/2)^5 with EVEN # of minus. Split by the tone (5th) sign:
@@ -47,9 +49,11 @@ export function gaugeFromCoinTone(): {
   const okS = tonePlus.every(
     w => w.slice(0, 4).filter(x => x < 0).length % 2 === 0,
   )
+
   const okC = toneMinus.every(
     w => w.slice(0, 4).filter(x => x < 0).length % 2 === 1,
   )
+
   const sixteenSplit = `16 = ${tonePlus.length} (tone+ = 8s) + ${toneMinus.length} (tone- = 8c), 8s-pure=${okS}, 8c-pure=${okC}`
 
   return { d5IsRootSystem, smInD5, sixteenSplit }

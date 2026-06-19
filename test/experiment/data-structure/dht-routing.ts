@@ -11,7 +11,9 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 const commonPrefixLength = (a: number[], b: number[]): number => {
   const n = Math.min(a.length, b.length)
+
   let k = 0
+
   while (k < n && a[k] === b[k]) {
     k += 1
   }
@@ -32,8 +34,10 @@ export default experiment({
     const cells = a.address.length
     const rng = makeRng({ seed: 1 })
     const pairs = 400
+
     let sumHops = 0
     let maxHops = 0
+
     for (let p = 0; p < pairs; p++) {
       const source = rng.nextInt({ max: cells })
       const target = rng.nextInt({ max: cells })
@@ -41,12 +45,15 @@ export default experiment({
         a.address[source]!,
         a.address[target]!,
       )
+
       // hops up from source to the LCA, then down to the target (Kademlia prefix routing)
       const hops =
         a.address[source]!.length -
         lca +
         (a.address[target]!.length - lca)
+
       sumHops += hops
+
       if (hops > maxHops) {
         maxHops = hops
       }

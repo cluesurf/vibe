@@ -23,6 +23,7 @@ function basis(
   ...entries: Array<[number, number]>
 ): number[] {
   const v = new Array<number>(dim).fill(0)
+
   for (const [index, value] of entries) {
     v[index] = value
   }
@@ -34,11 +35,13 @@ const chain = (dim: number, count: number) =>
   Array.from({ length: count }, (_, i) =>
     basis(dim, [i, 1], [i + 1, -1]),
   )
+
 const aRoots = (n: number) => chain(n + 1, n)
 const dRoots = (n: number) => [
   ...chain(n, n - 1),
   basis(n, [n - 2, 1], [n - 1, 1]),
 ]
+
 const bRoots = (n: number) => [...chain(n, n - 1), basis(n, [n - 1, 1])]
 const cRoots = (n: number) => [...chain(n, n - 1), basis(n, [n - 1, 2])]
 const f4Simple = [
@@ -47,6 +50,7 @@ const f4Simple = [
   [0, 0, 0, 1],
   [0.5, -0.5, -0.5, -0.5],
 ]
+
 const g2Simple = [
   [0, 1, -1],
   [1, -2, 1],
@@ -76,11 +80,13 @@ export default experiment({
       { label: 'F4', simple: f4Simple },
       { label: 'G2', simple: g2Simple },
     ]
+
     const trialitySystems = systems
       .filter(
         s => diagramAutomorphismOrder(cartanMatrix(s.simple)) === 6,
       )
       .map(s => s.label)
+
     const uniqueD4 =
       trialitySystems.length === 1 && trialitySystems[0] === 'D4'
 

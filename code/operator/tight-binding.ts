@@ -15,6 +15,7 @@ export function ringHoppingHamiltonian(input: {
   const { n } = input
   const t = input.hopping ?? 1
   const h = makeDense({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n
     h.data[i * n + j] = t
@@ -35,6 +36,7 @@ export function staggeredMassChainHamiltonian(input: {
   const { n, mass } = input
   const t = input.hopping ?? 1
   const h = makeDense({ rows: n, cols: n })
+
   for (let i = 0; i < n; i++) {
     h.data[i * n + i] = (i % 2 === 0 ? 1 : -1) * mass
   }
@@ -60,8 +62,10 @@ export function openChainPotentialApply(input: {
   const t = input.hopping ?? 1
   const n = phi.length
   const out = new Float64Array(n)
+
   for (let r = 0; r < n; r++) {
     let v = potential[r]! * phi[r]!
+
     if (r > 0) {
       v += -t * phi[r - 1]!
     }
@@ -94,7 +98,9 @@ export function gridPotentialApply(input: {
   const n = phi.length
   const out = new Float64Array(n)
   const strides: number[] = []
+
   let stride = 1
+
   for (let d = 0; d < dimension; d++) {
     strides.push(stride)
     stride *= side
@@ -103,8 +109,10 @@ export function gridPotentialApply(input: {
   for (let r = 0; r < n; r++) {
     let v = potential[r]! * phi[r]!
     let rest = r
+
     for (let d = 0; d < dimension; d++) {
       const coord = Math.floor(rest / strides[d]!) % side
+
       if (coord > 0) {
         v += -t * phi[r - strides[d]!]!
       }
@@ -130,14 +138,18 @@ export function torusHoppingHamiltonian(input: {
 }): DenseMatrix {
   const { dimension, side } = input
   const t = input.hopping ?? 1
+
   let n = 1
+
   for (let d = 0; d < dimension; d++) {
     n *= side
   }
 
   const h = makeDense({ rows: n, cols: n })
   const strides: number[] = []
+
   let stride = 1
+
   for (let d = 0; d < dimension; d++) {
     strides.push(stride)
     stride *= side
@@ -145,7 +157,9 @@ export function torusHoppingHamiltonian(input: {
 
   for (let v = 0; v < n; v++) {
     let rest = v
+
     const coord: number[] = []
+
     for (let d = 0; d < dimension; d++) {
       coord.push(rest % side)
       rest = Math.floor(rest / side)
@@ -180,7 +194,9 @@ export function staggeredMassCubicHamiltonian(input: {
   const n = side * side * side
   const index = (x: number, y: number, z: number): number =>
     x + side * y + side * side * z
+
   const h = makeDense({ rows: n, cols: n })
+
   const bond = (i: number, j: number): void => {
     h.data[i * n + j] = -t
     h.data[j * n + i] = -t
@@ -191,6 +207,7 @@ export function staggeredMassCubicHamiltonian(input: {
       for (let z = 0; z < side; z++) {
         const i = index(x, y, z)
         h.data[i * n + i] = ((x + y + z) % 2 === 0 ? 1 : -1) * mass
+
         if (x + 1 < side) {
           bond(i, index(x + 1, y, z))
         } else if (periodic) {

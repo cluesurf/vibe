@@ -23,6 +23,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function effectiveInformation(tpm: number[][]): number {
   const n = tpm.length
   const avg = new Array<number>(n).fill(0)
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       avg[j]! += tpm[i]![j]! / n
@@ -30,9 +31,11 @@ function effectiveInformation(tpm: number[][]): number {
   }
 
   let ei = 0
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
       const p = tpm[i]![j]!
+
       if (p > 1e-12 && avg[j]! > 1e-12) {
         ei += (p * Math.log2(p / avg[j]!)) / n
       }
@@ -51,6 +54,7 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
   const P: number[][] = Array.from({ length: N }, () =>
     new Array<number>(N).fill(0),
   )
+
   for (let i = 0; i < K; i++) {
     P[i]![sink] = 1
   } // every leaf -> sink (degenerate)
@@ -60,6 +64,7 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
   } // sink -> uniform over leaves
 
   const groups = new Array<number>(N)
+
   for (let i = 0; i < K; i++) {
     groups[i] = 0
   } // the leaves are one macro-state (the self)
@@ -73,6 +78,7 @@ function buildFunnel(K: number): { P: number[][]; groups: number[] } {
 function coarseGrain(P: number[][], groups: number[]): number[][] {
   const M = Math.max(...groups) + 1
   const size = new Array<number>(M).fill(0)
+
   for (const g of groups) {
     size[g]!++
   }
@@ -80,6 +86,7 @@ function coarseGrain(P: number[][], groups: number[]): number[][] {
   const Q: number[][] = Array.from({ length: M }, () =>
     new Array<number>(M).fill(0),
   )
+
   for (let i = 0; i < P.length; i++) {
     for (let j = 0; j < P.length; j++) {
       Q[groups[i]!]![groups[j]!]! += P[i]![j]!
@@ -116,6 +123,7 @@ export function causalEmergence(input?: { K?: number }): {
 
   // the emergence should GROW with the degeneracy K (more interchangeable micro configurations funneling)
   const byDegeneracy: { K: number; emergence: number }[] = []
+
   for (const k of [2, 4, 8, 16, 32]) {
     const f = buildFunnel(k)
     byDegeneracy.push({

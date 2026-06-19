@@ -71,6 +71,7 @@ export function selfMaintenance(input?: { n?: number }): {
     source: 0,
     limit: 3000,
   }) // the self: a + region
+
   const chunk = csrBallNodes({
     offsets: g.offsets,
     adj: g.adj,
@@ -78,9 +79,12 @@ export function selfMaintenance(input?: { n?: number }): {
     source: 0,
     limit: 800,
   }) // an inner chunk to erase
+
   const chunkSet = new Set(chunk)
+
   const plusInChunk = (t: Int8Array): number => {
     let c = 0
+
     for (const i of chunkSet) {
       if (t[i] === 1) {
         c++
@@ -92,11 +96,13 @@ export function selfMaintenance(input?: { n?: number }): {
 
   // baseline: undamaged self, run the rule (it erodes a bit naturally)
   const base = new Int8Array(N)
+
   for (const i of self) {
     base[i] = 1
   }
 
   const r1 = makeRng({ seed: 5 })
+
   for (let b = 0; b < beats; b++) {
     beat(base, eu, ev, g.offsets, g.adj, moved, r1)
   }
@@ -105,6 +111,7 @@ export function selfMaintenance(input?: { n?: number }): {
 
   // WITH surround: erase the inner chunk (holes), run the rule ALONE, the surround heals it
   const dmg = new Int8Array(N)
+
   for (const i of self) {
     dmg[i] = 1
   }
@@ -114,6 +121,7 @@ export function selfMaintenance(input?: { n?: number }): {
   }
 
   const r2 = makeRng({ seed: 5 })
+
   for (let b = 0; b < beats; b++) {
     beat(dmg, eu, ev, g.offsets, g.adj, moved, r2)
   }
@@ -124,6 +132,7 @@ export function selfMaintenance(input?: { n?: number }): {
 
   // WITHOUT surround: the self is ONLY the chunk, erase it, nothing to heal from
   const ctrl = new Int8Array(N)
+
   for (const i of chunkSet) {
     ctrl[i] = 1
   }
@@ -133,6 +142,7 @@ export function selfMaintenance(input?: { n?: number }): {
   } // erase the whole self
 
   const r3 = makeRng({ seed: 5 })
+
   for (let b = 0; b < beats; b++) {
     beat(ctrl, eu, ev, g.offsets, g.adj, moved, r3)
   }
@@ -142,6 +152,7 @@ export function selfMaintenance(input?: { n?: number }): {
 
   const emergentSelfHeals =
     withSurroundRecovery > 0.5 && withoutSurroundRecovery < 0.2
+
   const solved = emergentSelfHeals
 
   return {

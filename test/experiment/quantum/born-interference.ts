@@ -48,6 +48,7 @@ export function bornInterference(input?: { steps?: number }): {
     offset: quantum.offset,
     width: quantum.width,
   })
+
   const c = fringeStatistics({
     distribution: classical.distribution,
     offset: classical.offset,
@@ -58,6 +59,7 @@ export function bornInterference(input?: { steps?: number }): {
     q.maxima >= 5 &&
     q.maxima > c.maxima + 3 &&
     q.contrast > c.contrast * 1.5
+
   const unitary = normDeviation < 1e-9
   const bornRule = unitary // P = |psi|^2 by construction, and it sums to 1, so it is a genuine probability
   const solved = interferes && unitary && bornRule

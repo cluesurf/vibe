@@ -40,6 +40,7 @@ function randomLinks(input: {
   const sites = input.length * input.length
   const u1 = new Float64Array(sites)
   const u2 = new Float64Array(sites)
+
   for (let s = 0; s < sites; s++) {
     u1[s] = (input.rng.next() * 2 - 1) * Math.PI * input.disorder
     u2[s] = (input.rng.next() * 2 - 1) * Math.PI * input.disorder
@@ -60,6 +61,7 @@ function gaugeWilsonDiracRandom(input: {
     re: Math.cos(theta),
     im: Math.sin(theta),
   })
+
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
@@ -135,6 +137,7 @@ export function chiralCondensateSignal(input: {
   const m0 = input.m0 ?? 1
   const tol = input.tolerance ?? 0.05
   const n = 2 * L * L
+
   let nearZero = 0
   let totalEig = 0
 
@@ -144,11 +147,13 @@ export function chiralCondensateSignal(input: {
       disorder: input.disorder,
       rng: input.rng,
     })
+
     const dw = gaugeWilsonDiracRandom({
       length: L,
       u1: links.u1,
       u2: links.u2,
     })
+
     // H_W = gamma5 (D_W - m0): subtract m0 on the diagonal, negate spin-down rows.
     for (let i = 0; i < n; i++) {
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
@@ -164,6 +169,7 @@ export function chiralCondensateSignal(input: {
     }
 
     const epsilon = hermitianMatrixSign({ matrix: dw })
+
     // H_ov = gamma5 + epsilon (gamma5 is +1 on spin-up, -1 on spin-down diagonal).
     for (let i = 0; i < n; i++) {
       epsilon.re[i * n + i] =
@@ -171,6 +177,7 @@ export function chiralCondensateSignal(input: {
     }
 
     const eig = eigHermitian({ matrix: epsilon })
+
     for (let k = 0; k < eig.values.length; k++) {
       if (Math.abs(eig.values[k] ?? 0) < tol) {
         nearZero += 1

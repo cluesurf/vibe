@@ -35,6 +35,7 @@ export function packFold2D(
   const data = new ArrayBuffer(80)
   const f = new Float32Array(data)
   const u = new Uint32Array(data)
+
   for (let i = 0; i < 3; i++) {
     f[i * 4 + 0] = mirrors[i]?.[0] ?? 0
     f[i * 4 + 1] = mirrors[i]?.[1] ?? 0
@@ -62,6 +63,7 @@ export function packFold3D(
   const data = new ArrayBuffer(112)
   const f = new Float32Array(data)
   const u = new Uint32Array(data)
+
   for (let i = 0; i < 4; i++) {
     f[i * 4 + 0] = mirrors[i]?.[0] ?? 0
     f[i * 4 + 1] = mirrors[i]?.[1] ?? 0

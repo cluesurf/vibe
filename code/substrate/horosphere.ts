@@ -15,8 +15,10 @@ import {
 export function idealDirection(coords: Vec[]): Vec {
   let far = 0
   let farR = -1
+
   for (let i = 0; i < coords.length; i++) {
     const r = norm(coords[i]!)
+
     if (r > farR) {
       farR = r
       far = i
@@ -38,6 +40,7 @@ export function busemann(input: {
 
   return coords.map(x => {
     let d2 = 0
+
     for (let k = 0; k < x.length; k++) {
       d2 += (x[k]! - ideal[k]!) ** 2
     }
@@ -55,11 +58,14 @@ export function horoFrame(ideal: Vec): Vec[] {
   const axes = Array.from({ length: dim }, (_, k) => k).sort(
     (a, b) => Math.abs(ideal[a]!) - Math.abs(ideal[b]!),
   )
+
   for (const k of axes) {
     let v: Vec = Array.from({ length: dim }, (_, i) =>
       i === k ? 1 : 0,
     )
+
     v = sub(v, ideal, dot(v, ideal))
+
     for (const e of basis) {
       v = sub(v, e, dot(v, e))
     }
@@ -99,6 +105,7 @@ export function extractBand(input: {
   const level = input.level ?? 0
   const half = input.half ?? 0.5
   const out: number[] = []
+
   for (let i = 0; i < input.busemann.length; i++) {
     if (Math.abs(input.busemann[i]! - level) < half) {
       out.push(i)

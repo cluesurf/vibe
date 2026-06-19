@@ -19,7 +19,9 @@ export function rgFromCoarseGraining(): {
 } {
   for (const K0 of [2.0, 1.0, 0.5]) {
     let K = K0
+
     const traj: number[] = [K]
+
     for (let step = 0; step < 6; step++) {
       K = isingDecimationFormula(K)
       traj.push(Math.round(K * 1000) / 1000)

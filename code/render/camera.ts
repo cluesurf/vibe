@@ -79,6 +79,7 @@ export class Camera {
   // proof that rebasing keeps us off the precision wall)
   get maxCoordinate(): number {
     let m = 0
+
     for (const g of this.window) {
       const c = toPoincare(matVec(g, this.c0), this.timeAxis)
       m = Math.max(m, norm(c))
@@ -90,6 +91,7 @@ export class Camera {
   // advance the walk by a fraction of a cell, rebasing across the boundary when we reach the next cell
   advance(fraction: number): void {
     this.t += fraction
+
     while (this.t >= 1) {
       this.t -= 1
       // we have arrived at the forward neighbor, it becomes the new center. The way back is the same face
@@ -109,18 +111,22 @@ export class Camera {
     const edges: SceneEdge[] = []
     const seen = new Set<string>()
     const ballDim = this.shape.frame.dim - 1
+
     for (const g of this.window) {
       const ballVerts = this.shape.vertices.map(v =>
         place(toPoincare(matVec(g, v), this.timeAxis)),
       )
+
       for (const [i, j] of this.shape.edges) {
         const a = ballVerts[i]!
         const b = ballVerts[j]!
+
         if (norm(a) > 0.9996 || norm(b) > 0.9996) {
           continue
         }
 
         const key = pairKey(a, b)
+
         if (seen.has(key)) {
           continue
         }
@@ -146,16 +152,20 @@ export class Camera {
     const seen = new Set<string>([
       pointKey(toPoincare(matVec(start, this.c0), this.timeAxis)),
     ])
+
     for (let head = 0; head < window.length; head++) {
       const g = window[head]!
+
       for (const f of this.faces) {
         const gp = matMul(g, f)
         const center = toPoincare(matVec(gp, this.c0), this.timeAxis)
+
         if (norm(center) > this.windowNorm) {
           continue
         }
 
         const k = pointKey(center)
+
         if (seen.has(k)) {
           continue
         }
@@ -176,8 +186,10 @@ export class Camera {
   private mostOpposite(dir: Vec): number {
     let best = 0
     let bestDot = Infinity
+
     for (let i = 0; i < this.faceCenters.length; i++) {
       const d = dot(dir, this.faceCenters[i]!)
+
       if (d < bestDot) {
         bestDot = d
         best = i
@@ -190,6 +202,7 @@ export class Camera {
 
 function dot(a: Vec, b: Vec): number {
   let s = 0
+
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }

@@ -61,7 +61,9 @@ export function spinorHolonomy(input: {
 }): ComplexMatrix {
   const { winding, steps } = input
   const stepRotor = spinorZRotor((2 * Math.PI * winding) / steps)
+
   let holonomy = cmIdentity(2)
+
   for (let k = 0; k < steps; k++) {
     holonomy = cmMultiply(holonomy, stepRotor)
   }
@@ -85,10 +87,12 @@ export function disclinationHolonomy(input: {
     holonomy,
     complex({ re: -1, im: 0 }),
   )
+
   const spinorIsPlusOne = cmIsScalar(
     holonomy,
     complex({ re: 1, im: 0 }),
   )
+
   // the vector holonomy is a rotation by the total angle 2 pi w, the identity for any integer w
   const total = 2 * Math.PI * input.winding
   const vectorReturnsToSelf =
@@ -115,10 +119,12 @@ export function collectiveModeOverlap(input: {
     complex({ re: Math.cos(angle), im: 0 }),
     complex({ re: Math.sin(angle), im: 0 }),
   ]
+
   const hChi0 = cAdd(
     cMul(holonomy[0]![0]!, chi[0]!),
     cMul(holonomy[0]![1]!, chi[1]!),
   )
+
   const hChi1 = cAdd(
     cMul(holonomy[1]![0]!, chi[0]!),
     cMul(holonomy[1]![1]!, chi[1]!),

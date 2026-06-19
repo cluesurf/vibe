@@ -36,6 +36,7 @@ export function drivenSelf(input: {
   const flipProbability = input.flipProbability ?? 0.06
   const flipOf = (s: number): number =>
     input.flipProbabilities?.[s] ?? flipProbability
+
   const selfRadius = input.selfRadius ?? 8
   const interiorRadius = input.interiorRadius ?? 4
   const cohesion = input.cohesion ?? 0.22
@@ -50,8 +51,10 @@ export function drivenSelf(input: {
   const inputCells: number[] = []
   const inputSector: number[] = []
   const interiorCells: number[] = []
+
   for (let c = 0; c < graph.cellCount; c++) {
     const r = radiusOf(c)
+
     if (r >= selfRadius - 1 && r <= selfRadius) {
       inputCells.push(c)
       const angle = Math.atan2(yOf(c) - cy, xOf(c) - cx) + Math.PI
@@ -76,8 +79,10 @@ export function drivenSelf(input: {
     { length: sectorCount },
     () => [],
   )
+
   const meanOver = (cells: number[]): number => {
     let s = 0
+
     for (const c of cells) {
       s += tone[c]!
     }
@@ -107,6 +112,7 @@ export function drivenSelf(input: {
 
     interior.push(meanOver(interiorCells))
     environment.push(signals.reduce((a, b) => a + b, 0) / sectorCount)
+
     for (let s = 0; s < sectorCount; s++) {
       sectorSignals[s]!.push(signals[s]!)
     }

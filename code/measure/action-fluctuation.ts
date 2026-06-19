@@ -19,14 +19,17 @@ export function actionFluctuationExponent(input: {
 }): { sizes: number[]; stds: number[]; exponent: number } {
   const seedMultiplier = input.seedMultiplier ?? 1000
   const stds: number[] = []
+
   for (const n of input.sizes) {
     const samples: number[] = []
+
     for (let r = 0; r < input.repeats; r++) {
       const poset = sprinkleMinkowski({
         dimension: input.dimension,
         count: n,
         rng: makeRng({ seed: n * seedMultiplier + r }),
       })
+
       samples.push(input.action.value({ poset }))
     }
 
@@ -34,6 +37,7 @@ export function actionFluctuationExponent(input: {
     const variance =
       samples.reduce((a, b) => a + (b - mean) * (b - mean), 0) /
       samples.length
+
     stds.push(Math.sqrt(variance))
   }
 

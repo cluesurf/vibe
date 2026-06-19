@@ -23,6 +23,7 @@ export function modularMesh(input: {
     { length: n },
     () => new Map(),
   )
+
   const addEdge = (u: number, v: number, f: number): void => {
     if (u === v) {
       return
@@ -33,6 +34,7 @@ export function modularMesh(input: {
   }
 
   const cellOf = new Int32Array(n)
+
   for (let c = 0; c < numCells; c++) {
     for (let i = 0; i < cellSize; i++) {
       cellOf[c * cellSize + i] = c
@@ -41,6 +43,7 @@ export function modularMesh(input: {
     // dense intra-cell edges, fill +1 (strong cohesion)
     for (let i = 0; i < cellSize; i++) {
       const u = c * cellSize + i
+
       for (let d = 0; d < intraDegree; d++) {
         const v = c * cellSize + rng.nextInt({ max: cellSize })
         addEdge(u, v, 1)
@@ -54,6 +57,7 @@ export function modularMesh(input: {
       const u = c * cellSize + rng.nextInt({ max: cellSize })
       const other =
         (c + 1 + rng.nextInt({ max: numCells - 1 })) % numCells
+
       const v = other * cellSize + rng.nextInt({ max: cellSize })
       addEdge(u, v, 1)
     }

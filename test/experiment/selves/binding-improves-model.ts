@@ -40,6 +40,7 @@ function predictiveInformation(cohesion: number): number {
     interiorRadius: 6,
     cohesion,
   })
+
   const a = quantileLabels({ series: series.interior, bins })
   const b = quantileLabels({ series: series.environment, bins })
 

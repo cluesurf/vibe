@@ -39,12 +39,14 @@ export function operatorToVoigtMatrix(
   operator: (tensor: number[][]) => number[][],
 ): ReturnType<typeof makeDense> {
   const m = makeDense({ rows: 6, cols: 6 })
+
   for (let a = 0; a < 6; a++) {
     const e = [0, 0, 0, 0, 0, 0]
     e[a] = 1
     const col = symmetricTensorToVoigt(
       operator(voigtToSymmetricTensor(e)),
     )
+
     for (let r = 0; r < 6; r++) {
       m.data[r * 6 + a] = col[r] ?? 0
     }

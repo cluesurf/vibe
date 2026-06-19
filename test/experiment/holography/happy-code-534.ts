@@ -39,6 +39,7 @@ export default experiment({
   run() {
     // (1) the four stabilizers pairwise commute, a valid code
     let stabilizersCommute = true
+
     for (let a = 0; a < 4; a++) {
       for (let b = a + 1; b < 4; b++) {
         if (!pauliCommute(stabilizers[a]!, stabilizers[b]!)) {
@@ -55,6 +56,7 @@ export default experiment({
       span,
       qubits: 5,
     })
+
     const distance = codeDistance(logicals)
     const distanceThree = distance === 3
 
@@ -62,6 +64,7 @@ export default experiment({
     // An erasure set E is correctable iff no logical operator is supported entirely within E.
     const subsets = (size: number): number[] => {
       const out: number[] = []
+
       for (let mask = 0; mask < 32; mask++) {
         if (popcount(mask) === size) {
           out.push(mask)
@@ -73,6 +76,7 @@ export default experiment({
 
     const correctable = (erased: number): boolean =>
       erasureCorrectable({ logicals, erased })
+
     const allTwoErasuresRecover = subsets(2).every(erased =>
       correctable(erased),
     )

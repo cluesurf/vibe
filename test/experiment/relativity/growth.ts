@@ -54,10 +54,12 @@ function snapshot(input: { size: number; base: number }): Row {
     connectThreshold: 3.0,
     rng,
   })
+
   // Average the growth ratio over several centers so one boundary node does not
   // skew the finite-size estimate.
   let ratioSum = 0
   let ratioCount = 0
+
   for (let c = 0; c < 6; c++) {
     const center = c === 0 ? 0 : rng.nextInt({ max: graph.size })
     const growth = ballGrowth({
@@ -65,7 +67,9 @@ function snapshot(input: { size: number; base: number }): Row {
       center,
       maxRadius: 14,
     })
+
     const ratio = growthRatio({ growth, total: graph.size })
+
     if (ratio > 0) {
       ratioSum += ratio
       ratioCount += 1

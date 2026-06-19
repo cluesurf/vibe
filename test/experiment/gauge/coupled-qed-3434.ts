@@ -22,6 +22,7 @@ const cmul = (a: C, b: C): C => [
   a[0] * b[0] - a[1] * b[1],
   a[0] * b[1] + a[1] * b[0],
 ]
+
 const cabs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
 const cscale = (a: C, s: number): C => [a[0] * s, a[1] * s]
 const eUp = (t: number): C => [Math.cos(t), Math.sin(t)] // e^{i t} = the link variable
@@ -35,6 +36,7 @@ export function coupledQED(): {
 } {
   const L = 80,
     wrap = (x: number): number => ((x % L) + L) % L
+
   const mass = 0.3,
     c = Math.cos(mass),
     s = Math.sin(mass)
@@ -42,11 +44,14 @@ export function coupledQED(): {
   // fermion psi = (psiR, psiL) per site; gauge link phase theta_n on bond n->n+1; electric field E_n
   let R: C[] = new Array(L).fill([0, 0]),
     Lf: C[] = new Array(L).fill([0, 0])
+
   let theta = new Array(L).fill(0),
     E = new Array(L).fill(0)
+
   // a charged wavepacket centered, moving right
   const x0 = 30,
     w = 5
+
   for (let x = 0; x < L; x++) {
     const g = Math.exp(-((x - x0) ** 2) / (2 * w * w))
     R[x] = cscale(eUp(0.8 * x), g)
@@ -54,6 +59,7 @@ export function coupledQED(): {
   }
 
   let nrm = 0
+
   for (let x = 0; x < L; x++) {
     nrm += cabs2(R[x]!) + cabs2(Lf[x]!)
   }
@@ -65,10 +71,12 @@ export function coupledQED(): {
 
   // ONE coupled step: (coin) -> (gauge-covariant shift with Peierls phase) -> (gauge field responds to current)
   const I: C = [0, 1]
+
   const step = (): void => {
     // fermion coin (mass)
     const R2: C[] = new Array(L),
       L2: C[] = new Array(L)
+
     for (let x = 0; x < L; x++) {
       R2[x] = cadd(
         [c * R[x]![0], c * R[x]![1]],
@@ -85,9 +93,11 @@ export function coupledQED(): {
       { length: L },
       (_, x) => cabs2(R2[x]!) - cabs2(L2[wrap(x + 1)]!),
     )
+
     // gauge-covariant shift: R hops +1 with the link phase e^{i theta}, L hops -1 with e^{-i theta} (minimal coupling)
     const R3: C[] = new Array(L).fill([0, 0]),
       L3: C[] = new Array(L).fill([0, 0])
+
     for (let x = 0; x < L; x++) {
       R3[wrap(x + 1)] = cmul(R2[x]!, eUp(theta[x]!))
       L3[wrap(x - 1)] = cmul(L2[x]!, eUp(-theta[wrap(x - 1)]!))
@@ -95,6 +105,7 @@ export function coupledQED(): {
 
     R = R3
     Lf = L3
+
     // gauge field back-reacts: dE/dt = -j (Ampere), dtheta/dt = E (the field equation)
     for (let x = 0; x < L; x++) {
       E[x]! -= 0.1 * j[x]!
@@ -107,6 +118,7 @@ export function coupledQED(): {
 
   // (1) charge conservation under the coupled evolution
   const Q0 = rho().reduce((a, b) => a + b, 0)
+
   for (let t = 0; t < 60; t++) {
     step()
   }
@@ -119,12 +131,15 @@ export function coupledQED(): {
     { length: L },
     (_, x) => (x === 40 ? 1 : 0) - 1 / L,
   ) // a charge at 40, neutralizing background
+
   const Eg = new Array(L).fill(0)
+
   for (let x = 1; x < L; x++) {
     Eg[x] = Eg[x - 1]! + rhoStatic[x]!
   }
 
   let gaussErr = 0
+
   for (let x = 1; x < L; x++) {
     gaussErr = Math.max(
       gaussErr,
@@ -138,8 +153,10 @@ export function coupledQED(): {
   const rng = makeRng({ seed: 5 })
   const rnd = (): number => rng.next() * 2 * Math.PI
   const a = Array.from({ length: L }, () => rnd())
+
   const hop = (psi: C[], th: number[]): C => {
     let h: C = [0, 0]
+
     for (let x = 0; x < L; x++) {
       h = cadd(
         h,
@@ -156,6 +173,7 @@ export function coupledQED(): {
   const before = hop(R, theta)
   const Rg = R.map((z, x) => cmul(z, eUp(a[x]!))),
     thetaG = theta.map((t, x) => t + a[x]! - a[wrap(x + 1)]!)
+
   const after = hop(Rg, thetaG)
   const gaugeInvariant =
     Math.abs(before[0] - after[0]) < 1e-9 &&
@@ -166,6 +184,7 @@ export function coupledQED(): {
     Math.acos(
       Math.max(-1, Math.min(1, Math.cos(mass) * Math.cos(k - A))),
     ) // omega with the Peierls shift
+
   const minimalCoupling =
     Math.abs(dispShift(0.4, 0.4) - dispShift(0, 0)) < 1e-9 // E(k=A, A) = E(k=0, 0): the field shifts the momentum origin
 

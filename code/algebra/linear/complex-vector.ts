@@ -17,6 +17,7 @@ export function newCx(dim: number): Cx {
 // because the spectral methods only need real moments of a Hermitian operator.
 export function dotR(a: Cx, b: Cx, dim: number): number {
   let sum = 0
+
   for (let i = 0; i < dim; i++) {
     sum += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
   }

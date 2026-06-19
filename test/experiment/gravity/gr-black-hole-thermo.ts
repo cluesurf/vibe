@@ -38,6 +38,7 @@ function areaLawPrecondition(): {
 } {
   const n = 96
   const lengths: number[] = []
+
   for (let l = 6; l <= n / 2; l += 4) {
     lengths.push(l)
   }
@@ -51,6 +52,7 @@ function areaLawPrecondition(): {
       region: Array.from({ length: len }, (_, i) => i),
     }),
   )
+
   const late = entropies.slice(Math.floor(entropies.length / 2))
   const massiveSpread = Math.max(...late) - Math.min(...late)
   const volumeRate = Math.log(2)
@@ -64,6 +66,7 @@ function areaLawPrecondition(): {
 
 function firstLaw(): { maxRelError: number; ok: boolean } {
   let maxRelError = 0
+
   for (let M = 1; M <= 20; M += 0.5) {
     const dM = 1e-6
     const dS = bhEntropy(M + dM) - bhEntropy(M - dM)
@@ -79,6 +82,7 @@ function firstLaw(): { maxRelError: number; ok: boolean } {
 
 function smarr(): { maxRelError: number; ok: boolean } {
   let maxRelError = 0
+
   for (let M = 1; M <= 20; M += 0.5) {
     maxRelError = Math.max(
       maxRelError,
@@ -91,6 +95,7 @@ function smarr(): { maxRelError: number; ok: boolean } {
 
 function bekensteinSaturation(): { maxRelError: number; ok: boolean } {
   let maxRelError = 0
+
   for (let M = 1; M <= 20; M += 0.5) {
     const bound = 2 * Math.PI * horizonRadius(M) * M
     maxRelError = Math.max(
@@ -113,6 +118,7 @@ function heatCapacityNegative(): boolean {
 function evaporationExponent(): { exponent: number; ok: boolean } {
   const lifetimeOf = (M0: number): number =>
     schwarzschildEvaporationLifetime({ mass: M0 })
+
   const exponent = Math.log(lifetimeOf(4) / lifetimeOf(2)) / Math.log(2)
 
   return { exponent, ok: Math.abs(exponent - 3) < 0.1 }
@@ -125,6 +131,7 @@ function deSitterFromSubstrate(): { H: number; Lambda: number } {
     from: 3,
     to: 7,
   })
+
   const H = Math.log(R) / 3
   const horizon = deSitterHorizon(H)
 

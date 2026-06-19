@@ -20,6 +20,7 @@ const WG = 64
 // the 24 directions +-e_i+-e_j, and the permutation under swapping axes 1<->2 (a 24-cell symmetry involution)
 function dirs(): { vecs: number[][]; swap: number[] } {
   const vecs: number[][] = []
+
   for (let a = 0; a < 4; a++) {
     for (let b = a + 1; b < 4; b++) {
       for (const sa of [1, -1]) {
@@ -72,6 +73,7 @@ fn step(@builtin(global_invocation_id) gid:vec3<u32>){
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter')
 
@@ -85,6 +87,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'step' },
   })
+
   const mk = (n: number): GPUBuffer =>
     device.createBuffer({
       size: n * 4,
@@ -93,19 +96,24 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const SZ = N * DIRN
+
   let a = mk(SZ),
     b = mk(SZ)
+
   const offBuf = mk(DIRN * 4),
     swapBuf = mk(DIRN),
     uni = device.createBuffer({
       size: 16,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
+
   const stage = device.createBuffer({
     size: SZ * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   device.queue.writeBuffer(
     offBuf,
     0,
@@ -116,12 +124,14 @@ async function run(): Promise<void> {
   // random ternary initial populations
   const init = new Int32Array(SZ)
   const rng = makeRng({ seed: 7 })
+
   for (let i = 0; i < SZ; i++) {
     init[i] = rng.nextInt({ max: 3 }) - 1
   }
 
   device.queue.writeBuffer(a, 0, init)
   const layout = pipeline.getBindGroupLayout(0)
+
   const stepOnce = (src: GPUBuffer, dst: GPUBuffer): void => {
     const bg = device.createBindGroup({
       layout,
@@ -133,6 +143,7 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: swapBuf } },
       ],
     })
+
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(pipeline)
@@ -152,11 +163,14 @@ async function run(): Promise<void> {
     const d = new Int32Array(stage.getMappedRange().slice(0))
     stage.unmap()
     let charge = 0
+
     const mom = [0, 0, 0, 0]
+
     for (let c = 0; c < N; c++) {
       for (let k = 0; k < DIRN; k++) {
         const v = d[c * DIRN + k]!
         charge += v
+
         for (let j = 0; j < 4; j++) {
           mom[j]! += v * vecs[k]![j]!
         }
@@ -173,6 +187,7 @@ async function run(): Promise<void> {
   // forward T steps (ping-pong)
   let src = a,
     dst = b
+
   for (let t = 0; t < T; t++) {
     stepOnce(src, dst)
     const tmp = src
@@ -183,6 +198,7 @@ async function run(): Promise<void> {
   const s1 = await readSums(src)
   const chargeOk = s1.charge === s0.charge,
     momOk = s1.mom.every((m, i) => m === s0.mom[i]!)
+
   console.log(
     `  (1) charge conserved: ${chargeOk} (${s0.charge} -> ${s1.charge})`,
   )

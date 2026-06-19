@@ -15,9 +15,11 @@ export function sinkhornW1(
   const K = C.map(row => row.map(c => Math.exp(-c / eps)))
   const u = new Array(n).fill(1)
   const v = new Array(m).fill(1)
+
   for (let it = 0; it < iters; it++) {
     for (let i = 0; i < n; i++) {
       let s = 0
+
       for (let j = 0; j < m; j++) {
         s += K[i]![j]! * v[j]!
       }
@@ -27,6 +29,7 @@ export function sinkhornW1(
 
     for (let j = 0; j < m; j++) {
       let s = 0
+
       for (let i = 0; i < n; i++) {
         s += K[i]![j]! * u[i]!
       }
@@ -36,6 +39,7 @@ export function sinkhornW1(
   }
 
   let w = 0
+
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < m; j++) {
       w += u[i]! * K[i]![j]! * v[j]! * C[i]![j]!

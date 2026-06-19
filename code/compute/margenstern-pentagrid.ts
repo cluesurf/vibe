@@ -260,15 +260,18 @@ export function buildPentagridRuleTable(
   rules: string[] = PENTAGRID_RULES,
 ): PentagridRuleTable {
   const lookup = new Map<string, PentaState>()
+
   for (const rule of rules) {
     const current = rule[0]!
     const neighbours = rule.slice(1, 6)
     const next = rule[6]! as PentaState
+
     // expand all five cyclic rotations of the neighbour ring (rotation invariance)
     for (let r = 0; r < 5; r++) {
       const rotated = neighbours.slice(r) + neighbours.slice(0, r)
       const key = current + rotated
       const existing = lookup.get(key)
+
       if (existing !== undefined && existing !== next) {
         throw new Error(
           `rule conflict at ${key}: ${existing} vs ${next} (rule ${rule})`,
@@ -304,6 +307,7 @@ export function stepPentagridCA(input: {
 }): PentaState[] {
   const { table, states, cyclicNeighbors } = input
   const next = states.slice()
+
   for (let cell = 0; cell < states.length; cell++) {
     const ring = cyclicNeighbors[cell]!.map(n => states[n]!)
     next[cell] = pentagridNext(table, states[cell]!, ring)

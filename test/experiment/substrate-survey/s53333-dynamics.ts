@@ -21,22 +21,27 @@ export function s53333Dynamics(): {
     symbol: [5, 3, 3, 3, 3] as never,
     maxCells: 6000,
   })
+
   const N = g.cellCount,
     nb = g.neighbors
+
   const rng = makeRng({ seed: 9 })
   const rnd = (): number => rng.next()
   const charge0: number[][] = Array.from({ length: N }, (_, i) =>
     nb[i]!.map(() => (rnd() < 0.3 ? 1 : 0)),
   )
+
   const t0 = totalDirectionalCharge(charge0)
   const charge = streamDirectionalCharge({
     neighbors: nb,
     charge: charge0,
     steps: 12,
   })
+
   const chargeConserved = t0 === totalDirectionalCharge(charge)
   const lightSpeed = 1
   const cur = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     cur[i] = Math.floor(rnd() * 3) as 0 | 1 | 2
   }

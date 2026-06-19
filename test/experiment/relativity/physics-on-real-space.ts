@@ -45,7 +45,9 @@ export function physicsOnRealSpace(): void {
     symbol: [4, 3, 4] as never,
     maxCells: 12000,
   })
+
   let cc = 0
+
   for (let i = 0; i < cube.cellCount; i++) {
     if (cube.coords[i]!.every(x => x === 0)) {
       cc = i
@@ -61,13 +63,16 @@ export function physicsOnRealSpace(): void {
     half: 1.0,
     margin: 0.8,
   })
+
   const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
   const rmap = new Map<number, number>()
   bandIdx.forEach((id, i) => rmap.set(id, i))
   const bnb: number[][] = bandIdx.map(() => [])
+
   for (let a = 0; a < bandIdx.length; a++) {
     for (const w of h.neighbors[bandIdx[a]!]!) {
       const b = rmap.get(w)
+
       if (b !== undefined) {
         bnb[a]!.push(b)
       }
@@ -82,6 +87,7 @@ export function physicsOnRealSpace(): void {
         x => x !== undefined,
       ) as number[],
   )
+
   const lc0 = mostConnectedNode(lnb)
   const bandDim = spectralDim(lnb, lc0, 3, 12)
   const bandGrav = gravityExponent(lnb, lc0)
@@ -102,7 +108,9 @@ export default experiment({
       symbol: [4, 3, 4] as never,
       maxCells: 12000,
     })
+
     let cubeCenter = 0
+
     for (let i = 0; i < cube.cellCount; i++) {
       if (cube.coords[i]!.every(x => x === 0)) {
         cubeCenter = i
@@ -118,13 +126,16 @@ export default experiment({
       half: 1.0,
       margin: 0.8,
     })
+
     const bandIdx = extractBand({ busemann: h.busemann, half: 1.0 })
     const rmap = new Map<number, number>()
     bandIdx.forEach((id, i) => rmap.set(id, i))
     const bnb: number[][] = bandIdx.map(() => [])
+
     for (let a = 0; a < bandIdx.length; a++) {
       for (const w of h.neighbors[bandIdx[a]!]!) {
         const b = rmap.get(w)
+
         if (b !== undefined) {
           bnb[a]!.push(b)
         }
@@ -139,14 +150,17 @@ export default experiment({
           x => x !== undefined,
         ) as number[],
     )
+
     const bandCenter = mostConnectedNode(lnb)
     const bandDim = spectralDim(lnb, bandCenter, 3, 12)
     const bandGrav = gravityExponent(lnb, bandCenter)
 
     const cuspHolds =
       Math.abs(cubeDim - 3) < 0.5 && Math.abs(cubeGrav - 1) < 0.5
+
     const sliceDegrades =
       Math.abs(bandDim - 3) > 0.5 || Math.abs(bandGrav - 1) > 0.5
+
     const ok = cuspHolds && sliceDegrades
 
     return verdict({

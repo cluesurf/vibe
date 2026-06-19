@@ -40,6 +40,7 @@ export default experiment({
     const unique = address.allUnique
     const logarithmicDepth =
       hyperbolicDepth <= 4 * Math.log2(hyperbolicMesh.adjacency.length) // O(log N)
+
     const hyperbolicShorter = hyperbolicDepth < flatDepth
 
     const ok = unique && logarithmicDepth && hyperbolicShorter

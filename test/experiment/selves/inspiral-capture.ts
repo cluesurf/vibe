@@ -40,9 +40,12 @@ function lateAmplitude(input: {
     velocity: 0.6,
     steps,
   })
+
   let early = 0
+
   for (let t = 0; t < steps * 0.15; t++) {
     const a = Math.abs(trajectory[t]!)
+
     if (a > early) {
       early = a
     }
@@ -64,10 +67,12 @@ export default experiment({
       absorbing: true,
       stiffness: 1.0,
     })
+
     const attractiveNoBath = lateAmplitude({
       absorbing: false,
       stiffness: 1.0,
     })
+
     const repulsiveBath = lateAmplitude({
       absorbing: true,
       stiffness: -0.5,

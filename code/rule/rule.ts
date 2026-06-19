@@ -45,6 +45,7 @@ export function runRule(input: {
 }): { configuration: Configuration; substrate: Substrate } {
   let configuration = input.configuration
   let substrate = input.substrate
+
   for (let beat = 0; beat < input.beats; beat++) {
     const out = input.rule.step({
       substrate,
@@ -52,7 +53,9 @@ export function runRule(input: {
       beat,
       rng: input.rng,
     })
+
     configuration = out.configuration
+
     if (out.substrate) {
       substrate = out.substrate
     }

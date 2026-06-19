@@ -33,18 +33,22 @@ function perturbAndWatch(input: {
   perturbed[site] = (perturbed[site] === 1 ? -1 : 1) as -1 | 1
   const movedA = new Uint8Array(graph.cellCount)
   const movedB = new Uint8Array(graph.cellCount)
+
   let peak = 0
   let radius = 0
   let final = 0
+
   for (let t = 0; t < beats; t++) {
     // identical rng streams, so the dynamics is the same except where the flip propagates.
     beat(control, graph, movedA, makeRng(seed + t), 0.01, 0.22)
     beat(perturbed, graph, movedB, makeRng(seed + t), 0.01, 0.22)
     let count = 0
     let maxR = 0
+
     for (let i = 0; i < control.length; i++) {
       if (control[i] !== perturbed[i]) {
         count++
+
         if (dist[i]! > maxR) {
           maxR = dist[i]!
         }
@@ -82,12 +86,15 @@ export default experiment({
       beats: 60,
       density: 0.1,
     })
+
     const cluster = largestPositiveCluster(tone, graph)
     const selfSite = cluster[Math.floor(cluster.length / 2)] ?? 0
 
     // a medium cell outside the self, the control perturbation site.
     const inSelf = new Set(cluster)
+
     let mediumSite = 0
+
     for (let i = 0; i < tone.length; i++) {
       if (!inSelf.has(i)) {
         mediumSite = i
@@ -103,6 +110,7 @@ export default experiment({
       beats: watchBeats,
       seed: 5000,
     })
+
     const medium = perturbAndWatch({
       graph,
       base: tone,

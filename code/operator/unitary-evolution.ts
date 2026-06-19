@@ -16,9 +16,11 @@ export function evolveByEigendecomposition(input: {
   // Project onto eigenbasis.
   const cRe = new Float64Array(n)
   const cIm = new Float64Array(n)
+
   for (let k = 0; k < n; k++) {
     let ar = 0
     let ai = 0
+
     for (let i = 0; i < n; i++) {
       const v = eig.vectors[i * n + k] ?? 0
       ar += v * (re0[i] ?? 0)
@@ -36,9 +38,11 @@ export function evolveByEigendecomposition(input: {
   // Project back to the site basis.
   const re = new Float64Array(n)
   const im = new Float64Array(n)
+
   for (let i = 0; i < n; i++) {
     let r = 0
     let m = 0
+
     for (let k = 0; k < n; k++) {
       const v = eig.vectors[i * n + k] ?? 0
       r += v * (cRe[k] ?? 0)

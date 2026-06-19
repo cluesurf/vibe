@@ -26,10 +26,12 @@ export default experiment({
       depth: 20,
       maxChambers: 60000,
     })
+
     const n = mesh.cellCount
     const dense = balanceToZero(
       (() => {
         const t = new Int8Array(n)
+
         for (let i = 0; i < n; i++) {
           t[i] = i % 2 === 0 ? 1 : -1
         }
@@ -58,10 +60,13 @@ export default experiment({
 
     const densityCanonical =
       Math.abs(a.density - b.density) < 0.05 && a.density > 0.1
+
     const balanced =
       Math.abs(a.netBalance) < 0.02 && Math.abs(b.netBalance) < 0.02 // conservation, net near zero
+
     const clusteringCanonical =
       Math.abs(a.sameSignFraction - b.sameSignFraction) < 0.08
+
     const ok = densityCanonical && balanced && clusteringCanonical
 
     return verdict({

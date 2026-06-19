@@ -46,10 +46,12 @@ export default experiment({
 
     // bounded (saturating) force, the field stays bounded but shatters into many walls.
     let bounded: WaveField = kink()
+
     const boundedAccel = doubleWellAccel({
       amplitude,
       saturating: true,
     })
+
     for (let t = 0; t < steps; t++) {
       bounded = stepWaveField({
         field: bounded,
@@ -73,11 +75,14 @@ export default experiment({
         fill: x =>
           Math.max(-amplitude, Math.min(amplitude, x - center)),
       })
+
     let unbounded: WaveField = ramp()
+
     const unboundedAccel = doubleWellAccel({
       amplitude,
       saturating: false,
     })
+
     for (let t = 0; t < steps; t++) {
       unbounded = stepWaveField({
         field: unbounded,
@@ -96,6 +101,7 @@ export default experiment({
     // (magnitude far above the vacuum). Neither gives a stable kink. PASS means we demonstrated the instability.
     const boundedShatters =
       boundedWalls >= 10 && boundedMaxAbs <= 10 * amplitude
+
     const unboundedBlowsUp = unboundedMaxAbs >= 100 * amplitude
     const ok = boundedShatters && unboundedBlowsUp
 

@@ -31,15 +31,18 @@ function beat(
   arrow: number,
 ): void {
   moved.fill(0)
+
   for (const edge of edges) {
     const v = edge[0]!
     const w = edge[1]!
+
     if (moved[v] || moved[w]) {
       continue
     }
 
     const a = tone[v]!
     const b = tone[w]!
+
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
       tone[v] = 0
       tone[w] = 0
@@ -48,6 +51,7 @@ function beat(
     } else if ((a === 0) !== (b === 0)) {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
+
       if (rng.next() < 0.5) {
         tone[e] = tone[c]!
         tone[c] = 0
@@ -96,6 +100,7 @@ export function exportMaintenance(input?: {
   const N = g.cellCount
   const neighbors = g.neighbors
   const edges: number[][] = []
+
   for (let v = 0; v < N; v++) {
     for (const w of neighbors[v]!) {
       if (w > v) {
@@ -107,17 +112,21 @@ export function exportMaintenance(input?: {
   // the self REGION, a BFS ball from the centre cell (a placed probe, exactly as P171 does)
   const inRegion = new Uint8Array(N)
   const region: number[] = []
+
   {
     inRegion[0] = 1
     let frontier = [0]
+
     while (frontier.length > 0 && region.length < regionSize) {
       const next: number[] = []
+
       for (const u of frontier) {
         if (region.length >= regionSize) {
           break
         }
 
         region.push(u)
+
         for (const w of neighbors[u]!) {
           if (!inRegion[w]) {
             inRegion[w] = 1
@@ -131,17 +140,20 @@ export function exportMaintenance(input?: {
   }
 
   inRegion.fill(0)
+
   for (const i of region) {
     inRegion[i] = 1
   }
 
   // the BALANCED identity pattern over the region (equal +/-, shuffled), net charge zero
   const target = new Int8Array(N)
+
   for (let k = 0; k < region.length; k++) {
     target[region[k]!] = (k % 2 === 0 ? 1 : -1) as -1 | 1
   }
 
   const shuffleRng = makeRng({ seed: 4 })
+
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(shuffleRng.next() * (i + 1))
     const a = region[i]!
@@ -153,13 +165,16 @@ export function exportMaintenance(input?: {
 
   // the LOCAL view, the region plus a few BFS shells around it (the self and its immediate surround)
   const inView = new Uint8Array(N)
+
   for (const i of region) {
     inView[i] = 1
   }
 
   let shell = region.slice()
+
   for (let layer = 0; layer < surroundLayers; layer++) {
     const next: number[] = []
+
     for (const u of shell) {
       for (const w of neighbors[u]!) {
         if (!inView[w]) {
@@ -173,6 +188,7 @@ export function exportMaintenance(input?: {
   }
 
   const view: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (inView[i]) {
       view.push(i)
@@ -180,6 +196,7 @@ export function exportMaintenance(input?: {
   }
 
   const viewIndex = new Int32Array(N).fill(-1)
+
   for (let a = 0; a < view.length; a++) {
     viewIndex[view[a]!] = a
   }
@@ -187,9 +204,11 @@ export function exportMaintenance(input?: {
   // lay the view cells out flat, force-directed on their crystal adjacency (the same honest layout the
   // horosphere view uses, it only positions dots, it never touches the tones)
   const viewEdges: number[][] = []
+
   for (let a = 0; a < view.length; a++) {
     for (const w of neighbors[view[a]!]!) {
       const b = viewIndex[w]!
+
       if (b > a) {
         viewEdges.push([a, b])
       }
@@ -202,17 +221,22 @@ export function exportMaintenance(input?: {
 
     return [r * Math.cos(i * GOLDEN), r * Math.sin(i * GOLDEN)]
   })
+
   const ideal = 1.6 / Math.sqrt(view.length)
   const iterations = 110
+
   for (let iter = 0; iter < iterations; iter++) {
     const dispX = new Float64Array(view.length)
     const dispY = new Float64Array(view.length)
+
     for (let i = 0; i < view.length; i++) {
       const ix = position[i]![0]!
       const iy = position[i]![1]!
+
       for (let j = i + 1; j < view.length; j++) {
         let dx = ix - position[j]![0]!
         let dy = iy - position[j]![1]!
+
         const d2 = dx * dx + dy * dy + 1e-9
         const f = (2.2 * ideal * ideal) / d2
         dx *= f
@@ -227,8 +251,10 @@ export function exportMaintenance(input?: {
     for (const e of viewEdges) {
       const a = e[0]!
       const b = e[1]!
+
       let dx = position[a]![0]! - position[b]![0]!
       let dy = position[a]![1]! - position[b]![1]!
+
       const d = Math.hypot(dx, dy) + 1e-6
       const f = (0.9 * d * d) / ideal
       dx = (dx / d) * f
@@ -240,6 +266,7 @@ export function exportMaintenance(input?: {
     }
 
     const temp = 0.04 * (1 - iter / iterations)
+
     for (let i = 0; i < view.length; i++) {
       const len = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
       position[i]![0]! += (dispX[i]! / len) * Math.min(len, temp)
@@ -248,6 +275,7 @@ export function exportMaintenance(input?: {
   }
 
   let maxAbs = 1e-6
+
   for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
   }
@@ -260,6 +288,7 @@ export function exportMaintenance(input?: {
   // seed the two copies identically, region = identity, medium = sparse charges
   const seed = (tone: Int8Array, r: Rng): void => {
     tone.fill(0)
+
     for (const i of region) {
       tone[i] = target[i]!
     }
@@ -281,11 +310,14 @@ export function exportMaintenance(input?: {
 
   const framesMaintained: number[][] = []
   const framesUnmaintained: number[][] = []
+
   for (let f = 0; f < frameCount; f++) {
     framesMaintained.push(view.map(i => maintained[i]!))
     framesUnmaintained.push(view.map(i => free[i]!))
+
     for (let s = 0; s < stride; s++) {
       beat(maintained, edges, moved, rngA, arrow)
+
       for (const i of region) {
         maintained[i] = target[i]!
       } // self-maintenance, restore the identity (P171)
@@ -305,6 +337,7 @@ export function exportMaintenance(input?: {
     framesMaintained,
     framesUnmaintained,
   }
+
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true })
   writeFileSync(OUTPUT_PATH, JSON.stringify(data))
 

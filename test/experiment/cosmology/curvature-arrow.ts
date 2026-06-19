@@ -27,14 +27,18 @@ export default experiment({
         depth: 40,
         maxChambers: 200,
       })
+
       const large = buildCoxeterMesh({
         symbol: sym,
         depth: 40,
         maxChambers: 8000,
       })
+
       const orbitGrows = large.cellCount > small.cellCount * 1.5 // does giving the orbit more room grow it (infinite) or not (closes)
       const n = large.cellCount
+
       let c = 0
+
       for (let i = 1; i < n; i++) {
         if (large.neighbors[i]!.length > large.neighbors[c]!.length) {
           c = i
@@ -46,11 +50,13 @@ export default experiment({
         size: n,
         source: c,
       })
+
       const g = growingMeshGenesis({
         neighbors: large.neighbors,
         depth,
         settleBeats: 20,
       })
+
       const lifeFrac =
         g.trajectory[g.trajectory.length - 1]! / g.bornEnd
 
@@ -66,6 +72,7 @@ export default experiment({
     const hyperbolicLives = hyp2.lifeFrac > 0.1 && hyp3.lifeFrac > 0.03 // life sustained on the hyperbolic substrates
     const arrowTracksCurvature =
       Math.min(hyp2.lifeFrac, hyp3.lifeFrac) > sph.lifeFrac // hyperbolic outlives spherical
+
     const ok =
       sphericalCloses &&
       hyperbolicGrows &&

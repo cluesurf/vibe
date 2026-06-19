@@ -39,6 +39,7 @@ export async function renderFoldToRgba(input: {
     format: READBACK_FORMAT,
     usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
   })
+
   const encoder = device.createCommandEncoder()
   const pass = encoder.beginRenderPass({
     colorAttachments: [
@@ -50,6 +51,7 @@ export async function renderFoldToRgba(input: {
       },
     ],
   })
+
   scene.draw(pass)
   pass.end()
 
@@ -58,6 +60,7 @@ export async function renderFoldToRgba(input: {
     size: bytesPerRow * size,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   encoder.copyTextureToBuffer(
     { texture: target },
     { buffer: pixelBuffer, bytesPerRow, rowsPerImage: size },

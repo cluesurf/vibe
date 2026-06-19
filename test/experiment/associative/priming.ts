@@ -32,6 +32,7 @@ export function associativePriming(input?: {
   // pick a target deep in the store (a far cell), deterministic, the most distant cell
   let target = seed
   let far = -1
+
   for (let c = 0; c < g.cellCount; c++) {
     if (distFromSeed[c]! > far) {
       far = distFromSeed[c]!
@@ -45,6 +46,7 @@ export function associativePriming(input?: {
     seed,
     responders: [target],
   })
+
   const unprimedBeats = unprimed.firstResponderBeat
 
   // priming, a prior wave pre-activates a region AROUND the target (a ball of primeRadius). The later query
@@ -55,11 +57,13 @@ export function associativePriming(input?: {
     root: target,
     radius: primeRadius,
   })
+
   const primed = broadcastWave({
     neighbors: g.neighbors,
     seed,
     responders: primedRegion,
   })
+
   const primedBeats = primed.firstResponderBeat
 
   const solved =

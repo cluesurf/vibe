@@ -39,9 +39,12 @@ export function denseMatVec(
   input: { x: Float64Array },
 ): Float64Array {
   const y = new Float64Array(m.rows)
+
   for (let r = 0; r < m.rows; r++) {
     let s = 0
+
     const base = r * m.cols
+
     for (let c = 0; c < m.cols; c++) {
       s += (m.data[base + c] ?? 0) * (input.x[c] ?? 0)
     }
@@ -62,15 +65,19 @@ export function matrixProduct(
   const inner = b.length
   const cols = b[0]?.length ?? 0
   const out: number[][] = []
+
   for (let i = 0; i < n; i++) {
     const row: number[] = new Array(cols).fill(0)
+
     for (let k = 0; k < inner; k++) {
       const aik = a[i]![k]!
+
       if (aik === 0) {
         continue
       }
 
       const bk = b[k]!
+
       for (let j = 0; j < cols; j++) {
         row[j]! += aik * bk[j]!
       }
@@ -88,9 +95,12 @@ export function matrixProduct(
 export function determinant(a: number[][]): number {
   const n = a.length
   const m = a.map(row => row.slice())
+
   let det = 1
+
   for (let col = 0; col < n; col++) {
     let pivot = col
+
     for (let r = col + 1; r < n; r++) {
       if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) {
         pivot = r
@@ -109,8 +119,10 @@ export function determinant(a: number[][]): number {
     }
 
     det *= m[col]![col]!
+
     for (let r = col + 1; r < n; r++) {
       const f = m[r]![col]! / m[col]![col]!
+
       for (let c = col; c < n; c++) {
         m[r]![c]! -= f * m[col]![c]!
       }
@@ -130,8 +142,10 @@ export function solveLinearSystem(input: {
   const b = input.rightHandSide
   const n = b.length
   const m = A.map((row, i) => [...row, b[i] ?? 0])
+
   for (let col = 0; col < n; col++) {
     let pivot = col
+
     for (let r = col + 1; r < n; r++) {
       if (Math.abs(m[r]![col]!) > Math.abs(m[pivot]![col]!)) {
         pivot = r
@@ -142,6 +156,7 @@ export function solveLinearSystem(input: {
     m[col] = m[pivot]!
     m[pivot] = tmp
     const d = m[col]![col]!
+
     for (let c = col; c <= n; c++) {
       m[col]![c]! /= d
     }
@@ -152,6 +167,7 @@ export function solveLinearSystem(input: {
       }
 
       const factor = m[r]![col]!
+
       for (let c = col; c <= n; c++) {
         m[r]![c]! -= factor * m[col]![c]!
       }

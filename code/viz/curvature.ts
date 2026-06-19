@@ -30,12 +30,15 @@ function curvedTriangle(
     (verts[0][0] + verts[1][0] + verts[2][0]) / 3,
     (verts[0][1] + verts[1][1] + verts[2][1]) / 3,
   ]
+
   const edges: [Pt, Pt][] = [
     [verts[0], verts[1]],
     [verts[1], verts[2]],
     [verts[2], verts[0]],
   ]
+
   let d = `M ${verts[0][0]} ${verts[0][1]} `
+
   for (const [a, b] of edges) {
     const mid: Pt = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
     const ox = mid[0] - centroid[0]
@@ -45,6 +48,7 @@ function curvedTriangle(
       mid[0] + (ox / len) * bulge,
       mid[1] + (oy / len) * bulge,
     ]
+
     d += `Q ${ctrl[0].toFixed(1)} ${ctrl[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)} `
   }
 
@@ -91,6 +95,7 @@ function main(): void {
     { name: 'euclidean', bulge: 0 }, // flat, straight sides
     { name: 'hyperbolic', bulge: -20 }, // negative curvature, sides cave inward
   ]
+
   for (const p of panels) {
     const out = `${dir}/curvature-${p.name}.svg`
     mkdirSync(dirname(out), { recursive: true })

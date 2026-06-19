@@ -28,6 +28,7 @@ export function multiply(left: Matrix, right: Matrix): Matrix {
   return left.map(row =>
     (right[0] ?? []).map((_, column) => {
       let sum = 0
+
       for (let index = 0; index < inner; index++) {
         sum += (row[index] ?? 0) * (right[index]![column] ?? 0)
       }
@@ -52,8 +53,11 @@ export function kahlerDirac(complex: CellComplex): Matrix {
     (sum, count) => sum + count,
     0,
   )
+
   const offset: number[] = []
+
   let running = 0
+
   for (const count of complex.dimensions) {
     offset.push(running)
     running += count
@@ -62,11 +66,14 @@ export function kahlerDirac(complex: CellComplex): Matrix {
   const operator: Matrix = Array.from({ length: total }, () =>
     new Array(total).fill(0),
   )
+
   for (let grade = 0; grade < complex.boundary.length; grade++) {
     const derivative = exteriorDerivative(complex, grade) // grade -> grade+1, shape next by current
+
     for (let row = 0; row < derivative.length; row++) {
       for (let column = 0; column < derivative[row]!.length; column++) {
         const value = derivative[row]![column]!
+
         if (value === 0) {
           continue
         }
@@ -91,6 +98,7 @@ export function polygonComplex(sides: number): CellComplex {
   const edgesToVertices: Matrix = Array.from({ length: sides }, () =>
     new Array(sides).fill(0),
   )
+
   for (let edge = 0; edge < sides; edge++) {
     edgesToVertices[edge]![edge] = -1
     edgesToVertices[(edge + 1) % sides]![edge] = 1
@@ -114,6 +122,7 @@ export function boundaryOfBoundaryIsZero(
       complex.boundary[grade]!,
       complex.boundary[grade + 1]!,
     )
+
     if (
       product.some(row => row.some(value => Math.abs(value) > 1e-9))
     ) {

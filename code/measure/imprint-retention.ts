@@ -28,6 +28,7 @@ export function imprintRetention(input: {
   const tone = new Int8Array(n)
   const moved = new Uint8Array(n)
   const rngWarm = makeRng({ seed: 9 })
+
   for (let b = 0; b < 30; b++) {
     perceptionEdgeBeat({
       tone,
@@ -50,14 +51,17 @@ export function imprintRetention(input: {
     source: 0,
     limit: blobSize,
   })
+
   for (const i of blob) {
     tone[i] = 1
   }
 
   const meanBlob = (): number =>
     blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
+
   const start = meanBlob()
   const rng2 = makeRng({ seed: 31 })
+
   for (let b = 0; b < 30; b++) {
     perceptionEdgeBeat({
       tone,
@@ -74,7 +78,9 @@ export function imprintRetention(input: {
   }
 
   const after = meanBlob()
+
   let bg = 0
+
   for (let i = 0; i < n; i++) {
     bg += tone[i]!
   }

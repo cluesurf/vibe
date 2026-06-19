@@ -25,13 +25,16 @@ export function bulkMass(input: {
     spatialDegree,
     minNeighbours,
   } = input
+
   const source = new Int8Array(cellCount)
+
   for (let c = 0; c < cellCount; c++) {
     if (!occupied[c]) {
       continue
     }
 
     let count = 0
+
     for (let d = 0; d < spatialDegree; d++) {
       count += occupied[neighbour(c, d)] ? 1 : 0
     }
@@ -70,13 +73,18 @@ export function relaxPotential(input: {
     cap,
     warm,
   } = input
+
   const clamp = (v: number): number =>
     v < -cap ? -cap : v > cap ? cap : v
+
   let phi = warm ? warm : new Int32Array(cellCount)
+
   for (let s = 0; s < sweeps; s++) {
     const next = new Int32Array(cellCount)
+
     for (let c = 0; c < cellCount; c++) {
       let sum = 0
+
       for (let d = 0; d < spatialDegree; d++) {
         sum += phi[neighbour(c, d)]!
       }
@@ -113,14 +121,17 @@ export function gravityMoves(input: {
     spatialDegree,
     minNeighbours,
   } = input
+
   const free = occupied.slice()
   const moves: Array<[number, number]> = []
+
   for (let c = 0; c < cellCount; c++) {
     if (!free[c]) {
       continue
     }
 
     let dense = 0
+
     for (let d = 0; d < spatialDegree; d++) {
       dense += free[neighbour(c, d)]!
     }
@@ -131,8 +142,10 @@ export function gravityMoves(input: {
 
     let best = -1
     let bestPhi = phi[c]!
+
     for (let d = 0; d < spatialDegree; d++) {
       const t = neighbour(c, d)
+
       if (!free[t] && phi[t]! < bestPhi) {
         bestPhi = phi[t]!
         best = t
@@ -173,13 +186,18 @@ export function vacuumDensity(input: {
     cap,
     warm,
   } = input
+
   const clamp = (v: number): number =>
     v < -cap ? -cap : v > cap ? cap : v
+
   let v = warm ? warm : new Int32Array(cellCount)
+
   for (let s = 0; s < sweeps; s++) {
     const next = new Int32Array(cellCount)
+
     for (let c = 0; c < cellCount; c++) {
       let sum = 0
+
       for (let d = 0; d < spatialDegree; d++) {
         sum += v[neighbour(c, d)]!
       }

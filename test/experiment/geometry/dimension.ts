@@ -43,6 +43,7 @@ export default experiment({
       count: n,
       rng: makeRng({ seed: 1 }),
     })
+
     const result = sampleUniform({
       size: n,
       beta: 1,
@@ -52,9 +53,11 @@ export default experiment({
       sampleEvery: Math.max(1, Math.floor(n / 2)),
       startFuture: sprinkle.future,
     })
+
     const dimension = dimensionFromOrderingFraction(
       result.meanOrderingFraction,
     )
+
     const ok = Math.abs(dimension - 2) < 0.5
 
     return verdict({

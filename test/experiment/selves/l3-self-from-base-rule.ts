@@ -39,7 +39,9 @@ function radiusOfGyration(input: { will: Will; side: number }): number {
 
 function uniformGyration(side: number): number {
   const c = side / 2 - 0.5
+
   let m2 = 0
+
   for (let i = 0; i < side * side; i++) {
     const dx = (i % side) - c
     const dy = Math.floor(i / side) - c
@@ -53,9 +55,11 @@ function packet(side: number): Will {
   const mesh = squareMesh({ side })
   const will = makeWill(mesh)
   const c = Math.floor(side / 2)
+
   for (let y = c - 3; y <= c + 3; y++) {
     for (let x = c - 3; x <= c + 3; x++) {
       const base = (y * side + x) * mesh.degree
+
       for (let d = 0; d < mesh.degree; d++) {
         will.data[base + d] = 1
       }
@@ -80,6 +84,7 @@ export default experiment({
     const opposite = Array.from({ length: mesh.degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const collision = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })
     const spreadMax = uniformGyration(side)
@@ -92,6 +97,7 @@ export default experiment({
       beats,
       inverse,
     )
+
     const conservesOk = conservesCharge(packet(side), collision, beats)
 
     // the base rule, its interaction confines the packet.
@@ -100,8 +106,11 @@ export default experiment({
       mesh: base.mesh,
       data: new Int8Array(base.data.length),
     }
+
     const startRg = radiusOfGyration({ will: base, side })
+
     let baseMaxRg = startRg
+
     for (let t = 0; t < beats; t++) {
       beatInto({ src: base, dst: baseScratch, table, collision })
       const swap = base

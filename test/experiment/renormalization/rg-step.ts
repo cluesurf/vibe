@@ -48,13 +48,16 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     targetSize: blockSize,
     rng: seedRng,
   })
+
   const nbrSet: Set<number>[] = Array.from(
     { length: numBlocks },
     () => new Set<number>(),
   )
+
   for (let k = 0; k < eu.length; k++) {
     const a = blockOf[eu[k]!]!
     const b = blockOf[ev[k]!]!
+
     if (a !== b) {
       nbrSet[a]!.add(b)
       nbrSet[b]!.add(a)
@@ -72,7 +75,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
     size: N,
     source: 0,
   })
+
   let maxd = 0
+
   for (let i = 0; i < N; i++) {
     if (distP[i]! > maxd) {
       maxd = distP[i]!
@@ -92,30 +97,37 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
       group: blockOf,
       groupCount: numBlocks,
     })
+
   const meanBC: Float64Array[] = Array.from(
     { length: numSamples + 1 },
     () => new Float64Array(numBlocks),
   )
+
   let alphaMin = Infinity
   let alphaMax = -Infinity
   let conserved = true
+
   for (let run = 0; run < R; run++) {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 100 + run })
+
     for (let i = 0; i < N; i++) {
       const grad = 0.25 * (1 - distP[i]! / (maxd + 1)) // dilute +1 gas, denser near the pole
       tone[i] = (rng.next() < grad ? 1 : 0) as 0 | 1
     }
 
     const q0 = tone.reduce((s, x) => s + x, 0)
+
     for (let t = 0; t < warmup; t++) {
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow: 0 })
     }
 
     for (let s = 0; s <= numSamples; s++) {
       const bc = blockCharge(tone)
+
       for (let b = 0; b < numBlocks; b++) {
         meanBC[s]![b]! += bc[b]! / R
+
         if (bc[b]! < alphaMin) {
           alphaMin = bc[b]!
         }
@@ -142,11 +154,14 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   // identify the effective rule on the ensemble-mean trajectory: dQ_B ~ D * Laplacian_B, held-out test
   const samplesX: number[] = [] // Laplacian
   const samplesY: number[] = [] // dQ
+
   for (let t = 0; t + 1 < meanBC.length; t++) {
     const q = meanBC[t]!
     const qn = meanBC[t + 1]!
+
     for (let b = 0; b < numBlocks; b++) {
       let lap = 0
+
       for (const w of blockNbr[b]!) {
         lap += q[w]! - q[b]!
       }
@@ -158,24 +173,29 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
 
   const m = samplesX.length
   const split = Math.floor(m / 2)
+
   // fit D on the train half: D = sum(x*y)/sum(x*x)
   let sxy = 0
   let sxx = 0
+
   for (let i = 0; i < split; i++) {
     sxy += samplesX[i]! * samplesY[i]!
     sxx += samplesX[i]! * samplesX[i]!
   }
 
   const diffusionConstant = sxx > 0 ? sxy / sxx : 0
+
   // R^2 on the test half (out-of-sample = the commuting square)
   let ssRes = 0
   let ssTot = 0
   let meanY = 0
+
   for (let i = split; i < m; i++) {
     meanY += samplesY[i]!
   }
 
   meanY /= m - split
+
   for (let i = split; i < m; i++) {
     const pred = diffusionConstant * samplesX[i]!
     ssRes += (samplesY[i]! - pred) ** 2
@@ -188,7 +208,9 @@ export function rgStep(input?: { n?: number; blockSize?: number }): {
   // fast = hyperbolic mixing). variance across blocks at each sampled beat.
   const varAt = (q: Float64Array): number => populationVariance(q)
   const var0 = varAt(meanBC[0]!)
+
   let mixingTime = numSamples
+
   for (let s = 0; s < meanBC.length; s++) {
     if (varAt(meanBC[s]!) < 0.5 * var0) {
       mixingTime = s

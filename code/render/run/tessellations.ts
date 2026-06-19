@@ -28,6 +28,7 @@ const csvPath = join(
   'notes',
   'tessellations.csv',
 )
+
 const outDir = join(
   here,
   '..',
@@ -41,8 +42,10 @@ const outDir = join(
 // a quote-aware CSV splitter, the symbol field is quoted and contains a comma (e.g. "{5,3,4}")
 function csvCols(line: string): string[] {
   const out: string[] = []
+
   let cur = ''
   let quoted = false
+
   for (const ch of line) {
     if (ch === '"') {
       quoted = !quoted
@@ -69,6 +72,7 @@ function parseSymbol(text: string): number[] | null {
     .trim()
     .split(',')
     .map(p => Number(p.trim()))
+
   if (nums.some(n => !Number.isInteger(n) || n <= 0)) {
     return null
   }
@@ -88,15 +92,19 @@ function run(): void {
     .trim()
     .split('\n')
     .slice(1)
+
   let drawn = 0
   let skipped = 0
+
   for (const line of lines) {
     const cols = csvCols(line)
     const display = cols[0] ?? ''
     const dimension = Number(cols[2])
     const symbol = parseSymbol(display)
+
     if (!symbol) {
       skipped++
+
       if (!want.length) {
         console.log(
           `${display}  skip (non-integer symbol, not buildable)`,
@@ -107,12 +115,14 @@ function run(): void {
     }
 
     const key = symbol.join('-')
+
     if (want.length && !want.includes(key)) {
       continue
     }
 
     const twoD = dimension === 2
     const maxCells = twoD ? 2800 : dimension === 3 ? 600 : 350
+
     try {
       const scene = buildHoneycombScene({ symbol, maxCells })
       const png = renderSceneToPng({
@@ -123,6 +133,7 @@ function run(): void {
         near: twoD ? TWO_D_NEAR : BALL_NEAR,
         far: twoD ? TWO_D_FAR : BALL_FAR,
       })
+
       writeFileSync(join(outDir, `${key}.png`), png)
       drawn++
       console.log(

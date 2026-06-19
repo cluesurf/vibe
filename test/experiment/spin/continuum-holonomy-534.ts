@@ -74,6 +74,7 @@ export default experiment({
       cmMultiply(rotorTwoPi, gamma[1]!),
       inverseTwoPi,
     )
+
     const vectorReturnsAt2Pi = matrixEquals(vectorAfter, gamma[1]!)
 
     // CONTROL: area 4pi returns the spinor to plus one, the discriminating signature of the double cover

@@ -42,7 +42,9 @@ export function compileToRailway(
     ts.ScriptTarget.Latest,
     true,
   )
+
   const fn = file.statements.find(ts.isFunctionDeclaration)
+
   if (!fn || !fn.body) {
     throw new Error(
       'expected a single function declaration with a body',
@@ -50,6 +52,7 @@ export function compileToRailway(
   }
 
   const registers = new Map<string, number>()
+
   const reg = (name: string): number => {
     if (!registers.has(name)) {
       registers.set(name, registers.size)
@@ -61,6 +64,7 @@ export function compileToRailway(
   const parameters = fn.parameters.map(
     p => (p.name as ts.Identifier).text,
   )
+
   for (const p of parameters) {
     reg(p)
   } // parameters are registers 0..k-1
@@ -72,23 +76,28 @@ export function compileToRailway(
   // can group the unary instruction stream back into operations, so an animation can pace by operations (one
   // per loop body statement) instead of by raw inc / dec steps.
   const opIndex: number[] = []
+
   let opCounter = 0
+
   const emit = (ins: RailInstruction): number => (
     code.push(ins),
     opIndex.push(opCounter),
     code.length - 1
   )
+
   const here = (): number => code.length
 
   // dst += 1 ; fall through to the next instruction
   const inc = (r: number): void => {
     const i = emit({ op: 'inc', reg: r, next: 0 })
+
     ;(code[i] as { next: number }).next = i + 1
   }
 
   // dst -= 1 if possible, else stay; either branch falls through (a non-jumping decrement)
   const decOrStay = (r: number): void => {
     const i = emit({ op: 'dec', reg: r, next: 0, zero: 0 })
+
     ;(code[i] as { next: number; zero: number }).next = i + 1
     ;(code[i] as { next: number; zero: number }).zero = i + 1
   }
@@ -97,6 +106,7 @@ export function compileToRailway(
   const clear = (r: number): void => {
     const loop = here()
     const dec = emit({ op: 'dec', reg: r, next: 0, zero: 0 })
+
     ;(code[dec] as { next: number; zero: number }).next = loop // decremented one, loop back
     ;(code[dec] as { next: number; zero: number }).zero = loop + 1 // empty, fall through
   }
@@ -106,9 +116,12 @@ export function compileToRailway(
   const drain = (src: number, dests: number[]): void => {
     const loop = here()
     const dec = emit({ op: 'dec', reg: src, next: 0, zero: 0 })
+
     ;(code[dec] as { next: number; zero: number }).next = dec + 1 // body
+
     for (let k = 0; k < dests.length; k++) {
       const i = emit({ op: 'inc', reg: dests[k]!, next: 0 })
+
       ;(code[i] as { next: number }).next =
         k === dests.length - 1 ? loop : i + 1
     }
@@ -136,13 +149,16 @@ export function compileToRailway(
 
   const compileStatement = (stmt: ts.Statement): void => {
     opCounter++ // each statement is one high-level operation; nested while-body statements bump again
+
     if (ts.isVariableStatement(stmt)) {
       for (const decl of stmt.declarationList.declarations) {
         const name = (decl.name as ts.Identifier).text
         const r = reg(name)
         clear(r)
+
         if (decl.initializer && ts.isNumericLiteral(decl.initializer)) {
           const n = Number(decl.initializer.text)
+
           for (let k = 0; k < n; k++) {
             inc(r)
           }
@@ -161,6 +177,7 @@ export function compileToRailway(
     if (ts.isWhileStatement(stmt)) {
       // guard must be `id !== 0`
       const cond = stmt.expression
+
       if (
         !ts.isBinaryExpression(cond) ||
         cond.operatorToken.kind !==
@@ -173,6 +190,7 @@ export function compileToRailway(
       const loop = here()
       const dec = emit({ op: 'dec', reg: g, next: 0, zero: 0 }) // test by decrement
       const restore = emit({ op: 'inc', reg: g, next: 0 }) // restore (non-destructive test)
+
       ;(code[restore] as { next: number }).next = restore + 1
       ;(code[dec] as { next: number; zero: number }).next = restore
       compileBlock(stmt.statement as ts.Block)
@@ -183,7 +201,9 @@ export function compileToRailway(
         next: loop,
         zero: loop,
       })
+
       const end = here()
+
       ;(
         code[dec] as {
           op: 'dec'
@@ -209,6 +229,7 @@ export function compileToRailway(
   const compileExpression = (expr: ts.Expression): void => {
     if (ts.isPostfixUnaryExpression(expr)) {
       const r = reg((expr.operand as ts.Identifier).text)
+
       if (expr.operator === ts.SyntaxKind.PlusPlusToken) {
         inc(r)
       } else if (expr.operator === ts.SyntaxKind.MinusMinusToken) {
@@ -223,6 +244,7 @@ export function compileToRailway(
     if (ts.isBinaryExpression(expr)) {
       const dst = reg((expr.left as ts.Identifier).text)
       const op = expr.operatorToken.kind
+
       if (op === ts.SyntaxKind.PlusEqualsToken) {
         add(dst, reg((expr.right as ts.Identifier).text))
 
@@ -233,6 +255,7 @@ export function compileToRailway(
         if (ts.isNumericLiteral(expr.right)) {
           clear(dst)
           const n = Number(expr.right.text)
+
           for (let k = 0; k < n; k++) {
             inc(dst)
           }

@@ -42,10 +42,13 @@ export function cellComplexOf(input: {
   // 1-cells: undirected edges a < b, with an index lookup.
   const edges: Array<{ a: number; b: number }> = []
   const edgeIndex = new Map<string, number>()
+
   for (let a = 0; a < vertexCount; a++) {
     const row = adjacency[a] ?? new Uint32Array(0)
+
     for (let k = 0; k < row.length; k++) {
       const b = row[k] ?? 0
+
       if (a < b) {
         edgeIndex.set(`${a},${b}`, edges.length)
         edges.push({ a, b })
@@ -61,8 +64,10 @@ export function cellComplexOf(input: {
   // boundary[1]: edges (1-cells) -> vertices (0-cells). Sign +1 at head b,
   // -1 at tail a, matching d acting as a difference along the edge.
   const boundary1Triplets: Triplet[] = []
+
   for (let e = 0; e < edges.length; e++) {
     const edge = edges[e]
+
     if (!edge) {
       continue
     }
@@ -86,14 +91,17 @@ export function cellComplexOf(input: {
     cols: vertexCount,
     triplets: [],
   })
+
   const boundary: SparseMatrix[] = [boundary0, boundary1]
 
   if (input.maxGrade >= 2) {
     // 2-cells: triangles (3-cliques). For each edge a<b, scan common neighbors
     // c with c > b so each triangle a<b<c is found exactly once.
     const triangles: Array<{ a: number; b: number; c: number }> = []
+
     for (let e = 0; e < edges.length; e++) {
       const edge = edges[e]
+
       if (!edge) {
         continue
       }
@@ -101,6 +109,7 @@ export function cellComplexOf(input: {
       const { a, b } = edge
       const setA = neighborSet[a]
       const setB = neighborSet[b]
+
       if (!setA || !setB) {
         continue
       }
@@ -115,8 +124,10 @@ export function cellComplexOf(input: {
     // boundary[2]: triangles (2-cells) -> edges (1-cells). With a<b<c the
     // oriented boundary is (b,c) - (a,c) + (a,b).
     const boundary2Triplets: Triplet[] = []
+
     for (let t = 0; t < triangles.length; t++) {
       const tri = triangles[t]
+
       if (!tri) {
         continue
       }
@@ -124,6 +135,7 @@ export function cellComplexOf(input: {
       const eBC = edgeIndex.get(`${tri.b},${tri.c}`)
       const eAC = edgeIndex.get(`${tri.a},${tri.c}`)
       const eAB = edgeIndex.get(`${tri.a},${tri.b}`)
+
       if (eBC !== undefined) {
         boundary2Triplets.push({ row: eBC, col: t, value: 1 })
       }
@@ -142,6 +154,7 @@ export function cellComplexOf(input: {
       cols: triangles.length,
       triplets: boundary2Triplets,
     })
+
     cellCount.push(triangles.length)
     boundary.push(boundary2)
   }
@@ -169,6 +182,7 @@ export function kahlerDirac(input: {
   // Offsets of each grade block within the stacked vector.
   const offset: number[] = new Array<number>(grades + 1)
   offset[0] = 0
+
   for (let k = 0; k < grades; k++) {
     offset[k + 1] = (offset[k] ?? 0) + (cellCount[k] ?? 0)
   }
@@ -176,19 +190,23 @@ export function kahlerDirac(input: {
   const total = offset[grades] ?? 0
 
   const triplets: Triplet[] = []
+
   // For each grade k >= 1, fold in boundary[k] (shape (k-1)-cells x k-cells).
   for (let k = 1; k < grades; k++) {
     const b = input.complex.boundary[k]
+
     if (!b) {
       continue
     }
 
     const lowOffset = offset[k - 1] ?? 0
     const highOffset = offset[k] ?? 0
+
     // Walk the CSR rows of B_k. row r is a (k-1)-cell, col c is a k-cell.
     for (let r = 0; r < b.rows; r++) {
       const start = b.rowPtr[r] ?? 0
       const end = b.rowPtr[r + 1] ?? 0
+
       for (let p = start; p < end; p++) {
         const c = b.colIdx[p] ?? 0
         const value = b.value[p] ?? 0
@@ -239,14 +257,17 @@ export function kahlerDiracZeroModes(input: {
     apply: ({ x }) =>
       sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
   }
+
   const squared = lowestEigenvalues({
     operator: dSquared,
     count: input.count,
     ...(input.steps === undefined ? {} : { steps: input.steps }),
   })
+
   const smallestMagnitudes = Array.from(squared, v =>
     Math.sqrt(Math.max(0, v)),
   )
+
   const zeroModes = smallestMagnitudes.filter(
     x => x < input.threshold,
   ).length

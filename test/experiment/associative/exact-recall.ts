@@ -33,6 +33,7 @@ export function associativeExactRecall(input?: {
     neighbors: g.neighbors,
     wordBits,
   })
+
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
   }

@@ -36,6 +36,7 @@ function evolve(
   const N = g.cellCount
   const rng = makeRng({ seed })
   const tone = new Int8Array(N)
+
   for (let i = 0; i < N; i++) {
     const r = rng.next()
     tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0) as
@@ -45,6 +46,7 @@ function evolve(
   }
 
   const moved = new Uint8Array(N)
+
   for (let t = 0; t < beats; t++) {
     beat(tone, g, moved, rng, 0.01, 0.22)
   }
@@ -73,23 +75,29 @@ export function rarityMeasures(input?: { L?: number }): {
   // --- (2) integration spectrum + tail, and (5) thin-film dimension, on one evolved state ---
   const tone = evolve(g, L, 0.12, 70, 1)
   const clusters = positiveClusters(tone, g)
+
   let totalCharge = 0
+
   for (const c of clusters) {
     totalCharge += c.length
   }
 
   let phiTailMass = 0
   let lowPhiMass = 0
+
   const matterCells: number[] = []
   const aliveCells: number[] = []
+
   for (const c of clusters) {
     for (const u of c) {
       matterCells.push(u)
     }
 
     const phi = clusterIntegration(c, g)
+
     if (phi >= phiAlive && c.length >= 6) {
       phiTailMass += c.length
+
       for (const u of c) {
         aliveCells.push(u)
       }
@@ -100,6 +108,7 @@ export function rarityMeasures(input?: { L?: number }): {
 
   const phiTailFraction =
     totalCharge > 0 ? phiTailMass / totalCharge : 0
+
   const lowPhiFraction = totalCharge > 0 ? lowPhiMass / totalCharge : 0
   const spectrumTailRare = phiTailFraction < 0.2 && lowPhiFraction > 0.5
 
@@ -107,22 +116,28 @@ export function rarityMeasures(input?: { L?: number }): {
     cells: matterCells,
     sideLength: L,
   })
+
   const aliveDimension = boxCountingDimension({
     cells: aliveCells,
     sideLength: L,
   })
+
   const thinFilm = aliveDimension < matterDimension - 0.3
 
   // --- (4) density threshold for condensation ---
   const densities = [0.02, 0.05, 0.08, 0.12, 0.18, 0.26, 0.36]
   const condensedByDensity: number[] = []
+
   for (const d of densities) {
     const t = evolve(g, L, d, 60, 7)
     const cs = positiveClusters(t, g)
+
     let charge = 0
     let condensed = 0
+
     for (const c of cs) {
       charge += c.length
+
       if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive) {
         condensed += c.length
       }
@@ -133,6 +148,7 @@ export function rarityMeasures(input?: { L?: number }): {
 
   // threshold = the largest density at which condensation is still negligible (< 2 percent)
   let thresholdDensity = densities[densities.length - 1]!
+
   for (let i = 0; i < densities.length; i++) {
     if (condensedByDensity[i]! < 0.02) {
       thresholdDensity = densities[i]!

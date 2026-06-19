@@ -31,8 +31,10 @@ const SURROUND_DENSITY = 0.22 // sparse matter outside the mass, the test matter
 
 const norm = (v: number[]): number =>
   Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+
 const dot = (a: number[], b: number[]): number =>
   a.reduce((s, x, i) => s + x * b[i]!, 0)
+
 const COLORS = TONE_COLORS
 
 function run(): void {
@@ -41,16 +43,20 @@ function run(): void {
     half: HALF,
     margin: MARGIN,
   })
+
   const n = slab.cellCount,
     dim = slab.coords[0]!.length,
     xi = slab.idealPoint
+
   const g = toCSR(slab.neighbors)
 
   // flat (horospherical) coordinates, same stereographic inversion as the band renderers
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+
   const sub = (a: number[], b: number[], s: number): number[] =>
     a.map((x, i) => x - s * b[i]!)
+
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
 
@@ -58,6 +64,7 @@ function run(): void {
   }
 
   let axis = 0
+
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
@@ -65,7 +72,9 @@ function run(): void {
   }
 
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
+
   let axis2 = (axis + 1) % dim
+
   for (let k = 0; k < dim; k++) {
     if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) {
       axis2 = k
@@ -82,6 +91,7 @@ function run(): void {
 
   const bandCells: number[] = []
   const uv: [number, number][] = []
+
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
@@ -103,11 +113,14 @@ function run(): void {
 
   const cu = median(uv.map(c => c[0])),
     cv = median(uv.map(c => c[1]))
+
   const fdistOf = (j: number): number =>
     Math.hypot(uv[j]![0] - cu, uv[j]![1] - cv)
+
   const radii = bandCells
     .map((_, j) => fdistOf(j))
     .sort((a, b) => a - b)
+
   const massR = radii[Math.floor(radii.length * MASS_PCT)]!
   const surroundR = radii[Math.floor(radii.length * 0.85)]!
 
@@ -115,9 +128,11 @@ function run(): void {
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
   const isSurround = new Uint8Array(n)
+
   for (let j = 0; j < bandCells.length; j++) {
     const i = bandCells[j]!,
       r = fdistOf(j)
+
     if (r <= massR) {
       tone[i] = 1
     } else if (r <= surroundR && rng.next() < SURROUND_DENSITY) {
@@ -131,6 +146,7 @@ function run(): void {
   // pixel mapping
   const halfExtent =
     (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+
   const halfPix = IMG / 2 - 20
   const pix = bandCells.map((_, j): [number, number] => [
     Math.round(IMG / 2 + ((uv[j]![0] - cu) / halfExtent) * halfPix),
@@ -141,9 +157,11 @@ function run(): void {
   const surroundIdx = bandCells
     .map((i, j) => [i, j] as [number, number])
     .filter(([i]) => isSurround[i])
+
   const meanSurroundDist = (): number => {
     let s = 0,
       c = 0
+
     for (const [i, j] of surroundIdx) {
       if (tone[i] === 1) {
         s += fdistOf(j)
@@ -161,6 +179,7 @@ function run(): void {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
   const startDist = meanSurroundDist()
@@ -172,6 +191,7 @@ function run(): void {
     beat(tone, g, moved, rng, ARROW, COHESION) // THE RULE, nothing else
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = 8
       rgba[i * 4 + 1] = 8
@@ -181,16 +201,19 @@ function run(): void {
 
     for (let j = 0; j < bandCells.length; j++) {
       const t = tone[bandCells[j]!]!
+
       if (t === 0) {
         continue
       }
 
       const col = COLORS[t === 1 ? 1 : 2]!
       const [cx, cy] = pix[j]!
+
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = cx + dx,
             y = cy + dy
+
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
@@ -204,6 +227,7 @@ function run(): void {
     }
 
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
+
     if (f % 40 === 0 || f === FRAMES - 1) {
       console.log(
         `  frame ${f}, surround mean distance to mass ${meanSurroundDist().toFixed(1)}`,
@@ -218,6 +242,7 @@ function run(): void {
       : endDist < startDist * 0.95
         ? 'weak inward drift'
         : 'NO net migration (local cohesion only, no gravity)'
+
   console.log(
     `surround mean distance ${startDist.toFixed(1)} -> ${endDist.toFixed(1)}, ${verdict}`,
   )

@@ -18,7 +18,9 @@ function dot(a: number[], b: number[]): number {
 // The largest cosine between any two DISTINCT unit directions, the cosine of the minimum pairwise angle.
 export function maxPairwiseCosine(directions: number[][]): number {
   const units = directions.map(unit)
+
   let maximum = -1
+
   for (let i = 0; i < units.length; i++) {
     for (let j = i + 1; j < units.length; j++) {
       maximum = Math.max(maximum, dot(units[i]!, units[j]!))
@@ -51,6 +53,7 @@ export function canExtendKissing(
 
   return candidates.some(candidate => {
     const candidateUnit = unit(candidate)
+
     if (
       units.some(existing => dot(existing, candidateUnit) > 1 - 1e-9)
     ) {
@@ -71,8 +74,10 @@ export function coordinationAtMinAngle(
   const units = directions.map(unit)
   const maximum = maxPairwiseCosine(directions)
   const histogram: Record<number, number> = {}
+
   for (let i = 0; i < units.length; i++) {
     let neighbors = 0
+
     for (let j = 0; j < units.length; j++) {
       if (
         i !== j &&
@@ -96,11 +101,15 @@ export function deterministicSpiral(
 ): number[][] {
   const phi = (1 + Math.sqrt(5)) / 2
   const points: number[][] = []
+
   for (let index = 0; index < count; index++) {
     const coordinates: number[] = []
+
     let factor = 1
+
     for (let axis = 0; axis < dimension; axis++) {
       const angle = index * Math.pow(phi, axis + 1)
+
       if (axis < dimension - 1) {
         coordinates.push(factor * Math.sin(angle))
         factor *= Math.cos(angle)
@@ -133,7 +142,9 @@ export function relaxRiesz(
   const powerStart = options.powerStart ?? 0.5
   const powerEnd = options.powerEnd ?? 4
   const baseStep = options.stepSize ?? 0.01
+
   let points = start.map(unit)
+
   for (let step = 0; step < options.steps; step++) {
     const progress = step / options.steps
     const power = powerStart + (powerEnd - powerStart) * progress
@@ -141,17 +152,21 @@ export function relaxRiesz(
     const forces: number[][] = points.map(() =>
       new Array<number>(dimension).fill(0),
     )
+
     for (let i = 0; i < count; i++) {
       for (let j = 0; j < count; j++) {
         if (i !== j) {
           const difference = points[i]!.map(
             (value, axis) => value - points[j]![axis]!,
           )
+
           const distanceSquared = difference.reduce(
             (sum, value) => sum + value * value,
             0,
           )
+
           const scale = power / Math.pow(distanceSquared, power / 2 + 1)
+
           for (let axis = 0; axis < dimension; axis++) {
             forces[i]![axis]! += scale * difference[axis]!
           }

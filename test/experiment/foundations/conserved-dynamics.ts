@@ -33,6 +33,7 @@ function beat(
   pump: Int32Array | null,
 ): void {
   const moved = new Uint8Array(tone.length)
+
   for (const [v, w] of edges) {
     if (moved[v] || moved[w]) {
       continue
@@ -40,6 +41,7 @@ function beat(
 
     const tv = tone[v]!
     const tw = tone[w]!
+
     if (fillSign === -1) {
       // polarize: create a pair from a peaceful pair
       if (tv === 0 && tw === 0) {
@@ -119,12 +121,14 @@ export function conservedDynamics(): {
     depth: 20,
     maxChambers: 60000,
   })
+
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
 
   // center = the most-connected (deepest interior) cell
   let center = 0
+
   for (let i = 1; i < n; i++) {
     if (neighbors[i]!.length > neighbors[center]!.length) {
       center = i
@@ -136,6 +140,7 @@ export function conservedDynamics(): {
     size: n,
     source: center,
   })
+
   const r0 = 4
 
   // a balanced charged pocket near the center (equal + and -, so Q = 0)
@@ -143,6 +148,7 @@ export function conservedDynamics(): {
     const t = new Int8Array(n)
     const rng = makeRng({ seed })
     const inner: number[] = []
+
     for (let i = 0; i < n; i++) {
       if (dist(distC, i) <= r0) {
         inner.push(i)
@@ -165,6 +171,7 @@ export function conservedDynamics(): {
 
   const absInR0 = (t: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       if (dist(distC, i) <= r0) {
         s += Math.abs(t[i]!)
@@ -176,6 +183,7 @@ export function conservedDynamics(): {
 
   const netInR0 = (t: Int8Array): number => {
     let s = 0
+
     for (let i = 0; i < n; i++) {
       if (dist(distC, i) <= r0) {
         s += t[i]!
@@ -190,6 +198,7 @@ export function conservedDynamics(): {
   const q0diff = sumTone(diff)
   const absChargeStart = absInR0(diff)
   const rngD = makeRng({ seed: 11 })
+
   for (let b = 0; b < 80; b++) {
     beat(diff, edges, 1, rngD, null)
   }
@@ -202,6 +211,7 @@ export function conservedDynamics(): {
   const pump = makePocket(1)
   const q0pump = sumTone(pump)
   const rngP = makeRng({ seed: 11 })
+
   for (let b = 0; b < 80; b++) {
     beat(pump, edges, 1, rngP, distC)
   }
@@ -213,11 +223,13 @@ export function conservedDynamics(): {
   const pair = new Int8Array(n) // all 0
   const q0pair = sumTone(pair)
   const rngC = makeRng({ seed: 7 })
+
   for (let b = 0; b < 40; b++) {
     beat(pair, edges, -1, rngC, null)
   }
 
   let pairsCreated = 0
+
   for (let i = 0; i < n; i++) {
     if (pair[i] !== 0) {
       pairsCreated++
@@ -225,11 +237,13 @@ export function conservedDynamics(): {
   }
 
   const qAfterCreate = sumTone(pair)
+
   for (let b = 0; b < 120; b++) {
     beat(pair, edges, 1, rngC, null)
   }
 
   let pairsAfterAnnihilation = 0
+
   for (let i = 0; i < n; i++) {
     if (pair[i] !== 0) {
       pairsAfterAnnihilation++
@@ -242,6 +256,7 @@ export function conservedDynamics(): {
   const diffusionDrains = absChargeDiffused < absChargeStart
   const pumpingConcentrates =
     Math.abs(netCenterPumped) > Math.abs(netCenterDiffused) + 3
+
   const pairsCreateAndAnnihilate =
     pairsCreated > 0 && pairsAfterAnnihilation < pairsCreated
 

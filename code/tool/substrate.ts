@@ -24,6 +24,7 @@ export function adjacencyOf(input: {
   substrate: Substrate
 }): AdjacencyView {
   const s = input.substrate
+
   if (s.form === 'poset') {
     return {
       size: s.size,
@@ -31,6 +32,7 @@ export function adjacencyOf(input: {
         (s.links[node] ?? new Uint32Array(0)).length,
       forEachOut: ({ node, visit }) => {
         const row = s.links[node] ?? new Uint32Array(0)
+
         for (let k = 0; k < row.length; k++) {
           visit(row[k] ?? 0)
         }
@@ -44,6 +46,7 @@ export function adjacencyOf(input: {
       (s.neighbors[node] ?? new Uint32Array(0)).length,
     forEachOut: ({ node, visit }) => {
       const row = s.neighbors[node] ?? new Uint32Array(0)
+
       for (let k = 0; k < row.length; k++) {
         visit(row[k] ?? 0)
       }
@@ -58,9 +61,11 @@ export function undirectedAdjacency(input: {
 }): ReadonlyArray<Uint32Array> {
   const s = input.substrate
   const out: number[][] = Array.from({ length: s.size }, () => [])
+
   if (s.form === 'poset') {
     for (let a = 0; a < s.size; a++) {
       const row = s.links[a] ?? new Uint32Array(0)
+
       for (let k = 0; k < row.length; k++) {
         const b = row[k] ?? 0
         out[a]?.push(b)
@@ -70,9 +75,11 @@ export function undirectedAdjacency(input: {
   } else {
     for (let a = 0; a < s.size; a++) {
       const row = s.neighbors[a] ?? new Uint32Array(0)
+
       for (let k = 0; k < row.length; k++) {
         const b = row[k] ?? 0
         out[a]?.push(b)
+
         if (s.directed) {
           out[b]?.push(a)
         }
@@ -91,7 +98,9 @@ export function substrateMeanDegree(input: {
   substrate: Substrate
 }): number {
   const view = adjacencyOf({ substrate: input.substrate })
+
   let total = 0
+
   for (let node = 0; node < view.size; node++) {
     total += view.outDegree({ node })
   }
@@ -106,7 +115,9 @@ export function substrateUndirectedMeanDegree(input: {
   substrate: Substrate
 }): number {
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
+
   let total = 0
+
   for (let node = 0; node < input.substrate.size; node++) {
     total += (adjacency[node] ?? new Uint32Array(0)).length
   }

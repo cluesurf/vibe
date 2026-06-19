@@ -26,6 +26,7 @@ function measure(
   const rad = g.coords.map(norm)
   const boundary = boundaryByRadius({ radii: rad, fraction: 0.9 })
   const isB = new Uint8Array(N)
+
   for (const b of boundary) {
     isB[b] = 1
   }
@@ -39,6 +40,7 @@ function measure(
     leak: 0.1,
     iterations: 400,
   })
+
   const dist = surfaceDistances({
     offsets: off,
     adjacency: adj,
@@ -46,7 +48,9 @@ function measure(
     source: src,
     nodeCount: N,
   })
+
   const pts: [number, number][] = []
+
   for (const b of boundary) {
     if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) {
       continue
@@ -60,6 +64,7 @@ function measure(
     x =>
       x[0] >= Math.round(maxd * 0.15) && x[0] <= Math.round(maxd * 0.6),
   )
+
   const slope = logLogSlope(
     mid.map(x => x[0]),
     mid.map(x => x[1]),

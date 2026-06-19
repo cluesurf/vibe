@@ -23,6 +23,7 @@ const DECAY = 0.93 // trail fade per beat (long comet tails so motion reads clea
 const N = L * L * L
 const idx = (x: number, y: number, z: number): number =>
   (z * L + y) * L + x
+
 const dx = [1, -1, 0, 0, 0, 0]
 const dy = [0, 0, 1, -1, 0, 0]
 const dz = [0, 0, 0, 0, 1, -1]
@@ -31,8 +32,10 @@ const dz = [0, 0, 0, 0, 1, -1]
 function step(tone: Int8Array, f: number): void {
   const m = new Uint8Array(N)
   const start = (f * 2654435761) % N
+
   for (let s = 0; s < N; s++) {
     const v = (start + s) % N
+
     if (m[v] || tone[v] === 0) {
       continue
     }
@@ -40,17 +43,20 @@ function step(tone: Int8Array, f: number): void {
     const vx = v % L
     const vy = ((v / L) | 0) % L
     const vz = (v / (L * L)) | 0
+
     for (let k = 0; k < 6; k++) {
       const wx = (vx + dx[k]! + L) % L // toroidal, so gliders flow continuously and never pile at a face
       const wy = (vy + dy[k]! + L) % L
       const wz = (vz + dz[k]! + L) % L
       const w = idx(wx, wy, wz)
+
       if (m[w]) {
         continue
       }
 
       const a = tone[v]!
       const b = tone[w]!
+
       if (a === -b && a !== 0) {
         tone[v] = 0
         tone[w] = 0
@@ -78,6 +84,7 @@ function run(): void {
   const siny = Math.sin(AY)
   const half = (L - 1) / 2
   const scale = (IMG * 0.6) / L
+
   const project = (
     x: number,
     y: number,
@@ -98,6 +105,7 @@ function run(): void {
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
   const z2arr = new Float32Array(N)
+
   for (let z = 0; z < L; z++) {
     for (let y = 0; y < L; y++) {
       for (let x = 0; x < L; x++) {
@@ -117,6 +125,7 @@ function run(): void {
 
   // wireframe cube edges (the 8 corners, 12 edges), projected
   const corners: [number, number][] = []
+
   for (let cz = 0; cz < 2; cz++) {
     for (let cy = 0; cy < 2; cy++) {
       for (let cx = 0; cx < 2; cx++) {
@@ -125,6 +134,7 @@ function run(): void {
           cy * (L - 1),
           cz * (L - 1),
         )
+
         corners.push([Math.round(px), Math.round(py)])
       }
     }
@@ -155,6 +165,7 @@ function run(): void {
     [8, 30, 78, 1],
     [8, 65, 22, -1],
   ]
+
   for (const [x, y, z, s] of seeds) {
     tone[idx(x, y, z)] = s as -1 | 1
   }
@@ -175,6 +186,7 @@ function run(): void {
     'make',
     'frames',
   )
+
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -188,6 +200,7 @@ function run(): void {
     // update trails from the current charges
     for (let i = 0; i < N; i++) {
       trail[i] = trail[i]! * DECAY
+
       if (tone[i] !== 0) {
         trail[i] = 1
         tsign[i] = tone[i]!
@@ -197,6 +210,7 @@ function run(): void {
     accR.fill(0)
     accG.fill(0)
     accB.fill(0)
+
     // faint wireframe first (so charges draw over it)
     const drawLine = (
       x0: number,
@@ -205,9 +219,11 @@ function run(): void {
       y1: number,
     ): void => {
       const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1
+
       for (let s = 0; s <= steps; s++) {
         const ix = Math.round(x0 + ((x1 - x0) * s) / steps)
         const iy = Math.round(y0 + ((y1 - y0) * s) / steps)
+
         if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
           continue
         }
@@ -232,6 +248,7 @@ function run(): void {
     for (let k = 0; k < N; k++) {
       const cell = order[k]!
       const tr = trail[cell]!
+
       if (tr < 0.03) {
         continue
       }
@@ -242,10 +259,12 @@ function run(): void {
       const cxp = PX[cell]!
       const cyp = PY[cell]!
       const rad = tone[cell] !== 0 ? SPLAT : SPLAT - 1 // bright head bigger than trail
+
       for (let ddy = -rad; ddy <= rad; ddy++) {
         for (let ddx = -rad; ddx <= rad; ddx++) {
           const ix = cxp + ddx
           const iy = cyp + ddy
+
           if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
             continue
           }
@@ -259,6 +278,7 @@ function run(): void {
     }
 
     const rgba = new Uint8Array(IMG * IMG * 4)
+
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = Math.min(255, 6 + accR[i]!)
       rgba[i * 4 + 1] = Math.min(255, 6 + accG[i]!)

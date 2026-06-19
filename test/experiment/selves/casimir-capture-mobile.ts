@@ -43,6 +43,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const binOf = (cell: number): number => cell % side
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for both runs
 
@@ -52,15 +53,20 @@ export default experiment({
     ): { gapStart: number; gapEnd: number; gapMin: number } => {
       let left = 5
       let right = 14
+
       const gapStart = right - left
+
       let accLeft = 0
       let accRight = 0
       let gapMin = gapStart
+
       const imposeWalls = (will: Will): void => {
         for (let cell = 0; cell < mesh.cellCount; cell++) {
           const x = cell % side
+
           if (x === left || x === right) {
             const base = cell * degree
+
             for (let d = 0; d < degree; d++) {
               will.data[base + d] = 1
             }
@@ -73,7 +79,9 @@ export default experiment({
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       imposeWalls(current)
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
         const swap = current
@@ -85,12 +93,15 @@ export default experiment({
           binOf,
           bins: side,
         })
+
         // net inward force = density just outside minus density just inside (toward the gap)
         const forceLeft = (prof[left - 1] ?? 0) - (prof[left + 1] ?? 0)
         const forceRight =
           (prof[right + 1] ?? 0) - (prof[right - 1] ?? 0)
+
         accLeft += forceLeft
         accRight += forceRight
+
         if (accLeft > threshold && right - left > minGap) {
           left += 1
           accLeft = 0
@@ -102,6 +113,7 @@ export default experiment({
         }
 
         const gap = right - left
+
         if (gap < gapMin) {
           gapMin = gap
         }

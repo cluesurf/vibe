@@ -40,9 +40,11 @@ export default experiment({
     const qRatio =
       Math.sqrt(quantumMsd({ eig: eigA, n, center, t: 16 })) /
       Math.sqrt(quantumMsd({ eig: eigA, n, center, t: 4 }))
+
     const cRatio =
       Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 16 })) /
       Math.sqrt(classicalMsd({ eig: eigL, n, center, t: 4 }))
+
     const ok = qRatio > 3.5 && cRatio > 1.7 && cRatio < 2.4
 
     return verdict({

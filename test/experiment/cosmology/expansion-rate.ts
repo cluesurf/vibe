@@ -21,6 +21,7 @@ export default experiment({
   run() {
     const ratioOf = (symbol: number[], cap: number) =>
       lastCompleteShellRatio(buildCoxeterMatrixMesh(symbol, cap).shells)
+
     const symbols: Array<[string, number[]]> = [
       ['{7,3}', [7, 3]],
       ['{8,3}', [8, 3]],
@@ -28,6 +29,7 @@ export default experiment({
       ['{5,3,4}', [5, 3, 4]],
       ['{3,4,3,4}', [3, 4, 3, 4]],
     ]
+
     const ratios = symbols.map(([, s]) => ratioOf(s, 20000))
 
     // stability: the same symbol gives the same ratio at a different size (a genuine invariant, not noise)

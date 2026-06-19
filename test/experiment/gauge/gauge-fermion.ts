@@ -24,6 +24,7 @@ function study(): { potential: number; lowest: number[] } {
     extent: 12,
     signature: 'riemannian',
   })
+
   // the riemannian lattice is a Graph
   const graph = substrate as Graph
   const field = makeGaugeField({ graph, group: { form: 'u1', q: 12 } })
@@ -41,6 +42,7 @@ function study(): { potential: number; lowest: number[] } {
     operator: operatorFromSparse(dirac),
     count: 12,
   })
+
   const lowest = Array.from(spectrum, x => Math.round(x * 1000) / 1000)
 
   return { potential, lowest }

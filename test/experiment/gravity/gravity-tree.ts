@@ -25,12 +25,15 @@ export function gravityTree(): {
     { name: '{3,4,3,4} bulk (z=24)', z: 24 },
     { name: 'generic z=4', z: 4 },
   ]
+
   let masslessAlpha = 0,
     massiveAlpha = 0
+
   for (const c of cases) {
     const sEdge = 2 * Math.sqrt(c.z - 1) // massless (band edge)
     const aMassless = alpha(c.z, sEdge)
     const aMassive = alpha(c.z, sEdge * 1.3) // gapped / massive mode
+
     if (c.z === 24) {
       masslessAlpha = aMassless
       massiveAlpha = aMassive

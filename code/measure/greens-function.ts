@@ -22,9 +22,11 @@ export function dirichletGreensFunction(input: {
   const iterations = input.iterations ?? 800
   const n = neighbors.length
   const phi = new Float64Array(n)
+
   for (let it = 0; it < iterations; it++) {
     for (let i = 0; i < n; i++) {
       let s = i === center ? 1 : 0
+
       for (const j of neighbors[i]!) {
         s += phi[j]!
       }
@@ -54,15 +56,18 @@ export function greensFunctionExponent(input: {
     degree: input.degree,
     iterations: input.iterations,
   })
+
   const c = coords[center]!
   const sums: number[] = []
   const cnts: number[] = []
+
   for (let i = 0; i < neighbors.length; i++) {
     const r = Math.round(
       Math.sqrt(
         coords[i]!.reduce((a, x, k) => a + (x - c[k]!) ** 2, 0),
       ),
     )
+
     if (r < 1 || r > rmax) {
       continue
     }
@@ -72,6 +77,7 @@ export function greensFunctionExponent(input: {
   }
 
   const pts: [number, number][] = []
+
   for (let r = 1; r <= rmax; r++) {
     if (cnts[r] && sums[r]! > 0) {
       pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
@@ -117,12 +123,15 @@ export function greensDecayClass(input: {
     size: input.size,
     source: input.center,
   })
+
   const r: number[] = []
   const lr: number[] = []
   const lg: number[] = []
+
   for (let rr = input.rlo; rr <= input.rhi; rr++) {
     let s = 0
     let k = 0
+
     for (let i = 0; i < input.size; i++) {
       if (dist[i] === rr && G[i]! > 1e-12) {
         s += G[i]!

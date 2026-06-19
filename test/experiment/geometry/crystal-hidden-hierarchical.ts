@@ -43,12 +43,14 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
     schlafli: [7, 3],
     maxVertices: 1500,
   })
+
   const foam = hyperbolicGraph({
     count: 1500,
     radius: 7,
     connectThreshold: 3.0,
     rng: makeRng({ seed: input.seed }),
   })
+
   const flat = lattice({
     dimension: 2,
     extent: 38,
@@ -69,11 +71,13 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
     samples: 150,
     rng: makeRng({ seed: input.seed + 2 }),
   })
+
   const latticeDelta = gromovDelta({
     substrate: flat,
     samples: 150,
     rng: makeRng({ seed: input.seed + 2 }),
   })
+
   const crystalIsTreeLike = crystalDelta < 0.5 * latticeDelta
 
   return {

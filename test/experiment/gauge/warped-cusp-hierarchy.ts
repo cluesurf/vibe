@@ -57,14 +57,17 @@ export default experiment({
       maxDegree: 24,
       iterations: 2500,
     })
+
     const braneYukawa = warped.perShellAmplitude.map(
       v => v / warped.perShellAmplitude[0]!,
     )
+
     // brane Yukawas fall geometrically with warp depth, the mass ratios are powers of lambda
     const yukawaFallsWithDepth =
       braneYukawa.length > 2 &&
       braneYukawa[1]! < braneYukawa[0]! &&
       braneYukawa[2]! < braneYukawa[1]!
+
     const ratio01 = braneYukawa[0]! / braneYukawa[1]!
     const ratio12 = braneYukawa[1]! / braneYukawa[2]!
     const exponent01 = Math.log(ratio01) / Math.log(warpFactor)
@@ -77,8 +80,10 @@ export default experiment({
     const side = 14
     const mesh = d4Mesh({ side })
     const flatNeighbors: number[][] = []
+
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       const row: number[] = []
+
       for (let direction = 0; direction < mesh.degree; direction++) {
         row.push(mesh.neighbour(cell, direction))
       }
@@ -94,12 +99,15 @@ export default experiment({
       maxDegree: mesh.degree,
       iterations: 2500,
     })
+
     const flatYukawa = flat.perShellAmplitude.map(
       v => v / flat.perShellAmplitude[0]!,
     )
+
     // the flat brane Yukawa flattens, adjacent deep ratios are near one (degenerate)
     const flatDeepRatio =
       flatYukawa.length > 4 ? flatYukawa[3]! / flatYukawa[4]! : 1
+
     const flatIsDegenerate = Math.abs(flatDeepRatio - 1) < 0.1
 
     const ok =

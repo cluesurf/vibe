@@ -22,11 +22,13 @@ export function sparseFromTriplets(input: {
   triplets: ReadonlyArray<Triplet>
 }): SparseMatrix {
   const counts = new Uint32Array(input.rows)
+
   for (const t of input.triplets) {
     counts[t.row] = (counts[t.row] ?? 0) + 1
   }
 
   const rowPtr = new Uint32Array(input.rows + 1)
+
   for (let r = 0; r < input.rows; r++) {
     rowPtr[r + 1] = (rowPtr[r] ?? 0) + (counts[r] ?? 0)
   }
@@ -35,6 +37,7 @@ export function sparseFromTriplets(input: {
   const colIdx = new Uint32Array(nnz)
   const value = new Float64Array(nnz)
   const cursor = Uint32Array.from(rowPtr.subarray(0, input.rows))
+
   for (const t of input.triplets) {
     const pos = cursor[t.row] ?? 0
     colIdx[pos] = t.col
@@ -57,10 +60,13 @@ export function sparseMatVec(
   input: { x: Float64Array },
 ): Float64Array {
   const y = new Float64Array(m.rows)
+
   for (let r = 0; r < m.rows; r++) {
     const start = m.rowPtr[r] ?? 0
     const end = m.rowPtr[r + 1] ?? 0
+
     let s = 0
+
     for (let k = start; k < end; k++) {
       s += (m.value[k] ?? 0) * (input.x[m.colIdx[k] ?? 0] ?? 0)
     }
@@ -96,6 +102,7 @@ export function sparseWithAubryAndrePotential(
   }
 
   const potential = new Float64Array(m.rows)
+
   for (let i = 0; i < m.rows; i++) {
     potential[i] =
       strength * Math.cos(2 * Math.PI * AUBRY_ANDRE_GOLDEN * i)
@@ -105,6 +112,7 @@ export function sparseWithAubryAndrePotential(
     size: m.rows,
     apply: ({ x }) => {
       const y = sparseMatVec(m, { x })
+
       for (let i = 0; i < m.rows; i++) {
         y[i] = y[i]! + potential[i]! * x[i]!
       }

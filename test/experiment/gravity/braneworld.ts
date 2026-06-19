@@ -60,10 +60,12 @@ export function braneworld(): {
     r => potential3D(r),
     rShort,
   )
+
   const substrateLongExponent = forceExponent(
     r => potential3D(r),
     rLong,
   )
+
   const substrateFlat =
     Math.abs(substrateShortExponent + 2) < 0.05 &&
     Math.abs(substrateLongExponent + 2) < 0.05
@@ -73,17 +75,21 @@ export function braneworld(): {
     r => potentialBrane(r, L),
     rShort,
   )
+
   const braneLongExponent = forceExponent(
     r => potentialBrane(r, L),
     rLong,
   )
+
   const braneShowsCrossover =
     braneShortExponent < -2.7 && Math.abs(braneLongExponent + 2) < 0.05
 
   // the crossover scale: where the exponent passes the midpoint -2.5
   let crossover = L
+
   for (let lr = -2; lr <= 2; lr += 0.01) {
     const r = Math.pow(10, lr) * L
+
     if (forceExponent(rr => potentialBrane(rr, L), r) > -2.5) {
       crossover = r
       break

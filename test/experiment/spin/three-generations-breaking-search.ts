@@ -31,6 +31,7 @@ import { octonionReal, type Octonion } from '@/code/algebra/octonion'
 // mass_i = trace(e_i o M) = M_ii, this diagonal IS the generation mass spectrum, which makes its freedom explicit.
 function diagonalVacuum(diagonal: number[]): Octonion[][] {
   const matrix = octonionMatrixZero(diagonal.length)
+
   for (let i = 0; i < diagonal.length; i++) {
     matrix[i]![i] = octonionReal(diagonal[i]!)
   }
@@ -51,7 +52,9 @@ export default experiment({
     // (1) the family STRUCTURE, three orthogonal idempotents with an exact S3 family symmetry
     const threeIdempotents =
       frame.length === 3 && frame.every(e => isJordanIdempotent(e))
+
     let pairwiseOrthogonal = true
+
     for (let i = 0; i < 3; i++) {
       for (let j = i + 1; j < 3; j++) {
         if (!areJordanOrthogonal(frame[i]!, frame[j]!)) {
@@ -67,8 +70,10 @@ export default experiment({
       vacuum: ReturnType<typeof octonionMatrixIdentity>,
     ): number[] =>
       frame.map(e => octonionMatrixTrace(jordanProduct(e, vacuum)))
+
     const spread = (m: number[]): number =>
       Math.max(...m) - Math.min(...m)
+
     const distinctCount = (m: number[]): number =>
       new Set(m.map(x => Math.round(x * 1e6) / 1e6)).size
 
@@ -107,6 +112,7 @@ export default experiment({
     // exact S3, and the only thing that splits them (an asymmetric vacuum) gives an unconstrained, unpredicted ratio.
     const familyStructureReal =
       threeIdempotents && pairwiseOrthogonal && cyclicIsAutomorphism
+
     const hierarchyIsGeometric = false // Boyle's conjecture is NEGATIVE for this model, the hierarchy is not derived
 
     const ok =

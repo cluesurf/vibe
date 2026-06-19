@@ -34,7 +34,9 @@ function phaseAction(input: {
     epsilon: input.epsilon,
     dimension: 2,
   })
+
   let sum = 0
+
   for (let r = 0; r < input.repeats; r++) {
     const poset =
       input.phase === 'manifold'
@@ -44,6 +46,7 @@ function phaseAction(input: {
             rng: makeRng({ seed: input.size * 31 + r }),
           })
         : kleitmanRothschildOrder({ size: input.size })
+
     sum += action.value({ poset })
   }
 
@@ -77,6 +80,7 @@ function crossingStudy(input: {
     rng: makeRng({ seed: n * 7 + 1 }),
     sampleEvery: 20,
   })
+
   const f0 = Math.min(0.999, Math.max(0.001, base.manifoldFraction))
   const g = Math.log((1 - f0) / f0)
 
@@ -88,12 +92,14 @@ function crossingStudy(input: {
     phase: 'manifold',
     repeats: 40,
   })
+
   const sL = phaseAction({
     size: n,
     epsilon: input.epsilon,
     phase: 'layered',
     repeats: 40,
   })
+
   const dS = sL - sM
 
   // Delta logZ(beta) = logZ_manifold - logZ_layered = -g + (S_L - S_M) * beta.

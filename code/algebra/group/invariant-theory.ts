@@ -17,11 +17,15 @@ export function invariantPolynomialDimension(input: {
   trace: (a: SquareMatrix) => number
 }): number {
   const { group, degree, identity, multiply, trace } = input
+
   let total = 0
+
   for (const g of group) {
     // power sums p_k = trace(g^k), k = 1..4
     let gp = identity
+
     const p: number[] = [0, 0, 0, 0, 0]
+
     for (let k = 1; k <= 4; k++) {
       gp = multiply(gp, g)
       p[k] = trace(gp)

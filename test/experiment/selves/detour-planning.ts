@@ -30,6 +30,7 @@ function makeLandscape(L: number): {
   const valley = Math.floor(L * 0.5)
   const goal = L
   const V = new Array<number>(L + 1).fill(0)
+
   for (let p = 0; p <= L; p++) {
     if (p <= localPeak) {
       V[p] = 0.6 * (p / localPeak)
@@ -46,7 +47,9 @@ function makeLandscape(L: number): {
   // the lookahead must see from the local peak to where the value RECOVERS above the local peak (past the
   // valley), that crossing distance is what the planner's horizon must span
   const localPeakV = V[localPeak]!
+
   let recover = goal
+
   for (let p = valley; p <= goal; p++) {
     if (V[p]! > localPeakV) {
       recover = p
@@ -67,12 +70,16 @@ function runAgent(
   K: number,
 ): { finalPos: number; finalV: number; steps: number } {
   const L = V.length - 1
+
   let pos = start
+
   for (let step = 0; step < 4 * L; step++) {
     const horizonBest = (dir: number): number => {
       let best = -Infinity
+
       for (let k = 1; k <= K; k++) {
         const q = pos + dir * k
+
         if (q < 0 || q > L) {
           break
         }
@@ -88,6 +95,7 @@ function runAgent(
     const up = horizonBest(1)
     const down = horizonBest(-1)
     const here = V[pos]!
+
     // move toward the better horizon, only if it beats staying (otherwise stuck at a local optimum)
     if (up <= here && down <= here) {
       break
@@ -121,11 +129,14 @@ export function detourPlanning(input?: { L?: number }): {
 
   // scan lookahead horizon K, find the threshold where planning succeeds
   const scan: { K: number; reachedGoal: boolean }[] = []
+
   let thresholdK = -1
+
   for (let K = 1; K <= L; K++) {
     const r = runAgent(V, start, K)
     const reached = r.finalPos >= goal - 1
     scan.push({ K, reachedGoal: reached })
+
     if (reached && thresholdK < 0) {
       thresholdK = K
     }
@@ -139,6 +150,7 @@ export function detourPlanning(input?: { L?: number }): {
   // the planner needs to see ACROSS the barrier, the threshold horizon should be about the barrier width
   const thresholdMatchesBarrier =
     thresholdK > 1 && Math.abs(thresholdK - barrierWidth) <= 3
+
   const solved = plannerBeatsGreedy && thresholdMatchesBarrier
 
   return {

@@ -73,6 +73,7 @@ export function describeTessellation(
   // a length-1 symbol {p} is a polygon, its "cell" is an edge (finite) and its vertex figure is a vertex
   const cellGeometry: Geometry =
     cell.length === 0 ? 'spherical' : classifyGeometry(cell)
+
   const vertexFigureGeometry: Geometry =
     vertexFigure.length === 0
       ? 'spherical'
@@ -83,9 +84,11 @@ export function describeTessellation(
   // or ideal vertices, a cusp), with neither hyperbolic. Hyperideal means one is hyperbolic (vertices or
   // cells beyond infinity). A spherical symbol is a finite polytope, not a tessellation.
   let compactness: Compactness
+
   const finite = (x: Geometry): boolean => x === 'spherical'
   const idealOk = (x: Geometry): boolean =>
     x === 'spherical' || x === 'euclidean'
+
   if (geometry === 'spherical') {
     compactness = 'finite-polytope'
   } else if (finite(cellGeometry) && finite(vertexFigureGeometry)) {
@@ -105,6 +108,7 @@ export function describeTessellation(
   let builder: Builder
   let buildable: boolean
   let note: string
+
   if (geometry === 'hyperbolic' && cellGeometry === 'spherical') {
     builder = 'orbit'
     buildable = true
@@ -158,6 +162,7 @@ export function buildTessellation(input: {
 }): BuiltTessellation {
   const descriptor = describeTessellation(input.symbol)
   const maxCells = input.maxCells ?? 20000
+
   if (descriptor.builder === 'orbit') {
     return {
       descriptor,
@@ -185,6 +190,7 @@ export function inspectTessellation(graph: CellGraph): {
 } {
   // the full (interior) facet degree is the MAX neighbour count, boundary cells have fewer
   let facetDegree = 0
+
   for (const nb of graph.neighbors) {
     if (nb.length > facetDegree) {
       facetDegree = nb.length
@@ -192,6 +198,7 @@ export function inspectTessellation(graph: CellGraph): {
   }
 
   let matching = 0
+
   for (const nb of graph.neighbors) {
     if (nb.length === facetDegree) {
       matching++

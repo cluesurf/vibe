@@ -33,13 +33,16 @@ export function bianchiResidual(input: {
   seed: number
 }): number {
   const rng = makeRng({ seed: input.seed })
+
   let worst = 0
+
   for (let s = 0; s < input.samples; s++) {
     const h: number[][] = [
       [0, 0, 0],
       [0, 0, 0],
       [0, 0, 0],
     ]
+
     for (let i = 0; i < 3; i++) {
       for (let j = i; j < 3; j++) {
         const v = rng.next() * 2 - 1
@@ -49,7 +52,9 @@ export function bianchiResidual(input: {
     }
 
     const g = einsteinOp(h, input.k)
+
     let hn = 0
+
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         hn += (h[i]?.[j] ?? 0) ** 2
@@ -58,8 +63,10 @@ export function bianchiResidual(input: {
 
     // k_i G_ij summed over i, for each j, then the norm of that 3-vector.
     let div2 = 0
+
     for (let j = 0; j < 3; j++) {
       let d = 0
+
       for (let i = 0; i < 3; i++) {
         d += (input.k[i] ?? 0) * (g[i]?.[j] ?? 0)
       }

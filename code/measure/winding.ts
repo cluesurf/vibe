@@ -8,9 +8,12 @@
 // The integer winding number of a periodic array of phase angles (radians).
 export function phaseWinding(theta: ReadonlyArray<number>): number {
   const length = theta.length
+
   let total = 0
+
   for (let i = 0; i < length; i++) {
     let d = theta[(i + 1) % length]! - theta[i]!
+
     while (d > Math.PI) {
       d -= 2 * Math.PI
     }
@@ -33,9 +36,12 @@ export function phaseWinding(theta: ReadonlyArray<number>): number {
 // up exactly.
 export function directorWinding(phi: ReadonlyArray<number>): number {
   const length = phi.length
+
   let total = 0
+
   for (let i = 0; i < length; i++) {
     let d = phi[(i + 1) % length]! - phi[i]!
+
     while (d > Math.PI / 2) {
       d -= Math.PI
     }

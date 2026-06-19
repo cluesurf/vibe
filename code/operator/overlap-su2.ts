@@ -42,6 +42,7 @@ function colorMatrix(
   // U.re = [q0, q2, -q2, q0], U.im = [q3, q1, q1, -q3].
   const re: [number, number, number, number] = [q0, q2, -q2, q0]
   const im: [number, number, number, number] = [q3, q1, q1, -q3]
+
   if (!dagger) {
     return { re, im }
   }
@@ -63,14 +64,17 @@ function addBlock4(input: {
   coef: number
 }): void {
   const n = input.m.rows
+
   for (let si = 0; si < 2; si++) {
     for (let sj = 0; sj < 2; sj++) {
       const spRe = input.spin.re[si * 2 + sj] ?? 0
       const spIm = input.spin.im[si * 2 + sj] ?? 0
+
       for (let ci = 0; ci < 2; ci++) {
         for (let cj = 0; cj < 2; cj++) {
           const coRe = input.color.re[ci * 2 + cj] ?? 0
           const coIm = input.color.im[ci * 2 + cj] ?? 0
+
           // (sp * co) * coef
           let re = spRe * coRe - spIm * coIm
           let im = spRe * coIm + spIm * coRe
@@ -111,6 +115,7 @@ function gaugeWilsonDiracSu2(input: {
   const L = input.length
   const sites = L * L
   const d = makeComplexMatrix({ rows: 4 * sites, cols: 4 * sites })
+
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
@@ -184,18 +189,21 @@ export function chiralCondensateSignalSU2(input: {
   const tol = input.tolerance ?? 0.05
   const n = 4 * L * L
   const sites = L * L
+
   let nearZero = 0
   let totalEig = 0
 
   for (let c = 0; c < input.configs; c++) {
     const links1: Array<[number, number, number, number]> = []
     const links2: Array<[number, number, number, number]> = []
+
     for (let s = 0; s < sites; s++) {
       links1.push(randomSu2(input.disorder, input.rng))
       links2.push(randomSu2(input.disorder, input.rng))
     }
 
     const dw = gaugeWilsonDiracSu2({ length: L, links1, links2 })
+
     // H_W = gamma5 (D_W - m0). gamma5 acts on spin: rows with spin index 1
     // (local index in {2,3}) flip sign.
     for (let i = 0; i < n; i++) {
@@ -212,6 +220,7 @@ export function chiralCondensateSignalSU2(input: {
     }
 
     const epsilon = hermitianMatrixSign({ matrix: dw })
+
     // H_ov = gamma5 + epsilon.
     for (let i = 0; i < n; i++) {
       epsilon.re[i * n + i] =
@@ -219,6 +228,7 @@ export function chiralCondensateSignalSU2(input: {
     }
 
     const eig = eigHermitian({ matrix: epsilon })
+
     for (let k = 0; k < eig.values.length; k++) {
       if (Math.abs(eig.values[k] ?? 0) < tol) {
         nearZero += 1

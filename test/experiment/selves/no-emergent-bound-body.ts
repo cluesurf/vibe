@@ -42,6 +42,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const rule: Collision = headOnRotate({ opposite })
     // square coin directions, 0 is +x, 1 is -x, 2 is +y, 3 is -y (verified from the mesh neighbour map).
     const dirVec: Array<[number, number]> = [
@@ -50,6 +51,7 @@ export default experiment({
       [0, 1],
       [0, -1],
     ]
+
     const cx = side / 2
     const cy = side / 2
     const boundary = side / 2
@@ -61,20 +63,25 @@ export default experiment({
     // a localized counterclockwise vortex, each cell within the radius gets a charge in its tangential direction.
     const vortex = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const [x, y] = xy(c)
         const dx = x - cx
         const dy = y - cy
+
         if (dx * dx + dy * dy > radius * radius) {
           continue
         }
 
         const tx = -dy
         const ty = dx
+
         let best = 0
         let bestDot = -Infinity
+
         for (let d = 0; d < degree; d++) {
           const dot = dirVec[d]![0] * tx + dirVec[d]![1] * ty
+
           if (dot > bestDot) {
             bestDot = dot
             best = d
@@ -89,15 +96,20 @@ export default experiment({
 
     const circulation = (will: Will): number => {
       let L = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const [x, y] = xy(c)
         const dx = x - cx
         const dy = y - cy
+
         let px = 0
         let py = 0
+
         const b = c * degree
+
         for (let d = 0; d < degree; d++) {
           const t = will.data[b + d]!
+
           if (t !== 0) {
             px += t * dirVec[d]![0]
             py += t * dirVec[d]![1]
@@ -116,12 +128,15 @@ export default experiment({
       let ext = 0
       let inside = 0
       let total = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const [x, y] = xy(c)
         const dx = x - cx
         const dy = y - cy
         const b = c * degree
+
         let on = false
+
         for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
@@ -134,11 +149,13 @@ export default experiment({
         }
 
         const r = Math.sqrt(dx * dx + dy * dy)
+
         if (r > ext) {
           ext = r
         }
 
         total++
+
         if (r <= 2 * radius) {
           inside++
         }
@@ -148,15 +165,19 @@ export default experiment({
     }
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
+
     let current = vortex()
     let scratch: Will = {
       mesh,
       data: new Int8Array(current.data.length),
     }
+
     const l0 = circulation(current)
+
     let maxExtent = 0
     let minConfined = 1
     let lateCirculationMax = 0
+
     for (let t = 1; t <= beats; t++) {
       beatInto({ src: current, dst: scratch, table, collision: rule })
       const swap = current
@@ -164,6 +185,7 @@ export default experiment({
       scratch = swap
       const will = current
       const { ext, confined } = confinedFraction(will)
+
       if (ext > maxExtent) {
         maxExtent = ext
       }
@@ -173,6 +195,7 @@ export default experiment({
       }
 
       const ratio = Math.abs(circulation(will) / l0)
+
       if (t > beats / 2 && ratio > lateCirculationMax) {
         lateCirculationMax = ratio
       }

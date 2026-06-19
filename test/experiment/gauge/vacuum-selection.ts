@@ -20,15 +20,18 @@ export function vacuumSelection(): {
 } {
   const roots = rootsDn(5),
     weights = spinorWeightsDn(5)
+
   // for each discrete weight, count unbroken so(10) roots (orthogonal to the VEV direction)
   const scored = weights.map(w => ({
     w,
     unbroken: roots.filter(r => dot(r, w) === 0).length,
     minus: w.filter(x => x < 0).length,
   }))
+
   const maxUnbroken = Math.max(...scored.map(s => s.unbroken))
   // group by minus-count (the su(5) multiplet structure: 0->singlet, 2->10, 4->5bar)
   const byMinus: Record<number, number> = {}
+
   for (const s of scored) {
     byMinus[s.minus] = s.unbroken
   } // same within a multiplet

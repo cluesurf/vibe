@@ -47,6 +47,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const half = side / 2
     const coord = (c: number): [number, number, number, number] => [
@@ -55,9 +56,12 @@ export default experiment({
       Math.floor(c / (side * side)) % side,
       Math.floor(c / (side * side * side)) % side,
     ]
+
     const lines: Array<[number, number]> = []
+
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
+
       if (d < o) {
         lines.push([d, o])
       }
@@ -73,8 +77,10 @@ export default experiment({
     // genuine binding, not ballistic drift).
     const body = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const [x, y, z, w] = coord(c)
+
         if (
           (x - half) ** 2 +
             (y - half) ** 2 +
@@ -83,6 +89,7 @@ export default experiment({
           4
         ) {
           const b = c * degree
+
           for (let i = 0; i < 6; i++) {
             const [a, zz] = lines[i]!
             will.data[b + a] = 1
@@ -97,6 +104,7 @@ export default experiment({
     // a hit to the body's OWN charges at the centre (flip them), a real net-charge disturbance to the body itself.
     const hit = (w0: Will): Will => {
       const w = cloneWill(w0)
+
       for (let i = 0; i < 6; i++) {
         const [a, zz] = lines[i]!
         w.data[center * degree + a] = -1
@@ -113,15 +121,20 @@ export default experiment({
         sy = 0,
         sz = 0,
         sw = 0
+
       const q: number[] = []
+
       for (let c = 0; c < mesh.cellCount; c++) {
         let n = 0
+
         const b = c * degree
+
         for (let d = 0; d < degree; d++) {
           n += will.data[b + d]!
         }
 
         q[c] = n
+
         if (n > 0) {
           const [x, y, z, w] = coord(c)
           total += n
@@ -140,9 +153,12 @@ export default experiment({
         my = sy / total,
         mz = sz / total,
         mw = sw / total
+
       let v = 0
+
       for (let c = 0; c < mesh.cellCount; c++) {
         const n = q[c]!
+
         if (n > 0) {
           const [x, y, z, w] = coord(c)
           v +=
@@ -166,12 +182,14 @@ export default experiment({
         mesh,
         data: new Int8Array(bd.data.length),
       }
+
       for (let i = 0; i < beats; i++) {
         beatInto({ src: bd, dst: bdScratch, table, collision: rule })
         const swap = bd
         bd = bdScratch
         bdScratch = swap
         const r = netRms(bd)
+
         if (r > rmsMax) {
           rmsMax = r
         }
@@ -185,10 +203,12 @@ export default experiment({
           mesh,
           data: new Int8Array(clean.data.length),
         }
+
         let pertScratch: Will = {
           mesh,
           data: new Int8Array(pert.data.length),
         }
+
         for (let i = 0; i < beats; i++) {
           beatInto({
             src: clean,
@@ -208,12 +228,14 @@ export default experiment({
           const ps = pert
           pert = pertScratch
           pertScratch = ps
+
           if (open) {
             absorbBoundary(clean)
             absorbBoundary(pert)
           }
 
           let d = 0
+
           for (let k = 0; k < clean.data.length; k++) {
             if (clean.data[k] !== pert.data[k]) {
               d++
@@ -240,9 +262,11 @@ export default experiment({
     const arrowBinds = arrow.rmsMax <= 4
     const arrowSeals =
       arrow.openFinal >= arrow.closedFinal * 0.5 && arrow.openFinal > 0
+
     // the momentum rule RADIATES (open difference healed to near zero) but does NOT BIND (rms disperses large).
     const momentumRadiates =
       momentum.openFinal <= momentum.closedFinal * 0.1
+
     const momentumNoBind = momentum.rmsMax >= 8
 
     const ok =

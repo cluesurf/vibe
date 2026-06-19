@@ -74,6 +74,7 @@ export function effectiveMetric(): {
     deflectionWithMass > 0
       ? deflectionDoubleMass / deflectionWithMass
       : 0
+
   // bends toward mass, near zero with no mass, and roughly doubles when the mass doubles
   const scalesWithMass =
     deflectionWithMass > 0.01 &&

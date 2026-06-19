@@ -16,14 +16,17 @@ export function flatWilledDriftSweep(input: {
 }): void {
   const { tone, length: L, moved, rng, bias } = input
   moved.fill(0)
+
   for (let y = 0; y < L; y++) {
     for (let x = 0; x < L; x++) {
       const i = y * L + x
+
       if (tone[i] === 0 || moved[i]) {
         continue
       }
 
       const dirs: { j: number; toward: number }[] = []
+
       if (x + 1 < L) {
         dirs.push({ j: i + 1, toward: 1 })
       }
@@ -42,12 +45,14 @@ export function flatWilledDriftSweep(input: {
 
       let chosen = -1
       let bestW = 0
+
       for (const d of dirs) {
         if (tone[d.j] !== 0 || moved[d.j]) {
           continue
         }
 
         const w = (1 + bias * d.toward) * (0.5 + 0.5 * rng.next())
+
         if (w > bestW) {
           bestW = w
           chosen = d.j

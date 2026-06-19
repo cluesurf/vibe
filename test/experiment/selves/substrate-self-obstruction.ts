@@ -48,20 +48,24 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       mesh.opposite(d),
     )
+
     const half = side / 2
     const center =
       half +
       half * side +
       half * side * side +
       half * side * side * side
+
     const dist = shellDistances(mesh, center)
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     const packet = (): Will => {
       const will = makeWill(mesh)
+
       for (let c = 0; c < mesh.cellCount; c++) {
         if (dist[c]! <= 2) {
           const base = c * degree
+
           for (let d = 0; d < degree; d++) {
             will.data[base + d] = 1
           }
@@ -78,13 +82,16 @@ export default experiment({
         mesh,
         data: new Int8Array(current.data.length),
       }
+
       let maxExtent = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
         const swap = current
         current = scratch
         scratch = swap
         const ext = travelDistance({ will: current, start: center })
+
         if (ext > maxExtent) {
           maxExtent = ext
         }
@@ -107,11 +114,14 @@ export default experiment({
         mesh,
         data: new Int8Array(plain.data.length),
       }
+
       let pertScratch: Will = {
         mesh,
         data: new Int8Array(pert.data.length),
       }
+
       let maxCone = 0
+
       for (let t = 0; t < beats; t++) {
         beatInto({ src: plain, dst: plainScratch, table, collision })
         const swapPlain = plain
@@ -121,9 +131,12 @@ export default experiment({
         const swapPert = pert
         pert = pertScratch
         pertScratch = swapPert
+
         for (let c = 0; c < mesh.cellCount; c++) {
           const base = c * degree
+
           let differs = false
+
           for (let d = 0; d < degree; d++) {
             if (plain.data[base + d] !== pert.data[base + d]) {
               differs = true
@@ -153,6 +166,7 @@ export default experiment({
     // boundary, dark to the bath), the momentum rotate's signal RADIATES to the boundary but it does not confine.
     const pairConfinesNotRadiating =
       pairExtent <= 5 && pairCone < boundaryDistance
+
     const mobileRadiatesNotConfining =
       mobileExtent >= 8 && mobileCone >= boundaryDistance
 

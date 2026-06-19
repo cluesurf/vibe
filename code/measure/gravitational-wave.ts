@@ -44,6 +44,7 @@ export function binaryQuadrupoleStrain(input: {
   const dt = (2 * Math.PI) / omega / samplesPerOrbit
   const hplus: number[] = []
   const hcross: number[] = []
+
   for (let n = 0; n < samples; n++) {
     const phi = omega * (n * dt)
     hplus.push(-amp * Math.cos(2 * phi))
@@ -86,14 +87,18 @@ export function petersInspiralTrack(input: {
   const dt = input.step ?? 1e-3
   const maxTime = input.maxTime ?? 1e7
   const Mtot = mass1 + mass2
+
   let a = input.separation
   let t = 0
+
   const times: number[] = []
   const gwFrequencies: number[] = []
+
   while (a > floor && t < maxTime) {
     const dadt = (-(64 / 5) * (mass1 * mass2 * Mtot)) / a ** 3
     a += dadt * dt
     t += dt
+
     if (a <= 0) {
       break
     }

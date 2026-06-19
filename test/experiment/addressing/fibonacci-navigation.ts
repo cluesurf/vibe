@@ -41,26 +41,32 @@ export function fibonacciNavigation(input: {
     connectThreshold: 0.5,
     maxVertices: 2200,
   })
+
   const tree = buildAddressedTree(g)
 
   // Adjacency sets for an honest validity check of each route.
   const adj = g.neighbors.map(row => new Set<number>(Array.from(row)))
 
   const rng = makeRng({ seed: input.seed })
+
   let delivered = 0
   let hopSum = 0
   let stretchSum = 0
   let stretchCount = 0
+
   for (let k = 0; k < input.pairs; k++) {
     const s = rng.nextInt({ max: g.size })
     const t = rng.nextInt({ max: g.size })
+
     if ((tree.depth[s] ?? -1) < 0 || (tree.depth[t] ?? -1) < 0) {
       continue
     }
 
     const path = routeByAddress(tree, s, t)
+
     // Validity: every consecutive pair adjacent, and the path ends at t.
     let valid = path[0] === s && path[path.length - 1] === t
+
     for (let i = 0; i + 1 < path.length && valid; i++) {
       if (!(adj[path[i] ?? 0] ?? new Set()).has(path[i + 1] ?? -1)) {
         valid = false
@@ -72,6 +78,7 @@ export function fibonacciNavigation(input: {
       const hops = path.length - 1
       hopSum += hops
       const d = graphDistance({ substrate: g, from: s, to: t })
+
       if (d > 0) {
         stretchSum += hops / d
         stretchCount++
@@ -82,6 +89,7 @@ export function fibonacciNavigation(input: {
   // Level-growth in the bulk only: ring sizes grow exponentially until the boundary of
   // the finite generated patch, where they fall off. Measure up to the peak ring.
   let peak = 1
+
   for (let i = 1; i < tree.levelSizes.length; i++) {
     if ((tree.levelSizes[i] ?? 0) > (tree.levelSizes[peak] ?? 0)) {
       peak = i
@@ -89,8 +97,10 @@ export function fibonacciNavigation(input: {
   }
 
   const ratios: number[] = []
+
   for (let i = 2; i <= peak; i++) {
     const prev = tree.levelSizes[i - 1] ?? 0
+
     if (prev > 0) {
       ratios.push((tree.levelSizes[i] ?? 0) / prev)
     }

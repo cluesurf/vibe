@@ -18,7 +18,9 @@ import { verdict } from '@/test/scaffold/verdict'
 // gracefully instead of crossing a sharp information-capacity cliff. Deterministic, no rng.
 function distributedWord(index: number, wordBits: number): Int8Array {
   const word = new Int8Array(wordBits)
+
   let h = Math.imul(index + 1, 2654435761) >>> 0
+
   for (let k = 0; k < wordBits; k++) {
     h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0
     // read the well-mixed high byte, so each slot is an independent ternary symbol
@@ -31,6 +33,7 @@ function distributedWord(index: number, wordBits: number): Int8Array {
 // keep the first `keep` slots of the word as a cue and mark the rest don't-care, a deterministic partial cue.
 function partialMask(wordBits: number, keep: number): Int8Array {
   const mask = new Int8Array(wordBits)
+
   for (let k = 0; k < keep && k < wordBits; k++) {
     mask[k] = 1
   }
@@ -55,6 +58,7 @@ export function associativeGradedRecall(input?: {
     neighbors: g.neighbors,
     wordBits,
   })
+
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, distributedWord(c, wordBits))
   }
@@ -62,13 +66,17 @@ export function associativeGradedRecall(input?: {
   // sweep the cue size one slot at a time, from a full cue down to a single slot, so the degradation is
   // sampled finely. A real cliff would show one near-1-to-near-0 step, a graceful decline shows small steps.
   const fidelityByKeep: number[] = []
+
   for (let keep = wordBits; keep >= 1; keep--) {
     const mask = partialMask(wordBits, keep)
+
     let ok = 0
     let total = 0
+
     for (let c = 0; c < g.cellCount; c++) {
       total++
       const cue = readWord(mem, c)
+
       if (searchBest({ mem, comparand: cue, mask }).cell === c) {
         ok++
       }
@@ -79,8 +87,10 @@ export function associativeGradedRecall(input?: {
 
   // smooth degradation, no single step drops fidelity by more than a threshold (a cliff)
   let maxDrop = 0
+
   for (let i = 1; i < fidelityByKeep.length; i++) {
     const drop = fidelityByKeep[i - 1]! - fidelityByKeep[i]!
+
     if (drop > maxDrop) {
       maxDrop = drop
     }
@@ -88,6 +98,7 @@ export function associativeGradedRecall(input?: {
 
   // fidelity should not increase as the cue shrinks
   let monotone = true
+
   for (let i = 1; i < fidelityByKeep.length; i++) {
     if (fidelityByKeep[i]! > fidelityByKeep[i - 1]! + 1e-9) {
       monotone = false

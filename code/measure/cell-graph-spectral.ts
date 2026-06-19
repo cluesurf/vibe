@@ -17,6 +17,7 @@ export function cellGraphSpectral(input: {
     symbol: input.symbol as never,
     maxCells: input.maxCells,
   })
+
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
   const degree = nb[center]!.length

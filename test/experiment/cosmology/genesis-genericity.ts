@@ -20,14 +20,17 @@ export default experiment({
     const caps = [4000, 12000, 30000, 60000] // a ladder of sizes, vary SIZE not seed
     const fractions: number[] = []
     const sizes: number[] = []
+
     let allConserved = true
     let allControlsDead = true
+
     for (const maxChambers of caps) {
       const mesh = buildCoxeterMesh({
         symbol: [5, 3, 4],
         depth: 24,
         maxChambers,
       })
+
       const n = mesh.cellCount
       sizes.push(n)
       const live = chargeTrajectory({
@@ -37,6 +40,7 @@ export default experiment({
         arrow: 0.1,
         seed: 9,
       })
+
       const dead = chargeTrajectory({
         neighbors: mesh.neighbors,
         initial: new Int8Array(n),
@@ -44,7 +48,9 @@ export default experiment({
         arrow: 0,
         seed: 9,
       })
+
       fractions.push(live.trajectory[live.trajectory.length - 1]! / n)
+
       if (live.qEnd !== 0) {
         allConserved = false
       }

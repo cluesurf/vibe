@@ -44,7 +44,9 @@ export function ringDefectPair(length: number): Complex2[] {
 // the squared difference between neighbouring values.
 export function ringFieldEnergy(psi: ReadonlyArray<Complex2>): number {
   const length = psi.length
+
   let e = 0
+
   for (let i = 0; i < length; i++) {
     const a = psi[(i + 1) % length]!
     const z = psi[i]!
@@ -88,9 +90,12 @@ export function relaxRingField(input: {
   onSample?: (field: Complex2[], step: number) => void
 }): Complex2[] {
   const { field, steps, dt, sampleEvery, onSample } = input
+
   let cur: Complex2[] = field.map(z => ({ ...z }))
+
   for (let t = 0; t < steps; t++) {
     cur = relaxStep(cur, dt)
+
     if (onSample && sampleEvery && t % sampleEvery === 0) {
       onSample(cur, t)
     }

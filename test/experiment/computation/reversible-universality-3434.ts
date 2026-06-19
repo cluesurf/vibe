@@ -45,11 +45,14 @@ export default experiment({
     // (2a) the committed rule is a bijection on the nine pair-states (reversibility), verified directly.
     const tones = [-1, 0, 1]
     const images = new Set<string>()
+
     let bijection = true
+
     for (const a of tones) {
       for (const b of tones) {
         const [c, d] = ruleStep(a, b)
         const key = `${c},${d}`
+
         if (images.has(key)) {
           bijection = false
         }
@@ -62,12 +65,15 @@ export default experiment({
 
     // (2b) the Toffoli gate is a bijection on the eight three-bit states, verified directly.
     const seen = new Set<string>()
+
     let tBij = true
+
     for (let x = 0; x < 2; x++) {
       for (let y = 0; y < 2; y++) {
         for (let z = 0; z < 2; z++) {
           const [a, b, c] = toffoli(x, y, z)
           const key = `${a}${b}${c}`
+
           if (seen.has(key)) {
             tBij = false
           }
@@ -81,9 +87,11 @@ export default experiment({
 
     // (2c) Toffoli with ancilla z = 1 computes NAND on the third output, functional completeness.
     let nandOk = true
+
     for (let x = 0; x < 2; x++) {
       for (let y = 0; y < 2; y++) {
         const out = toffoli(x, y, 1)[2]
+
         if (out !== (x === 1 && y === 1 ? 0 : 1)) {
           nandOk = false
         }
@@ -110,6 +118,7 @@ export default experiment({
       hasRouting &&
       hasGates &&
       hasMemory
+
     const ok = reversibleUniversal
 
     return verdict({

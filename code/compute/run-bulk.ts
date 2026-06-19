@@ -19,6 +19,7 @@ const CHECK_BEATS = 40
 
 const pack = (current: number, previous: number): number =>
   (previous << 2) | current
+
 const currentOf = (packed: number): number => packed & 3
 
 // the CPU reference, one beat of the same second-order mod-3 rule over the CSR graph
@@ -28,10 +29,13 @@ function cpuStep(
   adj: Int32Array,
 ): Uint32Array {
   const out = new Uint32Array(state.length)
+
   for (let i = 0; i < state.length; i++) {
     const cur = currentOf(state[i]!)
     const prev = (state[i]! >> 2) & 3
+
     let s = 0
+
     for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
       s += currentOf(state[adj[p]!]!)
     }
@@ -44,6 +48,7 @@ function cpuStep(
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
+
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
 
@@ -65,6 +70,7 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const r = makeRng({ seed: 987654321 })
   const nextR = (): number => r.next()
+
   for (let i = 0; i < n; i++) {
     seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
   }
@@ -74,6 +80,7 @@ async function run(): Promise<void> {
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
 
   const makeState = (): GPUBuffer =>
@@ -84,6 +91,7 @@ async function run(): Promise<void> {
         GPUBufferUsage.COPY_SRC |
         GPUBufferUsage.COPY_DST,
     })
+
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
 
@@ -91,11 +99,13 @@ async function run(): Promise<void> {
     size: offsetsU.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(offBuf, 0, offsetsU)
   const adjBuf = device.createBuffer({
     size: adjU.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
+
   device.queue.writeBuffer(adjBuf, 0, adjU)
 
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
@@ -103,6 +113,7 @@ async function run(): Promise<void> {
     layout: 'auto',
     compute: { module, entryPoint: 'main' },
   })
+
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -115,10 +126,12 @@ async function run(): Promise<void> {
         { binding: 4, resource: { buffer: adjBuf } },
       ],
     })
+
   const dispatch = Math.ceil(n / WORKGROUP)
 
   const stepGpu = (count: number, fromSrc: number): number => {
     let src = fromSrc
+
     for (let b = 0; b < count; b++) {
       const enc = device.createCommandEncoder()
       const pass = enc.beginComputePass()
@@ -139,6 +152,7 @@ async function run(): Promise<void> {
     size: byteLength,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
   })
+
   {
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(
@@ -156,11 +170,13 @@ async function run(): Promise<void> {
   staging.unmap()
 
   let cpu = seed.slice()
+
   for (let b = 0; b < CHECK_BEATS; b++) {
     cpu = cpuStep(cpu, g.offsets, g.adj)
   }
 
   let mismatches = 0
+
   for (let i = 0; i < n; i++) {
     if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
       mismatches++

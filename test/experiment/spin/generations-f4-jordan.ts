@@ -54,11 +54,13 @@ export function generationsF4Jordan(): {
   const longRoots = f4.filter(
     r => r.reduce((s, x) => s + x * x, 0) === 2,
   )
+
   const d4Keys = new Set(d4.map(vectorKey))
   const longRootsAre3434 =
     longRoots.length === 24 &&
     new Set(longRoots.map(vectorKey)).size === 24 &&
     longRoots.every(r => d4Keys.has(vectorKey(r)))
+
   const f4Has48Roots =
     f4.length === 48 && new Set(f4.map(vectorKey)).size === 48
 
@@ -73,10 +75,12 @@ export function generationsF4Jordan(): {
   const allTraceOne = frame.every(
     e => Math.abs(octonionMatrixTrace(e) - 1) < 1e-9,
   )
+
   const pairwiseOrthogonal =
     areJordanOrthogonal(frame[0]!, frame[1]!) &&
     areJordanOrthogonal(frame[0]!, frame[2]!) &&
     areJordanOrthogonal(frame[1]!, frame[2]!)
+
   const sumsToIdentity = octonionMatrixEquals(
     octonionMatrixAdd(
       octonionMatrixAdd(frame[0]!, frame[1]!),
@@ -84,6 +88,7 @@ export function generationsF4Jordan(): {
     ),
     octonionMatrixIdentity(3),
   )
+
   const frameSize = frame.length
   const frameIsRankThree =
     frameSize === 3 &&

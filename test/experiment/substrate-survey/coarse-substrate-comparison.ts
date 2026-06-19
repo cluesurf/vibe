@@ -30,9 +30,12 @@ function fractionAtSize(input: {
   size: number
 } {
   const { graph, center, targetSize, maxRadius } = input
+
   let cells = [center]
+
   for (let r = 1; r <= maxRadius; r++) {
     cells = ball(graph, center, r)
+
     if (cells.length >= targetSize) {
       break
     }
@@ -61,12 +64,14 @@ export default experiment({
       targetSize: target,
       maxRadius: 40,
     })
+
     const square = fractionAtSize({
       graph: squareGraph(96),
       center: 48 * 96 + 48,
       targetSize: target,
       maxRadius: 40,
     })
+
     const bulk = fractionAtSize({
       graph: bulkGraph(8000),
       center: 0,

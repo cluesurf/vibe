@@ -46,11 +46,14 @@ export function discreteGraviton(input: { seed: number }): {
     { length: Math.pow(L, D) },
     () => new Float64Array(D),
   )
+
   // smooth xi: a few low-frequency modes
   for (let site = 0; site < xi.length; site++) {
     const c = coordsOf(site, L)
+
     for (let mu = 0; mu < D; mu++) {
       let v = 0
+
       for (let k = 1; k <= 2; k++) {
         v +=
           (rng.next() - 0.5) *
@@ -62,8 +65,10 @@ export function discreteGraviton(input: { seed: number }): {
   }
 
   const hGauge = makeField(L)
+
   for (let site = 0; site < hGauge.data.length; site++) {
     const coords = coordsOf(site, L)
+
     const dxi = (alpha: number, mu: number): number => {
       const p = siteIndex(shift(coords, alpha, 1, L), L)
       const m = siteIndex(shift(coords, alpha, -1, L), L)
@@ -84,6 +89,7 @@ export function discreteGraviton(input: { seed: number }): {
   // 2. Mass term: a constant (uniform) perturbation. A mass term would give G != 0 for it; a
   // massless operator gives exactly 0 (it is all derivatives).
   const hConst = makeField(L)
+
   for (let site = 0; site < hConst.data.length; site++) {
     hConst.data[site]![1 * D + 1] = 0.7 // a constant h_xx
   }
@@ -93,9 +99,11 @@ export function discreteGraviton(input: { seed: number }): {
   // 3. Dispersion: a transverse-traceless plane wave with spatial wavevector k along z. The
   // operator eigenvalue should be proportional to k^2 (massless), going to zero as k -> 0.
   const eigenOverK2: number[] = []
+
   for (const kn of [1, 2, 3]) {
     const kz = (2 * Math.PI * kn) / L
     const h = makeField(L)
+
     // TT polarization for k along z: h_xx = +1, h_yy = -1 (transverse to z, traceless).
     for (let site = 0; site < h.data.length; site++) {
       const c = coordsOf(site, L)
@@ -105,11 +113,14 @@ export function discreteGraviton(input: { seed: number }): {
     }
 
     const g = linearizedEinstein(h)
+
     // eigenvalue: G_xx / h_xx at a site where h_xx is near its max
     let best = 0
     let bestPhase = 0
+
     for (let site = 0; site < h.data.length; site++) {
       const hxx = h.data[site]![1 * D + 1] ?? 0
+
       if (Math.abs(hxx) > bestPhase) {
         bestPhase = Math.abs(hxx)
         best = (g.data[site]![1 * D + 1] ?? 0) / hxx
@@ -124,6 +135,7 @@ export function discreteGraviton(input: { seed: number }): {
   // massless: eigenvalue proportional to k^2 with the SAME constant across k (so eigen/k^2 is flat)
   const mean =
     eigenOverK2.reduce((a, b) => a + b, 0) / eigenOverK2.length
+
   const spread = Math.max(...eigenOverK2.map(x => Math.abs(x - mean)))
   const dispersionMassless =
     massTermResidual < 1e-9 &&

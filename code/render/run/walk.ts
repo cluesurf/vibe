@@ -40,12 +40,15 @@ function run(): void {
     faceCenters: number[][]
     forwardFace: number
   }
+
   const target = forward.faceCenters[forward.forwardFace]!
   const upAngle =
     Math.PI / 2 - Math.atan2(target[1] ?? 0, target[0] ?? 0)
+
   const upright = rotateAboutOrigin({ angle: upAngle })
 
   const frames: Uint8Array[] = []
+
   for (let f = 0; f < frameCount; f++) {
     const scene = transformScene(cam.scene(), upright)
     const { rgba } = renderSceneToRgba({
@@ -56,7 +59,9 @@ function run(): void {
       near: NEAR,
       far: FAR,
     })
+
     frames.push(rgba)
+
     if (f === 0 || f === Math.floor(frameCount / 2)) {
       writeFileSync(
         join(outDir, `walk-${symbolText}-frame${f}.png`),
@@ -74,6 +79,7 @@ function run(): void {
     height: size,
     delayMs: 60,
   })
+
   writeFileSync(join(outDir, `walk-${symbolText}.gif`), gif)
   console.log(
     `wrote walk-${symbolText}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}  (window ${cam.activeCount} cells)`,

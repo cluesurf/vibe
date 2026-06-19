@@ -28,6 +28,7 @@ function run(input: {
     rng: makeRng({ seed: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).heightRatio,
   })
+
   const d = sampleCausalSets({
     size: input.size,
     action: input.action,
@@ -60,10 +61,12 @@ export default experiment({
         rng: makeRng({ seed: 1 }),
       }),
     })
+
     const action: Action = smearedBenincasaDowker({
       epsilon: 0.9,
       dimension: 2,
     })
+
     const measured = run({
       action,
       size,
@@ -71,6 +74,7 @@ export default experiment({
       beta: 2,
       seed: 290,
     })
+
     const ok =
       Math.abs(measured.mmDimension - reference.mmDimension) < 0.6 &&
       Math.abs(measured.heightRatio - reference.heightRatio) < 0.6

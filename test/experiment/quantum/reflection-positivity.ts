@@ -52,6 +52,7 @@ export function reflectionPositivity(input?: {
   const N = s.cellCount
   const eu: number[] = []
   const ev: number[] = []
+
   for (let v = 0; v < N; v++) {
     for (let p = s.offsets[v]!; p < s.offsets[v + 1]!; p++) {
       if (s.adj[p]! > v) {
@@ -67,6 +68,7 @@ export function reflectionPositivity(input?: {
 
   // cells grouped by spine position -> the coarse 1D field phi(p) = mean tone at position p
   let maxPos = 0
+
   for (let i = 0; i < N; i++) {
     if (s.position[i]! > maxPos) {
       maxPos = s.position[i]!
@@ -77,12 +79,14 @@ export function reflectionPositivity(input?: {
     { length: maxPos + 1 },
     () => [],
   )
+
   for (let i = 0; i < N; i++) {
     posCells[s.position[i]!]!.push(i)
   }
 
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 3 })
+
   for (let i = 0; i < N; i++) {
     tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
       | -1
@@ -99,10 +103,13 @@ export function reflectionPositivity(input?: {
   const sums = new Float64Array(maxR + 1)
   const counts = new Float64Array(maxR + 1)
   const samples = 200
+
   for (let smp = 0; smp < samples; smp++) {
     const phi = new Float64Array(maxPos + 1)
+
     for (let p = 0; p <= maxPos; p++) {
       let sum = 0
+
       for (const i of posCells[p]!) {
         sum += tone[i]!
       }
@@ -111,6 +118,7 @@ export function reflectionPositivity(input?: {
     }
 
     let mean = 0
+
     for (let p = 0; p <= maxPos; p++) {
       mean += phi[p]!
     }
@@ -119,6 +127,7 @@ export function reflectionPositivity(input?: {
     // use the interior to avoid the sliver ends
     const lo = 8
     const hi = maxPos - 8
+
     for (let r = 0; r <= maxR; r++) {
       for (let p = lo; p + r <= hi; p++) {
         sums[r]! += (phi[p]! - mean) * (phi[p + r]! - mean)
@@ -130,6 +139,7 @@ export function reflectionPositivity(input?: {
   }
 
   const c: number[] = []
+
   for (let r = 0; r <= maxR; r++) {
     c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
   }
@@ -148,10 +158,12 @@ export function reflectionPositivity(input?: {
   const tol = -1e-3 * Math.max(hankelMaxEig, Math.max(...eigS), 1e-9)
   const rpNaive = hankelMinEig >= tol
   const rpStaggered = staggeredMinEig >= tol
+
   // is the correlation extended enough to even HAVE a particle spectrum to test? measure where |C(r)|
   // first drops below 5% of C(0). a contact-dominated correlation (range ~1) has no spectrum to test, so
   // RP is undecidable here, the field is too massive. A clean RP verdict needs the near-critical regime.
   let correlationRange = 0
+
   for (let r = 1; r <= maxR; r++) {
     if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
       correlationRange = r

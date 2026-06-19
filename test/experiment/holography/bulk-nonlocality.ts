@@ -28,8 +28,10 @@ export function bulkNonlocality(input?: { n?: number }): {
   const n = input?.n ?? 40000
   const g = buildDodecagrid({ maxCells: n })
   const N = g.cellCount
+
   const nbr = (i: number): number[] => {
     const out: number[] = []
+
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
     }
@@ -48,7 +50,9 @@ export function bulkNonlocality(input?: { n?: number }): {
 
   // radial layers from a root, the shell at radius R is a "physical surface" (a horosphere-like sphere)
   const radial = bfs(0)
+
   let maxR = 0
+
   for (let i = 0; i < N; i++) {
     if (radial[i]! > maxR) {
       maxR = radial[i]!
@@ -58,8 +62,10 @@ export function bulkNonlocality(input?: { n?: number }): {
   // count internal edges per shell, and pick the shell with the MOST internal edges (a real connected
   // surface, not the all-leaf outer frontier)
   const internalEdges = new Array<number>(maxR + 1).fill(0)
+
   for (let v = 0; v < N; v++) {
     const rv = radial[v]!
+
     if (rv < 0) {
       continue
     }
@@ -72,6 +78,7 @@ export function bulkNonlocality(input?: { n?: number }): {
   }
 
   let shellRadius = 1
+
   for (let r = 1; r <= maxR; r++) {
     if (internalEdges[r]! > internalEdges[shellRadius]!) {
       shellRadius = r
@@ -80,6 +87,7 @@ export function bulkNonlocality(input?: { n?: number }): {
 
   const onShell = new Uint8Array(N)
   const shellCells: number[] = []
+
   for (let i = 0; i < N; i++) {
     if (radial[i]! === shellRadius) {
       onShell[i] = 1
@@ -94,14 +102,19 @@ export function bulkNonlocality(input?: { n?: number }): {
   let pairs = 0
   let unreachable = 0
   let unreachableTotal = 0
+
   const samples = Math.min(12, shellCells.length)
+
   for (let s = 0; s < samples; s++) {
     const src =
       shellCells[Math.floor((s * shellCells.length) / samples)]!
+
     const dBulk = bfs(src) // through the whole bulk
     const dSurf = bfs(src, onShell) // restricted to the physical surface
+
     // the bulk-farthest surface cell = a physically distant target
     let far = src
+
     for (const c of shellCells) {
       if (c === src) {
         continue
@@ -120,6 +133,7 @@ export function bulkNonlocality(input?: { n?: number }): {
     pairs++
     // its within-surface distance (or unreachable)
     unreachableTotal++
+
     if (dSurf[far]! === -1) {
       unreachable++
     } else {
@@ -131,14 +145,17 @@ export function bulkNonlocality(input?: { n?: number }): {
   const reachablePairs = pairs - unreachable
   const meanSurfaceDistance =
     reachablePairs > 0 ? surfSum / reachablePairs : Infinity
+
   const unreachableFraction =
     unreachableTotal > 0 ? unreachable / unreachableTotal : 0
+
   // ratio = how much longer the physical-surface path is than the bulk path (infinite if the surface is
   // disconnected, so the bulk is the ONLY channel)
   const ratio =
     reachablePairs > 0 && meanBulkDistance > 0
       ? meanSurfaceDistance / meanBulkDistance
       : Infinity
+
   // a non-local channel exists if the surface path is much longer than the bulk path, or the surface is
   // largely disconnected (so the bulk is the only channel)
   const nonLocalChannel = ratio > 2.5 || unreachableFraction > 0.5

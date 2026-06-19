@@ -43,8 +43,10 @@ export function rotationCurve(input: {
   b[center] = 1 - 1 / n
   const phi1 = cgSolve(lat.neighbors, b)
   const phi = new Float64Array(n)
+
   if (input.nonlocal !== 0) {
     const phi2 = cgSolve(lat.neighbors, phi1) // L^-2 b
+
     for (let i = 0; i < n; i++) {
       phi[i] = (phi1[i] ?? 0) + input.nonlocal * (phi2[i] ?? 0)
     }
@@ -60,12 +62,14 @@ export function rotationCurve(input: {
   const bins = Math.floor(maxR)
   const sum = new Float64Array(bins + 1)
   const cnt = new Int32Array(bins + 1)
+
   for (let i = 0; i < n; i++) {
     const x = (lat.coords[i * 3] ?? 0) - cx
     const y = (lat.coords[i * 3 + 1] ?? 0) - cx
     const z = (lat.coords[i * 3 + 2] ?? 0) - cx
     const d = Math.sqrt(x * x + y * y + z * z)
     const bin = Math.round(d)
+
     if (bin >= 1 && bin <= bins) {
       sum[bin] = (sum[bin] ?? 0) + (phi[i] ?? 0)
       cnt[bin] = (cnt[bin] ?? 0) + 1
@@ -74,6 +78,7 @@ export function rotationCurve(input: {
 
   const r: number[] = []
   const phiR: number[] = []
+
   for (let bn = 1; bn <= bins; bn++) {
     if ((cnt[bn] ?? 0) > 0) {
       r.push(bn)

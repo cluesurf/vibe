@@ -23,6 +23,7 @@ export function symbolContainsSubdiagram(
     start++
   ) {
     let match = true
+
     for (let k = 0; k < pattern.length; k++) {
       if (symbol[start + k] !== pattern[k]) {
         match = false
@@ -44,6 +45,7 @@ export function gramSignature(symbol: number[]): {
 } {
   const size = symbol.length + 1
   const data = new Float64Array(size * size)
+
   for (let index = 0; index < size; index++) {
     data[index * size + index] = 1
   }
@@ -60,6 +62,7 @@ export function gramSignature(symbol: number[]): {
     cols: size,
     data,
   }
+
   const values = Array.from(eigSymmetric({ matrix }).values)
 
   return {

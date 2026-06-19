@@ -50,6 +50,7 @@ export default experiment({
     const opposite = Array.from({ length: degree }, (_, d) =>
       coin.opposite(d),
     )
+
     const rule = headOnRotate({ opposite })
     const half = side / 2
     // a BOUNDED few-bit field, phi in [-cap, cap], the count of at most `cap` token-bits per cell, NOT an arbitrary
@@ -62,19 +63,24 @@ export default experiment({
       Math.floor(c / (side * side)) % side,
       Math.floor(c / (side * side * side)) % side,
     ]
+
     const center =
       half +
       half * side +
       half * side * side +
       half * side * side * side
+
     const neighbour = (c: number, d: number): number =>
       base.neighbour(c, d)
 
     const table = streamSourceTable(coin) // precompute the stream gather once, reused for every beat
+
     const restBody = (): Will => {
       const will = makeWill(coin)
+
       for (let c = 0; c < coin.cellCount; c++) {
         const [x, y, z, w] = coord(c)
+
         if (
           (x - half) ** 2 +
             (y - half) ** 2 +
@@ -93,8 +99,10 @@ export default experiment({
       mesh: coin,
       data: new Int8Array(will.data.length),
     })
+
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
+
       for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
       }
@@ -104,9 +112,12 @@ export default experiment({
 
     const extent = (will: Will): number => {
       let e = 0
+
       for (let c = 0; c < coin.cellCount; c++) {
         let on = false
+
         const b = c * degree
+
         for (let d = 0; d < degree; d++) {
           if (will.data[b + d] !== 0) {
             on = true
@@ -121,6 +132,7 @@ export default experiment({
             Math.abs(y - half) +
             Math.abs(z - half) +
             Math.abs(w - half)
+
           if (dd > e) {
             e = dd
           }
@@ -149,6 +161,7 @@ export default experiment({
         spatialDegree,
         minNeighbours: 3,
       })
+
       const newPhi = relaxPotential({
         source,
         neighbour,
@@ -159,6 +172,7 @@ export default experiment({
         cap,
         warm: phi,
       })
+
       // the force, each isolated rest mass hops down the gradient to the lowest-potential empty neighbour.
       for (const [from, to] of gravityMoves({
         occupied,
@@ -200,8 +214,10 @@ export default experiment({
     let body = restBody()
     let phiB = initialPhi(body)
     let bodyScratch = scratchOf(body)
+
     const bodyExtent = extent(body)
     const startOcc = occupiedOf(body).reduce((a, b) => a + b, 0)
+
     for (let t = 0; t < beats; t++) {
       const r = evolve(body, bodyScratch, phiB, 4, false)
       bodyScratch = body
@@ -216,7 +232,9 @@ export default experiment({
     // 2. self-repair, a piece broken off three cells away returns (the field pulls it back).
     const farDisplaced = (): Will => {
       const w = cloneWill(restBody())
+
       let nb = center
+
       for (let k = 0; k < 3; k++) {
         nb = base.neighbour(nb, 0)
       }
@@ -230,7 +248,9 @@ export default experiment({
     let displaced = farDisplaced()
     let phiD = initialPhi(displaced)
     let displacedScratch = scratchOf(displaced)
+
     const displacedStart = extent(displaced)
+
     for (let t = 0; t < beats; t++) {
       const r = evolve(displaced, displacedScratch, phiD, 4, false)
       displacedScratch = displaced
@@ -245,6 +265,7 @@ export default experiment({
     // 3. radiation, a moving disturbance sheds to the bath (open) and persists on the closed torus.
     const withDisturbance = (): Will => {
       const w = cloneWill(restBody())
+
       for (let d = 0; d < 8; d++) {
         w.data[center * degree + d] = 1
       }
@@ -255,11 +276,15 @@ export default experiment({
     const radiation = (open: boolean): number => {
       let clean = restBody(),
         pert = withDisturbance()
+
       let phiC = initialPhi(clean),
         phiP = initialPhi(pert)
+
       let cleanScratch = scratchOf(clean),
         pertScratch = scratchOf(pert)
+
       let final = 0
+
       for (let t = 0; t < beats; t++) {
         const a = evolve(clean, cleanScratch, phiC, 4, open)
         cleanScratch = clean
@@ -270,6 +295,7 @@ export default experiment({
         pert = b.will
         phiP = b.phi
         let d = 0
+
         for (let i = 0; i < clean.data.length; i++) {
           if (clean.data[i] !== pert.data[i]) {
             d++

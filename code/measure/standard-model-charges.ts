@@ -38,6 +38,7 @@ export function weinbergAngleAtUnification(
     (s, f) => s + f.mult * f.t3 * f.t3,
     0,
   )
+
   const sumQsq = generation.reduce((s, f) => s + f.mult * f.q * f.q, 0)
 
   return sumT3sq / sumQsq
