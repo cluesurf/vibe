@@ -19,6 +19,7 @@ export function randomNull(will: Will, seed: number): Will {
     data[index] = data[swap] ?? 0
     data[swap] = held
   }
+
   return shuffled
 }
 
@@ -43,5 +44,6 @@ export function shuffledToneField(input: {
     out[i] = out[j]!
     out[j] = held
   }
+
   return out
 }

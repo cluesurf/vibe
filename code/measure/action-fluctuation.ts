@@ -29,12 +29,14 @@ export function actionFluctuationExponent(input: {
       })
       samples.push(input.action.value({ poset }))
     }
+
     const mean = samples.reduce((a, b) => a + b, 0) / samples.length
     const variance =
       samples.reduce((a, b) => a + (b - mean) * (b - mean), 0) /
       samples.length
     stds.push(Math.sqrt(variance))
   }
+
   return {
     sizes: [...input.sizes],
     stds,

@@ -38,8 +38,10 @@ export function latticeBall(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return { dist, cells, generators }
 }
 
@@ -55,6 +57,7 @@ export function latticeWordDistance(input: {
   if (key(a) === key(b)) {
     return 0
   }
+
   const seen = new Set([key(a)])
   let frontier = [a]
   for (let r = 1; r <= cap; r++) {
@@ -66,13 +69,16 @@ export function latticeWordDistance(input: {
         if (k === key(b)) {
           return r
         }
+
         if (!seen.has(k)) {
           seen.add(k)
           next.push(q)
         }
       }
     }
+
     frontier = next
   }
+
   return cap + 1
 }

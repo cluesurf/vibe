@@ -21,6 +21,7 @@ function study(): { meanDimension: number; acceptance: number } {
     rng,
     observe: ({ poset }) => myrheimMeyerDimension({ poset }),
   })
+
   return {
     meanDimension: r.meanObservable,
     acceptance: r.acceptanceRate,
@@ -47,6 +48,7 @@ export default experiment({
     const acceptanceHealthy = r.acceptance > 0.05 && r.acceptance < 0.95
     const sharplyTwoDimensional = Math.abs(r.meanDimension - 2) < 0.6
     const ok = finiteDimension && acceptanceHealthy
+
     return verdict({
       status: ok
         ? sharplyTwoDimensional

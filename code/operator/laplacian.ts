@@ -28,6 +28,7 @@ export function laplacian(input: {
       triplets.push({ row: a, col: b, value: -1 })
     }
   }
+
   return sparseFromTriplets({ rows: n, cols: n, triplets })
 }
 
@@ -38,6 +39,7 @@ export function laplacianSpectrum(input: {
 }): Float64Array {
   const matrix = laplacian({ substrate: input.substrate })
   const operator = operatorFromSparse(matrix)
+
   return lowestEigenvalues({ operator, count: input.count })
 }
 
@@ -46,6 +48,7 @@ function dot(a: Float64Array, b: Float64Array): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 
@@ -54,6 +57,7 @@ function subtractMean(x: Float64Array): void {
   for (let i = 0; i < x.length; i++) {
     m += x[i] ?? 0
   }
+
   m /= x.length
   for (let i = 0; i < x.length; i++) {
     x[i] = (x[i] ?? 0) - m
@@ -86,16 +90,21 @@ export function laplacianGreensFunction(input: {
       phi[i] = (phi[i] ?? 0) + alpha * (direction[i] ?? 0)
       residual[i] = (residual[i] ?? 0) - alpha * (temp[i] ?? 0)
     }
+
     const rsNew = dot(residual, residual)
     if (rsNew < 1e-14) {
       break
     }
+
     const beta = rsNew / rsOld
     for (let i = 0; i < n; i++) {
       direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
     }
+
     rsOld = rsNew
   }
+
   subtractMean(phi)
+
   return phi
 }

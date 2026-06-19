@@ -11,6 +11,7 @@ const mix = (key: number, salt: number, modulus: number): number => {
   h = Math.imul(h ^ (h >>> 16), 0x21f0aaad) >>> 0
   h = Math.imul(h ^ (h >>> 15), 0x735a2d97) >>> 0
   h = (h ^ (h >>> 15)) >>> 0
+
   return h % modulus
 }
 
@@ -35,12 +36,15 @@ export function hashTableProbeStats(input: {
       position = (position + 1) % input.cells
       probe += 1
     }
+
     if (probe > 1) {
       collisions += 1
     }
+
     slot[position] = key
     totalProbe += probe
   }
+
   return {
     collisionRate: collisions / Math.max(1, input.keys),
     meanProbe: totalProbe / Math.max(1, input.keys),
@@ -59,6 +63,7 @@ export function bloomFalsePositiveRate(input: {
       bits[mix(key, salt, input.cells)] = 1
     }
   }
+
   let falsePositives = 0
   for (let query = 0; query < input.queries; query++) {
     const key = input.items + query // a key never inserted
@@ -69,9 +74,11 @@ export function bloomFalsePositiveRate(input: {
         break
       }
     }
+
     if (allSet) {
       falsePositives += 1
     }
   }
+
   return falsePositives / Math.max(1, input.queries)
 }

@@ -33,5 +33,6 @@ export function encodeGif(input: {
   })
 
   gif.finish()
+
   return Buffer.from(gif.bytesView())
 }

@@ -16,6 +16,7 @@ function squaredNorm(point: number[]): number {
     const value = point[index] ?? 0
     sum += value * value
   }
+
   return sum
 }
 
@@ -26,6 +27,7 @@ function squaredDistance(left: number[], right: number[]): number {
     const difference = (left[index] ?? 0) - (right[index] ?? 0)
     sum += difference * difference
   }
+
   return sum
 }
 
@@ -76,9 +78,11 @@ export function poincareDistanceIndexed(
     normB += xb * xb
     differenceSquared += (xa - xb) * (xa - xb)
   }
+
   const oneMinusA = 1 - normA
   const oneMinusB = 1 - normB
   const denom = Math.max(1e-12, oneMinusA * oneMinusB)
+
   return Math.acosh(1 + (2 * differenceSquared) / denom)
 }
 

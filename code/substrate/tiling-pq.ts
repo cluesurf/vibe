@@ -62,6 +62,7 @@ export function tilingPQ(input: {
       if (!parent) {
         continue
       }
+
       let childCount: number
       let childrenWhite: boolean[]
       if (gen === 0) {
@@ -95,6 +96,7 @@ export function tilingPQ(input: {
         nextFrontier.push(id)
       }
     }
+
     frontier = nextFrontier
   }
 
@@ -105,6 +107,7 @@ export function tilingPQ(input: {
   for (let i = 0; i < size; i++) {
     neighbors.push([])
   }
+
   for (let i = 0; i < size; i++) {
     const node = nodes[i]
     if (node && node.parent !== null) {
@@ -131,6 +134,7 @@ function zeckendorf(input: { value: number }): string {
   if (v <= 0) {
     return '0'
   }
+
   // Fibonacci sequence 1, 2, 3, 5, 8, ... (Zeckendorf basis) up to v.
   const fib: number[] = [1, 2]
   while ((fib[fib.length - 1] ?? 0) <= v) {
@@ -138,6 +142,7 @@ function zeckendorf(input: { value: number }): string {
     const b = fib[fib.length - 2] ?? 0
     fib.push(a + b)
   }
+
   // Largest basis element not exceeding v is at fib.length - 2 (the last pushed
   // one overshot). Greedily subtract.
   const bits: string[] = []
@@ -147,6 +152,7 @@ function zeckendorf(input: { value: number }): string {
     if (f > v && !started) {
       continue
     }
+
     if (f <= v) {
       bits.push('1')
       v -= f
@@ -155,5 +161,6 @@ function zeckendorf(input: { value: number }): string {
       bits.push('0')
     }
   }
+
   return bits.length > 0 ? bits.join('') : '0'
 }

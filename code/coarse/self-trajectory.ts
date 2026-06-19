@@ -18,9 +18,11 @@ import { extractUnits, meanUnitSize } from '@/code/coarse/macro-unit'
 
 export function makeRng(seed: number): Rng {
   let s = seed >>> 0
+
   return {
     next() {
       s = (Math.imul(s, 1664525) + 1013904223) >>> 0
+
       return s / 4294967296
     },
   }
@@ -37,6 +39,7 @@ function positiveCentroidX(tone: Int8Array, L: number): number {
       count++
     }
   }
+
   return count > 0 ? sum / count : L / 2
 }
 
@@ -84,6 +87,7 @@ export function selfTrajectory(input: {
       snapshots.push(tone.slice())
     }
   }
+
   const positions = (cell: number): readonly [number, number] => [
     cell % L,
     Math.floor(cell / L),
@@ -95,6 +99,7 @@ export function selfTrajectory(input: {
     sign: 1,
     minSize: 3,
   })
+
   return {
     graph,
     L,
@@ -113,6 +118,7 @@ export function positionBin(input: {
   bins: number
 }): number {
   const { tone, L, bins } = input
+
   return Math.min(
     bins - 1,
     Math.max(0, Math.floor((positiveCentroidX(tone, L) / L) * bins)),
@@ -174,12 +180,15 @@ function runUnitTrajectory(input: {
           largest = u
         }
       }
+
       lastCx = largest.cx
       sizeSum += largest.size
       sizeCount++
     }
+
     centroids.push(lastCx)
   }
+
   return {
     graph,
     L,
@@ -213,6 +222,7 @@ export function driftingSelfTrajectory(input: {
   minSize?: number
 }): UnitTrajectory {
   const { cohesionEarly, cohesionLate, changeAt } = input
+
   return runUnitTrajectory({
     ...input,
     minSize: input.minSize ?? 3,

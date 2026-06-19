@@ -38,6 +38,7 @@ export function betheGravity(): {
   const measured = validateTree(12, 3),
     predicted = muFor(12, 12)
   const validated = Math.abs(measured - predicted) < 0.05
+
   return { alpha24, alpha12, massiveAlpha, validated }
 }
 
@@ -56,6 +57,7 @@ export default experiment({
       Math.abs(r.alpha12 - 2) < 0.01 &&
       r.massiveAlpha > 2 &&
       r.validated
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

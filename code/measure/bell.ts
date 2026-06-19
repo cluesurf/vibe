@@ -41,8 +41,10 @@ function chooseSetting(input: {
       input.side === 'a'
         ? Math.sin(2 * input.lambda) >= 0
         : Math.cos(2 * input.lambda) >= 0
+
     return bit ? first : second
   }
+
   return input.rng.next() < 0.5 ? first : second
 }
 
@@ -127,6 +129,7 @@ export function chsh(input: {
   const aPrimeBPrime = average(sum.aPrimeBPrime, count.aPrimeBPrime)
 
   const s = ab - abPrime + aPrimeB + aPrimeBPrime
+
   return {
     s,
     correlators: { ab, abPrime, aPrimeB, aPrimeBPrime },
@@ -179,8 +182,10 @@ export function chshShared(input: {
     sum[cell] = (sum[cell] ?? 0) + a * b
     count[cell] = (count[cell] ?? 0) + 1
   }
+
   const e = (i: number): number =>
     (count[i] ?? 0) === 0 ? 0 : (sum[i] ?? 0) / (count[i] ?? 1)
+
   // S = E(0,0) - E(0,1) + E(1,0) + E(1,1)
   return e(0) - e(1) + e(2) + e(3)
 }

@@ -50,6 +50,7 @@ function equilibratedHeightRatio(input: {
     sum += trace[i] ?? 0
     count += 1
   }
+
   return count > 0 ? sum / count : 0
 }
 
@@ -92,6 +93,7 @@ export default experiment({
       seed: 900,
     })
     const ok = gap > 0.1 && sharp < fromManifold + 1e-9
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

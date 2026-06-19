@@ -27,6 +27,7 @@ import { verdict } from '@/test/scaffold/verdict'
 // early ratios directly. The same test is applied to both substrates.
 function exponentialReach(growth: Uint32Array): boolean {
   const mean = meanUnsaturatedGrowthRatio({ growth })
+
   return Number.isFinite(mean) && mean > 1.8
 }
 
@@ -44,6 +45,7 @@ function evaluate(
     center: mostConnectedNode(g.neighbors),
     maxRadius: 12,
   })
+
   return {
     meanDegree: meanDegree(g),
     anisotropy: aniso.anisotropy,
@@ -80,6 +82,7 @@ export function deterministicSubstrate(input: {
   // band as the random one (within a small margin), and it still reaches exponentially.
   const deterministicIsSafe =
     sunflower.anisotropy <= random.anisotropy + 0.1 && sunflower.reach
+
   return { random, sunflower, deterministicIsSafe }
 }
 
@@ -97,6 +100,7 @@ export default experiment({
       r.deterministicIsSafe &&
       r.sunflower.anisotropy < 0.15 &&
       r.sunflower.reach
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

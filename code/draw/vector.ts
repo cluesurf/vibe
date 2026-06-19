@@ -24,5 +24,6 @@ export function scaled(v: number[], factor: number): number[] {
 
 export function normalize(v: number[]): number[] {
   const length = norm(v) || 1
+
   return v.map(x => x / length)
 }

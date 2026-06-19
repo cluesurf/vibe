@@ -21,6 +21,7 @@ export function addInto(
   for (let k = 0; k < times; k++) {
     dst.increment()
   }
+
   return times
 }
 
@@ -54,5 +55,6 @@ export function fibOnRailway(input: { n: number; bits?: number }): {
     copyInto(b, t)
     increments += t.count() // b = t
   }
+
   return { value: a.count(), increments }
 }

@@ -43,6 +43,7 @@ export function swerveDiffusion(input: {
       }
     }
   }
+
   const points: { tau: number; varRapidity: number }[] = []
   for (let b = 0; b < bins; b++) {
     if ((count[b] ?? 0) > 20) {
@@ -52,6 +53,7 @@ export function swerveDiffusion(input: {
       })
     }
   }
+
   // Fit the slope on the clean linear range only (early proper time). At large tau the
   // variance saturates as wide-rapidity trajectories leave the finite box, a boundary
   // effect, not the diffusion.
@@ -63,5 +65,6 @@ export function swerveDiffusion(input: {
           ys: linear.map(p => p.varRapidity),
         }).slope
       : 0
+
   return { density: input.density, slope, points }
 }

@@ -22,9 +22,11 @@ function frontRadius(will: Will, side: number): number {
         break
       }
     }
+
     if (!occupied) {
       continue
     }
+
     const x = cell % side
     const y = Math.floor(cell / side) % side
     const z = Math.floor(cell / area)
@@ -34,6 +36,7 @@ function frontRadius(will: Will, side: number): number {
       maximum = radius
     }
   }
+
   return maximum
 }
 
@@ -52,12 +55,14 @@ export function lightConeRadii(input: {
   for (let direction = 0; direction < mesh.degree; direction++) {
     will.data[base + direction] = 1
   }
+
   const radii: number[] = []
   let current = will
   for (let step = 0; step < input.beats; step++) {
     current = beat(current, passThrough)
     radii.push(frontRadius(current, side))
   }
+
   return radii
 }
 
@@ -111,11 +116,14 @@ export function perturbationConeRadii(input: {
           break
         }
       }
+
       if (differs && (distance[cell] ?? 0) > maximum) {
         maximum = distance[cell] ?? 0
       }
     }
+
     radii.push(maximum)
   }
+
   return radii
 }

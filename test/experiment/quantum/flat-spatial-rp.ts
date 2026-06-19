@@ -71,9 +71,11 @@ export function flatSpatialRP(input?: {
         | 0
         | 1
     }
+
     for (let t = 0; t < 300; t++) {
       beat(tone, L, moved, rng, arrow)
     }
+
     const T = 1500
     const sumNN = new Float64Array(maxR + 1)
     let sumN = 0
@@ -82,19 +84,23 @@ export function flatSpatialRP(input?: {
       for (let x = 0; x < L; x++) {
         n[x] = tone[x] !== 0 ? 1 : 0
       }
+
       for (let x = 0; x < L; x++) {
         sumN += n[x]!
         for (let r = 0; r <= maxR; r++) {
           sumNN[r]! += n[x]! * n[(x + r) % L]!
         }
       }
+
       beat(tone, L, moved, rng, arrow)
     }
+
     const mean = sumN / (L * T)
     const c: number[] = []
     for (let r = 0; r <= maxR; r++) {
       c.push(sumNN[r]! / (L * T) - mean * mean)
     }
+
     return { c, density: mean }
   }
 
@@ -115,6 +121,7 @@ export function flatSpatialRP(input?: {
         range = r
       }
     }
+
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
     scan.push({
       arrow,
@@ -176,6 +183,7 @@ export default experiment({
       r.massiveField &&
       r.ruleNotGeometry &&
       r.rpConsistentMassive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

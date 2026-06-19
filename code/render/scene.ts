@@ -46,5 +46,6 @@ export function ballNorm(v: Vec): number {
   for (const x of v) {
     s += x * x
   }
+
   return Math.sqrt(s)
 }

@@ -26,6 +26,7 @@ export function buildD4Torus(M: number): {
       }
     }
   }
+
   const wrap = (x: number): number => ((x % M) + M) % M
   const neigh: number[][] = cells.map(p =>
     roots.map(
@@ -35,5 +36,6 @@ export function buildD4Torus(M: number): {
         )!,
     ),
   )
+
   return { cells, index, roots, neigh }
 }

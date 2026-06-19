@@ -26,9 +26,11 @@ export default experiment({
       const isInteger = Math.abs(result.index - rounded) < 0.05
       const matches =
         isInteger && Math.abs(rounded) === Math.abs(charge)
+
       return { charge, index: result.index, matches }
     })
     const allMatch = results.every(row => row.matches)
+
     return verdict({
       status: allMatch ? 'pass' : 'fail',
       claim:

@@ -79,9 +79,11 @@ function legStructure(a: Addressing): boolean {
       break
     }
   }
+
   const junctionOK = interiorDeg >= 3
 
   const ok = treeOK && sonColours > 0 && preferredOK && junctionOK
+
   return ok
 }
 
@@ -118,6 +120,7 @@ function legTernary(): boolean {
       exprOK = false
     }
   }
+
   // evolve Rule 110 (built from the rule's NANDs) against a reference Rule 110 for a few steps
   const W = 64
   let line: Bit[] = Array.from({ length: W }, (_, i) =>
@@ -135,9 +138,11 @@ function legTernary(): boolean {
         matches = false
       }
     }
+
     line = next
     ref = refNext
   }
+
   return nandOK && exprOK && matches
 }
 
@@ -159,6 +164,7 @@ function makeMachine3434(
       interior.push(c)
     }
   }
+
   interior.sort((x, y) =>
     a.address[x]!.join('.') < a.address[y]!.join('.') ? -1 : 1,
   )
@@ -167,6 +173,7 @@ function makeMachine3434(
     numRegisters,
     perRegister: perReg,
   })
+
   return new RegisterMachine({
     tone: new Int8Array(n),
     regions,
@@ -205,6 +212,7 @@ function legRegisterMachine(a: Addressing): boolean {
       conserved,
     })
   }
+
   for (const [x, y] of [
     [3, 4],
     [5, 5],
@@ -222,6 +230,7 @@ function legRegisterMachine(a: Addressing): boolean {
       conserved,
     })
   }
+
   let allCorrect = true
   let allConserved = true
   for (const c of cases) {
@@ -229,10 +238,12 @@ function legRegisterMachine(a: Addressing): boolean {
     if (!ok) {
       allCorrect = false
     }
+
     if (!c.conserved) {
       allConserved = false
     }
   }
+
   return allCorrect && allConserved
 }
 
@@ -272,6 +283,7 @@ function legCuspLife(): boolean {
   for (const [dx, dy] of glider) {
     alive.add(`${cx + dx},${cy + dy}`)
   }
+
   const refAlive = new Set(alive)
   // run the cusp-graph version (only keep cells that EXIST on the cusp plane) AND a reference version
   let cusp = new Set(alive)
@@ -280,6 +292,7 @@ function legCuspLife(): boolean {
     cusp = new Set([...lifeStep(cusp)].filter(k => cellAt.has(k))) // confined to the actual cusp lattice
     ref = lifeStep(ref)
   }
+
   const matchesRef = cellSetEqual(cusp, ref) // the cusp evolves IDENTICALLY to a reference Z^2 Life (the proof)
   const [x0, y0] = cellSetCentroid(refAlive)
   const [x1, y1] = cellSetCentroid(cusp)
@@ -288,6 +301,7 @@ function legCuspLife(): boolean {
   const survived = cusp.size === 5 // a glider is 5 cells, period 4
   const moved = !cellSetEqual(cusp, refAlive) && (dx !== 0 || dy !== 0)
   const lifeOK = matchesRef && survived && moved
+
   return lifeOK
 }
 
@@ -313,6 +327,7 @@ export default experiment({
     const leg3 = legRegisterMachine(a)
     const leg4 = legCuspLife()
     const ok = leg1 && leg2 && leg3 && leg4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

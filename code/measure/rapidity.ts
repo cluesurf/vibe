@@ -26,16 +26,20 @@ export function linkRapidities(input: {
       if (dt <= 1e-9) {
         continue
       }
+
       const v = dx / dt
       if (Math.abs(v) >= 1 - 1e-9) {
         continue
       } // null/spacelike, no finite rapidity
+
       if (band && (ta < band.lo || tb > band.hi)) {
         continue
       }
+
       out.push(Math.atanh(v))
     }
   }
+
   return out
 }
 
@@ -51,6 +55,7 @@ export function boostEnergyMomentum(input: {
 }): { omega: number; wavenumber: number } {
   const ch = Math.cosh(input.rapidity)
   const sh = Math.sinh(input.rapidity)
+
   return {
     omega: input.omega * ch + input.wavenumber * sh,
     wavenumber: input.wavenumber * ch + input.omega * sh,
@@ -64,6 +69,7 @@ export function addVelocities(input: {
   frame: number
 }): number {
   const { velocity, frame } = input
+
   return (velocity + frame) / (1 + frame * velocity)
 }
 
@@ -98,5 +104,6 @@ export function boostCoords(input: {
     out[i * 2] = ch * t + sh * x
     out[i * 2 + 1] = sh * t + ch * x
   }
+
   return out
 }

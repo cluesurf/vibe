@@ -40,8 +40,10 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
   let axis = 0
@@ -50,6 +52,7 @@ function run(): void {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -57,6 +60,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -83,6 +87,7 @@ function run(): void {
       bandList.push(i)
     }
   }
+
   const B = bandList.length
   const bandNbr: number[][] = bandList.map(() => [])
   for (let a = 0; a < B; a++) {
@@ -93,10 +98,13 @@ function run(): void {
       }
     }
   }
+
   const med = (xs: number[]): number => {
     const s = [...xs].sort((p, q) => p - q)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = med(bandList.map(i => U[i]!)),
     cv = med(bandList.map(i => V[i]!))
   const radii = bandList
@@ -115,6 +123,7 @@ function run(): void {
     px[a] = Math.round(IMG / 2 + un[a]! * halfPx)
     py[a] = Math.round(IMG / 2 + vn[a]! * halfPx)
   }
+
   console.log(`flat band ${B.toLocaleString()} cells`)
 
   // seed: a smooth large-scale pattern, sampled DISCRETELY to ternary {-1,0,+1} per cell
@@ -142,11 +151,13 @@ function run(): void {
         if (dx * dx + dy * dy > DOT * DOT) {
           continue
         }
+
         const x = cx + dx,
           y = cy + dy
         if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
           continue
         }
+
         const o = (y * IMG + x) * 4
         rgba[o] = col[0]
         rgba[o + 1] = col[1]
@@ -164,6 +175,7 @@ function run(): void {
         mx = v
       }
     }
+
     const rgba = new Uint8Array(IMG * IMG * 4)
     for (let i = 0; i < rgba.length; i += 4) {
       rgba[i] = 0
@@ -171,12 +183,14 @@ function run(): void {
       rgba[i + 2] = 0
       rgba[i + 3] = 255
     }
+
     for (let a = 0; a < B; a++) {
       const v = field[a]! / mx
       const m = Math.min(1, Math.abs(v))
       if (m < 0.04) {
         continue
       }
+
       const col: [number, number, number] =
         v > 0
           ? [
@@ -191,6 +205,7 @@ function run(): void {
             ]
       drawDot(rgba, px[a]!, py[a]!, col)
     }
+
     writeFrame({
       dir: outDir,
       index: f,
@@ -208,13 +223,16 @@ function run(): void {
         s += field[b]!
         d++
       }
+
       ns[a] = s / d
     }
+
     field = ns
     if (f % 12 === 0) {
       console.log(`  pass ${f}/${FRAMES}`)
     }
   }
+
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(
     `ffmpeg -y -framerate 12 -i ${join(outDir, 'blur_%04d.png')} -pix_fmt yuv420p ${join(here, '..', '..', 'make', '534', 'blur-dial-534.mp4')}`,

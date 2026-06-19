@@ -70,6 +70,7 @@ export default experiment({
         hydrogenMolecularIonAntibondingEnergy(r),
       )
     }
+
     const antibondingRepulsive =
       antibondingMin > DISSOCIATION_LIMIT - 1e-3
 
@@ -84,6 +85,7 @@ export default experiment({
         }),
       )
     }
+
     const noResonanceNoBond = noResonanceMin > DISSOCIATION_LIMIT - 1e-3
 
     const ok =

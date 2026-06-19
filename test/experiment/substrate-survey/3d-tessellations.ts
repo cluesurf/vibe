@@ -115,6 +115,7 @@ export default experiment({
     threedTessellations()
     const reference = measure([5, 3, 4])
     const ok = reference.ok && reference.degree === 12
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

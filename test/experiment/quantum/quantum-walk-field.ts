@@ -68,6 +68,7 @@ export function quantumWalkField(input?: { steps?: number }): {
       dispersionReal = false
     }
   }
+
   const reflectionPositive = dispersionReal // a Hermitian Hamiltonian gives a reflection-positive Euclidean theory
 
   const solved =
@@ -105,6 +106,7 @@ export default experiment({
       r.quantumBallistic &&
       r.classicalDiffusive &&
       r.reflectionPositive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

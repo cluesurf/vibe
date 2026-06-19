@@ -50,8 +50,10 @@ async function gpuResponders(input: {
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | extra,
     })
     device.queue.writeBuffer(b, 0, data)
+
     return b
   }
+
   const params = device.createBuffer({
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -102,6 +104,7 @@ async function gpuResponders(input: {
   const out = new Uint32Array(readback.getMappedRange().slice(0))
   readback.unmap()
   const ms = performance.now() - t0
+
   return { responders: out, ms }
 }
 
@@ -111,8 +114,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU). The GPU associative match is written and will run where an adapter is present.',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
   const module = device.createShaderModule({
     code: ASSOCIATIVE_MATCH_WGSL,
@@ -135,6 +140,7 @@ async function run(): Promise<void> {
   for (let c = 0; c < n; c++) {
     storeWord(mem, c, ternaryWord(c, WORD_BITS))
   }
+
   const wordsU = Uint32Array.from(mem.words)
   const maskU = new Uint32Array(WORD_BITS).fill(1)
 
@@ -159,6 +165,7 @@ async function run(): Promise<void> {
       gpuExactCells.push(c)
     }
   }
+
   const exactMatch =
     cpuExact.length === gpuExactCells.length &&
     cpuExact.every((c, i) => c === gpuExactCells[i])
@@ -182,6 +189,7 @@ async function run(): Promise<void> {
       gpuPartialCells.push(c)
     }
   }
+
   const partialMatch =
     cpuPartial.length === gpuPartialCells.length &&
     cpuPartial.every((c, i) => c === gpuPartialCells[i])
@@ -207,6 +215,7 @@ async function run(): Promise<void> {
   for (let c = 0; c < nb; c++) {
     storeWord(memb, c, ternaryWord(c, WORD_BITS))
   }
+
   const wordsUb = Uint32Array.from(memb.words)
   const comparandUb = Uint32Array.from(
     readWord(memb, Math.floor(nb / 2)),
@@ -231,6 +240,7 @@ async function run(): Promise<void> {
     )
     process.exit(1)
   }
+
   console.log(
     'OK, the GPU associative match equals the CPU ground truth',
   )

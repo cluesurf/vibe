@@ -17,6 +17,7 @@ export function popcount(value: number): number {
     n += v & 1
     v >>>= 1
   }
+
   return n
 }
 
@@ -60,8 +61,10 @@ export function stabilizerGroup(input: {
         z ^= generators[k]!.z
       }
     }
+
     span.add(x | (z << qubits))
   }
+
   return span
 }
 
@@ -81,16 +84,20 @@ export function logicalOperators(input: {
       if (x === 0 && z === 0) {
         continue
       }
+
       const p: Pauli = { x, z }
       if (!generators.every(s => pauliCommute(p, s))) {
         continue
       } // not in the normalizer
+
       if (span.has(x | (z << qubits))) {
         continue
       } // a trivial (stabilizer) logical
+
       logicals.push(p)
     }
   }
+
   return logicals
 }
 
@@ -100,6 +107,7 @@ export function codeDistance(logicals: ReadonlyArray<Pauli>): number {
   for (const l of logicals) {
     distance = Math.min(distance, pauliWeight(l))
   }
+
   return distance
 }
 
@@ -110,5 +118,6 @@ export function erasureCorrectable(input: {
   erased: number
 }): boolean {
   const { logicals, erased } = input
+
   return !logicals.some(l => (pauliSupport(l) & ~erased) === 0)
 }

@@ -25,6 +25,7 @@ const gramMatrix = (symbol: number[]): number[][] => {
     gram[k]![k + 1] = c
     gram[k + 1]![k] = c
   }
+
   return gram
 }
 
@@ -48,6 +49,7 @@ export function coxeterPoincareGraph(
       data[i * n + j] = gram[i]![j]!
     }
   }
+
   const eig = eigSymmetric({
     matrix: { form: 'dense', rows: n, cols: n, data } as DenseMatrix,
   })
@@ -68,8 +70,10 @@ export function coxeterPoincareGraph(
       for (let i = 0; i < n; i++) {
         q += vectors[i * n + k]! * p[i]!
       }
+
       z[k] = sqrtAbs[k]! * q
     }
+
     const time = Math.abs(z[0]!)
     const y = new Array(dim).fill(0)
     for (let k = 1; k < n; k++) {
@@ -77,8 +81,10 @@ export function coxeterPoincareGraph(
       if (!Number.isFinite(value)) {
         value = 0
       }
+
       y[k - 1] = Math.max(-0.999999, Math.min(0.999999, value))
     }
+
     return y
   }
 
@@ -102,10 +108,12 @@ export function coxeterPoincareGraph(
           next.push(index.get(id)!)
         }
       }
+
       if (index.size >= maxCells) {
         break
       }
     }
+
     frontier = next
   }
 
@@ -118,6 +126,7 @@ export function coxeterPoincareGraph(
         ns.add(id)
       }
     }
+
     return Uint32Array.from([...ns].sort((a, b) => a - b))
   })
   const flat = new Float64Array(size * dim)
@@ -126,6 +135,7 @@ export function coxeterPoincareGraph(
       flat[i * dim + k] = coords[i]![k]!
     }
   }
+
   const embedding: Embedding = {
     form: 'embedding',
     dimension: dim,
@@ -133,5 +143,6 @@ export function coxeterPoincareGraph(
     coords: flat,
     manifold: { form: 'hyperbolic', dimension: dim, curvature: -1 },
   }
+
   return { form: 'graph', size, directed: false, neighbors, embedding }
 }

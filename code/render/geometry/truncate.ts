@@ -51,6 +51,7 @@ export function truncateScene(
       vertexAt.set(key, v)
       neighbours.set(key, [])
     }
+
     neighbours.get(key)!.push(u)
   }
 
@@ -72,6 +73,7 @@ export function truncateScene(
     const ordered = around
       .map(u => {
         const local = mobiusAdd(negate(v), u)
+
         return { u, angle: Math.atan2(local[1] ?? 0, local[0] ?? 0) }
       })
       .sort((p, q) => p.angle - q.angle)
@@ -79,6 +81,7 @@ export function truncateScene(
     const cuts = ordered.map(({ u }) => {
       const cut = geodesicFraction(v, u, fraction)
       cutAt.set(cutKey(key, vertexKey(u)), cut)
+
       return cut
     })
 
@@ -89,6 +92,7 @@ export function truncateScene(
       if (cuts.length === 2 && i === 1) {
         break
       } // a degree-2 vertex makes a single segment, not a digon
+
       edges.push({ a, b })
     }
   }
@@ -102,6 +106,7 @@ export function truncateScene(
     if (seen.has(undirected)) {
       continue
     }
+
     seen.add(undirected)
     const a = cutAt.get(cutKey(ka, kb))
     const b = cutAt.get(cutKey(kb, ka))

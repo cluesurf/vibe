@@ -54,14 +54,17 @@ export function compileToRailway(
     if (!registers.has(name)) {
       registers.set(name, registers.size)
     }
+
     return registers.get(name)!
   }
+
   const parameters = fn.parameters.map(
     p => (p.name as ts.Identifier).text,
   )
   for (const p of parameters) {
     reg(p)
   } // parameters are registers 0..k-1
+
   const scratch = (): number => reg('$scratch')
 
   const code: RailInstruction[] = []
@@ -82,12 +85,14 @@ export function compileToRailway(
     const i = emit({ op: 'inc', reg: r, next: 0 })
     ;(code[i] as { next: number }).next = i + 1
   }
+
   // dst -= 1 if possible, else stay; either branch falls through (a non-jumping decrement)
   const decOrStay = (r: number): void => {
     const i = emit({ op: 'dec', reg: r, next: 0, zero: 0 })
     ;(code[i] as { next: number; zero: number }).next = i + 1
     ;(code[i] as { next: number; zero: number }).zero = i + 1
   }
+
   // zero out a register: dec it in a tight loop until it is empty
   const clear = (r: number): void => {
     const loop = here()
@@ -95,6 +100,7 @@ export function compileToRailway(
     ;(code[dec] as { next: number; zero: number }).next = loop // decremented one, loop back
     ;(code[dec] as { next: number; zero: number }).zero = loop + 1 // empty, fall through
   }
+
   // move EVERYTHING out of `src` into each register in `dests` (src ends at zero). The loop body's LAST inc
   // jumps back to the loop head (an inc's `next` is the unconditional jump), so no scratch no-op is needed.
   const drain = (src: number, dests: number[]): void => {
@@ -106,13 +112,16 @@ export function compileToRailway(
       ;(code[i] as { next: number }).next =
         k === dests.length - 1 ? loop : i + 1
     }
+
     ;(code[dec] as { next: number; zero: number }).zero = here() // empty, fall through past the body
   }
+
   // dst += src, preserving src (drain src into dst and scratch, then drain scratch back into src)
   const add = (dst: number, src: number): void => {
     drain(src, [dst, scratch()])
     drain(scratch(), [src])
   }
+
   // dst := src (clear dst, then add src back in)
   const copy = (dst: number, src: number): void => {
     clear(dst)
@@ -139,12 +148,16 @@ export function compileToRailway(
           }
         }
       }
+
       return
     }
+
     if (ts.isExpressionStatement(stmt)) {
       compileExpression(stmt.expression)
+
       return
     }
+
     if (ts.isWhileStatement(stmt)) {
       // guard must be `id !== 0`
       const cond = stmt.expression
@@ -155,6 +168,7 @@ export function compileToRailway(
       ) {
         throw new Error('only `while (id !== 0)` is supported')
       }
+
       const g = reg((cond.left as ts.Identifier).text)
       const loop = here()
       const dec = emit({ op: 'dec', reg: g, next: 0, zero: 0 }) // test by decrement
@@ -179,11 +193,14 @@ export function compileToRailway(
         }
       ).zero = end
       void back
+
       return
     }
+
     if (ts.isReturnStatement(stmt)) {
       return
     } // the return register is recorded separately
+
     throw new Error(
       `unsupported statement: ${ts.SyntaxKind[stmt.kind]}`,
     )
@@ -199,15 +216,19 @@ export function compileToRailway(
       } else {
         throw new Error('unsupported unary')
       }
+
       return
     }
+
     if (ts.isBinaryExpression(expr)) {
       const dst = reg((expr.left as ts.Identifier).text)
       const op = expr.operatorToken.kind
       if (op === ts.SyntaxKind.PlusEqualsToken) {
         add(dst, reg((expr.right as ts.Identifier).text))
+
         return
       }
+
       if (op === ts.SyntaxKind.EqualsToken) {
         if (ts.isNumericLiteral(expr.right)) {
           clear(dst)
@@ -222,12 +243,15 @@ export function compileToRailway(
             'assignment rhs must be a number or identifier',
           )
         }
+
         return
       }
+
       throw new Error(
         `unsupported binary operator ${ts.SyntaxKind[op]}`,
       )
     }
+
     throw new Error(
       `unsupported expression: ${ts.SyntaxKind[expr.kind]}`,
     )
@@ -248,5 +272,6 @@ export function compileToRailway(
     capacity: options.capacity ?? 4096,
     code,
   }
+
   return { program, registers, returnRegister, parameters, opIndex }
 }

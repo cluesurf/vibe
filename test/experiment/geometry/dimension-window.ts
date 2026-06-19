@@ -46,10 +46,12 @@ export function dimensionWindow(input: {
       examples: found.slice(0, 6).map(s => `{${s.join(',')}}`),
     })
   }
+
   const compactWindow = byDimension
     .filter(d => d.count > 0)
     .map(d => d.dimension)
   const firstEmpty = byDimension.find(d => d.count === 0)
+
   return {
     byDimension,
     compactWindow,
@@ -75,6 +77,7 @@ export default experiment({
       count(5) === 0 &&
       count(6) === 0 &&
       r.compactWindow.join(',') === '2,3,4'
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

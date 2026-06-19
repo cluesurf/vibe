@@ -28,6 +28,7 @@ export function universality(): {
   for (let t = 0; t < 16; t++) {
     step(g, t % 2)
   }
+
   let bx = -1,
     by = -1
   for (let y = 0; y < L; y++) {
@@ -38,6 +39,7 @@ export function universality(): {
       }
     }
   }
+
   const displacement =
     Math.round(Math.hypot(bx - start[0], by - start[1]) * 10) / 10
   const ballistic = displacement > 6 // moved a clear distance in 16 steps (a propagating signal)
@@ -48,14 +50,17 @@ export function universality(): {
   for (let i = 0; i < L * L; i++) {
     h[i] = rnd() < 0.25 ? 1 : 0
   }
+
   const orig = h.slice()
   const T = 20
   for (let t = 0; t < T; t++) {
     step(h, t % 2)
   }
+
   for (let t = T - 1; t >= 0; t--) {
     step(h, t % 2)
   } // inverse = same block rotation in reverse parity order
+
   let reversible = true
   for (let i = 0; i < L * L; i++) {
     if (h[i] !== orig[i]) {
@@ -63,6 +68,7 @@ export function universality(): {
       break
     }
   }
+
   return { ballistic, reversible, displacement }
 }
 
@@ -84,6 +90,7 @@ export default experiment({
   run() {
     const r = universality()
     const ok = r.ballistic && r.reversible
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

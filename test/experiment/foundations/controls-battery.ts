@@ -27,8 +27,10 @@ export function controlsBattery(): {
     for (let x = 0; x < N; x++) {
       seen.add(f(x))
     }
+
     return seen.size === N
   }
+
   const realReversible = injective(rotate),
     controlReversible = injective(lossy)
   const c1 = realReversible && !controlReversible
@@ -48,6 +50,7 @@ export function controlsBattery(): {
         }
       }
     }
+
     const key = (p: number[]): string => p.join(',')
     const dist = new Map([['0,0,0,0', 0]])
     let frontier = [[0, 0, 0, 0]]
@@ -64,11 +67,14 @@ export function controlsBattery(): {
           }
         }
       }
+
       shells.push(next.length)
       frontier = next
     }
+
     return shells
   }
+
   function betheShells(R: number, deg: number): number[] {
     const shells = [1]
     let prev = 1
@@ -77,8 +83,10 @@ export function controlsBattery(): {
       shells.push(cur)
       prev = cur
     }
+
     return shells
   }
+
   const d4 = d4Shells(8),
     bethe = betheShells(8, 3)
   const d4Ratio = d4[8]! / d4[7]!,
@@ -97,8 +105,10 @@ export function controlsBattery(): {
     const v = Array.from({ length: L }, (_, i) => (i * i) % 7)
     const a = rule(reflect(v)),
       b = reflect(rule(v))
+
     return a.every((x, i) => Math.abs(x - b[i]!) < 1e-9)
   }
+
   const symCommutes = commutes(symmetric),
     chiralCommutes = commutes(chiral)
   const c4 = symCommutes && !chiralCommutes
@@ -140,8 +150,10 @@ export function controlsBattery(): {
         s += ax[x]![y]! ** 2 + ay[x]![y]! ** 2
       }
     }
+
     return s
   } // m^2 A^2 (Proca)
+
   let plaqChange = 0
   for (let x = 0; x < Lg; x++) {
     for (let y = 0; y < Lg; y++) {
@@ -151,6 +163,7 @@ export function controlsBattery(): {
       )
     }
   }
+
   const massChange = Math.abs(massTerm(Ax, Ay) - massTerm(Ax2, Ay2))
   const c5 = plaqChange < 1e-9 && massChange > 0.1
 
@@ -168,6 +181,7 @@ export default experiment({
   run() {
     const r = controlsBattery()
     const ok = r.c1 && r.c2 && r.c4 && r.c5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -68,6 +68,7 @@ export function nearCriticalRP(input?: {
   for (let i = 0; i < N; i++) {
     posCells[s.position[i]!]!.push(i)
   }
+
   const lo = 10
   const hi = maxPos - 10
   const m = 4
@@ -83,9 +84,11 @@ export function nearCriticalRP(input?: {
         | 0
         | 1
     }
+
     for (let t = 0; t < 120; t++) {
       beat(tone, eu, ev, moved, rng, arrow)
     }
+
     const T = 4000
     const sumMM = new Float64Array(maxR + 1)
     let cnt = 0
@@ -99,8 +102,10 @@ export function nearCriticalRP(input?: {
         for (const i of posCells[p]!) {
           sm += tone[i]!
         }
+
         mp[p] = posCells[p]!.length > 0 ? sm / posCells[p]!.length : 0
       }
+
       for (let p = lo; p <= hi; p++) {
         sumM += mp[p]!
         mCnt++
@@ -113,13 +118,16 @@ export function nearCriticalRP(input?: {
           }
         }
       }
+
       for (let i = 0; i < N; i++) {
         if (tone[i] !== 0) {
           nz++
         }
       }
+
       beat(tone, eu, ev, moved, rng, arrow)
     }
+
     const mean = sumM / mCnt
     const npairs = hi - lo + 1
     const c: number[] = []
@@ -128,8 +136,10 @@ export function nearCriticalRP(input?: {
       const pairsR = (hi - lo + 1 - r) * T
       c.push(sumMM[r]! / pairsR - mean * mean)
     }
+
     void cnt
     void npairs
+
     return { c, density: nz / (N * T) }
   }
 
@@ -152,6 +162,7 @@ export function nearCriticalRP(input?: {
         range = r
       }
     }
+
     const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
     scan.push({
       arrow,
@@ -189,6 +200,7 @@ export function nearCriticalRP(input?: {
     reflectionPositive = directPSD || staggeredPSD
     classicalMimic = !directPSD && !staggeredPSD
   }
+
   // the hyperbolic obstruction: even toward criticality the correlation stays SHORT (mean-field, no
   // diverging xi), so spatial RP is contact-dominated on the hyperbolic scaffold, it belongs to the
   // emergent FLAT geometry instead
@@ -219,6 +231,7 @@ export default experiment({
     const r = nearCriticalRP({ length: 80 })
     const ok =
       r.solved && (r.reflectionPositive || r.hyperbolicObstruction)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

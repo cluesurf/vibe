@@ -52,6 +52,7 @@ export function kpmSeaEnergy(): {
       xi.re[i] = rng.next() < 0.5 ? 1 : -1
       xi.im[i] = 0
     } // Rademacher
+
     const muV = chebyshevMoments({
       operator: vac.applyH,
       scale: a,
@@ -72,12 +73,14 @@ export function kpmSeaEnergy(): {
       }
     })
   }
+
   // Delta E_sea(R) = -(1/2) * a * sum_n g_n c_n Delta mu_n
   const deltaE: [number, number][] = Rs.map((R, ri) => {
     let dTrAbs = 0
     for (let n = 0; n < MCHEB; n++) {
       dTrAbs += g[n]! * c[n]! * dMu[ri]![n]!
     }
+
     return [R, Math.round(-0.5 * a * dTrAbs * 100) / 100] as [
       number,
       number,
@@ -90,7 +93,9 @@ export function kpmSeaEnergy(): {
       minI = i
     }
   }
+
   const hasMinimum = minI > 0 && minI < deltaE.length - 1
+
   return { deltaE, hasMinimum }
 }
 
@@ -106,6 +111,7 @@ export default experiment({
     const r = kpmSeaEnergy()
     const first = r.deltaE[0]?.[1] ?? 0
     const last = r.deltaE[r.deltaE.length - 1]?.[1] ?? 0
+
     return verdict({
       status: r.hasMinimum ? 'pass' : 'open',
       claim:

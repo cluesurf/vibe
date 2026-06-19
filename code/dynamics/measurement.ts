@@ -48,6 +48,7 @@ export function slabOccupancy(will: Will, axis = 0): number[] {
       count[x]! += 1
     }
   }
+
   return sum.map((s, i) => s / Math.max(1, count[i]!))
 }
 
@@ -81,8 +82,10 @@ export function pointerTrajectory(input: {
     if (input.open) {
       bornAtPeace(current, input.frontierX)
     }
+
     trajectory.push(profileGradient(slabOccupancy(current, axis)))
   }
+
   return trajectory
 }
 
@@ -117,9 +120,11 @@ export function loschmidtEcho(input: {
       bornAtPeace(current, input.frontierX)
     }
   }
+
   for (let t = 0; t < input.beats; t++) {
     current = inverseBeat(current, input.inverse)
   }
+
   return disagreementFraction(current.data, input.init.data)
 }
 
@@ -138,10 +143,12 @@ export function settlingTime(
         break
       }
     }
+
     if (settled) {
       return t
     }
   }
+
   return trajectory.length
 }
 
@@ -152,5 +159,6 @@ export function tailMean(
 ): number {
   const start = Math.floor(trajectory.length * (1 - fraction))
   const tail = trajectory.slice(start)
+
   return tail.reduce((a, b) => a + b, 0) / Math.max(1, tail.length)
 }

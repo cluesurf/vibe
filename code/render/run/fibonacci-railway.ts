@@ -101,6 +101,7 @@ function renderBase(
       display: latched,
     })
   }
+
   const addInto = (dstIdx: number, srcIdx: number): void => {
     const times = counters[srcIdx]!.count()
     for (let k = 0; k < times; k++) {
@@ -108,6 +109,7 @@ function renderBase(
       snap(dstIdx)
     }
   }
+
   snap(0)
   for (let iter = 0; iter < N; iter++) {
     t.clear()
@@ -119,6 +121,7 @@ function renderBase(
     b.clear()
     addInto(1, 2) // b = t
   }
+
   const finalTerm = a.count()
   console.log(
     `literal railway CA (${cfg.name}): fib(${N}) = ${finalTerm} via ${snaps.length} locomotive increments`,
@@ -140,6 +143,7 @@ function renderBase(
       }),
     )
   }
+
   for (let h = 0; h < 16; h++) {
     frames.push(
       renderFrame({
@@ -226,6 +230,7 @@ function renderFrame(input: {
           Math.round(rgb01[2] * 255),
         ]
       }
+
       faces.push({ polygon: tiling.polygons[cell]!, color })
     }
   }
@@ -268,6 +273,7 @@ function renderFrame(input: {
     centralPolygon: tiling.polygons[0]!,
     text: String(snap.display),
   })
+
   return rgba
 }
 

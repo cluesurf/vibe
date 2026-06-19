@@ -35,6 +35,7 @@ export function modularBase(input: { seed: number }): {
   for (let i = 0; i < g.size; i++) {
     deg += (g.neighbors[i] ?? new Uint32Array(0)).length
   }
+
   const aniso = lorentzIsotropy({
     substrate: g,
     samples: 3000,
@@ -86,6 +87,7 @@ export default experiment({
     const r = modularBase({ seed: 2 })
     const ok =
       r.lorentzSafe && r.addressingExact && r.goldenError < 1e-4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

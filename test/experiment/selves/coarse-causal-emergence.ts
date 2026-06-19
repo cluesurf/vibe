@@ -69,11 +69,13 @@ export default experiment({
       randomGroups[i] = randomGroups[j]!
       randomGroups[j] = tmp
     }
+
     const eiRandom = effectiveInformation(
       coarseGrainTpm({ tpm: micro, groups: randomGroups }),
     )
 
     const ok = eiSpatial > eiRandom + 0.02
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -24,6 +24,7 @@ export interface Poset {
 
 function trailingZeros(word: number): number {
   const lsb = (word & -word) >>> 0
+
   return 31 - Math.clz32(lsb)
 }
 
@@ -60,6 +61,7 @@ export function makePosetFromFuture(input: {
         bits = (bits & (bits - 1)) >>> 0
       }
     }
+
     links.push(Uint32Array.from(row))
   }
 
@@ -87,6 +89,7 @@ export function makePosetFromRelation(input: {
       }
     }
   }
+
   return makePosetFromFuture({
     size: input.size,
     future,
@@ -107,6 +110,7 @@ export function relationCount(p: Poset): number {
   for (let a = 0; a < p.size; a++) {
     total += popcountRow(p.future, { row: a })
   }
+
   return total
 }
 
@@ -137,6 +141,7 @@ function popcountAndRows(
     v = (v & 0x33333333) + ((v >>> 2) & 0x33333333)
     total += (((v + (v >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24
   }
+
   return total
 }
 
@@ -149,6 +154,7 @@ export function pastMatrix(p: Poset): BitMatrix {
       visit: b => setBit(past, { row: b, col: a }),
     })
   }
+
   return past
 }
 
@@ -169,5 +175,6 @@ export function subPoset(
       }
     }
   }
+
   return makePosetFromFuture({ size: k, future })
 }

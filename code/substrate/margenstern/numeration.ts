@@ -34,20 +34,24 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
         `numeration needs a non-negative integer, got ${value}`,
       )
     }
+
     if (value === 0) {
       return [0]
     }
+
     let remainder = value
     let top = basis.length - 1
     while (top >= 0 && basis[top]! > remainder) {
       top--
     }
+
     const digits: number[] = []
     for (let i = top; i >= 0; i--) {
       const digit = Math.floor(remainder / basis[i]!)
       digits.push(digit)
       remainder -= digit * basis[i]!
     }
+
     return digits
   }
 
@@ -57,6 +61,7 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
     for (let i = 0; i < len; i++) {
       sum += digits[i]! * basis[len - 1 - i]!
     }
+
     return sum
   }
 
@@ -69,6 +74,7 @@ export function makeNumeration(input: { basis: number[] }): Numeration {
         }
       }
     }
+
     return m
   }
 
@@ -90,11 +96,14 @@ export function recurrenceBasis(input: {
     for (let k = 0; k < coefficients.length; k++) {
       next += coefficients[k]! * basis[basis.length - 1 - k]!
     }
+
     if (next <= basis[basis.length - 1]!) {
       break
     } // basis must strictly increase to be a valid numeration
+
     basis.push(next)
   }
+
   return basis
 }
 
@@ -108,5 +117,6 @@ export function growthBasis(shellCounts: number[]): number[] {
       basis.push(count)
     }
   }
+
   return basis
 }

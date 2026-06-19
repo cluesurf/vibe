@@ -81,6 +81,7 @@ export function drivenSelf(input: {
     for (const c of cells) {
       s += tone[c]!
     }
+
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -90,21 +91,26 @@ export function drivenSelf(input: {
         signals[s] = -signals[s]!
       }
     }
+
     for (let j = 0; j < inputCells.length; j++) {
       tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
     }
+
     if (withDynamics) {
       beat(tone, graph, moved, rng, 0, cohesion)
     }
+
     // re-clamp the input boundary as a steady source, so the interior reads the environment, not a leak.
     for (let j = 0; j < inputCells.length; j++) {
       tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
     }
+
     interior.push(meanOver(interiorCells))
     environment.push(signals.reduce((a, b) => a + b, 0) / sectorCount)
     for (let s = 0; s < sectorCount; s++) {
       sectorSignals[s]!.push(signals[s]!)
     }
   }
+
   return { interior, environment, sectorSignals }
 }

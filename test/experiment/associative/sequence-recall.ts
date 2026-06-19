@@ -31,13 +31,16 @@ function buildPath(
         break
       }
     }
+
     if (next < 0) {
       break
     }
+
     used.add(next)
     path.push(next)
     current = next
   }
+
   return path
 }
 
@@ -94,6 +97,7 @@ export function associativeSequenceRecall(input?: {
   }
 
   const solved = path.length >= 5 && correctInOrder === path.length
+
   return {
     cellCount: g.cellCount,
     sequenceLength: path.length,
@@ -113,6 +117,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeSequenceRecall({ maxCells: 1500, length: 12 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

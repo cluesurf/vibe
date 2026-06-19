@@ -30,8 +30,10 @@ export function radialSchrodingerLevels(input: {
       h.data[(i + 1) * points + i] = -kinetic
     }
   }
+
   const values = [...eigSymmetric({ matrix: h }).values].sort(
     (a, b) => a - b,
   )
+
   return values.filter(e => e < 0).slice(0, count)
 }

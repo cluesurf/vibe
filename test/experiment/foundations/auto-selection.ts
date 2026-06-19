@@ -24,11 +24,14 @@ function isCompactHyperbolic(symbol: number[]): boolean {
   if (symbol.length < 2) {
     return false
   }
+
   if (classifyGeometry(symbol) !== 'hyperbolic') {
     return false
   }
+
   const cell = symbol.slice(0, -1)
   const vertexFigure = symbol.slice(1)
+
   return (
     classifyGeometry(cell) === 'spherical' &&
     classifyGeometry(vertexFigure) === 'spherical'
@@ -64,6 +67,7 @@ export function autoSelection(): {
         break
       }
     }
+
     return {
       cell: `{${p},3}`,
       minimalCompactR: minR,
@@ -80,6 +84,7 @@ export function autoSelection(): {
       }
     }
   }
+
   let tightestQ3: string | null = null
   let bestR = Infinity
   for (const c of allQ3Compact) {
@@ -128,6 +133,7 @@ export default experiment({
     const r = autoSelection()
     const ok =
       r.solved && r.forcedSymbol === '{5,3,4}' && r.fiveIsForced
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

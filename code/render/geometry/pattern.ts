@@ -21,8 +21,10 @@ export function patternClass(
   switch (scheme) {
     case 'sector': {
       const address = grid.address(cell)
+
       return address.length === 0 ? 0 : address[0]! + 1 // 0 = the center, 1.. = each sector
     }
+
     case 'node':
       return grid.color(cell) === 'white'
         ? 0
@@ -33,6 +35,7 @@ export function patternClass(
       return grid.depth(cell)
     case 'characteristic': {
       const z = grid.zeckendorf(cell)
+
       return z[z.length - 1] === '0' ? 0 : 1
     }
   }
@@ -47,5 +50,6 @@ export function patternClassCount(
   for (let c = 0; c < grid.size; c++) {
     max = Math.max(max, patternClass(grid, c, scheme))
   }
+
   return max + 1
 }

@@ -110,6 +110,7 @@ export default experiment({
       r.spinorHookIsTwentyFourCellFaceted &&
       r.spinorHookEqualsCrystallographicSpinor &&
       r.fermionPropagatesOnSubset
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

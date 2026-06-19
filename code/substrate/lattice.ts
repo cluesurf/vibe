@@ -27,12 +27,14 @@ export function lattice(input: {
       point.push(rest % extent)
       rest = Math.floor(rest / extent)
     }
+
     coordsInt.push(point)
   }
 
   if (input.signature === 'lorentzian') {
     return latticeLorentzian({ dimension: d, size, coordsInt })
   }
+
   return latticeRiemannian({ dimension: d, extent, size, coordsInt })
 }
 
@@ -50,9 +52,11 @@ function latticeLorentzian(input: {
   for (let i = 0; i < size; i++) {
     order.push(i)
   }
+
   order.sort((x, y) => {
     const tx = input.coordsInt[x]?.[0] ?? 0
     const ty = input.coordsInt[y]?.[0] ?? 0
+
     return tx - ty
   })
 
@@ -86,10 +90,12 @@ function latticeLorentzian(input: {
     if (dt <= 0) {
       return false
     }
+
     let l1 = 0
     for (let axis = 1; axis < d; axis++) {
       l1 += Math.abs((pb[axis] ?? 0) - (pa[axis] ?? 0))
     }
+
     return dt >= l1
   }
 
@@ -131,10 +137,12 @@ function latticeRiemannian(input: {
       if (c + 1 < extent) {
         row.push(i + (stride[axis] ?? 0))
       }
+
       if (c - 1 >= 0) {
         row.push(i - (stride[axis] ?? 0))
       }
     }
+
     neighbors.push(row)
   }
 

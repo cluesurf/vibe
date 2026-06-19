@@ -110,6 +110,7 @@ export default experiment({
       r.fermionSourcesField &&
       r.fieldAcceleratesFermion &&
       r.decouplingKillsBoth
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

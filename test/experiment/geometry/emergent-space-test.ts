@@ -64,6 +64,7 @@ export function emergentSpaceTest(): void {
       cc = i
     }
   }
+
   const cubeDim =
     Math.round(spectralDim(cube.neighbors, cc, 3, 12) * 100) / 100
   const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
@@ -73,6 +74,7 @@ export function emergentSpaceTest(): void {
     const L = Math.round(h.busemann[i]!)
     levels[L] = (levels[L] ?? 0) + 1
   }
+
   const ks = Object.keys(levels)
     .map(Number)
     .sort((a, b) => a - b)
@@ -126,11 +128,13 @@ export default experiment({
         cc = i
       }
     }
+
     const cubeCV = frontCV(cube.neighbors, cube.coords, cc, 6)
 
     const coherent = lccFrac > 60 && Math.abs(bandDim - 3) < 1
     const rounder = bandCV >= 0 && bandCV < cubeCV
     const ok = coherent && rounder
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

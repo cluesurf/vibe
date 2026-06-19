@@ -37,6 +37,7 @@ export function adjacencyOf(input: {
       },
     }
   }
+
   return {
     size: s.size,
     outDegree: ({ node }) =>
@@ -78,6 +79,7 @@ export function undirectedAdjacency(input: {
       }
     }
   }
+
   return out.map(r =>
     Uint32Array.from([...new Set(r)].sort((x, y) => x - y)),
   )
@@ -93,6 +95,7 @@ export function substrateMeanDegree(input: {
   for (let node = 0; node < view.size; node++) {
     total += view.outDegree({ node })
   }
+
   return total / Math.max(1, view.size)
 }
 
@@ -107,5 +110,6 @@ export function substrateUndirectedMeanDegree(input: {
   for (let node = 0; node < input.substrate.size; node++) {
     total += (adjacency[node] ?? new Uint32Array(0)).length
   }
+
   return total / Math.max(1, input.substrate.size)
 }

@@ -44,6 +44,7 @@ function spectralGap(mass: number): number {
   const values = [...eigSymmetric({ matrix: h }).values].sort(
     (a, b) => a - b,
   )
+
   return values[n / 2]! - values[n / 2 - 1]!
 }
 
@@ -62,6 +63,7 @@ function areaExponent(mass: number): number {
     side: AREA_SIDE,
     radii: RADII,
   })
+
   return logLogExponent(series.radii, series.bits)
 }
 

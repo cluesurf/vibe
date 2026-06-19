@@ -28,10 +28,13 @@ const cross = (a: Vec3, b: Vec3): Vec3 => [
 const norm3 = (v: Vec3): number => Math.hypot(v[0], v[1], v[2])
 const normalize = (v: Vec3): Vec3 => {
   const n = norm3(v) || 1
+
   return [v[0] / n, v[1] / n, v[2] / n]
 }
+
 const centroid = (pts: Vec3[]): Vec3 => {
   const n = pts.length
+
   return [
     pts.reduce((s, p) => s + p[0], 0) / n,
     pts.reduce((s, p) => s + p[1], 0) / n,
@@ -55,6 +58,7 @@ function subdivideFace(face: Vec3[]): Vec3[][] {
     const prev = m[(i - 1 + face.length) % face.length]!
     out.push([face[i]!, m[i]!, c, prev])
   }
+
   return out
 }
 
@@ -98,6 +102,7 @@ function dodecahedronFaces(): Vec3[][] {
     [-phi, 0, 1],
     [-phi, 0, -1],
   ]
+
   return dirs.map(d => {
     const u = normalize(d)
     const idx = verts
@@ -124,6 +129,7 @@ function dodecahedronFaces(): Vec3[][] {
     const ordered = idx.slice().sort((a, b) => {
       const va = verts[a]!
       const vb = verts[b]!
+
       return (
         Math.atan2(
           va[0] * e2[0] + va[1] * e2[1] + va[2] * e2[2],
@@ -135,6 +141,7 @@ function dodecahedronFaces(): Vec3[][] {
         )
       )
     })
+
     return ordered.map(i => verts[i]!)
   })
 }
@@ -151,6 +158,7 @@ function rotate(v: Vec3): Vec3 {
   const z1 = v[1] * sx + v[2] * cx
   const x2 = v[0] * cy + z1 * sy
   const z2 = -v[0] * sy + z1 * cy
+
   return [x2, y1, z2]
 }
 
@@ -176,14 +184,17 @@ function line(
       rgba[i + 1] = Math.min(255, (rgba[i + 1]! + b * 0.75) | 0)
       rgba[i + 2] = Math.min(255, rgba[i + 2]! + b)
     }
+
     if (x === x1 && y === y1) {
       break
     }
+
     const e2 = 2 * err
     if (e2 >= dy) {
       err += dy
       x += sx
     }
+
     if (e2 <= dx) {
       err += dx
       y += sy
@@ -196,6 +207,7 @@ function run(): void {
   for (let d = 0; d < DEPTH; d++) {
     faces = faces.flatMap(subdivideFace)
   }
+
   console.log(
     `jewel mesh, dodecahedron surface subdivided depth ${DEPTH} -> ${faces.length.toLocaleString()} faces`,
   )
@@ -210,6 +222,7 @@ function run(): void {
   const project = (v: Vec3): [number, number, number] => {
     const r = rotate(v)
     const f = scale / (cam - r[2])
+
     return [IMG / 2 + r[0] * f, IMG / 2 - r[1] * f, r[2]]
   }
 
@@ -220,6 +233,7 @@ function run(): void {
     if (n[2] <= 0) {
       continue
     }
+
     // depth brightness, front (larger z) brighter
     const zc = (r[0]![2] + r[1]![2] + r[2]![2] + r[3]![2]) / 4
     const b = Math.max(

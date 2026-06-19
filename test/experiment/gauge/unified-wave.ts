@@ -74,16 +74,19 @@ export function unifiedWave(input?: {
       | 0
       | 1
   }
+
   const q0 = tone.reduce((s, x) => s + x, 0)
   const init = tone.slice()
   const T = 30
   for (let t = 0; t < T; t++) {
     beat(tone, ec.eu, ec.ev, ec.byColor, FWD, false)
   }
+
   const chargeConserved = tone.reduce((s, x) => s + x, 0) === q0
   for (let t = 0; t < T; t++) {
     beat(tone, ec.eu, ec.ev, ec.byColor, INV, true)
   }
+
   let reversible = true
   for (let i = 0; i < N; i++) {
     if (tone[i] !== init[i]) {
@@ -111,6 +114,7 @@ export function unifiedWave(input?: {
       center = i
     }
   }
+
   const rng2 = makeRng({ seed: 999 })
   const baseS = new Int8Array(sN)
   for (let i = 0; i < sN; i++) {
@@ -118,6 +122,7 @@ export function unifiedWave(input?: {
       rng2.next() < 0.3 ? (rng2.next() < 0.5 ? 1 : -1) : 0
     ) as -1 | 0 | 1
   }
+
   const pertS = baseS.slice()
   pertS[center] = (baseS[center]! === 0 ? 1 : 0) as -1 | 0 | 1
   const pos0 = s.position[center]!
@@ -130,10 +135,12 @@ export function unifiedWave(input?: {
         front = Math.max(front, Math.abs(s.position[i]! - pos0))
       }
     }
+
     fronts.push(front)
     beat(baseS, sec.eu, sec.ev, sec.byColor, FWD, false)
     beat(pertS, sec.eu, sec.ev, sec.byColor, FWD, false)
   }
+
   // LINEAR fit front = v*t + b over the growth phase (skip noisy start, stop before saturation)
   const tlo = 6
   const cap = maxPos / 2 - 3
@@ -143,9 +150,11 @@ export function unifiedWave(input?: {
     if (fronts[t]! >= cap) {
       break
     }
+
     fitT.push(t)
     fitFront.push(fronts[t]!)
   }
+
   const fit =
     fitT.length > 1
       ? linearFit({ xs: fitT, ys: fitFront })
@@ -160,6 +169,7 @@ export function unifiedWave(input?: {
   const isotropic = directionSymmetric
 
   const solved = chargeConserved && reversible && ballistic && isotropic
+
   return {
     n: N,
     colors: ec.byColor.length,
@@ -190,6 +200,7 @@ export default experiment({
       r.reversible &&
       r.ballistic &&
       r.isotropic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

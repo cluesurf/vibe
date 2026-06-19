@@ -88,6 +88,7 @@ export default experiment({
       for (let i = 0; i < 6; i++) {
         bStart = mesh.neighbour(bStart, dir)
       }
+
       const b = gliderLine({
         mesh,
         start: bStart,
@@ -98,6 +99,7 @@ export default experiment({
       for (let i = 0; i < will.data.length; i++) {
         will.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
       }
+
       return will
     }
 
@@ -115,6 +117,7 @@ export default experiment({
       loneTravel >= beats - 1 &&
       stickyCapture >= 2 &&
       elasticCapture >= 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

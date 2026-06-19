@@ -37,6 +37,7 @@ export function attachControls(input: {
       e.preventDefault()
     }
   }
+
   const onKeyUp = (e: KeyboardEvent): void => {
     held.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key)
   }
@@ -47,10 +48,12 @@ export function attachControls(input: {
     lastY = e.clientY
     canvas.setPointerCapture(e.pointerId)
   }
+
   const onPointerMove = (e: PointerEvent): void => {
     if (!dragging) {
       return
     }
+
     const dx = e.clientX - lastX
     const dy = e.clientY - lastY
     lastX = e.clientX
@@ -58,12 +61,14 @@ export function attachControls(input: {
     camera.turn(-dx * MOUSE_LOOK)
     camera.tilt(-dy * MOUSE_LOOK)
   }
+
   const onPointerUp = (e: PointerEvent): void => {
     dragging = false
     if (canvas.hasPointerCapture(e.pointerId)) {
       canvas.releasePointerCapture(e.pointerId)
     }
   }
+
   const onWheel = (e: WheelEvent): void => {
     e.preventDefault()
     if (camera.mode === '2d') {
@@ -93,12 +98,15 @@ export function attachControls(input: {
       if (forward) {
         camera.moveForward(forward * MOVE_SPEED * dt)
       }
+
       if (turn) {
         camera.turn(turn * TURN_SPEED * dt)
       }
+
       if (strafe) {
         camera.moveRight(strafe * MOVE_SPEED * dt)
       }
+
       if (lift) {
         camera.moveUp(lift * MOVE_SPEED * dt)
       }

@@ -30,5 +30,6 @@ export function trialityClasses(): [
   const classSpinorB = base.map(element =>
     multiply(omegaSquared, element),
   )
+
   return [classVector, classSpinorA, classSpinorB]
 }

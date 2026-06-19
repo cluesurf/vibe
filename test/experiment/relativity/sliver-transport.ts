@@ -54,6 +54,7 @@ export function sliverTransport(input?: {
       start = i
     }
   }
+
   const pos0 = s.position[start]!
 
   // ensemble of single-charge random walks, accumulate MSD along the spine versus time
@@ -79,6 +80,7 @@ export function sliverTransport(input?: {
       }
     }
   }
+
   for (let t = 0; t <= beats; t++) {
     msd[t]! /= runs
   }
@@ -90,6 +92,7 @@ export function sliverTransport(input?: {
     fitTimes.push(t)
     fitMsd.push(msd[t]!)
   }
+
   const exponent = powerLawExponent({
     times: fitTimes,
     spreads: fitMsd,
@@ -133,6 +136,7 @@ export default experiment({
     const r = sliverTransport({ length: 70, beats: 40, runs: 400 })
     const ok =
       r.solved && r.longSliver && r.isBallistic && !r.isDiffusive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

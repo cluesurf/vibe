@@ -34,6 +34,7 @@ export default experiment({
       (clean[clean.length - 1]?.varRapidity ?? 0) >
         2 * (clean[0]?.varRapidity ?? 1)
     const ok = r.slope > 0.01 && grows
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -17,6 +17,7 @@ export function ruleGate(
   for (let i = 0; i < inputs.length; i++) {
     h += (fills[i] ?? 0) * (inputs[i] ?? 1)
   }
+
   return h > 0 ? 1 : -1
 }
 
@@ -41,6 +42,7 @@ export function fullAdder(
   const sum = xor(s1, cin)
   const c2 = and(s1, cin)
   const carry = or(c1, c2)
+
   return { sum, carry }
 }
 
@@ -69,12 +71,14 @@ export function functionFromTable(
       if (!table[p]) {
         continue
       }
+
       const lb = (p >> 2) & 1
       const cb = (p >> 1) & 1
       const rb = p & 1
       const minterm = and(and(lit(l, lb), lit(c, cb)), lit(r, rb))
       acc = or(acc, minterm)
     }
+
     return acc
   }
 }
@@ -88,10 +92,12 @@ export function elementaryRuleStep(input: {
 }): number[] {
   const { line, rule } = input
   const width = line.length
+
   return line.map((_, i) => {
     const l = line[(i - 1 + width) % width]!
     const c = line[i]!
     const r = line[(i + 1) % width]!
+
     return (rule >> ((l << 2) | (c << 1) | r)) & 1
   })
 }

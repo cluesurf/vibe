@@ -25,10 +25,12 @@ export function rgFromCoarseGraining(): {
       traj.push(Math.round(K * 1000) / 1000)
     }
   }
+
   // the beta function, beta(K) = K' - K per coarse-graining step (the change of the coupling with scale)
   const betaAt = (K: number): number => isingDecimationFormula(K) - K
   const flows = Math.abs(betaAt(1.0)) > 0.05
   const betaSign = betaAt(1.0) < 0 ? -1 : 1
+
   return { flows, betaSign }
 }
 
@@ -44,6 +46,7 @@ export default experiment({
     const r = rgFromCoarseGraining()
     const betaAtOne = isingDecimationFormula(1.0) - 1.0
     const ok = r.flows && r.betaSign < 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

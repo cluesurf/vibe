@@ -46,9 +46,11 @@ export function criticalityScan(input?: { n?: number }): {
         | 0
         | 1
     }
+
     for (let t = 0; t < 200; t++) {
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     } // relax to steady state
+
     const samples = 100
     let mean = 0
     for (let s = 0; s < samples; s++) {
@@ -58,9 +60,11 @@ export function criticalityScan(input?: { n?: number }): {
           active++
         }
       }
+
       mean += active / N
       conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
     }
+
     mean /= samples
     scan.push({ arrow, density: mean })
   }
@@ -92,6 +96,7 @@ export default experiment({
     const r = criticalityScan({ n: 20000 })
     const ok =
       r.solved && r.meanField && r.vanishesAtZero && r.betaR2 > 0.9
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

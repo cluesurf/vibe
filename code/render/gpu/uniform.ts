@@ -41,6 +41,7 @@ export function packFold2D(
     f[i * 4 + 2] = mirrors[i]?.[2] ?? 0
     f[i * 4 + 3] = 0
   }
+
   f[12] = cam.pan[0]
   f[13] = cam.pan[1]
   f[14] = cam.zoom
@@ -48,6 +49,7 @@ export function packFold2D(
   u[16] = FOLD_ITERATIONS
   f[17] = cam.edgeWidth
   f[18] = cam.aspect // pad0 slot, the viewport aspect for the circular-disk correction
+
   return data
 }
 
@@ -66,6 +68,7 @@ export function packFold3D(
     f[i * 4 + 2] = mirrors[i]?.[2] ?? 0
     f[i * 4 + 3] = mirrors[i]?.[3] ?? 0
   }
+
   f[16] = cam.eye[0]
   f[17] = cam.eye[1]
   f[18] = cam.eye[2]
@@ -78,5 +81,6 @@ export function packFold3D(
   f[25] = cam.edgeWidth
   f[26] = cam.detail
   f[27] = cam.maxSteps
+
   return data
 }

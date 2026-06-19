@@ -37,6 +37,7 @@ import {
 function sameSet(left: number[][], right: number[][]): boolean {
   const a = new Set(left.map(vectorKey))
   const b = new Set(right.map(vectorKey))
+
   return a.size === b.size && [...a].every(key => b.has(key))
 }
 
@@ -66,6 +67,7 @@ export default experiment({
       group.length === 24 &&
       nonsplit &&
       quotient === 12
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -111,6 +113,7 @@ experiment({
       shortRoots.length === 24 &&
       longIsDock &&
       matchesF4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -148,6 +151,7 @@ experiment({
       spinorEven,
     ) // 8v -> 8s under triality
     const ok = octets && disjoint && trialityStep
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

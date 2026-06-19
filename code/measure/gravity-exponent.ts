@@ -36,9 +36,11 @@ export function gravityExponent(input: {
     if (r < 0) {
       continue
     }
+
     sums[r] = (sums[r] ?? 0) + phi[i]!
     cnts[r] = (cnts[r] ?? 0) + 1
   }
+
   const xs: number[] = []
   const ys: number[] = []
   for (let r = rLo; r <= rHi; r++) {
@@ -47,8 +49,10 @@ export function gravityExponent(input: {
       ys.push(Math.log(sums[r]! / cnts[r]!))
     }
   }
+
   if (xs.length < 3) {
     return NaN
   }
+
   return -linearFit({ xs, ys }).slope // alpha in phi ~ r^-alpha
 }

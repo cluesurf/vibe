@@ -83,6 +83,7 @@ export function background(
           ny = dy / r
           nz = dz / r
         }
+
         const b = s * 8
         rt[b] = nz
         rt[b + 1] = 0
@@ -95,6 +96,7 @@ export function background(
       }
     }
   }
+
   return { phi, rt }
 }
 
@@ -141,6 +143,7 @@ export function makeDirac(
                   o.re[oi]! += cr * v.re[j]! - ci * v.im[j]!
                   o.im[oi]! += cr * v.im[j]! + ci * v.re[j]!
                 }
+
                 if (sm >= 0) {
                   const j = sm * 8 + dpr * 2 + t
                   o.re[oi]! -= cr * v.re[j]! - ci * v.im[j]!
@@ -149,6 +152,7 @@ export function makeDirac(
               }
             }
           }
+
           const ph = phi[s]!
           const m00r = rt[base]!,
             m00i = rt[base + 1]!,
@@ -179,5 +183,6 @@ export function makeDirac(
       }
     }
   }
+
   return { dim: DIM, applyH }
 }

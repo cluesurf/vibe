@@ -29,6 +29,7 @@ export default experiment({
   run() {
     const r = gaugeEmbedding()
     const ok = r.d4 === false && r.d5 === true
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

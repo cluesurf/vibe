@@ -42,6 +42,7 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
     if (j === center) {
       continue
     }
+
     const d = cubicLatticeDistance({
       lattice: lat,
       from: center,
@@ -50,9 +51,11 @@ export function potentialProfile(input: { lat: Lat; side: number }): {
     if (d < rMin || d > rMax) {
       continue
     }
+
     r.push(d)
     out.push(phi[j] ?? 0)
   }
+
   return { r, phi: out }
 }
 
@@ -72,6 +75,7 @@ export default experiment({
     const invSq = fitForm(three.r, three.phi, r => 1 / (r * r))
     const logf = fitForm(three.r, three.phi, r => Math.log(r))
     const ok = inv.r2 > invSq.r2 && inv.r2 > logf.r2 && inv.r2 > 0.95
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -42,10 +42,12 @@ export function associativeNumericSearch(input?: {
     if (field[c]! > trueMax) {
       trueMax = field[c]!
     }
+
     if (field[c]! < trueMin) {
       trueMin = field[c]!
     }
   }
+
   const mx = maxIndex({ field })
   const mn = minIndex({ field })
   const maxOk = mx.value === trueMax && field[mx.index] === trueMax
@@ -62,10 +64,12 @@ export function associativeNumericSearch(input?: {
     if (v > target && v < refHigher) {
       refHigher = v
     }
+
     if (v < target && v > refLower) {
       refLower = v
     }
   }
+
   const nextHigherOk = nh.index >= 0 && nh.value === refHigher
   const nextLowerOk = nl.index >= 0 && nl.value === refLower
 
@@ -97,6 +101,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeNumericSearch({ maxCells: 1500 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

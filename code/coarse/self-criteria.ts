@@ -15,12 +15,14 @@ export function correlation(x: number[], y: number[]): number {
   if (n === 0) {
     return 0
   }
+
   let mx = 0
   let my = 0
   for (let i = 0; i < n; i++) {
     mx += x[i]!
     my += y[i]!
   }
+
   mx /= n
   my /= n
   let sxy = 0
@@ -33,7 +35,9 @@ export function correlation(x: number[], y: number[]): number {
     sxx += dx * dx
     syy += dy * dy
   }
+
   const d = Math.sqrt(sxx * syy)
+
   return d > 1e-12 ? sxy / d : 0
 }
 
@@ -48,6 +52,7 @@ export function partialCorrelation(
   const rxz = correlation(x, z)
   const ryz = correlation(y, z)
   const d = Math.sqrt((1 - rxz * rxz) * (1 - ryz * ryz))
+
   return d > 1e-12 ? (rxy - rxz * ryz) / d : 0
 }
 
@@ -64,6 +69,7 @@ export function blanketScreening(input: {
     partialCorrelation(input.interior, input.exterior, input.shell),
   )
   const reduction = raw > 1e-6 ? (raw - screened) / raw : 0
+
   return { raw, screened, reduction }
 }
 
@@ -87,12 +93,14 @@ export function regionPartition(input: {
         exteriorSet.add(w)
       }
     }
+
     if (allIn) {
       interior.push(c)
     } else {
       shell.push(c)
     }
   }
+
   return { interior, shell, exterior: [...exteriorSet] }
 }
 
@@ -116,7 +124,9 @@ export function distancesFrom(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return dist
 }

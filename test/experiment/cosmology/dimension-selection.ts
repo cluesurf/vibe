@@ -41,6 +41,7 @@ export function dimensionSelection(input: Record<string, never> = {}): {
   const byDimension = [2, 3, 4, 5].map(d => {
     const apsidal = 4 - d > 0 ? Math.PI / Math.sqrt(4 - d) : NaN // analytic apsidal angle pi/sqrt(3-(d-1))
     const o = integrateOrbit(d)
+
     return {
       dimension: d,
       apsidalAngleDeg: (apsidal * 180) / Math.PI,
@@ -54,6 +55,7 @@ export function dimensionSelection(input: Record<string, never> = {}): {
   const selected = byDimension
     .filter(r => r.closed)
     .map(r => r.dimension)
+
   return {
     byDimension,
     selected,
@@ -82,6 +84,7 @@ export default experiment({
       (d3?.closed ?? false) &&
       !(d2?.closed ?? true) &&
       !(d4?.stable ?? true)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

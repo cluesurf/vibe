@@ -68,6 +68,7 @@ export function quantumField(input?: { n?: number }): {
   for (let b = 0; b < 80; b++) {
     beat(vac, eu, ev, moved, rng, ARROW)
   }
+
   const d1 = nonzero(vac)
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
   const before = vac.slice()
@@ -78,6 +79,7 @@ export function quantumField(input?: { n?: number }): {
       changed++
     }
   }
+
   const vacuumDensity = d1 / N
   const fluctuates = changed > 0.01 * N
   const conserved = sumTone(vac) === q0
@@ -122,6 +124,7 @@ export function quantumField(input?: { n?: number }): {
       center = i
     }
   }
+
   const dcenter = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -140,9 +143,11 @@ export function quantumField(input?: { n?: number }): {
   for (let b = 0; b < T; b++) {
     beat(base, eu, ev, moved, rb, ARROW)
   }
+
   for (let b = 0; b < T; b++) {
     beat(pert, eu, ev, moved, rp, ARROW)
   }
+
   let front = 0
   for (let i = 0; i < N; i++) {
     if (base[i] !== pert[i]) {
@@ -152,6 +157,7 @@ export function quantumField(input?: { n?: number }): {
       }
     }
   }
+
   const coneSpeed = front / T
   const hasLightcone = coneSpeed > 0 && coneSpeed <= 1.5 // bounded propagation (about one hop per beat)
 
@@ -199,6 +205,7 @@ export default experiment({
       r.decays &&
       r.hasLightcone &&
       r.conserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

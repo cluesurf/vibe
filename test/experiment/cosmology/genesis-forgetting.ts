@@ -35,6 +35,7 @@ export default experiment({
         for (let i = 0; i < n; i++) {
           t[i] = i % 2 === 0 ? 1 : -1
         }
+
         return t
       })(),
     )
@@ -44,6 +45,7 @@ export default experiment({
         for (let i = 0; i < n; i += 9) {
           t[i] = (i / 9) % 2 === 0 ? 1 : -1
         }
+
         return t
       })(),
     )

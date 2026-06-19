@@ -38,6 +38,7 @@ function stepOnce(input: {
     beat: 0,
     rng: input.rng,
   })
+
   return out.configuration
 }
 
@@ -55,6 +56,7 @@ export function ruleLocalityRange(input: {
   if (size === 0) {
     return 0
   }
+
   const distinct = valueCount(input.configuration.alphabet)
   const slots = input.configuration.slots
 
@@ -81,6 +83,7 @@ export function ruleLocalityRange(input: {
       const shifted = distinct > 1 ? (current + 1) % distinct : current
       setTone(perturbed, { element: center, slot, value: shifted })
     }
+
     const perturbedNext = stepOnce({
       rule: input.rule,
       substrate: input.substrate,
@@ -101,9 +104,11 @@ export function ruleLocalityRange(input: {
           break
         }
       }
+
       if (!changed) {
         continue
       }
+
       const distance = graphDistance({
         substrate: input.substrate,
         from: center,
@@ -113,6 +118,7 @@ export function ruleLocalityRange(input: {
         maxRadius = distance
       }
     }
+
     if (maxRadius > 0) {
       radii.push(maxRadius)
     }
@@ -121,5 +127,6 @@ export function ruleLocalityRange(input: {
   if (radii.length === 0) {
     return 0
   }
+
   return radii.reduce((sum, r) => sum + r, 0) / radii.length
 }

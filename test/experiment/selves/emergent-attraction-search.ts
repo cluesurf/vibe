@@ -35,6 +35,7 @@ function maxDifference(a: Will, b: Will): number {
       max = d
     }
   }
+
   return max
 }
 
@@ -44,6 +45,7 @@ function overlay(a: Will, b: Will): Will {
   for (let i = 0; i < data.length; i++) {
     data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
   }
+
   return { mesh: a.mesh, data }
 }
 
@@ -56,6 +58,7 @@ function cellAt(
   w: number,
 ): number {
   const m = (v: number): number => ((v % side) + side) % side
+
   return (
     m(w) * side * side * side + m(z) * side * side + m(y) * side + m(x)
   )
@@ -92,11 +95,13 @@ export default experiment({
       for (let i = 0; i < joint.data.length; i++) {
         joint.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
       }
+
       const jointFinal = run(joint, rule, beats)
       const overlayFinal = overlay(
         run({ mesh, data: a.data.slice() }, rule, beats),
         run({ mesh, data: b.data.slice() }, rule, beats),
       )
+
       return maxDifference(jointFinal, overlayFinal)
     }
 
@@ -114,6 +119,7 @@ export default experiment({
     for (let i = 0; i < collide.data.length; i++) {
       collide.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
     }
+
     const collideFinal = run(collide, rule, beats)
     const collideOverlay = overlay(
       run({ mesh, data: a.data.slice() }, rule, beats),
@@ -130,6 +136,7 @@ export default experiment({
       noForceAtDistance &&
       contactBreaksSuperposition &&
       contactScattersNotBinds
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

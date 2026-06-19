@@ -85,8 +85,10 @@ export default experiment({
           }
         }
       }
+
       frontier = next
     }
+
     const geodesicAtShell = (shell: number): number => {
       let sum = 0
       let count = 0
@@ -96,8 +98,10 @@ export default experiment({
           count++
         }
       }
+
       return count > 0 ? sum / count : 0
     }
+
     const geodesicPerShell = geodesicAtShell(3) - geodesicAtShell(2) // incremental geodesic length per shell
     const metricWarp = Math.exp(geodesicPerShell)
 

@@ -34,6 +34,7 @@ function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
   while (seeds.size < Math.min(K, n)) {
     seeds.add(rng.nextInt({ max: n }))
   }
+
   const cl = new Int32Array(n).fill(-1)
   let frontier: number[] = []
   ;[...seeds].forEach((sd, c) => {
@@ -50,14 +51,17 @@ function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
         }
       }
     }
+
     frontier = next
   }
+
   let nc = seeds.size
   for (let v = 0; v < n; v++) {
     if (cl[v] === -1) {
       cl[v] = nc++
     }
   }
+
   return cl
 }
 
@@ -75,14 +79,17 @@ function modelFidelity(
   for (let v = 0; v < g.size; v++) {
     sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
   }
+
   const summary = new Int8Array(blocks)
   for (let c = 0; c < blocks; c++) {
     summary[c] = sign(sum[c] ?? 0)
   }
+
   const recon = new Int8Array(g.size)
   for (let v = 0; v < g.size; v++) {
     recon[v] = summary[cl[v] ?? 0] ?? 0
   }
+
   return agreementFraction(base, recon)
 }
 
@@ -110,6 +117,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
   for (let i = 0; i < g.size; i++) {
     base[i] = rng.nextInt({ max: 3 }) - 1
   }
+
   for (let b = 0; b < 200; b++) {
     base = signedMajorityStep({
       neighbors: g.neighbors,
@@ -118,6 +126,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
       keepOnTie: true,
     })
   }
+
   const N = g.size
 
   const ratios = [0.02, 0.05, 0.1, 0.25, 0.5, 1.0]
@@ -129,6 +138,7 @@ export function noSelfStorage(input: { count: number; seed: number }): {
       K,
       makeRng({ seed: input.seed + 7 + Math.round(ratio * 1000) }),
     )
+
     return { ratio, modelSize: K, fidelity }
   })
   // A lossless self-record (fidelity ~1) needs the full N nodes, i.e. it is the whole thing.
@@ -178,6 +188,7 @@ export default experiment({
       r.losslessNeedsWholeThing &&
       r.regressCompressedTotal < 2 * 1500 &&
       r.regressFullCopyDiverges
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

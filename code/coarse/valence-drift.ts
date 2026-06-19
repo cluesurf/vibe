@@ -29,11 +29,13 @@ function selfCentroidX(
       masked[c] = 0
     }
   }
+
   const cells = largestPositiveCluster(masked, graph)
   let s = 0
   for (const c of cells) {
     s += c % L
   }
+
   return cells.length > 0 ? s / cells.length : L / 2
 }
 
@@ -69,10 +71,12 @@ export function valenceDrift(input: {
         tone[c] = (plusSide === 'right' ? -1 : 1) as -1 | 1
       }
     }
+
     if (withDynamics) {
       beat(tone, graph, moved, rng, 0.01, cohesion)
     }
   }
+
   return selfCentroidX(tone, graph, L, margin) - startX
 }
 

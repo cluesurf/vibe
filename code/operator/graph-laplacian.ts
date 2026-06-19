@@ -15,6 +15,7 @@ export function graphLaplacian(input: {
     for (const j of row) {
       v -= x[j] ?? 0
     }
+
     out[i] = v
   }
 }
@@ -24,6 +25,7 @@ function dotProduct(a: Float64Array, b: Float64Array): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 
@@ -32,6 +34,7 @@ function subtractMean(x: Float64Array): void {
   for (let i = 0; i < x.length; i++) {
     m += x[i] ?? 0
   }
+
   m /= x.length
   for (let i = 0; i < x.length; i++) {
     x[i] = (x[i] ?? 0) - m
@@ -65,17 +68,22 @@ export function solveGraphPoisson(input: {
       phi[i] = (phi[i] ?? 0) + alpha * (direction[i] ?? 0)
       residual[i] = (residual[i] ?? 0) - alpha * (temp[i] ?? 0)
     }
+
     const rsNew = dotProduct(residual, residual)
     if (rsNew < tolerance) {
       break
     }
+
     const beta = rsNew / rsOld
     for (let i = 0; i < n; i++) {
       direction[i] = (residual[i] ?? 0) + beta * (direction[i] ?? 0)
     }
+
     rsOld = rsNew
   }
+
   subtractMean(phi)
+
   return phi
 }
 
@@ -92,6 +100,7 @@ export function graphLaplacianGreensFunction(input: {
   const b = new Float64Array(n)
   b.fill(-1 / n)
   b[input.center] = 1 - 1 / n
+
   return solveGraphPoisson({
     neighbors: input.neighbors,
     b,

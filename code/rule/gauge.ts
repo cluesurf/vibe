@@ -38,14 +38,17 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
     if (e.from > maxVertex) {
       maxVertex = e.from
     }
+
     if (e.to > maxVertex) {
       maxVertex = e.to
     }
   }
+
   const neighbors: Set<number>[] = []
   for (let v = 0; v <= maxVertex; v++) {
     neighbors.push(new Set<number>())
   }
+
   for (const e of field.edges) {
     neighbors[e.from]?.add(e.to)
     neighbors[e.to]?.add(e.from)
@@ -57,6 +60,7 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
     if (!edge) {
       continue
     }
+
     const a = edge.from
     const b = edge.to
     const na = neighbors[a]
@@ -64,12 +68,14 @@ function buildEdgeTriangles(field: GaugeField): Triangle[][] {
     if (!na || !nb) {
       continue
     }
+
     for (const c of na) {
       if (c !== b && nb.has(c)) {
         perEdge[i]?.push({ a, b, c })
       }
     }
   }
+
   return perEdge
 }
 

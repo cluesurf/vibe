@@ -22,12 +22,14 @@ function randomBalanced(M: number, rng: Rng): Int8Array {
   for (let i = 0; i < M; i++) {
     p[i] = i < half ? 1 : -1
   }
+
   for (let i = M - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = p[i]!
     p[i] = p[j]!
     p[j] = t
   }
+
   return p
 }
 
@@ -44,6 +46,7 @@ function reproduce(parent: Int8Array, mu: number, rng: Rng): Int8Array {
       child[j] = t
     }
   }
+
   return child
 }
 
@@ -54,6 +57,7 @@ const fitness = (org: Int8Array, target: Int8Array): number => {
       m++
     }
   }
+
   return m
 }
 
@@ -70,6 +74,7 @@ function evolve(
   for (let i = 0; i < P; i++) {
     pop.push(randomBalanced(M, rng))
   }
+
   const meanByGen: number[] = []
   let heritSum = 0
   let heritCount = 0
@@ -90,12 +95,15 @@ function evolve(
         heritCount++
       }
     }
+
     pop = next
   }
+
   const scored = pop.map(o => fitness(o, target))
   meanByGen.push(scored.reduce((a, b) => a + b, 0) / P)
   // heritability proxy, parent-child fitness covariance sign (positive = heritable)
   const heritability = heritCount > 0 ? heritSum / heritCount : 0
+
   return { meanByGen, heritability }
 }
 
@@ -161,6 +169,7 @@ export default experiment({
   run() {
     const r = evolution({ M: 40 })
     const ok = r.solved && r.fitnessRises && r.beatsDrift && r.heritable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

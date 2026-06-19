@@ -29,8 +29,10 @@ export function proximityGraph(input: {
         }
       }
     }
+
     nnDist.push(mn)
   }
+
   const sorted = [...nnDist].sort((a, b) => a - b)
   const median = sorted[Math.floor(n / 2)]!
   const threshold = thresholdFactor * median
@@ -43,6 +45,7 @@ export function proximityGraph(input: {
       }
     }
   }
+
   return neighbors
 }
 
@@ -58,5 +61,6 @@ export function centerNearestOrigin(coords: number[][]): number {
       center = i
     }
   }
+
   return center
 }

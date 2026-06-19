@@ -35,8 +35,10 @@ function cpuStep(
     for (let p = offsets[i]!; p < offsets[i + 1]!; p++) {
       s += currentOf(state[adj[p]!]!)
     }
+
     out[i] = pack((s + 27 - prev) % 3, cur)
   }
+
   return out
 }
 
@@ -44,8 +46,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   // build the exact {3,4,3,4} 4D bulk graph on the CPU, then upload its CSR adjacency to the GPU
@@ -58,6 +62,7 @@ async function run(): Promise<void> {
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + g.neighbors[i]!.length
   }
+
   const adj = new Int32Array(offsets[n]!)
   {
     let p = 0
@@ -67,6 +72,7 @@ async function run(): Promise<void> {
       }
     }
   }
+
   const offsetsU = new Uint32Array(offsets)
   const adjU = new Uint32Array(adj)
   const meanDeg = adjU.length / n
@@ -142,6 +148,7 @@ async function run(): Promise<void> {
       device.queue.submit([enc.finish()])
       src = 1 - src
     }
+
     return src
   }
 
@@ -162,6 +169,7 @@ async function run(): Promise<void> {
     )
     device.queue.submit([enc.finish()])
   }
+
   await staging.mapAsync(GPUMapMode.READ)
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
@@ -170,12 +178,14 @@ async function run(): Promise<void> {
   for (let b = 0; b < CHECK_BEATS; b++) {
     cpu = cpuStep(cpu, offsets, adj)
   }
+
   let mismatches = 0
   for (let i = 0; i < n; i++) {
     if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
       mismatches++
     }
   }
+
   const ok = mismatches === 0
   console.log(
     `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mismatches} -> ${ok ? 'IDENTICAL' : 'FAIL'}`,

@@ -28,9 +28,11 @@ export function dirichletGreensFunction(input: {
       for (const j of neighbors[i]!) {
         s += phi[j]!
       }
+
       phi[i] = s / degree
     }
   }
+
   return phi
 }
 
@@ -64,23 +66,28 @@ export function greensFunctionExponent(input: {
     if (r < 1 || r > rmax) {
       continue
     }
+
     sums[r] = (sums[r] ?? 0) + phi[i]!
     cnts[r] = (cnts[r] ?? 0) + 1
   }
+
   const pts: [number, number][] = []
   for (let r = 1; r <= rmax; r++) {
     if (cnts[r] && sums[r]! > 0) {
       pts.push([Math.log(r), Math.log(sums[r]! / cnts[r]!)])
     }
   }
+
   if (pts.length < 3) {
     return NaN
   }
+
   const n = pts.length
   const sx = pts.reduce((a, p) => a + p[0], 0)
   const sy = pts.reduce((a, p) => a + p[1], 0)
   const sxx = pts.reduce((a, p) => a + p[0] * p[0], 0)
   const sxy = pts.reduce((a, p) => a + p[0] * p[1], 0)
+
   return (
     Math.round(-((n * sxy - sx * sy) / (n * sxx - sx * sx)) * 100) / 100
   )
@@ -122,14 +129,17 @@ export function greensDecayClass(input: {
         k++
       }
     }
+
     if (k > 0) {
       r.push(rr)
       lr.push(Math.log(rr))
       lg.push(Math.log(s / k))
     }
   }
+
   const e = _lfit({ xs: r, ys: lg })
   const p = _lfit({ xs: lr, ys: lg })
+
   return {
     expR2: e.r2,
     expRate: e.slope,

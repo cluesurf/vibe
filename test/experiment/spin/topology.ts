@@ -32,6 +32,7 @@ function zeroModeCount(input: {
     threshold: 5e-4,
     steps: Math.min(totalCells, 220),
   })
+
   return {
     zeroModes: result.zeroModes,
     smallest: result.smallestMagnitudes
@@ -74,6 +75,7 @@ export default experiment({
     const cylinderOk = cylinder.zeroModes === 2
     const torusOk = torus.zeroModes === 4
     const ok = diskOk && cylinderOk && torusOk
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

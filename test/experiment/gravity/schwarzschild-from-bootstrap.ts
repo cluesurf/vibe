@@ -47,6 +47,7 @@ export default experiment({
       const converged = trail[trail.length - 1]!
       const exact = 1 / (1 - RS / r)
       const linearFirstOrder = 1 + RS / r // the un-resummed (weak-field) spatial metric
+
       return {
         r,
         converged,

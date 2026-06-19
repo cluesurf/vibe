@@ -41,8 +41,10 @@ const bfsDepths = (
         }
       }
     }
+
     frontier = next
   }
+
   return depth
 }
 
@@ -50,6 +52,7 @@ const ballRatioOf = (shells: number[]): number => {
   const ball = (radius: number): number =>
     shells.slice(0, radius + 1).reduce((s, n) => s + n, 0)
   const r = Math.max(2, shells.length - 2)
+
   return ball(r) / Math.max(1, ball(r - 1))
 }
 
@@ -61,6 +64,7 @@ export function cellCoordination(symbol: number[]): number {
   if (symbol.length < 2) {
     return symbol[0] ?? 0
   }
+
   const cap = 50000
   const cell = symbol.slice(0, symbol.length - 1)
   const facet = symbol.slice(0, symbol.length - 2)
@@ -68,10 +72,12 @@ export function cellCoordination(symbol: number[]): number {
   if (cellOrder >= cap) {
     return Infinity // the cell is a tiling, infinite coordination
   }
+
   const facetOrder =
     facet.length === 0
       ? 2
       : buildCoxeterMatrixMesh(facet, cap).adjacency.length
+
   return Math.round(cellOrder / facetOrder)
 }
 
@@ -86,6 +92,7 @@ export function tessellationDataProfile(input: {
   const growthRatio = lastCompleteShellRatio(mesh.shells)
   const outermostFraction = outermostShellFraction(mesh.shells)
   const ballRatio = ballRatioOf(mesh.shells)
+
   return {
     symbol: input.symbol,
     rank: input.symbol.length + 1,

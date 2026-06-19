@@ -31,6 +31,7 @@ export default experiment({
     })
     const ok =
       Math.abs(r.manifoldFraction - 0.72) < 0.1 && r.acceptance > 0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

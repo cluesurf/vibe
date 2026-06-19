@@ -80,15 +80,19 @@ export default experiment({
           will.data[c * degree + rest] = 1
         }
       }
+
       return will
     }
+
     const occupiedOf = (will: Will): Uint8Array => {
       const o = new Uint8Array(coin.cellCount)
       for (let c = 0; c < coin.cellCount; c++) {
         o[c] = will.data[c * degree + rest]! > 0 ? 1 : 0
       }
+
       return o
     }
+
     const extent = (will: Will): number => {
       let e = 0
       for (let c = 0; c < coin.cellCount; c++) {
@@ -100,6 +104,7 @@ export default experiment({
             break
           }
         }
+
         if (on) {
           const [x, y, z, w] = coord(c)
           const dd =
@@ -112,8 +117,10 @@ export default experiment({
           }
         }
       }
+
       return e
     }
+
     const bodyExtent = extent(restBody())
 
     const displaced = (disp: number): Will => {
@@ -122,8 +129,10 @@ export default experiment({
       for (let k = 0; k < disp; k++) {
         nb = base.neighbour(nb, 0)
       }
+
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
+
       return w
     }
 
@@ -174,8 +183,10 @@ export default experiment({
           will.data[to * degree + rest] = 1
         }
       }
+
       return extent(will)
     }
+
     // rung 3, a dedicated mass-emission gravity field (a new field), for the range comparison.
     const repairEmission = (disp: number): number => {
       let will = displaced(disp)
@@ -237,6 +248,7 @@ export default experiment({
           will.data[to * degree + rest] = 1
         }
       }
+
       return extent(will)
     }
 

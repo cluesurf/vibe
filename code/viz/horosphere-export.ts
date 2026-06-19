@@ -41,14 +41,17 @@ function beat(
         count++
       }
     }
+
     return count
   }
+
   for (const edge of edges) {
     const v = edge[0]!
     const w = edge[1]!
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -77,6 +80,7 @@ function beat(
         tone[v] = -1
         tone[w] = 1
       }
+
       moved[v] = 1
       moved[w] = 1
     }
@@ -122,6 +126,7 @@ export function exportHorosphere(input?: {
       far = i
     }
   }
+
   const fc = coords[far]!
   const fn = norm(fc)
   const xi = fc.map(v => v / fn)
@@ -132,7 +137,9 @@ export function exportHorosphere(input?: {
     for (let k = 0; k < x.length; k++) {
       d2 += (x[k]! - xi[k]!) ** 2
     }
+
     const r2 = x.reduce((s, v) => s + v * v, 0)
+
     return Math.log(d2 / Math.max(1e-12, 1 - r2))
   })
 
@@ -174,6 +181,7 @@ export function exportHorosphere(input?: {
   for (let a = 0; a < bandCount; a++) {
     reindex[band[a]!] = a
   }
+
   const bandNeighbors: number[][] = band.map(() => [])
   for (let a = 0; a < bandCount; a++) {
     for (const w of g.neighbors[band[a]!]!) {
@@ -183,6 +191,7 @@ export function exportHorosphere(input?: {
       }
     }
   }
+
   const layoutEdges: number[][] = []
   for (let a = 0; a < bandCount; a++) {
     for (const b of bandNeighbors[a]!) {
@@ -214,6 +223,7 @@ export function exportHorosphere(input?: {
       fp[1]! - along * xi[1]!,
       fp[2]! - along * xi[2]!,
     ]
+
     return [
       flat[0]! * e1[0]! + flat[1]! * e1[1]! + flat[2]! * e1[2]!,
       flat[0]! * e2[0]! + flat[1]! * e2[1]! + flat[2]! * e2[2]!,
@@ -227,6 +237,7 @@ export function exportHorosphere(input?: {
     const r = Math.sqrt((i + 0.5) / bandCount)
     position[i] = [r * Math.cos(i * GOLDEN), r * Math.sin(i * GOLDEN)]
   }
+
   const idealLength = 1.6 / Math.sqrt(bandCount)
   const iterations = 200
   for (let iter = 0; iter < iterations; iter++) {
@@ -251,6 +262,7 @@ export function exportHorosphere(input?: {
         dispY[j]! -= dy
       }
     }
+
     // attraction along the crystal edges
     for (const edge of layoutEdges) {
       const a = edge[0]!
@@ -266,6 +278,7 @@ export function exportHorosphere(input?: {
       dispX[b]! += dx
       dispY[b]! += dy
     }
+
     const temperature = 0.04 * (1 - iter / iterations)
     for (let i = 0; i < bandCount; i++) {
       const length = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
@@ -275,11 +288,13 @@ export function exportHorosphere(input?: {
         (dispY[i]! / length) * Math.min(length, temperature)
     }
   }
+
   // normalize the relaxed layout into [-1, 1]
   let maxAbs = 1e-6
   for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
   }
+
   const cells2d = position.map(p => [p[0]! / maxAbs, p[1]! / maxAbs])
 
   // run the cohesive rule on the FULL bulk and record the band cells' tones each frame
@@ -293,6 +308,7 @@ export function exportHorosphere(input?: {
       }
     }
   }
+
   const rng = makeRng({ seed: 9 })
   for (let b = 0; b < warmup; b++) {
     beat(tone, edges, g.neighbors, moved, rng, arrowProb)

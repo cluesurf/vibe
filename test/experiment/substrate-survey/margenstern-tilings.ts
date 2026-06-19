@@ -78,6 +78,7 @@ export function margensternTilings(input: { seed: number }): Record<
       lorentzSafe: aniso.anisotropy < 0.25,
     }
   }
+
   return out
 }
 
@@ -96,6 +97,7 @@ export default experiment({
       e => e.lorentzSafe && e.anisotropy < 0.12 && e.reach,
     )
     const ok = all.length === 6 && allSafe
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

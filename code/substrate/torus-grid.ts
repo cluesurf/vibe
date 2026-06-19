@@ -17,7 +17,9 @@ export function torusGrid(d: number, L: number): Uint32Array[] {
       ns.push(base + ((coord + 1) % L) * stride)
       ns.push(base + ((coord - 1 + L) % L) * stride)
     }
+
     neighbors[i] = Uint32Array.from(ns)
   }
+
   return neighbors
 }

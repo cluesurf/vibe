@@ -29,6 +29,7 @@ export function dslDemo(): {
   const toneMix =
     r.toneHistogram.minus > 0.1 * 1200 &&
     r.toneHistogram.plus > 0.1 * 1200
+
   return {
     committedAnisotropy: r.lorentzAnisotropy,
     committedReach: r.exponentialReach,
@@ -55,6 +56,7 @@ export default experiment({
       d.committedBoundedBelow &&
       d.toneMix &&
       d.latticeAnisotropy > 0.8
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

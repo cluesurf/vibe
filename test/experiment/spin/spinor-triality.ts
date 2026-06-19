@@ -33,6 +33,7 @@ export function spinorTriality(): {
 
   // ---- (3) triality: Hadamard/2 swaps 8v and 8s ----
   const trialityPresent = vectorSetsEqual(applyTriality(v8), s8)
+
   return { fiveNoSpinor, twentyFourSplits, trialityPresent }
 }
 
@@ -47,6 +48,7 @@ export default experiment({
   run() {
     const r = spinorTriality()
     const ok = r.fiveNoSpinor && r.twentyFourSplits && r.trialityPresent
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

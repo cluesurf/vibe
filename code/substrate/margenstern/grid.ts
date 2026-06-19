@@ -87,6 +87,7 @@ export function buildMargensternGrid(input: {
           next.push(w)
         }
       }
+
       kids.sort((a, b) =>
         childOrder(
           graph.coords[v]!,
@@ -97,6 +98,7 @@ export function buildMargensternGrid(input: {
       )
       childrenOf[v] = kids
     }
+
     frontier = next
   }
 
@@ -110,6 +112,7 @@ export function buildMargensternGrid(input: {
     if (cell === root) {
       continue
     }
+
     const p = parentOf[cell]!
     address[cell] = [...address[p]!, childrenOf[p]!.indexOf(cell)]
   }
@@ -144,6 +147,7 @@ export function buildMargensternGrid(input: {
     const degree = here.length
     const neighbor = here[((spin % degree) + degree) % degree]!
     const back = spinNeighbors[neighbor]!.indexOf(cell)
+
     return { cell: neighbor, back, mirror: false }
   }
 
@@ -152,6 +156,7 @@ export function buildMargensternGrid(input: {
     if (!twoD) {
       return 'other'
     }
+
     return k >= 3 ? 'white' : 'black'
   }
 
@@ -167,12 +172,14 @@ export function buildMargensternGrid(input: {
     ) {
       common++
     }
+
     const up: number[] = []
     let cur = from
     while (depthOf[cur]! > common) {
       up.push(cur)
       cur = parentOf[cur]!
     }
+
     const ancestor = cur
     const down: number[] = []
     let node = ancestor
@@ -180,6 +187,7 @@ export function buildMargensternGrid(input: {
       node = childrenOf[node]![at[i]!] ?? node
       down.push(node)
     }
+
     return [...up, ancestor, ...down]
   }
 
@@ -220,8 +228,10 @@ function childOrder(
       (b[1] ?? 0) - (here[1] ?? 0),
       (b[0] ?? 0) - (here[0] ?? 0),
     )
+
     return aa - ab
   }
+
   for (let i = 0; i < a.length; i++) {
     const da = Math.round((a[i]! - (here[i] ?? 0)) * 1e6)
     const db = Math.round((b[i]! - (here[i] ?? 0)) * 1e6)
@@ -229,6 +239,7 @@ function childOrder(
       return da - db
     }
   }
+
   return 0
 }
 
@@ -240,5 +251,6 @@ function compareAddress(a: number[], b: number[]): number {
       return a[i]! - b[i]!
     }
   }
+
   return a.length - b.length
 }

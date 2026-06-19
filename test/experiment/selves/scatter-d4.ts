@@ -122,6 +122,7 @@ export default experiment({
       runMomentumOk &&
       chargeOk &&
       reversible
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

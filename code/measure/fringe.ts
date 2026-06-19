@@ -14,10 +14,12 @@ export function fringeStatistics(input: {
   for (let x = off % 2; x < W; x += 2) {
     arr.push(P[x]!)
   } // the populated parity
+
   let peak = 0
   for (const v of arr) {
     peak = Math.max(peak, v)
   }
+
   let maxima = 0
   let nodes = 0
   let tv = 0
@@ -30,6 +32,7 @@ export function fringeStatistics(input: {
     ) {
       maxima++
     }
+
     // a near-node: a deep local dip flanked by substantial peaks (amplitudes nearly cancelled)
     if (
       arr[i]! < arr[i - 1]! &&
@@ -41,5 +44,6 @@ export function fringeStatistics(input: {
       nodes++
     }
   }
+
   return { nodes, maxima, contrast: tv / (peak + 1e-12) }
 }

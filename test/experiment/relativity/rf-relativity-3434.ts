@@ -43,14 +43,18 @@ export function rfRelativity(): {
         if (rnd() < mix) {
           d = Math.floor(rnd() * 24)
         }
+
         for (let q = 0; q < 4; q++) {
           p[q]! += roots[d]![q]!
         }
       }
+
       tot += Math.hypot(...p)
     }
+
     return tot / trials
   }
+
   const ballisticDisp = walk(0, 1),
     diffusive = walk(1, 400)
   const expectedBallistic = T * Math.hypot(...roots[0]!) // T * sqrt(2)
@@ -75,6 +79,7 @@ export function rfRelativity(): {
       }
     }
   }
+
   const aniso24 = anisotropy(roots, 7),
     aniso6 = anisotropy(cubic6, 7),
     aniso8 = anisotropy(cube8, 7)
@@ -104,13 +109,16 @@ export function rfRelativity(): {
       const k = `${Math.floor(wrap(pt.p[0]!) / 2)},${Math.floor(wrap(pt.p[1]!) / 2)},${Math.floor(wrap(pt.p[2]!) / 2)},${Math.floor(wrap(pt.p[3]!) / 2)}`
       bins.set(k, (bins.get(k) ?? 0) + 1)
     }
+
     let H = 0
     for (const c of bins.values()) {
       const p = c / NP
       H -= p * Math.log(p)
     }
+
     return H
   }
+
   const H0 = coarseEntropy()
   for (let t = 0; t < 30; t++) {
     for (const pt of parts) {
@@ -119,6 +127,7 @@ export function rfRelativity(): {
       }
     }
   }
+
   const H1 = coarseEntropy()
   const arrowRises = H1 > H0 + 0.5
 
@@ -137,6 +146,7 @@ export default experiment({
     const r = rfRelativity()
     const ok =
       r.ballistic && r.isotropyImproves && r.diracOk && r.arrowRises
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

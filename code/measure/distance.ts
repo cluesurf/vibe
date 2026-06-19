@@ -14,6 +14,7 @@ export function graphDistance(input: {
   if (input.from === input.to) {
     return 0
   }
+
   const adjacency = undirectedAdjacency({ substrate: input.substrate })
   const size = input.substrate.size
   const distance = new Int32Array(size).fill(-1)
@@ -31,12 +32,15 @@ export function graphDistance(input: {
           if (neighbor === input.to) {
             return distance[neighbor] ?? -1
           }
+
           next.push(neighbor)
         }
       }
     }
+
     frontier = next
   }
+
   return -1
 }
 
@@ -52,6 +56,7 @@ export function longestChain(input: {
   if (input.from === input.to) {
     return 0
   }
+
   if (!precedes(p, { a: input.from, b: input.to })) {
     return 0
   }
@@ -63,6 +68,7 @@ export function longestChain(input: {
     if (x === input.from || x === input.to) {
       return true
     }
+
     return (
       precedes(p, { a: input.from, b: x }) &&
       precedes(p, { a: x, b: input.to })
@@ -78,6 +84,7 @@ export function longestChain(input: {
       cone.push(x)
     }
   }
+
   const reach = new Int32Array(p.size)
   for (const x of cone) {
     let count = 0
@@ -86,8 +93,10 @@ export function longestChain(input: {
         count++
       }
     }
+
     reach[x] = count
   }
+
   cone.sort((a, b) => (reach[b] ?? 0) - (reach[a] ?? 0))
 
   // best[x] = longest chain length (in links) from `from` to x. A chain of L
@@ -99,18 +108,22 @@ export function longestChain(input: {
     if (reachedFrom < 0) {
       continue
     }
+
     const row = p.links[x] ?? new Uint32Array(0)
     for (let k = 0; k < row.length; k++) {
       const child = row[k] ?? 0
       if (!inCone(child)) {
         continue
       }
+
       const candidate = reachedFrom + 1
       if (candidate > (best[child] ?? -1)) {
         best[child] = candidate
       }
     }
   }
+
   const result = best[input.to] ?? -1
+
   return result < 0 ? 0 : result
 }

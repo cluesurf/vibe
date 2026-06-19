@@ -52,6 +52,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
         rng.next() < initRho ? (rng.next() < 0.5 ? 1 : -1) : 0
       ) as -1 | 0 | 1
     }
+
     let last = 0
     for (let t = 0; t < 160; t++) {
       socEdgeSweep({
@@ -69,8 +70,10 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
         last += density(tone) / 10
       }
     }
+
     return { tone, finalRho: last }
   }
+
   const low = runTo(0.05, 11)
   const high = runTo(0.7, 22)
   const lowFinal = low.finalRho
@@ -90,6 +93,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
         rng0.next() < 0.1 ? (rng0.next() < 0.5 ? 1 : -1) : 0
       ) as -1 | 0 | 1
     }
+
     for (let t = 0; t < 120; t++) {
       socEdgeSweep({
         tone: base,
@@ -103,6 +107,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
         uniform,
       })
     } // settle
+
     // relax with creation OFF, so we measure the PURE perturbation cascade (the avalanche) through the
     // self-organized background, not creation noise
     return avalancheSizes({
@@ -127,6 +132,7 @@ export function selfOrganizedCriticality(input?: { n?: number }): {
       mode: 'final',
     })
   }
+
   const soc = avalancheRun(false)
   const ctrl = avalancheRun(true)
   const median = (a: number[]): number => a[Math.floor(a.length / 2)]!
@@ -173,6 +179,7 @@ export default experiment({
   run() {
     const r = selfOrganizedCriticality({ n: 3000 })
     const ok = r.solved && r.selfTunes
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

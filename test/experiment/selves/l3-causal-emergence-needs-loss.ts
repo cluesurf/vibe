@@ -33,6 +33,7 @@ function chargeHash(will: Will): string {
   for (let c = 0; c < will.mesh.cellCount; c++) {
     parts.push(cellTone(will, c))
   }
+
   return parts.join(',')
 }
 
@@ -83,14 +84,17 @@ export default experiment({
       if (!predecessors.has(micro[t + 1]!)) {
         predecessors.set(micro[t + 1]!, new Set())
       }
+
       predecessors.get(micro[t + 1]!)!.add(micro[t]!)
     }
+
     let microInjectiveViolations = 0
     for (const preds of predecessors.values()) {
       if (preds.size > 1) {
         microInjectiveViolations++
       }
     }
+
     const microStates = new Set(micro).size
 
     // the coarse successor map. Information loss shows as a charge field with more than one distinct
@@ -100,14 +104,17 @@ export default experiment({
       if (!coarseNext.has(coarse[t]!)) {
         coarseNext.set(coarse[t]!, new Set())
       }
+
       coarseNext.get(coarse[t]!)!.add(coarse[t + 1]!)
     }
+
     let coarseNondeterministicStates = 0
     for (const nexts of coarseNext.values()) {
       if (nexts.size > 1) {
         coarseNondeterministicStates++
       }
     }
+
     const coarseStates = new Set(coarse).size
     const compression =
       coarseStates > 0 ? microStates / coarseStates : 1
@@ -116,6 +123,7 @@ export default experiment({
     const coarseGrainingLosesInfo =
       compression > 1 && coarseNondeterministicStates > 0
     const ok = baseIsPermutation && coarseGrainingLosesInfo
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

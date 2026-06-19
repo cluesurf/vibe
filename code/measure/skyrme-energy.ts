@@ -15,6 +15,7 @@ function dot3(a: Vector3, b: Vector3): number {
 
 function normalize3(v: Vector3): Vector3 {
   const m = Math.hypot(v[0], v[1], v[2]) || 1
+
   return [v[0] / m, v[1] / m, v[2] / m]
 }
 
@@ -51,6 +52,7 @@ export function hedgehogTexture3d(input: {
       }
     }
   }
+
   return field
 }
 
@@ -87,6 +89,7 @@ export function placeSkyrmion2d(input: {
       if (r > 2.2 * R) {
         continue
       }
+
       const phi = Math.atan2(y - cy, x - cx) * ch,
         fr = Math.PI * Math.max(0, 1 - r / R)
       const nv = normalize3([
@@ -121,6 +124,7 @@ export function directionFieldEnergy2d(field: Vector3[][]): {
       skyrme += q * q
     }
   }
+
   return { exchange, skyrme }
 }
 
@@ -130,6 +134,7 @@ export function directionFieldDerrickEnergy2d(
   kappa: number,
 ): number {
   const { exchange, skyrme } = directionFieldEnergy2d(field)
+
   return exchange + kappa * skyrme
 }
 
@@ -149,6 +154,7 @@ export function skyrmionCharge2d(field: Vector3[][]): number {
         sphericalTriangleArea(a, b, c) + sphericalTriangleArea(a, c, d)
     }
   }
+
   return Math.round(q / (4 * Math.PI))
 }
 
@@ -180,5 +186,6 @@ export function directionFieldEnergy3d(field: Vector3[][][]): {
       }
     }
   }
+
   return { exchange, skyrme }
 }

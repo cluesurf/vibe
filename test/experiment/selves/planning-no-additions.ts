@@ -35,6 +35,7 @@ function makeLandscape(L: number): {
       V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
     }
   }
+
   return { V, start: Math.floor(L * 0.1), goal, localPeak, valley }
 }
 
@@ -48,8 +49,10 @@ function greedyRollout(V: number[], from: number): number {
     if (up <= V[pos]! && down <= V[pos]!) {
       break
     } // stuck at a local optimum
+
     pos += up >= down ? 1 : -1
   }
+
   return pos
 }
 
@@ -89,6 +92,7 @@ export function planningNoAdditions(input?: { L?: number }): {
       bestK = k
     }
   }
+
   // execute the chosen plan: will-push bestK, then greedy
   const plannerPos = bestK > 0 ? greedyRollout(V, stall + bestK) : stall
   const plannerReachedGoal = plannerPos >= goal - 1
@@ -122,6 +126,7 @@ export default experiment({
   run() {
     const r = planningNoAdditions({ L: 40 })
     const ok = r.solved && r.plannerBeatsGreedy && r.usesOnlyEmergent
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

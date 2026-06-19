@@ -39,12 +39,14 @@ export function goyShellSpectrum(input: {
         if (i + 2 < n) {
           nl = add(nl, scale(mul(u[i + 1]!, u[i + 2]!), k[i]!))
         }
+
         if (i - 1 >= 0 && i + 1 < n) {
           nl = add(
             nl,
             scale(mul(u[i - 1]!, u[i + 1]!), -epsilon * k[i - 1]!),
           )
         }
+
         if (i - 2 >= 0) {
           nl = add(
             nl,
@@ -54,14 +56,17 @@ export function goyShellSpectrum(input: {
             ),
           )
         }
+
         advection = mul([0, 1], conj(nl)) // i times the conjugate of the nonlinear term
       }
+
       const dissipation: Complex = scale(u[i]!, -nu * k[i]! * k[i]!)
       du[i] = add(advection, dissipation)
       if (i === 1) {
         du[i] = add(du[i]!, [0.01, 0.01])
       } // constant forcing at a low shell
     }
+
     return du
   }
 
@@ -82,9 +87,11 @@ export function goyShellSpectrum(input: {
       for (let i = 0; i < n; i++) {
         energy[i]! += u[i]![0] ** 2 + u[i]![1] ** 2
       }
+
       samples++
     }
   }
+
   return energy.map(e => e / Math.max(1, samples))
 }
 
@@ -103,6 +110,7 @@ export function spectrumSlope(input: {
       ys.push(Math.log(e))
     }
   }
+
   const mx = xs.reduce((a, b) => a + b, 0) / xs.length
   const my = ys.reduce((a, b) => a + b, 0) / ys.length
   let sxy = 0
@@ -111,5 +119,6 @@ export function spectrumSlope(input: {
     sxy += (xs[i]! - mx) * (ys[i]! - my)
     sxx += (xs[i]! - mx) ** 2
   }
+
   return sxy / sxx
 }

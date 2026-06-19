@@ -84,6 +84,7 @@ export default experiment({
   run() {
     const r = lorentzIsotropy({ maxCells: 8000 })
     const ok = r.solved && r.isotropic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -129,6 +129,7 @@ export function substrateComputer(input?: { n?: number }): {
       a + b,
     )
   }
+
   // MONUS
   for (const [a, b] of [
     [7, 3],
@@ -147,6 +148,7 @@ export function substrateComputer(input?: { n?: number }): {
       Math.max(0, a - b),
     )
   }
+
   // MULTIPLY
   for (const [a, b] of [
     [3, 4],
@@ -194,6 +196,7 @@ export default experiment({
     const r = substrateComputer({ n: 5000 })
     const ok =
       r.solved && r.allCorrect && r.allConserved && r.generalPurpose
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

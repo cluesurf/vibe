@@ -339,6 +339,7 @@ export function runConformance(): { passed: number; failed: number } {
     for (let s = 0; s < 100; s++) {
       metropolisSweep({ lattice: lat, beta: 0.3, eps: 0.5, rng })
     }
+
     const disordered = averagePlaquette({ lattice: lat })
     check({
       name: 'SU(2) cold is ordered, strong coupling disorders it',
@@ -408,6 +409,7 @@ export function runConformance(): { passed: number; failed: number } {
     for (let s = 0; s < n; s++) {
       perm[s] = s ^ 1
     }
+
     const profile = pauliLocalityProfile({
       matrix: hamiltonianMatrix({ perm }),
       cells,
@@ -454,6 +456,7 @@ export function runConformance(): { passed: number; failed: number } {
     for (let i = 0; i < eig.values.length; i++) {
       lo = Math.min(lo, eig.values[i] ?? 0)
     }
+
     check({
       name: 'commuting-gate rule has a local, bounded-below Hamiltonian',
       ok: length < 2 && lo > -1e-9,
@@ -478,11 +481,13 @@ export function runConformance(): { passed: number; failed: number } {
         m.data[i * cells + (row[k] ?? 0)] = -1
       }
     }
+
     const eig = eigSymmetric({ matrix: m })
     let lo = Infinity
     for (let i = 0; i < eig.values.length; i++) {
       lo = Math.min(lo, eig.values[i] ?? 0)
     }
+
     check({
       name: 'emergent Laplacian is bounded below (PSD with a zero mode)',
       ok: lo > -1e-9 && lo < 1e-6,
@@ -623,10 +628,12 @@ export function runConformance(): { passed: number; failed: number } {
       for (let p = a.offsets[i]!; p < a.offsets[i + 1]!; p++) {
         sa.add(a.adj[p]!)
       }
+
       const sb = new Set<number>()
       for (let p = b.offsets[i]!; p < b.offsets[i + 1]!; p++) {
         sb.add(b.adj[p]!)
       }
+
       if (sa.size !== sb.size) {
         identical = false
       } else {
@@ -638,6 +645,7 @@ export function runConformance(): { passed: number; failed: number } {
         }
       }
     }
+
     check({
       name: 'fast engine (flat typed dedup): identical exact adjacency to the simple engine, facet 12 (scales ~10x further, to tens of millions)',
       ok: identical,
@@ -846,6 +854,7 @@ export function runConformance(): { passed: number; failed: number } {
         for (let i = 0; i < chainSize; i++) {
           y[i] = (x[i - 1] ?? 0) + (x[i + 1] ?? 0)
         }
+
         return y
       },
     }
@@ -975,10 +984,12 @@ export function runConformance(): { passed: number; failed: number } {
       if (margensternFromZeckendorf(z) !== n) {
         zeckRoundTrips = false
       }
+
       if (z.includes('11')) {
         zeckNo11 = false
       }
     }
+
     check({
       name: 'Margenstern: Zeckendorf round-trips 1..5000 with no "11"',
       ok: zeckRoundTrips && zeckNo11,
@@ -1003,6 +1014,7 @@ export function runConformance(): { passed: number; failed: number } {
       if (splitCoords.has(co)) {
         splitLegal = false
       }
+
       splitCoords.add(co)
       const kids = margensternChildrenOf(a)
       if (
@@ -1010,6 +1022,7 @@ export function runConformance(): { passed: number; failed: number } {
       ) {
         splitPreferred = false
       }
+
       if (id !== splitTree.root) {
         const p = margensternParentOf(a)
         if (p === null || margensternChildrenOf(p).indexOf(a) < 0) {
@@ -1017,6 +1030,7 @@ export function runConformance(): { passed: number; failed: number } {
         }
       }
     }
+
     check({
       name: 'Margenstern: 5000 tiles have distinct exact coordinates, parent inverts the rewrite',
       ok: splitLegal && splitParent,
@@ -1043,6 +1057,7 @@ export function runConformance(): { passed: number; failed: number } {
       for (let c = 0; c < grid.size; c++) {
         gridCoords.add(grid.coordinate(c))
       }
+
       const target = Math.min(900, grid.size - 1)
       const gridPath = grid.route(grid.origin, target)
       let gridRouteValid =
@@ -1055,10 +1070,12 @@ export function runConformance(): { passed: number; failed: number } {
             adjacent = true
           }
         }
+
         if (!adjacent) {
           gridRouteValid = false
         }
       }
+
       const tag = gridSymbol.join(',')
       check({
         name: `Margenstern grid {${tag}} (${gridSymbol.length}D): exact distinct coordinates, address-only route valid along edges`,
@@ -1078,6 +1095,7 @@ export function runConformance(): { passed: number; failed: number } {
         }
       }
     }
+
     for (let i = 0; i < 60; i++) {
       const a = 2 + ((i * 37) % 900)
       const b = 2 + ((i * 53) % 900)
@@ -1085,6 +1103,7 @@ export function runConformance(): { passed: number; failed: number } {
       if (p[0] !== a || p[p.length - 1] !== b) {
         fibRouteOk = false
       }
+
       for (let j = 0; j + 1 < p.length; j++) {
         if (
           margensternFather(p[j]!) !== p[j + 1]! &&
@@ -1094,6 +1113,7 @@ export function runConformance(): { passed: number; failed: number } {
         }
       }
     }
+
     check({
       name: 'Margenstern pure arithmetic: father formula generates the tree, routes are valid father/son walks',
       ok: fibFatherOk && fibRouteOk,
@@ -1124,6 +1144,7 @@ export function runConformance(): { passed: number; failed: number } {
         numOk = false
       }
     }
+
     check({
       name: 'Margenstern numeration: Fibonacci and {6,4} growth bases round-trip exactly',
       ok: numOk,
@@ -1152,6 +1173,7 @@ export function runConformance(): { passed: number; failed: number } {
       'two-point-equidistant',
     ].every(m => {
       const p = applyProjectionModel(ballPoint, m as never)
+
       return (
         Math.hypot(
           p[0]! - poincarePoint[0]!,
@@ -1177,6 +1199,7 @@ export function runConformance(): { passed: number; failed: number } {
         polygonsWellFormed = false
       }
     }
+
     check({
       name: 'cell faces: one polygon per cell, each at least p-sided, aligned with the graph',
       ok: facesAligned && polygonsWellFormed,
@@ -1212,6 +1235,7 @@ export function runConformance(): { passed: number; failed: number } {
         reversible = false
       }
     }
+
     check({
       name: 'cell faces: the reversible wave coloring the faces is exactly reversible',
       ok: reversible,
@@ -1238,6 +1262,7 @@ export function runConformance(): { passed: number; failed: number } {
         platonicOk = false
       }
     }
+
     check({
       name: 'geometry: the spherical builder reproduces the Platonic solids (exact faces and edges)',
       ok: platonicOk,
@@ -1301,6 +1326,7 @@ export function runConformance(): { passed: number; failed: number } {
       if (pure.neighbors[i]!.length !== 5) {
         continue
       }
+
       pureInterior++
       if (
         !pure.neighbors[i]!.every(j => pure.neighbors[j]!.includes(i))
@@ -1308,6 +1334,7 @@ export function runConformance(): { passed: number; failed: number } {
         pureSymmetric = false
       }
     }
+
     check({
       name: 'pentagrid pure address (Theorem 5): 5-regular, symmetric, geometry-free',
       ok: pureSymmetric && pureInterior > 800,
@@ -1334,8 +1361,10 @@ export function runConformance(): { passed: number; failed: number } {
         for (const r of nb) {
           h[r.length] = (h[r.length] ?? 0) + 1
         }
+
         return JSON.stringify(Object.entries(h).sort())
       }
+
       let exactSymmetric = true
       for (let i = 0; i < exact.cellCount; i++) {
         for (const j of exact.neighbors[i]!) {
@@ -1344,6 +1373,7 @@ export function runConformance(): { passed: number; failed: number } {
           }
         }
       }
+
       const matches =
         exact.cellCount === floatGraph.cellCount &&
         histOf(exact.neighbors) === histOf(floatGraph.neighbors)
@@ -1376,10 +1406,12 @@ export function runConformance(): { passed: number; failed: number } {
           adjacent = true
         }
       }
+
       if (!adjacent) {
         routeWalk = false
       }
     }
+
     check({
       name: 'pattern labels coherent (center + p sectors), node classes <= 3',
       ok: centerIsSector0 && sectorCount === 8 && nodeClasses <= 3,
@@ -1435,6 +1467,7 @@ export function runConformance(): { passed: number; failed: number } {
         railwayUniversal = false
       }
     }
+
     check({
       name: 'railway register machine computes (universal): the locomotive multiplies on the rails',
       ok: railwayUniversal,
@@ -1457,6 +1490,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         ]!,
       )
     }
+
     const fibOk = fibValues.join(',') === '1,1,2,3,5,8,13,21,34,55'
     check({
       name: 'TypeScript -> railway compiler: fib(1..10) computed by the compiled register machine',
@@ -1477,6 +1511,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       binCost.push(runMachine(bin, [m]).cost)
       unaCost.push(runMachine(una, [m]).cost)
     }
+
     const binCorrect = binVals.join(',') === '1,1,2,3,5,8,13,21,34,55'
     // binary per-term deltas are equal (flat); unary per-term deltas strictly increase (grow with the value)
     const binDelta = binCost[9]! - binCost[8]!
@@ -1497,6 +1532,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     for (let m = 1; m <= 10; m++) {
       terVals.push(runMachine(ter, [m]).result.toString())
     }
+
     check({
       name: 'ternary backend: base-3 register machine computes fib(1..10) on the shared program',
       ok: terVals.join(',') === '1,1,2,3,5,8,13,21,34,55',
@@ -1508,6 +1544,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
     for (let m = 1; m <= 10; m++) {
       railFib.push(String(fibOnRailway({ n: m, bits: 8 }).value))
     }
+
     check({
       name: 'literal railway-CA adder: the locomotive computes fib(1..10) by real carry ripples',
       ok: railFib.join(',') === '1,1,2,3,5,8,13,21,34,55',
@@ -1537,6 +1574,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         protoOk = false
       }
     }
+
     check({
       name: 'prototype computer 2D/3D/4D: dock degree 7/12/24, ternary fib=55, railway runs, content recall',
       ok: protoOk,
@@ -1552,6 +1590,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         alpha.add(ch)
       }
     }
+
     const fivState = [...alpha].sort().join('') === 'BGRWY'
     const faithful =
       pentagridNext(caTable, 'W', ['W', 'G', 'B', 'W', 'B']) === 'G' && // rule 34
@@ -1619,6 +1658,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
       loopCa.step()
       seen.add(loopCa.headAt())
     }
+
     const loopOk = loopCa.headAt() === 1 && seen.size === 8 // returned to start, visited every cell (forward)
     const ffCa = makeRailwayCa([
       { role: 'track', links: [4, 1], state: 'H' },
@@ -1656,10 +1696,12 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         for (let s = 0; s < g.degree(c); s++) {
           row.push(g.step(c, s).cell)
         }
+
         gnb.push(row)
         gdepth.push(g.depth(c))
         maxDepth = Math.max(maxDepth, g.depth(c))
       }
+
       const builder = makeGrowingTrackCa({
         graphNeighbors: gnb,
         depth: gdepth,
@@ -1672,13 +1714,16 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         if (!builder.step()) {
           break
         }
+
         built++
         const d = g.depth(builder.headAt())
         if (d !== prev + 1) {
           monotone = false
         }
+
         prev = d
       }
+
       const haltedAtEdge =
         g.depth(builder.headAt()) === maxDepth && built === maxDepth
       check({
@@ -1697,6 +1742,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         counterOk = false
       }
     }
+
     check({
       name: 'railway CA computes a register end to end: a binary counter counts 1..20 by the locomotive',
       ok: counterOk,
@@ -1713,6 +1759,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         secOk = false
       }
     }
+
     check({
       name: 'strongly-universal memory: a one-bit seed counts 1..100, the counter builds its own bits',
       ok: secOk && seedWidth === 1 && sec.width() === 7,
@@ -1736,8 +1783,10 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         for (let s = 0; s < rg.degree(c); s++) {
           row.push(rg.step(c, s).cell)
         }
+
         rnb.push(row)
       }
+
       // a fundamental cycle from a non-tree edge
       const N = rnb.length,
         par = new Int32Array(N).fill(-2)
@@ -1758,12 +1807,14 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
                 up.push(x)
                 x = par[x]!
               }
+
               const vp: number[] = []
               let y = v
               while (y !== -1) {
                 vp.push(y)
                 y = par[y]!
               }
+
               const sx = new Set(up)
               let lca = -1
               for (const z of vp) {
@@ -1772,9 +1823,11 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
                   break
                 }
               }
+
               if (lca < 0) {
                 continue
               }
+
               const aa: number[] = []
               for (const z of up) {
                 aa.push(z)
@@ -1782,13 +1835,16 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
                   break
                 }
               }
+
               const bb: number[] = []
               for (const z of vp) {
                 if (z === lca) {
                   break
                 }
+
                 bb.push(z)
               }
+
               const c2 = [...aa, ...bb.reverse()]
               if (c2.length >= 4) {
                 cyc = c2
@@ -1796,14 +1852,17 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
             }
           }
         }
+
         fr = nx
       }
+
       const rca = makeTrackLoop(cyc, N)
       const vis = new Set<number>()
       for (let t = 0; t < cyc.length; t++) {
         rca.step()
         vis.add(rca.headAt())
       }
+
       check({
         name: `railway CA runs on {${railSymbol.join(',')}}: locomotive traverses a real cycle`,
         ok:

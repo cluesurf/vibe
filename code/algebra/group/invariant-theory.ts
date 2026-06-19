@@ -26,6 +26,7 @@ export function invariantPolynomialDimension(input: {
       gp = multiply(gp, g)
       p[k] = trace(gp)
     }
+
     // elementary symmetric polynomials e_k via Newton's identities
     const e1 = p[1]!
     const e2 = (e1 * p[1]! - p[2]!) / 2
@@ -38,5 +39,6 @@ export function invariantPolynomialDimension(input: {
     const h4 = e1 * h3 - e2 * h2 + e3 * h1 - e4
     total += degree === 2 ? h2 : h4
   }
+
   return Math.round(total / group.length)
 }

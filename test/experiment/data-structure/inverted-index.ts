@@ -27,8 +27,10 @@ export default experiment({
       if (slot[cell] !== -1) {
         collisions += 1
       }
+
       slot[cell] = term
     }
+
     const collisionRate = collisions / terms
     const lookupIsConstant = collisionRate < 0.2
 

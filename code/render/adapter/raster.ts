@@ -63,6 +63,7 @@ export type RasterOptions = {
 // render a Scene to a PNG buffer
 export function renderSceneToPng(input: RasterOptions): Buffer {
   const { rgba, size } = renderSceneToRgba(input)
+
   return encodePng(rgba, size, size)
 }
 
@@ -84,11 +85,13 @@ export function renderSceneToRgba(input: RasterOptions): {
       lineWidth: (input.lineWidth ?? DEFAULT_LINE_WIDTH) * superSample,
       superSample: 1,
     })
+
     return {
       rgba: downsample(big.rgba, big.size, outSize),
       size: outSize,
     }
   }
+
   const {
     scene,
     size = DEFAULT_SIZE,
@@ -113,6 +116,7 @@ export function renderSceneToRgba(input: RasterOptions): {
     rgba[i + 2] = background[2]
     rgba[i + 3] = 255
   }
+
   const half = size / 2
   const threeD = scene.dim >= 3
   const fourD = scene.dim >= 4
@@ -145,6 +149,7 @@ export function renderSceneToRgba(input: RasterOptions): {
         y *= k
         z *= k
       }
+
       const cy = Math.cos(rotateY),
         sy = Math.sin(rotateY)
       const x1 = cy * x + sy * z
@@ -154,9 +159,12 @@ export function renderSceneToRgba(input: RasterOptions): {
       x = x1
       y = cx * y - sx * z1
       z = sx * y + cx * z1
+
       return { x, y, z }
     }
+
     const p = applyModel(v, model)
+
     return { x: p[0] ?? 0, y: p[1] ?? 0, z: 0 }
   }
 
@@ -170,6 +178,7 @@ export function renderSceneToRgba(input: RasterOptions): {
     for (const p of plane) {
       depth += p.z
     }
+
     depth /= plane.length
     let t: number
     if (threeD) {
@@ -179,6 +188,7 @@ export function renderSceneToRgba(input: RasterOptions): {
       const mr = midRadius(e.a, e.b)
       t = 1 - Math.min(1, mr)
     } // centre -> 1, boundary -> 0
+
     return { plane, depth, color: lerp(far, near, t) }
   })
 
@@ -195,11 +205,14 @@ export function renderSceneToRgba(input: RasterOptions): {
         boundary.push(toPlane(samples[k]!))
       }
     }
+
     let depth = 0
     for (const p of boundary) {
       depth += p.z
     }
+
     depth /= boundary.length || 1
+
     return { boundary, depth, color: f.color }
   })
 
@@ -218,31 +231,38 @@ export function renderSceneToRgba(input: RasterOptions): {
       if (x < minX) {
         minX = x
       }
+
       if (x > maxX) {
         maxX = x
       }
+
       if (y < minY) {
         minY = y
       }
+
       if (y > maxY) {
         maxY = y
       }
     }
+
     for (const d of drawn) {
       for (const p of d.plane) {
         include(p.x, p.y)
       }
     }
+
     for (const f of faces) {
       for (const p of f.boundary) {
         include(p.x, p.y)
       }
     }
+
     cx = (minX + maxX) / 2
     cy = (minY + maxY) / 2
     const span = Math.max(maxX - minX, maxY - minY) || 1
     scale = (size * margin) / span
   }
+
   const sx = (x: number): number => half + scale * (x - cx)
   const sy = (y: number): number => half - scale * (y - cy)
 
@@ -314,6 +334,7 @@ function downsample(
           a += src[so + 3]!
         }
       }
+
       const o = (y * dstSize + x) * 4
       out[o] = Math.round(r / area)
       out[o + 1] = Math.round(g / area)
@@ -321,6 +342,7 @@ function downsample(
       out[o + 3] = Math.round(a / area)
     }
   }
+
   return out
 }
 
@@ -333,16 +355,19 @@ function fillPolygon(
   if (pts.length < 3) {
     return
   }
+
   let minY = Infinity,
     maxY = -Infinity
   for (const p of pts) {
     if (p.y < minY) {
       minY = p.y
     }
+
     if (p.y > maxY) {
       maxY = p.y
     }
   }
+
   const y0 = Math.max(0, Math.ceil(minY))
   const y1 = Math.min(size - 1, Math.floor(maxY))
   for (let y = y0; y <= y1; y++) {
@@ -356,9 +381,11 @@ function fillPolygon(
         xs.push(a.x + ((y - ay) / (by - ay)) * (b.x - a.x))
       }
     }
+
     if (xs.length < 2) {
       continue
     }
+
     xs.sort((p, q) => p - q)
     for (let k = 0; k + 1 < xs.length; k += 2) {
       const xa = Math.max(0, Math.ceil(xs[k]!))
@@ -379,11 +406,13 @@ function midRadius(a: Vec, b: Vec): number {
     const m = (a[i]! + b[i]!) / 2
     s += m * m
   }
+
   return Math.sqrt(s)
 }
 
 function lerp(a: Rgb, b: Rgb, t: number): Rgb {
   const u = Math.max(0, Math.min(1, t))
+
   return [
     Math.round(a[0] + (b[0] - a[0]) * u),
     Math.round(a[1] + (b[1] - a[1]) * u),
@@ -417,11 +446,13 @@ function drawLine(
         if (ox * ox + oy * oy > rad * rad) {
           continue
         }
+
         const px = Math.round(cx) + ox,
           py = Math.round(cy) + oy
         if (px < 0 || px >= size || py < 0 || py >= size) {
           continue
         }
+
         const o = (py * size + px) * 4
         rgba[o] = color[0]
         rgba[o + 1] = color[1]
@@ -448,6 +479,7 @@ function strokeCircle(
     if (px < 0 || px >= size || py < 0 || py >= size) {
       continue
     }
+
     const o = (py * size + px) * 4
     rgba[o] = color[0]
     rgba[o + 1] = color[1]

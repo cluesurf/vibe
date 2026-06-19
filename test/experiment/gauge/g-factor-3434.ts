@@ -57,6 +57,7 @@ function measureG(input: {
       Math.abs(diracLevels[n]! - predicted),
     )
   }
+
   return {
     g,
     diracLowestSquared: diracLowest,
@@ -118,6 +119,7 @@ export default experiment({
       r.diracHasZeroMode &&
       r.scalarHasNoZeroMode &&
       r.ladderRelativistic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

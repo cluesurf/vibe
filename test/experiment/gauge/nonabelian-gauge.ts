@@ -58,6 +58,7 @@ export function nonabelianGauge(): {
       }
     }
   }
+
   return { gaugeInvariant, curvedFlux, nonAbelian }
 }
 
@@ -72,6 +73,7 @@ export default experiment({
   run() {
     const r = nonabelianGauge()
     const ok = r.gaugeInvariant && r.curvedFlux && r.nonAbelian
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

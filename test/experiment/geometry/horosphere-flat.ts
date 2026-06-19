@@ -94,6 +94,7 @@ export default experiment({
       r.horoIsFlat &&
       r.bulkIsExponential &&
       r.flatterThanBulk
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

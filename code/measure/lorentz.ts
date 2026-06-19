@@ -28,6 +28,7 @@ export function lorentzIsotropy(input: {
   if (!embedding) {
     return { preferredFrame: false, anisotropy: 0 }
   }
+
   const dim = embedding.dimension
   // Spatial axes: skip the time axis only for a Lorentzian embedding.
   const spatialStart = embedding.signature === 'lorentzian' ? 1 : 0
@@ -55,6 +56,7 @@ export function lorentzIsotropy(input: {
     if (row.length === 0) {
       continue
     }
+
     // Nearest link by spatial distance gives the strongest directional cue.
     let nearest = -1
     let nearestDistance = Infinity
@@ -67,14 +69,17 @@ export function lorentzIsotropy(input: {
           coordOf(embedding, { element: node, axis })
         sumSquares += delta * delta
       }
+
       if (sumSquares > 1e-18 && sumSquares < nearestDistance) {
         nearestDistance = sumSquares
         nearest = neighbor
       }
     }
+
     if (nearest < 0) {
       continue
     }
+
     // Angle in the plane of the first two spatial axes.
     const ax0 =
       coordOf(embedding, { element: nearest, axis: spatialStart }) -
@@ -85,12 +90,14 @@ export function lorentzIsotropy(input: {
     if (ax0 === 0 && ax1 === 0) {
       continue
     }
+
     const theta = Math.atan2(ax1, ax0)
     for (let h = 0; h < HARMONICS.length; h++) {
       const m = HARMONICS[h] ?? 1
       cosSum[h] = (cosSum[h] ?? 0) + Math.cos(m * theta)
       sinSum[h] = (sinSum[h] ?? 0) + Math.sin(m * theta)
     }
+
     used++
   }
 
@@ -123,6 +130,7 @@ const SQUARE_DIRECTIONS = [
   [0, 1],
   [0, -1],
 ]
+
 function omega(kx: number, ky: number): number {
   return Math.sqrt(
     latticeDispersion({
@@ -150,6 +158,7 @@ function sprinklePoints(input: {
     y: input.rng.next(),
   }))
 }
+
 function latticePoints(side: number): { x: number; y: number }[] {
   const pts: { x: number; y: number }[] = []
   for (let i = 0; i < side; i++) {
@@ -157,6 +166,7 @@ function latticePoints(side: number): { x: number; y: number }[] {
       pts.push({ x: i / side, y: j / side })
     }
   }
+
   return pts
 }
 
@@ -167,5 +177,6 @@ export function lorentzSafety(): { sprinkle: number; lattice: number } {
   const lattice = nearestLinkHarmonicAnisotropy({
     points: latticePoints(30),
   })
+
   return { sprinkle, lattice }
 }

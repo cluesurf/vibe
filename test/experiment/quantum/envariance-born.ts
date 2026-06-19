@@ -21,36 +21,45 @@ const cabs2 = (a: C) => a.re * a.re + a.im * a.im
 // |psi> = sum_{s,e} M[s][e] |s>|e>. The Schmidt (perfectly-correlated) form is diagonal.
 function diagState(amps: number[]): C[][] {
   const d = amps.length
+
   return Array.from({ length: d }, (_, s) =>
     Array.from({ length: d }, (_, e) => (s === e ? c(amps[s]!) : c(0))),
   )
 }
+
 function productState(sysAmps: number[], envAmps: number[]): C[][] {
   return sysAmps.map(a => envAmps.map(b => c(a * b)))
 }
+
 // swap two labels i,j on the system index (rows) or env index (cols)
 function swapRows(M: C[][], i: number, j: number): C[][] {
   const N = M.map(r => [...r])
   ;[N[i], N[j]] = [N[j]!, N[i]!]
+
   return N
 }
+
 function swapCols(M: C[][], i: number, j: number): C[][] {
   return M.map(r => {
     const x = [...r]
     ;[x[i], x[j]] = [x[j]!, x[i]!]
+
     return x
   })
 }
+
 function matEq(A: C[][], B: C[][]): boolean {
   return (
     A.length === B.length &&
     A.every((r, i) => r.every((x, j) => ceq(x, B[i]![j]!)))
   )
 }
+
 // is the state ENVARIANT under swapping system labels i,j? (i.e. swapRows then a compensating swapCols returns it)
 function isEnvariant(M: C[][], i: number, j: number): boolean {
   return matEq(swapCols(swapRows(M, i, j), i, j), M)
 }
+
 // the system's outcome probabilities = diagonal |amplitude|^2 summed over env (the reduced populations)
 function systemProbs(M: C[][]): number[] {
   return M.map(row => row.reduce((s, x) => s + cabs2(x), 0))

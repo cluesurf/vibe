@@ -34,11 +34,13 @@ export function patternSurvivalTime(input: {
       disk.push(c)
     }
   }
+
   const stamp = (): void => {
     for (const c of disk) {
       tone[c] = 1
     }
   }
+
   stamp()
   const majority = (): number => {
     let plus = 0
@@ -47,16 +49,20 @@ export function patternSurvivalTime(input: {
         plus++
       }
     }
+
     return disk.length > 0 ? plus / disk.length : 0
   }
+
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, arrow, 0)
     if (maintainEvery > 0 && t % maintainEvery === 0) {
       stamp()
     }
+
     if (majority() < 0.5) {
       return t
     }
   }
+
   return beats
 }

@@ -67,8 +67,10 @@ export default experiment({
           out.push(mask)
         }
       }
+
       return out
     }
+
     const correctable = (erased: number): boolean =>
       erasureCorrectable({ logicals, erased })
     const allTwoErasuresRecover = subsets(2).every(erased =>

@@ -45,6 +45,7 @@ function cpuStep(
       out[i] = pack(nx, cur)
     }
   }
+
   return out
 }
 
@@ -121,6 +122,7 @@ async function readBack(
   await staging.mapAsync(GPUMapMode.READ)
   const copy = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
+
   return copy
 }
 
@@ -130,8 +132,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS)',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   // (1) SELF-CHECK, a small grid, GPU vs CPU, identical means the kernel is correct
@@ -162,6 +166,7 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
+
   const gpuOut = await readBack(
     device,
     field.bufs[src]!,
@@ -172,12 +177,14 @@ async function run(): Promise<void> {
   for (let b = 0; b < beats; b++) {
     cpu = cpuStep(cpu, sw, sh)
   }
+
   let mismatches = 0
   for (let i = 0; i < cpu.length; i++) {
     if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) {
       mismatches++
     }
   }
+
   const selfCheckOk = mismatches === 0
   console.log(
     `self-check ${sw}x${sh}, ${beats} beats: GPU vs CPU mismatches ${mismatches} -> ${selfCheckOk ? 'IDENTICAL' : 'FAIL'}`,
@@ -204,6 +211,7 @@ async function run(): Promise<void> {
     pass.end()
     device.queue.submit([enc.finish()])
   }
+
   await device.queue.onSubmittedWorkDone()
 
   const start = performance.now()
@@ -221,6 +229,7 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     bsrc = 1 - bsrc
   }
+
   await device.queue.onSubmittedWorkDone()
   const seconds = (performance.now() - start) / 1000
   const beatsPerSec = benchBeats / seconds

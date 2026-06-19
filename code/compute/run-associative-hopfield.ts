@@ -42,8 +42,10 @@ function cpuDenseRecall(
       for (let i = 0; i < n; i++) {
         s += patternsFlat[base + i]! * state[i]!
       }
+
       overlap[mu] = s
     }
+
     const next = new Int32Array(n)
     for (let i = 0; i < n; i++) {
       let field = 0
@@ -53,14 +55,18 @@ function cpuDenseRecall(
         for (let e = 1; e < power; e++) {
           w = Math.fround(w * o)
         }
+
         field = Math.fround(
           field + Math.fround(patternsFlat[mu * n + i]! * w),
         )
       }
+
       next[i] = field >= 0 ? 1 : -1
     }
+
     state = next
   }
+
   return state
 }
 
@@ -71,6 +77,7 @@ function agreement(a: Int32Array, b: Int32Array): number {
       same++
     }
   }
+
   return same / a.length
 }
 
@@ -100,8 +107,10 @@ async function gpuDenseRecall(input: {
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     })
     device.queue.writeBuffer(b, 0, data)
+
     return b
   }
+
   const params = device.createBuffer({
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -176,6 +185,7 @@ async function gpuDenseRecall(input: {
   await read.mapAsync(GPUMapMode.READ)
   const out = new Int32Array(read.getMappedRange().slice(0))
   read.unmap()
+
   return { state: out, ms: performance.now() - t0 }
 }
 
@@ -191,6 +201,7 @@ function buildPatterns(
       flat[mu * n + i] = list[mu]![i]!
     }
   }
+
   return { flat, list }
 }
 
@@ -205,6 +216,7 @@ function corrupt(
     const i = rng.nextInt({ max: pattern.length })
     cue[i] = -cue[i]!
   }
+
   return cue
 }
 
@@ -214,8 +226,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU). The GPU dense Hopfield is written and will run where an adapter is present.',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
   const overlapPipe = device.createComputePipeline({
     layout: 'auto',
@@ -304,6 +318,7 @@ async function run(): Promise<void> {
     )
     process.exit(1)
   }
+
   console.log(
     'OK, the GPU dense Hopfield recalls the prototype and agrees with the CPU reference (emergent-layer attractor recall)',
   )

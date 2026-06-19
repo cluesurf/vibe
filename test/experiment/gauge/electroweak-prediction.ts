@@ -20,6 +20,7 @@ export function electroweakPrediction(): {
   const count = generationFermionCount()
   const sin2 = weinbergAngleAtUnification()
   const isThreeEighths = Math.abs(sin2 - 3 / 8) < 1e-9
+
   return { sin2, count, isThreeEighths }
 }
 
@@ -34,6 +35,7 @@ export default experiment({
   run() {
     const r = electroweakPrediction()
     const ok = r.isThreeEighths && r.count === 16
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

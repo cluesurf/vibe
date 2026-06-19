@@ -62,6 +62,7 @@ function intervalAbundance(input: { poset: Poset }): {
         if (!take) {
           return
         }
+
         seen += 1
         const k = intervalSize(p, { a, b, past })
         if (k < BIN_COUNT) {
@@ -114,9 +115,11 @@ export function benincasaDowkerAction(input: {
       for (let k = 0; k < coefficients.length; k++) {
         combination -= (coefficients[k] ?? 0) * (bins[k] ?? 0)
       }
+
       // epsilon-smearing factor: sharp kernel = 1. Kept explicit so the dial
       // is a visible scalar in the returned action rather than hidden.
       const smearing = 1
+
       return smearing * combination
     },
   }
@@ -136,11 +139,13 @@ export function smearedKernel2D(input: {
   if (oneMinus <= 0) {
     return n === 0 ? 1 : 0
   }
+
   const base = Math.pow(oneMinus, n)
   const term =
     1 -
     (2 * e * n) / oneMinus +
     (e * e * n * (n - 1)) / (2 * oneMinus * oneMinus)
+
   return base * term
 }
 
@@ -159,11 +164,13 @@ function smearedKernel4D(input: {
   if (oneMinus <= 0) {
     return n === 0 ? 1 : 0
   }
+
   const r = e / oneMinus
   const c1 = n
   const c2 = (n * (n - 1)) / 2
   const c3 = (n * (n - 1) * (n - 2)) / 6
   const term = 1 - 9 * c1 * r + 16 * c2 * r * r - 8 * c3 * r * r * r
+
   return Math.pow(oneMinus, n) * term
 }
 
@@ -177,8 +184,10 @@ export function smearedBenincasaDowker(input: {
   if (input.dimension !== 2 && input.dimension !== 4) {
     return benincasaDowkerAction(input)
   }
+
   const kernel =
     input.dimension === 4 ? smearedKernel4D : smearedKernel2D
+
   return {
     form: 'action',
     name: `smeared-benincasa-dowker-${input.dimension}d-eps${input.epsilon}`,
@@ -200,15 +209,18 @@ export function smearedBenincasaDowker(input: {
             if (!take) {
               return
             }
+
             seen += 1
             const n = intervalSize(poset, { a, b, past })
             sum += kernel({ n, epsilon: input.epsilon })
           },
         })
       }
+
       if (seen > 0 && seen < relations) {
         sum *= relations / seen
       }
+
       return -poset.size / 2 + input.epsilon * sum
     },
   }
@@ -228,6 +240,7 @@ export function dimensionTargetAction(input: {
     value: ({ poset }) => {
       const d = myrheimMeyerDimension({ poset })
       const delta = d - input.target
+
       return delta * delta
     },
   }

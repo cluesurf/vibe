@@ -49,6 +49,7 @@ export default experiment({
       minGap = Math.min(minGap, lvl.accuracy - lvl.shuffledAccuracy)
       minAccuracy = Math.min(minAccuracy, lvl.accuracy)
     }
+
     const top = tower[tower.length - 1]!
 
     // every level beats its shuffled control by GAP_MIN and stays above chance, so all `levels` levels of the

@@ -37,6 +37,7 @@ function chainFuture(
       setBit(future, { row: a, col: b })
     }
   }
+
   return future
 }
 
@@ -96,6 +97,7 @@ export function wangLandauHeight(input: {
     if (i === j) {
       j = (j + 1) % n
     }
+
     const lo = Math.min(i, j)
     const hi = Math.max(i, j)
     const measuring = steps >= burnIn
@@ -123,6 +125,7 @@ export function wangLandauHeight(input: {
         }
       }
     }
+
     steps += 1
     // Pure 1/t Wang-Landau: the modification factor is 1/t throughout, large early
     // (builds the shape) and small late (refines it), which converges log g where
@@ -141,11 +144,14 @@ export function wangLandauHeight(input: {
           allSeen = false
           break
         }
+
         minHits = Math.min(minHits, hist[b] ?? 0)
       }
+
       covered = allSeen && minHits >= coverThreshold
     }
   }
+
   const converged = covered
 
   let maxLogG = -Infinity
@@ -154,6 +160,7 @@ export function wangLandauHeight(input: {
       maxLogG = Math.max(maxLogG, logG[b] ?? 0)
     }
   }
+
   const heights: number[] = []
   const outLogG: number[] = []
   const meanAction: number[] = []
@@ -165,6 +172,7 @@ export function wangLandauHeight(input: {
     outLogG.push(ok ? (logG[b] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (actSum[b] ?? 0) / (actN[b] ?? 1) : NaN)
   }
+
   return {
     size: n,
     heights,
@@ -201,6 +209,7 @@ export function windowedWangLandau(input: {
     if (hi >= input.maxHeight) {
       break
     }
+
     lo = hi - input.overlap + 1
   }
 
@@ -214,6 +223,7 @@ export function windowedWangLandau(input: {
     if (!win) {
       continue
     }
+
     const wl = wangLandauHeight({
       size: input.size,
       epsilon: input.epsilon,
@@ -233,6 +243,7 @@ export function windowedWangLandau(input: {
       if (!wl.visited[b]) {
         continue
       }
+
       const h = wl.heights[b] ?? 0
       const gi = h - minHeight
       if (wIdx > 0 && !Number.isNaN(globalLogG[gi] ?? NaN)) {
@@ -240,11 +251,13 @@ export function windowedWangLandau(input: {
         offsetN += 1
       }
     }
+
     const offset = offsetN > 0 ? offsetSum / offsetN : 0
     for (let b = 0; b < wl.heights.length; b++) {
       if (!wl.visited[b]) {
         continue
       }
+
       const h = wl.heights[b] ?? 0
       const gi = h - minHeight
       // First window to reach a height defines it (later windows only realign).
@@ -261,6 +274,7 @@ export function windowedWangLandau(input: {
       maxLogG = Math.max(maxLogG, globalLogG[gi] ?? -Infinity)
     }
   }
+
   const heights: number[] = []
   const outLogG: number[] = []
   const meanAction: number[] = []
@@ -272,6 +286,7 @@ export function windowedWangLandau(input: {
     outLogG.push(ok ? (globalLogG[gi] ?? 0) - maxLogG : -Infinity)
     meanAction.push(ok ? (globalAct[gi] ?? NaN) : NaN)
   }
+
   return {
     size: input.size,
     heights,
@@ -293,23 +308,28 @@ function logWeight(
     if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
       continue
     }
+
     max = Math.max(
       max,
       (wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0),
     )
   }
+
   if (max === -Infinity) {
     return -Infinity
   }
+
   let sum = 0
   for (let b = 0; b < wl.logG.length; b++) {
     if (!wl.visited[b] || (wl.heights[b] ?? 0) > sqrtN !== manifold) {
       continue
     }
+
     sum += Math.exp(
       (wl.logG[b] ?? -Infinity) - beta * (wl.meanAction[b] ?? 0) - max,
     )
   }
+
   return max + Math.log(sum)
 }
 
@@ -323,9 +343,11 @@ export function manifoldFractionAt(
   if (lm === -Infinity) {
     return 0
   }
+
   if (ll === -Infinity) {
     return 1
   }
+
   return 1 / (1 + Math.exp(ll - lm))
 }
 
@@ -343,9 +365,11 @@ export function crossingBeta(
   if (f(0) >= 0) {
     return 0
   }
+
   if (f(betaMax) < 0) {
     return null
   }
+
   let lo = 0
   let hi = betaMax
   for (let it = 0; it < 60; it++) {
@@ -356,5 +380,6 @@ export function crossingBeta(
       hi = mid
     }
   }
+
   return 0.5 * (lo + hi)
 }

@@ -20,6 +20,7 @@ export function connectedCorrelationByDistance(input: {
   for (let i = 0; i < size; i++) {
     mean += tone[i]!
   }
+
   mean /= size
   const sums = new Float64Array(maxRadius + 1)
   const counts = new Float64Array(maxRadius + 1)
@@ -40,10 +41,12 @@ export function connectedCorrelationByDistance(input: {
       }
     }
   }
+
   const c: number[] = []
   for (let r = 0; r <= maxRadius; r++) {
     c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
   }
+
   return c
 }
 
@@ -69,13 +72,16 @@ export function timeAveragedRingCorrelation(input: {
         sumCC[r]! += tone[x]! * tone[(x + r) % L]!
       }
     }
+
     relax()
   }
+
   const mean = sumC / (L * beats)
   const c: number[] = []
   for (let r = 0; r <= maxR; r++) {
     c.push(sumCC[r]! / (L * beats) - mean * mean)
   }
+
   return c
 }
 
@@ -99,6 +105,7 @@ export function correlationLengthFromDecay(input: {
     if (ac <= 1e-9) {
       continue
     }
+
     const y = Math.log(ac)
     sx += r
     sy += y
@@ -106,6 +113,8 @@ export function correlationLengthFromDecay(input: {
     sxy += r * y
     m++
   }
+
   const slope = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
+
   return slope < 0 ? -1 / slope : Infinity
 }

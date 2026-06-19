@@ -54,14 +54,17 @@ function evolve(input: { q1: number; q2: number; coupling: number }): {
     if (x1 < -domain) {
       x1 = -domain
     }
+
     if (x2 > domain) {
       x2 = domain
     }
+
     const sep = Math.abs(x2 - x1)
     if (sep > maxSeparation) {
       maxSeparation = sep
     }
   }
+
   return { maxSeparation, finalSeparation: Math.abs(x2 - x1) }
 }
 
@@ -85,6 +88,7 @@ export default experiment({
     const likeChargeSeparates = likeCharge.maxSeparation > 100
 
     const ok = confined && uncoupledEscapes && likeChargeSeparates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

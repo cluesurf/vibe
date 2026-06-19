@@ -86,6 +86,7 @@ export function selfMaintenance(input?: { n?: number }): {
         c++
       }
     }
+
     return c / chunkSet.size
   }
 
@@ -94,10 +95,12 @@ export function selfMaintenance(input?: { n?: number }): {
   for (const i of self) {
     base[i] = 1
   }
+
   const r1 = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) {
     beat(base, eu, ev, g.offsets, g.adj, moved, r1)
   }
+
   const baselineFrac = plusInChunk(base)
 
   // WITH surround: erase the inner chunk (holes), run the rule ALONE, the surround heals it
@@ -105,13 +108,16 @@ export function selfMaintenance(input?: { n?: number }): {
   for (const i of self) {
     dmg[i] = 1
   }
+
   for (const i of chunkSet) {
     dmg[i] = 0
   }
+
   const r2 = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) {
     beat(dmg, eu, ev, g.offsets, g.adj, moved, r2)
   }
+
   const withSurroundFrac = plusInChunk(dmg)
   const withSurroundRecovery =
     baselineFrac > 0 ? withSurroundFrac / baselineFrac : 0
@@ -121,13 +127,16 @@ export function selfMaintenance(input?: { n?: number }): {
   for (const i of chunkSet) {
     ctrl[i] = 1
   }
+
   for (const i of chunkSet) {
     ctrl[i] = 0
   } // erase the whole self
+
   const r3 = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) {
     beat(ctrl, eu, ev, g.offsets, g.adj, moved, r3)
   }
+
   const withoutSurroundRecovery =
     plusInChunk(ctrl) / (baselineFrac > 0 ? baselineFrac : 1)
 
@@ -161,6 +170,7 @@ export default experiment({
       r.emergentSelfHeals &&
       r.withSurroundRecovery > 0.5 &&
       r.withoutSurroundRecovery < 0.2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -15,6 +15,7 @@ export function isBoundaryCell(cell: number, side: number): boolean {
   const y = Math.floor(cell / side) % side
   const z = Math.floor(cell / (side * side)) % side
   const w = Math.floor(cell / (side * side * side)) % side
+
   return (
     x === 0 ||
     x === side - 1 ||

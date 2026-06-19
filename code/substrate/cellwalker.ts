@@ -35,6 +35,7 @@ export function rotate(
   const degree = source.degree(walker.cell)
   const delta = walker.mirror ? -turns : turns
   const spin = (((walker.spin + delta) % degree) + degree) % degree
+
   return { cell: walker.cell, spin, mirror: walker.mirror }
 }
 
@@ -45,6 +46,7 @@ export function wstep(
   walker: CellWalker,
 ): CellWalker {
   const next = source.step(walker.cell, walker.spin)
+
   return {
     cell: next.cell,
     spin: next.back,
@@ -88,5 +90,6 @@ export function vertexRing(
       break
     }
   }
+
   return ring
 }

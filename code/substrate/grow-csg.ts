@@ -39,6 +39,7 @@ export function growCsg(input: {
         setBit(future, { row: e, col: m })
       }
     }
+
     // Transitive closure: ensure every ancestor of a chosen parent is also an
     // ancestor of m. Walk existing elements; if e precedes m, pull in e's past.
     for (let e = 0; e < m; e++) {

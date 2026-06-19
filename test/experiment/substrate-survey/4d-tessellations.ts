@@ -145,6 +145,7 @@ export default experiment({
       n => n === 3 || n === 4 || n === 6,
     )
     const ok = reference.ok && reference.degree > 0 && crystallographic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

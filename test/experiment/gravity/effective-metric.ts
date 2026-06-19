@@ -27,6 +27,7 @@ function deflectionAngle(input: {
 }): number {
   const { impact, mass } = input
   const field = softenedMassIndexField({ mass })
+
   return rayDeflection({
     impact,
     index: field.index,
@@ -45,6 +46,7 @@ function effectiveCurvature(mass: number): {
     field: (x, y) => Math.log(field.index(x, y)),
     radius: 20,
   })
+
   return { peakR: profile.peakRadius, total: profile.total }
 }
 
@@ -124,6 +126,7 @@ export default experiment({
       r.scalesWithMass &&
       r.decreasesWithImpact &&
       r.curvaturePeakAtMass
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

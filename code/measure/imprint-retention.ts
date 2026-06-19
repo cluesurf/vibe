@@ -42,6 +42,7 @@ export function imprintRetention(input: {
       temperature: 0.02,
     })
   }
+
   const blob = csrBallNodes({
     offsets: g.offsets,
     adj: g.adj,
@@ -52,6 +53,7 @@ export function imprintRetention(input: {
   for (const i of blob) {
     tone[i] = 1
   }
+
   const meanBlob = (): number =>
     blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
   const start = meanBlob()
@@ -70,11 +72,14 @@ export function imprintRetention(input: {
       temperature: 0.02,
     })
   }
+
   const after = meanBlob()
   let bg = 0
   for (let i = 0; i < n; i++) {
     bg += tone[i]!
   }
+
   bg /= n
+
   return (after - bg) / (start - bg || 1)
 }

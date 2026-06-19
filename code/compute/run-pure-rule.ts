@@ -61,6 +61,7 @@ const charge = (t: Uint32Array): number => {
   for (let i = 0; i < t.length; i++) {
     s += t[i] === 1 ? 1 : t[i] === 2 ? -1 : 0
   }
+
   return s
 }
 
@@ -68,8 +69,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   const g = buildDodecagrid({ maxCells: BUILD_CELLS })
@@ -86,6 +89,7 @@ async function run(): Promise<void> {
       }
     }
   }
+
   const E = eu.length
   console.log(
     `built {5,3,4}, ${N.toLocaleString()} cells, ${E.toLocaleString()} edges`,
@@ -101,6 +105,7 @@ async function run(): Promise<void> {
     while (used & (1 << c)) {
       c++
     }
+
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
@@ -108,16 +113,19 @@ async function run(): Promise<void> {
       maxColor = c
     }
   }
+
   const C = maxColor + 1
   // sort edges by colour, build offsets
   const counts = new Array(C).fill(0)
   for (let i = 0; i < E; i++) {
     counts[color[i]!]++
   }
+
   const colorOffsets = new Array(C + 1).fill(0)
   for (let c = 0; c < C; c++) {
     colorOffsets[c + 1] = colorOffsets[c]! + counts[c]!
   }
+
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
   const cursor = colorOffsets.slice()
@@ -127,6 +135,7 @@ async function run(): Promise<void> {
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
+
   console.log(
     `edge-colouring: ${C} colours (matchings), ${C} passes per beat`,
   )
@@ -139,6 +148,7 @@ async function run(): Promise<void> {
     const x = nextR()
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
+
   const startCharge = charge(seed)
 
   // GPU buffers
@@ -187,6 +197,7 @@ async function run(): Promise<void> {
       if (count === 0) {
         continue
       }
+
       device.queue.writeBuffer(
         params,
         0,
@@ -206,6 +217,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < CHECK_BEATS; b++) {
     beatGpu()
   }
+
   const staging = device.createBuffer({
     size: N * 4,
     usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
@@ -215,6 +227,7 @@ async function run(): Promise<void> {
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
     device.queue.submit([enc.finish()])
   }
+
   await staging.mapAsync(GPUMapMode.READ)
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
@@ -222,12 +235,14 @@ async function run(): Promise<void> {
   for (let b = 0; b < CHECK_BEATS; b++) {
     cpuBeat(cpu, edgeV, edgeW, colorOffsets)
   }
+
   let mism = 0
   for (let i = 0; i < N; i++) {
     if (cpu[i] !== gpuOut[i]) {
       mism++
     }
   }
+
   console.log(
     `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mism} -> ${mism === 0 ? 'IDENTICAL' : 'FAIL'}`,
   )
@@ -243,6 +258,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < BENCH_BEATS; b++) {
     beatGpu()
   }
+
   await device.queue.onSubmittedWorkDone()
   const secs = (performance.now() - t0) / 1000
   console.log(
@@ -260,12 +276,14 @@ async function run(): Promise<void> {
   for (let b = 0; b < 3000; b++) {
     beatGpu()
   }
+
   await device.queue.onSubmittedWorkDone()
   {
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
     device.queue.submit([enc.finish()])
   }
+
   await staging.mapAsync(GPUMapMode.READ)
   const fin = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
@@ -273,6 +291,7 @@ async function run(): Promise<void> {
   for (let i = 0; i < N; i++) {
     sign[i] = fin[i] === 1 ? 1 : fin[i] === 2 ? -1 : 0
   }
+
   const largestSameSign = (
     s: Int8Array,
   ): { largest: number; charged: number } => {
@@ -280,17 +299,21 @@ async function run(): Promise<void> {
     for (let i = 0; i < N; i++) {
       par[i] = i
     }
+
     const find = (x: number): number => {
       while (par[x] !== x) {
         par[x] = par[par[x]!]!
         x = par[x]!
       }
+
       return x
     }
+
     for (let v = 0; v < N; v++) {
       if (s[v] === 0) {
         continue
       }
+
       for (let p = g.offsets[v]!; p < g.offsets[v + 1]!; p++) {
         const w = g.adj[p]!
         if (w > v && s[w] === s[v]) {
@@ -298,22 +321,27 @@ async function run(): Promise<void> {
         }
       }
     }
+
     const sz = new Map<number, number>()
     let charged = 0
     for (let i = 0; i < N; i++) {
       if (s[i] === 0) {
         continue
       }
+
       charged++
       const r = find(i)
       sz.set(r, (sz.get(r) ?? 0) + 1)
     }
+
     let m = 0
     for (const v of sz.values()) {
       m = Math.max(m, v)
     }
+
     return { largest: m, charged }
   }
+
   const l0 = largestSameSign(sign)
   console.log(
     `L0 structure (descriptive): ${l0.charged.toLocaleString()} charged cells (${((100 * l0.charged) / N).toFixed(0)}%), largest same-sign blob ${l0.largest} cells (small = churn, no persistent selves, as P101)`,

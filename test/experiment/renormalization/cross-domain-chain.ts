@@ -86,6 +86,7 @@ export function crossDomainChain(): {
   }
 
   const solved = rung1.commutes && rung2.commutes
+
   return {
     rung1,
     rung2,
@@ -106,6 +107,7 @@ export default experiment({
   run() {
     const r = crossDomainChain()
     const ok = r.solved && r.rung1.commutes && r.rung2.commutes
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

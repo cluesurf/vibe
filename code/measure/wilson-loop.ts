@@ -20,12 +20,14 @@ export function wilsonLoopPhase(input: {
   if (length < 2) {
     return 0
   }
+
   let phase = 0
   for (let i = 0; i < length; i++) {
     const from = loop[i] ?? 0
     const to = loop[(i + 1) % length] ?? 0
     phase += linkPhase(input.field, { from, to })
   }
+
   return phase
 }
 
@@ -52,6 +54,7 @@ export function creutzRatioFromLoops(input: {
 }): number {
   const numerator = input.loop22 * input.loop11
   const denominator = input.loop21 * input.loop12
+
   return numerator > 0 && denominator > 0
     ? -Math.log(numerator / denominator)
     : 0
@@ -68,9 +71,11 @@ export function staticPotentialProxy(input: {
   if (loops.length === 0) {
     return 0
   }
+
   let total = 0
   for (const loop of loops) {
     total += 1 - wilsonLoopValue({ field: input.field, loop })
   }
+
   return total / loops.length
 }

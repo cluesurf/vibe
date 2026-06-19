@@ -16,6 +16,7 @@ export function innermostCell(radii: ReadonlyArray<number>): number {
       node = i
     }
   }
+
   return node
 }
 
@@ -33,6 +34,7 @@ export function boundaryByRadius(input: {
       out.push(i)
     }
   }
+
   return out
 }
 
@@ -60,8 +62,10 @@ export function surfaceDistances(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return dist
 }
 
@@ -98,8 +102,10 @@ export function radialBfsTree(input: {
         }
       }
     }
+
     frontier = next
   }
+
   const maxDepth = Math.max(...depth)
   const lcaDepth = (a: number, b: number): number => {
     let x = a
@@ -107,14 +113,18 @@ export function radialBfsTree(input: {
     while (depth[x]! > depth[y]!) {
       x = parent[x]!
     }
+
     while (depth[y]! > depth[x]!) {
       y = parent[y]!
     }
+
     while (x !== y) {
       x = parent[x]!
       y = parent[y]!
     }
+
     return depth[x]!
   }
+
   return { root, depth, parent, maxDepth, lcaDepth }
 }

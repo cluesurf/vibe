@@ -58,6 +58,7 @@ export default experiment({
       Math.abs(predictedWrongCharge - measured) > 0.02 // the altered charge misses
 
     const ok = bareIsThreeEighths && mssmMatches && controlIsWrong
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

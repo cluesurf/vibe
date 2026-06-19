@@ -37,6 +37,7 @@ function emergentSlope(w: number): number {
   const i2 = Math.floor(traj.t.length * 0.9)
   const lx = Math.log((traj.t[i2] ?? 1) / (traj.t[i1] ?? 1))
   const ly = Math.log((traj.a[i2] ?? 1) / (traj.a[i1] ?? 1))
+
   return ly / lx
 }
 
@@ -62,6 +63,7 @@ function accelerationResidual(dt: number): number {
       maxRel = Math.max(maxRel, Math.abs(lhs - rhs) / Math.abs(rhs))
     }
   }
+
   return maxRel
 }
 
@@ -138,6 +140,7 @@ export default experiment({
       r.powerLawsEmergent &&
       r.convergesAsIntegration &&
       r.transitionHappens
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

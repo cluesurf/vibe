@@ -36,6 +36,7 @@ export function gravitonFromAction(input: { k: number[] }): {
       gravitonModes += 1
     }
   }
+
   const xi = [0.7, -0.3, 0.5]
   const hGauge: number[][] = [
     [0, 0, 0],
@@ -48,6 +49,7 @@ export function gravitonFromAction(input: { k: number[] }): {
         (k[i] ?? 0) * (xi[j] ?? 0) + (k[j] ?? 0) * (xi[i] ?? 0)
     }
   }
+
   const g = einsteinOp(hGauge, k)
   let gn = 0
   let hn = 0
@@ -57,6 +59,7 @@ export function gravitonFromAction(input: { k: number[] }): {
       hn += (hGauge[i]?.[j] ?? 0) ** 2
     }
   }
+
   return {
     k2,
     eigenvalues,

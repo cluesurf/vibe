@@ -18,17 +18,20 @@ export function transpose(matrix: Matrix): Matrix {
   if (matrix.length === 0) {
     return []
   }
+
   return matrix[0]!.map((_, column) => matrix.map(row => row[column]!))
 }
 
 export function multiply(left: Matrix, right: Matrix): Matrix {
   const inner = right.length
+
   return left.map(row =>
     (right[0] ?? []).map((_, column) => {
       let sum = 0
       for (let index = 0; index < inner; index++) {
         sum += (row[index] ?? 0) * (right[index]![column] ?? 0)
       }
+
       return sum
     }),
   )
@@ -55,6 +58,7 @@ export function kahlerDirac(complex: CellComplex): Matrix {
     offset.push(running)
     running += count
   }
+
   const operator: Matrix = Array.from({ length: total }, () =>
     new Array(total).fill(0),
   )
@@ -66,6 +70,7 @@ export function kahlerDirac(complex: CellComplex): Matrix {
         if (value === 0) {
           continue
         }
+
         // d: grade -> grade+1 (lower-left block), delta = d transpose (upper-right)
         const lowerRow = offset[grade + 1]! + row
         const upperColumn = offset[grade]! + column
@@ -76,6 +81,7 @@ export function kahlerDirac(complex: CellComplex): Matrix {
       }
     }
   }
+
   return operator
 }
 
@@ -89,8 +95,10 @@ export function polygonComplex(sides: number): CellComplex {
     edgesToVertices[edge]![edge] = -1
     edgesToVertices[(edge + 1) % sides]![edge] = 1
   }
+
   // boundary[1]: the face -> edges (n by 1). the face boundary is the oriented cycle of all edges.
   const faceToEdges: Matrix = Array.from({ length: sides }, () => [1])
+
   return {
     dimensions: [sides, sides, 1],
     boundary: [edgesToVertices, faceToEdges],
@@ -112,5 +120,6 @@ export function boundaryOfBoundaryIsZero(
       return false
     }
   }
+
   return true
 }

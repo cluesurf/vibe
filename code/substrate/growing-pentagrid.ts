@@ -17,6 +17,7 @@ export class GrowingPentagrid {
     [
       { id: 0, children: [true, true, true, true, true], cursor: 0 }, // root seeds 5 white children
     ]
+
   private head = 0
 
   // Children a cell spawns, by type: white -> (white, black, white), black -> (white, black).
@@ -36,10 +37,12 @@ export class GrowingPentagrid {
       if (task === undefined) {
         return // frontier exhausted (only happens if count exceeds an unstarted root)
       }
+
       if (task.cursor >= task.children.length) {
         this.head += 1 // this cell is fully expanded, advance the frontier
         continue
       }
+
       const childWhite = task.children[task.cursor] ?? true
       task.cursor += 1
       const id = this.parent.length

@@ -107,6 +107,7 @@ export default experiment({
       pairTravel <= 2 && //           pairCollision pins
       pairVacuum > 100 && //          pairCollision has the create binding engine, active vacuum
       bindVacuum > 100 //             bindAndMove keeps the binding engine, so its vacuum is active too
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

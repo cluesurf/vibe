@@ -78,6 +78,7 @@ export function surrogateTower(input: {
       speedup: baseCost / surrogateCost,
     })
   }
+
   return out
 }
 
@@ -99,5 +100,6 @@ export function towerAccuracyAtLag(input: {
     stateCount: bins,
     lag,
   })
+
   return forwardAccuracy({ tpm: surrogate, test, lag })
 }

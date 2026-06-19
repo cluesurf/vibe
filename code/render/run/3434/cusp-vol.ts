@@ -32,8 +32,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
   const N = L * L * L
   const idx = (x: number, y: number, z: number): number =>
@@ -55,9 +57,11 @@ async function run(): Promise<void> {
       }
     }
   }
+
   for (let i = 0; i < N; i++) {
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
   }
+
   const adj = new Int32Array(offsets[N]!)
   {
     let p = 0
@@ -67,18 +71,23 @@ async function run(): Promise<void> {
           if (x > 0) {
             adj[p++] = idx(x - 1, y, z)
           }
+
           if (x < L - 1) {
             adj[p++] = idx(x + 1, y, z)
           }
+
           if (y > 0) {
             adj[p++] = idx(x, y - 1, z)
           }
+
           if (y < L - 1) {
             adj[p++] = idx(x, y + 1, z)
           }
+
           if (z > 0) {
             adj[p++] = idx(x, y, z - 1)
           }
+
           if (z < L - 1) {
             adj[p++] = idx(x, y, z + 1)
           }
@@ -86,6 +95,7 @@ async function run(): Promise<void> {
       }
     }
   }
+
   console.log(
     `{3,4,3,4} cusp = {4,3,4} cubic, ${N.toLocaleString()} cells (${L}^3), volume render`,
   )
@@ -102,6 +112,7 @@ async function run(): Promise<void> {
         if (x * x + y * y + z * z > B * B) {
           continue
         }
+
         seed[idx(c + x, c + y, c + z)] = pack({
           current: Math.floor(rnd() * 3),
           previous: Math.floor(rnd() * 3),
@@ -189,6 +200,7 @@ async function run(): Promise<void> {
       }
     }
   }
+
   // back-to-front order (smallest rotated-z first, so nearer cells composite on top)
   const order = Array.from({ length: N }, (_, i) => i).sort(
     (a, b) => z2arr[a]! - z2arr[b]!,
@@ -216,6 +228,7 @@ async function run(): Promise<void> {
       enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
       device.queue.submit([enc.finish()])
     }
+
     await staging.mapAsync(GPUMapMode.READ)
     const field = new Uint32Array(staging.getMappedRange().slice(0))
     staging.unmap()
@@ -232,6 +245,7 @@ async function run(): Promise<void> {
       if (t === 0) {
         continue
       }
+
       const col = t === 1 ? BLUE : RED
       const d = DEPTH[cell]!
       const cxp = PX[cell]!
@@ -243,6 +257,7 @@ async function run(): Promise<void> {
           if (ix < 0 || ix >= IMG || iy < 0 || iy >= IMG) {
             continue
           }
+
           const pix = iy * IMG + ix
           accR[pix] = accR[pix]! * (1 - ALPHA) + col[0] * d * ALPHA
           accG[pix] = accG[pix]! * (1 - ALPHA) + col[1] * d * ALPHA
@@ -250,6 +265,7 @@ async function run(): Promise<void> {
         }
       }
     }
+
     const rgba = new Uint8Array(IMG * IMG * 4)
     for (let i = 0; i < IMG * IMG; i++) {
       rgba[i * 4] = Math.min(255, 8 + accR[i]!)
@@ -257,6 +273,7 @@ async function run(): Promise<void> {
       rgba[i * 4 + 2] = Math.min(255, 9 + accB[i]!)
       rgba[i * 4 + 3] = 255
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     // advance one beat on the GPU
@@ -269,6 +286,7 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
+
   console.log(
     `wrote ${FRAMES} frames of the {3,4,3,4} flat 3D cusp (volume render), assemble with task/render-video.sh`,
   )

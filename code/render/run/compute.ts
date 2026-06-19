@@ -78,6 +78,7 @@ function run(): void {
               ]!
       sceneFaces.push({ polygon: faces.polygons[cell]!, color })
     }
+
     const scene: Scene = {
       dim: 2,
       symbol: symbol.slice(),
@@ -128,10 +129,12 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       if (seen.has(key)) {
         continue
       }
+
       seen.add(key)
       edges.push({ a, b })
     }
   }
+
   return edges
 }
 

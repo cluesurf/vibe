@@ -34,6 +34,7 @@ function dispersionSquared(input: {
   ty: number
 }): number {
   const { kx, ky, m, tx, ty } = input
+
   return (
     m * m +
     2 * tx * tx * (1 + Math.cos(kx)) +
@@ -68,9 +69,11 @@ function fitMassShell(input: {
     sxx += (xs[i]! - meanX) ** 2
     syy += (ys[i]! - meanY) ** 2
   }
+
   const slope = sxy / sxx
   const intercept = meanY - slope * meanX
   const r2 = (sxy * sxy) / (sxx * syy)
+
   return { speedSquared: slope, massSquared: intercept, r2 }
 }
 

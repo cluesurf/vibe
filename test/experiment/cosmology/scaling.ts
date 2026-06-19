@@ -36,6 +36,7 @@ function gapAtSize(n: number): number {
       rng: makeRng({ seed: 1 }),
     }).future,
   })
+
   return warm.manifoldFraction - cold.manifoldFraction
 }
 
@@ -52,6 +53,7 @@ export default experiment({
     const gap96 = gapAtSize(96)
     const gapHolds = gap48 > 0.5 && gap96 > 0.5
     const ok = gapHolds
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

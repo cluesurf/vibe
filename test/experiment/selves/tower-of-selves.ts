@@ -56,6 +56,7 @@ function hierarchicalMesh(input: {
       adj[v]?.set(u, 1)
     }
   }
+
   const unitAtLevel = (v: number, level: number): number =>
     Math.floor(v / (cellSize * b ** level))
   // edges per vibe at each common-ancestor level, decaying with level
@@ -70,11 +71,13 @@ function hierarchicalMesh(input: {
       }
     }
   }
+
   const neighbors = adj.map(m => [...m.keys()])
   const fills = adj.map(m => Int8Array.from(m.values()))
   const g = makeGraph({ size: n, directed: false, neighbors })
   const countAtLevel = (level: number): number =>
     Math.max(1, Math.round(n / (cellSize * b ** level)))
+
   return { g, fills, unitAtLevel, countAtLevel }
 }
 
@@ -116,17 +119,21 @@ export function towerOfSelves(input: { seed: number }): {
     if (level === depth) {
       return topTone
     }
+
     const key = `${level},${id}`
     const cached = unitTone.get(key)
     if (cached !== undefined) {
       return cached
     }
+
     const parent = toneOfUnit(level + 1, Math.floor(id / b))
     const flip = ir.next() < 0.18 + 0.04 * level
     const t = flip ? -parent : parent
     unitTone.set(key, t)
+
     return t
   }
+
   for (let v = 0; v < g.size; v++) {
     tone[v] = toneOfUnit(0, unitAtLevel(v, 0)) as -1 | 0 | 1
   }
@@ -148,6 +155,7 @@ export function towerOfSelves(input: { seed: number }): {
     for (let v = 0; v < g.size; v++) {
       cl[v] = unitAtLevel(v, level)
     }
+
     // coherence: average internal alignment of each unit
     const sum = new Float64Array(K)
     const cnt = new Float64Array(K)
@@ -155,10 +163,12 @@ export function towerOfSelves(input: { seed: number }): {
       sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
       cnt[cl[v] ?? 0] = (cnt[cl[v] ?? 0] ?? 0) + 1
     }
+
     let coh = 0
     for (let c = 0; c < K; c++) {
       coh += Math.abs(sum[c] ?? 0) / Math.max(1, cnt[c] ?? 1)
     }
+
     coh /= K
     // rule agreement: is this level's aggregate a fixed point of the renormalized rule?
     let ruleAgreement = 1
@@ -170,6 +180,7 @@ export function towerOfSelves(input: { seed: number }): {
         renormMacroStep(superTone, eff),
       )
     }
+
     rungs.push({
       level,
       name: names[level] ?? `level ${level}`,
@@ -188,6 +199,7 @@ export function towerOfSelves(input: { seed: number }): {
       cleanBranching = false
     }
   }
+
   const ruleHoldsEveryLevel = rungs
     .filter(r => r.units >= 3 && r.level < depth)
     .every(r => r.ruleAgreement > 0.85)
@@ -220,6 +232,7 @@ export default experiment({
       r.descendsToOne &&
       r.cleanBranching &&
       r.ruleHoldsEveryLevel
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -50,14 +50,18 @@ function perturbAndWatch(input: {
         }
       }
     }
+
     if (count > peak) {
       peak = count
     }
+
     if (maxR > radius) {
       radius = maxR
     }
+
     final = count
   }
+
   return { peak, final, radius }
 }
 
@@ -121,6 +125,7 @@ export default experiment({
       selfContainment > 0.7 &&
       mediumContainment > 0.7 &&
       Math.abs(selfContainment - mediumContainment) < 0.15
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -40,10 +40,12 @@ function classify(g: {
       root = i
     }
   }
+
   const shellCounts = bfsShells({
     neighbors: g.neighbors,
     root,
   }).shellCounts
+
   return shellGrowthCurvature({ shellCounts })
 }
 

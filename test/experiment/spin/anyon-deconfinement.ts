@@ -53,6 +53,7 @@ export default experiment({
     // sizes, to show it is size-independent (a topological invariant)
     const torusDegeneracies = [3, 6, 10].map(side => {
       const cells = squareLatticeCellCounts({ side, genus: 1 })
+
       return toricCodeGroundStateDegeneracy({
         toneStates: TONE_STATES,
         ...cells,

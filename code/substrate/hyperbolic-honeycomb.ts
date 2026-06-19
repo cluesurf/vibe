@@ -27,6 +27,7 @@ function dodecahedron(): { verts: V3[]; faces: number[][] } {
       }
     }
   }
+
   for (const a of [-ip, ip]) {
     for (const b of [-phi, phi]) {
       verts.push({ x: 0, y: a, z: b })
@@ -34,6 +35,7 @@ function dodecahedron(): { verts: V3[]; faces: number[][] } {
       verts.push({ x: b, y: 0, z: a })
     }
   }
+
   const dirs: V3[] = []
   for (const a of [-1, 1]) {
     for (const b of [-phi, phi]) {
@@ -42,12 +44,15 @@ function dodecahedron(): { verts: V3[]; faces: number[][] } {
       dirs.push({ x: b, y: 0, z: a })
     }
   }
+
   const faces = dirs.map(d => {
     const scored = verts
       .map((v, i) => [i, v.x * d.x + v.y * d.y + v.z * d.z] as const)
       .sort((p, q) => q[1] - p[1])
+
     return scored.slice(0, 5).map(s => s[0])
   })
+
   return { verts, faces }
 }
 
@@ -70,11 +75,13 @@ function faceSphere(p: V3[]): { c: V3; r2: number } | null {
   if (Math.abs(det) < 1e-12) {
     return null
   }
+
   const solve = (col: number): number => {
     const mm = m.map(row => [...row])
     for (let i = 0; i < 3; i++) {
       mm[i]![col] = b[i] ?? 0
     }
+
     const d =
       (mm[0]![0] ?? 0) *
         ((mm[1]![1] ?? 0) * (mm[2]![2] ?? 0) -
@@ -85,9 +92,12 @@ function faceSphere(p: V3[]): { c: V3; r2: number } | null {
       (mm[0]![2] ?? 0) *
         ((mm[1]![0] ?? 0) * (mm[2]![1] ?? 0) -
           (mm[1]![1] ?? 0) * (mm[2]![0] ?? 0))
+
     return d / det
   }
+
   const c = { x: solve(0), y: solve(1), z: solve(2) }
+
   return { c, r2: c.x * c.x + c.y * c.y + c.z * c.z - 1 }
 }
 
@@ -96,6 +106,7 @@ function invert(z: V3, c: V3, r2: number): V3 {
   const dy = z.y - c.y
   const dz = z.z - c.z
   const s = r2 / (dx * dx + dy * dy + dz * dz)
+
   return { x: c.x + s * dx, y: c.y + s * dy, z: c.z + s * dz }
 }
 
@@ -110,6 +121,7 @@ function dihedral(
   const dz = s1.c.z - s2.c.z
   const d2 = dx * dx + dy * dy + dz * dz
   const cos = (s1.r2 + s2.r2 - d2) / (2 * Math.sqrt(s1.r2 * s2.r2))
+
   return Math.acos(Math.max(-1, Math.min(1, cos)))
 }
 
@@ -128,6 +140,7 @@ function cellAt(
   const spheres = base.faces.map(f =>
     faceSphere([verts[f[0]!]!, verts[f[1]!]!, verts[f[2]!]!]),
   )
+
   return { verts, spheres }
 }
 
@@ -148,6 +161,7 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
       }
     }
   }
+
   const dihedralAt = (r0: number): number => {
     const cell = cellAt(r0, base)
     const s1 = cell.spheres[fa]
@@ -155,8 +169,10 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
     if (!s1 || !s2) {
       return Math.PI
     }
+
     return dihedral(s1, s2)
   }
+
   // Dihedral increases with r0. Binary search for 90 degrees (four cells per edge).
   let lo = 0.05
   let hi = 0.95
@@ -168,6 +184,7 @@ function solveRadius(base: { verts: V3[]; faces: number[][] }): number {
       hi = mid
     }
   }
+
   return (lo + hi) / 2
 }
 
@@ -195,6 +212,7 @@ export function hyperbolicDodecagrid(input: {
       vz.push(v.z)
     }
   }
+
   central.verts.forEach(addV)
 
   const cellKey = (verts: V3[]): string => {
@@ -206,12 +224,14 @@ export function hyperbolicDodecagrid(input: {
       cy += v.y
       cz += v.z
     }
+
     return key({
       x: cx / verts.length,
       y: cy / verts.length,
       z: cz / verts.length,
     })
   }
+
   const seen = new Set<string>([cellKey(central.verts)])
   const cap = input.maxVertices ?? 4000
 
@@ -222,6 +242,7 @@ export function hyperbolicDodecagrid(input: {
       if (vx.length >= cap) {
         break
       }
+
       // Recompute this cell's face-spheres from its own vertices.
       for (const face of base.faces) {
         const sph = faceSphere([
@@ -232,6 +253,7 @@ export function hyperbolicDodecagrid(input: {
         if (!sph) {
           continue
         }
+
         const reflected = cellVerts.map(v => invert(v, sph.c, sph.r2))
         const ck = cellKey(reflected)
         if (!seen.has(ck)) {
@@ -241,6 +263,7 @@ export function hyperbolicDodecagrid(input: {
         }
       }
     }
+
     frontier = next
   }
 
@@ -253,6 +276,7 @@ export function hyperbolicDodecagrid(input: {
     coords[i * dimension + 1] = vy[i] ?? 0
     coords[i * dimension + 2] = vz[i] ?? 0
   }
+
   // Connect by HYPERBOLIC distance (uniform connectivity, not biased by the boundary
   // compression of the disc): cosh(d) = 1 + 2|u-v|^2 / ((1-|u|^2)(1-|v|^2)).
   const neighbors: number[][] = Array.from({ length: n }, () => [])
@@ -264,6 +288,7 @@ export function hyperbolicDodecagrid(input: {
       1 - ((vx[i] ?? 0) ** 2 + (vy[i] ?? 0) ** 2 + (vz[i] ?? 0) ** 2),
     )
   }
+
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       const dx = (vx[i] ?? 0) - (vx[j] ?? 0)
@@ -280,6 +305,7 @@ export function hyperbolicDodecagrid(input: {
       }
     }
   }
+
   const manifold: ManifoldSpec = {
     form: 'hyperbolic',
     dimension: 3,
@@ -292,5 +318,6 @@ export function hyperbolicDodecagrid(input: {
     coords,
     manifold,
   }
+
   return makeGraph({ size: n, directed: false, neighbors, embedding })
 }

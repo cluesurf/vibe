@@ -37,6 +37,7 @@ function autonomousRepair(
     if (tone[c] === 1) {
       continue
     }
+
     const plus = sameSignNeighbors(tone, g, c, 1)
     const minus = sameSignNeighbors(tone, g, c, -1)
     if (plus >= threshold && plus > minus) {
@@ -45,6 +46,7 @@ function autonomousRepair(
       work++
     }
   }
+
   // dump the exact balancing -1 into quiet empty cells (few +neighbors), a conserving local creation
   let need = netAdded
   let guard = 0
@@ -56,6 +58,7 @@ function autonomousRepair(
       need--
     }
   }
+
   return work
 }
 
@@ -90,14 +93,17 @@ export function autonomousSelf(input?: { n?: number }): {
       if (maintaining) {
         work += autonomousRepair(t2, g, rng2, 4)
       }
+
       beat(t2, g, moved, rng2, 0, 0.22)
     }
+
     return {
       fidelity: countPlus(t2, cluster) / cluster.length,
       work: work / beats,
       q: totalCharge(t2) - q0,
     }
   }
+
   const maintained = run(true)
   const unmaintained = run(false)
   const maintainedFidelity = maintained.fidelity
@@ -137,6 +143,7 @@ export default experiment({
       r.maintenanceHoldsSelf &&
       r.usesOnlyLocalInfo &&
       r.conserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

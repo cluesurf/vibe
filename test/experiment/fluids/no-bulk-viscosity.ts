@@ -36,6 +36,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const collision = headOnRotate({ opposite })
     const beats = 40
 
@@ -56,12 +57,14 @@ export default experiment({
         open: false,
         ...shear,
       })
+
       return Math.max(
         ...series
           .slice(Math.floor((3 * beats) / 4))
           .map(a => Math.abs(a)),
       )
     }
+
     // the open run final amplitude (boundary loss), for contrast
     const openFinal = (wavelength: number): number => {
       const shear = {
@@ -79,6 +82,7 @@ export default experiment({
         open: true,
         ...shear,
       })
+
       return Math.abs(series[series.length - 1]!)
     }
 

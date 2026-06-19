@@ -33,15 +33,18 @@ const rows = allExperiments()
     if (byDepth !== 0) {
       return byDepth
     }
+
     const byId = left.id.localeCompare(right.id)
     if (byId !== 0) {
       return byId
     }
+
     return substratesOf(left).localeCompare(substratesOf(right))
   })
   .map(experiment => {
     const substrates = substratesOf(experiment)
     const title = experiment.title.replace(/"/g, '""')
+
     return `${experiment.id},${experiment.category},${experiment.depth},${experiment.paper},${substrates},"${title}"`
   })
 

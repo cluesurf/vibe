@@ -72,6 +72,7 @@ export default experiment({
           break
         }
       }
+
       return will
     }
 
@@ -95,27 +96,33 @@ export default experiment({
           clean = cleanScratch
           cleanScratch = swap
         }
+
         beatInto({ src: hit, dst: hitScratch, table, collision: rule })
         {
           const swap = hit
           hit = hitScratch
           hitScratch = swap
         }
+
         if (open) {
           absorbBoundary(clean)
           absorbBoundary(hit)
         }
+
         let diff = 0
         for (let i = 0; i < clean.data.length; i++) {
           if (clean.data[i] !== hit.data[i]) {
             diff++
           }
         }
+
         if (diff > peak) {
           peak = diff
         }
+
         final = diff
       }
+
       return { peak, final }
     }
 
@@ -128,8 +135,10 @@ export default experiment({
       for (let c = 0; c < mesh.cellCount; c++) {
         s += Math.abs(will.data[c * degree + d]!)
       }
+
       return s
     }
+
     let hit = bodyHitGlider()
     let hitScratch = scratchOf(hit)
     const startDir0 = dirCharge(hit, dir)
@@ -140,6 +149,7 @@ export default experiment({
       hitScratch = swap
       absorbBoundary(hit)
     }
+
     const endDir0 = dirCharge(hit, dir)
 
     // the honest negative, on the closed torus the body NEVER heals (final difference stays at peak), so there is

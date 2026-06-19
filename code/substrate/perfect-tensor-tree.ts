@@ -19,6 +19,7 @@ export function perfectTensorRecoverable(input: {
   if (level === 0) {
     return !erased.has(offset)
   }
+
   const childSize = branching ** (level - 1)
   let alive = 0
   for (let child = 0; child < branching; child++) {
@@ -34,6 +35,7 @@ export function perfectTensorRecoverable(input: {
       alive++
     }
   }
+
   return alive >= threshold
 }
 
@@ -50,6 +52,7 @@ export function perfectTensorMinimalKillSet(input: {
   if (level === 0) {
     return [offset]
   }
+
   const childSize = branching ** (level - 1)
   const out: number[] = []
   for (let child = 0; child < threshold; child++) {
@@ -62,6 +65,7 @@ export function perfectTensorMinimalKillSet(input: {
       }),
     )
   }
+
   return out
 }
 
@@ -81,6 +85,7 @@ export function perfectTensorContiguousThreshold(input: {
       for (let i = start; i < start + size; i++) {
         erased.add(i)
       }
+
       if (
         !perfectTensorRecoverable({
           level,
@@ -94,9 +99,11 @@ export function perfectTensorContiguousThreshold(input: {
         break
       }
     }
+
     if (!allRecover) {
       return size - 1
     }
   }
+
   return leaves
 }

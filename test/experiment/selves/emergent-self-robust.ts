@@ -65,9 +65,11 @@ export function emergentSelfRobust(input?: { n?: number }): {
     const r = rng.next()
     tone[i] = (r < 0.1 ? 1 : r < 0.13 ? -1 : 0) as -1 | 0 | 1
   }
+
   for (let t = 0; t < 70; t++) {
     beat(tone, g, moved, rng, 0.01, 0.22)
   }
+
   const cluster = largestPositiveCluster(tone, g)
   const emergentCluster = cluster.length
   const shuf = tone.slice()
@@ -77,6 +79,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
     shuf[i] = shuf[j]!
     shuf[j] = tmp
   }
+
   const nullCluster = largestPositiveCluster(shuf, g).length
   const structureEmerges = emergentCluster > nullCluster * 2
 
@@ -85,6 +88,7 @@ export function emergentSelfRobust(input?: { n?: number }): {
   for (const c of cluster) {
     inCore[c] = 1
   }
+
   // a large ground pool (all non-core cells) absorbs the balancing -1 charges without saturating
   const groundPool: number[] = []
   for (let i = 0; i < N; i++) {
@@ -107,17 +111,20 @@ export function emergentSelfRobust(input?: { n?: number }): {
         work++
       }
     }
+
     // dump the exact balancing -1 into the ground (a balanced creation, conserving)
     let need = netAdded
     for (const gc of groundPool) {
       if (need <= 0) {
         break
       }
+
       if (t2[gc] === 0) {
         t2[gc] = -1
         need--
       }
     }
+
     return work
   }
 
@@ -135,14 +142,17 @@ export function emergentSelfRobust(input?: { n?: number }): {
       if (maintaining) {
         workTotal += maintain(t2)
       }
+
       beat(t2, g, moved, rng2, 0, 0.22)
     }
+
     return {
       fidelity: countPlus(t2, cluster) / cluster.length,
       work: workTotal / beats,
       q: totalCharge(t2) - q0,
     }
   }
+
   const maintained = fidelityRun(true)
   const unmaintained = fidelityRun(false)
   const maintainedFidelity = maintained.fidelity
@@ -164,8 +174,10 @@ export function emergentSelfRobust(input?: { n?: number }): {
     for (let t = 0; t < 60; t++) {
       beat(t3, g, moved, rng3, 0, cohesion)
     }
+
     return start > 0 ? countPlus(t3, cluster) / start : 0
   }
+
   const cohesiveLocalization = localize(0.22)
   const diffusiveLocalization = localize(0)
   const persistsLongerThanDiffusion =
@@ -213,6 +225,7 @@ export default experiment({
       r.maintenanceHoldsSelf &&
       r.maintainedConserved &&
       r.finiteLifetime
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

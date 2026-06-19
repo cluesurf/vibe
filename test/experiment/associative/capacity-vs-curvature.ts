@@ -50,6 +50,7 @@ export function associativeCapacityVsCurvature(input?: {
   const rungs: Rung[] = LADDER.map(symbol => {
     const t = TESSELLATIONS.find(x => x.symbol === symbol)!
     const m = measureTessellation({ schlafli: t.schlafli, maxCells })
+
     return {
       symbol,
       catalogGrowthRatio: m.growthRatio,
@@ -113,6 +114,7 @@ export default experiment({
     })
     const least = r.rungs[0]!
     const most = r.rungs[r.rungs.length - 1]!
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

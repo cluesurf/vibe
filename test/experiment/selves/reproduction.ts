@@ -81,10 +81,12 @@ export function reproduction(input?: { n?: number }): {
       ballRadius = distAll[i]!
     }
   }
+
   const tone = new Int8Array(N)
   for (const i of self) {
     tone[i] = 1
   }
+
   let q0 = 0
   for (let i = 0; i < N; i++) {
     q0 += tone[i]!
@@ -100,6 +102,7 @@ export function reproduction(input?: { n?: number }): {
   for (let b = 0; b < 30; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng)
   }
+
   const endComponents = countLargeSameSignComponents({
     tone,
     g,
@@ -110,6 +113,7 @@ export function reproduction(input?: { n?: number }): {
   for (let i = 0; i < N; i++) {
     q1 += tone[i]!
   }
+
   const conserved = q0 === q1
 
   // the honest finding: the self does NOT split, it stays one self (fission is suppressed)
@@ -139,6 +143,7 @@ export default experiment({
   run() {
     const r = reproduction({ n: 60000 })
     const ok = r.solved && r.conserved && r.fissionSuppressed
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

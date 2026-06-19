@@ -53,6 +53,7 @@ export default experiment({
         peakIndex = r
       }
     }
+
     const peakSamples = result.samplesByBeta[peakIndex] ?? []
     const denom = Math.max(1, peakSamples.length)
     const low = peakSamples.filter(x => x < 0.8).length / denom

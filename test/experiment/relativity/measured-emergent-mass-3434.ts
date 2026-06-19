@@ -59,6 +59,7 @@ export function measuredEmergentMass(): {
     })
     const hSquared = cmMultiply(h, h)
     const pSquared = p[0]! ** 2 + p[1]! ** 2 + p[2]! ** 2
+
     return Math.sqrt(Math.max(0, hSquared[0]![0]!.re - pSquared))
   }
 
@@ -82,6 +83,7 @@ export function measuredEmergentMass(): {
         relativisticEverywhere = false
       }
     }
+
     // (2) the two independent masses agree
     const massDispersion = dispersionMassAt(coupling)
     const h = diracHamiltonian({ px: 1, py: 1, pz: 1, mass: coupling })
@@ -134,6 +136,7 @@ export default experiment({
       r.twoMassesAgree &&
       r.massScalesWithCoupling &&
       r.weylLimitMassless
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -61,6 +61,7 @@ export default experiment({
       q8 &&
       trialitySplit &&
       disjoint
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

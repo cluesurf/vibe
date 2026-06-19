@@ -106,6 +106,7 @@ export default experiment({
       r.modelPassesLinear &&
       r.latticeExcludedLinear &&
       r.swerveVanishesWithDiscreteness
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

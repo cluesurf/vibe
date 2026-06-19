@@ -12,12 +12,15 @@ export function graphBusemann(graph: Graph): number[] {
   if (!e) {
     return new Array(graph.size).fill(0)
   }
+
   const d = e.dimension
   const coords: Vec[] = []
   for (let i = 0; i < graph.size; i++) {
     coords.push(Array.from(e.coords.subarray(i * d, (i + 1) * d)))
   }
+
   const ideal = idealDirection(coords)
+
   return busemann({ coords, ideal })
 }
 
@@ -27,6 +30,7 @@ export function busemannLevels(graph: Graph, bins: number): number[] {
   if (values.length === 0) {
     return []
   }
+
   const min = Math.min(...values)
   const max = Math.max(...values)
   const histogram = new Array(bins).fill(0)
@@ -37,5 +41,6 @@ export function busemannLevels(graph: Graph, bins: number): number[] {
     )
     histogram[k] += 1
   }
+
   return histogram
 }

@@ -35,6 +35,7 @@ function evaluate(g: Graph, seed: number): Epoch {
     rng: makeRng({ seed }),
   })
   const m = runModel(g, seed + 1)
+
   return {
     cells: g.size,
     anisotropy: aniso.anisotropy,
@@ -61,6 +62,7 @@ export function eternalLadder(input: {
             schlafli: input.base,
             maxVertices: cap,
           })
+
     return evaluate(g, input.seed)
   })
   let growsMonotonically = true
@@ -69,6 +71,7 @@ export function eternalLadder(input: {
       growsMonotonically = false
     }
   }
+
   return {
     epochs,
     growsMonotonically,
@@ -102,6 +105,7 @@ export default experiment({
       hept.growsMonotonically &&
       hept.alwaysLorentzSafe &&
       hept.modelAlwaysRuns
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

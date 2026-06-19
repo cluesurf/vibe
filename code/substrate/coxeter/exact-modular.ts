@@ -17,9 +17,11 @@ function modpow(base: number, exp: number, p: number): number {
     if (e & 1) {
       r = (r * b) % p
     }
+
     b = (b * b) % p
     e = Math.floor(e / 2)
   }
+
   return r
 }
 
@@ -31,14 +33,17 @@ function isPrime(n: number): boolean {
   if (n < 2) {
     return false
   }
+
   if (n % 2 === 0) {
     return n === 2
   }
+
   for (let d = 3; d * d <= n; d += 2) {
     if (n % d === 0) {
       return false
     }
   }
+
   return true
 }
 
@@ -54,9 +59,11 @@ function primeFactors(n: number): number[] {
       }
     }
   }
+
   if (m > 1) {
     out.push(m)
   }
+
   return out
 }
 
@@ -67,8 +74,10 @@ function primeBelow(target: number, modulus: number): number {
     if (isPrime(p)) {
       return p
     }
+
     p -= modulus
   }
+
   throw new Error(`no prime = 1 mod ${modulus} found`)
 }
 
@@ -82,6 +91,7 @@ function rootOfUnity(order: number, p: number): number {
     if (candidate === 1) {
       continue
     }
+
     let primitive = true
     for (const q of factors) {
       if (modpow(candidate, order / q, p) === 1) {
@@ -89,10 +99,12 @@ function rootOfUnity(order: number, p: number): number {
         break
       }
     }
+
     if (primitive) {
       return candidate
     }
   }
+
   throw new Error(`no primitive ${order}-th root of unity mod ${p}`)
 }
 
@@ -104,6 +116,7 @@ function identity(n: number): Mat {
   for (let i = 0; i < n; i++) {
     m[i * n + i] = 1
   }
+
   return m
 }
 
@@ -115,11 +128,13 @@ function matMul(a: Mat, b: Mat, n: number, p: number): Mat {
       if (aik === 0) {
         continue
       }
+
       for (let j = 0; j < n; j++) {
         out[i * n + j] = (out[i * n + j]! + aik * b[k * n + j]!) % p
       }
     }
   }
+
   return out
 }
 
@@ -130,8 +145,10 @@ function matVec(a: Mat, x: Vec, n: number, p: number): Vec {
     for (let j = 0; j < n; j++) {
       s = (s + a[i * n + j]! * x[j]!) % p
     }
+
     out[i] = s
   }
+
   return out
 }
 
@@ -143,9 +160,11 @@ function matInv(m: Mat, n: number, p: number): Mat {
     while (piv < n && a[piv * n + col] === 0) {
       piv++
     }
+
     if (piv === n) {
       throw new Error('singular matrix mod p')
     }
+
     if (piv !== col) {
       for (let j = 0; j < n; j++) {
         ;[a[col * n + j], a[piv * n + j]] = [
@@ -158,19 +177,23 @@ function matInv(m: Mat, n: number, p: number): Mat {
         ]
       }
     }
+
     const ip = modInv(a[col * n + col]!, p)
     for (let j = 0; j < n; j++) {
       a[col * n + j] = (a[col * n + j]! * ip) % p
       inv[col * n + j] = (inv[col * n + j]! * ip) % p
     }
+
     for (let r = 0; r < n; r++) {
       if (r === col) {
         continue
       }
+
       const f = a[r * n + col]!
       if (f === 0) {
         continue
       }
+
       for (let j = 0; j < n; j++) {
         a[r * n + j] =
           (((a[r * n + j]! - f * a[col * n + j]!) % p) + p) % p
@@ -179,6 +202,7 @@ function matInv(m: Mat, n: number, p: number): Mat {
       }
     }
   }
+
   return inv
 }
 
@@ -187,6 +211,7 @@ function matInv(m: Mat, n: number, p: number): Mat {
 function offDiagonal(m: number, p: number): number {
   const zeta = rootOfUnity(2 * m, p)
   const value = (zeta + modInv(zeta, p)) % p // = 2cos(pi/m) mod p
+
   return ((-value % p) + p) % p
 }
 
@@ -199,6 +224,7 @@ function rootModulus(symbol: number[]): number {
   for (const m of symbol) {
     lcm = (lcm / gcd(lcm, 2 * m)) * (2 * m)
   }
+
   return lcm
 }
 
@@ -233,11 +259,13 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     for (let i = 0; i < n; i++) {
       cartan[i]![i] = 2
     }
+
     for (let i = 0; i < n - 1; i++) {
       const off = offDiagonal(symbol[i]!, p)
       cartan[i]![i + 1] = off
       cartan[i + 1]![i] = off
     }
+
     // reflection i: identity with row i replaced by e_i - cartan_row_i
     const reflections: Mat[] = []
     for (let i = 0; i < n; i++) {
@@ -246,8 +274,10 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
         r[i * n + j] =
           ((((i === j ? 1 : 0) - cartan[i]![j]!) % p) + p) % p
       }
+
       reflections.push(r)
     }
+
     // the cell center, the weight fixed by the cell stabilizer (the first n-1 mirrors) = last column of C^{-1}
     const cartanFlat = cartan.flat().map(v => ((v % p) + p) % p)
     const cartanInv = matInv(cartanFlat, n, p)
@@ -255,6 +285,7 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     for (let i = 0; i < n; i++) {
       center.push(cartanInv[i * n + (n - 1)]!)
     }
+
     // the face reflections, the H-orbit of the outer generator (the distinct conjugates h R_last h^{-1})
     const stab: Mat[] = [identity(n)]
     const stabSeen = new Set<string>([stab[0]!.join(',')])
@@ -267,10 +298,12 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
           stab.push(g)
         }
       }
+
       if (stab.length > 100000) {
         break
       }
     }
+
     const faces: Mat[] = []
     const faceSeen = new Set<string>()
     for (const h of stab) {
@@ -286,6 +319,7 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
         faces.push(f)
       }
     }
+
     return { reflections, center, faces }
   }
 
@@ -300,6 +334,7 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     const a = cell.slice(0, half)
     const b = cell.slice(half)
     const f = faces[faceIndex]!
+
     return pair(
       matMul(a, f.slice(0, half), n, p1),
       matMul(b, f.slice(half), n, p2),
@@ -314,6 +349,7 @@ export function makeExactEngine(symbol: number[]): ExactEngine {
     fingerprint: (cell: Mat): string => {
       const a = cell.slice(0, half)
       const b = cell.slice(half)
+
       return (
         matVec(a, g1.center, n, p1).join(',') +
         '|' +
@@ -349,23 +385,28 @@ export function buildTilingExact(input: {
           hit = true
           continue
         }
+
         id = cells.length
         idOf.set(k, id)
         cells.push(nc)
         neighbors.push([])
       }
+
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
       }
     }
+
     if (hit) {
       break
     }
   }
+
   let facetCount = 0
   for (const row of neighbors) {
     facetCount = Math.max(facetCount, row.length)
   }
+
   return { cellCount: cells.length, neighbors, facetCount }
 }

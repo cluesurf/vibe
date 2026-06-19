@@ -13,9 +13,11 @@ export function coarseFieldByGroup(input: {
     sum[group[i]!]! += field[i]!
     count[group[i]!]!++
   }
+
   for (let g = 0; g < groupCount; g++) {
     sum[g] = count[g]! > 0 ? sum[g]! / count[g]! : 0
   }
+
   return sum
 }
 
@@ -32,6 +34,7 @@ export function sumFieldByGroup(input: {
   for (let i = 0; i < field.length; i++) {
     sum[group[i]!]! += field[i]!
   }
+
   return sum
 }
 
@@ -56,5 +59,6 @@ export function cubicBlockGroups(input: {
     group[i] =
       (((z / b) | 0) * side + ((y / b) | 0)) * side + ((x / b) | 0)
   }
+
   return { group, groupCount: side * side * side }
 }

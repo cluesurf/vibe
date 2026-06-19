@@ -76,8 +76,10 @@ export default experiment({
           will.data[c * degree + rest] = 1
         }
       }
+
       return will
     }
+
     const extent = (will: Will): { occ: number; ext: number } => {
       let occ = 0,
         ext = 0
@@ -90,6 +92,7 @@ export default experiment({
             break
           }
         }
+
         if (on) {
           occ++
           const [x, y, z, w] = coord(c)
@@ -103,6 +106,7 @@ export default experiment({
           }
         }
       }
+
       return { occ, ext }
     }
 
@@ -119,8 +123,10 @@ export default experiment({
       for (let d = 0; d < 8; d++) {
         w.data[center * degree + d] = 1
       }
+
       return w
     }
+
     const diff = (open: boolean): { peak: number; final: number } => {
       let clean = restBody(),
         pert = withDisturbance()
@@ -146,6 +152,7 @@ export default experiment({
           clean = cleanScratch
           cleanScratch = s
         }
+
         beatInto({
           src: pert,
           dst: pertScratch,
@@ -157,23 +164,29 @@ export default experiment({
           pert = pertScratch
           pertScratch = s
         }
+
         if (open) {
           absorbBoundary(clean)
           absorbBoundary(pert)
         }
+
         let d = 0
         for (let i = 0; i < clean.data.length; i++) {
           if (clean.data[i] !== pert.data[i]) {
             d++
           }
         }
+
         if (d > peak) {
           peak = d
         }
+
         final = d
       }
+
       return { peak, final }
     }
+
     const open = diff(true)
     const closed = diff(false)
     const radiatesFreeDisturbance = open.final === 0 && closed.final > 0
@@ -184,8 +197,10 @@ export default experiment({
       const nb = base.neighbour(center, 0)
       w.data[center * degree + rest] = 0
       w.data[nb * degree + rest] = 1
+
       return w
     }
+
     let dsp = displaced()
     let cleanBody = restBody()
     let dspScratch: Will = {
@@ -204,6 +219,7 @@ export default experiment({
         dsp = dspScratch
         dspScratch = s
       }
+
       beatInto({
         src: cleanBody,
         dst: cleanBodyScratch,
@@ -215,17 +231,21 @@ export default experiment({
         cleanBody = cleanBodyScratch
         cleanBodyScratch = s
       }
+
       let d = 0
       for (let i = 0; i < dsp.data.length; i++) {
         if (dsp.data[i] !== cleanBody.data[i]) {
           d++
         }
       }
+
       displacedFinal = d
     }
+
     const noSelfRepair = displacedFinal > 0
 
     const ok = persists && radiatesFreeDisturbance && noSelfRepair
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

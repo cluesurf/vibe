@@ -97,6 +97,7 @@ export function hyperbolicGraph(input: {
     r[i] = radiusFromHeight(input.rng.next(), coshRminus1)
     theta[i] = input.rng.next() * 2 * Math.PI
   }
+
   return connectAndEmbed({
     r,
     theta,
@@ -115,6 +116,7 @@ function radicalInverse(i: number, base: number): number {
     r += f * (n % base)
     n = Math.floor(n / base)
   }
+
   return r
 }
 
@@ -135,6 +137,7 @@ export function hyperbolicHalton(input: {
     r[i] = radiusFromHeight(radicalInverse(i + 1, 2), coshRminus1)
     theta[i] = 2 * Math.PI * radicalInverse(i + 1, 3)
   }
+
   return connectAndEmbed({
     r,
     theta,
@@ -164,18 +167,22 @@ function reflectAcross(
     const phi = Math.atan2(p1.y, p1.x)
     const c2 = Math.cos(2 * phi)
     const s2 = Math.sin(2 * phi)
+
     return pts.map(z => ({
       x: c2 * z.x + s2 * z.y,
       y: s2 * z.x - c2 * z.y,
     }))
   }
+
   const cx = (d1 * b2 - d2 * b1) / det
   const cy = (a1 * d2 - a2 * d1) / det
   const rho2 = cx * cx + cy * cy - 1
+
   return pts.map(z => {
     const dx = z.x - cx
     const dy = z.y - cy
     const s = rho2 / (dx * dx + dy * dy)
+
     return { x: cx + s * dx, y: cy + s * dy }
   })
 }
@@ -216,6 +223,7 @@ export function hyperbolicTiling(input: {
       vy.push(z.y)
     }
   }
+
   central.forEach(addVertex)
 
   const seenPoly = new Set<string>()
@@ -226,8 +234,10 @@ export function hyperbolicTiling(input: {
       cx += z.x
       cy += z.y
     }
+
     return key(cx / poly.length, cy / poly.length)
   }
+
   seenPoly.add(polyKey(central))
 
   const cap = input.maxVertices ?? 4000
@@ -238,6 +248,7 @@ export function hyperbolicTiling(input: {
       if (vx.length >= cap) {
         break
       }
+
       for (let i = 0; i < poly.length; i++) {
         const a = poly[i]!
         const b = poly[(i + 1) % poly.length]!
@@ -250,6 +261,7 @@ export function hyperbolicTiling(input: {
         }
       }
     }
+
     frontier = next
   }
 
@@ -263,6 +275,7 @@ export function hyperbolicTiling(input: {
     r[i] = 2 * Math.atanh(mag)
     theta[i] = Math.atan2(vy[i] ?? 0, vx[i] ?? 0)
   }
+
   return connectAndEmbed({
     r,
     theta,
@@ -291,6 +304,7 @@ export function hyperbolicSunflower(input: {
     const frac = (i * phiInv) % 1
     theta[i] = 2 * Math.PI * frac
   }
+
   return connectAndEmbed({
     r,
     theta,

@@ -33,8 +33,10 @@ export function bulkNonlocality(input?: { n?: number }): {
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       out.push(g.adj[p]!)
     }
+
     return out
   }
+
   const bfs = (src: number, allowed?: Uint8Array): Int32Array =>
     csrDistances({
       offsets: g.offsets,
@@ -52,6 +54,7 @@ export function bulkNonlocality(input?: { n?: number }): {
       maxR = radial[i]!
     }
   }
+
   // count internal edges per shell, and pick the shell with the MOST internal edges (a real connected
   // surface, not the all-leaf outer frontier)
   const internalEdges = new Array<number>(maxR + 1).fill(0)
@@ -60,18 +63,21 @@ export function bulkNonlocality(input?: { n?: number }): {
     if (rv < 0) {
       continue
     }
+
     for (const w of nbr(v)) {
       if (w > v && radial[w]! === rv) {
         internalEdges[rv]!++
       }
     }
   }
+
   let shellRadius = 1
   for (let r = 1; r <= maxR; r++) {
     if (internalEdges[r]! > internalEdges[shellRadius]!) {
       shellRadius = r
     }
   }
+
   const onShell = new Uint8Array(N)
   const shellCells: number[] = []
   for (let i = 0; i < N; i++) {
@@ -100,13 +106,16 @@ export function bulkNonlocality(input?: { n?: number }): {
       if (c === src) {
         continue
       }
+
       if (dBulk[c]! > dBulk[far]!) {
         far = c
       }
     }
+
     if (far === src) {
       continue
     }
+
     bulkSum += dBulk[far]!
     pairs++
     // its within-surface distance (or unreachable)
@@ -159,6 +168,7 @@ export default experiment({
   run() {
     const r = bulkNonlocality({ n: 40000 })
     const ok = r.solved && r.nonLocalChannel
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

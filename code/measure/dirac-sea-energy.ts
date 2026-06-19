@@ -15,6 +15,7 @@ export function seaEnergyFromEigenvalues(
       sum += value
     }
   }
+
   return sum
 }
 

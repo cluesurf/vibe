@@ -11,6 +11,7 @@ export type Matrix3 = [number[], number[], number[]]
 export function rotationZ(theta: number): Matrix3 {
   const c = Math.cos(theta)
   const s = Math.sin(theta)
+
   return [
     [c, -s, 0],
     [s, c, 0],
@@ -33,9 +34,11 @@ export function conjugateTensor(r: Matrix3, e: Matrix3): Matrix3 {
           sum += r[i]![a]! * e[a]![b]! * r[j]![b]!
         }
       }
+
       out[i]![j] = sum
     }
   }
+
   return out
 }
 
@@ -47,6 +50,7 @@ export function tensorInner(a: Matrix3, b: Matrix3): number {
       sum += a[i]![j]! * b[i]![j]!
     }
   }
+
   return sum
 }
 
@@ -67,6 +71,7 @@ export const CROSS_POLARIZATION: Matrix3 = [
 export function plusSelfOverlap(theta: number): number {
   const rotated = conjugateTensor(rotationZ(theta), PLUS_POLARIZATION)
   const norm = tensorInner(PLUS_POLARIZATION, PLUS_POLARIZATION)
+
   return tensorInner(PLUS_POLARIZATION, rotated) / norm
 }
 
@@ -78,5 +83,6 @@ export function plusToCrossOverlap(theta: number): number {
     tensorInner(PLUS_POLARIZATION, PLUS_POLARIZATION) *
       tensorInner(CROSS_POLARIZATION, CROSS_POLARIZATION),
   )
+
   return tensorInner(CROSS_POLARIZATION, rotated) / norm
 }

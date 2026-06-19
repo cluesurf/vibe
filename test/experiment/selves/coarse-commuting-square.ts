@@ -62,8 +62,10 @@ export default experiment({
     const microStep = (tone: Int8Array): Int8Array => {
       const copy = tone.slice()
       beat(copy, graph, moved, stepRng, 0.01, 0.22)
+
       return copy
     }
+
     const coarseMap = (tone: Int8Array): number =>
       positionBin({ tone, L, bins })
 
@@ -81,6 +83,7 @@ export default experiment({
     })
 
     const ok = errorStructured < errorRandom - 0.1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

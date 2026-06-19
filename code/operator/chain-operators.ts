@@ -18,12 +18,15 @@ export function chainOperators(n: number): {
       laplacian.data[i * n + (i - 1)] = -1
       degree++
     }
+
     if (i < n - 1) {
       adjacency.data[i * n + (i + 1)] = 1
       laplacian.data[i * n + (i + 1)] = -1
       degree++
     }
+
     laplacian.data[i * n + i] = degree
   }
+
   return { adjacency, laplacian }
 }

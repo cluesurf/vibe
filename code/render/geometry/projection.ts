@@ -29,11 +29,13 @@ export function liftToHyperboloid(ball: Vec): Vec {
   for (const c of ball) {
     r2 += c * c
   }
+
   const denom = 1 - r2 || 1e-12
   const x: Vec = [(1 + r2) / denom]
   for (const c of ball) {
     x.push((2 * c) / denom)
   }
+
   return x
 }
 
@@ -45,17 +47,22 @@ export function applyModel(ball: Vec, model: ProjectionModel): Vec {
   for (const c of ball) {
     r2 += c * c
   }
+
   switch (model) {
     case 'poincare':
       return ball.slice()
     case 'klein': {
       const s = 2 / (1 + r2) // x_i / x_0 on the hyperboloid = gnomonic projection from the origin
+
       return ball.map(c => c * s)
     }
+
     case 'gans': {
       const s = 2 / (1 - r2 || 1e-12) // the spacelike hyperboloid coordinates themselves, dropped flat
+
       return ball.map(c => c * s)
     }
+
     case 'half-plane':
       return ball.length === 2 ? halfPlane(ball) : ball.slice()
     case 'band':
@@ -66,22 +73,29 @@ export function applyModel(ball: Vec, model: ProjectionModel): Vec {
       if (r < 1e-9) {
         return ball.slice()
       }
+
       const d = 2 * Math.atanh(Math.min(0.999999, r))
       const s = d / r
+
       return ball.map(c => c * s)
     }
+
     case 'equal-area': {
       // the Lambert azimuthal radius 2 sinh(d/2) = 2 r / sqrt(1 - r^2), preserving area
       const s = 2 / Math.sqrt(1 - r2 || 1e-12)
+
       return ball.map(c => c * s)
     }
+
     case 'inverted': {
       // turn the disk inside out, p -> p / |p|^2, so the boundary collapses to the center
       if (r2 < 1e-9) {
         return ball.map(() => 0)
       }
+
       return ball.map(c => c / r2)
     }
+
     case 'hemisphere':
       return ball.length === 2 ? hemisphere(ball) : ball.slice()
     case 'two-point-equidistant':
@@ -105,6 +119,7 @@ function halfPlane(ball: Vec): Vec {
   const y = ball[1] ?? 0
   const r2 = x * x + y * y
   const denom = (1 - x) * (1 - x) + y * y || 1e-12
+
   // (1 + z)/(1 - z) = ((1 - r2) + i 2y) / denom, then multiply by i to send the disk to the upper half-plane
   return [(-2 * y) / denom, (1 - r2) / denom]
 }
@@ -113,6 +128,7 @@ function halfPlane(ball: Vec): Vec {
 // at a fixed tilt, so hyperbolic space reads as a dome. The Klein point is k = 2 ball / (1 + |ball|^2), and the
 // tilt rotates the (y, z) plane so the dome bulges toward the viewer.
 const HEMISPHERE_TILT = (60 * Math.PI) / 180
+
 function hemisphere(ball: Vec): Vec {
   const r2 = (ball[0] ?? 0) ** 2 + (ball[1] ?? 0) ** 2
   const s = 2 / (1 + r2)
@@ -121,6 +137,7 @@ function hemisphere(ball: Vec): Vec {
   const h = Math.sqrt(Math.max(0, 1 - kx * kx - ky * ky))
   const cos = Math.cos(HEMISPHERE_TILT)
   const sin = Math.sin(HEMISPHERE_TILT)
+
   return [kx, ky * cos + h * sin]
 }
 
@@ -129,6 +146,7 @@ function hemisphere(ball: Vec): Vec {
 // to two screen foci equal its true hyperbolic distances to the two foci. A classic atlas (and HyperRogue)
 // projection, useful because it keeps two chosen landmarks metrically honest at once.
 const TWO_POINT_FOCUS = 0.6 // the focus offset in ball coordinates
+
 function ballHyperbolicDistance(a: Vec, b: Vec): number {
   const ax = a[0] ?? 0,
     ay = a[1] ?? 0,
@@ -137,8 +155,10 @@ function ballHyperbolicDistance(a: Vec, b: Vec): number {
   const num = 2 * ((ax - bx) ** 2 + (ay - by) ** 2)
   const den =
     (1 - (ax * ax + ay * ay)) * (1 - (bx * bx + by * by)) || 1e-12
+
   return Math.acosh(Math.max(1, 1 + num / den))
 }
+
 function twoPointEquidistant(ball: Vec): Vec {
   const f1: Vec = [-TWO_POINT_FOCUS, 0]
   const f2: Vec = [TWO_POINT_FOCUS, 0]
@@ -148,6 +168,7 @@ function twoPointEquidistant(ball: Vec): Vec {
   const x = (d1 * d1 - d2 * d2) / (4 * c)
   const y2 = d1 * d1 - (x + c) ** 2
   const y = Math.sqrt(Math.max(0, y2)) * ((ball[1] ?? 0) < 0 ? -1 : 1)
+
   return [x, y]
 }
 
@@ -161,5 +182,6 @@ function band(ball: Vec): Vec {
   const qy = (2 * y) / denom // imaginary part
   const magnitude = Math.sqrt(qx * qx + qy * qy) || 1e-12
   const k = 2 / Math.PI
+
   return [k * Math.log(magnitude), k * Math.atan2(qy, qx)]
 }

@@ -26,6 +26,7 @@ export function fillCoherence(
       sat++
     }
   }
+
   return sat / edges.length
 }
 
@@ -61,39 +62,47 @@ export function largestSharingPatch(
   for (let i = 0; i < n; i++) {
     parent[i] = i
   }
+
   const find = (x: number): number => {
     let r = x
     while (parent[r] !== r) {
       r = parent[r]!
     }
+
     while (parent[x] !== r) {
       const nx = parent[x]!
       parent[x] = r
       x = nx
     }
+
     return r
   }
+
   for (let i = 0; i < edges.length; i++) {
     if (fill[i] !== 1) {
       continue
     }
+
     const v = edges[i]![0]
     const w = edges[i]![1]
     if (tone[v] !== 0 && tone[v] === tone[w]) {
       parent[find(v)] = find(w)
     }
   }
+
   const size = new Int32Array(n)
   let best = 0
   for (let i = 0; i < n; i++) {
     if (tone[i] === 0) {
       continue
     }
+
     const r = find(i)
     size[r]!++
     if (size[r]! > best) {
       best = size[r]!
     }
   }
+
   return best
 }

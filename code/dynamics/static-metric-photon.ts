@@ -20,6 +20,7 @@ export function spatialMetricBootstrap(input: {
     b = 1 + input.x * b
     trail.push(b)
   }
+
   return trail
 }
 
@@ -58,12 +59,15 @@ export function staticMetricPhotonDeflection(input: {
           hi = mid
         }
       }
+
       uMax = (lo + hi) / 2
       break
     }
+
     previous = value
     uPrevious = u
   }
+
   if (uMax === null) {
     return null
   }
@@ -78,8 +82,10 @@ export function staticMetricPhotonDeflection(input: {
     if (value <= 0) {
       continue
     }
+
     integral +=
       ((2 * wi * Math.sqrt(bOf(u))) / Math.sqrt(value)) * (w / samples)
   }
+
   return 2 * integral - Math.PI
 }

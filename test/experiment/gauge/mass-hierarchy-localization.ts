@@ -84,6 +84,7 @@ export default experiment({
         }),
       )
     }
+
     // every exponent is a small order-one-to-two number (generations one to two shells apart)
     const allExponentsSmall = exponents.every(p => p > 0.8 && p < 2.5)
     // at least two are within ten percent of exactly one shell (the cleanest cases)

@@ -36,6 +36,7 @@ function run(input: {
     rng: makeRng({ seed: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).mmDimension,
   })
+
   return {
     heightRatio: h.meanObservable,
     mmDimension: d.meanObservable,
@@ -73,6 +74,7 @@ export default experiment({
     const ok =
       Math.abs(measured.mmDimension - reference.mmDimension) < 0.6 &&
       Math.abs(measured.heightRatio - reference.heightRatio) < 0.6
+
     return verdict({
       status: ok ? 'pass' : 'open',
       claim:

@@ -19,6 +19,7 @@ function targetDistance(input: {
   if (!e) {
     return 0
   }
+
   const d = e.dimension
   const isDisc = e.manifold.form === 'hyperbolic'
   let sum2 = 0
@@ -31,14 +32,17 @@ function targetDistance(input: {
     nodeNorm2 += a * a
     targetNorm2 += b * b
   }
+
   if (!isDisc) {
     return Math.sqrt(sum2)
   }
+
   // Poincare disc distance: arccosh(1 + 2|u-v|^2 / ((1-|u|^2)(1-|v|^2))).
   const denom = (1 - nodeNorm2) * (1 - targetNorm2)
   if (denom <= 0) {
     return Math.sqrt(sum2)
   }
+
   return Math.acosh(
     poincareCoshFromParts(sum2, 1 - nodeNorm2, 1 - targetNorm2),
   )
@@ -70,12 +74,15 @@ export function greedyRouteHops(input: {
         best = neighbor
       }
     }
+
     if (best === -1) {
       return -1
     } // stuck at a local minimum, greedy failed
+
     current = best
     hops += 1
   }
+
   return current === target ? hops : -1
 }
 
@@ -93,6 +100,7 @@ export function greedyRoutingSuccess(input: {
   if (!graph.embedding) {
     return { successRate: 0, meanStretch: 0, trials: 0 }
   }
+
   const size = graph.size
   const maxHops = input.maxHops ?? 4 * Math.ceil(Math.sqrt(size)) + 20
 
@@ -106,6 +114,7 @@ export function greedyRoutingSuccess(input: {
     if (target === source) {
       target = (target + 1) % size
     }
+
     // By default an unreachable target is a connectivity fact, not a routing failure, so we skip
     // disconnected pairs (this measures routing quality GIVEN connectivity, used on connected
     // tilings in P42/P76). For a GLOBAL navigability claim (P3), set countDisconnectedAsFailure:
@@ -115,6 +124,7 @@ export function greedyRoutingSuccess(input: {
       if (input.countDisconnectedAsFailure) {
         counted++
       }
+
       continue
     }
 
@@ -127,6 +137,7 @@ export function greedyRoutingSuccess(input: {
         reached = true
         break
       }
+
       const row = graph.neighbors[current] ?? new Uint32Array(0)
       let best = -1
       let bestDistance = targetDistance({
@@ -146,11 +157,13 @@ export function greedyRoutingSuccess(input: {
           best = neighbor
         }
       }
+
       if (best < 0) {
         // No neighbor is closer: a local minimum, greedy routing fails here.
         stuck = true
         break
       }
+
       current = best
       hops++
     }
@@ -187,6 +200,7 @@ export function routingWithBacktrack(input: {
   if (!graph.embedding) {
     return { successRate: 0, meanStretch: 0, trials: 0 }
   }
+
   const size = graph.size
   const maxSteps = input.maxSteps ?? 40 * size
 
@@ -200,6 +214,7 @@ export function routingWithBacktrack(input: {
     if (target === source) {
       target = (target + 1) % size
     }
+
     const shortest = bfsHops({ graph, from: source, to: target })
     if (shortest < 0) {
       continue
@@ -217,6 +232,7 @@ export function routingWithBacktrack(input: {
         reached = true
         break
       }
+
       const row = graph.neighbors[current] ?? new Uint32Array(0)
       let best = -1
       let bestDistance = Infinity
@@ -225,6 +241,7 @@ export function routingWithBacktrack(input: {
         if ((visited[neighbor] ?? 0) === 1) {
           continue
         }
+
         const distance = targetDistance({
           graph,
           node: neighbor,
@@ -235,12 +252,14 @@ export function routingWithBacktrack(input: {
           best = neighbor
         }
       }
+
       if (best < 0) {
         stack.pop()
       } else {
         visited[best] = 1
         stack.push(best)
       }
+
       steps++
     }
 
@@ -269,6 +288,7 @@ function bfsHops(input: {
   if (input.from === input.to) {
     return 0
   }
+
   const size = input.graph.size
   const distance = new Int32Array(size).fill(-1)
   distance[input.from] = 0
@@ -284,11 +304,14 @@ function bfsHops(input: {
           if (neighbor === input.to) {
             return distance[neighbor] ?? -1
           }
+
           next.push(neighbor)
         }
       }
     }
+
     frontier = next
   }
+
   return -1
 }

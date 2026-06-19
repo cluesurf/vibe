@@ -61,6 +61,7 @@ export function phPhoton(): {
       )
     }
   }
+
   const gaugeInvariant = maxDP < 1e-9
 
   // PH4: discrete Stokes, flux through a 3x3 region = holonomy around its boundary loop
@@ -72,8 +73,10 @@ export function phPhoton(): {
         f += plaq(Ax, Ay, x, y)
       }
     }
+
     return f
   }
+
   const boundaryHolonomy = (): number =>
     gridWilsonLoop(field, { x0: 0, x1: 3, y0: 0, y1: 3 })
   const stokes = Math.abs(regionFlux() - boundaryHolonomy()) < 1e-9
@@ -116,6 +119,7 @@ export default experiment({
       r.massless &&
       r.linearAtLongWave &&
       r.transversePolarizations
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

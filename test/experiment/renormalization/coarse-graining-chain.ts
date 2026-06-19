@@ -37,6 +37,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
       | 0
       | 1
   }
+
   // balance to a fixed total so coarse charge has a clean reference
   evolveConservingRing({ tone, beats: 200, arrow: 0.12, rng })
 
@@ -45,6 +46,7 @@ export function coarseGrainingChain(input?: { L?: number }): {
     for (let i = 0; i < L; i++) {
       s += tone[i]!
     }
+
     return s
   })()
 
@@ -83,6 +85,7 @@ export default experiment({
     const r = coarseGrainingChain({ L: 8192 })
     const ok =
       r.solved && r.chargePreservedAllLevels && r.fixedPointConverges
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

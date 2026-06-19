@@ -29,6 +29,7 @@ function realDot(
   for (let i = 0; i < dimension; i++) {
     s += a.re[i]! * b.re[i]! + a.im[i]! * b.im[i]!
   }
+
   return s
 }
 
@@ -53,10 +54,12 @@ export function largestEigenvalueOfSquare(input: {
   for (let i = 0; i < dimension; i++) {
     v.re[i] = rand() - 0.5
   }
+
   let norm = Math.sqrt(realDot(v, v, dimension))
   for (let i = 0; i < dimension; i++) {
     v.re[i]! /= norm
   }
+
   const t = newVector(dimension)
   const w = newVector(dimension)
   let lambda = 0
@@ -70,6 +73,7 @@ export function largestEigenvalueOfSquare(input: {
       v.im[i] = w.im[i]! / norm
     }
   }
+
   return lambda
 }
 
@@ -92,10 +96,12 @@ export function lowestAbsoluteEigenvalues(input: {
   for (let i = 0; i < dimension; i++) {
     v.re[i] = rand() - 0.5
   }
+
   let norm = Math.sqrt(realDot(v, v, dimension))
   for (let i = 0; i < dimension; i++) {
     v.re[i]! /= norm
   }
+
   const alpha: number[] = []
   const beta: number[] = []
   const t = newVector(dimension)
@@ -111,6 +117,7 @@ export function lowestAbsoluteEigenvalues(input: {
       y.im[i] = fold * x.im[i]! - y.im[i]!
     }
   }
+
   for (let j = 0; j < steps; j++) {
     basis.push({ re: v.re.slice(), im: v.im.slice() })
     foldedApply(v, w)
@@ -120,12 +127,14 @@ export function lowestAbsoluteEigenvalues(input: {
         w.im[i]! -= bprev * vprev.im[i]!
       }
     }
+
     const aj = realDot(v, w, dimension)
     alpha.push(aj)
     for (let i = 0; i < dimension; i++) {
       w.re[i]! -= aj * v.re[i]!
       w.im[i]! -= aj * v.im[i]!
     }
+
     // full reorthogonalization against the whole basis
     for (const u of basis) {
       const d = realDot(u, w, dimension)
@@ -134,10 +143,12 @@ export function lowestAbsoluteEigenvalues(input: {
         w.im[i]! -= d * u.im[i]!
       }
     }
+
     const bj = Math.sqrt(realDot(w, w, dimension))
     if (bj < 1e-9 || j === steps - 1) {
       break
     }
+
     beta.push(bj)
     vprev = { re: v.re.slice(), im: v.im.slice() }
     bprev = bj
@@ -147,6 +158,7 @@ export function lowestAbsoluteEigenvalues(input: {
       v.im[i] = w.im[i]! / bj
     }
   }
+
   const k = alpha.length
   const matrix = makeDense({ rows: k, cols: k })
   for (let i = 0; i < k; i++) {
@@ -156,9 +168,11 @@ export function lowestAbsoluteEigenvalues(input: {
       matrix.data[(i + 1) * k + i] = beta[i]!
     }
   }
+
   const theta = Array.from(eigSymmetric({ matrix }).values).sort(
     (a, b) => b - a,
   ) // largest of (C - H^2) first
+
   // map back: H^2 eigenvalue = C - theta; |lambda| = sqrt(max(0, C - theta)); smallest first
   return theta
     .slice(0, count)

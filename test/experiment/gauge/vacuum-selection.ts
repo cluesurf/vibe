@@ -32,9 +32,11 @@ export function vacuumSelection(): {
   for (const s of scored) {
     byMinus[s.minus] = s.unbroken
   } // same within a multiplet
+
   // every spinor weight preserves exactly 20 roots: they are Weyl-equivalent, each preserves a (conjugate) su(5)
   const allGiveSu5 = scored.every(s => s.unbroken === 20)
   const singletWins = allGiveSu5
+
   return { maxUnbroken, singletWins }
 }
 
@@ -49,6 +51,7 @@ export default experiment({
   run() {
     const r = vacuumSelection()
     const ok = r.singletWins && r.maxUnbroken === 20
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

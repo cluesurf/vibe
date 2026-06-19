@@ -30,6 +30,7 @@ export function transitiveClosure(input: {
   for (let i = 0; i < closed.words.length; i++) {
     closed.words[i] = input.relation.words[i] ?? 0
   }
+
   // Warshall: for each intermediate k, if a -> k then a inherits k's row.
   for (let k = 0; k < n; k++) {
     const kBase = k * stride
@@ -37,6 +38,7 @@ export function transitiveClosure(input: {
       if (!getBit(closed, { row: a, col: k })) {
         continue
       }
+
       const aBase = a * stride
       for (let w = 0; w < stride; w++) {
         closed.words[aBase + w] =
@@ -45,6 +47,7 @@ export function transitiveClosure(input: {
       }
     }
   }
+
   return closed
 }
 
@@ -96,11 +99,13 @@ export function sampleCausalSets(input: {
     if (a === b) {
       b = (b + 1) % n
     }
+
     const lo = Math.min(a, b)
     const hi = Math.max(a, b)
     if (lo === hi) {
       continue
     }
+
     proposed += 1
 
     // Toggle the raw bit (in place). A fresh closure derives the consequences.
@@ -141,6 +146,7 @@ export function sampleCausalSets(input: {
   for (let t = 0; t < trace.length; t++) {
     sum += trace[t] ?? 0
   }
+
   const meanObservable = trace.length > 0 ? sum / trace.length : 0
   const acceptanceRate = proposed > 0 ? accepted / proposed : 0
 

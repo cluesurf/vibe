@@ -44,6 +44,7 @@ function realImaginaryAxes(level: number): {
       imaginary++
     }
   }
+
   return { real, imaginary }
 }
 

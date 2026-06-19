@@ -21,13 +21,16 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
       c.push(x % side)
       x = Math.floor(x / side)
     }
+
     return c
   }
+
   for (let i = 0; i < size; i++) {
     const c = coordOf(i)
     for (let a = 0; a < dim; a++) {
       coords[i * dim + a] = c[a] ?? 0
     }
+
     for (let a = 0; a < dim; a++) {
       if ((c[a] ?? 0) + 1 < side) {
         let j = 0
@@ -36,11 +39,13 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
           j += ((c[b] ?? 0) + (b === a ? 1 : 0)) * place
           place *= side
         }
+
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)
       }
     }
   }
+
   return { size, coords, dim, neighbors }
 }
 
@@ -57,6 +62,7 @@ export function cubicLatticeCenter(input: {
     j += mid * place
     place *= side
   }
+
   return j
 }
 
@@ -74,6 +80,7 @@ export function cubicLatticeCenterBySide(input: {
     index += h * place
     place *= side
   }
+
   return index
 }
 
@@ -93,8 +100,10 @@ export function cubicBoxRows(input: { side: number; dim: number }): {
     for (let a = 0; a < dim; a++) {
       row.push(lattice.coords[i * dim + a]!)
     }
+
     coords.push(row)
   }
+
   return {
     neighbors: lattice.neighbors,
     coords,
@@ -116,5 +125,6 @@ export function cubicLatticeDistance(input: {
       (lattice.coords[to * lattice.dim + a] ?? 0)
     s += d * d
   }
+
   return Math.sqrt(s)
 }

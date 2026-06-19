@@ -101,6 +101,7 @@ export function bdSignature(input: {
         xi = i
       }
     }
+
     const diff =
       bdApply(phiTime, coords, past, p, xi, rho, eps) -
       bdApply(phiSpace, coords, past, p, xi, rho, eps)
@@ -108,9 +109,11 @@ export function bdSignature(input: {
     acc2 += diff * diff
     m += 1
   }
+
   const diffMean = acc / m
   const sd = Math.sqrt(Math.max(0, acc2 / m - diffMean * diffMean))
   const diffSem = sd / Math.sqrt(m)
+
   return {
     diffMean,
     diffSem,
@@ -141,6 +144,7 @@ export default experiment({
       Math.abs(r.gravitonEigenvalue - 0.5 * r.k2) < 1e-9 &&
       bd.robustlyPositive &&
       bd.recoversBox
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

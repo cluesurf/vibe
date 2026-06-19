@@ -18,6 +18,7 @@ export function relativisticDispersionFit(input: {
     xs: input.wavenumbers.map(k => k * k),
     ys: input.frequencies.map(w => w * w),
   })
+
   return { speedSquared: fit.slope, massSquared: fit.intercept }
 }
 
@@ -27,6 +28,7 @@ export function latticeDispersion(input: {
   wave: number[]
 }): number {
   const { directions, wave } = input
+
   return directions.reduce(
     (sum, d) => sum + (1 - Math.cos(dot(wave, d))),
     0,
@@ -55,6 +57,7 @@ export function dispersionAxisDiagonalAnisotropy(input: {
   const diagonalOmega =
     latticeDispersion({ directions, wave: diagonal }) /
     directions.length
+
   return (
     Math.abs(axisOmega - diagonalOmega) /
     ((axisOmega + diagonalOmega) / 2)
@@ -88,11 +91,14 @@ export function waveModeFrequency(input: {
     if (current >= 0 !== next >= 0) {
       zeros.push(t + current / (current - next))
     } // interpolated zero in (t, t+1)
+
     previous = current
     current = next
   }
+
   const spacing = zeros.length >= 2 ? zeros[1]! - zeros[0]! : 0
   const omega = spacing > 0 ? Math.PI / spacing : 0
+
   return {
     omega,
     oscillates: zeros.length >= 2,
@@ -125,5 +131,6 @@ export function dispersionAnisotropyAtScale(input: {
   const variance =
     speeds.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
     speeds.length
+
   return Math.sqrt(variance) / mean
 }

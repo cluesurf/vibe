@@ -42,6 +42,7 @@ function predictiveInformation(cohesion: number): number {
   })
   const a = quantileLabels({ series: series.interior, bins })
   const b = quantileLabels({ series: series.environment, bins })
+
   return mutualInformationBits(
     crossJointCounts({ seriesA: a, seriesB: b, stateCount: bins, lag }),
   )

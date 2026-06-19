@@ -39,6 +39,7 @@ export default experiment({
     for (let d = 0; d < mesh.degree; d++) {
       opposite.push(mesh.opposite(d))
     }
+
     const collision = pairCollision({ opposite, forward: true }) // the committed charge-conserving knit
     const beats = 56
 
@@ -59,6 +60,7 @@ export default experiment({
         gradAxis: 1,
         wavelength,
       })
+
       return Math.max(
         ...series
           .slice(Math.floor((3 * beats) / 4))

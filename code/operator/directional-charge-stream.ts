@@ -27,6 +27,7 @@ export function streamDirectionalChargeStep(input: {
       }
     }
   }
+
   return next
 }
 
@@ -43,6 +44,7 @@ export function streamDirectionalCharge(input: {
       charge,
     })
   }
+
   return charge as number[][]
 }
 

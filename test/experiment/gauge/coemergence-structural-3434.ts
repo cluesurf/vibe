@@ -39,6 +39,7 @@ export function coemergenceStructural(): {
     Cc = setOf(c8)
   const inWhich = (v: number[]): string => {
     const k = v.map(x => Math.round(x * 1e4)).join(',')
+
     return V.has(k) ? 'v' : S.has(k) ? 's' : Cc.has(k) ? 'c' : '?'
   }
 
@@ -48,8 +49,10 @@ export function coemergenceStructural(): {
     const go = (a: number[], rest: number[]): void => {
       if (!rest.length) {
         out.push(a)
+
         return
       }
+
       for (let i = 0; i < rest.length; i++) {
         go(
           [...a, rest[i]!],
@@ -57,9 +60,12 @@ export function coemergenceStructural(): {
         )
       }
     }
+
     go([], [0, 1, 2, 3])
+
     return out
   }
+
   const evenSignFlips = (): number[][] => {
     const out: number[][] = []
     for (let m = 0; m < 16; m++) {
@@ -68,8 +74,10 @@ export function coemergenceStructural(): {
         out.push(f.map(x => (x ? -1 : 1)))
       }
     }
+
     return out
   }
+
   const applyPerm = (p: number[], v: number[]): number[] =>
     p.map(pi => v[pi]!)
   const applySign = (sgn: number[], v: number[]): number[] =>
@@ -123,6 +131,7 @@ export default experiment({
       r.rotationsPreserveSectors &&
       r.trialityMixes &&
       r.oneRuleForced
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

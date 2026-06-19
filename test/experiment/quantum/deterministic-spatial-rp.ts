@@ -51,6 +51,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
         range = r
       }
     }
+
     // Hankel matrix H[i][j] = C(i+j), PSD test
     const minEig = hankelMinEigenvalue({ sequence: c, size: mHankel })
     results.push({
@@ -61,6 +62,7 @@ export function deterministicSpatialRP(input?: { masses?: number[] }): {
       psd: minEig > -1e-6,
     })
   }
+
   const smallest = results[results.length - 1]!
   const longRangeForSmallMass = smallest.longRange
   // The fundamental RP condition is a POSITIVE spectral measure (Kallen-Lehmann), here the weight is
@@ -97,6 +99,7 @@ export default experiment({
     const r = deterministicSpatialRP({ masses: [0.5, 0.2, 0.05] })
     const ok =
       r.solved && r.longRangeForSmallMass && r.reflectionPositive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

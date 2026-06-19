@@ -80,8 +80,10 @@ export function selfEmergencePerception(): {
       })
       done++
     }
+
     autocorr.push({ lag, c: pearson({ a: base, b: work }) })
   }
+
   const longLagCorr = autocorr[autocorr.length - 1]!.c
   const conservedRun = sumTone(t) === q0
 
@@ -92,6 +94,7 @@ export function selfEmergencePerception(): {
       center = i
     }
   }
+
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -105,6 +108,7 @@ export function selfEmergencePerception(): {
       blob.push(i)
     }
   }
+
   const meanBlob = (arr: Int8Array): number =>
     blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
@@ -118,12 +122,14 @@ export function selfEmergencePerception(): {
       arrow: ARROW,
     })
   }
+
   const after = meanBlob(imp)
   // background mean tone for reference
   let bg = 0
   for (let i = 0; i < n; i++) {
     bg += imp[i]!
   }
+
   bg /= n
   const imprintRetention = (after - bg) / (start - bg || 1)
   const conservedImp = true // imprint changes Q deliberately, dynamics after conserve it
@@ -165,6 +171,7 @@ export default experiment({
       r.longLagCorr < 0.1 &&
       r.imprintRetention < 0.3 &&
       !r.durableSelvesForm
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

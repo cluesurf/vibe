@@ -20,6 +20,7 @@ export function chargeConjugate(will: Will): Will {
   for (let i = 0; i < data.length; i++) {
     data[i] = -(will.data[i] ?? 0) as -1 | 0 | 1
   }
+
   return { mesh: will.mesh, data }
 }
 
@@ -36,6 +37,7 @@ export function timeReverse(will: Will): Will {
         will.data[base + direction] ?? 0
     }
   }
+
   return { mesh, data }
 }
 
@@ -57,6 +59,7 @@ export function parityReflect(input: {
   const reflectedDirection = directions.map(v => {
     const w = [...v]
     w[axis] = -w[axis]!
+
     return directionIndex.get(key(w))!
   })
   const coordinate = (cell: number, ax: number): number =>
@@ -70,8 +73,10 @@ export function parityReflect(input: {
           : coordinate(cell, ax)
       result += c * side ** ax
     }
+
     return result
   }
+
   const data = new Int8Array(will.data.length)
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     for (let direction = 0; direction < degree; direction++) {
@@ -80,6 +85,7 @@ export function parityReflect(input: {
       ] = will.data[cell * degree + direction] ?? 0
     }
   }
+
   return { mesh, data }
 }
 

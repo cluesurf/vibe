@@ -45,11 +45,13 @@ function meanInterShellDistance(): number {
     for (let k = 0; k < dim; k++) {
       nn += (coords[i * dim + k] ?? 0) ** 2
     }
+
     if (nn < bestNorm) {
       bestNorm = nn
       center = i
     }
   }
+
   const hyp = (a: number, b: number): number =>
     poincareDistanceIndexed(coords, dim, a, b)
   // BFS shells, then the mean hyperbolic step between consecutive shells
@@ -57,6 +59,7 @@ function meanInterShellDistance(): number {
     neighbors: neighborsOf(g),
     root: center,
   })
+
   return meanShellDistanceStep({
     count: g.size,
     center,
@@ -145,6 +148,7 @@ export default experiment({
   run() {
     const r = massHierarchy()
     const ok = r.solved && r.mechanismHolds && r.sameOrderAsObserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -29,6 +29,7 @@ function measure(
   for (const b of boundary) {
     isB[b] = 1
   }
+
   const src = boundary[0]!
   const p = clampedLeakyDiffusion({
     offsets: off,
@@ -50,8 +51,10 @@ function measure(
     if (b === src || dist[b]! <= 0 || p[b]! <= 1e-14) {
       continue
     }
+
     pts.push([dist[b]!, p[b]!])
   }
+
   const maxd = Math.max(...pts.map(x => x[0]))
   const mid = pts.filter(
     x =>
@@ -61,6 +64,7 @@ function measure(
     mid.map(x => x[0]),
     mid.map(x => x[1]),
   )
+
   return { N, nb: boundary.length, slope, calibrated: false }
 }
 
@@ -72,6 +76,7 @@ export function gravity3434(): {
   const a = measure([5, 3, 4], 45000)
   const b = measure([3, 4, 3, 4], 45000)
   const confounded = Math.abs(a.slope + 1) > 1.5 // calibration should be near -1; if far, method confounded
+
   return { fiveSlope: a.slope, fourSlope: b.slope, confounded }
 }
 
@@ -85,6 +90,7 @@ export default experiment({
   paper: false,
   run() {
     const r = gravity3434()
+
     return verdict({
       status: 'open',
       claim:

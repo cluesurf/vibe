@@ -31,6 +31,7 @@ function ringNeighbors(size: number): number[][] {
   for (let i = 0; i < size; i++) {
     neighbors.push([(i + 1) % size, (i + size - 1) % size])
   }
+
   return neighbors
 }
 
@@ -50,6 +51,7 @@ function step(
     modulus: MODULUS,
     selfCoupling: coupling,
   })
+
   return next
 }
 
@@ -65,6 +67,7 @@ function superpositionDefect(coupling: number): number {
   for (let i = 14; i <= 26; i++) {
     curA[i] = 1
   }
+
   for (let i = 20; i <= 32; i++) {
     curB[i] = 1
   }
@@ -77,6 +80,7 @@ function superpositionDefect(coupling: number): number {
     prevSum[i] = (prevA[i]! + prevB[i]!) % MODULUS
     curSum[i] = (curA[i]! + curB[i]!) % MODULUS
   }
+
   const nextSum = step(neighbors, prevSum, curSum, coupling)
 
   let defect = 0
@@ -86,6 +90,7 @@ function superpositionDefect(coupling: number): number {
       defect += Math.abs(nextSum[i]! - summed)
     }
   }
+
   return defect
 }
 
@@ -101,6 +106,7 @@ function reverseAndBound(coupling: number): {
   for (let i = 22; i <= 26; i++) {
     current[i] = i - 21
   }
+
   const seedPrev = previous.slice()
   const seedCur = current.slice()
 
@@ -113,10 +119,12 @@ function reverseAndBound(coupling: number): {
     for (let i = 0; i < RING; i++) {
       activity += current[i]!
     }
+
     if (activity > peak) {
       peak = activity
     }
   }
+
   let revPrev = current.slice()
   let revCur = previous.slice()
   for (let beat = 0; beat < beats; beat++) {
@@ -124,12 +132,14 @@ function reverseAndBound(coupling: number): {
     revPrev = revCur
     revCur = next
   }
+
   let reversible = true
   for (let i = 0; i < RING; i++) {
     if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) {
       reversible = false
     }
   }
+
   return { reversible, peak }
 }
 

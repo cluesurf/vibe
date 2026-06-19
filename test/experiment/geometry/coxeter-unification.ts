@@ -61,6 +61,7 @@ export function coxeterUnification(input: { seed: number }): Record<
       lorentzSafe: aniso.anisotropy < 0.25,
     }
   }
+
   return out
 }
 
@@ -78,6 +79,7 @@ export default experiment({
       all.length === 5 &&
       all.every(e => e.lorentzSafe) &&
       all.some(e => e.dimension === 3)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

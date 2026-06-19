@@ -45,6 +45,7 @@ function integerAxes(level: number): {
       unordered++
     }
   }
+
   return { ordered, unordered }
 }
 

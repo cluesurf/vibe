@@ -93,6 +93,7 @@ export function buildCellGraph(input: {
           hit = true
           continue
         }
+
         id = cellMat.length
         cellKey.set(k, id)
         cellMat.push(gp)
@@ -100,12 +101,14 @@ export function buildCellGraph(input: {
         neighbors.push([])
         faceNeighbor.push(new Array<number>(F.length).fill(-1))
       }
+
       faceNeighbor[head]![fi] = id
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
       }
     }
+
     if (hit) {
       break
     }
@@ -158,8 +161,10 @@ export function buildEuclideanLattice(input: {
         o.push(v)
       }
     }
+
     return o
   }
+
   const dRoots = (d: number): number[][] => {
     const o: number[][] = []
     for (let i = 0; i < d; i++) {
@@ -174,8 +179,10 @@ export function buildEuclideanLattice(input: {
         }
       }
     }
+
     return o
   }
+
   if (key === '3,4,3,3' || key === '3,3,4,3') {
     dim = 4
     offsets = dRoots(4)
@@ -208,6 +215,7 @@ export function buildEuclideanLattice(input: {
     dim = symbol.length
     offsets = axes(symbol.length)
   } // fallback, Z^n
+
   // BFS a box patch from the origin on the (sub)lattice
   const start = new Array<number>(dim).fill(0)
   const kOf = (p: number[]): string => p.join(',')
@@ -221,27 +229,32 @@ export function buildEuclideanLattice(input: {
       if (!onLattice(q)) {
         continue
       }
+
       const k = kOf(q)
       let id = idOf.get(k)
       if (id === undefined) {
         if (coords.length >= maxCells) {
           continue
         }
+
         id = coords.length
         idOf.set(k, id)
         coords.push(q)
         neighbors.push([])
       }
+
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
       }
     }
   }
+
   let facetCount = 0
   for (const nb of neighbors) {
     facetCount = Math.max(facetCount, nb.length)
   }
+
   return {
     symbol,
     cellCount: coords.length,
@@ -292,6 +305,7 @@ export function buildHorosphere(input: {
       far = i
     }
   }
+
   const fc = coords[far]!
   const fn = norm(fc)
   const xi = fc.map(v => v / fn)
@@ -302,7 +316,9 @@ export function buildHorosphere(input: {
     for (let k = 0; k < x.length; k++) {
       d2 += (x[k]! - xi[k]!) ** 2
     }
+
     const r2 = x.reduce((s, v) => s + v * v, 0)
+
     return Math.log(d2 / Math.max(1e-12, 1 - r2))
   })
 
@@ -316,6 +332,7 @@ export function buildHorosphere(input: {
       inBand.push(i)
     }
   }
+
   const neighbors: number[][] = inBand.map(() => [])
   for (let a = 0; a < inBand.length; a++) {
     for (const w of g.neighbors[inBand[a]!]!) {
@@ -325,6 +342,7 @@ export function buildHorosphere(input: {
       }
     }
   }
+
   return {
     cellCount: inBand.length,
     neighbors,
@@ -374,10 +392,12 @@ export function buildHorosphereBand(input: {
         stab.push(g)
       }
     }
+
     if (stab.length > 100000) {
       break
     }
   }
+
   const outerNormal = normals[normals.length - 1]!
   const faceNormals: Vec[] = []
   const faceSeen = new Set<string>()
@@ -389,6 +409,7 @@ export function buildHorosphereBand(input: {
       faceNormals.push(fn)
     }
   }
+
   const F: Mat[] = faceNormals.map(fn => reflectionMatrix(fn, metric))
   const c0 = cellCenter(normals, metric, cellMirrors, timeAxis)
 
@@ -399,6 +420,7 @@ export function buildHorosphereBand(input: {
   for (let i = 0; i < 40; i++) {
     gw = matMul(gw, F[0]!)
   }
+
   const xc = toPoincare(matVec(gw, c0), timeAxis)
   const xn = norm(xc) || 1
   const xi = xc.map(v => v / xn)
@@ -407,10 +429,12 @@ export function buildHorosphereBand(input: {
     for (let k = 0; k < coord.length; k++) {
       d2 += (coord[k]! - xi[k]!) ** 2
     }
+
     return Math.log(
       d2 / Math.max(1e-12, 1 - coord.reduce((s, v) => s + v * v, 0)),
     )
   }
+
   const expandLimit = half + margin
 
   const c0coord = toPoincare(c0, timeAxis)
@@ -425,6 +449,7 @@ export function buildHorosphereBand(input: {
     if (Math.abs(cellBus[head]!) >= expandLimit) {
       continue
     } // pruned, outside the slab, do not expand
+
     const g = cellMat[head]!
     for (const f of F) {
       const gp = matMul(g, f)
@@ -433,6 +458,7 @@ export function buildHorosphereBand(input: {
       if (Math.abs(b) >= expandLimit) {
         continue
       } // drop cells outside the slab entirely
+
       const k = keyOf(coord)
       let id = cellKey.get(k)
       if (id === undefined) {
@@ -446,11 +472,13 @@ export function buildHorosphereBand(input: {
           bandCount++
         }
       }
+
       if (id !== head && !neighbors[head]!.includes(id)) {
         neighbors[head]!.push(id)
         neighbors[id]!.push(head)
       }
     }
+
     if (bandCount >= maxBand) {
       break
     }
@@ -487,6 +515,7 @@ export function bandInducedSubgraph(input: {
       bandIdx.push(i)
     }
   }
+
   const neighbors: number[][] = bandIdx.map(() => [])
   for (let a = 0; a < bandIdx.length; a++) {
     for (const w of band.neighbors[bandIdx[a]!]!) {
@@ -496,7 +525,9 @@ export function bandInducedSubgraph(input: {
       }
     }
   }
+
   const coords = bandIdx.map(i => band.coords[i]!)
+
   return { neighbors, coords }
 }
 
@@ -534,5 +565,6 @@ export function bandLargestComponentSubgraph(input: {
   const coords = lcc.map(v => bcoords[v]!)
   // highest-degree cell, the walk start for the spectral-dimension probe
   const start = mostConnectedNode(neighbors)
+
   return { neighbors, coords, start, largestComponentPercent }
 }

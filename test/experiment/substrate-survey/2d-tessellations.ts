@@ -88,6 +88,7 @@ export default experiment({
       reference.degree === 7 &&
       crystallographic.ok &&
       [6, 4].every(n => n === 3 || n === 4 || n === 6)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

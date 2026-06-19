@@ -72,6 +72,7 @@ export default experiment({
           body[c] = 1
         }
       }
+
       const phi = relaxPotential({
         source: bulkMass({
           occupied: body,
@@ -93,12 +94,15 @@ export default experiment({
         if (body[c]) {
           mass++
         }
+
         if (phi[c]! < 0 && distance(c) > range) {
           range = distance(c)
         }
       }
+
       return { mass, range }
     }
+
     const smallSource = sourceWell(2)
     const largeSource = sourceWell(4)
 
@@ -120,6 +124,7 @@ export default experiment({
       if (shape === 'point') {
         body[index(x0, y0, z0, w0)] = 1
       }
+
       if (shape === 'plane') {
         for (let dy = 0; dy < 3; dy++) {
           for (let dz = 0; dz < 3; dz++) {
@@ -127,6 +132,7 @@ export default experiment({
           }
         }
       }
+
       if (shape === 'block') {
         for (let dy = 0; dy < 3; dy++) {
           for (let dz = 0; dz < 3; dz++) {
@@ -136,6 +142,7 @@ export default experiment({
           }
         }
       }
+
       const centroidX = (): number => {
         let sum = 0
         let count = 0
@@ -145,14 +152,17 @@ export default experiment({
             count++
           }
         }
+
         return count ? sum / count : 0
       }
+
       let mass = 0
       for (let c = 0; c < cellCount; c++) {
         if (body[c]) {
           mass++
         }
       }
+
       const start = centroidX()
       const beats = 8
       for (let b = 0; b < beats; b++) {
@@ -164,8 +174,10 @@ export default experiment({
           spatialDegree: DEGREE,
         })
       }
+
       return { mass, rate: (start - centroidX()) / beats }
     }
+
     const point = fallRate('point')
     const plane = fallRate('plane')
     const block = fallRate('block')

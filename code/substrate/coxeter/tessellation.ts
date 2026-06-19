@@ -66,6 +66,7 @@ export function describeTessellation(
       note: 'invalid Schlafli symbol (entries must be integers >= 2)',
     }
   }
+
   const geometry = classifyGeometry(symbol)
   const cell = symbol.slice(0, -1) // the polytope filling each cell
   const vertexFigure = symbol.slice(1) // the arrangement around each vertex
@@ -163,12 +164,14 @@ export function buildTessellation(input: {
       graph: buildCellGraph({ symbol: input.symbol, maxCells }),
     }
   }
+
   if (descriptor.builder === 'euclidean-lattice') {
     return {
       descriptor,
       graph: buildEuclideanLattice({ symbol: input.symbol, maxCells }),
     }
   }
+
   return { descriptor, graph: null }
 }
 
@@ -187,17 +190,20 @@ export function inspectTessellation(graph: CellGraph): {
       facetDegree = nb.length
     }
   }
+
   let matching = 0
   for (const nb of graph.neighbors) {
     if (nb.length === facetDegree) {
       matching++
     }
   }
+
   const uniformInterior = matching >= 1 // a regular honeycomb has at least the seed at full degree
 
   const { shellCounts } = bfsShells({ neighbors: graph.neighbors })
   const growthRatios = shellCounts
     .slice(1)
     .map((c, i) => c / shellCounts[i]!)
+
   return { facetDegree, uniformInterior, shellCounts, growthRatios }
 }

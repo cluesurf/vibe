@@ -48,6 +48,7 @@ export function dreamingAndWaking(input: { seed: number }): {
       clamp[i] = cuePattern[i] as -1 | 0 | 1
     }
   }
+
   let waking = Int8Array.from(
     { length: size },
     () => rng.nextInt({ max: 3 }) - 1,
@@ -62,6 +63,7 @@ export function dreamingAndWaking(input: { seed: number }): {
       }
     }
   }
+
   const wakingVeridical = Math.abs(overlap(waking, cuePattern))
 
   // Dreaming: no sustained external clamp. A slow internal rhythm briefly cues one stored
@@ -90,6 +92,7 @@ export function dreamingAndWaking(input: { seed: number }): {
         cue[i] = p[i] as -1 | 0 | 1
       }
     }
+
     dreaming = hopfieldStep(J, dreaming, zeroBias, cue) // brief internal cue, then free relaxation
     // sample at the window midpoint (transition, blends) and end (settled memory)
     if (phase === Math.floor(dwell / 2)) {
@@ -99,6 +102,7 @@ export function dreamingAndWaking(input: { seed: number }): {
         blends++
       }
     }
+
     if (phase === dwell - 1) {
       const np = nearestPattern(dreaming, patterns)
       if (np.overlap > 0.6) {
@@ -137,6 +141,7 @@ export default experiment({
       r.wakingDistinct === 1 &&
       r.wakingVeridical > 0.8 &&
       r.dreamingDistinct >= r.storedCount - 1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

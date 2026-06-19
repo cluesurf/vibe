@@ -16,6 +16,7 @@ export function tanhHorizonSpeed(input: {
   if (input.radius <= input.horizon) {
     return 0
   }
+
   return Math.tanh(input.gradient * (input.radius - input.horizon))
 }
 
@@ -48,7 +49,9 @@ export function rayFreezeSurfaceGravity(input: {
       logGaps.push(Math.log(gap))
     }
   }
+
   const tailStart = Math.max(0, times.length - tailSamples)
+
   return -linearFit({
     xs: times.slice(tailStart),
     ys: logGaps.slice(tailStart),

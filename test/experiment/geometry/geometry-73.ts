@@ -24,6 +24,7 @@ export function geometry73(): {
     const d = off[i + 1]! - off[i]!
     degHist[d] = (degHist[d] ?? 0) + 1
   }
+
   const interiorDegree =
     Number(
       Object.entries(degHist).sort(
@@ -71,6 +72,7 @@ export default experiment({
     const exponential = r.growth > 1.5
     const degree7 = r.interiorDegree === 7
     const ok = is2D && exponential && degree7
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

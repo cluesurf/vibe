@@ -41,6 +41,7 @@ function spectrumCounts(k: number[]): {
       trace += 1
     }
   }
+
   return { physical, gauge, trace }
 }
 
@@ -58,6 +59,7 @@ export function gravitonStudy(): {
     [2, 1, 3],
   ]
   const counts = directions.map(d => spectrumCounts(d))
+
   return {
     masslessPolarizations: counts.map(c => c.physical),
     gaugeModes: counts.map(c => c.gauge),
@@ -89,6 +91,7 @@ export default experiment({
       (r.dispersion[0]?.omega2 ?? 0)
     const ok =
       massless && gauge && r.allTwo && r.massiveDof === 5 && shrinks
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

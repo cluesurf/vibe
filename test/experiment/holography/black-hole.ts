@@ -41,12 +41,15 @@ export function blackHoleEntropy(input: { side: number }): {
         }
       }
     }
+
     entropies.push(regionEntanglementEntropy({ c, n, region }))
   }
+
   const area = ells.map(l => l * l) // horizon surface area ~ l^2
   const volume = ells.map(l => l * l * l)
   const areaFit = linearFit({ xs: area, ys: entropies })
   const volumeFit = linearFit({ xs: volume, ys: entropies })
+
   return {
     ells,
     entropies,
@@ -70,6 +73,7 @@ export default experiment({
       (r.entropies[0] ?? 0) < (r.entropies[1] ?? 0) &&
       (r.entropies[1] ?? 0) < (r.entropies[2] ?? 0)
     const ok = r.areaBeatsVolume && increasing
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

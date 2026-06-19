@@ -14,6 +14,7 @@ export function innerJ(x: Vec, y: Vec, metric: number[]): number {
   for (let a = 0; a < x.length; a++) {
     s += (metric[a] ?? 1) * (x[a] ?? 0) * (y[a] ?? 0)
   }
+
   return s
 }
 
@@ -28,11 +29,13 @@ export function matMul(a: Mat, b: Mat): Mat {
       if (aik === 0) {
         continue
       }
+
       for (let j = 0; j < n; j++) {
         out[i]![j]! += aik * b[k]![j]!
       }
     }
   }
+
   return out
 }
 
@@ -44,8 +47,10 @@ export function matVec(a: Mat, x: Vec): Vec {
     for (let j = 0; j < n; j++) {
       s += a[i]![j]! * (x[j] ?? 0)
     }
+
     out[i] = s
   }
+
   return out
 }
 
@@ -64,6 +69,7 @@ export function reflectionMatrix(normal: Vec, metric: number[]): Mat {
       out[a]![b]! -= 2 * normal[a]! * (metric[b] ?? 1) * normal[b]!
     }
   }
+
   return out
 }
 
@@ -72,6 +78,7 @@ export function determinant(a: Mat): number {
   if (n === 0) {
     return 1
   }
+
   const m = a.map(row => row.slice())
   let det = 1
   for (let col = 0; col < n; col++) {
@@ -81,15 +88,18 @@ export function determinant(a: Mat): number {
         pivot = r
       }
     }
+
     if (Math.abs(m[pivot]![col]!) < 1e-15) {
       return 0
     }
+
     if (pivot !== col) {
       const tmp = m[pivot]!
       m[pivot] = m[col]!
       m[col] = tmp
       det = -det
     }
+
     det *= m[col]![col]!
     for (let r = col + 1; r < n; r++) {
       const f = m[r]![col]! / m[col]![col]!
@@ -98,6 +108,7 @@ export function determinant(a: Mat): number {
       }
     }
   }
+
   return det
 }
 
@@ -115,6 +126,7 @@ export function normalizeTimelike(
       out[a] = -(out[a] ?? 0)
     }
   }
+
   return out
 }
 
@@ -130,11 +142,13 @@ export function cellCenter(
   for (let i = 0; i < cellMirrors; i++) {
     rows.push(normals[i]!.map((val, a) => (metric[a] ?? 1) * val))
   }
+
   const c: Vec = new Array<number>(m).fill(0)
   for (let j = 0; j < m; j++) {
     const sub = rows.map(row => row.filter((_, col) => col !== j))
     c[j] = (j % 2 === 0 ? 1 : -1) * determinant(sub)
   }
+
   return normalizeTimelike(c, metric, timeAxis)
 }
 
@@ -147,6 +161,7 @@ export function toPoincare(x: Vec, timeAxis: number): Vec {
       out.push((x[a] ?? 0) / (1 + time))
     }
   }
+
   return out
 }
 
@@ -177,7 +192,9 @@ export function normalizeModelPoint(
   if (isHyperbolicMetric(metric)) {
     return normalizeTimelike(x, metric, timeAxis)
   }
+
   const n = Math.sqrt(Math.max(1e-30, innerJ(x, x, metric)))
+
   return x.map(v => v / n)
 }
 
@@ -191,9 +208,11 @@ export function geodesicDistance(
   if (isHyperbolicMetric(metric)) {
     return hyperbolicDistance(a, b, metric)
   }
+
   const cos =
     innerJ(a, b, metric) /
     Math.sqrt(innerJ(a, a, metric) * innerJ(b, b, metric))
+
   return Math.acos(Math.max(-1, Math.min(1, cos)))
 }
 
@@ -206,13 +225,16 @@ export function stereographic(x: Vec, pole: Vec, basis: Vec[]): Vec {
   for (let a = 0; a < x.length; a++) {
     dotPole += (x[a] ?? 0) * (pole[a] ?? 0)
   }
+
   const denom = 1 + dotPole
   const scale = Math.abs(denom) < 1e-12 ? 1e12 : 1 / denom
+
   return basis.map(u => {
     let d = 0
     for (let a = 0; a < x.length; a++) {
       d += (x[a] ?? 0) * (u[a] ?? 0)
     }
+
     return d * scale
   })
 }
@@ -230,28 +252,35 @@ export function orthogonalComplementBasis(pole: Vec): Vec[] {
     for (let a = 0; a < m; a++) {
       dp += e[a]! * (pole[a] ?? 0)
     }
+
     for (let a = 0; a < m; a++) {
       e[a] = e[a]! - dp * (pole[a] ?? 0)
     }
+
     for (const u of basis) {
       let du = 0
       for (let a = 0; a < m; a++) {
         du += e[a]! * u[a]!
       }
+
       for (let a = 0; a < m; a++) {
         e[a] = e[a]! - du * u[a]!
       }
     }
+
     let len = 0
     for (let a = 0; a < m; a++) {
       len += e[a]! * e[a]!
     }
+
     len = Math.sqrt(len)
     if (len < 1e-9) {
       continue
     }
+
     basis.push(e.map(v => v / len))
   }
+
   return basis
 }
 
@@ -265,7 +294,9 @@ export function reflectPoint(
   if (Math.abs(nn) < 1e-12) {
     return p.slice()
   }
+
   const f = (2 * innerJ(p, normal, metric)) / nn
+
   return p.map((v, a) => v - f * normal[a]!)
 }
 
@@ -282,6 +313,7 @@ export function spatialAxes(dim: number, timeAxis: number): number[] {
       out.push(i)
     }
   }
+
   return out
 }
 
@@ -294,5 +326,6 @@ export function nullVector(normals: Mat, metric: number[]): Vec {
     const minor = M.map(row => row.filter((_, k) => k !== i))
     v[i] = (i % 2 === 0 ? 1 : -1) * determinant(minor)
   }
+
   return v
 }

@@ -38,6 +38,7 @@ export function fermionInducedStabilizer(): {
   const sharp = data[0]!.sea,
     smooth = data[data.length - 1]!.sea
   const risesAsSharpens = sharp > smooth // sea energy higher (less bound) for the sharp soliton
+
   return { data, risesAsSharpens }
 }
 
@@ -53,6 +54,7 @@ export default experiment({
     const r = fermionInducedStabilizer()
     const sharp = r.data[0]?.sea ?? 0
     const smooth = r.data[r.data.length - 1]?.sea ?? 0
+
     return verdict({
       status: 'open',
       claim:

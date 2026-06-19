@@ -14,6 +14,7 @@ export function quantileLabels(input: {
   if (series.length === 0) {
     return []
   }
+
   const sorted = [...series].sort((a, b) => a - b)
   const thresholds = Array.from(
     { length: bins - 1 },
@@ -21,11 +22,13 @@ export function quantileLabels(input: {
       sorted[Math.floor(((k + 1) / bins) * sorted.length)] ??
       sorted[sorted.length - 1]!,
   )
+
   return series.map(x => {
     let b = 0
     while (b < bins - 1 && x > thresholds[b]!) {
       b++
     }
+
     return b
   })
 }
@@ -48,6 +51,7 @@ export function countMatrix(input: {
       counts[i]![j]!++
     }
   }
+
   return counts
 }
 
@@ -78,22 +82,27 @@ export function detailedBalanceViolation(input: {
       }
     }
   }
+
   const violation = total > 0 ? asymmetry / total : 0
   meanCount = pairs > 0 ? meanCount / pairs : 1
   const floor = Math.sqrt(2 / Math.max(meanCount, 1))
+
   return { violation, floor }
 }
 
 // Row-stochastic transition matrix from a count matrix. An empty row (an unvisited state) maps to itself.
 export function rowStochastic(counts: number[][]): number[][] {
   const n = counts.length
+
   return counts.map((row, i) => {
     const sum = row.reduce((a, b) => a + b, 0)
     if (sum === 0) {
       const e = new Array<number>(n).fill(0)
       e[i] = 1
+
       return e
     }
+
     return row.map(c => c / sum)
   })
 }
@@ -110,15 +119,18 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
         off += a[p]![q]! * a[p]![q]!
       }
     }
+
     if (off < 1e-18) {
       break
     }
+
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         const apq = a[p]![q]!
         if (Math.abs(apq) < 1e-15) {
           continue
         }
+
         const app = a[p]![p]!
         const aqq = a[q]![q]!
         const phi = 0.5 * Math.atan2(2 * apq, aqq - app)
@@ -130,6 +142,7 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
           a[k]![p] = c * akp - s * akq
           a[k]![q] = s * akp + c * akq
         }
+
         for (let k = 0; k < n; k++) {
           const apk = a[p]![k]!
           const aqk = a[q]![k]!
@@ -139,7 +152,9 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
       }
     }
   }
+
   const eigs = a.map((row, i) => row[i]!)
+
   return eigs.sort((x, y) => y - x)
 }
 
@@ -156,6 +171,7 @@ export function transitionEigenvalues(counts: number[][]): number[] {
       sym[i]![j] = 0.5 * (counts[i]![j]! + counts[j]![i]!)
     }
   }
+
   const degree = sym.map(row => row.reduce((a, b) => a + b, 0))
   const s: number[][] = Array.from({ length: n }, () =>
     new Array<number>(n).fill(0),
@@ -169,6 +185,7 @@ export function transitionEigenvalues(counts: number[][]): number[] {
       s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : 0
     }
   }
+
   return symmetricEigenvalues(s)
 }
 
@@ -185,6 +202,7 @@ export function spectralGap(eigenvalues: number[]): {
   const l2 = eigenvalues[1] ?? 0
   const l3 = eigenvalues[2] ?? 0
   const gap = 1 - l2 > 1e-9 ? (l2 - l3) / (1 - l2) : 0
+
   return { lambda1: l1, lambda2: l2, lambda3: l3, gap }
 }
 
@@ -198,5 +216,6 @@ export function impliedTimescale(input: {
   if (eigenvalue <= 0 || eigenvalue >= 1) {
     return eigenvalue >= 1 ? Infinity : 0
   }
+
   return -lag / Math.log(eigenvalue)
 }

@@ -29,18 +29,22 @@ export function routeSwitch(sw: RailSwitch, entryPort: number): number {
   if (sw.kind === 'crossing') {
     return (entryPort + 2) % 4
   }
+
   if (entryPort === 0) {
     // trunk -> active branch
     const exit = sw.active
     if (sw.kind === 'flip-flop') {
       sw.active = sw.active === 1 ? 2 : 1
     } // the active passage flips it
+
     return exit
   }
+
   // a branch -> trunk
   if (sw.kind === 'memory') {
     sw.active = entryPort as 1 | 2
   } // remember which branch we came from
+
   return 0
 }
 
@@ -61,6 +65,7 @@ export function registerValue(reg: RailRegister): number {
   while (v < reg.cells.length && reg.cells[v] === 1) {
     v++
   }
+
   return v
 }
 
@@ -70,6 +75,7 @@ export function railIncrement(reg: RailRegister): void {
   while (i < reg.cells.length && reg.cells[i] === 1) {
     i++
   }
+
   if (i < reg.cells.length) {
     reg.cells[i] = 1
   }
@@ -82,10 +88,13 @@ export function railDecrementOrZero(reg: RailRegister): boolean {
   while (i < reg.cells.length && reg.cells[i] === 1) {
     i++
   }
+
   if (i === 0) {
     return false
   } // already zero
+
   reg.cells[i - 1] = 0
+
   return true
 }
 
@@ -123,6 +132,7 @@ export function runRailway(
     for (let i = 0; i < (initial[r] ?? 0); i++) {
       railIncrement(reg)
     }
+
     return reg
   })
   let pc = 0
@@ -133,6 +143,7 @@ export function runRailway(
     if (!ins || ins.op === 'halt') {
       break
     }
+
     steps++
     const at = pc
     if (ins.op === 'inc') {
@@ -142,6 +153,7 @@ export function runRailway(
       const ok = railDecrementOrZero(regs[ins.reg]!)
       pc = ok ? ins.next : ins.zero
     }
+
     if (onStep) {
       onStep({
         pc: at,
@@ -151,5 +163,6 @@ export function runRailway(
       })
     }
   }
+
   return { registers: regs.map(registerValue), steps }
 }

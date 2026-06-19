@@ -37,6 +37,7 @@ function centralWell(): Float64Array {
       potential[i * SIDE + j] = v < 0 ? v : 0 // inside the bowl it is a well, outside it is the free band
     }
   }
+
   return potential
 }
 
@@ -55,6 +56,7 @@ function groupShells(
       shells.push({ energy: e, degeneracy: 1 })
     }
   }
+
   return shells
 }
 
@@ -92,6 +94,7 @@ export default experiment({
     for (let s = 1; s < shells.length; s++) {
       interShellGaps.push(shells[s]!.energy - shells[s - 1]!.energy)
     }
+
     const meanShellGap =
       interShellGaps.reduce((a, b) => a + b, 0) /
       Math.max(1, interShellGaps.length)
@@ -110,6 +113,7 @@ export default experiment({
       cumulative += s.degeneracy * SPIN
       magicNumbers.push(cumulative)
     }
+
     const firstThreeMagic = magicNumbers.slice(0, 3) // expected 2, 6, 12 for the 2D atom
 
     // (3) the FILLING ORDER, add N fermions, exclusion forces them into successive shells (not all in the lowest).
@@ -121,11 +125,14 @@ export default experiment({
         if (remaining <= 0) {
           break
         }
+
         touched += 1
         remaining -= s.degeneracy * SPIN
       }
+
       return touched
     }
+
     const fermionFillTouches = shellsTouchedByFermions(12) // 12 fermions fill shells 0,1,2 (2+4+6)
     const fermionsFillSuccessive = fermionFillTouches >= 3 // exclusion spreads them across successive shells
 

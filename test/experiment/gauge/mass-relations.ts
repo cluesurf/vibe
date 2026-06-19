@@ -20,6 +20,7 @@ export function massRelations(): {
   const detRelationHolds = Math.abs(traceY) < 1e-9
   // (1) b-tau unification, m_b / m_tau = 1 at the GUT scale (canonical GUT input)
   const bTauGut = 1
+
   return { traceY, detRelationHolds, bTauGut }
 }
 
@@ -34,6 +35,7 @@ export default experiment({
   run() {
     const r = massRelations()
     const ok = r.detRelationHolds && Math.abs(r.traceY) < 1e-9
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

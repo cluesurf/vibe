@@ -55,20 +55,24 @@ export default experiment({
       a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
     const unit = (a: Spin): Spin => {
       const n = Math.hypot(a[0], a[1], a[2]) || 1
+
       return [a[0] / n, a[1] / n, a[2] / n]
     }
+
     const rotateBy = (v: Spin, axis: Spin, ang: number): Spin => {
       const u = unit(axis)
       const c = Math.cos(ang),
         s = Math.sin(ang),
         kxv = cross(u, v),
         kdv = dot(u, v)
+
       return [
         v[0] * c + kxv[0] * s + u[0] * kdv * (1 - c),
         v[1] * c + kxv[1] * s + u[1] * kdv * (1 - c),
         v[2] * c + kxv[2] * s + u[2] * kdv * (1 - c),
       ]
     }
+
     // bonds with their twist axes (interfacial form for the 2D reduced model; the 4D form uses the bond/quaternion
     // direction directly, with handedness from the group).
     const bonds: Array<[number, number, Spin]> = [
@@ -86,8 +90,10 @@ export default experiment({
         h[1] += J * r[1]
         h[2] += J * r[2]
       }
+
       return h
     }
+
     const pinEdge = (out: Spin[]): void => {
       for (let i = 0; i < L; i++) {
         out[idx(i, 0)] = [0, 0, 1]
@@ -96,6 +102,7 @@ export default experiment({
         out[idx(L - 1, i)] = [0, 0, 1]
       }
     }
+
     const relaxStep = (s: Spin[], a: number): Spin[] => {
       const out: Spin[] = new Array(L * L)
       for (let y = 0; y < L; y++) {
@@ -109,9 +116,12 @@ export default experiment({
           ])
         }
       }
+
       pinEdge(out)
+
       return out
     }
+
     const precessStep = (s: Spin[], open: boolean): Spin[] => {
       const out: Spin[] = new Array(L * L)
       for (let y = 0; y < L; y++) {
@@ -126,9 +136,11 @@ export default experiment({
           )
         }
       }
+
       if (open) {
         pinEdge(out)
       }
+
       return out
     }
 
@@ -136,6 +148,7 @@ export default experiment({
     for (let t = 0; t < relaxSteps; t++) {
       spins = relaxStep(spins, 0.08)
     }
+
     const relaxedQ = skyrmionDegree(spins, L)
     const relaxedRadius = skyrmionRadius(spins, L)
     const relaxed = spins.map(v => [...v] as Spin)
@@ -148,10 +161,12 @@ export default experiment({
       if (q < minQ) {
         minQ = q
       }
+
       if (q > maxQ) {
         maxQ = q
       }
     }
+
     const precessedRadius = skyrmionRadius(spins, L)
 
     let pert = relaxed.map(v => [...v] as Spin)
@@ -161,9 +176,11 @@ export default experiment({
         pert[idx(x, y)] = [1 / n, 0, 0.2 / n]
       }
     }
+
     for (let t = 0; t < precessSteps; t++) {
       pert = precessStep(pert, false)
     }
+
     const perturbedQ = skyrmionDegree(pert, L)
 
     const boundExists =

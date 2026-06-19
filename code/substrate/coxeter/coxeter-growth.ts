@@ -13,6 +13,7 @@ function trim(p: Poly): Poly {
   while (i > 0 && p[i] === 0n) {
     i--
   }
+
   return p.slice(0, i + 1)
 }
 
@@ -22,6 +23,7 @@ function add(a: Poly, b: Poly): Poly {
   for (let i = 0; i < n; i++) {
     out[i] = (a[i] ?? 0n) + (b[i] ?? 0n)
   }
+
   return trim(out)
 }
 
@@ -32,6 +34,7 @@ function mul(a: Poly, b: Poly): Poly {
       out[i + j] = out[i + j]! + a[i]! * b[j]!
     }
   }
+
   return trim(out)
 }
 
@@ -64,6 +67,7 @@ function finiteGrowthFromExponents(exponents: number[]): Poly {
   for (const e of exponents) {
     p = mul(p, qInteger(e + 1))
   }
+
   return p
 }
 
@@ -78,9 +82,11 @@ function connectedComponents(mask: number, rank: number): number[][] {
       cur = []
     }
   }
+
   if (cur.length) {
     out.push(cur)
   }
+
   return out
 }
 
@@ -92,40 +98,52 @@ function componentExponents(
   if (size === 1) {
     return [1]
   }
+
   const edgeLabels = component.slice(0, -1).map(v => labels[v]!)
   if (size === 2) {
     const m = edgeLabels[0]!
+
     return [1, m - 1] // I2(m)
   }
+
   if (size === 3) {
     const key = edgeLabels.join(',')
     if (key === '3,3') {
       return [1, 2, 3]
     } // A3
+
     if (key === '4,3' || key === '3,4') {
       return [1, 3, 5]
     } // B3
+
     if (key === '5,3' || key === '3,5') {
       return [1, 5, 9]
     } // H3
+
     return null
   }
+
   if (size === 4) {
     const key = edgeLabels.join(',')
     if (key === '3,3,3') {
       return [1, 2, 3, 4]
     } // A4
+
     if (key === '4,3,3' || key === '3,3,4') {
       return [1, 3, 5, 7]
     } // B4
+
     if (key === '3,4,3') {
       return [1, 5, 7, 11]
     } // F4
+
     if (key === '5,3,3' || key === '3,3,5') {
       return [1, 11, 19, 29]
     } // H4
+
     return null
   }
+
   return null
 }
 
@@ -137,14 +155,17 @@ function finiteParabolicGrowth(
   if (mask === 0) {
     return [1n]
   }
+
   let growth: Poly = [1n]
   for (const component of connectedComponents(mask, rank)) {
     const exponents = componentExponents(component, labels)
     if (!exponents) {
       return null
     }
+
     growth = mul(growth, finiteGrowthFromExponents(exponents))
   }
+
   return growth
 }
 
@@ -154,6 +175,7 @@ function bitCount(x: number): number {
     n += x & 1
     x >>= 1
   }
+
   return n
 }
 
@@ -165,9 +187,11 @@ export function coxeterGrowthSeries(labels: number[]): Rational {
     if (!finiteGrowth) {
       continue
     }
+
     const sign = bitCount(mask) % 2 === 0 ? 1n : -1n
     sum = rationalAdd(sum, { num: [sign], den: finiteGrowth })
   }
+
   // sum(t) = 1 / W(1/t), so W(t) = den(1/t) / num(1/t)
   const n = trim(sum.num)
   const d = trim(sum.den)
@@ -177,13 +201,16 @@ export function coxeterGrowthSeries(labels: number[]): Rational {
   if (shiftAmount > 0) {
     num = shift(num, shiftAmount)
   }
+
   if (shiftAmount < 0) {
     den = shift(den, -shiftAmount)
   }
+
   if (den[0]! < 0n) {
     num = scale(num, -1n)
     den = scale(den, -1n)
   }
+
   return { num: trim(num), den: trim(den) }
 }
 
@@ -195,17 +222,21 @@ export function expandSeries(
   if (den[0] === 0n) {
     throw new Error('Denominator has zero constant term')
   }
+
   const out: bigint[] = []
   for (let n = 0; n < count; n++) {
     let value = num[n] ?? 0n
     for (let i = 1; i < den.length && i <= n; i++) {
       value -= den[i]! * out[n - i]!
     }
+
     if (value % den[0]! !== 0n) {
       throw new Error('Non-integral coefficient encountered')
     }
+
     out.push(value / den[0]!)
   }
+
   return out
 }
 
@@ -214,6 +245,7 @@ export function recurrenceFromDenominator(den: Poly): bigint[] {
   if (den[0] !== 1n) {
     throw new Error('Expected denominator constant term 1')
   }
+
   return den.slice(1).map(x => -x)
 }
 
@@ -225,6 +257,7 @@ export function polyToString(p: Poly): string {
       const coeff =
         c === 1n && i > 0 ? '' : c === -1n && i > 0 ? '-' : String(c)
       const term = i === 0 ? '' : i === 1 ? 't' : `t^${i}`
+
       return `${coeff}${term}`
     })
     .join(' + ')

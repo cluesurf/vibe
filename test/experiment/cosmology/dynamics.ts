@@ -41,6 +41,7 @@ export default experiment({
     const m0 = beta0.meanObservable
     const m2 = beta2.meanObservable
     const ok = m2 >= m0
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -19,6 +19,7 @@ export function runModel(
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
+
     return m
   })
   const fills = g.neighbors.map(row => new Int8Array(row.length))
@@ -28,6 +29,7 @@ export function runModel(
     if (!fv) {
       continue
     }
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
       if (w > v) {
@@ -41,10 +43,12 @@ export function runModel(
       }
     }
   }
+
   const init = new Int8Array(g.size)
   for (let i = 0; i < g.size; i++) {
     init[i] = rng.nextInt({ max: 3 }) - 1
   }
+
   const run = (): Int8Array => {
     let tone = Int8Array.from(init)
     for (let b = 0; b < 30; b++) {
@@ -56,12 +60,16 @@ export function runModel(
         for (let k = 0; k < nb.length; k++) {
           h += (fl[k] ?? 0) * (tone[nb[k] ?? 0] ?? 0)
         }
+
         next[v] = h > 0 ? 1 : h < 0 ? -1 : 0
       }
+
       tone = next
     }
+
     return tone
   }
+
   const a = run()
   const b = run()
   let deterministic = true
@@ -71,12 +79,15 @@ export function runModel(
     if (a[i] !== b[i]) {
       deterministic = false
     }
+
     if (a[i] !== init[i]) {
       evolves = true
     }
+
     if (a[i] !== 0) {
       nonzero++
     }
   }
+
   return { deterministic, evolves, nonzeroFraction: nonzero / g.size }
 }

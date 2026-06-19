@@ -57,5 +57,6 @@ export function runRule(input: {
       substrate = out.substrate
     }
   }
+
   return { configuration, substrate }
 }

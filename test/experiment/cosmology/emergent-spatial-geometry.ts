@@ -26,6 +26,7 @@ function spatialDistance(
       (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
     s += delta * delta
   }
+
   return Math.sqrt(s)
 }
 
@@ -51,6 +52,7 @@ export function sliceDimension(input: {
   for (let i = 0; i < poset.size; i++) {
     times.push(coords[i * d] ?? 0)
   }
+
   const sorted = [...times].sort((a, b) => a - b)
   const lo = sorted[Math.floor(sorted.length * 0.48)] ?? 0
   const hi = sorted[Math.floor(sorted.length * 0.52)] ?? 0
@@ -80,6 +82,7 @@ export function sliceDimension(input: {
       }
     }
   }
+
   let degSum = 0
   for (const row of neighbors) {
     degSum += row.length
@@ -118,6 +121,7 @@ export default experiment({
       two.spatialDimension < 2 &&
       three.spatialDimension < 3 &&
       three.spatialDimension - two.spatialDimension > 0.4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -18,6 +18,7 @@ function randomOrder(input: { size: number; rng: Rng }): number[] {
   for (let i = 0; i < input.size; i++) {
     order.push(i)
   }
+
   for (let i = input.size - 1; i > 0; i--) {
     const j = input.rng.nextInt({ max: i + 1 })
     const a = order[i] ?? 0
@@ -25,6 +26,7 @@ function randomOrder(input: { size: number; rng: Rng }): number[] {
     order[i] = b
     order[j] = a
   }
+
   return order
 }
 

@@ -23,8 +23,10 @@ function bfsDistances(
         }
       }
     }
+
     frontier = next
   }
+
   return dist
 }
 
@@ -40,6 +42,7 @@ function triangleCount(input: {
   for (let k = 0; k < rowB.length; k++) {
     setB.add(rowB[k] ?? -1)
   }
+
   let common = 0
   for (let k = 0; k < rowA.length; k++) {
     const node = rowA[k] ?? -1
@@ -47,6 +50,7 @@ function triangleCount(input: {
       common++
     }
   }
+
   return common
 }
 
@@ -63,6 +67,7 @@ export function formanRicci(input: {
   const degreeA = (adjacency[input.a] ?? new Uint32Array(0)).length
   const degreeB = (adjacency[input.b] ?? new Uint32Array(0)).length
   const triangles = triangleCount({ adjacency, a: input.a, b: input.b })
+
   return 4 - degreeA - degreeB + 3 * triangles
 }
 
@@ -85,6 +90,7 @@ export function meanCurvature(input: { substrate: Substrate }): number {
       }
     }
   }
+
   return edges === 0 ? 0 : total / edges
 }
 
@@ -120,6 +126,7 @@ export function shellGrowthCurvature(input: {
       ratios.push(shells[i]! / shells[i - 1]!)
     }
   }
+
   const minInteriorRatio = ratios.length ? Math.min(...ratios) : 1
   const lateRatio = ratios.length ? ratios[ratios.length - 1]! : 1
   let sign: CurvatureSign
@@ -130,6 +137,7 @@ export function shellGrowthCurvature(input: {
   } else {
     sign = lateRatio < flatThreshold ? 'flat' : 'negative'
   }
+
   return { sign, lateRatio, minInteriorRatio }
 }
 
@@ -163,5 +171,6 @@ export function gromovDelta(input: {
     const delta = ((sorted[0] ?? 0) - (sorted[1] ?? 0)) / 2
     worst = Math.max(worst, delta)
   }
+
   return worst
 }

@@ -59,6 +59,7 @@ export function maxwellLatticeSpectrum(input: {
       }
     }
   }
+
   // A photon mass term (Proca) adds m^2 to every diagonal, lifting the gauge modes.
   if (input.mass !== 0) {
     for (let i = 0; i < dof; i++) {
@@ -66,6 +67,7 @@ export function maxwellLatticeSpectrum(input: {
         (H.data[i * dof + i] ?? 0) + input.mass * input.mass
     }
   }
+
   return Array.from(eigSymmetric({ matrix: H }).values).sort(
     (a, b) => a - b,
   )

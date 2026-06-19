@@ -83,6 +83,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
       }
     }
   }
+
   const dCenter = bfsShells({ neighbors: hg, root: center }).depth
   const maxR = Math.min(8, Math.max(...Array.from(dCenter)))
   const tone = new Int8Array(hg.length)
@@ -94,9 +95,11 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
       | 0
       | 1
   }
+
   for (let t = 0; t < 60; t++) {
     fieldBeat(tone, edges, moved, rng, 0.1)
   }
+
   const sumP = new Float64Array(maxR + 1)
   const cntP = new Float64Array(maxR + 1)
   const T = 3000
@@ -107,6 +110,7 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
       mean += tone[i]!
       mc++
     }
+
     // correlation by graph distance from the center
     for (let i = 0; i < hg.length; i++) {
       const r = dCenter[i]!
@@ -115,13 +119,16 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
         cntP[r]!++
       }
     }
+
     fieldBeat(tone, edges, moved, rng, 0.1)
   }
+
   const m2 = (mean / mc) ** 2
   const c: number[] = []
   for (let r = 0; r <= maxR; r++) {
     c.push(cntP[r]! > 0 ? sumP[r]! / cntP[r]! - m2 : 0)
   }
+
   let correlationRange = 0
   for (let r = 1; r <= maxR; r++) {
     if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) {
@@ -153,6 +160,7 @@ export default experiment({
   run() {
     const r = horosphereDynamics({ maxCells: 14000 })
     const ok = r.solved && r.horoIsMassive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

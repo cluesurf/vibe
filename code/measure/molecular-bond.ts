@@ -40,6 +40,7 @@ export function hydrogenMolecularIonBondingEnergy(input: {
 }): number {
   const r = input.separation
   const k = input.includeResonance === false ? 0 : resonanceIntegral(r)
+
   return -0.5 + 1 / r - (coulombIntegral(r) + k) / (1 + overlap(r))
 }
 
@@ -48,6 +49,7 @@ export function hydrogenMolecularIonAntibondingEnergy(
   separation: number,
 ): number {
   const r = separation
+
   return (
     -0.5 +
     1 / r -
@@ -92,6 +94,7 @@ export function hydrogenMolecularIonVariationalBond(): {
     if (zeta <= 0) {
       continue
     }
+
     const energy = zeta * zeta * t + zeta * (v + 1 / w)
     if (energy < best.minimumEnergy) {
       best = {
@@ -101,6 +104,7 @@ export function hydrogenMolecularIonVariationalBond(): {
       }
     }
   }
+
   return {
     effectiveCharge: best.effectiveCharge,
     equilibriumSeparation: best.equilibriumSeparation,
@@ -124,6 +128,7 @@ export function hydrogenMolecularIonSimpleBond(): {
       best = { equilibriumSeparation: r, energy: e }
     }
   }
+
   return {
     equilibriumSeparation: best.equilibriumSeparation,
     dissociationEnergyEv: (-0.5 - best.energy) * HARTREE_IN_EV,

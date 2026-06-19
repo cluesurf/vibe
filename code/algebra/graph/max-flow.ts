@@ -52,8 +52,10 @@ export class FlowNetwork {
           }
         }
       }
+
       frontier = next
     }
+
     return level[sink] === -1 ? null : level
   }
 
@@ -67,6 +69,7 @@ export class FlowNetwork {
     if (node === sink) {
       return pushed
     }
+
     for (; iter[node]! < this.out[node]!.length; iter[node]!++) {
       const arcIndex = this.out[node]![iter[node]!]!
       const arc = this.arcs[arcIndex]!
@@ -82,10 +85,12 @@ export class FlowNetwork {
         if (sent > 0) {
           arc.flow += sent
           this.arcs[arc.twin]!.flow -= sent
+
           return sent
         }
       }
     }
+
     return 0
   }
 
@@ -97,6 +102,7 @@ export class FlowNetwork {
       if (level === null) {
         break
       }
+
       const iter = new Int32Array(this.nodeCount)
       for (;;) {
         const sent = this.blockingFlow(
@@ -109,9 +115,11 @@ export class FlowNetwork {
         if (sent === 0) {
           break
         }
+
         total += sent
       }
     }
+
     return total
   }
 }
@@ -138,11 +146,14 @@ export function undirectedMinCut(input: {
       }
     }
   }
+
   for (const s of input.sources) {
     network.addArc(superSource, s, big, 0)
   }
+
   for (const t of input.sinks) {
     network.addArc(t, superSink, big, 0)
   }
+
   return network.maxFlow(superSource, superSink)
 }

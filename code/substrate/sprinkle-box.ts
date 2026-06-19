@@ -26,6 +26,8 @@ export function sprinkleBox(input: {
       x: (input.rng.next() * 2 - 1) * input.xMax,
     })
   }
+
   pts.sort((a, b) => a.t - b.t)
+
   return pts
 }

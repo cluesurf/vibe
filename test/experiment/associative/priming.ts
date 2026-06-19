@@ -66,6 +66,7 @@ export function associativePriming(input?: {
     primedBeats >= 0 &&
     unprimedBeats >= 0 &&
     primedBeats < unprimedBeats
+
   return {
     cellCount: g.cellCount,
     target,
@@ -85,6 +86,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativePriming({ maxCells: 1500, primeRadius: 2 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

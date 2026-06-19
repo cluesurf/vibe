@@ -28,6 +28,7 @@ export function s73Structure(): {
   ])
   const crystallographic = directionsAreCrystallographic(dirs)
   const hasSpinor = false // 7-fold dihedral D7 is a real reflection group, the 7-direction perm rep carries no spinor
+
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
@@ -46,6 +47,7 @@ export default experiment({
       r.specDim > 0 &&
       !r.crystallographic &&
       !r.hasSpinor
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

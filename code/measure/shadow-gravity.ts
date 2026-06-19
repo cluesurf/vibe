@@ -20,6 +20,7 @@ export function fibonacciSphereDirections(count: number): number[][] {
       Math.sin(theta) * radius,
     ])
   }
+
   return directions
 }
 
@@ -40,6 +41,7 @@ export function isotropicShadowFraction(input: {
     if (projection <= 0) {
       continue
     }
+
     // squared perpendicular distance from the body center to the ray
     const px = r - projection * u[0]!
     const py = -projection * u[1]!
@@ -48,6 +50,7 @@ export function isotropicShadowFraction(input: {
       blocked++
     }
   }
+
   return blocked / input.directions.length
 }
 
@@ -72,12 +75,14 @@ export function directionalShadowFraction(input: {
       if (y * y + z * z > beam2) {
         continue
       }
+
       total++
       if (y * y + z * z < a2) {
         blocked++
       }
     }
   }
+
   return total === 0 ? 0 : blocked / total
 }
 
@@ -98,6 +103,7 @@ export function leSageDrag(input: {
     const dx = d[0]!
     force += -(1 + input.velocity * dx) * dx
   }
+
   return force / input.directions.length
 }
 
@@ -116,5 +122,6 @@ export function distanceExponent(
     cov += (xs[i]! - meanX) * (ys[i]! - meanY)
     varX += (xs[i]! - meanX) ** 2
   }
+
   return cov / varX
 }

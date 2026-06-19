@@ -15,11 +15,13 @@ const isPrefixPlusOne = (
   if (child.length !== parent.length + 1) {
     return false
   }
+
   for (let i = 0; i < parent.length; i++) {
     if (parent[i] !== child[i]) {
       return false
     }
   }
+
   return true
 }
 
@@ -41,6 +43,7 @@ export default experiment({
       if (parent === -1) {
         continue
       }
+
       checked += 1
       if (!isPrefixPlusOne(a.address[parent]!, a.address[cell]!)) {
         prefixConsistent = false

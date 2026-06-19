@@ -52,6 +52,7 @@ export function directionalRule(): {
       diracOk = false
     }
   }
+
   return { ballistic, diffusive, diracOk }
 }
 
@@ -69,6 +70,7 @@ export default experiment({
     const ballisticFar = r.ballistic > 40
     const diffusiveSlow = r.diffusive < 16
     const ok = ballisticFar && diffusiveSlow && r.diracOk
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

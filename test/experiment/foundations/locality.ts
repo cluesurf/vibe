@@ -35,10 +35,12 @@ function controlLocality(cells: number): {
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
+
   const profile = pauliLocalityProfile({
     matrix: hamiltonianMatrix({ perm }),
     cells,
   })
+
   return {
     fractions: profile.weightByRange,
     localityLength: profile.localityLength,
@@ -64,12 +66,14 @@ function localityOf(cells: number): {
       for (const t of neighborhood) {
         parity ^= t & 1
       }
+
       return (self ^ parity) & 1
     },
   })
   const perm = permutationOfRule({ rule, substrate, space })
   const h = hamiltonianMatrix({ perm })
   const profile = pauliLocalityProfile({ matrix: h, cells })
+
   return {
     cells,
     fractions: profile.weightByRange,
@@ -89,6 +93,7 @@ export default experiment({
     const control = controlLocality(6)
     const xor = localityOf(8)
     const ok = Math.abs(control.localityLength - 1) < 1e-6
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

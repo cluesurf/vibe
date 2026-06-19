@@ -36,6 +36,7 @@ function breather(side: number): { mesh: Mesh; will: Will } {
       }
     }
   }
+
   return { mesh, will }
 }
 
@@ -69,6 +70,7 @@ function boxRegions(
       }
     }
   }
+
   return { interior, shell, exterior }
 }
 
@@ -77,6 +79,7 @@ function sumCharge(will: Will, cells: number[]): number {
   for (const c of cells) {
     s += cellTone(will, c)
   }
+
   return s
 }
 
@@ -127,6 +130,7 @@ function perturbationRadius(input: {
       }
     }
   }
+
   return maxRadius
 }
 
@@ -165,6 +169,7 @@ export default experiment({
       shell.push(sumCharge(w, region.shell))
       exterior.push(sumCharge(w, region.exterior))
     }
+
     const blanket = blanketScreening({ interior, shell, exterior })
 
     // cognitive light cone, an interior perturbation versus a vacuum perturbation.
@@ -194,6 +199,7 @@ export default experiment({
     const containmentNotStructureSpecific =
       Math.abs(interiorRadius - vacuumRadius) <= 2
     const ok = interiorIsolated && containmentNotStructureSpecific
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

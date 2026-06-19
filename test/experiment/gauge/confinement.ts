@@ -50,11 +50,13 @@ function study(input: { beta: number; seed: number }): {
     for (let s = 0; s < 3; s++) {
       metropolisSweep({ lattice, beta: input.beta, eps, rng })
     }
+
     w11 += wilsonLoop({ lattice, r: 1, t: 1 })
     w21 += wilsonLoop({ lattice, r: 2, t: 1 })
     w12 += wilsonLoop({ lattice, r: 1, t: 2 })
     w22 += wilsonLoop({ lattice, r: 2, t: 2 })
   }
+
   w11 /= measurements
   w21 /= measurements
   w12 /= measurements
@@ -93,6 +95,7 @@ export default experiment({
     const decreasing =
       (tensions[0] ?? 0) > (tensions[tensions.length - 1] ?? 0)
     const ok = allPositive && decreasing
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

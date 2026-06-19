@@ -22,8 +22,10 @@ export function hankelMatrix(input: {
     for (let j = 0; j <= size; j++) {
       row.push(sequence[i + j] ?? 0)
     }
+
     h.push(row)
   }
+
   return h
 }
 
@@ -39,6 +41,7 @@ export function symmetricEigenvalues(
       dense.data[i * n + j] = matrix[i]![j] ?? 0
     }
   }
+
   return Array.from(eigSymmetric({ matrix: dense }).values)
 }
 
@@ -52,6 +55,7 @@ export function symmetricMinEigenvalue(
   for (const v of values) {
     mn = Math.min(mn, v)
   }
+
   return mn
 }
 
@@ -63,5 +67,6 @@ export function hankelMinEigenvalue(input: {
   size: number
 }): number {
   const h = hankelMatrix(input)
+
   return symmetricMinEigenvalue(h) / (input.sequence[0] ?? 1)
 }

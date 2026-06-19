@@ -28,6 +28,7 @@ export function covariantKahlerDirac(input: {
   for (let k = 0; k < grades; k++) {
     offset[k + 1] = (offset[k] ?? 0) + (cellCount[k] ?? 0)
   }
+
   const total = offset[grades] ?? 0
 
   // To map an edge column back to its endpoints (for the link phase) we read the
@@ -62,6 +63,7 @@ export function covariantKahlerDirac(input: {
     if (!b) {
       continue
     }
+
     const lowOffset = offset[k - 1] ?? 0
     const highOffset = offset[k] ?? 0
     const isVertexEdge = k === 1
@@ -84,6 +86,7 @@ export function covariantKahlerDirac(input: {
             value *= Math.cos(input.charge * phase)
           }
         }
+
         // delta block (high grade -> low grade) and its transpose (d block).
         triplets.push({
           row: lowOffset + r,

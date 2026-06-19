@@ -48,8 +48,10 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
           }
         }
       }
+
       radii.push([b, r])
     }
+
     for (let z = 0; z < L; z++) {
       for (let y = 0; y < L; y++) {
         for (let x = 0; x < L; x++) {
@@ -57,17 +59,21 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
           for (const d of D) {
             s += cur[at(x + d[0]!, y + d[1]!, z + d[2]!)]!
           }
+
           nxt[at(x, y, z)] = ((((s - prev[at(x, y, z)]!) % 3) + 3) %
             3) as 0 | 1 | 2
         }
       }
     }
+
     const t = prev
     prev = cur
     cur = nxt
     nxt = t
   }
+
   const ok = radii.every(([b, r]) => r === b)
+
   return { ok, radii }
 }
 
@@ -88,15 +94,18 @@ export function ports(): {
   for (let k = 0; k < 200; k++) {
     t[Math.floor(rnd() * L * L * L)] = (rnd() < 0.5 ? 1 : -1) as -1 | 1
   }
+
   for (let b = 0; b < 40; b++) {
     beat(t, true)
   }
+
   let ch = 0
   for (let i = 0; i < t.length; i++) {
     if (t[i] !== 0) {
       ch++
     }
   }
+
   const churnPct = Math.round((100 * ch) / t.length)
 
   // two opposite selves annihilate
@@ -110,6 +119,7 @@ export function ports(): {
       }
     }
   }
+
   const count = (): [number, number] => {
     let p = 0,
       m = 0
@@ -120,14 +130,18 @@ export function ports(): {
         m++
       }
     }
+
     return [p, m]
   }
+
   const start = count()
   for (let b = 0; b < 40; b++) {
     beat(t2, false)
   }
+
   const end = count()
   const annihilates = end[0] < start[0]
+
   return { lightconeOk: lc.ok, churnPct, annihilates }
 }
 
@@ -142,6 +156,7 @@ export default experiment({
   run() {
     const r = ports()
     const ok = r.lightconeOk && r.annihilates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

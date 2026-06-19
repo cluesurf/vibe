@@ -19,6 +19,7 @@ export type BlockGate = (value: number) => number
 export function cnotGate(value: number): number {
   const b0 = value & 1
   const b1 = (value >> 1) & 1
+
   return b0 | ((b1 ^ b0) << 1)
 }
 
@@ -28,6 +29,7 @@ export function toffoliGate(value: number): number {
   const b0 = value & 1
   const b1 = (value >> 1) & 1
   const b2 = (value >> 2) & 1
+
   return b0 | (b1 << 1) | ((b2 ^ (b0 & b1)) << 2)
 }
 
@@ -54,6 +56,7 @@ function applySweep(input: {
         const pos = (start + j) % cells
         v |= ((state >> pos) & 1) << j
       }
+
       const w = gate(v)
       // Write the gated block back.
       for (let j = 0; j < blockSize; j++) {
@@ -65,6 +68,7 @@ function applySweep(input: {
       }
     }
   }
+
   return state
 }
 
@@ -91,6 +95,7 @@ export function commutingBlockHamiltonian(input: {
       for (let j = 0; j < blockSize; j++) {
         v |= ((c >> ((p + j) % cells)) & 1) << j
       }
+
       const w = gate(v)
       let target = c
       for (let j = 0; j < blockSize; j++) {
@@ -100,11 +105,13 @@ export function commutingBlockHamiltonian(input: {
           target ^= 1 << pos
         }
       }
+
       // (pi/2)(I - G_block): +pi/2 on the diagonal, -pi/2 at [g(c)][c].
       h.re[c * n + c] = (h.re[c * n + c] ?? 0) + half
       h.re[target * n + c] = (h.re[target * n + c] ?? 0) - half
     }
   }
+
   return h
 }
 
@@ -129,5 +136,6 @@ export function blockCaPermutation(input: {
       offsets,
     })
   }
+
   return perm
 }

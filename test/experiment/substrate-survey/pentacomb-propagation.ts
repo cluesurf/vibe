@@ -29,6 +29,7 @@ function measureSize(maxCells: number): {
 } {
   const penta = buildCoxeterMatrixMesh([3, 4, 3, 3, 4], maxCells)
   const result = kahlerDiracReturn({ neighbors: penta.adjacency })
+
   return { cells: penta.adjacency.length, ...result }
 }
 
@@ -84,6 +85,7 @@ export default experiment({
     const stable = r.normDrift < 0.05
     const ok =
       r.spinorPropagatesOnCurved && r.disorderLocalizes && stable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

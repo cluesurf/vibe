@@ -69,5 +69,6 @@ export async function renderFoldToRgba(input: {
   pixelBuffer.unmap()
   target.destroy()
   pixelBuffer.destroy()
+
   return rgba
 }

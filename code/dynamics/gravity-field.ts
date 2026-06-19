@@ -30,14 +30,17 @@ export function bulkMass(input: {
     if (!occupied[c]) {
       continue
     }
+
     let count = 0
     for (let d = 0; d < spatialDegree; d++) {
       count += occupied[neighbour(c, d)] ? 1 : 0
     }
+
     if (count >= minNeighbours) {
       source[c] = 1
     }
   }
+
   return source
 }
 
@@ -77,13 +80,16 @@ export function relaxPotential(input: {
       for (let d = 0; d < spatialDegree; d++) {
         sum += phi[neighbour(c, d)]!
       }
+
       next[c] = clamp(
         Math.round(sum / spatialDegree) -
           strength * (source[c] ? 1 : 0),
       )
     }
+
     phi = next
   }
+
   return phi
 }
 
@@ -113,13 +119,16 @@ export function gravityMoves(input: {
     if (!free[c]) {
       continue
     }
+
     let dense = 0
     for (let d = 0; d < spatialDegree; d++) {
       dense += free[neighbour(c, d)]!
     }
+
     if (dense >= minNeighbours) {
       continue
     }
+
     let best = -1
     let bestPhi = phi[c]!
     for (let d = 0; d < spatialDegree; d++) {
@@ -129,12 +138,14 @@ export function gravityMoves(input: {
         best = t
       }
     }
+
     if (best >= 0) {
       moves.push([c, best])
       free[c] = 0
       free[best] = 1
     }
   }
+
   return moves
 }
 
@@ -172,12 +183,15 @@ export function vacuumDensity(input: {
       for (let d = 0; d < spatialDegree; d++) {
         sum += v[neighbour(c, d)]!
       }
+
       // empty cells pump the vacuum up by one, mass cells push it down by cap (depletion).
       next[c] = clamp(
         Math.round(sum / spatialDegree) + (occupied[c] ? -cap : 1),
       )
     }
+
     v = next
   }
+
   return v
 }

@@ -42,6 +42,7 @@ export function intentionAtScale(input?: { n?: number }): {
       center = i
     }
   }
+
   const distC = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -55,6 +56,7 @@ export function intentionAtScale(input?: { n?: number }): {
       target = i
     }
   }
+
   const dT = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -68,10 +70,12 @@ export function intentionAtScale(input?: { n?: number }): {
       self.push(i)
     }
   }
+
   const selfSet = new Uint8Array(N)
   for (const i of self) {
     selfSet[i] = 1
   }
+
   const hub = new Uint8Array(N)
   for (const i of self) {
     if (distC[i]! <= 1) {
@@ -93,6 +97,7 @@ export function intentionAtScale(input?: { n?: number }): {
       if (moved[v] || moved[w]) {
         continue
       }
+
       const a = tone[v]!
       const b = tone[w]!
       if ((a === 0) !== (b === 0)) {
@@ -101,11 +106,13 @@ export function intentionAtScale(input?: { n?: number }): {
         if (!selfSet[e] && !selfSet[c]) {
           continue
         }
+
         let prob = 0.5
         if (willRegion[c]) {
           const toward = dT[e]! < dT[c]! ? 1 : dT[e]! > dT[c]! ? -1 : 0
           prob = 0.5 + bias * toward
         }
+
         if (rng.next() < prob) {
           tone[e] = tone[c]!
           tone[c] = 0
@@ -128,8 +135,10 @@ export function intentionAtScale(input?: { n?: number }): {
         c++
       }
     }
+
     return c > 0 ? s / c : 0
   }
+
   // spatial spread of the charge (cohesion = small spread, the self stays one blob)
   const spread = (tone: Int8Array): number => {
     let s = 0
@@ -142,16 +151,21 @@ export function intentionAtScale(input?: { n?: number }): {
         c++
       }
     }
+
     const m = s / c
+
     return Math.sqrt(s2 / c - m * m)
   }
+
   const initSelf = (): Int8Array => {
     const tone = new Int8Array(N)
     for (const i of self) {
       tone[i] = 1
     }
+
     return tone
   }
+
   const T = 50
 
   // CHECK 1: coherence, will on the whole self, does it drift toward target as a cohesive whole?
@@ -163,6 +177,7 @@ export function intentionAtScale(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0.45, rng1)
   }
+
   const driftWithWill = dt0 - meanDT(tone, () => true) // positive = moved toward target
   const cohesionWithWill = sp0 / spread(tone) // >= ~1 means it did not blow apart
 
@@ -171,6 +186,7 @@ export function intentionAtScale(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0, rng1b)
   } // no will (unbiased)
+
   const driftNoWill = dt0 - meanDT(tone, () => true)
   // the RELATIVE effect of the will (with minus without) is the intention signal, the absolute drift is
   // dominated by dispersal on the hyperbolic scaffold (no clean directions, exponential expansion)
@@ -185,12 +201,14 @@ export function intentionAtScale(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     beat(tone, hub, 0.45, rng2)
   }
+
   const peripheryDriftHubWill = dtPeri0 - meanDT(tone, peri)
   tone = initSelf()
   const rng2b = makeRng({ seed: 7 })
   for (let t = 0; t < T; t++) {
     beat(tone, hub, 0, rng2b)
   }
+
   const peripheryDriftNoWill = dtPeri0 - meanDT(tone, peri)
   const topDownEffect = peripheryDriftHubWill - peripheryDriftNoWill
   const topDown = topDownEffect > 0.2
@@ -201,6 +219,7 @@ export function intentionAtScale(input?: { n?: number }): {
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0.45, rng3)
   }
+
   const dtBefore = meanDT(tone, () => true)
   // perturb: randomly relocate ~40% of the charge to random self cells (a shock to the intention)
   const charges: number[] = []
@@ -209,6 +228,7 @@ export function intentionAtScale(input?: { n?: number }): {
       charges.push(i)
     }
   }
+
   for (const c of charges) {
     if (rng3.next() < 0.4) {
       tone[c] = 0
@@ -216,10 +236,12 @@ export function intentionAtScale(input?: { n?: number }): {
       tone[dest] = 1
     }
   }
+
   const dtPerturbed = meanDT(tone, () => true)
   for (let t = 0; t < T; t++) {
     beat(tone, allWill, 0.45, rng3)
   }
+
   const dtRecovered = meanDT(tone, () => true)
   const driftAfterPerturb = dtPerturbed - dtRecovered // resumes moving toward target
   const persists = driftAfterPerturb > 0.3
@@ -262,6 +284,7 @@ export default experiment({
   run() {
     const r = intentionAtScale({ n: 60000 })
     const ok = r.solved && r.coherent && r.directedFrustrated
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

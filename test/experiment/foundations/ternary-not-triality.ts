@@ -30,6 +30,7 @@ function ternaryToneSymmetryOrder(): number {
     if (a.length <= 1) {
       return [a]
     }
+
     const out: number[][] = []
     for (let i = 0; i < a.length; i++) {
       const rest = [...a.slice(0, i), ...a.slice(i + 1)]
@@ -37,8 +38,10 @@ function ternaryToneSymmetryOrder(): number {
         out.push([a[i]!, ...p])
       }
     }
+
     return out
   }
+
   let count = 0
   for (const p of permutations(tone)) {
     const map = new Map(tone.map((v, i) => [v, p[i]!]))
@@ -50,6 +53,7 @@ function ternaryToneSymmetryOrder(): number {
       count++
     }
   }
+
   return count
 }
 

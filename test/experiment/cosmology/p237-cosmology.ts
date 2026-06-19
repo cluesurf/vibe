@@ -27,6 +27,7 @@ export function cosmology(): {
       center = i
     }
   }
+
   const { shellCounts: shell } = bfsShells({
     neighbors: g.neighbors,
     root: center,
@@ -36,6 +37,7 @@ export function cosmology(): {
       branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100,
     ) / 100
   const exponential = growthRatio > 1.5
+
   return { growthRatio, exponential }
 }
 
@@ -50,6 +52,7 @@ export default experiment({
   run() {
     const r = cosmology()
     const ok = r.exponential
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -45,8 +45,10 @@ export function denseMatVec(
     for (let c = 0; c < m.cols; c++) {
       s += (m.data[base + c] ?? 0) * (input.x[c] ?? 0)
     }
+
     y[r] = s
   }
+
   return y
 }
 
@@ -67,13 +69,16 @@ export function matrixProduct(
       if (aik === 0) {
         continue
       }
+
       const bk = b[k]!
       for (let j = 0; j < cols; j++) {
         row[j]! += aik * bk[j]!
       }
     }
+
     out.push(row)
   }
+
   return out
 }
 
@@ -91,15 +96,18 @@ export function determinant(a: number[][]): number {
         pivot = r
       }
     }
+
     if (Math.abs(m[pivot]![col]!) < 1e-15) {
       return 0
     }
+
     if (pivot !== col) {
       const tmp = m[pivot]!
       m[pivot] = m[col]!
       m[col] = tmp
       det = -det
     }
+
     det *= m[col]![col]!
     for (let r = col + 1; r < n; r++) {
       const f = m[r]![col]! / m[col]![col]!
@@ -108,6 +116,7 @@ export function determinant(a: number[][]): number {
       }
     }
   }
+
   return det
 }
 
@@ -128,6 +137,7 @@ export function solveLinearSystem(input: {
         pivot = r
       }
     }
+
     const tmp = m[col]!
     m[col] = m[pivot]!
     m[pivot] = tmp
@@ -135,16 +145,19 @@ export function solveLinearSystem(input: {
     for (let c = col; c <= n; c++) {
       m[col]![c]! /= d
     }
+
     for (let r = 0; r < n; r++) {
       if (r === col) {
         continue
       }
+
       const factor = m[r]![col]!
       for (let c = col; c <= n; c++) {
         m[r]![c]! -= factor * m[col]![c]!
       }
     }
   }
+
   return m.map(row => row[n]!)
 }
 
@@ -161,6 +174,7 @@ export function makeComplexMatrix(input: {
   cols: number
 }): ComplexMatrix {
   const n = input.rows * input.cols
+
   return {
     form: 'complex-matrix',
     rows: input.rows,

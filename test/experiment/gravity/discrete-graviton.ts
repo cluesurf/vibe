@@ -56,23 +56,28 @@ export function discreteGraviton(input: { seed: number }): {
           (rng.next() - 0.5) *
           Math.cos((2 * Math.PI * k * (c[mu] ?? 0)) / L)
       }
+
       xi[site]![mu] = v
     }
   }
+
   const hGauge = makeField(L)
   for (let site = 0; site < hGauge.data.length; site++) {
     const coords = coordsOf(site, L)
     const dxi = (alpha: number, mu: number): number => {
       const p = siteIndex(shift(coords, alpha, 1, L), L)
       const m = siteIndex(shift(coords, alpha, -1, L), L)
+
       return ((xi[p]![mu] ?? 0) - (xi[m]![mu] ?? 0)) / 2
     }
+
     for (let mu = 0; mu < D; mu++) {
       for (let nu = 0; nu < D; nu++) {
         hGauge.data[site]![mu * D + nu] = dxi(mu, nu) + dxi(nu, mu)
       }
     }
   }
+
   const gaugeResidual =
     maxAbs(linearizedEinstein(hGauge)) / Math.max(1e-12, maxAbs(hGauge))
 
@@ -82,6 +87,7 @@ export function discreteGraviton(input: { seed: number }): {
   for (let site = 0; site < hConst.data.length; site++) {
     hConst.data[site]![1 * D + 1] = 0.7 // a constant h_xx
   }
+
   const massTermResidual = maxAbs(linearizedEinstein(hConst))
 
   // 3. Dispersion: a transverse-traceless plane wave with spatial wavevector k along z. The
@@ -97,6 +103,7 @@ export function discreteGraviton(input: { seed: number }): {
       h.data[site]![1 * D + 1] = phase
       h.data[site]![2 * D + 2] = -phase
     }
+
     const g = linearizedEinstein(h)
     // eigenvalue: G_xx / h_xx at a site where h_xx is near its max
     let best = 0
@@ -108,10 +115,12 @@ export function discreteGraviton(input: { seed: number }): {
         best = (g.data[site]![1 * D + 1] ?? 0) / hxx
       }
     }
+
     // lattice k^2 for the central-difference-squared operator: the eigenvalue is sin(kz)^2
     const latticeK2 = Math.pow(Math.sin(kz), 2)
     eigenOverK2.push(best / latticeK2)
   }
+
   // massless: eigenvalue proportional to k^2 with the SAME constant across k (so eigen/k^2 is flat)
   const mean =
     eigenOverK2.reduce((a, b) => a + b, 0) / eigenOverK2.length
@@ -139,6 +148,7 @@ export function discreteGraviton(input: { seed: number }): {
       polarizations === 2,
   }
 }
+
 export default experiment({
   id: 'gravity/discrete-graviton',
   title:
@@ -156,6 +166,7 @@ export default experiment({
       r.dispersionMassless &&
       r.polarizations === 2 &&
       r.polarizationGaugeModes === 4
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

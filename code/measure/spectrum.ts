@@ -18,6 +18,7 @@ export function distinctLevels(
       out.push(v)
     }
   }
+
   return out
 }
 
@@ -39,5 +40,6 @@ export function zeroModeCensus(
       minNonzero = Math.min(minNonzero, v)
     }
   }
+
   return { zero, nonzero, minNonzero }
 }

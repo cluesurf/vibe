@@ -23,8 +23,10 @@ function overlap(a: number[], b: number[]): number {
   const dot = a.reduce((s, x, i) => s + x * b[i]!, 0)
   const na = Math.sqrt(a.reduce((s, x) => s + x * x, 0))
   const nb = Math.sqrt(b.reduce((s, x) => s + x * x, 0))
+
   return dot / (na * nb)
 }
+
 // squared norm of the antisymmetric (fermion) two-particle state, 2(1 - p^2). Zero when the states coincide (Pauli).
 const antisymmetricNormSquared = (a: number[], b: number[]): number =>
   2 * (1 - overlap(a, b) ** 2)

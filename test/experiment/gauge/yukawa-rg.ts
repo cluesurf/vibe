@@ -37,6 +37,7 @@ export function yukawaRG(): {
   const bTauMSSM = Math.round(etaMSSM * 100) / 100
   // (2) determinant relation, det(M_d)/det(M_e) at M_Z = (QCD factor)^3 (each down quark enhanced, leptons not)
   const detRatio = Math.round(etaSM ** 3 * 10) / 10
+
   return { bTauSM, bTauMSSM, detRatio }
 }
 
@@ -55,6 +56,7 @@ export default experiment({
     const bTauRightMagnitude = r.bTauSM > 2.2 && r.bTauSM < 3.0
     const determinantOrderTen = r.detRatio > 5 && r.detRatio < 30
     const ok = bTauRightMagnitude && determinantOrderTen
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

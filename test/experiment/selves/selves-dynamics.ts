@@ -49,22 +49,27 @@ function domainStats(
   for (let i = 0; i < n; i++) {
     parent[i] = i
   }
+
   const find = (x: number): number => {
     let r = x
     while (parent[r] !== r) {
       r = parent[r]!
     }
+
     while (parent[x] !== r) {
       const nx = parent[x]!
       parent[x] = r
       x = nx
     }
+
     return r
   }
+
   for (let v = 0; v < n; v++) {
     if (tone[v] === 0) {
       continue
     }
+
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
       if (w > v && tone[w] === tone[v]) {
@@ -72,14 +77,17 @@ function domainStats(
       }
     }
   }
+
   const size = new Map<number, number>()
   for (let i = 0; i < n; i++) {
     if (tone[i] === 0) {
       continue
     }
+
     const r = find(i)
     size.set(r, (size.get(r) ?? 0) + 1)
   }
+
   let largest = 0
   let countOver20 = 0
   let total = 0
@@ -88,12 +96,15 @@ function domainStats(
     if (s > largest) {
       largest = s
     }
+
     if (s >= 20) {
       countOver20++
     }
+
     total += s
     num++
   }
+
   return { largest, countOver20, mean: num > 0 ? total / num : 0 }
 }
 
@@ -141,6 +152,7 @@ export function selvesDynamics(input?: { n?: number }): {
       beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.08)
       done++
     }
+
     const st = domainStats(tone, g.offsets, g.adj, N)
     trajectory.push({
       beat: 30 + s,
@@ -149,6 +161,7 @@ export function selvesDynamics(input?: { n?: number }): {
       mean: st.mean,
     })
   }
+
   const conserved = sumTone(tone) === q0
 
   const largestEarly = trajectory[0]!.largest
@@ -187,6 +200,7 @@ export default experiment({
   run() {
     const r = selvesDynamics({ n: 60000 })
     const ok = r.solved && r.conserved && r.coarsens
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

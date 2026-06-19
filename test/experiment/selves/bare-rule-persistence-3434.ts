@@ -41,6 +41,7 @@ function evolve(
       // linear: i dpsi/dt = -lap (Schrodinger). nonlinear: add an amplitude-restoring term (1-|psi|^2)psi (sigma-model)
       const r2 = z[0] * z[0] + z[1] * z[1],
         rest = nonlinear ? 1 - r2 : 0
+
       // i dpsi = dt*( -lap ); => dpsi = dt*( i*lap ) ... use a stable split: diffuse the amplitude + restore
       return [
         z[0] + dt * (lapRe + rest * z[0]),
@@ -53,6 +54,7 @@ function evolve(
       peakHist.push(peak(cur))
     }
   }
+
   return { wHist, peakHist }
 }
 
@@ -68,6 +70,7 @@ export function bareRulePersistence(): {
   const psi0: C[] = Array.from({ length: L }, (_, x) => {
     const amp = 0.3 + 0.7 * Math.exp(-((x - L / 2) ** 2) / 40)
     const ph = (2 * Math.PI * x) / L
+
     return [amp * Math.cos(ph), amp * Math.sin(ph)]
   })
   const w0 = winding(psi0),
@@ -114,6 +117,7 @@ export default experiment({
   run() {
     const r = bareRulePersistence()
     const ok = r.mechanismIdentified
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

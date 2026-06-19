@@ -20,9 +20,11 @@ export function kleitmanRothschildOrder(input: {
     if (i < bottom) {
       return 0
     }
+
     if (i < middleEnd) {
       return 1
     }
+
     return 2
   }
 

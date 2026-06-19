@@ -26,8 +26,10 @@ function makeWorld(L: number): {
       blocked[y * L + wallX] = 1
     }
   }
+
   const start = Math.floor(L / 2) * L + 2 // left side, middle height
   const goal = Math.floor(L / 2) * L + (L - 3) // right side, middle height
+
   return { blocked, start, goal }
 }
 
@@ -49,15 +51,19 @@ function neighbors(
   if (x + 1 < L && !blocked[p + 1]) {
     out.push(p + 1)
   }
+
   if (x - 1 >= 0 && !blocked[p - 1]) {
     out.push(p - 1)
   }
+
   if (y + 1 < L && !blocked[p + L]) {
     out.push(p + L)
   }
+
   if (y - 1 >= 0 && !blocked[p - L]) {
     out.push(p - L)
   }
+
   return out
 }
 
@@ -84,6 +90,7 @@ function lookahead(
   for (const f of frontier) {
     seen.add(f.cell)
   }
+
   for (let d = 0; d < depth; d++) {
     for (const f of frontier) {
       const sc = dist(f.cell, goal, L)
@@ -92,6 +99,7 @@ function lookahead(
         bestFirst = f.first
       }
     }
+
     const next: { cell: number; first: number }[] = []
     for (const f of frontier) {
       for (const c of neighbors(f.cell, L, blocked)) {
@@ -101,11 +109,13 @@ function lookahead(
         }
       }
     }
+
     frontier = next
     if (frontier.length === 0) {
       break
     }
   }
+
   return bestFirst
 }
 
@@ -122,6 +132,7 @@ function runAgent(
     if (p === goal) {
       return { reached: true, finalDist: 0, steps: t }
     }
+
     const move = lookahead(p, goal, L, blocked, depth)
     if (move === p || dist(move, goal, L) >= dist(p, goal, L)) {
       // no improving first move found at this depth (greedy is stuck at the wall)
@@ -129,14 +140,17 @@ function runAgent(
       if (stuck > 3 && depth <= 1) {
         break
       }
+
       if (move === p) {
         break
       }
     } else {
       stuck = 0
     }
+
     p = move
   }
+
   return {
     reached: p === goal,
     finalDist: dist(p, goal, L),
@@ -172,8 +186,10 @@ export function integratedAgent(input?: { L?: number }): {
       planner = r
       break
     }
+
     planner = r
   }
+
   const reactiveFails = !reactive.reached
   const multiStepSolves = planner.reached && depthNeeded >= 2
   const solved = multiStepSolves && reactiveFails
@@ -202,6 +218,7 @@ export default experiment({
   run() {
     const r = integratedAgent({ L: 31 })
     const ok = r.solved && r.multiStepSolves && r.reactiveFails
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

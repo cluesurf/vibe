@@ -51,6 +51,7 @@ function runConfig(input: {
     rng: makeRng({ seed: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).mmDimension,
   })
+
   return {
     label: input.label,
     heightRatio: heightRun.meanObservable,
@@ -90,6 +91,7 @@ export default experiment({
     const ok =
       Math.abs(smeared.heightRatio - refHr) <=
       Math.abs(random.heightRatio - refHr) + 1e-9
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

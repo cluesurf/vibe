@@ -36,6 +36,7 @@ export function associativeNoisyRecall(input?: {
   for (let c = 0; c < g.cellCount; c++) {
     storeWord(mem, c, ternaryWord(c, wordBits))
   }
+
   const sample: number[] = []
   for (let c = 0; c < g.cellCount && sample.length < sampleSize; c++) {
     sample.push(c)
@@ -54,6 +55,7 @@ export function associativeNoisyRecall(input?: {
   const recall20 = at(0.2)
   const recall40 = at(0.4)
   const solved = recall0 === 1 && recall10 > 0.9 && recall40 < recall10
+
   return { recall0, recall10, recall20, recall40, solved }
 }
 
@@ -67,6 +69,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeNoisyRecall({ maxCells: 1500 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

@@ -53,6 +53,7 @@ export function cellMomentum(
       (will.data[base + direction] ?? 0) *
       (directions[direction]![momAxis] ?? 0)
   }
+
   return momentum
 }
 
@@ -76,6 +77,7 @@ export function shearSetup(input: {
   for (let direction = 0; direction < degree; direction++) {
     opposite.push(mesh.opposite(direction))
   }
+
   for (let cell = 0; cell < mesh.cellCount; cell++) {
     const amplitude = Math.sin(
       (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
@@ -87,6 +89,7 @@ export function shearSetup(input: {
       if (direction >= other) {
         continue
       }
+
       const component = directions[direction]![momAxis] ?? 0 // momAxis component of this line (other has the negative)
       if (component !== 0) {
         const positiveSlot = component > 0 ? direction : other
@@ -109,10 +112,12 @@ export function shearSetup(input: {
           data[base + direction] = 1
           data[base + other] = 1
         }
+
         noMomentumLine++
       }
     }
   }
+
   return will
 }
 
@@ -135,6 +140,7 @@ export function shearAmplitude(input: {
         (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
       )
   }
+
   return amplitude
 }
 
@@ -182,8 +188,10 @@ export function shearAmplitudeSeries(input: {
     if (open) {
       absorbGradientBoundary(current, side, gradAxis)
     }
+
     series.push(start === 0 ? 0 : measure(current) / start)
   }
+
   return series
 }
 
@@ -217,6 +225,7 @@ export function chargeWaveSetup(input: {
       }
     }
   }
+
   return will
 }
 
@@ -236,6 +245,7 @@ export function chargeWaveAmplitude(input: {
         (2 * Math.PI * coordAlong(cell, gradAxis, side)) / wavelength,
       )
   }
+
   return amplitude
 }
 
@@ -265,7 +275,9 @@ export function chargeWaveSeries(input: {
     if (open) {
       absorbGradientBoundary(current, side, gradAxis)
     }
+
     series.push(start === 0 ? 0 : measure(current) / start)
   }
+
   return series
 }

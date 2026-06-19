@@ -30,5 +30,6 @@ export function closedFormHitCount(input: {
       }
     }
   }
+
   return hits
 }

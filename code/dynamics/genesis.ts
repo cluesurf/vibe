@@ -20,6 +20,7 @@ export function chargedCount(tone: Int8Array): number {
       s++
     }
   }
+
   return s
 }
 
@@ -57,7 +58,9 @@ export function chargeTrajectory(input: {
     })
     trajectory.push(chargedCount(tone))
   }
+
   const qEnd = totalCharge(tone)
+
   return {
     trajectory,
     qStart,
@@ -93,6 +96,7 @@ export function genesisProfile(input: {
   const rose = end > start && peak > start
   const sustained =
     alive && Math.abs(end - mid) < steadyWindow * Math.max(peak, 1)
+
   return { start, peak, end, alive, sustained, rose }
 }
 
@@ -118,6 +122,7 @@ export function wakeDrivenSweep(input: {
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     const key = v * 131071 + w
@@ -160,12 +165,14 @@ export function growthRate(depth: Int32Array): number {
       maxD = depth[i]!
     }
   }
+
   let frontier = 0
   for (let i = 0; i < depth.length; i++) {
     if (depth[i]! === maxD) {
       frontier++
     }
   }
+
   return frontier / depth.length
 }
 
@@ -195,7 +202,9 @@ export function wakeTrajectory(input: {
     wakeDrivenSweep({ tone, edges, moved, depth, beat: b, rate })
     trajectory.push(chargedCount(tone))
   }
+
   const qEnd = totalCharge(tone)
+
   return {
     trajectory,
     qStart,
@@ -245,6 +254,7 @@ export function firstDistinction(input: {
           minus++
         }
       }
+
       let adjacent = false
       for (const [v, w] of edges) {
         if (tone[v]! * tone[w]! === -1) {
@@ -252,6 +262,7 @@ export function firstDistinction(input: {
           break
         }
       }
+
       return {
         beatsToFirst: b + 1,
         plus,
@@ -261,6 +272,7 @@ export function firstDistinction(input: {
       }
     }
   }
+
   return {
     beatsToFirst: -1,
     plus: 0,
@@ -283,6 +295,7 @@ export function balanceToZero(tone: Int8Array): Int8Array {
       q++
     }
   }
+
   return tone
 }
 
@@ -312,8 +325,10 @@ export function differenceTrajectory(input: {
         d++
       }
     }
+
     return d
   }
+
   const difference: number[] = [diff()]
   for (let t = 0; t < beats; t++) {
     conservingEdgeListSweepPumped({
@@ -334,6 +349,7 @@ export function differenceTrajectory(input: {
     })
     difference.push(diff())
   }
+
   return {
     difference,
     startDiff: difference[0]!,
@@ -371,6 +387,7 @@ export function growingMeshGenesis(input: {
       maxDepth = depth[i]!
     }
   }
+
   const tone = new Int8Array(n)
   const edges = edgesOf(neighbors)
   const moved = new Uint8Array(n)
@@ -384,9 +401,11 @@ export function growingMeshGenesis(input: {
       if (dv > b || dw > b) {
         continue
       } // not yet born
+
       if (moved[v] || moved[w]) {
         continue
       }
+
       const a = tone[v]!
       const c = tone[w]!
       if ((a === 1 && c === -1) || (a === -1 && c === 1)) {
@@ -422,6 +441,7 @@ export function growingMeshGenesis(input: {
       }
     }
   }
+
   for (let b = 1; b <= maxDepth; b++) {
     step(b, b) // grow to shell b, create only at the moving frontier (shell b meets b-1)
     let born = 0,
@@ -434,19 +454,24 @@ export function growingMeshGenesis(input: {
         }
       }
     }
+
     trajectory.push(alive)
   }
+
   let bornEnd = 0
   for (let i = 0; i < n; i++) {
     if (depth[i]! <= maxDepth) {
       bornEnd++
     }
   }
+
   for (let s = 0; s < settleBeats; s++) {
     step(maxDepth, -1)
     trajectory.push(chargedCount(tone))
   } // settle, no new creation
+
   const qEnd = totalCharge(tone)
+
   return {
     trajectory,
     qStart,
@@ -475,6 +500,7 @@ export function oneBeat(input: {
     arrow: input.arrow,
     pump: null,
   })
+
   return out
 }
 
@@ -504,17 +530,22 @@ export function gardenOfEdenFraction(input: {
     for (let i = cells - 1; i >= 0; i--) {
       k = k * 3 + (t[i]! + 1)
     }
+
     return k
   }
+
   for (let s = 0; s < total; s++) {
     let x = s
     for (let i = 0; i < cells; i++) {
       tone[i] = (x % 3) - 1
       x = (x / 3) | 0
     }
+
     image.add(code(oneBeat({ tone, edges, arrow, seed })))
   }
+
   const reachable = image.size
+
   return {
     states: total,
     reachable,
@@ -543,8 +574,10 @@ export function attractorSignature(input: {
     if (tone[i] !== 0) {
       charged++
     }
+
     net += tone[i]!
   }
+
   let pairs = 0
   let same = 0
   for (let v = 0; v < n; v++) {
@@ -557,6 +590,7 @@ export function attractorSignature(input: {
       }
     }
   }
+
   return {
     density: charged / n,
     netBalance: net / n,

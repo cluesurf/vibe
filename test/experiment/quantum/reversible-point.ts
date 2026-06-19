@@ -35,6 +35,7 @@ function dbViolation(
       | 0
       | 1
   }
+
   for (let t = 0; t < 60; t++) {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
   } // reach steady state
@@ -44,6 +45,7 @@ function dbViolation(
   for (let k = 0; k < eu.length; k += 3) {
     sampleEdges.push(k)
   }
+
   const beats = 120
   let activeSum = 0
   const S9 = 9
@@ -58,19 +60,23 @@ function dbViolation(
       const post = st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!)
       C[pre[i]! * S9 + post]! += 1
     }
+
     let active = 0
     for (let i = 0; i < N; i++) {
       if (tone[i] !== 0) {
         active++
       }
     }
+
     activeSum += active / N
   }
+
   const { violation, floor } = detailedBalanceViolation({
     counts: C,
     states: S9,
   })
   const activity = activeSum / beats
+
   return { violation, floor, activity }
 }
 
@@ -107,6 +113,7 @@ export function reversiblePoint(input?: { n?: number }): {
       maxRatio = ratio
     }
   }
+
   const localDetailedBalance = maxRatio < 1.6
   const solved = localDetailedBalance
 
@@ -129,6 +136,7 @@ export default experiment({
   run() {
     const r = reversiblePoint({ n: 20000 })
     const ok = r.solved && r.localDetailedBalance
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

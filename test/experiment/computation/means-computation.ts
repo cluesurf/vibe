@@ -26,6 +26,7 @@ function multiply(a: number, b: number, n: number): number {
   m.set(0, a)
   m.set(1, b)
   m.run(minskyMultiplyProgram())
+
   return m.read(2)
 }
 
@@ -67,6 +68,7 @@ export default experiment({
   run() {
     const r = meansComputation({ n: 4000 })
     const ok = r.solved && r.allCorrect
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

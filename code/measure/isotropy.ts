@@ -33,8 +33,10 @@ export function frontCoefficientOfVariation(input: {
         }
       }
     }
+
     fr = nf
   }
+
   const c = coords[start]!
   const radii = fr.map(i =>
     Math.sqrt(coords[i]!.reduce((s, x, k) => s + (x - c[k]!) ** 2, 0)),
@@ -42,10 +44,12 @@ export function frontCoefficientOfVariation(input: {
   if (radii.length < 4) {
     return -1
   }
+
   const mean = radii.reduce((a, b) => a + b, 0) / radii.length
   const sd = Math.sqrt(
     radii.reduce((a, r) => a + (r - mean) ** 2, 0) / radii.length,
   )
+
   return Math.round((sd / mean) * 1000) / 1000
 }
 
@@ -60,16 +64,19 @@ export function angularAnisotropy(input: {
   if (directions.length === 0) {
     return 0
   }
+
   const vals = axes.map(u => {
     let s = 0
     for (const n of directions) {
       s += Math.pow(dot(n, u), order)
     }
+
     return s / directions.length
   })
   const mn = Math.min(...vals)
   const mx = Math.max(...vals)
   const mean = vals.reduce((a, b) => a + b, 0) / vals.length
+
   return mean > 0 ? (mx - mn) / mean : 0
 }
 
@@ -89,9 +96,11 @@ export function harmonicAnisotropy(input: {
   for (let b = 0; b < bins; b++) {
     total += profile[b] ?? 0
   }
+
   if (total <= 0) {
     return 0
   }
+
   let worst = 0
   for (const m of orders) {
     let re = 0
@@ -101,11 +110,13 @@ export function harmonicAnisotropy(input: {
       re += (profile[b] ?? 0) * Math.cos(m * theta)
       im += (profile[b] ?? 0) * Math.sin(m * theta)
     }
+
     const mag = Math.hypot(re, im) / total
     if (mag > worst) {
       worst = mag
     }
   }
+
   return worst
 }
 
@@ -130,6 +141,7 @@ export function nearestLinkHarmonicAnisotropy(input: {
       if (i === j) {
         continue
       }
+
       const dx = (points[j]?.x ?? 0) - (points[i]?.x ?? 0)
       const dy = (points[j]?.y ?? 0) - (points[i]?.y ?? 0)
       const d = dx * dx + dy * dy
@@ -138,6 +150,7 @@ export function nearestLinkHarmonicAnisotropy(input: {
         best = j
       }
     }
+
     if (best >= 0) {
       const dx = (points[best]?.x ?? 0) - (points[i]?.x ?? 0)
       const dy = (points[best]?.y ?? 0) - (points[i]?.y ?? 0)
@@ -147,6 +160,7 @@ export function nearestLinkHarmonicAnisotropy(input: {
       n += 1
     }
   }
+
   return n > 0 ? Math.hypot(re, im) / n : 0
 }
 
@@ -182,22 +196,27 @@ export function diffusionTensorAnisotropy(input: {
       if (len < 1e-9) {
         continue
       }
+
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           cov[i]![j]! += (d[i]! / len) * (d[j]! / len)
         }
       }
+
       count++
     }
   }
+
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       cov[i]![j]! /= count
     }
   }
+
   const eig = jacobiEigenvalues3(cov).sort((a, b) => a - b)
   const meanEig = (eig[0]! + eig[1]! + eig[2]!) / 3
   const anisotropy = meanEig > 0 ? (eig[2]! - eig[0]!) / meanEig : 1
+
   return { eigenvalues: eig, anisotropy, count }
 }
 
@@ -222,6 +241,7 @@ export function supportFunctionAnisotropy(input: {
     const gaussian = new Array<number>(dimension).fill(0).map(() => {
       const u1 = rng.next() || 1e-9
       const u2 = rng.next()
+
       return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
     })
     const gaussianNorm = Math.hypot(...gaussian)
@@ -232,15 +252,19 @@ export function supportFunctionAnisotropy(input: {
       for (let i = 0; i < dimension; i++) {
         s += d[i]! * u[i]!
       }
+
       if (s > best) {
         best = s
       }
     }
+
     supports.push(best / norm)
   }
+
   const mean = supports.reduce((a, b) => a + b, 0) / supports.length
   const variance =
     supports.reduce((a, b) => a + (b - mean) ** 2, 0) / supports.length
+
   return Math.sqrt(variance) / mean
 }
 
@@ -259,5 +283,6 @@ export function directionFourthMoments(directions: number[][]): {
     diagonal += (d[0] ?? 0) ** 4
     mixed += (d[0] ?? 0) ** 2 * (d[1] ?? 0) ** 2
   }
+
   return { diagonal, mixed, anisotropy: Math.abs(diagonal - 3 * mixed) }
 }

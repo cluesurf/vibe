@@ -28,6 +28,7 @@ function settle(
   for (let i = 0; i < steps; i++) {
     t = step(J, t, zero, null)
   }
+
   return t
 }
 
@@ -47,6 +48,7 @@ function perturb(
     idx[j] = tmp
     out[idx[i]!] = -(p[idx[i]!] ?? 0) as -1 | 0 | 1
   }
+
   return out
 }
 
@@ -74,6 +76,7 @@ function recoveryAt(
     )
     total += Math.abs(overlap(settled, self))
   }
+
   return total / k
 }
 
@@ -122,6 +125,7 @@ export function selvesAsAttractors(input: { seed: number }): {
         break
       }
     }
+
     return { n, capacity, ratio: capacity / n }
   })
   const capacityGrows =
@@ -157,6 +161,7 @@ export default experiment({
       r.basinRadius >= 0.2 &&
       r.identityOverlap > 0.98 &&
       r.capacityGrows
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -28,6 +28,7 @@ export function cmIdentity(size: number): ComplexMatrix {
   for (let index = 0; index < size; index++) {
     matrix[index]![index] = c(1, 0)
   }
+
   return matrix
 }
 
@@ -48,9 +49,11 @@ export function cmMultiply(
           cMul(left[row]![index]!, right[index]![column]!),
         )
       }
+
       out[row]![column] = sum
     }
   }
+
   return out
 }
 
@@ -97,6 +100,7 @@ export function cmIsScalar(
   return matrix.every((row, rowIndex) =>
     row.every((value, columnIndex) => {
       const target = rowIndex === columnIndex ? scalar : ZERO
+
       return (
         Math.abs(value.re - target.re) < tolerance &&
         Math.abs(value.im - target.im) < tolerance
@@ -148,6 +152,7 @@ export function diracGamma(): ComplexMatrix[] {
   const zero2 = cmZero(2, 2)
   const minus = (matrix: ComplexMatrix): ComplexMatrix =>
     cmScale(matrix, -1)
+
   return [
     block(identity!, zero2, zero2, minus(identity!)), // gamma0
     block(zero2, sigma1!, minus(sigma1!), zero2), // gamma1
@@ -173,6 +178,7 @@ export function diracHamiltonian(input: {
     cmScale(sigma3!, input.pz),
   )
   const massBlock = cmScale(identity!, input.mass)
+
   return block(massBlock, sigmaDotP, sigmaDotP, cmScale(massBlock, -1))
 }
 
@@ -183,6 +189,7 @@ export function spinGeneratorZ(): ComplexMatrix {
   const sigma3 = pauli()[3]!
   const zero2 = cmZero(2, 2)
   const half = cmScale(sigma3, 0.5)
+
   return block(half, zero2, zero2, half) // (1/2) diag(sigma3, sigma3)
 }
 
@@ -196,6 +203,7 @@ export function diracGamma5(): ComplexMatrix {
     cmMultiply(cmMultiply(gamma0!, gamma1!), gamma2!),
     gamma3!,
   )
+
   // multiply by i: i (re + i im) = -im + i re
   return product.map(row => row.map(z => c(-z.im, z.re)))
 }
@@ -208,6 +216,7 @@ export function cmMaxAbs(matrix: ComplexMatrix): number {
       worst = Math.max(worst, Math.hypot(z.re, z.im))
     }
   }
+
   return worst
 }
 
@@ -222,6 +231,7 @@ export function cliffordRotor(input: {
   size: number
 }): ComplexMatrix {
   const { angle, bivector, size } = input
+
   return cmAdd(
     cmScale(cmIdentity(size), Math.cos(angle / 2)),
     cmScale(bivector, Math.sin(angle / 2)),
@@ -240,6 +250,7 @@ export function coxeterEdgeRotor(m: number): ComplexMatrix {
     cmScale(gamma[1]!, Math.cos(angle)),
     cmScale(gamma[2]!, Math.sin(angle)),
   )
+
   return cmMultiply(normalI, normalJ)
 }
 
@@ -250,6 +261,7 @@ export function cmScalarTrace(matrix: ComplexMatrix): number {
   for (let i = 0; i < matrix.length; i++) {
     s += matrix[i]![i]!.re
   }
+
   return s / matrix.length
 }
 
@@ -262,6 +274,7 @@ export function cmPower(
   for (let step = 0; step < exponent; step++) {
     result = cmMultiply(result, matrix)
   }
+
   return result
 }
 
@@ -274,6 +287,7 @@ export function cmFrobeniusNorm(matrix: ComplexMatrix): number {
       sum += value.re * value.re + value.im * value.im
     }
   }
+
   return Math.sqrt(sum)
 }
 
@@ -286,6 +300,7 @@ export function cmEquals(
   return left.every((row, rowIndex) =>
     row.every((value, columnIndex) => {
       const target = right[rowIndex]![columnIndex]!
+
       return (
         Math.abs(value.re - target.re) < tolerance &&
         Math.abs(value.im - target.im) < tolerance

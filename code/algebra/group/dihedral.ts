@@ -23,7 +23,9 @@ function oddDihedralClasses(n: number): DihedralClass[] {
   for (let k = 1; k <= (n - 1) / 2; k++) {
     classes.push({ rep: `r${k}`, size: 2, char: 0, k })
   }
+
   classes.push({ rep: 'reflection', size: n, char: 1 })
+
   return classes
 }
 
@@ -39,16 +41,20 @@ function irrepCharacterOdd(
   if (name === 'triv') {
     return 1
   }
+
   if (name === 'sign') {
     return c.rep === 'reflection' ? -1 : 1
   }
+
   const j = Number(name.slice(1)) // E1, E2, ...
   if (c.rep === 'e') {
     return 2
   }
+
   if (c.rep === 'reflection') {
     return 0
   }
+
   return 2 * Math.cos((2 * Math.PI * j * (c.k ?? 0)) / n)
 }
 
@@ -66,6 +72,7 @@ export function dihedralFacePermutationDecomposition(n: number): {
   for (let j = 1; j <= (n - 1) / 2; j++) {
     irreps.push(`E${j}`)
   }
+
   const multiplicities: Record<string, number> = {}
   for (const ir of irreps) {
     const inner = classes.reduce(
@@ -74,10 +81,12 @@ export function dihedralFacePermutationDecomposition(n: number): {
     )
     multiplicities[ir] = Math.round((inner / order) * 100) / 100
   }
+
   const decomposition = Object.entries(multiplicities)
     .filter(([, m]) => Math.abs(m) > 1e-6)
     .map(([nm, m]) => `${m}x${nm}`)
     .join(' + ')
+
   // a permutation rep of a (non-double-cover) point group contains no spinor irrep
   return { multiplicities, decomposition, hasSpinor: false }
 }

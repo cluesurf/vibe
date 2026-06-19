@@ -31,6 +31,7 @@ export function makeConfiguration(input: {
       })
     }
   }
+
   return {
     form: 'configuration',
     alphabet: input.alphabet,

@@ -37,6 +37,7 @@ export function ballRegion(input: {
       }
     }
   }
+
   return region
 }
 
@@ -59,6 +60,7 @@ export function screenBitSeries(input: {
       regionEntanglementEntropy({ c: input.c, n: input.n, region }),
     )
   }
+
   return { radii, volumes, bits }
 }
 
@@ -77,6 +79,7 @@ export function logLogExponent(
     numerator += (xs[i]! - meanX) * (ys[i]! - meanY)
     denominator += (xs[i]! - meanX) ** 2
   }
+
   return numerator / denominator
 }
 
@@ -94,6 +97,7 @@ export function verlindeForceLaw(input: {
 } {
   const tolerance = input.tolerance ?? 0.4
   const forceExponent = input.bitExponent
+
   return {
     forceExponent,
     potentialExponent: input.bitExponent - 1,

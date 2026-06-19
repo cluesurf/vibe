@@ -32,6 +32,7 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
         return true
       }
     }
+
     return false
   }
 
@@ -43,12 +44,14 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
       if (b <= a) {
         continue
       }
+
       const rowB = g.neighbors[b] ?? new Uint32Array(0)
       for (let j = 0; j < rowB.length; j++) {
         const c = rowB[j] ?? 0
         if (c <= b) {
           continue
         }
+
         if (has(a, c)) {
           loops.push(Uint32Array.from([a, b, c]))
         }
@@ -66,11 +69,13 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
         if (b <= a) {
           continue
         }
+
         for (let j = 0; j < rowA.length; j++) {
           const d = rowA[j] ?? 0
           if (d <= a || d === b) {
             continue
           }
+
           // c must be adjacent to both b and d, and distinct from a.
           const rowB = g.neighbors[b] ?? new Uint32Array(0)
           for (let m = 0; m < rowB.length; m++) {
@@ -78,13 +83,16 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
             if (c === a || c === d || c <= a) {
               continue
             }
+
             if (!has(c, d)) {
               continue
             }
+
             // Skip if a-c or b-d already form a chord (that is a triangle).
             if (has(a, c) || has(b, d)) {
               continue
             }
+
             const key = [a, b, c, d]
               .slice()
               .sort((x, y) => x - y)
@@ -92,6 +100,7 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
             if (seen.has(key)) {
               continue
             }
+
             seen.add(key)
             loops.push(Uint32Array.from([a, b, c, d]))
           }
@@ -113,6 +122,7 @@ function loopPhase(field: GaugeField, loop: Uint32Array): number {
     const to = loop[(k + 1) % len] ?? 0
     phase += linkPhase(field, { from, to })
   }
+
   return phase
 }
 
@@ -127,6 +137,7 @@ export function wilsonAction(input: {
   for (const loop of input.plaquettes.loops) {
     total += input.beta * (1 - Math.cos(loopPhase(input.field, loop)))
   }
+
   return total
 }
 
@@ -157,6 +168,7 @@ function buildEdgePlaquetteIndex(input: {
       }
     }
   }
+
   return index
 }
 
@@ -184,6 +196,7 @@ export function heatBathSweep(input: {
       const loop = input.plaquettes.loops[p] ?? new Uint32Array(0)
       total += 1 - Math.cos(loopPhase(field, loop))
     }
+
     return total
   }
 
@@ -192,6 +205,7 @@ export function heatBathSweep(input: {
     if (!edge) {
       continue
     }
+
     const touching =
       edgePlaquettes.get(edgeKey({ from: edge.from, to: edge.to })) ??
       []

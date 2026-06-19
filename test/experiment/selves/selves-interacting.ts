@@ -26,6 +26,7 @@ const absCharge = (t: Int8Array): number => {
   for (let i = 0; i < t.length; i++) {
     s += Math.abs(t[i]!)
   }
+
   return s
 }
 
@@ -87,11 +88,13 @@ export function selvesInteracting(input?: {
   for (let k = 0; k < region.length; k++) {
     opp[region[k]!] = k < half ? 1 : -1
   }
+
   const oppStart = absCharge(opp)
   const rngO = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) {
     beat(opp, eu, ev, g.offsets, g.adj, moved, rngO)
   }
+
   const oppositeLoss = (oppStart - absCharge(opp)) / oppStart
   const oppositeComponents = countLargeSameSignComponents({
     tone: opp,
@@ -105,11 +108,13 @@ export function selvesInteracting(input?: {
   for (const i of region) {
     same[i] = 1
   }
+
   const sameStart = absCharge(same)
   const rngS = makeRng({ seed: 5 })
   for (let b = 0; b < beats; b++) {
     beat(same, eu, ev, g.offsets, g.adj, moved, rngS)
   }
+
   const sameLoss = (sameStart - absCharge(same)) / sameStart
   const sameComponents = countLargeSameSignComponents({
     tone: same,
@@ -154,6 +159,7 @@ export default experiment({
       r.selvesInteract &&
       r.oppositeAnnihilates &&
       r.sameMerges
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

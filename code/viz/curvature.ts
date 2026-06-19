@@ -47,11 +47,13 @@ function curvedTriangle(
     ]
     d += `Q ${ctrl[0].toFixed(1)} ${ctrl[1].toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)} `
   }
+
   return d + 'Z'
 }
 
 function triVerts(center: Pt, size: number): [Pt, Pt, Pt] {
   const [cx, cy] = center
+
   return [
     [cx, cy - size], // top
     [cx - size * 0.92, cy + size * 0.72], // bottom-left
@@ -74,6 +76,7 @@ function buildSvg(bulge: number): string {
   const center: Pt = [w / 2, 110]
   const size = 84
   const tri = curvedTriangle(center, size, bulge)
+
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
   <path d="${tri}" fill="${ZINC[300]}" fill-opacity="0.55" stroke="${ZINC[800]}" stroke-width="3.5" stroke-linejoin="round"/>
   ${vertexDots(center, size)}

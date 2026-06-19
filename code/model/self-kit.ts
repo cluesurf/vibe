@@ -23,6 +23,7 @@ export function toCSR(
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + neighbors[i]!.length
   }
+
   const adj = new Int32Array(offsets[n]!)
   let p = 0
   for (let i = 0; i < n; i++) {
@@ -30,11 +31,13 @@ export function toCSR(
       adj[p++] = w
     }
   }
+
   return { cellCount: n, offsets, adj, coords }
 }
 
 export const bulkGraph = (maxCells: number): Graph => {
   const g = buildDodecagrid({ maxCells })
+
   return { cellCount: g.cellCount, offsets: g.offsets, adj: g.adj }
 }
 
@@ -43,6 +46,7 @@ export const horosphereGraph = (
   bandHalfWidth = 0.45,
 ): Graph => {
   const h = buildHorosphere({ maxCells, bandHalfWidth })
+
   return toCSR(h.neighbors, h.coords)
 }
 
@@ -67,12 +71,15 @@ export const flatGraph = (L: number): Graph => {
           deg++
         }
       }
+
       offsets[y * L + x + 1] = deg
     }
   }
+
   for (let i = 0; i < N; i++) {
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
   }
+
   const adj = new Int32Array(offsets[N]!)
   let p = 0
   for (let y = 0; y < L; y++) {
@@ -86,6 +93,7 @@ export const flatGraph = (L: number): Graph => {
       }
     }
   }
+
   return { cellCount: N, offsets, adj }
 }
 
@@ -108,12 +116,15 @@ export const squareGraph = (L: number): Graph => {
           deg++
         }
       }
+
       offsets[y * L + x + 1] = deg
     }
   }
+
   for (let i = 0; i < N; i++) {
     offsets[i + 1] = offsets[i + 1]! + offsets[i]!
   }
+
   const adj = new Int32Array(offsets[N]!)
   let p = 0
   for (let y = 0; y < L; y++) {
@@ -127,6 +138,7 @@ export const squareGraph = (L: number): Graph => {
       }
     }
   }
+
   return { cellCount: N, offsets, adj }
 }
 
@@ -149,8 +161,10 @@ export function ball(
         }
       }
     }
+
     fr = nf
   }
+
   return [...seen]
 }
 
@@ -167,10 +181,12 @@ export function boundaryFraction(cells: number[], g: Graph): number {
         break
       }
     }
+
     if (hasOut) {
       boundary++
     }
   }
+
   return cells.length > 0 ? boundary / cells.length : 1
 }
 
@@ -196,12 +212,14 @@ export function beat(
     if (moved[v]) {
       continue
     }
+
     const a = tone[v]!
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
       if (moved[w]) {
         continue
       }
+
       const b = tone[w]!
       if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
         tone[v] = 0
@@ -217,6 +235,7 @@ export function beat(
             like++
           }
         }
+
         const pHop = 0.1 + cohesion * Math.min(like, 4)
         if (rng.next() < pHop) {
           tone[w] = a as -1 | 1
@@ -234,6 +253,7 @@ export function beat(
             tone[v] = -1
             tone[w] = 1
           }
+
           moved[v] = 1
           moved[w] = 1
           break
@@ -248,6 +268,7 @@ export const totalCharge = (t: Int8Array): number => {
   for (let i = 0; i < t.length; i++) {
     s += t[i]!
   }
+
   return s
 }
 
@@ -264,6 +285,7 @@ export function sameSignNeighbors(
       k++
     }
   }
+
   return k
 }
 
@@ -279,6 +301,7 @@ export function largestPositiveCluster(
     if (tone[s] !== 1 || seen[s]) {
       continue
     }
+
     const cells: number[] = []
     let fr = [s]
     seen[s] = 1
@@ -294,12 +317,15 @@ export function largestPositiveCluster(
           }
         }
       }
+
       fr = nf
     }
+
     if (cells.length > best.length) {
       best = cells
     }
   }
+
   return best
 }
 
@@ -317,6 +343,7 @@ export function positiveClusters(
     if (tone[s] !== 1 || seen[s]) {
       continue
     }
+
     const cells: number[] = []
     let fr = [s]
     seen[s] = 1
@@ -332,10 +359,13 @@ export function positiveClusters(
           }
         }
       }
+
       fr = nf
     }
+
     out.push(cells)
   }
+
   return out
 }
 
@@ -363,41 +393,50 @@ export function countLargeSameSignComponents(input: {
   for (const v of cells) {
     parent.set(v, v)
   }
+
   const find = (x: number): number => {
     let r = x
     while (parent.get(r) !== undefined && parent.get(r) !== r) {
       r = parent.get(r)!
     }
+
     return r
   }
+
   for (const v of cells) {
     if (!active(v)) {
       continue
     }
+
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
       if (inSet && !inSet.has(w)) {
         continue
       }
+
       if (tone[w] === tone[v]) {
         parent.set(find(v), find(w))
       }
     }
   }
+
   const size = new Map<number, number>()
   for (const v of cells) {
     if (!active(v)) {
       continue
     }
+
     const r = find(v)
     size.set(r, (size.get(r) ?? 0) + 1)
   }
+
   let big = 0
   for (const s of size.values()) {
     if (s >= minSize) {
       big++
     }
   }
+
   return big
 }
 
@@ -418,6 +457,7 @@ export function clusterIntegration(
       }
     }
   }
+
   return total > 0 ? internal / total : 0
 }
 
@@ -428,6 +468,7 @@ export const countPlus = (tone: Int8Array, cells: number[]): number => {
       c++
     }
   }
+
   return c
 }
 
@@ -449,9 +490,11 @@ export function emergeSelf(
       | 0
       | 1
   }
+
   for (let t = 0; t < (opts?.beats ?? 70); t++) {
     beat(tone, g, moved, rng, 0.01, 0.22)
   }
+
   return { tone, cluster: largestPositiveCluster(tone, g) }
 }
 
@@ -484,8 +527,10 @@ export function selfLeakAndFidelity(input: {
   for (let b = 0; b < settle; b++) {
     beat(t2, g, moved, rng2, 0, cohesion)
   }
+
   const passiveFidelity =
     cluster.length > 0 ? countPlus(t2, cluster) / cluster.length : 0
+
   return { leakPerBeat, passiveFidelity }
 }
 
@@ -508,6 +553,7 @@ export function discreteArrow(
     if (tone[i] !== 0) {
       continue
     }
+
     for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) {
       const w = g.adj[p]!
       if (tone[w] === 0) {
@@ -518,5 +564,6 @@ export function discreteArrow(
       }
     }
   }
+
   return created
 }

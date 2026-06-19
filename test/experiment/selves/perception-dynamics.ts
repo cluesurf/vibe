@@ -30,8 +30,10 @@ const nonzero = (t: Int8Array): number => {
       s++
     }
   }
+
   return s
 }
+
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
 
 export function perceptionDynamics(): {
@@ -69,6 +71,7 @@ export function perceptionDynamics(): {
       center = i
     }
   }
+
   const distC = neighborDistances({
     neighbors,
     size: n,
@@ -95,6 +98,7 @@ export function perceptionDynamics(): {
       balanceMid = nonzero(life)
     }
   }
+
   const lifeEnd = nonzero(life)
   const balanceLate = lifeEnd
   const conservedLife = sumTone(life) === qLife
@@ -106,6 +110,7 @@ export function perceptionDynamics(): {
     const r = rngD0.next()
     death[i] = r < 0.4 ? 1 : r < 0.8 ? -1 : 0 // balanced-ish, Q near 0
   }
+
   // force exact balance so it can fully relax
   let q = sumTone(death)
   for (let i = 0; i < n && q !== 0; i++) {
@@ -117,6 +122,7 @@ export function perceptionDynamics(): {
       q++
     }
   }
+
   const qDeath = sumTone(death)
   const deathStart = nonzero(death)
   const rngD = makeRng({ seed: 14 })
@@ -130,6 +136,7 @@ export function perceptionDynamics(): {
       pump: null,
     })
   }
+
   const deathEnd = nonzero(death)
   const conservedDeath = sumTone(death) === qDeath
 
@@ -142,14 +149,18 @@ export function perceptionDynamics(): {
         inner.push(i)
       }
     }
+
     for (let k = 0; k < inner.length; k++) {
       t[inner[k]!] = k % 2 === 0 ? 1 : -1
     }
+
     if (inner.length % 2 === 1) {
       t[inner[inner.length - 1]!] = 0
     }
+
     return t
   }
+
   const absInR0 = (t: Int8Array): number => {
     let s = 0
     for (let i = 0; i < n; i++) {
@@ -157,8 +168,10 @@ export function perceptionDynamics(): {
         s += Math.abs(t[i]!)
       }
     }
+
     return s
   }
+
   const netInR0 = (t: Int8Array): number => {
     let s = 0
     for (let i = 0; i < n; i++) {
@@ -166,8 +179,10 @@ export function perceptionDynamics(): {
         s += t[i]!
       }
     }
+
     return s
   }
+
   const diff = makePocket()
   const qDiff = sumTone(diff)
   const absChargeStart = absInR0(diff)
@@ -182,6 +197,7 @@ export function perceptionDynamics(): {
       pump: null,
     })
   }
+
   const absDiffused = absInR0(diff)
   const netDiffused = netInR0(diff)
   const conservedDiff = sumTone(diff) === qDiff
@@ -199,6 +215,7 @@ export function perceptionDynamics(): {
       pump: distC,
     })
   }
+
   const netPumped = netInR0(pump)
   const conservedPump = sumTone(pump) === qPump
 
@@ -258,6 +275,7 @@ export default experiment({
       r.noArrowRelaxesToPeace &&
       r.dynamicBalance &&
       r.diffusesAndPumps
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

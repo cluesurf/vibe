@@ -45,6 +45,7 @@ function uniformGyration(side: number): number {
     const dy = Math.floor(i / side) - c
     m2 += dx * dx + dy * dy
   }
+
   return Math.sqrt(m2 / (side * side))
 }
 
@@ -60,6 +61,7 @@ function packet(side: number): Will {
       }
     }
   }
+
   return will
 }
 
@@ -110,6 +112,7 @@ export default experiment({
         radiusOfGyration({ will: base, side }),
       )
     }
+
     const baseEndRg = radiusOfGyration({ will: base, side })
 
     // the control, streaming alone (no interaction) lets the same packet fly apart.
@@ -119,6 +122,7 @@ export default experiment({
     const confined = baseMaxRg < 0.35 * spreadMax
     const controlSpreads = freeEndRg > 0.6 * spreadMax
     const ok = reversibleOk && conservesOk && confined && controlSpreads
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

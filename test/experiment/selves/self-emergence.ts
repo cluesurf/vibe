@@ -64,6 +64,7 @@ export function selfEmergence(): {
     const r = rng0.next()
     tone0[i] = r < 0.4 ? 1 : r < 0.7 ? -1 : 0 // a net-positive charge so domains can persist
   }
+
   for (let i = 0; i < edges.length; i++) {
     const r = rng0.next()
     fill0[i] = r < 0.34 ? 1 : r < 0.67 ? -1 : 0
@@ -81,6 +82,7 @@ export function selfEmergence(): {
   for (let b = 0; b < BEATS; b++) {
     fillGatedSweep({ tone: tF, edges, fill: fF, rng: rngF })
   }
+
   const coherenceFiveEnd = coherence(tF, edges, fF)
   const patchFiveEnd = largestPatch(tF, edges, fF, n)
   const conservedFive = sumTone(tF) === qF0
@@ -96,6 +98,7 @@ export function selfEmergence(): {
     fillGatedSweep({ tone: tS, edges, fill: fS, rng: rngS })
     adaptFills(tS, edges, fS)
   }
+
   const coherenceSixEnd = coherence(tS, edges, fS)
   const patchSixEnd = largestPatch(tS, edges, fS, n)
   const conservedSix = sumTone(tS) === qS0
@@ -146,6 +149,7 @@ export default experiment({
       r.sixSelfOrganizes &&
       !r.fiveSelfOrganizes &&
       r.needsAdaptiveFills
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

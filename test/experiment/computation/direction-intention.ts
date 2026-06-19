@@ -42,6 +42,7 @@ export function directionIntention(): {
     for (let i = 0; i < K; i++) {
       target[i] = (rng.next() < 0.5 ? 1 : 0) as 0 | 1
     }
+
     const goalSteps = solveGoalDirected({ target, rng })
     // average undirected success over a few trials
     let solvedCount = 0
@@ -51,6 +52,7 @@ export function directionIntention(): {
         solvedCount++
       }
     }
+
     return {
       K,
       goalSteps,
@@ -83,6 +85,7 @@ export default experiment({
   run() {
     const r = directionIntention()
     const ok = r.solved && r.directionHolds && r.intentionHolds
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

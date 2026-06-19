@@ -34,6 +34,7 @@ function diagonalVacuum(diagonal: number[]): Octonion[][] {
   for (let i = 0; i < diagonal.length; i++) {
     matrix[i]![i] = octonionReal(diagonal[i]!)
   }
+
   return matrix
 }
 
@@ -58,6 +59,7 @@ export default experiment({
         }
       }
     }
+
     const cyclicIsAutomorphism = isJordanAutomorphism([1, 2, 0]) // the order-three family symmetry
 
     // the masses a vacuum M induces on the three slots
@@ -86,8 +88,10 @@ export default experiment({
     // ratios, so the model predicts no particular hierarchy, the splitting carries no geometric information.
     const ratioOf = (m: number[]): number => {
       const s = [...m].sort((a, b) => a - b)
+
       return s[0]! !== 0 ? Math.round((s[2]! / s[0]!) * 100) / 100 : 0
     }
+
     const ratioVacuumTwo = ratioOf(masses(diagonalVacuum([1, 2, 3]))) // one external vacuum, ratio 3
     const ratioVacuumFive = ratioOf(masses(diagonalVacuum([1, 2, 9]))) // a different external vacuum, ratio 9
     const ratioUnconstrained = ratioVacuumTwo !== ratioVacuumFive // different vacua, different hierarchy, not predicted
@@ -112,6 +116,7 @@ export default experiment({
       ratioUnconstrained &&
       dynamicsCannotBreak &&
       !hierarchyIsGeometric
+
     return verdict({
       status: ok ? 'partial' : 'fail',
       claim:

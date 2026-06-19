@@ -68,6 +68,7 @@ export default experiment({
           }
         }
       }
+
       return will
     }
 
@@ -93,8 +94,10 @@ export default experiment({
             weighted += q * dist[c]!
           }
         }
+
         series.push(weight > 0 ? weighted / weight : 0)
       }
+
       return series
     }
 
@@ -129,6 +132,7 @@ export default experiment({
       composite.eiSpatial <= composite.eiMicro
 
     const ok = noIntrinsicEmergence
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

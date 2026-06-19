@@ -39,6 +39,7 @@ export function disclinationSpin(): {
     if (!spinorMatches) {
       spinorParityCorrect = false
     }
+
     if (!h.vectorReturnsToSelf) {
       vectorAlwaysReturns = false
     }
@@ -90,6 +91,7 @@ export default experiment({
       r.oddDisclinationFlipsSpinor &&
       r.vectorAlwaysReturns &&
       r.topological
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

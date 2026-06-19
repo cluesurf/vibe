@@ -44,9 +44,11 @@ export function phMagnetism(): {
     for (let k = 0; k < 3; k++) {
       S[k]! += ((gAssumed * q) / (2 * m)) * cross[k]! * dt
     }
+
     const n = Math.hypot(...S)
     S = S.map(x => x / n)
   }
+
   const finalAngle = Math.atan2(S[1]!, S[0]!)
   const spinPrecesses =
     Math.abs(S[2]!) < 1e-6 && Math.abs(finalAngle) > 0.1
@@ -65,6 +67,7 @@ export default experiment({
   run() {
     const r = phMagnetism()
     const ok = r.lorentzDeflects && r.deflectionGrowsWithB
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

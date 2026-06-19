@@ -20,12 +20,14 @@ export function lifeStep(state: Set<string>): Set<string> {
       count.set(nk, (count.get(nk) ?? 0) + 1)
     }
   }
+
   const next = new Set<string>()
   for (const [k, c] of count) {
     if (c === 3 || (c === 2 && state.has(k))) {
       next.add(k)
     }
   }
+
   return next
 }
 
@@ -45,5 +47,6 @@ export function cellSetCentroid(state: Set<string>): [number, number] {
     sx += x!
     sy += y!
   }
+
   return [sx / state.size, sy / state.size]
 }

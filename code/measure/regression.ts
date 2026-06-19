@@ -15,6 +15,7 @@ export function logLogSlope(xs: number[], ys: number[]): number {
     num += ((lx[i] ?? 0) - mx) * ((ly[i] ?? 0) - my)
     den += ((lx[i] ?? 0) - mx) * ((lx[i] ?? 0) - mx)
   }
+
   return den === 0 ? 0 : num / den
 }
 
@@ -37,6 +38,7 @@ export function powerLawExponent(input: {
     if ((spreads[i] ?? 0) <= 0) {
       continue
     }
+
     const x = Math.log(times[i]!)
     const y = Math.log(spreads[i]!)
     sx += x
@@ -45,6 +47,7 @@ export function powerLawExponent(input: {
     sxy += x * y
     m++
   }
+
   return m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
 }
 
@@ -68,6 +71,7 @@ export function fitForm(
     cov += ((g[i] ?? 0) - mg) * ((y[i] ?? 0) - mp)
     varg += ((g[i] ?? 0) - mg) * ((g[i] ?? 0) - mg)
   }
+
   const a = varg === 0 ? 0 : cov / varg
   const c = mp - a * mg
   let ssRes = 0
@@ -77,6 +81,7 @@ export function fitForm(
     ssRes += ((y[i] ?? 0) - pred) * ((y[i] ?? 0) - pred)
     ssTot += ((y[i] ?? 0) - mp) * ((y[i] ?? 0) - mp)
   }
+
   return { a, r2: ssTot === 0 ? 0 : 1 - ssRes / ssTot }
 }
 
@@ -97,6 +102,7 @@ export function linearFit(input: {
     cov += ((xs[i] ?? 0) - mx) * ((ys[i] ?? 0) - my)
     varx += ((xs[i] ?? 0) - mx) * ((xs[i] ?? 0) - mx)
   }
+
   const slope = varx === 0 ? 0 : cov / varx
   const intercept = my - slope * mx
   let residual = 0
@@ -106,7 +112,9 @@ export function linearFit(input: {
     residual += ((ys[i] ?? 0) - pred) ** 2
     ssTot += ((ys[i] ?? 0) - my) ** 2
   }
+
   const r2 = ssTot > 0 ? 1 - residual / ssTot : 0
+
   return { slope, intercept, residual, r2 }
 }
 
@@ -128,6 +136,7 @@ export function loglogExponentWindow(input: {
     if ((values[t] ?? 0) <= 0) {
       continue
     }
+
     const x = Math.log(t)
     const y = Math.log(values[t]!)
     sx += x
@@ -136,6 +145,7 @@ export function loglogExponentWindow(input: {
     sxy += x * y
     m++
   }
+
   return (m * sxy - sx * sy) / (m * sxx - sx * sx)
 }
 
@@ -159,6 +169,7 @@ export function powerLawFit(input: {
     cov += (logX[i]! - meanX) * (logY[i]! - meanY)
     varx += (logX[i]! - meanX) * (logX[i]! - meanX)
   }
+
   const exponent = cov / varx
   let maxDeviation = 0
   for (let i = 0; i < n; i++) {
@@ -168,6 +179,7 @@ export function powerLawFit(input: {
       Math.abs(logY[i]! - predicted),
     )
   }
+
   return { exponent, maxDeviation }
 }
 
@@ -185,6 +197,7 @@ export function localForceLawExponent(input: {
   const force = (rr: number): number =>
     -(potential(rr + h) - potential(rr - h)) / (2 * h)
   const f = input.exponentFraction ?? 0.05
+
   return (
     (Math.log(force(r * (1 + f))) - Math.log(force(r * (1 - f)))) /
     (Math.log(r * (1 + f)) - Math.log(r * (1 - f)))

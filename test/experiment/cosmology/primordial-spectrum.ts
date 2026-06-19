@@ -42,6 +42,7 @@ export function primordialSpectrum(input: { seed: number }): {
   })
   const scaleFreeSeed =
     Math.abs(fit.slope + 0.5) < 0.05 && fit.r2 > 0.99
+
   return {
     byScale,
     exponent: fit.slope,
@@ -64,6 +65,7 @@ export default experiment({
     const r = primordialSpectrum({ seed: 1 })
     const ok =
       r.solved && r.scaleFreeSeed && Math.abs(r.exponent + 0.5) < 0.05
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

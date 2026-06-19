@@ -40,6 +40,7 @@ export default experiment({
     const nearViolates = sNear > 2
     const farDecays = sFar < sNear && sFar < 2.4
     const ok = nearViolates && farDecays
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

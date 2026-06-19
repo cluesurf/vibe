@@ -26,6 +26,7 @@ function shuffle(labels: number[], seed: number): number[] {
     out[i] = out[j]!
     out[j] = tmp
   }
+
   return out
 }
 
@@ -40,6 +41,7 @@ function timescales(
         countMatrix({ trajectory: labels, stateCount: bins, lag }),
       ),
     ).lambda2
+
     return impliedTimescale({ eigenvalue: l2, lag })
   })
 }
@@ -49,9 +51,11 @@ function coefficientOfVariation(values: number[]): number {
   if (mean === 0) {
     return Infinity
   }
+
   const variance =
     values.reduce((a, b) => a + (b - mean) * (b - mean), 0) /
     values.length
+
   return Math.sqrt(variance) / mean
 }
 
@@ -100,6 +104,7 @@ export default experiment({
     // two signals together, the timescale is flat across the large lags (a real Markov plateau), and the
     // slow eigenvalue at the plateau lag clearly exceeds the time-shuffled control.
     const ok = realCv < 0.15 && lambdaReal - lambdaShuffled > 0.15
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

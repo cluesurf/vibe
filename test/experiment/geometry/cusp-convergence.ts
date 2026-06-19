@@ -18,6 +18,7 @@ function cubicBox(L: number): {
   center: number
 } {
   const box = cubicBoxRows({ side: L, dim: 3 })
+
   return { nb: box.neighbors, coord: box.coords, center: box.center }
 }
 
@@ -75,8 +76,10 @@ export function cuspConvergence(): void {
     if (ok && sufficientL === 0) {
       sufficientL = L
     }
+
     prevGe = ge
   }
+
   const tLocal = Math.round((Math.log(sufficientL || 35) / H) * 10) / 10
 }
 
@@ -135,6 +138,7 @@ export default experiment({
       Math.abs(bigGrav - midGrav) < 0.1
     const smallNotYet = Math.abs(smallDim - 3) > Math.abs(bigDim - 3)
     const ok = dimConverged && gravLConverged && smallNotYet
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

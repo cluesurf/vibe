@@ -58,6 +58,7 @@ export function surveyTessellation(input: {
         specDim: 0,
       }
     }
+
     let center = 0,
       best = -1
     for (let i = 0; i < N; i++) {
@@ -67,6 +68,7 @@ export function surveyTessellation(input: {
         center = i
       }
     }
+
     const degree = best
     const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
     const growth = shellGrowthRatio({
@@ -86,6 +88,7 @@ export function surveyTessellation(input: {
           }) * 100,
         ) / 100
       : 0
+
     return { ok: true, cells: N, degree, growth, betheAlpha, specDim }
   } catch (e) {
     return {

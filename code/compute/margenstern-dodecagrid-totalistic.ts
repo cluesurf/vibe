@@ -58,6 +58,7 @@ export function dodecagridWeight(neighbours: string[]): number {
   for (const n of neighbours) {
     w += RANK[n] ?? 0
   }
+
   return w
 }
 

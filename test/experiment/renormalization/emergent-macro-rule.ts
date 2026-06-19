@@ -76,6 +76,7 @@ export function emergentMacroRule(input: {
     for (let i = 0; i < g.size; i++) {
       base[i] = r0.nextInt({ max: 3 }) - 1
     }
+
     for (let b = 0; b < 200; b++) {
       base = signedMajorityStep({
         neighbors: g.neighbors,
@@ -84,8 +85,10 @@ export function emergentMacroRule(input: {
         keepOnTie: true,
       })
     }
+
     const eff = effectiveCouplings(g, fills, cl, K)
     const superTone = clusterMajority(cl, K, base)
+
     return {
       renorm: agreementFraction(
         superTone,
@@ -143,6 +146,7 @@ export default experiment({
       r.emergesInOrderedRegime &&
       r.beatsNaive &&
       r.failsWhenFrustrated
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

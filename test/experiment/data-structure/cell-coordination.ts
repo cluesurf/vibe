@@ -38,6 +38,7 @@ export default experiment({
         allMatch = false
       }
     }
+
     // the paracompact pentacomb has an infinite cell, so infinite coordination (a tiling, not a finite polytope)
     const pentacombInfinite = !Number.isFinite(
       cellCoordination([3, 4, 3, 3, 4]),

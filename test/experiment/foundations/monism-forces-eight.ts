@@ -14,6 +14,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function vectorDim(n: number): number {
   return n
 }
+
 function halfSpinorDim(n: number): number {
   return 2 ** (n / 2 - 1)
 }
@@ -34,6 +35,7 @@ export default experiment({
         matches.push(n)
       }
     }
+
     const uniqueAtEight = matches.length === 1 && matches[0] === 8
 
     // at n = 8 the vector and BOTH half-spinors are 8-dimensional (triality): 8v + 8s + 8c = 24 (the 24-cell)

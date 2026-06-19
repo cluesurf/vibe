@@ -22,7 +22,9 @@ export function idealDirection(coords: Vec[]): Vec {
       far = i
     }
   }
+
   const fc = coords[far]!
+
   return normalize(fc)
 }
 
@@ -33,11 +35,13 @@ export function busemann(input: {
   ideal: Vec
 }): number[] {
   const { coords, ideal } = input
+
   return coords.map(x => {
     let d2 = 0
     for (let k = 0; k < x.length; k++) {
       d2 += (x[k]! - ideal[k]!) ** 2
     }
+
     return Math.log(d2 / Math.max(1e-12, 1 - dot(x, x)))
   })
 }
@@ -59,13 +63,16 @@ export function horoFrame(ideal: Vec): Vec[] {
     for (const e of basis) {
       v = sub(v, e, dot(v, e))
     }
+
     if (norm(v) > 1e-9) {
       basis.push(normalize(v))
     }
+
     if (basis.length === dim - 1) {
       break
     }
   }
+
   return basis
 }
 
@@ -79,6 +86,7 @@ export function horocyclicProject(input: {
   const d = sub(input.point, input.ideal)
   const dd = dot(d, d) || 1e-9
   const inv = d.map(x => x / dd)
+
   return input.frame.map(e => dot(inv, e))
 }
 
@@ -96,5 +104,6 @@ export function extractBand(input: {
       out.push(i)
     }
   }
+
   return out
 }

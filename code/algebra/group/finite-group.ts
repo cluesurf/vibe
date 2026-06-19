@@ -21,14 +21,17 @@ export function closure<T>(generators: T[], ops: GroupOps<T>): T[] {
       queue.push(value)
     }
   }
+
   for (const generator of generators) {
     add(generator)
   }
+
   for (let index = 0; index < queue.length; index++) {
     for (const generator of generators) {
       add(ops.multiply(queue[index]!, generator))
     }
   }
+
   return [...seen.values()]
 }
 
@@ -48,6 +51,7 @@ export function commutatorSubgroup<T>(
       )
     }
   }
+
   return closure(commutators, ops)
 }
 
@@ -57,5 +61,6 @@ export function contains<T>(
   ops: GroupOps<T>,
 ): boolean {
   const id = ops.key(target)
+
   return elements.some(element => ops.key(element) === id)
 }

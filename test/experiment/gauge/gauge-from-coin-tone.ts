@@ -29,11 +29,13 @@ export function gaugeFromCoinTone(): {
     [1, -1].map(s => {
       const v = [0, 0, 0, 0, 0]
       v[i] = s
+
       return v
     }),
   )
   const extraIsVxTone = extra.every(r => {
     const proj = [r[0]!, r[1]!, r[2]!, r[3]!, 0]
+
     return vectors8.some(v => eq(v, proj)) && Math.abs(r[4]!) === 1
   })
   const d5IsRootSystem = isRootSystem(d5) && d5.length === 40
@@ -49,6 +51,7 @@ export function gaugeFromCoinTone(): {
     w => w.slice(0, 4).filter(x => x < 0).length % 2 === 1,
   )
   const sixteenSplit = `16 = ${tonePlus.length} (tone+ = 8s) + ${toneMinus.length} (tone- = 8c), 8s-pure=${okS}, 8c-pure=${okC}`
+
   return { d5IsRootSystem, smInD5, sixteenSplit }
 }
 
@@ -63,6 +66,7 @@ export default experiment({
   run() {
     const r = gaugeFromCoinTone()
     const ok = r.d5IsRootSystem && r.smInD5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

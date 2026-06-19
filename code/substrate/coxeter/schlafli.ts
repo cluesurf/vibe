@@ -20,11 +20,13 @@ export function gramMatrix(symbol: number[]): number[][] {
   for (let i = 0; i < m; i++) {
     G[i]![i] = 1
   }
+
   for (let i = 0; i < symbol.length; i++) {
     const c = -Math.cos(Math.PI / (symbol[i] ?? 2))
     G[i]![i + 1] = c
     G[i + 1]![i] = c
   }
+
   return G
 }
 
@@ -47,14 +49,17 @@ export function symmetricEigen(input: { matrix: number[][] }): {
         off += a[p]![q]! * a[p]![q]!
       }
     }
+
     if (off < 1e-28) {
       break
     }
+
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         if (Math.abs(a[p]![q]!) < 1e-18) {
           continue
         }
+
         const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
         const t =
           Math.sign(theta || 1) /
@@ -67,12 +72,14 @@ export function symmetricEigen(input: { matrix: number[][] }): {
           a[k]![p] = c * akp - s * akq
           a[k]![q] = s * akp + c * akq
         }
+
         for (let k = 0; k < n; k++) {
           const apk = a[p]![k]!
           const aqk = a[q]![k]!
           a[p]![k] = c * apk - s * aqk
           a[q]![k] = s * apk + c * aqk
         }
+
         for (let k = 0; k < n; k++) {
           const vkp = v[k]![p]!
           const vkq = v[k]![q]!
@@ -82,7 +89,9 @@ export function symmetricEigen(input: { matrix: number[][] }): {
       }
     }
   }
+
   const values = a.map((row, i) => row[i]!)
+
   return { values, vectors: v }
 }
 
@@ -99,15 +108,19 @@ export function classifyGeometry(symbol: number[]): Geometry {
       zero++
     }
   }
+
   if (zero > 0) {
     return 'euclidean'
   }
+
   if (neg === 0) {
     return 'spherical'
   }
+
   if (neg === 1) {
     return 'hyperbolic'
   }
+
   return 'higher'
 }
 
@@ -156,13 +169,17 @@ export function enumerateCompactHoneycombs(input: {
       if (isCompactHoneycomb(prefix)) {
         found.push(prefix.slice())
       }
+
       return
     }
+
     for (let p = 3; p <= maxEntry; p++) {
       rec([...prefix, p])
     }
   }
+
   rec([])
+
   return found
 }
 
@@ -188,10 +205,12 @@ export function mirrorFrame(symbol: number[]): {
         (vectors[i]![a] ?? 0) * Math.sqrt(Math.abs(values[a] ?? 0))
     }
   }
+
   let timeAxis = metric.findIndex(g => g < 0)
   if (timeAxis < 0) {
     timeAxis = m - 1
   }
+
   return { normals, metric, timeAxis }
 }
 
@@ -207,6 +226,7 @@ export function dihedralAngleDegrees(input: {
   if (s > 1) {
     return Number.NaN
   }
+
   return (2 * Math.asin(s) * 180) / Math.PI
 }
 
@@ -229,5 +249,6 @@ export function edgeRegime(input: {
       : total > 360 + 0.5
         ? 'hyperbolic'
         : 'euclidean'
+
   return { totalAngleDegrees: total, regime }
 }

@@ -54,6 +54,7 @@ export function emergentU1Gauge(): {
       lam[x]![y] = rnd() * 2 - 1
     }
   } // random gauge
+
   const g2 = gaugeTransform(g, lam)
   const w1 = wilsonLoop(g2, 8, 16, 8, 16)
   const wilsonInvariant =
@@ -65,6 +66,7 @@ export function emergentU1Gauge(): {
     Math.abs(wA - Phi) < 1e-9 && Math.abs(wB - Phi) < 1e-9
   // a loop NOT enclosing the flux -> 0
   const wNone = wilsonLoop(g, 2, 6, 2, 6)
+
   return { wilsonInvariant, aharonovBohm }
 }
 
@@ -79,6 +81,7 @@ export default experiment({
   run() {
     const r = emergentU1Gauge()
     const ok = r.wilsonInvariant && r.aharonovBohm
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

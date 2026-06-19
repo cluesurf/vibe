@@ -47,11 +47,13 @@ export default experiment({
         ;(d < 24 ? longLines : shortLines).push([d, o])
       }
     }
+
     // pair each short line with a long line (the slow-fast coupling), the rest long-long.
     const pairs: Array<[[number, number], [number, number]]> = []
     for (let i = 0; i < shortLines.length; i++) {
       pairs.push([shortLines[i]!, longLines[i]!])
     }
+
     for (let i = shortLines.length; i + 1 < longLines.length; i += 2) {
       pairs.push([longLines[i]!, longLines[i + 1]!])
     }
@@ -109,8 +111,10 @@ export default experiment({
           }
         }
       }
+
       return will
     }
+
     const slowCentroidX = (will: Will): { cx: number; rms: number } => {
       let total = 0,
         sx = 0
@@ -119,14 +123,17 @@ export default experiment({
         for (let d = 24; d < 32; d++) {
           m += Math.abs(will.data[c * degree + d]!)
         }
+
         if (m > 0) {
           total += m
           sx += m * (c % side)
         }
       }
+
       if (total === 0) {
         return { cx: half, rms: 0 }
       }
+
       const cx = sx / total
       let v = 0
       for (let c = 0; c < mesh.cellCount; c++) {
@@ -134,10 +141,12 @@ export default experiment({
         for (let d = 24; d < 32; d++) {
           m += Math.abs(will.data[c * degree + d]!)
         }
+
         if (m > 0) {
           v += m * ((c % side) - cx) ** 2
         }
       }
+
       return { cx, rms: Math.sqrt(v / total) }
     }
 
@@ -161,6 +170,7 @@ export default experiment({
       if (final.rms > maxRms) {
         maxRms = final.rms
       }
+
       if (final.cx > maxToward) {
         maxToward = final.cx
       }

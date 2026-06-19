@@ -34,6 +34,7 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
     for (let i = 0; i < M; i++) {
       t[i] = i < half ? 1 : -1
     }
+
     for (let i = M - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const a = t[i]!
@@ -41,6 +42,7 @@ function makeTarget(M: number, kind: number, rng: Rng): Int8Array {
       t[j] = a
     }
   }
+
   return t
 }
 
@@ -51,12 +53,14 @@ function construct(target: Int8Array, rng: Rng): number {
   for (let i = 0; i < M; i++) {
     s[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
   }
+
   let gap = 0
   for (let i = 0; i < M; i++) {
     if (s[i] !== target[i]) {
       gap++
     }
   }
+
   let steps = 0
   while (gap > 0 && steps < 100 * M) {
     steps++
@@ -66,6 +70,7 @@ function construct(target: Int8Array, rng: Rng): number {
       gap--
     }
   }
+
   return steps
 }
 
@@ -82,17 +87,20 @@ function maintain(target: Int8Array, rng: Rng): number {
       s[a] = s[b]!
       s[b] = t
     }
+
     // maintain, restore to target (the will)
     for (let i = 0; i < M; i++) {
       s[i] = target[i]!
     }
   }
+
   let m = 0
   for (let i = 0; i < M; i++) {
     if (s[i] === target[i]) {
       m++
     }
   }
+
   return m / M
 }
 
@@ -116,6 +124,7 @@ export function arbitraryStructure(input?: { M?: number }): {
     const buildSteps = construct(target, rng)
     const built = buildSteps < 100 * M
     const maintainFidelity = maintain(target, rng)
+
     return { kind, buildSteps, built, maintainFidelity }
   })
   const allBuilt = cases.every(c => c.built && c.buildSteps < 30 * M)
@@ -136,6 +145,7 @@ export default experiment({
   run() {
     const r = arbitraryStructure({ M: 60 })
     const ok = r.solved && r.allBuilt && r.allMaintained
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

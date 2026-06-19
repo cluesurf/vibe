@@ -51,6 +51,7 @@ function matterForceExponent(): { exponent: number; binds: boolean } {
       break
     }
   }
+
   return { exponent, binds: r < 12 }
 }
 

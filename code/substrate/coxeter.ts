@@ -26,6 +26,7 @@ export function coxeterMeshGraph(input: {
     depth: input.depth,
     maxChambers: input.maxChambers,
   })
+
   return makeGraph({
     size: mesh.cellCount,
     directed: false,
@@ -50,8 +51,10 @@ export function coxeterTessellation(input: {
         `{${p},${q}} is not hyperbolic (need 1/p + 1/q < 1/2)`,
       )
     }
+
     // Larger cells (small q) need a larger connection threshold to span a cell.
     const threshold = q <= 3 ? 0.8 : q === 4 ? 1.1 : 1.4
+
     return hyperbolicTiling({
       p,
       q,
@@ -60,6 +63,7 @@ export function coxeterTessellation(input: {
       maxVertices: cap,
     })
   }
+
   if (s.length === 3 && s[0] === 5 && s[1] === 3 && s[2] === 4) {
     return hyperbolicDodecagrid({
       depth: 4,
@@ -67,5 +71,6 @@ export function coxeterTessellation(input: {
       maxVertices: cap,
     })
   }
+
   throw new Error(`unsupported Schlafli symbol {${s.join(',')}}`)
 }

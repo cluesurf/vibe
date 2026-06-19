@@ -36,6 +36,7 @@ export function gravityTree(): {
       massiveAlpha = aMassive
     }
   }
+
   return { masslessAlpha, massiveAlpha }
 }
 
@@ -52,6 +53,7 @@ export default experiment({
     const masslessIsOneOverR = Math.abs(r.masslessAlpha - 1) < 0.05
     const massiveSteeper = r.massiveAlpha > r.masslessAlpha + 0.05
     const ok = masslessIsOneOverR && massiveSteeper
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -73,6 +73,7 @@ export default experiment({
     // verdict is partial.
     const structureOk =
       r.eightEach && r.trialityOrder3 && r.chiralitySplit
+
     return verdict({
       status: structureOk ? 'partial' : 'fail',
       claim:

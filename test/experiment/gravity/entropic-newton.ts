@@ -34,6 +34,7 @@ function strictlyDecreasing(values: number[]): boolean {
       return false
     }
   }
+
   return true
 }
 

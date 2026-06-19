@@ -11,6 +11,7 @@ export function agreementFraction(a: Int8Array, b: Int8Array): number {
       same++
     }
   }
+
   return same / Math.max(1, a.length)
 }
 
@@ -37,6 +38,7 @@ export function targetFidelity(
     dot += tone[i]! * target[i]!
     norm += target[i]! * target[i]!
   }
+
   return norm > 0 ? dot / norm : 0
 }
 
@@ -51,9 +53,11 @@ export function clusterMajority(
   for (let v = 0; v < tone.length; v++) {
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)
   }
+
   const out = new Int8Array(clusterCount)
   for (let c = 0; c < clusterCount; c++) {
     out[c] = (sum[c] ?? 0) > 0 ? 1 : (sum[c] ?? 0) < 0 ? -1 : 0
   }
+
   return out
 }

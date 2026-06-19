@@ -7,6 +7,7 @@
 // the unit-normalized copy of a vector.
 export function unit(vector: number[]): number[] {
   const norm = Math.hypot(...vector)
+
   return vector.map(value => value / norm)
 }
 
@@ -23,6 +24,7 @@ export function maxPairwiseCosine(directions: number[][]): number {
       maximum = Math.max(maximum, dot(units[i]!, units[j]!))
     }
   }
+
   return maximum
 }
 
@@ -32,6 +34,7 @@ export function isKissingConfiguration(
   minAngleDegrees = 60,
 ): boolean {
   const threshold = Math.cos((minAngleDegrees * Math.PI) / 180)
+
   return maxPairwiseCosine(directions) <= threshold + 1e-9
 }
 
@@ -45,6 +48,7 @@ export function canExtendKissing(
 ): boolean {
   const threshold = Math.cos((minAngleDegrees * Math.PI) / 180)
   const units = directions.map(unit)
+
   return candidates.some(candidate => {
     const candidateUnit = unit(candidate)
     if (
@@ -52,6 +56,7 @@ export function canExtendKissing(
     ) {
       return false
     } // already present
+
     return units.every(
       existing => dot(existing, candidateUnit) <= threshold + 1e-9,
     )
@@ -76,8 +81,10 @@ export function coordinationAtMinAngle(
         neighbors++
       }
     }
+
     histogram[neighbors] = (histogram[neighbors] ?? 0) + 1
   }
+
   return histogram
 }
 
@@ -101,8 +108,10 @@ export function deterministicSpiral(
         coordinates.push(factor)
       }
     }
+
     points.push(unit(coordinates))
   }
+
   return points
 }
 
@@ -149,6 +158,7 @@ export function relaxRiesz(
         }
       }
     }
+
     points = points.map((point, index) =>
       unit(
         point.map(
@@ -157,5 +167,6 @@ export function relaxRiesz(
       ),
     )
   }
+
   return points
 }

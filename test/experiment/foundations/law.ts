@@ -42,6 +42,7 @@ function singleFlipPerm(cells: number): Int32Array {
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
+
   return perm
 }
 
@@ -69,14 +70,17 @@ export default experiment({
       if (value < blockMinEig) {
         blockMinEig = value
       }
+
       if (value > blockMaxEig) {
         blockMaxEig = value
       }
     }
+
     const ok =
       flipLenSmall <= 1.5 &&
       flipLenLarge <= 1.5 &&
       Number.isFinite(blockMinEig)
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

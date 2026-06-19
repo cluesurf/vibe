@@ -22,6 +22,7 @@ function makeBarriers(B: number, base: number, step: number): number[] {
   for (let k = 0; k < B; k++) {
     reqs.push(base + k * step)
   } // the horizon needed to cross barrier k
+
   return reqs
 }
 
@@ -37,6 +38,7 @@ function agentReach(reqs: number[], horizon: number): number {
       break
     } // stuck at the first barrier the horizon cannot span
   }
+
   return crossed / reqs.length
 }
 
@@ -56,6 +58,7 @@ function evolvePopulation(
   for (let i = 0; i < P; i++) {
     pop.push(1 + Math.floor(rng.next() * 4))
   } // random small initial horizons
+
   const meanFitnessByGen: number[] = []
   for (let g = 0; g < G; g++) {
     const scored = pop.map(h => ({
@@ -73,11 +76,14 @@ function evolvePopulation(
         next.push(h)
       }
     }
+
     pop = next
   }
+
   const finalMeanHorizon = pop.reduce((a, b) => a + b, 0) / pop.length
   const finalMeanReach =
     pop.reduce((a, b) => a + agentReach(reqs, b), 0) / pop.length
+
   return { meanFitnessByGen, finalMeanHorizon, finalMeanReach }
 }
 
@@ -135,6 +141,7 @@ export default experiment({
     const r = evolvingEcology()
     const ok =
       r.solved && r.fitnessRises && r.adaptsToDifficulty && r.bothSolve
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

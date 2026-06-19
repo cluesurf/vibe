@@ -35,6 +35,7 @@ export function ringDefectPair(length: number): Complex2[] {
       (t < 0.5
         ? Math.sin(Math.PI * 2 * t)
         : Math.sin(Math.PI * 2 * (1 - t)))
+
     return { re: Math.cos(th), im: Math.sin(th) }
   })
 }
@@ -49,6 +50,7 @@ export function ringFieldEnergy(psi: ReadonlyArray<Complex2>): number {
     const z = psi[i]!
     e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2
   }
+
   return e
 }
 
@@ -59,6 +61,7 @@ function relaxStep(
   dt: number,
 ): Complex2[] {
   const length = cur.length
+
   return cur.map((z, i) => {
     const a = cur[(i + 1) % length]!
     const b = cur[(i + length - 1) % length]!
@@ -66,6 +69,7 @@ function relaxStep(
     const lapIm = a.im + b.im - 2 * z.im
     const r2 = z.re * z.re + z.im * z.im
     const restore = 1 - r2
+
     return {
       re: z.re + dt * (lapRe + restore * z.re),
       im: z.im + dt * (lapIm + restore * z.im),
@@ -91,5 +95,6 @@ export function relaxRingField(input: {
       onSample(cur, t)
     }
   }
+
   return cur
 }

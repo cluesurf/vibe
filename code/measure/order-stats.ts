@@ -26,11 +26,13 @@ export function causalSliceWidths(input: { poset: Poset }): number[] {
       }
     }
   }
+
   const maxDepth = d.reduce((a, b) => Math.max(a, b), 0)
   const widths = new Array(maxDepth + 1).fill(0)
   for (let i = 0; i < n; i++) {
     widths[d[i] ?? 0] += 1
   }
+
   return widths.slice(1)
 }
 
@@ -42,6 +44,7 @@ export function posetHeight(input: { poset: Poset }): number {
   if (p.size === 0) {
     return 0
   }
+
   const longest = new Int32Array(p.size).fill(1)
   let maxHeight = 1
   for (let v = 0; v < p.size; v++) {
@@ -57,6 +60,7 @@ export function posetHeight(input: { poset: Poset }): number {
       }
     }
   }
+
   return maxHeight
 }
 
@@ -72,5 +76,6 @@ export function orderStatistics(input: { poset: Poset }): {
   const height = posetHeight({ poset: p })
   const heightRatio = p.size > 1 ? height / Math.sqrt(p.size) : 0
   const mmDimension = myrheimMeyerDimension({ poset: p })
+
   return { orderingFraction, height, heightRatio, mmDimension }
 }

@@ -32,14 +32,17 @@ function beat(
         c++
       }
     }
+
     return c
   }
+
   for (const e of edges) {
     const v = e[0]!
     const w = e[1]!
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -68,6 +71,7 @@ function beat(
         tone[v] = -1
         tone[w] = 1
       }
+
       moved[v] = 1
       moved[w] = 1
     }
@@ -92,8 +96,10 @@ function bfsDistance(
         }
       }
     }
+
     frontier = next
   }
+
   return dist
 }
 
@@ -114,6 +120,7 @@ function makeLump(
       if (lump.length >= size) {
         break
       }
+
       lump.push(u)
       for (const w of neighbors[u]!) {
         if (!inLump[w]) {
@@ -122,8 +129,10 @@ function makeLump(
         }
       }
     }
+
     frontier = next
   }
+
   return lump
 }
 
@@ -176,19 +185,23 @@ export function gravityTest(input?: {
         frontier.push(i)
       }
     }
+
     if (frontier.length === 0) {
       return -1
     }
+
     const chargedB = new Set(lumpB.filter(i => tone[i] !== 0))
     if (chargedB.size === 0) {
       return -1
     }
+
     while (frontier.length > 0) {
       const next: number[] = []
       for (const u of frontier) {
         if (chargedB.has(u)) {
           return distA[u]!
         }
+
         for (const w of neighbors[u]!) {
           if (distA[w] === -1) {
             distA[w] = distA[u]! + 1
@@ -196,8 +209,10 @@ export function gravityTest(input?: {
           }
         }
       }
+
       frontier = next
     }
+
     return -1
   }
 
@@ -220,6 +235,7 @@ export function gravityTest(input?: {
         centerB = i
       }
     }
+
     const lumpA = makeLump(neighbors, 0, lumpSize, n)
     const lumpB = makeLump(neighbors, centerB, lumpSize, n)
 
@@ -229,6 +245,7 @@ export function gravityTest(input?: {
     for (const i of lumpA) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
     }
+
     for (const i of lumpB) {
       tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 1
     }
@@ -240,8 +257,10 @@ export function gravityTest(input?: {
         const s = separation(tone, lumpA, lumpB)
         gaps.push(s)
       }
+
       beat(tone, edges, neighbors, moved, rng, 0.06)
     }
+
     const valid = gaps.filter(s => s >= 0)
     const first = valid[0] ?? -1
     const last = valid[valid.length - 1] ?? -1
@@ -282,6 +301,7 @@ export function main(): void {
       `  start gap ${tr.startGap}: separation over beats = [${tr.gaps.join(', ')}]  approached: ${tr.approached}  merged: ${tr.merged}`,
     )
   }
+
   console.log('')
   console.log(
     `  LONG-RANGE attraction (far lumps fall together, gravity): ${r.anyLongRangeAttraction}`,

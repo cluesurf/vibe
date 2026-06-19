@@ -23,10 +23,12 @@ export function diracEqualTimeCorrelator(input: {
     if (omega < 1e-9) {
       continue
     }
+
     const w = 1 / (2 * omega) // the positive spectral weight (Kallen-Lehmann)
     for (let r = 0; r <= maxR; r++) {
       c[r]! += (w * Math.cos(k * r)) / modes
     }
   }
+
   return Array.from(c)
 }

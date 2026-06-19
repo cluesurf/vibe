@@ -27,6 +27,7 @@ function hashKey(s: string): bigint {
     h ^= BigInt(s.charCodeAt(i))
     h = (h * 1099511628211n) & mask
   }
+
   return h === 0n ? 1n : h
 }
 
@@ -39,6 +40,7 @@ class HashedKeySet {
     this.slots = new BigInt64Array(1 << capacityPow2)
     this.mask = (1 << capacityPow2) - 1
   }
+
   // returns true if newly added, false if already present
   addIfNew(h: bigint): boolean {
     const value = BigInt.asIntN(64, h)
@@ -48,11 +50,14 @@ class HashedKeySet {
       if (slot === 0n) {
         this.slots[i] = value
         this.size++
+
         return true
       }
+
       if (slot === value) {
         return false
       }
+
       i = (i + 1) & this.mask
     }
   }
@@ -92,11 +97,13 @@ export function streamingShellCounts(input: {
         }
       }
     }
+
     counts.push(count)
     frontier = next
     if (!storeMatrices) {
       break
     }
   }
+
   return counts
 }

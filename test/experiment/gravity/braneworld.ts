@@ -89,6 +89,7 @@ export function braneworld(): {
       break
     }
   }
+
   const crossoverScaleOverL = crossover / L
 
   // the test: at short range the brane deviates from inverse-square, the 3D substrate does not
@@ -131,6 +132,7 @@ export default experiment({
       r.substrateFlat &&
       r.braneShowsCrossover &&
       r.distinguishable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

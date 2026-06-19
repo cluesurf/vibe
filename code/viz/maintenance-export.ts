@@ -37,6 +37,7 @@ function beat(
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -61,6 +62,7 @@ function beat(
         tone[v] = -1
         tone[w] = 1
       }
+
       moved[v] = 1
       moved[w] = 1
     }
@@ -114,6 +116,7 @@ export function exportMaintenance(input?: {
         if (region.length >= regionSize) {
           break
         }
+
         region.push(u)
         for (const w of neighbors[u]!) {
           if (!inRegion[w]) {
@@ -122,9 +125,11 @@ export function exportMaintenance(input?: {
           }
         }
       }
+
       frontier = next
     }
   }
+
   inRegion.fill(0)
   for (const i of region) {
     inRegion[i] = 1
@@ -135,6 +140,7 @@ export function exportMaintenance(input?: {
   for (let k = 0; k < region.length; k++) {
     target[region[k]!] = (k % 2 === 0 ? 1 : -1) as -1 | 1
   }
+
   const shuffleRng = makeRng({ seed: 4 })
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(shuffleRng.next() * (i + 1))
@@ -150,6 +156,7 @@ export function exportMaintenance(input?: {
   for (const i of region) {
     inView[i] = 1
   }
+
   let shell = region.slice()
   for (let layer = 0; layer < surroundLayers; layer++) {
     const next: number[] = []
@@ -161,14 +168,17 @@ export function exportMaintenance(input?: {
         }
       }
     }
+
     shell = next
   }
+
   const view: number[] = []
   for (let i = 0; i < N; i++) {
     if (inView[i]) {
       view.push(i)
     }
   }
+
   const viewIndex = new Int32Array(N).fill(-1)
   for (let a = 0; a < view.length; a++) {
     viewIndex[view[a]!] = a
@@ -185,9 +195,11 @@ export function exportMaintenance(input?: {
       }
     }
   }
+
   const GOLDEN = Math.PI * (3 - Math.sqrt(5))
   const position = view.map((_, i) => {
     const r = Math.sqrt((i + 0.5) / view.length)
+
     return [r * Math.cos(i * GOLDEN), r * Math.sin(i * GOLDEN)]
   })
   const ideal = 1.6 / Math.sqrt(view.length)
@@ -211,6 +223,7 @@ export function exportMaintenance(input?: {
         dispY[j]! -= dy
       }
     }
+
     for (const e of viewEdges) {
       const a = e[0]!
       const b = e[1]!
@@ -225,6 +238,7 @@ export function exportMaintenance(input?: {
       dispX[b]! += dx
       dispY[b]! += dy
     }
+
     const temp = 0.04 * (1 - iter / iterations)
     for (let i = 0; i < view.length; i++) {
       const len = Math.hypot(dispX[i]!, dispY[i]!) + 1e-9
@@ -232,10 +246,12 @@ export function exportMaintenance(input?: {
       position[i]![1]! += (dispY[i]! / len) * Math.min(len, temp)
     }
   }
+
   let maxAbs = 1e-6
   for (const p of position) {
     maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
   }
+
   const cells2d = position.map(p => [
     Math.round((p[0]! / maxAbs) * 1000) / 1000,
     Math.round((p[1]! / maxAbs) * 1000) / 1000,
@@ -247,12 +263,14 @@ export function exportMaintenance(input?: {
     for (const i of region) {
       tone[i] = target[i]!
     }
+
     for (let i = 0; i < N; i++) {
       if (!inRegion[i] && r.next() < mediumDensity) {
         tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
       }
     }
   }
+
   const maintained = new Int8Array(N)
   const free = new Int8Array(N)
   seed(maintained, makeRng({ seed: 5 }))
@@ -271,6 +289,7 @@ export function exportMaintenance(input?: {
       for (const i of region) {
         maintained[i] = target[i]!
       } // self-maintenance, restore the identity (P171)
+
       beat(free, edges, moved, rngB, arrow)
     }
   }

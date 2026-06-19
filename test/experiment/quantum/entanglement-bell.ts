@@ -32,6 +32,7 @@ function analyze(
   const t = twoQubitCorrelationMatrix({ re, im }) // T_ij = <sigma_i (x) sigma_j>
   const chsh = horodeckiMaxChsh(t) // Horodecki maximal CHSH = 2 sqrt(two largest eig of T^T T)
   const concurrence = twoQubitConcurrence({ re, im })
+
   return { concurrence, chsh }
 }
 
@@ -98,6 +99,7 @@ export default experiment({
       r.bellViolated &&
       r.maximallyEntangled &&
       r.productIsClassical
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

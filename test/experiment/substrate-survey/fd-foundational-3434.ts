@@ -73,6 +73,7 @@ export function fdFoundational(): {
         o |= 1 << d
       }
     }
+
     return o
   })
 
@@ -88,6 +89,7 @@ export function fdFoundational(): {
     if (d4Count(occ) !== c0) {
       countConserved = false
     }
+
     const m = d4Momentum({ occupancy: occ, roots })
     if (!m.every((x, q) => x === m0[q]!)) {
       momentumConserved = false
@@ -98,6 +100,7 @@ export function fdFoundational(): {
   for (let t = 0; t < T; t++) {
     occ = stepInv(occ)
   }
+
   const reversible = occ.every((o, c) => o === occ0[c]!)
 
   return {
@@ -125,6 +128,7 @@ export default experiment({
       r.countConserved &&
       r.momentumConserved &&
       r.reversible
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

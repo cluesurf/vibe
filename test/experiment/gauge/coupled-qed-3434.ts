@@ -52,10 +52,12 @@ export function coupledQED(): {
     R[x] = cscale(eUp(0.8 * x), g)
     Lf[x] = [0, 0]
   }
+
   let nrm = 0
   for (let x = 0; x < L; x++) {
     nrm += cabs2(R[x]!) + cabs2(Lf[x]!)
   }
+
   R = R.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   Lf = Lf.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   const rho = (): number[] =>
@@ -77,6 +79,7 @@ export function coupledQED(): {
         c * Lf[x]![1],
       ])
     }
+
     // current across each bond (rightflux from R minus leftflux from L), BEFORE the shift
     const j = Array.from(
       { length: L },
@@ -89,12 +92,14 @@ export function coupledQED(): {
       R3[wrap(x + 1)] = cmul(R2[x]!, eUp(theta[x]!))
       L3[wrap(x - 1)] = cmul(L2[x]!, eUp(-theta[wrap(x - 1)]!))
     }
+
     R = R3
     Lf = L3
     // gauge field back-reacts: dE/dt = -j (Ampere), dtheta/dt = E (the field equation)
     for (let x = 0; x < L; x++) {
       E[x]! -= 0.1 * j[x]!
     }
+
     for (let x = 0; x < L; x++) {
       theta[x]! += 0.1 * E[x]!
     }
@@ -105,6 +110,7 @@ export function coupledQED(): {
   for (let t = 0; t < 60; t++) {
     step()
   }
+
   const Q1 = rho().reduce((a, b) => a + b, 0)
   const chargeConserved = Math.abs(Q1 - Q0) < 1e-9
 
@@ -117,6 +123,7 @@ export function coupledQED(): {
   for (let x = 1; x < L; x++) {
     Eg[x] = Eg[x - 1]! + rhoStatic[x]!
   }
+
   let gaussErr = 0
   for (let x = 1; x < L; x++) {
     gaussErr = Math.max(
@@ -124,6 +131,7 @@ export function coupledQED(): {
       Math.abs(Eg[x]! - Eg[x - 1]! - rhoStatic[x]!),
     )
   }
+
   const gaussLaw = gaussErr < 1e-9
 
   // (3) gauge invariance: hopping term psi*_n e^{i theta_n} psi_{n+1} invariant under psi_n -> e^{i a_n} psi_n, theta_n -> theta_n + a_n - a_{n+1}
@@ -141,8 +149,10 @@ export function coupledQED(): {
         ),
       )
     }
+
     return h
   }
+
   const before = hop(R, theta)
   const Rg = R.map((z, x) => cmul(z, eUp(a[x]!))),
     thetaG = theta.map((t, x) => t + a[x]! - a[wrap(x + 1)]!)
@@ -183,6 +193,7 @@ export default experiment({
   run() {
     const r = coupledQED()
     const ok = r.chargeConserved && r.gaugeInvariant && r.backReaction
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

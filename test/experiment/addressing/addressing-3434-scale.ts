@@ -51,6 +51,7 @@ function checkAt(maxCells: number): Report {
     if (!a.complete[c]) {
       continue
     }
+
     for (const v of a.graph.neighbors[c]!) {
       if (a.dist[v] === a.dist[c]) {
         cousins++
@@ -70,6 +71,7 @@ function checkAt(maxCells: number): Report {
     if (!a.complete[c]) {
       continue
     }
+
     const predicted = new Set(predictAltParents(a, c, auto))
     for (const ap of a.altParents[c]!) {
       totalEdges++
@@ -87,10 +89,12 @@ function checkAt(maxCells: number): Report {
     if (a.dist[c]! < 0 || a.dist[c]! > a.shellComplete) {
       continue
     }
+
     const key = a.address[c]!.join('.')
     if (seen.has(key)) {
       addressDup++
     }
+
     seen.add(key)
     if (decode(a, a.address[c]!) !== c) {
       roundTripFail++
@@ -104,6 +108,7 @@ function checkAt(maxCells: number): Report {
     if (!a.complete[c]) {
       continue
     }
+
     totalComplete++
     const predicted = new Set<number>([
       a.parent[c]!,
@@ -120,6 +125,7 @@ function checkAt(maxCells: number): Report {
         }
       }
     }
+
     if (ok) {
       exact++
     }
@@ -165,6 +171,7 @@ export default experiment({
       r.roundTripFail === 0 &&
       r.k2Deterministic
     const ok = clean(small) && clean(large) && large.cells > small.cells
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

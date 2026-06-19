@@ -63,6 +63,7 @@ function dispersion(collision: ReturnType<typeof headOnRotate>): {
     frequencies.push(omega)
     phaseSpeeds.push(k > 0 ? omega / k : 0)
   }
+
   return { wavenumbers, frequencies, phaseSpeeds }
 }
 
@@ -71,6 +72,7 @@ function spread(values: number[]): number {
   if (mean === 0) {
     return Infinity
   }
+
   return (Math.max(...values) - Math.min(...values)) / mean
 }
 

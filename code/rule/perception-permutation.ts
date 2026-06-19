@@ -11,30 +11,39 @@ export function perceptionPermutation(
   if (a === -1 && b === -1) {
     return [-1, -1]
   }
+
   if (a === 1 && b === 1) {
     return [1, 1]
   }
+
   if (a === -1 && b === 0) {
     return [0, -1]
   }
+
   if (a === 0 && b === -1) {
     return [-1, 0]
   }
+
   if (a === 1 && b === 0) {
     return [0, 1]
   }
+
   if (a === 0 && b === 1) {
     return [1, 0]
   }
+
   if (a === 0 && b === 0) {
     return [1, -1]
   }
+
   if (a === 1 && b === -1) {
     return [-1, 1]
   }
+
   if (a === -1 && b === 1) {
     return [0, 0]
   }
+
   return [a, b]
 }
 
@@ -66,11 +75,13 @@ export function perceptionMatchingSweepCsr(input: {
     if (matched[v]) {
       continue
     }
+
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
       if (matched[w]) {
         continue
       }
+
       const [a, b] = perceptionPermutation(tone[v]!, tone[w]!)
       tone[v] = a as -1 | 0 | 1
       tone[w] = b as -1 | 0 | 1
@@ -105,6 +116,7 @@ export function perceptionMatchingSweep3d(input: {
     if (matched[v]) {
       continue
     }
+
     const vx = v % L
     const vy = ((v / L) | 0) % L
     const vz = (v / (L * L)) | 0
@@ -115,12 +127,14 @@ export function perceptionMatchingSweep3d(input: {
       ord[i] = ord[j]!
       ord[j] = t
     }
+
     for (const k of ord) {
       const d = PERCEPTION_GRID_DIRECTIONS[k]!
       const w = at(vx + d[0]!, vy + d[1]!, vz + d[2]!)
       if (matched[w]) {
         continue
       }
+
       const [na, nb] = perceptionPermutation(tone[v]!, tone[w]!)
       tone[v] = na as -1 | 0 | 1
       tone[w] = nb as -1 | 0 | 1

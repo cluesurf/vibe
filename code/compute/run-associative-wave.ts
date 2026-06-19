@@ -32,8 +32,10 @@ async function gpuWave(input: {
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     })
     device.queue.writeBuffer(b, 0, data)
+
     return b
   }
+
   const params = device.createBuffer({
     size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -96,8 +98,10 @@ async function gpuWave(input: {
     if (c === 0) {
       break
     }
+
     beats = beat
   }
+
   const ms = performance.now() - t0
 
   const arrivalRead = device.createBuffer({
@@ -110,6 +114,7 @@ async function gpuWave(input: {
   await arrivalRead.mapAsync(GPUMapMode.READ)
   const out = new Int32Array(arrivalRead.getMappedRange().slice(0))
   arrivalRead.unmap()
+
   return { arrival: out, beats, ms }
 }
 
@@ -119,8 +124,10 @@ async function run(): Promise<void> {
     console.log(
       'no WebGPU adapter available (needs a GPU). The GPU wave is written and will run where an adapter is present.',
     )
+
     return
   }
+
   const device = await adapter.requestDevice()
   const module = device.createShaderModule({
     code: ASSOCIATIVE_WAVE_WGSL,
@@ -152,10 +159,12 @@ async function run(): Promise<void> {
     if (w.arrival[c] !== cpuDepth[c]) {
       mismatches++
     }
+
     if (w.arrival[c]! > gpuCoverage) {
       gpuCoverage = w.arrival[c]!
     }
   }
+
   let cpuCoverage = 0
   for (let c = 0; c < n; c++) {
     if (cpuDepth[c]! > cpuCoverage) {
@@ -192,6 +201,7 @@ async function run(): Promise<void> {
     )
     process.exit(1)
   }
+
   console.log(
     'OK, the GPU wave equals the CPU BFS, coverage is logarithmic in the cell count',
   )

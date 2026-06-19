@@ -13,6 +13,7 @@ export function toneDensity(t: Int8Array): number {
       nz++
     }
   }
+
   return nz / t.length
 }
 
@@ -51,6 +52,7 @@ export function settledAvalancheSizes<
   for (let t = 0; t < settleSteps; t++) {
     relax(base, settleRng)
   }
+
   const background = toneDensity(base)
   const sizes = avalancheSizes({
     base,
@@ -62,6 +64,7 @@ export function settledAvalancheSizes<
     relax,
     mode,
   })
+
   return { sizes, background }
 }
 
@@ -107,13 +110,16 @@ export function avalancheSizes<
           diff++
         }
       }
+
       if (diff > peak) {
         peak = diff
       }
+
       if (mode === 'peak' && diff === 0) {
         break
       }
     }
+
     if (mode === 'final') {
       let diff = 0
       for (let i = 0; i < N; i++) {
@@ -121,10 +127,12 @@ export function avalancheSizes<
           diff++
         }
       }
+
       sizes.push(diff)
     } else {
       sizes.push(peak)
     }
   }
+
   return sizes.sort((a, b) => a - b)
 }

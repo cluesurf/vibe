@@ -32,12 +32,14 @@ export function csrVoronoiBlocks(input: {
       seeds.push(c)
     }
   }
+
   const blockOf = new Int32Array(size).fill(-1)
   let fr: number[] = []
   for (let s = 0; s < seeds.length; s++) {
     blockOf[seeds[s]!] = s
     fr.push(seeds[s]!)
   }
+
   while (fr.length > 0) {
     const next: number[] = []
     for (const u of fr) {
@@ -49,8 +51,10 @@ export function csrVoronoiBlocks(input: {
         }
       }
     }
+
     fr = next
   }
+
   return { blockOf, numBlocks: numSeeds }
 }
 
@@ -68,6 +72,7 @@ export function geometricBlocks(
   while (seedSet.size < numSeeds) {
     seedSet.add(rng.nextInt({ max: n }))
   }
+
   const cl = new Int32Array(n).fill(-1)
   let frontier: number[] = []
   ;[...seedSet].forEach((sd, c) => {
@@ -84,14 +89,17 @@ export function geometricBlocks(
         }
       }
     }
+
     frontier = next
   }
+
   let nc = seedSet.size
   for (let v = 0; v < n; v++) {
     if (cl[v] === -1) {
       cl[v] = nc++
     }
   }
+
   return { cl, K: nc }
 }
 
@@ -108,6 +116,7 @@ export function domainBlocks(
     if (cl[s] !== -1) {
       continue
     }
+
     cl[s] = K
     let frontier = [s]
     while (frontier.length > 0) {
@@ -120,10 +129,13 @@ export function domainBlocks(
           }
         }
       }
+
       frontier = next
     }
+
     K++
   }
+
   return { cl, K }
 }
 
@@ -139,6 +151,7 @@ export function coherentFills(
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
+
     return m
   })
   const fills = g.neighbors.map(row => new Int8Array(row.length))
@@ -156,5 +169,6 @@ export function coherentFills(
       }
     }
   }
+
   return fills
 }

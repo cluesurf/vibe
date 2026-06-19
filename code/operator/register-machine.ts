@@ -40,6 +40,7 @@ export class RegisterMachine {
     for (let i = 0; i < this.tone.length; i++) {
       s += this.tone[i]!
     }
+
     return s
   }
 
@@ -50,6 +51,7 @@ export class RegisterMachine {
         c++
       }
     }
+
     return c
   }
 
@@ -57,6 +59,7 @@ export class RegisterMachine {
     for (const i of this.regions[r]!) {
       this.tone[i] = 0
     }
+
     for (let k = 0; k < value; k++) {
       this.inc(r)
     }
@@ -72,15 +75,19 @@ export class RegisterMachine {
         break
       }
     }
+
     if (!placedPlus) {
       throw new Error('register overflow')
     }
+
     for (const i of this.ground) {
       if (this.tone[i] === 0) {
         this.tone[i] = -1
+
         return
       }
     }
+
     throw new Error('ground overflow')
   }
 
@@ -92,9 +99,11 @@ export class RegisterMachine {
         break
       }
     }
+
     for (const i of this.ground) {
       if (this.tone[i] === -1) {
         this.tone[i] = 0
+
         return
       }
     }
@@ -127,10 +136,12 @@ export class RegisterMachine {
       } else if (instr.op === 'jmp') {
         pc = instr.addr
       }
+
       if (this.charge() !== this.charge0) {
         conserved = false
       }
     }
+
     return { steps, conserved }
   }
 }
@@ -145,6 +156,7 @@ export function minskyAddProgram(input?: {
 }): Instr[] {
   const r0 = input?.r0 ?? 0
   const r1 = input?.r1 ?? 1
+
   return [
     { op: 'decjz', r: r1, addr: 3 },
     { op: 'inc', r: r0 },
@@ -163,6 +175,7 @@ export function minskyMultiplyProgram(input?: {
   const r1 = input?.r1 ?? 1
   const r2 = input?.r2 ?? 2
   const r3 = input?.r3 ?? 3
+
   return [
     { op: 'decjz', r: r0, addr: 8 },
     { op: 'decjz', r: r1, addr: 5 },
@@ -197,8 +210,11 @@ export function carveRegisters(input: {
     ) {
       region.push(cells[cursor]!)
     }
+
     regions.push(region)
   }
+
   const ground = cells.slice(cursor)
+
   return { regions, ground }
 }

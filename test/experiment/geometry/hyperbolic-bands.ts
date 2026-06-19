@@ -33,6 +33,7 @@ export function hyperbolicBands(): {
       A[j]![i] = 1
     }
   }
+
   const ev = jacobiEigenvalues(A)
   // group into degenerate multiplets
   const mults: number[] = []
@@ -42,14 +43,17 @@ export function hyperbolicBands(): {
     while (j < N && Math.abs(ev[j]! - ev[i]!) < 1e-3) {
       j++
     }
+
     mults.push(j - i)
     i = j
   }
+
   const degSet = [...new Set(mults)].sort((a, b) => a - b)
   // PSL(2,7) REAL irrep dimensions seen by the real symmetric adjacency (the two complex 3s merge to a real 6)
   const realIrrepDims = [1, 6, 7, 8]
   const matchesIrreps = realIrrepDims.every(d => degSet.includes(d)) // the irrep dims all appear as bands
   const accidental = degSet.filter(d => !realIrrepDims.includes(d)) // merges of >1 block at one eigenvalue
+
   return { degeneracies: degSet, matchesIrreps }
 }
 
@@ -69,6 +73,7 @@ export default experiment({
   run() {
     const r = hyperbolicBands()
     const ok = r.matchesIrreps
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

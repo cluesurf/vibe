@@ -67,6 +67,7 @@ export function bornRule(input: { seed: number }): {
   const p1 = exponentResiduals.find(e => e.p === 1)?.residual ?? 0
   const p2 = exponentResiduals.find(e => e.p === 2)?.residual ?? 1
   const p3 = exponentResiduals.find(e => e.p === 3)?.residual ?? 0
+
   return {
     born,
     sampled,
@@ -99,6 +100,7 @@ export default experiment({
       r.uniqueExponent === 2 &&
       r.quadratureResidual < 1e-6 &&
       r.samplingError < 0.01
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

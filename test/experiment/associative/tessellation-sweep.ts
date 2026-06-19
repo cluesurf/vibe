@@ -31,6 +31,7 @@ export function associativeTessellationSweep(input?: {
   )
   const perfectCount = recalls.filter(r => r === 1).length
   const minRecall = recalls.reduce((m, r) => Math.min(m, r), 1)
+
   return {
     buildableCount: buildable.length,
     perfectCount,
@@ -51,6 +52,7 @@ export default experiment({
     const r = associativeTessellationSweep({
       maxCells: SWEEP_MAX_CELLS,
     })
+
     return verdict({
       status: r.allPerfect ? 'pass' : 'fail',
       claim:

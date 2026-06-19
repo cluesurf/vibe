@@ -26,12 +26,14 @@ function overlappingWord(
   for (let k = 0; k < wordBits; k++) {
     word[k] = (k * 2) % 3
   }
+
   // distinguishing slots encode the index in base 3
   let v = index
   for (let k = 0; k < separation && k < wordBits; k++) {
     word[k] = v % 3
     v = Math.floor(v / 3)
   }
+
   return word
 }
 
@@ -55,6 +57,7 @@ function recallAtSeparation(input: {
       overlappingWord(i, input.wordBits, input.separation),
     )
   }
+
   let exactOk = 0
   let nearestOk = 0
   for (let i = 0; i < input.count; i++) {
@@ -63,10 +66,12 @@ function recallAtSeparation(input: {
     if (responders.length === 1 && responders[0] === i) {
       exactOk++
     }
+
     if (searchBest({ mem, comparand: cue }).cell === i) {
       nearestOk++
     }
   }
+
   return {
     exactRecall: exactOk / input.count,
     nearestRecall: nearestOk / input.count,
@@ -113,6 +118,7 @@ export function associativeInterference(input?: {
     highSepRecall > 0.95 &&
     lowSepRecall < 0.5 &&
     highSepRecall > lowSepRecall
+
   return {
     count,
     separations,
@@ -134,6 +140,7 @@ export default experiment({
   paper: true,
   run() {
     const r = associativeInterference({ maxCells: 800 })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

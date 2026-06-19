@@ -29,6 +29,7 @@ function summarize(values: number[]): {
   minPhysical: number
 } {
   const census = zeroModeCensus(values)
+
   return {
     gauge: census.zero,
     physical: census.nonzero,
@@ -48,6 +49,7 @@ export function photonStudy(input: { side: number }): {
   const massive = summarize(
     maxwellSpectrum({ side: input.side, mass: 1 }),
   )
+
   return {
     side: input.side,
     dof: 3 * input.side ** 3,
@@ -76,6 +78,7 @@ export default experiment({
       b.minPhysicalOmega2 < a.minPhysicalOmega2 &&
       a.massiveMinOmega2 > 0.9 &&
       a.massiveMinOmega2 < 1.1
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

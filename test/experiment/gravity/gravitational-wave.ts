@@ -37,6 +37,7 @@ function ringNeighbors(size: number): number[][] {
   for (let i = 0; i < size; i++) {
     neighbors.push([(i + 1) % size, (i + size - 1) % size])
   }
+
   return neighbors
 }
 
@@ -76,6 +77,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
       }
     }
   }
+
   const frontSpeed = front / BEATS
 
   // reverse, the leapfrog run backward (swap previous and current) recovers the earlier slice
@@ -93,6 +95,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
     revPrev = revCur
     revCur = next
   }
+
   let reversible = true
   for (let i = 0; i < RING; i++) {
     if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) {

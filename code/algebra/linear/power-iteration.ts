@@ -13,6 +13,7 @@ function dot(a: Float64Array, b: Float64Array): number {
   for (let i = 0; i < a.length; i++) {
     s += a[i]! * b[i]!
   }
+
   return s
 }
 
@@ -48,6 +49,7 @@ export function lowestEigenpairs(input: {
     for (let r = 0; r < n; r++) {
       phi[r] = rng.next() - 0.5
     }
+
     normalize(phi)
     for (let iter = 0; iter < iterations; iter++) {
       const hPhi = operator.apply({ x: phi })
@@ -55,17 +57,21 @@ export function lowestEigenpairs(input: {
       for (let r = 0; r < n; r++) {
         next[r] = shift * phi[r]! - hPhi[r]!
       }
+
       for (const f of found) {
         const proj = dot(next, f.state)
         for (let r = 0; r < n; r++) {
           next[r]! -= proj * f.state[r]!
         }
       }
+
       normalize(next)
       phi = next
     }
+
     const energy = dot(phi, operator.apply({ x: phi }))
     found.push({ energy, state: phi })
   }
+
   return found
 }

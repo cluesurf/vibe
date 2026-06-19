@@ -38,6 +38,7 @@ function coulombLevels(l: number, count: number): number[] {
     count,
   })
 }
+
 function softenedLevels(l: number, count: number): number[] {
   return radialSchrodingerLevels({
     l,

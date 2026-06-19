@@ -19,6 +19,7 @@ export function holography(): {
   const confounded =
     Math.abs(a.boundaryDim - 2) > 0.7 ||
     Math.abs(b.boundaryDim - 3) > 0.7
+
   return {
     fiveBoundaryDim: a.boundaryDim,
     fourBoundaryDim: b.boundaryDim,
@@ -37,6 +38,7 @@ export default experiment({
   run() {
     const r = holography()
     const ok = r.confounded
+
     return verdict({
       status: ok ? 'open' : 'pass',
       claim:

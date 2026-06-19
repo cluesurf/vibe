@@ -24,8 +24,10 @@ const boost = (E: number, p: number, phi: number): [number, number] => {
     wavenumber: p,
     rapidity: -phi,
   })
+
   return [b.omega, b.wavenumber]
 }
+
 // lattice dispersion cos E = cos(m) cos(k) (from the directional rule)
 const ElatticeFromK = (m: number, k: number): number =>
   coinedWalkDispersion({ theta: m, k })
@@ -60,11 +62,13 @@ export function emergentBoost(): {
       if (rel >= 1 || rel <= 0) {
         velocitiesAddRelativistically = false
       }
+
       if (gal > 1) {
         galileanWrong = true
       } // Galilean would exceed c, relativistic never does
     }
   }
+
   // verify a concrete case: 0.9 + 0.9 = 0.994... (< c), not 1.8
   const example = (0.9 + 0.9) / (1 + 0.81)
 
@@ -107,6 +111,7 @@ export default experiment({
     const m = 0.4
     const invariantIR = ElatticeFromK(m, 0.05) ** 2 - 0.05 ** 2
     const invariantUV = ElatticeFromK(m, 1.5) ** 2 - 1.5 ** 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

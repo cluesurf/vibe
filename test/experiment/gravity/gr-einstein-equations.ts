@@ -46,6 +46,7 @@ function areaLawPrecondition(): {
   for (let l = 6; l <= n / 2; l += 4) {
     lengths.push(l)
   }
+
   const h = staggeredMassChainHamiltonian({ n, mass: 0.7 })
   const c = freeFermionCorrelationMatrix({ h, n })
   const entropies = lengths.map(len =>
@@ -60,6 +61,7 @@ function areaLawPrecondition(): {
   // the maximally-mixed state has correlation matrix I/2, so its interval entropy is len * ln 2 (volume law)
   const volumeSlope = Math.log(2) // entropy per site, the volume-law rate, clearly nonzero
   const ok = massiveSpread < 0.1 && volumeSlope > 0.5
+
   return { massiveSpread, volumeSlope, ok }
 }
 
@@ -77,6 +79,7 @@ function jacobsonCoefficient(): {
   const ok =
     Math.abs(einsteinCoeff - 8 * Math.PI * G) < 1e-12 &&
     Math.abs(poissonCoeff - 4 * Math.PI * G) < 1e-12
+
   return { einsteinCoeff, poissonCoeff, ok }
 }
 
@@ -100,6 +103,7 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
       src = i
     }
   }
+
   const rho = new Float64Array(n)
   rho[src] = 1
   const phi = latticePoissonJacobi({
@@ -121,8 +125,10 @@ function poissonOnCusp(): { rFit: number; r2Fit: number; ok: boolean } {
       phis.push(phi[i]!)
     }
   }
+
   const rFit = fitForm(rs, phis, r => 1 / r).r2
   const r2Fit = fitForm(rs, phis, r => 1 / (r * r)).r2
+
   return { rFit, r2Fit, ok: rFit > 0.97 && rFit > r2Fit }
 }
 
@@ -135,6 +141,7 @@ function lightBending(
   const ok =
     Math.abs(d.grAngle - (4 * M) / b) / ((4 * M) / b) < 0.01 &&
     Math.abs(d.ratio - 2) < 0.01
+
   return { ratio: d.ratio, ok }
 }
 
@@ -152,6 +159,7 @@ export default experiment({
     const pc = poissonOnCusp()
     const lb = lightBending(1, 10)
     const ok = area.ok && jc.ok && pc.ok && lb.ok
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

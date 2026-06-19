@@ -40,6 +40,7 @@ export function associativeCapacityScaling(input?: {
 
   const solved =
     bulkGrowthRatio > 1.3 && bulkGrowthRatio > cubicGrowthRatio + 0.25
+
   return {
     bulkCells: g.cellCount,
     cubicCells: lat.size,
@@ -62,6 +63,7 @@ export default experiment({
       maxCells: 3000,
       cubicSide: 15,
     })
+
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:

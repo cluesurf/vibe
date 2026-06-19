@@ -67,6 +67,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       temperature: TEMP,
     })
   }
+
   const balanceMid = nonzero(life)
   for (let b = 0; b < 40; b++) {
     perceptionEdgeBeat({
@@ -82,6 +83,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
       temperature: TEMP,
     })
   }
+
   const lifeEnd = nonzero(life)
   const balanceLate = lifeEnd
   const conservedLife = sumTone(life) === qL
@@ -104,6 +106,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
     for (const i of blob) {
       t[i] = 1
     }
+
     const meanBlob = (arr: Int8Array): number =>
       blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
     const start = meanBlob(t)
@@ -122,12 +125,15 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
         temperature: TEMP,
       })
     }
+
     const after = meanBlob(t)
     let bg = 0
     for (let i = 0; i < n; i++) {
       bg += t[i]!
     }
+
     bg /= n
+
     return {
       ret: (after - bg) / (start - bg || 1),
       conserved:
@@ -135,6 +141,7 @@ export function millionScale(input?: { n?: number; nowMs?: number }): {
         q0 + blob.reduce((s, i) => s + (1 - life[i]!), 0),
     }
   }
+
   const rnd = imprintRetention(false)
   const coh = imprintRetention(true)
 
@@ -181,6 +188,7 @@ export default experiment({
     const r = millionScale({ n: 150000 })
     const ok =
       r.solved && r.conserved && r.arrowCreatesLife && r.dynamicBalance
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

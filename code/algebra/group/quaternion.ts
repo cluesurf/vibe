@@ -78,6 +78,7 @@ export function quaternionGroup(): Quaternion[] {
     units.push(quaternion(0, 0, sign, 0))
     units.push(quaternion(0, 0, 0, sign))
   }
+
   return units
 }
 
@@ -94,6 +95,7 @@ export function binaryTetrahedral(): Quaternion[] {
       }
     }
   }
+
   return units
 }
 
@@ -112,6 +114,7 @@ export function binaryIcosahedral(): Quaternion[] {
     for (let index = 0; index < 4; index++) {
       base[order[index]!] = magnitudes[index]!
     }
+
     const zeroSlot = order[3]!
     const nonzero = positions.filter(position => position !== zeroSlot)
     for (let signMask = 0; signMask < 8; signMask++) {
@@ -121,6 +124,7 @@ export function binaryIcosahedral(): Quaternion[] {
           components[nonzero[bit]!] = -components[nonzero[bit]!]!
         }
       }
+
       units.push(
         quaternion(
           components[0]!,
@@ -131,6 +135,7 @@ export function binaryIcosahedral(): Quaternion[] {
       )
     }
   }
+
   return units
 }
 
@@ -142,8 +147,10 @@ export function evenPermutations(items: number[]): number[][] {
       if (permutationParity(current) === 0) {
         result.push(current)
       }
+
       return
     }
+
     for (let index = 0; index < rest.length; index++) {
       recurse(
         [...current, rest[index]!],
@@ -151,7 +158,9 @@ export function evenPermutations(items: number[]): number[][] {
       )
     }
   }
+
   recurse([], items)
+
   return result
 }
 
@@ -164,6 +173,7 @@ function permutationParity(permutation: number[]): number {
       }
     }
   }
+
   return inversions % 2
 }
 
@@ -171,5 +181,6 @@ function permutationParity(permutation: number[]): number {
 export function quaternionKey(value: Quaternion): string {
   const round = (component: number): number =>
     Math.round(component * 1e6)
+
   return `${round(value.w)},${round(value.x)},${round(value.y)},${round(value.z)}`
 }

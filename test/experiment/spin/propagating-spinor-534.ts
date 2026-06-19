@@ -23,6 +23,7 @@ type Spinor = [Complex, Complex]
 // exp(-i pi sigma_z) = minus the identity, the verified {5,3,4} 2pi-loop holonomy
 const connectionLink = (loopLength: number): [Complex, Complex] => {
   const angle = Math.PI / loopLength
+
   return [
     complex({ re: Math.cos(angle), im: -Math.sin(angle) }),
     complex({ re: Math.cos(angle), im: Math.sin(angle) }),
@@ -83,6 +84,7 @@ export default experiment({
     for (let t = 0; t < half; t++) {
       field = step(field, link)
     }
+
     const amplitudeAt = (cell: Spinor): number =>
       cAbs2(cell[0]) + cAbs2(cell[1])
     const propagated =
@@ -90,12 +92,14 @@ export default experiment({
     for (let t = half; t < loop; t++) {
       field = step(field, link)
     } // finish the loop, back to cell 0
+
     const afterOneLoop = field[0]! // back at the start after going around
     const minusSeed: Spinor = [complex({ re: -1, im: 0 }), zero()]
     const spinorFlipAfterOneLoop = closeTo(afterOneLoop, minusSeed)
     for (let t = 0; t < loop; t++) {
       field = step(field, link)
     } // a second loop
+
     const afterTwoLoops = field[0]!
     const spinorReturnAfterTwoLoops = closeTo(afterTwoLoops, seed)
 
@@ -104,6 +108,7 @@ export default experiment({
     for (let t = 0; t < loop; t++) {
       control = step(control, trivialLink)
     }
+
     const trivialAfterOneLoop = control[0]!
     const trivialReturnsPlus = closeTo(trivialAfterOneLoop, seed)
 

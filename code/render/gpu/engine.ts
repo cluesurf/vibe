@@ -29,12 +29,14 @@ export async function createVibeRenderer(input: {
   if (!gpu) {
     throw new Error('WebGPU is not available in this browser')
   }
+
   const adapter = await gpu.requestAdapter()
   if (!adapter) {
     throw new Error(
       'no WebGPU adapter (the GPU may be blocked or unavailable)',
     )
   }
+
   const device = await adapter.requestDevice()
   const context = input.canvas.getContext(
     'webgpu',
@@ -42,6 +44,7 @@ export async function createVibeRenderer(input: {
   if (!context) {
     throw new Error('could not get a webgpu canvas context')
   }
+
   const format = gpu.getPreferredCanvasFormat()
   context.configure({ device, format, alphaMode: 'opaque' })
 
@@ -69,6 +72,7 @@ export async function createVibeRenderer(input: {
       input.canvas.height = h
     }
   }
+
   const observer = new ResizeObserver(resize)
   observer.observe(input.canvas)
   resize()
@@ -81,6 +85,7 @@ export async function createVibeRenderer(input: {
     if (!running) {
       return
     }
+
     const dt = Math.min(0.05, (now - last) / 1000)
     last = now
     controls.tick(dt)
@@ -111,6 +116,7 @@ export async function createVibeRenderer(input: {
     device.queue.submit([encoder.finish()])
     frame = requestAnimationFrame(renderLoop)
   }
+
   frame = requestAnimationFrame(renderLoop)
 
   return {

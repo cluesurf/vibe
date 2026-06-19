@@ -67,6 +67,7 @@ export default experiment({
           }
         }
       }
+
       let current = makeWill(mesh)
       let scratch: Will = {
         mesh,
@@ -94,15 +95,18 @@ export default experiment({
           left += 1
           accLeft = 0
         }
+
         if (accRight > threshold && right - left > minGap) {
           right -= 1
           accRight = 0
         }
+
         const gap = right - left
         if (gap < gapMin) {
           gapMin = gap
         }
       }
+
       return { gapStart, gapEnd: right - left, gapMin }
     }
 
@@ -114,6 +118,7 @@ export default experiment({
     const inertStaysFixed = inert.gapEnd === inert.gapStart
 
     const ok = captured && inertStaysFixed
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

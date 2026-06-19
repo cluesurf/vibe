@@ -66,9 +66,11 @@ export function cellComplexOf(input: {
     if (!edge) {
       continue
     }
+
     boundary1Triplets.push({ row: edge.b, col: e, value: 1 })
     boundary1Triplets.push({ row: edge.a, col: e, value: -1 })
   }
+
   const boundary1 = sparseFromTriplets({
     rows: vertexCount,
     cols: edges.length,
@@ -95,12 +97,14 @@ export function cellComplexOf(input: {
       if (!edge) {
         continue
       }
+
       const { a, b } = edge
       const setA = neighborSet[a]
       const setB = neighborSet[b]
       if (!setA || !setB) {
         continue
       }
+
       for (const c of setB) {
         if (c > b && setA.has(c)) {
           triangles.push({ a, b, c })
@@ -116,19 +120,23 @@ export function cellComplexOf(input: {
       if (!tri) {
         continue
       }
+
       const eBC = edgeIndex.get(`${tri.b},${tri.c}`)
       const eAC = edgeIndex.get(`${tri.a},${tri.c}`)
       const eAB = edgeIndex.get(`${tri.a},${tri.b}`)
       if (eBC !== undefined) {
         boundary2Triplets.push({ row: eBC, col: t, value: 1 })
       }
+
       if (eAC !== undefined) {
         boundary2Triplets.push({ row: eAC, col: t, value: -1 })
       }
+
       if (eAB !== undefined) {
         boundary2Triplets.push({ row: eAB, col: t, value: 1 })
       }
     }
+
     const boundary2 = sparseFromTriplets({
       rows: edges.length,
       cols: triangles.length,
@@ -164,6 +172,7 @@ export function kahlerDirac(input: {
   for (let k = 0; k < grades; k++) {
     offset[k + 1] = (offset[k] ?? 0) + (cellCount[k] ?? 0)
   }
+
   const total = offset[grades] ?? 0
 
   const triplets: Triplet[] = []
@@ -173,6 +182,7 @@ export function kahlerDirac(input: {
     if (!b) {
       continue
     }
+
     const lowOffset = offset[k - 1] ?? 0
     const highOffset = offset[k] ?? 0
     // Walk the CSR rows of B_k. row r is a (k-1)-cell, col c is a k-cell.
@@ -208,6 +218,7 @@ export function diracSpectrum(input: {
 }): Float64Array {
   const matrix = kahlerDirac({ complex: input.complex })
   const operator = operatorFromSparse(matrix)
+
   return lowestEigenvalues({ operator, count: input.count })
 }
 
@@ -239,5 +250,6 @@ export function kahlerDiracZeroModes(input: {
   const zeroModes = smallestMagnitudes.filter(
     x => x < input.threshold,
   ).length
+
   return { smallestMagnitudes, zeroModes }
 }

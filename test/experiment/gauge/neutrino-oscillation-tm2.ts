@@ -30,6 +30,7 @@ function pmns(
     c13 = Math.cos(th13)
   const e = c(Math.cos(delta), -Math.sin(delta)) // e^{-i delta}
   const eP = c(Math.cos(delta), Math.sin(delta))
+
   // rows: e, mu, tau ; cols: 1, 2, 3
   return [
     [c(c12 * c13), c(s12 * c13), cmul(c(s13), e)],
@@ -49,6 +50,7 @@ function pmns(
 // Jarlskog invariant J = Im(U_e1 U_mu2 U*_e2 U*_mu1)
 function jarlskog(U: C[][]): number {
   const conj = (x: C) => c(x.re, -x.im)
+
   return cmul(
     cmul(U[0]![0]!, U[1]![1]!),
     cmul(conj(U[0]![1]!), conj(U[1]![0]!)),

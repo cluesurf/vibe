@@ -70,14 +70,17 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -85,6 +88,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -105,16 +109,20 @@ function run(): void {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
     }
+
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(raw.map(c => c.u))
   const cv = median(raw.map(c => c.v))
   const radii = raw
@@ -143,6 +151,7 @@ function run(): void {
         start = c.index
       }
     }
+
     inSelf[start] = 1
     let fr = [start]
     while (selfCells.length < SELF_SIZE && fr.length) {
@@ -152,6 +161,7 @@ function run(): void {
         if (selfCells.length >= SELF_SIZE) {
           break
         }
+
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
           if (bandSet.has(w) && !inSelf[w]) {
@@ -160,9 +170,11 @@ function run(): void {
           }
         }
       }
+
       fr = nf
     }
   }
+
   // ground for conserving maintenance, the off-screen margin cells (|busemann| >= half)
   const ground: number[] = []
   for (let i = 0; i < n; i++) {
@@ -180,6 +192,7 @@ function run(): void {
       r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
     ) as -1 | 0 | 1
   }
+
   for (const c of selfCells) {
     tone[c] = 1
   }
@@ -205,6 +218,7 @@ function run(): void {
       }
     }
   }
+
   const autonomousRepair = (graph: Graph): void => {
     let owedMinus = 0
     let owedPlus = 0
@@ -212,6 +226,7 @@ function run(): void {
       if (tone[c] !== 0) {
         continue
       }
+
       const plus = sameSignNeighbors(tone, graph, c, 1)
       const minus = sameSignNeighbors(tone, graph, c, -1)
       if (plus >= REPAIR_THRESHOLD && plus > minus + 2) {
@@ -222,6 +237,7 @@ function run(): void {
         owedPlus++
       }
     }
+
     placeRandom(-1, owedMinus)
     placeRandom(1, owedPlus)
   }
@@ -234,6 +250,7 @@ function run(): void {
       if (seen[s] || tone[s] === 0 || persist[s]! < 20) {
         continue
       }
+
       const sign = tone[s]!
       let size = 0
       let fr = [s]
@@ -250,12 +267,15 @@ function run(): void {
             }
           }
         }
+
         fr = nf
       }
+
       if (size > best) {
         best = size
       }
     }
+
     return best
   }
 
@@ -268,10 +288,12 @@ function run(): void {
         tone[c] = 1
       }
     }
+
     for (const gc of ground) {
       if (need <= 0) {
         break
       }
+
       if (tone[gc] === 0) {
         tone[gc] = -1
         need--
@@ -305,6 +327,7 @@ function run(): void {
       } else {
         persist[i] = 0
       }
+
       prev[i] = tone[i]!
     }
 
@@ -316,11 +339,13 @@ function run(): void {
       rgba[i * 4 + 2] = 9
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of raw) {
       const t = tone[c.index]!
       if (t === 0) {
         continue
       }
+
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
       const r8 =
         t === 1
@@ -341,6 +366,7 @@ function run(): void {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = r8
           rgba[idx + 1] = g8
@@ -348,6 +374,7 @@ function run(): void {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
 
     if (f % 40 === 0 || f === FRAMES - 1) {
@@ -363,6 +390,7 @@ function run(): void {
           bgCount++
         }
       }
+
       const selfAvg = selfCells.length ? selfSum / selfCells.length : 0
       const bgAvg = bgCount ? bgSum / bgCount : 0
       if (MODE === 'maintained') {
@@ -377,12 +405,14 @@ function run(): void {
             maxP = persist[i]!
           }
         }
+
         console.log(
           `  beat ${f}, largest persistent self ${persistentSelf()} cells, max persistence ${maxP}, avg ${bgAvg.toFixed(1)}`,
         )
       }
     }
   }
+
   console.log(
     `wrote ${FRAMES} frames (${MODE}), assemble with task/render-video.sh`,
   )

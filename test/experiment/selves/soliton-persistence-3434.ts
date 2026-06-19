@@ -26,8 +26,10 @@ function bbsStep(s: number[]): number[] {
       carrier--
     } // drop a ball into an empty box
   }
+
   return out
 }
+
 // soliton sizes = the maximal runs of consecutive balls
 function solitonSizes(s: number[]): number[] {
   const sizes: number[] = []
@@ -39,14 +41,18 @@ function solitonSizes(s: number[]): number[] {
       if (run > 0) {
         sizes.push(run)
       }
+
       run = 0
     }
   }
+
   if (run > 0) {
     sizes.push(run)
   }
+
   return sizes.sort((a, b) => b - a)
 }
+
 const ballCount = (s: number[]): number => s.reduce((a, b) => a + b, 0)
 const centerOfMass = (s: number[]): number => {
   let c = 0,
@@ -57,6 +63,7 @@ const centerOfMass = (s: number[]): number => {
       n++
     }
   })
+
   return c / (n || 1)
 }
 
@@ -79,6 +86,7 @@ export function solitonPersistence(): {
     positions.push(centerOfMass(s))
     s = bbsStep(s)
   }
+
   const sizesStable = solitonSizes(s).join(',') === sz.join(',')
   const speeds = positions.slice(1).map((p, i) => p - positions[i]!)
   const constantSpeed = speeds.every(v => Math.abs(v - 3) < 0.01) // size-3 soliton moves at speed 3
@@ -95,6 +103,7 @@ export function solitonPersistence(): {
         if (run === 0) {
           start = i
         }
+
         run++
       } else if (run > 0) {
         out.push({ size: run, pos: start + (run - 1) / 2 })
@@ -104,8 +113,10 @@ export function solitonPersistence(): {
     if (run > 0) {
       out.push({ size: run, pos: start + (run - 1) / 2 })
     }
+
     return out
   }
+
   let s2 = new Array(L).fill(0)
   s2[3] = s2[4] = s2[5] = 1
   s2[12] = 1 // a 3 behind a 1, the 3 is faster
@@ -116,6 +127,7 @@ export function solitonPersistence(): {
   for (let t = 0; t < 50; t++) {
     s2 = bbsStep(s2)
   }
+
   const after = solitonSizes(s2)
   const endRuns = runs(s2)
   const big1 = endRuns.find(r => r.size === 3),
@@ -157,6 +169,7 @@ export default experiment({
   run() {
     const r = solitonPersistence()
     const ok = r.solitonsExist
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

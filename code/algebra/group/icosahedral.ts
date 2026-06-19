@@ -26,8 +26,10 @@ function matmul3(a: Matrix3, b: Matrix3): Matrix3 {
         a[i]![2]! * b[2]![j]!
     }
   }
+
   return c
 }
+
 const apply3 = (a: Matrix3, v: number[]): number[] =>
   [0, 1, 2].map(
     i => a[i]![0]! * v[0]! + a[i]![1]! * v[1]! + a[i]![2]! * v[2]!,
@@ -70,6 +72,7 @@ export function icosahedralFacePermutationDecomposition(): {
           best = j
         }
       })
+
       return best
     })
   const generators = [
@@ -88,16 +91,20 @@ export function icosahedralFacePermutationDecomposition(): {
       }
     }
   }
+
   const elementOrder = (m: Matrix3): number => {
     let p = m
     for (let o = 1; o <= 10; o++) {
       if (close3(p, identity3())) {
         return o
       }
+
       p = matmul3(m, p)
     }
+
     return -1
   }
+
   // fixed-point count of one representative per rotation order (e, 5, 2, 3)
   const fixByOrder: Record<number, number> = {}
   for (const m of group) {
@@ -107,6 +114,7 @@ export function icosahedralFacePermutationDecomposition(): {
       fixByOrder[o] = p.filter((pj, j) => pj === j).length
     }
   }
+
   // A5 conjugacy-class sizes (e, 5a, 5b, 2, 3) and the character table
   const sizes = [1, 12, 12, 15, 20]
   const characters: Record<string, number[]> = {
@@ -135,7 +143,9 @@ export function icosahedralFacePermutationDecomposition(): {
           100,
       ) / 100
   }
+
   // the spinor would appear as the 4-dimensional rep; its absence means no spinor
   const noSpinor = multiplicities['4'] === 0
+
   return { multiplicities, groupOrder: group.length, noSpinor }
 }

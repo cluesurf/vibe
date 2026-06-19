@@ -47,6 +47,7 @@ function lateAmplitude(input: {
       early = a
     }
   }
+
   return { early, late: lateAmp(trajectory) }
 }
 
@@ -78,6 +79,7 @@ export default experiment({
     const noAttractionEscapes = repulsiveBath.late > 100
 
     const ok = captured && noBathOscillates && noAttractionEscapes
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

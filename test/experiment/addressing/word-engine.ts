@@ -55,6 +55,7 @@ export function wordEngine(): {
       maxLength: 30,
       maxChambers: 5000,
     })
+
     return {
       symbol: `{${c.symbol.join(',')}}`,
       name: c.name,
@@ -88,6 +89,7 @@ export function wordEngine(): {
       maxLength: c.maxLength,
       maxChambers: c.maxChambers,
     })
+
     return {
       symbol: `{${c.symbol.join(',')}}`,
       facet: w.cellFacetCount,
@@ -134,6 +136,7 @@ export default experiment({
       r.facetsAllExact &&
       r.dodecagridFacet === 12
     const h3 = r.finiteOrders.find(f => f.name === 'H3')
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

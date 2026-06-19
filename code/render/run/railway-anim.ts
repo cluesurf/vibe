@@ -52,19 +52,24 @@ function run(): void {
       if (trackSet.has(cell)) {
         color = TRACK
       }
+
       if (cell === tailCell) {
         color = RED
       }
+
       if (cell === headCell) {
         color = GREEN
       }
+
       // a faint sector tint on the non-track backdrop so the tiling structure still reads
       if (color === BACKDROP) {
         const s = patternClass(grid, cell, 'sector') % 3
         color = [26 + s * 6, 24 + s * 4, 44 + s * 8]
       }
+
       sceneFaces.push({ polygon: faces.polygons[cell]!, color })
     }
+
     const scene: Scene = {
       dim: 2,
       symbol: symbol.slice(),
@@ -115,10 +120,12 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
       if (seen.has(key)) {
         continue
       }
+
       seen.add(key)
       edges.push({ a, b })
     }
   }
+
   return edges
 }
 

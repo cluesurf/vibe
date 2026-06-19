@@ -27,14 +27,17 @@ export function modularMesh(input: {
     if (u === v) {
       return
     }
+
     adj[u]?.set(v, f)
     adj[v]?.set(u, f)
   }
+
   const cellOf = new Int32Array(n)
   for (let c = 0; c < numCells; c++) {
     for (let i = 0; i < cellSize; i++) {
       cellOf[c * cellSize + i] = c
     }
+
     // dense intra-cell edges, fill +1 (strong cohesion)
     for (let i = 0; i < cellSize; i++) {
       const u = c * cellSize + i
@@ -44,6 +47,7 @@ export function modularMesh(input: {
       }
     }
   }
+
   // sparse inter-cell edges, fill +1 (weak coupling)
   for (let c = 0; c < numCells; c++) {
     for (let e = 0; e < interPerCell; e++) {
@@ -54,8 +58,10 @@ export function modularMesh(input: {
       addEdge(u, v, 1)
     }
   }
+
   const neighbors: number[][] = adj.map(m => [...m.keys()])
   const fills: Int8Array[] = adj.map(m => Int8Array.from(m.values()))
   const g = makeGraph({ size: n, directed: false, neighbors })
+
   return { g, fills, cellOf }
 }

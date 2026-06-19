@@ -32,6 +32,7 @@ export function boundaryDimension(input: {
   for (const b of boundary) {
     isB[b] = 1
   }
+
   const id = new Map<number, number>()
   boundary.forEach((b, i) => id.set(b, i))
   // sub-adjacency restricted to the boundary shell, reindexed to [0, boundary.length)
@@ -42,6 +43,7 @@ export function boundaryDimension(input: {
         out.push(id.get(w)!)
       }
     }
+
     return out
   })
   const center = mostConnectedNode(bAdj)
@@ -54,5 +56,6 @@ export function boundaryDimension(input: {
         t2: input.specDimT2 ?? 6,
       }) * 100,
     ) / 100
+
   return { cells: N, boundaryCells: boundary.length, boundaryDim }
 }

@@ -25,6 +25,7 @@ export default experiment({
       maxProof = Math.max(maxProof, a.dist[cell]!)
       sumProof += a.dist[cell]!
     }
+
     const meanProof = sumProof / cells
     const logarithmicProof = maxProof <= 4 * Math.log2(cells)
 

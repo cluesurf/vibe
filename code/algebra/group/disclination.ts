@@ -29,6 +29,7 @@ export function directorLoop(input: {
   steps: number
 }): number[] {
   const { winding, steps } = input
+
   return Array.from(
     { length: steps },
     (_, k) => (2 * Math.PI * winding * k) / steps,
@@ -38,6 +39,7 @@ export function directorLoop(input: {
 // The SU(2) rotor lifting a frame rotation by angle beta about the z axis: diag(e^{-i beta/2}, e^{i beta/2}).
 function spinorZRotor(beta: number): ComplexMatrix {
   const half = beta / 2
+
   return [
     [
       complex({ re: Math.cos(half), im: -Math.sin(half) }),
@@ -63,6 +65,7 @@ export function spinorHolonomy(input: {
   for (let k = 0; k < steps; k++) {
     holonomy = cmMultiply(holonomy, stepRotor)
   }
+
   return holonomy
 }
 
@@ -91,6 +94,7 @@ export function disclinationHolonomy(input: {
   const vectorReturnsToSelf =
     Math.abs(Math.cos(total) - 1) < 1e-9 &&
     Math.abs(Math.sin(total)) < 1e-9
+
   return { spinorIsMinusOne, spinorIsPlusOne, vectorReturnsToSelf }
 }
 
@@ -119,5 +123,6 @@ export function collectiveModeOverlap(input: {
     cMul(holonomy[1]![0]!, chi[0]!),
     cMul(holonomy[1]![1]!, chi[1]!),
   )
+
   return cMul(cConj(chi[0]!), hChi0).re + cMul(cConj(chi[1]!), hChi1).re
 }

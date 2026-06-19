@@ -32,6 +32,7 @@ export function s53333Structure(): {
     n => n === 3 || n === 4 || n === 6,
   )
   const hasSpinor = symbolContainsSubdiagram(PENTACOMB5D, [3, 4, 3])
+
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
@@ -50,6 +51,7 @@ export default experiment({
       r.specDim > 0 &&
       !r.crystallographic &&
       !r.hasSpinor
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -17,6 +17,7 @@ export function higgsBosonMassSquared(
   lambda: number,
 ): number {
   const v = mexicanHatVacuum(mu2, lambda)
+
   return -2 * mu2 + 12 * lambda * v * v
 }
 

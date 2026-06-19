@@ -38,6 +38,7 @@ export default experiment({
       onceMinusOne.push(cmIsScalar(once, minusOne) ? 1 : 0)
       twicePlusOne.push(cmIsScalar(twice, plusOne) ? 1 : 0)
     }
+
     const allLoopsSpinorMinusOne = onceMinusOne.every(
       value => value === 1,
     )

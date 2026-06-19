@@ -30,8 +30,10 @@ export function s534Structure(): {
       verts.push([0, a, b], [a, b, 0], [b, 0, a])
     }
   }
+
   const crystallographic = directionsAreCrystallographic(verts)
   const hasSpinor = false // a permutation rep of the icosahedral rotation group A5 = 1+3+3'+5, all integer spin (p190)
+
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
@@ -50,6 +52,7 @@ export default experiment({
       r.specDim > 0 &&
       !r.crystallographic &&
       !r.hasSpinor
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

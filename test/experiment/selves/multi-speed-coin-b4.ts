@@ -104,6 +104,7 @@ export default experiment({
       for (let i = 0; i < steps; i++) {
         c = mesh.neighbour(c, dir)
       }
+
       return c
     }
 
@@ -142,8 +143,10 @@ export default experiment({
       const w = makeWill(mesh)
       w.data[center * degree + L] = 1
       w.data[neigh(center, L, 1) * degree + L] = 1
+
       return w
     }
+
     const coMoverFinal = run(coMover(), mobile, beats)
     const coMoverComponents = componentCount(coMoverFinal)
     const coMoverDiameter = diameter(coMoverFinal)
@@ -157,8 +160,10 @@ export default experiment({
       const w = makeWill(mesh)
       w.data[center * degree + L] = 1
       w.data[neigh(center, L, 2) * degree + Lopp] = 1
+
       return w
     }
+
     const captureComponents = componentCount(
       run(approach(), mobile, beats),
     )
@@ -178,6 +183,7 @@ export default experiment({
       coMoverDiameter <= 2 &&
       coMoverTravel >= beats - 1 &&
       captureComponents >= 2
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

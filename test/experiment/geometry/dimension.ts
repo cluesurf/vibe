@@ -56,6 +56,7 @@ export default experiment({
       result.meanOrderingFraction,
     )
     const ok = Math.abs(dimension - 2) < 0.5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

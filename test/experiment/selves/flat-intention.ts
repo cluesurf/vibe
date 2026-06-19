@@ -44,6 +44,7 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
         }
       }
     }
+
     const centroidX = (): number => {
       let sx = 0
       let c = 0
@@ -55,8 +56,10 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
           }
         }
       }
+
       return c > 0 ? sx / c : 0
     }
+
     const spreadOf = (): number => {
       let sx = 0
       let sxx = 0
@@ -70,14 +73,18 @@ export function flatIntention(input?: { L?: number; beats?: number }): {
           }
         }
       }
+
       const m = sx / c
+
       return Math.sqrt(sxx / c - m * m)
     }
+
     const c0 = centroidX()
     const sp0 = spreadOf()
     for (let t = 0; t < beats; t++) {
       flatWilledDriftSweep({ tone, length: L, moved, rng, bias })
     }
+
     return { drift: centroidX() - c0, spread: spreadOf() / sp0, c0 }
   }
 
@@ -116,6 +123,7 @@ export default experiment({
   run() {
     const r = flatIntention({ L: 120 })
     const ok = r.solved && r.directedIntentionWorks
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

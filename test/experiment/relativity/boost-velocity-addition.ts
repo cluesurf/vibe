@@ -20,10 +20,12 @@ import { verdict } from '@/test/scaffold/verdict'
 // the coined quantum-walk (Dirac) dispersion, cos(omega) = cos(m) cos(k), so omega(k) = arccos(cos(m) cos(k))
 const omega = (k: number, m: number): number =>
   coinedWalkDispersion({ theta: m, k })
+
 // group velocity v = d omega / d k, by a centered finite difference
 function groupVelocity(k: number, m: number): number {
   return groupVelocity1d({ omega: kk => omega(kk, m), k })
 }
+
 // a Lorentz boost of rapidity phi acting on a two-vector (omega, k)
 function boost(
   w: number,
@@ -35,6 +37,7 @@ function boost(
     wavenumber: k,
     rapidity: phi,
   })
+
   return { w: b.omega, k: b.wavenumber }
 }
 
@@ -62,6 +65,7 @@ export function boostVelocityAddition(): {
       )
     }
   }
+
   const lightconeFrameInvariant = coneDev < 1e-12
 
   // (2) no group velocity exceeds the light speed c = 1, at any mass
@@ -75,6 +79,7 @@ export function boostVelocityAddition(): {
       }
     }
   }
+
   const noSuperluminal = maxV <= 1 + 1e-6
 
   // (3) velocities add relativistically. Take a massless right-mover (v = 1) and a slower massive packet,
@@ -96,6 +101,7 @@ export function boostVelocityAddition(): {
       velErr = Math.max(velErr, Math.abs(vBoosted - relativistic))
     }
   }
+
   const relativisticAddition = velErr < 1e-3
 
   // (4) the IR dispersion is Lorentz-invariant, omega^2 - k^2 -> m^2 for small k, invariant under a boost
@@ -105,6 +111,7 @@ export function boostVelocityAddition(): {
     const inv = w * w - k * k
     irDev = Math.max(irDev, Math.abs(inv - m * m))
   }
+
   const irLorentzInvariant = irDev < 5e-3
 
   const solved =
@@ -139,6 +146,7 @@ export default experiment({
       r.lightconeFrameInvariant &&
       r.noSuperluminal &&
       r.relativisticAddition
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

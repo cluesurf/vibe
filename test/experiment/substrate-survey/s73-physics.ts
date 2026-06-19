@@ -37,6 +37,7 @@ export function s73Physics(): {
   ])
   const sevenFoldIsotropic =
     directionFourthMoments(dirs).anisotropy < 1e-6
+
   return { betheAlpha, growthRatio, sevenFoldIsotropic }
 }
 
@@ -54,6 +55,7 @@ export default experiment({
       Math.abs(r.betheAlpha - 2) < 0.3 &&
       r.growthRatio > 1.2 &&
       r.sevenFoldIsotropic
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

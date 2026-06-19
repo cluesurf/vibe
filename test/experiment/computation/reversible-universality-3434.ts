@@ -53,9 +53,11 @@ export default experiment({
         if (images.has(key)) {
           bijection = false
         }
+
         images.add(key)
       }
     }
+
     const ruleIsBijection = bijection && images.size === 9
 
     // (2b) the Toffoli gate is a bijection on the eight three-bit states, verified directly.
@@ -69,10 +71,12 @@ export default experiment({
           if (seen.has(key)) {
             tBij = false
           }
+
           seen.add(key)
         }
       }
     }
+
     const toffoliIsBijection = tBij && seen.size === 8
 
     // (2c) Toffoli with ancilla z = 1 computes NAND on the third output, functional completeness.
@@ -85,6 +89,7 @@ export default experiment({
         }
       }
     }
+
     const toffoliComputesNand = nandOk
 
     // (1) the FINAL geometry: degree 24, more than the three independent tracks the railway junctions need.

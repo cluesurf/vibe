@@ -29,6 +29,7 @@ export function buildAddressedTree(g: Graph): AddressedTree {
       root = i
     }
   }
+
   const coords = g.embedding?.coords ?? new Float64Array(0)
   const dim = g.embedding?.dimension ?? 2
   const angleOf = (v: number): number =>
@@ -53,12 +54,15 @@ export function buildAddressedTree(g: Graph): AddressedTree {
           next.push(w)
         }
       }
+
       kids.sort((a, b) => angleOf(a) - angleOf(b))
       children[v] = kids
     }
+
     if (next.length > 0) {
       levelSizes.push(next.length)
     }
+
     frontier = next
   }
 
@@ -72,10 +76,12 @@ export function buildAddressedTree(g: Graph): AddressedTree {
     if (v === root) {
       continue
     }
+
     const p = parent[v] ?? root
     const ordinal = (children[p] ?? []).indexOf(v)
     address[v] = [...(address[p] ?? []), ordinal]
   }
+
   return { parent, depth, children, address, root, levelSizes }
 }
 
@@ -97,12 +103,14 @@ export function routeByAddress(
   ) {
     common++
   }
+
   const up: number[] = []
   let cur = s
   while ((tree.depth[cur] ?? 0) > common) {
     up.push(cur)
     cur = tree.parent[cur] ?? tree.root
   }
+
   const ancestor = cur
   const down: number[] = []
   let node = ancestor
@@ -110,5 +118,6 @@ export function routeByAddress(
     node = (tree.children[node] ?? [])[at[i] ?? 0] ?? node
     down.push(node)
   }
+
   return [...up, ancestor, ...down]
 }

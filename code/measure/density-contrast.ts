@@ -20,19 +20,24 @@ export function densityContrast(input: {
       )
       idx = idx * binsPerAxis + c
     }
+
     cells.set(idx, (cells.get(idx) ?? 0) + 1)
   }
+
   const totalCells = binsPerAxis ** dim
   const counts: number[] = []
   for (let i = 0; i < totalCells; i++) {
     counts.push(cells.get(i) ?? 0)
   }
+
   const mean = counts.reduce((a, b) => a + b, 0) / counts.length
   let varc = 0
   for (const c of counts) {
     varc += (c - mean) ** 2
   }
+
   varc /= counts.length
+
   return {
     meanCount: mean,
     delta: Math.sqrt(varc) / Math.max(1e-9, mean),

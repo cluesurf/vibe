@@ -40,11 +40,13 @@ const buildTable = (): void => {
     PRODUCT_INDEX[i]![0] = i
     PRODUCT_SIGN[i]![0] = 1
   }
+
   // each imaginary unit squares to minus the identity.
   for (let i = 1; i < 8; i++) {
     PRODUCT_INDEX[i]![i] = 0
     PRODUCT_SIGN[i]![i] = -1
   }
+
   // the oriented cycles, each forward product +1 and its reverse -1.
   const set = (i: number, j: number, k: number, sign: number): void => {
     PRODUCT_INDEX[i]![j] = k
@@ -52,12 +54,14 @@ const buildTable = (): void => {
     PRODUCT_INDEX[j]![i] = k
     PRODUCT_SIGN[j]![i] = -sign
   }
+
   for (const [a, b, c] of FANO_LINES) {
     set(a, b, c, 1)
     set(b, c, a, 1)
     set(c, a, b, 1)
   }
 }
+
 buildTable()
 
 export function octonionZero(): Octonion {
@@ -68,6 +72,7 @@ export function octonionZero(): Octonion {
 export function octonionUnit(index: number): Octonion {
   const value = octonionZero()
   value[index] = 1
+
   return value
 }
 
@@ -80,6 +85,7 @@ export function octonionOne(): Octonion {
 export function octonionReal(scalar: number): Octonion {
   const value = octonionZero()
   value[0] = scalar
+
   return value
 }
 
@@ -103,6 +109,7 @@ export function octonionMultiply(a: Octonion, b: Octonion): Octonion {
     if (ai === 0) {
       continue
     }
+
     const indexRow = PRODUCT_INDEX[i]!
     const signRow = PRODUCT_SIGN[i]!
     for (let j = 0; j < 8; j++) {
@@ -110,9 +117,11 @@ export function octonionMultiply(a: Octonion, b: Octonion): Octonion {
       if (bj === 0) {
         continue
       }
+
       out[indexRow[j]!]! += signRow[j]! * ai * bj
     }
   }
+
   return out
 }
 

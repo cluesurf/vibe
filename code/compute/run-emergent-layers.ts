@@ -8,6 +8,7 @@
 import { create, globals } from 'webgpu'
 import { makeRng } from '@/code/tool/rng'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
+
 Object.assign(globalThis, globals)
 const navigator = { gpu: create([]) }
 const WORKGROUP = 256
@@ -37,8 +38,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no GPU')
+
     return
   }
+
   const device = await adapter.requestDevice()
   const g = buildDodecagrid({ maxCells: CELLS })
   const N = g.cellCount
@@ -53,6 +56,7 @@ async function run(): Promise<void> {
       }
     }
   }
+
   const E = eu.length
   const mask = new Uint32Array(N)
   const color = new Int32Array(E)
@@ -63,6 +67,7 @@ async function run(): Promise<void> {
     while (used & (1 << c)) {
       c++
     }
+
     color[i] = c
     mask[eu[i]!]! |= 1 << c
     mask[ev[i]!]! |= 1 << c
@@ -70,14 +75,17 @@ async function run(): Promise<void> {
       maxColor = c
     }
   }
+
   const C = maxColor + 1
   const colorOffsets = new Array(C + 1).fill(0)
   for (let i = 0; i < E; i++) {
     colorOffsets[color[i]! + 1]++
   }
+
   for (let c = 0; c < C; c++) {
     colorOffsets[c + 1] += colorOffsets[c]!
   }
+
   const edgeV = new Uint32Array(E),
     edgeW = new Uint32Array(E)
   const cur = colorOffsets.slice()
@@ -86,6 +94,7 @@ async function run(): Promise<void> {
     edgeV[at] = eu[i]!
     edgeW[at] = ev[i]!
   }
+
   console.log(
     `built ${N.toLocaleString()} cells, ${E.toLocaleString()} edges, ${C} colours`,
   )
@@ -98,12 +107,15 @@ async function run(): Promise<void> {
       for (let i = 0; i < N; i++) {
         ballOf[i] = i
       }
+
       return { ballOf, count: N }
     }
+
     for (let s = 0; s < N; s++) {
       if (ballOf[s]! >= 0) {
         continue
       }
+
       const id = nb++
       ballOf[s] = id
       let frontier = [s]
@@ -118,9 +130,11 @@ async function run(): Promise<void> {
             }
           }
         }
+
         frontier = nx
       }
     }
+
     return { ballOf, count: nb }
   })
   console.log(
@@ -149,6 +163,7 @@ async function run(): Promise<void> {
     const x = nx()
     seed[i] = x < 0.2 ? 1 : x < 0.4 ? 2 : 0
   }
+
   device.queue.writeBuffer(toneBuf, 0, seed)
   const vBuf = device.createBuffer({
     size: E * 4,
@@ -188,6 +203,7 @@ async function run(): Promise<void> {
       if (!count) {
         continue
       }
+
       device.queue.writeBuffer(
         params,
         0,
@@ -206,6 +222,7 @@ async function run(): Promise<void> {
   for (let b = 0; b < WARMUP; b++) {
     beatGpu()
   }
+
   await device.queue.onSubmittedWorkDone()
 
   // snapshots: coarse charge per scale per snapshot
@@ -216,11 +233,13 @@ async function run(): Promise<void> {
     for (let b = 0; b < K; b++) {
       beatGpu()
     }
+
     {
       const enc = device.createCommandEncoder()
       enc.copyBufferToBuffer(toneBuf, 0, staging, 0, N * 4)
       device.queue.submit([enc.finish()])
     }
+
     await staging.mapAsync(GPUMapMode.READ)
     const t = new Uint32Array(staging.getMappedRange().slice(0))
     staging.unmap()
@@ -256,8 +275,10 @@ async function run(): Promise<void> {
           s += ser[st]![i]! * ser[st]![i]!
         }
       }
+
       return s
     }
+
     const ctau = (tau: number): number => {
       let s = 0,
         cnt = 0
@@ -265,10 +286,13 @@ async function run(): Promise<void> {
         for (let i = 0; i < n; i++) {
           s += ser[st]![i]! * ser[st + tau]![i]!
         }
+
         cnt++
       }
+
       return s
     }
+
     const base = c0() / M
     const c = (tau: number) =>
       ctau(tau) / Math.max(1, M - tau) / Math.max(1e-9, base)
@@ -276,10 +300,12 @@ async function run(): Promise<void> {
       `   R${SCALES[sc]}   |   ${c(1).toFixed(2)}    | ${c(2).toFixed(2)} | ${c(4).toFixed(2)} | ${c(8).toFixed(2)}`,
     )
   }
+
   console.log(
     '  => if C decays SLOWER as scale grows, a persistent slow mode (middle layer) emerges. flat across scales = pure churn, no layer.',
   )
 }
+
 run().catch(e =>
   console.error(e instanceof Error ? e.message : String(e)),
 )

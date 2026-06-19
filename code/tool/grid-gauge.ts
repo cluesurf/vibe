@@ -21,6 +21,7 @@ export function plaquetteFlux(
   input: { x: number; y: number; side: number },
 ): number {
   const { x, y, side } = input
+
   return (
     g.Ax[x]![y]! +
     g.Ay[(x + 1) % side]![y]! -
@@ -39,15 +40,19 @@ export function gridWilsonLoop(
   for (let x = x0; x < x1; x++) {
     s += g.Ax[x]![y0]!
   }
+
   for (let y = y0; y < y1; y++) {
     s += g.Ay[x1]![y]!
   }
+
   for (let x = x1 - 1; x >= x0; x--) {
     s -= g.Ax[x]![y1]!
   }
+
   for (let y = y1 - 1; y >= y0; y--) {
     s -= g.Ay[x0]![y]!
   }
+
   return s
 }
 
@@ -78,6 +83,7 @@ export function vortexGaugeField(input: {
         (Phi / (2 * Math.PI)) * wrap(theta(x, y + 1) - theta(x, y))
     }
   }
+
   return { Ax, Ay }
 }
 
@@ -96,5 +102,6 @@ export function gridGaugeTransform(
         g.Ay[x]![y]! + lambda[x]![(y + 1) % side]! - lambda[x]![y]!
     }
   }
+
   return { Ax, Ay }
 }

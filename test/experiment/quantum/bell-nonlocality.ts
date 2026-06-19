@@ -28,6 +28,7 @@ export function bellNonlocality(): {
       }
     }
   }
+
   // (shared randomness is a convex mixture of deterministic strategies, so the bound stays at this max)
   // (2) quantum CHSH = E(a0,b0)+E(a0,b1)+E(a1,b0)-E(a1,b1), E(x,y)=cos(x-y), optimal angles 0,90,45,135 deg
   const deg = (d: number): number => (d * Math.PI) / 180
@@ -38,6 +39,7 @@ export function bellNonlocality(): {
     b1 = deg(-45)
   const quantumMax = E(a0, b0) + E(a0, b1) + E(a1, b0) - E(a1, b1)
   const gap = quantumMax > localMax + 0.1
+
   return { localMax, quantumMax, gap }
 }
 
@@ -55,6 +57,7 @@ export default experiment({
       r.localMax === 2 &&
       Math.abs(r.quantumMax - 2 * Math.sqrt(2)) < 1e-9 &&
       r.gap
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -44,6 +44,7 @@ export default experiment({
         reversibleDims.push(2 ** level)
       }
     }
+
     const reversibilityCapsAtEight =
       reversibleDims.includes(8) && !reversibleDims.includes(16)
 
@@ -55,6 +56,7 @@ export default experiment({
         trialityDims.push(d)
       }
     }
+
     const fermionsRequireEight =
       trialityDims.length === 1 && trialityDims[0] === 8
 

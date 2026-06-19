@@ -34,6 +34,7 @@ export function margolusStep(
       if (diag2) {
         continue
       } // collision/wall, fixed (reversible identity)
+
       // rotate 180: a<->d, b<->c
       g[at(length, x0, y0)] = d
       g[at(length, x0 + 1, y0 + 1)] = a

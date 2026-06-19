@@ -15,6 +15,7 @@ function dot(a: Vec, b: Vec): number {
   for (let i = 0; i < a.length; i++) {
     s += (a[i] ?? 0) * (b[i] ?? 0)
   }
+
   return s
 }
 
@@ -43,6 +44,7 @@ export function mobiusAdd(a: Vec, x: Vec): Vec {
   for (let i = 0; i < x.length; i++) {
     out.push(ca * (a[i] ?? 0) + cx * (x[i] ?? 0))
   }
+
   return out
 }
 
@@ -53,7 +55,9 @@ export function gyroScale(v: Vec, s: number): Vec {
   if (r < 1e-12) {
     return v.map(() => 0)
   }
+
   const factor = Math.tanh(s * Math.atanh(Math.min(0.999999999, r))) / r
+
   return scale(v, factor)
 }
 
@@ -67,6 +71,7 @@ export function originDistance(p: Vec): number {
 export function pointAt(u: Vec, d: number): Vec {
   const r = Math.tanh(d / 2)
   const un = norm(u)
+
   return un < 1e-12 ? u.map(() => 0) : scale(u, r / un)
 }
 
@@ -82,6 +87,7 @@ export function geodesicPoints(
   for (let k = 0; k <= segments; k++) {
     out.push(mobiusAdd(a, gyroScale(d, k / segments)))
   }
+
   return out
 }
 
@@ -95,6 +101,7 @@ export function glide(input: {
 }): (p: Vec) => Vec {
   const a = pointAt(input.direction, input.distance)
   const back = negate(a)
+
   return (p: Vec) => mobiusAdd(back, p)
 }
 
@@ -108,12 +115,14 @@ export function rotateAboutOrigin(input: {
   const { angle, i = 0, j = 1 } = input
   const c = Math.cos(angle)
   const s = Math.sin(angle)
+
   return (p: Vec) => {
     const out = p.slice()
     const pi = p[i] ?? 0
     const pj = p[j] ?? 0
     out[i] = c * pi - s * pj
     out[j] = s * pi + c * pj
+
     return out
   }
 }
@@ -128,6 +137,7 @@ export function transformScene(
     a: fn(e.a),
     b: fn(e.b),
   }))
+
   return {
     dim: scene.dim,
     symbol: scene.symbol,

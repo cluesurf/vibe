@@ -33,6 +33,7 @@ function fullBeat(
     if (moved[v] || moved[w]) {
       continue
     }
+
     const a = tone[v]!
     const b = tone[w]!
     if ((a === 1 && b === -1) || (a === -1 && b === 1)) {
@@ -78,6 +79,7 @@ export function attentionWorkspace(input?: {
       center = i
     }
   }
+
   const dist = csrDistances({
     offsets: g.offsets,
     adj: g.adj,
@@ -92,6 +94,7 @@ export function attentionWorkspace(input?: {
       self.push(i)
     }
   }
+
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
   for (const i of self) {
@@ -100,6 +103,7 @@ export function attentionWorkspace(input?: {
       inputAll.push(i)
     }
   }
+
   // K spatially-coherent sectors: farthest-point seeds among the boundary, then nearest-seed (Voronoi)
   const msBFS = (
     srcs: number[],
@@ -112,6 +116,7 @@ export function attentionWorkspace(input?: {
       lab[srcs[s]!] = s
       fr.push(srcs[s]!)
     }
+
     while (fr.length > 0) {
       const next: number[] = []
       for (const u of fr) {
@@ -124,10 +129,13 @@ export function attentionWorkspace(input?: {
           }
         }
       }
+
       fr = next
     }
+
     return { dist: d, label: lab }
   }
+
   // two coherent input regions A and B (two farthest-point seeds), the rest of the boundary = background
   const seeds: number[] = [inputAll[0]!]
   {
@@ -140,8 +148,10 @@ export function attentionWorkspace(input?: {
         far = i
       }
     }
+
     seeds.push(far)
   }
+
   const { label } = msBFS(seeds)
   const regionA = inputAll.filter(i => label[i] === 0)
   const regionB = inputAll.filter(i => label[i] === 1)
@@ -156,6 +166,7 @@ export function attentionWorkspace(input?: {
         if (isInput[u]) {
           continue
         }
+
         out.push(u)
         for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
           const w = g.adj[p]!
@@ -165,16 +176,20 @@ export function attentionWorkspace(input?: {
           }
         }
       }
+
       fr = nf
     }
+
     return out
   }
+
   const hub = hubBall()
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
     for (const i of cells) {
       s += tone[i]!
     }
+
     return cells.length > 0 ? s / cells.length : 0
   }
 
@@ -183,6 +198,7 @@ export function attentionWorkspace(input?: {
   const otherBoundary = inputAll.filter(
     i => label[i] !== 0 && label[i] !== 1,
   )
+
   function trial(region: number[], gain: number): number {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 9 })
@@ -197,26 +213,32 @@ export function attentionWorkspace(input?: {
       if (rng.next() < 0.06) {
         sig = -sig
       }
+
       for (const i of region) {
         if (rng.next() < gain) {
           tone[i] = sig as -1 | 0 | 1
         }
       } // gain = attention
+
       for (const i of noiseTargets) {
         tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
       } // distractors
+
       fullBeat(tone, eu, ev, moved, rng)
       for (const i of region) {
         if (rng.next() < gain) {
           tone[i] = sig as -1 | 0 | 1
         }
       }
+
       for (const i of noiseTargets) {
         tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
       }
+
       hubS.push(meanOver(tone, hub))
       sigS.push(sig)
     }
+
     return Math.abs(pearson({ a: hubS, b: sigS }))
   }
 
@@ -257,6 +279,7 @@ export default experiment({
   run() {
     const r = attentionWorkspace({ n: 60000, T: 120 })
     const ok = r.solved && r.attentionSelects && r.steerable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -70,6 +70,7 @@ export function nestedStructure534(maxCells = 120000): {
       cntR[d]! += 1
     }
   }
+
   const meanRadius = sumR.map((s, i) => (cntR[i]! ? s / cntR[i]! : 0))
   // boundary accumulation: radius increases monotonically and the deepest clean shell is near 1
   let monotone = true
@@ -78,6 +79,7 @@ export function nestedStructure534(maxCells = 120000): {
       monotone = false
     }
   }
+
   const boundaryAccumulation =
     monotone && meanRadius[meanRadius.length - 1]! > 0.95
 
@@ -114,6 +116,7 @@ export default experiment({
       r.exponentialNesting &&
       r.ratioConverges &&
       r.boundaryAccumulation
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

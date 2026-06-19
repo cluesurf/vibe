@@ -37,6 +37,7 @@ export function traceGradedIndexRay(input: {
     x += tx * step
     y += ty * step
   }
+
   return { tangentX: tx, tangentY: ty, x, y }
 }
 
@@ -66,6 +67,7 @@ export function softenedMassIndexField(input: {
 } {
   const { mass } = input
   const soft = input.soft ?? 1
+
   return {
     index: (x, y) => 1 + mass / (Math.hypot(x, y) + soft),
     indexGradient: (x, y) => {
@@ -73,7 +75,9 @@ export function softenedMassIndexField(input: {
       if (r < 1e-9) {
         return [0, 0]
       }
+
       const g = -mass / ((r + soft) * (r + soft))
+
       return [g * (x / r), g * (y / r)]
     },
   }

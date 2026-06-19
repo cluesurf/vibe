@@ -44,6 +44,7 @@ function verticalStep(centers: Vec[] | undefined): {
   if (!centers || centers.length < 2) {
     return fallback
   }
+
   let best: Vec | null = null
   let bestScore = -Infinity
   for (const c of centers) {
@@ -51,6 +52,7 @@ function verticalStep(centers: Vec[] | undefined): {
     if (r < 1e-6) {
       continue
     }
+
     // prefer centers pointing up (+y), penalize horizontal and distant ones so we step one tile forward
     const upness = (c[1] ?? 0) / r
     const score = upness - r * 0.15
@@ -59,10 +61,13 @@ function verticalStep(centers: Vec[] | undefined): {
       best = c
     }
   }
+
   if (!best) {
     return fallback
   }
+
   const r = Math.hypot(best[0] ?? 0, best[1] ?? 0)
+
   return {
     direction: [best[0]! / r, best[1]! / r],
     period: originDistance(best),

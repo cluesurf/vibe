@@ -25,6 +25,7 @@ export function phaseRelaxStep(
           (Math.sin(left - theta[i]!) + Math.sin(right - theta[i]!)),
     )
   }
+
   return next
 }
 
@@ -42,6 +43,7 @@ export function phaseWaveStep(
       Math.sin(theta[(i + 1) % n]! - theta[i]!) +
       Math.sin(theta[(i - 1 + n) % n]! - theta[i]!)
   }
+
   for (let i = 0; i < n; i++) {
     velocity[i]! += dt * acceleration[i]!
     theta[i] = wrapAngle(theta[i]! + dt * velocity[i]!)
@@ -59,7 +61,9 @@ export function gradientStructure(
   for (let i = 0; i < n; i++) {
     gradient[i] = Math.sin(theta[(i + 1) % n]! - theta[i]!)
   }
+
   const mean = gradient.reduce((sum, value) => sum + value, 0) / n
+
   return Math.sqrt(
     gradient.reduce((sum, value) => sum + (value - mean) ** 2, 0) / n,
   )
@@ -81,5 +85,6 @@ export function windingKinkWithLump(input: {
       lumpAmplitude * Math.exp(-(((i - size / 2) / width) ** 2))
     field[i] = wrapAngle(kink + lump)
   }
+
   return field
 }

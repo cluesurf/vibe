@@ -35,6 +35,7 @@ export default experiment({
       const byFormula = isingDecimationFormula(K)
       maxErr = Math.max(maxErr, Math.abs(bySum - byFormula))
     }
+
     const decimationExact = maxErr < 1e-12
 
     // (2) the beta function is monotone non-positive (the coupling shrinks under
@@ -46,10 +47,12 @@ export default experiment({
         fixedPointOk = false
       }
     }
+
     const betaSmall = Math.abs(isingBetaFunction(1e-4))
     const fixedPointAtZero = betaSmall < 1e-3
 
     const ok = decimationExact && fixedPointOk && fixedPointAtZero
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

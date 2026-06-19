@@ -33,6 +33,7 @@ export function makeStateSpace(input: {
   for (let i = 0; i < input.cells; i++) {
     dimension *= base
   }
+
   return {
     form: 'state-space',
     cells: input.cells,
@@ -80,6 +81,7 @@ export function permutationOfRule(input: {
       rest = Math.floor(rest / base)
       setTone(config, { element: cell, value: digit - offset })
     }
+
     // Apply one synchronous step.
     const out = input.rule.step({
       substrate: input.substrate,
@@ -96,8 +98,10 @@ export function permutationOfRule(input: {
       next += digit * place
       place *= base
     }
+
     perm[state] = next
   }
+
   return perm
 }
 
@@ -129,6 +133,7 @@ export function hamiltonianFromPermutation(input: {
       isPermutation = false
       break
     }
+
     seen[target] = 1
   }
 
@@ -147,6 +152,7 @@ export function hamiltonianFromPermutation(input: {
     if ((visited[start] ?? 0) === 1) {
       continue
     }
+
     let length = 0
     let cursor = start
     while ((visited[cursor] ?? 0) === 0) {
@@ -154,12 +160,14 @@ export function hamiltonianFromPermutation(input: {
       cursor = perm[cursor] ?? cursor
       length++
     }
+
     for (let k = 0; k < length; k++) {
       energies.push((2 * Math.PI * k) / length)
     }
   }
 
   energies.sort((a, b) => a - b)
+
   return {
     eigenvalues: Float64Array.from(energies),
     boundedBelow: isPermutation,

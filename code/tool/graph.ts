@@ -31,6 +31,7 @@ export function makeGraph(input: {
   const weight = input.weight
     ? input.weight.map(row => Float64Array.from(row))
     : undefined
+
   return {
     form: 'graph',
     size: input.size,
@@ -55,6 +56,7 @@ export function withScrambledEmbedding(g: Graph): Graph {
   if (!g.embedding) {
     return g
   }
+
   const size = g.size
   const dimension = g.embedding.dimension
   const source = g.embedding.coords
@@ -67,7 +69,9 @@ export function withScrambledEmbedding(g: Graph): Graph {
         source[from * dimension + axis] ?? 0
     }
   }
+
   const embedding: Embedding = { ...g.embedding, coords }
+
   return { ...g, embedding }
 }
 
@@ -78,6 +82,7 @@ export function meanDegree(g: Graph): number {
   for (let i = 0; i < g.size; i++) {
     total += (g.neighbors[i] ?? new Uint32Array(0)).length
   }
+
   return total / Math.max(1, g.size)
 }
 
@@ -95,6 +100,7 @@ export function mostConnectedNode(
       node = i
     }
   }
+
   return node
 }
 
@@ -112,6 +118,7 @@ export function toCsr(
   for (let i = 0; i < n; i++) {
     offsets[i + 1] = offsets[i]! + (neighbors[i]?.length ?? 0)
   }
+
   const adj = new Uint32Array(offsets[n]!)
   let p = 0
   for (let i = 0; i < n; i++) {
@@ -120,6 +127,7 @@ export function toCsr(
       adj[p++] = row[k]!
     }
   }
+
   return { offsets, adj }
 }
 
@@ -141,6 +149,7 @@ export function edgesFromCsr(
       }
     }
   }
+
   return { eu: Int32Array.from(eu), ev: Int32Array.from(ev) }
 }
 
@@ -163,6 +172,7 @@ export function largestComponentNodes(
     if (seen[s]! >= 0) {
       continue
     }
+
     const comp: number[] = []
     const q = [s]
     seen[s] = s
@@ -176,10 +186,12 @@ export function largestComponentNodes(
         }
       }
     }
+
     if (comp.length > best.length) {
       best = comp
     }
   }
+
   return best
 }
 
@@ -215,10 +227,13 @@ export function csrDistances(input: {
           }
         }
       }
+
       fr = next
     }
+
     return dist
   }
+
   while (fr.length > 0) {
     const next: number[] = []
     for (const u of fr) {
@@ -230,8 +245,10 @@ export function csrDistances(input: {
         }
       }
     }
+
     fr = next
   }
+
   return dist
 }
 
@@ -262,8 +279,10 @@ export function csrBallNodes(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return ball
 }
 
@@ -292,12 +311,15 @@ export function csrEccentricity(input: {
             ecc = dist[w]!
             far = w
           }
+
           next.push(w)
         }
       }
     }
+
     fr = next
   }
+
   return { dist, far }
 }
 
@@ -326,6 +348,7 @@ export function csrBfsOrder(input: {
       }
     }
   }
+
   return order
 }
 
@@ -356,8 +379,10 @@ export function csrFarthestNode(input: {
         }
       }
     }
+
     fr = next
   }
+
   return far
 }
 
@@ -382,8 +407,10 @@ export function neighborDistances(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return dist
 }
 
@@ -411,8 +438,10 @@ export function neighborBfsTree(input: {
         }
       }
     }
+
     frontier = next
   }
+
   return { dist, parent }
 }
 
@@ -425,6 +454,7 @@ export function adjacencyListsEqual(
   if (a.length !== b.length) {
     return false
   }
+
   for (let i = 0; i < a.length; i++) {
     const x = [...(a[i] ?? [])].sort((p, q) => p - q)
     const y = [...(b[i] ?? [])].sort((p, q) => p - q)
@@ -432,6 +462,7 @@ export function adjacencyListsEqual(
       return false
     }
   }
+
   return true
 }
 
@@ -446,6 +477,7 @@ export function edgesOf(
     if (!row) {
       continue
     }
+
     for (let k = 0; k < row.length; k++) {
       const w = row[k] ?? 0
       if (w > v) {
@@ -453,6 +485,7 @@ export function edgesOf(
       }
     }
   }
+
   return edges
 }
 
@@ -482,6 +515,7 @@ export function greedyEdgeColoring(input: {
       }
     }
   }
+
   const color = new Int32Array(eu.length).fill(-1)
   for (let e = 0; e < eu.length; e++) {
     const used = new Set<number>()
@@ -490,21 +524,26 @@ export function greedyEdgeColoring(input: {
         used.add(color[f]!)
       }
     }
+
     for (const f of incident[ev[e]!]!) {
       if (color[f]! >= 0) {
         used.add(color[f]!)
       }
     }
+
     let c = 0
     while (used.has(c)) {
       c++
     }
+
     color[e] = c
   }
+
   let colorCount = 0
   for (let e = 0; e < eu.length; e++) {
     colorCount = Math.max(colorCount, color[e]! + 1)
   }
+
   const byColor: number[][] = Array.from(
     { length: colorCount },
     () => [],
@@ -512,6 +551,7 @@ export function greedyEdgeColoring(input: {
   for (let e = 0; e < eu.length; e++) {
     byColor[color[e]!]!.push(e)
   }
+
   return { eu: Int32Array.from(eu), ev: Int32Array.from(ev), byColor }
 }
 
@@ -526,6 +566,7 @@ export function edgeList(g: Graph): Array<{ a: number; b: number }> {
       }
     }
   }
+
   return out
 }
 
@@ -543,6 +584,7 @@ export function largestComponent(g: Graph): Graph {
       center = i
     }
   }
+
   const reach = new Int32Array(g.size).fill(-1)
   reach[center] = 0
   let frontier = [center]
@@ -558,8 +600,10 @@ export function largestComponent(g: Graph): Graph {
         }
       }
     }
+
     frontier = next
   }
+
   const remap = new Map<number, number>()
   kept.forEach((old, i) => remap.set(old, i))
   const dim = g.embedding?.dimension ?? 2
@@ -569,11 +613,13 @@ export function largestComponent(g: Graph): Graph {
     for (let a = 0; a < dim; a++) {
       coords[i * dim + a] = oldCoords[old * dim + a] ?? 0
     }
+
     return Array.from(g.neighbors[old] ?? new Uint32Array(0))
       .map(w => remap.get(w) ?? -1)
       .filter(x => x >= 0)
   })
   const embedding = g.embedding ? { ...g.embedding, coords } : undefined
+
   return makeGraph({
     size: kept.length,
     directed: false,

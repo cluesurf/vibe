@@ -18,6 +18,7 @@ import { verdict } from '@/test/scaffold/verdict'
 function cuspSpectralDim(L: number): number {
   const g = cubicLattice(L, 3)
   const center = cubicLatticeCenterBySide({ side: L, dim: 3 })
+
   return spectralDimension({
     neighbors: g.neighbors,
     start: center,
@@ -29,6 +30,7 @@ function cuspSpectralDim(L: number): number {
 export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
   const cuspDim = Math.round(cuspSpectralDim(40) * 100) / 100
   const isThreeD = Math.abs(cuspDim - 3) < 0.4
+
   return { cuspDim, isThreeD }
 }
 
@@ -48,6 +50,7 @@ export default experiment({
   run() {
     const r = why3plus1()
     const ok = r.isThreeD
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

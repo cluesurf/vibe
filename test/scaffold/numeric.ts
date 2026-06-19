@@ -8,5 +8,6 @@ export function allFinite(values: ArrayLike<number>): boolean {
       return false
     }
   }
+
   return true
 }

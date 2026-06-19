@@ -45,8 +45,10 @@ export default experiment({
           }),
         ),
       )
+
       return Math.max(...lateAmps) - Math.min(...lateAmps)
     }
+
     const bathSpread = settle(true) // bath, all should converge to ~0 (one attractor)
     const closedSpread = settle(false) // closed, each keeps its own orbit (no attractor)
     const bathSettlesToZero =
@@ -84,6 +86,7 @@ export default experiment({
     const hasAgency = bathAfterKick < 0.1 && closedAfterKick > 0.3
 
     const ok = hasIdentity && hasAgency
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

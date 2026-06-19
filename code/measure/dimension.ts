@@ -20,12 +20,14 @@ function lgamma(x: number): number {
     // Reflection formula for the left half-plane.
     return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x)
   }
+
   const z = x - 1
   let a = LANCZOS_COEFFICIENTS[0] ?? 0
   const t = z + LANCZOS_G + 0.5
   for (let i = 1; i < LANCZOS_COEFFICIENTS.length; i++) {
     a += (LANCZOS_COEFFICIENTS[i] ?? 0) / (z + i)
   }
+
   return (
     0.5 * Math.log(2 * Math.PI) +
     (z + 0.5) * Math.log(t) -
@@ -45,6 +47,7 @@ function tgamma(x: number): number {
 // decreasing in d, so bisection on f(d) = r is well posed.
 function myrheimMeyerFraction(d: number): number {
   const logValue = lgamma(d + 1) + lgamma(d / 2) - lgamma((3 * d) / 2)
+
   return 0.5 * Math.exp(logValue)
 }
 
@@ -54,6 +57,7 @@ export function dimensionFromOrderingFraction(r: number): number {
   if (r <= 0) {
     return 0
   }
+
   let lo = 0.5
   let hi = 12
   // f is decreasing: f(lo) is the largest value, f(hi) the smallest. If r lies
@@ -61,9 +65,11 @@ export function dimensionFromOrderingFraction(r: number): number {
   if (r >= myrheimMeyerFraction(lo)) {
     return lo
   }
+
   if (r <= myrheimMeyerFraction(hi)) {
     return hi
   }
+
   for (let iteration = 0; iteration < 80; iteration++) {
     const mid = 0.5 * (lo + hi)
     const fMid = myrheimMeyerFraction(mid)
@@ -74,6 +80,7 @@ export function dimensionFromOrderingFraction(r: number): number {
       hi = mid
     }
   }
+
   return 0.5 * (lo + hi)
 }
 
@@ -83,7 +90,9 @@ export function myrheimMeyerDimension(input: { poset: Poset }): number {
   if (n < 2) {
     return 0
   }
+
   const totalPairs = (n * (n - 1)) / 2
+
   return dimensionFromOrderingFraction(
     relationCount(input.poset) / totalPairs,
   )
@@ -119,6 +128,7 @@ export function ballGrowth(input: {
         }
       }
     }
+
     growth[radius] = reached
     frontier = next
     if (next.length === 0) {
@@ -126,9 +136,11 @@ export function ballGrowth(input: {
       for (let r = radius + 1; r <= input.maxRadius; r++) {
         growth[r] = reached
       }
+
       break
     }
   }
+
   return growth
 }
 
@@ -159,9 +171,11 @@ export function ballGrowthDimension(input: {
           }
         }
       }
+
       counts[r] = counts[r - 1] + nextFrontier.length
       frontier = nextFrontier
     }
+
     const xs: number[] = []
     const ys: number[] = []
     for (let r = 1; r <= maxRadius; r++) {
@@ -170,10 +184,12 @@ export function ballGrowthDimension(input: {
         ys.push(counts[r])
       }
     }
+
     if (xs.length >= 2) {
       slopes.push(logLogSlope(xs, ys))
     }
   }
+
   return slopes.reduce((a, b) => a + b, 0) / Math.max(1, slopes.length)
 }
 
@@ -190,6 +206,7 @@ export function boxCountingDimension(input: {
   if (cells.length < 4) {
     return 0
   }
+
   const sizes = input.boxSizes ?? [2, 4, 8, 16, 32]
   const inverseBoxSizes: number[] = []
   const boxCounts: number[] = []
@@ -201,9 +218,11 @@ export function boxCountingDimension(input: {
       const y = Math.floor(i / L)
       boxes.add(Math.floor(x / b) * K + Math.floor(y / b))
     }
+
     inverseBoxSizes.push(1 / b)
     boxCounts.push(boxes.size)
   }
+
   return logLogSlope(inverseBoxSizes, boxCounts)
 }
 
@@ -231,6 +250,7 @@ export function reachIsExponential(input: {
       center = i
     }
   }
+
   const growth = ballGrowth({ substrate, center, maxRadius })
   const final = growth[growth.length - 1] ?? 1
   const ratios: number[] = []
@@ -241,6 +261,7 @@ export function reachIsExponential(input: {
       ratios.push(cur / prev)
     }
   }
+
   return (
     ratios.length > 0 &&
     ratios.reduce((a, b) => a + b, 0) / ratios.length > threshold
@@ -260,6 +281,7 @@ export function growthIsExponential(input: {
   if (g.length < 4 || last < 8) {
     return false
   }
+
   // Successive ball-count ratios in the UNSATURATED regime (count below 60% of
   // the final size). Saturation from a finite substrate would otherwise drive
   // every late ratio toward 1 and hide exponential growth.
@@ -271,12 +293,15 @@ export function growthIsExponential(input: {
       ratios.push(cur / prev)
     }
   }
+
   if (ratios.length < 2) {
     return false
   }
+
   const mean = ratios.reduce((sum, s) => sum + s, 0) / ratios.length
   const first = ratios[0] ?? 1
   const lastRatio = ratios[ratios.length - 1] ?? 1
+
   // Exponential growth keeps the per-step ratio multiplicative and roughly flat.
   // Polynomial growth (r^d) has ratios that decay toward 1 as r grows.
   return mean > 1.4 && lastRatio > 0.7 * first
@@ -309,9 +334,11 @@ export function meanUnsaturatedGrowthRatio(input: {
       ratios.push(cur / prev)
     }
   }
+
   if (ratios.length === 0) {
     return NaN
   }
+
   return ratios.reduce((a, b) => a + b, 0) / ratios.length
 }
 
@@ -345,6 +372,7 @@ export function geometricUnsaturatedGrowthRatio(input: {
       count += 1
     }
   }
+
   return count > 0 ? Math.exp(logSum / count) : 0
 }
 
@@ -359,7 +387,9 @@ export function betheCorrelatorExponent(degree: number): number {
   if (b <= 1) {
     return 0
   }
+
   const mu = (degree - Math.sqrt(degree * degree - 4 * b)) / (2 * b)
+
   return Math.round(((2 * Math.log(1 / mu)) / Math.log(b)) * 100) / 100
 }
 
@@ -389,22 +419,26 @@ export function spectralDimension(input: {
       if (!pi) {
         continue
       }
+
       const row = neighbors[i] ?? []
       const d = row.length
       if (d === 0) {
         np[i] = np[i]! + pi
         continue
       }
+
       np[i] = np[i]! + 0.5 * pi
       const sh = (0.5 * pi) / d
       for (const j of row) {
         np[j] = np[j]! + sh
       }
     }
+
     const tmp = p
     p = np
     np = tmp
   }
+
   return (
     (-2 * (Math.log(P[t2]!) - Math.log(P[t1]!))) /
     (Math.log(t2) - Math.log(t1))
@@ -427,7 +461,9 @@ export function shellDimension(input: {
     xs.push(Math.log(r))
     ys.push(Math.log(input.shell[r] ?? 1))
   }
+
   const f = linearFit({ xs, ys })
+
   return { dimension: f.slope + 1, r2: f.r2 }
 }
 
@@ -445,6 +481,7 @@ export function shellPowerR2(input: {
     xs.push(Math.log(r))
     ys.push(Math.log(input.shell[r] ?? 1))
   }
+
   return linearFit({ xs, ys }).r2
 }
 
@@ -463,6 +500,7 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
     s += x
     cum.push(s)
   }
+
   let sx = 0
   let sy = 0
   let sxx = 0
@@ -477,6 +515,7 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
     sxy += x * y
     m++
   }
+
   const dim = m > 1 ? (m * sxy - sx * sy) / (m * sxx - sx * sx) : 0
   let rs = 0
   let rc = 0
@@ -486,6 +525,7 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
       rc++
     }
   }
+
   return { dim, ratio: rc > 0 ? rs / rc : 0 }
 }
 
@@ -504,6 +544,8 @@ export function shellExponentialFit(input: {
     xs.push(r)
     ys.push(Math.log(input.shell[r] ?? 1))
   }
+
   const f = linearFit({ xs, ys })
+
   return { growthRatio: Math.exp(f.slope), r2: f.r2 }
 }

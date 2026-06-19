@@ -23,12 +23,14 @@ export function exactRecallRate(mem: AssociativeMemory): number {
     if (!mem.occupied[c]) {
       continue
     }
+
     total++
     const responders = searchExact({ mem, comparand: readWord(mem, c) })
     if (responders.length === 1 && responders[0] === c) {
       ok++
     }
   }
+
   return total > 0 ? ok / total : 0
 }
 
@@ -50,10 +52,12 @@ export function nearestRecallRate(input: {
       const k = rng.nextInt({ max: mem.wordBits })
       q[k] = (q[k]! + 1 + rng.nextInt({ max: 2 })) % 3
     }
+
     if (searchBest({ mem, comparand: q }).cell === c) {
       ok++
     }
   }
+
   return cells.length > 0 ? ok / cells.length : 0
 }
 
@@ -71,10 +75,12 @@ export function falsePositiveRate(input: {
     for (let k = 0; k < mem.wordBits; k++) {
       q[k] = rng.nextInt({ max: 3 })
     }
+
     if (searchExact({ mem, comparand: q }).length > 0) {
       hits++
     }
   }
+
   return trials > 0 ? hits / trials : 0
 }
 
@@ -94,6 +100,7 @@ export function coverageRadius(input: {
       r = depth[c]!
     }
   }
+
   return r
 }
 
@@ -114,6 +121,7 @@ export function radiusCapacity(input: {
     total += s
     cumulative.push(total)
   }
+
   return cumulative
 }
 
@@ -124,6 +132,7 @@ function occupiedCells(mem: AssociativeMemory): number[] {
       out.push(c)
     }
   }
+
   return out
 }
 

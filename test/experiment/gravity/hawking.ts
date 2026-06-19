@@ -42,6 +42,7 @@ function unruhResponse(input: {
     step: (2 * (30 / input.a)) / input.samples,
     prefactor: -1 / (4 * Math.PI * Math.PI),
   })
+
   return Math.hypot(f.real, f.imaginary)
 }
 
@@ -80,6 +81,7 @@ export function hawking(input: Record<string, never> = {}): {
       Math.abs(ratio - expected) / expected,
     )
   }
+
   const fittedTemperature = temperatureFromResponse(a, samples)
   const expectedTemperature = a / (2 * Math.PI)
   const spectrumThermal =
@@ -111,6 +113,7 @@ export function hawking(input: Record<string, never> = {}): {
       peakFraction = q / totalQubits
     }
   }
+
   const pageCurveTurnsOver =
     (curve[0] ?? 0) < peak && (curve[curve.length - 1] ?? 0) < peak
 
@@ -145,6 +148,7 @@ export default experiment({
       r.thermalResidual < 0.05 &&
       Math.abs(r.temperatureExponent + 1) < 0.05 &&
       r.pageCurveTurnsOver
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -33,6 +33,7 @@ export default experiment({
     const free = densities[0] ?? 0
     const strong = densities[densities.length - 1] ?? 0
     const ok = free < 0.02 && strong > free
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -53,6 +53,7 @@ export function schwarzschildEvaporationLifetime(input: {
     mass -= power * dt
     time += dt
   }
+
   return time
 }
 
@@ -68,6 +69,7 @@ export function deSitterHorizon(hubble: number): {
 } {
   const radius = 1 / hubble
   const area = 4 * Math.PI * radius ** 2
+
   return {
     radius,
     area,

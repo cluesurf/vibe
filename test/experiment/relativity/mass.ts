@@ -30,6 +30,7 @@ function fitDispersion(
     wavenumbers: ks,
     frequencies: omegas,
   })
+
   return { a: fit.speedSquared, b: fit.massSquared }
 }
 
@@ -43,9 +44,11 @@ export function massStudy(input: { m: number }): {
   for (let k = 0.02; k <= 0.32 + 1e-9; k += 0.03) {
     ks.push(k)
   }
+
   const omegas = ks.map(k => diracEnergy({ k, m: input.m }))
   const gap = diracEnergy({ k: 0, m: input.m })
   const fit = fitDispersion(ks, omegas)
+
   return { gap, a: fit.a, b: fit.b }
 }
 
@@ -63,6 +66,7 @@ export default experiment({
       Math.abs(s.b - 0.09) < 0.02 &&
       s.a > 0.9 &&
       s.a < 1.05
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

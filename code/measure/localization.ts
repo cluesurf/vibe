@@ -37,11 +37,14 @@ export function returnProbability(input: {
       const imSync = imaginary[i]! + 0.5 * dt * hReal[i]!
       sum += real[i]! * real[i]! + imSync * imSync
     }
+
     return sum
   }
+
   const returnAt = (): number => {
     const hReal = apply(real)
     const imSync = imaginary[source]! + 0.5 * dt * hReal[source]!
+
     return real[source]! * real[source]! + imSync * imSync
   }
 
@@ -50,6 +53,7 @@ export function returnProbability(input: {
   for (let i = 0; i < n; i++) {
     imaginary[i] = imaginary[i]! - 0.5 * dt * first[i]!
   }
+
   const startNorm = syncNormAt()
 
   const samples: number[] = []
@@ -58,10 +62,12 @@ export function returnProbability(input: {
     for (let i = 0; i < n; i++) {
       real[i] = real[i]! + dt * dImag[i]!
     }
+
     const dReal = apply(real)
     for (let i = 0; i < n; i++) {
       imaginary[i] = imaginary[i]! - dt * dReal[i]!
     }
+
     if (step % sampleEvery === 0) {
       samples.push(returnAt())
     }
@@ -71,6 +77,7 @@ export function returnProbability(input: {
     ? samples.reduce((a, b) => a + b, 0) / samples.length
     : 1
   const normDrift = Math.abs(syncNormAt() / startNorm - 1)
+
   return { samples, timeAverage, normDrift }
 }
 
@@ -113,6 +120,7 @@ export function boundStateDecayExponent(input: {
       if (!row) {
         continue
       }
+
       for (let i = 0; i < row.length; i++) {
         const nb = row[i]!
         if (shell[nb] === -1) {
@@ -121,8 +129,10 @@ export function boundStateDecayExponent(input: {
         }
       }
     }
+
     frontier = next
   }
+
   const maxShell = shell.reduce((m, s) => (s > m ? s : m), 0)
   // the outermost two shells are truncated by the finite build, so they are not reliable
   const reliableShells = maxShell - 2
@@ -142,15 +152,19 @@ export function boundStateDecayExponent(input: {
           acc += psi[row[k]!]!
         }
       }
+
       if (i === origin) {
         acc += wellDepth * psi[origin]!
       }
+
       out[i] = acc
     }
+
     let norm = 0
     for (let i = 0; i < cellCount; i++) {
       norm += out[i]! * out[i]!
     }
+
     norm = Math.sqrt(norm) || 1
     for (let i = 0; i < cellCount; i++) {
       psi[i] = out[i]! / norm
@@ -168,6 +182,7 @@ export function boundStateDecayExponent(input: {
         count++
       }
     }
+
     perShellAmplitude.push(Math.sqrt(sum / Math.max(count, 1)))
   }
 
@@ -188,6 +203,7 @@ export function boundStateDecayExponent(input: {
       m++
     }
   }
+
   const slope =
     m > 1
       ? (m * sxy - sx * sy) / (m * sxx - sx * sx)
@@ -195,6 +211,7 @@ export function boundStateDecayExponent(input: {
           (perShellAmplitude[reliableShells] ?? 1) /
             (perShellAmplitude[Math.max(reliableShells - 1, 0)] ?? 1),
         )
+
   return {
     decayExponent: -slope / Math.log(growthRate),
     perShellAmplitude,

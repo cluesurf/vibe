@@ -57,12 +57,15 @@ export default experiment({
       if (greedy.successRate < 0.85) {
         allGreedyDeliver = false
       }
+
       if (!(outer > inner)) {
         allPyramid = false
       }
+
       if (!(greedy.successRate > scrambled.successRate + 0.2)) {
         allBeatScrambled = false
       }
+
       worstGreedy = Math.min(worstGreedy, greedy.successRate)
     }
 

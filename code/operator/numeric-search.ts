@@ -17,11 +17,13 @@ export function maxIndex(input: {
     if (active && !active[c]) {
       continue
     }
+
     if (field[c]! > value) {
       value = field[c]!
       index = c
     }
   }
+
   return { index, value }
 }
 
@@ -37,11 +39,13 @@ export function minIndex(input: {
     if (active && !active[c]) {
       continue
     }
+
     if (field[c]! < value) {
       value = field[c]!
       index = c
     }
   }
+
   return { index, value }
 }
 
@@ -58,12 +62,14 @@ export function nextHigherIndex(input: {
     if (active && !active[c]) {
       continue
     }
+
     const v = field[c]!
     if (v > target && v < value) {
       value = v
       index = c
     }
   }
+
   return { index, value: index < 0 ? NaN : value }
 }
 
@@ -80,12 +86,14 @@ export function nextLowerIndex(input: {
     if (active && !active[c]) {
       continue
     }
+
     const v = field[c]!
     if (v < target && v > value) {
       value = v
       index = c
     }
   }
+
   return { index, value: index < 0 ? NaN : value }
 }
 

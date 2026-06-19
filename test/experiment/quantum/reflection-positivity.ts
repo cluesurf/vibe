@@ -60,6 +60,7 @@ export function reflectionPositivity(input?: {
       }
     }
   }
+
   const euA = Int32Array.from(eu)
   const evA = Int32Array.from(ev)
   const moved = new Uint8Array(N)
@@ -71,6 +72,7 @@ export function reflectionPositivity(input?: {
       maxPos = s.position[i]!
     }
   }
+
   const posCells: number[][] = Array.from(
     { length: maxPos + 1 },
     () => [],
@@ -87,6 +89,7 @@ export function reflectionPositivity(input?: {
       | 0
       | 1
   }
+
   for (let t = 0; t < 120; t++) {
     beat(tone, euA, evA, moved, rng, arrow)
   } // steady state
@@ -103,12 +106,15 @@ export function reflectionPositivity(input?: {
       for (const i of posCells[p]!) {
         sum += tone[i]!
       }
+
       phi[p] = posCells[p]!.length > 0 ? sum / posCells[p]!.length : 0
     }
+
     let mean = 0
     for (let p = 0; p <= maxPos; p++) {
       mean += phi[p]!
     }
+
     mean /= maxPos + 1
     // use the interior to avoid the sliver ends
     const lo = 8
@@ -119,8 +125,10 @@ export function reflectionPositivity(input?: {
         counts[r]!++
       }
     }
+
     beat(tone, euA, evA, moved, rng, arrow)
   }
+
   const c: number[] = []
   for (let r = 0; r <= maxR; r++) {
     c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
@@ -149,6 +157,7 @@ export function reflectionPositivity(input?: {
       correlationRange = r
     }
   }
+
   const contactDominated = correlationRange <= 1
   const rpDecidable = !contactDominated
   // the honest finding: in the accessible massive regime the correlation is contact-dominated, so RP is
@@ -181,6 +190,7 @@ export default experiment({
   run() {
     const r = reflectionPositivity({ length: 60, arrow: 0.05 })
     const ok = r.solved && r.contactDominated && !r.rpDecidable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

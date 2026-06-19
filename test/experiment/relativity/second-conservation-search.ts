@@ -61,9 +61,11 @@ export function secondConservationSearch(input?: { L?: number }): {
       | 0
       | 1
   }
+
   for (let t = 0; t < 60; t++) {
     beat(tone, ring, moved, rng, 0.1)
   }
+
   const T = 1500
   const Q: number[] = []
   const count: number[] = []
@@ -79,12 +81,14 @@ export function secondConservationSearch(input?: { L?: number }): {
       act += s * s
       stag += (x % 2 === 0 ? 1 : -1) * s
     }
+
     Q.push(q)
     count.push(L)
     activity.push(act)
     staggered.push(stag)
     beat(tone, ring, moved, rng, 0.1)
   }
+
   const conserved = [
     {
       name: 'charge Q = sum tone',
@@ -124,9 +128,11 @@ export function secondConservationSearch(input?: { L?: number }): {
         | 0
         | 1
     }
+
     for (let t = 0; t < 300; t++) {
       beat(tn, ring, mv, r2, arrow)
     }
+
     const maxR = 12
     const sumCC = new Float64Array(maxR + 1)
     const TT = 2000
@@ -136,8 +142,10 @@ export function secondConservationSearch(input?: { L?: number }): {
           sumCC[r]! += tn[x]! * tn[(x + r) % L]!
         }
       }
+
       beat(tn, ring, mv, r2, arrow)
     }
+
     // STAGGERED correlation magnitude (-1)^r C(r), the Neel order parameter at long range
     const c0 = sumCC[0]! / (L * TT)
     let range = 0
@@ -149,8 +157,10 @@ export function secondConservationSearch(input?: { L?: number }): {
         range = r
       }
     }
+
     staggeredScan.push({ arrow, staggeredRange: range })
   }
+
   const spontaneousOrder = staggeredScan.some(
     s => s.staggeredRange >= 5,
   ) // long-range order = a Goldstone
@@ -183,6 +193,7 @@ export default experiment({
   run() {
     const r = secondConservationSearch({ L: 3000 })
     const ok = r.solved && r.onlyChargeConserved && !r.spontaneousOrder
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

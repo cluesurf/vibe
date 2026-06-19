@@ -29,6 +29,7 @@ function relax(
         lapIm = a.im + b.im - 2 * z.im
       const r2 = z.re * z.re + z.im * z.im,
         restore = 1 - r2
+
       return {
         re: z.re + dt * (lapRe + restore * z.re),
         im: z.im + dt * (lapIm + restore * z.im),
@@ -36,6 +37,7 @@ function relax(
     })
     cur = next
   }
+
   return cur
 }
 
@@ -49,6 +51,7 @@ const energy = (psi: { re: number; im: number }[]): number => {
       z = psi[i]!
     e += (a.re - z.re) ** 2 + (a.im - z.im) ** 2
   }
+
   return e
 }
 
@@ -77,6 +80,7 @@ export function topologicalPersistence(): {
   // CONTROL: w = 0 bump (a local perturbation, no winding) relaxes all the way to uniform
   const bump = Array.from({ length: L }, (_, x) => {
     const g = Math.exp(-((x - L / 2) ** 2) / 50)
+
     return { re: 1 - 0.8 * g, im: 0.3 * g }
   })
   const wb0 = winding(bump.map(phase)),
@@ -107,6 +111,7 @@ export default experiment({
   run() {
     const r = topologicalPersistence()
     const ok = r.discriminates
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

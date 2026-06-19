@@ -53,22 +53,27 @@ function domainSizes(
   for (let i = 0; i < n; i++) {
     parent[i] = i
   }
+
   const find = (x: number): number => {
     let r = x
     while (parent[r] !== r) {
       r = parent[r]!
     }
+
     while (parent[x] !== r) {
       const nx = parent[x]!
       parent[x] = r
       x = nx
     }
+
     return r
   }
+
   for (let v = 0; v < n; v++) {
     if (tone[v] === 0) {
       continue
     }
+
     for (let p = offsets[v]!; p < offsets[v + 1]!; p++) {
       const w = adj[p]!
       if (w > v && tone[w] === tone[v]) {
@@ -76,14 +81,17 @@ function domainSizes(
       }
     }
   }
+
   const size = new Map<number, number>()
   for (let i = 0; i < n; i++) {
     if (tone[i] === 0) {
       continue
     }
+
     const r = find(i)
     size.set(r, (size.get(r) ?? 0) + 1)
   }
+
   return Array.from(size.values()).sort((a, b) => b - a)
 }
 
@@ -113,6 +121,7 @@ export function selvesAtScale(input?: { n?: number }): {
   for (let b = 0; b < 100; b++) {
     beat(tone, eu, ev, g.offsets, g.adj, moved, rng, 0.06)
   }
+
   const conserved = sumTone(tone) === q0
 
   let nonzero = 0
@@ -136,6 +145,7 @@ export function selvesAtScale(input?: { n?: number }): {
     shuffled[i] = shuffled[j]!
     shuffled[j] = t
   }
+
   const randomSizes = domainSizes(shuffled, g.offsets, g.adj, N)
   const largestRandom = randomSizes[0] ?? 0
 
@@ -180,6 +190,7 @@ export default experiment({
       r.selvesEmerge &&
       r.domainAdvantage > 3 &&
       r.hierarchy
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -43,8 +43,10 @@ async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
     console.log('no WebGPU adapter available (needs a GPU)')
+
     return
   }
+
   const device = await adapter.requestDevice()
 
   const slab = buildHorosphereBand({
@@ -62,8 +64,10 @@ async function run(): Promise<void> {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   const seedVec = (k: number): number[] =>
     Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
   let axis = 0
@@ -72,6 +76,7 @@ async function run(): Promise<void> {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -79,6 +84,7 @@ async function run(): Promise<void> {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -106,6 +112,7 @@ async function run(): Promise<void> {
   for (let a = 0; a < bandList.length; a++) {
     reindex[bandList[a]!] = a
   }
+
   const B = bandList.length
   const bandNbr: number[][] = bandList.map(() => [])
   for (let a = 0; a < B; a++) {
@@ -116,10 +123,13 @@ async function run(): Promise<void> {
       }
     }
   }
+
   const med = (xs: number[]): number => {
     const s = [...xs].sort((p, q) => p - q)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = med(bandList.map(i => U[i]!)),
     cv = med(bandList.map(i => V[i]!))
   const radii = bandList
@@ -134,6 +144,7 @@ async function run(): Promise<void> {
     px[a] = Math.round(IMG / 2 + ((U[i]! - cu) / ext) * halfPx)
     py[a] = Math.round(IMG / 2 + ((V[i]! - cv) / ext) * halfPx)
   }
+
   console.log(
     `slab ${n.toLocaleString()} cells, flat band ${B.toLocaleString()} cells`,
   )
@@ -154,6 +165,7 @@ async function run(): Promise<void> {
       seeded++
     }
   }
+
   console.log(`seeded ${seeded} cells in the central charge column`)
 
   const byteLength = n * 4
@@ -237,6 +249,7 @@ async function run(): Promise<void> {
         reached[a] = f
       }
     }
+
     for (let p = 0; p < SMOOTH_PASSES; p++) {
       const ns = new Float32Array(B)
       for (let a = 0; a < B; a++) {
@@ -246,10 +259,13 @@ async function run(): Promise<void> {
           s += sm[b]!
           d++
         }
+
         ns[a] = s / d
       }
+
       sm = ns
     }
+
     let mx = 1e-6
     for (let a = 0; a < B; a++) {
       const v = Math.abs(sm[a]!)
@@ -257,6 +273,7 @@ async function run(): Promise<void> {
         mx = v
       }
     }
+
     const eps = 0.06 * mx
 
     const rgba = new Uint8Array(IMG * IMG * 4)
@@ -266,14 +283,17 @@ async function run(): Promise<void> {
       rgba[i + 2] = 0
       rgba[i + 3] = 255
     }
+
     for (let a = 0; a < B; a++) {
       if (reached[a]! < 0) {
         continue
       } // outside the causal cone, black
+
       const s = sm[a]!
       if (Math.abs(s) < eps) {
         continue
       } // peace, black
+
       const col = s > 0 ? BLUE : RED
       const cx = px[a]!,
         cy = py[a]!
@@ -282,11 +302,13 @@ async function run(): Promise<void> {
           if (dx * dx + dy * dy > DOT * DOT) {
             continue
           }
+
           const x = cx + dx,
             y = cy + dy
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const o = (y * IMG + x) * 4
           rgba[o] = col[0]
           rgba[o + 1] = col[1]
@@ -294,6 +316,7 @@ async function run(): Promise<void> {
         }
       }
     }
+
     writeFrame({
       dir: outDir,
       index: f,
@@ -306,6 +329,7 @@ async function run(): Promise<void> {
       console.log(`  beat ${f}/${FRAMES}`)
     }
   }
+
   console.log(`wrote ${FRAMES} frames to ${outDir}`)
   console.log(
     `ffmpeg -y -framerate 24 -i ${join(outDir, 'glide_%04d.png')} -pix_fmt yuv420p ${join(here, '..', '..', 'make', '534', 'horosphere-glide-534.mp4')}`,

@@ -16,5 +16,6 @@ export function lagAutocorrelation(input: {
     acc += pearson({ a: series[t]!, b: series[t + lag]!, epsilon })
     count++
   }
+
   return count > 0 ? acc / count : 0
 }

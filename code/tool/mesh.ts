@@ -37,8 +37,10 @@ export function shellDistances(mesh: Mesh, source: number): Int32Array {
         }
       }
     }
+
     frontier = next
   }
+
   return distance
 }
 
@@ -50,6 +52,7 @@ export function squareMesh(input: { side: number }): Mesh {
   const wrap = (value: number): number => modulo(value, side)
   const at = (x: number, y: number): number => wrap(y) * side + wrap(x)
   const opposites = [1, 0, 3, 2]
+
   return {
     id: `square-${side}`,
     degree: 4,
@@ -95,6 +98,7 @@ export function d4Mesh(input: { side: number }): Mesh {
   const volume = area * side
   const hyper = volume * side
   const wrap = (value: number): number => modulo(value, side)
+
   return {
     id: `d4-${side}`,
     degree: 24,
@@ -109,6 +113,7 @@ export function d4Mesh(input: { side: number }): Mesh {
       const ny = wrap(y + (root[1] ?? 0))
       const nz = wrap(z + (root[2] ?? 0))
       const nw = wrap(w + (root[3] ?? 0))
+
       return nw * volume + nz * area + ny * side + nx
     },
     opposite(direction) {
@@ -125,6 +130,7 @@ export function d4Mesh(input: { side: number }): Mesh {
 export function d4MeshWithRest(input: { side: number }): Mesh {
   const base = d4Mesh(input)
   const rest = base.degree
+
   return {
     id: `d4-rest-${input.side}`,
     degree: base.degree + 1,
@@ -164,10 +170,13 @@ export function betheMesh(input: {
         nextFrontier.push(child)
       }
     }
+
     frontier = nextFrontier
   }
+
   const cellCount = parent.length
   const degree = coordination + 1
+
   return {
     id: `bethe-${coordination}-${depth}`,
     degree,
@@ -175,10 +184,13 @@ export function betheMesh(input: {
     neighbour(cell, direction) {
       if (direction === 0) {
         const p = parent[cell]!
+
         return p < 0 ? cell : p
       }
+
       const kids = children[cell]!
       const child = kids[direction - 1]
+
       return child === undefined ? cell : child
     },
     opposite(direction) {
@@ -207,6 +219,7 @@ export function b4Mesh(input: { side: number }): Mesh {
   const volume = area * side
   const hyper = volume * side
   const wrap = (value: number): number => modulo(value, side)
+
   return {
     id: `b4-${side}`,
     degree: 32,
@@ -221,6 +234,7 @@ export function b4Mesh(input: { side: number }): Mesh {
       const ny = wrap(y + (root[1] ?? 0))
       const nz = wrap(z + (root[2] ?? 0))
       const nw = wrap(w + (root[3] ?? 0))
+
       return nw * volume + nz * area + ny * side + nx
     },
     opposite(direction) {
@@ -239,6 +253,7 @@ export function cubicMesh(input: { side: number }): Mesh {
   const at = (x: number, y: number, z: number): number =>
     wrap(z) * area + wrap(y) * side + wrap(x)
   const opposites = [1, 0, 3, 2, 5, 4]
+
   return {
     id: `cubic-${side}`,
     degree: 6,

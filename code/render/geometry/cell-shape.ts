@@ -39,6 +39,7 @@ export function buildCellShape(symbol: number[]): CellShape {
   const stabilizerNormals = normals.slice(0, dim - 1)
   const vertices = orbitVertices(v0, stabilizerNormals, metric)
   const edges = polyhedronEdges(vertices, metric)
+
   return { frame, vertices, edges }
 }
 
@@ -59,11 +60,13 @@ function orbitVertices(
       if (visited.has(k)) {
         continue
       }
+
       visited.add(k)
       vertices.push(vr)
       queue.push(vr)
     }
   }
+
   return vertices
 }
 
@@ -82,6 +85,7 @@ function polyhedronEdges(
       }
     }
   }
+
   const edgeLength = minDist < Infinity ? minDist : 1
   const tolerance = edgeLength * 1.2
   const edges: [number, number][] = []
@@ -93,5 +97,6 @@ function polyhedronEdges(
       }
     }
   }
+
   return edges
 }

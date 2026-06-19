@@ -34,6 +34,7 @@ export default experiment({
         center = i
       }
     }
+
     const depth = neighborDistances({
       neighbors: mesh.neighbors,
       size: n,

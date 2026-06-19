@@ -34,6 +34,7 @@ export default experiment({
         center = i
       }
     }
+
     const dist = neighborDistances({
       neighbors: mesh.neighbors,
       size: n,
@@ -46,6 +47,7 @@ export default experiment({
       const t = new Int8Array(n)
       t[center] = 1
       t[mesh.neighbors[center]![0]!] = -1
+
       return t
     })()
     const denseAlt = balanceToZero(
@@ -54,6 +56,7 @@ export default experiment({
         for (let i = 0; i < n; i++) {
           t[i] = i % 2 === 0 ? 1 : -1
         }
+
         return t
       })(),
     )
@@ -65,6 +68,7 @@ export default experiment({
             t[i] = i % 2 === 0 ? 1 : -1
           }
         }
+
         return t
       })(),
     )
@@ -87,8 +91,10 @@ export default experiment({
         seed: 9,
       })
       const tail = r.trajectory.slice(-20)
+
       return tail.reduce((a, b) => a + b, 0) / tail.length / n
     }
+
     const onFracs = ics.map(([, ic]) => lateFraction(ic, 0.1))
     const offFracs = ics.map(([, ic]) => lateFraction(ic, 0))
     const spread = (xs: number[]) => Math.max(...xs) - Math.min(...xs)

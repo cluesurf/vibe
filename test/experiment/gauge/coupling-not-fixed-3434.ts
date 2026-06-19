@@ -94,6 +94,7 @@ export default experiment({
     // open part, so the verdict is partial, an honest negative on deriving the coupling.
     const structureEstablished =
       r.isCleanPowerLaw && r.isMonotone && r.zeroCouplingKillsField
+
     return verdict({
       status: structureEstablished ? 'partial' : 'fail',
       claim:

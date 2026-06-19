@@ -28,6 +28,7 @@ function expansionLaw(): { ratio: number; H: number } {
       center = i
     }
   }
+
   const { shellCounts: shell } = bfsShells({
     neighbors: nb,
     root: center,
@@ -38,6 +39,7 @@ function expansionLaw(): { ratio: number; H: number } {
       branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100,
     ) / 100
   const H = Math.round((Math.log(ratio) / 3) * 1000) / 1000 // a ~ R^(t/3), H = ln R / 3
+
   return { ratio, H }
 }
 
@@ -57,6 +59,7 @@ function anisotropyBound(): { coeff: number; deltaGZK: number } {
   const dGeV = at(1),
     dTeV = at(1e3),
     dGZK = at(5e10) // GZK ~ 5e10 GeV (5e19 eV)
+
   return { coeff, deltaGZK: dGZK }
 }
 
@@ -79,6 +82,7 @@ export default experiment({
     const e = expansionLaw()
     const a = anisotropyBound()
     const ok = e.ratio > 1.5 && a.deltaGZK < 1e-3
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

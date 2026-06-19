@@ -29,16 +29,19 @@ export function benincasaDowkerDalembertian(input: {
     if (y === index) {
       continue
     }
+
     const dt = tx - (coords[y * 2] ?? 0)
     const dx = xx - (coords[y * 2 + 1] ?? 0)
     if (dt <= 0 || dt * dt - dx * dx < 0) {
       continue
     }
+
     const n = intervalSize(poset, { a: y, b: index, past })
     s +=
       smearedKernel2D({ n, epsilon }) *
       input.phi(coords[y * 2] ?? 0, coords[y * 2 + 1] ?? 0)
   }
+
   return (
     4 * epsilon * density * (-0.5 * input.phi(tx, xx) + epsilon * s)
   )

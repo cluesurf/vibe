@@ -55,14 +55,17 @@ function run(): void {
     a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
+
     return v.map(x => x / m)
   }
+
   let axis = 0
   for (let k = 1; k < dim; k++) {
     if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) {
       axis = k
     }
   }
+
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
   for (let k = 0; k < dim; k++) {
@@ -70,6 +73,7 @@ function run(): void {
       axis2 = k
     }
   }
+
   const e2 = normalize(
     sub(
       sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
@@ -91,16 +95,20 @@ function run(): void {
     if (Math.abs(slab.busemann[i]!) >= HALF) {
       continue
     }
+
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
     const w = diff.map(v => v / d2)
     cells.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
+
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
+
     return s[Math.floor(s.length / 2)] ?? 0
   }
+
   const cu = median(cells.map(c => c.u))
   const cv = median(cells.map(c => c.v))
   const radii = cells
@@ -114,6 +122,7 @@ function run(): void {
     c.px = Math.round(IMG / 2 + ((c.u - cu) / halfExtent) * halfPix)
     c.py = Math.round(IMG / 2 + ((c.v - cv) / halfExtent) * halfPix)
   }
+
   // index cells by their own index for the maintenance step
   const cellByIndex = new Map<number, Cell>()
   for (const c of cells) {
@@ -136,6 +145,7 @@ function run(): void {
       r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
     ) as -1 | 0 | 1
   }
+
   const moved = new Uint8Array(n)
   const prev = tone.slice()
   const persist = new Uint16Array(n)
@@ -158,10 +168,12 @@ function run(): void {
         }
       }
     }
+
     for (const gc of ground) {
       if (need <= 0) {
         break
       }
+
       if (tone[gc] === 0) {
         tone[gc] = -1
         need--
@@ -191,6 +203,7 @@ function run(): void {
       } else {
         persist[i] = 0
       }
+
       prev[i] = tone[i]!
     }
 
@@ -201,11 +214,13 @@ function run(): void {
       rgba[i * 4 + 2] = 9
       rgba[i * 4 + 3] = 255
     }
+
     for (const c of cells) {
       const t = tone[c.index]!
       if (t === 0) {
         continue
       }
+
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
       const r8 =
         t === 1
@@ -226,6 +241,7 @@ function run(): void {
           if (x < 0 || x >= IMG || y < 0 || y >= IMG) {
             continue
           }
+
           const idx = (y * IMG + x) * 4
           rgba[idx] = r8
           rgba[idx + 1] = g8
@@ -233,8 +249,10 @@ function run(): void {
         }
       }
     }
+
     writeFrame({ dir: outDir, index: f, rgba, width: IMG, height: IMG })
   }
+
   console.log(
     `wrote ${FRAMES} frames, the self glides left to right, assemble with task/render-video.sh`,
   )

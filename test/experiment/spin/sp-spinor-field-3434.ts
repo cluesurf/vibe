@@ -84,6 +84,7 @@ export default experiment({
       r.lightSpeedMassless &&
       r.subluminalMassive &&
       r.normConserved
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

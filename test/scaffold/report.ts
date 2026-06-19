@@ -19,6 +19,7 @@ function metricKeysOf(result: ScanResult): string[] {
       }
     }
   }
+
   return keys
 }
 
@@ -26,6 +27,7 @@ function formatNumber(value: number): string {
   if (!Number.isFinite(value)) {
     return String(value)
   }
+
   // Compact fixed precision keeps the table readable.
   return value.toFixed(4)
 }
@@ -78,6 +80,7 @@ export function writeReport(input: {
       const std = point.std[key] ?? 0
       cells.push(`${formatNumber(mean)} ± ${formatNumber(std)}`)
     }
+
     lines.push(`| ${cells.join(' | ')} |`)
   }
 

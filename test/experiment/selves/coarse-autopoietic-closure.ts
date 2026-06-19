@@ -51,11 +51,14 @@ function maintain(input: {
     if (c.length >= 0.5 * initial) {
       survived++
     }
+
     const cur = new Set(c)
     turnoverSum += jaccardDistance(prev, cur)
     prev = cur
   }
+
   const meanSize = sizes.reduce((a, b) => a + b, 0) / sizes.length
+
   return {
     persistence: survived / beats,
     turnover: turnoverSum / beats,
@@ -92,6 +95,7 @@ export default experiment({
       cohesive.persistence > 0.8 &&
       cohesive.turnover > 0.05 &&
       cohesive.meanSize > diffusive.meanSize * 1.5
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

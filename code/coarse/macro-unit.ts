@@ -42,6 +42,7 @@ export function extractUnits(input: {
     if (tone[s] !== sign || seen[s]) {
       continue
     }
+
     const members: number[] = []
     let frontier = [s]
     seen[s] = 1
@@ -57,11 +58,14 @@ export function extractUnits(input: {
           }
         }
       }
+
       frontier = next
     }
+
     if (members.length < minSize) {
       continue
     }
+
     let cx = 0
     let cy = 0
     for (const m of members) {
@@ -69,6 +73,7 @@ export function extractUnits(input: {
       cx += x
       cy += y
     }
+
     units.push({
       id: id++,
       level,
@@ -79,6 +84,7 @@ export function extractUnits(input: {
       cy: cy / members.length,
     })
   }
+
   return units
 }
 
@@ -94,6 +100,7 @@ export function coarseLabels(input: {
       labels[m] = unit.id
     }
   }
+
   return labels
 }
 
@@ -103,5 +110,6 @@ export function meanUnitSize(units: MacroUnit[]): number {
   if (units.length === 0) {
     return 0
   }
+
   return units.reduce((a, u) => a + u.size, 0) / units.length
 }

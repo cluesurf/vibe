@@ -67,6 +67,7 @@ export function dynamicDispersion(input?: {
       | 0
       | 1
   }
+
   for (let t = 0; t < 400; t++) {
     beat(tone, L, moved, rng, arrow)
   }
@@ -88,9 +89,11 @@ export function dynamicDispersion(input?: {
           im -= s * st[x]!
         }
       }
+
       qRe[m]![t] = re
       qIm[m]![t] = im
     }
+
     beat(tone, L, moved, rng, arrow)
   }
 
@@ -113,8 +116,10 @@ export function dynamicDispersion(input?: {
         s += re[t]! * re[t + tau]! + im[t]! * im[t + tau]!
         cnt++
       }
+
       c.push(s / cnt)
     }
+
     const c0 = c[0]!
     const norm = c.map(v => v / c0)
     // relaxation time, where the normalized correlation first drops below 1/e
@@ -128,6 +133,7 @@ export function dynamicDispersion(input?: {
         break
       }
     }
+
     // propagating if the correlation goes clearly negative (oscillation) before decaying
     let propagating = false
     for (let tau = 1; tau <= maxTau; tau++) {
@@ -135,6 +141,7 @@ export function dynamicDispersion(input?: {
         propagating = true
       }
     }
+
     modes.push({
       n: ns[m]!,
       k: ks[m]!,
@@ -192,6 +199,7 @@ export default experiment({
   run() {
     const r = dynamicDispersion({ L: 2400 })
     const ok = r.solved && r.gapless && r.diffusive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

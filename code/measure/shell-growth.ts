@@ -24,6 +24,7 @@ export function shellCountsFromGraph(input: {
       if (!row) {
         continue
       }
+
       for (let i = 0; i < row.length; i++) {
         const nb = row[i]!
         if (distance[nb] === -1) {
@@ -32,8 +33,10 @@ export function shellCountsFromGraph(input: {
         }
       }
     }
+
     frontier = next
   }
+
   const maxDistance = distance.reduce((m, d) => (d > m ? d : m), 0)
   const counts = new Array<number>(maxDistance + 1).fill(0)
   for (const d of distance) {
@@ -41,6 +44,7 @@ export function shellCountsFromGraph(input: {
       counts[d]!++
     }
   }
+
   return counts
 }
 
@@ -55,6 +59,7 @@ export function growthRatioFromShellCounts(counts: number[]): {
   if (reliable < 1) {
     return { ratio: 0, shell: 0 }
   }
+
   return {
     ratio: counts[reliable]! / counts[reliable - 1]!,
     shell: reliable,
@@ -68,22 +73,28 @@ export function euclideanL1ShellCount(input: {
   shell: number
 }): number {
   const memo = new Map<string, number>()
+
   function count(d: number, n: number): number {
     if (d === 0) {
       return n === 0 ? 1 : 0
     }
+
     const key = `${d},${n}`
     const hit = memo.get(key)
     if (hit !== undefined) {
       return hit
     }
+
     let sum = 0
     for (let x = -n; x <= n; x++) {
       sum += count(d - 1, n - Math.abs(x))
     }
+
     memo.set(key, sum)
+
     return sum
   }
+
   return count(input.dimension, input.shell)
 }
 
@@ -100,6 +111,7 @@ export function euclideanL1ShellRatio(input: {
     dimension: input.dimension,
     shell: input.shell - 1,
   })
+
   return b > 0 ? a / b : 0
 }
 
@@ -121,9 +133,11 @@ export function extrapolatedGrowthRate(counts: number[]): number {
   for (let i = 2; i < counts.length - 1; i++) {
     ratios.push(counts[i]! / counts[i - 1]!)
   }
+
   if (ratios.length < 3) {
     return ratios[ratios.length - 1] ?? 0
   }
+
   const x0 = ratios[ratios.length - 3]!
   const x1 = ratios[ratios.length - 2]!
   const x2 = ratios[ratios.length - 1]!
@@ -131,6 +145,7 @@ export function extrapolatedGrowthRate(counts: number[]): number {
   if (Math.abs(denom) < 1e-12) {
     return x2
   }
+
   return x2 - ((x2 - x1) * (x2 - x1)) / denom // Aitken's delta-squared limit
 }
 
@@ -147,6 +162,7 @@ export function fitOrder2Recurrence(counts: number[]): {
   if (s.length < 5) {
     return { a: 0, b: 0, isInteger: false }
   }
+
   // windows at indices 3 and 4: s3 = a s2 + b s1 ; s4 = a s3 + b s2
   const s1 = s[1]!,
     s2 = s[2]!,
@@ -156,10 +172,12 @@ export function fitOrder2Recurrence(counts: number[]): {
   if (Math.abs(det) < 1e-9) {
     return { a: 0, b: 0, isInteger: false }
   }
+
   const a = (s3 * s2 - s4 * s1) / det
   const b = (s2 * s4 - s3 * s3) / det
   const isInteger =
     Math.abs(a - Math.round(a)) < 1e-6 &&
     Math.abs(b - Math.round(b)) < 1e-6
+
   return { a, b, isInteger }
 }

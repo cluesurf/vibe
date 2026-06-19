@@ -72,6 +72,7 @@ function measureSize(maxCells: number): {
     operator: diracOperator(dirac, 8),
     ...evolve,
   })
+
   return {
     clean: clean.timeAverage,
     localized: localized.timeAverage,
@@ -124,6 +125,7 @@ export default experiment({
     // the leapfrog must stay near-unitary for the return probabilities to be trustworthy
     const stable = r.normDrift < 0.05
     const ok = r.cleanPropagates && r.disorderLocalizes && stable
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

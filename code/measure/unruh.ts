@@ -39,6 +39,7 @@ export function unruhDetectorResponse(input: {
     re += (wReal * c - wImag * s) * input.step
     im += (wReal * s + wImag * c) * input.step
   }
+
   return { real: re, imaginary: im }
 }
 
@@ -62,5 +63,6 @@ export function temperatureFromDetailedBalance(input: {
       count++
     }
   }
+
   return sum / Math.max(1, count)
 }

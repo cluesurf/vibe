@@ -40,8 +40,10 @@ export function closedManifold(): {
     for (let i = 0; i < N; i++) {
       s += a[i]!
     }
+
     return ((s % 3) + 3) % 3
   }
+
   const n0 = net(cur)
   for (let t = 0; t < 50; t++) {
     for (let i = 0; i < N; i++) {
@@ -49,13 +51,16 @@ export function closedManifold(): {
       for (const j of adj[i]!) {
         s += cur[j]!
       }
+
       nxt[i] = ((((s - prev[i]!) % 3) + 3) % 3) as 0 | 1 | 2
     }
+
     const tmp = prev
     prev = cur
     cur = nxt
     nxt = tmp
   }
+
   // degree on the Cayley graph = 4 (= |gens|); 4 mod 3 = 1, so net charge follows sum(nxt)=sum(cur)-sum(prev) on a REGULAR graph -> a clean invariant exists (no boundary leak). check the second-order invariant is bounded.
   const conserves = vertexTransitive // on a vertex-transitive (boundary-free) graph the wave has no edge leak, the defining win
   // spectral dimension via lazy walk return (a closed graph saturates at long time = finite, measure short-time slope)
@@ -64,6 +69,7 @@ export function closedManifold(): {
       spectralDimension({ neighbors: adj, start: 0, t1: 2, t2: 4 }) *
         100,
     ) / 100
+
   return { vertices: N, vertexTransitive, conserves, specDim }
 }
 
@@ -78,6 +84,7 @@ export default experiment({
   run() {
     const r = closedManifold()
     const ok = r.vertices === 168 && r.vertexTransitive
+
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

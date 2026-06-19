@@ -49,6 +49,7 @@ function kron(a: Cx[][], b: Cx[][]): Cx[][] {
       }
     }
   }
+
   return out
 }
 
@@ -62,8 +63,10 @@ function expect(O: Cx[][], re: Float64Array, im: Float64Array): number {
       oRe += O[m]![n]!.re * re[n]! - O[m]![n]!.im * im[n]!
       oIm += O[m]![n]!.re * im[n]! + O[m]![n]!.im * re[n]!
     }
+
     accRe += re[m]! * oRe + im[m]! * oIm
   }
+
   return accRe
 }
 
@@ -89,6 +92,7 @@ export function twoQubitCorrelationMatrix(input: {
       )
     }
   }
+
   return t
 }
 
@@ -105,12 +109,15 @@ export function horodeckiMaxChsh(
       for (let k = 0; k < 3; k++) {
         s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
       }
+
       m.data[i * 3 + j] = s
     }
   }
+
   const eig = eigSymmetric({ matrix: m }) // ascending
   const s1 = eig.values[2] ?? 0
   const s2 = eig.values[1] ?? 0
+
   return 2 * Math.sqrt(Math.max(0, s1 + s2))
 }
 
@@ -135,5 +142,6 @@ export function twoQubitConcurrence(input: {
   }
   const dRe = p1.re - p2.re
   const dIm = p1.im - p2.im
+
   return 2 * Math.sqrt(dRe * dRe + dIm * dIm)
 }

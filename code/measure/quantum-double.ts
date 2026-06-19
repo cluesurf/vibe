@@ -31,6 +31,7 @@ export function toricCodeGroundStateDegeneracy(input: {
 }): number {
   const euler = input.vertices - input.edges + input.faces
   const logicalQudits = 2 - euler // = 2g for a closed orientable surface
+
   return Math.round(input.toneStates ** logicalQudits)
 }
 
@@ -53,6 +54,7 @@ export function squareLatticeCellCounts(input: {
   // adjust the edge count so the Euler characteristic is 2 - 2g (the genus enters through the topology, the torus is
   // genus 1, each extra handle lowers chi by 2)
   edges += 2 * (input.genus - 1)
+
   return { vertices, edges, faces }
 }
 
