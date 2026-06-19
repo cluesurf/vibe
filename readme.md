@@ -72,7 +72,7 @@ reproducible. The base never relies on randomness. Real numbers appear
 only as measured outputs (coordinates, eigenvalues, dimensions), never
 as the base, in keeping with the discreteness principle. Each question
 is one experiment in `test/experiment/<category>/`, a single
-`defineExperiment` that returns a structured verdict (status, metrics,
+`experiment` that returns a structured verdict (status, metrics,
 control, claim) graded by an honest depth level, from `L0` circular
 through `L1` known math and `L2` known physics to `L3` emergent and
 novel. The standard the experiments are held to is in
@@ -123,11 +123,11 @@ pnpm test:full    # the above, then the extended check suite
 ```
 
 Every experiment lives in `test/experiment/<category>/<name>.ts` as one
-`defineExperiment`, and the suite runner (`test/run.ts`) imports them
-all and runs the registry. The shared library they import is in `code/`,
-and the named batteries (conformance, paper) are in `test/suite/`. The
-build fails only on a code crash or a conformance failure, never on an
-honest scientific negative.
+`experiment`, and the suite runner (`test/run.ts`) imports them all and
+runs the registry. The shared library they import is in `code/`, and the
+named batteries (conformance, paper) are in `test/suite/`. The build
+fails only on a code crash or a conformance failure, never on an honest
+scientific negative.
 
 ## Defining the model
 
@@ -177,7 +177,7 @@ which is why a curved mesh is the committed choice.
   something (the substrate or rule where the answer must be no).
 - **draw**, **render**, and **viz**: renderers and figures for the bulk,
   the cusp, gliders, gravity, and the nesting tower.
-- **test/experiment**: one `defineExperiment` per question, grouped by
+- **test/experiment**: one `experiment` per question, grouped by
   category (foundations, geometry, relativity, spin, gauge, gravity,
   cosmology, holography, quantum, renormalization, selves, computation,
   addressing, substrate-survey, data-structure), run by the suite runner

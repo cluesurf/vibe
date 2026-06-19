@@ -1,13 +1,24 @@
 # Cross-Tessellation Experiments
 
-How to write an experiment that runs against ALL the regular hyperbolic tessellations, not just one pinned substrate. The regular hyperbolic tessellations are a finite, fully enumerated set (compact regulars stop at 4D, regulars of any class stop at 5D), so one loop covers every one.
+How to write an experiment that runs against ALL the regular hyperbolic
+tessellations, not just one pinned substrate. The regular hyperbolic
+tessellations are a finite, fully enumerated set (compact regulars stop
+at 4D, regulars of any class stop at 5D), so one loop covers every one.
 
-This is the pattern behind `test/experiment/substrate-survey/tessellation-survey.ts`, which found that matter propagates on every tessellation while the spinor coin appears in exactly the seven 24-cell-faceted ones. The two worked examples are `test/experiment/geometry/coxeter-engine.ts` (build any tessellation) and `test/experiment/geometry/dimension.ts` (take a measure across the catalog).
+This is the pattern behind
+`test/experiment/substrate-survey/tessellation-survey.ts`, which found
+that matter propagates on every tessellation while the spinor coin
+appears in exactly the seven 24-cell-faceted ones. The two worked
+examples are `test/experiment/geometry/coxeter-engine.ts` (build any
+tessellation) and `test/experiment/geometry/dimension.ts` (take a
+measure across the catalog).
 
 ## The two ways an experiment is substrate-aware
 
-- **Pinned.** `substrates: ['534']` (or `['3434']`, `['73']`). One builder call, one substrate. Most experiments.
-- **Cross-tessellation.** `substrates: 'any'`, plus a loop over the catalog. The pattern below.
+- **Pinned.** `substrates: ['534']` (or `['3434']`, `['73']`). One
+  builder call, one substrate. Most experiments.
+- **Cross-tessellation.** `substrates: 'any'`, plus a loop over the
+  catalog. The pattern below.
 
 ## The four pieces
 
@@ -17,23 +28,32 @@ This is the pattern behind `test/experiment/substrate-survey/tessellation-survey
 import { TESSELLATIONS } from '@/code/substrate/tessellation-catalog'
 ```
 
-The full enumerated set, 45 entries, 42 buildable. Each carries its `schlafli`, `dimension`, `tessellationClass`, `name`, `note`, and a `buildable` flag (the star and apeirogonal regulars are cataloged but not buildable by the integer engine). Filter it, never hardcode a substrate list:
+The full enumerated set, 45 entries, 42 buildable. Each carries its
+`schlafli`, `dimension`, `tessellationClass`, `name`, `note`, and a
+`buildable` flag (the star and apeirogonal regulars are cataloged but
+not buildable by the integer engine). Filter it, never hardcode a
+substrate list:
 
 ```ts
-const buildable = TESSELLATIONS.filter((t) => t.buildable)
-const threeDimensional = TESSELLATIONS.filter((t) => t.dimension === 3 && t.buildable)
+const buildable = TESSELLATIONS.filter(t => t.buildable)
+const threeDimensional = TESSELLATIONS.filter(
+  t => t.dimension === 3 && t.buildable,
+)
 ```
 
 ### 2. The mesh
 
-For each Schläfli symbol, build the uniform Coxeter reflection-group mesh, which works for ANY dimension and class:
+For each Schläfli symbol, build the uniform Coxeter reflection-group
+mesh, which works for ANY dimension and class:
 
 ```ts
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 const mesh = buildCoxeterMatrixMesh(schlafli, maxCells) // { shells, adjacency }
 ```
 
-Use `buildCoxeterMesh` from `@/code/substrate/coxeter/engine` instead when you need the TRUE facet-adjacency or per-generation growth (as `coxeter-engine.ts` does).
+Use `buildCoxeterMesh` from `@/code/substrate/coxeter/engine` instead
+when you need the TRUE facet-adjacency or per-generation growth (as
+`coxeter-engine.ts` does).
 
 ### 3. The battery (the reusable per-substrate measure)
 
@@ -41,14 +61,23 @@ Use `buildCoxeterMesh` from `@/code/substrate/coxeter/engine` instead when you n
 import { measureTessellation } from '@/code/measure/tessellation-battery'
 ```
 
-`measureTessellation({ schlafli, maxCells, withPropagation })` builds the mesh and returns the standard substrate properties: curvature (growth ratio, the Gram signature), crystallographic, the 24-cell / D4 spinor hook, and whether a Kahler-Dirac fermion propagates.
+`measureTessellation({ schlafli, maxCells, withPropagation })` builds
+the mesh and returns the standard substrate properties: curvature
+(growth ratio, the Gram signature), crystallographic, the 24-cell / D4
+spinor hook, and whether a Kahler-Dirac fermion propagates.
 
-**To add a NEW cross-tessellation measurement, do not copy it into N experiments.** Write the per-substrate measure once as a function in `code/measure/` (taking a `neighbors` array or a Schläfli to build from), then wire it into `measureTessellation` so EVERY tessellation gets it the same way, as one more column. Examples already there: `code/measure/fermion-propagation`, `code/measure/localization`, `code/measure/holography`.
+**To add a NEW cross-tessellation measurement, do not copy it into N
+experiments.** Write the per-substrate measure once as a function in
+`code/measure/` (taking a `neighbors` array or a Schläfli to build
+from), then wire it into `measureTessellation` so EVERY tessellation
+gets it the same way, as one more column. Examples already there:
+`code/measure/fermion-propagation`, `code/measure/localization`,
+`code/measure/holography`.
 
 ### 4. The experiment (a thin loop)
 
 ```ts
-export default defineExperiment({
+export default experiment({
   id: 'substrate-survey/my-survey',
   substrates: 'any',
   depth: 'L2', // a catalog comparison
@@ -64,21 +93,37 @@ export default defineExperiment({
 })
 ```
 
-The experiment stays thin: loop, measure, assert the pattern. The per-tessellation logic lives in `code/measure/`.
+The experiment stays thin: loop, measure, assert the pattern. The
+per-tessellation logic lives in `code/measure/`.
 
 ## Cost and honesty
 
-- **Cheap measures** (curvature, the hooks, anything algebraic from the symbol) run on ALL 42 in the suite.
-- **Heavy measures** (propagation, spectra, a sampled dynamics) run on a REPRESENTATIVE subset in the suite, and the full sweep is dumped to a CSV. See `note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv`, generated by the full battery across the catalog.
-- **Never shrink a measure to fit the suite.** Sample fewer tessellations and say so, the same rule as in `experimental-methodology.md`.
+- **Cheap measures** (curvature, the hooks, anything algebraic from the
+  symbol) run on ALL 42 in the suite.
+- **Heavy measures** (propagation, spectra, a sampled dynamics) run on a
+  REPRESENTATIVE subset in the suite, and the full sweep is dumped to a
+  CSV. See
+  `note/research/vibe/notes/theory-v0.7.0/paper/tessellations.csv`,
+  generated by the full battery across the catalog.
+- **Never shrink a measure to fit the suite.** Sample fewer
+  tessellations and say so, the same rule as in
+  `experimental-methodology.md`.
 
 ## What a cross-tessellation result looks like
 
-The value of a survey is the comparison it makes, usually separating a UNIVERSAL property from a RARE one. The headline example: a propagating fermion on every hyperbolic substrate (universal, so matter is not special to any one), versus the spinor coin on exactly the 24-cell-faceted few (rare and dimension-gated, so the geometry decision matters). Depth is L2, a catalog comparison, not a new emergent claim about any one substrate.
+The value of a survey is the comparison it makes, usually separating a
+UNIVERSAL property from a RARE one. The headline example: a propagating
+fermion on every hyperbolic substrate (universal, so matter is not
+special to any one), versus the spinor coin on exactly the
+24-cell-faceted few (rare and dimension-gated, so the geometry decision
+matters). Depth is L2, a catalog comparison, not a new emergent claim
+about any one substrate.
 
 ## See also
 
 - `architecture.md`, where code and tests live.
 - `experimental-methodology.md`, the standards every experiment meets.
-- `test/experiment/substrate-survey/tessellation-survey.ts`, the canonical example.
-- `code/substrate/tessellation-catalog.ts` and `code/measure/tessellation-battery.ts`, the catalog and the battery.
+- `test/experiment/substrate-survey/tessellation-survey.ts`, the
+  canonical example.
+- `code/substrate/tessellation-catalog.ts` and
+  `code/measure/tessellation-battery.ts`, the catalog and the battery.
