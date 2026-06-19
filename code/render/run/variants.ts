@@ -13,13 +13,21 @@ import { truncateScene } from '@/code/render/geometry/truncate'
 import { renderSceneToPng } from '@/code/render/adapter/raster'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const outDir = join(here, '..', '..', '..', 'make', 'render', 'variants')
+const outDir = join(
+  here,
+  '..',
+  '..',
+  '..',
+  'make',
+  'render',
+  'variants',
+)
 
 const DEFAULT_SYMBOLS = ['7-3', '8-3', '5-4']
 
-const symbols = (process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_SYMBOLS).map(s =>
-  s.split('-').map(Number),
-)
+const symbols = (
+  process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_SYMBOLS
+).map(s => s.split('-').map(Number))
 
 mkdirSync(outDir, { recursive: true })
 
@@ -35,9 +43,16 @@ for (const symbol of symbols) {
     ['truncated', truncated],
     ['rectified', rectified],
   ] as const) {
-    const png = renderSceneToPng({ scene, size: 900, segments: 96, superSample: 3 })
+    const png = renderSceneToPng({
+      scene,
+      size: 900,
+      segments: 96,
+      superSample: 3,
+    })
     const file = join(outDir, `${tag}-${name}.png`)
     writeFileSync(file, png)
-    console.log(`${tag} ${name}: ${scene.edges.length} edges -> ${file}`)
+    console.log(
+      `${tag} ${name}: ${scene.edges.length} edges -> ${file}`,
+    )
   }
 }

@@ -19,7 +19,11 @@ import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 import { encodePng } from '@/code/draw/png'
 import { pack, currentOf } from '@/code/tone/pack'
 import { toCsr } from '@/code/tool/graph'
-import { idealDirection, busemann, extractBand } from '@/code/substrate/horosphere'
+import {
+  idealDirection,
+  busemann,
+  extractBand,
+} from '@/code/substrate/horosphere'
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -35,8 +39,10 @@ const LEVEL = 0 // the horosphere through the origin (a Busemann level set)
 const HALF = 0.5 // band half-width in Busemann units, wider catches more cells of the aperiodic slice
 const RADIUS = 2 // dot radius per horosphere cell, in pixels
 
-const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
+const norm = (v: number[]): number =>
+  Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+const dot = (a: number[], b: number[]): number =>
+  a.reduce((s, x, i) => s + x * b[i]!, 0)
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
@@ -51,7 +57,9 @@ async function run(): Promise<void> {
   const n = g.cellCount
   const coords = g.coords
   const dim = coords[0]!.length
-  console.log(`built {5,3,4} bulk, ${n.toLocaleString()} cells (${dim}D ball coordinates)`)
+  console.log(
+    `built {5,3,4} bulk, ${n.toLocaleString()} cells (${dim}D ball coordinates)`,
+  )
 
   // Busemann function, the ideal point is the direction of the farthest cell, level sets are horospheres
   const xi = idealDirection(coords)
@@ -63,22 +71,44 @@ async function run(): Promise<void> {
   const seed = new Uint32Array(n)
   const rng = makeRng({ seed: 2468013579 })
   const nextR = (): number => rng.next()
-  for (let i = 0; i < n; i++) seed[i] = pack({ current: Math.floor(nextR() * 3), previous: Math.floor(nextR() * 3) })
+  for (let i = 0; i < n; i++)
+    seed[i] = pack({
+      current: Math.floor(nextR() * 3),
+      previous: Math.floor(nextR() * 3),
+    })
 
   const byteLength = n * 4
-  const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
+  const params = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
-    device.createBuffer({ size: byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
+    device.createBuffer({
+      size: byteLength,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
-  const offBuf = device.createBuffer({ size: offsets.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
+  const offBuf = device.createBuffer({
+    size: offsets.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(offBuf, 0, offsets)
-  const adjBuf = device.createBuffer({ size: adj.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
+  const adjBuf = device.createBuffer({
+    size: adj.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(adjBuf, 0, adj)
 
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'main' } })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'main' },
+  })
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -103,7 +133,10 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
-  const staging = device.createBuffer({ size: byteLength, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
+  const staging = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
   {
     const enc = device.createCommandEncoder()
     enc.copyBufferToBuffer(bufs[src]!, 0, staging, 0, byteLength)
@@ -115,31 +148,45 @@ async function run(): Promise<void> {
 
   // (3) EXTRACT the horosphere, the cells in the Busemann band, and project them to 2D (the plane perp to xi)
   // an orthonormal basis e1, e2 of the plane perpendicular to the ideal direction xi
-  const seedVec = (k: number): number[] => Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
-  const sub = (a: number[], b: number[], s: number): number[] => a.map((x, i) => x - s * b[i]!)
+  const seedVec = (k: number): number[] =>
+    Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+  const sub = (a: number[], b: number[], s: number): number[] =>
+    a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v)
-    return v.map((x) => x / (m || 1))
+    return v.map(x => x / (m || 1))
   }
   // choose an axis least aligned with xi to start, then Gram-Schmidt twice
   let axis = 0
-  for (let k = 1; k < dim; k++) if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++)
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++) if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  for (let k = 0; k < dim; k++)
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
   let e2raw = sub(seedVec(axis2), xi, dot(seedVec(axis2), xi))
   e2raw = sub(e2raw, e1, dot(e2raw, e1))
   const e2 = normalize(e2raw)
 
   type Cell = { u: number; v: number; tone: number }
   const band: Cell[] = []
-  for (const i of extractBand({ busemann: heights, level: LEVEL, half: HALF })) {
+  for (const i of extractBand({
+    busemann: heights,
+    level: LEVEL,
+    half: HALF,
+  })) {
     const x = coords[i]!
     const px = dot(x, xi)
     const proj = sub(x, xi, px) // component in the horosphere plane
-    band.push({ u: dot(proj, e1), v: dot(proj, e2), tone: currentOf(tones[i]!) })
+    band.push({
+      u: dot(proj, e1),
+      v: dot(proj, e2),
+      tone: currentOf(tones[i]!),
+    })
   }
-  console.log(`horosphere band, ${band.length.toLocaleString()} cells extracted from the evolved bulk`)
+  console.log(
+    `horosphere band, ${band.length.toLocaleString()} cells extracted from the evolved bulk`,
+  )
   if (band.length === 0) {
     console.log('no cells in the band, widen HALF')
     return
@@ -188,14 +235,21 @@ async function run(): Promise<void> {
     }
   }
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'make')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    'make',
+  )
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, 'horosphere.png')
   writeFileSync(outPath, encodePng(rgba, IMG, IMG))
   console.log(`wrote ${outPath}`)
-  console.log('this is the flat horosphere slice, extracted from the evolved {5,3,4} hyperbolic bulk')
+  console.log(
+    'this is the flat horosphere slice, extracted from the evolved {5,3,4} hyperbolic bulk',
+  )
 }
 
-run().catch((e) => {
+run().catch(e => {
   console.error(e instanceof Error ? e.message : String(e))
 })

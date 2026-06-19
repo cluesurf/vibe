@@ -15,11 +15,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { oscillatorBathTrajectory, lateAmplitude } from '@/code/dynamics/oscillator-bath'
+import {
+  oscillatorBathTrajectory,
+  lateAmplitude,
+} from '@/code/dynamics/oscillator-bath'
 
 export default experiment({
   id: 'selves/bath-coupled-self',
-  title: 'coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)',
+  title:
+    'coupling a captured body to the bath gives it an attractor (identity) and a corrective response (agency)',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -31,20 +35,52 @@ export default experiment({
 
     // IDENTITY, many initial conditions, where do they settle? The basin is the spread of late amplitudes.
     const settle = (absorbing: boolean): number => {
-      const lateAmps = starts.map((start) => lateAmplitude(oscillatorBathTrajectory({ absorbing, stiffness, start, steps })))
+      const lateAmps = starts.map(start =>
+        lateAmplitude(
+          oscillatorBathTrajectory({
+            absorbing,
+            stiffness,
+            start,
+            steps,
+          }),
+        ),
+      )
       return Math.max(...lateAmps) - Math.min(...lateAmps)
     }
     const bathSpread = settle(true) // bath, all should converge to ~0 (one attractor)
     const closedSpread = settle(false) // closed, each keeps its own orbit (no attractor)
-    const bathSettlesToZero = Math.max(...starts.map((start) => lateAmplitude(oscillatorBathTrajectory({ absorbing: true, stiffness, start, steps })))) < 0.1
+    const bathSettlesToZero =
+      Math.max(
+        ...starts.map(start =>
+          lateAmplitude(
+            oscillatorBathTrajectory({
+              absorbing: true,
+              stiffness,
+              start,
+              steps,
+            }),
+          ),
+        ),
+      ) < 0.1
 
     // AGENCY, start at the ground state, kick it, does it recover? Late amplitude after the kick.
     const kicked = (absorbing: boolean): number =>
-      lateAmplitude(oscillatorBathTrajectory({ absorbing, stiffness, start: 0, velocity: 0, steps, kickStep: Math.floor(steps / 2), kickVelocity: 1.0 }))
+      lateAmplitude(
+        oscillatorBathTrajectory({
+          absorbing,
+          stiffness,
+          start: 0,
+          velocity: 0,
+          steps,
+          kickStep: Math.floor(steps / 2),
+          kickVelocity: 1.0,
+        }),
+      )
     const bathAfterKick = kicked(true) // bath, should return to ~0 (corrected)
     const closedAfterKick = kicked(false) // closed, the kick persists (not corrected)
 
-    const hasIdentity = bathSpread < 0.1 && bathSettlesToZero && closedSpread > 0.5
+    const hasIdentity =
+      bathSpread < 0.1 && bathSettlesToZero && closedSpread > 0.5
     const hasAgency = bathAfterKick < 0.1 && closedAfterKick > 0.3
 
     const ok = hasIdentity && hasAgency

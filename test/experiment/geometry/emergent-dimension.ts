@@ -29,7 +29,12 @@ import {
 
 export function emergentDimension(input: Record<string, never> = {}): {
   flat: { target: number; measured: number; r2: number }[]
-  curved: { name: string; powerR2: number; exponentialR2: number; growthRatio: number }[]
+  curved: {
+    name: string
+    powerR2: number
+    exponentialR2: number
+    growthRatio: number
+  }[]
   flatUnbiased: boolean
   curvedIsExponential: boolean
   solved: boolean
@@ -40,7 +45,7 @@ export function emergentDimension(input: Record<string, never> = {}): {
     { target: 3, L: 31, rLo: 3, rHi: 13 },
     { target: 4, L: 21, rLo: 4, rHi: 10 },
   ]
-  const flat = flatSpecs.map((spec) => {
+  const flat = flatSpecs.map(spec => {
     const adj = torusGrid(spec.target, spec.L)
     const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
     const sd = shellDimension({ shell, rLo: spec.rLo, rHi: spec.rHi })
@@ -51,31 +56,51 @@ export function emergentDimension(input: Record<string, never> = {}): {
     { name: 'Bethe lattice {.,3}', q: 3, depth: 16, rLo: 3, rHi: 14 },
     { name: 'Bethe lattice {.,4}', q: 4, depth: 11, rLo: 3, rHi: 9 },
   ]
-  const curved = treeSpecs.map((spec) => {
+  const curved = treeSpecs.map(spec => {
     const adj = betheTree(spec.q, spec.depth)
     const shell = bfsShells({ neighbors: adj, root: 0 }).shellCounts
-    const ef = shellExponentialFit({ shell, rLo: spec.rLo, rHi: spec.rHi })
-    return { name: spec.name, powerR2: shellPowerR2({ shell, rLo: spec.rLo, rHi: spec.rHi }), exponentialR2: ef.r2, growthRatio: ef.growthRatio }
+    const ef = shellExponentialFit({
+      shell,
+      rLo: spec.rLo,
+      rHi: spec.rHi,
+    })
+    return {
+      name: spec.name,
+      powerR2: shellPowerR2({ shell, rLo: spec.rLo, rHi: spec.rHi }),
+      exponentialR2: ef.r2,
+      growthRatio: ef.growthRatio,
+    }
   })
 
-  const flatUnbiased = flat.every((f) => Math.abs(f.measured - f.target) < 0.2)
-  const curvedIsExponential = curved.every((c) => c.exponentialR2 >= c.powerR2 && c.growthRatio > 1.8)
+  const flatUnbiased = flat.every(
+    f => Math.abs(f.measured - f.target) < 0.2,
+  )
+  const curvedIsExponential = curved.every(
+    c => c.exponentialR2 >= c.powerR2 && c.growthRatio > 1.8,
+  )
 
-  return { flat, curved, flatUnbiased, curvedIsExponential, solved: flatUnbiased && curvedIsExponential }
+  return {
+    flat,
+    curved,
+    flatUnbiased,
+    curvedIsExponential,
+    solved: flatUnbiased && curvedIsExponential,
+  }
 }
 
 export default experiment({
   id: 'geometry/emergent-dimension',
-  title: 'emergent dimension, flat grids unbiased (2/3/4), curved meshes exponential',
+  title:
+    'emergent dimension, flat grids unbiased (2/3/4), curved meshes exponential',
   category: 'geometry',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = emergentDimension()
-    const d2 = r.flat.find((x) => x.target === 2)
-    const d3 = r.flat.find((x) => x.target === 3)
-    const d4 = r.flat.find((x) => x.target === 4)
+    const d2 = r.flat.find(x => x.target === 2)
+    const d3 = r.flat.find(x => x.target === 3)
+    const d4 = r.flat.find(x => x.target === 4)
     const ok =
       r.solved &&
       r.flatUnbiased &&

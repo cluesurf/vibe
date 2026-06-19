@@ -11,7 +11,10 @@ import { beat, inverseBeat } from '@/code/rule/lattice-gas'
 // and only if it keeps each local interaction momentum-neutral. This is the SECOND
 // conserved current (beyond the U(1) charge) that a relativistic z = 1 mode and
 // hydrodynamics both require. `directions[d]` is the vector of slot direction d.
-export function totalMomentum(will: Will, directions: number[][]): number[] {
+export function totalMomentum(
+  will: Will,
+  directions: number[][],
+): number[] {
   const degree = will.mesh.degree
   const dimension = directions[0]?.length ?? 0
   const momentum = new Array<number>(dimension).fill(0)
@@ -22,7 +25,8 @@ export function totalMomentum(will: Will, directions: number[][]): number[] {
       const value = data[base + direction] ?? 0
       if (value === 0) continue
       const vector = directions[direction]!
-      for (let axis = 0; axis < dimension; axis++) momentum[axis]! += value * (vector[axis] ?? 0)
+      for (let axis = 0; axis < dimension; axis++)
+        momentum[axis]! += value * (vector[axis] ?? 0)
     }
   }
   return momentum
@@ -37,7 +41,8 @@ export function conservesMomentum(
 ): boolean {
   const before = totalMomentum(will, directions)
   let current = cloneWill(will)
-  for (let step = 0; step < beats; step++) current = beat(current, collision)
+  for (let step = 0; step < beats; step++)
+    current = beat(current, collision)
   const after = totalMomentum(current, directions)
   return before.every((value, axis) => value === after[axis])
 }
@@ -50,7 +55,8 @@ export function conservesCharge(
 ): boolean {
   const before = charge(will)
   let current = cloneWill(will)
-  for (let step = 0; step < beats; step++) current = beat(current, collision)
+  for (let step = 0; step < beats; step++)
+    current = beat(current, collision)
   return charge(current) === before
 }
 
@@ -66,9 +72,11 @@ export function isReversible(
 ): boolean {
   const start = cloneWill(will)
   let forward = cloneWill(will)
-  for (let step = 0; step < beats; step++) forward = beat(forward, collision)
+  for (let step = 0; step < beats; step++)
+    forward = beat(forward, collision)
   let back = forward
-  for (let step = 0; step < beats; step++) back = inverseBeat(back, inverseCollision)
+  for (let step = 0; step < beats; step++)
+    back = inverseBeat(back, inverseCollision)
   if (back.data.length !== start.data.length) return false
   for (let index = 0; index < back.data.length; index++) {
     if (back.data[index] !== start.data[index]) return false

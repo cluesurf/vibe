@@ -21,7 +21,10 @@ export function cellHash(key: number, cells: number): number {
 
 // Open-addressing hash table over `cells` slots, insert `keys` keys with linear probing to the next free cell,
 // and report the collision rate and the mean probe length. At a load below 1 the mean probe is O(1).
-export function hashTableProbeStats(input: { cells: number; keys: number }): { collisionRate: number; meanProbe: number } {
+export function hashTableProbeStats(input: {
+  cells: number
+  keys: number
+}): { collisionRate: number; meanProbe: number } {
   const slot = new Int32Array(input.cells).fill(-1)
   let collisions = 0
   let totalProbe = 0
@@ -36,10 +39,18 @@ export function hashTableProbeStats(input: { cells: number; keys: number }): { c
     slot[position] = key
     totalProbe += probe
   }
-  return { collisionRate: collisions / Math.max(1, input.keys), meanProbe: totalProbe / Math.max(1, input.keys) }
+  return {
+    collisionRate: collisions / Math.max(1, input.keys),
+    meanProbe: totalProbe / Math.max(1, input.keys),
+  }
 }
 
-export function bloomFalsePositiveRate(input: { cells: number; items: number; hashes: number; queries: number }): number {
+export function bloomFalsePositiveRate(input: {
+  cells: number
+  items: number
+  hashes: number
+  queries: number
+}): number {
   const bits = new Uint8Array(input.cells)
   for (let key = 0; key < input.items; key++) {
     for (let salt = 0; salt < input.hashes; salt++) {

@@ -13,24 +13,39 @@ import { withScrambledEmbedding } from '@/code/tool/graph'
 
 export default experiment({
   id: 'substrate-survey/pentacomb-geometric',
-  title: 'the 5D pentacomb has a genuine hyperbolic embedding, greedy routing on H^5 delivers',
+  title:
+    'the 5D pentacomb has a genuine hyperbolic embedding, greedy routing on H^5 delivers',
   category: 'substrate-survey',
   substrates: ['53334'],
   depth: 'L2',
   paper: true,
   run() {
-    const symbols: number[][] = [[3, 4, 3, 3, 4], [3, 4, 3, 3, 3]]
+    const symbols: number[][] = [
+      [3, 4, 3, 3, 4],
+      [3, 4, 3, 3, 3],
+    ]
     let allGeometric = true
     let allBeatScrambled = true
     let allFiveDimensional = true
     let worst = 1
     for (const symbol of symbols) {
       const graph = coxeterPoincareGraph(symbol, 1000)
-      const greedy = greedyRoutingSuccess({ graph, trials: 150, rng: makeRng({ seed: 1 }), maxHops: 200 })
-      const scrambled = greedyRoutingSuccess({ graph: withScrambledEmbedding(graph), trials: 150, rng: makeRng({ seed: 1 }), maxHops: 200 })
+      const greedy = greedyRoutingSuccess({
+        graph,
+        trials: 150,
+        rng: makeRng({ seed: 1 }),
+        maxHops: 200,
+      })
+      const scrambled = greedyRoutingSuccess({
+        graph: withScrambledEmbedding(graph),
+        trials: 150,
+        rng: makeRng({ seed: 1 }),
+        maxHops: 200,
+      })
       if (graph.embedding!.dimension !== 5) allFiveDimensional = false
       if (greedy.successRate < 0.85) allGeometric = false
-      if (!(greedy.successRate > scrambled.successRate + 0.2)) allBeatScrambled = false
+      if (!(greedy.successRate > scrambled.successRate + 0.2))
+        allBeatScrambled = false
       worst = Math.min(worst, greedy.successRate)
     }
 

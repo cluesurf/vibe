@@ -16,7 +16,10 @@
 import { makeRng, Rng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph } from '@/code/tool/graph'
-import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
+import {
+  symmetricEdgeFills,
+  signedMajorityStep,
+} from '@/code/operator/signed-majority'
 import { agreementFraction } from '@/code/measure/agreement'
 import { domainBlocks } from '@/code/dynamics/renormalization-blocks'
 import { experiment } from '@/test/scaffold/suite'
@@ -54,11 +57,17 @@ function clusterToK(g: Graph, K: number, rng: Rng): Int32Array {
 
 // A self-model of size K: compress the state into K block-summaries, then reconstruct the
 // full state by expanding each block to its summary. Fidelity = fraction recovered.
-function modelFidelity(g: Graph, base: Int8Array, K: number, rng: Rng): number {
+function modelFidelity(
+  g: Graph,
+  base: Int8Array,
+  K: number,
+  rng: Rng,
+): number {
   const cl = clusterToK(g, K, rng)
   const blocks = (cl.reduce((m, c) => Math.max(m, c), 0) as number) + 1
   const sum = new Float64Array(blocks)
-  for (let v = 0; v < g.size; v++) sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
+  for (let v = 0; v < g.size; v++)
+    sum[cl[v] ?? 0] = (sum[cl[v] ?? 0] ?? 0) + (base[v] ?? 0)
   const summary = new Int8Array(blocks)
   for (let c = 0; c < blocks; c++) summary[c] = sign(sum[c] ?? 0)
   const recon = new Int8Array(g.size)
@@ -76,21 +85,42 @@ export function noSelfStorage(input: { count: number; seed: number }): {
   solved: boolean
 } {
   const rng = makeRng({ seed: input.seed })
-  const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
-  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: makeRng({ seed: input.seed + 1 }) })
+  const g = hyperbolicGraph({
+    count: input.count,
+    radius: 7,
+    connectThreshold: 3.0,
+    rng,
+  })
+  const fills = symmetricEdgeFills({
+    neighbors: g.neighbors,
+    rng: makeRng({ seed: input.seed + 1 }),
+  })
   let base = new Int8Array(g.size)
   for (let i = 0; i < g.size; i++) base[i] = rng.nextInt({ max: 3 }) - 1
-  for (let b = 0; b < 200; b++) base = signedMajorityStep({ neighbors: g.neighbors, fills, tone: base, keepOnTie: true })
+  for (let b = 0; b < 200; b++)
+    base = signedMajorityStep({
+      neighbors: g.neighbors,
+      fills,
+      tone: base,
+      keepOnTie: true,
+    })
   const N = g.size
 
   const ratios = [0.02, 0.05, 0.1, 0.25, 0.5, 1.0]
-  const byRatio = ratios.map((ratio) => {
+  const byRatio = ratios.map(ratio => {
     const K = Math.max(1, Math.round(ratio * N))
-    const fidelity = modelFidelity(g, base, K, makeRng({ seed: input.seed + 7 + Math.round(ratio * 1000) }))
+    const fidelity = modelFidelity(
+      g,
+      base,
+      K,
+      makeRng({ seed: input.seed + 7 + Math.round(ratio * 1000) }),
+    )
     return { ratio, modelSize: K, fidelity }
   })
   // A lossless self-record (fidelity ~1) needs the full N nodes, i.e. it is the whole thing.
-  const losslessNeedsWholeThing = (byRatio.find((b) => b.ratio === 1.0)?.fidelity ?? 0) > 0.99 && (byRatio.find((b) => b.ratio === 0.5)?.fidelity ?? 1) < 0.99
+  const losslessNeedsWholeThing =
+    (byRatio.find(b => b.ratio === 1.0)?.fidelity ?? 0) > 0.99 &&
+    (byRatio.find(b => b.ratio === 0.5)?.fidelity ?? 1) < 0.99
 
   // The recursion's natural compression: one domain coarse-graining step.
   const { K: K1 } = domainBlocks(g, base)
@@ -112,13 +142,17 @@ export function noSelfStorage(input: { count: number; seed: number }): {
     regressFullCopyDiverges,
     // Solved: a complete self-record fits only at no compression (it would be the whole), and
     // the lossy nested regress converges to a finite total while the full-copy regress diverges.
-    solved: losslessNeedsWholeThing && regressCompressedTotal < 2 * N && regressFullCopyDiverges,
+    solved:
+      losslessNeedsWholeThing &&
+      regressCompressedTotal < 2 * N &&
+      regressFullCopyDiverges,
   }
 }
 
 export default experiment({
   id: 'selves/no-self-storage',
-  title: 'lossless self-record needs the whole, lossy regress converges, no infinite mirror',
+  title:
+    'lossless self-record needs the whole, lossy regress converges, no infinite mirror',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',

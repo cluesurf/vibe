@@ -59,7 +59,13 @@ function beat(
         moved[w] = 1
       } else if (tv === 0 && tw !== 0) {
         // hop: charged w into neutral v
-        if (pump ? (tw > 0 ? dist(pump, v) < dist(pump, w) : dist(pump, v) > dist(pump, w)) : rng.next() < 0.5) {
+        if (
+          pump
+            ? tw > 0
+              ? dist(pump, v) < dist(pump, w)
+              : dist(pump, v) > dist(pump, w)
+            : rng.next() < 0.5
+        ) {
           tone[v] = tw
           tone[w] = 0
           moved[v] = 1
@@ -67,7 +73,13 @@ function beat(
         }
       } else if (tw === 0 && tv !== 0) {
         // hop: charged v into neutral w
-        if (pump ? (tv > 0 ? dist(pump, w) < dist(pump, v) : dist(pump, w) > dist(pump, v)) : rng.next() < 0.5) {
+        if (
+          pump
+            ? tv > 0
+              ? dist(pump, w) < dist(pump, v)
+              : dist(pump, w) > dist(pump, v)
+            : rng.next() < 0.5
+        ) {
           tone[w] = tv
           tone[v] = 0
           moved[v] = 1
@@ -98,15 +110,24 @@ export function conservedDynamics(): {
   pairsCreateAndAnnihilate: boolean
   solved: boolean
 } {
-  const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 60000 })
+  const mesh = buildCoxeterMesh({
+    symbol: [5, 3, 4],
+    depth: 20,
+    maxChambers: 60000,
+  })
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
 
   // center = the most-connected (deepest interior) cell
   let center = 0
-  for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = neighborDistances({ neighbors, size: n, source: center })
+  for (let i = 1; i < n; i++)
+    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  const distC = neighborDistances({
+    neighbors,
+    size: n,
+    source: center,
+  })
   const r0 = 4
 
   // a balanced charged pocket near the center (equal + and -, so Q = 0)
@@ -116,7 +137,8 @@ export function conservedDynamics(): {
     const inner: number[] = []
     for (let i = 0; i < n; i++) if (dist(distC, i) <= r0) inner.push(i)
     // alternate +1 / -1 over the inner cells, balanced
-    for (let k = 0; k < inner.length; k++) t[inner[k]!] = k % 2 === 0 ? 1 : -1
+    for (let k = 0; k < inner.length; k++)
+      t[inner[k]!] = k % 2 === 0 ? 1 : -1
     if (inner.length % 2 === 1) t[inner[inner.length - 1]!] = 0 // keep Q = 0
     void rng
     return t
@@ -124,7 +146,8 @@ export function conservedDynamics(): {
 
   const absInR0 = (t: Int8Array): number => {
     let s = 0
-    for (let i = 0; i < n; i++) if (dist(distC, i) <= r0) s += Math.abs(t[i]!)
+    for (let i = 0; i < n; i++)
+      if (dist(distC, i) <= r0) s += Math.abs(t[i]!)
     return s
   }
   const netInR0 = (t: Int8Array): number => {
@@ -161,12 +184,16 @@ export function conservedDynamics(): {
   const qAfterCreate = sumTone(pair)
   for (let b = 0; b < 120; b++) beat(pair, edges, 1, rngC, null)
   let pairsAfterAnnihilation = 0
-  for (let i = 0; i < n; i++) if (pair[i] !== 0) pairsAfterAnnihilation++
-  const conservedPairs = qAfterCreate === q0pair && sumTone(pair) === q0pair
+  for (let i = 0; i < n; i++)
+    if (pair[i] !== 0) pairsAfterAnnihilation++
+  const conservedPairs =
+    qAfterCreate === q0pair && sumTone(pair) === q0pair
 
   const diffusionDrains = absChargeDiffused < absChargeStart
-  const pumpingConcentrates = Math.abs(netCenterPumped) > Math.abs(netCenterDiffused) + 3
-  const pairsCreateAndAnnihilate = pairsCreated > 0 && pairsAfterAnnihilation < pairsCreated
+  const pumpingConcentrates =
+    Math.abs(netCenterPumped) > Math.abs(netCenterDiffused) + 3
+  const pairsCreateAndAnnihilate =
+    pairsCreated > 0 && pairsAfterAnnihilation < pairsCreated
 
   const solved =
     conservedDiffusion &&
@@ -196,7 +223,8 @@ export function conservedDynamics(): {
 
 export default experiment({
   id: 'foundations/conserved-dynamics',
-  title: 'conserved exchange on {5,3,4} keeps Q exact while charge diffuses, pumps, and pairs',
+  title:
+    'conserved exchange on {5,3,4} keeps Q exact while charge diffuses, pumps, and pairs',
   category: 'foundations',
   substrates: ['534'],
   depth: 'L2',

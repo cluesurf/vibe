@@ -65,17 +65,19 @@ export function runSuite(
   experiments: Experiment[],
   context: Context,
 ): SuiteResult[] {
-  return experiments.map((experiment) => {
+  return experiments.map(experiment => {
     const result = experiment.run(context)
     const hasControl =
-      result.control !== undefined && Object.keys(result.control).length > 0
+      result.control !== undefined &&
+      Object.keys(result.control).length > 0
     if (experiment.depth === 'L3' && !hasControl) {
       return {
         id: experiment.id,
         verdict: {
           ...result,
           status: 'partial',
-          notes: `${result.notes ?? ''} [downgraded: an L3 claim must carry a control]`.trim(),
+          notes:
+            `${result.notes ?? ''} [downgraded: an L3 claim must carry a control]`.trim(),
         },
       }
     }

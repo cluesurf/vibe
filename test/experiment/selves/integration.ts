@@ -11,7 +11,10 @@ import { integrationCorrelates } from '@/code/measure/integration'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function study(): { markovBlanketScore: number; integrationPhi: number } {
+function study(): {
+  markovBlanketScore: number
+  integrationPhi: number
+} {
   const rng = makeRng({ seed: 13 })
   const substrate = hyperbolicGraph({
     count: 400,
@@ -30,7 +33,8 @@ function study(): { markovBlanketScore: number; integrationPhi: number } {
 
 export default experiment({
   id: 'selves/integration',
-  title: 'a configuration has a Markov-blanket score and an integration proxy',
+  title:
+    'a configuration has a Markov-blanket score and an integration proxy',
   category: 'selves',
   substrates: 'any',
   depth: 'L0',

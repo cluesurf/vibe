@@ -13,14 +13,22 @@ export type PatternScheme =
   | 'characteristic' // the last digit of the Zeckendorf word (Margenstern's characteristic chi)
 
 // the pattern class index of a cell under a scheme (a small non-negative integer, the color slot)
-export function patternClass(grid: MargensternGrid, cell: number, scheme: PatternScheme): number {
+export function patternClass(
+  grid: MargensternGrid,
+  cell: number,
+  scheme: PatternScheme,
+): number {
   switch (scheme) {
     case 'sector': {
       const address = grid.address(cell)
-      return address.length === 0 ? 0 : (address[0]! + 1) // 0 = the center, 1.. = each sector
+      return address.length === 0 ? 0 : address[0]! + 1 // 0 = the center, 1.. = each sector
     }
     case 'node':
-      return grid.color(cell) === 'white' ? 0 : grid.color(cell) === 'black' ? 1 : 2
+      return grid.color(cell) === 'white'
+        ? 0
+        : grid.color(cell) === 'black'
+          ? 1
+          : 2
     case 'ring':
       return grid.depth(cell)
     case 'characteristic': {
@@ -31,8 +39,12 @@ export function patternClass(grid: MargensternGrid, cell: number, scheme: Patter
 }
 
 // how many distinct classes a scheme uses across the grid (for sizing a palette)
-export function patternClassCount(grid: MargensternGrid, scheme: PatternScheme): number {
+export function patternClassCount(
+  grid: MargensternGrid,
+  scheme: PatternScheme,
+): number {
   let max = 0
-  for (let c = 0; c < grid.size; c++) max = Math.max(max, patternClass(grid, c, scheme))
+  for (let c = 0; c < grid.size; c++)
+    max = Math.max(max, patternClass(grid, c, scheme))
   return max + 1
 }

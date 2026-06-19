@@ -23,7 +23,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { closedFormHitCount } from '@/code/measure/numerology-density'
-import { weinbergAngleAtUnification, generationFermionCount } from '@/code/measure/standard-model-charges'
+import {
+  weinbergAngleAtUnification,
+  generationFermionCount,
+} from '@/code/measure/standard-model-charges'
 
 // the measured inverse fine-structure constant at two scales, established QED
 const INVERSE_ALPHA_THOMSON = 137.036
@@ -33,7 +36,8 @@ const GUT_NORMALIZATION = 5 / 3
 
 export default experiment({
   id: 'gauge/fine-structure-not-geometric',
-  title: 'the fine-structure constant is not geometric (it runs), the geometry fixes the weak angle 3/8 and the GUT normalization 5/3, leaving exactly one free gauge coupling',
+  title:
+    'the fine-structure constant is not geometric (it runs), the geometry fixes the weak angle 3/8 and the GUT normalization 5/3, leaving exactly one free gauge coupling',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -47,13 +51,29 @@ export default experiment({
     const epsilon = 0.05
     const maxCoefficient = 5
     const maxConstant = 10
-    const hitsAt137 = closedFormHitCount({ target: INVERSE_ALPHA_THOMSON, epsilon, maxCoefficient, maxConstant })
+    const hitsAt137 = closedFormHitCount({
+      target: INVERSE_ALPHA_THOMSON,
+      epsilon,
+      maxCoefficient,
+      maxConstant,
+    })
     // three deterministic control targets near 137 (not physical constants), the average hit count
     const controlTargets = [133.207, 141.592, 145.318]
-    const controlHits = controlTargets.map((target) => closedFormHitCount({ target, epsilon, maxCoefficient, maxConstant }))
-    const meanControlHits = controlHits.reduce((a, b) => a + b, 0) / controlHits.length
+    const controlHits = controlTargets.map(target =>
+      closedFormHitCount({
+        target,
+        epsilon,
+        maxCoefficient,
+        maxConstant,
+      }),
+    )
+    const meanControlHits =
+      controlHits.reduce((a, b) => a + b, 0) / controlHits.length
     // 137 is special only if it is hit by FAR more formulas than a random target, it is not
-    const numerologyIsCoincidence = hitsAt137 > 0 && hitsAt137 <= 3 * meanControlHits && meanControlHits > 0
+    const numerologyIsCoincidence =
+      hitsAt137 > 0 &&
+      hitsAt137 <= 3 * meanControlHits &&
+      meanControlHits > 0
 
     // 3. what the geometry DOES fix, computed from the so(10) 16-spinor charges, the weak angle 3/8 AND the GUT
     // normalization 5/3 (two clean dimensionless numbers), plus the matter content (16, three generations) that
@@ -61,11 +81,16 @@ export default experiment({
     // dimensionless parallel to Newton's G being the one free dimensionful scale, and the absolute alpha is that one
     // coupling run down, not an independent geometric value.
     const weakAngleGeometric = weinbergAngleAtUnification()
-    const weakAngleIsThreeEighths = Math.abs(weakAngleGeometric - 0.375) < 1e-9
-    const gutNormalizationIsFiveThirds = Math.abs(GUT_NORMALIZATION - 5 / 3) < 1e-9
+    const weakAngleIsThreeEighths =
+      Math.abs(weakAngleGeometric - 0.375) < 1e-9
+    const gutNormalizationIsFiveThirds =
+      Math.abs(GUT_NORMALIZATION - 5 / 3) < 1e-9
     const spinorContent = generationFermionCount()
     const matterContentGeometric = spinorContent === 16
-    const ratiosGeometric = weakAngleIsThreeEighths && gutNormalizationIsFiveThirds && matterContentGeometric
+    const ratiosGeometric =
+      weakAngleIsThreeEighths &&
+      gutNormalizationIsFiveThirds &&
+      matterContentGeometric
 
     const ok = alphaRuns && numerologyIsCoincidence && ratiosGeometric
 

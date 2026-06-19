@@ -10,11 +10,17 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
-import { directionalFrontDistances, rangeAnisotropy } from '@/code/measure/front-speed'
+import {
+  directionalFrontDistances,
+  rangeAnisotropy,
+} from '@/code/measure/front-speed'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
+export function waveIsotropy(input?: {
+  maxCells?: number
+  beats?: number
+}): {
   cells: number
   beats: number
   frontSpeeds: number[]
@@ -31,15 +37,25 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
   const coords = g.coords
 
   // the 12 face directions = unit vectors toward the neighbours of the centre cell (cell 0 at the origin)
-  const dirs: number[][] = g.neighbors[0]!.map((j) => {
+  const dirs: number[][] = g.neighbors[0]!.map(j => {
     const c = coords[j]!
     const n = norm(c)
-    return c.map((v) => v / Math.max(1e-12, n))
+    return c.map(v => v / Math.max(1e-12, n))
   })
 
   // second-order reversible wave on the crystal, s in {0,1,2}, perturbation at the centre
-  const stepWave = (prev: Uint8Array, cur: Uint8Array, next: Uint8Array): void => {
-    reversibleWaveStep({ neighbors: g.neighbors, previous: prev, current: cur, next, modulus: 3 })
+  const stepWave = (
+    prev: Uint8Array,
+    cur: Uint8Array,
+    next: Uint8Array,
+  ): void => {
+    reversibleWaveStep({
+      neighbors: g.neighbors,
+      previous: prev,
+      current: cur,
+      next,
+      modulus: 3,
+    })
   }
   let prev = new Uint8Array(N)
   let cur = new Uint8Array(N)
@@ -63,10 +79,11 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
     pr = back
   }
   let reversible = true
-  for (let i = 0; i < N; i++) if (pr[i] !== prev0[i] || cu[i] !== cur0[i]) {
-    reversible = false
-    break
-  }
+  for (let i = 0; i < N; i++)
+    if (pr[i] !== prev0[i] || cu[i] !== cur0[i]) {
+      reversible = false
+      break
+    }
 
   // the wave SPEED in each of the 12 face-directions = the farthest activated cell in that direction's
   // angular sector, in hyperbolic distance, per beat. Isotropy = low spread of the speed across directions.
@@ -74,9 +91,9 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
     coords,
     directions: dirs,
     center: 0,
-    activated: (i) => cur[i] !== 0,
+    activated: i => cur[i] !== 0,
   })
-  const frontSpeeds = frontDist.filter((d) => d > 0).map((d) => d / beats)
+  const frontSpeeds = frontDist.filter(d => d > 0).map(d => d / beats)
   const { meanSpeed, anisotropy } = rangeAnisotropy(frontSpeeds)
 
   const isotropic = frontSpeeds.length >= 12 && anisotropy < 0.25 // a nearly uniform wave speed
@@ -96,7 +113,8 @@ export function waveIsotropy(input?: { maxCells?: number; beats?: number }): {
 
 export default experiment({
   id: 'relativity/wave-isotropy',
-  title: 'the deterministic reversible wave on the dodecagrid has an isotropic speed',
+  title:
+    'the deterministic reversible wave on the dodecagrid has an isotropic speed',
   category: 'relativity',
   substrates: ['534'],
   depth: 'L2',

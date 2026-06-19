@@ -9,7 +9,9 @@ import { renderDigitFibonacci } from '@/code/render/run/digit-fibonacci'
 
 renderDigitFibonacci({
   base: 2,
-  runner: (program, initial, onStep) => { runBinary(program, initial, onStep) },
+  runner: (program, initial, onStep) => {
+    runBinary(program, initial, onStep)
+  },
   outName: 'fibonacci-7-3-binary',
   digitsShown: 18,
   costLabel: 'word-ops',

@@ -15,12 +15,17 @@ import {
 // bulk). So {5,3,4} resolves the spin-versus-curvature trade-off that {3,4,3,4} cannot.
 
 const minusOne = quaternion(-1, 0, 0, 0)
-const hasMinusOne = (group: ReturnType<typeof binaryIcosahedral>): boolean =>
-  group.some((element) => quaternionKey(element) === quaternionKey(minusOne))
+const hasMinusOne = (
+  group: ReturnType<typeof binaryIcosahedral>,
+): boolean =>
+  group.some(
+    element => quaternionKey(element) === quaternionKey(minusOne),
+  )
 
 export default experiment({
   id: 'spin/spin-and-curvature-534',
-  title: '{5,3,4} carries spin AND negative curvature, the trade-off flat {3,4,3,4} cannot resolve',
+  title:
+    '{5,3,4} carries spin AND negative curvature, the trade-off flat {3,4,3,4} cannot resolve',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
@@ -38,7 +43,8 @@ export default experiment({
     // forces NEGATIVE curvature (hyperbolic), the cells are too big for flat space.
     const fullTurn = 360
     // {5,3,4}: 4 dodecahedra per edge, the dodecahedron dihedral is arccos(-1/sqrt5)
-    const dodecahedronDihedral = (Math.acos(-1 / Math.sqrt(5)) * 180) / Math.PI // about 116.565 degrees
+    const dodecahedronDihedral =
+      (Math.acos(-1 / Math.sqrt(5)) * 180) / Math.PI // about 116.565 degrees
     const angleSum534 = 4 * dodecahedronDihedral
     const excess534 = angleSum534 - fullTurn // positive means hyperbolic
     const hyperbolic534 = excess534 > 1
@@ -68,7 +74,10 @@ export default experiment({
       // CONTROL: the flat cubic honeycomb has exactly zero angle excess (the cells fit flat), so a
       // positive excess is a real signature of negative curvature, not an artifact. {3,4,3,4} is likewise
       // flat (geometry/gm-geometry-3434), so it is the spin-but-flat trade-off {5,3,4} overcomes.
-      control: { cubicAngleExcess: excessCubic, cubicFlat: cubicFlat ? 1 : 0 },
+      control: {
+        cubicAngleExcess: excessCubic,
+        cubicFlat: cubicFlat ? 1 : 0,
+      },
       notes:
         'Structural synthesis (L2). The spinor is the genuine nonsplit cover of spin/cocycle-534, the curvature is the exact edge angle defect. {5,3,4} has spin AND curvature, {3,4,3,4} has spin but is flat. OPEN, whether the bare {5,3,4} RULE dynamically realizes a spin structure with this holonomy remains the frontier (noted in spin/cocycle-534).',
     })

@@ -22,12 +22,24 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { oscillatorBathTrajectory, lateAmplitude as lateAmp } from '@/code/dynamics/oscillator-bath'
+import {
+  oscillatorBathTrajectory,
+  lateAmplitude as lateAmp,
+} from '@/code/dynamics/oscillator-bath'
 
 // the early and late amplitude of a pair launched APART in an attractive well coupled to a radiative bath.
-function lateAmplitude(input: { absorbing: boolean; stiffness: number }): { early: number; late: number } {
+function lateAmplitude(input: {
+  absorbing: boolean
+  stiffness: number
+}): { early: number; late: number } {
   const steps = 6000
-  const trajectory = oscillatorBathTrajectory({ absorbing: input.absorbing, stiffness: input.stiffness, start: 0.2, velocity: 0.6, steps })
+  const trajectory = oscillatorBathTrajectory({
+    absorbing: input.absorbing,
+    stiffness: input.stiffness,
+    start: 0.2,
+    velocity: 0.6,
+    steps,
+  })
   let early = 0
   for (let t = 0; t < steps * 0.15; t++) {
     const a = Math.abs(trajectory[t]!)
@@ -38,15 +50,25 @@ function lateAmplitude(input: { absorbing: boolean; stiffness: number }): { earl
 
 export default experiment({
   id: 'selves/inspiral-capture',
-  title: 'attraction plus a bath captures (inspiral and settle), removing either one prevents capture',
+  title:
+    'attraction plus a bath captures (inspiral and settle), removing either one prevents capture',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
   paper: true,
   run() {
-    const attractiveBath = lateAmplitude({ absorbing: true, stiffness: 1.0 })
-    const attractiveNoBath = lateAmplitude({ absorbing: false, stiffness: 1.0 })
-    const repulsiveBath = lateAmplitude({ absorbing: true, stiffness: -0.5 })
+    const attractiveBath = lateAmplitude({
+      absorbing: true,
+      stiffness: 1.0,
+    })
+    const attractiveNoBath = lateAmplitude({
+      absorbing: false,
+      stiffness: 1.0,
+    })
+    const repulsiveBath = lateAmplitude({
+      absorbing: true,
+      stiffness: -0.5,
+    })
 
     // only attraction + bath settles, the other two do not, so BOTH ingredients are necessary.
     const captured = attractiveBath.late < 0.1
@@ -67,7 +89,10 @@ export default experiment({
         noBathOscillates: noBathOscillates ? 1 : 0,
         noAttractionEscapes: noAttractionEscapes ? 1 : 0,
       },
-      control: { attractiveNoBathLate: attractiveNoBath.late, repulsiveBathLate: repulsiveBath.late },
+      control: {
+        attractiveNoBathLate: attractiveNoBath.late,
+        repulsiveBathLate: repulsiveBath.late,
+      },
       notes:
         'reduced canonical model (L2), the attraction is a binding well and the bath is a radiative chain with an absorbing end, both modeled not derived from the committed rule. It proves the recipe, capture = attraction + bath, and that both are necessary. The bath half is substrate-faithful in selves/bath-from-open-boundary, the attraction half (does it emerge from the pure rule) is the open L3 in selves/emergent-attraction-search',
     })

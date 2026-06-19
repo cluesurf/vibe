@@ -19,8 +19,17 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
-import { makeWill, cloneWill, fillWillPattern, type Will } from '@/code/tone/will'
-import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
+import {
+  makeWill,
+  cloneWill,
+  fillWillPattern,
+  type Will,
+} from '@/code/tone/will'
+import {
+  pairCollision,
+  headOnRotate,
+  type Collision,
+} from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/code/coarse/self-trajectory'
@@ -29,7 +38,11 @@ import { makeRng } from '@/code/coarse/self-trajectory'
 // coordinate, so adjacent quantile bins are genuine dynamical neighbours (a packet drifts and scatters between
 // neighbouring columns), which is the property a structured adjacent-merge coarse-graining needs. An occupancy
 // count has no such adjacency and so cannot test the structured-vs-random claim faithfully.
-function centroidSeries(input: { init: Will; collision: Collision; beats: number }): number[] {
+function centroidSeries(input: {
+  init: Will
+  collision: Collision
+  beats: number
+}): number[] {
   let current = cloneWill(input.init)
   const mesh = current.mesh
   const degree = mesh.degree
@@ -38,7 +51,12 @@ function centroidSeries(input: { init: Will; collision: Collision; beats: number
   let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
   const series: number[] = []
   for (let t = 0; t < input.beats; t++) {
-    beatInto({ src: current, dst: scratch, table, collision: input.collision })
+    beatInto({
+      src: current,
+      dst: scratch,
+      table,
+      collision: input.collision,
+    })
     const swap = current
     current = scratch
     scratch = swap
@@ -61,7 +79,8 @@ function centroidSeries(input: { init: Will; collision: Collision; beats: number
 
 export default experiment({
   id: 'selves/coarse-causal-emergence-mobile',
-  title: 'mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode (honest negative)',
+  title:
+    'mobility alone yields no causal-emergent self-level, the mobile gas has no metastable coarse mode (honest negative)',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -72,20 +91,43 @@ export default experiment({
     const fine = 16
     const macroCount = 4
     const mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const mobile: Collision = headOnRotate({ opposite })
-    const pinning: Collision = pairCollision({ opposite, forward: true })
+    const pinning: Collision = pairCollision({
+      opposite,
+      forward: true,
+    })
 
     // a deterministic structured fill (a fixed ternary function of the slot index, never random), the
     // methodology initial condition.
     const init = makeWill(mesh)
     fillWillPattern(init)
 
-    const mobileSeries = centroidSeries({ init, collision: mobile, beats })
-    const pinningSeries = centroidSeries({ init, collision: pinning, beats })
+    const mobileSeries = centroidSeries({
+      init,
+      collision: mobile,
+      beats,
+    })
+    const pinningSeries = centroidSeries({
+      init,
+      collision: pinning,
+      beats,
+    })
 
-    const mobileEi = emergenceGain({ series: mobileSeries, fine, macroCount, rng: makeRng(7777) })
-    const pinningEi = emergenceGain({ series: pinningSeries, fine, macroCount, rng: makeRng(7777) })
+    const mobileEi = emergenceGain({
+      series: mobileSeries,
+      fine,
+      macroCount,
+      rng: makeRng(7777),
+    })
+    const pinningEi = emergenceGain({
+      series: pinningSeries,
+      fine,
+      macroCount,
+      rng: makeRng(7777),
+    })
 
     const gainMobile = mobileEi.eiSpatial - mobileEi.eiRandom
     const gainPinning = pinningEi.eiSpatial - pinningEi.eiRandom
@@ -102,7 +144,8 @@ export default experiment({
     // structured-over-random gain (selves/coarse-causal-emergence), because diffusion has the slow spatial mode
     // this gas lacks. The test passes by establishing the negative with both a control map (random) and a
     // control rule (pinning).
-    const ok = Math.abs(gainMobile) < 0.05 && Math.abs(gainPinning) < 0.05
+    const ok =
+      Math.abs(gainMobile) < 0.05 && Math.abs(gainPinning) < 0.05
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -15,8 +15,8 @@
 // and flips at least one element)
 export function toneAlphabetQualifies(alphabet: number[]): boolean {
   const hasVacuum = alphabet.includes(0)
-  const negationClosed = alphabet.every((x) => alphabet.includes(-x))
-  const nontrivial = alphabet.some((x) => x !== -x)
+  const negationClosed = alphabet.every(x => alphabet.includes(-x))
+  const nontrivial = alphabet.some(x => x !== -x)
   return hasVacuum && negationClosed && nontrivial
 }
 
@@ -31,7 +31,8 @@ export function minimalQualifyingAlphabetSize(): number {
     [-2, -1, 0, 1, 2],
   ]
   let best = Infinity
-  for (const a of candidates) if (toneAlphabetQualifies(a)) best = Math.min(best, a.length)
+  for (const a of candidates)
+    if (toneAlphabetQualifies(a)) best = Math.min(best, a.length)
   return best
 }
 
@@ -52,7 +53,7 @@ function dynkinDn(n: number): number[][] {
 // the order of the automorphism group of the D_n Dynkin diagram (D4 gives 6, the triality S3, D_n n>=5 gives 2)
 export function dynkinAutomorphismOrder(n: number): number {
   const adjacency = dynkinDn(n)
-  const sets = adjacency.map((a) => new Set(a))
+  const sets = adjacency.map(a => new Set(a))
   function* permutations(arr: number[]): Generator<number[]> {
     if (arr.length <= 1) {
       yield arr
@@ -64,9 +65,16 @@ export function dynkinAutomorphismOrder(n: number): number {
     }
   }
   let count = 0
-  for (const p of permutations(Array.from({ length: n }, (_, i) => i))) {
+  for (const p of permutations(
+    Array.from({ length: n }, (_, i) => i),
+  )) {
     let ok = true
-    for (let a = 0; a < n && ok; a++) for (const b of adjacency[a]!) if (!sets[p[a]!]!.has(p[b]!)) { ok = false; break }
+    for (let a = 0; a < n && ok; a++)
+      for (const b of adjacency[a]!)
+        if (!sets[p[a]!]!.has(p[b]!)) {
+          ok = false
+          break
+        }
     if (ok) count++
   }
   return count

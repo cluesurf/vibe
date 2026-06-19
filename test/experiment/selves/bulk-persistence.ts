@@ -24,22 +24,35 @@ const MINIMAL_MAX = 20
 
 export default experiment({
   id: 'selves/bulk-persistence',
-  title: 'a stored pattern decays, but redundancy extends its survival and maintenance makes it permanent',
+  title:
+    'a stored pattern decays, but redundancy extends its survival and maintenance makes it permanent',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
   paper: false,
   run() {
     const minimal = patternSurvivalTime({ L, radius: 2, beats, seed })
-    const redundant = patternSurvivalTime({ L, radius: 18, beats, seed })
-    const maintained = patternSurvivalTime({ L, radius: 6, beats, seed, maintainEvery: 10 })
+    const redundant = patternSurvivalTime({
+      L,
+      radius: 18,
+      beats,
+      seed,
+    })
+    const maintained = patternSurvivalTime({
+      L,
+      radius: 6,
+      beats,
+      seed,
+      maintainEvery: 10,
+    })
 
     // redundancy extends the survival time well beyond the minimal pattern, maintenance reaches the full run,
     // and the minimal pattern decays fast (so passive persistence is not free).
     const redundancyExtends = redundant > minimal * REDUNDANCY_FACTOR
     const maintenancePermanent = maintained >= beats
     const minimalDecaysFast = minimal < MINIMAL_MAX
-    const ok = redundancyExtends && maintenancePermanent && minimalDecaysFast
+    const ok =
+      redundancyExtends && maintenancePermanent && minimalDecaysFast
 
     return verdict({
       status: ok ? 'pass' : 'fail',

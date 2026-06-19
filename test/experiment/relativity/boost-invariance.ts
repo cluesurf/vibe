@@ -24,7 +24,10 @@ function omegaOf(k: number, m: number): number {
   return coinedWalkDispersion({ theta: m, k })
 }
 
-export function boostInvariance(input?: { masses?: number[]; boosts?: number[] }): {
+export function boostInvariance(input?: {
+  masses?: number[]
+  boosts?: number[]
+}): {
   masses: number[]
   masslessMaxDeviation: number
   masslessExact: boolean
@@ -41,7 +44,11 @@ export function boostInvariance(input?: { masses?: number[]; boosts?: number[] }
 
   // (1) massless: omega = |k| exactly (an exact lightcone, boost-invariant for all k)
   let masslessMaxDeviation = 0
-  for (const k of ks) masslessMaxDeviation = Math.max(masslessMaxDeviation, Math.abs(omegaOf(k, 0) - k))
+  for (const k of ks)
+    masslessMaxDeviation = Math.max(
+      masslessMaxDeviation,
+      Math.abs(omegaOf(k, 0) - k),
+    )
   const masslessExact = masslessMaxDeviation < 1e-9
 
   // (2) massive: the Lorentz invariant omega^2 - k^2 ~ m^2 holds out to some k (the IR window)
@@ -99,7 +106,8 @@ export function boostInvariance(input?: { masses?: number[]; boosts?: number[] }
 
 export default experiment({
   id: 'relativity/boost-invariance',
-  title: 'the massless mode has an exact boost-invariant lightcone with massive modes invariant in the IR window',
+  title:
+    'the massless mode has an exact boost-invariant lightcone with massive modes invariant in the IR window',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -107,7 +115,10 @@ export default experiment({
   run() {
     const r = boostInvariance()
     const ok =
-      r.solved && r.masslessExact && r.boostInvariantInWindow && r.fullLorentz
+      r.solved &&
+      r.masslessExact &&
+      r.boostInvariantInWindow &&
+      r.fullLorentz
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

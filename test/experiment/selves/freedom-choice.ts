@@ -31,9 +31,15 @@ function ternaryVector(n: number, rng: Rng): Int8Array {
 }
 
 // A self: M stored patterns (the options it can settle into), the Hopfield attractors.
-function makeSelf(input: { n: number; patterns: number; seed: number }): Int8Array[] {
+function makeSelf(input: {
+  n: number
+  patterns: number
+  seed: number
+}): Int8Array[] {
   const rng = makeRng({ seed: input.seed })
-  return Array.from({ length: input.patterns }, () => ternaryVector(input.n, rng))
+  return Array.from({ length: input.patterns }, () =>
+    ternaryVector(input.n, rng),
+  )
 }
 
 // Settle the self under an urge, from a neutral start. The local field is the Hopfield
@@ -53,7 +59,7 @@ function settle(input: {
   let beats = 0
   for (let b = 0; b < maxBeats; b++) {
     // Pattern overlaps with the current state (the Hopfield projection).
-    const proj = input.patterns.map((xi) => {
+    const proj = input.patterns.map(xi => {
       let o = 0
       for (let j = 0; j < n; j++) {
         o += (xi[j] ?? 0) * (state[j] ?? 0)
@@ -65,7 +71,8 @@ function settle(input: {
     for (let i = 0; i < n; i++) {
       let h = input.urgeWeight * (input.urge[i] ?? 0)
       for (let m = 0; m < input.patterns.length; m++) {
-        h += input.coupling * (input.patterns[m]![i] ?? 0) * (proj[m] ?? 0)
+        h +=
+          input.coupling * (input.patterns[m]![i] ?? 0) * (proj[m] ?? 0)
       }
       const t: Tone = h > 1e-12 ? 1 : h < -1e-12 ? -1 : 0
       next[i] = t
@@ -87,7 +94,11 @@ export function freedomChoice(input: { n: number; seed: number }): {
   selfDiversity: number
   urgeCanFlip: boolean
   agencyMonotone: boolean
-  agencyByCoupling: { coupling: number; selfOverlap: number; urgeOverlap: number }[]
+  agencyByCoupling: {
+    coupling: number
+    selfOverlap: number
+    urgeOverlap: number
+  }[]
   meanSettlingBeats: number
   irreducible: boolean
 } {
@@ -98,8 +109,20 @@ export function freedomChoice(input: { n: number; seed: number }): {
 
   // 1. Determinism: same self and urge, run twice, identical.
   const selfA = makeSelf({ n, patterns: 2, seed: input.seed + 1 })
-  const r1 = settle({ patterns: selfA, coupling: 1, urge, urgeWeight: 1, init })
-  const r2 = settle({ patterns: selfA, coupling: 1, urge, urgeWeight: 1, init })
+  const r1 = settle({
+    patterns: selfA,
+    coupling: 1,
+    urge,
+    urgeWeight: 1,
+    init,
+  })
+  const r2 = settle({
+    patterns: selfA,
+    coupling: 1,
+    urge,
+    urgeWeight: 1,
+    init,
+  })
   let deterministic = true
   for (let i = 0; i < n; i++) {
     if (r1.state[i] !== r2.state[i]) {
@@ -108,8 +131,14 @@ export function freedomChoice(input: { n: number; seed: number }): {
   }
 
   // 2. Self-determination: same urge, different selves, compare choices.
-  const selves = Array.from({ length: 8 }, (_, k) => makeSelf({ n, patterns: 2, seed: input.seed + 10 + k }))
-  const outcomes = selves.map((s) => settle({ patterns: s, coupling: 1, urge, urgeWeight: 1, init }).state)
+  const selves = Array.from({ length: 8 }, (_, k) =>
+    makeSelf({ n, patterns: 2, seed: input.seed + 10 + k }),
+  )
+  const outcomes = selves.map(
+    s =>
+      settle({ patterns: s, coupling: 1, urge, urgeWeight: 1, init })
+        .state,
+  )
   let pairSum = 0
   let pairCount = 0
   for (let a = 0; a < outcomes.length; a++) {
@@ -121,11 +150,23 @@ export function freedomChoice(input: { n: number; seed: number }): {
   const selfDiversity = pairSum / Math.max(1, pairCount)
 
   // 3. The urge matters: same self, several urges, see if the choice changes.
-  const baseChoice = settle({ patterns: selfA, coupling: 1, urge, urgeWeight: 1, init }).state
+  const baseChoice = settle({
+    patterns: selfA,
+    coupling: 1,
+    urge,
+    urgeWeight: 1,
+    init,
+  }).state
   let urgeCanFlip = false
   for (let k = 0; k < 8; k++) {
     const u2 = ternaryVector(n, makeRng({ seed: input.seed + 500 + k }))
-    const c2 = settle({ patterns: selfA, coupling: 1, urge: u2, urgeWeight: 1, init }).state
+    const c2 = settle({
+      patterns: selfA,
+      coupling: 1,
+      urge: u2,
+      urgeWeight: 1,
+      init,
+    }).state
     if (overlap(baseChoice, c2) < 0.9) {
       urgeCanFlip = true
     }
@@ -133,15 +174,26 @@ export function freedomChoice(input: { n: number; seed: number }): {
 
   // 4. Agency scales with structure: stronger self coupling imposes the self over the urge.
   const couplings = [0.3, 1, 3, 9]
-  const agencyByCoupling = couplings.map((c) => {
-    const out = settle({ patterns: selfA, coupling: c, urge, urgeWeight: 1, init }).state
-    const selfOverlap = Math.max(...selfA.map((xi) => Math.abs(overlap(out, xi))))
+  const agencyByCoupling = couplings.map(c => {
+    const out = settle({
+      patterns: selfA,
+      coupling: c,
+      urge,
+      urgeWeight: 1,
+      init,
+    }).state
+    const selfOverlap = Math.max(
+      ...selfA.map(xi => Math.abs(overlap(out, xi))),
+    )
     const urgeOverlap = Math.abs(overlap(out, urge))
     return { coupling: c, selfOverlap, urgeOverlap }
   })
   let agencyMonotone = true
   for (let i = 1; i < agencyByCoupling.length; i++) {
-    if ((agencyByCoupling[i]!.selfOverlap ?? 0) < (agencyByCoupling[i - 1]!.selfOverlap ?? 0) - 1e-9) {
+    if (
+      (agencyByCoupling[i]!.selfOverlap ?? 0) <
+      (agencyByCoupling[i - 1]!.selfOverlap ?? 0) - 1e-9
+    ) {
       agencyMonotone = false
     }
   }
@@ -154,13 +206,20 @@ export function freedomChoice(input: { n: number; seed: number }): {
   for (let k = 0; k < 8; k++) {
     const s = selves[k % selves.length]!
     const u = ternaryVector(n, makeRng({ seed: input.seed + 900 + k }))
-    const res = settle({ patterns: s, coupling: 2, urge: u, urgeWeight: 1, init })
+    const res = settle({
+      patterns: s,
+      coupling: 2,
+      urge: u,
+      urgeWeight: 1,
+      init,
+    })
     beatSum += res.beats
     beatCount++
     // One-step prediction from the urge alone (the naive shortcut).
     let diff = 0
     for (let i = 0; i < n; i++) {
-      const oneStep: Tone = (u[i] ?? 0) > 0 ? 1 : (u[i] ?? 0) < 0 ? -1 : 0
+      const oneStep: Tone =
+        (u[i] ?? 0) > 0 ? 1 : (u[i] ?? 0) < 0 ? -1 : 0
       if (res.state[i] !== oneStep) {
         diff++
       }

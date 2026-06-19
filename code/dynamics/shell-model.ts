@@ -6,9 +6,15 @@
 // proportional to k^(-5/3), the Kolmogorov law. Turning the nonlinearity off removes the cascade, the control.
 
 type Complex = [number, number]
-const mul = (a: Complex, b: Complex): Complex => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const mul = (a: Complex, b: Complex): Complex => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 const conj = (a: Complex): Complex => [a[0], -a[1]]
-const add = (a: Complex, b: Complex): Complex => [a[0] + b[0], a[1] + b[1]]
+const add = (a: Complex, b: Complex): Complex => [
+  a[0] + b[0],
+  a[1] + b[1],
+]
 const scale = (a: Complex, s: number): Complex => [a[0] * s, a[1] * s]
 
 // the time-averaged shell energy spectrum |u_n|^2 of the GOY model, integrated to a statistical steady state. With
@@ -30,9 +36,21 @@ export function goyShellSpectrum(input: {
       let advection: Complex = [0, 0]
       if (nonlinear) {
         let nl: Complex = [0, 0]
-        if (i + 2 < n) nl = add(nl, scale(mul(u[i + 1]!, u[i + 2]!), k[i]!))
-        if (i - 1 >= 0 && i + 1 < n) nl = add(nl, scale(mul(u[i - 1]!, u[i + 1]!), -epsilon * k[i - 1]!))
-        if (i - 2 >= 0) nl = add(nl, scale(mul(u[i - 1]!, u[i - 2]!), -(1 - epsilon) * k[i - 2]!))
+        if (i + 2 < n)
+          nl = add(nl, scale(mul(u[i + 1]!, u[i + 2]!), k[i]!))
+        if (i - 1 >= 0 && i + 1 < n)
+          nl = add(
+            nl,
+            scale(mul(u[i - 1]!, u[i + 1]!), -epsilon * k[i - 1]!),
+          )
+        if (i - 2 >= 0)
+          nl = add(
+            nl,
+            scale(
+              mul(u[i - 1]!, u[i - 2]!),
+              -(1 - epsilon) * k[i - 2]!,
+            ),
+          )
         advection = mul([0, 1], conj(nl)) // i times the conjugate of the nonlinear term
       }
       const dissipation: Complex = scale(u[i]!, -nu * k[i]! * k[i]!)
@@ -42,7 +60,11 @@ export function goyShellSpectrum(input: {
     return du
   }
 
-  let u: Complex[] = k.map((kn, i) => (i < 3 ? [1e-2 * Math.cos(i), 1e-2 * Math.sin(i)] : [1e-4 / kn, 1e-4 / kn]))
+  let u: Complex[] = k.map((kn, i) =>
+    i < 3
+      ? [1e-2 * Math.cos(i), 1e-2 * Math.sin(i)]
+      : [1e-4 / kn, 1e-4 / kn],
+  )
   const energy = new Array<number>(n).fill(0)
   let samples = 0
   const transient = Math.floor(steps / 2)
@@ -52,15 +74,20 @@ export function goyShellSpectrum(input: {
     const d2 = derivative(mid)
     u = u.map((ui, i) => add(ui, scale(d2[i]!, dt)))
     if (step > transient && step % 100 === 0) {
-      for (let i = 0; i < n; i++) energy[i]! += u[i]![0] ** 2 + u[i]![1] ** 2
+      for (let i = 0; i < n; i++)
+        energy[i]! += u[i]![0] ** 2 + u[i]![1] ** 2
       samples++
     }
   }
-  return energy.map((e) => e / Math.max(1, samples))
+  return energy.map(e => e / Math.max(1, samples))
 }
 
 // the least-squares slope of log(spectrum) versus log(k) over the inertial-range shells [lo, hi]
-export function spectrumSlope(input: { spectrum: number[]; lo: number; hi: number }): number {
+export function spectrumSlope(input: {
+  spectrum: number[]
+  lo: number
+  hi: number
+}): number {
   const xs: number[] = []
   const ys: number[] = []
   for (let i = input.lo; i <= input.hi; i++) {

@@ -18,7 +18,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { loneParticle, type Will } from '@/code/tone/will'
-import { pairCollision, headOnRotate, type Collision } from '@/code/rule/collision'
+import {
+  pairCollision,
+  headOnRotate,
+  type Collision,
+} from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
 import { travelDistance, momentum } from '@/code/check/structure'
@@ -26,14 +30,17 @@ import { rootsD4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsD4()
 
-const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v === b[i])
+const sameVector = (a: number[], b: number[]): boolean =>
+  a.every((v, i) => v === b[i])
 
 // a single particle, one tone in direction 0 at the center cell.
-const singleParticle = (mesh: Mesh, cell: number): Will => loneParticle(mesh, cell, 0)
+const singleParticle = (mesh: Mesh, cell: number): Will =>
+  loneParticle(mesh, cell, 0)
 
 export default experiment({
   id: 'selves/mobile-rule-d4',
-  title: 'a momentum-conserving reversible collision makes a particle travel on the D4 coin, the pair table pins it',
+  title:
+    'a momentum-conserving reversible collision makes a particle travel on the D4 coin, the pair table pins it',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -42,25 +49,51 @@ export default experiment({
     const side = 10
     const beats = 4
     const mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const mobile: Collision = headOnRotate({ opposite })
-    const pinning: Collision = pairCollision({ opposite, forward: true })
-    const center = 5 + 5 * side + 5 * side * side + 5 * side * side * side
+    const pinning: Collision = pairCollision({
+      opposite,
+      forward: true,
+    })
+    const center =
+      5 + 5 * side + 5 * side * side + 5 * side * side * side
 
     // 1 and 2, headOnRotate is reversible, conserves charge, conserves momentum.
-    const reversible = isReversible(singleParticle(mesh, center), mobile, beats)
-    const chargeOk = conservesCharge(singleParticle(mesh, center), mobile, beats)
+    const reversible = isReversible(
+      singleParticle(mesh, center),
+      mobile,
+      beats,
+    )
+    const chargeOk = conservesCharge(
+      singleParticle(mesh, center),
+      mobile,
+      beats,
+    )
     const mStart = momentum(singleParticle(mesh, center), ROOTS)
-    const mMobile = momentum(run(singleParticle(mesh, center), mobile, beats), ROOTS)
+    const mMobile = momentum(
+      run(singleParticle(mesh, center), mobile, beats),
+      ROOTS,
+    )
     const momentumMobileOk = sameVector(mStart, mMobile)
 
     // 3, the pair table does not conserve momentum, it reflects.
-    const mPinning = momentum(run(singleParticle(mesh, center), pinning, beats), ROOTS)
+    const mPinning = momentum(
+      run(singleParticle(mesh, center), pinning, beats),
+      ROOTS,
+    )
     const momentumPinningOk = sameVector(mStart, mPinning)
 
     // 4, travel distance, ballistic versus pinned.
-    const travelMobile = travelDistance({ will: run(singleParticle(mesh, center), mobile, beats), start: center })
-    const travelPinning = travelDistance({ will: run(singleParticle(mesh, center), pinning, beats), start: center })
+    const travelMobile = travelDistance({
+      will: run(singleParticle(mesh, center), mobile, beats),
+      start: center,
+    })
+    const travelPinning = travelDistance({
+      will: run(singleParticle(mesh, center), pinning, beats),
+      start: center,
+    })
 
     const ok =
       reversible &&
@@ -82,7 +115,10 @@ export default experiment({
         travelPinning,
         beats,
       },
-      control: { travelPinning, momentumConservedPinning: momentumPinningOk ? 1 : 0 },
+      control: {
+        travelPinning,
+        momentumConservedPinning: momentumPinningOk ? 1 : 0,
+      },
       notes:
         'the momentum-conserving rule is reversible and conserves charge and momentum, the pair table conserves charge but reflects (flips momentum), which is the pinning. Mobility plus head-on scattering is the basin-forming dynamics the L3 search needs',
     })

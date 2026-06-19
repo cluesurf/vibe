@@ -5,12 +5,20 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
-import { makeAssociativeMemory, ternaryWord, storeWord } from '@/code/operator/associative-memory'
+import {
+  makeAssociativeMemory,
+  ternaryWord,
+  storeWord,
+} from '@/code/operator/associative-memory'
 import { nearestRecallRate } from '@/code/measure/associative-recall'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativeNoisyRecall(input?: { maxCells?: number; wordBits?: number; sampleSize?: number }): {
+export function associativeNoisyRecall(input?: {
+  maxCells?: number
+  wordBits?: number
+  sampleSize?: number
+}): {
   recall0: number
   recall10: number
   recall20: number
@@ -21,13 +29,23 @@ export function associativeNoisyRecall(input?: { maxCells?: number; wordBits?: n
   const wordBits = input?.wordBits ?? 21
   const sampleSize = input?.sampleSize ?? 300
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
-  const mem = makeAssociativeMemory({ neighbors: g.neighbors, wordBits })
-  for (let c = 0; c < g.cellCount; c++) storeWord(mem, c, ternaryWord(c, wordBits))
+  const mem = makeAssociativeMemory({
+    neighbors: g.neighbors,
+    wordBits,
+  })
+  for (let c = 0; c < g.cellCount; c++)
+    storeWord(mem, c, ternaryWord(c, wordBits))
   const sample: number[] = []
-  for (let c = 0; c < g.cellCount && sample.length < sampleSize; c++) sample.push(c)
+  for (let c = 0; c < g.cellCount && sample.length < sampleSize; c++)
+    sample.push(c)
 
   const at = (f: number): number =>
-    nearestRecallRate({ mem, corruptionFraction: f, rng: makeRng({ seed: 1 }), sample })
+    nearestRecallRate({
+      mem,
+      corruptionFraction: f,
+      rng: makeRng({ seed: 1 }),
+      sample,
+    })
 
   const recall0 = at(0)
   const recall10 = at(0.1)
@@ -39,7 +57,8 @@ export function associativeNoisyRecall(input?: { maxCells?: number; wordBits?: n
 
 export default experiment({
   id: 'associative/noisy-recall',
-  title: 'the bulk associative memory recalls a whole stored word from a corrupted cue, degrading gracefully past a threshold',
+  title:
+    'the bulk associative memory recalls a whole stored word from a corrupted cue, degrading gracefully past a threshold',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L2',

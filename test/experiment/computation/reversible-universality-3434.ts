@@ -30,11 +30,13 @@ import { d4Mesh } from '@/code/tool/mesh'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const ruleStep = (a: number, b: number): [number, number] => PAIR_FORWARD[(a + 1) * 3 + (b + 1)]!
+const ruleStep = (a: number, b: number): [number, number] =>
+  PAIR_FORWARD[(a + 1) * 3 + (b + 1)]!
 
 export default experiment({
   id: 'computation/reversible-universality-3434',
-  title: 'the committed reversible knit rule on the {3,4,3,4} 24-cell is computationally universal',
+  title:
+    'the committed reversible knit rule on the {3,4,3,4} 24-cell is computationally universal',
   category: 'computation',
   substrates: ['3434'],
   depth: 'L2',
@@ -44,31 +46,35 @@ export default experiment({
     const tones = [-1, 0, 1]
     const images = new Set<string>()
     let bijection = true
-    for (const a of tones) for (const b of tones) {
-      const [c, d] = ruleStep(a, b)
-      const key = `${c},${d}`
-      if (images.has(key)) bijection = false
-      images.add(key)
-    }
+    for (const a of tones)
+      for (const b of tones) {
+        const [c, d] = ruleStep(a, b)
+        const key = `${c},${d}`
+        if (images.has(key)) bijection = false
+        images.add(key)
+      }
     const ruleIsBijection = bijection && images.size === 9
 
     // (2b) the Toffoli gate is a bijection on the eight three-bit states, verified directly.
     const seen = new Set<string>()
     let tBij = true
-    for (let x = 0; x < 2; x++) for (let y = 0; y < 2; y++) for (let z = 0; z < 2; z++) {
-      const [a, b, c] = toffoli(x, y, z)
-      const key = `${a}${b}${c}`
-      if (seen.has(key)) tBij = false
-      seen.add(key)
-    }
+    for (let x = 0; x < 2; x++)
+      for (let y = 0; y < 2; y++)
+        for (let z = 0; z < 2; z++) {
+          const [a, b, c] = toffoli(x, y, z)
+          const key = `${a}${b}${c}`
+          if (seen.has(key)) tBij = false
+          seen.add(key)
+        }
     const toffoliIsBijection = tBij && seen.size === 8
 
     // (2c) Toffoli with ancilla z = 1 computes NAND on the third output, functional completeness.
     let nandOk = true
-    for (let x = 0; x < 2; x++) for (let y = 0; y < 2; y++) {
-      const out = toffoli(x, y, 1)[2]
-      if (out !== (x === 1 && y === 1 ? 0 : 1)) nandOk = false
-    }
+    for (let x = 0; x < 2; x++)
+      for (let y = 0; y < 2; y++) {
+        const out = toffoli(x, y, 1)[2]
+        if (out !== (x === 1 && y === 1 ? 0 : 1)) nandOk = false
+      }
     const toffoliComputesNand = nandOk
 
     // (1) the FINAL geometry: degree 24, more than the three independent tracks the railway junctions need.
@@ -82,8 +88,13 @@ export default experiment({
     const hasMemory = true // ternary charge in address-defined subtrees, conserved (turing-3434 leg 3)
 
     const reversibleUniversal =
-      ruleIsBijection && toffoliIsBijection && toffoliComputesNand &&
-      geometrySupportsRailway && hasRouting && hasGates && hasMemory
+      ruleIsBijection &&
+      toffoliIsBijection &&
+      toffoliComputesNand &&
+      geometrySupportsRailway &&
+      hasRouting &&
+      hasGates &&
+      hasMemory
     const ok = reversibleUniversal
 
     return verdict({

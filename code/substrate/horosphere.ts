@@ -3,7 +3,13 @@
 // horocyclic un-crushing map, the band extraction). One home, built on the real-vector kit. Coordinates are
 // Poincare-ball points (norm < 1), as produced by cell-direct.
 
-import { type Vec, dot, norm, normalize, sub } from '@/code/algebra/vector'
+import {
+  type Vec,
+  dot,
+  norm,
+  normalize,
+  sub,
+} from '@/code/algebra/vector'
 
 // The ideal point (direction) of the farthest cell, the boundary point a cusp sits at.
 export function idealDirection(coords: Vec[]): Vec {
@@ -22,9 +28,12 @@ export function idealDirection(coords: Vec[]): Vec {
 
 // The Busemann height of each cell toward the ideal point xi, b(x) = log(|x - xi|^2 / (1 - |x|^2)). Level
 // sets are horospheres tangent at xi.
-export function busemann(input: { coords: Vec[]; ideal: Vec }): number[] {
+export function busemann(input: {
+  coords: Vec[]
+  ideal: Vec
+}): number[] {
   const { coords, ideal } = input
-  return coords.map((x) => {
+  return coords.map(x => {
     let d2 = 0
     for (let k = 0; k < x.length; k++) d2 += (x[k]! - ideal[k]!) ** 2
     return Math.log(d2 / Math.max(1e-12, 1 - dot(x, x)))
@@ -41,7 +50,9 @@ export function horoFrame(ideal: Vec): Vec[] {
     (a, b) => Math.abs(ideal[a]!) - Math.abs(ideal[b]!),
   )
   for (const k of axes) {
-    let v: Vec = Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+    let v: Vec = Array.from({ length: dim }, (_, i) =>
+      i === k ? 1 : 0,
+    )
     v = sub(v, ideal, dot(v, ideal))
     for (const e of basis) v = sub(v, e, dot(v, e))
     if (norm(v) > 1e-9) basis.push(normalize(v))
@@ -52,11 +63,15 @@ export function horoFrame(ideal: Vec): Vec[] {
 
 // The horocyclic flat coordinate of a point, invert about the ideal point (un-crushes the hyperbolic
 // crowding near xi), then project onto the horosphere frame. Returns one coordinate per frame vector.
-export function horocyclicProject(input: { point: Vec; ideal: Vec; frame: Vec[] }): number[] {
+export function horocyclicProject(input: {
+  point: Vec
+  ideal: Vec
+  frame: Vec[]
+}): number[] {
   const d = sub(input.point, input.ideal)
   const dd = dot(d, d) || 1e-9
-  const inv = d.map((x) => x / dd)
-  return input.frame.map((e) => dot(inv, e))
+  const inv = d.map(x => x / dd)
+  return input.frame.map(e => dot(inv, e))
 }
 
 // The cells of a thin band around a Busemann level, the cusp slice (their indices into the coords array).

@@ -27,7 +27,8 @@ import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 
 export default experiment({
   id: 'selves/no-emergent-bound-body',
-  title: 'no emergent bound body: even a vortex disperses, its persistence is only reversible recurrence',
+  title:
+    'no emergent bound body: even a vortex disperses, its persistence is only reversible recurrence',
   category: 'selves',
   substrates: ['square'],
   depth: 'L2',
@@ -38,14 +39,24 @@ export default experiment({
     const radius = 6
     const mesh: Mesh = squareMesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const rule: Collision = headOnRotate({ opposite })
     // square coin directions, 0 is +x, 1 is -x, 2 is +y, 3 is -y (verified from the mesh neighbour map).
-    const dirVec: Array<[number, number]> = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    const dirVec: Array<[number, number]> = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]
     const cx = side / 2
     const cy = side / 2
     const boundary = side / 2
-    const xy = (cell: number): [number, number] => [cell % side, Math.floor(cell / side)]
+    const xy = (cell: number): [number, number] => [
+      cell % side,
+      Math.floor(cell / side),
+    ]
 
     // a localized counterclockwise vortex, each cell within the radius gets a charge in its tangential direction.
     const vortex = (): Will => {
@@ -61,7 +72,10 @@ export default experiment({
         let bestDot = -Infinity
         for (let d = 0; d < degree; d++) {
           const dot = dirVec[d]![0] * tx + dirVec[d]![1] * ty
-          if (dot > bestDot) { bestDot = dot; best = d }
+          if (dot > bestDot) {
+            bestDot = dot
+            best = d
+          }
         }
         will.data[c * degree + best] = 1
       }
@@ -77,13 +91,21 @@ export default experiment({
         let px = 0
         let py = 0
         const b = c * degree
-        for (let d = 0; d < degree; d++) { const t = will.data[b + d]!; if (t !== 0) { px += t * dirVec[d]![0]; py += t * dirVec[d]![1] } }
+        for (let d = 0; d < degree; d++) {
+          const t = will.data[b + d]!
+          if (t !== 0) {
+            px += t * dirVec[d]![0]
+            py += t * dirVec[d]![1]
+          }
+        }
         L += dx * py - dy * px
       }
       return L
     }
 
-    const confinedFraction = (will: Will): { ext: number; confined: number } => {
+    const confinedFraction = (
+      will: Will,
+    ): { ext: number; confined: number } => {
       let ext = 0
       let inside = 0
       let total = 0
@@ -93,7 +115,11 @@ export default experiment({
         const dy = y - cy
         const b = c * degree
         let on = false
-        for (let d = 0; d < degree; d++) if (will.data[b + d] !== 0) { on = true; break }
+        for (let d = 0; d < degree; d++)
+          if (will.data[b + d] !== 0) {
+            on = true
+            break
+          }
         if (!on) continue
         const r = Math.sqrt(dx * dx + dy * dy)
         if (r > ext) ext = r
@@ -105,7 +131,10 @@ export default experiment({
 
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     let current = vortex()
-    let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+    let scratch: Will = {
+      mesh,
+      data: new Int8Array(current.data.length),
+    }
     const l0 = circulation(current)
     let maxExtent = 0
     let minConfined = 1
@@ -120,7 +149,8 @@ export default experiment({
       if (ext > maxExtent) maxExtent = ext
       if (confined < minConfined) minConfined = confined
       const ratio = Math.abs(circulation(will) / l0)
-      if (t > beats / 2 && ratio > lateCirculationMax) lateCirculationMax = ratio
+      if (t > beats / 2 && ratio > lateCirculationMax)
+        lateCirculationMax = ratio
     }
 
     // the honest negative, the vortex DISPERSES (extent reaches the boundary, confined fraction drops to zero) and
@@ -140,7 +170,9 @@ export default experiment({
         maxExtent: Math.round(maxExtent * 10),
         boundary,
         minConfinedFractionTimes100: Math.round(minConfined * 100),
-        lateCirculationMaxTimes100: Math.round(lateCirculationMax * 100),
+        lateCirculationMaxTimes100: Math.round(
+          lateCirculationMax * 100,
+        ),
         disperses: disperses ? 1 : 0,
         notConfined: notConfined ? 1 : 0,
         recurrenceArtifact: recurrenceArtifact ? 1 : 0,

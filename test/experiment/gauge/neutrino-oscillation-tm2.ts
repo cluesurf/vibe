@@ -10,15 +10,24 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type C = { re: number; im: number }
 const c = (re: number, im = 0): C => ({ re, im })
-const cmul = (a: C, b: C): C => c(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re)
+const cmul = (a: C, b: C): C =>
+  c(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re)
 const cadd = (a: C, b: C): C => c(a.re + b.re, a.im + b.im)
 const cabs2 = (a: C): number => a.re * a.re + a.im * a.im
 
 // standard PMNS U = R23 . U13(delta) . R12, returning the 3x3 complex matrix.
-function pmns(th12: number, th23: number, th13: number, delta: number): C[][] {
-  const s12 = Math.sin(th12), c12 = Math.cos(th12)
-  const s23 = Math.sin(th23), c23 = Math.cos(th23)
-  const s13 = Math.sin(th13), c13 = Math.cos(th13)
+function pmns(
+  th12: number,
+  th23: number,
+  th13: number,
+  delta: number,
+): C[][] {
+  const s12 = Math.sin(th12),
+    c12 = Math.cos(th12)
+  const s23 = Math.sin(th23),
+    c23 = Math.cos(th23)
+  const s13 = Math.sin(th13),
+    c13 = Math.cos(th13)
   const e = c(Math.cos(delta), -Math.sin(delta)) // e^{-i delta}
   const eP = c(Math.cos(delta), Math.sin(delta))
   // rows: e, mu, tau ; cols: 1, 2, 3
@@ -40,7 +49,10 @@ function pmns(th12: number, th23: number, th13: number, delta: number): C[][] {
 // Jarlskog invariant J = Im(U_e1 U_mu2 U*_e2 U*_mu1)
 function jarlskog(U: C[][]): number {
   const conj = (x: C) => c(x.re, -x.im)
-  return cmul(cmul(U[0]![0]!, U[1]![1]!), cmul(conj(U[0]![1]!), conj(U[1]![0]!))).im
+  return cmul(
+    cmul(U[0]![0]!, U[1]![1]!),
+    cmul(conj(U[0]![1]!), conj(U[1]![0]!)),
+  ).im
 }
 
 export default experiment({
@@ -63,7 +75,7 @@ export default experiment({
 
     // the defining TM2 invariant: the middle column has |U_i2|^2 = 1/3 for all three rows
     const col2 = [cabs2(U[0]![1]!), cabs2(U[1]![1]!), cabs2(U[2]![1]!)]
-    const tm2Column = col2.every((x) => Math.abs(x - 1 / 3) < 1e-9)
+    const tm2Column = col2.every(x => Math.abs(x - 1 / 3) < 1e-9)
 
     // predicted solar angle vs measured (~0.304-0.31): the ~2 sigma tension
     const sin2th12Measured = 0.307
@@ -80,9 +92,20 @@ export default experiment({
     const pMuEAtmos = Math.sin(2 * th13) ** 2 * Math.sin(th23) ** 2
 
     // control: anarchic mixing (no TM2 structure) -- the 1/3 column does not hold
-    const anarchic = pmns((35 * Math.PI) / 180, (40 * Math.PI) / 180, (12 * Math.PI) / 180, 1.0)
-    const anarchicCol2 = [cabs2(anarchic[0]![1]!), cabs2(anarchic[1]![1]!), cabs2(anarchic[2]![1]!)]
-    const anarchicNoColumn = !anarchicCol2.every((x) => Math.abs(x - 1 / 3) < 1e-9)
+    const anarchic = pmns(
+      (35 * Math.PI) / 180,
+      (40 * Math.PI) / 180,
+      (12 * Math.PI) / 180,
+      1.0,
+    )
+    const anarchicCol2 = [
+      cabs2(anarchic[0]![1]!),
+      cabs2(anarchic[1]![1]!),
+      cabs2(anarchic[2]![1]!),
+    ]
+    const anarchicNoColumn = !anarchicCol2.every(
+      x => Math.abs(x - 1 / 3) < 1e-9,
+    )
 
     const ok = tm2Column && cpMaximal && anarchicNoColumn
 
@@ -101,7 +124,11 @@ export default experiment({
       },
       control: {
         anarchicColumnBroken: anarchicNoColumn ? 1 : 0,
-        anarchicCol2Spread: Number((Math.max(...anarchicCol2) - Math.min(...anarchicCol2)).toFixed(4)),
+        anarchicCol2Spread: Number(
+          (
+            Math.max(...anarchicCol2) - Math.min(...anarchicCol2)
+          ).toFixed(4),
+        ),
       },
       notes:
         'L2 consistency simulation of the leptonic prediction: the TM2 angles come from the A4 structure of the 24-cell (a derived prediction), and this computes their observable oscillation consequences. The sharp, falsifiable output is sin^2 theta12 = 0.341 (JUNO), the maximal CP delta = -90 (DUNE / Hyper-K), and the trimaximal column. It does not run the substrate dynamics; it turns the structural prediction into the observed quantities.',

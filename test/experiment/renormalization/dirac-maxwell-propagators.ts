@@ -26,18 +26,33 @@ import { zeroModeCensus } from '@/code/measure/spectrum'
 // the 2D staggered-Dirac dispersion (the Bloch transform of the committed staggered-mass operator extended to a
 // square lattice), epsilon(kx, ky)^2 = m^2 + 2 tx^2 (1 + cos kx) + 2 ty^2 (1 + cos ky). The Dirac point is at
 // (kx, ky) = (pi, pi), where epsilon^2 -> m^2 + tx^2 qx^2 + ty^2 qy^2, the relativistic mass-shell with speeds tx, ty.
-function dispersionSquared(input: { kx: number; ky: number; m: number; tx: number; ty: number }): number {
+function dispersionSquared(input: {
+  kx: number
+  ky: number
+  m: number
+  tx: number
+  ty: number
+}): number {
   const { kx, ky, m, tx, ty } = input
-  return m * m + 2 * tx * tx * (1 + Math.cos(kx)) + 2 * ty * ty * (1 + Math.cos(ky))
+  return (
+    m * m +
+    2 * tx * tx * (1 + Math.cos(kx)) +
+    2 * ty * ty * (1 + Math.cos(ky))
+  )
 }
 
 // fit epsilon^2 = intercept + slope * q^2 along one axis near the Dirac point, returning the slope (speed^2),
 // the intercept (mass^2), and the fit quality R^2 (linearity of the mass-shell)
-function fitMassShell(input: { axis: 'x' | 'y'; m: number; tx: number; ty: number }): { speedSquared: number; massSquared: number; r2: number } {
+function fitMassShell(input: {
+  axis: 'x' | 'y'
+  m: number
+  tx: number
+  ty: number
+}): { speedSquared: number; massSquared: number; r2: number } {
   const { axis, m, tx, ty } = input
   const qs = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3]
-  const xs = qs.map((q) => q * q)
-  const ys = qs.map((q) =>
+  const xs = qs.map(q => q * q)
+  const ys = qs.map(q =>
     axis === 'x'
       ? dispersionSquared({ kx: Math.PI + q, ky: Math.PI, m, tx, ty })
       : dispersionSquared({ kx: Math.PI, ky: Math.PI + q, m, tx, ty }),
@@ -61,7 +76,8 @@ function fitMassShell(input: { axis: 'x' | 'y'; m: number; tx: number; ty: numbe
 
 export default experiment({
   id: 'renormalization/dirac-maxwell-propagators',
-  title: 'the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current vertex match QED, broken by an anisotropic rule',
+  title:
+    'the continuum limit is Dirac plus Maxwell, the fermion and photon propagator poles and the conserved-current vertex match QED, broken by an anisotropic rule',
   category: 'renormalization',
   substrates: ['3434'],
   depth: 'L3',
@@ -73,8 +89,10 @@ export default experiment({
     const fitX = fitMassShell({ axis: 'x', m, tx: 1, ty: 1 })
     const fitY = fitMassShell({ axis: 'y', m, tx: 1, ty: 1 })
     const massShellLinear = fitX.r2 > 0.999 && fitY.r2 > 0.999 // the pole follows q^2, the relativistic shell
-    const massRecovered = Math.abs(Math.sqrt(fitX.massSquared) - m) < 0.02 // the intercept is the mass
-    const speedIsotropic = Math.abs(fitX.speedSquared / fitY.speedSquared - 1) < 1e-6 // Lorentz, equal speeds
+    const massRecovered =
+      Math.abs(Math.sqrt(fitX.massSquared) - m) < 0.02 // the intercept is the mass
+    const speedIsotropic =
+      Math.abs(fitX.speedSquared / fitY.speedSquared - 1) < 1e-6 // Lorentz, equal speeds
     // the massless case is the light cone, E = v |q|, a gapless pole (the photon-like fermion)
     const masslessFit = fitMassShell({ axis: 'x', m: 0, tx: 1, ty: 1 })
     const masslessLightCone = Math.abs(masslessFit.massSquared) < 1e-3
@@ -82,14 +100,21 @@ export default experiment({
     // (2) the PHOTON propagator pole, massless, omega^2 ~ 1/L^2, the continuum Maxwell 1/k^2. Each massless lattice
     // Maxwell spectrum is computed once per size and reused for the speed estimate and the Ward census.
     const sides = [4, 6]
-    const masslessSpectra = sides.map((side) => maxwellLatticeSpectrum({ side, mass: 0 }))
-    const photonOmegaSquared = masslessSpectra.map((spectrum) => zeroModeCensus(spectrum).minNonzero)
+    const masslessSpectra = sides.map(side =>
+      maxwellLatticeSpectrum({ side, mass: 0 }),
+    )
+    const photonOmegaSquared = masslessSpectra.map(
+      spectrum => zeroModeCensus(spectrum).minNonzero,
+    )
     // the massless pole obeys omega = c |k| with k = 2 pi / L, so omega^2 ~ 1/L^2, the lowest gap SHRINKS as the
     // lattice grows. The ratio omega^2(4) / omega^2(6) should be (6/4)^2 = 2.25, the 1/L^2 (continuum 1/k^2) law.
-    const masslessRatio = photonOmegaSquared[0]! / photonOmegaSquared[1]!
+    const masslessRatio =
+      photonOmegaSquared[0]! / photonOmegaSquared[1]!
     const photonMassless = masslessRatio > 1.8 && masslessRatio < 2.8 // omega^2 ~ 1/L^2, a massless pole
     // the Proca control, a massive photon gaps, omega^2 -> m^2 (not 1/k^2)
-    const procaMin = zeroModeCensus(maxwellLatticeSpectrum({ side: 6, mass: 0.5 })).minNonzero
+    const procaMin = zeroModeCensus(
+      maxwellLatticeSpectrum({ side: 6, mass: 0.5 }),
+    ).minNonzero
     const procaGapped = procaMin > 0.2 // the massive vector keeps a finite gap as L grows
 
     // (3) the VERTEX, the conserved-current coupling, the Ward identity = the exact gauge zero modes (transversality)
@@ -103,22 +128,36 @@ export default experiment({
     const lorentzBroken = Math.abs(brokenRatio - 1) > 0.5 // the speeds differ, a non-Lorentz propagator
 
     const ok =
-      massShellLinear && massRecovered && speedIsotropic && masslessLightCone && photonMassless && procaGapped && wardIdentity && lorentzBroken
+      massShellLinear &&
+      massRecovered &&
+      speedIsotropic &&
+      masslessLightCone &&
+      photonMassless &&
+      procaGapped &&
+      wardIdentity &&
+      lorentzBroken
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'the coarse-grained continuum theory is DIRAC plus MAXWELL, the fermion propagator pole sits on the isotropic relativistic mass-shell E^2 = m^2 + v^2 |q|^2 (the intercept recovers the mass, the speed is the same along every axis, Lorentz invariance), the massless fermion is a light cone, the photon propagator is a MASSLESS pole with omega^2 ~ 1/L^2 (the continuum Maxwell 1/k^2, where a Proca mass instead gaps it), and the vertex is a conserved-current coupling carrying the Ward identity (the exact gauge zero modes, transversality), the continuum QED vertex, while a Lorentz-breaking anisotropic rule yields a non-Lorentz propagator with unequal speeds, the discriminating control',
       metrics: {
-        fermionSpeedSquaredTimes1000: Math.round(fitX.speedSquared * 1000),
-        fermionMassRecoveredTimes1000: Math.round(Math.sqrt(Math.max(0, fitX.massSquared)) * 1000),
+        fermionSpeedSquaredTimes1000: Math.round(
+          fitX.speedSquared * 1000,
+        ),
+        fermionMassRecoveredTimes1000: Math.round(
+          Math.sqrt(Math.max(0, fitX.massSquared)) * 1000,
+        ),
         massShellR2Times10000: Math.round(fitX.r2 * 10000),
         photonMasslessRatioTimes100: Math.round(masslessRatio * 100),
         procaGapTimes1000: Math.round(procaMin * 1000),
         gaugeZeroModes: census.zero,
         brokenSpeedRatioTimes100: Math.round(brokenRatio * 100),
       },
-      control: { brokenSpeedRatioTimes100: Math.round(brokenRatio * 100), procaGapTimes1000: Math.round(procaMin * 1000) },
+      control: {
+        brokenSpeedRatioTimes100: Math.round(brokenRatio * 100),
+        procaGapTimes1000: Math.round(procaMin * 1000),
+      },
       notes:
         'L3, the propagators and vertex measured against continuum QED, with a Lorentz-breaking control. The fermion pole is the Bloch dispersion of the committed staggered-Dirac operator (spin/dirac-3plus1-3434), read as the relativistic mass-shell, and the photon pole and Ward-identity zero modes are read from the committed lattice-Maxwell operator (gauge/photon). The anisotropic-hopping control gives a non-Lorentz propagator (unequal speeds), and a Proca mass gaps the photon, so the Lorentz-covariant Dirac + Maxwell forms are genuinely measured, not assumed. This is the explicit discrete-to-continuum QED bridge built on the D1 fixed point.',
     })

@@ -27,7 +27,13 @@ type Rng = { next: () => number }
 const dd = (d: Int32Array, i: number): number => d[i] ?? 1e9
 
 // count neighbors of cell i (excluding `except`) whose tone equals q
-function agreeCount(tone: Int8Array, neighbors: number[][], i: number, q: number, except: number): number {
+function agreeCount(
+  tone: Int8Array,
+  neighbors: number[][],
+  i: number,
+  q: number,
+  except: number,
+): number {
   let c = 0
   for (const w of neighbors[i]!) if (w !== except && tone[w] === q) c++
   return c
@@ -89,8 +95,16 @@ function beat(
 }
 
 // run from all-peace to balance, then measure long-lag autocorrelation and imprint memory
-function measure(cohesive: boolean): { longLagCorr: number; imprintRetention: number; conserved: boolean } {
-  const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 60000 })
+function measure(cohesive: boolean): {
+  longLagCorr: number
+  imprintRetention: number
+  conserved: boolean
+} {
+  const mesh = buildCoxeterMesh({
+    symbol: [5, 3, 4],
+    depth: 20,
+    maxChambers: 60000,
+  })
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
@@ -100,28 +114,38 @@ function measure(cohesive: boolean): { longLagCorr: number; imprintRetention: nu
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < 100; b++) beat(t, edges, neighbors, rng, ARROW, cohesive, TEMP)
+  for (let b = 0; b < 100; b++)
+    beat(t, edges, neighbors, rng, ARROW, cohesive, TEMP)
 
   const base = t.slice()
   const work = base.slice()
-  for (let b = 0; b < 40; b++) beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
+  for (let b = 0; b < 40; b++)
+    beat(work, edges, neighbors, rng, ARROW, cohesive, TEMP)
   const longLagCorr = pearson({ a: base, b: work })
   const conservedRun = sumTone(t) === q0
 
   // imprint a pleasure blob, run, measure survival above background
   let center = 0
-  for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = neighborDistances({ neighbors, size: n, source: center })
+  for (let i = 1; i < n; i++)
+    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  const distC = neighborDistances({
+    neighbors,
+    size: n,
+    source: center,
+  })
   const imp = t.slice()
   const blob: number[] = []
-  for (let i = 0; i < n; i++) if (dd(distC, i) <= 3) {
-    imp[i] = 1
-    blob.push(i)
-  }
-  const meanBlob = (arr: Int8Array): number => blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
+  for (let i = 0; i < n; i++)
+    if (dd(distC, i) <= 3) {
+      imp[i] = 1
+      blob.push(i)
+    }
+  const meanBlob = (arr: Int8Array): number =>
+    blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 40; b++) beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)
+  for (let b = 0; b < 40; b++)
+    beat(imp, edges, neighbors, rng2, ARROW, cohesive, TEMP)
   const after = meanBlob(imp)
   let bg = 0
   for (let i = 0; i < n; i++) bg += imp[i]!
@@ -149,10 +173,13 @@ export function cohesiveMemory(): {
   // imprint memory is the clean self-persistence signal (a deliberate pattern surviving). Whole-field
   // autocorrelation mostly measures the churning vacuum, not the selves, so it is reported but not the bar.
   const persistenceImproved = cohesive.longLagCorr > random.longLagCorr
-  const memoryImproved = cohesive.imprintRetention > random.imprintRetention + 0.15
+  const memoryImproved =
+    cohesive.imprintRetention > random.imprintRetention + 0.15
   // honest finding: cohesion gives REAL but LEAKY memory, a self persists roughly twice as long as the
   // churn but its boundary still erodes. Memory exists without stored relations, it is just imperfect.
-  const realMemory = cohesive.imprintRetention > 0.4 && cohesive.imprintRetention > 1.7 * random.imprintRetention
+  const realMemory =
+    cohesive.imprintRetention > 0.4 &&
+    cohesive.imprintRetention > 1.7 * random.imprintRetention
   const durableSelvesForm = realMemory
   const solved = conserved && memoryImproved && realMemory
 
@@ -171,7 +198,8 @@ export function cohesiveMemory(): {
 
 export default experiment({
   id: 'selves/cohesive-memory',
-  title: 'a cohesive hop roughly doubles imprint memory versus the churning rule',
+  title:
+    'a cohesive hop roughly doubles imprint memory versus the churning rule',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',
@@ -179,10 +207,7 @@ export default experiment({
   run() {
     const r = cohesiveMemory()
     const ok =
-      r.solved &&
-      r.conserved &&
-      r.memoryImproved &&
-      r.durableSelvesForm
+      r.solved && r.conserved && r.memoryImproved && r.durableSelvesForm
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

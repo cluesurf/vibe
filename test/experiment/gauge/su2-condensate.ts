@@ -13,7 +13,8 @@ import { chiralCondensateSignalSU2 } from '@/code/operator/overlap-su2'
 
 export default experiment({
   id: 'gauge/su2-condensate',
-  title: 'a chiral condensate forms in a dynamical non-abelian SU(2) gauge field, near zero in the free theory',
+  title:
+    'a chiral condensate forms in a dynamical non-abelian SU(2) gauge field, near zero in the free theory',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -21,7 +22,7 @@ export default experiment({
   run() {
     const disorders = [0, 0.3, 0.6, 1.0]
     const densities = disorders.map(
-      (disorder) =>
+      disorder =>
         chiralCondensateSignalSU2({
           length: 3,
           disorder,

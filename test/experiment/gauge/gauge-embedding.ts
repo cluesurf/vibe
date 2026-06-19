@@ -4,7 +4,10 @@
 // against D5 = so(10) (the minimal SO(N) GUT). Clean finite root-system computation.
 // Run: npx tsx code/experiment/p217-gauge-embedding.ts
 
-import { rootsDn, standardModelEmbedsInRootSystem } from '@/code/algebra/group/root-system'
+import {
+  rootsDn,
+  standardModelEmbedsInRootSystem,
+} from '@/code/algebra/group/root-system'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -17,7 +20,8 @@ export function gaugeEmbedding(): { d4: boolean; d5: boolean } {
 
 export default experiment({
   id: 'gauge/gauge-embedding',
-  title: 'the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)',
+  title:
+    'the Standard Model algebra does not fit in D4 = so(8) but does fit in D5 = so(10)',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',

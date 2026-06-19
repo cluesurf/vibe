@@ -8,17 +8,22 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { dihedralFacePermutationDecomposition } from '@/code/algebra/group/dihedral'
 
-export function spinor73(): { hasSpinor: boolean; decomposition: string } {
+export function spinor73(): {
+  hasSpinor: boolean
+  decomposition: string
+} {
   // The 7 faces of the heptagon carry the permutation rep of D7. Its decomposition into
   // irreps (trivial + the three 2D vector irreps E1,E2,E3, no spinor) is the general
   // dihedral-face computation in algebra/group/dihedral.
-  const { hasSpinor, decomposition } = dihedralFacePermutationDecomposition(7)
+  const { hasSpinor, decomposition } =
+    dihedralFacePermutationDecomposition(7)
   return { hasSpinor, decomposition }
 }
 
 export default experiment({
   id: 'spin/spinor-73',
-  title: 'the {7,3} heptagonal coin carries no spinor, only integer-spin reps of D7',
+  title:
+    'the {7,3} heptagonal coin carries no spinor, only integer-spin reps of D7',
   category: 'spin',
   substrates: ['any'],
   depth: 'L1',

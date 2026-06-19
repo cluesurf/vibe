@@ -26,7 +26,10 @@ const dot = (a: Int8Array, b: Int8Array): number => {
 
 // store `items` key-value bindings in one bundled memory vector of dimension `dim`, then recall each and report
 // the fraction correctly cleaned up to its stored value
-export function vsaRecallAccuracy(input: { dim: number; items: number }): number {
+export function vsaRecallAccuracy(input: {
+  dim: number
+  items: number
+}): number {
   const { dim, items } = input
   const keys: Int8Array[] = []
   const values: Int8Array[] = []
@@ -36,10 +39,12 @@ export function vsaRecallAccuracy(input: { dim: number; items: number }): number
   }
   const accumulator = new Int32Array(dim)
   for (let i = 0; i < items; i++) {
-    for (let j = 0; j < dim; j++) accumulator[j]! += keys[i]![j]! * values[i]![j]!
+    for (let j = 0; j < dim; j++)
+      accumulator[j]! += keys[i]![j]! * values[i]![j]!
   }
   const memory = new Int8Array(dim)
-  for (let j = 0; j < dim; j++) memory[j] = accumulator[j]! >= 0 ? 1 : -1
+  for (let j = 0; j < dim; j++)
+    memory[j] = accumulator[j]! >= 0 ? 1 : -1
 
   let correct = 0
   const noisy = new Int8Array(dim)
@@ -49,7 +54,10 @@ export function vsaRecallAccuracy(input: { dim: number; items: number }): number
     let bestDot = -Infinity
     for (let k = 0; k < items; k++) {
       const d = dot(noisy, values[k]!)
-      if (d > bestDot) { bestDot = d; best = k }
+      if (d > bestDot) {
+        bestDot = d
+        best = k
+      }
     }
     if (best === i) correct += 1
   }

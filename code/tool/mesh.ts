@@ -78,8 +78,8 @@ export function squareMesh(input: { side: number }): Mesh {
 // opposite (the negated root) index for each, so streaming on the coin is well
 // defined.
 const D4_ROOTS = rootsD4()
-const D4_OPPOSITE = D4_ROOTS.map((root) =>
-  D4_ROOTS.findIndex((other) =>
+const D4_OPPOSITE = D4_ROOTS.map(root =>
+  D4_ROOTS.findIndex(other =>
     other.every((value, axis) => value === -(root[axis] ?? 0)),
   ),
 )
@@ -130,7 +130,9 @@ export function d4MeshWithRest(input: { side: number }): Mesh {
     degree: base.degree + 1,
     cellCount: base.cellCount,
     neighbour(cell, direction) {
-      return direction < base.degree ? base.neighbour(cell, direction) : cell
+      return direction < base.degree
+        ? base.neighbour(cell, direction)
+        : cell
     },
     opposite(direction) {
       return direction < base.degree ? base.opposite(direction) : rest
@@ -143,7 +145,10 @@ export function d4MeshWithRest(input: { side: number }): Mesh {
 // Used to test whether bulk curvature confines (it does not, exponential shell growth means a disturbance disperses
 // exponentially, the opposite of binding). Direction 0 is the parent, directions 1..coordination are the children.
 // Opposite is a placeholder (the tree is used for shell-growth, not a momentum-conserving lattice gas).
-export function betheMesh(input: { coordination: number; depth: number }): Mesh {
+export function betheMesh(input: {
+  coordination: number
+  depth: number
+}): Mesh {
   const { coordination, depth } = input
   const parent: number[] = [-1]
   const children: number[][] = [[]]
@@ -168,7 +173,10 @@ export function betheMesh(input: { coordination: number; depth: number }): Mesh 
     degree,
     cellCount,
     neighbour(cell, direction) {
-      if (direction === 0) { const p = parent[cell]!; return p < 0 ? cell : p }
+      if (direction === 0) {
+        const p = parent[cell]!
+        return p < 0 ? cell : p
+      }
       const kids = children[cell]!
       const child = kids[direction - 1]
       return child === undefined ? cell : child
@@ -182,8 +190,8 @@ export function betheMesh(input: { coordination: number; depth: number }): Mesh 
 // The 32 B4 root directions, the two-speed coin: the 24 long D4 roots plus the 8
 // short axis roots, computed once with their opposite (negated root) indices.
 const B4_ROOTS = rootsB4()
-const B4_OPPOSITE = B4_ROOTS.map((root) =>
-  B4_ROOTS.findIndex((other) =>
+const B4_OPPOSITE = B4_ROOTS.map(root =>
+  B4_ROOTS.findIndex(other =>
     other.every((value, axis) => value === -(root[axis] ?? 0)),
   ),
 )

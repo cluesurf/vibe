@@ -77,7 +77,8 @@ export function willFork(): {
 
   // sweep willpower to find the threshold where the self flips from relapse to delayed gratification
   const willpowerSweep: { willpower: number; outcome: number }[] = []
-  for (let wpw = 0; wpw <= 8; wpw++) willpowerSweep.push({ willpower: wpw, outcome: run(wpw, 0) })
+  for (let wpw = 0; wpw <= 8; wpw++)
+    willpowerSweep.push({ willpower: wpw, outcome: run(wpw, 0) })
   let willpowerThreshold = -1
   for (const s of willpowerSweep) {
     if (s.outcome === BIG) {
@@ -89,7 +90,8 @@ export function willFork(): {
   const delaysGratification = outcomeHighWill === BIG
   const relapsesWhenDepleted = outcomeLowWill === SMALL
   const fieldOverrides = outcomeStrongField === SMALL
-  const hasSharpThreshold = willpowerThreshold === VALLEY * COST_PER_STEP
+  const hasSharpThreshold =
+    willpowerThreshold === VALLEY * COST_PER_STEP
 
   const solved =
     worthPursuing &&
@@ -116,7 +118,8 @@ export function willFork(): {
 
 export default experiment({
   id: 'selves/will-fork',
-  title: 'delays gratification with willpower, relapses when depleted, field overrides, sharp threshold',
+  title:
+    'delays gratification with willpower, relapses when depleted, field overrides, sharp threshold',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',

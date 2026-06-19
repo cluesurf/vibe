@@ -11,15 +11,36 @@ import { verdict } from '@/test/scaffold/verdict'
 import { diracQuantumWalk } from '@/code/dynamics/quantum-walk'
 
 // 1D Dirac quantum walk: state psiR[x], psiL[x] (complex). coin (mass angle theta) then shift.
-const diracWalk = (L: number, mass: number, steps: number, seedMode: 'symmetric' | 'right'): { chirality: number[]; centerR: number; centerL: number; center: number; norm: number[] } =>
-  diracQuantumWalk({ size: L, mass, steps, seedMode })
+const diracWalk = (
+  L: number,
+  mass: number,
+  steps: number,
+  seedMode: 'symmetric' | 'right',
+): {
+  chirality: number[]
+  centerR: number
+  centerL: number
+  center: number
+  norm: number[]
+} => diracQuantumWalk({ size: L, mass, steps, seedMode })
 
-export function spSpinorField(): { chiralityConservedMassless: boolean; chiralityMixesMassive: boolean; lightSpeedMassless: boolean; subluminalMassive: boolean; normConserved: boolean; fermionExchange: boolean } {
-  const L = 201, steps = 60
+export function spSpinorField(): {
+  chiralityConservedMassless: boolean
+  chiralityMixesMassive: boolean
+  lightSpeedMassless: boolean
+  subluminalMassive: boolean
+  normConserved: boolean
+  fermionExchange: boolean
+} {
+  const L = 201,
+    steps = 60
   // SP3 massless: chirality conserved, each chirality streams at +/- c = 1
   const m0 = diracWalk(L, 0, steps, 'symmetric')
-  const chiralityConservedMassless = m0.chirality.every((c) => Math.abs(c - m0.chirality[0]!) < 1e-9)
-  const lightSpeedMassless = Math.abs(m0.centerR - steps) < 1 && Math.abs(m0.centerL + steps) < 1
+  const chiralityConservedMassless = m0.chirality.every(
+    c => Math.abs(c - m0.chirality[0]!) < 1e-9,
+  )
+  const lightSpeedMassless =
+    Math.abs(m0.centerR - steps) < 1 && Math.abs(m0.centerL + steps) < 1
 
   // SP3/SP2 massive: chirality oscillates (mass couples L,R), packet is subluminal
   const mm = diracWalk(L, 0.5, steps, 'right')
@@ -28,19 +49,29 @@ export function spSpinorField(): { chiralityConservedMassless: boolean; chiralit
   const subluminalMassive = Math.abs(mm.center) < steps - 5
 
   // norm (probability) conserved = unitary walk
-  const normConserved = m0.norm.every((n) => Math.abs(n - 1) < 1e-9) && mm.norm.every((n) => Math.abs(n - 1) < 1e-9)
+  const normConserved =
+    m0.norm.every(n => Math.abs(n - 1) < 1e-9) &&
+    mm.norm.every(n => Math.abs(n - 1) < 1e-9)
 
   // SP6 spin-statistics: exchanging two identical spinors = a 2*pi rotation of the relative coordinate.
   // the spinor exchange amplitude is the quaternion 2*pi rotation overlap = cos(pi) = -1 => antisymmetric => fermion.
   const exchangeSign = Math.cos(Math.PI) // 2*pi rotation, half-angle pi
   const fermionExchange = Math.abs(exchangeSign - -1) < 1e-12
 
-  return { chiralityConservedMassless, chiralityMixesMassive, lightSpeedMassless, subluminalMassive, normConserved, fermionExchange }
+  return {
+    chiralityConservedMassless,
+    chiralityMixesMassive,
+    lightSpeedMassless,
+    subluminalMassive,
+    normConserved,
+    fermionExchange,
+  }
 }
 
 export default experiment({
   id: 'spin/sp-spinor-field-3434',
-  title: 'a 2-component Dirac walk on {3,4,3,4} streams chirality at the light speed and mixes it under a mass',
+  title:
+    'a 2-component Dirac walk on {3,4,3,4} streams chirality at the light speed and mixes it under a mass',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -58,7 +89,9 @@ export default experiment({
       claim:
         'a unitary two-component Dirac quantum walk propagates a spinor packet coherently, conserving chirality and streaming each chirality at the light speed when massless, while a mass term couples the two chiralities and makes the packet subluminal, with total probability conserved throughout',
       metrics: {
-        chiralityConservedMassless: r.chiralityConservedMassless ? 1 : 0,
+        chiralityConservedMassless: r.chiralityConservedMassless
+          ? 1
+          : 0,
         lightSpeedMassless: r.lightSpeedMassless ? 1 : 0,
         chiralityMixesMassive: r.chiralityMixesMassive ? 1 : 0,
         subluminalMassive: r.subluminalMassive ? 1 : 0,
@@ -68,7 +101,9 @@ export default experiment({
         // the massless run is the control for the massive run: chirality is exactly
         // conserved (range 0) with no mass, and oscillates only when the mass term is
         // switched on.
-        masslessChiralityConserved: r.chiralityConservedMassless ? 1 : 0,
+        masslessChiralityConserved: r.chiralityConservedMassless
+          ? 1
+          : 0,
         massiveChiralityMixes: r.chiralityMixesMassive ? 1 : 0,
       },
       notes:

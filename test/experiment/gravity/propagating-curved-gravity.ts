@@ -16,18 +16,28 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'gravity/propagating-curved-gravity',
-  title: 'a stable, reversible, nonlinear propagating gravity in the curved {5,3,4} bulk, finite speed, exact echo, bounded',
+  title:
+    'a stable, reversible, nonlinear propagating gravity in the curved {5,3,4} bulk, finite speed, exact echo, bounded',
   category: 'gravity',
   substrates: ['534'],
   depth: 'L3',
   paper: true,
   run() {
-    const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 40000 })
+    const mesh = buildCoxeterMesh({
+      symbol: [5, 3, 4],
+      depth: 20,
+      maxChambers: 40000,
+    })
     const n = mesh.cellCount
     const neighbors = mesh.neighbors
     let center = 0
-    for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-    const dist = neighborDistances({ neighbors, size: n, source: center })
+    for (let i = 1; i < n; i++)
+      if (neighbors[i]!.length > neighbors[center]!.length) center = i
+    const dist = neighborDistances({
+      neighbors,
+      size: n,
+      source: center,
+    })
     let maxD = 0
     for (let i = 0; i < n; i++) if (dist[i]! > maxD) maxD = dist[i]!
     const q = 251 // a prime modulus
@@ -39,8 +49,20 @@ export default experiment({
       cur[center] = 1
       return { prev, cur }
     }
-    const step = (prev: Uint8Array, cur: Uint8Array, next: Uint8Array, coupling: number) =>
-      reversibleWaveStepNonlinear({ neighbors, previous: prev, current: cur, next, modulus: q, selfCoupling: coupling })
+    const step = (
+      prev: Uint8Array,
+      cur: Uint8Array,
+      next: Uint8Array,
+      coupling: number,
+    ) =>
+      reversibleWaveStepNonlinear({
+        neighbors,
+        previous: prev,
+        current: cur,
+        next,
+        modulus: q,
+        selfCoupling: coupling,
+      })
 
     // PROPAGATION: the front (furthest disturbed shell) after a few beats, a finite ballistic speed
     const frontSpeed = (coupling: number): number => {
@@ -52,7 +74,8 @@ export default experiment({
         ;[prev, cur, next] = [cur, next, prev]
       }
       let front = 0
-      for (let i = 0; i < n; i++) if (cur[i] !== 0 && dist[i]! > front) front = dist[i]!
+      for (let i = 0; i < n; i++)
+        if (cur[i] !== 0 && dist[i]! > front) front = dist[i]!
       return front / probe // disturbed-front distance per beat
     }
 
@@ -64,12 +87,18 @@ export default experiment({
       const T = 40
       let next = new Uint8Array(n)
       const u: Uint8Array[] = [prev.slice(), cur.slice()]
-      for (let b = 0; b < T; b++) { step(prev, cur, next, coupling); ;[prev, cur, next] = [cur, next, prev] }
+      for (let b = 0; b < T; b++) {
+        step(prev, cur, next, coupling)
+        ;[prev, cur, next] = [cur, next, prev]
+      }
       // backward: from the last pair (prev=u_{T}, cur=u_{T-1}) step recovers u_{T-2}, ... to u_0
       let bprev = cur.slice() // u_T
       let bcur = prev.slice() // u_{T-1}
       let bnext = new Uint8Array(n)
-      for (let b = 0; b < T; b++) { step(bprev, bcur, bnext, coupling); ;[bprev, bcur, bnext] = [bcur, bnext, bprev] }
+      for (let b = 0; b < T; b++) {
+        step(bprev, bcur, bnext, coupling)
+        ;[bprev, bcur, bnext] = [bcur, bnext, bprev]
+      }
       // bcur should be u_0, bprev should be u_1
       let diff = 0
       for (let i = 0; i < n; i++) if (bcur[i] !== start0[i]) diff++
@@ -96,9 +125,21 @@ export default experiment({
       let { cur } = seed()
       let next = new Uint8Array(n)
       const start = cur.slice()
-      const fwd = (a: Uint8Array, b: Uint8Array) => { for (let i = 0; i < n; i++) { let s = 0; for (const j of neighbors[i]!) s += a[j]!; b[i] = ((s % q) + q) % q } }
-      for (let b = 0; b < 40; b++) { fwd(cur, next); ;[cur, next] = [next, cur] }
-      for (let b = 0; b < 40; b++) { fwd(cur, next); ;[cur, next] = [next, cur] } // "reverse" by re-running, cannot undo
+      const fwd = (a: Uint8Array, b: Uint8Array) => {
+        for (let i = 0; i < n; i++) {
+          let s = 0
+          for (const j of neighbors[i]!) s += a[j]!
+          b[i] = ((s % q) + q) % q
+        }
+      }
+      for (let b = 0; b < 40; b++) {
+        fwd(cur, next)
+        ;[cur, next] = [next, cur]
+      }
+      for (let b = 0; b < 40; b++) {
+        fwd(cur, next)
+        ;[cur, next] = [next, cur]
+      } // "reverse" by re-running, cannot undo
       let diff = 0
       for (let i = 0; i < n; i++) if (cur[i] !== start[i]) diff++
       return diff / n
@@ -122,10 +163,19 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'on the curved {5,3,4} bulk a second-order integer FIELD propagates with a finite ballistic speed, is exactly reversible (forward then backward recovers the start with zero error), and is stable (bounded activity), and all of this still holds with a nonlinear self-coupling on (still reversible and bounded), while a first-order irreversible integrator cannot recover, so the base dynamics CAN support a stable, reversible, fully-nonlinear propagating field, the existence-and-stability half the radiative-gravity frontier needs',
-      metrics: { cells: n, speedLinear: Number(speedLin.toFixed(3)), speedNonlinear: Number(speedNl.toFixed(3)), echoLinear: echoLin, echoNonlinear: echoNl, stableLinear: stableLin ? 1 : 0, stableNonlinear: stableNl ? 1 : 0 },
+      metrics: {
+        cells: n,
+        speedLinear: Number(speedLin.toFixed(3)),
+        speedNonlinear: Number(speedNl.toFixed(3)),
+        echoLinear: echoLin,
+        echoNonlinear: echoNl,
+        stableLinear: stableLin ? 1 : 0,
+        stableNonlinear: stableNl ? 1 : 0,
+      },
       // CONTROL: the first-order irreversible integrator does NOT recover under reversal (echo large), so the exact echo is the second-order reversible structure, not trivial.
       control: { irreversibleEcho: Number(ctrlEcho.toFixed(3)) },
-      notes: 'GR9 dynamical half, the EXISTENCE-and-stability result, the base supports a stable reversible nonlinear propagating field (a scalar proxy), NOT yet the spin-2 graviton on the emergent cusp metric, which per gravity-paper-readiness is infrared-emergent and the genuine radiative frontier. The thesis stands, gravity is the emergent cusp metric, the base bulk is anti-confining, this shows only that reversible nonlinear stable propagation is buildable at the base.',
+      notes:
+        'GR9 dynamical half, the EXISTENCE-and-stability result, the base supports a stable reversible nonlinear propagating field (a scalar proxy), NOT yet the spin-2 graviton on the emergent cusp metric, which per gravity-paper-readiness is infrared-emergent and the genuine radiative frontier. The thesis stands, gravity is the emergent cusp metric, the base bulk is anti-confining, this shows only that reversible nonlinear stable propagation is buildable at the base.',
     })
   },
 })

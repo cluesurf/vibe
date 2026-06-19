@@ -14,31 +14,51 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeSkyrmionField, skyrmionDegree, snapToTrits, type Spin } from '@/code/dynamics/skyrmion-field'
+import {
+  makeSkyrmionField,
+  skyrmionDegree,
+  snapToTrits,
+  type Spin,
+} from '@/code/dynamics/skyrmion-field'
 
 export default experiment({
   id: 'selves/ternary-skyrmion-charge',
-  title: 'a 3-trit-per-cell direction field encodes the Skyrmion charge exactly (the topological state is fully ternary)',
+  title:
+    'a 3-trit-per-cell direction field encodes the Skyrmion charge exactly (the topological state is fully ternary)',
   category: 'selves',
   substrates: ['spin-field'],
   depth: 'L2',
   paper: true,
   run() {
     const L = 48
-    const degreeAt = (coreRadius: number): number => skyrmionDegree(snapToTrits(makeSkyrmionField({ size: L, coreRadius })), L)
+    const degreeAt = (coreRadius: number): number =>
+      skyrmionDegree(
+        snapToTrits(makeSkyrmionField({ size: L, coreRadius })),
+        L,
+      )
     const r2 = degreeAt(2)
     const r4 = degreeAt(4)
     const r6 = degreeAt(6)
     const r10 = degreeAt(10)
 
     // a perturbation, tilt a patch, snap to trits, the charge must survive.
-    const idx = (x: number, y: number): number => ((y + L) % L) * L + ((x + L) % L)
+    const idx = (x: number, y: number): number =>
+      ((y + L) % L) * L + ((x + L) % L)
     const field: Spin[] = makeSkyrmionField({ size: L, coreRadius: 6 })
-    for (let y = 20; y < 24; y++) for (let x = 28; x < 32; x++) { const n = Math.hypot(1, 0, 0.3); field[idx(x, y)] = [1 / n, 0, 0.3 / n] }
+    for (let y = 20; y < 24; y++)
+      for (let x = 28; x < 32; x++) {
+        const n = Math.hypot(1, 0, 0.3)
+        field[idx(x, y)] = [1 / n, 0, 0.3 / n]
+      }
     const perturbedDegree = skyrmionDegree(snapToTrits(field), L)
 
-    const chargeAtAllSizes = Math.abs(r2 + 1) < 0.05 && Math.abs(r4 + 1) < 0.05 && Math.abs(r6 + 1) < 0.05 && Math.abs(r10 + 1) < 0.05
-    const chargeRobustToPerturbation = Math.abs(perturbedDegree + 1) < 0.05
+    const chargeAtAllSizes =
+      Math.abs(r2 + 1) < 0.05 &&
+      Math.abs(r4 + 1) < 0.05 &&
+      Math.abs(r6 + 1) < 0.05 &&
+      Math.abs(r10 + 1) < 0.05
+    const chargeRobustToPerturbation =
+      Math.abs(perturbedDegree + 1) < 0.05
     const ok = chargeAtAllSizes && chargeRobustToPerturbation
 
     return verdict({
@@ -55,7 +75,10 @@ export default experiment({
         chargeRobustToPerturbation: chargeRobustToPerturbation ? 1 : 0,
         tritsPerCell: 3,
       },
-      control: { degreeRadius2Times100: Math.round(r2 * 100), perturbedDegreeTimes100: Math.round(perturbedDegree * 100) },
+      control: {
+        degreeRadius2Times100: Math.round(r2 * 100),
+        perturbedDegreeTimes100: Math.round(perturbedDegree * 100),
+      },
       notes:
         'the discrete ternary encoding of the topological state, 3 trits per cell (a cube-direction spin) hold the Skyrmion charge exactly, robust to size and perturbation. The state is ternary, the remaining non-ternary piece was only the dynamics (a reversible discrete rule, the trilemma, resolved at the emergent scale). Geometry, the direction lives on the cube/octahedron (3-trit) target, in the 24-cell space',
     })

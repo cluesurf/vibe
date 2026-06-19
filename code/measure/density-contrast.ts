@@ -14,7 +14,10 @@ export function densityContrast(input: {
   for (const p of points) {
     let idx = 0
     for (let a = 0; a < dim; a++) {
-      const c = Math.min(binsPerAxis - 1, Math.floor((p[a] ?? 0) * binsPerAxis))
+      const c = Math.min(
+        binsPerAxis - 1,
+        Math.floor((p[a] ?? 0) * binsPerAxis),
+      )
       idx = idx * binsPerAxis + c
     }
     cells.set(idx, (cells.get(idx) ?? 0) + 1)
@@ -26,5 +29,8 @@ export function densityContrast(input: {
   let varc = 0
   for (const c of counts) varc += (c - mean) ** 2
   varc /= counts.length
-  return { meanCount: mean, delta: Math.sqrt(varc) / Math.max(1e-9, mean) }
+  return {
+    meanCount: mean,
+    delta: Math.sqrt(varc) / Math.max(1e-9, mean),
+  }
 }

@@ -14,14 +14,21 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { bulkMass, relaxPotential } from '@/code/dynamics/gravity-field'
-import { balancedTernaryCap, isBalancedTernaryField } from '@/code/tool/balanced-ternary'
+import {
+  balancedTernaryCap,
+  isBalancedTernaryField,
+} from '@/code/tool/balanced-ternary'
 
 const SIDE = 16
 const SPATIAL_DEGREE = 24
 
 // the body's well held in K balanced-ternary trits, and whether it pulls a test mass displaced three cells in
 // to the body. Returns the test mass's final distance and whether the field is genuinely balanced ternary.
-function bindingTest(digits: number): { finalDistance: number; ternary: boolean; wellRange: number } {
+function bindingTest(digits: number): {
+  finalDistance: number
+  ternary: boolean
+  wellRange: number
+} {
   const mesh = d4Mesh({ side: SIDE })
   const cellCount = mesh.cellCount
   const half = Math.floor(SIDE / 2)
@@ -31,19 +38,35 @@ function bindingTest(digits: number): { finalDistance: number; ternary: boolean;
     Math.floor(c / (SIDE * SIDE)) % SIDE,
     Math.floor(c / SIDE ** 3) % SIDE,
   ]
-  const centre = half + half * SIDE + half * SIDE * SIDE + half * SIDE ** 3
+  const centre =
+    half + half * SIDE + half * SIDE * SIDE + half * SIDE ** 3
   const centreCoord = coord(centre)
-  const neighbour = (c: number, d: number): number => mesh.neighbour(c, d)
-  const distance = (c: number): number => coord(c).reduce((s, v, i) => s + Math.abs(v - centreCoord[i]!), 0)
+  const neighbour = (c: number, d: number): number =>
+    mesh.neighbour(c, d)
+  const distance = (c: number): number =>
+    coord(c).reduce((s, v, i) => s + Math.abs(v - centreCoord[i]!), 0)
 
   const body = new Uint8Array(cellCount)
   for (let c = 0; c < cellCount; c++) {
     const p = coord(c)
-    if ((p[0]! - half) ** 2 + (p[1]! - half) ** 2 + (p[2]! - half) ** 2 + (p[3]! - half) ** 2 <= 4) body[c] = 1
+    if (
+      (p[0]! - half) ** 2 +
+        (p[1]! - half) ** 2 +
+        (p[2]! - half) ** 2 +
+        (p[3]! - half) ** 2 <=
+      4
+    )
+      body[c] = 1
   }
   const cap = balancedTernaryCap(digits)
   const phi = relaxPotential({
-    source: bulkMass({ occupied: body, neighbour, cellCount, spatialDegree: SPATIAL_DEGREE, minNeighbours: 3 }),
+    source: bulkMass({
+      occupied: body,
+      neighbour,
+      cellCount,
+      spatialDegree: SPATIAL_DEGREE,
+      minNeighbours: 3,
+    }),
     neighbour,
     cellCount,
     spatialDegree: SPATIAL_DEGREE,
@@ -53,7 +76,8 @@ function bindingTest(digits: number): { finalDistance: number; ternary: boolean;
   })
   const ternary = isBalancedTernaryField(phi, digits)
   let wellRange = 0
-  for (let c = 0; c < cellCount; c++) if (phi[c]! < 0 && distance(c) > wellRange) wellRange = distance(c)
+  for (let c = 0; c < cellCount; c++)
+    if (phi[c]! < 0 && distance(c) > wellRange) wellRange = distance(c)
 
   // a test mass displaced three cells, walking down the gradient to the body surface (distance two)
   let piece = centre
@@ -77,7 +101,8 @@ function bindingTest(digits: number): { finalDistance: number; ternary: boolean;
 
 export default experiment({
   id: 'gravity/ternary-field',
-  title: 'the gravity field as a stack of tones, three balanced-ternary trits bind, a single trit is too coarse',
+  title:
+    'the gravity field as a stack of tones, three balanced-ternary trits bind, a single trit is too coarse',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

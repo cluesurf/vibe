@@ -50,13 +50,21 @@ export function lorentzBoost(input: { seed: number }): {
   const RANGE = 2.0
   const BINS = 16
 
-  const sprinkleEtas = linkRapidities({ coords, links: poset.links, band })
+  const sprinkleEtas = linkRapidities({
+    coords,
+    links: poset.links,
+    band,
+  })
   const sprinkleFlatness = flatness(sprinkleEtas, RANGE, BINS)
   const sprinkleStd = std(sprinkleEtas)
 
   const lat = causalLattice({ half: 14 })
   const latticeCoords = lat.embedding?.coords ?? new Float64Array(0)
-  const latticeEtas = linkRapidities({ coords: latticeCoords, links: lat.links, band: null })
+  const latticeEtas = linkRapidities({
+    coords: latticeCoords,
+    links: lat.links,
+    band: null,
+  })
   const latticeFlatness = flatness(latticeEtas, RANGE, BINS)
   const latticeStd = std(latticeEtas)
 
@@ -70,16 +78,28 @@ export function lorentzBoost(input: { seed: number }): {
   // boosted time band: map the central band's centre through the boost
   const tc = 0.5
   const boostedCentre = ch * tc
-  const boostedBand = { lo: boostedCentre - 0.25 * ch, hi: boostedCentre + 0.25 * ch }
-  const boostedEtas = linkRapidities({ coords: boosted, links: poset.links, band: boostedBand })
+  const boostedBand = {
+    lo: boostedCentre - 0.25 * ch,
+    hi: boostedCentre + 0.25 * ch,
+  }
+  const boostedEtas = linkRapidities({
+    coords: boosted,
+    links: poset.links,
+    band: boostedBand,
+  })
   // de-mean both so we compare shape, not the (expected) shift by xi
-  const meanShift = boostedEtas.length ? boostedEtas.reduce((a, b) => a + b, 0) / boostedEtas.length : 0
-  const boostedCentered = boostedEtas.map((e) => e - meanShift)
+  const meanShift = boostedEtas.length
+    ? boostedEtas.reduce((a, b) => a + b, 0) / boostedEtas.length
+    : 0
+  const boostedCentered = boostedEtas.map(e => e - meanShift)
   const boostedFlatness = flatness(boostedCentered, RANGE, BINS)
-  const flatnessUnderBoost = Math.abs(boostedFlatness - sprinkleFlatness)
+  const flatnessUnderBoost = Math.abs(
+    boostedFlatness - sprinkleFlatness,
+  )
 
   const sprinkleIsFlat = sprinkleFlatness > 0.9
-  const latticeIsPeaked = latticeFlatness < 0.6 && sprinkleStd > 3 * latticeStd
+  const latticeIsPeaked =
+    latticeFlatness < 0.6 && sprinkleStd > 3 * latticeStd
   const boostCovariant = flatnessUnderBoost < 0.1
 
   return {
@@ -98,7 +118,8 @@ export function lorentzBoost(input: { seed: number }): {
 
 export default experiment({
   id: 'relativity/lorentz-boost',
-  title: 'sprinkle rapidity is flat and boost-covariant while a lattice peaks at a rest frame',
+  title:
+    'sprinkle rapidity is flat and boost-covariant while a lattice peaks at a rest frame',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -106,7 +127,10 @@ export default experiment({
   run() {
     const r = lorentzBoost({ seed: 1 })
     const ok =
-      r.solved && r.sprinkleIsFlat && r.latticeIsPeaked && r.boostCovariant
+      r.solved &&
+      r.sprinkleIsFlat &&
+      r.latticeIsPeaked &&
+      r.boostCovariant
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

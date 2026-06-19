@@ -21,15 +21,22 @@ export function coordinateAxes(dimension: number): number[][] {
 // Kronecker sequence) and normalised. Used to sample how isotropic a dispersion or
 // direction field is at a given scale, without any random seed. `dimension` may be 3
 // or 4 (the irrational multipliers below cover up to four axes).
-export function probeDirections(input: { count: number; dimension: number }): number[][] {
+export function probeDirections(input: {
+  count: number
+  dimension: number
+}): number[][] {
   const { count, dimension } = input
-  const alpha = [0.7548776662466927, 0.5698402909980532, 0.4301597090019468, 0.3247179572447458]
+  const alpha = [
+    0.7548776662466927, 0.5698402909980532, 0.4301597090019468,
+    0.3247179572447458,
+  ]
   const directions: number[][] = []
   for (let index = 1; index <= count; index++) {
     const raw: number[] = []
-    for (let axis = 0; axis < dimension; axis++) raw.push(((index * (alpha[axis] ?? 0.5)) % 1) - 0.5)
+    for (let axis = 0; axis < dimension; axis++)
+      raw.push(((index * (alpha[axis] ?? 0.5)) % 1) - 0.5)
     const norm = Math.hypot(...raw)
-    directions.push(raw.map((value) => value / norm))
+    directions.push(raw.map(value => value / norm))
   }
   return directions
 }

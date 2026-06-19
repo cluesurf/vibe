@@ -35,8 +35,11 @@ export function makeAssociativeMemory(input: {
 // A distinct, well-spread ternary word for an index. A bijective multiplicative hash (Knuth) decorrelates
 // neighbouring indices, then the result is read out in base 3, so the words are distinct and far apart in
 // content. wordBits must be at least 21 to represent the full 32-bit hash without collision.
-export function ternaryWord(index: number, wordBits: number): Int8Array {
-  const mixed = (Math.imul(index, 2654435761) >>> 0)
+export function ternaryWord(
+  index: number,
+  wordBits: number,
+): Int8Array {
+  const mixed = Math.imul(index, 2654435761) >>> 0
   const word = new Int8Array(wordBits)
   let p = 1
   for (let k = 0; k < wordBits; k++) {
@@ -46,18 +49,29 @@ export function ternaryWord(index: number, wordBits: number): Int8Array {
   return word
 }
 
-export function storeWord(mem: AssociativeMemory, cell: number, word: ArrayLike<number>): void {
+export function storeWord(
+  mem: AssociativeMemory,
+  cell: number,
+  word: ArrayLike<number>,
+): void {
   const base = cell * mem.wordBits
-  for (let k = 0; k < mem.wordBits; k++) mem.words[base + k] = word[k]! as number
+  for (let k = 0; k < mem.wordBits; k++)
+    mem.words[base + k] = word[k]! as number
   mem.occupied[cell] = 1
 }
 
-export function readWord(mem: AssociativeMemory, cell: number): Int8Array {
+export function readWord(
+  mem: AssociativeMemory,
+  cell: number,
+): Int8Array {
   return mem.words.slice(cell * mem.wordBits, (cell + 1) * mem.wordBits)
 }
 
 // The number of slots that are actually compared (all of them unless a mask restricts).
-export function comparedSlots(wordBits: number, mask?: ArrayLike<number>): number {
+export function comparedSlots(
+  wordBits: number,
+  mask?: ArrayLike<number>,
+): number {
   if (!mask) return wordBits
   let n = 0
   for (let k = 0; k < wordBits; k++) if (mask[k]) n++
@@ -104,7 +118,10 @@ export function searchExact(input: {
   comparand: ArrayLike<number>
   mask?: ArrayLike<number>
 }): number[] {
-  return search({ ...input, minScore: comparedSlots(input.mem.wordBits, input.mask) })
+  return search({
+    ...input,
+    minScore: comparedSlots(input.mem.wordBits, input.mask),
+  })
 }
 
 // The single best responder, the occupied cell with the highest match score (the nearest content). Ties go
@@ -133,7 +150,10 @@ export function pickNearest(input: {
   seed: number
   neighbors: Neighbors
 }): number {
-  const depth = bfsShells({ neighbors: input.neighbors, root: input.seed }).depth
+  const depth = bfsShells({
+    neighbors: input.neighbors,
+    root: input.seed,
+  }).depth
   let best = -1
   let bestD = Infinity
   for (const r of input.responders) {
@@ -154,8 +174,15 @@ export function broadcastWave(input: {
   neighbors: Neighbors
   seed: number
   responders: number[]
-}): { arrivalBeat: Int32Array; firstResponderBeat: number; coverageBeat: number } {
-  const depth = bfsShells({ neighbors: input.neighbors, root: input.seed }).depth
+}): {
+  arrivalBeat: Int32Array
+  firstResponderBeat: number
+  coverageBeat: number
+} {
+  const depth = bfsShells({
+    neighbors: input.neighbors,
+    root: input.seed,
+  }).depth
   let first = Infinity
   for (const r of input.responders) {
     const d = depth[r]!

@@ -11,13 +11,19 @@ import { makeDense } from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 type Cx = [number, number]
-const cMul = (a: Cx, b: Cx): Cx => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cMul = (a: Cx, b: Cx): Cx => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 const cAdd = (a: Cx, b: Cx): Cx => [a[0] + b[0], a[1] + b[1]]
 const cSub = (a: Cx, b: Cx): Cx => [a[0] - b[0], a[1] - b[1]]
 const cScale = (a: Cx, s: number): Cx => [a[0] * s, a[1] * s]
 const cDiv = (x: Cx, d: Cx): Cx => {
   const dd = d[0] * d[0] + d[1] * d[1]
-  return [(x[0] * d[0] + x[1] * d[1]) / dd, (x[1] * d[0] - x[0] * d[1]) / dd]
+  return [
+    (x[0] * d[0] + x[1] * d[1]) / dd,
+    (x[1] * d[0] - x[0] * d[1]) / dd,
+  ]
 }
 
 // the projector onto the lower Floquet band of the coined Dirac walk at momentum k, P_-(k) = (U(k) - e^{iE} I) /
@@ -39,8 +45,14 @@ function lowerBandProjector(theta: number, k: number): Cx[][] {
   const eiE: Cx = [cosE, sinE]
   const denom: Cx = [0, -2 * sinE]
   const p: Cx[][] = [
-    [[0, 0], [0, 0]],
-    [[0, 0], [0, 0]],
+    [
+      [0, 0],
+      [0, 0],
+    ],
+    [
+      [0, 0],
+      [0, 0],
+    ],
   ]
   for (let a = 0; a < 2; a++) {
     for (let b = 0; b < 2; b++) {
@@ -52,18 +64,32 @@ function lowerBandProjector(theta: number, k: number): Cx[][] {
 }
 
 // the real-space two-component correlation matrix C(d) = (1/N) sum_k P_-(k) e^{ikd} of the filled lower band
-function correlation(theta: number, momentumCount: number, d: number): Cx[][] {
+function correlation(
+  theta: number,
+  momentumCount: number,
+  d: number,
+): Cx[][] {
   const out: Cx[][] = [
-    [[0, 0], [0, 0]],
-    [[0, 0], [0, 0]],
+    [
+      [0, 0],
+      [0, 0],
+    ],
+    [
+      [0, 0],
+      [0, 0],
+    ],
   ]
   for (let n = 0; n < momentumCount; n++) {
     const k = (2 * Math.PI * n) / momentumCount
     const p = lowerBandProjector(theta, k)
     const phase: Cx = [Math.cos(k * d), Math.sin(k * d)]
-    for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) out[a]![b] = cAdd(out[a]![b]!, cMul(p[a]![b]!, phase))
+    for (let a = 0; a < 2; a++)
+      for (let b = 0; b < 2; b++)
+        out[a]![b] = cAdd(out[a]![b]!, cMul(p[a]![b]!, phase))
   }
-  for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) out[a]![b] = cScale(out[a]![b]!, 1 / momentumCount)
+  for (let a = 0; a < 2; a++)
+    for (let b = 0; b < 2; b++)
+      out[a]![b] = cScale(out[a]![b]!, 1 / momentumCount)
   return out
 }
 

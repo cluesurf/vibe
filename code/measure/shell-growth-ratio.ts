@@ -10,8 +10,19 @@ export function shellGrowthRatio(input: {
   to: number
   safeDenominator?: boolean
 }): number {
-  const mid = input.shellCounts.slice(input.from, Math.min(input.to, input.shellCounts.length))
+  const mid = input.shellCounts.slice(
+    input.from,
+    Math.min(input.to, input.shellCounts.length),
+  )
   if (mid.length <= 1 && !input.safeDenominator) return 0
-  const denominator = input.safeDenominator ? Math.max(1, mid.length - 1) : mid.length - 1
-  return Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / denominator) * 100) / 100
+  const denominator = input.safeDenominator
+    ? Math.max(1, mid.length - 1)
+    : mid.length - 1
+  return (
+    Math.round(
+      (mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) /
+        denominator) *
+        100,
+    ) / 100
+  )
 }

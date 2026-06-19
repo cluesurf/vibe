@@ -21,7 +21,9 @@ export interface OscillatorBathInput {
 }
 
 // Run the oscillator-bath dynamics, returning the displacement trajectory r over time.
-export function oscillatorBathTrajectory(input: OscillatorBathInput): number[] {
+export function oscillatorBathTrajectory(
+  input: OscillatorBathInput,
+): number[] {
   const chain = 80 // bath field sites
   const sponge = 24 // absorbing layer width at the far end
   const couple = 0.35 // body-to-bath coupling (radiation strength)
@@ -35,7 +37,8 @@ export function oscillatorBathTrajectory(input: OscillatorBathInput): number[] {
   const trajectory: number[] = []
 
   for (let t = 0; t < input.steps; t++) {
-    if (input.kickStep !== undefined && t === input.kickStep) vr += input.kickVelocity ?? 0
+    if (input.kickStep !== undefined && t === input.kickStep)
+      vr += input.kickVelocity ?? 0
     const ar = -input.stiffness * r - couple * (r - u[0]!)
     const au = new Array<number>(chain).fill(0)
     for (let x = 0; x < chain; x++) {
@@ -46,8 +49,17 @@ export function oscillatorBathTrajectory(input: OscillatorBathInput): number[] {
     au[0]! += couple * (r - u[0]!)
     vr += ar * dt
     r += vr * dt
-    if (r > 1000) { r = 1000; vr = 0 } else if (r < -1000) { r = -1000; vr = 0 }
-    for (let x = 0; x < chain; x++) { w[x]! += au[x]! * dt; u[x]! += w[x]! * dt }
+    if (r > 1000) {
+      r = 1000
+      vr = 0
+    } else if (r < -1000) {
+      r = -1000
+      vr = 0
+    }
+    for (let x = 0; x < chain; x++) {
+      w[x]! += au[x]! * dt
+      u[x]! += w[x]! * dt
+    }
     if (input.absorbing) {
       for (let x = chain - sponge; x < chain; x++) {
         const depth = (x - (chain - sponge)) / sponge
@@ -75,7 +87,10 @@ export interface TwoBodyBathInput {
   kickVelocity?: number
 }
 
-export function twoBodyBathTrajectory(input: TwoBodyBathInput): { body1: number[]; body2: number[] } {
+export function twoBodyBathTrajectory(input: TwoBodyBathInput): {
+  body1: number[]
+  body2: number[]
+} {
   const chain = 80
   const sponge = 24
   const couple = 0.35
@@ -103,7 +118,10 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): { body1: number[
       au[x] = waveSpeed2 * (left - 2 * u[x]! + right)
     }
     au[0]! += drive
-    for (let x = 0; x < chain; x++) { w[x]! += au[x]! * dt; u[x]! += w[x]! * dt }
+    for (let x = 0; x < chain; x++) {
+      w[x]! += au[x]! * dt
+      u[x]! += w[x]! * dt
+    }
     if (input.absorbing) {
       for (let x = chain - sponge; x < chain; x++) {
         const depth = (x - (chain - sponge)) / sponge
@@ -115,10 +133,17 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): { body1: number[
   }
 
   for (let t = 0; t < input.steps; t++) {
-    if (input.kickStep !== undefined && t === input.kickStep) v1 += input.kickVelocity ?? 0
+    if (input.kickStep !== undefined && t === input.kickStep)
+      v1 += input.kickVelocity ?? 0
     // each body, its own well, mutual attraction toward the other, and coupling to its own bath.
-    const a1 = -input.stiffness * r1 + input.mutual * (r2 - r1) - couple * (r1 - u1[0]!)
-    const a2 = -input.stiffness * r2 + input.mutual * (r1 - r2) - couple * (r2 - u2[0]!)
+    const a1 =
+      -input.stiffness * r1 +
+      input.mutual * (r2 - r1) -
+      couple * (r1 - u1[0]!)
+    const a2 =
+      -input.stiffness * r2 +
+      input.mutual * (r1 - r2) -
+      couple * (r2 - u2[0]!)
     v1 += a1 * dt
     v2 += a2 * dt
     r1 += v1 * dt
@@ -133,7 +158,10 @@ export function twoBodyBathTrajectory(input: TwoBodyBathInput): { body1: number[
 
 // The late amplitude, the maximum absolute displacement over the final fraction of the run. Near zero means the
 // body settled (an attractor), large means it is still oscillating (no attractor).
-export function lateAmplitude(trajectory: number[], lateFraction = 0.3): number {
+export function lateAmplitude(
+  trajectory: number[],
+  lateFraction = 0.3,
+): number {
   const from = Math.floor(trajectory.length * (1 - lateFraction))
   let max = 0
   for (let t = from; t < trajectory.length; t++) {

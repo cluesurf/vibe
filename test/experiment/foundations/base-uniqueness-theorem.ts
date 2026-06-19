@@ -29,7 +29,11 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { rootsD4, rootsAn, spinorWeightsDn } from '@/code/algebra/group/root-system'
+import {
+  rootsD4,
+  rootsAn,
+  spinorWeightsDn,
+} from '@/code/algebra/group/root-system'
 import { outerAutomorphismOrder } from '@/code/algebra/group/automorphism'
 
 interface Polytope {
@@ -47,34 +51,48 @@ const POLYTOPES: Polytope[] = [
   { name: '600-cell', symbol: [3, 3, 5], directional: null },
 ]
 
-const isSelfDual = (symbol: number[]): boolean => symbol.every((v, i) => v === symbol[symbol.length - 1 - i])
-const isCrystallographic = (symbol: number[]): boolean => symbol.every((v) => v !== 5)
-const hasTriality = (directional: number[][] | null): boolean => directional !== null && outerAutomorphismOrder(directional) === 6
+const isSelfDual = (symbol: number[]): boolean =>
+  symbol.every((v, i) => v === symbol[symbol.length - 1 - i])
+const isCrystallographic = (symbol: number[]): boolean =>
+  symbol.every(v => v !== 5)
+const hasTriality = (directional: number[][] | null): boolean =>
+  directional !== null && outerAutomorphismOrder(directional) === 6
 
 export default experiment({
   id: 'foundations/base-uniqueness-theorem',
-  title: 'the 24-cell is the unique self-dual, crystallographic, triality-carrying regular 4-polytope, so the dock is forced',
+  title:
+    'the 24-cell is the unique self-dual, crystallographic, triality-carrying regular 4-polytope, so the dock is forced',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L1',
   paper: false,
   run() {
     const passes = POLYTOPES.filter(
-      (p) => isSelfDual(p.symbol) && isCrystallographic(p.symbol) && hasTriality(p.directional),
+      p =>
+        isSelfDual(p.symbol) &&
+        isCrystallographic(p.symbol) &&
+        hasTriality(p.directional),
     )
-    const uniquePass = passes.length === 1 && passes[0]!.name === '24-cell'
+    const uniquePass =
+      passes.length === 1 && passes[0]!.name === '24-cell'
 
     // the near-miss control, the 5-cell is self-dual and crystallographic but lacks the triality and the spinor
     const fiveCell = POLYTOPES[0]!
-    const fiveCellSelfDualCrystallographic = isSelfDual(fiveCell.symbol) && isCrystallographic(fiveCell.symbol)
+    const fiveCellSelfDualCrystallographic =
+      isSelfDual(fiveCell.symbol) && isCrystallographic(fiveCell.symbol)
     const fiveCellNoTriality = !hasTriality(fiveCell.directional)
-    const controlIsolatesSpinor = fiveCellSelfDualCrystallographic && fiveCellNoTriality
+    const controlIsolatesSpinor =
+      fiveCellSelfDualCrystallographic && fiveCellNoTriality
 
     // the 24-cell directional set carries the spinors (the D4 spinor weights exist)
     const dockCarriesSpinor = spinorWeightsDn(4).length > 0
     const dockTrialityOrder = outerAutomorphismOrder(rootsD4())
 
-    const ok = uniquePass && controlIsolatesSpinor && dockCarriesSpinor && dockTrialityOrder === 6
+    const ok =
+      uniquePass &&
+      controlIsolatesSpinor &&
+      dockCarriesSpinor &&
+      dockTrialityOrder === 6
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -84,13 +102,18 @@ export default experiment({
         candidateCount: POLYTOPES.length,
         passCount: passes.length,
         uniquePassIs24Cell: uniquePass ? 1 : 0,
-        fiveCellTrialityOrder: outerAutomorphismOrder(fiveCell.directional!),
+        fiveCellTrialityOrder: outerAutomorphismOrder(
+          fiveCell.directional!,
+        ),
         dockTrialityOrder,
         dockSpinorWeightCount: spinorWeightsDn(4).length,
       },
       control: {
-        fiveCellSelfDualCrystallographic: fiveCellSelfDualCrystallographic ? 1 : 0,
-        fiveCellTrialityOrder: outerAutomorphismOrder(fiveCell.directional!),
+        fiveCellSelfDualCrystallographic:
+          fiveCellSelfDualCrystallographic ? 1 : 0,
+        fiveCellTrialityOrder: outerAutomorphismOrder(
+          fiveCell.directional!,
+        ),
       },
       notes:
         'the candidate space is the COMPLETE list of regular 4-polytopes (six of them), so this is an exhaustive theorem, not a sampled argument. Self-duality eliminates the 16-cell, the tesseract, the 120-cell, and the 600-cell. Crystallography (no 5 in the symbol) additionally eliminates the 120-cell and the 600-cell. Among the self-dual crystallographic survivors (the 5-cell and the 24-cell), triality (the S3 outer automorphism of order 6, which the 24-cell D4 has and the 5-cell A4 does not, order 2) selects the 24-cell uniquely, and it is the triality that carries the spinors 8s and 8c, the fermionic three-generation matter. The 5-cell is the near-miss control. This elevates generator-selection (D4 unique among root systems) to the geometric statement (the 24-cell unique among all regular 4-polytopes), the dock is forced.',

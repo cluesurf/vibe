@@ -9,9 +9,23 @@
 // in 2D, 3D, and 4D (any buildable symbol), because it is all reflection-matrix math through the shared frame.
 // See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
-import { buildCellShape, type CellShape } from '@/code/render/geometry/cell-shape'
-import { Mat, matMul, matVec, toPoincare, pointKey, identity } from '@/code/substrate/coxeter/minkowski'
-import { mobiusAdd, negate, gyroScale } from '@/code/render/geometry/isometry'
+import {
+  buildCellShape,
+  type CellShape,
+} from '@/code/render/geometry/cell-shape'
+import {
+  Mat,
+  matMul,
+  matVec,
+  toPoincare,
+  pointKey,
+  identity,
+} from '@/code/substrate/coxeter/minkowski'
+import {
+  mobiusAdd,
+  negate,
+  gyroScale,
+} from '@/code/render/geometry/isometry'
 import type { Scene, SceneEdge, Vec } from '@/code/render/scene'
 
 export interface CameraOptions {
@@ -47,8 +61,12 @@ export class Camera {
     this.c0 = frame.center
     this.timeAxis = frame.timeAxis
     this.window = this.buildWindow()
-    this.faceCenters = this.faces.map((f) => toPoincare(matVec(f, this.c0), this.timeAxis))
-    this.straightAhead = this.faceCenters.map((dir) => this.mostOpposite(dir))
+    this.faceCenters = this.faces.map(f =>
+      toPoincare(matVec(f, this.c0), this.timeAxis),
+    )
+    this.straightAhead = this.faceCenters.map(dir =>
+      this.mostOpposite(dir),
+    )
     this.forwardFace = 0
   }
 
@@ -91,7 +109,9 @@ export class Camera {
     const seen = new Set<string>()
     const ballDim = this.shape.frame.dim - 1
     for (const g of this.window) {
-      const ballVerts = this.shape.vertices.map((v) => place(toPoincare(matVec(g, v), this.timeAxis)))
+      const ballVerts = this.shape.vertices.map(v =>
+        place(toPoincare(matVec(g, v), this.timeAxis)),
+      )
       for (const [i, j] of this.shape.edges) {
         const a = ballVerts[i]!
         const b = ballVerts[j]!
@@ -102,7 +122,12 @@ export class Camera {
         edges.push({ a, b })
       }
     }
-    return { dim: ballDim, symbol: this.symbol.slice(), edges, cellCount: this.window.length }
+    return {
+      dim: ballDim,
+      symbol: this.symbol.slice(),
+      edges,
+      cellCount: this.window.length,
+    }
   }
 
   // BFS the camera-relative window once, every cell isometry whose center is within windowNorm of the origin
@@ -110,7 +135,9 @@ export class Camera {
     const dim = this.shape.frame.dim
     const start = identity(dim)
     const window: Mat[] = [start]
-    const seen = new Set<string>([pointKey(toPoincare(matVec(start, this.c0), this.timeAxis))])
+    const seen = new Set<string>([
+      pointKey(toPoincare(matVec(start, this.c0), this.timeAxis)),
+    ])
     for (let head = 0; head < window.length; head++) {
       const g = window[head]!
       for (const f of this.faces) {
@@ -153,7 +180,7 @@ function norm(v: Vec): number {
 }
 
 function pairKey(a: Vec, b: Vec): string {
-  const ka = a.map((x) => Math.round(x * 1e4)).join(',')
-  const kb = b.map((x) => Math.round(x * 1e4)).join(',')
+  const ka = a.map(x => Math.round(x * 1e4)).join(',')
+  const kb = b.map(x => Math.round(x * 1e4)).join(',')
   return ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
 }

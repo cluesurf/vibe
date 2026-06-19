@@ -28,7 +28,12 @@ export const momentumRotate2D: Collision = (slots, base) => {
     slots[base + 1] = 0
     slots[base + 2] = east
     slots[base + 3] = east
-  } else if (east === 0 && west === 0 && north === south && north !== 0) {
+  } else if (
+    east === 0 &&
+    west === 0 &&
+    north === south &&
+    north !== 0
+  ) {
     slots[base + 2] = 0
     slots[base + 3] = 0
     slots[base] = north
@@ -63,7 +68,9 @@ function buildPairForward(): Array<[Tone, Tone]> {
   return table
 }
 
-function invertPairTable(forward: Array<[Tone, Tone]>): Array<[Tone, Tone]> {
+function invertPairTable(
+  forward: Array<[Tone, Tone]>,
+): Array<[Tone, Tone]> {
   const inverse = new Array<[Tone, Tone]>(9)
   for (const left of TONES) {
     for (const right of TONES) {
@@ -75,7 +82,8 @@ function invertPairTable(forward: Array<[Tone, Tone]>): Array<[Tone, Tone]> {
 }
 
 export const PAIR_FORWARD: Array<[Tone, Tone]> = buildPairForward()
-export const PAIR_INVERSE: Array<[Tone, Tone]> = invertPairTable(PAIR_FORWARD)
+export const PAIR_INVERSE: Array<[Tone, Tone]> =
+  invertPairTable(PAIR_FORWARD)
 
 // the opposite-pair lines of a coin, each direction paired once with its opposite.
 function linesOf(opposite: number[]): Array<[number, number]> {
@@ -92,7 +100,10 @@ function linesOf(opposite: number[]): Array<[number, number]> {
 // the two tones moving head-on through the cell interact. This is the shared engine
 // for any per-line reversible table on a coin that closes under opposite (the D4
 // coin's twelve lines, the square coin's two, and so on).
-function tableCollision(table: Array<[Tone, Tone]>, opposite: number[]): Collision {
+function tableCollision(
+  table: Array<[Tone, Tone]>,
+  opposite: number[],
+): Collision {
   const lines = linesOf(opposite)
   return (slots, base) => {
     for (const [left, right] of lines) {
@@ -107,8 +118,14 @@ function tableCollision(table: Array<[Tone, Tone]>, opposite: number[]): Collisi
 
 // The committed 9-state pair table on every opposite pair. Pass forward: false for
 // the inverse, which the engine streams through inverseBeat to run time backward.
-export function pairCollision(input: { opposite: number[]; forward?: boolean }): Collision {
-  return tableCollision((input.forward ?? true) ? PAIR_FORWARD : PAIR_INVERSE, input.opposite)
+export function pairCollision(input: {
+  opposite: number[]
+  forward?: boolean
+}): Collision {
+  return tableCollision(
+    (input.forward ?? true) ? PAIR_FORWARD : PAIR_INVERSE,
+    input.opposite,
+  )
 }
 
 // The bind-and-move table (Option 3, routes-to-nested-selves). It is the committed
@@ -135,12 +152,20 @@ function buildBindMoveForward(): Array<[Tone, Tone]> {
   return table
 }
 
-export const BIND_MOVE_FORWARD: Array<[Tone, Tone]> = buildBindMoveForward()
-export const BIND_MOVE_INVERSE: Array<[Tone, Tone]> = invertPairTable(BIND_MOVE_FORWARD)
+export const BIND_MOVE_FORWARD: Array<[Tone, Tone]> =
+  buildBindMoveForward()
+export const BIND_MOVE_INVERSE: Array<[Tone, Tone]> =
+  invertPairTable(BIND_MOVE_FORWARD)
 
 // The bind-and-move collision. Pass forward: false for its paired inverse.
-export function bindAndMove(input: { opposite: number[]; forward?: boolean }): Collision {
-  return tableCollision((input.forward ?? true) ? BIND_MOVE_FORWARD : BIND_MOVE_INVERSE, input.opposite)
+export function bindAndMove(input: {
+  opposite: number[]
+  forward?: boolean
+}): Collision {
+  return tableCollision(
+    (input.forward ?? true) ? BIND_MOVE_FORWARD : BIND_MOVE_INVERSE,
+    input.opposite,
+  )
 }
 
 // The leaky-confiner table (one-tone-photon-as-phonon). One reversible move on the single tone field that
@@ -164,7 +189,8 @@ function buildLeakyConfineForward(): Array<[Tone, Tone]> {
   return table
 }
 
-export const LEAKY_CONFINE: Array<[Tone, Tone]> = buildLeakyConfineForward()
+export const LEAKY_CONFINE: Array<[Tone, Tone]> =
+  buildLeakyConfineForward()
 
 // The leaky-confiner collision. A self-inverse involution, so the same table runs forward and backward.
 export function leakyConfine(input: { opposite: number[] }): Collision {
@@ -180,12 +206,17 @@ export function leakyConfine(input: { opposite: number[] }): Collision {
 // reversible involution that conserves both charge and momentum.
 export function headOnRotate(input: { opposite: number[] }): Collision {
   const lines: Array<[number, number]> = []
-  for (let direction = 0; direction < input.opposite.length; direction++) {
+  for (
+    let direction = 0;
+    direction < input.opposite.length;
+    direction++
+  ) {
     const other = input.opposite[direction]!
     if (direction < other) lines.push([direction, other])
   }
   const linePairs: Array<[[number, number], [number, number]]> = []
-  for (let k = 0; k + 1 < lines.length; k += 2) linePairs.push([lines[k]!, lines[k + 1]!])
+  for (let k = 0; k + 1 < lines.length; k += 2)
+    linePairs.push([lines[k]!, lines[k + 1]!])
   return (slots, base) => {
     for (const [li, lj] of linePairs) {
       const ai = slots[base + li[0]] ?? 0
@@ -218,11 +249,14 @@ export function headOnRotate(input: { opposite: number[] }): Collision {
 // is nonetheless a reversible involution (reflecting twice is the identity, and the crowded condition is
 // reflection-invariant) and charge-conserving. This is the binding channel the elastic momentum-rotate lacks,
 // the cost is that the captured cluster does not conserve momentum, so it is bound but pinned.
-export function stickyReflect(input: { opposite: number[] }): Collision {
+export function stickyReflect(input: {
+  opposite: number[]
+}): Collision {
   const lines = linesOf(input.opposite)
   return (slots, base, degree) => {
     let count = 0
-    for (let direction = 0; direction < degree; direction++) if (slots[base + direction] !== 0) count++
+    for (let direction = 0; direction < degree; direction++)
+      if (slots[base + direction] !== 0) count++
     if (count < 2) return
     for (const [left, right] of lines) {
       const temporary = slots[base + left]!

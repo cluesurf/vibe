@@ -11,7 +11,10 @@ import {
   setTone,
 } from '@/code/tone/configuration'
 
-export function synchronousRule(input: { name: string; local: LocalMap }): Rule {
+export function synchronousRule(input: {
+  name: string
+  local: LocalMap
+}): Rule {
   return {
     form: 'rule',
     name: input.name,
@@ -27,7 +30,7 @@ export function synchronousRule(input: { name: string; local: LocalMap }): Rule 
         const neighborhood: number[] = []
         adjacency.forEachOut({
           node: element,
-          visit: (to) => {
+          visit: to => {
             neighborhood.push(getTone(configuration, { element: to }))
           },
         })

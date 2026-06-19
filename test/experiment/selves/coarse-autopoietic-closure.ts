@@ -11,11 +11,21 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, emergeSelf, beat, largestPositiveCluster } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  emergeSelf,
+  beat,
+  largestPositiveCluster,
+} from '@/code/model/self-kit'
 import { makeRng } from '@/code/coarse/self-trajectory'
 import { jaccardDistance } from '@/code/measure/point-set'
 
-function maintain(input: { L: number; beats: number; cohesion: number; seed: number }): {
+function maintain(input: {
+  L: number
+  beats: number
+  cohesion: number
+  seed: number
+}): {
   persistence: number
   turnover: number
   meanSize: number
@@ -25,7 +35,10 @@ function maintain(input: { L: number; beats: number; cohesion: number; seed: num
   const rng = makeRng(seed)
   const moved = new Uint8Array(graph.cellCount)
   // emerge the self with cohesion on, then test the maintenance phase at the given cohesion.
-  const { tone, cluster } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
+  const { tone, cluster } = emergeSelf(graph, rng, moved, {
+    beats: 60,
+    density: 0.1,
+  })
   const initial = Math.max(1, cluster.length)
   const sizes: number[] = []
   let prev = new Set(cluster)
@@ -50,14 +63,25 @@ function maintain(input: { L: number; beats: number; cohesion: number; seed: num
 
 export default experiment({
   id: 'selves/coarse-autopoietic-closure',
-  title: 'the self maintains a stable organization while its cells turn over, the cohesion-off control does not',
+  title:
+    'the self maintains a stable organization while its cells turn over, the cohesion-off control does not',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
   paper: false,
   run() {
-    const cohesive = maintain({ L: 64, beats: 120, cohesion: 0.22, seed: 246810 })
-    const diffusive = maintain({ L: 64, beats: 120, cohesion: 0, seed: 246810 })
+    const cohesive = maintain({
+      L: 64,
+      beats: 120,
+      cohesion: 0.22,
+      seed: 246810,
+    })
+    const diffusive = maintain({
+      L: 64,
+      beats: 120,
+      cohesion: 0,
+      seed: 246810,
+    })
 
     // autopoiesis, the cohesive self maintains a far larger coherent organization than diffusion (its
     // interior keeps regenerating the body) while its member cells keep turning over (the matter flows

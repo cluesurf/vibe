@@ -12,17 +12,31 @@
 
 // the mixing angle (radians) between two families from the square root of their mass ratio, tan(theta) = sqrt(m_light
 // / m_heavy), the Gatto-Sartori-Tonin relation
-export function mixingAngleFromMassRatio(input: { lightMass: number; heavyMass: number }): number {
+export function mixingAngleFromMassRatio(input: {
+  lightMass: number
+  heavyMass: number
+}): number {
   return Math.atan(Math.sqrt(input.lightMass / input.heavyMass))
 }
 
 // the mixing-matrix element |V| = sin(theta) for the angle from the mass ratio
-export function mixingElementFromMassRatio(input: { lightMass: number; heavyMass: number }): number {
+export function mixingElementFromMassRatio(input: {
+  lightMass: number
+  heavyMass: number
+}): number {
   return Math.sin(mixingAngleFromMassRatio(input))
 }
 
 // the Wolfenstein hierarchy, the three off-diagonal scales as powers of the Cabibbo parameter lambda, [lambda,
 // lambda^2, lambda^3] for [|V_us|, |V_cb|, |V_ub|]
-export function wolfensteinHierarchy(lambda: number): { vus: number; vcb: number; vub: number } {
-  return { vus: lambda, vcb: lambda * lambda, vub: lambda * lambda * lambda }
+export function wolfensteinHierarchy(lambda: number): {
+  vus: number
+  vcb: number
+  vub: number
+} {
+  return {
+    vus: lambda,
+    vcb: lambda * lambda,
+    vub: lambda * lambda * lambda,
+  }
 }

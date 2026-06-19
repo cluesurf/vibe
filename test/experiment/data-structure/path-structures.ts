@@ -10,7 +10,8 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/path-structures',
-  title: 'SS10: a list is a cell path and a stack is a radial ray, O(1) per step, depth is the height',
+  title:
+    'SS10: a list is a cell path and a stack is a radial ray, O(1) per step, depth is the height',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -29,22 +30,37 @@ export default experiment({
     let depthIncrements = true
     for (let i = 1; i < path.length; i++) {
       if (a.parent[path[i]!] !== path[i - 1]!) everyStepIsChild = false
-      if (a.dist[path[i]!] !== a.dist[path[i - 1]!]! + 1) depthIncrements = false
+      if (a.dist[path[i]!] !== a.dist[path[i - 1]!]! + 1)
+        depthIncrements = false
     }
     // pop reverses exactly: the parent of each cell is the previous on the stack
     let popReverses = true
-    for (let i = path.length - 1; i > 0; i--) if (a.parent[path[i]!] !== path[i - 1]!) popReverses = false
+    for (let i = path.length - 1; i > 0; i--)
+      if (a.parent[path[i]!] !== path[i - 1]!) popReverses = false
 
-    const ok = path.length > 1 && everyStepIsChild && depthIncrements && popReverses
+    const ok =
+      path.length > 1 &&
+      everyStepIsChild &&
+      depthIncrements &&
+      popReverses
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'a list is a physical path of cells with O(1) per-step traversal, and a stack is a radial ray whose depth is the height and whose pop is exactly the parent step, the path data structures are physical walks',
-      metrics: { stackHeight: path.length - 1, everyStepIsChild: everyStepIsChild ? 1 : 0, depthIncrements: depthIncrements ? 1 : 0, popReverses: popReverses ? 1 : 0 },
+      metrics: {
+        stackHeight: path.length - 1,
+        everyStepIsChild: everyStepIsChild ? 1 : 0,
+        depthIncrements: depthIncrements ? 1 : 0,
+        popReverses: popReverses ? 1 : 0,
+      },
       // CONTROL: a flat linked list stores an explicit next-pointer per node, here the neighbour is physical.
-      control: { flatPointersStored: path.length - 1, bulkPointersStored: 0 },
-      notes: 'SS10 of experiments/17. The radial ray is the stack, the same axis as the heap (SS4).',
+      control: {
+        flatPointersStored: path.length - 1,
+        bulkPointersStored: 0,
+      },
+      notes:
+        'SS10 of experiments/17. The radial ray is the stack, the same axis as the heap (SS4).',
     })
   },
 })

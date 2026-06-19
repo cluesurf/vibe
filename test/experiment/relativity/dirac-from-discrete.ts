@@ -14,15 +14,24 @@ const LX = 256
 
 // simulate the 2-component discrete walk, return the measured frequency E for a given wavenumber index kIdx
 function measureE(kIdx: number, mass: number, T: number): number {
-  return measuredCoinedWalkFrequency({ wavenumberIndex: kIdx, size: LX, mass, beats: T })
+  return measuredCoinedWalkFrequency({
+    wavenumberIndex: kIdx,
+    size: LX,
+    mass,
+    beats: T,
+  })
 }
 
-export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean } {
+export function diracFromDiscrete(): {
+  masslessOk: boolean
+  massiveOk: boolean
+} {
   const T = 512
   // (1) MASSLESS = exactly the discrete shift -> E(k) = k (the light cone), no continuity
   let masslessOk = true
   for (const kIdx of [8, 16, 32, 48]) {
-    const k = (2 * Math.PI * kIdx) / LX, E = measureE(kIdx, 0, T)
+    const k = (2 * Math.PI * kIdx) / LX,
+      E = measureE(kIdx, 0, T)
     const ok = Math.abs(E - k) < 0.05
     if (!ok) masslessOk = false
   }
@@ -30,8 +39,10 @@ export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean }
   const m = 0.6
   let massiveOk = true
   for (const kIdx of [8, 24, 48]) {
-    const k = (2 * Math.PI * kIdx) / LX, E = measureE(kIdx, m, T)
-    const lhs = Math.cos(E), rhs = Math.cos(m) * Math.cos(k)
+    const k = (2 * Math.PI * kIdx) / LX,
+      E = measureE(kIdx, m, T)
+    const lhs = Math.cos(E),
+      rhs = Math.cos(m) * Math.cos(k)
     const ok = Math.abs(lhs - rhs) < 0.05
     if (!ok) massiveOk = false
   }
@@ -41,7 +52,8 @@ export function diracFromDiscrete(): { masslessOk: boolean; massiveOk: boolean }
 
 export default experiment({
   id: 'relativity/dirac-from-discrete',
-  title: 'the discrete walk dispersion measured by DFT, massless light cone and massive Dirac',
+  title:
+    'the discrete walk dispersion measured by DFT, massless light cone and massive Dirac',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',

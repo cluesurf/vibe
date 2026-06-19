@@ -15,7 +15,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/uniform',
-  title: 'the uniform-measure sampler reproduces the exact manifold fraction at small size',
+  title:
+    'the uniform-measure sampler reproduces the exact manifold fraction at small size',
   category: 'foundations',
   substrates: 'any',
   depth: 'L1',
@@ -28,7 +29,8 @@ export default experiment({
       steps: 400000,
       rng: makeRng({ seed: 6 }),
     })
-    const ok = Math.abs(r.manifoldFraction - 0.72) < 0.1 && r.acceptance > 0
+    const ok =
+      Math.abs(r.manifoldFraction - 0.72) < 0.1 && r.acceptance > 0
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

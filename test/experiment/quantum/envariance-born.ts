@@ -13,27 +13,39 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type C = { re: number; im: number }
 const c = (re: number, im = 0): C => ({ re, im })
-const ceq = (a: C, b: C) => Math.abs(a.re - b.re) < 1e-12 && Math.abs(a.im - b.im) < 1e-12
+const ceq = (a: C, b: C) =>
+  Math.abs(a.re - b.re) < 1e-12 && Math.abs(a.im - b.im) < 1e-12
 const cabs2 = (a: C) => a.re * a.re + a.im * a.im
 
 // A bipartite state on (system x env), each d-dimensional, as a d x d complex amplitude matrix M[s][e]:
 // |psi> = sum_{s,e} M[s][e] |s>|e>. The Schmidt (perfectly-correlated) form is diagonal.
 function diagState(amps: number[]): C[][] {
   const d = amps.length
-  return Array.from({ length: d }, (_, s) => Array.from({ length: d }, (_, e) => (s === e ? c(amps[s]!) : c(0))))
+  return Array.from({ length: d }, (_, s) =>
+    Array.from({ length: d }, (_, e) => (s === e ? c(amps[s]!) : c(0))),
+  )
 }
 function productState(sysAmps: number[], envAmps: number[]): C[][] {
-  return sysAmps.map((a) => envAmps.map((b) => c(a * b)))
+  return sysAmps.map(a => envAmps.map(b => c(a * b)))
 }
 // swap two labels i,j on the system index (rows) or env index (cols)
 function swapRows(M: C[][], i: number, j: number): C[][] {
-  const N = M.map((r) => [...r]); [N[i], N[j]] = [N[j]!, N[i]!]; return N
+  const N = M.map(r => [...r])
+  ;[N[i], N[j]] = [N[j]!, N[i]!]
+  return N
 }
 function swapCols(M: C[][], i: number, j: number): C[][] {
-  return M.map((r) => { const x = [...r]; [x[i], x[j]] = [x[j]!, x[i]!]; return x })
+  return M.map(r => {
+    const x = [...r]
+    ;[x[i], x[j]] = [x[j]!, x[i]!]
+    return x
+  })
 }
 function matEq(A: C[][], B: C[][]): boolean {
-  return A.length === B.length && A.every((r, i) => r.every((x, j) => ceq(x, B[i]![j]!)))
+  return (
+    A.length === B.length &&
+    A.every((r, i) => r.every((x, j) => ceq(x, B[i]![j]!)))
+  )
 }
 // is the state ENVARIANT under swapping system labels i,j? (i.e. swapRows then a compensating swapCols returns it)
 function isEnvariant(M: C[][], i: number, j: number): boolean {
@@ -41,7 +53,7 @@ function isEnvariant(M: C[][], i: number, j: number): boolean {
 }
 // the system's outcome probabilities = diagonal |amplitude|^2 summed over env (the reduced populations)
 function systemProbs(M: C[][]): number[] {
-  return M.map((row) => row.reduce((s, x) => s + cabs2(x), 0))
+  return M.map(row => row.reduce((s, x) => s + cabs2(x), 0))
 }
 
 export default experiment({
@@ -58,22 +70,39 @@ export default experiment({
     const equalEnvariant = isEnvariant(equal, 0, 1)
     // envariance forces p0 = p1; the actual populations are 1/2 each = |a|^2
     const equalProbs = systemProbs(equal)
-    const equalIsHalf = Math.abs(equalProbs[0]! - 0.5) < 1e-12 && Math.abs(equalProbs[1]! - 0.5) < 1e-12
+    const equalIsHalf =
+      Math.abs(equalProbs[0]! - 0.5) < 1e-12 &&
+      Math.abs(equalProbs[1]! - 0.5) < 1e-12
 
     // 2. UNEQUAL 2:1 -> fine-grain outcome 0 into 2 equal sub-branches, outcome 1 into 1: three EQUAL sub-branches
-    const fineGrained = diagState([1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3)])
-    const fgEnvariant = isEnvariant(fineGrained, 0, 1) && isEnvariant(fineGrained, 1, 2)
+    const fineGrained = diagState([
+      1 / Math.sqrt(3),
+      1 / Math.sqrt(3),
+      1 / Math.sqrt(3),
+    ])
+    const fgEnvariant =
+      isEnvariant(fineGrained, 0, 1) && isEnvariant(fineGrained, 1, 2)
     // coarse-graining back: outcome 0 = sub-branches {0,1} (p = 2/3), outcome 1 = sub-branch {2} (p = 1/3)
     const fgProbs = systemProbs(fineGrained)
-    const p0 = fgProbs[0]! + fgProbs[1]!, p1 = fgProbs[2]!
-    const bornDerived = Math.abs(p0 - 2 / 3) < 1e-12 && Math.abs(p1 - 1 / 3) < 1e-12 // = |a0|^2, |a1|^2 of the original 2:1 state
+    const p0 = fgProbs[0]! + fgProbs[1]!,
+      p1 = fgProbs[2]!
+    const bornDerived =
+      Math.abs(p0 - 2 / 3) < 1e-12 && Math.abs(p1 - 1 / 3) < 1e-12 // = |a0|^2, |a1|^2 of the original 2:1 state
 
     // 3. CONTROL: a PRODUCT (unentangled) state with unequal amplitudes has NO envariance (swap changes the system marginal)
-    const product = productState([Math.sqrt(2 / 3), Math.sqrt(1 / 3)], [1, 0])
+    const product = productState(
+      [Math.sqrt(2 / 3), Math.sqrt(1 / 3)],
+      [1, 0],
+    )
     const productEnvariant = isEnvariant(product, 0, 1)
     const controlBreaks = !productEnvariant
 
-    const ok = equalEnvariant && equalIsHalf && fgEnvariant && bornDerived && controlBreaks
+    const ok =
+      equalEnvariant &&
+      equalIsHalf &&
+      fgEnvariant &&
+      bornDerived &&
+      controlBreaks
 
     return verdict({
       status: ok ? 'pass' : 'fail',

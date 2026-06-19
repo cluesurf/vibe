@@ -11,13 +11,17 @@
 // discreteness would not. See note/questions/frontiers.md. Run:
 // npx tsx code/experiment/p27-lorentz-violation.ts
 
-import { latticeAnisotropy, lorentzSafety } from '@/code/measure/lorentz'
+import {
+  latticeAnisotropy,
+  lorentzSafety,
+} from '@/code/measure/lorentz'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/lorentz-violation',
-  title: 'a lattice violates Lorentz invariance while a sprinkling is Lorentz-safe',
+  title:
+    'a lattice violates Lorentz invariance while a sprinkling is Lorentz-safe',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -27,7 +31,11 @@ export default experiment({
     const high = latticeAnisotropy(2.6).anisotropy
     const s = lorentzSafety()
     const ok =
-      high > low && high > 0.1 && low < 0.05 && s.sprinkle < 0.2 && s.lattice > 0.8
+      high > low &&
+      high > 0.1 &&
+      low < 0.05 &&
+      s.sprinkle < 0.2 &&
+      s.lattice > 0.8
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

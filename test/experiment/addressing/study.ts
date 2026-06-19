@@ -13,7 +13,10 @@ import { Graph } from '@/code/tool/graph'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
+import {
+  ballGrowth,
+  growthIsExponential,
+} from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
 import { greedyRoutingSuccess } from '@/code/measure/navigation'
 import { experiment } from '@/test/scaffold/suite'
@@ -31,12 +34,29 @@ interface Row {
 // substrateMeanDegree (mean out-degree over either a Poset or a Graph) is a library
 // capability in code/tool/substrate.
 
-function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }): Row {
+function evaluate(input: {
+  name: string
+  substrate: Substrate
+  graph?: Graph
+}): Row {
   const rng = makeRng({ seed: 17 })
-  const growth = ballGrowth({ substrate: input.substrate, center: 0, maxRadius: 12 })
-  const iso = lorentzIsotropy({ substrate: input.substrate, samples: 400, rng })
+  const growth = ballGrowth({
+    substrate: input.substrate,
+    center: 0,
+    maxRadius: 12,
+  })
+  const iso = lorentzIsotropy({
+    substrate: input.substrate,
+    samples: 400,
+    rng,
+  })
   const route = input.graph
-    ? greedyRoutingSuccess({ graph: input.graph, trials: 600, rng, countDisconnectedAsFailure: true })
+    ? greedyRoutingSuccess({
+        graph: input.graph,
+        trials: 600,
+        rng,
+        countDisconnectedAsFailure: true,
+      })
     : { successRate: 0, meanStretch: 0, trials: 0 }
   return {
     name: input.name,
@@ -50,7 +70,8 @@ function evaluate(input: { name: string; substrate: Substrate; graph?: Graph }):
 
 export default experiment({
   id: 'addressing/study',
-  title: 'the addressing-versus-Lorentz fork, can one substrate have reach, isotropy, and navigability at once',
+  title:
+    'the addressing-versus-Lorentz fork, can one substrate have reach, isotropy, and navigability at once',
   category: 'addressing',
   substrates: 'any',
   depth: 'L2',
@@ -69,10 +90,16 @@ export default experiment({
     })
     const control = evaluate({
       name: 'lattice 3D (lorentz)',
-      substrate: lattice({ dimension: 3, extent: 9, signature: 'lorentzian' }),
+      substrate: lattice({
+        dimension: 3,
+        extent: 9,
+        signature: 'lorentzian',
+      }),
     })
     const bothWorlds =
-      candidate.reach && candidate.anisotropy < 0.25 && candidate.routeSuccess > 0.7
+      candidate.reach &&
+      candidate.anisotropy < 0.25 &&
+      candidate.routeSuccess > 0.7
     return verdict({
       status: bothWorlds ? 'pass' : 'open',
       claim:

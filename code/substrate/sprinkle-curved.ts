@@ -38,7 +38,11 @@ export function sprinkleCurved(input: {
   for (let i = 0; i < n; i++) {
     const t = input.rng.next()
     const reach = Math.min(t, 1 - t)
-    const space = sampleBall({ dimension: spaceDim, radius: reach, rng: input.rng })
+    const space = sampleBall({
+      dimension: spaceDim,
+      radius: reach,
+      rng: input.rng,
+    })
     coords[i * d] = t
     for (let axis = 0; axis < spaceDim; axis++) {
       coords[i * d + 1 + axis] = space[axis] ?? 0
@@ -77,7 +81,9 @@ export function sprinkleCurved(input: {
     }
     let space2 = 0
     for (let axis = 1; axis < d; axis++) {
-      const dx = (sorted[pair.b * d + axis] ?? 0) - (sorted[pair.a * d + axis] ?? 0)
+      const dx =
+        (sorted[pair.b * d + axis] ?? 0) -
+        (sorted[pair.a * d + axis] ?? 0)
       space2 += dx * dx
     }
     return dt * dt - space2 >= 0

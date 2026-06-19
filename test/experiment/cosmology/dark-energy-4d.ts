@@ -12,7 +12,10 @@ import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
+export function darkEnergy4D(input: {
+  sizes: number[]
+  repeats: number
+}): {
   sizes: number[]
   stds: number[]
   actionExponent: number
@@ -25,7 +28,12 @@ export function darkEnergy4D(input: { sizes: number[]; repeats: number }): {
     dimension: 4,
     seedMultiplier: 1000,
   })
-  return { sizes: r.sizes, stds: r.stds, actionExponent: r.exponent, lambdaExponent: r.exponent - 1 }
+  return {
+    sizes: r.sizes,
+    stds: r.stds,
+    actionExponent: r.exponent,
+    lambdaExponent: r.exponent - 1,
+  }
 }
 
 export default experiment({
@@ -37,8 +45,11 @@ export default experiment({
   paper: false,
   run() {
     const r = darkEnergy4D({ sizes: [64, 128, 256], repeats: 10 })
-    const increasing = (r.stds[0] ?? 0) < (r.stds[1] ?? 0) && (r.stds[1] ?? 0) < (r.stds[2] ?? 0)
-    const ok = increasing && r.actionExponent > 0.5 && r.actionExponent < 2
+    const increasing =
+      (r.stds[0] ?? 0) < (r.stds[1] ?? 0) &&
+      (r.stds[1] ?? 0) < (r.stds[2] ?? 0)
+    const ok =
+      increasing && r.actionExponent > 0.5 && r.actionExponent < 2
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

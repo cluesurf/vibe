@@ -28,7 +28,8 @@ const DISTANCES = [4, 6, 8, 10, 14, 20]
 
 export default experiment({
   id: 'gravity/le-sage-shadow',
-  title: 'Le Sage shadow gravity, isotropic flux gives the inverse-square force, but the measured first-order drag rules it out as fundamental',
+  title:
+    'Le Sage shadow gravity, isotropic flux gives the inverse-square force, but the measured first-order drag rules it out as fundamental',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -37,14 +38,21 @@ export default experiment({
     const directions = fibonacciSphereDirections(RAY_COUNT)
 
     // the isotropic-flux shadow (the bath), the body's solid angle, the Le Sage force
-    const isotropic = DISTANCES.map((bodyDistance) =>
-      isotropicShadowFraction({ directions, bodyDistance, bodyRadius: BODY_RADIUS }),
+    const isotropic = DISTANCES.map(bodyDistance =>
+      isotropicShadowFraction({
+        directions,
+        bodyDistance,
+        bodyRadius: BODY_RADIUS,
+      }),
     )
     const isotropicExponent = distanceExponent(DISTANCES, isotropic)
 
     // the directional-beam shadow (the bare flux), a fixed cross section, distance-independent (the control)
     const directional = DISTANCES.map(() =>
-      directionalShadowFraction({ bodyRadius: BODY_RADIUS, beamRadius: BEAM_RADIUS }),
+      directionalShadowFraction({
+        bodyRadius: BODY_RADIUS,
+        beamRadius: BEAM_RADIUS,
+      }),
     )
     const directionalExponent = distanceExponent(DISTANCES, directional)
 
@@ -52,17 +60,21 @@ export default experiment({
     // at several velocities, it is FIRST ORDER (the force is linear in velocity, the coefficient minus one third),
     // which is the fatal flaw, it cannot be made negligible and it would decay every orbit
     const velocities = [0.05, 0.1, 0.2, 0.4]
-    const drags = velocities.map((velocity) => leSageDrag({ directions, velocity }))
+    const drags = velocities.map(velocity =>
+      leSageDrag({ directions, velocity }),
+    )
     const dragCoefficients = drags.map((d, i) => d / velocities[i]!)
     const dragIsFirstOrder =
-      drags.every((d) => d < 0) &&
-      Math.max(...dragCoefficients) / Math.min(...dragCoefficients) < 1.02
+      drags.every(d => d < 0) &&
+      Math.max(...dragCoefficients) / Math.min(...dragCoefficients) <
+        1.02
 
     // the isotropic shadow must fall as 1/r^2 (the Newtonian force) and the directional shadow must be
     // distance-independent (the bare negative)
     const isotropicIsNewtonian = Math.abs(isotropicExponent + 2) < 0.2
     const directionalIsConstant = Math.abs(directionalExponent) < 0.05
-    const ok = isotropicIsNewtonian && directionalIsConstant && dragIsFirstOrder
+    const ok =
+      isotropicIsNewtonian && directionalIsConstant && dragIsFirstOrder
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -76,7 +88,9 @@ export default experiment({
         dragCoefficient: Number(dragCoefficients[0]!.toFixed(4)),
         dragIsFirstOrder: dragIsFirstOrder ? 1 : 0,
         isotropicNearest: Number(isotropic[0]!.toExponential(3)),
-        isotropicFarthest: Number(isotropic[isotropic.length - 1]!.toExponential(3)),
+        isotropicFarthest: Number(
+          isotropic[isotropic.length - 1]!.toExponential(3),
+        ),
       },
       control: {
         directionalExponent: Number(directionalExponent.toFixed(3)),

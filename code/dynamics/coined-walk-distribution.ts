@@ -8,7 +8,14 @@
 // The CLASSICAL walk runs the SAME coin as incoherent probabilities (|Hadamard|^2 = a 50/50 split), so
 // it only adds, giving a single smooth hump.
 
-export function coinedWalkQuantumDistribution(input: { steps: number }): { distribution: Float64Array; norm: number; offset: number; width: number } {
+export function coinedWalkQuantumDistribution(input: {
+  steps: number
+}): {
+  distribution: Float64Array
+  norm: number
+  offset: number
+  width: number
+} {
   const T = input.steps
   const W = 2 * T + 3
   const off = T + 1
@@ -45,13 +52,19 @@ export function coinedWalkQuantumDistribution(input: { steps: number }): { distr
   const distribution = new Float64Array(W)
   let norm = 0
   for (let x = 0; x < W; x++) {
-    distribution[x] = re[0]![x]! ** 2 + im[0]![x]! ** 2 + re[1]![x]! ** 2 + im[1]![x]! ** 2
+    distribution[x] =
+      re[0]![x]! ** 2 +
+      im[0]![x]! ** 2 +
+      re[1]![x]! ** 2 +
+      im[1]![x]! ** 2
     norm += distribution[x]!
   }
   return { distribution, norm, offset: off, width: W }
 }
 
-export function coinedWalkClassicalDistribution(input: { steps: number }): { distribution: Float64Array; offset: number; width: number } {
+export function coinedWalkClassicalDistribution(input: {
+  steps: number
+}): { distribution: Float64Array; offset: number; width: number } {
   const T = input.steps
   const W = 2 * T + 3
   const off = T + 1

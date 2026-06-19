@@ -40,7 +40,10 @@ export function runTernary(
   initial: bigint[],
   onStep?: (step: TernaryStep) => void,
 ): { registers: bigint[]; totalTrits: number; ops: number } {
-  const regs = Array.from({ length: program.registers }, (_, r) => initial[r] ?? 0n)
+  const regs = Array.from(
+    { length: program.registers },
+    (_, r) => initial[r] ?? 0n,
+  )
   let pc = 0
   let totalTrits = 0
   let ops = 0
@@ -55,26 +58,45 @@ export function runTernary(
     if (ins.op === 'set') {
       const value = BigInt(ins.value)
       regs[ins.reg] = value
-      trits = tritWidth(value); reg = ins.reg; kind = 'set'; pc = ins.next
+      trits = tritWidth(value)
+      reg = ins.reg
+      kind = 'set'
+      pc = ins.next
     } else if (ins.op === 'copy') {
       trits = tritWidth(regs[ins.src]!)
       regs[ins.dst] = regs[ins.src]!
-      reg = ins.dst; kind = 'copy'; pc = ins.next
+      reg = ins.dst
+      kind = 'copy'
+      pc = ins.next
     } else if (ins.op === 'add') {
       const before = regs[ins.dst]!
       regs[ins.dst] = before + regs[ins.src]!
       trits = tritWidth(before, regs[ins.src]!, regs[ins.dst]!)
-      reg = ins.dst; kind = 'add'; pc = ins.next
+      reg = ins.dst
+      kind = 'add'
+      pc = ins.next
     } else if (ins.op === 'sub1') {
       const before = regs[ins.reg]!
       regs[ins.reg] = before > 0n ? before - 1n : 0n
-      trits = tritWidth(before); reg = ins.reg; kind = 'sub1'; pc = ins.next
+      trits = tritWidth(before)
+      reg = ins.reg
+      kind = 'sub1'
+      pc = ins.next
     } else {
-      trits = tritWidth(regs[ins.reg]!); reg = ins.reg; kind = 'jz'
+      trits = tritWidth(regs[ins.reg]!)
+      reg = ins.reg
+      kind = 'jz'
       pc = regs[ins.reg] === 0n ? ins.zero : ins.next
     }
     totalTrits += trits
-    if (onStep) onStep({ kind, reg, registers: regs.slice(), trits, width: trits })
+    if (onStep)
+      onStep({
+        kind,
+        reg,
+        registers: regs.slice(),
+        trits,
+        width: trits,
+      })
   }
   return { registers: regs, totalTrits, ops }
 }

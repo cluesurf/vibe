@@ -33,8 +33,8 @@ export interface RailwayCa {
 
 export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
   function step(): void {
-    const next = cells.map((c) => c.state)
-    const nextActive = cells.map((c) => c.active)
+    const next = cells.map(c => c.state)
+    const nextActive = cells.map(c => c.active)
     for (let i = 0; i < cells.length; i++) {
       const c = cells[i]!
       if (c.role === 'empty') continue
@@ -45,7 +45,11 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
         if (forward >= 0) next[forward] = 'H'
         // a flip-flop flips its setting ONLY on an active crossing (entered from the trunk), a passive crossing
         // from a branch leaves it unchanged, as a one-way switch should
-        if (c.role === 'switch' && c.switchType === 'flip-flop' && cells[c.links[0]!]?.state === 'A') {
+        if (
+          c.role === 'switch' &&
+          c.switchType === 'flip-flop' &&
+          cells[c.links[0]!]?.state === 'A'
+        ) {
           nextActive[i] = c.active === 1 ? 2 : 1
         }
       } else if (c.state === 'A') {
@@ -53,7 +57,8 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
       } else if (c.state === 'C') {
         // a memory switch entered passively from a branch remembers which branch the head came from
         if (c.role === 'switch' && c.switchType === 'memory') {
-          const a = c.links[1]!, b = c.links[2]!
+          const a = c.links[1]!,
+            b = c.links[2]!
           if (cells[a]?.state === 'H') nextActive[i] = 1
           else if (cells[b]?.state === 'H') nextActive[i] = 2
         }
@@ -79,7 +84,8 @@ export function makeRailwayCa(cells: RailwayCell[]): RailwayCa {
     }
   }
   function headAt(): number {
-    for (let i = 0; i < cells.length; i++) if (cells[i]!.state === 'H') return i
+    for (let i = 0; i < cells.length; i++)
+      if (cells[i]!.state === 'H') return i
     return -1
   }
   return { cells, step, headAt }
@@ -97,7 +103,11 @@ export interface GrowingTrackCa {
   headAt(): number
 }
 
-export function makeGrowingTrackCa(input: { graphNeighbors: number[][]; depth: number[]; start: number }): GrowingTrackCa {
+export function makeGrowingTrackCa(input: {
+  graphNeighbors: number[][]
+  depth: number[]
+  start: number
+}): GrowingTrackCa {
   const { graphNeighbors, depth, start } = input
   const isTrack = new Set<number>([start])
   let head = start
@@ -113,7 +123,13 @@ export function makeGrowingTrackCa(input: { graphNeighbors: number[][]; depth: n
       for (const n of graphNeighbors[head]!) {
         if (isTrack.has(n)) continue
         const d = depth[n] ?? 0
-        if (d > bestDepth || (d === bestDepth && d > here && (target < 0 || n < target))) { bestDepth = d; target = n }
+        if (
+          d > bestDepth ||
+          (d === bestDepth && d > here && (target < 0 || n < target))
+        ) {
+          bestDepth = d
+          target = n
+        }
       }
       // only ever step STRICTLY outward. On an infinite tiling every cell has a deeper child, so the builder
       // never halts. In a finite patch it halts exactly at the boundary (no deeper cell exists there).
@@ -141,40 +157,75 @@ export interface BinaryCounter {
 
 export function makeBinaryCounter(bits: number): BinaryCounter {
   const cells: RailwayCell[] = []
-  const id = (): number => { cells.push({ role: 'empty', links: [], state: 'empty' }); return cells.length - 1 }
+  const id = (): number => {
+    cells.push({ role: 'empty', links: [], state: 'empty' })
+    return cells.length - 1
+  }
   const output = id()
   const pre = id()
-  const tin: number[] = [], ff: number[] = [], done: number[] = [], carry: number[] = []
-  for (let i = 0; i < bits; i++) { tin.push(id()); ff.push(id()); done.push(id()); carry.push(id()) }
+  const tin: number[] = [],
+    ff: number[] = [],
+    done: number[] = [],
+    carry: number[] = []
+  for (let i = 0; i < bits; i++) {
+    tin.push(id())
+    ff.push(id())
+    done.push(id())
+    carry.push(id())
+  }
   cells[output] = { role: 'track', links: [output, output], state: 'C' }
   cells[pre] = { role: 'track', links: [pre, tin[0]!], state: 'C' }
   for (let i = 0; i < bits; i++) {
     const prev = i === 0 ? pre : carry[i - 1]!
-    cells[tin[i]!] = { role: 'track', links: [prev, ff[i]!], state: 'C' }
-    cells[ff[i]!] = { role: 'switch', links: [tin[i]!, done[i]!, carry[i]!], switchType: 'flip-flop', active: 1, state: 'C' }
-    cells[done[i]!] = { role: 'track', links: [ff[i]!, output], state: 'C' }
-    cells[carry[i]!] = { role: 'track', links: [ff[i]!, i + 1 < bits ? tin[i + 1]! : output], state: 'C' }
+    cells[tin[i]!] = {
+      role: 'track',
+      links: [prev, ff[i]!],
+      state: 'C',
+    }
+    cells[ff[i]!] = {
+      role: 'switch',
+      links: [tin[i]!, done[i]!, carry[i]!],
+      switchType: 'flip-flop',
+      active: 1,
+      state: 'C',
+    }
+    cells[done[i]!] = {
+      role: 'track',
+      links: [ff[i]!, output],
+      state: 'C',
+    }
+    cells[carry[i]!] = {
+      role: 'track',
+      links: [ff[i]!, i + 1 < bits ? tin[i + 1]! : output],
+      state: 'C',
+    }
   }
   const ca = makeRailwayCa(cells)
   return {
     bits,
     increment(): boolean {
-      for (const cell of cells) if (cell.role !== 'empty') cell.state = 'C'
+      for (const cell of cells)
+        if (cell.role !== 'empty') cell.state = 'C'
       cells[pre]!.state = 'A'
       cells[tin[0]!]!.state = 'H'
-      for (let t = 0; t < 40 * bits + 40; t++) { ca.step(); if (ca.headAt() === output) return true }
+      for (let t = 0; t < 40 * bits + 40; t++) {
+        ca.step()
+        if (ca.headAt() === output) return true
+      }
       return false
     },
     count(): number {
       let v = 0
-      for (let i = 0; i < bits; i++) if ((cells[ff[i]!]!.active as number) === 2) v += 1 << i
+      for (let i = 0; i < bits; i++)
+        if ((cells[ff[i]!]!.active as number) === 2) v += 1 << i
       return v
     },
     clear(): void {
       for (let i = 0; i < bits; i++) cells[ff[i]!]!.active = 1
     },
     set(value: number): void {
-      for (let i = 0; i < bits; i++) cells[ff[i]!]!.active = (value >> i) & 1 ? 2 : 1
+      for (let i = 0; i < bits; i++)
+        cells[ff[i]!]!.active = (value >> i) & 1 ? 2 : 1
     },
   }
 }
@@ -192,10 +243,18 @@ export interface RailRegister {
 export function makeUnaryCounter(): RailRegister {
   let value = 0
   return {
-    increment(): void { value += 1 },
-    count(): number { return value },
-    clear(): void { value = 0 },
-    set(v: number): void { value = v },
+    increment(): void {
+      value += 1
+    },
+    count(): number {
+      return value
+    },
+    clear(): void {
+      value = 0
+    },
+    set(v: number): void {
+      value = v
+    },
   }
 }
 
@@ -207,16 +266,31 @@ export function makeTernaryCounter(width: number): RailRegister {
   return {
     increment(): void {
       let i = 0
-      while (i < width && trits[i] === 2) { trits[i] = 0; i++ }
+      while (i < width && trits[i] === 2) {
+        trits[i] = 0
+        i++
+      }
       if (i < width) trits[i]! += 1
     },
     count(): number {
-      let v = 0, p = 1
-      for (let i = 0; i < width; i++) { v += trits[i]! * p; p *= 3 }
+      let v = 0,
+        p = 1
+      for (let i = 0; i < width; i++) {
+        v += trits[i]! * p
+        p *= 3
+      }
       return v
     },
-    clear(): void { trits.fill(0) },
-    set(v: number): void { let x = v; for (let i = 0; i < width; i++) { trits[i] = x % 3; x = Math.floor(x / 3) } },
+    clear(): void {
+      trits.fill(0)
+    },
+    set(v: number): void {
+      let x = v
+      for (let i = 0; i < width; i++) {
+        trits[i] = x % 3
+        x = Math.floor(x / 3)
+      }
+    },
   }
 }
 
@@ -238,13 +312,21 @@ export function makeSelfExtendingCounter(): SelfExtendingCounter {
     increment(): void {
       let i = 0
       // ripple, every set bit (selection 2) flips back to 0 and carries
-      while (i < bits.length && bits[i] === 2) { bits[i] = 1; i++ }
-      if (i < bits.length) bits[i] = 2 // the first clear bit takes the increment, no carry out
-      else { bits.push(2); builds++ } // overflow, the locomotive builds a new top bit and sets it
+      while (i < bits.length && bits[i] === 2) {
+        bits[i] = 1
+        i++
+      }
+      if (i < bits.length)
+        bits[i] = 2 // the first clear bit takes the increment, no carry out
+      else {
+        bits.push(2)
+        builds++
+      } // overflow, the locomotive builds a new top bit and sets it
     },
     count(): number {
       let v = 0
-      for (let i = 0; i < bits.length; i++) if (bits[i] === 2) v += 1 << i
+      for (let i = 0; i < bits.length; i++)
+        if (bits[i] === 2) v += 1 << i
       return v
     },
     width: (): number => bits.length,
@@ -254,12 +336,22 @@ export function makeSelfExtendingCounter(): SelfExtendingCounter {
 
 // build a closed TRACK LOOP from an ordered list of cell ids (each links to the previous and next in the ring),
 // place the locomotive (head at index 1, tail at index 0), the simplest test circuit
-export function makeTrackLoop(ringIds: number[], totalCells: number): RailwayCa {
-  const cells: RailwayCell[] = Array.from({ length: totalCells }, () => ({ role: 'empty', links: [], state: 'empty' as RailDyn }))
+export function makeTrackLoop(
+  ringIds: number[],
+  totalCells: number,
+): RailwayCa {
+  const cells: RailwayCell[] = Array.from(
+    { length: totalCells },
+    () => ({ role: 'empty', links: [], state: 'empty' as RailDyn }),
+  )
   const k = ringIds.length
   for (let r = 0; r < k; r++) {
     const id = ringIds[r]!
-    cells[id] = { role: 'track', links: [ringIds[(r - 1 + k) % k]!, ringIds[(r + 1) % k]!], state: 'C' }
+    cells[id] = {
+      role: 'track',
+      links: [ringIds[(r - 1 + k) % k]!, ringIds[(r + 1) % k]!],
+      state: 'C',
+    }
   }
   cells[ringIds[0]!]!.state = 'A'
   cells[ringIds[1]!]!.state = 'H'

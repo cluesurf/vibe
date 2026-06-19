@@ -8,7 +8,15 @@
 // where its body is. We confirm, the repair reads only local neighborhoods, the self persists at high
 // fidelity vs decay, and the total charge is exactly conserved. Run: npx tsx code/experiment/p179-autonomous-self.ts
 
-import { bulkGraph, beat, emergeSelf, countPlus, totalCharge, sameSignNeighbors, type Graph } from '@/code/model/self-kit'
+import {
+  bulkGraph,
+  beat,
+  emergeSelf,
+  countPlus,
+  totalCharge,
+  sameSignNeighbors,
+  type Graph,
+} from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -16,7 +24,12 @@ import { verdict } from '@/test/scaffold/verdict'
 // the autonomous repair, purely local. It NEVER reads the self's cell list, only each cell's neighborhood.
 // A hole locally interior to a +self (many +neighbors, not outnumbered by -) completes to +1, balanced by a
 // -1 placed at a quiet empty cell (few +neighbors), a conserving local creation.
-function autonomousRepair(tone: Int8Array, g: Graph, rng: { next: () => number }, threshold: number): number {
+function autonomousRepair(
+  tone: Int8Array,
+  g: Graph,
+  rng: { next: () => number },
+  threshold: number,
+): number {
   const N = tone.length
   let work = 0
   let netAdded = 0
@@ -63,7 +76,9 @@ export function autonomousSelf(input?: { n?: number }): {
   const emergent = cluster.length
 
   // the self's cells are used ONLY to MEASURE fidelity, never by the repair rule itself
-  const run = (maintaining: boolean): { fidelity: number; work: number; q: number } => {
+  const run = (
+    maintaining: boolean,
+  ): { fidelity: number; work: number; q: number } => {
     const t2 = tone.slice()
     const q0 = totalCharge(t2)
     const rng2 = makeRng({ seed: 41 })
@@ -73,13 +88,19 @@ export function autonomousSelf(input?: { n?: number }): {
       if (maintaining) work += autonomousRepair(t2, g, rng2, 4)
       beat(t2, g, moved, rng2, 0, 0.22)
     }
-    return { fidelity: countPlus(t2, cluster) / cluster.length, work: work / beats, q: totalCharge(t2) - q0 }
+    return {
+      fidelity: countPlus(t2, cluster) / cluster.length,
+      work: work / beats,
+      q: totalCharge(t2) - q0,
+    }
   }
   const maintained = run(true)
   const unmaintained = run(false)
   const maintainedFidelity = maintained.fidelity
   const unmaintainedFidelity = unmaintained.fidelity
-  const maintenanceHoldsSelf = maintainedFidelity > 0.6 && maintainedFidelity > unmaintainedFidelity + 0.3
+  const maintenanceHoldsSelf =
+    maintainedFidelity > 0.6 &&
+    maintainedFidelity > unmaintainedFidelity + 0.3
   const usesOnlyLocalInfo = true // autonomousRepair reads only per-cell neighborhoods, never the self list
   const conserved = maintained.q === 0
   const solved = maintenanceHoldsSelf && conserved && usesOnlyLocalInfo
@@ -99,7 +120,8 @@ export function autonomousSelf(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/autonomous-self',
-  title: 'a self maintains itself by a purely local rule with no outside knower',
+  title:
+    'a self maintains itself by a purely local rule with no outside knower',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',

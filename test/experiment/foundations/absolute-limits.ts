@@ -40,11 +40,13 @@ export function absoluteLimits(input?: { n?: number }): {
   // blocks for coarse-graining, each cell's block = itself rounded into a ball of radius 1 around seeds
   const block = new Int32Array(N).fill(-1)
   let nb = 0
-  for (let i = 0; i < N; i++) if (block[i] === -1) {
-    block[i] = nb
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) if (block[g.adj[p]!] === -1) block[g.adj[p]!] = nb
-    nb++
-  }
+  for (let i = 0; i < N; i++)
+    if (block[i] === -1) {
+      block[i] = nb
+      for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+        if (block[g.adj[p]!] === -1) block[g.adj[p]!] = nb
+      nb++
+    }
   const coarseQ = (t: Int8Array): number => {
     const bc = new Float64Array(nb)
     for (let i = 0; i < N; i++) bc[block[i]!]! += t[i]!
@@ -55,7 +57,11 @@ export function absoluteLimits(input?: { n?: number }): {
 
   // (A) charge, fine conservation, coarse equals fine, and minting fails
   const tone = new Int8Array(N)
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const q0 = totalQ(tone)
   let coarseMatches = true
   for (let t = 0; t < 60; t++) {
@@ -68,14 +74,32 @@ export function absoluteLimits(input?: { n?: number }): {
   // minting attempt, run ONLY the create move aggressively, Q must not rise (it creates balanced pairs)
   const mint = new Int8Array(N)
   const q0m = totalQ(mint)
-  for (let t = 0; t < 40; t++) conservingEdgeSweep({ tone: mint, eu, ev, moved, rng, arrow: 0.9, onlyCreate: true })
+  for (let t = 0; t < 40; t++)
+    conservingEdgeSweep({
+      tone: mint,
+      eu,
+      ev,
+      moved,
+      rng,
+      arrow: 0.9,
+      onlyCreate: true,
+    })
   const mintingFails = totalQ(mint) === q0m // still zero, only balanced pairs made
 
   // (B) lightcone, fine front speed, then coarse (block) front speed, both finite
   const center = 0
-  const distC = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center })
+  const distC = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+  })
   const base = new Int8Array(N)
-  for (let i = 0; i < N; i++) base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    base[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const s = base.slice()
   const s2 = base.slice()
   s2[center] = (s2[center] === 0 ? 1 : 0) as -1 | 0 | 1
@@ -87,22 +111,36 @@ export function absoluteLimits(input?: { n?: number }): {
     conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow })
   }
   let fineFront = 0
-  for (let i = 0; i < N; i++) if (s[i] !== s2[i] && distC[i]! > fineFront) fineFront = distC[i]!
+  for (let i = 0; i < N; i++)
+    if (s[i] !== s2[i] && distC[i]! > fineFront) fineFront = distC[i]!
   const fineSpeed = fineFront / T
   // coarse front, in block-hops, the affected blocks, front measured in coarse distance (cells/block ~ 13)
   const coarseSpeed = fineSpeed / 1 // coarse distance <= fine distance (a block spans many cells), so speed no larger
   const fineFinite = fineSpeed > 0 && fineSpeed < 5
-  const lightconeAbsolute = fineFinite && coarseSpeed <= fineSpeed + 1e-9
+  const lightconeAbsolute =
+    fineFinite && coarseSpeed <= fineSpeed + 1e-9
 
-  const chargeAbsolute = fineQConserved && coarseEqualsFine && mintingFails
+  const chargeAbsolute =
+    fineQConserved && coarseEqualsFine && mintingFails
   const solved = chargeAbsolute && lightconeAbsolute
 
-  return { n: N, fineQConserved, mintingFails, coarseEqualsFine, fineSpeed, coarseSpeed, lightconeAbsolute, chargeAbsolute, solved }
+  return {
+    n: N,
+    fineQConserved,
+    mintingFails,
+    coarseEqualsFine,
+    fineSpeed,
+    coarseSpeed,
+    lightconeAbsolute,
+    chargeAbsolute,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'foundations/absolute-limits',
-  title: 'net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level',
+  title:
+    'net charge cannot be minted and the lightcone cannot be outrun at any coarse-graining level',
   category: 'foundations',
   substrates: ['534'],
   depth: 'L2',

@@ -18,7 +18,8 @@ import { cayleyMultiply } from '@/code/measure/division-algebra'
 
 type ComplexMatrix = { re: number[][]; im: number[][] }
 
-const zero8 = (): number[][] => Array.from({ length: 8 }, () => new Array<number>(8).fill(0))
+const zero8 = (): number[][] =>
+  Array.from({ length: 8 }, () => new Array<number>(8).fill(0))
 
 // the left-multiplication matrix of the octonion imaginary unit e_a, x -> e_a * x
 function leftMultiplication(a: number): number[][] {
@@ -34,7 +35,10 @@ function leftMultiplication(a: number): number[][] {
   return m
 }
 
-const complex = (re: number[][], im: number[][]): ComplexMatrix => ({ re, im })
+const complex = (re: number[][], im: number[][]): ComplexMatrix => ({
+  re,
+  im,
+})
 
 function multiply(a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix {
   const re = zero8()
@@ -72,7 +76,10 @@ function addMatrices(...matrices: ComplexMatrix[]): ComplexMatrix {
 }
 
 function scaleMatrix(a: ComplexMatrix, s: number): ComplexMatrix {
-  return complex(a.re.map((r) => r.map((v) => v * s)), a.im.map((r) => r.map((v) => v * s)))
+  return complex(
+    a.re.map(r => r.map(v => v * s)),
+    a.im.map(r => r.map(v => v * s)),
+  )
 }
 
 function dagger(a: ComplexMatrix): ComplexMatrix {
@@ -92,7 +99,13 @@ const identity8: ComplexMatrix = complex(
 )
 
 function isZeroMatrix(a: ComplexMatrix): boolean {
-  for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if (Math.abs(a.re[i]![j]!) > 1e-9 || Math.abs(a.im[i]![j]!) > 1e-9) return false
+  for (let i = 0; i < 8; i++)
+    for (let j = 0; j < 8; j++)
+      if (
+        Math.abs(a.re[i]![j]!) > 1e-9 ||
+        Math.abs(a.im[i]![j]!) > 1e-9
+      )
+        return false
   return true
 }
 
@@ -100,12 +113,19 @@ function isIdentityMatrix(a: ComplexMatrix): boolean {
   for (let i = 0; i < 8; i++)
     for (let j = 0; j < 8; j++) {
       const want = i === j ? 1 : 0
-      if (Math.abs(a.re[i]![j]! - want) > 1e-9 || Math.abs(a.im[i]![j]!) > 1e-9) return false
+      if (
+        Math.abs(a.re[i]![j]! - want) > 1e-9 ||
+        Math.abs(a.im[i]![j]!) > 1e-9
+      )
+        return false
     }
   return true
 }
 
-const anticommutator = (a: ComplexMatrix, b: ComplexMatrix): ComplexMatrix => addMatrices(multiply(a, b), multiply(b, a))
+const anticommutator = (
+  a: ComplexMatrix,
+  b: ComplexMatrix,
+): ComplexMatrix => addMatrices(multiply(a, b), multiply(b, a))
 
 const trace = (a: ComplexMatrix): number => {
   let t = 0
@@ -122,23 +142,32 @@ export function octonionFermionGeneration(): {
   multiplicities: number[]
   electricCharges: number[]
 } {
-  const left = [null, ...[1, 2, 3, 4, 5, 6, 7].map(leftMultiplication)] as (number[][] | null)[]
+  const left = [
+    null,
+    ...[1, 2, 3, 4, 5, 6, 7].map(leftMultiplication),
+  ] as (number[][] | null)[]
 
   // the left-multiplications form Cl(0,7), each squares to -I and they anticommute
   let leftMultsAreClifford = true
   for (let a = 1; a <= 7; a++) {
     const real = complex(left[a]!, zero8())
     const square = multiply(real, real)
-    if (!isZeroMatrix(addMatrices(square, identity8))) leftMultsAreClifford = false // L^2 = -I
+    if (!isZeroMatrix(addMatrices(square, identity8)))
+      leftMultsAreClifford = false // L^2 = -I
   }
   for (let a = 1; a <= 7 && leftMultsAreClifford; a++)
     for (let b = a + 1; b <= 7; b++) {
-      const anti = anticommutator(complex(left[a]!, zero8()), complex(left[b]!, zero8()))
+      const anti = anticommutator(
+        complex(left[a]!, zero8()),
+        complex(left[b]!, zero8()),
+      )
       if (!isZeroMatrix(anti)) leftMultsAreClifford = false
     }
 
   // three fermionic ladder operators, a_k = (1/2)(L_{2k-1} + i L_{2k})
-  const ladder = [1, 2, 3].map((k) => scaleMatrix(complex(left[2 * k - 1]!, left[2 * k]!), 0.5))
+  const ladder = [1, 2, 3].map(k =>
+    scaleMatrix(complex(left[2 * k - 1]!, left[2 * k]!), 0.5),
+  )
 
   // the canonical anticommutation relations
   let ladderRelationsHold = true
@@ -148,27 +177,44 @@ export function octonionFermionGeneration(): {
       if (i === j) {
         if (!isIdentityMatrix(withDagger)) ladderRelationsHold = false
       } else if (!isZeroMatrix(withDagger)) ladderRelationsHold = false
-      if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!))) ladderRelationsHold = false
+      if (!isZeroMatrix(anticommutator(ladder[i]!, ladder[j]!)))
+        ladderRelationsHold = false
     }
 
   // the number operator N = sum a_k-dagger a_k, the charge Q = N/3
-  const number = addMatrices(...ladder.map((a) => multiply(dagger(a), a)))
+  const number = addMatrices(...ladder.map(a => multiply(dagger(a), a)))
   const numberOperatorTrace = Math.round(trace(number) * 1000) / 1000
 
   // the spectrum is in {0,1,2,3}, checked by the minimal polynomial N(N-1)(N-2)(N-3) = 0
-  const shift = (s: number): ComplexMatrix => addMatrices(number, scaleMatrix(identity8, -s))
-  const minimalPolynomial = multiply(multiply(multiply(number, shift(1)), shift(2)), shift(3))
+  const shift = (s: number): ComplexMatrix =>
+    addMatrices(number, scaleMatrix(identity8, -s))
+  const minimalPolynomial = multiply(
+    multiply(multiply(number, shift(1)), shift(2)),
+    shift(3),
+  )
   const spectrumQuantized = isZeroMatrix(minimalPolynomial)
 
   // the multiplicity of eigenvalue k is the trace of the projector P_k = product over m != k of (N - m)/(k - m)
   const multiplicities: number[] = []
   for (let k = 0; k <= 3; k++) {
     let projector = identity8
-    for (let m = 0; m <= 3; m++) if (m !== k) projector = multiply(projector, scaleMatrix(shift(m), 1 / (k - m)))
+    for (let m = 0; m <= 3; m++)
+      if (m !== k)
+        projector = multiply(
+          projector,
+          scaleMatrix(shift(m), 1 / (k - m)),
+        )
     multiplicities.push(Math.round(trace(projector)))
   }
   // the electric charges, Q = k/3 for the occupied-mode count k
-  const electricCharges = [0, 1, 2, 3].map((k) => k / 3)
+  const electricCharges = [0, 1, 2, 3].map(k => k / 3)
 
-  return { leftMultsAreClifford, ladderRelationsHold, numberOperatorTrace, spectrumQuantized, multiplicities, electricCharges }
+  return {
+    leftMultsAreClifford,
+    ladderRelationsHold,
+    numberOperatorTrace,
+    spectrumQuantized,
+    multiplicities,
+    electricCharges,
+  }
 }

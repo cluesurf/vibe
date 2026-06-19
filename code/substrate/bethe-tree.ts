@@ -22,5 +22,5 @@ export function betheTree(q: number, depth: number): Uint32Array[] {
     frontier = next
     curDepth++
   }
-  return adj.map((row) => Uint32Array.from(row))
+  return adj.map(row => Uint32Array.from(row))
 }

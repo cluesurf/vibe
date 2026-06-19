@@ -8,21 +8,37 @@ import { linearFit } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function gravityFreeSpace(): { coeffA: number; fitResidual: number } {
-  const M = 96, r0 = 2
+export function gravityFreeSpace(): {
+  coeffA: number
+  fitResidual: number
+} {
+  const M = 96,
+    r0 = 2
   const rs = [3, 4, 5, 6, 8, 10, 12, 14]
-  const dG = rs.map((r) => [r, latticeGreenDifferenceX({ r, r0, gridPoints: M })] as [number, number])
+  const dG = rs.map(
+    r =>
+      [r, latticeGreenDifferenceX({ r, r0, gridPoints: M })] as [
+        number,
+        number,
+      ],
+  )
   // fit dG = a*(1/r) + b  (so G ~ a/r + const, a should be 1/(4 pi) = 0.0796)
-  const fit = linearFit({ xs: dG.map(([r]) => 1 / r), ys: dG.map(([, g]) => g) })
+  const fit = linearFit({
+    xs: dG.map(([r]) => 1 / r),
+    ys: dG.map(([, g]) => g),
+  })
   const a = fit.slope
-  const coeffA = Math.round(a * 10000) / 10000, fitResidual = Math.sqrt(fit.residual / dG.length)
-  const ok = Math.abs(a - 1 / (4 * Math.PI)) < 0.01 && fitResidual < 1e-3
+  const coeffA = Math.round(a * 10000) / 10000,
+    fitResidual = Math.sqrt(fit.residual / dG.length)
+  const ok =
+    Math.abs(a - 1 / (4 * Math.PI)) < 0.01 && fitResidual < 1e-3
   return { coeffA, fitResidual }
 }
 
 export default experiment({
   id: 'gravity/gravity-freespace',
-  title: 'the free-space 3D lattice Green function is exactly 1/(4 pi r), the clean 1/r Newton law',
+  title:
+    'the free-space 3D lattice Green function is exactly 1/(4 pi r), the clean 1/r Newton law',
   category: 'gravity',
   substrates: 'any',
   depth: 'L1',

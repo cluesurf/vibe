@@ -11,12 +11,13 @@ function directions(): number[][] {
   const dirs: number[][] = []
   for (let a = 0; a < 4; a++)
     for (let b = a + 1; b < 4; b++)
-      for (const sa of [1, -1]) for (const sb of [1, -1]) {
-        const v = [0, 0, 0, 0]
-        v[a] = sa
-        v[b] = sb
-        dirs.push(v)
-      }
+      for (const sa of [1, -1])
+        for (const sb of [1, -1]) {
+          const v = [0, 0, 0, 0]
+          v[a] = sa
+          v[b] = sb
+          dirs.push(v)
+        }
   return dirs
 }
 
@@ -37,16 +38,22 @@ function* perfectMatchings(remaining: number[]): Generator<number[][]> {
 }
 
 function matchingKey(m: number[][]): string {
-  return m.map((p) => (p[0]! < p[1]! ? `${p[0]}-${p[1]}` : `${p[1]}-${p[0]}`)).sort().join('|')
+  return m
+    .map(p => (p[0]! < p[1]! ? `${p[0]}-${p[1]}` : `${p[1]}-${p[0]}`))
+    .sort()
+    .join('|')
 }
 
 // count the perfect matchings of the 12 lines, and how many are invariant under the hyperoctahedral B4 symmetry of the
 // 24-cell (the signed coordinate permutations). A unique invariant matching means the symmetric momentum-conserving
 // minimal knit is forced.
-export function linePairingFamily(): { totalPairings: number; symmetricPairings: number } {
+export function linePairingFamily(): {
+  totalPairings: number
+  symmetricPairings: number
+} {
   const dirs = directions()
   const idx = new Map(dirs.map((v, i) => [key(v), i]))
-  const negOf = dirs.map((v) => idx.get(key(v.map((x) => -x)))!)
+  const negOf = dirs.map(v => idx.get(key(v.map(x => -x)))!)
   // the 12 lines (opposite-direction pairs), canonical id = min(i, neg)
   const lines: number[] = []
   for (let i = 0; i < 24; i++) {
@@ -54,7 +61,8 @@ export function linePairingFamily(): { totalPairings: number; symmetricPairings:
     if (!lines.includes(c)) lines.push(c)
   }
   const lineIndex = new Map(lines.map((c, k) => [c, k]))
-  const lineOfDir = (i: number): number => lineIndex.get(Math.min(i, negOf[i]!))!
+  const lineOfDir = (i: number): number =>
+    lineIndex.get(Math.min(i, negOf[i]!))!
 
   // the B4 generators (coordinate transpositions and a sign flip) acting as permutations of the 12 lines
   function lineAction(perm: number[], sign: number[]): number[] {
@@ -73,7 +81,8 @@ export function linePairingFamily(): { totalPairings: number; symmetricPairings:
     lineAction([0, 1, 3, 2], [1, 1, 1, 1]),
     lineAction([0, 1, 2, 3], [-1, 1, 1, 1]),
   ]
-  const applyPermutation = (m: number[][], p: number[]): number[][] => m.map(([a, b]) => [p[a!]!, p[b!]!])
+  const applyPermutation = (m: number[][], p: number[]): number[][] =>
+    m.map(([a, b]) => [p[a!]!, p[b!]!])
 
   let total = 0
   let symmetric = 0

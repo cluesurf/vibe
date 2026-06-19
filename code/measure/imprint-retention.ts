@@ -10,7 +10,11 @@ import { csrBallNodes } from '@/code/tool/graph'
 import { perceptionEdgeBeat } from '@/code/dynamics/perception-edge-beat'
 import { makeRng } from '@/code/tool/rng'
 
-type StoredGraph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
+type StoredGraph = {
+  cellCount: number
+  offsets: Int32Array
+  adj: Int32Array
+}
 
 export function imprintRetention(input: {
   graph: StoredGraph
@@ -24,13 +28,44 @@ export function imprintRetention(input: {
   const tone = new Int8Array(n)
   const moved = new Uint8Array(n)
   const rngWarm = makeRng({ seed: 9 })
-  for (let b = 0; b < 30; b++) perceptionEdgeBeat({ tone, eu, ev, offsets: g.offsets, adj: g.adj, moved, rng: rngWarm, arrow: 0.05, cohesive, temperature: 0.02 })
-  const blob = csrBallNodes({ offsets: g.offsets, adj: g.adj, size: n, source: 0, limit: blobSize })
+  for (let b = 0; b < 30; b++)
+    perceptionEdgeBeat({
+      tone,
+      eu,
+      ev,
+      offsets: g.offsets,
+      adj: g.adj,
+      moved,
+      rng: rngWarm,
+      arrow: 0.05,
+      cohesive,
+      temperature: 0.02,
+    })
+  const blob = csrBallNodes({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: n,
+    source: 0,
+    limit: blobSize,
+  })
   for (const i of blob) tone[i] = 1
-  const meanBlob = (): number => blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
+  const meanBlob = (): number =>
+    blob.reduce((s, i) => s + tone[i]!, 0) / blob.length
   const start = meanBlob()
   const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 30; b++) perceptionEdgeBeat({ tone, eu, ev, offsets: g.offsets, adj: g.adj, moved, rng: rng2, arrow: 0.05, cohesive, temperature: 0.02 })
+  for (let b = 0; b < 30; b++)
+    perceptionEdgeBeat({
+      tone,
+      eu,
+      ev,
+      offsets: g.offsets,
+      adj: g.adj,
+      moved,
+      rng: rng2,
+      arrow: 0.05,
+      cohesive,
+      temperature: 0.02,
+    })
   const after = meanBlob()
   let bg = 0
   for (let i = 0; i < n; i++) bg += tone[i]!

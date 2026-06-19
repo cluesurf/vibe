@@ -14,24 +14,49 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildCellGraph,
+  buildEuclideanLattice,
+} from '@/code/substrate/coxeter/cell-direct'
 import { bulkShortcutScaling } from '@/code/measure/holography'
 
 export default experiment({
   id: 'holography/bulk-to-cusp-rt',
-  title: 'the 3D and committed-4D hyperbolic bulks carry the Ryu-Takayanagi shortcut S ~ log L to the flat cusp, the flat control is linear',
+  title:
+    'the 3D and committed-4D hyperbolic bulks carry the Ryu-Takayanagi shortcut S ~ log L to the flat cusp, the flat control is linear',
   category: 'holography',
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
   run() {
-    const bulk534 = buildCellGraph({ symbol: [5, 3, 4], maxCells: 4000 })
-    const bulk3434 = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 8000 })
-    const flat = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 4000 })
+    const bulk534 = buildCellGraph({
+      symbol: [5, 3, 4],
+      maxCells: 4000,
+    })
+    const bulk3434 = buildCellGraph({
+      symbol: [3, 4, 3, 4] as never,
+      maxCells: 8000,
+    })
+    const flat = buildEuclideanLattice({
+      symbol: [4, 3, 4],
+      maxCells: 4000,
+    })
 
-    const rt534 = bulkShortcutScaling({ neighbors: bulk534.neighbors, coords: bulk534.coords, bandWidth: 2 })
-    const rt3434 = bulkShortcutScaling({ neighbors: bulk3434.neighbors, coords: bulk3434.coords, bandWidth: 2 })
-    const rtFlat = bulkShortcutScaling({ neighbors: flat.neighbors, coords: flat.coords, bandWidth: 2 })
+    const rt534 = bulkShortcutScaling({
+      neighbors: bulk534.neighbors,
+      coords: bulk534.coords,
+      bandWidth: 2,
+    })
+    const rt3434 = bulkShortcutScaling({
+      neighbors: bulk3434.neighbors,
+      coords: bulk3434.coords,
+      bandWidth: 2,
+    })
+    const rtFlat = bulkShortcutScaling({
+      neighbors: flat.neighbors,
+      coords: flat.coords,
+      bandWidth: 2,
+    })
 
     // both hyperbolic bulks must show the logarithmic shortcut (a sub-linear slope), and the flat control must be
     // linear (slope near one, no shortcut), for the holographic reading to hold

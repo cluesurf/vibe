@@ -12,7 +12,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { saveGraph, loadGraph, type StoredGraph } from '@/code/tool/graph-store'
+import {
+  saveGraph,
+  loadGraph,
+  type StoredGraph,
+} from '@/code/tool/graph-store'
 import { edgesFromCsr } from '@/code/tool/graph'
 import { imprintRetention } from '@/code/measure/imprint-retention'
 import { experiment } from '@/test/scaffold/suite'
@@ -33,8 +37,14 @@ export function exactScale(input?: { n?: number }): {
 
   // verify vs float cell-direct at small N
   const small = buildDodecagrid({ maxCells: 600 })
-  const smallFloat = buildCellGraph({ symbol: [5, 3, 4], maxCells: 600 })
-  const matchesFloat = small.cellCount === smallFloat.cellCount && small.facetCount === smallFloat.facetCount && small.facetCount === 12
+  const smallFloat = buildCellGraph({
+    symbol: [5, 3, 4],
+    maxCells: 600,
+  })
+  const matchesFloat =
+    small.cellCount === smallFloat.cellCount &&
+    small.facetCount === smallFloat.facetCount &&
+    small.facetCount === 12
 
   // build at scale (past the float wall ~15.5k)
   const g = buildDodecagrid({ maxCells: n })
@@ -42,20 +52,48 @@ export function exactScale(input?: { n?: number }): {
 
   // round-trip through disk
   const path = join(tmpdir(), `dodecagrid-${n}.graph`)
-  const stored: StoredGraph = { cellCount: g.cellCount, offsets: g.offsets, adj: g.adj }
+  const stored: StoredGraph = {
+    cellCount: g.cellCount,
+    offsets: g.offsets,
+    adj: g.adj,
+  }
   saveGraph(path, stored)
   const loaded = loadGraph(path)
-  let roundTripsOnDisk = loaded.cellCount === g.cellCount && loaded.adj.length === g.adj.length
-  for (let i = 0; i < g.adj.length && roundTripsOnDisk; i += Math.max(1, Math.floor(g.adj.length / 1000))) {
+  let roundTripsOnDisk =
+    loaded.cellCount === g.cellCount &&
+    loaded.adj.length === g.adj.length
+  for (
+    let i = 0;
+    i < g.adj.length && roundTripsOnDisk;
+    i += Math.max(1, Math.floor(g.adj.length / 1000))
+  ) {
     if (loaded.adj[i] !== g.adj[i]) roundTripsOnDisk = false
   }
 
   // memory on the real {5,3,4} geometry
-  const { eu, ev } = edgesFromCsr(loaded.offsets, loaded.adj, loaded.cellCount)
+  const { eu, ev } = edgesFromCsr(
+    loaded.offsets,
+    loaded.adj,
+    loaded.cellCount,
+  )
   const blobSize = Math.min(2000, Math.floor(loaded.cellCount / 8))
-  const cohesiveRetention = imprintRetention({ graph: loaded, eu, ev, cohesive: true, blobSize })
-  const randomRetention = imprintRetention({ graph: loaded, eu, ev, cohesive: false, blobSize })
-  const memoryOnRealGeometry = cohesiveRetention > 0.4 && cohesiveRetention > randomRetention + 0.15
+  const cohesiveRetention = imprintRetention({
+    graph: loaded,
+    eu,
+    ev,
+    cohesive: true,
+    blobSize,
+  })
+  const randomRetention = imprintRetention({
+    graph: loaded,
+    eu,
+    ev,
+    cohesive: false,
+    blobSize,
+  })
+  const memoryOnRealGeometry =
+    cohesiveRetention > 0.4 &&
+    cohesiveRetention > randomRetention + 0.15
 
   // The engine + persistence is the deliverable. Memory-at-scale is a separate, honest research finding:
   // on a LARGE hyperbolic substrate an imprinted blob erodes (hyperbolic balls are mostly boundary,

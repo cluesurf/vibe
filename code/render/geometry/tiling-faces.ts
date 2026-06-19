@@ -6,7 +6,11 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { buildCellShape } from '@/code/render/geometry/cell-shape'
-import { matVec, toPoincare, type Vec } from '@/code/substrate/coxeter/minkowski'
+import {
+  matVec,
+  toPoincare,
+  type Vec,
+} from '@/code/substrate/coxeter/minkowski'
 import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
 
 export interface TilingFaces {
@@ -19,7 +23,10 @@ export interface TilingFaces {
   readonly cellCount: number
 }
 
-export function buildTilingFaces(input: { symbol: number[]; maxCells?: number }): TilingFaces {
+export function buildTilingFaces(input: {
+  symbol: number[]
+  maxCells?: number
+}): TilingFaces {
   const { symbol, maxCells = 2000 } = input
   const graph = buildCellGraph({ symbol, maxCells })
   const shape = buildCellShape(symbol)
@@ -32,17 +39,30 @@ export function buildTilingFaces(input: { symbol: number[]; maxCells?: number })
   const recenter = (b: Vec): Vec => mobiusAdd(shift, b)
 
   const polygons: Vec[][] = []
-  const centers: Vec[] = graph.coords.map((c) => recenter(c))
+  const centers: Vec[] = graph.coords.map(c => recenter(c))
   for (let cell = 0; cell < graph.cellCount; cell++) {
     const center = centers[cell]!
-    const verts = shape.vertices.map((v) => recenter(toPoincare(matVec(cellMat[cell]!, v), timeAxis)))
+    const verts = shape.vertices.map(v =>
+      recenter(toPoincare(matVec(cellMat[cell]!, v), timeAxis)),
+    )
     // order the vertices cyclically around the cell center so the polygon does not self-cross
     const ordered = verts
-      .map((p) => ({ p, angle: Math.atan2((p[1] ?? 0) - (center[1] ?? 0), (p[0] ?? 0) - (center[0] ?? 0)) }))
+      .map(p => ({
+        p,
+        angle: Math.atan2(
+          (p[1] ?? 0) - (center[1] ?? 0),
+          (p[0] ?? 0) - (center[0] ?? 0),
+        ),
+      }))
       .sort((a, b) => a.angle - b.angle)
-      .map((x) => x.p)
+      .map(x => x.p)
     polygons.push(ordered)
   }
 
-  return { neighbors: graph.neighbors, polygons, centers, cellCount: graph.cellCount }
+  return {
+    neighbors: graph.neighbors,
+    polygons,
+    centers,
+    cellCount: graph.cellCount,
+  }
 }

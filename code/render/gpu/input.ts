@@ -21,7 +21,10 @@ export type Controls = {
   detach(): void
 }
 
-export function attachControls(input: { canvas: HTMLCanvasElement; camera: Camera }): Controls {
+export function attachControls(input: {
+  canvas: HTMLCanvasElement
+  camera: Camera
+}): Controls {
   const { canvas, camera } = input
   const held = new Set<string>()
   let dragging = false
@@ -30,7 +33,8 @@ export function attachControls(input: { canvas: HTMLCanvasElement; camera: Camer
 
   const onKeyDown = (e: KeyboardEvent): void => {
     held.add(e.key.length === 1 ? e.key.toLowerCase() : e.key)
-    if (NAV_KEYS.has(e.key) || NAV_KEYS.has(e.key.toLowerCase())) e.preventDefault()
+    if (NAV_KEYS.has(e.key) || NAV_KEYS.has(e.key.toLowerCase()))
+      e.preventDefault()
   }
   const onKeyUp = (e: KeyboardEvent): void => {
     held.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key)
@@ -53,11 +57,13 @@ export function attachControls(input: { canvas: HTMLCanvasElement; camera: Camer
   }
   const onPointerUp = (e: PointerEvent): void => {
     dragging = false
-    if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId)
+    if (canvas.hasPointerCapture(e.pointerId))
+      canvas.releasePointerCapture(e.pointerId)
   }
   const onWheel = (e: WheelEvent): void => {
     e.preventDefault()
-    if (camera.mode === '2d') camera.zoomBy(Math.exp(-e.deltaY * WHEEL_ZOOM))
+    if (camera.mode === '2d')
+      camera.zoomBy(Math.exp(-e.deltaY * WHEEL_ZOOM))
     else camera.moveForward(-e.deltaY * WHEEL_MOVE)
   }
 
@@ -69,7 +75,8 @@ export function attachControls(input: { canvas: HTMLCanvasElement; camera: Camer
   canvas.addEventListener('wheel', onWheel, { passive: false })
 
   const axis = (positive: string[], negative: string[]): number =>
-    (positive.some((k) => held.has(k)) ? 1 : 0) - (negative.some((k) => held.has(k)) ? 1 : 0)
+    (positive.some(k => held.has(k)) ? 1 : 0) -
+    (negative.some(k => held.has(k)) ? 1 : 0)
 
   return {
     tick(dt) {
@@ -94,6 +101,16 @@ export function attachControls(input: { canvas: HTMLCanvasElement; camera: Camer
 }
 
 const NAV_KEYS = new Set([
-  'w', 'a', 's', 'd', 'q', 'e', ' ', 'Shift',
-  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'w',
+  'a',
+  's',
+  'd',
+  'q',
+  'e',
+  ' ',
+  'Shift',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
 ])

@@ -12,8 +12,8 @@ export function cellOutlines(polygons: Vec[][]): SceneEdge[] {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
       const b = poly[(i + 1) % poly.length]!
-      const ka = a.map((x) => Math.round(x * 1e4)).join(',')
-      const kb = b.map((x) => Math.round(x * 1e4)).join(',')
+      const ka = a.map(x => Math.round(x * 1e4)).join(',')
+      const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
       if (seen.has(key)) continue
       seen.add(key)
@@ -25,16 +25,27 @@ export function cellOutlines(polygons: Vec[][]): SceneEdge[] {
 
 // assign cells to `count` angular wedges (skipping the central cell 0, kept for the number), each ordered by
 // radius so a register track grows outward from the centre
-export function layoutWedges(centers: Vec[], count: number): number[][] {
-  const wedges: { cell: number; radius: number }[][] = Array.from({ length: count }, () => [])
+export function layoutWedges(
+  centers: Vec[],
+  count: number,
+): number[][] {
+  const wedges: { cell: number; radius: number }[][] = Array.from(
+    { length: count },
+    () => [],
+  )
   for (let cell = 1; cell < centers.length; cell++) {
     const x = centers[cell]![0] ?? 0
     const y = centers[cell]![1] ?? 0
     const angle = Math.atan2(y, x) + Math.PI // 0..2pi
-    const w = Math.min(count - 1, Math.floor((angle / (2 * Math.PI)) * count))
+    const w = Math.min(
+      count - 1,
+      Math.floor((angle / (2 * Math.PI)) * count),
+    )
     wedges[w]!.push({ cell, radius: Math.hypot(x, y) })
   }
-  return wedges.map((list) => list.sort((p, q) => p.radius - q.radius).map((e) => e.cell))
+  return wedges.map(list =>
+    list.sort((p, q) => p.radius - q.radius).map(e => e.cell),
+  )
 }
 
 // draw a number fitted INSIDE the central heptagon. The raster maps a ball point b to the pixel
@@ -54,12 +65,18 @@ export function drawCentralNumber(input: {
   const fillFraction = input.fillFraction ?? 0.75
   const color = input.color ?? [245, 245, 248]
 
-  let bx = 0, by = 0
-  for (const v of centralPolygon) { bx += v[0] ?? 0; by += v[1] ?? 0 }
-  bx /= centralPolygon.length; by /= centralPolygon.length
+  let bx = 0,
+    by = 0
+  for (const v of centralPolygon) {
+    bx += v[0] ?? 0
+    by += v[1] ?? 0
+  }
+  bx /= centralPolygon.length
+  by /= centralPolygon.length
   let inradiusBall = Infinity
   for (let i = 0; i < centralPolygon.length; i++) {
-    const a = centralPolygon[i]!, b = centralPolygon[(i + 1) % centralPolygon.length]!
+    const a = centralPolygon[i]!,
+      b = centralPolygon[(i + 1) % centralPolygon.length]!
     const mx = ((a[0] ?? 0) + (b[0] ?? 0)) / 2 - bx
     const my = ((a[1] ?? 0) + (b[1] ?? 0)) / 2 - by
     inradiusBall = Math.min(inradiusBall, Math.hypot(mx, my))
@@ -70,9 +87,23 @@ export function drawCentralNumber(input: {
   const inPx = inradiusBall * scalePx
 
   const len = text.length
-  const scale = Math.max(2, Math.floor(fillFraction * Math.min((inPx * 1.05) / 7, (inPx * 1.5) / (6 * len - 1))))
+  const scale = Math.max(
+    2,
+    Math.floor(
+      fillFraction *
+        Math.min((inPx * 1.05) / 7, (inPx * 1.5) / (6 * len - 1)),
+    ),
+  )
   const shadow = Math.max(2, scale * 0.18)
-  drawNumber(rgba, size, centerX + shadow, centerY + shadow, text, scale, [12, 12, 16])
+  drawNumber(
+    rgba,
+    size,
+    centerX + shadow,
+    centerY + shadow,
+    text,
+    scale,
+    [12, 12, 16],
+  )
   drawNumber(rgba, size, centerX, centerY, text, scale, color)
 }
 
@@ -90,7 +121,15 @@ const FONT: Record<string, string[]> = {
   '9': ['01110', '10001', '10001', '01111', '00001', '00010', '01100'],
 }
 
-function drawNumber(rgba: Uint8Array, size: number, centerX: number, centerY: number, text: string, scale: number, color: [number, number, number]): void {
+function drawNumber(
+  rgba: Uint8Array,
+  size: number,
+  centerX: number,
+  centerY: number,
+  text: string,
+  scale: number,
+  color: [number, number, number],
+): void {
   const glyphW = 5 * scale
   const gap = scale
   const totalW = text.length * glyphW + (text.length - 1) * gap
@@ -103,19 +142,38 @@ function drawNumber(rgba: Uint8Array, size: number, centerX: number, centerY: nu
     for (let ry = 0; ry < 7; ry++) {
       for (let rx = 0; rx < 5; rx++) {
         if (rows[ry]![rx] !== '1') continue
-        fillRect(rgba, size, gx + rx * scale, y0 + ry * scale, scale, scale, color)
+        fillRect(
+          rgba,
+          size,
+          gx + rx * scale,
+          y0 + ry * scale,
+          scale,
+          scale,
+          color,
+        )
       }
     }
   }
 }
 
-function fillRect(rgba: Uint8Array, size: number, x: number, y: number, w: number, h: number, color: [number, number, number]): void {
+function fillRect(
+  rgba: Uint8Array,
+  size: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  color: [number, number, number],
+): void {
   for (let yy = y; yy < y + h; yy++) {
     if (yy < 0 || yy >= size) continue
     for (let xx = x; xx < x + w; xx++) {
       if (xx < 0 || xx >= size) continue
       const o = (yy * size + xx) * 4
-      rgba[o] = color[0]; rgba[o + 1] = color[1]; rgba[o + 2] = color[2]; rgba[o + 3] = 255
+      rgba[o] = color[0]
+      rgba[o + 1] = color[1]
+      rgba[o + 2] = color[2]
+      rgba[o + 3] = 255
     }
   }
 }

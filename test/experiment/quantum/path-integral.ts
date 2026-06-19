@@ -21,12 +21,16 @@ function study(): { meanDimension: number; acceptance: number } {
     rng,
     observe: ({ poset }) => myrheimMeyerDimension({ poset }),
   })
-  return { meanDimension: r.meanObservable, acceptance: r.acceptanceRate }
+  return {
+    meanDimension: r.meanObservable,
+    acceptance: r.acceptanceRate,
+  }
 }
 
 export default experiment({
   id: 'quantum/path-integral',
-  title: 'a 2D Lorentzian causal-set path integral recovers a mean dimension near two',
+  title:
+    'a 2D Lorentzian causal-set path integral recovers a mean dimension near two',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
@@ -44,7 +48,11 @@ export default experiment({
     const sharplyTwoDimensional = Math.abs(r.meanDimension - 2) < 0.6
     const ok = finiteDimension && acceptanceHealthy
     return verdict({
-      status: ok ? (sharplyTwoDimensional ? 'pass' : 'partial') : 'fail',
+      status: ok
+        ? sharplyTwoDimensional
+          ? 'pass'
+          : 'partial'
+        : 'fail',
       claim:
         'a Monte Carlo sum over causal sets weighted by the Benincasa-Dowker action recovers a finite small Myrheim-Meyer dimension, of order the 2D target, with a healthy acceptance rate',
       metrics: {

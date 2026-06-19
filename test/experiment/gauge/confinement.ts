@@ -30,7 +30,12 @@ function study(input: { beta: number; seed: number }): {
   // Thermalise.
   let acceptance = 0
   for (let sweep = 0; sweep < 200; sweep++) {
-    acceptance = metropolisSweep({ lattice, beta: input.beta, eps, rng })
+    acceptance = metropolisSweep({
+      lattice,
+      beta: input.beta,
+      eps,
+      rng,
+    })
   }
 
   // Measure: average the Wilson loops over decorrelated configurations, then form
@@ -55,7 +60,12 @@ function study(input: { beta: number; seed: number }): {
   w12 /= measurements
   w22 /= measurements
 
-  const stringTension = creutzRatioFromLoops({ loop11: w11, loop21: w21, loop12: w12, loop22: w22 })
+  const stringTension = creutzRatioFromLoops({
+    loop11: w11,
+    loop21: w21,
+    loop12: w12,
+    loop22: w22,
+  })
 
   return {
     beta: input.beta,
@@ -67,16 +77,19 @@ function study(input: { beta: number; seed: number }): {
 
 export default experiment({
   id: 'gauge/confinement',
-  title: '3D SU(2) lattice gauge theory confines, a positive string tension that weakens with the coupling',
+  title:
+    '3D SU(2) lattice gauge theory confines, a positive string tension that weakens with the coupling',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
     const betas = [0.5, 1.0, 1.6, 2.2, 3.0]
-    const rows = betas.map((beta, index) => study({ beta, seed: 50 + index }))
-    const tensions = rows.map((row) => row.stringTension)
-    const allPositive = tensions.every((tension) => tension > 0)
+    const rows = betas.map((beta, index) =>
+      study({ beta, seed: 50 + index }),
+    )
+    const tensions = rows.map(row => row.stringTension)
+    const allPositive = tensions.every(tension => tension > 0)
     const decreasing =
       (tensions[0] ?? 0) > (tensions[tensions.length - 1] ?? 0)
     const ok = allPositive && decreasing

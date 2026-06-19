@@ -36,7 +36,8 @@ export function growBranchingOrder(input: {
     startOf.push(acc)
     acc += widths[g] ?? 0
   }
-  const posOf = (g: number, c: number): number => ((c + 0.5) / (widths[g] ?? 1))
+  const posOf = (g: number, c: number): number =>
+    (c + 0.5) / (widths[g] ?? 1)
 
   const future = makeBitMatrix({ rows: total, cols: total })
   // Each generation's cells are born to the future of the previous generation's cells within the
@@ -83,5 +84,8 @@ export function growBranchingOrder(input: {
       }
     }
   }
-  return { poset: makePosetFromFuture({ size: total, future }), widthPerGen: widths }
+  return {
+    poset: makePosetFromFuture({ size: total, future }),
+    widthPerGen: widths,
+  }
 }

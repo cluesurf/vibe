@@ -26,7 +26,11 @@ export function dodecagridNavigation(input: { seed: number }): {
   meanStretch: number
   solved: boolean
 } {
-  const g = hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: 1500 })
+  const g = hyperbolicDodecagrid({
+    depth: 4,
+    connectThreshold: 2.0,
+    maxVertices: 1500,
+  })
   const rng = makeRng({ seed: input.seed })
 
   let delivered = 0
@@ -63,7 +67,8 @@ export function dodecagridNavigation(input: { seed: number }): {
 
 export default experiment({
   id: 'addressing/dodecagrid-navigation',
-  title: 'greedy hyperbolic-address routing delivers at low stretch on the dodecagrid',
+  title:
+    'greedy hyperbolic-address routing delivers at low stretch on the dodecagrid',
   category: 'addressing',
   substrates: ['534'],
   depth: 'L2',

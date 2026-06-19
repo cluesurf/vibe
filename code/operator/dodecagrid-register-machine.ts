@@ -5,7 +5,10 @@
 // carveRegisters + RegisterMachine.
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { carveRegisters, RegisterMachine } from '@/code/operator/register-machine'
+import {
+  carveRegisters,
+  RegisterMachine,
+} from '@/code/operator/register-machine'
 
 export function buildDodecagridRegisterMachine(input: {
   maxCells: number
@@ -14,6 +17,14 @@ export function buildDodecagridRegisterMachine(input: {
 }): RegisterMachine {
   const g = buildDodecagrid({ maxCells: input.maxCells })
   const cells = Array.from({ length: g.cellCount }, (_, i) => i)
-  const { regions, ground } = carveRegisters({ cells, numRegisters: input.numRegisters, perRegister: input.perRegister })
-  return new RegisterMachine({ tone: new Int8Array(g.cellCount), regions, ground })
+  const { regions, ground } = carveRegisters({
+    cells,
+    numRegisters: input.numRegisters,
+    perRegister: input.perRegister,
+  })
+  return new RegisterMachine({
+    tone: new Int8Array(g.cellCount),
+    regions,
+    ground,
+  })
 }

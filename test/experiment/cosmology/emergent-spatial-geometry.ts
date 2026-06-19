@@ -14,22 +14,36 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Spatial Euclidean distance between two sprinkled elements (ignoring the time axis 0).
-function spatialDistance(coords: Float64Array, d: number, a: number, b: number): number {
+function spatialDistance(
+  coords: Float64Array,
+  d: number,
+  a: number,
+  b: number,
+): number {
   let s = 0
   for (let axis = 1; axis < d; axis++) {
-    const delta = (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
+    const delta =
+      (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
     s += delta * delta
   }
   return Math.sqrt(s)
 }
 
-export function sliceDimension(input: { dimension: number; count: number; seed: number }): {
+export function sliceDimension(input: {
+  dimension: number
+  count: number
+  seed: number
+}): {
   sliceSize: number
   meanDegree: number
   spatialDimension: number
 } {
   const d = input.dimension
-  const poset = sprinkleMinkowski({ dimension: d, count: input.count, rng: makeRng({ seed: input.seed }) })
+  const poset = sprinkleMinkowski({
+    dimension: d,
+    count: input.count,
+    rng: makeRng({ seed: input.seed }),
+  })
   const coords = poset.embedding?.coords ?? new Float64Array(0)
 
   // Time coordinates, to pick a thin band near the median (a coexisting slice).
@@ -50,7 +64,8 @@ export function sliceDimension(input: { dimension: number; count: number; seed: 
   // A spatial radius giving a locally connected slice graph: a few times the typical
   // nearest-neighbor spacing in the (d-1)-dimensional slice.
   const spatialExtent = 2
-  const spacing = spatialExtent / Math.pow(Math.max(1, slice.length), 1 / (d - 1))
+  const spacing =
+    spatialExtent / Math.pow(Math.max(1, slice.length), 1 / (d - 1))
   const radius = 1.3 * spacing
 
   // Build the spatial-neighbor graph on the slice (indices into `slice`).
@@ -71,9 +86,15 @@ export function sliceDimension(input: { dimension: number; count: number; seed: 
   }
 
   // Centers: the most-connected slice nodes (interior, not on the slice boundary).
-  const order = neighbors.map((row, i) => [i, row.length] as const).sort((a, b) => b[1] - a[1])
+  const order = neighbors
+    .map((row, i) => [i, row.length] as const)
+    .sort((a, b) => b[1] - a[1])
   const centers = order.slice(0, 12).map(([i]) => i)
-  const spatialDimension = ballGrowthDimension({ neighbors, centers, maxRadius: d === 2 ? 6 : 4 })
+  const spatialDimension = ballGrowthDimension({
+    neighbors,
+    centers,
+    maxRadius: d === 2 ? 6 : 4,
+  })
 
   return {
     sliceSize: slice.length,

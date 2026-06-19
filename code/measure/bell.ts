@@ -13,7 +13,10 @@ export type Lambda = number
 // hidden polarization angle lambda (interpreted as radians). The caller can
 // override these to model a different ontology. These defaults already respect
 // the classical bound under independent settings.
-function defaultOutcome(input: { angle: number; lambda: Lambda }): -1 | 1 {
+function defaultOutcome(input: {
+  angle: number
+  lambda: Lambda
+}): -1 | 1 {
   return Math.cos(2 * (input.angle - input.lambda)) >= 0 ? 1 : -1
 }
 
@@ -66,8 +69,14 @@ export function chsh(input: {
 } {
   const outcomeA = input.outcomeA ?? defaultOutcome
   const outcomeB = input.outcomeB ?? defaultOutcome
-  const aOptions: [number, number] = [input.angles.a, input.angles.aPrime]
-  const bOptions: [number, number] = [input.angles.b, input.angles.bPrime]
+  const aOptions: [number, number] = [
+    input.angles.a,
+    input.angles.aPrime,
+  ]
+  const bOptions: [number, number] = [
+    input.angles.b,
+    input.angles.bPrime,
+  ]
 
   // Per-pair running sums and counts, keyed by which setting pair was chosen.
   const sum = { ab: 0, abPrime: 0, aPrimeB: 0, aPrimeBPrime: 0 }
@@ -89,7 +98,9 @@ export function chsh(input: {
       side: 'b',
       rng: input.rng,
     })
-    const product = outcomeA({ angle: angleA, lambda }) * outcomeB({ angle: angleB, lambda })
+    const product =
+      outcomeA({ angle: angleA, lambda }) *
+      outcomeB({ angle: angleB, lambda })
 
     const isA = angleA === input.angles.a
     const isB = angleB === input.angles.b
@@ -108,7 +119,8 @@ export function chsh(input: {
     }
   }
 
-  const average = (s: number, c: number): number => (c === 0 ? 0 : s / c)
+  const average = (s: number, c: number): number =>
+    c === 0 ? 0 : s / c
   const ab = average(sum.ab, count.ab)
   const abPrime = average(sum.abPrime, count.abPrime)
   const aPrimeB = average(sum.aPrimeB, count.aPrimeB)
@@ -156,8 +168,10 @@ export function chshShared(input: {
           : 1
         : randomBit(lambda, 2)
     // With probability eta the setting comes from the shared past, else local.
-    const ai = rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
-    const bi = rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
+    const ai =
+      rng.next() < input.eta ? sharedA : rng.next() < 0.5 ? 0 : 1
+    const bi =
+      rng.next() < input.eta ? sharedB : rng.next() < 0.5 ? 0 : 1
     // The superdeterministic outcomes: A always +1, B set by the lambda region.
     const a = 1
     const b = lambda >= Math.PI / 4 && lambda < Math.PI / 2 ? -1 : 1

@@ -7,7 +7,10 @@
 // Run: npx tsx code/experiment/p4-spinor.ts
 
 import { lattice } from '@/code/substrate/lattice'
-import { cellComplexOf, kahlerDiracZeroModes } from '@/code/operator/dirac'
+import {
+  cellComplexOf,
+  kahlerDiracZeroModes,
+} from '@/code/operator/dirac'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -18,16 +21,21 @@ function study(): { smallestMagnitudes: number[]; nearZero: number } {
     signature: 'riemannian',
   })
   const complex = cellComplexOf({ substrate, maxGrade: 2 })
-  const result = kahlerDiracZeroModes({ complex, count: 16, threshold: 0.05 })
+  const result = kahlerDiracZeroModes({
+    complex,
+    count: 16,
+    threshold: 0.05,
+  })
   const smallestMagnitudes = result.smallestMagnitudes.map(
-    (x) => Math.round(x * 1000) / 1000,
+    x => Math.round(x * 1000) / 1000,
   )
   return { smallestMagnitudes, nearZero: result.zeroModes }
 }
 
 export default experiment({
   id: 'spin/spinor',
-  title: 'the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum',
+  title:
+    'the Kahler-Dirac operator on a 2D mesh has near-zero modes in the middle of its spectrum',
   category: 'spin',
   substrates: ['any'],
   depth: 'L2',

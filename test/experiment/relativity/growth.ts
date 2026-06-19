@@ -10,16 +10,25 @@
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { meanDegree } from '@/code/tool/graph'
-import { ballGrowth, geometricUnsaturatedGrowthRatio } from '@/code/measure/dimension'
+import {
+  ballGrowth,
+  geometricUnsaturatedGrowthRatio,
+} from '@/code/measure/dimension'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { greedyRoutingSuccess, routingWithBacktrack } from '@/code/measure/navigation'
+import {
+  greedyRoutingSuccess,
+  routingWithBacktrack,
+} from '@/code/measure/navigation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Geometric mean of successive ball-count ratios in the unsaturated regime. For
 // exponential reach this is well above 1; for polynomial growth it tends to 1.
 // More robust than a boolean at constant density, where the disc saturates fast.
-function growthRatio(input: { growth: Uint32Array; total: number }): number {
+function growthRatio(input: {
+  growth: Uint32Array
+  total: number
+}): number {
   return geometricUnsaturatedGrowthRatio(input)
 }
 
@@ -51,7 +60,11 @@ function snapshot(input: { size: number; base: number }): Row {
   let ratioCount = 0
   for (let c = 0; c < 6; c++) {
     const center = c === 0 ? 0 : rng.nextInt({ max: graph.size })
-    const growth = ballGrowth({ substrate: graph, center, maxRadius: 14 })
+    const growth = ballGrowth({
+      substrate: graph,
+      center,
+      maxRadius: 14,
+    })
     const ratio = growthRatio({ growth, total: graph.size })
     if (ratio > 0) {
       ratioSum += ratio
@@ -75,7 +88,8 @@ function snapshot(input: { size: number; base: number }): Row {
 
 export default experiment({
   id: 'relativity/growth',
-  title: 'an expanding hyperbolic mesh keeps exponential reach, isotropy, and navigability',
+  title:
+    'an expanding hyperbolic mesh keeps exponential reach, isotropy, and navigability',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -83,10 +97,10 @@ export default experiment({
   run() {
     const base = 400
     const sizes = [400, 800, 1600, 3200]
-    const rows = sizes.map((size) => snapshot({ size, base }))
-    const allReach = rows.every((r) => r.growthRatio > 1.5)
-    const allIsotropic = rows.every((r) => r.anisotropy < 0.25)
-    const allNavigable = rows.every((r) => r.backtrack > 0.95)
+    const rows = sizes.map(size => snapshot({ size, base }))
+    const allReach = rows.every(r => r.growthRatio > 1.5)
+    const allIsotropic = rows.every(r => r.anisotropy < 0.25)
+    const allNavigable = rows.every(r => r.backtrack > 0.95)
     const ok = allReach && allIsotropic && allNavigable
     const last = rows[rows.length - 1]!
     return verdict({

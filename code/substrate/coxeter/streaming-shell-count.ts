@@ -10,7 +10,14 @@
 // lambda and more terms to fit the growth recurrence (the closed-form minimal polynomial, GM1).
 
 import { coxeterCellFrame } from '@/code/substrate/coxeter/frame'
-import { type Mat, matMul, matVec, identity, toPoincare, pointKey } from '@/code/substrate/coxeter/minkowski'
+import {
+  type Mat,
+  matMul,
+  matVec,
+  identity,
+  toPoincare,
+  pointKey,
+} from '@/code/substrate/coxeter/minkowski'
 
 // a 64-bit FNV-1a hash of the position key (forced nonzero, since 0 marks an empty slot)
 function hashKey(s: string): bigint {
@@ -56,9 +63,12 @@ export function streamingShellCounts(input: {
   maxShell: number
   seenCapacityPow2?: number
 }): number[] {
-  const { timeAxis, dim, faces, center } = coxeterCellFrame(input.symbol)
+  const { timeAxis, dim, faces, center } = coxeterCellFrame(
+    input.symbol,
+  )
   const seen = new HashedKeySet(input.seenCapacityPow2 ?? 27)
-  const positionKey = (g: Mat): string => pointKey(toPoincare(matVec(g, center), timeAxis))
+  const positionKey = (g: Mat): string =>
+    pointKey(toPoincare(matVec(g, center), timeAxis))
 
   const root = identity(dim)
   seen.addIfNew(hashKey(positionKey(root)))

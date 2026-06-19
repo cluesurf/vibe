@@ -31,7 +31,11 @@ function oddDihedralClasses(n: number): DihedralClass[] {
 //   triv:  1 everywhere
 //   sign:  +1 on rotations, -1 on reflections
 //   Ej:    2 cos(2 pi j k / n) on rotation^k, 0 on reflections, 2 on identity
-function irrepCharacterOdd(name: string, c: DihedralClass, n: number): number {
+function irrepCharacterOdd(
+  name: string,
+  c: DihedralClass,
+  n: number,
+): number {
   if (name === 'triv') return 1
   if (name === 'sign') return c.rep === 'reflection' ? -1 : 1
   const j = Number(name.slice(1)) // E1, E2, ...

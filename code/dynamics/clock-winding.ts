@@ -16,7 +16,10 @@ const modn = (value: number, n: number): number => ((value % n) + n) % n
 
 // the winding, the sum of the wrapped adjacent clock-differences divided by the number of states. An integer when
 // the field is periodic around the ring.
-export function clockWinding(clock: Int32Array, states: number): number {
+export function clockWinding(
+  clock: Int32Array,
+  states: number,
+): number {
   const size = clock.length
   let sum = 0
   for (let x = 0; x < size; x++) {
@@ -33,15 +36,23 @@ export function stepClockRing(ring: ClockRing): ClockRing {
   const { prev, curr, size, states } = ring
   const next = new Int32Array(size)
   for (let x = 0; x < size; x++) {
-    next[x] = modn(curr[(x - 1 + size) % size]! + curr[(x + 1) % size]! - prev[x]!, states)
+    next[x] = modn(
+      curr[(x - 1 + size) % size]! + curr[(x + 1) % size]! - prev[x]!,
+      states,
+    )
   }
   return { prev: curr, curr: next, size, states }
 }
 
 // a winding-`turns` initial condition, the clock makes `turns` full turns around the ring (a smooth twist), at rest.
-export function makeTwist(input: { size: number; states: number; turns: number }): ClockRing {
+export function makeTwist(input: {
+  size: number
+  states: number
+  turns: number
+}): ClockRing {
   const { size, states, turns } = input
   const clock = new Int32Array(size)
-  for (let x = 0; x < size; x++) clock[x] = modn(Math.round((states * turns * x) / size), states)
+  for (let x = 0; x < size; x++)
+    clock[x] = modn(Math.round((states * turns * x) / size), states)
   return { prev: clock.slice(), curr: clock.slice(), size, states }
 }

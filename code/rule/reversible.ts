@@ -36,7 +36,7 @@ function updateParity(input: {
     const neighborhood: number[] = []
     input.adjacency.forEachOut({
       node: element,
-      visit: (to) => {
+      visit: to => {
         neighborhood.push(getTone(input.source, { element: to }))
       },
     })

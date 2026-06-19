@@ -25,15 +25,25 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
-import { makeWill, loneParticle, gliderLine, type Will } from '@/code/tone/will'
-import { headOnRotate, stickyReflect, type Collision } from '@/code/rule/collision'
+import {
+  makeWill,
+  loneParticle,
+  gliderLine,
+  type Will,
+} from '@/code/tone/will'
+import {
+  headOnRotate,
+  stickyReflect,
+  type Collision,
+} from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 import { componentCount, travelDistance } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/capture-needs-dissipation',
-  title: 'a reversible collision cannot capture, sticky reflection scatters elastically, so binding needs the bath',
+  title:
+    'a reversible collision cannot capture, sticky reflection scatters elastically, so binding needs the bath',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -42,11 +52,17 @@ export default experiment({
     const side = 24
     const beats = 10
     const mesh: Mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const dir = 0
     const opp = mesh.opposite(dir)
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
 
     const sticky: Collision = stickyReflect({ opposite })
     const elastic: Collision = headOnRotate({ opposite })
@@ -55,22 +71,40 @@ export default experiment({
     const lone = loneParticle(mesh, center, dir)
     const stickyReversible = isReversible(lone, sticky, beats)
     const stickyChargeOk = conservesCharge(lone, sticky, beats)
-    const loneTravel = travelDistance({ will: run(loneParticle(mesh, center, dir), sticky, beats), start: center })
+    const loneTravel = travelDistance({
+      will: run(loneParticle(mesh, center, dir), sticky, beats),
+      start: center,
+    })
 
     // two gliders approaching head-on with a clean gap (two disjoint components at the start).
     const twoGliders = (): Will => {
-      const a = gliderLine({ mesh, start: center, direction: dir, length: 3 })
+      const a = gliderLine({
+        mesh,
+        start: center,
+        direction: dir,
+        length: 3,
+      })
       let bStart = center
       for (let i = 0; i < 6; i++) bStart = mesh.neighbour(bStart, dir)
-      const b = gliderLine({ mesh, start: bStart, direction: opp, length: 3 })
+      const b = gliderLine({
+        mesh,
+        start: bStart,
+        direction: opp,
+        length: 3,
+      })
       const will = makeWill(mesh)
-      for (let i = 0; i < will.data.length; i++) will.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
+      for (let i = 0; i < will.data.length; i++)
+        will.data[i] = (a.will.data[i] || b.will.data[i]) as -1 | 0 | 1
       return will
     }
 
     // 2, capture fails, the gliders stay separate under sticky reflection, just as under the elastic control.
-    const stickyCapture = componentCount(run(twoGliders(), sticky, beats))
-    const elasticCapture = componentCount(run(twoGliders(), elastic, beats))
+    const stickyCapture = componentCount(
+      run(twoGliders(), sticky, beats),
+    )
+    const elasticCapture = componentCount(
+      run(twoGliders(), elastic, beats),
+    )
 
     const ok =
       stickyReversible &&

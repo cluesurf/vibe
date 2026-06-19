@@ -17,13 +17,20 @@
 
 import { eigHermitian } from '@/code/algebra/linear/eig-hermitian'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { diracLandauHamiltonian, scalarLandauSquared } from '@/code/operator/landau'
+import {
+  diracLandauHamiltonian,
+  scalarLandauSquared,
+} from '@/code/operator/landau'
 import { distinctLevels } from '@/code/measure/spectrum'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // measure g from one (field, mass) setting by diagonalizing the Dirac and scalar operators
-function measureG(input: { levels: number; fieldStrength: number; mass: number }): {
+function measureG(input: {
+  levels: number
+  fieldStrength: number
+  mass: number
+}): {
   g: number
   diracLowestSquared: number
   scalarLowestSquared: number
@@ -31,7 +38,9 @@ function measureG(input: { levels: number; fieldStrength: number; mass: number }
 } {
   const { levels, fieldStrength, mass } = input
   const dirac = eigHermitian({ matrix: diracLandauHamiltonian(input) })
-  const diracLevels = distinctLevels(Array.from(dirac.values).map((x) => x * x))
+  const diracLevels = distinctLevels(
+    Array.from(dirac.values).map(x => x * x),
+  )
   const scalar = eigSymmetric({ matrix: scalarLandauSquared(input) })
   const scalarLevels = distinctLevels(Array.from(scalar.values))
 
@@ -43,9 +52,17 @@ function measureG(input: { levels: number; fieldStrength: number; mass: number }
   let ladderResidual = 0
   for (let n = 0; n < 4; n++) {
     const predicted = mass * mass + 2 * fieldStrength * n
-    ladderResidual = Math.max(ladderResidual, Math.abs(diracLevels[n]! - predicted))
+    ladderResidual = Math.max(
+      ladderResidual,
+      Math.abs(diracLevels[n]! - predicted),
+    )
   }
-  return { g, diracLowestSquared: diracLowest, scalarLowestSquared: scalarLowest, ladderResidual }
+  return {
+    g,
+    diracLowestSquared: diracLowest,
+    scalarLowestSquared: scalarLowest,
+    ladderResidual,
+  }
 }
 
 export function gFactor(): {
@@ -64,9 +81,12 @@ export function gFactor(): {
 
   // the Dirac zero mode sits at E^2 = m^2 (within rounding), the scalar's lowest is m^2 + qB
   const massSquaredA = 0.5 * 0.5
-  const diracHasZeroMode = Math.abs(a.diracLowestSquared - massSquaredA) < 1e-3
-  const scalarHasNoZeroMode = Math.abs(a.scalarLowestSquared - (massSquaredA + 0.2)) < 1e-3
-  const ladderRelativistic = a.ladderResidual < 1e-3 && b.ladderResidual < 1e-3
+  const diracHasZeroMode =
+    Math.abs(a.diracLowestSquared - massSquaredA) < 1e-3
+  const scalarHasNoZeroMode =
+    Math.abs(a.scalarLowestSquared - (massSquaredA + 0.2)) < 1e-3
+  const ladderRelativistic =
+    a.ladderResidual < 1e-3 && b.ladderResidual < 1e-3
 
   return {
     gAtFieldA: a.g,
@@ -80,7 +100,8 @@ export function gFactor(): {
 
 export default experiment({
   id: 'gauge/g-factor-3434',
-  title: 'the spinor g-factor is measured as 2 from the Dirac Landau spectrum, not assumed',
+  title:
+    'the spinor g-factor is measured as 2 from the Dirac Landau spectrum, not assumed',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -92,7 +113,11 @@ export default experiment({
       Math.abs(r.gAtFieldA - 2) < 0.05 &&
       Math.abs(r.gAtFieldB - 2) < 0.05 &&
       Math.abs(r.gAtHeavierMass - 2) < 0.05
-    const ok = gIsTwo && r.diracHasZeroMode && r.scalarHasNoZeroMode && r.ladderRelativistic
+    const ok =
+      gIsTwo &&
+      r.diracHasZeroMode &&
+      r.scalarHasNoZeroMode &&
+      r.ladderRelativistic
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

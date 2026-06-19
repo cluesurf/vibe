@@ -20,11 +20,16 @@ import { type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { absorbBoundary } from '@/code/dynamics/bath'
-import { coinLines, densityWaveAlongAxis, stripeContrast } from '@/code/measure/sound-wave'
+import {
+  coinLines,
+  densityWaveAlongAxis,
+  stripeContrast,
+} from '@/code/measure/sound-wave'
 
 export default experiment({
   id: 'selves/bath-damps-soft-mode',
-  title: 'the bath damps the emergent soft mode: open radiates the disturbance away and heals, closed recurs',
+  title:
+    'the bath damps the emergent soft mode: open radiates the disturbance away and heals, closed recurs',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -35,7 +40,9 @@ export default experiment({
     const lambda = 4
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const rule: Collision = headOnRotate({ opposite })
     const lines = coinLines(opposite)
     const axisOf = (cell: number): number => cell % side
@@ -43,10 +50,24 @@ export default experiment({
 
     // run the soft density wave, returning the initial amplitude, the peak amplitude in the late window (the
     // recurrence signal), and the final amplitude.
-    const trace = (open: boolean): { c0: number; lateMax: number; final: number } => {
-      let current: Will = densityWaveAlongAxis({ mesh, lambda, axisOf, highTarget: 9, lowTarget: 3, lines })
-      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
-      const c0 = Math.abs(stripeContrast({ will: current, lambda, axisOf, bins: side }))
+    const trace = (
+      open: boolean,
+    ): { c0: number; lateMax: number; final: number } => {
+      let current: Will = densityWaveAlongAxis({
+        mesh,
+        lambda,
+        axisOf,
+        highTarget: 9,
+        lowTarget: 3,
+        lines,
+      })
+      let scratch: Will = {
+        mesh,
+        data: new Int8Array(current.data.length),
+      }
+      const c0 = Math.abs(
+        stripeContrast({ will: current, lambda, axisOf, bins: side }),
+      )
       let lateMax = 0
       let final = 0
       for (let t = 1; t <= beats; t++) {
@@ -55,7 +76,9 @@ export default experiment({
         current = scratch
         scratch = swap
         if (open) absorbBoundary(current)
-        const c = Math.abs(stripeContrast({ will: current, lambda, axisOf, bins: side }))
+        const c = Math.abs(
+          stripeContrast({ will: current, lambda, axisOf, bins: side }),
+        )
         if (t > beats / 2 && c > lateMax) lateMax = c
         final = c
       }
@@ -87,7 +110,10 @@ export default experiment({
         openHealsClosedDoesNot: openHealsClosedDoesNot ? 1 : 0,
         beats,
       },
-      control: { closedLateAmplitude: Math.round(closed.lateMax * 100), openLateAmplitude: Math.round(open.lateMax * 100) },
+      control: {
+        closedLateAmplitude: Math.round(closed.lateMax * 100),
+        openLateAmplitude: Math.round(open.lateMax * 100),
+      },
       notes:
         'the substrate healing channel, the agency half of the emergent self. Identity is base (conserved / topological charge), agency rides this damped soft mode. The closed torus recurs (reversible, no healing), the open lattice damps to zero (the bath absorbs the radiated disturbance). This is the substrate realization of the reduced oscillator-bath self, disturbance is the soft mode, bath is the boundary, damping is the healing, no real numbers',
     })

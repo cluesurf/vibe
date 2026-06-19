@@ -21,16 +21,23 @@ import { complex } from '@/code/algebra/linear/complex'
 
 // the spin holonomy rotor for a contractible loop enclosing hyperbolic area A (Gauss-Bonnet, curvature -1):
 // a rotation by A, rotor(A) = cos(A/2) + sin(A/2) B with B the unit bivector gamma1 gamma2.
-const holonomyRotor = (area: number, bivector: ComplexMatrix): ComplexMatrix =>
-  cliffordRotor({ angle: area, bivector, size: 4 })
+const holonomyRotor = (
+  area: number,
+  bivector: ComplexMatrix,
+): ComplexMatrix => cliffordRotor({ angle: area, bivector, size: 4 })
 
-const traceScalar = (matrix: ComplexMatrix): number => cmScalarTrace(matrix)
+const traceScalar = (matrix: ComplexMatrix): number =>
+  cmScalarTrace(matrix)
 
-const matrixEquals = (left: ComplexMatrix, right: ComplexMatrix): boolean => cmEquals(left, right)
+const matrixEquals = (
+  left: ComplexMatrix,
+  right: ComplexMatrix,
+): boolean => cmEquals(left, right)
 
 export default experiment({
   id: 'spin/continuum-holonomy-534',
-  title: 'the {5,3,4} curvature-driven spin holonomy, a loop of hyperbolic area 2pi flips spinors not vectors',
+  title:
+    'the {5,3,4} curvature-driven spin holonomy, a loop of hyperbolic area 2pi flips spinors not vectors',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
@@ -49,7 +56,11 @@ export default experiment({
     // rotor is cos(area/2), measured across a range of areas
     const sampledAreas = [0.5, 1.5, 2.5, 3.5]
     const angleTracksArea = sampledAreas.every(
-      (area) => Math.abs(traceScalar(holonomyRotor(area, bivector)) - Math.cos(area / 2)) < 1e-9,
+      area =>
+        Math.abs(
+          traceScalar(holonomyRotor(area, bivector)) -
+            Math.cos(area / 2),
+        ) < 1e-9,
     )
 
     // (3) a loop enclosing hyperbolic area 2pi flips the SPINOR (minus one)
@@ -59,14 +70,22 @@ export default experiment({
     // (4) the SAME loop leaves a VECTOR invariant, conjugation by the rotor returns the vector. The inverse
     // of a rotor is its reverse, holonomyRotor(-area) = cos(area/2) - sin(area/2) B.
     const inverseTwoPi = holonomyRotor(-2 * Math.PI, bivector)
-    const vectorAfter = cmMultiply(cmMultiply(rotorTwoPi, gamma[1]!), inverseTwoPi)
+    const vectorAfter = cmMultiply(
+      cmMultiply(rotorTwoPi, gamma[1]!),
+      inverseTwoPi,
+    )
     const vectorReturnsAt2Pi = matrixEquals(vectorAfter, gamma[1]!)
 
     // CONTROL: area 4pi returns the spinor to plus one, the discriminating signature of the double cover
     const rotorFourPi = holonomyRotor(4 * Math.PI, bivector)
     const spinorReturnsAt4Pi = cmIsScalar(rotorFourPi, plusOne)
 
-    const ok = validGenerator && angleTracksArea && spinorFlipsAt2Pi && vectorReturnsAt2Pi && spinorReturnsAt4Pi
+    const ok =
+      validGenerator &&
+      angleTracksArea &&
+      spinorFlipsAt2Pi &&
+      vectorReturnsAt2Pi &&
+      spinorReturnsAt4Pi
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -81,7 +100,10 @@ export default experiment({
       // CONTROL: at area 4pi the spinor returns to plus one (the double cover), and at area 2pi the vector
       // already returns while the spinor does not, so the minus one is a genuine spinor effect of the
       // enclosed curvature, not a property of every field.
-      control: { spinorReturnsAt4Pi: spinorReturnsAt4Pi ? 1 : 0, vectorReturnsAt2Pi: vectorReturnsAt2Pi ? 1 : 0 },
+      control: {
+        spinorReturnsAt4Pi: spinorReturnsAt4Pi ? 1 : 0,
+        vectorReturnsAt2Pi: vectorReturnsAt2Pi ? 1 : 0,
+      },
       notes:
         'Completes spin/spin-connection-534. The discrete edge loops give the ultraviolet (combinatorial) double cover, this gives the infrared (curvature-driven) one, the same spin structure. The Gauss-Bonnet relation (holonomy angle equals enclosed area at curvature -1) is established hyperbolic geometry, the measured content is that the rotor realizes the double cover, spinor at 2pi and vector invariant.',
     })

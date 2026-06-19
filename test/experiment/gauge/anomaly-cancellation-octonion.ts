@@ -14,7 +14,13 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // one generation of left-handed Weyl fermions (the conjugates for the right-handed ones), with color rep,
 // weak rep, hypercharge Y, and the SU(3) cubic index A (3 -> +1, 3bar -> -1, singlet -> 0).
-type Field = { name: string; color: number; weak: number; Y: number; su3index: number }
+type Field = {
+  name: string
+  color: number
+  weak: number
+  Y: number
+  su3index: number
+}
 const GENERATION: Field[] = [
   { name: 'Q', color: 3, weak: 2, Y: 1 / 6, su3index: +1 }, // quark doublet, 3 of SU(3)
   { name: 'uc', color: 3, weak: 1, Y: -2 / 3, su3index: -1 }, // up antiquark, 3bar
@@ -28,17 +34,26 @@ const mult = (f: Field) => f.color * f.weak
 function anomalies(fields: Field[]): Record<string, number> {
   return {
     // SU(3)^3: sum over colored of (weak mult) * A(color)
-    su3cubic: fields.filter((f) => f.color > 1).reduce((s, f) => s + f.weak * f.su3index, 0),
+    su3cubic: fields
+      .filter(f => f.color > 1)
+      .reduce((s, f) => s + f.weak * f.su3index, 0),
     // SU(3)^2 U(1): sum over colored of (weak mult) * Y
-    su3su3u1: fields.filter((f) => f.color > 1).reduce((s, f) => s + f.weak * f.Y, 0),
+    su3su3u1: fields
+      .filter(f => f.color > 1)
+      .reduce((s, f) => s + f.weak * f.Y, 0),
     // SU(2)^2 U(1): sum over weak doublets of (color) * Y
-    su2su2u1: fields.filter((f) => f.weak > 1).reduce((s, f) => s + f.color * f.Y, 0),
+    su2su2u1: fields
+      .filter(f => f.weak > 1)
+      .reduce((s, f) => s + f.color * f.Y, 0),
     // U(1)^3
     u1cubic: fields.reduce((s, f) => s + mult(f) * f.Y ** 3, 0),
     // grav^2 U(1): sum over all of (mult) * Y
     gravu1: fields.reduce((s, f) => s + mult(f) * f.Y, 0),
     // Witten SU(2) global anomaly: number of SU(2) doublets must be even
-    wittenDoubletParity: fields.filter((f) => f.weak === 2).reduce((s, f) => s + f.color, 0) % 2,
+    wittenDoubletParity:
+      fields
+        .filter(f => f.weak === 2)
+        .reduce((s, f) => s + f.color, 0) % 2,
   }
 }
 
@@ -54,7 +69,8 @@ export default experiment({
     // 1. the content the octonion / Cl(0,7) Fock space actually delivers
     const oct = octonionFermionGeneration()
     const contentMatchesSM =
-      oct.multiplicities.join(',') === '1,3,3,1' && oct.electricCharges.join(',') === [0, 1 / 3, 2 / 3, 1].join(',')
+      oct.multiplicities.join(',') === '1,3,3,1' &&
+      oct.electricCharges.join(',') === [0, 1 / 3, 2 / 3, 1].join(',')
 
     // 2. all six anomalies on the derived generation
     const a = anomalies(GENERATION)
@@ -67,9 +83,17 @@ export default experiment({
       a.wittenDoubletParity === 0
 
     // 3. control: add an exotic fermion (a fractionally-charged color singlet) and show an anomaly turns on
-    const exotic: Field = { name: 'X', color: 1, weak: 1, Y: 0.5, su3index: 0 }
+    const exotic: Field = {
+      name: 'X',
+      color: 1,
+      weak: 1,
+      Y: 0.5,
+      su3index: 0,
+    }
     const aExotic = anomalies([...GENERATION, exotic])
-    const controlBreaks = Math.abs(aExotic.u1cubic!) > 1e-9 || Math.abs(aExotic.gravu1!) > 1e-9
+    const controlBreaks =
+      Math.abs(aExotic.u1cubic!) > 1e-9 ||
+      Math.abs(aExotic.gravu1!) > 1e-9
 
     const ok = contentMatchesSM && allCancel && controlBreaks
 

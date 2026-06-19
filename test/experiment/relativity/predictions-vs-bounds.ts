@@ -14,7 +14,10 @@
 // it scales with the discreteness and extrapolate to the Planck scale, where it is far below the
 // cosmic-ray bound. Run: npx tsx code/experiment/p82-predictions-vs-bounds.ts
 
-import { lorentzSafety, latticeAnisotropy } from '@/code/measure/lorentz'
+import {
+  lorentzSafety,
+  latticeAnisotropy,
+} from '@/code/measure/lorentz'
 import { swerveDiffusion } from '@/code/measure/swerve-diffusion'
 import { logLogSlope } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
@@ -57,7 +60,14 @@ export function predictionsVsBounds(input: { seed: number }): {
   // negative exponent means finer discreteness gives a smaller swerve, so the Planckian value
   // (vastly finer than any lab scale) is unobservably small and consistent with cosmic-ray data.
   const densities = [0.5, 1, 2, 4]
-  const slopes = densities.map((d) => swerveDiffusion({ density: d, seed: input.seed, trajectories: 200 }).slope)
+  const slopes = densities.map(
+    d =>
+      swerveDiffusion({
+        density: d,
+        seed: input.seed,
+        trajectories: 200,
+      }).slope,
+  )
   const swerveScalingExponent = logLogSlope(densities, slopes)
   const swerveVanishesWithDiscreteness = swerveScalingExponent < -0.5
 
@@ -73,13 +83,18 @@ export function predictionsVsBounds(input: { seed: number }): {
     swerveVanishesWithDiscreteness,
     // Solved: the model passes the GRB bounds, the prediction is discriminating (a lattice is
     // excluded by the same bound), and the swerve vanishes as the discreteness fines.
-    solved: modelPassesLinear && latticeExcludedLinear && modelPassesQuadratic && swerveVanishesWithDiscreteness,
+    solved:
+      modelPassesLinear &&
+      latticeExcludedLinear &&
+      modelPassesQuadratic &&
+      swerveVanishesWithDiscreteness,
   }
 }
 
 export default experiment({
   id: 'relativity/predictions-vs-bounds',
-  title: 'the model passes the GRB Lorentz bound that excludes a lattice',
+  title:
+    'the model passes the GRB Lorentz bound that excludes a lattice',
   category: 'relativity',
   substrates: 'any',
   depth: 'L3',
@@ -101,7 +116,10 @@ export default experiment({
         xi1Bound: r.xi1Bound,
         swerveScalingExponent: r.swerveScalingExponent,
       },
-      control: { latticeLinearXi: r.latticeLinearXi, xi1Bound: r.xi1Bound },
+      control: {
+        latticeLinearXi: r.latticeLinearXi,
+        xi1Bound: r.xi1Bound,
+      },
     })
   },
 })

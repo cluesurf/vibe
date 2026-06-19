@@ -65,24 +65,54 @@ export function baryogenesis(input: { seed: number }): {
   const epsilon = 0.1
   const K = 3 // intermediate washout
   // All three present: B-violation, CP, out of equilibrium.
-  const full = relicAsymmetry({ epsilon, washout: K, bViolating: true, outOfEquilibrium: true })
+  const full = relicAsymmetry({
+    epsilon,
+    washout: K,
+    bViolating: true,
+    outOfEquilibrium: true,
+  })
   // Remove C/CP violation.
-  const noCP = relicAsymmetry({ epsilon: 0, washout: K, bViolating: true, outOfEquilibrium: true })
+  const noCP = relicAsymmetry({
+    epsilon: 0,
+    washout: K,
+    bViolating: true,
+    outOfEquilibrium: true,
+  })
   // Remove the departure from equilibrium (field clamped to equilibrium abundance).
-  const equilibrium = relicAsymmetry({ epsilon, washout: K, bViolating: true, outOfEquilibrium: false })
+  const equilibrium = relicAsymmetry({
+    epsilon,
+    washout: K,
+    bViolating: true,
+    outOfEquilibrium: false,
+  })
   // Remove baryon-number violation (no net-charge source).
-  const noBViolation = relicAsymmetry({ epsilon, washout: K, bViolating: false, outOfEquilibrium: true })
+  const noBViolation = relicAsymmetry({
+    epsilon,
+    washout: K,
+    bViolating: false,
+    outOfEquilibrium: true,
+  })
 
   // The asymmetry is epsilon times an efficiency the integration produces, NOT epsilon itself.
   const efficiency = full / epsilon
-  const etaNotEqualEpsilon = Math.abs(full - epsilon) > 0.2 * Math.abs(epsilon)
+  const etaNotEqualEpsilon =
+    Math.abs(full - epsilon) > 0.2 * Math.abs(epsilon)
 
   // The freeze-out curve: sweep the washout strength K and confirm the efficiency peaks at an
   // intermediate value (the genuine departure-from-equilibrium signature a biased coin cannot give).
   const Ks = [0.1, 0.3, 1, 3, 10, 30, 100]
-  const effs = Ks.map((k) => relicAsymmetry({ epsilon, washout: k, bViolating: true, outOfEquilibrium: true }) / epsilon)
+  const effs = Ks.map(
+    k =>
+      relicAsymmetry({
+        epsilon,
+        washout: k,
+        bViolating: true,
+        outOfEquilibrium: true,
+      }) / epsilon,
+  )
   let peakIdx = 0
-  for (let i = 1; i < effs.length; i++) if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) peakIdx = i
+  for (let i = 1; i < effs.length; i++)
+    if ((effs[i] ?? 0) > (effs[peakIdx] ?? 0)) peakIdx = i
   const freezeOutPeakK = Ks[peakIdx] ?? 0
   const freezeOutNonMonotonic = peakIdx > 0 && peakIdx < Ks.length - 1
 
@@ -106,20 +136,26 @@ export function baryogenesis(input: { seed: number }): {
     // Solved: a matter excess EMERGES (not equal to epsilon), each Sakharov condition is necessary
     // (removing the mechanism gives zero from the dynamics), and the efficiency shows the
     // characteristic freeze-out peak at intermediate washout.
-    solved: allThreeNeeded && etaNotEqualEpsilon && freezeOutNonMonotonic,
+    solved:
+      allThreeNeeded && etaNotEqualEpsilon && freezeOutNonMonotonic,
   }
 }
 
 export default experiment({
   id: 'cosmology/baryogenesis',
-  title: 'emergent asymmetry, all three Sakharov conditions necessary, freeze-out peak at intermediate washout',
+  title:
+    'emergent asymmetry, all three Sakharov conditions necessary, freeze-out peak at intermediate washout',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L3',
   paper: true,
   run() {
     const r = baryogenesis({ seed: 1 })
-    const ok = r.solved && r.allThreeNeeded && r.etaNotEqualEpsilon && r.freezeOutNonMonotonic
+    const ok =
+      r.solved &&
+      r.allThreeNeeded &&
+      r.etaNotEqualEpsilon &&
+      r.freezeOutNonMonotonic
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

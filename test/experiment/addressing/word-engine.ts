@@ -18,16 +18,30 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function wordEngine(): {
-  finiteOrders: { symbol: string; name: string; chambers: number; expected: number }[]
+  finiteOrders: {
+    symbol: string
+    name: string
+    chambers: number
+    expected: number
+  }[]
   finiteAllExact: boolean
-  cellFacets: { symbol: string; facet: number; expected: number; cells: number }[]
+  cellFacets: {
+    symbol: string
+    facet: number
+    expected: number
+    cells: number
+  }[]
   facetsAllExact: boolean
   heptagridBallGrowth: number[]
   dodecagridFacet: number
   solved: boolean
 } {
   // Finite (spherical) groups, enumerated to their exact order.
-  const finiteCases: { symbol: number[]; name: string; expected: number }[] = [
+  const finiteCases: {
+    symbol: number[]
+    name: string
+    expected: number
+  }[] = [
     { symbol: [3], name: 'A2', expected: 6 },
     { symbol: [4], name: 'B2', expected: 8 },
     { symbol: [7], name: 'I2(7)', expected: 14 },
@@ -35,26 +49,61 @@ export function wordEngine(): {
     { symbol: [4, 3], name: 'B3', expected: 48 },
     { symbol: [5, 3], name: 'H3', expected: 120 },
   ]
-  const finiteOrders = finiteCases.map((c) => {
-    const w = buildWordMesh({ symbol: c.symbol, maxLength: 30, maxChambers: 5000 })
-    return { symbol: `{${c.symbol.join(',')}}`, name: c.name, chambers: w.chamberCount, expected: c.expected }
+  const finiteOrders = finiteCases.map(c => {
+    const w = buildWordMesh({
+      symbol: c.symbol,
+      maxLength: 30,
+      maxChambers: 5000,
+    })
+    return {
+      symbol: `{${c.symbol.join(',')}}`,
+      name: c.name,
+      chambers: w.chamberCount,
+      expected: c.expected,
+    }
   })
-  const finiteAllExact = finiteOrders.every((f) => f.chambers === f.expected)
+  const finiteAllExact = finiteOrders.every(
+    f => f.chambers === f.expected,
+  )
 
   // Hyperbolic crystals, exact cell facet count by coset contraction.
-  const facetCases: { symbol: number[]; expected: number; maxLength: number; maxChambers: number }[] = [
+  const facetCases: {
+    symbol: number[]
+    expected: number
+    maxLength: number
+    maxChambers: number
+  }[] = [
     { symbol: [7, 3], expected: 7, maxLength: 10, maxChambers: 8000 },
     { symbol: [5, 4], expected: 5, maxLength: 9, maxChambers: 8000 },
-    { symbol: [5, 3, 4], expected: 12, maxLength: 12, maxChambers: 60000 },
+    {
+      symbol: [5, 3, 4],
+      expected: 12,
+      maxLength: 12,
+      maxChambers: 60000,
+    },
   ]
-  const cellFacets = facetCases.map((c) => {
-    const w = buildWordMesh({ symbol: c.symbol, maxLength: c.maxLength, maxChambers: c.maxChambers })
-    return { symbol: `{${c.symbol.join(',')}}`, facet: w.cellFacetCount, expected: c.expected, cells: w.cellCount }
+  const cellFacets = facetCases.map(c => {
+    const w = buildWordMesh({
+      symbol: c.symbol,
+      maxLength: c.maxLength,
+      maxChambers: c.maxChambers,
+    })
+    return {
+      symbol: `{${c.symbol.join(',')}}`,
+      facet: w.cellFacetCount,
+      expected: c.expected,
+      cells: w.cellCount,
+    }
   })
-  const facetsAllExact = cellFacets.every((f) => f.facet === f.expected)
+  const facetsAllExact = cellFacets.every(f => f.facet === f.expected)
 
-  const hepta = buildWordMesh({ symbol: [7, 3], maxLength: 10, maxChambers: 8000 })
-  const dodecaFacet = cellFacets.find((f) => f.symbol === '{5,3,4}')?.facet ?? 0
+  const hepta = buildWordMesh({
+    symbol: [7, 3],
+    maxLength: 10,
+    maxChambers: 8000,
+  })
+  const dodecaFacet =
+    cellFacets.find(f => f.symbol === '{5,3,4}')?.facet ?? 0
 
   const solved = finiteAllExact && facetsAllExact && dodecaFacet === 12
 
@@ -71,7 +120,8 @@ export function wordEngine(): {
 
 export default experiment({
   id: 'addressing/word-engine',
-  title: 'ShortLex normal forms give exact finite group orders and exact cell facet counts',
+  title:
+    'ShortLex normal forms give exact finite group orders and exact cell facet counts',
   category: 'addressing',
   substrates: 'any',
   depth: 'L1',
@@ -79,8 +129,11 @@ export default experiment({
   run() {
     const r = wordEngine()
     const ok =
-      r.solved && r.finiteAllExact && r.facetsAllExact && r.dodecagridFacet === 12
-    const h3 = r.finiteOrders.find((f) => f.name === 'H3')
+      r.solved &&
+      r.finiteAllExact &&
+      r.facetsAllExact &&
+      r.dodecagridFacet === 12
+    const h3 = r.finiteOrders.find(f => f.name === 'H3')
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

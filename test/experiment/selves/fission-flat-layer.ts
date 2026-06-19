@@ -13,7 +13,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // connected components of the "on" (value 1) cells, via the given neighbor function
-function components(on: Uint8Array, neighbors: (i: number) => number[], n: number): number[] {
+function components(
+  on: Uint8Array,
+  neighbors: (i: number) => number[],
+  n: number,
+): number[] {
   const comp = new Int32Array(n).fill(-1)
   const sizes: number[] = []
   for (let s = 0; s < n; s++) {
@@ -26,10 +30,11 @@ function components(on: Uint8Array, neighbors: (i: number) => number[], n: numbe
       const nf: number[] = []
       for (const u of fr) {
         size++
-        for (const w of neighbors(u)) if (on[w] === 1 && comp[w] === -1) {
-          comp[w] = id
-          nf.push(w)
-        }
+        for (const w of neighbors(u))
+          if (on[w] === 1 && comp[w] === -1) {
+            comp[w] = id
+            nf.push(w)
+          }
       }
       fr = nf
     }
@@ -59,25 +64,27 @@ function flatFission(): { lobes: number; bothSubstantial: boolean } {
   const c1x = 22
   const c2x = 68
   const cy = 22
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const inDisk1 = (x - c1x) ** 2 + (y - cy) ** 2 <= r * r
-    const inDisk2 = (x - c2x) ** 2 + (y - cy) ** 2 <= r * r
-    const inNeck = x >= c1x && x <= c2x && Math.abs(y - cy) <= 1 // a thin neck (width 3)
-    if (inDisk1 || inDisk2 || inNeck) on[idx(x, y)] = 1
-  }
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const inDisk1 = (x - c1x) ** 2 + (y - cy) ** 2 <= r * r
+      const inDisk2 = (x - c2x) ** 2 + (y - cy) ** 2 <= r * r
+      const inNeck = x >= c1x && x <= c2x && Math.abs(y - cy) <= 1 // a thin neck (width 3)
+      if (inDisk1 || inDisk2 || inNeck) on[idx(x, y)] = 1
+    }
   // erode (peel one boundary layer per beat), the thin neck pinches before the fat lobes vanish
   let lobes = 1
   let bothSubstantial = false
   for (let beat = 0; beat < r; beat++) {
     const toClear: number[] = []
-    for (let i = 0; i < N; i++) if (on[i] === 1) {
-      let empty = 0
-      const x = i % W
-      const y = Math.floor(i / W)
-      if (x === 0 || x === W - 1 || y === 0 || y === H - 1) empty++
-      for (const w of nbr(i)) if (on[w] === 0) empty++
-      if (empty >= 1) toClear.push(i) // a boundary cell, peel it
-    }
+    for (let i = 0; i < N; i++)
+      if (on[i] === 1) {
+        let empty = 0
+        const x = i % W
+        const y = Math.floor(i / W)
+        if (x === 0 || x === W - 1 || y === 0 || y === H - 1) empty++
+        for (const w of nbr(i)) if (on[w] === 0) empty++
+        if (empty >= 1) toClear.push(i) // a boundary cell, peel it
+      }
     for (const i of toClear) on[i] = 0
     const sizes = components(on, nbr, N)
     if (sizes.length >= 2) {
@@ -95,7 +102,8 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   const N = g.cellCount
   const nbr = (i: number): number[] => {
     const out: number[] = []
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) out.push(g.adj[p]!)
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+      out.push(g.adj[p]!)
     return out
   }
   // two ball centers far apart, plus the shortest path between them (the bridge)
@@ -105,10 +113,12 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
     let fr = [src]
     while (fr.length) {
       const nf: number[] = []
-      for (const u of fr) for (const w of nbr(u)) if (d[w] === -1) {
-        d[w] = d[u]! + 1
-        nf.push(w)
-      }
+      for (const u of fr)
+        for (const w of nbr(u))
+          if (d[w] === -1) {
+            d[w] = d[u]! + 1
+            nf.push(w)
+          }
       fr = nf
     }
     return d
@@ -127,15 +137,18 @@ function hyperbolicFission(): { bothSubstantial: boolean } {
   let bothSubstantial = false
   for (let beat = 0; beat < 4; beat++) {
     const toClear: number[] = []
-    for (let i = 0; i < N; i++) if (on[i] === 1) {
-      for (const w of nbr(i)) if (on[w] === 0) {
-        toClear.push(i)
-        break
+    for (let i = 0; i < N; i++)
+      if (on[i] === 1) {
+        for (const w of nbr(i))
+          if (on[w] === 0) {
+            toClear.push(i)
+            break
+          }
       }
-    }
     for (const i of toClear) on[i] = 0
     const sizes = components(on, nbr, N)
-    if (sizes.length >= 2 && sizes[0]! > 20 && sizes[1]! > 20) bothSubstantial = true
+    if (sizes.length >= 2 && sizes[0]! > 20 && sizes[1]! > 20)
+      bothSubstantial = true
   }
   return { bothSubstantial }
 }
@@ -152,12 +165,19 @@ export function fissionFlatLayer(): {
   const liftedAtFlatLevel = flat.bothSubstantial && !hyp.bothSubstantial
   const solved = liftedAtFlatLevel
 
-  return { flatLobes: flat.lobes, flatFissioned: flat.bothSubstantial, hyperbolicFissioned: hyp.bothSubstantial, liftedAtFlatLevel, solved }
+  return {
+    flatLobes: flat.lobes,
+    flatFissioned: flat.bothSubstantial,
+    hyperbolicFissioned: hyp.bothSubstantial,
+    liftedAtFlatLevel,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/fission-flat-layer',
-  title: 'a self divides on the flat layer where the hyperbolic bulk cannot',
+  title:
+    'a self divides on the flat layer where the hyperbolic bulk cannot',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',

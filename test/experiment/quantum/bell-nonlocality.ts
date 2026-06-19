@@ -11,18 +11,28 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function bellNonlocality(): { localMax: number; quantumMax: number; gap: boolean } {
+export function bellNonlocality(): {
+  localMax: number
+  quantumMax: number
+  gap: boolean
+} {
   // (1) local deterministic hidden-variable CHSH, brute force all strategies a0,a1,b0,b1 in {+-1}
   let localMax = 0
-  for (const a0 of [1, -1]) for (const a1 of [1, -1]) for (const b0 of [1, -1]) for (const b1 of [1, -1]) {
-    const chsh = a0 * b0 + a0 * b1 + a1 * b0 - a1 * b1
-    localMax = Math.max(localMax, Math.abs(chsh))
-  }
+  for (const a0 of [1, -1])
+    for (const a1 of [1, -1])
+      for (const b0 of [1, -1])
+        for (const b1 of [1, -1]) {
+          const chsh = a0 * b0 + a0 * b1 + a1 * b0 - a1 * b1
+          localMax = Math.max(localMax, Math.abs(chsh))
+        }
   // (shared randomness is a convex mixture of deterministic strategies, so the bound stays at this max)
   // (2) quantum CHSH = E(a0,b0)+E(a0,b1)+E(a1,b0)-E(a1,b1), E(x,y)=cos(x-y), optimal angles 0,90,45,135 deg
   const deg = (d: number): number => (d * Math.PI) / 180
   const E = (x: number, y: number): number => Math.cos(x - y)
-  const a0 = deg(0), a1 = deg(90), b0 = deg(45), b1 = deg(-45)
+  const a0 = deg(0),
+    a1 = deg(90),
+    b0 = deg(45),
+    b1 = deg(-45)
   const quantumMax = E(a0, b0) + E(a0, b1) + E(a1, b0) - E(a1, b1)
   const gap = quantumMax > localMax + 0.1
   return { localMax, quantumMax, gap }
@@ -30,14 +40,18 @@ export function bellNonlocality(): { localMax: number; quantumMax: number; gap: 
 
 export default experiment({
   id: 'quantum/bell-nonlocality',
-  title: 'the local CHSH bound is 2 and the quantum value is 2 sqrt 2, a restated gap',
+  title:
+    'the local CHSH bound is 2 and the quantum value is 2 sqrt 2, a restated gap',
   category: 'quantum',
   substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {
     const r = bellNonlocality()
-    const ok = r.localMax === 2 && Math.abs(r.quantumMax - 2 * Math.sqrt(2)) < 1e-9 && r.gap
+    const ok =
+      r.localMax === 2 &&
+      Math.abs(r.quantumMax - 2 * Math.sqrt(2)) < 1e-9 &&
+      r.gap
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

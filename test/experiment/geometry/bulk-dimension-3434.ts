@@ -3,7 +3,10 @@
 // throwaway probe. Run: npx tsx code/experiment/p195-bulk-dimension-3434.ts
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenterBySide,
+} from '@/code/substrate/cubic-lattice'
 import { spectralDimension } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -13,15 +16,41 @@ import { verdict } from '@/test/scaffold/verdict'
 // between t = 2 and t = 6. The calibration grids are cubic lattices (code/substrate).
 // The d_s at t = 4 reads the genuine small-scale dimension.
 
-export function bulkDimension(): { d4: number; d3: number; bulk: number } {
+export function bulkDimension(): {
+  d4: number
+  d3: number
+  bulk: number
+} {
   const g4 = cubicLattice(13, 4)
   const g3 = cubicLattice(40, 3)
-  const d4 = spectralDimension({ neighbors: g4.neighbors, start: cubicLatticeCenterBySide({ side: 13, dim: 4 }), t1: 2, t2: 6 })
-  const d3 = spectralDimension({ neighbors: g3.neighbors, start: cubicLatticeCenterBySide({ side: 40, dim: 3 }), t1: 2, t2: 6 })
+  const d4 = spectralDimension({
+    neighbors: g4.neighbors,
+    start: cubicLatticeCenterBySide({ side: 13, dim: 4 }),
+    t1: 2,
+    t2: 6,
+  })
+  const d3 = spectralDimension({
+    neighbors: g3.neighbors,
+    start: cubicLatticeCenterBySide({ side: 40, dim: 3 }),
+    t1: 2,
+    t2: 6,
+  })
   const g34 = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: 50000 })
-  let c = 0, best = -1
-  for (let i = 0; i < g34.cellCount; i++) { const d = g34.neighbors[i]!.length; if (d > best) { best = d; c = i } }
-  const bulk = spectralDimension({ neighbors: g34.neighbors, start: c, t1: 2, t2: 6 })
+  let c = 0,
+    best = -1
+  for (let i = 0; i < g34.cellCount; i++) {
+    const d = g34.neighbors[i]!.length
+    if (d > best) {
+      best = d
+      c = i
+    }
+  }
+  const bulk = spectralDimension({
+    neighbors: g34.neighbors,
+    start: c,
+    t1: 2,
+    t2: 6,
+  })
   return { d4, d3, bulk }
 }
 
@@ -33,14 +62,16 @@ export function bulkDimension(): { d4: number; d3: number; bulk: number } {
 // mathematical fact, so L1.
 export default experiment({
   id: 'geometry/bulk-dimension-3434',
-  title: 'the {3,4,3,4} bulk reads spectral dimension ~4, a genuine 4D substrate',
+  title:
+    'the {3,4,3,4} bulk reads spectral dimension ~4, a genuine 4D substrate',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L1',
   paper: true,
   run() {
     const r = bulkDimension()
-    const calibrationOk = Math.abs(r.d4 - 4) < 0.6 && Math.abs(r.d3 - 3) < 0.6
+    const calibrationOk =
+      Math.abs(r.d4 - 4) < 0.6 && Math.abs(r.d3 - 3) < 0.6
     const bulkIs4D = Math.abs(r.bulk - 4) < 0.7
     const ok = calibrationOk && bulkIs4D
     return verdict({

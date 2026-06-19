@@ -18,7 +18,11 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { kahlerDirac, cellComplexOf } from '@/code/operator/dirac'
-import { sparseWithAubryAndrePotential, type LinearOperator, type SparseMatrix } from '@/code/algebra/linear/sparse'
+import {
+  sparseWithAubryAndrePotential,
+  type LinearOperator,
+  type SparseMatrix,
+} from '@/code/algebra/linear/sparse'
 import { returnProbability } from '@/code/measure/localization'
 import { makeGraph } from '@/code/tool/graph'
 import { experiment } from '@/test/scaffold/suite'
@@ -26,15 +30,27 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // the Kahler-Dirac operator with a deterministic quasiperiodic on-site potential of given strength
 // added to the diagonal. strength 0 is the clean operator. A large strength localizes (Aubry-Andre).
-const diracOperator = (dirac: SparseMatrix, strength: number): LinearOperator =>
-  sparseWithAubryAndrePotential(dirac, strength)
+const diracOperator = (
+  dirac: SparseMatrix,
+  strength: number,
+): LinearOperator => sparseWithAubryAndrePotential(dirac, strength)
 
 // build D on a {5,3,4} bulk of the given size and return the time-averaged return probability for the
 // clean fermion and for the strongly disordered one, from the most-connected central cell
-function measureSize(maxCells: number): { clean: number; localized: number; normDrift: number } {
+function measureSize(maxCells: number): {
+  clean: number
+  localized: number
+  normDrift: number
+} {
   const bulk = buildCellGraph({ symbol: [5, 3, 4], maxCells })
-  const graph = makeGraph({ size: bulk.cellCount, directed: false, neighbors: bulk.neighbors })
-  const dirac = kahlerDirac({ complex: cellComplexOf({ substrate: graph, maxGrade: 1 }) })
+  const graph = makeGraph({
+    size: bulk.cellCount,
+    directed: false,
+    neighbors: bulk.neighbors,
+  })
+  const dirac = kahlerDirac({
+    complex: cellComplexOf({ substrate: graph, maxGrade: 1 }),
+  })
 
   let source = 0
   let bestDegree = -1
@@ -48,9 +64,19 @@ function measureSize(maxCells: number): { clean: number; localized: number; norm
   // dt is kept well below 2 / ||H|| (the strength-8 potential raises ||H||) so the leapfrog stays
   // near-unitary. Total evolution time is steps * dt ~ 11, the same physical window.
   const evolve = { source, steps: 570, dt: 0.02, sampleEvery: 30 }
-  const clean = returnProbability({ operator: diracOperator(dirac, 0), ...evolve })
-  const localized = returnProbability({ operator: diracOperator(dirac, 8), ...evolve })
-  return { clean: clean.timeAverage, localized: localized.timeAverage, normDrift: Math.max(clean.normDrift, localized.normDrift) }
+  const clean = returnProbability({
+    operator: diracOperator(dirac, 0),
+    ...evolve,
+  })
+  const localized = returnProbability({
+    operator: diracOperator(dirac, 8),
+    ...evolve,
+  })
+  return {
+    clean: clean.timeAverage,
+    localized: localized.timeAverage,
+    normDrift: Math.max(clean.normDrift, localized.normDrift),
+  }
 }
 
 export function kahlerDiracPropagation(): {
@@ -87,7 +113,8 @@ export function kahlerDiracPropagation(): {
 
 export default experiment({
   id: 'spin/kahler-dirac-propagation-534',
-  title: 'the Kahler-Dirac fermion on {5,3,4} propagates (the extended phase), localized only by strong deterministic disorder',
+  title:
+    'the Kahler-Dirac fermion on {5,3,4} propagates (the extended phase), localized only by strong deterministic disorder',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',

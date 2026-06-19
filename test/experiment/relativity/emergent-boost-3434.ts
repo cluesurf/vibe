@@ -7,52 +7,84 @@
 // Run: npx tsx code/experiment/p259-emergent-boost-3434.ts
 
 import { coinedWalkDispersion } from '@/code/dynamics/quantum-walk'
-import { addVelocities, boostEnergyMomentum, relativisticEnergy } from '@/code/measure/rapidity'
+import {
+  addVelocities,
+  boostEnergyMomentum,
+  relativisticEnergy,
+} from '@/code/measure/rapidity'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // continuum (IR) dispersion E = sqrt(m^2 + p^2); a boost of rapidity phi
-const Eof = (m: number, p: number): number => relativisticEnergy({ mass: m, momentum: p })
+const Eof = (m: number, p: number): number =>
+  relativisticEnergy({ mass: m, momentum: p })
 const boost = (E: number, p: number, phi: number): [number, number] => {
-  const b = boostEnergyMomentum({ omega: E, wavenumber: p, rapidity: -phi })
+  const b = boostEnergyMomentum({
+    omega: E,
+    wavenumber: p,
+    rapidity: -phi,
+  })
   return [b.omega, b.wavenumber]
 }
 // lattice dispersion cos E = cos(m) cos(k) (from the directional rule)
-const ElatticeFromK = (m: number, k: number): number => coinedWalkDispersion({ theta: m, k })
+const ElatticeFromK = (m: number, k: number): number =>
+  coinedWalkDispersion({ theta: m, k })
 
-export function emergentBoost(): { invariantPreserved: boolean; velocitiesAddRelativistically: boolean; latticeBreaksUV: boolean; emergentInIR: boolean } {
+export function emergentBoost(): {
+  invariantPreserved: boolean
+  velocitiesAddRelativistically: boolean
+  latticeBreaksUV: boolean
+  emergentInIR: boolean
+} {
   // (1) E^2 - p^2 = m^2 preserved under boosts (the Lorentz invariant)
   let invariantPreserved = true
-  for (const m of [0.2, 0.5]) for (const p of [0.0, 0.3, 0.7]) for (const phi of [-0.8, -0.3, 0.5, 1.0]) {
-    const E = Eof(m, p), [E2, p2] = boost(E, p, phi)
-    if (Math.abs((E2 * E2 - p2 * p2) - m * m) > 1e-9) invariantPreserved = false
-  }
+  for (const m of [0.2, 0.5])
+    for (const p of [0.0, 0.3, 0.7])
+      for (const phi of [-0.8, -0.3, 0.5, 1.0]) {
+        const E = Eof(m, p),
+          [E2, p2] = boost(E, p, phi)
+        if (Math.abs(E2 * E2 - p2 * p2 - m * m) > 1e-9)
+          invariantPreserved = false
+      }
 
   // (2) relativistic velocity addition u' = (u+v)/(1+uv), NOT Galilean u+v
-  let velocitiesAddRelativistically = true, galileanWrong = false
-  for (const u of [0.3, 0.6, 0.9]) for (const v of [0.4, 0.8]) {
-    const rel = addVelocities({ velocity: u, frame: v }) // relativistic sum, always < 1
-    const gal = u + v
-    if (rel >= 1 || rel <= 0) velocitiesAddRelativistically = false
-    if (gal > 1) galileanWrong = true // Galilean would exceed c, relativistic never does
-  }
+  let velocitiesAddRelativistically = true,
+    galileanWrong = false
+  for (const u of [0.3, 0.6, 0.9])
+    for (const v of [0.4, 0.8]) {
+      const rel = addVelocities({ velocity: u, frame: v }) // relativistic sum, always < 1
+      const gal = u + v
+      if (rel >= 1 || rel <= 0) velocitiesAddRelativistically = false
+      if (gal > 1) galileanWrong = true // Galilean would exceed c, relativistic never does
+    }
   // verify a concrete case: 0.9 + 0.9 = 0.994... (< c), not 1.8
   const example = (0.9 + 0.9) / (1 + 0.81)
 
   // (3) HONEST: the lattice dispersion is NOT exactly boost-invariant, it breaks at short wavelength (UV)
   // measure the invariant E^2 - k^2 vs m^2 at small k (IR, should match) and large k (UV, should deviate)
   const m = 0.4
-  const kIR = 0.05, EIR = ElatticeFromK(m, kIR), invIR = EIR * EIR - kIR * kIR
-  const kUV = 1.5, EUV = ElatticeFromK(m, kUV), invUV = EUV * EUV - kUV * kUV
+  const kIR = 0.05,
+    EIR = ElatticeFromK(m, kIR),
+    invIR = EIR * EIR - kIR * kIR
+  const kUV = 1.5,
+    EUV = ElatticeFromK(m, kUV),
+    invUV = EUV * EUV - kUV * kUV
   const emergentInIR = Math.abs(invIR - m * m) < 1e-2
   const latticeBreaksUV = Math.abs(invUV - m * m) > 0.1
 
-  return { invariantPreserved, velocitiesAddRelativistically: velocitiesAddRelativistically && galileanWrong, latticeBreaksUV, emergentInIR }
+  return {
+    invariantPreserved,
+    velocitiesAddRelativistically:
+      velocitiesAddRelativistically && galileanWrong,
+    latticeBreaksUV,
+    emergentInIR,
+  }
 }
 
 export default experiment({
   id: 'relativity/emergent-boost-3434',
-  title: 'boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet',
+  title:
+    'boosts preserve E^2 - p^2 = m^2 in the infrared and break it in the ultraviolet',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L1',

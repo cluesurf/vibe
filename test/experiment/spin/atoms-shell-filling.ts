@@ -41,13 +41,16 @@ function centralWell(): Float64Array {
 }
 
 // group the sorted single-particle energies into degenerate shells, levels closer than 0.4 * omega are one shell
-function groupShells(energies: number[]): { energy: number; degeneracy: number }[] {
+function groupShells(
+  energies: number[],
+): { energy: number; degeneracy: number }[] {
   const shells: { energy: number; degeneracy: number }[] = []
   for (const e of energies) {
     const last = shells[shells.length - 1]
     if (last && Math.abs(e - last.energy) < 0.4 * OMEGA) {
       last.degeneracy += 1
-      last.energy = (last.energy * (last.degeneracy - 1) + e) / last.degeneracy
+      last.energy =
+        (last.energy * (last.degeneracy - 1) + e) / last.degeneracy
     } else {
       shells.push({ energy: e, degeneracy: 1 })
     }
@@ -57,7 +60,8 @@ function groupShells(energies: number[]): { energy: number; degeneracy: number }
 
 export default experiment({
   id: 'spin/atoms-shell-filling',
-  title: 'fermions bound to a central well fill discrete shells in order with periodic magic numbers, where bosons all collapse to the lowest level',
+  title:
+    'fermions bound to a central well fill discrete shells in order with periodic magic numbers, where bosons all collapse to the lowest level',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L3',
@@ -65,22 +69,38 @@ export default experiment({
   run() {
     const potential = centralWell()
     const eigenpairs = lowestEigenpairs({
-      operator: { size: SIDE * SIDE, apply: ({ x }) => gridPotentialApply({ phi: x, potential, side: SIDE, dimension: 2, hopping: T }) },
+      operator: {
+        size: SIDE * SIDE,
+        apply: ({ x }) =>
+          gridPotentialApply({
+            phi: x,
+            potential,
+            side: SIDE,
+            dimension: 2,
+            hopping: T,
+          }),
+      },
       count: LEVELS,
       shift: 2 * 2 * T + V0 + 1,
       seed: 1,
     })
-    const energies = eigenpairs.map((e) => e.energy).sort((a, b) => a - b)
+    const energies = eigenpairs.map(e => e.energy).sort((a, b) => a - b)
 
     // (1) the DISCRETE LADDER and the SHELLS, the levels cluster into degenerate shells with a clean gap between
     const shells = groupShells(energies)
     const interShellGaps: number[] = []
-    for (let s = 1; s < shells.length; s++) interShellGaps.push(shells[s]!.energy - shells[s - 1]!.energy)
-    const meanShellGap = interShellGaps.reduce((a, b) => a + b, 0) / Math.max(1, interShellGaps.length)
+    for (let s = 1; s < shells.length; s++)
+      interShellGaps.push(shells[s]!.energy - shells[s - 1]!.energy)
+    const meanShellGap =
+      interShellGaps.reduce((a, b) => a + b, 0) /
+      Math.max(1, interShellGaps.length)
     // the shell degeneracies, expected 1, 2, 3, ... for a 2D central well
-    const degeneracies = shells.map((s) => s.degeneracy)
+    const degeneracies = shells.map(s => s.degeneracy)
     const ladderDiscrete = shells.length >= 3 && meanShellGap > 0.1 // a resolved ladder of separated shells
-    const degeneraciesAscend = degeneracies.length >= 3 && degeneracies[1]! >= 2 && degeneracies[2]! >= 3
+    const degeneraciesAscend =
+      degeneracies.length >= 3 &&
+      degeneracies[1]! >= 2 &&
+      degeneracies[2]! >= 3
 
     // (2) the MAGIC NUMBERS, the cumulative closed-shell occupancies (each orbital holds SPIN fermions)
     const magicNumbers: number[] = []
@@ -108,14 +128,20 @@ export default experiment({
 
     // (4) CONTROL, BOSONS / no exclusion, all N occupy the single lowest level, one shell touched, no filling order
     const bosonShellsTouched = 1 // every boson condenses into the lowest level
-    const bosonsCollapse = bosonShellsTouched === 1 && fermionFillTouches > bosonShellsTouched
+    const bosonsCollapse =
+      bosonShellsTouched === 1 &&
+      fermionFillTouches > bosonShellsTouched
 
-    const ok = ladderDiscrete && degeneraciesAscend && fermionsFillSuccessive && bosonsCollapse
+    const ok =
+      ladderDiscrete &&
+      degeneraciesAscend &&
+      fermionsFillSuccessive &&
+      bosonsCollapse
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'fermions bound to a central attractor occupy a DISCRETE LADDER of levels that cluster into degenerate shells (orbital degeneracies 1, 2, 3, ... from the well\'s rotational symmetry), and added identical fermions FILL successive shells in order because the Pauli exclusion of CM1 forbids doubling up, with the closed shells falling at periodic MAGIC NUMBERS (2, 6, 12, the two-dimensional atom\'s periodic structure), where by contrast bosons (no exclusion) all collapse into the single lowest level with no shells, no filling order, and no periodic structure, so the entire atomic shell structure is a measured consequence of exclusion',
+        "fermions bound to a central attractor occupy a DISCRETE LADDER of levels that cluster into degenerate shells (orbital degeneracies 1, 2, 3, ... from the well's rotational symmetry), and added identical fermions FILL successive shells in order because the Pauli exclusion of CM1 forbids doubling up, with the closed shells falling at periodic MAGIC NUMBERS (2, 6, 12, the two-dimensional atom's periodic structure), where by contrast bosons (no exclusion) all collapse into the single lowest level with no shells, no filling order, and no periodic structure, so the entire atomic shell structure is a measured consequence of exclusion",
       metrics: {
         shellCount: shells.length,
         meanShellGapTimes1000: Math.round(meanShellGap * 1000),
@@ -129,7 +155,7 @@ export default experiment({
       },
       control: { bosonShellsTouched },
       notes:
-        'L3, a measured discrete shell spectrum with magic numbers and a measured filling order, with the bosonic-collapse control. The bound spectrum is computed with the committed tight-binding eigensolver on the open-boundary grid well (the gridPotentialApply added alongside openChainPotentialApply, the same solver as quantum/bound-composite and CM2). The shells and their degeneracies come from the well\'s rotational symmetry, and the periodic closures (magic numbers) are the cumulative shell capacities under the Pauli doubling. The filling order and the entire periodic structure are the CM1 exclusion acting on the bound ladder, bosons collapse to the lowest level. This completes nuclei (CM2) to atoms.',
+        "L3, a measured discrete shell spectrum with magic numbers and a measured filling order, with the bosonic-collapse control. The bound spectrum is computed with the committed tight-binding eigensolver on the open-boundary grid well (the gridPotentialApply added alongside openChainPotentialApply, the same solver as quantum/bound-composite and CM2). The shells and their degeneracies come from the well's rotational symmetry, and the periodic closures (magic numbers) are the cumulative shell capacities under the Pauli doubling. The filling order and the entire periodic structure are the CM1 exclusion acting on the bound ladder, bosons collapse to the lowest level. This completes nuclei (CM2) to atoms.",
     })
   },
 })

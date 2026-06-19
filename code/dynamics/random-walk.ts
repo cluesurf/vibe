@@ -10,7 +10,10 @@ type Neighbors = ReadonlyArray<ReadonlyArray<number>>
 // Mean-square displacement of a 1D classical random walk after each step, averaged over independent runs.
 // The diffusive baseline (MSD ~ t, exponent ~ 1) that the ballistic quantum walk is contrasted against. Each
 // run is seeded deterministically by its index.
-export function classicalWalkMSD(input: { steps: number; runs: number }): number[] {
+export function classicalWalkMSD(input: {
+  steps: number
+  runs: number
+}): number[] {
   const { steps, runs } = input
   const msd = new Float64Array(steps + 1)
   for (let r = 0; r < runs; r++) {
@@ -131,7 +134,8 @@ export function persistentWalkMeanDisplacement(input: {
       for (let a = 0; a < dimension; a++) position[a]! += step[a]!
     }
     let sumSquares = 0
-    for (let a = 0; a < dimension; a++) sumSquares += position[a]! * position[a]!
+    for (let a = 0; a < dimension; a++)
+      sumSquares += position[a]! * position[a]!
     total += Math.sqrt(sumSquares)
   }
   return total / runs

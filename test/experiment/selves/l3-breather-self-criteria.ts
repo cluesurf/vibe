@@ -39,7 +39,12 @@ function breather(side: number): { mesh: Mesh; will: Will } {
 
 // the cells within a chebyshev box around the center, split into interior (inner box), shell (the ring), and
 // exterior (the next ring out), by index on the square mesh.
-function boxRegions(side: number, center: number, inner: number, outer: number): {
+function boxRegions(
+  side: number,
+  center: number,
+  inner: number,
+  outer: number,
+): {
   interior: number[]
   shell: number[]
   exterior: number[]
@@ -69,16 +74,32 @@ function sumCharge(will: Will, cells: number[]): number {
 
 // flip one slot of a cell, the minimal perturbation, then evolve perturbed and clean copies under the same
 // deterministic rule, returning the maximum radius the difference set reaches.
-function perturbationRadius(input: { mesh: Mesh; base: Will; site: number; beats: number; table: Int32Array }): number {
+function perturbationRadius(input: {
+  mesh: Mesh
+  base: Will
+  site: number
+  beats: number
+  table: Int32Array
+}): number {
   const { mesh, base, site, beats, table } = input
   const dist = shellDistances(mesh, site)
   let clean: Will = { mesh, data: base.data.slice() }
   let dirty: Will = { mesh, data: base.data.slice() }
-  dirty.data[site * mesh.degree] = (dirty.data[site * mesh.degree] === 1 ? -1 : 1) as -1 | 1
-  const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+  dirty.data[site * mesh.degree] = (
+    dirty.data[site * mesh.degree] === 1 ? -1 : 1
+  ) as -1 | 1
+  const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+    mesh.opposite(d),
+  )
   const collision = pairCollision({ opposite, forward: true })
-  let cleanScratch: Will = { mesh, data: new Int8Array(clean.data.length) }
-  let dirtyScratch: Will = { mesh, data: new Int8Array(dirty.data.length) }
+  let cleanScratch: Will = {
+    mesh,
+    data: new Int8Array(clean.data.length),
+  }
+  let dirtyScratch: Will = {
+    mesh,
+    data: new Int8Array(dirty.data.length),
+  }
   let maxRadius = 0
   for (let t = 0; t < beats; t++) {
     beatInto({ src: clean, dst: cleanScratch, table, collision })
@@ -90,7 +111,11 @@ function perturbationRadius(input: { mesh: Mesh; base: Will; site: number; beats
     dirty = dirtyScratch
     dirtyScratch = swapDirty
     for (let c = 0; c < mesh.cellCount; c++) {
-      if (cellTone(clean, c) !== cellTone(dirty, c) && dist[c]! > maxRadius) maxRadius = dist[c]!
+      if (
+        cellTone(clean, c) !== cellTone(dirty, c) &&
+        dist[c]! > maxRadius
+      )
+        maxRadius = dist[c]!
     }
   }
   return maxRadius
@@ -98,7 +123,8 @@ function perturbationRadius(input: { mesh: Mesh; base: Will; site: number; beats
 
 export default experiment({
   id: 'selves/l3-breather-self-criteria',
-  title: 'the base-rule breather screens through its shell and contains an interior perturbation more than the vacuum',
+  title:
+    'the base-rule breather screens through its shell and contains an interior perturbation more than the vacuum',
   category: 'selves',
   substrates: ['square'],
   depth: 'L2',
@@ -107,7 +133,9 @@ export default experiment({
     const side = 64
     const beats = 24
     const { mesh, will } = breather(side)
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const collision = pairCollision({ opposite, forward: true })
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const center = Math.floor(side / 2) * side + Math.floor(side / 2)
@@ -131,9 +159,21 @@ export default experiment({
     const blanket = blanketScreening({ interior, shell, exterior })
 
     // cognitive light cone, an interior perturbation versus a vacuum perturbation.
-    const interiorRadius = perturbationRadius({ mesh, base: will, site: center, beats, table })
+    const interiorRadius = perturbationRadius({
+      mesh,
+      base: will,
+      site: center,
+      beats,
+      table,
+    })
     const cornerCell = 0
-    const vacuumRadius = perturbationRadius({ mesh, base: will, site: cornerCell, beats, table })
+    const vacuumRadius = perturbationRadius({
+      mesh,
+      base: will,
+      site: cornerCell,
+      beats,
+      table,
+    })
 
     // the honest reading. The interior is statistically independent of the exterior (raw coupling near zero),
     // a Markov blanket in the limit, the interior is causally isolated. And both perturbations stay contained
@@ -142,7 +182,8 @@ export default experiment({
     // substrate of a self), but the criteria do not DISTINGUISH it from generic confined dynamics, no special
     // agency is shown. A full L3 self-level (a distinctive blanket and causal emergence) is not established.
     const interiorIsolated = blanket.raw < 0.1
-    const containmentNotStructureSpecific = Math.abs(interiorRadius - vacuumRadius) <= 2
+    const containmentNotStructureSpecific =
+      Math.abs(interiorRadius - vacuumRadius) <= 2
     const ok = interiorIsolated && containmentNotStructureSpecific
     return verdict({
       status: ok ? 'pass' : 'fail',

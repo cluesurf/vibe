@@ -19,7 +19,12 @@ interface Point {
   x: number
 }
 
-function sprinkle(input: { density: number; tMax: number; xMax: number; rng: Rng }): Point[] {
+function sprinkle(input: {
+  density: number
+  tMax: number
+  xMax: number
+  rng: Rng
+}): Point[] {
   const n = Math.round(input.density * input.tMax * 2 * input.xMax)
   return Array.from({ length: n }, () => ({
     t: input.rng.next() * input.tMax,
@@ -30,12 +35,20 @@ function sprinkle(input: { density: number; tMax: number; xMax: number; rng: Rng
 // The smallest timelike-future proper time from each point (its nearest causal
 // neighbor): the discreteness length. The continuum has no such floor, it goes to
 // zero, so a discrete set has a minimum length the continuum lacks.
-export function minimumInterval(input: { density: number; seed: number }): {
+export function minimumInterval(input: {
+  density: number
+  seed: number
+}): {
   density: number
   meanLength: number
   curvatureCap: number
 } {
-  const pts = sprinkle({ density: input.density, tMax: 8, xMax: 8, rng: makeRng({ seed: input.seed }) })
+  const pts = sprinkle({
+    density: input.density,
+    tMax: 8,
+    xMax: 8,
+    rng: makeRng({ seed: input.seed }),
+  })
   const lengths: number[] = []
   for (let i = 0; i < pts.length; i++) {
     const p = pts[i]
@@ -59,8 +72,13 @@ export function minimumInterval(input: { density: number; seed: number }): {
       lengths.push(best)
     }
   }
-  const meanLength = lengths.reduce((a, b) => a + b, 0) / Math.max(1, lengths.length)
-  return { density: input.density, meanLength, curvatureCap: meanLength > 0 ? 1 / (meanLength * meanLength) : 0 }
+  const meanLength =
+    lengths.reduce((a, b) => a + b, 0) / Math.max(1, lengths.length)
+  return {
+    density: input.density,
+    meanLength,
+    curvatureCap: meanLength > 0 ? 1 / (meanLength * meanLength) : 0,
+  }
 }
 
 export default experiment({

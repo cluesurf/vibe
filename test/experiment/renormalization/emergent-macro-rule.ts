@@ -16,13 +16,26 @@
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { signedMajorityStep } from '@/code/operator/signed-majority'
-import { agreementFraction, clusterMajority } from '@/code/measure/agreement'
-import { geometricBlocks, coherentFills } from '@/code/dynamics/renormalization-blocks'
-import { effectiveCouplings, naiveMacroStep, renormMacroStep } from '@/code/operator/macro-rule'
+import {
+  agreementFraction,
+  clusterMajority,
+} from '@/code/measure/agreement'
+import {
+  geometricBlocks,
+  coherentFills,
+} from '@/code/dynamics/renormalization-blocks'
+import {
+  effectiveCouplings,
+  naiveMacroStep,
+  renormMacroStep,
+} from '@/code/operator/macro-rule'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function emergentMacroRule(input: { count: number; seed: number }): {
+export function emergentMacroRule(input: {
+  count: number
+  seed: number
+}): {
   orderedRenorm: number
   orderedNaive: number
   frustratedRenorm: number
@@ -34,30 +47,59 @@ export function emergentMacroRule(input: { count: number; seed: number }): {
   solved: boolean
 } {
   const rng = makeRng({ seed: input.seed })
-  const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
+  const g = hyperbolicGraph({
+    count: input.count,
+    radius: 7,
+    connectThreshold: 3.0,
+    rng,
+  })
 
   // The CRITICAL fix: coarse-grain along GEOMETRIC blocks (BFS balls from random seeds), defined
   // WITHOUT looking at the tones, so the mean-field closure is not exact by construction. Then test
   // whether the renormalized macro-rule holds the coarse-grained fixed point.
-  const { cl, K } = geometricBlocks(g, 14, makeRng({ seed: input.seed + 2 }))
+  const { cl, K } = geometricBlocks(
+    g,
+    14,
+    makeRng({ seed: input.seed + 2 }),
+  )
 
   const measure = (p: number): { renorm: number; naive: number } => {
     // Coherence-tunable fills: +1 with probability p, else -1. p = 0.5 is frustrated (spin-glass, no
     // coherent domains), p -> 1 is ordered (ferromagnetic). Emergence of a coarse rule requires order.
-    const fills = coherentFills(g, p, makeRng({ seed: input.seed + 10 }))
+    const fills = coherentFills(
+      g,
+      p,
+      makeRng({ seed: input.seed + 10 }),
+    )
     let base = new Int8Array(g.size)
     const r0 = makeRng({ seed: input.seed + 20 })
-    for (let i = 0; i < g.size; i++) base[i] = r0.nextInt({ max: 3 }) - 1
-    for (let b = 0; b < 200; b++) base = signedMajorityStep({ neighbors: g.neighbors, fills, tone: base, keepOnTie: true })
+    for (let i = 0; i < g.size; i++)
+      base[i] = r0.nextInt({ max: 3 }) - 1
+    for (let b = 0; b < 200; b++)
+      base = signedMajorityStep({
+        neighbors: g.neighbors,
+        fills,
+        tone: base,
+        keepOnTie: true,
+      })
     const eff = effectiveCouplings(g, fills, cl, K)
     const superTone = clusterMajority(cl, K, base)
     return {
-      renorm: agreementFraction(superTone, renormMacroStep(superTone, eff)),
-      naive: agreementFraction(superTone, naiveMacroStep(superTone, eff)),
+      renorm: agreementFraction(
+        superTone,
+        renormMacroStep(superTone, eff),
+      ),
+      naive: agreementFraction(
+        superTone,
+        naiveMacroStep(superTone, eff),
+      ),
     }
   }
 
-  const coherenceSweep = [0.5, 0.7, 0.85, 1.0].map((p) => ({ p, ...measure(p) }))
+  const coherenceSweep = [0.5, 0.7, 0.85, 1.0].map(p => ({
+    p,
+    ...measure(p),
+  }))
   const ordered = measure(0.85)
   const frustrated = measure(0.5)
   const orderedRenorm = ordered.renorm
@@ -95,7 +137,10 @@ export default experiment({
   run() {
     const r = emergentMacroRule({ count: 1500, seed: 1 })
     const ok =
-      r.solved && r.emergesInOrderedRegime && r.beatsNaive && r.failsWhenFrustrated
+      r.solved &&
+      r.emergesInOrderedRegime &&
+      r.beatsNaive &&
+      r.failsWhenFrustrated
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

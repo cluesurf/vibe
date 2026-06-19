@@ -21,7 +21,8 @@ const DISTANCES = [1, 3, 5, 8, 11]
 
 export default experiment({
   id: 'gravity/shadow-pressure-not-newtonian',
-  title: 'the bare shadow pressure is a distance-independent ballistic deficit, not a 1/r Newtonian tail',
+  title:
+    'the bare shadow pressure is a distance-independent ballistic deficit, not a 1/r Newtonian tail',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -29,18 +30,32 @@ export default experiment({
   run() {
     // the attraction (net x-momentum toward the body) at increasing distance behind the body, from the body's
     // own self-generated active vacuum
-    const momenta = DISTANCES.map((dist) =>
-      selfContainedShadowD4({ side: SIDE, beats: BEATS, bodyLoX: BODY_LO, bodyHiX: BODY_HI, testX: BODY_HI + dist, body: true }),
+    const momenta = DISTANCES.map(dist =>
+      selfContainedShadowD4({
+        side: SIDE,
+        beats: BEATS,
+        bodyLoX: BODY_LO,
+        bodyHiX: BODY_HI,
+        testX: BODY_HI + dist,
+        body: true,
+      }),
     )
     // the control, no body means no shadow and no net momentum at any distance
-    const control = DISTANCES.map((dist) =>
-      selfContainedShadowD4({ side: SIDE, beats: BEATS, bodyLoX: BODY_LO, bodyHiX: BODY_HI, testX: BODY_HI + dist, body: false }),
+    const control = DISTANCES.map(dist =>
+      selfContainedShadowD4({
+        side: SIDE,
+        beats: BEATS,
+        bodyLoX: BODY_LO,
+        bodyHiX: BODY_HI,
+        testX: BODY_HI + dist,
+        body: false,
+      }),
     )
 
     // the falloff exponent from a log-log fit of |momentum| versus distance, near zero means distance
     // independent (ballistic), a Newtonian tail would be near -1 (1/r) or -2 (1/r^2)
-    const logD = DISTANCES.map((d) => Math.log(d))
-    const logM = momenta.map((m) => Math.log(Math.abs(m) + 1e-9))
+    const logD = DISTANCES.map(d => Math.log(d))
+    const logM = momenta.map(m => Math.log(Math.abs(m) + 1e-9))
     const meanX = logD.reduce((a, b) => a + b, 0) / logD.length
     const meanY = logM.reduce((a, b) => a + b, 0) / logM.length
     let num = 0
@@ -51,9 +66,9 @@ export default experiment({
     }
     const falloffExponent = den > 0 ? num / den : 0
 
-    const attractionPresent = momenta.every((m) => m < -0.5) // a real attraction at every distance
+    const attractionPresent = momenta.every(m => m < -0.5) // a real attraction at every distance
     const distanceIndependent = Math.abs(falloffExponent) < 0.3 // constant, not Newtonian (which is near 1 or 2)
-    const controlZero = control.every((m) => Math.abs(m) < 0.5) // no body, no force
+    const controlZero = control.every(m => Math.abs(m) < 0.5) // no body, no force
     const ok = attractionPresent && distanceIndependent && controlZero
 
     return verdict({
@@ -65,9 +80,11 @@ export default experiment({
         newtonianExponent: -2,
         momentumNear: momenta[0]!,
         momentumFar: momenta[momenta.length - 1]!,
-        controlMax: Math.max(...control.map((m) => Math.abs(m))),
+        controlMax: Math.max(...control.map(m => Math.abs(m))),
       },
-      control: { controlMax: Math.max(...control.map((m) => Math.abs(m))) },
+      control: {
+        controlMax: Math.max(...control.map(m => Math.abs(m))),
+      },
       notes:
         'a clean measured NEGATIVE. The shadow is a ballistic deficit, so the force is constant with distance (exponent near zero), not the Newtonian 1/r (exponent 1) or 1/r^2 (exponent 2). The 1/r limit comes instead from the added effective field (gravity-bound-self) and the Einstein structure from the measured area law (gr-einstein-equations). This pins down where the bare dynamics stops.',
     })

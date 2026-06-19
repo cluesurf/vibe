@@ -28,7 +28,6 @@ const AY = 0.9
 const ALPHA = 0.35 // per-cell opacity for back-to-front compositing (blends, never sums to white)
 const SPLAT = 1 // each projected cell paints a small square so sparse shells stay visible
 
-
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
@@ -37,27 +36,41 @@ async function run(): Promise<void> {
   }
   const device = await adapter.requestDevice()
   const N = L * L * L
-  const idx = (x: number, y: number, z: number): number => (z * L + y) * L + x
+  const idx = (x: number, y: number, z: number): number =>
+    (z * L + y) * L + x
 
   // the {4,3,4} cubic cusp as a 6-neighbour CSR graph (bounded cube)
   const offsets = new Int32Array(N + 1)
   const deg = (x: number, y: number, z: number): number =>
-    (x > 0 ? 1 : 0) + (x < L - 1 ? 1 : 0) + (y > 0 ? 1 : 0) + (y < L - 1 ? 1 : 0) + (z > 0 ? 1 : 0) + (z < L - 1 ? 1 : 0)
-  for (let z = 0; z < L; z++) for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) offsets[idx(x, y, z) + 1] = deg(x, y, z)
-  for (let i = 0; i < N; i++) offsets[i + 1] = offsets[i + 1]! + offsets[i]!
+    (x > 0 ? 1 : 0) +
+    (x < L - 1 ? 1 : 0) +
+    (y > 0 ? 1 : 0) +
+    (y < L - 1 ? 1 : 0) +
+    (z > 0 ? 1 : 0) +
+    (z < L - 1 ? 1 : 0)
+  for (let z = 0; z < L; z++)
+    for (let y = 0; y < L; y++)
+      for (let x = 0; x < L; x++)
+        offsets[idx(x, y, z) + 1] = deg(x, y, z)
+  for (let i = 0; i < N; i++)
+    offsets[i + 1] = offsets[i + 1]! + offsets[i]!
   const adj = new Int32Array(offsets[N]!)
   {
     let p = 0
-    for (let z = 0; z < L; z++) for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) {
-      if (x > 0) adj[p++] = idx(x - 1, y, z)
-      if (x < L - 1) adj[p++] = idx(x + 1, y, z)
-      if (y > 0) adj[p++] = idx(x, y - 1, z)
-      if (y < L - 1) adj[p++] = idx(x, y + 1, z)
-      if (z > 0) adj[p++] = idx(x, y, z - 1)
-      if (z < L - 1) adj[p++] = idx(x, y, z + 1)
-    }
+    for (let z = 0; z < L; z++)
+      for (let y = 0; y < L; y++)
+        for (let x = 0; x < L; x++) {
+          if (x > 0) adj[p++] = idx(x - 1, y, z)
+          if (x < L - 1) adj[p++] = idx(x + 1, y, z)
+          if (y > 0) adj[p++] = idx(x, y - 1, z)
+          if (y < L - 1) adj[p++] = idx(x, y + 1, z)
+          if (z > 0) adj[p++] = idx(x, y, z - 1)
+          if (z < L - 1) adj[p++] = idx(x, y, z + 1)
+        }
   }
-  console.log(`{3,4,3,4} cusp = {4,3,4} cubic, ${N.toLocaleString()} cells (${L}^3), volume render`)
+  console.log(
+    `{3,4,3,4} cusp = {4,3,4} cubic, ${N.toLocaleString()} cells (${L}^3), volume render`,
+  )
 
   // a central blob of random tones, the wave expands from it as rich 3D shells
   const seed = new Uint32Array(N)
@@ -65,25 +78,48 @@ async function run(): Promise<void> {
   const rr = makeRng({ seed: 12345 })
   const rnd = (): number => rr.next()
   const B = 6
-  for (let z = -B; z <= B; z++) for (let y = -B; y <= B; y++) for (let x = -B; x <= B; x++) {
-    if (x * x + y * y + z * z > B * B) continue
-    seed[idx(c + x, c + y, c + z)] = pack({ current: Math.floor(rnd() * 3), previous: Math.floor(rnd() * 3) })
-  }
+  for (let z = -B; z <= B; z++)
+    for (let y = -B; y <= B; y++)
+      for (let x = -B; x <= B; x++) {
+        if (x * x + y * y + z * z > B * B) continue
+        seed[idx(c + x, c + y, c + z)] = pack({
+          current: Math.floor(rnd() * 3),
+          previous: Math.floor(rnd() * 3),
+        })
+      }
 
   const byteLength = N * 4
-  const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
+  const params = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(params, 0, new Uint32Array([N, 0, 0, 0]))
   const makeState = (): GPUBuffer =>
-    device.createBuffer({ size: byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
+    device.createBuffer({
+      size: byteLength,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
-  const offBuf = device.createBuffer({ size: offsets.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
+  const offBuf = device.createBuffer({
+    size: offsets.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(offBuf, 0, new Uint32Array(offsets))
-  const adjBuf = device.createBuffer({ size: adj.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
+  const adjBuf = device.createBuffer({
+    size: adj.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(adjBuf, 0, new Uint32Array(adj))
 
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'main' } })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'main' },
+  })
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -97,7 +133,10 @@ async function run(): Promise<void> {
       ],
     })
   const dispatch = Math.ceil(N / WORKGROUP)
-  const staging = device.createBuffer({ size: byteLength, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
+  const staging = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
 
   // rotation + orthographic projection, PRECOMPUTED once (rotation is fixed), plus a back-to-front draw order
   const cosx = Math.cos(AX)
@@ -110,24 +149,34 @@ async function run(): Promise<void> {
   const PY = new Int32Array(N)
   const DEPTH = new Float32Array(N)
   const z2arr = new Float32Array(N)
-  for (let z = 0; z < L; z++) for (let y = 0; y < L; y++) for (let x = 0; x < L; x++) {
-    const ox = x - half
-    const oy = y - half
-    const oz = z - half
-    const y1 = oy * cosx - oz * sinx
-    const z1 = oy * sinx + oz * cosx
-    const x2 = ox * cosy + z1 * siny
-    const z2 = -ox * siny + z1 * cosy
-    const i = idx(x, y, z)
-    PX[i] = Math.round(IMG / 2 + x2 * scale)
-    PY[i] = Math.round(IMG / 2 - y1 * scale)
-    z2arr[i] = z2
-    DEPTH[i] = 0.5 + 0.5 * (z2 / L + 0.5)
-  }
+  for (let z = 0; z < L; z++)
+    for (let y = 0; y < L; y++)
+      for (let x = 0; x < L; x++) {
+        const ox = x - half
+        const oy = y - half
+        const oz = z - half
+        const y1 = oy * cosx - oz * sinx
+        const z1 = oy * sinx + oz * cosx
+        const x2 = ox * cosy + z1 * siny
+        const z2 = -ox * siny + z1 * cosy
+        const i = idx(x, y, z)
+        PX[i] = Math.round(IMG / 2 + x2 * scale)
+        PY[i] = Math.round(IMG / 2 - y1 * scale)
+        z2arr[i] = z2
+        DEPTH[i] = 0.5 + 0.5 * (z2 / L + 0.5)
+      }
   // back-to-front order (smallest rotated-z first, so nearer cells composite on top)
-  const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => z2arr[a]! - z2arr[b]!)
+  const order = Array.from({ length: N }, (_, i) => i).sort(
+    (a, b) => z2arr[a]! - z2arr[b]!,
+  )
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'make', 'frames')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    'make',
+    'frames',
+  )
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -192,9 +241,11 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
-  console.log(`wrote ${FRAMES} frames of the {3,4,3,4} flat 3D cusp (volume render), assemble with task/render-video.sh`)
+  console.log(
+    `wrote ${FRAMES} frames of the {3,4,3,4} flat 3D cusp (volume render), assemble with task/render-video.sh`,
+  )
 }
 
-run().catch((e) => {
+run().catch(e => {
   console.error(e instanceof Error ? e.message : String(e))
 })

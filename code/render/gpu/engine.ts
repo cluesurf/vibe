@@ -6,7 +6,11 @@
 //
 // The React component (code/render/react) is a thin mount over this. Use createVibeRenderer in any host.
 
-import { createFoldScene, type FoldMode, type FoldScene } from '@/code/render/gpu/fold-scene'
+import {
+  createFoldScene,
+  type FoldMode,
+  type FoldScene,
+} from '@/code/render/gpu/fold-scene'
 import { makeCamera, type Camera } from '@/code/render/gpu/camera'
 import { attachControls, type Controls } from '@/code/render/gpu/input'
 
@@ -24,18 +28,31 @@ export async function createVibeRenderer(input: {
   const gpu = (navigator as unknown as { gpu?: GPU }).gpu
   if (!gpu) throw new Error('WebGPU is not available in this browser')
   const adapter = await gpu.requestAdapter()
-  if (!adapter) throw new Error('no WebGPU adapter (the GPU may be blocked or unavailable)')
+  if (!adapter)
+    throw new Error(
+      'no WebGPU adapter (the GPU may be blocked or unavailable)',
+    )
   const device = await adapter.requestDevice()
-  const context = input.canvas.getContext('webgpu') as GPUCanvasContext | null
+  const context = input.canvas.getContext(
+    'webgpu',
+  ) as GPUCanvasContext | null
   if (!context) throw new Error('could not get a webgpu canvas context')
   const format = gpu.getPreferredCanvasFormat()
   context.configure({ device, format, alphaMode: 'opaque' })
 
   let mode: FoldMode = input.mode
   let symbol = input.symbol
-  let scene: FoldScene = createFoldScene({ device, format, symbol, mode })
+  let scene: FoldScene = createFoldScene({
+    device,
+    format,
+    symbol,
+    mode,
+  })
   let camera: Camera = makeCamera(mode)
-  let controls: Controls = attachControls({ canvas: input.canvas, camera })
+  let controls: Controls = attachControls({
+    canvas: input.canvas,
+    camera,
+  })
 
   // keep the drawing buffer matched to the displayed size and the device pixel ratio
   const resize = (): void => {
@@ -61,8 +78,12 @@ export async function createVibeRenderer(input: {
     last = now
     controls.tick(dt)
     // the live viewport aspect so the disk stays circular and the honeycomb keeps its proportions on any canvas
-    const aspect = input.canvas.height > 0 ? input.canvas.width / input.canvas.height : 1
-    if (mode === '2d') scene.setCamera2D({ ...camera.uniform2D(), aspect })
+    const aspect =
+      input.canvas.height > 0
+        ? input.canvas.width / input.canvas.height
+        : 1
+    if (mode === '2d')
+      scene.setCamera2D({ ...camera.uniform2D(), aspect })
     else scene.setCamera3D({ ...camera.uniform3D(), aspect })
 
     const encoder = device.createCommandEncoder()

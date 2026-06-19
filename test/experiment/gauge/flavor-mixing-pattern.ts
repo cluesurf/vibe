@@ -23,7 +23,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { mixingElementFromMassRatio, wolfensteinHierarchy } from '@/code/measure/flavor-mixing'
+import {
+  mixingElementFromMassRatio,
+  wolfensteinHierarchy,
+} from '@/code/measure/flavor-mixing'
 
 // quark masses (MeV, MS-bar near 2 GeV), the down-type set the Cabibbo angle
 const M_DOWN = 4.7
@@ -37,32 +40,48 @@ const OBSERVED_VUB = 0.0037
 
 export default experiment({
   id: 'gauge/flavor-mixing-pattern',
-  title: 'flavor mixing tracks the mass hierarchy, the Cabibbo angle from sqrt(m_d/m_s) and small hierarchical quark mixing versus large lepton mixing, anarchy the control',
+  title:
+    'flavor mixing tracks the mass hierarchy, the Cabibbo angle from sqrt(m_d/m_s) and small hierarchical quark mixing versus large lepton mixing, anarchy the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     // (1) the Cabibbo angle from the down-quark mass ratio, |V_us| = sin(atan(sqrt(m_d/m_s)))
-    const cabibbo = mixingElementFromMassRatio({ lightMass: M_DOWN, heavyMass: M_STRANGE })
+    const cabibbo = mixingElementFromMassRatio({
+      lightMass: M_DOWN,
+      heavyMass: M_STRANGE,
+    })
     const cabibboMatches = Math.abs(cabibbo - OBSERVED_VUS) < 0.03
 
     // (2) the quark mixing is hierarchical, the Wolfenstein powers lambda, lambda^2, lambda^3 reproduce the observed
     // ordering and magnitudes |V_us| > |V_cb| > |V_ub|
     const wolfenstein = wolfensteinHierarchy(cabibbo)
-    const hierarchyOrdered = wolfenstein.vus > wolfenstein.vcb && wolfenstein.vcb > wolfenstein.vub
-    const vcbRightOrder = wolfenstein.vcb > OBSERVED_VCB / 3 && wolfenstein.vcb < OBSERVED_VCB * 3
-    const vubRightOrder = wolfenstein.vub > OBSERVED_VUB / 5 && wolfenstein.vub < OBSERVED_VUB * 5
+    const hierarchyOrdered =
+      wolfenstein.vus > wolfenstein.vcb &&
+      wolfenstein.vcb > wolfenstein.vub
+    const vcbRightOrder =
+      wolfenstein.vcb > OBSERVED_VCB / 3 &&
+      wolfenstein.vcb < OBSERVED_VCB * 3
+    const vubRightOrder =
+      wolfenstein.vub > OBSERVED_VUB / 5 &&
+      wolfenstein.vub < OBSERVED_VUB * 5
 
     // (3) the lepton mixing is large because the neutrinos are nearly degenerate. With a mild neutrino hierarchy (a
     // mass ratio of order one half rather than the quark 1/20) the same rule gives a large angle
-    const leptonMild = mixingElementFromMassRatio({ lightMass: 1, heavyMass: 2 }) // mild ratio -> large angle
+    const leptonMild = mixingElementFromMassRatio({
+      lightMass: 1,
+      heavyMass: 2,
+    }) // mild ratio -> large angle
     const leptonLargerThanQuark = leptonMild > 2 * cabibbo
     const leptonIsLarge = leptonMild > 0.4 // sin(theta) > 0.4, a large angle, the observed solar/atmospheric regime
 
     // (4) the control, an anarchic (order-one) mass matrix gives a Cabibbo angle of order 45 degrees, far above the
     // observed small value, so anarchy is excluded by the small quark mixing
-    const anarchic = mixingElementFromMassRatio({ lightMass: 1, heavyMass: 1 }) // sin(45 deg) = 0.707
+    const anarchic = mixingElementFromMassRatio({
+      lightMass: 1,
+      heavyMass: 1,
+    }) // sin(45 deg) = 0.707
     const anarchyTooLarge = anarchic > 3 * OBSERVED_VUS
 
     const ok =

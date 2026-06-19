@@ -37,7 +37,12 @@ export function friedmannStep(input: {
     a: a + (dt / 6) * (k1.da + 2 * k2.da + 2 * k3.da + k4.da),
     rhos: rhos.map(
       (r, i) =>
-        r + (dt / 6) * ((k1.dr[i] ?? 0) + 2 * (k2.dr[i] ?? 0) + 2 * (k3.dr[i] ?? 0) + (k4.dr[i] ?? 0)),
+        r +
+        (dt / 6) *
+          ((k1.dr[i] ?? 0) +
+            2 * (k2.dr[i] ?? 0) +
+            2 * (k3.dr[i] ?? 0) +
+            (k4.dr[i] ?? 0)),
     ),
   }
 }
@@ -56,7 +61,7 @@ export function integrateFriedmann(input: {
   const rhoTot: number[] = []
   const pTot: number[] = []
   let av = input.a0
-  let rhos = input.comps.map((c) => c.rho)
+  let rhos = input.comps.map(c => c.rho)
   let time = input.t0
   while (time <= input.tMax) {
     let rt = 0
@@ -69,7 +74,12 @@ export function integrateFriedmann(input: {
     a.push(av)
     rhoTot.push(rt)
     pTot.push(pt)
-    const next = friedmannStep({ a: av, rhos, comps: input.comps, dt: input.dt })
+    const next = friedmannStep({
+      a: av,
+      rhos,
+      comps: input.comps,
+      dt: input.dt,
+    })
     av = next.a
     rhos = next.rhos
     time += input.dt

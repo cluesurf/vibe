@@ -22,7 +22,8 @@ const BETA_MSSM: [number, number, number] = [33 / 5, 1, -3]
 
 export default experiment({
   id: 'gauge/weak-angle-prediction',
-  title: 'the weak mixing angle is predicted (not fitted) from 3/8 unification, running to near 0.231 at the Z scale',
+  title:
+    'the weak mixing angle is predicted (not fitted) from 3/8 unification, running to near 0.231 at the Z scale',
   category: 'gauge',
   substrates: 'any',
   depth: 'L3',
@@ -32,15 +33,29 @@ export default experiment({
     const bareIsThreeEighths = Math.abs(bare - 3 / 8) < 1e-9
 
     // the prediction, sin^2(theta_W) at M_Z as an output of the two measured couplings + the unification structure
-    const predictedMSSM = predictWeinbergAngle({ alphaEmInverse: ALPHA_EM_INVERSE, alphaStrongInverse: ALPHA_STRONG_INVERSE, beta: BETA_MSSM })
-    const predictedSM = predictWeinbergAngle({ alphaEmInverse: ALPHA_EM_INVERSE, alphaStrongInverse: ALPHA_STRONG_INVERSE, beta: BETA_SM })
+    const predictedMSSM = predictWeinbergAngle({
+      alphaEmInverse: ALPHA_EM_INVERSE,
+      alphaStrongInverse: ALPHA_STRONG_INVERSE,
+      beta: BETA_MSSM,
+    })
+    const predictedSM = predictWeinbergAngle({
+      alphaEmInverse: ALPHA_EM_INVERSE,
+      alphaStrongInverse: ALPHA_STRONG_INVERSE,
+      beta: BETA_SM,
+    })
 
     // the control, a WRONG hypercharge normalization (not the so(10) 3/5) predicts a clearly different angle
-    const predictedWrongCharge = predictWeinbergAngle({ alphaEmInverse: ALPHA_EM_INVERSE, alphaStrongInverse: ALPHA_STRONG_INVERSE, beta: BETA_MSSM, hyperchargeNorm: 1 })
+    const predictedWrongCharge = predictWeinbergAngle({
+      alphaEmInverse: ALPHA_EM_INVERSE,
+      alphaStrongInverse: ALPHA_STRONG_INVERSE,
+      beta: BETA_MSSM,
+      hyperchargeNorm: 1,
+    })
 
     const measured = 0.2312
     const mssmMatches = Math.abs(predictedMSSM - measured) < 0.005 // within the running's uncertainty
-    const controlIsWrong = Math.abs(predictedWrongCharge - measured) > 0.02 // the altered charge misses
+    const controlIsWrong =
+      Math.abs(predictedWrongCharge - measured) > 0.02 // the altered charge misses
 
     const ok = bareIsThreeEighths && mssmMatches && controlIsWrong
     return verdict({
@@ -54,7 +69,9 @@ export default experiment({
         measuredTimes10000: Math.round(measured * 10000),
         wrongChargeTimes10000: Math.round(predictedWrongCharge * 10000),
       },
-      control: { wrongChargeTimes10000: Math.round(predictedWrongCharge * 10000) },
+      control: {
+        wrongChargeTimes10000: Math.round(predictedWrongCharge * 10000),
+      },
       notes:
         'C2 realized, the one clean falsifiable number. sin^2 is an OUTPUT, not an input (only alpha_em and alpha_s are inputs), so it could have been wrong. The MSSM-content prediction matches 0.231, the bare-SM content gives 0.207 (the known miss, consistent with gauge/rg-unification). The bare 3/8 is from gauge/electroweak-prediction. The wrong-hypercharge prediction is the discriminating control.',
     })

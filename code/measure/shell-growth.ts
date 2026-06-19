@@ -40,16 +40,25 @@ export function shellCountsFromGraph(input: {
 
 // the growth ratio at the largest reliably-resolved shell, counts[shell] / counts[shell - 1]. The last shell is
 // dropped because a finite build truncates it, so the ratio is taken at the deepest fully-grown shell.
-export function growthRatioFromShellCounts(counts: number[]): { ratio: number; shell: number } {
+export function growthRatioFromShellCounts(counts: number[]): {
+  ratio: number
+  shell: number
+} {
   // the deepest shell that is not the truncated boundary, the second-to-last grown shell
   const reliable = counts.length - 2
   if (reliable < 1) return { ratio: 0, shell: 0 }
-  return { ratio: counts[reliable]! / counts[reliable - 1]!, shell: reliable }
+  return {
+    ratio: counts[reliable]! / counts[reliable - 1]!,
+    shell: reliable,
+  }
 }
 
 // the number of integer lattice points at L1 distance n in Z^dimension (the flat-lattice shell), counted exactly by
 // the convolution recurrence
-export function euclideanL1ShellCount(input: { dimension: number; shell: number }): number {
+export function euclideanL1ShellCount(input: {
+  dimension: number
+  shell: number
+}): number {
   const memo = new Map<string, number>()
   function count(d: number, n: number): number {
     if (d === 0) return n === 0 ? 1 : 0
@@ -65,15 +74,27 @@ export function euclideanL1ShellCount(input: { dimension: number; shell: number 
 }
 
 // the flat-lattice shell growth ratio at distance n, which tends to one (polynomial growth), the control
-export function euclideanL1ShellRatio(input: { dimension: number; shell: number }): number {
-  const a = euclideanL1ShellCount({ dimension: input.dimension, shell: input.shell })
-  const b = euclideanL1ShellCount({ dimension: input.dimension, shell: input.shell - 1 })
+export function euclideanL1ShellRatio(input: {
+  dimension: number
+  shell: number
+}): number {
+  const a = euclideanL1ShellCount({
+    dimension: input.dimension,
+    shell: input.shell,
+  })
+  const b = euclideanL1ShellCount({
+    dimension: input.dimension,
+    shell: input.shell - 1,
+  })
   return b > 0 ? a / b : 0
 }
 
 // the exponent p such that ratio = lambda^p, log_lambda(ratio), the number of shells of separation a mass ratio
 // corresponds to
-export function shellSeparationExponent(input: { ratio: number; growthRate: number }): number {
+export function shellSeparationExponent(input: {
+  ratio: number
+  growthRate: number
+}): number {
   return Math.log(input.ratio) / Math.log(input.growthRate)
 }
 
@@ -83,7 +104,8 @@ export function shellSeparationExponent(input: { ratio: number; growthRate: numb
 export function extrapolatedGrowthRate(counts: number[]): number {
   // ratios of consecutive reliable shells (drop the truncated last shell, skip shell 0,1 transients)
   const ratios: number[] = []
-  for (let i = 2; i < counts.length - 1; i++) ratios.push(counts[i]! / counts[i - 1]!)
+  for (let i = 2; i < counts.length - 1; i++)
+    ratios.push(counts[i]! / counts[i - 1]!)
   if (ratios.length < 3) return ratios[ratios.length - 1] ?? 0
   const x0 = ratios[ratios.length - 3]!
   const x1 = ratios[ratios.length - 2]!
@@ -96,16 +118,25 @@ export function extrapolatedGrowthRate(counts: number[]): number {
 // whether the shell-count sequence satisfies an integer-coefficient order-2 linear recurrence (a quadratic-irrational
 // growth rate). Returns the fitted coefficients and whether they are integers, used to bound the algebraic degree of
 // the growth rate (order-2 failing means degree at least 3).
-export function fitOrder2Recurrence(counts: number[]): { a: number; b: number; isInteger: boolean } {
+export function fitOrder2Recurrence(counts: number[]): {
+  a: number
+  b: number
+  isInteger: boolean
+} {
   // solve s[i] = a s[i-1] + b s[i-2] from two consecutive interior windows
   const s = counts.slice(0, counts.length - 1) // drop truncated last shell
   if (s.length < 5) return { a: 0, b: 0, isInteger: false }
   // windows at indices 3 and 4: s3 = a s2 + b s1 ; s4 = a s3 + b s2
-  const s1 = s[1]!, s2 = s[2]!, s3 = s[3]!, s4 = s[4]!
+  const s1 = s[1]!,
+    s2 = s[2]!,
+    s3 = s[3]!,
+    s4 = s[4]!
   const det = s2 * s2 - s3 * s1
   if (Math.abs(det) < 1e-9) return { a: 0, b: 0, isInteger: false }
   const a = (s3 * s2 - s4 * s1) / det
   const b = (s2 * s4 - s3 * s3) / det
-  const isInteger = Math.abs(a - Math.round(a)) < 1e-6 && Math.abs(b - Math.round(b)) < 1e-6
+  const isInteger =
+    Math.abs(a - Math.round(a)) < 1e-6 &&
+    Math.abs(b - Math.round(b)) < 1e-6
   return { a, b, isInteger }
 }

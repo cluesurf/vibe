@@ -34,7 +34,8 @@ export function drivenSelf(input: {
   const { L, beats, seed, withDynamics } = input
   const sectorCount = input.sectors ?? 4
   const flipProbability = input.flipProbability ?? 0.06
-  const flipOf = (s: number): number => input.flipProbabilities?.[s] ?? flipProbability
+  const flipOf = (s: number): number =>
+    input.flipProbabilities?.[s] ?? flipProbability
   const selfRadius = input.selfRadius ?? 8
   const interiorRadius = input.interiorRadius ?? 4
   const cohesion = input.cohesion ?? 0.22
@@ -43,7 +44,8 @@ export function drivenSelf(input: {
   const cy = Math.floor(L / 2)
   const xOf = (c: number): number => c % L
   const yOf = (c: number): number => Math.floor(c / L)
-  const radiusOf = (c: number): number => Math.hypot(xOf(c) - cx, yOf(c) - cy)
+  const radiusOf = (c: number): number =>
+    Math.hypot(xOf(c) - cx, yOf(c) - cy)
 
   const inputCells: number[] = []
   const inputSector: number[] = []
@@ -53,7 +55,12 @@ export function drivenSelf(input: {
     if (r >= selfRadius - 1 && r <= selfRadius) {
       inputCells.push(c)
       const angle = Math.atan2(yOf(c) - cy, xOf(c) - cx) + Math.PI
-      inputSector.push(Math.min(sectorCount - 1, Math.floor((angle / (2 * Math.PI)) * sectorCount)))
+      inputSector.push(
+        Math.min(
+          sectorCount - 1,
+          Math.floor((angle / (2 * Math.PI)) * sectorCount),
+        ),
+      )
     } else if (r <= interiorRadius) {
       interiorCells.push(c)
     }
@@ -65,7 +72,10 @@ export function drivenSelf(input: {
   const signals = new Array<number>(sectorCount).fill(1)
   const interior: number[] = []
   const environment: number[] = []
-  const sectorSignals: number[][] = Array.from({ length: sectorCount }, () => [])
+  const sectorSignals: number[][] = Array.from(
+    { length: sectorCount },
+    () => [],
+  )
   const meanOver = (cells: number[]): number => {
     let s = 0
     for (const c of cells) s += tone[c]!
@@ -73,14 +83,18 @@ export function drivenSelf(input: {
   }
 
   for (let t = 0; t < beats; t++) {
-    for (let s = 0; s < sectorCount; s++) if (rng.next() < flipOf(s)) signals[s] = -signals[s]!
-    for (let j = 0; j < inputCells.length; j++) tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
+    for (let s = 0; s < sectorCount; s++)
+      if (rng.next() < flipOf(s)) signals[s] = -signals[s]!
+    for (let j = 0; j < inputCells.length; j++)
+      tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
     if (withDynamics) beat(tone, graph, moved, rng, 0, cohesion)
     // re-clamp the input boundary as a steady source, so the interior reads the environment, not a leak.
-    for (let j = 0; j < inputCells.length; j++) tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
+    for (let j = 0; j < inputCells.length; j++)
+      tone[inputCells[j]!] = signals[inputSector[j]!]! as -1 | 1
     interior.push(meanOver(interiorCells))
     environment.push(signals.reduce((a, b) => a + b, 0) / sectorCount)
-    for (let s = 0; s < sectorCount; s++) sectorSignals[s]!.push(signals[s]!)
+    for (let s = 0; s < sectorCount; s++)
+      sectorSignals[s]!.push(signals[s]!)
   }
   return { interior, environment, sectorSignals }
 }

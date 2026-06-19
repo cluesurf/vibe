@@ -15,36 +15,83 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { shadowWellField1D, confineInWell } from '@/code/dynamics/shadow-pressure'
+import {
+  shadowWellField1D,
+  confineInWell,
+} from '@/code/dynamics/shadow-pressure'
 
 export default experiment({
   id: 'selves/shadow-confines-single-speed',
-  title: 'shadow pressure confines a single-speed body at short range (the rest slot is not required for binding)',
+  title:
+    'shadow pressure confines a single-speed body at short range (the rest slot is not required for binding)',
   category: 'selves',
   substrates: ['lattice-gas'],
   depth: 'L2',
   paper: true,
   run() {
-    const length = 160, center = 80, beats = 2000
-    const constant = shadowWellField1D({ length, center, bodyHalfWidth: 2, beats: 4 * length })
+    const length = 160,
+      center = 80,
+      beats = 2000
+    const constant = shadowWellField1D({
+      length,
+      center,
+      bodyHalfWidth: 2,
+      beats: 4 * length,
+    })
 
     // constant-force well, a single-speed tone stays bound at every mass (it bounces but never escapes).
-    const ssConstant = confineInWell({ field: constant, length, center, startOffset: 15, singleSpeed: true, mass: 8, beats })
-    const restConstant = confineInWell({ field: constant, length, center, startOffset: 15, singleSpeed: false, mass: 8, beats })
+    const ssConstant = confineInWell({
+      field: constant,
+      length,
+      center,
+      startOffset: 15,
+      singleSpeed: true,
+      mass: 8,
+      beats,
+    })
+    const restConstant = confineInWell({
+      field: constant,
+      length,
+      center,
+      startOffset: 15,
+      singleSpeed: false,
+      mass: 8,
+      beats,
+    })
 
     // decaying finite-range well (range 16, force diluting with distance), a single-speed tone bound at SHORT range.
     const R = 16
     const decay = new Int32Array(length)
-    for (let x = center + 3; x < length; x++) { const dist = x - center; decay[x] = dist <= R ? -Math.ceil(R / dist) : 0 }
-    const ssShort = confineInWell({ field: decay, length, center, startOffset: 6, singleSpeed: true, mass: 16, beats })
-    const ssEdgeHeavy = confineInWell({ field: decay, length, center, startOffset: 12, singleSpeed: true, mass: 16, beats })
+    for (let x = center + 3; x < length; x++) {
+      const dist = x - center
+      decay[x] = dist <= R ? -Math.ceil(R / dist) : 0
+    }
+    const ssShort = confineInWell({
+      field: decay,
+      length,
+      center,
+      startOffset: 6,
+      singleSpeed: true,
+      mass: 16,
+      beats,
+    })
+    const ssEdgeHeavy = confineInWell({
+      field: decay,
+      length,
+      center,
+      startOffset: 12,
+      singleSpeed: true,
+      mass: 16,
+      beats,
+    })
 
     // single-speed bound in the constant well AND at short range in the decaying well, so the rest slot is not needed.
     const singleSpeedBoundConstant = !ssConstant.escaped
     const singleSpeedBoundShort = !ssShort.escaped
     const restBound = !restConstant.escaped
     const heavyEdgeRadiates = ssEdgeHeavy.escaped // the expected, large displacements are radiated (not a failure)
-    const ok = singleSpeedBoundConstant && singleSpeedBoundShort && restBound
+    const ok =
+      singleSpeedBoundConstant && singleSpeedBoundShort && restBound
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -57,11 +104,15 @@ export default experiment({
         decayShortMaxExc: ssShort.maxExcursion,
         decayShortEscaped: ssShort.escaped ? 1 : 0,
         decayEdgeHeavyEscaped: ssEdgeHeavy.escaped ? 1 : 0,
-        singleSpeedBound: singleSpeedBoundConstant && singleSpeedBoundShort ? 1 : 0,
+        singleSpeedBound:
+          singleSpeedBoundConstant && singleSpeedBoundShort ? 1 : 0,
         restBound: restBound ? 1 : 0,
         heavyEdgeRadiates: heavyEdgeRadiates ? 1 : 0,
       },
-      control: { constantSingleSpeedEscaped: ssConstant.escaped ? 1 : 0, decayEdgeHeavyEscaped: ssEdgeHeavy.escaped ? 1 : 0 },
+      control: {
+        constantSingleSpeedEscaped: ssConstant.escaped ? 1 : 0,
+        decayEdgeHeavyEscaped: ssEdgeHeavy.escaped ? 1 : 0,
+      },
       notes:
         'the rest-slot necessity test. Shadow pressure confines a single-speed body at short range, the rest slot is NOT required for binding. A self is a bound cluster whose pieces may bounce (it need not be frozen), so the rest slot is an OPTIONAL refinement, not a base necessity. The base stays a clean five. Confinement is finite-range, large displacements are radiated (correct self-repair, not a failure)',
     })

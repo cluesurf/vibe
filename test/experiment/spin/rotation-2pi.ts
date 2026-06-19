@@ -21,7 +21,8 @@ import {
 // the whole 24-cell substrate.
 export default experiment({
   id: 'spin/rotation-2pi',
-  title: 'a spinor on the 24-cell coin gains a minus sign at 2pi, returning only at 4pi',
+  title:
+    'a spinor on the 24-cell coin gains a minus sign at 2pi, returning only at 4pi',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -33,9 +34,9 @@ export default experiment({
     // directions, and left multiplication by it permutes the 24, so rotating by it
     // is a genuine symmetry of the coin, not an outside operation.
     const g = quaternion(0, 1, 0, 0)
-    const inCoin = coin.some((direction) => equals(direction, g))
-    const permutesCoin = coin.every((direction) =>
-      coin.some((other) => equals(multiply(g, direction), other)),
+    const inCoin = coin.some(direction => equals(direction, g))
+    const permutesCoin = coin.every(direction =>
+      coin.some(other => equals(multiply(g, direction), other)),
     )
 
     // A second, independent generator: an order-6 element (a 120-degree vector
@@ -51,7 +52,10 @@ export default experiment({
     const spinorTwoPiAlternate = rotateSpinorTimes(h, psi, 3)
     const spinorFlipsAt2pi = equals(spinorTwoPi, negate(psi))
     const spinorReturnsAt4pi = equals(spinorFourPi, psi)
-    const alternateFlipsAt2pi = equals(spinorTwoPiAlternate, negate(psi))
+    const alternateFlipsAt2pi = equals(
+      spinorTwoPiAlternate,
+      negate(psi),
+    )
 
     // The vector: a 3-vector off the rotation axis, rotated by 2pi (g twice). A 2pi
     // rotation returns a vector to itself, the contrast that makes the spinor sign a

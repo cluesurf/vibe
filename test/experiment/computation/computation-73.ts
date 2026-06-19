@@ -14,21 +14,45 @@ import { bfsShells } from '@/code/measure/shells'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function computation73(): { fibonacciGrowth: boolean; junctionCapable: boolean; growthRatio: number } {
+export function computation73(): {
+  fibonacciGrowth: boolean
+  junctionCapable: boolean
+  growthRatio: number
+} {
   const g = buildCellGraph({ symbol: [7, 3] as never, maxCells: 15000 })
   const N = g.cellCount
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = g.neighbors[i]!.length; if (d > best) { best = d; center = i } }
+  let center = 0,
+    best = -1
+  for (let i = 0; i < N; i++) {
+    const d = g.neighbors[i]!.length
+    if (d > best) {
+      best = d
+      center = i
+    }
+  }
 
   // (a) spanning-tree shell growth -> the ratio should approach the {7,3} growth constant (golden-ratio family,
   //     ~ (3+sqrt(5))/2 = phi^2 = 2.618 for the heptagrid's Fibonacci-like tree), Margenstern's addressing.
-  const { shellCounts: shell } = bfsShells({ neighbors: g.neighbors, root: center })
-  const mid = shell.slice(2, Math.min(8, shell.length)); const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
-  const growthRatio = Math.round((ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100) / 100
+  const { shellCounts: shell } = bfsShells({
+    neighbors: g.neighbors,
+    root: center,
+  })
+  const mid = shell.slice(2, Math.min(8, shell.length))
+  const ratios = mid.slice(1).map((s, i) => s / mid[i]!)
+  const growthRatio =
+    Math.round(
+      (ratios.reduce((a, b) => a + b, 0) / ratios.length) * 100,
+    ) / 100
   const phi2 = (3 + Math.sqrt(5)) / 2
   const fibonacciGrowth = Math.abs(growthRatio - phi2) < 0.6 // near the golden-ratio family
 
   // (b) junction capability: an interior cell must allow >=3 edge-disjoint outgoing tracks (for crossings/switches)
-  let interior = center; for (let i = 0; i < N; i++) if (g.neighbors[i]!.length === 7) { interior = i; break }
+  let interior = center
+  for (let i = 0; i < N; i++)
+    if (g.neighbors[i]!.length === 7) {
+      interior = i
+      break
+    }
   const outDeg = g.neighbors[interior]!.length
   const junctionCapable = outDeg >= 3
   return { fibonacciGrowth, junctionCapable, growthRatio }
@@ -42,7 +66,8 @@ export function computation73(): { fibonacciGrowth: boolean; junctionCapable: bo
 // the heptagrid, and paper is false.
 export default experiment({
   id: 'computation/computation-73',
-  title: 'COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})',
+  title:
+    'COMPARATIVE ({7,3}): the heptagrid carries the railway prerequisites (canonical substrate is {3,4,3,4})',
   category: 'computation',
   substrates: 'any',
   depth: 'L1',

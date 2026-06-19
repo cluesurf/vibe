@@ -12,7 +12,11 @@ import { directionFourthMoments } from '@/code/measure/isotropy'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFoldIsotropic: boolean } {
+export function s73Physics(): {
+  betheAlpha: number
+  growthRatio: number
+  sevenFoldIsotropic: boolean
+} {
   // Bethe holographic correlator, z=7
   const betheAlpha = betheCorrelatorExponent(7)
   // cosmology + hierarchy, bulk shell growth
@@ -20,16 +24,26 @@ export function s73Physics(): { betheAlpha: number; growthRatio: number; sevenFo
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
   const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-  const growthRatio = shellGrowthRatio({ shellCounts: shell, from: 2, to: 7, safeDenominator: true })
+  const growthRatio = shellGrowthRatio({
+    shellCounts: shell,
+    from: 2,
+    to: 7,
+    safeDenominator: true,
+  })
   // 7-fold 2D isotropy, 4th moment, sum d_x^4 = 3 sum d_x^2 d_y^2 (isotropic in 2D)
-  const dirs = Array.from({ length: 7 }, (_, k) => [Math.cos((2 * Math.PI * k) / 7), Math.sin((2 * Math.PI * k) / 7)])
-  const sevenFoldIsotropic = directionFourthMoments(dirs).anisotropy < 1e-6
+  const dirs = Array.from({ length: 7 }, (_, k) => [
+    Math.cos((2 * Math.PI * k) / 7),
+    Math.sin((2 * Math.PI * k) / 7),
+  ])
+  const sevenFoldIsotropic =
+    directionFourthMoments(dirs).anisotropy < 1e-6
   return { betheAlpha, growthRatio, sevenFoldIsotropic }
 }
 
 export default experiment({
   id: 'substrate-survey/s73-physics',
-  title: 'the holographic correlator, cosmology, and 7-fold isotropy port to {7,3}, with 1D linear gravity',
+  title:
+    'the holographic correlator, cosmology, and 7-fold isotropy port to {7,3}, with 1D linear gravity',
   category: 'substrate-survey',
   substrates: ['73'],
   depth: 'L1',

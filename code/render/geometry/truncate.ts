@@ -11,7 +11,11 @@
 // generator.
 
 import { Scene, SceneEdge, Vec } from '@/code/render/scene'
-import { mobiusAdd, negate, gyroScale } from '@/code/render/geometry/isometry'
+import {
+  mobiusAdd,
+  negate,
+  gyroScale,
+} from '@/code/render/geometry/isometry'
 
 // the point a fraction `t` of the way along the geodesic from `a` to `b`, in gyrovector form. t=0 is a, t=1 is b.
 function geodesicFraction(a: Vec, b: Vec, t: number): Vec {
@@ -31,7 +35,10 @@ export type TruncateOptions = {
 
 // Truncate a 2D tiling Scene. Every vertex is replaced by the polygon of cut points around it, and every
 // original edge is shortened to the segment between its two cut points.
-export function truncateScene(scene: Scene, options: TruncateOptions = {}): Scene {
+export function truncateScene(
+  scene: Scene,
+  options: TruncateOptions = {},
+): Scene {
   const fraction = options.fraction ?? 1 / 3
 
   // collect vertices and, for each, the neighbours it shares an edge with

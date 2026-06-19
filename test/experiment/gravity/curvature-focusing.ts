@@ -20,40 +20,61 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildCellGraph,
+  buildEuclideanLattice,
+} from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
 import { shellGrowthCurvature } from '@/code/measure/curvature'
 
-function classify(g: { neighbors: number[][] }): ReturnType<typeof shellGrowthCurvature> {
+function classify(g: {
+  neighbors: number[][]
+}): ReturnType<typeof shellGrowthCurvature> {
   const n = g.neighbors.length
   let root = 0
   let best = -1
   for (let i = 0; i < n; i++) {
     const degree = g.neighbors[i]!.length
-    if (degree > best) { best = degree; root = i }
+    if (degree > best) {
+      best = degree
+      root = i
+    }
   }
-  const shellCounts = bfsShells({ neighbors: g.neighbors, root }).shellCounts
+  const shellCounts = bfsShells({
+    neighbors: g.neighbors,
+    root,
+  }).shellCounts
   return shellGrowthCurvature({ shellCounts })
 }
 
 export default experiment({
   id: 'gravity/curvature-focusing',
-  title: 'gravity as curvature, positive curvature focuses geodesics (2A works, the emergent metric sourced by 3A, no base change), the negative bulk defocuses (2B fails locally)',
+  title:
+    'gravity as curvature, positive curvature focuses geodesics (2A works, the emergent metric sourced by 3A, no base change), the negative bulk defocuses (2B fails locally)',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
-    const positive = classify(buildCellGraph({ symbol: [3, 3, 5] as never, maxCells: 3000 }))
-    const flat = classify(buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 3000 }))
-    const bulk534 = classify(buildCellGraph({ symbol: [5, 3, 4], maxCells: 3000 }))
-    const bulk73 = classify(buildCellGraph({ symbol: [7, 3], maxCells: 3000 }))
+    const positive = classify(
+      buildCellGraph({ symbol: [3, 3, 5] as never, maxCells: 3000 }),
+    )
+    const flat = classify(
+      buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 3000 }),
+    )
+    const bulk534 = classify(
+      buildCellGraph({ symbol: [5, 3, 4], maxCells: 3000 }),
+    )
+    const bulk73 = classify(
+      buildCellGraph({ symbol: [7, 3], maxCells: 3000 }),
+    )
 
     // positive curvature focuses (the 2A mechanism), flat stays parallel, the hyperbolic bulks defocus (the 2B
     // negative). all three signs must read correctly for the curvature-focusing relation to hold
     const positiveFocuses = positive.sign === 'positive'
     const flatParallel = flat.sign === 'flat'
-    const bulkDefocuses = bulk534.sign === 'negative' && bulk73.sign === 'negative'
+    const bulkDefocuses =
+      bulk534.sign === 'negative' && bulk73.sign === 'negative'
     const ok = positiveFocuses && flatParallel && bulkDefocuses
 
     return verdict({

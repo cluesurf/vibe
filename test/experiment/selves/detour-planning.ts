@@ -19,14 +19,22 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // value landscape over positions 0..L: rise to a local peak, dip through a valley (barrier), rise to the
 // global peak at the goal. The goal (global max) is past the barrier.
-function makeLandscape(L: number): { V: number[]; start: number; goal: number; localPeak: number; barrierWidth: number } {
+function makeLandscape(L: number): {
+  V: number[]
+  start: number
+  goal: number
+  localPeak: number
+  barrierWidth: number
+} {
   const localPeak = Math.floor(L * 0.25)
   const valley = Math.floor(L * 0.5)
   const goal = L
   const V = new Array<number>(L + 1).fill(0)
   for (let p = 0; p <= L; p++) {
-    if (p <= localPeak) V[p] = 0.6 * (p / localPeak) // rise to local peak 0.6
-    else if (p <= valley) V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak)) // dip to 0.2
+    if (p <= localPeak)
+      V[p] = 0.6 * (p / localPeak) // rise to local peak 0.6
+    else if (p <= valley)
+      V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak)) // dip to 0.2
     else V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley)) // rise to global peak 1.0 at the goal
   }
   const start = Math.floor(L * 0.1)
@@ -34,17 +42,22 @@ function makeLandscape(L: number): { V: number[]; start: number; goal: number; l
   // valley), that crossing distance is what the planner's horizon must span
   const localPeakV = V[localPeak]!
   let recover = goal
-  for (let p = valley; p <= goal; p++) if (V[p]! > localPeakV) {
-    recover = p
-    break
-  }
+  for (let p = valley; p <= goal; p++)
+    if (V[p]! > localPeakV) {
+      recover = p
+      break
+    }
   const barrierWidth = recover - localPeak
   return { V, start, goal, localPeak, barrierWidth }
 }
 
 // an agent with lookahead horizon K. At each step it looks up to K positions in each direction and moves
 // toward the direction with the higher BEST-reachable value within the horizon. K=1 is pure greedy.
-function runAgent(V: number[], start: number, K: number): { finalPos: number; finalV: number; steps: number } {
+function runAgent(
+  V: number[],
+  start: number,
+  K: number,
+): { finalPos: number; finalV: number; steps: number } {
   const L = V.length - 1
   let pos = start
   for (let step = 0; step < 4 * L; step++) {
@@ -102,7 +115,8 @@ export function detourPlanning(input?: { L?: number }): {
 
   const plannerBeatsGreedy = plannerReachedGoal && !greedyReachedGoal
   // the planner needs to see ACROSS the barrier, the threshold horizon should be about the barrier width
-  const thresholdMatchesBarrier = thresholdK > 1 && Math.abs(thresholdK - barrierWidth) <= 3
+  const thresholdMatchesBarrier =
+    thresholdK > 1 && Math.abs(thresholdK - barrierWidth) <= 3
   const solved = plannerBeatsGreedy && thresholdMatchesBarrier
 
   return {
@@ -123,14 +137,16 @@ export function detourPlanning(input?: { L?: number }): {
 
 export default experiment({
   id: 'selves/detour-planning',
-  title: 'lookahead beats greedy on a barrier when the horizon spans it',
+  title:
+    'lookahead beats greedy on a barrier when the horizon spans it',
   category: 'selves',
   substrates: 'any',
   depth: 'L0',
   paper: false,
   run() {
     const r = detourPlanning({ L: 40 })
-    const ok = r.solved && r.plannerBeatsGreedy && r.thresholdMatchesBarrier
+    const ok =
+      r.solved && r.plannerBeatsGreedy && r.thresholdMatchesBarrier
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

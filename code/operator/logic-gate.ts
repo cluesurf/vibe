@@ -8,7 +8,11 @@
 export type Bit = 1 | -1
 
 // The model's update as a gate: field = bias + sum(fill_i * input_i), then sign.
-export function ruleGate(inputs: Bit[], fills: number[], bias: number): Bit {
+export function ruleGate(
+  inputs: Bit[],
+  fills: number[],
+  bias: number,
+): Bit {
   let h = bias
   for (let i = 0; i < inputs.length; i++) {
     h += (fills[i] ?? 0) * (inputs[i] ?? 1)
@@ -16,7 +20,8 @@ export function ruleGate(inputs: Bit[], fills: number[], bias: number): Bit {
   return h > 0 ? 1 : -1
 }
 
-export const nand = (a: Bit, b: Bit): Bit => ruleGate([a, b], [-1, -1], 1)
+export const nand = (a: Bit, b: Bit): Bit =>
+  ruleGate([a, b], [-1, -1], 1)
 export const not = (a: Bit): Bit => nand(a, a)
 export const and = (a: Bit, b: Bit): Bit => not(nand(a, b))
 export const or = (a: Bit, b: Bit): Bit => nand(not(a), not(b))
@@ -26,7 +31,11 @@ export const xor = (a: Bit, b: Bit): Bit => and(or(a, b), nand(a, b))
 export const bitToNum = (b: Bit): number => (b === 1 ? 1 : 0)
 
 // One-bit full adder built from rule-NANDs.
-export function fullAdder(a: Bit, b: Bit, cin: Bit): { sum: Bit; carry: Bit } {
+export function fullAdder(
+  a: Bit,
+  b: Bit,
+  cin: Bit,
+): { sum: Bit; carry: Bit } {
   const s1 = xor(a, b)
   const c1 = and(a, b)
   const sum = xor(s1, cin)
@@ -39,15 +48,22 @@ export function fullAdder(a: Bit, b: Bit, cin: Bit): { sum: Bit; carry: Bit } {
 // when the first two are both 1, pass the first two through. A universal reversible
 // gate (a bijection on the eight three-bit states), and with the third input fixed to
 // 1 its third output is NAND(x, y), so it is functionally complete.
-export function toffoli(x: number, y: number, z: number): [number, number, number] {
+export function toffoli(
+  x: number,
+  y: number,
+  z: number,
+): [number, number, number] {
   return [x, y, x === 1 && y === 1 ? 1 - z : z]
 }
 
 // Build any 3-input Boolean function as a NAND tree (sum of minterms), every gate
 // a rule-NAND. table[p] is the output bit for the neighbourhood p = (l<<2)|(c<<1)|r.
-export function functionFromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => Bit {
+export function functionFromTable(
+  table: number[],
+): (l: Bit, c: Bit, r: Bit) => Bit {
   return (l: Bit, c: Bit, r: Bit): Bit => {
-    const lit = (val: Bit, bit: number): Bit => (bit === 1 ? val : not(val))
+    const lit = (val: Bit, bit: number): Bit =>
+      bit === 1 ? val : not(val)
     let acc: Bit = -1 // false
     for (let p = 0; p < 8; p++) {
       if (!table[p]) {
@@ -66,7 +82,10 @@ export function functionFromTable(table: number[]): (l: Bit, c: Bit, r: Bit) => 
 // One step of a Wolfram elementary cellular automaton (rule number 0..255) on a
 // 0/1 line with periodic boundaries. The reference advance Rule 110 (Cook-universal)
 // and other elementary rules are checked against.
-export function elementaryRuleStep(input: { line: number[]; rule: number }): number[] {
+export function elementaryRuleStep(input: {
+  line: number[]
+  rule: number
+}): number[] {
   const { line, rule } = input
   const width = line.length
   return line.map((_, i) => {

@@ -4,7 +4,11 @@
 // product input |01> becomes the maximally entangled (|01> - i|10>)/sqrt(2). At theta = 0 it is the
 // identity. The state is stored as parallel real and imaginary amplitude arrays, mutated in place.
 
-export function applyExchangeUnitary(input: { re: Float64Array; im: Float64Array; theta: number }): void {
+export function applyExchangeUnitary(input: {
+  re: Float64Array
+  im: Float64Array
+  theta: number
+}): void {
   const { re, im, theta } = input
   const c = Math.cos(2 * theta)
   const s = Math.sin(2 * theta)

@@ -39,19 +39,29 @@ function maxDifference(a: Will, b: Will): number {
 // the overlay of two wills, slot-wise sum (valid while they never co-occupy a slot).
 function overlay(a: Will, b: Will): Will {
   const data = new Int8Array(a.data.length)
-  for (let i = 0; i < data.length; i++) data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+  for (let i = 0; i < data.length; i++)
+    data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
   return { mesh: a.mesh, data }
 }
 
 // a cell index from explicit 4D coordinates on a side^4 lattice.
-function cellAt(side: number, x: number, y: number, z: number, w: number): number {
+function cellAt(
+  side: number,
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+): number {
   const m = (v: number): number => ((v % side) + side) % side
-  return m(w) * side * side * side + m(z) * side * side + m(y) * side + m(x)
+  return (
+    m(w) * side * side * side + m(z) * side * side + m(y) * side + m(x)
+  )
 }
 
 export default experiment({
   id: 'selves/emergent-attraction-search',
-  title: 'the bare reversible rule has no emergent attraction, two separated charges obey exact superposition',
+  title:
+    'the bare reversible rule has no emergent attraction, two separated charges obey exact superposition',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -60,7 +70,11 @@ export default experiment({
     const side = 16
     const beats = 6
     const mesh: Mesh = d4Mesh({ side })
-    const rule: Collision = headOnRotate({ opposite: Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d)) })
+    const rule: Collision = headOnRotate({
+      opposite: Array.from({ length: mesh.degree }, (_, d) =>
+        mesh.opposite(d),
+      ),
+    })
     const half = side / 2
     const dir = 0 // the root [1, 1, 0, 0], streaming adds (1,1,0,0) per beat
     const opp = mesh.opposite(dir)
@@ -72,9 +86,13 @@ export default experiment({
       const a = loneParticle(mesh, cellA, dir)
       const b = loneParticle(mesh, cellB, dir)
       const joint = makeWill(mesh)
-      for (let i = 0; i < joint.data.length; i++) joint.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+      for (let i = 0; i < joint.data.length; i++)
+        joint.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
       const jointFinal = run(joint, rule, beats)
-      const overlayFinal = overlay(run({ mesh, data: a.data.slice() }, rule, beats), run({ mesh, data: b.data.slice() }, rule, beats))
+      const overlayFinal = overlay(
+        run({ mesh, data: a.data.slice() }, rule, beats),
+        run({ mesh, data: b.data.slice() }, rule, beats),
+      )
       return maxDifference(jointFinal, overlayFinal)
     }
 
@@ -89,16 +107,24 @@ export default experiment({
     const a = loneParticle(mesh, cellA, dir)
     const b = loneParticle(mesh, cellB, opp)
     const collide = makeWill(mesh)
-    for (let i = 0; i < collide.data.length; i++) collide.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
+    for (let i = 0; i < collide.data.length; i++)
+      collide.data[i] = (a.data[i]! + b.data[i]!) as -1 | 0 | 1
     const collideFinal = run(collide, rule, beats)
-    const collideOverlay = overlay(run({ mesh, data: a.data.slice() }, rule, beats), run({ mesh, data: b.data.slice() }, rule, beats))
-    const contactBreaksSuperposition = maxDifference(collideFinal, collideOverlay) > 0
+    const collideOverlay = overlay(
+      run({ mesh, data: a.data.slice() }, rule, beats),
+      run({ mesh, data: b.data.slice() }, rule, beats),
+    )
+    const contactBreaksSuperposition =
+      maxDifference(collideFinal, collideOverlay) > 0
     const contactScattersNotBinds = componentCount(collideFinal) >= 2
 
     // the honest negative, no force at a distance (exact superposition at every separation), only contact, and
     // the contact scatters rather than binds, so the bare rule produces no attraction.
     const noForceAtDistance = farMatch === 0 && nearMatch === 0
-    const ok = noForceAtDistance && contactBreaksSuperposition && contactScattersNotBinds
+    const ok =
+      noForceAtDistance &&
+      contactBreaksSuperposition &&
+      contactScattersNotBinds
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -111,7 +137,9 @@ export default experiment({
         noForceAtDistance: noForceAtDistance ? 1 : 0,
         beats,
       },
-      control: { contactBreaksSuperposition: contactBreaksSuperposition ? 1 : 0 },
+      control: {
+        contactBreaksSuperposition: contactBreaksSuperposition ? 1 : 0,
+      },
       notes:
         'honest negative, the local reversible rule has no action at a distance (exact superposition for separated charges), so no emergent attraction, and contact is repulsive (elastic scatter, two clusters leave). Attraction is the one ingredient that must be added (an emergent gauge field), it does not fall out of the five things. This is the L3 boundary, capture, and so nested selves, need a mediating force the bare substrate does not supply',
     })

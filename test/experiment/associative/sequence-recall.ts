@@ -4,12 +4,22 @@
 // replays in order from the first cue.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeAssociativeMemory, ternaryWord, storeWord, searchBest, readWord } from '@/code/operator/associative-memory'
+import {
+  makeAssociativeMemory,
+  ternaryWord,
+  storeWord,
+  searchBest,
+  readWord,
+} from '@/code/operator/associative-memory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // build a simple path of cells, each the next graph neighbor not yet used, a deterministic temporal track.
-function buildPath(neighbors: ReadonlyArray<ReadonlyArray<number>>, start: number, length: number): number[] {
+function buildPath(
+  neighbors: ReadonlyArray<ReadonlyArray<number>>,
+  start: number,
+  length: number,
+): number[] {
   const path = [start]
   const used = new Set<number>([start])
   let current = start
@@ -29,7 +39,11 @@ function buildPath(neighbors: ReadonlyArray<ReadonlyArray<number>>, start: numbe
   return path
 }
 
-export function associativeSequenceRecall(input?: { maxCells?: number; wordBits?: number; length?: number }): {
+export function associativeSequenceRecall(input?: {
+  maxCells?: number
+  wordBits?: number
+  length?: number
+}): {
   cellCount: number
   sequenceLength: number
   replayLength: number
@@ -43,7 +57,10 @@ export function associativeSequenceRecall(input?: { maxCells?: number; wordBits?
   const path = buildPath(g.neighbors, 0, length)
 
   // each path cell holds an item word, distinct per sequence position
-  const mem = makeAssociativeMemory({ neighbors: g.neighbors, wordBits })
+  const mem = makeAssociativeMemory({
+    neighbors: g.neighbors,
+    wordBits,
+  })
   const items: Int8Array[] = []
   for (let i = 0; i < path.length; i++) {
     const item = ternaryWord(1000 + i, wordBits)
@@ -57,7 +74,10 @@ export function associativeSequenceRecall(input?: { maxCells?: number; wordBits?
   const replay: number[] = [cueFirst]
   for (let i = 1; i < path.length; i++) {
     const nextCell = path[i]!
-    const recalled = searchBest({ mem, comparand: readWord(mem, nextCell) }).cell
+    const recalled = searchBest({
+      mem,
+      comparand: readWord(mem, nextCell),
+    }).cell
     replay.push(recalled)
   }
 
@@ -80,7 +100,8 @@ export function associativeSequenceRecall(input?: { maxCells?: number; wordBits?
 
 export default experiment({
   id: 'associative/sequence-recall',
-  title: 'episodic and sequence memory as stored temporal chains, replayed in order from the first cue',
+  title:
+    'episodic and sequence memory as stored temporal chains, replayed in order from the first cue',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L2',

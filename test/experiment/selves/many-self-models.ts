@@ -16,7 +16,13 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
 
-function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+function fullBeat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
   moved.fill(0)
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
@@ -52,16 +58,24 @@ function selfModelAt(
 ): { hubCorr: number; periCorr: number } {
   const N = g.cellCount
   const moved = new Uint8Array(N)
-  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
+  const dist = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+    maxRadius: 12,
+  })
   const rSelf = 4
   const self: number[] = []
-  for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
-  for (const i of self) if (dist[i]! >= rSelf - 1) {
-    isInput[i] = 1
-    inputAll.push(i)
-  }
+  for (const i of self)
+    if (dist[i]! >= rSelf - 1) {
+      isInput[i] = 1
+      inputAll.push(i)
+    }
   const K = 4
   const sectorOf = new Int32Array(N).fill(-1)
   const sectorCells: number[][] = Array.from({ length: K }, () => [])
@@ -94,7 +108,9 @@ function selfModelAt(
   }
   const coreSize = 40
   const core = ballOf(center, coreSize)
-  const peripherals = sectorCells.map((sc) => ballOf(sc[Math.floor(sc.length / 2)]!, coreSize))
+  const peripherals = sectorCells.map(sc =>
+    ballOf(sc[Math.floor(sc.length / 2)]!, coreSize),
+  )
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
     for (const i of cells) s += tone[i]!
@@ -108,17 +124,22 @@ function selfModelAt(
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
   for (let t = 0; t < T; t++) {
-    for (let s = 0; s < K; s++) if (rng.next() < 0.06) sigs[s] = -sigs[s]!
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    for (let s = 0; s < K; s++)
+      if (rng.next() < 0.06) sigs[s] = -sigs[s]!
+    for (const i of inputAll)
+      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     fullBeat(tone, eu, ev, moved, rng)
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    for (const i of inputAll)
+      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
-    for (let p = 0; p < peripherals.length; p++) periSeries[p]!.push(meanOver(tone, peripherals[p]!))
+    for (let p = 0; p < peripherals.length; p++)
+      periSeries[p]!.push(meanOver(tone, peripherals[p]!))
   }
   const hubCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
   let periCorr = 0
-  for (let p = 0; p < peripherals.length; p++) periCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
+  for (let p = 0; p < peripherals.length; p++)
+    periCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   periCorr /= peripherals.length
   return { hubCorr, periCorr }
 }
@@ -126,7 +147,12 @@ function selfModelAt(
 export function manySelfModels(input?: { n?: number }): {
   n: number
   centers: number[]
-  results: { center: number; hubCorr: number; periCorr: number; isSelfModel: boolean }[]
+  results: {
+    center: number
+    hubCorr: number
+    periCorr: number
+    isSelfModel: boolean
+  }[]
   countSelfModels: number
   allFormSelfModels: boolean
   distinctCenters: boolean
@@ -139,26 +165,55 @@ export function manySelfModels(input?: { n?: number }): {
 
   // pick several self-centers spread across the graph (the hub plus peripheral cells at various depths)
   let hub = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[hub + 1]! - g.offsets[hub]!) hub = i
-  const distHub = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: hub, maxRadius: 12 })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[hub + 1]! - g.offsets[hub]!
+    )
+      hub = i
+  const distHub = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: hub,
+    maxRadius: 12,
+  })
   const centers = [hub]
   for (const target of [3, 4, 5]) {
-    for (let i = 0; i < N; i++) if (distHub[i] === target && g.offsets[i + 1]! - g.offsets[i]! >= 6) {
-      centers.push(i)
-      break
-    }
+    for (let i = 0; i < N; i++)
+      if (
+        distHub[i] === target &&
+        g.offsets[i + 1]! - g.offsets[i]! >= 6
+      ) {
+        centers.push(i)
+        break
+      }
   }
 
   const results = centers.map((c, idx) => {
     const r = selfModelAt(g, eu, ev, c, 9 + idx)
-    return { center: c, hubCorr: r.hubCorr, periCorr: r.periCorr, isSelfModel: r.hubCorr > 0.4 && r.hubCorr > r.periCorr + 0.1 }
+    return {
+      center: c,
+      hubCorr: r.hubCorr,
+      periCorr: r.periCorr,
+      isSelfModel: r.hubCorr > 0.4 && r.hubCorr > r.periCorr + 0.1,
+    }
   })
-  const countSelfModels = results.filter((r) => r.isSelfModel).length
-  const allFormSelfModels = countSelfModels === centers.length && centers.length >= 3
+  const countSelfModels = results.filter(r => r.isSelfModel).length
+  const allFormSelfModels =
+    countSelfModels === centers.length && centers.length >= 3
   const distinctCenters = new Set(centers).size === centers.length
   const solved = allFormSelfModels && distinctCenters
 
-  return { n: N, centers, results, countSelfModels, allFormSelfModels, distinctCenters, solved }
+  return {
+    n: N,
+    centers,
+    results,
+    countSelfModels,
+    allFormSelfModels,
+    distinctCenters,
+    solved,
+  }
 }
 
 export default experiment({

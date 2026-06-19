@@ -6,26 +6,47 @@
 // lattice made concrete. Run: npx tsx code/experiment/p243-hyperbolic-bands.ts
 
 import { jacobiEigenvalues } from '@/code/algebra/linear/eig-jacobi'
-import { pslCayleyGraph, standardPslGenerators } from '@/code/substrate/psl-cayley'
+import {
+  pslCayleyGraph,
+  standardPslGenerators,
+} from '@/code/substrate/psl-cayley'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function hyperbolicBands(): { degeneracies: number[]; matchesIrreps: boolean } {
+export function hyperbolicBands(): {
+  degeneracies: number[]
+  matchesIrreps: boolean
+} {
   // The PSL(2,7) Cayley graph lives in code/substrate/psl-cayley, the symmetric
   // eigenvalues in code/algebra/linear/eig-jacobi.
-  const { adjacency } = pslCayleyGraph({ p: 7, generators: standardPslGenerators(7) })
+  const { adjacency } = pslCayleyGraph({
+    p: 7,
+    generators: standardPslGenerators(7),
+  })
   const N = adjacency.length
-  const A: number[][] = Array.from({ length: N }, () => new Array<number>(N).fill(0))
-  for (let i = 0; i < N; i++) for (const j of adjacency[i]!) { A[i]![j] = 1; A[j]![i] = 1 }
+  const A: number[][] = Array.from({ length: N }, () =>
+    new Array<number>(N).fill(0),
+  )
+  for (let i = 0; i < N; i++)
+    for (const j of adjacency[i]!) {
+      A[i]![j] = 1
+      A[j]![i] = 1
+    }
   const ev = jacobiEigenvalues(A)
   // group into degenerate multiplets
-  const mults: number[] = []; let i = 0
-  while (i < N) { let j = i + 1; while (j < N && Math.abs(ev[j]! - ev[i]!) < 1e-3) j++; mults.push(j - i); i = j }
+  const mults: number[] = []
+  let i = 0
+  while (i < N) {
+    let j = i + 1
+    while (j < N && Math.abs(ev[j]! - ev[i]!) < 1e-3) j++
+    mults.push(j - i)
+    i = j
+  }
   const degSet = [...new Set(mults)].sort((a, b) => a - b)
   // PSL(2,7) REAL irrep dimensions seen by the real symmetric adjacency (the two complex 3s merge to a real 6)
   const realIrrepDims = [1, 6, 7, 8]
-  const matchesIrreps = realIrrepDims.every((d) => degSet.includes(d)) // the irrep dims all appear as bands
-  const accidental = degSet.filter((d) => !realIrrepDims.includes(d)) // merges of >1 block at one eigenvalue
+  const matchesIrreps = realIrrepDims.every(d => degSet.includes(d)) // the irrep dims all appear as bands
+  const accidental = degSet.filter(d => !realIrrepDims.includes(d)) // merges of >1 block at one eigenvalue
   return { degeneracies: degSet, matchesIrreps }
 }
 
@@ -36,7 +57,8 @@ export function hyperbolicBands(): { degeneracies: number[]; matchesIrreps: bool
 // block-diagonalizes by irrep), so L1.
 export default experiment({
   id: 'geometry/hyperbolic-bands',
-  title: 'the PSL(2,7) Cayley-graph spectrum decomposes into irrep bands of dimension 1, 6, 7, 8',
+  title:
+    'the PSL(2,7) Cayley-graph spectrum decomposes into irrep bands of dimension 1, 6, 7, 8',
   category: 'geometry',
   substrates: 'any',
   depth: 'L1',

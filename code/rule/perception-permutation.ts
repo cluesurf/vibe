@@ -4,7 +4,10 @@
 // ordered input pairs maps to a unique output pair, so the rule is a bijection on
 // pairs (information-preserving). It conserves net charge except where a 0/0 mints
 // a +1/-1 (the arrow) and a +1/-1 annihilates to 0/0.
-export function perceptionPermutation(a: number, b: number): [number, number] {
+export function perceptionPermutation(
+  a: number,
+  b: number,
+): [number, number] {
   if (a === -1 && b === -1) return [-1, -1]
   if (a === 1 && b === 1) return [1, 1]
   if (a === -1 && b === 0) return [0, -1]
@@ -70,7 +73,9 @@ export function perceptionMatchingSweep3d(input: {
   const { tone, matched, length: L, rng } = input
   const N = L * L * L
   const at = (x: number, y: number, z: number): number =>
-    (((z % L) + L) % L) * L * L + (((y % L) + L) % L) * L + (((x % L) + L) % L)
+    (((z % L) + L) % L) * L * L +
+    (((y % L) + L) % L) * L +
+    (((x % L) + L) % L)
   matched.fill(0)
   const s0 = Math.floor(rng.next() * N)
   for (let s = 0; s < N; s++) {
@@ -124,7 +129,9 @@ export function perceptionEdgeColoringSweep(input: {
   reverse: boolean
 }): void {
   const { tone, eu, ev, byColor, table, reverse } = input
-  const order = reverse ? [...byColor.keys()].reverse() : [...byColor.keys()]
+  const order = reverse
+    ? [...byColor.keys()].reverse()
+    : [...byColor.keys()]
   for (const c of order) {
     for (const e of byColor[c]!) {
       const u = eu[e]!

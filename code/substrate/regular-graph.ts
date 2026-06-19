@@ -18,7 +18,8 @@ export function buildRegularGraph(input: {
 } {
   const { n, degree, rng } = input
   const stubs = new Int32Array(n * degree)
-  for (let i = 0; i < n; i++) for (let d = 0; d < degree; d++) stubs[i * degree + d] = i
+  for (let i = 0; i < n; i++)
+    for (let d = 0; d < degree; d++) stubs[i * degree + d] = i
   for (let i = stubs.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const t = stubs[i]!

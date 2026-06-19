@@ -17,11 +17,24 @@ import type { Scene, SceneEdge, SceneFace } from '@/code/render/scene'
 import type { ProjectionModel } from '@/code/render/geometry/projection'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const outDir = join(here, '..', '..', '..', 'make', 'render', 'automaton')
+const outDir = join(
+  here,
+  '..',
+  '..',
+  '..',
+  'make',
+  'render',
+  'automaton',
+)
 
 // a violet state ramp, tone 0 (rest) dark to tone q-1 bright
 const PALETTE: [number, number, number][] = [
-  [25, 25, 40], [60, 40, 120], [110, 70, 200], [160, 110, 235], [210, 170, 250], [245, 225, 255],
+  [25, 25, 40],
+  [60, 40, 120],
+  [110, 70, 200],
+  [160, 110, 235],
+  [210, 170, 250],
+  [245, 225, 255],
 ]
 const MODULUS = PALETTE.length
 const EDGE_COLOR: [number, number, number] = [18, 18, 26]
@@ -53,25 +66,61 @@ function run(): void {
     for (let cell = 0; cell < n; cell++) {
       const tone = current[cell]!
       if (tone === 0) continue // leave rest cells as background, so the wavefront reads clearly
-      faces.push({ polygon: tiling.polygons[cell]!, color: PALETTE[tone]! })
+      faces.push({
+        polygon: tiling.polygons[cell]!,
+        color: PALETTE[tone]!,
+      })
     }
-    const scene: Scene = { dim: 2, symbol: symbol.slice(), edges, faces, cellCount: n }
-    const { rgba } = renderSceneToRgba({ scene, size, segments: 16, lineWidth: 1.0, near: EDGE_COLOR, far: EDGE_COLOR, model })
+    const scene: Scene = {
+      dim: 2,
+      symbol: symbol.slice(),
+      edges,
+      faces,
+      cellCount: n,
+    }
+    const { rgba } = renderSceneToRgba({
+      scene,
+      size,
+      segments: 16,
+      lineWidth: 1.0,
+      near: EDGE_COLOR,
+      far: EDGE_COLOR,
+      model,
+    })
     frames.push(rgba)
     if (f === 0 || f === Math.floor(frameCount / 2)) {
-      writeFileSync(join(outDir, `automaton-${symbolText}-${model}-frame${f}.png`), encodePng(rgba, size, size))
+      writeFileSync(
+        join(outDir, `automaton-${symbolText}-${model}-frame${f}.png`),
+        encodePng(rgba, size, size),
+      )
     }
     // advance one beat of the reversible wave, then roll the buffers
-    reversibleWaveStep({ neighbors: tiling.neighbors, previous, current, next, modulus: MODULUS })
+    reversibleWaveStep({
+      neighbors: tiling.neighbors,
+      previous,
+      current,
+      next,
+      modulus: MODULUS,
+    })
     const spent = previous
     previous = current
     current = next.slice()
     spent.fill(0)
   }
 
-  const gif = encodeGif({ frames, width: size, height: size, delayMs: 70 })
-  writeFileSync(join(outDir, `automaton-${symbolText}-${model}.gif`), gif)
-  console.log(`wrote automaton-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}  (${n} cells)`)
+  const gif = encodeGif({
+    frames,
+    width: size,
+    height: size,
+    delayMs: 70,
+  })
+  writeFileSync(
+    join(outDir, `automaton-${symbolText}-${model}.gif`),
+    gif,
+  )
+  console.log(
+    `wrote automaton-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${frameCount} frames  ${size}x${size}  (${n} cells)`,
+  )
 }
 
 // the deduplicated boundary edges of all cell polygons
@@ -82,8 +131,8 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
       const b = poly[(i + 1) % poly.length]!
-      const ka = a.map((x) => Math.round(x * 1e4)).join(',')
-      const kb = b.map((x) => Math.round(x * 1e4)).join(',')
+      const ka = a.map(x => Math.round(x * 1e4)).join(',')
+      const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
       if (seen.has(key)) continue
       seen.add(key)

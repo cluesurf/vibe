@@ -21,7 +21,8 @@ import { complex } from '@/code/algebra/linear/complex'
 
 export default experiment({
   id: 'spin/dirac-3plus1-3434',
-  title: 'the full 3+1D Dirac equation, the Clifford algebra and the relativistic dispersion',
+  title:
+    'the full 3+1D Dirac equation, the Clifford algebra and the relativistic dispersion',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',
@@ -35,7 +36,8 @@ export default experiment({
       for (let nu = 0; nu < 4; nu++) {
         const anti = cmAntiCommutator(gamma[mu]!, gamma[nu]!)
         const target = mu === nu ? 2 * minkowski[mu]! : 0
-        if (!cmIsScalar(anti, complex({ re: target, im: 0 }))) cliffordHolds = false
+        if (!cmIsScalar(anti, complex({ re: target, im: 0 })))
+          cliffordHolds = false
       }
     }
 
@@ -48,12 +50,18 @@ export default experiment({
     const hamiltonian = diracHamiltonian({ px, py, pz, mass })
     const hSquared = cmMultiply(hamiltonian, hamiltonian)
     const energySquared = mass * mass + px * px + py * py + pz * pz
-    const dispersionHolds = cmIsScalar(hSquared, complex({ re: energySquared, im: 0 }))
+    const dispersionHolds = cmIsScalar(
+      hSquared,
+      complex({ re: energySquared, im: 0 }),
+    )
 
     // (3) the spinor: twice the spin generator squares to the identity, so a 2pi rotation is minus one
     const twiceSpin = cmScale(spinGeneratorZ(), 2)
     const spinSquare = cmMultiply(twiceSpin, twiceSpin)
-    const spinorDoubleCover = cmIsScalar(spinSquare, complex({ re: 1, im: 0 }))
+    const spinorDoubleCover = cmIsScalar(
+      spinSquare,
+      complex({ re: 1, im: 0 }),
+    )
 
     // CONTROL: massless, H squared equals |p|^2 (light speed, no gap), distinct from the massive gap
     const massless = cmMultiply(
@@ -61,9 +69,16 @@ export default experiment({
       diracHamiltonian({ px, py, pz, mass: 0 }),
     )
     const masslessEnergySquared = px * px + py * py + pz * pz
-    const masslessLightSpeed = cmIsScalar(massless, complex({ re: masslessEnergySquared, im: 0 }))
+    const masslessLightSpeed = cmIsScalar(
+      massless,
+      complex({ re: masslessEnergySquared, im: 0 }),
+    )
 
-    const ok = cliffordHolds && dispersionHolds && spinorDoubleCover && masslessLightSpeed
+    const ok =
+      cliffordHolds &&
+      dispersionHolds &&
+      spinorDoubleCover &&
+      masslessLightSpeed
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -78,7 +93,10 @@ export default experiment({
       },
       // CONTROL: the massless case gives E^2 = |p|^2 (light speed) with no mass gap, the massive case
       // gaps at E^2 = m^2 + |p|^2, so the dispersion genuinely tracks the mass, it is not a fixed answer.
-      control: { masslessLightSpeed: masslessLightSpeed ? 1 : 0, masslessEnergySquared },
+      control: {
+        masslessLightSpeed: masslessLightSpeed ? 1 : 0,
+        masslessEnergySquared,
+      },
       notes:
         'The 3+1D Dirac equation is established physics (L2). The contribution is that the spin su(2) is the quaternion algebra the {3,4,3,4} coin carries (2T), and the dispersion is read out of the operator, not assumed. Upgrades the 1D Dirac walk to full 3+1D.',
     })

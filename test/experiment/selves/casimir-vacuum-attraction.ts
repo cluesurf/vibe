@@ -29,7 +29,8 @@ import { chargeDensityProfile } from '@/code/measure/profile'
 
 export default experiment({
   id: 'selves/casimir-vacuum-attraction',
-  title: 'the active vacuum exerts a Casimir attraction, the gap between two walls is suppressed and the force falls with distance',
+  title:
+    'the active vacuum exerts a Casimir attraction, the gap between two walls is suppressed and the force falls with distance',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -39,7 +40,9 @@ export default experiment({
     const beats = 400
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const rule: Collision = pairCollision({ opposite, forward: true })
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
     const binOf = (cell: number): number => cell % side
@@ -65,7 +68,10 @@ export default experiment({
       }
 
       let current = makeWill(mesh) // a deterministic peace vacuum, the create move makes it dynamic
-      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      let scratch: Will = {
+        mesh,
+        data: new Int8Array(current.data.length),
+      }
       setWalls(current)
       const acc = new Array<number>(side).fill(0)
       let samples = 0
@@ -76,15 +82,20 @@ export default experiment({
         scratch = swap
         setWalls(current)
         if (t >= beats / 2) {
-          const prof = chargeDensityProfile({ will: current, binOf, bins: side })
+          const prof = chargeDensityProfile({
+            will: current,
+            binOf,
+            bins: side,
+          })
           for (let x = 0; x < side; x++) acc[x]! += prof[x]!
           samples++
         }
       }
-      return acc.map((a) => a / samples)
+      return acc.map(a => a / samples)
     }
 
-    const mean = (prof: number[], xs: number[]): number => xs.reduce((a, x) => a + prof[x]!, 0) / xs.length
+    const mean = (prof: number[], xs: number[]): number =>
+      xs.reduce((a, x) => a + prof[x]!, 0) / xs.length
     const gapInterior = (d: number): number[] => {
       const xs: number[] = []
       for (let x = xA + 2; x <= xA + d - 2; x++) xs.push(x)
@@ -95,7 +106,7 @@ export default experiment({
     const free = averagedProfile(xA + 8, false)
 
     const gaps = [6, 8, 10]
-    const wallInduced = gaps.map((d) => {
+    const wallInduced = gaps.map(d => {
       const withWalls = averagedProfile(xA + d, true)
       const gx = gapInterior(d)
       const supWalls = mean(withWalls, openXs) - mean(withWalls, gx)
@@ -104,13 +115,17 @@ export default experiment({
     })
 
     const freeBaseline = Math.max(
-      ...gaps.map((d) => Math.abs(mean(free, openXs) - mean(free, gapInterior(d)))),
+      ...gaps.map(d =>
+        Math.abs(mean(free, openXs) - mean(free, gapInterior(d))),
+      ),
     )
 
     // 1, all suppressions positive (inward pressure, attraction). 2, falling with distance (Casimir). 3, the
     // free vacuum baseline is ~zero (wall-induced).
-    const allAttractive = wallInduced.every((s) => s > 0.1)
-    const fallsWithDistance = wallInduced[0]! > wallInduced[1]! && wallInduced[1]! > wallInduced[2]!
+    const allAttractive = wallInduced.every(s => s > 0.1)
+    const fallsWithDistance =
+      wallInduced[0]! > wallInduced[1]! &&
+      wallInduced[1]! > wallInduced[2]!
     const wallControlClean = freeBaseline < 0.05
 
     const ok = allAttractive && fallsWithDistance && wallControlClean

@@ -6,7 +6,10 @@
 // geometric structures (greedy routing, the Busemann mipmap) need a coordinate embedding, added per family.
 
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
-import { lastCompleteShellRatio, outermostShellFraction } from '@/code/substrate/coxeter/growth'
+import {
+  lastCompleteShellRatio,
+  outermostShellFraction,
+} from '@/code/substrate/coxeter/growth'
 
 export interface TessellationProfile {
   symbol: number[]
@@ -21,7 +24,10 @@ export interface TessellationProfile {
   boundaryDominated: boolean
 }
 
-const bfsDepths = (adjacency: ReadonlyArray<ReadonlyArray<number>>, root: number): number[] => {
+const bfsDepths = (
+  adjacency: ReadonlyArray<ReadonlyArray<number>>,
+  root: number,
+): number[] => {
   const depth = new Array(adjacency.length).fill(-1)
   depth[root] = 0
   let frontier = [root]
@@ -29,7 +35,10 @@ const bfsDepths = (adjacency: ReadonlyArray<ReadonlyArray<number>>, root: number
     const next: number[] = []
     for (const u of frontier) {
       for (const v of adjacency[u]!) {
-        if (v >= 0 && depth[v] === -1) { depth[v] = depth[u]! + 1; next.push(v) }
+        if (v >= 0 && depth[v] === -1) {
+          depth[v] = depth[u]! + 1
+          next.push(v)
+        }
       }
     }
     frontier = next
@@ -38,7 +47,8 @@ const bfsDepths = (adjacency: ReadonlyArray<ReadonlyArray<number>>, root: number
 }
 
 const ballRatioOf = (shells: number[]): number => {
-  const ball = (radius: number): number => shells.slice(0, radius + 1).reduce((s, n) => s + n, 0)
+  const ball = (radius: number): number =>
+    shells.slice(0, radius + 1).reduce((s, n) => s + n, 0)
   const r = Math.max(2, shells.length - 2)
   return ball(r) / Math.max(1, ball(r - 1))
 }
@@ -58,11 +68,17 @@ export function cellCoordination(symbol: number[]): number {
   if (cellOrder >= cap) {
     return Infinity // the cell is a tiling, infinite coordination
   }
-  const facetOrder = facet.length === 0 ? 2 : buildCoxeterMatrixMesh(facet, cap).adjacency.length
+  const facetOrder =
+    facet.length === 0
+      ? 2
+      : buildCoxeterMatrixMesh(facet, cap).adjacency.length
   return Math.round(cellOrder / facetOrder)
 }
 
-export function tessellationDataProfile(input: { symbol: number[]; maxCells: number }): TessellationProfile {
+export function tessellationDataProfile(input: {
+  symbol: number[]
+  maxCells: number
+}): TessellationProfile {
   const mesh = buildCoxeterMatrixMesh(input.symbol, input.maxCells)
   const cells = mesh.adjacency.length
   const depth = bfsDepths(mesh.adjacency, 0)

@@ -17,7 +17,12 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export function coarseGrainingChain(input?: { L?: number }): {
   L: number
-  levels: { level: number; blockSize: number; totalCharge: number; compressibility: number }[]
+  levels: {
+    level: number
+    blockSize: number
+    totalCharge: number
+    compressibility: number
+  }[]
   chargePreservedAllLevels: boolean
   fixedPointConverges: boolean
   spread: number
@@ -26,7 +31,11 @@ export function coarseGrainingChain(input?: { L?: number }): {
   const L = input?.L ?? 8192
   const rng = makeRng({ seed: 6 })
   const tone = new Int8Array(L)
-  for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < L; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   // balance to a fixed total so coarse charge has a clean reference
   evolveConservingRing({ tone, beats: 200, arrow: 0.12, rng })
 
@@ -39,15 +48,24 @@ export function coarseGrainingChain(input?: { L?: number }): {
   // coarse-grain repeatedly, block consecutive cells, block charge = sum
   const levels = blockChargeTower({ field: tone, levels: 5 })
 
-  const chargePreservedAllLevels = levels.every((l) => l.totalCharge === q0)
+  const chargePreservedAllLevels = levels.every(
+    l => l.totalCharge === q0,
+  )
   // fixed point, the compressibility at levels 2..5 (past the lattice artifact) is nearly constant
-  const tail = levels.slice(2).map((l) => l.compressibility)
+  const tail = levels.slice(2).map(l => l.compressibility)
   const tmean = tail.reduce((a, b) => a + b, 0) / tail.length
   const spread = (Math.max(...tail) - Math.min(...tail)) / tmean
   const fixedPointConverges = spread < 0.2 // the effective parameter is stable across the tower
   const solved = chargePreservedAllLevels && fixedPointConverges
 
-  return { L, levels, chargePreservedAllLevels, fixedPointConverges, spread, solved }
+  return {
+    L,
+    levels,
+    chargePreservedAllLevels,
+    fixedPointConverges,
+    spread,
+    solved,
+  }
 }
 
 export default experiment({
@@ -60,7 +78,8 @@ export default experiment({
   paper: true,
   run() {
     const r = coarseGrainingChain({ L: 8192 })
-    const ok = r.solved && r.chargePreservedAllLevels && r.fixedPointConverges
+    const ok =
+      r.solved && r.chargePreservedAllLevels && r.fixedPointConverges
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

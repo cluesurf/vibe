@@ -61,7 +61,10 @@ export function permutationOfRule(input: {
   // Map a stored tone value to a canonical 0..base-1 digit and back. boolean and
   // clock store 0..base-1 directly. ternary / spinor store -1..+1, offset by 1.
   const offset =
-    space.alphabet.form === 'ternary' || space.alphabet.form === 'spinor' ? 1 : 0
+    space.alphabet.form === 'ternary' ||
+    space.alphabet.form === 'spinor'
+      ? 1
+      : 0
 
   const perm = new Int32Array(space.dimension)
   const config: Configuration = makeConfiguration({
@@ -88,7 +91,8 @@ export function permutationOfRule(input: {
     let next = 0
     let place = 1
     for (let cell = 0; cell < cells; cell++) {
-      const digit = getTone(out.configuration, { element: cell }) + offset
+      const digit =
+        getTone(out.configuration, { element: cell }) + offset
       next += digit * place
       place *= base
     }
@@ -106,7 +110,9 @@ export function permutationOfRule(input: {
 // energies live in the bounded interval [0, 2*pi), so a stable lowest state
 // exists. Whether the resulting H is also LOCAL (a sum of bounded-range terms)
 // is a separate, harder question flagged in the spec and not decided here.
-export function hamiltonianFromPermutation(input: { perm: Int32Array }): {
+export function hamiltonianFromPermutation(input: {
+  perm: Int32Array
+}): {
   eigenvalues: Float64Array
   boundedBelow: boolean
   isPermutation: boolean

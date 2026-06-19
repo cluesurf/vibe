@@ -24,7 +24,11 @@ export class RegisterMachine {
   ground: number[]
   charge0: number
 
-  constructor(input: { tone: Int8Array; regions: number[][]; ground: number[] }) {
+  constructor(input: {
+    tone: Int8Array
+    regions: number[][]
+    ground: number[]
+  }) {
     this.tone = input.tone
     this.regions = input.regions
     this.ground = input.ground
@@ -51,34 +55,41 @@ export class RegisterMachine {
   // INC, the arrow creates a balanced pair, +1 into register r, -1 into the ground.
   inc(r: number): void {
     let placedPlus = false
-    for (const i of this.regions[r]!) if (this.tone[i] === 0) {
-      this.tone[i] = 1
-      placedPlus = true
-      break
-    }
+    for (const i of this.regions[r]!)
+      if (this.tone[i] === 0) {
+        this.tone[i] = 1
+        placedPlus = true
+        break
+      }
     if (!placedPlus) throw new Error('register overflow')
-    for (const i of this.ground) if (this.tone[i] === 0) {
-      this.tone[i] = -1
-      return
-    }
+    for (const i of this.ground)
+      if (this.tone[i] === 0) {
+        this.tone[i] = -1
+        return
+      }
     throw new Error('ground overflow')
   }
 
   // DEC, annihilation, a +1 in r meets a -1 in the ground, both return to peace.
   dec(r: number): void {
-    for (const i of this.regions[r]!) if (this.tone[i] === 1) {
-      this.tone[i] = 0
-      break
-    }
-    for (const i of this.ground) if (this.tone[i] === -1) {
-      this.tone[i] = 0
-      return
-    }
+    for (const i of this.regions[r]!)
+      if (this.tone[i] === 1) {
+        this.tone[i] = 0
+        break
+      }
+    for (const i of this.ground)
+      if (this.tone[i] === -1) {
+        this.tone[i] = 0
+        return
+      }
   }
 
   // Run a stored program, reporting how many steps ran and whether the total charge
   // stayed exactly conserved the whole time.
-  run(program: Instr[], maxSteps = 2_000_000): { steps: number; conserved: boolean } {
+  run(
+    program: Instr[],
+    maxSteps = 2_000_000,
+  ): { steps: number; conserved: boolean } {
     let pc = 0
     let steps = 0
     let conserved = true
@@ -106,10 +117,18 @@ export class RegisterMachine {
 // drained). MUL leaves R2 = R0 * R1, using R3 as a scratch counter (R0 drained, R1
 // restored). The standard two-counter constructions used to demonstrate that the
 // charge machine is Turing-complete.
-export function minskyAddProgram(input?: { r0?: number; r1?: number }): Instr[] {
+export function minskyAddProgram(input?: {
+  r0?: number
+  r1?: number
+}): Instr[] {
   const r0 = input?.r0 ?? 0
   const r1 = input?.r1 ?? 1
-  return [{ op: 'decjz', r: r1, addr: 3 }, { op: 'inc', r: r0 }, { op: 'jmp', addr: 0 }, { op: 'halt' }]
+  return [
+    { op: 'decjz', r: r1, addr: 3 },
+    { op: 'inc', r: r0 },
+    { op: 'jmp', addr: 0 },
+    { op: 'halt' },
+  ]
 }
 
 export function minskyMultiplyProgram(input?: {
@@ -149,7 +168,12 @@ export function carveRegisters(input: {
   let cursor = 0
   for (let r = 0; r < numRegisters; r++) {
     const region: number[] = []
-    for (let i = 0; i < perRegister && cursor < cells.length; i++, cursor++) region.push(cells[cursor]!)
+    for (
+      let i = 0;
+      i < perRegister && cursor < cells.length;
+      i++, cursor++
+    )
+      region.push(cells[cursor]!)
     regions.push(region)
   }
   const ground = cells.slice(cursor)

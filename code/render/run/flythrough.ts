@@ -11,7 +11,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { encodePng } from '@/code/draw/png'
 import { encodeGif } from '@/code/draw/gif'
-import { createHeadlessFoldScene, renderFoldToRgba } from '@/code/render/gpu/headless'
+import {
+  createHeadlessFoldScene,
+  renderFoldToRgba,
+} from '@/code/render/gpu/headless'
 import { makeCamera } from '@/code/render/gpu/camera'
 
 Object.assign(globalThis, globals)
@@ -25,40 +28,69 @@ async function run(): Promise<void> {
   const mode = process.argv[3] ?? 'inside' // 'inside' (textured corridors) or 'dive' (from outside)
   const inside = mode !== 'dive'
   const symbol = arg.split('-').map(Number)
-  if (symbol.length < 3) throw new Error('flythrough is for 3D honeycombs, e.g. 5-3-4')
+  if (symbol.length < 3)
+    throw new Error('flythrough is for 3D honeycombs, e.g. 5-3-4')
 
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
-    console.log('no WebGPU adapter available (needs a GPU). The flythrough is written and runs where an adapter is present.')
+    console.log(
+      'no WebGPU adapter available (needs a GPU). The flythrough is written and runs where an adapter is present.',
+    )
     return
   }
   const device = await adapter.requestDevice()
 
   const foldMode = inside ? '3d-interior' : '3d'
-  const scene = createHeadlessFoldScene({ device, symbol, mode: foldMode })
+  const scene = createHeadlessFoldScene({
+    device,
+    symbol,
+    mode: foldMode,
+  })
   const camera = makeCamera(foldMode)
 
   // fly forward by one cell period over the loop (so it repeats seamlessly through the periodic honeycomb)
   const period = 1.45
   const stepPerFrame = period / FRAMES
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'make', 'render', 'flythrough')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    '..',
+    'make',
+    'render',
+    'flythrough',
+  )
   mkdirSync(outDir, { recursive: true })
 
   const frames: Uint8Array[] = []
   for (let frame = 0; frame < FRAMES; frame++) {
     // high-quality march settings for the offscreen still / GIF
-    scene.setCamera3D({ ...camera.uniform3D(), detail: 0.0008, maxSteps: 700 })
+    scene.setCamera3D({
+      ...camera.uniform3D(),
+      detail: 0.0008,
+      maxSteps: 700,
+    })
     const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
     frames.push(rgba)
     if (frame === 0 || frame === Math.floor(FRAMES / 2)) {
-      writeFileSync(join(outDir, `flythrough-${arg}-${mode}-frame${frame}.png`), encodePng(rgba, SIZE, SIZE))
+      writeFileSync(
+        join(outDir, `flythrough-${arg}-${mode}-frame${frame}.png`),
+        encodePng(rgba, SIZE, SIZE),
+      )
     }
     camera.moveForward(stepPerFrame)
   }
 
-  const gif = encodeGif({ frames, width: SIZE, height: SIZE, delayMs: 60 })
+  const gif = encodeGif({
+    frames,
+    width: SIZE,
+    height: SIZE,
+    delayMs: 60,
+  })
   writeFileSync(join(outDir, `flythrough-${arg}-${mode}.gif`), gif)
-  console.log(`flew through {${symbol.join(',')}} (${mode}), wrote flythrough-${arg}-${mode}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${FRAMES} frames  ${SIZE}x${SIZE}`)
+  console.log(
+    `flew through {${symbol.join(',')}} (${mode}), wrote flythrough-${arg}-${mode}.gif  ${(gif.length / 1024).toFixed(0)} KB  ${FRAMES} frames  ${SIZE}x${SIZE}`,
+  )
 }
 
 run()

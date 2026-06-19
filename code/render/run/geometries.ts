@@ -13,7 +13,15 @@ import { classifyGeometry } from '@/code/substrate/coxeter/schlafli'
 import { renderSceneToPng } from '@/code/render/adapter/raster'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const outDir = join(here, '..', '..', '..', 'make', 'render', 'geometries')
+const outDir = join(
+  here,
+  '..',
+  '..',
+  '..',
+  'make',
+  'render',
+  'geometries',
+)
 mkdirSync(outDir, { recursive: true })
 
 // one representative per geometry, all 2D so they render to a disk
@@ -31,12 +39,22 @@ const SYMBOLS: number[][] = [
 
 for (const symbol of SYMBOLS) {
   const geometry = classifyGeometry(symbol)
-  const scene = buildTilingScene({ symbol, maxCells: geometry === 'hyperbolic' ? 1600 : 1200 })
+  const scene = buildTilingScene({
+    symbol,
+    maxCells: geometry === 'hyperbolic' ? 1600 : 1200,
+  })
   // flat geodesics are straight lines (one segment), curved geometries get many segments so the arcs read
   // smooth, and 3x supersampling resolves the edges to retina quality (no jagged stair-step).
   const segments = geometry === 'euclidean' ? 1 : 96
-  const png = renderSceneToPng({ scene, size: 800, segments, superSample: 3 })
+  const png = renderSceneToPng({
+    scene,
+    size: 800,
+    segments,
+    superSample: 3,
+  })
   const file = join(outDir, `${symbol.join('-')}-${geometry}.png`)
   writeFileSync(file, png)
-  console.log(`${symbol.join(',')} (${geometry}): ${scene.cellCount} cells, ${scene.edges.length} edges -> ${file}`)
+  console.log(
+    `${symbol.join(',')} (${geometry}): ${scene.cellCount} cells, ${scene.edges.length} edges -> ${file}`,
+  )
 }

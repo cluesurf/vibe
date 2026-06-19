@@ -9,7 +9,10 @@
 // Run: npx tsx code/experiment/p11-lorentz-dynamics.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { randomGeometricMesh, squareLatticeMesh } from '@/code/substrate/geometric-mesh'
+import {
+  randomGeometricMesh,
+  squareLatticeMesh,
+} from '@/code/substrate/geometric-mesh'
 import { wavefrontProfile } from '@/code/measure/wavefront'
 import { harmonicAnisotropy } from '@/code/measure/isotropy'
 import { experiment } from '@/test/scaffold/suite'
@@ -17,7 +20,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'relativity/lorentz-dynamics',
-  title: 'the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice',
+  title:
+    'the long-wavelength wavefront is nearly isotropic on both a random mesh and a lattice',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',
@@ -40,7 +44,8 @@ export default experiment({
         total += profile[b] ?? 0
       }
       for (let b = 0; b < annulus.bins; b++) {
-        accum[b] = (accum[b] ?? 0) + (total > 0 ? (profile[b] ?? 0) / total : 0)
+        accum[b] =
+          (accum[b] ?? 0) + (total > 0 ? (profile[b] ?? 0) / total : 0)
       }
     }
     const sprinkleAniso = harmonicAnisotropy({ profile: accum })

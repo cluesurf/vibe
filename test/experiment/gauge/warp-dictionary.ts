@@ -25,19 +25,29 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { coxeterCellFrame } from '@/code/substrate/coxeter/frame'
-import { hyperbolicDistance, matVec } from '@/code/substrate/coxeter/minkowski'
+import {
+  hyperbolicDistance,
+  matVec,
+} from '@/code/substrate/coxeter/minkowski'
 import { boundStateDecayExponent } from '@/code/measure/localization'
-import { growthRatioFromShellCounts, shellCountsFromGraph } from '@/code/measure/shell-growth'
+import {
+  growthRatioFromShellCounts,
+  shellCountsFromGraph,
+} from '@/code/measure/shell-growth'
 
 export default experiment({
   id: 'gauge/warp-dictionary',
-  title: 'the fermion mass suppression per warp shell is the overlap floor lambda^(1/2) (about 4.27), distinct from the volume growth lambda and the metric warp',
+  title:
+    'the fermion mass suppression per warp shell is the overlap floor lambda^(1/2) (about 4.27), distinct from the volume growth lambda and the metric warp',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L3',
   paper: false,
   run() {
-    const graph = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: 60000 })
+    const graph = buildCellGraph({
+      symbol: [3, 4, 3, 4],
+      maxCells: 60000,
+    })
     const cellCount = graph.cellCount
     const neighbors = graph.neighbors
 
@@ -59,20 +69,30 @@ export default experiment({
 
     // the metric warp, the mean geodesic distance from the root per graph shell
     const frame = coxeterCellFrame([3, 4, 3, 4])
-    const center = (cell: number): number[] => matVec(graph.cellMat![cell]!, frame.center)
+    const center = (cell: number): number[] =>
+      matVec(graph.cellMat![cell]!, frame.center)
     const rootCenter = center(0)
     const distance = new Int32Array(cellCount).fill(-1)
     distance[0] = 0
     let frontier = [0]
     while (frontier.length > 0) {
       const next: number[] = []
-      for (const c of frontier) for (const m of neighbors[c]!) if (distance[m] === -1) { distance[m] = distance[c]! + 1; next.push(m) }
+      for (const c of frontier)
+        for (const m of neighbors[c]!)
+          if (distance[m] === -1) {
+            distance[m] = distance[c]! + 1
+            next.push(m)
+          }
       frontier = next
     }
     const geodesicAtShell = (shell: number): number => {
       let sum = 0
       let count = 0
-      for (let c = 0; c < cellCount; c++) if (distance[c] === shell) { sum += hyperbolicDistance(rootCenter, center(c), frame.metric); count++ }
+      for (let c = 0; c < cellCount; c++)
+        if (distance[c] === shell) {
+          sum += hyperbolicDistance(rootCenter, center(c), frame.metric)
+          count++
+        }
       return count > 0 ? sum / count : 0
     }
     const geodesicPerShell = geodesicAtShell(3) - geodesicAtShell(2) // incremental geodesic length per shell
@@ -81,12 +101,20 @@ export default experiment({
     // the three factors are distinct, and the mass uses the overlap floor lambda^(1/2)
     const sqrtLambda = Math.sqrt(volumeGrowth)
     const floorIsHalfPower = Math.abs(overlapFloorExponent - 0.5) < 0.12
-    const floorMatchesSqrtLambda = Math.abs(overlapFloor - sqrtLambda) < 0.6
+    const floorMatchesSqrtLambda =
+      Math.abs(overlapFloor - sqrtLambda) < 0.6
     const threeDistinct =
-      Math.abs(volumeGrowth - overlapFloor) > 5 && Math.abs(overlapFloor - metricWarp) > 0.5 && Math.abs(volumeGrowth - metricWarp) > 5
-    const notNaiveHorospherical = Math.abs(metricWarp - Math.pow(volumeGrowth, 1 / 3)) > 0.3 // metric warp is NOT lambda^(1/3)
+      Math.abs(volumeGrowth - overlapFloor) > 5 &&
+      Math.abs(overlapFloor - metricWarp) > 0.5 &&
+      Math.abs(volumeGrowth - metricWarp) > 5
+    const notNaiveHorospherical =
+      Math.abs(metricWarp - Math.pow(volumeGrowth, 1 / 3)) > 0.3 // metric warp is NOT lambda^(1/3)
 
-    const ok = floorIsHalfPower && floorMatchesSqrtLambda && threeDistinct && notNaiveHorospherical
+    const ok =
+      floorIsHalfPower &&
+      floorMatchesSqrtLambda &&
+      threeDistinct &&
+      notNaiveHorospherical
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -99,7 +127,9 @@ export default experiment({
         sqrtLambda: Number(sqrtLambda.toFixed(3)),
         geodesicPerShell: Number(geodesicPerShell.toFixed(3)),
         metricWarp: Number(metricWarp.toFixed(3)),
-        naiveHorospherical: Number(Math.pow(volumeGrowth, 1 / 3).toFixed(3)),
+        naiveHorospherical: Number(
+          Math.pow(volumeGrowth, 1 / 3).toFixed(3),
+        ),
       },
       control: {
         metricWarpNotHorospherical: notNaiveHorospherical ? 1 : 0,

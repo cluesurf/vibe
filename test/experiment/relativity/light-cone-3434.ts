@@ -13,7 +13,8 @@ import { perturbationConeRadii } from '@/code/measure/light-cone'
 // L2, known physics (a ballistic light cone) reproduced on the D4 spin substrate.
 export default experiment({
   id: 'relativity/light-cone-3434',
-  title: 'a finite ballistic light cone (z = 1) on the 24-direction {3,4,3,4} coin',
+  title:
+    'a finite ballistic light cone (z = 1) on the 24-direction {3,4,3,4} coin',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -23,10 +24,20 @@ export default experiment({
 
     // The 24-direction D4 coin, the deterministic vacuum, two lattice SIZES for
     // robustness (never random seeds, the base is deterministic).
-    const coneA = perturbationConeRadii({ mesh: d4Mesh({ side: 9 }), beats })
-    const coneB = perturbationConeRadii({ mesh: d4Mesh({ side: 11 }), beats })
-    const ballisticA = coneA.every((radius, step) => radius === step + 1)
-    const ballisticB = coneB.every((radius, step) => radius === step + 1)
+    const coneA = perturbationConeRadii({
+      mesh: d4Mesh({ side: 9 }),
+      beats,
+    })
+    const coneB = perturbationConeRadii({
+      mesh: d4Mesh({ side: 11 }),
+      beats,
+    })
+    const ballisticA = coneA.every(
+      (radius, step) => radius === step + 1,
+    )
+    const ballisticB = coneB.every(
+      (radius, step) => radius === step + 1,
+    )
     const causal = coneA.every((radius, step) => radius <= step + 1)
 
     // The diffusive contrast: a random walk would reach only ~sqrt(beats). The
@@ -40,11 +51,17 @@ export default experiment({
     // cubic cusp, so the result is the rule's, not specific to the 24-cell coin.
     const cubic = cubicMesh({ side: 13 })
     const cubicCone = perturbationConeRadii({ mesh: cubic, beats })
-    const cubicBallistic = cubicCone.every((radius, step) => radius === step + 1)
+    const cubicBallistic = cubicCone.every(
+      (radius, step) => radius === step + 1,
+    )
     const d4 = d4Mesh({ side: 9 })
 
     const ok =
-      ballisticA && ballisticB && causal && clearlyBallistic && cubicBallistic
+      ballisticA &&
+      ballisticB &&
+      causal &&
+      clearlyBallistic &&
+      cubicBallistic
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

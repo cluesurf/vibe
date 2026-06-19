@@ -23,7 +23,13 @@ const OUTPUT_PATH =
   '/Users/lancepollard/base/crew/cluesurf/mesh/site/clue.surf/home/public/vibe/maintenance.json'
 
 // the conserved-exchange rule, one beat (exactly P171's beat, tones -1, 0, +1)
-function beat(tone: Int8Array, edges: number[][], moved: Uint8Array, rng: Rng, arrow: number): void {
+function beat(
+  tone: Int8Array,
+  edges: number[][],
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void {
   moved.fill(0)
   for (const edge of edges) {
     const v = edge[0]!
@@ -67,7 +73,13 @@ export function exportMaintenance(input?: {
   stride?: number
   arrow?: number
   mediumDensity?: number
-}): { bulkCells: number; viewCells: number; regionCells: number; frames: number; outputPath: string } {
+}): {
+  bulkCells: number
+  viewCells: number
+  regionCells: number
+  frames: number
+  outputPath: string
+} {
   const maxCells = input?.maxCells ?? 50000
   const regionSize = input?.regionSize ?? 600
   const surroundLayers = input?.surroundLayers ?? 1
@@ -80,7 +92,8 @@ export function exportMaintenance(input?: {
   const N = g.cellCount
   const neighbors = g.neighbors
   const edges: number[][] = []
-  for (let v = 0; v < N; v++) for (const w of neighbors[v]!) if (w > v) edges.push([v, w])
+  for (let v = 0; v < N; v++)
+    for (const w of neighbors[v]!) if (w > v) edges.push([v, w])
 
   // the self REGION, a BFS ball from the centre cell (a placed probe, exactly as P171 does)
   const inRegion = new Uint8Array(N)
@@ -93,10 +106,11 @@ export function exportMaintenance(input?: {
       for (const u of frontier) {
         if (region.length >= regionSize) break
         region.push(u)
-        for (const w of neighbors[u]!) if (!inRegion[w]) {
-          inRegion[w] = 1
-          next.push(w)
-        }
+        for (const w of neighbors[u]!)
+          if (!inRegion[w]) {
+            inRegion[w] = 1
+            next.push(w)
+          }
       }
       frontier = next
     }
@@ -106,7 +120,8 @@ export function exportMaintenance(input?: {
 
   // the BALANCED identity pattern over the region (equal +/-, shuffled), net charge zero
   const target = new Int8Array(N)
-  for (let k = 0; k < region.length; k++) target[region[k]!] = (k % 2 === 0 ? 1 : -1) as -1 | 1
+  for (let k = 0; k < region.length; k++)
+    target[region[k]!] = (k % 2 === 0 ? 1 : -1) as -1 | 1
   const shuffleRng = makeRng({ seed: 4 })
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(shuffleRng.next() * (i + 1))
@@ -123,10 +138,12 @@ export function exportMaintenance(input?: {
   let shell = region.slice()
   for (let layer = 0; layer < surroundLayers; layer++) {
     const next: number[] = []
-    for (const u of shell) for (const w of neighbors[u]!) if (!inView[w]) {
-      inView[w] = 1
-      next.push(w)
-    }
+    for (const u of shell)
+      for (const w of neighbors[u]!)
+        if (!inView[w]) {
+          inView[w] = 1
+          next.push(w)
+        }
     shell = next
   }
   const view: number[] = []
@@ -137,10 +154,11 @@ export function exportMaintenance(input?: {
   // lay the view cells out flat, force-directed on their crystal adjacency (the same honest layout the
   // horosphere view uses, it only positions dots, it never touches the tones)
   const viewEdges: number[][] = []
-  for (let a = 0; a < view.length; a++) for (const w of neighbors[view[a]!]!) {
-    const b = viewIndex[w]!
-    if (b > a) viewEdges.push([a, b])
-  }
+  for (let a = 0; a < view.length; a++)
+    for (const w of neighbors[view[a]!]!) {
+      const b = viewIndex[w]!
+      if (b > a) viewEdges.push([a, b])
+    }
   const GOLDEN = Math.PI * (3 - Math.sqrt(5))
   const position = view.map((_, i) => {
     const r = Math.sqrt((i + 0.5) / view.length)
@@ -189,14 +207,20 @@ export function exportMaintenance(input?: {
     }
   }
   let maxAbs = 1e-6
-  for (const p of position) maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
-  const cells2d = position.map((p) => [Math.round((p[0]! / maxAbs) * 1000) / 1000, Math.round((p[1]! / maxAbs) * 1000) / 1000])
+  for (const p of position)
+    maxAbs = Math.max(maxAbs, Math.abs(p[0]!), Math.abs(p[1]!))
+  const cells2d = position.map(p => [
+    Math.round((p[0]! / maxAbs) * 1000) / 1000,
+    Math.round((p[1]! / maxAbs) * 1000) / 1000,
+  ])
 
   // seed the two copies identically, region = identity, medium = sparse charges
   const seed = (tone: Int8Array, r: Rng): void => {
     tone.fill(0)
     for (const i of region) tone[i] = target[i]!
-    for (let i = 0; i < N; i++) if (!inRegion[i] && r.next() < mediumDensity) tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
+    for (let i = 0; i < N; i++)
+      if (!inRegion[i] && r.next() < mediumDensity)
+        tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
   }
   const maintained = new Int8Array(N)
   const free = new Int8Array(N)
@@ -209,8 +233,8 @@ export function exportMaintenance(input?: {
   const framesMaintained: number[][] = []
   const framesUnmaintained: number[][] = []
   for (let f = 0; f < frameCount; f++) {
-    framesMaintained.push(view.map((i) => maintained[i]!))
-    framesUnmaintained.push(view.map((i) => free[i]!))
+    framesMaintained.push(view.map(i => maintained[i]!))
+    framesUnmaintained.push(view.map(i => free[i]!))
     for (let s = 0; s < stride; s++) {
       beat(maintained, edges, moved, rngA, arrow)
       for (const i of region) maintained[i] = target[i]! // self-maintenance, restore the identity (P171)
@@ -224,21 +248,29 @@ export function exportMaintenance(input?: {
     viewCells: view.length,
     regionCells: region.length,
     cells: cells2d,
-    inRegion: view.map((i) => inRegion[i]!),
-    target: view.map((i) => target[i]!),
+    inRegion: view.map(i => inRegion[i]!),
+    target: view.map(i => target[i]!),
     framesMaintained,
     framesUnmaintained,
   }
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true })
   writeFileSync(OUTPUT_PATH, JSON.stringify(data))
 
-  return { bulkCells: N, viewCells: view.length, regionCells: region.length, frames: frameCount, outputPath: OUTPUT_PATH }
+  return {
+    bulkCells: N,
+    viewCells: view.length,
+    regionCells: region.length,
+    frames: frameCount,
+    outputPath: OUTPUT_PATH,
+  }
 }
 
 const result = exportMaintenance()
 console.log('maintenance export (real {5,3,4}, P171):')
 console.log(`  bulk cells: ${result.bulkCells}`)
 console.log(`  self region (placed probe): ${result.regionCells} cells`)
-console.log(`  view cells (self + surround, flat 2D): ${result.viewCells}`)
+console.log(
+  `  view cells (self + surround, flat 2D): ${result.viewCells}`,
+)
 console.log(`  frames: ${result.frames}`)
 console.log(`  wrote: ${result.outputPath}`)

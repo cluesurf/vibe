@@ -24,44 +24,89 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeSkyrmionField, relaxSpins, precessSpins, skyrmionDegree, type Spin, type SkyrmionParams } from '@/code/dynamics/skyrmion-field'
+import {
+  makeSkyrmionField,
+  relaxSpins,
+  precessSpins,
+  skyrmionDegree,
+  type Spin,
+  type SkyrmionParams,
+} from '@/code/dynamics/skyrmion-field'
 
 export default experiment({
   id: 'selves/fine-group-too-coarse',
-  title: 'no finite direction group (not even the 600-cell) is fine enough for a stable discrete dynamics, the self is forced emergent',
+  title:
+    'no finite direction group (not even the 600-cell) is fine enough for a stable discrete dynamics, the self is forced emergent',
   category: 'selves',
   substrates: ['spin-field'],
   depth: 'L2',
   paper: true,
   run() {
-    const params: SkyrmionParams = { size: 44, exchange: 1, dm: 0.6, field: 0.15 }
+    const params: SkyrmionParams = {
+      size: 44,
+      exchange: 1,
+      dm: 0.6,
+      field: 0.15,
+    }
     const steps = 400
 
-    let base: Spin[] = makeSkyrmionField({ size: params.size, coreRadius: 5 })
-    for (let t = 0; t < 2000; t++) base = relaxSpins({ spins: base, params, rate: 0.08 })
+    let base: Spin[] = makeSkyrmionField({
+      size: params.size,
+      coreRadius: 5,
+    })
+    for (let t = 0; t < 2000; t++)
+      base = relaxSpins({ spins: base, params, rate: 0.08 })
     const startQ = skyrmionDegree(base, params.size)
 
     // FACT 1: re-snap the STATE to 3 trits each beat, at a small step. Does the charge hold?
-    const snapTrit = (s: Spin[]): Spin[] => s.map(v => { const q = (c: number) => Math.round(c); const w: Spin = [q(v[0]), q(v[1]), q(v[2])]; if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]; const n = Math.hypot(w[0], w[1], w[2]) || 1; return [w[0] / n, w[1] / n, w[2] / n] })
-    let st = base.map(v => [...v] as Spin); let tritMin = startQ, tritMax = startQ
-    for (let t = 0; t < steps; t++) { st = precessSpins({ spins: st, params, dt: 0.008, open: false }); st = snapTrit(st); const q = skyrmionDegree(st, params.size); if (q < tritMin) tritMin = q; if (q > tritMax) tritMax = q }
-    const tritStateHolds = Math.abs(tritMin + 1) < 0.15 && Math.abs(tritMax + 1) < 0.15
+    const snapTrit = (s: Spin[]): Spin[] =>
+      s.map(v => {
+        const q = (c: number) => Math.round(c)
+        const w: Spin = [q(v[0]), q(v[1]), q(v[2])]
+        if (w[0] === 0 && w[1] === 0 && w[2] === 0) return [0, 0, 1]
+        const n = Math.hypot(w[0], w[1], w[2]) || 1
+        return [w[0] / n, w[1] / n, w[2] / n]
+      })
+    let st = base.map(v => [...v] as Spin)
+    let tritMin = startQ,
+      tritMax = startQ
+    for (let t = 0; t < steps; t++) {
+      st = precessSpins({ spins: st, params, dt: 0.008, open: false })
+      st = snapTrit(st)
+      const q = skyrmionDegree(st, params.size)
+      if (q < tritMin) tritMin = q
+      if (q > tritMax) tritMax = q
+    }
+    const tritStateHolds =
+      Math.abs(tritMin + 1) < 0.15 && Math.abs(tritMax + 1) < 0.15
 
     // FACT 2: the step-ANGLE threshold. dt maps to ~ (4*dt) radians per beat.
     const range = (dt: number): { min: number; max: number } => {
-      let s = base.map(v => [...v] as Spin); let min = startQ, max = startQ
-      for (let t = 0; t < steps; t++) { s = precessSpins({ spins: s, params, dt, open: false }); const q = skyrmionDegree(s, params.size); if (q < min) min = q; if (q > max) max = q }
+      let s = base.map(v => [...v] as Spin)
+      let min = startQ,
+        max = startQ
+      for (let t = 0; t < steps; t++) {
+        s = precessSpins({ spins: s, params, dt, open: false })
+        const q = skyrmionDegree(s, params.size)
+        if (q < min) min = q
+        if (q > max) max = q
+      }
       return { min, max }
     }
-    const holds = (r: { min: number; max: number }) => Math.abs(r.min + 1) < 0.15 && Math.abs(r.max + 1) < 0.15
+    const holds = (r: { min: number; max: number }) =>
+      Math.abs(r.min + 1) < 0.15 && Math.abs(r.max + 1) < 0.15
     const deg10 = range(0.0436) // ~10 degrees/beat
-    const deg36 = range(0.157)  // ~36 degrees/beat, the 600-cell smallest step
-    const deg60 = range(0.262)  // ~60 degrees/beat, the 24-cell smallest step
+    const deg36 = range(0.157) // ~36 degrees/beat, the 600-cell smallest step
+    const deg60 = range(0.262) // ~60 degrees/beat, the 24-cell smallest step
 
     const smallHolds = holds(deg10)
     const sixHundredCellChaotic = !holds(deg36)
     const twentyFourCellChaotic = !holds(deg60)
-    const ok = tritStateHolds && smallHolds && sixHundredCellChaotic && twentyFourCellChaotic
+    const ok =
+      tritStateHolds &&
+      smallHolds &&
+      sixHundredCellChaotic &&
+      twentyFourCellChaotic
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -80,7 +125,10 @@ export default experiment({
         twentyFourCellChaotic: twentyFourCellChaotic ? 1 : 0,
         steps,
       },
-      control: { deg10MaxTimes100: Math.round(deg10.max * 100), deg36MaxTimes100: Math.round(deg36.max * 100) },
+      control: {
+        deg10MaxTimes100: Math.round(deg10.max * 100),
+        deg36MaxTimes100: Math.round(deg36.max * 100),
+      },
       notes:
         'the fine-group push result. The 600-cell (the finest regular 4-polytope, ~36 degree steps) does NOT rescue the discrete dynamics, the threshold is below it. State can be coarse 3-trit, step must be below ~15 degrees, no finite quaternion group is that fine, so the stable self is forced EMERGENT (coarse-grained), exactly like a real magnet soliton. The two-layer picture is forced, not optional',
     })

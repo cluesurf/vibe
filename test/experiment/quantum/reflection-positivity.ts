@@ -12,15 +12,28 @@
 import { buildSliver } from '@/code/substrate/coxeter/cell-scale'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { hankelMatrix, symmetricEigenvalues } from '@/code/measure/hankel'
+import {
+  hankelMatrix,
+  symmetricEigenvalues,
+} from '@/code/measure/hankel'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
+function beat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void {
   conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 }
 
-export function reflectionPositivity(input?: { length?: number; arrow?: number }): {
+export function reflectionPositivity(input?: {
+  length?: number
+  arrow?: number
+}): {
   spineLength: number
   c: number[]
   hankelMinEig: number
@@ -39,23 +52,33 @@ export function reflectionPositivity(input?: { length?: number; arrow?: number }
   const N = s.cellCount
   const eu: number[] = []
   const ev: number[] = []
-  for (let v = 0; v < N; v++) for (let p = s.offsets[v]!; p < s.offsets[v + 1]!; p++) if (s.adj[p]! > v) {
-    eu.push(v)
-    ev.push(s.adj[p]!)
-  }
+  for (let v = 0; v < N; v++)
+    for (let p = s.offsets[v]!; p < s.offsets[v + 1]!; p++)
+      if (s.adj[p]! > v) {
+        eu.push(v)
+        ev.push(s.adj[p]!)
+      }
   const euA = Int32Array.from(eu)
   const evA = Int32Array.from(ev)
   const moved = new Uint8Array(N)
 
   // cells grouped by spine position -> the coarse 1D field phi(p) = mean tone at position p
   let maxPos = 0
-  for (let i = 0; i < N; i++) if (s.position[i]! > maxPos) maxPos = s.position[i]!
-  const posCells: number[][] = Array.from({ length: maxPos + 1 }, () => [])
+  for (let i = 0; i < N; i++)
+    if (s.position[i]! > maxPos) maxPos = s.position[i]!
+  const posCells: number[][] = Array.from(
+    { length: maxPos + 1 },
+    () => [],
+  )
   for (let i = 0; i < N; i++) posCells[s.position[i]!]!.push(i)
 
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 3 })
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   for (let t = 0; t < 120; t++) beat(tone, euA, evA, moved, rng, arrow) // steady state
 
   // accumulate the two-point function C(r) of phi over the spine, averaged over many beats
@@ -85,13 +108,14 @@ export function reflectionPositivity(input?: { length?: number; arrow?: number }
     beat(tone, euA, evA, moved, rng, arrow)
   }
   const c: number[] = []
-  for (let r = 0; r <= maxR; r++) c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
+  for (let r = 0; r <= maxR; r++)
+    c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
 
   // Hankel matrix H[i][j] = C(i+j), check positive semi-definiteness
   const K = 6
   const H = hankelMatrix({ sequence: c, size: K })
   // staggered Hankel (absorb pair anti-correlation, a band-edge particle)
-  const cStag = c.map((v, r) => ((r % 2 === 0 ? v : -v)))
+  const cStag = c.map((v, r) => (r % 2 === 0 ? v : -v))
   const Hs = hankelMatrix({ sequence: cStag, size: K })
   const eig = symmetricEigenvalues(H)
   const eigS = symmetricEigenvalues(Hs)
@@ -105,19 +129,33 @@ export function reflectionPositivity(input?: { length?: number; arrow?: number }
   // first drops below 5% of C(0). a contact-dominated correlation (range ~1) has no spectrum to test, so
   // RP is undecidable here, the field is too massive. A clean RP verdict needs the near-critical regime.
   let correlationRange = 0
-  for (let r = 1; r <= maxR; r++) if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) correlationRange = r
+  for (let r = 1; r <= maxR; r++)
+    if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) correlationRange = r
   const contactDominated = correlationRange <= 1
   const rpDecidable = !contactDominated
   // the honest finding: in the accessible massive regime the correlation is contact-dominated, so RP is
   // not yet decidable, it needs the near-critical (large correlation length) regime, the next effort.
   const solved = contactDominated && !rpNaive && !rpStaggered // correctly diagnosed: contact-dominated, RP undecided
 
-  return { spineLength: s.spineLength, c, hankelMinEig, hankelMaxEig, staggeredMinEig, rpNaive, rpStaggered, contactDominated, correlationRange, rpDecidable, solved }
+  return {
+    spineLength: s.spineLength,
+    c,
+    hankelMinEig,
+    hankelMaxEig,
+    staggeredMinEig,
+    rpNaive,
+    rpStaggered,
+    contactDominated,
+    correlationRange,
+    rpDecidable,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'quantum/reflection-positivity',
-  title: 'in the massive regime spatial reflection positivity is undecided',
+  title:
+    'in the massive regime spatial reflection positivity is undecided',
   category: 'quantum',
   substrates: ['534'],
   depth: 'L2',
@@ -129,7 +167,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the correlation is contact-dominated in the massive regime so reflection positivity cannot be decided, an honest inconclusive',
-      metrics: { correlationRange: r.correlationRange, hankelMinEig: r.hankelMinEig },
+      metrics: {
+        correlationRange: r.correlationRange,
+        hankelMinEig: r.hankelMinEig,
+      },
       notes:
         'honest inconclusive, a definitive verdict needs the near-critical regime with a large correlation length',
     })

@@ -6,20 +6,34 @@
 // Run: npx tsx code/experiment/p205-skyrme-sign.ts
 
 import { logLogSlope } from '@/code/measure/regression'
-import { directionFieldEnergy3d, hedgehogTexture3d } from '@/code/measure/skyrme-energy'
+import {
+  directionFieldEnergy3d,
+  hedgehogTexture3d,
+} from '@/code/measure/skyrme-energy'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveKappa: boolean } {
+export function skyrmeSign(): {
+  exExp: number
+  skExp: number
+  stableForPositiveKappa: boolean
+} {
   const M = 40
   const Rs = [5, 7, 10, 14]
-  const data = Rs.map((R) => {
-    const { exchange, skyrme } = directionFieldEnergy3d(hedgehogTexture3d({ size: M, radius: R }))
+  const data = Rs.map(R => {
+    const { exchange, skyrme } = directionFieldEnergy3d(
+      hedgehogTexture3d({ size: M, radius: R }),
+    )
     return { R, ex: exchange, sk: skyrme }
   })
   // fit log E vs log R for the exponents
-  const fit = (key: 'ex' | 'sk'): number => logLogSlope(data.map((d) => d.R), data.map((d) => d[key]))
-  const exExp = Math.round(fit('ex') * 100) / 100, skExp = Math.round(fit('sk') * 100) / 100
+  const fit = (key: 'ex' | 'sk'): number =>
+    logLogSlope(
+      data.map(d => d.R),
+      data.map(d => d[key]),
+    )
+  const exExp = Math.round(fit('ex') * 100) / 100,
+    skExp = Math.round(fit('sk') * 100) / 100
   // E(R) = a R^exExp + kappa b R^skExp. With exExp>0 and skExp<0, kappa>0 gives a minimum, kappa<=0 does not.
   const stableForPositiveKappa = exExp > 0.3 && skExp < -0.3
   return { exExp, skExp, stableForPositiveKappa }
@@ -27,7 +41,8 @@ export function skyrmeSign(): { exExp: number; skExp: number; stableForPositiveK
 
 export default experiment({
   id: 'gauge/skyrme-sign',
-  title: 'on a real 3D texture the exchange energy grows with size and the Skyrme energy falls, the Derrick scaling',
+  title:
+    'on a real 3D texture the exchange energy grows with size and the Skyrme energy falls, the Derrick scaling',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',

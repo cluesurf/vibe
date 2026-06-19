@@ -4,13 +4,19 @@
 // and the dihedral-angle overflow that decides how many cells fit around a ridge. This is
 // the shared, exact foundation for the reflection engine and the auto-selection test.
 
-export type Geometry = 'spherical' | 'euclidean' | 'hyperbolic' | 'higher'
+export type Geometry =
+  | 'spherical'
+  | 'euclidean'
+  | 'hyperbolic'
+  | 'higher'
 
 // The Gram matrix of the mirror normals for the linear diagram {p1, ..., pk}:
 // G_ii = 1, G_{i,i+1} = -cos(pi / p_i), zero for non-adjacent mirrors (perpendicular).
 export function gramMatrix(symbol: number[]): number[][] {
   const m = symbol.length + 1
-  const G: number[][] = Array.from({ length: m }, () => new Array<number>(m).fill(0))
+  const G: number[][] = Array.from({ length: m }, () =>
+    new Array<number>(m).fill(0),
+  )
   for (let i = 0; i < m; i++) G[i]![i] = 1
   for (let i = 0; i < symbol.length; i++) {
     const c = -Math.cos(Math.PI / (symbol[i] ?? 2))
@@ -28,19 +34,22 @@ export function symmetricEigen(input: { matrix: number[][] }): {
   vectors: number[][]
 } {
   const n = input.matrix.length
-  const a = input.matrix.map((row) => row.slice())
+  const a = input.matrix.map(row => row.slice())
   const v: number[][] = Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
   )
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
+    for (let p = 0; p < n; p++)
+      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
     if (off < 1e-28) break
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
         if (Math.abs(a[p]![q]!) < 1e-18) continue
         const theta = (a[q]![q]! - a[p]![p]!) / (2 * a[p]![q]!)
-        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1))
+        const t =
+          Math.sign(theta || 1) /
+          (Math.abs(theta) + Math.sqrt(theta * theta + 1))
         const c = 1 / Math.sqrt(t * t + 1)
         const s = t * c
         for (let k = 0; k < n; k++) {
@@ -118,7 +127,10 @@ export function isIdealFiniteCellHoneycomb(symbol: number[]): boolean {
 // Every COMPACT regular hyperbolic honeycomb of the given dimension (symbol length), with each entry
 // scanned over 3..maxEntry. A symbol of length `dimension` is kept when isCompactHoneycomb holds. The
 // enumeration the dimension-window classification runs over (compact crystals exist only in 2, 3, 4).
-export function enumerateCompactHoneycombs(input: { dimension: number; maxEntry: number }): number[][] {
+export function enumerateCompactHoneycombs(input: {
+  dimension: number
+  maxEntry: number
+}): number[][] {
   const { dimension, maxEntry } = input
   const found: number[][] = []
   const rec = (prefix: number[]): void => {
@@ -144,14 +156,17 @@ export function mirrorFrame(symbol: number[]): {
   const G = gramMatrix(symbol)
   const m = G.length
   const { values, vectors } = symmetricEigen({ matrix: G })
-  const metric = values.map((lam) => (lam < 0 ? -1 : 1))
-  const normals: number[][] = Array.from({ length: m }, () => new Array<number>(m).fill(0))
+  const metric = values.map(lam => (lam < 0 ? -1 : 1))
+  const normals: number[][] = Array.from({ length: m }, () =>
+    new Array<number>(m).fill(0),
+  )
   for (let i = 0; i < m; i++) {
     for (let a = 0; a < m; a++) {
-      normals[i]![a] = (vectors[i]![a] ?? 0) * Math.sqrt(Math.abs(values[a] ?? 0))
+      normals[i]![a] =
+        (vectors[i]![a] ?? 0) * Math.sqrt(Math.abs(values[a] ?? 0))
     }
   }
-  let timeAxis = metric.findIndex((g) => g < 0)
+  let timeAxis = metric.findIndex(g => g < 0)
   if (timeAxis < 0) timeAxis = m - 1
   return { normals, metric, timeAxis }
 }
@@ -159,7 +174,10 @@ export function mirrorFrame(symbol: number[]): {
 // The dihedral angle of the regular polyhedron {p, q} (the angle along an edge), in degrees.
 // sin(dihedral / 2) = cos(pi/q) / sin(pi/p). Real only for a finite (spherical) cell, where
 // the right side is below 1. At 1 the cell is flat ({6,3}), above 1 there is no finite cell.
-export function dihedralAngleDegrees(input: { p: number; q: number }): number {
+export function dihedralAngleDegrees(input: {
+  p: number
+  q: number
+}): number {
   const { p, q } = input
   const s = Math.cos(Math.PI / q) / Math.sin(Math.PI / p)
   if (s > 1) return Number.NaN
@@ -169,12 +187,21 @@ export function dihedralAngleDegrees(input: { p: number; q: number }): number {
 // For a 3D honeycomb {p, q, r}: how the cell {p, q} packs around an edge. r copies meet
 // around each edge, so the total angle is r times the cell's dihedral. Under 360 closes into
 // a finite ball (spherical), exactly 360 is flat, over 360 overflows into hyperbolic.
-export function edgeRegime(input: { p: number; q: number; r: number }): {
+export function edgeRegime(input: {
+  p: number
+  q: number
+  r: number
+}): {
   totalAngleDegrees: number
   regime: 'spherical' | 'euclidean' | 'hyperbolic'
 } {
   const d = dihedralAngleDegrees({ p: input.p, q: input.q })
   const total = input.r * d
-  const regime = total < 360 - 0.5 ? 'spherical' : total > 360 + 0.5 ? 'hyperbolic' : 'euclidean'
+  const regime =
+    total < 360 - 0.5
+      ? 'spherical'
+      : total > 360 + 0.5
+        ? 'hyperbolic'
+        : 'euclidean'
   return { totalAngleDegrees: total, regime }
 }

@@ -11,15 +11,30 @@
 // about the lattice or the honeycomb, so the idealization was sound and {5,3,4} can keep its forced
 // geometry while we simulate selves on a flat layer. Run: npx tsx code/experiment/p182-exact-horosphere.ts
 
-import { bulkGraph, flatGraph, squareGraph, boundaryFraction, ball, selfLeakAndFidelity, type Graph } from '@/code/model/self-kit'
+import {
+  bulkGraph,
+  flatGraph,
+  squareGraph,
+  boundaryFraction,
+  ball,
+  selfLeakAndFidelity,
+  type Graph,
+} from '@/code/model/self-kit'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function ballScaling(g: Graph, center: number, radii: number[]): number[] {
-  return radii.map((r) => boundaryFraction(ball(g, center, r), g))
+function ballScaling(
+  g: Graph,
+  center: number,
+  radii: number[],
+): number[] {
+  return radii.map(r => boundaryFraction(ball(g, center, r), g))
 }
 
-export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
+export function exactHorosphere(input?: {
+  L?: number
+  bulkCells?: number
+}): {
   radii: number[]
   squareBallBV: number[]
   triangularBallBV: number[]
@@ -59,13 +74,18 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
 
   // the GEOMETRIC core (compactness, per-beat leak) is the same on the exact square horosphere as on the
   // triangular idealization, and both flat layers leak far less than the bulk. This is the curvature fact.
-  const squareLeakMatchesTriangular = Math.abs(sd.leakPerBeat - td.leakPerBeat) < 0.1
-  const bothFlatBeatBulkLeak = sd.leakPerBeat < bd.leakPerBeat * 0.85 && td.leakPerBeat < bd.leakPerBeat * 0.85
+  const squareLeakMatchesTriangular =
+    Math.abs(sd.leakPerBeat - td.leakPerBeat) < 0.1
+  const bothFlatBeatBulkLeak =
+    sd.leakPerBeat < bd.leakPerBeat * 0.85 &&
+    td.leakPerBeat < bd.leakPerBeat * 0.85
   // passive long-run persistence additionally improves with COORDINATION (triangular degree 6 > square degree
   // 4), an honest secondary, non-geometric effect, a richer flat layer holds selves even better
-  const passiveImprovesWithCoordination = td.passiveFidelity > sd.passiveFidelity + 0.1
+  const passiveImprovesWithCoordination =
+    td.passiveFidelity > sd.passiveFidelity + 0.1
   // the idealization is validated for the geometric claims it was used for
-  const idealizationValidated = squareCompact && squareLeakMatchesTriangular && bothFlatBeatBulkLeak
+  const idealizationValidated =
+    squareCompact && squareLeakMatchesTriangular && bothFlatBeatBulkLeak
 
   const solved = idealizationValidated
 
@@ -91,7 +111,8 @@ export function exactHorosphere(input?: { L?: number; bulkCells?: number }): {
 
 export default experiment({
   id: 'geometry/exact-horosphere',
-  title: 'an exact {4,4} square horosphere of {4,4,3} validates the flat-self idealization',
+  title:
+    'an exact {4,4} square horosphere of {4,4,3} validates the flat-self idealization',
   category: 'geometry',
   substrates: 'any',
   depth: 'L2',
@@ -109,7 +130,8 @@ export default experiment({
         'on the exact square horosphere the geometric self-physics matches the triangular idealization and beats the bulk leak, so it is a fact about flat curvature',
       metrics: {
         squareBallBV: r.squareBallBV[r.squareBallBV.length - 1] ?? 0,
-        triangularBallBV: r.triangularBallBV[r.triangularBallBV.length - 1] ?? 0,
+        triangularBallBV:
+          r.triangularBallBV[r.triangularBallBV.length - 1] ?? 0,
         bulkBallBV: r.bulkBallBV[r.bulkBallBV.length - 1] ?? 0,
         squareLeak: r.squareLeak,
         triangularLeak: r.triangularLeak,

@@ -39,7 +39,8 @@ const EXPECTED_SHELLS = [1, 24, 456, 8376, 153192]
 
 export default experiment({
   id: 'geometry/bulk-warp-factor',
-  title: 'the hyperbolic {3,4,3,4} bulk warp factor is lambda about 18.278 (exact shells 1,24,456,8376,153192), algebraic of degree >= 3, the flat lattice (polynomial) the control',
+  title:
+    'the hyperbolic {3,4,3,4} bulk warp factor is lambda about 18.278 (exact shells 1,24,456,8376,153192), algebraic of degree >= 3, the flat lattice (polynomial) the control',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L2',
@@ -68,7 +69,12 @@ export default experiment({
     const flatRatio = euclideanL1ShellRatio({ dimension: 4, shell: 12 })
     const flatIsPolynomial = flatRatio < 2
 
-    const ok = shellsExact && firstShellIs24 && warpFactorPinned && superQuadratic && flatIsPolynomial
+    const ok =
+      shellsExact &&
+      firstShellIs24 &&
+      warpFactorPinned &&
+      superQuadratic &&
+      flatIsPolynomial
 
     return verdict({
       status: ok ? 'pass' : 'fail',

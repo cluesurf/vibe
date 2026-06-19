@@ -11,16 +11,39 @@ import { verdict } from '@/test/scaffold/verdict'
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
 
-export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boolean } {
-  const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 30000 })
+export function hierarchyBulkTree(): {
+  branching: number
+  depthLogsBoundary: boolean
+} {
+  const g = buildCellGraph({
+    symbol: [3, 4, 3, 4] as never,
+    maxCells: 30000,
+  })
   const N = g.cellCount
-  let center = 0, best = -1; for (let i = 0; i < N; i++) { const d = g.neighbors[i]!.length; if (d > best) { best = d; center = i } }
+  let center = 0,
+    best = -1
+  for (let i = 0; i < N; i++) {
+    const d = g.neighbors[i]!.length
+    if (d > best) {
+      best = d
+      center = i
+    }
+  }
   // radial BFS tree, shell sizes = the boundary size at each radius; branching = shell ratio
-  const shell = bfsShells({ neighbors: g.neighbors, root: center }).shellCounts
+  const shell = bfsShells({
+    neighbors: g.neighbors,
+    root: center,
+  }).shellCounts
   const mid = shell.slice(2, Math.min(7, shell.length))
-  const branching = Math.round((mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) / (mid.length - 1)) * 100) / 100
+  const branching =
+    Math.round(
+      (mid.slice(1).reduce((s, v, i) => s + v / mid[i]!, 0) /
+        (mid.length - 1)) *
+        100,
+    ) / 100
   // holographic relation, radial depth d to reach a shell of size S is ~ log_branching(S)
-  const testShell = mid[mid.length - 1]!, depthForIt = shell.indexOf(testShell)
+  const testShell = mid[mid.length - 1]!,
+    depthForIt = shell.indexOf(testShell)
   const predictedDepth = Math.log(testShell) / Math.log(branching)
   const depthLogsBoundary = Math.abs(depthForIt - predictedDepth) < 2
   return { branching, depthLogsBoundary }
@@ -28,7 +51,8 @@ export function hierarchyBulkTree(): { branching: number; depthLogsBoundary: boo
 
 export default experiment({
   id: 'holography/hierarchy-bulk-tree',
-  title: 'the {3,4,3,4} bulk radial tree is a self-similar hierarchy with constant branching',
+  title:
+    'the {3,4,3,4} bulk radial tree is a self-similar hierarchy with constant branching',
   category: 'holography',
   substrates: ['3434'],
   depth: 'L1',

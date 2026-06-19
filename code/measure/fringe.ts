@@ -19,9 +19,21 @@ export function fringeStatistics(input: {
   let tv = 0
   for (let i = 1; i < arr.length - 1; i++) {
     tv += Math.abs(arr[i]! - arr[i - 1]!)
-    if (arr[i]! > arr[i - 1]! && arr[i]! > arr[i + 1]! && arr[i]! > 0.05 * peak) maxima++
+    if (
+      arr[i]! > arr[i - 1]! &&
+      arr[i]! > arr[i + 1]! &&
+      arr[i]! > 0.05 * peak
+    )
+      maxima++
     // a near-node: a deep local dip flanked by substantial peaks (amplitudes nearly cancelled)
-    if (arr[i]! < arr[i - 1]! && arr[i]! < arr[i + 1]! && arr[i]! < 0.15 * peak && arr[i - 1]! > 0.3 * peak && arr[i + 1]! > 0.3 * peak) nodes++
+    if (
+      arr[i]! < arr[i - 1]! &&
+      arr[i]! < arr[i + 1]! &&
+      arr[i]! < 0.15 * peak &&
+      arr[i - 1]! > 0.3 * peak &&
+      arr[i + 1]! > 0.3 * peak
+    )
+      nodes++
   }
   return { nodes, maxima, contrast: tv / (peak + 1e-12) }
 }

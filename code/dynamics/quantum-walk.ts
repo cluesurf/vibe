@@ -28,7 +28,11 @@ export function coinedWalkMSD(input: {
     let m = 0
     let norm = 0
     for (let x = 0; x < L; x++) {
-      const p = reL[x * 2]! ** 2 + imL[x * 2]! ** 2 + reL[x * 2 + 1]! ** 2 + imL[x * 2 + 1]! ** 2
+      const p =
+        reL[x * 2]! ** 2 +
+        imL[x * 2]! ** 2 +
+        reL[x * 2 + 1]! ** 2 +
+        imL[x * 2 + 1]! ** 2
       m += p * (x - C) ** 2
       norm += p
     }
@@ -78,7 +82,9 @@ export function continuousQuantumWalkMsd(input: {
     let re = 0
     let im = 0
     for (let k = 0; k < n; k++) {
-      const amp = (eig.vectors[center * n + k] ?? 0) * (eig.vectors[j * n + k] ?? 0)
+      const amp =
+        (eig.vectors[center * n + k] ?? 0) *
+        (eig.vectors[j * n + k] ?? 0)
       const lambda = eig.values[k] ?? 0
       re += amp * Math.cos(lambda * t)
       im += amp * -Math.sin(lambda * t)
@@ -104,7 +110,9 @@ export function continuousClassicalWalkMsd(input: {
   for (let j = 0; j < n; j++) {
     let p = 0
     for (let k = 0; k < n; k++) {
-      const amp = (eig.vectors[center * n + k] ?? 0) * (eig.vectors[j * n + k] ?? 0)
+      const amp =
+        (eig.vectors[center * n + k] ?? 0) *
+        (eig.vectors[j * n + k] ?? 0)
       const lambda = eig.values[k] ?? 0
       p += amp * Math.exp(-lambda * t)
     }
@@ -113,7 +121,10 @@ export function continuousClassicalWalkMsd(input: {
   }
   let msd = 0
   for (let j = 0; j < n; j++) {
-    msd += ((prob[j] ?? 0) / Math.max(norm, 1e-300)) * (j - center) * (j - center)
+    msd +=
+      ((prob[j] ?? 0) / Math.max(norm, 1e-300)) *
+      (j - center) *
+      (j - center)
   }
   return msd
 }
@@ -121,7 +132,10 @@ export function continuousClassicalWalkMsd(input: {
 // The dispersion relation of the coined walk, omega(k) = arccos(cos(theta) cos(k)). Massless (theta = 0)
 // gives omega = |k|, a pure lightcone of speed 1. Massive (theta > 0) gives a gap at k = 0 and a relativistic
 // omega^2 ~ c^2 k^2 + m^2. omega(0) = theta is the mass gap.
-export function coinedWalkDispersion(input: { theta: number; k: number }): number {
+export function coinedWalkDispersion(input: {
+  theta: number
+  k: number
+}): number {
   return Math.acos(Math.cos(input.theta) * Math.cos(input.k))
 }
 
@@ -204,11 +218,20 @@ export function diracQuantumWalk(input: {
   mass: number
   steps: number
   seedMode: 'symmetric' | 'right'
-}): { chirality: number[]; centerR: number; centerL: number; center: number; norm: number[] } {
+}): {
+  chirality: number[]
+  centerR: number
+  centerL: number
+  center: number
+  norm: number[]
+} {
   const { size: L, mass, steps, seedMode } = input
   type C = readonly [number, number]
   const cadd = (a: C, b: C): C => [a[0] + b[0], a[1] + b[1]]
-  const cmul = (a: C, b: C): C => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+  const cmul = (a: C, b: C): C => [
+    a[0] * b[0] - a[1] * b[1],
+    a[0] * b[1] + a[1] * b[0],
+  ]
   const cabs2 = (a: C): number => a[0] * a[0] + a[1] * a[1]
   const I: C = [0, 1]
   const wrap = (x: number): number => ((x % L) + L) % L
@@ -231,8 +254,14 @@ export function diracQuantumWalk(input: {
     const R2: C[] = new Array(L)
     const L2: C[] = new Array(L)
     for (let x = 0; x < L; x++) {
-      R2[x] = cadd([c * R[x]![0], c * R[x]![1]], cmul([-s, 0], cmul(I, Lf[x]!)))
-      L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [c * Lf[x]![0], c * Lf[x]![1]])
+      R2[x] = cadd(
+        [c * R[x]![0], c * R[x]![1]],
+        cmul([-s, 0], cmul(I, Lf[x]!)),
+      )
+      L2[x] = cadd(cmul([-s, 0], cmul(I, R[x]!)), [
+        c * Lf[x]![0],
+        c * Lf[x]![1],
+      ])
     }
     // shift: R moves +1, L moves -1
     const R3: C[] = new Array(L)
@@ -275,7 +304,13 @@ export function diracQuantumWalk(input: {
     cc += dx * w
     wc += w
   }
-  return { chirality, centerR: cR / (wR || 1), centerL: cL / (wL || 1), center: cc / (wc || 1), norm }
+  return {
+    chirality,
+    centerR: cR / (wR || 1),
+    centerL: cL / (wL || 1),
+    center: cc / (wc || 1),
+    norm,
+  }
 }
 
 // RUNG-1 simulator: a single-particle Dirac coined quantum walk on a periodic line. A Gaussian
@@ -307,7 +342,11 @@ export function singleParticleQuantumWalk(input: {
     let s = 0
     let n = 0
     for (let x = 0; x < L; x++) {
-      const p = re[0]![x]! ** 2 + im[0]![x]! ** 2 + re[1]![x]! ** 2 + im[1]![x]! ** 2
+      const p =
+        re[0]![x]! ** 2 +
+        im[0]![x]! ** 2 +
+        re[1]![x]! ** 2 +
+        im[1]![x]! ** 2
       s += x * p
       n += p
     }
@@ -343,7 +382,11 @@ export function singleParticleQuantumWalk(input: {
     ys.push(xs[t]!)
   }
   const fit = linearFit({ xs: ts, ys })
-  return { speed: Math.abs(fit.slope), linearR2: fit.r2, massive: Math.abs(fit.slope) < 0.99 }
+  return {
+    speed: Math.abs(fit.slope),
+    linearR2: fit.r2,
+    massive: Math.abs(fit.slope) < 0.99,
+  }
 }
 
 // RUNG-2 simulator: a two-particle coined quantum walk with a contact interaction. State psi[x1][x2][c1][c2]
@@ -358,26 +401,40 @@ export function twoParticleQuantumWalk(input: {
   steps: number
   contactPhase: number
 }): { comSpeed: number; comR2: number; relGrowth: number } {
-  const { mass: m, momentum: k0, size: L, steps, contactPhase: theta } = input
+  const {
+    mass: m,
+    momentum: k0,
+    size: L,
+    steps,
+    contactPhase: theta,
+  } = input
   // psi[x1][x2][c1][c2], flattened. coin on each particle, shift on each, contact phase when x1==x2.
   const N = L * L * 4
   let re = new Float64Array(N)
   let im = new Float64Array(N)
-  const idx = (x1: number, x2: number, c1: number, c2: number): number => ((x1 * L + x2) * 2 + c1) * 2 + c2
+  const idx = (
+    x1: number,
+    x2: number,
+    c1: number,
+    c2: number,
+  ): number => ((x1 * L + x2) * 2 + c1) * 2 + c2
   const cm = Math.cos(m)
   const sm = Math.sin(m)
   const w = 4
   const c1s = Math.floor(L * 0.3)
   const c2s = Math.floor(L * 0.4) // start close together, well inside the lattice (no boundary wrap)
   let norm = 0
-  for (let x1 = 0; x1 < L; x1++) for (let x2 = 0; x2 < L; x2++) {
-    const g = Math.exp(-(((x1 - c1s) / w) ** 2) - (((x2 - c2s) / w) ** 2))
-    const ph = k0 * (x1 + x2) // both moving right (net CoM momentum)
-    const i = idx(x1, x2, 1, 1)
-    re[i] = g * Math.cos(ph)
-    im[i] = g * Math.sin(ph)
-    norm += g * g
-  }
+  for (let x1 = 0; x1 < L; x1++)
+    for (let x2 = 0; x2 < L; x2++) {
+      const g = Math.exp(
+        -(((x1 - c1s) / w) ** 2) - ((x2 - c2s) / w) ** 2,
+      )
+      const ph = k0 * (x1 + x2) // both moving right (net CoM momentum)
+      const i = idx(x1, x2, 1, 1)
+      re[i] = g * Math.cos(ph)
+      im[i] = g * Math.sin(ph)
+      norm += g * g
+    }
   const s = 1 / Math.sqrt(norm)
   for (let i = 0; i < N; i++) {
     re[i]! *= s
@@ -388,67 +445,76 @@ export function twoParticleQuantumWalk(input: {
   for (let t = 0; t < steps; t++) {
     let com = 0
     let rel = 0
-    for (let x1 = 0; x1 < L; x1++) for (let x2 = 0; x2 < L; x2++) {
-      let p = 0
-      for (let c1 = 0; c1 < 2; c1++) for (let c2 = 0; c2 < 2; c2++) {
-        const i = idx(x1, x2, c1, c2)
-        p += re[i]! ** 2 + im[i]! ** 2
+    for (let x1 = 0; x1 < L; x1++)
+      for (let x2 = 0; x2 < L; x2++) {
+        let p = 0
+        for (let c1 = 0; c1 < 2; c1++)
+          for (let c2 = 0; c2 < 2; c2++) {
+            const i = idx(x1, x2, c1, c2)
+            p += re[i]! ** 2 + im[i]! ** 2
+          }
+        com += ((x1 + x2) / 2) * p
+        rel += Math.abs(x1 - x2) * p
       }
-      com += ((x1 + x2) / 2) * p
-      rel += Math.abs(x1 - x2) * p
-    }
     comList.push(com)
     relList.push(rel)
     // coin on particle 1 (mix c1), then particle 2 (mix c2)
     const nr = new Float64Array(N)
     const ni = new Float64Array(N)
-    for (let x1 = 0; x1 < L; x1++) for (let x2 = 0; x2 < L; x2++) for (let c2 = 0; c2 < 2; c2++) {
-      const i0 = idx(x1, x2, 0, c2)
-      const i1 = idx(x1, x2, 1, c2)
-      const a0r = cm * re[i0]! - sm * re[i1]!
-      const a0i = cm * im[i0]! - sm * im[i1]!
-      const a1r = sm * re[i0]! + cm * re[i1]!
-      const a1i = sm * im[i0]! + cm * im[i1]!
-      nr[i0] = a0r
-      ni[i0] = a0i
-      nr[i1] = a1r
-      ni[i1] = a1i
-    }
+    for (let x1 = 0; x1 < L; x1++)
+      for (let x2 = 0; x2 < L; x2++)
+        for (let c2 = 0; c2 < 2; c2++) {
+          const i0 = idx(x1, x2, 0, c2)
+          const i1 = idx(x1, x2, 1, c2)
+          const a0r = cm * re[i0]! - sm * re[i1]!
+          const a0i = cm * im[i0]! - sm * im[i1]!
+          const a1r = sm * re[i0]! + cm * re[i1]!
+          const a1i = sm * im[i0]! + cm * im[i1]!
+          nr[i0] = a0r
+          ni[i0] = a0i
+          nr[i1] = a1r
+          ni[i1] = a1i
+        }
     const mr = new Float64Array(N)
     const mi = new Float64Array(N)
-    for (let x1 = 0; x1 < L; x1++) for (let x2 = 0; x2 < L; x2++) for (let c1 = 0; c1 < 2; c1++) {
-      const i0 = idx(x1, x2, c1, 0)
-      const i1 = idx(x1, x2, c1, 1)
-      const a0r = cm * nr[i0]! - sm * nr[i1]!
-      const a0i = cm * ni[i0]! - sm * ni[i1]!
-      const a1r = sm * nr[i0]! + cm * nr[i1]!
-      const a1i = sm * ni[i0]! + cm * ni[i1]!
-      mr[i0] = a0r
-      mi[i0] = a0i
-      mr[i1] = a1r
-      mi[i1] = a1i
-    }
+    for (let x1 = 0; x1 < L; x1++)
+      for (let x2 = 0; x2 < L; x2++)
+        for (let c1 = 0; c1 < 2; c1++) {
+          const i0 = idx(x1, x2, c1, 0)
+          const i1 = idx(x1, x2, c1, 1)
+          const a0r = cm * nr[i0]! - sm * nr[i1]!
+          const a0i = cm * ni[i0]! - sm * ni[i1]!
+          const a1r = sm * nr[i0]! + cm * nr[i1]!
+          const a1i = sm * ni[i0]! + cm * ni[i1]!
+          mr[i0] = a0r
+          mi[i0] = a0i
+          mr[i1] = a1r
+          mi[i1] = a1i
+        }
     // shift both particles, then contact phase when x1==x2
     re = new Float64Array(N)
     im = new Float64Array(N)
-    for (let x1 = 0; x1 < L; x1++) for (let x2 = 0; x2 < L; x2++) for (let c1 = 0; c1 < 2; c1++) for (let c2 = 0; c2 < 2; c2++) {
-      const i = idx(x1, x2, c1, c2)
-      const nx1 = (x1 + (c1 === 1 ? 1 : -1) + L) % L
-      const nx2 = (x2 + (c2 === 1 ? 1 : -1) + L) % L
-      let vr = mr[i]!
-      let vi = mi[i]!
-      if (theta !== 0 && nx1 === nx2) {
-        const ct = Math.cos(theta)
-        const st = Math.sin(theta)
-        const r2 = ct * vr - st * vi
-        const i2 = st * vr + ct * vi
-        vr = r2
-        vi = i2
-      }
-      const j = idx(nx1, nx2, c1, c2)
-      re[j]! += vr
-      im[j]! += vi
-    }
+    for (let x1 = 0; x1 < L; x1++)
+      for (let x2 = 0; x2 < L; x2++)
+        for (let c1 = 0; c1 < 2; c1++)
+          for (let c2 = 0; c2 < 2; c2++) {
+            const i = idx(x1, x2, c1, c2)
+            const nx1 = (x1 + (c1 === 1 ? 1 : -1) + L) % L
+            const nx2 = (x2 + (c2 === 1 ? 1 : -1) + L) % L
+            let vr = mr[i]!
+            let vi = mi[i]!
+            if (theta !== 0 && nx1 === nx2) {
+              const ct = Math.cos(theta)
+              const st = Math.sin(theta)
+              const r2 = ct * vr - st * vi
+              const i2 = st * vr + ct * vi
+              vr = r2
+              vi = i2
+            }
+            const j = idx(nx1, nx2, c1, c2)
+            re[j]! += vr
+            im[j]! += vi
+          }
   }
   // CoM linear fit + relative-coordinate growth (bound vs free)
   const ts: number[] = []

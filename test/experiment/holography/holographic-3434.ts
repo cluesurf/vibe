@@ -6,7 +6,10 @@
 // the holographic scale). A flat cubic lattice is the control: its boundary fraction goes to zero (volume law).
 
 import { streamingShellCounts } from '@/code/substrate/coxeter/streaming-shell-count'
-import { outermostShellFraction, lastCompleteShellRatio } from '@/code/substrate/coxeter/growth'
+import {
+  outermostShellFraction,
+  lastCompleteShellRatio,
+} from '@/code/substrate/coxeter/growth'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -27,7 +30,10 @@ export default experiment({
   paper: true,
   run() {
     // the {3,4,3,4} cell-shell counts (boundary dominance is asymptotic; shell 5 is deep enough to see it)
-    const shells = streamingShellCounts({ symbol: [3, 4, 3, 4], maxShell: 5 })
+    const shells = streamingShellCounts({
+      symbol: [3, 4, 3, 4],
+      maxShell: 5,
+    })
     const boundaryFraction = outermostShellFraction(shells) // -> (lambda - 1)/lambda ~ 0.945
     const lambda = lastCompleteShellRatio(shells) // the warp factor / holographic scale, ~ 18.28
     const lambdaPredicted = lambda / (lambda - 1) // 1/boundaryFraction should equal this
@@ -35,7 +41,8 @@ export default experiment({
 
     // the boundary fraction should match (lambda - 1)/lambda from the geometry alone
     const geometricBoundaryFraction = (lambda - 1) / lambda
-    const matchesGeometry = Math.abs(boundaryFraction - geometricBoundaryFraction) < 0.02
+    const matchesGeometry =
+      Math.abs(boundaryFraction - geometricBoundaryFraction) < 0.02
 
     // flat control: boundary fraction -> 0 (volume law)
     const flat = flatShells(20)
@@ -51,7 +58,9 @@ export default experiment({
       metrics: {
         boundaryFraction: Number(boundaryFraction.toFixed(4)),
         warpFactorLambda: Number(lambda.toFixed(4)),
-        geometricBoundaryFraction: Number(geometricBoundaryFraction.toFixed(4)),
+        geometricBoundaryFraction: Number(
+          geometricBoundaryFraction.toFixed(4),
+        ),
         inverseFractionVsLambda: Number(lambdaPredicted.toFixed(4)),
         areaLawHolds: areaLawHolds ? 1 : 0,
       },

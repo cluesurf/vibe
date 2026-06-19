@@ -6,14 +6,22 @@
 // sharing fill (+1) wants equal non-zero tones, a polarizing fill (-1) wants opposite
 // non-zero tones, an insulating fill (0) wants at least one endpoint at peace. This is
 // an order parameter for an integrated, non-frustrated structure.
-export function fillCoherence(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array): number {
+export function fillCoherence(
+  tone: Int8Array,
+  edges: Array<[number, number]>,
+  fill: Int8Array,
+): number {
   let sat = 0
   for (let i = 0; i < edges.length; i++) {
     const tv = tone[edges[i]![0]]!
     const tw = tone[edges[i]![1]]!
     const f = fill[i]!
     const ok =
-      f === 1 ? tv !== 0 && tv === tw : f === -1 ? tv !== 0 && tw !== 0 && tv !== tw : tv === 0 || tw === 0
+      f === 1
+        ? tv !== 0 && tv === tw
+        : f === -1
+          ? tv !== 0 && tw !== 0 && tv !== tw
+          : tv === 0 || tw === 0
     if (ok) {
       sat++
     }
@@ -25,7 +33,11 @@ export function fillCoherence(tone: Int8Array, edges: Array<[number, number]>, f
 // tone relationship of its endpoints, binding (sharing, +1) agreeing non-zero neighbors,
 // polarizing (-1) opposing ones, and insulating (0) when either endpoint is at peace.
 // This makes fills LEARN the tone structure rather than staying fixed.
-export function adaptFills(tone: Int8Array, edges: ReadonlyArray<readonly [number, number]>, fill: Int8Array): void {
+export function adaptFills(
+  tone: Int8Array,
+  edges: ReadonlyArray<readonly [number, number]>,
+  fill: Int8Array,
+): void {
   for (let i = 0; i < edges.length; i++) {
     const tv = tone[edges[i]![0]]!
     const tw = tone[edges[i]![1]]!
@@ -36,7 +48,12 @@ export function adaptFills(tone: Int8Array, edges: ReadonlyArray<readonly [numbe
 
 // Size of the largest connected domain of same-sign cells bound by sharing (+1) fills,
 // the biggest coherent patch (a candidate higher self). `n` is the cell count.
-export function largestSharingPatch(tone: Int8Array, edges: Array<[number, number]>, fill: Int8Array, n: number): number {
+export function largestSharingPatch(
+  tone: Int8Array,
+  edges: Array<[number, number]>,
+  fill: Int8Array,
+  n: number,
+): number {
   const parent = new Int32Array(n)
   for (let i = 0; i < n; i++) {
     parent[i] = i

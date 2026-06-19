@@ -5,16 +5,23 @@
 import { makeRng } from '@/code/tool/rng'
 import { Graph } from '@/code/tool/graph'
 
-export function runModel(g: Graph, seed: number): { deterministic: boolean; evolves: boolean; nonzeroFraction: number } {
+export function runModel(
+  g: Graph,
+  seed: number,
+): {
+  deterministic: boolean
+  evolves: boolean
+  nonzeroFraction: number
+} {
   const rng = makeRng({ seed })
-  const indexOf = g.neighbors.map((row) => {
+  const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
     return m
   })
-  const fills = g.neighbors.map((row) => new Int8Array(row.length))
+  const fills = g.neighbors.map(row => new Int8Array(row.length))
   for (let v = 0; v < g.size; v++) {
     const fv = fills[v]
     const row = g.neighbors[v] ?? new Uint32Array(0)

@@ -7,9 +7,15 @@
 // is an SU(2) matrix acting on color, and gamma5 acts on spin. See
 // note/questions/remaining-frontier-spec.md (B2).
 
-import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  ComplexMatrix,
+  makeComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { modulo } from '@/code/tool/integer'
-import { hermitianMatrixSign, eigHermitian } from '@/code/algebra/linear/eig-hermitian'
+import {
+  hermitianMatrixSign,
+  eigHermitian,
+} from '@/code/algebra/linear/eig-hermitian'
 import { Rng } from '@/code/tool/rng'
 
 interface C4 {
@@ -28,7 +34,10 @@ function site(n1: number, n2: number, L: number): number {
 }
 
 // An SU(2) matrix from a unit quaternion: U = q0 I + i(q.sigma).
-function colorMatrix(q: [number, number, number, number], dagger: boolean): C4 {
+function colorMatrix(
+  q: [number, number, number, number],
+  dagger: boolean,
+): C4 {
   const [q0, q1, q2, q3] = q
   // U.re = [q0, q2, -q2, q0], U.im = [q3, q1, q1, -q3].
   const re: [number, number, number, number] = [q0, q2, -q2, q0]
@@ -68,8 +77,10 @@ function addBlock4(input: {
           im *= input.coef
           const row = input.rowSite * 4 + si * 2 + ci
           const col = input.colSite * 4 + sj * 2 + cj
-          input.m.re[row * n + col] = (input.m.re[row * n + col] ?? 0) + re
-          input.m.im[row * n + col] = (input.m.im[row * n + col] ?? 0) + im
+          input.m.re[row * n + col] =
+            (input.m.re[row * n + col] ?? 0) + re
+          input.m.im[row * n + col] =
+            (input.m.im[row * n + col] ?? 0) + im
         }
       }
     }
@@ -79,7 +90,10 @@ function addBlock4(input: {
 const IDENT_SPIN: C4 = { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }
 const IDENT_COLOR: C4 = { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }
 
-function randomSu2(disorder: number, rng: Rng): [number, number, number, number] {
+function randomSu2(
+  disorder: number,
+  rng: Rng,
+): [number, number, number, number] {
   const q1 = (rng.next() * 2 - 1) * disorder
   const q2 = (rng.next() * 2 - 1) * disorder
   const q3 = (rng.next() * 2 - 1) * disorder
@@ -99,13 +113,54 @@ function gaugeWilsonDiracSu2(input: {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
       // diagonal mass term M0 = 2 (spin identity tensor color identity).
-      addBlock4({ m: d, rowSite: x, colSite: x, spin: IDENT_SPIN, color: IDENT_COLOR, coef: 2 })
+      addBlock4({
+        m: d,
+        rowSite: x,
+        colSite: x,
+        spin: IDENT_SPIN,
+        color: IDENT_COLOR,
+        coef: 2,
+      })
       // mu = 1
-      addBlock4({ m: d, rowSite: x, colSite: site(n1 + 1, n2, L), spin: SPIN_I_MINUS_SX, color: colorMatrix(input.links1[x] ?? [1, 0, 0, 0], false), coef: -0.5 })
-      addBlock4({ m: d, rowSite: x, colSite: site(n1 - 1, n2, L), spin: SPIN_I_PLUS_SX, color: colorMatrix(input.links1[site(n1 - 1, n2, L)] ?? [1, 0, 0, 0], true), coef: -0.5 })
+      addBlock4({
+        m: d,
+        rowSite: x,
+        colSite: site(n1 + 1, n2, L),
+        spin: SPIN_I_MINUS_SX,
+        color: colorMatrix(input.links1[x] ?? [1, 0, 0, 0], false),
+        coef: -0.5,
+      })
+      addBlock4({
+        m: d,
+        rowSite: x,
+        colSite: site(n1 - 1, n2, L),
+        spin: SPIN_I_PLUS_SX,
+        color: colorMatrix(
+          input.links1[site(n1 - 1, n2, L)] ?? [1, 0, 0, 0],
+          true,
+        ),
+        coef: -0.5,
+      })
       // mu = 2
-      addBlock4({ m: d, rowSite: x, colSite: site(n1, n2 + 1, L), spin: SPIN_I_MINUS_SY, color: colorMatrix(input.links2[x] ?? [1, 0, 0, 0], false), coef: -0.5 })
-      addBlock4({ m: d, rowSite: x, colSite: site(n1, n2 - 1, L), spin: SPIN_I_PLUS_SY, color: colorMatrix(input.links2[site(n1, n2 - 1, L)] ?? [1, 0, 0, 0], true), coef: -0.5 })
+      addBlock4({
+        m: d,
+        rowSite: x,
+        colSite: site(n1, n2 + 1, L),
+        spin: SPIN_I_MINUS_SY,
+        color: colorMatrix(input.links2[x] ?? [1, 0, 0, 0], false),
+        coef: -0.5,
+      })
+      addBlock4({
+        m: d,
+        rowSite: x,
+        colSite: site(n1, n2 - 1, L),
+        spin: SPIN_I_PLUS_SY,
+        color: colorMatrix(
+          input.links2[site(n1, n2 - 1, L)] ?? [1, 0, 0, 0],
+          true,
+        ),
+        coef: -0.5,
+      })
     }
   }
   return d
@@ -153,7 +208,8 @@ export function chiralCondensateSignalSU2(input: {
     const epsilon = hermitianMatrixSign({ matrix: dw })
     // H_ov = gamma5 + epsilon.
     for (let i = 0; i < n; i++) {
-      epsilon.re[i * n + i] = (epsilon.re[i * n + i] ?? 0) + (i % 4 < 2 ? 1 : -1)
+      epsilon.re[i * n + i] =
+        (epsilon.re[i * n + i] ?? 0) + (i % 4 < 2 ? 1 : -1)
     }
     const eig = eigHermitian({ matrix: epsilon })
     for (let k = 0; k < eig.values.length; k++) {

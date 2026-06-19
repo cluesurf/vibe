@@ -40,14 +40,15 @@ function study(): { potential: number; lowest: number[] } {
     operator: operatorFromSparse(dirac),
     count: 12,
   })
-  const lowest = Array.from(spectrum, (x) => Math.round(x * 1000) / 1000)
+  const lowest = Array.from(spectrum, x => Math.round(x * 1000) / 1000)
 
   return { potential, lowest }
 }
 
 export default experiment({
   id: 'gauge/gauge-fermion',
-  title: 'a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum',
+  title:
+    'a covariant Kahler-Dirac fermion in a relaxed U(1) gauge background has a clean spectrum',
   category: 'gauge',
   substrates: 'any',
   depth: 'L2',
@@ -56,7 +57,7 @@ export default experiment({
     const result = study()
     const ok =
       result.lowest.length === 12 &&
-      result.lowest.every((value) => Number.isFinite(value)) &&
+      result.lowest.every(value => Number.isFinite(value)) &&
       Number.isFinite(result.potential)
     return verdict({
       status: ok ? 'pass' : 'fail',

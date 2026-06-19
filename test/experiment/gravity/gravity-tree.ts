@@ -16,21 +16,33 @@ function alpha(z: number, s: number): number {
   return betheBoundaryExponent({ coordination: z, energy: s })
 }
 
-export function gravityTree(): { masslessAlpha: number; massiveAlpha: number } {
-  const cases = [{ name: '{5,3,4} bulk (z=12)', z: 12 }, { name: '{3,4,3,4} bulk (z=24)', z: 24 }, { name: 'generic z=4', z: 4 }]
-  let masslessAlpha = 0, massiveAlpha = 0
+export function gravityTree(): {
+  masslessAlpha: number
+  massiveAlpha: number
+} {
+  const cases = [
+    { name: '{5,3,4} bulk (z=12)', z: 12 },
+    { name: '{3,4,3,4} bulk (z=24)', z: 24 },
+    { name: 'generic z=4', z: 4 },
+  ]
+  let masslessAlpha = 0,
+    massiveAlpha = 0
   for (const c of cases) {
     const sEdge = 2 * Math.sqrt(c.z - 1) // massless (band edge)
     const aMassless = alpha(c.z, sEdge)
     const aMassive = alpha(c.z, sEdge * 1.3) // gapped / massive mode
-    if (c.z === 24) { masslessAlpha = aMassless; massiveAlpha = aMassive }
+    if (c.z === 24) {
+      masslessAlpha = aMassless
+      massiveAlpha = aMassive
+    }
   }
   return { masslessAlpha, massiveAlpha }
 }
 
 export default experiment({
   id: 'gravity/gravity-tree',
-  title: 'the Bethe-lattice band-edge boundary coupling falls as 1/r for every branching, but the tree is dimension-blind',
+  title:
+    'the Bethe-lattice band-edge boundary coupling falls as 1/r for every branching, but the tree is dimension-blind',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L1',

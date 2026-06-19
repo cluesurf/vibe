@@ -24,7 +24,8 @@ const ABOVE_CHANCE_MIN = 0.03
 
 export default experiment({
   id: 'selves/surrogate-tower-climb',
-  title: 'a temporal surrogate tower climbs several levels with forward accuracy bounded above chance and the control',
+  title:
+    'a temporal surrogate tower climbs several levels with forward accuracy bounded above chance and the control',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -52,7 +53,8 @@ export default experiment({
 
     // every level beats its shuffled control by GAP_MIN and stays above chance, so all `levels` levels of the
     // tower carry real dynamics, not noise.
-    const ok = minGap > GAP_MIN && minAccuracy - chance > ABOVE_CHANCE_MIN
+    const ok =
+      minGap > GAP_MIN && minAccuracy - chance > ABOVE_CHANCE_MIN
 
     return verdict({
       status: ok ? 'pass' : 'fail',

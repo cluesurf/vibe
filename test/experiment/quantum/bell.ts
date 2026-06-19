@@ -17,7 +17,8 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'quantum/bell',
-  title: 'an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises',
+  title:
+    'an engineered superdeterministic model climbs CHSH past 2 as setting-state correlation rises',
   category: 'quantum',
   substrates: 'any',
   depth: 'L0',
@@ -49,11 +50,14 @@ export default experiment({
       },
     }
     const result = runScan({ spec, baseSeed: 5 })
-    const independent = result.points.find((p) => p.parameterIndex === 0)
-    const correlated = result.points.find((p) => p.parameterIndex === 1)
+    const independent = result.points.find(p => p.parameterIndex === 0)
+    const correlated = result.points.find(p => p.parameterIndex === 1)
     const sIndependent = independent?.mean.s ?? 0
     const sCorrelated = correlated?.mean.s ?? 0
-    const ok = sIndependent <= 2.1 && sCorrelated > 2 && sCorrelated > sIndependent
+    const ok =
+      sIndependent <= 2.1 &&
+      sCorrelated > 2 &&
+      sCorrelated > sIndependent
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

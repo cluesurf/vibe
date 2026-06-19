@@ -6,9 +6,15 @@
 // nonzero condensate. The Schwinger condensate is nonzero purely from the anomaly,
 // and grows with gauge disorder. See note/questions/remaining-frontier-spec.md (A4).
 
-import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  ComplexMatrix,
+  makeComplexMatrix,
+} from '@/code/algebra/linear/dense'
 import { modulo } from '@/code/tool/integer'
-import { hermitianMatrixSign, eigHermitian } from '@/code/algebra/linear/eig-hermitian'
+import {
+  hermitianMatrixSign,
+  eigHermitian,
+} from '@/code/algebra/linear/eig-hermitian'
 import { Rng } from '@/code/tool/rng'
 import { Block, addComplexBlock } from '@/code/operator/block'
 
@@ -21,10 +27,13 @@ function site(n1: number, n2: number, L: number): number {
   return modulo(n1, L) + modulo(n2, L) * L
 }
 
-
 // A random U(1) gauge field: each link phase is uniform in [-disorder*pi,
 // disorder*pi]. disorder = 0 is the free field, larger is stronger coupling.
-function randomLinks(input: { length: number; disorder: number; rng: Rng }): {
+function randomLinks(input: {
+  length: number
+  disorder: number
+  rng: Rng
+}): {
   u1: Float64Array
   u2: Float64Array
 } {
@@ -53,17 +62,57 @@ function gaugeWilsonDiracRandom(input: {
   for (let n1 = 0; n1 < L; n1++) {
     for (let n2 = 0; n2 < L; n2++) {
       const x = site(n1, n2, L)
-      addComplexBlock({ matrix: d, rowSite: x, colSite: x, block: { re: [1, 0, 0, 1], im: [0, 0, 0, 0] }, phaseRe: 1, phaseIm: 0, coefficient: 2 })
+      addComplexBlock({
+        matrix: d,
+        rowSite: x,
+        colSite: x,
+        block: { re: [1, 0, 0, 1], im: [0, 0, 0, 0] },
+        phaseRe: 1,
+        phaseIm: 0,
+        coefficient: 2,
+      })
       // mu = 1
       const u1x = ph(input.u1[x] ?? 0)
-      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1 + 1, n2, L), block: I_MINUS_SX, phaseRe: u1x.re, phaseIm: u1x.im, coefficient: -0.5 })
+      addComplexBlock({
+        matrix: d,
+        rowSite: x,
+        colSite: site(n1 + 1, n2, L),
+        block: I_MINUS_SX,
+        phaseRe: u1x.re,
+        phaseIm: u1x.im,
+        coefficient: -0.5,
+      })
       const u1b = ph(input.u1[site(n1 - 1, n2, L)] ?? 0)
-      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1 - 1, n2, L), block: I_PLUS_SX, phaseRe: u1b.re, phaseIm: -u1b.im, coefficient: -0.5 })
+      addComplexBlock({
+        matrix: d,
+        rowSite: x,
+        colSite: site(n1 - 1, n2, L),
+        block: I_PLUS_SX,
+        phaseRe: u1b.re,
+        phaseIm: -u1b.im,
+        coefficient: -0.5,
+      })
       // mu = 2
       const u2x = ph(input.u2[x] ?? 0)
-      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1, n2 + 1, L), block: I_MINUS_SY, phaseRe: u2x.re, phaseIm: u2x.im, coefficient: -0.5 })
+      addComplexBlock({
+        matrix: d,
+        rowSite: x,
+        colSite: site(n1, n2 + 1, L),
+        block: I_MINUS_SY,
+        phaseRe: u2x.re,
+        phaseIm: u2x.im,
+        coefficient: -0.5,
+      })
       const u2b = ph(input.u2[site(n1, n2 - 1, L)] ?? 0)
-      addComplexBlock({ matrix: d, rowSite: x, colSite: site(n1, n2 - 1, L), block: I_PLUS_SY, phaseRe: u2b.re, phaseIm: -u2b.im, coefficient: -0.5 })
+      addComplexBlock({
+        matrix: d,
+        rowSite: x,
+        colSite: site(n1, n2 - 1, L),
+        block: I_PLUS_SY,
+        phaseRe: u2b.re,
+        phaseIm: -u2b.im,
+        coefficient: -0.5,
+      })
     }
   }
   return d
@@ -88,8 +137,16 @@ export function chiralCondensateSignal(input: {
   let totalEig = 0
 
   for (let c = 0; c < input.configs; c++) {
-    const links = randomLinks({ length: L, disorder: input.disorder, rng: input.rng })
-    const dw = gaugeWilsonDiracRandom({ length: L, u1: links.u1, u2: links.u2 })
+    const links = randomLinks({
+      length: L,
+      disorder: input.disorder,
+      rng: input.rng,
+    })
+    const dw = gaugeWilsonDiracRandom({
+      length: L,
+      u1: links.u1,
+      u2: links.u2,
+    })
     // H_W = gamma5 (D_W - m0): subtract m0 on the diagonal, negate spin-down rows.
     for (let i = 0; i < n; i++) {
       dw.re[i * n + i] = (dw.re[i * n + i] ?? 0) - m0
@@ -105,7 +162,8 @@ export function chiralCondensateSignal(input: {
     const epsilon = hermitianMatrixSign({ matrix: dw })
     // H_ov = gamma5 + epsilon (gamma5 is +1 on spin-up, -1 on spin-down diagonal).
     for (let i = 0; i < n; i++) {
-      epsilon.re[i * n + i] = (epsilon.re[i * n + i] ?? 0) + (i % 2 === 0 ? 1 : -1)
+      epsilon.re[i * n + i] =
+        (epsilon.re[i * n + i] ?? 0) + (i % 2 === 0 ? 1 : -1)
     }
     const eig = eigHermitian({ matrix: epsilon })
     for (let k = 0; k < eig.values.length; k++) {

@@ -20,11 +20,15 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { oscillatorBathTrajectory, lateAmplitude } from '@/code/dynamics/oscillator-bath'
+import {
+  oscillatorBathTrajectory,
+  lateAmplitude,
+} from '@/code/dynamics/oscillator-bath'
 
 export default experiment({
   id: 'selves/two-field-self',
-  title: 'a confined body becomes a self only when coupled to a PROPAGATING field (the photon), not a local one',
+  title:
+    'a confined body becomes a self only when coupled to a PROPAGATING field (the photon), not a local one',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -37,11 +41,33 @@ export default experiment({
     // basin spread across initial conditions (does the body settle to one ground state, an attractor) for a
     // given field wave speed, with the absorbing bath always on.
     const basinSpread = (fieldSpeed2: number): number => {
-      const amps = starts.map((start) => lateAmplitude(oscillatorBathTrajectory({ absorbing: true, stiffness, start, steps, fieldSpeed2 })))
+      const amps = starts.map(start =>
+        lateAmplitude(
+          oscillatorBathTrajectory({
+            absorbing: true,
+            stiffness,
+            start,
+            steps,
+            fieldSpeed2,
+          }),
+        ),
+      )
       return Math.max(...amps) - Math.min(...amps)
     }
     const settledTo = (fieldSpeed2: number): number =>
-      Math.max(...starts.map((start) => lateAmplitude(oscillatorBathTrajectory({ absorbing: true, stiffness, start, steps, fieldSpeed2 }))))
+      Math.max(
+        ...starts.map(start =>
+          lateAmplitude(
+            oscillatorBathTrajectory({
+              absorbing: true,
+              stiffness,
+              start,
+              steps,
+              fieldSpeed2,
+            }),
+          ),
+        ),
+      )
 
     // PROPAGATING field (the photon, massless), wave speed > 0.
     const propagatingSpread = basinSpread(1.0)
@@ -52,12 +78,26 @@ export default experiment({
 
     // a corrective response, kick the settled body, does it recover, for each field.
     const afterKick = (fieldSpeed2: number): number =>
-      lateAmplitude(oscillatorBathTrajectory({ absorbing: true, stiffness, start: 0, velocity: 0, steps, kickStep: Math.floor(steps / 2), kickVelocity: 1.0, fieldSpeed2 }))
+      lateAmplitude(
+        oscillatorBathTrajectory({
+          absorbing: true,
+          stiffness,
+          start: 0,
+          velocity: 0,
+          steps,
+          kickStep: Math.floor(steps / 2),
+          kickVelocity: 1.0,
+          fieldSpeed2,
+        }),
+      )
     const propagatingAfterKick = afterKick(1.0)
     const localAfterKick = afterKick(0.0)
 
     // the propagating field gives a self (settles to one attractor, corrects a kick), the local field does not.
-    const propagatingIsSelf = propagatingSpread < 0.1 && propagatingSettle < 0.1 && propagatingAfterKick < 0.1
+    const propagatingIsSelf =
+      propagatingSpread < 0.1 &&
+      propagatingSettle < 0.1 &&
+      propagatingAfterKick < 0.1
     const localIsNotSelf = localSettle > 0.3 || localAfterKick > 0.3
 
     const ok = propagatingIsSelf && localIsNotSelf

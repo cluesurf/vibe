@@ -16,7 +16,11 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function deSitterExpansion(input: { count: number; hubble: number; seed: number }): {
+export function deSitterExpansion(input: {
+  count: number
+  hubble: number
+  seed: number
+}): {
   earlyWidth: number
   lateWidth: number
   expands: boolean
@@ -32,7 +36,8 @@ export function deSitterExpansion(input: { count: number; hubble: number; seed: 
   const widths = causalSliceWidths({ poset })
   // Compare the first third of cosmic time to the last third (avoid the very ends).
   const a = Math.floor(widths.length / 3)
-  const mean = (arr: number[]): number => (arr.length ? arr.reduce((p, q) => p + q, 0) / arr.length : 0)
+  const mean = (arr: number[]): number =>
+    arr.length ? arr.reduce((p, q) => p + q, 0) / arr.length : 0
   const earlyWidth = mean(widths.slice(0, a))
   const lateWidth = mean(widths.slice(widths.length - a))
   return {
@@ -52,12 +57,20 @@ export default experiment({
   paper: false,
   run() {
     const r = deSitterExpansion({ count: 500, hubble: 1, seed: 1 })
-    const ok = r.expands && r.lateWidth > 1.5 * r.earlyWidth && r.dimension > 0 && r.dimension < 6
+    const ok =
+      r.expands &&
+      r.lateWidth > 1.5 * r.earlyWidth &&
+      r.dimension > 0 &&
+      r.dimension < 6
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'a causal set sprinkled into an expanding de Sitter universe has spatial slices that grow with proper time',
-      metrics: { earlyWidth: r.earlyWidth, lateWidth: r.lateWidth, dimension: r.dimension },
+      metrics: {
+        earlyWidth: r.earlyWidth,
+        lateWidth: r.lateWidth,
+        dimension: r.dimension,
+      },
       notes:
         'the de Sitter metric is imposed, deriving expansion from a pure microscopic growth rule remains open',
     })

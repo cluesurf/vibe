@@ -15,7 +15,10 @@ import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
 import { Graph, meanDegree } from '@/code/tool/graph'
 import { symmetricEdgeFills } from '@/code/operator/signed-majority'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
+import {
+  ballGrowth,
+  growthIsExponential,
+} from '@/code/measure/dimension'
 import { laplacianSpectrum } from '@/code/operator/laplacian'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -38,7 +41,10 @@ function runDynamics(input: { g: Graph; sweeps: number; rng: Rng }): {
   // relational vibe, so fill(v,w) = fill(w,v)). Symmetric couplings make the
   // asynchronous signed-majority dynamics converge to stable structured states, the
   // basis for persistent matter and selves.
-  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: input.rng })
+  const fills = symmetricEdgeFills({
+    neighbors: g.neighbors,
+    rng: input.rng,
+  })
   const flipFractions: number[] = []
   for (let sweep = 0; sweep < input.sweeps; sweep++) {
     let flips = 0
@@ -79,11 +85,20 @@ export function capstone(input: { count: number; seed: number }): {
   arrowMonotone: boolean
 } {
   const rng = makeRng({ seed: input.seed })
-  const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
+  const g = hyperbolicGraph({
+    count: input.count,
+    radius: 7,
+    connectThreshold: 3.0,
+    rng,
+  })
 
   // Geometry and Lorentz safety, off the mesh. Center the ball on the most-connected
   // (central) node, since node 0 may sit on the sparse rim of the hyperbolic disc.
-  const aniso = lorentzIsotropy({ substrate: g, samples: 2000, rng: makeRng({ seed: input.seed + 1 }) })
+  const aniso = lorentzIsotropy({
+    substrate: g,
+    samples: 2000,
+    rng: makeRng({ seed: input.seed + 1 }),
+  })
   let center = 0
   let bestDeg = -1
   for (let i = 0; i < g.size; i++) {
@@ -97,7 +112,11 @@ export function capstone(input: { count: number; seed: number }): {
   const reach = growthIsExponential({ growth })
 
   // The committed dynamics on the same mesh.
-  const dyn = runDynamics({ g, sweeps: 40, rng: makeRng({ seed: input.seed + 2 }) })
+  const dyn = runDynamics({
+    g,
+    sweeps: 40,
+    rng: makeRng({ seed: input.seed + 2 }),
+  })
   const finalFlip = dyn.flipFractions[dyn.flipFractions.length - 1] ?? 1
   const firstFlip = dyn.flipFractions[0] ?? 1
   const dynamicsConverges = finalFlip < 0.5 * firstFlip
@@ -113,7 +132,12 @@ export function capstone(input: { count: number; seed: number }): {
   let prevEdges = 0
   let arrowMonotone = true
   for (const c of [100, 200, 400]) {
-    const gc = hyperbolicGraph({ count: c, radius: 7, connectThreshold: 3.0, rng: makeRng({ seed: input.seed + 7 }) })
+    const gc = hyperbolicGraph({
+      count: c,
+      radius: 7,
+      connectThreshold: 3.0,
+      rng: makeRng({ seed: input.seed + 7 }),
+    })
     let edges = 0
     for (let i = 0; i < gc.size; i++) {
       edges += (gc.neighbors[i] ?? new Uint32Array(0)).length
@@ -139,7 +163,8 @@ export function capstone(input: { count: number; seed: number }): {
 
 export default experiment({
   id: 'foundations/capstone',
-  title: 'the committed model runs end-to-end with all structures from one instantiation',
+  title:
+    'the committed model runs end-to-end with all structures from one instantiation',
   category: 'foundations',
   substrates: ['534'],
   depth: 'L2',

@@ -15,14 +15,25 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // The lattice Maxwell (curl-curl) spectrum on a periodic L^3 lattice (omega^2 eigenvalues).
-export function maxwellSpectrum(input: { side: number; mass: number }): number[] {
+export function maxwellSpectrum(input: {
+  side: number
+  mass: number
+}): number[] {
   return maxwellLatticeSpectrum(input)
 }
 
 // Gauge zero modes versus physical (nonzero) modes, with the smallest physical omega^2.
-function summarize(values: number[]): { gauge: number; physical: number; minPhysical: number } {
+function summarize(values: number[]): {
+  gauge: number
+  physical: number
+  minPhysical: number
+} {
   const census = zeroModeCensus(values)
-  return { gauge: census.zero, physical: census.nonzero, minPhysical: census.minNonzero }
+  return {
+    gauge: census.zero,
+    physical: census.nonzero,
+    minPhysical: census.minNonzero,
+  }
 }
 
 export function photonStudy(input: { side: number }): {
@@ -34,7 +45,9 @@ export function photonStudy(input: { side: number }): {
   massiveMinOmega2: number
 } {
   const free = summarize(maxwellSpectrum({ side: input.side, mass: 0 }))
-  const massive = summarize(maxwellSpectrum({ side: input.side, mass: 1 }))
+  const massive = summarize(
+    maxwellSpectrum({ side: input.side, mass: 1 }),
+  )
   return {
     side: input.side,
     dof: 3 * input.side ** 3,

@@ -23,7 +23,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import { staggeredMassCubicHamiltonian } from '@/code/operator/tight-binding'
 import { freeFermionCorrelationMatrix } from '@/code/measure/entanglement'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
-import { screenBitSeries, logLogExponent } from '@/code/measure/entropic-gravity'
+import {
+  screenBitSeries,
+  logLogExponent,
+} from '@/code/measure/entropic-gravity'
 
 const AREA_SIDE = 8
 const GAP_SIDE = 6
@@ -33,23 +36,39 @@ const MASSES = [0.4, 0.8, 1.2, 1.6]
 // the half-filling spectral gap of the staggered-mass cubic fermion, the Dirac gap
 function spectralGap(mass: number): number {
   const n = GAP_SIDE ** 3
-  const h = staggeredMassCubicHamiltonian({ side: GAP_SIDE, mass, periodic: true })
-  const values = [...eigSymmetric({ matrix: h }).values].sort((a, b) => a - b)
+  const h = staggeredMassCubicHamiltonian({
+    side: GAP_SIDE,
+    mass,
+    periodic: true,
+  })
+  const values = [...eigSymmetric({ matrix: h }).values].sort(
+    (a, b) => a - b,
+  )
   return values[n / 2]! - values[n / 2 - 1]!
 }
 
 // the area-law exponent of the gapped ground state at a given mass
 function areaExponent(mass: number): number {
   const n = AREA_SIDE ** 3
-  const h = staggeredMassCubicHamiltonian({ side: AREA_SIDE, mass, periodic: true })
+  const h = staggeredMassCubicHamiltonian({
+    side: AREA_SIDE,
+    mass,
+    periodic: true,
+  })
   const c = freeFermionCorrelationMatrix({ h, n })
-  const series = screenBitSeries({ c, n, side: AREA_SIDE, radii: RADII })
+  const series = screenBitSeries({
+    c,
+    n,
+    side: AREA_SIDE,
+    radii: RADII,
+  })
   return logLogExponent(series.radii, series.bits)
 }
 
 export default experiment({
   id: 'gravity/area-law-universality',
-  title: 'the area law is universal across gapped masses and the proxy is a relativistic Dirac field, so it is the knit emergent field, not an arbitrary stand-in',
+  title:
+    'the area law is universal across gapped masses and the proxy is a relativistic Dirac field, so it is the knit emergent field, not an arbitrary stand-in',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -57,12 +76,14 @@ export default experiment({
   run() {
     // 1. the area-law exponent across gapped masses, it should be universal (mass-independent, near two)
     const exponents = MASSES.map(areaExponent)
-    const exponentSpread = Math.max(...exponents) - Math.min(...exponents)
+    const exponentSpread =
+      Math.max(...exponents) - Math.min(...exponents)
 
     // 2. the spectral gap is exactly twice the mass (a relativistic Dirac gap), the proxy is a massive Dirac field
     const gaps = MASSES.map(spectralGap)
     const gapRatios = gaps.map((g, i) => g / MASSES[i]!)
-    const gapRatioSpread = Math.max(...gapRatios) - Math.min(...gapRatios)
+    const gapRatioSpread =
+      Math.max(...gapRatios) - Math.min(...gapRatios)
 
     // the control, the massless field is gapless (gap zero), the boundary of the gapped universality class
     const masslessGap = spectralGap(0)
@@ -70,8 +91,10 @@ export default experiment({
     // the area law is universal (the exponent near two and barely moving with mass), the gap is the Dirac gap
     // (twice the mass, the ratio constant near two), and the massless control is gapless
     const universalExponent =
-      exponents.every((e) => e > 1.7 && e < 2.1) && exponentSpread < 0.15
-    const diracGap = gapRatios.every((r) => Math.abs(r - 2) < 0.05) && gapRatioSpread < 0.05
+      exponents.every(e => e > 1.7 && e < 2.1) && exponentSpread < 0.15
+    const diracGap =
+      gapRatios.every(r => Math.abs(r - 2) < 0.05) &&
+      gapRatioSpread < 0.05
     const masslessIsGapless = masslessGap < 1e-6
     const ok = universalExponent && diracGap && masslessIsGapless
 

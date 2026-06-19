@@ -22,7 +22,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function nestedSelves(input: { seed: number }): {
-  byFraction: { fraction: number; cellRecovery: number; bodyIntegrity: number }[]
+  byFraction: {
+    fraction: number
+    cellRecovery: number
+    bodyIntegrity: number
+  }[]
   smallWoundHeals: number
   wholeCellPersists: number
   bodyIntegrity: number
@@ -31,11 +35,23 @@ export function nestedSelves(input: { seed: number }): {
   const numCells = 30
   const cellSize = 24
   const rng = makeRng({ seed: input.seed })
-  const { g, fills, cellOf } = modularMesh({ numCells, cellSize, intraDegree: 6, interPerCell: 2, rng })
+  const { g, fills, cellOf } = modularMesh({
+    numCells,
+    cellSize,
+    intraDegree: 6,
+    interPerCell: 2,
+    rng,
+  })
 
   // The body's coherent self: all cells aligned. Converge to confirm it is a fixed point.
   let base = new Int8Array(g.size).fill(1)
-  base = settleAsync({ graph: g, fills, init: base, sweeps: 40, rng: makeRng({ seed: input.seed + 1 }) }).state
+  base = settleAsync({
+    graph: g,
+    fills,
+    init: base,
+    sweeps: 40,
+    rng: makeRng({ seed: input.seed + 1 }),
+  }).state
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
   for (let v = 0; v < g.size; v++) members[cellOf[v] ?? 0]?.push(v)
@@ -44,20 +60,28 @@ export function nestedSelves(input: { seed: number }): {
   // to the body's pattern (absorbed) and how intact the rest of the body stays. Average over
   // several cells.
   const fractions = [0.1, 0.25, 0.5, 0.75, 1.0]
-  const byFraction = fractions.map((fraction) => {
+  const byFraction = fractions.map(fraction => {
     const recs: number[] = []
     const integ: number[] = []
     for (let c = 0; c < numCells; c++) {
       const mem = members[c] ?? []
       const k = Math.max(1, Math.round(fraction * mem.length))
-      const pr = makeRng({ seed: input.seed + 1000 * c + Math.round(fraction * 100) })
+      const pr = makeRng({
+        seed: input.seed + 1000 * c + Math.round(fraction * 100),
+      })
       const perturbed = Int8Array.from(base)
       // flip the first k members (order is arbitrary and fixed, so reproducible)
       for (let i = 0; i < k; i++) {
         const v = mem[i] ?? 0
-        perturbed[v] = (-(base[v] ?? 0)) as -1 | 0 | 1
+        perturbed[v] = -(base[v] ?? 0) as -1 | 0 | 1
       }
-      const settled = settleAsync({ graph: g, fills, init: perturbed, sweeps: 50, rng: pr }).state
+      const settled = settleAsync({
+        graph: g,
+        fills,
+        init: perturbed,
+        sweeps: 50,
+        rng: pr,
+      }).state
       let cellBack = 0
       for (const v of mem) if (settled[v] === base[v]) cellBack++
       recs.push(cellBack / mem.length)
@@ -71,14 +95,27 @@ export function nestedSelves(input: { seed: number }): {
       }
       integ.push(bodySame / Math.max(1, bodyTot))
     }
-    const mean = (a: number[]): number => a.reduce((x, y) => x + y, 0) / a.length
-    return { fraction, cellRecovery: mean(recs), bodyIntegrity: mean(integ) }
+    const mean = (a: number[]): number =>
+      a.reduce((x, y) => x + y, 0) / a.length
+    return {
+      fraction,
+      cellRecovery: mean(recs),
+      bodyIntegrity: mean(integ),
+    }
   })
 
-  const at = (f: number): { cellRecovery: number; bodyIntegrity: number } => byFraction.find((b) => b.fraction === f) ?? { cellRecovery: NaN, bodyIntegrity: NaN }
+  const at = (
+    f: number,
+  ): { cellRecovery: number; bodyIntegrity: number } =>
+    byFraction.find(b => b.fraction === f) ?? {
+      cellRecovery: NaN,
+      bodyIntegrity: NaN,
+    }
   const smallWoundHeals = at(0.1).cellRecovery
   const wholeCellPersists = at(1.0).cellRecovery
-  const bodyIntegrity = byFraction.reduce((s, b) => s + b.bodyIntegrity, 0) / byFraction.length
+  const bodyIntegrity =
+    byFraction.reduce((s, b) => s + b.bodyIntegrity, 0) /
+    byFraction.length
 
   return {
     byFraction,
@@ -87,13 +124,17 @@ export function nestedSelves(input: { seed: number }): {
     bodyIntegrity,
     // Solved: a small wound heals (homeostasis), a whole-cell flip persists (autonomy), and
     // the body away from the wound is undisturbed (the higher self keeps its identity).
-    solved: smallWoundHeals > 0.85 && wholeCellPersists < 0.2 && bodyIntegrity > 0.95,
+    solved:
+      smallWoundHeals > 0.85 &&
+      wholeCellPersists < 0.2 &&
+      bodyIntegrity > 0.95,
   }
 }
 
 export default experiment({
   id: 'selves/nested-selves',
-  title: 'small wounds heal, whole-cell flips persist, body stays intact',
+  title:
+    'small wounds heal, whole-cell flips persist, body stays intact',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',

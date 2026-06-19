@@ -37,26 +37,38 @@ export function generationFamilySymmetry(): {
   const family = permutations(3) // S_3, the candidate family symmetry of the three slots
 
   // (1) every slot permutation is a genuine Jordan automorphism (verified on test elements)
-  const allAreAutomorphisms = family.every((perm) => isJordanAutomorphism(perm))
+  const allAreAutomorphisms = family.every(perm =>
+    isJordanAutomorphism(perm),
+  )
 
   // (2) the cyclic generator sends E0 -> E1 -> E2 -> E0, the generation triality
   const cyclic = [1, 2, 0]
   const cyclicPermutesFrame =
-    octonionMatrixEquals(permutationConjugate(frame[0]!, cyclic), frame[1]!) &&
-    octonionMatrixEquals(permutationConjugate(frame[1]!, cyclic), frame[2]!) &&
-    octonionMatrixEquals(permutationConjugate(frame[2]!, cyclic), frame[0]!)
+    octonionMatrixEquals(
+      permutationConjugate(frame[0]!, cyclic),
+      frame[1]!,
+    ) &&
+    octonionMatrixEquals(
+      permutationConjugate(frame[1]!, cyclic),
+      frame[2]!,
+    ) &&
+    octonionMatrixEquals(
+      permutationConjugate(frame[2]!, cyclic),
+      frame[0]!,
+    )
 
   // (3) it has order 3: three applications return to the start
   let cycled = frame[0]!
-  for (let k = 0; k < 3; k++) cycled = permutationConjugate(cycled, cyclic)
+  for (let k = 0; k < 3; k++)
+    cycled = permutationConjugate(cycled, cyclic)
   const cyclicHasOrderThree = octonionMatrixEquals(cycled, frame[0]!)
 
   // (4) THE HONEST GAP: the three slots are degenerate, the algebra distinguishes none of them.
   // Every frame idempotent has the same trace 1 (and the same rank and norm), so there is no
   // algebraic label that makes them three DIFFERENT generations.
-  const traces = frame.map((e) => octonionMatrixTrace(e))
+  const traces = frame.map(e => octonionMatrixTrace(e))
   const slotsAreDegenerate =
-    traces.every((t) => Math.abs(t - 1) < 1e-9) &&
+    traces.every(t => Math.abs(t - 1) < 1e-9) &&
     Math.abs(traces[0]! - traces[1]!) < 1e-9 &&
     Math.abs(traces[1]! - traces[2]!) < 1e-9
 
@@ -75,7 +87,8 @@ export function generationFamilySymmetry(): {
 
 export default experiment({
   id: 'spin/generation-family-symmetry-3434',
-  title: 'the three Jordan slots carry an exact S3 family symmetry but stay degenerate, so three distinct generations is not established',
+  title:
+    'the three Jordan slots carry an exact S3 family symmetry but stay degenerate, so three distinct generations is not established',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L1',
@@ -101,10 +114,11 @@ export default experiment({
         cyclicPermutesFrame: r.cyclicPermutesFrame ? 1 : 0,
         cyclicHasOrderThree: r.cyclicHasOrderThree ? 1 : 0,
         slotsAreDegenerate: r.slotsAreDegenerate ? 1 : 0,
-        threeDistinctGenerationsEstablished: r.threeDistinctGenerationsEstablished ? 1 : 0,
+        threeDistinctGenerationsEstablished:
+          r.threeDistinctGenerationsEstablished ? 1 : 0,
       },
       notes:
-        'L1, known math (S3 acting on the Jordan frame by automorphisms). This is the NEXT necessary condition for the generation reading beyond spin/generations-f4-jordan (which forced rank three): a family symmetry relating the three slots, here verified exact. The HONEST GAP, surfaced by the same computation, is that the exactness of the S3 makes the three slots DEGENERATE, the algebra supplies no label to tell them apart, so three identical slots are not three different generations. The breaking that would split them is a dynamical mechanism the bare algebra does not contain, which is Boyle\'s open conjecture. Reported as partial, the generation count and the splitting remain the open frontier.',
+        "L1, known math (S3 acting on the Jordan frame by automorphisms). This is the NEXT necessary condition for the generation reading beyond spin/generations-f4-jordan (which forced rank three): a family symmetry relating the three slots, here verified exact. The HONEST GAP, surfaced by the same computation, is that the exactness of the S3 makes the three slots DEGENERATE, the algebra supplies no label to tell them apart, so three identical slots are not three different generations. The breaking that would split them is a dynamical mechanism the bare algebra does not contain, which is Boyle's open conjecture. Reported as partial, the generation count and the splitting remain the open frontier.",
     })
   },
 })

@@ -25,11 +25,15 @@ import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { d4Mesh } from '@/code/tool/mesh'
 import { boundStateDecayExponent } from '@/code/measure/localization'
-import { growthRatioFromShellCounts, shellCountsFromGraph } from '@/code/measure/shell-growth'
+import {
+  growthRatioFromShellCounts,
+  shellCountsFromGraph,
+} from '@/code/measure/shell-growth'
 
 export default experiment({
   id: 'gauge/warped-cusp-hierarchy',
-  title: 'the fermion mass hierarchy is the warped-cusp (Randall-Sundrum) mechanism, brane Yukawas suppressed by powers of the bulk warp factor lambda per depth, the flat bulk (degenerate) the control',
+  title:
+    'the fermion mass hierarchy is the warped-cusp (Randall-Sundrum) mechanism, brane Yukawas suppressed by powers of the bulk warp factor lambda per depth, the flat bulk (degenerate) the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L3',
@@ -38,7 +42,10 @@ export default experiment({
     // the warped hyperbolic bulk and its growth rate (the warp factor)
     const addressing = buildAddressing({ maxCells: 40000 })
     const warpFactor = growthRatioFromShellCounts(
-      shellCountsFromGraph({ neighbors: addressing.graph.neighbors, cellCount: addressing.graph.cellCount }),
+      shellCountsFromGraph({
+        neighbors: addressing.graph.neighbors,
+        cellCount: addressing.graph.cellCount,
+      }),
     ).ratio
 
     // a fermion profile in the warped bulk, its brane Yukawa by warp depth is the bound-state amplitude per shell
@@ -50,16 +57,21 @@ export default experiment({
       maxDegree: 24,
       iterations: 2500,
     })
-    const braneYukawa = warped.perShellAmplitude.map((v) => v / warped.perShellAmplitude[0]!)
+    const braneYukawa = warped.perShellAmplitude.map(
+      v => v / warped.perShellAmplitude[0]!,
+    )
     // brane Yukawas fall geometrically with warp depth, the mass ratios are powers of lambda
     const yukawaFallsWithDepth =
-      braneYukawa.length > 2 && braneYukawa[1]! < braneYukawa[0]! && braneYukawa[2]! < braneYukawa[1]!
+      braneYukawa.length > 2 &&
+      braneYukawa[1]! < braneYukawa[0]! &&
+      braneYukawa[2]! < braneYukawa[1]!
     const ratio01 = braneYukawa[0]! / braneYukawa[1]!
     const ratio12 = braneYukawa[1]! / braneYukawa[2]!
     const exponent01 = Math.log(ratio01) / Math.log(warpFactor)
     const exponent12 = Math.log(ratio12) / Math.log(warpFactor)
     // the warp suppression per depth is a consistent power of lambda (geometric, not erratic)
-    const consistentPower = Math.abs(exponent01 - exponent12) < 0.15 && exponent01 > 0.4
+    const consistentPower =
+      Math.abs(exponent01 - exponent12) < 0.15 && exponent01 > 0.4
 
     // the control, a flat D4 bulk gives a brane Yukawa that flattens with depth (degenerate, no hierarchy)
     const side = 14
@@ -67,7 +79,8 @@ export default experiment({
     const flatNeighbors: number[][] = []
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       const row: number[] = []
-      for (let direction = 0; direction < mesh.degree; direction++) row.push(mesh.neighbour(cell, direction))
+      for (let direction = 0; direction < mesh.degree; direction++)
+        row.push(mesh.neighbour(cell, direction))
       flatNeighbors.push(row)
     }
     const flat = boundStateDecayExponent({
@@ -78,12 +91,16 @@ export default experiment({
       maxDegree: mesh.degree,
       iterations: 2500,
     })
-    const flatYukawa = flat.perShellAmplitude.map((v) => v / flat.perShellAmplitude[0]!)
+    const flatYukawa = flat.perShellAmplitude.map(
+      v => v / flat.perShellAmplitude[0]!,
+    )
     // the flat brane Yukawa flattens, adjacent deep ratios are near one (degenerate)
-    const flatDeepRatio = flatYukawa.length > 4 ? flatYukawa[3]! / flatYukawa[4]! : 1
+    const flatDeepRatio =
+      flatYukawa.length > 4 ? flatYukawa[3]! / flatYukawa[4]! : 1
     const flatIsDegenerate = Math.abs(flatDeepRatio - 1) < 0.1
 
-    const ok = yukawaFallsWithDepth && consistentPower && flatIsDegenerate
+    const ok =
+      yukawaFallsWithDepth && consistentPower && flatIsDegenerate
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -96,7 +113,11 @@ export default experiment({
         warpExponentDepth01: Number(exponent01.toFixed(3)),
         warpExponentDepth12: Number(exponent12.toFixed(3)),
         flatYukawaDepth1: Number(flatYukawa[1]!.toFixed(3)),
-        flatYukawaDepth4: Number((flatYukawa[4] ?? flatYukawa[flatYukawa.length - 1]!).toFixed(3)),
+        flatYukawaDepth4: Number(
+          (flatYukawa[4] ?? flatYukawa[flatYukawa.length - 1]!).toFixed(
+            3,
+          ),
+        ),
         flatDeepRatio: Number(flatDeepRatio.toFixed(4)),
       },
       control: {

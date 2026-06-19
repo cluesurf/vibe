@@ -9,42 +9,131 @@ import { surveyTessellation } from '@/code/measure/tessellation-survey'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-type Cand = { sym: number[]; cls: 'compact' | 'paracompact' | 'noncompact' | 'euclidean'; coin: string; flat?: boolean; note: string }
+type Cand = {
+  sym: number[]
+  cls: 'compact' | 'paracompact' | 'noncompact' | 'euclidean'
+  coin: string
+  flat?: boolean
+  note: string
+}
 const HONEYCOMBS: Cand[] = [
   // the substrate and its closest relatives
-  { sym: [3, 4, 3, 4], cls: 'paracompact', coin: '24-cell (D4!)', note: 'THE SUBSTRATE, 24-cell facets, cubic-honeycomb cusp (hyperbolic D4)' },
-  { sym: [3, 4, 3, 3], cls: 'euclidean', coin: '24-cell (D4!)', flat: true, note: 'FLAT D4 (Euclidean 24-cell honeycomb), curvature contrast to {3,4,3,4}' },
-  { sym: [4, 3, 4, 3], cls: 'paracompact', coin: 'cubic-honeycomb', note: 'cubic honeycomb tetracomb, DUAL of {3,4,3,4}' },
-  { sym: [3, 4, 6, 4], cls: 'paracompact', coin: 'exotic', note: 'Petrial, abstract regular, has a 6' },
-  { sym: [4, 4, 3, 3], cls: 'noncompact', coin: 'square-tiling', note: 'square tiling honeycomb tetracomb' },
-  { sym: [4, 4, 4, 4], cls: 'noncompact', coin: 'square-tiling', note: 'order-4-4 square tiling, self-dual' },
-  { sym: [4, 3, 3, 4], cls: 'euclidean', coin: 'tesseract', flat: true, note: 'FLAT Z^4 (Euclidean tesseractic), curvature contrast' },
+  {
+    sym: [3, 4, 3, 4],
+    cls: 'paracompact',
+    coin: '24-cell (D4!)',
+    note: 'THE SUBSTRATE, 24-cell facets, cubic-honeycomb cusp (hyperbolic D4)',
+  },
+  {
+    sym: [3, 4, 3, 3],
+    cls: 'euclidean',
+    coin: '24-cell (D4!)',
+    flat: true,
+    note: 'FLAT D4 (Euclidean 24-cell honeycomb), curvature contrast to {3,4,3,4}',
+  },
+  {
+    sym: [4, 3, 4, 3],
+    cls: 'paracompact',
+    coin: 'cubic-honeycomb',
+    note: 'cubic honeycomb tetracomb, DUAL of {3,4,3,4}',
+  },
+  {
+    sym: [3, 4, 6, 4],
+    cls: 'paracompact',
+    coin: 'exotic',
+    note: 'Petrial, abstract regular, has a 6',
+  },
+  {
+    sym: [4, 4, 3, 3],
+    cls: 'noncompact',
+    coin: 'square-tiling',
+    note: 'square tiling honeycomb tetracomb',
+  },
+  {
+    sym: [4, 4, 4, 4],
+    cls: 'noncompact',
+    coin: 'square-tiling',
+    note: 'order-4-4 square tiling, self-dual',
+  },
+  {
+    sym: [4, 3, 3, 4],
+    cls: 'euclidean',
+    coin: 'tesseract',
+    flat: true,
+    note: 'FLAT Z^4 (Euclidean tesseractic), curvature contrast',
+  },
   // 5 compact convex regulars (all contain a 5 -> non-crystallographic)
-  { sym: [3, 3, 3, 5], cls: 'compact', coin: '5-cell', note: 'pente, tetrahedra / 5-cells' },
-  { sym: [5, 3, 3, 3], cls: 'compact', coin: '600-cell', note: 'hitte, 120-cells / 600-cells' },
-  { sym: [4, 3, 3, 5], cls: 'compact', coin: 'tesseract', note: 'pitest, cubes / tesseracts' },
-  { sym: [5, 3, 3, 4], cls: 'compact', coin: '120-cell', note: 'shitte, 120-cells' },
-  { sym: [5, 3, 3, 5], cls: 'compact', coin: '120-cell', note: 'phitte, 120-cells' },
+  {
+    sym: [3, 3, 3, 5],
+    cls: 'compact',
+    coin: '5-cell',
+    note: 'pente, tetrahedra / 5-cells',
+  },
+  {
+    sym: [5, 3, 3, 3],
+    cls: 'compact',
+    coin: '600-cell',
+    note: 'hitte, 120-cells / 600-cells',
+  },
+  {
+    sym: [4, 3, 3, 5],
+    cls: 'compact',
+    coin: 'tesseract',
+    note: 'pitest, cubes / tesseracts',
+  },
+  {
+    sym: [5, 3, 3, 4],
+    cls: 'compact',
+    coin: '120-cell',
+    note: 'shitte, 120-cells',
+  },
+  {
+    sym: [5, 3, 3, 5],
+    cls: 'compact',
+    coin: '120-cell',
+    note: 'phitte, 120-cells',
+  },
 ]
 
 const SCALE = 25000
 const SURVEY_SCALE = 1200
 
-function measure(sym: number[], flat: boolean, scale: number = SCALE): { ok: boolean; cells: number; degree: number; growth: number; betheAlpha: number } {
-  return surveyTessellation({ symbol: sym, flat, maxCells: scale, growthFrom: 2, growthTo: 6 })
+function measure(
+  sym: number[],
+  flat: boolean,
+  scale: number = SCALE,
+): {
+  ok: boolean
+  cells: number
+  degree: number
+  growth: number
+  betheAlpha: number
+} {
+  return surveyTessellation({
+    symbol: sym,
+    flat,
+    maxCells: scale,
+    growthFrom: 2,
+    growthTo: 6,
+  })
 }
 
 export function fourdTessellations(): void {
   for (const c of HONEYCOMBS) {
-    const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
+    const crystallographic = c.sym.every(
+      n => n === 3 || n === 4 || n === 6,
+    )
     const m = measure(c.sym, c.flat ?? false, SURVEY_SCALE)
-    const built = m.ok ? `degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}` : 'does not build (ideal tiles)'
+    const built = m.ok
+      ? `degree ${m.degree}, growth ${m.growth}, Bethe 1/r^${m.betheAlpha}`
+      : 'does not build (ideal tiles)'
   }
 }
 
 export default experiment({
   id: 'substrate-survey/4d-tessellations',
-  title: 'a sweep of 4D regular honeycombs, all give 3D physical space and {3,4,3,4} is the unique D4-facet one',
+  title:
+    'a sweep of 4D regular honeycombs, all give 3D physical space and {3,4,3,4} is the unique D4-facet one',
   category: 'substrate-survey',
   substrates: 'any',
   depth: 'L1',
@@ -52,7 +141,9 @@ export default experiment({
   run() {
     fourdTessellations()
     const reference = measure([3, 4, 3, 4], false)
-    const crystallographic = [3, 4, 3, 4].every((n) => n === 3 || n === 4 || n === 6)
+    const crystallographic = [3, 4, 3, 4].every(
+      n => n === 3 || n === 4 || n === 6,
+    )
     const ok = reference.ok && reference.degree > 0 && crystallographic
     return verdict({
       status: ok ? 'pass' : 'fail',

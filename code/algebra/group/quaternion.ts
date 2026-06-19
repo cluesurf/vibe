@@ -10,16 +10,40 @@ export interface Quaternion {
   z: number
 }
 
-export function quaternion(w: number, x: number, y: number, z: number): Quaternion {
+export function quaternion(
+  w: number,
+  x: number,
+  y: number,
+  z: number,
+): Quaternion {
   return { w, x, y, z }
 }
 
-export function multiply(left: Quaternion, right: Quaternion): Quaternion {
+export function multiply(
+  left: Quaternion,
+  right: Quaternion,
+): Quaternion {
   return {
-    w: left.w * right.w - left.x * right.x - left.y * right.y - left.z * right.z,
-    x: left.w * right.x + left.x * right.w + left.y * right.z - left.z * right.y,
-    y: left.w * right.y - left.x * right.z + left.y * right.w + left.z * right.x,
-    z: left.w * right.z + left.x * right.y - left.y * right.x + left.z * right.w,
+    w:
+      left.w * right.w -
+      left.x * right.x -
+      left.y * right.y -
+      left.z * right.z,
+    x:
+      left.w * right.x +
+      left.x * right.w +
+      left.y * right.z -
+      left.z * right.y,
+    y:
+      left.w * right.y -
+      left.x * right.z +
+      left.y * right.w +
+      left.z * right.x,
+    z:
+      left.w * right.z +
+      left.x * right.y -
+      left.y * right.x +
+      left.z * right.w,
   }
 }
 
@@ -32,7 +56,11 @@ export function negate(value: Quaternion): Quaternion {
   return { w: -value.w, x: -value.x, y: -value.y, z: -value.z }
 }
 
-export function equals(left: Quaternion, right: Quaternion, tolerance = 1e-9): boolean {
+export function equals(
+  left: Quaternion,
+  right: Quaternion,
+  tolerance = 1e-9,
+): boolean {
   return (
     Math.abs(left.w - right.w) < tolerance &&
     Math.abs(left.x - right.x) < tolerance &&
@@ -81,15 +109,24 @@ export function binaryIcosahedral(): Quaternion[] {
   const positions = [0, 1, 2, 3]
   for (const order of evenPermutations(positions)) {
     const base = [0, 0, 0, 0]
-    for (let index = 0; index < 4; index++) base[order[index]!] = magnitudes[index]!
+    for (let index = 0; index < 4; index++)
+      base[order[index]!] = magnitudes[index]!
     const zeroSlot = order[3]!
-    const nonzero = positions.filter((position) => position !== zeroSlot)
+    const nonzero = positions.filter(position => position !== zeroSlot)
     for (let signMask = 0; signMask < 8; signMask++) {
       const components = [...base]
       for (let bit = 0; bit < 3; bit++) {
-        if ((signMask >> bit) & 1) components[nonzero[bit]!] = -components[nonzero[bit]!]!
+        if ((signMask >> bit) & 1)
+          components[nonzero[bit]!] = -components[nonzero[bit]!]!
       }
-      units.push(quaternion(components[0]!, components[1]!, components[2]!, components[3]!))
+      units.push(
+        quaternion(
+          components[0]!,
+          components[1]!,
+          components[2]!,
+          components[3]!,
+        ),
+      )
     }
   }
   return units
@@ -104,7 +141,10 @@ export function evenPermutations(items: number[]): number[][] {
       return
     }
     for (let index = 0; index < rest.length; index++) {
-      recurse([...current, rest[index]!], rest.filter((_, other) => other !== index))
+      recurse(
+        [...current, rest[index]!],
+        rest.filter((_, other) => other !== index),
+      )
     }
   }
   recurse([], items)
@@ -123,6 +163,7 @@ function permutationParity(permutation: number[]): number {
 
 // A canonical rounded key for a unit quaternion, for membership and closure tests.
 export function quaternionKey(value: Quaternion): string {
-  const round = (component: number): number => Math.round(component * 1e6)
+  const round = (component: number): number =>
+    Math.round(component * 1e6)
   return `${round(value.w)},${round(value.x)},${round(value.y)},${round(value.z)}`
 }

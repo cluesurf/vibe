@@ -14,11 +14,19 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeWaveField, stepWaveField, doubleWellAccel, fieldMaxAbs, domainWallCount, type WaveField } from '@/code/dynamics/wave-field'
+import {
+  makeWaveField,
+  stepWaveField,
+  doubleWellAccel,
+  fieldMaxAbs,
+  domainWallCount,
+  type WaveField,
+} from '@/code/dynamics/wave-field'
 
 export default experiment({
   id: 'selves/discrete-kink-unstable',
-  title: 'the discrete sine-Gordon kink is unstable: a bounded force shatters it, an unbounded force blows it up',
+  title:
+    'the discrete sine-Gordon kink is unstable: a bounded force shatters it, an unbounded force blows it up',
   category: 'selves',
   substrates: ['integer-field'],
   depth: 'L2',
@@ -30,26 +38,60 @@ export default experiment({
     const center = size / 2
 
     // a kink at rest, the left vacuum is minus the amplitude, the right is plus, a sharp wall at the center.
-    const kink = (): WaveField => makeWaveField({ size, fill: x => (x < center ? -amplitude : amplitude) })
+    const kink = (): WaveField =>
+      makeWaveField({
+        size,
+        fill: x => (x < center ? -amplitude : amplitude),
+      })
 
     // bounded (saturating) force, the field stays bounded but shatters into many walls.
     let bounded: WaveField = kink()
-    const boundedAccel = doubleWellAccel({ amplitude, saturating: true })
-    for (let t = 0; t < steps; t++) bounded = stepWaveField({ field: bounded, accel: boundedAccel, boundary: { form: 'absorbing', left: -amplitude, right: amplitude } })
+    const boundedAccel = doubleWellAccel({
+      amplitude,
+      saturating: true,
+    })
+    for (let t = 0; t < steps; t++)
+      bounded = stepWaveField({
+        field: bounded,
+        accel: boundedAccel,
+        boundary: {
+          form: 'absorbing',
+          left: -amplitude,
+          right: amplitude,
+        },
+      })
     const boundedWalls = domainWallCount(bounded.curr)
     const boundedMaxAbs = fieldMaxAbs(bounded.curr)
 
     // unbounded (linear pull-back) force on a SMOOTH ramp kink, the field magnitude runs away. (A sharp kink stays
     // within the vacua and only shatters, the runaway needs intermediate values to trigger the linear branch.)
-    const ramp = (): WaveField => makeWaveField({ size, fill: x => Math.max(-amplitude, Math.min(amplitude, x - center)) })
+    const ramp = (): WaveField =>
+      makeWaveField({
+        size,
+        fill: x =>
+          Math.max(-amplitude, Math.min(amplitude, x - center)),
+      })
     let unbounded: WaveField = ramp()
-    const unboundedAccel = doubleWellAccel({ amplitude, saturating: false })
-    for (let t = 0; t < steps; t++) unbounded = stepWaveField({ field: unbounded, accel: unboundedAccel, boundary: { form: 'absorbing', left: -amplitude, right: amplitude } })
+    const unboundedAccel = doubleWellAccel({
+      amplitude,
+      saturating: false,
+    })
+    for (let t = 0; t < steps; t++)
+      unbounded = stepWaveField({
+        field: unbounded,
+        accel: unboundedAccel,
+        boundary: {
+          form: 'absorbing',
+          left: -amplitude,
+          right: amplitude,
+        },
+      })
     const unboundedMaxAbs = fieldMaxAbs(unbounded.curr)
 
     // the honest negative, the bounded scheme shatters (far more than one wall) and the unbounded scheme blows up
     // (magnitude far above the vacuum). Neither gives a stable kink. PASS means we demonstrated the instability.
-    const boundedShatters = boundedWalls >= 10 && boundedMaxAbs <= 10 * amplitude
+    const boundedShatters =
+      boundedWalls >= 10 && boundedMaxAbs <= 10 * amplitude
     const unboundedBlowsUp = unboundedMaxAbs >= 100 * amplitude
     const ok = boundedShatters && unboundedBlowsUp
 

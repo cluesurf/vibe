@@ -26,7 +26,10 @@ const WARMUP = 80
 const MEASURE = 60
 const LAG = 12 // beats, the coarse pattern is compared with itself this many beats later
 
-export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
+export function radialCoherence(input?: {
+  n?: number
+  symbol?: number[]
+}): {
   n: number
   scales: number[]
   radialPersistence: number[]
@@ -115,7 +118,13 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   const tone = new Int8Array(N)
   const matched = new Uint8Array(N)
   const step = (f: number): void =>
-    perceptionMatchingSweepCsr({ tone, offsets: off, adj, matched, start: (f * 2654435761) % N })
+    perceptionMatchingSweepCsr({
+      tone,
+      offsets: off,
+      adj,
+      matched,
+      start: (f * 2654435761) % N,
+    })
   for (let f = 0; f < WARMUP; f++) step(f)
 
   // coarse field = mean tone per group, recorded each measure beat for radial and null at every scale
@@ -132,20 +141,36 @@ export function radialCoherence(input?: { n?: number; symbol?: number[] }): {
   }
 
   // persistence = mean over the window of the lag-LAG autocorrelation of the coarse field
-  const radialPersistence = SCALES.map((_, si) => lagAutocorrelation({ series: radialSeries[si]!, lag: LAG }))
-  const nullPersistence = SCALES.map((_, si) => lagAutocorrelation({ series: nullSeries[si]!, lag: LAG }))
+  const radialPersistence = SCALES.map((_, si) =>
+    lagAutocorrelation({ series: radialSeries[si]!, lag: LAG }),
+  )
+  const nullPersistence = SCALES.map((_, si) =>
+    lagAutocorrelation({ series: nullSeries[si]!, lag: LAG }),
+  )
 
   const last = SCALES.length - 1
-  const radialBeatsNull = radialPersistence[last]! > nullPersistence[last]! + 0.1
-  const coarseBeatsFine = radialPersistence[last]! > radialPersistence[0]! + 0.2
+  const radialBeatsNull =
+    radialPersistence[last]! > nullPersistence[last]! + 0.1
+  const coarseBeatsFine =
+    radialPersistence[last]! > radialPersistence[0]! + 0.2
   const solved = radialBeatsNull && coarseBeatsFine
 
-  return { n: N, scales: SCALES, radialPersistence, nullPersistence, groupCounts, radialBeatsNull, coarseBeatsFine, solved }
+  return {
+    n: N,
+    scales: SCALES,
+    radialPersistence,
+    nullPersistence,
+    groupCounts,
+    radialBeatsNull,
+    coarseBeatsFine,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'renormalization/radial-coherence',
-  title: 'coarse-graining up the {5,3,4} reflection tree does not build a persistence tower the fine scale lacks',
+  title:
+    'coarse-graining up the {5,3,4} reflection tree does not build a persistence tower the fine scale lacks',
   category: 'renormalization',
   substrates: ['534'],
   depth: 'L2',

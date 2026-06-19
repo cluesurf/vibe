@@ -31,7 +31,9 @@ export function hermitianOctonionDimension(n: number): number {
 }
 
 export function octonionMatrixZero(n: number): OctonionMatrix {
-  return Array.from({ length: n }, () => Array.from({ length: n }, () => octonionZero()))
+  return Array.from({ length: n }, () =>
+    Array.from({ length: n }, () => octonionZero()),
+  )
 }
 
 export function octonionMatrixIdentity(n: number): OctonionMatrix {
@@ -40,17 +42,28 @@ export function octonionMatrixIdentity(n: number): OctonionMatrix {
   return m
 }
 
-export function octonionMatrixAdd(a: OctonionMatrix, b: OctonionMatrix): OctonionMatrix {
-  return a.map((row, i) => row.map((entry, j) => octonionAdd(entry, b[i]![j]!)))
+export function octonionMatrixAdd(
+  a: OctonionMatrix,
+  b: OctonionMatrix,
+): OctonionMatrix {
+  return a.map((row, i) =>
+    row.map((entry, j) => octonionAdd(entry, b[i]![j]!)),
+  )
 }
 
-export function octonionMatrixScale(a: OctonionMatrix, scalar: number): OctonionMatrix {
-  return a.map((row) => row.map((entry) => octonionScale(entry, scalar)))
+export function octonionMatrixScale(
+  a: OctonionMatrix,
+  scalar: number,
+): OctonionMatrix {
+  return a.map(row => row.map(entry => octonionScale(entry, scalar)))
 }
 
 // Ordinary (non-associative) octonion matrix product. Order matters, since the octonions
 // do not associate, so this is NOT generally Hermitian even for Hermitian inputs.
-export function octonionMatrixMultiply(a: OctonionMatrix, b: OctonionMatrix): OctonionMatrix {
+export function octonionMatrixMultiply(
+  a: OctonionMatrix,
+  b: OctonionMatrix,
+): OctonionMatrix {
   const n = a.length
   const out = octonionMatrixZero(n)
   for (let i = 0; i < n; i++) {
@@ -67,37 +80,65 @@ export function octonionMatrixMultiply(a: OctonionMatrix, b: OctonionMatrix): Oc
 
 // The Jordan product A . B = (A B + B A) / 2. For Hermitian inputs this is again Hermitian,
 // and for n <= 3 it makes the Hermitian octonion matrices into a Jordan algebra.
-export function jordanProduct(a: OctonionMatrix, b: OctonionMatrix): OctonionMatrix {
+export function jordanProduct(
+  a: OctonionMatrix,
+  b: OctonionMatrix,
+): OctonionMatrix {
   return octonionMatrixScale(
-    octonionMatrixAdd(octonionMatrixMultiply(a, b), octonionMatrixMultiply(b, a)),
+    octonionMatrixAdd(
+      octonionMatrixMultiply(a, b),
+      octonionMatrixMultiply(b, a),
+    ),
     0.5,
   )
 }
 
 // The Hermitian conjugate transpose: transpose and conjugate every entry.
-export function octonionMatrixConjugateTranspose(a: OctonionMatrix): OctonionMatrix {
+export function octonionMatrixConjugateTranspose(
+  a: OctonionMatrix,
+): OctonionMatrix {
   const n = a.length
   const out = octonionMatrixZero(n)
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) out[j]![i] = octonionConjugate(a[i]![j]!)
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++)
+      out[j]![i] = octonionConjugate(a[i]![j]!)
   return out
 }
 
 export function octonionMatrixMaxAbs(a: OctonionMatrix): number {
   let worst = 0
-  for (const row of a) for (const entry of row) for (const x of entry) worst = Math.max(worst, Math.abs(x))
+  for (const row of a)
+    for (const entry of row)
+      for (const x of entry) worst = Math.max(worst, Math.abs(x))
   return worst
 }
 
-export function octonionMatrixEquals(a: OctonionMatrix, b: OctonionMatrix, tolerance = 1e-9): boolean {
+export function octonionMatrixEquals(
+  a: OctonionMatrix,
+  b: OctonionMatrix,
+  tolerance = 1e-9,
+): boolean {
   return octonionMatrixMaxAbs(octonionMatrixSubtract(a, b)) <= tolerance
 }
 
-export function octonionMatrixSubtract(a: OctonionMatrix, b: OctonionMatrix): OctonionMatrix {
-  return a.map((row, i) => row.map((entry, j) => octonionSubtract(entry, b[i]![j]!)))
+export function octonionMatrixSubtract(
+  a: OctonionMatrix,
+  b: OctonionMatrix,
+): OctonionMatrix {
+  return a.map((row, i) =>
+    row.map((entry, j) => octonionSubtract(entry, b[i]![j]!)),
+  )
 }
 
-export function isHermitian(a: OctonionMatrix, tolerance = 1e-9): boolean {
-  return octonionMatrixEquals(a, octonionMatrixConjugateTranspose(a), tolerance)
+export function isHermitian(
+  a: OctonionMatrix,
+  tolerance = 1e-9,
+): boolean {
+  return octonionMatrixEquals(
+    a,
+    octonionMatrixConjugateTranspose(a),
+    tolerance,
+  )
 }
 
 // The trace, the real part of the sum of the diagonal (the diagonal of a Hermitian matrix
@@ -109,12 +150,19 @@ export function octonionMatrixTrace(a: OctonionMatrix): number {
 }
 
 // An idempotent under the Jordan product: E . E = E.
-export function isJordanIdempotent(e: OctonionMatrix, tolerance = 1e-9): boolean {
+export function isJordanIdempotent(
+  e: OctonionMatrix,
+  tolerance = 1e-9,
+): boolean {
   return octonionMatrixEquals(jordanProduct(e, e), e, tolerance)
 }
 
 // Two idempotents are orthogonal when their Jordan product vanishes.
-export function areJordanOrthogonal(e: OctonionMatrix, f: OctonionMatrix, tolerance = 1e-9): boolean {
+export function areJordanOrthogonal(
+  e: OctonionMatrix,
+  f: OctonionMatrix,
+  tolerance = 1e-9,
+): boolean {
   return octonionMatrixMaxAbs(jordanProduct(e, f)) <= tolerance
 }
 
@@ -133,10 +181,13 @@ export function diagonalJordanFrame(n: number): OctonionMatrix[] {
 // (i<j) set to a basis imaginary unit chosen so the entries span several Fano lines (so the
 // non-associativity is actually exercised, not hidden in one associative quaternion line).
 // No randomness, the pattern is a fixed function of the indices and the variant.
-export function deterministicHermitian(n: number, variant: number): OctonionMatrix {
+export function deterministicHermitian(
+  n: number,
+  variant: number,
+): OctonionMatrix {
   const m = octonionMatrixZero(n)
   for (let i = 0; i < n; i++) {
-    m[i]![i] = octonionUnit(0).map((x) => x * (i + 1))
+    m[i]![i] = octonionUnit(0).map(x => x * (i + 1))
     for (let j = i + 1; j < n; j++) {
       const unit = ((i + 2 * j + 3 * variant) % 7) + 1 // one of e1..e7
       m[i]![j] = octonionUnit(unit)
@@ -149,7 +200,10 @@ export function deterministicHermitian(n: number, variant: number): OctonionMatr
 // The Jordan identity residual: the largest entry of (A . B) . (A . A) - A . (B . (A . A)).
 // Zero (to rounding) means the Jordan identity holds. It holds for every n <= 3 and fails
 // for n >= 4 over the octonions, which is the computed reason the structure is three-fold.
-export function jordanIdentityResidual(a: OctonionMatrix, b: OctonionMatrix): number {
+export function jordanIdentityResidual(
+  a: OctonionMatrix,
+  b: OctonionMatrix,
+): number {
   const aa = jordanProduct(a, a)
   const left = jordanProduct(jordanProduct(a, b), aa)
   const right = jordanProduct(a, jordanProduct(b, aa))
@@ -175,7 +229,11 @@ export function permutations(n: number): number[][] {
   const out: number[][] = []
   for (const sub of permutations(n - 1)) {
     for (let position = 0; position <= sub.length; position++) {
-      out.push([...sub.slice(0, position), n - 1, ...sub.slice(position)])
+      out.push([
+        ...sub.slice(0, position),
+        n - 1,
+        ...sub.slice(position),
+      ])
     }
   }
   return out
@@ -187,23 +245,34 @@ export function permutations(n: number): number[][] {
 // algebra: it preserves Hermiticity and the symmetrized product, and it sends the diagonal
 // frame idempotent E_i to E_{perm[i]}. For H_3(O) these are the S_3 family permutations of
 // the three slots, the generation (horizontal) symmetry of the substrate's exceptional algebra.
-export function permutationConjugate(matrix: OctonionMatrix, perm: number[]): OctonionMatrix {
+export function permutationConjugate(
+  matrix: OctonionMatrix,
+  perm: number[],
+): OctonionMatrix {
   const n = matrix.length
   const out = octonionMatrixZero(n)
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) out[perm[i]!]![perm[j]!] = matrix[i]![j]!
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++)
+      out[perm[i]!]![perm[j]!] = matrix[i]![j]!
   return out
 }
 
 // Whether a slot permutation acts as a Jordan automorphism on H_n(O): for deterministic test
 // elements A, B it must satisfy P(A . B) = P(A) . P(B). True for every permutation, this is
 // the verification, not an assumption.
-export function isJordanAutomorphism(perm: number[], tolerance = 1e-9): boolean {
+export function isJordanAutomorphism(
+  perm: number[],
+  tolerance = 1e-9,
+): boolean {
   const n = perm.length
   for (let variant = 0; variant < 3; variant++) {
     const a = deterministicHermitian(n, variant)
     const b = deterministicHermitian(n, variant + 1)
     const left = permutationConjugate(jordanProduct(a, b), perm)
-    const right = jordanProduct(permutationConjugate(a, perm), permutationConjugate(b, perm))
+    const right = jordanProduct(
+      permutationConjugate(a, perm),
+      permutationConjugate(b, perm),
+    )
     if (!octonionMatrixEquals(left, right, tolerance)) return false
   }
   return true

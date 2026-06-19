@@ -11,17 +11,29 @@ import { verdict } from '@/test/scaffold/verdict'
 // the rule gives the causal skeleton, the erasure code is an additional constraint on which reversible rule.
 
 // the reversible parity rule up a binary tree: a node's value is the XOR of its subtree's boundary leaves
-const subtreeParity = (level: number, offset: number, leaves: number[], branching: number): number => {
+const subtreeParity = (
+  level: number,
+  offset: number,
+  leaves: number[],
+  branching: number,
+): number => {
   if (level === 0) return leaves[offset]!
   let parity = 0
   const childSpan = branching ** (level - 1)
-  for (let c = 0; c < branching; c++) parity ^= subtreeParity(level - 1, offset + c * childSpan, leaves, branching)
+  for (let c = 0; c < branching; c++)
+    parity ^= subtreeParity(
+      level - 1,
+      offset + c * childSpan,
+      leaves,
+      branching,
+    )
   return parity
 }
 
 export default experiment({
   id: 'holography/holography-from-rule',
-  title: 'the bare reversible rule derives the causal wedge, but the erasure code needs the perfect-tensor constraint',
+  title:
+    'the bare reversible rule derives the causal wedge, but the erasure code needs the perfect-tensor constraint',
   category: 'holography',
   substrates: ['534'],
   depth: 'L2',
@@ -36,7 +48,12 @@ export default experiment({
     leaves[0] = logical // a deterministic boundary configuration with the right root parity
 
     // (1) DERIVED, the root (bulk) is recoverable from the FULL boundary it causally reaches (the wedge)
-    const rootFromFullBoundary = subtreeParity(depth, 0, leaves, branching)
+    const rootFromFullBoundary = subtreeParity(
+      depth,
+      0,
+      leaves,
+      branching,
+    )
     const recoverableFromWedge = rootFromFullBoundary === logical
 
     // the causal wedge of the root is the whole boundary, and a node at depth d reaches branching^(depth-d)
@@ -52,7 +69,10 @@ export default experiment({
     const genericRuleFailsErasure = rootAfterErasure !== logical
 
     // both halves of the honest finding hold: the wedge is derived, the erasure code is not free
-    const ok = recoverableFromWedge && wedgeGrowsWithDepth && genericRuleFailsErasure
+    const ok =
+      recoverableFromWedge &&
+      wedgeGrowsWithDepth &&
+      genericRuleFailsErasure
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -67,7 +87,10 @@ export default experiment({
       // CONTROL: the perfect-tensor [[5,1,3]] rule (happy-code-534) DOES recover from erasures, so the
       // difference between the bare reversible rule and the holographic code is exactly the perfect-tensor
       // constraint, which is the honest residual.
-      control: { perfectTensorRuleCorrectsErasure: 1, genericReversibleDoesNot: genericRuleFailsErasure ? 1 : 0 },
+      control: {
+        perfectTensorRuleCorrectsErasure: 1,
+        genericReversibleDoesNot: genericRuleFailsErasure ? 1 : 0,
+      },
       notes:
         'The honest PARTIAL resolution of the deepest residual. Causal-wedge holography (bulk from the boundary it reaches, wedge growing with depth) is DERIVED from reversibility plus locality. The erasure code (happy-tiling-534) is an additional constraint, the local rule must be a perfect tensor. So the bare rule gives the holographic skeleton, not the full code. Deriving a conserving rule that is ALSO a perfect tensor is the precise remaining question.',
     })

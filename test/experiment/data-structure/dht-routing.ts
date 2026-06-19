@@ -18,7 +18,8 @@ const commonPrefixLength = (a: number[], b: number[]): number => {
 
 export default experiment({
   id: 'data-structure/dht-routing',
-  title: 'DS5: DHT key lookup routes up to the common prefix and down in O(log N) hops, O(1) state',
+  title:
+    'DS5: DHT key lookup routes up to the common prefix and down in O(log N) hops, O(1) state',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L2',
@@ -33,9 +34,15 @@ export default experiment({
     for (let p = 0; p < pairs; p++) {
       const source = rng.nextInt({ max: cells })
       const target = rng.nextInt({ max: cells })
-      const lca = commonPrefixLength(a.address[source]!, a.address[target]!)
+      const lca = commonPrefixLength(
+        a.address[source]!,
+        a.address[target]!,
+      )
       // hops up from source to the LCA, then down to the target (Kademlia prefix routing)
-      const hops = a.address[source]!.length - lca + (a.address[target]!.length - lca)
+      const hops =
+        a.address[source]!.length -
+        lca +
+        (a.address[target]!.length - lca)
       sumHops += hops
       if (hops > maxHops) maxHops = hops
     }
@@ -46,10 +53,16 @@ export default experiment({
       status: logarithmicHops ? 'pass' : 'fail',
       claim:
         'a DHT lookup routes by the address prefix, up to the common ancestor and down to the target, in a logarithmic number of hops with each cell storing only its own address, no routing tables',
-      metrics: { cells, meanHops, maxHops, logarithmicHops: logarithmicHops ? 1 : 0 },
+      metrics: {
+        cells,
+        meanHops,
+        maxHops,
+        logarithmicHops: logarithmicHops ? 1 : 0,
+      },
       // CONTROL: a linear scan to find a key is O(N), the prefix routing is O(log N).
       control: { linearScanHops: cells, routingStatePerCell: 1 },
-      notes: 'DS5 of experiments/16. The prefix routing uses the same trie addresses as SS3 and SS1.',
+      notes:
+        'DS5 of experiments/16. The prefix routing uses the same trie addresses as SS3 and SS1.',
     })
   },
 })

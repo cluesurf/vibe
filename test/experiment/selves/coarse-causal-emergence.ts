@@ -12,13 +12,20 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { countMatrix, rowStochastic } from '@/code/coarse/transition-matrix'
-import { effectiveInformation, coarseGrainTpm } from '@/code/coarse/causal-emergence'
+import {
+  countMatrix,
+  rowStochastic,
+} from '@/code/coarse/transition-matrix'
+import {
+  effectiveInformation,
+  coarseGrainTpm,
+} from '@/code/coarse/causal-emergence'
 import { selfTrajectory, makeRng } from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/coarse-causal-emergence',
-  title: 'a structured coarse map keeps more effective information than a random one, measured on real self dynamics',
+  title:
+    'a structured coarse map keeps more effective information than a random one, measured on real self dynamics',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -26,25 +33,45 @@ export default experiment({
   run() {
     const fine = 16
     const macroCount = 4
-    const traj = selfTrajectory({ L: 64, beats: 800, bins: fine, seed: 24680 })
-    const micro = rowStochastic(countMatrix({ trajectory: traj.labels, stateCount: fine, lag: 1 }))
+    const traj = selfTrajectory({
+      L: 64,
+      beats: 800,
+      bins: fine,
+      seed: 24680,
+    })
+    const micro = rowStochastic(
+      countMatrix({
+        trajectory: traj.labels,
+        stateCount: fine,
+        lag: 1,
+      }),
+    )
     const eiMicro = effectiveInformation(micro)
 
     // structured map, merge each block of adjacent fine bins into one macro bin.
     const block = fine / macroCount
-    const spatialGroups = Array.from({ length: fine }, (_, i) => Math.floor(i / block))
-    const eiSpatial = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: spatialGroups }))
+    const spatialGroups = Array.from({ length: fine }, (_, i) =>
+      Math.floor(i / block),
+    )
+    const eiSpatial = effectiveInformation(
+      coarseGrainTpm({ tpm: micro, groups: spatialGroups }),
+    )
 
     // random map of the same coarseness, the control.
     const rng = makeRng(7777)
-    const randomGroups = Array.from({ length: fine }, (_, i) => i % macroCount)
+    const randomGroups = Array.from(
+      { length: fine },
+      (_, i) => i % macroCount,
+    )
     for (let i = fine - 1; i > 0; i--) {
       const j = Math.floor(rng.next() * (i + 1))
       const tmp = randomGroups[i]!
       randomGroups[i] = randomGroups[j]!
       randomGroups[j] = tmp
     }
-    const eiRandom = effectiveInformation(coarseGrainTpm({ tpm: micro, groups: randomGroups }))
+    const eiRandom = effectiveInformation(
+      coarseGrainTpm({ tpm: micro, groups: randomGroups }),
+    )
 
     const ok = eiSpatial > eiRandom + 0.02
     return verdict({

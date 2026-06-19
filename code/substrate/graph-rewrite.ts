@@ -13,22 +13,33 @@ export interface RewriteGraph {
 // (split an edge, add the centre, connect to the four corners) with no global coordinates. It converges to a
 // uniform 2D graph (dimension near 2, degree 4 in the bulk), a clean example that a simple deterministic rewrite
 // gives a DEFINITE emergent geometry that is NOT the 4D 24-regular dock.
-export function gridRefinementRewrite(generations: number): RewriteGraph {
+export function gridRefinementRewrite(
+  generations: number,
+): RewriteGraph {
   const side = Math.pow(2, generations) + 1
   const index = (x: number, y: number): number => y * side + x
   const nodeCount = side * side
-  const neighbors: number[][] = Array.from({ length: nodeCount }, () => [])
-  const link = (a: number, b: number): void => { neighbors[a]!.push(b); neighbors[b]!.push(a) }
-  for (let y = 0; y < side; y++) for (let x = 0; x < side; x++) {
-    if (x + 1 < side) link(index(x, y), index(x + 1, y))
-    if (y + 1 < side) link(index(x, y), index(x, y + 1))
+  const neighbors: number[][] = Array.from(
+    { length: nodeCount },
+    () => [],
+  )
+  const link = (a: number, b: number): void => {
+    neighbors[a]!.push(b)
+    neighbors[b]!.push(a)
   }
+  for (let y = 0; y < side; y++)
+    for (let x = 0; x < side; x++) {
+      if (x + 1 < side) link(index(x, y), index(x + 1, y))
+      if (y + 1 < side) link(index(x, y), index(x, y + 1))
+    }
   return { neighbors, nodeCount }
 }
 
 // The degree histogram of a graph, how many nodes have each degree. A uniform 24-regular graph (the dock) would
 // show a single bin at 24; a generic rewrite shows a spread or a different uniform degree.
-export function degreeHistogram(graph: RewriteGraph): Record<number, number> {
+export function degreeHistogram(
+  graph: RewriteGraph,
+): Record<number, number> {
   const histogram: Record<number, number> = {}
   for (const list of graph.neighbors) {
     const degree = list.length
@@ -43,7 +54,10 @@ export function bulkDegree(graph: RewriteGraph): number {
   let best = 0
   let bestCount = -1
   for (const [degree, count] of Object.entries(histogram)) {
-    if (count > bestCount) { bestCount = count; best = Number(degree) }
+    if (count > bestCount) {
+      bestCount = count
+      best = Number(degree)
+    }
   }
   return best
 }

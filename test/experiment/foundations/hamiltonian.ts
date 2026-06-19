@@ -43,15 +43,20 @@ function study(): {
   const perm = permutationOfRule({ rule, substrate, space })
   const h = hamiltonianFromPermutation({ perm })
   const levels = new Set(
-    Array.from(h.eigenvalues, (x) => Math.round(x * 1e6) / 1e6),
+    Array.from(h.eigenvalues, x => Math.round(x * 1e6) / 1e6),
   ).size
 
-  return { isPermutation: h.isPermutation, boundedBelow: h.boundedBelow, levels }
+  return {
+    isPermutation: h.isPermutation,
+    boundedBelow: h.boundedBelow,
+    levels,
+  }
 }
 
 export default experiment({
   id: 'foundations/hamiltonian',
-  title: 'a reversible cellular automaton gives a permutation Hamiltonian bounded below',
+  title:
+    'a reversible cellular automaton gives a permutation Hamiltonian bounded below',
   category: 'foundations',
   substrates: 'any',
   depth: 'L2',

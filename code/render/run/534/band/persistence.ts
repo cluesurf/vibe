@@ -9,7 +9,13 @@
 // Run: pnpm tsx code/gpu/render-persistence-anim.ts [free|maintained]   then task/render-video.sh
 
 import { buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
-import { toCSR, beat, sameSignNeighbors, discreteArrow, type Graph } from '@/code/model/self-kit'
+import {
+  toCSR,
+  beat,
+  sameSignNeighbors,
+  discreteArrow,
+  type Graph,
+} from '@/code/model/self-kit'
 import { encodePng } from '@/code/draw/png'
 import { writeFrame } from '@/code/draw/animation'
 import { makeRng } from '@/code/tool/rng'
@@ -18,7 +24,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 type Mode = 'free' | 'maintained' | 'autonomous'
-const MODE: Mode = process.argv[2] === 'maintained' ? 'maintained' : process.argv[2] === 'autonomous' ? 'autonomous' : 'free'
+const MODE: Mode =
+  process.argv[2] === 'maintained'
+    ? 'maintained'
+    : process.argv[2] === 'autonomous'
+      ? 'autonomous'
+      : 'free'
 const REPAIR_THRESHOLD = 5 // a hole with at least this many same-sign neighbours is locally interior to a self
 const MAX_BAND = 80000
 const HALF = 0.5
@@ -33,49 +44,76 @@ const SEED_DENSITY = 0.3 // background churn
 const SELF_SIZE = 1200 // cells in the seeded self (maintained mode)
 const PMAX = 40 // persistence (consecutive beats) at which a charge is fully bright
 
-const norm = (v: number[]): number => Math.sqrt(v.reduce((s, x) => s + x * x, 0))
-const dot = (a: number[], b: number[]): number => a.reduce((s, x, i) => s + x * b[i]!, 0)
+const norm = (v: number[]): number =>
+  Math.sqrt(v.reduce((s, x) => s + x * x, 0))
+const dot = (a: number[], b: number[]): number =>
+  a.reduce((s, x, i) => s + x * b[i]!, 0)
 
 function run(): void {
-  const slab = buildHorosphereBand({ maxBand: MAX_BAND, half: HALF, margin: MARGIN })
+  const slab = buildHorosphereBand({
+    maxBand: MAX_BAND,
+    half: HALF,
+    margin: MARGIN,
+  })
   const n = slab.cellCount
   const dim = slab.coords[0]!.length
   const xi = slab.idealPoint
   const g = toCSR(slab.neighbors)
-  console.log(`mode ${MODE}, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`)
+  console.log(
+    `mode ${MODE}, slab ${n.toLocaleString()} cells, band ${slab.bandCount.toLocaleString()}`,
+  )
 
   // 2D positions, stereographic inversion from xi then onto an orthonormal basis of the plane perp to xi
-  const seedVec = (k: number): number[] => Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
-  const sub = (a: number[], b: number[], s: number): number[] => a.map((x, i) => x - s * b[i]!)
+  const seedVec = (k: number): number[] =>
+    Array.from({ length: dim }, (_, i) => (i === k ? 1 : 0))
+  const sub = (a: number[], b: number[], s: number): number[] =>
+    a.map((x, i) => x - s * b[i]!)
   const normalize = (v: number[]): number[] => {
     const m = norm(v) || 1
-    return v.map((x) => x / m)
+    return v.map(x => x / m)
   }
   let axis = 0
-  for (let k = 1; k < dim; k++) if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
+  for (let k = 1; k < dim; k++)
+    if (Math.abs(xi[k]!) < Math.abs(xi[axis]!)) axis = k
   const e1 = normalize(sub(seedVec(axis), xi, dot(seedVec(axis), xi)))
   let axis2 = (axis + 1) % dim
-  for (let k = 0; k < dim; k++) if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
-  const e2 = normalize(sub(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1, dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1)))
+  for (let k = 0; k < dim; k++)
+    if (k !== axis && Math.abs(xi[k]!) < Math.abs(xi[axis2]!)) axis2 = k
+  const e2 = normalize(
+    sub(
+      sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)),
+      e1,
+      dot(sub(seedVec(axis2), xi, dot(seedVec(axis2), xi)), e1),
+    ),
+  )
 
-  type BandCell = { index: number; px: number; py: number; u: number; v: number }
+  type BandCell = {
+    index: number
+    px: number
+    py: number
+    u: number
+    v: number
+  }
   const raw: BandCell[] = []
   for (let i = 0; i < n; i++) {
     if (Math.abs(slab.busemann[i]!) >= HALF) continue
     const x = slab.coords[i]!
     const diff = x.map((v, k) => v - xi[k]!)
     const d2 = dot(diff, diff) || 1e-12
-    const w = diff.map((v) => v / d2)
+    const w = diff.map(v => v / d2)
     raw.push({ index: i, u: dot(w, e1), v: dot(w, e2), px: 0, py: 0 })
   }
   const median = (xs: number[]): number => {
     const s = [...xs].sort((a, b) => a - b)
     return s[Math.floor(s.length / 2)] ?? 0
   }
-  const cu = median(raw.map((c) => c.u))
-  const cv = median(raw.map((c) => c.v))
-  const radii = raw.map((c) => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv))).sort((a, b) => a - b)
-  const halfExtent = (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
+  const cu = median(raw.map(c => c.u))
+  const cv = median(raw.map(c => c.v))
+  const radii = raw
+    .map(c => Math.max(Math.abs(c.u - cu), Math.abs(c.v - cv)))
+    .sort((a, b) => a - b)
+  const halfExtent =
+    (radii[Math.floor(radii.length * ZOOM_FIT)] ?? 1) || 1
   const pad = 20
   const halfPix = IMG / 2 - pad
   for (const c of raw) {
@@ -84,7 +122,7 @@ function run(): void {
   }
 
   // the seeded self (maintained mode), a connected ball of band cells near the centre
-  const bandSet = new Set(raw.map((c) => c.index))
+  const bandSet = new Set(raw.map(c => c.index))
   const selfCells: number[] = []
   const inSelf = new Uint8Array(n)
   if (MODE === 'maintained') {
@@ -117,14 +155,17 @@ function run(): void {
   }
   // ground for conserving maintenance, the off-screen margin cells (|busemann| >= half)
   const ground: number[] = []
-  for (let i = 0; i < n; i++) if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
+  for (let i = 0; i < n; i++)
+    if (Math.abs(slab.busemann[i]!) >= HALF) ground.push(i)
 
   // seed, background churn everywhere, plus the self forced to +1 in maintained mode
   const rng = makeRng({ seed: 7 })
   const tone = new Int8Array(n)
   for (let i = 0; i < n; i++) {
     const r = rng.next()
-    tone[i] = (r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0) as -1 | 0 | 1
+    tone[i] = (
+      r < SEED_DENSITY ? 1 : r < SEED_DENSITY * 1.3 ? -1 : 0
+    ) as -1 | 0 | 1
   }
   for (const c of selfCells) tone[c] = 1
 
@@ -215,7 +256,13 @@ function run(): void {
     }
   }
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'make', 'frames')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    'make',
+    'frames',
+  )
   rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
@@ -227,7 +274,8 @@ function run(): void {
 
     // update persistence, consecutive beats a cell has held the same nonzero charge
     for (let i = 0; i < n; i++) {
-      if (tone[i] !== 0 && tone[i] === prev[i]) persist[i] = Math.min(persist[i]! + 1, PMAX)
+      if (tone[i] !== 0 && tone[i] === prev[i])
+        persist[i] = Math.min(persist[i]! + 1, PMAX)
       else persist[i] = 0
       prev[i] = tone[i]!
     }
@@ -244,9 +292,18 @@ function run(): void {
       const t = tone[c.index]!
       if (t === 0) continue
       const inten = 0.12 + 0.88 * (persist[c.index]! / PMAX)
-      const r8 = t === 1 ? Math.round(40 + 90 * inten) : Math.round(120 + 135 * inten)
-      const g8 = t === 1 ? Math.round(60 + 160 * inten) : Math.round(40 + 90 * inten)
-      const b8 = t === 1 ? Math.round(110 + 145 * inten) : Math.round(70 + 90 * inten)
+      const r8 =
+        t === 1
+          ? Math.round(40 + 90 * inten)
+          : Math.round(120 + 135 * inten)
+      const g8 =
+        t === 1
+          ? Math.round(60 + 160 * inten)
+          : Math.round(40 + 90 * inten)
+      const b8 =
+        t === 1
+          ? Math.round(110 + 145 * inten)
+          : Math.round(70 + 90 * inten)
       for (let dy = -RADIUS; dy <= RADIUS; dy++) {
         for (let dx = -RADIUS; dx <= RADIUS; dx++) {
           const x = c.px + dx
@@ -276,16 +333,23 @@ function run(): void {
       const selfAvg = selfCells.length ? selfSum / selfCells.length : 0
       const bgAvg = bgCount ? bgSum / bgCount : 0
       if (MODE === 'maintained') {
-        console.log(`  beat ${f}, persistence self ${selfAvg.toFixed(1)} vs background ${bgAvg.toFixed(1)}`)
+        console.log(
+          `  beat ${f}, persistence self ${selfAvg.toFixed(1)} vs background ${bgAvg.toFixed(1)}`,
+        )
       } else {
         // no seeded self, did a PERSISTENT self emerge anywhere from the local rule alone?
         let maxP = 0
-        for (let i = 0; i < n; i++) if (persist[i]! > maxP) maxP = persist[i]!
-        console.log(`  beat ${f}, largest persistent self ${persistentSelf()} cells, max persistence ${maxP}, avg ${bgAvg.toFixed(1)}`)
+        for (let i = 0; i < n; i++)
+          if (persist[i]! > maxP) maxP = persist[i]!
+        console.log(
+          `  beat ${f}, largest persistent self ${persistentSelf()} cells, max persistence ${maxP}, avg ${bgAvg.toFixed(1)}`,
+        )
       }
     }
   }
-  console.log(`wrote ${FRAMES} frames (${MODE}), assemble with task/render-video.sh`)
+  console.log(
+    `wrote ${FRAMES} frames (${MODE}), assemble with task/render-video.sh`,
+  )
 }
 
 run()

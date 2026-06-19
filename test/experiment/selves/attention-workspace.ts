@@ -19,7 +19,13 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Rng = { next: () => number }
 
-function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+function fullBeat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
   moved.fill(0)
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
@@ -45,7 +51,10 @@ function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8A
   }
 }
 
-export function attentionWorkspace(input?: { n?: number; T?: number }): {
+export function attentionWorkspace(input?: {
+  n?: number
+  T?: number
+}): {
   n: number
   attendedCorr: number[]
   unattendedCorr: number[]
@@ -59,19 +68,34 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   let center = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center + 1]! - g.offsets[center]!
+    )
+      center = i
+  const dist = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+    maxRadius: 12,
+  })
   const rSelf = 5
   const self: number[] = []
-  for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
   const isInput = new Uint8Array(N)
   const inputAll: number[] = []
-  for (const i of self) if (dist[i]! >= rSelf - 1) {
-    isInput[i] = 1
-    inputAll.push(i)
-  }
+  for (const i of self)
+    if (dist[i]! >= rSelf - 1) {
+      isInput[i] = 1
+      inputAll.push(i)
+    }
   // K spatially-coherent sectors: farthest-point seeds among the boundary, then nearest-seed (Voronoi)
-  const msBFS = (srcs: number[]): { dist: Int32Array; label: Int32Array } => {
+  const msBFS = (
+    srcs: number[],
+  ): { dist: Int32Array; label: Int32Array } => {
     const d = new Int32Array(N).fill(-1)
     const lab = new Int32Array(N).fill(-1)
     let fr: number[] = []
@@ -82,14 +106,15 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
     }
     while (fr.length > 0) {
       const next: number[] = []
-      for (const u of fr) for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
-        const w = g.adj[p]!
-        if (d[w] === -1) {
-          d[w] = d[u]! + 1
-          lab[w] = lab[u]!
-          next.push(w)
+      for (const u of fr)
+        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) {
+          const w = g.adj[p]!
+          if (d[w] === -1) {
+            d[w] = d[u]! + 1
+            lab[w] = lab[u]!
+            next.push(w)
+          }
         }
-      }
       fr = next
     }
     return { dist: d, label: lab }
@@ -100,15 +125,16 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
     const { dist: d } = msBFS(seeds)
     let far = inputAll[0]!
     let fd = -1
-    for (const i of inputAll) if (d[i]! > fd) {
-      fd = d[i]!
-      far = i
-    }
+    for (const i of inputAll)
+      if (d[i]! > fd) {
+        fd = d[i]!
+        far = i
+      }
     seeds.push(far)
   }
   const { label } = msBFS(seeds)
-  const regionA = inputAll.filter((i) => label[i] === 0)
-  const regionB = inputAll.filter((i) => label[i] === 1)
+  const regionA = inputAll.filter(i => label[i] === 0)
+  const regionB = inputAll.filter(i => label[i] === 1)
   const hubBall = (): number[] => {
     const out: number[] = []
     const seen = new Uint8Array(N)
@@ -140,7 +166,9 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
 
   // drive a region with signal `sig` at the given GAIN (attended = 1.0, ignored = 0.25), with the rest
   // of the boundary as independent noise (distractors). Return how well the hub represents that signal.
-  const otherBoundary = inputAll.filter((i) => label[i] !== 0 && label[i] !== 1)
+  const otherBoundary = inputAll.filter(
+    i => label[i] !== 0 && label[i] !== 1,
+  )
   function trial(region: number[], gain: number): number {
     const tone = new Int8Array(N)
     const rng = makeRng({ seed: 9 })
@@ -148,14 +176,20 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
     let sig = 1
     const hubS: number[] = []
     const sigS: number[] = []
-    const noiseTargets = otherBoundary.concat(region === regionA ? regionB : regionA)
+    const noiseTargets = otherBoundary.concat(
+      region === regionA ? regionB : regionA,
+    )
     for (let t = 0; t < T; t++) {
       if (rng.next() < 0.06) sig = -sig
-      for (const i of region) if (rng.next() < gain) tone[i] = sig as -1 | 0 | 1 // gain = attention
-      for (const i of noiseTargets) tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1 // distractors
+      for (const i of region)
+        if (rng.next() < gain) tone[i] = sig as -1 | 0 | 1 // gain = attention
+      for (const i of noiseTargets)
+        tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1 // distractors
       fullBeat(tone, eu, ev, moved, rng)
-      for (const i of region) if (rng.next() < gain) tone[i] = sig as -1 | 0 | 1
-      for (const i of noiseTargets) tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
+      for (const i of region)
+        if (rng.next() < gain) tone[i] = sig as -1 | 0 | 1
+      for (const i of noiseTargets)
+        tone[i] = (rng.next() < 0.5 ? 1 : -1) as -1 | 0 | 1
       hubS.push(meanOver(tone, hub))
       sigS.push(sig)
     }
@@ -178,12 +212,20 @@ export function attentionWorkspace(input?: { n?: number; T?: number }): {
   const steerable = bottomUpSalience
   const solved = topDownGain && bottomUpSalience
 
-  return { n: N, attendedCorr, unattendedCorr, attentionSelects, steerable, solved }
+  return {
+    n: N,
+    attendedCorr,
+    unattendedCorr,
+    attentionSelects,
+    steerable,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/attention-workspace',
-  title: 'the hub-workspace shows bottom-up salience and top-down attentional gain',
+  title:
+    'the hub-workspace shows bottom-up salience and top-down attentional gain',
   category: 'selves',
   substrates: ['534'],
   depth: 'L2',

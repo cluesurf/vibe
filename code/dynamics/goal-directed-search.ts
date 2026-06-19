@@ -8,7 +8,10 @@
 
 type Rng = { next: () => number }
 
-export function solveGoalDirected(input: { target: Int8Array; rng: Rng }): number {
+export function solveGoalDirected(input: {
+  target: Int8Array
+  rng: Rng
+}): number {
   const { target, rng } = input
   const K = target.length
   const s = new Int8Array(K)
@@ -29,7 +32,11 @@ export function solveGoalDirected(input: { target: Int8Array; rng: Rng }): numbe
   return steps
 }
 
-export function solveUndirected(input: { target: Int8Array; rng: Rng; budget: number }): { solved: boolean; steps: number } {
+export function solveUndirected(input: {
+  target: Int8Array
+  rng: Rng
+  budget: number
+}): { solved: boolean; steps: number } {
   const { target, rng, budget } = input
   const K = target.length
   const s = new Int8Array(K)

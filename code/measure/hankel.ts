@@ -27,18 +27,23 @@ export function hankelMatrix(input: {
 
 // The eigenvalues (ascending) of a symmetric matrix given as nested arrays, via the cyclic Jacobi
 // solver.
-export function symmetricEigenvalues(matrix: ReadonlyArray<ReadonlyArray<number>>): number[] {
+export function symmetricEigenvalues(
+  matrix: ReadonlyArray<ReadonlyArray<number>>,
+): number[] {
   const n = matrix.length
   const dense = makeDense({ rows: n, cols: n })
   for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) dense.data[i * n + j] = matrix[i]![j] ?? 0
+    for (let j = 0; j < n; j++)
+      dense.data[i * n + j] = matrix[i]![j] ?? 0
   }
   return Array.from(eigSymmetric({ matrix: dense }).values)
 }
 
 // The minimum eigenvalue of a symmetric matrix given as nested arrays. PSD (the spectral-positivity
 // condition) means this is non-negative within tolerance.
-export function symmetricMinEigenvalue(matrix: ReadonlyArray<ReadonlyArray<number>>): number {
+export function symmetricMinEigenvalue(
+  matrix: ReadonlyArray<ReadonlyArray<number>>,
+): number {
   const values = symmetricEigenvalues(matrix)
   let mn = Infinity
   for (const v of values) mn = Math.min(mn, v)

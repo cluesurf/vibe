@@ -9,7 +9,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { bulkGraph, flatGraph } from '@/code/model/self-kit'
-import { bfsShells, midShellGrowthRatio, branchingRatio } from '@/code/measure/shells'
+import {
+  bfsShells,
+  midShellGrowthRatio,
+  branchingRatio,
+} from '@/code/measure/shells'
 
 type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
 
@@ -27,7 +31,8 @@ const CUSP_MAX = 1.3
 
 export default experiment({
   id: 'selves/inner-bulk-capacity',
-  title: 'the hyperbolic bulk grows exponentially, the flat cusp polynomially, room for the inner experiencer',
+  title:
+    'the hyperbolic bulk grows exponentially, the flat cusp polynomially, room for the inner experiencer',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -37,14 +42,30 @@ export default experiment({
     const cusp = flatGraph(160)
 
     // the bulk explodes, so a few shells suffice and the middle window is the stable exponential rate.
-    const bulkShells = bfsShells({ neighbors: neighborsOf(bulk), root: 0, maxRadius: 6 }).shellCounts
-    const bulkGrowthRatio = midShellGrowthRatio({ shellCounts: bulkShells, from: 2, to: 6 })
+    const bulkShells = bfsShells({
+      neighbors: neighborsOf(bulk),
+      root: 0,
+      maxRadius: 6,
+    }).shellCounts
+    const bulkGrowthRatio = midShellGrowthRatio({
+      shellCounts: bulkShells,
+      from: 2,
+      to: 6,
+    })
 
     // the cusp grows linearly, so its shell-to-shell ratio tends to one at large radius (the polynomial
     // signature), read off the far shells.
     const center = 160 * 80 + 80
-    const cuspShells = bfsShells({ neighbors: neighborsOf(cusp), root: center, maxRadius: 55 }).shellCounts
-    const cuspGrowthRatio = branchingRatio({ shellCounts: cuspShells, from: 40, to: 55 })
+    const cuspShells = bfsShells({
+      neighbors: neighborsOf(cusp),
+      root: center,
+      maxRadius: 55,
+    }).shellCounts
+    const cuspGrowthRatio = branchingRatio({
+      shellCounts: cuspShells,
+      from: 40,
+      to: 55,
+    })
 
     const ok = bulkGrowthRatio > BULK_MIN && cuspGrowthRatio < CUSP_MAX
 

@@ -4,11 +4,19 @@
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { makeRng } from '@/code/tool/rng'
-import { maxIndex, minIndex, nextHigherIndex, nextLowerIndex, numericSearchSteps } from '@/code/operator/numeric-search'
+import {
+  maxIndex,
+  minIndex,
+  nextHigherIndex,
+  nextLowerIndex,
+  numericSearchSteps,
+} from '@/code/operator/numeric-search'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function associativeNumericSearch(input?: { maxCells?: number }): {
+export function associativeNumericSearch(input?: {
+  maxCells?: number
+}): {
   maxOk: boolean
   minOk: boolean
   nextHigherOk: boolean
@@ -64,13 +72,15 @@ export function associativeNumericSearch(input?: { maxCells?: number }): {
     stepsSmall,
     stepsLarge,
     stepsConstant,
-    solved: maxOk && minOk && nextHigherOk && nextLowerOk && stepsConstant,
+    solved:
+      maxOk && minOk && nextHigherOk && nextLowerOk && stepsConstant,
   }
 }
 
 export default experiment({
   id: 'associative/numeric-search',
-  title: 'the associative numeric-search primitives (max, min, next-value) work on the bulk at constant pass cost',
+  title:
+    'the associative numeric-search primitives (max, min, next-value) work on the bulk at constant pass cost',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L1',

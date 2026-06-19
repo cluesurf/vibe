@@ -7,22 +7,37 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s73Selves(): { solitonsExist: boolean; kinkCharge: number; hasExchangeStatistics: boolean } {
+export function s73Selves(): {
+  solitonsExist: boolean
+  kinkCharge: number
+  hasExchangeStatistics: boolean
+} {
   // 1D kink (phi^4 / sine-Gordon), field phi(x) = tanh((x-c)/w) interpolates between vacua -1 and +1
-  const L = 201, c = 100, w = 8
+  const L = 201,
+    c = 100,
+    w = 8
   const phi = (x: number): number => Math.tanh((x - c) / w)
   // topological charge = (phi(+inf) - phi(-inf)) / 2 (the winding of pi_0(vacuum manifold))
   const kinkCharge = Math.round((phi(L - 1) - phi(0)) / 2)
   const solitonsExist = Math.abs(kinkCharge) >= 1
   // also confirm the kink is localized (the gradient energy concentrates), a real soliton not a ramp
-  let gradPeak = 0, gradAt = 0; for (let x = 1; x < L; x++) { const d = Math.abs(phi(x) - phi(x - 1)); if (d > gradPeak) { gradPeak = d; gradAt = x } }
+  let gradPeak = 0,
+    gradAt = 0
+  for (let x = 1; x < L; x++) {
+    const d = Math.abs(phi(x) - phi(x - 1))
+    if (d > gradPeak) {
+      gradPeak = d
+      gradAt = x
+    }
+  }
   const hasExchangeStatistics = false // 1D, no braiding, particles cannot be exchanged without colliding
   return { solitonsExist, kinkCharge, hasExchangeStatistics }
 }
 
 export default experiment({
   id: 'selves/s73-selves',
-  title: 'solitons on the 1D horocycle are kinks with no exchange statistics',
+  title:
+    'solitons on the 1D horocycle are kinks with no exchange statistics',
   category: 'selves',
   substrates: ['73'],
   depth: 'L1',
@@ -30,7 +45,9 @@ export default experiment({
   run() {
     const r = s73Selves()
     const ok =
-      r.solitonsExist && Math.abs(r.kinkCharge) === 1 && !r.hasExchangeStatistics
+      r.solitonsExist &&
+      Math.abs(r.kinkCharge) === 1 &&
+      !r.hasExchangeStatistics
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

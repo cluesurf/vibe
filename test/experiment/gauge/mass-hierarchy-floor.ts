@@ -30,7 +30,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
-import { growthRatioFromShellCounts, shellCountsFromGraph } from '@/code/measure/shell-growth'
+import {
+  growthRatioFromShellCounts,
+  shellCountsFromGraph,
+} from '@/code/measure/shell-growth'
 
 // the observed inter-generation mass ratios (same sector, adjacent generations), the direct localization masses
 const INTER_GENERATION: { name: string; ratio: number }[] = [
@@ -40,7 +43,10 @@ const INTER_GENERATION: { name: string; ratio: number }[] = [
   { name: 'up t/c', ratio: 172690 / 1270 },
   { name: 'down s/d', ratio: 93.4 / 4.67 },
   { name: 'down b/s', ratio: 4180 / 93.4 },
-  { name: 'neutrino m3/m2', ratio: Math.sqrt(2.5e-3 + 7.5e-5) / Math.sqrt(7.5e-5) },
+  {
+    name: 'neutrino m3/m2',
+    ratio: Math.sqrt(2.5e-3 + 7.5e-5) / Math.sqrt(7.5e-5),
+  },
 ]
 // the intra-generation splittings (same shell, different sector), NOT bounded by the floor (the control)
 const INTRA_GENERATION: { name: string; ratio: number }[] = [
@@ -50,7 +56,8 @@ const INTRA_GENERATION: { name: string; ratio: number }[] = [
 
 export default experiment({
   id: 'gauge/mass-hierarchy-floor',
-  title: 'the marginal floor lambda^(1/2) about 4.3 is the parameter-free minimum inter-generation mass ratio, respected by all fermions, the neutrinos closest, the intra-generation splittings the control',
+  title:
+    'the marginal floor lambda^(1/2) about 4.3 is the parameter-free minimum inter-generation mass ratio, respected by all fermions, the neutrinos closest, the intra-generation splittings the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L3',
@@ -59,14 +66,19 @@ export default experiment({
     // the derived geometric growth rate lambda and the marginal floor lambda^(1/2)
     const addressing = buildAddressing({ maxCells: 40000 })
     const lambda = growthRatioFromShellCounts(
-      shellCountsFromGraph({ neighbors: addressing.graph.neighbors, cellCount: addressing.graph.cellCount }),
+      shellCountsFromGraph({
+        neighbors: addressing.graph.neighbors,
+        cellCount: addressing.graph.cellCount,
+      }),
     ).ratio
     const floor = Math.sqrt(lambda) // the minimum inter-generation mass ratio, parameter-free
 
     // every inter-generation ratio exceeds the floor
-    const allAboveFloor = INTER_GENERATION.every((g) => g.ratio > floor)
+    const allAboveFloor = INTER_GENERATION.every(g => g.ratio > floor)
     // the closest ratio to the floor (the most marginal), and whether it is the neutrino
-    const sorted = [...INTER_GENERATION].sort((a, b) => a.ratio - b.ratio)
+    const sorted = [...INTER_GENERATION].sort(
+      (a, b) => a.ratio - b.ratio,
+    )
     const closest = sorted[0]!
     const neutrinoIsClosest = closest.name.startsWith('neutrino')
     const closestRatioToFloor = closest.ratio / floor
@@ -74,9 +86,15 @@ export default experiment({
     const floorIsActive = closestRatioToFloor < 2
 
     // the control, the intra-generation splittings are NOT bounded by the floor, at least one sits below it
-    const someIntraBelowFloor = INTRA_GENERATION.some((g) => g.ratio < floor)
+    const someIntraBelowFloor = INTRA_GENERATION.some(
+      g => g.ratio < floor,
+    )
 
-    const ok = allAboveFloor && neutrinoIsClosest && floorIsActive && someIntraBelowFloor
+    const ok =
+      allAboveFloor &&
+      neutrinoIsClosest &&
+      floorIsActive &&
+      someIntraBelowFloor
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -87,12 +105,22 @@ export default experiment({
         marginalFloor: Number(floor.toFixed(3)),
         smallestInterGenerationRatio: Number(closest.ratio.toFixed(3)),
         smallestRatioToFloor: Number(closestRatioToFloor.toFixed(3)),
-        smallestCharged: Number(Math.min(...INTER_GENERATION.filter((g) => !g.name.startsWith('neutrino')).map((g) => g.ratio)).toFixed(2)),
-        intraGenerationDownUp: Number(INTRA_GENERATION[0]!.ratio.toFixed(3)),
+        smallestCharged: Number(
+          Math.min(
+            ...INTER_GENERATION.filter(
+              g => !g.name.startsWith('neutrino'),
+            ).map(g => g.ratio),
+          ).toFixed(2),
+        ),
+        intraGenerationDownUp: Number(
+          INTRA_GENERATION[0]!.ratio.toFixed(3),
+        ),
         neutrinoIsClosest: neutrinoIsClosest ? 1 : 0,
       },
       control: {
-        intraGenerationDownUp: Number(INTRA_GENERATION[0]!.ratio.toFixed(3)),
+        intraGenerationDownUp: Number(
+          INTRA_GENERATION[0]!.ratio.toFixed(3),
+        ),
         someIntraBelowFloor: someIntraBelowFloor ? 1 : 0,
       },
       notes:

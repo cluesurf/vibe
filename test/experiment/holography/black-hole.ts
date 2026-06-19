@@ -26,7 +26,10 @@ export function blackHoleEntropy(input: { side: number }): {
 } {
   const side = input.side
   const n = side * side * side
-  const c = freeFermionCorrelationMatrix({ h: torusHoppingHamiltonian({ dimension: 3, side }), n })
+  const c = freeFermionCorrelationMatrix({
+    h: torusHoppingHamiltonian({ dimension: 3, side }),
+    n,
+  })
   const ells = [2, 3, 4]
   const entropies: number[] = []
   for (const l of ells) {
@@ -40,8 +43,8 @@ export function blackHoleEntropy(input: { side: number }): {
     }
     entropies.push(regionEntanglementEntropy({ c, n, region }))
   }
-  const area = ells.map((l) => l * l) // horizon surface area ~ l^2
-  const volume = ells.map((l) => l * l * l)
+  const area = ells.map(l => l * l) // horizon surface area ~ l^2
+  const volume = ells.map(l => l * l * l)
   const areaFit = linearFit({ xs: area, ys: entropies })
   const volumeFit = linearFit({ xs: volume, ys: entropies })
   return {
@@ -55,7 +58,8 @@ export function blackHoleEntropy(input: { side: number }): {
 
 export default experiment({
   id: 'holography/black-hole',
-  title: 'region entropy scales with horizon area not volume (Bekenstein-Hawking)',
+  title:
+    'region entropy scales with horizon area not volume (Bekenstein-Hawking)',
   category: 'holography',
   substrates: 'any',
   depth: 'L3',
@@ -70,7 +74,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the entanglement entropy of a 3D region scales with its surface area and an area fit beats a volume fit',
-      metrics: { areaResidual: r.areaResidual, volumeResidual: r.volumeResidual },
+      metrics: {
+        areaResidual: r.areaResidual,
+        volumeResidual: r.volumeResidual,
+      },
       control: { volumeResidual: r.volumeResidual },
     })
   },

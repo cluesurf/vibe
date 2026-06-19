@@ -22,7 +22,10 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { reversibleWaveStep } from '@/code/dynamics/reversible-wave'
-import { plusSelfOverlap, plusToCrossOverlap } from '@/code/algebra/helicity'
+import {
+  plusSelfOverlap,
+  plusToCrossOverlap,
+} from '@/code/algebra/helicity'
 
 const RING = 60
 const BEATS = 18
@@ -31,7 +34,8 @@ const MODULUS = 251
 // a ring graph (each node neighbours its two ring-neighbours), the 1D line a wave propagates along
 function ringNeighbors(size: number): number[][] {
   const neighbors: number[][] = []
-  for (let i = 0; i < size; i++) neighbors.push([(i + 1) % size, (i + size - 1) % size])
+  for (let i = 0; i < size; i++)
+    neighbors.push([(i + 1) % size, (i + size - 1) % size])
   return neighbors
 }
 
@@ -49,13 +53,22 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   let front = 0
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
-    reversibleWaveStep({ neighbors, previous, current, next, modulus: MODULUS })
+    reversibleWaveStep({
+      neighbors,
+      previous,
+      current,
+      next,
+      modulus: MODULUS,
+    })
     previous = current
     current = next
     // the front, the farthest-from-center node that is nonzero
     for (let i = 0; i < RING; i++) {
       if (current[i] !== 0) {
-        const d = Math.min(Math.abs(i - center), RING - Math.abs(i - center))
+        const d = Math.min(
+          Math.abs(i - center),
+          RING - Math.abs(i - center),
+        )
         if (d > front) front = d
       }
     }
@@ -67,19 +80,28 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   let revCur = previous.slice()
   for (let beat = 0; beat < BEATS; beat++) {
     const next = new Uint8Array(RING)
-    reversibleWaveStep({ neighbors, previous: revPrev, current: revCur, next, modulus: MODULUS })
+    reversibleWaveStep({
+      neighbors,
+      previous: revPrev,
+      current: revCur,
+      next,
+      modulus: MODULUS,
+    })
     revPrev = revCur
     revCur = next
   }
   let reversible = true
-  for (let i = 0; i < RING; i++) if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) reversible = false
+  for (let i = 0; i < RING; i++)
+    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i])
+      reversible = false
 
   return { frontSpeed, reversible }
 }
 
 export default experiment({
   id: 'gravity/gravitational-wave',
-  title: 'the propagating spin-2 graviton, helicity two (period 180), massless (front speed one), reversible, the gravitational wave',
+  title:
+    'the propagating spin-2 graviton, helicity two (period 180), massless (front speed one), reversible, the gravitational wave',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
@@ -100,11 +122,14 @@ export default experiment({
     // the helicity is spin two (returns at 180, flips sign at 90, plus to cross at 45), the vector control is not
     // (flipped at 180), the wave is massless (front speed one) and reversible
     const spinTwoHelicity =
-      Math.abs(selfAt180 - 1) < 1e-9 && Math.abs(selfAt90 + 1) < 1e-9 && Math.abs(plusToCrossAt45 - 1) < 1e-9
+      Math.abs(selfAt180 - 1) < 1e-9 &&
+      Math.abs(selfAt90 + 1) < 1e-9 &&
+      Math.abs(plusToCrossAt45 - 1) < 1e-9
     const vectorIsSpinOne = Math.abs(vectorAt180 + 1) < 1e-9
     const massless = Math.abs(wave.frontSpeed - 1) < 1e-9
     const reversible = wave.reversible
-    const ok = spinTwoHelicity && vectorIsSpinOne && massless && reversible
+    const ok =
+      spinTwoHelicity && vectorIsSpinOne && massless && reversible
 
     return verdict({
       status: ok ? 'pass' : 'fail',

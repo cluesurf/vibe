@@ -15,7 +15,10 @@ export function agreementFraction(a: Int8Array, b: Int8Array): number {
 }
 
 // Fraction of entries that differ, the complement of the agreement fraction.
-export function disagreementFraction(a: Int8Array, b: Int8Array): number {
+export function disagreementFraction(
+  a: Int8Array,
+  b: Int8Array,
+): number {
   return 1 - agreementFraction(a, b)
 }
 
@@ -24,7 +27,10 @@ export function disagreementFraction(a: Int8Array, b: Int8Array): number {
 // equal to the target scores 1, an anti-aligned one scores -1, and an empty field scores 0. Unlike
 // agreementFraction this is signed and weighted by the target, so partial recovery of a charged
 // codeword reads as a graded fidelity rather than a hard equal/not-equal count.
-export function targetFidelity(tone: Int8Array, target: Int8Array): number {
+export function targetFidelity(
+  tone: Int8Array,
+  target: Int8Array,
+): number {
   let dot = 0
   let norm = 0
   for (let i = 0; i < tone.length; i++) {
@@ -36,7 +42,11 @@ export function targetFidelity(tone: Int8Array, target: Int8Array): number {
 
 // Coarse-grain a tone field into K cluster tones, each the sign of the sum of its
 // members (the cluster majority). `cluster[v]` is the cluster index of cell v.
-export function clusterMajority(cluster: Int32Array, clusterCount: number, tone: Int8Array): Int8Array {
+export function clusterMajority(
+  cluster: Int32Array,
+  clusterCount: number,
+  tone: Int8Array,
+): Int8Array {
   const sum = new Float64Array(clusterCount)
   for (let v = 0; v < tone.length; v++) {
     sum[cluster[v] ?? 0] = (sum[cluster[v] ?? 0] ?? 0) + (tone[v] ?? 0)

@@ -44,7 +44,7 @@ export function makePosetFromFuture(input: {
     acc.fill(0)
     forEachSetBit(f, {
       row: a,
-      visit: (c) => {
+      visit: c => {
         const cb = c * stride
         for (let w = 0; w < stride; w++) {
           acc[w] = (acc[w] ?? 0) | (f.words[cb + w] ?? 0)
@@ -94,7 +94,10 @@ export function makePosetFromRelation(input: {
   })
 }
 
-export function precedes(p: Poset, input: { a: number; b: number }): boolean {
+export function precedes(
+  p: Poset,
+  input: { a: number; b: number },
+): boolean {
   return getBit(p.future, { row: input.a, col: input.b })
 }
 
@@ -143,14 +146,17 @@ export function pastMatrix(p: Poset): BitMatrix {
   for (let a = 0; a < p.size; a++) {
     forEachSetBit(p.future, {
       row: a,
-      visit: (b) => setBit(past, { row: b, col: a }),
+      visit: b => setBit(past, { row: b, col: a }),
     })
   }
   return past
 }
 
 // Restrict the poset to a subset of elements (relabelled 0..k-1), preserving order.
-export function subPoset(p: Poset, input: { elements: ReadonlyArray<number> }): Poset {
+export function subPoset(
+  p: Poset,
+  input: { elements: ReadonlyArray<number> },
+): Poset {
   const els = input.elements
   const k = els.length
   const future = makeBitMatrix({ rows: k, cols: k })

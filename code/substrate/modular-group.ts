@@ -23,7 +23,10 @@ export function normalizeModularMatrix(m: IntegerMatrix): string {
 }
 
 // Multiply two integer 2x2 matrices.
-export function multiplyIntegerMatrix(m: IntegerMatrix, n: IntegerMatrix): IntegerMatrix {
+export function multiplyIntegerMatrix(
+  m: IntegerMatrix,
+  n: IntegerMatrix,
+): IntegerMatrix {
   return [
     m[0] * n[0] + m[1] * n[2],
     m[0] * n[1] + m[1] * n[3],
@@ -105,8 +108,18 @@ export function modularGraph(maxNodes: number): Graph {
     coords[i * 2] = (wnumRe * wdenRe + wnumIm * wdenIm) / wden2
     coords[i * 2 + 1] = (wnumIm * wdenRe - wnumRe * wdenIm) / wden2
   }
-  const manifold: ManifoldSpec = { form: 'hyperbolic', dimension: 2, curvature: -1 }
-  const embedding: Embedding = { form: 'embedding', dimension: 2, signature: 'riemannian', coords, manifold }
+  const manifold: ManifoldSpec = {
+    form: 'hyperbolic',
+    dimension: 2,
+    curvature: -1,
+  }
+  const embedding: Embedding = {
+    form: 'embedding',
+    dimension: 2,
+    signature: 'riemannian',
+    coords,
+    manifold,
+  }
   return makeGraph({ size: n, directed: false, neighbors, embedding })
 }
 
@@ -115,7 +128,10 @@ export function modularGraph(maxNodes: number): Graph {
 // the last term consuming one fewer step to land exactly on the rational. Returns the
 // rational reached. The golden ratio is the all-ones continued fraction (Fibonacci
 // convergents).
-export function rationalFromContinuedFraction(cf: number[]): { num: number; den: number } {
+export function rationalFromContinuedFraction(cf: number[]): {
+  num: number
+  den: number
+} {
   let ln = 0
   let ld = 1
   let rn = 1

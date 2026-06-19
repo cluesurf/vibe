@@ -11,22 +11,35 @@
 // effective metric. The connection from fills to n(x) is asserted in the prose, not computed here.
 // Run: npx tsx code/experiment/p88-effective-metric.ts
 
-import { rayDeflection, softenedMassIndexField } from '@/code/dynamics/graded-index-ray'
+import {
+  rayDeflection,
+  softenedMassIndexField,
+} from '@/code/dynamics/graded-index-ray'
 import { fieldLaplacianProfile } from '@/code/measure/field-laplacian'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Trace a ray (a geodesic of the effective metric) through the hand-built 1/r index field and read
 // off the deflection toward the mass at the origin (positive means it bent toward the matter).
-function deflectionAngle(input: { impact: number; mass: number }): number {
+function deflectionAngle(input: {
+  impact: number
+  mass: number
+}): number {
   const { impact, mass } = input
   const field = softenedMassIndexField({ mass })
-  return rayDeflection({ impact, index: field.index, indexGradient: field.indexGradient })
+  return rayDeflection({
+    impact,
+    index: field.index,
+    indexGradient: field.indexGradient,
+  })
 }
 
 // The effective Gaussian curvature, the Laplacian of ln(index), concentrated where the fills
 // (hence the matter) are. Sampled on a grid around the mass. Returns the peak cell and the total.
-function effectiveCurvature(mass: number): { peakR: number; total: number } {
+function effectiveCurvature(mass: number): {
+  peakR: number
+  total: number
+} {
   const field = softenedMassIndexField({ mass })
   const profile = fieldLaplacianProfile({
     field: (x, y) => Math.log(field.index(x, y)),
@@ -55,10 +68,16 @@ export function effectiveMetric(): {
   const deflectionNoMass = deflectionAngle({ impact, mass: 0 })
   const deflectionWithMass = deflectionAngle({ impact, mass: M })
   const deflectionDoubleMass = deflectionAngle({ impact, mass: 2 * M })
-  const massRatio = deflectionWithMass > 0 ? deflectionDoubleMass / deflectionWithMass : 0
+  const massRatio =
+    deflectionWithMass > 0
+      ? deflectionDoubleMass / deflectionWithMass
+      : 0
   // bends toward mass, near zero with no mass, and roughly doubles when the mass doubles
   const scalesWithMass =
-    deflectionWithMass > 0.01 && Math.abs(deflectionNoMass) < 1e-6 && massRatio > 1.6 && massRatio < 2.4
+    deflectionWithMass > 0.01 &&
+    Math.abs(deflectionNoMass) < 1e-6 &&
+    massRatio > 1.6 &&
+    massRatio < 2.4
 
   const deflectionNear = deflectionAngle({ impact: 3, mass: M })
   const deflectionFar = deflectionAngle({ impact: 8, mass: M })
@@ -70,7 +89,10 @@ export function effectiveMetric(): {
   const curvatureScalesWithMass = cHigh.total > cLow.total
 
   const solved =
-    scalesWithMass && decreasesWithImpact && curvaturePeakAtMass && curvatureScalesWithMass
+    scalesWithMass &&
+    decreasesWithImpact &&
+    curvaturePeakAtMass &&
+    curvatureScalesWithMass
 
   return {
     deflectionNoMass,
@@ -89,7 +111,8 @@ export function effectiveMetric(): {
 
 export default experiment({
   id: 'gravity/effective-metric',
-  title: 'rays bend toward matter (lensing) scaling with mass, curvature sourced by matter',
+  title:
+    'rays bend toward matter (lensing) scaling with mass, curvature sourced by matter',
   category: 'gravity',
   substrates: 'any',
   depth: 'L0',

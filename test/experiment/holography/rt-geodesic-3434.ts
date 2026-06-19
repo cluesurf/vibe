@@ -29,7 +29,10 @@ export default experiment({
   paper: true,
   run() {
     // measured {3,4,3,4} shell counts; the bulk radius is the shell index D, the cells are the cumulative count
-    const shells = streamingShellCounts({ symbol: [3, 4, 3, 4], maxShell: 5 })
+    const shells = streamingShellCounts({
+      symbol: [3, 4, 3, 4],
+      maxShell: 5,
+    })
     const ratios: number[] = []
     let cum = 0
     for (let D = 0; D < shells.length; D++) {
@@ -38,13 +41,20 @@ export default experiment({
     }
     // for {3,4,3,4} the ratio D / log_lambda(cells) CONVERGES to ~1 (the bulk radius is logarithmic in cells)
     const lastRatio = ratios[ratios.length - 1]!
-    const converging = ratios[ratios.length - 1]! > ratios[0]! && lastRatio > 0.9 && lastRatio < 1.1
+    const converging =
+      ratios[ratios.length - 1]! > ratios[0]! &&
+      lastRatio > 0.9 &&
+      lastRatio < 1.1
     // and the ratio is STABLE (the log law), not growing without bound
-    const stable = Math.abs(ratios[ratios.length - 1]! - ratios[ratios.length - 2]!) < 0.02
+    const stable =
+      Math.abs(
+        ratios[ratios.length - 1]! - ratios[ratios.length - 2]!,
+      ) < 0.02
 
     // flat control: the ratio GROWS (D ~ cells^(1/3), not logarithmic)
     const flatRatios = [4, 6, 8, 10].map(flatRatio)
-    const flatGrows = flatRatios[flatRatios.length - 1]! > flatRatios[0]! + 0.3
+    const flatGrows =
+      flatRatios[flatRatios.length - 1]! > flatRatios[0]! + 0.3
 
     const ok = converging && stable && flatGrows
 
@@ -59,7 +69,9 @@ export default experiment({
       },
       control: {
         flatRatioStart: Number(flatRatios[0]!.toFixed(3)),
-        flatRatioEnd: Number(flatRatios[flatRatios.length - 1]!.toFixed(3)),
+        flatRatioEnd: Number(
+          flatRatios[flatRatios.length - 1]!.toFixed(3),
+        ),
         flatGrows: flatGrows ? 1 : 0,
       },
       notes:

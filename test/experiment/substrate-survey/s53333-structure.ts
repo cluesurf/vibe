@@ -13,26 +13,43 @@ import { verdict } from '@/test/scaffold/verdict'
 
 const PENTACOMB5D = [5, 3, 3, 3, 3]
 
-export function s53333Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
-  const { degree, specDim } = cellGraphSpectral({ symbol: PENTACOMB5D, maxCells: 6000, t1: 2, t2: 4 })
+export function s53333Structure(): {
+  degree: number
+  specDim: number
+  crystallographic: boolean
+  hasSpinor: boolean
+} {
+  const { degree, specDim } = cellGraphSpectral({
+    symbol: PENTACOMB5D,
+    maxCells: 6000,
+    t1: 2,
+    t2: 4,
+  })
   // both flags are now COMPUTED from the symbol, not hand-set. Crystallographic means every entry is 3, 4,
   // or 6 (the crystallographic restriction), and the leading 5 fails it. The spinor hook is the [3,4,3]
   // (24-cell / D4) subdiagram, which {5,3,3,3,3} does not contain.
-  const crystallographic = PENTACOMB5D.every((n) => n === 3 || n === 4 || n === 6)
+  const crystallographic = PENTACOMB5D.every(
+    n => n === 3 || n === 4 || n === 6,
+  )
   const hasSpinor = symbolContainsSubdiagram(PENTACOMB5D, [3, 4, 3])
   return { degree, specDim, crystallographic, hasSpinor }
 }
 
 export default experiment({
   id: 'substrate-survey/s53333-structure',
-  title: 'the {5,3,3,3,3} bulk builds as a 5D hyperbolic graph, over-dimensional with no spinor',
+  title:
+    'the {5,3,3,3,3} bulk builds as a 5D hyperbolic graph, over-dimensional with no spinor',
   category: 'substrate-survey',
   substrates: ['53333'],
   depth: 'L1',
   paper: false,
   run() {
     const r = s53333Structure()
-    const ok = r.degree > 0 && r.specDim > 0 && !r.crystallographic && !r.hasSpinor
+    const ok =
+      r.degree > 0 &&
+      r.specDim > 0 &&
+      !r.crystallographic &&
+      !r.hasSpinor
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

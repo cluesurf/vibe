@@ -12,7 +12,10 @@
 // each verified correct, which is what makes it a general-purpose computer rather than a fixed circuit.
 // Run: npx tsx code/experiment/p177-substrate-computer.ts
 
-import { type Instr, RegisterMachine } from '@/code/operator/register-machine'
+import {
+  type Instr,
+  RegisterMachine,
+} from '@/code/operator/register-machine'
 import { buildDodecagridRegisterMachine } from '@/code/operator/dodecagrid-register-machine'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -20,8 +23,15 @@ import { verdict } from '@/test/scaffold/verdict'
 // The conserving charge register machine (Instr set, INC/DEC/test-zero, conserved run) and its dodecagrid
 // wiring (220-cell register-regions from the cell indices plus a large ground region for the balancing -1
 // charges) live in code/operator/register-machine and code/operator/dodecagrid-register-machine.
-function makeSubstrateComputer(n: number, numRegisters: number): RegisterMachine {
-  return buildDodecagridRegisterMachine({ maxCells: n, numRegisters, perRegister: 220 })
+function makeSubstrateComputer(
+  n: number,
+  numRegisters: number,
+): RegisterMachine {
+  return buildDodecagridRegisterMachine({
+    maxCells: n,
+    numRegisters,
+    perRegister: 220,
+  })
 }
 
 // registers, R0..R5 plus RZERO for unconditional jumps (never incremented)
@@ -59,7 +69,13 @@ const PROG_MUL: Instr[] = [
 
 export function substrateComputer(input?: { n?: number }): {
   n: number
-  cases: { program: string; inputs: number[]; expected: number; got: number; conserved: boolean }[]
+  cases: {
+    program: string
+    inputs: number[]
+    expected: number
+    got: number
+    conserved: boolean
+  }[]
   allCorrect: boolean
   allConserved: boolean
   programsRun: number
@@ -67,35 +83,104 @@ export function substrateComputer(input?: { n?: number }): {
   solved: boolean
 } {
   const n = input?.n ?? 5000
-  const cases: { program: string; inputs: number[]; expected: number; got: number; conserved: boolean }[] = []
+  const cases: {
+    program: string
+    inputs: number[]
+    expected: number
+    got: number
+    conserved: boolean
+  }[] = []
 
-  const runCase = (name: string, prog: Instr[], setup: (m: RegisterMachine) => void, readOut: (m: RegisterMachine) => number, inputs: number[], expected: number): void => {
+  const runCase = (
+    name: string,
+    prog: Instr[],
+    setup: (m: RegisterMachine) => void,
+    readOut: (m: RegisterMachine) => number,
+    inputs: number[],
+    expected: number,
+  ): void => {
     const m = makeSubstrateComputer(n, 5)
     setup(m)
     const { conserved } = m.run(prog)
-    cases.push({ program: name, inputs, expected, got: readOut(m), conserved })
+    cases.push({
+      program: name,
+      inputs,
+      expected,
+      got: readOut(m),
+      conserved,
+    })
   }
 
   // ADD
-  for (const [a, b] of [[3, 4], [7, 2], [0, 5]] as [number, number][]) {
-    runCase('add', PROG_ADD, (m) => { m.set(R0, a); m.set(R1, b) }, (m) => m.read(R0), [a, b], a + b)
+  for (const [a, b] of [
+    [3, 4],
+    [7, 2],
+    [0, 5],
+  ] as [number, number][]) {
+    runCase(
+      'add',
+      PROG_ADD,
+      m => {
+        m.set(R0, a)
+        m.set(R1, b)
+      },
+      m => m.read(R0),
+      [a, b],
+      a + b,
+    )
   }
   // MONUS
-  for (const [a, b] of [[7, 3], [3, 7], [5, 5]] as [number, number][]) {
-    runCase('monus', PROG_MONUS, (m) => { m.set(R0, a); m.set(R1, b) }, (m) => m.read(R0), [a, b], Math.max(0, a - b))
+  for (const [a, b] of [
+    [7, 3],
+    [3, 7],
+    [5, 5],
+  ] as [number, number][]) {
+    runCase(
+      'monus',
+      PROG_MONUS,
+      m => {
+        m.set(R0, a)
+        m.set(R1, b)
+      },
+      m => m.read(R0),
+      [a, b],
+      Math.max(0, a - b),
+    )
   }
   // MULTIPLY
-  for (const [a, b] of [[3, 4], [6, 6], [5, 0]] as [number, number][]) {
-    runCase('multiply', PROG_MUL, (m) => { m.set(R0, a); m.set(R1, b) }, (m) => m.read(R2), [a, b], a * b)
+  for (const [a, b] of [
+    [3, 4],
+    [6, 6],
+    [5, 0],
+  ] as [number, number][]) {
+    runCase(
+      'multiply',
+      PROG_MUL,
+      m => {
+        m.set(R0, a)
+        m.set(R1, b)
+      },
+      m => m.read(R2),
+      [a, b],
+      a * b,
+    )
   }
 
-  const allCorrect = cases.every((c) => c.got === c.expected)
-  const allConserved = cases.every((c) => c.conserved)
-  const programsRun = new Set(cases.map((c) => c.program)).size
+  const allCorrect = cases.every(c => c.got === c.expected)
+  const allConserved = cases.every(c => c.conserved)
+  const programsRun = new Set(cases.map(c => c.program)).size
   const generalPurpose = programsRun >= 3 && allCorrect
   const solved = allCorrect && allConserved && generalPurpose
 
-  return { n, cases, allCorrect, allConserved, programsRun, generalPurpose, solved }
+  return {
+    n,
+    cases,
+    allCorrect,
+    allConserved,
+    programsRun,
+    generalPurpose,
+    solved,
+  }
 }
 
 export default experiment({
@@ -107,7 +192,8 @@ export default experiment({
   paper: true,
   run() {
     const r = substrateComputer({ n: 5000 })
-    const ok = r.solved && r.allCorrect && r.allConserved && r.generalPurpose
+    const ok =
+      r.solved && r.allCorrect && r.allConserved && r.generalPurpose
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

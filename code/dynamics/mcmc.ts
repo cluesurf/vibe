@@ -19,7 +19,10 @@ const OBSERVE_EVERY = 1
 // so this sampler is meant for modest size (<= ~200). Because a can only precede
 // b when a < b, the relation is a strict upper-triangular DAG and acyclicity is
 // automatic; closure is all the repair we need.
-export function transitiveClosure(input: { size: number; relation: BitMatrix }): BitMatrix {
+export function transitiveClosure(input: {
+  size: number
+  relation: BitMatrix
+}): BitMatrix {
   const n = input.size
   const closed = makeBitMatrix({ rows: n, cols: n })
   const stride = closed.stride
@@ -37,7 +40,8 @@ export function transitiveClosure(input: { size: number; relation: BitMatrix }):
       const aBase = a * stride
       for (let w = 0; w < stride; w++) {
         closed.words[aBase + w] =
-          (closed.words[aBase + w] ?? 0) | (closed.words[kBase + w] ?? 0)
+          (closed.words[aBase + w] ?? 0) |
+          (closed.words[kBase + w] ?? 0)
       }
     }
   }
@@ -55,7 +59,11 @@ export function sampleCausalSets(input: {
   // labelling must be topological (a precedes b implies a < b), as sprinklings and
   // the layered-order generator both are.
   start?: Poset
-}): { meanObservable: number; acceptanceRate: number; trace: Float64Array } {
+}): {
+  meanObservable: number
+  acceptanceRate: number
+  trace: Float64Array
+} {
   const n = input.size
 
   // The current order as a raw (untransitively-closed) relation on the labelling
@@ -103,7 +111,9 @@ export function sampleCausalSets(input: {
       size: n,
       future: transitiveClosure({ size: n, relation }),
     })
-    const candidateAction = input.action.value({ poset: candidatePoset })
+    const candidateAction = input.action.value({
+      poset: candidatePoset,
+    })
     const deltaS = candidateAction - currentAction
 
     // Metropolis acceptance with the Euclidean weight e^{-beta*S}.

@@ -23,12 +23,15 @@ import { verdict } from '@/test/scaffold/verdict'
 function effectiveInformation(tpm: number[][]): number {
   const n = tpm.length
   const avg = new Array<number>(n).fill(0)
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) avg[j]! += tpm[i]![j]! / n
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++) avg[j]! += tpm[i]![j]! / n
   let ei = 0
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
-    const p = tpm[i]![j]!
-    if (p > 1e-12 && avg[j]! > 1e-12) ei += (p * Math.log2(p / avg[j]!)) / n
-  }
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++) {
+      const p = tpm[i]![j]!
+      if (p > 1e-12 && avg[j]! > 1e-12)
+        ei += (p * Math.log2(p / avg[j]!)) / n
+    }
   return ei
 }
 
@@ -38,7 +41,9 @@ function effectiveInformation(tpm: number[][]): number {
 function buildFunnel(K: number): { P: number[][]; groups: number[] } {
   const N = K + 1
   const sink = K
-  const P: number[][] = Array.from({ length: N }, () => new Array<number>(N).fill(0))
+  const P: number[][] = Array.from({ length: N }, () =>
+    new Array<number>(N).fill(0),
+  )
   for (let i = 0; i < K; i++) P[i]![sink] = 1 // every leaf -> sink (degenerate)
   for (let j = 0; j < K; j++) P[sink]![j] = 1 / K // sink -> uniform over leaves
   const groups = new Array<number>(N)
@@ -52,9 +57,14 @@ function coarseGrain(P: number[][], groups: number[]): number[][] {
   const M = Math.max(...groups) + 1
   const size = new Array<number>(M).fill(0)
   for (const g of groups) size[g]!++
-  const Q: number[][] = Array.from({ length: M }, () => new Array<number>(M).fill(0))
-  for (let i = 0; i < P.length; i++) for (let j = 0; j < P.length; j++) Q[groups[i]!]![groups[j]!]! += P[i]![j]!
-  for (let a = 0; a < M; a++) for (let b = 0; b < M; b++) Q[a]![b]! /= size[a]! // average over the group's micro-states
+  const Q: number[][] = Array.from({ length: M }, () =>
+    new Array<number>(M).fill(0),
+  )
+  for (let i = 0; i < P.length; i++)
+    for (let j = 0; j < P.length; j++)
+      Q[groups[i]!]![groups[j]!]! += P[i]![j]!
+  for (let a = 0; a < M; a++)
+    for (let b = 0; b < M; b++) Q[a]![b]! /= size[a]! // average over the group's micro-states
   return Q
 }
 
@@ -81,17 +91,35 @@ export function causalEmergence(input?: { K?: number }): {
   const byDegeneracy: { K: number; emergence: number }[] = []
   for (const k of [2, 4, 8, 16, 32]) {
     const f = buildFunnel(k)
-    byDegeneracy.push({ K: k, emergence: effectiveInformation(coarseGrain(f.P, f.groups)) - effectiveInformation(f.P) })
+    byDegeneracy.push({
+      K: k,
+      emergence:
+        effectiveInformation(coarseGrain(f.P, f.groups)) -
+        effectiveInformation(f.P),
+    })
   }
-  const growsWithDegeneracy = byDegeneracy[byDegeneracy.length - 1]!.emergence > byDegeneracy[0]!.emergence + 0.2
+  const growsWithDegeneracy =
+    byDegeneracy[byDegeneracy.length - 1]!.emergence >
+    byDegeneracy[0]!.emergence + 0.2
 
   const solved = emerges && growsWithDegeneracy
-  return { K, microN: K + 1, eiMicro, eiMacro, emergence, emerges, byDegeneracy, growsWithDegeneracy, solved }
+  return {
+    K,
+    microN: K + 1,
+    eiMicro,
+    eiMacro,
+    emergence,
+    emerges,
+    byDegeneracy,
+    growsWithDegeneracy,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/causal-emergence',
-  title: 'a coarse-grained macro has more effective information than the degenerate micro',
+  title:
+    'a coarse-grained macro has more effective information than the degenerate micro',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',
@@ -107,7 +135,8 @@ export default experiment({
         eiMicro: r.eiMicro,
         eiMacro: r.eiMacro,
         emergence: r.emergence,
-        maxEmergence: r.byDegeneracy[r.byDegeneracy.length - 1]?.emergence ?? 0,
+        maxEmergence:
+          r.byDegeneracy[r.byDegeneracy.length - 1]?.emergence ?? 0,
       },
       notes:
         'this adds a hand-built degenerate transition matrix, not one of the five base things, so it grounds the logic of downward causation rather than deriving it from the substrate',

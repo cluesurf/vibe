@@ -17,17 +17,23 @@ const BUILD_CELLS = 500000
 const BENCH_BEATS = 200
 const CHECK_BEATS = 40
 
-const pack = (current: number, previous: number): number => (previous << 2) | current
+const pack = (current: number, previous: number): number =>
+  (previous << 2) | current
 const currentOf = (packed: number): number => packed & 3
 
 // the CPU reference, one beat of the same second-order mod-3 rule over the CSR graph
-function cpuStep(state: Uint32Array, offsets: Int32Array, adj: Int32Array): Uint32Array {
+function cpuStep(
+  state: Uint32Array,
+  offsets: Int32Array,
+  adj: Int32Array,
+): Uint32Array {
   const out = new Uint32Array(state.length)
   for (let i = 0; i < state.length; i++) {
     const cur = currentOf(state[i]!)
     const prev = (state[i]! >> 2) & 3
     let s = 0
-    for (let p = offsets[i]!; p < offsets[i + 1]!; p++) s += currentOf(state[adj[p]!]!)
+    for (let p = offsets[i]!; p < offsets[i + 1]!; p++)
+      s += currentOf(state[adj[p]!]!)
     out[i] = pack((s + 27 - prev) % 3, cur)
   }
   return out
@@ -46,30 +52,51 @@ async function run(): Promise<void> {
   const n = g.cellCount
   const offsetsU = new Uint32Array(g.offsets) // n+1
   const adjU = new Uint32Array(g.adj)
-  console.log(`built {5,3,4} bulk, ${n.toLocaleString()} cells, ${adjU.length.toLocaleString()} directed edges`)
+  console.log(
+    `built {5,3,4} bulk, ${n.toLocaleString()} cells, ${adjU.length.toLocaleString()} directed edges`,
+  )
 
   // a deterministic pseudo-random initial field, both tone slots filled so the second-order rule has history
   const seed = new Uint32Array(n)
   const r = makeRng({ seed: 987654321 })
   const nextR = (): number => r.next()
-  for (let i = 0; i < n; i++) seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  for (let i = 0; i < n; i++)
+    seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
 
   const byteLength = n * 4
-  const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
+  const params = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
 
   const makeState = (): GPUBuffer =>
-    device.createBuffer({ size: byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
+    device.createBuffer({
+      size: byteLength,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
 
-  const offBuf = device.createBuffer({ size: offsetsU.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
+  const offBuf = device.createBuffer({
+    size: offsetsU.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(offBuf, 0, offsetsU)
-  const adjBuf = device.createBuffer({ size: adjU.byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST })
+  const adjBuf = device.createBuffer({
+    size: adjU.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  })
   device.queue.writeBuffer(adjBuf, 0, adjU)
 
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'main' } })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'main' },
+  })
   const layout = pipeline.getBindGroupLayout(0)
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
     device.createBindGroup({
@@ -101,10 +128,19 @@ async function run(): Promise<void> {
 
   // (1) SELF-CHECK against the CPU reference
   const srcAfterCheck = stepGpu(CHECK_BEATS, 0)
-  const staging = device.createBuffer({ size: byteLength, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
+  const staging = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
   {
     const enc = device.createCommandEncoder()
-    enc.copyBufferToBuffer(bufs[srcAfterCheck]!, 0, staging, 0, byteLength)
+    enc.copyBufferToBuffer(
+      bufs[srcAfterCheck]!,
+      0,
+      staging,
+      0,
+      byteLength,
+    )
     device.queue.submit([enc.finish()])
   }
   await staging.mapAsync(GPUMapMode.READ)
@@ -112,11 +148,15 @@ async function run(): Promise<void> {
   staging.unmap()
 
   let cpu = seed.slice()
-  for (let b = 0; b < CHECK_BEATS; b++) cpu = cpuStep(cpu, g.offsets, g.adj)
+  for (let b = 0; b < CHECK_BEATS; b++)
+    cpu = cpuStep(cpu, g.offsets, g.adj)
   let mismatches = 0
-  for (let i = 0; i < n; i++) if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) mismatches++
+  for (let i = 0; i < n; i++)
+    if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) mismatches++
   const ok = mismatches === 0
-  console.log(`self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mismatches} -> ${ok ? 'IDENTICAL' : 'FAIL'}`)
+  console.log(
+    `self-check ${CHECK_BEATS} beats: GPU vs CPU mismatches ${mismatches} -> ${ok ? 'IDENTICAL' : 'FAIL'}`,
+  )
 
   // (2) BENCHMARK
   device.queue.writeBuffer(bufs[0], 0, seed)
@@ -127,11 +167,19 @@ async function run(): Promise<void> {
   await device.queue.onSubmittedWorkDone()
   const seconds = (performance.now() - start) / 1000
   const beatsPerSec = BENCH_BEATS / seconds
-  console.log(`benchmark ${n.toLocaleString()} bulk cells, ${BENCH_BEATS} beats in ${seconds.toFixed(2)}s`)
-  console.log(`  ${beatsPerSec.toFixed(0)} beats/sec, ${((beatsPerSec * n) / 1e9).toFixed(2)} billion cell-updates/sec`)
-  console.log(ok ? 'OK, the {5,3,4} bulk runs correctly on the GPU' : 'FAILED self-check')
+  console.log(
+    `benchmark ${n.toLocaleString()} bulk cells, ${BENCH_BEATS} beats in ${seconds.toFixed(2)}s`,
+  )
+  console.log(
+    `  ${beatsPerSec.toFixed(0)} beats/sec, ${((beatsPerSec * n) / 1e9).toFixed(2)} billion cell-updates/sec`,
+  )
+  console.log(
+    ok
+      ? 'OK, the {5,3,4} bulk runs correctly on the GPU'
+      : 'FAILED self-check',
+  )
 }
 
-run().catch((e) => {
+run().catch(e => {
   console.error(e instanceof Error ? e.message : String(e))
 })

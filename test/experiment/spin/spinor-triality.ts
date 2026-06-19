@@ -14,16 +14,22 @@ import {
   vectorSetsEqual,
 } from '@/code/algebra/group/so8-triality'
 
-export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boolean; trialityPresent: boolean } {
+export function spinorTriality(): {
+  fiveNoSpinor: boolean
+  twentyFourSplits: boolean
+  trialityPresent: boolean
+} {
   // ---- (1) {5,3,4}: the 12 dodecahedron faces under the icosahedral rotation group decompose
   // into 1 + 3 + 3' + 5, no spinor (the 4-dim rep is absent) ----
-  const fiveNoSpinor = icosahedralFacePermutationDecomposition().noSpinor
+  const fiveNoSpinor =
+    icosahedralFacePermutationDecomposition().noSpinor
 
   // ---- (2) {3,4,3,4}: 24-cell = 8v + 8s + 8c, two spinors; (4) spin-statistics ----
   const v8 = vectorRep8()
   const s8 = spinorRepEven8()
   const c8 = spinorRepOdd8()
-  const twentyFourSplits = v8.length === 8 && s8.length === 8 && c8.length === 8
+  const twentyFourSplits =
+    v8.length === 8 && s8.length === 8 && c8.length === 8
 
   // ---- (3) triality: Hadamard/2 swaps 8v and 8s ----
   const trialityPresent = vectorSetsEqual(applyTriality(v8), s8)
@@ -32,7 +38,8 @@ export function spinorTriality(): { fiveNoSpinor: boolean; twentyFourSplits: boo
 
 export default experiment({
   id: 'spin/spinor-triality',
-  title: '{5,3,4} carries no spinor while {3,4,3,4} splits 8v + 8s + 8c with triality',
+  title:
+    '{5,3,4} carries no spinor while {3,4,3,4} splits 8v + 8s + 8c with triality',
   category: 'spin',
   substrates: ['534', '3434'],
   depth: 'L1',

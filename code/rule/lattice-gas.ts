@@ -84,7 +84,12 @@ export function streamSourceTable(mesh: Mesh): Int32Array {
 // the dst becomes the new state. Identical result to beat(), but the hot inner loop is a flat gather instead
 // of millions of neighbour/opposite closure calls, and there is no per-beat allocation. The collided src is
 // stale after the call (it is reused as the next dst).
-export function beatInto(input: { src: Will; dst: Will; table: Int32Array; collision: Collision }): void {
+export function beatInto(input: {
+  src: Will
+  dst: Will
+  table: Int32Array
+  collision: Collision
+}): void {
   const { src, dst, table, collision } = input
   collide(src, collision)
   const sd = src.data
@@ -102,11 +107,18 @@ export function inverseBeat(will: Will, collision: Collision): Will {
 // run the rule forward for `beats` beats. Buffered and allocation-free, two buffers ping-ponged through a
 // precomputed stream table, the same result as chaining beat() but without allocating a Will per beat or
 // calling neighbour/opposite per slot. The input will is copied, so it is left untouched.
-export function run(will: Will, collision: Collision, beats: number): Will {
+export function run(
+  will: Will,
+  collision: Collision,
+  beats: number,
+): Will {
   if (beats <= 0) return will
   const table = streamSourceTable(will.mesh)
   let a: Will = { mesh: will.mesh, data: Int8Array.from(will.data) }
-  let b: Will = { mesh: will.mesh, data: new Int8Array(will.data.length) }
+  let b: Will = {
+    mesh: will.mesh,
+    data: new Int8Array(will.data.length),
+  }
   for (let step = 0; step < beats; step++) {
     beatInto({ src: a, dst: b, table, collision })
     const swap = a

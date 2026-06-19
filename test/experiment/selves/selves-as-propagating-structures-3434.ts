@@ -40,56 +40,112 @@ import {
 
 // ---------- 1. CALIBRATION: a Conway's Life glider on the cusp ----------
 
-function gliderSelf(): { identity: number; turnover: number; speed: number; rgGrowth: number; isSelf: boolean } {
-  const moore = [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy) => [dx, dy])).filter(([dx, dy]) => dx !== 0 || dy !== 0)
+function gliderSelf(): {
+  identity: number
+  turnover: number
+  speed: number
+  rgGrowth: number
+  isSelf: boolean
+} {
+  const moore = [-1, 0, 1]
+    .flatMap(dx => [-1, 0, 1].map(dy => [dx, dy]))
+    .filter(([dx, dy]) => dx !== 0 || dy !== 0)
   const lifeStep = (state: Set<string>): Set<string> => {
     const count = new Map<string, number>()
-    for (const k of state) { const [x, y] = k.split(',').map(Number); for (const [dx, dy] of moore) { const nk = `${x! + dx!},${y! + dy!}`; count.set(nk, (count.get(nk) ?? 0) + 1) } }
+    for (const k of state) {
+      const [x, y] = k.split(',').map(Number)
+      for (const [dx, dy] of moore) {
+        const nk = `${x! + dx!},${y! + dy!}`
+        count.set(nk, (count.get(nk) ?? 0) + 1)
+      }
+    }
     const next = new Set<string>()
-    for (const [k, c] of count) if (c === 3 || (c === 2 && state.has(k))) next.add(k)
+    for (const [k, c] of count)
+      if (c === 3 || (c === 2 && state.has(k))) next.add(k)
     return next
   }
   let s = new Set<string>(['0,0', '1,0', '2,0', '2,1', '1,2'])
   const frames: Set<string>[] = [new Set(s)]
   const centroids: number[][] = [centroidOfCellSet(s)]
-  for (let t = 0; t < 12; t++) { s = lifeStep(s); frames.push(new Set(s)); centroids.push(centroidOfCellSet(s)) }
+  for (let t = 0; t < 12; t++) {
+    s = lifeStep(s)
+    frames.push(new Set(s))
+    centroids.push(centroidOfCellSet(s))
+  }
   // identity = overlap of recentered pattern with the recentered pattern one PERIOD (4) later
   let id = 0
   let idc = 0
-  for (let t = 0; t + 4 < frames.length; t++) { id += cellSetOverlap(recenterCellSet(frames[t]!), recenterCellSet(frames[t + 4]!)); idc++ }
+  for (let t = 0; t + 4 < frames.length; t++) {
+    id += cellSetOverlap(
+      recenterCellSet(frames[t]!),
+      recenterCellSet(frames[t + 4]!),
+    )
+    idc++
+  }
   const identity = id / idc
   // turnover = average fraction of occupied cells that differ frame-to-frame (the matter flows)
   let tov = 0
   let tovc = 0
-  for (let t = 0; t + 1 < frames.length; t++) { tov += 1 - cellSetOverlap(frames[t]!, frames[t + 1]!); tovc++ }
+  for (let t = 0; t + 1 < frames.length; t++) {
+    tov += 1 - cellSetOverlap(frames[t]!, frames[t + 1]!)
+    tovc++
+  }
   const turnover = tov / tovc
   // speed = mean centroid displacement per beat; rgGrowth = radius-of-gyration drift (should stay ~constant)
   let disp = 0
-  for (let t = 0; t + 1 < centroids.length; t++) disp += Math.hypot(centroids[t + 1]![0]! - centroids[t]![0]!, centroids[t + 1]![1]! - centroids[t]![1]!)
+  for (let t = 0; t + 1 < centroids.length; t++)
+    disp += Math.hypot(
+      centroids[t + 1]![0]! - centroids[t]![0]!,
+      centroids[t + 1]![1]! - centroids[t]![1]!,
+    )
   const speed = disp / (centroids.length - 1)
-  const rgGrowth = radiusOfGyrationOfCellSet(frames[frames.length - 1]!) - radiusOfGyrationOfCellSet(frames[0]!)
-  const isSelf = identity > 0.8 && turnover > 0.3 && speed > 0.1 && Math.abs(rgGrowth) < 1
+  const rgGrowth =
+    radiusOfGyrationOfCellSet(frames[frames.length - 1]!) -
+    radiusOfGyrationOfCellSet(frames[0]!)
+  const isSelf =
+    identity > 0.8 &&
+    turnover > 0.3 &&
+    speed > 0.1 &&
+    Math.abs(rgGrowth) < 1
   return { identity, turnover, speed, rgGrowth, isSelf }
 }
 
 // ---------- 2. CONTRAST: the vibe perception rule from a localized seed ----------
 
-
-function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
-  const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: 30000 })
+function vibeChurn(): {
+  identity: number
+  rgGrowth: number
+  isSelf: boolean
+} {
+  const g = buildEuclideanLattice({
+    symbol: [4, 3, 4],
+    maxCells: 30000,
+  })
   const n = g.cellCount
   const { offsets, adj } = toCsr(g.neighbors)
   // a localized +1 blob near the centre in a sea of 0 (a "particle" seed)
   const tone = new Int8Array(n)
-  const cx = g.coords.reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0]).map((v) => v / n)
+  const cx = g.coords
+    .reduce((s, c) => s.map((v, i) => v + c[i]!), [0, 0, 0])
+    .map(v => v / n)
   const seed: number[] = []
   for (let i = 0; i < n; i++) {
-    const d2 = g.coords[i]!.reduce((s, v, k) => s + (v - cx[k]!) ** 2, 0)
-    if (d2 < 4) { tone[i] = 1; seed.push(i) }
+    const d2 = g.coords[i]!.reduce(
+      (s, v, k) => s + (v - cx[k]!) ** 2,
+      0,
+    )
+    if (d2 < 4) {
+      tone[i] = 1
+      seed.push(i)
+    }
   }
   const occupied = (): Set<string> => {
     const s = new Set<string>()
-    for (let i = 0; i < n; i++) if (tone[i] === 1) s.add(`${g.coords[i]![0]},${g.coords[i]![1]},${g.coords[i]![2]}`)
+    for (let i = 0; i < n; i++)
+      if (tone[i] === 1)
+        s.add(
+          `${g.coords[i]![0]},${g.coords[i]![1]},${g.coords[i]![2]}`,
+        )
     return s
   }
   const rng = makeRng({ seed: 3 })
@@ -98,7 +154,12 @@ function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
   const step = (): void => {
     const used = new Uint8Array(n)
     const order = Array.from({ length: n }, (_, i) => i)
-    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rng.next() * (i + 1)); const t = order[i]!; order[i] = order[j]!; order[j] = t }
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(rng.next() * (i + 1))
+      const t = order[i]!
+      order[i] = order[j]!
+      order[j] = t
+    }
     for (const v of order) {
       if (used[v]) continue
       const start = offsets[v]!
@@ -119,7 +180,10 @@ function vibeChurn(): { identity: number; rgGrowth: number; isSelf: boolean } {
   for (let t = 0; t < 30; t++) step()
   const frameT = occupied()
   // identity = overlap of recentered 3D patterns (does the seed keep its shape?), rgGrowth = does it disperse?
-  const identity = cellSetOverlap(recenterCellSet(frame0), recenterCellSet(frameT))
+  const identity = cellSetOverlap(
+    recenterCellSet(frame0),
+    recenterCellSet(frameT),
+  )
   const rgGrowth = radiusOfGyrationOfCellSet(frameT) - rg0
   const isSelf = identity > 0.8 && Math.abs(rgGrowth) < 1
   return { identity, rgGrowth, isSelf }
@@ -154,7 +218,8 @@ export function propagatingSelves(): {
 
 export default experiment({
   id: 'selves/selves-as-propagating-structures-3434',
-  title: 'identity-through-turnover scores a glider as a self and the perception-rule seed as churn',
+  title:
+    'identity-through-turnover scores a glider as a self and the perception-rule seed as churn',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

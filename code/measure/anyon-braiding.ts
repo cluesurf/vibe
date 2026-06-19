@@ -12,7 +12,11 @@ const wrap = (x: number): number => {
 }
 
 // a square loop of half-size `radius` centered at (cx, cy), as a list of lattice points traversed counterclockwise
-export function squareLoop(input: { radius: number; cx: number; cy: number }): Array<[number, number]> {
+export function squareLoop(input: {
+  radius: number
+  cx: number
+  cy: number
+}): Array<[number, number]> {
   const { radius: r, cx, cy } = input
   const points: Array<[number, number]> = []
   for (let x = cx - r; x < cx + r; x++) points.push([x, cy - r])
@@ -33,7 +37,8 @@ export function zNVortexHolonomy(input: {
   fluxY: number
 }): number {
   const { states: n, loop, fluxX, fluxY } = input
-  const angle = (x: number, y: number): number => Math.atan2(y - fluxY, x - fluxX)
+  const angle = (x: number, y: number): number =>
+    Math.atan2(y - fluxY, x - fluxX)
   let sum = 0
   for (let i = 0; i < loop.length; i++) {
     const a = loop[i]!

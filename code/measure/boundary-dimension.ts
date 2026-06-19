@@ -16,22 +16,37 @@ export function boundaryDimension(input: {
   specDimT1?: number
   specDimT2?: number
 }): { cells: number; boundaryCells: number; boundaryDim: number } {
-  const g = buildCellGraph({ symbol: input.symbol as never, maxCells: input.maxCells })
+  const g = buildCellGraph({
+    symbol: input.symbol as never,
+    maxCells: input.maxCells,
+  })
   const N = g.cellCount
   const nb = g.neighbors
   const rad = g.coords.map(norm)
   const rmax = Math.max(...rad)
   const fraction = input.radiusFraction ?? 0.78
-  const boundary = [...Array(N).keys()].filter((i) => rad[i]! > fraction * rmax)
-  const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1
-  const id = new Map<number, number>(); boundary.forEach((b, i) => id.set(b, i))
+  const boundary = [...Array(N).keys()].filter(
+    i => rad[i]! > fraction * rmax,
+  )
+  const isB = new Uint8Array(N)
+  for (const b of boundary) isB[b] = 1
+  const id = new Map<number, number>()
+  boundary.forEach((b, i) => id.set(b, i))
   // sub-adjacency restricted to the boundary shell, reindexed to [0, boundary.length)
-  const bAdj: number[][] = boundary.map((b) => {
+  const bAdj: number[][] = boundary.map(b => {
     const out: number[] = []
     for (const w of nb[b]!) if (isB[w]) out.push(id.get(w)!)
     return out
   })
   const center = mostConnectedNode(bAdj)
-  const boundaryDim = Math.round(spectralDimension({ neighbors: bAdj, start: center, t1: input.specDimT1 ?? 2, t2: input.specDimT2 ?? 6 }) * 100) / 100
+  const boundaryDim =
+    Math.round(
+      spectralDimension({
+        neighbors: bAdj,
+        start: center,
+        t1: input.specDimT1 ?? 2,
+        t2: input.specDimT2 ?? 6,
+      }) * 100,
+    ) / 100
   return { cells: N, boundaryCells: boundary.length, boundaryDim }
 }

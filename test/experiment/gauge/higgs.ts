@@ -19,7 +19,11 @@ import { verdict } from '@/test/scaffold/verdict'
 // The photon gap (smallest mode of the lattice Maxwell operator) when the gauge field
 // gets a Higgs mass term m^2 = (g v)^2. In the symmetric phase (v = 0) this is zero,
 // the massless photon, in the broken phase it is (g v)^2, a massive vector.
-function photonGap(input: { side: number; coupling: number; vev: number }): number {
+function photonGap(input: {
+  side: number
+  coupling: number
+  vev: number
+}): number {
   const m = gaugeBosonMass(input.coupling, input.vev)
   const spectrum = maxwellLatticeSpectrum({ side: input.side, mass: m })
   return spectrum.reduce((a, b) => Math.min(a, b), Infinity)
@@ -40,8 +44,16 @@ export function higgsStudy(input: { side: number; coupling: number }): {
     vevSymmetric,
     vevBroken,
     higgsMassBroken: Math.sqrt(higgsBosonMassSquared(1, lambda)),
-    photonGapSymmetric: photonGap({ side: input.side, coupling: input.coupling, vev: vevSymmetric }),
-    photonGapBroken: photonGap({ side: input.side, coupling: input.coupling, vev: vevBroken }),
+    photonGapSymmetric: photonGap({
+      side: input.side,
+      coupling: input.coupling,
+      vev: vevSymmetric,
+    }),
+    photonGapBroken: photonGap({
+      side: input.side,
+      coupling: input.coupling,
+      vev: vevBroken,
+    }),
     expectedGapBroken: (input.coupling * vevBroken) ** 2,
   }
 }

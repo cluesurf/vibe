@@ -4,15 +4,30 @@
 // band size scale, i.e. what does a GROWING flat slice look like? Run: npx tsx code/experiment/horosphere-reality.ts
 
 import { bfsShells, midShellGrowthRatio } from '@/code/measure/shells'
-import { bandInducedSubgraph, buildHorosphereBand } from '@/code/substrate/coxeter/cell-direct'
+import {
+  bandInducedSubgraph,
+  buildHorosphereBand,
+} from '@/code/substrate/coxeter/cell-direct'
 import { mostConnectedNode } from '@/code/tool/graph'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function horosphereReality(): { bandCount: number; flatGrowth: number; degreeHistogram: Record<number, number> } {
-  const h = buildHorosphereBand({ symbol: [3, 4, 3, 4] as never, maxBand: 3000, half: 0.5, margin: 0.7 })
+export function horosphereReality(): {
+  bandCount: number
+  flatGrowth: number
+  degreeHistogram: Record<number, number>
+} {
+  const h = buildHorosphereBand({
+    symbol: [3, 4, 3, 4] as never,
+    maxBand: 3000,
+    half: 0.5,
+    margin: 0.7,
+  })
   // induced adjacency ON the band only (cells whose Busemann value is within half)
-  const { neighbors: bnb } = bandInducedSubgraph({ band: h, halfWidth: 0.5 })
+  const { neighbors: bnb } = bandInducedSubgraph({
+    band: h,
+    halfWidth: 0.5,
+  })
   const B = bnb.length
   // (1) flatness, intrinsic growth of the band graph (BFS from a central band cell) should be POLYNOMIAL
   const c0 = mostConnectedNode(bnb)
@@ -20,7 +35,10 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
   const flatGrowth = midShellGrowthRatio({ shellCounts: shell })
   // (2) periodicity, degree histogram of the band cells (clean cubic {4,3,4} -> mostly degree 6; aperiodic -> spread)
   const degreeHistogram: Record<number, number> = {}
-  for (let a = 0; a < B; a++) { const d = bnb[a]!.length; degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1 }
+  for (let a = 0; a < B; a++) {
+    const d = bnb[a]!.length
+    degreeHistogram[d] = (degreeHistogram[d] ?? 0) + 1
+  }
   const uniform = Object.keys(degreeHistogram).length <= 2
   return { bandCount: B, flatGrowth, degreeHistogram }
 }
@@ -33,7 +51,8 @@ export function horosphereReality(): { bandCount: number; flatGrowth: number; de
 // false.
 export default experiment({
   id: 'geometry/horosphere-reality',
-  title: 'the {3,4,3,4} horosphere band is intrinsically flat at finite distance, with a spread of cell degrees',
+  title:
+    'the {3,4,3,4} horosphere band is intrinsically flat at finite distance, with a spread of cell degrees',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L1',

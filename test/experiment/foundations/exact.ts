@@ -15,13 +15,17 @@ import { verdict } from '@/test/scaffold/verdict'
 
 export default experiment({
   id: 'foundations/exact',
-  title: 'exact Boltzmann averages over every causal set on six elements',
+  title:
+    'exact Boltzmann averages over every causal set on six elements',
   category: 'foundations',
   substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {
-    const action = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
+    const action = smearedBenincasaDowker({
+      epsilon: 0.9,
+      dimension: 2,
+    })
     const result = exactCausalSetAverages({
       size: 6,
       betas: [0],

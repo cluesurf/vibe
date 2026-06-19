@@ -29,7 +29,11 @@ interface Epoch {
 }
 
 function evaluate(g: Graph, seed: number): Epoch {
-  const aniso = lorentzIsotropy({ substrate: g, samples: 2500, rng: makeRng({ seed }) })
+  const aniso = lorentzIsotropy({
+    substrate: g,
+    samples: 2500,
+    rng: makeRng({ seed }),
+  })
   const m = runModel(g, seed + 1)
   return {
     cells: g.size,
@@ -39,14 +43,24 @@ function evaluate(g: Graph, seed: number): Epoch {
   }
 }
 
-export function eternalLadder(input: { base: 'modular' | number[]; caps: number[]; seed: number }): {
+export function eternalLadder(input: {
+  base: 'modular' | number[]
+  caps: number[]
+  seed: number
+}): {
   epochs: Epoch[]
   growsMonotonically: boolean
   alwaysLorentzSafe: boolean
   modelAlwaysRuns: boolean
 } {
-  const epochs = input.caps.map((cap) => {
-    const g = input.base === 'modular' ? modularGraph(cap) : coxeterTessellation({ schlafli: input.base, maxVertices: cap })
+  const epochs = input.caps.map(cap => {
+    const g =
+      input.base === 'modular'
+        ? modularGraph(cap)
+        : coxeterTessellation({
+            schlafli: input.base,
+            maxVertices: cap,
+          })
     return evaluate(g, input.seed)
   })
   let growsMonotonically = true
@@ -58,8 +72,8 @@ export function eternalLadder(input: { base: 'modular' | number[]; caps: number[
   return {
     epochs,
     growsMonotonically,
-    alwaysLorentzSafe: epochs.every((e) => e.lorentzSafe),
-    modelAlwaysRuns: epochs.every((e) => e.modelRuns),
+    alwaysLorentzSafe: epochs.every(e => e.lorentzSafe),
+    modelAlwaysRuns: epochs.every(e => e.modelRuns),
   }
 }
 
@@ -71,18 +85,32 @@ export default experiment({
   depth: 'L2',
   paper: true,
   run() {
-    const mod = eternalLadder({ base: 'modular', caps: [300, 700, 1500], seed: 2 })
-    const hept = eternalLadder({ base: [7, 3], caps: [200, 600, 1500], seed: 2 })
+    const mod = eternalLadder({
+      base: 'modular',
+      caps: [300, 700, 1500],
+      seed: 2,
+    })
+    const hept = eternalLadder({
+      base: [7, 3],
+      caps: [200, 600, 1500],
+      seed: 2,
+    })
     const ok =
-      mod.growsMonotonically && mod.alwaysLorentzSafe && mod.modelAlwaysRuns &&
-      hept.growsMonotonically && hept.alwaysLorentzSafe && hept.modelAlwaysRuns
+      mod.growsMonotonically &&
+      mod.alwaysLorentzSafe &&
+      mod.modelAlwaysRuns &&
+      hept.growsMonotonically &&
+      hept.alwaysLorentzSafe &&
+      hept.modelAlwaysRuns
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'the tessellation grows without bound, stays Lorentz-safe at every epoch, and the model runs on each growing stage',
       metrics: {
-        modularFinalCells: mod.epochs[mod.epochs.length - 1]?.cells ?? 0,
-        heptagonalFinalCells: hept.epochs[hept.epochs.length - 1]?.cells ?? 0,
+        modularFinalCells:
+          mod.epochs[mod.epochs.length - 1]?.cells ?? 0,
+        heptagonalFinalCells:
+          hept.epochs[hept.epochs.length - 1]?.cells ?? 0,
       },
     })
   },

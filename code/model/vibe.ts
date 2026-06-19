@@ -18,14 +18,22 @@ import { coxeterTessellation } from '@/code/substrate/coxeter'
 import { lattice } from '@/code/substrate/lattice'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
 import { lorentzIsotropy } from '@/code/measure/lorentz'
-import { ballGrowth, growthIsExponential } from '@/code/measure/dimension'
+import {
+  ballGrowth,
+  growthIsExponential,
+} from '@/code/measure/dimension'
 import { algebraicConnectivity } from '@/code/measure/integration'
 import { laplacianSpectrum } from '@/code/operator/laplacian'
 
 // The committed mesh is the random hyperbolic causal mesh. The two crystals are the ideal
 // forms it approximates: the 2D heptagrid {7,3} and the real 3D substrate, the dodecagrid
 // {5,3,4} (P45, P62, P68). Lattice and sprinkle are comparison meshes.
-export type MeshKind = 'hyperbolic' | 'dodecagrid' | 'coxeter' | 'lattice' | 'sprinkle'
+export type MeshKind =
+  | 'hyperbolic'
+  | 'dodecagrid'
+  | 'coxeter'
+  | 'lattice'
+  | 'sprinkle'
 export type ToneKind = 'ternary' | 'binary'
 export type FillKind = 'ternary-symmetric' | 'ternary-directed'
 export type RuleKind = 'signed-majority'
@@ -56,11 +64,16 @@ const COMMITTED: VibeConfig = {
 }
 
 const MESH_NOTE: Record<MeshKind, string> = {
-  hyperbolic: 'random hyperbolic causal mesh, Lorentz-safe, mean degree about 10',
-  dodecagrid: 'the real 3D crystal, the dodecahedral honeycomb {5,3,4} (P45)',
-  coxeter: 'the 2D heptagrid crystal {7,3}, the ideal Lorentz-safe form (P41)',
-  lattice: 'regular lattice (a comparison: has a preferred frame, breaks Lorentz)',
-  sprinkle: 'flat Poisson sprinkling (a comparison: Lorentz-safe but not navigable)',
+  hyperbolic:
+    'random hyperbolic causal mesh, Lorentz-safe, mean degree about 10',
+  dodecagrid:
+    'the real 3D crystal, the dodecahedral honeycomb {5,3,4} (P45)',
+  coxeter:
+    'the 2D heptagrid crystal {7,3}, the ideal Lorentz-safe form (P41)',
+  lattice:
+    'regular lattice (a comparison: has a preferred frame, breaks Lorentz)',
+  sprinkle:
+    'flat Poisson sprinkling (a comparison: Lorentz-safe but not navigable)',
 }
 
 export class VibeBuilder {
@@ -135,7 +148,10 @@ export class VibeWorld {
     const toneValues = cfg.tone === 'ternary' ? 3 : 2
     this.tone = new Int8Array(n)
     for (let i = 0; i < n; i++) {
-      this.tone[i] = toneValues === 3 ? this.rng.nextInt({ max: 3 }) - 1 : this.rng.nextInt({ max: 2 }) * 2 - 1
+      this.tone[i] =
+        toneValues === 3
+          ? this.rng.nextInt({ max: 3 }) - 1
+          : this.rng.nextInt({ max: 2 }) * 2 - 1
     }
     this.fills = buildFills(this.neighbors, cfg, this.rng)
   }
@@ -178,7 +194,11 @@ export class VibeWorld {
     for (let i = 0; i < n; i++) {
       deg += (this.neighbors[i] ?? new Uint32Array(0)).length
     }
-    const aniso = lorentzIsotropy({ substrate: this.substrate, samples: 2000, rng: makeRng({ seed: this.cfg.seed + 11 }) })
+    const aniso = lorentzIsotropy({
+      substrate: this.substrate,
+      samples: 2000,
+      rng: makeRng({ seed: this.cfg.seed + 11 }),
+    })
     // Ball growth from the most-connected node (a central one).
     let center = 0
     let best = -1
@@ -189,8 +209,15 @@ export class VibeWorld {
         center = i
       }
     }
-    const growth = ballGrowth({ substrate: this.substrate, center, maxRadius: 12 })
-    const spectrum = laplacianSpectrum({ substrate: this.substrate, count: 20 })
+    const growth = ballGrowth({
+      substrate: this.substrate,
+      center,
+      maxRadius: 12,
+    })
+    const spectrum = laplacianSpectrum({
+      substrate: this.substrate,
+      count: 20,
+    })
     let lapMin = Infinity
     for (const v of spectrum) {
       lapMin = Math.min(lapMin, v)
@@ -209,7 +236,10 @@ export class VibeWorld {
     }
     // Integration Phi (P63): the algebraic connectivity of the whole mesh, how strongly it
     // resists being cut into independent parts, the structural correlate of a unity.
-    const phi = algebraicConnectivity({ adjacency: this.neighbors, region: new Set(Array.from({ length: n }, (_, i) => i)) })
+    const phi = algebraicConnectivity({
+      adjacency: this.neighbors,
+      region: new Set(Array.from({ length: n }, (_, i) => i)),
+    })
     // Recursion (P57 to P60): coarse-grain the settled mesh into coherent domains, the higher
     // vibes. We count those of meaningful size, the genuine wholes-within-the-whole.
     const higherVibes = countHigherVibes(this.neighbors, this.tone, 3)
@@ -228,7 +258,11 @@ export class VibeWorld {
 
 // Coarse-grain the settled mesh into coherent domains (connected regions of one tone) and count
 // those of at least minSize, the higher vibes the recursion reads off the base (P57 to P60).
-function countHigherVibes(neighbors: ReadonlyArray<Uint32Array>, tone: Int8Array, minSize: number): number {
+function countHigherVibes(
+  neighbors: ReadonlyArray<Uint32Array>,
+  tone: Int8Array,
+  minSize: number,
+): number {
   const n = neighbors.length
   const seen = new Uint8Array(n)
   let count = 0
@@ -261,25 +295,45 @@ function countHigherVibes(neighbors: ReadonlyArray<Uint32Array>, tone: Int8Array
 
 function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
   if (cfg.mesh === 'hyperbolic') {
-    return hyperbolicGraph({ count: cfg.size, radius: 7, connectThreshold: 3.0, rng })
+    return hyperbolicGraph({
+      count: cfg.size,
+      radius: 7,
+      connectThreshold: 3.0,
+      rng,
+    })
   }
   if (cfg.mesh === 'dodecagrid') {
-    return hyperbolicDodecagrid({ depth: 4, connectThreshold: 2.0, maxVertices: cfg.size })
+    return hyperbolicDodecagrid({
+      depth: 4,
+      connectThreshold: 2.0,
+      maxVertices: cfg.size,
+    })
   }
   if (cfg.mesh === 'coxeter') {
-    return coxeterTessellation({ schlafli: [7, 3], maxVertices: cfg.size })
+    return coxeterTessellation({
+      schlafli: [7, 3],
+      maxVertices: cfg.size,
+    })
   }
   if (cfg.mesh === 'lattice') {
     const side = Math.max(2, Math.round(Math.sqrt(cfg.size)))
-    return lattice({ dimension: 2, extent: side, signature: 'riemannian' })
+    return lattice({
+      dimension: 2,
+      extent: side,
+      signature: 'riemannian',
+    })
   }
   return sprinkleMinkowski({ dimension: 2, count: cfg.size, rng })
 }
 
 // Ternary fills, symmetric (one shared value per note) unless directed.
-function buildFills(neighbors: ReadonlyArray<Uint32Array>, cfg: VibeConfig, rng: Rng): Int8Array[] {
+function buildFills(
+  neighbors: ReadonlyArray<Uint32Array>,
+  cfg: VibeConfig,
+  rng: Rng,
+): Int8Array[] {
   const n = neighbors.length
-  const fills = neighbors.map((row) => new Int8Array(row.length))
+  const fills = neighbors.map(row => new Int8Array(row.length))
   if (cfg.fill === 'ternary-directed') {
     for (let v = 0; v < n; v++) {
       const fv = fills[v]
@@ -292,7 +346,7 @@ function buildFills(neighbors: ReadonlyArray<Uint32Array>, cfg: VibeConfig, rng:
     }
     return fills
   }
-  const indexOf = neighbors.map((row) => {
+  const indexOf = neighbors.map(row => {
     const m = new Map<number, number>()
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)

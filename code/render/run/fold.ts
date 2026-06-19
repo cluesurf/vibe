@@ -12,7 +12,10 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { encodePng } from '@/code/draw/png'
-import { createHeadlessFoldScene, renderFoldToRgba } from '@/code/render/gpu/headless'
+import {
+  createHeadlessFoldScene,
+  renderFoldToRgba,
+} from '@/code/render/gpu/headless'
 import { makeCamera } from '@/code/render/gpu/camera'
 
 Object.assign(globalThis, globals)
@@ -21,9 +24,11 @@ const navigator = { gpu: create([]) }
 const SIZE = 1024 // image is SIZE x SIZE. SIZE * 4 is 256-aligned, so no row padding on readback.
 
 function parseSymbol(text: string): number[] {
-  const nums = text.split('-').map((part) => Number(part.trim()))
-  if (nums.some((n) => !Number.isInteger(n) || n < 2)) {
-    throw new Error(`bad symbol "${text}", expected dash-separated integers like 7-3 or 5-3-4`)
+  const nums = text.split('-').map(part => Number(part.trim()))
+  if (nums.some(n => !Number.isInteger(n) || n < 2)) {
+    throw new Error(
+      `bad symbol "${text}", expected dash-separated integers like 7-3 or 5-3-4`,
+    )
   }
   return nums
 }
@@ -37,7 +42,9 @@ async function run(): Promise<void> {
 
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
-    console.log('no WebGPU adapter available (needs a GPU, e.g. Metal on macOS). The fold renderer will run where an adapter is present.')
+    console.log(
+      'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS). The fold renderer will run where an adapter is present.',
+    )
     return
   }
   const device = await adapter.requestDevice()
@@ -46,17 +53,31 @@ async function run(): Promise<void> {
   const camera = makeCamera(mode)
   if (threeD) {
     // the static, from-outside view, with high-quality march settings for a still
-    scene.setCamera3D({ ...camera.uniform3D(), detail: 0.0007, maxSteps: 600 })
+    scene.setCamera3D({
+      ...camera.uniform3D(),
+      detail: 0.0007,
+      maxSteps: 600,
+    })
   } else {
     scene.setCamera2D(camera.uniform2D())
   }
   const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
 
-  const outDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'make', 'render', 'fold')
+  const outDir = join(
+    dirname(fileURLToPath(import.meta.url)),
+    '..',
+    '..',
+    '..',
+    'make',
+    'render',
+    'fold',
+  )
   mkdirSync(outDir, { recursive: true })
   const outPath = join(outDir, `${key}.png`)
   writeFileSync(outPath, encodePng(rgba, SIZE, SIZE))
-  console.log(`rendered {${symbol.join(',')}} ${threeD ? 'honeycomb (raymarch)' : 'tiling (Poincare disk)'} at ${SIZE}x${SIZE}, wrote ${outPath}`)
+  console.log(
+    `rendered {${symbol.join(',')}} ${threeD ? 'honeycomb (raymarch)' : 'tiling (Poincare disk)'} at ${SIZE}x${SIZE}, wrote ${outPath}`,
+  )
 }
 
 run()

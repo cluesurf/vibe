@@ -21,7 +21,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { goyShellSpectrum, spectrumSlope } from '@/code/dynamics/shell-model'
+import {
+  goyShellSpectrum,
+  spectrumSlope,
+} from '@/code/dynamics/shell-model'
 
 const SHELLS = 22
 const VISCOSITY = 1e-9
@@ -32,26 +35,50 @@ const INERTIAL_HI = 15
 
 export default experiment({
   id: 'fluids/turbulence-cascade',
-  title: 'the Kolmogorov turbulent cascade, the energy spectrum E(k) ~ k^(-5/3) in the shell model, the linear no-cascade model the control',
+  title:
+    'the Kolmogorov turbulent cascade, the energy spectrum E(k) ~ k^(-5/3) in the shell model, the linear no-cascade model the control',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
     // the cascade, the full GOY model with the advective nonlinearity on
-    const cascadeSpectrum = goyShellSpectrum({ shells: SHELLS, viscosity: VISCOSITY, dt: DT, steps: STEPS, nonlinear: true })
-    const shellEnergySlope = spectrumSlope({ spectrum: cascadeSpectrum, lo: INERTIAL_LO, hi: INERTIAL_HI })
+    const cascadeSpectrum = goyShellSpectrum({
+      shells: SHELLS,
+      viscosity: VISCOSITY,
+      dt: DT,
+      steps: STEPS,
+      nonlinear: true,
+    })
+    const shellEnergySlope = spectrumSlope({
+      spectrum: cascadeSpectrum,
+      lo: INERTIAL_LO,
+      hi: INERTIAL_HI,
+    })
     // E(k) = |u_n|^2 / k_n, so the spectrum slope is the shell-energy slope minus one
     const energySpectrumSlope = shellEnergySlope - 1
 
     // the control, the linear model (no nonlinearity), which has no cascade and no minus five-thirds
-    const linearSpectrum = goyShellSpectrum({ shells: SHELLS, viscosity: VISCOSITY, dt: DT, steps: STEPS, nonlinear: false })
-    const linearSlope = spectrumSlope({ spectrum: linearSpectrum, lo: INERTIAL_LO, hi: INERTIAL_HI }) - 1
+    const linearSpectrum = goyShellSpectrum({
+      shells: SHELLS,
+      viscosity: VISCOSITY,
+      dt: DT,
+      steps: STEPS,
+      nonlinear: false,
+    })
+    const linearSlope =
+      spectrumSlope({
+        spectrum: linearSpectrum,
+        lo: INERTIAL_LO,
+        hi: INERTIAL_HI,
+      }) - 1
 
     // the cascade spectrum is near the Kolmogorov minus five-thirds, the linear control is clearly not
     const kolmogorov = -5 / 3
-    const cascadeIsKolmogorov = Math.abs(energySpectrumSlope - kolmogorov) < 0.2
-    const controlIsNotKolmogorov = Math.abs(linearSlope - kolmogorov) > 0.4
+    const cascadeIsKolmogorov =
+      Math.abs(energySpectrumSlope - kolmogorov) < 0.2
+    const controlIsNotKolmogorov =
+      Math.abs(linearSlope - kolmogorov) > 0.4
     const ok = cascadeIsKolmogorov && controlIsNotKolmogorov
 
     return verdict({

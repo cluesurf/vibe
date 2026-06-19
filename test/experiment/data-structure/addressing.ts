@@ -1,6 +1,9 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { buildAddressing, addressingStats } from '@/code/substrate/coxeter/addressing-3434'
+import {
+  buildAddressing,
+  addressingStats,
+} from '@/code/substrate/coxeter/addressing-3434'
 import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
 // DS2 (data-structures-in-the-4d-bulk, experiments/16). Canonical addressing. Every cell of the hyperbolic
@@ -12,7 +15,8 @@ import { buildCoxeterMatrixMesh } from '@/code/substrate/coxeter/matrix-group'
 
 export default experiment({
   id: 'data-structure/addressing',
-  title: 'DS2: the hyperbolic bulk gives unique cell addresses of logarithmic length, far shorter than flat',
+  title:
+    'DS2: the hyperbolic bulk gives unique cell addresses of logarithmic length, far shorter than flat',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L1',
@@ -20,7 +24,9 @@ export default experiment({
   run() {
     const maxCells = 2000
     // the canonical {3,4,3,4} addressing, unique tree addresses of logarithmic digit length
-    const address = addressingStats(buildAddressing({ symbol: [3, 4, 3, 4], maxCells }))
+    const address = addressingStats(
+      buildAddressing({ symbol: [3, 4, 3, 4], maxCells }),
+    )
 
     // the address LENGTH as a radius is the BFS depth to reach the cells, measured for both the hyperbolic
     // {3,4,3,4} and the flat {3,4,3,3} at the same cap. The flat mesh needs many more shells (polynomial depth)
@@ -32,7 +38,8 @@ export default experiment({
     const flatDepth = flatMesh.shells.length
 
     const unique = address.allUnique
-    const logarithmicDepth = hyperbolicDepth <= 4 * Math.log2(hyperbolicMesh.adjacency.length) // O(log N)
+    const logarithmicDepth =
+      hyperbolicDepth <= 4 * Math.log2(hyperbolicMesh.adjacency.length) // O(log N)
     const hyperbolicShorter = hyperbolicDepth < flatDepth
 
     const ok = unique && logarithmicDepth && hyperbolicShorter
@@ -50,7 +57,10 @@ export default experiment({
       },
       // CONTROL: the flat honeycomb reaches the same cell count only at a much greater BFS depth (polynomial in
       // N), so the logarithmic address radius is the hyperbolic capacity, not the addressing scheme.
-      control: { flatDepth, hyperbolicShorter: hyperbolicShorter ? 1 : 0 },
+      control: {
+        flatDepth,
+        hyperbolicShorter: hyperbolicShorter ? 1 : 0,
+      },
       notes:
         'DS2 of experiments/16-data-structures-in-the-bulk. The logarithmic address is the direct consequence of DS1 (exponential capacity), and it is what makes the trie, DHT, and Merkle proofs O(log N).',
     })

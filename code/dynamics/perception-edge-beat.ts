@@ -19,9 +19,31 @@ export function perceptionEdgeBeat(input: {
   cohesive: boolean
   temperature: number
 }): void {
-  const { tone, eu, ev, offsets, adj, moved, rng, arrow, cohesive, temperature } = input
+  const {
+    tone,
+    eu,
+    ev,
+    offsets,
+    adj,
+    moved,
+    rng,
+    arrow,
+    cohesive,
+    temperature,
+  } = input
   if (cohesive) {
-    cohesiveEdgeSweep({ tone, eu, ev, offsets, adj, moved, rng, annihilate: true, arrow, escapeProbability: temperature })
+    cohesiveEdgeSweep({
+      tone,
+      eu,
+      ev,
+      offsets,
+      adj,
+      moved,
+      rng,
+      annihilate: true,
+      arrow,
+      escapeProbability: temperature,
+    })
   } else {
     conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
   }

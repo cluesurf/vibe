@@ -21,7 +21,11 @@ import { verdict } from '@/test/scaffold/verdict'
 import { squareMesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
 import { pairCollision, passThrough } from '@/code/rule/collision'
-import { run, beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
+import {
+  run,
+  beatInto,
+  streamSourceTable,
+} from '@/code/rule/lattice-gas'
 import { conservesCharge, isReversible } from '@/code/check/invariant'
 import { weightedGridRadiusOfGyration } from '@/code/measure/profile'
 
@@ -29,7 +33,7 @@ function radiusOfGyration(input: { will: Will; side: number }): number {
   return weightedGridRadiusOfGyration({
     cellCount: input.will.mesh.cellCount,
     side: input.side,
-    weightOf: (cell) => Math.abs(cellTone(input.will, cell)),
+    weightOf: cell => Math.abs(cellTone(input.will, cell)),
   })
 }
 
@@ -59,7 +63,8 @@ function packet(side: number): Will {
 
 export default experiment({
   id: 'selves/l3-self-from-base-rule',
-  title: 'the pure reversible base rule confines a packet into a persistent bounded structure, streaming alone spreads it',
+  title:
+    'the pure reversible base rule confines a packet into a persistent bounded structure, streaming alone spreads it',
   category: 'selves',
   substrates: ['square'],
   depth: 'L2',
@@ -68,19 +73,29 @@ export default experiment({
     const side = 48
     const beats = 18
     const mesh = squareMesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const collision = pairCollision({ opposite, forward: true })
     const inverse = pairCollision({ opposite, forward: false })
     const spreadMax = uniformGyration(side)
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // the rule is reversible and conserving, the condition that makes it a periodic orbit, not an attractor.
-    const reversibleOk = isReversible(packet(side), collision, beats, inverse)
+    const reversibleOk = isReversible(
+      packet(side),
+      collision,
+      beats,
+      inverse,
+    )
     const conservesOk = conservesCharge(packet(side), collision, beats)
 
     // the base rule, its interaction confines the packet.
     let base = packet(side)
-    let baseScratch: Will = { mesh: base.mesh, data: new Int8Array(base.data.length) }
+    let baseScratch: Will = {
+      mesh: base.mesh,
+      data: new Int8Array(base.data.length),
+    }
     const startRg = radiusOfGyration({ will: base, side })
     let baseMaxRg = startRg
     for (let t = 0; t < beats; t++) {
@@ -88,7 +103,10 @@ export default experiment({
       const swap = base
       base = baseScratch
       baseScratch = swap
-      baseMaxRg = Math.max(baseMaxRg, radiusOfGyration({ will: base, side }))
+      baseMaxRg = Math.max(
+        baseMaxRg,
+        radiusOfGyration({ will: base, side }),
+      )
     }
     const baseEndRg = radiusOfGyration({ will: base, side })
 

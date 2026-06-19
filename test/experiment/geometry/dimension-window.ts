@@ -18,32 +18,49 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { enumerateCompactHoneycombs } from '@/code/substrate/coxeter/schlafli'
 
-export function dimensionWindow(input: { maxP: number; maxDimension: number }): {
-  byDimension: { dimension: number; count: number; examples: string[] }[]
+export function dimensionWindow(input: {
+  maxP: number
+  maxDimension: number
+}): {
+  byDimension: {
+    dimension: number
+    count: number
+    examples: string[]
+  }[]
   compactWindow: number[]
   vanishesAbove: number
 } {
-  const byDimension: { dimension: number; count: number; examples: string[] }[] = []
+  const byDimension: {
+    dimension: number
+    count: number
+    examples: string[]
+  }[] = []
   for (let n = 2; n <= input.maxDimension; n++) {
-    const found = enumerateCompactHoneycombs({ dimension: n, maxEntry: input.maxP })
+    const found = enumerateCompactHoneycombs({
+      dimension: n,
+      maxEntry: input.maxP,
+    })
     byDimension.push({
       dimension: n,
       count: found.length,
-      examples: found.slice(0, 6).map((s) => `{${s.join(',')}}`),
+      examples: found.slice(0, 6).map(s => `{${s.join(',')}}`),
     })
   }
-  const compactWindow = byDimension.filter((d) => d.count > 0).map((d) => d.dimension)
-  const firstEmpty = byDimension.find((d) => d.count === 0)
+  const compactWindow = byDimension
+    .filter(d => d.count > 0)
+    .map(d => d.dimension)
+  const firstEmpty = byDimension.find(d => d.count === 0)
   return {
     byDimension,
     compactWindow,
-    vanishesAbove: (compactWindow[compactWindow.length - 1] ?? 0),
+    vanishesAbove: compactWindow[compactWindow.length - 1] ?? 0,
   }
 }
 
 export default experiment({
   id: 'geometry/dimension-window',
-  title: 'compact hyperbolic crystals only in dimensions 2, 3, 4 (H3 = 4, H4 = 5, H5 plus = 0)',
+  title:
+    'compact hyperbolic crystals only in dimensions 2, 3, 4 (H3 = 4, H4 = 5, H5 plus = 0)',
   category: 'geometry',
   substrates: 'any',
   depth: 'L1',
@@ -51,7 +68,7 @@ export default experiment({
   run() {
     const r = dimensionWindow({ maxP: 8, maxDimension: 6 })
     const count = (n: number): number =>
-      r.byDimension.find((d) => d.dimension === n)?.count ?? -1
+      r.byDimension.find(d => d.dimension === n)?.count ?? -1
     const ok =
       count(3) === 4 &&
       count(4) === 5 &&

@@ -55,7 +55,7 @@ export function cellComplexOf(input: {
 
   // Fast neighbor membership test for clique finding.
   const neighborSet: Array<Set<number>> = adjacency.map(
-    (row) => new Set(Array.from(row)),
+    row => new Set(Array.from(row)),
   )
 
   // boundary[1]: edges (1-cells) -> vertices (0-cells). Sign +1 at head b,
@@ -79,7 +79,11 @@ export function cellComplexOf(input: {
   // boundary[0] is empty: vertices have no boundary (0 rows is degenerate, so
   // use a single-column-free map of shape vertexCount x 0 is also degenerate;
   // store a 1x1 zero placeholder that is never assembled into D).
-  const boundary0 = sparseFromTriplets({ rows: 0, cols: vertexCount, triplets: [] })
+  const boundary0 = sparseFromTriplets({
+    rows: 0,
+    cols: vertexCount,
+    triplets: [],
+  })
   const boundary: SparseMatrix[] = [boundary0, boundary1]
 
   if (input.maxGrade >= 2) {
@@ -148,7 +152,9 @@ export function cellComplexOf(input: {
 //     block at rows offset[k], cols offset[k-1].
 // Placing B_k and its transpose in mirror positions makes the whole operator
 // symmetric, so the Lanczos solver applies.
-export function kahlerDirac(input: { complex: CellComplex }): SparseMatrix {
+export function kahlerDirac(input: {
+  complex: CellComplex
+}): SparseMatrix {
   const cellCount = input.complex.cellCount
   const grades = cellCount.length
 
@@ -177,9 +183,17 @@ export function kahlerDirac(input: { complex: CellComplex }): SparseMatrix {
         const c = b.colIdx[p] ?? 0
         const value = b.value[p] ?? 0
         // delta block: maps high grade k down to low grade k-1.
-        triplets.push({ row: lowOffset + r, col: highOffset + c, value })
+        triplets.push({
+          row: lowOffset + r,
+          col: highOffset + c,
+          value,
+        })
         // d block (transpose): maps low grade k-1 up to high grade k.
-        triplets.push({ row: highOffset + c, col: lowOffset + r, value })
+        triplets.push({
+          row: highOffset + c,
+          col: lowOffset + r,
+          value,
+        })
       }
     }
   }
@@ -211,14 +225,19 @@ export function kahlerDiracZeroModes(input: {
   const dirac = kahlerDirac({ complex: input.complex })
   const dSquared: LinearOperator = {
     size: dirac.rows,
-    apply: ({ x }) => sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
+    apply: ({ x }) =>
+      sparseMatVec(dirac, { x: sparseMatVec(dirac, { x }) }),
   }
   const squared = lowestEigenvalues({
     operator: dSquared,
     count: input.count,
     ...(input.steps === undefined ? {} : { steps: input.steps }),
   })
-  const smallestMagnitudes = Array.from(squared, (v) => Math.sqrt(Math.max(0, v)))
-  const zeroModes = smallestMagnitudes.filter((x) => x < input.threshold).length
+  const smallestMagnitudes = Array.from(squared, v =>
+    Math.sqrt(Math.max(0, v)),
+  )
+  const zeroModes = smallestMagnitudes.filter(
+    x => x < input.threshold,
+  ).length
   return { smallestMagnitudes, zeroModes }
 }

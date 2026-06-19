@@ -12,7 +12,10 @@
 // The 1D boundary of the 2D bulk makes this the cleanest possible Ryu-Takayanagi test, the prototype for
 // the same measurement on the 3D {5,3,4} bulk (needed-534). Deterministic, no randomness.
 
-import { buildCellGraph, buildEuclideanLattice } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildCellGraph,
+  buildEuclideanLattice,
+} from '@/code/substrate/coxeter/cell-direct'
 import { ryuTakayanagiScaling } from '@/code/measure/holography'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -26,10 +29,16 @@ export function ryuTakayanagi73(): {
   flatIsLinear: boolean
 } {
   const hyperbolic = buildCellGraph({ symbol: [7, 3], maxCells: 3000 })
-  const rtHyperbolic = ryuTakayanagiScaling({ neighbors: hyperbolic.neighbors, coords: hyperbolic.coords })
+  const rtHyperbolic = ryuTakayanagiScaling({
+    neighbors: hyperbolic.neighbors,
+    coords: hyperbolic.coords,
+  })
 
   const flat = buildEuclideanLattice({ symbol: [6, 3], maxCells: 3000 })
-  const rtFlat = ryuTakayanagiScaling({ neighbors: flat.neighbors, coords: flat.coords })
+  const rtFlat = ryuTakayanagiScaling({
+    neighbors: flat.neighbors,
+    coords: flat.coords,
+  })
 
   return {
     hyperbolicLogResidual: rtHyperbolic.logResidual,
@@ -43,7 +52,8 @@ export function ryuTakayanagi73(): {
 
 export default experiment({
   id: 'holography/ryu-takayanagi-73',
-  title: 'on {7,3} the boundary-interval entanglement follows the logarithmic Ryu-Takayanagi law, while the flat control is linear',
+  title:
+    'on {7,3} the boundary-interval entanglement follows the logarithmic Ryu-Takayanagi law, while the flat control is linear',
   category: 'holography',
   substrates: ['73'],
   depth: 'L3',

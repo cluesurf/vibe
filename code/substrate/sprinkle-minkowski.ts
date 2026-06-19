@@ -84,7 +84,9 @@ export function sprinkleMinkowski(input: {
     }
     let space2 = 0
     for (let axis = 1; axis < d; axis++) {
-      const dx = (sorted[pair.b * d + axis] ?? 0) - (sorted[pair.a * d + axis] ?? 0)
+      const dx =
+        (sorted[pair.b * d + axis] ?? 0) -
+        (sorted[pair.a * d + axis] ?? 0)
       space2 += dx * dx
     }
     return dt * dt - space2 >= 0

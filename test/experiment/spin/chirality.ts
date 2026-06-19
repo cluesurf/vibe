@@ -18,7 +18,8 @@ import {
 
 export default experiment({
   id: 'spin/chirality',
-  title: 'the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry',
+  title:
+    'the overlap lattice Dirac operator gives one species with exact lattice chiral symmetry',
   category: 'spin',
   substrates: ['any'],
   depth: 'L2',
@@ -48,7 +49,11 @@ export default experiment({
     const overlapChiral = overlap.gwResidualMax < 1e-9
 
     const ok =
-      naiveDoubled && wilsonOne && wilsonBroken && overlapOne && overlapChiral
+      naiveDoubled &&
+      wilsonOne &&
+      wilsonBroken &&
+      overlapOne &&
+      overlapChiral
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

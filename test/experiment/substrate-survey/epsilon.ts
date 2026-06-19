@@ -36,12 +36,16 @@ function run(input: {
     rng: makeRng({ seed: input.seed }),
     observe: ({ poset }) => orderStatistics({ poset }).mmDimension,
   })
-  return { heightRatio: h.meanObservable, mmDimension: d.meanObservable }
+  return {
+    heightRatio: h.meanObservable,
+    mmDimension: d.meanObservable,
+  }
 }
 
 export default experiment({
   id: 'substrate-survey/epsilon',
-  title: 'the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises',
+  title:
+    'the smeared Benincasa-Dowker action approaches the 2D reference in a manifold window as the smearing rises',
   category: 'substrate-survey',
   substrates: 'any',
   depth: 'L2',
@@ -55,8 +59,17 @@ export default experiment({
         rng: makeRng({ seed: 1 }),
       }),
     })
-    const action: Action = smearedBenincasaDowker({ epsilon: 0.9, dimension: 2 })
-    const measured = run({ action, size, steps: 3000, beta: 2, seed: 290 })
+    const action: Action = smearedBenincasaDowker({
+      epsilon: 0.9,
+      dimension: 2,
+    })
+    const measured = run({
+      action,
+      size,
+      steps: 3000,
+      beta: 2,
+      seed: 290,
+    })
     const ok =
       Math.abs(measured.mmDimension - reference.mmDimension) < 0.6 &&
       Math.abs(measured.heightRatio - reference.heightRatio) < 0.6

@@ -8,8 +8,14 @@
 
 import { lattice } from '@/code/substrate/lattice'
 import { reversibleEvenOdd } from '@/code/rule/reversible'
-import { makeStateSpace, permutationOfRule } from '@/code/operator/evolution'
-import { hamiltonianMatrix, pauliLocalityProfile } from '@/code/operator/ca-hamiltonian'
+import {
+  makeStateSpace,
+  permutationOfRule,
+} from '@/code/operator/evolution'
+import {
+  hamiltonianMatrix,
+  pauliLocalityProfile,
+} from '@/code/operator/ca-hamiltonian'
 import { Alphabet } from '@/code/tone/alphabet'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -29,8 +35,14 @@ function controlLocality(cells: number): {
   for (let s = 0; s < n; s++) {
     perm[s] = s ^ 1
   }
-  const profile = pauliLocalityProfile({ matrix: hamiltonianMatrix({ perm }), cells })
-  return { fractions: profile.weightByRange, localityLength: profile.localityLength }
+  const profile = pauliLocalityProfile({
+    matrix: hamiltonianMatrix({ perm }),
+    cells,
+  })
+  return {
+    fractions: profile.weightByRange,
+    localityLength: profile.localityLength,
+  }
 }
 
 function localityOf(cells: number): {
@@ -38,7 +50,11 @@ function localityOf(cells: number): {
   fractions: Float64Array
   localityLength: number
 } {
-  const substrate = lattice({ dimension: 1, extent: cells, signature: 'riemannian' })
+  const substrate = lattice({
+    dimension: 1,
+    extent: cells,
+    signature: 'riemannian',
+  })
   const alphabet: Alphabet = { form: 'boolean' }
   const space = makeStateSpace({ cells, alphabet })
   const rule = reversibleEvenOdd({
@@ -54,12 +70,17 @@ function localityOf(cells: number): {
   const perm = permutationOfRule({ rule, substrate, space })
   const h = hamiltonianMatrix({ perm })
   const profile = pauliLocalityProfile({ matrix: h, cells })
-  return { cells, fractions: profile.weightByRange, localityLength: profile.localityLength }
+  return {
+    cells,
+    fractions: profile.weightByRange,
+    localityLength: profile.localityLength,
+  }
 }
 
 export default experiment({
   id: 'foundations/locality',
-  title: 'the Pauli locality profile of a reversible Hamiltonian, validated by a provable control',
+  title:
+    'the Pauli locality profile of a reversible Hamiltonian, validated by a provable control',
   category: 'foundations',
   substrates: 'any',
   depth: 'L2',

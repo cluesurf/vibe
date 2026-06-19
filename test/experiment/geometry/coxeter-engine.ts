@@ -28,15 +28,33 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 export function coxeterEngine(): {
-  facetCounts: { symbol: string; geometry: string; cells: number; facetCount: number; expected: number }[]
+  facetCounts: {
+    symbol: string
+    geometry: string
+    cells: number
+    facetCount: number
+    expected: number
+  }[]
   allFacetsCorrect: boolean
-  dodecagridGenerations: { generation: number; newCells: number; total: number }[]
+  dodecagridGenerations: {
+    generation: number
+    newCells: number
+    total: number
+  }[]
   dodecagridExplodes: boolean
-  dodecagridDynamics: { settledFraction: number; toneHistogram: { minus: number; zero: number; plus: number } }
+  dodecagridDynamics: {
+    settledFraction: number
+    toneHistogram: { minus: number; zero: number; plus: number }
+  }
   solved: boolean
 } {
   // T2: facet counts for the standard tilings, the true degree from full adjacency.
-  const cases: { symbol: number[]; expected: number; depth: number; maxChambers: number }[] = [
+  const cases: {
+    symbol: number[]
+    expected: number
+    depth: number
+    maxChambers: number
+  }[] = [
     { symbol: [7, 3], expected: 7, depth: 14, maxChambers: 30000 },
     { symbol: [5, 4], expected: 5, depth: 14, maxChambers: 30000 },
     { symbol: [8, 3], expected: 8, depth: 14, maxChambers: 30000 },
@@ -44,8 +62,12 @@ export function coxeterEngine(): {
     { symbol: [4, 3, 5], expected: 6, depth: 18, maxChambers: 20000 },
     { symbol: [3, 5, 3], expected: 20, depth: 18, maxChambers: 20000 },
   ]
-  const facetCounts = cases.map((c) => {
-    const mesh = buildCoxeterMesh({ symbol: c.symbol, depth: c.depth, maxChambers: c.maxChambers })
+  const facetCounts = cases.map(c => {
+    const mesh = buildCoxeterMesh({
+      symbol: c.symbol,
+      depth: c.depth,
+      maxChambers: c.maxChambers,
+    })
     return {
       symbol: `{${c.symbol.join(',')}}`,
       geometry: mesh.geometry,
@@ -54,15 +76,24 @@ export function coxeterEngine(): {
       expected: c.expected,
     }
   })
-  const allFacetsCorrect = facetCounts.every((f) => f.facetCount === f.expected)
+  const allFacetsCorrect = facetCounts.every(
+    f => f.facetCount === f.expected,
+  )
 
   // T3 + T5: build the real dodecagrid, read its parallel generation growth, run the rule.
-  const dodeca = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 18, maxChambers: 20000 })
+  const dodeca = buildCoxeterMesh({
+    symbol: [5, 3, 4],
+    depth: 18,
+    maxChambers: 20000,
+  })
   const perGen = new Map<number, number>()
-  for (const g of dodeca.generation) perGen.set(g, (perGen.get(g) ?? 0) + 1)
-  const gens = [...perGen.keys()].filter((g) => g >= 0).sort((a, b) => a - b)
+  for (const g of dodeca.generation)
+    perGen.set(g, (perGen.get(g) ?? 0) + 1)
+  const gens = [...perGen.keys()]
+    .filter(g => g >= 0)
+    .sort((a, b) => a - b)
   let cum = 0
-  const dodecagridGenerations = gens.map((g) => {
+  const dodecagridGenerations = gens.map(g => {
     const newCells = perGen.get(g) ?? 0
     cum += newCells
     return { generation: g, newCells, total: cum }
@@ -70,16 +101,22 @@ export function coxeterEngine(): {
   // explodes: each early generation grows by more than the last (super-linear)
   const dodecagridExplodes =
     dodecagridGenerations.length >= 4 &&
-    (dodecagridGenerations[3]?.newCells ?? 0) > (dodecagridGenerations[2]?.newCells ?? 0) &&
-    (dodecagridGenerations[2]?.newCells ?? 0) > (dodecagridGenerations[1]?.newCells ?? 0)
+    (dodecagridGenerations[3]?.newCells ?? 0) >
+      (dodecagridGenerations[2]?.newCells ?? 0) &&
+    (dodecagridGenerations[2]?.newCells ?? 0) >
+      (dodecagridGenerations[1]?.newCells ?? 0)
 
-  const dodecagridDynamics = runAsynchronousSignedMajority({ neighbors: dodeca.neighbors, beats: 200, seed: 7 })
+  const dodecagridDynamics = runAsynchronousSignedMajority({
+    neighbors: dodeca.neighbors,
+    beats: 200,
+    seed: 7,
+  })
 
   const solved =
     allFacetsCorrect &&
     dodecagridExplodes &&
     dodecagridDynamics.settledFraction > 0.9 &&
-    facetCounts.find((f) => f.symbol === '{5,3,4}')?.facetCount === 12
+    facetCounts.find(f => f.symbol === '{5,3,4}')?.facetCount === 12
 
   return {
     facetCounts,
@@ -93,14 +130,15 @@ export function coxeterEngine(): {
 
 export default experiment({
   id: 'geometry/coxeter-engine',
-  title: 'Coxeter engine, full facet-adjacency exact (heptagrid 7, dodecagrid 12), dodecagrid runs',
+  title:
+    'Coxeter engine, full facet-adjacency exact (heptagrid 7, dodecagrid 12), dodecagrid runs',
   category: 'geometry',
   substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {
     const r = coxeterEngine()
-    const dodeca = r.facetCounts.find((f) => f.symbol === '{5,3,4}')
+    const dodeca = r.facetCounts.find(f => f.symbol === '{5,3,4}')
     const ok =
       r.solved &&
       r.allFacetsCorrect &&

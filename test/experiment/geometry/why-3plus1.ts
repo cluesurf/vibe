@@ -4,7 +4,10 @@
 // spin requirement. We confirm the cusp reads 3D (spectral dimension), and note why 3D is special (spinors,
 // the Hopf fibration, stable 1/r^2 orbits, knots). Run: npx tsx code/experiment/p235-why-3plus1.ts
 
-import { cubicLattice, cubicLatticeCenterBySide } from '@/code/substrate/cubic-lattice'
+import {
+  cubicLattice,
+  cubicLatticeCenterBySide,
+} from '@/code/substrate/cubic-lattice'
 import { spectralDimension } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -15,7 +18,12 @@ import { verdict } from '@/test/scaffold/verdict'
 function cuspSpectralDim(L: number): number {
   const g = cubicLattice(L, 3)
   const center = cubicLatticeCenterBySide({ side: L, dim: 3 })
-  return spectralDimension({ neighbors: g.neighbors, start: center, t1: 4, t2: 8 })
+  return spectralDimension({
+    neighbors: g.neighbors,
+    start: center,
+    t1: 4,
+    t2: 8,
+  })
 }
 
 export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
@@ -31,7 +39,8 @@ export function why3plus1(): { cuspDim: number; isThreeD: boolean } {
 // L1, the dimension of a known cubic lattice.
 export default experiment({
   id: 'geometry/why-3plus1',
-  title: 'the {4,3,4} cusp reads spectral dimension ~3, so spacetime is 3 space plus 1 beat',
+  title:
+    'the {4,3,4} cusp reads spectral dimension ~3, so spacetime is 3 space plus 1 beat',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L1',

@@ -13,15 +13,25 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { makeWill, fillWillPattern, gliderLine, charge } from '@/code/tone/will'
+import {
+  makeWill,
+  fillWillPattern,
+  gliderLine,
+  charge,
+} from '@/code/tone/will'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate, pairCollision } from '@/code/rule/collision'
-import { conservesCharge, conservesMomentum, totalMomentum } from '@/code/check/invariant'
+import {
+  conservesCharge,
+  conservesMomentum,
+  totalMomentum,
+} from '@/code/check/invariant'
 
 export default experiment({
   id: 'relativity/second-conserved-quantity-3434',
-  title: 'the momentum-conserving knit has a second conserved current (momentum) deterministically, the pair table does not',
+  title:
+    'the momentum-conserving knit has a second conserved current (momentum) deterministically, the pair table does not',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -30,7 +40,8 @@ export default experiment({
     const mesh = d4Mesh({ side: 6 })
     const directions = rootsD4()
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
     const beats = 50
 
     // a deterministic structured initial condition, never random (the methodology rule), a fixed function of the slot index
@@ -41,26 +52,66 @@ export default experiment({
 
     // the momentum-conserving collision: a head-on zero-momentum pair rotates to an empty line, lone charges stream
     const momentumRule = headOnRotate({ opposite })
-    const momentumConservesCharge = conservesCharge(will, momentumRule, beats)
-    const momentumConservesMomentum = conservesMomentum(will, momentumRule, beats, directions)
+    const momentumConservesCharge = conservesCharge(
+      will,
+      momentumRule,
+      beats,
+    )
+    const momentumConservesMomentum = conservesMomentum(
+      will,
+      momentumRule,
+      beats,
+      directions,
+    )
 
     // the control: the committed pair table conserves charge but NOT momentum (the hop and create move charge across a line)
     const pairForward = pairCollision({ opposite, forward: true })
-    const pairConservesCharge = conservesCharge(will, pairForward, beats)
-    const pairConservesMomentum = conservesMomentum(will, pairForward, beats, directions)
+    const pairConservesCharge = conservesCharge(
+      will,
+      pairForward,
+      beats,
+    )
+    const pairConservesMomentum = conservesMomentum(
+      will,
+      pairForward,
+      beats,
+      directions,
+    )
 
     // a NON-TRIVIAL check, a deterministic glider with NONZERO net momentum, the momentum rule must preserve the
     // nonzero vector exactly while the pair rule alters it (so conservation is not the trivial preservation of zero)
-    const glider = gliderLine({ mesh, start: 0, direction: 0, tone: 1, length: 5 }).will
+    const glider = gliderLine({
+      mesh,
+      start: 0,
+      direction: 0,
+      tone: 1,
+      length: 5,
+    }).will
     const gliderMomentum = totalMomentum(glider, directions)
-    const gliderMomentumNonzero = gliderMomentum.some((value) => value !== 0)
-    const momentumRuleHoldsGlider = conservesMomentum(glider, momentumRule, beats, directions)
-    const pairRuleHoldsGlider = conservesMomentum(glider, pairForward, beats, directions)
+    const gliderMomentumNonzero = gliderMomentum.some(
+      value => value !== 0,
+    )
+    const momentumRuleHoldsGlider = conservesMomentum(
+      glider,
+      momentumRule,
+      beats,
+      directions,
+    )
+    const pairRuleHoldsGlider = conservesMomentum(
+      glider,
+      pairForward,
+      beats,
+      directions,
+    )
 
     const ok =
-      momentumConservesCharge && momentumConservesMomentum && // the second current exists for the momentum rule
-      pairConservesCharge && !pairConservesMomentum && // the control conserves charge but breaks momentum
-      gliderMomentumNonzero && momentumRuleHoldsGlider && !pairRuleHoldsGlider // non-trivial, a nonzero momentum is held
+      momentumConservesCharge &&
+      momentumConservesMomentum && // the second current exists for the momentum rule
+      pairConservesCharge &&
+      !pairConservesMomentum && // the control conserves charge but breaks momentum
+      gliderMomentumNonzero &&
+      momentumRuleHoldsGlider &&
+      !pairRuleHoldsGlider // non-trivial, a nonzero momentum is held
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -69,15 +120,21 @@ export default experiment({
       metrics: {
         startCharge,
         startMomentumX: startMomentum[0] ?? 0,
-        momentumRuleConservesMomentum: momentumConservesMomentum ? 1 : 0,
+        momentumRuleConservesMomentum: momentumConservesMomentum
+          ? 1
+          : 0,
         pairRuleConservesMomentum: pairConservesMomentum ? 1 : 0,
         gliderMomentumX: gliderMomentum[0] ?? 0,
-        momentumRuleHoldsGliderMomentum: momentumRuleHoldsGlider ? 1 : 0,
+        momentumRuleHoldsGliderMomentum: momentumRuleHoldsGlider
+          ? 1
+          : 0,
         pairRuleHoldsGliderMomentum: pairRuleHoldsGlider ? 1 : 0,
         beats,
         directions: 24,
       },
-      control: { pairRuleConservesMomentum: pairConservesMomentum ? 1 : 0 },
+      control: {
+        pairRuleConservesMomentum: pairConservesMomentum ? 1 : 0,
+      },
       notes:
         'deterministic replacement for the stochastic relativity/second-conservation-search (which used random initial conditions, against the methodology, and never tested the committed momentum collision). Honest open, whether this second conservation yields a z=1 relativistic massless mode (vs the diffusive z=2 of the charge-only rule) is the named remaining gap = ST1.',
     })

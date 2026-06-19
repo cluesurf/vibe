@@ -17,8 +17,14 @@ import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-const beat = (tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void =>
-  conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
+const beat = (
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void => conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 
 export function persistentSelf(input?: { n?: number }): {
   n: number
@@ -52,10 +58,11 @@ export function persistentSelf(input?: { n?: number }): {
       const nf: number[] = []
       for (const u of fr) {
         region.push(u)
-        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++) if (!inRegion[g.adj[p]!]) {
-          inRegion[g.adj[p]!] = 1
-          nf.push(g.adj[p]!)
-        }
+        for (let p = g.offsets[u]!; p < g.offsets[u + 1]!; p++)
+          if (!inRegion[g.adj[p]!]) {
+            inRegion[g.adj[p]!] = 1
+            nf.push(g.adj[p]!)
+          }
       }
       fr = nf
     }
@@ -66,14 +73,16 @@ export function persistentSelf(input?: { n?: number }): {
   // boundary cells of the region (have a neighbor outside)
   const boundary: number[] = []
   for (const i of region) {
-    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++) if (!inRegion[g.adj[p]!]) {
-      boundary.push(i)
-      break
-    }
+    for (let p = g.offsets[i]!; p < g.offsets[i + 1]!; p++)
+      if (!inRegion[g.adj[p]!]) {
+        boundary.push(i)
+        break
+      }
   }
   // the identity pattern, a balanced +/- structure over the region
   const target = new Int8Array(N)
-  for (let idx = 0; idx < region.length; idx++) target[region[idx]!] = (idx % 2 === 0 ? 1 : -1) as -1 | 1
+  for (let idx = 0; idx < region.length; idx++)
+    target[region[idx]!] = (idx % 2 === 0 ? 1 : -1) as -1 | 1
   for (let i = region.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
     const a = region[i]!
@@ -93,7 +102,9 @@ export function persistentSelf(input?: { n?: number }): {
   }
 
   const seedMedium = (tone: Int8Array, r: Rng): void => {
-    for (let i = 0; i < N; i++) if (!inRegion[i] && r.next() < 0.25) tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
+    for (let i = 0; i < N; i++)
+      if (!inRegion[i] && r.next() < 0.25)
+        tone[i] = (r.next() < 0.5 ? 1 : -1) as -1 | 1
   }
 
   // (A) the SELF, structured identity + active self-maintenance (refill the region toward its pattern each
@@ -130,7 +141,8 @@ export function persistentSelf(input?: { n?: number }): {
     boundaryTotal++
     if (self[i] === target[i]) boundaryHeld++
   }
-  const selfBoundedness = boundaryTotal > 0 ? boundaryHeld / boundaryTotal : 0
+  const selfBoundedness =
+    boundaryTotal > 0 ? boundaryHeld / boundaryTotal : 0
 
   // (C) the shallow proxy, a monochromatic same-tone blob has NO internal structure (zero pattern entropy)
   // its "identity" is just one tone, so there is nothing to persist as an internal self
@@ -140,7 +152,11 @@ export function persistentSelf(input?: { n?: number }): {
   const unmaintainedDissolves = unmaintainedIdentityEnd < 0.4
   const selfIsBounded = selfBoundedness > 0.9 && selfIntegration > 0.9
   const blobIsStructureless = blobInternalStructure < 0.01
-  const solved = selfPersists && unmaintainedDissolves && selfIsBounded && blobIsStructureless
+  const solved =
+    selfPersists &&
+    unmaintainedDissolves &&
+    selfIsBounded &&
+    blobIsStructureless
 
   return {
     n: N,
@@ -160,7 +176,8 @@ export function persistentSelf(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/persistent-self',
-  title: 'a self-maintaining integrated region keeps its identity and boundary, the unmaintained pattern dissolves',
+  title:
+    'a self-maintaining integrated region keeps its identity and boundary, the unmaintained pattern dissolves',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',
@@ -168,12 +185,18 @@ export default experiment({
   run() {
     const r = persistentSelf({ n: 20000 })
     const ok =
-      r.solved && r.selfPersists && r.unmaintainedDissolves && r.selfIsBounded
+      r.solved &&
+      r.selfPersists &&
+      r.unmaintainedDissolves &&
+      r.selfIsBounded
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'a self-maintaining integrated region keeps its identity and boundary over many beats while the same region with no maintenance dissolves into churn, so persistence needs maintenance not a sixth base thing',
-      metrics: { selfIdentityEnd: r.selfIdentityEnd, selfBoundedness: r.selfBoundedness },
+      metrics: {
+        selfIdentityEnd: r.selfIdentityEnd,
+        selfBoundedness: r.selfBoundedness,
+      },
       control: { unmaintainedIdentityEnd: r.unmaintainedIdentityEnd },
     })
   },

@@ -7,11 +7,15 @@
 
 // The distinct ascending levels, merging values closer than tolerance into one.
 // Useful for collapsing spin/sign degeneracies and roundoff-split eigenvalues.
-export function distinctLevels(values: number[], tolerance = 1e-4): number[] {
+export function distinctLevels(
+  values: number[],
+  tolerance = 1e-4,
+): number[] {
   const sorted = [...values].sort((a, b) => a - b)
   const out: number[] = []
   for (const v of sorted) {
-    if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance) out.push(v)
+    if (!out.length || Math.abs(v - out[out.length - 1]!) > tolerance)
+      out.push(v)
   }
   return out
 }

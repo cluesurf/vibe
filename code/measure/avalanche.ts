@@ -16,7 +16,9 @@ export function toneDensity(t: Int8Array): number {
 // distribution at that background (the seed-a-flip damage-spreading observable). `settleSteps` beats
 // equilibrate from an all-zero state; the resulting background density and the sorted avalanche sizes
 // are returned. The terminating-cascade ('peak') mode is the directed-percolation criticality probe.
-export function settledAvalancheSizes<R extends { next: () => number }>(input: {
+export function settledAvalancheSizes<
+  R extends { next: () => number },
+>(input: {
   size: number
   settleSteps: number
   steps: number
@@ -28,16 +30,38 @@ export function settledAvalancheSizes<R extends { next: () => number }>(input: {
   relax: (state: Int8Array, rng: R) => void
   mode: 'final' | 'peak'
 }): { sizes: number[]; background: number } {
-  const { size, settleSteps, steps, trials, settleSeed, perturbSeed, streamSeed, makeRng, relax, mode } = input
+  const {
+    size,
+    settleSteps,
+    steps,
+    trials,
+    settleSeed,
+    perturbSeed,
+    streamSeed,
+    makeRng,
+    relax,
+    mode,
+  } = input
   const base = new Int8Array(size)
   const settleRng = makeRng(settleSeed)
   for (let t = 0; t < settleSteps; t++) relax(base, settleRng)
   const background = toneDensity(base)
-  const sizes = avalancheSizes({ base, steps, trials, perturbSeed, streamSeed, makeRng, relax, mode })
+  const sizes = avalancheSizes({
+    base,
+    steps,
+    trials,
+    perturbSeed,
+    streamSeed,
+    makeRng,
+    relax,
+    mode,
+  })
   return { sizes, background }
 }
 
-export function avalancheSizes<R extends { next: () => number }>(input: {
+export function avalancheSizes<
+  R extends { next: () => number },
+>(input: {
   base: Int8Array
   steps: number
   trials: number
@@ -47,7 +71,16 @@ export function avalancheSizes<R extends { next: () => number }>(input: {
   relax: (state: Int8Array, rng: R) => void
   mode: 'final' | 'peak'
 }): number[] {
-  const { base, steps, trials, perturbSeed, streamSeed, makeRng, relax, mode } = input
+  const {
+    base,
+    steps,
+    trials,
+    perturbSeed,
+    streamSeed,
+    makeRng,
+    relax,
+    mode,
+  } = input
   const N = base.length
   const sizes: number[] = []
   for (let tr = 0; tr < trials; tr++) {

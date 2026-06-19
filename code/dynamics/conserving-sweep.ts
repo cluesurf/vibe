@@ -28,7 +28,10 @@ export function conservingEdgeSweep(input: {
     if (moved[v] || moved[w]) continue
     const a = tone[v]!
     const b = tone[w]!
-    if (!onlyCreate && ((a === 1 && b === -1) || (a === -1 && b === 1))) {
+    if (
+      !onlyCreate &&
+      ((a === 1 && b === -1) || (a === -1 && b === 1))
+    ) {
       tone[v] = 0
       tone[w] = 0
       moved[v] = 1
@@ -379,7 +382,7 @@ export function conservingEdgeListSweepPumped(input: {
 }): void {
   const { tone, edges, moved, rng, arrow, pump } = input
   const far = input.farValue ?? 1e9
-  const field = (i: number): number => (pump ? pump[i] ?? far : 0)
+  const field = (i: number): number => (pump ? (pump[i] ?? far) : 0)
   moved.fill(0)
   for (const [v, w] of edges) {
     if (moved[v] || moved[w]) continue
@@ -394,7 +397,11 @@ export function conservingEdgeListSweepPumped(input: {
       const c = a === 0 ? w : v
       const e = a === 0 ? v : w
       const q = tone[c]!
-      const doHop = pump ? (q > 0 ? field(e) < field(c) : field(e) > field(c)) : rng.next() < 0.5
+      const doHop = pump
+        ? q > 0
+          ? field(e) < field(c)
+          : field(e) > field(c)
+        : rng.next() < 0.5
       if (doHop) {
         tone[e] = q
         tone[c] = 0
@@ -454,7 +461,8 @@ export function conservingEdgeSweepSteered(input: {
       const q = tone[c]!
       let doHop: boolean
       if (distGoal && q > 0) {
-        doHop = towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
+        doHop =
+          towardSign < 0 ? field(e) < field(c) : field(e) > field(c)
       } else {
         doHop = rng.next() < 0.5
       }
@@ -472,8 +480,16 @@ export function conservingEdgeSweepSteered(input: {
 // Used by the hashed sweep so that perturbing one cell does NOT shift the random
 // stream seen by distant edges (which would be a spurious instantaneous global
 // difference). Both copies of a damage-spreading run see the same hash per edge.
-export function hashRand(key: number, beat: number, salt: number): number {
-  let h = (Math.imul(key, 73856093) ^ Math.imul(beat, 19349663) ^ Math.imul(salt, 83492791)) | 0
+export function hashRand(
+  key: number,
+  beat: number,
+  salt: number,
+): number {
+  let h =
+    (Math.imul(key, 73856093) ^
+      Math.imul(beat, 19349663) ^
+      Math.imul(salt, 83492791)) |
+    0
   h = Math.imul(h ^ (h >>> 13), 1274126177)
   h = h ^ (h >>> 16)
   return (h >>> 0) / 4294967296

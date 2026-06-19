@@ -36,7 +36,8 @@ import {
 
 export default experiment({
   id: 'selves/per-cell-radiation-obstruction',
-  title: 'per-cell ternary has no self: a radiating rule shatters the kink, a static rule traps the hit (the corrective self is emergent)',
+  title:
+    'per-cell ternary has no self: a radiating rule shatters the kink, a static rule traps the hit (the corrective self is emergent)',
   category: 'selves',
   substrates: ['ternary-z3'],
   depth: 'L2',
@@ -51,11 +52,19 @@ export default experiment({
     // drain (final stays near peak).
     let flat: TernaryField = makeTernaryField({ size, fill: () => 0 })
     flat.curr[center] = 1
-    const nonzero = (u: Int8Array): number => { let c = 0; for (let x = 0; x < u.length; x++) if (u[x] !== 0) c++; return c }
+    const nonzero = (u: Int8Array): number => {
+      let c = 0
+      for (let x = 0; x < u.length; x++) if (u[x] !== 0) c++
+      return c
+    }
     let coupledPeak = 0
     let coupledFinal = 0
     for (let t = 0; t < steps; t++) {
-      flat = stepTernaryField({ field: flat, rule: linearTernaryRule, boundary: { form: 'absorbing', left: 0, right: 0 } })
+      flat = stepTernaryField({
+        field: flat,
+        rule: linearTernaryRule,
+        boundary: { form: 'absorbing', left: 0, right: 0 },
+      })
       const c = nonzero(flat.curr)
       if (c > coupledPeak) coupledPeak = c
       coupledFinal = c
@@ -63,16 +72,29 @@ export default experiment({
 
     // horn 2, DECOUPLED rule keeps a kink static, but a body hit (flip the wall cell and a neighbour) is TRAPPED,
     // it never spreads beyond a cell, it cannot radiate to the bath.
-    const makeKink = (): TernaryField => makeTernaryField({ size, fill: x => (x < center ? 0 : 1) })
+    const makeKink = (): TernaryField =>
+      makeTernaryField({ size, fill: x => (x < center ? 0 : 1) })
     let clean = makeKink()
     let hit = makeKink()
     hit.curr[center] = ((hit.curr[center]! + 1) % 3) as number
     hit.curr[center - 1] = ((hit.curr[center - 1]! + 2) % 3) as number
     let maxSpread = 0
     for (let t = 0; t < steps; t++) {
-      clean = stepTernaryField({ field: clean, rule: decoupledTernaryRule, boundary: { form: 'absorbing', left: 0, right: 1 } })
-      hit = stepTernaryField({ field: hit, rule: decoupledTernaryRule, boundary: { form: 'absorbing', left: 0, right: 1 } })
-      const r = spreadRadius({ clean: clean.curr, perturbed: hit.curr, center })
+      clean = stepTernaryField({
+        field: clean,
+        rule: decoupledTernaryRule,
+        boundary: { form: 'absorbing', left: 0, right: 1 },
+      })
+      hit = stepTernaryField({
+        field: hit,
+        rule: decoupledTernaryRule,
+        boundary: { form: 'absorbing', left: 0, right: 1 },
+      })
+      const r = spreadRadius({
+        clean: clean.curr,
+        perturbed: hit.curr,
+        center,
+      })
       if (r > maxSpread) maxSpread = r
     }
 
@@ -82,12 +104,20 @@ export default experiment({
     let radiating: TernaryField = makeKink()
     const radiatingWallsStart = wallCount(radiating.curr)
     for (let t = 0; t < steps; t++) {
-      radiating = stepTernaryField({ field: radiating, rule: linearTernaryRule, boundary: { form: 'absorbing', left: 0, right: 1 } })
+      radiating = stepTernaryField({
+        field: radiating,
+        rule: linearTernaryRule,
+        boundary: { form: 'absorbing', left: 0, right: 1 },
+      })
     }
     const radiatingWallsEnd = wallCount(radiating.curr)
     let staticKink: TernaryField = makeKink()
     for (let t = 0; t < steps; t++) {
-      staticKink = stepTernaryField({ field: staticKink, rule: decoupledTernaryRule, boundary: { form: 'absorbing', left: 0, right: 1 } })
+      staticKink = stepTernaryField({
+        field: staticKink,
+        rule: decoupledTernaryRule,
+        boundary: { form: 'absorbing', left: 0, right: 1 },
+      })
     }
     const staticWallsEnd = wallCount(staticKink.curr)
 
@@ -95,9 +125,13 @@ export default experiment({
     // (no agency), while the static rule keeps the kink clean but traps the body hit (no agency). PASS means we
     // correctly demonstrated that no per-cell rule gives a self with both identity and agency.
     const coupledDoesNotDrain = coupledFinal > coupledPeak * 0.5
-    const radiatingShattersKink = radiatingWallsEnd >= radiatingWallsStart * 10
+    const radiatingShattersKink =
+      radiatingWallsEnd >= radiatingWallsStart * 10
     const staticKeepsButTraps = staticWallsEnd <= 3 && maxSpread <= 1
-    const noPerCellSelf = coupledDoesNotDrain && radiatingShattersKink && staticKeepsButTraps
+    const noPerCellSelf =
+      coupledDoesNotDrain &&
+      radiatingShattersKink &&
+      staticKeepsButTraps
 
     const ok = noPerCellSelf
     return verdict({

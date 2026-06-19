@@ -38,8 +38,14 @@ export function writeReport(input: {
   mkdirSync(input.outDir, { recursive: true })
 
   const result = input.result
-  const jsonPath = join(input.outDir, `${result.name}-${result.seed}.json`)
-  const markdownPath = join(input.outDir, `${result.name}-${result.seed}.md`)
+  const jsonPath = join(
+    input.outDir,
+    `${result.name}-${result.seed}.json`,
+  )
+  const markdownPath = join(
+    input.outDir,
+    `${result.name}-${result.seed}.md`,
+  )
 
   // Machine output: the full ScanResult verbatim.
   writeFileSync(jsonPath, JSON.stringify(result, null, 2))
@@ -49,7 +55,9 @@ export function writeReport(input: {
   const lines: string[] = []
   lines.push(`# Scan: ${result.name}`)
   lines.push('')
-  lines.push(`Seed ${result.seed}. ${result.points.length} parameter points.`)
+  lines.push(
+    `Seed ${result.seed}. ${result.points.length} parameter points.`,
+  )
   lines.push('')
   lines.push(
     'Each metric cell shows the mean across repeats with its standard deviation.',

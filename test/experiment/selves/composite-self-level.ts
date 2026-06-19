@@ -22,14 +22,19 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, shellDistances, type Mesh } from '@/code/tool/mesh'
 import { makeWill, cellTone, type Will } from '@/code/tone/will'
-import { pairCollision, passThrough, type Collision } from '@/code/rule/collision'
+import {
+  pairCollision,
+  passThrough,
+  type Collision,
+} from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
 import { emergenceGain } from '@/code/coarse/causal-emergence'
 import { makeRng } from '@/code/tool/rng'
 
 export default experiment({
   id: 'selves/composite-self-level',
-  title: 'a captured composite has the metastable slow mode the self-level needs, a dispersing packet does not',
+  title:
+    'a captured composite has the metastable slow mode the self-level needs, a dispersing packet does not',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -41,9 +46,15 @@ export default experiment({
     const macroCount = 4
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
     const dist = shellDistances(mesh, center)
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
@@ -61,7 +72,10 @@ export default experiment({
     // the slow-mode observable, the net-charge centroid distance from the centre, recorded each beat.
     const centroidSeries = (collision: Collision): number[] => {
       let current = packet()
-      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
+      let scratch: Will = {
+        mesh,
+        data: new Int8Array(current.data.length),
+      }
       const series: number[] = []
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision })
@@ -72,7 +86,10 @@ export default experiment({
         let weighted = 0
         for (let c = 0; c < mesh.cellCount; c++) {
           const q = Math.abs(cellTone(current, c))
-          if (q !== 0) { weight += q; weighted += q * dist[c]! }
+          if (q !== 0) {
+            weight += q
+            weighted += q * dist[c]!
+          }
         }
         series.push(weight > 0 ? weighted / weight : 0)
       }
@@ -80,8 +97,20 @@ export default experiment({
     }
 
     // the captured composite (confined breather) versus the dispersing packet (streaming only).
-    const composite = emergenceGain({ series: centroidSeries(pairCollision({ opposite, forward: true })), fine, macroCount, rng: makeRng({ seed: 4242 }) })
-    const dispersing = emergenceGain({ series: centroidSeries(passThrough), fine, macroCount, rng: makeRng({ seed: 4242 }) })
+    const composite = emergenceGain({
+      series: centroidSeries(
+        pairCollision({ opposite, forward: true }),
+      ),
+      fine,
+      macroCount,
+      rng: makeRng({ seed: 4242 }),
+    })
+    const dispersing = emergenceGain({
+      series: centroidSeries(passThrough),
+      fine,
+      macroCount,
+      rng: makeRng({ seed: 4242 }),
+    })
 
     const compositeGain = composite.eiSpatial - composite.eiRandom
     const dispersingGain = dispersing.eiSpatial - dispersing.eiRandom
@@ -94,7 +123,8 @@ export default experiment({
     // yet a self-LEVEL. The self-level (intrinsic emergence, agency) needs the bath's dissipation, which the
     // reversible composite lacks, consistent with selves/l3-breather-self-criteria (blanket and light cone also
     // negative on this very structure). The bath appears twice, once to enable capture, once to make the self.
-    const noIntrinsicEmergence = composite.eiSpatial <= composite.eiMicro
+    const noIntrinsicEmergence =
+      composite.eiSpatial <= composite.eiMicro
 
     const ok = noIntrinsicEmergence
     return verdict({

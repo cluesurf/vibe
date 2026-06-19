@@ -30,7 +30,8 @@ import { octonionFermionGeneration } from '@/code/measure/octonion-fermions'
 
 export default experiment({
   id: 'foundations/fermions-from-octonions',
-  title: 'one generation of fermions (with exact color and charges 0, 1/3, 2/3, 1) from the complexified octonions, the Furey construction',
+  title:
+    'one generation of fermions (with exact color and charges 0, 1/3, 2/3, 1) from the complexified octonions, the Furey construction',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -62,7 +63,13 @@ export default experiment({
       Math.abs(charges[2]! - 2 / 3) < 1e-9 &&
       Math.abs(charges[3]! - 1) < 1e-9
 
-    const ok = cliffordOk && ladderOk && traceOk && spectrumOk && multiplicitiesOk && chargesOk
+    const ok =
+      cliffordOk &&
+      ladderOk &&
+      traceOk &&
+      spectrumOk &&
+      multiplicitiesOk &&
+      chargesOk
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -73,7 +80,8 @@ export default experiment({
         ladderRelationsHold: ladderOk ? 1 : 0,
         numberOperatorTrace: generation.numberOperatorTrace,
         spectrumQuantized: spectrumOk ? 1 : 0,
-        colorSinglets: generation.multiplicities[0]! + generation.multiplicities[3]!,
+        colorSinglets:
+          generation.multiplicities[0]! + generation.multiplicities[3]!,
         colorTriplet: generation.multiplicities[1]!,
         colorAntiTriplet: generation.multiplicities[2]!,
         chargeNeutrino: Number(charges[0]!.toFixed(3)),

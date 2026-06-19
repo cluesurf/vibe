@@ -12,7 +12,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Z^3 cubic box of side L (centered at the origin), 6-neighbour, with Dirichlet boundary (boundary cells absent).
-function cubicBox(L: number): { nb: number[][]; coord: number[][]; center: number } {
+function cubicBox(L: number): {
+  nb: number[][]
+  coord: number[][]
+  center: number
+} {
   const box = cubicBoxRows({ side: L, dim: 3 })
   return { nb: box.neighbors, coord: box.coords, center: box.center }
 }
@@ -20,23 +24,53 @@ function cubicBox(L: number): { nb: number[][]; coord: number[][]; center: numbe
 // The spectral dimension (lazy-walk return probability) and the Dirichlet Green's
 // function falloff exponent both live in code/measure. The cubic cusp has full
 // coordination 6, the degree the Dirichlet solve uses.
-const spectralDim = (nb: number[][], start: number, t1: number, t2: number): number =>
-  Math.round(spectralDimension({ neighbors: nb, start, t1, t2 }) * 100) / 100
-const gravityExp = (nb: number[][], coord: number[][], center: number, rmax: number): number =>
-  greensFunctionExponent({ neighbors: nb, coords: coord, center, degree: 6, rmax })
+const spectralDim = (
+  nb: number[][],
+  start: number,
+  t1: number,
+  t2: number,
+): number =>
+  Math.round(
+    spectralDimension({ neighbors: nb, start, t1, t2 }) * 100,
+  ) / 100
+const gravityExp = (
+  nb: number[][],
+  coord: number[][],
+  center: number,
+  rmax: number,
+): number =>
+  greensFunctionExponent({
+    neighbors: nb,
+    coords: coord,
+    center,
+    degree: 6,
+    rmax,
+  })
 
 export function cuspConvergence(): void {
   const H = 0.8 // de Sitter rate per beat (cosmology-and-anisotropy), L ~ e^(H t) -> t = ln(L)/H
-  let sufficientL = 0; let prevGe = NaN
+  let sufficientL = 0
+  let prevGe = NaN
   for (const L of [5, 7, 11, 17, 25, 35]) {
     const { nb, coord, center } = cubicBox(L)
-    const sd = spectralDim(nb, center, 3, Math.min(14, Math.floor((L * L) / 6)))
-    const ge = gravityExp(nb, coord, center, Math.max(3, Math.floor(L / 2) - 1))
+    const sd = spectralDim(
+      nb,
+      center,
+      3,
+      Math.min(14, Math.floor((L * L) / 6)),
+    )
+    const ge = gravityExp(
+      nb,
+      coord,
+      center,
+      Math.max(3, Math.floor(L / 2) - 1),
+    )
     // continuum-like = spectral dim converged to 3 AND gravity exponent L-CONVERGED (no longer changing with L);
     // the absolute gravity value reflects small-r discreteness, the true asymptote is 1/r (p224). What matters
     // for "sufficient size" is L-INDEPENDENCE (local physics stops depending on the chunk size).
     const dimOk = Math.abs(sd - 3) < 0.1
-    const gravConverged = Number.isFinite(prevGe) && Math.abs(ge - prevGe) < 0.1
+    const gravConverged =
+      Number.isFinite(prevGe) && Math.abs(ge - prevGe) < 0.1
     const ok = dimOk && gravConverged
     if (ok && sufficientL === 0) sufficientL = L
     prevGe = ge
@@ -52,7 +86,8 @@ export function cuspConvergence(): void {
 // this substrate, so L2. The small box is the control, it has not yet converged.
 export default experiment({
   id: 'geometry/cusp-convergence',
-  title: 'a finite cubic cusp chunk becomes continuum-like (dim 3, settled gravity) within a few dozen cells',
+  title:
+    'a finite cubic cusp chunk becomes continuum-like (dim 3, settled gravity) within a few dozen cells',
   category: 'geometry',
   substrates: ['3434'],
   depth: 'L2',
@@ -60,14 +95,42 @@ export default experiment({
   run() {
     const small = cubicBox(5)
     const big = cubicBox(35)
-    const smallDim = spectralDim(small.nb, small.center, 3, Math.min(14, Math.floor((5 * 5) / 6)))
-    const bigDim = spectralDim(big.nb, big.center, 3, Math.min(14, Math.floor((35 * 35) / 6)))
+    const smallDim = spectralDim(
+      small.nb,
+      small.center,
+      3,
+      Math.min(14, Math.floor((5 * 5) / 6)),
+    )
+    const bigDim = spectralDim(
+      big.nb,
+      big.center,
+      3,
+      Math.min(14, Math.floor((35 * 35) / 6)),
+    )
     const mid = cubicBox(25)
-    const midDim = spectralDim(mid.nb, mid.center, 3, Math.min(14, Math.floor((25 * 25) / 6)))
-    const midGrav = gravityExp(mid.nb, mid.coord, mid.center, Math.max(3, Math.floor(25 / 2) - 1))
-    const bigGrav = gravityExp(big.nb, big.coord, big.center, Math.max(3, Math.floor(35 / 2) - 1))
+    const midDim = spectralDim(
+      mid.nb,
+      mid.center,
+      3,
+      Math.min(14, Math.floor((25 * 25) / 6)),
+    )
+    const midGrav = gravityExp(
+      mid.nb,
+      mid.coord,
+      mid.center,
+      Math.max(3, Math.floor(25 / 2) - 1),
+    )
+    const bigGrav = gravityExp(
+      big.nb,
+      big.coord,
+      big.center,
+      Math.max(3, Math.floor(35 / 2) - 1),
+    )
     const dimConverged = Math.abs(bigDim - 3) < 0.1
-    const gravLConverged = Number.isFinite(midGrav) && Number.isFinite(bigGrav) && Math.abs(bigGrav - midGrav) < 0.1
+    const gravLConverged =
+      Number.isFinite(midGrav) &&
+      Number.isFinite(bigGrav) &&
+      Math.abs(bigGrav - midGrav) < 0.1
     const smallNotYet = Math.abs(smallDim - 3) > Math.abs(bigDim - 3)
     const ok = dimConverged && gravLConverged && smallNotYet
     return verdict({
@@ -85,7 +148,7 @@ export default experiment({
         smallDimension: smallDim,
       },
       notes:
-        'L2, the cubic lattice recovering 3D diffusion and a settled Green\'s function exponent, a known construction reproduced here. The small box is the not-yet-converged control. The absolute gravity exponent reflects small-r discreteness, the convergence test is L-independence, not the value 1.',
+        "L2, the cubic lattice recovering 3D diffusion and a settled Green's function exponent, a known construction reproduced here. The small box is the not-yet-converged control. The absolute gravity exponent reflects small-r discreteness, the convergence test is L-independence, not the value 1.",
     })
   },
 })

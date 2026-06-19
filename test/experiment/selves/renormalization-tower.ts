@@ -14,13 +14,19 @@ import { selfTrajectory } from '@/code/coarse/self-trajectory'
 
 export default experiment({
   id: 'selves/renormalization-tower',
-  title: 'the measured level-0 compression composes into the effective vibe count N_top times C to the L',
+  title:
+    'the measured level-0 compression composes into the effective vibe count N_top times C to the L',
   category: 'renormalization',
   substrates: ['flat-horosphere'],
   depth: 'L1',
   paper: false,
   run() {
-    const traj = selfTrajectory({ L: 64, beats: 200, bins: 8, seed: 31415 })
+    const traj = selfTrajectory({
+      L: 64,
+      beats: 200,
+      bins: 8,
+      seed: 31415,
+    })
     const compression = Math.max(2, traj.meanSelfSize)
     const topUnits = 1e7
     const levels = 4
@@ -30,7 +36,10 @@ export default experiment({
       compression,
       commutingError: 0,
     }))
-    const effective = effectiveVibeCount({ topUnits, levels: levelList })
+    const effective = effectiveVibeCount({
+      topUnits,
+      levels: levelList,
+    })
     const byHand = topUnits * Math.pow(compression, levels)
     const ok = Math.abs(effective - byHand) / byHand < 1e-9
     return verdict({

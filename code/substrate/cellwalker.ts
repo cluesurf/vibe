@@ -18,12 +18,20 @@ export interface CellWalker {
 }
 
 // a fresh walker on a cell, facing edge `spin` (default 0)
-export function cellWalker(cell: number, spin = 0, mirror = false): CellWalker {
+export function cellWalker(
+  cell: number,
+  spin = 0,
+  mirror = false,
+): CellWalker {
   return { cell, spin, mirror }
 }
 
 // turn in place by `turns` edges, counterclockwise for a right-handed walker, clockwise for a mirrored one
-export function rotate(source: TileSource, walker: CellWalker, turns: number): CellWalker {
+export function rotate(
+  source: TileSource,
+  walker: CellWalker,
+  turns: number,
+): CellWalker {
   const degree = source.degree(walker.cell)
   const delta = walker.mirror ? -turns : turns
   const spin = (((walker.spin + delta) % degree) + degree) % degree
@@ -32,25 +40,43 @@ export function rotate(source: TileSource, walker: CellWalker, turns: number): C
 
 // step forward across the faced edge, re-seating the spin to point back the way it came (the HyperRogue
 // `wstep`). This is an involution, wstep(wstep(w)) === w.
-export function wstep(source: TileSource, walker: CellWalker): CellWalker {
+export function wstep(
+  source: TileSource,
+  walker: CellWalker,
+): CellWalker {
   const next = source.step(walker.cell, walker.spin)
-  return { cell: next.cell, spin: next.back, mirror: walker.mirror !== next.mirror }
+  return {
+    cell: next.cell,
+    spin: next.back,
+    mirror: walker.mirror !== next.mirror,
+  }
 }
 
 // flip the walker's handedness in place (face the same edge from the mirror side)
 export function flip(walker: CellWalker): CellWalker {
-  return { cell: walker.cell, spin: walker.spin, mirror: !walker.mirror }
+  return {
+    cell: walker.cell,
+    spin: walker.spin,
+    mirror: !walker.mirror,
+  }
 }
 
 // step forward then turn, the common "move into the cell ahead and face along its corridor" motion
-export function wstepRotate(source: TileSource, walker: CellWalker, turns: number): CellWalker {
+export function wstepRotate(
+  source: TileSource,
+  walker: CellWalker,
+  turns: number,
+): CellWalker {
   return rotate(source, wstep(source, walker), turns)
 }
 
 // the cells touching the current cell's vertex that the faced edge starts from, walked by going around the
 // vertex (step out, turn one edge, repeat) until the walker returns. Returns the ring of cells around that
 // vertex, the q cells of a {p,q} vertex figure.
-export function vertexRing(source: TileSource, walker: CellWalker): number[] {
+export function vertexRing(
+  source: TileSource,
+  walker: CellWalker,
+): number[] {
   const ring: number[] = []
   let current = walker
   const startCell = walker.cell

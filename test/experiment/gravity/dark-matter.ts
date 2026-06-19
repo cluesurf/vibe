@@ -16,12 +16,25 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // Solve L phi = b (zero-mean) by conjugate gradient, projecting out the constant.
 function cgSolve(neighbors: number[][], b: Float64Array): Float64Array {
-  return solveGraphPoisson({ neighbors, b, maxIterationFactor: 5, tolerance: 1e-18 })
+  return solveGraphPoisson({
+    neighbors,
+    b,
+    maxIterationFactor: 5,
+    tolerance: 1e-18,
+  })
 }
 
 // Rotation curve v^2(r) = r * |dphi/dr| from the modified potential phi = L^-1 b +
 // w * L^-2 b of a central point source.
-export function rotationCurve(input: { side: number; nonlocal: number }): { r: number[]; v2: number[]; outerSlope: number; flatnessRatio: number } {
+export function rotationCurve(input: {
+  side: number
+  nonlocal: number
+}): {
+  r: number[]
+  v2: number[]
+  outerSlope: number
+  flatnessRatio: number
+} {
   const lat = cubicLattice(input.side, 3)
   const n = lat.size
   const mid = Math.floor(input.side / 2)
@@ -71,7 +84,8 @@ export function rotationCurve(input: { side: number; nonlocal: number }): { r: n
 
 export default experiment({
   id: 'gravity/dark-matter',
-  title: 'nonlocal gravity flattens the rotation curve (no dark particle)',
+  title:
+    'nonlocal gravity flattens the rotation curve (no dark particle)',
   category: 'gravity',
   substrates: 'any',
   depth: 'L0',

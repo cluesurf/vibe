@@ -18,7 +18,11 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // "rich" = a living, structured field, alive (density in a healthy band) AND coherent (neighbours
 // correlated, real structure, not white noise)
-function isRich(tone: Int8Array, eu: Int32Array, ev: Int32Array): { rich: boolean; density: number; nnCorr: number } {
+function isRich(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+): { rich: boolean; density: number; nnCorr: number } {
   const N = tone.length
   let nz = 0
   let sum = 0
@@ -29,7 +33,8 @@ function isRich(tone: Int8Array, eu: Int32Array, ev: Int32Array): { rich: boolea
   const density = nz / N
   const mean = sum / N
   let cc = 0
-  for (let k = 0; k < eu.length; k++) cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
+  for (let k = 0; k < eu.length; k++)
+    cc += (tone[eu[k]!]! - mean) * (tone[ev[k]!]! - mean)
   const nnCorr = cc / eu.length
   const alive = density > 0.02 && density < 0.7
   const coherent = Math.abs(nnCorr) > 0.004
@@ -38,7 +43,12 @@ function isRich(tone: Int8Array, eu: Int32Array, ev: Int32Array): { rich: boolea
 
 export function designSignature(input?: { n?: number }): {
   n: number
-  grid: { arrow: number; share: number; rich: boolean; density: number }[]
+  grid: {
+    arrow: number
+    share: number
+    rich: boolean
+    density: number
+  }[]
   richFraction: number
   deadOnlyAtZeroArrow: boolean
   geometryForced: boolean
@@ -55,23 +65,45 @@ export function designSignature(input?: { n?: number }): {
 
   const arrows = [0.0, 0.02, 0.05, 0.1, 0.2, 0.35, 0.55, 0.8]
   const shares = [0.3, 0.6, 1.0]
-  const grid: { arrow: number; share: number; rich: boolean; density: number }[] = []
-  for (const arrow of arrows) for (const share of shares) {
-    const tone = new Int8Array(N)
-    const rng = makeRng({ seed: 7 })
-    for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-    for (let t = 0; t < 60; t++) conservingEdgeSweepTunable({ tone, eu, ev, moved, rng, arrow, share, hop: 0.5 })
-    const r = isRich(tone, eu, ev)
-    grid.push({ arrow, share, rich: r.rich, density: r.density })
-  }
+  const grid: {
+    arrow: number
+    share: number
+    rich: boolean
+    density: number
+  }[] = []
+  for (const arrow of arrows)
+    for (const share of shares) {
+      const tone = new Int8Array(N)
+      const rng = makeRng({ seed: 7 })
+      for (let i = 0; i < N; i++)
+        tone[i] = (
+          rng.next() < 0.2 ? (rng.next() < 0.5 ? 1 : -1) : 0
+        ) as -1 | 0 | 1
+      for (let t = 0; t < 60; t++)
+        conservingEdgeSweepTunable({
+          tone,
+          eu,
+          ev,
+          moved,
+          rng,
+          arrow,
+          share,
+          hop: 0.5,
+        })
+      const r = isRich(tone, eu, ev)
+      grid.push({ arrow, share, rich: r.rich, density: r.density })
+    }
 
-  const richCount = grid.filter((c) => c.rich).length
+  const richCount = grid.filter(c => c.rich).length
   const richFraction = richCount / grid.length
   // the only systematically dead column should be arrow = 0 (the degenerate point), not a special interior
-  const zeroArrowRich = grid.filter((c) => c.arrow === 0 && c.rich).length
-  const positiveArrowRich = grid.filter((c) => c.arrow > 0 && c.rich).length
-  const positiveArrowTotal = grid.filter((c) => c.arrow > 0).length
-  const deadOnlyAtZeroArrow = zeroArrowRich === 0 && positiveArrowRich > positiveArrowTotal * 0.6
+  const zeroArrowRich = grid.filter(c => c.arrow === 0 && c.rich).length
+  const positiveArrowRich = grid.filter(
+    c => c.arrow > 0 && c.rich,
+  ).length
+  const positiveArrowTotal = grid.filter(c => c.arrow > 0).length
+  const deadOnlyAtZeroArrow =
+    zeroArrowRich === 0 && positiveArrowRich > positiveArrowTotal * 0.6
 
   // the other two anti-design facts, established elsewhere
   const geometryForced = true // P86, ternary + minimal eternal closure FORCES {5,3,4}, not a tuned choice
@@ -79,23 +111,38 @@ export function designSignature(input?: { n?: number }): {
 
   // a fine-tuning signature would be a NARROW rich region (richFraction small) with no forcing and no
   // self-organization. Here the region is broad, the structure is forced, and the point self-organizes.
-  const fineTuningSignature = richFraction < 0.15 && !geometryForced && !selfOrganizes
-  const designerDispensable = (richFraction > 0.5 || geometryForced || selfOrganizes) && deadOnlyAtZeroArrow
+  const fineTuningSignature =
+    richFraction < 0.15 && !geometryForced && !selfOrganizes
+  const designerDispensable =
+    (richFraction > 0.5 || geometryForced || selfOrganizes) &&
+    deadOnlyAtZeroArrow
   const solved = !fineTuningSignature && designerDispensable
 
-  return { n: N, grid, richFraction, deadOnlyAtZeroArrow, geometryForced, selfOrganizes, fineTuningSignature, designerDispensable, solved }
+  return {
+    n: N,
+    grid,
+    richFraction,
+    deadOnlyAtZeroArrow,
+    geometryForced,
+    selfOrganizes,
+    fineTuningSignature,
+    designerDispensable,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'foundations/design-signature',
-  title: 'the rich regime is broad so there is no fine-tuning signature',
+  title:
+    'the rich regime is broad so there is no fine-tuning signature',
   category: 'foundations',
   substrates: ['534'],
   depth: 'L2',
   paper: true,
   run() {
     const r = designSignature({ n: 16000 })
-    const ok = r.solved && !r.fineTuningSignature && r.designerDispensable
+    const ok =
+      r.solved && !r.fineTuningSignature && r.designerDispensable
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

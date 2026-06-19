@@ -46,10 +46,20 @@ export function groupSpeedAnisotropy(input: {
   const speeds: number[] = []
   for (let a = 0; a < samples; a++) {
     const theta = (a / samples) * (Math.PI / 2)
-    speeds.push(groupSpeed({ omega, kx: kMag * Math.cos(theta), ky: kMag * Math.sin(theta), step: input.step }))
+    speeds.push(
+      groupSpeed({
+        omega,
+        kx: kMag * Math.cos(theta),
+        ky: kMag * Math.sin(theta),
+        step: input.step,
+      }),
+    )
   }
   const mean = speeds.reduce((p, q) => p + q, 0) / speeds.length
   const max = Math.max(...speeds)
   const min = Math.min(...speeds)
-  return { meanSpeed: mean, anisotropy: mean > 0 ? (max - min) / mean : 0 }
+  return {
+    meanSpeed: mean,
+    anisotropy: mean > 0 ? (max - min) / mean : 0,
+  }
 }

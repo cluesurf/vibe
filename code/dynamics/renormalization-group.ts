@@ -24,8 +24,16 @@ export function couplingMeetingTime(input: {
   betaFirst: number
   betaSecond: number
 }): number {
-  const { inverseAtZeroFirst, inverseAtZeroSecond, betaFirst, betaSecond } = input
-  return (inverseAtZeroFirst - inverseAtZeroSecond) / ((betaFirst - betaSecond) / TWO_PI)
+  const {
+    inverseAtZeroFirst,
+    inverseAtZeroSecond,
+    betaFirst,
+    betaSecond,
+  } = input
+  return (
+    (inverseAtZeroFirst - inverseAtZeroSecond) /
+    ((betaFirst - betaSecond) / TWO_PI)
+  )
 }
 
 // alpha_s(mu) by one-loop running from alpha_s(mu_0): alpha_s^-1(mu) = alpha_s^-1(mu_0) - b3/2pi ln(mu/mu_0).
@@ -36,7 +44,9 @@ export function oneLoopStrongCoupling(input: {
   referenceScale: number
 }): number {
   const { couplingAtReference, beta3, scale, referenceScale } = input
-  const inverse = 1 / couplingAtReference - (beta3 / TWO_PI) * Math.log(scale / referenceScale)
+  const inverse =
+    1 / couplingAtReference -
+    (beta3 / TWO_PI) * Math.log(scale / referenceScale)
   return 1 / inverse
 }
 
@@ -50,9 +60,15 @@ export function qcdRunningMassFactor(input: {
   highScale: number
   anomalousDimension?: number
 }): number {
-  const { couplingAtReference, beta3, referenceScale, highScale } = input
+  const { couplingAtReference, beta3, referenceScale, highScale } =
+    input
   const gamma0 = input.anomalousDimension ?? 8
-  const couplingHigh = oneLoopStrongCoupling({ couplingAtReference, beta3, scale: highScale, referenceScale })
+  const couplingHigh = oneLoopStrongCoupling({
+    couplingAtReference,
+    beta3,
+    scale: highScale,
+    referenceScale,
+  })
   const exponent = gamma0 / (2 * Math.abs(beta3))
   return (couplingAtReference / couplingHigh) ** exponent
 }
@@ -94,19 +110,36 @@ export function gutScaleAndCoupling(input: {
   const referenceScaleGeV = input.referenceScaleGeV ?? 91.19
   const inverseTwo = sin2 * A // SU(2)
   const inverseOne = (3 / 5) * (1 - sin2) * A // U(1), GUT-normalized
-  const t = couplingMeetingTime({ inverseAtZeroFirst: inverseOne, inverseAtZeroSecond: inverseTwo, betaFirst: beta[0], betaSecond: beta[1] })
-  const unifiedInverseCoupling = oneLoopInverseCoupling({ inverseAtZero: inverseOne, beta: beta[0], t })
-  return { gutScaleGeV: referenceScaleGeV * Math.exp(t), unifiedInverseCoupling }
+  const t = couplingMeetingTime({
+    inverseAtZeroFirst: inverseOne,
+    inverseAtZeroSecond: inverseTwo,
+    betaFirst: beta[0],
+    betaSecond: beta[1],
+  })
+  const unifiedInverseCoupling = oneLoopInverseCoupling({
+    inverseAtZero: inverseOne,
+    beta: beta[0],
+    t,
+  })
+  return {
+    gutScaleGeV: referenceScaleGeV * Math.exp(t),
+    unifiedInverseCoupling,
+  }
 }
 
 // The proton lifetime in YEARS from dimension-six decay mediated by the X/Y leptoquark bosons at the GUT scale.
 // The standard estimate tau ~ M_X^4 / (alpha_GUT^2 * m_p^5), with M_X the GUT scale and m_p the proton mass, both
 // in GeV. The result is in natural units (GeV^-1) and is converted to years. This is an order-of-magnitude
 // prediction (the hadronic matrix element carries an O(1) factor), fixed once the GUT scale and coupling are set.
-export function protonLifetimeYears(input: { gutScaleGeV: number; unifiedInverseCoupling: number; protonMassGeV?: number }): number {
+export function protonLifetimeYears(input: {
+  gutScaleGeV: number
+  unifiedInverseCoupling: number
+  protonMassGeV?: number
+}): number {
   const mProton = input.protonMassGeV ?? 0.938
   const alphaGut = 1 / input.unifiedInverseCoupling
-  const lifetimeInverseGeV = input.gutScaleGeV ** 4 / (alphaGut ** 2 * mProton ** 5)
+  const lifetimeInverseGeV =
+    input.gutScaleGeV ** 4 / (alphaGut ** 2 * mProton ** 5)
   const hbarGeVSeconds = 6.582119e-25 // GeV * s
   const secondsPerYear = 3.15576e7
   return (lifetimeInverseGeV * hbarGeVSeconds) / secondsPerYear

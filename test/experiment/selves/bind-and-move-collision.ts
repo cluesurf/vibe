@@ -30,14 +30,20 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { loneParticle } from '@/code/tone/will'
-import { pairCollision, headOnRotate, bindAndMove, type Collision } from '@/code/rule/collision'
+import {
+  pairCollision,
+  headOnRotate,
+  bindAndMove,
+  type Collision,
+} from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
 import { travelDistance, maxOccupancy } from '@/code/check/structure'
 
 export default experiment({
   id: 'selves/bind-and-move-collision',
-  title: 'no single-speed local reversible collision both binds and moves: mobility and the binding engine are mutually exclusive',
+  title:
+    'no single-speed local reversible collision both binds and moves: mobility and the binding engine are mutually exclusive',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -46,25 +52,45 @@ export default experiment({
     const side = 20
     const beats = 10
     const mesh: Mesh = d4Mesh({ side })
-    const opposite = Array.from({ length: mesh.degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: mesh.degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const dir = 0
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
 
     const pair: Collision = pairCollision({ opposite, forward: true })
     const mobile: Collision = headOnRotate({ opposite })
     const bind: Collision = bindAndMove({ opposite })
-    const bindInverse: Collision = bindAndMove({ opposite, forward: false })
+    const bindInverse: Collision = bindAndMove({
+      opposite,
+      forward: false,
+    })
 
     const start = () => loneParticle(mesh, center, dir)
 
     // the build is valid, bindAndMove is reversible and charge-conserving.
-    const bindReversible = isReversible(start(), bind, beats, bindInverse)
+    const bindReversible = isReversible(
+      start(),
+      bind,
+      beats,
+      bindInverse,
+    )
     const bindChargeOk = conservesCharge(start(), bind, beats)
 
     // mobility axis, a lone charge travels under headOnRotate, pins under pairCollision.
-    const headOnTravel = travelDistance({ will: run(start(), mobile, beats), start: center })
-    const pairTravel = travelDistance({ will: run(start(), pair, beats), start: center })
+    const headOnTravel = travelDistance({
+      will: run(start(), mobile, beats),
+      start: center,
+    })
+    const pairTravel = travelDistance({
+      will: run(start(), pair, beats),
+      start: center,
+    })
 
     // vacuum-stability axis, the max occupied cells reached over the run from a single charge. The create
     // binding engine (in pairCollision and bindAndMove) makes the vacuum active, headOnRotate (no create) leaves

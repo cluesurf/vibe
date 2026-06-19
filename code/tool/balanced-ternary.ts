@@ -11,7 +11,10 @@ export function balancedTernaryCap(digits: number): number {
 
 // The K balanced-ternary digits of a value, little-endian, each in {-1, 0, +1}. Values outside the K-digit
 // range are clamped to the nearest representable number.
-export function toBalancedTernary(value: number, digits: number): number[] {
+export function toBalancedTernary(
+  value: number,
+  digits: number,
+): number[] {
   const cap = balancedTernaryCap(digits)
   let v = value < -cap ? -cap : value > cap ? cap : value
   const out: number[] = []
@@ -25,20 +28,27 @@ export function toBalancedTernary(value: number, digits: number): number[] {
 }
 
 // The integer value of a list of balanced-ternary digits (little-endian, each in {-1, 0, +1}).
-export function fromBalancedTernary(digits: ReadonlyArray<number>): number {
+export function fromBalancedTernary(
+  digits: ReadonlyArray<number>,
+): number {
   let value = 0
-  for (let i = digits.length - 1; i >= 0; i--) value = value * 3 + digits[i]!
+  for (let i = digits.length - 1; i >= 0; i--)
+    value = value * 3 + digits[i]!
   return value
 }
 
 // Whether every value in an integer field is representable in K balanced-ternary digits (within the cap), the
 // check that a potential field is genuinely a K-trit ternary field, each cell a stack of K tones.
-export function isBalancedTernaryField(values: ArrayLike<number>, digits: number): boolean {
+export function isBalancedTernaryField(
+  values: ArrayLike<number>,
+  digits: number,
+): boolean {
   const cap = balancedTernaryCap(digits)
   for (let i = 0; i < values.length; i++) {
     const v = values[i]!
     if (v < -cap || v > cap) return false
-    if (fromBalancedTernary(toBalancedTernary(v, digits)) !== v) return false
+    if (fromBalancedTernary(toBalancedTernary(v, digits)) !== v)
+      return false
   }
   return true
 }

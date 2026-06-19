@@ -14,12 +14,28 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function expansionLaw(): { ratio: number; H: number } {
-  const g = buildCellGraph({ symbol: [3, 4, 3, 4] as never, maxCells: 40000 })
-  const N = g.cellCount, nb = g.neighbors
-  let center = 0, best = -1; for (let i = 0; i < N; i++) if (nb[i]!.length > best) { best = nb[i]!.length; center = i }
-  const { shellCounts: shell } = bfsShells({ neighbors: nb, root: center })
+  const g = buildCellGraph({
+    symbol: [3, 4, 3, 4] as never,
+    maxCells: 40000,
+  })
+  const N = g.cellCount,
+    nb = g.neighbors
+  let center = 0,
+    best = -1
+  for (let i = 0; i < N; i++)
+    if (nb[i]!.length > best) {
+      best = nb[i]!.length
+      center = i
+    }
+  const { shellCounts: shell } = bfsShells({
+    neighbors: nb,
+    root: center,
+  })
   // the radial shell sizes = spatial volume per cosmic-time step. The growth ratio R (constant = exponential)
-  const ratio = Math.round(branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100) / 100
+  const ratio =
+    Math.round(
+      branchingRatio({ shellCounts: shell, from: 3, to: 7 }) * 100,
+    ) / 100
   const H = Math.round((Math.log(ratio) / 3) * 1000) / 1000 // a ~ R^(t/3), H = ln R / 3
   return { ratio, H }
 }
@@ -27,22 +43,27 @@ function expansionLaw(): { ratio: number; H: number } {
 function anisotropyBound(): { coeff: number; deltaGZK: number } {
   // {4,3,4} cubic dispersion, omega^2(k) along axis vs body-diagonal at fixed |k| = q
   const w2axis = (q: number): number => 2 * (1 - Math.cos(q)) // (q,0,0)
-  const w2diag = (q: number): number => 3 * 2 * (1 - Math.cos(q / Math.sqrt(3))) // (q,q,q)/sqrt3, |k|=q
+  const w2diag = (q: number): number =>
+    3 * 2 * (1 - Math.cos(q / Math.sqrt(3))) // (q,q,q)/sqrt3, |k|=q
   // relative anisotropy at small q, fit delta = coeff * q^2
   const q = 0.3
-  const rel = Math.abs(w2axis(q) - w2diag(q)) / ((w2axis(q) + w2diag(q)) / 2)
+  const rel =
+    Math.abs(w2axis(q) - w2diag(q)) / ((w2axis(q) + w2diag(q)) / 2)
   const coeff = Math.round((rel / (q * q)) * 10000) / 10000 // expect ~ 1/18 = 0.0556
   // physical Lorentz-violation, delta = coeff * (E / E_cutoff)^2, with E_cutoff = Planck ~ 1.22e19 GeV
   const Epl = 1.22e19 // GeV
   const at = (E: number): number => coeff * (E / Epl) ** 2
-  const dGeV = at(1), dTeV = at(1e3), dGZK = at(5e10) // GZK ~ 5e10 GeV (5e19 eV)
+  const dGeV = at(1),
+    dTeV = at(1e3),
+    dGZK = at(5e10) // GZK ~ 5e10 GeV (5e19 eV)
   return { coeff, deltaGZK: dGZK }
 }
 
 export function cosmologyAndAnisotropy(): void {
   const e = expansionLaw()
   const a = anisotropyBound()
-  void e; void a
+  void e
+  void a
 }
 
 export default experiment({

@@ -28,7 +28,11 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
-import { growthRatioFromShellCounts, shellCountsFromGraph, shellSeparationExponent } from '@/code/measure/shell-growth'
+import {
+  growthRatioFromShellCounts,
+  shellCountsFromGraph,
+  shellSeparationExponent,
+} from '@/code/measure/shell-growth'
 
 // the measured neutrino mass-squared splittings (eV^2), normal ordering, the lightest mass taken near zero
 const SOLAR_SPLITTING = 7.5e-5
@@ -40,7 +44,8 @@ const BOTTOM_OVER_STRANGE = 4180 / 93.4
 
 export default experiment({
   id: 'gauge/neutrino-mass-ladder',
-  title: 'the neutrinos are the mildest sector on the {3,4,3,4} shell ladder (sub-shell spacing), the geometric origin of the large PMNS mixing, the steep-neutrino case the control',
+  title:
+    'the neutrinos are the mildest sector on the {3,4,3,4} shell ladder (sub-shell spacing), the geometric origin of the large PMNS mixing, the steep-neutrino case the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L2',
@@ -57,25 +62,41 @@ export default experiment({
     // the neutrino masses from the splittings (m1 about 0), m2 = sqrt(solar), m3 = sqrt(atmospheric + solar)
     const m2 = Math.sqrt(SOLAR_SPLITTING)
     const m3 = Math.sqrt(ATMOSPHERIC_SPLITTING + SOLAR_SPLITTING)
-    const neutrinoSpacing = shellSeparationExponent({ ratio: m3 / m2, growthRate: lambda })
+    const neutrinoSpacing = shellSeparationExponent({
+      ratio: m3 / m2,
+      growthRate: lambda,
+    })
 
     // the charged-sector spacings, for comparison
-    const leptonSpacing = shellSeparationExponent({ ratio: TAU_OVER_MUON, growthRate: lambda })
-    const upSpacing = shellSeparationExponent({ ratio: TOP_OVER_CHARM, growthRate: lambda })
-    const downSpacing = shellSeparationExponent({ ratio: BOTTOM_OVER_STRANGE, growthRate: lambda })
+    const leptonSpacing = shellSeparationExponent({
+      ratio: TAU_OVER_MUON,
+      growthRate: lambda,
+    })
+    const upSpacing = shellSeparationExponent({
+      ratio: TOP_OVER_CHARM,
+      growthRate: lambda,
+    })
+    const downSpacing = shellSeparationExponent({
+      ratio: BOTTOM_OVER_STRANGE,
+      growthRate: lambda,
+    })
 
     // the neutrino spacing is sub-shell (less than one) and the mildest of all sectors
     const neutrinoSubShell = neutrinoSpacing < 1
     const neutrinoMildest =
-      neutrinoSpacing < leptonSpacing && neutrinoSpacing < upSpacing && neutrinoSpacing < downSpacing
+      neutrinoSpacing < leptonSpacing &&
+      neutrinoSpacing < upSpacing &&
+      neutrinoSpacing < downSpacing
 
     // the hierarchy-mixing link, the mixing scales as the square root of the mass ratio, so the mild neutrino ladder
     // gives a large angle and a steep ladder a small angle (the control)
     const neutrinoMixingScale = Math.sqrt(m2 / m3) // sqrt of the inverse ratio, the mixing magnitude
     const steepHypotheticalMixing = Math.sqrt(1 / (lambda * lambda)) // if neutrinos were two shells apart (steep)
-    const mildGivesLargerMixing = neutrinoMixingScale > 5 * steepHypotheticalMixing
+    const mildGivesLargerMixing =
+      neutrinoMixingScale > 5 * steepHypotheticalMixing
 
-    const ok = neutrinoSubShell && neutrinoMildest && mildGivesLargerMixing
+    const ok =
+      neutrinoSubShell && neutrinoMildest && mildGivesLargerMixing
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -89,10 +110,14 @@ export default experiment({
         downSpacing: Number(downSpacing.toFixed(3)),
         neutrinoMassRatio: Number((m3 / m2).toFixed(3)),
         neutrinoMixingScale: Number(neutrinoMixingScale.toFixed(3)),
-        steepHypotheticalMixing: Number(steepHypotheticalMixing.toFixed(4)),
+        steepHypotheticalMixing: Number(
+          steepHypotheticalMixing.toFixed(4),
+        ),
       },
       control: {
-        steepHypotheticalMixing: Number(steepHypotheticalMixing.toFixed(4)),
+        steepHypotheticalMixing: Number(
+          steepHypotheticalMixing.toFixed(4),
+        ),
         mildGivesLargerMixing: mildGivesLargerMixing ? 1 : 0,
       },
       notes:

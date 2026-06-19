@@ -61,7 +61,9 @@ export function pearson(input: {
 // largest absolute value in the series (a scale-free fluctuation measure). Near
 // zero means the quantity is effectively constant, used to detect conserved
 // quantities (a conservation law shows relative spread below a tolerance).
-export function relativeStandardDeviation(series: ArrayLike<number>): number {
+export function relativeStandardDeviation(
+  series: ArrayLike<number>,
+): number {
   const n = series.length
   if (n === 0) return 0
   let m = 0
@@ -82,7 +84,10 @@ export function relativeStandardDeviation(series: ArrayLike<number>): number {
 // Relative root-mean-square error between two series, sqrt( sum (a-b)^2 / sum a^2 ), normalized by the
 // reference `a`. Zero when they coincide. The commuting-square fidelity (how close coarsen-then-evolve
 // is to evolve-then-coarsen) and other agreement-of-fields checks read off this.
-export function relativeL2Error(a: ArrayLike<number>, b: ArrayLike<number>): number {
+export function relativeL2Error(
+  a: ArrayLike<number>,
+  b: ArrayLike<number>,
+): number {
   const n = Math.min(a.length, b.length)
   let num = 0
   let den = 0
@@ -111,7 +116,8 @@ export function crossJointCounts(input: {
   for (let t = 0; t < last; t++) {
     const i = seriesA[t]!
     const j = seriesB[t + lag]!
-    if (i >= 0 && j >= 0 && i < stateCount && j < stateCount) counts[i]![j]!++
+    if (i >= 0 && j >= 0 && i < stateCount && j < stateCount)
+      counts[i]![j]!++
   }
   return counts
 }
@@ -120,7 +126,9 @@ export function crossJointCounts(input: {
 // to a probability, then sums p(x,y) log2( p(x,y) / (p(x) p(y)) ) over non-empty cells. Zero when
 // the variables are independent, used to quantify measurement dependence (the setting-versus-hidden
 // -state correlation) in the Bell / superdeterminism experiments.
-export function mutualInformationBits(joint: ArrayLike<ArrayLike<number>>): number {
+export function mutualInformationBits(
+  joint: ArrayLike<ArrayLike<number>>,
+): number {
   const rows = joint.length
   const cols = joint[0]?.length ?? 0
   let total = 0

@@ -13,7 +13,9 @@ import { Configuration } from '@/code/tone/configuration'
 import { Rng } from '@/code/tool/rng'
 
 // Pick the highest-degree node as the seed of the candidate region.
-function highestDegreeNode(adjacency: ReadonlyArray<Uint32Array>): number {
+function highestDegreeNode(
+  adjacency: ReadonlyArray<Uint32Array>,
+): number {
   let best = 0
   let bestDegree = -1
   for (let node = 0; node < adjacency.length; node++) {
@@ -58,7 +60,7 @@ export function algebraicConnectivity(input: {
   nodes.forEach((node, i) => indexOf.set(node, i))
 
   // Local adjacency restricted to the region.
-  const localAdjacency: number[][] = nodes.map((node) => {
+  const localAdjacency: number[][] = nodes.map(node => {
     const row = input.adjacency[node] ?? new Uint32Array(0)
     const local: number[] = []
     for (let k = 0; k < row.length; k++) {
@@ -70,7 +72,7 @@ export function algebraicConnectivity(input: {
     }
     return local
   })
-  const degree = localAdjacency.map((row) => row.length)
+  const degree = localAdjacency.map(row => row.length)
 
   // Apply L = D - A to a vector x.
   const applyLaplacian = (x: Float64Array): Float64Array => {
@@ -184,7 +186,6 @@ export function integrationCorrelates(input: {
   return { markovBlanketScore, integrationPhi }
 }
 
-
 // Tone-aware integrated information. Unlike algebraicConnectivity (which reads only
 // the graph), this reads the RULE's dynamics on tones. For a candidate region it
 // estimates the minimum-information bipartition: over random tone configurations it
@@ -215,7 +216,7 @@ export function toneIntegration(input: {
   const fillOf = input.fillOf ?? ((): number => 1)
   const indexOf = new Map<number, number>()
   nodes.forEach((node, i) => indexOf.set(node, i))
-  const nb: Array<Array<{ j: number; f: number }>> = nodes.map((node) => {
+  const nb: Array<Array<{ j: number; f: number }>> = nodes.map(node => {
     const row = input.adjacency[node] ?? new Uint32Array(0)
     const out: Array<{ j: number; f: number }> = []
     for (const w of row) {

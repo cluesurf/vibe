@@ -15,14 +15,21 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function makeLandscape(L: number): { V: number[]; start: number; goal: number; localPeak: number; valley: number } {
+function makeLandscape(L: number): {
+  V: number[]
+  start: number
+  goal: number
+  localPeak: number
+  valley: number
+} {
   const localPeak = Math.floor(L * 0.25)
   const valley = Math.floor(L * 0.5)
   const goal = L
   const V = new Array<number>(L + 1).fill(0)
   for (let p = 0; p <= L; p++) {
     if (p <= localPeak) V[p] = 0.6 * (p / localPeak)
-    else if (p <= valley) V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak))
+    else if (p <= valley)
+      V[p] = 0.6 - 0.4 * ((p - localPeak) / (valley - localPeak))
     else V[p] = 0.2 + 0.8 * ((p - valley) / (goal - valley))
   }
   return { V, start: Math.floor(L * 0.1), goal, localPeak, valley }
@@ -85,12 +92,24 @@ export function planningNoAdditions(input?: { L?: number }): {
   const plannerBeatsGreedy = plannerReachedGoal && !greedyReachedGoal
   const solved = plannerBeatsGreedy && usesOnlyEmergent
 
-  return { L, goal, greedyPos, greedyReachedGoal, plannerPos, plannerReachedGoal, willPushLength: bestK, usesOnlyEmergent, plannerBeatsGreedy, solved }
+  return {
+    L,
+    goal,
+    greedyPos,
+    greedyReachedGoal,
+    plannerPos,
+    plannerReachedGoal,
+    willPushLength: bestK,
+    usesOnlyEmergent,
+    plannerBeatsGreedy,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'selves/planning-no-additions',
-  title: 'a planner built only from the arrow, the rule, and the will crosses a barrier greedy cannot',
+  title:
+    'a planner built only from the arrow, the rule, and the will crosses a barrier greedy cannot',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',

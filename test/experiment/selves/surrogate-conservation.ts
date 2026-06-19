@@ -9,7 +9,12 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { flatGraph, emergeSelf, beat, totalCharge } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  emergeSelf,
+  beat,
+  totalCharge,
+} from '@/code/model/self-kit'
 import { makeRng } from '@/code/coarse/self-trajectory'
 
 const L = 64
@@ -27,7 +32,8 @@ function localPlus(tone: Int8Array, cells: number[]): number {
 
 export default experiment({
   id: 'selves/surrogate-conservation',
-  title: 'the base conserves total charge exactly, the local re-estimate drifts, a leaking rule breaks it',
+  title:
+    'the base conserves total charge exactly, the local re-estimate drifts, a leaking rule breaks it',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -36,7 +42,10 @@ export default experiment({
     const graph = flatGraph(L)
     const rng = makeRng(56789)
     const moved = new Uint8Array(graph.cellCount)
-    const { tone, cluster } = emergeSelf(graph, rng, moved, { beats: 60, density: 0.1 })
+    const { tone, cluster } = emergeSelf(graph, rng, moved, {
+      beats: 60,
+      density: 0.1,
+    })
     const globalStart = totalCharge(tone)
     const localStart = localPlus(tone, cluster)
 
@@ -47,10 +56,14 @@ export default experiment({
     let localDriftRelative = 0
     for (let i = 0; i < beats; i++) {
       beat(conserving, graph, moved, rng, 0.01, 0.22)
-      globalDrift = Math.max(globalDrift, Math.abs(totalCharge(conserving) - globalStart))
+      globalDrift = Math.max(
+        globalDrift,
+        Math.abs(totalCharge(conserving) - globalStart),
+      )
       localDriftRelative = Math.max(
         localDriftRelative,
-        Math.abs(localPlus(conserving, cluster) - localStart) / Math.max(localStart, 1),
+        Math.abs(localPlus(conserving, cluster) - localStart) /
+          Math.max(localStart, 1),
       )
     }
 
@@ -67,12 +80,18 @@ export default experiment({
           break
         }
       }
-      leakDrift = Math.max(leakDrift, Math.abs(totalCharge(leaking) - globalStart))
+      leakDrift = Math.max(
+        leakDrift,
+        Math.abs(totalCharge(leaking) - globalStart),
+      )
     }
 
     // the carried charge is exactly conserved (integer equality, not a tolerance), the local re-estimate is
     // clearly unreliable, and the leaking control destroys the charge.
-    const ok = globalDrift === 0 && localDriftRelative > LOCAL_DRIFT_MIN && leakDrift > 0
+    const ok =
+      globalDrift === 0 &&
+      localDriftRelative > LOCAL_DRIFT_MIN &&
+      leakDrift > 0
 
     return verdict({
       status: ok ? 'pass' : 'fail',

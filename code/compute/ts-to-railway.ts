@@ -17,7 +17,10 @@
 // is not consumed by the test (the body may decrement it).
 
 import ts from 'typescript'
-import type { RailInstruction, RailProgram } from '@/code/compute/railway'
+import type {
+  RailInstruction,
+  RailProgram,
+} from '@/code/compute/railway'
 
 export type CompiledRailway = {
   program: RailProgram
@@ -29,17 +32,30 @@ export type CompiledRailway = {
   opIndex: number[]
 }
 
-export function compileToRailway(source: string, options: { capacity?: number } = {}): CompiledRailway {
-  const file = ts.createSourceFile('program.ts', source, ts.ScriptTarget.Latest, true)
+export function compileToRailway(
+  source: string,
+  options: { capacity?: number } = {},
+): CompiledRailway {
+  const file = ts.createSourceFile(
+    'program.ts',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+  )
   const fn = file.statements.find(ts.isFunctionDeclaration)
-  if (!fn || !fn.body) throw new Error('expected a single function declaration with a body')
+  if (!fn || !fn.body)
+    throw new Error(
+      'expected a single function declaration with a body',
+    )
 
   const registers = new Map<string, number>()
   const reg = (name: string): number => {
     if (!registers.has(name)) registers.set(name, registers.size)
     return registers.get(name)!
   }
-  const parameters = fn.parameters.map((p) => (p.name as ts.Identifier).text)
+  const parameters = fn.parameters.map(
+    p => (p.name as ts.Identifier).text,
+  )
   for (const p of parameters) reg(p) // parameters are registers 0..k-1
   const scratch = (): number => reg('$scratch')
 
@@ -49,7 +65,11 @@ export function compileToRailway(source: string, options: { capacity?: number } 
   // per loop body statement) instead of by raw inc / dec steps.
   const opIndex: number[] = []
   let opCounter = 0
-  const emit = (ins: RailInstruction): number => (code.push(ins), opIndex.push(opCounter), code.length - 1)
+  const emit = (ins: RailInstruction): number => (
+    code.push(ins),
+    opIndex.push(opCounter),
+    code.length - 1
+  )
   const here = (): number => code.length
 
   // dst += 1 ; fall through to the next instruction
@@ -78,7 +98,8 @@ export function compileToRailway(source: string, options: { capacity?: number } 
     ;(code[dec] as { next: number; zero: number }).next = dec + 1 // body
     for (let k = 0; k < dests.length; k++) {
       const i = emit({ op: 'inc', reg: dests[k]!, next: 0 })
-      ;(code[i] as { next: number }).next = k === dests.length - 1 ? loop : i + 1
+      ;(code[i] as { next: number }).next =
+        k === dests.length - 1 ? loop : i + 1
     }
     ;(code[dec] as { next: number; zero: number }).zero = here() // empty, fall through past the body
   }
@@ -118,7 +139,11 @@ export function compileToRailway(source: string, options: { capacity?: number } 
     if (ts.isWhileStatement(stmt)) {
       // guard must be `id !== 0`
       const cond = stmt.expression
-      if (!ts.isBinaryExpression(cond) || cond.operatorToken.kind !== ts.SyntaxKind.ExclamationEqualsEqualsToken) {
+      if (
+        !ts.isBinaryExpression(cond) ||
+        cond.operatorToken.kind !==
+          ts.SyntaxKind.ExclamationEqualsEqualsToken
+      ) {
         throw new Error('only `while (id !== 0)` is supported')
       }
       const g = reg((cond.left as ts.Identifier).text)
@@ -129,21 +154,36 @@ export function compileToRailway(source: string, options: { capacity?: number } 
       ;(code[dec] as { next: number; zero: number }).next = restore
       compileBlock(stmt.statement as ts.Block)
       // jump back to the loop head via a scratch dec/zero (scratch is 0, so both go to loop)
-      const back = emit({ op: 'dec', reg: scratch(), next: loop, zero: loop })
+      const back = emit({
+        op: 'dec',
+        reg: scratch(),
+        next: loop,
+        zero: loop,
+      })
       const end = here()
-      ;(code[dec] as { op: 'dec'; reg: number; next: number; zero: number }).zero = end
+      ;(
+        code[dec] as {
+          op: 'dec'
+          reg: number
+          next: number
+          zero: number
+        }
+      ).zero = end
       void back
       return
     }
     if (ts.isReturnStatement(stmt)) return // the return register is recorded separately
-    throw new Error(`unsupported statement: ${ts.SyntaxKind[stmt.kind]}`)
+    throw new Error(
+      `unsupported statement: ${ts.SyntaxKind[stmt.kind]}`,
+    )
   }
 
   const compileExpression = (expr: ts.Expression): void => {
     if (ts.isPostfixUnaryExpression(expr)) {
       const r = reg((expr.operand as ts.Identifier).text)
       if (expr.operator === ts.SyntaxKind.PlusPlusToken) inc(r)
-      else if (expr.operator === ts.SyntaxKind.MinusMinusToken) decOrStay(r)
+      else if (expr.operator === ts.SyntaxKind.MinusMinusToken)
+        decOrStay(r)
       else throw new Error('unsupported unary')
       return
     }
@@ -162,13 +202,19 @@ export function compileToRailway(source: string, options: { capacity?: number } 
         } else if (ts.isIdentifier(expr.right)) {
           copy(dst, reg(expr.right.text))
         } else {
-          throw new Error('assignment rhs must be a number or identifier')
+          throw new Error(
+            'assignment rhs must be a number or identifier',
+          )
         }
         return
       }
-      throw new Error(`unsupported binary operator ${ts.SyntaxKind[op]}`)
+      throw new Error(
+        `unsupported binary operator ${ts.SyntaxKind[op]}`,
+      )
     }
-    throw new Error(`unsupported expression: ${ts.SyntaxKind[expr.kind]}`)
+    throw new Error(
+      `unsupported expression: ${ts.SyntaxKind[expr.kind]}`,
+    )
   }
 
   compileBlock(fn.body)
@@ -176,8 +222,15 @@ export function compileToRailway(source: string, options: { capacity?: number } 
 
   // the return register
   const ret = fn.body.statements.find(ts.isReturnStatement)
-  const returnRegister = ret && ret.expression && ts.isIdentifier(ret.expression) ? reg(ret.expression.text) : 0
+  const returnRegister =
+    ret && ret.expression && ts.isIdentifier(ret.expression)
+      ? reg(ret.expression.text)
+      : 0
 
-  const program: RailProgram = { registers: registers.size, capacity: options.capacity ?? 4096, code }
+  const program: RailProgram = {
+    registers: registers.size,
+    capacity: options.capacity ?? 4096,
+    code,
+  }
   return { program, registers, returnRegister, parameters, opIndex }
 }

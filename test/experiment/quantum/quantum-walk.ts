@@ -25,7 +25,8 @@ export { chainOperators }
 
 export default experiment({
   id: 'quantum/quantum-walk',
-  title: 'a quantum walk is ballistic while a classical walk is diffusive',
+  title:
+    'a quantum walk is ballistic while a classical walk is diffusive',
   category: 'quantum',
   substrates: 'any',
   depth: 'L2',
@@ -47,7 +48,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'quadrupling the time roughly quadruples the quantum width (ballistic) but only doubles the classical one (diffusive)',
-      metrics: { quantumWidthRatio: qRatio, classicalWidthRatio: cRatio },
+      metrics: {
+        quantumWidthRatio: qRatio,
+        classicalWidthRatio: cRatio,
+      },
     })
   },
 })

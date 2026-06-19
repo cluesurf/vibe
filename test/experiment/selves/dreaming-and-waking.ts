@@ -13,7 +13,13 @@
 // constraint is imposed. Run: npx tsx code/experiment/p65-dreaming-and-waking.ts
 
 import { makeRng } from '@/code/tool/rng'
-import { storedPatterns, hebbianFills, hopfieldStep, toneOverlap as overlap, nearestPattern } from '@/code/operator/hopfield'
+import {
+  storedPatterns,
+  hebbianFills,
+  hopfieldStep,
+  toneOverlap as overlap,
+  nearestPattern,
+} from '@/code/operator/hopfield'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -37,8 +43,12 @@ export function dreamingAndWaking(input: { seed: number }): {
   const cuePattern = patterns[0] ?? new Int8Array(size)
   const clamp = new Int8Array(size)
   const cr = makeRng({ seed: input.seed + 1 })
-  for (let i = 0; i < size; i++) if (cr.next() < 0.4) clamp[i] = cuePattern[i] as -1 | 0 | 1
-  let waking = Int8Array.from({ length: size }, () => rng.nextInt({ max: 3 }) - 1)
+  for (let i = 0; i < size; i++)
+    if (cr.next() < 0.4) clamp[i] = cuePattern[i] as -1 | 0 | 1
+  let waking = Int8Array.from(
+    { length: size },
+    () => rng.nextInt({ max: 3 }) - 1,
+  )
   const wakingVisited = new Set<number>()
   for (let t = 0; t < 200; t++) {
     waking = hopfieldStep(J, waking, zeroBias, clamp)
@@ -53,7 +63,10 @@ export function dreamingAndWaking(input: { seed: number }): {
   // memory at the start of each window (a partial internal nudge, the subtle layer firing), and
   // the mesh then relaxes FREELY toward it. The rhythm cycles through the memories, so the mesh
   // wanders its own landscape, with free dynamics (and blends) in the transitions between.
-  let dreaming = Int8Array.from({ length: size }, () => rng.nextInt({ max: 3 }) - 1)
+  let dreaming = Int8Array.from(
+    { length: size },
+    () => rng.nextInt({ max: 3 }) - 1,
+  )
   const dwell = 30
   const cueHold = 4 // the internal cue fires briefly, then releases to free relaxation
   const cueCount = Math.round(0.6 * size)
@@ -91,13 +104,17 @@ export function dreamingAndWaking(input: { seed: number }): {
     dreamingBlendFraction: blends / Math.max(1, windows),
     // Solved: waking is pinned to the one veridical stimulus pattern, dreaming roams most of the
     // stored landscape, and the waking completion faithfully matches the input.
-    solved: wakingVisited.size === 1 && wakingVeridical > 0.8 && dreamVisited.size >= K - 1,
+    solved:
+      wakingVisited.size === 1 &&
+      wakingVeridical > 0.8 &&
+      dreamVisited.size >= K - 1,
   }
 }
 
 export default experiment({
   id: 'selves/dreaming-and-waking',
-  title: 'waking is pinned to one veridical memory while dreaming roams the landscape',
+  title:
+    'waking is pinned to one veridical memory while dreaming roams the landscape',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',

@@ -23,11 +23,17 @@ import { d4Mesh, type Mesh } from '@/code/tool/mesh'
 import { type Will } from '@/code/tone/will'
 import { headOnRotate, type Collision } from '@/code/rule/collision'
 import { beatInto, streamSourceTable } from '@/code/rule/lattice-gas'
-import { coinLines, densityWaveAlongAxis, stripeContrast, firstMinimumTime } from '@/code/measure/sound-wave'
+import {
+  coinLines,
+  densityWaveAlongAxis,
+  stripeContrast,
+  firstMinimumTime,
+} from '@/code/measure/sound-wave'
 
 export default experiment({
   id: 'selves/emergent-soft-radiation',
-  title: 'a soft (gapless) sound mode emerges from discrete ternary tones: period grows linearly with wavelength, no real numbers',
+  title:
+    'a soft (gapless) sound mode emerges from discrete ternary tones: period grows linearly with wavelength, no real numbers',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -37,7 +43,9 @@ export default experiment({
     const beats = 120
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const rule: Collision = headOnRotate({ opposite })
     const lines = coinLines(opposite)
     const axisOf = (cell: number): number => cell % side
@@ -47,32 +55,54 @@ export default experiment({
 
     // for each wavelength, evolve the density wave and read the half-period (time to first contrast minimum).
     const halfPeriod = (lambda: number): number => {
-      let current: Will = densityWaveAlongAxis({ mesh, lambda, axisOf, highTarget: 9, lowTarget: 3, lines })
-      let scratch: Will = { mesh, data: new Int8Array(current.data.length) }
-      const trace: number[] = [stripeContrast({ will: current, lambda, axisOf, bins: side })]
+      let current: Will = densityWaveAlongAxis({
+        mesh,
+        lambda,
+        axisOf,
+        highTarget: 9,
+        lowTarget: 3,
+        lines,
+      })
+      let scratch: Will = {
+        mesh,
+        data: new Int8Array(current.data.length),
+      }
+      const trace: number[] = [
+        stripeContrast({ will: current, lambda, axisOf, bins: side }),
+      ]
       for (let t = 1; t <= beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
         const swap = current
         current = scratch
         scratch = swap
-        trace.push(stripeContrast({ will: current, lambda, axisOf, bins: side }))
+        trace.push(
+          stripeContrast({ will: current, lambda, axisOf, bins: side }),
+        )
       }
       return firstMinimumTime(trace)
     }
 
     const periods = wavelengths.map(halfPeriod)
     // speed = lambda / (2 * halfPeriod), constant across wavelengths for a linear (gapless) dispersion.
-    const speeds = wavelengths.map((lambda, i) => (periods[i]! > 0 ? lambda / (2 * periods[i]!) : 0))
+    const speeds = wavelengths.map((lambda, i) =>
+      periods[i]! > 0 ? lambda / (2 * periods[i]!) : 0,
+    )
 
     // the half-period grows with wavelength (the mode is soft, lower frequency at longer wavelength).
     let monotonic = true
-    for (let i = 1; i < periods.length; i++) if (periods[i]! < periods[i - 1]!) monotonic = false
+    for (let i = 1; i < periods.length; i++)
+      if (periods[i]! < periods[i - 1]!) monotonic = false
 
     // the speed is constant (a LINEAR, gapless dispersion omega = c k, the hallmark of sound), within a tight band.
     const meanSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length
     let maxSpeedDeviation = 0
-    for (const s of speeds) maxSpeedDeviation = Math.max(maxSpeedDeviation, Math.abs(s - meanSpeed))
-    const linearGapless = meanSpeed > 0 && maxSpeedDeviation <= meanSpeed * 0.2
+    for (const s of speeds)
+      maxSpeedDeviation = Math.max(
+        maxSpeedDeviation,
+        Math.abs(s - meanSpeed),
+      )
+    const linearGapless =
+      meanSpeed > 0 && maxSpeedDeviation <= meanSpeed * 0.2
 
     // softness, the longest wavelength is much slower than the shortest (frequency falls toward zero with k).
     const soft = periods[periods.length - 1]! >= periods[0]! * 3
@@ -94,7 +124,10 @@ export default experiment({
         soft: soft ? 1 : 0,
         beats,
       },
-      control: { wavelength2HalfPeriod: periods[0]!, wavelength12HalfPeriod: periods[3]! },
+      control: {
+        wavelength2HalfPeriod: periods[0]!,
+        wavelength12HalfPeriod: periods[3]!,
+      },
       notes:
         'the resolution of the per-cell coarseness obstruction. Softness is long WAVELENGTH, not small amplitude. The emergent sound mode is gapless (linear dispersion, constant speed), built and measured by counting, no real or decimal base values. This is the discrete-matter answer (Boolean lattice gases recover fluid dynamics and sound), and it is the radiation channel for the emergent self, identity is base (topological), agency rides on this emergent soft mode',
     })

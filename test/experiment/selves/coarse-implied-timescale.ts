@@ -29,9 +29,17 @@ function shuffle(labels: number[], seed: number): number[] {
   return out
 }
 
-function timescales(labels: number[], bins: number, lags: number[]): number[] {
-  return lags.map((lag) => {
-    const l2 = spectralGap(transitionEigenvalues(countMatrix({ trajectory: labels, stateCount: bins, lag }))).lambda2
+function timescales(
+  labels: number[],
+  bins: number,
+  lags: number[],
+): number[] {
+  return lags.map(lag => {
+    const l2 = spectralGap(
+      transitionEigenvalues(
+        countMatrix({ trajectory: labels, stateCount: bins, lag }),
+      ),
+    ).lambda2
     return impliedTimescale({ eigenvalue: l2, lag })
   })
 }
@@ -39,13 +47,16 @@ function timescales(labels: number[], bins: number, lags: number[]): number[] {
 function coefficientOfVariation(values: number[]): number {
   const mean = values.reduce((a, b) => a + b, 0) / values.length
   if (mean === 0) return Infinity
-  const variance = values.reduce((a, b) => a + (b - mean) * (b - mean), 0) / values.length
+  const variance =
+    values.reduce((a, b) => a + (b - mean) * (b - mean), 0) /
+    values.length
   return Math.sqrt(variance) / mean
 }
 
 export default experiment({
   id: 'selves/coarse-implied-timescale',
-  title: 'the self slow timescale plateaus across lags, the shuffled control has no timescale',
+  title:
+    'the self slow timescale plateaus across lags, the shuffled control has no timescale',
   category: 'selves',
   substrates: ['flat-horosphere'],
   depth: 'L2',
@@ -56,7 +67,12 @@ export default experiment({
     // validity check is the flatness there, not at short lags where the Markov assumption is known to fail.
     const bins = 8
     const lags = [120, 160, 200]
-    const traj = selfTrajectory({ L: 64, beats: 4000, bins, seed: 56789 })
+    const traj = selfTrajectory({
+      L: 64,
+      beats: 4000,
+      bins,
+      seed: 56789,
+    })
     const labels = quantileLabels({ series: traj.centroids, bins })
 
     const real = timescales(labels, bins, lags)
@@ -67,7 +83,15 @@ export default experiment({
     // finite-sample residual, so a clear eigenvalue gap here distinguishes a real slow mode from noise.
     const plateauLag = lags[0]!
     const eigOf = (series: number[]): number =>
-      spectralGap(transitionEigenvalues(countMatrix({ trajectory: series, stateCount: bins, lag: plateauLag }))).lambda2
+      spectralGap(
+        transitionEigenvalues(
+          countMatrix({
+            trajectory: series,
+            stateCount: bins,
+            lag: plateauLag,
+          }),
+        ),
+      ).lambda2
     const lambdaReal = eigOf(labels)
     const lambdaShuffled = eigOf(shuffle(labels, 321))
 
@@ -88,7 +112,8 @@ export default experiment({
         t_lag200: real[2]!,
       },
       control: { lambdaShuffled },
-      notes: 'standard MSM validity check, the timescale rises at short lag then plateaus, confirming a real Markovian slow process, not a finite-sample artifact',
+      notes:
+        'standard MSM validity check, the timescale rises at short lag then plateaus, confirming a real Markovian slow process, not a finite-sample artifact',
     })
   },
 })

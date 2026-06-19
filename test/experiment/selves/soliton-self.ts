@@ -28,7 +28,8 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 
 export default experiment({
   id: 'selves/co-motion-not-bound',
-  title: 'co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)',
+  title:
+    'co-moving charges are NOT a bound self: a hit to the body is never healed (no restoring force)',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -38,15 +39,26 @@ export default experiment({
     const beats = 16
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const rule: Collision = headOnRotate({ opposite })
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
     const dir = 0
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
-    const scratchOf = (will: Will): Will => ({ mesh, data: new Int8Array(will.data.length) })
+    const scratchOf = (will: Will): Will => ({
+      mesh,
+      data: new Int8Array(will.data.length),
+    })
 
-    const cleanGlider = (): Will => gliderLine({ mesh, start: center, direction: dir, length: 3 }).will
+    const cleanGlider = (): Will =>
+      gliderLine({ mesh, start: center, direction: dir, length: 3 })
+        .will
 
     // the BODY hit, redirect one of the glider's own forward charges to a sideways direction. A bound soliton would
     // pull it back into the clean form. Free parallel streaming loses it forever.
@@ -72,11 +84,30 @@ export default experiment({
       let peak = 0
       let final = 0
       for (let t = 0; t < beats; t++) {
-        beatInto({ src: clean, dst: cleanScratch, table, collision: rule }); { const swap = clean; clean = cleanScratch; cleanScratch = swap }
-        beatInto({ src: hit, dst: hitScratch, table, collision: rule }); { const swap = hit; hit = hitScratch; hitScratch = swap }
-        if (open) { absorbBoundary(clean); absorbBoundary(hit) }
+        beatInto({
+          src: clean,
+          dst: cleanScratch,
+          table,
+          collision: rule,
+        })
+        {
+          const swap = clean
+          clean = cleanScratch
+          cleanScratch = swap
+        }
+        beatInto({ src: hit, dst: hitScratch, table, collision: rule })
+        {
+          const swap = hit
+          hit = hitScratch
+          hitScratch = swap
+        }
+        if (open) {
+          absorbBoundary(clean)
+          absorbBoundary(hit)
+        }
         let diff = 0
-        for (let i = 0; i < clean.data.length; i++) if (clean.data[i] !== hit.data[i]) diff++
+        for (let i = 0; i < clean.data.length; i++)
+          if (clean.data[i] !== hit.data[i]) diff++
         if (diff > peak) peak = diff
         final = diff
       }
@@ -89,13 +120,20 @@ export default experiment({
     // the forward momentum (identity) of the hit body, start vs end on the open lattice.
     const dirCharge = (will: Will, d: number): number => {
       let s = 0
-      for (let c = 0; c < mesh.cellCount; c++) s += Math.abs(will.data[c * degree + d]!)
+      for (let c = 0; c < mesh.cellCount; c++)
+        s += Math.abs(will.data[c * degree + d]!)
       return s
     }
     let hit = bodyHitGlider()
     let hitScratch = scratchOf(hit)
     const startDir0 = dirCharge(hit, dir)
-    for (let t = 0; t < beats; t++) { beatInto({ src: hit, dst: hitScratch, table, collision: rule }); const swap = hit; hit = hitScratch; hitScratch = swap; absorbBoundary(hit) }
+    for (let t = 0; t < beats; t++) {
+      beatInto({ src: hit, dst: hitScratch, table, collision: rule })
+      const swap = hit
+      hit = hitScratch
+      hitScratch = swap
+      absorbBoundary(hit)
+    }
     const endDir0 = dirCharge(hit, dir)
 
     // the honest negative, on the closed torus the body NEVER heals (final difference stays at peak), so there is
@@ -119,7 +157,10 @@ export default experiment({
         losesTheCharge: losesTheCharge ? 1 : 0,
         beats,
       },
-      control: { bodyHitClosedFinal: closed.final, bodyHitClosedPeak: closed.peak },
+      control: {
+        bodyHitClosedFinal: closed.final,
+        bodyHitClosedPeak: closed.peak,
+      },
       notes:
         'honest negative, supersedes the earlier soliton-self over-claim. The earlier recovery was an artifact, EXTRA charges in OTHER directions drift off (different velocity), which is two crowds separating, not a body healing. The real test (a hit to the body) is never healed on the torus. A working substrate-native self needs genuine binding (a restoring interaction), free streaming has none. Next candidate, a topological kink (a domain wall in the ternary tone, protected by topology not amplitude), still discrete, not yet tried',
     })

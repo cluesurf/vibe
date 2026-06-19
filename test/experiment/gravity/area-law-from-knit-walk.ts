@@ -21,23 +21,34 @@ const GAPLESS_THETA = 0.05
 
 export default experiment({
   id: 'gravity/area-law-from-knit-walk',
-  title: 'the area law from the knit own coined Dirac walk, a massive walk saturates (area law), a gapless walk grows (control)',
+  title:
+    'the area law from the knit own coined Dirac walk, a massive walk saturates (area law), a gapless walk grows (control)',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',
   paper: false,
   run() {
-    const massive = LENGTHS.map((intervalLength) =>
-      coinedWalkIntervalEntropy({ theta: MASSIVE_THETA, momentumCount: MOMENTUM_COUNT, intervalLength }),
+    const massive = LENGTHS.map(intervalLength =>
+      coinedWalkIntervalEntropy({
+        theta: MASSIVE_THETA,
+        momentumCount: MOMENTUM_COUNT,
+        intervalLength,
+      }),
     )
-    const gapless = LENGTHS.map((intervalLength) =>
-      coinedWalkIntervalEntropy({ theta: GAPLESS_THETA, momentumCount: MOMENTUM_COUNT, intervalLength }),
+    const gapless = LENGTHS.map(intervalLength =>
+      coinedWalkIntervalEntropy({
+        theta: GAPLESS_THETA,
+        momentumCount: MOMENTUM_COUNT,
+        intervalLength,
+      }),
     )
 
     // the massive walk's entropy saturates (the area law, flat across interval length), the gapless walk's grows
     const massiveTail = massive.slice(2) // lengths 8, 10, 12
-    const massiveSaturates = Math.max(...massiveTail) - Math.min(...massiveTail) < 0.02
-    const gaplessGrows = gapless[gapless.length - 1]! - gapless[0]! > 0.4
+    const massiveSaturates =
+      Math.max(...massiveTail) - Math.min(...massiveTail) < 0.02
+    const gaplessGrows =
+      gapless[gapless.length - 1]! - gapless[0]! > 0.4
     const ok = massiveSaturates && gaplessGrows
 
     return verdict({
@@ -47,12 +58,22 @@ export default experiment({
       metrics: {
         massiveAt4: Number(massive[0]!.toFixed(3)),
         massiveAt12: Number(massive[massive.length - 1]!.toFixed(3)),
-        massiveTailSpread: Number((Math.max(...massiveTail) - Math.min(...massiveTail)).toFixed(4)),
+        massiveTailSpread: Number(
+          (Math.max(...massiveTail) - Math.min(...massiveTail)).toFixed(
+            4,
+          ),
+        ),
         gaplessAt4: Number(gapless[0]!.toFixed(3)),
         gaplessAt12: Number(gapless[gapless.length - 1]!.toFixed(3)),
-        gaplessGrowth: Number((gapless[gapless.length - 1]! - gapless[0]!).toFixed(3)),
+        gaplessGrowth: Number(
+          (gapless[gapless.length - 1]! - gapless[0]!).toFixed(3),
+        ),
       },
-      control: { gaplessGrowth: Number((gapless[gapless.length - 1]! - gapless[0]!).toFixed(3)) },
+      control: {
+        gaplessGrowth: Number(
+          (gapless[gapless.length - 1]! - gapless[0]!).toFixed(3),
+        ),
+      },
       notes:
         'the coined Dirac walk is the knit own single-particle evolution (P230), a discrete-time UNITARY, not a Hamiltonian, so this is the area law from the knit dynamics directly. The massive walk entropy is flat across interval length (the area law, the boundary is two points in one dimension), the gapless walk entropy climbs (the critical conformal log law), the control. Combined with the dimension-independent universality (`gravity/area-law-universality`), this establishes the 3D area law as the knit own, closing the proxy residual. The remaining depth is only the full many-body 3D directional walk, which the universality already covers.',
     })

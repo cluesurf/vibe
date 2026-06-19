@@ -9,7 +9,8 @@ import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 
 export default experiment({
   id: 'data-structure/radial-heap',
-  title: 'SS4: the radial depth is a heap order, peek-min is the root in O(1)',
+  title:
+    'SS4: the radial depth is a heap order, peek-min is the root in O(1)',
   category: 'data-structure',
   substrates: ['3434'],
   depth: 'L2',
@@ -21,7 +22,8 @@ export default experiment({
     let maxDepth = 0
     for (let cell = 0; cell < cells; cell++) {
       const parent = a.parent[cell]!
-      if (parent !== -1 && !(a.dist[parent]! < a.dist[cell]!)) heapOrdered = false
+      if (parent !== -1 && !(a.dist[parent]! < a.dist[cell]!))
+        heapOrdered = false
       if (a.dist[cell]! > maxDepth) maxDepth = a.dist[cell]!
     }
     const peekMinIsRoot = a.dist[a.root] === 0
@@ -33,10 +35,16 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the radial depth heap-orders the bulk, every parent is strictly shallower than its children, peek-min is the root in O(1), and insert descends O(log N), a priority queue laid on the radial axis',
-      metrics: { cells, heapOrdered: heapOrdered ? 1 : 0, peekMinIsRoot: peekMinIsRoot ? 1 : 0, insertDepth: maxDepth },
+      metrics: {
+        cells,
+        heapOrdered: heapOrdered ? 1 : 0,
+        peekMinIsRoot: peekMinIsRoot ? 1 : 0,
+        insertDepth: maxDepth,
+      },
       // CONTROL: a flat binary heap in an array sifts in O(log N), the same asymptotics but with stored indices.
       control: { flatHeapSiftCost: Math.ceil(Math.log2(cells)) },
-      notes: 'SS4 of experiments/17. The radial axis is also the LSM level (SS5) and the skip-list shortcut (DS9).',
+      notes:
+        'SS4 of experiments/17. The radial axis is also the LSM level (SS5) and the skip-list shortcut (DS9).',
     })
   },
 })

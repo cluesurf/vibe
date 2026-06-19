@@ -33,7 +33,9 @@ export function collectiveSpinor(): {
   let evenPreservesEveryMode = true
   let modeIndependent = true
   for (const winding of WINDINGS) {
-    const overlaps = MODES.map((mode) => collectiveModeOverlap({ winding, steps: 24, mode }))
+    const overlaps = MODES.map(mode =>
+      collectiveModeOverlap({ winding, steps: 24, mode }),
+    )
     const expected = winding % 2 === 1 ? -1 : 1
     for (const overlap of overlaps) {
       if (Math.abs(overlap - expected) > 1e-9) {
@@ -42,21 +44,27 @@ export function collectiveSpinor(): {
       }
     }
     // every mode gives the same overlap (within rounding): the sign is mode-independent
-    for (const overlap of overlaps) if (Math.abs(overlap - overlaps[0]!) > 1e-9) modeIndependent = false
+    for (const overlap of overlaps)
+      if (Math.abs(overlap - overlaps[0]!) > 1e-9)
+        modeIndependent = false
   }
   return { oddFlipsEveryMode, evenPreservesEveryMode, modeIndependent }
 }
 
 export default experiment({
   id: 'spin/collective-spinor-534',
-  title: 'a delocalized collective mode carries the disclination spinor sign for every mode, the topological spin is a field property',
+  title:
+    'a delocalized collective mode carries the disclination spinor sign for every mode, the topological spin is a field property',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
   paper: true,
   run() {
     const r = collectiveSpinor()
-    const ok = r.oddFlipsEveryMode && r.evenPreservesEveryMode && r.modeIndependent
+    const ok =
+      r.oddFlipsEveryMode &&
+      r.evenPreservesEveryMode &&
+      r.modeIndependent
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

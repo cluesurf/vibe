@@ -50,6 +50,6 @@ export function triangulatedSurface(input: {
     }
   }
 
-  const cleaned = neighbors.map((row) => [...new Set(row)])
+  const cleaned = neighbors.map(row => [...new Set(row)])
   return makeGraph({ size, directed: false, neighbors: cleaned })
 }

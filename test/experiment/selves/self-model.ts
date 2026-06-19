@@ -23,7 +23,13 @@ type Rng = { next: () => number }
 
 // full perception beat (share annihilates opposite, hop transports into empty). Charge flows freely,
 // including out of the clamped input cells, which are re-clamped to the signal after each beat (a source).
-function fullBeat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng): void {
+function fullBeat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+): void {
   moved.fill(0)
   for (let k = 0; k < eu.length; k++) {
     const v = eu[k]!
@@ -61,11 +67,23 @@ function run(withDynamics: boolean): {
 
   // the self = a central patch; the hub = the most-connected cell
   let center = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dist = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center + 1]! - g.offsets[center]!
+    )
+      center = i
+  const dist = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+    maxRadius: 12,
+  })
   const rSelf = 5
   const self: number[] = []
-  for (let i = 0; i < N; i++) if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
+  for (let i = 0; i < N; i++)
+    if (dist[i]! >= 0 && dist[i]! <= rSelf) self.push(i)
 
   // input boundary divided into K SECTORS, each driven by its OWN signal, so the global state is the
   // AVERAGE of spatially-varied inputs. A localized region near one sector sees only that sector, only an
@@ -108,7 +126,9 @@ function run(withDynamics: boolean): {
   const coreSize = 60
   const core = ballOf(center, coreSize) // the central hub (self-model candidate)
   // peripheral localized regions, one near each sector (controls, same size, but local)
-  const peripherals: number[][] = sectorCells.map((sc) => ballOf(sc[Math.floor(sc.length / 2)]!, coreSize))
+  const peripherals: number[][] = sectorCells.map(sc =>
+    ballOf(sc[Math.floor(sc.length / 2)]!, coreSize),
+  )
 
   const meanOver = (tone: Int8Array, cells: number[]): number => {
     let s = 0
@@ -124,20 +144,27 @@ function run(withDynamics: boolean): {
   const coreSeries: number[] = []
   const periSeries: number[][] = peripherals.map(() => [])
   for (let t = 0; t < T; t++) {
-    for (let s = 0; s < K; s++) if (rng.next() < 0.06) sigs[s] = -sigs[s]!
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    for (let s = 0; s < K; s++)
+      if (rng.next() < 0.06) sigs[s] = -sigs[s]!
+    for (const i of inputAll)
+      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     if (withDynamics) fullBeat(tone, eu, ev, moved, rng)
-    for (const i of inputAll) tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
+    for (const i of inputAll)
+      tone[i] = sigs[sectorOf[i]!]! as -1 | 0 | 1
     gSeries.push(meanOver(tone, self))
     coreSeries.push(meanOver(tone, core))
-    for (let p = 0; p < peripherals.length; p++) periSeries[p]!.push(meanOver(tone, peripherals[p]!))
+    for (let p = 0; p < peripherals.length; p++)
+      periSeries[p]!.push(meanOver(tone, peripherals[p]!))
   }
 
   const selfModelCorr = Math.abs(pearson({ a: coreSeries, b: gSeries }))
   let randomCorr = 0
-  for (let p = 0; p < peripherals.length; p++) randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
+  for (let p = 0; p < peripherals.length; p++)
+    randomCorr += Math.abs(pearson({ a: periSeries[p]!, b: gSeries }))
   randomCorr /= peripherals.length
-  const shuffledCorr = Math.abs(pearson({ a: coreSeries, b: gSeries.slice().reverse() }))
+  const shuffledCorr = Math.abs(
+    pearson({ a: coreSeries, b: gSeries.slice().reverse() }),
+  )
 
   return { selfModelCorr, randomCorr, shuffledCorr }
 }
@@ -155,7 +182,9 @@ export function selfModel(): {
 } {
   const live = run(true)
   const dead = run(false)
-  const mirrorsWhole = live.selfModelCorr > 0.5 && live.selfModelCorr > live.shuffledCorr + 0.3
+  const mirrorsWhole =
+    live.selfModelCorr > 0.5 &&
+    live.selfModelCorr > live.shuffledCorr + 0.3
   const beatsRandom = live.selfModelCorr > live.randomCorr + 0.1
   const needsDynamics = live.selfModelCorr > dead.selfModelCorr + 0.3
   const emerges = mirrorsWhole && beatsRandom && needsDynamics
@@ -174,7 +203,8 @@ export function selfModel(): {
 
 export default experiment({
   id: 'selves/self-model',
-  title: 'a localized hub represents the self global state, beating local regions and a shuffle',
+  title:
+    'a localized hub represents the self global state, beating local regions and a shuffle',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',
@@ -182,13 +212,23 @@ export default experiment({
   run() {
     const r = selfModel()
     const ok =
-      r.solved && r.emerges && r.mirrorsWhole && r.beatsRandom && r.needsDynamics
+      r.solved &&
+      r.emerges &&
+      r.mirrorsWhole &&
+      r.beatsRandom &&
+      r.needsDynamics
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'a central hub comes to represent the self global state far above peripheral local regions, far above a time-shuffled baseline, and vanishes without the dynamics',
-      metrics: { selfModelCorr: r.selfModelCorr, randomCorr: r.randomCorr },
-      control: { shuffledCorr: r.shuffledCorr, noDynamicsCorr: r.noDynamicsCorr },
+      metrics: {
+        selfModelCorr: r.selfModelCorr,
+        randomCorr: r.randomCorr,
+      },
+      control: {
+        shuffledCorr: r.shuffledCorr,
+        noDynamicsCorr: r.noDynamicsCorr,
+      },
     })
   },
 })

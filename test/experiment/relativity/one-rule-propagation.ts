@@ -9,9 +9,16 @@
 
 import { makeRng } from '@/code/tool/rng'
 import { hyperbolicGraph } from '@/code/substrate/hyperbolic-graph'
-import { Graph, mostConnectedNode, neighborsOf } from '@/code/tool/graph'
+import {
+  Graph,
+  mostConnectedNode,
+  neighborsOf,
+} from '@/code/tool/graph'
 import { bfsShells } from '@/code/measure/shells'
-import { symmetricEdgeFills, signedMajorityStep } from '@/code/operator/signed-majority'
+import {
+  symmetricEdgeFills,
+  signedMajorityStep,
+} from '@/code/operator/signed-majority'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -20,14 +27,26 @@ function distancesFrom(g: Graph, source: number): Int32Array {
   return bfsShells({ neighbors: neighborsOf(g), root: source }).depth
 }
 
-export function propagation(input: { count: number; beats: number; seed: number }): {
+export function propagation(input: {
+  count: number
+  beats: number
+  seed: number
+}): {
   frontRadius: number[]
   lightConeHolds: boolean
   frontAdvances: boolean
 } {
   const rng = makeRng({ seed: input.seed })
-  const g = hyperbolicGraph({ count: input.count, radius: 7, connectThreshold: 3.0, rng })
-  const fills = symmetricEdgeFills({ neighbors: g.neighbors, rng: makeRng({ seed: input.seed + 1 }) })
+  const g = hyperbolicGraph({
+    count: input.count,
+    radius: 7,
+    connectThreshold: 3.0,
+    rng,
+  })
+  const fills = symmetricEdgeFills({
+    neighbors: g.neighbors,
+    rng: makeRng({ seed: input.seed + 1 }),
+  })
 
   // A central source (most-connected node).
   const source = mostConnectedNode(g.neighbors)
@@ -44,8 +63,16 @@ export function propagation(input: { count: number; beats: number; seed: number 
   const frontRadius: number[] = []
   let lightConeHolds = true
   for (let beat = 1; beat <= input.beats; beat++) {
-    toneA = signedMajorityStep({ neighbors: g.neighbors, fills, tone: toneA })
-    toneB = signedMajorityStep({ neighbors: g.neighbors, fills, tone: toneB })
+    toneA = signedMajorityStep({
+      neighbors: g.neighbors,
+      fills,
+      tone: toneA,
+    })
+    toneB = signedMajorityStep({
+      neighbors: g.neighbors,
+      fills,
+      tone: toneB,
+    })
     let maxDist = 0
     for (let v = 0; v < g.size; v++) {
       if (toneA[v] !== toneB[v]) {

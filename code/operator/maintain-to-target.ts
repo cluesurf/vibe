@@ -6,7 +6,11 @@
 //      (+1, -1) pair (the arrow recreating the charge annihilation destroyed, 0/0 -> +1/-1).
 // Returns the number of operations performed (the maintenance cost, the "will" holding the self
 // together). Net charge is preserved exactly. Mutates `tone` in place.
-export function conservingMaintainToTarget(tone: Int8Array, target: Int8Array, size: number): number {
+export function conservingMaintainToTarget(
+  tone: Int8Array,
+  target: Int8Array,
+  size: number,
+): number {
   const tooHigh: number[] = []
   const tooLow: number[] = []
   for (let i = 0; i < size; i++) {

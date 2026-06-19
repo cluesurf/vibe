@@ -10,10 +10,22 @@ import { verdict } from '@/test/scaffold/verdict'
 
 type Cand = { sym: number[]; note: string }
 const CANDIDATES: Cand[] = [
-  { sym: [3, 4, 3, 4], note: 'REFERENCE, the champion (compact, 3D physical, D4 spinor coin)' },
-  { sym: [3, 4, 3, 3, 4], note: '24-cell / D4 / F4 / spinor hook + curvature' },
-  { sym: [3, 4, 3, 3, 3], note: '24-cell / D4 hook, dual-side comparison' },
-  { sym: [3, 3, 4, 3, 3], note: 'neutral control, self-dual, tetrahedral' },
+  {
+    sym: [3, 4, 3, 4],
+    note: 'REFERENCE, the champion (compact, 3D physical, D4 spinor coin)',
+  },
+  {
+    sym: [3, 4, 3, 3, 4],
+    note: '24-cell / D4 / F4 / spinor hook + curvature',
+  },
+  {
+    sym: [3, 4, 3, 3, 3],
+    note: '24-cell / D4 hook, dual-side comparison',
+  },
+  {
+    sym: [3, 3, 4, 3, 3],
+    note: 'neutral control, self-dual, tetrahedral',
+  },
   { sym: [4, 3, 3, 4, 3], note: 'cubic / tesseractic flavor' },
   { sym: [3, 3, 3, 4, 3], note: 'orthoplex / simplex-family endpoint' },
 ]
@@ -21,15 +33,44 @@ const CANDIDATES: Cand[] = [
 const SCALE = 30000
 const SURVEY_SCALE = 1500
 
-function measure(sym: number[], scale: number = SCALE): { cells: number; degree: number; specDim: number; growth: number; betheAlpha: number } {
-  const m = surveyTessellation({ symbol: sym, maxCells: scale, minCells: 0, growthFrom: 1, growthTo: 4, safeDenominator: true, withSpectralDimension: true, specDimT1: 2, specDimT2: 4 })
-  return { cells: m.cells, degree: m.degree, specDim: m.specDim, growth: m.growth, betheAlpha: m.betheAlpha }
+function measure(
+  sym: number[],
+  scale: number = SCALE,
+): {
+  cells: number
+  degree: number
+  specDim: number
+  growth: number
+  betheAlpha: number
+} {
+  const m = surveyTessellation({
+    symbol: sym,
+    maxCells: scale,
+    minCells: 0,
+    growthFrom: 1,
+    growthTo: 4,
+    safeDenominator: true,
+    withSpectralDimension: true,
+    specDimT1: 2,
+    specDimT2: 4,
+  })
+  return {
+    cells: m.cells,
+    degree: m.degree,
+    specDim: m.specDim,
+    growth: m.growth,
+    betheAlpha: m.betheAlpha,
+  }
 }
 
 export function manyTessellations(): void {
   for (const c of CANDIDATES) {
-    const rank = c.sym.length + 1, bulkDim = c.sym.length, physDim = bulkDim - 1
-    const crystallographic = c.sym.every((n) => n === 3 || n === 4 || n === 6)
+    const rank = c.sym.length + 1,
+      bulkDim = c.sym.length,
+      physDim = bulkDim - 1
+    const crystallographic = c.sym.every(
+      n => n === 3 || n === 4 || n === 6,
+    )
     const has24 = c.sym.join(',').includes('3,4,3')
     const compact = bulkDim <= 4 // compact regular hyperbolic honeycombs exist only through H^4
     const m = measure(c.sym, SURVEY_SCALE)
@@ -38,7 +79,8 @@ export function manyTessellations(): void {
 
 export default experiment({
   id: 'substrate-survey/5d-tessellations',
-  title: 'a sweep of 5D crystallographic honeycombs, all overshoot to 4D physical space and lose compactness',
+  title:
+    'a sweep of 5D crystallographic honeycombs, all overshoot to 4D physical space and lose compactness',
   category: 'substrate-survey',
   substrates: 'any',
   depth: 'L1',

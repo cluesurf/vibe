@@ -5,13 +5,18 @@
 // distributed over interaction range. A profile concentrated at short range and
 // decaying means H is (quasi-)local. See note/questions/roadmap.md (A1).
 
-import { ComplexMatrix, makeComplexMatrix } from '@/code/algebra/linear/dense'
+import {
+  ComplexMatrix,
+  makeComplexMatrix,
+} from '@/code/algebra/linear/dense'
 
 // Build H (Hermitian) from a permutation U via U = e^{-iH}. On each cycle of
 // length L the eigenphases are theta_m = 2 pi m / L wrapped to (-pi, pi], so H is
 // the circulant H[s_a][s_b] = (1/L) sum_m theta_m exp(2 pi i m (a-b)/L). The
 // principal branch keeps the energies minimal, the natural choice for locality.
-export function hamiltonianMatrix(input: { perm: Int32Array }): ComplexMatrix {
+export function hamiltonianMatrix(input: {
+  perm: Int32Array
+}): ComplexMatrix {
   const perm = input.perm
   const n = perm.length
   const h = makeComplexMatrix({ rows: n, cols: n })
@@ -79,7 +84,10 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
   for (let i = 0; i < sorted.length; i++) {
     const cur = sorted[i] ?? 0
     const next = sorted[(i + 1) % sorted.length] ?? 0
-    const step = i + 1 < sorted.length ? next - cur : input.cells - cur + (sorted[0] ?? 0)
+    const step =
+      i + 1 < sorted.length
+        ? next - cur
+        : input.cells - cur + (sorted[0] ?? 0)
     if (step > largestStep) {
       largestStep = step
     }
@@ -93,7 +101,11 @@ function ringExtent(input: { sites: number[]; cells: number }): number {
 export function pauliLocalityProfile(input: {
   matrix: ComplexMatrix
   cells: number
-}): { weightByRange: Float64Array; localityLength: number; totalWeight: number } {
+}): {
+  weightByRange: Float64Array
+  localityLength: number
+  totalWeight: number
+} {
   const h = input.matrix
   const n = h.rows
   const cells = input.cells
@@ -180,5 +192,9 @@ export function pauliLocalityProfile(input: {
     fractions[r] = frac
     lengthSum += r * frac
   }
-  return { weightByRange: fractions, localityLength: lengthSum, totalWeight: total }
+  return {
+    weightByRange: fractions,
+    localityLength: lengthSum,
+    totalWeight: total,
+  }
 }

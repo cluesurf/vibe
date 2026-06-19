@@ -25,18 +25,19 @@ export function sub(a: Vec, b: Vec, s = 1): Vec {
 }
 
 export function scale(v: Vec, s: number): Vec {
-  return v.map((x) => x * s)
+  return v.map(x => x * s)
 }
 
 export function normalize(v: Vec): Vec {
   const m = norm(v) || 1
-  return v.map((x) => x / m)
+  return v.map(x => x / m)
 }
 
 // Minkowski inner product with a diagonal metric (entries +1 spacelike, -1 timelike)
 export function innerJ(a: Vec, b: Vec, metric: number[]): number {
   let s = 0
-  for (let i = 0; i < a.length; i++) s += (metric[i] ?? 1) * (a[i] ?? 0) * (b[i] ?? 0)
+  for (let i = 0; i < a.length; i++)
+    s += (metric[i] ?? 1) * (a[i] ?? 0) * (b[i] ?? 0)
   return s
 }
 

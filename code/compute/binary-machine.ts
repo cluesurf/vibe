@@ -52,7 +52,10 @@ export function runBinary(
   initial: bigint[],
   onStep?: (step: BinaryStep) => void,
 ): { registers: bigint[]; totalBits: number; ops: number } {
-  const regs = Array.from({ length: program.registers }, (_, r) => initial[r] ?? 0n)
+  const regs = Array.from(
+    { length: program.registers },
+    (_, r) => initial[r] ?? 0n,
+  )
   let pc = 0
   let totalBits = 0
   let ops = 0
@@ -68,29 +71,39 @@ export function runBinary(
       const value = BigInt(ins.value)
       regs[ins.reg] = value
       bits = wordWidth(value)
-      reg = ins.reg; kind = 'set'; pc = ins.next
+      reg = ins.reg
+      kind = 'set'
+      pc = ins.next
     } else if (ins.op === 'copy') {
       bits = wordWidth(regs[ins.src]!)
       regs[ins.dst] = regs[ins.src]!
-      reg = ins.dst; kind = 'copy'; pc = ins.next
+      reg = ins.dst
+      kind = 'copy'
+      pc = ins.next
     } else if (ins.op === 'add') {
       const before = regs[ins.dst]!
       regs[ins.dst] = before + regs[ins.src]!
       bits = wordWidth(before, regs[ins.src]!, regs[ins.dst]!) // the ripple spans the longest operand / sum
-      reg = ins.dst; kind = 'add'; pc = ins.next
+      reg = ins.dst
+      kind = 'add'
+      pc = ins.next
     } else if (ins.op === 'sub1') {
       const before = regs[ins.reg]!
       regs[ins.reg] = before > 0n ? before - 1n : 0n
       bits = wordWidth(before) // borrow can ripple the whole word in the worst case
-      reg = ins.reg; kind = 'sub1'; pc = ins.next
+      reg = ins.reg
+      kind = 'sub1'
+      pc = ins.next
     } else {
       // jz: reading the register to test zero scans its word
       bits = wordWidth(regs[ins.reg]!)
-      reg = ins.reg; kind = 'jz'
+      reg = ins.reg
+      kind = 'jz'
       pc = regs[ins.reg] === 0n ? ins.zero : ins.next
     }
     totalBits += bits
-    if (onStep) onStep({ kind, reg, registers: regs.slice(), bits, width: bits })
+    if (onStep)
+      onStep({ kind, reg, registers: regs.slice(), bits, width: bits })
   }
   return { registers: regs, totalBits, ops }
 }

@@ -3,7 +3,12 @@
 // that cell as the nearest content. Pass, fidelity degrades smoothly as the cue shrinks, not as a cliff.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeAssociativeMemory, storeWord, readWord, searchBest } from '@/code/operator/associative-memory'
+import {
+  makeAssociativeMemory,
+  storeWord,
+  readWord,
+  searchBest,
+} from '@/code/operator/associative-memory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -13,9 +18,9 @@ import { verdict } from '@/test/scaffold/verdict'
 // gracefully instead of crossing a sharp information-capacity cliff. Deterministic, no rng.
 function distributedWord(index: number, wordBits: number): Int8Array {
   const word = new Int8Array(wordBits)
-  let h = (Math.imul(index + 1, 2654435761) >>> 0)
+  let h = Math.imul(index + 1, 2654435761) >>> 0
   for (let k = 0; k < wordBits; k++) {
-    h = (Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0)
+    h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0
     // read the well-mixed high byte, so each slot is an independent ternary symbol
     word[k] = (h >>> 24) % 3
   }
@@ -29,7 +34,10 @@ function partialMask(wordBits: number, keep: number): Int8Array {
   return mask
 }
 
-export function associativeGradedRecall(input?: { maxCells?: number; wordBits?: number }): {
+export function associativeGradedRecall(input?: {
+  maxCells?: number
+  wordBits?: number
+}): {
   cellCount: number
   fidelityByKeep: number[]
   maxDrop: number
@@ -39,8 +47,12 @@ export function associativeGradedRecall(input?: { maxCells?: number; wordBits?: 
   const maxCells = input?.maxCells ?? 1200
   const wordBits = input?.wordBits ?? 21
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
-  const mem = makeAssociativeMemory({ neighbors: g.neighbors, wordBits })
-  for (let c = 0; c < g.cellCount; c++) storeWord(mem, c, distributedWord(c, wordBits))
+  const mem = makeAssociativeMemory({
+    neighbors: g.neighbors,
+    wordBits,
+  })
+  for (let c = 0; c < g.cellCount; c++)
+    storeWord(mem, c, distributedWord(c, wordBits))
 
   // sweep the cue size one slot at a time, from a full cue down to a single slot, so the degradation is
   // sampled finely. A real cliff would show one near-1-to-near-0 step, a graceful decline shows small steps.
@@ -66,16 +78,28 @@ export function associativeGradedRecall(input?: { maxCells?: number; wordBits?: 
   // fidelity should not increase as the cue shrinks
   let monotone = true
   for (let i = 1; i < fidelityByKeep.length; i++) {
-    if (fidelityByKeep[i]! > fidelityByKeep[i - 1]! + 1e-9) monotone = false
+    if (fidelityByKeep[i]! > fidelityByKeep[i - 1]! + 1e-9)
+      monotone = false
   }
 
-  const solved = monotone && maxDrop < 0.5 && fidelityByKeep[0]! > 0.99 && fidelityByKeep[fidelityByKeep.length - 1]! < fidelityByKeep[0]!
-  return { cellCount: g.cellCount, fidelityByKeep, maxDrop, monotone, solved }
+  const solved =
+    monotone &&
+    maxDrop < 0.5 &&
+    fidelityByKeep[0]! > 0.99 &&
+    fidelityByKeep[fidelityByKeep.length - 1]! < fidelityByKeep[0]!
+  return {
+    cellCount: g.cellCount,
+    fidelityByKeep,
+    maxDrop,
+    monotone,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'associative/graded-recall',
-  title: 'graceful, graded recall, fidelity degrades smoothly as the cue shrinks',
+  title:
+    'graceful, graded recall, fidelity degrades smoothly as the cue shrinks',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L2',
@@ -85,7 +109,7 @@ export default experiment({
     return verdict({
       status: r.solved ? 'pass' : 'fail',
       claim:
-        'masking more and more of a content cue as don\'t-care lowers recall fidelity smoothly and monotonically, the human-like graded-recall property rather than an all-or-nothing cliff',
+        "masking more and more of a content cue as don't-care lowers recall fidelity smoothly and monotonically, the human-like graded-recall property rather than an all-or-nothing cliff",
       metrics: {
         cellCount: r.cellCount,
         fidelityFull: r.fidelityByKeep[0]!,

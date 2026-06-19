@@ -7,12 +7,19 @@
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
 import { norm } from '@/code/algebra/vector'
 import { toCsr } from '@/code/tool/graph'
-import { radialBfsTree, surfaceDistances } from '@/code/substrate/radial-tree'
+import {
+  radialBfsTree,
+  surfaceDistances,
+} from '@/code/substrate/radial-tree'
 import { logLogSlope } from '@/code/measure/regression'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function measure(symbol: number[], maxCells: number, tau: number): { N: number; slope: number; pairs: number } {
+function measure(
+  symbol: number[],
+  maxCells: number,
+  tau: number,
+): { N: number; slope: number; pairs: number } {
   const g = buildCellGraph({ symbol: symbol as never, maxCells })
   const N = g.cellCount
   const { offsets: off, adj } = toCsr(g.neighbors)
@@ -22,20 +29,46 @@ function measure(symbol: number[], maxCells: number, tau: number): { N: number; 
   const depth = tree.depth
   const maxDepth = tree.maxDepth
   const lcaDepth = tree.lcaDepth
-  const boundary = [...Array(N).keys()].filter((i) => depth[i]! >= maxDepth - 1)
-  const isB = new Uint8Array(N); for (const b of boundary) isB[b] = 1
+  const boundary = [...Array(N).keys()].filter(
+    i => depth[i]! >= maxDepth - 1,
+  )
+  const isB = new Uint8Array(N)
+  for (const b of boundary) isB[b] = 1
   // source boundary cell; surface BFS distance to other boundary cells
   const src = boundary[0]!
-  const sdist = surfaceDistances({ offsets: off, adjacency: adj, isBoundary: isB, source: src, nodeCount: N })
+  const sdist = surfaceDistances({
+    offsets: off,
+    adjacency: adj,
+    isBoundary: isB,
+    source: src,
+    nodeCount: N,
+  })
   const pts: [number, number][] = []
-  for (const b of boundary) { if (b === src || sdist[b]! <= 0) continue; const treePath = depth[src]! + depth[b]! - 2 * lcaDepth(src, b); const coupling = Math.pow(tau, treePath); pts.push([sdist[b]!, coupling]) }
-  const maxs = Math.max(...pts.map((x) => x[0]))
-  const mid = pts.filter((x) => x[0] >= Math.round(maxs * 0.2) && x[0] <= Math.round(maxs * 0.7) && x[1] > 0)
-  const slope = logLogSlope(mid.map((x) => x[0]), mid.map((x) => x[1]))
+  for (const b of boundary) {
+    if (b === src || sdist[b]! <= 0) continue
+    const treePath = depth[src]! + depth[b]! - 2 * lcaDepth(src, b)
+    const coupling = Math.pow(tau, treePath)
+    pts.push([sdist[b]!, coupling])
+  }
+  const maxs = Math.max(...pts.map(x => x[0]))
+  const mid = pts.filter(
+    x =>
+      x[0] >= Math.round(maxs * 0.2) &&
+      x[0] <= Math.round(maxs * 0.7) &&
+      x[1] > 0,
+  )
+  const slope = logLogSlope(
+    mid.map(x => x[0]),
+    mid.map(x => x[1]),
+  )
   return { N, slope, pairs: mid.length }
 }
 
-export function gravityTreePath(): { fiveSlope: number; fourSlope: number; calibrated: boolean } {
+export function gravityTreePath(): {
+  fiveSlope: number
+  fourSlope: number
+  calibrated: boolean
+} {
   const a = measure([5, 3, 4], 40000, 0.5)
   const b = measure([3, 4, 3, 4], 40000, 0.5)
   const calibrated = Math.abs(a.slope + 1) < 0.8
@@ -44,7 +77,8 @@ export function gravityTreePath(): { fiveSlope: number; fourSlope: number; calib
 
 export default experiment({
   id: 'gravity/gravity-treepath',
-  title: 'a common-ancestor tree-path propagator on the real cell graph, calibrated against {5,3,4}',
+  title:
+    'a common-ancestor tree-path propagator on the real cell graph, calibrated against {5,3,4}',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L1',

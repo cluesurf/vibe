@@ -21,23 +21,58 @@ const A = (Math.sqrt(3) + MASS) * 1.06 // spectral bound: |H| <= sqrt(3)+M (exac
 
 // direction field n(x) (3 per site): uniformz (vacuum) or a charge-1 hopfion texture of size R
 function nrt3(mode: 'uniformz' | 'texture', R: number): Float32Array {
-  const out = new Float32Array(3 * N), C = L / 2
-  for (let x = 0; x < L; x++) for (let y = 0; y < L; y++) for (let z = 0; z < L; z++) {
-    const s = (z * L + y) * L + x
-    let nx: number, ny: number, nz: number
-    if (mode === 'uniformz') { nx = 0; ny = 0; nz = 1 }
-    else {
-      const X = (x - C + 0.5) / R, Y = (y - C + 0.5) / R, Z = (z - C + 0.5) / R, r2 = X * X + Y * Y + Z * Z, d0 = 1 + r2
-      const a = (2 * X) / d0, b = (2 * Y) / d0, cc = (2 * Z) / d0, dd = (1 - r2) / d0
-      nx = 2 * (a * cc + b * dd); ny = 2 * (b * cc - a * dd); nz = a * a + b * b - cc * cc - dd * dd
-      const m = Math.hypot(nx, ny, nz) || 1; nx /= m; ny /= m; nz /= m
-    }
-    out[s * 3] = nx; out[s * 3 + 1] = ny; out[s * 3 + 2] = nz
-  }
+  const out = new Float32Array(3 * N),
+    C = L / 2
+  for (let x = 0; x < L; x++)
+    for (let y = 0; y < L; y++)
+      for (let z = 0; z < L; z++) {
+        const s = (z * L + y) * L + x
+        let nx: number, ny: number, nz: number
+        if (mode === 'uniformz') {
+          nx = 0
+          ny = 0
+          nz = 1
+        } else {
+          const X = (x - C + 0.5) / R,
+            Y = (y - C + 0.5) / R,
+            Z = (z - C + 0.5) / R,
+            r2 = X * X + Y * Y + Z * Z,
+            d0 = 1 + r2
+          const a = (2 * X) / d0,
+            b = (2 * Y) / d0,
+            cc = (2 * Z) / d0,
+            dd = (1 - r2) / d0
+          nx = 2 * (a * cc + b * dd)
+          ny = 2 * (b * cc - a * dd)
+          nz = a * a + b * b - cc * cc - dd * dd
+          const m = Math.hypot(nx, ny, nz) || 1
+          nx /= m
+          ny /= m
+          nz /= m
+        }
+        out[s * 3] = nx
+        out[s * 3 + 1] = ny
+        out[s * 3 + 2] = nz
+      }
   return out
 }
-function absCoeffs(M: number): Float64Array { const c = new Float64Array(M); c[0] = 2 / Math.PI; for (let k = 1; 2 * k < M; k++) c[2 * k] = (-4 / Math.PI) * ((-1) ** k) / (4 * k * k - 1); return c }
-function jackson(M: number): Float64Array { const g = new Float64Array(M), Np = M + 1; for (let n = 0; n < M; n++) g[n] = ((Np - n) * Math.cos((Math.PI * n) / Np) + Math.sin((Math.PI * n) / Np) / Math.tan(Math.PI / Np)) / Np; return g }
+function absCoeffs(M: number): Float64Array {
+  const c = new Float64Array(M)
+  c[0] = 2 / Math.PI
+  for (let k = 1; 2 * k < M; k++)
+    c[2 * k] = ((-4 / Math.PI) * (-1) ** k) / (4 * k * k - 1)
+  return c
+}
+function jackson(M: number): Float64Array {
+  const g = new Float64Array(M),
+    Np = M + 1
+  for (let n = 0; n < M; n++)
+    g[n] =
+      ((Np - n) * Math.cos((Math.PI * n) / Np) +
+        Math.sin((Math.PI * n) / Np) / Math.tan(Math.PI / Np)) /
+      Np
+  return g
+}
 
 const WGSL = /* wgsl */ `
 struct P { L:u32, N:u32, mass:f32, a:f32, scA:f32, scB:f32, mom:u32, nPart:u32 };
@@ -113,65 +148,202 @@ fn dotFinal(@builtin(local_invocation_id) lid:vec3<u32>){
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
-  if (!adapter) { console.log('no WebGPU adapter'); return }
+  if (!adapter) {
+    console.log('no WebGPU adapter')
+    return
+  }
   const device = await adapter.requestDevice()
   const mod = device.createShaderModule({ code: WGSL })
-  const mk = (n: number): GPUBuffer => device.createBuffer({ size: n * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
+  const mk = (n: number): GPUBuffer =>
+    device.createBuffer({
+      size: n * 4,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
   const nPart = Math.ceil(FN / 256)
-  const B = [mk(FN), mk(FN), mk(FN)], tmp = mk(FN), xi = mk(FN), nrt = mk(3 * N), partials = mk(nPart), moments = mk(MCHEB)
-  const stage = device.createBuffer({ size: MCHEB * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
-  const uni = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
-  const pipe = (e: string): GPUComputePipeline => device.createComputePipeline({ layout: 'auto', compute: { module: mod, entryPoint: e } })
-  const pMat = pipe('matvec'), pComb = pipe('combine'), pDP = pipe('dotPartial'), pDF = pipe('dotFinal')
-  const bg = (pl: GPUComputePipeline, b1: GPUBuffer, b2: GPUBuffer, b3: GPUBuffer): GPUBindGroup =>
-    device.createBindGroup({ layout: pl.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: uni } }, { binding: 1, resource: { buffer: b1 } }, { binding: 2, resource: { buffer: b2 } }, { binding: 3, resource: { buffer: b3 } }] })
+  const B = [mk(FN), mk(FN), mk(FN)],
+    tmp = mk(FN),
+    xi = mk(FN),
+    nrt = mk(3 * N),
+    partials = mk(nPart),
+    moments = mk(MCHEB)
+  const stage = device.createBuffer({
+    size: MCHEB * 4,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
+  const uni = device.createBuffer({
+    size: 32,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+  const pipe = (e: string): GPUComputePipeline =>
+    device.createComputePipeline({
+      layout: 'auto',
+      compute: { module: mod, entryPoint: e },
+    })
+  const pMat = pipe('matvec'),
+    pComb = pipe('combine'),
+    pDP = pipe('dotPartial'),
+    pDF = pipe('dotFinal')
+  const bg = (
+    pl: GPUComputePipeline,
+    b1: GPUBuffer,
+    b2: GPUBuffer,
+    b3: GPUBuffer,
+  ): GPUBindGroup =>
+    device.createBindGroup({
+      layout: pl.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: uni } },
+        { binding: 1, resource: { buffer: b1 } },
+        { binding: 2, resource: { buffer: b2 } },
+        { binding: 3, resource: { buffer: b3 } },
+      ],
+    })
   // dotFinal uses only bindings 0,1,3 (auto layout omits binding 2)
-  const bgDF = (): GPUBindGroup => device.createBindGroup({ layout: pDF.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: uni } }, { binding: 1, resource: { buffer: partials } }, { binding: 3, resource: { buffer: moments } }] })
-  const setUni = (scA: number, scB: number, mom: number): void => { device.queue.writeBuffer(uni, 0, new Uint32Array([L, N])); device.queue.writeBuffer(uni, 8, new Float32Array([MASS, A, scA, scB])); device.queue.writeBuffer(uni, 24, new Uint32Array([mom, nPart])) }
-  const wgN = Math.ceil(N / 64), wgF = Math.ceil(FN / 256)
+  const bgDF = (): GPUBindGroup =>
+    device.createBindGroup({
+      layout: pDF.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: uni } },
+        { binding: 1, resource: { buffer: partials } },
+        { binding: 3, resource: { buffer: moments } },
+      ],
+    })
+  const setUni = (scA: number, scB: number, mom: number): void => {
+    device.queue.writeBuffer(uni, 0, new Uint32Array([L, N]))
+    device.queue.writeBuffer(
+      uni,
+      8,
+      new Float32Array([MASS, A, scA, scB]),
+    )
+    device.queue.writeBuffer(uni, 24, new Uint32Array([mom, nPart]))
+  }
+  const wgN = Math.ceil(N / 64),
+    wgF = Math.ceil(FN / 256)
 
   // moments for the current nrt buffer + xi buffer, written to `moments`, read back
   async function computeMoments(): Promise<Float64Array> {
-    const step = (inBuf: GPUBuffer, outBuf: GPUBuffer, scA: number, scB: number, t0: GPUBuffer, mom: number, dotCur: GPUBuffer): void => {
+    const step = (
+      inBuf: GPUBuffer,
+      outBuf: GPUBuffer,
+      scA: number,
+      scB: number,
+      t0: GPUBuffer,
+      mom: number,
+      dotCur: GPUBuffer,
+    ): void => {
       setUni(scA, scB, mom)
       const enc = device.createCommandEncoder()
-      let pass = enc.beginComputePass(); pass.setPipeline(pMat); pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp)); pass.dispatchWorkgroups(wgN); pass.end()
-      pass = enc.beginComputePass(); pass.setPipeline(pComb); pass.setBindGroup(0, bg(pComb, tmp, t0, outBuf)); pass.dispatchWorkgroups(wgF); pass.end()
-      pass = enc.beginComputePass(); pass.setPipeline(pDP); pass.setBindGroup(0, bg(pDP, xi, dotCur, partials)); pass.dispatchWorkgroups(wgF); pass.end()
-      pass = enc.beginComputePass(); pass.setPipeline(pDF); pass.setBindGroup(0, bgDF()); pass.dispatchWorkgroups(1); pass.end()
+      let pass = enc.beginComputePass()
+      pass.setPipeline(pMat)
+      pass.setBindGroup(0, bg(pMat, inBuf, nrt, tmp))
+      pass.dispatchWorkgroups(wgN)
+      pass.end()
+      pass = enc.beginComputePass()
+      pass.setPipeline(pComb)
+      pass.setBindGroup(0, bg(pComb, tmp, t0, outBuf))
+      pass.dispatchWorkgroups(wgF)
+      pass.end()
+      pass = enc.beginComputePass()
+      pass.setPipeline(pDP)
+      pass.setBindGroup(0, bg(pDP, xi, dotCur, partials))
+      pass.dispatchWorkgroups(wgF)
+      pass.end()
+      pass = enc.beginComputePass()
+      pass.setPipeline(pDF)
+      pass.setBindGroup(0, bgDF())
+      pass.dispatchWorkgroups(1)
+      pass.end()
       device.queue.submit([enc.finish()])
     }
     // mom0: dot(xi, t0=B[0]); mom1: t1=B[1]=(1/a)H B[0]; dot(xi,B[1])
-    const dotOnly = (cur: GPUBuffer, mom: number): void => { setUni(0, 0, mom); const enc = device.createCommandEncoder(); let pass = enc.beginComputePass(); pass.setPipeline(pDP); pass.setBindGroup(0, bg(pDP, xi, cur, partials)); pass.dispatchWorkgroups(wgF); pass.end(); pass = enc.beginComputePass(); pass.setPipeline(pDF); pass.setBindGroup(0, bgDF()); pass.dispatchWorkgroups(1); pass.end(); device.queue.submit([enc.finish()]) }
+    const dotOnly = (cur: GPUBuffer, mom: number): void => {
+      setUni(0, 0, mom)
+      const enc = device.createCommandEncoder()
+      let pass = enc.beginComputePass()
+      pass.setPipeline(pDP)
+      pass.setBindGroup(0, bg(pDP, xi, cur, partials))
+      pass.dispatchWorkgroups(wgF)
+      pass.end()
+      pass = enc.beginComputePass()
+      pass.setPipeline(pDF)
+      pass.setBindGroup(0, bgDF())
+      pass.dispatchWorkgroups(1)
+      pass.end()
+      device.queue.submit([enc.finish()])
+    }
     dotOnly(B[0]!, 0)
     step(B[0]!, B[1]!, 1 / A, 0, B[0]!, 1, B[1]!) // t1 = (1/a) H t0 ; dot uses B[1]
-    let i0 = 0, i1 = 1
-    for (let n = 2; n < MCHEB; n++) { const itn = 3 - i0 - i1; step(B[i1]!, B[itn]!, 2 / A, 1, B[i0]!, n, B[itn]!); i0 = i1; i1 = itn }
-    const enc = device.createCommandEncoder(); enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4); device.queue.submit([enc.finish()])
-    await stage.mapAsync(GPUMapMode.READ); const out = new Float64Array(new Float32Array(stage.getMappedRange().slice(0))); stage.unmap(); return out
+    let i0 = 0,
+      i1 = 1
+    for (let n = 2; n < MCHEB; n++) {
+      const itn = 3 - i0 - i1
+      step(B[i1]!, B[itn]!, 2 / A, 1, B[i0]!, n, B[itn]!)
+      i0 = i1
+      i1 = itn
+    }
+    const enc = device.createCommandEncoder()
+    enc.copyBufferToBuffer(moments, 0, stage, 0, MCHEB * 4)
+    device.queue.submit([enc.finish()])
+    await stage.mapAsync(GPUMapMode.READ)
+    const out = new Float64Array(
+      new Float32Array(stage.getMappedRange().slice(0)),
+    )
+    stage.unmap()
+    return out
   }
 
-  const c = absCoeffs(MCHEB), g = jackson(MCHEB)
+  const c = absCoeffs(MCHEB),
+    g = jackson(MCHEB)
   const vacN = nrt3('uniformz', 0)
-  const texN = Rs.map((R) => nrt3('texture', R))
+  const texN = Rs.map(R => nrt3('texture', R))
   const dMu = Rs.map(() => new Float64Array(MCHEB))
   const rng = makeRng({ seed: 999 })
-  console.log(`GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`)
+  console.log(
+    `GPU KPM sea energy, L=${L} (dim ${8 * N}), ${MCHEB} moments, ${NRV} probes, spectral bound a=${A.toFixed(2)}`,
+  )
   for (let r = 0; r < NRV; r++) {
-    const xd = new Float32Array(FN); for (let i = 0; i < FN; i++) { xd[i] = (rng.next() < 0.5 ? -1 : 1) }
+    const xd = new Float32Array(FN)
+    for (let i = 0; i < FN; i++) {
+      xd[i] = rng.next() < 0.5 ? -1 : 1
+    }
     device.queue.writeBuffer(xi, 0, xd)
-    device.queue.writeBuffer(nrt, 0, vacN); device.queue.writeBuffer(B[0]!, 0, xd); const muV = await computeMoments()
-    for (let ri = 0; ri < Rs.length; ri++) { device.queue.writeBuffer(nrt, 0, texN[ri]!); device.queue.writeBuffer(B[0]!, 0, xd); const muH = await computeMoments(); for (let n = 0; n < MCHEB; n++) dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV }
+    device.queue.writeBuffer(nrt, 0, vacN)
+    device.queue.writeBuffer(B[0]!, 0, xd)
+    const muV = await computeMoments()
+    for (let ri = 0; ri < Rs.length; ri++) {
+      device.queue.writeBuffer(nrt, 0, texN[ri]!)
+      device.queue.writeBuffer(B[0]!, 0, xd)
+      const muH = await computeMoments()
+      for (let n = 0; n < MCHEB; n++)
+        dMu[ri]![n]! += (muH[n]! - muV[n]!) / NRV
+    }
     process.stdout.write(`  probe ${r + 1}/${NRV}\r`)
   }
-  const deltaE = Rs.map((R, ri) => { let s = 0; for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ri]![n]!; return [R, Math.round(-0.5 * A * s * 100) / 100] as [number, number] })
+  const deltaE = Rs.map((R, ri) => {
+    let s = 0
+    for (let n = 0; n < MCHEB; n++) s += g[n]! * c[n]! * dMu[ri]![n]!
+    return [R, Math.round(-0.5 * A * s * 100) / 100] as [number, number]
+  })
   console.log('\nDelta E_sea(R) (texture soliton, fermion sea):')
   for (const [R, dE] of deltaE) console.log(`  R=${R}: ${dE}`)
-  let minI = 0; for (let i = 1; i < deltaE.length; i++) if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
+  let minI = 0
+  for (let i = 1; i < deltaE.length; i++)
+    if (deltaE[i]![1] < deltaE[minI]![1]) minI = i
   const hasMin = minI > 0 && minI < deltaE.length - 1
   console.log(`  minimum at R=${deltaE[minI]![0]} (interior=${hasMin})`)
-  console.log(hasMin ? '  => MINIMUM found: Delta E ~ B*R + D/R with D>0 (Skyrme STABILIZING). GATE CLOSED (positive sign).' : '  => no interior minimum: the 1/R term is still not isolated at this L; honest partial.')
-  console.log(`RESULT: deltaE ${deltaE.map((d) => d[1]).join('/')}, interior minimum ${hasMin}`)
+  console.log(
+    hasMin
+      ? '  => MINIMUM found: Delta E ~ B*R + D/R with D>0 (Skyrme STABILIZING). GATE CLOSED (positive sign).'
+      : '  => no interior minimum: the 1/R term is still not isolated at this L; honest partial.',
+  )
+  console.log(
+    `RESULT: deltaE ${deltaE.map(d => d[1]).join('/')}, interior minimum ${hasMin}`,
+  )
 }
 
-run().catch((e) => console.error(e instanceof Error ? e.message : String(e)))
+run().catch(e =>
+  console.error(e instanceof Error ? e.message : String(e)),
+)

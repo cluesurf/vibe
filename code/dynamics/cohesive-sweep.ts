@@ -38,7 +38,8 @@ export function cohesiveEdgeSweep(input: {
   arrow: number
   escapeProbability?: number
 }): void {
-  const { tone, eu, ev, offsets, adj, moved, rng, annihilate, arrow } = input
+  const { tone, eu, ev, offsets, adj, moved, rng, annihilate, arrow } =
+    input
   const escapeProbability = input.escapeProbability ?? 0.02
   moved.fill(0)
   for (let k = 0; k < eu.length; k++) {
@@ -47,7 +48,10 @@ export function cohesiveEdgeSweep(input: {
     if (moved[v] || moved[w]) continue
     const a = tone[v]!
     const b = tone[w]!
-    if (annihilate && ((a === 1 && b === -1) || (a === -1 && b === 1))) {
+    if (
+      annihilate &&
+      ((a === 1 && b === -1) || (a === -1 && b === 1))
+    ) {
       tone[v] = 0
       tone[w] = 0
       moved[v] = 1
@@ -57,7 +61,8 @@ export function cohesiveEdgeSweep(input: {
       const e = a === 0 ? v : w
       const q = tone[c]!
       if (
-        agreeCount(tone, offsets, adj, e, q, c) >= agreeCount(tone, offsets, adj, c, q, e) ||
+        agreeCount(tone, offsets, adj, e, q, c) >=
+          agreeCount(tone, offsets, adj, c, q, e) ||
         rng.next() < escapeProbability
       ) {
         tone[e] = q as -1 | 1

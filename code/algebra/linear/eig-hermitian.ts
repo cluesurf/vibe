@@ -5,7 +5,11 @@
 // (u; w), the complex eigenvector is u + i w. Used to build the matrix sign for
 // the overlap operator and to count its zero modes (the lattice index theorem).
 
-import { ComplexMatrix, makeComplexMatrix, makeDense } from '@/code/algebra/linear/dense'
+import {
+  ComplexMatrix,
+  makeComplexMatrix,
+  makeDense,
+} from '@/code/algebra/linear/dense'
 import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 
 export interface HermitianEigen {
@@ -14,7 +18,9 @@ export interface HermitianEigen {
   readonly vectorsIm: Float64Array
 }
 
-export function eigHermitian(input: { matrix: ComplexMatrix }): HermitianEigen {
+export function eigHermitian(input: {
+  matrix: ComplexMatrix
+}): HermitianEigen {
   const n = input.matrix.rows
   const m = makeDense({ rows: 2 * n, cols: 2 * n })
   const set = (r: number, c: number, x: number): void => {

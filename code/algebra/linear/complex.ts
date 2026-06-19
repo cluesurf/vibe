@@ -15,7 +15,10 @@ export function cAdd(a: Complex, b: Complex): Complex {
 }
 
 export function cMul(a: Complex, b: Complex): Complex {
-  return { re: a.re * b.re - a.im * b.im, im: a.re * b.im + a.im * b.re }
+  return {
+    re: a.re * b.re - a.im * b.im,
+    im: a.re * b.im + a.im * b.re,
+  }
 }
 
 export function cConj(a: Complex): Complex {

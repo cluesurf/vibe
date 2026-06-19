@@ -23,7 +23,13 @@ export function connectedCorrelationByDistance(input: {
   const counts = new Float64Array(maxRadius + 1)
   for (let s = 0; s < samples; s++) {
     const src = Math.floor(rng.next() * size)
-    const dist = csrDistances({ offsets, adj, size, source: src, maxRadius })
+    const dist = csrDistances({
+      offsets,
+      adj,
+      size,
+      source: src,
+      maxRadius,
+    })
     for (let i = 0; i < size; i++) {
       const r = dist[i]!
       if (r >= 0 && r <= maxRadius) {
@@ -33,7 +39,8 @@ export function connectedCorrelationByDistance(input: {
     }
   }
   const c: number[] = []
-  for (let r = 0; r <= maxRadius; r++) c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
+  for (let r = 0; r <= maxRadius; r++)
+    c.push(counts[r]! > 0 ? sums[r]! / counts[r]! : 0)
   return c
 }
 
@@ -55,13 +62,15 @@ export function timeAveragedRingCorrelation(input: {
   for (let t = 0; t < beats; t++) {
     for (let x = 0; x < L; x++) {
       sumC += tone[x]!
-      for (let r = 0; r <= maxR; r++) sumCC[r]! += tone[x]! * tone[(x + r) % L]!
+      for (let r = 0; r <= maxR; r++)
+        sumCC[r]! += tone[x]! * tone[(x + r) % L]!
     }
     relax()
   }
   const mean = sumC / (L * beats)
   const c: number[] = []
-  for (let r = 0; r <= maxR; r++) c.push(sumCC[r]! / (L * beats) - mean * mean)
+  for (let r = 0; r <= maxR; r++)
+    c.push(sumCC[r]! / (L * beats) - mean * mean)
   return c
 }
 

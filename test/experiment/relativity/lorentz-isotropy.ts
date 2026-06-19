@@ -14,7 +14,11 @@ import { diffusionTensorAnisotropy } from '@/code/measure/isotropy'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; runs?: number }): {
+export function lorentzIsotropy(input?: {
+  maxCells?: number
+  beats?: number
+  runs?: number
+}): {
   cellCount: number
   samples: number
   eigenvalues: number[]
@@ -31,7 +35,8 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   // coords are the 3D Poincare ball (|x| < 1). Conformal, so the scale factor is isotropic at each point,
   // but distortion grows toward the boundary. Start at the cell CLOSEST TO THE ORIGIN and keep the spread
   // small, so the cloud lives where the model is nearly Euclidean and the covariance shape is faithful.
-  const r2 = (i: number): number => g.coords[i]!.reduce((s, x) => s + x * x, 0)
+  const r2 = (i: number): number =>
+    g.coords[i]!.reduce((s, x) => s + x * x, 0)
   const radii2 = Array.from({ length: N }, (_, i) => r2(i))
   const center = innermostCell(radii2)
   const c0 = g.coords[center]!
@@ -44,7 +49,9 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   void c0
   void beats
   void runs
-  const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => r2(a) - r2(b))
+  const order = Array.from({ length: N }, (_, i) => i).sort(
+    (a, b) => r2(a) - r2(b),
+  )
   const sampleCells = order.slice(0, 200) // the 200 cells nearest the origin
   const tensor = diffusionTensorAnisotropy({
     coords: g.coords,
@@ -56,12 +63,20 @@ export function lorentzIsotropy(input?: { maxCells?: number; beats?: number; run
   const isotropic = anisotropy < 0.15
   const solved = isotropic
 
-  return { cellCount: N, samples: tensor.count, eigenvalues: eig, anisotropy, isotropic, solved }
+  return {
+    cellCount: N,
+    samples: tensor.count,
+    eigenvalues: eig,
+    anisotropy,
+    isotropic,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'relativity/lorentz-isotropy',
-  title: 'the one-step diffusion tensor is isotropic from the icosahedral cell symmetry',
+  title:
+    'the one-step diffusion tensor is isotropic from the icosahedral cell symmetry',
   category: 'relativity',
   substrates: ['534'],
   depth: 'L2',

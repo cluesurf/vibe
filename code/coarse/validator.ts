@@ -29,13 +29,14 @@ export function commutingSquareError<State>(input: {
 // simplest effective rule, the deterministic skeleton of the learned Markov model, used by the
 // commuting-square test as macroStep.
 export function mostProbableNext(tpm: number[][]): number[] {
-  return tpm.map((row) => {
+  return tpm.map(row => {
     let best = 0
     let bestValue = -1
-    for (let j = 0; j < row.length; j++) if (row[j]! > bestValue) {
-      bestValue = row[j]!
-      best = j
-    }
+    for (let j = 0; j < row.length; j++)
+      if (row[j]! > bestValue) {
+        bestValue = row[j]!
+        best = j
+      }
     return best
   })
 }

@@ -50,7 +50,11 @@ export function parityBlockBeat3D(input: {
             if (base % 2 !== par) continue
             const i = index(x, y, z)
             const j = index(x + dx, y + dy, z + dz)
-            const [na, nb] = ternaryPairPermutation(tone[i]!, tone[j]!, create)
+            const [na, nb] = ternaryPairPermutation(
+              tone[i]!,
+              tone[j]!,
+              create,
+            )
             tone[i] = na as -1 | 0 | 1
             tone[j] = nb as -1 | 0 | 1
           }

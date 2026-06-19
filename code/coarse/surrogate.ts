@@ -19,10 +19,10 @@ export function fitMarkovSurrogate(input: {
   const { trajectory, stateCount, lag } = input
   const alpha = input.alpha ?? 1e-3
   const counts = countMatrix({ trajectory, stateCount, lag })
-  return counts.map((row) => {
-    const smoothed = row.map((c) => c + alpha)
+  return counts.map(row => {
+    const smoothed = row.map(c => c + alpha)
     const sum = smoothed.reduce((a, b) => a + b, 0)
-    return smoothed.map((c) => c / sum)
+    return smoothed.map(c => c / sum)
   })
 }
 
@@ -43,7 +43,7 @@ export function marginalDistribution(input: {
     if (j >= 0) counts[j]!++
   }
   const sum = counts.reduce((a, b) => a + b, 0)
-  return counts.map((c) => c / sum)
+  return counts.map(c => c / sum)
 }
 
 // Mean log-likelihood per transition that a transition matrix assigns to a held-out trajectory at lag tau.
@@ -122,7 +122,10 @@ export function forwardAccuracy(input: {
 
 // Time-shuffle a label trajectory, destroying the temporal order while preserving the marginal. The control,
 // a surrogate fit to this has no real dynamics to learn, so it cannot out-predict the marginal baseline.
-export function timeShuffle(input: { trajectory: number[]; seed: number }): number[] {
+export function timeShuffle(input: {
+  trajectory: number[]
+  seed: number
+}): number[] {
   const { trajectory, seed } = input
   let s = seed >>> 0
   const next = (): number => {

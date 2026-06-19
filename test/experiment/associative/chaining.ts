@@ -4,7 +4,12 @@
 // chain visits several distinct content-related cells and does not immediately collapse to one fixed cell.
 
 import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import { makeAssociativeMemory, storeWord, readWord, matchScore } from '@/code/operator/associative-memory'
+import {
+  makeAssociativeMemory,
+  storeWord,
+  readWord,
+  matchScore,
+} from '@/code/operator/associative-memory'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -18,7 +23,11 @@ function gradientWord(index: number, wordBits: number): Int8Array {
   return word
 }
 
-export function associativeChaining(input?: { maxCells?: number; wordBits?: number; steps?: number }): {
+export function associativeChaining(input?: {
+  maxCells?: number
+  wordBits?: number
+  steps?: number
+}): {
   cellCount: number
   distinctVisited: number
   chainLength: number
@@ -29,8 +38,12 @@ export function associativeChaining(input?: { maxCells?: number; wordBits?: numb
   const wordBits = input?.wordBits ?? 21
   const steps = input?.steps ?? 12
   const g = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells })
-  const mem = makeAssociativeMemory({ neighbors: g.neighbors, wordBits })
-  for (let c = 0; c < g.cellCount; c++) storeWord(mem, c, gradientWord(c, wordBits))
+  const mem = makeAssociativeMemory({
+    neighbors: g.neighbors,
+    wordBits,
+  })
+  for (let c = 0; c < g.cellCount; c++)
+    storeWord(mem, c, gradientWord(c, wordBits))
 
   // start the chain at a deterministic cue, the recalled word becomes the next comparand, and we forbid
   // revisiting so a related-but-new memory is picked each step
@@ -59,12 +72,19 @@ export function associativeChaining(input?: { maxCells?: number; wordBits?: numb
   const distinctVisited = visited.size
   const collapsed = distinctVisited <= 2
   const solved = !collapsed && distinctVisited >= Math.min(5, steps)
-  return { cellCount: g.cellCount, distinctVisited, chainLength: chain.length, collapsed, solved }
+  return {
+    cellCount: g.cellCount,
+    distinctVisited,
+    chainLength: chain.length,
+    collapsed,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'associative/chaining',
-  title: 'free association as a content-cued walk, each recalled word cues the next nearest memory',
+  title:
+    'free association as a content-cued walk, each recalled word cues the next nearest memory',
   category: 'associative',
   substrates: ['3434'],
   depth: 'L2',

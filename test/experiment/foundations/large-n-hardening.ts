@@ -10,13 +10,20 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 import { sprinkleMinkowski } from '@/code/substrate/sprinkle-minkowski'
-import { myrheimMeyerDimension, dimensionFromOrderingFraction } from '@/code/measure/dimension'
+import {
+  myrheimMeyerDimension,
+  dimensionFromOrderingFraction,
+} from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // Coordinates-only sprinkle of the causal diamond (no O(N^2) poset built). Same
 // rejection sampling as sprinkleMinkowski, but we keep only the points.
-function sprinkleCoords(input: { dimension: number; count: number; rng: Rng }): Float64Array {
+function sprinkleCoords(input: {
+  dimension: number
+  count: number
+  rng: Rng
+}): Float64Array {
   const d = input.dimension
   const spaceDim = d - 1
   const coords = new Float64Array(input.count * d)
@@ -46,10 +53,19 @@ function sprinkleCoords(input: { dimension: number; count: number; rng: Rng }): 
 // Estimate the Myrheim-Meyer dimension by sampling pairs. Two points are causally
 // related iff they are timelike separated: the time gap squared exceeds the spatial
 // distance squared. The ordering fraction is the fraction of related pairs.
-export function sampledDimension(input: { dimension: number; count: number; pairs: number; seed: number }): number {
+export function sampledDimension(input: {
+  dimension: number
+  count: number
+  pairs: number
+  seed: number
+}): number {
   const d = input.dimension
   const rng = makeRng({ seed: input.seed })
-  const coords = sprinkleCoords({ dimension: d, count: input.count, rng })
+  const coords = sprinkleCoords({
+    dimension: d,
+    count: input.count,
+    rng,
+  })
   const n = input.count
   let related = 0
   for (let s = 0; s < input.pairs; s++) {
@@ -61,7 +77,8 @@ export function sampledDimension(input: { dimension: number; count: number; pair
     const dt = (coords[a * d] ?? 0) - (coords[b * d] ?? 0)
     let dx2 = 0
     for (let axis = 1; axis < d; axis++) {
-      const dx = (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
+      const dx =
+        (coords[a * d + axis] ?? 0) - (coords[b * d + axis] ?? 0)
       dx2 += dx * dx
     }
     if (dt * dt > dx2) {
@@ -71,29 +88,59 @@ export function sampledDimension(input: { dimension: number; count: number; pair
   return dimensionFromOrderingFraction(related / input.pairs)
 }
 
-export function largeNHardening(input: { dimension: number; sizes: number[]; pairs: number; seed: number }): {
+export function largeNHardening(input: {
+  dimension: number
+  sizes: number[]
+  pairs: number
+  seed: number
+}): {
   estimates: number[]
   errors: number[]
   errorShrinks: boolean
 } {
-  const estimates = input.sizes.map((nn, i) => sampledDimension({ dimension: input.dimension, count: nn, pairs: input.pairs, seed: input.seed + i }))
-  const errors = estimates.map((e) => Math.abs(e - input.dimension))
-  const errorShrinks = (errors[errors.length - 1] ?? 1) < (errors[0] ?? 0)
+  const estimates = input.sizes.map((nn, i) =>
+    sampledDimension({
+      dimension: input.dimension,
+      count: nn,
+      pairs: input.pairs,
+      seed: input.seed + i,
+    }),
+  )
+  const errors = estimates.map(e => Math.abs(e - input.dimension))
+  const errorShrinks =
+    (errors[errors.length - 1] ?? 1) < (errors[0] ?? 0)
   return { estimates, errors, errorShrinks }
 }
 
 export default experiment({
   id: 'foundations/large-n-hardening',
-  title: 'the sampled dimension estimator matches exact and sharpens at large N',
+  title:
+    'the sampled dimension estimator matches exact and sharpens at large N',
   category: 'foundations',
   substrates: 'any',
   depth: 'L1',
   paper: false,
   run() {
-    const samp = sampledDimension({ dimension: 2, count: 1500, pairs: 200000, seed: 1 })
-    const r2 = largeNHardening({ dimension: 2, sizes: [2000, 30000], pairs: 300000, seed: 10 })
-    const r3 = largeNHardening({ dimension: 3, sizes: [2000, 30000], pairs: 300000, seed: 10 })
-    const ok = Math.abs(samp - 2) < 0.1 && r2.errorShrinks && r3.errorShrinks
+    const samp = sampledDimension({
+      dimension: 2,
+      count: 1500,
+      pairs: 200000,
+      seed: 1,
+    })
+    const r2 = largeNHardening({
+      dimension: 2,
+      sizes: [2000, 30000],
+      pairs: 300000,
+      seed: 10,
+    })
+    const r3 = largeNHardening({
+      dimension: 3,
+      sizes: [2000, 30000],
+      pairs: 300000,
+      seed: 10,
+    })
+    const ok =
+      Math.abs(samp - 2) < 0.1 && r2.errorShrinks && r3.errorShrinks
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

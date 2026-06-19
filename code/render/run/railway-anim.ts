@@ -59,17 +59,41 @@ function run(): void {
       }
       sceneFaces.push({ polygon: faces.polygons[cell]!, color })
     }
-    const scene: Scene = { dim: 2, symbol: symbol.slice(), edges, faces: sceneFaces, cellCount: faces.cellCount }
-    const { rgba } = renderSceneToRgba({ scene, size, segments: 14, lineWidth: 1.0, near: EDGE, far: EDGE, model })
+    const scene: Scene = {
+      dim: 2,
+      symbol: symbol.slice(),
+      edges,
+      faces: sceneFaces,
+      cellCount: faces.cellCount,
+    }
+    const { rgba } = renderSceneToRgba({
+      scene,
+      size,
+      segments: 14,
+      lineWidth: 1.0,
+      near: EDGE,
+      far: EDGE,
+      model,
+    })
     frames.push(rgba)
     if (beat === 0 || beat === Math.floor(track.length / 2)) {
-      writeFileSync(join(outDir, `railway-${symbolText}-${model}-frame${beat}.png`), encodePng(rgba, size, size))
+      writeFileSync(
+        join(outDir, `railway-${symbolText}-${model}-frame${beat}.png`),
+        encodePng(rgba, size, size),
+      )
     }
   }
 
-  const gif = encodeGif({ frames, width: size, height: size, delayMs: 110 })
+  const gif = encodeGif({
+    frames,
+    width: size,
+    height: size,
+    delayMs: 110,
+  })
   writeFileSync(join(outDir, `railway-${symbolText}-${model}.gif`), gif)
-  console.log(`ran the locomotive on {${symbol.join(',')}}, track length ${track.length}, wrote railway-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB`)
+  console.log(
+    `ran the locomotive on {${symbol.join(',')}}, track length ${track.length}, wrote railway-${symbolText}-${model}.gif  ${(gif.length / 1024).toFixed(0)} KB`,
+  )
 }
 
 function cellOutlines(polygons: number[][][]): SceneEdge[] {
@@ -79,8 +103,8 @@ function cellOutlines(polygons: number[][][]): SceneEdge[] {
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i]!
       const b = poly[(i + 1) % poly.length]!
-      const ka = a.map((x) => Math.round(x * 1e4)).join(',')
-      const kb = b.map((x) => Math.round(x * 1e4)).join(',')
+      const ka = a.map(x => Math.round(x * 1e4)).join(',')
+      const kb = b.map(x => Math.round(x * 1e4)).join(',')
       const key = ka < kb ? `${ka}|${kb}` : `${kb}|${ka}`
       if (seen.has(key)) continue
       seen.add(key)

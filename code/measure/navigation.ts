@@ -39,7 +39,9 @@ function targetDistance(input: {
   if (denom <= 0) {
     return Math.sqrt(sum2)
   }
-  return Math.acosh(poincareCoshFromParts(sum2, 1 - nodeNorm2, 1 - targetNorm2))
+  return Math.acosh(
+    poincareCoshFromParts(sum2, 1 - nodeNorm2, 1 - targetNorm2),
+  )
 }
 
 // Greedy geometric routing for a single source/target pair: from the source, step
@@ -125,10 +127,18 @@ export function greedyRoutingSuccess(input: {
       }
       const row = graph.neighbors[current] ?? new Uint32Array(0)
       let best = -1
-      let bestDistance = targetDistance({ graph, node: current, target })
+      let bestDistance = targetDistance({
+        graph,
+        node: current,
+        target,
+      })
       for (let k = 0; k < row.length; k++) {
         const neighbor = row[k] ?? 0
-        const distance = targetDistance({ graph, node: neighbor, target })
+        const distance = targetDistance({
+          graph,
+          node: neighbor,
+          target,
+        })
         if (distance < bestDistance) {
           bestDistance = distance
           best = neighbor
@@ -213,7 +223,11 @@ export function routingWithBacktrack(input: {
         if ((visited[neighbor] ?? 0) === 1) {
           continue
         }
-        const distance = targetDistance({ graph, node: neighbor, target })
+        const distance = targetDistance({
+          graph,
+          node: neighbor,
+          target,
+        })
         if (distance < bestDistance) {
           bestDistance = distance
           best = neighbor
@@ -245,7 +259,11 @@ export function routingWithBacktrack(input: {
   }
 }
 
-function bfsHops(input: { graph: Graph; from: number; to: number }): number {
+function bfsHops(input: {
+  graph: Graph
+  from: number
+  to: number
+}): number {
   if (input.from === input.to) {
     return 0
   }

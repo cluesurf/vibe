@@ -34,12 +34,27 @@ export function intentionAtScale(input?: { n?: number }): {
   const { eu, ev } = edgesFromCsr(g.offsets, g.adj, N)
   const moved = new Uint8Array(N)
   let center = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const distC = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center + 1]! - g.offsets[center]!
+    )
+      center = i
+  const distC = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+  })
   // target = a far cell (the goal direction); dT = distance to the target
   let target = 0
   for (let i = 1; i < N; i++) if (distC[i]! > distC[target]!) target = i
-  const dT = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: target })
+  const dT = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: target,
+  })
   const rSelf = 4
   const self: number[] = []
   for (let i = 0; i < N; i++) if (distC[i]! <= rSelf) self.push(i)
@@ -49,7 +64,12 @@ export function intentionAtScale(input?: { n?: number }): {
   for (const i of self) if (distC[i]! <= 1) hub[i] = 1
 
   // willed beat: charges hop, BIASED toward the target (lower dT), but only for charges in the will region
-  const beat = (tone: Int8Array, willRegion: Uint8Array, bias: number, rng: Rng): void => {
+  const beat = (
+    tone: Int8Array,
+    willRegion: Uint8Array,
+    bias: number,
+    rng: Rng,
+  ): void => {
     moved.fill(0)
     for (let k = 0; k < eu.length; k++) {
       const v = eu[k]!
@@ -76,13 +96,17 @@ export function intentionAtScale(input?: { n?: number }): {
     }
   }
 
-  const meanDT = (tone: Int8Array, region: (i: number) => boolean): number => {
+  const meanDT = (
+    tone: Int8Array,
+    region: (i: number) => boolean,
+  ): number => {
     let s = 0
     let c = 0
-    for (let i = 0; i < N; i++) if (tone[i] !== 0 && region(i)) {
-      s += dT[i]!
-      c++
-    }
+    for (let i = 0; i < N; i++)
+      if (tone[i] !== 0 && region(i)) {
+        s += dT[i]!
+        c++
+      }
     return c > 0 ? s / c : 0
   }
   // spatial spread of the charge (cohesion = small spread, the self stays one blob)
@@ -90,11 +114,12 @@ export function intentionAtScale(input?: { n?: number }): {
     let s = 0
     let s2 = 0
     let c = 0
-    for (let i = 0; i < N; i++) if (tone[i] !== 0) {
-      s += distC[i]!
-      s2 += distC[i]! * distC[i]!
-      c++
-    }
+    for (let i = 0; i < N; i++)
+      if (tone[i] !== 0) {
+        s += distC[i]!
+        s2 += distC[i]! * distC[i]!
+        c++
+      }
     const m = s / c
     return Math.sqrt(s2 / c - m * m)
   }
@@ -146,11 +171,12 @@ export function intentionAtScale(input?: { n?: number }): {
   // perturb: randomly relocate ~40% of the charge to random self cells (a shock to the intention)
   const charges: number[] = []
   for (let i = 0; i < N; i++) if (tone[i] !== 0) charges.push(i)
-  for (const c of charges) if (rng3.next() < 0.4) {
-    tone[c] = 0
-    const dest = self[Math.floor(rng3.next() * self.length)]!
-    tone[dest] = 1
-  }
+  for (const c of charges)
+    if (rng3.next() < 0.4) {
+      tone[c] = 0
+      const dest = self[Math.floor(rng3.next() * self.length)]!
+      tone[dest] = 1
+    }
   const dtPerturbed = meanDT(tone, () => true)
   for (let t = 0; t < T; t++) beat(tone, allWill, 0.45, rng3)
   const dtRecovered = meanDT(tone, () => true)
@@ -186,7 +212,8 @@ export function intentionAtScale(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/intention-at-scale',
-  title: 'the will coherently biases the whole self but directed action is geometrically frustrated',
+  title:
+    'the will coherently biases the whole self but directed action is geometrically frustrated',
   category: 'selves',
   substrates: ['534'],
   depth: 'L2',

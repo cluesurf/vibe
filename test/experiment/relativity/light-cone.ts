@@ -13,11 +13,17 @@ export default experiment({
   paper: true,
   run() {
     const radii = lightConeRadii({ side: 33, beats: 12 })
-    const ballistic = radii.every((radius, index) => radius === index + 1)
+    const ballistic = radii.every(
+      (radius, index) => radius === index + 1,
+    )
     return verdict({
       status: ballistic ? 'pass' : 'fail',
-      claim: 'a free charge front advances exactly one cell per beat, z = 1',
-      metrics: { beats: radii.length, finalRadius: radii[radii.length - 1] ?? 0 },
+      claim:
+        'a free charge front advances exactly one cell per beat, z = 1',
+      metrics: {
+        beats: radii.length,
+        finalRadius: radii[radii.length - 1] ?? 0,
+      },
     })
   },
 })

@@ -36,7 +36,12 @@ export function gravitonCoordsOf(idx: number, L: number): number[] {
   return c
 }
 
-export function gravitonShift(coords: number[], axis: number, delta: number, L: number): number[] {
+export function gravitonShift(
+  coords: number[],
+  axis: number,
+  delta: number,
+  L: number,
+): number[] {
   const c = coords.slice()
   c[axis] = ((c[axis] ?? 0) + delta + L) % L
   return c
@@ -44,12 +49,16 @@ export function gravitonShift(coords: number[], axis: number, delta: number, L: 
 
 export function makeTensorField(L: number): TensorField {
   const n = Math.pow(L, D)
-  return { L, data: Array.from({ length: n }, () => new Float64Array(D * D)) }
+  return {
+    L,
+    data: Array.from({ length: n }, () => new Float64Array(D * D)),
+  }
 }
 
 export function tensorFieldMaxAbs(f: TensorField): number {
   let m = 0
-  for (const row of f.data) for (const v of row) m = Math.max(m, Math.abs(v))
+  for (const row of f.data)
+    for (const v of row) m = Math.max(m, Math.abs(v))
   return m
 }
 
@@ -61,50 +70,102 @@ export function linearizedEinstein(h: TensorField): TensorField {
   const L = h.L
   const n = h.data.length
   const out = makeTensorField(L)
-  const at = (site: number, mu: number, nu: number): number => h.data[site]![mu * D + nu] ?? 0
-  const d2 = (coords: number[], alpha: number, beta: number, mu: number, nu: number): number => {
+  const at = (site: number, mu: number, nu: number): number =>
+    h.data[site]![mu * D + nu] ?? 0
+  const d2 = (
+    coords: number[],
+    alpha: number,
+    beta: number,
+    mu: number,
+    nu: number,
+  ): number => {
     if (alpha === beta) {
-      const pp = gravitonSiteIndex(gravitonShift(coords, alpha, 2, L), L)
-      const mm = gravitonSiteIndex(gravitonShift(coords, alpha, -2, L), L)
+      const pp = gravitonSiteIndex(
+        gravitonShift(coords, alpha, 2, L),
+        L,
+      )
+      const mm = gravitonSiteIndex(
+        gravitonShift(coords, alpha, -2, L),
+        L,
+      )
       const c = gravitonSiteIndex(coords, L)
       return (at(pp, mu, nu) - 2 * at(c, mu, nu) + at(mm, mu, nu)) / 4
     }
-    const pp = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, 1, L), beta, 1, L), L)
-    const pm = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, 1, L), beta, -1, L), L)
-    const mp = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, -1, L), beta, 1, L), L)
-    const mm = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, -1, L), beta, -1, L), L)
-    return (at(pp, mu, nu) - at(pm, mu, nu) - at(mp, mu, nu) + at(mm, mu, nu)) / 4
+    const pp = gravitonSiteIndex(
+      gravitonShift(gravitonShift(coords, alpha, 1, L), beta, 1, L),
+      L,
+    )
+    const pm = gravitonSiteIndex(
+      gravitonShift(gravitonShift(coords, alpha, 1, L), beta, -1, L),
+      L,
+    )
+    const mp = gravitonSiteIndex(
+      gravitonShift(gravitonShift(coords, alpha, -1, L), beta, 1, L),
+      L,
+    )
+    const mm = gravitonSiteIndex(
+      gravitonShift(gravitonShift(coords, alpha, -1, L), beta, -1, L),
+      L,
+    )
+    return (
+      (at(pp, mu, nu) -
+        at(pm, mu, nu) -
+        at(mp, mu, nu) +
+        at(mm, mu, nu)) /
+      4
+    )
   }
   for (let site = 0; site < n; site++) {
     const coords = gravitonCoordsOf(site, L)
     const traceAt = (s: number): number => {
       let t = 0
-      for (let a = 0; a < D; a++) t += (ETA[a] ?? 1) * (h.data[s]![a * D + a] ?? 0)
+      for (let a = 0; a < D; a++)
+        t += (ETA[a] ?? 1) * (h.data[s]![a * D + a] ?? 0)
       return t
     }
     const d2trace = (alpha: number, beta: number): number => {
       if (alpha === beta) {
-        const pp = gravitonSiteIndex(gravitonShift(coords, alpha, 2, L), L)
-        const mm = gravitonSiteIndex(gravitonShift(coords, alpha, -2, L), L)
+        const pp = gravitonSiteIndex(
+          gravitonShift(coords, alpha, 2, L),
+          L,
+        )
+        const mm = gravitonSiteIndex(
+          gravitonShift(coords, alpha, -2, L),
+          L,
+        )
         const c = gravitonSiteIndex(coords, L)
         return (traceAt(pp) - 2 * traceAt(c) + traceAt(mm)) / 4
       }
-      const pp = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, 1, L), beta, 1, L), L)
-      const pm = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, 1, L), beta, -1, L), L)
-      const mp = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, -1, L), beta, 1, L), L)
-      const mm = gravitonSiteIndex(gravitonShift(gravitonShift(coords, alpha, -1, L), beta, -1, L), L)
+      const pp = gravitonSiteIndex(
+        gravitonShift(gravitonShift(coords, alpha, 1, L), beta, 1, L),
+        L,
+      )
+      const pm = gravitonSiteIndex(
+        gravitonShift(gravitonShift(coords, alpha, 1, L), beta, -1, L),
+        L,
+      )
+      const mp = gravitonSiteIndex(
+        gravitonShift(gravitonShift(coords, alpha, -1, L), beta, 1, L),
+        L,
+      )
+      const mm = gravitonSiteIndex(
+        gravitonShift(gravitonShift(coords, alpha, -1, L), beta, -1, L),
+        L,
+      )
       return (traceAt(pp) - traceAt(pm) - traceAt(mp) + traceAt(mm)) / 4
     }
     let boxTrace = 0
     let divdiv = 0
     for (let a = 0; a < D; a++) {
       boxTrace += (ETA[a] ?? 1) * d2trace(a, a)
-      for (let b = 0; b < D; b++) divdiv += (ETA[a] ?? 1) * (ETA[b] ?? 1) * d2(coords, a, b, a, b)
+      for (let b = 0; b < D; b++)
+        divdiv += (ETA[a] ?? 1) * (ETA[b] ?? 1) * d2(coords, a, b, a, b)
     }
     for (let mu = 0; mu < D; mu++) {
       for (let nu = mu; nu < D; nu++) {
         let boxH = 0
-        for (let a = 0; a < D; a++) boxH += (ETA[a] ?? 1) * d2(coords, a, a, mu, nu)
+        for (let a = 0; a < D; a++)
+          boxH += (ETA[a] ?? 1) * d2(coords, a, a, mu, nu)
         let divMu = 0
         let divNu = 0
         for (let a = 0; a < D; a++) {
@@ -113,7 +174,14 @@ export function linearizedEinstein(h: TensorField): TensorField {
         }
         const ddTrace = d2trace(mu, nu)
         const etaMuNu = mu === nu ? (ETA[mu] ?? 1) : 0
-        const g = -0.5 * (boxH - divMu - divNu + ddTrace - etaMuNu * boxTrace + etaMuNu * divdiv)
+        const g =
+          -0.5 *
+          (boxH -
+            divMu -
+            divNu +
+            ddTrace -
+            etaMuNu * boxTrace +
+            etaMuNu * divdiv)
         out.data[site]![mu * D + nu] = g
         out.data[site]![nu * D + mu] = g
       }
@@ -125,12 +193,25 @@ export function linearizedEinstein(h: TensorField): TensorField {
 // The ten independent components of a symmetric 4x4 tensor, the orthonormal symmetric-tensor basis
 // the graviton operator is assembled in.
 const GRAVITON_PAIRS: Array<[number, number]> = [
-  [0, 0], [1, 1], [2, 2], [3, 3], [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],
+  [0, 0],
+  [1, 1],
+  [2, 2],
+  [3, 3],
+  [0, 1],
+  [0, 2],
+  [0, 3],
+  [1, 2],
+  [1, 3],
+  [2, 3],
 ]
 
 // One symmetric-tensor plane-wave basis mode: component `comp` of the orthonormal basis, modulated
 // by cos(kz * z) along the z axis. The probe used to assemble the operator's momentum-space matrix.
-function gravitonBasisField(L: number, comp: number, kz: number): TensorField {
+function gravitonBasisField(
+  L: number,
+  comp: number,
+  kz: number,
+): TensorField {
   const [a, b] = GRAVITON_PAIRS[comp] ?? [0, 0]
   const amp = a === b ? 1 : Math.SQRT1_2 // orthonormal symmetric-tensor basis
   const h = makeTensorField(L)
@@ -177,23 +258,30 @@ export function gravitonPolarizationsFromSpectrum(input: {
   const L = input.side
   const kn = input.mode
   const kz = (2 * Math.PI * kn) / L
-  const M = makeDense({ rows: GRAVITON_PAIRS.length, cols: GRAVITON_PAIRS.length })
+  const M = makeDense({
+    rows: GRAVITON_PAIRS.length,
+    cols: GRAVITON_PAIRS.length,
+  })
   for (let comp = 0; comp < GRAVITON_PAIRS.length; comp++) {
     const g = linearizedEinstein(gravitonBasisField(L, comp, kz))
     const col = gravitonProjectOntoMode(g, kz)
-    for (let r = 0; r < GRAVITON_PAIRS.length; r++) M.data[r * GRAVITON_PAIRS.length + comp] = col[r] ?? 0
+    for (let r = 0; r < GRAVITON_PAIRS.length; r++)
+      M.data[r * GRAVITON_PAIRS.length + comp] = col[r] ?? 0
   }
   // symmetrize (the EH operator is self-adjoint; tiny asymmetry is lattice roundoff)
   for (let i = 0; i < GRAVITON_PAIRS.length; i++) {
     for (let j = i + 1; j < GRAVITON_PAIRS.length; j++) {
-      const avg = 0.5 * ((M.data[i * GRAVITON_PAIRS.length + j] ?? 0) + (M.data[j * GRAVITON_PAIRS.length + i] ?? 0))
+      const avg =
+        0.5 *
+        ((M.data[i * GRAVITON_PAIRS.length + j] ?? 0) +
+          (M.data[j * GRAVITON_PAIRS.length + i] ?? 0))
       M.data[i * GRAVITON_PAIRS.length + j] = avg
       M.data[j * GRAVITON_PAIRS.length + i] = avg
     }
   }
   const eig = eigSymmetric({ matrix: M })
   const eigenvalues = Array.from(eig.values).sort((a, b) => a - b)
-  const scale = Math.max(...eigenvalues.map((v) => Math.abs(v)), 1e-12)
+  const scale = Math.max(...eigenvalues.map(v => Math.abs(v)), 1e-12)
   const tol = 1e-6 * scale
   let gauge = 0
   for (const v of eigenvalues) if (Math.abs(v) < tol) gauge += 1
@@ -202,7 +290,8 @@ export function gravitonPolarizationsFromSpectrum(input: {
     const out = new Array<number>(GRAVITON_PAIRS.length).fill(0)
     for (let r = 0; r < GRAVITON_PAIRS.length; r++) {
       let s = 0
-      for (let c = 0; c < GRAVITON_PAIRS.length; c++) s += (M.data[r * GRAVITON_PAIRS.length + c] ?? 0) * (v[c] ?? 0)
+      for (let c = 0; c < GRAVITON_PAIRS.length; c++)
+        s += (M.data[r * GRAVITON_PAIRS.length + c] ?? 0) * (v[c] ?? 0)
       out[r] = s
     }
     return out
@@ -215,7 +304,8 @@ export function gravitonPolarizationsFromSpectrum(input: {
     for (let i = 0; i < v.length; i++) vMv += (v[i] ?? 0) * (Mv[i] ?? 0)
     const lambda = vMv / (norm * norm)
     let res = 0
-    for (let i = 0; i < v.length; i++) res += ((Mv[i] ?? 0) - lambda * (v[i] ?? 0)) ** 2
+    for (let i = 0; i < v.length; i++)
+      res += ((Mv[i] ?? 0) - lambda * (v[i] ?? 0)) ** 2
     return lambda > tol && Math.sqrt(res) < 1e-6 * scale
   }
   // TT modes for k along z (axis 3): h_xx = -h_yy (index 1, 2), and h_xy (index 7).
@@ -225,7 +315,8 @@ export function gravitonPolarizationsFromSpectrum(input: {
   const ttCross = new Array<number>(GRAVITON_PAIRS.length).fill(0)
   ttCross[7] = 1
   let physical = 0
-  for (const mode of [ttPlus, ttCross]) if (isPropagatingEigenvector(mode)) physical += 1
+  for (const mode of [ttPlus, ttCross])
+    if (isPropagatingEigenvector(mode)) physical += 1
 
   return { physical, gauge, eigenvalues }
 }

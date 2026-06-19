@@ -8,10 +8,16 @@
 // bulk, whose ball grows EXPONENTIALLY. Flat growth confirms the horosphere is the Euclidean layer.
 // Run: npx tsx code/experiment/p142-horosphere-flat.ts
 
-import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildCellGraph,
+  buildHorosphere,
+} from '@/code/substrate/coxeter/cell-direct'
 import { bfsShells } from '@/code/measure/shells'
 import { growthFromShells } from '@/code/measure/dimension'
-import { centerNearestOrigin, proximityGraph } from '@/code/substrate/proximity-graph'
+import {
+  centerNearestOrigin,
+  proximityGraph,
+} from '@/code/substrate/proximity-graph'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -33,19 +39,29 @@ export function horosphereFlat(input?: { maxCells?: number }): {
 } {
   const maxCells = input?.maxCells ?? 14000
   const bulk = buildCellGraph({ symbol: [5, 3, 4], maxCells })
-  const horo = buildHorosphere({ symbol: [5, 3, 4], maxCells, bandHalfWidth: 0.3 })
+  const horo = buildHorosphere({
+    symbol: [5, 3, 4],
+    maxCells,
+    bandHalfWidth: 0.3,
+  })
 
   // bulk: intrinsic growth via the face-adjacency BFS shells (exponential on the hyperbolic crystal)
-  const bulkG = growthFromShells(bfsShells({ neighbors: bulk.neighbors, root: 0, maxRadius: 9 }).shellCounts)
+  const bulkG = growthFromShells(
+    bfsShells({ neighbors: bulk.neighbors, root: 0, maxRadius: 9 })
+      .shellCounts,
+  )
 
   // horosphere: build the in-surface PROXIMITY graph, then BFS shells (linear if flat, exponential if curved)
   const prox = proximityGraph({ coords: horo.coords })
   const hc = centerNearestOrigin(horo.coords)
-  const horoG = growthFromShells(bfsShells({ neighbors: prox, root: hc, maxRadius: 14 }).shellCounts)
+  const horoG = growthFromShells(
+    bfsShells({ neighbors: prox, root: hc, maxRadius: 14 }).shellCounts,
+  )
 
   // flat = POLYNOMIAL (finite-dimensional, sub-exponential) growth, the slab is a few cells thick so the
   // dimension sits a little above 2, the decisive signal is polynomial vs the bulk's exponential
-  const horoIsFlat = horoG.dim > 1.4 && horoG.dim < 3.5 && horoG.ratio < 2.6
+  const horoIsFlat =
+    horoG.dim > 1.4 && horoG.dim < 3.5 && horoG.ratio < 2.6
   const bulkIsExponential = bulkG.ratio > 1.8 // shells multiply
   const flatterThanBulk = horoG.ratio < bulkG.ratio - 1.5 // far flatter than the exponential bulk
   const solved = horoIsFlat && bulkIsExponential && flatterThanBulk
@@ -65,14 +81,19 @@ export function horosphereFlat(input?: { maxCells?: number }): {
 
 export default experiment({
   id: 'geometry/horosphere-flat',
-  title: 'a Busemann level set of {5,3,4} grows polynomially, a flat 2D sheet inside the curved crystal',
+  title:
+    'a Busemann level set of {5,3,4} grows polynomially, a flat 2D sheet inside the curved crystal',
   category: 'geometry',
   substrates: ['534'],
   depth: 'L3',
   paper: true,
   run() {
     const r = horosphereFlat({ maxCells: 14000 })
-    const ok = r.solved && r.horoIsFlat && r.bulkIsExponential && r.flatterThanBulk
+    const ok =
+      r.solved &&
+      r.horoIsFlat &&
+      r.bulkIsExponential &&
+      r.flatterThanBulk
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

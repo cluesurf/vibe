@@ -21,8 +21,21 @@ import { ringEdges } from '@/code/substrate/ring'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function beat(tone: Int8Array, ring: { eu: Int32Array; ev: Int32Array }, moved: Uint8Array, rng: Rng, arrow: number): void {
-  conservingEdgeSweep({ tone, eu: ring.eu, ev: ring.ev, moved, rng, arrow })
+function beat(
+  tone: Int8Array,
+  ring: { eu: Int32Array; ev: Int32Array },
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void {
+  conservingEdgeSweep({
+    tone,
+    eu: ring.eu,
+    ev: ring.ev,
+    moved,
+    rng,
+    arrow,
+  })
 }
 
 export function secondConservationSearch(input?: { L?: number }): {
@@ -42,7 +55,11 @@ export function secondConservationSearch(input?: { L?: number }): {
   const tone = new Int8Array(L)
   const moved = new Uint8Array(L)
   const rng = makeRng({ seed: 5 })
-  for (let i = 0; i < L; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < L; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   for (let t = 0; t < 60; t++) beat(tone, ring, moved, rng, 0.1)
   const T = 1500
   const Q: number[] = []
@@ -66,13 +83,31 @@ export function secondConservationSearch(input?: { L?: number }): {
     beat(tone, ring, moved, rng, 0.1)
   }
   const conserved = [
-    { name: 'charge Q = sum tone', relStd: relStd(Q), isConserved: relStd(Q) < 1e-6 },
-    { name: 'count (trivial)', relStd: relStd(count), isConserved: relStd(count) < 1e-6 },
-    { name: 'activity sum tone^2', relStd: relStd(activity), isConserved: relStd(activity) < 1e-3 },
-    { name: 'staggered sum (-1)^x tone', relStd: relStd(staggered), isConserved: relStd(staggered) < 1e-3 },
+    {
+      name: 'charge Q = sum tone',
+      relStd: relStd(Q),
+      isConserved: relStd(Q) < 1e-6,
+    },
+    {
+      name: 'count (trivial)',
+      relStd: relStd(count),
+      isConserved: relStd(count) < 1e-6,
+    },
+    {
+      name: 'activity sum tone^2',
+      relStd: relStd(activity),
+      isConserved: relStd(activity) < 1e-3,
+    },
+    {
+      name: 'staggered sum (-1)^x tone',
+      relStd: relStd(staggered),
+      isConserved: relStd(staggered) < 1e-3,
+    },
   ]
   // non-trivial conservation laws (exclude the trivial count)
-  const conservationLawCount = conserved.filter((c) => c.isConserved && c.name !== 'count (trivial)').length
+  const conservationLawCount = conserved.filter(
+    c => c.isConserved && c.name !== 'count (trivial)',
+  ).length
 
   // (B) scan for spontaneous (staggered / Neel) order, the carrier of a z=1 Goldstone
   const staggeredScan: { arrow: number; staggeredRange: number }[] = []
@@ -80,27 +115,38 @@ export function secondConservationSearch(input?: { L?: number }): {
     const tn = new Int8Array(L)
     const mv = new Uint8Array(L)
     const r2 = makeRng({ seed: 9 })
-    for (let i = 0; i < L; i++) tn[i] = (r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+    for (let i = 0; i < L; i++)
+      tn[i] = (r2.next() < 0.3 ? (r2.next() < 0.5 ? 1 : -1) : 0) as
+        | -1
+        | 0
+        | 1
     for (let t = 0; t < 300; t++) beat(tn, ring, mv, r2, arrow)
     const maxR = 12
     const sumCC = new Float64Array(maxR + 1)
     const TT = 2000
     for (let t = 0; t < TT; t++) {
-      for (let x = 0; x < L; x++) for (let r = 0; r <= maxR; r++) sumCC[r]! += tn[x]! * tn[(x + r) % L]!
+      for (let x = 0; x < L; x++)
+        for (let r = 0; r <= maxR; r++)
+          sumCC[r]! += tn[x]! * tn[(x + r) % L]!
       beat(tn, ring, mv, r2, arrow)
     }
     // STAGGERED correlation magnitude (-1)^r C(r), the Neel order parameter at long range
     const c0 = sumCC[0]! / (L * TT)
     let range = 0
     for (let r = 1; r <= maxR; r++) {
-      const cstag = Math.abs((((r % 2 === 0 ? 1 : -1) * sumCC[r]!) / (L * TT)))
+      const cstag = Math.abs(
+        ((r % 2 === 0 ? 1 : -1) * sumCC[r]!) / (L * TT),
+      )
       if (cstag > 0.05 * Math.abs(c0)) range = r
     }
     staggeredScan.push({ arrow, staggeredRange: range })
   }
-  const spontaneousOrder = staggeredScan.some((s) => s.staggeredRange >= 5) // long-range order = a Goldstone
+  const spontaneousOrder = staggeredScan.some(
+    s => s.staggeredRange >= 5,
+  ) // long-range order = a Goldstone
 
-  const onlyChargeConserved = conservationLawCount === 1 && conserved[0]!.isConserved
+  const onlyChargeConserved =
+    conservationLawCount === 1 && conserved[0]!.isConserved
   const momentumEmergent = !onlyChargeConserved || spontaneousOrder // a 2nd law OR a Goldstone
   const solved = onlyChargeConserved && !spontaneousOrder // a clear NEGATIVE verdict, decisively determined
 
@@ -118,7 +164,8 @@ export function secondConservationSearch(input?: { L?: number }): {
 
 export default experiment({
   id: 'relativity/second-conservation-search',
-  title: 'the stochastic rule conserves only the U(1) charge with no spontaneous order',
+  title:
+    'the stochastic rule conserves only the U(1) charge with no spontaneous order',
   category: 'relativity',
   substrates: 'any',
   depth: 'L2',

@@ -22,11 +22,17 @@
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { phaseWinding } from '@/code/measure/winding'
-import { phaseRelaxStep, phaseWaveStep, gradientStructure, windingKinkWithLump } from '@/code/dynamics/phase-field'
+import {
+  phaseRelaxStep,
+  phaseWaveStep,
+  gradientStructure,
+  windingKinkWithLump,
+} from '@/code/dynamics/phase-field'
 
 export default experiment({
   id: 'selves/persistence-problem',
-  title: 'a pattern lasts only if its identity is topological, the bath makes it last, a closed system only recurs',
+  title:
+    'a pattern lasts only if its identity is topological, the bath makes it last, a closed system only recurs',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -37,7 +43,11 @@ export default experiment({
     const epsilon = 1e-3
 
     // A, winding-1 with a lump under dissipative relaxation, the open bath
-    let fieldA = windingKinkWithLump({ size, winding: 1, lumpAmplitude: 1.2 })
+    let fieldA = windingKinkWithLump({
+      size,
+      winding: 1,
+      lumpAmplitude: 1.2,
+    })
     const structA0 = gradientStructure(fieldA)
     let windingAlwaysOneA = true
     let risesA = 0
@@ -53,13 +63,24 @@ export default experiment({
     const aLastsAndHeals = windingAlwaysOneA && risesA === 0 // identity locked AND monotone heal (settles, lasts)
 
     // B, winding-0 with a lump under the same relaxation, the unprotected control
-    let fieldB = windingKinkWithLump({ size, winding: 0, lumpAmplitude: 1.2 })
+    let fieldB = windingKinkWithLump({
+      size,
+      winding: 0,
+      lumpAmplitude: 1.2,
+    })
     let windingZeroB = true
-    for (let t = 0; t < beats; t++) { if (phaseWinding(fieldB) !== 0) windingZeroB = false; fieldB = phaseRelaxStep(fieldB, 0.2) }
+    for (let t = 0; t < beats; t++) {
+      if (phaseWinding(fieldB) !== 0) windingZeroB = false
+      fieldB = phaseRelaxStep(fieldB, 0.2)
+    }
     const bHasNoIdentity = windingZeroB // no conserved topological charge to keep
 
     // C, winding-1 with a lump under the reversible wave, the closed control
-    const fieldC = windingKinkWithLump({ size, winding: 1, lumpAmplitude: 1.2 })
+    const fieldC = windingKinkWithLump({
+      size,
+      winding: 1,
+      lumpAmplitude: 1.2,
+    })
     const velocity = new Array<number>(size).fill(0)
     const structC0 = gradientStructure(fieldC)
     let windingAlwaysOneC = true

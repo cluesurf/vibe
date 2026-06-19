@@ -21,21 +21,31 @@ type Z = Complex2
 const winding = (theta: number[]): number => phaseWinding(theta)
 const phase = (z: Z): number => Math.atan2(z.im, z.re)
 const energy = (psi: Z[]): number => ringFieldEnergy(psi)
-function relax(psi: Z[], steps: number, dt: number): { hist: number[]; final: Z[] } {
+function relax(
+  psi: Z[],
+  steps: number,
+  dt: number,
+): { hist: number[]; final: Z[] } {
   const hist: number[] = []
   const final = relaxRingField({
     field: psi,
     steps,
     dt,
     sampleEvery: 500,
-    onSample: (cur) => hist.push(winding(cur.map(phase))),
+    onSample: cur => hist.push(winding(cur.map(phase))),
   })
   return { hist, final }
 }
-const fieldWithWinding = (L: number, w: number): Z[] => ringFieldWithWinding(L, w)
+const fieldWithWinding = (L: number, w: number): Z[] =>
+  ringFieldWithWinding(L, w)
 const defectPair = (L: number): Z[] => ringDefectPair(L)
 
-export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersist: boolean; chargeConserved: boolean; particleLike: boolean } {
+export function defectParticles(): {
+  pairAnnihilates: boolean
+  likeChargesPersist: boolean
+  chargeConserved: boolean
+  particleLike: boolean
+} {
   const L = 64
   // (1) defect + antidefect (total winding 0) -> annihilate to vacuum
   const pair = defectPair(L)
@@ -53,16 +63,24 @@ export function defectParticles(): { pairAnnihilates: boolean; likeChargesPersis
   const likeChargesPersist = wLike === 2 && eLikeFinal > 0.5 * topoMin
 
   // (3) total winding conserved throughout BOTH evolutions (no phase slips)
-  const chargeConserved = pr.hist.every((w) => w === 0) && lk.hist.every((w) => w === 2)
+  const chargeConserved =
+    pr.hist.every(w => w === 0) && lk.hist.every(w => w === 2)
 
-  const particleLike = pairAnnihilates && likeChargesPersist && chargeConserved
+  const particleLike =
+    pairAnnihilates && likeChargesPersist && chargeConserved
 
-  return { pairAnnihilates, likeChargesPersist, chargeConserved, particleLike }
+  return {
+    pairAnnihilates,
+    likeChargesPersist,
+    chargeConserved,
+    particleLike,
+  }
 }
 
 export default experiment({
   id: 'spin/defect-particles-3434',
-  title: 'topological defects annihilate in opposite-charge pairs and persist as like charges',
+  title:
+    'topological defects annihilate in opposite-charge pairs and persist as like charges',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

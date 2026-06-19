@@ -17,7 +17,8 @@ import {
 
 export default experiment({
   id: 'spin/projective-spinor-73',
-  title: 'the {7,3} symmetry PSL(2,7) has a spinor double cover SL(2,7), spin in the projective rep',
+  title:
+    'the {7,3} symmetry PSL(2,7) has a spinor double cover SL(2,7), spin in the projective rep',
   category: 'spin',
   substrates: ['73'],
   depth: 'L1',
@@ -35,15 +36,22 @@ export default experiment({
     // minus the identity is central, distinct from the identity, the lift the spinor sign turns on
     const minusOne = minusIdentityModP(prime)
     const minusIsCentral =
-      !equalsModP(minusOne, identityModP()) && middle.some((element) => equalsModP(element, minusOne))
+      !equalsModP(minusOne, identityModP()) &&
+      middle.some(element => equalsModP(element, minusOne))
 
     // MEASURED spinor action: -I applied to a basis vector is minus that vector over F_p
-    const reduce = (value: number): number => ((value % prime) + prime) % prime
+    const reduce = (value: number): number =>
+      ((value % prime) + prime) % prime
     const minusOneTimesE0 = multiplyModP(minusOne, [1, 0, 0, 0], prime) // acts on the first column
-    const actsAsMinusOne = minusOneTimesE0[0] === reduce(-1) && minusOneTimesE0[2] === 0
+    const actsAsMinusOne =
+      minusOneTimesE0[0] === reduce(-1) && minusOneTimesE0[2] === 0
 
     const isSpinorCover =
-      order === 336 && centreOrder === 2 && projectiveOrder === 168 && minusIsCentral && actsAsMinusOne
+      order === 336 &&
+      centreOrder === 2 &&
+      projectiveOrder === 168 &&
+      minusIsCentral &&
+      actsAsMinusOne
 
     return verdict({
       status: isSpinorCover ? 'pass' : 'fail',
@@ -57,7 +65,10 @@ export default experiment({
         minusIdentityActsAsMinusOne: actsAsMinusOne ? 1 : 0,
       },
       // CONTROL: PSL(2,7) (the rotation-like quotient) has no minus one, no spinor, the cover SL(2,7) does.
-      control: { projectiveGroupOrder: projectiveOrder, spinorSignInProjectiveGroup: 0 },
+      control: {
+        projectiveGroupOrder: projectiveOrder,
+        spinorSignInProjectiveGroup: 0,
+      },
       notes:
         'PSL(2,7) is the integer-spin quotient. SL(2,7) is the spinor double cover. The open dynamical question is whether the {7,3} cell transport realizes SL(2,7) rather than PSL(2,7).',
     })

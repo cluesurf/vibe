@@ -30,19 +30,25 @@ import { absorbBoundary } from '@/code/dynamics/bath'
 // the total absolute charge, the amount of structure present. Conserved by the bulk, drained by the boundary.
 function totalCharge(will: Will): number {
   let sum = 0
-  for (let i = 0; i < will.data.length; i++) sum += Math.abs(will.data[i]!)
+  for (let i = 0; i < will.data.length; i++)
+    sum += Math.abs(will.data[i]!)
   return sum
 }
 
 // the absolute charge within graph radius `radius` of the centre, the structure still at the middle.
-function centralCharge(input: { will: Will; center: number; radius: number }): number {
+function centralCharge(input: {
+  will: Will
+  center: number
+  radius: number
+}): number {
   const dist = shellDistances(input.will.mesh, input.center)
   const degree = input.will.mesh.degree
   let sum = 0
   for (let cell = 0; cell < input.will.mesh.cellCount; cell++) {
     if (dist[cell]! >= 0 && dist[cell]! <= input.radius) {
       const base = cell * degree
-      for (let d = 0; d < degree; d++) sum += Math.abs(input.will.data[base + d]!)
+      for (let d = 0; d < degree; d++)
+        sum += Math.abs(input.will.data[base + d]!)
     }
   }
   return sum
@@ -50,7 +56,8 @@ function centralCharge(input: { will: Will; center: number; radius: number }): n
 
 export default experiment({
   id: 'selves/bath-from-open-boundary',
-  title: 'an absorbing boundary is a bath (the burst radiates away and relaxes), the torus is not (it recurs)',
+  title:
+    'an absorbing boundary is a bath (the burst radiates away and relaxes), the torus is not (it recurs)',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',
@@ -61,10 +68,16 @@ export default experiment({
     const radius = 2
     const mesh: Mesh = d4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const rule: Collision = headOnRotate({ opposite })
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
 
     // a localized burst, eight charges at the centre cell flying out along the first eight directions.
     const burst = (): Will => {
@@ -73,15 +86,27 @@ export default experiment({
       return will
     }
     const startCharge = totalCharge(burst())
-    const startCentral = centralCharge({ will: burst(), center, radius })
+    const startCentral = centralCharge({
+      will: burst(),
+      center,
+      radius,
+    })
     const table = streamSourceTable(mesh) // precompute the stream gather once, reused for every beat
 
     // the torus run, no absorbing boundary.
     let torus = cloneWill(burst())
-    let torusScratch: Will = { mesh, data: new Int8Array(torus.data.length) }
+    let torusScratch: Will = {
+      mesh,
+      data: new Int8Array(torus.data.length),
+    }
     let torusCentralReturn = 0
     for (let t = 0; t < beats; t++) {
-      beatInto({ src: torus, dst: torusScratch, table, collision: rule })
+      beatInto({
+        src: torus,
+        dst: torusScratch,
+        table,
+        collision: rule,
+      })
       const swap = torus
       torus = torusScratch
       torusScratch = swap
@@ -94,7 +119,10 @@ export default experiment({
 
     // the absorbing-boundary run, the bath drains the edge each beat.
     let open = cloneWill(burst())
-    let openScratch: Will = { mesh, data: new Int8Array(open.data.length) }
+    let openScratch: Will = {
+      mesh,
+      data: new Int8Array(open.data.length),
+    }
     for (let t = 0; t < beats; t++) {
       beatInto({ src: open, dst: openScratch, table, collision: rule })
       const swap = open
@@ -103,7 +131,11 @@ export default experiment({
       absorbBoundary(open)
     }
     const openChargeFinal = totalCharge(open)
-    const openCentralFinal = centralCharge({ will: open, center, radius })
+    const openCentralFinal = centralCharge({
+      will: open,
+      center,
+      radius,
+    })
 
     // the torus conserves charge and the burst recurs to the centre, the open lattice dissipates and relaxes.
     const torusConserves = torusChargeFinal === startCharge
@@ -111,7 +143,8 @@ export default experiment({
     const openDissipates = openChargeFinal <= startCharge * 0.2
     const openRelaxes = openCentralFinal <= startCentral * 0.2
 
-    const ok = torusConserves && torusRecurs && openDissipates && openRelaxes
+    const ok =
+      torusConserves && torusRecurs && openDissipates && openRelaxes
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

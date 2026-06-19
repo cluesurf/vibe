@@ -34,26 +34,40 @@ function resonanceIntegral(w: number): number {
 
 // the bonding-orbital total energy (Hartree) at internuclear separation R (Bohr), exponent one. With
 // includeResonance false the resonance integral is dropped (the no-bond control).
-export function hydrogenMolecularIonBondingEnergy(input: { separation: number; includeResonance?: boolean }): number {
+export function hydrogenMolecularIonBondingEnergy(input: {
+  separation: number
+  includeResonance?: boolean
+}): number {
   const r = input.separation
   const k = input.includeResonance === false ? 0 : resonanceIntegral(r)
   return -0.5 + 1 / r - (coulombIntegral(r) + k) / (1 + overlap(r))
 }
 
 // the antibonding-orbital total energy (Hartree), the repulsive state with no bond
-export function hydrogenMolecularIonAntibondingEnergy(separation: number): number {
+export function hydrogenMolecularIonAntibondingEnergy(
+  separation: number,
+): number {
   const r = separation
-  return -0.5 + 1 / r - (coulombIntegral(r) - resonanceIntegral(r)) / (1 - overlap(r))
+  return (
+    -0.5 +
+    1 / r -
+    (coulombIntegral(r) - resonanceIntegral(r)) / (1 - overlap(r))
+  )
 }
 
 // the unit-exponent kinetic and electron-nuclear expectations of the bonding state as functions of w = zeta R, used
 // to scale to a variable orbital exponent (kinetic scales as zeta^2, the electron-nuclear attraction as zeta)
 function bondingKinetic(w: number): number {
-  return (0.5 * (1 - overlap(w)) + resonanceIntegral(w)) / (1 + overlap(w))
+  return (
+    (0.5 * (1 - overlap(w)) + resonanceIntegral(w)) / (1 + overlap(w))
+  )
 }
 
 function bondingElectronNuclear(w: number): number {
-  return (-1 - coulombIntegral(w) - 2 * resonanceIntegral(w)) / (1 + overlap(w))
+  return (
+    (-1 - coulombIntegral(w) - 2 * resonanceIntegral(w)) /
+    (1 + overlap(w))
+  )
 }
 
 // the variational bond, minimizing the H2+ bonding energy over both the orbital exponent zeta and the separation R.
@@ -66,7 +80,11 @@ export function hydrogenMolecularIonVariationalBond(): {
   minimumEnergy: number
   dissociationEnergyEv: number
 } {
-  let best = { effectiveCharge: 0, equilibriumSeparation: 0, minimumEnergy: Number.POSITIVE_INFINITY }
+  let best = {
+    effectiveCharge: 0,
+    equilibriumSeparation: 0,
+    minimumEnergy: Number.POSITIVE_INFINITY,
+  }
   for (let w = 0.5; w < 6; w += 0.0005) {
     const t = bondingKinetic(w)
     const v = bondingElectronNuclear(w)
@@ -74,7 +92,11 @@ export function hydrogenMolecularIonVariationalBond(): {
     if (zeta <= 0) continue
     const energy = zeta * zeta * t + zeta * (v + 1 / w)
     if (energy < best.minimumEnergy) {
-      best = { effectiveCharge: zeta, equilibriumSeparation: w / zeta, minimumEnergy: energy }
+      best = {
+        effectiveCharge: zeta,
+        equilibriumSeparation: w / zeta,
+        minimumEnergy: energy,
+      }
     }
   }
   return {
@@ -86,11 +108,20 @@ export function hydrogenMolecularIonVariationalBond(): {
 }
 
 // the simple (fixed exponent one) bonding minimum, scanned over separation
-export function hydrogenMolecularIonSimpleBond(): { equilibriumSeparation: number; dissociationEnergyEv: number } {
-  let best = { equilibriumSeparation: 0, energy: Number.POSITIVE_INFINITY }
+export function hydrogenMolecularIonSimpleBond(): {
+  equilibriumSeparation: number
+  dissociationEnergyEv: number
+} {
+  let best = {
+    equilibriumSeparation: 0,
+    energy: Number.POSITIVE_INFINITY,
+  }
   for (let r = 0.5; r < 6; r += 0.0005) {
     const e = hydrogenMolecularIonBondingEnergy({ separation: r })
     if (e < best.energy) best = { equilibriumSeparation: r, energy: e }
   }
-  return { equilibriumSeparation: best.equilibriumSeparation, dissociationEnergyEv: (-0.5 - best.energy) * HARTREE_IN_EV }
+  return {
+    equilibriumSeparation: best.equilibriumSeparation,
+    dissociationEnergyEv: (-0.5 - best.energy) * HARTREE_IN_EV,
+  }
 }

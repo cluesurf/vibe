@@ -15,11 +15,15 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
-import { shearSetup, shearAmplitudeSeries } from '@/code/measure/hydrodynamics'
+import {
+  shearSetup,
+  shearAmplitudeSeries,
+} from '@/code/measure/hydrodynamics'
 
 export default experiment({
   id: 'fluids/no-bulk-viscosity',
-  title: 'the committed collision has no finite bulk shear viscosity, the shear envelope does not decay (inviscid bulk)',
+  title:
+    'the committed collision has no finite bulk shear viscosity, the shear envelope does not decay (inviscid bulk)',
   category: 'fluids',
   substrates: ['3434'],
   depth: 'L2',
@@ -29,22 +33,51 @@ export default experiment({
     const mesh = d4Mesh({ side })
     const directions = rootsD4()
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
     const collision = headOnRotate({ opposite })
     const beats = 40
 
     // the bulk (closed) envelope at two wavelengths, the maximum amplitude reached in the last quarter of the run
     const closedEnvelope = (wavelength: number): number => {
-      const shear = { gradAxis: 1, momAxis: 0, wavelength, side, directions }
+      const shear = {
+        gradAxis: 1,
+        momAxis: 0,
+        wavelength,
+        side,
+        directions,
+      }
       const will = shearSetup({ mesh, ...shear })
-      const series = shearAmplitudeSeries({ will, collision, beats, open: false, ...shear })
-      return Math.max(...series.slice(Math.floor((3 * beats) / 4)).map((a) => Math.abs(a)))
+      const series = shearAmplitudeSeries({
+        will,
+        collision,
+        beats,
+        open: false,
+        ...shear,
+      })
+      return Math.max(
+        ...series
+          .slice(Math.floor((3 * beats) / 4))
+          .map(a => Math.abs(a)),
+      )
     }
     // the open run final amplitude (boundary loss), for contrast
     const openFinal = (wavelength: number): number => {
-      const shear = { gradAxis: 1, momAxis: 0, wavelength, side, directions }
+      const shear = {
+        gradAxis: 1,
+        momAxis: 0,
+        wavelength,
+        side,
+        directions,
+      }
       const will = shearSetup({ mesh, ...shear })
-      const series = shearAmplitudeSeries({ will, collision, beats, open: true, ...shear })
+      const series = shearAmplitudeSeries({
+        will,
+        collision,
+        beats,
+        open: true,
+        ...shear,
+      })
       return Math.abs(series[series.length - 1]!)
     }
 

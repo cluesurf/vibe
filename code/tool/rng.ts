@@ -50,7 +50,10 @@ export function makeRng(input: { seed: number }): Rng {
 // A genuine Poisson(lambda) draw by Knuth's algorithm, valid for moderate lambda (e^-lambda must be
 // representable). This is the actual element-count distribution of a causal-set sprinkling at expected
 // count lambda.
-export function poissonSample(input: { lambda: number; rng: Rng }): number {
+export function poissonSample(input: {
+  lambda: number
+  rng: Rng
+}): number {
   const L = Math.exp(-input.lambda)
   let k = 0
   let p = 1
@@ -85,11 +88,14 @@ export function sampleEmpiricalFrequencies(input: {
     while (k < cumulative.length && u >= (cumulative[k] ?? 0)) k++
     hits[k] = (hits[k] ?? 0) + 1
   }
-  return hits.map((h) => h / draws)
+  return hits.map(h => h / draws)
 }
 
 // Derive a child seed deterministically, so a scan reconstructs from one number.
-export function deriveSeed(input: { base: number; index: number }): number {
+export function deriveSeed(input: {
+  base: number
+  index: number
+}): number {
   let h = (input.base ^ (input.index * 0x9e3779b9)) >>> 0
   h = Math.imul(h ^ (h >>> 16), 0x85ebca6b) >>> 0
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0

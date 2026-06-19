@@ -10,7 +10,11 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { hyperchargeTrace } from '@/code/measure/standard-model-charges'
 
-export function massRelations(): { traceY: number; detRelationHolds: boolean; bTauGut: number } {
+export function massRelations(): {
+  traceY: number
+  detRelationHolds: boolean
+  bTauGut: number
+} {
   // (2) Tr Y = 0 over the 16 (the discrete fact behind the determinant relation)
   const traceY = hyperchargeTrace()
   const detRelationHolds = Math.abs(traceY) < 1e-9
@@ -21,7 +25,8 @@ export function massRelations(): { traceY: number; detRelationHolds: boolean; bT
 
 export default experiment({
   id: 'gauge/mass-relations',
-  title: 'the hypercharge is traceless over the 16, giving the GUT determinant mass relation',
+  title:
+    'the hypercharge is traceless over the 16, giving the GUT determinant mass relation',
   category: 'gauge',
   substrates: 'any',
   depth: 'L1',

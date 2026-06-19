@@ -9,25 +9,47 @@
 type Adjacency = ReadonlyArray<ReadonlyArray<number>>
 
 // One stream beat: occupation on direction d at cell hops to adjacency[cell][d] (or stays put at a boundary).
-export function streamCoxeterMeshGas(input: { state: ReadonlyArray<ReadonlyArray<number>>; adjacency: Adjacency; rank: number }): number[][] {
+export function streamCoxeterMeshGas(input: {
+  state: ReadonlyArray<ReadonlyArray<number>>
+  adjacency: Adjacency
+  rank: number
+}): number[][] {
   const { state, adjacency, rank } = input
   const cells = adjacency.length
-  const out = Array.from({ length: cells }, () => new Array(rank).fill(0))
-  for (let cell = 0; cell < cells; cell++) for (let d = 0; d < rank; d++) {
-    const target = adjacency[cell]![d]! === -1 ? cell : adjacency[cell]![d]!
-    out[target]![d] = state[cell]![d]!
-  }
+  const out = Array.from({ length: cells }, () =>
+    new Array(rank).fill(0),
+  )
+  for (let cell = 0; cell < cells; cell++)
+    for (let d = 0; d < rank; d++) {
+      const target =
+        adjacency[cell]![d]! === -1 ? cell : adjacency[cell]![d]!
+      out[target]![d] = state[cell]![d]!
+    }
   return out
 }
 
 // One collide beat: a cyclic permutation of each cell's direction slots. forward shifts by minus one,
 // backward by plus one (the exact inverse).
-export function collideCoxeterMeshGas(input: { state: ReadonlyArray<ReadonlyArray<number>>; rank: number; forward: boolean }): number[][] {
+export function collideCoxeterMeshGas(input: {
+  state: ReadonlyArray<ReadonlyArray<number>>
+  rank: number
+  forward: boolean
+}): number[][] {
   const { state, rank, forward } = input
-  return state.map((slots) => slots.map((_, d) => slots[forward ? (d + rank - 1) % rank : (d + 1) % rank]!))
+  return state.map(slots =>
+    slots.map(
+      (_, d) =>
+        slots[forward ? (d + rank - 1) % rank : (d + 1) % rank]!,
+    ),
+  )
 }
 
 // Total charge over all cells and direction slots.
-export function countCoxeterMeshGas(state: ReadonlyArray<ReadonlyArray<number>>): number {
-  return state.reduce((sum, slots) => sum + slots.reduce((s, v) => s + v, 0), 0)
+export function countCoxeterMeshGas(
+  state: ReadonlyArray<ReadonlyArray<number>>,
+): number {
+  return state.reduce(
+    (sum, slots) => sum + slots.reduce((s, v) => s + v, 0),
+    0,
+  )
 }

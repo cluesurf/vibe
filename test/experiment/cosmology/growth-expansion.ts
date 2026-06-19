@@ -16,7 +16,10 @@ import { myrheimMeyerDimension } from '@/code/measure/dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function branchingExpansion(input: { spawnProb: number; seed: number }): {
+export function branchingExpansion(input: {
+  spawnProb: number
+  seed: number
+}): {
   widthPerGen: number[]
   rate: number
   expands: boolean
@@ -33,14 +36,17 @@ export function branchingExpansion(input: { spawnProb: number; seed: number }): 
   return {
     widthPerGen,
     rate,
-    expands: (widthPerGen[widthPerGen.length - 1] ?? 0) > 2 * (widthPerGen[0] ?? 0),
+    expands:
+      (widthPerGen[widthPerGen.length - 1] ?? 0) >
+      2 * (widthPerGen[0] ?? 0),
     dimension: myrheimMeyerDimension({ poset }),
   }
 }
 
 export default experiment({
   id: 'cosmology/growth-expansion',
-  title: 'net-positive birth gives emergent expansion (static control at q=0)',
+  title:
+    'net-positive birth gives emergent expansion (static control at q=0)',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L3',

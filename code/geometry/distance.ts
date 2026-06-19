@@ -50,7 +50,10 @@ export function poincareCosh(left: number[], right: number[]): number {
 }
 
 // The hyperbolic distance between two Poincare disk or ball points.
-export function poincareDistance(left: number[], right: number[]): number {
+export function poincareDistance(
+  left: number[],
+  right: number[],
+): number {
   return Math.acosh(poincareCosh(left, right))
 }
 
@@ -89,5 +92,7 @@ export function polarCoshFromParts(
   sinhRight: number,
   angleBetween: number,
 ): number {
-  return coshLeft * coshRight - sinhLeft * sinhRight * Math.cos(angleBetween)
+  return (
+    coshLeft * coshRight - sinhLeft * sinhRight * Math.cos(angleBetween)
+  )
 }

@@ -56,7 +56,12 @@ export function universality(): {
   substrateFixedPoint: boolean
 } {
   // 1. NAND truth table.
-  const nandTable: Record<string, Bit> = { '1,1': -1, '1,-1': 1, '-1,1': 1, '-1,-1': 1 }
+  const nandTable: Record<string, Bit> = {
+    '1,1': -1,
+    '1,-1': 1,
+    '-1,1': 1,
+    '-1,-1': 1,
+  }
   let nandCorrect = true
   for (const a of BITS) {
     for (const b of BITS) {
@@ -96,10 +101,12 @@ export function universality(): {
   // Run the substrate-built Rule 110 on a line for a few steps, from a single seed cell,
   // and confirm it actually evolves (the universal CA running on the rule's gates).
   const width = 40
-  let line: Bit[] = Array.from({ length: width }, (_, i) => (i === width - 2 ? 1 : -1))
+  let line: Bit[] = Array.from({ length: width }, (_, i) =>
+    i === width - 2 ? 1 : -1,
+  )
   const snapshots: string[] = []
   for (let step = 0; step < 12; step++) {
-    snapshots.push(line.map((b) => (b === 1 ? '#' : '.')).join(''))
+    snapshots.push(line.map(b => (b === 1 ? '#' : '.')).join(''))
     const next: Bit[] = line.map((_, i) => {
       const l = line[(i - 1 + width) % width] ?? -1
       const c = line[i] ?? -1
@@ -145,7 +152,8 @@ export function universality(): {
       const andInner = nandBus(c, orOut, nandOut, 5) // NAND(OR, NAND)
       const xorOut = notBus(c, andInner, 3) // AND(OR, NAND) = XOR
       const tone = settle(c, { seed: 1 })
-      if (busValue(tone, xorOut) !== xor(a, b)) substrateXorCorrect = false
+      if (busValue(tone, xorOut) !== xor(a, b))
+        substrateXorCorrect = false
       if (!isFixedPoint(c, tone)) substrateFixedPoint = false
     }
   }
@@ -163,7 +171,8 @@ export function universality(): {
 
 export default experiment({
   id: 'computation/universality',
-  title: 'the rule is functionally complete and runs gates on the live dynamics',
+  title:
+    'the rule is functionally complete and runs gates on the live dynamics',
   category: 'computation',
   substrates: 'any',
   depth: 'L2',

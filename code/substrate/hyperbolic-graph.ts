@@ -38,7 +38,13 @@ function connectAndEmbed(input: {
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
       const dTheta = (theta[i] ?? 0) - (theta[j] ?? 0)
-      const coshD = polarCoshFromParts(coshR[i] ?? 0, sinhR[i] ?? 0, coshR[j] ?? 0, sinhR[j] ?? 0, dTheta)
+      const coshD = polarCoshFromParts(
+        coshR[i] ?? 0,
+        sinhR[i] ?? 0,
+        coshR[j] ?? 0,
+        sinhR[j] ?? 0,
+        dTheta,
+      )
       if (coshD < coshThreshold) {
         neighbors[i]?.push(j)
         neighbors[j]?.push(i)
@@ -55,7 +61,11 @@ function connectAndEmbed(input: {
     coords[i * dimension + 1] = rho * Math.sin(theta[i] ?? 0)
   }
 
-  const manifold: ManifoldSpec = { form: 'hyperbolic', dimension: 2, curvature: -1 }
+  const manifold: ManifoldSpec = {
+    form: 'hyperbolic',
+    dimension: 2,
+    curvature: -1,
+  }
   const embedding: Embedding = {
     form: 'embedding',
     dimension,
@@ -87,7 +97,11 @@ export function hyperbolicGraph(input: {
     r[i] = radiusFromHeight(input.rng.next(), coshRminus1)
     theta[i] = input.rng.next() * 2 * Math.PI
   }
-  return connectAndEmbed({ r, theta, connectThreshold: input.connectThreshold })
+  return connectAndEmbed({
+    r,
+    theta,
+    connectThreshold: input.connectThreshold,
+  })
 }
 
 // The van der Corput radical inverse of i in a base, a deterministic low-discrepancy
@@ -121,7 +135,11 @@ export function hyperbolicHalton(input: {
     r[i] = radiusFromHeight(radicalInverse(i + 1, 2), coshRminus1)
     theta[i] = 2 * Math.PI * radicalInverse(i + 1, 3)
   }
-  return connectAndEmbed({ r, theta, connectThreshold: input.connectThreshold })
+  return connectAndEmbed({
+    r,
+    theta,
+    connectThreshold: input.connectThreshold,
+  })
 }
 
 // Reflect a set of Poincare-disc points across the geodesic through p1 and p2. In the
@@ -146,12 +164,15 @@ function reflectAcross(
     const phi = Math.atan2(p1.y, p1.x)
     const c2 = Math.cos(2 * phi)
     const s2 = Math.sin(2 * phi)
-    return pts.map((z) => ({ x: c2 * z.x + s2 * z.y, y: s2 * z.x - c2 * z.y }))
+    return pts.map(z => ({
+      x: c2 * z.x + s2 * z.y,
+      y: s2 * z.x - c2 * z.y,
+    }))
   }
   const cx = (d1 * b2 - d2 * b1) / det
   const cy = (a1 * d2 - a2 * d1) / det
   const rho2 = cx * cx + cy * cy - 1
-  return pts.map((z) => {
+  return pts.map(z => {
     const dx = z.x - cx
     const dy = z.y - cy
     const s = rho2 / (dx * dx + dy * dy)
@@ -182,7 +203,8 @@ export function hyperbolicTiling(input: {
     central.push({ x: r0 * Math.cos(ang), y: r0 * Math.sin(ang) })
   }
 
-  const key = (x: number, y: number): string => `${Math.round(x * 1e5)},${Math.round(y * 1e5)}`
+  const key = (x: number, y: number): string =>
+    `${Math.round(x * 1e5)},${Math.round(y * 1e5)}`
   const vertexKeys = new Set<string>()
   const vx: number[] = []
   const vy: number[] = []
@@ -241,7 +263,11 @@ export function hyperbolicTiling(input: {
     r[i] = 2 * Math.atanh(mag)
     theta[i] = Math.atan2(vy[i] ?? 0, vx[i] ?? 0)
   }
-  return connectAndEmbed({ r, theta, connectThreshold: input.connectThreshold })
+  return connectAndEmbed({
+    r,
+    theta,
+    connectThreshold: input.connectThreshold,
+  })
 }
 
 // The deterministic, non-arbitrary version. The radius uses stratified heights
@@ -265,5 +291,9 @@ export function hyperbolicSunflower(input: {
     const frac = (i * phiInv) % 1
     theta[i] = 2 * Math.PI * frac
   }
-  return connectAndEmbed({ r, theta, connectThreshold: input.connectThreshold })
+  return connectAndEmbed({
+    r,
+    theta,
+    connectThreshold: input.connectThreshold,
+  })
 }

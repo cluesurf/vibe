@@ -10,7 +10,10 @@
 // infinite, undrawable plane. See note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md and
 // the splitting-method notes (land/text/papers/maurice-margenstern/notes/02-splitting-method.md).
 
-import { fromZeckendorf, isZeckendorf } from '@/code/substrate/margenstern/zeckendorf'
+import {
+  fromZeckendorf,
+  isZeckendorf,
+} from '@/code/substrate/margenstern/zeckendorf'
 
 // a white tile is a 3-node (a quarter), a black tile a 2-node (a strip)
 export type TileColor = 'white' | 'black'
@@ -58,7 +61,10 @@ export class SplittingTree {
   private readonly childIds: (number[] | null)[] = []
 
   constructor(rootAddress: string = SECTOR_ROOT) {
-    if (!isZeckendorf(rootAddress)) throw new Error(`root must be a legal Zeckendorf address, got ${rootAddress}`)
+    if (!isZeckendorf(rootAddress))
+      throw new Error(
+        `root must be a legal Zeckendorf address, got ${rootAddress}`,
+      )
     this.addresses.push(rootAddress)
     this.parents.push(-1)
     this.childIds.push(null)
@@ -116,7 +122,11 @@ export class SplittingTree {
 
   // grow breadth-first until at least `count` tiles exist (a convenience over repeated children() calls)
   grow(count: number): void {
-    for (let id = 0; id < this.addresses.length && this.addresses.length < count; id++) {
+    for (
+      let id = 0;
+      id < this.addresses.length && this.addresses.length < count;
+      id++
+    ) {
       this.children(id)
     }
   }

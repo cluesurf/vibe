@@ -42,7 +42,8 @@ const TONE_STATES = 3 // the ternary tone, Z_3
 
 export default experiment({
   id: 'spin/anyon-deconfinement',
-  title: 'the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control',
+  title:
+    'the gauged ternary tone is a deconfined Z_3 topological phase, the ground-state degeneracy a size-independent topological invariant N^(2g), nine free anyons, log 3 entropy, the trivial phase the control',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L3',
@@ -50,27 +51,43 @@ export default experiment({
   run() {
     // the ground-state degeneracy on a torus, computed from the lattice Euler characteristic, for several lattice
     // sizes, to show it is size-independent (a topological invariant)
-    const torusDegeneracies = [3, 6, 10].map((side) => {
+    const torusDegeneracies = [3, 6, 10].map(side => {
       const cells = squareLatticeCellCounts({ side, genus: 1 })
-      return toricCodeGroundStateDegeneracy({ toneStates: TONE_STATES, ...cells })
+      return toricCodeGroundStateDegeneracy({
+        toneStates: TONE_STATES,
+        ...cells,
+      })
     })
-    const torusDegeneracyIsNine = torusDegeneracies.every((d) => d === 9)
+    const torusDegeneracyIsNine = torusDegeneracies.every(d => d === 9)
     const sizeIndependent = new Set(torusDegeneracies).size === 1
     const torusDegeneracySmall = torusDegeneracies[0] ?? 0
-    const torusDegeneracyLarge = torusDegeneracies[torusDegeneracies.length - 1] ?? 0
+    const torusDegeneracyLarge =
+      torusDegeneracies[torusDegeneracies.length - 1] ?? 0
 
     // the degeneracy tracks only the genus, sphere -> 1, torus -> 9, genus-2 -> 81 (N^(2g))
     const sphere = squareLatticeCellCounts({ side: 6, genus: 0 })
     const genusTwo = squareLatticeCellCounts({ side: 6, genus: 2 })
-    const sphereDegeneracy = toricCodeGroundStateDegeneracy({ toneStates: TONE_STATES, ...sphere })
-    const genusTwoDegeneracy = toricCodeGroundStateDegeneracy({ toneStates: TONE_STATES, ...genusTwo })
-    const genusScaling = sphereDegeneracy === 1 && genusTwoDegeneracy === 81
+    const sphereDegeneracy = toricCodeGroundStateDegeneracy({
+      toneStates: TONE_STATES,
+      ...sphere,
+    })
+    const genusTwoDegeneracy = toricCodeGroundStateDegeneracy({
+      toneStates: TONE_STATES,
+      ...genusTwo,
+    })
+    const genusScaling =
+      sphereDegeneracy === 1 && genusTwoDegeneracy === 81
 
     // the free anyons and their braiding
     const anyons = anyonTypeCount(TONE_STATES)
     const nineAnyons = anyons === 9
-    const braiding = mutualBraidingPhase({ electricCharge: 1, magneticFlux: 1, toneStates: TONE_STATES })
-    const fractionalBraiding = Math.abs(braiding - (2 * Math.PI) / 3) < 1e-9
+    const braiding = mutualBraidingPhase({
+      electricCharge: 1,
+      magneticFlux: 1,
+      toneStates: TONE_STATES,
+    })
+    const fractionalBraiding =
+      Math.abs(braiding - (2 * Math.PI) / 3) < 1e-9
 
     // the total quantum dimension and the topological entanglement entropy
     const quantumDim = totalQuantumDimension(TONE_STATES)
@@ -80,10 +97,16 @@ export default experiment({
     // the control, the trivial phase (one tone state, no gauge structure), unique ground state, no anyons, zero
     // entropy
     const trivialTorus = squareLatticeCellCounts({ side: 6, genus: 1 })
-    const trivialDegeneracy = toricCodeGroundStateDegeneracy({ toneStates: 1, ...trivialTorus })
+    const trivialDegeneracy = toricCodeGroundStateDegeneracy({
+      toneStates: 1,
+      ...trivialTorus,
+    })
     const trivialAnyons = anyonTypeCount(1)
     const trivialEntropy = topologicalEntanglementEntropy(1)
-    const trivialIsTrivial = trivialDegeneracy === 1 && trivialAnyons === 1 && Math.abs(trivialEntropy) < 1e-9
+    const trivialIsTrivial =
+      trivialDegeneracy === 1 &&
+      trivialAnyons === 1 &&
+      Math.abs(trivialEntropy) < 1e-9
 
     const ok =
       torusDegeneracyIsNine &&

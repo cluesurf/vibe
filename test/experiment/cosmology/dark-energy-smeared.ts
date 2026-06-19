@@ -7,12 +7,20 @@
 // implied Lambda shrinks with the spacetime 4-volume, the dark-energy behaviour?
 // See note/questions/frontiers.md. Run: npx tsx code/experiment/p29-dark-energy-smeared.ts
 
-import { benincasaDowkerAction, smearedBenincasaDowker, Action } from '@/code/dynamics/action'
+import {
+  benincasaDowkerAction,
+  smearedBenincasaDowker,
+  Action,
+} from '@/code/dynamics/action'
 import { actionFluctuationExponent } from '@/code/measure/action-fluctuation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function fluctuationExponent(input: { action: Action; sizes: number[]; repeats: number }): {
+function fluctuationExponent(input: {
+  action: Action
+  sizes: number[]
+  repeats: number
+}): {
   stds: number[]
   exponent: number
 } {
@@ -25,7 +33,11 @@ function fluctuationExponent(input: { action: Action; sizes: number[]; repeats: 
   })
 }
 
-export function darkEnergySmeared4D(input: { sizes: number[]; repeats: number; epsilon: number }): {
+export function darkEnergySmeared4D(input: {
+  sizes: number[]
+  repeats: number
+  epsilon: number
+}): {
   sharpExponent: number
   smearedExponent: number
   sharpLambda: number
@@ -37,7 +49,10 @@ export function darkEnergySmeared4D(input: { sizes: number[]; repeats: number; e
     repeats: input.repeats,
   })
   const smeared = fluctuationExponent({
-    action: smearedBenincasaDowker({ epsilon: input.epsilon, dimension: 4 }),
+    action: smearedBenincasaDowker({
+      epsilon: input.epsilon,
+      dimension: 4,
+    }),
     sizes: input.sizes,
     repeats: input.repeats,
   })
@@ -51,19 +66,29 @@ export function darkEnergySmeared4D(input: { sizes: number[]; repeats: number; e
 
 export default experiment({
   id: 'cosmology/dark-energy-smeared',
-  title: '4D smeared kernel tames the fluctuation (toward everpresent Lambda)',
+  title:
+    '4D smeared kernel tames the fluctuation (toward everpresent Lambda)',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L2',
   paper: false,
   run() {
-    const r = darkEnergySmeared4D({ sizes: [64, 128, 256, 512], repeats: 20, epsilon: 0.3 })
-    const ok = r.smearedExponent < r.sharpExponent && Number.isFinite(r.smearedExponent)
+    const r = darkEnergySmeared4D({
+      sizes: [64, 128, 256, 512],
+      repeats: 20,
+      epsilon: 0.3,
+    })
+    const ok =
+      r.smearedExponent < r.sharpExponent &&
+      Number.isFinite(r.smearedExponent)
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'the 4D smeared kernel pushes the action-fluctuation exponent below the sharp value, toward the everpresent shrinking',
-      metrics: { sharpExponent: r.sharpExponent, smearedExponent: r.smearedExponent },
+      metrics: {
+        sharpExponent: r.sharpExponent,
+        smearedExponent: r.smearedExponent,
+      },
     })
   },
 })

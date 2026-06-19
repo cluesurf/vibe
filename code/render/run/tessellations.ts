@@ -9,11 +9,34 @@ import { readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildHoneycombScene } from '@/code/render/geometry/honeycomb'
-import { renderSceneToPng, type Rgb } from '@/code/render/adapter/raster'
+import {
+  renderSceneToPng,
+  type Rgb,
+} from '@/code/render/adapter/raster'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const csvPath = join(here, '..', '..', '..', '..', '..', 'note', 'research', 'vibe', 'notes', 'tessellations.csv')
-const outDir = join(here, '..', '..', '..', 'make', 'render', 'tessellations')
+const csvPath = join(
+  here,
+  '..',
+  '..',
+  '..',
+  '..',
+  '..',
+  'note',
+  'research',
+  'vibe',
+  'notes',
+  'tessellations.csv',
+)
+const outDir = join(
+  here,
+  '..',
+  '..',
+  '..',
+  'make',
+  'render',
+  'tessellations',
+)
 
 // a quote-aware CSV splitter, the symbol field is quoted and contains a comma (e.g. "{5,3,4}")
 function csvCols(line: string): string[] {
@@ -37,8 +60,12 @@ function csvCols(line: string): string[] {
 }
 
 function parseSymbol(text: string): number[] | null {
-  const nums = text.replace(/[{}]/g, '').trim().split(',').map((p) => Number(p.trim()))
-  if (nums.some((n) => !Number.isInteger(n) || n <= 0)) return null
+  const nums = text
+    .replace(/[{}]/g, '')
+    .trim()
+    .split(',')
+    .map(p => Number(p.trim()))
+  if (nums.some(n => !Number.isInteger(n) || n <= 0)) return null
   return nums
 }
 
@@ -50,7 +77,10 @@ const BALL_FAR: Rgb = [16, 16, 22]
 function run(): void {
   mkdirSync(outDir, { recursive: true })
   const want = process.argv.slice(2)
-  const lines = readFileSync(csvPath, 'utf8').trim().split('\n').slice(1)
+  const lines = readFileSync(csvPath, 'utf8')
+    .trim()
+    .split('\n')
+    .slice(1)
   let drawn = 0
   let skipped = 0
   for (const line of lines) {
@@ -60,7 +90,10 @@ function run(): void {
     const symbol = parseSymbol(display)
     if (!symbol) {
       skipped++
-      if (!want.length) console.log(`${display}  skip (non-integer symbol, not buildable)`)
+      if (!want.length)
+        console.log(
+          `${display}  skip (non-integer symbol, not buildable)`,
+        )
       continue
     }
     const key = symbol.join('-')
@@ -79,12 +112,16 @@ function run(): void {
       })
       writeFileSync(join(outDir, `${key}.png`), png)
       drawn++
-      console.log(`${display}  dim${scene.dim}  ${scene.cellCount} cells  ${scene.edges.length} edges`)
+      console.log(
+        `${display}  dim${scene.dim}  ${scene.cellCount} cells  ${scene.edges.length} edges`,
+      )
     } catch (error) {
       console.log(`${display}  FAILED  ${(error as Error).message}`)
     }
   }
-  console.log(`\ndrew ${drawn} tessellations, skipped ${skipped} non-buildable, into ${outDir}`)
+  console.log(
+    `\ndrew ${drawn} tessellations, skipped ${skipped} non-buildable, into ${outDir}`,
+  )
 }
 
 run()

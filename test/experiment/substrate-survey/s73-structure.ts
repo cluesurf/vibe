@@ -9,10 +9,23 @@ import { directionsAreCrystallographic } from '@/code/measure/crystallographic'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s73Structure(): { degree: number; specDim: number; crystallographic: boolean; hasSpinor: boolean } {
-  const { degree, specDim } = cellGraphSpectral({ symbol: [7, 3], maxCells: 12000, t1: 3, t2: 6 })
+export function s73Structure(): {
+  degree: number
+  specDim: number
+  crystallographic: boolean
+  hasSpinor: boolean
+} {
+  const { degree, specDim } = cellGraphSpectral({
+    symbol: [7, 3],
+    maxCells: 12000,
+    t1: 3,
+    t2: 6,
+  })
   // the 7 directions = heptagon edge-normals at angles 2*pi*k/7, crystallographic (root system) check 2(a.b)/(b.b) in Z
-  const dirs = Array.from({ length: 7 }, (_, k) => [Math.cos((2 * Math.PI * k) / 7), Math.sin((2 * Math.PI * k) / 7)])
+  const dirs = Array.from({ length: 7 }, (_, k) => [
+    Math.cos((2 * Math.PI * k) / 7),
+    Math.sin((2 * Math.PI * k) / 7),
+  ])
   const crystallographic = directionsAreCrystallographic(dirs)
   const hasSpinor = false // 7-fold dihedral D7 is a real reflection group, the 7-direction perm rep carries no spinor
   return { degree, specDim, crystallographic, hasSpinor }
@@ -20,14 +33,19 @@ export function s73Structure(): { degree: number; specDim: number; crystallograp
 
 export default experiment({
   id: 'substrate-survey/s73-structure',
-  title: 'the 7 directions of {7,3} are non-crystallographic (measured), so no root-system gauge and 1D physical space',
+  title:
+    'the 7 directions of {7,3} are non-crystallographic (measured), so no root-system gauge and 1D physical space',
   category: 'substrate-survey',
   substrates: ['73'],
   depth: 'L1',
   paper: false,
   run() {
     const r = s73Structure()
-    const ok = r.degree === 7 && r.specDim > 0 && !r.crystallographic && !r.hasSpinor
+    const ok =
+      r.degree === 7 &&
+      r.specDim > 0 &&
+      !r.crystallographic &&
+      !r.hasSpinor
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

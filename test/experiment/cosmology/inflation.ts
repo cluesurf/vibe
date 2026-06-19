@@ -45,7 +45,9 @@ export function inflate(input: { phi0: number; m?: number }): {
     const accel = (V(phi) - phid * phid) / 3
     const eps = 0.5 * (Vp(phi) / Math.max(1e-30, V(phi))) ** 2
     if (i === 500 && !sampledW) {
-      wDuringInflation = (0.5 * phid * phid - V(phi)) / Math.max(1e-30, 0.5 * phid * phid + V(phi))
+      wDuringInflation =
+        (0.5 * phid * phid - V(phi)) /
+        Math.max(1e-30, 0.5 * phid * phid + V(phi))
       sampledW = true
     }
     if (!exited && eps >= 1) {
@@ -54,7 +56,13 @@ export function inflate(input: { phi0: number; m?: number }): {
     }
     if (exited) minAccelAfterExit = Math.min(minAccelAfterExit, accel)
     // RK4 step on (phi, phid); lnA by H dt.
-    const next = inflatonStep({ phi, phidot: phid, potential: V, potentialSlope: Vp, dt })
+    const next = inflatonStep({
+      phi,
+      phidot: phid,
+      potential: V,
+      potentialSlope: Vp,
+      dt,
+    })
     phi = next.phi
     phid = next.phidot
     lnA += H * dt
@@ -71,20 +79,26 @@ export function inflate(input: { phi0: number; m?: number }): {
     // After the field exits slow-roll, the kinetic energy makes the expansion decelerate.
     gracefulExit: exited && minAccelAfterExit < 0,
     enoughEfolds: efoldsAtExit >= 60,
-    efoldsMatchesAnalytic: Math.abs(efoldsAtExit - efoldsAnalytic) / efoldsAnalytic < 0.05,
+    efoldsMatchesAnalytic:
+      Math.abs(efoldsAtExit - efoldsAnalytic) / efoldsAnalytic < 0.05,
   }
 }
 
 export default experiment({
   id: 'cosmology/inflation',
-  title: 'slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)',
+  title:
+    'slow-roll derived (w ~ -1, e-folds = phi0^2/4 computed, graceful exit emerges)',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L2',
   paper: true,
   run() {
     const r = inflate({ phi0: 16 })
-    const ok = r.acceleratesDuringInflation && r.enoughEfolds && r.efoldsMatchesAnalytic && r.gracefulExit
+    const ok =
+      r.acceleratesDuringInflation &&
+      r.enoughEfolds &&
+      r.efoldsMatchesAnalytic &&
+      r.gracefulExit
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

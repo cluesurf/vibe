@@ -5,10 +5,7 @@
 // this research tool). The configuration passes through unchanged.
 
 import { Rule } from '@/code/rule/rule'
-import {
-  GaugeField,
-  linkPhase,
-} from '@/code/tool/gauge-field'
+import { GaugeField, linkPhase } from '@/code/tool/gauge-field'
 
 // A triangle plaquette through an edge (a -> b): a third vertex c adjacent to
 // both endpoints. The loop is a -> b -> c -> a. Its Wilson action term is
@@ -113,7 +110,7 @@ export function gaugeRule(input: {
         // Propose link[i] -> link[i] +/- 1 (mod q).
         const step = rng.next() < 0.5 ? -1 : 1
         const current = field.link[i] ?? 0
-        const proposed = ((current + step) % q + q) % q
+        const proposed = (((current + step) % q) + q) % q
         field.link[i] = proposed
 
         // Local action after the move.
@@ -124,7 +121,10 @@ export function gaugeRule(input: {
 
         const deltaAction = after - before
         // Accept with min(1, exp(-beta * deltaS)); otherwise revert.
-        if (deltaAction > 0 && rng.next() >= Math.exp(-input.beta * deltaAction)) {
+        if (
+          deltaAction > 0 &&
+          rng.next() >= Math.exp(-input.beta * deltaAction)
+        ) {
           field.link[i] = current
         }
       }

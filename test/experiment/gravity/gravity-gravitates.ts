@@ -28,14 +28,27 @@ const COUPLING = 3
 
 function ringNeighbors(size: number): number[][] {
   const neighbors: number[][] = []
-  for (let i = 0; i < size; i++) neighbors.push([(i + 1) % size, (i + size - 1) % size])
+  for (let i = 0; i < size; i++)
+    neighbors.push([(i + 1) % size, (i + size - 1) % size])
   return neighbors
 }
 
 // one step of the nonlinear wave on a (previous, current) pair, returning the next slice
-function step(neighbors: number[][], previous: Uint8Array, current: Uint8Array, coupling: number): Uint8Array {
+function step(
+  neighbors: number[][],
+  previous: Uint8Array,
+  current: Uint8Array,
+  coupling: number,
+): Uint8Array {
   const next = new Uint8Array(neighbors.length)
-  reversibleWaveStepNonlinear({ neighbors, previous, current, next, modulus: MODULUS, selfCoupling: coupling })
+  reversibleWaveStepNonlinear({
+    neighbors,
+    previous,
+    current,
+    next,
+    modulus: MODULUS,
+    selfCoupling: coupling,
+  })
   return next
 }
 
@@ -70,7 +83,10 @@ function superpositionDefect(coupling: number): number {
 }
 
 // run the nonlinear wave forward then backward, return whether it recovers the seed and the peak activity (bounded)
-function reverseAndBound(coupling: number): { reversible: boolean; peak: number } {
+function reverseAndBound(coupling: number): {
+  reversible: boolean
+  peak: number
+} {
   const neighbors = ringNeighbors(RING)
   const beats = 80
   let previous = new Uint8Array(RING)
@@ -96,13 +112,16 @@ function reverseAndBound(coupling: number): { reversible: boolean; peak: number 
     revCur = next
   }
   let reversible = true
-  for (let i = 0; i < RING; i++) if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i]) reversible = false
+  for (let i = 0; i < RING; i++)
+    if (revCur[i] !== seedPrev[i] || revPrev[i] !== seedCur[i])
+      reversible = false
   return { reversible, peak }
 }
 
 export default experiment({
   id: 'gravity/gravity-gravitates',
-  title: 'the nonlinear Einstein structure, gravity gravitates (the self-coupling breaks superposition), reversibly and boundedly, the linear field the control',
+  title:
+    'the nonlinear Einstein structure, gravity gravitates (the self-coupling breaks superposition), reversibly and boundedly, the linear field the control',
   category: 'gravity',
   substrates: ['3434'],
   depth: 'L2',

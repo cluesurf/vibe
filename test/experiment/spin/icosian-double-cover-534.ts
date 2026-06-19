@@ -17,7 +17,8 @@ import { rotationKey } from '@/code/algebra/group/rotation'
 
 export default experiment({
   id: 'spin/icosian-double-cover-534',
-  title: 'the icosahedral symmetry of {5,3,4} has a spinor double cover 2I, spin in the projective rep',
+  title:
+    'the icosahedral symmetry of {5,3,4} has a spinor double cover 2I, spin in the projective rep',
   category: 'spin',
   substrates: ['534'],
   depth: 'L1',
@@ -28,19 +29,26 @@ export default experiment({
 
     // (1) the 120 icosians form a group under quaternion multiplication, the binary icosahedral 2I
     const order = group.length
-    const closed = group.every((left) =>
-      group.every((right) => keys.has(quaternionKey(multiply(left, right)))),
+    const closed = group.every(left =>
+      group.every(right =>
+        keys.has(quaternionKey(multiply(left, right))),
+      ),
     )
 
     // (2) conjugation collapses the 120 quaternions onto the rotations, 2-to-1, the double cover
-    const rotations = new Set(group.map((value) => rotationKey(value)))
+    const rotations = new Set(group.map(value => rotationKey(value)))
     const rotationOrder = rotations.size
     const minusOne = quaternion(-1, 0, 0, 0)
     const hasMinusOne = keys.has(quaternionKey(minusOne))
-    const twoToOne = rotationKey(quaternion(1, 0, 0, 0)) === rotationKey(minusOne)
+    const twoToOne =
+      rotationKey(quaternion(1, 0, 0, 0)) === rotationKey(minusOne)
 
     const isSpinorCover =
-      order === 120 && closed && rotationOrder === 60 && hasMinusOne && twoToOne
+      order === 120 &&
+      closed &&
+      rotationOrder === 60 &&
+      hasMinusOne &&
+      twoToOne
 
     return verdict({
       status: isSpinorCover ? 'pass' : 'fail',
@@ -55,7 +63,10 @@ export default experiment({
       },
       // CONTROL: the rotation group A5 (order 60) is the integer-spin quotient, it has no minus one,
       // so the quotient carries no spinor, the 2-to-1 cover is exactly the spinor.
-      control: { rotationGroupOrder: rotationOrder, spinorSignInRotationGroup: 0 },
+      control: {
+        rotationGroupOrder: rotationOrder,
+        spinorSignInRotationGroup: 0,
+      },
       notes:
         'The linear permutation rep of the 12 directions has no spinor (p190). The spinor lives in the PROJECTIVE rep, realized by 2I. The open dynamical question is whether the {5,3,4} cell transport carries the Z2 cocycle, realizing 2I rather than A5.',
     })

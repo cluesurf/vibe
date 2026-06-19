@@ -29,7 +29,12 @@ export function fillWillPattern(will: Will, phase = 0): void {
 }
 
 // A single charge at one cell pointing one direction, the minimal deterministic test structure.
-export function loneParticle(mesh: Mesh, cell: number, direction: number, tone: Tone = 1): Will {
+export function loneParticle(
+  mesh: Mesh,
+  cell: number,
+  direction: number,
+  tone: Tone = 1,
+): Will {
   const will = makeWill(mesh)
   will.data[cell * mesh.degree + direction] = tone
   return will
@@ -61,7 +66,8 @@ export function gliderLine(input: {
 export function charge(will: Will): number {
   let sum = 0
   const data = will.data
-  for (let index = 0; index < data.length; index++) sum += data[index] ?? 0
+  for (let index = 0; index < data.length; index++)
+    sum += data[index] ?? 0
   return sum
 }
 

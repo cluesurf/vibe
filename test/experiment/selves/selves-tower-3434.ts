@@ -26,17 +26,29 @@ import { makeRng } from '@/code/tool/rng'
 import { toCsr } from '@/code/tool/graph'
 import { perceptionPermutation as perm } from '@/code/rule/perception-permutation'
 
-type StepFn = (tone: Int8Array, offsets: Uint32Array, adj: Uint32Array, rng: { next: () => number }) => void
+type StepFn = (
+  tone: Int8Array,
+  offsets: Uint32Array,
+  adj: Uint32Array,
+  rng: { next: () => number },
+) => void
 
 // one beat on a CSR graph: a random maximal matching of cells, each matched pair updated by `pairOp` (so
 // charge is exactly conserved, every cell acts at most once per beat). perm = the perception rule; swap =
 // the pure-diffusion control (conserved-charge transport with NO perception structure).
-function makeStep(pairOp: (a: number, b: number) => [number, number]): StepFn {
+function makeStep(
+  pairOp: (a: number, b: number) => [number, number],
+): StepFn {
   return (tone, offsets, adj, rng) => {
     const n = tone.length
     const used = new Uint8Array(n)
     const order = Array.from({ length: n }, (_, i) => i)
-    for (let i = n - 1; i > 0; i--) { const j = Math.floor(rng.next() * (i + 1)); const t = order[i]!; order[i] = order[j]!; order[j] = t }
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(rng.next() * (i + 1))
+      const t = order[i]!
+      order[i] = order[j]!
+      order[j] = t
+    }
     for (const v of order) {
       if (used[v]) continue
       const start = offsets[v]!
@@ -75,33 +87,58 @@ function formPersistence(
   for (let f = 0; f < opts.frames + opts.lag; f++) {
     opts.step(tone, offsets, adj, rng)
     const g = new Array<number>(numGroups).fill(0)
-    for (let i = 0; i < tone.length; i++) g[groupOf[i]!] = g[groupOf[i]!]! + tone[i]!
+    for (let i = 0; i < tone.length; i++)
+      g[groupOf[i]!] = g[groupOf[i]!]! + tone[i]!
     series.push(g)
   }
   let acc = 0
   let c = 0
-  for (let t = 0; t + opts.lag < series.length; t++) { acc += pearson({ a: series[t]!, b: series[t + opts.lag]!, epsilon: 1e-9 }); c++ }
+  for (let t = 0; t + opts.lag < series.length; t++) {
+    acc += pearson({
+      a: series[t]!,
+      b: series[t + opts.lag]!,
+      epsilon: 1e-9,
+    })
+    c++
+  }
   return acc / c
 }
 
 // a same-size random-grouping null (so a rise is not just block-averaging)
-function shuffledGroups(groupOf: number[], rng: { next: () => number }): number[] {
+function shuffledGroups(
+  groupOf: number[],
+  rng: { next: () => number },
+): number[] {
   const perm2 = groupOf.slice()
-  for (let i = perm2.length - 1; i > 0; i--) { const j = Math.floor(rng.next() * (i + 1)); const t = perm2[i]!; perm2[i] = perm2[j]!; perm2[j] = t }
+  for (let i = perm2.length - 1; i > 0; i--) {
+    const j = Math.floor(rng.next() * (i + 1))
+    const t = perm2[i]!
+    perm2[i] = perm2[j]!
+    perm2[j] = t
+  }
   return perm2
 }
 
 // ---------- the cusp test: {4,3,4} = Z^3, coarse by spatial cubic blocks ----------
 
-function cuspTower(): { real: number[]; diff: number[]; nul: number[]; blocks: number[]; beatsDiffusion: boolean } {
+function cuspTower(): {
+  real: number[]
+  diff: number[]
+  nul: number[]
+  blocks: number[]
+  beatsDiffusion: boolean
+} {
   const L = 24
-  const g = buildEuclideanLattice({ symbol: [4, 3, 4], maxCells: L * L * L * 2 })
+  const g = buildEuclideanLattice({
+    symbol: [4, 3, 4],
+    maxCells: L * L * L * 2,
+  })
   const n = g.cellCount
   const { offsets, adj } = toCsr(g.neighbors)
   // block-of-size-b grouping from integer coords
   const groupAt = (b: number): number[] => {
     const idx = new Map<string, number>()
-    return g.coords.map((c) => {
+    return g.coords.map(c => {
       const k = `${Math.floor(c[0]! / b)},${Math.floor(c[1]! / b)},${Math.floor(c[2]! / b)}`
       if (!idx.has(k)) idx.set(k, idx.size)
       return idx.get(k)!
@@ -109,7 +146,8 @@ function cuspTower(): { real: number[]; diff: number[]; nul: number[]; blocks: n
   }
   const rng = makeRng({ seed: 11 })
   const tone = new Int8Array(n)
-  for (let i = 0; i < n; i++) tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
+  for (let i = 0; i < n; i++)
+    tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   for (let f = 0; f < 40; f++) stepPerception(tone, offsets, adj, rng) // settle
   const blocks = [1, 2, 4, 6]
   const real: number[] = []
@@ -117,20 +155,61 @@ function cuspTower(): { real: number[]; diff: number[]; nul: number[]; blocks: n
   const nul: number[] = []
   for (const b of blocks) {
     const grp = groupAt(b)
-    real.push(formPersistence(tone.slice(), offsets, adj, grp, makeRng({ seed: 5 }), { lag: 8, frames: 24, step: stepPerception }))
-    diff.push(formPersistence(tone.slice(), offsets, adj, grp, makeRng({ seed: 5 }), { lag: 8, frames: 24, step: stepDiffusion }))
-    nul.push(formPersistence(tone.slice(), offsets, adj, shuffledGroups(grp, rng), makeRng({ seed: 5 }), { lag: 8, frames: 24, step: stepPerception }))
+    real.push(
+      formPersistence(
+        tone.slice(),
+        offsets,
+        adj,
+        grp,
+        makeRng({ seed: 5 }),
+        { lag: 8, frames: 24, step: stepPerception },
+      ),
+    )
+    diff.push(
+      formPersistence(
+        tone.slice(),
+        offsets,
+        adj,
+        grp,
+        makeRng({ seed: 5 }),
+        { lag: 8, frames: 24, step: stepDiffusion },
+      ),
+    )
+    nul.push(
+      formPersistence(
+        tone.slice(),
+        offsets,
+        adj,
+        shuffledGroups(grp, rng),
+        makeRng({ seed: 5 }),
+        { lag: 8, frames: 24, step: stepPerception },
+      ),
+    )
   }
-  const r = (x: number[]): number[] => x.map((v) => Math.round(v * 100) / 100)
+  const r = (x: number[]): number[] =>
+    x.map(v => Math.round(v * 100) / 100)
   // a tower is only GENUINE if the perception rule beats the pure-diffusion control (else it is a generic
   // conserved-field slow mode, NOT selfhood). p208 found it does NOT beat diffusion.
-  const beatsDiffusion = real[real.length - 1]! > diff[diff.length - 1]! + 0.1
-  return { real: r(real), diff: r(diff), nul: r(nul), blocks, beatsDiffusion }
+  const beatsDiffusion =
+    real[real.length - 1]! > diff[diff.length - 1]! + 0.1
+  return {
+    real: r(real),
+    diff: r(diff),
+    nul: r(nul),
+    blocks,
+    beatsDiffusion,
+  }
 }
 
 // ---------- the bulk test: actual {3,4,3,4} cell graph, coarse by the ADDRESS tree ----------
 
-function bulkTower(): { real: number[]; diff: number[]; nul: number[]; depths: number[]; beatsDiffusion: boolean } {
+function bulkTower(): {
+  real: number[]
+  diff: number[]
+  nul: number[]
+  depths: number[]
+  beatsDiffusion: boolean
+} {
   const a = buildAddressing({ symbol: [3, 4, 3, 4], maxCells: 20000 })
   const n = a.graph.cellCount
   const { offsets, adj } = toCsr(a.graph.neighbors)
@@ -138,7 +217,7 @@ function bulkTower(): { real: number[]; diff: number[]; nul: number[]; depths: n
   // d small = coarse. Cells shallower than d join their own singleton (kept distinct).
   const groupAtDepth = (d: number): number[] => {
     const idx = new Map<string, number>()
-    return a.address.map((addr) => {
+    return a.address.map(addr => {
       const k = addr.slice(0, d).join('.') || 'root'
       if (!idx.has(k)) idx.set(k, idx.size)
       return idx.get(k)!
@@ -146,7 +225,8 @@ function bulkTower(): { real: number[]; diff: number[]; nul: number[]; depths: n
   }
   const rng = makeRng({ seed: 13 })
   const tone = new Int8Array(n)
-  for (let i = 0; i < n; i++) tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
+  for (let i = 0; i < n; i++)
+    tone[i] = (rng.nextInt({ max: 3 }) - 1) as -1 | 0 | 1
   for (let f = 0; f < 40; f++) stepPerception(tone, offsets, adj, rng)
   const depths = [4, 3, 2, 1] // fine -> coarse (address-prefix length)
   const real: number[] = []
@@ -154,13 +234,48 @@ function bulkTower(): { real: number[]; diff: number[]; nul: number[]; depths: n
   const nul: number[] = []
   for (const d of depths) {
     const grp = groupAtDepth(d)
-    real.push(formPersistence(tone.slice(), offsets, adj, grp, makeRng({ seed: 5 }), { lag: 8, frames: 24, step: stepPerception }))
-    diff.push(formPersistence(tone.slice(), offsets, adj, grp, makeRng({ seed: 5 }), { lag: 8, frames: 24, step: stepDiffusion }))
-    nul.push(formPersistence(tone.slice(), offsets, adj, shuffledGroups(grp, rng), makeRng({ seed: 5 }), { lag: 8, frames: 24, step: stepPerception }))
+    real.push(
+      formPersistence(
+        tone.slice(),
+        offsets,
+        adj,
+        grp,
+        makeRng({ seed: 5 }),
+        { lag: 8, frames: 24, step: stepPerception },
+      ),
+    )
+    diff.push(
+      formPersistence(
+        tone.slice(),
+        offsets,
+        adj,
+        grp,
+        makeRng({ seed: 5 }),
+        { lag: 8, frames: 24, step: stepDiffusion },
+      ),
+    )
+    nul.push(
+      formPersistence(
+        tone.slice(),
+        offsets,
+        adj,
+        shuffledGroups(grp, rng),
+        makeRng({ seed: 5 }),
+        { lag: 8, frames: 24, step: stepPerception },
+      ),
+    )
   }
-  const r = (x: number[]): number[] => x.map((v) => Math.round(v * 100) / 100)
-  const beatsDiffusion = real[real.length - 1]! > diff[diff.length - 1]! + 0.1
-  return { real: r(real), diff: r(diff), nul: r(nul), depths, beatsDiffusion }
+  const r = (x: number[]): number[] =>
+    x.map(v => Math.round(v * 100) / 100)
+  const beatsDiffusion =
+    real[real.length - 1]! > diff[diff.length - 1]! + 0.1
+  return {
+    real: r(real),
+    diff: r(diff),
+    nul: r(nul),
+    depths,
+    beatsDiffusion,
+  }
 }
 
 // Head-to-head, the perception rule against a pure-diffusion control on both the flat cusp
@@ -187,7 +302,8 @@ export function selvesTower(): {
 
 export default experiment({
   id: 'selves/selves-tower-3434',
-  title: 'the coarse-grained form-tower on {3,4,3,4} does not beat a pure-diffusion control',
+  title:
+    'the coarse-grained form-tower on {3,4,3,4} does not beat a pure-diffusion control',
   category: 'selves',
   substrates: ['3434'],
   depth: 'L2',

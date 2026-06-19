@@ -13,10 +13,16 @@ import { verdict } from '@/test/scaffold/verdict'
 import { directorWinding } from '@/code/measure/winding'
 import { relaxDirector } from '@/code/dynamics/director-relaxation'
 
-export function persistentSpinorDefect(): { halfInteger: boolean; topologicalConserved: boolean; persists: boolean; spinorHolonomy: boolean; isPersistentSpinor: boolean } {
+export function persistentSpinorDefect(): {
+  halfInteger: boolean
+  topologicalConserved: boolean
+  persists: boolean
+  spinorHolonomy: boolean
+  isPersistentSpinor: boolean
+} {
   const L = 60
   // a 1/2 disclination: the director rotates by pi (not 2pi) around the ring
-  const phi = Array.from({ length: L }, (_, x) => Math.PI * x / L) // 0 -> pi over the ring (a half turn)
+  const phi = Array.from({ length: L }, (_, x) => (Math.PI * x) / L) // 0 -> pi over the ring (a half turn)
   const W0 = directorWinding(phi)
   const halfInteger = Math.abs(W0 - 1) < 1e-6 // director winding 1 pi-unit = 1/2 vector winding (a disclination)
 
@@ -33,12 +39,19 @@ export function persistentSpinorDefect(): { halfInteger: boolean; topologicalCon
 
   const isPersistentSpinor = halfInteger && persists && spinorHolonomy
 
-  return { halfInteger, topologicalConserved, persists, spinorHolonomy, isPersistentSpinor }
+  return {
+    halfInteger,
+    topologicalConserved,
+    persists,
+    spinorHolonomy,
+    isPersistentSpinor,
+  }
 }
 
 export default experiment({
   id: 'spin/persistent-spinor-defect-3434',
-  title: 'a half-integer disclination is a persistent topological defect carrying the spinor minus sign',
+  title:
+    'a half-integer disclination is a persistent topological defect carrying the spinor minus sign',
   category: 'spin',
   substrates: ['3434'],
   depth: 'L2',

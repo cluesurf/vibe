@@ -13,7 +13,11 @@
 // hyperbolic and paracompact, and have the cubic {4,3,4} vertex figure (its Euclidean cusp).
 // Run: npx tsx code/experiment/p199-generic-tessellation-engine.ts
 
-import { describeTessellation, buildTessellation, inspectTessellation } from '@/code/substrate/coxeter/tessellation'
+import {
+  describeTessellation,
+  buildTessellation,
+  inspectTessellation,
+} from '@/code/substrate/coxeter/tessellation'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -28,53 +32,168 @@ interface Case {
 // expected facet degree = number of facets of the cell polytope (dodecahedron 12, 24-cell 24, tetra 4, ...)
 const CASES: Case[] = [
   // 2D hyperbolic tilings (cell = polygon, vertex figure = a few polygons)
-  { symbol: [7, 3], geometry: 'hyperbolic', facet: 7, compactness: 'compact', buildable: true },
-  { symbol: [3, 7], geometry: 'hyperbolic', facet: 3, compactness: 'compact', buildable: true },
-  { symbol: [5, 4], geometry: 'hyperbolic', facet: 5, compactness: 'compact', buildable: true },
+  {
+    symbol: [7, 3],
+    geometry: 'hyperbolic',
+    facet: 7,
+    compactness: 'compact',
+    buildable: true,
+  },
+  {
+    symbol: [3, 7],
+    geometry: 'hyperbolic',
+    facet: 3,
+    compactness: 'compact',
+    buildable: true,
+  },
+  {
+    symbol: [5, 4],
+    geometry: 'hyperbolic',
+    facet: 5,
+    compactness: 'compact',
+    buildable: true,
+  },
   // compact 3D honeycombs (cell = polyhedron)
-  { symbol: [5, 3, 4], geometry: 'hyperbolic', facet: 12, compactness: 'compact', buildable: true }, // dodecahedron
-  { symbol: [4, 3, 5], geometry: 'hyperbolic', facet: 6, compactness: 'compact', buildable: true }, // cube
-  { symbol: [3, 5, 3], geometry: 'hyperbolic', facet: 20, compactness: 'compact', buildable: true }, // icosahedron
+  {
+    symbol: [5, 3, 4],
+    geometry: 'hyperbolic',
+    facet: 12,
+    compactness: 'compact',
+    buildable: true,
+  }, // dodecahedron
+  {
+    symbol: [4, 3, 5],
+    geometry: 'hyperbolic',
+    facet: 6,
+    compactness: 'compact',
+    buildable: true,
+  }, // cube
+  {
+    symbol: [3, 5, 3],
+    geometry: 'hyperbolic',
+    facet: 20,
+    compactness: 'compact',
+    buildable: true,
+  }, // icosahedron
   // paracompact 3D honeycomb (finite cell, ideal vertices)
-  { symbol: [3, 3, 6], geometry: 'hyperbolic', facet: 4, compactness: 'paracompact', buildable: true }, // tetrahedron
+  {
+    symbol: [3, 3, 6],
+    geometry: 'hyperbolic',
+    facet: 4,
+    compactness: 'paracompact',
+    buildable: true,
+  }, // tetrahedron
   // 4D honeycombs (cell = 4-polytope)
-  { symbol: [3, 4, 3, 4], geometry: 'hyperbolic', facet: 24, compactness: 'paracompact', buildable: true }, // 24-cell, cubic cusp
-  { symbol: [4, 3, 3, 5], geometry: 'hyperbolic', facet: 8, compactness: 'compact', buildable: true }, // tesseract
+  {
+    symbol: [3, 4, 3, 4],
+    geometry: 'hyperbolic',
+    facet: 24,
+    compactness: 'paracompact',
+    buildable: true,
+  }, // 24-cell, cubic cusp
+  {
+    symbol: [4, 3, 3, 5],
+    geometry: 'hyperbolic',
+    facet: 8,
+    compactness: 'compact',
+    buildable: true,
+  }, // tesseract
   // NOT buildable by the orbit engine
-  { symbol: [6, 3, 3], geometry: 'hyperbolic', compactness: 'paracompact', buildable: false }, // cell {6,3} euclidean (infinite)
-  { symbol: [3, 4, 3], geometry: 'spherical', compactness: 'finite-polytope', buildable: false }, // the 24-cell itself
+  {
+    symbol: [6, 3, 3],
+    geometry: 'hyperbolic',
+    compactness: 'paracompact',
+    buildable: false,
+  }, // cell {6,3} euclidean (infinite)
+  {
+    symbol: [3, 4, 3],
+    geometry: 'spherical',
+    compactness: 'finite-polytope',
+    buildable: false,
+  }, // the 24-cell itself
   // euclidean honeycomb (routed to the lattice builder)
-  { symbol: [4, 3, 4], geometry: 'euclidean', compactness: 'compact', buildable: true }, // cubic honeycomb (finite cell and vertex figure)
+  {
+    symbol: [4, 3, 4],
+    geometry: 'euclidean',
+    compactness: 'compact',
+    buildable: true,
+  }, // cubic honeycomb (finite cell and vertex figure)
 ]
 
 export function genericTessellationEngine(): {
-  rows: { symbol: string; geometry: string; facet: number; compactness: string; buildable: boolean; geomOk: boolean; facetOk: boolean; compactOk: boolean; buildOk: boolean }[]
+  rows: {
+    symbol: string
+    geometry: string
+    facet: number
+    compactness: string
+    buildable: boolean
+    geomOk: boolean
+    facetOk: boolean
+    compactOk: boolean
+    buildOk: boolean
+  }[]
   cell3434FacetDegree: number
   cell3434VertexFigure: string
   allPass: boolean
   solved: boolean
 } {
-  const rows: { symbol: string; geometry: string; facet: number; compactness: string; buildable: boolean; geomOk: boolean; facetOk: boolean; compactOk: boolean; buildOk: boolean }[] = []
+  const rows: {
+    symbol: string
+    geometry: string
+    facet: number
+    compactness: string
+    buildable: boolean
+    geomOk: boolean
+    facetOk: boolean
+    compactOk: boolean
+    buildOk: boolean
+  }[] = []
   let cell3434FacetDegree = -1
   let cell3434VertexFigure = ''
   for (const c of CASES) {
     const d = describeTessellation(c.symbol)
     let facet = -1
     if (d.buildable && d.builder === 'orbit') {
-      const built = buildTessellation({ symbol: c.symbol, maxCells: 4000 })
-      if (built.graph) facet = inspectTessellation(built.graph).facetDegree
+      const built = buildTessellation({
+        symbol: c.symbol,
+        maxCells: 4000,
+      })
+      if (built.graph)
+        facet = inspectTessellation(built.graph).facetDegree
     }
     const geomOk = d.geometry === c.geometry
     const compactOk = d.compactness === c.compactness
     const buildOk = d.buildable === c.buildable
     const facetOk = c.facet === undefined ? true : facet === c.facet
-    if (c.symbol.join(',') === '3,4,3,4') { cell3434FacetDegree = facet; cell3434VertexFigure = '{' + d.vertexFigure.join(',') + '}' }
-    rows.push({ symbol: '{' + c.symbol.join(',') + '}', geometry: d.geometry, facet, compactness: d.compactness, buildable: d.buildable, geomOk, facetOk, compactOk, buildOk })
+    if (c.symbol.join(',') === '3,4,3,4') {
+      cell3434FacetDegree = facet
+      cell3434VertexFigure = '{' + d.vertexFigure.join(',') + '}'
+    }
+    rows.push({
+      symbol: '{' + c.symbol.join(',') + '}',
+      geometry: d.geometry,
+      facet,
+      compactness: d.compactness,
+      buildable: d.buildable,
+      geomOk,
+      facetOk,
+      compactOk,
+      buildOk,
+    })
   }
-  const allPass = rows.every((r) => r.geomOk && r.facetOk && r.compactOk && r.buildOk)
-  const head34 = cell3434FacetDegree === 24 && cell3434VertexFigure === '{4,3,4}'
+  const allPass = rows.every(
+    r => r.geomOk && r.facetOk && r.compactOk && r.buildOk,
+  )
+  const head34 =
+    cell3434FacetDegree === 24 && cell3434VertexFigure === '{4,3,4}'
   const solved = allPass && head34
-  return { rows, cell3434FacetDegree, cell3434VertexFigure, allPass, solved }
+  return {
+    rows,
+    cell3434FacetDegree,
+    cell3434VertexFigure,
+    allPass,
+    solved,
+  }
 }
 
 export default experiment({

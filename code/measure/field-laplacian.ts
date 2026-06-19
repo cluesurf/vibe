@@ -16,7 +16,12 @@ export function fieldLaplacianProfile(input: {
   let total = 0
   for (let i = -radius; i <= radius; i++) {
     for (let j = -radius; j <= radius; j++) {
-      const lap = field(i + h, j) + field(i - h, j) + field(i, j + h) + field(i, j - h) - 4 * field(i, j)
+      const lap =
+        field(i + h, j) +
+        field(i - h, j) +
+        field(i, j + h) +
+        field(i, j - h) -
+        4 * field(i, j)
       const mag = Math.abs(lap)
       total += mag
       if (mag > peakValue) {

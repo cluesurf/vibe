@@ -12,20 +12,40 @@ const cx = (re: number, im = 0): Cx => ({ re, im })
 
 // 2x2 Pauli matrices as complex, keyed by name.
 const PAULI: Record<string, Cx[][]> = {
-  I: [[cx(1), cx(0)], [cx(0), cx(1)]],
-  X: [[cx(0), cx(1)], [cx(1), cx(0)]],
-  Y: [[cx(0), cx(0, -1)], [cx(0, 1), cx(0)]],
-  Z: [[cx(1), cx(0)], [cx(0), cx(-1)]],
+  I: [
+    [cx(1), cx(0)],
+    [cx(0), cx(1)],
+  ],
+  X: [
+    [cx(0), cx(1)],
+    [cx(1), cx(0)],
+  ],
+  Y: [
+    [cx(0), cx(0, -1)],
+    [cx(0, 1), cx(0)],
+  ],
+  Z: [
+    [cx(1), cx(0)],
+    [cx(0), cx(-1)],
+  ],
 }
 
 // Kronecker product of two 2x2 complex matrices into a 4x4 complex matrix.
 function kron(a: Cx[][], b: Cx[][]): Cx[][] {
-  const out: Cx[][] = Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => cx(0)))
-  for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) for (let l = 0; l < 2; l++) {
-    const x = a[i]![j]!
-    const y = b[k]![l]!
-    out[i * 2 + k]![j * 2 + l] = cx(x.re * y.re - x.im * y.im, x.re * y.im + x.im * y.re)
-  }
+  const out: Cx[][] = Array.from({ length: 4 }, () =>
+    Array.from({ length: 4 }, () => cx(0)),
+  )
+  for (let i = 0; i < 2; i++)
+    for (let j = 0; j < 2; j++)
+      for (let k = 0; k < 2; k++)
+        for (let l = 0; l < 2; l++) {
+          const x = a[i]![j]!
+          const y = b[k]![l]!
+          out[i * 2 + k]![j * 2 + l] = cx(
+            x.re * y.re - x.im * y.im,
+            x.re * y.im + x.im * y.re,
+          )
+        }
   return out
 }
 
@@ -52,23 +72,35 @@ export function twoQubitCorrelationMatrix(input: {
 }): number[][] {
   const { re, im } = input
   const axes = ['X', 'Y', 'Z']
-  const t: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
-    t[i]![j] = expect(kron(PAULI[axes[i]!]!, PAULI[axes[j]!]!), re, im)
-  }
+  const t: number[][] = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ]
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++) {
+      t[i]![j] = expect(
+        kron(PAULI[axes[i]!]!, PAULI[axes[j]!]!),
+        re,
+        im,
+      )
+    }
   return t
 }
 
 // The Horodecki maximal CHSH value from a spin correlation matrix T: form M = T^T T and take
 // 2 sqrt(s1 + s2) where s1, s2 are its two largest eigenvalues. This is the largest CHSH the
 // state can yield (above 2 = Bell violation, 2 sqrt 2 = Tsirelson).
-export function horodeckiMaxChsh(t: ReadonlyArray<ReadonlyArray<number>>): number {
+export function horodeckiMaxChsh(
+  t: ReadonlyArray<ReadonlyArray<number>>,
+): number {
   const m = makeDense({ rows: 3, cols: 3 })
-  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
-    let s = 0
-    for (let k = 0; k < 3; k++) s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
-    m.data[i * 3 + j] = s
-  }
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++) {
+      let s = 0
+      for (let k = 0; k < 3; k++) s += (t[k]![i] ?? 0) * (t[k]![j] ?? 0)
+      m.data[i * 3 + j] = s
+    }
   const eig = eigSymmetric({ matrix: m }) // ascending
   const s1 = eig.values[2] ?? 0
   const s2 = eig.values[1] ?? 0
@@ -86,8 +118,14 @@ export function twoQubitConcurrence(input: {
   const a11 = cx(re[3]!, im[3]!)
   const a01 = cx(re[1]!, im[1]!)
   const a10 = cx(re[2]!, im[2]!)
-  const p1 = { re: a00.re * a11.re - a00.im * a11.im, im: a00.re * a11.im + a00.im * a11.re }
-  const p2 = { re: a01.re * a10.re - a01.im * a10.im, im: a01.re * a10.im + a01.im * a10.re }
+  const p1 = {
+    re: a00.re * a11.re - a00.im * a11.im,
+    im: a00.re * a11.im + a00.im * a11.re,
+  }
+  const p2 = {
+    re: a01.re * a10.re - a01.im * a10.im,
+    im: a01.re * a10.im + a01.im * a10.re,
+  }
   const dRe = p1.re - p2.re
   const dIm = p1.im - p2.im
   return 2 * Math.sqrt(dRe * dRe + dIm * dIm)

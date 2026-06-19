@@ -16,7 +16,10 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { csrDistances, edgesFromCsr } from '@/code/tool/graph'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { conservingEdgeSweep } from '@/code/dynamics/conserving-sweep'
-import { totalCharge as sumTone, liveCount as nonzero } from '@/code/measure/tone-census'
+import {
+  totalCharge as sumTone,
+  liveCount as nonzero,
+} from '@/code/measure/tone-census'
 import {
   connectedCorrelationByDistance,
   correlationLengthFromDecay,
@@ -25,7 +28,14 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // vacuum dynamics: the arrow creates pairs, share annihilates, hops carry charge (the field)
-function beat(tone: Int8Array, eu: Int32Array, ev: Int32Array, moved: Uint8Array, rng: Rng, arrow: number): void {
+function beat(
+  tone: Int8Array,
+  eu: Int32Array,
+  ev: Int32Array,
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void {
   conservingEdgeSweep({ tone, eu, ev, moved, rng, arrow })
 }
 
@@ -77,21 +87,44 @@ export function quantumField(input?: { n?: number }): {
     samples: 250,
     rng: makeRng({ seed: 11 }),
   })
-  const correlation: { r: number; c: number }[] = c.map((cv, r) => ({ r, c: cv }))
+  const correlation: { r: number; c: number }[] = c.map((cv, r) => ({
+    r,
+    c: cv,
+  }))
   const pairAntiCorrelation = correlation[1]!.c // nearest-neighbour correlation (pair structure)
 
   // correlation length from |C(r)| ~ exp(-r/xi), fit log|C| vs r over r=1..4
-  const correlationLength = correlationLengthFromDecay({ correlation: c, rLo: 1, rHi: 4 })
-  const effectiveMass = correlationLength > 0 && isFinite(correlationLength) ? 1 / correlationLength : 0
-  const decays = Math.abs(correlation[4]!.c) < Math.abs(correlation[1]!.c) * 0.5
+  const correlationLength = correlationLengthFromDecay({
+    correlation: c,
+    rLo: 1,
+    rHi: 4,
+  })
+  const effectiveMass =
+    correlationLength > 0 && isFinite(correlationLength)
+      ? 1 / correlationLength
+      : 0
+  const decays =
+    Math.abs(correlation[4]!.c) < Math.abs(correlation[1]!.c) * 0.5
 
   // causal lightcone: perturb the center, run both copies with the same noise, measure the front radius
   let center = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const dcenter = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center, maxRadius: 12 })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center + 1]! - g.offsets[center]!
+    )
+      center = i
+  const dcenter = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+    maxRadius: 12,
+  })
   const base = vac.slice()
   const pert = vac.slice()
-  pert[center] = (pert[center]! + 1) % 2 === 0 ? 1 : (pert[center]! === 1 ? -1 : 1) // flip the center
+  pert[center] =
+    (pert[center]! + 1) % 2 === 0 ? 1 : pert[center]! === 1 ? -1 : 1 // flip the center
   pert[center] = base[center]! === 0 ? 1 : 0
   const T = 5
   const rb = makeRng({ seed: 99 })
@@ -99,14 +132,21 @@ export function quantumField(input?: { n?: number }): {
   for (let b = 0; b < T; b++) beat(base, eu, ev, moved, rb, ARROW)
   for (let b = 0; b < T; b++) beat(pert, eu, ev, moved, rp, ARROW)
   let front = 0
-  for (let i = 0; i < N; i++) if (base[i] !== pert[i]) {
-    const r = dcenter[i]!
-    if (r >= 0 && r > front) front = r
-  }
+  for (let i = 0; i < N; i++)
+    if (base[i] !== pert[i]) {
+      const r = dcenter[i]!
+      if (r >= 0 && r > front) front = r
+    }
   const coneSpeed = front / T
   const hasLightcone = coneSpeed > 0 && coneSpeed <= 1.5 // bounded propagation (about one hop per beat)
 
-  const fieldLike = fluctuates && pairAntiCorrelation < 0 && decays && isFinite(correlationLength) && hasLightcone && conserved
+  const fieldLike =
+    fluctuates &&
+    pairAntiCorrelation < 0 &&
+    decays &&
+    isFinite(correlationLength) &&
+    hasLightcone &&
+    conserved
   const solved = fieldLike
 
   return {
@@ -128,7 +168,8 @@ export function quantumField(input?: { n?: number }): {
 
 export default experiment({
   id: 'quantum/quantum-field',
-  title: 'the vacuum is field-like with virtual pairs and a causal cone',
+  title:
+    'the vacuum is field-like with virtual pairs and a causal cone',
   category: 'quantum',
   substrates: ['534'],
   depth: 'L2',

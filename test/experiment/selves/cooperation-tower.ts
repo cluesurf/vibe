@@ -27,12 +27,17 @@ function orderOf(size: number): number {
 function stdev(values: number[]): number {
   const n = values.length
   const mean = values.reduce((a, b) => a + b, 0) / n
-  return Math.sqrt(values.reduce((a, b) => a + (b - mean) * (b - mean), 0) / n)
+  return Math.sqrt(
+    values.reduce((a, b) => a + (b - mean) * (b - mean), 0) / n,
+  )
 }
 
 // Partition the graph into connected groups of about targetSize, by greedy BFS growth. A cell is
 // marked assigned only when it is actually added to a group, so no cell is ever lost.
-function partition(neighbors: number[][], targetSize: number): number[][] {
+function partition(
+  neighbors: number[][],
+  targetSize: number,
+): number[][] {
   const n = neighbors.length
   const assigned = new Int8Array(n)
   const groups: number[][] = []
@@ -72,7 +77,11 @@ export function cooperationTower(): {
   towerGrows: boolean
   solved: boolean
 } {
-  const mesh = buildCoxeterMesh({ symbol: [7, 3], depth: 22, maxChambers: 120000 })
+  const mesh = buildCoxeterMesh({
+    symbol: [7, 3],
+    depth: 22,
+    maxChambers: 120000,
+  })
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const rng = makeRng({ seed: 5 })
@@ -90,11 +99,15 @@ export function cooperationTower(): {
   const initialStd = stdev(charge0)
 
   const sum = (a: number[]): number => a.reduce((x, y) => x + y, 0)
-  const conserved = (a: number[]): boolean => Math.abs(sum(a) - chargeSumStart) < 1e-9
+  const conserved = (a: number[]): boolean =>
+    Math.abs(sum(a) - chargeSumStart) < 1e-9
 
   // GRAB with varied strengths -> hierarchy. The stronger pump pulls charge across each edge, both
   // pay work. Transfers conserve the total exactly.
-  function grab(strengths: number[]): { charges: number[]; wasted: number } {
+  function grab(strengths: number[]): {
+    charges: number[]
+    wasted: number
+  } {
     const c = charge0.slice()
     let wasted = 0
     const W = 0.01
@@ -138,7 +151,10 @@ export function cooperationTower(): {
   const traded = trade()
 
   // INTEGRATE: merge into groups, share charge to the group mean (balance within), build order.
-  function integrate(targetSize: number): { charges: number[]; order: number } {
+  function integrate(targetSize: number): {
+    charges: number[]
+    order: number
+  } {
     const c = charge0.slice()
     const groups = partition(neighbors, targetSize)
     let order = 0
@@ -158,13 +174,17 @@ export function cooperationTower(): {
   const netOrderIntegrate = integrated.order
 
   // the tower: order grows super-linearly as integration climbs (bigger merged wholes)
-  const towerOrderByLevel = [1, 2, 4, 8, 16, 32].map((g) => ({
+  const towerOrderByLevel = [1, 2, 4, 8, 16, 32].map(g => ({
     groupSize: g,
     order: integrate(g).order,
   }))
   let towerGrows = true
   for (let k = 1; k < towerOrderByLevel.length; k++) {
-    if ((towerOrderByLevel[k]?.order ?? 0) <= (towerOrderByLevel[k - 1]?.order ?? 0)) towerGrows = false
+    if (
+      (towerOrderByLevel[k]?.order ?? 0) <=
+      (towerOrderByLevel[k - 1]?.order ?? 0)
+    )
+      towerGrows = false
   }
 
   const integrationWins =
@@ -183,7 +203,8 @@ export function cooperationTower(): {
     conservedTrade &&
     conservedIntegrate &&
     stdev(grabbed.charges) > 1.5 * initialStd && // hierarchy forms under varied strengths
-    standoff.wasted > 0 && Math.abs(stdev(standoff.charges) - initialStd) < 1e-6 && // waste, no hierarchy
+    standoff.wasted > 0 &&
+    Math.abs(stdev(standoff.charges) - initialStd) < 1e-6 && // waste, no hierarchy
     stdev(integrated.charges) < initialStd && // integration balances within
     integrationWins &&
     towerGrows

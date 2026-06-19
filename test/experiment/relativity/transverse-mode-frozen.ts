@@ -17,7 +17,10 @@ import { verdict } from '@/test/scaffold/verdict'
 import { d4Mesh } from '@/code/tool/mesh'
 import { rootsD4 } from '@/code/algebra/group/root-system'
 import { headOnRotate } from '@/code/rule/collision'
-import { shearSetup, shearAmplitudeSeries } from '@/code/measure/hydrodynamics'
+import {
+  shearSetup,
+  shearAmplitudeSeries,
+} from '@/code/measure/hydrodynamics'
 
 const SIDE = 24
 const BEATS = 60
@@ -36,18 +39,34 @@ function trace(
   let minAmplitude = Infinity
   let finalAmplitude = 0
   for (const wavelength of WAVELENGTHS) {
-    const cfg = { gradAxis, momAxis, wavelength, side: SIDE, directions }
+    const cfg = {
+      gradAxis,
+      momAxis,
+      wavelength,
+      side: SIDE,
+      directions,
+    }
     const will = shearSetup({ mesh, ...cfg })
-    const series = shearAmplitudeSeries({ will, collision, beats: BEATS, open: false, ...cfg })
+    const series = shearAmplitudeSeries({
+      will,
+      collision,
+      beats: BEATS,
+      open: false,
+      ...cfg,
+    })
     minAmplitude = Math.min(minAmplitude, ...series)
-    finalAmplitude = Math.max(finalAmplitude, series[series.length - 1]!)
+    finalAmplitude = Math.max(
+      finalAmplitude,
+      series[series.length - 1]!,
+    )
   }
   return { minAmplitude, finalAmplitude }
 }
 
 export default experiment({
   id: 'relativity/transverse-mode-frozen',
-  title: 'the bare knit propagates the spin-0 mode but freezes the transverse spin-2 graviton, so the graviton is emergent',
+  title:
+    'the bare knit propagates the spin-0 mode but freezes the transverse spin-2 graviton, so the graviton is emergent',
   category: 'relativity',
   substrates: ['3434'],
   depth: 'L2',
@@ -55,7 +74,8 @@ export default experiment({
   run() {
     const mesh = d4Mesh({ side: SIDE })
     const opposite: number[] = []
-    for (let d = 0; d < mesh.degree; d++) opposite.push(mesh.opposite(d))
+    for (let d = 0; d < mesh.degree; d++)
+      opposite.push(mesh.opposite(d))
     const collision = headOnRotate({ opposite })
 
     // the longitudinal (spin-0 sound) mode, the positive control, it propagates
@@ -68,18 +88,29 @@ export default experiment({
     const longitudinalPropagates = longitudinal.minAmplitude <= -0.5
     const transverseFrozen = transverse.minAmplitude > 0.5
     const transverseConserved = transverse.finalAmplitude > 0.9
-    const ok = longitudinalPropagates && transverseFrozen && transverseConserved
+    const ok =
+      longitudinalPropagates && transverseFrozen && transverseConserved
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
         'on the bare momentum-conserving knit the longitudinal (spin-0 sound) momentum wave propagates, its amplitude sweeping the full sinusoid through zero, while the transverse momentum wave (the polarization a propagating spin-2 graviton and spin-1 photon need) is frozen, its amplitude never crossing zero and its final value equal to its initial (a conserved inviscid shear, omega = 0). So the bare discrete rule carries the spin-0 propagating mode exactly but carries no propagating transverse spin-2 graviton, the transverse channel is Galilean. The propagating graviton is therefore emergent, appearing only in the Lorentz-restored infrared where the transverse modes acquire the same light-cone propagation, not as a bare exact feature.',
       metrics: {
-        longitudinalMinAmplitude: Number(longitudinal.minAmplitude.toFixed(3)),
-        transverseMinAmplitude: Number(transverse.minAmplitude.toFixed(3)),
-        transverseFinalAmplitude: Number(transverse.finalAmplitude.toFixed(3)),
+        longitudinalMinAmplitude: Number(
+          longitudinal.minAmplitude.toFixed(3),
+        ),
+        transverseMinAmplitude: Number(
+          transverse.minAmplitude.toFixed(3),
+        ),
+        transverseFinalAmplitude: Number(
+          transverse.finalAmplitude.toFixed(3),
+        ),
       },
-      control: { longitudinalMinAmplitude: Number(longitudinal.minAmplitude.toFixed(3)) },
+      control: {
+        longitudinalMinAmplitude: Number(
+          longitudinal.minAmplitude.toFixed(3),
+        ),
+      },
       notes:
         'the longitudinal mode is the positive control, it reaches amplitude minus one (crosses zero, propagates), proving the apparatus detects propagation, so the transverse mode staying near plus one (never crossing zero) is a real frozen shear, not a measurement gap. headOnRotate only reshapes head-on (longitudinal) pairs, leaving transverse momentum exactly conserved, which is why the transverse channel does not propagate. This corrects the earlier loose statement that the graviton is simply the spin-2 sector of the propagating mode, the spin-0 mode is exact on the bare knit but the propagating spin-2 graviton is emergent (Lorentz restoration in the infrared), consistent with the program where continuity and full Lorentz invariance are emergent, not base.',
     })

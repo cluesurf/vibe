@@ -37,7 +37,11 @@ export function selfEmergencePerception(): {
   verdict: string
   solved: boolean
 } {
-  const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 60000 })
+  const mesh = buildCoxeterMesh({
+    symbol: [5, 3, 4],
+    depth: 20,
+    maxChambers: 60000,
+  })
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
@@ -49,7 +53,14 @@ export function selfEmergencePerception(): {
   const t = new Int8Array(n)
   const q0 = sumTone(t)
   const rng = makeRng({ seed: 9 })
-  for (let b = 0; b < 80; b++) conservingEdgeListSweep({ tone: t, edges, moved, rng, arrow: ARROW })
+  for (let b = 0; b < 80; b++)
+    conservingEdgeListSweep({
+      tone: t,
+      edges,
+      moved,
+      rng,
+      arrow: ARROW,
+    })
 
   // PERSISTENCE: autocorrelation of the tone field at increasing lags
   const base = t.slice()
@@ -59,7 +70,13 @@ export function selfEmergencePerception(): {
   let done = 0
   for (const lag of lags) {
     while (done < lag) {
-      conservingEdgeListSweep({ tone: work, edges, moved, rng, arrow: ARROW })
+      conservingEdgeListSweep({
+        tone: work,
+        edges,
+        moved,
+        rng,
+        arrow: ARROW,
+      })
       done++
     }
     autocorr.push({ lag, c: pearson({ a: base, b: work }) })
@@ -69,18 +86,32 @@ export function selfEmergencePerception(): {
 
   // IMPRINT MEMORY: imprint a pleasure blob, run, measure its survival above background
   let center = 0
-  for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = neighborDistances({ neighbors, size: n, source: center })
+  for (let i = 1; i < n; i++)
+    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  const distC = neighborDistances({
+    neighbors,
+    size: n,
+    source: center,
+  })
   const imp = t.slice() // start from the balanced state
   const blob: number[] = []
-  for (let i = 0; i < n; i++) if (dd(distC, i) <= 3) {
-    imp[i] = 1 // imprint pleasure
-    blob.push(i)
-  }
-  const meanBlob = (arr: Int8Array): number => blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
+  for (let i = 0; i < n; i++)
+    if (dd(distC, i) <= 3) {
+      imp[i] = 1 // imprint pleasure
+      blob.push(i)
+    }
+  const meanBlob = (arr: Int8Array): number =>
+    blob.reduce((s, i) => s + arr[i]!, 0) / blob.length
   const start = meanBlob(imp)
   const rng2 = makeRng({ seed: 31 })
-  for (let b = 0; b < 40; b++) conservingEdgeListSweep({ tone: imp, edges, moved, rng: rng2, arrow: ARROW })
+  for (let b = 0; b < 40; b++)
+    conservingEdgeListSweep({
+      tone: imp,
+      edges,
+      moved,
+      rng: rng2,
+      arrow: ARROW,
+    })
   const after = meanBlob(imp)
   // background mean tone for reference
   let bg = 0
@@ -112,7 +143,8 @@ export function selfEmergencePerception(): {
 
 export default experiment({
   id: 'selves/self-emergence-perception',
-  title: 'living balance is structureless churn, no durable selves from tones alone',
+  title:
+    'living balance is structureless churn, no durable selves from tones alone',
   category: 'selves',
   substrates: ['534'],
   depth: 'L2',
@@ -129,7 +161,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'on the fill-free perception rule the arrow-driven balance is structureless churn, the tone autocorrelation decays and an imprint washes out, so no durable selves form from tones alone',
-      metrics: { longLagCorr: r.longLagCorr, imprintRetention: r.imprintRetention },
+      metrics: {
+        longLagCorr: r.longLagCorr,
+        imprintRetention: r.imprintRetention,
+      },
     })
   },
 })

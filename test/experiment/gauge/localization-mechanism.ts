@@ -32,11 +32,15 @@ import { verdict } from '@/test/scaffold/verdict'
 import { buildAddressing } from '@/code/substrate/coxeter/addressing-3434'
 import { d4Mesh } from '@/code/tool/mesh'
 import { boundStateDecayExponent } from '@/code/measure/localization'
-import { growthRatioFromShellCounts, shellCountsFromGraph } from '@/code/measure/shell-growth'
+import {
+  growthRatioFromShellCounts,
+  shellCountsFromGraph,
+} from '@/code/measure/shell-growth'
 
 export default experiment({
   id: 'gauge/localization-mechanism',
-  title: 'the bound state on {3,4,3,4} decays as a power of lambda per shell, the marginal floor lambda^(-1/2), verifying the mass-hierarchy mechanism, the flat D4 lattice (no decay) the control',
+  title:
+    'the bound state on {3,4,3,4} decays as a power of lambda per shell, the marginal floor lambda^(-1/2), verifying the mass-hierarchy mechanism, the flat D4 lattice (no decay) the control',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L3',
@@ -47,7 +51,10 @@ export default experiment({
     const hyperbolicNeighbors = addressing.graph.neighbors
     const hyperbolicCells = addressing.graph.cellCount
     const lambda = growthRatioFromShellCounts(
-      shellCountsFromGraph({ neighbors: hyperbolicNeighbors, cellCount: hyperbolicCells }),
+      shellCountsFromGraph({
+        neighbors: hyperbolicNeighbors,
+        cellCount: hyperbolicCells,
+      }),
     ).ratio
 
     // the bound-state decay on the hyperbolic honeycomb, a shallow (marginal) well and a deeper well
@@ -67,12 +74,16 @@ export default experiment({
       maxDegree: 24,
       iterations: 2200,
     })
-    const shallowRatio = shallow.perShellAmplitude[shallow.reliableShells]! / shallow.perShellAmplitude[shallow.reliableShells - 1]!
+    const shallowRatio =
+      shallow.perShellAmplitude[shallow.reliableShells]! /
+      shallow.perShellAmplitude[shallow.reliableShells - 1]!
 
     // the marginal decay is the geometric floor lambda^(-1/2), the shallow-well exponent is near one half
-    const marginalIsHalf = shallow.decayExponent > 0.4 && shallow.decayExponent < 0.65
+    const marginalIsHalf =
+      shallow.decayExponent > 0.4 && shallow.decayExponent < 0.65
     // deeper binding decays faster (the exponent grows past the floor)
-    const deeperDecaysFaster = deep.decayExponent > shallow.decayExponent
+    const deeperDecaysFaster =
+      deep.decayExponent > shallow.decayExponent
     // the hyperbolic decay is strong (a large hierarchy per shell)
     const hyperbolicStrongDecay = shallowRatio < 0.5
 
@@ -82,7 +93,8 @@ export default experiment({
     const flatNeighbors: number[][] = []
     for (let cell = 0; cell < mesh.cellCount; cell++) {
       const row: number[] = []
-      for (let direction = 0; direction < mesh.degree; direction++) row.push(mesh.neighbour(cell, direction))
+      for (let direction = 0; direction < mesh.degree; direction++)
+        row.push(mesh.neighbour(cell, direction))
       flatNeighbors.push(row)
     }
     const flat = boundStateDecayExponent({
@@ -95,10 +107,16 @@ export default experiment({
     })
     // the flat per-shell amplitude ratio at a mid shell, essentially one (no decay, no hierarchy)
     const flatShell = Math.min(flat.reliableShells, 4)
-    const flatRatio = flat.perShellAmplitude[flatShell]! / flat.perShellAmplitude[flatShell - 1]!
+    const flatRatio =
+      flat.perShellAmplitude[flatShell]! /
+      flat.perShellAmplitude[flatShell - 1]!
     const flatHasNoDecay = flatRatio > 0.9
 
-    const ok = marginalIsHalf && deeperDecaysFaster && hyperbolicStrongDecay && flatHasNoDecay
+    const ok =
+      marginalIsHalf &&
+      deeperDecaysFaster &&
+      hyperbolicStrongDecay &&
+      flatHasNoDecay
 
     return verdict({
       status: ok ? 'pass' : 'fail',

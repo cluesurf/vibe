@@ -13,22 +13,39 @@
 //       conservation law), not the geometry (P134, P136).
 // Run: npx tsx code/experiment/p144-horosphere-dynamics.ts
 
-import { buildCellGraph, buildHorosphere } from '@/code/substrate/coxeter/cell-direct'
+import {
+  buildCellGraph,
+  buildHorosphere,
+} from '@/code/substrate/coxeter/cell-direct'
 import { makeRng, Rng } from '@/code/tool/rng'
 import { bfsShells } from '@/code/measure/shells'
 import { graphWalkMsdExponent } from '@/code/dynamics/random-walk'
 import { conservingEdgeListSweep } from '@/code/dynamics/conserving-sweep'
-import { proximityGraph, centerNearestOrigin } from '@/code/substrate/proximity-graph'
+import {
+  proximityGraph,
+  centerNearestOrigin,
+} from '@/code/substrate/proximity-graph'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 // single-charge random walk on a graph, MSD (graph distance from start)^2 vs time, fit the exponent
-function msdExponent(neighbors: number[][], start: number, beats: number, runs: number): number {
+function msdExponent(
+  neighbors: number[][],
+  start: number,
+  beats: number,
+  runs: number,
+): number {
   return graphWalkMsdExponent({ neighbors, start, beats, runs })
 }
 
 // conserved-exchange field beat on a general graph (edge list), for the static correlation
-function fieldBeat(tone: Int8Array, edges: [number, number][], moved: Uint8Array, rng: Rng, arrow: number): void {
+function fieldBeat(
+  tone: Int8Array,
+  edges: [number, number][],
+  moved: Uint8Array,
+  rng: Rng,
+  arrow: number,
+): void {
   conservingEdgeListSweep({ tone, edges, moved, rng, arrow })
 }
 
@@ -42,7 +59,11 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
 } {
   const maxCells = input?.maxCells ?? 14000
   const bulk = buildCellGraph({ symbol: [5, 3, 4], maxCells })
-  const horo = buildHorosphere({ symbol: [5, 3, 4], maxCells, bandHalfWidth: 0.4 })
+  const horo = buildHorosphere({
+    symbol: [5, 3, 4],
+    maxCells,
+    bandHalfWidth: 0.4,
+  })
   const hg = proximityGraph({ coords: horo.coords })
 
   // pick a central horosphere cell (nearest origin) as the walk start
@@ -55,13 +76,18 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
 
   // static correlation on the horosphere lattice: run the field, measure C(r) by graph distance
   const edges: [number, number][] = []
-  for (let v = 0; v < hg.length; v++) for (const w of hg[v]!) if (w > v) edges.push([v, w])
+  for (let v = 0; v < hg.length; v++)
+    for (const w of hg[v]!) if (w > v) edges.push([v, w])
   const dCenter = bfsShells({ neighbors: hg, root: center }).depth
   const maxR = Math.min(8, Math.max(...Array.from(dCenter)))
   const tone = new Int8Array(hg.length)
   const moved = new Uint8Array(hg.length)
   const rng = makeRng({ seed: 3 })
-  for (let i = 0; i < hg.length; i++) tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < hg.length; i++)
+    tone[i] = (rng.next() < 0.3 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   for (let t = 0; t < 60; t++) fieldBeat(tone, edges, moved, rng, 0.1)
   const sumP = new Float64Array(maxR + 1)
   const cntP = new Float64Array(maxR + 1)
@@ -85,9 +111,11 @@ export function horosphereDynamics(input?: { maxCells?: number }): {
   }
   const m2 = (mean / mc) ** 2
   const c: number[] = []
-  for (let r = 0; r <= maxR; r++) c.push(cntP[r]! > 0 ? sumP[r]! / cntP[r]! - m2 : 0)
+  for (let r = 0; r <= maxR; r++)
+    c.push(cntP[r]! > 0 ? sumP[r]! / cntP[r]! - m2 : 0)
   let correlationRange = 0
-  for (let r = 1; r <= maxR; r++) if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) correlationRange = r
+  for (let r = 1; r <= maxR; r++)
+    if (Math.abs(c[r]!) > 0.05 * Math.abs(c[0]!)) correlationRange = r
 
   // the decisive, clean result: the field is MASSIVE (contact-dominated) on the actual emergent flat layer
   const horoIsMassive = correlationRange <= 2
@@ -117,7 +145,10 @@ export default experiment({
       status: ok ? 'pass' : 'fail',
       claim:
         'the field is massive (contact-dominated) on the flat horosphere too, so the masslessness gap is the rule not the geometry',
-      metrics: { correlationRange: r.correlationRange, horoCells: r.horoCells },
+      metrics: {
+        correlationRange: r.correlationRange,
+        horoCells: r.horoCells,
+      },
     })
   },
 })

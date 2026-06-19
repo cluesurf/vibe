@@ -28,19 +28,31 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 import { b4Mesh, type Mesh } from '@/code/tool/mesh'
 import { makeWill, loneParticle, type Will } from '@/code/tone/will'
-import { pairCollision, headOnRotate, bindAndMove, type Collision } from '@/code/rule/collision'
+import {
+  pairCollision,
+  headOnRotate,
+  bindAndMove,
+  type Collision,
+} from '@/code/rule/collision'
 import { run } from '@/code/rule/lattice-gas'
 import { isReversible, conservesCharge } from '@/code/check/invariant'
-import { componentCount, diameter, travelDistance, momentum } from '@/code/check/structure'
+import {
+  componentCount,
+  diameter,
+  travelDistance,
+  momentum,
+} from '@/code/check/structure'
 import { rootsB4 } from '@/code/algebra/group/root-system'
 
 const ROOTS = rootsB4()
 
-const sameVector = (a: number[], b: number[]): boolean => a.every((v, i) => v === b[i])
+const sameVector = (a: number[], b: number[]): boolean =>
+  a.every((v, i) => v === b[i])
 
 export default experiment({
   id: 'selves/multi-speed-coin-b4',
-  title: 'the B4 two-speed coin is mobile and valid but does not lift the binding obstruction, capture is architectural',
+  title:
+    'the B4 two-speed coin is mobile and valid but does not lift the binding obstruction, capture is architectural',
   category: 'selves',
   substrates: ['b4'],
   depth: 'L2',
@@ -50,13 +62,23 @@ export default experiment({
     const beats = 8
     const mesh: Mesh = b4Mesh({ side })
     const degree = mesh.degree
-    const opposite = Array.from({ length: degree }, (_, d) => mesh.opposite(d))
+    const opposite = Array.from({ length: degree }, (_, d) =>
+      mesh.opposite(d),
+    )
     const half = side / 2
-    const center = half + half * side + half * side * side + half * side * side * side
+    const center =
+      half +
+      half * side +
+      half * side * side +
+      half * side * side * side
 
     // classify directions by speed, a long root has two nonzero coordinates, a short root one.
-    const longDirs = ROOTS.map((r, i) => [r, i] as const).filter(([r]) => r.filter((v) => v !== 0).length === 2)
-    const shortDirs = ROOTS.map((r, i) => [r, i] as const).filter(([r]) => r.filter((v) => v !== 0).length === 1)
+    const longDirs = ROOTS.map((r, i) => [r, i] as const).filter(
+      ([r]) => r.filter(v => v !== 0).length === 2,
+    )
+    const shortDirs = ROOTS.map((r, i) => [r, i] as const).filter(
+      ([r]) => r.filter(v => v !== 0).length === 1,
+    )
     const longCount = longDirs.length
     const shortCount = shortDirs.length
     const L = longDirs[0]![1]
@@ -66,26 +88,51 @@ export default experiment({
     const mobile: Collision = headOnRotate({ opposite })
     const pair: Collision = pairCollision({ opposite })
     const bind: Collision = bindAndMove({ opposite })
-    const bindInverse: Collision = bindAndMove({ opposite, forward: false })
+    const bindInverse: Collision = bindAndMove({
+      opposite,
+      forward: false,
+    })
 
-    const lone = (dir: number): Will => loneParticle(mesh, center, dir, 1)
-    const neigh = (cell: number, dir: number, steps: number): number => {
+    const lone = (dir: number): Will =>
+      loneParticle(mesh, center, dir, 1)
+    const neigh = (
+      cell: number,
+      dir: number,
+      steps: number,
+    ): number => {
       let c = cell
       for (let i = 0; i < steps; i++) c = mesh.neighbour(c, dir)
       return c
     }
 
     // 1, two-speed coin, both speeds mobile under headOnRotate, both pinned under the pair table.
-    const longTravel = travelDistance({ will: run(lone(L), mobile, beats), start: center })
-    const shortTravel = travelDistance({ will: run(lone(S), mobile, beats), start: center })
-    const longPinned = travelDistance({ will: run(lone(L), pair, beats), start: center })
+    const longTravel = travelDistance({
+      will: run(lone(L), mobile, beats),
+      start: center,
+    })
+    const shortTravel = travelDistance({
+      will: run(lone(S), mobile, beats),
+      start: center,
+    })
+    const longPinned = travelDistance({
+      will: run(lone(L), pair, beats),
+      start: center,
+    })
 
     // 2, the collisions are reversible and conserving on B4 (the build is sound).
     const headOnReversible = isReversible(lone(L), mobile, beats)
     const headOnChargeOk = conservesCharge(lone(L), mobile, beats)
     const mStart = momentum(lone(L), ROOTS)
-    const headOnMomentumOk = sameVector(mStart, momentum(run(lone(L), mobile, beats), ROOTS))
-    const bindReversible = isReversible(lone(L), bind, beats, bindInverse)
+    const headOnMomentumOk = sameVector(
+      mStart,
+      momentum(run(lone(L), mobile, beats), ROOTS),
+    )
+    const bindReversible = isReversible(
+      lone(L),
+      bind,
+      beats,
+      bindInverse,
+    )
     const bindChargeOk = conservesCharge(lone(L), bind, beats)
 
     // 3, a co-moving pair is a moving bound state, one tight component that travels.
@@ -98,7 +145,10 @@ export default experiment({
     const coMoverFinal = run(coMover(), mobile, beats)
     const coMoverComponents = componentCount(coMoverFinal)
     const coMoverDiameter = diameter(coMoverFinal)
-    const coMoverTravel = travelDistance({ will: coMoverFinal, start: center })
+    const coMoverTravel = travelDistance({
+      will: coMoverFinal,
+      start: center,
+    })
 
     // 4, an approaching head-on pair does NOT capture, it stays two separate components.
     const approach = (): Will => {
@@ -107,7 +157,9 @@ export default experiment({
       w.data[neigh(center, L, 2) * degree + Lopp] = 1
       return w
     }
-    const captureComponents = componentCount(run(approach(), mobile, beats))
+    const captureComponents = componentCount(
+      run(approach(), mobile, beats),
+    )
 
     const ok =
       longCount === 24 &&

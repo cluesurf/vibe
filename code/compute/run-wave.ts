@@ -16,11 +16,16 @@ const navigator = { gpu: create([]) }
 const WORKGROUP = 256
 
 // pack a tone pair into the u32 the shader expects, current in the low 2 bits, previous in bits 2..3
-const pack = (current: number, previous: number): number => (previous << 2) | current
+const pack = (current: number, previous: number): number =>
+  (previous << 2) | current
 const currentOf = (packed: number): number => packed & 3
 
 // the CPU reference, one beat of the exact same rule, so the GPU output can be validated against it
-function cpuStep(state: Uint32Array, width: number, height: number): Uint32Array {
+function cpuStep(
+  state: Uint32Array,
+  width: number,
+  height: number,
+): Uint32Array {
   const out = new Uint32Array(state.length)
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -44,21 +49,42 @@ function cpuStep(state: Uint32Array, width: number, height: number): Uint32Array
 }
 
 // build the compute pipeline and a ping-pong pair of state buffers for a width x height field
-function makeField(device: GPUDevice, init: Uint32Array, width: number, height: number) {
+function makeField(
+  device: GPUDevice,
+  init: Uint32Array,
+  width: number,
+  height: number,
+) {
   const count = width * height
   const byteLength = count * 4
 
-  const params = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
-  device.queue.writeBuffer(params, 0, new Uint32Array([width, height, count, 0]))
+  const params = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+  device.queue.writeBuffer(
+    params,
+    0,
+    new Uint32Array([width, height, count, 0]),
+  )
 
   const make = (): GPUBuffer =>
-    device.createBuffer({ size: byteLength, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
+    device.createBuffer({
+      size: byteLength,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
   const bufA = make()
   const bufB = make()
   device.queue.writeBuffer(bufA, 0, init)
 
   const module = device.createShaderModule({ code: WAVE_STEP_WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'main' } })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'main' },
+  })
   const layout = pipeline.getBindGroupLayout(0)
 
   const bind = (read: GPUBuffer, write: GPUBuffer): GPUBindGroup =>
@@ -71,11 +97,24 @@ function makeField(device: GPUDevice, init: Uint32Array, width: number, height: 
       ],
     })
 
-  return { count, byteLength, pipeline, bind, bufs: [bufA, bufB] as [GPUBuffer, GPUBuffer] }
+  return {
+    count,
+    byteLength,
+    pipeline,
+    bind,
+    bufs: [bufA, bufB] as [GPUBuffer, GPUBuffer],
+  }
 }
 
-async function readBack(device: GPUDevice, buffer: GPUBuffer, byteLength: number): Promise<Uint32Array> {
-  const staging = device.createBuffer({ size: byteLength, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
+async function readBack(
+  device: GPUDevice,
+  buffer: GPUBuffer,
+  byteLength: number,
+): Promise<Uint32Array> {
+  const staging = device.createBuffer({
+    size: byteLength,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
   const enc = device.createCommandEncoder()
   enc.copyBufferToBuffer(buffer, 0, staging, 0, byteLength)
   device.queue.submit([enc.finish()])
@@ -88,7 +127,9 @@ async function readBack(device: GPUDevice, buffer: GPUBuffer, byteLength: number
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
   if (!adapter) {
-    console.log('no WebGPU adapter available (needs a GPU, e.g. Metal on macOS)')
+    console.log(
+      'no WebGPU adapter available (needs a GPU, e.g. Metal on macOS)',
+    )
     return
   }
   const device = await adapter.requestDevice()
@@ -101,7 +142,8 @@ async function run(): Promise<void> {
   // a deterministic pseudo-random field in both tone slots, so the second-order rule has history
   const r = makeRng({ seed: 123456789 })
   const nextR = (): number => r.next()
-  for (let i = 0; i < seed.length; i++) seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
+  for (let i = 0; i < seed.length; i++)
+    seed[i] = pack(Math.floor(nextR() * 3), Math.floor(nextR() * 3))
 
   const field = makeField(device, seed, sw, sh)
   const dispatch = Math.ceil(field.count / WORKGROUP)
@@ -110,20 +152,30 @@ async function run(): Promise<void> {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(field.pipeline)
-    pass.setBindGroup(0, field.bind(field.bufs[src]!, field.bufs[1 - src]!))
+    pass.setBindGroup(
+      0,
+      field.bind(field.bufs[src]!, field.bufs[1 - src]!),
+    )
     pass.dispatchWorkgroups(dispatch)
     pass.end()
     device.queue.submit([enc.finish()])
     src = 1 - src
   }
-  const gpuOut = await readBack(device, field.bufs[src]!, field.byteLength)
+  const gpuOut = await readBack(
+    device,
+    field.bufs[src]!,
+    field.byteLength,
+  )
 
   let cpu = seed.slice()
   for (let b = 0; b < beats; b++) cpu = cpuStep(cpu, sw, sh)
   let mismatches = 0
-  for (let i = 0; i < cpu.length; i++) if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) mismatches++
+  for (let i = 0; i < cpu.length; i++)
+    if (currentOf(cpu[i]!) !== currentOf(gpuOut[i]!)) mismatches++
   const selfCheckOk = mismatches === 0
-  console.log(`self-check ${sw}x${sh}, ${beats} beats: GPU vs CPU mismatches ${mismatches} -> ${selfCheckOk ? 'IDENTICAL' : 'FAIL'}`)
+  console.log(
+    `self-check ${sw}x${sh}, ${beats} beats: GPU vs CPU mismatches ${mismatches} -> ${selfCheckOk ? 'IDENTICAL' : 'FAIL'}`,
+  )
 
   // (2) BENCHMARK, a large grid, beats per second
   const bw = 2048
@@ -138,7 +190,10 @@ async function run(): Promise<void> {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(bigField.pipeline)
-    pass.setBindGroup(0, bigField.bind(bigField.bufs[0]!, bigField.bufs[1]!))
+    pass.setBindGroup(
+      0,
+      bigField.bind(bigField.bufs[0]!, bigField.bufs[1]!),
+    )
     pass.dispatchWorkgroups(bigDispatch)
     pass.end()
     device.queue.submit([enc.finish()])
@@ -151,7 +206,10 @@ async function run(): Promise<void> {
     const enc = device.createCommandEncoder()
     const pass = enc.beginComputePass()
     pass.setPipeline(bigField.pipeline)
-    pass.setBindGroup(0, bigField.bind(bigField.bufs[bsrc]!, bigField.bufs[1 - bsrc]!))
+    pass.setBindGroup(
+      0,
+      bigField.bind(bigField.bufs[bsrc]!, bigField.bufs[1 - bsrc]!),
+    )
     pass.dispatchWorkgroups(bigDispatch)
     pass.end()
     device.queue.submit([enc.finish()])
@@ -162,11 +220,19 @@ async function run(): Promise<void> {
   const beatsPerSec = benchBeats / seconds
   const cellsPerSec = beatsPerSec * bigField.count
 
-  console.log(`benchmark ${bw}x${bh} = ${bigField.count.toLocaleString()} cells, ${benchBeats} beats in ${seconds.toFixed(2)}s`)
-  console.log(`  ${beatsPerSec.toFixed(1)} beats/sec, ${(cellsPerSec / 1e9).toFixed(2)} billion cell-updates/sec`)
-  console.log(selfCheckOk ? 'OK, the GPU field is correct and fast' : 'FAILED self-check')
+  console.log(
+    `benchmark ${bw}x${bh} = ${bigField.count.toLocaleString()} cells, ${benchBeats} beats in ${seconds.toFixed(2)}s`,
+  )
+  console.log(
+    `  ${beatsPerSec.toFixed(1)} beats/sec, ${(cellsPerSec / 1e9).toFixed(2)} billion cell-updates/sec`,
+  )
+  console.log(
+    selfCheckOk
+      ? 'OK, the GPU field is correct and fast'
+      : 'FAILED self-check',
+  )
 }
 
-run().catch((e) => {
+run().catch(e => {
   console.error(e instanceof Error ? e.message : String(e))
 })

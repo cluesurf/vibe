@@ -17,7 +17,8 @@ import { complex } from '@/code/algebra/linear/complex'
 
 export default experiment({
   id: 'spin/spin-connection-534',
-  title: 'the {5,3,4} spin connection, the edge-loop holonomy is the spinor double cover (minus one once, plus one twice)',
+  title:
+    'the {5,3,4} spin connection, the edge-loop holonomy is the spinor double cover (minus one once, plus one twice)',
   category: 'spin',
   substrates: ['534'],
   depth: 'L2',
@@ -37,8 +38,12 @@ export default experiment({
       onceMinusOne.push(cmIsScalar(once, minusOne) ? 1 : 0)
       twicePlusOne.push(cmIsScalar(twice, plusOne) ? 1 : 0)
     }
-    const allLoopsSpinorMinusOne = onceMinusOne.every((value) => value === 1)
-    const allLoopsReturnAtTwice = twicePlusOne.every((value) => value === 1)
+    const allLoopsSpinorMinusOne = onceMinusOne.every(
+      value => value === 1,
+    )
+    const allLoopsReturnAtTwice = twicePlusOne.every(
+      value => value === 1,
+    )
 
     const ok = allLoopsSpinorMinusOne && allLoopsReturnAtTwice
 
@@ -54,7 +59,10 @@ export default experiment({
       },
       // CONTROL: going around each loop TWICE (4pi) returns the spinor to plus one, the discriminating
       // signature of the double cover. A trivial (non-spinor) structure would give plus one once around.
-      control: { allLoopsReturnAtTwice: allLoopsReturnAtTwice ? 1 : 0, relation5TwicePlusOne: twicePlusOne[0]! },
+      control: {
+        allLoopsReturnAtTwice: allLoopsReturnAtTwice ? 1 : 0,
+        relation5TwicePlusOne: twicePlusOne[0]!,
+      },
       notes:
         'This computes the geometric spin connection (the binary Coxeter cover) and shows the {5,3,4} edge loops carry the spinor holonomy. It realizes the frame-bundle spin lift, beyond the abstract group cover of spin/cocycle-534. OPEN refinement, the curvature-driven holonomy of large contractible loops (the continuum limit) needs the full hyperbolic metric integration.',
     })

@@ -26,7 +26,12 @@
 // Run: npx tsx code/experiment/p178-emergent-self-robust.ts
 
 import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
-import { beat, countPlus, largestPositiveCluster, totalCharge } from '@/code/model/self-kit'
+import {
+  beat,
+  countPlus,
+  largestPositiveCluster,
+  totalCharge,
+} from '@/code/model/self-kit'
 import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -108,7 +113,9 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
   // (2) run with and without maintenance, arrow off so the only creation is the balanced maintenance. Order
   // is maintain-then-churn, so the measured fidelity is the level the maintenance SUSTAINS against the churn.
-  const fidelityRun = (maintaining: boolean): { fidelity: number; work: number; q: number } => {
+  const fidelityRun = (
+    maintaining: boolean,
+  ): { fidelity: number; work: number; q: number } => {
     const t2 = tone.slice()
     const q0 = totalCharge(t2)
     const rng2 = makeRng({ seed: 41 })
@@ -118,7 +125,11 @@ export function emergentSelfRobust(input?: { n?: number }): {
       if (maintaining) workTotal += maintain(t2)
       beat(t2, g, moved, rng2, 0, 0.22)
     }
-    return { fidelity: countPlus(t2, cluster) / cluster.length, work: workTotal / beats, q: totalCharge(t2) - q0 }
+    return {
+      fidelity: countPlus(t2, cluster) / cluster.length,
+      work: workTotal / beats,
+      q: totalCharge(t2) - q0,
+    }
   }
   const maintained = fidelityRun(true)
   const unmaintained = fidelityRun(false)
@@ -127,7 +138,9 @@ export function emergentSelfRobust(input?: { n?: number }): {
   const workPerBeat = maintained.work
   // the self is restored to full each maintain, then loses some to the leaky hyperbolic boundary before the
   // next, so the measured trough sits well above the unmaintained decay, a stable maintained band
-  const maintenanceHoldsSelf = maintainedFidelity > 0.6 && maintainedFidelity > unmaintainedFidelity + 0.3
+  const maintenanceHoldsSelf =
+    maintainedFidelity > 0.6 &&
+    maintainedFidelity > unmaintainedFidelity + 0.3
   const maintainedConserved = maintained.q === 0 // the balanced maintenance keeps Q exactly fixed
 
   // (3) the unmaintained lifetime, cohesion keeps the self localized longer than pure diffusion (P102), but
@@ -141,12 +154,16 @@ export function emergentSelfRobust(input?: { n?: number }): {
   }
   const cohesiveLocalization = localize(0.22)
   const diffusiveLocalization = localize(0)
-  const persistsLongerThanDiffusion = cohesiveLocalization > diffusiveLocalization + 0.05
+  const persistsLongerThanDiffusion =
+    cohesiveLocalization > diffusiveLocalization + 0.05
   const finiteLifetime = unmaintainedFidelity < 0.85 // the unmaintained self really does decay
 
   const solved =
-    structureEmerges && maintenanceHoldsSelf && maintainedConserved &&
-    persistsLongerThanDiffusion && finiteLifetime
+    structureEmerges &&
+    maintenanceHoldsSelf &&
+    maintainedConserved &&
+    persistsLongerThanDiffusion &&
+    finiteLifetime
 
   return {
     n: N,
@@ -168,7 +185,8 @@ export function emergentSelfRobust(input?: { n?: number }): {
 
 export default experiment({
   id: 'selves/emergent-self-robust',
-  title: 'a self emerges by cohesion and conserving maintenance holds it against decay',
+  title:
+    'a self emerges by cohesion and conserving maintenance holds it against decay',
   category: 'selves',
   substrates: ['534'],
   depth: 'L3',

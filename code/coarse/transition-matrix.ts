@@ -6,15 +6,20 @@
 
 // Quantile-bin a continuous series into equal-occupancy integer labels in [0, bins). Every bin is populated,
 // which avoids the spurious eigenvalue-1 modes that empty fixed bins would produce in the Markov model.
-export function quantileLabels(input: { series: number[]; bins: number }): number[] {
+export function quantileLabels(input: {
+  series: number[]
+  bins: number
+}): number[] {
   const { series, bins } = input
   if (series.length === 0) return []
   const sorted = [...series].sort((a, b) => a - b)
   const thresholds = Array.from(
     { length: bins - 1 },
-    (_, k) => sorted[Math.floor(((k + 1) / bins) * sorted.length)] ?? sorted[sorted.length - 1]!,
+    (_, k) =>
+      sorted[Math.floor(((k + 1) / bins) * sorted.length)] ??
+      sorted[sorted.length - 1]!,
   )
-  return series.map((x) => {
+  return series.map(x => {
     let b = 0
     while (b < bins - 1 && x > thresholds[b]!) b++
     return b
@@ -83,7 +88,7 @@ export function rowStochastic(counts: number[][]): number[][] {
       e[i] = 1
       return e
     }
-    return row.map((c) => c / sum)
+    return row.map(c => c / sum)
   })
 }
 
@@ -91,10 +96,11 @@ export function rowStochastic(counts: number[][]): number[][] {
 // Self-contained so the coarse engine has no external eig dependency.
 export function symmetricEigenvalues(matrix: number[][]): number[] {
   const n = matrix.length
-  const a = matrix.map((row) => row.slice())
+  const a = matrix.map(row => row.slice())
   for (let sweep = 0; sweep < 100; sweep++) {
     let off = 0
-    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
+    for (let p = 0; p < n; p++)
+      for (let q = p + 1; q < n; q++) off += a[p]![q]! * a[p]![q]!
     if (off < 1e-18) break
     for (let p = 0; p < n; p++) {
       for (let q = p + 1; q < n; q++) {
@@ -129,17 +135,24 @@ export function symmetricEigenvalues(matrix: number[][]): number[] {
 // D^-1/2 C D^-1/2 with the same spectrum as the reversible transition matrix.
 export function transitionEigenvalues(counts: number[][]): number[] {
   const n = counts.length
-  const sym: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0))
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) sym[i]![j] = 0.5 * (counts[i]![j]! + counts[j]![i]!)
-  const degree = sym.map((row) => row.reduce((a, b) => a + b, 0))
-  const s: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0))
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
-    const di = degree[i]!
-    const dj = degree[j]!
-    // an unvisited state (degree 0) is left at 0, so it contributes a zero eigenvalue, not a spurious slow
-    // mode at 1. Spurious 1-eigenvalues from empty bins would otherwise mask the real spectral gap.
-    s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : 0
-  }
+  const sym: number[][] = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++)
+      sym[i]![j] = 0.5 * (counts[i]![j]! + counts[j]![i]!)
+  const degree = sym.map(row => row.reduce((a, b) => a + b, 0))
+  const s: number[][] = Array.from({ length: n }, () =>
+    new Array<number>(n).fill(0),
+  )
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++) {
+      const di = degree[i]!
+      const dj = degree[j]!
+      // an unvisited state (degree 0) is left at 0, so it contributes a zero eigenvalue, not a spurious slow
+      // mode at 1. Spurious 1-eigenvalues from empty bins would otherwise mask the real spectral gap.
+      s[i]![j] = di > 0 && dj > 0 ? sym[i]![j]! / Math.sqrt(di * dj) : 0
+    }
   return symmetricEigenvalues(s)
 }
 
@@ -161,8 +174,12 @@ export function spectralGap(eigenvalues: number[]): {
 
 // Implied timescale of an eigenvalue at lag tau, in beats. t = -tau / ln(lambda). A slow process has a long
 // implied timescale, a fast one a short one. A flat plateau across lags is the standard validity check.
-export function impliedTimescale(input: { eigenvalue: number; lag: number }): number {
+export function impliedTimescale(input: {
+  eigenvalue: number
+  lag: number
+}): number {
   const { eigenvalue, lag } = input
-  if (eigenvalue <= 0 || eigenvalue >= 1) return eigenvalue >= 1 ? Infinity : 0
+  if (eigenvalue <= 0 || eigenvalue >= 1)
+    return eigenvalue >= 1 ? Infinity : 0
   return -lag / Math.log(eigenvalue)
 }

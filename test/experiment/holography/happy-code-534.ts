@@ -30,7 +30,8 @@ const stabilizers: Pauli[] = [
 
 export default experiment({
   id: 'holography/happy-code-534',
-  title: 'the quantum HaPPY [[5,1,3]] perfect code on {5,3,4}, any 2 erasures recover the bulk logical qubit',
+  title:
+    'the quantum HaPPY [[5,1,3]] perfect code on {5,3,4}, any 2 erasures recover the bulk logical qubit',
   category: 'holography',
   substrates: ['534'],
   depth: 'L2',
@@ -38,12 +39,19 @@ export default experiment({
   run() {
     // (1) the four stabilizers pairwise commute, a valid code
     let stabilizersCommute = true
-    for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) if (!pauliCommute(stabilizers[a]!, stabilizers[b]!)) stabilizersCommute = false
+    for (let a = 0; a < 4; a++)
+      for (let b = a + 1; b < 4; b++)
+        if (!pauliCommute(stabilizers[a]!, stabilizers[b]!))
+          stabilizersCommute = false
 
     // (2) the logical operators are the Paulis that commute with every stabilizer but are NOT in the
     // stabilizer group. The code distance is the minimum weight of a logical, it should be 3.
     const span = stabilizerGroup({ generators: stabilizers, qubits: 5 })
-    const logicals = logicalOperators({ generators: stabilizers, span, qubits: 5 })
+    const logicals = logicalOperators({
+      generators: stabilizers,
+      span,
+      qubits: 5,
+    })
     const distance = codeDistance(logicals)
     const distanceThree = distance === 3
 
@@ -51,17 +59,27 @@ export default experiment({
     // An erasure set E is correctable iff no logical operator is supported entirely within E.
     const subsets = (size: number): number[] => {
       const out: number[] = []
-      for (let mask = 0; mask < 32; mask++) if (popcount(mask) === size) out.push(mask)
+      for (let mask = 0; mask < 32; mask++)
+        if (popcount(mask) === size) out.push(mask)
       return out
     }
-    const correctable = (erased: number): boolean => erasureCorrectable({ logicals, erased })
-    const allTwoErasuresRecover = subsets(2).every((erased) => correctable(erased))
+    const correctable = (erased: number): boolean =>
+      erasureCorrectable({ logicals, erased })
+    const allTwoErasuresRecover = subsets(2).every(erased =>
+      correctable(erased),
+    )
 
     // CONTROL: the threshold, SOME three-qubit erasures are NOT correctable (a weight-3 logical sits on them),
     // so the code has a finite distance, it is a real code rather than trivially robust
-    const someThreeErasureFails = subsets(3).some((erased) => !correctable(erased))
+    const someThreeErasureFails = subsets(3).some(
+      erased => !correctable(erased),
+    )
 
-    const ok = stabilizersCommute && distanceThree && allTwoErasuresRecover && someThreeErasureFails
+    const ok =
+      stabilizersCommute &&
+      distanceThree &&
+      allTwoErasuresRecover &&
+      someThreeErasureFails
 
     return verdict({
       status: ok ? 'pass' : 'fail',
@@ -75,7 +93,9 @@ export default experiment({
       },
       // CONTROL: some 3-qubit erasures are NOT correctable, so the protection is a genuine distance-3 code
       // (the holographic reconstruction has a threshold), not trivial robustness.
-      control: { someThreeErasureUncorrectable: someThreeErasureFails ? 1 : 0 },
+      control: {
+        someThreeErasureUncorrectable: someThreeErasureFails ? 1 : 0,
+      },
       notes:
         'The quantum upgrade of holography/holographic-code-534. The perfect tensor is the HaPPY building block, tiling it on the {5,3,4} cell graph builds the holographic code where a bulk logical qubit is reconstructible from any boundary region past its Ryu-Takayanagi wedge, and the distance grows with bulk depth. OPEN, wiring the perfect tensors onto the actual generated {5,3,4} cell graph (substrate-survey) and deriving the encoding from the conserving rule, this verifies the building block and its erasure property.',
     })

@@ -45,7 +45,10 @@ export function cubicLattice(side: number, dim: number): CubicLattice {
 }
 
 // Row-major index of the centre site (every coordinate at floor(side / 2)).
-export function cubicLatticeCenter(input: { lattice: CubicLattice; side: number }): number {
+export function cubicLatticeCenter(input: {
+  lattice: CubicLattice
+  side: number
+}): number {
   const { lattice, side } = input
   const mid = Math.floor(side / 2)
   let j = 0
@@ -59,7 +62,10 @@ export function cubicLatticeCenter(input: { lattice: CubicLattice; side: number 
 
 // Row-major index of the centre cell (every coordinate at side >> 1) of an equal-side
 // cubic lattice, given only the side and dimension (no built lattice object needed).
-export function cubicLatticeCenterBySide(input: { side: number; dim: number }): number {
+export function cubicLatticeCenterBySide(input: {
+  side: number
+  dim: number
+}): number {
   const { side, dim } = input
   const h = side >> 1
   let index = 0
@@ -87,7 +93,11 @@ export function cubicBoxRows(input: { side: number; dim: number }): {
     for (let a = 0; a < dim; a++) row.push(lattice.coords[i * dim + a]!)
     coords.push(row)
   }
-  return { neighbors: lattice.neighbors, coords, center: cubicLatticeCenter({ lattice, side }) }
+  return {
+    neighbors: lattice.neighbors,
+    coords,
+    center: cubicLatticeCenter({ lattice, side }),
+  }
 }
 
 // Euclidean distance between two lattice sites in integer coordinate units.
@@ -99,7 +109,9 @@ export function cubicLatticeDistance(input: {
   const { lattice, from, to } = input
   let s = 0
   for (let a = 0; a < lattice.dim; a++) {
-    const d = (lattice.coords[from * lattice.dim + a] ?? 0) - (lattice.coords[to * lattice.dim + a] ?? 0)
+    const d =
+      (lattice.coords[from * lattice.dim + a] ?? 0) -
+      (lattice.coords[to * lattice.dim + a] ?? 0)
     s += d * d
   }
   return Math.sqrt(s)

@@ -18,7 +18,10 @@ import { regionEntanglementEntropy } from '@/code/measure/entanglement'
 
 // The lattice indices of a ball of radius `radius` centered at the lattice center, on a cubic lattice of side
 // `side` with index x + side*y + side^2*z. The discrete screen enclosing a region of the substrate.
-export function ballRegion(input: { side: number; radius: number }): number[] {
+export function ballRegion(input: {
+  side: number
+  radius: number
+}): number[] {
   const { side, radius } = input
   const center = (side - 1) / 2
   const region: number[] = []
@@ -52,15 +55,20 @@ export function screenBitSeries(input: {
     const region = ballRegion({ side: input.side, radius })
     radii.push(radius)
     volumes.push(region.length)
-    bits.push(regionEntanglementEntropy({ c: input.c, n: input.n, region }))
+    bits.push(
+      regionEntanglementEntropy({ c: input.c, n: input.n, region }),
+    )
   }
   return { radii, volumes, bits }
 }
 
 // The least-squares exponent alpha of a power law value proportional to radius^alpha, fit in log-log space.
-export function logLogExponent(radii: ReadonlyArray<number>, values: ReadonlyArray<number>): number {
-  const xs = radii.map((r) => Math.log(r))
-  const ys = values.map((v) => Math.log(v))
+export function logLogExponent(
+  radii: ReadonlyArray<number>,
+  values: ReadonlyArray<number>,
+): number {
+  const xs = radii.map(r => Math.log(r))
+  const ys = values.map(v => Math.log(v))
   const meanX = xs.reduce((a, b) => a + b, 0) / xs.length
   const meanY = ys.reduce((a, b) => a + b, 0) / ys.length
   let numerator = 0
@@ -76,7 +84,10 @@ export function logLogExponent(radii: ReadonlyArray<number>, values: ReadonlyArr
 // r^(bitExponent), the entropic force is F proportional to 1/N(r), so F proportional to r^(-bitExponent), and the
 // potential is its integral, r^(-(bitExponent - 1)). The area law (bitExponent 2) gives Newton (force r^-2,
 // potential r^-1), a volume law (bitExponent 3) gives the wrong r^-3.
-export function verlindeForceLaw(input: { bitExponent: number; tolerance?: number }): {
+export function verlindeForceLaw(input: {
+  bitExponent: number
+  tolerance?: number
+}): {
   forceExponent: number
   potentialExponent: number
   isNewtonian: boolean

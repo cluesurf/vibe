@@ -12,17 +12,20 @@ type Neighbors = ReadonlyArray<ArrayLike<number>>
 // {-1, 0, +1} is drawn once (when w > v) and written to both half-edges, so the
 // coupling field is consistent in both directions. `fills[v][k]` is the coupling on
 // the edge from v to its k-th neighbour.
-export function symmetricEdgeFills(input: { neighbors: Neighbors; rng: Rng }): Int8Array[] {
+export function symmetricEdgeFills(input: {
+  neighbors: Neighbors
+  rng: Rng
+}): Int8Array[] {
   const { neighbors, rng } = input
   const n = neighbors.length
-  const indexOf = neighbors.map((row) => {
+  const indexOf = neighbors.map(row => {
     const m = new Map<number, number>()
     for (let k = 0; k < row.length; k++) {
       m.set(row[k] ?? -1, k)
     }
     return m
   })
-  const fills = neighbors.map((row) => new Int8Array(row.length))
+  const fills = neighbors.map(row => new Int8Array(row.length))
   for (let v = 0; v < n; v++) {
     const fv = fills[v]
     const row = neighbors[v] ?? []
@@ -79,13 +82,20 @@ export function runAsynchronousSignedMajority(input: {
   neighbors: number[][]
   beats: number
   seed: number
-}): { settledFraction: number; toneHistogram: { minus: number; zero: number; plus: number } } {
+}): {
+  settledFraction: number
+  toneHistogram: { minus: number; zero: number; plus: number }
+} {
   const { neighbors, beats } = input
   const n = neighbors.length
   const rng = makeRng({ seed: input.seed })
   const tone = new Int8Array(n)
-  for (let i = 0; i < n; i++) tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
-  const fill: Map<number, number>[] = Array.from({ length: n }, () => new Map<number, number>())
+  for (let i = 0; i < n; i++)
+    tone[i] = (rng.nextInt({ max: 3 }) - 1) as number
+  const fill: Map<number, number>[] = Array.from(
+    { length: n },
+    () => new Map<number, number>(),
+  )
   for (let a = 0; a < n; a++) {
     for (const b of neighbors[a]!) {
       if (b > a) {
@@ -101,7 +111,8 @@ export function runAsynchronousSignedMajority(input: {
     for (let s = 0; s < n; s++) {
       const v = rng.nextInt({ max: n })
       let h = 0
-      for (const w of neighbors[v]!) h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
+      for (const w of neighbors[v]!)
+        h += (fill[v]!.get(w) ?? 0) * (tone[w] ?? 0)
       const next = h > 0 ? 1 : h < 0 ? -1 : 0
       if (next !== tone[v]) changed++
       tone[v] = next as number
@@ -117,5 +128,8 @@ export function runAsynchronousSignedMajority(input: {
     else if (t === 0) zero++
     else plus++
   }
-  return { settledFraction: 1 - changedLast / n, toneHistogram: { minus, zero, plus } }
+  return {
+    settledFraction: 1 - changedLast / n,
+    toneHistogram: { minus, zero, plus },
+  }
 }

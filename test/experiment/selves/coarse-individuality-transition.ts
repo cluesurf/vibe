@@ -18,28 +18,42 @@ import { makeRng } from '@/code/coarse/self-trajectory'
 
 // Population WITHOUT group selection or a bottleneck. Members vary independently, groups are incidental
 // labels, so the variance is within groups and each member is an independent replicator.
-function withoutTransition(input: { groups: number; members: number; seed: number }): number[][] {
+function withoutTransition(input: {
+  groups: number
+  members: number
+  seed: number
+}): number[][] {
   const { groups, members, seed } = input
   const rng = makeRng(seed)
-  return Array.from({ length: groups }, () => Array.from({ length: members }, () => rng.next()))
+  return Array.from({ length: groups }, () =>
+    Array.from({ length: members }, () => rng.next()),
+  )
 }
 
 // Population WITH group selection and a single-cell bottleneck (declared effective ingredients). Each group
 // is founded by one cell, so members share the founder trait up to a small mutation (clonal, conflict
 // suppressed), and group founders differ widely (group-level selection has spread the group means). The
 // variance moves between groups and independent within-group variation collapses.
-function withTransition(input: { groups: number; members: number; seed: number }): number[][] {
+function withTransition(input: {
+  groups: number
+  members: number
+  seed: number
+}): number[][] {
   const { groups, members, seed } = input
   const rng = makeRng(seed)
   return Array.from({ length: groups }, () => {
     const founder = rng.next() // group selection has spread founders across the range.
-    return Array.from({ length: members }, () => founder + (rng.next() - 0.5) * 0.02) // bottleneck, near clonal.
+    return Array.from(
+      { length: members },
+      () => founder + (rng.next() - 0.5) * 0.02,
+    ) // bottleneck, near clonal.
   })
 }
 
 export default experiment({
   id: 'selves/coarse-individuality-transition',
-  title: 'the transition signatures appear only with imposed group selection and a single-cell bottleneck, not from the base rule',
+  title:
+    'the transition signatures appear only with imposed group selection and a single-cell bottleneck, not from the base rule',
   category: 'selves',
   substrates: ['effective-model'],
   depth: 'L1',
@@ -47,8 +61,12 @@ export default experiment({
   run() {
     const groups = 24
     const members = 24
-    const off = fitnessVariancePartition(withoutTransition({ groups, members, seed: 11 }))
-    const on = fitnessVariancePartition(withTransition({ groups, members, seed: 11 }))
+    const off = fitnessVariancePartition(
+      withoutTransition({ groups, members, seed: 11 }),
+    )
+    const on = fitnessVariancePartition(
+      withTransition({ groups, members, seed: 11 }),
+    )
 
     // the transition signature, the variance ratio crosses from within-dominated (below one) to
     // between-dominated (above one), and the within-group (independent) variation collapses.

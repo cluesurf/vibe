@@ -39,7 +39,9 @@ function ternaryToneSymmetryOrder(): number {
   for (const p of permutations(tone)) {
     const map = new Map(tone.map((v, i) => [v, p[i]!]))
     const fixesVacuum = map.get(0) === 0
-    const commutesWithConjugation = tone.every((v) => map.get(-v) === -map.get(v)!)
+    const commutesWithConjugation = tone.every(
+      v => map.get(-v) === -map.get(v)!,
+    )
     if (fixesVacuum && commutesWithConjugation) count++
   }
   return count
@@ -47,7 +49,8 @@ function ternaryToneSymmetryOrder(): number {
 
 export default experiment({
   id: 'foundations/ternary-not-triality',
-  title: 'the ternary three (vacuum + pair, Z2, partition 1+2) is NOT the triality three (symmetric, S3, partition 3), so the tone is the irreducible atom of distinction',
+  title:
+    'the ternary three (vacuum + pair, Z2, partition 1+2) is NOT the triality three (symmetric, S3, partition 3), so the tone is the irreducible atom of distinction',
   category: 'foundations',
   substrates: ['3434'],
   depth: 'L2',
@@ -65,9 +68,14 @@ export default experiment({
 
     // the two are structurally different, different symmetry order AND different partition
     const differentSymmetry = toneSymmetry !== trialitySymmetry
-    const notTheSameThree = differentSymmetry && toneIsZ2 && trialityIsS3
+    const notTheSameThree =
+      differentSymmetry && toneIsZ2 && trialityIsS3
 
-    const ok = toneIsZ2 && trialityIsS3 && tonePartitionOnePlusTwo && notTheSameThree
+    const ok =
+      toneIsZ2 &&
+      trialityIsS3 &&
+      tonePartitionOnePlusTwo &&
+      notTheSameThree
 
     return verdict({
       status: ok ? 'pass' : 'fail',

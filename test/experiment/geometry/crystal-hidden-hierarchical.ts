@@ -23,7 +23,11 @@ import { verdict } from '@/test/scaffold/verdict'
 // Gromov delta-hyperbolicity (the tree-likeness measure) lives in code/measure/curvature.
 
 function anisotropyOf(s: Substrate, seed: number): number {
-  return lorentzIsotropy({ substrate: s, samples: 3000, rng: makeRng({ seed }) }).anisotropy
+  return lorentzIsotropy({
+    substrate: s,
+    samples: 3000,
+    rng: makeRng({ seed }),
+  }).anisotropy
 }
 
 export function crystalHiddenHierarchical(input: { seed: number }): {
@@ -35,9 +39,21 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
   latticeDelta: number
   crystalIsTreeLike: boolean
 } {
-  const crystal = coxeterTessellation({ schlafli: [7, 3], maxVertices: 1500 })
-  const foam = hyperbolicGraph({ count: 1500, radius: 7, connectThreshold: 3.0, rng: makeRng({ seed: input.seed }) })
-  const flat = lattice({ dimension: 2, extent: 38, signature: 'riemannian' })
+  const crystal = coxeterTessellation({
+    schlafli: [7, 3],
+    maxVertices: 1500,
+  })
+  const foam = hyperbolicGraph({
+    count: 1500,
+    radius: 7,
+    connectThreshold: 3.0,
+    rng: makeRng({ seed: input.seed }),
+  })
+  const flat = lattice({
+    dimension: 2,
+    extent: 38,
+    signature: 'riemannian',
+  })
 
   const crystalAnisotropy = anisotropyOf(crystal, input.seed + 1)
   const foamAnisotropy = anisotropyOf(foam, input.seed + 1)
@@ -48,8 +64,16 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
     Math.abs(crystalAnisotropy - foamAnisotropy) < 0.1 &&
     Math.abs(crystalAnisotropy - latticeAnisotropy) > 0.5
 
-  const crystalDelta = gromovDelta({ substrate: crystal, samples: 150, rng: makeRng({ seed: input.seed + 2 }) })
-  const latticeDelta = gromovDelta({ substrate: flat, samples: 150, rng: makeRng({ seed: input.seed + 2 }) })
+  const crystalDelta = gromovDelta({
+    substrate: crystal,
+    samples: 150,
+    rng: makeRng({ seed: input.seed + 2 }),
+  })
+  const latticeDelta = gromovDelta({
+    substrate: flat,
+    samples: 150,
+    rng: makeRng({ seed: input.seed + 2 }),
+  })
   const crystalIsTreeLike = crystalDelta < 0.5 * latticeDelta
 
   return {
@@ -65,7 +89,8 @@ export function crystalHiddenHierarchical(input: { seed: number }): {
 
 export default experiment({
   id: 'geometry/crystal-hidden-hierarchical',
-  title: 'crystal is indistinguishable from foam inside, tree-like, unlike a flat lattice',
+  title:
+    'crystal is indistinguishable from foam inside, tree-like, unlike a flat lattice',
   category: 'geometry',
   substrates: 'any',
   depth: 'L2',

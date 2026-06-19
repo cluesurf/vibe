@@ -13,7 +13,10 @@ import { verdict } from '@/test/scaffold/verdict'
 
 // a landscape that rises overall toward the goal but has B downward DIPS (barriers), each making a local
 // peak just before it where a greedy climber stalls
-function multiBarrier(L: number, B: number): { V: number[]; start: number; goal: number } {
+function multiBarrier(
+  L: number,
+  B: number,
+): { V: number[]; start: number; goal: number } {
   const V = new Array<number>(L + 1).fill(0)
   const amp = 0.25
   const width = L / (B * 4)
@@ -97,7 +100,11 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
   const integratedReached = integratedPos >= goal - 1
   // success, the integrated agent reaches the goal across all barriers, strictly beats both simpler agents
   // (which stall earlier), and took several re-plans (sustained metacognition, the closed loop)
-  const solved = integratedReached && !reactiveReached && integratedPos > oneShotPos && replans >= B - 1
+  const solved =
+    integratedReached &&
+    !reactiveReached &&
+    integratedPos > oneShotPos &&
+    replans >= B - 1
 
   return {
     L,
@@ -116,7 +123,8 @@ export function integratedAgent(input?: { L?: number; B?: number }): {
 
 export default experiment({
   id: 'selves/p153-integrated-agent',
-  title: 'the closed perceive-plan-act loop crosses a sequence of barriers, beating reactive and one-shot',
+  title:
+    'the closed perceive-plan-act loop crosses a sequence of barriers, beating reactive and one-shot',
   category: 'selves',
   substrates: 'any',
   depth: 'L3',
@@ -124,7 +132,10 @@ export default experiment({
   run() {
     const r = integratedAgent({ L: 80, B: 4 })
     const ok =
-      r.solved && r.integratedReached && !r.reactiveReached && r.integratedReplans >= r.B - 1
+      r.solved &&
+      r.integratedReached &&
+      !r.reactiveReached &&
+      r.integratedReplans >= r.B - 1
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

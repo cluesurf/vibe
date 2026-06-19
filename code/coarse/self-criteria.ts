@@ -3,7 +3,11 @@
 // interior regenerates the boundary), and a cognitive light cone (it corrects perturbations within a
 // radius). This module gives the statistical primitives, the experiments supply the dynamics and controls.
 
-export type Graph = { cellCount: number; offsets: Int32Array; adj: Int32Array }
+export type Graph = {
+  cellCount: number
+  offsets: Int32Array
+  adj: Int32Array
+}
 
 // Pearson correlation of two equal-length series.
 export function correlation(x: number[], y: number[]): number {
@@ -33,7 +37,11 @@ export function correlation(x: number[], y: number[]): number {
 
 // Partial correlation of x and y controlling for z. Near zero means z screens x from y, the Markov-blanket
 // signature when z is the shell, x the interior, and y the exterior.
-export function partialCorrelation(x: number[], y: number[], z: number[]): number {
+export function partialCorrelation(
+  x: number[],
+  y: number[],
+  z: number[],
+): number {
   const rxy = correlation(x, y)
   const rxz = correlation(x, z)
   const ryz = correlation(y, z)
@@ -50,7 +58,9 @@ export function blanketScreening(input: {
   exterior: number[]
 }): { raw: number; screened: number; reduction: number } {
   const raw = Math.abs(correlation(input.interior, input.exterior))
-  const screened = Math.abs(partialCorrelation(input.interior, input.exterior, input.shell))
+  const screened = Math.abs(
+    partialCorrelation(input.interior, input.exterior, input.shell),
+  )
   const reduction = raw > 1e-6 ? (raw - screened) / raw : 0
   return { raw, screened, reduction }
 }
@@ -82,7 +92,10 @@ export function regionPartition(input: {
 }
 
 // Graph distances from a source cell by breadth-first search, used to size a cognitive light cone.
-export function distancesFrom(input: { graph: Graph; source: number }): Int32Array {
+export function distancesFrom(input: {
+  graph: Graph
+  source: number
+}): Int32Array {
   const { graph, source } = input
   const dist = new Int32Array(graph.cellCount).fill(-1)
   dist[source] = 0

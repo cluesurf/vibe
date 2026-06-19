@@ -31,7 +31,11 @@ import { verdict } from '@/test/scaffold/verdict'
 export function synchronicity(input: { seed: number }): {
   sharedCorrelation: number
   unrelatedCorrelation: number
-  divergenceSweep: { d: number; correlation: number; ancestry: number }[]
+  divergenceSweep: {
+    d: number
+    correlation: number
+    ancestry: number
+  }[]
   tracksAncestry: boolean
   monotoneDecreasing: boolean
   hasDirectLink: boolean
@@ -41,14 +45,34 @@ export function synchronicity(input: { seed: number }): {
   const K = 4
   const windows = 16
   const root = storedPatterns(K, size, makeRng({ seed: input.seed }))
-  const modeSeq = Array.from({ length: windows }, (_, i) => makeRng({ seed: input.seed + 7 + i }).nextInt({ max: K }))
+  const modeSeq = Array.from({ length: windows }, (_, i) =>
+    makeRng({ seed: input.seed + 7 + i }).nextInt({ max: K }),
+  )
 
-  const sweep = [0, 0.15, 0.3, 0.5, 0.75].map((d) => {
-    const pA = root.map((p, i) => mutatePattern({ pattern: p, rate: d, rng: makeRng({ seed: input.seed + 100 + i }) }))
-    const pB = root.map((p, i) => mutatePattern({ pattern: p, rate: d, rng: makeRng({ seed: input.seed + 200 + i }) }))
+  const sweep = [0, 0.15, 0.3, 0.5, 0.75].map(d => {
+    const pA = root.map((p, i) =>
+      mutatePattern({
+        pattern: p,
+        rate: d,
+        rng: makeRng({ seed: input.seed + 100 + i }),
+      }),
+    )
+    const pB = root.map((p, i) =>
+      mutatePattern({
+        pattern: p,
+        rate: d,
+        rng: makeRng({ seed: input.seed + 200 + i }),
+      }),
+    )
     return {
       d,
-      correlation: runPair({ size, pA, pB, modeSeq, seed: input.seed + 10 }),
+      correlation: runPair({
+        size,
+        pA,
+        pB,
+        modeSeq,
+        seed: input.seed + 10,
+      }),
       ancestry: patternOverlap(pA, pB),
     }
   })
@@ -56,15 +80,36 @@ export function synchronicity(input: { seed: number }): {
   // "Shared" uses a GENUINE divergence (d = 0.15): A and B are different systems (about 71% overlap),
   // not a copy, yet still strongly correlated through their common root.
   const sharedCorrelation = sweep[1]?.correlation ?? 0
-  const uA = storedPatterns(K, size, makeRng({ seed: input.seed + 300 }))
-  const uB = storedPatterns(K, size, makeRng({ seed: input.seed + 400 }))
-  const unrelatedCorrelation = runPair({ size, pA: uA, pB: uB, modeSeq, seed: input.seed + 10 })
+  const uA = storedPatterns(
+    K,
+    size,
+    makeRng({ seed: input.seed + 300 }),
+  )
+  const uB = storedPatterns(
+    K,
+    size,
+    makeRng({ seed: input.seed + 400 }),
+  )
+  const unrelatedCorrelation = runPair({
+    size,
+    pA: uA,
+    pB: uB,
+    modeSeq,
+    seed: input.seed + 10,
+  })
 
   // The correlation tracks the inherited ancestry (|corr - overlap| small at every divergence).
-  const tracksAncestry = sweep.every((s) => Math.abs(s.correlation - s.ancestry) < 0.1)
+  const tracksAncestry = sweep.every(
+    s => Math.abs(s.correlation - s.ancestry) < 0.1,
+  )
   // And it falls monotonically as the two diverge from the common root.
   let monotoneDecreasing = true
-  for (let i = 1; i < sweep.length; i++) if ((sweep[i]?.correlation ?? 0) > (sweep[i - 1]?.correlation ?? 1) + 0.02) monotoneDecreasing = false
+  for (let i = 1; i < sweep.length; i++)
+    if (
+      (sweep[i]?.correlation ?? 0) >
+      (sweep[i - 1]?.correlation ?? 1) + 0.02
+    )
+      monotoneDecreasing = false
 
   return {
     sharedCorrelation,

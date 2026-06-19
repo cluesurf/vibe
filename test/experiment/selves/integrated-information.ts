@@ -14,7 +14,10 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 import { undirectedAdjacency } from '@/code/tool/substrate'
-import { toneIntegration, algebraicConnectivity } from '@/code/measure/integration'
+import {
+  toneIntegration,
+  algebraicConnectivity,
+} from '@/code/measure/integration'
 import { modularMesh } from '@/code/substrate/modular-mesh'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
@@ -25,7 +28,14 @@ function tonePhi(
   rng: Rng,
   fillOf?: (a: number, b: number) => number,
 ): number {
-  return toneIntegration({ adjacency, region, rng, fillOf, samples: 24, bipartitions: 16 })
+  return toneIntegration({
+    adjacency,
+    region,
+    rng,
+    fillOf,
+    samples: 24,
+    bipartitions: 16,
+  })
 }
 
 function randomSubset(n: number, size: number, rng: Rng): number[] {
@@ -48,7 +58,13 @@ export function integratedInformation(input: { seed: number }): {
   const numCells = 12
   const cellSize = 20
   const rng = makeRng({ seed: input.seed })
-  const { g, cellOf } = modularMesh({ numCells, cellSize, intraDegree: 6, interPerCell: 2, rng })
+  const { g, cellOf } = modularMesh({
+    numCells,
+    cellSize,
+    intraDegree: 6,
+    interPerCell: 2,
+    rng,
+  })
   const adjacency = undirectedAdjacency({ substrate: g })
 
   const members: number[][] = Array.from({ length: numCells }, () => [])
@@ -56,11 +72,14 @@ export function integratedInformation(input: { seed: number }): {
 
   // (1) tone-integration of genuine selves (cells) versus random same-size bags.
   const pr = makeRng({ seed: input.seed + 3 })
-  const cellPhis = members.map((m) => tonePhi(adjacency, m, pr))
+  const cellPhis = members.map(m => tonePhi(adjacency, m, pr))
   const phiCell = cellPhis.reduce((a, b) => a + b, 0) / cellPhis.length
   const rr = makeRng({ seed: input.seed + 5 })
-  const randomPhis = Array.from({ length: numCells }, () => tonePhi(adjacency, randomSubset(g.size, cellSize, rr), pr))
-  const phiRandom = randomPhis.reduce((a, b) => a + b, 0) / randomPhis.length
+  const randomPhis = Array.from({ length: numCells }, () =>
+    tonePhi(adjacency, randomSubset(g.size, cellSize, rr), pr),
+  )
+  const phiRandom =
+    randomPhis.reduce((a, b) => a + b, 0) / randomPhis.length
 
   // (2) local maximum: swap some cell members for outsiders and confirm tone-integration drops.
   let higher = 0
@@ -78,7 +97,8 @@ export function integratedInformation(input: { seed: number }): {
       perturbed[i] = out
     }
     trials++
-    if (tonePhi(adjacency, mem, pm) > tonePhi(adjacency, perturbed, pm)) higher++
+    if (tonePhi(adjacency, mem, pm) > tonePhi(adjacency, perturbed, pm))
+      higher++
   }
   const localMaxFraction = higher / Math.max(1, trials)
 
@@ -89,12 +109,18 @@ export function integratedInformation(input: { seed: number }): {
   const cellFull = members[0] ?? []
   const cell = [...cellFull].sort((a, b) => a - b).slice(0, 12) // small region: exhaustive MIP search
   const half = new Set(cell.slice(0, 6))
-  const sameHalf = (a: number, b: number): boolean => half.has(a) === half.has(b)
+  const sameHalf = (a: number, b: number): boolean =>
+    half.has(a) === half.has(b)
   const dr = makeRng({ seed: input.seed + 21 })
   const tonePhiFull = tonePhi(adjacency, cell, dr)
   const dr2 = makeRng({ seed: input.seed + 21 }) // same seed: only the fills differ
-  const tonePhiFillsCut = tonePhi(adjacency, cell, dr2, (a, b) => (sameHalf(a, b) ? 1 : 0))
-  const structuralFull = algebraicConnectivity({ adjacency, region: new Set(cell) })
+  const tonePhiFillsCut = tonePhi(adjacency, cell, dr2, (a, b) =>
+    sameHalf(a, b) ? 1 : 0,
+  )
+  const structuralFull = algebraicConnectivity({
+    adjacency,
+    region: new Set(cell),
+  })
   // the structural measure does not even take fills, so it is unchanged by construction
   const structuralPhiUnchanged = structuralFull > 0
   const readsDynamics = tonePhiFillsCut < 0.35 * tonePhiFull
@@ -112,13 +138,18 @@ export function integratedInformation(input: { seed: number }): {
     // Solved: selves are far more tone-integrated than random bags, a self is a local maximum, and
     // the measure provably reads the dynamics (cutting the fills collapses it though the wiring,
     // and the structural measure, are unchanged).
-    solved: separation > 3 && localMaxFraction > 0.7 && readsDynamics && structuralPhiUnchanged,
+    solved:
+      separation > 3 &&
+      localMaxFraction > 0.7 &&
+      readsDynamics &&
+      structuralPhiUnchanged,
   }
 }
 
 export default experiment({
   id: 'selves/integrated-information',
-  title: 'selves are tone-integration local maxima and the measure reads the dynamics',
+  title:
+    'selves are tone-integration local maxima and the measure reads the dynamics',
   category: 'selves',
   substrates: 'any',
   depth: 'L3',

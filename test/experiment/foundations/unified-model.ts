@@ -36,9 +36,21 @@ export function unifiedModel(input?: { n?: number }): {
   // ONE canonical run
   const tone = new Int8Array(N)
   const rng = makeRng({ seed: 7 })
-  for (let i = 0; i < N; i++) tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
+  for (let i = 0; i < N; i++)
+    tone[i] = (rng.next() < 0.25 ? (rng.next() < 0.5 ? 1 : -1) : 0) as
+      | -1
+      | 0
+      | 1
   const q0 = sumQ(tone)
-  for (let t = 0; t < 80; t++) conservingEdgeSweep({ tone: tone, eu, ev, moved, rng: rng, arrow: arrow })
+  for (let t = 0; t < 80; t++)
+    conservingEdgeSweep({
+      tone: tone,
+      eu,
+      ev,
+      moved,
+      rng: rng,
+      arrow: arrow,
+    })
 
   // (1) conservation, Q unchanged across the whole run
   const conserved = sumQ(tone) === q0
@@ -47,15 +59,36 @@ export function unifiedModel(input?: { n?: number }): {
   // (2b) dead without the arrow, a control run with arrow=0 relaxes toward peace
   const dead = new Int8Array(N)
   const rngD = makeRng({ seed: 7 })
-  for (let i = 0; i < N; i++) dead[i] = (rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0) as -1 | 0 | 1
-  for (let t = 0; t < 80; t++) conservingEdgeSweep({ tone: dead, eu, ev, moved, rng: rngD, arrow: 0 })
+  for (let i = 0; i < N; i++)
+    dead[i] = (
+      rngD.next() < 0.25 ? (rngD.next() < 0.5 ? 1 : -1) : 0
+    ) as -1 | 0 | 1
+  for (let t = 0; t < 80; t++)
+    conservingEdgeSweep({
+      tone: dead,
+      eu,
+      ev,
+      moved,
+      rng: rngD,
+      arrow: 0,
+    })
   const deadWithoutArrow = density(dead) < density(tone) * 0.5
 
   // (3) lightcone, a perturbation spreads at a bounded finite speed (same RNG copies, position-indexed not
   // needed here, use the front radius growth)
   let center = 0
-  for (let i = 1; i < N; i++) if (g.offsets[i + 1]! - g.offsets[i]! > g.offsets[center + 1]! - g.offsets[center]!) center = i
-  const distC = csrDistances({ offsets: g.offsets, adj: g.adj, size: N, source: center })
+  for (let i = 1; i < N; i++)
+    if (
+      g.offsets[i + 1]! - g.offsets[i]! >
+      g.offsets[center + 1]! - g.offsets[center]!
+    )
+      center = i
+  const distC = csrDistances({
+    offsets: g.offsets,
+    adj: g.adj,
+    size: N,
+    source: center,
+  })
   const s = tone.slice()
   const s2 = tone.slice()
   s2[center] = (s2[center]! === 0 ? 1 : 0) as -1 | 0 | 1
@@ -63,11 +96,26 @@ export function unifiedModel(input?: { n?: number }): {
   const rb = makeRng({ seed: 99 })
   const T = 4
   for (let t = 0; t < T; t++) {
-    conservingEdgeSweep({ tone: s, eu, ev, moved, rng: ra, arrow: arrow })
-    conservingEdgeSweep({ tone: s2, eu, ev, moved, rng: rb, arrow: arrow })
+    conservingEdgeSweep({
+      tone: s,
+      eu,
+      ev,
+      moved,
+      rng: ra,
+      arrow: arrow,
+    })
+    conservingEdgeSweep({
+      tone: s2,
+      eu,
+      ev,
+      moved,
+      rng: rb,
+      arrow: arrow,
+    })
   }
   let front = 0
-  for (let i = 0; i < N; i++) if (s[i] !== s2[i] && distC[i]! > front) front = distC[i]!
+  for (let i = 0; i < N; i++)
+    if (s[i] !== s2[i] && distC[i]! > front) front = distC[i]!
   const speed = front / T
   const lightcone = speed > 0 && speed < 4 // a finite, bounded propagation speed
 
@@ -78,19 +126,30 @@ export function unifiedModel(input?: { n?: number }): {
   const sample: number[] = []
   for (let k = 0; k < eu.length; k += 3) sample.push(k)
   for (let b = 0; b < 60; b++) {
-    const pre = sample.map((k) => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))
-    conservingEdgeSweep({ tone: tone, eu, ev, moved, rng: rng, arrow: arrow })
+    const pre = sample.map(
+      k => st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!),
+    )
+    conservingEdgeSweep({
+      tone: tone,
+      eu,
+      ev,
+      moved,
+      rng: rng,
+      arrow: arrow,
+    })
     for (let i = 0; i < sample.length; i++) {
       const k = sample[i]!
-      C[pre[i]! * S9 + (st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))]! += 1
+      C[pre[i]! * S9 + (st(tone[eu[k]!]!) * 3 + st(tone[ev[k]!]!))]! +=
+        1
     }
   }
   let asym = 0
   let total = 0
-  for (let a = 0; a < S9; a++) for (let bb = a + 1; bb < S9; bb++) {
-    asym += Math.abs(C[a * S9 + bb]! - C[bb * S9 + a]!)
-    total += C[a * S9 + bb]! + C[bb * S9 + a]!
-  }
+  for (let a = 0; a < S9; a++)
+    for (let bb = a + 1; bb < S9; bb++) {
+      asym += Math.abs(C[a * S9 + bb]! - C[bb * S9 + a]!)
+      total += C[a * S9 + bb]! + C[bb * S9 + a]!
+    }
   const reversible = total > 0 && asym / total < 0.15
 
   // (5) coherence, neighbours are correlated (structure, not white noise), the seed of selves
@@ -104,15 +163,32 @@ export function unifiedModel(input?: { n?: number }): {
   const nnCorr = cc / cnt
   const coherent = Math.abs(nnCorr) > 0.001 // nonzero spatial structure
 
-  const allTogether = conserved && alive && deadWithoutArrow && lightcone && reversible && coherent
+  const allTogether =
+    conserved &&
+    alive &&
+    deadWithoutArrow &&
+    lightcone &&
+    reversible &&
+    coherent
   const solved = allTogether
 
-  return { n: N, conserved, alive, deadWithoutArrow, lightcone, reversible, coherent, allTogether, solved }
+  return {
+    n: N,
+    conserved,
+    alive,
+    deadWithoutArrow,
+    lightcone,
+    reversible,
+    coherent,
+    allTogether,
+    solved,
+  }
 }
 
 export default experiment({
   id: 'foundations/unified-model',
-  title: 'one mesh and one rule produce all the key phenomena together in one run',
+  title:
+    'one mesh and one rule produce all the key phenomena together in one run',
   category: 'foundations',
   substrates: ['534'],
   depth: 'L2',
@@ -134,10 +210,14 @@ export default experiment({
         'the canonical rule on one {5,3,4} mesh shows conservation, life versus dead peace, a finite lightcone, reversibility, and spatial coherence in a single run',
       metrics: {
         cells: r.n,
-        phenomenaSatisfied:
-          [r.conserved, r.alive, r.deadWithoutArrow, r.lightcone, r.reversible, r.coherent].filter(
-            (x) => x,
-          ).length,
+        phenomenaSatisfied: [
+          r.conserved,
+          r.alive,
+          r.deadWithoutArrow,
+          r.lightcone,
+          r.reversible,
+          r.coherent,
+        ].filter(x => x).length,
       },
     })
   },

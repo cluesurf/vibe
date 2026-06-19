@@ -12,7 +12,10 @@
 
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
-import { gutScaleAndCoupling, protonLifetimeYears } from '@/code/dynamics/renormalization-group'
+import {
+  gutScaleAndCoupling,
+  protonLifetimeYears,
+} from '@/code/dynamics/renormalization-group'
 
 const ALPHA_EM_INVERSE = 127.95
 const ALPHA_STRONG_INVERSE = 1 / 0.1184
@@ -24,20 +27,32 @@ const NEXT_GENERATION_REACH_YEARS = 1e35 // roughly Hyper-Kamiokande class
 
 export default experiment({
   id: 'gauge/proton-lifetime',
-  title: 'the proton lifetime is fixed by the GUT scale at about 1e36 years, above the bound and falsifiable',
+  title:
+    'the proton lifetime is fixed by the GUT scale at about 1e36 years, above the bound and falsifiable',
   category: 'gauge',
   substrates: 'any',
   depth: 'L3',
   paper: true,
   run() {
-    const inputs = { alphaEmInverse: ALPHA_EM_INVERSE, alphaStrongInverse: ALPHA_STRONG_INVERSE, sin2: SIN2_MEASURED }
+    const inputs = {
+      alphaEmInverse: ALPHA_EM_INVERSE,
+      alphaStrongInverse: ALPHA_STRONG_INVERSE,
+      sin2: SIN2_MEASURED,
+    }
 
     const mssm = gutScaleAndCoupling({ ...inputs, beta: BETA_MSSM })
     const sm = gutScaleAndCoupling({ ...inputs, beta: BETA_SM })
-    const tauMSSM = protonLifetimeYears({ gutScaleGeV: mssm.gutScaleGeV, unifiedInverseCoupling: mssm.unifiedInverseCoupling })
-    const tauSM = protonLifetimeYears({ gutScaleGeV: sm.gutScaleGeV, unifiedInverseCoupling: sm.unifiedInverseCoupling })
+    const tauMSSM = protonLifetimeYears({
+      gutScaleGeV: mssm.gutScaleGeV,
+      unifiedInverseCoupling: mssm.unifiedInverseCoupling,
+    })
+    const tauSM = protonLifetimeYears({
+      gutScaleGeV: sm.gutScaleGeV,
+      unifiedInverseCoupling: sm.unifiedInverseCoupling,
+    })
 
-    const log10 = (x: number): number => Math.round(Math.log10(x) * 10) / 10
+    const log10 = (x: number): number =>
+      Math.round(Math.log10(x) * 10) / 10
 
     // the prediction (MSSM-like content), above the current bound and within next-generation reach
     const aboveBound = tauMSSM > EXPERIMENTAL_BOUND_YEARS
@@ -47,7 +62,11 @@ export default experiment({
     // the control, no X/Y leptoquarks means no dimension-six operator, so no decay at all (infinite lifetime)
     const decaysWithoutLeptoquarks = false
 
-    const ok = aboveBound && withinReach && smExcluded && !decaysWithoutLeptoquarks
+    const ok =
+      aboveBound &&
+      withinReach &&
+      smExcluded &&
+      !decaysWithoutLeptoquarks
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
@@ -59,7 +78,11 @@ export default experiment({
         log10GutScaleMSSM: log10(mssm.gutScaleGeV),
         gutInverseCouplingMSSM: Math.round(mssm.unifiedInverseCoupling),
       },
-      control: { protonDecaysWithoutLeptoquarks: decaysWithoutLeptoquarks ? 1 : 0 },
+      control: {
+        protonDecaysWithoutLeptoquarks: decaysWithoutLeptoquarks
+          ? 1
+          : 0,
+      },
       notes:
         'a genuine falsifiable number, fixed once the GUT scale is fixed. The MSSM-content lifetime (about 1e36 years) is above the current bound and a target for next-generation detectors. The bare-SM scale gives an excluded lifetime, consistent with the SM not unifying (gauge/rg-unification). The order-of-magnitude estimate carries an O(1) hadronic matrix-element factor. The no-leptoquark control gives no decay (infinite lifetime).',
     })

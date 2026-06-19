@@ -40,13 +40,14 @@ export function csrVoronoiBlocks(input: {
   }
   while (fr.length > 0) {
     const next: number[] = []
-    for (const u of fr) for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
-      const w = adj[p]!
-      if (blockOf[w] === -1) {
-        blockOf[w] = blockOf[u]!
-        next.push(w)
+    for (const u of fr)
+      for (let p = offsets[u]!; p < offsets[u + 1]!; p++) {
+        const w = adj[p]!
+        if (blockOf[w] === -1) {
+          blockOf[w] = blockOf[u]!
+          next.push(w)
+        }
       }
-    }
     fr = next
   }
   return { blockOf, numBlocks: numSeeds }
@@ -55,7 +56,11 @@ export function csrVoronoiBlocks(input: {
 // Geometric (tone-independent) blocks: scatter ~size^-1 seeds, grow each by multi-source BFS until the
 // whole graph is claimed, leftover unreached cells become singleton blocks. Returns the block index per
 // cell and the total block count.
-export function geometricBlocks(g: Graph, blockSize: number, rng: Rng): { cl: Int32Array; K: number } {
+export function geometricBlocks(
+  g: Graph,
+  blockSize: number,
+  rng: Rng,
+): { cl: Int32Array; K: number } {
   const n = g.size
   const numSeeds = Math.max(2, Math.floor(n / blockSize))
   const seedSet = new Set<number>()
@@ -85,7 +90,10 @@ export function geometricBlocks(g: Graph, blockSize: number, rng: Rng): { cl: In
 
 // Domain blocks: connected regions of one tone (the coherent domains of the field). Each block is
 // internally uniform, so the mean-field closure (a member is its block's tone) is exact on them.
-export function domainBlocks(g: Graph, tone: Int8Array): { cl: Int32Array; K: number } {
+export function domainBlocks(
+  g: Graph,
+  tone: Int8Array,
+): { cl: Int32Array; K: number } {
   const n = g.size
   const cl = new Int32Array(n).fill(-1)
   let K = 0
@@ -112,13 +120,17 @@ export function domainBlocks(g: Graph, tone: Int8Array): { cl: Int32Array; K: nu
 
 // Symmetric coherence-tunable edge fills: each undirected edge gets +1 with probability p else -1,
 // written to both half-edges. p = 0.5 is frustrated, p -> 1 is ordered (coherent domains form).
-export function coherentFills(g: Graph, p: number, rng: Rng): Int8Array[] {
-  const indexOf = g.neighbors.map((row) => {
+export function coherentFills(
+  g: Graph,
+  p: number,
+  rng: Rng,
+): Int8Array[] {
+  const indexOf = g.neighbors.map(row => {
     const m = new Map<number, number>()
     for (let k = 0; k < row.length; k++) m.set(row[k] ?? -1, k)
     return m
   })
-  const fills = g.neighbors.map((row) => new Int8Array(row.length))
+  const fills = g.neighbors.map(row => new Int8Array(row.length))
   for (let v = 0; v < g.size; v++) {
     const row = g.neighbors[v] ?? new Uint32Array(0)
     for (let k = 0; k < row.length; k++) {

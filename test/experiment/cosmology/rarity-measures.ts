@@ -14,19 +14,34 @@
 // Together with P181's cascade and extrapolation, these show the model's rarity has the SAME structure
 // that makes life cosmically rare. Run: npx tsx code/experiment/p183-rarity-measures.ts
 
-import { flatGraph, beat, positiveClusters, clusterIntegration, type Graph } from '@/code/model/self-kit'
+import {
+  flatGraph,
+  beat,
+  positiveClusters,
+  clusterIntegration,
+  type Graph,
+} from '@/code/model/self-kit'
 import { boxCountingDimension } from '@/code/measure/dimension'
 import { makeRng } from '@/code/tool/rng'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-function evolve(g: Graph, L: number, density: number, beats: number, seed: number): Int8Array {
+function evolve(
+  g: Graph,
+  L: number,
+  density: number,
+  beats: number,
+  seed: number,
+): Int8Array {
   const N = g.cellCount
   const rng = makeRng({ seed })
   const tone = new Int8Array(N)
   for (let i = 0; i < N; i++) {
     const r = rng.next()
-    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0) as -1 | 0 | 1
+    tone[i] = (r < density ? 1 : r < density * 1.3 ? -1 : 0) as
+      | -1
+      | 0
+      | 1
   }
   const moved = new Uint8Array(N)
   for (let t = 0; t < beats; t++) beat(tone, g, moved, rng, 0.01, 0.22)
@@ -70,12 +85,19 @@ export function rarityMeasures(input?: { L?: number }): {
       lowPhiMass += c.length
     }
   }
-  const phiTailFraction = totalCharge > 0 ? phiTailMass / totalCharge : 0
+  const phiTailFraction =
+    totalCharge > 0 ? phiTailMass / totalCharge : 0
   const lowPhiFraction = totalCharge > 0 ? lowPhiMass / totalCharge : 0
   const spectrumTailRare = phiTailFraction < 0.2 && lowPhiFraction > 0.5
 
-  const matterDimension = boxCountingDimension({ cells: matterCells, sideLength: L })
-  const aliveDimension = boxCountingDimension({ cells: aliveCells, sideLength: L })
+  const matterDimension = boxCountingDimension({
+    cells: matterCells,
+    sideLength: L,
+  })
+  const aliveDimension = boxCountingDimension({
+    cells: aliveCells,
+    sideLength: L,
+  })
   const thinFilm = aliveDimension < matterDimension - 0.3
 
   // --- (4) density threshold for condensation ---
@@ -88,7 +110,8 @@ export function rarityMeasures(input?: { L?: number }): {
     let condensed = 0
     for (const c of cs) {
       charge += c.length
-      if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive) condensed += c.length
+      if (c.length >= 6 && clusterIntegration(c, g) >= phiAlive)
+        condensed += c.length
     }
     condensedByDensity.push(charge > 0 ? condensed / charge : 0)
   }
@@ -101,7 +124,10 @@ export function rarityMeasures(input?: { L?: number }): {
   const maxCondensed = Math.max(...condensedByDensity)
   // a threshold, condensation is OFF (negligible) at low density and turns ON (rises clearly) above it.
   // Note it stays MODEST even when on (life rare even with abundant matter), which reinforces the thesis.
-  const thresholdExists = condensedByDensity[0]! < 0.01 && maxCondensed > 0.04 && maxCondensed > condensedByDensity[0]! + 0.03
+  const thresholdExists =
+    condensedByDensity[0]! < 0.01 &&
+    maxCondensed > 0.04 &&
+    maxCondensed > condensedByDensity[0]! + 0.03
 
   const solved = spectrumTailRare && thinFilm && thresholdExists
   return {
@@ -122,14 +148,16 @@ export function rarityMeasures(input?: { L?: number }): {
 
 export default experiment({
   id: 'cosmology/rarity-measures',
-  title: 'three independent measures confirm life is a rare, thin, threshold-gated tail of matter',
+  title:
+    'three independent measures confirm life is a rare, thin, threshold-gated tail of matter',
   category: 'cosmology',
   substrates: 'any',
   depth: 'L3',
   paper: true,
   run() {
     const r = rarityMeasures({ L: 200 })
-    const ok = r.solved && r.spectrumTailRare && r.thinFilm && r.thresholdExists
+    const ok =
+      r.solved && r.spectrumTailRare && r.thinFilm && r.thresholdExists
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

@@ -11,22 +11,36 @@ import { mostConnectedNode } from '@/code/tool/graph'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function s53333Physics(): { betheAlpha: number; growthRatio: number; spaceGravityExp: number } {
-  const g = buildCellGraph({ symbol: [5, 3, 3, 3, 3] as never, maxCells: 6000 })
+export function s53333Physics(): {
+  betheAlpha: number
+  growthRatio: number
+  spaceGravityExp: number
+} {
+  const g = buildCellGraph({
+    symbol: [5, 3, 3, 3, 3] as never,
+    maxCells: 6000,
+  })
   const nb = g.neighbors
   const center = mostConnectedNode(nb)
   const betheAlpha = betheCorrelatorExponent(nb[center]!.length)
   // cosmology + hierarchy, bulk shell growth
   const shell = bfsShells({ neighbors: nb, root: center }).shellCounts
-  const growthRatio = shellGrowthRatio({ shellCounts: shell, from: 1, to: 4, safeDenominator: true })
+  const growthRatio = shellGrowthRatio({
+    shellCounts: shell,
+    from: 1,
+    to: 4,
+    safeDenominator: true,
+  })
   // physical-space gravity exponent, the flat layer is 4D, so the Laplacian Green's function ~ 1/r^(d-2) = 1/r^2
-  const spaceDim = 4, spaceGravityExp = spaceDim - 2
+  const spaceDim = 4,
+    spaceGravityExp = spaceDim - 2
   return { betheAlpha, growthRatio, spaceGravityExp }
 }
 
 export default experiment({
   id: 'substrate-survey/s53333-physics',
-  title: 'the holographic correlator and cosmology port to {5,3,3,3,3}, but physical-space gravity is 4D (1/r^2, over-dimensional)',
+  title:
+    'the holographic correlator and cosmology port to {5,3,3,3,3}, but physical-space gravity is 4D (1/r^2, over-dimensional)',
   category: 'substrate-survey',
   substrates: ['53333'],
   depth: 'L1',

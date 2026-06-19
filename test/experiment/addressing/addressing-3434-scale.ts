@@ -12,7 +12,12 @@
 //
 // Run: npx tsx --no-warnings=ExperimentalWarning code/experiment/addressing-3434-scale.ts [maxCellsList]
 
-import { buildAddressing, buildConfluenceAutomaton, decode, predictAltParents } from '@/code/substrate/coxeter/addressing-3434'
+import {
+  buildAddressing,
+  buildConfluenceAutomaton,
+  decode,
+  predictAltParents,
+} from '@/code/substrate/coxeter/addressing-3434'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
@@ -44,7 +49,8 @@ function checkAt(maxCells: number): Report {
   let cousins = 0
   for (let c = 0; c < n; c++) {
     if (!a.complete[c]) continue
-    for (const v of a.graph.neighbors[c]!) if (a.dist[v] === a.dist[c]) cousins++
+    for (const v of a.graph.neighbors[c]!)
+      if (a.dist[v] === a.dist[c]) cousins++
   }
 
   // confluence automaton at the ADAPTIVE window K = deepest_full_shell - 1. The confluence LCA branch
@@ -82,7 +88,12 @@ function checkAt(maxCells: number): Report {
   for (let c = 0; c < n; c++) {
     if (!a.complete[c]) continue
     totalComplete++
-    const predicted = new Set<number>([a.parent[c]!, ...a.children[c]!, ...a.altParents[c]!, ...a.altChildren[c]!])
+    const predicted = new Set<number>([
+      a.parent[c]!,
+      ...a.children[c]!,
+      ...a.altParents[c]!,
+      ...a.altChildren[c]!,
+    ])
     const truth = a.graph.neighbors[c]!
     let ok = predicted.size === truth.length
     if (ok) for (const v of truth) if (!predicted.has(v)) ok = false
@@ -90,7 +101,9 @@ function checkAt(maxCells: number): Report {
   }
 
   const deepestFullShell = a.shellComplete
-  const shellRatio = a.shellSizes[deepestFullShell]! / a.shellSizes[deepestFullShell - 1]!
+  const shellRatio =
+    a.shellSizes[deepestFullShell]! /
+    a.shellSizes[deepestFullShell - 1]!
 
   return {
     maxCells,
@@ -112,7 +125,8 @@ function checkAt(maxCells: number): Report {
 
 export default experiment({
   id: 'addressing/addressing-3434-scale',
-  title: 'the {3,4,3,4} addressing invariants survive growth, clean at two build sizes',
+  title:
+    'the {3,4,3,4} addressing invariants survive growth, clean at two build sizes',
   category: 'addressing',
   substrates: ['3434'],
   depth: 'L1',

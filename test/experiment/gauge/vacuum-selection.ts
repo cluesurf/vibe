@@ -6,27 +6,40 @@
 // su(5)), so the discrete selection gives so(10) -> su(5) -> SM. No continuum, just counting discrete roots and
 // weights. Run: npx tsx code/experiment/p227-vacuum-selection.ts
 
-import { rootsDn, dotVec as dot, spinorWeightsDn } from '@/code/algebra/group/root-system'
+import {
+  rootsDn,
+  dotVec as dot,
+  spinorWeightsDn,
+} from '@/code/algebra/group/root-system'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-export function vacuumSelection(): { maxUnbroken: number; singletWins: boolean } {
-  const roots = rootsDn(5), weights = spinorWeightsDn(5)
+export function vacuumSelection(): {
+  maxUnbroken: number
+  singletWins: boolean
+} {
+  const roots = rootsDn(5),
+    weights = spinorWeightsDn(5)
   // for each discrete weight, count unbroken so(10) roots (orthogonal to the VEV direction)
-  const scored = weights.map((w) => ({ w, unbroken: roots.filter((r) => dot(r, w) === 0).length, minus: w.filter((x) => x < 0).length }))
-  const maxUnbroken = Math.max(...scored.map((s) => s.unbroken))
+  const scored = weights.map(w => ({
+    w,
+    unbroken: roots.filter(r => dot(r, w) === 0).length,
+    minus: w.filter(x => x < 0).length,
+  }))
+  const maxUnbroken = Math.max(...scored.map(s => s.unbroken))
   // group by minus-count (the su(5) multiplet structure: 0->singlet, 2->10, 4->5bar)
   const byMinus: Record<number, number> = {}
   for (const s of scored) byMinus[s.minus] = s.unbroken // same within a multiplet
   // every spinor weight preserves exactly 20 roots: they are Weyl-equivalent, each preserves a (conjugate) su(5)
-  const allGiveSu5 = scored.every((s) => s.unbroken === 20)
+  const allGiveSu5 = scored.every(s => s.unbroken === 20)
   const singletWins = allGiveSu5
   return { maxUnbroken, singletWins }
 }
 
 export default experiment({
   id: 'gauge/vacuum-selection',
-  title: 'every one of the 16 spinor weights leaves 20 unbroken roots, so any self-condensate breaks so(10) to su(5)',
+  title:
+    'every one of the 16 spinor weights leaves 20 unbroken roots, so any self-condensate breaks so(10) to su(5)',
   category: 'gauge',
   substrates: ['3434'],
   depth: 'L1',

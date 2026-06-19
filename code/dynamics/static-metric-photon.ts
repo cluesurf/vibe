@@ -10,7 +10,10 @@
 
 // The self-consistent bootstrap of the spatial metric at radius scaled by x = r_s / r, returning the sequence of
 // iterates B_n (B_{n+1} = 1 + x B_n, starting at 1), which converges to 1/(1 - x), the resummed g_rr.
-export function spatialMetricBootstrap(input: { x: number; iterations: number }): number[] {
+export function spatialMetricBootstrap(input: {
+  x: number
+  iterations: number
+}): number[] {
   const trail: number[] = []
   let b = 1
   for (let n = 0; n < input.iterations; n++) {
@@ -32,7 +35,8 @@ export function staticMetricPhotonDeflection(input: {
   const rs = input.schwarzschildRadius
   const b = input.impactParameter
   const aOf = (u: number): number => 1 - rs * u
-  const bOf = (u: number): number => (input.spatialMetric === 'full' ? 1 / (1 - rs * u) : 1)
+  const bOf = (u: number): number =>
+    input.spatialMetric === 'full' ? 1 / (1 - rs * u) : 1
   const f = (u: number): number => 1 / (aOf(u) * b * b) - u * u
 
   // the turning point, the first positive root of f in (0, 1/r_s)
@@ -67,7 +71,8 @@ export function staticMetricPhotonDeflection(input: {
     const u = uMax - wi * wi
     const value = f(u)
     if (value <= 0) continue
-    integral += ((2 * wi * Math.sqrt(bOf(u))) / Math.sqrt(value)) * (w / samples)
+    integral +=
+      ((2 * wi * Math.sqrt(bOf(u))) / Math.sqrt(value)) * (w / samples)
   }
   return 2 * integral - Math.PI
 }

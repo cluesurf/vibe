@@ -14,7 +14,15 @@ import { renderSceneToRgba } from '@/code/render/adapter/raster'
 import { encodeGif } from '@/code/draw/gif'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const outDir = join(here, '..', '..', '..', 'make', 'render', 'flythrough-4d')
+const outDir = join(
+  here,
+  '..',
+  '..',
+  '..',
+  'make',
+  'render',
+  'flythrough-4d',
+)
 
 const SIZE = 512
 const FRAMES = 48
@@ -29,7 +37,9 @@ function run(): void {
   // a modest cell count keeps the 4D projection legible, a denser patch turns into an unreadable hairball
   const scene = buildHoneycombScene({ symbol, maxCells: 400 })
   if (scene.dim < 4) {
-    console.log(`${symbolText} is ${scene.dim}D, not a 4D honeycomb. Pick a four-entry symbol like 3-4-3-4.`)
+    console.log(
+      `${symbolText} is ${scene.dim}D, not a 4D honeycomb. Pick a four-entry symbol like 3-4-3-4.`,
+    )
     return
   }
 
@@ -51,10 +61,17 @@ function run(): void {
     if (i % 8 === 0) console.log(`frame ${i + 1}/${FRAMES}`)
   }
 
-  const gif = encodeGif({ frames, width: SIZE, height: SIZE, delayMs: 60 })
+  const gif = encodeGif({
+    frames,
+    width: SIZE,
+    height: SIZE,
+    delayMs: 60,
+  })
   const file = join(outDir, `${symbol.join('-')}.gif`)
   writeFileSync(file, gif)
-  console.log(`wrote ${file}  (${scene.cellCount} cells, ${scene.edges.length} edges, ${FRAMES} frames)`)
+  console.log(
+    `wrote ${file}  (${scene.cellCount} cells, ${scene.edges.length} edges, ${FRAMES} frames)`,
+  )
 }
 
 run()

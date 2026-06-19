@@ -5,7 +5,10 @@
 
 import { makeDense } from '@/code/algebra/linear/dense'
 
-export function chainOperators(n: number): { adjacency: ReturnType<typeof makeDense>; laplacian: ReturnType<typeof makeDense> } {
+export function chainOperators(n: number): {
+  adjacency: ReturnType<typeof makeDense>
+  laplacian: ReturnType<typeof makeDense>
+} {
   const adjacency = makeDense({ rows: n, cols: n })
   const laplacian = makeDense({ rows: n, cols: n })
   for (let i = 0; i < n; i++) {

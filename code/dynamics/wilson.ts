@@ -85,7 +85,10 @@ export function plaquettesOf(input: { graph: Graph }): PlaquetteSet {
             if (has(a, c) || has(b, d)) {
               continue
             }
-            const key = [a, b, c, d].slice().sort((x, y) => x - y).join(',')
+            const key = [a, b, c, d]
+              .slice()
+              .sort((x, y) => x - y)
+              .join(',')
             if (seen.has(key)) {
               continue
             }
@@ -169,7 +172,9 @@ export function heatBathSweep(input: {
 }): void {
   const field = input.field
   const q = field.group.q
-  const edgePlaquettes = buildEdgePlaquetteIndex({ plaquettes: input.plaquettes })
+  const edgePlaquettes = buildEdgePlaquetteIndex({
+    plaquettes: input.plaquettes,
+  })
 
   // Local energy (the beta-free part of the action) of the plaquettes touching
   // one edge. The beta factor is applied once in the acceptance test below.
@@ -188,7 +193,8 @@ export function heatBathSweep(input: {
       continue
     }
     const touching =
-      edgePlaquettes.get(edgeKey({ from: edge.from, to: edge.to })) ?? []
+      edgePlaquettes.get(edgeKey({ from: edge.from, to: edge.to })) ??
+      []
     if (touching.length === 0) {
       continue
     }
@@ -197,7 +203,7 @@ export function heatBathSweep(input: {
     const old = field.link[e] ?? 0
     const delta = input.rng.next() < 0.5 ? 1 : -1
     // Wrap into [0, q) so the clock variable stays in range.
-    const proposed = ((old + delta) % q + q) % q
+    const proposed = (((old + delta) % q) + q) % q
     field.link[e] = proposed
 
     const after = localEnergy(touching)

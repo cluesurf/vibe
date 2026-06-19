@@ -43,11 +43,17 @@ export interface MargensternGrid extends TileSource {
   route(from: number, to: number): number[]
 }
 
-export function buildMargensternGrid(input: { symbol: number[]; maxCells?: number }): MargensternGrid {
+export function buildMargensternGrid(input: {
+  symbol: number[]
+  maxCells?: number
+}): MargensternGrid {
   const symbol = input.symbol
-  const graph = buildCellGraph({ symbol, maxCells: input.maxCells ?? 4000 })
+  const graph = buildCellGraph({
+    symbol,
+    maxCells: input.maxCells ?? 4000,
+  })
   const count = graph.cellCount
-  const ballDim = (graph.coords[0]?.length ?? 2)
+  const ballDim = graph.coords[0]?.length ?? 2
   const twoD = ballDim === 2
 
   // the central cell (the most connected) is the root, the natural center of the splitting
@@ -81,7 +87,14 @@ export function buildMargensternGrid(input: { symbol: number[]; maxCells?: numbe
           next.push(w)
         }
       }
-      kids.sort((a, b) => childOrder(graph.coords[v]!, graph.coords[a]!, graph.coords[b]!, twoD))
+      kids.sort((a, b) =>
+        childOrder(
+          graph.coords[v]!,
+          graph.coords[a]!,
+          graph.coords[b]!,
+          twoD,
+        ),
+      )
       childrenOf[v] = kids
     }
     frontier = next
@@ -91,7 +104,7 @@ export function buildMargensternGrid(input: { symbol: number[]; maxCells?: numbe
   // exists when its children are addressed
   const address: number[][] = Array.from({ length: count }, () => [])
   const byDepth = Array.from({ length: count }, (_, i) => i)
-    .filter((i) => depthOf[i]! >= 0)
+    .filter(i => depthOf[i]! >= 0)
     .sort((a, b) => depthOf[a]! - depthOf[b]!)
   for (const cell of byDepth) {
     if (cell === root) continue
@@ -101,15 +114,26 @@ export function buildMargensternGrid(input: { symbol: number[]; maxCells?: numbe
 
   // the exact integer coordinate, the breadth-first rank (depth, then address order), 1-based
   const rank = new Int32Array(count).fill(0)
-  const order = byDepth.slice().sort((a, b) => depthOf[a]! - depthOf[b]! || compareAddress(address[a]!, address[b]!))
+  const order = byDepth
+    .slice()
+    .sort(
+      (a, b) =>
+        depthOf[a]! - depthOf[b]! ||
+        compareAddress(address[a]!, address[b]!),
+    )
   order.forEach((cell, index) => (rank[cell] = index + 1))
 
   // each cell's neighbors in a stable order so the cellwalker has a consistent spin and reciprocal
   const spinNeighbors: number[][] = []
   for (let cell = 0; cell < count; cell++) {
-    const ordered = graph.neighbors[cell]!
-      .slice()
-      .sort((a, b) => childOrder(graph.coords[cell]!, graph.coords[a]!, graph.coords[b]!, twoD))
+    const ordered = graph.neighbors[cell]!.slice().sort((a, b) =>
+      childOrder(
+        graph.coords[cell]!,
+        graph.coords[a]!,
+        graph.coords[b]!,
+        twoD,
+      ),
+    )
     spinNeighbors.push(ordered)
   }
 
@@ -132,7 +156,12 @@ export function buildMargensternGrid(input: { symbol: number[]; maxCells?: numbe
     const af = address[from]!
     const at = address[to]!
     let common = 0
-    while (common < af.length && common < at.length && af[common] === at[common]) common++
+    while (
+      common < af.length &&
+      common < at.length &&
+      af[common] === at[common]
+    )
+      common++
     const up: number[] = []
     let cur = from
     while (depthOf[cur]! > common) {
@@ -171,10 +200,21 @@ export function buildMargensternGrid(input: { symbol: number[]; maxCells?: numbe
 
 // a deterministic order for a cell's neighbors or children, by angle in 2D (the cyclic edge order Margenstern's
 // splitting tree uses) and lexicographically by rounded cell center in any higher dimension
-function childOrder(here: number[], a: number[], b: number[], twoD: boolean): number {
+function childOrder(
+  here: number[],
+  a: number[],
+  b: number[],
+  twoD: boolean,
+): number {
   if (twoD) {
-    const aa = Math.atan2((a[1] ?? 0) - (here[1] ?? 0), (a[0] ?? 0) - (here[0] ?? 0))
-    const ab = Math.atan2((b[1] ?? 0) - (here[1] ?? 0), (b[0] ?? 0) - (here[0] ?? 0))
+    const aa = Math.atan2(
+      (a[1] ?? 0) - (here[1] ?? 0),
+      (a[0] ?? 0) - (here[0] ?? 0),
+    )
+    const ab = Math.atan2(
+      (b[1] ?? 0) - (here[1] ?? 0),
+      (b[0] ?? 0) - (here[0] ?? 0),
+    )
     return aa - ab
   }
   for (let i = 0; i < a.length; i++) {

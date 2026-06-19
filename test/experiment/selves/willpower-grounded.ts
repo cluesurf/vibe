@@ -39,14 +39,23 @@ export function willpowerGrounded(): {
   pumpingProlongs: boolean
   solved: boolean
 } {
-  const mesh = buildCoxeterMesh({ symbol: [5, 3, 4], depth: 20, maxChambers: 60000 })
+  const mesh = buildCoxeterMesh({
+    symbol: [5, 3, 4],
+    depth: 20,
+    maxChambers: 60000,
+  })
   const neighbors = mesh.neighbors
   const n = mesh.cellCount
   const edges = edgesOf(neighbors)
 
   let center = 0
-  for (let i = 1; i < n; i++) if (neighbors[i]!.length > neighbors[center]!.length) center = i
-  const distC = neighborDistances({ neighbors, size: n, source: center })
+  for (let i = 1; i < n; i++)
+    if (neighbors[i]!.length > neighbors[center]!.length) center = i
+  const distC = neighborDistances({
+    neighbors,
+    size: n,
+    source: center,
+  })
 
   // {5,3,4} is very dense, so use BFS-ORDER prefixes for a small, controllable self and core (a
   // distance shell would grab hundreds of cells). The self is a modest reserve, the core is the held
@@ -60,10 +69,11 @@ export function willpowerGrounded(): {
       const next: number[] = []
       for (const u of frontier) {
         order.push(u)
-        for (const w of neighbors[u]!) if (!seen[w]) {
-          seen[w] = 1
-          next.push(w)
-        }
+        for (const w of neighbors[u]!)
+          if (!seen[w]) {
+            seen[w] = 1
+            next.push(w)
+          }
       }
       frontier = next
     }
@@ -72,8 +82,10 @@ export function willpowerGrounded(): {
   const CORE_SIZE = 6
   const inSelf = new Uint8Array(n)
   const inCore = new Uint8Array(n)
-  for (let k = 0; k < SELF_SIZE && k < order.length; k++) inSelf[order[k]!] = 1
-  for (let k = 0; k < CORE_SIZE && k < order.length; k++) inCore[order[k]!] = 1
+  for (let k = 0; k < SELF_SIZE && k < order.length; k++)
+    inSelf[order[k]!] = 1
+  for (let k = 0; k < CORE_SIZE && k < order.length; k++)
+    inCore[order[k]!] = 1
   let selfSize = 0
   for (let i = 0; i < n; i++) if (inSelf[i]) selfSize++
 
@@ -96,7 +108,10 @@ export function willpowerGrounded(): {
   }
 
   // run until the core pleasure collapses (falls below half its start), return that endurance time
-  function endurance(fieldLeak: number, pump: boolean): { beats: number; reserveEnd: number; q0: number; qEnd: number } {
+  function endurance(
+    fieldLeak: number,
+    pump: boolean,
+  ): { beats: number; reserveEnd: number; q0: number; qEnd: number } {
     const t = makeSelf()
     const q0 = sumTone(t)
     const core0 = coreCharge(t)
@@ -104,7 +119,15 @@ export function willpowerGrounded(): {
     const maxBeats = 200
     let beats = maxBeats
     for (let b = 1; b <= maxBeats; b++) {
-      pumpedReserveSweep({ tone: t, edges, inSelf, distC, rng, fieldLeak, pump })
+      pumpedReserveSweep({
+        tone: t,
+        edges,
+        inSelf,
+        distC,
+        rng,
+        fieldLeak,
+        pump,
+      })
       if (coreCharge(t) < 0.5 * core0) {
         beats = b
         break
@@ -121,11 +144,18 @@ export function willpowerGrounded(): {
 
   const reserveEndPumped = strong.reserveEnd
   const reserveDepletes = strong.reserveEnd < reserveStart
-  const conserved = weak.q0 === weak.qEnd && strong.q0 === strong.qEnd && noPump.q0 === noPump.qEnd
+  const conserved =
+    weak.q0 === weak.qEnd &&
+    strong.q0 === strong.qEnd &&
+    noPump.q0 === noPump.qEnd
   const strongerFieldDrainsFaster = strong.beats < weak.beats
   const pumpingProlongs = weak.beats > noPump.beats
 
-  const solved = reserveDepletes && conserved && strongerFieldDrainsFaster && pumpingProlongs
+  const solved =
+    reserveDepletes &&
+    conserved &&
+    strongerFieldDrainsFaster &&
+    pumpingProlongs
 
   return {
     cells: n,
@@ -146,7 +176,8 @@ export function willpowerGrounded(): {
 
 export default experiment({
   id: 'selves/willpower-grounded',
-  title: 'a charge reserve depletes when a self pumps against a draining field',
+  title:
+    'a charge reserve depletes when a self pumps against a draining field',
   category: 'selves',
   substrates: ['534'],
   depth: 'L1',

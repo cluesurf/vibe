@@ -35,65 +35,163 @@ fn step(@builtin(global_invocation_id) gid:vec3<u32>){
 function offsets24(): Int32Array {
   const o: number[] = []
   const ax = [0, 1, 2, 3]
-  for (let a = 0; a < 4; a++) for (let b = a + 1; b < 4; b++) for (const sa of [1, -1]) for (const sb of [1, -1]) {
-    const v = [0, 0, 0, 0]; v[ax[a]!] = sa; v[ax[b]!] = sb; o.push(v[0]!, v[1]!, v[2]!, v[3]!)
-  }
+  for (let a = 0; a < 4; a++)
+    for (let b = a + 1; b < 4; b++)
+      for (const sa of [1, -1])
+        for (const sb of [1, -1]) {
+          const v = [0, 0, 0, 0]
+          v[ax[a]!] = sa
+          v[ax[b]!] = sb
+          o.push(v[0]!, v[1]!, v[2]!, v[3]!)
+        }
   return new Int32Array(o) // 24 * 4
 }
 function offsets8(): Int32Array {
   const o: number[] = []
-  for (let a = 0; a < 4; a++) for (const s of [1, -1]) { const v = [0, 0, 0, 0]; v[a] = s; o.push(v[0]!, v[1]!, v[2]!, v[3]!) }
+  for (let a = 0; a < 4; a++)
+    for (const s of [1, -1]) {
+      const v = [0, 0, 0, 0]
+      v[a] = s
+      o.push(v[0]!, v[1]!, v[2]!, v[3]!)
+    }
   return new Int32Array(o) // 8 * 4
 }
 
 async function run(): Promise<void> {
   const adapter = await navigator.gpu.requestAdapter()
-  if (!adapter) { console.log('no WebGPU adapter'); return }
+  if (!adapter) {
+    console.log('no WebGPU adapter')
+    return
+  }
   const device = await adapter.requestDevice()
   const module = device.createShaderModule({ code: WGSL })
-  const pipeline = device.createComputePipeline({ layout: 'auto', compute: { module, entryPoint: 'step' } })
-  const mk = (n: number): GPUBuffer => device.createBuffer({ size: n * 4, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST })
-  const uni = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST })
-  const stage = device.createBuffer({ size: N * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ })
+  const pipeline = device.createComputePipeline({
+    layout: 'auto',
+    compute: { module, entryPoint: 'step' },
+  })
+  const mk = (n: number): GPUBuffer =>
+    device.createBuffer({
+      size: n * 4,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
+    })
+  const uni = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  })
+  const stage = device.createBuffer({
+    size: N * 4,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  })
   const C = L >> 1
 
-  const measure = async (off: Int32Array, label: string): Promise<number> => {
+  const measure = async (
+    off: Int32Array,
+    label: string,
+  ): Promise<number> => {
     const count = off.length / 4
-    let prev = mk(N), cur = mk(N), nxt = mk(N); const reached = mk(N), offBuf = mk(off.length)
+    let prev = mk(N),
+      cur = mk(N),
+      nxt = mk(N)
+    const reached = mk(N),
+      offBuf = mk(off.length)
     device.queue.writeBuffer(offBuf, 0, off)
-    const seed = new Int32Array(N); seed[((C * L + C) * L + C) * L + C] = 1
+    const seed = new Int32Array(N)
+    seed[((C * L + C) * L + C) * L + C] = 1
     device.queue.writeBuffer(cur, 0, seed)
     device.queue.writeBuffer(reached, 0, new Int32Array(N))
     device.queue.writeBuffer(uni, 0, new Uint32Array([L, count, 0, 0]))
     const layout = pipeline.getBindGroupLayout(0)
     for (let t = 0; t < T; t++) {
-      const bg = device.createBindGroup({ layout, entries: [{ binding: 0, resource: { buffer: uni } }, { binding: 1, resource: { buffer: prev } }, { binding: 2, resource: { buffer: cur } }, { binding: 3, resource: { buffer: nxt } }, { binding: 4, resource: { buffer: offBuf } }, { binding: 5, resource: { buffer: reached } }] })
-      const enc = device.createCommandEncoder(); const pass = enc.beginComputePass(); pass.setPipeline(pipeline); pass.setBindGroup(0, bg); pass.dispatchWorkgroups(Math.ceil(N / WG)); pass.end(); device.queue.submit([enc.finish()])
-      const tmp = prev; prev = cur; cur = nxt; nxt = tmp
+      const bg = device.createBindGroup({
+        layout,
+        entries: [
+          { binding: 0, resource: { buffer: uni } },
+          { binding: 1, resource: { buffer: prev } },
+          { binding: 2, resource: { buffer: cur } },
+          { binding: 3, resource: { buffer: nxt } },
+          { binding: 4, resource: { buffer: offBuf } },
+          { binding: 5, resource: { buffer: reached } },
+        ],
+      })
+      const enc = device.createCommandEncoder()
+      const pass = enc.beginComputePass()
+      pass.setPipeline(pipeline)
+      pass.setBindGroup(0, bg)
+      pass.dispatchWorkgroups(Math.ceil(N / WG))
+      pass.end()
+      device.queue.submit([enc.finish()])
+      const tmp = prev
+      prev = cur
+      cur = nxt
+      nxt = tmp
     }
-    const enc = device.createCommandEncoder(); enc.copyBufferToBuffer(reached, 0, stage, 0, N * 4); device.queue.submit([enc.finish()])
-    await stage.mapAsync(GPUMapMode.READ); const r = new Int32Array(stage.getMappedRange().slice(0)); stage.unmap()
+    const enc = device.createCommandEncoder()
+    enc.copyBufferToBuffer(reached, 0, stage, 0, N * 4)
+    device.queue.submit([enc.finish()])
+    await stage.mapAsync(GPUMapMode.READ)
+    const r = new Int32Array(stage.getMappedRange().slice(0))
+    stage.unmap()
     // light-cone extent, max along an AXIS vs along the body-DIAGONAL (1,1,1,1)/2
-    let axisExt = 0, diagExt = 0
+    let axisExt = 0,
+      diagExt = 0
     for (let i = 0; i < N; i++) {
       if (r[i] === 0) continue
-      const x = i % L, y = (Math.floor(i / L)) % L, z = (Math.floor(i / (L * L))) % L, w = Math.floor(i / (L * L * L))
-      const dx = x - C, dy = y - C, dz = z - C, dw = w - C
-      axisExt = Math.max(axisExt, Math.abs(dx), Math.abs(dy), Math.abs(dz), Math.abs(dw))
+      const x = i % L,
+        y = Math.floor(i / L) % L,
+        z = Math.floor(i / (L * L)) % L,
+        w = Math.floor(i / (L * L * L))
+      const dx = x - C,
+        dy = y - C,
+        dz = z - C,
+        dw = w - C
+      axisExt = Math.max(
+        axisExt,
+        Math.abs(dx),
+        Math.abs(dy),
+        Math.abs(dz),
+        Math.abs(dw),
+      )
       diagExt = Math.max(diagExt, (dx + dy + dz + dw) / 2) // projection on the unit diagonal
     }
     const ratio = diagExt / axisExt
-    console.log(`  ${label}: axis extent ${axisExt}, diagonal extent ${diagExt.toFixed(1)}, isotropy ratio diag/axis = ${ratio.toFixed(2)} (1 = isotropic)`)
+    console.log(
+      `  ${label}: axis extent ${axisExt}, diagonal extent ${diagExt.toFixed(1)}, isotropy ratio diag/axis = ${ratio.toFixed(2)} (1 = isotropic)`,
+    )
     return ratio
   }
 
-  console.log(`GPU 24-direction light-cone isotropy, 4D L=${L} (${N.toLocaleString()} cells), ${T} beats:`)
-  const r24 = await measure(offsets24(), '24-dir (the {3,4,3,4} bulk, +-e_i+-e_j)')
-  const r8 = await measure(offsets8(), ' 8-dir (hypercubic, +-e_i)        ')
-  console.log(`  => the 24-direction light cone is ${Math.abs(r24 - 1) < Math.abs(r8 - 1) ? 'MORE ISOTROPIC' : 'not more isotropic'} than the 8-direction`)
-  console.log('     (24-dir ratio ' + r24.toFixed(2) + ' closer to 1 than 8-dir ' + r8.toFixed(2) + '). The discrete {3,4,3,4} rule')
-  console.log('     coarse-grains to an isotropic continuum at scale, simulated on the GPU (p233 was the analytic version).')
-  console.log(`RESULT: 24-dir isotropy ${r24.toFixed(2)} vs 8-dir ${r8.toFixed(2)} (1 = isotropic).`)
+  console.log(
+    `GPU 24-direction light-cone isotropy, 4D L=${L} (${N.toLocaleString()} cells), ${T} beats:`,
+  )
+  const r24 = await measure(
+    offsets24(),
+    '24-dir (the {3,4,3,4} bulk, +-e_i+-e_j)',
+  )
+  const r8 = await measure(
+    offsets8(),
+    ' 8-dir (hypercubic, +-e_i)        ',
+  )
+  console.log(
+    `  => the 24-direction light cone is ${Math.abs(r24 - 1) < Math.abs(r8 - 1) ? 'MORE ISOTROPIC' : 'not more isotropic'} than the 8-direction`,
+  )
+  console.log(
+    '     (24-dir ratio ' +
+      r24.toFixed(2) +
+      ' closer to 1 than 8-dir ' +
+      r8.toFixed(2) +
+      '). The discrete {3,4,3,4} rule',
+  )
+  console.log(
+    '     coarse-grains to an isotropic continuum at scale, simulated on the GPU (p233 was the analytic version).',
+  )
+  console.log(
+    `RESULT: 24-dir isotropy ${r24.toFixed(2)} vs 8-dir ${r8.toFixed(2)} (1 = isotropic).`,
+  )
 }
 
-run().catch((e) => console.error(e instanceof Error ? e.message : String(e)))
+run().catch(e =>
+  console.error(e instanceof Error ? e.message : String(e)),
+)

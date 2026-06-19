@@ -6,9 +6,18 @@
 
 type Complex = [number, number]
 
-const cAdd = (a: Complex, b: Complex): Complex => [a[0] + b[0], a[1] + b[1]]
-const cSub = (a: Complex, b: Complex): Complex => [a[0] - b[0], a[1] - b[1]]
-const cMul = (a: Complex, b: Complex): Complex => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]]
+const cAdd = (a: Complex, b: Complex): Complex => [
+  a[0] + b[0],
+  a[1] + b[1],
+]
+const cSub = (a: Complex, b: Complex): Complex => [
+  a[0] - b[0],
+  a[1] - b[1],
+]
+const cMul = (a: Complex, b: Complex): Complex => [
+  a[0] * b[0] - a[1] * b[1],
+  a[0] * b[1] + a[1] * b[0],
+]
 const cConj = (a: Complex): Complex => [a[0], -a[1]]
 const cAbs = (a: Complex): number => Math.hypot(a[0], a[1])
 const cDiv = (a: Complex, b: Complex): Complex => {
@@ -16,20 +25,30 @@ const cDiv = (a: Complex, b: Complex): Complex => {
   const n = cMul(a, cConj(b))
   return [n[0] / d, n[1] / d]
 }
-const cFromPolar = (radius: number, angle: number): Complex => [radius * Math.cos(angle), radius * Math.sin(angle)]
+const cFromPolar = (radius: number, angle: number): Complex => [
+  radius * Math.cos(angle),
+  radius * Math.sin(angle),
+]
 
 // the Mobius map sending the point a to the origin (an isometry of the disk)
-const mobiusToOrigin = (a: Complex, z: Complex): Complex => cDiv(cSub(z, a), cSub([1, 0], cMul(cConj(a), z)))
+const mobiusToOrigin = (a: Complex, z: Complex): Complex =>
+  cDiv(cSub(z, a), cSub([1, 0], cMul(cConj(a), z)))
 // the inverse, sending the origin to a
-const mobiusFromOrigin = (a: Complex, z: Complex): Complex => cDiv(cAdd(z, a), cAdd([1, 0], cMul(cConj(a), z)))
+const mobiusFromOrigin = (a: Complex, z: Complex): Complex =>
+  cDiv(cAdd(z, a), cAdd([1, 0], cMul(cConj(a), z)))
 
 // the hyperbolic distance between two disk points
 export function hyperbolicDistance(z: Complex, w: Complex): number {
-  return 2 * Math.atanh(Math.min(0.999999999, cAbs(mobiusToOrigin(z, w))))
+  return (
+    2 * Math.atanh(Math.min(0.999999999, cAbs(mobiusToOrigin(z, w))))
+  )
 }
 
 // A complete b-ary tree of the given depth: parents, children, and the tree (hop) distance between all pairs.
-export function completeTree(input: { branching: number; depth: number }): {
+export function completeTree(input: {
+  branching: number
+  depth: number
+}): {
   size: number
   parent: number[]
   children: number[][]
@@ -54,13 +73,28 @@ export function completeTree(input: { branching: number; depth: number }): {
 }
 
 // the tree (hop) distance between two nodes, via their lowest common ancestor
-export function treeDistance(parent: number[], depth: number[], u: number, v: number): number {
+export function treeDistance(
+  parent: number[],
+  depth: number[],
+  u: number,
+  v: number,
+): number {
   let a = u
   let b = v
   let steps = 0
-  while (depth[a]! > depth[b]!) { a = parent[a]!; steps += 1 }
-  while (depth[b]! > depth[a]!) { b = parent[b]!; steps += 1 }
-  while (a !== b) { a = parent[a]!; b = parent[b]!; steps += 2 }
+  while (depth[a]! > depth[b]!) {
+    a = parent[a]!
+    steps += 1
+  }
+  while (depth[b]! > depth[a]!) {
+    b = parent[b]!
+    steps += 1
+  }
+  while (a !== b) {
+    a = parent[a]!
+    b = parent[b]!
+    steps += 2
+  }
   return steps
 }
 
@@ -86,11 +120,21 @@ export function embedTree(input: {
     const n = kids.length
     // the root spreads its children over the full circle, an interior node over the cone away from its parent
     const baseAngle = parentDir === undefined ? 0 : parentDir + Math.PI
-    const cone = parentDir === undefined ? (2 * Math.PI * (n - 1)) / n : (2 * Math.PI * n) / (n + 1)
+    const cone =
+      parentDir === undefined
+        ? (2 * Math.PI * (n - 1)) / n
+        : (2 * Math.PI * n) / (n + 1)
     kids.forEach((kid, index) => {
-      const angle = n === 1 ? baseAngle : baseAngle + (cone * (index - (n - 1) / 2)) / Math.max(1, n - (parentDir === undefined ? 0 : 1))
+      const angle =
+        n === 1
+          ? baseAngle
+          : baseAngle +
+            (cone * (index - (n - 1) / 2)) /
+              Math.max(1, n - (parentDir === undefined ? 0 : 1))
       const local = cFromPolar(radius, angle)
-      coords[kid] = input.hyperbolic ? mobiusFromOrigin(here, local) : cAdd(here, cFromPolar(input.edge, angle))
+      coords[kid] = input.hyperbolic
+        ? mobiusFromOrigin(here, local)
+        : cAdd(here, cFromPolar(input.edge, angle))
       depth[kid] = depth[node]! + 1
       place(kid, angle + Math.PI) // the direction back to `here` in the child's frame
     })
@@ -119,7 +163,9 @@ export function embeddingDistortion(input: {
     }
   }
   // best uniform scale, minimize the worst ratio by matching the median ratio
-  const ratios = pairs.map((p) => p.embedded / p.tree).sort((a, b) => a - b)
+  const ratios = pairs
+    .map(p => p.embedded / p.tree)
+    .sort((a, b) => a - b)
   const scale = ratios[Math.floor(ratios.length / 2)]!
   let worst = 1
   for (const p of pairs) {

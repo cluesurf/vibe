@@ -11,7 +11,14 @@
 // note/research/vibe/notes/theory-v0.8.0/plans/hyperrogue-port-roadmap.md.
 
 import { coxeterCellFrame } from '@/code/substrate/coxeter/frame'
-import { Mat, matMul, matVec, toPoincare, pointKey, identity } from '@/code/substrate/coxeter/minkowski'
+import {
+  Mat,
+  matMul,
+  matVec,
+  toPoincare,
+  pointKey,
+  identity,
+} from '@/code/substrate/coxeter/minkowski'
 import { mobiusAdd, negate } from '@/code/render/geometry/isometry'
 import type { TileSource, FaceStep } from '@/code/substrate/tile-source'
 
@@ -21,7 +28,9 @@ interface CellRecord {
   spin: number[] | null // spin -> neighbor cell id, cyclically ordered, computed lazily on first expand
 }
 
-export function makeLazyTiling(input: { symbol: number[] }): TileSource {
+export function makeLazyTiling(input: {
+  symbol: number[]
+}): TileSource {
   const symbol = input.symbol
   const frame = coxeterCellFrame(symbol)
   const { faces, center: c0, timeAxis } = frame
@@ -45,7 +54,10 @@ export function makeLazyTiling(input: { symbol: number[] }): TileSource {
 
   // the cyclic angle of a neighbor as seen from a cell center, by translating the cell center to the origin
   // (an exact hyperbolic isometry) and reading the Euclidean angle of the neighbor there
-  function angleFrom(cellCenter: number[], neighborCenter: number[]): number {
+  function angleFrom(
+    cellCenter: number[],
+    neighborCenter: number[],
+  ): number {
     const local = mobiusAdd(negate(cellCenter), neighborCenter)
     return Math.atan2(local[1] ?? 0, local[0] ?? 0)
   }
@@ -59,12 +71,15 @@ export function makeLazyTiling(input: { symbol: number[] }): TileSource {
       const neighborMatrix = matMul(record.matrix, faces[i]!)
       const id = intern(neighborMatrix)
       if (id === cell) continue // a face that folds back onto the cell itself (degenerate), skip
-      const angle = twoD ? angleFrom(record.center, records[id]!.center) : i
-      if (!neighbors.some((n) => n.id === id)) neighbors.push({ id, angle })
+      const angle = twoD
+        ? angleFrom(record.center, records[id]!.center)
+        : i
+      if (!neighbors.some(n => n.id === id))
+        neighbors.push({ id, angle })
     }
     // 2D, order the edges counterclockwise so spin is the cyclic edge index. 3D, keep the face-index order.
     if (twoD) neighbors.sort((a, b) => a.angle - b.angle)
-    const spin = neighbors.map((n) => n.id)
+    const spin = neighbors.map(n => n.id)
     record.spin = spin
     return spin
   }

@@ -20,7 +20,12 @@ const reachableBoundary = (
   let frontier = [centre]
   while (frontier.length) {
     const next: number[] = []
-    for (const u of frontier) for (const v of neighbors[u]!) if (!erased[v] && seen[v] === 0) { seen[v] = 1; next.push(v) }
+    for (const u of frontier)
+      for (const v of neighbors[u]!)
+        if (!erased[v] && seen[v] === 0) {
+          seen[v] = 1
+          next.push(v)
+        }
     frontier = next
   }
   let reached = 0
@@ -30,14 +35,15 @@ const reachableBoundary = (
 
 export default experiment({
   id: 'holography/planar-vs-tree-534',
-  title: 'the planar tiling loops keep more boundary reachable after a cut than the bulk tree (the HaPPY refinement)',
+  title:
+    'the planar tiling loops keep more boundary reachable after a cut than the bulk tree (the HaPPY refinement)',
   category: 'holography',
   substrates: ['73'],
   depth: 'L2',
   paper: true,
   run() {
     const mesh = buildCoxeterMatrixMesh([7, 3], 1500)
-    const planar = mesh.adjacency.map((row) => row.filter((n) => n >= 0))
+    const planar = mesh.adjacency.map(row => row.filter(n => n >= 0))
     const size = planar.length
     const depth = new Array(size).fill(-1)
     const parent = new Array(size).fill(-1)
@@ -45,19 +51,35 @@ export default experiment({
     let frontier = [0]
     while (frontier.length) {
       const next: number[] = []
-      for (const u of frontier) for (const v of planar[u]!) if (depth[v] === -1) { depth[v] = depth[u]! + 1; parent[v] = u; next.push(v) }
+      for (const u of frontier)
+        for (const v of planar[u]!)
+          if (depth[v] === -1) {
+            depth[v] = depth[u]! + 1
+            parent[v] = u
+            next.push(v)
+          }
       frontier = next
     }
     const maxDepth = depth.reduce((m, d) => Math.max(m, d), 0)
     const tree: number[][] = Array.from({ length: size }, () => [])
-    for (let v = 0; v < size; v++) if (parent[v] !== -1) { tree[v]!.push(parent[v]!); tree[parent[v]!]!.push(v) }
-    const boundary = [...Array(size).keys()].filter((c) => depth[c]! === maxDepth - 1)
+    for (let v = 0; v < size; v++)
+      if (parent[v] !== -1) {
+        tree[v]!.push(parent[v]!)
+        tree[parent[v]!]!.push(v)
+      }
+    const boundary = [...Array(size).keys()].filter(
+      c => depth[c]! === maxDepth - 1,
+    )
 
     // erase every other cell of a mid-depth annulus (a partial cut)
     const cutDepth = Math.floor(maxDepth / 2)
     const erased = new Array(size).fill(false)
     let cut = 0
-    for (let c = 0; c < size; c++) if (depth[c] === cutDepth && c % 2 === 0) { erased[c] = true; cut += 1 }
+    for (let c = 0; c < size; c++)
+      if (depth[c] === cutDepth && c % 2 === 0) {
+        erased[c] = true
+        cut += 1
+      }
 
     const planarReach = reachableBoundary(planar, erased, boundary, 0)
     const treeReach = reachableBoundary(tree, erased, boundary, 0)
@@ -67,10 +89,19 @@ export default experiment({
       status: planarKeepsMore ? 'pass' : 'fail',
       claim:
         'after erasing a partial mid-depth annulus, the planar hyperbolic tiling keeps far more of the boundary connected to the bulk centre than its spanning tree, because the tangential loops route around the cut, so the bulk-tree model of the holographic code understates the planar code robustness',
-      metrics: { cells: size, cutCells: cut, planarBoundaryReached: planarReach, treeBoundaryReached: treeReach, planarKeepsMore: planarKeepsMore ? 1 : 0 },
+      metrics: {
+        cells: size,
+        cutCells: cut,
+        planarBoundaryReached: planarReach,
+        treeBoundaryReached: treeReach,
+        planarKeepsMore: planarKeepsMore ? 1 : 0,
+      },
       // CONTROL: the spanning tree (no loops, the bulk-tree model of happy-tiling-534) loses every subtree
       // below an erased cut cell, so its reachable boundary collapses, the extra robustness is the loops.
-      control: { treeBoundaryReached: treeReach, totalBoundary: boundary.length },
+      control: {
+        treeBoundaryReached: treeReach,
+        totalBoundary: boundary.length,
+      },
       notes:
         'Refines happy-tiling-534 (the bulk-tree model) toward the planar tensor network. The tree distance 3^depth is a lower bound, the planar loops only add recovery paths. A full stabilizer planar contraction of the {5,4} tiling is the complete version.',
     })

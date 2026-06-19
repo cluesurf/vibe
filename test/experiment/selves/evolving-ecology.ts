@@ -28,21 +28,33 @@ function makeBarriers(B: number, base: number, step: number): number[] {
 function agentReach(reqs: number[], horizon: number): number {
   let crossed = 0
   for (const req of reqs) {
-    if (horizon >= req) crossed++ // the horizon spans this barrier, the re-planning loop crosses it
+    if (horizon >= req)
+      crossed++ // the horizon spans this barrier, the re-planning loop crosses it
     else break // stuck at the first barrier the horizon cannot span
   }
   return crossed / reqs.length
 }
 
 // evolve a population whose genome is the lookahead horizon; fitness = reach minus foresight cost
-function evolvePopulation(reqs: number[], cost: number, rng: Rng): { meanFitnessByGen: number[]; finalMeanHorizon: number; finalMeanReach: number } {
+function evolvePopulation(
+  reqs: number[],
+  cost: number,
+  rng: Rng,
+): {
+  meanFitnessByGen: number[]
+  finalMeanHorizon: number
+  finalMeanReach: number
+} {
   const P = 60
   const G = 60
   let pop: number[] = []
   for (let i = 0; i < P; i++) pop.push(1 + Math.floor(rng.next() * 4)) // random small initial horizons
   const meanFitnessByGen: number[] = []
   for (let g = 0; g < G; g++) {
-    const scored = pop.map((h) => ({ h, f: agentReach(reqs, h) - cost * h }))
+    const scored = pop.map(h => ({
+      h,
+      f: agentReach(reqs, h) - cost * h,
+    }))
     meanFitnessByGen.push(scored.reduce((a, b) => a + b.f, 0) / P)
     const survivors = scored.sort((a, b) => b.f - a.f).slice(0, P / 2)
     const next: number[] = []
@@ -57,7 +69,8 @@ function evolvePopulation(reqs: number[], cost: number, rng: Rng): { meanFitness
     pop = next
   }
   const finalMeanHorizon = pop.reduce((a, b) => a + b, 0) / pop.length
-  const finalMeanReach = pop.reduce((a, b) => a + agentReach(reqs, b), 0) / pop.length
+  const finalMeanReach =
+    pop.reduce((a, b) => a + agentReach(reqs, b), 0) / pop.length
   return { meanFitnessByGen, finalMeanHorizon, finalMeanReach }
 }
 
@@ -80,10 +93,13 @@ export function evolvingEcology(): {
   const hard = evolvePopulation(hardReqs, cost, makeRng({ seed: 21 }))
 
   const startFitness = hard.meanFitnessByGen[0]!
-  const endFitness = hard.meanFitnessByGen[hard.meanFitnessByGen.length - 1]!
+  const endFitness =
+    hard.meanFitnessByGen[hard.meanFitnessByGen.length - 1]!
   const fitnessRises = endFitness > startFitness + 0.1
-  const adaptsToDifficulty = hard.finalMeanHorizon > easy.finalMeanHorizon + 2 // harder task evolves bigger foresight
-  const bothSolve = easy.finalMeanReach > 0.85 && hard.finalMeanReach > 0.85 // most of each population solves
+  const adaptsToDifficulty =
+    hard.finalMeanHorizon > easy.finalMeanHorizon + 2 // harder task evolves bigger foresight
+  const bothSolve =
+    easy.finalMeanReach > 0.85 && hard.finalMeanReach > 0.85 // most of each population solves
   const solved = fitnessRises && adaptsToDifficulty && bothSolve
 
   return {
@@ -102,7 +118,8 @@ export function evolvingEcology(): {
 
 export default experiment({
   id: 'selves/evolving-ecology',
-  title: 'a population of planning agents evolves better problem-solving and adapts its foresight',
+  title:
+    'a population of planning agents evolves better problem-solving and adapts its foresight',
   category: 'selves',
   substrates: 'any',
   depth: 'L2',
@@ -110,10 +127,7 @@ export default experiment({
   run() {
     const r = evolvingEcology()
     const ok =
-      r.solved &&
-      r.fitnessRises &&
-      r.adaptsToDifficulty &&
-      r.bothSolve
+      r.solved && r.fitnessRises && r.adaptsToDifficulty && r.bothSolve
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:

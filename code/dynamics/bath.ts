@@ -15,7 +15,16 @@ export function isBoundaryCell(cell: number, side: number): boolean {
   const y = Math.floor(cell / side) % side
   const z = Math.floor(cell / (side * side)) % side
   const w = Math.floor(cell / (side * side * side)) % side
-  return x === 0 || x === side - 1 || y === 0 || y === side - 1 || z === 0 || z === side - 1 || w === 0 || w === side - 1
+  return (
+    x === 0 ||
+    x === side - 1 ||
+    y === 0 ||
+    y === side - 1 ||
+    z === 0 ||
+    z === side - 1 ||
+    w === 0 ||
+    w === side - 1
+  )
 }
 
 // the absorbing boundary (the bath), set every boundary cell to peace, whatever radiated to the edge has left to
