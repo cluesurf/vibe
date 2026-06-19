@@ -67,11 +67,6 @@ space, matter, gravity, the quantum, cosmology, and mind from the one
 rule, and to be clear at every step about what is solid, what is free,
 and what is still open. The companion papers are snapshots of that work.
 
-For the framework itself see the
-[companion papers](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch)
-and a high-level
-[overview](https://www.youtube.com/watch?v=IE2uHC0qX1o).
-
 ## What this repo is
 
 `@cluesurf/vibe` is a finite, discrete, reproducible simulator that
