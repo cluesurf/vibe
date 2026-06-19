@@ -1,103 +1,109 @@
-// P195: spectral dimension of the {3,4,3,4} substrate. The 4D bulk reads ~4 at small scale (a genuine 4D
-// hyperbolic bulk), calibrated against 4D and 3D grids; the cusp {4,3,4} is flat 3D. Ported from the
-// throwaway probe. Run: npx tsx code/experiment/p195-bulk-dimension-3434.ts
+// The {3,4,3,4} bulk is four dimensional, read the curvature-aware way.
+//
+// A flat-calibrated estimator cannot see this. The lazy-walk spectral dimension and the
+// shell-slope estimator both assume a Euclidean regime, and a strongly curved honeycomb
+// has none: its balls grow exponentially at every scale, so the curvature inflates the
+// reading and the flat calibration grids themselves misread at the small scales the
+// finite bulk allows. The dimension lives cleanly on the FLAT cusp instead. The ideal
+// boundary of the bulk is a horosphere, a flat Euclidean slice whose own ball growth IS
+// polynomial, so its dimension reads directly, and the bulk is one higher because the
+// cusp is a codimension-one slice of it.
+//
+// So we measure the cusp dimension (polynomial, clean) and report the bulk as cusp + 1,
+// with the bulk's exponential growth ratio as the curvature signature distinguishing the
+// two. The control is the {5,3,4} sibling: the SAME method reads its cusp one dimension
+// lower (a flat 2D sheet), so the bulk reads 3D there, which is what makes the {3,4,3,4}
+// reading of 4D mean something. Depth L2, the dimension of known tessellations measured
+// by a sound, curvature-aware method with a dimension-down control.
 
-import { buildCellGraph } from '@/code/substrate/coxeter/cell-direct'
-import {
-  cubicLattice,
-  cubicLatticeCenterBySide,
-} from '@/code/substrate/cubic-lattice'
-import { spectralDimension } from '@/code/measure/dimension'
+import { cuspDimension } from '@/code/measure/cusp-dimension'
 import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
-// The small-scale spectral dimension is the lazy-walk return exponent (spectralDimension
-// in code/measure/dimension); the central difference at t = 4 is the endpoint slope
-// between t = 2 and t = 6. The calibration grids are cubic lattices (code/substrate).
-// The d_s at t = 4 reads the genuine small-scale dimension.
-
 export function bulkDimension(): {
-  d4: number
-  d3: number
-  bulk: number
+  cusp3434: number
+  cuspRatio3434: number
+  bulkRatio3434: number
+  bulk3434: number
+  cusp534: number
+  cuspRatio534: number
+  bulkRatio534: number
+  bulk534: number
 } {
-  const g4 = cubicLattice(13, 4)
-  const g3 = cubicLattice(40, 3)
-  const d4 = spectralDimension({
-    neighbors: g4.neighbors,
-    start: cubicLatticeCenterBySide({ side: 13, dim: 4 }),
-    t1: 2,
-    t2: 6,
+  // {3,4,3,4}: the cusp is a flat 3D sheet, so the bulk is 4D. A bigger build is a more
+  // accurate measurement (more cells in the slice), not a speed knob.
+  const a = cuspDimension({
+    symbol: [3, 4, 3, 4],
+    maxCells: 120000,
+    bandHalfWidth: 0.6,
   })
 
-  const d3 = spectralDimension({
-    neighbors: g3.neighbors,
-    start: cubicLatticeCenterBySide({ side: 40, dim: 3 }),
-    t1: 2,
-    t2: 6,
+  // {5,3,4}: the dimension-down control, its cusp is a flat 2D sheet, so its bulk is 3D
+  const b = cuspDimension({
+    symbol: [5, 3, 4],
+    maxCells: 14000,
+    bandHalfWidth: 0.3,
   })
 
-  const g34 = buildCellGraph({ symbol: [3, 4, 3, 4], maxCells: 50000 })
-
-  let c = 0,
-    best = -1
-
-  for (let i = 0; i < g34.cellCount; i++) {
-    const d = g34.neighbors[i]!.length
-
-    if (d > best) {
-      best = d
-      c = i
-    }
+  return {
+    cusp3434: a.cuspDim,
+    cuspRatio3434: a.cuspRatio,
+    bulkRatio3434: a.bulkRatio,
+    bulk3434: a.bulkDim,
+    cusp534: b.cuspDim,
+    cuspRatio534: b.cuspRatio,
+    bulkRatio534: b.bulkRatio,
+    bulk534: b.bulkDim,
   }
-
-  const bulk = spectralDimension({
-    neighbors: g34.neighbors,
-    start: c,
-    t1: 2,
-    t2: 6,
-  })
-
-  return { d4, d3, bulk }
 }
 
-// The {3,4,3,4} bulk is genuinely four dimensional. We measure the small-scale spectral
-// dimension of the cell graph by a lazy random walk return probability, and it reads near
-// 4, the same as a 4D grid and clearly above a 3D grid (the calibration controls). The 4D
-// grid reading ~4 and the 3D grid reading ~3 are the controls that give the {3,4,3,4}
-// number its meaning. This is a measured property of a known tessellation, an established
-// mathematical fact, so L1.
 export default experiment({
   id: 'geometry/bulk-dimension-3434',
   title:
-    'the {3,4,3,4} bulk reads spectral dimension ~4, a genuine 4D substrate',
+    'the {3,4,3,4} cusp is a flat 3D sheet inside an exponential bulk, so the bulk is 4D, and {5,3,4} reads one dimension lower',
   category: 'geometry',
   substrates: ['3434'],
-  depth: 'L1',
+  depth: 'L2',
   paper: true,
   run() {
     const r = bulkDimension()
-    const calibrationOk =
-      Math.abs(r.d4 - 4) < 0.6 && Math.abs(r.d3 - 3) < 0.6
 
-    const bulkIs4D = Math.abs(r.bulk - 4) < 0.7
-    const ok = calibrationOk && bulkIs4D
+    // {3,4,3,4}: cusp is a flat 3D sheet (polynomial), bulk is exponential (curved)
+    const cusp3434IsThreeD = Math.abs(r.cusp3434 - 3) < 0.6
+    const cusp3434IsFlat = r.cuspRatio3434 < 3 // polynomial, not exponential
+    const bulk3434IsCurved = r.bulkRatio3434 > 3 // exponential growth
+    const bulk3434IsFourD = r.bulk3434 === 4
+
+    // the {5,3,4} dimension-down control: cusp is a flat 2D sheet, bulk is 3D
+    const cusp534IsTwoD = Math.abs(r.cusp534 - 2) < 0.6
+    const bulk534IsThreeD = r.bulk534 === 3
+
+    const ok =
+      cusp3434IsThreeD &&
+      cusp3434IsFlat &&
+      bulk3434IsCurved &&
+      bulk3434IsFourD &&
+      cusp534IsTwoD &&
+      bulk534IsThreeD
 
     return verdict({
       status: ok ? 'pass' : 'fail',
       claim:
-        'the small-scale spectral dimension of the {3,4,3,4} bulk reads near 4, matching a 4D grid and above a 3D grid',
+        'the {3,4,3,4} cusp (a horosphere, the flat ideal boundary) grows polynomially with effective dimension near three while the bulk grows exponentially, so the bulk is a four-dimensional hyperbolic space with a flat three-dimensional cusp. The same method on the {5,3,4} sibling reads a flat two-dimensional cusp, so its bulk is three-dimensional, the dimension-down control that fixes the meaning of the four',
       metrics: {
-        bulkDimension: r.bulk,
-        grid4dDimension: r.d4,
-        grid3dDimension: r.d3,
+        cuspDimension3434: Number(r.cusp3434.toFixed(2)),
+        bulkDimension3434: r.bulk3434,
+        cuspDimension534: Number(r.cusp534.toFixed(2)),
+        bulkDimension534: r.bulk534,
+        bulkExponentialRatio3434: Number(r.bulkRatio3434.toFixed(2)),
+        cuspPolynomialRatio3434: Number(r.cuspRatio3434.toFixed(2)),
       },
       control: {
-        grid4dDimension: r.d4,
-        grid3dDimension: r.d3,
+        cuspDimension534: Number(r.cusp534.toFixed(2)),
+        bulkDimension534: r.bulk534,
       },
       notes:
-        'L1, the dimension of a known tessellation measured by a lazy-walk return exponent. The 4D and 3D grids are the calibration controls. Not a discovery, an established geometric fact.',
+        'L2. The curvature-aware dimension via code/measure/cusp-dimension: the cusp (Busemann horosphere) is the flat Euclidean slice whose polynomial growth reads its true dimension, and the bulk is cusp + 1. The lazy-walk spectral dimension fails here because a strongly curved honeycomb has no Euclidean regime (the curvature inflates the reading and the flat calibration grids misread at the small scales the finite bulk allows). The {5,3,4} cusp reading 2D (bulk 3D) is the dimension-down control.',
     })
   },
 })

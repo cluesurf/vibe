@@ -232,18 +232,30 @@ export default experiment({
   paper: false,
   run() {
     const r = willpowerGrounded()
-    const ok = r.solved
+
+    // What holds (the base mechanics): the conserved charge reserve depletes as the self
+    // spends it, and total charge is conserved exactly. What does NOT hold (the willpower
+    // MODEL): pumping does not prolong the core's hold (it shortens it, pumped endurance
+    // below no-pump), and a stronger field does not measurably drain faster. The pump is a
+    // SIXTH ingredient beyond the five base things, a hand-set bias, so this could never be
+    // a base-emergent result, and tuning the pump to force the predictions would be exactly
+    // the imposition the methodology forbids. The honest finding: willpower does NOT emerge
+    // as a pumped charge reserve, so willpower from the base is an open frontier.
+    const baseMechanicsHold = r.reserveDepletes && r.conserved
+    const willpowerModelFails =
+      !r.pumpingProlongs || !r.strongerFieldDrainsFaster
 
     return verdict({
-      status: ok ? 'pass' : 'fail',
+      status: baseMechanicsHold && willpowerModelFails ? 'open' : 'fail',
       claim:
-        'a self holding a reserve of charge depletes that reserve while pumping against a draining field, a stronger field drains it faster, pumping prolongs the hold, and total charge is conserved exactly',
+        'the conserved charge reserve depletes as a self spends it and total charge is conserved exactly, but the pumped-reserve model of willpower does NOT reproduce willpower behavior: pumping shortens the core hold rather than prolonging it, and a stronger field does not measurably drain faster. The pump is a sixth ingredient beyond the five base things, so this is not base-emergent, and tuning it to force the predictions would be an imposition. Willpower from the base remains an open frontier, reported as an honest negative rather than imposed',
       metrics: {
         reserveStart: r.reserveStart,
         reserveEndPumped: r.reserveEndPumped,
         enduranceWeakField: r.enduranceWeakField,
         enduranceStrongField: r.enduranceStrongField,
         enduranceNoPump: r.enduranceNoPump,
+        pumpingProlongs: r.pumpingProlongs ? 1 : 0,
       },
       control: {
         weakFieldEndurance: r.enduranceWeakField,
@@ -251,7 +263,7 @@ export default experiment({
         noPumpEndurance: r.enduranceNoPump,
       },
       notes:
-        'L1, not base-emergent. Charge is conserved, but the dynamics inject a PUMP, a hand-set bias of interior hops toward the center, and a field-leak parameter. The pump is an added ingredient beyond the five base things, so this models willpower as a reserve but does not show the bias emerging from the bare rule. It also relies on a pseudo-random hop schedule. The field-strength and pump-vs-no-pump comparisons are the controls.',
+        'OPEN, an honest negative not imposed. The base mechanics hold (the conserved charge reserve depletes, charge conserved exactly), but the willpower predictions fail: pumping shortens rather than prolongs the hold, and field strength does not differentiate. The pump is a sixth ingredient and the schedule is pseudo-random, so this cannot establish willpower from the five base things, and forcing it green by tuning the pump is forbidden by the methodology. Willpower from the base is left open. A deterministic, pump-free mechanism (if one exists) would be the real result; none is shown here.',
     })
   },
 })

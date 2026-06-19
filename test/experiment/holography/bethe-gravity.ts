@@ -37,11 +37,12 @@ export function betheGravity(): {
   const massiveAlpha =
     Math.round(boundaryExponent(24, 30) * 1000) / 1000
 
-  // validate the recursion against a directly-solved finite tree
-  const measured = validateTree(12, 3),
+  // validate the recursion against a directly-solved finite tree, measured in the bulk
+  // (depth 4, so the level-3 ratio is two levels inside the leaf boundary)
+  const measured = validateTree(12, 4),
     predicted = muFor(12, 12)
 
-  const validated = Math.abs(measured - predicted) < 0.05
+  const validated = Math.abs(measured - predicted) < 0.01
 
   return { alpha24, alpha12, massiveAlpha, validated }
 }
