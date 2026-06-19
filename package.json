@@ -11,7 +11,7 @@
     "call": "npx tsx --no-warnings=ExperimentalWarning",
     "host": "pnpm make && npm publish --access=public"
   },
-  "prettier": "@cluesurf/form-code/love.json",
+  "prettier": "@cluesurf/wash/flow.json",
   "devDependencies": {
     "@types/lodash": "^4.14.194",
     "@types/node": "^22.15.3",
@@ -23,8 +23,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@cluesurf/form-code": "^0.5.0",
-    "@cluesurf/love-code": "^1.5.0",
+    "@cluesurf/wash": "^0.6.10",
     "@termsurf/have": "^0.2.0",
     "@termsurf/kink": "^0.1.2",
     "chalk": "^5.6.2",
