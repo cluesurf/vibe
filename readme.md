@@ -53,6 +53,19 @@ choice. Regular hyperbolic honeycombs run out by the fifth dimension,
 and `{3,4,3,4}` is the one that is at once crystallographic,
 spinor-carrying, and three-dimensional where physics lives.
 
+The base of the model is settled, the discrete substrate and its single
+local rule. From it the architecture of physics is derived: the
+particles and their charges, the gauge group, the Higgs, the shape of
+the mass hierarchy, and the emergent laws of relativity, gravity, the
+quantum, holography, and cosmology. The absolute masses and couplings
+are free, exactly the parameters the Standard Model leaves free, each
+now identified with a specific geometric origin. One deep question is
+still open and flagged as such: whether the model forces exactly the
+three generations of matter we observe. The larger aim is to derive
+space, matter, gravity, the quantum, cosmology, and mind from the one
+rule, and to be clear at every step about what is solid, what is free,
+and what is still open. The companion papers are snapshots of that work.
+
 For the framework itself see the
 [companion papers](https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Pollard%2C%20Lance%22&l=list&p=1&s=10&sort=bestmatch)
 and a high-level
@@ -79,19 +92,6 @@ novel. The standard the experiments are held to is in
 [`note/experimental-methodology.md`](note/experimental-methodology.md),
 and the code and test layout is in
 [`note/architecture.md`](note/architecture.md).
-
-The base of the model is settled, the discrete substrate and its single
-local rule. From it the architecture of physics is derived: the
-particles and their charges, the gauge group, the Higgs, the shape of
-the mass hierarchy, and the emergent laws of relativity, gravity, the
-quantum, holography, and cosmology. The absolute masses and couplings
-are free, exactly the parameters the Standard Model leaves free, each
-now identified with a specific geometric origin. One deep question is
-still open and flagged as such: whether the model forces exactly the
-three generations of matter we observe. The larger aim is to derive
-space, matter, gravity, the quantum, cosmology, and mind from the one
-rule, and to be clear at every step about what is solid, what is free,
-and what is still open. The companion papers are snapshots of that work.
 
 ## Depth levels
 
