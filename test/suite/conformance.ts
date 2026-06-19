@@ -719,6 +719,7 @@ export function runConformance(): { passed: number; failed: number } {
         sh.shellCounts.every(c => c === 1) &&
         sh.depth[5] === 5,
     })
+
     const ball = geodesicBall({ neighbors: path, root: 0, radius: 2 })
     check({ name: 'geodesicBall radius 2', ok: ball.length === 3 })
 
@@ -757,6 +758,7 @@ export function runConformance(): { passed: number; failed: number } {
           octonionUnit(3).map(x => -x),
         ),
     })
+
     const ox = [1, 2, 0, -1, 0, 3, 0, 1]
     const oy = [0, 1, -2, 0, 1, 0, 1, 2]
     const normMultiplicative =
@@ -776,6 +778,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'jordan H3(O) dimension 27',
       ok: hermitianOctonionDimension(3) === 27,
     })
+
     const frame = diagonalJordanFrame(3)
     const frameOk =
       frame.length === 3 &&
@@ -795,6 +798,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'jordan identity fails at n=4 (control)',
       ok: maxJordanIdentityResidual(4) > 1e-3,
     })
+
     // the S3 family symmetry: all 6 slot permutations are Jordan automorphisms, the cyclic one
     // permutes the frame E0 -> E1 -> E2 (the candidate generation triality)
     const s3 = permutations(3)
@@ -946,6 +950,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'disclination: even winding gives spinor +1 (Z2 control)',
       ok: disc2.spinorIsPlusOne && disc2.vectorReturnsToSelf,
     })
+
     // collective mode: an odd disclination flips a delocalized mode (overlap -1) regardless of the mode index
     const coll1 = collectiveModeOverlap({
       winding: 1,
@@ -1052,6 +1057,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'Margenstern: Zeckendorf round-trips 1..5000 with no "11"',
       ok: zeckRoundTrips && zeckNo11,
     })
+
     const splitGen = [0, 1, 2, 3, 4, 5]
       .map(margensternSectorGeneration)
       .join(',')
@@ -1061,8 +1067,10 @@ export function runConformance(): { passed: number; failed: number } {
       ok: splitGen === '1,3,8,21,55,144',
       detail: splitGen,
     })
+
     const splitTree = new MargensternSplittingTree()
     splitTree.grow(5000)
+
     let splitLegal = true
     let splitPreferred = true
     let splitParent = true
@@ -1078,6 +1086,7 @@ export function runConformance(): { passed: number; failed: number } {
       }
 
       splitCoords.add(co)
+
       const kids = margensternChildrenOf(a)
 
       if (
@@ -1290,6 +1299,7 @@ export function runConformance(): { passed: number; failed: number } {
     const cur0 = new Uint8Array(waveN)
     cur0[0] = q - 1
     prev0[3 % waveN] = 2
+
     const fwd = new Uint8Array(waveN)
     reversibleWaveStep({
       neighbors: tiling.neighbors,
@@ -1298,6 +1308,7 @@ export function runConformance(): { passed: number; failed: number } {
       next: fwd,
       modulus: q,
     })
+
     // the reverse step, roles of previous and current swapped, recovers the earlier slice
     const back = new Uint8Array(waveN)
     reversibleWaveStep({
@@ -1307,6 +1318,7 @@ export function runConformance(): { passed: number; failed: number } {
       next: back,
       modulus: q,
     })
+
     let reversible = true
 
     for (let i = 0; i < waveN; i++) {
@@ -1532,6 +1544,7 @@ export function runConformance(): { passed: number; failed: number } {
     const ffActiveAfter = flipFlop.active
     const memSwitch: RailSwitch = { kind: 'memory', active: 1 }
     routeSwitch(memSwitch, 2)
+
     const switchesOk =
       ffA === 1 &&
       ffActiveAfter === 2 &&
@@ -1542,6 +1555,7 @@ export function runConformance(): { passed: number; failed: number } {
       name: 'railway switches: flip-flop flips, memory remembers, exact semantics',
       ok: switchesOk,
     })
+
     const mulCode: RailInstruction[] = [
       { op: 'dec', reg: 0, next: 1, zero: 8 },
       { op: 'dec', reg: 1, next: 2, zero: 4 },
@@ -1797,6 +1811,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
 
     ffCa.step()
     ffCa.step()
+
     const switchOk = ffCa.headAt() === 2 && ffCa.cells[1]!.active === 2 // routed to active branch, flipped
     check({
       name: 'uniform railway CA (tiling-agnostic, new): locomotive loops forward and a flip-flop routes+flips',
@@ -1844,6 +1859,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         }
 
         built++
+
         const d = g.depth(builder.headAt())
 
         if (d !== prev + 1) {
@@ -1931,6 +1947,7 @@ function fib(n) { let a = 0; let b = 1; let t = 0; while (n !== 0) { n--; t = a;
         par = new Int32Array(N).fill(-2)
 
       par[0] = -1
+
       let fr = [0]
       let cyc: number[] = []
 

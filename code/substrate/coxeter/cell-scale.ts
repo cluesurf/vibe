@@ -568,6 +568,7 @@ export function buildDodecagridFast(input: {
   centerInto(mat1, c01, p1, fpStore, 0)
   centerInto(mat2, c02, p2, fpStore, 4)
   hash[hashFp(fpStore, 0) & mask] = 1
+
   let count = 1
   let hit = false
 
@@ -580,6 +581,7 @@ export function buildDodecagridFast(input: {
       mulInto(mat2, h2, faces2[fi]!, p2, tmp2)
       centerInto(tmp1, c01, p1, fpTmp, 0)
       centerInto(tmp2, c02, p2, fpTmp, 4)
+
       // lookup
       let slot = hashFp(fpTmp, 0) & mask
       let id = -1
@@ -761,6 +763,7 @@ export function buildSliver(input: {
       const even = t % 2 === 0
       M1 = matMulMod(M1, even ? faces1[a]! : faces1[b]!, p1)
       M2 = matMulMod(M2, even ? faces2[a]! : faces2[b]!, p2)
+
       const k = fp(M1, M2)
 
       if (seen.has(k)) {
@@ -1035,6 +1038,7 @@ export function makeLazyEngine(): LazyEngine {
     if (!faceSeen.has(k)) {
       faceSeen.add(k)
       faces1.push(f1)
+
       const h2 = stab2[idx]!
       faces2.push(
         matMulMod(matMulMod(h2, gen2.R[3]!, p2), matInvMod(h2, p2), p2),

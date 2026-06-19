@@ -107,6 +107,7 @@ export function unifiedModel(input?: { n?: number }): {
   const s = tone.slice()
   const s2 = tone.slice()
   s2[center] = (s2[center]! === 0 ? 1 : 0) as -1 | 0 | 1
+
   const ra = makeRng({ seed: 99 })
   const rb = makeRng({ seed: 99 })
   const T = 4

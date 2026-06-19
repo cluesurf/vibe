@@ -78,6 +78,7 @@ export function propagation(input: {
       fills,
       tone: toneB,
     })
+
     let maxDist = 0
 
     for (let v = 0; v < g.size; v++) {

@@ -151,6 +151,7 @@ export default experiment({
       for (let b = 0; b < 300; b++) {
         step(prev, cur, next, coupling)
         ;[prev, cur, next] = [cur, next, prev]
+
         let active = 0
 
         for (let i = 0; i < n; i++) {

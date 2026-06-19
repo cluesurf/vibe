@@ -49,6 +49,7 @@ function maintain(input: {
 
   for (let t = 0; t < beats; t++) {
     beat(tone, graph, moved, rng, 0.01, cohesion)
+
     const c = largestPositiveCluster(tone, graph)
     sizes.push(c.length)
 

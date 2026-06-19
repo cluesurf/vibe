@@ -12,7 +12,7 @@ import { Rng } from '@/code/tool/rng'
 // allocated fresh here to keep the sweep self-contained.
 export function fillGatedSweep(input: {
   tone: Int8Array
-  edges: ReadonlyArray<readonly [number, number]>
+  edges: readonly (readonly [number, number])[]
   fill: Int8Array
   rng: Rng
 }): void {

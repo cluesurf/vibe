@@ -56,6 +56,7 @@ export class Camera {
     this.symbol = input.symbol.slice()
     this.windowNorm = input.windowNorm ?? 0.9
     this.shape = buildCellShape(input.symbol)
+
     const frame = this.shape.frame
     this.faces = frame.faces
     this.c0 = frame.center

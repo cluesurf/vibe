@@ -117,6 +117,7 @@ export function ballGrowth(input: {
   const distance = new Int32Array(size).fill(-1)
 
   distance[input.center] = 0
+
   let frontier: number[] = [input.center]
   let reached = 1
   growth[0] = reached
@@ -159,8 +160,8 @@ export function ballGrowth(input: {
 // and fits the log-log slope of N(r) versus r (the exponent d in N ~ r^d). Averaging over interior
 // centers gives the spatial dimension of the graph, the (d-1)-space of a coexisting spacetime slice.
 export function ballGrowthDimension(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
-  centers: ReadonlyArray<number>
+  neighbors: readonly (readonly number[])[]
+  centers: readonly number[]
   maxRadius: number
 }): number {
   const { neighbors, centers, maxRadius } = input
@@ -169,6 +170,7 @@ export function ballGrowthDimension(input: {
   for (const c of centers) {
     const dist = new Map<number, number>()
     dist.set(c, 0)
+
     let frontier = [c]
 
     const counts = new Array(maxRadius + 1).fill(0)
@@ -213,9 +215,9 @@ export function ballGrowthDimension(input: {
 // the slope of log N(b) versus log(1/b). A space-filling sheet gives dimension near 2, a thin film
 // less. Returns 0 for sets too small to fit.
 export function boxCountingDimension(input: {
-  cells: ReadonlyArray<number>
+  cells: readonly number[]
   sideLength: number
-  boxSizes?: ReadonlyArray<number>
+  boxSizes?: readonly number[]
 }): number {
   const { cells, sideLength: L } = input
 
@@ -432,7 +434,7 @@ export function betheCorrelatorExponent(degree: number): number {
 // times t1 and t2. Isolated nodes (degree 0) are absorbing. Neighbors-native so a
 // CellGraph (number[][]) feeds it directly.
 export function spectralDimension(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   start: number
   t1: number
   t2: number
@@ -442,6 +444,7 @@ export function spectralDimension(input: {
 
   let p = new Float64Array(N)
   p[start] = 1
+
   let np = new Float64Array(N)
 
   const P: number[] = []
@@ -466,6 +469,7 @@ export function spectralDimension(input: {
       }
 
       np[i] = np[i]! + 0.5 * pi
+
       const sh = (0.5 * pi) / d
 
       for (const j of row) {
@@ -490,7 +494,7 @@ export function spectralDimension(input: {
 // dimension and the fit quality r2. shell[r] is the number of nodes at exactly graph
 // distance r (e.g. bfsShells(...).shellCounts).
 export function shellDimension(input: {
-  shell: ReadonlyArray<number>
+  shell: readonly number[]
   rLo: number
   rHi: number
 }): { dimension: number; r2: number } {
@@ -511,7 +515,7 @@ export function shellDimension(input: {
 // mesh (shells grow as a power of r), lower on a curved mesh (shells grow
 // exponentially), so it pairs with shellExponentialFit to classify curvature.
 export function shellPowerR2(input: {
-  shell: ReadonlyArray<number>
+  shell: readonly number[]
   rLo: number
   rHi: number
 }): number {
@@ -531,7 +535,7 @@ export function shellPowerR2(input: {
 // disk reads near 2, a ball near 3), and the ratio is the mean shell-to-shell growth
 // (near 1 for flat, well above 1 for exponential/curved). Used to classify an
 // extracted sheet as flat (polynomial) versus the bulk's exponential growth.
-export function growthFromShells(sizes: ReadonlyArray<number>): {
+export function growthFromShells(sizes: readonly number[]): {
   dim: number
   ratio: number
 } {
@@ -580,7 +584,7 @@ export function growthFromShells(sizes: ReadonlyArray<number>): {
 // log g and the growth ratio is exp(slope). A ratio above 1 with a higher r2 than the
 // power-law fit is the fingerprint of hyperbolic curvature.
 export function shellExponentialFit(input: {
-  shell: ReadonlyArray<number>
+  shell: readonly number[]
   rLo: number
   rHi: number
 }): { growthRatio: number; r2: number } {

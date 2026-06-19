@@ -105,6 +105,7 @@ function perturbationRadius(input: {
   dirty.data[site * mesh.degree] = (
     dirty.data[site * mesh.degree] === 1 ? -1 : 1
   ) as -1 | 1
+
   const opposite = Array.from({ length: mesh.degree }, (_, d) =>
     mesh.opposite(d),
   )
@@ -125,10 +126,12 @@ function perturbationRadius(input: {
 
   for (let t = 0; t < beats; t++) {
     beatInto({ src: clean, dst: cleanScratch, table, collision })
+
     const swapClean = clean
     clean = cleanScratch
     cleanScratch = swapClean
     beatInto({ src: dirty, dst: dirtyScratch, table, collision })
+
     const swapDirty = dirty
     dirty = dirtyScratch
     dirtyScratch = swapDirty
@@ -177,6 +180,7 @@ export default experiment({
 
     for (let t = 0; t < 60; t++) {
       beatInto({ src: w, dst: wScratch, table, collision })
+
       const swap = w
       w = wScratch
       wScratch = swap

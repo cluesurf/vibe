@@ -12,7 +12,7 @@ import { eigSymmetric } from '@/code/algebra/linear/eig-jacobi'
 // The (m+1) x (m+1) Hankel matrix H[i][j] = sequence[i + j] of a correlation sequence. Requires
 // the sequence to have at least 2*m + 1 entries.
 export function hankelMatrix(input: {
-  sequence: ReadonlyArray<number>
+  sequence: readonly number[]
   size: number
 }): number[][] {
   const { sequence, size } = input
@@ -34,7 +34,7 @@ export function hankelMatrix(input: {
 // The eigenvalues (ascending) of a symmetric matrix given as nested arrays, via the cyclic Jacobi
 // solver.
 export function symmetricEigenvalues(
-  matrix: ReadonlyArray<ReadonlyArray<number>>,
+  matrix: readonly (readonly number[])[],
 ): number[] {
   const n = matrix.length
   const dense = makeDense({ rows: n, cols: n })
@@ -51,7 +51,7 @@ export function symmetricEigenvalues(
 // The minimum eigenvalue of a symmetric matrix given as nested arrays. PSD (the spectral-positivity
 // condition) means this is non-negative within tolerance.
 export function symmetricMinEigenvalue(
-  matrix: ReadonlyArray<ReadonlyArray<number>>,
+  matrix: readonly (readonly number[])[],
 ): number {
   const values = symmetricEigenvalues(matrix)
 
@@ -68,7 +68,7 @@ export function symmetricMinEigenvalue(
 // of order `size`, take its smallest eigenvalue, and divide by C(0). A value at or above
 // (slightly negative) tolerance means the sequence passes the Hankel spectral-positivity test.
 export function hankelMinEigenvalue(input: {
-  sequence: ReadonlyArray<number>
+  sequence: readonly number[]
   size: number
 }): number {
   const h = hankelMatrix(input)

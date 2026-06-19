@@ -40,7 +40,7 @@ function overlappingWord(
 }
 
 function recallAtSeparation(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   wordBits: number
   count: number
   separation: number

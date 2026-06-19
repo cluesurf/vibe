@@ -37,7 +37,7 @@ export default experiment({
     const stiffness = 0.6
     const mutual = 0.8
     // several initial conditions for the two bodies (different placements and orientations).
-    const inits: Array<[number, number]> = [
+    const inits: [number, number][] = [
       [1, 1],
       [2, -1],
       [-1.5, 1.5],

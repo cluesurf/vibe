@@ -9,6 +9,7 @@ import { create, globals } from 'webgpu'
 import { makeRng } from '@/code/tool/rng'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const L = 16
@@ -121,6 +122,7 @@ async function run(): Promise<void> {
   )
   device.queue.writeBuffer(swapBuf, 0, new Uint32Array(swap))
   device.queue.writeBuffer(uni, 0, new Uint32Array([L, 0, 0, 0]))
+
   // random ternary initial populations
   const init = new Int32Array(SZ)
   const rng = makeRng({ seed: 7 })
@@ -130,6 +132,7 @@ async function run(): Promise<void> {
   }
 
   device.queue.writeBuffer(a, 0, init)
+
   const layout = pipeline.getBindGroupLayout(0)
 
   const stepOnce = (src: GPUBuffer, dst: GPUBuffer): void => {
@@ -160,8 +163,10 @@ async function run(): Promise<void> {
     enc.copyBufferToBuffer(buf, 0, stage, 0, SZ * 4)
     device.queue.submit([enc.finish()])
     await stage.mapAsync(GPUMapMode.READ)
+
     const d = new Int32Array(stage.getMappedRange().slice(0))
     stage.unmap()
+
     let charge = 0
 
     const mom = [0, 0, 0, 0]
@@ -184,12 +189,14 @@ async function run(): Promise<void> {
   console.log(
     `GPU 24-direction interacting lattice gas, 4D L=${L} (${N.toLocaleString()} cells x 24 dirs), ${T} beats:`,
   )
+
   // forward T steps (ping-pong)
   let src = a,
     dst = b
 
   for (let t = 0; t < T; t++) {
     stepOnce(src, dst)
+
     const tmp = src
     src = dst
     dst = tmp

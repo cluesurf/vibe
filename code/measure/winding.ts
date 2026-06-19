@@ -6,7 +6,7 @@
 // smooth ramp is not miscounted.
 
 // The integer winding number of a periodic array of phase angles (radians).
-export function phaseWinding(theta: ReadonlyArray<number>): number {
+export function phaseWinding(theta: readonly number[]): number {
   const length = theta.length
 
   let total = 0
@@ -34,7 +34,7 @@ export function phaseWinding(theta: ReadonlyArray<number>): number {
 // divided by pi is the director winding: a half-integer (1/2) disclination gives 1
 // in pi-units, half a vector winding. NOT rounded, so the half-integer charge shows
 // up exactly.
-export function directorWinding(phi: ReadonlyArray<number>): number {
+export function directorWinding(phi: readonly number[]): number {
   const length = phi.length
 
   let total = 0

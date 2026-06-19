@@ -18,6 +18,7 @@ import {
 import { makeCamera } from '@/code/render/gpu/camera'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const SIZE = 512 // per-frame side length, SIZE*4 is 256-aligned (no readback row padding)
@@ -78,6 +79,7 @@ async function run(): Promise<void> {
       detail: 0.0008,
       maxSteps: 700,
     })
+
     const rgba = await renderFoldToRgba({ device, scene, size: SIZE })
     frames.push(rgba)
 

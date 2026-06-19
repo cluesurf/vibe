@@ -10,7 +10,7 @@
 // element with stride 2.
 export function linkRapidities(input: {
   coords: Float64Array
-  links: ReadonlyArray<Uint32Array>
+  links: readonly Uint32Array[]
   band: { lo: number; hi: number } | null
 }): number[] {
   const { coords, links, band } = input

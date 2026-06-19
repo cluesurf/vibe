@@ -75,6 +75,7 @@ export function associativeGradedRecall(input?: {
 
     for (let c = 0; c < g.cellCount; c++) {
       total++
+
       const cue = readWord(mem, c)
 
       if (searchBest({ mem, comparand: cue, mask }).cell === c) {

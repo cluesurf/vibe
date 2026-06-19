@@ -372,7 +372,7 @@ export function conservingHopSweep(input: {
 // callers that already hold a general-graph edge list.
 export function conservingEdgeListSweep(input: {
   tone: Int8Array
-  edges: ReadonlyArray<readonly [number, number]>
+  edges: readonly (readonly [number, number])[]
   moved: Uint8Array
   rng: Rng
   arrow: number
@@ -428,7 +428,7 @@ export function conservingEdgeListSweep(input: {
 // conservingEdgeListSweep, so the two are interchangeable in the unbiased case.
 export function conservingEdgeListSweepPumped(input: {
   tone: Int8Array
-  edges: ReadonlyArray<readonly [number, number]>
+  edges: readonly (readonly [number, number])[]
   moved: Uint8Array
   rng: Rng
   arrow: number

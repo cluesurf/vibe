@@ -7,7 +7,7 @@
 // the earlier slice. The mod-q wrap keeps the state in the finite alphabet without
 // breaking reversibility.
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = readonly (readonly number[])[]
 
 // One forward beat of the second-order reversible wave, written into `next`.
 // next[i] = ((sum_{j ~ i} current[j]) - previous[i]) mod q, kept non-negative.

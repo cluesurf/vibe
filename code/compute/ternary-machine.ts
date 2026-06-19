@@ -66,6 +66,7 @@ export function runTernary(
     }
 
     ops++
+
     let trits = TERNARY_TRITS
     let reg = 0
     let kind: TernaryStep['kind'] = 'jz'

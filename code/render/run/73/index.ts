@@ -22,6 +22,7 @@ function run(): void {
   console.log(
     `{${SYMBOL.join(',')}} scene: dim ${scene.dim}, ${scene.cellCount} cells, ${scene.edges.length} edges`,
   )
+
   const png = renderSceneToPng({
     scene,
     size: SIZE,
@@ -32,6 +33,7 @@ function run(): void {
   const here = dirname(fileURLToPath(import.meta.url))
   const outDir = join(here, '..', '..', '..', 'make', 'render')
   mkdirSync(outDir, { recursive: true })
+
   const out = join(outDir, 'tessellation-73.png')
   writeFileSync(out, png)
   console.log(`wrote ${out}`)

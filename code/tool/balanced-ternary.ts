@@ -36,9 +36,7 @@ export function toBalancedTernary(
 }
 
 // The integer value of a list of balanced-ternary digits (little-endian, each in {-1, 0, +1}).
-export function fromBalancedTernary(
-  digits: ReadonlyArray<number>,
-): number {
+export function fromBalancedTernary(digits: readonly number[]): number {
   let value = 0
 
   for (let i = digits.length - 1; i >= 0; i--) {

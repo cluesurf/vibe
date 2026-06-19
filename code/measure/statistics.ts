@@ -64,6 +64,7 @@ export function pearson(input: {
 
   ma /= n
   mb /= n
+
   let num = 0
   let va = 0
   let vb = 0
@@ -101,6 +102,7 @@ export function relativeStandardDeviation(
   }
 
   m /= n
+
   let v = 0
 
   for (let i = 0; i < n; i++) {

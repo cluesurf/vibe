@@ -154,6 +154,7 @@ export function runRailway(
     }
 
     steps++
+
     const at = pc
 
     if (ins.op === 'inc') {

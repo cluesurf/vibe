@@ -84,6 +84,7 @@ export function integrateFriedmann(input: {
     a.push(av)
     rhoTot.push(rt)
     pTot.push(pt)
+
     const next = friedmannStep({
       a: av,
       rhos,
@@ -103,7 +104,7 @@ export function integrateFriedmann(input: {
 // derivatives taken by central differences at uniform step dt. q > 0 is decelerating expansion,
 // q < 0 accelerating.
 export function decelerationParameter(input: {
-  a: ReadonlyArray<number>
+  a: readonly number[]
   index: number
   dt: number
 }): number {

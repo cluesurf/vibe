@@ -55,6 +55,7 @@ export function syDiscreteSymmetries(): {
 
   R[40] = [0.6, 0]
   Lf[40] = [0.8, 0]
+
   const R0 = R.map(z => [...z] as C),
     L0 = Lf.map(z => [...z] as C)
 

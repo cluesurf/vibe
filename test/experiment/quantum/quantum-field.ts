@@ -74,6 +74,7 @@ export function quantumField(input?: { n?: number }): {
   // fluctuation: how many cells change in one more beat (pairs creating/annihilating)
   const before = vac.slice()
   beat(vac, eu, ev, moved, rng, ARROW)
+
   let changed = 0
 
   for (let i = 0; i < N; i++) {
@@ -145,6 +146,7 @@ export function quantumField(input?: { n?: number }): {
   pert[center] =
     (pert[center]! + 1) % 2 === 0 ? 1 : pert[center]! === 1 ? -1 : 1 // flip the center
   pert[center] = base[center]! === 0 ? 1 : 0
+
   const T = 5
   const rb = makeRng({ seed: 99 })
   const rp = makeRng({ seed: 99 })

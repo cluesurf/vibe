@@ -152,6 +152,7 @@ export default experiment({
       open: boolean,
     ): { will: Will; phi: Int32Array } => {
       beatInto({ src: will, dst: scratch, table, collision: rule })
+
       const next = scratch
       const occupied = occupiedOf(next)
       const source = bulkMass({
@@ -290,10 +291,12 @@ export default experiment({
         cleanScratch = clean
         clean = a.will
         phiC = a.phi
+
         const b = evolve(pert, pertScratch, phiP, 4, open)
         pertScratch = pert
         pert = b.will
         phiP = b.phi
+
         let d = 0
 
         for (let i = 0; i < clean.data.length; i++) {

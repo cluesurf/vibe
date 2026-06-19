@@ -29,6 +29,7 @@ const FRAMES = 48
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   // a compact 4D honeycomb by default, {4,3,3,5}, whose cell is the tesseract (small, degree 8). Paracompact
   // honeycombs like {3,4,3,4} have ideal vertices on the boundary sphere, so they draw no finite edges.
   const symbolText = process.argv[2] ?? '4-3-3-5'

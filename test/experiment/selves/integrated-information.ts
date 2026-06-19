@@ -23,7 +23,7 @@ import { experiment } from '@/test/scaffold/suite'
 import { verdict } from '@/test/scaffold/verdict'
 
 function tonePhi(
-  adjacency: ReadonlyArray<Uint32Array>,
+  adjacency: readonly Uint32Array[],
   region: number[],
   rng: Rng,
   fillOf?: (a: number, b: number) => number,

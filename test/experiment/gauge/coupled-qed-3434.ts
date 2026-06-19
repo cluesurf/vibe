@@ -66,6 +66,7 @@ export function coupledQED(): {
 
   R = R.map(z => cscale(z, 1 / Math.sqrt(nrm)))
   Lf = Lf.map(z => cscale(z, 1 / Math.sqrt(nrm)))
+
   const rho = (): number[] =>
     Array.from({ length: L }, (_, x) => cabs2(R[x]!) + cabs2(Lf[x]!))
 

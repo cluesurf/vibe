@@ -114,6 +114,7 @@ export function perceptionMatchingSweep3d(input: {
     (((x % L) + L) % L)
 
   matched.fill(0)
+
   const s0 = Math.floor(rng.next() * N)
 
   for (let s = 0; s < N; s++) {

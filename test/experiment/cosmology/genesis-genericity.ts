@@ -33,6 +33,7 @@ export default experiment({
 
       const n = mesh.cellCount
       sizes.push(n)
+
       const live = chargeTrajectory({
         neighbors: mesh.neighbors,
         initial: new Int8Array(n),

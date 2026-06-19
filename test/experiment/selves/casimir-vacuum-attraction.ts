@@ -83,12 +83,14 @@ export default experiment({
       }
 
       setWalls(current)
+
       const acc = new Array<number>(side).fill(0)
 
       let samples = 0
 
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
+
         const swap = current
         current = scratch
         scratch = swap

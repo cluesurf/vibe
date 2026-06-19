@@ -77,6 +77,7 @@ export default experiment({
     const rootCenter = center(0)
     const distance = new Int32Array(cellCount).fill(-1)
     distance[0] = 0
+
     let frontier = [0]
 
     while (frontier.length > 0) {

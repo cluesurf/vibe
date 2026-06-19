@@ -66,6 +66,7 @@ export function chebyshevMoments(input: {
 
   mu[0] = dotR(probe, t0, dim)
   mu[1] = dotR(probe, t1, dim)
+
   let tn = newCx(dim)
 
   const product = newCx(dim)
@@ -79,6 +80,7 @@ export function chebyshevMoments(input: {
     }
 
     mu[n] = dotR(probe, tn, dim)
+
     const swap = t0
     t0 = t1
     t1 = tn

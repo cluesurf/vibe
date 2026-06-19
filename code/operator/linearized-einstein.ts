@@ -241,7 +241,7 @@ export function linearizedEinstein(h: TensorField): TensorField {
 
 // The ten independent components of a symmetric 4x4 tensor, the orthonormal symmetric-tensor basis
 // the graviton operator is assembled in.
-const GRAVITON_PAIRS: Array<[number, number]> = [
+const GRAVITON_PAIRS: [number, number][] = [
   [0, 0],
   [1, 1],
   [2, 2],
@@ -400,8 +400,10 @@ export function gravitonPolarizationsFromSpectrum(input: {
   const ttPlus = new Array<number>(GRAVITON_PAIRS.length).fill(0)
   ttPlus[1] = 1
   ttPlus[2] = -1
+
   const ttCross = new Array<number>(GRAVITON_PAIRS.length).fill(0)
   ttCross[7] = 1
+
   let physical = 0
 
   for (const mode of [ttPlus, ttCross]) {

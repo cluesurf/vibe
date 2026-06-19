@@ -4,7 +4,7 @@
 // scale-free white seed behind structure formation. Returns the mean count per cell and the contrast.
 
 export function densityContrast(input: {
-  points: ReadonlyArray<ReadonlyArray<number>>
+  points: readonly (readonly number[])[]
   binsPerAxis: number
   dimension?: number
 }): { meanCount: number; delta: number } {

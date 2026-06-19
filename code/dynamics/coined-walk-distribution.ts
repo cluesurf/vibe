@@ -24,6 +24,7 @@ export function coinedWalkQuantumDistribution(input: {
   // symmetric start at x=0, (|L> + i|R>)/sqrt2 (a symmetric two-horned distribution)
   re[0]![off] = 1 / Math.SQRT2
   im[1]![off] = 1 / Math.SQRT2
+
   const h = 1 / Math.SQRT2
 
   for (let t = 0; t < T; t++) {

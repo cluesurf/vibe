@@ -54,6 +54,7 @@ export function persistentSelf(input?: { n?: number }): {
 
   {
     inRegion[0] = 1
+
     let fr = [0]
 
     while (fr.length > 0 && region.length < 1200) {
@@ -138,6 +139,7 @@ export function persistentSelf(input?: { n?: number }): {
   }
 
   seedMedium(self, makeRng({ seed: 5 }))
+
   const rngA = makeRng({ seed: 11 })
   const T = 80
 
@@ -159,6 +161,7 @@ export function persistentSelf(input?: { n?: number }): {
   }
 
   seedMedium(un, makeRng({ seed: 5 }))
+
   const rngB = makeRng({ seed: 11 })
 
   for (let t = 0; t < T; t++) {

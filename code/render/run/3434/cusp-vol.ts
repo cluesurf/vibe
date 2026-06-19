@@ -17,6 +17,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const L = Number(process.argv[2]) || 96 // cube side, N = L^3 cells of flat 3D space (pass a larger arg to scale up)
@@ -133,6 +134,7 @@ async function run(): Promise<void> {
   })
 
   device.queue.writeBuffer(params, 0, new Uint32Array([N, 0, 0, 0]))
+
   const makeState = (): GPUBuffer =>
     device.createBuffer({
       size: byteLength,
@@ -144,12 +146,14 @@ async function run(): Promise<void> {
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
+
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(offBuf, 0, new Uint32Array(offsets))
+
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
@@ -244,12 +248,14 @@ async function run(): Promise<void> {
     }
 
     await staging.mapAsync(GPUMapMode.READ)
+
     const field = new Uint32Array(staging.getMappedRange().slice(0))
     staging.unmap()
 
     accR.fill(0)
     accG.fill(0)
     accB.fill(0)
+
     // house palette, +1 blue, -1 red, 0 black. BACK-TO-FRONT alpha compositing, blends (never sums to white)
     const BLUE: [number, number, number] = PLEASURE
     const RED: [number, number, number] = PAIN

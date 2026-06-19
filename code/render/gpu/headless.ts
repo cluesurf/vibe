@@ -68,6 +68,7 @@ export async function renderFoldToRgba(input: {
   )
   device.queue.submit([encoder.finish()])
   await pixelBuffer.mapAsync(GPUMapMode.READ)
+
   const rgba = new Uint8Array(pixelBuffer.getMappedRange().slice(0))
   pixelBuffer.unmap()
   target.destroy()

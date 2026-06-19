@@ -17,6 +17,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -47,6 +48,7 @@ async function run(): Promise<void> {
   // BFS depth from cell 0 (for seeding the central packet)
   const depth = new Array<number>(n).fill(-1)
   depth[0] = 0
+
   let frontier = [0]
 
   while (frontier.length) {
@@ -121,6 +123,7 @@ async function run(): Promise<void> {
   })
 
   device.queue.writeBuffer(params, 0, new Uint32Array([n, 0, 0, 0]))
+
   const makeState = (): GPUBuffer =>
     device.createBuffer({
       size: byteLength,
@@ -132,18 +135,21 @@ async function run(): Promise<void> {
 
   const bufs: [GPUBuffer, GPUBuffer] = [makeState(), makeState()]
   device.queue.writeBuffer(bufs[0], 0, seed)
+
   const offBuf = device.createBuffer({
     size: offsets.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(offBuf, 0, offsets)
+
   const adjBuf = device.createBuffer({
     size: adj.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
   })
 
   device.queue.writeBuffer(adjBuf, 0, adj)
+
   const module = device.createShaderModule({ code: BULK_STEP_WGSL })
   const pipeline = device.createComputePipeline({
     layout: 'auto',
@@ -218,6 +224,7 @@ async function run(): Promise<void> {
     device.queue.submit([enc.finish()])
     src = 1 - src
     await staging.mapAsync(GPUMapMode.READ)
+
     const tones = new Uint32Array(staging.getMappedRange().slice(0))
     staging.unmap()
 

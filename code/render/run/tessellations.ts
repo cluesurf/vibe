@@ -87,6 +87,7 @@ const BALL_FAR: Rgb = [16, 16, 22]
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   const want = process.argv.slice(2)
   const lines = readFileSync(csvPath, 'utf8')
     .trim()

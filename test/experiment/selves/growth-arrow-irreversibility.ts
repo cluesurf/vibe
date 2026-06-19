@@ -81,6 +81,7 @@ function loschmidtEcho(input: {
       table: input.table,
       collision: input.forward,
     })
+
     const swap = current
     current = scratch
     scratch = swap
@@ -125,6 +126,7 @@ function occupancyProfile(input: {
       table: input.table,
       collision: input.forward,
     })
+
     const swap = current
     current = scratch
     scratch = swap
@@ -185,6 +187,7 @@ export default experiment({
     // initial condition, with about a third peace so the create move has room to act.
     const init = makeWill(mesh)
     fillWillPattern(init)
+
     const frontierX = 0
 
     // 1, the Loschmidt echo. Closed returns exactly, open does not.

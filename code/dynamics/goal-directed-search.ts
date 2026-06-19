@@ -33,6 +33,7 @@ export function solveGoalDirected(input: {
 
   while (gap > 0 && steps < guard) {
     steps++
+
     const i = Math.floor(rng.next() * K)
 
     // a move toward the goal is KEPT only if it reduces the gap (goal-directed selection)

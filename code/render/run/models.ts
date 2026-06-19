@@ -33,6 +33,7 @@ const MODELS: ProjectionModel[] = [
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   const symbolText = process.argv[2] ?? '7-3'
   const symbol = symbolText.split('-').map(Number)
   const scene = buildHoneycombScene({ symbol, maxCells: 2000 })

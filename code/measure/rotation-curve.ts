@@ -7,8 +7,8 @@
 import { linearFit } from '@/code/measure/regression'
 
 export function rotationCurveFromPotential(input: {
-  radii: ReadonlyArray<number>
-  potential: ReadonlyArray<number>
+  radii: readonly number[]
+  potential: readonly number[]
 }): {
   r: number[]
   v2: number[]

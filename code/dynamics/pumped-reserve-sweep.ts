@@ -13,7 +13,7 @@ import { Rng } from '@/code/tool/rng'
 // value for cells missing from distC. Every swap preserves the pair sum, so net charge is conserved.
 export function pumpedReserveSweep(input: {
   tone: Int8Array
-  edges: ReadonlyArray<readonly [number, number]>
+  edges: readonly (readonly [number, number])[]
   inSelf: Uint8Array
   distC: Int32Array
   rng: Rng

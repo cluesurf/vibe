@@ -9,9 +9,7 @@ export type DodecaTotalisticState = 'W' | 'B' | 'R' | 'G'
 const RANK: Record<string, number> = { W: 0, B: 1, R: 2, G: 3 }
 
 // the complete transition table, [current state, neighbourhood weight, new state]
-export const DODECAGRID_TOTALISTIC_RULES: Array<
-  [string, number, string]
-> = [
+export const DODECAGRID_TOTALISTIC_RULES: [string, number, string][] = [
   ['W', 0, 'W'],
   ['R', 1, 'R'],
   ['G', 0, 'G'],

@@ -42,6 +42,7 @@ export function quantumFormalism(input: { n: number }): {
   const re0 = new Float64Array(n)
   const im0 = new Float64Array(n)
   re0[0] = 1 // start localized, norm 1
+
   const norms = [0, 2, 5, 9, 14].map(t =>
     norm(
       evolve({ eig, n, re0, im0, t }).re,
@@ -53,8 +54,10 @@ export function quantumFormalism(input: { n: number }): {
   // probability of the sum to the sum of the probabilities at a target site.
   const aRe = new Float64Array(n)
   aRe[0] = 1
+
   const bRe = new Float64Array(n)
   bRe[Math.floor(n / 2)] = 1
+
   const t = 6
   const a = evolve({ eig, n, re0: aRe, im0: new Float64Array(n), t })
   const b = evolve({ eig, n, re0: bRe, im0: new Float64Array(n), t })

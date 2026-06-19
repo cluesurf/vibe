@@ -7,7 +7,7 @@ import { toCsr } from '@/code/tool/graph'
 
 // Index of the innermost cell, the one with the smallest radius (nearest the embedding origin), the
 // deterministic root the radial probes start from. Ties resolve to the lowest index.
-export function innermostCell(radii: ReadonlyArray<number>): number {
+export function innermostCell(radii: readonly number[]): number {
   let node = 0
   let best = Infinity
 
@@ -23,7 +23,7 @@ export function innermostCell(radii: ReadonlyArray<number>): number {
 
 // Boundary cells: those whose radius exceeds `fraction` of the maximum radius.
 export function boundaryByRadius(input: {
-  radii: ReadonlyArray<number>
+  radii: readonly number[]
   fraction: number
 }): number[] {
   const { radii, fraction } = input
@@ -52,6 +52,7 @@ export function surfaceDistances(input: {
   const { offsets, adjacency, isBoundary, source, nodeCount } = input
   const dist = new Int32Array(nodeCount).fill(-1)
   dist[source] = 0
+
   let frontier = [source]
 
   while (frontier.length) {
@@ -78,8 +79,8 @@ export function surfaceDistances(input: {
 // per-cell depth and parent, and an lca-depth function giving the depth of the lowest common
 // ancestor of two cells (the bulk meeting point of two boundary points).
 export function radialBfsTree(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
-  radii: ReadonlyArray<number>
+  neighbors: readonly (readonly number[])[]
+  radii: readonly number[]
 }): {
   root: number
   depth: Int32Array
@@ -94,6 +95,7 @@ export function radialBfsTree(input: {
   const depth = new Int32Array(n).fill(-1)
   const parent = new Int32Array(n).fill(-1)
   depth[root] = 0
+
   let frontier = [root]
 
   while (frontier.length) {

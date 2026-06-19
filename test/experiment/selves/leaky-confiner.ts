@@ -94,6 +94,7 @@ export default experiment({
 
       for (let t = 0; t < beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
+
         const swap = current
         current = scratch
         scratch = swap
@@ -115,6 +116,7 @@ export default experiment({
       pert.data[center * degree + 0] = (
         pert.data[center * degree + 0] === 1 ? -1 : 1
       ) as -1 | 1
+
       let plainScratch: Will = {
         mesh,
         data: new Int8Array(plain.data.length),
@@ -134,6 +136,7 @@ export default experiment({
           table,
           collision: rule,
         })
+
         const ps = plain
         plain = plainScratch
         plainScratch = ps
@@ -143,6 +146,7 @@ export default experiment({
           table,
           collision: rule,
         })
+
         const pe = pert
         pert = pertScratch
         pertScratch = pe

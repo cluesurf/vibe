@@ -322,6 +322,7 @@ export function hyperbolicSunflower(input: {
   for (let i = 0; i < n; i++) {
     const u = (i + 0.5) / n
     r[i] = radiusFromHeight(u, coshRminus1)
+
     const frac = (i * phiInv) % 1
     theta[i] = 2 * Math.PI * frac
   }

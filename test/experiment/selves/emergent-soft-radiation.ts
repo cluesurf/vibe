@@ -76,6 +76,7 @@ export default experiment({
 
       for (let t = 1; t <= beats; t++) {
         beatInto({ src: current, dst: scratch, table, collision: rule })
+
         const swap = current
         current = scratch
         scratch = swap

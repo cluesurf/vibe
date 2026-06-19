@@ -47,6 +47,7 @@ export class GrowingPentagrid {
 
       const childWhite = task.children[task.cursor] ?? true
       task.cursor += 1
+
       const id = this.parent.length
       this.parent.push(task.id)
       this.white.push(childWhite)

@@ -144,7 +144,7 @@ export class VibeBuilder {
 export class VibeWorld {
   private cfg: VibeConfig
   private substrate: Substrate
-  private neighbors: ReadonlyArray<Uint32Array>
+  private neighbors: readonly Uint32Array[]
   private tone: Int8Array
   private fills: Int8Array[]
   private rng: Rng
@@ -154,6 +154,7 @@ export class VibeWorld {
     this.rng = makeRng({ seed: cfg.seed })
     this.substrate = buildSubstrate(cfg, this.rng)
     this.neighbors = undirectedAdjacency({ substrate: this.substrate })
+
     const n = this.substrate.size
     const toneValues = cfg.tone === 'ternary' ? 3 : 2
     this.tone = new Int8Array(n)
@@ -292,7 +293,7 @@ export class VibeWorld {
 // Coarse-grain the settled mesh into coherent domains (connected regions of one tone) and count
 // those of at least minSize, the higher vibes the recursion reads off the base (P57 to P60).
 function countHigherVibes(
-  neighbors: ReadonlyArray<Uint32Array>,
+  neighbors: readonly Uint32Array[],
   tone: Int8Array,
   minSize: number,
 ): number {
@@ -375,7 +376,7 @@ function buildSubstrate(cfg: VibeConfig, rng: Rng): Substrate {
 
 // Ternary fills, symmetric (one shared value per note) unless directed.
 function buildFills(
-  neighbors: ReadonlyArray<Uint32Array>,
+  neighbors: readonly Uint32Array[],
   cfg: VibeConfig,
   rng: Rng,
 ): Int8Array[] {
@@ -421,6 +422,7 @@ function buildFills(
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
         fv[k] = f
+
         const fw = fills[w]
         const kk = indexOf[w]?.get(v)
 

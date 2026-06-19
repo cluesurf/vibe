@@ -36,10 +36,12 @@ function heightReach(input: {
   const minHeight = 2
   const asserted = makeBitMatrix({ rows: n, cols: n })
   setBit(asserted, { row: 0, col: 1 }) // a tiny seed chain
+
   let f = closure(asserted, n)
 
   const heights = new Set<number>()
   heights.add(heightOf(f, n))
+
   // For the single-pair move we operate directly on the closure and require it to stay closed.
   let closureState = cluster ? f : closure(asserted, n)
 

@@ -141,6 +141,7 @@ export default experiment({
   paper: false,
   run() {
     fourdTessellations()
+
     const reference = measure([3, 4, 3, 4], false)
     const crystallographic = [3, 4, 3, 4].every(
       n => n === 3 || n === 4 || n === 6,

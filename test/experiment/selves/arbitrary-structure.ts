@@ -68,6 +68,7 @@ function construct(target: Int8Array, rng: Rng): number {
 
   while (gap > 0 && steps < 100 * M) {
     steps++
+
     const i = Math.floor(rng.next() * M)
 
     if (s[i] !== target[i]) {

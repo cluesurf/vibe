@@ -61,6 +61,7 @@ export function dCubePoissonGreens(input: {
   const b = new Float64Array(N)
   const c0 = d === 3 ? [L >> 1, L >> 1, L >> 1] : [L >> 1, L >> 1]
   b[idx(c0)] = 1
+
   const x = new Float64Array(N),
     r = b.slice(),
     p = b.slice(),
@@ -70,6 +71,7 @@ export function dCubePoissonGreens(input: {
 
   for (let it = 0; it < iterations; it++) {
     lap(p, Ap)
+
     const al = rs / dot(p, Ap)
 
     for (let i = 0; i < N; i++) {

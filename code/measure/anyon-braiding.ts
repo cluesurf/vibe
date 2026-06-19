@@ -23,9 +23,9 @@ export function squareLoop(input: {
   radius: number
   cx: number
   cy: number
-}): Array<[number, number]> {
+}): [number, number][] {
   const { radius: r, cx, cy } = input
-  const points: Array<[number, number]> = []
+  const points: [number, number][] = []
 
   for (let x = cx - r; x < cx + r; x++) {
     points.push([x, cy - r])
@@ -52,7 +52,7 @@ export function squareLoop(input: {
 // zero otherwise.
 export function zNVortexHolonomy(input: {
   states: number
-  loop: ReadonlyArray<[number, number]>
+  loop: readonly [number, number][]
   fluxX: number
   fluxY: number
 }): number {

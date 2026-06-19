@@ -66,6 +66,7 @@ export function reflectionPositivity(input?: { n?: number }): {
     const out: number[] = []
     const seen = new Uint8Array(N)
     seen[seed] = 1
+
     let fr = [seed]
 
     while (fr.length > 0 && out.length < size) {
@@ -151,6 +152,7 @@ export function reflectionPositivity(input?: { n?: number }): {
     }
 
     mean /= len
+
     const ac: number[] = []
 
     for (let tau = 0; tau <= maxTau; tau++) {
@@ -179,6 +181,7 @@ export function reflectionPositivity(input?: { n?: number }): {
   }
 
   mean /= T
+
   const autocorr: number[] = []
 
   for (let tau = 0; tau <= maxTau; tau++) {

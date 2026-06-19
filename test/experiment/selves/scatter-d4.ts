@@ -64,10 +64,12 @@ export default experiment({
     const headOn = makeWill(mesh)
     headOn.data[center * degree + dir] = 1
     headOn.data[center * degree + opp] = 1
+
     const mBeforePair = momentum(headOn, ROOTS)
 
     const deflected = { mesh, data: headOn.data.slice() }
     collide(deflected, mobile)
+
     // after the momentum-conserving collide the incoming line is empty (the pair moved to its partner line).
     const incomingEmptied =
       deflected.data[center * degree + dir] === 0 &&
@@ -84,6 +86,7 @@ export default experiment({
     // the control, passThrough leaves the pair on its incoming line (a straight crossing, no deflection).
     const crossed = { mesh, data: headOn.data.slice() }
     collide(crossed, passThrough)
+
     const crossingStays =
       crossed.data[center * degree + dir] === 1 &&
       crossed.data[center * degree + opp] === 1
@@ -93,6 +96,7 @@ export default experiment({
     const approach = makeWill(mesh)
     approach.data[mesh.neighbour(center, opp) * degree + dir] = 1 // streams forward into the center along dir
     approach.data[mesh.neighbour(center, dir) * degree + opp] = 1 // streams back into the center along opp
+
     const beats = 4
     const mStart = momentum(approach, ROOTS)
 

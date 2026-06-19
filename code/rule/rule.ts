@@ -31,7 +31,7 @@ export interface Rule {
 // the next value. The building block of the concrete rule schemes.
 export type LocalMap = (input: {
   self: number
-  neighborhood: ReadonlyArray<number>
+  neighborhood: readonly number[]
 }) => number
 
 // Run a rule for a number of beats, returning the final configuration and

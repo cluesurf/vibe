@@ -87,6 +87,7 @@ export function solitonPersistence(): {
   s[5] = 1
   s[6] = 1
   s[7] = 1
+
   const positions: number[] = []
 
   let sz = solitonSizes(s)
@@ -132,6 +133,7 @@ export function solitonPersistence(): {
   let s2 = new Array(L).fill(0)
   s2[3] = s2[4] = s2[5] = 1
   s2[12] = 1 // a 3 behind a 1, the 3 is faster
+
   const before = solitonSizes(s2)
   const startRuns = runs(s2)
   const big0 = startRuns.find(r => r.size === 3)!,

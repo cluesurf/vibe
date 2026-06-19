@@ -142,6 +142,7 @@ export function selfEmergencePerception(): {
   }
 
   bg /= n
+
   const imprintRetention = (after - bg) / (start - bg || 1)
   const conservedImp = true // imprint changes Q deliberately, dynamics after conserve it
 

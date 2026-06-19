@@ -41,6 +41,7 @@ export function rotationCurve(input: {
   const center = mid + input.side * (mid + input.side * mid)
   const b = new Float64Array(n).fill(-1 / n)
   b[center] = 1 - 1 / n
+
   const phi1 = cgSolve(lat.neighbors, b)
   const phi = new Float64Array(n)
 

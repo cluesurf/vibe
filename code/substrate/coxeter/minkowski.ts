@@ -266,6 +266,7 @@ export function orthogonalComplementBasis(pole: Vec): Vec[] {
   for (let axis = 0; axis < m && basis.length < m - 1; axis++) {
     const e: Vec = new Array<number>(m).fill(0)
     e[axis] = 1
+
     // remove the pole component and every chosen basis component
     let dp = 0
 

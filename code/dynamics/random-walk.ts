@@ -5,7 +5,7 @@
 import { Rng, makeRng } from '@/code/tool/rng'
 import { bfsShells } from '@/code/measure/shells'
 
-type Neighbors = ReadonlyArray<ReadonlyArray<number>>
+type Neighbors = readonly (readonly number[])[]
 
 // Mean-square displacement of a 1D classical random walk after each step, averaged over independent runs.
 // The diffusive baseline (MSD ~ t, exponent ~ 1) that the ballistic quantum walk is contrasted against. Each

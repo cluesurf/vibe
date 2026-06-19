@@ -74,6 +74,7 @@ function gaugeWilsonDiracRandom(input: {
         phaseIm: 0,
         coefficient: 2,
       })
+
       // mu = 1
       const u1x = ph(input.u1[x] ?? 0)
       addComplexBlock({
@@ -85,6 +86,7 @@ function gaugeWilsonDiracRandom(input: {
         phaseIm: u1x.im,
         coefficient: -0.5,
       })
+
       const u1b = ph(input.u1[site(n1 - 1, n2, L)] ?? 0)
       addComplexBlock({
         matrix: d,
@@ -95,6 +97,7 @@ function gaugeWilsonDiracRandom(input: {
         phaseIm: -u1b.im,
         coefficient: -0.5,
       })
+
       // mu = 2
       const u2x = ph(input.u2[x] ?? 0)
       addComplexBlock({
@@ -106,6 +109,7 @@ function gaugeWilsonDiracRandom(input: {
         phaseIm: u2x.im,
         coefficient: -0.5,
       })
+
       const u2b = ph(input.u2[site(n1, n2 - 1, L)] ?? 0)
       addComplexBlock({
         matrix: d,

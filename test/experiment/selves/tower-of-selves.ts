@@ -180,6 +180,7 @@ export function towerOfSelves(input: { seed: number }): {
     }
 
     coh /= K
+
     // rule agreement: is this level's aggregate a fixed point of the renormalized rule?
     let ruleAgreement = 1
 

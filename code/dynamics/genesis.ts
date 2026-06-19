@@ -29,7 +29,7 @@ export function chargedCount(tone: Int8Array): number {
 // trajectory, length beats + 1 including the start), plus the conserved-charge check. Does not mutate
 // `initial`. Deterministic given the seed (the rng only orders the edges and breaks the polarization coin).
 export function chargeTrajectory(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   initial: Int8Array
   beats: number
   arrow: number
@@ -112,7 +112,7 @@ export function genesisProfile(input: {
 // depth) nothing is ever created. `beat` seeds the hash so successive beats hit different edges.
 export function wakeDrivenSweep(input: {
   tone: Int8Array
-  edges: ReadonlyArray<readonly [number, number]>
+  edges: readonly (readonly [number, number])[]
   moved: Uint8Array
   depth: Int32Array
   beat: number
@@ -187,7 +187,7 @@ export function growthRate(depth: Int32Array): number {
 // real growth-depth gradient and the growth-derived rate this brings a living balance out of the peace void,
 // with a uniform (flat) depth, or zero rate (no growth), it stays dead.
 export function wakeTrajectory(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   depth: Int32Array
   initial: Int8Array
   beats: number
@@ -226,7 +226,7 @@ export function wakeTrajectory(input: {
 // how many +1 and -1 cells it made, whether they are balanced and adjacent (a single conserving pair, the first
 // distinction). Returns beatsToFirst = -1 if no charge ever appears (dead peace, e.g. arrow 0).
 export function firstDistinction(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   cells: number
   arrow: number
   seed: number
@@ -316,7 +316,7 @@ export function balanceToZero(tone: Int8Array): Int8Array {
 // different initial conditions under identical dynamics, recorded after each beat. A decaying difference is
 // FORGETTING, the deep past washing out, the start becoming irrelevant.
 export function differenceTrajectory(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   initialA: Int8Array
   initialB: Int8Array
   beats: number
@@ -381,7 +381,7 @@ export function differenceTrajectory(input: {
 // needed for creation), and the charges are left behind as the edge advances. The bulk runs share and a
 // hash-desync hop. So the entire arrow, rate and direction and timing, is the growth, nothing is posited.
 export function growingMeshGenesis(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   depth: Int32Array
   settleBeats?: number
   integerHop?: boolean // when true, the hop desync is an INTEGER parity, so the whole rule is pure ternary + integer (no decimal, no rng, no hash)
@@ -467,6 +467,7 @@ export function growingMeshGenesis(input: {
 
   for (let b = 1; b <= maxDepth; b++) {
     step(b, b) // grow to shell b, create only at the moving frontier (shell b meets b-1)
+
     let born = 0,
       alive = 0
 
@@ -512,7 +513,7 @@ export function growingMeshGenesis(input: {
 // enumerate the rule as a map (for Garden-of-Eden / injectivity analysis). Deterministic given the seed.
 export function oneBeat(input: {
   tone: Int8Array
-  edges: ReadonlyArray<readonly [number, number]>
+  edges: readonly (readonly [number, number])[]
   arrow: number
   seed: number
 }): Int8Array {
@@ -536,7 +537,7 @@ export function oneBeat(input: {
 // image, and a large fraction are Garden-of-Eden (unreachable). This non-injectivity is exactly what gives the
 // open system an attractor and lets it forget its start. Cells must be small (3^cells enumerated).
 export function gardenOfEdenFraction(input: {
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
   cells: number
   arrow: number
   seed: number
@@ -589,7 +590,7 @@ export function gardenOfEdenFraction(input: {
 // attractor is canonical.
 export function attractorSignature(input: {
   tone: Int8Array
-  neighbors: ReadonlyArray<ReadonlyArray<number>>
+  neighbors: readonly (readonly number[])[]
 }): {
   density: number
   netBalance: number

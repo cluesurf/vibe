@@ -117,6 +117,7 @@ export function universality(): {
 
   for (let step = 0; step < 12; step++) {
     snapshots.push(line.map(b => (b === 1 ? '#' : '.')).join(''))
+
     const next: Bit[] = line.map((_, i) => {
       const l = line[(i - 1 + width) % width] ?? -1
       const c = line[i] ?? -1

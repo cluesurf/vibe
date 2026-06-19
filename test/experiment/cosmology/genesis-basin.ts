@@ -80,7 +80,7 @@ export default experiment({
       })(),
     )
 
-    const ics: Array<[string, Int8Array]> = [
+    const ics: [string, Int8Array][] = [
       ['void', theVoid],
       ['pair', pairSeed],
       ['dense', denseAlt],

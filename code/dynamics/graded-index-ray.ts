@@ -34,6 +34,7 @@ export function traceGradedIndexRay(input: {
     // turn the tangent toward the perpendicular component of grad n, scaled by 1/n
     tx += ((gx - tx * dot) / n) * step
     ty += ((gy - ty * dot) / n) * step
+
     const norm = Math.hypot(tx, ty)
     tx /= norm
     ty /= norm

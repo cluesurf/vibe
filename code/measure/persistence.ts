@@ -5,7 +5,7 @@ import { pearson } from '@/code/measure/statistics'
 // structure that survives `lag` beats scores high. Used by the coherence-tower probes to ask whether
 // coarse-grained patterns persist longer than the fine scale and longer than a shuffled null.
 export function lagAutocorrelation(input: {
-  series: ReadonlyArray<ArrayLike<number>>
+  series: readonly ArrayLike<number>[]
   lag: number
   epsilon?: number
 }): number {

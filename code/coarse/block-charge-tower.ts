@@ -52,6 +52,7 @@ export function blockChargeTower(input: {
       totalCharge: Math.round(total),
       compressibility,
     })
+
     const next = new Float64Array(Math.floor(level.length / 2))
 
     for (let i = 0; i < next.length; i++) {

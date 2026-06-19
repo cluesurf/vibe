@@ -60,6 +60,7 @@ export default experiment({
 
       for (let t = 0; t < steps; t++) {
         s = precessSpins({ spins: s, params, dt, open: false })
+
         const q = skyrmionDegree(s, params.size)
 
         if (q < min) {

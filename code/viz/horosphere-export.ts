@@ -173,6 +173,7 @@ export function exportHorosphere(input?: {
 
   const e1n = norm(e1)
   e1 = e1.map(v => v / e1n)
+
   // e2 = xi cross e1
   const e2 = [
     xi[1]! * e1[2]! - xi[2]! * e1[1]!,

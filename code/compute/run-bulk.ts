@@ -10,6 +10,7 @@ import { buildDodecagrid } from '@/code/substrate/coxeter/cell-scale'
 import { BULK_STEP_WGSL } from '@/code/compute/wave.wgsl'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -101,6 +102,7 @@ async function run(): Promise<void> {
   })
 
   device.queue.writeBuffer(offBuf, 0, offsetsU)
+
   const adjBuf = device.createBuffer({
     size: adjU.byteLength,
     usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
@@ -166,6 +168,7 @@ async function run(): Promise<void> {
   }
 
   await staging.mapAsync(GPUMapMode.READ)
+
   const gpuOut = new Uint32Array(staging.getMappedRange().slice(0))
   staging.unmap()
 
@@ -192,9 +195,11 @@ async function run(): Promise<void> {
   device.queue.writeBuffer(bufs[0], 0, seed)
   stepGpu(1, 0)
   await device.queue.onSubmittedWorkDone()
+
   const start = performance.now()
   stepGpu(BENCH_BEATS, 0)
   await device.queue.onSubmittedWorkDone()
+
   const seconds = (performance.now() - start) / 1000
   const beatsPerSec = BENCH_BEATS / seconds
   console.log(

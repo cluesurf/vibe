@@ -66,7 +66,7 @@ function localMove(input: {
 // taken in the second (equilibrated) half of the run, plus the swap acceptance.
 export function parallelTempering(input: {
   size: number
-  betas: ReadonlyArray<number>
+  betas: readonly number[]
   action: Action
   sweeps: number
   movesPerSweep: number
@@ -142,6 +142,7 @@ export function parallelTempering(input: {
       }
 
       swapAttempts += 1
+
       // Accept with min(1, exp((beta_a - beta_b)(S_a - S_b))).
       const delta = (ba - bb) * (ra.action - rb.action)
 

@@ -189,7 +189,7 @@ export function eigSymmetric(input: {
     }
   }
 
-  const pairs: Array<{ value: number; col: number }> = []
+  const pairs: { value: number; col: number }[] = []
 
   for (let i = 0; i < n; i++) {
     pairs.push({ value: at(i, i), col: i })

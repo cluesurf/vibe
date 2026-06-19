@@ -6,7 +6,7 @@
 
 import { makeRng, Rng } from '@/code/tool/rng'
 
-type Neighbors = ReadonlyArray<ArrayLike<number>>
+type Neighbors = readonly ArrayLike<number>[]
 
 // Symmetric per-edge ternary couplings: for each undirected edge a uniform value in
 // {-1, 0, +1} is drawn once (when w > v) and written to both half-edges, so the
@@ -44,6 +44,7 @@ export function symmetricEdgeFills(input: {
       if (w > v) {
         const f = rng.nextInt({ max: 3 }) - 1
         fv[k] = f
+
         const fw = fills[w]
         const kk = indexOf[w]?.get(v)
 

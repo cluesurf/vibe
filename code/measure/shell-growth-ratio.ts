@@ -5,7 +5,7 @@
 // a value); without it, a window with fewer than two entries returns zero.
 
 export function shellGrowthRatio(input: {
-  shellCounts: ReadonlyArray<number>
+  shellCounts: readonly number[]
   from: number
   to: number
   safeDenominator?: boolean

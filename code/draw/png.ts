@@ -32,6 +32,7 @@ function crc32(buf: Buffer): number {
 function chunk(type: string, data: Buffer): Buffer {
   const len = Buffer.alloc(4)
   len.writeUInt32BE(data.length, 0)
+
   const body = Buffer.concat([Buffer.from(type, 'ascii'), data])
   const crc = Buffer.alloc(4)
   crc.writeUInt32BE(crc32(body), 0)
@@ -50,6 +51,7 @@ export function encodePng(
   ihdr.writeUInt32BE(height, 4)
   ihdr[8] = 8 // bit depth
   ihdr[9] = 6 // colour type 6, RGBA
+
   const stride = width * 4
   const raw = Buffer.alloc(height * (stride + 1))
 

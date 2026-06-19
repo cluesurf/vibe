@@ -17,6 +17,7 @@ import {
 import { ASSOCIATIVE_MATCH_WGSL } from '@/code/compute/associative.wgsl'
 
 Object.assign(globalThis, globals)
+
 const navigator = { gpu: create([]) }
 
 const WORKGROUP = 256
@@ -66,6 +67,7 @@ async function gpuResponders(input: {
     0,
     new Uint32Array([cellCount, wordBits, minScore, 0]),
   )
+
   const words = storage(wordsU)
   const comparand = storage(comparandU)
   const mask = storage(maskU)
@@ -105,8 +107,10 @@ async function gpuResponders(input: {
   enc.copyBufferToBuffer(responders, 0, readback, 0, cellCount * 4)
   device.queue.submit([enc.finish()])
   await readback.mapAsync(GPUMapMode.READ)
+
   const out = new Uint32Array(readback.getMappedRange().slice(0))
   readback.unmap()
+
   const ms = performance.now() - t0
 
   return { responders: out, ms }

@@ -29,7 +29,7 @@ export function fibonacciSphereDirections(count: number): number[][] {
 // along the x axis intercepts, the body's solid angle over the full sphere. This is the Le Sage shadow deficit, and
 // it scales as 1 / bodyDistance squared. The push toward the body is proportional to it.
 export function isotropicShadowFraction(input: {
-  directions: ReadonlyArray<ReadonlyArray<number>>
+  directions: readonly (readonly number[])[]
   bodyDistance: number
   bodyRadius: number
 }): number {
@@ -104,7 +104,7 @@ export function directionalShadowFraction(input: {
 // the irreducible drag that rules Le Sage gravity out as a fundamental mechanism. Returns the net longitudinal
 // force (negative is drag).
 export function leSageDrag(input: {
-  directions: ReadonlyArray<ReadonlyArray<number>>
+  directions: readonly (readonly number[])[]
   velocity: number
 }): number {
   let force = 0
@@ -119,8 +119,8 @@ export function leSageDrag(input: {
 
 // The power-law exponent of a quantity against distance, fit in log-log space.
 export function distanceExponent(
-  distances: ReadonlyArray<number>,
-  values: ReadonlyArray<number>,
+  distances: readonly number[],
+  values: readonly number[],
 ): number {
   const xs = distances.map(d => Math.log(d))
   const ys = values.map(v => Math.log(v))

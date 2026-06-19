@@ -83,6 +83,7 @@ export function laplacianGreensFunction(input: {
   const b = new Float64Array(n)
   b.fill(-1 / n)
   b[input.center] = 1 - 1 / n
+
   const phi = new Float64Array(n)
   const residual = Float64Array.from(b)
   const direction = Float64Array.from(b)
@@ -92,6 +93,7 @@ export function laplacianGreensFunction(input: {
   for (let iter = 0; iter < 4 * n; iter++) {
     const temp = sparseMatVec(L, { x: direction })
     subtractMean(temp)
+
     const alpha = rsOld / Math.max(dot(direction, temp), 1e-300)
 
     for (let i = 0; i < n; i++) {

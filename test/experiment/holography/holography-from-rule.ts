@@ -73,6 +73,7 @@ export default experiment({
     // (2) THE GAP, erase one boundary cell (set it to unknown, here flip it) and the parity rule loses the root
     const erased = leaves.slice()
     erased[0] = 1 - erased[0]! // a single erasure flips the recovered parity
+
     const rootAfterErasure = subtreeParity(depth, 0, erased, branching)
     const genericRuleFailsErasure = rootAfterErasure !== logical
 

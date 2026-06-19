@@ -60,6 +60,7 @@ export function exactScale(input?: { n?: number }): {
   }
 
   saveGraph(path, stored)
+
   const loaded = loadGraph(path)
 
   let roundTripsOnDisk =

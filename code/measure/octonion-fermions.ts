@@ -28,8 +28,10 @@ function leftMultiplication(a: number): number[][] {
   for (let j = 0; j < 8; j++) {
     const basis = new Array<number>(8).fill(0)
     basis[j] = 1
+
     const unit = new Array<number>(8).fill(0)
     unit[a] = 1
+
     const product = cayleyMultiply(unit, basis)
 
     for (let i = 0; i < 8; i++) {

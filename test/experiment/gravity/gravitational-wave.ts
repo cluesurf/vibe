@@ -51,6 +51,7 @@ function propagate(): { frontSpeed: number; reversible: boolean } {
   let previous = new Uint8Array(RING)
   let current = new Uint8Array(RING)
   current[center] = 1
+
   const seedPrev = previous.slice()
   const seedCur = current.slice()
 

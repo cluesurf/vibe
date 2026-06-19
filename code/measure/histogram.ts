@@ -8,7 +8,7 @@
 // concentrated in one bin. Samples outside the range are dropped, and an empty
 // (all-out-of-range) histogram returns 0.
 export function histogramFlatness(input: {
-  samples: ReadonlyArray<number>
+  samples: readonly number[]
   range: number
   bins: number
 }): number {

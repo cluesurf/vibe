@@ -59,6 +59,7 @@ export function memoryVsConservation(input?: { n?: number }): {
   {
     const seen = new Uint8Array(N)
     seen[0] = 1
+
     let fr = [0]
 
     while (fr.length > 0 && region.length < 2000) {

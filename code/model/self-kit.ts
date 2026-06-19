@@ -228,6 +228,7 @@ export function beat(
   const { offsets, adj } = g
   const N = tone.length
   moved.fill(0)
+
   const start = Math.floor(rng.next() * N)
 
   for (let s = 0; s < N; s++) {
@@ -577,6 +578,7 @@ export function selfLeakAndFidelity(input: {
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
   beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, cohesion)
+
   const leakPerBeat =
     before > 0 ? 1 - countPlus(tl, cluster) / before : 1
 

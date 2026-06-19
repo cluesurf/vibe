@@ -38,9 +38,7 @@ export function chargeDensityProfile(input: {
 }
 
 // Gradient signature of a profile, its range over its mean. Flat is near zero.
-export function profileGradient(
-  profile: ReadonlyArray<number>,
-): number {
+export function profileGradient(profile: readonly number[]): number {
   const mean = profile.reduce((a, b) => a + b, 0) / profile.length
 
   if (mean === 0) {
@@ -127,6 +125,7 @@ export function weightedGridRadiusOfGyration(input: {
 
   cx /= total
   cy /= total
+
   let m2 = 0
 
   for (let i = 0; i < cellCount; i++) {

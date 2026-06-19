@@ -142,12 +142,14 @@ export function renderSceneToRgba(input: RasterOptions): {
         const x2 = cxw * x - sxw * w
         w = sxw * x + cxw * w
         x = x2
+
         const czw = Math.cos(rotateZW),
           szw = Math.sin(rotateZW)
 
         const z2 = czw * z - szw * w
         w = szw * z + czw * w
         z = z2
+
         // perspective projection from 4D to 3D, w nearer the 4D eye (W_EYE) magnifies, like a 3D camera does
         const W_EYE = 2.2
         const k = W_EYE / (W_EYE - w)
@@ -191,6 +193,7 @@ export function renderSceneToRgba(input: RasterOptions): {
     }
 
     depth /= plane.length
+
     let t: number
 
     if (threeD) {
@@ -277,6 +280,7 @@ export function renderSceneToRgba(input: RasterOptions): {
 
     cx = (minX + maxX) / 2
     cy = (minY + maxY) / 2
+
     const span = Math.max(maxX - minX, maxY - minY) || 1
     scale = (size * margin) / span
   }

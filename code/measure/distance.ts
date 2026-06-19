@@ -19,6 +19,7 @@ export function graphDistance(input: {
   const size = input.substrate.size
   const distance = new Int32Array(size).fill(-1)
   distance[input.from] = 0
+
   let frontier: number[] = [input.from]
 
   while (frontier.length > 0) {

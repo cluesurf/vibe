@@ -148,6 +148,7 @@ function coarseGrain(
       if (cv !== cw) {
         superNbr[cv]?.add(cw)
         superNbr[cw]?.add(cv)
+
         const key = cv < cw ? `${cv},${cw}` : `${cw},${cv}`
         edgeFill.set(key, (edgeFill.get(key) ?? 0) + (fl[k] ?? 0))
       }

@@ -124,6 +124,7 @@ export function emergentGauge(): {
 
   // a generic aligning collision does not conserve the internal charge per pair (it relaxes it)
   internalViol = 1 // by construction the aligning collision is not internal-conserving
+
   const internalLocallyConserved = internalViol === 0
 
   return { chargeLocallyConserved, internalLocallyConserved }

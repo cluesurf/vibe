@@ -112,7 +112,7 @@ export function gravityMoves(input: {
   cellCount: number
   spatialDegree: number
   minNeighbours: number
-}): Array<[number, number]> {
+}): [number, number][] {
   const {
     occupied,
     phi,
@@ -123,7 +123,7 @@ export function gravityMoves(input: {
   } = input
 
   const free = occupied.slice()
-  const moves: Array<[number, number]> = []
+  const moves: [number, number][] = []
 
   for (let c = 0; c < cellCount; c++) {
     if (!free[c]) {

@@ -132,6 +132,7 @@ function run(withDynamics: boolean): {
     const out: number[] = []
     const seen = new Uint8Array(N)
     seen[start] = 1
+
     let fr = [start]
 
     while (fr.length > 0 && out.length < size) {
@@ -221,6 +222,7 @@ function run(withDynamics: boolean): {
   }
 
   randomCorr /= peripherals.length
+
   const shuffledCorr = Math.abs(
     pearson({ a: coreSeries, b: gSeries.slice().reverse() }),
   )

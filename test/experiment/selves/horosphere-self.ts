@@ -55,6 +55,7 @@ function selfDynamics(
   const tl = tone.slice()
   const before = countPlus(tl, cluster)
   beat(tl, g, moved, makeRng({ seed: seed + 1 }), 0, 0.22)
+
   const leakPerBeat =
     before > 0 ? 1 - countPlus(tl, cluster) / before : 1
 

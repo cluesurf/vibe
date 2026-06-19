@@ -103,6 +103,7 @@ export function avalancheSizes<
     const pr = makeRng(perturbSeed + tr)
     const cell = Math.floor(pr.next() * N)
     s2[cell] = (s2[cell]! === 0 ? 1 : 0) as -1 | 0 | 1
+
     const ra = makeRng(streamSeed + tr)
     const rb = makeRng(streamSeed + tr)
 
@@ -111,6 +112,7 @@ export function avalancheSizes<
     for (let t = 0; t < steps; t++) {
       relax(s, ra)
       relax(s2, rb)
+
       let diff = 0
 
       for (let i = 0; i < N; i++) {

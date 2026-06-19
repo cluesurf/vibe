@@ -72,6 +72,7 @@ export default experiment({
     }
 
     metrics.worstMargin = worstMargin
+
     const ok = worstMargin > 0.15
 
     return verdict({

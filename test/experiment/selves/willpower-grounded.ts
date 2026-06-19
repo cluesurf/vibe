@@ -71,6 +71,7 @@ export function willpowerGrounded(): {
   {
     const seen = new Uint8Array(n)
     seen[center] = 1
+
     let frontier = [center]
 
     while (frontier.length > 0 && order.length < n) {

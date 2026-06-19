@@ -38,6 +38,7 @@ export function boundaryDimension(input: {
 
   const id = new Map<number, number>()
   boundary.forEach((b, i) => id.set(b, i))
+
   // sub-adjacency restricted to the boundary shell, reindexed to [0, boundary.length)
   const bAdj: number[][] = boundary.map(b => {
     const out: number[] = []

@@ -155,6 +155,7 @@ export function solveLinearSystem(input: {
     const tmp = m[col]!
     m[col] = m[pivot]!
     m[pivot] = tmp
+
     const d = m[col]![col]!
 
     for (let c = col; c <= n; c++) {

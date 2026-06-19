@@ -16,13 +16,13 @@ import { Action } from '@/code/dynamics/action'
 // imply rel(i,k), which is the minimal check (longer chains follow by induction).
 export function exactCausalSetAverages(input: {
   size: number
-  betas: ReadonlyArray<number>
+  betas: readonly number[]
   action: Action
-  observers: ReadonlyArray<(input: { poset: Poset }) => number>
+  observers: readonly ((input: { poset: Poset }) => number)[]
 }): { count: number; z: number[]; means: number[][] } {
   const n = input.size
   // The ordered list of upper-triangular pairs and a bit index for each.
-  const pairs: Array<[number, number]> = []
+  const pairs: [number, number][] = []
 
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
@@ -101,6 +101,7 @@ export function exactCausalSetAverages(input: {
     for (let b = 0; b < B; b++) {
       const w = Math.exp(-(input.betas[b] ?? 0) * s)
       z[b] = (z[b] ?? 0) + w
+
       const row = weighted[b]!
 
       for (let o = 0; o < O; o++) {

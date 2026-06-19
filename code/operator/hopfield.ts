@@ -191,6 +191,7 @@ export function runHopfieldPair(input: {
     if (phase < cueHold) {
       cueA = new Int8Array(size)
       cueB = new Int8Array(size)
+
       const qa = pA[m] ?? new Int8Array(size)
       const qb = pB[m] ?? new Int8Array(size)
 

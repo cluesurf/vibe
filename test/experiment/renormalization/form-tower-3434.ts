@@ -53,6 +53,7 @@ export function formTower(): {
 
   for (let f = 0; f < M + LAG; f++) {
     step()
+
     const sh = shuffledToneField({ tone, rng })
     blocks.forEach((_, bi) => {
       realS[bi]!.push(coarse(tone, bi))

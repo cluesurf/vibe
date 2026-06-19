@@ -60,6 +60,7 @@ export function asynchronousRule(input: {
             neighborhood.push(getTone(next, { element: to }))
           },
         })
+
         const value = input.local({ self, neighborhood })
         setTone(next, { element, value })
       }

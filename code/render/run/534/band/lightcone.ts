@@ -236,6 +236,7 @@ function run(): void {
   for (let f = 0; f < FRAMES; f++) {
     beat(A)
     beat(B)
+
     const rgba = new Uint8Array(IMG * IMG * 4)
 
     for (let i = 0; i < IMG * IMG; i++) {
@@ -255,6 +256,7 @@ function run(): void {
       }
 
       diff++
+
       const [cx, cy] = pix[j]!
       const col: [number, number, number] =
         A[i]! > B[i]! ? [120, 230, 255] : [255, 200, 120]

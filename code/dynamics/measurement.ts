@@ -83,6 +83,7 @@ export function pointerTrajectory(input: {
       table: input.table,
       collision: input.forward,
     })
+
     const swap = current
     current = scratch
     scratch = swap
@@ -122,6 +123,7 @@ export function loschmidtEcho(input: {
       table: input.table,
       collision: input.forward,
     })
+
     const swap = current
     current = scratch
     scratch = swap

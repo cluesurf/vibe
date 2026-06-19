@@ -83,6 +83,7 @@ function corrLag(x: number[], y: number[], lag: number): number {
 
   mx /= n
   my /= n
+
   let sxy = 0
   let sxx = 0
   let syy = 0
@@ -166,6 +167,7 @@ export function metacognition(input?: { n?: number }): {
     const out: number[] = []
     const seen = new Uint8Array(N)
     seen[start] = 1
+
     let fr = [start]
 
     while (fr.length > 0 && out.length < size) {
@@ -252,6 +254,7 @@ export function metacognition(input?: { n?: number }): {
   }
 
   peripheralPredict /= peripherals.length
+
   const hubMirror = Math.abs(corrLag(coreSeries, gSeries, 0))
 
   // peak lag of hub vs global

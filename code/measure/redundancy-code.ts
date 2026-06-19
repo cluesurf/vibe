@@ -4,9 +4,7 @@
 // least half the boundary sites are 1). Below half corruption the bit survives, above half it is lost,
 // the finite-distance threshold of a real code.
 
-export function recoverByMajority(
-  boundary: ReadonlyArray<number>,
-): number {
+export function recoverByMajority(boundary: readonly number[]): number {
   const ones = boundary.reduce((sum, bit) => sum + bit, 0)
 
   return ones * 2 >= boundary.length ? 1 : 0

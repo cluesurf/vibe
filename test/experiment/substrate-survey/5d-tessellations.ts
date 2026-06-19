@@ -90,6 +90,7 @@ export default experiment({
   paper: false,
   run() {
     manyTessellations()
+
     const reference = measure([3, 4, 3, 4])
     const ok = reference.cells > 50 && reference.degree > 0
 

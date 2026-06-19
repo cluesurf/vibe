@@ -108,6 +108,7 @@ export function beatInto(input: {
 }): void {
   const { src, dst, table, collision } = input
   collide(src, collision)
+
   const sd = src.data
   const dd = dst.data
 
@@ -146,6 +147,7 @@ export function run(
 
   for (let step = 0; step < beats; step++) {
     beatInto({ src: a, dst: b, table, collision })
+
     const swap = a
     a = b
     b = swap

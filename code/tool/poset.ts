@@ -16,7 +16,7 @@ export interface Poset {
   readonly form: 'poset'
   readonly size: number
   // covering relations (links): links[a] is the sorted list of b with a immediately precedes b
-  readonly links: ReadonlyArray<Uint32Array>
+  readonly links: readonly Uint32Array[]
   // transitive closure: future bit b set in row a iff a precedes b
   readonly future: BitMatrix
   readonly embedding?: Embedding
@@ -53,6 +53,7 @@ export function makePosetFromFuture(input: {
         }
       },
     })
+
     const base = a * stride
     const row: number[] = []
 
@@ -170,7 +171,7 @@ export function pastMatrix(p: Poset): BitMatrix {
 // Restrict the poset to a subset of elements (relabelled 0..k-1), preserving order.
 export function subPoset(
   p: Poset,
-  input: { elements: ReadonlyArray<number> },
+  input: { elements: readonly number[] },
 ): Poset {
   const els = input.elements
   const k = els.length

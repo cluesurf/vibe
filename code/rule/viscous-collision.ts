@@ -29,7 +29,7 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   }
 
   // group the unordered slot-pairs by their total momentum
-  const groups = new Map<string, Array<[number, number]>>()
+  const groups = new Map<string, [number, number][]>()
 
   for (let a = 0; a < count; a++) {
     for (let b = a + 1; b < count; b++) {
@@ -61,7 +61,7 @@ export function buildViscousQuads(directions: number[][]): number[][] {
   const used = new Uint8Array(count)
 
   for (const key of orderedKeys) {
-    const pending: Array<[number, number]> = []
+    const pending: [number, number][] = []
 
     for (const [a, b] of groups.get(key)!) {
       if (used[a] || used[b]) {

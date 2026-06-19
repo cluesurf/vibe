@@ -33,6 +33,7 @@ const SPATIAL_DEGREE = 24
 function orbitCount(roots: number[][]): number {
   const index = new Map<string, number>()
   roots.forEach((r, i) => index.set(vectorKey(r), i))
+
   const parent = roots.map((_, i) => i)
 
   const find = (a: number): number => {

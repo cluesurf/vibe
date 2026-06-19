@@ -28,6 +28,7 @@ const FAR: Rgb = [55, 50, 110]
 
 function run(): void {
   mkdirSync(outDir, { recursive: true })
+
   const symbolText = process.argv[2] ?? '7-3'
   const symbol = symbolText.split('-').map(Number)
   const twoD = symbol.length === 2

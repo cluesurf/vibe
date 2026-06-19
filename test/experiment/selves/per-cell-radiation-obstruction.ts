@@ -74,6 +74,7 @@ export default experiment({
         rule: linearTernaryRule,
         boundary: { form: 'absorbing', left: 0, right: 0 },
       })
+
       const c = nonzero(flat.curr)
 
       if (c > coupledPeak) {
@@ -92,6 +93,7 @@ export default experiment({
     let hit = makeKink()
     hit.curr[center] = ((hit.curr[center]! + 1) % 3) as number
     hit.curr[center - 1] = ((hit.curr[center - 1]! + 2) % 3) as number
+
     let maxSpread = 0
 
     for (let t = 0; t < steps; t++) {
@@ -105,6 +107,7 @@ export default experiment({
         rule: decoupledTernaryRule,
         boundary: { form: 'absorbing', left: 0, right: 1 },
       })
+
       const r = spreadRadius({
         clean: clean.curr,
         perturbed: hit.curr,

@@ -51,6 +51,7 @@ export function selfNesting73(): {
     par = new Int32Array(N).fill(-1)
 
   dist[center] = 0
+
   let fr = [center]
 
   while (fr.length) {

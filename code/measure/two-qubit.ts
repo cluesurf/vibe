@@ -104,7 +104,7 @@ export function twoQubitCorrelationMatrix(input: {
 // 2 sqrt(s1 + s2) where s1, s2 are its two largest eigenvalues. This is the largest CHSH the
 // state can yield (above 2 = Bell violation, 2 sqrt 2 = Tsirelson).
 export function horodeckiMaxChsh(
-  t: ReadonlyArray<ReadonlyArray<number>>,
+  t: readonly (readonly number[])[],
 ): number {
   const m = makeDense({ rows: 3, cols: 3 })
 

@@ -23,6 +23,7 @@ function lightcone(): { ok: boolean; radii: [number, number][] } {
 
   const c = L >> 1
   cur[at(c, c, c)] = 1
+
   const D = [
     [1, 0, 0],
     [-1, 0, 0],

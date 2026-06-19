@@ -34,6 +34,7 @@ export function synchronousRule(input: {
             neighborhood.push(getTone(configuration, { element: to }))
           },
         })
+
         const value = input.local({ self, neighborhood })
         setTone(next, { element, value })
       }

@@ -45,7 +45,7 @@ export default experiment({
 
     const rule: Collision = headOnRotate({ opposite })
     // square coin directions, 0 is +x, 1 is -x, 2 is +y, 3 is -y (verified from the mesh neighbour map).
-    const dirVec: Array<[number, number]> = [
+    const dirVec: [number, number][] = [
       [1, 0],
       [-1, 0],
       [0, 1],
@@ -180,9 +180,11 @@ export default experiment({
 
     for (let t = 1; t <= beats; t++) {
       beatInto({ src: current, dst: scratch, table, collision: rule })
+
       const swap = current
       current = scratch
       scratch = swap
+
       const will = current
       const { ext, confined } = confinedFraction(will)
 

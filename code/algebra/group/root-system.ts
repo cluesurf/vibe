@@ -313,6 +313,7 @@ export function reflectionClosure(seed: number[][]): number[][] {
 
   while (changed) {
     changed = false
+
     const current = [...found.values()]
 
     for (const a of current) {

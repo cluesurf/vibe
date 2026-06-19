@@ -10,7 +10,7 @@ export const D4_DIRECTIONS = 24
 
 // opp[d] = the direction index of -root[d].
 export function d4OppositeDirections(
-  roots: ReadonlyArray<ReadonlyArray<number>>,
+  roots: readonly (readonly number[])[],
 ): number[] {
   return roots.map(r =>
     roots.findIndex(s => s.every((x, k) => x === -r[k]!)),
@@ -19,8 +19,8 @@ export function d4OppositeDirections(
 
 // One forward stream beat: each occupied slot hops to its forward neighbour in the same direction.
 export function streamD4(input: {
-  occupancy: ReadonlyArray<number>
-  neigh: ReadonlyArray<ReadonlyArray<number>>
+  occupancy: readonly number[]
+  neigh: readonly (readonly number[])[]
 }): number[] {
   const { occupancy, neigh } = input
   const N = occupancy.length
@@ -41,9 +41,9 @@ export function streamD4(input: {
 
 // The inverse stream: each occupied slot hops to its backward neighbour (the opp direction) in the same direction.
 export function streamD4Inverse(input: {
-  occupancy: ReadonlyArray<number>
-  neigh: ReadonlyArray<ReadonlyArray<number>>
-  opp: ReadonlyArray<number>
+  occupancy: readonly number[]
+  neigh: readonly (readonly number[])[]
+  opp: readonly number[]
 }): number[] {
   const { occupancy, neigh, opp } = input
   const N = occupancy.length
@@ -65,9 +65,9 @@ export function streamD4Inverse(input: {
 // The head-on collision involution. Picks a third direction k (distinct from 0 and opp[0] and not the
 // anti of root 0), then swaps the pair {0, opp0} <-> {k, oppk} wherever a cell holds exactly that pair.
 export function d4CollisionInvolution(input: {
-  roots: ReadonlyArray<ReadonlyArray<number>>
-  opp: ReadonlyArray<number>
-}): (occupancy: ReadonlyArray<number>) => number[] {
+  roots: readonly (readonly number[])[]
+  opp: readonly number[]
+}): (occupancy: readonly number[]) => number[] {
   const { roots, opp } = input
   const k = roots.findIndex(
     (s, i) =>
@@ -84,7 +84,7 @@ export function d4CollisionInvolution(input: {
 }
 
 // Total particle count (popcount over all occupancy slots).
-export function d4Count(occupancy: ReadonlyArray<number>): number {
+export function d4Count(occupancy: readonly number[]): number {
   return occupancy.reduce((s, o) => {
     let c = 0
 
@@ -98,8 +98,8 @@ export function d4Count(occupancy: ReadonlyArray<number>): number {
 
 // Total momentum, summed root vector over every occupied slot.
 export function d4Momentum(input: {
-  occupancy: ReadonlyArray<number>
-  roots: ReadonlyArray<ReadonlyArray<number>>
+  occupancy: readonly number[]
+  roots: readonly (readonly number[])[]
 }): number[] {
   const { occupancy, roots } = input
   const m = [0, 0, 0, 0]

@@ -40,6 +40,7 @@ export function loadGraph(path: string): StoredGraph {
     new Int32Array(buf.buffer, buf.byteOffset + off, cellCount + 1),
   )
   off += (cellCount + 1) * 4
+
   const adj = new Int32Array(adjLen)
   adj.set(new Int32Array(buf.buffer, buf.byteOffset + off, adjLen))
 

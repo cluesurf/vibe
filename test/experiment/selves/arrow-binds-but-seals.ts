@@ -57,7 +57,7 @@ export default experiment({
       Math.floor(c / (side * side * side)) % side,
     ]
 
-    const lines: Array<[number, number]> = []
+    const lines: [number, number][] = []
 
     for (let d = 0; d < degree; d++) {
       const o = opposite[d]!
@@ -185,9 +185,11 @@ export default experiment({
 
       for (let i = 0; i < beats; i++) {
         beatInto({ src: bd, dst: bdScratch, table, collision: rule })
+
         const swap = bd
         bd = bdScratch
         bdScratch = swap
+
         const r = netRms(bd)
 
         if (r > rmsMax) {
@@ -216,6 +218,7 @@ export default experiment({
             table,
             collision: rule,
           })
+
           const cs = clean
           clean = cleanScratch
           cleanScratch = cs
@@ -225,6 +228,7 @@ export default experiment({
             table,
             collision: rule,
           })
+
           const ps = pert
           pert = pertScratch
           pertScratch = ps

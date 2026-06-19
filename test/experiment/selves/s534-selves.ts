@@ -59,6 +59,7 @@ export function s534Selves(): {
   }
 
   Q = Q / (4 * Math.PI)
+
   const solitonsExist =
     Math.abs(Math.round(Q) - Q) < 0.1 && Math.abs(Math.round(Q)) >= 1
 

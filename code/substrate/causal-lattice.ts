@@ -10,7 +10,7 @@ import { Embedding } from '@/code/tool/embedding'
 
 export function causalLattice(input: { half: number }): Poset {
   const half = input.half
-  const pts: Array<[number, number]> = []
+  const pts: [number, number][] = []
 
   for (let t = 0; t <= 2 * half; t++) {
     const reach = Math.min(t, 2 * half - t)

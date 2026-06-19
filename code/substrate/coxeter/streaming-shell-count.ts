@@ -85,6 +85,7 @@ export function streamingShellCounts(input: {
 
   const root = identity(dim)
   seen.addIfNew(hashKey(positionKey(root)))
+
   let frontier: Mat[] = [root]
 
   const counts: number[] = [1]

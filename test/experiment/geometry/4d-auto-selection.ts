@@ -80,6 +80,7 @@ export function fourDAutoSelection(): {
           }
 
           idealFourD.push(`{${sym.join(',')}}`)
+
           const vf = vertexFigure(sym)
 
           if (vf[0] === 4 && vf[1] === 3 && vf[2] === 4) {

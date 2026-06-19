@@ -25,6 +25,7 @@ export function universality(): {
   // (1) a lone ball flies ballistically (a wire)
   const g = new Uint8Array(L * L)
   g[at(8, 8)] = 1
+
   const start: [number, number] = [8, 8]
 
   for (let t = 0; t < 16; t++) {

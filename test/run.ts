@@ -48,7 +48,7 @@ async function main(): Promise<void> {
 
   // per-experiment timing, so slow experiments are visible and the slowest are summarised at the end.
   const SLOW_MILLISECONDS = 5000
-  const timings: Array<{ id: string; ms: number }> = []
+  const timings: { id: string; ms: number }[] = []
 
   for (const experiment of allExperiments()) {
     if (interrupted) {

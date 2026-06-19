@@ -99,7 +99,7 @@ export function returnProbability(input: {
 // the shifted operator M = sI - H, then returns the per-shell amplitude-decay exponent c, the amplitude ratio between
 // successive shells being growthRate^(-c).
 export function boundStateDecayExponent(input: {
-  neighbors: ReadonlyArray<ArrayLike<number>>
+  neighbors: readonly ArrayLike<number>[]
   cellCount: number
   wellDepth: number
   growthRate: number
@@ -120,6 +120,7 @@ export function boundStateDecayExponent(input: {
   // shells from the origin by breadth-first search
   const shell = new Int32Array(cellCount).fill(-1)
   shell[origin] = 0
+
   let frontier = [origin]
 
   while (frontier.length > 0) {
@@ -154,6 +155,7 @@ export function boundStateDecayExponent(input: {
   const s = maxDegree + wellDepth + 2
   const psi = new Float64Array(cellCount)
   psi[origin] = 1
+
   const out = new Float64Array(cellCount)
 
   for (let it = 0; it < iterations; it++) {

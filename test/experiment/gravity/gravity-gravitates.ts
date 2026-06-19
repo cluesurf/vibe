@@ -123,6 +123,7 @@ function reverseAndBound(coupling: number): {
     const next = step(neighbors, previous, current, coupling)
     previous = current
     current = next
+
     let activity = 0
 
     for (let i = 0; i < RING; i++) {

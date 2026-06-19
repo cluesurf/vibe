@@ -64,6 +64,7 @@ export default experiment({
 
     for (let t = 0; t < beats; t++) {
       beat(tone, graph, moved, rng, 0.01, 0.22)
+
       const cluster = largestPositiveCluster(tone, graph)
 
       if (cluster.length >= 8) {

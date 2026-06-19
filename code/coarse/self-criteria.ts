@@ -27,6 +27,7 @@ export function correlation(x: number[], y: number[]): number {
 
   mx /= n
   my /= n
+
   let sxy = 0
   let sxx = 0
   let syy = 0
@@ -119,6 +120,7 @@ export function distancesFrom(input: {
   const { graph, source } = input
   const dist = new Int32Array(graph.cellCount).fill(-1)
   dist[source] = 0
+
   let frontier = [source]
 
   while (frontier.length) {
